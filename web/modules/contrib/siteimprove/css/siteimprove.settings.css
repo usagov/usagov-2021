@@ -1,0 +1,12 @@
+/**
+ * @file
+ * Styles for Siteimprove settings page.
+ */
+.prepublish-is-ready {
+  background-color: #afa;
+  padding: 5px 10px;
+}
+.prepublish-is-not-ready {
+  background-color: #faa;
+  padding: 5px 10px;
+}

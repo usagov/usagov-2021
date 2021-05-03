@@ -1,0 +1,36 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_accordion_section
+    - paragraphs.paragraphs_type.uswds_accordion
+    - paragraphs.paragraphs_type.uswds_accordion_section
+  module:
+    - entity_reference_revisions
+id: paragraph.uswds_accordion.field_accordion_section
+field_name: field_accordion_section
+entity_type: paragraph
+bundle: uswds_accordion
+label: 'Accordion Section'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    negate: 0
+    target_bundles:
+      uswds_accordion_section: uswds_accordion_section
+    target_bundles_drag_drop:
+      text_field:
+        weight: 35
+        enabled: false
+      uswds_accordion:
+        weight: 19
+        enabled: false
+      uswds_accordion_section:
+        enabled: true
+        weight: 36
+field_type: entity_reference_revisions

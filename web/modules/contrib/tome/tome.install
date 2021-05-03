@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for Tome.
+ */
+
+/**
+ * Installs the new tome_sync and tome_static sub-modules.
+ */
+function tome_update_8001() {
+  /** @var \Drupal\Core\Extension\ModuleInstallerInterface $installer */
+  $installer = \Drupal::service('module_installer');
+  $installer->install([
+    'tome_base',
+    'tome_static',
+    'tome_sync',
+  ]);
+}

@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_3_column_grid
+    - paragraphs.paragraphs_type.uswds_columns_3_uneven
+  module:
+    - options
+id: paragraph.uswds_columns_3_uneven.field_3_column_grid
+field_name: field_3_column_grid
+entity_type: paragraph
+bundle: uswds_columns_3_uneven
+label: '3 Column Grid'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

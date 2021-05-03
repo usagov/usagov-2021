@@ -1,0 +1,17 @@
+uuid: be18ae2f-0e70-459b-b14e-eafc25579fd5
+langcode: en
+status: true
+dependencies: {  }
+id: remote_video
+label: 'Remote Video'
+description: 'Remote Basic Video'
+source: 'oembed:video'
+queue_thumbnail_downloads: true
+new_revision: false
+source_configuration:
+  thumbnails_directory: 'public://oembed_thumbnails'
+  providers:
+    - YouTube
+  source_field: field_media_oembed_video
+field_map:
+  title: name

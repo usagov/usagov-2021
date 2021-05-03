@@ -1,0 +1,22 @@
+uuid: bd8ba688-6287-4b8f-9779-fd6aec11d4a5
+langcode: en
+status: true
+dependencies:
+  module:
+    - entity_reference_revisions
+    - paragraphs
+_core:
+  default_config_hash: 1QeIdhdiYHqNry5lqwbQV-H8C_HWaX4SnlDDMq6PYCY
+id: paragraph.field_column_content_2_uneven
+field_name: field_column_content_2_uneven
+entity_type: paragraph
+type: entity_reference_revisions
+settings:
+  target_type: paragraph
+module: entity_reference_revisions
+locked: false
+cardinality: 2
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

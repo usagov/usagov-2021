@@ -1,0 +1,109 @@
+<?php
+
+/**
+ * @file
+ * Create content_lock table.
+ */
+
+use Drupal\Core\Database\Database;
+use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+
+/**
+ * Implements hook_schema().
+ */
+function content_lock_schema() {
+  $schema['content_lock'] = [
+    'description' => 'content lock module table.',
+    'fields' => [
+      'entity_id' => [
+        'description' => 'The primary identifier for an entity.',
+        'type' => 'int',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'entity_type' => [
+        'description' => 'The type of an entity.',
+        'type' => 'varchar_ascii',
+        'length' => EntityTypeInterface::ID_MAX_LENGTH,
+        'not null' => TRUE,
+      ],
+      'form_op' => [
+        'description' => 'The entity form operation.',
+        'type' => 'varchar',
+        'length' => EntityTypeInterface::ID_MAX_LENGTH,
+        'not null' => TRUE,
+        'default' => '*',
+      ],
+      'langcode' => [
+        'description' => 'The language code of the entity.',
+        'type' => 'varchar_ascii',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => LanguageInterface::LANGCODE_NOT_SPECIFIED,
+      ],
+      'uid' => [
+        'description' => 'User that holds the lock.',
+        'type' => 'int',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'timestamp' => [
+        'description' => 'Time the lock occurred.',
+        'size' => 'normal',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+    ],
+    'indexes' => [
+      'user' => ['uid'],
+    ],
+    'foreign keys' => [
+      'uid' => [
+        'table' => 'users_field_data',
+        'columns' => ['uid' => 'uid'],
+      ],
+    ],
+    'primary key' => ['entity_id', 'entity_type', 'form_op', 'langcode'],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Reinstall database schema.
+ */
+function content_lock_update_8001(&$sandbox) {
+  drupal_uninstall_schema('content_lock');
+  drupal_install_schema('content_lock');
+}
+
+/**
+ * Use boolean instead of content_lock_field views field plugin.
+ */
+function content_lock_update_8002(&$sandbox) {
+  $config_factory = \Drupal::configFactory();
+  // Find all views configs.
+  foreach ($config_factory->listAll('views.view.') as $view_config_name) {
+    $view = $config_factory->getEditable($view_config_name);
+    // Go through each display on each view.
+    $displays = $view->get('display');
+    foreach ($displays as $display_name => $display) {
+      // Go through all the entity fields on each display and find ones
+      // currently using 'date' as the plugin.
+      if (!empty($display['display_options']['fields'])) {
+        foreach ($display['display_options']['fields'] as $field_name => $field) {
+          if ($field['field'] === 'is_locked' && $field['plugin_id'] === 'content_lock_field') {
+            // Update the field to use the new plugin.
+            $base = "display.$display_name.display_options.fields.$field_name";
+            $view->set($base . '.plugin_id', 'boolean');
+          }
+        }
+      }
+    }
+    $view->save(TRUE);
+  }
+}

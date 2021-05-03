@@ -1,0 +1,31 @@
+entity.ckeditor_template.collection:
+  path: '/admin/config/content/ckeditor_templates'
+  defaults:
+    _entity_list: 'ckeditor_template'
+    _title: 'Ckeditor templates configuration'
+  requirements:
+    _permission: 'administer ckeditor templates'
+
+entity.ckeditor_template.add_form:
+  path: '/admin/config/content/ckeditor_templates/add'
+  defaults:
+    _entity_form: 'ckeditor_template.add'
+    _title: 'Add Ckeditor template'
+  requirements:
+    _permission: 'administer ckeditor templates'
+
+entity.ckeditor_template.edit_form:
+  path: '/admin/config/content/ckeditor_templates/{ckeditor_template}'
+  defaults:
+    _entity_form: 'ckeditor_template.edit'
+    _title: 'Edit Ckeditor template'
+  requirements:
+    _permission: 'administer ckeditor templates'
+
+entity.ckeditor_template.delete_form:
+  path: '/admin/config/content/ckeditor_templates/{ckeditor_template}/delete'
+  defaults:
+    _entity_form: 'ckeditor_template.delete'
+    _title: 'Delete Ckeditor template'
+  requirements:
+    _permission: 'administer ckeditor templates'

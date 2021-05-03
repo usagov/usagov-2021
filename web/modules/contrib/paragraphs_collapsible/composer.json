@@ -1,0 +1,28 @@
+{
+  "name": "drupal/paragraphs_collapsible",
+  "description": "Improves the Paragraphs widget by applying CSS tweaks and collapsible feature",
+  "type": "drupal-module",
+  "homepage": "https://drupal.org/project/paragraphs_collapsible",
+  "authors": [{
+      "name": "Sascha Eggenberger",
+      "homepage": "https://www.drupal.org/u/saschaeggi",
+      "role": "Author"
+    },
+    {
+      "name": "Lucian NEAG",
+      "homepage": "https://www.drupal.org/u/Luxian",
+      "role": "Author"
+    },
+    {
+      "name": "Stew West",
+      "homepage": "https://www.drupal.org/u/stewest",
+      "role": "Maintainer"
+    }
+  ],
+  "support": {
+    "issues": "https://drupal.org/project/issues/paragraphs_collapsible",
+    "source": "https://cgit.drupalcode.org/paragraphs_collapsible"
+  },
+  "license": "GPL-2.0+",
+  "minimum-stability": "dev"
+}

@@ -1,0 +1,25 @@
+tome_static.main:
+  route_name: tome_static.main
+  parent: system.admin_config
+  title: 'Tome Static'
+
+tome_static.generate:
+  title: 'Generate static site'
+  parent: tome_static.main
+  description: 'Create a static copy of your site using Tome.'
+  route_name: tome_static.generate
+  weight: 0
+
+tome_static.download_page:
+  title: 'Download static site'
+  parent: tome_static.main
+  description: 'Download the latest static build.'
+  route_name: tome_static.download_page
+  weight: 1
+
+tome_static.preview_form:
+  title: 'Preview static site'
+  parent: tome_static.main
+  description: 'Preview the latest static build.'
+  route_name: tome_static.preview_form
+  weight: 2

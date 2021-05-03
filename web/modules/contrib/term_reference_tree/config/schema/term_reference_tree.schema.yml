@@ -1,0 +1,19 @@
+field.widget.settings.term_reference_tree:
+  type: mapping
+  label: 'Term reference tree widget settings'
+  mapping:
+    start_minimized:
+      type: boolean
+      label: 'Start minimized'
+    leaves_only:
+      type: boolean
+      label: 'Leaves only'
+    select_parents:
+      type: boolean
+      label: 'Select parents automatically'
+    cascading_selection:
+      type: integer
+      label: 'Cascading selection'
+    max_depth:
+      type: integer
+      label: 'Maximum Depth'

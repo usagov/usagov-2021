@@ -1,0 +1,9 @@
+administer siteimprove:
+  title: 'Administer Siteimprove Plugin'
+  description: 'Configure the Siteimprove plugin.'
+use siteimprove:
+  title: 'Access Siteimprove Plugin'
+  description: 'Access and use the Siteimprove Plugin, overlay and its features.'
+use siteimprove prepublish:
+  title: 'Use Siteimprove Prepublish Check'
+  description: 'Access and use Siteimprove Prepublish content check.'

@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * Implements hook_library_info_alter().
+ */
+function paragraphs_collapsible_library_info_alter(&$libraries, $extension) {
+  if ($extension == 'paragraphs' && isset($libraries['drupal.paragraphs.admin'])) {
+    $libraries['drupal.paragraphs.admin']['dependencies'][] = 'paragraphs_collapsible/paragraphs_collapsible.widget';
+  }
+}

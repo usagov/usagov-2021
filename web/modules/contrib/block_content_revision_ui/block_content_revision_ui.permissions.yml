@@ -1,0 +1,14 @@
+view any block_content history:
+  title: 'View any block content history pages'
+
+view any block_content revisions:
+  title: 'View any block content revision pages'
+
+revert any block_content revisions:
+  title: 'Revert any block content revision'
+
+delete any block_content revisions:
+  title: 'Delete any block content revision'
+
+permission_callbacks:
+  - Drupal\block_content_revision_ui\BlockContentRevisionUiPermissions::permissions

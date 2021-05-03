@@ -1,0 +1,23 @@
+uuid: 0f52e9b2-1b8f-472b-889d-5ee0d5465ea4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_alert_status
+    - paragraphs.paragraphs_type.uswds_alert
+  module:
+    - options
+_core:
+  default_config_hash: 9rT-YPNg6IQ3_X4R3rrGjYDUz75OXP3fQBCOFDUIz6c
+id: paragraph.uswds_alert.field_alert_status
+field_name: field_alert_status
+entity_type: paragraph
+bundle: uswds_alert
+label: 'Alert Status'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

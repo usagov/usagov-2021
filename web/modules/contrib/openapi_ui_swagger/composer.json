@@ -1,0 +1,17 @@
+{
+  "name": "drupal/openapi_ui_swagger",
+  "type": "drupal-module",
+  "description": "Creates OpenAPI specification for Drupal REST resources.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/openapi_ui_swagger",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "http://drupal.org/project/issues/openapi_ui_swagger",
+    "source": "http://cgit.drupalcode.org/openapi_ui_swagger"
+  },
+  "require": {
+    "drupal/openapi_ui": "^1.0",
+    "swagger-api/swagger-ui": "^3.0.17"
+  }
+}

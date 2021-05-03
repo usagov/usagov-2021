@@ -1,0 +1,24 @@
+siteimprove:
+  js:
+    js/siteimprove.js: {}
+  dependencies:
+    - core/jquery
+siteimprove.overlay:
+  license:
+    name: GPL-2.0+
+  js:
+    https://cdn.siteimprove.net/cms/overlay.js:
+      type: external
+siteimprove.prepublish:
+  version: VERSION
+  css:
+    theme:
+      css/siteimprove.prepublish.css: {}
+siteimprove.settings:
+  css:
+    theme:
+      css/siteimprove.settings.css: {}
+siteimprove.toolbar:
+  css:
+    theme:
+      css/siteimprove.toolbar.css: {}

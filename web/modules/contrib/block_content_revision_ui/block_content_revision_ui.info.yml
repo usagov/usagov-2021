@@ -1,0 +1,11 @@
+name: Block Content Revision UI
+description: Adds Revision UI to Block Content entities.
+type: module
+core_version_requirement: ^8.8 || ^9
+dependencies:
+  - drupal:block_content
+
+# Information added by Drupal.org packaging script on 2020-07-22
+version: '2.127.0'
+project: 'block_content_revision_ui'
+datestamp: 1595390903

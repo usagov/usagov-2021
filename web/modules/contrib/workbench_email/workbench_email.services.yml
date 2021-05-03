@@ -1,0 +1,12 @@
+services:
+  plugin.manager.recipient_type:
+    class: Drupal\workbench_email\RecipientTypePluginManager
+    parent: default_plugin_manager
+  workbench_email.subscriber.workbench_transition:
+    class: Drupal\workbench_email\EventSubscriber\WorkbenchTransitionEventSubscriber
+    arguments: ['@entity_type.manager', '@current_user', '@queue']
+    tags:
+      - { name: event_subscriber }
+  workbench_email.processor:
+    class: Drupal\workbench_email\WorkbenchEmailProcessor
+    arguments: ['@queue', '@plugin.manager.queue_worker', '@logger.factory']

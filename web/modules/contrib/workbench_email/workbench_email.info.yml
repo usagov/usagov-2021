@@ -1,0 +1,16 @@
+name: Workbench email
+type: module
+description: Send emails to users when workbench transitions occur
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: Workbench
+dependencies:
+  - drupal:filter (>=8.7)
+test_dependencies:
+  - workbench_moderation:workbench_moderation
+configure: entity.workbench_email_template.collection
+
+# Information added by Drupal.org packaging script on 2021-03-21
+version: '2.2.0'
+project: 'workbench_email'
+datestamp: 1616363548

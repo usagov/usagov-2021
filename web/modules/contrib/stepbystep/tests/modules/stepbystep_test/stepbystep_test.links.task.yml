@@ -1,0 +1,9 @@
+stepbystep_test.test_form1:
+  route_name: stepbystep_test.test_form1
+  title: 'Test form 1 menu'
+  base_route: stepbystep_test.test_form1
+
+stepbystep_test.test_form2:
+  route_name: stepbystep_test.test_form2
+  title: 'Test form 2 menu'
+  base_route: stepbystep_test.test_form1

@@ -1,0 +1,35 @@
+# Schema for the configuration files of the Siteimprove module.
+siteimprove.settings:
+  type: config_object
+  label: 'Siteimprove settings'
+  mapping:
+    token:
+      type: string
+      label: 'Siteimprove Plugin token'
+    domain_plugin_id:
+      type: text
+      label: 'Siteimprove plugin used'
+    prepublish_enabled:
+      type: boolean
+      label: 'Siteimprove prepublish enabled'
+    api_username:
+      type: string
+      label: 'Siteimprove API username'
+    api_key:
+      type: string
+      label: 'Siteimprove API key'
+    enabled_content_types:
+      type: sequence
+      sequence:
+        - type: string
+    enabled_taxonomies:
+      type: sequence
+      sequence:
+        - type: string
+siteimprove.domain.single.settings:
+  type: config_object
+  label: 'Siteimprove Single Domain settings'
+  mapping:
+    domain:
+      type: text
+      label: 'Frontend domain name (no protocol, no trailing slash)'

@@ -1,0 +1,12 @@
+name: Metatag Extended Permissions
+type: module
+description: "Adds individual permissions for each meta tag, allowing for fine-grained access to the meta tags. Note: this may nead to performance issues on the permissions admin page, please see the included README.txt file for details."
+core_version_requirement: '^8.7.7 || ^9'
+package: SEO
+dependencies:
+  - metatag
+
+# Information added by Drupal.org packaging script on 2021-03-15
+version: '8.x-1.16'
+project: 'metatag'
+datestamp: 1615820871

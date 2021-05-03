@@ -1,0 +1,5 @@
+ckeditor_templates.config_form:
+  title: 'Ckeditor templates'
+  description: 'Manage Ckeditor Templates.'
+  route_name: entity.ckeditor_template.collection
+  parent: 'system.admin_config_content'

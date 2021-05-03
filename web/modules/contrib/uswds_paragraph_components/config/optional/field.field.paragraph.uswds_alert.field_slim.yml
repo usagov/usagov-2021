@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_slim
+    - paragraphs.paragraphs_type.uswds_alert
+id: paragraph.uswds_alert.field_slim
+field_name: field_slim
+entity_type: paragraph
+bundle: uswds_alert
+label: Slim
+description: 'Display a slimmer version of the alert.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

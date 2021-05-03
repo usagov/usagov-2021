@@ -1,0 +1,474 @@
+<?php
+/**
+ * @file
+ * Installation hooks for Paragraphs module.
+ */
+
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\paragraphs\ParagraphStorageSchema;
+
+/**
+ * Implements hook_install().
+ */
+function paragraphs_install() {
+  // Assign a weight 1 higher than content_translation to ensure paragraphs_module_implements_alter
+  // runs after content_translation_module_implements_alter.
+  module_set_weight('paragraphs', 11);
+}
+
+/**
+ * Add status field.
+ */
+function paragraphs_update_8001() {
+  $storage_definition = BaseFieldDefinition::create('boolean')
+    ->setLabel(t('Published'))
+    ->setRevisionable(TRUE)
+    ->setTranslatable(TRUE);
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('status', 'paragraph', 'paragraph', $storage_definition);
+}
+
+/**
+ * Add parent ID, parent type and parent field name fields.
+ */
+function paragraphs_update_8002() {
+  $storage_definition = BaseFieldDefinition::create('string')
+    ->setLabel(t('Parent ID'))
+    ->setDescription(t('The ID of the parent entity of which this entity is referenced.'))
+    ->setSetting('is_ascii', TRUE);
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('parent_id', 'paragraph', 'paragraph', $storage_definition);
+
+  $storage_definition = BaseFieldDefinition::create('string')
+    ->setLabel(t('Parent type'))
+    ->setDescription(t('The entity parent type to which this entity is referenced.'))
+    ->setSetting('is_ascii', TRUE)
+    ->setSetting('max_length', EntityTypeInterface::ID_MAX_LENGTH);
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('parent_type', 'paragraph', 'paragraph', $storage_definition);
+
+  $storage_definition = BaseFieldDefinition::create('string')
+    ->setLabel(t('Parent field name'))
+    ->setDescription(t('The entity parent field name to which this entity is referenced.'))
+    ->setSetting('is_ascii', TRUE)
+    ->setSetting('max_length', FieldStorageConfig::NAME_MAX_LENGTH);
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('parent_field_name', 'paragraph', 'paragraph', $storage_definition);
+}
+
+/**
+ * Placeholder for the previous 8003 update.
+ */
+function paragraphs_update_8003() {
+  // The original update function was moved to be post update.
+  \Drupal::state()->set('paragraphs_update_8003_placeholder', TRUE);
+}
+
+/**
+ * Truncate the content_translation_status columns.
+ */
+function paragraphs_update_8004() {
+
+  $field_name = 'content_translation_status';
+
+  $tables_to_update = [
+    'paragraphs_item_field_data',
+    'paragraphs_item_revision_field_data'
+  ];
+
+  $database = Drupal::database();
+  $entity_definition_update_manager = Drupal::entityDefinitionUpdateManager();
+
+  // Ensure that the data from the content translation status field is deleted
+  // so that the field can safely be deleted.
+  foreach ($tables_to_update as $table_to_update) {
+    if ($database->schema()->fieldExists($table_to_update, $field_name)) {
+      $database->update($table_to_update)
+        ->fields([$field_name => NULL])
+        ->execute();
+    }
+  }
+
+  // Delete the storage definition if it was defined before.
+  $storage_definition = $entity_definition_update_manager->getFieldStorageDefinition($field_name, 'paragraph');
+  if ($storage_definition) {
+    $entity_definition_update_manager->uninstallFieldStorageDefinition($storage_definition);
+  }
+}
+
+/**
+ * Remove revision_timestamp, changed fields, add content_translation_changed.
+ */
+function paragraphs_update_8006() {
+
+  $tables_fields = [
+    'paragraphs_item_revision' => 'revision_timestamp',
+    'paragraphs_item_field_data' => 'changed',
+    'paragraphs_item_revision_field_data' => 'changed',
+  ];
+
+  $database = Drupal::database();
+  $entity_definition_update_manager = Drupal::entityDefinitionUpdateManager();
+
+  // Ensure that the data from the content translation status field is deleted
+  // so that the field can safely be deleted.
+  foreach ($tables_fields as $table => $field) {
+    if ($database->schema()->fieldExists($table, $field)) {
+      $database->update($table)
+        ->fields([$field => NULL])
+        ->execute();
+    }
+  }
+
+  foreach ($tables_fields as $table => $field) {
+    // Delete the storage definition if it was defined before.
+    $storage_definition = $entity_definition_update_manager->getFieldStorageDefinition($field, 'paragraph');
+    if ($storage_definition) {
+      $entity_definition_update_manager->uninstallFieldStorageDefinition($storage_definition);
+    }
+  }
+
+  // Add content_translation_changed field.
+  $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions('paragraph');
+  if (isset($field_storage_definitions['content_translation_changed'])) {
+    $storage_definition = BaseFieldDefinition::create('changed')
+      ->setLabel(t('Translation changed time'))
+      ->setDescription(t('The Unix timestamp when the translation was most recently saved.'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE);
+    \Drupal::entityDefinitionUpdateManager()
+      ->installFieldStorageDefinition('content_translation_changed', 'paragraph', 'paragraph', $storage_definition);
+  }
+}
+
+/**
+ * Ensure that existing paragraphs are published.
+ */
+function paragraphs_update_8007() {
+  \Drupal::database()
+    ->update('paragraphs_item_field_data')
+    ->fields(['status' => 1])
+    ->isNull('status')
+    ->execute();
+  \Drupal::database()
+    ->update('paragraphs_item_revision_field_data')
+    ->fields(['status' => 1])
+    ->isNull('status')
+    ->execute();
+}
+
+/**
+ * Ensure that the parent indexes are added to the paragraphs entity.
+ */
+function paragraphs_update_8008() {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+
+  // Get the current paragraph entity type definition, ensure the storage schema
+  // class is set.
+  $entity_type = $manager->getEntityType('paragraph')
+    ->setHandlerClass('storage_schema', ParagraphStorageSchema::class);
+
+  // Regenerate entity type indexes.
+  $manager->updateEntityType($entity_type);
+}
+
+/**
+ * Set the weight to 11 to override content_translation's hook_module_implements_alter implementation
+ */
+function paragraphs_update_8009() {
+  module_set_weight('paragraphs', 11);
+}
+
+/**
+ * Add behavior plugins fields.
+ */
+function paragraphs_update_8010() {
+  $storage_definition = BaseFieldDefinition::create('string_long')
+    ->setLabel(t('Behavior settings'))
+    ->setDescription(t('The behavior plugin settings'));
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('behavior_settings', 'paragraph', 'paragraph', $storage_definition);
+}
+
+/**
+ * Make the behavior plugins field of Paragraphs revisionable.
+ */
+function paragraphs_update_8011() {
+  \Drupal::database()->update('paragraphs_item_field_data')
+    ->fields(['behavior_settings' => NULL])
+    ->execute();
+
+  /** @var \Drupal\Core\Field\BaseFieldDefinition $storage_definition */
+  $storage_definition = \Drupal::entityDefinitionUpdateManager()->getFieldStorageDefinition('behavior_settings', 'paragraph');
+  $storage_definition->setRevisionable(TRUE);
+  \Drupal::entityDefinitionUpdateManager()->updateFieldStorageDefinition($storage_definition);
+}
+
+/**
+ * Install file module.
+ */
+function paragraphs_update_8012() {
+  \Drupal::service('module_installer')->install(['file']);
+}
+
+/**
+ * Set the 'published' entity key and set show published setting to FALSE.
+ */
+function paragraphs_update_8013() {
+  $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $entity_type = $definition_update_manager->getEntityType('paragraph');
+
+  // Update the field storage definitions of the parent fields
+  // as done in 8019.
+  $last_installed_schema = \Drupal::service('entity.last_installed_schema.repository');
+  foreach (['parent_id', 'parent_type', 'parent_field_name'] as $field_name) {
+    $column_schema = [
+      'type' => 'varchar_ascii',
+      'length' => $field_name == 'parent_id' ? 255 : 32,
+      'binary' => FALSE,
+      'not null' => FALSE,
+    ];
+    // Update the field storage repository.
+    $storage_definition = $definition_update_manager->getFieldStorageDefinition($field_name, 'paragraph');
+    $storage_definition->setRevisionable(TRUE);
+    $last_installed_schema->setLastInstalledFieldStorageDefinition($storage_definition);
+
+    // Update the stored field schema.
+    // @todo: There has to be a better way to do this.
+    $key = 'paragraph.field_schema_data.' . $field_name;
+    $field_schema = \Drupal::keyValue('entity.storage_schema.sql')->get($key);
+    $field_schema['paragraphs_item_revision_field_data']['fields'][$field_name] = $column_schema;
+    \Drupal::keyValue('entity.storage_schema.sql')->set($key, $field_schema);
+  }
+
+
+  // Update the revision metadata keys to remove revision uid which is removed
+  // in 8017 and 8021.
+  if ($metadata_keys = $entity_type->get('revision_metadata_keys')) {
+    if (is_array($metadata_keys) && isset($metadata_keys['revision_user'])) {
+      unset($metadata_keys['revision_user']);
+      $metadata_keys['revision_default'] = 'revision_default';
+      $entity_type->set('revision_metadata_keys', $metadata_keys);
+    }
+  }
+
+  $keys = $entity_type->getKeys();
+  $keys['published'] = 'status';
+  $entity_type->set('entity_keys', $keys);
+  $definition_update_manager->updateEntityType($entity_type);
+
+  // Explicitly disable the show_unpublished setting on existing sites and
+  // notify users about it.
+  $config = \Drupal::configFactory()->getEditable('paragraphs.settings');
+  $config->set('show_unpublished', FALSE);
+  return t('Paragraphs can now display unpublished Paragraphs to users with the "View unpublished paragraphs" permission. Enable it on Adminstration > Configuration > Content > Paragraphs and grant to permission to use it.');
+}
+
+/**
+ * Update the status field.
+ */
+function paragraphs_update_8014() {
+  // The status field was promoted to an entity key in paragraphs_update_8013(),
+  // which makes it NOT NULL in the default SQL storage, which means its storage
+  // definition needs to be updated as well.
+  $entity_definition_update_manager = \Drupal::service('entity.definition_update_manager');
+  $entity_definition_update_manager->updateFieldStorageDefinition($entity_definition_update_manager->getFieldStorageDefinition('status', 'paragraph'));
+}
+
+/**
+ * Remove the base field overrides for moderation_state field.
+ */
+function paragraphs_update_8015() {
+  $config_factory = \Drupal::configFactory();
+  $names = $config_factory->listAll('core.base_field_override.paragraph.');
+  foreach ($names as $name) {
+    $config = $config_factory->getEditable($name);
+    if ($config->get('field_name') === 'moderation_state') {
+      $config->delete();
+    }
+  }
+}
+
+/**
+ * Remove the uid and revision_uid fields.
+ */
+function paragraphs_update_8016() {
+  $database = \Drupal::database();
+
+  $spec = array(
+    'type' => 'varchar',
+    'description' => "Revision UID",
+    'length' => 20,
+    'not null' => FALSE,
+  );
+
+  $schema = $database->schema();
+
+  if (!$schema->fieldExists('paragraphs_item_field_data', 'revision_uid')) {
+    $schema->addField('paragraphs_item_field_data', 'revision_uid', $spec);
+  }
+
+  if (!$schema->fieldExists('paragraphs_item_revision_field_data', 'revision_uid')) {
+    $schema->addField('paragraphs_item_revision_field_data', 'revision_uid', $spec);
+  }
+
+  $tables_fields = [
+    'paragraphs_item_revision' => 'revision_uid',
+    'paragraphs_item_field_data' => 'uid',
+    'paragraphs_item_revision_field_data' => 'uid',
+  ];
+
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+
+  foreach ($tables_fields as $table => $field) {
+    if ($database->schema()->fieldExists($table, $field)) {
+      $database->update($table)
+        ->fields([$field => NULL])
+        ->execute();
+    }
+  }
+
+  foreach (array_unique($tables_fields) as $table => $field) {
+    $storage_definition = $entity_definition_update_manager->getFieldStorageDefinition($field, 'paragraph');
+    if ($storage_definition) {
+      $entity_definition_update_manager->uninstallFieldStorageDefinition($storage_definition);
+    }
+  }
+}
+
+/**
+ * Update the revision metadata keys to remove revision uid.
+ */
+function paragraphs_update_8017() {
+  // Moved function content to paragraphs_update_8021(), see
+  // https://www.drupal.org/project/paragraphs/issues/2833935.
+}
+
+/**
+ * Make the parent fields revisionable.
+ */
+function paragraphs_update_8018(&$sandbox) {
+  $database = \Drupal::database();
+  // Initialize some variables during the first pass through.
+  if (!isset($sandbox['total'])) {
+    // Add the parent fields to the revision data table.
+    foreach (['parent_id', 'parent_type', 'parent_field_name'] as $field_name) {
+      $column_schema = [
+        'type' => 'varchar_ascii',
+        'length' => $field_name == 'parent_id' ? 255 : 32,
+        'binary' => FALSE,
+        'not null' => FALSE,
+      ];
+      // Create fields if they don't already exist.
+      if (!$database->schema()->fieldExists('paragraphs_item_revision_field_data', $field_name)) {
+        $database->schema()
+          ->addField('paragraphs_item_revision_field_data', $field_name, $column_schema);
+      }
+    }
+
+    // Get all paragraphs to update.
+    $paragraphs = \Drupal::database()->select('paragraphs_item_field_data', 'p')
+      ->countQuery()
+      ->execute()
+      ->fetchField(0);
+    $sandbox['total'] = $paragraphs;
+    $sandbox['current'] = 0;
+  }
+
+  // Do not continue if no paragraphs are found.
+  if (empty($sandbox['total'])) {
+    $sandbox['#finished'] = 1;
+    return t('No Paragraphs to be processed.');
+  }
+
+  $paragraphs_per_batch = 50;
+
+  $query = $database->select('paragraphs_item_field_data', 'p');
+  $query->fields('p', ['id', 'parent_id', 'parent_type', 'parent_field_name']);
+  $query->range($sandbox['current'], $paragraphs_per_batch);
+  $result = $query->execute();
+
+  foreach ($result as $row) {
+    $database->update('paragraphs_item_revision_field_data')
+      ->fields([
+        'parent_id' => $row->parent_id,
+        'parent_type' => $row->parent_type,
+        'parent_field_name' => $row->parent_field_name,
+      ])
+      ->condition('id', $row->id)
+      ->execute();
+    $sandbox['current']++;
+  }
+  $sandbox['#finished'] = ($sandbox['current'] / $sandbox['total']);
+  return t('@count Paragraphs processed.', ['@count' => $sandbox['current']]);
+}
+
+/**
+ * Update the field storage definitions of the parent fields.
+ */
+function paragraphs_update_8019() {
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+  $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $last_installed_schema = \Drupal::service('entity.last_installed_schema.repository');
+  foreach (['parent_id', 'parent_type', 'parent_field_name'] as $field_name) {
+    $column_schema = [
+      'type' => 'varchar_ascii',
+      'length' => $field_name == 'parent_id' ? 255 : 32,
+      'binary' => FALSE,
+      'not null' => FALSE,
+    ];
+    // Update the field storage repository.
+    $storage_definition = $definition_update_manager->getFieldStorageDefinition($field_name, 'paragraph');
+    $storage_definition->setRevisionable(TRUE);
+    $last_installed_schema->setLastInstalledFieldStorageDefinition($storage_definition);
+
+    // Update the stored field schema.
+    // @todo: There has to be a better way to do this.
+    $key = 'paragraph.field_schema_data.' . $field_name;
+    $field_schema = \Drupal::keyValue('entity.storage_schema.sql')->get($key);
+    $field_schema['paragraphs_item_revision_field_data']['fields'][$field_name] = $column_schema;
+    \Drupal::keyValue('entity.storage_schema.sql')->set($key, $field_schema);
+  }
+}
+
+/**
+ * Remove the base field overrides for uid & revision_uid.
+ */
+function paragraphs_update_8020() {
+  $config_factory = \Drupal::configFactory();
+  $names = $config_factory->listAll('core.base_field_override.paragraph.');
+  foreach ($names as $name) {
+    $config = $config_factory->getEditable($name);
+    if (in_array($config->get('field_name'), ['uid', 'revision_uid'])) {
+      $config->delete();
+    }
+  }
+}
+
+/**
+ * Update the revision metadata keys to remove revision uid (fixes 8017).
+ */
+function paragraphs_update_8021() {
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $entity_type = $entity_definition_update_manager->getEntityType('paragraph');
+  if ($metadata_keys = $entity_type->get('revision_metadata_keys')) {
+    if (is_array($metadata_keys) && isset($metadata_keys['revision_user'])) {
+      unset($metadata_keys['revision_user']);
+      $metadata_keys['revision_default'] = 'revision_default';
+      $entity_type->set('revision_metadata_keys', $metadata_keys);
+      $entity_definition_update_manager->updateEntityType($entity_type);
+    }
+  }
+}
+
+/**
+ * Ensure that the parent indexes are added to the revision data table.
+ */
+function paragraphs_update_8022() {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+
+  // Regenerate entity type indexes.
+  $manager->updateEntityType($manager->getEntityType('paragraph'));
+}

@@ -1,0 +1,14 @@
+{
+    "name": "drupal/workbench_email",
+    "description": "Extends Workbench/Content Moderation by adding the ability to add emails to specific transitions.",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "homepage": "https://www.drupal.org/project/workbench_email",
+    "support": {
+        "issues": "http://drupal.org/project/issues/workbench_email",
+        "source": "https://git.drupalcode.org/project/workbench_email"
+    },
+    "require-dev": {
+        "drupal/workbench_moderation": "^1.0"
+    }
+}

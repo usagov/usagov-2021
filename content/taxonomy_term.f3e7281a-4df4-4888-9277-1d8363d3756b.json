@@ -1,0 +1,77 @@
+{
+    "uuid": [
+        {
+            "value": "f3e7281a-4df4-4888-9277-1d8363d3756b"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "vid": [
+        {
+            "target_id": "content_tags",
+            "target_type": "taxonomy_vocabulary",
+            "target_uuid": "2a175ab0-cb5b-406b-8027-1361565c9f80"
+        }
+    ],
+    "revision_created": [
+        {
+            "value": "2021-03-02T20:14:45+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "revision_user": [],
+    "revision_log_message": [],
+    "status": [
+        {
+            "value": false
+        }
+    ],
+    "name": [
+        {
+            "value": "Test Tag 2"
+        }
+    ],
+    "description": [
+        {
+            "value": "<p>test tag 2<\/p>\r\n",
+            "format": "uswds"
+        }
+    ],
+    "weight": [
+        {
+            "value": 0
+        }
+    ],
+    "parent": [
+        {
+            "target_id": null
+        }
+    ],
+    "changed": [
+        {
+            "value": "2021-03-02T20:14:45+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true
+        }
+    ],
+    "revision_translation_affected": [
+        {
+            "value": true
+        }
+    ],
+    "path": [
+        {
+            "alias": null,
+            "pid": null,
+            "langcode": "en",
+            "pathauto": 0
+        }
+    ]
+}

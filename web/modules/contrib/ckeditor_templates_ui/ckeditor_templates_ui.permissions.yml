@@ -1,0 +1,3 @@
+administer ckeditor templates:
+  title: 'Administer Ckeditor Templates'
+  description: 'Allow user to manage ckeditor predefined templates.'

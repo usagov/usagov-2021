@@ -1,0 +1,56 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_alert.field_alert_body
+    - field.field.paragraph.uswds_alert.field_alert_status
+    - field.field.paragraph.uswds_alert.field_alert_title
+    - field.field.paragraph.uswds_alert.field_no_icon
+    - field.field.paragraph.uswds_alert.field_slim
+    - paragraphs.paragraphs_type.uswds_alert
+  module:
+    - text
+id: paragraph.uswds_alert.default
+targetEntityType: paragraph
+bundle: uswds_alert
+mode: default
+content:
+  field_alert_body:
+    weight: 4
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: text_textfield
+    region: content
+  field_alert_status:
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+  field_alert_title:
+    weight: 3
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_no_icon:
+    weight: 1
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+  field_slim:
+    weight: 0
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+hidden:
+  created: true
+  status: true

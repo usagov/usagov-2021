@@ -1,0 +1,25 @@
+uuid: 6e1ed807-caf5-4099-9485-10d9d88fd7bc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_no_icon
+    - paragraphs.paragraphs_type.uswds_alert
+_core:
+  default_config_hash: fkK98alLS1orYbWfafmUJr006utQu8GmuDiP2lVralA
+id: paragraph.uswds_alert.field_no_icon
+field_name: field_no_icon
+entity_type: paragraph
+bundle: uswds_alert
+label: 'No Icon'
+description: 'Display an alert without an icon.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

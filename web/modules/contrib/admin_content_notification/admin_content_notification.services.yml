@@ -1,0 +1,5 @@
+services:
+
+  admin_content_notification.common:
+    class: Drupal\admin_content_notification\AdminContentNotificationService
+    arguments: ['@config.factory', '@current_user', '@plugin.manager.mail', '@link_generator', '@module_handler']

@@ -1,0 +1,11 @@
+entity.entity_test_mul_changed.compact:
+  path: '/entity_test_mul_changed/manage/{entity_test_mul_changed}/compact'
+  defaults:
+    _entity_form: 'entity_test_mul_changed.compact'
+    _title: 'compact'
+  requirements:
+    _entity_access: 'entity_test_mul_changed.update'
+  options:
+    parameters:
+      entity_test_mul_changed:
+        type: 'entity:entity_test_mul_changed'

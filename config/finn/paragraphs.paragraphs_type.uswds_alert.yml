@@ -1,0 +1,12 @@
+uuid: 7171e1e8-e07f-40d7-9c78-e56326c2b129
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: mZ49X8oLhRbTq58GB9NEac9AuTP06POm3LzxlDDtsQ4
+id: uswds_alert
+label: 'USWDS Alert'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

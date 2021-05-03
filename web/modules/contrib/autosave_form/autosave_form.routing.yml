@@ -1,0 +1,7 @@
+autosave_form.admin_settings:
+  path: '/admin/config/content/autosave_form'
+  defaults:
+    _form: '\Drupal\autosave_form\Form\AutosaveFormSettingsForm'
+    _title: 'Autosave Form Settings'
+  requirements:
+    _permission: 'administer site configuration'

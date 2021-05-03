@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - entity_test
+id: entity_test_mul_changed.compact
+label: Settings
+targetEntityType: entity_test_mul_changed
+cache: true

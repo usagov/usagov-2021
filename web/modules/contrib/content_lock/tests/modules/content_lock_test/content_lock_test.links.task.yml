@@ -1,0 +1,4 @@
+entity.entity_test_mul_changed.compact:
+  route_name: entity.entity_test_mul_changed.compact
+  base_route: entity.entity_test_mul_changed.canonical
+  title: 'Settings'

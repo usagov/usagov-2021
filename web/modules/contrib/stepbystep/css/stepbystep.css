@@ -1,0 +1,38 @@
+input.stepbystep-submit-button[type="submit"],
+input.stepbystep-skip-button[type="submit"] {
+  float: right;
+  clear: left;
+}
+
+[dir="rtl"] input.stepbystep-submit-button[type="submit"],
+[dir="rtl"] input.stepbystep-skip-button[type="submit"] {
+  float: left;
+  clear: right;
+}
+
+.stepbystep_progress {
+  margin-bottom: 30px;
+}
+
+/* Remove the animation and shrink the "empty" progress */
+.stepbystep_progress .progress__bar {
+  background-image: none;
+  min-width: 1%;
+}
+
+.stepbystep_progress .progress__percentage {
+  display: none;
+}
+
+/* Introduction form */
+.stepbystep-details .details-wrapper {
+  overflow: auto;
+}
+
+.stepbystep-details-reset {
+  float: right;
+}
+
+.stepbystep-progress-list {
+  width: auto;
+}

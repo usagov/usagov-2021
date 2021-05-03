@@ -1,0 +1,8 @@
+s3fs.settings:
+  title: 'Settings'
+  route_name: s3fs.admin_settings
+  base_route: s3fs.admin_settings
+s3fs.actions:
+  title: 'Actions'
+  route_name: s3fs.admin_actions
+  base_route: s3fs.admin_settings

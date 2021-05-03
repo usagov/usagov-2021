@@ -1,0 +1,14 @@
+name: 'Content lock test'
+type: module
+description: 'Provides test classes.'
+core_version_requirement: ^8.8 || ^9
+package: Testing
+# version: VERSION
+dependencies:
+  - content_lock:content_lock
+  - entity_test:entity_test
+
+# Information added by Drupal.org packaging script on 2020-12-14
+version: '8.x-2.2'
+project: 'content_lock'
+datestamp: 1607936868

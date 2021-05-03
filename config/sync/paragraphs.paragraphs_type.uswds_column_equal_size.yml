@@ -1,0 +1,12 @@
+uuid: 8d409778-564e-4f61-b459-c6312f4b6679
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: D31Uo7xqfQJS4dIaid8F60rtNp2uU-R6zPlokjbXl5Y
+id: uswds_column_equal_size
+label: 'USWDS Column (Equal Size)'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

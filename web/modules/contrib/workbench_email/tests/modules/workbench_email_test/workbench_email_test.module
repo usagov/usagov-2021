@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Contains main module functions.
+ */
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Session\AccountInterface;
+
+/**
+ * Implements hook_ENTITY_TYPE_access().
+ */
+function workbench_email_test_node_access(EntityInterface $entity, $operation, AccountInterface $account) {
+  if ($account->getEmail() === 'editor2@example.com' && $operation === 'update') {
+    return AccessResult::forbidden();
+  }
+  return AccessResult::neutral();
+}
+
+/**
+ * Implements hook_mail_alter().
+ */
+function workbench_email_test_mail_alter(&$message) {
+  $nid = $message['params']['entity']->id();
+
+  // Add the node id to the subject so we can test the entity is available
+  // as a message param.
+  $message['subject'] .= " (node id: {$nid})";
+}

@@ -1,0 +1,9 @@
+siteimprove.settings_form:
+  path: '/admin/config/system/siteimprove'
+  defaults:
+    _form: '\Drupal\siteimprove\Form\SettingsForm'
+    _title: 'Siteimprove Plugin'
+  requirements:
+    _permission: 'administer siteimprove'
+  options:
+    _admin_route: TRUE

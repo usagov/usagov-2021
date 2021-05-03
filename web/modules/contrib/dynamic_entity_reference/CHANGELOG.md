@@ -1,0 +1,153 @@
+8.x-1.x, 2016-11-13 (156 commits)
+---------------------------------
+- Add CHANGELOG.md
+- Add dependency on the field module in core.
+- Only allow content entities with integer id as reference entities.
+- List of view_modes is empty in dynamic_entity_reference_entity_view formatter.
+- Fatal error when using 8.x-1.x-dev version.
+- Add EntityType and Bundle constraint on entity property of DynamicEntityReferenceItem.
+- Doesn't work with IEF.
+- Add target_id as the main property just like ERItem.
+- Add tests for base fields of revisonable entity.
+- Invoke field methods first on the current entity translation.
+- Add tests for multiple base fields.
+- Use short array syntax.
+- Remove special case on EntityFormatter for new entities.
+- Check entity type has a views_data handler before getting base table.
+- Fix travis fails.
+- Don't allow test entities to share base table.
+- Autocomplete still uses old cached results when data-autocomplete-path changes.
+- Test all DB drivers on travis.
+- Remove the deprecated function calls from tests.
+- Convert all WebTestBase to BrowserTestBase.
+- Multiple valued Base fields won't work in Views.
+- Get base table properly for views relationships.
+- Add README.md to the module.
+- Add .travis.yml for github repo.
+- DER widget doesn't work with Paragraphs.
+- Dynamic Entity Reference JavaScript clean up.
+- Field setting form is broken after 2412569.
+- Fixed PHPCS error: Missing trait doc comment.
+- @file is not required for classes, interfaces and traits.
+- Add a revision log interface.
+- Follow up: Issue #2684095 by jibran: Convert field kernel tests to KernelTestBaseTNG.
+- Convert field kernel tests to KernelTestBaseTNG.
+- Autocomplete Widget breaks when 'Content' is translated.
+- Autocomplete Widget breaks when 'Content' is translated.
+- When more than one entity type is referenced in the same field, only the last one displays.
+- Fix the failing tests.
+- Fix the random fail on PHP 5.5.39.
+- Fix PHPCS fails.
+- Avoid ajax tests for now.
+- Let entity_ref Selection handlers be in charge of the field validation.
+- Implement auto route generation but DON'T use it for all core entities.
+- Provide views relationships for DER base fields.
+- Write tests for DER field as basefield on an entity.
+- DER's "autocreate" feature is mostly broken (and untested).
+- Can't access autocreated entity after serialization.
+- Deprecate entity_reference.module and move its functionality to core.
+- Implement FieldItemInterface::calculateStorageDependencies, overriding that in EntityReferenceItem.
+- Field_field_config_presave expects there to be a 'handler' setting but there isn't.
+- Fatal errors during or after adding default values for autocomplete widgets.
+- Rename SafeStringInterface to MarkupInterface and move related classes.
+- '#options' for radios and checkboxes uses SafeMarkup::checkPlain() to escape - use Html::escape() instead.
+- Remove string cast of EntityType::getLabel() and getGroupLabel().
+- Fix typo in DynamicEntityReferenceFieldTest::testReferencedEntitiesMultipleLoad().
+- Fix typo in DynamicEntityReferenceFieldTest::testReferencedEntitiesMultipleLoad().
+- Replace direct access to FieldConfigBase::default_value with methods.
+- Use TranslationWrapper instead of t() Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem::propertyDefinitions.
+- Convert SafeMarkup::checkPlain() in render arrays to #plain_text.
+- Field default markup - removing the divitis.
+- Remove keys from entity_type_ids definitions.
+- GetTargetTypes has expectations that are not being met.
+- Rename ViewUnitTestBase to ViewKernelTestBase.
+- Provide a views relationship for each dynamic entity reference field.
+- Optimize Cache::merge*(), by only accepting 2 instead of N arguments.
+- \Drupal\Core\Entity\Controller\EntityViewController::buildTitle() assumes the $entity is in the render array.
+- Refactor all usages of drupal_render()/Renderer::render() that break #2450993.
+- Bypass form caching by default for forms using #ajax.
+- [Meta] Replace deprecated usage of entity_create with a direct call to the entity type class.
+- Add a dedicated @Constraint annotation class.
+- EntityAutocomplete element settings allows sql injection and for arbitrary user-supplied data to be passed into unserialize().
+- Fix DynamicEntityReferenceItemTest.
+- Translatable entity 'changed' timestamps are not working at all.
+- Add CompositeConstraintBase so that constraints involving multiple fields, such as CommentNameConstraint, can be discovered.
+- Follow up: DERItem expects an array, should allow objects per core.
+- DERItem expects an array, should allow objects per core.
+- Move Role Constants on to a Class/Interface.
+- CacheableMetadata should get BubbleableMetadata's merge/applyTo/createFromRenderArray/createFromObject methods.
+- Entity/field access and node grants not taken into account with core cache contexts.
+- Copy text template to classy.
+- Replace all occurrences of String class with the SafeMarkup equivalent.
+- Custom OptionWidget have no empty option label.
+- Move DynamicEntityReferenceFieldItemList to DynamicEntityReferenceItem namespace.
+- Allow adding entity level constraints.
+- Convert the "Field edit" form to an actual entity form.
+- Convert the "Field storage edit" form to an actual entity form.
+- Head Failing.
+- Add tests for all the formatters.
+- Unable to create config schema for entity type specific entity reference selection plugin.
+- Categorize field type plugins.
+- Simplify schema definition for sequence.
+- Fixes after generic 'entity_autocomplete' Form API element.
+- Fixes after generic 'entity_autocomplete' Form API element.
+- Add OptionWidgets for single value target type DER fields.
+- Added composer.json to the module root directory.
+- Provide a generic 'entity_autocomplete' Form API element.
+- Stop auto-creating FieldItems on mere reading of $entity->field[N].
+- Cleanup the use of custom item properties in EntityReferenceFormatterBase.
+- Improved documentation.
+- Decouple entity reference selection plugins from field definitions.
+- Fix DER constraint validation.
+- DER needs its own FieldItemList class.
+- Entity_reference formatters should be in Core.
+- DER needs its own FieldItemList class.
+- IsApplicable() on formatter is not overridden, causing an exception.
+- Update DynamicEntityReferenceItem according to EntityReferenceItem.
+- Typed data does not handle set() and onChange() consistently.
+- ERItem::setValue(array('entity' => $entity) produces broken Items.
+- Change field UI so that adding a field is a separate task.
+- Add entity_id to autocomplete route just like EntityReferenceController.
+- Re-factor autocomplete route to use the selection plugin and field settings.
+- Fixed the failing tests.
+- Allow user to select bundles per entity type on field settings page.
+- Widget for cardinality 1 is missing the field label.
+- Refactor field type configuration schemas for DX, easier to find errors.
+- Unable to set field value programmatically.
+- ER's "autocreate" feature is mostly broken (and untested).
+- Add tests for schema.
+- Fixed Widget for cardinality 1 is missing the field label.
+- Update Schema file.
+- Fixed can't set field default value.
+- Instance is field now.
+- Fix for http://drupal.org/node/2346315.
+- Rename FieldInstanceConfig to FieldConfig.
+- Fixed ServiceProvider file is incorrectly named and broken.
+- Fixed FormState now longer supports ArrayAccess.
+- Fixed Autocomplete is broken when editing.
+- Fixed DynamicEntityReferenceItem::setValue() should not force an entity_load().
+- Added a DynamicEntityReferenceItemNormalizer.
+- Fixed validateAutocompleteInput() is broken.
+- Fixed failing tests.
+- Allow user to include or exclude the entity types on field settings page.
+- Add all the core ER formatter to DER.
+- Remove excluded_bundle_ids form field setting.
+- Convert entity type checkboxes to multiselect on field settings page.
+- Replace FormBuilderInterface::setValue() with FormStateInterface::setValueForElement().
+- Add config schema for formatter.
+- Add DynamicEntityReferenceFormatterTrait to override EntityReferenceFormatterBase.
+- Fixed DynamicEntityReferenceWidget::formElement is not showing correct Entity type select list.
+- Is now a classed object.
+- Replace getInfo() in tests with native phpDoc + annotations (following PHPUnit).
+- Keeping up with field module.
+- Clean Up.
+- Revert settings form pass by reference.
+- Test coverage.
+- Set default form values correctly.
+- Fix php warnings.
+- PSR-4 switch.
+- Editing and viewing loading correctly.
+- Values partially saving without fatals/exceptions.
+- Autocomplete working.
+- Basic class structure.
+- Initial commit.

@@ -1,0 +1,23 @@
+uuid: 7cf3a094-6522-4fe9-877e-f30e239227db
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.dan_page
+  module:
+    - text
+id: node.dan_page.body
+field_name: body
+entity_type: node
+bundle: dan_page
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+  required_summary: false
+field_type: text_with_summary

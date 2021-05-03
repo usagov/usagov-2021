@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="scheduler">
+  <description>Default PHP CodeSniffer configuration for Scheduler.</description>
+  <file>.</file>
+
+  <!-- Initially include all Drupal and DrupalPractice sniffs. -->
+  <rule ref="Drupal"/>
+  <rule ref="DrupalPractice"/>
+
+  <!-- Check these file extensions -->
+  <arg name="extensions" value="php,module,inc,install,css,md,yml"/>
+
+  <!-- Use 's' to print the full sniff name in the report. -->
+  <arg value="s"/>
+  <arg value="-colors"/>
+  <arg name="report-width" value="130"/>
+
+  <rule ref="DrupalPractice">
+    <!-- Allow empty lines after comments, we don't like this rule. -->
+    <exclude name="DrupalPractice.Commenting.CommentEmptyLine"/>
+  </rule>
+
+  <!-- ignore these files -->
+  <exclude-pattern>_ignore*</exclude-pattern>
+  <exclude-pattern>*interdif*</exclude-pattern>
+
+</ruleset>

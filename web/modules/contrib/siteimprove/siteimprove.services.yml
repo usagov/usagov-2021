@@ -1,0 +1,7 @@
+services:
+  siteimprove.utils:
+    class: Drupal\siteimprove\SiteimproveUtils
+    arguments: ['@config.factory', '@current_user', '@http_client', '@current_route_match', '@path.matcher', '@plugin.manager.siteimprove_domain', '@logger.factory']
+  plugin.manager.siteimprove_domain:
+    class: Drupal\siteimprove\Plugin\SiteimproveDomainManager
+    parent: default_plugin_manager

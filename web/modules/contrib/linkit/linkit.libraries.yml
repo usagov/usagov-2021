@@ -1,0 +1,32 @@
+linkit.admin:
+  version: VERSION
+  css:
+    theme:
+      css/linkit.admin.theme.css: {}
+
+linkit.base:
+  version: VERSION
+  js:
+    js/linkit.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+
+linkit.autocomplete:
+  version: VERSION
+  js:
+    js/linkit.autocomplete.js: {}
+  css:
+    component:
+      css/linkit.autocomplete.css: {}
+  dependencies:
+    - linkit/linkit.base
+    - core/drupal.ajax
+    - core/jquery.ui.autocomplete
+    - core/underscore
+
+linkit.filter_html.admin:
+  version: VERSION
+  js:
+    js/linkit.filter_html.admin.js: {}

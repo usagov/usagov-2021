@@ -1,0 +1,98 @@
+---
+version: 2
+
+workflows:
+  version: 2
+  main:
+    jobs:
+    - test_89x
+    - test_90x
+    - test_91x
+  # Run nightly tests every day 8 AM.
+  nightly:
+    jobs:
+    - test_89x
+    - test_90x
+    - test_91x
+    triggers:
+    - schedule:
+        # Weekday (22=10pm UTC). Evaluates to 8am AEST.
+        cron: "0 22 * * *"
+        filters:
+          branches:
+            only:
+            - 8.x-1.x
+            - 8.x-2.x
+
+jobs:
+
+  test: &test
+    docker:
+    - image: previousnext/php-apache:7.3-3.x-dev
+      environment:
+        MODULE_NAME: dynamic_entity_reference
+        SIMPLETEST_BASE_URL: http://127.0.0.1
+        SIMPLETEST_DB: mysql://drupal:drupal@127.0.0.1/local
+        MINK_DRIVER_ARGS_WEBDRIVER: '["chrome", null, "http:\/\/127.0.0.1:4444\/wd\/hub"]'
+    - image: mariadb
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: local
+        MYSQL_USER: drupal
+        MYSQL_PASSWORD: drupal
+    - image: selenium/standalone-chrome:latest
+    working_directory: /data/app
+    steps:
+    - add_ssh_keys:
+        fingerprints:
+          - a6:e4:76:63:c3:bf:5e:a5:cf:0e:0b:a1:7e:c9:c0:21
+    - run:
+        name: Download specified drupal version
+        command: |
+          git clone --depth 1 --branch ${DRUPAL_BRANCH} \
+            https://git.drupal.org/project/drupal.git .
+    - run:
+        name: Fetch drupal dependencies
+        command: |
+          composer install --prefer-dist --no-progress
+          composer update phpunit/phpunit symfony/phpunit-bridge phpspec/prophecy symfony/yaml --with-dependencies --no-progress
+          composer require drupal/diff:1.x-dev --no-progress
+
+    - checkout:
+        path: modules/${MODULE_NAME}
+    - run:
+        name: Lint PHP against Drupal coding standards
+        command: |
+          vendor/bin/phpcs \
+            --standard=vendor/drupal/coder/coder_sniffer/Drupal \
+            --extensions=php,module,inc,install,test,profile,theme,css,info \
+            --ignore=*.md \
+            modules/${MODULE_NAME}
+
+    - run:
+        name: Setup Directories
+        command: |
+          mkdir -p sites/default/files/tmp sites/default/private /data/app/sites/simpletest/browser_output ../build/logs/phpunit
+          chmod -R 2775 sites/default/files sites/default/private sites/simpletest ../build/logs
+          chown -R apache:apache /data
+
+    - run: httpd -k restart
+    - run:
+        name: Run unit tests
+        command: |
+          su -m apache -s /bin/bash -c "./vendor/bin/phpunit -v -c core/phpunit.xml.dist --log-junit build/logs/phpunit/phpunit.xml modules/${MODULE_NAME}"
+    - store_test_results:
+        path: build/logs
+
+  test_89x:
+    <<: *test
+    environment:
+    - DRUPAL_BRANCH: 8.9.x
+  test_90x:
+    <<: *test
+    environment:
+    - DRUPAL_BRANCH: 9.0.x
+  test_91x:
+    <<: *test
+    environment:
+    - DRUPAL_BRANCH: 9.1.x

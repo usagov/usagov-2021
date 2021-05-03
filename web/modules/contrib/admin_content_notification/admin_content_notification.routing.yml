@@ -1,0 +1,7 @@
+admin_content_notification.config_menu:
+  path: '/admin/content/admin-content-notification'
+  defaults:
+    _form: '\Drupal\admin_content_notification\Form\AdminContentNotification'
+    _title: 'Admin Content Notification Configuration'
+  requirements:
+   _permission: 'administer content notification config'

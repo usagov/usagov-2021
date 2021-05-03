@@ -1,0 +1,77 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.uswds
+  module:
+    - ckeditor
+_core:
+  default_config_hash: 3nU7zxywoBYBvTT70VBIHG4QkeamEc0MEb6z3IxjajU
+format: uswds
+editor: ckeditor
+settings:
+  toolbar:
+    rows:
+      -
+        -
+          name: Formatting
+          items:
+            - Bold
+            - Italic
+            - Underline
+            - HorizontalRule
+            - JustifyLeft
+            - JustifyCenter
+            - JustifyRight
+        -
+          name: Links
+          items:
+            - DrupalLink
+            - DrupalUnlink
+        -
+          name: Lists
+          items:
+            - BulletedList
+            - NumberedList
+        -
+          name: Copy/Paste
+          items:
+            - Cut
+            - Paste
+            - PasteFromWord
+            - PasteText
+        -
+          name: Media
+          items:
+            - Blockquote
+            - DrupalMediaLibrary
+        -
+          name: Tools
+          items:
+            - Source
+        -
+          name: Components
+          items:
+            - Maximize
+            - Table
+            - uswds_grid
+            - Accordion
+            - Templates
+  plugins:
+    language:
+      language_list: un
+    stylescombo:
+      styles: ''
+    templates:
+      template_path: ''
+      replace_content: 0
+    uswds_table:
+      override_table: 1
+image_upload:
+  status: false
+  scheme: public
+  directory: inline-images
+  max_size: ''
+  max_dimensions:
+    width: null
+    height: null

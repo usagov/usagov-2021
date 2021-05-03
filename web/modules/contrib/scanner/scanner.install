@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the scanner module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function scanner_schema() {
+  $schema['scanner'] = [
+    'description' => 'Holds info on recent replacements in case undo is needed.',
+    'fields' => [
+      'undo_id' => [
+        'description' => 'Row identifier',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ],
+      'undo_data' => [
+        'description' => 'What was changed',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ],
+      'undone' => [
+        'description' => 'Whether the replacement has been undone',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+      ],
+      'searched' => [
+        'description' => 'Text that was searched for',
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+      ],
+      'replaced' => [
+        'description' => 'Text that was used as replacement',
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+      ],
+      'count' => [
+        'description' => 'How many fields were modified on replacement',
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'time' => [
+        'description' => 'How long the replacement took',
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+    ],
+    'primary key' => ['undo_id'],
+  ];
+
+  return $schema;
+}
