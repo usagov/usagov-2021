@@ -1,0 +1,46 @@
+<?php
+
+namespace Drupal\Tests\webform_cards\FunctionalJavaScript;
+
+use Drupal\Tests\webform\FunctionalJavascript\WebformWebDriverTestBase;
+
+/**
+ * Tests for webform cards validation.
+ *
+ * @group webform_cards
+ */
+class WebformCardsValidationJavaScriptTest extends WebformWebDriverTestBase {
+
+  /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  public static $modules = ['webform', 'webform_cards', 'webform_cards_test'];
+
+  /**
+   * Test webform cards validation.
+   */
+  public function testValidation() {
+    $session = $this->getSession();
+    $page = $session->getPage();
+    $assert_session = $this->assertSession();
+
+    /**************************************************************************/
+
+    $this->drupalGet('/webform/test_cards_validation_errors');
+
+    // Submit form with server-side validation errors.
+    $page->pressButton('edit-cards-next');
+    $page->pressButton('edit-cards-next');
+    $page->pressButton('edit-submit');
+
+    // Check that only the card with validation error is visible.
+    $assert_session->waitForElement('css', '.messages.messages--error');
+    $this->assertElementNotVisible('[data-webform-key="card_1"]');
+    $this->assertElementVisible('[data-webform-key="card_2"]');
+    $this->assertElementNotVisible('[data-webform-key="card_3"]');
+    $assert_session->responseContains('<strong>The email address <em class="placeholder">{email_multiple not valid}</em> is not valid.</strong>');
+  }
+
+}

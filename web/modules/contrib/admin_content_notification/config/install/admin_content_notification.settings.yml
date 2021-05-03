@@ -1,0 +1,2 @@
+admin_content_notification_email_subject: 'New Content @action'
+admin_content_notification_email_body: 'A new content has been @action on your site <br/> Submitted by : @user_who_posted <br/> New content link : @content_link'

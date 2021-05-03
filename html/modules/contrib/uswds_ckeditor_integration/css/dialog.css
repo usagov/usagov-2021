@@ -1,0 +1,58 @@
+#uswds_grid-dialog-form .uswds_grid-dialog-step--select .form-radios {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  text-align: center;
+}
+
+#uswds_grid-dialog-form .uswds_grid-dialog-step--select .form-radios .form-item-num-columns {
+  position: relative;
+  -ms-flex: 0 0 25%;
+  flex: 0 0 25%;
+  -webkit-box-flex: 0;
+  width: 100%;
+  max-width: 25%;
+  min-height: 1px;
+  margin: 0 0 10px;
+}
+
+#uswds_grid-dialog-form .uswds_grid-dialog-step--select .form-radios input {
+  display: none;
+}
+
+#uswds_grid-dialog-form .uswds_grid-dialog-step--select .form-radios input:checked ~ label {
+  background: powderblue;
+}
+
+#uswds_grid-dialog-form .uswds_grid-dialog-step--select .form-radios input:checked:disabled ~ label {
+  background: lightgrey;
+}
+
+#uswds_grid-dialog-form .uswds_grid-dialog-step--select .form-radios label {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+#uswds_grid-dialog-form .uswds_grid-dialog-step--select .form-radios label p {
+  margin: 0;
+}
+
+#uswds_grid-dialog-form .uswds_grid-dialog-step--layout .vertical-tabs {
+  display: flex;
+  margin: 0;
+}
+
+#uswds_grid-dialog-form .uswds_grid-dialog-step--layout .vertical-tabs .vertical-tabs__menu {
+  float: none;
+  width: auto;
+  margin: 0;
+}
+
+#uswds_grid-dialog-form .uswds_grid-dialog-step--layout .vertical-tabs .vertical-tabs__panes {
+  margin: 0;
+}
+
+#uswds_grid-dialog-form .uswds_grid-dialog-step--layout .vertical-tabs .vertical-tabs__panes input[type="radio"] {
+  position: relative;
+}

@@ -1,0 +1,5 @@
+scheduled_publish.listing_page:
+  title: 'Scheduled publish'
+  route_name: scheduled_publish.listing_page
+  base_route: system.admin_content
+  weight: 100

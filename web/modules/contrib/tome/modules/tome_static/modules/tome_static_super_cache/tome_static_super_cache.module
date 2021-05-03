@@ -1,0 +1,125 @@
+<?php
+
+/**
+ * @file
+ * Contains functions for the Tome Static Super Cache module.
+ */
+
+use Drupal\tome_static_super_cache\SuperStaticCache;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\views\Plugin\views\query\Sql;
+use Drupal\Core\Cache\Cache;
+use Drupal\tome_static_super_cache\Plugin\views\cache\SmartTag;
+use Drupal\views\Views;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_cache_flush().
+ *
+ * Flags full rebuilds to differentiate normal cache tag invalidations from
+ * full rebuilds.
+ */
+function tome_static_super_cache_cache_flush() {
+  $GLOBALS[SuperStaticCache::REBUILD_KEY] = TRUE;
+}
+
+/**
+ * Implements hook_entity_insert().
+ *
+ * Partially executes every View that uses the Smart Tag cache plugin to see
+ * if this entity would appear in results.
+ */
+function tome_static_super_cache_entity_insert(EntityInterface $entity) {
+  $already_expired = &drupal_static(__FUNCTION__, []);
+  if (!($entity instanceof ContentEntityInterface)) {
+    return;
+  }
+  $entity_type_manager = \Drupal::entityTypeManager();
+  if (!$entity_type_manager->hasDefinition('view')) {
+    return;
+  }
+  $view_storage = $entity_type_manager->getStorage('view');
+  $view_ids = $view_storage->getQuery()
+    ->condition('status', TRUE)
+    ->condition('display.*.display_options.cache.type', 'tome_static_super_cache_smart_tag')
+    ->execute();
+  if (empty($view_ids)) {
+    return;
+  }
+  /** @var \Drupal\views\ViewEntityInterface $view */
+  foreach ($view_storage->loadMultiple($view_ids) as $view) {
+    $base_entity_type = $view->getExecutable()->getBaseEntityType();
+    if (!$base_entity_type || $base_entity_type->id() !== $entity->getEntityTypeId()) {
+      continue;
+    }
+    foreach (array_keys($view->get('display')) as $display_id) {
+      $expired_key = $view->id() . ':' . $display_id;
+      if (isset($already_expired[$expired_key])) {
+        continue;
+      }
+      $executable = Views::executableFactory()->get($view);
+      if (!$executable->setDisplay($display_id)) {
+        continue;
+      }
+      $cache = $executable->display_handler->getPlugin('cache');
+      if (!($cache instanceof SmartTag)) {
+        continue;
+      }
+      $query = $executable->getQuery();
+      if (!($query instanceof Sql)) {
+        continue;
+      }
+      $cache->disableCache();
+      $group = $query->setWhereGroup();
+      $query->addWhere($group, $entity->getEntityType()->getKey('id'), $entity->id(), '=');
+      $query->build($executable);
+      $executable->execute();
+      $cache->enableCache();
+      if (!empty($executable->result)) {
+        Cache::invalidateTags([
+          $cache->getTagForView($executable),
+        ]);
+        $already_expired[$expired_key] = TRUE;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function tome_static_super_cache_entity_update(EntityInterface $entity) {
+  tome_static_super_cache_entity_insert($entity);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function tome_static_super_cache_form_system_performance_settings_alter(array &$form, FormStateInterface $form_state) {
+  $form['tome_static_super_cache'] = [
+    '#type' => 'details',
+    '#title' => t('Clear Tome Static Super Cache'),
+    '#open' => FALSE,
+    '#weight' => 0,
+  ];
+  $form['tome_static_super_cache']['tome_static_super_cache_button'] = [
+    '#type' => 'submit',
+    '#value' => t('Fully clear caches'),
+    '#submit' => ['_tome_static_super_cache_form_system_performance_settings_submit'],
+  ];
+}
+
+/**
+ * Submit callback to fully rebuild caches.
+ *
+ * @param array $form
+ *   The form array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ */
+function _tome_static_super_cache_form_system_performance_settings_submit(array $form, FormStateInterface $form_state) {
+  $GLOBALS[SuperStaticCache::FULL_REBUILD_KEY] = TRUE;
+  drupal_flush_all_caches();
+  \Drupal::messenger()->addStatus(t('Caches fully cleared.'));
+}

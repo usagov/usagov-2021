@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+<meta name="Generator" content="Drupal 9 (https://www.drupal.org)" />
+<meta name="MobileOptimized" content="width" />
+<meta name="HandheldFriendly" content="true" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="shortcut icon" href="/core/misc/favicon.ico" type="image/vnd.microsoft.icon" />
+
+  <title>Select columns | USA.revamp</title>
+  <link rel="stylesheet" media="all" href="/core/modules/system/css/components/ajax-progress.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/align.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/autocomplete-loading.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/fieldgroup.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/container-inline.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/clearfix.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/details.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/hidden.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/item-list.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/js.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/nowrap.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/position-container.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/progress.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/reset-appearance.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/resize.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/sticky-header.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/system-status-counter.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/system-status-report-counters.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/system-status-report-general-info.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/tabledrag.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/tablesort.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/tree-child.module.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/assets/vendor/jquery.ui/themes/base/core.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/assets/vendor/jquery.ui/themes/base/resizable.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/assets/vendor/jquery.ui/themes/base/checkboxradio.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/assets/vendor/jquery.ui/themes/base/controlgroup.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/assets/vendor/jquery.ui/themes/base/button.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/assets/vendor/jquery.ui/themes/base/dialog.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/modules/contrib/uswds_ckeditor_integration/css/dialog.css?qrxgea" />
+<link rel="stylesheet" media="all" href="/core/assets/vendor/jquery.ui/themes/base/theme.css?qrxgea" />
+<link rel="stylesheet" media="all" href="https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/css/uswds.min.css" />
+
+  
+</head>
+<body>
+<a href="#main-content" class="usa-sr-only focusable">
+  Skip to main content
+</a>
+
+  <div class="dialog-off-canvas-main-canvas" data-off-canvas-main-canvas>
+      <section class="usa-banner">
+    <div class="usa-banner">
+  <div class="usa-accordion">
+    <header class="usa-banner__header">
+      <div class="usa-banner__inner">
+        <div class="grid-col-auto">
+          <img class="usa-banner__header-flag" src="https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/img/favicons/favicon-57.png" alt="U.S. flag">
+        </div>
+        <div class="grid-col-fill tablet:grid-col-auto">
+          <p class="usa-banner__header-text">An official website of the United States government</p>
+          <p class="usa-banner__header-action" aria-hidden="true">Here’s how you know</p>
+        </div>
+        <button class="usa-accordion__button usa-banner__button" aria-expanded="false" aria-controls="gov-banner">
+          <span class="usa-banner__button-text">Here's how you know</span>
+        </button>
+      </div>
+    </header>
+    <div class="usa-banner__content usa-accordion__content" id="gov-banner" hidden="">
+      <div class="grid-row grid-gap-lg">
+        <div class="usa-banner__guidance tablet:grid-col-6">
+          <img class="usa-banner__icon usa-media-block__img" src="https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/img/icon-dot-gov.svg" alt="Dot gov">
+          <div class="usa-media-block__body">
+            <p>
+              <strong>The .gov means it’s official.</strong>
+              <br>
+              Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure you’re on a federal government site.
+            </p>
+          </div>
+        </div>
+        <div class="usa-banner__guidance tablet:grid-col-6">
+          <img class="usa-banner__icon usa-media-block__img" src="https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/img/icon-https.svg" alt="Https">
+          <div class="usa-media-block__body">
+            <p>
+              <strong>The site is secure.</strong>
+              <br>
+              The <strong>https://</strong> ensures that you are connecting to the official website and that any information you provide is encrypted and transmitted securely.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  </section>
+
+<div class="usa-overlay"></div>
+
+<header class="usa-header usa-header--extended" id="header" role="banner">
+
+  
+  
+    <div class="region region-header usa-navbar" role="banner">
+    <div class="usa-logo site-logo" id="logo">
+
+  <em class="usa-logo__text">
+      <a class="logo-img" href="/" accesskey="1" title="Home" aria-label="Home">
+      <img src="/themes/contrib/uswds_base/logo.png" alt="Home" />
+    </a>
+  
+        <a href="/" accesskey="1" title="Home" aria-label="Home">
+        USA.revamp
+      </a>
+  
+    </em>
+
+</div>
+<button class="usa-menu-btn">Menu</button>
+</div>
+
+
+    <nav class="usa-nav" role="navigation">
+            <div class="usa-nav__inner">
+        
+        <button class="usa-nav__close">
+          <img src="https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/img/close.svg" alt="close"/>
+        </button>
+
+        
+        
+                      
+
+          
+                      <div class="usa-nav__secondary">
+
+    
+    <ul class="usa-nav__secondary-links">
+
+    
+    
+        <li class="usa-nav__secondary-item">
+          <a href="/user/login">
+            Log in
+          </a>
+        </li>
+    
+      </ul>
+  
+
+
+
+</div>
+          
+          
+              </div>
+          </nav>
+
+    
+</header>
+
+
+<main class="main-content usa-layout-docs usa-section " role="main"
+      id="main-content">
+  <a id="main-content" tabindex="-1"></a>
+  <div class="grid-container">
+
+          <div class="grid-row">
+          <div>
+    <div id="block-uswds-base-breadcrumbs" class="block block-system block-system-breadcrumb-block">
+  
+    
+          <nav role="navigation" aria-labelledby="system-breadcrumb">
+        <h2 id="system-breadcrumb" class="usa-sr-only">Breadcrumb</h2>
+        <ol class="usa-breadcrumb__list">
+                            <li class="usa-breadcrumb__list-item">
+                                            <a href="/" class="usa-breadcrumb__link">Home</a>
+                                    </li>
+                    </ol>
+    </nav>
+
+  </div>
+
+  </div>
+
+      </div>
+
+      <div class="">
+        <div data-drupal-messages-fallback class="hidden"></div>
+
+
+      </div>
+
+                
+    <div class="grid-row grid-gap">
+      
+      <div class="usa-layout-docs__main desktop:grid-col-fill">
+            
+  <h1 class="margin-0">Select columns</h1>
+
+<div id="block-uswds-base-content" class="block block-system block-system-main-block">
+  
+    
+      <div id="uswds_grid-dialog-form"><form class="uswds-ckeditor-integration uswds_grid-dialog-step--select usa-form" data-drupal-selector="uswds-ckeditor-integration" action="/uswds_ckeditor_integration/dialog" method="post" id="uswds-ckeditor-integration" accept-charset="UTF-8">
+  Read-only on existing elements.<fieldset data-drupal-selector="edit-num-columns" id="edit-num-columns--wrapper" class="fieldgroup form-composite js-form-item form-item js-form-wrapper form-wrapper usa-fieldset">
+      <legend class="usa-legend">
+    <span class="usa-sr-only fieldset-legend">Select Number of Columns</span>
+  </legend>
+  <div class="fieldset-wrapper">
+            <div id="edit-num-columns"><div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-1" type="radio" id="edit-num-columns-1" name="num_columns" value="1" checked="checked" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-1" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_1.png" title="Column 1" /><p>Column 1</p></label>
+  
+  
+  </div>
+<div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-2" type="radio" id="edit-num-columns-2" name="num_columns" value="2" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-2" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_2.png" title="Column 2" /><p>Column 2</p></label>
+  
+  
+  </div>
+<div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-3" type="radio" id="edit-num-columns-3" name="num_columns" value="3" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-3" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_3.png" title="Column 3" /><p>Column 3</p></label>
+  
+  
+  </div>
+<div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-4" type="radio" id="edit-num-columns-4" name="num_columns" value="4" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-4" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_4.png" title="Column 4" /><p>Column 4</p></label>
+  
+  
+  </div>
+<div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-5" type="radio" id="edit-num-columns-5" name="num_columns" value="5" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-5" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_5.png" title="Column 5" /><p>Column 5</p></label>
+  
+  
+  </div>
+<div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-6" type="radio" id="edit-num-columns-6" name="num_columns" value="6" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-6" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_6.png" title="Column 6" /><p>Column 6</p></label>
+  
+  
+  </div>
+<div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-7" type="radio" id="edit-num-columns-7" name="num_columns" value="7" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-7" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_7.png" title="Column 7" /><p>Column 7</p></label>
+  
+  
+  </div>
+<div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-8" type="radio" id="edit-num-columns-8" name="num_columns" value="8" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-8" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_8.png" title="Column 8" /><p>Column 8</p></label>
+  
+  
+  </div>
+<div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-9" type="radio" id="edit-num-columns-9" name="num_columns" value="9" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-9" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_9.png" title="Column 9" /><p>Column 9</p></label>
+  
+  
+  </div>
+<div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-10" type="radio" id="edit-num-columns-10" name="num_columns" value="10" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-10" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_10.png" title="Column 10" /><p>Column 10</p></label>
+  
+  
+  </div>
+<div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-11" type="radio" id="edit-num-columns-11" name="num_columns" value="11" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-11" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_11.png" title="Column 11" /><p>Column 11</p></label>
+  
+  
+  </div>
+<div class="form-item usa-label js-form-item form-type-radio js-form-type-radio form-item-num-columns js-form-item-num-columns radio">
+  
+  
+  <input data-drupal-selector="edit-num-columns-12" type="radio" id="edit-num-columns-12" name="num_columns" value="12" class="form-radio usa-radio__input" />
+
+      <label for="edit-num-columns-12" class="usa-radio__label control-label option"><img src="/modules/contrib/uswds_ckeditor_integration/images/ui/col_12.png" title="Column 12" /><p>Column 12</p></label>
+  
+  
+  </div>
+</div>
+
+          </div>
+</fieldset>
+<input autocomplete="off" data-drupal-selector="form-ypzssw3bjnvo7tb5gtjsxh5jrhor-layp2-ktpbgxwu" type="hidden" name="form_build_id" value="form-YPZSSw3BjNvO7Tb5GTJSXh5JRhor_layP2-kTpBgxWU" class="usa-input" /><input data-drupal-selector="edit-uswds-ckeditor-integration" type="hidden" name="form_id" value="uswds_ckeditor_integration" class="usa-input" /><div data-drupal-selector="edit-actions" class="form-actions js-form-wrapper form-wrapper" id="edit-actions"><input class="js-button-next button button--primary js-form-submit form-submit usa-button" data-drupal-selector="edit-actions-next" type="submit" id="edit-actions-next" name="op" value="Next" /></div>
+
+</form>
+</div>
+  </div>
+
+
+      </div>
+          </div>
+  </div>
+</main>
+
+<footer class="usa-footer usa-footer--big" role="contentinfo">
+  <div class="grid-container usa-footer__return-to-top">
+    <a href="#">Return to top</a>
+  </div>
+
+      <div class="usa-footer__primary-section">
+
+      <div class="usa-footer__primary-content">
+                <div class="grid-container">
+          <div class="grid-row grid-gap">
+            
+                          
+
+            
+            
+                      </div>
+        </div>
+        
+              </div>
+
+    </div>
+  
+      <div class="usa-footer__secondary-section">
+      <div class="grid-container">
+        <div class="grid-row grid-gap">
+                    <div
+            class="usa-footer__logo grid-row mobile-lg:grid-col-6 mobile-lg:grid-gap-2">
+
+                        <a href="#agency">
+            
+                              <div class="mobile-lg:grid-col-auto">
+                  <img class="usa-footer__logo-img"
+                       src="/themes/contrib/uswds_base/logo.png"
+                       alt="Agency logo">
+                </div>
+              
+                              <div class="mobile-lg:grid-col-auto">
+                  <h3
+                    class="usa-footer__logo-heading">Name of Agency</h3>
+                </div>
+              
+                        </a>
+            
+          </div>
+
+                      <div class="usa-footer__contact-links desktop:grid-col-6">
+                            <div class="usa-footer__social-links grid-row grid-gap-1">
+                              <div class="grid-col-auto">
+                <a class="usa-social-link usa-social-link--facebook" href="#facebook">
+                  <span>Facebook</span>
+                </a>
+                </div>
+              
+                              <div class="grid-col-auto">
+                <a class="usa-social-link usa-social-link--twitter" href="#twitter">
+                  <span>Twitter</span>
+                </a>
+                </div>
+              
+                                <div class="grid-col-auto">
+                <a class="usa-social-link usa-social-link--youtube" href="#youtube">
+                  <span>YouTube</span>
+                </a>
+                  </div>
+              
+                              <div class="grid-col-auto">
+                <a class="usa-social-link usa-social-link--rss" href="/rss.xml">
+                  <span>RSS</span>
+                </a>
+                </div>
+                            </div>
+                                            <h3
+                  class="usa-footer__contact-heading">Agency Contact Center</h3>
+                            <address class="usa-footer__address">
+                <div class="usa-footer__contact-info grid-row grid-gap">
+                                      <div class="grid-col-auto">
+                      <a href="tel:(800) CALL-GOVT">(800) CALL-GOVT</a>
+                    </div>
+                  
+                                      <div class="grid-col-auto">
+                      <a href="mailto:info@agency.gov">info@agency.gov</a>
+                    </div>
+                                  </div>
+              </address>
+            </div>
+          
+        </div>
+        
+              </div>
+    </div>
+  
+</footer>
+
+  </div>
+
+
+<script type="application/json" data-drupal-selector="drupal-settings-json">{"path":{"baseUrl":"\/","scriptPath":null,"pathPrefix":"","currentPath":"uswds_ckeditor_integration\/dialog","currentPathIsAdmin":false,"isFront":false,"currentLanguage":"en"},"pluralDelimiter":"\u0003","suppressDeprecationErrors":true,"ajaxPageState":{"libraries":"core\/jquery.form,editor\/drupal.editor.dialog,system\/base,uswds_base\/framework,uswds_ckeditor_integration\/dialog","theme":"uswds_base","theme_token":null},"ajaxTrustedUrl":{"form_action_p_pvdeGsVG5zNF_XLGPTvYSKCf43t8qZYSwcfZl2uzM":true,"\/uswds_ckeditor_integration\/dialog?ajax_form=1":true},"ajax":{"edit-actions-next":{"callback":"::submitStep","event":"click","url":"\/uswds_ckeditor_integration\/dialog?ajax_form=1","dialogType":"ajax","submit":{"_triggering_element_name":"op","_triggering_element_value":"Next"}}},"user":{"uid":0,"permissionsHash":"f96369efe77b80ea65eae4a3e9394e8a13d71ccb229489fee9e455821c6d415a"}}</script>
+<script src="/core/assets/vendor/jquery/jquery.min.js?v=3.5.1"></script>
+<script src="/core/assets/vendor/jquery-once/jquery.once.min.js?v=2.2.3"></script>
+<script src="/core/misc/drupalSettingsLoader.js?v=9.1.4"></script>
+<script src="/core/misc/drupal.js?v=9.1.4"></script>
+<script src="/core/misc/drupal.init.js?v=9.1.4"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/data-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/disable-selection-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/form-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/labels-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/jquery-1-7-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/scroll-parent-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/tabbable-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/unique-id-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/version-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/escape-selector-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/focusable-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/keycode-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/plugin-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/safe-active-element-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/safe-blur-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/widget-min.js?v=1.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/js/uswds.min.js"></script>
+<script src="/core/misc/debounce.js?v=9.1.4"></script>
+<script src="/core/misc/displace.js?v=9.1.4"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/ie-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/widgets/mouse-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/widgets/draggable-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/position-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/widgets/resizable-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/form-reset-mixin-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/widgets/checkboxradio-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/widgets/controlgroup-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/widgets/button-min.js?v=1.12.1"></script>
+<script src="/core/assets/vendor/jquery.ui/ui/widgets/dialog-min.js?v=1.12.1"></script>
+<script src="/core/misc/dialog/dialog.js?v=9.1.4"></script>
+<script src="/core/misc/dialog/dialog.position.js?v=9.1.4"></script>
+<script src="/core/misc/dialog/dialog.jquery-ui.js?v=9.1.4"></script>
+<script src="/core/misc/progress.js?v=9.1.4"></script>
+<script src="/core/modules/responsive_image/js/responsive_image.ajax.js?v=9.1.4"></script>
+<script src="/core/misc/ajax.js?v=9.1.4"></script>
+<script src="/core/modules/editor/js/editor.dialog.js?v=9.1.4"></script>
+<script src="/core/assets/vendor/jquery-form/jquery.form.min.js?v=4.22"></script>
+
+</body>
+</html>

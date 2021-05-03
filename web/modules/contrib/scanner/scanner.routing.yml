@@ -1,0 +1,36 @@
+scanner.admin_content:
+  path: 'admin/content/scanner'
+  defaults:
+    _title: 'Search and Replace Scanner'
+    _form: '\Drupal\scanner\Form\ScannerForm'
+  requirements:
+    _permission: 'administer nodes'
+scanner.admin_config:
+  path: 'admin/config/content/scanner'
+  defaults:
+    _title: 'Search and Replace Scanner'
+    _form: '\Drupal\scanner\Form\ScannerAdminForm'
+  requirements:
+    _permission: 'administer scanner settings'
+scanner.admin_confirm:
+  path: 'admin/content/scanner/confirm'
+  defaults:
+    _title: 'Search and Replace Scanner'
+    _form: '\Drupal\scanner\Form\ScannerConfirmForm'
+  requirements:
+    _permission: 'perform search and replace'
+scanner.undo:
+  path: 'admin/content/scanner/undo'
+  defaults:
+    _title: 'Search and Replace Undo'
+    _controller: '\Drupal\scanner\Controller\ScannerController::undoListing'
+  requirements:
+    _permission: 'perform search and replace'
+scanner.undo_confirm:
+  path: 'admin/content/scanner/undo/{id}/confirm'
+  defaults:
+    _title: 'Confirm Undo'
+    _form: '\Drupal\scanner\Form\ScannerConfirmUndoForm'
+  requirements:
+    _permission: 'perform search and replace'
+    id: '\d+'

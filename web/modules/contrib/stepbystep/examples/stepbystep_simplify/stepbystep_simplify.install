@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Installation functions for Step by Step - Example.
+ */
+
+use Drupal\Core\Link;
+
+/**
+ * Implements hook_install().
+ */
+function stepbystep_simplify_install() {
+  \Drupal::messenger()->addStatus(
+    t('The Step by Step - Example module has been installed. You may now visit the @link.',
+    ['@link' => Link::createFromRoute(t('example wizard'), 'stepbystep_simplify.example')->toString()])
+  );
+}

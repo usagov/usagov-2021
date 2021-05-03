@@ -1,0 +1,12 @@
+uuid: cd2284e3-3359-42de-87bd-f8a969034b6d
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: V0wAaUtF2A9FONvlVDgbPBJhDYwF0CsiqeHIUfAzg8o
+id: text_field
+label: 'Text Field'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

@@ -1,0 +1,15 @@
+{
+    "name": "drupal/scheduled_publish",
+    "description": "A simple module for scheduled content moderation",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "drush": {
+            "services": {
+                "drush.services.yml": "^9"
+            }
+        }
+    }
+}

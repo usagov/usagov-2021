@@ -1,0 +1,4 @@
+#!/bin/sh
+
+sshpass -p 'Docker!' \
+  ssh -4 -o StrictHostKeyChecking=no -o ServerAliveInterval=15 root@localhost -p 2223

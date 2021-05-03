@@ -1,0 +1,18 @@
+<?php
+
+use Drupal\views\Entity\View;
+use Symfony\Component\Yaml\Yaml;
+
+/**
+ * Add list view.
+ */
+function scheduled_publish_update_8400() {
+  // Only create if the scheduled publish view doesn't exist and views is enabled.
+  if (\Drupal::moduleHandler()->moduleExists('views') && !View::load('scheduled_publish')) {
+    $config = \Drupal::configFactory()
+      ->getEditable('views.view.scheduled_publish');
+    $newConfigData = Yaml::parseFile(\Drupal::service('extension.list.module')
+        ->getPath('scheduled_publish') . '/config/optional/views.view.scheduled_publish.yml');
+    $config->setData($newConfigData)->save();
+  }
+}

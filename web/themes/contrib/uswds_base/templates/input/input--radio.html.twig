@@ -1,0 +1,35 @@
+{#
+/**
+ * @file
+ * Theme override for an 'input' #type form element.
+ *
+ * Available variables:
+ * - attributes: A list of HTML attributes for the input element.
+ * - children: Optional additional rendered elements.
+ *
+ * @see template_preprocess_input()
+ */
+#}
+{% spaceless %}
+    {% if input_group %}
+        <div class="input-group usa-form-group usa-radio">
+    {% endif %}
+
+    {% if prefix %}
+        {{ prefix }}
+    {% endif %}
+
+    {% block input %}
+        <input{{ attributes.addClass('usa-radio__input') }} />
+    {% endblock %}
+
+    {% if suffix %}
+        {{ suffix }}
+    {% endif %}
+
+    {% if input_group %}
+        </div>
+    {% endif %}
+
+    {{ children }}
+{% endspaceless %}

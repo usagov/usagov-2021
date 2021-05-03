@@ -1,0 +1,23 @@
+uuid: 71daa555-616a-4f5a-8b36-288a4cdd02f4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_2_column_grid
+    - paragraphs.paragraphs_type.uswds_columns_2_uneven
+  module:
+    - options
+_core:
+  default_config_hash: RDnubow0I0RUCjOy3kcNezfAt3QTHpbJ7goEznLsa4A
+id: paragraph.uswds_columns_2_uneven.field_2_column_grid
+field_name: field_2_column_grid
+entity_type: paragraph
+bundle: uswds_columns_2_uneven
+label: '2 Column Grid'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

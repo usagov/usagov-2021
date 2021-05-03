@@ -1,0 +1,5 @@
+scheduled_publish_widget:
+  version: VERSION
+  css:
+    component:
+      css/scheduled-publish-widget.css: {}

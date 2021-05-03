@@ -1,0 +1,12 @@
+ckeditor.templates.dialog:
+  version: 1.x
+  css:
+    theme:
+      css/ckeditor_templates.css: {}
+  js:
+    js/ckeditor_templates.dialog.js: {}
+
+ckeditor.templates.admin:
+  version: 1.x
+  js:
+    js/ckeditor_templates.admin.js: {}

@@ -1,0 +1,24 @@
+services:
+  scheduler.manager:
+    class: Drupal\scheduler\SchedulerManager
+    arguments:
+      - '@date.formatter'
+      - '@logger.channel.scheduler'
+      - '@module_handler'
+      - '@entity_type.manager'
+      - '@config.factory'
+      - '@event_dispatcher'
+      - '@datetime.time'
+  logger.channel.scheduler:
+    class: Drupal\Core\Logger\LoggerChannel
+    factory: logger.factory:get
+    arguments: ['scheduler']
+  access_checker.scheduler_content:
+    class: Drupal\scheduler\Access\ScheduledListAccess
+    arguments: ['@current_route_match']
+    tags:
+      - { name: access_check }
+  theme.negotiator.scheduler:
+    class: Drupal\scheduler\Theme\SchedulerThemeNegotiator
+    tags:
+      - { name: theme_negotiator, priority: 10 }

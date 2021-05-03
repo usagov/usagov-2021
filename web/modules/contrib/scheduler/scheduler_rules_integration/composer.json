@@ -1,0 +1,10 @@
+{
+    "name": "drupal/scheduler_rules_integration",
+    "description": "Scheduler sub-module providing conditions, actions and events for use with the Rules module.",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "drupal/rules": "^3.x",
+        "drupal/scheduler": "^1.0"
+    }
+}

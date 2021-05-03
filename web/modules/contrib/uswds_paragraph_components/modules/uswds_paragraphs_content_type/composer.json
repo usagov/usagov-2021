@@ -1,0 +1,20 @@
+{
+    "name": "drupal/uswds_paragraphs_content_type",
+    "description": "A simple content type using USWDS.",
+    "type": "drupal-module",
+    "homepage": "https://drupal.org/project/uswds_paragraphs",
+    "require": {
+        "drupal/uswds_paragraphs": "*"
+    },
+    "support": {
+        "issues": "https://drupal.org/project/issues/uswds_paragraphs",
+        "source": "https://git.drupalcode.org/project/uswds_paragraphs"
+    },
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Stephen Mustgrave",
+            "email": "smustgrave@gmail.com"
+        }
+    ]
+}

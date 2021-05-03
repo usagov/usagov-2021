@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * Module File, consist all related hooks.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_help().
+ */
+function admin_content_notification_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.admin_content_notification':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('This module can be used to send email to admin or on any specific email id when a content has been posted/updated on Drupal site.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function admin_content_notification_node_insert(EntityInterface $node) {
+  if (\Drupal::service('admin_content_notification.common')->isCurrentUserRoleAllowedToSendNotification()) {
+    \Drupal::service('admin_content_notification.common')->sendMail($node, TRUE);
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function admin_content_notification_node_update(EntityInterface $node) {
+  if (!empty(\Drupal::config('admin_content_notification.settings')->get('admin_content_notification_trigger_on_node_update')) && \Drupal::service('admin_content_notification.common')->isCurrentUserRoleAllowedToSendNotification()) {
+    \Drupal::service('admin_content_notification.common')->sendMail($node);
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function admin_content_notification_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'admin_content_notification_key':
+      $message['headers']['bcc'] = $params['bcc'];
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+      break;
+  }
+}

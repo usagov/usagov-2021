@@ -1,0 +1,12 @@
+uuid: 4dcbdd0b-f21c-4ceb-a77c-9b47598be4cc
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: vfycPR6BgLajg48y9fRsJ4DWmVn_fxUg4fFJ-KrYZ2E
+id: uswds_card_group_regular
+label: 'USWDS Card Group (Regular)'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

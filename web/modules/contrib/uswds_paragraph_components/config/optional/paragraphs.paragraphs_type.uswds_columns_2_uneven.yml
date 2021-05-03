@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies: {  }
+id: uswds_columns_2_uneven
+label: 'USWDS Columns (2 Uneven)'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

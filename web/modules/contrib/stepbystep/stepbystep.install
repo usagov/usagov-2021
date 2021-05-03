@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Installation functions for Step by Step.
+ *
+ * (c) 2017, 2019 Martin Quested & Brad Greco.
+ * This module may be distributed under the terms of GPL version 2.0 or later.
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * Set this module to run AFTER all known modules.
+ */
+function stepbystep_install() {
+  module_set_weight('stepbystep', 999);
+}

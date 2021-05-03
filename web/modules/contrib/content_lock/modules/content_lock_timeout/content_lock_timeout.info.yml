@@ -1,0 +1,13 @@
+name: Content Lock Timeout
+description: Provides mechanisms for automatically unlocking nodes that have been locked for a certain length of time.
+core_version_requirement: ^8.8 || ^9
+type: module
+package: Content
+configure: content_lock_timeout.settings
+dependencies:
+ - content_lock:content_lock
+
+# Information added by Drupal.org packaging script on 2020-12-14
+version: '8.x-2.2'
+project: 'content_lock'
+datestamp: 1607936868

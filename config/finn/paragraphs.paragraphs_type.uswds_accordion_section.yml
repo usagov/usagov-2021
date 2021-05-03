@@ -1,0 +1,12 @@
+uuid: 3c24e0ee-8af3-47bc-9cb9-c5021921d5bf
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: TngsHZkY3cBDdG1mBHO_ns4ED-BpdexUvUaqiars9eU
+id: uswds_accordion_section
+label: 'USWDS Accordion Section'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

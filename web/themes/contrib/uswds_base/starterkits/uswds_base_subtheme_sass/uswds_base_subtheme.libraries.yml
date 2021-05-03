@@ -1,0 +1,7 @@
+assets:
+  version: VERSION
+  css:
+    theme:
+      css/style.css: {}
+  js:
+    assets/js/uswds.min.js: {}

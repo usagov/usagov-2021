@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Contains install routines for workbench_email.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function workbench_email_moderation_requirements($phase) {
+  $requirements = [];
+
+  $module_handler = \Drupal::moduleHandler();
+  if (!$module_handler->moduleExists('workbench_moderation') && !$module_handler->moduleExists('content_moderation')) {
+    $requirements['missing_moderation'] = [
+      'title' => t('A moderation module is not installed'),
+      'description' => t(
+        'Workbench Email requires that either Workbench Moderation or Content Moderation is installed.'
+      ),
+      'severity' => REQUIREMENT_ERROR,
+    ];
+  }
+
+  return $requirements;
+}
+
+/**
+ * Empty update to trigger config schema cache update.
+ */
+function workbench_email_update_8001() {
+}
+
+/**
+ * Empty update to trigger config schema cache update.
+ */
+function workbench_email_update_8002() {
+}
+

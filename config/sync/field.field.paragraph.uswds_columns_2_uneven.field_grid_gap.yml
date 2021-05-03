@@ -1,0 +1,25 @@
+uuid: 339cdee7-d0c3-4d98-903b-eef48ca2dd83
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_grid_gap
+    - paragraphs.paragraphs_type.uswds_columns_2_uneven
+_core:
+  default_config_hash: hdfoURMTzv2m-MAru_oiW-c83Bx9uDM7BakQEr_9NsU
+id: paragraph.uswds_columns_2_uneven.field_grid_gap
+field_name: field_grid_gap
+entity_type: paragraph
+bundle: uswds_columns_2_uneven
+label: 'Grid Gap'
+description: 'Add a gap (or gutter) between each column in the row'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

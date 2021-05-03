@@ -1,0 +1,12 @@
+uuid: 8115b002-6271-49d0-8e9b-562e531dabc3
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: rfcD6lEZlF9668qFUADowsV-uabGBbwUg8v73UE6asg
+id: uswds_columns_2_uneven
+label: 'USWDS Columns (2 Uneven)'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

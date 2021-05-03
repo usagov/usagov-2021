@@ -1,0 +1,9 @@
+services:
+  plugin.manager.openapi_ui.ui:
+    class: Drupal\openapi_ui\Plugin\openapi_ui\OpenApiUiManager
+    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler']
+  openapi_ui.parm_parser:
+    class: Drupal\openapi_ui\ParamConverter\OpenApiUiParamConverter
+    arguments: ['@plugin.manager.openapi_ui.ui']
+    tags:
+      - { name: paramconverter }

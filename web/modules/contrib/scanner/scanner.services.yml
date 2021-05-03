@@ -1,0 +1,4 @@
+services:
+  plugin.manager.scanner:
+    class: Drupal\scanner\Plugin\ScannerPluginManager
+    parent: default_plugin_manager

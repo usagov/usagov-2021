@@ -1,0 +1,10 @@
+services:
+  plugin.manager.stepbystep_sequence:
+    class: Drupal\stepbystep\SequenceManager
+    parent: default_plugin_manager
+
+  stepbystep.breadcrumb:
+    class: Drupal\stepbystep\SequenceBreadcrumbBuilder
+    arguments: ['@string_translation', '@plugin.manager.stepbystep_sequence', '@request_stack']
+    tags:
+      - { name: breadcrumb_builder, priority: 2000 }

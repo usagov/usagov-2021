@@ -1,0 +1,9 @@
+ckeditor.uswds.table.admin:
+  version: 1.x
+  js:
+    js/ckeditor_uswds.admin.js: { }
+dialog:
+  version: VERSION
+  css:
+    component:
+      css/dialog.css: { }

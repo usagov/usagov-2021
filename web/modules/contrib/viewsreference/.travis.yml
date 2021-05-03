@@ -1,0 +1,71 @@
+language: php
+sudo: true
+
+php:
+- 5.6
+- 7.0
+#- 7.1
+#- 7.2
+
+env:
+  global:
+  - COMPOSER_MEMORY_LIMIT=2G
+  - DRUPAL_DIR=${TRAVIS_BUILD_DIR}/../build
+  - MODULES_DIR=${DRUPAL_DIR}/modules/contrib
+  - MODULE_DIR=${MODULES_DIR}/viewsreference
+  matrix:
+  - TEST_SUITE=PHP_CodeSniffer
+  - TEST_SUITE=8.5.x
+#  - TEST_SUITE=8.6.x
+#  - TEST_SUITE=8.7.x
+
+# Only run the coding standards check once.
+matrix:
+  exclude:
+  - php: 5.6
+    env: TEST_SUITE=PHP_CodeSniffer
+#  - php: 7.0
+#    env: TEST_SUITE=PHP_CodeSniffer
+#  - php: 7.1
+#    env: TEST_SUITE=PHP_CodeSniffer
+
+mysql:
+  database: viewsreference
+  username: root
+  encoding: utf8
+
+before_script:
+# Remove Xdebug as we don't need it and it causes "PHP Fatal error: Maximum
+# function nesting level of '256' reached."
+# We also don't care if that file exists or not on PHP 7.
+- phpenv config-rm xdebug.ini || true
+
+# Require the version of Drupal 8 core under test.
+- test ${TEST_SUITE} == "PHP_CodeSniffer" || composer require --no-update drupal/core:$TEST_SUITE webflo/drupal-core-require-dev:$TEST_SUITE
+
+# PHPUnit 6 is required when running tests on PHP 7.x.
+- test ${TEST_SUITE} == "PHP_CodeSniffer" || test ${TRAVIS_PHP_VERSION:0:3} == "5.6" || composer require --no-update --update-with-dependencies --dev phpunit/phpunit:~6
+
+# Install dependencies.
+- composer install
+
+# Create database.
+- test ${TEST_SUITE} == "PHP_CodeSniffer" || mysql -e 'CREATE DATABASE viewsreference'
+
+# Symlink the module into the Drupal site.
+- test ${TEST_SUITE} == "PHP_CodeSniffer" || mkdir -p $MODULES_DIR
+- test ${TEST_SUITE} == "PHP_CodeSniffer" || ln -s $TRAVIS_BUILD_DIR $MODULE_DIR
+
+# Start a web server on port 8888 in the background.
+- test ${TEST_SUITE} == "PHP_CodeSniffer" || nohup php -S localhost:8888 --docroot $DRUPAL_DIR > /dev/null 2>&1 &
+
+# Wait until the web server is responding.
+- test ${TEST_SUITE} == "PHP_CodeSniffer" || until curl -s localhost:8888; do true; done > /dev/null
+
+# Export web server URL for browser tests.
+- test ${TEST_SUITE} == "PHP_CodeSniffer" || export SIMPLETEST_BASE_URL=http://localhost:8888
+
+# Export database variable for kernel tests.
+- test ${TEST_SUITE} == "PHP_CodeSniffer" || export SIMPLETEST_DB=mysql://root:@127.0.0.1/viewsreference
+
+script: ${TRAVIS_BUILD_DIR}/scripts/travis-ci/run-tests.sh ${TEST_SUITE}

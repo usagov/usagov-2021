@@ -1,0 +1,10 @@
+scanner.admin:
+  title: Search and Replace Scanner
+  route_name: scanner.admin_content
+  parent: system.admin_content
+  description: 'Perform search and replace on chosen text fields.'
+scanner.admin_config:
+  title: Search and Replace Scanner
+  parent: system.admin_config_content
+  description: 'Configure defaults and what fields can be searched and replaced.'
+  route_name: scanner.admin_config

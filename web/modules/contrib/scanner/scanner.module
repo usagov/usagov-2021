@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function scanner_theme($existing, $type, $theme, $path) {
+  return [
+    'scanner_results' => [
+      'variables' => [
+        'data' => NULL,
+      ],
+    ],
+  ];
+}

@@ -1,0 +1,13 @@
+scanner.admin_content:
+  title: 'Search and Replace Scanner'
+  route_name: scanner.admin_content
+  base_route: system.admin_content
+scanner.admin:
+  title: 'Scan and Replace'
+  route_name: scanner.admin_content
+  parent_id: scanner.admin_content
+scanner.admin_undo:
+  title: 'Undo'
+  route_name: scanner.undo
+  parent_id: scanner.admin_content
+  weight: 1

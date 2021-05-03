@@ -1,0 +1,37 @@
+admin_content_notification.settings:
+  type: config_object
+  label: 'Admin content notification settings'
+  mapping:
+    admin_content_notification_node_types:
+      type: sequence
+      label: 'Content types'
+      sequence:
+        type: string
+    admin_content_notification_trigger_on_node_update:
+      type: boolean
+      label: 'Enable on content update'
+    admin_content_notification_trigger_on_node_status:
+      type: integer
+      label: 'Content status'
+    admin_content_notification_allowed_roles:
+      type: sequence
+      label: 'Allowed roles'
+      sequence:
+        type: string
+    admin_content_notification_email_limit:
+      type: integer
+      label: 'Recipients Limit (Max)'
+    admin_content_notification_email:
+      type: string
+      label: "Email Id's receiving notification email"
+    admin_content_notification_roles_notified:
+      type: sequence
+      label: 'Roles receiving notification email'
+      sequence:
+        type: string
+    admin_content_notification_email_subject:
+      type: label
+      label: 'Email subject'
+    admin_content_notification_email_body:
+      type: text
+      label: 'Email body'

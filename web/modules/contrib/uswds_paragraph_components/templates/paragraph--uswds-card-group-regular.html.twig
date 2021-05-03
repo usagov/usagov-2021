@@ -1,0 +1,93 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a paragraph in USWDS Paragraph Components.
+ *
+ * Available variables:
+ * - paragraph: Full paragraph entity.
+ *   - id: The paragraph ID.
+ *   - bundle: The type of the paragraph, for example, "image" or "text".
+ *   - authorid: The user ID of the paragraph author.
+ *   - createdtime: Formatted creation date. Preprocess functions can
+ *     reformat it by calling format_date() with the desired parameters on
+ *     $variables['paragraph']->getCreatedTime().
+ * - content: All paragraph items. Use {{ content }} to print them all,
+ *   or print a subset such as {{ content.field_example }}. Use
+ *   {{ content|without('field_example') }} to temporarily suppress the printing
+ *   of a given child element.
+ * - attributes: HTML attributes for the containing element.
+ *   The attributes.class element may contain one or more of the following
+ *   classes:
+ *   - paragraphs: The current template type (also known as a "theming hook").
+ *   - paragraphs--type-[type]: The current paragraphs type. For example, if the paragraph is an
+ *     "Image" it would result in "paragraphs--type--image". Note that the machine
+ *     name will often be in a short form of the human readable label.
+ *   - paragraphs--view-mode--[view_mode]: The View Mode of the paragraph; for example, a
+ *     preview would result in: "paragraphs--view-mode--preview", and
+ *     default: "paragraphs--view-mode--default".
+ * - view_mode: View mode; for example, "preview" or "full".
+ * - logged_in: Flag for authenticated user status. Will be true when the
+ *   current user is a logged-in member.
+ * - is_admin: Flag for admin user status. Will be true when the current user
+ *   is an administrator.
+ *
+ * @see template_preprocess_paragraph()
+ *
+ * @ingroup themeable
+ */
+#}
+
+{# The template default set classes. #}
+{# Sets Paragraph ID as class. #}
+{%
+  set classes = [
+  'paragraph',
+  'paragraph--type--' ~ paragraph.bundle|clean_class,
+  view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
+  'paragraph--id--' ~ paragraph.id.value,
+
+]
+%}
+
+<div{{ attributes.addClass(classes) }}>
+  <ul class="usa-card-group">
+    {% for key, item in content.field_cards if key|first != '#' %}
+      {% set header_first = item['#paragraph'].field_title_first.value ? ' usa-card--header-first' %}
+      <li class="tablet:grid-col-4 usa-card{{ header_first }}">
+        <div class="usa-card__container">
+          <header class="usa-card__header">
+            <h2 class="usa-card__heading">{{ item['#paragraph'].field_card_title.value }}</h2>
+          </header>
+
+          <div class="usa-card__media">
+            {% if item['#paragraph'].field_card_image.entity.field_media_image %}
+              {% set indent_media = item['#paragraph'].field_indent_media.value ? ' usa-card__media--inset' %}
+              {% set extend_media = item['#paragraph'].field_extend_media.value ? ' usa-card__media--exdent' %}
+              <div class="usa-card__img{{ indent_media }}{{ extend_media }}">
+                {% set file_url = file_url(item['#paragraph'].field_card_image.entity.field_media_image.entity.uri.value) %}
+                {% set file_alt = item['#paragraph'].field_card_image.entity.field_media_image.alt %}
+                {% set file_title = item['#paragraph'].field_card_image.entity.field_media_image.title %}
+                <img alt="{{ file_alt }}" title="{{ file_title }}" src="{{ file_url }}"/>
+              </div>
+            {% endif %}
+          </div>
+
+          {% if item['#paragraph'].field_text.value %}
+            <div class="usa-card__body">
+             {{ item['#paragraph'].field_text.value|raw }}
+            </div>
+          {% endif %}
+
+          {% if item['#paragraph'].field_button.uri %}
+            <div class="usa-card__footer">
+              <a href="{{  item['#paragraph'].field_button.uri }}">
+                {% set button_text = item['#paragraph'].field_button.title ?: 'Link Text' %}
+                <button class="usa-button">{{ button_text }}</button>
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

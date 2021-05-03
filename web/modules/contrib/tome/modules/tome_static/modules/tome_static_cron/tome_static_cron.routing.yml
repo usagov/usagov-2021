@@ -1,0 +1,7 @@
+tome_static_cron.settings:
+  path: '/admin/config/services/tome_static_cron/settings'
+  defaults:
+    _form: 'Drupal\tome_static_cron\Form\TomeStaticCronSettingsForm'
+    _title: 'Tome Static Cron settings'
+  requirements:
+    _permission: 'use tome static'

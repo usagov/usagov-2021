@@ -1,0 +1,272 @@
+<?php
+
+/**
+ * @file
+ * Provides main module functions.
+ */
+
+use Drupal\content_moderation\Entity\ContentModerationState;
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\Core\Entity\TranslatableInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Mail\MailFormatHelper;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\workbench_email\Entity\Template;
+use Drupal\workbench_email\EventSubscriber\ContentModerationStateChangedEvent;
+use Drupal\workbench_email\TemplateInterface;
+
+/**
+ * Implements hook_help().
+ */
+function workbench_email_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'entity.workbench_email_template.collection':
+    case 'help.page.workbench_email':
+      return '<p>' . t("The Workbench Moderation Email module keeps track of when a piece of entity transitions from one state to another. Admins can create new templates to manage the contents and recipients of email sent when those transitions happen.") . '</p><p>' . t('Each template can be attached to a transition by editing the transition and selecting the templates to use.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for moderation_state_transition_edit_form.
+ */
+function workbench_email_form_moderation_state_transition_edit_form_alter(&$form, FormStateInterface $form_state) {
+  // Alter the transition form to add the fields to choose the templates.
+  /** @var \Drupal\workbench_moderation\Entity\ModerationStateTransition $transition */
+
+  $form_object = $form_state->getFormObject();
+  if (!in_array($form_object->getOperation(), ['edit', 'add'], TRUE)) {
+    // Only alter the edit and add forms.
+    return;
+  }
+
+  workbench_email_form_workflow_transition_add_form_alter($form, $form_state);
+
+  // And add an entity builder.
+  $form['#entity_builders'][] = 'workbench_email_transition_edit_builder';
+  // Fix the default value.
+  $form['workbench_email_templates']['#default_value'] = $form_state->getFormObject()->getEntity()->getThirdPartySetting('workbench_email', 'workbench_email_templates', []);
+
+}
+
+/**
+ * Entity builder for the transition form edit form with third party options.
+ *
+ * @see workbench_email_form_moderation_state_transition_edit_form_alter()
+ */
+function workbench_email_transition_edit_builder($entity_type, ConfigEntityInterface $transition, &$form, FormStateInterface $form_state) {
+  $transition->setThirdPartySetting('workbench_email', 'workbench_email_templates', array_filter($form_state->getValue('workbench_email_templates')));
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for workflow_transition_edit_form.
+ */
+function workbench_email_form_workflow_transition_edit_form_alter(array &$form, FormStateInterface $form_state) {
+  $transition_id = $form['id']['#value'];
+
+  /** @var \Drupal\workflows\WorkflowInterface $workflow */
+  $workflow = $form_state->getFormObject()->getEntity();
+  $transition_settings = $workflow->getThirdPartySetting('workbench_email', 'workbench_email_templates', []);
+  $default_value = isset($transition_settings[$transition_id]) ? $transition_settings[$transition_id] : [];
+  _workbench_email_add_template_selection_field($form, $default_value);
+  $form['#entity_builders'][] = 'workbench_email_workflow_edit_builder';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for workflow_transition_add_form.
+ */
+function workbench_email_form_workflow_transition_add_form_alter(array &$form, FormStateInterface $form_state) {
+  _workbench_email_add_template_selection_field($form);
+  $form['#entity_builders'][] = 'workbench_email_workflow_edit_builder';
+}
+
+/**
+ * Attaches the template selection field to a given transition form.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $default_value
+ *   A default value for the template checkbox.
+ */
+function _workbench_email_add_template_selection_field(array &$form, $default_value = []) {
+  // Add the template selection field.
+  $template_options = array_map(function (TemplateInterface $template) {
+    return $template->label();
+  }, Template::loadMultiple());
+  $form['workbench_email_templates'] = [
+    '#type' => 'checkboxes',
+    '#title' => t('Email Templates'),
+    '#description' => t('Use the following mail templates'),
+    '#options' => $template_options,
+    '#default_value' => $default_value,
+    '#access' => $template_options,
+  ];
+}
+
+/**
+ * Entity builder for the workflow form edit form with third party options.
+ *
+ * @see workbench_email_form_workflow_transition_edit_form_alter()
+ * @see workbench_email_form_workflow_transition_add_form_alter()
+ */
+function workbench_email_workflow_edit_builder($entity_type, ConfigEntityInterface $workflow, &$form, FormStateInterface $form_state) {
+  $transition_settings = $workflow->getThirdPartySetting('workbench_email', 'workbench_email_templates', []);
+  $transition_settings[$form_state->getValue('id')] = array_filter($form_state->getValue('workbench_email_templates'));
+  $workflow->setThirdPartySetting('workbench_email', 'workbench_email_templates', $transition_settings);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function workbench_email_moderation_state_transition_presave(ConfigEntityInterface $transition) {
+  if (!$transition->isSyncing()) {
+    $dependencies = $transition->get('dependencies');
+    foreach ($transition->getThirdPartySetting('workbench_email', 'workbench_email_templates', []) as $template) {
+      $dependencies['enforced']['config'][] = 'workbench_email.workbench_email_template.' . $template;
+    }
+    // Ensure no duplicates.
+    if (isset($dependencies['enforced']['config'])) {
+      $dependencies['enforced']['config'] = array_unique($dependencies['enforced']['config']);
+    }
+    $transition->set('dependencies', $dependencies);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function workbench_email_workflow_presave(ConfigEntityInterface $workflow) {
+  if (!$workflow->isSyncing()) {
+    $dependencies = $workflow->get('dependencies');
+    foreach ($workflow->getThirdPartySetting('workbench_email', 'workbench_email_templates', []) as $details) {
+      foreach ($details as $id => $template) {
+        $dependencies['enforced']['config'][] = 'workbench_email.workbench_email_template.' . $template;
+      }
+    }
+    // Ensure no duplicates.
+    if (isset($dependencies['enforced']['config'])) {
+      $dependencies['enforced']['config'] = array_unique($dependencies['enforced']['config']);
+    }
+    $workflow->set('dependencies', $dependencies);
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function workbench_email_mail($key, &$message, $params) {
+  if (strpos($key, 'template::') === 0) {
+    // Mailing one of our templates.
+    $message['subject'] = $params['subject'];
+    if (\Drupal::moduleHandler()->moduleExists('swiftmailer')) {
+      // If swiftmailer exists, we send in HTML.
+      $message['headers']['Content-Type'] = 'text/html';
+      $message['params']['convert'] = TRUE;
+      $message['body'][] = $params['body'];
+    }
+    else {
+      // Strip out any HTML.
+      $message['body'][] = MailFormatHelper::htmlToText($params['body']);
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function workbench_email_entity_update(EntityInterface $entity) {
+  _workbench_email_process_if_moderated($entity);
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function workbench_email_entity_insert(EntityInterface $entity) {
+  _workbench_email_process_if_moderated($entity);
+}
+
+/**
+ * Determines if an entity is moderated and processes transition.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   Entity being updated.
+ */
+function _workbench_email_process_if_moderated(EntityInterface $entity) {
+  if (\Drupal::hasService('workbench_moderation.moderation_information')) {
+    /** @var \Drupal\workbench_moderation\ModerationInformationInterface $moderation_info */
+    $moderation_info = \Drupal::service('workbench_moderation.moderation_information');
+    $method = 'isModeratableEntity';
+  }
+  else {
+    /** @var \Drupal\content_moderation\ModerationInformationInterface $moderation_info */
+    $moderation_info = \Drupal::service('content_moderation.moderation_information');
+    $method = 'isModeratedEntity';
+  }
+  if ($moderation_info->$method($entity)) {
+    \Drupal::service('workbench_email.processor')->processEntity($entity);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert for content_moderation_state.
+ *
+ * @todo Remove when https://www.drupal.org/project/drupal/issues/2873287 is in.
+ */
+function workbench_email_content_moderation_state_insert(ContentModerationState $entity) {
+  _workbench_email_content_moderation_event_shim($entity);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update for content_moderation_state.
+ *
+ * @todo Remove when https://www.drupal.org/project/drupal/issues/2873287 is in.
+ */
+function workbench_email_content_moderation_state_update(ContentModerationState $entity) {
+  _workbench_email_content_moderation_event_shim($entity);
+}
+
+/**
+ * Shim for content moderation event.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   Entity being updated/inserted.
+ *
+ * @todo Remove when https://www.drupal.org/project/drupal/issues/2873287 is in.
+ *
+ * @see https://www.drupal.org/project/drupal/issues/2873287#comment-12619624
+ *
+ */
+function _workbench_email_content_moderation_event_shim(ContentModerationState $entity) {
+  if (!\Drupal::moduleHandler()->moduleExists('content_moderation') || class_exists('\Drupal\content_moderation\Event\ContentModerationStateChangedEvent')) {
+    // https://www.drupal.org/project/drupal/issues/2873287 will add this class
+    // to core.
+    return;
+  }
+  $entityStorage = \Drupal::entityTypeManager()->getStorage($entity->content_entity_type_id->value);
+  $moderationStateStorage = \Drupal::entityTypeManager()->getStorage($entity->getEntityTypeId());
+  $moderated_entity = $entityStorage->loadRevision($entity->content_entity_revision_id->value);
+  /** @var \Drupal\content_moderation\ModerationInformationInterface $moderation_info */
+  $moderation_info = Drupal::service('content_moderation.moderation_information');
+
+  // Check to see if the content is moderated or not
+  $is_moderated = $moderation_info->isModeratedEntity($moderated_entity);
+  if (!$is_moderated) {
+    return;
+  }
+
+  if (!$entity->getLoadedRevisionId()) {
+    $original_state = FALSE;
+  }
+  else {
+    $original_content_moderation_state = $moderationStateStorage->loadRevision($entity->getLoadedRevisionId());
+    if (!$entity->isDefaultTranslation() && $original_content_moderation_state->hasTranslation($entity->activeLangcode)) {
+      $original_content_moderation_state = $original_content_moderation_state->getTranslation($entity->activeLangcode);
+    }
+    $original_state = $original_content_moderation_state->moderation_state->value;
+  }
+  $new_state = $entity->moderation_state->value;
+  if ($original_state !== $new_state) {
+    $workflow = $entity->workflow->target_id;
+    \Drupal::service('event_dispatcher')->dispatch('content_moderation.state_changed', new ContentModerationStateChangedEvent($moderated_entity, $new_state, $original_state, $workflow));
+  }
+}

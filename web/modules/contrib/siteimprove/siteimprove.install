@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * @file
+ * Install file for the siteimprove module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function siteimprove_install() {
+  // Request new token.
+  if ($token = \Drupal::service('siteimprove.utils')->requestToken()) {
+    /** @var \Drupal\Core\Config\Config $config */
+    $config = \Drupal::service('config.factory')->getEditable('siteimprove.settings');
+    $config->set('token', $token);
+    $config->save();
+  }
+  else {
+    \Drupal::messenger()->addError(t('There was an error requesting a new token.'));
+  }
+
+  // Set default domain plugin id.
+  siteimprove_update_8101();
+  // Set other settings.
+  siteimprove_update_8102();
+}
+
+/**
+ * Update domain_plugin_id.
+ */
+function siteimprove_update_8101() {
+  // Clear existing domain_plugin_id.
+  \Drupal::service('config.factory')->getEditable('siteimprove.settings')->clear('domain_plugin_id')->save();
+  $settings = \Drupal::configFactory()->getEditable('siteimprove.settings');
+  $settings->set('domain_plugin_id', 'siteimprovedomain_simple');
+  $settings->save();
+}
+
+/**
+ * Update settings.
+ */
+function siteimprove_update_8102() {
+  $settings = \Drupal::configFactory()->getEditable('siteimprove.settings');
+  $settings->set('prepublish_enabled', false);
+  $settings->set('api_username', '');
+  $settings->set('api_key', '');
+  $settings->set('enabled_content_types', []);
+  $settings->set('enabled_taxonomies', []);
+  $settings->save();
+}

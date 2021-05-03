@@ -1,0 +1,85 @@
+{#
+/**
+ * @file
+ * Override of system/menu.html.twig for the footer menu.
+ */
+#}
+{% import _self as menus %}
+{#
+  We call a macro which calls itself to render the full tree.
+  @see http://twig.sensiolabs.org/doc/tags/macro.html
+#}
+{{ menus.menu_links(items, 0, footer_style) }}
+
+{% macro menu_links(items, menu_level, footer_style) %}
+  {% import _self as menus %}
+  {% if items %}
+
+    {% if footer_style == 'big' and menu_level == 0   %}
+      <div class="tablet:grid-col-12">
+    {% elseif footer_style == 'small' and menu_level == 0  %}
+        <div class="tablet:grid-col-8">
+    {% endif %}
+    {% if menu_level == 0  %}
+              <nav class="usa-footer__nav">
+    {% endif %}
+
+    {% if menu_level == 0 and footer_style == 'big' %}
+              <div class="grid-row grid-gap-4">
+    {% endif %}
+
+    {% if menu_level == 0 and footer_style != 'big' %}
+      <ul class="add-list-reset grid-row grid-gap">
+    {% elseif footer_style != 'big' %}
+      <ul class="usa-unstyled--list">
+    {% endif %}
+
+    {% for item in items %}
+      {% if menu_level == 0 and footer_style == 'big' %}
+        <div class="mobile-lg:grid-col-6 desktop:grid-col">
+          <section class="usa-footer__primary-content usa-footer__primary-content--collapsible">
+            <strong><a class="usa-footer__primary-link" href="{{ item.url }}">{{ item.title }}</a></strong>
+            <ul class="usa-list usa-list--unstyled">
+              {% if item.below %}
+                {{ menus.menu_links(item.below, 1, footer_style) }}
+              {% endif %}
+            </ul>
+          </section>
+        </div>
+      {% elseif footer_style == 'big' %}
+        <li class="usa-footer__secondary-link">
+          <a href="{{ item.url }}">{{ item.title }}</a>
+        </li>
+      {% elseif footer_style == 'medium' %}
+        <li class="mobile-lg:grid-col-4 desktop:grid-col-2 usa-footer__primary-content">
+          <a class="usa-footer__primary-link" href="{{ item.url }}">{{ item.title }}</a>
+        </li>
+      {% else %}
+        <li class="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content">
+          <a class="usa-footer__primary-link" href="{{ item.url }}">{{ item.title }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if footer_style == 'big' and menu_level == 0   %}
+      </div>
+    {% elseif footer_style == 'small' and menu_level == 0   %}
+      </div>
+    {% endif %}
+    {% if menu_level == 0  %}
+      </nav>
+    {% endif %}
+
+    {% if menu_level == 0 and footer_style == 'big' %}
+      </div>
+    {% endif %}
+
+    {% if menu_level == 0 and footer_style != 'big' %}
+      </ul>
+    {% elseif footer_style != 'big' %}
+      </ul>
+    {% endif %}
+
+  {% endif %}
+{% endmacro %}
+

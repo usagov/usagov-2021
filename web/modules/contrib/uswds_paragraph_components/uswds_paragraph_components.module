@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * USWDS Paragraphs module file.
+ */
+
+/**
+ * Implements hook_theme().
+ *
+ * @param $existing
+ * @param $type
+ * @param $theme
+ * @param $path
+ *
+ * @return \string[][]
+ */
+function uswds_paragraph_components_theme($existing, $type, $theme, $path): array {
+  return [
+    'paragraph__default' => [
+      'base hook' => 'paragraph',
+    ],
+    'paragraph__uswds_accordion' => [
+      'base hook' => 'paragraph',
+    ],
+    'paragraph__uswds_card_group_regular' => [
+      'base hook' => 'paragraph',
+    ],
+    'paragraph__uswds_card_group_flag' => [
+      'base hook' => 'paragraph',
+    ],
+    'paragraph__uswds_alert' => [
+      'base hook' => 'paragraph',
+    ],
+    'paragraph__uswds_summary_box' => [
+      'base hook' => 'paragraph',
+    ],
+    'paragraph__uswds_process_list' => [
+      'base hook' => 'paragraph',
+    ],
+    'paragraph__uswds_column_equal_size' => [
+      'base hook' => 'paragraph',
+    ],
+    'field__paragraph__field_column_content_equal' => [
+      'base hook' => 'paragraph',
+    ],
+    'paragraph__uswds_columns_2_uneven' => [
+      'base hook' => 'paragraph',
+    ],
+    'field__paragraph__field_column_content_2_uneven' => [
+      'base hook' => 'paragraph',
+    ],
+    'paragraph__uswds_columns_3_uneven' => [
+      'base hook' => 'paragraph',
+    ],
+    'field__paragraph__field_column_content_3_uneven' => [
+      'base hook' => 'paragraph',
+    ],
+    'paragraph__uswds_progress_list' => [
+      'base hook' => 'paragraph',
+    ],
+  ];
+}

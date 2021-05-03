@@ -1,0 +1,22 @@
+langcode: en
+status: null
+dependencies:
+  config:
+    - core.entity_form_mode.entity_test_mul_changed.compact
+    - field.field.entity_test_mul_changed.entity_test_mul_changed.field_test_text
+  module:
+    - entity_test
+id: entity_test_mul_changed.entity_test_mul_changed.compact
+targetEntityType: entity_test_mul_changed
+bundle: entity_test_mul_changed
+mode: compact
+content:
+  field_test_text:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+

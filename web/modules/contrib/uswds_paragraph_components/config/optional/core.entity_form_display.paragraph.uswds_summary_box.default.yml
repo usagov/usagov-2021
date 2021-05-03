@@ -1,0 +1,33 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_summary_box.field_header
+    - field.field.paragraph.uswds_summary_box.field_text
+    - paragraphs.paragraphs_type.uswds_summary_box
+  module:
+    - text
+id: paragraph.uswds_summary_box.default
+targetEntityType: paragraph
+bundle: uswds_summary_box
+mode: default
+content:
+  field_header:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_text:
+    weight: 1
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: text_textarea
+    region: content
+hidden:
+  created: true
+  status: true

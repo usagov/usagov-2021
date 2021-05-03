@@ -1,0 +1,194 @@
+<?php
+
+/**
+ * @file
+ * Hook implementations of the Scheduler API Test module.
+ */
+
+use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_scheduler_nid_list().
+ */
+function scheduler_api_test_scheduler_nid_list($action) {
+  $nids = [];
+
+  // Check to see what test nodes exist.
+  $query = \Drupal::entityQuery('node');
+  $nodes = Node::loadMultiple($query->execute());
+  $request_time = \Drupal::time()->getRequestTime();
+  foreach ($nodes as $nid => $node) {
+    // If publishing and this is the publish test node, set a date and add
+    // the node id to the list.
+    if ($action == 'publish' && $node->title->value == 'API TEST nid_list publish me') {
+      $node->set('publish_on', $request_time)->save();
+      $nids[] = $nid;
+    }
+    // If unpublishing and this is the unpublish test node, set a date and add
+    // the node id to the list.
+    if ($action == 'unpublish' && $node->title->value == 'API TEST nid_list unpublish me') {
+      $node->set('unpublish_on', $request_time)->save();
+      $nids[] = $nid;
+    }
+  }
+  return $nids;
+}
+
+/**
+ * Implements hook_scheduler_nid_list_alter().
+ */
+function scheduler_api_test_scheduler_nid_list_alter(&$nids, $action) {
+  $query = \Drupal::entityQuery('node');
+  $nodes = Node::loadMultiple($query->execute());
+  $request_time = \Drupal::time()->getRequestTime();
+  foreach ($nodes as $nid => $node) {
+    if ($action == 'publish' && $node->title->value == 'API TEST nid_list_alter do not publish me') {
+      // Remove the node id.
+      $nids = array_diff($nids, [$nid]);
+    }
+    if ($action == 'publish' && $node->title->value == 'API TEST nid_list_alter publish me') {
+      // Set a publish_on date and add the node id.
+      $node->set('publish_on', $request_time)->save();
+      $nids[] = $nid;
+    }
+    if ($action == 'unpublish' && $node->title->value == 'API TEST nid_list_alter do not unpublish me') {
+      // Remove the node id.
+      $nids = array_diff($nids, [$nid]);
+    }
+    if ($action == 'unpublish' && $node->title->value == 'API TEST nid_list_alter unpublish me') {
+      // Set an unpublish_on date and add the node id.
+      $node->set('unpublish_on', $request_time)->save();
+      $nids[] = $nid;
+    }
+  }
+  return $nids;
+}
+
+/**
+ * Implements hook_scheduler_allow_publishing().
+ */
+function scheduler_api_test_scheduler_allow_publishing(NodeInterface $node) {
+  // If there is no 'Approved for Publishing' field then allow publishing.
+  if (!isset($node->field_approved_publishing)) {
+    $allowed = TRUE;
+  }
+  else {
+    // Only publish nodes that have 'Approved for Publishing' set.
+    $allowed = $node->field_approved_publishing->value;
+    // If publication is denied then inform the user why.
+    if (!$allowed) {
+      \Drupal::messenger()->addMessage(t('%title is scheduled for publishing, but will not be published until approved.', ['%title' => $node->title->value]), 'status', FALSE);
+      // If the time is in the past it means that the action has been prevented.
+      // Write a dblog message to show this. Give a link to view the node but
+      // cater for no nid as the node may be new and not yet saved.
+      if ($node->publish_on->value <= \Drupal::time()->getRequestTime()) {
+        \Drupal::logger('scheduler_api_test')->warning('Publishing of "%title" is prevented until approved.', [
+          '%title' => $node->title->value,
+          'link' => $node->id() ? $node->toLink(t('View node'))->toString() : '',
+        ]);
+      }
+    }
+  }
+  return $allowed;
+}
+
+/**
+ * Implements hook_scheduler_allow_unpublishing().
+ */
+function scheduler_api_test_scheduler_allow_unpublishing(NodeInterface $node) {
+  // If there is no 'Approved for Unpublishing' field then allow unpublishing.
+  if (!isset($node->field_approved_unpublishing)) {
+    $allowed = TRUE;
+  }
+  else {
+    // Only unpublish nodes that have 'Approved for Unpublishing' set.
+    $allowed = $node->field_approved_unpublishing->value;
+    // If unpublication is denied then inform the user why.
+    if (!$allowed) {
+      \Drupal::messenger()->addMessage(t('%title is scheduled for unpublishing, but will not be unpublished until approved.', ['%title' => $node->title->value]), 'status', FALSE);
+      // If the time is in the past it means that the action has been prevented.
+      // Write a dblog message to show this. Give a link to view the node but
+      // cater for no nid as the node may be new and not yet saved.
+      if ($node->unpublish_on->value <= \Drupal::time()->getRequestTime()) {
+        \Drupal::logger('scheduler_api_test')->warning('Unpublishing of "%title" is prevented until approved.', [
+          '%title' => $node->title->value,
+          'link' => $node->id() ? $node->toLink(t('View node'))->toString() : '',
+        ]);
+      }
+    }
+  }
+  return $allowed;
+}
+
+/**
+ * Implements hook_scheduler_hide_publish_on_field().
+ */
+function scheduler_api_test_scheduler_hide_publish_on_field($form, $form_state, $node) {
+  // Hide the publish_on field if the node title contains orange or green.
+  if (stristr($node->title->value, 'orange') || stristr($node->title->value, 'green')) {
+    \Drupal::messenger()->addMessage(t('Scheduler_Api_Test: The publish_on field is hidden for orange or green node titles.'), 'status', FALSE);
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Implements hook_scheduler_hide_unpublish_on_field().
+ */
+function scheduler_api_test_scheduler_hide_unpublish_on_field($form, $form_state, $node) {
+  // Hide the publish_on field if the node title contains yellow or green.
+  if (stristr($node->title->value, 'yellow') || stristr($node->title->value, 'green')) {
+    \Drupal::messenger()->addMessage(t('Scheduler_Api_Test: The unpublish_on field is hidden for yellow or green node titles.'), 'status', FALSE);
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Implements hook_scheduler_publish_action().
+ */
+function scheduler_api_test_scheduler_publish_action($node) {
+  if (stristr($node->title->value, 'red')) {
+    // Nodes with red in the title are simulated to cause a failure and should
+    // then be skipped by Scheduler.
+    $node->set('title', $node->title->value . ' - publishing failed in API test module');
+    \Drupal::messenger()->addMessage(t('Scheduler_Api_Test: Red nodes should cause Scheduler to abandon publishing.'), 'status', FALSE);
+    return -1;
+  }
+  elseif (stristr($node->title->value, 'yellow')) {
+    // Nodes with yellow in the title are simulated to be processed by this
+    // hook, and will not be published by Scheduler.
+    $node->set('title', $node->title->value . ' - publishing processed by API test module');
+    $node->setPublished();
+    \Drupal::messenger()->addMessage(t('Scheduler_Api_Test: Yellow nodes should not have publishing processed by Scheduler.'), 'status', FALSE);
+    return 1;
+  }
+  return 0;
+}
+
+/**
+ * Implements hook_scheduler_unpublish_action().
+ */
+function scheduler_api_test_scheduler_unpublish_action($node) {
+  if (stristr($node->title->value, 'blue')) {
+    // Nodes with blue in the title are simulated to cause a failure and should
+    // then be skipped by Scheduler.
+    $node->set('title', $node->title->value . ' - unpublishing failed in API test module');
+    \Drupal::messenger()->addMessage(t('Scheduler_Api_Test: Blue nodes should cause Scheduler to abandon unpublishing.'), 'status', FALSE);
+    return -1;
+  }
+  if (stristr($node->title->value, 'orange')) {
+    // Nodes with orange in the title are simulated to be processed by this
+    // hook, and will not be published by Scheduler.
+    $node->set('title', $node->title->value . ' - unpublishing processed by API test module');
+    $node->setUnpublished();
+    \Drupal::messenger()->addMessage(t('Scheduler_Api_Test: Orange nodes should not have unpublishing processed by Scheduler.'), 'status', FALSE);
+    return 1;
+  }
+  return 0;
+}

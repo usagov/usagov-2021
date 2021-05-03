@@ -1,0 +1,8 @@
+scanner_mode: true
+scanner_wholeword: true
+scanner_regex: false
+scanner_published: false
+scanner_pathauto: false
+scanner_language: all
+enabled_content_types: {  }
+fields_of_selected_content_type: {  }

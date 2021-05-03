@@ -1,0 +1,6 @@
+services:
+  scheduled_transitions.commands:
+    class: Drupal\scheduled_transitions\Commands\ScheduledTransitionsCommands
+    arguments: ['@scheduled_transitions.jobs']
+    tags:
+      - { name: drush.command }

@@ -1,0 +1,6 @@
+content_lock.settings:
+  title: 'Content Lock'
+  route_name: content_lock.settings
+  description: 'Administer content locking settings.'
+  parent: system.admin_config_content
+  weight: 99

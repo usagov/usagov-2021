@@ -1,0 +1,11 @@
+name: Admin Content Notification
+type: module
+description: 'To send custom e-mail notification to admin or an specific email or specific roles when a new content is posted/updated on the site.'
+package: Other
+core_version_requirement: ^8 || ^9
+configure: admin_content_notification.config_menu
+
+# Information added by Drupal.org packaging script on 2020-11-30
+version: '8.x-3.8'
+project: 'admin_content_notification'
+datestamp: 1606741668

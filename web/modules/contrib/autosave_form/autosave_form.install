@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the autosave_form module.
+ */
+
+use Drupal\autosave_form\Storage\AutosaveEntityFormStorageInterface;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\EntityTypeInterface;
+
+/**
+ * Implements hook_schema().
+ */
+function autosave_form_schema() {
+  $schema = [];
+
+  // Define the schema for the autosave storage of entity forms.
+  $schema[AutosaveEntityFormStorageInterface::AUTOSAVE_ENTITY_FORM_TABLE] = [
+    'description' => 'Saves the form state of partially filled content entity form for restoration by the autosave_form module.',
+    'fields' => [
+      'form_id' => [
+        'type' => 'varchar_ascii',
+        'length' => AutosaveEntityFormStorageInterface::AUTOSAVE_FORM_FORM_ID_LENGTH,
+        'not null' => TRUE,
+      ],
+      // We need the form session id as it is possible that the user opens the
+      // same form in two tabs and concurrently edits it. Therefore we have to
+      // assign each form session to an unique auto save session.
+      // We use the form build id for this and add an extra length to cover any
+      // case.
+      'form_session_id' => [
+        'type' => 'varchar_ascii',
+        'length' => AutosaveEntityFormStorageInterface::AUTOSAVE_FORM_FORM_ID_LENGTH,
+        'not null' => TRUE,
+      ],
+      'entity_type_id' => [
+        'type' => 'varchar_ascii',
+        'length' => EntityTypeInterface::ID_MAX_LENGTH,
+        'not null' => TRUE,
+      ],
+      'entity_id' => [
+        'type' => 'varchar_ascii',
+        'length' => EntityTypeInterface::ID_MAX_LENGTH,
+        'not null' => TRUE,
+      ],
+      'langcode' => [
+        'type' => 'varchar_ascii',
+        'length' => 12,
+        'not null' => TRUE,
+      ],
+      'uid' => [
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'timestamp' => [
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'entity' => [
+        'type' => 'blob',
+        'not null' => TRUE,
+        'size' => 'big',
+      ],
+      'form_state' => [
+        'type' => 'blob',
+        'not null' => TRUE,
+        'size' => 'big',
+      ],
+    ],
+    'primary key' => ['form_id', 'form_session_id', 'entity_type_id', 'entity_id', 'langcode', 'uid', 'timestamp'],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function autosave_form_install() {
+  // For some reasons it might happen that the autosave form library is not
+  // loaded or the handler is missing because on module install those both
+  // cache entries have not been invalidated, therefore we do it manually here.
+  Cache::invalidateTags(['entity_types', 'library_info']);
+}
+
+/**
+ * Add the settings for the notification to the settings config.
+ */
+function autosave_form_update_8001() {
+  $config = \Drupal::configFactory()->getEditable('autosave_form.settings');
+  if ($config->get('notification') === NULL) {
+    $config->set('notification', [
+      'active' => TRUE,
+      'message' => 'Saving draft...',
+      'delay' => 1000
+    ]);
+    $config->save(TRUE);
+  }
+}

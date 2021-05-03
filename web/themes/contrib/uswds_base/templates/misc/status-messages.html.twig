@@ -1,0 +1,51 @@
+{#
+/**
+ * @file
+ * Theme override for status messages.
+ *
+ * Displays status, error, and warning messages, grouped by type.
+ *
+ * An invisible heading identifies the messages for assistive technology.
+ * Sighted users see a colored box. See http://www.w3.org/TR/WCAG-TECHS/H69.html
+ * for info.
+ *
+ * Add an ARIA label to the contentinfo area so that assistive technology
+ * user agents will better describe this landmark.
+ *
+ * Available variables:
+ * - message_list: List of messages to be displayed, grouped by type.
+ * - status_headings: List of all status types.
+ * - attributes: HTML attributes for the element, including:
+ *   - class: HTML classes.
+ */
+#}
+{% block messages %}
+  {% for type, messages in message_list %}
+    {%
+      set classes = [
+      'usa-alert__body',
+    ]
+    %}
+    <div class="usa-alert{% if type == 'error' %} usa-alert--error{% elseif type == 'info' %} usa-alert--info{% elseif type == 'warning' %} usa-alert--warning{% else %} usa-alert--success{% endif %}" {% if type == 'error' %} role="alert"{% endif %}>
+    <div role="contentinfo" aria-label="{{ status_headings[type] }}"{{ attributes.addClass(classes)|without('role', 'aria-label') }}>
+
+
+          {% if messages|length > 1 %}
+            <ul>
+              {% for message in messages %}
+                <li class="usa-alert__text">{{ message }}</li>
+              {% endfor %}
+            </ul>
+
+          {% else %}
+            <p class="usa-alert__text">
+              {{ messages|first }}
+            </p>
+          {% endif %}
+
+        </div>
+    </div>
+    {# Remove type specific classes. #}
+    {% set attributes = attributes.removeClass(classes) %}
+  {% endfor %}
+{% endblock messages %}

@@ -1,0 +1,5 @@
+entity.workbench_email_template.add_form:
+  route_name: 'entity.workbench_email_template.add_form'
+  title: 'Add Email Template'
+  appears_on:
+    - entity.workbench_email_template.collection

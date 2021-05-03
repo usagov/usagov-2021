@@ -1,0 +1,12 @@
+name: Chaos Wizard Test
+type: module
+description: 'Provides testing for ctools wizard'
+package: Testing
+# version: 3.x
+core_version_requirement: ^8 || ^9
+core: 8.x
+
+# Information added by Drupal.org packaging script on 2020-04-01
+version: '8.x-3.4'
+project: 'ctools'
+datestamp: 1585763385

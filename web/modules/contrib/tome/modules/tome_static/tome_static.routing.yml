@@ -1,0 +1,48 @@
+tome_static.main:
+  path: '/admin/config/tome/static'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Tome Static'
+  requirements:
+    _permission: 'use tome static'
+
+tome_static.generate:
+  path: '/admin/config/tome/static/generate'
+  defaults:
+    _form: 'Drupal\tome_static\Form\StaticGeneratorForm'
+    _title: 'Generate static site'
+  requirements:
+    _permission: 'use tome static'
+
+tome_static.download_page:
+  path: '/admin/config/tome/static/download'
+  defaults:
+    _controller: 'Drupal\tome_static\Controller\StaticDownloadController::build'
+    _title: 'Download static site'
+  requirements:
+    _permission: 'use tome static'
+
+tome_static.download:
+  path: '/admin/config/tome/static/download-archive'
+  defaults:
+    _controller: 'Drupal\tome_static\Controller\StaticDownloadController::download'
+    _title: 'Download export'
+  requirements:
+    _permission: 'use tome static'
+    _custom_access: 'Drupal\tome_static\Controller\StaticDownloadController::downloadAccess'
+
+tome_static.preview_form:
+  path: '/admin/config/tome/static/preview'
+  defaults:
+    _form: 'Drupal\tome_static\Form\StaticPreviewForm'
+    _title: 'Preview static site'
+  requirements:
+    _permission: 'use tome static'
+
+tome_static.preview_exit:
+  path: '/admin/config/tome/static/preview-exit'
+  defaults:
+    _controller: 'Drupal\tome_static\Controller\StaticPreviewController::build'
+    _title: 'Exit static site preview'
+  requirements:
+    _permission: 'use tome static'

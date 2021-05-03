@@ -1,0 +1,14 @@
+services:
+  tome_static_super_cache.cache_tags.invalidator:
+    class: Drupal\tome_static_super_cache\TomeStaticSuperCacheTagsInvalidator
+    decorates: cache_tags.invalidator
+    parent: cache_tags.invalidator
+  tome_static_super_cache.cache.tome_static:
+    class: Drupal\tome_static_super_cache\SuperStaticCache
+    decorates: cache.tome_static
+    parent: cache.tome_static
+  tome_static_super_cache.cache_rebuild_command:
+    class: Drupal\tome_static_super_cache\Commands\TomeSuperCacheRebuildCommand
+    tags:
+      - { name: console.command }
+      - { name: drupal.command }
