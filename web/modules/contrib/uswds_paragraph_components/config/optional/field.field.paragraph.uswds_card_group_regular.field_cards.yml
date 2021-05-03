@@ -1,0 +1,42 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_cards
+    - paragraphs.paragraphs_type.uswds_card_group_regular
+    - paragraphs.paragraphs_type.uswds_card_regular
+  module:
+    - entity_reference_revisions
+id: paragraph.uswds_card_group_regular.field_cards
+field_name: field_cards
+entity_type: paragraph
+bundle: uswds_card_group_regular
+label: Cards
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    negate: 0
+    target_bundles:
+      uswds_card_regular: uswds_card_regular
+    target_bundles_drag_drop:
+      text_field:
+        weight: 37
+        enabled: false
+      uswds_accordion:
+        weight: 38
+        enabled: false
+      uswds_accordion_section:
+        weight: 39
+        enabled: false
+      uswds_card_group_regular:
+        weight: 21
+        enabled: false
+      uswds_card_regular:
+        enabled: true
+        weight: 40
+field_type: entity_reference_revisions

@@ -1,0 +1,7 @@
+scheduled_transitions.settings:
+  path: '/admin/config/workflow/scheduled-transitions'
+  defaults:
+    _form: '\Drupal\scheduled_transitions\Form\ScheduledTransitionsSettingsForm'
+    _title: 'Scheduled transitions settings'
+  requirements:
+    _permission: 'administer scheduled transitions'

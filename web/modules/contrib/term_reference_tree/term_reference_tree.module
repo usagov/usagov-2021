@@ -1,0 +1,511 @@
+<?php
+
+use Drupal\term_reference_tree\Plugin\Field\FieldWidget\TermReferenceTree;
+use Drupal\Core\Template\Attribute;
+use Drupal\Component\Utility\Html;
+use Drupal\taxonomy\Entity\Term;
+use \Drupal\Core\Render\Element;
+
+/**
+ * Implements hook_theme().
+ */
+function term_reference_tree_theme() {
+  return [
+    'checkbox_tree' => [
+      'render element' => 'element',
+      'function' => 'theme_checkbox_tree',
+    ],
+    'checkbox_tree_level' => [
+      'render element' => 'element',
+      'function' => 'theme_checkbox_tree_level',
+    ],
+    'checkbox_tree_item' => [
+      'render element' => 'element',
+      'function' => 'theme_checkbox_tree_item',
+    ],
+    'checkbox_tree_label' => [
+      'render element' => 'element',
+      'function' => 'theme_checkbox_tree_label',
+    ],
+    'term_tree_list' => [
+      'render element' => 'element',
+      'function' => 'theme_term_tree_list',
+    ],
+  ];
+}
+
+/**
+ * Returns HTML for a checkbox_tree form element.
+ */
+function theme_checkbox_tree($variables) {
+
+  $element = $variables['element'];
+  foreach (Element::children($element) as $key) {
+    // Early rendering to collect the wrapper attributes from
+    // ToolbarItem elements.
+    if (!empty($element[$key])) {
+      $element['#children'] = \Drupal::service('renderer')->render($element[$key]);
+    }
+  }
+
+  $attributes = isset($element['#attributes']) ? $element['#attributes'] : [];
+  if (isset($element['#id'])) {
+    $attributes['id'] = $element['#id'];
+  }
+  $attributes['class'][] = 'term-reference-tree';
+
+  if (!empty($element['#required'])) {
+    $attributes['class'][] = 'required';
+  }
+
+  if (array_key_exists('#start_minimized', $element) && $element['#start_minimized']) {
+    $attributes['class'][] = 'term-reference-tree-collapsed';
+  }
+
+  if (array_key_exists('#track_list', $element) && $element['#track_list']) {
+    $attributes['class'][] = 'term-reference-tree-track-list-shown';
+  }
+
+  if (!empty($variables['element']['#select_parents'])) {
+    $attributes['class'][] = 'term-reference-tree-select-parents';
+  }
+
+  if ($variables['element']['#cascading_selection'] != TermReferenceTree::CASCADING_SELECTION_NONE) {
+    $attributes['class'][] = 'term-reference-tree-cascading-selection';
+  }
+
+  if ($variables['element']['#cascading_selection'] == TermReferenceTree::CASCADING_SELECTION_SELECT) {
+    $attributes['class'][] = 'term-reference-tree-cascading-selection-mode-select';
+  }
+  else {
+    if ($variables['element']['#cascading_selection'] == TermReferenceTree::CASCADING_SELECTION_DESELECT) {
+      $attributes['class'][] = 'term-reference-tree-cascading-selection-mode-deselect';
+    }
+  }
+
+  if (!empty($element['#attributes']['class'])) {
+    $attributes['class'] = array_merge($attributes['class'], $element['#attributes']['class']);
+  }
+
+  return
+    '<div' . new Attribute($attributes) . '>'
+    . (!empty($element['#children']) ? $element['#children'] : '')
+    . '</div>';
+}
+
+/**
+ * This function prints a list item with a checkbox and an unordered list
+ * of all the elements inside it.
+ */
+function theme_checkbox_tree_level($variables) {
+  $element = $variables['element'];
+  $sm = '';
+  if (array_key_exists('#level_start_minimized', $element) && $element['#level_start_minimized']) {
+    $sm = ' style="display: none;"';
+  }
+
+  $output = '<ul class="term-reference-tree-level "' . $sm . '>';
+  $children = Element::children($element);
+  foreach ($children as $child) {
+    $output .= '<li>';
+    $output .= \Drupal::service('renderer')->render($element[$child]);
+    $output .= '</li>';
+  }
+
+  $output .= '</ul>';
+
+  return $output;
+}
+
+/**
+ * This function prints a single item in the tree, followed by that item's
+ * children (which may be another checkbox_tree_level).
+ */
+function theme_checkbox_tree_item($variables) {
+  $element = $variables['element'];
+  $children = Element::children($element);
+  $output = '';
+
+  $sm = $element['#level_start_minimized'] ? ' term-reference-tree-collapsed' : '';
+
+  if (is_array($children) && count($children) > 1) {
+    $output .= '<div class="term-reference-tree-button' . $sm . '"></div>';
+  }
+  elseif (!$element['#leaves_only']) {
+    $output .= '<div class="no-term-reference-tree-button"></div>';
+  }
+
+  foreach ($children as $child) {
+    $output .= \Drupal::service('renderer')->render($element[$child]);
+  }
+
+  return $output;
+}
+
+/**
+ * This function prints a label that cannot be selected.
+ */
+function theme_checkbox_tree_label($variables) {
+  $element = $variables['element'];
+  $output = '<div class="parent-term">' . $element['#value'] . '</div>';
+  return $output;
+}
+
+/**
+ * This function returns a taxonomy term hierarchy in a nested array.
+ *
+ * @param $tid
+ *   The ID of the root term.
+ * @param $vid
+ *   The vocabulary ID to restrict the child search.
+ *
+ * @return
+ *   A nested array of the term's child objects.
+ */
+function _term_reference_tree_get_term_hierarchy($tid, $vid, &$allowed, $filter, $label, $default = []) {
+  $terms = _term_reference_tree_get_children($tid, $vid);
+
+  $result = [];
+
+  if ($filter != '') {
+    foreach ($allowed as $k => $v) {
+      if (array_key_exists($k, $terms)) {
+        $term =& $terms[$k];
+        $children = _term_reference_tree_get_term_hierarchy($term->tid, $vid, $allowed, $filter, $label, $default);
+        if (is_array($children)) {
+          $term->children = $children;
+          $term->children_selected = _term_reference_tree_children_selected($term, $default);
+        }
+        else {
+          $term->children_selected = FALSE;
+        }
+        $term->TEST = $label;
+        array_push($result, $term);
+      }
+    }
+  }
+  else {
+    foreach ($terms as &$term) {
+      if ($filter == '' || array_key_exists($term->tid, $allowed)) {
+        $children = _term_reference_tree_get_term_hierarchy($term->tid, $vid, $allowed, $filter, $label, $default);
+        if (is_array($children)) {
+          $term->children = $children;
+          $term->children_selected = _term_reference_tree_children_selected($term, $default);
+        }
+        else {
+          $term->children_selected = FALSE;
+        }
+        $term->TEST = $label;
+        array_push($result, $term);
+      }
+    }
+  }
+
+  return $result;
+}
+
+/**
+ * This function is like taxonomy_get_children, except it doesn't load the
+ * entire term.
+ *
+ * @param int $tid
+ *   The ID of the term whose children you want to get.
+ * @param int $vid
+ *   The vocabulary ID.
+ *
+ * @return array
+ *   Taxonomy terms, each in the form ['tid' => $tid, 'name' => $name].
+ */
+function _term_reference_tree_get_children($tid, $vid) {
+  // DO NOT LOAD TAXONOMY TERMS HERE.
+  // Taxonomy terms take a lot of time and memory to load, and this can be
+  // very bad on large vocabularies.  Instead, we load the term as necessary
+  // in cases where it's needed (such as using tokens or when the locale
+  // module is enabled).
+
+  $table = 'taxonomy_term_field_data';
+  $alias = 't';
+
+  $query = \Drupal::database()
+    ->select($table, $alias);
+  $query->join('taxonomy_term__parent', 'p', 't.tid = p.entity_id');
+  $query->fields('t', ['tid', 'name']);
+  $query->addField('t', 'vid', 'vocabulary_machine_name');
+  $query
+    ->condition('t.vid', $vid)
+    ->condition('p.parent_target_id', $tid)
+    ->addTag('term_access')
+    ->addTag('translatable')
+    ->addTag('term_reference_tree_get_children')
+    ->orderBy('t.weight')
+    ->orderBy('t.name');
+  $result = $query->execute();
+
+  $terms = [];
+  while ($term = $result->fetchObject()) {
+    $terms[$term->tid] = $term;
+  }
+
+  return $terms;
+}
+
+function _term_reference_tree_children_selected($terms, $default) {
+  foreach ($terms->children as $term) {
+    if (isset($default[$term->tid]) || $term->children_selected) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Recursively go through the option tree and return a flat array of options.
+ */
+function _term_reference_tree_flatten($element, &$form_state) {
+  $output = [];
+  $children = Element::children($element);
+  foreach ($children as $c) {
+    $child = $element[$c];
+    if (array_key_exists('#type', $child) && ($child['#type'] == 'radio' || $child['#type'] == 'checkbox')) {
+      $output[] = $child;
+    }
+    else {
+      $output = array_merge($output, _term_reference_tree_flatten($child, $form_state));
+    }
+  }
+  return $output;
+}
+
+/**
+ * Return an array of options.
+ *
+ * This function converts a list of taxonomy terms to a key/value list of
+ * options.
+ */
+function _term_reference_tree_get_options(&$terms, &$allowed, $filter) {
+  $options = [];
+
+  if (is_array($terms) && count($terms) > 0) {
+    foreach ($terms as $term) {
+      if (!$filter || (is_array($allowed) && $allowed[$term->tid])) {
+        $options[$term->tid] = $term->name;
+        $options += _term_reference_tree_get_options($term->children, $allowed, $filter);
+      }
+    }
+  }
+  return $options;
+}
+
+/**
+ * Builds a level in the term reference tree widget.
+ *
+ * This function returns an element that has a number of checkbox_tree_item
+ * elements as children.  It is meant to be called recursively when the widget
+ * is built.
+ */
+function _term_reference_tree_build_level($element, $term, $form_state, $value, $max_choices, $parent_tids, $depth) {
+  $start_minimized = TRUE;
+  $leaves_only = FALSE;
+  $container = [
+    '#type' => 'checkbox_tree_level',
+    '#max_choices' => $max_choices,
+    '#leaves_only' => $leaves_only,
+    '#start_minimized' => $start_minimized,
+    '#depth' => $depth,
+  ];
+
+  $container['#level_start_minimized'] = $depth > 1 && $element['#start_minimized'] && !($term->children_selected);
+
+  foreach ($term->children as $child) {
+    $container[$child->tid] = _term_reference_tree_build_item($element, $child, $form_state, $value, $max_choices, $parent_tids, $container, $depth);
+  }
+
+  return $container;
+}
+
+/**
+ * Builds a single item in the term reference tree widget.
+ *
+ * This function returns an element with a checkbox for a single taxonomy term.
+ * If that term has children, it appends checkbox_tree_level element that
+ * contains the children.  It is meant to be called recursively when the widget
+ * is built.
+ */
+function _term_reference_tree_build_item($element, $term, $form_state, $value, $max_choices, $parent_tids, $parent, $depth) {
+  $leaves_only = FALSE;
+
+  $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  $t = NULL;
+  if (\Drupal::moduleHandler()->moduleExists('locale') && !empty($term->tid)) {
+    $t = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->load($term->tid);
+    if ($t && $t->hasTranslation($langcode)) {
+      $term_name = $t->getTranslation($langcode)->label();
+    }
+  }
+  if (empty($term_name)) {
+    $term_name = $term->name;
+  }
+
+  $container = [
+    '#type' => 'checkbox_tree_item',
+    '#max_choices' => $max_choices,
+    '#leaves_only' => $leaves_only,
+    '#term_name' => $term_name,
+    '#level_start_minimized' => FALSE,
+    '#select_parents' => $element['#select_parents'],
+    '#depth' => $depth,
+  ];
+
+  if (!$element['#leaves_only'] || count($term->children) == 0) {
+    $e = [
+      '#type' => ($max_choices == 1) ? 'radio' : 'checkbox',
+      '#title' => $term_name,
+      '#on_value' => $term->tid,
+      '#off_value' => 0,
+      '#return_value' => $term->tid,
+      '#parent_values' => $parent_tids,
+      '#default_value' => isset($value[$term->tid]) ? $term->tid : NULL,
+      '#attributes' => isset($element['#attributes']) ? $element['#attributes'] : NULL,
+      '#ajax' => isset($element['#ajax']) ? $element['#ajax'] : NULL,
+    ];
+
+    if (is_array($e)) {
+      if ($e['#type'] == 'radio') {
+        $parents_for_id = array_merge($element['#parents'], [$term->tid]);
+        $e['#id'] = Html::getId('edit-' . implode('-', $parents_for_id));
+        $e['#parents'] = array_merge($element['#parents'], ['wiget']);
+      }
+    }
+  }
+  else {
+    $e = [
+      '#type' => 'checkbox_tree_label',
+      '#value' => $term_name,
+    ];
+  }
+
+  $container[$term->tid] = $e;
+
+  if (($depth + 1 <= $element['#max_depth'] || !$element['#max_depth']) && property_exists($term, 'children') && count($term->children) > 0) {
+    $parents = $parent_tids;
+    $parents[] = $term->tid;
+    $container[$term->tid . '-children'] = _term_reference_tree_build_level($element, $term, $form_state, $value, $max_choices, $parents, $depth + 1);
+    $container['#level_start_minimized'] = $container[$term->tid . '-children']['#level_start_minimized'];
+  }
+
+  return $container;
+}
+
+/**
+ * Themes the term tree display (as opposed to the select widget).
+ */
+function theme_term_tree_list($variables) {
+  $element = &$variables['element'];
+  $data = &$element['#data'];
+
+  $tree = [];
+
+  // For each selected term.
+  foreach ($data as $item) {
+    // Loop if the term ID is not zero.
+    $values = [];
+    $tid = $item['target_id'];
+    $original_tid = $tid;
+    while ($tid != 0) {
+      // Unshift the term onto an array.
+      array_unshift($values, $tid);
+
+      // Repeat with parent term.
+      $tid = _term_reference_tree_get_parent($tid);
+    }
+
+    $current = &$tree;
+    // For each term in the above array.
+    foreach ($values as $tid) {
+      // current[children][term_id] = new array.
+      if (!isset($current['children'][$tid])) {
+        $current['children'][$tid] = ['selected' => FALSE];
+      }
+
+      // If this is the last value in the array,
+      // tree[children][term_id][selected] = true.
+      if ($tid == $original_tid) {
+        $current['children'][$tid]['selected'] = TRUE;
+      }
+
+      $current['children'][$tid]['tid'] = $tid;
+      $current = &$current['children'][$tid];
+    }
+  }
+  $output = '<div class="term-tree-list">';
+  $output .= _term_reference_tree_output_list_level($element, $tree);
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Helper function to get the parent of tid.
+ *
+ * @param int $tid
+ *   The term id.
+ *
+ * @return int
+ *   Parent term id or 0.
+ */
+function _term_reference_tree_get_parent($tid) {
+  $query = "SELECT p.parent_target_id FROM {taxonomy_term__parent} p WHERE p.entity_id = :tid";
+  $from = 0;
+  $count = 1;
+  $args = [':tid' => $tid];
+  $database = \Drupal::database();
+  $result = $database->queryRange($query, $from, $count, $args);
+  $parent_tid = 0;
+  foreach ($result as $term) {
+    $parent_tid = $term->parent_target_id;
+  }
+  return $parent_tid;
+}
+
+/**
+ * Helper function to output a single level of the term reference tree display.
+ */
+function _term_reference_tree_output_list_level(&$element, &$tree) {
+  $output = '';
+  $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+
+  if (isset($tree['children']) && is_array($tree['children']) && count($tree['children']) > 0) {
+    $output = '<ul class="term">';
+    foreach ($tree['children'] as &$item) {
+      if (isset($item['tid'])) {
+        $term = Term::load($item['tid']);
+        $url = $term->toUrl();
+        $uri['options']['html'] = TRUE;
+        $class = $item['selected'] ? 'selected' : 'unselected';
+        $output .= '<li class="' . $class . '">';
+
+        $t = NULL;
+        $term_name = '';
+        if (\Drupal::moduleHandler()
+            ->moduleExists('locale') && !empty($term->tid)) {
+          $t = $term;
+          if ($t && $t->hasTranslation($langcode)) {
+            $term_name = $t->getTranslation($langcode)->label();
+          }
+        }
+        if (empty($term_name)) {
+          $term_name = $term->label();
+        }
+        $output .= \Drupal::service('link_generator')
+          ->generate($term_name, $url);
+        if (isset($item['children'])) {
+          $output .= _term_reference_tree_output_list_level($element, $item);
+        }
+        $output .= '</li>';
+      }
+    }
+    $output .= '</ul>';
+  }
+  return $output;
+}

@@ -1,0 +1,10 @@
+name: S3 File System
+core_version_requirement: ^8.8 || ^9
+description: Adds an Amazon Simple Storage Service-based remote file system to Drupal.
+type: module
+configure: s3fs.admin_settings
+
+# Information added by Drupal.org packaging script on 2021-03-01
+version: '8.x-3.0-alpha17'
+project: 's3fs'
+datestamp: 1614638604

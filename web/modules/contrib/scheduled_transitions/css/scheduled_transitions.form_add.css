@@ -1,0 +1,21 @@
+.ui-dialog .scheduled-updates-add {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+}
+
+.ui-dialog .scheduled-updates-add .scheduled-updates-add__table {
+  overflow: auto;
+}
+
+.ui-dialog .scheduled-updates-add .scheduled-updates-add__meta {
+  border-top: 1px solid #ddd;
+  box-shadow: 0 -15px 32px -23px rgba(0, 0, 0, 0.5);
+}
+
+.ui-dialog .scheduled-updates-add .scheduled-updates-add__table tbody .state,
+.ui-dialog .scheduled-updates-add .scheduled-updates-add__table tbody .revision-time,
+.ui-dialog .scheduled-updates-add .scheduled-updates-add__table tbody .revision-author {
+  /* Prevent Revision Date/Author/State table cells from wrapping. */
+  white-space: nowrap;
+}

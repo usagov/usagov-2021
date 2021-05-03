@@ -1,0 +1,135 @@
+workbench_moderation.moderation_state_transition.*.third_party.workbench_email:
+  type: mapping
+  label: 'Workbench email settings'
+  mapping:
+    workbench_email_templates:
+      type: sequence
+      label: 'Templates'
+      sequence:
+        type: string
+        label: 'Template'
+
+workflows.workflow.*.third_party.workbench_email:
+  type: mapping
+  label: 'Workbench email settings'
+  mapping:
+    workbench_email_templates:
+      type: sequence
+      label: 'Transition templates'
+      sequence:
+        type: sequence
+        label: 'Transition'
+        sequence:
+          type: string
+          label: 'Template'
+
+workbench_email.workbench_email_template.*:
+  type: config_entity
+  label: 'Email Template config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    subject:
+      type: label
+      label: 'Subject'
+    recipient_types:
+      type: sequence
+      label: 'Enabled recipient types'
+      orderby: key
+      sequence:
+        type: workbench_email_recipient_type
+    bundles:
+      type: sequence
+      label: 'Bundles'
+      orderby: key
+      sequence:
+        type: string
+        label: 'Bundle'
+    body:
+      type: mapping
+      label: 'Body'
+      mapping:
+        value:
+          type: string
+          label: 'Value'
+        format:
+          type: string
+          label: 'Format'
+    replyTo:
+      type: string
+      label: 'Reply to'
+    dependencies:
+      type: config_dependencies
+      label: 'Dependencies'
+
+workbench_email_recipient_type:
+  type: mapping
+  label: 'Recipient type'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    provider:
+      type: string
+      label: 'Provider'
+    status:
+      type: boolean
+      label: 'Status'
+    settings:
+      type: workbench_email_recipient_type_settings.[%parent.id]
+
+# Default for plugins without any schema.
+workbench_email_recipient_type_settings.*:
+  type: mapping
+  label: 'Recipient type settings'
+
+workbench_email_recipient_type_settings.email:
+  type: mapping
+  mapping:
+    fields:
+      type: sequence
+      label: 'Email fields'
+      sequence:
+        type: string
+        label: 'Email field'
+
+workbench_email_recipient_type_settings.role:
+  type: mapping
+  mapping:
+    roles:
+      type: sequence
+      label: 'Restrict to the selected roles'
+      sequence:
+        type: string
+        label: 'Role'
+
+workbench_email_recipient_type_settings.roles_with_access:
+  type: mapping
+  mapping:
+    roles:
+      type: sequence
+      label: 'Restrict to the selected roles'
+      sequence:
+        type: string
+        label: 'Role'
+
+workbench_email_recipient_type_settings.entity_reference_user:
+  type: mapping
+  mapping:
+    fields:
+      type: sequence
+      label: 'Fields'
+      sequence:
+        type: string
+        label: 'Field'
+
+workbench_email_recipient_type_settings.fixed_email:
+  type: mapping
+  mapping:
+    recipients:
+      type: string
+      label: 'Recipients'

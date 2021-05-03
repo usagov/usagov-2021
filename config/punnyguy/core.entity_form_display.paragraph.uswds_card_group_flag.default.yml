@@ -1,0 +1,31 @@
+uuid: d7bae671-7caa-46a2-ba07-ee50f4a25f5b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_card_group_flag.field_cards
+    - paragraphs.paragraphs_type.uswds_card_group_flag
+  module:
+    - paragraphs
+_core:
+  default_config_hash: w44VVsV5vM4oeTaonaJm0DY-U3AYYtVnfl-0NZYvaR4
+id: paragraph.uswds_card_group_flag.default
+targetEntityType: paragraph
+bundle: uswds_card_group_flag
+mode: default
+content:
+  field_cards:
+    weight: 0
+    settings:
+      title: Paragraph
+      title_plural: Paragraphs
+      edit_mode: open
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: uswds_cards_flag
+    third_party_settings: {  }
+    type: entity_reference_paragraphs
+    region: content
+hidden:
+  created: true
+  status: true

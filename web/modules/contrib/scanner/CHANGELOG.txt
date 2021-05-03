@@ -1,0 +1,30 @@
+Search and Replace Scanner 8.x-1.0-rc4, 2021-01-31
+--------------------------------------------------
+#3173506 by varenius, joseph.olstad, sd123: Cannot load page
+  admin/content/scanner on Drupal 9.0.9.
+#3194621 by aritrika.d, mizage: Replace deprecated HTML tags.
+#3154633 by joseph.olstad, DamienMcKenna: Search and replace translations of
+  fields plus other fixes.
+
+
+Search and Replace Scanner 8.x-1.0-rc3, 2020-06-12
+--------------------------------------------------
+#3133915 by Mohammed J. Razem, nexus23, joseph.olstad, baskaran, PapaGrande:
+  Fatal error on batch operation: Using $this when not in object context.
+#3129699 by DamienMcKenna, Varun Rao, singhkiran: Update the README.md file so
+ it is accurate.
+
+
+Search and Replace Scanner 8.x-1.0-rc2, 2020-04-21
+--------------------------------------------------
+#3083587 by codebymikey: Add Paragraphs test dependency.
+#3083587 by DamienMcKenna, codebymikey: Fix tests in the 8.x-1.x branch.
+#3114284 by Saurabh_sgh, DamienMcKenna: Drupal 9 compatibility fixes.
+#3114284 by DamienMcKenna: Updated info file for D9 compatibility.
+#3095812 by kaythay: Fix error for null Paragraph.
+
+
+Search and Replace Scanner 8.x-1.0-rc1, 2019-09-25
+--------------------------------------------------
+#2941359 by DamienMcKenna, Shreya Shetty, ccrawford91, anacolautti: Initial port
+  of Search and Replace Scanner to Drupal 8.

@@ -1,0 +1,5 @@
+content_lock_timeout.settings:
+  route_name: content_lock_timeout.settings
+  title: 'Timeout settings'
+  base_route: content_lock.settings
+  weight: 100

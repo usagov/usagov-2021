@@ -1,0 +1,30 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_step_indicator_item.field_current
+    - field.field.paragraph.uswds_step_indicator_item.field_item_title
+    - paragraphs.paragraphs_type.uswds_step_indicator_item
+id: paragraph.uswds_step_indicator_item.default
+targetEntityType: paragraph
+bundle: uswds_step_indicator_item
+mode: default
+content:
+  field_current:
+    weight: 0
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+  field_item_title:
+    weight: 1
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+hidden:
+  created: true
+  status: true

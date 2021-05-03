@@ -1,0 +1,11 @@
+entity.scheduled_transition.collection:
+  title: Scheduled transitions
+  route_name: entity.scheduled_transition.collection
+  parent: system.admin_content
+  description: 'List of all scheduled transitions.'
+
+scheduled_transitions.settings:
+  title: 'Scheduled transitions settings'
+  route_name: scheduled_transitions.settings
+  description: 'Settings for scheduled transitions.'
+  parent: system.admin_config_workflow

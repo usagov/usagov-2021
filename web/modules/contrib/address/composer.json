@@ -1,0 +1,14 @@
+{
+    "name": "drupal/address",
+    "type": "drupal-module",
+    "description": "Provides functionality for storing, validating and displaying international postal addresses.",
+    "homepage": "http://drupal.org/project/address",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "drupal/core": "^8.8 || ^9",
+        "commerceguys/addressing": "^1.0.7"
+    },
+    "require-dev": {
+        "drupal/token": "^1.0"
+    }
+}

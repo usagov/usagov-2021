@@ -1,0 +1,6 @@
+siteimprove.settings_form:
+  title: 'Siteimprove Plugin'
+  route_name: siteimprove.settings_form
+  description: 'Configure Siteimprove Plugin token.'
+  parent: system.admin_config_system
+  weight: 99

@@ -1,0 +1,11 @@
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: iiKkqLH_fdEibNv8aoLh_P7kK4Np6K3Zxfv6Zzy6IZs
+id: uswds_card_group_regular
+label: 'USWDS Card Group (Regular)'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

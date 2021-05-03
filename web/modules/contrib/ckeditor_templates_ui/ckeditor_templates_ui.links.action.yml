@@ -1,0 +1,5 @@
+entity.ckeditor_template.add_form:
+  route_name: 'entity.ckeditor_template.add_form'
+  title: 'Add ckeditor template'
+  appears_on:
+    - entity.ckeditor_template.collection

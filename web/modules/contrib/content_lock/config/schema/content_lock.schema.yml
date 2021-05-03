@@ -1,0 +1,41 @@
+content_lock.settings:
+  type: config_object
+  mapping:
+    verbose:
+      type: integer
+      label: 'Display content lock messages'
+    types:
+      type: sequence
+      label: 'Types'
+      sequence:
+        type: sequence
+        label: 'Entity type'
+        sequence:
+          type: string
+          label: 'Bundle type'
+    types_translation_lock:
+      type: sequence
+      label: 'Entity types with translation lock on'
+    types_js_lock:
+      type: sequence
+      label: 'Entity types with JS lock on'
+    form_op_lock:
+      type: sequence
+      label: 'Entity types'
+      sequence:
+        type: mapping
+        mapping:
+          mode:
+            type: integer
+            label: 'Disabled / blacklist / whitelist mode per entity type'
+          values:
+            type: sequence
+            label: 'Whitelisted / blacklisted form operations per entity type'
+            sequence:
+              type: string
+              label: 'form operation'
+
+# Remove in D8.5
+action.configuration.entity:break_lock:*:
+  type: action_configuration_default
+  label: 'Break lock action'

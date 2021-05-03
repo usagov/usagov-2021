@@ -1,0 +1,25 @@
+/**
+ * @file
+ * More element styles.
+ */
+
+.webform-element-more--link {
+  display: none;
+}
+
+.webform-element-more--link:before {
+  content: "► ";
+  font-size: 0.8em;
+}
+
+.webform-element-more.is-open .webform-element-more--link:before {
+  content: "▼ ";
+}
+
+html.js .webform-element-more--link {
+  display: block;
+}
+
+html.js .webform-element-more--content {
+  display: none;
+}

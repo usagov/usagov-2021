@@ -1,0 +1,25 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.uswds_paragraphs
+    - field.field.block_content.uswds_paragraphs.field_uswds_paragraph_bundles
+  module:
+    - entity_reference_revisions
+_core:
+  default_config_hash: BWtFr3Pw-XOCdx3a9Cqw_Th2W8KrMvruHzdT7WiJLIA
+id: block_content.uswds_paragraphs.default
+targetEntityType: block_content
+bundle: uswds_paragraphs
+mode: default
+content:
+  field_uswds_paragraph_bundles:
+    type: entity_reference_revisions_entity_view
+    weight: 0
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    region: content
+hidden: {  }

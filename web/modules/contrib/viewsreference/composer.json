@@ -1,0 +1,47 @@
+{
+  "name": "drupal/viewsreference",
+  "type": "drupal-module",
+  "description": "Views Reference",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "http://drupal.org/project/viewsreference",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "support": {
+    "issues": "http://drupal.org/project/issues/viewsreference",
+    "source": "http://cgit.drupalcode.org/viewsreference"
+  },
+  "require": {
+    "php": "^5.5|^7.0",
+    "drupal/core": "^8.6|^9.0",
+    "squizlabs/php_codesniffer": "*"
+  },
+  "require-dev": {
+    "composer/installers": "^1.2",
+    "drupal-composer/drupal-scaffold": "^2.5",
+    "drupal/coder": "^8.2",
+    "webflo/drupal-core-require-dev": "~8.5"
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packages.drupal.org/8"
+    }
+  ],
+  "extra": {
+    "installer-paths": {
+      "../build/core": [
+        "type:drupal-core"
+      ],
+      "../build/modules/contrib/{$name}": [
+        "type:drupal-module"
+      ],
+      "../build/themes/contrib/{$name}": [
+        "type:drupal-theme"
+      ]
+    }
+  },
+  "conflict": {
+    "drupal/viewsreferennce": "*"
+  }
+}

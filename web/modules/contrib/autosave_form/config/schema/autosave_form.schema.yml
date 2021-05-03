@@ -1,0 +1,53 @@
+# Schema for the configuration files of the Autosave Form module.
+
+autosave_form.settings:
+  type: config_object
+  label: 'Autosave Form Settings'
+  mapping:
+    interval:
+      type: integer
+      label: 'The interval used to trigger autosave.'
+    active_on:
+      type: mapping
+      label: 'Active on'
+      mapping:
+        content_entity_forms:
+          type: boolean
+          label: 'Content entity forms'
+        config_entity_forms:
+          type: boolean
+          label: 'Config entity forms'
+    notification:
+      type: mapping
+      label: 'Notification'
+      mapping:
+        active:
+          type: boolean
+          label: 'Show notification each time autosave is triggered'
+        message:
+          type: text
+          label: 'Notification message'
+        delay:
+          type: integer
+          label: 'Notification duration'
+    allowed_content_entity_types:
+      type: sequence
+      label: 'Allowed content entity types'
+      sequence:
+        type: mapping
+        label: 'Entity type'
+        mapping:
+          bundles:
+            type: sequence
+            label: 'Allowed bundles of the entity type'
+            sequence:
+              type: string
+              label: 'Bundle'
+
+autosave_form.messages:
+  type: config_object
+  label: 'Autosave Form Messages'
+  mapping:
+    entity_saved_in_background_alert_message:
+      type: string
+      label: 'The alert message to show to the user if the entity has been saved meanwhile in the background.'

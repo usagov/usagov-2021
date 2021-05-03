@@ -1,0 +1,107 @@
+.item-list .field--widget-term-reference-tree ul,
+.block .field--widget-term-reference-tree ul,
+.field--widget-term-reference-tree ul {
+  list-style-type: none;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+}
+.item-list .field--widget-term-reference-tree ul ul,
+.block .field--widget-term-reference-tree ul ul,
+.field--widget-term-reference-tree ul ul {
+  margin-left: 1.5em;
+}
+.item-list .field--widget-term-reference-tree ul .form-item,
+.block .field--widget-term-reference-tree ul .form-item,
+.field--widget-term-reference-tree ul .form-item {
+  margin: 0;
+  padding: 0;
+}
+.term-reference-tree-button,
+.no-term-reference-tree-button {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.term-reference-tree-button {
+  background-image: url('images/bullet_toggle_minus.png');
+}
+.no-term-reference-tree-button {
+  background-color: #ddd;
+}
+.term-reference-tree-button.term-reference-tree-collapsed {
+  background-image: url('images/bullet_toggle_plus.png');
+}
+.field--widget-term-reference-tree .form-item {
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
+}
+.field--widget-term-reference-tree .disabled {
+  opacity: .5;
+}
+.field--widget-term-reference-tree .parent-term {
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
+  font-weight: bold;
+}
+.form-type-checkbox-tree .error {
+  background-image: none;
+  border: 2px solid red;
+  padding: 3px;
+}
+.region-content ul.term-reference-tree-level,
+.term-reference-tree-level {
+  padding: 0;
+}
+/*
+ * Styles for track list of selected options.
+ */
+
+.term-reference-tree-track-list li {
+  list-style-type: none;
+  list-style-image: none;
+  margin-left: 10px;
+  padding-left: 20px;
+  min-height: 16px;
+  cursor: pointer;
+}
+.term-reference-tree-track-list li.track-item:hover {
+  color: red;
+  background-image: url("images/bullet_delete.png");
+  background-repeat: no-repeat;
+  background-position: middle left;
+}
+.term-reference-tree-track-list li.term_ref_tree_nothing_message {
+  list-style-type: none;
+  list-style-image: none;
+  font-style: italic;
+  cursor: default;
+}
+.term-reference-track-list-container {
+  padding: 5px;
+}
+.term-reference-track-list-label {
+  font-weight: bold;
+}
+/*
+ * Styles for display element
+ */
+
+.term-tree-list .selected {
+  font-weight: bold;
+}
+.term-tree-list .unselected {
+  font-weight: normal;
+}
+.term-tree-list ul {
+  margin-top: 0;
+}
+.field--type-entity-reference ul.links .term-tree-list ul.term li {
+  float: none;
+}

@@ -1,0 +1,25 @@
+uuid: c04dd72e-65e1-4a29-987b-7500fef188d5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_extend_media
+    - paragraphs.paragraphs_type.uswds_card_regular
+_core:
+  default_config_hash: _u0P57SawneoWf0y9Jfromyo695RtBtWj_mkEi7k5Bs
+id: paragraph.uswds_card_regular.field_extend_media
+field_name: field_extend_media
+entity_type: paragraph
+bundle: uswds_card_regular
+label: 'Extend Media?'
+description: 'Extends the media element out over the card border.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

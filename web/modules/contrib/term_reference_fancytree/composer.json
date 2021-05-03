@@ -1,0 +1,18 @@
+{
+  "name": "drupal/term_reference_fancytree",
+  "description": "Provides a tree like widget for term reference fields using the Fancytree plugin.",
+  "type": "drupal-module",
+  "license": "GPL-2.0-or-later",
+  "minimum-stability": "dev",
+  "homepage": "https://drupal.org/project/term_reference_fancytree",
+  "support": {
+    "issues": "https://github.com/duartegarin/term_reference_fancytree/issues",
+    "source": "https://github.com/duartegarin/term_reference_fancytree",
+    "docs": "https://term-reference-fancytree.readthedocs.io/en/latest"
+  },
+  "require": {
+    "drupal/core": "^8.8 || ^9",
+    "drupal/jquery_ui": "~1.0",
+    "drupal/jquery_ui_effects": "~1.0"
+  }
+}

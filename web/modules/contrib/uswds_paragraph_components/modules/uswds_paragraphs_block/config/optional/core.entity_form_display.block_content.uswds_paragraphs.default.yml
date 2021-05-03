@@ -1,0 +1,36 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.uswds_paragraphs
+    - field.field.block_content.uswds_paragraphs.field_uswds_paragraph_bundles
+  module:
+    - paragraphs
+_core:
+  default_config_hash: Mb2zWCNNgZ4kPivdPSKXvKm3yKt4w0NWwiwJLuer8ug
+id: block_content.uswds_paragraphs.default
+targetEntityType: block_content
+bundle: uswds_paragraphs
+mode: default
+content:
+  field_uswds_paragraph_bundles:
+    type: entity_reference_paragraphs
+    weight: 26
+    settings:
+      title: Paragraph
+      title_plural: Paragraphs
+      edit_mode: open
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: ''
+    third_party_settings: {  }
+    region: content
+  info:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden: {  }

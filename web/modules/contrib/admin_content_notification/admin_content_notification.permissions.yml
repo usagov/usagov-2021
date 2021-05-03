@@ -1,0 +1,3 @@
+administer content notification config:
+  title: 'Administer content notification settings'
+  restrict access: true

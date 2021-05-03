@@ -1,0 +1,14 @@
+name: 'Linkit test module'
+description: 'Support module for Linkit testing.'
+package: Testing
+type: module
+core_version_requirement: ^8.8 || ^9
+dependencies:
+  - linkit:linkit
+  - drupal:field
+  - drupal:text
+
+# Information added by Drupal.org packaging script on 2020-12-26
+version: '6.0.0-beta2'
+project: 'linkit'
+datestamp: 1608957498

@@ -1,0 +1,24 @@
+name: Scheduler
+type: module
+description: 'Publish and unpublish content automatically on specified dates and times.'
+core: 8.x
+core_version_requirement: ^8 || ^9
+configure: scheduler.admin_form
+dependencies:
+  - drupal:system (>= 8.5)
+  - drupal:datetime
+  - drupal:field
+  - drupal:node
+  - drupal:views
+test_dependencies:
+  - rules:rules
+  - devel:devel_generate
+libraries:
+  - scheduler/admin
+  - vertical-tabs
+  - default-time
+
+# Information added by Drupal.org packaging script on 2020-06-06
+version: '8.x-1.3'
+project: 'scheduler'
+datestamp: 1591431340

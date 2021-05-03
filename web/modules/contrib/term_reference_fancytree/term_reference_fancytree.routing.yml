@@ -1,0 +1,7 @@
+term_reference_fancytree.subTree:
+  path: '/term_reference_fancytree/subTree'
+  defaults:
+    _controller: '\Drupal\term_reference_fancytree\Controller\SubTreeController::json'
+    _title: 'Sub Tree'
+  requirements:
+    _permission: 'access content'

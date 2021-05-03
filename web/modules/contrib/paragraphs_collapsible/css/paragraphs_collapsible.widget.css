@@ -1,0 +1,84 @@
+
+/*Adjustments to make the paragraphs more clear for users*/
+.field--widget-entity-reference-paragraphs tr {
+  border-left: 1px solid #bfbfba;
+  border-right: 1px solid #bfbfba;
+  border-bottom: 1px solid #bfbfba;
+}
+
+/*Visual enhancements*/
+.field--widget-entity-reference-paragraphs tr td {
+  padding: 30px 20px;
+}
+
+.field--widget-entity-reference-paragraphs td table {
+  margin-top: 30px;
+}
+
+/*Adding more spacing between fields*/
+.field--widget-entity-reference-paragraphs .paragraphs-subform > .form-wrapper {
+  margin-top: 15px;
+}
+
+/*Drag previous color*/
+.field--widget-entity-reference-paragraphs tr.drag,
+.field--widget-entity-reference-paragraphs tr.drag-previous {
+  background-color: #fdf8ed;
+}
+
+/*Paragraph toggler*/
+.field--widget-entity-reference-paragraphs .paragraph-toggle {
+  display: inline-block;
+  float: right;
+  text-transform: none;
+}
+
+/*Collapse paragraphs by default*/
+.field--widget-entity-reference-paragraphs .field-multiple-table > tbody > tr > td > div > .form-wrapper > .paragraphs-subform,
+.field--widget-entity-reference-paragraphs .field-multiple-table > tbody > tr > td > div.ajax-new-content > div > .form-wrapper > .paragraphs-subform
+{
+  display: none;
+}
+
+.field--widget-entity-reference-paragraphs .field-multiple-table > tbody > tr.expanded > td > div > .form-wrapper > .paragraphs-subform,
+.field--widget-entity-reference-paragraphs .field-multiple-table > tbody > tr.expanded > td > div.ajax-new-content > div > .form-wrapper > .paragraphs-subform
+{
+  display: block;
+}
+
+/*.field--widget-entity-reference-paragraphs tr.draggable.expanded > td > .form-wrapper > .paragraph-type-top {*/
+  /*margin-bottom: 1em;*/
+/*}*/
+
+/*Fix margin-bottom*/
+.field--widget-entity-reference-paragraphs tr.draggable .paragraph-type-top {
+  margin-bottom: 0;
+}
+
+/*Active state when you drag*/
+.field--widget-entity-reference-paragraphs tr.draggable.drag {
+  border: 3px solid #0074bd;
+}
+
+/*Align the handlebar to the top to make it easier for the user to reach it*/
+.field--widget-entity-reference-paragraphs .field-multiple-table .field-multiple-drag,
+.field--widget-entity-reference-paragraphs .field-multiple-table .delta-order {
+  vertical-align: top;
+}
+
+/*Warning that paragraph is changed/moved*/
+.field--widget-entity-reference-paragraphs tr.draggable .abbr.tabledrag-changed,
+.field--widget-entity-reference-paragraphs tr.draggable .warning.tabledrag-changed {
+  position: absolute;
+}
+
+/*Pointer for paragraph toggles*/
+.paragraph-toggle,
+.paragraph-item-toggle
+{
+  cursor: pointer;
+}
+
+.paragraph-item-toggle {
+  margin-left: 5px;
+}

@@ -1,0 +1,11 @@
+administer st_entity_test entities:
+  title: 'Full access to st_entity_test'
+  restrict access: true
+
+administer st_nont_entity_test entities:
+  title: 'Full access to st_nont_entity_test'
+  restrict access: true
+
+administer st_entity_test_norevtemplate entities:
+  title: 'Full access to st_entity_test_norevtemplate'
+  restrict access: true

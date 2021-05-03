@@ -1,0 +1,69 @@
+services:
+  tome_static.generator:
+    class: Drupal\tome_static\StaticGenerator
+    arguments: ['@http_kernel', '@request_stack', '@event_dispatcher', '@cache.tome_static', '@account_switcher', '@file_system']
+  cache.tome_static:
+    class: Drupal\tome_static\StaticCache
+    arguments: ['@database', '@cache_tags.invalidator.checksum', 'tome_static']
+    tags:
+      - { name: cache.bin }
+  tome_static.route_path_subscriber:
+    class: Drupal\tome_static\EventSubscriber\RoutePathSubscriber
+    arguments: ['@router.route_provider', '@language_manager']
+    tags:
+      - { name: event_subscriber }
+  tome_static.entity_path_subscriber:
+    class: Drupal\tome_static\EventSubscriber\EntityPathSubscriber
+    arguments: ['@entity_type.manager', '@language_manager']
+    tags:
+      - { name: event_subscriber }
+  tome_static.exclude_path_subscriber:
+    class: Drupal\tome_static\EventSubscriber\ExcludePathSubscriber
+    tags:
+      - { name: event_subscriber }
+  tome_static.pager_path_subscriber:
+    class: Drupal\tome_static\EventSubscriber\PagerPathSubscriber
+    tags:
+      - { name: event_subscriber }
+  tome_static.media_oembed_path_subscriber:
+    class: Drupal\tome_static\EventSubscriber\MediaOembedPathSubscriber
+    tags:
+      - { name: event_subscriber }
+  tome_static.page_cache_request_policy:
+    class: Drupal\tome_static\PageCache\RequestPolicy\CoreRequestPolicy
+    decorates: page_cache_request_policy
+    arguments: ['@session_configuration']
+  tome_static.static_command:
+    class: Drupal\tome_static\Commands\StaticCommand
+    arguments: ['@tome_static.generator', '@state']
+    tags:
+      - { name: console.command }
+      - { name: drupal.command }
+  tome_static.static_export_path_command:
+    class: Drupal\tome_static\Commands\StaticExportPathCommand
+    arguments: ['@tome_static.generator', '@state', '@tome_static.request_preparer']
+    tags:
+      - { name: console.command }
+      - { name: drupal.command }
+  tome_static.preview_command:
+    class: Drupal\tome_static\Commands\StaticPreviewCommand
+    arguments: ['@tome_static.generator']
+    tags:
+      - { name: console.command }
+      - { name: drupal.command }
+  tome_static.context.repository:
+    class: Drupal\tome_static\LazyResettableContextRepository
+    decorates: context.repository
+    parent: context.repository
+  tome_static.path.matcher:
+    class: Drupal\tome_static\ResettablePathMatcher
+    decorates: path.matcher
+    parent: path.matcher
+  tome_static.request_preparer:
+    class: Drupal\tome_static\RequestPreparer
+    arguments: ['@entity_type.manager', '@context.repository', '@path.matcher', '@menu.active_trail', '@event_dispatcher']
+  tome_static.preview_request_subscriber:
+    class: Drupal\tome_static\EventSubscriber\StaticPreviewRequestSubscriber
+    arguments: ['@tome_static.generator', '@session', '@current_route_match']
+    tags:
+      - { name: event_subscriber }

@@ -1,0 +1,11 @@
+stepbystep_test.config:
+  type: config_object
+  mapping:
+    textfield1:
+      type: string
+    textfield2:
+      type: string
+    textfield3:
+      type: string
+    textfield4:
+      type: string

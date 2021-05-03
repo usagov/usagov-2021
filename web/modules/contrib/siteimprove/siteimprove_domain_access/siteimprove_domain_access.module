@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Contains siteimprove_domain_access.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function siteimprove_domain_access_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the siteimprove_domain_access module.
+    case 'help.page.siteimprove_domain_access':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Add a integration between Siteimprove module and Domain Access. For now only a Siteimprove Domain plugin automatically using the Domain Access domains as frontend domains.') . '</p>';
+      $output .= '<p><a href="https://www.drupal.org/docs/contributed-modules/siteimprove" target="_blank" title="Siteimprove module documentation guide on Drupal.org">' . t('Find more help in the documentation guide on drupal.org') . '.</a></p>';
+      return $output;
+
+    default:
+  }
+}

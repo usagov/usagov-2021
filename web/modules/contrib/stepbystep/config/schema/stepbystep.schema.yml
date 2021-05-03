@@ -1,0 +1,10 @@
+stepbystep.progress.*:
+  type: config_object
+  label: 'Step by Step progress'
+  mapping:
+    progress:
+      type: sequence
+      label: 'Progress'
+      sequence:
+        type: string
+        label: 'Status'

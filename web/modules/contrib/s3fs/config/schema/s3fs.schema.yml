@@ -1,0 +1,75 @@
+s3fs.settings:
+  type: config_object
+  mapping:
+    access_key:
+      type: string
+      label: 'Amazon Web Services Access Key'
+    secret_key:
+      type: string
+      label: 'Amazon Web Services Secret Key'
+    use_instance_profile:
+      type: boolean
+      label: 'Use EC2 Instance Profile Credentials'
+    credentials_file:
+      type: string
+      label: 'Custom Credentials File Location'
+    bucket:
+      type: string
+      label: 'S3 Bucket Name'
+    region:
+      type: string
+      label: 'S3 Region'
+    use_cname:
+      type: boolean
+      label: 'Enable CNAME'
+    use_customhost:
+      type: boolean
+      label: 'Use a Custom Host'
+    hostname:
+      type: string
+      label: 'Hostname'
+    domain:
+      type: string
+      label: 'CDN Domain Name'
+    use_path_style_endpoint:
+      type: boolean
+      label: 'Use path-style endpoint'
+    cache_control_header:
+      type: string
+      label: 'S3 Object Cache-Control Header'
+    encryption:
+      type: string
+      label: 'Server-Side Encryption'
+    use_https:
+      type: boolean
+      label: 'Always serve files from S3 via HTTPS'
+    ignore_cache:
+      type: boolean
+      label: 'Ignore the file metadata cache'
+    redirect_styles_ttl:
+      type: integer
+      label: 'The TTL of the redirect cache to the s3 styles'
+    root_folder:
+      type: string
+      label: 'Root Folder'
+    public_folder:
+      type: string
+      label: 'Public Folder'
+    private_folder:
+      type: string
+      label: 'Private Folder'
+    presigned_urls:
+      type: string
+      label: 'Presigned URLs'
+    saveas:
+      type: string
+      label: 'Force Save As'
+    torrents:
+      type: string
+      label: 'Torrents'
+    use_cssjs_host:
+      type: boolean
+      label: 'Use a custom domain for links inside CSS/JS files'
+    cssjs_host:
+      type: string
+      label: 'Custom domain for links inside CSS/JS files'

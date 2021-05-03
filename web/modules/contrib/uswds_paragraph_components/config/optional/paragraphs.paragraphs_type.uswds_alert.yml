@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies: {  }
+id: uswds_alert
+label: 'USWDS Alert'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

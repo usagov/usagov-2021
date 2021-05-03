@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Install, uninstall and update hooks for USWDS Paragraph Components module.
+ */
+
+use Symfony\Component\Yaml\Yaml;
+
+
+/**
+ * PUT DESCRIPTION HERE OF WHAT YOU ARE DOING HERE. Increment number below.
+ */
+//function uswds_paragraph_components_update_810X(): string {
+//  $message = NULL;
+//
+//  $config_path = drupal_get_path('module', 'uswds_paragraph_components') . 'PUT PATH TO CONFIG HERE. Ex. /config/optional/some_file';
+//  $data = Yaml::parseFile($config_path);
+//  \Drupal::configFactory()->getEditable('PUT THE CONFIG YOU ARE UPDATING. Ex if your config is put "field.field.paragraph.uswds_card_regular.field_button"')->setData($data)->save(TRUE);
+//  $message = 'PUT MESSAGE THAT IT WORKED.';
+//  return $message;
+//}

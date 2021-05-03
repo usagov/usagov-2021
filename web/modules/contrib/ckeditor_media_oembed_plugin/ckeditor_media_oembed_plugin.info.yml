@@ -1,0 +1,15 @@
+name: CKEditor Oembeded All Media
+type: module
+description: This plugin module adds the content as a oemded feature to CKEditor in Drupal 8
+package: CKEditor
+dependencies:
+  - drupal:ckeditor
+# version: '8.x-1.0'
+core: '8.x'
+core_version_requirement: ^8 || ^9
+# project: 'ckeditor_media_oembed_plugin'
+
+# Information added by Drupal.org packaging script on 2020-09-12
+version: '8.x-1.2'
+project: 'ckeditor_media_oembed_plugin'
+datestamp: 1599889480

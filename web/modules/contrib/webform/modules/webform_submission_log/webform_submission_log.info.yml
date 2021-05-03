@@ -1,0 +1,12 @@
+name: 'Webform Submission Log'
+type: module
+description: 'Dedicated logging and reporting for webform submissions.'
+package: Webform
+core_version_requirement: ^8.8 || ^9
+dependencies:
+  - 'webform:webform'
+
+# Information added by Drupal.org packaging script on 2021-03-02
+version: '6.0.2'
+project: 'webform'
+datestamp: 1614711154

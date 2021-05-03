@@ -1,0 +1,11 @@
+.field--widget-term-reference-fancytree ul.fancytree-container,
+.field--widget-term-reference-fancytree .fancytree-container:focus {
+  background-color: transparent;
+  border: 0;
+  outline: 0;
+  -moz-outline-style: none;
+}
+
+.activeTrail .fancytree-title {
+  border: 1px dotted #3875d7;
+}

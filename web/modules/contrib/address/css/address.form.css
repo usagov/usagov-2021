@@ -1,0 +1,4 @@
+.address-container-inline > .form-item {
+  display: inline-block; /* LTR */
+  margin-right: 1em; /* LTR */
+}

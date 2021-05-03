@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * @file
+ * Block Content Revision UI hooks.
+ */
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Form\RevisionRevertForm;
+use Drupal\Core\Entity\Routing\RevisionHtmlRouteProvider;
+use Drupal\Core\Session\AccountInterface;
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function block_content_revision_ui_entity_type_alter(array &$entity_types) {
+  /** @var \Drupal\Core\Entity\ContentEntityType $blockContentDefinition */
+  $blockContentDefinition = $entity_types['block_content'];
+
+  // Route Providers.
+  $handlers = $blockContentDefinition->getHandlerClasses();
+  $routeProviders = isset($handlers['route_provider']) ? $handlers['route_provider'] : [];
+
+  // Class is from https://www.drupal.org/project/drupal/issues/2350939.
+  $class = RevisionHtmlRouteProvider::class;
+  if (!in_array($class, $routeProviders)) {
+    $routeProviders[] = $class;
+    $blockContentDefinition->setHandlerClass('route_provider', $routeProviders);
+  }
+
+  // Link templates.
+  if (FALSE === $blockContentDefinition->getLinkTemplate('revision')) {
+    $blockContentDefinition->setLinkTemplate('revision', '/block/{block_content}/revision/{block_content_revision}/view');
+  }
+  if (FALSE === $blockContentDefinition->getLinkTemplate('version-history')) {
+    $blockContentDefinition->setLinkTemplate('version-history', '/block/{block_content}/revisions');
+  }
+  if (FALSE === $blockContentDefinition->getLinkTemplate('revision-revert-form')) {
+    $blockContentDefinition->setLinkTemplate('revision-revert-form', '/block/{block_content}/revision/{block_content_revision}/revert');
+  }
+  // @todo Also need to implement revision-delete-form per #2350939-96.
+  if (NULL === $blockContentDefinition->getFormClass('revision-revert')) {
+    // Class is from https://www.drupal.org/project/drupal/issues/2350939.
+    $blockContentDefinition->setFormClass('revision-revert', RevisionRevertForm::class);
+  }
+}
+
+/**
+ * Implements hook_entity_access().
+ */
+function block_content_revision_ui_entity_access(EntityInterface $entity, string $operation, AccountInterface $account): AccessResultInterface {
+  $bundle = $entity->bundle();
+  if (in_array($operation, ['view all revisions', TRUE])) {
+    return AccessResult::allowedIfHasPermissions($account, [
+      'view any block_content history',
+      'view block_content ' . $bundle . ' history'
+    ], 'OR');
+  }
+  elseif (in_array($operation, ['view revision', TRUE])) {
+    return AccessResult::allowedIfHasPermissions($account, [
+      'view any block_content revisions',
+      'view block_content ' . $bundle . ' revisions',
+    ], 'OR');
+  }
+  elseif (in_array($operation, ['revert', TRUE])) {
+    return AccessResult::allowedIfHasPermissions($account, [
+      'revert any block_content revisions',
+      'revert block_content ' . $bundle . ' revisions',
+    ], 'OR');
+  }
+  elseif (in_array($operation, ['delete revision', TRUE])) {
+    return AccessResult::allowedIfHasPermissions($account, [
+      'delete any block_content revisions',
+      'delete block_content ' . $bundle . ' revisions',
+    ], 'OR');
+  }
+
+  return AccessResult::neutral();
+}

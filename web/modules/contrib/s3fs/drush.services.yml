@@ -1,0 +1,6 @@
+services:
+  s3fs.commands:
+    class: Drupal\s3fs\Commands\S3fsCommands
+    arguments: ['@s3fs', '@s3fs.file_migration_batch', '@config.factory']
+    tags:
+      -  { name: drush.command }

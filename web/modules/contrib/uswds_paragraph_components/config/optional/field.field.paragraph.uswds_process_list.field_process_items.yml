@@ -1,0 +1,60 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_process_items
+    - paragraphs.paragraphs_type.uswds_process_item
+    - paragraphs.paragraphs_type.uswds_process_list
+  module:
+    - entity_reference_revisions
+id: paragraph.uswds_process_list.field_process_items
+field_name: field_process_items
+entity_type: paragraph
+bundle: uswds_process_list
+label: 'Process Items'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    negate: 0
+    target_bundles:
+      uswds_process_item: uswds_process_item
+    target_bundles_drag_drop:
+      text_field:
+        weight: 13
+        enabled: false
+      uswds_accordion:
+        weight: 14
+        enabled: false
+      uswds_accordion_section:
+        weight: 15
+        enabled: false
+      uswds_alert:
+        weight: 16
+        enabled: false
+      uswds_card_group_flag:
+        weight: 17
+        enabled: false
+      uswds_card_group_regular:
+        weight: 18
+        enabled: false
+      uswds_card_regular:
+        weight: 19
+        enabled: false
+      uswds_cards_flag:
+        weight: 20
+        enabled: false
+      uswds_process_item:
+        enabled: true
+        weight: 12
+      uswds_process_list:
+        weight: 21
+        enabled: false
+      uswds_summary_box:
+        weight: 22
+        enabled: false
+field_type: entity_reference_revisions

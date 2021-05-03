@@ -1,0 +1,12 @@
+name: Minimum Multiple Fields (Core Fields)
+description: Allows to show minimum number of multi-valued drupal core fields in content add form.
+package: Field Extensions
+
+type: module
+core: 8.x
+core_version_requirement: ^8 || ^9
+
+# Information added by Drupal.org packaging script on 2020-08-08
+version: '2.0.1'
+project: 'mmf_core_fields'
+datestamp: 1596913703

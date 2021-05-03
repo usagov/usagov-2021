@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for Tome Sync.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function tome_sync_schema() {
+  $schema['tome_sync_content_hash'] = [
+    'description' => 'Stores hashes of normalized content.',
+    'fields' => [
+      'name' => [
+        'description' => 'A content name',
+        'type' => 'varchar_ascii',
+        'length' => 256,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'hash' => [
+        'description' => 'A sha1 hash',
+        'type' => 'varchar_ascii',
+        'length' => 256,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+    ],
+    'indexes' => [
+      'name' => ['name'],
+    ],
+    'primary key' => ['name'],
+  ];
+  return $schema;
+}
+
+/**
+ * Flags Tome Sync installs.
+ */
+function tome_sync_install() {
+  $GLOBALS['_tome_sync_installing'] = '_tome_sync_installing';
+}
+
+/**
+ * Installs the Tome Sync content hash schema.
+ */
+function tome_sync_update_8001() {
+  drupal_install_schema('tome_sync');
+}

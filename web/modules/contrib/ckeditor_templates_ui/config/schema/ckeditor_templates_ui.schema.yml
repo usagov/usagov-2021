@@ -1,0 +1,22 @@
+ckeditor_templates_ui.ckeditor_template.*:
+  type: config_entity
+  label: 'Ckeditor template'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Title'
+    image:
+      type: label
+      label: 'Image'
+    description:
+      type: label
+      label: 'Description'
+    html:
+      type: text_format
+      label: 'HTML'
+    weight:
+      type: integer
+      label: 'Weight'

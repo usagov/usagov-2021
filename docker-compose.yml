@@ -1,0 +1,39 @@
+version: '3.0'
+services:
+  cms:
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+      - 2223:2222
+    volumes:
+      - .:/var/www/:delegated
+    environment:
+      COMPOSER_MEMORY_LIMIT: -1
+      CF_INSTANCE_INDEX: '0'
+      VCAP_APPLICATION: >
+        {"name": "web", "application_id": "docker"}
+      VCAP_SERVICES: >
+        { "aws-rds": [{
+            "name": "database",
+            "credentials": {
+              "db_name": "drupal",
+              "host": "database",
+              "password": "mysql",
+              "port": "3306",
+              "username": "root"
+            }
+          }],
+          "user-provided": [{
+            "name": "secrets",
+            "credentials": {
+              "ADMIN_EMAIL": "secret@example.com",
+              "CRON_KEY": "SECRET",
+              "HASH_SALT": "SECRET",
+              "ROOT_USER_NAME": "root",
+              "ROOT_USER_PASS": "root"
+            }
+          }]
+        }

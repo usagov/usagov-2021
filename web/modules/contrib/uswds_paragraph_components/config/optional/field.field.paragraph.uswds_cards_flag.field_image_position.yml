@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_image_position
+    - paragraphs.paragraphs_type.uswds_cards_flag
+  module:
+    - options
+id: paragraph.uswds_cards_flag.field_image_position
+field_name: field_image_position
+entity_type: paragraph
+bundle: uswds_cards_flag
+label: 'Image Position'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

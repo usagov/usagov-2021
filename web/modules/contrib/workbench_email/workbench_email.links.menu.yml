@@ -1,0 +1,12 @@
+entity.workbench_email_template.collection:
+  title: 'Email Templates'
+  route_name: entity.workbench_email_template.collection
+  description: 'Manage Email Templates'
+  parent: workbench_moderation.overview
+  weight: 99
+entity.content_moderation_email_template.collection:
+  title: 'Email Templates'
+  route_name: entity.workbench_email_template.collection
+  description: 'Manage Email Templates'
+  parent: system.admin_config_workflow
+  weight: 99

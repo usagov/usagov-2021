@@ -1,0 +1,24 @@
+{
+  "name": "drupal/uswds_ckeditor_integration",
+  "description": "Helps integrate some USWDS components into the ckeditor.",
+  "type": "drupal-module",
+  "minimum-stability": "dev",
+  "homepage": "https://www.drupal.org/project/uswds_ckeditor_integration",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "Stephen Mustgrave (smustgrave)",
+      "homepage": "https://www.drupal.org/u/smustgrave",
+      "role": "Maintainer"
+    }
+  ],
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/uswds_ckeditor_integration",
+    "source": "https://git.drupalcode.org/project/uswds_ckeditor_integration"
+  },
+  "require": {
+    "drupal/core": "^8 || ^9",
+    "drupal/ckeditor_templates": "^1.2",
+    "drupal/ckeditor_templates_ui": "^1.4"
+  }
+}

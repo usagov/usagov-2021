@@ -1,0 +1,224 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the S3 File System module.
+ */
+
+use Drupal\Core\Database\SchemaObjectExistsException;
+use Drupal\Core\Site\Settings;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_requirements().
+ */
+function s3fs_requirements($phase) {
+  $requirements = [];
+  if ($phase == 'install') {
+    if (!class_exists('\Aws\S3\S3Client')) {
+      $requirements['aws_library'] = [
+        'description' => t('S3fs require AWS library.'),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+  }
+  if ($phase == 'runtime') {
+    $config = \Drupal::config('s3fs.settings');
+    $use_instance_profile = $config->get('use_instance_profile');
+    $access_key = Settings::get('s3fs.access_key');
+    $secret_key = Settings::get('s3fs.secret_key');
+
+    if (
+          ($config->get('access_key') && !$access_key)
+      ||  ($config->get('secret_key') && !$secret_key)
+    ) {
+      $requirements['s3fs_keys'] = [
+        'title' => t('S3 File System access and secret keys'),
+        'severity' => REQUIREMENT_WARNING,
+        'description' => t('Access and secret key now must be in settings.php. Please copy your values from <a href=":settings">S3 File System module settings page</a> or $config (in settings.php) and set it up in $settings array in your settings.php before 8.x-3.0-beta1.', [
+          ':settings' => Url::fromRoute('s3fs.admin_settings')->toString(),
+        ]),
+      ];
+    }
+
+    if (
+          !$use_instance_profile
+      &&  (
+              (!$access_key && !$secret_key)
+          ||  (!$access_key && $secret_key)
+          ||  ($access_key && !$secret_key)
+      )
+    ) {
+      $requirements['s3fs'] = [
+        'title' => t('S3 File System'),
+        'severity' => REQUIREMENT_WARNING,
+        'description' => t('S3 File System has miss configuration. Please set it up at the <a href=":settings">S3 File System module settings page</a> or in your settings.php file.', [
+          ':settings' => Url::fromRoute('s3fs.admin_settings')->toString(),
+        ]),
+      ];
+    }
+
+    if (ini_get('allow_url_fopen')) {
+      $requirements['s3fs_allow_url_fopen'] = [
+        'severity' => REQUIREMENT_OK,
+        'title' => t('allow_url_fopen'),
+        'value' => t('Enabled'),
+      ];
+    }
+    else {
+      $requirements['s3fs_allow_url_fopen'] = [
+        'severity' => REQUIREMENT_ERROR,
+        'title' => t('allow_url_fopen'),
+        'value' => t('Disabled'),
+        'description' => t('The S3 File System module requires that the allow_url_fopen setting be turned on in php.ini.'),
+      ];
+    }
+
+    if (PHP_INT_SIZE === 8) {
+      $requirements['s3fs_int64'] = [
+        'title' => t('PHP architecture'),
+        'value' => t('64-bit'),
+        'severity' => REQUIREMENT_OK,
+      ];
+    }
+    else {
+      $requirements['s3fs_int64'] = [
+        'title' => t('PHP architecture'),
+        'value' => t('32-bit'),
+        'description' => t('A 64-bit PHP installation is required in order to support files larger than 2GB.'),
+        'severity' => REQUIREMENT_WARNING,
+      ];
+    }
+
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_schema().
+ */
+function s3fs_schema() {
+  $schema = [];
+  $schema['s3fs_file'] = [
+    'description' => 'Stores metadata about files in S3.',
+    'fields' => [
+      'uri' => [
+        'description' => 'The S3 URI of the file.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'filesize' => [
+        'description' => 'The size of the file in bytes.',
+        'type' => 'int',
+        'size' => 'big',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'timestamp' => [
+        'description' => 'UNIX timestamp for when the file was added.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'dir' => [
+        'description' => 'Boolean indicating whether or not this object is a directory.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'version' => [
+        'description' => 'The S3 VersionId of the object.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => FALSE,
+        'default' => '',
+      ],
+    ],
+    'indexes' => [
+      'timestamp' => ['timestamp'],
+    ],
+    //'primary key' => ['uri'],
+    // As mentioned on http://drupal.org/node/2193059, a bug in Drupal core's
+    // MySQL driver prevents this setting from actually being applied. So we
+    // manually fix that in hook_install().
+    'collation' => 'utf8_bin',
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function s3fs_install() {
+  s3fs_fix_table_indexes();
+}
+
+/**
+ * Fix s3fs file table indexes.
+ *
+ * Because hook_schema() doesn't respect the 'collation' setting, we have to
+ * set the collation manually. This hook is run after the table is created.
+ *
+ * Also adds s3:// to the core file module's list of public schema.
+ * See https://www.drupal.org/node/2305017 for more info.
+ *
+ * @param $table
+ *   Allowed values: s3fs_file | s3fs_file_temp
+ */
+function s3fs_fix_table_indexes($table = 's3fs_file') {
+  // We can't use query placeholders for table names in \Drupal::database()->query(),
+  // so we only allow certain tables.
+  $allowed_tables = ['s3fs_file', 's3fs_file_temp'];
+
+  if (in_array($table, $allowed_tables)) {
+    $options = \Drupal::database()->getConnectionOptions();
+
+    switch ($options['driver']) {
+      case 'pgsql':
+        // Postgres uses binary collation by default.
+        break;
+
+      case 'sqlite':
+        // SQLite uses binary collation by default.
+        break;
+
+      case 'mysql':
+        // As stated here:
+        // http://forums.mysql.com/read.php?103,19380,200971#msg-200971
+        // MySQL doesn't directly support case sensitive UTF8 collation.
+        // Fortunately, 'utf8_bin' collation works for our purposes.
+        \Drupal::database()
+               ->query('ALTER TABLE {' . $table . '} CONVERT TO CHARACTER SET utf8 COLLATE utf8_bin');
+        break;
+    }
+    \Drupal::database()->schema()->addPrimaryKey($table, ['uri']);
+  }
+}
+
+/**
+ * Set new config property "redirect_styles_ttl" to default value.
+ */
+function s3fs_update_8301() {
+  \Drupal::configFactory()
+    ->getEditable('s3fs.settings')
+    ->set('redirect_styles_ttl', 0)
+    ->save();
+}
+
+/**
+ * Fix s3fs_file table indexes.
+ */
+function s3fs_update_8302() {
+  try {
+    s3fs_fix_table_indexes();
+  }
+  catch (SchemaObjectExistsException $exception) {
+    \Drupal::messenger()->addStatus('"uri" primary key already exists in s3fs_file table.');
+  }
+}
