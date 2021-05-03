@@ -1,0 +1,28 @@
+services:
+  scheduled_transitions.utility:
+    class: 'Drupal\scheduled_transitions\ScheduledTransitionsUtility'
+    arguments: ['@config.factory', '@cache.default', '@entity_type.manager', '@entity_type.bundle.info', '@content_moderation.moderation_information']
+
+  scheduled_transitions.runner:
+    class: 'Drupal\scheduled_transitions\ScheduledTransitionsRunner'
+    arguments: ['@entity_type.manager', '@config.factory', '@datetime.time', '@logger.channel.scheduled_transitions', '@content_moderation.moderation_information', '@token', '@event_dispatcher']
+
+  scheduled_transitions.jobs:
+    class: 'Drupal\scheduled_transitions\ScheduledTransitionsJobs'
+    arguments: ['@entity_type.manager', '@datetime.time', '@queue', '@logger.channel.scheduled_transitions']
+
+  logger.channel.scheduled_transitions:
+    parent: logger.channel_base
+    arguments: ['scheduled_transitions']
+
+  access_check.scheduled_transitions.supports_content_moderation:
+    class: Drupal\scheduled_transitions\Access\SupportsContentModerationAccessCheck
+    arguments: ['@content_moderation.moderation_information', '@scheduled_transitions.utility']
+    tags:
+      - { name: access_check, applies_to: _scheduled_transitions_supports_content_moderation }
+
+  scheduled_transitions.new_revision:
+    class: Drupal\scheduled_transitions\EventSubscriber\ScheduledTransitionsNewRevision
+    arguments: ['@entity_type.manager', '@logger.channel.scheduled_transitions']
+    tags:
+      - { name: event_subscriber }

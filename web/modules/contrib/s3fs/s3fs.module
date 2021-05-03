@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Hook implementations and other primary functionality for S3 File System.
+ */
+
+/**
+ * The prefix for our Drupal-cached metadata.
+ */
+define('S3FS_CACHE_PREFIX', 's3fs:uri:');
+define('S3FS_CACHE_BIN', 'default');
+define('S3FS_CACHE_TAG', 's3fs');

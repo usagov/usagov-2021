@@ -1,0 +1,6 @@
+site_name: Term Reference Fancytree
+pages:
+    - Overview: index.md
+    - How it works: how-it-works.md
+theme: readthedocs
+extra_css: [docs.css]

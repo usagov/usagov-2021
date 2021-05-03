@@ -1,0 +1,36 @@
+# Schema for the configuration files of the scanner module.
+
+scanner.admin_settings:
+  type: config_object
+  label: 'Scanner settings'
+  mapping:
+    scanner_mode:
+      type: boolean
+      label: 'Case sensitive search mode'
+    scanner_wholeword:
+      type: boolean
+      label: 'Match whole word'
+    scanner_regex:
+      type: boolean
+      label: 'Regular expression search'
+    scanner_published:
+      type: boolean
+      label: 'Search published nodes only'
+    scanner_pathauto:
+      type: boolean
+      label: 'Maintain custom aliases'
+    scanner_language:
+      type: string
+      label: 'Content language'
+    enabled_content_types:
+      type: sequence
+      label: 'Enabled entity types'
+      sequence:
+        type: string
+        label: 'Entity type'
+    fields_of_selected_content_type:
+      type: sequence
+      label: 'Enabled fields'
+      sequence:
+        type: string
+        label: 'Entity field'

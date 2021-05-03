@@ -1,0 +1,15 @@
+swagger_ui:
+  js:
+    /libraries/swagger-ui/dist/swagger-ui-bundle.js: {}
+    /libraries/swagger-ui/dist/swagger-ui-standalone-preset.js: {}
+  css:
+    theme:
+      /libraries/swagger-ui/dist/swagger-ui.css: { minified: true }
+
+swagger_ui_integration:
+  js:
+    js/swagger.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - openapi_ui_swagger/swagger_ui

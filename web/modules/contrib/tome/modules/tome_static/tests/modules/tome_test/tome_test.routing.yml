@@ -1,0 +1,35 @@
+tome_test.page:
+  path: '/tome-test/page'
+  defaults:
+    _controller: '\Drupal\tome_test\Controller\TestController::testPage'
+    _title: 'Tome test page'
+  requirements:
+    _access: 'TRUE'
+tome_test.complex_page:
+  path: '/tome-test/complex-page'
+  defaults:
+    _controller: '\Drupal\tome_test\Controller\TestController::testComplexPage'
+    _title: 'Tome complex test page'
+  requirements:
+    _access: 'TRUE'
+tome_test.pager_page:
+  path: '/tome-test/pager-page'
+  defaults:
+    _controller: '\Drupal\tome_test\Controller\TestController::testPageWithPagers'
+    _title: 'Tome page with pagers'
+  requirements:
+    _access: 'TRUE'
+tome_test.oembed_page:
+  path: '/tome-test/oembed-page'
+  defaults:
+    _controller: '\Drupal\tome_test\Controller\TestController::testPageWithOembed'
+    _title: 'Tome page with oembed'
+  requirements:
+    _access: 'TRUE'
+tome_test.fake_oembed:
+  path: '/media/oembed'
+  defaults:
+    _controller: '\Drupal\tome_test\Controller\TestController::fakeOembed'
+    _title: 'Tome embed page'
+  requirements:
+    _access: 'TRUE'

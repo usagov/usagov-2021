@@ -1,0 +1,18 @@
+s3fs.admin_settings:
+  path: '/admin/config/media/s3fs'
+  defaults:
+    _form: '\Drupal\s3fs\Form\SettingsForm'
+    _title: 'S3 File System settings'
+  requirements:
+    _permission: 'administer s3fs'
+
+s3fs.admin_actions:
+  path: '/admin/config/media/s3fs/actions'
+  defaults:
+    _form: '\Drupal\s3fs\Form\ActionsForm'
+    _title: 'S3 File System actions'
+  requirements:
+    _permission: 'administer s3fs'
+
+route_callbacks:
+  - '\Drupal\s3fs\Routing\S3fsImageStyleRoutes::routes'

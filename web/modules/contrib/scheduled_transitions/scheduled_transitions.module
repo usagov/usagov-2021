@@ -1,0 +1,207 @@
+<?php
+
+/**
+ * @file
+ * Hooks for Scheduled Transitions module.
+ */
+
+declare(strict_types = 1);
+
+use Drupal\Core\Access\AccessResultInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
+use Drupal\scheduled_transitions\Routing\ScheduledTransitionsRouteProvider;
+use Drupal\scheduled_transitions\ScheduledTransitionsEntityHooks;
+use Drupal\scheduled_transitions\ScheduledTransitionsHooks;
+
+/**
+ * Implements hook_entity_access().
+ *
+ * @see \Drupal\scheduled_transitions\ScheduledTransitionsEntityHooks::entityAccess
+ */
+function scheduled_transitions_entity_access(EntityInterface $entity, $operation, AccountInterface $account): AccessResultInterface {
+  return \Drupal::classResolver(ScheduledTransitionsEntityHooks::class)
+    ->entityAccess($entity, $operation, $account);
+}
+
+/**
+ * Implements hook_entity_operation().
+ */
+function scheduled_transitions_entity_operation(EntityInterface $entity): array {
+  $operations = [];
+
+  if ($entity->getEntityType()->hasLinkTemplate(ScheduledTransitionsRouteProvider::LINK_TEMPLATE_ADD)) {
+    $routeName = ScheduledTransitionsRouteProvider::getScheduledTransitionRouteName($entity->getEntityType());
+    $url = Url::fromRoute($routeName, [$entity->getEntityTypeId() => $entity->id()]);
+    $user = \Drupal::currentUser();
+    if (TRUE === $url->access($user)) {
+      $operations['scheduled_transitions'] = [
+        'title' => \t('Scheduled transitions'),
+        'url' => $url,
+        'weight' => 50,
+      ];
+    }
+  }
+
+  return $operations;
+}
+
+/**
+ * Implements hook_entity_type_build().
+ *
+ * @see \Drupal\scheduled_transitions\ScheduledTransitionsEntityHooks::entityTypeBuild
+ */
+function scheduled_transitions_entity_type_build(array &$entity_types) {
+  \Drupal::classResolver(ScheduledTransitionsEntityHooks::class)
+    ->entityTypeBuild($entity_types);
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * @see \Drupal\scheduled_transitions\ScheduledTransitionsEntityHooks::entityDelete
+ */
+function scheduled_transitions_entity_delete(EntityInterface $entity): void {
+  \Drupal::classResolver(ScheduledTransitionsEntityHooks::class)
+    ->entityDelete($entity);
+}
+
+/**
+ * Implements hook_entity_translation_delete().
+ *
+ * @see \Drupal\scheduled_transitions\ScheduledTransitionsEntityHooks::entityDelete()
+ */
+function scheduled_transitions_entity_translation_delete(EntityInterface $entity): void {
+  \Drupal::classResolver(ScheduledTransitionsEntityHooks::class)
+    ->entityDelete($entity);
+}
+
+/**
+ * Implements hook_entity_revision_delete().
+ *
+ * @see \Drupal\scheduled_transitions\ScheduledTransitionsEntityHooks::entityRevisionDelete
+ */
+function scheduled_transitions_entity_revision_delete(EntityInterface $entity): void {
+  \Drupal::classResolver(ScheduledTransitionsEntityHooks::class)
+    ->entityRevisionDelete($entity);
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * @see \Drupal\scheduled_transitions\ScheduledTransitionsHooks::cron
+ */
+function scheduled_transitions_cron(): void {
+  \Drupal::classResolver(ScheduledTransitionsHooks::class)->cron();
+}
+
+/**
+ * Implements hook_theme().
+ */
+function scheduled_transitions_theme(array $existing, string $type, string $theme, string $path): array {
+  return [
+    'scheduled_transitions_form_add' => [
+      'render element' => 'form',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * HOOK: scheduled_transitions_form_add.
+ */
+function template_preprocess_scheduled_transitions_form_add(array &$variables): void {
+  $variables['#attached']['library'][] = 'scheduled_transitions/form_add';
+  // Add classes to table cells so they can be styled.
+  foreach ($variables['form']['revision']['#options'] as $key => &$row) {
+    if (isset($row['state'])) {
+      $row['state']['class'][] = 'state';
+    }
+    if (isset($row['revision_time'])) {
+      $row['revision_time']['class'][] = 'revision-time';
+    }
+    if (isset($row['revision_author'])) {
+      $row['revision_author']['class'][] = 'revision-author';
+    }
+  }
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function scheduled_transitions_token_info(): array {
+  $type = [
+    'name' => \t('Scheduled Transitions'),
+    'description' => \t('Tokens related to scheduled transitions.'),
+    'needs-data' => 'scheduled-transitions',
+  ];
+
+  $scheduledTransitions['to-state'] = [
+    'name' => \t('To state'),
+    'description' => \t('The name of the state being transitioned to.'),
+  ];
+
+  $scheduledTransitions['from-state'] = [
+    'name' => \t('From state'),
+    'description' => \t('The name of the state being transitioned from.'),
+  ];
+
+  $scheduledTransitions['from-revision-id'] = [
+    'name' => \t('Target Revision ID'),
+    'description' => \t('The revision ID which is being transitioned from.'),
+  ];
+
+  $scheduledTransitions['latest-revision-id'] = [
+    'name' => \t('Latest Revision ID'),
+    'description' => \t('The latest revision ID for an entity before transitioning.'),
+  ];
+
+  $scheduledTransitions['latest-revision-id'] = [
+    'name' => \t('Latest Revision state'),
+    'description' => \t('The latest revision state for an entity before transitioning.'),
+  ];
+
+  return [
+    'types' => ['scheduled-transitions' => $type],
+    'tokens' => ['scheduled-transitions' => $scheduledTransitions],
+  ];
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function scheduled_transitions_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
+  $replacements = [];
+
+  $scheduledTransitionData = $data['scheduled-transitions'] ?? NULL;
+  if ($type == 'scheduled-transitions' && $scheduledTransitionData) {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'to-state':
+          $replacements[$original] = $scheduledTransitionData['to-state'];
+          break;
+
+        case 'from-state':
+          $replacements[$original] = $scheduledTransitionData['from-state'];
+          break;
+
+        case 'from-revision-id':
+          $replacements[$original] = $scheduledTransitionData['from-revision-id'];
+          break;
+
+        case 'latest-state':
+          $replacements[$original] = $scheduledTransitionData['latest-state'];
+          break;
+
+        case 'latest-revision-id':
+          $replacements[$original] = $scheduledTransitionData['latest-revision-id'];
+          break;
+      }
+    }
+  }
+
+  return $replacements;
+}

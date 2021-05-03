@@ -1,0 +1,9 @@
+entity.st_entity_test.canonical:
+  route_name: entity.st_entity_test.canonical
+  base_route: entity.st_entity_test.canonical
+  title: 'View'
+
+entity.st_entity_test.edit_form:
+  route_name: entity.st_entity_test.edit_form
+  base_route: entity.st_entity_test.canonical
+  title: 'Edit'

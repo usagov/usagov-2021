@@ -1,0 +1,15 @@
+name: Scheduled Transitions
+type: module
+description: Allows users to schedule a revision to change state.
+core_version_requirement: ^8.9 || ^9
+php: 7.3
+package: Workflow
+dependencies:
+  - drupal:system (>=8.6)
+  - drupal:content_moderation (>=8.6)
+  - dynamic_entity_reference:dynamic_entity_reference
+
+# Information added by Drupal.org packaging script on 2020-08-17
+version: '2.0.0'
+project: 'scheduled_transitions'
+datestamp: 1597634090

@@ -1,0 +1,14 @@
+uuid: 9386b508-f69b-4e8c-87e5-ac35c19328a0
+langcode: en
+status: true
+dependencies: {  }
+id: audio
+label: Audio
+description: 'Basic Audio'
+source: audio_file
+queue_thumbnail_downloads: true
+new_revision: false
+source_configuration:
+  source_field: field_media_file
+field_map:
+  name: name

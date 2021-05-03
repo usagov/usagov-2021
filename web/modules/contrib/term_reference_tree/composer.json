@@ -1,0 +1,19 @@
+{
+    "name": "drupal/term_reference_tree",
+    "description": "An expanding/collapsing tree widget for selecting terms in a taxonomy term reference field.",
+    "type": "drupal-module",
+    "homepage": "https://drupal.org/project/term_reference_tree",
+    "authors": [
+        {
+            "name": "See other contributors",
+            "homepage": "https://www.drupal.org/node/1088348/committers",
+            "role": "contributor"
+        }
+    ],
+    "support": {
+        "issues": "https://drupal.org/project/issues/term_reference_tree",
+        "source": "https://git.drupalcode.org/project/term_reference_tree"
+    },
+    "license": "GPL-2.0+",
+    "minimum-stability": "dev"
+}

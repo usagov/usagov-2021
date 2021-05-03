@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * @file
+ * Provides functionality for handling postal addresses.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_theme().
+ */
+function address_theme() {
+  return [
+    'address_plain' => [
+      'variables' => [
+        'given_name' => '',
+        'additional_name' => '',
+        'family_name' => '',
+        'organization' => '',
+        'address_line1' => '',
+        'address_line2' => '',
+        'postal_code' => '',
+        'sorting_code' => '',
+        'dependent_locality' => [],
+        'locality' => [],
+        'administrative_area' => [],
+        'country' => [],
+        'address' => NULL,
+        'view_mode' => '',
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function address_theme_suggestions_address_plain(array $variables) {
+  $suggestions = [];
+  $original = $variables['theme_hook_original'] . '__';
+  $field = $variables['address']->getFieldDefinition();
+  $entity_type_id = $field->getTargetEntityTypeId();
+  $bundle = $field->getTargetBundle();
+  $sanitized_view_mode = strtr($variables['view_mode'], '.', '_');
+
+  $suggestions[] = $original . $entity_type_id . '__' . $sanitized_view_mode;
+  $suggestions[] = $original . $entity_type_id . '__' . $bundle;
+  $suggestions[] = $original . $entity_type_id . '__' . $bundle . '__' . $sanitized_view_mode;
+  $suggestions[] = $original . $field->getName();
+  $suggestions[] = $original . $entity_type_id . '__' . $field->getName();
+  $suggestions[] = $original . $entity_type_id . '__' . $field->getName() . '__' . $bundle;
+
+  return $suggestions;
+}
+
+/**
+ * Updates the given entity's field for the RC1 changes.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ * @param string $field_name
+ *   The name of the field to update.
+ */
+function _address_update_entity(EntityInterface $entity, $field_name) {
+  $update_helper = '\CommerceGuys\Addressing\UpdateHelper';
+  foreach ($entity->{$field_name} as $delta => $address) {
+    $names = $update_helper::splitRecipient($address->given_name, $address->country_code);
+    $address->given_name = $names['givenName'];
+    $address->family_name = $names['familyName'];
+    // Now update the subdivisions.
+    $address->administrative_area = $update_helper::updateSubdivision($address->administrative_area);
+    $address->locality = $update_helper::updateSubdivision($address->locality);
+    $address->dependent_locality = $update_helper::updateSubdivision($address->dependent_locality);
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter() for hook_tokens.
+ */
+function address_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'tokens') {
+    $group = $implementations['address'];
+    unset($implementations['address']);
+    $implementations['address'] = $group;
+  }
+}

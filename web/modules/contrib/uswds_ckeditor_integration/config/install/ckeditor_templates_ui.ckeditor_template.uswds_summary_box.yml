@@ -1,0 +1,11 @@
+langcode: en
+status: true
+dependencies: {  }
+id: uswds_summary_box
+label: 'USWDS Summary Box'
+description: 'A summary box highlights key information from a longer page or displays next steps.'
+html:
+  value: "<div class=\"usa-summary-box\" role=\"complementary\">\r\n<div class=\"usa-summary-box__body\">\r\n<h3 class=\"usa-summary-box__heading\">[Key information]</h3>\r\n\r\n<div class=\"usa-summary-box__text\">Content goes here.</div>\r\n</div>\r\n</div>\r\n"
+  format: full_html
+image: modules/contrib/uswds_ckeditor_integration/images/ckeditor_templates/uswds_ckeditor_summary_box.png
+weight: null

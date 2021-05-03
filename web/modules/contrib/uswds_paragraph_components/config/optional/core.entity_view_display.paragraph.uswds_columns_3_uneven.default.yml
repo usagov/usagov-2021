@@ -1,0 +1,43 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_columns_3_uneven.field_3_column_grid
+    - field.field.paragraph.uswds_columns_3_uneven.field_column_content_3_uneven
+    - field.field.paragraph.uswds_columns_3_uneven.field_grid_gap
+    - paragraphs.paragraphs_type.uswds_columns_3_uneven
+  module:
+    - entity_reference_revisions
+    - options
+id: paragraph.uswds_columns_3_uneven.default
+targetEntityType: paragraph
+bundle: uswds_columns_3_uneven
+mode: default
+content:
+  field_3_column_grid:
+    weight: 2
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+    region: content
+  field_column_content_3_uneven:
+    type: entity_reference_revisions_entity_view
+    weight: 1
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_grid_gap:
+    weight: 0
+    label: hidden
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+hidden: {  }

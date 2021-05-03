@@ -1,0 +1,76 @@
+<?php
+
+/**
+ * @file
+ * Ckeditor_templates_ui module file.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Asset\AttachedAssetsInterface;
+
+/**
+ * Implements hook_help().
+ *
+ * {@inheritdoc}
+ */
+function ckeditor_templates_ui_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.ckeditor_templates_ui':
+      $text = file_get_contents(dirname(__FILE__) . "/README.txt");
+      if (!\Drupal::moduleHandler()->moduleExists('markdown')) {
+        return '<pre>' . $text . '</pre>';
+      }
+      else {
+        // Use the Markdown filter to render the README.
+        $filter_manager = \Drupal::service('plugin.manager.filter');
+        $settings = \Drupal::configFactory()->get('markdown.settings')->getRawData();
+        $config = ['settings' => $settings];
+        $filter = $filter_manager->createInstance('markdown', $config);
+        return $filter->process($text, 'en');
+      }
+  }
+  return NULL;
+
+}
+
+/**
+ * Implements hook_ckeditor_plugin_info_alter().
+ */
+function ckeditor_templates_ui_ckeditor_plugin_info_alter(array &$plugins) {
+  // Change template plugin class.
+  $plugins['templates']['class'] = 'Drupal\ckeditor_templates_ui\CkeditorTemplatesUi';
+}
+
+/**
+ * Implements hook_js_settings_alter().
+ */
+function ckeditor_templates_ui_js_settings_alter(array &$settings, AttachedAssetsInterface $assets) {
+  $libraries = $assets->getLibraries();
+  if (in_array('ckeditor_templates/ckeditor.templates.dialog', $libraries, TRUE)) {
+    $query = \Drupal::entityTypeManager()->getStorage('ckeditor_template')->getQuery();
+    $templates_ids = $query->execute();
+    $ckeditor_templates = \Drupal::entityTypeManager()->getStorage('ckeditor_template')->loadMultiple($templates_ids);
+    // Sorting in postLoad does not stick.
+    uasort($ckeditor_templates, 'Drupal\Core\Config\Entity\ConfigEntityBase::sort');
+    $i = 0;
+    $templates = [];
+    foreach ($ckeditor_templates as $value) {
+      $templates[$i]['title'] = $value->label;
+      $templates[$i]['description'] = $value->description;
+      if ($value->image) {
+        // The CKEditor Templates plugin requires a "imagesPath" parameter
+        // that cannot evaluate to false, is the same for all templates and
+        // is used to create the image path. This makes it inconvenient for us.
+        // For things to work out all url-s must start with "/".
+        $templates[$i]['image'] = file_create_url($value->image);
+        $templates[$i]['image'] = file_url_transform_relative($templates[$i]['image']);
+        // Remove leading "/" since it will be added separately
+        // by the "imagesPath" parameter.
+        $templates[$i]['image'] = substr($templates[$i]['image'], 1);
+      }
+      $templates[$i]['html'] = $value->html['value'];
+      $i++;
+    }
+    $settings['ckeditor_templates_ui']['templates'] = $templates;
+  }
+}

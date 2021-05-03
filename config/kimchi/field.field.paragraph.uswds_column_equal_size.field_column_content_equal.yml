@@ -1,0 +1,72 @@
+uuid: f224e6b5-d2bb-4141-be0f-7e85ed100e43
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_column_content_equal
+    - paragraphs.paragraphs_type.text_field
+    - paragraphs.paragraphs_type.uswds_column_equal_size
+  module:
+    - entity_reference_revisions
+_core:
+  default_config_hash: HOizbJXAJUKBFvQAEFC0f_tN-VxeHM3ZaiEYeZEwDNM
+id: paragraph.uswds_column_equal_size.field_column_content_equal
+field_name: field_column_content_equal
+entity_type: paragraph
+bundle: uswds_column_equal_size
+label: 'Column Content'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    negate: 0
+    target_bundles:
+      text_field: text_field
+    target_bundles_drag_drop:
+      text_field:
+        enabled: true
+        weight: 46
+      uswds_3_column_equal_size:
+        weight: 47
+        enabled: false
+      uswds_accordion:
+        weight: 48
+        enabled: false
+      uswds_accordion_section:
+        weight: 49
+        enabled: false
+      uswds_alert:
+        weight: 50
+        enabled: false
+      uswds_card_group_flag:
+        weight: 51
+        enabled: false
+      uswds_card_group_regular:
+        weight: 52
+        enabled: false
+      uswds_card_regular:
+        weight: 53
+        enabled: false
+      uswds_cards_flag:
+        weight: 54
+        enabled: false
+      uswds_column_equal_size:
+        weight: 30
+        enabled: false
+      uswds_column_equal_size_:
+        weight: 55
+        enabled: false
+      uswds_process_item:
+        weight: 56
+        enabled: false
+      uswds_process_list:
+        weight: 57
+        enabled: false
+      uswds_summary_box:
+        weight: 58
+        enabled: false
+field_type: entity_reference_revisions

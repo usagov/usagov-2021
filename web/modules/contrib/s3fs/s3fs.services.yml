@@ -1,0 +1,20 @@
+services:
+  s3fs:
+    class: Drupal\s3fs\S3fsService
+    arguments: ['@database', '@config.factory', '@datetime.time']
+  stream_wrapper.s3fs:
+    class: Drupal\s3fs\StreamWrapper\S3fsStream
+    tags:
+      - { name: stream_wrapper, scheme: s3 }
+  s3fs.path_processor.image_styles:
+    class: Drupal\s3fs\PathProcessor\S3fsPathProcessorImageStyles
+    tags:
+      - { name: path_processor_inbound, priority: 310 }
+  s3fs.file_migration_batch:
+    class: Drupal\s3fs\Batch\S3fsFileMigrationBatch
+
+  s3fsfileservice:
+    class: Drupal\s3fs\S3fsFileService
+    decorates: file_system
+    decoration_priority: 5
+    arguments: ['@s3fsfileservice.inner', '@stream_wrapper_manager', '@logger.channel.file']

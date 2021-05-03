@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_button
+    - paragraphs.paragraphs_type.uswds_cards_flag
+  module:
+    - link
+id: paragraph.uswds_cards_flag.field_button
+field_name: field_button
+entity_type: paragraph
+bundle: uswds_cards_flag
+label: Button
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 1
+field_type: link

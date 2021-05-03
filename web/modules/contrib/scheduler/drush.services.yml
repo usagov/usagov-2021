@@ -1,0 +1,8 @@
+services:
+  scheduler.commands:
+    class: \Drupal\scheduler\Commands\SchedulerCommands
+    arguments:
+      - '@scheduler.manager'
+      - '@messenger'
+    tags:
+      - { name: drush.command }

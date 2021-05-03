@@ -1,0 +1,13 @@
+name: 'Tome Static Cron'
+type: module
+description: 'Processes static paths in a cron queue worker.'
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: Tome
+dependencies:
+  - tome:tome_static
+
+# Information added by Drupal.org packaging script on 2020-05-24
+version: '8.x-1.4'
+project: 'tome'
+datestamp: 1590331616

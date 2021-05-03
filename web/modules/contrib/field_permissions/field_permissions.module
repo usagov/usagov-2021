@@ -1,0 +1,159 @@
+<?php
+
+/**
+ * @file
+ * Contains field_permissions.module.
+ */
+
+use Drupal\field\FieldConfigInterface;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\field_permissions\FieldPermissionsService;
+use Drupal\field_permissions\Plugin\FieldPermissionTypeInterface;
+use Drupal\field_permissions\Plugin\AdminFormSettingsInterface;
+
+/**
+ * Implements hook_help().
+ */
+function field_permissions_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.field_permissions':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Set field-level permissions to edit or view fields in any entity type (content, users, taxonomy, etc), edit field during entity creation, and edit or view permissions for content owned by the current user.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_entity_field_access().
+ */
+function field_permissions_entity_field_access($operation, FieldDefinitionInterface $field_definition, $account, FieldItemListInterface $items = NULL) {
+  $context = ($operation == 'view') ? 'display' : 'edit';
+  if (!$field_definition->isDisplayConfigurable($context) || empty($items)) {
+    return AccessResult::neutral();
+  }
+  $access_field = \Drupal::service('field_permissions.permissions_service')->getFieldAccess($operation, $items, $account, $field_definition);
+  if (!$access_field) {
+    return AccessResult::forbidden();
+  }
+  return AccessResult::neutral();
+}
+
+/**
+ * Implements hook_jsonapi_entity_field_filter_access().
+ */
+function field_permissions_jsonapi_entity_field_filter_access(FieldDefinitionInterface $field_definition, AccountInterface $account) {
+  if (!$field_definition->isDisplayConfigurable('display')) {
+    return AccessResult::neutral();
+  }
+
+  /** @var \Drupal\field_permissions\FieldPermissionsServiceInterface $service */
+  $service = \Drupal::service('field_permissions.permissions_service');
+  if ($service instanceof FieldPermissionsService) {
+    $access = $service->hasFieldViewAccessForEveryEntity($account, $field_definition);
+  }
+  else {
+    $permission_type = $service->fieldGetPermissionType($field_definition->getFieldStorageDefinition());
+    $access = ($permission_type == FieldPermissionTypeInterface::ACCESS_PUBLIC);
+  }
+
+  return $access ? AccessResult::neutral() : AccessResult::forbidden();
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @see field_permissions_permissions_matrix()
+ */
+function field_permissions_form_field_config_edit_form_alter(&$form, FormStateInterface $form_state) {
+  $account = \Drupal::currentUser();
+  /** @var \Drupal\field\FieldConfigInterface $field */
+  $field = $form_state->getFormObject()->getEntity();
+  if (!$account->hasPermission('administer field permissions')) {
+    return $form;
+  }
+  // Remove on comment field.
+  if (FieldPermissionsService::isCommentField($field)) {
+    return $form;
+  }
+
+  $form['fid'] = ['#type' => 'hidden', '#value' => $field->id()];
+  $form['field']['field_permissions'] = [
+    '#weight' => -10,
+  ];
+
+  // Always add the 'not set' option, which isn't implemented as a plugin.
+  $options = [
+    FieldPermissionTypeInterface::ACCESS_PUBLIC => t('Not set'),
+  ];
+  $descriptions = [
+    FieldPermissionTypeInterface::ACCESS_PUBLIC => [
+      '#description' => t('Field inherits content permissions.'),
+    ],
+  ];
+  $definitions = \Drupal::service('plugin.field_permissions.types.manager')->getDefinitions();
+  foreach ($definitions as $id => $plugin) {
+    $options[$id] = $plugin['title'];
+    $descriptions[$id] = [
+      '#description' => $plugin['description'],
+    ];
+  }
+
+  $form['field']['field_permissions']['type'] = [
+    '#title' => t('Field visibility and permissions'),
+    '#description' => t('<strong>These permissions apply to all instances of this field.</strong>'),
+    '#type' => 'radios',
+    '#options' => $options,
+    '#default_value' => \Drupal::service('field_permissions.permissions_service')->fieldGetPermissionType($field->getFieldStorageDefinition()),
+  ];
+
+  // Add in the descriptions.
+  $form['field']['field_permissions']['type'] += $descriptions;
+
+  $form['actions']['submit']['#submit'][] = 'field_permission_field_config_edit_form_submit';
+  $form['#entity_builders'][] = 'field_permissions_field_config_edit_form_builder';
+
+  // Allow each plugin to add to or alter the form.
+  foreach ($definitions as $definition) {
+    $plugin = \Drupal::service('plugin.field_permissions.types.manager')->createInstance($definition['id'], [], $field->getFieldStorageDefinition());
+    if ($plugin instanceof AdminFormSettingsInterface) {
+      $plugin->buildAdminForm($form, $form_state, \Drupal::service('entity_type.manager')->getStorage('user_role'));
+    }
+  }
+}
+
+/**
+ * Form builder for the field config edit form.
+ *
+ * @see field_permissions_form_field_config_edit_form_alter
+ */
+function field_permissions_field_config_edit_form_builder($entity_type, FieldConfigInterface $field, array &$form, FormStateInterface $form_state) {
+  $storage = $field->getFieldStorageDefinition();
+  $storage->setThirdPartySetting('field_permissions', 'permission_type', $form_state->getValue('type'));
+  $storage->save();
+}
+
+/**
+ * Submit handler for the field configuration form.
+ *
+ * @see field_permissions_form_field_config_edit_form_alter()
+ */
+function field_permission_field_config_edit_form_submit(array &$form, FormStateInterface $form_state) {
+  /** @var \Drupal\Core\Field\FieldDefinitionInterface $field */
+  $field = $form_state->getFormObject()->getEntity();
+
+  // Allow all plugin types to react to the submitted form.
+  $definitions = \Drupal::service('plugin.field_permissions.types.manager')->getDefinitions();
+  $manager = \Drupal::service('plugin.field_permissions.types.manager');
+  foreach ($definitions as $definition) {
+    $plugin = $manager->createInstance($definition['id'], [], $field->getFieldStorageDefinition());
+    if ($plugin instanceof AdminFormSettingsInterface) {
+      $plugin->submitAdminForm($form, $form_state, \Drupal::service('entity_type.manager')->getStorage('user_role'));
+    }
+  }
+
+}

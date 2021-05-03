@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @file
+ * Check requirements for the CKEditor Google Search module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function ckeditor_media_oembed_plugin_requirements($phase) {
+  $requirements = [];
+
+  if ($phase == 'install' || $phase == 'runtime') {
+    $plugin_detected = file_exists(DRUPAL_ROOT . '/libraries/oembed/plugin.js');
+
+    if ($plugin_detected) {
+      $requirements['oembed'] = [
+        'title' => t('Media (oEmbed) Plugin'),
+        'value' => t('Plugin detected'),
+        'severity' => REQUIREMENT_OK,
+      ];
+    }
+    else {
+      $requirements['oembed'] = [
+        'title' => t('Media (oEmbed) Plugin'),
+        'value' => t('Plugin not detected'),
+        'severity' => REQUIREMENT_ERROR,
+        'description' => t('Before you can use the CKEditor oEmbed All module, you need to download the oEmbed plugin from ckeditor.com and place it in /libraries/oembed. Check the README.txt for more information. <a href=":plugin_url">Get the plugin here</a>.', [':plugin_url' => 'https://ckeditor.com/cke4/addon/oembed']),
+      ];
+    }
+  }
+
+  return $requirements;
+}

@@ -1,0 +1,35 @@
+uuid: 12148c79-eac7-47e7-84c4-c299f59ef2d9
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+_core:
+  default_config_hash: nz6CpFry0cf3m1gth6poN1VsTV0j__fOJij56lb03AI
+id: paragraph.field_2_column_grid
+field_name: field_2_column_grid
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: 4-8
+      label: '4:8'
+    -
+      value: 8-4
+      label: '8:4'
+    -
+      value: 9-3
+      label: '9:3'
+    -
+      value: 3-9
+      label: '3:9'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

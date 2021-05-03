@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Contains ckeditor_media_oembed_plugin.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
+/**
+ * Implements hook_help().
+ */
+function ckeditor_media_oembed_plugin_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.ckeditor_media_oembed_plugin':
+      $output = '';
+      $output .= '<h3>' . t('Ckeditor oEmbed All') . '</h3>';
+      $output .= '<p>' . t('The module adds a Ckeditor oEmbed All button to the editor toolbar.') . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Settings') . '</dt>';
+      $output .= '<dd>' . t('In the <a href=":text-formats">text formats</a> that use ckeditor, move the Ckeditor oEmbed All icon into the active toolbar.', [':text-formats' => Url::fromRoute('filter.admin_overview')->toString()]) . '</dd>';
+      $output .= '</dl>';
+      return $output;
+
+    default:
+  }
+}

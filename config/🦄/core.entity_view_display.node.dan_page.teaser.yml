@@ -1,0 +1,30 @@
+uuid: b71c4763-2065-42dd-a52b-4e2b23d7296a
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.dan_page.body
+    - node.type.dan_page
+  module:
+    - text
+    - user
+id: node.dan_page.teaser
+targetEntityType: node
+bundle: dan_page
+mode: teaser
+content:
+  body:
+    label: hidden
+    type: text_summary_or_trimmed
+    weight: 101
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+    region: content
+  links:
+    weight: 100
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+hidden: {  }

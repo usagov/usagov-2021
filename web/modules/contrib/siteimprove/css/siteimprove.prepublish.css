@@ -1,0 +1,9 @@
+/**
+ * @file
+ * Styles for Siteimprove preview page with prepublish check.
+ */
+.siteimprove-prepublish-highlight {
+  background: yellow;
+  border: 2px dotted red;
+  color: black;
+}

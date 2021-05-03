@@ -1,0 +1,12 @@
+{
+  "name": "drupal/entity_reference_revisions",
+  "description": "Entity Reference Revisions",
+  "type": "drupal-module",
+  "license": "GPL-2.0",
+  "require": {
+    "drupal/core": "^8.7.7 || ^9"
+  },
+  "require-dev": {
+    "drupal/diff": "1.x-dev"
+  }
+}

@@ -1,0 +1,4 @@
+administer s3fs:
+  description: 'Administer S3 File System.'
+  title: 'Administer S3 File System'
+  restrict access: TRUE

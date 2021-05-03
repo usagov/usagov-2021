@@ -1,0 +1,38 @@
+.scheduled-publish-entry-form {
+  padding: 10px 12px;
+}
+
+.scheduled-publish-entry-form,
+.scheduled-publish-entry {
+  border-bottom: 1px solid #e6e4df;
+}
+
+.scheduled-publish-entry {
+  display: flex;
+  flex-flow: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+}
+
+.scheduled-publish-entry > div {
+  flex: 0 0 auto;
+}
+
+div.scheduled-publish-entry-state {
+  flex: 1 0 auto;
+  padding: 0 12px;
+}
+
+div.scheduled-publish-entry-actions {
+  padding: 5px 0;
+}
+
+.path-node .page-wrapper__node-edit-form .layout-region-node-secondary .entity-meta > .scheduled-publish-wrapper > .accordion__item > .claro-details__summary {
+  display: block;
+  padding-left: 3rem;
+}
+.path-node .page-wrapper__node-edit-form .layout-region-node-secondary .entity-meta > .scheduled-publish-wrapper > .accordion__item > .claro-details__summary::before {
+  left: 1.5rem;
+}

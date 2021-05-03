@@ -1,0 +1,86 @@
+language: php
+
+php:
+  - 5.6
+  - 7.0
+  - 7.1
+  - 7.2
+
+env:
+  matrix:
+    - DRUPAL_VERSION=8.6.x
+    - DRUPAL_VERSION=8.7.x
+  global:
+    - MODULE_NAME='message_notify'
+    - MODULE_TEST_GROUP='message_notify'
+    - DRUPAL_REPO='git://drupalcode.org/project/drupal.git'
+    - PHPCS_VERSION='2.7.*'
+    - CODER_VERSION='^8.2'
+    # Disable strict deprecation failures but show warnings.
+    - SYMFONY_DEPRECATIONS_HELPER='weak'
+
+# Run on modern Travis infrastructure.
+sudo: false
+
+before_install:
+  # Composer.
+  - sed -i '1i export PATH="$HOME/.config/composer/vendor/bin:$PATH"' $HOME/.bashrc
+  - source $HOME/.bashrc
+  # - composer self-update
+
+  # Drush.
+  - composer global require drush/drush:~8.1
+
+  # Codesniffer.
+  - composer global require squizlabs/php_codesniffer:$PHPCS_VERSION
+
+  # Coder.
+  - composer global require drupal/coder:$CODER_VERSION
+  - ln -s ~/.config/composer/vendor/drupal/coder/coder_sniffer/Drupal ~/.config/composer/vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/
+
+  # Ensure the PHP environment is ready.
+  - phpenv rehash
+
+install:
+  # Move the checked out module into the correct structure.
+  - mkdir /tmp/$MODULE_NAME
+  - mv * /tmp/$MODULE_NAME/
+  - git clone --branch $DRUPAL_VERSION $DRUPAL_REPO drupal --depth 1
+  - cd drupal && composer install && cd -
+  - test ${DRUPAL_VERSION} -eq 8.5.x || (cd drupal && composer run-script drupal-phpunit-upgrade && cd -)
+  - mv /tmp/$MODULE_NAME drupal/modules/
+  - cd drupal
+  # Install the message module from github
+  # Use working branch until PRs are merged in main repo.
+  - cd modules && git clone -b 8.x-1.x https://github.com/Gizra/message.git && cd -
+
+before_script:
+
+  # This fixes a fail when install Drupal.
+  - echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+
+  # Mysql might time out for long tests, increase the wait timeout.
+  - mysql -e 'SET @@GLOBAL.wait_timeout=1200'
+
+  # Install Drupal and enable the required modules (including this one).
+  - mysql -e 'create database drupal;'
+  - cd $TRAVIS_BUILD_DIR/drupal && drush --yes site-install testing --db-url="mysql://root@127.0.0.1/drupal"
+  - cd $TRAVIS_BUILD_DIR/drupal && drush --yes en $MODULE_NAME
+  - cd $TRAVIS_BUILD_DIR/drupal && drush --yes en simpletest
+
+  # Start a web server.
+  - drush runserver 127.0.0.1:8080 &
+
+  # Export web server URL for browser tests.
+  - export SIMPLETEST_BASE_URL=http://localhost:8080
+
+  # Export database variable for kernel tests.
+  - export SIMPLETEST_DB=mysql://root:@127.0.0.1/drupal
+
+script:
+  # Run code sniffer.
+  # Warnings are disabled until the SMS notifier is ported.
+  - phpcs --report=full --standard=Drupal --warning-severity=0 $TRAVIS_BUILD_DIR/drupal/modules/$MODULE_NAME
+
+  # Run the tests
+  - vendor/bin/phpunit -c core/phpunit.xml.dist $TRAVIS_BUILD_DIR/drupal/modules/$MODULE_NAME

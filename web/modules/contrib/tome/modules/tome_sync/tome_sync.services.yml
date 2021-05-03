@@ -1,0 +1,119 @@
+services:
+  tome_sync.storage.content:
+    class: Drupal\tome_sync\JsonFileStorage
+    factory: Drupal\tome_sync\JsonFileStorageFactory::getContent
+  tome_sync.exporter:
+    class: Drupal\tome_sync\Exporter
+    arguments: ['@tome_sync.storage.content', '@serializer', '@entity_type.manager', '@event_dispatcher', '@account_switcher', '@tome_sync.file_sync', '@file_system']
+  tome_sync.importer:
+    class: Drupal\tome_sync\Importer
+    arguments: ['@tome_sync.storage.content', '@serializer', '@entity_type.manager', '@event_dispatcher', '@account_switcher', '@tome_sync.file_sync', '@file_system']
+  tome_sync.file_sync:
+    class: Drupal\tome_sync\FileSync
+    arguments: ['@file_system']
+  tome_sync.content_hasher:
+    class: Drupal\tome_sync\ContentHasher
+    arguments: ['@database', '@tome_sync.storage.content']
+  tome_sync.content_hasher_event_subscriber:
+    class: Drupal\tome_sync\EventSubscriber\ContentHasherEventSubscriber
+    arguments: ['@tome_sync.content_hasher', '@tome_sync.storage.content']
+    tags:
+    - { name: event_subscriber }
+  tome_sync.config_event_subscriber:
+    class: Drupal\tome_sync\EventSubscriber\ConfigEventSubscriber
+    arguments: ['@config.storage.sync']
+    tags:
+      - { name: event_subscriber }
+  tome_sync.clean_files_command:
+    class: Drupal\tome_sync\Commands\CleanFilesCommand
+    arguments: ['@tome_sync.storage.content', '@config.storage.sync', '@tome_sync.file_sync']
+    tags:
+      - { name: console.command }
+      - { name: drupal.command }
+  tome_sync.export_command:
+    class: Drupal\tome_sync\Commands\ExportCommand
+    arguments: ['@tome_sync.exporter', '@entity_type.manager', '@event_dispatcher']
+    tags:
+      - { name: console.command }
+      - { name: drupal.command }
+  tome_sync.export_content_command:
+    class: Drupal\tome_sync\Commands\ExportContentCommand
+    arguments: ['@tome_sync.exporter', '@entity_type.manager', '@event_dispatcher']
+    tags:
+      - { name: console.command }
+      - { name: drupal.command }
+  tome_sync.import_command:
+    class: Drupal\tome_sync\Commands\ImportCommand
+    arguments: ['@tome_sync.importer', '@entity_type.manager', '@state']
+    tags:
+      - { name: console.command }
+      - { name: drupal.command }
+  tome_sync.delete_content_command:
+    class: Drupal\tome_sync\Commands\DeleteContentCommand
+    arguments: ['@tome_sync.importer', '@entity_type.manager', '@state', '@config.installer']
+    tags:
+      - { name: console.command }
+      - { name: drupal.command }
+  tome_sync.import_partial_command:
+    class: Drupal\tome_sync\Commands\ImportPartialCommand
+    arguments: ['@tome_sync.importer', '@entity_type.manager', '@state', '@tome_sync.content_hasher']
+    tags:
+    - { name: console.command }
+    - { name: drupal.command }
+  tome_sync.import_complete_command:
+    class: Drupal\tome_sync\Commands\ImportCompleteCommand
+    arguments: ['@event_dispatcher']
+    tags:
+      - { name: console.command }
+      - { name: drupal.command }
+  tome_sync.import_content_command:
+    class: Drupal\tome_sync\Commands\ImportContentCommand
+    arguments: ['@tome_sync.importer', '@entity_type.manager', '@state']
+    tags:
+      - { name: console.command }
+      - { name: drupal.command }
+  serializer.normalizer.entity_reference_revision_tome_sync:
+    class: Drupal\tome_sync\Normalizer\EntityReferenceRevisionItemNormalizer
+    tags:
+      - { name: normalizer, priority: 21 }
+    arguments: ['@entity.repository']
+  serializer.normalizer.entity_reference_tome_sync:
+    class: Drupal\tome_sync\Normalizer\EntityReferenceItemNormalizer
+    tags:
+      - { name: normalizer, priority: 10 }
+    arguments: ['@entity.repository']
+  serializer.normalizer.pathauto_tome_sync:
+    class: Drupal\tome_sync\Normalizer\PathautoItemNormalizer
+    tags:
+      - { name: normalizer, priority: 9 }
+    arguments: ['@entity.repository']
+  serializer.normalizer.path_tome_sync:
+    class: Drupal\tome_sync\Normalizer\PathItemNormalizer
+    tags:
+      - { name: normalizer, priority: 8 }
+    arguments: ['@entity.repository']
+  serializer.normalizer.field_tome_sync:
+    class: Drupal\tome_sync\Normalizer\FieldItemNormalizer
+    tags:
+      - { name: normalizer, priority: 7 }
+    arguments: ['@entity.repository']
+  serializer.normalizer.user_entity_tome_sync:
+    class: Drupal\tome_sync\Normalizer\UserEntityNormalizer
+    tags:
+      - { name: normalizer, priority: 2 }
+    arguments: ['@entity_type.manager', '@entity_type.repository', '@entity_field.manager']
+  serializer.normalizer.content_entity_tome_sync:
+    class: Drupal\tome_sync\Normalizer\ContentEntityNormalizer
+    tags:
+      - { name: normalizer, priority: 1 }
+    arguments: ['@entity_type.manager', '@entity_type.repository', '@entity_field.manager']
+  serializer.normalizer.path_alias_tome_sync:
+    class: Drupal\tome_sync\Normalizer\PathAliasNormalizer
+    tags:
+      - { name: normalizer, priority: 2 }
+    arguments: ['@entity_type.manager', '@entity_type.repository', '@entity_field.manager', '@entity.repository']
+  serializer.normalizer.uri_tome_sync:
+    class: Drupal\tome_sync\Normalizer\UriNormalizer
+    tags:
+      - { name: normalizer, priority: 6 }
+    arguments: ['@entity_type.manager', '@entity.repository']

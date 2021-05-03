@@ -1,0 +1,20 @@
+uuid: 97b2b12a-3867-4a9d-8431-47c49d0c32c5
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+_core:
+  default_config_hash: e3LuLgt5D9iiQfPNu2TzWL8i3XA1MoUd6W9c4Gw5n_k
+id: paragraph.field_indent_media
+field_name: field_indent_media
+entity_type: paragraph
+type: boolean
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

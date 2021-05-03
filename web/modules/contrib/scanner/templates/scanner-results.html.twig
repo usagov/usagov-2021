@@ -1,0 +1,31 @@
+<div>
+  <strong>Search Results:</strong><br />
+  <span>Found {{data.count}} matches.</span>
+  {% for content_type, bundles in data.values %}
+    {% for bundle, fields in bundles %}
+      <h2>{{content_type | capitalize}} - {{bundle | capitalize}}</h2>
+      {% for field, values in fields %}
+        <h5>Field: {{field}}</h5>
+        <ol>
+          {% for id, value in values %}
+            <li>
+              {{value.title}} | 
+              <a href="{{ path('entity.node.canonical', {'node':id}) }}">view</a> | 
+              <a href="/node/{{id}}/edit">edit</a>
+            </li>
+            {% if value.field|length > 1 %}
+              <span>[{{value.field|length}} matches in the field]</span>
+            {% else %}
+              <span>[{{value.field|length}} match in the field]</span>
+            {% endif %}
+            <ul>
+              {% for idx, item in value.field %}
+                <li>{{ item|striptags('<strong>')|raw }}</li>
+              {% endfor %}
+            </ul>
+          {% endfor %}
+        </ol>
+      {% endfor %}
+    {% endfor %}
+  {% endfor %}
+</div>

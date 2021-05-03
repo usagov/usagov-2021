@@ -1,0 +1,146 @@
+<?php
+
+/**
+ * @file
+ * This module holds autosave form functionality.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityFormInterface;
+use Drupal\Core\Entity\EntityFormInterface;
+use Drupal\autosave_form\Form\AutosaveEntityFormHandler;
+use Drupal\autosave_form\Form\AutosaveEntityFormHandlerInterface;
+
+/**
+ * Implements hook_entity_type_alter().
+ *
+ * Sets the default autosave form handler to the entity type if it is not
+ * defined.
+ *
+ * @see \Drupal\Core\Entity\Annotation\EntityType
+ */
+function autosave_form_entity_type_alter(array &$entity_types) {
+  // Provide defaults for autosave info.
+  /** @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
+  foreach ($entity_types as $entity_type) {
+    if (!$entity_type->hasHandlerClass('autosave_form')) {
+      $entity_type->setHandlerClass('autosave_form', AutosaveEntityFormHandler::class);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function autosave_form_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $active_on = \Drupal::configFactory()->get('autosave_form.settings')->get('active_on');
+  $form_object = $form_state->getFormObject();
+
+  if ($form_object instanceof ContentEntityFormInterface) {
+    if (!$active_on['content_entity_forms']) {
+      return;
+    }
+
+    $entity = $form_object->getEntity();
+    $entity_type_id = $entity->getEntityTypeId();
+    $allowed_content_entity_types = \Drupal::configFactory()
+      ->get('autosave_form.settings')
+      ->get('allowed_content_entity_types');
+
+    // Autosave is enabled if either no restriction has been made or the current
+    // entity type is part of the restriction and as well either no restriction
+    // on bundle level has been made or the current bundle is part of that
+    // restriction.
+    if (!empty($allowed_content_entity_types)) {
+      if (!isset($allowed_content_entity_types[$entity_type_id]) ||
+        (!empty($allowed_content_entity_types[$entity_type_id]['bundles']) && !isset($allowed_content_entity_types[$entity_type_id]['bundles'][$entity->bundle()]))) {
+        return;
+      }
+    }
+  }
+  elseif ($form_object instanceof EntityFormInterface) {
+    if (!$active_on['config_entity_forms']) {
+      return;
+    }
+  }
+  else {
+    return;
+  }
+
+  // Allow autosave only for entity form routes, as forms might be included in
+  // blocks and other places and it is impossible to determine to which URL we
+  // have to post the autosave submit to. Also we don't support embedded forms
+  // as e.g. it might be surprising for the user getting autosave on the entity
+  // view, because e.g. a block is using an entity form.
+  $route = \Drupal::routeMatch()->getRouteObject();
+  if ($route && ($route_defaults = $route->getDefaults()) && isset($route_defaults['_entity_form'])) {
+    list($entity_type_id, $form_op) = explode('.', $route_defaults['_entity_form']);
+    $entity = $form_object->getEntity();
+    if (($entity->getEntityTypeId() != $entity_type_id) || ($form_object->getOperation() != $form_op)) {
+      return;
+    }
+  }
+  else {
+    return;
+  }
+
+  $entity_type_manager = \Drupal::entityTypeManager();
+  if ($entity_type_manager->hasHandler($entity->getEntityTypeId(), 'autosave_form')) {
+    $autosave_form_handler = $entity_type_manager->getHandler($entity->getEntityTypeId(), 'autosave_form');
+    if ($autosave_form_handler instanceof AutosaveEntityFormHandlerInterface) {
+      $autosave_form_handler->formAlter($form, $form_state);
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function autosave_form_entity_update(EntityInterface $entity) {
+  static $conflict_enabled;
+  static $autosave_entity_form_storage;
+
+  if (!isset($autosave_entity_form_storage)) {
+    /** @var \Drupal\autosave_form\Storage\AutosaveEntityFormStorageInterface $autosave_entity_form_storage */
+    $autosave_entity_form_storage = \Drupal::service('autosave_form.entity_form_storage');
+  }
+
+  if (($conflict_enabled === FALSE) || (is_null($conflict_enabled) && !($conflict_enabled = \Drupal::moduleHandler()->moduleExists('conflict')))) {
+    // If conflict management is not available the autosaved entity states have
+    // to be removed when the entity is saved.
+    $autosave_entity_form_storage->purgeAutosavedEntityState($entity->getEntityTypeId(), $entity->id());
+  }
+  else {
+    $entity_type = $entity->getEntityType();
+    if ($entity_type->hasHandlerClass('autosave_form') && ($class = $entity_type->getHandlerClass('autosave_form'))) {
+      // If conflict is enabled and the entity is saved then delete only the
+      // current autosave session of the current user.
+      if ($autosave_session_id = $class::getAutosaveSessionID($entity)) {
+        $autosave_entity_form_storage->purgeAutosavedEntityState($entity->getEntityTypeId(), $entity->id(), $autosave_session_id);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_update() for the user entity type.
+ *
+ * If the permissions of a user are changed, then we delete the autosave states
+ * belonging to that user. It is possible that new permissions the user is
+ * loosing the ability to access certain fields, but the autosave states contain
+ * data for them.
+ */
+function autosave_form_user_update(EntityInterface $user) {
+  /** @var \Drupal\user\UserInterface $user */
+  $current_roles = $user->getRoles();
+  $original_roles = $user->original->getRoles();
+  sort($current_roles);
+  sort($original_roles);
+
+  if ($current_roles !== $original_roles) {
+    /** @var \Drupal\autosave_form\Storage\AutosaveEntityFormStorageInterface $autosave_entity_form_storage */
+    $autosave_entity_form_storage = \Drupal::service('autosave_form.entity_form_storage');
+    $autosave_entity_form_storage->purgeAutosavedEntitiesStates(NULL, NULL, $user->id());
+  }
+}

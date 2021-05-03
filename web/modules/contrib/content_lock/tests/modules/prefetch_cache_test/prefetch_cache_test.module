@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function prefetch_cache_test_menu_local_tasks_alter(&$data, $route_name) {
+  foreach ($data as &$tabs) {
+    foreach ($tabs as &$tab) {
+      foreach ($tab as $local_task_route_name => &$local_task_tab) {
+        if ($local_task_route_name != $route_name) {
+          $local_task_tab['#link']['localized_options']['attributes']['class'][] = 'prefetch-cache';
+        }
+      }
+    }
+  }
+}

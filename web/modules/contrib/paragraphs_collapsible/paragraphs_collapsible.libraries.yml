@@ -1,0 +1,9 @@
+paragraphs_collapsible.widget:
+  version: VERSION
+  dependencies:
+      - core/jquery
+  css:
+    theme:
+      css/paragraphs_collapsible.widget.css: {}
+  js:
+    js/paragraphs_collapsible.widget.js: {}

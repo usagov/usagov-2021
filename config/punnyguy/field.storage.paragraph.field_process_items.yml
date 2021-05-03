@@ -1,0 +1,22 @@
+uuid: 6f0fc5d9-e375-494a-84ad-2b83fef68bbd
+langcode: en
+status: true
+dependencies:
+  module:
+    - entity_reference_revisions
+    - paragraphs
+_core:
+  default_config_hash: Mt6EpLD_36ClP3_Eo-FCxOXWnFiUXweY63DWwCoGT0I
+id: paragraph.field_process_items
+field_name: field_process_items
+entity_type: paragraph
+type: entity_reference_revisions
+settings:
+  target_type: paragraph
+module: entity_reference_revisions
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

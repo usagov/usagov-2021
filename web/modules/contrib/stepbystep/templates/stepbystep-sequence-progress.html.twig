@@ -1,0 +1,26 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display Step by Step sequence progress.
+ *
+ * Available variables:
+ * - caption: Text to show near the list of steps.
+ * - steps: Array of steps, keyed by ID. Each step contains a link to the step.
+ * - progress: Array of statuses for each step, keyed by step ID.
+ *
+ * @see template_preprocess_stepbystep_sequence_progress()
+ */
+#}
+{% if caption %}
+  <h2>{{ caption }}</h2>
+{% endif %}
+<table class="stepbystep-progress-list">
+  <tbody>
+    {% for id, step in steps %}
+      <tr>
+        <td>{{ step.link }}</td>
+        <td>{{ progress[id] ?? "to do"|t }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

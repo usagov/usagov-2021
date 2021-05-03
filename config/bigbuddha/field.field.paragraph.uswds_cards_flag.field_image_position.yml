@@ -1,0 +1,23 @@
+uuid: 419672f2-e8ff-4d19-a8c3-4e81d23a37b2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_image_position
+    - paragraphs.paragraphs_type.uswds_cards_flag
+  module:
+    - options
+_core:
+  default_config_hash: JbqYnMTfbF2lbnmw5pTIKhEvhCuWB2Nd5HR2zov1rgw
+id: paragraph.uswds_cards_flag.field_image_position
+field_name: field_image_position
+entity_type: paragraph
+bundle: uswds_cards_flag
+label: 'Image Position'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

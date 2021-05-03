@@ -1,0 +1,16 @@
+{
+  "name": "drupal/schema_metatag",
+  "type": "drupal-module",
+  "description": "Metatag implementation of Schema.org structured data (JSON-LD)",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/schema_metatag",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/schema_metatag",
+    "source": "http://cgit.drupalcode.org/schema_metatag"
+  },
+  "require": {
+    "drupal/metatag": "^1.0"
+  }
+}

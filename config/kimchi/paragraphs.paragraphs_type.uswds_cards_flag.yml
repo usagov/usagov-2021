@@ -1,0 +1,12 @@
+uuid: 83638f38-8039-4bd3-8fbe-86fb35399d6e
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: DPW5VUyS1g3JIgwr4T_aWjiwspDoI8MAWKry-ToSh3c
+id: uswds_cards_flag
+label: 'USWDS Cards (Flag)'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

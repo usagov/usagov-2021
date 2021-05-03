@@ -1,0 +1,21 @@
+uuid: 06d36a02-c5de-4e75-8771-2cfe3ffd01a5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_card_title
+    - paragraphs.paragraphs_type.uswds_card_regular
+_core:
+  default_config_hash: wjQsjv_W7B1ECm_wqLn9d--gt-JEmYuhgN4SIhx6oWc
+id: paragraph.uswds_card_regular.field_card_title
+field_name: field_card_title
+entity_type: paragraph
+bundle: uswds_card_regular
+label: 'Card Title'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

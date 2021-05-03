@@ -1,0 +1,14 @@
+uuid: de1dd825-bb79-43e9-9b96-dee6c21068e7
+langcode: en
+status: true
+dependencies: {  }
+id: file
+label: File
+description: 'Basic File'
+source: file
+queue_thumbnail_downloads: true
+new_revision: false
+source_configuration:
+  source_field: field_media_file
+field_map:
+  name: name

@@ -1,0 +1,10 @@
+stepbystep_simplify.example:
+  path: '/examples/stepbystep/{step}'
+  defaults:
+    _controller: '\Drupal\stepbystep\Controller\SequenceController::build'
+    sequence: 'stepbystep_simplify_site_settings'
+    step: NULL
+  requirements:
+    _permission: 'use stepbystep_simplify'
+  options:
+    _admin_route: TRUE

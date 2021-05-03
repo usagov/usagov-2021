@@ -1,0 +1,25 @@
+/**
+ * @file
+ * Webform cards admin styles.
+ */
+
+/**
+ * Fix webform ui builder message and toggle weight placement.
+ */
+.webform-message + .tabledrag-toggle-weight-wrapper {
+  position: inherit;
+}
+
+.webform-message + .tabledrag-toggle-weight-wrapper > .tabledrag-toggle-weight {
+  position: inherit;
+}
+
+.webform-message[style="display: none;"] + .tabledrag-toggle-weight-wrapper,
+.webform-message.js-webform-message--close-storage + .tabledrag-toggle-weight-wrapper {
+  position: relative;
+}
+
+.webform-message[style="display: none;"] + .tabledrag-toggle-weight-wrapper > .tabledrag-toggle-weight,
+.webform-message.js-webform-message--close-storage + .tabledrag-toggle-weight-wrapper > .tabledrag-toggle-weight {
+  position: absolute;
+}

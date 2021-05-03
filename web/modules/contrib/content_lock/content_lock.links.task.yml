@@ -1,0 +1,5 @@
+content_lock.settings:
+  route_name: content_lock.settings
+  title: 'General'
+  base_route: content_lock.settings
+  weight: 100

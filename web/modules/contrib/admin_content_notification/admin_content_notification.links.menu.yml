@@ -1,0 +1,5 @@
+admin_content_notification.config_menu:
+  title: 'Admin Content Notification Config settings'
+  description: 'Admin Settings for module Admin Content Notification.'
+  route_name: admin_content_notification.config_menu
+  parent: system.admin_config_system

@@ -1,0 +1,40 @@
+stepbystep_test.test_sequence:
+  path: '/stepbystep_test/test_sequence/{step}'
+  defaults:
+    _controller: '\Drupal\stepbystep\Controller\SequenceController::build'
+    sequence: 'stepbystep_test_sequence'
+    step: NULL
+  requirements:
+    _permission: 'use_stepbystep'
+
+stepbystep_test.test_step_options_sequence:
+  path: '/stepbystep_test/test_step_options/{step}'
+  defaults:
+    _controller: '\Drupal\stepbystep\Controller\SequenceController::build'
+    sequence: 'stepbystep_test_step_options'
+    step: NULL
+  requirements:
+    _permission: 'use_stepbystep'
+
+stepbystep_test.test_form1:
+  path: /stepbystep_test/test_form1/{parameter1}
+  defaults:
+    _form: \Drupal\stepbystep_test\Form\TestForm1
+    parameter1: NULL
+  requirements:
+    _permission: 'use_stepbystep'
+
+stepbystep_test.test_form2:
+  path: /stepbystep_test/test_form2/{parameter1}
+  defaults:
+    _form: \Drupal\stepbystep_test\Form\TestForm2
+    parameter1: NULL
+  requirements:
+    _permission: 'use_stepbystep'
+
+stepbystep_test.multi_form_controller:
+  path: /stepbystep_test/multi_form_controller
+  defaults:
+    _controller: \Drupal\stepbystep_test\Controller\MultiFormController::build
+  requirements:
+    _permission: 'use_stepbystep'

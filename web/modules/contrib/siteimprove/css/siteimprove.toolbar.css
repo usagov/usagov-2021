@@ -1,0 +1,35 @@
+/**
+ * @file
+ * Styles for Siteimprove toolbar.
+ */
+.siteimprove-toolbar .siteimprove-link {
+  padding-left: 3.25em;
+  position: relative;
+}
+.siteimprove-toolbar .siteimprove-link:before {
+  content: "";
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='28px' width='28px' viewBox='0 0 80 80'%3E%3Cpath d='M40 0C18 0 0 18 0 40.1 0 62.1 18 80 40 80 62 80 80 62.1 80 40.1 80 18 62.1 0 40 0Zm0 67C25.2 67 13.1 54.9 13.1 40.1 13.1 25.2 25.2 13.2 40 13.2c14.4 0 26.2 11.4 26.9 25.6-16.7 12-30.5-10.9-46.5-2.6 18.7-5.6 25.1 22.3 43.7 16C59.6 60.9 50.5 67 40 67Z' fill='%23bebebe'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  height: 100%;
+  left: .6667em;
+  position: absolute;
+  top: 5px;
+  width: 28px;
+}
+.siteimprove-toolbar .siteimprove-link.is-active:before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='28px' width='28px' viewBox='0 0 80 80'%3E%3Cpath d='M40 0C18 0 0 18 0 40.1 0 62.1 18 80 40 80 62 80 80 62.1 80 40.1 80 18 62.1 0 40 0Zm0 67C25.2 67 13.1 54.9 13.1 40.1 13.1 25.2 25.2 13.2 40 13.2c14.4 0 26.2 11.4 26.9 25.6-16.7 12-30.5-10.9-46.5-2.6 18.7-5.6 25.1 22.3 43.7 16C59.6 60.9 50.5 67 40 67Z' fill='%23ffffff'%3E%3C/path%3E%3C/svg%3E");
+}
+.siteimprove-toolbar.toolbar-tab .item-list .toolbar-menu li {
+  margin: 0;
+}
+.siteimprove-toolbar .toolbar-tray {
+  max-height: 100%;
+}
+.siteimprove-toolbar .toolbar-menu {
+  background-color: rgba(0,0,0,0);
+}
+.siteimprove-url {
+  font-size: 15px;
+  padding: 5px 10px;
+}

@@ -1,0 +1,30 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_process_item.field_header
+    - field.field.paragraph.uswds_process_item.field_text
+    - paragraphs.paragraphs_type.uswds_process_item
+  module:
+    - text
+id: paragraph.uswds_process_item.default
+targetEntityType: paragraph
+bundle: uswds_process_item
+mode: default
+content:
+  field_header:
+    weight: 0
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_text:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+    region: content
+hidden: {  }

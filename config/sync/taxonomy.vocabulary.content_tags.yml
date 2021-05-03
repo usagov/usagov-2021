@@ -1,0 +1,8 @@
+uuid: 2a175ab0-cb5b-406b-8027-1361565c9f80
+langcode: en
+status: true
+dependencies: {  }
+name: 'Content Tags'
+vid: content_tags
+description: tags
+weight: 0

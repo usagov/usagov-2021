@@ -1,0 +1,12 @@
+name: jQuery UI Effects
+type: module
+description: 'Provides jQuery UI Effects library.'
+package: jQuery UI
+core_version_requirement: ^8 || ^9
+dependencies:
+  - jquery_ui:jquery_ui
+
+# Information added by Drupal.org packaging script on 2020-12-07
+version: '8.x-1.2'
+project: 'jquery_ui_effects'
+datestamp: 1607379533

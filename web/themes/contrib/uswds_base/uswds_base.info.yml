@@ -1,0 +1,33 @@
+type: theme
+name: U.S. Web Design Standards Base Theme
+base theme: false
+description: 'Drupal USWDS Base Theme - The U.S. Web Design System provides design guidelines and code to help you quickly create trustworthy, accessible, and consistent digital government services.'
+package: USWDS Base
+core: 8.x
+core_version_requirement: ^8 || ^9
+logo: 'logo.png'
+screenshot: 'screenshot.png'
+
+regions:
+  header_top: 'Above Header'
+  header: 'Header'
+  primary_menu: 'Primary Menu'
+  secondary_menu: 'Secondary Menu'
+  sidebar_first: 'First sidebar'
+  sidebar_second: 'Second sidebar'
+  breadcrumb: 'Breadcrumb'
+  highlighted: 'Highlighted'
+  help: 'Help'
+  hero: 'Hero'
+  content: 'Content'
+  footer_menu: 'Footer Menu'
+  footer: 'Primary Footer'
+  footer_secondary: 'Secondary Footer'
+
+libraries:
+  - 'uswds_base/framework'
+
+# Information added by Drupal.org packaging script on 2020-07-22
+version: '8.x-2.4'
+project: 'uswds_base'
+datestamp: 1595452821

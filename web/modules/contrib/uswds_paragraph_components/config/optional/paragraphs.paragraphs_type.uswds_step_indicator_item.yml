@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies: {  }
+id: uswds_step_indicator_item
+label: 'USWDS Step Indicator Item'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

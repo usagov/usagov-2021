@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies: {  }
+id: uswds_column_equal_size
+label: 'USWDS Column (Equal Size)'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

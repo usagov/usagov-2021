@@ -1,0 +1,12 @@
+uuid: cc8aa19c-3e16-473c-be87-510a096c61ee
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: HEXB-a7EN1Gm0vwzeY7NqQk7oT9NdyAQBka0Jz1F0RY
+id: uswds_accordion
+label: 'USWDS Accordion'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

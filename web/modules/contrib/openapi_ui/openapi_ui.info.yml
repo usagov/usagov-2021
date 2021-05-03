@@ -1,0 +1,11 @@
+name: OpenAPI UI
+type: module
+description: Provides plugin system for OpenAPI/Swagger Interface libraries.
+core: 8.x
+core_version_requirement: '^8 || ^9'
+package: OpenAPI
+
+# Information added by Drupal.org packaging script on 2020-08-26
+version: '8.x-1.0-rc3'
+project: 'openapi_ui'
+datestamp: 1598462016

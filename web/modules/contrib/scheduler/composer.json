@@ -1,0 +1,51 @@
+{
+    "name": "drupal/scheduler",
+    "description": "Automatically publish and unpublish content at specified dates and times.",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "homepage": "https://drupal.org/project/scheduler",
+    "require-dev": {
+        "drupal/rules": "^3",
+        "drush/drush": "^9.0 || ^10",
+        "drupal/devel_generate": "^2.0 || 3.x-dev"
+    },
+    "repositories": {
+        "drupal": {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    },
+    "authors": [
+        {
+            "name": "Eric Schaefer (Eric Schaefer)",
+            "homepage": "https://www.drupal.org/u/eric-schaefer",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Jonathan Smith (jonathan1055)",
+            "homepage": "https://www.drupal.org/u/jonathan1055",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Pieter Frenssen (pfrenssen)",
+            "homepage": "https://www.drupal.org/u/pfrenssen",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Rick Manelius (rickmanelius)",
+            "homepage": "https://www.drupal.org/u/rickmanelius",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/scheduler",
+        "source": "https://git.drupalcode.org/project/scheduler"
+    },
+    "extra": {
+        "drush": {
+            "services": {
+                "drush.services.yml": "^9"
+            }
+        }
+    }
+}
