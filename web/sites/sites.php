@@ -57,11 +57,4 @@
  */
 $sites = [
    'www.usareimagined.com' => 'default',
-   'finn.usareimagined.com' => 'finn',
-   'kimchi.usareimagined.com' => 'kimchi',
-   'maverick.usareimagined.com' => 'maverick',
-   'punnyguy.usareimagined.com' => 'punnyguy',
-   '🦄.usareimagined.com' => '🦄',
-   'xn--3s9h.usareimagined.com' => '🦄',
-   'bigbuddha.usareimagined.com' => 'bigbuddha',
 ];
