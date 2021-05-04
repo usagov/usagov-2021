@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+/var/www/.docker/wait_for_db_then /var/www/bootstrap.sh
+apache2-foreground
