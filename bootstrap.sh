@@ -17,8 +17,8 @@ export S3_BUCKET
 S3_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region')
 export S3_REGION
 
-chown nginx:nginx /var/www/sqlite.db 
 chown nginx:nginx /var/www
+chown -R nginx:nginx /var/www
 
 # if [ -n "$S3_BUCKET" ] && [ -n "$S3_REGION" ]; then
 #   # Add Proxy rewrite rules to the top of the htaccess file
