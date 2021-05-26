@@ -2,6 +2,11 @@
 #
 # earlier versions of Drupal are tracked in `community/PHP/`
 
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
+
 # Ignore configuration files that may contain sensitive information
 /sites/*/*settings*.php
 /sites/*/*services*.yml
@@ -12,6 +17,13 @@
 /sites/*/private
 /sites/*/files-public
 /sites/*/files-private
+
+/content/*
+/files/*
+/html/*
+
+/env.local
+/sqlite-local.db
 
 # Ignore paths that may contain temporary files
 /sites/*/translations
