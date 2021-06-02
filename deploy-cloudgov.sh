@@ -44,7 +44,7 @@ else
   if [ "$1" = "prod" ] ; then
     cf create-service aws-rds medium-mysql database
   else
-    cf create-service aws-rds shared-mysql database
+    cf create-service aws-rds small-mysql database
   fi
 fi
 
