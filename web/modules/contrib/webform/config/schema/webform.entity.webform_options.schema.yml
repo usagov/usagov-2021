@@ -17,3 +17,4 @@
     options:
       type: text
       label: 'Options (YAML)'
+      webform_type: yaml

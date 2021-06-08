@@ -18,6 +18,7 @@ trait MaskEntityTrait {
    * and stopped using serial IDs, but, y'know, baby steps.)
    *
    * @return string
+   *   Returns the UUID of the Entity.
    */
   public function id() {
     return $this->uuid();

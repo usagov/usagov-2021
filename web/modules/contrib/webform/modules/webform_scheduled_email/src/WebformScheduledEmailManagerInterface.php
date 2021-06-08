@@ -258,8 +258,10 @@ interface WebformScheduledEmailManagerInterface {
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   A webform, webform submission, or source entity.
+   * @param string|null $handler_id
+   *   The webform handler ID.
    */
-  public function delete(EntityInterface $entity);
+  public function delete(EntityInterface $entity, $handler_id = NULL);
 
   /****************************************************************************/
   // Queuing/sending functions (aka the tumbleweed).

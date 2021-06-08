@@ -144,6 +144,13 @@ class WebformAdminConfigAdvancedForm extends WebformAdminConfigBaseForm {
       '#return_value' => TRUE,
       '#default_value' => $config->get('ui.promotions_disabled'),
     ];
+    $form['ui']['support_disabled'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Disable support options'),
+      '#description' => $this->t('If checked, support option, displayed on the <a href=":href_addons">Add-ons</a> and <a href=":help_href">Help</a> pages will be disabled.', [':href_addons' => Url::fromRoute('webform.addons')->toString(), ':href_help' => Url::fromRoute('webform.help')->toString()]),
+      '#return_value' => TRUE,
+      '#default_value' => $config->get('ui.support_disabled'),
+    ];
 
     // Requirements.
     $form['requirements'] = [

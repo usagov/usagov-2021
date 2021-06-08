@@ -2,7 +2,6 @@
 
 namespace Drupal\ctools_wizard_test\Form;
 
-
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;

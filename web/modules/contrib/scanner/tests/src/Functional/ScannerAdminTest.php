@@ -2,12 +2,16 @@
 
 namespace Drupal\Tests\scanner\Functional;
 
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+
 /**
  * Tests the default admin settings functionality.
  *
  * @group scanner
  */
 class ScannerAdminTest extends ScannerTestBase {
+
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -79,7 +83,7 @@ class ScannerAdminTest extends ScannerTestBase {
       'enabled_content_types[node:scanner_test_node_type]' => 'node:scanner_test_node_type',
       'enabled_content_types[paragraph:scanner_test_paragraph_type]' => 'paragraph:scanner_test_paragraph_type',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save configuration'));
+    $this->drupalPostForm(NULL, $edit, $this->t('Save configuration'));
 
     // Assert that the enabled entity type is now checked.
     $session_assert->checkboxChecked('enabled_content_types[node:scanner_test_node_type]');

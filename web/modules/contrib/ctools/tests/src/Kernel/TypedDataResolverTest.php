@@ -85,7 +85,7 @@ class TypedDataResolverTest extends KernelTestBase {
    * @return \Drupal\Core\Plugin\Context\ContextInterface
    *   The context with a value.
    */
-  protected function assertPropertyPath(ContentEntityInterface $entity, $property_path, $expected_data_type)  {
+  protected function assertPropertyPath(ContentEntityInterface $entity, $property_path, $expected_data_type) {
     $typed_data_entity = $entity->getTypedData();
     if (strpos($typed_data_entity->getDataDefinition()->getDataType(), 'entity:') === 0) {
       $context_definition = new EntityContextDefinition($typed_data_entity->getDataDefinition()->getDataType());

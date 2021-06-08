@@ -9,11 +9,11 @@ logo:
 favicon:
   use_default: true
 cdn_provider: 'custom'
-cdn_custom_img: 'https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/img'
-cdn_custom_css: 'https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/css/uswds.css'
-cdn_custom_css_min: 'https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/css/uswds.min.css'
-cdn_custom_js: 'https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/js/uswds.js'
-cdn_custom_js_min: 'https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/js/uswds.min.js'
+cdn_custom_img: 'https://cdn.jsdelivr.net/npm/uswds@2.10.0/dist/img'
+cdn_custom_css: 'https://cdn.jsdelivr.net/npm/uswds@2.10.0/dist/css/uswds.css'
+cdn_custom_css_min: 'https://cdn.jsdelivr.net/npm/uswds@2.10.0/dist/css/uswds.min.css'
+cdn_custom_js: 'https://cdn.jsdelivr.net/npm/uswds@2.10.0/dist/js/uswds.js'
+cdn_custom_js_min: 'https://cdn.jsdelivr.net/npm/uswds@2.10.0/dist/js/uswds.min.js'
 uswds_header_style: 'extended'
 uswds_header_mega: 0
 uswds_header_mega_display_second: 0

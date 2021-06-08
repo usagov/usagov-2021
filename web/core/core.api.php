@@ -1933,6 +1933,7 @@ function hook_cron() {
     }
   }
   $ids = \Drupal::entityQuery('aggregator_feed')
+    ->accessCheck(FALSE)
     ->condition('queued', REQUEST_TIME - (3600 * 6), '<')
     ->execute();
   if ($ids) {
@@ -2275,7 +2276,7 @@ function hook_config_schema_info_alter(&$definitions) {
  * @see \Drupal\Core\Validation\Annotation\Constraint
  */
 function hook_validation_constraint_alter(array &$definitions) {
-  $definitions['Null']['class'] = '\Drupal\mymodule\Validator\Constraints\MyClass';
+  $definitions['Null']['class'] = '\Drupal\mymodule\Plugin\Validation\Constraints\MyClass';
 }
 
 /**

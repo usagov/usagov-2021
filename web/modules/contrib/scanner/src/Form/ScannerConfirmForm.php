@@ -6,16 +6,19 @@ use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\Core\TempStore\PrivateTempStoreFactory;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Messenger\MessengerTrait;
-use Drupal\scanner\AdminHelper;
 
 /**
  * Form for configure messages.
  */
 class ScannerConfirmForm extends ConfirmFormBase {
 
+  use StringTranslationTrait;
+
   /**
+   * The Private temporary storage factory.
+   *
    * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
    */
   private $tempStore;
@@ -49,10 +52,10 @@ class ScannerConfirmForm extends ConfirmFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $store = $this->tempStore->get('scanner');
     $form = parent::buildForm($form, $form_state);
-    $msg = '<span>' . $this->t('Search for') . ':</span> <strong>' . $store->get('search') . '</strong></span><br/><span>' . $this->t('Replace with') . ':</span><strong> ' . $store->get('replace') . '</strong></span>';
+    $msg = '<span>' . 'Search for' . ':</span> <strong>' . $store->get('search') . '</strong></span><br/><span>' . 'Replace with' . ':</span><strong> ' . $store->get('replace') . '</strong></span>';
     $form['description'] = [
       '#type' => 'markup',
-      '#markup' => $msg
+      '#markup' => $msg,
     ];
     return $form;
   }
@@ -62,30 +65,49 @@ class ScannerConfirmForm extends ConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $scannerStore = $this->tempStore->get('scanner');
-    foreach (['search', 'replace', 'mode', 'wholeword', 'regex', 'preceded', 'followed', 'published', 'language'] as $value) {
+    foreach ([
+      'search',
+      'replace',
+      'mode',
+      'wholeword',
+      'regex',
+      'preceded',
+      'followed',
+      'published',
+      'language',
+    ] as $value) {
       $values[$value] = $scannerStore->get($value);
     }
     $fields = \Drupal::config('scanner.admin_settings')->get('fields_of_selected_content_type');
     $operations = [];
     // Build an array of batch operation jobs. Batch job will need the field
     // and the filter values the users entered in the form.
-    foreach ($fields as $key => $field) {
-      $operations[] = ['\Drupal\scanner\Form\ScannerConfirmForm::batchReplace', [$field, $values]];
+    foreach ($fields as $field) {
+      $operations[] = [
+        '\Drupal\scanner\Form\ScannerConfirmForm::batchReplace',
+        [
+          $field,
+          $values,
+        ],
+      ];
     }
     $batch = [
-      'title' => t('Scanner Replace Batch'),
+      'title' => $this->t('Scanner Replace Batch'),
       'operations' => $operations,
       'finished' => '\Drupal\scanner\Form\ScannerConfirmForm::batchFinished',
-      'progress_message' => t('Processed @current out of @total'),
+      'progress_message' => $this->t('Processed @current out of @total'),
     ];
     batch_set($batch);
     // Redirect to the scanner page after the batch is done.
     $form_state->setRedirect('scanner.admin_content');
   }
 
-  public static function batchReplace($field, $values,&$context) {
+  /**
+   * Process the replacement.
+   */
+  public static function batchReplace($field, $values, &$context) {
     $pluginManager = \Drupal::service('plugin.manager.scanner');
-    list($entityType, $bundle, $fieldname) = explode(':', $field);
+    list($fieldname) = explode(':', $field);
 
     try {
       $plugin = $pluginManager->createInstance('scanner_entity');
@@ -99,7 +121,7 @@ class ScannerConfirmForm extends ConfirmFormBase {
       // The instance could not be found so fail gracefully and let the user
       // know.
       \Drupal::logger('scanner')->error($e->getMessage());
-      \Drupal::messenger()->addError(t('An error occured: ') . $e->getMessage());
+      \Drupal::messenger()->addError($this->t('An error occured @e:', ['@e' => $e->getMessage()]));
     }
 
     $results_data = '';
@@ -114,18 +136,28 @@ class ScannerConfirmForm extends ConfirmFormBase {
       }
       $context['results']['inputs'] = [
         'search' => $values['search'],
-        'replace' => $values['replace']
+        'replace' => $values['replace'],
       ];
       $context['message'] = 'Searching through field: ' . $fieldname;
     }
   }
 
+  /**
+   * The batch process has finished.
+   *
+   * @param bool $success
+   *   Indicates whether the batch process finish successfully.
+   * @param array $results
+   *   Contains the output from the batch operations.
+   * @param array $operations
+   *   A list of operations that were processed.
+   */
   public static function batchFinished($success, $results, $operations) {
     $count = 0;
     $messenger = \Drupal::messenger();
     if ($success) {
       if (!empty($results['data'])) {
-        foreach ($results['data'] as $key => $value) {
+        foreach ($results['data'] as $value) {
           if (count($value) == 2) {
             $count++;
           }
@@ -135,25 +167,26 @@ class ScannerConfirmForm extends ConfirmFormBase {
           }
         }
         $results['count'] = $count;
-        $messenger->addMessage(t('@count entities processed.', [
-         '@count' => $count,
+        $messenger->addMessage($this->t('@count entities processed.', [
+          '@count' => $count,
         ]));
         $connection = \Drupal::service('database');
-        // Insert to row into the scanner table so that the action can be undone in the future.
-        $undoQuery = $connection->insert('scanner')
+        // Insert to row into the scanner table so that the
+        // action can be undone in the future.
+        $connection->insert('scanner')
           ->fields([
             'undo_data' => serialize($results['data']),
             'undone' => 0,
             'searched' => $results['inputs']['search'],
             'replaced' => $results['inputs']['replace'],
             'count' => $count,
-            'time' =>  \Drupal::time()->getRequestTime(),
+            'time' => \Drupal::time()->getRequestTime(),
           ])
           ->execute();
       }
     }
     else {
-      $message = t('There were some errors.');
+      $message = $this->t('There were some errors.');
       $messenger->addMessage($message);
     }
   }
@@ -162,7 +195,7 @@ class ScannerConfirmForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    $this->tempStore->get('scanner')->set('scanner_op','');
+    $this->tempStore->get('scanner')->set('scanner_op', '');
     return new Url('scanner.admin_content');
   }
 
@@ -170,7 +203,7 @@ class ScannerConfirmForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('Are you sure you want to make the following replacement?');
+    return $this->t('Are you sure you want to make the following replacement?');
   }
 
 }

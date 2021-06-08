@@ -2,25 +2,27 @@
 
 namespace Drupal\scanner\Plugin\Scanner;
 
-use Drupal\scanner\Plugin\ScannerEntityPluginBase;
-use Drupal\scanner\Plugin\Scanner\Entity;
+use Drupal\node\Entity\Node;
 use Drupal\scanner\AdminHelper;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
- * Class Node.
+ * Class ScannerNode.
  *
  * @Scanner(
  *   id = "scanner_node",
  *   type = "node",
  * )
  */
-class Node extends Entity {
+class ScannerNode extends Entity {
+
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
    */
   public function search($field, $values) {
-    $title_collect = []; 
+    $title_collect = [];
     // $field will be string composed of entity type, bundle name, and field
     // name delimited by ':' characters.
     list($entityType, $bundle, $fieldname) = explode(':', $field);
@@ -38,30 +40,29 @@ class Node extends Entity {
     else {
       $query->condition($fieldname, $conditionVals['condition'], $conditionVals['operator']);
     }
-    
+
     $entities = $query->execute();
     // Iterate over matched entities (nodes) to extract information that will
     // be rendered in the results.
-    foreach ($entities as $key => $id) {
-      $node = \Drupal\node\Entity\Node::load($id);
-      $type = $node->getType();
+    foreach ($entities as $id) {
+      $node = Node::load($id);
       $nodeField = $node->get($fieldname);
       $fieldType = $nodeField->getFieldDefinition()->getType();
-      if (in_array($fieldType, ['text_with_summary','text','text_long'])) {
+      if (in_array($fieldType, ['text_with_summary', 'text', 'text_long'])) {
         $fieldValue = $nodeField->getValue()[0];
         $title_collect[$id]['title'] = $node->getTitle();
         // Find all instances of the term we're looking for.
-        preg_match_all($conditionVals['phpRegex'], $fieldValue['value'], $matches,PREG_OFFSET_CAPTURE);
+        preg_match_all($conditionVals['phpRegex'], $fieldValue['value'], $matches, PREG_OFFSET_CAPTURE);
         $newValues = [];
         // Build an array of strings which are displayed in the results.
-        foreach ($matches[0] as $k => $v) {
+        foreach ($matches[0] as $v) {
           // The offset of the matched term(s) in the field's text.
           $start = $v[1];
           if ($values['preceded'] !== '') {
             // Bolding won't work if starting position is in the middle of a
             // word (non-word bounded searches), therefore move the start
             // position back as many character as there are in the 'preceded'
-            // text
+            // text.
             $start -= strlen($values['preceded']);
           }
           // Extract part of the text which include the search term plus six
@@ -83,7 +84,7 @@ class Node extends Entity {
         $match = $matches[0][0];
         $replaced = preg_replace($conditionVals['phpRegex'], "<strong>$match</strong>", $nodeField->getString());
         $title_collect[$id]['field'] = [$replaced];
-      }   
+      }
     }
     return $title_collect;
   }
@@ -94,7 +95,7 @@ class Node extends Entity {
   public function replace($field, $values, $undo_data) {
     $data = $undo_data;
     if (!is_array($data)) {
-      $data=[];
+      $data = [];
     }
     list($entityType, $bundle, $fieldname) = explode(':', $field);
 
@@ -112,11 +113,11 @@ class Node extends Entity {
     }
     $entities = $query->execute();
 
-    foreach ($entities as $key => $id) {
-      $node = \Drupal\node\Entity\Node::load($id);
+    foreach ($entities as $id) {
+      $node = Node::load($id);
       $nodeField = $node->get($fieldname);
       $fieldType = $nodeField->getFieldDefinition()->getType();
-      if (in_array($fieldType, ['text_with_summary','text','text_long'])) {
+      if (in_array($fieldType, ['text_with_summary', 'text', 'text_long'])) {
         if ($values['language'] === 'all') {
           $other_languages = AdminHelper::getAllEnabledLanguages();
           foreach ($other_languages as $langcode => $languageName) {
@@ -135,8 +136,8 @@ class Node extends Entity {
             $data["node:$id"]['old_vid'] = $node->vid->getString();
             // Crete a new revision so that we can have the option of undoing it
             // later on.
-            $node->setNewRevision(true);
-            $node->revision_log = t('Replaced %search with %replace via Scanner Search and Replace module.', ['%search' => $values['search'], '%replace' => $values['replace']]);
+            $node->setNewRevision(TRUE);
+            $node->revision_log = $this->t('Replaced %search with %replace via Scanner Search and Replace module.', ['%search' => $values['search'], '%replace' => $values['replace']]);
           }
         }
         else {
@@ -155,8 +156,8 @@ class Node extends Entity {
             $data["node:$id"]['old_vid'] = $node->vid->getString();
             // Crete a new revision so that we can have the option of undoing it
             // later on.
-            $node->setNewRevision(true);
-            $node->revision_log = t('Replaced %search with %replace via Scanner Search and Replace module.', ['%search' => $values['search'], '%replace' => $values['replace']]);
+            $node->setNewRevision(TRUE);
+            $node->revision_log = $this->t('Replaced %search with %replace via Scanner Search and Replace module.', ['%search' => $values['search'], '%replace' => $values['replace']]);
           }
         }
         // Save the updated node.
@@ -177,21 +178,21 @@ class Node extends Entity {
               $node->$fieldname = $fieldValue;
             }
             $data["node:$id"]['old_vid'] = $node->vid->getString();
-            $node->setNewRevision(true);
-            $node->revision_log = t('Replaced %search with %replace via Scanner Search and Replace module.', ['%search' => $values['search'], '%replace' => $values['replace']]);
+            $node->setNewRevision(TRUE);
+            $node->revision_log = $this->t('Replaced %search with %replace via Scanner Search and Replace module.', ['%search' => $values['search'], '%replace' => $values['replace']]);
           }
           else {
             $requested_lang = $values['language'];
             if ($node->hasTranslation($requested_lang)) {
-              //$nodeField = $nodeField->getTranslation($requested_lang);
+              // $nodeField = $nodeField->getTranslation($requested_lang);
               $node = $node->getTranslation($requested_lang);
               $nodeField = $node->get($fieldname);
             }
             $fieldValue = preg_replace($conditionVals['phpRegex'], $values['replace'], $nodeField->getString());
             $node->$fieldname = $fieldValue;
             $data["node:$id"]['old_vid'] = $node->vid->getString();
-            $node->setNewRevision(true);
-            $node->revision_log = t('Replaced %search with %replace via Scanner Search and Replace module.', ['%search' => $values['search'], '%replace' => $values['replace']]);
+            $node->setNewRevision(TRUE);
+            $node->revision_log = $this->t('Replaced %search with %replace via Scanner Search and Replace module.', ['%search' => $values['search'], '%replace' => $values['replace']]);
           }
         }
         $node->save();
@@ -207,10 +208,10 @@ class Node extends Entity {
    */
   public function undo($data) {
     $revision = \Drupal::entityTypeManager()->getStorage('node')->loadRevision($data['old_vid']);
-    $revision->setNewRevision(true);
-    $revision->revision_log = t('Copy of the revision from %date via Search and Replace Undo', ['%date' => \Drupal::service('date.formatter')->format($revision->getRevisionCreationTime())]);
-    $revision->isDefaultRevision(true);
-    $revision->save(); 
+    $revision->setNewRevision(TRUE);
+    $revision->revision_log = $this->t('Copy of the revision from %date via Search and Replace Undo', ['%date' => \Drupal::service('date.formatter')->format($revision->getRevisionCreationTime())]);
+    $revision->isDefaultRevision(TRUE);
+    $revision->save();
   }
 
 }

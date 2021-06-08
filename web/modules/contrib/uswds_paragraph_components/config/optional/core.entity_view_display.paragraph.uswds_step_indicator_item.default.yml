@@ -2,14 +2,14 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.paragraph.uswds_step_indicator_item.field_header
-    - field.field.paragraph.uswds_step_indicator_item.field_text
+    - field.field.paragraph.uswds_step_indicator_item.field_current
+    - field.field.paragraph.uswds_step_indicator_item.field_item_title
     - paragraphs.paragraphs_type.uswds_step_indicator_item
   module:
     - text
 id: paragraph.uswds_step_indicator_item.default
 targetEntityType: paragraph
-bundle: uswds_process_item
+bundle: uswds_step_indicator_item
 mode: default
 content:
   field_header:

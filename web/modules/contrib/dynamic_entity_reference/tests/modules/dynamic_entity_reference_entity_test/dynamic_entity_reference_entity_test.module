@@ -15,7 +15,10 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 function dynamic_entity_reference_entity_test_entity_base_field_info(EntityTypeInterface $entity_type) {
   $fields = [];
   // 'entity_test' with no data table and 'entity_test_mul' is with data table.
-  $test_entities = \Drupal::state()->get('dynamic_entity_reference_entity_test_entities', ['entity_test', 'entity_test_mul']);
+  $test_entities = \Drupal::state()->get('dynamic_entity_reference_entity_test_entities', [
+    'entity_test',
+    'entity_test_mul',
+  ]);
   $excluded_entity = \Drupal::state()->get('dynamic_entity_reference_entity_test_exclude', []);
   if (in_array($entity_type->id(), $test_entities)) {
     $allowed_entities = array_diff($test_entities, $excluded_entity);

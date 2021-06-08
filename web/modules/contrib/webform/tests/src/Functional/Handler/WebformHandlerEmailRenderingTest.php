@@ -55,10 +55,10 @@ class WebformHandlerEmailRenderingTest extends WebformBrowserTestBase {
     // Check submitting contact form and sending emails using the
     // default bartik.theme.
     $sent_emails = $this->getMails();
-    $this->assertStringContainsString('HEADER 1 (CONTACT_EMAIL_CONFIRMATION)', $sent_emails[0]['body']);
+    $this->assertStringContainsStringIgnoringCase('HEADER 1 (CONTACT_EMAIL_CONFIRMATION)', $sent_emails[0]['body']);
     $this->assertStringContainsString('Please ignore this email.', $sent_emails[0]['body']);
     $this->assertStringContainsString('address (contact_email_confirmation)', $sent_emails[0]['body']);
-    $this->assertStringContainsString('HEADER 1 (GLOBAL)', $sent_emails[1]['body']);
+    $this->assertStringContainsStringIgnoringCase('HEADER 1 (GLOBAL)', $sent_emails[1]['body']);
     $this->assertStringContainsString('Please ignore this email.', $sent_emails[1]['body']);
     $this->assertStringContainsString('address (global)', $sent_emails[1]['body']);
 
@@ -80,10 +80,10 @@ class WebformHandlerEmailRenderingTest extends WebformBrowserTestBase {
     // bartik.theme.
     // @see \Drupal\webform\Plugin\WebformHandler\EmailWebformHandler::getMessage
     $sent_emails = $this->getMails();
-    $this->assertStringContainsString('HEADER 1 (CONTACT_EMAIL_CONFIRMATION)', $sent_emails[2]['body']);
+    $this->assertStringContainsStringIgnoringCase('HEADER 1 (CONTACT_EMAIL_CONFIRMATION)', $sent_emails[2]['body']);
     $this->assertStringContainsString('Please ignore this email.', $sent_emails[2]['body']);
     $this->assertStringContainsString('address (contact_email_confirmation)', $sent_emails[2]['body']);
-    $this->assertStringContainsString('HEADER 1 (GLOBAL)', $sent_emails[3]['body']);
+    $this->assertStringContainsStringIgnoringCase('HEADER 1 (GLOBAL)', $sent_emails[3]['body']);
     $this->assertStringContainsString('Please ignore this email.', $sent_emails[3]['body']);
     $this->assertStringContainsString('address (global)', $sent_emails[3]['body']);
   }

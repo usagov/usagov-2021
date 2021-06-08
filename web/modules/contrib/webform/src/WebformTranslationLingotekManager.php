@@ -130,7 +130,7 @@ class WebformTranslationLingotekManager implements WebformTranslationLingotekMan
           unset($options['_optgroups_']);
 
           // Build translated optgroup options.
-          $optgroup_options = [];
+          $optgroups_options = [];
           foreach ($options as $option_value => $option_text) {
             if (is_array($option_text)) {
               $optgroups_options[$optgroups[$option_value]] = $option_text;

@@ -4,6 +4,7 @@ namespace Drupal\webform\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\webform\Plugin\WebformHandler\EmailWebformHandler;
 use Drupal\webform\WebformInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +31,13 @@ class WebformTestController extends ControllerBase implements ContainerInjection
   protected $requestHandler;
 
   /**
+   * The webform entity reference manager.
+   *
+   * @var \Drupal\webform\WebformEntityReferenceManagerInterface
+   */
+  protected $entityReferenceManager;
+
+  /**
    * The webform submission generation service.
    *
    * @var \Drupal\webform\WebformSubmissionGenerateInterface
@@ -43,6 +51,7 @@ class WebformTestController extends ControllerBase implements ContainerInjection
     $instance = parent::create($container);
     $instance->messenger = $container->get('messenger');
     $instance->requestHandler = $container->get('webform.request');
+    $instance->entityReferenceManager = $container->get('webform.entity_reference_manager');
     $instance->generate = $container->get('webform_submission.generate');
     return $instance;
   }
@@ -105,6 +114,15 @@ class WebformTestController extends ControllerBase implements ContainerInjection
     if ($source_entity) {
       $values['entity_type'] = $source_entity->getEntityTypeId();
       $values['entity_id'] = $source_entity->id();
+
+      // Add source entity's default data to values data.
+      $field_names = $this->entityReferenceManager->getFieldNames($source_entity);
+      foreach ($field_names as $field_name) {
+        if ($source_entity->get($field_name)->target_id === $webform->id()
+          && $source_entity->get($field_name)->default_data) {
+          $values['data'] = Yaml::decode($source_entity->get($field_name)->default_data);
+        }
+      }
     }
 
     return $webform->getSubmissionForm($values, 'test');

@@ -235,7 +235,7 @@ class ScannerAdminForm extends ConfigFormBase {
     $options = [];
 
     // Iterate over the available plugins to get their 'types'.
-    foreach ($this->scannerPluginManager->getDefinitions() as $plugin_id => $definition) {
+    foreach ($this->scannerPluginManager->getDefinitions() as $definition) {
       $entity_type_id = $definition['type'];
       try {
         $entity_type = $this->entityTypeManager->getStorage($entity_type_id)->getEntityType();

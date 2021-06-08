@@ -3,9 +3,12 @@ status: true
 dependencies:
   config:
     - field.field.paragraph.uswds_card_group_regular.field_cards
+    - field.field.paragraph.uswds_card_group_regular.field_uswds_classes
     - paragraphs.paragraphs_type.uswds_card_group_regular
   module:
     - entity_reference_revisions
+_core:
+  default_config_hash: hZmSK73WxSirxyo5GV4r3Jngza0F3W89ueDUVeTlpOs
 id: paragraph.uswds_card_group_regular.default
 targetEntityType: paragraph
 bundle: uswds_card_group_regular
@@ -19,5 +22,13 @@ content:
       view_mode: default
       link: ''
     third_party_settings: {  }
+    region: content
+  field_uswds_classes:
+    weight: 1
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
     region: content
 hidden: {  }

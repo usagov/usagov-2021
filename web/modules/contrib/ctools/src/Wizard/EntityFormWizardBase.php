@@ -153,12 +153,12 @@ abstract class EntityFormWizardBase extends FormWizardBase implements EntityForm
       // Get the plugin definition of this entity.
       $definition = $this->entityTypeManager->getDefinition($this->getEntityType());
       // Create id and label form elements.
-      $form['name'] = array(
+      $form['name'] = [
         '#type' => 'fieldset',
-        '#attributes' => array('class' => array('fieldset-no-legend')),
+        '#attributes' => ['class' => ['fieldset-no-legend']],
         '#title' => $this->getWizardLabel(),
-      );
-      $form['name']['label'] = array(
+      ];
+      $form['name']['label'] = [
         '#type' => 'textfield',
         '#title' => $this->getMachineLabel(),
         '#required' => TRUE,
@@ -166,18 +166,18 @@ abstract class EntityFormWizardBase extends FormWizardBase implements EntityForm
         '#default_value' => !empty($cached_values['label']) ? $cached_values['label'] : '',
         '#maxlength' => 255,
         '#disabled' => !empty($cached_values['label']),
-      );
-      $form['name']['id'] = array(
+      ];
+      $form['name']['id'] = [
         '#type' => 'machine_name',
         '#maxlength' => 128,
-        '#machine_name' => array(
-          'source' => array('name', 'label'),
+        '#machine_name' => [
+          'source' => ['name', 'label'],
           'exists' => $this->exists(),
-        ),
+        ],
         '#description' => $this->t('A unique machine-readable name for this @entity_type. It must only contain lowercase letters, numbers, and underscores.', ['@entity_type' => $definition->getLabel()]),
         '#default_value' => !empty($cached_values['id']) ? $cached_values['id'] : '',
         '#disabled' => !empty($cached_values['id']),
-      );
+      ];
     }
 
     return $form;

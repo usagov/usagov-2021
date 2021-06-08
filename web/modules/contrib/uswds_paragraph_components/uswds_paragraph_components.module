@@ -56,7 +56,7 @@ function uswds_paragraph_components_theme($existing, $type, $theme, $path): arra
     'field__paragraph__field_column_content_3_uneven' => [
       'base hook' => 'paragraph',
     ],
-    'paragraph__uswds_progress_list' => [
+    'paragraph__uswds_step_indicator_list' => [
       'base hook' => 'paragraph',
     ],
   ];

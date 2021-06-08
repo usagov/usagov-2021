@@ -17,7 +17,7 @@ interface ExampleConfigEntityInterface extends ConfigEntityInterface {
   public function getOne();
 
   /**
-   * Get second piece of information;
+   * Get second piece of information;.
    *
    * @return string
    */

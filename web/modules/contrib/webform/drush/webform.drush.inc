@@ -246,7 +246,7 @@ function webform_drush_command() {
       ),
       'bootstrap' => 1,
       'examples' => array(
-        'webform-repair' => "Generates HTML documentation used by the Webform module's documentation pages.",
+        'webform-docs' => "Generates HTML documentation used by the Webform module's documentation pages.",
       ),
       'aliases' => array(
         'wfd',

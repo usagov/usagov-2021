@@ -10,6 +10,7 @@ use Drupal\ctools\Access\AccessInterface as CToolsAccessInterface;
 use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Symfony\Component\Routing\Route;
 
+
 class TempstoreAccess implements CoreAccessInterface {
 
   /**
@@ -19,13 +20,16 @@ class TempstoreAccess implements CoreAccessInterface {
    */
   protected $tempstore;
 
+
   public function __construct(SharedTempStoreFactory $tempstore) {
     $this->tempstore = $tempstore;
   }
 
+
   protected function getTempstore() {
     return $this->tempstore;
   }
+
 
   public function access(Route $route, RouteMatchInterface $match, AccountInterface $account) {
     $tempstore_id = $match->getParameter('tempstore_id') ? $match->getParameter('tempstore_id') : $route->getDefault('tempstore_id');

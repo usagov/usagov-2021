@@ -163,6 +163,18 @@ class WebformSubmissionConditionsValidator implements WebformSubmissionCondition
             $element['#required'] = $result;
             break;
 
+          case 'readonly':
+
+            // Set custom readonly attribute and class.
+            // We can't use the custom #readonly property because it is
+            // processed before cross page targets.
+            // @see \Drupal\webform\Plugin\WebformElementBase::prepare
+            if ($result) {
+              $element['#attributes']['readonly'] = 'readonly';
+              $element['#wrapper_attributes']['class'][] = 'webform-readonly';
+            }
+            break;
+
           case 'disabled':
             $element['#disabled'] = $result;
             break;

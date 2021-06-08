@@ -6,12 +6,12 @@
 #}
 {% import _self as menus %}
 {#
-  We call a macro which calls itself to render the full tree.
-  @see http://twig.sensiolabs.org/doc/tags/macro.html
+We call a macro which calls itself to render the full tree.
+@see http://twig.sensiolabs.org/doc/tags/macro.html
 #}
-{{ menus.menu_links(items, 0, footer_style) }}
+{{ menus.menu_links(items, 0, footer_style, attributes) }}
 
-{% macro menu_links(items, menu_level, footer_style) %}
+{% macro menu_links(items, menu_level, footer_style, attributes) %}
   {% import _self as menus %}
   {% if items %}
 
@@ -35,28 +35,34 @@
     {% endif %}
 
     {% for item in items %}
+      {% if item.url.getOption('attributes') %}
+        {% set link_attributes = create_attribute(item.url.getOption('attributes')) %}
+      {% else %}
+        {% set link_attributes = create_attribute() %}
+      {% endif %}
+
       {% if menu_level == 0 and footer_style == 'big' %}
         <div class="mobile-lg:grid-col-6 desktop:grid-col">
           <section class="usa-footer__primary-content usa-footer__primary-content--collapsible">
             <strong><a class="usa-footer__primary-link" href="{{ item.url }}">{{ item.title }}</a></strong>
             <ul class="usa-list usa-list--unstyled">
               {% if item.below %}
-                {{ menus.menu_links(item.below, 1, footer_style) }}
+                {{ menus.menu_links(item.below, 1, footer_style, link_attributes) }}
               {% endif %}
             </ul>
           </section>
         </div>
       {% elseif footer_style == 'big' %}
         <li class="usa-footer__secondary-link">
-          <a href="{{ item.url }}">{{ item.title }}</a>
+          <a {{ link_attributes }} href="{{ item.url }}">{{ item.title }}</a>
         </li>
       {% elseif footer_style == 'medium' %}
         <li class="mobile-lg:grid-col-4 desktop:grid-col-2 usa-footer__primary-content">
-          <a class="usa-footer__primary-link" href="{{ item.url }}">{{ item.title }}</a>
+          <a {{ link_attributes.addClass('usa-footer__primary-link') }} href="{{ item.url }}">{{ item.title }}</a>
         </li>
       {% else %}
         <li class="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content">
-          <a class="usa-footer__primary-link" href="{{ item.url }}">{{ item.title }}</a>
+          <a {{ link_attributes.addClass('usa-footer__primary-link') }} href="{{ item.url }}">{{ item.title }}</a>
         </li>
       {% endif %}
     {% endfor %}

@@ -258,8 +258,8 @@ class DynamicEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       // key in the route parameters.
       $selection_settings = $settings[$target_type]['handler_settings'] ?: [];
       $selection_settings += [
-        'match_operator' => 'CONTAINS',
-        'match_limit' => 10,
+        'match_operator' => $this->getSetting('match_operator'),
+        'match_limit' => $this->getSetting('match_limit'),
       ];
       $data = serialize($selection_settings) . $target_type . $settings[$target_type]['handler'];
       $selection_settings_key = Crypt::hmacBase64($data, Settings::getHashSalt());

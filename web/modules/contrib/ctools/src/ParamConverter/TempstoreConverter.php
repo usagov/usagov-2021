@@ -137,7 +137,7 @@ class TempstoreConverter implements ParamConverterInterface {
    * @param mixed $name
    *   If name is a string in the format of {var} it will parse the defaults
    *   for a 'var' default. If $name isn't a string or isn't a slug, it will
-   *   return the raw $name value. If no default is found, it will return NULL
+   *   return the raw $name value. If no default is found, it will return NULL.
    * @param array $defaults
    *   The route defaults array.
    *
@@ -147,7 +147,7 @@ class TempstoreConverter implements ParamConverterInterface {
   protected function convertVariable($name, $defaults) {
     if (is_string($name) && strpos($name, '{') === 0) {
       $length = strlen($name);
-      $name = substr($name, 1, $length -2);
+      $name = substr($name, 1, $length - 2);
       return isset($defaults[$name]) ? $defaults[$name] : NULL;
     }
     return $name;

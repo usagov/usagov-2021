@@ -13,7 +13,6 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\ctools\Ajax\OpenModalWizardCommand;
 use Drupal\ctools\Event\WizardEvent;
-use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -40,7 +39,7 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
   /**
    * The class resolver.
    *
-   * @var \Drupal\Core\DependencyInjection\ClassResolverInterface;
+   * @var \Drupal\Core\DependencyInjection\ClassResolverInterface
    */
   protected $classResolver;
 
@@ -61,14 +60,14 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
   /**
    * The SharedTempStore key for our current wizard values.
    *
-   * @var string|NULL
+   * @var string|null
    */
   protected $machine_name;
 
   /**
    * The current active step of the wizard.
    *
-   * @var string|NULL
+   * @var string|null
    */
   protected $step;
 
@@ -275,7 +274,7 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // Only perform this logic if we're moving to the next page. This prevents
     // the loss of cached values on ajax submissions.
-    if ((string)$form_state->getValue('op') == (string)$this->getNextOp()) {
+    if ((string) $form_state->getValue('op') == (string) $this->getNextOp()) {
       $cached_values = $form_state->getTemporaryValue('wizard');
       if ($form_state->hasValue('label')) {
         $cached_values['label'] = $form_state->getValue('label');
@@ -403,18 +402,18 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
     // If there are steps before this one, label the button "previous"
     // otherwise do not display a button.
     if ($before) {
-      $actions['previous'] = array(
+      $actions['previous'] = [
         '#type' => 'submit',
         '#value' => $this->t('Previous'),
-        '#validate' => array(
-          array($this, 'populateCachedValues'),
-        ),
-        '#submit' => array(
-          array($this, 'previous'),
-        ),
-        '#limit_validation_errors' => array(),
+        '#validate' => [
+          [$this, 'populateCachedValues'],
+        ],
+        '#submit' => [
+          [$this, 'previous'],
+        ],
+        '#limit_validation_errors' => [],
         '#weight' => -10,
-      );
+      ];
       if ($form_state->get('ajax')) {
         // Ajax submissions need to submit to the current step, not "previous".
         $parameters = $this->getPreviousParameters($cached_values);
@@ -430,7 +429,7 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
     // If there are not steps after this one, label the button "Finish".
     if (!$after) {
       $actions['submit']['#value'] = $this->t('Finish');
-      $actions['submit']['#submit'][] = array($this, 'finish');
+      $actions['submit']['#submit'][] = [$this, 'finish'];
       if ($form_state->get('ajax')) {
         $actions['submit']['#ajax']['callback'] = [$this, 'ajaxFinish'];
       }
@@ -438,6 +437,7 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
 
     return $actions;
   }
+
 
   public function ajaxSubmit(array $form, FormStateInterface $form_state) {
     $cached_values = $form_state->getTemporaryValue('wizard');
@@ -447,6 +447,7 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
     return $response;
   }
 
+
   public function ajaxPrevious(array $form, FormStateInterface $form_state) {
     $cached_values = $form_state->getTemporaryValue('wizard');
     $response = new AjaxResponse();
@@ -455,11 +456,13 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
     return $response;
   }
 
+
   public function ajaxFinish(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $response->addCommand(new CloseModalDialogCommand());
     return $response;
   }
+
 
   public function getRouteName() {
     return $this->routeMatch->getRouteName();

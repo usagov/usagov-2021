@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Helps entity type to take the fields, display configuration from entity type.
+ */
+
 use Drupal\Core\Entity\Display\EntityDisplayInterface;
 use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;

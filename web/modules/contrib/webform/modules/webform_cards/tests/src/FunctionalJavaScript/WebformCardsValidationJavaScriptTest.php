@@ -40,6 +40,10 @@ class WebformCardsValidationJavaScriptTest extends WebformWebDriverTestBase {
     $this->assertElementNotVisible('[data-webform-key="card_1"]');
     $this->assertElementVisible('[data-webform-key="card_2"]');
     $this->assertElementNotVisible('[data-webform-key="card_3"]');
+    $this->assertElementNotVisible('[data-webform-key="card_1"]');
+    $this->assertElementNotVisible('#edit-cards-prev');
+    $this->assertElementNotVisible('#edit-cards-next');
+    $this->assertElementVisible('#edit-submit');
     $assert_session->responseContains('<strong>The email address <em class="placeholder">{email_multiple not valid}</em> is not valid.</strong>');
   }
 

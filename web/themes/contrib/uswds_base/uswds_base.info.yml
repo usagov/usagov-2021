@@ -27,7 +27,7 @@ regions:
 libraries:
   - 'uswds_base/framework'
 
-# Information added by Drupal.org packaging script on 2020-07-22
-version: '8.x-2.4'
+# Information added by Drupal.org packaging script on 2021-04-30
+version: '8.x-2.10'
 project: 'uswds_base'
-datestamp: 1595452821
+datestamp: 1619818235

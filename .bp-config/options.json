@@ -1,0 +1,5 @@
+{
+    "WEB_SERVER": "nginx",
+    "WEBDIR": "web",
+    "COMPOSER_VENDOR_DIR": "vendor"
+}

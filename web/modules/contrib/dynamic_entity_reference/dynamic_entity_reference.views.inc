@@ -47,7 +47,9 @@ function dynamic_entity_reference_field_views_data(FieldStorageConfigInterface $
           'title' => t('@label referenced from @field_name', $args),
           'label' => t('@field_name: @label', $args),
           'group' => $entity_type->getLabel(),
-          'help' => t('Appears in: @bundles.', ['@bundles' => implode(', ', $field_storage->getBundles())]),
+          'help' => t('Appears in: @bundles.', [
+            '@bundles' => implode(', ', $field_storage->getBundles()),
+          ]),
           'id' => 'standard',
           'base' => $target_base_table,
           'entity type' => $target_entity_type_id,

@@ -123,7 +123,7 @@ class DynamicEntityReferenceItem extends EntityReferenceItem {
    * {@inheritdoc}
    */
   public function onChange($property_name, $notify = TRUE) {
-    /* @var \Drupal\dynamic_entity_reference\Plugin\DataType\DynamicEntityReference $entity_property */
+    /** @var \Drupal\dynamic_entity_reference\Plugin\DataType\DynamicEntityReference $entity_property */
     $entity_property = $this->get('entity');
     if ($property_name == 'target_type' && !$entity_property->getValue()) {
       $entity_property->getTargetDefinition()->setEntityTypeId($this->get('target_type')->getValue());
@@ -242,8 +242,14 @@ class DynamicEntityReferenceItem extends EntityReferenceItem {
     $options = array_filter(array_keys($labels[(string) t('Content', [], ['context' => 'Entity type group'])]), function ($entity_type_id) {
       return static::entityHasIntegerId($entity_type_id);
     });
-    $exclude_entity_types = $form_state->getValue(['settings', 'exclude_entity_types'], 0);
-    $entity_type_ids = $form_state->getValue(['settings', 'entity_type_ids'], []);
+    $exclude_entity_types = $form_state->getValue([
+      'settings',
+      'exclude_entity_types',
+    ], 0);
+    $entity_type_ids = $form_state->getValue([
+      'settings',
+      'entity_type_ids',
+    ], []);
     $diff = array_diff($options, $entity_type_ids);
     if ((!$exclude_entity_types && empty($entity_type_ids)) || ($exclude_entity_types && empty($diff))) {
       $form_state->setError($element, t('Select at least one entity type ID.'));
@@ -308,7 +314,11 @@ class DynamicEntityReferenceItem extends EntityReferenceItem {
     $form = [
       '#type' => 'container',
       '#process' => [[EntityReferenceItem::class, 'fieldSettingsAjaxProcess']],
-      '#element_validate' => [[DynamicEntityReferenceItem::class, 'fieldSettingsFormValidate']],
+      '#element_validate' => [[
+        DynamicEntityReferenceItem::class,
+        'fieldSettingsFormValidate',
+      ],
+      ],
     ];
     $form['handler'] = [
       '#type' => 'details',
@@ -436,10 +446,10 @@ class DynamicEntityReferenceItem extends EntityReferenceItem {
       // its actual id and target_id will be different, due to the new entity
       // marker.
       elseif (is_array($values) && array_key_exists('target_id', $values) && array_key_exists('target_type', $values) && isset($values['entity'])) {
-        /* @var \Drupal\dynamic_entity_reference\Plugin\DataType\DynamicEntityReference $entity_property */
+        /** @var \Drupal\dynamic_entity_reference\Plugin\DataType\DynamicEntityReference $entity_property */
         $entity_property = $this->get('entity');
         $entity_id = $entity_property->getTargetIdentifier();
-        /* @var \Drupal\Core\Entity\TypedData\EntityDataDefinitionInterface $target_definition */
+        /** @var \Drupal\Core\Entity\TypedData\EntityDataDefinitionInterface $target_definition */
         $target_definition = $entity_property->getTargetDefinition();
         $entity_type = $target_definition->getEntityTypeId();
         if (!$this->entity->isNew() && $values['target_id'] !== NULL && (($entity_id !== $values['target_id']) || ($entity_type !== $values['target_type']))) {

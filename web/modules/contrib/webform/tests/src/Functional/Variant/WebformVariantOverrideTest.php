@@ -49,12 +49,12 @@ class WebformVariantOverrideTest extends WebformBrowserTestBase {
     $this->postSubmission($webform);
     $this->assertRaw('New submission added to Test: Variant override.');
     $this->assertNoRaw('No results were saved to the database.');
-    $this->postSubmission($webform, [], NULL, ['query' => ['_webform_variant[variant]' => 'no_results']]);
+    $this->postSubmission($webform, [], NULL, ['query' => ['_webform_variant[variant]' => 'No-Results']]);
     $this->assertNoRaw('New submission added to Test: Variant override.');
     $this->assertRaw('No results were saved to the database.');
 
     // Check overriding form properties such as method and action.
-    $this->drupalGet('/webform/test_variant_override', ['query' => ['_webform_variant[variant]' => 'custom_form_properties']]);
+    $this->drupalGet('/webform/test_variant_override', ['query' => ['_webform_variant[variant]' => 'Custom-Form-Properties']]);
     $this->assertRaw('action="https://drupal.org" method="get"');
 
     // Check missing variant instance displays a warning.

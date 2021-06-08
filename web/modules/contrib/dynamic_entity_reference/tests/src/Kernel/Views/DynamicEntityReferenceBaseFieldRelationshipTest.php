@@ -30,7 +30,7 @@ class DynamicEntityReferenceBaseFieldRelationshipTest extends ViewsKernelTestBas
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'user',
     'field',
     'entity_test',

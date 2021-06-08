@@ -171,6 +171,11 @@ function _webform_entity_print_webform_submission_links(array &$build, EntityInt
       'export_type' => trim($export_type, '_engine'),
     ];
     $route_options = ['query' => ['view_mode' => $view_mode]];
+    // Attach the URL's token query parameter used to grant view permission.
+    $token = \Drupal::request()->get('token');
+    if ($token && $token === $entity->getToken()) {
+      $route_options['query']['token'] = $token;
+    }
 
     $link_attributes = $export_settings['link_attributes'];
     $link_attributes += ['class' => []];

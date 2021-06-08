@@ -59,6 +59,11 @@ class WebformAddonsController extends ControllerBase implements ContainerInjecti
       ],
     ];
 
+    // Support.
+    if (!$this->config('webform.settings')->get('ui.support_disabled')) {
+      $build['support'] = ['#theme' => 'webform_help_support'];
+    }
+
     // Filter.
     $is_claro_theme = $this->themeManager->isActiveTheme('claro');
     $data_source = $is_claro_theme ? '.admin-item' : 'li';

@@ -2,8 +2,7 @@
 default_config: &defaults
   buildpacks:
     # We need the "apt" buildpack to install a MySQL client for Drush; see apt.yml
-    - https://github.com/cloudfoundry/apt-buildpack.git
-    - php_buildpack
+    - https://github.com/cloudfoundry/php-buildpack.git#v4.4.40
   disk_quota: 512M
   timeout: 180
   services:
@@ -19,9 +18,26 @@ default_config: &defaults
 applications:
 - name: web
   <<: *defaults
-  memory: 256M
+  memory: 512M
   instances: 1
   random-route: true
+- name: registry
+  docker:
+    image: registry
+  memory: 256M
+  disk_quota: 512M
+  instances: 1
+  services:
+   - secrets
+   - storage
+  no-route: true
+- name: redis
+  docker:
+    image: registry.apps.internal:5000/redis:4
+  memory: 128M
+  disk_quota: 128M
+  instances: 1
+  no-route: true
 # - name: cronish
 #   <<: *defaults
 #   no-route: true

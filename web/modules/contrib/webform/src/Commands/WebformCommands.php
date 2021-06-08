@@ -2,7 +2,7 @@
 // @codingStandardsIgnoreFile
 
 /**
- * This is file was generated using Drush. DO NOT EDIT. 
+ * This is file was generated using Drush. DO NOT EDIT.
  *
  * @see drush webform-generate-commands
  * @see \Drupal\webform\Commands\DrushCliServiceBase::generate_commands_drush9
@@ -312,7 +312,7 @@ class WebformCommands extends WebformCommandsBase {
    * Generates HTML documentation.
    *
    * @command webform:docs
-   * @usage webform:repair
+   * @usage webform:docs
    *   Generates HTML documentation used by the Webform module's documentation pages.
    * @aliases wfd,webform-docs
    */

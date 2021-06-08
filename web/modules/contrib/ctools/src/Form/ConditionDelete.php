@@ -11,6 +11,7 @@ use Drupal\ctools\ConstraintConditionInterface;
 use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+
 abstract class ConditionDelete extends ConfirmFormBase {
 
   /**
@@ -29,12 +30,12 @@ abstract class ConditionDelete extends ConfirmFormBase {
   protected $tempstore_id;
 
   /**
-   * @var string;
+   * @var string
    */
   protected $machine_name;
 
   /**
-   * @var int;
+   * @var int
    */
   protected $id;
 
@@ -45,7 +46,8 @@ abstract class ConditionDelete extends ConfirmFormBase {
     return new static($container->get('tempstore.shared'), $container->get('plugin.manager.condition'));
   }
 
-  function __construct(SharedTempStoreFactory $tempstore, PluginManagerInterface $manager) {
+
+  public function __construct(SharedTempStoreFactory $tempstore, PluginManagerInterface $manager) {
     $this->tempstore = $tempstore;
     $this->manager = $manager;
   }
@@ -66,17 +68,17 @@ abstract class ConditionDelete extends ConfirmFormBase {
     $this->id = $id;
 
     $cached_values = $this->tempstore->get($this->tempstore_id)->get($this->machine_name);
-    $form ['#title'] = $this->getQuestion($id, $cached_values);
+    $form['#title'] = $this->getQuestion($id, $cached_values);
 
-    $form ['#attributes']['class'][] = 'confirmation';
-    $form ['description'] = array('#markup' => $this->getDescription());
-    $form [$this->getFormName()] = array('#type' => 'hidden', '#value' => 1);
+    $form['#attributes']['class'][] = 'confirmation';
+    $form['description'] = ['#markup' => $this->getDescription()];
+    $form[$this->getFormName()] = ['#type' => 'hidden', '#value' => 1];
 
     // By default, render the form using theme_confirm_form().
-    if (!isset($form ['#theme'])) {
-      $form ['#theme'] = 'confirm_form';
+    if (!isset($form['#theme'])) {
+      $form['#theme'] = 'confirm_form';
     }
-    $form['actions'] = array('#type' => 'actions');
+    $form['actions'] = ['#type' => 'actions'];
     $form['actions'] += $this->actions($form, $form_state);
     return $form;
   }
@@ -99,11 +101,12 @@ abstract class ConditionDelete extends ConfirmFormBase {
     $form_state->setRedirect($route_name, $route_parameters);
   }
 
+
   public function getQuestion($id = NULL, $cached_values = NULL) {
     $condition = $this->getConditions($cached_values)[$id];
-    return $this->t('Are you sure you want to delete the @label condition?', array(
+    return $this->t('Are you sure you want to delete the @label condition?', [
       '@label' => $condition['id'],
-    ));
+    ]);
   }
 
   /**
@@ -124,19 +127,19 @@ abstract class ConditionDelete extends ConfirmFormBase {
    * {@inheritdoc}
    */
   protected function actions(array $form, FormStateInterface $form_state) {
-    return array(
-      'submit' => array(
+    return [
+      'submit' => [
         '#type' => 'submit',
         '#value' => $this->getConfirmText(),
-        '#validate' => array(
-          array($this, 'validateForm'),
-        ),
-        '#submit' => array(
-          array($this, 'submitForm'),
-        ),
-      ),
+        '#validate' => [
+          [$this, 'validateForm'],
+        ],
+        '#submit' => [
+          [$this, 'submitForm'],
+        ],
+      ],
       'cancel' => ConfirmFormHelper::buildCancelLink($this, $this->getRequest()),
-    );
+    ];
   }
 
   /**

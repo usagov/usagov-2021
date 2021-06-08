@@ -2,7 +2,9 @@
 
 namespace Drupal\webform;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -14,6 +16,8 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\webform\Element\WebformHtmlEditor;
 use Drupal\webform\Entity\Webform;
 use Drupal\webform\Plugin\WebformElementManagerInterface;
+use Drupal\webform\Plugin\WebformHandler\EmailWebformHandler;
+use Drupal\webform\Twig\WebformTwigExtension;
 use Drupal\webform\Utility\WebformYaml;
 use Drupal\webform\Utility\WebformArrayHelper;
 use Drupal\webform\Utility\WebformElementHelper;
@@ -68,6 +72,13 @@ class WebformTranslationConfigManager implements WebformTranslationConfigManager
   protected $translationManager;
 
   /**
+   * The typed config manager.
+   *
+   * @var \Drupal\Core\Config\TypedConfigManagerInterface
+   */
+  protected $typedConfigManager;
+
+  /**
    * Constructs a WebformTranslationConfigManager object.
    *
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
@@ -78,12 +89,16 @@ class WebformTranslationConfigManager implements WebformTranslationConfigManager
    *   The webform element manager.
    * @param \Drupal\webform\WebformTranslationManagerInterface $translation_manager
    *   The webform translation manager.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typed_config_manager
+   *   The typed config manager.
    */
-  public function __construct(ModuleHandlerInterface $module_handler, FormBuilderInterface $form_builder, WebformElementManagerInterface $element_manager, WebformTranslationManagerInterface $translation_manager) {
+  public function __construct(ModuleHandlerInterface $module_handler, FormBuilderInterface $form_builder, WebformElementManagerInterface $element_manager, WebformTranslationManagerInterface $translation_manager, TypedConfigManagerInterface $typed_config_manager = null) {
     $this->formBuilder = $form_builder;
     $this->moduleHandler = $module_handler;
     $this->elementManager = $element_manager;
     $this->translationManager = $translation_manager;
+    // @todo [Webform 7.x] Require the typed config manager.
+    $this->typedConfigManager = $typed_config_manager ?: \Drupal::service('config.typed');
   }
 
   /**
@@ -124,8 +139,7 @@ class WebformTranslationConfigManager implements WebformTranslationConfigManager
    *   The webform settings configuration element.
    */
   protected function alterConfigSettingsForm($config_name, array &$config_element) {
-    $this->alterTextareaElement($config_element['test']['types']);
-    $this->alterTextareaElement($config_element['test']['names']);
+    $this->alterTypedConfigElements($config_element, "webform.settings");
   }
 
   /**
@@ -137,7 +151,7 @@ class WebformTranslationConfigManager implements WebformTranslationConfigManager
    *   The webform block configuration element.
    */
   protected function alterConfigBlockForm($config_name, array &$config_element) {
-    $this->alterTextareaElement($config_element['settings']['default_data']);;
+    $this->alterTypedConfigElements($config_element['settings'], "block.settings.webform_block");
   }
 
   /**
@@ -178,7 +192,7 @@ class WebformTranslationConfigManager implements WebformTranslationConfigManager
    *   The webform options configuration element.
    */
   protected function alterConfigOptionsForm($config_name, array &$config_element) {
-    $this->alterTextareaElement($config_element['options']);
+    $this->alterTypedConfigElements($config_element, "webform.webform_options.*");
   }
 
     /**
@@ -190,8 +204,7 @@ class WebformTranslationConfigManager implements WebformTranslationConfigManager
    *   The webform options configuration element.
    */
   protected function alterConfigOptionsCustomForm($config_name, array &$config_element) {
-    $this->alterTextareaElement($config_element['options']);
-    $this->alterTextareaElement($config_element['template'], 'twig');
+    $this->alterTypedConfigElements($config_element, "webform_options_custom.webform_options_custom.*");
   }
 
 
@@ -204,7 +217,7 @@ class WebformTranslationConfigManager implements WebformTranslationConfigManager
    *   The webform image select configuration element.
    */
   protected function alterConfigImageSelectForm($config_name, array &$config_element) {
-    $this->alterTextareaElement($config_element['images']);
+    $this->alterTypedConfigElements($config_element, "webform_image_select.webform_image_select_images.*");
   }
 
   /**
@@ -221,6 +234,9 @@ class WebformTranslationConfigManager implements WebformTranslationConfigManager
    */
   protected function alterConfigWebformForm($config_name, &$config_element, &$form, $form_state) {
     $this->alterConfigWebformFormElements($config_name, $config_element, $form, $form_state);
+    $this->alterConfigWebformFormHandlers($config_name, $config_element, $form, $form_state);
+
+    $this->alterTypedConfigElements($config_element, "webform.webform.*");
 
     $webform = $this->loadWebform($config_name);
     $source_elements = $this->translationManager->getSourceElements($webform);
@@ -287,11 +303,55 @@ class WebformTranslationConfigManager implements WebformTranslationConfigManager
   }
 
   /****************************************************************************/
+  // Handler alteration methods.
+  /****************************************************************************/
+
+  /**
+   * Alter the webform configuration form handlers.
+   *
+   * @param string $config_name
+   *   The webform configuration name.
+   * @param array $config_element
+   *   The webform configuration element.
+   * @param $form
+   *   Nested array of form elements that comprise the form.
+   * @param $form_state
+   *   The current state of the form.
+   */
+  protected function alterConfigWebformFormHandlers($config_name, &$config_element, &$form, $form_state) {
+    $webform = $this->loadWebform($config_name);
+
+    $handlers =& $config_element['handlers'];
+    foreach (Element::children($handlers) as $handler_id) {
+      $handler = $webform->getHandler($handler_id);
+      if (!$handler) {
+        continue;
+      }
+
+      // Apply custom logic to email body which can be twig, html, or text.
+      if ($handler instanceof EmailWebformHandler) {
+        $body_element =& NestedArray::getValue($config_element, ['handlers', $handler_id, 'settings', 'body']);
+        $configuration = $handler->getConfiguration();
+        if (!empty($configuration['settings']['twig'])) {
+          $this->alterTextareaElement($body_element, 'twig');
+          $body_element['translation']['#access'] = WebformTwigExtension::hasEditTwigAccess();
+        }
+        elseif (!empty($configuration['settings']['html'])) {
+          $this->alterHtmlEditorElement($body_element);
+        }
+        else {
+          $this->alterTextareaElement($body_element, 'text');
+        }
+      }
+    }
+  }
+
+  /****************************************************************************/
   // Form and element alteration methods.
   /****************************************************************************/
 
   /**
-   * Alter the webform configuration form.
+   * Alter the webform configuration form elements.
    *
    * @param string $config_name
    *   The webform configuration name.
@@ -758,6 +818,71 @@ class WebformTranslationConfigManager implements WebformTranslationConfigManager
   }
 
   /****************************************************************************/
+
+  /**
+   * Alter the webform configuration form using type config schema.
+   *
+   * @param array $elements
+   *   An array of form elements.
+   * @param string $plugin_id
+   *   A plugin id.
+   */
+  protected function alterTypedConfigElements(array &$elements, $plugin_id) {
+    // DEBUG: List typed config.
+    // dsm($this->typedConfigManager->getDefinitions());
+    $definition = $this->typedConfigManager->getDefinition($plugin_id);
+    $this->alterSchemaElementsRecursive($elements, $definition['mapping']);
+  }
+
+  /**
+   * Alter schema elements.
+   *
+   * @param array $elements
+   *   An array of form elements.
+   * @param array $schema_mapping
+   *   Schema mapping.
+   */
+  protected function alterSchemaElementsRecursive(array &$elements, array $schema_mapping) {
+    foreach (Element::children($elements) as $element_key) {
+      if (!isset($schema_mapping[$element_key])) {
+        continue;
+      }
+
+      $element =& $elements[$element_key];
+      $schema =& $schema_mapping[$element_key];
+
+      if (isset($schema['type']) && $schema['type'] === 'mapping') {
+        $this->alterSchemaElementsRecursive($element, $schema['mapping']);
+      }
+      elseif (isset($schema['webform_type'])) {
+        switch ($schema['webform_type']) {
+          case 'html':
+            $this->alterHtmlEditorElement($element);
+            break;
+
+          case 'yaml':
+          case 'twig':
+          case 'text':
+            $this->alterTextareaElement($element, $schema['webform_type']);
+            break;
+        }
+      }
+    }
+  }
+
+  /**
+   * Alter text area element and convert it to an HTML editor.
+   *
+   * @param array $element
+   *   A element containing 'source' and 'translation'.
+   */
+  protected function alterHtmlEditorElement(array &$element) {
+    // Undo nl2br() so that the HTML markup's spacing is correct.
+    // @see \Drupal\config_translation\FormElement\FormElementBase::getSourceElement
+    // @see https://stackoverflow.com/questions/2494754/opposite-of-nl2br-is-it-str-replace
+    $element['source']['#markup'] = preg_replace("#<br />$#m","", (string) $element['source']['#markup']);
+    $element['translation']['#type'] = 'webform_html_editor';
+  }
 
   /**
    * Alter text area element and convert it to a Codemirror editor.

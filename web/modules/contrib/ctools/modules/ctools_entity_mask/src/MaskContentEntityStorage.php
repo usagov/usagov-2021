@@ -78,4 +78,11 @@ class MaskContentEntityStorage extends ContentEntityStorageBase {
     return $as_bool ? FALSE : 0;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function doLoadMultipleRevisionsFieldItems($revision_ids) {
+    return [];
+  }
+
 }

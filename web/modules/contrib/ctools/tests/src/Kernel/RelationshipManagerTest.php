@@ -19,8 +19,8 @@ class RelationshipManagerTest extends RelationshipsTestBase {
     $expected = [
       'Bundle' => [
         0 => "page",
-        1 => "foo"
-      ]
+        1 => "foo",
+      ],
     ];
     $this->assertSame($expected, $definitions['typed_data_relationship:entity:node:body']['context_definitions']['base']->getConstraints());
 
@@ -43,8 +43,7 @@ class RelationshipManagerTest extends RelationshipsTestBase {
       'node' => new Context($context_definition, $this->entities['node1']),
     ];
     $definitions = $this->relationshipManager->getDefinitionsForContexts($contexts);
-    //$this->assertTrue(isset($definitions['typed_data_relationship:entity:node:body']));
-
+    // $this->assertTrue(isset($definitions['typed_data_relationship:entity:node:body']));
     $context_definition = new EntityContextDefinition('entity:node');
     $contexts = [
       'node' => new Context($context_definition, $this->entities['node2']),
@@ -57,7 +56,7 @@ class RelationshipManagerTest extends RelationshipsTestBase {
       'node' => new Context($context_definition, $this->entities['node3']),
     ];
     $definitions = $this->relationshipManager->getDefinitionsForContexts($contexts);
-    //$this->assertTrue(isset($definitions['typed_data_relationship:entity:node:body']));
+    // $this->assertTrue(isset($definitions['typed_data_relationship:entity:node:body']));
   }
 
 }

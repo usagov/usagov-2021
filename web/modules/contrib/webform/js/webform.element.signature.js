@@ -64,7 +64,7 @@
         $button.on('click', function () {
           signaturePad.clear();
           $input.val('');
-          this.trigger('blur');
+          $(this).trigger('blur');
           return false;
         });
 

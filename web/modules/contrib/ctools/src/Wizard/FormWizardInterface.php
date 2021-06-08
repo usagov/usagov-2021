@@ -25,7 +25,7 @@ interface FormWizardInterface extends FormInterface {
   /**
    * Initialize wizard values.
    *
-   * return mixed.
+   * Return mixed.
    */
   public function initValues();
 
@@ -56,7 +56,7 @@ interface FormWizardInterface extends FormInterface {
    * This will return the first step of the wizard if no step has been set.
    *
    * @param mixed $cached_values
-   *   The values returned by $this->getTempstore()->get($this->getMachineName());
+   *   The values returned by $this->getTempstore()->get($this->getMachineName());.
    *
    * @return string
    */
@@ -66,7 +66,7 @@ interface FormWizardInterface extends FormInterface {
    * Retrieve a list of FormInterface classes by their step key in the wizard.
    *
    * @param mixed $cached_values
-   *   The values returned by $this->getTempstore()->get($this->getMachineName());   *
+   *   The values returned by $this->getTempstore()->get($this->getMachineName());   *.
    *
    * @return array
    *   An associative array keyed on the step name with an array value with the
@@ -86,7 +86,7 @@ interface FormWizardInterface extends FormInterface {
    * Retrieve the current Operation.
    *
    * @param mixed $cached_values
-   *   The values returned by $this->getTempstore()->get($this->getMachineName());
+   *   The values returned by $this->getTempstore()->get($this->getMachineName());.
    *
    * @return string
    *   The class name to instantiate.
@@ -107,7 +107,7 @@ interface FormWizardInterface extends FormInterface {
    * extend this method as needed.
    *
    * @param mixed $cached_values
-   *   The values returned by $this->getTempstore()->get($this->getMachineName());
+   *   The values returned by $this->getTempstore()->get($this->getMachineName());.
    *
    * @return array
    *   An array keyed by:
@@ -123,7 +123,7 @@ interface FormWizardInterface extends FormInterface {
    * extend this method as needed.
    *
    * @param mixed $cached_values
-   *   The values returned by $this->getTempstore()->get($this->getMachineName());
+   *   The values returned by $this->getTempstore()->get($this->getMachineName());.
    *
    * @return array
    *   An array keyed by:
@@ -140,7 +140,7 @@ interface FormWizardInterface extends FormInterface {
    * to the validate and submit process.
    *
    * @param array $form
-   *   Drupal form array
+   *   Drupal form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The initial form state before validation or submission of the steps.
    */
@@ -152,7 +152,7 @@ interface FormWizardInterface extends FormInterface {
    * "Next" steps are handled by \Drupal\Core\Form\FormInterface::submitForm().
    *
    * @param array $form
-   *   Drupal form array
+   *   Drupal form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state of the wizard. This will not contain values from
    *   the current step since the previous button does not actually submit
@@ -167,15 +167,18 @@ interface FormWizardInterface extends FormInterface {
    * subsequent to your form wizard, this is the responsible method.
    *
    * @param array $form
-   *   Drupal form array
+   *   Drupal form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The final form state of the wizard.
    */
   public function finish(array &$form, FormStateInterface $form_state);
 
+
   public function ajaxSubmit(array $form, FormStateInterface $form_state);
 
+
   public function ajaxPrevious(array $form, FormStateInterface $form_state);
+
 
   public function ajaxFinish(array $form, FormStateInterface $form_state);
 

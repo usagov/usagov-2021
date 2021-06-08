@@ -38,6 +38,8 @@ class WebformHandlerRemotePostTest extends WebformBrowserTestBase {
    * Test remote post handler.
    */
   public function testRemotePostHandler() {
+    global $base_url;
+
     $this->drupalLogin($this->rootUser);
 
     /**************************************************************************/
@@ -334,6 +336,17 @@ options:
       textfield: text
       checkbox: true
       number: 20.5");
+
+    /**************************************************************************/
+    // POST error.
+    /**************************************************************************/
+
+    /** @var \Drupal\webform\WebformInterface $webform */
+    $webform = Webform::load('test_handler_remote_post_error');
+
+    $this->postSubmission($webform);
+
+    $this->assertEqual($base_url . '/error_url', $this->getUrl());
   }
 
 }

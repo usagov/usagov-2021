@@ -21,13 +21,19 @@
 #}
 {% import _self as menus %}
 {#
-  We call a macro which calls itself to render the full tree.
-  @see http://twig.sensiolabs.org/doc/tags/macro.html
+We call a macro which calls itself to render the full tree.
+@see http://twig.sensiolabs.org/doc/tags/macro.html
 #}
-{{ menus.menu_links(items, 0, megamenu, 0, NULL, duplicate_parent, NULL, mega_display_second) }}
+{{ menus.menu_links(items, 0, megamenu, 0, NULL, duplicate_parent, NULL, mega_display_second, attributes) }}
 
-{% macro menu_links(items, menu_level, megamenu, button_id, parent, duplicate_parent, region, mega_display_second) %}
+{% macro menu_links(items, menu_level, megamenu, button_id, parent, duplicate_parent, region, mega_display_second, attributes) %}
   {% import _self as menus %}
+
+  {% if parent.url.getOption('attributes') %}
+    {% set link_attributes = create_attribute(parent.url.getOption('attributes')) %}
+  {% else %}
+    {% set link_attributes = create_attribute() %}
+  {% endif %}
 
   {% if items %}
 
@@ -40,7 +46,7 @@
         <div class="grid-row grid-gap-4">
           <div class="desktop:grid-col-3">
             <div class="usa-nav__submenu-item">
-              <a href="{{ parent.url }}">
+              <a {{ link_attributes }} href="{{ parent.url }}">
                 <span><h3>{{ parent.title }}</h3></span>
               </a>
             </div>
@@ -48,13 +54,14 @@
         </div>
       {% endif %}
 
-        <div class="grid-row grid-gap-4">
+      <div class="grid-row grid-gap-4">
     {% else %}
       <ul id="basic-nav-section-{{ button_id }}" class="usa-nav__submenu{% if menu_level > 1 %}-list{% endif %}"{% if menu_level == 1  %} hidden=""{% endif %}>
 
       {% if duplicate_parent and megamenu == 0 %}
         <li class="usa-nav__submenu-item">
-          <a href="{{ parent.url }}">
+          {{ link_attributes }}
+          <a {{ link_attributes }} href="{{ parent.url }}">
             <span><strong>{{ parent.title }}</strong></span>
           </a>
         </li>
@@ -62,13 +69,18 @@
     {% endif %}
 
     {% for item in items %}
+      {% if item.url.getOption('attributes') %}
+        {% set link_attributes = create_attribute(item.url.getOption('attributes')) %}
+      {% else %}
+        {% set link_attributes = create_attribute() %}
+      {% endif %}
 
       {% if megamenu and menu_level == 1 %}
         <div class="desktop:grid-col-3">
 
         {% if mega_display_second and item.below  %}
           <div class="usa-nav__submenu-item">
-            <a href="{{ item.url }}" class="usa-nav__link">
+            <a {{ link_attributes.addClass('usa-nav__link') }} href="{{ item.url }}">
               <span><strong>{{ item.title }}</strong></span>
             </a>
           </div>
@@ -84,12 +96,20 @@
       {% endif %}
 
       {% if item.below and ((megamenu and menu_level == 1) or menu_level == 0) %}
-        {{ menus.menu_links(item.below, menu_level + 1, megamenu, loop.index, item, duplicate_parent, NULL, mega_display_second) }}
+        {{ menus.menu_links(item.below, menu_level + 1, megamenu, loop.index, item, duplicate_parent, NULL, mega_display_second, attributes) }}
       {% else %}
         {% if megamenu and menu_level == 1 %}
           <div class="usa-nav__submenu-item">
         {% endif %}
-        <a href="{{ item.url }}"{% if menu_level == 0 %} class="usa-nav__link{% if item.in_active_trail %} usa-current{% endif %}" {% endif %}>
+
+        {%
+          set item_classes = [
+          'usa-nav__link',
+          item.in_active_trail ? 'usa-current'
+        ]
+        %}
+
+        <a href="{{ item.url }}"{% if menu_level == 0 %} {{ link_attributes.addClass(item_classes)}} {% else %} {{ link_attributes}} {% endif %}>
           <span>{{ item.title }}</span>
         </a>
         {% if megamenu and menu_level == 1 %}
@@ -106,7 +126,7 @@
     {% endfor %}
 
     {% if megamenu and menu_level == 1 %}
-        </div>
+      </div>
       </div>
     {% else %}
       </ul>

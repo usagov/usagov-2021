@@ -9,7 +9,6 @@ use Drupal\Core\Display\VariantInterface;
 use Drupal\ctools\Plugin\VariantCollectionTrait;
 use Drupal\ctools\Plugin\VariantPluginCollection;
 use Drupal\Tests\UnitTestCase;
-use Prophecy\Argument;
 
 /**
  * Tests the methods of a variant-aware class.
@@ -28,7 +27,7 @@ class VariantCollectionTraitTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $container = new ContainerBuilder();
     $this->manager = $this->prophesize(PluginManagerInterface::class);
@@ -75,7 +74,7 @@ class VariantCollectionTraitTest extends UnitTestCase {
    * @depends testGetVariants
    */
   public function testGetVariantsSort(VariantPluginCollection $variants) {
-    $this->assertSame(['bar' => 'bar', 'foo' => 'foo'], $variants->getInstanceIds());
+    $this->assertEquals(['bar' => 'bar', 'foo' => 'foo'], $variants->getInstanceIds());
   }
 
   /**
@@ -144,13 +143,12 @@ class VariantCollectionTraitTest extends UnitTestCase {
    * @covers ::getVariant
    *
    * @depends testRemoveVariant
-   *
-   * @expectedException \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   * @expectedExceptionMessage Plugin ID 'test-uuid' was not found.
    */
   public function testGetVariantException($data) {
     list($trait_object, $uuid) = $data;
     // Attempt to retrieve a variant that has been removed.
+    $this->expectException('\Drupal\Component\Plugin\Exception\PluginNotFoundException');
+    $this->expectExceptionMessage("Plugin ID 'test-uuid' was not found.");
     $this->assertNull($trait_object->getVariant($uuid));
   }
 

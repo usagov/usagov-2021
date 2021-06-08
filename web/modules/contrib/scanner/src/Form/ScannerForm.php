@@ -6,21 +6,27 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Drupal\scanner\Plugin\ScannerPluginManager;
-use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Plugin\Exception\PluginException;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Form for performing searching.
  */
 class ScannerForm extends FormBase {
 
+  use StringTranslationTrait;
+
   /**
+   * The private temporary storage factory.
+   *
    * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
    */
   protected $tempStore;
 
   /**
+   * The scanner plugin manager.
+   *
    * @var Drupal\scanner\Plugin\ScannerPluginManager
    */
   protected $scannerManager;
@@ -59,7 +65,6 @@ class ScannerForm extends FormBase {
     $wholeword = $form_state->getValue('scanner_wholeword') ? $form_state->getValue('scanner_wholeword') : $config->get('scanner_wholeword');
     $regex = $form_state->getValue('scanner_regex') ? $form_state->getValue('scanner_regex') : $config->get('scanner_regex');
     $published = $form_state->getValue('scanner_published') ? $form_state->getValue('scanner_published') : $config->get('scanner_published');
-    $pathauto = $form_state->getValue('scanner_pathauto') ? $form_state->getValue('scanner_pathauto') : $config->get('scanner_pathauto');
     $language = $form_state->getValue('scanner_language') ? $form_state->getValue('scanner_language') : $config->get('scanner_language');
 
     $form['settings_link'] = [
@@ -82,25 +87,25 @@ class ScannerForm extends FormBase {
       '#default_value' => '',
       '#title' => $this->t('Step 2: Replace with'),
       '#maxlength' => 256,
-      '#access' => \Drupal::currentUser()->hasPermission('perform search and replace') ? true : false,
+      '#access' => \Drupal::currentUser()->hasPermission('perform search and replace') ? TRUE : FALSE,
     ];
     $form['submit_replace'] = [
       '#type' => 'submit',
       '#value' => $this->t('Replace'),
-      '#access' => \Drupal::currentUser()->hasPermission('perform search and replace') ? true : false,
+      '#access' => \Drupal::currentUser()->hasPermission('perform search and replace') ? TRUE : FALSE,
     ];
 
     $form['options'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Search Options'),
-      '#collapsible' => true,
-      '#collapsed' => false,
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
     ];
 
     $form['options']['surrounding'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Surrounding Text'),
-      '#collapsible' => false,
+      '#collapsible' => FALSE,
       '#description' => $this->t('You can limit matches by providing the text that should appear immediately before or after the search text. Remember to account for spaces.  Note: Case sensitivity and regular expression options will all apply here, too. Whole word is not recommended.'),
     ];
     $form['options']['surrounding']['preceded'] = [
@@ -193,26 +198,32 @@ class ScannerForm extends FormBase {
 
     $scannerStore->set('op', $op);
 
-    if ($op == t('Search')) {
+    if ($op == $this->t('Search')) {
       $fields = \Drupal::config('scanner.admin_settings')->get('fields_of_selected_content_type');
 
       // Build an array of batch operation jobs.
       // Batch job will need the field and the $form_state values.
       $operations = [];
       foreach ($fields as $key => $field) {
-        $operations[] = ['\Drupal\scanner\Form\ScannerForm::batchSearch', [$field, $form_state->getValues()]];
+        $operations[] = [
+          '\Drupal\scanner\Form\ScannerForm::batchSearch',
+          [
+            $field,
+            $form_state->getValues(),
+          ],
+        ];
       }
 
       $batch = [
-        'title' => t('Scanner Search Batch'),
+        'title' => $this->t('Scanner Search Batch'),
         'operations' => $operations,
         'finished' => '\Drupal\scanner\Form\ScannerForm::batchFinished',
-        'progress_message' => t('Processed @current out of @total'),
+        'progress_message' => $this->t('Processed @current out of @total'),
       ];
       batch_set($batch);
       $form_state->setRebuild(TRUE);
     }
-    elseif ($op == t('Replace')) {
+    elseif ($op == $this->t('Replace')) {
       // Redirect to the confirmation form.
       $form_state->setRedirect('scanner.admin_confirm');
     }
@@ -220,17 +231,17 @@ class ScannerForm extends FormBase {
 
   /**
    * Batch operation function.
-   * 
-   * @param $field string
+   *
+   * @param string $field
    *   The name of the field.
-   * @param $values array
+   * @param array $values
    *   The $form_state values.
-   * @param $content array
+   * @param array $context
    *   An array containin data that is persisted across batch jobs.
-   * 
-   * @see https://api.drupal.org/api/drupal/core%21includes%21form.inc/group/batch/8.5.x for more details
+   *
+   * @see https://api.drupal.org/api/drupal/core%21includes%21form.inc/group/batch/8.5.x
    */
-  public static function batchSearch($field, $values,&$context) {
+  public static function batchSearch($field, array $values, array &$context) {
     $pluginManager = \Drupal::service('plugin.manager.scanner');
     list($entityType, $bundle, $fieldname) = explode(':', $field);
 
@@ -242,15 +253,15 @@ class ScannerForm extends FormBase {
       // The instance could not be found so fail gracefully and let the user
       // know.
       \Drupal::logger('scanner')->error($e->getMessage());
-      \Drupal::messenger()->addError(t('An error occured: '. $e->getMessage()));
+      \Drupal::messenger()->addError($this->t('An error occured @e:', ['@e' => $e->getMessage()]));
     }
-    
+
     $results = $plugin->search($field, $values);
     if (!empty($results)) {
       $context['results'][$entityType][$bundle][$fieldname] = $results;
       // Number of entities with search term.
       $context['results']['count']['entities'] += count($results);
-      foreach ($results as $id => $data) {
+      foreach ($results as $data) {
         // Number of matches within each field of each entity.
         $context['results']['count']['matches'] += count($data['field']);
       }
@@ -258,6 +269,16 @@ class ScannerForm extends FormBase {
     }
   }
 
+  /**
+   * The batch process has finished.
+   *
+   * @param bool $success
+   *   Indicates whether the batch process finish successfully.
+   * @param array $results
+   *   Contains the output from the batch operations.
+   * @param array $operations
+   *   A list of operations that were processed.
+   */
   public static function batchFinished($success, $results, $operations) {
     if ($success && isset($results['count'])) {
       $count = $results['count'];
@@ -266,7 +287,7 @@ class ScannerForm extends FormBase {
         // Handle regex results.
         $count_for_theme = $results['count']['matches'];
       }
-      else if (isset($results['count']['entities'])) {
+      elseif (isset($results['count']['entities'])) {
         // Handle other results.
         $count_for_theme = $results['count']['entities'];
       }
@@ -276,7 +297,7 @@ class ScannerForm extends FormBase {
       }
       // $count expected to be a numerical value.
       unset($results['count']);
-      $renderable = [ 
+      $renderable = [
         '#theme' => 'scanner_results',
         '#data' => ['values' => $results, 'count' => $count_for_theme],
       ];
@@ -285,27 +306,27 @@ class ScannerForm extends FormBase {
       $scannerStore->set('results', $renderable);
     }
     else {
-      $message = t('There were some errors.');
+      \Drupal::messenger()->addMessage($this->t('There were some errors.'));
     }
     if (!isset($count['matches'])) {
       $count['matches'] = 0;
       $count['entities'] = 0;
     }
-    \Drupal::messenger()->addMessage(t('Found @matches matches in @entities entities.', ['@matches' => $count['matches'],'@entities' => $count['entities']]));
+    \Drupal::messenger()->addMessage($this->t('Found @matches matches in @entities entities.', ['@matches' => $count['matches'], '@entities' => $count['entities']]));
   }
 
   /**
    * Helper function to fetch languaged enabled on the site.
-   * 
+   *
    * @return array
-   *   An array containing the languages keyed by langcode.
+   *   The languages keyed by langcode, with an option "all" for all languages.
    */
   public function getLanguages() {
     $languages = \Drupal::languageManager()->getLanguages();
     foreach ($languages as $language) {
-      $langs[$language->getId()] = $this->t($language->getName());
-    }   
-    $langs['all'] = 'All';
+      $langs[$language->getId()] = $language->getName();
+    }
+    $langs['all'] = $this->t('All languages');
     return $langs;
   }
 

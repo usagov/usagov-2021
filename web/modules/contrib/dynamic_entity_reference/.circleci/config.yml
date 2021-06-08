@@ -5,15 +5,17 @@ workflows:
   version: 2
   main:
     jobs:
-    - test_89x
     - test_90x
     - test_91x
+    - test_92x
+    - test_93x
   # Run nightly tests every day 8 AM.
   nightly:
     jobs:
-    - test_89x
     - test_90x
     - test_91x
+    - test_92x
+    - test_93x
     triggers:
     - schedule:
         # Weekday (22=10pm UTC). Evaluates to 8am AEST.
@@ -33,6 +35,8 @@ jobs:
         MODULE_NAME: dynamic_entity_reference
         SIMPLETEST_BASE_URL: http://127.0.0.1
         SIMPLETEST_DB: mysql://drupal:drupal@127.0.0.1/local
+        BROWSERTEST_OUTPUT_FILE: /data/app/sites/simpletest/browser_output.html
+        BROWSERTEST_OUTPUT_DIRECTORY: /data/app/sites/simpletest/browser_output
         MINK_DRIVER_ARGS_WEBDRIVER: '["chrome", null, "http:\/\/127.0.0.1:4444\/wd\/hub"]'
     - image: mariadb
       environment:
@@ -51,11 +55,11 @@ jobs:
         command: |
           git clone --depth 1 --branch ${DRUPAL_BRANCH} \
             https://git.drupal.org/project/drupal.git .
+          git log -1 --oneline
     - run:
-        name: Fetch drupal dependencies
+        name: Fetch drupal dependencies and module test dependencies
         command: |
           composer install --prefer-dist --no-progress
-          composer update phpunit/phpunit symfony/phpunit-bridge phpspec/prophecy symfony/yaml --with-dependencies --no-progress
           composer require drupal/diff:1.x-dev --no-progress
 
     - checkout:
@@ -80,19 +84,25 @@ jobs:
     - run:
         name: Run unit tests
         command: |
-          su -m apache -s /bin/bash -c "./vendor/bin/phpunit -v -c core/phpunit.xml.dist --log-junit build/logs/phpunit/phpunit.xml modules/${MODULE_NAME}"
+          su -m apache -s /bin/bash -c "./vendor/bin/phpunit -v -c ./core/phpunit.xml.dist --log-junit ../build/logs/phpunit/phpunit.xml modules/${MODULE_NAME}"
     - store_test_results:
-        path: build/logs
+        path: /data/build/logs
+    - store_artifacts:
+        path: /data/app/sites/simpletest/browser_output
 
-  test_89x:
-    <<: *test
-    environment:
-    - DRUPAL_BRANCH: 8.9.x
   test_90x:
     <<: *test
     environment:
-    - DRUPAL_BRANCH: 9.0.x
+      DRUPAL_BRANCH: 9.0.x
   test_91x:
     <<: *test
     environment:
-    - DRUPAL_BRANCH: 9.1.x
+      DRUPAL_BRANCH: 9.1.x
+  test_92x:
+    <<: *test
+    environment:
+      DRUPAL_BRANCH: 9.2.x
+  test_93x:
+    <<: *test
+    environment:
+      DRUPAL_BRANCH: 9.3.x

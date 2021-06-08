@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -101,6 +102,15 @@ class EntityView extends BlockBase implements ContextAwarePluginInterface, Conta
   /**
    * {@inheritdoc}
    */
+  public function access(AccountInterface $account, $return_as_object = FALSE) {
+    /** @var $entity \Drupal\Core\Entity\EntityInterface */
+    $entity = $this->getContextValue('entity');
+    return $entity->access('view', $account, $return_as_object);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function build() {
     /** @var $entity \Drupal\Core\Entity\EntityInterface */
     $entity = $this->getContextValue('entity');
@@ -108,7 +118,8 @@ class EntityView extends BlockBase implements ContextAwarePluginInterface, Conta
     $view_builder = $this->entityTypeManager->getViewBuilder($entity->getEntityTypeId());
     $build = $view_builder->view($entity, $this->configuration['view_mode']);
 
-    CacheableMetadata::createFromObject($this->getContext('entity'))
+    CacheableMetadata::createFromObject($entity)
+      ->merge(CacheableMetadata::createFromRenderArray($build))
       ->applyTo($build);
 
     return $build;

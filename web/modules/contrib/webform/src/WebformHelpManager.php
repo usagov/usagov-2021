@@ -320,7 +320,12 @@ class WebformHelpManager implements WebformHelpManagerInterface {
    * {@inheritdoc}
    */
   public function buildIndex() {
-    return $this->buildVideos();
+    $build = [];
+    if (!$this->configFactory->get('webform.settings')->get('ui.support_disabled')) {
+      $build['support'] = ['#theme' => 'webform_help_support'];
+    }
+    $build['videos'] = $this->buildVideos();
+    return $build;
   }
 
   /***************************************************************************/
@@ -388,12 +393,7 @@ class WebformHelpManager implements WebformHelpManagerInterface {
       $rows[$id] = ['data' => $row, 'no_striping' => TRUE];
     }
 
-    $build = [
-      'content' => [
-        '#markup' => '<p>' . $this->t('The below are video tutorials are produced by <a href="https://jrockowitz.com">Jacob Rockowitz</a> and <a href="https://www.webwash.net/">WebWash.net</a>.') . '</p>' .
-          (!$docs ? '<hr/>' : ''),
-      ],
-    ];
+    $build = [];
 
     if (!$docs) {
       // Filter.
@@ -1559,13 +1559,13 @@ class WebformHelpManager implements WebformHelpManagerInterface {
     // Promotions: Webform.
     $t_args = [
       ':href_involved' => 'https://www.drupal.org/getting-involved',
-      ':href_association' => 'https://www.drupal.org/association/?utm_source=webform&utm_medium=referral&utm_campaign=membership-webform-2019-06-06 ',
       ':href_opencollective' => 'https://opencollective.com/webform',
+      ':href_support' => 'https://www.jrockowitz.com',
     ];
     $help['promotion_webform'] = [
       'group' => 'promotions',
       'title' => $this->t('Promotions: Drupal Association'),
-      'content' => $this->t('If you enjoy and value Drupal and the Webform module, <a href=":href_involved">get involved</a>, consider <a href=":href_association">joining the Drupal Association</a>, and <a href=":href_opencollective">backing the Webform module\'s Open Collective</a>.', $t_args),
+      'content' => $this->t('If you enjoy and value Drupal and the Webform module consider <a href=":href_involved">getting involved in the Drupal community</a>, <a href=":href_opencollective">contributing funds to the Webform module\'s Open Collective</a>, and <a href=":href_support">hiring professional support</a>.', $t_args),
       'message_type' => 'webform',
       'message_close' => TRUE,
       'message_storage' => WebformMessage::STORAGE_STATE,
@@ -1648,7 +1648,7 @@ class WebformHelpManager implements WebformHelpManagerInterface {
     $help['help'] = [
       'group' => 'help',
       'title' => $this->t('Help'),
-      'content' => $this->t('Visit the Webform 6.x <a href="https://www.drupal.org/node/2856146">documentation pages</a> for an <a href="https://www.drupal.org/node/2834423">introduction</a>, <a href="https://www.drupal.org/node/2837024">features overview</a>, <a href="https://www.drupal.org/node/2932764">articles</a>, <a href="https://www.drupal.org/node/2860989">recipes</a>, <a href="https://www.drupal.org/node/2932760">known issues</a>, and a <a href="https://www.drupal.org/node/2843422">roadmap</a>.'),
+      'content' => $this->t('Visit the Webform <a href="https://www.drupal.org/node/2856146">documentation pages</a> for an <a href="https://www.drupal.org/node/2834423">introduction</a>, <a href="https://www.drupal.org/node/2837024">features overview</a>, <a href="https://www.drupal.org/node/2932764">articles</a>, <a href="https://www.drupal.org/node/2860989">recipes</a>, and more...'),
       'routes' => [
         // @see /admin/structure/webform/help
         'webform.help',
@@ -1962,7 +1962,7 @@ class WebformHelpManager implements WebformHelpManagerInterface {
       'title' => $this->t('Handlers'),
       'content' => $this->t('The <strong>Emails/Handlers</strong> page allows additional actions and behaviors to be processed when a webform or submission is created, updated, or deleted.') . ' ' .
         $this->t('<strong>Handlers</strong> are used to route submitted data to external applications and send notifications & confirmations.'),
-      'video_id' => 'submissions',
+      'video_id' => 'handlers',
       'routes' => [
         // @see /admin/structure/webform/manage/{webform}/handlers
         'entity.webform.handlers',

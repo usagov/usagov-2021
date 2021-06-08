@@ -15,7 +15,7 @@ trait AjaxFormTrait {
    *
    * @return array
    */
-   public static function getAjaxAttributes() {
+  public static function getAjaxAttributes() {
     return [
       'class' => ['use-ajax'],
       'data-dialog-type' => 'modal',
@@ -30,7 +30,7 @@ trait AjaxFormTrait {
    *
    * @return array
    */
-   public static function getAjaxButtonAttributes() {
+  public static function getAjaxButtonAttributes() {
     return NestedArray::mergeDeep(AjaxFormTrait::getAjaxAttributes(), [
       'class' => [
         'button',

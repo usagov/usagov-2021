@@ -36,7 +36,7 @@ abstract class ConditionConfigure extends FormBase {
   protected $tempstore_id;
 
   /**
-   * @var string;
+   * @var string
    */
   protected $machine_name;
 
@@ -47,7 +47,8 @@ abstract class ConditionConfigure extends FormBase {
     return new static($container->get('tempstore.shared'), $container->get('plugin.manager.condition'));
   }
 
-  function __construct(SharedTempStoreFactory $tempstore, PluginManagerInterface $manager) {
+
+  public function __construct(SharedTempStoreFactory $tempstore, PluginManagerInterface $manager) {
     $this->tempstore = $tempstore;
     $this->manager = $manager;
   }
@@ -81,19 +82,19 @@ abstract class ConditionConfigure extends FormBase {
       // Conditionally set this form element so that we can update or add.
       $form['id'] = [
         '#type' => 'value',
-        '#value' => $id
+        '#value' => $id,
       ];
     }
     $form['instance'] = [
       '#type' => 'value',
-      '#value' => $instance
+      '#value' => $instance,
     ];
     $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Save'),
       '#ajax' => [
         'callback' => [$this, 'ajaxSave'],
-      ]
+      ],
     ];
     return $form;
   }
@@ -109,7 +110,7 @@ abstract class ConditionConfigure extends FormBase {
     $conditions = $this->getConditions($cached_values);
     if ($instance instanceof ContextAwarePluginInterface) {
       /** @var  $instance \Drupal\Core\Plugin\ContextAwarePluginInterface */
-      $context_mapping = $form_state->hasValue('context_mapping')? $form_state->getValue('context_mapping') : [];
+      $context_mapping = $form_state->hasValue('context_mapping') ? $form_state->getValue('context_mapping') : [];
       $instance->setContextMapping($context_mapping);
     }
     if ($instance instanceof ConstraintConditionInterface) {
@@ -127,6 +128,7 @@ abstract class ConditionConfigure extends FormBase {
     list($route_name, $route_parameters) = $this->getParentRouteInfo($cached_values);
     $form_state->setRedirect($route_name, $route_parameters);
   }
+
 
   public function ajaxSave(array &$form, FormStateInterface $form_state) {
     $response = new AjaxResponse();

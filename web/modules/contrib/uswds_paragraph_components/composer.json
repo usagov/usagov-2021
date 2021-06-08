@@ -17,7 +17,9 @@
     },
     "require": {
         "drupal/paragraphs": "^1.12",
-        "drupal/mmf_core_fields": "^2.0"
+        "drupal/mmf_core_fields": "^2.0",
+        "drupal/field_group": "^3.1",
+        "drupal/twig_tweak" : "^2.9"
     },
     "extra": {
         "patches": {

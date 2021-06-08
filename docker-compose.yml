@@ -6,11 +6,10 @@ services:
       dockerfile: .docker/Dockerfile
     ports:
       - 80:80
-      - 443:443
-      - 2223:2222
+      - 2222:2222
     volumes:
       - .:/var/www/:delegated
-      env_file:
+    env_file:
       ./env.local
     environment:
       COMPOSER_MEMORY_LIMIT: -1

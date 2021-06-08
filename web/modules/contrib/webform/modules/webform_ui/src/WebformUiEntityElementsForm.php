@@ -227,7 +227,7 @@ class WebformUiEntityElementsForm extends BundleEntityFormBase {
     $this->buildUpdatedElementsRecursive($elements_updated, '', $webform_ui_elements, $elements_flattened);
 
     // Update the webform's elements.
-    $webform->setElements($elements_updated);
+    $webform->setUpdating()->setElements($elements_updated);
 
     // Validate only elements required, hierarchy, and rendering.
     $validate_options = [

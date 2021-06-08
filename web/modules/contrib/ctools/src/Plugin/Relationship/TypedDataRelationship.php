@@ -9,7 +9,6 @@ use Drupal\Core\Plugin\Context\ContextInterface;
 use Drupal\Core\Plugin\Context\EntityContextDefinition;
 use Drupal\Core\TypedData\DataReferenceInterface;
 use Drupal\Core\TypedData\ListInterface;
-use Drupal\ctools\Annotation\Relationship;
 use Drupal\ctools\Plugin\RelationshipBase;
 
 /**
@@ -48,9 +47,11 @@ class TypedDataRelationship extends RelationshipBase {
     return new Context($context_definition, $context_value);
   }
 
+
   public function getName() {
     return $this->getPluginDefinition()['property_name'];
   }
+
 
   protected function getData(ContextInterface $context) {
     /** @var \Drupal\Core\TypedData\ComplexDataInterface $base */
@@ -67,9 +68,11 @@ class TypedDataRelationship extends RelationshipBase {
     return $data;
   }
 
+
   protected function getMainPropertyName(FieldItemInterface $data) {
     return $data->getFieldDefinition()->getFieldStorageDefinition()->getMainPropertyName();
   }
+
 
   public function getRelationshipValue() {
     $property = $this->getMainPropertyName();

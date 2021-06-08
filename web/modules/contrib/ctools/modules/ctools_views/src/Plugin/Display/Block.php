@@ -393,7 +393,7 @@ class Block extends CoreBlock {
     list(, $display_id) = explode('-', $block->getDerivativeId(), 2);
 
     // Change pager offset settings based on block configuration.
-    if (!empty($allow_settings['offset'])) {
+    if (!empty($allow_settings['offset']) && isset($config['pager_offset'])) {
       $this->view->setOffset($config['pager_offset']);
     }
 

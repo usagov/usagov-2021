@@ -969,6 +969,20 @@ class WebformSubmissionStorage extends SqlContentEntityStorage implements Webfor
   /**
    * {@inheritdoc}
    */
+  public function save(EntityInterface $entity) {
+    // Set serial number using the webform table, this is done outside of the
+    // main transaction initialized in parent::save() to reduce blocking
+    // concurrent webform submissions for as little time as possible.
+    if (!$entity->serial() && !$entity->getWebform()->getSetting('serial_disabled')) {
+      $next_serial = $this->getWebformStorage()->getSerial($entity->getWebform());
+      $entity->set('serial', $next_serial);
+    }
+    return parent::save($entity);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function doSave($id, EntityInterface $entity) {
     /** @var \Drupal\webform\WebformSubmissionInterface $entity */
     if ($entity->getWebform()->getSetting('results_disabled')) {
@@ -976,12 +990,6 @@ class WebformSubmissionStorage extends SqlContentEntityStorage implements Webfor
     }
 
     $is_new = $entity->isNew();
-
-    // Set serial number using the webform table.
-    if (!$entity->serial() && !$entity->getWebform()->getSetting('serial_disabled')) {
-      $next_serial = $this->getWebformStorage()->getSerial($entity->getWebform());
-      $entity->set('serial', $next_serial);
-    }
 
     $result = parent::doSave($id, $entity);
 

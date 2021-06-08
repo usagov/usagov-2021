@@ -44,6 +44,22 @@ interface WebformVariantInterface extends PluginInspectionInterface, Configurabl
   public function description();
 
   /**
+   * Returns the webform variant machine name replacement pattern.
+   *
+   * @return string|NULL
+   *   The webform variant machine name replacement pattern.
+   */
+  public function getMachineNameReplacePattern();
+
+  /**
+   * Returns the webform variant machine name replacement character.
+   *
+   * @return string|NULL
+   *   The webform variant machine name replacement character.
+   */
+  public function getMachineNameReplace();
+
+  /**
    * Returns the unique ID representing the webform variant.
    *
    * @return string

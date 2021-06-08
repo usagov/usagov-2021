@@ -9,6 +9,7 @@ use Drupal\ctools\TypedDataResolver;
 use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+
 abstract class ResolverRelationshipDelete extends ConfirmFormBase {
 
   /**
@@ -27,12 +28,12 @@ abstract class ResolverRelationshipDelete extends ConfirmFormBase {
   protected $tempstore_id;
 
   /**
-   * @var string;
+   * @var string
    */
   protected $machine_name;
 
   /**
-   * @var string;
+   * @var string
    */
   protected $id;
 
@@ -85,17 +86,17 @@ abstract class ResolverRelationshipDelete extends ConfirmFormBase {
     $this->id = $id;
 
     $cached_values = $this->tempstore->get($this->tempstore_id)->get($this->machine_name);
-    $form ['#title'] = $this->getQuestion($id, $cached_values);
+    $form['#title'] = $this->getQuestion($id, $cached_values);
 
-    $form ['#attributes']['class'][] = 'confirmation';
-    $form ['description'] = array('#markup' => $this->getDescription());
-    $form [$this->getFormName()] = array('#type' => 'hidden', '#value' => 1);
+    $form['#attributes']['class'][] = 'confirmation';
+    $form['description'] = ['#markup' => $this->getDescription()];
+    $form[$this->getFormName()] = ['#type' => 'hidden', '#value' => 1];
 
     // By default, render the form using theme_confirm_form().
-    if (!isset($form ['#theme'])) {
-      $form ['#theme'] = 'confirm_form';
+    if (!isset($form['#theme'])) {
+      $form['#theme'] = 'confirm_form';
     }
-    $form['actions'] = array('#type' => 'actions');
+    $form['actions'] = ['#type' => 'actions'];
     $form['actions'] += $this->actions($form, $form_state, $cached_values);
     return $form;
   }
@@ -121,19 +122,19 @@ abstract class ResolverRelationshipDelete extends ConfirmFormBase {
    * @return array
    */
   protected function actions(array $form, FormStateInterface $form_state, $cached_values) {
-    return array(
-      'submit' => array(
+    return [
+      'submit' => [
         '#type' => 'submit',
         '#value' => $this->getConfirmText(),
-        '#validate' => array(
-          array($this, 'validate'),
-        ),
-        '#submit' => array(
-          array($this, 'submitForm'),
-        ),
-      ),
+        '#validate' => [
+          [$this, 'validate'],
+        ],
+        '#submit' => [
+          [$this, 'submitForm'],
+        ],
+      ],
       'cancel' => ConfirmFormHelper::buildCancelLink($this, $this->getRequest()),
-    );
+    ];
   }
 
   /**

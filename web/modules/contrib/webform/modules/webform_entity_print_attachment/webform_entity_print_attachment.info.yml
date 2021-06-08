@@ -7,7 +7,7 @@ dependencies:
   - 'webform:webform_attachment'
   - 'webform:webform_entity_print'
 
-# Information added by Drupal.org packaging script on 2021-03-02
-version: '6.0.2'
+# Information added by Drupal.org packaging script on 2021-05-05
+version: '6.0.3'
 project: 'webform'
-datestamp: 1614711154
+datestamp: 1620250261

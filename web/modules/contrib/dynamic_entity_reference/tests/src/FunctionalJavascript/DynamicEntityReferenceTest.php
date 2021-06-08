@@ -154,7 +154,10 @@ class DynamicEntityReferenceTest extends WebDriverTestBase {
     \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
     $field_storage = FieldStorageConfig::loadByName('entity_test', 'field_foobar');
     $this->assertEmpty($field_storage->getSetting('exclude_entity_types'));
-    $this->assertEquals($field_storage->getSetting('entity_type_ids'), ['entity_test' => 'entity_test', 'user' => 'user']);
+    $this->assertEquals($field_storage->getSetting('entity_type_ids'), [
+      'entity_test' => 'entity_test',
+      'user' => 'user',
+    ]);
     $field_config = FieldConfig::loadByName('entity_test', 'entity_test', 'field_foobar');
     $settings = $field_config->getSettings();
     $this->assertEquals($settings['entity_test']['handler'], 'default:entity_test');

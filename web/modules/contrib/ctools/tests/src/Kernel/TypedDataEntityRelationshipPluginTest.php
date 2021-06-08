@@ -11,7 +11,7 @@ use Drupal\user\Entity\User;
  */
 class TypedDataEntityRelationshipPluginTest extends RelationshipsTestBase {
 
-    /**
+  /**
    * @covers ::getName
    */
   public function testRelationshipName() {

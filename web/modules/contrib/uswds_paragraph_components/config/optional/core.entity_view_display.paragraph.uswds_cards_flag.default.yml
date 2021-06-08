@@ -6,12 +6,16 @@ dependencies:
     - field.field.paragraph.uswds_cards_flag.field_card_image
     - field.field.paragraph.uswds_cards_flag.field_card_title
     - field.field.paragraph.uswds_cards_flag.field_image_position
+    - field.field.paragraph.uswds_cards_flag.field_make_card_link
+    - field.field.paragraph.uswds_cards_flag.field_number_of_columns
     - field.field.paragraph.uswds_cards_flag.field_text
     - paragraphs.paragraphs_type.uswds_cards_flag
   module:
     - link
     - options
     - text
+_core:
+  default_config_hash: CCGfgoDnZV35GksfKU-F4wKfbOnF5NlEaTec24HUCp4
 id: paragraph.uswds_cards_flag.default
 targetEntityType: paragraph
 bundle: uswds_cards_flag
@@ -51,6 +55,25 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: list_default
+    region: content
+  field_make_card_link:
+    weight: 5
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_number_of_columns:
+    weight: 6
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    type: number_integer
     region: content
   field_text:
     weight: 4

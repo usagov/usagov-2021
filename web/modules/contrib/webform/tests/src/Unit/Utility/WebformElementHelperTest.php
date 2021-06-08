@@ -212,8 +212,8 @@ class WebformElementHelperTest extends UnitTestCase {
   /**
    * Tests WebformElementHelper::hasProperty().
    *
-   * @param array $elements
-   *   The array to run through WebformElementHelper::convertRenderMarkupToStrings().
+   * @param array $arguments
+   *   The array of arguments to run through hasProperty().
    * @param bool $expected
    *   The expected result from calling the function.
    *

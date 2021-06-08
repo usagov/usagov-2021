@@ -23,7 +23,7 @@ class SiteimproveUtils {
 
   use StringTranslationTrait;
 
-  const TOKEN_REQUEST_URL = 'https://my2.siteimprove.com/auth/token?cms=Drupal-' . \Drupal::VERSION;
+  const TOKEN_REQUEST_URL = 'https://my2.siteimprove.com/auth/token';
 
   /**
    * Current user service.
@@ -110,7 +110,7 @@ class SiteimproveUtils {
 
     try {
       // Request new token.
-      $response = $this->httpClient->get(self::TOKEN_REQUEST_URL,
+      $response = $this->httpClient->get(self::getTokenRequestUrl(),
         ['headers' => ['Accept' => 'application/json']]);
 
       $data = (string) $response->getBody();
@@ -133,6 +133,16 @@ class SiteimproveUtils {
 
     return FALSE;
   }
+
+   /**
+    * Prepare the token request URL.
+    *
+    * @return string
+    *   The prepared token request URL.
+    */
+   public static function getTokenRequestUrl() {
+     return self::TOKEN_REQUEST_URL . '?cms=Drupal-' . \Drupal::VERSION;
+   }
 
   /**
    * Return Siteimprove js library.
@@ -207,7 +217,7 @@ class SiteimproveUtils {
    * @param \Drupal\Core\Entity\EntityInterface|null $entity
    *   Entity to get frontend urls for.
    *
-   * @return array|\Drupal\Core\GeneratedUrl|string
+   * @return array
    *   Returns an array of frontend urls for entity.
    *
    * @throws \Drupal\Core\Entity\EntityMalformedException
@@ -221,12 +231,12 @@ class SiteimproveUtils {
     $domains = $this->getEntityDomains($entity);
 
     /** @var \Drupal\Core\Entity\Entity $entity */
-    $url_relative = $entity->toUrl('canonical', ['absolute' => FALSE])->toString();
+    $url_relative = $entity->toUrl('canonical', ['absolute' => FALSE])->toString(TRUE);
     $urls = [];
 
     // Create urls for active frontend urls for the entity.
     foreach ($domains as $domain) {
-      $urls[] = $domain . $url_relative;
+      $urls[] = $domain . $url_relative->getGeneratedUrl();
     }
 
     $frontpage = $this->configFactory->get('system.site')->get('page.front');
@@ -245,9 +255,9 @@ class SiteimproveUtils {
       || ($taxonomy_route && '/taxonomy/term/' . $entity->id() === $frontpage)
       || $this->pathMatcher->isFrontPage()
     ) {
-      $front = Url::fromRoute('<front>')->toString();
+      $front = Url::fromRoute('<front>')->toString(TRUE);
       foreach ($domains as $domain) {
-        $urls[] = $domain . $front;
+        $urls[] = $domain . $front->getGeneratedUrl();
       }
     }
 

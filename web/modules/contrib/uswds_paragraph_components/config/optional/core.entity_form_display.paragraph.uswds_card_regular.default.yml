@@ -7,21 +7,86 @@ dependencies:
     - field.field.paragraph.uswds_card_regular.field_card_title
     - field.field.paragraph.uswds_card_regular.field_extend_media
     - field.field.paragraph.uswds_card_regular.field_indent_media
+    - field.field.paragraph.uswds_card_regular.field_make_card_link
+    - field.field.paragraph.uswds_card_regular.field_number_of_columns
     - field.field.paragraph.uswds_card_regular.field_text
     - field.field.paragraph.uswds_card_regular.field_title_first
     - paragraphs.paragraphs_type.uswds_card_regular
   module:
+    - field_group
     - link
     - text
+third_party_settings:
+  field_group:
+    group_media_features:
+      children:
+        - field_indent_media
+        - field_extend_media
+        - field_card_image
+      parent_name: ''
+      weight: 2
+      format_type: details
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        description: ''
+        open: false
+        required_fields: true
+      label: 'Media Features'
+    group_link_features:
+      children:
+        - field_make_card_link
+        - field_button
+      parent_name: ''
+      weight: 5
+      format_type: details
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        description: ''
+        open: false
+        required_fields: true
+      label: 'Link Features'
+    group_title_features:
+      children:
+        - field_title_first
+        - field_card_title
+      parent_name: ''
+      weight: 1
+      format_type: details
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        description: ''
+        open: false
+        required_fields: true
+      label: 'Title Features'
+    group_body_features:
+      children:
+        - field_text
+      parent_name: ''
+      weight: 3
+      format_type: details
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        description: ''
+        open: false
+        required_fields: true
+      label: 'Body Features'
 _core:
-  default_config_hash: AjH7widIB7HMo6nh18pbYdMvHz395X12CRt9RaesLoE
+  default_config_hash: L9hB6kjL-wnEiWtEhNej_FJ07NTVxJizusC73JZjMyM
 id: paragraph.uswds_card_regular.default
 targetEntityType: paragraph
 bundle: uswds_card_regular
 mode: default
 content:
   field_button:
-    weight: 6
+    weight: 7
     settings:
       placeholder_url: ''
       placeholder_title: ''
@@ -29,7 +94,7 @@ content:
     type: link_default
     region: content
   field_card_image:
-    weight: 4
+    weight: 6
     settings:
       match_operator: CONTAINS
       match_limit: 10
@@ -39,7 +104,7 @@ content:
     type: entity_reference_autocomplete
     region: content
   field_card_title:
-    weight: 1
+    weight: 3
     settings:
       size: 60
       placeholder: ''
@@ -47,21 +112,35 @@ content:
     type: string_textfield
     region: content
   field_extend_media:
-    weight: 3
+    weight: 5
     settings:
       display_label: true
     third_party_settings: {  }
     type: boolean_checkbox
     region: content
   field_indent_media:
-    weight: 2
+    weight: 4
     settings:
       display_label: true
     third_party_settings: {  }
     type: boolean_checkbox
     region: content
+  field_make_card_link:
+    weight: 6
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+  field_number_of_columns:
+    weight: 0
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+    type: number
+    region: content
   field_text:
-    weight: 5
+    weight: 4
     settings:
       rows: 5
       placeholder: ''
@@ -69,7 +148,7 @@ content:
     type: text_textarea
     region: content
   field_title_first:
-    weight: 0
+    weight: 2
     settings:
       display_label: true
     third_party_settings: {  }

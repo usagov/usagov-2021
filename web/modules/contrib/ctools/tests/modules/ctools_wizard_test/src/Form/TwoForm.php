@@ -2,7 +2,6 @@
 
 namespace Drupal\ctools_wizard_test\Form;
 
-
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -56,9 +55,9 @@ class TwoForm extends FormBase {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $keys = array(
+    $keys = [
       'two',
-    );
+    ];
     $cached_values = $form_state->getTemporaryValue('wizard');
     foreach ($keys as $key) {
       $cached_values[$key] = $form_state->getValue($key);

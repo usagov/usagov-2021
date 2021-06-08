@@ -17,12 +17,14 @@
     help:
       type: text
       label: 'Help'
+      webform_type: html
     type:
       type: string
       label: 'Type of custom options'
     template:
       type: text
       label: 'HTML/SVG markup'
+      webform_type: twig
     url:
       type: label
       label: 'HTML/SVG URL'
@@ -41,6 +43,7 @@
     options:
       type: text
       label: 'Options (YAML)'
+      webform_type: yaml
     fill:
       type: boolean
       label: 'Allow SVG to be filled using CSS'
