@@ -166,6 +166,10 @@ thead th .dropbutton {
   white-space: nowrap;
 }
 
+.webform-ui-element-type-table tr td:first-child .tippy-tooltip /** Allow tippy tooltip to wrap */ {
+  white-space: normal;
+}
+
 .webform-ui-element-type-table > tbody > tr > td:last-child {
   text-align: right;
 }

@@ -445,8 +445,8 @@ abstract class OptionsBase extends WebformElementBase {
       // Build list of checked and unchecked options.
       $build = [];
       $options_description = $this->hasProperty('options_description_display');
-      $options = OptGroup::flattenOptions($element['#options']);
-      foreach ($options as $option_value => $option_text) {
+      $flattened_options = OptGroup::flattenOptions($element['#options']);
+      foreach ($flattened_options as $option_value => $option_text) {
         if ($options_description && WebformOptionsHelper::hasOptionDescription($option_text)) {
           list($option_text) = WebformOptionsHelper::splitOption($option_text);
         }
@@ -499,7 +499,8 @@ abstract class OptionsBase extends WebformElementBase {
       // Build list of checked and unchecked options.
       $list = [];
       $options_description = $this->hasProperty('options_description_display');
-      foreach ($element['#options'] as $option_value => $option_text) {
+      $flattened_options = OptGroup::flattenOptions($element['#options']);
+      foreach ($flattened_options as $option_value => $option_text) {
         if ($options_description && WebformOptionsHelper::hasOptionDescription($option_text)) {
           list($option_text) = WebformOptionsHelper::splitOption($option_text);
         }

@@ -80,7 +80,7 @@ class OrphanedCompositeEntitiesDeleteForm extends FormBase {
       '#markup' => $this->t('Delete orphaned composite entities revisions that are no longer referenced. If there are no revisions left, the entity will be deleted as long as it is not used.'),
     ];
     $options = [];
-    foreach ($this->getCompositeEntityTypes() as $entity_type) {
+    foreach ($this->purger->getCompositeEntityTypes() as $entity_type) {
       $options[$entity_type->id()] = $entity_type->getLabel();
     }
     $form['composite_entity_types'] = [
@@ -105,26 +105,6 @@ class OrphanedCompositeEntitiesDeleteForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->purger->setBatch(array_filter($form_state->getValue('composite_entity_types')));
-  }
-
-  /**
-   * Returns a list of composite entity types.
-   *
-   * @return \Drupal\Core\Entity\EntityTypeInterface[]
-   *   An array of composite entity types.
-   */
-  public function getCompositeEntityTypes() {
-    $composite_entity_types = [];
-    $entity_types = $this->entityTypeManager->getDefinitions();
-    foreach ($entity_types as $entity_type) {
-      $has_parent_type_field = $entity_type->get('entity_revision_parent_type_field');
-      $has_parent_id_field = $entity_type->get('entity_revision_parent_id_field');
-      $has_parent_field_name_field = $entity_type->get('entity_revision_parent_field_name_field');
-      if ($has_parent_type_field && $has_parent_id_field && $has_parent_field_name_field) {
-        $composite_entity_types[] = $entity_type;
-      }
-    }
-    return $composite_entity_types;
   }
 
 }

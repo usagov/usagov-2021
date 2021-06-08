@@ -32,6 +32,7 @@
     description:
       type: text
       label: 'Administrative description'
+      webform_type: html
     category:
       type: label
       label: Category
@@ -84,12 +85,15 @@
         form_open_message:
           type: text
           label: 'Form open message'
+          webform_type: html
         form_close_message:
           type: text
           label: 'Form closed message'
+          webform_type: html
         form_exception_message:
           type: text
           label: 'Form exception message'
+          webform_type: html
         form_previous_submissions:
           type: boolean
           label: 'Form previous submissions notification'
@@ -99,6 +103,7 @@
         form_confidential_message:
           type: text
           label: 'Form confidential message'
+          webform_type: html
         form_disable_remote_addr:
           type: boolean
           label: 'Do not track user IP address'
@@ -156,6 +161,7 @@
         form_access_denied_message:
           type: text
           label: 'Form access denied message'
+          webform_type: html
         form_access_denied_attributes:
           type: ignore
           label: 'Form access denied message attributes'
@@ -186,9 +192,11 @@
         submission_exception_message:
           type: text
           label: 'Submission exception message'
+          webform_type: html
         submission_locked_message:
           type: text
           label: 'Submission locked message'
+          webform_type: html
         submission_log:
           type: boolean
           label: 'Submission logging'
@@ -269,21 +277,25 @@
         submission_access_denied_message:
           type: text
           label: 'Submission access denied message'
+          webform_type: html
         submission_access_denied_attributes:
           type: ignore
           label: 'Submission access denied message attributes'
         previous_submission_message:
           type: text
           label: 'Previous submission message'
+          webform_type: html
         previous_submissions_message:
           type: text
           label: 'Previous submissions message'
+          webform_type: html
         autofill:
           type: boolean
           label: 'Autofill with previous submission'
         autofill_message:
           type: text
           label: 'Autofill with previous submission message'
+          webform_type: html
         autofill_excluded_elements:
           type: sequence
           label: 'Autofill excluded elements'
@@ -330,7 +342,7 @@
           type: boolean
           label: 'Navigate between cards when the left or right arrow is pressed'
         wizard_track:
-          type: text
+          type: string
           label: 'Track wizard progress in the URL'
         wizard_prev_button_label:
           type: label
@@ -351,14 +363,15 @@
           type: integer
           label: 'Enable preview page'
         preview_label:
-          type: text
+          type: label
           label: 'Preview label'
         preview_title:
-          type: text
+          type: label
           label: 'Preview page title'
         preview_message:
           type: text
           label: 'Preview message'
+          webform_type: html
         preview_attributes:
           type: ignore
           label: 'Preview attributes'
@@ -386,20 +399,24 @@
         draft_saved_message:
           type: text
           label: 'Draft saved message'
+          webform_type: html
         draft_loaded_message:
           type: text
           label: 'Draft loaded message'
+          webform_type: html
         draft_pending_single_message:
           type: text
           label: 'Draft pending single draft message'
+          webform_type: html
         draft_pending_multiple_message:
           type: text
           label: 'Draft pending multiple drafts message'
+          webform_type: html
         confirmation_type:
           type: string
           label: 'Confirmation type'
         confirmation_url:
-          type: string
+          type: label
           label: 'Confirmation URL'
         confirmation_title:
           type: label
@@ -407,6 +424,7 @@
         confirmation_message:
           type: text
           label: 'Confirmation message'
+          webform_type: html
         confirmation_attributes:
           type: ignore
           label: 'Confirmation attributes'
@@ -437,6 +455,7 @@
         limit_total_message:
           type: text
           label: 'Limit total message'
+          webform_type: html
         limit_total_unique:
           type: boolean
           label: 'Limit total to one submission per source entity'
@@ -449,6 +468,7 @@
         limit_user_message:
           type: text
           label: 'Limit user message'
+          webform_type: html
         limit_user_unique:
           type: boolean
           label: 'Limit user to one submission per source entity'

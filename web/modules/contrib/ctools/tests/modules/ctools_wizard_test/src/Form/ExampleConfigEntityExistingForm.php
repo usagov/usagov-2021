@@ -21,9 +21,9 @@ class ExampleConfigEntityExistingForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['existing'] = array(
+    $form['existing'] = [
       '#markup' => '<p>This step only shows if the entity is already existing!</p>',
-    );
+    ];
     return $form;
   }
 

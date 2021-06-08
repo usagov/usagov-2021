@@ -332,6 +332,30 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
    */
   public function isOverridden();
 
+
+  /**
+   * Sets the webform updating state.
+   *
+   * Setting the updating state to TRUE ensure that translated elements are
+   * not overridden
+   *
+   * @param bool $override
+   *   The updating state of the Webform.
+   *
+   * @return $this
+   *
+   * @see \Drupal\webform_ui\WebformUiEntityElementsForm::validateForm
+   */
+  public function setUpdating($updating = TRUE);
+
+  /**
+   * Returns the webform updating status.
+   *
+   * @return bool
+   *   TRUE if the webform is updating.
+   */
+  public function isUpdating();
+
   /**
    * Sets the status of the configuration entity.
    *

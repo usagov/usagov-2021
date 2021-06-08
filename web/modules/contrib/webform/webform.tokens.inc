@@ -298,7 +298,8 @@ function webform_token_info() {
 
   // Append link to token help to source-entity and submitted-to description.
   if (\Drupal::moduleHandler()->moduleExists('token') && \Drupal::moduleHandler()->moduleExists('help')) {
-    $t_args = [':href' => Url::fromRoute('help.page', ['name' => 'token'])->toString()];
+    $token_url = Url::fromRoute('help.page', ['name' => 'token']);
+    $t_args = [':href' => $token_url->toString(TRUE)->getGeneratedUrl()];
     $token_help = t('For a list of the currently available source entity related tokens, please see <a href=":href">token help</a>.', $t_args);
     $webform_submission['source-entity']['description'] = Markup::create($webform_submission['source-entity']['description'] . '<br/>' . $token_help);
     $webform_submission['submitted-to']['description'] = Markup::create($webform_submission['submitted-to']['description'] . '<br/>' . $token_help);

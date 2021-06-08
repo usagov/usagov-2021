@@ -25,6 +25,22 @@
     }
   };
 
+  /**
+   * Fix date/time min, max, and step validation issues.
+   *
+   * @type {Drupal~behavior}
+   *
+   * @see https://github.com/jquery-validation/jquery-validation/pull/2119/commits
+   */
+  Drupal.behaviors.webformClientSideValidationDateTimeFix = {
+    attach: function (context) {
+      $(context).find(':input[type="date"], :input[type="time"], :input[type="datetime"]')
+        .removeAttr('step')
+        .removeAttr('min')
+        .removeAttr('min');
+    }
+  };
+
   $(document).once('webform_cvjquery').on('cv-jquery-validate-options-update', function (event, options) {
     options.errorElement = 'strong';
     options.showErrors = function (errorMap, errorList) {

@@ -17,7 +17,7 @@ class WizardFormController extends FormController {
   /**
    * The class resolver.
    *
-   * @var \Drupal\Core\DependencyInjection\ClassResolverInterface;
+   * @var \Drupal\Core\DependencyInjection\ClassResolverInterface
    */
   protected $classResolver;
 

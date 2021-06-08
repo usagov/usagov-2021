@@ -1,4 +1,3 @@
-uuid: null
 langcode: en
 status: open
 dependencies:
@@ -79,13 +78,14 @@ elements: |
     '#admin': true
     '#access_create_roles': {  }
     state:
-      '#type': webform_buttons
+      '#type': radios
       '#title': 'Application State'
       '#options':
         completed: Completed
         in_review: 'In review'
         accepted: Accepted
         rejected: Rejected
+      '#options_display': side_by_side
       '#access_create_roles': {  }
     completed_date:
       '#type': datetime
@@ -158,7 +158,6 @@ elements: |
       '#access_update_roles': {  }
       '#access_view_roles':
         - authenticated
-  
 css: ''
 javascript: ''
 settings:

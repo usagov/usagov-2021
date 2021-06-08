@@ -18,11 +18,13 @@ dependencies:
   - drupal:user
   - drupal:views
   - entity_reference_revisions:entity_reference_revisions
+  - field_group:field_group
   - mmf_core_fields:mmf_core_fields
   - paragraphs:paragraphs
+  - twig_tweak:twig_tweak
   - viewsreference:viewsreference
 
-# Information added by Drupal.org packaging script on 2021-02-25
-version: '1.0.0'
+# Information added by Drupal.org packaging script on 2021-06-01
+version: '1.0.2'
 project: 'uswds_paragraph_components'
-datestamp: 1614264647
+datestamp: 1622556547

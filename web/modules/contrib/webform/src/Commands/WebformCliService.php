@@ -287,7 +287,7 @@ class WebformCliService implements WebformCliServiceInterface {
       'core' => ['8+'],
       'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_ROOT,
       'examples' => [
-        'webform-repair' => 'Generates HTML documentation used by the Webform module\'s documentation pages.',
+        'webform-docs' => 'Generates HTML documentation used by the Webform module\'s documentation pages.',
       ],
       'aliases' => ['wfd'],
     ];
@@ -491,8 +491,6 @@ class WebformCliService implements WebformCliServiceInterface {
     $entity_type_manager = \Drupal::service('entity_type.manager');
     /** @var \Drupal\webform\WebformSubmissionStorageInterface $submission_storage */
     $submission_storage = $entity_type_manager->getStorage('webform_submission');
-    /** @var \Drupal\webform\WebformRequestInterface $request_handler */
-    $request_handler = \Drupal::service('webform.request');
 
     // Make sure there are submissions that need to be deleted.
     if (!$submission_storage->getTotal($webform)) {
@@ -501,7 +499,7 @@ class WebformCliService implements WebformCliServiceInterface {
     }
 
     if (!$webform) {
-      $submission_total = \Drupal::entityQuery('webform_submission')->count()->execute();
+      $submission_total = \Drupal::entityQuery('webform_submission')->count()->accessCheck(FALSE)->execute();
       $form_total = \Drupal::entityQuery('webform')->count()->execute();
 
       $t_args = [
@@ -514,7 +512,7 @@ class WebformCliService implements WebformCliServiceInterface {
         return $this->drush_user_abort();
       }
 
-      $form = new WebformResultsClearForm($entity_type_manager, $request_handler);
+      $form = WebformResultsClearForm::create(\Drupal::getContainer());
       $form->batchSet();
       $this->drush_backend_batch_process();
     }
@@ -531,7 +529,7 @@ class WebformCliService implements WebformCliServiceInterface {
         return $this->drush_user_abort();
       }
 
-      $form = new WebformSubmissionsPurgeForm($entity_type_manager, $request_handler);
+      $form = WebformSubmissionsPurgeForm::create(\Drupal::getContainer());
       $form->batchSet($webform, $source_entity);
       $this->drush_backend_batch_process();
     }

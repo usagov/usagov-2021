@@ -136,18 +136,24 @@ abstract class WebformVariantFormBase extends FormBase {
       '#required' => TRUE,
       '#attributes' => ['autofocus' => 'autofocus'],
     ];
+
+    $t_args = ['@requirements' => $this->t('letters, numbers, underscores, and dashes')];
     $form['general']['variant_id'] = [
       '#type' => 'machine_name',
       '#maxlength' => static::MACHINE_NAME_MAXLENGHTH,
-      '#description' => $this->t('A unique name for this variant instance. Must be alpha-numeric and underscore separated.'),
+      '#description' => $this->t('A unique name for this variant instance. Can only contain @requirements.', $t_args),
       '#default_value' => $this->webformVariant->getVariantId(),
       '#required' => TRUE,
       '#disabled' => $this->webformVariant->getVariantId() ? TRUE : FALSE,
       '#machine_name' => [
         'source' => ['general', 'label'],
         'exists' => [$this, 'exists'],
+        'replace_pattern' => $this->webformVariant->getMachineNameReplacePattern(),
+        'replace' => $this->webformVariant->getMachineNameReplace(),
+        'error' => $this->t('The element key name must contain only @requirements.', $t_args),
       ],
     ];
+
     // Only show variants select menu when there is more than
     // one variant available.
     $variant_options = $this->getVariantElementsAsOptions();

@@ -2,7 +2,7 @@
   "name": "drupal/entity_reference_revisions",
   "description": "Entity Reference Revisions",
   "type": "drupal-module",
-  "license": "GPL-2.0",
+  "license": "GPL-2.0-or-later",
   "require": {
     "drupal/core": "^8.7.7 || ^9"
   },

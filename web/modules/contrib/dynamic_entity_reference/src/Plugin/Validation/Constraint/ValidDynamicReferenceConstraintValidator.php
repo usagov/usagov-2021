@@ -57,8 +57,8 @@ class ValidDynamicReferenceConstraintValidator extends ConstraintValidator imple
    * {@inheritdoc}
    */
   public function validate($value, Constraint $constraint) {
-    /* @var \Drupal\dynamic_entity_reference\Plugin\Validation\Constraint\ValidDynamicReferenceConstraint $constraint */
-    /* @var \Drupal\Core\Field\FieldItemListInterface $value */
+    /** @var \Drupal\dynamic_entity_reference\Plugin\Validation\Constraint\ValidDynamicReferenceConstraint $constraint */
+    /** @var \Drupal\Core\Field\FieldItemListInterface $value */
     if (!isset($value)) {
       return;
     }
@@ -131,7 +131,9 @@ class ValidDynamicReferenceConstraintValidator extends ConstraintValidator imple
     // Validate id for non existent entities.
     foreach ($target_ids as $delta => $target_id) {
       $definition = $this->entityTypeManager->getDefinition($target_types[$delta]);
-      $existing_id = $this->entityTypeManager->getStorage($target_types[$delta])->getQuery()
+      $existing_id = $this->entityTypeManager->getStorage($target_types[$delta])
+        ->getQuery()
+        ->accessCheck(FALSE)
         ->condition($definition->getKey('id'), $target_id)
         ->execute();
       if (!$existing_id) {

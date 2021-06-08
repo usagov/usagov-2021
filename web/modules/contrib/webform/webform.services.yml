@@ -76,7 +76,7 @@ services:
 
   webform.translation_config_manager:
     class: Drupal\webform\WebformTranslationConfigManager
-    arguments: ['@module_handler', '@form_builder', '@plugin.manager.webform.element', '@webform.translation_manager']
+    arguments: ['@module_handler', '@form_builder', '@plugin.manager.webform.element', '@webform.translation_manager', '@config.typed']
 
   webform.translation_lingotek_manager:
     class: Drupal\webform\WebformTranslationLingotekManager

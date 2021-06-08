@@ -8,6 +8,7 @@ block.settings.webform_block:
     default_data:
       type: text
       label: 'Default webform submission data'
+      webform_type: yaml
     redirect:
       type: boolean
       label: 'Redirect to the webform'

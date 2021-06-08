@@ -1,3 +1,10 @@
+Search and Replace Scanner 8.x-1.0-rc5, 2021-05-08
+--------------------------------------------------
+#3210729 by maxsterz, DamienMcKenna: "Undo" page does not work with database
+  prefix.
+#3195667 by Pooja Ganjage, DamienMcKenna: Coding standards improvements.
+
+
 Search and Replace Scanner 8.x-1.0-rc4, 2021-01-31
 --------------------------------------------------
 #3173506 by varenius, joseph.olstad, sd123: Cannot load page

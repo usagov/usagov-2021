@@ -14,6 +14,7 @@ use Drupal\Core\TypedData\ListDataDefinitionInterface;
 use Drupal\Core\TypedData\ListInterface;
 use Drupal\Core\TypedData\TypedDataManagerInterface;
 
+
 class TypedDataResolver {
 
   /**
@@ -55,6 +56,7 @@ class TypedDataResolver {
    *
    * @return \Drupal\Core\Plugin\Context\Context
    *   A context object that represents the definition & value of the property.
+   *
    * @throws \Exception
    */
   public function getContextFromProperty($property_path, ContextInterface $context) {
@@ -165,7 +167,7 @@ class TypedDataResolver {
       // A base must always be set. This method recursively calls itself
       // setting bases for this reason.
       if (!empty($contexts[$base])) {
-        return $this->getContextFromProperty($property_path,  $contexts[$base]);
+        return $this->getContextFromProperty($property_path, $contexts[$base]);
       }
       // @todo improve this exception message.
       throw new ContextNotFoundException("The requested context was not found in the supplied array of contexts.");
@@ -178,7 +180,7 @@ class TypedDataResolver {
    * @param string $token
    *   The token related to a context in the contexts array.
    * @param \Drupal\Core\Plugin\Context\ContextInterface[] $contexts
-   *  An array of contexts from which to extract our token's label.
+   *   An array of contexts from which to extract our token's label.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   The administrative label of $token.

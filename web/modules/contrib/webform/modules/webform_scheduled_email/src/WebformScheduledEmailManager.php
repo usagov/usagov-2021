@@ -428,24 +428,33 @@ class WebformScheduledEmailManager implements WebformScheduledEmailManagerInterf
   /**
    * {@inheritdoc}
    */
-  public function delete(EntityInterface $entity) {
+  public function delete(EntityInterface $entity, $handler_id = NULL) {
     if ($entity instanceof WebformSubmissionInterface) {
-      $this->database->delete('webform_scheduled_email')
-        ->condition('sid', $entity->id())
-        ->execute();
+      $query = $this->database->delete('webform_scheduled_email')
+        ->condition('sid', $entity->id());
+      if ($handler_id) {
+        $query->condition('handler_id', $handler_id);
+      }
+      $query->execute();
     }
     elseif ($entity instanceof WebformInterface) {
-      $this->database->delete('webform_scheduled_email')
-        ->condition('webform_id', $entity->id())
-        ->execute();
+      $query = $this->database->delete('webform_scheduled_email')
+        ->condition('webform_id', $entity->id());
+      if ($handler_id) {
+        $query->condition('handler_id', $handler_id);
+      }
+      $query->execute();
     }
 
     // Since webform and submissions can also be used as a source entity,
     // include them in deleting.
-    $this->database->delete('webform_scheduled_email')
+    $query = $this->database->delete('webform_scheduled_email')
       ->condition('entity_type', $entity->getEntityTypeId())
-      ->condition('entity_id', $entity->id())
-      ->execute();
+      ->condition('entity_id', $entity->id());
+    if ($handler_id) {
+      $query->condition('handler_id', $handler_id);
+    }
+    $query->execute();
   }
 
   /****************************************************************************/

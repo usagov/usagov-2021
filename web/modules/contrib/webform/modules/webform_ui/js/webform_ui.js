@@ -7,6 +7,23 @@
 
   'use strict';
 
+
+  /**
+   * Move toggle weight element to the first child of the edit form.
+   *
+   * This ensure the toggle weight link is aligned with the add element actions.
+   *
+   * @type {Drupal~behavior}
+   */
+  Drupal.behaviors.webformUiElementsToggleWeight = {
+    attach: function (context, settings) {
+      $(context).find('form.webform-edit-form').once('webform-ui-elements-toggle-weight').each(function () {
+        var $form = $(this);
+        $form.find('.tabledrag-toggle-weight-wrapper').prependTo($form);
+      });
+    }
+  };
+
   /**
    * Remove .button-primary class from .action-links .button-secondary.
    *

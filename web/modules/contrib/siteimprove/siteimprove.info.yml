@@ -6,7 +6,7 @@ core_version_requirement: ^8 || ^9
 package: Siteimprove
 configure: siteimprove.settings_form
 
-# Information added by Drupal.org packaging script on 2020-12-08
-version: '8.x-1.10'
+# Information added by Drupal.org packaging script on 2021-04-26
+version: '8.x-1.11'
 project: 'siteimprove'
-datestamp: 1607458412
+datestamp: 1619440456

@@ -2,7 +2,7 @@
 
 namespace Drupal\siteimprove_domain_access\Plugin\SiteimproveDomain;
 
-use Drupal\Core\Entity\EntityBase;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\siteimprove\Plugin\SiteimproveDomainBase;
 use Drupal\siteimprove\Plugin\SiteimproveDomainInterface;
@@ -39,11 +39,9 @@ class DomainAccess extends SiteimproveDomainBase implements SiteimproveDomainInt
   /**
    * {@inheritdoc}
    */
-  public function getUrls(EntityBase $entity) {
+  public function getUrls(EntityInterface $entity) {
     $domain = \Drupal::service('domain_access.manager');
-    $urls = $domain->getContentUrls($entity);
-
-    return $urls;
+    return $domain->getContentUrls($entity);
   }
 
 }

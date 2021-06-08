@@ -17,6 +17,8 @@ use Drupal\migrate\Row;
  * - new_revisions: (optional) Flag to indicate if a new revision should be
  *   created instead of updating a previous default record. Only applicable when
  *   providing an entity id without a revision_id.
+ * - force_revision: (optional) Flag to ignore other checks and always create a
+ *   revision.
  *
  * @MigrateDestination(
  *   id = "entity_reference_revisions",
@@ -102,9 +104,15 @@ class EntityReferenceRevisions extends EntityRevision implements ConfigurableInt
     $entity_id = $oldDestinationIdValues ?
       array_shift($oldDestinationIdValues) :
       $this->getEntityId($row);
-    $revision_id = $oldDestinationIdValues ?
-      array_pop($oldDestinationIdValues) :
-      $row->getDestinationProperty($this->getKey('revision'));
+    $configuration = $this->getConfiguration();
+    if (isset($configuration['force_revision']) && $configuration['force_revision'] == TRUE) {
+      $revision_id = NULL;
+    }
+    else {
+      $revision_id = $oldDestinationIdValues ?
+        array_pop($oldDestinationIdValues) :
+        $row->getDestinationProperty($this->getKey('revision'));
+    }
 
     // If a specific revision_id is supplied and exists, assert the entity_id
     // matches (if supplied), and update the revision.

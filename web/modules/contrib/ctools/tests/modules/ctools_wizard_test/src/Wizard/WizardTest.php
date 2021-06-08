@@ -2,9 +2,9 @@
 
 namespace Drupal\ctools_wizard_test\Wizard;
 
-
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ctools\Wizard\FormWizardBase;
+
 
 class WizardTest extends FormWizardBase {
 
@@ -26,7 +26,7 @@ class WizardTest extends FormWizardBase {
    * {@inheritdoc}
    */
   public function getOperations($cached_values) {
-    return array(
+    return [
       'one' => [
         'form' => 'Drupal\ctools_wizard_test\Form\OneForm',
         'title' => $this->t('Form One'),
@@ -39,7 +39,7 @@ class WizardTest extends FormWizardBase {
         'title' => $this->t('Form Two'),
         'values' => ['dynamic' => 'Zebra'],
       ],
-    );
+    ];
   }
 
   /**

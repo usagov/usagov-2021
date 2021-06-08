@@ -45,6 +45,10 @@
       });
     },
     onhighlight: function () {
+      // Creating "highlight" event for other modules / themes to react on.
+      let event;
+      event = new CustomEvent('siteimproveContentcheckHighlight');
+
       this.method = 'onHighlight';
       var _si = window._si || [];
       _si.push([this.method, function (highlightInfo) {
@@ -52,9 +56,14 @@
         document.querySelectorAll('.siteimprove-prepublish-highlight').forEach(function (item) { item.classList.remove('siteimprove-prepublish-highlight'); });
 
         // Add highlight class and scroll to highlighted html.
-        let highlight = document.querySelector(highlightInfo.highlights[0].selector);
+        let highlightSelector = highlightInfo.highlights[0].selector;
+        let highlight = document.querySelector(highlightSelector);
         highlight.classList.add('siteimprove-prepublish-highlight');
         highlight.scrollIntoView({behavior: 'smooth', block: 'center'});
+
+        // Dispatch highlight event.
+        event.highlightSelector = highlightSelector;
+        document.dispatchEvent(event);
       }]);
     },
     common: function () {

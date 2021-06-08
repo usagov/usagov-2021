@@ -32,7 +32,7 @@
 {% if items %}
   <nav class="pager" role="navigation" aria-labelledby="pagination-heading">
     <h4 id="pagination-heading" class="usa-sr-only">{{ 'Pagination'|t }}</h4>
-    <ul class="usa-nav__primary usa-accordion">
+    <ul class="usa-nav__primary usa-accordion js-pager__items">
       {# Print first item if we are not on the first page. #}
       {% if items.first %}
         <li class="usa-nav__primary-item">
@@ -73,7 +73,7 @@
       {% endfor %}
       {# Add an ellipsis if there are further next pages. #}
       {% if ellipses.next %}
-        <li class="usa-nav__primary-item" role="presentation"><a>&hellip;</a></li>
+        <li class="usa-nav__primary-item" role="presentation">&hellip;</li>
       {% endif %}
       {# Print next item if we are not on the last page. #}
       {% if items.next %}

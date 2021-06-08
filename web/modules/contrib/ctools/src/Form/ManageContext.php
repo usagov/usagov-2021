@@ -13,6 +13,7 @@ use Drupal\Core\Url;
 use Drupal\ctools\TypedDataResolver;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+
 abstract class ManageContext extends FormBase {
 
   /**
@@ -97,15 +98,15 @@ abstract class ManageContext extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $cached_values = $form_state->getTemporaryValue('wizard');
     $this->machine_name = $cached_values['id'];
-    $form['items'] = array(
+    $form['items'] = [
       '#type' => 'markup',
       '#prefix' => '<div id="configured-contexts">',
       '#suffix' => '</div>',
       '#theme' => 'table',
-      '#header' => array($this->t('Context ID'), $this->t('Label'), $this->t('Data Type'), $this->t('Options')),
+      '#header' => [$this->t('Context ID'), $this->t('Label'), $this->t('Data Type'), $this->t('Options')],
       '#rows' => $this->renderRows($cached_values),
-      '#empty' =>  $this->t('No contexts or relationships have been added.')
-    );
+      '#empty' => $this->t('No contexts or relationships have been added.'),
+    ];
     foreach ($this->typedDataManager->getDefinitions() as $type => $definition) {
       $types[$type] = $definition['label'];
     }
@@ -127,7 +128,7 @@ abstract class ManageContext extends FormBase {
       ],
       '#submit' => [
         'callback' => [$this, 'submitForm'],
-      ]
+      ],
     ];
 
     $form['relationships'] = [
@@ -139,7 +140,7 @@ abstract class ManageContext extends FormBase {
     $form['add_relationship'] = [
       '#type' => 'submit',
       '#name' => 'add_relationship',
-      '#value' =>  $this->t('Add Relationship'),
+      '#value' => $this->t('Add Relationship'),
       '#ajax' => [
         'callback' => [$this, 'addRelationship'],
         'event' => 'click',
@@ -168,6 +169,7 @@ abstract class ManageContext extends FormBase {
     }
   }
 
+
   public function addContext(array &$form, FormStateInterface $form_state) {
     $context = $form_state->getValue('context');
     $content = $this->formBuilder->getForm($this->getContextClass(), $context, $this->getTempstoreId(), $this->machine_name);
@@ -183,9 +185,10 @@ abstract class ManageContext extends FormBase {
     $url = Url::fromRoute($route_name, $route_parameters, $route_options);
     $content['submit']['#attached']['drupalSettings']['ajax'][$content['submit']['#id']]['url'] = $url->toString();
     $response = new AjaxResponse();
-    $response->addCommand(new OpenModalDialogCommand($this->t('Add new context'), $content, array('width' => '700')));
+    $response->addCommand(new OpenModalDialogCommand($this->t('Add new context'), $content, ['width' => '700']));
     return $response;
   }
+
 
   public function addRelationship(array &$form, FormStateInterface $form_state) {
     $relationship = $form_state->getValue('relationships');
@@ -202,9 +205,10 @@ abstract class ManageContext extends FormBase {
     $url = Url::fromRoute($route_name, $route_parameters, $route_options);
     $content['submit']['#attached']['drupalSettings']['ajax'][$content['submit']['#id']]['url'] = $url->toString();
     $response = new AjaxResponse();
-    $response->addCommand(new OpenModalDialogCommand($this->t('Configure Relationship'), $content, array('width' => '700')));
+    $response->addCommand(new OpenModalDialogCommand($this->t('Configure Relationship'), $content, ['width' => '700']));
     return $response;
   }
+
 
   protected function getAvailableRelationships($cached_values) {
     /** @var \Drupal\ctools\TypedDataResolver $resolver */
@@ -218,21 +222,21 @@ abstract class ManageContext extends FormBase {
    * @return array
    */
   protected function renderRows($cached_values) {
-    $contexts = array();
+    $contexts = [];
     foreach ($this->getContexts($cached_values) as $row => $context) {
       list($route_name, $route_parameters) = $this->getContextOperationsRouteInfo($cached_values, $this->machine_name, $row);
-      $build = array(
+      $build = [
         '#type' => 'operations',
         '#links' => $this->getOperations($cached_values, $row, $route_name, $route_parameters),
-      );
-      $contexts[$row] = array(
+      ];
+      $contexts[$row] = [
         $row,
         $context->getContextDefinition()->getLabel(),
         $context->getContextDefinition()->getDataType(),
         'operations' => [
           'data' => $build,
         ],
-      );
+      ];
     }
     return $contexts;
   }
@@ -245,33 +249,33 @@ abstract class ManageContext extends FormBase {
    *
    * @return mixed
    */
-  protected function getOperations($cached_values, $row, $route_name_base, array $route_parameters = array()) {
+  protected function getOperations($cached_values, $row, $route_name_base, array $route_parameters = []) {
     $operations = [];
     if ($this->isEditableContext($cached_values, $row)) {
-      $operations['edit'] = array(
-        'title' =>  $this->t('Edit'),
+      $operations['edit'] = [
+        'title' => $this->t('Edit'),
         'url' => new Url($route_name_base . '.edit', $route_parameters),
         'weight' => 10,
-        'attributes' => array(
+        'attributes' => [
           'class' => ['use-ajax'],
           'data-dialog-type' => 'modal',
           'data-dialog-options' => Json::encode([
             'width' => 700,
           ]),
-        ),
-      );
-      $operations['delete'] = array(
-        'title' =>  $this->t('Delete'),
+        ],
+      ];
+      $operations['delete'] = [
+        'title' => $this->t('Delete'),
         'url' => new Url($route_name_base . '.delete', $route_parameters),
         'weight' => 100,
-        'attributes' => array(
-          'class' => array('use-ajax'),
+        'attributes' => [
+          'class' => ['use-ajax'],
           'data-dialog-type' => 'modal',
           'data-dialog-options' => Json::encode([
             'width' => 700,
           ]),
-        ),
-      );
+        ],
+      ];
     }
     return $operations;
   }

@@ -677,4 +677,30 @@ trait WebformEntityReferenceTrait {
     }
   }
 
+  /****************************************************************************/
+  // Display submission value methods.
+  /****************************************************************************/
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function formatHtmlItems(array &$element, WebformSubmissionInterface $webform_submission, array $options = []) {
+    $format = $this->getItemsFormat($element);
+    if (strpos($format, 'checklist:') === 0) {
+      $this->setOptions($element);
+    }
+    return parent::formatHtmlItems($element, $webform_submission, $options);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function formatTextItems(array &$element, WebformSubmissionInterface $webform_submission, array $options = []) {
+    $format = $this->getItemsFormat($element);
+    if (strpos($format, 'checklist:') === 0) {
+      $this->setOptions($element);
+    }
+    return parent::formatTextItems($element, $webform_submission, $options);
+  }
+
 }

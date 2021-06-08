@@ -5,18 +5,200 @@
  * Install, uninstall and update hooks for USWDS Paragraph Components module.
  */
 
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
 use Symfony\Component\Yaml\Yaml;
 
 
 /**
- * PUT DESCRIPTION HERE OF WHAT YOU ARE DOING HERE. Increment number below.
+ * Reads in new configuration.
+ *
+ * @param string $config_name
+ *   Configuration name.
+ * @param string $path
+ *   Base path.
  */
-//function uswds_paragraph_components_update_810X(): string {
-//  $message = NULL;
-//
-//  $config_path = drupal_get_path('module', 'uswds_paragraph_components') . 'PUT PATH TO CONFIG HERE. Ex. /config/optional/some_file';
-//  $data = Yaml::parseFile($config_path);
-//  \Drupal::configFactory()->getEditable('PUT THE CONFIG YOU ARE UPDATING. Ex if your config is put "field.field.paragraph.uswds_card_regular.field_button"')->setData($data)->save(TRUE);
-//  $message = 'PUT MESSAGE THAT IT WORKED.';
-//  return $message;
-//}
+function uswds_paragraph_components_read_in_new_config($config_name, $path) {
+  /** @var \Drupal\Core\Config\StorageInterface $active_storage */
+  $active_storage = \Drupal::service('config.storage');
+  $active_storage->write($config_name, Yaml::parse(file_get_contents($path . '/config/optional/' . $config_name . '.yml')));
+}
+
+
+/**
+ * Fix issue on https://www.drupal.org/project/uswds_paragraph_components/issues/3215519.
+ */
+function uswds_paragraph_components_update_8101() {
+
+  // Sets variable for the path.
+  $path = drupal_get_path('module', 'uswds_paragraph_components');
+
+  // Create field storage.
+  $field_storage_yml = Yaml::parse(file_get_contents($path . '/config/optional/field.storage.paragraph.field_make_card_link.yml'));
+  if (!FieldStorageConfig::loadByName($field_storage_yml['entity_type'], $field_storage_yml['field_name'])) {
+    FieldStorageConfig::create($field_storage_yml)->save();
+  }
+  // Create field instance.
+  $field_yml = Yaml::parse(file_get_contents($path . '/config/optional/field.field.paragraph.uswds_cards_flag.field_make_card_link.yml'));
+  if (!FieldConfig::loadByName($field_yml['entity_type'], $field_yml['bundle'], $field_yml['field_name'])) {
+    FieldConfig::create($field_yml)->save();
+  }
+
+  $field_yml = Yaml::parse(file_get_contents($path . '/config/optional/field.field.paragraph.uswds_card_regular.field_make_card_link.yml'));
+  if (!FieldConfig::loadByName($field_yml['entity_type'], $field_yml['bundle'], $field_yml['field_name'])) {
+    FieldConfig::create($field_yml)->save();
+  }
+
+  // Create Paragraphs bundle form.
+  uswds_paragraph_components_read_in_new_config('core.entity_form_display.paragraph.uswds_card_regular.default', $path);
+  // Create Paragraphs bundle view.
+  uswds_paragraph_components_read_in_new_config('core.entity_view_display.paragraph.uswds_card_regular.default', $path);
+
+  // Create Paragraphs bundle form.
+  uswds_paragraph_components_read_in_new_config('core.entity_form_display.paragraph.uswds_cards_flag.default', $path);
+  // Create Paragraphs bundle view.
+  uswds_paragraph_components_read_in_new_config('core.entity_view_display.paragraph.uswds_cards_flag.default', $path);
+
+  // Send message to updater.
+  return t('Make Card Link field successfully added to USWDS Paragraph Card and USWDS Paragraph Flag.');
+}
+
+/**
+ * Fix issue on https://www.drupal.org/project/uswds_paragraph_components/issues/3215534.
+ */
+function uswds_paragraph_components_update_8102() {
+
+  // Sets variable for the path.
+  $path = drupal_get_path('module', 'uswds_paragraph_components');
+
+  // Create field storage.
+  $field_storage_yml = Yaml::parse(file_get_contents($path . '/config/optional/field.storage.paragraph.field_number_of_columns.yml'));
+  if (!FieldStorageConfig::loadByName($field_storage_yml['entity_type'], $field_storage_yml['field_name'])) {
+    FieldStorageConfig::create($field_storage_yml)->save();
+  }
+  // Create field instance.
+  $field_yml = Yaml::parse(file_get_contents($path . '/config/optional/field.field.paragraph.uswds_card_regular.field_number_of_columns.yml'));
+  if (!FieldConfig::loadByName($field_yml['entity_type'], $field_yml['bundle'], $field_yml['field_name'])) {
+    FieldConfig::create($field_yml)->save();
+  }
+
+  $field_yml = Yaml::parse(file_get_contents($path . '/config/optional/field.field.paragraph.uswds_cards_flag.field_number_of_columns.yml'));
+  if (!FieldConfig::loadByName($field_yml['entity_type'], $field_yml['bundle'], $field_yml['field_name'])) {
+    FieldConfig::create($field_yml)->save();
+  }
+
+  // Create Paragraphs bundle form.
+  uswds_paragraph_components_read_in_new_config('core.entity_form_display.paragraph.uswds_card_regular.default', $path);
+  // Create Paragraphs bundle view.
+  uswds_paragraph_components_read_in_new_config('core.entity_view_display.paragraph.uswds_card_regular.default', $path);
+
+  // Create Paragraphs bundle form.
+  uswds_paragraph_components_read_in_new_config('core.entity_form_display.paragraph.uswds_cards_flag.default', $path);
+  // Create Paragraphs bundle view.
+  uswds_paragraph_components_read_in_new_config('core.entity_view_display.paragraph.uswds_cards_flag.default', $path);
+
+  // Send message to updater.
+  return t('Number of Columns field successfully added to USWDS Paragraph Card and USWDS Paragraph Flag.');
+}
+
+/**
+ * Fix issue on https://www.drupal.org/project/uswds_paragraph_components/issues/3215640.
+ */
+function uswds_paragraph_components_update_8103() {
+
+  // Sets variable for the path.
+  $path = drupal_get_path('module', 'uswds_paragraph_components');
+
+  // Create Taxonomy Vocab
+  uswds_paragraph_components_read_in_new_config('taxonomy.vocabulary.uswds_classes', $path);
+
+  // Create field storage.
+  $field_storage_yml = Yaml::parse(file_get_contents($path . '/config/optional/field.storage.paragraph.field_uswds_classes.yml'));
+  if (!FieldStorageConfig::loadByName($field_storage_yml['entity_type'], $field_storage_yml['field_name'])) {
+    FieldStorageConfig::create($field_storage_yml)->save();
+  }
+  // Create field instance.
+  $field_yml = Yaml::parse(file_get_contents($path . '/config/optional/field.field.paragraph.uswds_card_group_regular.field_uswds_classes.yml'));
+  if (!FieldConfig::loadByName($field_yml['entity_type'], $field_yml['bundle'], $field_yml['field_name'])) {
+    FieldConfig::create($field_yml)->save();
+  }
+
+  $field_yml = Yaml::parse(file_get_contents($path . '/config/optional/field.field.paragraph.uswds_card_group_flag.field_uswds_classes.yml'));
+  if (!FieldConfig::loadByName($field_yml['entity_type'], $field_yml['bundle'], $field_yml['field_name'])) {
+    FieldConfig::create($field_yml)->save();
+  }
+
+  // Create Paragraphs bundle form.
+  uswds_paragraph_components_read_in_new_config('core.entity_form_display.paragraph.uswds_card_group_flag.default', $path);
+  // Create Paragraphs bundle view.
+  uswds_paragraph_components_read_in_new_config('core.entity_view_display.paragraph.uswds_card_group_flag.default', $path);
+
+  // Create Paragraphs bundle form.
+  uswds_paragraph_components_read_in_new_config('core.entity_form_display.paragraph.uswds_card_group_regular.default', $path);
+  // Create Paragraphs bundle view.
+  uswds_paragraph_components_read_in_new_config('core.entity_view_display.paragraph.uswds_card_group_regular.default', $path);
+
+  // Send message to updater.
+  return t('Number of Columns field successfully added to USWDS Paragraph Card and USWDS Paragraph Flag.');
+}
+
+/**
+ * Fix issue on https://www.drupal.org/project/uswds_paragraph_components/issues/3215673
+ */
+function uswds_paragraph_components_update_8104() {
+
+  // Sets variable for the path.
+  $path = drupal_get_path('module', 'uswds_paragraph_components');
+
+  // Update labels
+  uswds_paragraph_components_read_in_new_config('field.field.paragraph.uswds_card_regular.field_extend_media', $path);
+  uswds_paragraph_components_read_in_new_config('field.field.paragraph.uswds_card_regular.field_indent_media', $path);
+  uswds_paragraph_components_read_in_new_config('field.field.paragraph.uswds_card_regular.field_title_first', $path);
+
+  // Send message to updater.
+  return t('Card labels successfully updated.');
+}
+
+/**
+ * Fix issue on https://www.drupal.org/project/uswds_paragraph_components/issues/3215673
+ */
+function uswds_paragraph_components_update_8105() {
+
+  // Sets variable for the path.
+  $path = drupal_get_path('module', 'uswds_paragraph_components');
+
+  // Enable Field Group
+  \Drupal::service('module_installer')->install(['field_group']);
+
+  uswds_paragraph_components_read_in_new_config('core.entity_form_display.paragraph.uswds_card_regular.default', $path);
+  uswds_paragraph_components_read_in_new_config('core.entity_form_display.paragraph.uswds_cards_flag.default', $path);
+
+  // Send message to updater.
+  return t('Cards Node Forms successfully updated.');
+}
+
+/**
+ * Fix issue on https://www.drupal.org/project/uswds_paragraph_components/issues/3215673
+ */
+function uswds_paragraph_components_update_8106() {
+
+  // Sets variable for the path.
+  $path = drupal_get_path('module', 'uswds_paragraph_components');
+
+  uswds_paragraph_components_read_in_new_config('core.entity_view_display.paragraph.uswds_step_indicator_item.default', $path);
+
+  // Send message to updater.
+  return t('Fix issue with step indicator item.');
+}
+
+/**
+ * https://www.drupal.org/project/uswds_paragraph_components/issues/3216317
+ */
+function uswds_paragraph_components_update_8107() {
+
+  // Sets variable for the path.
+  $path = drupal_get_path('module', 'uswds_paragraph_components');
+
+  // Enable Field Group
+  \Drupal::service('module_installer')->install(['twig_tweak']);
+}

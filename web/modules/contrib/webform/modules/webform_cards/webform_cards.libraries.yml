@@ -13,9 +13,6 @@ webform_cards:
 
 webform_cards.admin:
   version: VERSION
-  css:
-    component:
-      css/webform_cards.admin.css: { }
   js:
     js/webform_cards.admin.js: { }
   dependencies:

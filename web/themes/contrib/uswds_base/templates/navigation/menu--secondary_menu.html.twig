@@ -7,28 +7,36 @@
 {% import _self as menus %}
 
 {#
-  We call a macro which calls itself to render the full tree.
-  @see http://twig.sensiolabs.org/doc/tags/macro.html
+We call a macro which calls itself to render the full tree.
+@see http://twig.sensiolabs.org/doc/tags/macro.html
 #}
-{{ menus.menu_links(items, 0, footer_style) }}
+{{ menus.menu_links(items, 0, footer_style, attributes) }}
 
-{% macro menu_links(items, menu_level) %}
+{% macro menu_links(items, menu_level, attributes) %}
   {% import _self as menus %}
   {% if items %}
 
     <ul class="usa-nav__secondary-links">
 
-    {{ search_item|raw }}
-    {% for item in items %}
+      {{ search_item|raw }}
+      {% for item in items %}
+        {% if item.url.getOption('attributes') %}
+          {% set link_attributes = create_attribute(item.url.getOption('attributes')) %}
+        {% else %}
+          {% set link_attributes = create_attribute() %}
+        {% endif %}
 
+        {% if item.in_active_trail %}
+          {% set link_attributes = link_attributes.addClass('usa-current') %}
+        {% endif %}
         <li class="usa-nav__secondary-item">
-          <a href="{{ item.url }}"{% if item.in_active_trail %} class="usa-current"{% endif %}>
+          <a {{ link_attributes }} href="{{ item.url }}">
             {{ item.title }}
           </a>
         </li>
-    {% endfor %}
+      {% endfor %}
 
-      </ul>
+    </ul>
   {% endif %}
 
 {% endmacro %}

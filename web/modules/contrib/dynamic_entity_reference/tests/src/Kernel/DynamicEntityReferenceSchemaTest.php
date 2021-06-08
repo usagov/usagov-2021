@@ -24,7 +24,7 @@ class DynamicEntityReferenceSchemaTest extends EntityKernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'dynamic_entity_reference',
   ];
 

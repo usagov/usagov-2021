@@ -30,12 +30,16 @@ class WebformHandlerInvokeAlterHookTest extends WebformBrowserTestBase {
     $this->assertRaw('Invoking hook_webform_handler_invoke_pre_create_alter() for "contact:email_notification"');
     $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_confirmation::alter_elements"');
     $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_notification::alter_elements"');
-    $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_confirmation::alter_elements"');
-    $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_notification::alter_elements"');
     $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_confirmation::post_create"');
     $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_notification::post_create"');
     $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_confirmation::override_settings"');
     $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_notification::override_settings"');
+    $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_confirmation::prepare_form"');
+    $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_notification::prepare_form"');
+    $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_confirmation::access_element"');
+    $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_notification::access_element"');
+    $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_confirmation::alter_element"');
+    $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_notification::alter_element"');
     $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_confirmation::alter_form"');
     $this->assertRaw('Invoking hook_webform_handler_invoke_alter() for "contact:email_notification::alter_form"');
   }

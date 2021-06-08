@@ -9,15 +9,24 @@ use Drupal\Core\Entity\EntityInterface;
  */
 class AdminHelper {
 
-  static public function addMessage($message) {
+  /**
+   * Show a message on the screen.
+   */
+  public static function addMessage($message) {
     \Drupal::messenger()->addMessage($message);
   }
 
-  static public function addError($message) {
+  /**
+   * Show an error message on the screen.
+   */
+  public static function addError($message) {
     \Drupal::messenger()->addError($message);
   }
 
-  static public function addToLog($message, $DEBUG = FALSE) {
+  /**
+   * Log or show a notice message on the screen.
+   */
+  public static function addToLog($message, $DEBUG = FALSE) {
     if ($DEBUG) {
       \Drupal::logger('scanner')->notice($message);
     }
@@ -26,11 +35,11 @@ class AdminHelper {
   /**
    * Get all enabled languages, excluding current language.
    */
-  static public function getOtherEnabledLanguages() {
-    // Get the list of all languages
+  public static function getOtherEnabledLanguages() {
+    // Get the list of all languages.
     $language = \Drupal::languageManager()->getCurrentLanguage();
     $languages = \Drupal::languageManager()->getLanguages();
-    $other_languages = array();
+    $other_languages = [];
 
     // Add each enabled language, aside from the current language to an array.
     foreach ($languages as $field_language_code => $field_language) {
@@ -44,7 +53,7 @@ class AdminHelper {
   /**
    * Get current language.
    */
-  static public function getDefaultLangcode() {
+  public static function getDefaultLangcode() {
     $language = \Drupal::languageManager()->getDefaultLanguage();
     return $language->getId();
   }
@@ -52,11 +61,10 @@ class AdminHelper {
   /**
    * Get all enabled languages, including the current language.
    */
-  static public function getAllEnabledLanguages() {
-    // Get the list of all languages
-    $language = \Drupal::languageManager()->getCurrentLanguage();
+  public static function getAllEnabledLanguages() {
+    // Get the list of all languages.
     $languages = \Drupal::languageManager()->getLanguages();
-    $other_languages = array();
+    $other_languages = [];
 
     // Add each enabled language, aside from the current language to an array.
     foreach ($languages as $field_language_code => $field_language) {
@@ -70,7 +78,7 @@ class AdminHelper {
    */
   public static function _latest_revision($nid, &$vid, $langcode) {
     // Change record below might be helpful for future improvements.
-    // See change record here: https://www.drupal.org/node/2942013.
+    // @see https://www.drupal.org/node/2942013
     $lang = \Drupal::languageManager()->getCurrentLanguage()->getId();
     if (!isset($langcode)) {
       $langcode = $lang;
@@ -105,11 +113,13 @@ class AdminHelper {
    *   An entity.
    * @param string|\Drupal\Core\StringTranslation\TranslatableMarkup $message
    *   A revision log message to set.
+   * @param int $current_uid
+   *   The user ID of the current logged-in user.
    *
    * @return \Drupal\Core\Entity\EntityInterface
    *   The moderation state for the given entity.
    */
-  static public function prepareNewRevision(EntityInterface $entity, $message, $current_uid) {
+  public static function prepareNewRevision(EntityInterface $entity, $message, $current_uid) {
     $storage = \Drupal::entityTypeManager()->getStorage($entity->getEntityTypeId());
     if ($storage instanceof ContentEntityStorageInterface) {
       $revision = $storage->createRevision($entity);

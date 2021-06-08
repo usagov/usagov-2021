@@ -6,6 +6,7 @@ use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
+use Drupal\Core\Render\Element\MachineName;
 use Drupal\webform\Plugin\WebformHandlerInterface;
 use Drupal\webform\Utility\WebformFormHelper;
 use Drupal\webform\WebformInterface;
@@ -161,12 +162,16 @@ abstract class WebformHandlerFormBase extends FormBase {
       '#type' => 'machine_name',
       '#maxlength' => static::MACHINE_NAME_MAXLENGTH,
       '#description' => $this->t('A unique name for this handler instance. Must be alpha-numeric and underscore separated.'),
-      '#default_value' => $this->webformHandler->getHandlerId() ?: $this->getUniqueMachineName($this->webformHandler),
+      '#default_value' => $this->webformHandler->getHandlerId() ?: NULL,
       '#required' => TRUE,
       '#disabled' => $this->webformHandler->getHandlerId() ? TRUE : FALSE,
       '#machine_name' => [
         'source' => ['general', 'label'],
         'exists' => [$this, 'exists'],
+      ],
+      '#element_validate' => [
+        [$this, 'validateMachineName'],
+        [MachineName::class, 'validateMachineName'],
       ],
     ];
     $form['general']['notes'] = [
@@ -328,38 +333,29 @@ abstract class WebformHandlerFormBase extends FormBase {
   }
 
   /**
-   * Generates a unique translated machine name for a webform handler instance.
+   * Validates the machine name for a webform handler instance.
    *
-   * @param \Drupal\webform\Plugin\WebformHandlerInterface $handler
-   *   The webform handler.
+   * This method verifies the uniqueness of the machine name and updates the
+   * machine name with a count suffix if another handler with the same machine
+   * name already exists.
    *
-   * @return string
-   *   Returns a unique machine based the handler's plugin label.
-   *
-   * @see \Drupal\Core\Render\Element\MachineName
-   * @see \Drupal\system\MachineNameController::transliterate
+   * @see \Drupal\Core\Render\Element\MachineName::validateMachineName()
    */
-  public function getUniqueMachineName(WebformHandlerInterface $handler) {
-    // Get label which default to the plugin's label for new instances.
-    $label = (string) $this->webformHandler->label();
-
-    // Get current langcode.
-    $langcode = $this->languageManager->getCurrentLanguage()->getId();
-
-    // Get machine name.
-    $suggestion = $this->transliteration->transliterate($label, $langcode, '_', static::MACHINE_NAME_MAXLENGTH);
-    $suggestion = mb_strtolower($suggestion);
-    $suggestion = preg_replace('@' . strtr('[^a-z0-9_]+', ['@' => '\@', chr(0) => '']) . '@', '_', $suggestion);
-
-    // Increment the machine name.
-    $count = 1;
-    $machine_default = $suggestion;
-    $instance_ids = $this->webform->getHandlers()->getInstanceIds();
-    while (isset($instance_ids[$machine_default])) {
-      $machine_default = $suggestion . '_' . $count++;
+  public function validateMachineName(&$element, FormStateInterface $form_state, &$complete_form) {
+    // If the machine name matches the default machine name, it does not need to
+    // be validated (i.e. during handler edit form save).
+    if (isset($element['#default_value']) && $element['#default_value'] === $element['#value']) {
+      return;
     }
 
-    return $machine_default;
+    $count = 1;
+    $machine_name = $element['#value'];
+    $instance_ids = $this->webform->getHandlers()->getInstanceIds();
+    while (isset($instance_ids[$machine_name])) {
+      $machine_name = $element['#value'] . '_' . $count++;
+    }
+    $element['#value'] = $machine_name;
+    $form_state->setValueForElement($element, $machine_name);
   }
 
   /**

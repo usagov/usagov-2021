@@ -2,7 +2,6 @@
 
 namespace Drupal\ctools\Plugin\Deriver;
 
-
 use Drupal\Component\Plugin\Derivative\DeriverBase;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Plugin\Discovery\ContainerDeriverInterface;
@@ -15,6 +14,7 @@ use Drupal\Core\TypedData\ListDataDefinitionInterface;
 use Drupal\Core\TypedData\TypedDataManagerInterface;
 use Drupal\field\Entity\FieldConfig;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+
 
 abstract class TypedDataPropertyDeriverBase extends DeriverBase implements ContainerDeriverInterface {
 
@@ -103,10 +103,9 @@ abstract class TypedDataPropertyDeriverBase extends DeriverBase implements Conta
    * @param \Drupal\Core\TypedData\DataDefinitionInterface $base_definition
    *   The data type definition of a complex data object.
    * @param string $property_name
-   *   The name of the property
+   *   The name of the property.
    * @param \Drupal\Core\TypedData\DataDefinitionInterface $property_definition
    *   The property definition.
-   *
    */
   abstract protected function generateDerivativeDefinition($base_plugin_definition, $data_type_id, $data_type_definition, DataDefinitionInterface $base_definition, $property_name, DataDefinitionInterface $property_definition);
 

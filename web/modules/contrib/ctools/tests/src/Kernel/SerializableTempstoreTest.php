@@ -43,7 +43,7 @@ class SerializableTempstoreTest extends KernelTestBase {
     $this->container->get('request_stack')->push($request->reveal());
 
     $this->assertInstanceOf(SerializableTempstore::class, $store);
-    /** @var SerializableTempstore $store */
+    /** @var \Drupal\ctools\SerializableTempstore $store */
 
     $store = serialize($store);
     $this->assertSame('string', gettype($store));

@@ -1,14 +1,13 @@
 name: 'Entity Mask test'
-core: 8.x
-core_version_requirement: ^8 || ^9
 type: module
+package: Testing
 dependencies:
   - drupal:block_content
   - ctools_entity_mask:ctools_entity_mask
   - drupal:image
   - drupal:text
 
-# Information added by Drupal.org packaging script on 2020-04-01
-version: '8.x-3.4'
+# Information added by Drupal.org packaging script on 2021-05-12
+version: '8.x-3.6'
 project: 'ctools'
-datestamp: 1585763385
+datestamp: 1620832815

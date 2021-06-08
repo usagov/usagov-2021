@@ -11,6 +11,7 @@ use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 
+
 abstract class RequiredContext extends FormBase {
 
   /**
@@ -40,6 +41,7 @@ abstract class RequiredContext extends FormBase {
     );
   }
 
+
   public function __construct(PluginManagerInterface $typed_data_manager, FormBuilderInterface $form_builder) {
     $this->typedDataManager = $typed_data_manager;
     $this->formBuilder = $form_builder;
@@ -63,15 +65,15 @@ abstract class RequiredContext extends FormBase {
     foreach ($this->typedDataManager->getDefinitions() as $plugin_id => $definition) {
       $options[$plugin_id] = (string) $definition['label'];
     }
-    $form['items'] = array(
+    $form['items'] = [
       '#type' => 'markup',
       '#prefix' => '<div id="configured-contexts">',
       '#suffix' => '</div>',
       '#theme' => 'table',
-      '#header' => array($this->t('Information'), $this->t('Description'), $this->t('Operations')),
+      '#header' => [$this->t('Information'), $this->t('Description'), $this->t('Operations')],
       '#rows' => $this->renderContexts($cached_values),
-      '#empty' => $this->t('No required contexts have been configured.')
-    );
+      '#empty' => $this->t('No required contexts have been configured.'),
+    ];
     $form['contexts'] = [
       '#type' => 'select',
       '#options' => $options,
@@ -86,7 +88,7 @@ abstract class RequiredContext extends FormBase {
       ],
       '#submit' => [
         'callback' => [$this, 'submitform'],
-      ]
+      ],
     ];
     return $form;
   }
@@ -113,7 +115,7 @@ abstract class RequiredContext extends FormBase {
     $content = $this->formBuilder->getForm($this->getContextClass(), $context, $this->getTempstoreId(), $this->machine_name);
     $content['#attached']['library'][] = 'core/drupal.dialog.ajax';
     $response = new AjaxResponse();
-    $response->addCommand(new OpenModalDialogCommand($this->t('Configure Required Context'), $content, array('width' => '700')));
+    $response->addCommand(new OpenModalDialogCommand($this->t('Configure Required Context'), $content, ['width' => '700']));
     return $response;
   }
 
@@ -123,54 +125,55 @@ abstract class RequiredContext extends FormBase {
    * @return array
    */
   public function renderContexts($cached_values) {
-    $configured_contexts = array();
+    $configured_contexts = [];
     foreach ($this->getContexts($cached_values) as $row => $context) {
       list($plugin_id, $label, $machine_name, $description) = array_values($context);
       list($route_name, $route_parameters) = $this->getOperationsRouteInfo($cached_values, $cached_values['id'], $row);
-      $build = array(
+      $build = [
         '#type' => 'operations',
         '#links' => $this->getOperations($route_name, $route_parameters),
-      );
-      $configured_contexts[] = array(
+      ];
+      $configured_contexts[] = [
         $this->t('<strong>Label:</strong> @label<br /> <strong>Type:</strong> @type', ['@label' => $label, '@type' => $plugin_id]),
         $this->t('@description', ['@description' => $description]),
         'operations' => [
           'data' => $build,
         ],
-      );
+      ];
     }
     return $configured_contexts;
   }
 
-  protected function getOperations($route_name_base, array $route_parameters = array()) {
-    $operations['edit'] = array(
+
+  protected function getOperations($route_name_base, array $route_parameters = []) {
+    $operations['edit'] = [
       'title' => $this->t('Edit'),
       'url' => new Url($route_name_base . '.edit', $route_parameters),
       'weight' => 10,
-      'attributes' => array(
-        'class' => array('use-ajax'),
+      'attributes' => [
+        'class' => ['use-ajax'],
         'data-accepts' => 'application/vnd.drupal-modal',
-        'data-dialog-options' => json_encode(array(
+        'data-dialog-options' => json_encode([
           'width' => 700,
-        )),
-      ),
-      'ajax' => [
-        ''
+        ]),
       ],
-    );
+      'ajax' => [
+        '',
+      ],
+    ];
     $route_parameters['id'] = $route_parameters['context'];
-    $operations['delete'] = array(
+    $operations['delete'] = [
       'title' => $this->t('Delete'),
       'url' => new Url($route_name_base . '.delete', $route_parameters),
       'weight' => 100,
-      'attributes' => array(
-        'class' => array('use-ajax'),
+      'attributes' => [
+        'class' => ['use-ajax'],
         'data-accepts' => 'application/vnd.drupal-modal',
-        'data-dialog-options' => json_encode(array(
+        'data-dialog-options' => json_encode([
           'width' => 700,
-        )),
-      ),
-    );
+        ]),
+      ],
+    ];
     return $operations;
   }
 

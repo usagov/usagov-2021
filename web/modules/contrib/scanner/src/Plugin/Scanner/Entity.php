@@ -4,8 +4,6 @@ namespace Drupal\scanner\Plugin\Scanner;
 
 use Drupal\scanner\Plugin\ScannerPluginBase;
 use Drupal\Component\Plugin\Exception\PluginException;
-use Drupal\Core\DependencyInjection\DependencySerializationTrait;
-use Drupal\Core\Messenger\MessengerTrait;
 
 /**
  * Class Entity.
@@ -17,6 +15,11 @@ use Drupal\Core\Messenger\MessengerTrait;
  */
 class Entity extends ScannerPluginBase {
 
+  /**
+   * The scanner regular expression.
+   *
+   * @var string
+   */
   protected $scannerRegexChars = '.\/+*?[^]$() {}=!<>|:';
 
   /**
@@ -31,9 +34,9 @@ class Entity extends ScannerPluginBase {
    *   An array containing the titles of the entity and a snippet of the
    *   matching text.
    */
-  public function search($field, $values) {
+  public function search($field, array $values) {
     $data = [];
-    list($entityType, $bundle, $fieldname) = explode(':', $field);
+    list($entityType) = explode(':', $field);
 
     // Attempt to load the matching plugin for the matching entity.
     try {
@@ -43,7 +46,7 @@ class Entity extends ScannerPluginBase {
       // The instance could not be found so fail gracefully and let the user
       // know.
       \Drupal::logger('scanner')->error($e->getMessage());
-      \Drupal::messenger()->addError(t('An error occured: '. $e->getMessage()));
+      \Drupal::messenger()->addError($this->t('An error occured @e:', ['@e' => $e->getMessage()]));
     }
 
     // Perform the search on the current field.
@@ -61,13 +64,15 @@ class Entity extends ScannerPluginBase {
    *   The field with the matching string (formatted as type:bundle:field).
    * @param array $values
    *   An array containing the $form_state values.
-   * 
+   * @param array $undo_data
+   *   An array containing the data.
+   *
    * @return array
    *   An array containing the revisoion ids of the affected entities.
    */
-  public function replace($field, $values, $undo_data) {
+  public function replace($field, array $values, array $undo_data) {
     $data = [];
-    list($entityType, $bundle, $fieldname) = explode(':', $field);
+    list($entityType) = explode(':', $field);
 
     try {
       $plugin = $this->scannerManager->createInstance("scanner_$entityType");
@@ -76,9 +81,9 @@ class Entity extends ScannerPluginBase {
       // The instance could not be found so fail gracefully and let the user
       // know.
       \Drupal::logger('scanner')->error($e->getMessage());
-      \Drupal::messenger()->addError(t('An error occured: '. $e->getMessage()));
-    }   
-  
+      \Drupal::messenger()->addError('An error occured: ' . $e->getMessage());
+    }
+
     // Perform the replace on the current field and save results.
     $results = $plugin->replace($field, $values, $undo_data);
     if (!empty($results)) {
@@ -95,9 +100,9 @@ class Entity extends ScannerPluginBase {
    *   An array containing the revision ids needed to undo the previous replace
    *   operation.
    */
-  public function undo($data) {
+  public function undo(array $data) {
     foreach ($data as $key => $value) {
-      list($entityType, $id) = explode(':', $key);
+      list($entityType) = explode(':', $key);
       // Attempt to load the matching plugin for the matching entity.
       try {
         $plugin = $this->scannerManager->createInstance("scanner_$entityType");
@@ -105,22 +110,26 @@ class Entity extends ScannerPluginBase {
       }
       catch (PluginException $e) {
         \Drupal::logger('scanner')->error($e->getMessage());
-        \Drupal::messenger()->addError(t('An error occured: '. $e->getMessage()));
+        \Drupal::messenger()->addError('An error occured: ' . $e->getMessage());
       }
     }
   }
 
   /**
    * Helper function to "build" the proper query condition.
-   * 
+   *
    * @param string $search
    *   The string that is to be searched for.
-   * @param boolean $mode
+   * @param bool $mode
    *   The boolean that indicated whether or not the search should be case
    *   sensitive.
-   * @param boolean $wholeword
+   * @param bool $wholeword
    *   The boolean that indicates whether the search should be word bounded.
-   * @param boolean $search
+   * @param string $regex
+   *   The string for regular expression.
+   * @param string $preceded
+   *   The string for preceded expression.
+   * @param bool $followed
    *   The boolean that indicates whether or not the search term is a regular
    *   expression.
    *
@@ -145,7 +154,7 @@ class Entity extends ScannerPluginBase {
 
     // Case 1.
     if ($wholeword && $regex) {
-      $value = "[[:<:]]" . $preceded . $search . $followed ."[[:>:]]";
+      $value = "[[:<:]]" . $preceded . $search . $followed . "[[:>:]]";
       $operator = 'REGEXP';
       $phpRegex = '/\b' . $preceded_php . $search . $followed_php . '\b/';
     }
@@ -172,14 +181,14 @@ class Entity extends ScannerPluginBase {
       return [
         'condition' => $value,
         'operator' => $operator . ' BINARY',
-        'phpRegex' => $phpRegex
+        'phpRegex' => $phpRegex,
       ];
     }
     else {
       return [
         'condition' => $value,
         'operator' => $operator,
-        'phpRegex' => $phpRegex . 'i'
+        'phpRegex' => $phpRegex . 'i',
       ];
     }
   }

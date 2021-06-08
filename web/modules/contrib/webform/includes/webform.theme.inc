@@ -30,7 +30,13 @@ function webform_theme() {
     'webform_help_video_youtube' => [
       'variables' => ['youtube_id' => NULL, 'autoplay' => TRUE],
     ],
-
+    'webform_help_support' => [
+      'variables' => [
+        'account' => [],
+        'membership' => [],
+        'contribution' => [],
+      ],
+    ],
     'webform' => [
       'render element' => 'element',
     ],
@@ -512,6 +518,9 @@ function webform_preprocess_form_element(&$variables) {
   if (isset($variables['description_display']) && $variables['description_display'] === 'before') {
     // Add system .description class.
     if (isset($variables['description'])) {
+      if (empty($variables['description']['attributes'])) {
+        $variables['description']['attributes'] = new Attribute();
+      }
       $variables['description']['attributes']->addClass('description');
     }
   }

@@ -217,6 +217,12 @@ webform.help:
   js:
     js/webform.help.js: {}
 
+webform.help.support:
+  version: VERSION
+  css:
+    theme:
+      css/webform.help.support.css: {}
+
 # More.
 
 webform.element.more:

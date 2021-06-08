@@ -37,7 +37,10 @@ class DynamicEntityReferenceEntityFormatter extends EntityReferenceEntityFormatt
   public static function defaultSettings() {
     $labels = \Drupal::service('entity_type.repository')->getEntityTypeLabels(TRUE);
     $options = array_keys($labels[(string) t('Content', [], ['context' => 'Entity type group'])]);
-    return array_fill_keys($options, ['view_mode' => 'default', 'link' => FALSE]);
+    return array_fill_keys($options, [
+      'view_mode' => 'default',
+      'link' => FALSE,
+    ]);
   }
 
   /**
@@ -107,6 +110,10 @@ class DynamicEntityReferenceEntityFormatter extends EntityReferenceEntityFormatt
       $recursive_render_id = $items->getFieldDefinition()->getTargetEntityTypeId()
         . $items->getFieldDefinition()->getTargetBundle()
         . $items->getName()
+        // We include the referencing entity, so we can render default images
+        // without hitting recursive protections.
+        . $items->getEntity()->id()
+        . $entity->getEntityTypeId()
         . $entity->id();
 
       if (isset(static::$recursiveRenderDepth[$recursive_render_id])) {

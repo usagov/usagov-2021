@@ -23,7 +23,7 @@ libraries.jquery.geocomplete:
   cdn:
     /libraries/geocomplete/: https://cdnjs.cloudflare.com/ajax/libs/geocomplete/1.7.0/
   js:
-    https://maps.googleapis.com/maps/api/js?key=API_KEY&libraries=places: {}
+    https://maps.googleapis.com/maps/api/js?key=API_KEY&libraries=places: { type: external }
     /libraries/geocomplete/jquery.geocomplete.min.js: { minified: true }
   dependencies:
     - core/jquery

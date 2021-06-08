@@ -10,4 +10,5 @@ use Drupal\Core\TempStore\SharedTempStore;
  */
 class SerializableTempstore extends SharedTempStore {
   use DependencySerializationTrait;
+
 }

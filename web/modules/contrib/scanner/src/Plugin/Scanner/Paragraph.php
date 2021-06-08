@@ -2,8 +2,7 @@
 
 namespace Drupal\scanner\Plugin\Scanner;
 
-use Drupal\scanner\Plugin\ScannerEntityPluginBase;
-use Drupal\scanner\Plugin\Scanner\Entity;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Class Paragraph.
@@ -15,12 +14,14 @@ use Drupal\scanner\Plugin\Scanner\Entity;
  */
 class Paragraph extends Entity {
 
+  use StringTranslationTrait;
+
   /**
    * {@inheritdoc}
    */
   public function search($field, $values) {
     $title_collect = [];
-    list($entityType, $bundle, $fieldname) = explode(':', $field);
+    list($bundle, $fieldname) = explode(':', $field);
 
     $query = \Drupal::entityQuery('paragraph');
     $query->condition('type', $bundle);
@@ -36,13 +37,13 @@ class Paragraph extends Entity {
       $query->condition($fieldname, $conditionVals['condition'], $conditionVals['operator']);
     }
     $entities = $query->execute();
-    
+
     if (!empty($entities)) {
       // Load the paragraph(s) which match the criteria.
       $paragraphs = \Drupal::entityTypeManager()->getStorage('paragraph')->loadMultiple($entities);
       // Iterate over matched paragraphs to extract information that will be
       // rendered in the results.
-      foreach ($paragraphs as $pid => $paragraph) {
+      foreach ($paragraphs as $paragraph) {
         if (!empty($paragraph)) {
           // Load the entity the paragraph is referenced in.
           $parentEntity = $paragraph->getParentEntity();
@@ -67,7 +68,7 @@ class Paragraph extends Entity {
             // Get the value of the specified field.
             $paraField = $paragraph->get($fieldname);
             $fieldType = $paraField->getFieldDefinition()->getType();
-            if (in_array($fieldType, ['text_with_summary','text','text_long'])) {
+            if (in_array($fieldType, ['text_with_summary', 'text', 'text_long'])) {
               // Get the value of the field.
               $fieldValue = $paraField->getValue()[0];
               // Get the parent entity's title.
@@ -75,9 +76,9 @@ class Paragraph extends Entity {
               // Find all instances of the term we're looking for.
               preg_match_all($conditionVals['phpRegex'], $fieldValue['value'], $matches, PREG_OFFSET_CAPTURE);
               $newValues = [];
-              // Build an array of strings which are displayed in the results 
+              // Build an array of strings which are displayed in the results
               // with the searched term bolded.
-              foreach ($matches[0] as $k => $v) {
+              foreach ($matches[0] as $v) {
                 // The offset of the matched term(s) in the field's text.
                 $start = $v[1];
                 if ($values['preceded'] !== '') {
@@ -86,7 +87,7 @@ class Paragraph extends Entity {
                   // the start position back as many character as there are in
                   // the 'preceded' text.
                   $start -= strlen($values['preceded']);
-                }   
+                }
                 $replaced = preg_replace($conditionVals['phpRegex'], "<strong>$v[0]</strong>", preg_split("/\s+/", substr($fieldValue['value'], $start), 6));
                 if (count($replaced) > 1) {
                   // The final index contains the remainder of the text, which
@@ -136,20 +137,20 @@ class Paragraph extends Entity {
     foreach ($paragraphs as $pid => $paragraph) {
       $paraField = $paragraph->get($fieldname);
       $fieldType = $paraField->getFieldDefinition()->getType();
-      if (in_array($fieldType, ['text_with_summary','text','text_long'])) {
+      if (in_array($fieldType, ['text_with_summary', 'text', 'text_long'])) {
         $fieldValue = $paraField->getValue()[0];
         $fieldValue['value'] = preg_replace($conditionVals['phpRegex'], $values['replace'], $fieldValue['value']);
         $paragraph->{$fieldname} = $fieldValue;
         if (!isset($data["paragraph:$pid"]['new_vid'])) {
           $data["paragraph:$pid"]['old_vid'] = $paragraph->getRevisionId();
           // Create a new revision for the paragraph.
-          $paragraph->setNewRevision(true);
+          $paragraph->setNewRevision(TRUE);
         }
         // Save the paragraph with the updated field(s).
         $paragraph->save();
         $data["paragraph:$pid"]['new_vid'] = $paragraph->getRevisionId();
         $processed = $this->handleParentRelationship($paragraph, $values, $data);
-        if ($processed == false) {
+        if ($processed == FALSE) {
           // We couldn't handle the relationship for some reason so we move on
           // to the next paragraph.
           continue;
@@ -160,12 +161,12 @@ class Paragraph extends Entity {
         $paragraph->$fieldname = $fieldValue;
         if (!isset($data["paragraph:$pid"]['new_vid'])) {
           $data["paragraph:$pid"]['old_vid'] = $paragraph->getRevisionId();
-          $paragraph->setNewRevision(true);
+          $paragraph->setNewRevision(TRUE);
         }
         $paragraph->save();
         $data["paragraph:$pid"]['new_vid'] = $paragraph->getRevisionId();
         $processed = $this->handleParentRelationship($paragraph, $values, $data);
-        if ($processed == false) {
+        if ($processed == FALSE) {
           // We couldn't handle the relationship for some reason so we move on
           // to the next paragraph.
           continue;
@@ -179,29 +180,29 @@ class Paragraph extends Entity {
    * {@inheritdoc}
    */
   public function undo($data) {
-    // Load the specified paragraph revision
+    // Load the specified paragraph revision.
     $paraRevision = \Drupal::entityTypeManager()->getStorage('paragraph')->loadRevision($data['old_vid']);
-    $paraRevision->setNewRevision(true);
-    // Set this revision as the current/default revision
-    $paraRevision->isDefaultRevision(true);
+    $paraRevision->setNewRevision(TRUE);
+    // Set this revision as the current/default revision.
+    $paraRevision->isDefaultRevision(TRUE);
     $paraRevision->save();
   }
 
   /**
    * Helper function to handle entity reference relationships.
-   * 
+   *
    * @param mixed $paragraph
    *   The paragraph entity.
    * @param array $values
    *   An array containing the input values from the form.
    * @param array $data
    *   An array containing the revision id's for the entities being processed.
-   * 
+   *
    * @return bool
    *   A boolean which denotes whether or not we were able to process the parent
    *   entitiy(s).
    */
-  protected function handleParentRelationship($paragraph, $values,&$data) {
+  protected function handleParentRelationship($paragraph, array $values, array &$data) {
     $pid = $paragraph->id();
     $parentEntity = $paragraph->getParentEntity();
     if (empty($parentEntity)) {
@@ -209,7 +210,7 @@ class Paragraph extends Entity {
     }
     $id = $parentEntity->id();
     $parentEntityType = $parentEntity->getEntityTypeId();
-    $isProcessed = false;
+    $isProcessed = FALSE;
 
     if ($parentEntityType == 'node') {
       $parentField = $paragraph->get('parent_field_name')->getString();
@@ -217,14 +218,14 @@ class Paragraph extends Entity {
       // Orphaned paragraphs cause issues so we skip them (and their
       // relationships).
       if ($index < 0) {
-        \Drupal::logger('scanner')->notice('Unable to find the delta for this paragraph in the parent entity\'s field (id: @id).',['@id' => $pid]);
+        \Drupal::logger('scanner')->notice('Unable to find the delta for this paragraph in the parent entity\'s field (id: @id).', ['@id' => $pid]);
         return $isProcessed;
       }
       if (!isset($data["node:$id"]['new_vid'])) {
         $data["node:$id"]['old_vid'] = $parentEntity->getRevisionId();
         // Create a new revision for the parent entity.
-        $parentEntity->setNewRevision(true);
-        $parentEntity->revision_log = t('Replaced @search with @replace via Scanner Search and Replace module.', ['@search' => $values['search'], '@replace' => $values['replace']]);
+        $parentEntity->setNewRevision(TRUE);
+        $parentEntity->revision_log = $this->t('Replaced @search with @replace via Scanner Search and Replace module.', ['@search' => $values['search'], '@replace' => $values['replace']]);
       }
       // We need to update the parent entity as well so that it will display
       // the lastest revision.
@@ -234,7 +235,7 @@ class Paragraph extends Entity {
       ]);
       $parentEntity->save();
       $data["node:$id"]['new_vid'] = $parentEntity->getRevisionId();
-      $isProcessed = true;
+      $isProcessed = TRUE;
       return $isProcessed;
     }
     elseif ($parentEntityType == 'paragraph') {
@@ -249,14 +250,14 @@ class Paragraph extends Entity {
       // Orphaned paragraphs cause issues so we skip them (and their
       // relationships).
       if ($index < 0) {
-        \Drupal::logger('scanner')->notice('Unable to find the delta for this paragraph in the parent entity\'s field (id: @id).',['@id' => $pid]);
+        \Drupal::logger('scanner')->notice('Unable to find the delta for this paragraph in the parent entity\'s field (id: @id).', ['@id' => $pid]);
         return $isProcessed;
       }
       // Handle parent entity.
       if (!isset($data["paragraph:$id"]['new_vid'])) {
         $data["paragraph:$id"]['old_vid'] = $parentEntity->getRevisionId();
         // Create a new revision for the paragraph.
-        $parentEntity->setNewRevision(true);
+        $parentEntity->setNewRevision(TRUE);
       }
       $parentEntity->$parentField->set($index, [
         'target_id' => $paragraph->id(),
@@ -271,14 +272,14 @@ class Paragraph extends Entity {
       $index = $this->getMultiValueIndex($grandParentEntity->$grandParentField->getValue(), $id);
       // Orphaned paragraphs can cause issues so we skip them.
       if ($index < 0) {
-        \Drupal::logger('scanner')->notice('Unable to find the delta for this paragraph in the parent entity\'s field (id: @id).',['@id' => $id]);
+        \Drupal::logger('scanner')->notice('Unable to find the delta for this paragraph in the parent entity\'s field (id: @id).', ['@id' => $id]);
         return $isProcessed;
       }
       if (!isset($data["node:$grandParentId"]['new_vid'])) {
         $data["node:$grandParentId"]['old_vid'] = $grandParentEntity->getRevisionId();
         // Create a new revision for the paragraph.
-        $grandParentEntity->setNewRevision(true);
-        $grandParentEntity->revision_log = t('Replaced @search with @replace via Scanner Search and Replace module.', ['@search' => $values['search'], '@replace' => $values['replace']]);
+        $grandParentEntity->setNewRevision(TRUE);
+        $grandParentEntity->revision_log = $this->t('Replaced @search with @replace via Scanner Search and Replace module.', ['@search' => $values['search'], '@replace' => $values['replace']]);
       }
       $grandParentEntity->$grandParentField->set($index, [
         'target_id' => $parentEntity->id(),
@@ -286,7 +287,7 @@ class Paragraph extends Entity {
       ]);
       $grandParentEntity->save();
       $data["node:$grandParentId"]['new_vid'] = $grandParentEntity->getRevisionId();
-      $isProcessed = true;
+      $isProcessed = TRUE;
       return $isProcessed;
     }
     else {
@@ -295,6 +296,9 @@ class Paragraph extends Entity {
     }
   }
 
+  /**
+   * Get multiple value index.
+   */
   protected function getMultiValueIndex($values, $pid) {
     foreach ($values as $key => $value) {
       if ($value['target_id'] == $pid) {

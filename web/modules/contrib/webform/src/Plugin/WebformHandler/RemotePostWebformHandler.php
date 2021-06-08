@@ -3,6 +3,9 @@
 namespace Drupal\webform\Plugin\WebformHandler;
 
 use Drupal\Component\Render\MarkupInterface;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\RedirectCommand;
+use Drupal\Core\EventSubscriber\MainContentViewSubscriber;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\Core\Serialization\Yaml;
@@ -273,6 +276,7 @@ class RemotePostWebformHandler extends WebformHandlerBase {
       '#options' => [
         'POST' => 'POST',
         'PUT' => 'PUT',
+        'PATCH' => 'PATCH',
         'GET' => 'GET',
       ],
       '#default_value' => $this->configuration['method'],
@@ -1030,14 +1034,30 @@ class RemotePostWebformHandler extends WebformHandlerBase {
       if (strpos($error_url, '/') === 0) {
         $error_url = $base_url . preg_replace('#^' . $base_path . '#', '/', $error_url);
       }
-      $response = new TrustedRedirectResponse($error_url);
+
       $request = $this->requestStack->getCurrentRequest();
+
+      // Build Ajax redirect or trusted redirect response.
+      $wrapper_format = $request->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+      $is_ajax_request = ($wrapper_format === 'drupal_ajax');
+      if ($is_ajax_request) {
+        $response = new AjaxResponse();
+        $response->addCommand(new RedirectCommand($error_url));
+        $response->setData($response->getCommands());
+      }
+      else {
+        $response = new TrustedRedirectResponse($error_url);
+      }
       // Save the session so things like messages get saved.
       $request->getSession()->save();
       $response->prepare($request);
       // Make sure to trigger kernel events.
       $this->kernel->terminate($request, $response);
       $response->send();
+      // Only exit, an Ajax request to prevent headers from being overwritten.
+      if ($is_ajax_request) {
+        exit;
+      }
     }
   }
 

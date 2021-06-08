@@ -31,7 +31,7 @@ class Relationship extends Plugin {
   public $label;
 
   /**
-   * The returned data type of this relationship
+   * The returned data type of this relationship.
    *
    * @var string
    */

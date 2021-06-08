@@ -12,6 +12,7 @@ use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+
 abstract class RelationshipConfigure extends FormBase {
 
   /**
@@ -30,7 +31,7 @@ abstract class RelationshipConfigure extends FormBase {
   protected $tempstore_id;
 
   /**
-   * @var string;
+   * @var string
    */
   protected $machine_name;
 
@@ -40,6 +41,7 @@ abstract class RelationshipConfigure extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static($container->get('tempstore.shared'), $container->get('ctools.typed_data.resolver'));
   }
+
 
   public function __construct(SharedTempStoreFactory $tempstore, TypedDataResolver $resolver) {
     $this->tempstore = $tempstore;
@@ -66,7 +68,7 @@ abstract class RelationshipConfigure extends FormBase {
     $context_object = $this->resolver->convertTokenToContext($context_id, $contexts);
     $form['id'] = [
       '#type' => 'value',
-      '#value' => $context_id
+      '#value' => $context_id,
     ];
     $form['context_object'] = [
       '#type' => 'value',
@@ -88,7 +90,7 @@ abstract class RelationshipConfigure extends FormBase {
       '#value' => $this->t('Save'),
       '#ajax' => [
         'callback' => [$this, 'ajaxSave'],
-      ]
+      ],
     ];
     return $form;
   }
@@ -124,8 +126,8 @@ abstract class RelationshipConfigure extends FormBase {
    * @param array $cached_values
    *
    * @return array In the format of
-   * In the format of
-   * return ['route.name', ['machine_name' => $this->machine_name, 'step' => 'step_name']];
+   *   In the format of
+   *   return ['route.name', ['machine_name' => $this->machine_name, 'step' => 'step_name']];
    */
   abstract protected function getParentRouteInfo($cached_values);
 

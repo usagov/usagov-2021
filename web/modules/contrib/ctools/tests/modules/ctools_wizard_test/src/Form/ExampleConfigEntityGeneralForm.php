@@ -2,7 +2,6 @@
 
 namespace Drupal\ctools_wizard_test\Form;
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -27,7 +26,6 @@ class ExampleConfigEntityGeneralForm extends FormBase {
     $config_entity = $cached_values['ctools_wizard_test_config_entity'];
 
     // The label and id will be added by the EntityFormWizardBase.
-
     return $form;
   }
 

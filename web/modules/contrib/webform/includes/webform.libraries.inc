@@ -61,6 +61,7 @@ function webform_library_info_alter(&$libraries, $extension) {
     /** @var \Drupal\webform\WebformLibrariesManagerInterface $libraries_manager */
     $libraries_manager = \Drupal::service('webform.libraries_manager');
     $tippyjs_library = $libraries_manager->getLibrary('tippyjs/6.x');
+    $libraries['libraries.tippyjs']['directory'] = 'tippyjs/6.x';
     $libraries['libraries.tippyjs']['version'] = $tippyjs_library['version'];
     $libraries['libraries.tippyjs']['cdn'] = ['/libraries/tippyjs/6.x/' => 'https://unpkg.com/tippy.js@' .  $tippyjs_library['version'] . '/dist/'];
     $libraries['libraries.tippyjs']['js'] = ['/libraries/tippyjs/6.x/' . basename($tippyjs_library['download_url']->toString()) => []];

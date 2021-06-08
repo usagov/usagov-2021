@@ -386,11 +386,29 @@
         .trigger('blur', extraParameters);
     }
     else if (tag === 'select') {
+      // Do not trigger the onchange event for Address element's country code
+      // when it is initialized.
+      // @see \Drupal\address\Element\Country
+      if ($input.closest('.webform-type-address').length) {
+        if (!$input.data('webform-states-address-initialized')
+          && $input.attr('autocomplete') === 'country'
+          && $input.val() === $input.find("option[selected]").attr('value')) {
+          return;
+        }
+        $input.data('webform-states-address-initialized', true);
+      }
+
       $input
         .trigger('change', extraParameters)
         .trigger('blur', extraParameters);
     }
     else if (type !== 'submit' && type !== 'button' && type !== 'file') {
+      // Make sure input mask is removed and then reset when value is restored.
+      // @see https://www.drupal.org/project/webform/issues/3124155
+      // @see https://www.drupal.org/project/webform/issues/3202795
+      var hasInputMask = ($.fn.inputmask && $input.hasClass('js-webform-input-mask'));
+      hasInputMask && $input.inputmask('remove');
+
       $input
         .trigger('input', extraParameters)
         .trigger('change', extraParameters)
@@ -398,11 +416,7 @@
         .trigger('keyup', extraParameters)
         .trigger('blur', extraParameters);
 
-      // Make sure input mask is reset when value is restored.
-      // @see https://www.drupal.org/project/webform/issues/3124155
-      if ($input.attr('data-inputmask-mask')) {
-        setTimeout(function () {$input.inputmask('remove').inputmask();});
-      }
+      hasInputMask && $input.inputmask();
     }
   }
 
@@ -464,6 +478,10 @@
       }
       else if (tag === 'select') {
         $.each(value, function (i, option_value) {
+          // Prevent "Syntax error, unrecognized expression" error by
+          // escaping single quotes.
+          // @see https://forum.jquery.com/topic/escape-characters-prior-to-using-selector
+          option_value = option_value.replace(/'/g, "\\\'");
           $input.find("option[value='" + option_value + "']").prop('selected', true);
         });
       }

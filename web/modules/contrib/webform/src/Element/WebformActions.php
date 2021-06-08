@@ -125,7 +125,7 @@ class WebformActions extends Container {
       // Apply custom label.
       $has_custom_label = !empty($element[$button_name]['#webform_actions_button_custom']);
       if (!empty($element['#' . $settings_name . '__label']) && !$has_custom_label) {
-        if ($element[$button_name]['#type'] === 'link') {
+        if (isset($element[$button_name]['#type']) && ($element[$button_name]['#type'] === 'link')) {
           $element[$button_name]['#title'] = $element['#' . $settings_name . '__label'];
         }
         else {

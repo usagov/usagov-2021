@@ -63,7 +63,7 @@ class DynamicEntityReferenceFormatterTest extends EntityKernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['dynamic_entity_reference'];
+  protected static $modules = ['dynamic_entity_reference'];
 
   /**
    * {@inheritdoc}
@@ -198,7 +198,10 @@ class DynamicEntityReferenceFormatterTest extends EntityKernelTestBase {
    */
   public function testIdFormatter() {
     $formatter = 'dynamic_entity_reference_entity_id';
-    $build = $this->buildRenderArray([$this->referencedEntity, $this->unsavedReferencedEntity], $formatter);
+    $build = $this->buildRenderArray([
+      $this->referencedEntity,
+      $this->unsavedReferencedEntity,
+    ], $formatter);
 
     $this->assertEquals($build[0]['#plain_text'], $this->referencedEntity->id(), sprintf('The markup returned by the %s formatter is correct for an item with a saved entity.', $formatter));
     $this->assertEquals($build[0]['#cache']['tags'], $this->referencedEntity->getCacheTags(), sprintf('The %s formatter has the expected cache tags.', $formatter));
@@ -212,16 +215,21 @@ class DynamicEntityReferenceFormatterTest extends EntityKernelTestBase {
     /** @var \Drupal\Core\Render\RendererInterface $renderer */
     $renderer = $this->container->get('renderer');
     $formatter = 'dynamic_entity_reference_entity_view';
-    $build = $this->buildRenderArray([$this->referencedEntity, $this->unsavedReferencedEntity], $formatter, [
-      $this->referencedEntity->getEntityTypeId() => [
-        'view_mode' => 'default',
-        'link' => FALSE,
-      ],
-      $this->unsavedReferencedEntity->getEntityTypeId() => [
-        'view_mode' => 'default',
-        'link' => FALSE,
-      ],
-    ]);
+    $build = $this->buildRenderArray([
+      $this->referencedEntity,
+      $this->unsavedReferencedEntity,
+    ],
+      $formatter,
+      [
+        $this->referencedEntity->getEntityTypeId() => [
+          'view_mode' => 'default',
+          'link' => FALSE,
+        ],
+        $this->unsavedReferencedEntity->getEntityTypeId() => [
+          'view_mode' => 'default',
+          'link' => FALSE,
+        ],
+      ]);
 
     // Test the first field item.
     $expected_rendered_name_field_1 = '
@@ -264,7 +272,10 @@ class DynamicEntityReferenceFormatterTest extends EntityKernelTestBase {
     $formatter = 'dynamic_entity_reference_label';
 
     // The 'link' settings is TRUE by default.
-    $build = $this->buildRenderArray([$this->referencedEntity, $this->unsavedReferencedEntity], $formatter);
+    $build = $this->buildRenderArray([
+      $this->referencedEntity,
+      $this->unsavedReferencedEntity,
+    ], $formatter);
 
     $expected_field_cacheability = [
       'contexts' => [],
@@ -303,7 +314,11 @@ class DynamicEntityReferenceFormatterTest extends EntityKernelTestBase {
     $this->assertEquals($build[1], $expected_item_2, sprintf('The render array returned by the %s formatter is correct for an item with a unsaved entity.', $formatter));
 
     // Test with the 'link' setting set to FALSE.
-    $build = $this->buildRenderArray([$this->referencedEntity, $this->unsavedReferencedEntity], $formatter, ['link' => FALSE]);
+    $build = $this->buildRenderArray([
+      $this->referencedEntity,
+      $this->unsavedReferencedEntity,
+    ],
+      $formatter, ['link' => FALSE]);
     $this->assertEquals($build[0]['#plain_text'], $this->referencedEntity->label(), sprintf('The markup returned by the %s formatter is correct for an item with a saved entity.', $formatter));
     $this->assertEquals($build[1]['#plain_text'], $this->unsavedReferencedEntity->label(), sprintf('The markup returned by the %s formatter is correct for an item with a unsaved entity.', $formatter));
 
@@ -321,6 +336,45 @@ class DynamicEntityReferenceFormatterTest extends EntityKernelTestBase {
 
     $build = $this->buildRenderArray([$referenced_entity_with_no_link_template], $formatter, ['link' => TRUE]);
     $this->assertEquals($build[0]['#plain_text'], $referenced_entity_with_no_link_template->label(), sprintf('The markup returned by the %s formatter is correct for an entity type with no valid link template.', $formatter));
+  }
+
+  /**
+   * Renders the same entity referenced from different places.
+   */
+  public function testEntityReferenceRecursiveProtectionWithManyRenderedEntities() {
+    $formatter = 'dynamic_entity_reference_entity_view';
+    $view_builder = $this->entityTypeManager->getViewBuilder($this->entityType);
+
+    // Set the default view mode to use the 'entity_reference_entity_view'
+    // formatter.
+    \Drupal::service('entity_display.repository')
+      ->getViewDisplay($this->entityType, $this->bundle)
+      ->setComponent($this->fieldName, [
+        'type' => $formatter,
+      ])
+      ->save();
+
+    $storage = $this->entityTypeManager->getStorage($this->entityType);
+    /** @var \Drupal\Core\Entity\ContentEntityInterface $referenced_entity */
+    $referenced_entity = $storage->create(['name' => $this->randomMachineName()]);
+
+    $referencing_entities = array_map(function () use ($storage, $referenced_entity) {
+      $referencing_entity = $storage->create([
+        'name' => $this->randomMachineName(),
+        $this->fieldName => $referenced_entity,
+      ]);
+      $referencing_entity->save();
+      return $referencing_entity;
+    }, range(0, 29));
+
+    $build = $view_builder->viewMultiple($referencing_entities, 'default');
+    $output = $this->render($build);
+
+    // The title of entity_test entities is printed twice by default, so we have
+    // to multiply the formatter's recursive rendering protection limit by 2.
+    $expected_occurrences = 30 * 2;
+    $actual_occurrences = substr_count($output, $referenced_entity->get('name')->value);
+    $this->assertEquals($expected_occurrences, $actual_occurrences);
   }
 
   /**
@@ -351,7 +405,10 @@ class DynamicEntityReferenceFormatterTest extends EntityKernelTestBase {
     }
 
     // Build the renderable array for the field.
-    return $items->view(['type' => $formatter, 'settings' => $formatter_options]);
+    return $items->view([
+      'type' => $formatter,
+      'settings' => $formatter_options,
+    ]);
   }
 
   /**

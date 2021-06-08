@@ -4,4 +4,3 @@ entity.ctools_wizard_test_config_entity.collection:
   route_name: entity.ctools_wizard_test_config_entity.collection
   description: 'List Example config entity'
   parent: system.admin_structure
-
