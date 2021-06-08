@@ -1,12 +1,12 @@
 version: '3.0'
 services:
   cms:
+    container_name: cms
     build:
       context: ./
       dockerfile: .docker/Dockerfile
     ports:
       - 80:80
-      - 2222:2222
     volumes:
       - .:/var/www/:delegated
     env_file:
