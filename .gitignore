@@ -44,7 +44,9 @@
 /.editorconfig
 
 /drush/contrib/
+/web/core
 /web/core/
+/web/core/*
 /web/modules/contrib/
 /web/themes/contrib/
 /web/profiles/contrib/
