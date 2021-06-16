@@ -1,6 +1,0 @@
-autosave_form.admin_settings:
-  title: 'Autosave form settings'
-  parent: system.admin_config_content
-  description: 'Change interval and forms on which autosave is active.'
-  route_name: autosave_form.admin_settings
-  weight: -20

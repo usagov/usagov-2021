@@ -96,10 +96,6 @@ RUN apk upgrade --update --no-cache \
     && curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer \
     && chmod a+x /usr/local/bin/composer \
-    && composer global require drush/drush:10.* drupal/console:~1.0 --prefer-dist --optimize-autoloader \
-    && composer global update --no-plugins --no-scripts \
-    && ln -s /root/.composer/vendor/bin/drush /usr/local/bin/drush \
-    && chmod a+x /usr/local/bin/drush /root/.composer/vendor/bin/drush \
     # cleanup
     && rm -rf /var/cache/apk/*
 
@@ -114,7 +110,7 @@ RUN chown nginx:nginx /var/www
 
 # This contianer is not fully functional 
 # it is assuming a volume will be mounted at runtime to /var/www/web/sites/default/files
-# which will contain all the files necessary for the container to be fully functional
+# which will contain all the public drupal files necessary for the container to be fully functional
 
 RUN echo "    built:" $(date) >> /etc/motd \
     && echo "    branch: " $GITBRANCH >> /etc/motd \

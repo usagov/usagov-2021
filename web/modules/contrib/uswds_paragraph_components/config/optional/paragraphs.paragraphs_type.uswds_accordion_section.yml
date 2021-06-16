@@ -1,9 +1,0 @@
-langcode: en
-status: true
-dependencies: {  }
-id: uswds_accordion_section
-label: 'USWDS Accordion Section'
-icon_uuid: null
-icon_default: null
-description: ''
-behavior_plugins: {  }

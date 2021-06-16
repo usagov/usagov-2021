@@ -1,6 +1,0 @@
-services:
-  scheduled_publish.commands:
-    class: \Drupal\scheduled_publish\Commands\ScheduledPublishCommands
-    tags:
-      - { name: drush.command }
-    arguments: ['@scheduled_publish.update']

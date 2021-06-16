@@ -1,7 +1,0 @@
-webform.variant.test:
-  type: mapping
-  label: Test
-  mapping:
-    debug:
-      label: Debug
-      type: string

@@ -1,5 +1,0 @@
-form_add:
-  version: VERSION
-  css:
-    layout:
-      css/scheduled_transitions.form_add.css: {}

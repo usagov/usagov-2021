@@ -1,8 +1,0 @@
-.cke_templates_dialog .cke_dialog_ui_checkbox input {
-  vertical-align: middle;
-}
-
-/* Set correct alignment for the "Replace actual content" checkbox */
-.cke_reset_all .cke_templates_dialog .cke_dialog_ui_checkbox label {
-  display: inline-block;
-}

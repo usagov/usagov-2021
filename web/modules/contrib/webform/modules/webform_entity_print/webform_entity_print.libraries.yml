@@ -1,5 +1,0 @@
-webform_entity_print:
-  version: VERSION
-  css:
-    theme:
-      css/webform_entity_print.css: { }

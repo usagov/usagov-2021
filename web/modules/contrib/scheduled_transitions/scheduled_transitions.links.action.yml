@@ -1,3 +1,0 @@
-scheduled_transitions.actions:
-  deriver: '\Drupal\scheduled_transitions\Plugin\Derivative\ScheduledTransitionsLocalActions'
-  weight: 100

@@ -1,9 +1,0 @@
-langcode: en
-status: true
-dependencies: {  }
-id: uswds_cards_flag
-label: 'USWDS Cards (Flag)'
-icon_uuid: null
-icon_default: null
-description: ''
-behavior_plugins: {  }
