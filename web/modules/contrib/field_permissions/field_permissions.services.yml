@@ -1,8 +1,0 @@
-# defines a FieldPermissionsService
-services:
-  field_permissions.permissions_service:
-    class: Drupal\field_permissions\FieldPermissionsService
-    arguments: ['@entity_type.manager', '@plugin.field_permissions.types.manager']
-  plugin.field_permissions.types.manager:
-    class: Drupal\field_permissions\Plugin\FieldPermissionType\Manager
-    parent: default_plugin_manager

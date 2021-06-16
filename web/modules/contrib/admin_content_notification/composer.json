@@ -1,6 +1,0 @@
-{
-  "name": "drupal/admin_content_notification",
-  "description": "Enable Admin Content Notification.",
-  "type": "drupal-module",
-  "license": "GPL-2.0"
-}

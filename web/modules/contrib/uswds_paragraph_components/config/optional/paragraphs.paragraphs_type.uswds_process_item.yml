@@ -1,9 +1,0 @@
-langcode: en
-status: true
-dependencies: {  }
-id: uswds_process_item
-label: 'USWDS Process Item'
-icon_uuid: null
-icon_default: null
-description: ''
-behavior_plugins: {  }

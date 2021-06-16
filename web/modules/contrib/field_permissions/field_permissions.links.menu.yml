@@ -1,5 +1,0 @@
-field_permissions.reports:
-  title: 'Report all field permissions'
-  parent: system.admin_reports
-  description: 'Report all permissions set.'
-  route_name: field_permissions.reports

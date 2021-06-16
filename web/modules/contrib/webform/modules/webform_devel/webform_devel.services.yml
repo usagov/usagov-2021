@@ -1,4 +1,0 @@
-services:
-  webform_devel.schema:
-    class: Drupal\webform_devel\WebformDevelSchema
-    arguments: ['@plugin.manager.element_info', '@entity_field.manager', '@plugin.manager.webform.element']

@@ -1,9 +1,0 @@
-# Schema for the Field Permissions module.
-
-field.storage.*.*.third_party.field_permissions:
-  type: mapping
-  label: 'Field permission settings'
-  mapping:
-    permission_type:
-      type: string
-      label: 'Permission type'

@@ -20,12 +20,13 @@ export S3_REGION
 # chown nginx:nginx /var/www
 # chown -R nginx:nginx /var/www
 
-# if [ -n "$S3_BUCKET" ] && [ -n "$S3_REGION" ]; then
-#   # Add Proxy rewrite rules to the top of the htaccess file
-#   sed "s/^#RewriteRule .s3fs/RewriteRule ^s3fs/" "$APP_ROOT/web/template-.htaccess" > "$APP_ROOT/web/.htaccess"
-# else
-#   cp "$APP_ROOT/web/template-.htaccess" "$APP_ROOT/web/.htaccess"
-# fi
+if [ -n "$S3_BUCKET" ] && [ -n "$S3_REGION" ]; then
+  # Add Proxy rewrite rules to the top of the htaccess file
+  # sed "s/^#RewriteRule .s3fs/RewriteRule ^s3fs/" "$APP_ROOT/web/template-.htaccess" > "$APP_ROOT/web/.htaccess"
+  # Add Proxy rewrite rule to nginx ???
+else
+  # cp "$APP_ROOT/web/template-.htaccess" "$APP_ROOT/web/.htaccess"
+fi
 
 # install_drupal() {
 #     ROOT_USER_NAME=$(echo $SECRETS | jq -r '.ROOT_USER_NAME')

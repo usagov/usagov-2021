@@ -79,14 +79,11 @@ cf set-env web S3_BUCKET "$S3_BUCKET"
 cf set-env web S3_REGION "$S3_REGION"
 cf delete-service-key storage storagekey -f
 
-cf map-route registry apps.internal --hostname registry
-cf add-network-policy web registry --protocol tcp --port 5000
-cf add-network-policy redis registry --protocol tcp --port 5000
+# cf map-route registry apps.internal --hostname registry
+# cf add-network-policy web registry --protocol tcp --port 5000
 
 cf restart web
-cf restart registry
-cf restart redis
-
+# cf restart registry
 
 # tell people where to go
 ROUTE=$(cf apps | grep web | awk '{print $6}')

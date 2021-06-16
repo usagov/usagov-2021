@@ -1,9 +1,0 @@
-name: 'Entity Mask'
-core_version_requirement: ^8.8 || ^9
-type: module
-description: 'Allows an entity type to borrow the fields and display configuration of another entity type.'
-
-# Information added by Drupal.org packaging script on 2021-05-12
-version: '8.x-3.6'
-project: 'ctools'
-datestamp: 1620832815

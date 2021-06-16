@@ -1,8 +1,0 @@
-webform_access.admin:
-  version: VERSION
-  js:
-    js/webform_access.admin.js: {}
-  dependencies:
-    - core/drupal
-    - core/jquery
-    - core/jquery.once

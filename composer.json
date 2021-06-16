@@ -24,6 +24,7 @@
         "drupal/block_content_revision_ui": "^2.127",
         "drupal/ckeditor_media_oembed_plugin": "^1.0",
         "drupal/clientside_validation": "3.0.x-dev",
+        "drupal/console": "^1.9",
         "drupal/content_lock": "^2.2",
         "drupal/core-composer-scaffold": "^9.1",
         "drupal/core-project-message": "^9.1",

@@ -1,3 +1,0 @@
-scheduled_transitions.tasks:
-  deriver: 'Drupal\scheduled_transitions\Plugin\Derivative\ScheduledTransitionsLocalTasks'
-  weight: 100

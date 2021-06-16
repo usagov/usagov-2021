@@ -1,5 +1,0 @@
-webform_examples_accessibility:
-  version: VERSION
-  css:
-    theme:
-      css/webform_examples_accessibility.css: {}

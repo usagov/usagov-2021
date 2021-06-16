@@ -1,4 +1,0 @@
-services:
-  scheduled_publish.update:
-    class: Drupal\scheduled_publish\Service\ScheduledPublishCron
-    arguments: ['@entity_type.bundle.info','@entity_field.manager','@entity_type.manager', '@datetime.time', '@content_moderation.moderation_information', '@logger.factory']

@@ -1,9 +1,0 @@
-name: Step by Step
-type: module
-description: 'Create step-by-step sequences (wizards) of excerpts from forms.'
-core_version_requirement: ^8 || ^9
-
-# Information added by Drupal.org packaging script on 2021-02-02
-version: '2.0.0-beta1'
-project: 'stepbystep'
-datestamp: 1612297918
