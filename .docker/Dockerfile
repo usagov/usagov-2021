@@ -103,8 +103,10 @@ COPY .docker/etc /etc
 COPY bootstrap.sh /var/www/bootstrap.sh
 COPY composer.json /var/www/composer.json
 COPY composer.lock /var/www/composer.lock
-COPY config /var/www/config
 COPY web /var/www/web
+COPY config /var/www/config
+COPY vendor /var/www/vendor
+COPY patches /var/www/patches
 
 RUN chown nginx:nginx /var/www
 
