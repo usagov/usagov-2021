@@ -47,8 +47,8 @@ class DependencyTest extends ModuleTestBase {
 
     $this->assertModules(['content_translation', 'language'], FALSE);
 
-    // Assert that the language tables weren't enabled.
-    $this->assertTableCount('language', FALSE);
+    // Assert that the language module config was not installed.
+    $this->assertNoModuleConfig('language');
 
     $this->submitForm([], 'Continue');
     $this->assertSession()->pageTextContains('2 modules have been enabled: Content Translation, Language.');
@@ -71,7 +71,8 @@ class DependencyTest extends ModuleTestBase {
   }
 
   /**
-   * Tests enabling a module that depends on an incompatible version of a module.
+   * Tests enabling a module that depends on an incompatible version of a
+   * module.
    */
   public function testIncompatibleModuleVersionDependency() {
     // Test that the system_incompatible_module_version_dependencies_test is

@@ -17,8 +17,15 @@ default_config: &defaults
 
 applications:
 - name: web
-  <<: *defaults
-  memory: 512M
+  docker:
+    image: ednark/usagov-2021:latest
+  memory: 256M
+  disk_quota: 1G
+  timeout: 180
+  services:
+    - database
+    - secrets
+    - storage
   instances: 1
   random-route: true
 # - name: cronish

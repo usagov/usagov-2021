@@ -23,7 +23,11 @@ class ToolkitGdTest extends KernelTestBase {
    */
   protected $imageFactory;
 
-  // Colors that are used in testing.
+  /**
+   * Colors that are used in testing.
+   *
+   * @var array
+   */
   protected $black       = [0, 0, 0, 0];
   protected $red         = [255, 0, 0, 0];
   protected $green       = [0, 255, 0, 0];
@@ -31,7 +35,12 @@ class ToolkitGdTest extends KernelTestBase {
   protected $yellow      = [255, 255, 0, 0];
   protected $white       = [255, 255, 255, 0];
   protected $transparent = [0, 0, 0, 127];
-  // Used as rotate background colors.
+
+  /**
+   * Used as rotate background colors.
+   *
+   * @var array
+   */
   protected $fuchsia           = [255, 0, 255, 0];
   protected $rotateTransparent = [255, 255, 255, 127];
 
@@ -109,7 +118,7 @@ class ToolkitGdTest extends KernelTestBase {
     $this->assertEquals('gd', $this->imageFactory->getToolkitId(), 'The image factory is set to use the \'gd\' image toolkit.');
 
     // Test the list of supported extensions.
-    $expected_extensions = ['png', 'gif', 'jpeg', 'jpg', 'jpe'];
+    $expected_extensions = ['png', 'gif', 'jpeg', 'jpg', 'jpe', 'webp'];
     $supported_extensions = $this->imageFactory->getSupportedExtensions();
     $this->assertEquals($expected_extensions, array_intersect($expected_extensions, $supported_extensions));
 
@@ -121,6 +130,7 @@ class ToolkitGdTest extends KernelTestBase {
       'jpeg' => IMAGETYPE_JPEG,
       'jpg' => IMAGETYPE_JPEG,
       'jpe' => IMAGETYPE_JPEG,
+      'webp' => IMAGETYPE_WEBP,
     ];
     $image = $this->imageFactory->get();
     foreach ($expected_image_types as $extension => $expected_image_type) {
@@ -138,6 +148,7 @@ class ToolkitGdTest extends KernelTestBase {
       'image-test.gif',
       'image-test-no-transparency.gif',
       'image-test.jpg',
+      'img-test.webp',
     ];
 
     // Setup a list of tests to perform on each type.
@@ -210,6 +221,13 @@ class ToolkitGdTest extends KernelTestBase {
         'width' => 40,
         'height' => 20,
         'arguments' => ['extension' => 'png'],
+        'corners' => $default_corners,
+      ],
+      'convert_webp' => [
+        'function' => 'convert',
+        'width' => 40,
+        'height' => 20,
+        'arguments' => ['extension' => 'webp'],
         'corners' => $default_corners,
       ],
     ];
@@ -387,7 +405,7 @@ class ToolkitGdTest extends KernelTestBase {
     }
 
     // Test creation of image from scratch, and saving to storage.
-    foreach ([IMAGETYPE_PNG, IMAGETYPE_GIF, IMAGETYPE_JPEG] as $type) {
+    foreach ([IMAGETYPE_PNG, IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_WEBP] as $type) {
       $image = $this->imageFactory->get();
       $image->createNew(50, 20, image_type_to_extension($type, FALSE), '#ffff00');
       $file = 'from_null' . image_type_to_extension($type);

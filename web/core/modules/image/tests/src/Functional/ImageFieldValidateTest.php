@@ -23,7 +23,7 @@ class ImageFieldValidateTest extends ImageFieldTestBase {
   protected $defaultTheme = 'stark';
 
   /**
-   * Test image validity.
+   * Tests image validity.
    */
   public function testValid() {
     $file_system = $this->container->get('file_system');
@@ -63,7 +63,7 @@ class ImageFieldValidateTest extends ImageFieldTestBase {
     ];
     $this->drupalGet('node/' . $node . '/edit');
     $this->submitForm($edit, 'Upload');
-    $this->assertFileNotExists($expected_path . '/' . $zero_size_image->filename);
+    $this->assertFileDoesNotExist($expected_path . '/' . $zero_size_image->filename);
 
     // Try uploading an invalid image.
     $invalid_image = $invalid_image_files['invalid-img-test.png'];
@@ -72,7 +72,7 @@ class ImageFieldValidateTest extends ImageFieldTestBase {
     ];
     $this->drupalGet('node/' . $node . '/edit');
     $this->submitForm($edit, 'Upload');
-    $this->assertFileNotExists($expected_path . '/' . $invalid_image->filename);
+    $this->assertFileDoesNotExist($expected_path . '/' . $invalid_image->filename);
 
     // Upload a valid image again.
     $valid_image = $image_files[0];
@@ -85,7 +85,7 @@ class ImageFieldValidateTest extends ImageFieldTestBase {
   }
 
   /**
-   * Test min/max resolution settings.
+   * Tests min/max resolution settings.
    */
   public function testResolution() {
     $field_names = [
@@ -164,7 +164,7 @@ class ImageFieldValidateTest extends ImageFieldTestBase {
   }
 
   /**
-   * Test that required alt/title fields gets validated right.
+   * Tests that required alt/title fields gets validated right.
    */
   public function testRequiredAttributes() {
     $field_name = strtolower($this->randomMachineName());

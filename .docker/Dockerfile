@@ -108,7 +108,8 @@ COPY config /var/www/config
 COPY vendor /var/www/vendor
 COPY patches /var/www/patches
 
-RUN chown nginx:nginx /var/www
+RUN chown nginx:nginx /var/www \
+    && chown -R nginx:nginx /var/www
 
 # This contianer is not fully functional 
 # it is assuming a volume will be mounted at runtime to /var/www/web/sites/default/files

@@ -47,7 +47,7 @@ class PageCacheTest extends BrowserTestBase {
   }
 
   /**
-   * Test that cache tags are properly persisted.
+   * Tests that cache tags are properly persisted.
    *
    * Since tag based invalidation works, we know that our tag properly
    * persisted.
@@ -84,7 +84,7 @@ class PageCacheTest extends BrowserTestBase {
   }
 
   /**
-   * Test that the page cache doesn't depend on cacheability headers.
+   * Tests that the page cache doesn't depend on cacheability headers.
    */
   public function testPageCacheTagsIndependentFromCacheabilityHeaders() {
     // Disable the cacheability headers.
@@ -204,8 +204,8 @@ class PageCacheTest extends BrowserTestBase {
 
     $this->drupalGet('');
     $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'HIT');
-    $etag = $this->drupalGetHeader('ETag');
-    $last_modified = $this->drupalGetHeader('Last-Modified');
+    $etag = $this->getSession()->getResponseHeader('ETag');
+    $last_modified = $this->getSession()->getResponseHeader('Last-Modified');
 
     // Ensure a conditional request returns 304 Not Modified.
     $this->drupalGet('', [], ['If-Modified-Since' => $last_modified, 'If-None-Match' => $etag]);
@@ -468,7 +468,7 @@ class PageCacheTest extends BrowserTestBase {
   }
 
   /**
-   * Test the setting of forms to be immutable.
+   * Tests the setting of forms to be immutable.
    */
   public function testFormImmutability() {
     // Install the module that provides the test form.
@@ -577,7 +577,7 @@ class PageCacheTest extends BrowserTestBase {
   }
 
   /**
-   * Test a cacheable response with custom cache control.
+   * Tests a cacheable response with custom cache control.
    */
   public function testCacheableWithCustomCacheControl() {
     $config = $this->config('system.performance');
@@ -590,7 +590,7 @@ class PageCacheTest extends BrowserTestBase {
   }
 
   /**
-   * Test that URLs are cached in a not normalized form.
+   * Tests that URLs are cached in a not normalized form.
    */
   public function testNoUrlNormalization() {
 

@@ -5,6 +5,7 @@ namespace Drupal\KernelTests\Core\Database;
 use Drupal\Core\Database\InvalidQueryException;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\DatabaseExceptionWrapper;
+use Drupal\Core\Database\Query\SelectExtender;
 
 /**
  * Tests the Select query builder.
@@ -126,7 +127,7 @@ class SelectTest extends DatabaseTestBase {
   public function testSimpleSelectExpression() {
     $query = $this->connection->select('test');
     $name_field = $query->addField('test', 'name');
-    $age_field = $query->addExpression("age*2", 'double_age');
+    $age_field = $query->addExpression("[age]*2", 'double_age');
     $query->condition('age', 27);
     $result = $query->execute();
 
@@ -146,8 +147,8 @@ class SelectTest extends DatabaseTestBase {
   public function testSimpleSelectExpressionMultiple() {
     $query = $this->connection->select('test');
     $name_field = $query->addField('test', 'name');
-    $age_double_field = $query->addExpression("age*2");
-    $age_triple_field = $query->addExpression("age*3");
+    $age_double_field = $query->addExpression("[age]*2");
+    $age_triple_field = $query->addExpression("[age]*3");
     $query->condition('age', 27);
     $result = $query->execute();
 
@@ -280,7 +281,7 @@ class SelectTest extends DatabaseTestBase {
    */
   public function testExtenderAlwaysFalseCondition() {
     $names = $this->connection->select('test', 'test')
-      ->extend('Drupal\Core\Database\Query\SelectExtender')
+      ->extend(SelectExtender::class)
       ->fields('test', ['name'])
       ->condition('age', 27)
       ->execute()->fetchCol();
@@ -289,7 +290,7 @@ class SelectTest extends DatabaseTestBase {
     $this->assertSame($names[0], 'George');
 
     $names = $this->connection->select('test', 'test')
-      ->extend('Drupal\Core\Database\Query\SelectExtender')
+      ->extend(SelectExtender::class)
       ->fields('test', ['name'])
       ->condition('age', 27)
       ->alwaysFalse()
@@ -546,38 +547,34 @@ class SelectTest extends DatabaseTestBase {
     $query = $this->connection->select('test', 't');
     $alias1 = $query->addField('t', 'name', 'the_alias');
     $alias2 = $query->addField('t', 'age', 'the_alias');
-    $this->assertNotIdentical($alias1, $alias2, 'Duplicate aliases are renamed.');
+    $this->assertNotSame($alias1, $alias2, 'Duplicate aliases are renamed.');
+  }
+
+  /**
+   * Tests deprecation of the 'throw_exception' option.
+   *
+   * @group legacy
+   */
+  public function testLegacyThrowExceptionOption(): void {
+    $this->expectDeprecation("Passing a 'throw_exception' option to %AExceptionHandler::handleExecutionException is deprecated in drupal:9.2.0 and is removed in drupal:10.0.0. Always catch exceptions. See https://www.drupal.org/node/3201187");
+    // This query will fail because the table does not exist.
+    $this->assertNull($this->connection->select('some_table_that_does_not_exist', 't', ['throw_exception' => FALSE])
+      ->fields('t')
+      ->countQuery()
+      ->execute()
+    );
   }
 
   /**
    * Tests that an invalid count query throws an exception.
    */
   public function testInvalidSelectCount() {
-    try {
-      // This query will fail because the table does not exist.
-      // Normally it would throw an exception but we are suppressing
-      // it with the throw_exception option.
-      $options['throw_exception'] = FALSE;
-      $this->connection->select('some_table_that_does_not_exist', 't', $options)
-        ->fields('t')
-        ->countQuery()
-        ->execute();
-    }
-    catch (\Exception $e) {
-      $this->fail('$options[\'throw_exception\'] is FALSE, but Exception thrown for invalid query.');
-    }
-
-    try {
-      // This query will fail because the table does not exist.
-      $this->connection->select('some_table_that_does_not_exist', 't')
-        ->fields('t')
-        ->countQuery()
-        ->execute();
-      $this->fail('No Exception thrown.');
-    }
-    catch (\Exception $e) {
-      $this->assertInstanceOf(DatabaseExceptionWrapper::class, $e);
-    }
+    $this->expectException(DatabaseExceptionWrapper::class);
+    // This query will fail because the table does not exist.
+    $this->connection->select('some_table_that_does_not_exist', 't')
+      ->fields('t')
+      ->countQuery()
+      ->execute();
   }
 
   /**

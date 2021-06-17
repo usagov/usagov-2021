@@ -387,15 +387,15 @@ class CKEditorTest extends KernelTestBase {
     $langcodes = $this->ckeditor->getLangcodes();
 
     // Language codes transformed with browser mappings.
-    $this->assertTrue($langcodes['pt-pt'] == 'pt', '"pt" properly resolved');
-    $this->assertTrue($langcodes['zh-hans'] == 'zh-cn', '"zh-hans" properly resolved');
+    $this->assertSame('pt', $langcodes['pt-pt'], '"pt" properly resolved');
+    $this->assertSame('zh-cn', $langcodes['zh-hans'], '"zh-hans" properly resolved');
 
     // Language code both in Drupal and CKEditor.
-    $this->assertTrue($langcodes['gl'] == 'gl', '"gl" properly resolved');
+    $this->assertSame('gl', $langcodes['gl'], '"gl" properly resolved');
 
     // Language codes only in CKEditor.
-    $this->assertTrue($langcodes['en-au'] == 'en-au', '"en-au" properly resolved');
-    $this->assertTrue($langcodes['sr-latn'] == 'sr-latn', '"sr-latn" properly resolved');
+    $this->assertSame('en-au', $langcodes['en-au'], '"en-au" properly resolved');
+    $this->assertSame('sr-latn', $langcodes['sr-latn'], '"sr-latn" properly resolved');
 
     // No locale module, so even though languages are enabled, CKEditor should
     // still be in English.
@@ -418,6 +418,45 @@ class CKEditorTest extends KernelTestBase {
 
     // With locale module, CKEditor should not adhere to the language selected.
     $this->assertCKEditorLanguage();
+  }
+
+  /**
+   * Tests loading of theme's CKEditor stylesheets defined in the .info file.
+   */
+  public function testExternalStylesheets() {
+    /** @var \Drupal\Core\Extension\ThemeInstallerInterface $theme_installer */
+    $theme_installer = \Drupal::service('theme_installer');
+    // Case 1: Install theme which has an absolute external CSS URL.
+    $theme_installer->install(['test_ckeditor_stylesheets_external']);
+    $this->config('system.theme')->set('default', 'test_ckeditor_stylesheets_external')->save();
+    $expected = [
+      'https://fonts.googleapis.com/css?family=Open+Sans',
+    ];
+    $this->assertSame($expected, _ckeditor_theme_css('test_ckeditor_stylesheets_external'));
+
+    // Case 2: Install theme which has an external protocol-relative CSS URL.
+    $theme_installer->install(['test_ckeditor_stylesheets_protocol_relative']);
+    $this->config('system.theme')->set('default', 'test_ckeditor_stylesheets_protocol_relative')->save();
+    $expected = [
+      '//fonts.googleapis.com/css?family=Open+Sans',
+    ];
+    $this->assertSame($expected, _ckeditor_theme_css('test_ckeditor_stylesheets_protocol_relative'));
+
+    // Case 3: Install theme which has a relative CSS URL.
+    $theme_installer->install(['test_ckeditor_stylesheets_relative']);
+    $this->config('system.theme')->set('default', 'test_ckeditor_stylesheets_relative')->save();
+    $expected = [
+      'core/modules/system/tests/themes/test_ckeditor_stylesheets_relative/css/yokotsoko.css',
+    ];
+    $this->assertSame($expected, _ckeditor_theme_css('test_ckeditor_stylesheets_relative'));
+
+    // Case 4: Install theme which has a Drupal root CSS URL.
+    $theme_installer->install(['test_ckeditor_stylesheets_drupal_root']);
+    $this->config('system.theme')->set('default', 'test_ckeditor_stylesheets_drupal_root')->save();
+    $expected = [
+      'core/modules/system/tests/themes/test_ckeditor_stylesheets_drupal_root/css/yokotsoko.css',
+    ];
+    $this->assertSame($expected, _ckeditor_theme_css('test_ckeditor_stylesheets_drupal_root'));
   }
 
   /**

@@ -85,7 +85,7 @@ class ViewStorageTest extends ViewsKernelTestBase {
     // expected properties.
     $this->assertInstanceOf(View::class, $view);
     foreach ($this->configProperties as $property) {
-      $this->assertTrue($view->get($property) !== NULL, new FormattableMarkup('Property: @property loaded onto View.', ['@property' => $property]));
+      $this->assertNotNull($view->get($property), new FormattableMarkup('Property: @property loaded onto View.', ['@property' => $property]));
     }
 
     // Check the displays have been loaded correctly from config display data.
@@ -137,7 +137,7 @@ class ViewStorageTest extends ViewsKernelTestBase {
 
     // Test all properties except displays.
     foreach ($properties as $property) {
-      $this->assertTrue($created->get($property) !== NULL, new FormattableMarkup('Property: @property created on View.', ['@property' => $property]));
+      $this->assertNotNull($created->get($property), new FormattableMarkup('Property: @property created on View.', ['@property' => $property]));
       $this->assertSame($values[$property], $created->get($property), new FormattableMarkup('Property value: @property matches configuration value.', ['@property' => $property]));
     }
 
@@ -309,7 +309,7 @@ class ViewStorageTest extends ViewsKernelTestBase {
     $this->assertInstanceOf(View::class, $copy);
 
     // Check that the original view and the copy have different UUIDs.
-    $this->assertNotIdentical($view->storage->uuid(), $copy->uuid(), 'The copied view has a new UUID.');
+    $this->assertNotSame($view->storage->uuid(), $copy->uuid(), 'The copied view has a new UUID.');
 
     // Check the 'name' (ID) is using the View objects default value (NULL) as it
     // gets unset.

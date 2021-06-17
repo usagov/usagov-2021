@@ -58,7 +58,7 @@ class UpdateUploadTest extends UpdateTestBase {
     ];
     // This also checks that the correct archive extensions are allowed.
     $this->drupalGet('admin/modules/install');
-    $this->submitForm($edit, 'Install');
+    $this->submitForm($edit, 'Continue');
     $extensions = \Drupal::service('plugin.manager.archiver')->getExtensions();
     $this->assertSession()->pageTextContains(t('Only files with the following extensions are allowed: @archive_extensions.', ['@archive_extensions' => $extensions]));
     $this->assertSession()->addressEquals('admin/modules/install');
@@ -71,38 +71,38 @@ class UpdateUploadTest extends UpdateTestBase {
       'files[project_upload]' => $validArchiveFile,
     ];
     $this->drupalGet('admin/modules/install');
-    $this->submitForm($edit, 'Install');
-    $this->assertSession()->pageTextContains('AAA Update test is already installed.');
+    $this->submitForm($edit, 'Continue');
+    $this->assertSession()->pageTextContains('AAA Update test is already present.');
     $this->assertSession()->addressEquals('admin/modules/install');
 
     // Ensure that a new module can be extracted and installed.
     $updaters = drupal_get_updaters();
     $moduleUpdater = $updaters['module']['class'];
     $installedInfoFilePath = $this->container->get('update.root') . '/' . $moduleUpdater::getRootDirectoryRelativePath() . '/update_test_new_module/update_test_new_module.info.yml';
-    $this->assertFileNotExists($installedInfoFilePath);
+    $this->assertFileDoesNotExist($installedInfoFilePath);
     $validArchiveFile = __DIR__ . '/../../update_test_new_module/8.x-1.0/update_test_new_module.tar.gz';
     $edit = [
       'files[project_upload]' => $validArchiveFile,
     ];
     $this->drupalGet('admin/modules/install');
-    $this->submitForm($edit, 'Install');
+    $this->submitForm($edit, 'Continue');
     // Check that submitting the form takes the user to authorize.php.
     $this->assertSession()->addressEquals('core/authorize.php');
     $this->assertSession()->titleEquals('Update manager | Drupal');
     // Check for a success message on the page, and check that the installed
     // module now exists in the expected place in the filesystem.
-    $this->assertRaw(t('Installed %project_name successfully', ['%project_name' => 'update_test_new_module']));
+    $this->assertRaw(t('Added / updated %project_name successfully', ['%project_name' => 'update_test_new_module']));
     $this->assertFileExists($installedInfoFilePath);
     // Ensure the links are relative to the site root and not
     // core/authorize.php.
-    $this->assertSession()->linkExists('Install another module');
+    $this->assertSession()->linkExists('Add another module');
     $this->assertSession()->linkByHrefExists(Url::fromRoute('update.module_install')->toString());
     $this->assertSession()->linkExists('Enable newly added modules');
     $this->assertSession()->linkByHrefExists(Url::fromRoute('system.modules_list')->toString());
     $this->assertSession()->linkExists('Administration pages');
     $this->assertSession()->linkByHrefExists(Url::fromRoute('system.admin')->toString());
-    // Ensure we can reach the "Install another module" link.
-    $this->clickLink(t('Install another module'));
+    // Ensure we can reach the "Add another module" link.
+    $this->clickLink(t('Add another module'));
     $this->assertSession()->statusCodeEquals(200);
     $this->assertSession()->addressEquals('admin/modules/install');
 
@@ -138,7 +138,7 @@ class UpdateUploadTest extends UpdateTestBase {
     $this->submitForm(['projects[update_test_new_module]' => TRUE], 'Download these updates');
     $this->submitForm(['maintenance_mode' => FALSE], 'Continue');
     $this->assertSession()->pageTextContains('Update was completed successfully.');
-    $this->assertRaw(t('Installed %project_name successfully', ['%project_name' => 'update_test_new_module']));
+    $this->assertRaw(t('Added / updated %project_name successfully', ['%project_name' => 'update_test_new_module']));
 
     // Parse the info file again to check that the module has been updated to
     // 8.x-1.1.

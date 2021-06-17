@@ -455,11 +455,11 @@ class ManageFieldsFunctionalTest extends BrowserTestBase {
   public function assertFieldSettings($bundle, $field_name, $string = 'dummy test string', $entity_type = 'node') {
     // Assert field storage settings.
     $field_storage = FieldStorageConfig::loadByName($entity_type, $field_name);
-    $this->assertTrue($field_storage->getSetting('test_field_storage_setting') == $string, 'Field storage settings were found.');
+    $this->assertSame($string, $field_storage->getSetting('test_field_storage_setting'), 'Field storage settings were found.');
 
     // Assert field settings.
     $field = FieldConfig::loadByName($entity_type, $bundle, $field_name);
-    $this->assertTrue($field->getSetting('test_field_setting') == $string, 'Field settings were found.');
+    $this->assertSame($string, $field->getSetting('test_field_setting'), 'Field settings were found.');
   }
 
   /**
@@ -800,10 +800,10 @@ class ManageFieldsFunctionalTest extends BrowserTestBase {
     $this->drupalGet('admin/structure/types/manage/article/fields/node.article.field_image');
     $this->submitForm($edit, 'Save settings');
 
-    // Check that hook_field_widget_form_alter() does believe this is the
-    // default value form.
+    // Check that hook_field_widget_single_element_form_alter() does believe
+    // this is the default value form.
     $this->drupalGet('admin/structure/types/manage/article/fields/node.article.field_tags');
-    $this->assertSession()->pageTextContains('From hook_field_widget_form_alter(): Default form is true.');
+    $this->assertSession()->pageTextContains('From hook_field_widget_single_element_form_alter(): Default form is true.');
 
     $edit = [
       'description' => '<em>Test with a non upload field.',

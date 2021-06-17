@@ -105,7 +105,7 @@ class DbLogTest extends BrowserTestBase {
   }
 
   /**
-   * Test individual log event page.
+   * Tests individual log event page.
    */
   public function testLogEventPage() {
     // Login the admin user.
@@ -124,7 +124,7 @@ class DbLogTest extends BrowserTestBase {
     ];
     \Drupal::service('logger.dblog')->log(RfcLogLevel::NOTICE, 'Test message', $context);
     $query = Database::getConnection()->select('watchdog');
-    $query->addExpression('MAX(wid)');
+    $query->addExpression('MAX([wid])');
     $wid = $query->execute()->fetchField();
 
     // Verify the links appear correctly.
@@ -157,7 +157,7 @@ class DbLogTest extends BrowserTestBase {
 
     $query = Database::getConnection()->select('watchdog')
       ->condition('type', 'access denied');
-    $query->addExpression('MAX(wid)');
+    $query->addExpression('MAX([wid])');
     $wid = $query->execute()->fetchField();
     $this->drupalGet('admin/reports/dblog/event/' . $wid);
 
@@ -180,11 +180,11 @@ class DbLogTest extends BrowserTestBase {
     $message = $table[0]->findAll('xpath', "//tr/th[contains(text(), 'Message')]/../td");
     $this->assertCount(1, $message);
     $regex = "@Path: .+admin/reports\. Drupal\\\\Core\\\\Http\\\\Exception\\\\CacheableAccessDeniedHttpException: The 'access site reports' permission is required\. in Drupal\\\\Core\\\\Routing\\\\AccessAwareRouter->checkAccess\(\) \(line \d+ of .+/core/lib/Drupal/Core/Routing/AccessAwareRouter\.php\)\.@";
-    $this->assertRegExp($regex, $message[0]->getText());
+    $this->assertMatchesRegularExpression($regex, $message[0]->getText());
   }
 
   /**
-   * Test not-existing log event page.
+   * Tests not-existing log event page.
    */
   public function testLogEventNotFoundPage() {
     // Login the admin user.
@@ -197,7 +197,7 @@ class DbLogTest extends BrowserTestBase {
   }
 
   /**
-   * Test individual log event page with missing log attributes.
+   * Tests individual log event page with missing log attributes.
    *
    * In some cases few log attributes are missing. For example:
    * - Missing referer: When request is made to a specific url directly and
@@ -214,7 +214,7 @@ class DbLogTest extends BrowserTestBase {
       'referer' => NULL,
     ]);
     $query = $connection->select('watchdog');
-    $query->addExpression('MAX(wid)');
+    $query->addExpression('MAX([wid])');
     $wid = $query->execute()->fetchField();
     $this->drupalGet('admin/reports/dblog/event/' . $wid);
 
@@ -230,7 +230,7 @@ class DbLogTest extends BrowserTestBase {
       'request_uri' => $request_uri,
     ]);
     $query = $connection->select('watchdog');
-    $query->addExpression('MAX(wid)');
+    $query->addExpression('MAX([wid])');
     $wid = $query->execute()->fetchField();
     $this->drupalGet('admin/reports/dblog/event/' . $wid);
 
@@ -278,7 +278,7 @@ class DbLogTest extends BrowserTestBase {
    *   (optional) The log entry type.
    * @param string $severity
    *   (optional) The log entry severity.
-  */
+   */
   protected function filterLogsEntries($type = NULL, $severity = NULL) {
     $edit = [];
     if (isset($type)) {
@@ -333,7 +333,7 @@ class DbLogTest extends BrowserTestBase {
 
     // View the database log event page.
     $query = Database::getConnection()->select('watchdog');
-    $query->addExpression('MIN(wid)');
+    $query->addExpression('MIN([wid])');
     $wid = $query->execute()->fetchField();
     $this->drupalGet('admin/reports/dblog/event/' . $wid);
     $this->assertSession()->statusCodeEquals($response);
@@ -348,7 +348,7 @@ class DbLogTest extends BrowserTestBase {
   private function verifyBreadcrumbs() {
     // View the database log event page.
     $query = Database::getConnection()->select('watchdog');
-    $query->addExpression('MIN(wid)');
+    $query->addExpression('MIN([wid])');
     $wid = $query->execute()->fetchField();
     $this->drupalGet('admin/reports/dblog/event/' . $wid);
     $xpath = '//nav[@class="breadcrumb"]/ol/li[last()]/a';
@@ -823,7 +823,7 @@ class DbLogTest extends BrowserTestBase {
     // Generate a single watchdog entry.
     $this->generateLogEntries(1, ['user' => $tempuser, 'uid' => $tempuser_uid]);
     $query = Database::getConnection()->select('watchdog');
-    $query->addExpression('MAX(wid)');
+    $query->addExpression('MAX([wid])');
     $wid = $query->execute()->fetchField();
 
     // Check if the full message displays on the details page.
@@ -856,7 +856,7 @@ class DbLogTest extends BrowserTestBase {
     // Make sure HTML tags are filtered out in admin/reports/dblog/event/ too.
     $this->generateLogEntries(1, ['message' => "<script>alert('foo');</script> <strong>Lorem ipsum</strong>"]);
     $query = Database::getConnection()->select('watchdog');
-    $query->addExpression('MAX(wid)');
+    $query->addExpression('MAX([wid])');
     $wid = $query->execute()->fetchField();
     $this->drupalGet('admin/reports/dblog/event/' . $wid);
     $this->assertNoRaw("<script>alert('foo');</script>");
@@ -864,7 +864,7 @@ class DbLogTest extends BrowserTestBase {
   }
 
   /**
-   * Test sorting for entries with the same timestamp.
+   * Tests sorting for entries with the same timestamp.
    */
   public function testSameTimestampEntries() {
     $this->drupalLogin($this->adminUser);
@@ -889,7 +889,7 @@ class DbLogTest extends BrowserTestBase {
     $this->drupalGet('/error-test/generate-warnings');
 
     $query = Database::getConnection()->select('watchdog');
-    $query->addExpression('MAX(wid)');
+    $query->addExpression('MAX([wid])');
     $wid = $query->execute()->fetchField();
     $this->drupalGet('admin/reports/dblog/event/' . $wid);
 

@@ -79,7 +79,8 @@ class PagerTest extends BrowserTestBase {
   }
 
   /**
-   * Test proper functioning of the query parameters and the pager cache context.
+   * Tests proper functioning of the query parameters and the pager cache
+   * context.
    */
   public function testPagerQueryParametersAndCacheContext() {
     // First page.
@@ -108,7 +109,7 @@ class PagerTest extends BrowserTestBase {
   }
 
   /**
-   * Test proper functioning of multiple pagers.
+   * Tests proper functioning of multiple pagers.
    */
   public function testMultiplePagers() {
     // First page.
@@ -191,7 +192,7 @@ class PagerTest extends BrowserTestBase {
   }
 
   /**
-   * Test proper functioning of the ellipsis.
+   * Tests proper functioning of the ellipsis.
    */
   public function testPagerEllipsis() {
     // Insert 100 extra log messages to get 9 pages.
@@ -326,7 +327,7 @@ class PagerTest extends BrowserTestBase {
     if (!isset($message)) {
       $message = "Class .$class found.";
     }
-    $this->assertTrue($element->hasClass($class) !== FALSE, $message);
+    $this->assertTrue($element->hasClass($class), $message);
   }
 
   /**
@@ -343,7 +344,7 @@ class PagerTest extends BrowserTestBase {
     if (!isset($message)) {
       $message = "Class .$class not found.";
     }
-    $this->assertTrue($element->hasClass($class) === FALSE, $message);
+    $this->assertFalse($element->hasClass($class), $message);
   }
 
 }

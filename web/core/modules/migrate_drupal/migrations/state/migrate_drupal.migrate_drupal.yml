@@ -1,7 +1,7 @@
 # The modules listed here do not have an migration. A status of finished is
 # assigned so that they appear in the will not be upgraded list on the Review
 # form.
-# cspell:ignore imageapi imagemagick userreference
+# cspell:ignore imageapi imagefield imagemagick multiupload
 finished:
   6:
     nodereference: core
@@ -72,6 +72,9 @@ finished:
     entityreference: core
     field_ui: core
     help: core
+    multiupload_filefield_widget: core
+    multiupload_imagefield_widget: core
+    node_reference: core
     openid: core
     overlay: core
     page_manager: core
@@ -87,5 +90,9 @@ finished:
     toolbar: core
     translation: core
     trigger: core
+    user_reference: core
     views_content: core
     views_ui: core
+not_finished:
+  7:
+    references_uuid: core

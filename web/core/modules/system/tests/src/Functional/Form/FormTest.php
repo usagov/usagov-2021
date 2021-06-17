@@ -124,23 +124,19 @@ class FormTest extends BrowserTestBase {
           \Drupal::formBuilder()->prepareForm($form_id, $form, $form_state);
           \Drupal::formBuilder()->processForm($form_id, $form, $form_state);
           $errors = $form_state->getErrors();
-          // Form elements of type 'radios' throw all sorts of PHP notices
-          // when you try to render them like this, so we ignore those for
-          // testing the required marker.
-          // @todo Fix this work-around (https://www.drupal.org/node/588438).
-          $form_output = ($type == 'radios') ? '' : \Drupal::service('renderer')->renderRoot($form);
+          $form_output = \Drupal::service('renderer')->renderRoot($form);
           if ($required) {
             // Make sure we have a form error for this element.
             $this->assertTrue(isset($errors[$element]), "Check empty($key) '$type' field '$element'");
             if (!empty($form_output)) {
               // Make sure the form element is marked as required.
-              $this->assertRegExp($required_marker_preg, (string) $form_output, "Required '$type' field is marked as required");
+              $this->assertMatchesRegularExpression($required_marker_preg, (string) $form_output, "Required '$type' field is marked as required");
             }
           }
           else {
             if (!empty($form_output)) {
               // Make sure the form element is *not* marked as required.
-              $this->assertNotRegExp($required_marker_preg, (string) $form_output, "Optional '$type' field is not marked as required");
+              $this->assertDoesNotMatchRegularExpression($required_marker_preg, (string) $form_output, "Optional '$type' field is not marked as required");
             }
             if ($type == 'select') {
               // Select elements are going to have validation errors with empty
@@ -375,7 +371,7 @@ class FormTest extends BrowserTestBase {
   }
 
   /**
-   * Test default value handling for checkboxes.
+   * Tests default value handling for checkboxes.
    *
    * @see _form_test_checkbox()
    */
@@ -730,7 +726,7 @@ class FormTest extends BrowserTestBase {
   }
 
   /**
-   * Test handling of disabled elements.
+   * Tests handling of disabled elements.
    *
    * @see _form_test_disabled_elements()
    */
@@ -875,7 +871,7 @@ class FormTest extends BrowserTestBase {
   }
 
   /**
-   * Test Form API protections against input forgery.
+   * Tests Form API protections against input forgery.
    *
    * @see \Drupal\form_test\Form\FormTestInputForgeryForm
    */

@@ -18,7 +18,7 @@ class UserEditTest extends BrowserTestBase {
   protected $defaultTheme = 'stark';
 
   /**
-   * Test user edit page.
+   * Tests user edit page.
    */
   public function testUserEdit() {
     // Test user edit functionality.
@@ -85,6 +85,11 @@ class UserEditTest extends BrowserTestBase {
     $this->drupalGet("user/" . $user1->id() . "/edit");
     $this->submitForm($edit, 'Save');
     $this->assertRaw(t("The changes have been saved."));
+
+    // Confirm there's only one session in the database as the existing session
+    // has been migrated when the password is changed.
+    // @see \Drupal\user\Entity\User::postSave()
+    $this->assertSame(1, (int) \Drupal::database()->select('sessions', 's')->countQuery()->execute()->fetchField());
 
     // Make sure the changed timestamp is updated.
     $this->assertEquals(REQUEST_TIME, $user1->getChangedTime(), 'Changing a user sets "changed" timestamp.');

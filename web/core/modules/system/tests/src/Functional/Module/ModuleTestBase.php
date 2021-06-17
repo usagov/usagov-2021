@@ -8,6 +8,7 @@ use Drupal\Core\Database\Database;
 use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Tests\BrowserTestBase;
+use Drupal\TestTools\Extension\SchemaInspector;
 
 /**
  * Helper class for module test cases.
@@ -34,32 +35,13 @@ abstract class ModuleTestBase extends BrowserTestBase {
   }
 
   /**
-   * Assert there are tables that begin with the specified base table name.
-   *
-   * @param $base_table
-   *   Beginning of table name to look for.
-   * @param $count
-   *   (optional) Whether or not to assert that there are tables that match the
-   *   specified base table. Defaults to TRUE.
-   */
-  public function assertTableCount($base_table, $count = TRUE) {
-    $connection = Database::getConnection();
-    $tables = $connection->schema()->findTables($connection->prefixTables('{' . $base_table . '}') . '%');
-
-    if ($count) {
-      $this->assertNotEmpty($tables, new FormattableMarkup('Tables matching "@base_table" found.', ['@base_table' => $base_table]));
-    }
-    $this->assertEmpty($tables, new FormattableMarkup('Tables matching "@base_table" not found.', ['@base_table' => $base_table]));
-  }
-
-  /**
    * Assert that all tables defined in a module's hook_schema() exist.
    *
    * @param $module
    *   The name of the module.
    */
   public function assertModuleTablesExist($module) {
-    $tables = array_keys(drupal_get_module_schema($module));
+    $tables = array_keys(SchemaInspector::getTablesSpecification(\Drupal::moduleHandler(), $module));
     $tables_exist = TRUE;
     $schema = Database::getConnection()->schema();
     foreach ($tables as $table) {
@@ -77,7 +59,7 @@ abstract class ModuleTestBase extends BrowserTestBase {
    *   The name of the module.
    */
   public function assertModuleTablesDoNotExist($module) {
-    $tables = array_keys(drupal_get_module_schema($module));
+    $tables = array_keys(SchemaInspector::getTablesSpecification(\Drupal::moduleHandler(), $module));
     $tables_exist = FALSE;
     $schema = Database::getConnection()->schema();
     foreach ($tables as $table) {

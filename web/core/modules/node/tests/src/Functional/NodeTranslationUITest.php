@@ -22,7 +22,7 @@ class NodeTranslationUITest extends ContentTranslationUITestBase {
   protected $defaultTheme = 'stark';
 
   /**
-   * {inheritdoc}
+   * {@inheritdoc}
    */
   protected $defaultCacheContexts = [
     'languages:language_interface',
@@ -359,7 +359,7 @@ class NodeTranslationUITest extends ContentTranslationUITestBase {
           $num_match_found++;
         }
       }
-      $this->assertTrue($num_match_found == 1, 'There is 1 Read more link, ' . $expected_href . ', for the ' . $langcode . ' translation of a node on the frontpage. (Found ' . $num_match_found . '.)');
+      $this->assertSame(1, $num_match_found, 'There is 1 Read more link, ' . $expected_href . ', for the ' . $langcode . ' translation of a node on the frontpage. (Found ' . $num_match_found . '.)');
     }
 
     // Check the frontpage for 'Add new comment' links that include the
@@ -381,7 +381,7 @@ class NodeTranslationUITest extends ContentTranslationUITestBase {
           $num_match_found++;
         }
       }
-      $this->assertTrue($num_match_found == 1, 'There is 1 Add new comment link, ' . $expected_href . ', for the ' . $langcode . ' translation of a node on the frontpage. (Found ' . $num_match_found . '.)');
+      $this->assertSame(1, $num_match_found, 'There is 1 Add new comment link, ' . $expected_href . ', for the ' . $langcode . ' translation of a node on the frontpage. (Found ' . $num_match_found . '.)');
     }
 
     // Test that the node page displays the correct translations.
@@ -532,7 +532,7 @@ class NodeTranslationUITest extends ContentTranslationUITestBase {
     $original_revision_url = $original_revision->toUrl('revision')->toString();
 
     // Should be different from regular node URL.
-    $this->assertNotIdentical($original_revision_url, $original_revision->toUrl()->toString());
+    $this->assertNotSame($original_revision_url, $original_revision->toUrl()->toString());
     $this->drupalGet($original_revision_url);
     $this->assertSession()->statusCodeEquals(200);
 
@@ -544,8 +544,8 @@ class NodeTranslationUITest extends ContentTranslationUITestBase {
     $url_fr = $original_revision->getTranslation('fr')->toUrl('revision')->toString();
 
     // Should have different URL from English.
-    $this->assertNotIdentical($url_fr, $original_revision->toUrl()->toString());
-    $this->assertNotIdentical($url_fr, $original_revision_url);
+    $this->assertNotSame($url_fr, $original_revision->toUrl()->toString());
+    $this->assertNotSame($url_fr, $original_revision_url);
     $this->drupalGet($url_fr);
     $this->assertSession()->statusCodeEquals(200);
 
@@ -555,7 +555,7 @@ class NodeTranslationUITest extends ContentTranslationUITestBase {
   }
 
   /**
-   * Test that title is not escaped (but XSS-filtered) for details form element.
+   * Tests title is not escaped (but XSS-filtered) for details form element.
    */
   public function testDetailsTitleIsNotEscaped() {
     $this->drupalLogin($this->administrator);

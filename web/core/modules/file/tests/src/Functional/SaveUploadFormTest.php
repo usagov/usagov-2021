@@ -237,7 +237,7 @@ class SaveUploadFormTest extends FileManagedTestBase {
       'file_test_replace' => FileSystemInterface::EXISTS_REPLACE,
       'files[file_test_upload][]' => $file_system->realpath($this->phpfile->uri),
       'is_image_file' => FALSE,
-      'extensions' => 'php',
+      'extensions' => 'php txt',
     ];
 
     $this->drupalGet('file-test/save_upload_from_form_test');
@@ -268,6 +268,25 @@ class SaveUploadFormTest extends FileManagedTestBase {
 
     // Turn off insecure uploads.
     $config->set('allow_insecure_uploads', 0)->save();
+
+    // Reset the hook counters.
+    file_test_reset();
+
+    $edit = [
+      'file_test_replace' => FileSystemInterface::EXISTS_REPLACE,
+      'files[file_test_upload]' => \Drupal::service('file_system')->realpath($this->phpfile->uri),
+      'is_image_file' => FALSE,
+      'extensions' => 'php',
+    ];
+
+    $this->drupalGet('file-test/upload');
+    $this->submitForm($edit, 'Submit');
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->pageTextContains('For security reasons, your upload has been rejected.');
+    $this->assertSession()->pageTextContains('Epic upload FAIL!');
+
+    // Check that the correct hooks were called.
+    $this->assertFileHooksCalled(['validate']);
   }
 
   /**

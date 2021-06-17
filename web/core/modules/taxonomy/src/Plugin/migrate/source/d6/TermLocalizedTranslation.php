@@ -36,12 +36,13 @@ class TermLocalizedTranslation extends Term {
 
     // Add in the property, which is either name or description.
     // Cast td.tid as char for PostgreSQL compatibility.
-    $query->leftJoin('i18n_strings', 'i18n', 'CAST(td.tid AS CHAR(255)) = i18n.objectid');
+    $query->leftJoin('i18n_strings', 'i18n', 'CAST([td].[tid] AS CHAR(255)) = [i18n].[objectid]');
+    $query->condition('i18n.type', 'term');
     $query->addField('i18n', 'lid');
     $query->addField('i18n', 'property');
 
     // Add in the translation for the property.
-    $query->innerJoin('locales_target', 'lt', 'i18n.lid = lt.lid');
+    $query->innerJoin('locales_target', 'lt', '[i18n].[lid] = [lt].[lid]');
     $query->addField('lt', 'language', 'lt.language');
     $query->addField('lt', 'translation');
     return $query;
@@ -69,9 +70,10 @@ class TermLocalizedTranslation extends Term {
     $other_property = ($property == 'name') ? 'description' : 'name';
     $query = $this->select('i18n_strings', 'i18n')
       ->fields('i18n', ['lid'])
+      ->condition('i18n.type', 'term')
       ->condition('i18n.property', $other_property)
       ->condition('i18n.objectid', $tid);
-    $query->leftJoin('locales_target', 'lt', 'i18n.lid = lt.lid');
+    $query->leftJoin('locales_target', 'lt', '[i18n].[lid] = [lt].[lid]');
     $query->condition('lt.language', $language);
     $query->addField('lt', 'translation');
     $results = $query->execute()->fetchAssoc();

@@ -759,7 +759,7 @@ class SchemaTest extends KernelTestBase {
       $count = $this->connection
         ->select($table_name)
         ->fields($table_name, ['serial_column'])
-        ->where($table_name . '.' . $field_spec['initial_from_field'] . ' <> ' . $table_name . '.' . $field_name)
+        ->where("[$table_name].[{$field_spec['initial_from_field']}] <> [$table_name].[$field_name]")
         ->countQuery()
         ->execute()
         ->fetchField();
@@ -1011,6 +1011,8 @@ class SchemaTest extends KernelTestBase {
    *   The beginning field specification.
    * @param $new_spec
    *   The ending field specification.
+   * @param $test_data
+   *   (optional) A test value to insert and test, if specified.
    */
   protected function assertFieldChange($old_spec, $new_spec, $test_data = NULL) {
     $table_name = 'test_table_' . ($this->counter++);

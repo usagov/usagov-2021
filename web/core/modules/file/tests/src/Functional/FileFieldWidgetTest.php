@@ -474,6 +474,87 @@ class FileFieldWidgetTest extends FileFieldTestBase {
   }
 
   /**
+   * Tests maximum upload file size validation.
+   */
+  public function testMaximumUploadFileSizeValidation() {
+    // Grant the admin user required permissions.
+    user_role_grant_permissions($this->adminUser->roles[0]->target_id, ['administer node fields']);
+
+    $type_name = 'article';
+    $field_name = strtolower($this->randomMachineName());
+    $this->createFileField($field_name, 'node', $type_name);
+    /** @var \Drupal\Field\FieldConfigInterface $field */
+    $field = FieldConfig::loadByName('node', $type_name, $field_name);
+    $field_id = $field->id();
+    $this->drupalGet("admin/structure/types/manage/$type_name/fields/$field_id");
+
+    // Tests that form validation trims the user input.
+    $edit = ['settings[max_filesize]' => ' 5.1 megabytes '];
+    $this->submitForm($edit, 'Save settings');
+    $this->assertSession()->pageTextContains('Saved ' . $field_name . ' configuration.');
+
+    // Reload the field config to check for the saved value.
+    /** @var \Drupal\Field\FieldConfigInterface $field */
+    $field = FieldConfig::loadByName('node', $type_name, $field_name);
+    $settings = $field->getSettings();
+    $this->assertEquals('5.1 megabytes', $settings['max_filesize'], 'The max filesize value had been trimmed on save.');
+  }
+
+  /**
+   * Tests configuring file field's allowed file extensions setting.
+   */
+  public function testFileExtensionsSetting() {
+    // Grant the admin user required permissions.
+    user_role_grant_permissions($this->adminUser->roles[0]->target_id, ['administer node fields']);
+
+    $type_name = 'article';
+    $field_name = strtolower($this->randomMachineName());
+    $this->createFileField($field_name, 'node', $type_name);
+    $field = FieldConfig::loadByName('node', $type_name, $field_name);
+    $field_id = $field->id();
+
+    // By default allowing .php files without .txt is not permitted.
+    $this->drupalGet("admin/structure/types/manage/$type_name/fields/$field_id");
+    $edit = ['settings[file_extensions]' => 'jpg php'];
+    $this->submitForm($edit, 'Save settings');
+    $this->assertSession()->pageTextContains('Add txt to the list of allowed extensions to securely upload files with a php extension. The txt extension will then be added automatically.');
+
+    // Test allowing .php and .txt.
+    $edit = ['settings[file_extensions]' => 'jpg php txt'];
+    $this->submitForm($edit, 'Save settings');
+    $this->assertSession()->pageTextContains('Saved ' . $field_name . ' configuration.');
+
+    // If the system is configured to allow insecure uploads, .txt is not
+    // required when allowing .php.
+    $this->config('system.file')->set('allow_insecure_uploads', TRUE)->save();
+    $this->drupalGet("admin/structure/types/manage/$type_name/fields/$field_id");
+    $edit = ['settings[file_extensions]' => 'jpg php'];
+    $this->submitForm($edit, 'Save settings');
+    $this->assertSession()->pageTextContains('Saved ' . $field_name . ' configuration.');
+
+    // Check that a file extension with an underscore can be configured.
+    $edit = [
+      'settings[file_extensions]' => 'x_t x.t xt x_y_t',
+    ];
+    $this->drupalGet("admin/structure/types/manage/$type_name/fields/$field_id");
+    $this->submitForm($edit, 'Save settings');
+    $field = FieldConfig::loadByName('node', $type_name, $field_name);
+    $this->assertEquals('x_t x.t xt x_y_t', $field->getSetting('file_extensions'));
+
+    // Check that a file field with an invalid value in allowed extensions
+    // property throws an error message.
+    $invalid_extensions = ['x_.t', 'x._t', 'xt_', 'x__t', '_xt'];
+    foreach ($invalid_extensions as $value) {
+      $edit = [
+        'settings[file_extensions]' => $value,
+      ];
+      $this->drupalGet("admin/structure/types/manage/$type_name/fields/$field_id");
+      $this->submitForm($edit, 'Save settings');
+      $this->assertSession()->pageTextContains("The list of allowed extensions is not valid. Allowed characters are a-z, 0-9, '.', and '_'. The first and last characters cannot be '.' or '_', and these two characters cannot appear next to each other. Separate extensions with a comma or space.");
+    }
+  }
+
+  /**
    * Helper for testing exploiting the temporary file removal using fid.
    *
    * @param \Drupal\user\UserInterface $victim_user
