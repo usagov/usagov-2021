@@ -31,7 +31,7 @@ class CronRunTest extends BrowserTestBase {
   protected $defaultTheme = 'stark';
 
   /**
-   * Test cron runs.
+   * Tests cron runs.
    */
   public function testCronRun() {
     // Run cron anonymously without any cron key.
@@ -71,7 +71,7 @@ class CronRunTest extends BrowserTestBase {
       ->set('interval', $cron_safe_interval)
       ->save();
     $this->drupalGet('');
-    $this->assertTrue($cron_last == \Drupal::state()->get('system.cron_last'), 'Cron does not run when the cron interval is not passed.');
+    $this->assertSame($cron_last, \Drupal::state()->get('system.cron_last'), 'Cron does not run when the cron interval is not passed.');
 
     // Test if cron runs when the cron interval was passed.
     $cron_last = time() - 200;
@@ -91,7 +91,7 @@ class CronRunTest extends BrowserTestBase {
     $cron_last = time() - 200;
     \Drupal::state()->set('system.cron_last', $cron_last);
     $this->drupalGet('');
-    $this->assertTrue($cron_last == \Drupal::state()->get('system.cron_last'), 'Cron does not run when the cron threshold is disabled.');
+    $this->assertSame($cron_last, \Drupal::state()->get('system.cron_last'), 'Cron does not run when the cron threshold is disabled.');
   }
 
   /**

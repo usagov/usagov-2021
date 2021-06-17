@@ -44,8 +44,8 @@ class TemporaryQueryTest extends DatabaseTestBase {
     }
 
     // Now try to run two temporary queries in the same request.
-    $table_name_test = $connection->queryTemporary('SELECT name FROM {test}', []);
-    $table_name_task = $connection->queryTemporary('SELECT pid FROM {test_task}', []);
+    $table_name_test = $connection->queryTemporary('SELECT [name] FROM {test}', []);
+    $table_name_task = $connection->queryTemporary('SELECT [pid] FROM {test_task}', []);
 
     $this->assertEquals($this->countTableRows('test'), $this->countTableRows($table_name_test), 'A temporary table was created successfully in this request.');
     $this->assertEquals($this->countTableRows('test_task'), $this->countTableRows($table_name_task), 'A second temporary table was created successfully in this request.');
@@ -54,7 +54,7 @@ class TemporaryQueryTest extends DatabaseTestBase {
     // in the modified query.
     $sql = "
       -- Let's select some rows into a temporary table
-      SELECT name FROM {test}
+      SELECT [name] FROM {test}
     ";
     $table_name_test = $connection->queryTemporary($sql, []);
     $this->assertEquals($this->countTableRows('test'), $this->countTableRows($table_name_test), 'Leading white space and comments do not interfere with temporary table creation.');

@@ -58,15 +58,10 @@ class HtmlToTextTest extends BrowserTestBase {
     $message .= ' (' . $tested_tags . ')';
     $result = MailFormatHelper::htmlToText($html, $allowed_tags);
     $this->assertEquals($text, $result, Html::escape($message));
-    $verbose = 'html = <pre>' . $this->stringToHtml($html)
-      . '</pre><br />result = <pre>' . $this->stringToHtml($result)
-      . '</pre><br />expected = <pre>' . $this->stringToHtml($text)
-      . '</pre>';
-    $this->verbose($verbose);
   }
 
   /**
-   * Test supported tags of \Drupal\Core\Mail\MailFormatHelper::htmlToText().
+   * Tests supported tags of \Drupal\Core\Mail\MailFormatHelper::htmlToText().
    */
   public function testTags() {
     global $base_path, $base_url;
@@ -195,7 +190,7 @@ class HtmlToTextTest extends BrowserTestBase {
   }
 
   /**
-   * Test that whitespace is collapsed.
+   * Tests that whitespace is collapsed.
    */
   public function testDrupalHtmltoTextCollapsesWhitespace() {
     $input = "<p>Drupal  Drupal\n\nDrupal<pre>Drupal  Drupal\n\nDrupal</pre>Drupal  Drupal\n\nDrupal</p>";
@@ -210,7 +205,7 @@ class HtmlToTextTest extends BrowserTestBase {
   }
 
   /**
-   * Test that text separated by block-level tags in HTML get separated by
+   * Tests that text separated by block-level tags in HTML get separated by
    * (at least) a newline in the plaintext version.
    */
   public function testDrupalHtmlToTextBlockTagToNewline() {
@@ -239,29 +234,15 @@ class HtmlToTextTest extends BrowserTestBase {
 EOT;
     $input = str_replace(["\r", "\n"], '', $input);
     $output = MailFormatHelper::htmlToText($input);
-    $pass = $this->assertNotRegExp('/\][^\n]*\[/s', $output, 'Block-level HTML tags should force newlines');
-    if (!$pass) {
-      $this->verbose($this->stringToHtml($output));
-    }
+    $this->assertDoesNotMatchRegularExpression('/\][^\n]*\[/s', $output, 'Block-level HTML tags should force newlines');
     $output_upper = mb_strtoupper($output);
     $upper_input = mb_strtoupper($input);
     $upper_output = MailFormatHelper::htmlToText($upper_input);
-    $pass = $this->assertEquals(
-      $upper_output,
-      $output_upper,
-      'Tag recognition should be case-insensitive'
-    );
-    if (!$pass) {
-      $this->verbose(
-        $upper_output
-        . '<br />should  be equal to <br />'
-        . $output_upper
-      );
-    }
+    $this->assertEquals($output_upper, $upper_output, 'Tag recognition should be case-insensitive');
   }
 
   /**
-   * Test that headers are properly separated from surrounding text.
+   * Tests that headers are properly separated from surrounding text.
    */
   public function testHeaderSeparation() {
     $html = 'Drupal<h1>Drupal</h1>Drupal';
@@ -286,7 +267,7 @@ EOT;
   }
 
   /**
-   * Test that footnote references are properly generated.
+   * Tests that footnote references are properly generated.
    */
   public function testFootnoteReferences() {
     global $base_path, $base_url;
@@ -315,7 +296,7 @@ EOT;
   }
 
   /**
-   * Test that combinations of paragraph breaks, line breaks, linefeeds,
+   * Tests that combinations of paragraph breaks, line breaks, linefeeds,
    * and spaces are properly handled.
    */
   public function testDrupalHtmlToTextParagraphs() {

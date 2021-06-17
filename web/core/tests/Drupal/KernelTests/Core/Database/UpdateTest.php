@@ -72,7 +72,7 @@ class UpdateTest extends DatabaseTestBase {
   public function testWhereUpdate() {
     $num_updated = $this->connection->update('test')
       ->fields(['job' => 'Musician'])
-      ->where('age > :age', [':age' => 26])
+      ->where('[age] > :age', [':age' => 26])
       ->execute();
     $this->assertSame(2, $num_updated, 'Updated 2 records.');
 
@@ -86,7 +86,7 @@ class UpdateTest extends DatabaseTestBase {
   public function testWhereAndConditionUpdate() {
     $update = $this->connection->update('test')
       ->fields(['job' => 'Musician'])
-      ->where('age > :age', [':age' => 26])
+      ->where('[age] > :age', [':age' => 26])
       ->condition('name', 'Ringo');
     $num_updated = $update->execute();
     $this->assertSame(1, $num_updated, 'Updated 1 record.');
@@ -102,7 +102,7 @@ class UpdateTest extends DatabaseTestBase {
     // Ensure that expressions are handled properly. This should set every
     // record's age to a square of itself.
     $num_rows = $this->connection->update('test')
-      ->expression('age', 'age * age')
+      ->expression('age', '[age] * [age]')
       ->execute();
     $this->assertSame(4, $num_rows, 'Updated 4 records.');
 

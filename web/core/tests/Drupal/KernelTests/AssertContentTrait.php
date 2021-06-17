@@ -732,7 +732,7 @@ trait AssertContentTrait {
     if (!$message) {
       $message = new FormattableMarkup('Pattern "@pattern" found', ['@pattern' => $pattern]);
     }
-    $this->assertRegExp($pattern, $this->getRawContent(), $message);
+    $this->assertMatchesRegularExpression($pattern, $this->getRawContent(), $message);
     return TRUE;
   }
 
@@ -759,7 +759,7 @@ trait AssertContentTrait {
     if (!$message) {
       $message = new FormattableMarkup('Pattern "@pattern" not found', ['@pattern' => $pattern]);
     }
-    $this->assertNotRegExp($pattern, $this->getRawContent(), $message);
+    $this->assertDoesNotMatchRegularExpression($pattern, $this->getRawContent(), $message);
     return TRUE;
   }
 
@@ -783,7 +783,7 @@ trait AssertContentTrait {
     if (!isset($message)) {
       $message = new FormattableMarkup('Pattern "@pattern" found', ['@pattern' => $pattern]);
     }
-    $this->assertRegExp($pattern, $this->getTextContent(), $message);
+    $this->assertMatchesRegularExpression($pattern, $this->getTextContent(), $message);
     return TRUE;
   }
 
@@ -854,7 +854,7 @@ trait AssertContentTrait {
    *
    * @param string $callback
    *   The name of the theme hook to invoke; e.g. 'links' for links.html.twig.
-   * @param string $variables
+   * @param array $variables
    *   An array of variables to pass to the theme function.
    * @param string $expected
    *   The expected themed output string.
@@ -879,11 +879,6 @@ trait AssertContentTrait {
     $output = (string) $renderer->executeInRenderContext(new RenderContext(), function () use ($callback, $variables) {
       return \Drupal::theme()->render($callback, $variables);
     });
-    $this->verbose(
-      '<hr />' . 'Result:' . '<pre>' . Html::escape(var_export($output, TRUE)) . '</pre>'
-      . '<hr />' . 'Expected:' . '<pre>' . Html::escape(var_export($expected, TRUE)) . '</pre>'
-      . '<hr />' . $output
-    );
     if (!$message) {
       $message = '%callback rendered correctly.';
     }
@@ -982,7 +977,7 @@ trait AssertContentTrait {
   /**
    * Get the selected value from a select field.
    *
-   * @param \SimpleXmlElement $element
+   * @param \SimpleXMLElement $element
    *   SimpleXMLElement select element.
    *
    * @return bool

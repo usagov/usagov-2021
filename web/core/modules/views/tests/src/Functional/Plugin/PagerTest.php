@@ -48,8 +48,8 @@ class PagerTest extends ViewTestBase {
    * @see https://www.drupal.org/node/652712
    */
   public function testStorePagerSettings() {
-    // Show the master display so the override selection is shown.
-    \Drupal::configFactory()->getEditable('views.settings')->set('ui.show.master_display', TRUE)->save();
+    // Show the default display so the override selection is shown.
+    \Drupal::configFactory()->getEditable('views.settings')->set('ui.show.default_display', TRUE)->save();
 
     $admin_user = $this->drupalCreateUser([
       'administer views',
@@ -374,7 +374,7 @@ class PagerTest extends ViewTestBase {
   }
 
   /**
-   * Test the api functions on the view object.
+   * Tests the api functions on the view object.
    */
   public function testPagerApi() {
     $view = Views::getView('test_pager_full');

@@ -287,7 +287,7 @@ class DatabaseStorage extends StorageBase {
 
   /**
    * Defines the schema for the key_value table.
-  */
+   */
   public static function schemaDefinition() {
     return [
       'description' => 'Generic key-value storage table. See the state system for an example.',

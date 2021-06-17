@@ -4,6 +4,7 @@ namespace Drupal\Tests\system\Functional\Database;
 
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Database\Database;
+use Drupal\Core\Database\Query\PagerSelectExtender;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -94,7 +95,7 @@ class SelectPagerDefaultTest extends DatabaseTestBase {
   public function testInnerPagerQuery() {
     $connection = Database::getConnection();
     $query = $connection->select('test', 't')
-      ->extend('Drupal\Core\Database\Query\PagerSelectExtender');
+      ->extend(PagerSelectExtender::class);
     $query
       ->fields('t', ['age'])
       ->orderBy('age')
@@ -117,12 +118,12 @@ class SelectPagerDefaultTest extends DatabaseTestBase {
    */
   public function testHavingPagerQuery() {
     $query = Database::getConnection()->select('test', 't')
-      ->extend('Drupal\Core\Database\Query\PagerSelectExtender');
+      ->extend(PagerSelectExtender::class);
     $query
       ->fields('t', ['name'])
       ->orderBy('name')
       ->groupBy('name')
-      ->having('MAX(age) > :count', [':count' => 26])
+      ->having('MAX([age]) > :count', [':count' => 26])
       ->limit(5);
 
     $ages = $query
@@ -143,34 +144,46 @@ class SelectPagerDefaultTest extends DatabaseTestBase {
     \Drupal::getContainer()->get('request_stack')->push($request);
 
     $connection = Database::getConnection();
-    $name = $connection->select('test', 't')
-      ->extend('Drupal\Core\Database\Query\PagerSelectExtender')
+    $query = $connection->select('test', 't')
+      ->extend(PagerSelectExtender::class)
       ->element(2)
       ->fields('t', ['name'])
       ->orderBy('age')
-      ->limit(1)
-      ->execute()
+      ->limit(1);
+    $this->assertSame(2, $query->getElement());
+    // BC for PagerSelectExtender::$maxElement.
+    // @todo remove the assertion below in D10.
+    $this->assertSame(2, PagerSelectExtender::$maxElement);
+    $name = $query->execute()
       ->fetchField();
     $this->assertEquals('Paul', $name, 'Pager query #1 with a specified element ID returned the correct results.');
 
-    // Setting an element smaller than the previous one
-    // should not overwrite the pager $maxElement with a smaller value.
-    $name = $connection->select('test', 't')
-      ->extend('Drupal\Core\Database\Query\PagerSelectExtender')
+    // Setting an element smaller than the previous one should not collide with
+    // the existing pager.
+    $query = $connection->select('test', 't')
+      ->extend(PagerSelectExtender::class)
       ->element(1)
       ->fields('t', ['name'])
       ->orderBy('age')
-      ->limit(1)
-      ->execute()
+      ->limit(1);
+    $this->assertSame(1, $query->getElement());
+    // BC for PagerSelectExtender::$maxElement.
+    // @todo remove the assertion below in D10.
+    $this->assertSame(2, PagerSelectExtender::$maxElement);
+    $name = $query->execute()
       ->fetchField();
     $this->assertEquals('George', $name, 'Pager query #2 with a specified element ID returned the correct results.');
 
-    $name = $connection->select('test', 't')
-      ->extend('Drupal\Core\Database\Query\PagerSelectExtender')
+    $query = $connection->select('test', 't')
+      ->extend(PagerSelectExtender::class)
       ->fields('t', ['name'])
       ->orderBy('age')
-      ->limit(1)
-      ->execute()
+      ->limit(1);
+    $this->assertSame(3, $query->getElement());
+    // BC for PagerSelectExtender::$maxElement.
+    // @todo remove the assertion below in D10.
+    $this->assertSame(3, PagerSelectExtender::$maxElement);
+    $name = $query->execute()
       ->fetchField();
     $this->assertEquals('John', $name, 'Pager query #3 with a generated element ID returned the correct results.');
 

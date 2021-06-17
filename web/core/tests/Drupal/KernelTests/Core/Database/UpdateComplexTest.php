@@ -92,7 +92,7 @@ class UpdateComplexTest extends DatabaseTestBase {
     $num_updated = $this->connection->update('test')
       ->condition('name', 'Ringo')
       ->fields(['job' => 'Musician'])
-      ->expression('age', 'age + :age', [':age' => 4])
+      ->expression('age', '[age] + :age', [':age' => 4])
       ->execute();
     $this->assertSame(1, $num_updated, 'Updated 1 record.');
 
@@ -112,7 +112,7 @@ class UpdateComplexTest extends DatabaseTestBase {
     $before_age = $this->connection->query('SELECT [age] FROM {test} WHERE [name] = :name', [':name' => 'Ringo'])->fetchField();
     $num_updated = $this->connection->update('test')
       ->condition('name', 'Ringo')
-      ->expression('age', 'age + :age', [':age' => 4])
+      ->expression('age', '[age] + :age', [':age' => 4])
       ->execute();
     $this->assertSame(1, $num_updated, 'Updated 1 record.');
 
@@ -121,11 +121,11 @@ class UpdateComplexTest extends DatabaseTestBase {
   }
 
   /**
-   * Test UPDATE with a subselect value.
+   * Tests UPDATE with a subselect value.
    */
   public function testSubSelectUpdate() {
     $subselect = $this->connection->select('test_task', 't');
-    $subselect->addExpression('MAX(priority) + :increment', 'max_priority', [':increment' => 30]);
+    $subselect->addExpression('MAX([priority]) + :increment', 'max_priority', [':increment' => 30]);
     // Clone this to make sure we are running a different query when
     // asserting.
     $select = clone $subselect;

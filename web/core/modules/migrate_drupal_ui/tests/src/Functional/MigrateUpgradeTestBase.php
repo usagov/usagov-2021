@@ -7,7 +7,6 @@ use Drupal\migrate\Plugin\MigrateIdMapInterface;
 use Drupal\migrate_drupal\MigrationConfigurationTrait;
 use Drupal\user\Entity\User;
 use Drupal\Tests\BrowserTestBase;
-use Drupal\Tests\migrate_drupal\Traits\CreateTestContentEntitiesTrait;
 
 /**
  * Provides a base class for testing migration upgrades in the UI.
@@ -15,7 +14,6 @@ use Drupal\Tests\migrate_drupal\Traits\CreateTestContentEntitiesTrait;
 abstract class MigrateUpgradeTestBase extends BrowserTestBase {
 
   use MigrationConfigurationTrait;
-  use CreateTestContentEntitiesTrait;
 
   /**
    * Use the Standard profile to test help implementations of many core modules.
@@ -39,6 +37,13 @@ abstract class MigrateUpgradeTestBase extends BrowserTestBase {
   protected $destinationSiteVersion;
 
   /**
+   * Input data for the credential form.
+   *
+   * @var array
+   */
+  protected $edits;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp() {
@@ -51,6 +56,20 @@ abstract class MigrateUpgradeTestBase extends BrowserTestBase {
 
     // Log in as user 1. Migrations in the UI can only be performed as user 1.
     $this->drupalLogin($this->rootUser);
+  }
+
+  /**
+   * Navigates to the credential form and submits valid credentials.
+   */
+  public function submitCredentialForm() {
+    $this->drupalGet('/upgrade');
+    $this->submitForm([], 'Continue');
+
+    // Get valid credentials.
+    $this->edits = $this->translatePostValues($this->getCredentials());
+
+    // When the Credential form is submitted the migrate map tables are created.
+    $this->submitForm($this->edits, 'Review upgrade');
   }
 
   /**
@@ -293,6 +312,7 @@ abstract class MigrateUpgradeTestBase extends BrowserTestBase {
     }
     else {
       $edit['source_base_path'] = $this->getSourceBasePath();
+      $edit['source_private_file_path'] = $this->getSourcePrivateBasePath();
     }
     if (count($drivers) !== 1) {
       $edit['driver'] = $driver;
@@ -307,6 +327,35 @@ abstract class MigrateUpgradeTestBase extends BrowserTestBase {
     $user = User::load($uid);
     $user->passRaw = $pass;
     $this->drupalLogin($user);
+  }
+
+  /**
+   * Provides the source base path for private files for the credential form.
+   *
+   * @return string|null
+   *   The source base path.
+   */
+  protected function getSourcePrivateBasePath() {
+    return NULL;
+  }
+
+  /**
+   * Checks public and private files are copied but not temporary files.
+   */
+  protected function assertFileMigrations() {
+    $fs = \Drupal::service('file_system');
+    $files = $this->getManagedFiles();
+    foreach ($files as $file) {
+      preg_match('/^(private|public|temporary):/', $file['uri'], $matches);
+      $scheme = $matches[1];
+      $filepath = $fs->realpath($file['uri']);
+      if ($scheme === 'temporary') {
+        $this->assertFileDoesNotExist($filepath);
+      }
+      else {
+        $this->assertFileExists($filepath);
+      }
+    }
   }
 
 }

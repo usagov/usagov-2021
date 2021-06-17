@@ -79,11 +79,11 @@ class SessionTest extends BrowserTestBase {
     $matches = [];
     preg_match('/\s*session_id:(.*)\n/', $this->getSession()->getPage()->getContent(), $matches);
     $this->assertTrue(!empty($matches[1]), 'Found session ID after logging in.');
-    $this->assertTrue($matches[1] != $original_session, 'Session ID changed after login.');
+    $this->assertNotSame($original_session, $matches[1], 'Session ID changed after login.');
   }
 
   /**
-   * Test data persistence via the session_test module callbacks.
+   * Tests data persistence via the session_test module callbacks.
    */
   public function testDataPersistence() {
     $user = $this->drupalCreateUser([]);
@@ -179,7 +179,7 @@ class SessionTest extends BrowserTestBase {
   }
 
   /**
-   * Test that empty anonymous sessions are destroyed.
+   * Tests that empty anonymous sessions are destroyed.
    */
   public function testEmptyAnonymousSession() {
     // Disable the dynamic_page_cache module; it'd cause session_test's debug
@@ -244,7 +244,7 @@ class SessionTest extends BrowserTestBase {
   }
 
   /**
-   * Test that sessions are only saved when necessary.
+   * Tests that sessions are only saved when necessary.
    */
   public function testSessionWrite() {
     $user = $this->drupalCreateUser([]);
@@ -252,7 +252,7 @@ class SessionTest extends BrowserTestBase {
     $connection = Database::getConnection();
 
     $query = $connection->select('users_field_data', 'u');
-    $query->innerJoin('sessions', 's', 'u.uid = s.uid');
+    $query->innerJoin('sessions', 's', '[u].[uid] = [s].[uid]');
     $query->fields('u', ['access'])
       ->fields('s', ['timestamp'])
       ->condition('u.uid', $user->id());
@@ -295,7 +295,7 @@ class SessionTest extends BrowserTestBase {
   }
 
   /**
-   * Test that empty session IDs are not allowed.
+   * Tests that empty session IDs are not allowed.
    */
   public function testEmptySessionID() {
     $user = $this->drupalCreateUser([]);
@@ -324,7 +324,7 @@ class SessionTest extends BrowserTestBase {
   }
 
   /**
-   * Test session bag.
+   * Tests session bag.
    */
   public function testSessionBag() {
     // Ensure the flag is absent to start with.

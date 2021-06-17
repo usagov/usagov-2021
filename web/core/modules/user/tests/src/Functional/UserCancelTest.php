@@ -75,7 +75,7 @@ class UserCancelTest extends BrowserTestBase {
   }
 
   /**
-   * Test ability to change the permission for canceling users.
+   * Tests ability to change the permission for canceling users.
    */
   public function testUserCancelChangePermission() {
     \Drupal::service('module_installer')->install(['user_form_test']);
@@ -522,6 +522,11 @@ class UserCancelTest extends BrowserTestBase {
     $this->drupalGet("user/" . $account->id() . "/cancel/confirm/$timestamp/" . user_pass_rehash($account, $timestamp));
     $user_storage->resetCache([$account->id()]);
     $this->assertNull($user_storage->load($account->id()), 'User is not found in the database.');
+
+    // Confirm there's only one session in the database. The user will be logged
+    // out and their session migrated.
+    // @see _user_cancel_session_regenerate()
+    $this->assertSame(1, (int) \Drupal::database()->select('sessions', 's')->countQuery()->execute()->fetchField());
 
     // Confirm that user's content has been deleted.
     $node_storage->resetCache([$node->id()]);

@@ -103,7 +103,7 @@ class MigrateUserAdminPassTest extends MigrateTestBase {
     $user_account = User::load(2);
     $this->assertSame('random_user', $user_account->getAccountName());
     $this->assertSame('random_user@example.com', $user_account->getEmail());
-    $this->assertNotIdentical($user_account->getPassword(), $this->originalPasswords[2]);
+    $this->assertNotSame($this->originalPasswords[2], $user_account->getPassword());
   }
 
 }

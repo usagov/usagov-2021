@@ -92,7 +92,7 @@ use Drupal\views\ViewExecutable;
  *   Array of warning messages built by Analyzer::formatMessage to be displayed
  *   to the user following analysis of the view.
  */
-function hook_views_analyze(Drupal\views\ViewExecutable $view) {
+function hook_views_analyze(\Drupal\views\ViewExecutable $view) {
   $messages = [];
 
   if ($view->display_handler->options['pager']['type'] == 'none') {
@@ -595,8 +595,8 @@ function hook_field_views_data_alter(array &$data, \Drupal\field\FieldStorageCon
  * data. This allows a field type to add data that concerns its fields in
  * other tables, which would not yet be defined at the point when
  * hook_field_views_data() and hook_field_views_data_alter() are invoked. For
- * example, entityreference adds reverse relationships on the tables for the
- * entities which are referenced by entityreference fields.
+ * example, entity_reference adds reverse relationships on the tables for the
+ * entities which are referenced by entity_reference fields.
  *
  * (Note: this is weirdly named so as not to conflict with
  * hook_field_views_data_alter().)
@@ -1060,7 +1060,7 @@ function hook_views_plugins_exposed_form_alter(array &$plugins) {
  */
 function hook_views_plugins_join_alter(array &$plugins) {
   // Print out all join plugin names for debugging purposes.
-  debug($plugins);
+  dump($plugins);
 }
 
 /**
@@ -1092,7 +1092,7 @@ function hook_views_plugins_pager_alter(array &$plugins) {
  */
 function hook_views_plugins_query_alter(array &$plugins) {
   // Print out all query plugin names for debugging purposes.
-  debug($plugins);
+  dump($plugins);
 }
 
 /**

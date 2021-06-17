@@ -4,6 +4,8 @@ namespace Drupal\Tests\migrate_drupal_ui\Functional\d7;
 
 use Drupal\Tests\migrate_drupal_ui\Functional\MultilingualReviewPageTestBase;
 
+// cspell:ignore Multiupload Imagefield
+
 /**
  * Tests migrate upgrade review page for Drupal 7.
  *
@@ -98,7 +100,10 @@ class MultilingualReviewPageTest extends MultilingualReviewPageTestBase {
       'Locale',
       'Menu',
       'Menu translation',
+      'Multiupload Filefield Widget',
+      'Multiupload Imagefield Widget',
       'Node',
+      'Node Reference',
       'Number',
       'OpenID',
       'Options',
@@ -121,6 +126,7 @@ class MultilingualReviewPageTest extends MultilingualReviewPageTestBase {
       'System',
       'Taxonomy translation',
       'Taxonomy',
+      'Telephone',
       'Term Depth access',
       'Test search node tags',
       'Test search type',
@@ -132,6 +138,7 @@ class MultilingualReviewPageTest extends MultilingualReviewPageTestBase {
       'Trigger',
       'Update manager',
       'User',
+      'User Reference',
       'Views content panes',
       'Views UI',
     ];
@@ -160,6 +167,8 @@ class MultilingualReviewPageTest extends MultilingualReviewPageTestBase {
       'Multilingual select',
       'Path translation',
       'Picture',
+      'References',
+      'References UUID',
       'Translation redirect',
       'Translation sets',
       'User mail translation',

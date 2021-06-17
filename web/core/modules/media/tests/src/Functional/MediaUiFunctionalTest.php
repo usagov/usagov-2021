@@ -171,7 +171,7 @@ class MediaUiFunctionalTest extends MediaFunctionalTestBase {
   }
 
   /**
-   * Test that media in ER fields use the Rendered Entity formatter by default.
+   * Tests that media in ER fields use the Rendered Entity formatter by default.
    */
   public function testRenderedEntityReferencedMedia() {
     $page = $this->getSession()->getPage();
@@ -248,6 +248,8 @@ class MediaUiFunctionalTest extends MediaFunctionalTestBase {
    *   one that allows the user to create media and a second that does not.
    * @param bool $list_access
    *   Whether to grant the test user access to list media.
+   * @param string $widget_id
+   *   The widget ID to test.
    *
    * @see media_field_widget_entity_reference_autocomplete_form_alter()
    * @see media_field_widget_multiple_entity_reference_autocomplete_form_alter()
@@ -539,7 +541,7 @@ class MediaUiFunctionalTest extends MediaFunctionalTestBase {
   }
 
   /**
-   * Test the media collection route.
+   * Tests the media collection route.
    */
   public function testMediaCollectionRoute() {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $media_storage */

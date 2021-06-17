@@ -6,6 +6,7 @@ use Drupal\Core\Database\Database;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\search\SearchIndexInterface;
+use Drupal\search\SearchQuery;
 
 /**
  * Indexes content and queries it.
@@ -37,7 +38,7 @@ class SearchMatchTest extends KernelTestBase {
   }
 
   /**
-   * Test search indexing.
+   * Tests search indexing.
    */
   public function testMatching() {
     $this->_setup();
@@ -164,7 +165,7 @@ class SearchMatchTest extends KernelTestBase {
     $connection = Database::getConnection();
     foreach ($queries as $query => $results) {
       $result = $connection->select('search_index', 'i')
-        ->extend('Drupal\search\SearchQuery')
+        ->extend(SearchQuery::class)
         ->searchExpression($query, static::SEARCH_TYPE)
         ->execute();
 
@@ -184,7 +185,7 @@ class SearchMatchTest extends KernelTestBase {
     ];
     foreach ($queries as $query => $results) {
       $result = $connection->select('search_index', 'i')
-        ->extend('Drupal\search\SearchQuery')
+        ->extend(SearchQuery::class)
         ->searchExpression($query, static::SEARCH_TYPE_2)
         ->execute();
 
@@ -207,7 +208,7 @@ class SearchMatchTest extends KernelTestBase {
     ];
     foreach ($queries as $query => $results) {
       $result = $connection->select('search_index', 'i')
-        ->extend('Drupal\search\SearchQuery')
+        ->extend(SearchQuery::class)
         ->searchExpression($query, static::SEARCH_TYPE_JPN)
         ->execute();
 
@@ -218,7 +219,7 @@ class SearchMatchTest extends KernelTestBase {
   }
 
   /**
-   * Test the matching abilities of the engine.
+   * Tests the matching abilities of the engine.
    *
    * Verify if a query produces the correct results.
    */
@@ -236,7 +237,7 @@ class SearchMatchTest extends KernelTestBase {
   }
 
   /**
-   * Test the scoring abilities of the engine.
+   * Tests the scoring abilities of the engine.
    *
    * Verify if a query produces normalized, monotonous scores.
    */
