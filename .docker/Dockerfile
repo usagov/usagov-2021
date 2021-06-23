@@ -108,7 +108,8 @@ COPY config /var/www/config
 COPY vendor /var/www/vendor
 COPY patches /var/www/patches
 
-RUN chown nginx:nginx /var/www \
+RUN rm -f /var/www/web/sites/default/settings.local.php \
+    && chown nginx:nginx /var/www \
     && chown -R nginx:nginx /var/www
 
 # This contianer is not fully functional 

@@ -25,4 +25,4 @@ docker build --force-rm \
     --build-arg GITCOMMIT=$GITCOMMIT \
     --build-arg GITTAG=$GITTAG
 
-docker push ednark/usagov-2021:$CONTAINERTAG
+# docker push ednark/usagov-2021:$CONTAINERTAG
