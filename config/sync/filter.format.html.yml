@@ -1,0 +1,19 @@
+uuid: 44ab17b8-23d5-4b33-9783-b04909533469
+langcode: en
+status: true
+dependencies:
+  module:
+    - media
+name: HTML
+format: html
+weight: 0
+filters:
+  media_embed:
+    id: media_embed
+    provider: media
+    status: false
+    weight: 100
+    settings:
+      default_view_mode: default
+      allowed_media_types: {  }
+      allowed_view_modes: {  }
