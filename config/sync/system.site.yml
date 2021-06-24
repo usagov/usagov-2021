@@ -1,11 +1,11 @@
 uuid: 6426615d-a9df-4b9a-b535-43c6cdfe8c04
-name: 'FINN''s USA.revamp'
+name: USA.revamp
 mail: secret@example.com
 slogan: ''
 page:
   403: ''
   404: ''
-  front: /user/login
+  front: /node/1
 admin_compact_mode: false
 weight_select_max: 100
 langcode: en

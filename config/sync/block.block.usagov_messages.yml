@@ -1,0 +1,22 @@
+uuid: 57fc2c05-25c2-41df-afe1-087dbdff0420
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - usagov
+_core:
+  default_config_hash: pSw88WIK-pTEjmxzJ_O3ZJeKdAML2aBaO3EI71o_5sY
+id: usagov_messages
+theme: usagov
+region: highlighted
+weight: -50
+provider: null
+plugin: system_messages_block
+settings:
+  id: system_messages_block
+  label: 'Status messages'
+  provider: system
+  label_display: '0'
+visibility: {  }

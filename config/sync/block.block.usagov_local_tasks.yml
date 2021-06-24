@@ -1,0 +1,22 @@
+uuid: d31321ff-4a65-4e63-8dac-164b3c23e0ff
+langcode: en
+status: true
+dependencies:
+  theme:
+    - usagov
+_core:
+  default_config_hash: e-hAXZ7BhMZkNMFw377PRMADD8kkTC911IZzbo18EY0
+id: usagov_local_tasks
+theme: usagov
+region: content
+weight: 20
+provider: null
+plugin: local_tasks_block
+settings:
+  id: local_tasks_block
+  label: Tabs
+  provider: core
+  label_display: '0'
+  primary: true
+  secondary: true
+visibility: {  }
