@@ -1,0 +1,9 @@
+*.html
+*.njk
+*.woff*
+*.svg
+*.ttf
+*.png
+*.ico
+*.gif
+*.md

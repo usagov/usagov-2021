@@ -57,3 +57,5 @@
 /robots.txt
 /update.php
 /web.config
+
+sqlite.db
