@@ -1,0 +1,27 @@
+uuid: dd4a9fd4-9278-4cc2-8def-b6f6941f6360
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.main
+  module:
+    - system
+  theme:
+    - usagov
+_core:
+  default_config_hash: APIGMIFvv6nakQqeGzFsn17nAIkEalt5qc-N9bv7wRY
+id: usagov_main_menu
+theme: usagov
+region: primary_menu
+weight: 10
+provider: null
+plugin: 'system_menu_block:main'
+settings:
+  id: 'system_menu_block:main'
+  label: 'Main navigation'
+  provider: system
+  label_display: '0'
+  level: 1
+  depth: 2
+  expand_all_items: false
+visibility: {  }
