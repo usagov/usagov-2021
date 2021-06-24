@@ -13,5 +13,6 @@ permissions:
   - 'administer content types'
   - 'administer nodes'
   - 'bypass node access'
+  - 'use text format html'
   - 'use text format uswds'
   - 'view media'
