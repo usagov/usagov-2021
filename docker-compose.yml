@@ -10,7 +10,7 @@ services:
       - 2223:2222
     volumes:
       - .:/var/www/:delegated
-      env_file:
+    env_file:
       ./env.local
     environment:
       COMPOSER_MEMORY_LIMIT: -1
