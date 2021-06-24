@@ -55,7 +55,6 @@ module:
 theme:
   uswds_base: 0
   claro: 0
-  uswds_base_subtheme: 0
   usagov: 0
 profile: minimal
 _core:
