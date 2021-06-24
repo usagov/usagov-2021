@@ -24,6 +24,13 @@ settings:
             - JustifyLeft
             - JustifyCenter
             - JustifyRight
+            - Outdent
+            - Indent
+            - RemoveFormat
+        -
+          name: Headings
+          items:
+            - Format
         -
           name: Links
           items:
