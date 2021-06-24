@@ -1,0 +1,27 @@
+uuid: f1ae6056-5b02-4bc8-b88f-a9f11079ae21
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.account
+  module:
+    - system
+  theme:
+    - usagov
+_core:
+  default_config_hash: SkHKyg2dJRFqVxXpWL6I-ZyPFFkymBL1mSvloFPtrnY
+id: usagov_account_menu
+theme: usagov
+region: secondary_menu
+weight: 0
+provider: null
+plugin: 'system_menu_block:account'
+settings:
+  id: 'system_menu_block:account'
+  label: 'User account menu'
+  provider: system
+  label_display: '0'
+  level: 1
+  depth: 1
+  expand_all_items: false
+visibility: {  }

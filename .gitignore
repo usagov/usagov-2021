@@ -59,3 +59,8 @@
 /web.config
 
 sqlite.db
+
+node_modules
+web/themes/custom/usagov/fonts
+web/themes/custom/usagov/images
+web/themes/custom/usagov/scripts
