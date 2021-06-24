@@ -4,6 +4,9 @@ status: true
 dependencies:
   config:
     - field.field.node.basic_page.body
+    - field.field.node.basic_page.field_footer_html
+    - field.field.node.basic_page.field_header_html
+    - field.field.node.basic_page.field_page_intro
     - node.type.basic_page
   module:
     - text
@@ -20,9 +23,35 @@ content:
     settings: {  }
     third_party_settings: {  }
     region: content
-  links:
-    weight: 100
+  content_moderation_control:
+    weight: -20
+    region: content
     settings: {  }
     third_party_settings: {  }
+  field_footer_html:
+    weight: 104
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
     region: content
+  field_header_html:
+    weight: 103
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+    region: content
+  field_page_intro:
+    weight: 102
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+    region: content
+  links:
+    weight: 100
+    region: content
+    settings: {  }
+    third_party_settings: {  }
 hidden: {  }

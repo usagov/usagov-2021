@@ -5,6 +5,9 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.basic_page.body
+    - field.field.node.basic_page.field_footer_html
+    - field.field.node.basic_page.field_header_html
+    - field.field.node.basic_page.field_page_intro
     - node.type.basic_page
   module:
     - text
@@ -22,9 +25,17 @@ content:
       trim_length: 600
     third_party_settings: {  }
     region: content
+  content_moderation_control:
+    weight: -20
+    settings: {  }
+    third_party_settings: {  }
+    region: content
   links:
     weight: 100
     settings: {  }
     third_party_settings: {  }
     region: content
-hidden: {  }
+hidden:
+  field_footer_html: true
+  field_header_html: true
+  field_page_intro: true
