@@ -25,8 +25,8 @@
 /files/*
 /html/*
 
-/env.local
-/sqlite-local.db
+env.local
+sqlite-local.db
 
 # Ignore paths that may contain temporary files
 /web/sites/*/translations
@@ -38,21 +38,13 @@
 
 # Ignore drupal core (if not versioning drupal sources)
 /vendor
-/LICENSE.txt
-/.eslintignore
-/.gitattributes
-/.editorconfig
+LICENSE.txt
+.eslintignore
+.gitattributes
+.editorconfig
 
 /drush/contrib/
-./web/core
-./web/core/
-./web/core/*
-/web/core
 /web/core/
-/web/core/*
-web/core
-web/core/
-web/core/*
 /web/modules/contrib/
 /web/themes/contrib/
 /web/profiles/contrib/

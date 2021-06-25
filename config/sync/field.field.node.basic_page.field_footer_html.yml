@@ -1,0 +1,21 @@
+uuid: 08b92490-ac45-4396-99d5-ff2a8ad23d52
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_footer_html
+    - node.type.basic_page
+  module:
+    - text
+id: node.basic_page.field_footer_html
+field_name: field_footer_html
+entity_type: node
+bundle: basic_page
+label: 'Footer HTML'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long
