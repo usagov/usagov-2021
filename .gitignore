@@ -37,7 +37,7 @@ sqlite-local.db
 /web/sites/simpletest
 
 # Ignore drupal core (if not versioning drupal sources)
-/vendor
+/vendor/*
 LICENSE.txt
 .eslintignore
 .gitattributes
