@@ -17,8 +17,11 @@ export S3_BUCKET
 S3_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region')
 export S3_REGION
 
-# chown nginx:nginx /var/www
-# chown -R nginx:nginx /var/www
+ADMIN_EMAIL=$(echo $SECRETS | jq -r '.ADMIN_EMAIL')
+
+echo  "Fixing File Permissions ... "
+chown nginx:nginx /var/www
+find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
 
 # if [ -n "$S3_BUCKET" ] && [ -n "$S3_REGION" ]; then
 #   # Add Proxy rewrite rules to the top of the htaccess file
@@ -64,24 +67,21 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ "${APP_NAME}" == "web" ]; then
 #   # Sync configs from code
 #    drupal config:import
 
-    # drush state:set system.maintenance_mode 1 -y
-    # drush cr
-    # drush updatedb --no-cache-clear -y
-    # drush cim -y || drush cim -y
-    # drush cim -y
-    # drush php-eval "node_access_rebuild();" -y
-    # drush state:set system.maintenance_mode 0 -y
-    # drush cr
-
-#   # Secrets
-    # ADMIN_EMAIL=$(echo $SECRETS | jq -r '.ADMIN_EMAIL')
-    # CRON_KEY=$(echo $SECRETS | jq -r '.CRON_KEY')
-    # drupal config:override system.site mail $ADMIN_EMAIL > /dev/null
-    # drupal config:override update.settings notification.emails.0 $ADMIN_EMAIL > /dev/null
+    echo  "Updating configs ... "
+    drush state:set system.maintenance_mode 1 -y
+    drush cr
+    drush updatedb --no-cache-clear -y
+    drush cim -y || drush cim -y
+    drush cim -y
+    drush php-eval "node_access_rebuild();" -y
+    drush config:set system.site mail $ADMIN_EMAIL -y > /dev/null
+    drush state:set system.maintenance_mode 0 -y
+    drush cr
 
 # #   # Import initial content
 # #   # drush --root=$APP_ROOT/web default-content-deploy:import --no-interaction
 
 # #   # Clear the cache
 #     drupal cache:rebuild --no-interaction
+    echo "Bootstrap finished"
 fi
