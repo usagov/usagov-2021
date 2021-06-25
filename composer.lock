@@ -132,16 +132,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.184.5",
+            "version": "3.185.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "c833d965cb5f5241a04748b313953335409d0f06"
+                "reference": "953bbd1b5f7fd3f1601ad0a83f93358f635c57f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c833d965cb5f5241a04748b313953335409d0f06",
-                "reference": "c833d965cb5f5241a04748b313953335409d0f06",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/953bbd1b5f7fd3f1601ad0a83f93358f635c57f4",
+                "reference": "953bbd1b5f7fd3f1601ad0a83f93358f635c57f4",
                 "shasum": ""
             },
             "require": {
@@ -216,9 +216,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.184.5"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.185.1"
             },
-            "time": "2021-06-16T18:13:45+00:00"
+            "time": "2021-06-24T18:22:42+00:00"
         },
         {
             "name": "caxy/php-htmldiff",
@@ -2356,7 +2356,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/admin_toolbar.git",
-                "reference": "f42a78a158ce3bb8921251618bc8ee14acaa0180"
+                "reference": "91c930dfb0c9ab74ff72de26c87fa2ca7e49e839"
             },
             "require": {
                 "drupal/core": "^8.8.0 || ^9.0"
@@ -2522,17 +2522,17 @@
         },
         {
             "name": "drupal/block_content_revision_ui",
-            "version": "2.127.0",
+            "version": "2.127.1",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/block_content_revision_ui.git",
-                "reference": "2.127.0"
+                "reference": "2.127.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/block_content_revision_ui-2.127.0.zip",
-                "reference": "2.127.0",
-                "shasum": "5f3035884c9b197e2392efaf5087bfb0a0f7af2c"
+                "url": "https://ftp.drupal.org/files/projects/block_content_revision_ui-2.127.1.zip",
+                "reference": "2.127.1",
+                "shasum": "8b56620ab1b9dfb8e1ba3116f4e09e37cecfa2e6"
             },
             "require": {
                 "drupal/core": "^8.8 || ^9"
@@ -2540,8 +2540,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.127.0",
-                    "datestamp": "1595390901",
+                    "version": "2.127.1",
+                    "datestamp": "1623894814",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -5997,17 +5997,17 @@
         },
         {
             "name": "drupal/uswds_paragraph_components",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/uswds_paragraph_components.git",
-                "reference": "1.0.3"
+                "reference": "1.0.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/uswds_paragraph_components-1.0.3.zip",
-                "reference": "1.0.3",
-                "shasum": "44a93328aee7e25ca4fbf185fdc846b1d2ac6bed"
+                "url": "https://ftp.drupal.org/files/projects/uswds_paragraph_components-1.0.4.zip",
+                "reference": "1.0.4",
+                "shasum": "99ea5c6a729108c92d4a27f3360ffb256ab37678"
             },
             "require": {
                 "drupal/core": "^8 || ^9",
@@ -6024,8 +6024,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "1.0.3",
-                    "datestamp": "1622820635",
+                    "version": "1.0.4",
+                    "datestamp": "1624150066",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -6140,17 +6140,17 @@
         },
         {
             "name": "drupal/webform",
-            "version": "6.0.3",
+            "version": "6.0.4",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/webform.git",
-                "reference": "6.0.3"
+                "reference": "6.0.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/webform-6.0.3.zip",
-                "reference": "6.0.3",
-                "shasum": "b75f79e26b5d58f4a9e047131f63c482bdaa5593"
+                "url": "https://ftp.drupal.org/files/projects/webform-6.0.4.zip",
+                "reference": "6.0.4",
+                "shasum": "8b87ffb19f980e9d77957dfb2d784a1a68619d57"
             },
             "require": {
                 "drupal/core": "^8.8 || ^9"
@@ -6198,8 +6198,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "6.0.3",
-                    "datestamp": "1620250254",
+                    "version": "6.0.4",
+                    "datestamp": "1624461046",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -6207,7 +6207,7 @@
                 },
                 "drush": {
                     "services": {
-                        "drush.services.yml": "^9"
+                        "drush.services.yml": "^9 || ^10"
                     }
                 }
             },
@@ -7508,16 +7508,16 @@
         },
         {
             "name": "mtdowling/jmespath.php",
-            "version": "2.6.0",
+            "version": "2.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jmespath/jmespath.php.git",
-                "reference": "42dae2cbd13154083ca6d70099692fef8ca84bfb"
+                "reference": "9b87907a81b87bc76d19a7fb2d61e61486ee9edb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jmespath/jmespath.php/zipball/42dae2cbd13154083ca6d70099692fef8ca84bfb",
-                "reference": "42dae2cbd13154083ca6d70099692fef8ca84bfb",
+                "url": "https://api.github.com/repos/jmespath/jmespath.php/zipball/9b87907a81b87bc76d19a7fb2d61e61486ee9edb",
+                "reference": "9b87907a81b87bc76d19a7fb2d61e61486ee9edb",
                 "shasum": ""
             },
             "require": {
@@ -7525,7 +7525,7 @@
                 "symfony/polyfill-mbstring": "^1.17"
             },
             "require-dev": {
-                "composer/xdebug-handler": "^1.4",
+                "composer/xdebug-handler": "^1.4 || ^2.0",
                 "phpunit/phpunit": "^4.8.36 || ^7.5.15"
             },
             "bin": [
@@ -7563,9 +7563,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jmespath/jmespath.php/issues",
-                "source": "https://github.com/jmespath/jmespath.php/tree/2.6.0"
+                "source": "https://github.com/jmespath/jmespath.php/tree/2.6.1"
             },
-            "time": "2020-07-31T21:01:56+00:00"
+            "time": "2021-06-14T00:11:39+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -8396,16 +8396,16 @@
         },
         {
             "name": "swagger-api/swagger-ui",
-            "version": "v3.50.0",
+            "version": "v3.51.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swagger-api/swagger-ui.git",
-                "reference": "91858cc811d3cddb45ef604365e2c88cd96e4ca0"
+                "reference": "8a0489d181e60d3f52b03f4edabc375b2a7f90d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/91858cc811d3cddb45ef604365e2c88cd96e4ca0",
-                "reference": "91858cc811d3cddb45ef604365e2c88cd96e4ca0",
+                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/8a0489d181e60d3f52b03f4edabc375b2a7f90d4",
+                "reference": "8a0489d181e60d3f52b03f4edabc375b2a7f90d4",
                 "shasum": ""
             },
             "type": "library",
@@ -8451,9 +8451,9 @@
             ],
             "support": {
                 "issues": "https://github.com/swagger-api/swagger-ui/issues",
-                "source": "https://github.com/swagger-api/swagger-ui/tree/v3.50.0"
+                "source": "https://github.com/swagger-api/swagger-ui/tree/v3.51.0"
             },
-            "time": "2021-06-03T21:00:28+00:00"
+            "time": "2021-06-23T18:34:42+00:00"
         },
         {
             "name": "symfony-cmf/routing",
