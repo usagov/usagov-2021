@@ -108,15 +108,9 @@ COPY --chown=nginx:nginx config /var/www/config
 COPY --chown=nginx:nginx vendor /var/www/vendor
 COPY --chown=nginx:nginx patches /var/www/patches
 
-# This contianer is not fully functional 
-# it is assuming a volume will be mounted at runtime to /var/www/web/sites/default/files
-# which will contain all the public drupal files necessary for the container to be fully functional
-
 RUN rm -f /var/www/web/sites/default/settings.local.php \
     && chown nginx:nginx /var/www \
-    # && chown -R nginx:nginx /var/www \
-    # && find /var/www -not -group 0 -not -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx \
-    # && find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx \
+    && find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx \
     && echo "    built:" $(date) >> /etc/motd \
     && echo "    branch: " $GITBRANCH >> /etc/motd \
     && echo "    gittag: " $GITTAG >> /etc/motd \
