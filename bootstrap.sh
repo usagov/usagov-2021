@@ -21,7 +21,7 @@ ADMIN_EMAIL=$(echo $SECRETS | jq -r '.ADMIN_EMAIL')
 
 echo  "Fixing File Permissions ... "
 chown nginx:nginx /var/www
-find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+# find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
 
 # if [ -n "$S3_BUCKET" ] && [ -n "$S3_REGION" ]; then
 #   # Add Proxy rewrite rules to the top of the htaccess file
@@ -67,7 +67,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ "${APP_NAME}" == "web" ]; then
 #   # Sync configs from code
 #    drupal config:import
 
-    echo  "Updating configs ... "
+    echo  "Updating drupal ... "
     drush state:set system.maintenance_mode 1 -y
     drush cr
     drush updatedb --no-cache-clear -y

@@ -9,7 +9,6 @@ module:
   ckeditor_templates_ui: 0
   config: 0
   content_moderation: 0
-  contextual: 0
   ctools: 0
   datetime: 0
   datetime_range: 0
@@ -25,8 +24,6 @@ module:
   filter: 0
   image: 0
   jsonapi: 0
-  layout_builder: 0
-  layout_discovery: 0
   link: 0
   media: 0
   media_library: 0
