@@ -5,6 +5,7 @@ dependencies:
   module:
     - editor
     - media
+    - paragraphs_entity_embed
     - uswds_ckeditor_integration
 _core:
   default_config_hash: 05t4sDVkoIIr93awow19xLg0zeanMekWf7kwUh6Kroo
@@ -21,7 +22,7 @@ filters:
   filter_html:
     id: filter_html
     provider: filter
-    status: true
+    status: false
     weight: -10
     settings:
       allowed_html: '<a href hreflang> <em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type> <li> <dl> <dt> <dd> <h2 id class> <h3 id class> <h4 id class> <h5 id class> <h6 id class> <img src alt data-entity-type data-entity-uuid data-align data-caption> <table class style width height> <caption> <tbody> <thead> <tfoot> <th scope> <td> <tr scope> <u> <s> <sup> <sub> <drupal-media data-entity-type data-entity-uuid> <div id class data-*> <button class aria-expanded aria-controls>'
@@ -58,6 +59,12 @@ filters:
   filter_table_attributes:
     id: filter_table_attributes
     provider: uswds_ckeditor_integration
+    status: true
+    weight: 0
+    settings: {  }
+  paragraphs_entity_embed:
+    id: paragraphs_entity_embed
+    provider: paragraphs_entity_embed
     status: true
     weight: 0
     settings: {  }

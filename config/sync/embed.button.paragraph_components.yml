@@ -1,0 +1,20 @@
+uuid: fbbaa139-d4e5-45fa-843c-cb3c2f7ad708
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs_entity_embed
+label: 'Paragraph Components'
+id: paragraph_components
+type_id: paragraphs_entity_embed
+type_settings:
+  enable_paragraph_type_filter: 1
+  paragraphs_type_filter:
+    uswds_accordion: uswds_accordion
+    uswds_alert: uswds_alert
+    uswds_card_group_flag: uswds_card_group_flag
+    uswds_card_group_regular: uswds_card_group_regular
+    uswds_column_equal_size: uswds_column_equal_size
+    uswds_columns_2_uneven: uswds_columns_2_uneven
+icon: {  }
+icon_uuid: null
