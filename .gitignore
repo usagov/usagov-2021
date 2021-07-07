@@ -63,3 +63,9 @@ LICENSE.txt
 /web/robots.txt
 /web/update.php
 /web/web.config
+
+# Ignore Compiled Theme Files
+node_modules
+web/themes/custom/usagov/fonts
+web/themes/custom/usagov/images
+web/themes/custom/usagov/scripts
