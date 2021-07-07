@@ -1,0 +1,12 @@
+uuid: aa2cbf37-9a6a-44f6-9356-48da88d82b6d
+langcode: en
+status: true
+dependencies: {  }
+id: uswds_process_list
+label: 'USWDS Process List'
+description: 'A process list displays the steps or stages of important instructions or processes.'
+html:
+  value: "<ol class=\"usa-process-list\">\r\n  <li class=\"usa-process-list__item\">\r\n    <h4 class=\"usa-process-list__heading\">Start a process</h4>\r\n    <p class=\"margin-top-05\">\r\n      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo,\r\n      ipsum sed pharetra gravida, orci magna rhoncus neque.\r\n    </p>\r\n  </li>\r\n  <li class=\"usa-process-list__item\">\r\n    <h4 class=\"usa-process-list__heading\">Proceed to the second step</h4>\r\n    <p>\r\n      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo,\r\n      ipsum sed pharetra gravida, orci magna rhoncus neque, id pulvinar odio\r\n      lorem non turpis. Nullam sit amet enim. Suspendisse id velit vitae ligula\r\n      volutpat condimentum. Aliquam erat volutpat. Sed quis velit. Nulla\r\n      facilisi. Nulla libero. Vivamus pharetra posuere sapien.\r\n    </p>\r\n  </li>\r\n  <li class=\"usa-process-list__item\">\r\n    <h4 class=\"usa-process-list__heading\">Complete the step-by-step process</h4>\r\n    <p>\r\n      Nullam sit amet enim. Suspendisse id velit vitae ligula volutpat\r\n      condimentum. Aliquam erat volutpat. Sed quis velit. Nulla facilisi. Nulla\r\n      libero. Vivamus pharetra posuere sapien.\r\n    </p>\r\n  </li>\r\n</ol>"
+  format: html
+image: 'public://ckeditor-templates/ProcessList.png'
+weight: 3
