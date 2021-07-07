@@ -65,7 +65,6 @@ settings:
             - uswds_grid
             - Accordion
             - Templates
-            - paragraph_components
   plugins:
     language:
       language_list: un
