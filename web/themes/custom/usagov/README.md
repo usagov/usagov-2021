@@ -2,7 +2,9 @@
 
 This is the USAgov custom theme for Drupal 9. It is a subtheme of the uswds_base theme.
 
-## Gulp Commands
+## Setup
+
+`npm install`
 
 `gulp init`
 * Copies fonts, images, and javascript from the USWDS within node_modules.
