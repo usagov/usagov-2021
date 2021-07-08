@@ -5,6 +5,7 @@ dependencies:
   module:
     - editor
     - media
+    - paragraphs_entity_embed
     - uswds_ckeditor_integration
 _core:
   default_config_hash: 05t4sDVkoIIr93awow19xLg0zeanMekWf7kwUh6Kroo
@@ -58,6 +59,12 @@ filters:
   filter_table_attributes:
     id: filter_table_attributes
     provider: uswds_ckeditor_integration
+    status: true
+    weight: 0
+    settings: {  }
+  paragraphs_entity_embed:
+    id: paragraphs_entity_embed
+    provider: paragraphs_entity_embed
     status: true
     weight: 0
     settings: {  }
