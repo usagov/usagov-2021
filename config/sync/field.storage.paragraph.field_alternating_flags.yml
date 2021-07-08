@@ -1,16 +1,17 @@
-uuid: f9198bfb-f800-45e5-a4c4-ba915e6036a9
+uuid: afd79250-8910-4722-a53a-aa8020ef50af
 langcode: en
 status: true
 dependencies:
   module:
     - paragraphs
-    - text
-id: paragraph.field_text
-field_name: field_text
+_core:
+  default_config_hash: zlCe_5MY84R7cBmAUkMr2Hm7wmabHuZmdNHTzGosd4c
+id: paragraph.field_alternating_flags
+field_name: field_alternating_flags
 entity_type: paragraph
-type: text_long
+type: boolean
 settings: {  }
-module: text
+module: core
 locked: false
 cardinality: 1
 translatable: true

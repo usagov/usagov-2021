@@ -1,0 +1,25 @@
+uuid: 8cc3b71e-e60a-47e8-a830-39a892cac0e5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_number_of_columns
+    - paragraphs.paragraphs_type.uswds_cards_flag
+_core:
+  default_config_hash: wvCVYRnxBh_yHW5twrWTBD8Lcbg6iaW7sd4fDli0-aM
+id: paragraph.uswds_cards_flag.field_number_of_columns
+field_name: field_number_of_columns
+entity_type: paragraph
+bundle: uswds_cards_flag
+label: 'Number of Columns'
+description: 'USWDS has 12 columns to span.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 1
+  max: 12
+  prefix: ''
+  suffix: ''
+field_type: integer

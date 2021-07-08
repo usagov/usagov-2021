@@ -1,16 +1,17 @@
-uuid: f9198bfb-f800-45e5-a4c4-ba915e6036a9
+uuid: 9418f0c7-783d-400d-8287-1e400a5851d2
 langcode: en
 status: true
 dependencies:
   module:
     - paragraphs
-    - text
-id: paragraph.field_text
-field_name: field_text
+_core:
+  default_config_hash: nXO-6_sG3dcw3RwDT9nF5PumsMetSDduYkF1_bIDBLU
+id: paragraph.field_make_card_link
+field_name: field_make_card_link
 entity_type: paragraph
-type: text_long
+type: boolean
 settings: {  }
-module: text
+module: core
 locked: false
 cardinality: 1
 translatable: true
