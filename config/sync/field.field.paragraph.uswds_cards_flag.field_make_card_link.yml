@@ -1,0 +1,25 @@
+uuid: 06ad716a-cb28-4f99-9160-58ff06fb4b9f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_make_card_link
+    - paragraphs.paragraphs_type.uswds_cards_flag
+_core:
+  default_config_hash: ShQCurhpuhJemL7bZ0ncWNjmdYCM_pAOMz0eahpRFy8
+id: paragraph.uswds_cards_flag.field_make_card_link
+field_name: field_make_card_link
+entity_type: paragraph
+bundle: uswds_cards_flag
+label: 'Make Card Link'
+description: 'Make the entire card a link vs just the button.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

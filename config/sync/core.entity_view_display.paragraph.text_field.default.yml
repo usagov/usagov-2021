@@ -1,10 +1,12 @@
-uuid: 9068f2ba-1390-482a-b986-b745dde1a696
+uuid: 919e7b7a-b0fb-4650-95ec-88b1492454b2
 langcode: en
 status: true
 dependencies:
   config:
     - field.field.paragraph.text_field.field_text
     - paragraphs.paragraphs_type.text_field
+  module:
+    - text
 id: paragraph.text_field.default
 targetEntityType: paragraph
 bundle: text_field
@@ -15,6 +17,6 @@ content:
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    type: basic_string
+    type: text_default
     region: content
 hidden: {  }
