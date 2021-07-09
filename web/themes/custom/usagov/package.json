@@ -10,8 +10,7 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^10.2.5",
     "gulp": "^4.0.2",

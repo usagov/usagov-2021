@@ -11,7 +11,7 @@ _core:
   default_config_hash: 05t4sDVkoIIr93awow19xLg0zeanMekWf7kwUh6Kroo
 name: USWDS
 format: uswds
-weight: -10
+weight: 0
 filters:
   editor_file_reference:
     id: editor_file_reference
@@ -42,8 +42,8 @@ filters:
     weight: 100
     settings:
       default_view_mode: default
-      allowed_view_modes: {  }
       allowed_media_types: {  }
+      allowed_view_modes: {  }
   filter_align:
     id: filter_align
     provider: filter
