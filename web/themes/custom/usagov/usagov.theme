@@ -6,3 +6,12 @@
  *
  * Place your custom PHP code in this file.
  */
+
+/**
+* This makes the node varialbe available to the templates/html.html.twig template file
+*
+*/
+
+function usagov_preprocess_html (&$variables) {
+    $variables['node'] = \Drupal::routeMatch()->getParameter('node');
+}
