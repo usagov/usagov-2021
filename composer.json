@@ -43,6 +43,7 @@
         "drupal/openapi_ui_swagger": "^1.0@RC",
         "drupal/paragraphs_collapsible": "^1.2",
         "drupal/paragraphs_entity_embed": "^2.0@alpha",
+        "drupal/paragraphs_inline_entity_form": "^1.0@beta",
         "drupal/pathauto": "^1.8",
         "drupal/redirect": "^1.6",
         "drupal/s3fs": "^3.0@alpha",
@@ -59,7 +60,7 @@
         "drupal/tome": "^1.4",
         "drupal/uswds_base": "^2.4",
         "drupal/uswds_ckeditor_integration": "^1.0@beta",
-        "drupal/uswds_paragraph_components": "^1.0",
+        "drupal/uswds_paragraph_components": "^2.0.x-dev@dev",
         "drupal/webform": "^6.0",
         "drupal/workbench_email": "^2.2",
         "drush/drush": "^10.3"
