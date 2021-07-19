@@ -2,7 +2,15 @@
 
 This is the USAgov custom theme for Drupal 9. It is a subtheme of the uswds_base theme.
 
-## Gulp Commands
+The USWDS code is included via NPM and we can update to new versions of the USWDS at anytime. To avoid making changes directly to the USWDS code, we will be using [design tokens](https://designsystem.digital.gov/design-tokens/) inside sass settings files.
+
+This theme also applies our styles into CK Editor (Drupal's WYSIWYG editor) along with some customizations to improve the content editing experience. Content editors should be able to be able to experience the general look-and-feel of the published content.
+
+There is a space for custom CSS and JS. More info will be available as work continues.
+
+## Setup
+
+`npm install`
 
 `gulp init`
 * Copies fonts, images, and javascript from the USWDS within node_modules.
