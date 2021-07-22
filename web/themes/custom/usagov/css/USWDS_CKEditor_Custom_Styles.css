@@ -1,5 +1,10 @@
 /* Override uswds_ckeditor_integration styles */
 
+body.cke_editable {
+    max-width: 64em;
+    margin: auto;
+}
+
 html div.usa-accordion {
     border: initial;
     padding: initial;
