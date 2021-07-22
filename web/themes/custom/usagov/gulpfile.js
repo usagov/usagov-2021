@@ -11,20 +11,21 @@ USWDS SASS GULPFILE
 ----------------------------------------
 */
 
+const sass = require('gulp-sass')(require('sass'));
 const autoprefixer = require("autoprefixer");
 const csso = require("postcss-csso");
 const gulp = require("gulp");
 const pkg = require("./node_modules/uswds/package.json");
 const postcss = require("gulp-postcss");
 const replace = require("gulp-replace");
-const sass = require("gulp-sass");
+//const sass = require("gulp-sass");
 const sourcemaps = require("gulp-sourcemaps");
 const uswds = require("./node_modules/uswds-gulp/config/uswds");
 const del = require('del');
 const svgSprite = require('gulp-svg-sprite');
 const rename = require('gulp-rename');
 
-sass.compiler = require("sass");
+//sass.compiler = require("sass");
 
 /*
 ----------------------------------------
