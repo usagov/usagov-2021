@@ -2,3 +2,19 @@
 // $color-primary: #666;
 // $color-primary-darker: #444;
 // $color-primary-darkest: #222;
+
+
+
+// Primary colors
+$theme-color-primary: "cyan-30v";
+$theme-color-primary-dark: "cyan-40v";
+$theme-color-primary-darker: "cyan-40v";
+
+// Secondary colors (These seem to only be used by usa-button--secondary)
+$theme-color-secondary: "cyan-10"; //background
+$theme-color-secondary-dark: "cyan-20"; //hover
+$theme-color-secondary-darker: "cyan-20"; //active
+
+// Process List
+$theme-process-list-counter-background-color: "ink";
+$theme-process-list-counter-text-color: "white";
