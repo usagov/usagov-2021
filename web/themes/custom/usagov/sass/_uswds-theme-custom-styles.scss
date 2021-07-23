@@ -19,3 +19,11 @@ i.e.
 @include u-padding-right('05');
 ----------------------------------------
 */
+
+/* 
+This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
+Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
+*/
+.usa-button:visited {
+   color: initial;
+}
