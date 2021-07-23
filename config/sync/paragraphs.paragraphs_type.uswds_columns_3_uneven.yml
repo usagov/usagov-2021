@@ -1,0 +1,12 @@
+uuid: 956eb550-4fc6-4d7f-956a-4d414317ea95
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: D9um020uHiLePkyZPdEgeYseQsWV9Z8sbcsa6CwigfM
+id: uswds_columns_3_uneven
+label: 'USWDS Columns (3 Uneven)'
+icon_uuid: null
+icon_default: null
+description: 'Based off of <a href="https://designsystem.digital.gov/utilities/layout-grid/">USWDS Grid using breakpoints</a>'
+behavior_plugins: {  }

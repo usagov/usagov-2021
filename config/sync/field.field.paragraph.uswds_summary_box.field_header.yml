@@ -1,0 +1,21 @@
+uuid: d4c33837-43ea-4e94-a174-eefb30e0d136
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_header
+    - paragraphs.paragraphs_type.uswds_summary_box
+_core:
+  default_config_hash: EfEafX-DrD00shnE39LBxm2vs4YCrWOgqFeYFvv0C9A
+id: paragraph.uswds_summary_box.field_header
+field_name: field_header
+entity_type: paragraph
+bundle: uswds_summary_box
+label: Header
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

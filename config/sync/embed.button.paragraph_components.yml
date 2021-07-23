@@ -16,5 +16,8 @@ type_settings:
     uswds_card_group_regular: uswds_card_group_regular
     uswds_column_equal_size: uswds_column_equal_size
     uswds_columns_2_uneven: uswds_columns_2_uneven
+    uswds_process_list: uswds_process_list
+    uswds_step_indicator_list: uswds_step_indicator_list
+    uswds_summary_box: uswds_summary_box
 icon: {  }
 icon_uuid: null

@@ -1,0 +1,25 @@
+uuid: 37c24f70-db68-428b-8653-5e5a79d6636f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_counters
+    - paragraphs.paragraphs_type.uswds_step_indicator_list
+_core:
+  default_config_hash: '-17gmYBPiaDo7VCA4acUhDeZPiEt3dbtMG_Co6dzMx0'
+id: paragraph.uswds_step_indicator_list.field_counters
+field_name: field_counters
+entity_type: paragraph
+bundle: uswds_step_indicator_list
+label: Counters
+description: 'Show step counters'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

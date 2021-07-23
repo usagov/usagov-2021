@@ -1,0 +1,33 @@
+uuid: 492e1fcd-8793-4fde-bf3e-3cfd15e666db
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_step_indicator_item.field_current
+    - field.field.paragraph.uswds_step_indicator_item.field_item_title
+    - paragraphs.paragraphs_type.uswds_step_indicator_item
+_core:
+  default_config_hash: 2DU9mscLkIpiaMITGjYsvSX-HwZanPIOHtXKMQ1wxfQ
+id: paragraph.uswds_step_indicator_item.default
+targetEntityType: paragraph
+bundle: uswds_step_indicator_item
+mode: default
+content:
+  field_header:
+    weight: 0
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_text:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+    region: content
+hidden:
+  field_current: true
+  field_item_title: true

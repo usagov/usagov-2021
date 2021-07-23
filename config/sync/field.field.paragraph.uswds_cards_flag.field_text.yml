@@ -1,0 +1,23 @@
+uuid: 1f8eb57e-c915-4153-ae68-b79be4bf5b98
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text
+    - paragraphs.paragraphs_type.uswds_cards_flag
+  module:
+    - text
+_core:
+  default_config_hash: 9TZ341IFM-fVQsMt00L5R9A77NIqrr1EFnbXWOMsSz8
+id: paragraph.uswds_cards_flag.field_text
+field_name: field_text
+entity_type: paragraph
+bundle: uswds_cards_flag
+label: Text
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

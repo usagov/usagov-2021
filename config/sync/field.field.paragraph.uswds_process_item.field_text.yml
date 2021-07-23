@@ -1,0 +1,23 @@
+uuid: 558d3608-855c-445d-82b5-d4c2478c2e43
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text
+    - paragraphs.paragraphs_type.uswds_process_item
+  module:
+    - text
+_core:
+  default_config_hash: oFgYcqn1O0CyA6S0NF_ri34PgUvgQzCoBFvGfPFlGXo
+id: paragraph.uswds_process_item.field_text
+field_name: field_text
+entity_type: paragraph
+bundle: uswds_process_item
+label: Text
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

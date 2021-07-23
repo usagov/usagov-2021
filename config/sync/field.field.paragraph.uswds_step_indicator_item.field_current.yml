@@ -1,0 +1,25 @@
+uuid: 0faa990c-7969-46fa-98ac-9117df5d2370
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_current
+    - paragraphs.paragraphs_type.uswds_step_indicator_item
+_core:
+  default_config_hash: LKycDiyIqntIzzQ0rcoFUkVTvOWWOITWpu-mWXVmGYQ
+id: paragraph.uswds_step_indicator_item.field_current
+field_name: field_current
+entity_type: paragraph
+bundle: uswds_step_indicator_item
+label: Current
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

@@ -31,6 +31,7 @@ settings:
           name: Headings
           items:
             - Format
+            - Styles
         -
           name: Links
           items:
@@ -70,7 +71,7 @@ settings:
     language:
       language_list: un
     stylescombo:
-      styles: ''
+      styles: a.usa-button.usa-button--secondary.usa-button--big|Button
     templates:
       template_path: ''
       replace_content: 0

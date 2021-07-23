@@ -1,0 +1,12 @@
+uuid: a0b2d34a-ca82-4272-8db1-41d90c6912e4
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: IUZde4ADJDXLVzggN4wGNJcsay7iFVV-ZfzIXyfAc8g
+id: uswds_step_indicator_item
+label: 'USWDS Step Indicator Item'
+icon_uuid: null
+icon_default: null
+description: 'Used by USWDS Step Indicator List. DO NOT USE AS STANDALONE.'
+behavior_plugins: {  }

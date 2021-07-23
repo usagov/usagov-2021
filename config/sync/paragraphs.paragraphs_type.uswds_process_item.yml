@@ -1,0 +1,12 @@
+uuid: d71d2b69-c85c-41e8-a143-48cb226c2ace
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: flKqTNYQt_wmp_jDXYcoDgHwglc6iFqvxRmHhTy_1sM
+id: uswds_process_item
+label: 'USWDS Process Item'
+icon_uuid: null
+icon_default: null
+description: 'Used by USWDS Process List. DO NOT USE AS STANDALONE.'
+behavior_plugins: {  }

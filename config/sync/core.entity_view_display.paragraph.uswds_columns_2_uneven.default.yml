@@ -1,0 +1,46 @@
+uuid: 1c1f8317-7085-4935-984b-14dac514a20a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_columns_2_uneven.field_2_column_grid
+    - field.field.paragraph.uswds_columns_2_uneven.field_column_content_2_uneven
+    - field.field.paragraph.uswds_columns_2_uneven.field_grid_gap
+    - paragraphs.paragraphs_type.uswds_columns_2_uneven
+  module:
+    - entity_reference_revisions
+    - options
+_core:
+  default_config_hash: Nn-TO1p8Zpo2e1V2fMp43sV4NxnJAF2-Lo9_AMp-7es
+id: paragraph.uswds_columns_2_uneven.default
+targetEntityType: paragraph
+bundle: uswds_columns_2_uneven
+mode: default
+content:
+  field_2_column_grid:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+    region: content
+  field_column_content_2_uneven:
+    type: entity_reference_revisions_entity_view
+    weight: 0
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_grid_gap:
+    weight: 2
+    label: hidden
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+hidden: {  }

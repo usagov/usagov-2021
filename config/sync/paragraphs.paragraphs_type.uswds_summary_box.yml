@@ -1,0 +1,12 @@
+uuid: 38826e2c-1e8f-4796-8775-e50f555a90f3
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: UicS4v90RA0Qumtk8J_Oo3SuVtR0TqNRwtpQXlG9Z48
+id: uswds_summary_box
+label: 'USWDS Summary Box'
+icon_uuid: null
+icon_default: null
+description: 'Based off of <a href="https://designsystem.digital.gov/components/summary-box/">USWDS Summary box</a>'
+behavior_plugins: {  }

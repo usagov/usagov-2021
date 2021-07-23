@@ -1,0 +1,12 @@
+uuid: 30d3a8e7-c2e6-46e4-867b-11ee0e4a1baf
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: ldO3zkkeLjjehrRAMkRSY1dtMCkMIceTBeWZHynqLT4
+id: uswds_process_list
+label: 'USWDS Process List'
+icon_uuid: null
+icon_default: null
+description: 'Based off of <a href="https://designsystem.digital.gov/components/process-list/">USWDS Process List</a>'
+behavior_plugins: {  }

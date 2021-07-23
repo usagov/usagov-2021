@@ -1,0 +1,23 @@
+uuid: 83346bae-f806-4077-8a50-61330d687e2d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text
+    - paragraphs.paragraphs_type.uswds_card_regular
+  module:
+    - text
+_core:
+  default_config_hash: wTaBAws_mWPKE0yPjjqn4WJK83H93uM3vwPj3VArFHU
+id: paragraph.uswds_card_regular.field_text
+field_name: field_text
+entity_type: paragraph
+bundle: uswds_card_regular
+label: Text
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long
