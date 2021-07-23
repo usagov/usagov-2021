@@ -1,0 +1,87 @@
+uuid: 11667dc1-8ab6-4011-9e54-d5cc3dc9d7c2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_cards_flag.field_button
+    - field.field.paragraph.uswds_cards_flag.field_card_image
+    - field.field.paragraph.uswds_cards_flag.field_card_title
+    - field.field.paragraph.uswds_cards_flag.field_image_position
+    - field.field.paragraph.uswds_cards_flag.field_make_card_link
+    - field.field.paragraph.uswds_cards_flag.field_number_of_columns
+    - field.field.paragraph.uswds_cards_flag.field_text
+    - paragraphs.paragraphs_type.uswds_cards_flag
+  module:
+    - link
+    - options
+    - text
+_core:
+  default_config_hash: s4b80wa2gK45OjibVeYly32OQG-Jmmjno_KWk7gOfRE
+id: paragraph.uswds_cards_flag.default
+targetEntityType: paragraph
+bundle: uswds_cards_flag
+mode: default
+content:
+  field_button:
+    weight: 1
+    label: hidden
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    type: link
+    region: content
+  field_card_image:
+    weight: 2
+    label: hidden
+    settings:
+      link: true
+      view_mode: default
+    third_party_settings: {  }
+    type: entity_reference_entity_view
+    region: content
+  field_card_title:
+    weight: 0
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_image_position:
+    weight: 3
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+    region: content
+  field_make_card_link:
+    weight: 5
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_number_of_columns:
+    weight: 6
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    type: number_integer
+    region: content
+  field_text:
+    weight: 4
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+    region: content
+hidden: {  }

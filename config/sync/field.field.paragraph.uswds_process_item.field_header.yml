@@ -1,0 +1,21 @@
+uuid: b6bd84fb-8a5f-467b-80a4-804aa21962b4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_header
+    - paragraphs.paragraphs_type.uswds_process_item
+_core:
+  default_config_hash: zdURWbRgtLJL6gGMYPexCOllSOdZx7p6BrtSeZ36u6k
+id: paragraph.uswds_process_item.field_header
+field_name: field_header
+entity_type: paragraph
+bundle: uswds_process_item
+label: Header
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

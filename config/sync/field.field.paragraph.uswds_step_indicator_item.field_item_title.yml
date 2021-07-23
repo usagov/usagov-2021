@@ -1,0 +1,21 @@
+uuid: ca11ecdd-c3e8-448b-978f-83bc1a972984
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_item_title
+    - paragraphs.paragraphs_type.uswds_step_indicator_item
+_core:
+  default_config_hash: XQHrXipWg9F1UDLkB7j8rk8yGA9Tgamzc-Dn77qiKHo
+id: paragraph.uswds_step_indicator_item.field_item_title
+field_name: field_item_title
+entity_type: paragraph
+bundle: uswds_step_indicator_item
+label: 'Item Title'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

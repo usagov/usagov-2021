@@ -1,0 +1,21 @@
+uuid: 1201c8f8-db03-4827-affc-c7bf5f91f7e4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_header
+    - paragraphs.paragraphs_type.uswds_step_indicator_list
+_core:
+  default_config_hash: Tsv-KvNRI5mharjWtDojIgreISUhqRd7n3pGGU_FcJ0
+id: paragraph.uswds_step_indicator_list.field_header
+field_name: field_header
+entity_type: paragraph
+bundle: uswds_step_indicator_list
+label: Header
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

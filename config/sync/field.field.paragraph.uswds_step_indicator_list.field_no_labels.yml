@@ -1,0 +1,25 @@
+uuid: 4a30fb99-4f1b-4617-9c31-358d27f2a059
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_no_labels
+    - paragraphs.paragraphs_type.uswds_step_indicator_list
+_core:
+  default_config_hash: JWJvP4kHxConJ8NyDCzZuNudtK6pafRBsi_fxw0uGpo
+id: paragraph.uswds_step_indicator_list.field_no_labels
+field_name: field_no_labels
+entity_type: paragraph
+bundle: uswds_step_indicator_list
+label: 'No Labels'
+description: 'Don’t show step labels.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

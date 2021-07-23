@@ -1,0 +1,10 @@
+uuid: 3e4f9b0e-7f20-41c3-bf4e-a61f26bc7682
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: WJNbNTj9ewMN8JpReEuoJpf2j3npvOuOi4m2vNWq-Lo
+id: uswds_paragraphs
+label: 'USWDS Paragraphs'
+revision: 1
+description: 'Basic block type with a paragraph field to USWDS bundles.'

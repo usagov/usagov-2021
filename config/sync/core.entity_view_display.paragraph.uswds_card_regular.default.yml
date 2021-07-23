@@ -1,0 +1,111 @@
+uuid: 993d4539-b987-4598-974a-324d74101a0b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_card_regular.field_button
+    - field.field.paragraph.uswds_card_regular.field_card_image
+    - field.field.paragraph.uswds_card_regular.field_card_title
+    - field.field.paragraph.uswds_card_regular.field_extend_media
+    - field.field.paragraph.uswds_card_regular.field_indent_media
+    - field.field.paragraph.uswds_card_regular.field_make_card_link
+    - field.field.paragraph.uswds_card_regular.field_number_of_columns
+    - field.field.paragraph.uswds_card_regular.field_text
+    - field.field.paragraph.uswds_card_regular.field_title_first
+    - paragraphs.paragraphs_type.uswds_card_regular
+  module:
+    - link
+    - text
+_core:
+  default_config_hash: 91u7_m19cFzMJMjTHPUnA974IYdUsUB9c-F_YSCwhw0
+id: paragraph.uswds_card_regular.default
+targetEntityType: paragraph
+bundle: uswds_card_regular
+mode: default
+content:
+  field_button:
+    weight: 7
+    label: hidden
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    type: link
+    region: content
+  field_card_image:
+    type: entity_reference_entity_view
+    weight: 1
+    label: hidden
+    settings:
+      view_mode: card_image
+      link: false
+    third_party_settings: {  }
+    region: content
+  field_card_title:
+    weight: 0
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_extend_media:
+    weight: 6
+    label: hidden
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_indent_media:
+    weight: 5
+    label: hidden
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_make_card_link:
+    weight: 8
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_number_of_columns:
+    weight: 9
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    type: number_integer
+    region: content
+  field_text:
+    weight: 2
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+    region: content
+  field_title_first:
+    weight: 4
+    label: hidden
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+hidden: {  }

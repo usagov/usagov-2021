@@ -1,0 +1,25 @@
+uuid: 07d4db84-4644-4fca-8835-0d2ede5f3dca
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_centered
+    - paragraphs.paragraphs_type.uswds_step_indicator_list
+_core:
+  default_config_hash: M4lBdz1zDV0h3GFO-YjisEikcFz7vjLV5_t0PB8GMRg
+id: paragraph.uswds_step_indicator_list.field_centered
+field_name: field_centered
+entity_type: paragraph
+bundle: uswds_step_indicator_list
+label: Centered
+description: 'Center counters and labels in each step'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

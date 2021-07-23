@@ -1,21 +1,20 @@
-uuid: 461b6f96-9b33-4a9d-83e9-a34998591ceb
+uuid: afefad01-5d44-4b4a-8f90-669ac8d7a7ce
 langcode: en
 status: true
 dependencies:
   config:
-    - field.field.paragraph.uswds_card_group_regular.field_cards
-    - field.field.paragraph.uswds_card_group_regular.field_uswds_classes
-    - paragraphs.paragraphs_type.uswds_card_group_regular
+    - field.field.paragraph.uswds_process_list.field_process_items
+    - paragraphs.paragraphs_type.uswds_process_list
   module:
     - paragraphs
 _core:
-  default_config_hash: PlEYFb-KC3PWLC5eXsBENixc9Udp63he02RglfAwXYw
-id: paragraph.uswds_card_group_regular.default
+  default_config_hash: tNoBRKO5rC9LKljIe-65roQcrvMkYZADa2lQBT5b63A
+id: paragraph.uswds_process_list.default
 targetEntityType: paragraph
-bundle: uswds_card_group_regular
+bundle: uswds_process_list
 mode: default
 content:
-  field_cards:
+  field_process_items:
     type: entity_reference_paragraphs
     weight: 0
     settings:
@@ -29,5 +28,4 @@ content:
     region: content
 hidden:
   created: true
-  field_uswds_classes: true
   status: true

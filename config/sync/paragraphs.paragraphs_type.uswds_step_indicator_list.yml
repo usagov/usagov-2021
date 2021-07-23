@@ -1,0 +1,12 @@
+uuid: b3053cca-46d1-4044-b9eb-34bd28e713f7
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: YzTlFVe7LtLR-C15M79seINtkWD-oOYS42vQgClO4Nw
+id: uswds_step_indicator_list
+label: 'USWDS Step Indicator List'
+icon_uuid: null
+icon_default: null
+description: 'Based off of <a href="https://designsystem.digital.gov/components/step-indicator/">USWDS Step Indicator</a>'
+behavior_plugins: {  }

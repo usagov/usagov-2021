@@ -1,0 +1,25 @@
+uuid: bb37c76a-7a55-4f08-9413-cc6b2ef4cfce
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_small_counters
+    - paragraphs.paragraphs_type.uswds_step_indicator_list
+_core:
+  default_config_hash: I2WnTAqpr3k8nH3tgXaHHW6WnL2o0vCkPnEoCORu0Do
+id: paragraph.uswds_step_indicator_list.field_small_counters
+field_name: field_small_counters
+entity_type: paragraph
+bundle: uswds_step_indicator_list
+label: 'Small Counters'
+description: 'Show small step counters'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

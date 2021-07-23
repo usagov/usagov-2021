@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.paragraph.uswds_card_group_flag.field_alternating_flags
     - field.field.paragraph.uswds_card_group_flag.field_cards
+    - field.field.paragraph.uswds_card_group_flag.field_uswds_classes
     - paragraphs.paragraphs_type.uswds_card_group_flag
   module:
     - entity_reference_revisions
@@ -26,3 +27,4 @@ content:
     region: content
 hidden:
   field_alternating_flags: true
+  field_uswds_classes: true
