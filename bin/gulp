@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+docker compose run \
+  --rm \
+  --workdir /app/web/themes/custom/usagov \
+  -v $(pwd)/:/app:delegated \
+  gulp \
+  gulp "$@"
