@@ -38,3 +38,13 @@ services:
             }
           }]
         }
+
+  gulp:
+    container_name: gulp
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-gulp
+    volumes:
+      - .:/app:delegated
+    env_file:
+      - ./env.local

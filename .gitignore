@@ -27,6 +27,8 @@
 
 env.local
 sqlite-local.db
+sqlite-local.db-shm
+sqlite-local.db-wal
 
 # Ignore paths that may contain temporary files
 /web/sites/*/translations
