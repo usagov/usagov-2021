@@ -1,0 +1,8 @@
+  
+FROM node:alpine
+
+RUN npm install -g gulp-cli
+
+WORKDIR /app/web/themes/custom/usagov/
+
+CMD ["gulp", "watch"]

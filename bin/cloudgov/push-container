@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# This script will attempt to create a container image
+# This script will attempt to store a container image on docker hub
 # to be used when launching cloud.gov images
 #
 
@@ -12,17 +12,10 @@ CONTAINERTAG=${1:-$VERSIONTAG}
 
 if [ -z "$CONTAINERTAG" ]
 then
-      echo "Must specify a container tag to build"
+      echo "Must specify a container tag to push"
       exit 1;
 fi;
 
-chmod -R u+w ./web/sites/default/
+docker search ednark/usagov-2021:$CONTAINERTAG
 
-docker build --force-rm \
-    -t ednark/usagov-2021:$CONTAINERTAG \
-    -f .docker/Dockerfile . \
-    --build-arg GITBRANCH=$GITBRANCH \
-    --build-arg GITCOMMIT=$GITCOMMIT \
-    --build-arg GITTAG=$GITTAG
-
-echo $CONTAINERTAG
+docker push ednark/usagov-2021:$CONTAINERTAG

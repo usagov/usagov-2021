@@ -1,9 +1,0 @@
-  
-FROM node:alpine
-
-COPY web/themes/custom/usagov/package.json /app
-
-WORKDIR /app
-
-RUN npm install -g
-
