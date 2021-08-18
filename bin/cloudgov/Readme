@@ -2,8 +2,6 @@
 
 Cloud.gov calls application environments "Spaces." Each developer should have access to four space: a personal Space and one Space each for Dev, UAT, and Prod.
 
-
-
 ## Dashboard
 
 To view running resources in your available spaces go to this url.
@@ -32,3 +30,9 @@ This command can be user to switch between spaces:
 ```
 cf target -o <NEW_ORG> -s <NEW_SPACE>
 ```
+
+### Build/Deploy
+
+1 build container
+2 push container to docker hub
+3 redeploy cloudgov apps (they will pull new docker hub container)

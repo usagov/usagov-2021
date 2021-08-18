@@ -5,4 +5,4 @@ docker compose run \
   --rm \
   -v $(pwd)/:/app:delegated \
   node \
-  gulp "$@"
+  npm "$@"
