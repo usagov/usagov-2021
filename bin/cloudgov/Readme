@@ -35,4 +35,4 @@ cf target -o <NEW_ORG> -s <NEW_SPACE>
 
 1 build container
 2 push container to docker hub
-3 redeploy cloudgov apps (they will pull new docker hub container)
+3 redeploy cloudgov apps (they will use the new docker hub container)
