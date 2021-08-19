@@ -93,10 +93,12 @@ RUN apk upgrade --update --no-cache \
     # drupal setup
     && cd /tmp \
     && curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer \
-    && chmod a+x /usr/local/bin/composer \
+    && mv composer.phar /usr/bin/composer \
+    && chmod a+x /usr/bin/composer \
     # cleanup
     && rm -rf /var/cache/apk/*
+
+ENV PATH=/var/www/vendor/bin:$PATH
 
 COPY --chown=nginx:nginx .docker/etc /etc
 COPY --chown=nginx:nginx bootstrap.sh /var/www/bootstrap.sh
@@ -115,9 +117,9 @@ RUN rm -f /var/www/web/sites/default/settings.local.php \
     && echo "    gittag: " $GITTAG >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \
     && echo >> /etc/motd \
-    cp /etc/motd /var/www/build.info
+    && cp /etc/motd /var/www/build.info \
+    && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
 
-ENV PATH=/var/www/vendor/bin:$PATH
 
 EXPOSE 80
 
