@@ -1,9 +1,10 @@
 #!/bin/bash
 set -e
 
-docker compose run \
-  --rm \
-  --workdir /var/www \
-  -v $(pwd)/:/var/www:delegated \
-  cms \
-  /var/www/bootstrap.sh
+# this should ssh into cloudgov and trigger bootstrap from there 
+# docker compose run \
+#   --rm \
+#   --workdir /var/www \
+#   -v $(pwd)/:/var/www:delegated \
+#   cms \
+#   /var/www/bootstrap.sh
