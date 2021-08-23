@@ -27,3 +27,11 @@ Buttons with visited links would mysteriously get white text which is not access
 .usa-button:visited {
    color: initial;
 }
+
+/* 
+This style overrides a style from drupal core (/web/core/modules/system/css/components/hidden.module.css)
+The USWDS mobile footer applies a "hidden" class to closed accordions to hide the accordion content, but the drupal style hides the entire accordion.
+*/
+.usa-footer__primary-content--collapsible.hidden{
+   display: block;
+}

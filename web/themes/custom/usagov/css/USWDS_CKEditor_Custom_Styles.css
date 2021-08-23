@@ -4,7 +4,9 @@ body.cke_editable {
     max-width: 64em;
     margin: auto;
 }
-
+.usa-accordion__content[hidden]{
+    display: block;
+}
 html div.usa-accordion {
     border: initial;
     padding: initial;
@@ -13,12 +15,12 @@ html div.usa-accordion {
 html div.usa-accordion:before {
     content: initial;
 }
-html div.usa-accordion .usa-accordion__heading {
+/* html div.usa-accordion .usa-accordion__heading {
     border: initial;
     box-sizing: initial;
     display: inline-block;
     padding: initial;
-}
+} */
 html div.usa-accordion .usa-accordion__content {
     border: initial;
     margin: initial;
