@@ -7,18 +7,18 @@ source $CLOUDDIR/../../env.local;
 SPACE=${1:-personal}
 
 if [ "$SPACE" = "personal" ]; then
-    echo "cf target -o $CLOUD_PERSONAL_ORG -s $CLOUD_PERSONAL_SPACE"
+    cf target -o $CLOUD_PERSONAL_ORG -s $CLOUD_PERSONAL_SPACE
 
 elif [ "$SPACE" = "dev" ]; then
-    echo "cf target -o $CLOUD_DEV_ORG -s $CLOUD_DEV_SPACE"
+    cf target -o $CLOUD_DEV_ORG -s $CLOUD_DEV_SPACE
 
-elif [ "$SPACE" = "uat" ]; then
-    echo "cf target -o $CLOUD_UAT_ORG -s $CLOUD_UAT_SPACE"
+elif [ "$SPACE" = "staging" ]; then
+    cf target -o $CLOUD_STAGING_ORG -s $CLOUD_STAGING_SPACE
 
 elif [ "$SPACE" = "prod" ]; then
-    echo "cf target -o $CLOUD_PROD_ORG -s $CLOUD_PROD_SPACE"
+    cf target -o $CLOUD_PROD_ORG -s $CLOUD_PROD_SPACE
 
 else
-    echo "cf target -o default -s default"
+    cf target -o $CLOUD_PERSONAL_ORG -s $CLOUD_PERSONAL_SPACE
 
 fi

@@ -8,8 +8,16 @@ CLOUDDIR=$(dirname "$0")
 source $CLOUDDIR/are-you-sure.sh
 [[ "$?" = "1" ]] && exit 1;
 
+source $CLOUDDIR/are-you-sure.sh
+[[ "$?" = "1" ]] && exit 1;
+
+source $CLOUDDIR/are-you-sure.sh
+[[ "$?" = "1" ]] && exit 1;
+
 source $CLOUDDIR/choose-space.sh
 echo $?
+
+# NEED TO ADD SANITY CHECK HERE SO THIS SCRIPT WONT BE ABLE TO DELETE PROD
 
 # delete apps
 echo "cf delete cronish"
