@@ -1,6 +1,6 @@
 version: 2.1
 commands:
-  deploy-azure:
+  deploy-cloudgov:
     parameters:
       envname:
         default: ""
@@ -11,8 +11,7 @@ commands:
           name: Setup Environment for use in Scripts
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            # DO WE STILL NEED THIS 
-            # printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee ./bin/cloudgov/env
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee ./bin/cloudgov/env
       - attach_workspace:
           at: /tmp/workspace
       - run:
@@ -84,27 +83,11 @@ jobs:
             - vendor
             - composer.lock
             - web/themes/custom/usagov/css
-  deploy-cloudgsov-dev:
+  deploy-cloudgsov-prod:
     machine:
       image: ubuntu-2004:202101-01
     environment:
-      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/???/env
-    steps:
-      - deploy-cloudgov:
-          envname: dev
-  deploy-azure-uat:
-    machine:
-      image: ubuntu-2004:202101-01
-    environment:
-      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/???/env
-    steps:
-      - deploy-cloudgov:
-          envname: uat
-  deploy-azure-prod:
-    machine:
-      image: ubuntu-2004:202101-01
-    environment:
-      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/???/env
+      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/bin/cloudgov/env
     steps:
       - deploy-cloudgov:
           envname: prod
