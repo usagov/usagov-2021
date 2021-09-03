@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# This script will attempt to clean up the drupal install in cloud.gov
+#
+
+CLOUDDIR=$(dirname "$0")
+
+source $CLOUDDIR/are-you-sure.sh
+[[ "$?" = "1" ]] && exit 1;
+
+source $CLOUDDIR/are-you-sure.sh
+[[ "$?" = "1" ]] && exit 1;
+
+source $CLOUDDIR/are-you-sure.sh
+[[ "$?" = "1" ]] && exit 1;
+
+source $CLOUDDIR/choose-space.sh
+echo $?
+
+# NEED TO ADD SANITY CHECK HERE SO THIS SCRIPT WONT BE ABLE TO DELETE PROD
+
+# delete apps
+echo "cf delete cronish"
+echo "cf delete web"
+
+# delete services
+echo "cf delete-service database"
+echo "cf delete-service secrets"
+echo "cf delete-service storage"
+

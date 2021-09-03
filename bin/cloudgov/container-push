@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# This script will attempt to store a container image on docker hub
+# to be used when launching cloud.gov images
+#
+
+
+GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
+GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "")
+CONTAINERTAG=${1:-$VERSIONTAG}
+
+if [ -z "$CONTAINERTAG" ]
+then
+      echo "Must specify a container tag to push"
+      exit 1;
+fi;
+
+docker search ednark/usagov-2021:$CONTAINERTAG
+
+docker push ednark/usagov-2021:$CONTAINERTAG

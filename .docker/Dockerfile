@@ -1,4 +1,4 @@
-FROM alpine:3.12
+FROM alpine:3.14
 LABEL MAINTAINER=dan@mobomo.com
 
 ARG S6_VERSION
@@ -27,54 +27,53 @@ RUN apk upgrade --update --no-cache \
     jq \
     mysql-client \
     nginx \
-    php7 \
-    php7-fpm \
-    php7-bcmath \
-    php7-bz2 \
-    php7-calendar \
-    php7-curl \
-    php7-ctype \
-    php7-dom \
-    php7-fileinfo \
-    php7-ftp \
-    php7-gd \
-    php7-intl \
-    php7-iconv \
-    php7-imagick \
-    php7-imap \
-    php7-intl \
-    php7-json \
-    php7-ldap \
-    php7-mbstring \
-    php7-mysqlnd \
-    php7-openssl \
-    php7-opcache \
-    php7-pcntl \
-    php7-pdo \
-    php7-pdo_mysql \
-    php7-pdo_sqlite \
-    php7-pear \
-    php7-phar \
-    php7-posix \
-    php7-recode \
-    php7-session \
-    php7-simplexml \
-    php7-shmop \
-    php7-soap \
-    php7-sockets \
-    php7-sodium \
-    php7-sqlite3 \
-    php7-sysvmsg \
-    php7-sysvsem \
-    php7-sysvshm \
-    php7-tokenizer \
-    php7-tidy \
-    php7-xsl \
-    php7-xml \
-    php7-xmlreader \
-    php7-xmlwriter \
-    php7-zip \
-    php7-zlib \
+    php8 \
+    php8-fpm \
+    php8-bcmath \
+    php8-bz2 \
+    php8-calendar \
+    php8-curl \
+    php8-ctype \
+    php8-dom \
+    php8-fileinfo \
+    php8-ftp \
+    php8-gd \
+    php8-intl \
+    php8-iconv \
+    php8-imap \
+    php8-intl \
+    php8-json \
+    php8-ldap \
+    php8-mbstring \
+    php8-mysqlnd \
+    php8-openssl \
+    php8-opcache \
+    php8-pcntl \
+    php8-pdo \
+    php8-pdo_mysql \
+    php8-pdo_sqlite \
+    php8-pear \
+    php8-pecl-imagick \
+    php8-phar \
+    php8-posix \
+    php8-session \
+    php8-simplexml \
+    php8-shmop \
+    php8-soap \
+    php8-sockets \
+    php8-sodium \
+    php8-sqlite3 \
+    php8-sysvmsg \
+    php8-sysvsem \
+    php8-sysvshm \
+    php8-tokenizer \
+    php8-tidy \
+    php8-xsl \
+    php8-xml \
+    php8-xmlreader \
+    php8-xmlwriter \
+    php8-zip \
+    php8-zlib \
     && mkdir -p /var/www/web/sites/default/files \
     # s6 supervisor setup
     && tar xzf /tmp/s6overlay.tar.gz -C / \
@@ -89,15 +88,17 @@ RUN apk upgrade --update --no-cache \
     && mkdir -p /run/nginx/ \
     && touch /run/nginx/nginx.pid \
     # php setup
-    && ln -s /etc/php7/php-fpm.d /etc/php7/pool.d \
-    && ln -s /usr/sbin/php-fpm7 /usr/sbin/php-fpm \
+    && ln -s /usr/bin/php8 /usr/bin/php \
+    && ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm \
     # drupal setup
     && cd /tmp \
     && curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer \
-    && chmod a+x /usr/local/bin/composer \
+    && mv composer.phar /usr/bin/composer \
+    && chmod a+x /usr/bin/composer \
     # cleanup
     && rm -rf /var/cache/apk/*
+
+ENV PATH=/var/www/vendor/bin:$PATH
 
 COPY --chown=nginx:nginx .docker/etc /etc
 COPY --chown=nginx:nginx bootstrap.sh /var/www/bootstrap.sh
@@ -116,9 +117,9 @@ RUN rm -f /var/www/web/sites/default/settings.local.php \
     && echo "    gittag: " $GITTAG >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \
     && echo >> /etc/motd \
-    cp /etc/motd /var/www/build.info
+    && cp /etc/motd /var/www/build.info \
+    && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
 
-ENV PATH=/var/www/vendor/bin:$PATH
 
 EXPOSE 80
 

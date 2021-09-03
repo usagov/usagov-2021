@@ -1,0 +1,17 @@
+
+# https://docs.cloudfoundry.org/devguide/deploy-apps/ssh-apps.html#other-ssh-access
+
+TOME - can convert between mysql and sqlite
+# enable tome
+# dump content
+# disable tome
+# zip up content+files
+# copy into s3 private space
+# use cf commands to acquire s3 access
+
+MYSQL - requires local mysql
+# download the dump file from s3 to local
+# use drush to collect db dump
+# copy into s3 private space
+# use cf commands to acquire s3 access
+# download the dump file from s3 to local

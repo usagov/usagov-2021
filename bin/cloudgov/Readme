@@ -1,0 +1,38 @@
+## Spaces
+
+Cloud.gov calls application environments "Spaces." Each developer should have access to four space: a personal Space and one Space each for Dev, UAT, and Prod.
+
+## Dashboard
+
+To view running resources in your available spaces go to this url.
+
+https://dashboard.fr.cloud.gov/
+
+## Command line
+
+All repo interaction with CloudGov happens with the CloudFoundry Client (cf) via the command line.
+To be able to run commands targetted toward a CloudGov Space you must be logged in.
+
+```
+cf login -a api.fr.cloud.gov --sso
+```
+
+Most actions a developer would want to perform will be built into a script placed in the /bin directory of the repo. Actions targetted towards the local environemnt will live direction in the /bin dir, actions targetted towards the hosted CloudGov environments will live in the the /bin/cloudgov directory.
+
+This command can be used to see which space you are currently targeting:
+
+```
+cf target
+```
+
+This command can be user to switch between spaces:
+
+```
+cf target -o <NEW_ORG> -s <NEW_SPACE>
+```
+
+### Build/Deploy
+
+1 build container
+2 push container to docker hub
+3 redeploy cloudgov apps (they will use the new docker hub container)
