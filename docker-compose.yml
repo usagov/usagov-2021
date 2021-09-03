@@ -38,3 +38,26 @@ services:
             }
           }]
         }
+    # depends_on:
+    #   - database
+
+  node:
+    container_name: node
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-node
+    volumes:
+      - .:/app:delegated
+    env_file:
+      - ./env.local
+
+  # database:
+  #   image: mysql:5.7
+  #   volumes:
+  #     - database_data:/var/lib/mysql:delegated
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: mysql
+  #     MYSQL_DATABASE: mysql
+
+# volumes:
+#   database_data:

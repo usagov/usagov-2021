@@ -24,5 +24,8 @@
     "sass": "^1.34.0",
     "uswds": "^2.11.2",
     "uswds-gulp": "github:uswds/uswds-gulp"
+  },
+  "dependencies": {
+    "node-sass": "^6.0.1"
   }
 }

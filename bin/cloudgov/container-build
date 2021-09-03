@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# This script will attempt to create a container image and store it on docker hub
+# This script will attempt to create a container image
 # to be used when launching cloud.gov images
 #
 
@@ -25,4 +25,4 @@ docker build --force-rm \
     --build-arg GITCOMMIT=$GITCOMMIT \
     --build-arg GITTAG=$GITTAG
 
-# docker push ednark/usagov-2021:$CONTAINERTAG
+echo $CONTAINERTAG

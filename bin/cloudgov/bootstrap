@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+# this should ssh into cloudgov and trigger bootstrap from there 
+cf ssh web -c 'source /etc/profile && /var/www/bootstrap.sh'
+# docker compose run \
+#   --rm \
+#   --workdir /var/www \
+#   -v $(pwd)/:/var/www:delegated \
+#   cms \
+#   /var/www/bootstrap.sh

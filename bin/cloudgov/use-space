@@ -1,0 +1,24 @@
+#!/bin/sh
+
+CLOUDDIR=$(dirname "$0")
+
+source $CLOUDDIR/../../env.local;
+
+SPACE=${1:-personal}
+
+if [ "$SPACE" = "personal" ]; then
+    cf target -o $CLOUD_PERSONAL_ORG -s $CLOUD_PERSONAL_SPACE
+
+elif [ "$SPACE" = "dev" ]; then
+    cf target -o $CLOUD_DEV_ORG -s $CLOUD_DEV_SPACE
+
+elif [ "$SPACE" = "staging" ]; then
+    cf target -o $CLOUD_STAGING_ORG -s $CLOUD_STAGING_SPACE
+
+elif [ "$SPACE" = "prod" ]; then
+    cf target -o $CLOUD_PROD_ORG -s $CLOUD_PROD_SPACE
+
+else
+    cf target -o $CLOUD_PERSONAL_ORG -s $CLOUD_PERSONAL_SPACE
+
+fi

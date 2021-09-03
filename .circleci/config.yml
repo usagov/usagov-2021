@@ -1,0 +1,120 @@
+version: 2.1
+commands:
+  deploy-cloudgov:
+    parameters:
+      envname:
+        default: ""
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee ./bin/cloudgov/env
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Import Workspace items
+          command: |
+            mkdir -p ./vendor/
+            mkdir -p ./web/themes/custom/prac/
+            cp -r /tmp/workspace/vendor/* ./vendor/
+            cp -r /tmp/workspace/composer.lock ./composer.lock
+            cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/
+      - run:
+          name: Install Dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y lsof sshpass nodejs npm
+      - run:
+          name: Cleanup For Deploy
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            $SUDO ./docker/cleanup-for-deploy.sh
+      - run:
+          name: Restart App + Post-Deploy Update
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+
+jobs:
+  lint:
+    docker:
+      - image: circleci/php:8.0.9-node
+    steps:
+      - checkout
+      - run:
+          name: Install Linters and Sniffers
+          command: |
+            cd /home/circleci/project/wwwroot/themes/custom/prac && npm install
+            composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
+            COMPOSER_DIR=$(composer -n config --global home)
+            $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer
+      - run:
+          name: PHP Lint
+          command: |
+            COMPOSER_DIR=$(composer -n config --global home)
+            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./wwwroot/modules/custom ./wwwroot/themes/custom
+      - run:
+          name: PHP CodeSniff (ignore warnings)
+          command: |
+            COMPOSER_DIR=$(composer -n config --global home)
+            $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist
+      - run:
+          name: Theme Lint
+          command: cd /home/circleci/project/web/themes/custom/usagov && node /home/circleci/project/web/themes/custom/usagov/node_modules/gulp/bin/gulp.js lint
+
+  build-container-dependencies:
+    docker:
+      - image: circleci/php:8.0.9-node
+    steps:
+      - checkout
+      - run:
+          name: Build Drupal
+          command: |
+            echo 'memory_limit = -1' | sudo tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini
+            sudo npm install --global gulp-cli
+            # build drupal + theme
+            # cleanup any node theme stuff
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - vendor
+            - composer.lock
+            - web/themes/custom/usagov/css
+  deploy-cloudgsov-prod:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/bin/cloudgov/env
+    steps:
+      - deploy-cloudgov:
+          envname: prod
+
+workflows:
+  version: 2
+
+  commit:
+    jobs:
+      - lint
+
+  deploy-build:
+    jobs:
+      - build-container-dependencies:
+          filters:
+            branches:
+              only: develop
+      - approve-prod-deployment:
+          type: approval
+          requires:
+            - build-container-dependencies
+          filters:
+            branches:
+              only: develop
+      - deploy-cloudgov-prod:
+          requires:
+            - approve-prod-deployment
+          filters:
+            branches:
+              only: develop

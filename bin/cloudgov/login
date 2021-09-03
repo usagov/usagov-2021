@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+
+cf login -a api.fr.cloud.gov --sso
