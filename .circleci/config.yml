@@ -1,8 +1,8 @@
 version: 2.1
 commands:
-  deploy-cloudgov:
+  build-push-container:
     parameters:
-      envname:
+      tag:
         default: ""
         type: string
     steps:
@@ -18,26 +18,65 @@ commands:
           name: Import Workspace items
           command: |
             mkdir -p ./vendor/
-            mkdir -p ./web/themes/custom/prac/
+            mkdir -p ./web/themes/custom/usagov/
             cp -r /tmp/workspace/vendor/* ./vendor/
             cp -r /tmp/workspace/composer.lock ./composer.lock
             cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/
       - run:
-          name: Install Dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y lsof sshpass nodejs npm
-      - run:
-          name: Cleanup For Deploy
-          command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            $SUDO ./docker/cleanup-for-deploy.sh
-      - run:
-          name: Restart App + Post-Deploy Update
+          name: Build Container
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            ./bin/cloudgov/container-build << parameters.tag >>
+      - run:
+          name: Login to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+      - run:
+          name: Push Container to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            ./bin/cloudgov/container-push << parameters.tag >>
 
+  deploy-cloudgov:
+    parameters:
+      envname:
+        default: ""
+        type: string
+      tag:
+        default: ""
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee ./bin/cloudgov/env
+      - run:
+          name: Install CloudFoundry
+          command: |
+            #curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&source=github'
+            # curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&source=github-rel'
+            curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=7.3.0&source=github-rel'
+            sudo dpkg -i cf-cli_amd64.deb
+            cf -v
+      - run:
+          name: CloudGov Login
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            echo "./bin/cloudgov/login $CF_USER $CF_PASS"
+            echo "./bin/cloudgov/use-space << parameters.envname >>"
+      - run:
+          name: CloudGov deploy
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            echo "./bin/cloudgov/deploy"
+            
 jobs:
   lint:
     docker:
@@ -83,6 +122,17 @@ jobs:
             - vendor
             - composer.lock
             - web/themes/custom/usagov/css
+
+  create-container:
+    machine:
+      image: ubuntu-2004:202107-02
+    environment:
+      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/bin/cloudgov/env
+    steps:
+      - build-push-container:
+          tag: $CIRCLE_BUILD_NUM
+          tag: << pipeline.id >>
+
   deploy-cloudgsov-prod:
     machine:
       image: ubuntu-2004:202101-01
@@ -105,6 +155,20 @@ workflows:
           filters:
             branches:
               only: develop
+      - approve-create-container:
+          type: approval
+          requires:
+            - build-container-dependencies
+          filters:
+            branches:
+              only: develop
+      - create-container:
+          requires:
+            - approve-create-container
+          filters:
+            branches:
+              only: develop
+
       - approve-prod-deployment:
           type: approval
           requires:

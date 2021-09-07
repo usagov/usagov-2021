@@ -1,4 +1,13 @@
 #!/bin/bash
 set -e
 
-cf login -a api.fr.cloud.gov --sso
+USER=${1}
+PASS=${2}
+
+if [[ -n "$USER" ]] && [[  -n "$PASS" ]]; then
+    cf login -a https://api.fr.cloud.gov -u $USER -p $PASS
+
+else 
+    cf login -a https://api.fr.cloud.gov --sso
+
+fi
