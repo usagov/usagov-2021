@@ -8,7 +8,7 @@
 GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
 GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "")
-CONTAINERTAG=${1:-$VERSIONTAG}
+CONTAINERTAG=${1:-$GITBRANCH}
 
 if [ -z "$CONTAINERTAG" ]
 then
@@ -25,4 +25,4 @@ docker build --force-rm \
     --build-arg GITCOMMIT=$GITCOMMIT \
     --build-arg GITTAG=$GITTAG
 
-echo $CONTAINERTAG
+echo "Building usagov-2021:"$CONTAINERTAG
