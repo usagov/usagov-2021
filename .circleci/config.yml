@@ -1,46 +1,5 @@
 version: 2.1
 commands:
-  build-push-container:
-    parameters:
-      tag:
-        default: ""
-        type: string
-    steps:
-      - checkout
-      - run:
-          name: Setup Environment for use in Scripts
-          command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee ./bin/cloudgov/env
-      - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          name: Import Workspace items
-          command: |
-            mkdir -p ./vendor/
-            mkdir -p ./web/themes/custom/usagov/
-            cp -r /tmp/workspace/vendor/* ./vendor/
-            cp -r /tmp/workspace/composer.lock ./composer.lock
-            cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/
-      - run:
-          name: Build Container
-          no_output_timeout: 30m
-          command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            ./bin/cloudgov/container-build << parameters.tag >>
-      - run:
-          name: Login to Docker Hub
-          no_output_timeout: 30m
-          command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
-      - run:
-          name: Push Container to Docker Hub
-          no_output_timeout: 30m
-          command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            ./bin/cloudgov/container-push << parameters.tag >>
-
   deploy-cloudgov:
     parameters:
       envname:
@@ -60,7 +19,7 @@ commands:
           name: Install CloudFoundry
           command: |
             #curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&source=github'
-            # curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&source=github-rel'
+            #curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&source=github-rel'
             curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=7.3.0&source=github-rel'
             sudo dpkg -i cf-cli_amd64.deb
             cf -v
@@ -125,13 +84,46 @@ jobs:
 
   create-container:
     machine:
-      image: ubuntu-2004:202107-02
+     image: ubuntu-2004:202107-02
     environment:
       BASH_ENV: $CIRCLE_WORKING_DIRECTORY/bin/cloudgov/env
     steps:
-      - build-push-container:
-          tag: $CIRCLE_BUILD_NUM
-          tag: << pipeline.id >>
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Import Workspace items
+          command: |
+            mkdir -p ./vendor/
+            mkdir -p ./web/themes/custom/usagov/
+            cp -r /tmp/workspace/vendor/* ./vendor/
+            cp -r /tmp/workspace/composer.lock ./composer.lock
+            cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/
+      - setup_remote_docker:
+        version: 19.03.13
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee ./bin/cloudgov/env
+      - run:
+          name: Login to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+      - run:
+          name: Build Container
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            ./bin/cloudgov/container-build << pipeline.id >>
+      - run:
+          name: Push Container to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            ./bin/cloudgov/container-push << pipeline.id >>
 
   deploy-cloudgsov-prod:
     machine:
