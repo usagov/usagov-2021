@@ -22,7 +22,6 @@ function add_custom_extension(\Twig_Environment &$env, $config) {
   //    return strrev($theString);
   //  }));
 
-
   //  $env->addExtension(new \My\CustomExtension());
 
   //  `{{ foo }}` => `bar`
