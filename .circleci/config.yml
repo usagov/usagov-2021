@@ -125,7 +125,7 @@ jobs:
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             ./bin/cloudgov/container-push << pipeline.id >>
 
-  deploy-cloudgsov-prod:
+  deploy-cloudgov-prod:
     machine:
       image: ubuntu-2004:202101-01
     environment:
