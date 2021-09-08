@@ -45,7 +45,7 @@ jobs:
       - run:
           name: Install Linters and Sniffers
           command: |
-            cd /home/circleci/project/wwwroot/themes/custom/prac && npm install
+            cd /home/circleci/project/web/themes/custom/usagov && npm install
             composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer
@@ -53,7 +53,7 @@ jobs:
           name: PHP Lint
           command: |
             COMPOSER_DIR=$(composer -n config --global home)
-            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./wwwroot/modules/custom ./wwwroot/themes/custom
+            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom
       - run:
           name: PHP CodeSniff (ignore warnings)
           command: |
