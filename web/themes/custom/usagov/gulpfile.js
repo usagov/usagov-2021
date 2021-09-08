@@ -11,6 +11,8 @@ USWDS SASS GULPFILE
 ----------------------------------------
 */
 
+'use strict';
+
 const sass = require('gulp-sass')(require('sass'));
 const autoprefixer = require("autoprefixer");
 const csso = require("postcss-csso");
@@ -24,6 +26,12 @@ const uswds = require("./node_modules/uswds-gulp/config/uswds");
 const del = require('del');
 const svgSprite = require('gulp-svg-sprite');
 const rename = require('gulp-rename');
+const jsYaml = require('js-yaml');
+const fs = require('fs');
+
+const sasslint = require('gulp-sass-lint');
+const eslint = require('gulp-eslint');
+const plumber = require('gulp-plumber');
 
 //sass.compiler = require("sass");
 
@@ -57,6 +65,10 @@ const CSS_DEST = "./css";
 // Like the _site/assets/css directory in Jekyll, if necessary.
 // If using, uncomment line 106
 const SITE_CSS_DEST = "./path/to/site/css/destination";
+
+const onError = (err) => {
+  console.log(err);
+};
 
 /*
 ----------------------------------------
@@ -114,31 +126,29 @@ gulp.task("build-sass", function(done) {
   );
 });
 
-// SVG sprite configuration
-config = {
-  shape: {
-    dimension: { // Set maximum dimensions
-      maxWidth: 24,
-      maxHeight: 24
-    },
-    id: {
-      separator: "-"
-    },
-    spacing: { // Add padding
-      padding: 0
-    }
-  },
-  mode: {
-    symbol: true // Activate the «symbol» mode
-  }
-};
-
 gulp.task("build-sprite", function (done) {
+  const spriteConfig = {
+    shape: {
+      dimension: { // Set maximum dimensions
+        maxWidth: 24,
+        maxHeight: 24
+      },
+      id: {
+        separator: "-"
+      },
+      spacing: { // Add padding
+        padding: 0
+      }
+    },
+    mode: {
+      symbol: true // Activate the «symbol» mode
+    }
+  };
   gulp.src(`${IMG_DEST}/usa-icons/**/*.svg`,
   {
     allowEmpty: true
   })
-    .pipe(svgSprite(config))
+    .pipe(svgSprite(spriteConfig))
     .on('error', function(error) {
       console.log("There was an error");
     })
@@ -161,16 +171,32 @@ gulp.task("build-sprite", function (done) {
   return del.sync(`${IMG_DEST}/symbol`);
 });
 
-gulp.task(
-  "init",
-  gulp.series(
-    "copy-uswds-setup",
-    "copy-uswds-fonts",
-    "copy-uswds-images",
-    "copy-uswds-js",
-    "build-sass"
-  )
-);
+gulp.task("init", gulp.series(
+  "copy-uswds-setup",
+  "copy-uswds-fonts",
+  "copy-uswds-images",
+  "copy-uswds-js",
+  "build-sass"
+));
+
+gulp.task('js-lint', () => {
+  return gulp.src([`${JS_DEST}/*.js`, `!${JS_DEST}/*.min.js`, `!${JS_DEST}/uswds-init.js`, `!${JS_DEST}/uswds.js`])
+    .pipe(plumber({errorHandler: onError}))
+    .pipe(eslint())
+    .pipe(eslint.format('table'));
+});
+
+gulp.task('scss-lint', () => {
+  const configFile = jsYaml.load(fs.readFileSync('.sass-lint.yml', 'utf-8'));
+
+  return gulp.src(`${PROJECT_SASS_SRC}/**/*.scss`)
+    .pipe(plumber({errorHandler: onError}))
+    .pipe(sasslint(configFile))
+    .pipe(sasslint.format());
+
+});
+
+gulp.task('lint', gulp.series("js-lint", "scss-lint"));
 
 gulp.task("watch-sass", function() {
   gulp.watch(`${PROJECT_SASS_SRC}/**/*.scss`, gulp.series("build-sass"));
