@@ -18,10 +18,14 @@ commands:
       - run:
           name: Install CloudFoundry
           command: |
+            wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+            echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+            sudo apt-get update
+            sudo apt-get install cf7-cli
             #curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&source=github'
             #curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&source=github-rel'
-            curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=7.3.0&source=github-rel'
-            sudo dpkg -i cf-cli_amd64.deb
+            #curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=7.3.0&source=github-rel'
+            #sudo dpkg -i cf-cli_amd64.deb
             cf -v
       - run:
           name: CloudGov Login
@@ -29,11 +33,6 @@ commands:
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             echo "./bin/cloudgov/login $CF_USER $CF_PASS"
             echo "./bin/cloudgov/use-space << parameters.envname >>"
-      - run:
-          name: CloudGov deploy
-          no_output_timeout: 30m
-          command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             echo "./bin/cloudgov/deploy"
             
 jobs:
