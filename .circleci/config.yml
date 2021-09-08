@@ -113,8 +113,8 @@ jobs:
             echo "cp -r /tmp/workspace/vendor/* ./vendor/"
             echo "cp -r /tmp/workspace/composer.lock ./composer.lock"
             echo "cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/"
-      - setup_remote_docker:
-        version: 19.03.13
+      # - setup_remote_docker:
+      #     version: 19.03.13
       - run:
           name: Setup Environment for use in Scripts
           command: |
