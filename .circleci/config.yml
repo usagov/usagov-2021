@@ -177,7 +177,7 @@ workflows:
       - approve-prod-deployment:
           type: approval
           requires:
-            - build-container-dependencies
+            - create-container
           filters:
             branches:
               only: buildservers
