@@ -131,13 +131,13 @@ jobs:
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            echo "./bin/cloudgov/container-build << pipeline.id >>"
+            echo "./bin/cloudgov/container-build << pipeline.number >>"
       - run:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            echo "./bin/cloudgov/container-push << pipeline.id >>"
+            echo "./bin/cloudgov/container-push << pipeline.number >>"
 
   deploy-cloudgov-prod:
     machine:
