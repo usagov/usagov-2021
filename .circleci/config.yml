@@ -160,31 +160,30 @@ workflows:
       - build-container-dependencies:
           filters:
             branches:
-              only: develop
+              only: buildservers
       - approve-create-container:
           type: approval
           requires:
             - build-container-dependencies
           filters:
             branches:
-              only: develop
+              only: buildservers
       - create-container:
           requires:
             - approve-create-container
           filters:
             branches:
-              only: develop
-
+              only: buildservers
       - approve-prod-deployment:
           type: approval
           requires:
             - build-container-dependencies
           filters:
             branches:
-              only: develop
+              only: buildservers
       - deploy-cloudgov-prod:
           requires:
             - approve-prod-deployment
           filters:
             branches:
-              only: develop
+              only: buildservers
