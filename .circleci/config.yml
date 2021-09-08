@@ -72,9 +72,23 @@ jobs:
           name: Build Drupal
           command: |
             echo 'memory_limit = -1' | sudo tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini
-            sudo npm install --global gulp-cli
-            # build drupal + theme
-            # cleanup any node theme stuff
+            echo "sudo npm install --global gulp-cli"
+            echo "COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader"
+            echo "npm install --prefix ./web/themes/custom/usagov"
+            echo "npm rebuild node-sass --prefix ./web/themes/usagov"
+            echo "npm run build --prefix ./web/themes/custom/usagov"
+            echo "if [ -d ./web/themes/usagov/node_modules ]; then"
+            echo "    echo \"Removing Node Modules\""
+            echo "    rm -rf ./web/themes/usagov/node_modules"
+            echo "fi"
+            echo "if [ -f ./web/sites/default/settings.local.php ]; then"
+            echo "    echo \"Removing Local Settings File\""
+            echo "    rm -f  ./web/sites/default/settings.local.php"
+            echo "fi"
+            echo "if [ -f ./web/sites/development.sevices.yml ]; then"
+            echo "    echo \"Removing Development Services File\""
+            echo "    rm -f  ./web/sites/development.sevices.yml"
+            echo "fi"
       - persist_to_workspace:
           root: ./
           paths:
@@ -94,11 +108,11 @@ jobs:
       - run:
           name: Import Workspace items
           command: |
-            mkdir -p ./vendor/
-            mkdir -p ./web/themes/custom/usagov/
-            cp -r /tmp/workspace/vendor/* ./vendor/
-            cp -r /tmp/workspace/composer.lock ./composer.lock
-            cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/
+            echo "mkdir -p ./vendor/"
+            echo "mkdir -p ./web/themes/custom/usagov/"
+            echo "cp -r /tmp/workspace/vendor/* ./vendor/"
+            echo "cp -r /tmp/workspace/composer.lock ./composer.lock"
+            echo "cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/"
       - setup_remote_docker:
         version: 19.03.13
       - run:
@@ -111,19 +125,19 @@ jobs:
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+            echo "echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin"
       - run:
           name: Build Container
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            ./bin/cloudgov/container-build << pipeline.id >>
+            echo "./bin/cloudgov/container-build << pipeline.id >>"
       - run:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            ./bin/cloudgov/container-push << pipeline.id >>
+            echo "./bin/cloudgov/container-push << pipeline.id >>"
 
   deploy-cloudgov-prod:
     machine:
