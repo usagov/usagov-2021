@@ -4,10 +4,10 @@
   "description": "This sub-theme requires compiling of the USWDS CSS and also the assets folder for javascript.",
   "main": "index.js",
   "scripts": {
-    "init": "gulp init",
+    "init": "npm i --legacy-peer-dep; gulp",
+    "build": "gulp build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "gulp watch",
-    "build": "gulp",
     "lint": "gulp scss-lint; gulp js-lint",
     "scss": "gulp scss"
   },

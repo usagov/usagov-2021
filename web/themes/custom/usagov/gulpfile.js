@@ -154,9 +154,9 @@ gulp.task("build-sprite", function (done) {
     })
     .pipe(gulp.dest(`${IMG_DEST}`))
     .on('end', function () { done(); });
- });
+});
 
- gulp.task("rename-sprite", function (done) {
+gulp.task("rename-sprite", function (done) {
   gulp.src(`${IMG_DEST}/symbol/svg/sprite.symbol.svg`,
   {
     allowEmpty: true
@@ -164,14 +164,19 @@ gulp.task("build-sprite", function (done) {
     .pipe(rename(`${IMG_DEST}/sprite.svg`))
     .pipe(gulp.dest(`./`))
     .on('end', function () { done(); });
- });
+});
 
- gulp.task("clean-sprite", function(cb) {
+gulp.task("clean-sprite", function(cb) {
   cb();
   return del.sync(`${IMG_DEST}/symbol`);
 });
 
-gulp.task("init", gulp.series(
+gulp.task('clean', () => {
+  return del.sync([`${CSS_DEST}/*`, `${JS_DEST}/*`]);
+});
+
+gulp.task("build", gulp.series(
+  "clean",
   "copy-uswds-setup",
   "copy-uswds-fonts",
   "copy-uswds-images",
