@@ -4,7 +4,8 @@
 # and then launch everything.
 #
 
-TAG=${1:-latest}
+CONTAINER=ednark/usagov-2021
+CONTAINERTAG=${1:-latest}
 
 # this function will generate a random string, or bail if uuidgen is not available.
 generate_string()
@@ -70,7 +71,7 @@ done
 cf delete-service-key database test-db-ok -f
 
 # launch the apps
-cf push web --docker-image ednark/usagov-2021:$TAG
+cf push web --docker-image $CONTAINER:$CONTAINERTAG
 
 # make sure that the app knows where it's s3fs stuff lives
 cf create-service-key storage storagekey
