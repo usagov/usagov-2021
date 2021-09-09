@@ -96,8 +96,8 @@ jobs:
             - web/themes/custom/usagov/css
 
   create-container:
-    machine:
-     image: ubuntu-2004:202107-02
+    machine: true
+    # image: ubuntu-2004:202107-02
     environment:
       BASH_ENV: $CIRCLE_WORKING_DIRECTORY/bin/cloudgov/env
     steps:
