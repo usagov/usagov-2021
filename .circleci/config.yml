@@ -120,6 +120,10 @@ jobs:
           command: |
             mkdir -p ./vendor/
             mkdir -p ./web/themes/custom/usagov/
+            mkdir -p ./web/themes/custom/usagov/css/
+            mkdir -p ./web/themes/custom/usagov/fonts/
+            mkdir -p ./web/themes/custom/usagov/scripts/
+            mkdir -p ./web/themes/custom/usagov/img/
             cp -r /tmp/workspace/vendor/* ./vendor/
             cp -r /tmp/workspace/composer.lock ./composer.lock
             cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/
