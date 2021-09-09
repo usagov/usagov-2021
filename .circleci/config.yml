@@ -96,8 +96,8 @@ jobs:
             - web/themes/custom/usagov/css
 
   create-container:
-    machine: true
-    # image: ubuntu-2004:202107-02
+    machine:
+      image: ubuntu-2004:202107-02
     environment:
       BASH_ENV: $CIRCLE_WORKING_DIRECTORY/bin/cloudgov/env
     steps:
@@ -112,8 +112,6 @@ jobs:
             echo "cp -r /tmp/workspace/vendor/* ./vendor/"
             echo "cp -r /tmp/workspace/composer.lock ./composer.lock"
             echo "cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/"
-      - setup_remote_docker:
-          version: 19.03.13
       - run:
           name: Setup Environment for use in Scripts
           command: |
