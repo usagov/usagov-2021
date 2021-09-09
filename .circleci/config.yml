@@ -35,7 +35,7 @@ commands:
             echo "./bin/cloudgov/use-space << parameters.envname >>"
             echo "./bin/cloudgov/deploy"
   install-node:
-    parameters:
+    steps:
       - run:
           name: Install Specific Node Version
           command: |
