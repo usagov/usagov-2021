@@ -5,6 +5,7 @@
 #
 
 CONTAINERTAG=${1}
+CONTAINERTAG2=${2}
 
 if [ -z "$CONTAINERTAG" ]
 then
@@ -13,5 +14,11 @@ then
 fi;
 
 docker push ednark/usagov-2021:$CONTAINERTAG
+
+if [ -n "$CONTAINERTAG2" ]
+then
+    docker push ednark/usagov-2021:$CONTAINERTAG2
+fi
+
 # docker search ednark/usagov-2021:$CONTAINERTAG
 

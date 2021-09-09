@@ -10,13 +10,18 @@ GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
 GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "")
 CONTAINERTAG=${1:-$GITBRANCH}
 
+CONTAINERTAG2=${2}
+
 if [ -z "$CONTAINERTAG" ]
 then
       echo "Must specify a container tag to build"
       exit 1;
 fi;
 
+echo "Building usagov-2021:"$CONTAINERTAG $CONTAINERTAG2
+
 chmod -R u+w ./web/sites/default/
+
 
 docker build --force-rm \
     -t ednark/usagov-2021:$CONTAINERTAG \
@@ -25,4 +30,7 @@ docker build --force-rm \
     --build-arg GITCOMMIT=$GITCOMMIT \
     --build-arg GITTAG=$GITTAG
 
-echo "Building usagov-2021:"$CONTAINERTAG
+if [ -n "$CONTAINERTAG2" ]
+then
+    docker tag ednark/usagov-2021:$CONTAINERTAG ednark/usagov-2021:$CONTAINERTAG2
+fi
