@@ -1,12 +1,15 @@
 {
   "name": "usagov_sass",
   "version": "1.0.0",
-  "description": "This sub-theme requires compiling of the USWDS CSS and also the assets folder  for javascript.",
+  "description": "This sub-theme requires compiling of the USWDS CSS and also the assets folder for javascript.",
   "main": "index.js",
   "scripts": {
     "init": "gulp init",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "gulp watch"
+    "watch": "gulp watch",
+    "build": "gulp",
+    "lint": "gulp scss-lint; gulp js-lint",
+    "scss": "gulp scss"
   },
   "author": "",
   "license": "ISC",

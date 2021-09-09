@@ -70,7 +70,7 @@ jobs:
       - run:
           name: Build Drupal
           command: |
-            echo "Install Gulp"
+            echo "Install Gulp on node "$(node --version)
             sudo npm install --global gulp-cli
             echo "Compose Drupal Vendor"
             echo 'memory_limit = -1' | sudo tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini
