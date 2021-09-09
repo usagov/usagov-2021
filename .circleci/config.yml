@@ -94,7 +94,7 @@ jobs:
           name: Compile Theme
           command: |
             npm install --prefix ./web/themes/custom/usagov
-            npm rebuild node-sass --prefix ./web/themes/usagov
+            npm rebuild node-sass --prefix ./web/themes/custom/usagov
             npm run build --prefix ./web/themes/custom/usagov
       - persist_to_workspace:
           root: ./
