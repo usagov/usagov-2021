@@ -6,7 +6,6 @@ source $CLOUDDIR/../../env.local;
 
 SPACE=${1:-personal}
 
-
 if [ "$SPACE" = "dev" ]; then
     cf target -o $CF_DEV_ORG -s $CF_DEV_SPACE
 

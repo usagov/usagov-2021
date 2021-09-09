@@ -14,7 +14,7 @@ commands:
           name: Setup Environment for use in Scripts
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee ./bin/cloudgov/env
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee $CIRCLE_WORKING_DIRECTORY/env.local
       - run:
           name: Install CloudFoundry
           command: |
@@ -31,9 +31,10 @@ commands:
           name: CloudGov Deploy
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            echo "./bin/cloudgov/login $CF_USER $CF_PASS"
-            echo "./bin/cloudgov/use-space << parameters.envname >>"
-            echo "./bin/cloudgov/deploy"
+            ./bin/cloudgov/login $CF_USER $CF_PASS
+            ./bin/cloudgov/use-space << parameters.envname >>
+            ./bin/cloudgov/deploy << pipeline.number >>
+
   install-node:
     steps:
       - run:
@@ -61,7 +62,7 @@ jobs:
       - run:
           name: Install Linters and Sniffers
           command: |
-            cd /home/circleci/project/web/themes/custom/usagov && npm install
+            npm install --prefix ./web/themes/custom/usagov
             composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer
@@ -77,7 +78,7 @@ jobs:
             $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist
       - run:
           name: Theme Lint
-          command: cd /home/circleci/project/web/themes/custom/usagov && node /home/circleci/project/web/themes/custom/usagov/node_modules/gulp/bin/gulp.js lint
+          command: npm lint --prefix ./web/themes/custom/usagov
 
   build-container-dependencies:
     docker:
@@ -110,7 +111,7 @@ jobs:
     machine:
       image: ubuntu-2004:202107-02
     environment:
-      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/bin/cloudgov/env
+      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/env.local
     steps:
       - checkout
       - attach_workspace:
@@ -134,7 +135,7 @@ jobs:
           name: Setup Environment for use in Scripts
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee ./bin/cloudgov/env
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee $CIRCLE_WORKING_DIRECTORY/env.local
       - run:
           name: Login to Docker Hub
           no_output_timeout: 30m
@@ -158,7 +159,7 @@ jobs:
     machine:
       image: ubuntu-2004:202101-01
     environment:
-      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/bin/cloudgov/env
+      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/env.local
     steps:
       - deploy-cloudgov:
           envname: prod

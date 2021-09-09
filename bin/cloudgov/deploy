@@ -4,6 +4,8 @@
 # and then launch everything.
 #
 
+TAG=${1:-latest}
+
 # this function will generate a random string, or bail if uuidgen is not available.
 generate_string()
 {
@@ -41,11 +43,11 @@ service_exists()
 if service_exists "database" ; then
   echo database already created
 else
-  if [ "$1" = "prod" ] ; then
-    cf create-service aws-rds medium-mysql database
-  else
+  #if [ "$SPACE" = "prod" ] ; then
+  #  cf create-service aws-rds medium-mysql database
+  #else
     cf create-service aws-rds small-mysql database
-  fi
+  #fi
 fi
 
 if service_exists "secrets" ; then
@@ -68,7 +70,7 @@ done
 cf delete-service-key database test-db-ok -f
 
 # launch the apps
-cf push
+cf push web --docker-image ednark/usagov-2021:$TAG
 
 # make sure that the app knows where it's s3fs stuff lives
 cf create-service-key storage storagekey
