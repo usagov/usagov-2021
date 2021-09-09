@@ -70,10 +70,11 @@ jobs:
       - run:
           name: Build Drupal
           command: |
-            echo 'memory_limit = -1' | sudo tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini
+            echo "Install Gulp"
             sudo npm install --global gulp-cli
             echo "Compose Drupal Vendor"
-            COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader"
+            echo 'memory_limit = -1' | sudo tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini
+            COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
             echo "Compile Theme"
             npm install --prefix ./web/themes/custom/usagov
             npm rebuild node-sass --prefix ./web/themes/usagov
