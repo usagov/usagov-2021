@@ -107,7 +107,7 @@ jobs:
             - web/themes/custom/usagov/fonts
             - web/themes/custom/usagov/img
 
-  build-push-container:
+  build-and-push-container:
     machine:
       image: ubuntu-2004:202107-02
     environment:
@@ -156,7 +156,7 @@ jobs:
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-push << pipeline.number >> latest
 
-  deploy-cloudgov-prod:
+  deploy-to-cloudgov-prod:
     machine:
       image: ubuntu-2004:202101-01
     environment:
@@ -178,27 +178,27 @@ workflows:
           filters:
             branches:
               only: buildservers
-      - approve-build-push-container:
+      - approve-build-and-push-container:
           type: approval
           requires:
             - install-container-dependencies
           filters:
             branches:
               only: buildservers
-      - build-push-container:
+      - build-and-push-container:
           requires:
-            - approve-build-push-container
+            - approve-build-and-push-container
           filters:
             branches:
               only: buildservers
       - approve-prod-deployment:
           type: approval
           requires:
-            - build-push-container
+            - build-and-push-container
           filters:
             branches:
               only: buildservers
-      - deploy-cloudgov-prod:
+      - deploy-to-cloudgov-prod:
           requires:
             - approve-prod-deployment
           filters:
