@@ -34,13 +34,30 @@ commands:
             echo "./bin/cloudgov/login $CF_USER $CF_PASS"
             echo "./bin/cloudgov/use-space << parameters.envname >>"
             echo "./bin/cloudgov/deploy"
-            
+  install-node:
+    parameters:
+      - run:
+          name: Install Specific Node Version
+          command: |
+            set +e
+            wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            nvm install v16.8.0
+            nvm alias default 16.8.0
+            echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
+            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
+            echo "Install Gulp on node "$(node --version)
+            sudo npm install --global gulp-cli
+
 jobs:
   lint:
     docker:
       - image: circleci/php:8.0.9-node
     steps:
       - checkout
+      - install-node
       - run:
           name: Install Linters and Sniffers
           command: |
@@ -67,15 +84,15 @@ jobs:
       - image: circleci/php:8.0.9-node
     steps:
       - checkout
+      - install-node
       - run:
           name: Build Drupal
           command: |
-            echo "Install Gulp on node "$(node --version)
-            sudo npm install --global gulp-cli
-            echo "Compose Drupal Vendor"
             echo 'memory_limit = -1' | sudo tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini
             COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
-            echo "Compile Theme"
+      - run:
+          name: Compile Theme
+          command: |
             npm install --prefix ./web/themes/custom/usagov
             npm rebuild node-sass --prefix ./web/themes/usagov
             npm run build --prefix ./web/themes/custom/usagov
