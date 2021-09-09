@@ -14,7 +14,7 @@ commands:
           name: Setup Environment for use in Scripts
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee $CIRCLE_WORKING_DIRECTORY/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
       - run:
           name: Install CloudFoundry
           command: |
@@ -80,7 +80,7 @@ jobs:
           name: Theme Lint
           command: npm run lint --prefix ./web/themes/custom/usagov
 
-  build-container-dependencies:
+  install-container-dependencies:
     docker:
       - image: circleci/php:8.0.9-node
     steps:
@@ -107,11 +107,11 @@ jobs:
             - web/themes/custom/usagov/fonts
             - web/themes/custom/usagov/img
 
-  create-container:
+  build-push-container:
     machine:
       image: ubuntu-2004:202107-02
     environment:
-      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/env.local
+      BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout
       - attach_workspace:
@@ -135,7 +135,7 @@ jobs:
           name: Setup Environment for use in Scripts
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee $CIRCLE_WORKING_DIRECTORY/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
       - run:
           name: Login to Docker Hub
           no_output_timeout: 30m
@@ -160,7 +160,7 @@ jobs:
     machine:
       image: ubuntu-2004:202101-01
     environment:
-      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/env.local
+      BASH_ENV: /home/circleci/project/env.local
     steps:
       - deploy-cloudgov:
           envname: prod
@@ -174,27 +174,27 @@ workflows:
 
   deploy-build:
     jobs:
-      - build-container-dependencies:
+      - install-container-dependencies:
           filters:
             branches:
               only: buildservers
-      - approve-create-container:
+      - approve-build-push-container:
           type: approval
           requires:
-            - build-container-dependencies
+            - install-container-dependencies
           filters:
             branches:
               only: buildservers
-      - create-container:
+      - build-push-container:
           requires:
-            - approve-create-container
+            - approve-build-push-container
           filters:
             branches:
               only: buildservers
       - approve-prod-deployment:
           type: approval
           requires:
-            - create-container
+            - build-push-container
           filters:
             branches:
               only: buildservers
