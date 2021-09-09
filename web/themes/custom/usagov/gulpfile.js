@@ -171,7 +171,8 @@ gulp.task("clean-sprite", function(cb) {
   return del.sync(`${IMG_DEST}/symbol`);
 });
 
-gulp.task('clean', () => {
+gulp.task('clean', (cb) => {
+  cb();
   return del.sync([`${CSS_DEST}/*`, `${JS_DEST}/*`]);
 });
 
