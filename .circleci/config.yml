@@ -5,9 +5,6 @@ commands:
       envname:
         default: ""
         type: string
-      tag:
-        default: ""
-        type: string
     steps:
       - checkout
       - run:
@@ -156,6 +153,24 @@ jobs:
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-push << pipeline.number >> latest
 
+  deploy-to-cloudgov-dev:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cloudgov:
+          envname: dev
+
+  deploy-to-cloudgov-uat:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cloudgov:
+          envname: uat
+
   deploy-to-cloudgov-prod:
     machine:
       image: ubuntu-2004:202101-01
@@ -165,6 +180,7 @@ jobs:
       - deploy-cloudgov:
           envname: prod
 
+
 workflows:
   version: 2
 
@@ -172,12 +188,13 @@ workflows:
     jobs:
       - lint
 
-  deploy-build:
+  build-and-deploy:
     jobs:
       - install-container-dependencies:
           filters:
             branches:
               only: buildservers
+
       - approve-build-and-push-container:
           type: approval
           requires:
@@ -191,6 +208,35 @@ workflows:
           filters:
             branches:
               only: buildservers
+      
+      - approve-dev-deployment:
+          type: approval
+          requires:
+            - build-and-push-container
+          filters:
+            branches:
+              only: buildservers
+      - deploy-to-cloudgov-dev:
+          requires:
+            - approve-dev-deployment
+          filters:
+            branches:
+              only: buildservers
+
+      - approve-uat-deployment:
+          type: approval
+          requires:
+            - build-and-push-container
+          filters:
+            branches:
+              only: buildservers
+      - deploy-to-cloudgov-uat:
+          requires:
+            - approve-uat-deployment
+          filters:
+            branches:
+              only: buildservers
+
       - approve-prod-deployment:
           type: approval
           requires:
