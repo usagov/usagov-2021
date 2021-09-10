@@ -252,7 +252,7 @@ workflows:
               only: buildservers
       - deploy-to-cloudgov-prod:
           requires:
-            - approve-prod-deployment
+            - really-approve-prod-deployment
           filters:
             branches:
               only: buildservers
