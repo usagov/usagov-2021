@@ -190,21 +190,20 @@ workflows:
 
   build-and-deploy:
     jobs:
-      - install-container-dependencies:
-          filters:
-            branches:
-              only: buildservers
-
       - approve-build-and-push-container:
           type: approval
-          requires:
-            - install-container-dependencies
           filters:
             branches:
               only: buildservers
-      - build-and-push-container:
+      - install-container-dependencies:
           requires:
             - approve-build-and-push-container
+          filters:
+            branches:
+              only: buildservers     
+      - build-and-push-container:
+          requires:
+            - install-container-dependencies
           filters:
             branches:
               only: buildservers
@@ -253,7 +252,7 @@ workflows:
               only: buildservers
       - deploy-to-cloudgov-prod:
           requires:
-            - really-approve-prod-deployment
+            - approve-prod-deployment
           filters:
             branches:
               only: buildservers
