@@ -1,6 +1,6 @@
 files:
-  include: 'scss/**/*.s+(a|c)ss'
-  ignore: ['bower_components/**/*.s+(a|c)ss']
+  include: 's[ac]ss/**/*.s+[ac]ss'
+  ignore: ['bower_components/**/*.s+[ac]ss']
 options:
   formatter: stylish
   merge-default-rules: false
