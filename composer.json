@@ -33,8 +33,6 @@
         "drupal/devel": "^4.1",
         "drupal/diff": "^1.0",
         "drupal/entity_reference_revisions": "^1.9",
-        "drupal/entity_usage": "^2.0@beta",
-        "drupal/faqfield": "^7.0",
         "drupal/field_permissions": "^1.1",
         "drupal/linkit": "^6.0@beta",
         "drupal/mailsystem": "^4.3",
