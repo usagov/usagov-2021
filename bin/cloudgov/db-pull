@@ -28,7 +28,7 @@ then
     LOCAL_PORT=$1
     LOCAL_FILE=${2:-usagov.sql}
 else 
-    LOCAL_PORT=3306
+    LOCAL_PORT=33306
     LOCAL_FILE=${1:-usagov.sql}
 fi
 
