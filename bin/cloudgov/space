@@ -4,7 +4,7 @@ CLOUDDIR=$(dirname "$0")
 
 source $CLOUDDIR/../../env.local;
 
-SPACE=${1:-personal}
+SPACE=$1
 
 if [ "$SPACE" = "dev" ]; then
     cf target -o $CF_DEV_ORG -s $CF_DEV_SPACE
@@ -19,6 +19,6 @@ elif [ "$SPACE" = "personal" ]; then
     cf target -o $CF_PERSONAL_ORG -s $CF_PERSONAL_SPACE
 
 else
-    cf target -o $CF_PERSONAL_ORG -s $CF_PERSONAL_SPACE
+    cf target
 
 fi

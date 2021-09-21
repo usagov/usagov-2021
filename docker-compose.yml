@@ -13,7 +13,7 @@ services:
       - ./env.local
     environment:
       COMPOSER_MEMORY_LIMIT: -1
-      CF_INSTANCE_INDEX: '0'
+      CF_INSTANCE_INDEX: '1'
       VCAP_APPLICATION: >
         {"name": "web", "application_id": "docker"}
       VCAP_SERVICES: >
@@ -38,26 +38,28 @@ services:
             }
           }]
         }
-    # depends_on:
-    #   - database
+    depends_on:
+      - database
 
-  node:
-    container_name: node
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-node
-    volumes:
-      - .:/app:delegated
-    env_file:
-      - ./env.local
-
-  # database:
-  #   image: mysql:5.7
+  # node:
+  #   container_name: node
+  #   build:
+  #     context: ./
+  #     dockerfile: .docker/Dockerfile-node
   #   volumes:
-  #     - database_data:/var/lib/mysql:delegated
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: mysql
-  #     MYSQL_DATABASE: mysql
+  #     - .:/app:delegated
+  #   env_file:
+  #     - ./env.local
 
-# volumes:
-#   database_data:
+  database:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    volumes:
+      - database_data:/var/lib/mysql:delegated
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: drupal
+
+volumes:
+  database_data:

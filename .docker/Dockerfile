@@ -110,8 +110,8 @@ COPY --chown=nginx:nginx vendor /var/www/vendor
 COPY --chown=nginx:nginx patches /var/www/patches
 
 RUN rm -f /var/www/web/sites/default/settings.local.php \
-    && chown nginx:nginx /var/www \
-    && find /var/www -not -user 100 -not -group 101 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx \
+    # && chown nginx:nginx /var/www \
+    # && find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx \
     && echo "    built:" $(date) >> /etc/motd \
     && echo "    branch: " $GITBRANCH >> /etc/motd \
     && echo "    gittag: " $GITTAG >> /etc/motd \

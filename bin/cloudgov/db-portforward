@@ -20,27 +20,24 @@ then
     exit
 fi
 
-
 isnum_Case() { case ${1#[-+]} in ''|.|*[!0-9.]*|*.*.*) return 1;; esac ;}
 
 if isnum_Case "$1"
 then 
     LOCAL_PORT=$1
-    LOCAL_FILE=${2:-usagov.sql}
 else 
     LOCAL_PORT=33306
-    LOCAL_FILE=${1:-usagov.sql}
 fi
 
-echo "Mapping mysql to local $LOCAL_PORT and dumping to $LOCAL_FILE"
+echo "Mapping mysql to local $LOCAL_PORT"
 
 echo "Generating service key"
-cf create-service-key database db-dump >/dev/null 2>&1
+cf create-service-key database db-portforward >/dev/null 2>&1
 
 echo "Collecting connection info"
 CF_GUID=$(cf app web --guid)
 CF_INFO=$(cf curl /v2/info)
-CF_DB_INFO=$(cf service-key database db-dump)
+CF_DB_INFO=$(cf service-key database db-portforward)
 CF_DB_PORT=$(echo "$CF_DB_INFO" | grep '"port":' | sed 's/.*"port": "\([^"]*\)".*/\1/')
 CF_DB_HOST=$(echo "$CF_DB_INFO" | grep '"host":' | sed 's/.*"host": "\([^"]*\)".*/\1/')
 CF_DB_USER=$(echo "$CF_DB_INFO" | grep '"username":' | sed 's/.*"username": "\([^"]*\)".*/\1/')
@@ -54,20 +51,11 @@ CF_SSH_PID=$!
 
 echo "Waiting for connection to fully resolve"
 sleep 5
-
-echo "Dumping database"
-mysqldump -h127.0.0.1 -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME --opt --set-gtid-purged=OFF > $LOCAL_FILE
-
-echo "Cleaning up ssh processes $CF_SSH_PID, $CF_SSH_PID, nohup.out, and service key"
-if [ -f nohup.out ]
-then 
-    rm nohup.out
-fi
-if ps -p $CF_SSH_PID >/dev/null
-then
-    pkill -9 $CF_SSH_PID
-    wait $CF_SSH_PID 2>/dev/null
-fi
-cf delete-service-key database db-dump -f >/dev/null 2>&1
-
-echo "All Done"
+echo
+echo "Connection String:"
+echo "mysql -h127.0.0.1 -P$LOCAL_PORT -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME"
+echo
+echo "Clean up:"
+echo "pkill -9 -P $CF_SSH_PID"
+echo "cf delete-service-key database db-portforward -f"
+echo "ps -ef | grep cf: | grep ssh | grep 2222 | awk '{print \$2}'"

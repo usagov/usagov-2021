@@ -11,32 +11,43 @@ commands:
           name: Setup Environment for use in Scripts
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee ./bin/cloudgov/env
-      - attach_workspace:
-          at: /tmp/workspace
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
       - run:
-          name: Import Workspace items
+          name: Install CloudFoundry
           command: |
-            mkdir -p ./vendor/
-            mkdir -p ./web/themes/custom/prac/
-            cp -r /tmp/workspace/vendor/* ./vendor/
-            cp -r /tmp/workspace/composer.lock ./composer.lock
-            cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/
-      - run:
-          name: Install Dependencies
-          command: |
+            wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+            echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
             sudo apt-get update
-            sudo apt-get install -y lsof sshpass nodejs npm
+            sudo apt-get install cf7-cli
+            #curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&source=github'
+            #curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&source=github-rel'
+            #curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=7.3.0&source=github-rel'
+            #sudo dpkg -i cf-cli_amd64.deb
+            cf -v
       - run:
-          name: Cleanup For Deploy
+          name: CloudGov Deploy
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            $SUDO ./docker/cleanup-for-deploy.sh
+            ./bin/cloudgov/login $CF_USER $CF_PASS
+            ./bin/cloudgov/use-space << parameters.envname >>
+            ./bin/cloudgov/deploy << pipeline.number >>
+
+  install-node:
+    steps:
       - run:
-          name: Restart App + Post-Deploy Update
-          no_output_timeout: 30m
+          name: Install Specific Node Version
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            set +e
+            wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            nvm install v16.8.0
+            nvm alias default 16.8.0
+            echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
+            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
+            echo "Install Gulp on node "$(node --version)
+            sudo npm install --global gulp-cli
 
 jobs:
   lint:
@@ -44,10 +55,11 @@ jobs:
       - image: circleci/php:8.0.9-node
     steps:
       - checkout
+      - install-node
       - run:
           name: Install Linters and Sniffers
           command: |
-            cd /home/circleci/project/wwwroot/themes/custom/prac && npm install
+            npm install --prefix ./web/themes/custom/usagov
             composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer
@@ -55,7 +67,7 @@ jobs:
           name: PHP Lint
           command: |
             COMPOSER_DIR=$(composer -n config --global home)
-            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./wwwroot/modules/custom ./wwwroot/themes/custom
+            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom
       - run:
           name: PHP CodeSniff (ignore warnings)
           command: |
@@ -63,34 +75,109 @@ jobs:
             $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist
       - run:
           name: Theme Lint
-          command: cd /home/circleci/project/web/themes/custom/usagov && node /home/circleci/project/web/themes/custom/usagov/node_modules/gulp/bin/gulp.js lint
+          command: npm run lint --prefix ./web/themes/custom/usagov
 
-  build-container-dependencies:
+  install-container-dependencies:
     docker:
       - image: circleci/php:8.0.9-node
     steps:
       - checkout
+      - install-node
       - run:
           name: Build Drupal
           command: |
             echo 'memory_limit = -1' | sudo tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini
-            sudo npm install --global gulp-cli
-            # build drupal + theme
-            # cleanup any node theme stuff
+            COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
+      - run:
+          name: Compile Theme
+          command: |
+            npm install --prefix ./web/themes/custom/usagov
+            npm rebuild node-sass --prefix ./web/themes/custom/usagov
+            npm run build --prefix ./web/themes/custom/usagov
       - persist_to_workspace:
           root: ./
           paths:
             - vendor
             - composer.lock
             - web/themes/custom/usagov/css
-  deploy-cloudgsov-prod:
+            - web/themes/custom/usagov/scripts
+            - web/themes/custom/usagov/fonts
+            - web/themes/custom/usagov/img
+
+  build-and-push-container:
+    machine:
+      image: ubuntu-2004:202107-02
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Import Workspace items
+          command: |
+            mkdir -p ./vendor/
+            mkdir -p ./web/themes/custom/usagov/
+            mkdir -p ./web/themes/custom/usagov/css/
+            mkdir -p ./web/themes/custom/usagov/fonts/
+            mkdir -p ./web/themes/custom/usagov/scripts/
+            mkdir -p ./web/themes/custom/usagov/img/
+            cp -r /tmp/workspace/vendor/* ./vendor/
+            cp -r /tmp/workspace/composer.lock ./composer.lock
+            cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/
+            cp -r /tmp/workspace/web/themes/custom/usagov/fonts/* ./web/themes/custom/usagov/fonts/
+            cp -r /tmp/workspace/web/themes/custom/usagov/scripts/* ./web/themes/custom/usagov/scripts/
+            cp -r /tmp/workspace/web/themes/custom/usagov/img/* ./web/themes/custom/usagov/img/
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+      - run:
+          name: Login to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            echo $DOCKERHUB_ACCESS_TOKEN | $SUDO docker login -u $DOCKERHUB_USERNAME --password-stdin
+      - run:
+          name: Build Container
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
+
+      - run:
+          name: Push Container to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            $SUDO ./bin/cloudgov/container-push << pipeline.number >> latest
+
+  deploy-to-cloudgov-dev:
+    machine:
+      image: ubuntu-2004:202101-01
+    steps:
+      - deploy-cloudgov:
+          envname: dev
+
+  deploy-to-cloudgov-uat:
     machine:
       image: ubuntu-2004:202101-01
     environment:
-      BASH_ENV: $CIRCLE_WORKING_DIRECTORY/bin/cloudgov/env
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cloudgov:
+          envname: uat
+
+  deploy-to-cloudgov-prod:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
     steps:
       - deploy-cloudgov:
           envname: prod
+
 
 workflows:
   version: 2
@@ -99,22 +186,71 @@ workflows:
     jobs:
       - lint
 
-  deploy-build:
+  build-and-deploy:
     jobs:
-      - build-container-dependencies:
+      - approve-build-and-push-container:
+          type: approval
           filters:
             branches:
-              only: develop
+              only: main
+      - install-container-dependencies:
+          requires:
+            - approve-build-and-push-container
+          filters:
+            branches:
+              only: main     
+      - build-and-push-container:
+          requires:
+            - install-container-dependencies
+          filters:
+            branches:
+              only: main
+      
+      - approve-dev-deployment:
+          type: approval
+          requires:
+            - build-and-push-container
+          filters:
+            branches:
+              only: main
+      - deploy-to-cloudgov-dev:
+          requires:
+            - approve-dev-deployment
+          filters:
+            branches:
+              only: main
+
+      - approve-uat-deployment:
+          type: approval
+          requires:
+            - build-and-push-container
+          filters:
+            branches:
+              only: main
+      - deploy-to-cloudgov-uat:
+          requires:
+            - approve-uat-deployment
+          filters:
+            branches:
+              only: main
+
       - approve-prod-deployment:
           type: approval
           requires:
-            - build-container-dependencies
+            - build-and-push-container
           filters:
             branches:
-              only: develop
-      - deploy-cloudgov-prod:
+              only: main
+      - really-approve-prod-deployment:
+          type: approval
           requires:
             - approve-prod-deployment
           filters:
             branches:
-              only: develop
+              only: main
+      - deploy-to-cloudgov-prod:
+          requires:
+            - really-approve-prod-deployment
+          filters:
+            branches:
+              only: main
