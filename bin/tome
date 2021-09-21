@@ -11,4 +11,3 @@ docker compose run \
     drush --root=/var/www/web $@ -y; \
     drush --root=/var/www/web pm-uninstall tome_sync -y; \
   "
-

@@ -192,19 +192,19 @@ workflows:
           type: approval
           filters:
             branches:
-              only: buildservers
+              only: main
       - install-container-dependencies:
           requires:
             - approve-build-and-push-container
           filters:
             branches:
-              only: buildservers     
+              only: main     
       - build-and-push-container:
           requires:
             - install-container-dependencies
           filters:
             branches:
-              only: buildservers
+              only: main
       
       - approve-dev-deployment:
           type: approval
@@ -212,13 +212,13 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: buildservers
+              only: main
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
-              only: buildservers
+              only: main
 
       - approve-uat-deployment:
           type: approval
@@ -226,13 +226,13 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: buildservers
+              only: main
       - deploy-to-cloudgov-uat:
           requires:
             - approve-uat-deployment
           filters:
             branches:
-              only: buildservers
+              only: main
 
       - approve-prod-deployment:
           type: approval
@@ -240,17 +240,17 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: buildservers
+              only: main
       - really-approve-prod-deployment:
           type: approval
           requires:
             - approve-prod-deployment
           filters:
             branches:
-              only: buildservers
+              only: main
       - deploy-to-cloudgov-prod:
           requires:
             - really-approve-prod-deployment
           filters:
             branches:
-              only: buildservers
+              only: main
