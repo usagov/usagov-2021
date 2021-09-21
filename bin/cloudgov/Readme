@@ -1,6 +1,6 @@
 ## Spaces
 
-Cloud.gov calls application environments "Spaces." Each developer should have access to four space: a personal Space and one Space each for Dev, UAT, and Prod.
+Cloud.gov calls application environments Spaces. Each developer should have access to four space: a personal Space and one Space each for the Dev, UAT, and Prod environments.
 
 ## Dashboard
 
@@ -10,11 +10,11 @@ https://dashboard.fr.cloud.gov/
 
 ## Command line
 
-All repo interaction with CloudGov happens with the CloudFoundry Client (cf) via the command line.
-To be able to run commands targetted toward a CloudGov Space you must be logged in.
+All interaction with CloudGov happens with the CloudFoundry Client (cf) via the command line.
+To be able to run commands targetted toward a CloudGov Space you must be logged in. Run this command and follow the instructions:
 
 ```
-cf login -a api.fr.cloud.gov --sso
+bin/cloudgov/login
 ```
 
 Most actions a developer would want to perform will be built into a script placed in the /bin directory of the repo. Actions targetted towards the local environemnt will live direction in the /bin dir, actions targetted towards the hosted CloudGov environments will live in the the /bin/cloudgov directory.
@@ -22,17 +22,23 @@ Most actions a developer would want to perform will be built into a script place
 This command can be used to see which space you are currently targeting:
 
 ```
-cf target
+bin/cloudgov/space 
 ```
 
 This command can be user to switch between spaces:
 
 ```
-cf target -o <NEW_ORG> -s <NEW_SPACE>
+bin/cloudgov/space personal
+bin/cloudgov/space dev
+bin/cloudgov/space uat
+bin/cloudgov/space prod
 ```
+
+All subsequent commands will be targetted towards the choosen space
 
 ### Build/Deploy
 
-1 build container
-2 push container to docker hub
-3 redeploy cloudgov apps (they will use the new docker hub container)
+The process of deploying this application to a hosted environmnet is comprised of three steps:
+1. Building the Container representing a release of the application (bin/cloudgov/container-build)
+2. Pushing the container to a Docker Hub location that can be accessed by CloudGov (bin/cloudgov/container-push)
+3. Deploying the CloudGov App based on the Container (bin/cloudgov/deploy)

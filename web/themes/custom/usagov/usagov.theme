@@ -12,6 +12,6 @@
 *
 */
 
-function usagov_preprocess_html (&$variables) {
-    $variables['node'] = \Drupal::routeMatch()->getParameter('node');
+function usagov_preprocess_html(&$variables) {
+  $variables['node'] = \Drupal::routeMatch()->getParameter('node');
 }

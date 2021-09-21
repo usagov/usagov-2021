@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!--
+   To override this file, copy it to phpcs.xml and then modify.
+   @see https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml#the-annotated-sample-file
+-->
+<ruleset name="mobomo">
+  <description>PHP_CodeSniffer standards overrides.</description>
+
+  <!-- Create .phpcs.xml to override anything in this file
+    <?xml version="1.0"?>
+    <ruleset name="devloper">
+      <description>My Developer overrides.</description>
+      <rule ref="./.phpcs.xml.dist"/>
+    </ruleset>
+  -->
+  <!-- By default, warnings and errors cause an exception. -->
+  <config name="ignore_warnings_on_exit" value="1" />
+  <config name="ignore_errors_on_exit" value="0" />
+
+  <!-- Set ignore extensions. -->
+  <!-- @see https://www.drupal.org/node/2867601#comment-12075633 -->
+  <!-- This can probably be removed by setting a dependency on Coder 8.3.7 -->
+  <arg name="ignore" value="*.css,*.md,*.txt,*.png,*.gif,*.jpeg,*.jpg,*.svg"/>
+
+  <!-- Set extensions to scan (taken from Coder 8.3.6). -->
+  <!-- @see https://git.drupalcode.org/project/coder/blob/8.3.6/coder_sniffer/Drupal/ruleset.xml#L8 -->
+  <arg name="extensions" value="php,module,inc,install,test,profile,theme,info,yml"/>
+
+  <!-- Use colors in output. -->
+  <arg name="colors"/>
+  <!-- Show progress. -->
+  <arg value="p"/>
+
+   <rule ref="Drupal.Files.LineLength">
+    <properties>
+       <property name="lineLimit" value="100"/>
+       <property name="absoluteLineLimit" value="0"/>
+    </properties>
+   </rule>
+
+  <!-- Include existing standards. -->
+  <rule ref="Drupal">
+    <!-- Ignore specific sniffs. -->
+    <exclude name="Drupal.Commenting.InlineComment"/>
+    <exclude name="Drupal.InfoFiles.AutoAddedKeys.Version"/>
+    <exclude name="Drupal.Commenting"/>
+  </rule>
+  <rule ref="DrupalPractice">
+    <!-- Ignore specific sniffs. -->
+  </rule>
+
+  <!-- Default directories to sniff if no commandline instructions -->
+  <file>web/modules/custom</file>
+  <file>web/themes/custom</file>
+
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+  <exclude-pattern>.github/</exclude-pattern>
+
+</ruleset>
