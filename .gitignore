@@ -5,6 +5,11 @@
 /s3
 /storage
 
+*.sql
+*.sql.gz
+*.sql.tgz
+*.sql.zip
+
 .DS_Store
 ._.DS_Store
 **/.DS_Store
