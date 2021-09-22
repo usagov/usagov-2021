@@ -1,0 +1,25 @@
+uuid: f5e77fe9-a6b0-4eec-956b-6aa32a7d963c
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.sub_children
+  module:
+    - views
+  theme:
+    - usagov
+id: views_block__sub_children_block_3
+theme: usagov
+region: content
+weight: -4
+provider: null
+plugin: 'views_block:sub_children-block_3'
+settings:
+  id: 'views_block:sub_children-block_3'
+  label: ''
+  provider: views
+  label_display: visible
+  views_label: ''
+  items_per_page: none
+  context_mapping: {  }
+visibility: {  }

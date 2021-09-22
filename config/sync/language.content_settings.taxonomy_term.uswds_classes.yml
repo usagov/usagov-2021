@@ -1,0 +1,18 @@
+uuid: 44d857c6-d624-4ca2-80cc-8c736b64123e
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.uswds_classes
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: false
+    bundle_settings:
+      untranslatable_fields_hide: '0'
+id: taxonomy_term.uswds_classes
+target_entity_type_id: taxonomy_term
+target_bundle: uswds_classes
+default_langcode: site_default
+language_alterable: false

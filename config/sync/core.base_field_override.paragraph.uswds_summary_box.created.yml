@@ -1,0 +1,18 @@
+uuid: 2c692362-8a43-4a55-b5f8-5e62f136d8f4
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_summary_box
+id: paragraph.uswds_summary_box.created
+field_name: created
+entity_type: paragraph
+bundle: uswds_summary_box
+label: 'Authored on'
+description: 'The time that the Paragraph was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

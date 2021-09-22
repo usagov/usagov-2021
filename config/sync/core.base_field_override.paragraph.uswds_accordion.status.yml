@@ -1,0 +1,22 @@
+uuid: d17a0137-76db-498e-be1e-c06e19448495
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_accordion
+id: paragraph.uswds_accordion.status
+field_name: status
+entity_type: paragraph
+bundle: uswds_accordion
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

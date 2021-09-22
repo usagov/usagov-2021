@@ -14,7 +14,7 @@ bundle: uswds_cards_flag
 label: 'Number of Columns'
 description: 'USWDS has 12 columns to span.'
 required: false
-translatable: true
+translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:

@@ -1,0 +1,21 @@
+uuid: 80e0fb27-f329-4eb4-9621-1cbba4e5d9ed
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_modal_body
+    - paragraphs.paragraphs_type.uswds_modal
+  module:
+    - text
+id: paragraph.uswds_modal.field_modal_body
+field_name: field_modal_body
+entity_type: paragraph
+bundle: uswds_modal
+label: Body
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

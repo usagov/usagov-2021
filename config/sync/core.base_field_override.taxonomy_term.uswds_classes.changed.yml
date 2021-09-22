@@ -1,0 +1,18 @@
+uuid: 8f7e55ad-706d-4e82-9196-b8c708bc6feb
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.uswds_classes
+id: taxonomy_term.uswds_classes.changed
+field_name: changed
+entity_type: taxonomy_term
+bundle: uswds_classes
+label: Changed
+description: 'The time that the term was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed

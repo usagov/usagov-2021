@@ -14,7 +14,7 @@ bundle: uswds_columns_3_uneven
 label: 'Grid Gap'
 description: ''
 required: false
-translatable: true
+translatable: false
 default_value:
   -
     value: 0

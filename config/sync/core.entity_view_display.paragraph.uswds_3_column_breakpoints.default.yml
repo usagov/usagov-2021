@@ -1,0 +1,31 @@
+uuid: null
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_3_column_breakpoints.field_3_column_grid_options
+    - field.field.paragraph.uswds_3_column_breakpoints.field_uswds_breakpoints
+    - paragraphs.paragraphs_type.uswds_3_column_breakpoints
+  module:
+    - options
+id: paragraph.uswds_3_column_breakpoints.default
+targetEntityType: paragraph
+bundle: uswds_3_column_breakpoints
+mode: default
+content:
+  field_3_column_grid_options:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+    region: content
+  field_uswds_breakpoints:
+    weight: 0
+    label: hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+    type: entity_reference_label
+    region: content
+hidden: {  }

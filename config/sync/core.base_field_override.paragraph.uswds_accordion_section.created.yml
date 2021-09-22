@@ -1,0 +1,18 @@
+uuid: f842227f-99cb-45b5-b12c-07949d485956
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_accordion_section
+id: paragraph.uswds_accordion_section.created
+field_name: created
+entity_type: paragraph
+bundle: uswds_accordion_section
+label: 'Authored on'
+description: 'The time that the Paragraph was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

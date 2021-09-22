@@ -1,9 +1,10 @@
-uuid: 993d4539-b987-4598-974a-324d74101a0b
+uuid: null
 langcode: en
 status: true
 dependencies:
   config:
     - field.field.paragraph.uswds_card_regular.field_button
+    - field.field.paragraph.uswds_card_regular.field_card_breakpoints
     - field.field.paragraph.uswds_card_regular.field_card_image
     - field.field.paragraph.uswds_card_regular.field_card_title
     - field.field.paragraph.uswds_card_regular.field_extend_media
@@ -14,10 +15,9 @@ dependencies:
     - field.field.paragraph.uswds_card_regular.field_title_first
     - paragraphs.paragraphs_type.uswds_card_regular
   module:
+    - entity_reference_revisions
     - link
     - text
-_core:
-  default_config_hash: 91u7_m19cFzMJMjTHPUnA974IYdUsUB9c-F_YSCwhw0
 id: paragraph.uswds_card_regular.default
 targetEntityType: paragraph
 bundle: uswds_card_regular
@@ -34,6 +34,15 @@ content:
       target: ''
     third_party_settings: {  }
     type: link
+    region: content
+  field_card_breakpoints:
+    weight: 10
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    type: entity_reference_revisions_entity_view
     region: content
   field_card_image:
     type: entity_reference_entity_view
@@ -82,15 +91,6 @@ content:
     third_party_settings: {  }
     type: boolean
     region: content
-  field_number_of_columns:
-    weight: 9
-    label: above
-    settings:
-      thousand_separator: ''
-      prefix_suffix: true
-    third_party_settings: {  }
-    type: number_integer
-    region: content
   field_text:
     weight: 2
     label: hidden
@@ -108,4 +108,5 @@ content:
     third_party_settings: {  }
     type: boolean
     region: content
-hidden: {  }
+hidden:
+  field_number_of_columns: true

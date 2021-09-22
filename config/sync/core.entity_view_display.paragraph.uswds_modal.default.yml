@@ -1,0 +1,80 @@
+uuid: null
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_modal.field_button_text
+    - field.field.paragraph.uswds_modal.field_force_action
+    - field.field.paragraph.uswds_modal.field_large_modal
+    - field.field.paragraph.uswds_modal.field_modal_body
+    - field.field.paragraph.uswds_modal.field_modal_no_button_text
+    - field.field.paragraph.uswds_modal.field_modal_title
+    - field.field.paragraph.uswds_modal.field_modal_yes_button_text
+    - paragraphs.paragraphs_type.uswds_modal
+  module:
+    - text
+id: paragraph.uswds_modal.default
+targetEntityType: paragraph
+bundle: uswds_modal
+mode: default
+content:
+  field_button_text:
+    weight: 6
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_force_action:
+    weight: 3
+    label: hidden
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_large_modal:
+    weight: 2
+    label: hidden
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_modal_body:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+    region: content
+  field_modal_no_button_text:
+    weight: 5
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_modal_title:
+    weight: 0
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_modal_yes_button_text:
+    weight: 4
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+hidden: {  }

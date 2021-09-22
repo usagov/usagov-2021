@@ -1,0 +1,18 @@
+uuid: 53461568-b82d-4e0f-b572-ee6dfc317faa
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_step_indicator_item
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: false
+    bundle_settings:
+      untranslatable_fields_hide: '0'
+id: paragraph.uswds_step_indicator_item
+target_entity_type_id: paragraph
+target_bundle: uswds_step_indicator_item
+default_langcode: site_default
+language_alterable: false

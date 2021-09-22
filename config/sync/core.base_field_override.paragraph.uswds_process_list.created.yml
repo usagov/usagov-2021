@@ -1,0 +1,18 @@
+uuid: 3cee7180-7b27-42ac-bea4-cef92ed74183
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_process_list
+id: paragraph.uswds_process_list.created
+field_name: created
+entity_type: paragraph
+bundle: uswds_process_list
+label: 'Authored on'
+description: 'The time that the Paragraph was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

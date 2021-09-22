@@ -1,0 +1,18 @@
+uuid: 94332243-4976-4290-8de6-d7136e3f398f
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_card_group_flag
+id: paragraph.uswds_card_group_flag.created
+field_name: created
+entity_type: paragraph
+bundle: uswds_card_group_flag
+label: 'Authored on'
+description: 'The time that the Paragraph was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

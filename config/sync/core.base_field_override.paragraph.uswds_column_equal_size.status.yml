@@ -1,0 +1,22 @@
+uuid: 4b651cac-2e2a-4129-bc61-5d7d1a323da4
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_column_equal_size
+id: paragraph.uswds_column_equal_size.status
+field_name: status
+entity_type: paragraph
+bundle: uswds_column_equal_size
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

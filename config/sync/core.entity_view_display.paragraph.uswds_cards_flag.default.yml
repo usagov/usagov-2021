@@ -1,9 +1,10 @@
-uuid: 11667dc1-8ab6-4011-9e54-d5cc3dc9d7c2
+uuid: null
 langcode: en
 status: true
 dependencies:
   config:
     - field.field.paragraph.uswds_cards_flag.field_button
+    - field.field.paragraph.uswds_cards_flag.field_card_breakpoints
     - field.field.paragraph.uswds_cards_flag.field_card_image
     - field.field.paragraph.uswds_cards_flag.field_card_title
     - field.field.paragraph.uswds_cards_flag.field_image_position
@@ -12,11 +13,10 @@ dependencies:
     - field.field.paragraph.uswds_cards_flag.field_text
     - paragraphs.paragraphs_type.uswds_cards_flag
   module:
+    - entity_reference_revisions
     - link
     - options
     - text
-_core:
-  default_config_hash: s4b80wa2gK45OjibVeYly32OQG-Jmmjno_KWk7gOfRE
 id: paragraph.uswds_cards_flag.default
 targetEntityType: paragraph
 bundle: uswds_cards_flag
@@ -33,6 +33,15 @@ content:
       target: ''
     third_party_settings: {  }
     type: link
+    region: content
+  field_card_breakpoints:
+    type: entity_reference_revisions_entity_view
+    weight: 7
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
     region: content
   field_card_image:
     weight: 2
@@ -60,22 +69,13 @@ content:
     region: content
   field_make_card_link:
     weight: 5
-    label: above
+    label: hidden
     settings:
       format: default
       format_custom_false: ''
       format_custom_true: ''
     third_party_settings: {  }
     type: boolean
-    region: content
-  field_number_of_columns:
-    weight: 6
-    label: above
-    settings:
-      thousand_separator: ''
-      prefix_suffix: true
-    third_party_settings: {  }
-    type: number_integer
     region: content
   field_text:
     weight: 4
@@ -84,4 +84,5 @@ content:
     third_party_settings: {  }
     type: text_default
     region: content
-hidden: {  }
+hidden:
+  field_number_of_columns: true

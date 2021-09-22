@@ -1,7 +1,27 @@
 uuid: 3e86f49b-3c5d-401f-aea2-cc568685095d
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  module:
+    - menu_ui
+    - node_menus
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - left-menu-english
+      - left-menu-spanish
+    parent: 'left-menu-english:'
+  node_menus:
+    enabled: 1
+    languages:
+      en:
+        available_menus:
+          - left-menu-english
+        parent: 'left-menu-english:'
+      es:
+        available_menus:
+          - left-menu-spanish
+        parent: 'left-menu-spanish:'
 name: 'Basic Page'
 type: basic_page
 description: ''
