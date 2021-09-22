@@ -45,7 +45,7 @@ services:
     container_name: node
     build:
       context: ./
-    dockerfile: .docker/Dockerfile-node
+      dockerfile: .docker/Dockerfile-node
     volumes:
       - .:/app:delegated
     env_file:

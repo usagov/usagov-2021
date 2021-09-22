@@ -1,10 +1,8 @@
 #!/bin/bash
 set -e
 
-echo  "Not Needed Locally - user SQLite instead"
-
-#docker-compose run \
-#  --rm \
-#  database \
-#  mysql --host=database --user=root --password=mysql mysql \
-#  "$@"
+docker-compose run \
+  --rm \
+  cms \
+  mysql --host=database --user=root --password=mysql drupal \
+  "$@"
