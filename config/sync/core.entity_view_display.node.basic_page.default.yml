@@ -6,7 +6,9 @@ dependencies:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_header_html
+    - field.field.node.basic_page.field_is_navigation_page
     - field.field.node.basic_page.field_page_intro
+    - field.field.node.basic_page.field_page_type
     - node.type.basic_page
   module:
     - text
@@ -19,39 +21,36 @@ content:
   body:
     label: hidden
     type: text_default
-    weight: 101
+    weight: 2
     settings: {  }
     third_party_settings: {  }
     region: content
   content_moderation_control:
-    weight: -20
+    weight: 0
     region: content
     settings: {  }
     third_party_settings: {  }
   field_footer_html:
-    weight: 104
-    label: hidden
-    settings: {  }
-    third_party_settings: {  }
-    type: text_default
-    region: content
-  field_header_html:
-    weight: 103
-    label: hidden
-    settings: {  }
-    third_party_settings: {  }
-    type: text_default
-    region: content
-  field_page_intro:
-    weight: 102
-    label: hidden
+    weight: 4
+    label: above
     settings: {  }
     third_party_settings: {  }
     type: basic_string
     region: content
+  field_header_html:
+    weight: 3
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+    region: content
   links:
-    weight: 100
+    weight: 1
     region: content
     settings: {  }
     third_party_settings: {  }
-hidden: {  }
+hidden:
+  field_is_navigation_page: true
+  field_page_intro: true
+  field_page_type: true
+  langcode: true

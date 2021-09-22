@@ -1,0 +1,30 @@
+uuid: 019c4bfd-57f7-41cd-ad4d-f655108a3325
+langcode: en
+status: false
+dependencies:
+  config:
+    - views.view.sub_children
+  module:
+    - system
+    - views
+  theme:
+    - usagov
+id: views_block__sub_children_block_2
+theme: usagov
+region: sidebar_first
+weight: -7
+provider: null
+plugin: 'views_block:sub_children-block_2'
+settings:
+  id: 'views_block:sub_children-block_2'
+  label: 'Left Sub Menu View'
+  provider: views
+  label_display: visible
+  views_label: 'Left Sub Menu View'
+  items_per_page: none
+  context_mapping: {  }
+visibility:
+  request_path:
+    id: request_path
+    pages: "<front>\r\n/demo"
+    negate: true

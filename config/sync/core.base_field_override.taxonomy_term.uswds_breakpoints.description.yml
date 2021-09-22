@@ -1,0 +1,20 @@
+uuid: 1f630253-3f6b-4b92-ac7c-e817d157492d
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.uswds_breakpoints
+  module:
+    - text
+id: taxonomy_term.uswds_breakpoints.description
+field_name: description
+entity_type: taxonomy_term
+bundle: uswds_breakpoints
+label: Description
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

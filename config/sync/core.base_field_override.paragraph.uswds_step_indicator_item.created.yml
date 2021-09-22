@@ -1,0 +1,18 @@
+uuid: 54b14f57-f382-4fc4-b481-9b609ee829e9
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_step_indicator_item
+id: paragraph.uswds_step_indicator_item.created
+field_name: created
+entity_type: paragraph
+bundle: uswds_step_indicator_item
+label: 'Authored on'
+description: 'The time that the Paragraph was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

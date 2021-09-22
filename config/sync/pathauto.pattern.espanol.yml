@@ -1,0 +1,25 @@
+uuid: 90b8706e-d373-4784-b5ce-b68c85ee42ad
+langcode: en
+status: true
+dependencies:
+  module:
+    - language
+    - node
+id: espanol
+label: espanol
+type: 'canonical_entities:node'
+pattern: 'espanol/[node:title]'
+selection_criteria:
+  bf68afc8-ce1e-4a15-949a-d3d5b91aa98e:
+    id: language
+    langcodes:
+      es: es
+    negate: false
+    context_mapping:
+      language: 'node:langcode:language'
+    uuid: bf68afc8-ce1e-4a15-949a-d3d5b91aa98e
+selection_logic: and
+weight: -5
+relationships:
+  'node:langcode:language':
+    label: Language

@@ -1,0 +1,18 @@
+uuid: ab78c855-6090-48ac-b7fe-076e016328b9
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_card_group_flag
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: false
+    bundle_settings:
+      untranslatable_fields_hide: '0'
+id: paragraph.uswds_card_group_flag
+target_entity_type_id: paragraph
+target_bundle: uswds_card_group_flag
+default_langcode: site_default
+language_alterable: false

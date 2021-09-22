@@ -15,7 +15,7 @@ bundle: uswds_card_group_flag
 label: 'USWDS Classes'
 description: 'Add known USWDS classes to the group.'
 required: false
-translatable: true
+translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:

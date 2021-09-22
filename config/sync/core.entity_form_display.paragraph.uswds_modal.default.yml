@@ -1,0 +1,113 @@
+uuid: null
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_modal.field_button_text
+    - field.field.paragraph.uswds_modal.field_force_action
+    - field.field.paragraph.uswds_modal.field_large_modal
+    - field.field.paragraph.uswds_modal.field_modal_body
+    - field.field.paragraph.uswds_modal.field_modal_no_button_text
+    - field.field.paragraph.uswds_modal.field_modal_title
+    - field.field.paragraph.uswds_modal.field_modal_yes_button_text
+    - paragraphs.paragraphs_type.uswds_modal
+  module:
+    - field_group
+    - text
+third_party_settings:
+  field_group:
+    group_modal:
+      children:
+        - field_large_modal
+        - field_force_action
+        - field_button_text
+      parent_name: ''
+      weight: 0
+      format_type: details
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        description: ''
+        open: false
+        required_fields: true
+      label: 'Modal Settings'
+    group_modal_fields:
+      children:
+        - field_modal_title
+        - field_modal_body
+        - field_modal_yes_button_text
+        - field_modal_no_button_text
+      parent_name: ''
+      weight: 1
+      format_type: details
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        description: ''
+        open: false
+        required_fields: true
+      label: 'Modal Fields'
+id: paragraph.uswds_modal.default
+targetEntityType: paragraph
+bundle: uswds_modal
+mode: default
+content:
+  field_button_text:
+    weight: 5
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_force_action:
+    weight: 4
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+  field_large_modal:
+    weight: 3
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+  field_modal_body:
+    weight: 6
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: text_textarea
+    region: content
+  field_modal_no_button_text:
+    weight: 8
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_modal_title:
+    weight: 5
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_modal_yes_button_text:
+    weight: 7
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+hidden:
+  created: true
+  status: true

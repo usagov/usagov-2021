@@ -1,4 +1,4 @@
-uuid: 49ae895d-4b39-46f0-abd6-838a6a6cfc68
+uuid: null
 langcode: en
 status: true
 dependencies:
@@ -8,8 +8,6 @@ dependencies:
     - paragraphs.paragraphs_type.uswds_card_group_regular
   module:
     - entity_reference_revisions
-_core:
-  default_config_hash: hZmSK73WxSirxyo5GV4r3Jngza0F3W89ueDUVeTlpOs
 id: paragraph.uswds_card_group_regular.default
 targetEntityType: paragraph
 bundle: uswds_card_group_regular
@@ -24,5 +22,12 @@ content:
       link: ''
     third_party_settings: {  }
     region: content
-hidden:
-  field_uswds_classes: true
+  field_uswds_classes:
+    weight: 1
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+    region: content
+hidden: {  }

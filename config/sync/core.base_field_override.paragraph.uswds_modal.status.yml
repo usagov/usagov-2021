@@ -1,0 +1,22 @@
+uuid: d931d2ec-00bf-489b-859d-483f61982cd7
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_modal
+id: paragraph.uswds_modal.status
+field_name: status
+entity_type: paragraph
+bundle: uswds_modal
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

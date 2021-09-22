@@ -1,0 +1,22 @@
+uuid: 05f288ae-7618-4da3-ac88-5c81515cd6f3
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_3_column_breakpoints
+id: paragraph.uswds_3_column_breakpoints.status
+field_name: status
+entity_type: paragraph
+bundle: uswds_3_column_breakpoints
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

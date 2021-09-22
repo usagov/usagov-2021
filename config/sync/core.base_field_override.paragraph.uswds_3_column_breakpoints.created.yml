@@ -1,0 +1,18 @@
+uuid: d748cd58-ec4a-4d97-8ebf-c8de17263ec1
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_3_column_breakpoints
+id: paragraph.uswds_3_column_breakpoints.created
+field_name: created
+entity_type: paragraph
+bundle: uswds_3_column_breakpoints
+label: 'Authored on'
+description: 'The time that the Paragraph was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

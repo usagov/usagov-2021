@@ -1,0 +1,23 @@
+uuid: 0f820422-ad5e-45af-8a79-2319e5a97282
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_is_navigation_page
+    - node.type.basic_page
+id: node.basic_page.field_is_navigation_page
+field_name: field_is_navigation_page
+entity_type: node
+bundle: basic_page
+label: 'Is Navigation Page'
+description: ''
+required: false
+translatable: true
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

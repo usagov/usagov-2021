@@ -1,0 +1,22 @@
+uuid: b56d0c07-19ae-48cd-b46f-48956372dd62
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_columns_3_uneven
+id: paragraph.uswds_columns_3_uneven.status
+field_name: status
+entity_type: paragraph
+bundle: uswds_columns_3_uneven
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

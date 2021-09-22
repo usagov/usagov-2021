@@ -6,7 +6,9 @@ dependencies:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_header_html
+    - field.field.node.basic_page.field_is_navigation_page
     - field.field.node.basic_page.field_page_intro
+    - field.field.node.basic_page.field_page_type
     - node.type.basic_page
     - workflows.workflow.basic_workflow
   module:
@@ -20,7 +22,7 @@ mode: default
 content:
   body:
     type: text_textarea_with_summary
-    weight: 9
+    weight: 10
     settings:
       rows: 9
       summary_rows: 3
@@ -30,25 +32,32 @@ content:
     region: content
   created:
     type: datetime_timestamp
-    weight: 3
+    weight: 4
     region: content
     settings: {  }
     third_party_settings: {  }
   field_footer_html:
-    weight: 11
+    weight: 13
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+    region: content
+  field_header_html:
+    weight: 12
     settings:
       rows: 5
       placeholder: ''
     third_party_settings: {  }
     type: text_textarea
     region: content
-  field_header_html:
-    weight: 10
+  field_is_navigation_page:
+    weight: 14
     settings:
-      rows: 5
-      placeholder: ''
+      display_label: true
     third_party_settings: {  }
-    type: text_textarea
+    type: boolean_checkbox
     region: content
   field_page_intro:
     weight: 1
@@ -58,15 +67,28 @@ content:
     third_party_settings: {  }
     type: string_textarea
     region: content
+  field_page_type:
+    weight: 26
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+  langcode:
+    type: language_select
+    weight: 2
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
   moderation_state:
     type: moderation_state_default
-    weight: 7
+    weight: 8
     settings: {  }
     region: content
     third_party_settings: {  }
   path:
     type: path
-    weight: 6
+    weight: 7
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -74,21 +96,21 @@ content:
     type: boolean_checkbox
     settings:
       display_label: true
-    weight: 4
+    weight: 5
     region: content
     third_party_settings: {  }
   status:
     type: boolean_checkbox
     settings:
       display_label: true
-    weight: 8
+    weight: 9
     region: content
     third_party_settings: {  }
   sticky:
     type: boolean_checkbox
     settings:
       display_label: true
-    weight: 5
+    weight: 6
     region: content
     third_party_settings: {  }
   title:
@@ -99,9 +121,14 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  translation:
+    weight: 11
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 2
+    weight: 3
     settings:
       match_operator: CONTAINS
       size: 60
