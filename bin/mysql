@@ -4,5 +4,5 @@ set -e
 docker-compose run \
   --rm \
   cms \
-  mysql --host=database --user=root --password=mysql drupal \
+  drush sql-cli \
   "$@"
