@@ -1,0 +1,23 @@
+uuid: 0eae4a65-1af7-4636-b5e7-df34071a6fc0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_number_of_columns
+    - paragraphs.paragraphs_type.uswds_card_breakpoints
+id: paragraph.uswds_card_breakpoints.field_number_of_columns
+field_name: field_number_of_columns
+entity_type: paragraph
+bundle: uswds_card_breakpoints
+label: 'Number of Columns'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 1
+  max: 12
+  prefix: ''
+  suffix: ''
+field_type: integer

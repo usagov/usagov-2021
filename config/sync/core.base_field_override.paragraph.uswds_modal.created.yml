@@ -1,0 +1,18 @@
+uuid: 987fac01-b817-4cc9-a493-cc9c2d5c5b0a
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_modal
+id: paragraph.uswds_modal.created
+field_name: created
+entity_type: paragraph
+bundle: uswds_modal
+label: 'Authored on'
+description: 'The time that the Paragraph was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

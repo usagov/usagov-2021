@@ -1,0 +1,19 @@
+uuid: 7ce62752-a6d8-45dc-b2af-d138528b5946
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_button_text
+    - paragraphs.paragraphs_type.uswds_modal
+id: paragraph.uswds_modal.field_button_text
+field_name: field_button_text
+entity_type: paragraph
+bundle: uswds_modal
+label: 'Button Text'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,7 @@
+langcode: en
+status: true
+dependencies: {  }
+name: 'USWDS Breakpoints'
+vid: uswds_breakpoints
+description: 'breakpoints pulled directly from USWDS.'
+weight: 0

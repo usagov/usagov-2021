@@ -12,6 +12,7 @@ type_id: paragraphs_entity_embed
 type_settings:
   enable_paragraph_type_filter: 1
   paragraphs_type_filter:
+    faq: faq
     uswds_accordion: uswds_accordion
     uswds_alert: uswds_alert
     uswds_card_group_regular: uswds_card_group_regular

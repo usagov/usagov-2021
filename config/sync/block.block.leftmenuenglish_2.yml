@@ -1,0 +1,37 @@
+uuid: ce1ad467-01ae-456e-b709-34128cc6d061
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.left-menu-english
+  module:
+    - language
+    - system
+  theme:
+    - usagov
+id: leftmenuenglish_2
+theme: usagov
+region: content
+weight: -3
+provider: null
+plugin: 'system_menu_block:left-menu-english'
+settings:
+  id: 'system_menu_block:left-menu-english'
+  label: 'Left Menu English Block'
+  provider: system
+  label_display: visible
+  level: 1
+  depth: 0
+  expand_all_items: false
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: true
+  language:
+    id: language
+    langcodes:
+      en: en
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'

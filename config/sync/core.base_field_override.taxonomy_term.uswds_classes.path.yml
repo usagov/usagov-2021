@@ -1,0 +1,20 @@
+uuid: 012a6876-abd9-4785-b9a2-237dd7623fdc
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.uswds_classes
+  module:
+    - path
+id: taxonomy_term.uswds_classes.path
+field_name: path
+entity_type: taxonomy_term
+bundle: uswds_classes
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

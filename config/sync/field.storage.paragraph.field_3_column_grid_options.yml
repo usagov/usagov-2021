@@ -1,0 +1,36 @@
+uuid: 36aff1a4-be6c-496e-acba-aa64f5cda704
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.field_3_column_grid_options
+field_name: field_3_column_grid_options
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: 3-6-3
+      label: '3:6:3'
+    -
+      value: 8-2-2
+      label: '8:2:2'
+    -
+      value: auto
+      label: Auto
+    -
+      value: even
+      label: Even
+    -
+      value: '100'
+      label: 100%
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

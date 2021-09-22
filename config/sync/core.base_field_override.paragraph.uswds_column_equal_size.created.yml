@@ -1,0 +1,18 @@
+uuid: 55bcde06-ab85-40fa-932f-5d9ac509631f
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_column_equal_size
+id: paragraph.uswds_column_equal_size.created
+field_name: created
+entity_type: paragraph
+bundle: uswds_column_equal_size
+label: 'Authored on'
+description: 'The time that the Paragraph was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

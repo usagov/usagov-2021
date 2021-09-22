@@ -11,7 +11,7 @@ _core:
 id: usagov_content
 theme: usagov
 region: content
-weight: 30
+weight: -6
 provider: null
 plugin: system_main_block
 settings:

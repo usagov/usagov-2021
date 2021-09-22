@@ -1,0 +1,20 @@
+uuid: 5c02dccd-30d7-4d1f-8739-bb6cfb52712c
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.uswds_classes
+  module:
+    - text
+id: taxonomy_term.uswds_classes.description
+field_name: description
+entity_type: taxonomy_term
+bundle: uswds_classes
+label: Description
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

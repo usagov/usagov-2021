@@ -1,0 +1,21 @@
+uuid: 22022850-0e4f-4853-924d-43ea07bb7627
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_3_column_grid_options
+    - paragraphs.paragraphs_type.uswds_3_column_breakpoints
+  module:
+    - options
+id: paragraph.uswds_3_column_breakpoints.field_3_column_grid_options
+field_name: field_3_column_grid_options
+entity_type: paragraph
+bundle: uswds_3_column_breakpoints
+label: '3 Column Grid'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

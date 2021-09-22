@@ -1,0 +1,22 @@
+uuid: 542f014b-2e85-47c1-8e25-73fd93dd53fd
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_cards_flag
+id: paragraph.uswds_cards_flag.status
+field_name: status
+entity_type: paragraph
+bundle: uswds_cards_flag
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

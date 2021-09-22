@@ -1,0 +1,19 @@
+uuid: cf1fe358-d01e-4af6-9975-da6e9519183c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_modal_title
+    - paragraphs.paragraphs_type.uswds_modal
+id: paragraph.uswds_modal.field_modal_title
+field_name: field_modal_title
+entity_type: paragraph
+bundle: uswds_modal
+label: Title
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

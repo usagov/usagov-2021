@@ -1,0 +1,18 @@
+uuid: 8d84d0bb-b311-449b-b113-f0803c4de1eb
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_columns_2_uneven
+id: paragraph.uswds_columns_2_uneven.created
+field_name: created
+entity_type: paragraph
+bundle: uswds_columns_2_uneven
+label: 'Authored on'
+description: 'The time that the Paragraph was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

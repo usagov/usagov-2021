@@ -1,9 +1,10 @@
-uuid: 6685f061-280f-4ed2-bc83-73cdf2a285a3
+uuid: null
 langcode: en
 status: true
 dependencies:
   config:
     - field.field.paragraph.uswds_card_regular.field_button
+    - field.field.paragraph.uswds_card_regular.field_card_breakpoints
     - field.field.paragraph.uswds_card_regular.field_card_image
     - field.field.paragraph.uswds_card_regular.field_card_title
     - field.field.paragraph.uswds_card_regular.field_extend_media
@@ -16,6 +17,8 @@ dependencies:
   module:
     - field_group
     - link
+    - media_library
+    - paragraphs
     - text
 third_party_settings:
   field_group:
@@ -40,7 +43,7 @@ third_party_settings:
         - field_make_card_link
         - field_button
       parent_name: ''
-      weight: 5
+      weight: 4
       format_type: details
       region: content
       format_settings:
@@ -79,8 +82,6 @@ third_party_settings:
         open: false
         required_fields: true
       label: 'Body Features'
-_core:
-  default_config_hash: dh8B8Pv7P8KpPBWlBrGDIlKq-kzbE_zeb4M8GGt3lyM
 id: paragraph.uswds_card_regular.default
 targetEntityType: paragraph
 bundle: uswds_card_regular
@@ -94,15 +95,24 @@ content:
     third_party_settings: {  }
     type: link_default
     region: content
+  field_card_breakpoints:
+    weight: 0
+    settings:
+      title: Paragraph
+      title_plural: Paragraphs
+      edit_mode: closed
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: uswds_card_breakpoints
+    third_party_settings: {  }
+    type: entity_reference_paragraphs
+    region: content
   field_card_image:
     weight: 6
     settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
+      media_types: {  }
     third_party_settings: {  }
-    type: entity_reference_autocomplete
+    type: media_library_widget
     region: content
   field_card_title:
     weight: 3
@@ -133,13 +143,6 @@ content:
     third_party_settings: {  }
     type: boolean_checkbox
     region: content
-  field_number_of_columns:
-    weight: 0
-    settings:
-      placeholder: ''
-    third_party_settings: {  }
-    type: number
-    region: content
   field_text:
     weight: 4
     settings:
@@ -157,4 +160,5 @@ content:
     region: content
 hidden:
   created: true
+  field_number_of_columns: true
   status: true

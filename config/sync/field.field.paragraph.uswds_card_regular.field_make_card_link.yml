@@ -14,7 +14,7 @@ bundle: uswds_card_regular
 label: 'Make Card Link'
 description: 'Make the entire card a link vs just the button.'
 required: false
-translatable: true
+translatable: false
 default_value:
   -
     value: 0
