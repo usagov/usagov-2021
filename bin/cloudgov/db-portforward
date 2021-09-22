@@ -46,7 +46,7 @@ CF_DB_NAME=$(echo "$CF_DB_INFO" | grep '"db_name":' | sed 's/.*"db_name": "\([^"
 CF_SSH_ENDPOINT=$(echo "$CF_INFO" | grep '"app_ssh_endpoint":' | sed 's/.*"app_ssh_endpoint": "\([^:]*\).*".*/\1/')
 
 echo "Creating sql connection"
-nohup sshpass -p $(cf ssh-code) ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -N -p 2222 -L $CF_DB_PORT:$CF_DB_HOST:$LOCAL_PORT cf:$CF_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &
+nohup sshpass -p $(cf ssh-code) ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -N -p 2222 -L $LOCAL_PORT:$CF_DB_HOST:$CF_DB_PORT cf:$CF_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &
 CF_SSH_PID=$!
 
 echo "Waiting for connection to fully resolve"
