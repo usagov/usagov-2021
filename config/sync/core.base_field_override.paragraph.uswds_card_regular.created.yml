@@ -1,0 +1,18 @@
+uuid: faa370a1-5c12-4650-b261-b0015efd8592
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_card_regular
+id: paragraph.uswds_card_regular.created
+field_name: created
+entity_type: paragraph
+bundle: uswds_card_regular
+label: 'Authored on'
+description: 'The time that the Paragraph was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

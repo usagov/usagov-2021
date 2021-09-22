@@ -1,0 +1,22 @@
+uuid: 4d3f112e-1273-4b8a-8506-b1b6a8a99d14
+langcode: en
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.uswds_process_item
+id: paragraph.uswds_process_item.status
+field_name: status
+entity_type: paragraph
+bundle: uswds_process_item
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

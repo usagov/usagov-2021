@@ -1,0 +1,18 @@
+uuid: 7346d60a-7e86-4076-a34c-ead5af5f2a2f
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.uswds_paragraphs
+id: block_content.uswds_paragraphs.changed
+field_name: changed
+entity_type: block_content
+bundle: uswds_paragraphs
+label: Changed
+description: 'The time that the custom block was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed

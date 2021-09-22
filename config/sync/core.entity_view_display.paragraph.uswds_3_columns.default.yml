@@ -1,0 +1,45 @@
+uuid: null
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_3_columns.field_3_column_content
+    - field.field.paragraph.uswds_3_columns.field_column_grid_gap
+    - field.field.paragraph.uswds_3_columns.field_uswds_3_column_breakpoints
+    - paragraphs.paragraphs_type.uswds_3_columns
+  module:
+    - entity_reference_revisions
+id: paragraph.uswds_3_columns.default
+targetEntityType: paragraph
+bundle: uswds_3_columns
+mode: default
+content:
+  field_3_column_content:
+    type: entity_reference_revisions_entity_view
+    weight: 1
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_column_grid_gap:
+    weight: 0
+    label: hidden
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_uswds_3_column_breakpoints:
+    type: entity_reference_revisions_entity_view
+    weight: 2
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    region: content
+hidden: {  }

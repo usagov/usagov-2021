@@ -1,0 +1,22 @@
+uuid: af1bb399-3fce-4055-880c-7b1408839534
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.uswds_paragraphs
+id: block_content.uswds_paragraphs.status
+field_name: status
+entity_type: block_content
+bundle: uswds_paragraphs
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

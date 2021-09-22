@@ -1,0 +1,20 @@
+uuid: 4b1ac28e-a629-44bf-a1da-0787066c4433
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.uswds_breakpoints
+  module:
+    - path
+id: taxonomy_term.uswds_breakpoints.path
+field_name: path
+entity_type: taxonomy_term
+bundle: uswds_breakpoints
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

@@ -1,6 +1,6 @@
 uuid: f1ae6056-5b02-4bc8-b88f-a9f11079ae21
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - system.menu.account
@@ -13,7 +13,7 @@ _core:
 id: usagov_account_menu
 theme: usagov
 region: secondary_menu
-weight: 0
+weight: -6
 provider: null
 plugin: 'system_menu_block:account'
 settings:

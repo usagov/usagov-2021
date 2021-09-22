@@ -1,0 +1,22 @@
+uuid: 38ef2cce-2f75-4fa4-8d72-312279151015
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.uswds_breakpoints
+id: taxonomy_term.uswds_breakpoints.status
+field_name: status
+entity_type: taxonomy_term
+bundle: uswds_breakpoints
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

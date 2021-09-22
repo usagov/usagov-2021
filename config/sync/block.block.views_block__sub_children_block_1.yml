@@ -1,0 +1,38 @@
+uuid: 6d66a1d0-57cb-47b6-ac04-04a410ade489
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.sub_children
+  module:
+    - ctools
+    - system
+    - views
+  theme:
+    - usagov
+id: views_block__sub_children_block_1
+theme: usagov
+region: content
+weight: -2
+provider: null
+plugin: 'views_block:sub_children-block_1'
+settings:
+  id: 'views_block:sub_children-block_1'
+  label: ''
+  provider: views
+  label_display: visible
+  views_label: ''
+  items_per_page: '10'
+  context_mapping: {  }
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    bundles:
+      basic_page: basic_page
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: true

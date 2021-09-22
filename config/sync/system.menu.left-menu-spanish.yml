@@ -1,0 +1,8 @@
+uuid: b6502c85-579e-4861-b893-76269583a8bf
+langcode: es
+status: true
+dependencies: {  }
+id: left-menu-spanish
+label: 'Left Menu Spanish'
+description: ''
+locked: false

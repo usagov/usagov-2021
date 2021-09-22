@@ -10,6 +10,7 @@ module:
   ckeditor_templates_ui: 0
   config: 0
   content_moderation: 0
+  contextual: 0
   ctools: 0
   datetime: 0
   datetime_range: 0
@@ -20,6 +21,7 @@ module:
   embed: 0
   entity_embed: 0
   entity_reference_revisions: 0
+  faqfield: 0
   field: 0
   field_group: 0
   field_permissions: 0
@@ -27,12 +29,20 @@ module:
   file: 0
   filter: 0
   image: 0
+  jquery_ui: 0
+  jquery_ui_accordion: 0
   jsonapi: 0
+  language: 0
   link: 0
   media: 0
   media_library: 0
+  menu_block: 0
+  menu_breadcrumb: 0
+  menu_link_content: 0
+  menu_ui: 0
   mmf_core_fields: 0
   node: 0
+  node_menus: 0
   options: 0
   page_cache: 0
   paragraphs_entity_embed: 0
@@ -41,6 +51,7 @@ module:
   responsive_image: 0
   s3fs: 0
   serialization: 0
+  settings_tray: 0
   system: 0
   taxonomy: 0
   telephone: 0
@@ -53,10 +64,12 @@ module:
   user: 0
   uswds_ckeditor_integration: 0
   uswds_paragraph_components: 0
+  views_menu_children_filter: 0
   views_ui: 0
   viewsreference: 0
   workflows: 0
   pathauto: 1
+  content_translation: 10
   views: 10
   paragraphs: 11
   minimal: 1000

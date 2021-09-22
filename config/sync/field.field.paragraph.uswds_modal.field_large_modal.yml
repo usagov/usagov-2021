@@ -1,0 +1,23 @@
+uuid: 117c231a-dc85-4f6f-ada6-20ba4907f9f4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_large_modal
+    - paragraphs.paragraphs_type.uswds_modal
+id: paragraph.uswds_modal.field_large_modal
+field_name: field_large_modal
+entity_type: paragraph
+bundle: uswds_modal
+label: 'Large Modal'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean
