@@ -41,15 +41,15 @@ services:
     depends_on:
       - database
 
-        #  node:
-        #   container_name: node
-        #   build:
-        #    context: ./
-        #   dockerfile: .docker/Dockerfile-node
-        #  volumes:
-        #   - .:/app:delegated
-        #  env_file:
-        #   - ./env.local
+  node:
+    container_name: node
+    build:
+      context: ./
+    dockerfile: .docker/Dockerfile-node
+    volumes:
+      - .:/app:delegated
+    env_file:
+      - ./env.local
 
   database:
     image: mysql:5.7
