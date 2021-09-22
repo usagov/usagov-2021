@@ -1,0 +1,14 @@
+#!/bin/bash
+
+isnum_Case() { case ${1#[-+]} in ''|.|*[!0-9.]*|*.*.*) return 1;; esac ;}
+
+if isnum_Case "$1"
+then 
+    LOCAL_PORT=$1
+    LOCAL_FILE=${2:-usagov.sql}
+else 
+    LOCAL_PORT=3306
+    LOCAL_FILE=${1:-usagov.sql}
+fi
+
+mysql -h127.0.0.1 -P$LOCAL_PORT -uroot -pmysql drupal < $LOCAL_FILE
