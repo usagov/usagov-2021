@@ -5,4 +5,4 @@ RUN npm install -g gulp-cli git
 
 WORKDIR /app/web/themes/custom/usagov/
 
-CMD ["gulp", "watch"]
+CMD ["gulp", "start"]

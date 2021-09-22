@@ -213,3 +213,5 @@ gulp.task("watch", gulp.series("build-sass", "watch-sass"));
 gulp.task("default", gulp.series("watch"));
 
 gulp.task("svg-sprite", gulp.series("build-sprite", "rename-sprite", "clean-sprite"));
+
+gulp.task("start", gulp.series("build", "watch"));
