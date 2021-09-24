@@ -67,7 +67,7 @@
   <nav aria-label="Secondary navigation">
     <ul class="usa-sidenav">
       <li class="usa-sidenav__item">
-        <a href="{{ items.url }}"{% if start_level == 0 %} class="usa-current"{% endif %}>
+        <a{% if start_level == 0 %} class="usa-current"{% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
           {{ items.title }}
         </a>
       </li>
@@ -82,7 +82,7 @@
   <ul class="usa-sidenav__sublist">
     {% for item in items %}
       <li class="usa-sidenav__item">
-        <a href="{{ item.url }}"{% if item.title == current_item_title %} class="usa-current"{% endif %}>
+        <a{% if item.title == current_item_title %} class="usa-current"{% elseif item.in_active_trail %} href="{{ item.url }}" class="active-trail"{% else %} href="{{ item.url }}"{% endif %}>
           {{ item.title }}
         </a>
       </li>
