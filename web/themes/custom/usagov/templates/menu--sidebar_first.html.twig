@@ -1,0 +1,97 @@
+{#
+/**
+ * @file
+ * Override of system/menu.html.twig for a sidebar menu.
+ */
+#}
+
+{% import _self as menus %}
+
+{{ menus.explore(items, 0, null, null) }}
+
+{% macro explore(items, menuLevel, parent, grandparent, greatgrandparent ) %}
+
+  {% set active_item = null %}
+
+  {% for item in items %}
+    {% if item.in_active_trail %}
+      {% set active_item = item %}
+      {{ menus.explore(item.below, menuLevel + 1, item, parent, grandparent ) }}
+    {% endif %}
+  {% endfor %}
+
+  {% if active_item == null %}
+    {# parent is the current page #}
+
+    {% set current_item = parent.title %}
+    {% set start_item = null %}
+    {% set start_level = 0 %}
+    {% if items|length == 0 %}
+      {# There are no chilren, start from grandparent (or 0 if no grandparent) #}
+
+      {% if greatgrandparent %}
+        {% set start_item = greatgrandparent %}
+        {% set start_level = 2 %}
+      {% elseif grandparent %}
+        {% set start_item = grandparent %}
+        {% set start_level = 1 %}
+      {% else %}
+        {% set start_item = parent %}
+        {% set start_level = 0 %}
+      {% endif %}
+
+    {% else %}
+      {# There are children, show them and start from parent (or 0 if no parent) #}
+
+      {% if grandparent %}
+        {% set start_item = grandparent %}
+        {% set start_level = 1 %}
+      {% else %}
+        {% set start_item = parent %}
+        {% set start_level = 0 %}
+      {% endif %}
+
+    {% endif %}
+    
+    {{ _self.build( start_item, 0, start_level, parent.title) }}
+
+  {% endif %}
+
+{% endmacro %}
+
+{# TODO: come up with a better name than start_level. Its really the delta between the start_item and the current_item #}
+{% macro build(items, menuLevel, start_level, current_item_title ) %}
+
+  {% if menuLevel == 0 %}
+
+  <nav aria-label="Secondary navigation">
+    <ul class="usa-sidenav">
+      <li class="usa-sidenav__item">
+        <a href="{{ items.url }}"{% if start_level == 0 %} class="usa-current"{% endif %}>
+          {{ items.title }}
+        </a>
+      </li>
+      {% if items.below %}
+        {{ _self.build( items.below, 1, start_level, current_item_title) }}
+      {% endif %}
+    </ul>
+  </nav>
+
+  {% else %}
+
+  <ul class="usa-sidenav__sublist">
+    {% for item in items %}
+      <li class="usa-sidenav__item">
+        <a href="{{ item.url }}"{% if item.title == current_item_title %} class="usa-current"{% endif %}>
+          {{ item.title }}
+        </a>
+      </li>
+      {% if item.below and menuLevel < start_level or item.title == current_item_title %} {# if there are items and we haven't reached the current item or this is the current item #}
+        {{ _self.build( item.below, menuLevel + 1, start_level, current_item_title) }}
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+  {% endif %}
+  
+{% endmacro %}
