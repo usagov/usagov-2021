@@ -1,7 +1,5 @@
 #!/bin/sh
 
-
-
 if ! command -v cf &> /dev/null
 then
     echo "CF : the cloud foundry client could not be found and is required"
@@ -48,26 +46,47 @@ CF_DB_PASS=$(echo "$CF_DB_INFO" | grep '"password":' | sed 's/.*"password": "\([
 CF_DB_NAME=$(echo "$CF_DB_INFO" | grep '"db_name":' | sed 's/.*"db_name": "\([^"]*\)".*/\1/')
 CF_SSH_ENDPOINT=$(echo "$CF_INFO" | grep '"app_ssh_endpoint":' | sed 's/.*"app_ssh_endpoint": "\([^:]*\).*".*/\1/')
 
-echo "Creating sql connection"
-nohup sshpass -p $(cf ssh-code) ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -N -p 2222 -L $CF_DB_PORT:$CF_DB_HOST:$LOCAL_PORT cf:$CF_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &
-CF_SSH_PID=$!
+# echo "Creating sql connection"
+# nohup sshpass -p $(cf ssh-code) ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -N -p 2222 -L $CF_DB_PORT:$CF_DB_HOST:$LOCAL_PORT cf:$CF_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &
+# CF_SSH_PID=$!
 
-echo "Waiting for connection to fully resolve"
-sleep 5
+# echo "Waiting for connection to fully resolve"
+# sleep 5
+
+### this goes very slow - possible rate limiting through network
+### might need to try downloading through 'drush sql:dump' and moving the file into private s3, then downloading from there
 
 echo "Dumping database"
-mysqldump -h127.0.0.1 -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME --opt --set-gtid-purged=OFF > $LOCAL_FILE
+docker compose run \
+  --rm \
+  -v $(pwd):/hostfs \
+  database \
+  bash -c "DB_SIZE=\$(mysql \
+            -hhost.docker.internal \
+            -P$LOCAL_PORT \
+            -u$CF_DB_USER \
+            -p$CF_DB_PASS \
+            --silent \
+            --skip-column-names \
+            -e \"SELECT ROUND(SUM(data_length) * 1.13) AS \\\"size_bytes\\\" \
+            FROM information_schema.TABLES \
+            WHERE table_schema='$CF_DB_NAME';\"); \
+        hsize=\$(numfmt --to=iec-i --suffix=B \"\$DB_SIZE\"); \
+        echo \"[INFO] Dumping database (size≈\$hsize \$DB_SIZE) into $LOCAL_FILE ...\"; \
+        mysqldump -hhost.docker.internal -P$LOCAL_PORT -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME --opt --hex-blob --set-gtid-purged=OFF \
+        --compression-algorithms=zlib | pv --size \$DB_SIZE > /hostfs/$LOCAL_FILE; \
+   "
 
-echo "Cleaning up ssh processes $CF_SSH_PID, $CF_SSH_PID, nohup.out, and service key"
-if [ -f nohup.out ]
-then 
-    rm nohup.out
-fi
-if ps -p $CF_SSH_PID >/dev/null
-then
-    pkill -9 $CF_SSH_PID
-    wait $CF_SSH_PID 2>/dev/null
-fi
-cf delete-service-key database db-dump -f >/dev/null 2>&1
+# echo "Cleaning up ssh processes $CF_SSH_PID, nohup.out, and service key"
+# if [ -f nohup.out ]
+# then 
+#     rm nohup.out
+# fi
+# if ps -p $CF_SSH_PID >/dev/null
+# then
+#     pkill -7 $CF_SSH_PID
+#     wait $CF_SSH_PID 2>/dev/null
+# fi
+# cf delete-service-key database db-dump -f >/dev/null 2>&1
 
 echo "All Done"
