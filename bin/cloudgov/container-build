@@ -22,7 +22,6 @@ echo "Building usagov-2021:"$CONTAINERTAG $CONTAINERTAG2
 
 chmod -R u+w ./web/sites/default/
 
-
 docker build --force-rm \
     -t ednark/usagov-2021:$CONTAINERTAG \
     -f .docker/Dockerfile . \

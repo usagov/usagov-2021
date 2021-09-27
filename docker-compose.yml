@@ -4,7 +4,7 @@ services:
     container_name: cms
     build:
       context: ./
-      dockerfile: .docker/Dockerfile
+      dockerfile: .docker/Dockerfile-cms
     ports:
       - 80:80
     volumes:
@@ -52,7 +52,10 @@ services:
       - ./env.local
 
   database:
-    image: mysql:5.7
+    container_name: database
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-mysql
     ports:
       - 3306:3306
     volumes:
