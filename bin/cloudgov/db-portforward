@@ -1,5 +1,4 @@
-#!/bin/sh
-
+#!/bin/bash
 
 
 if ! command -v cf &> /dev/null
@@ -11,12 +10,6 @@ fi
 if ! command -v sshpass &> /dev/null
 then
     echo "SSHPASS : could not be found and is required"
-    exit
-fi
-
-if ! command -v pgrep &> /dev/null
-then
-    echo "PGREP : could not be found and is required (should be part of procps)"
     exit
 fi
 
