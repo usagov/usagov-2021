@@ -145,13 +145,11 @@
 
     <div class="grid-row grid-gap">
       {% if page.sidebar_first %}
-        {% if node.field_is_navigation_page[0].value != 1 %}{# If this is a navigation page, do not show the left nav #}
         <aside
           class="usa-layout-docs__sidenav desktop:grid-col-3 layout-sidebar-first"
           role="complementary">
           {{ page.sidebar_first }}
         </aside>
-        {% endif %}
       {% endif %}
 
       <div class="usa-layout-docs__main desktop:grid-col-{% if page.sidebar_first or page.sidebar_second %}9{% else %}fill{% endif %}">
@@ -330,17 +328,30 @@
         </div>
         {% endif %}
 
-        {% if page.footer_secondary %}
-          <div class="grid-container">
-            <div class="grid-row grid-gap">
-              <div class="grid-col-fill">
-                {{ page.footer_secondary }}
-              </div>
-            </div>
-          </div>
-        {% endif %}
+       
+        
       </div>
+      {% if page.footer_secondary %}
+      {#<div class="grid-container">
+        <div class="grid-row grid-gap">
+          <div class="grid-col-fill">#}
+            {{ page.footer_secondary }}
+          {#</div>
+        </div>
+      </div>#}
+    {% endif %}
     </div>
   {% endif %}
 
 </footer>
+{# usagov tagline code #}
+<div class="usa-identifier">
+  <section class="usa-identifier__section usa-identifier__section--usagov"
+     aria-label="USAGov is the Official Guide to Government Information and Services">
+     <div class="usa-identifier__container">
+        <div class="usa-identifier__usagov-description">
+           USAGov is the Official Guide to Government Information and Services
+        </div>
+     </div>
+  </section>
+</div>
