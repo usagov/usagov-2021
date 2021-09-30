@@ -91,7 +91,7 @@ gulp.task("copy-uswds-images", () => {
   return gulp.src(`${uswds}/img/**/**`).pipe(gulp.dest(`${IMG_DEST}`));
 });
 gulp.task("copy-usagov-images", () => {
-  return gulp.src(`/images/**/**`).pipe(gulp.dest(`${IMG_DEST}`));
+  return gulp.src(`./images/**/**`).pipe(gulp.dest(`${IMG_DEST}`));
 });
 
 gulp.task("copy-uswds-js", () => {
