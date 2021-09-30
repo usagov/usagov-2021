@@ -48,6 +48,7 @@ PATHS
 
 // Project Sass source directory
 const PROJECT_SASS_SRC = "./sass";
+const PROJECT_USWDS_SASS_SRC = PROJECT_SASS_SRC + "/uswds";
 
 // Images destination
 const IMG_DEST = "./assets/img";
@@ -79,7 +80,7 @@ TASKS
 gulp.task("copy-uswds-setup", () => {
   return gulp
     .src(`${uswds}/scss/theme/**/**`)
-    .pipe(gulp.dest(`${PROJECT_SASS_SRC}`));
+    .pipe(gulp.dest(`${PROJECT_USWDS_SASS_SRC}`));
 });
 
 gulp.task("copy-uswds-fonts", () => {
@@ -88,6 +89,9 @@ gulp.task("copy-uswds-fonts", () => {
 
 gulp.task("copy-uswds-images", () => {
   return gulp.src(`${uswds}/img/**/**`).pipe(gulp.dest(`${IMG_DEST}`));
+});
+gulp.task("copy-usagov-images", () => {
+  return gulp.src(`./images/**/**`).pipe(gulp.dest(`${IMG_DEST}`));
 });
 
 gulp.task("copy-uswds-js", () => {
@@ -181,6 +185,7 @@ gulp.task("build", gulp.series(
   "copy-uswds-setup",
   "copy-uswds-fonts",
   "copy-uswds-images",
+  "copy-usagov-images",
   "copy-uswds-js",
   "build-sass"
 ));
