@@ -74,13 +74,12 @@ LICENSE.txt
 
 # Ignore Compiled Theme Files
 node_modules
+web/themes/custom/usagov/css
+web/themes/custom/usagov/sass/uswds
 web/themes/custom/usagov/fonts
-web/themes/custom/usagov/img
-web/themes/custom/usagov/images
+web/themes/custom/usagov/assets/img
 web/themes/custom/usagov/scripts
 web/themes/custom/usagov/css/styles.css
 web/themes/custom/usagov/css/styles.css.map
-web/themes/custom/usagov/css/uswds.css
-web/themes/custom/usagov/css/uswds.css.map
 web/themes/custom/usagov/npm-debug.log
 
