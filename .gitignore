@@ -4,6 +4,7 @@
 
 /s3
 /storage
+/.aws
 
 *.sql
 *.sql.gz

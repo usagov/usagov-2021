@@ -1,0 +1,12 @@
+FROM mysql:8.0
+
+
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+
+RUN apt update \
+    && apt-get -y install --no-install-recommends ca-certificates pv openssh-client sshpass wget gpg \
+    && wget --no-check-certificate -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add - \
+    && echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list \
+    && apt update \
+    && apt-get install cf7-cli \
+    && rm -rf /var/lib/apt/lists/*
