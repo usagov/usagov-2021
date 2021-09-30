@@ -47,7 +47,10 @@ else
   #if [ "$SPACE" = "prod" ] ; then
   #  cf create-service aws-rds medium-mysql database
   #else
-    cf create-service aws-rds small-mysql database
+    cf create-service aws-rds \
+      small-mysql \
+      database \
+      -c '{"version": "8.0"}'
   #fi
 fi
 

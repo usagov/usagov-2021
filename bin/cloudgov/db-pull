@@ -1,25 +1,16 @@
 #!/bin/sh
 
+# if ! command -v cf &> /dev/null
+# then
+#     echo "CF : the cloud foundry client could not be found and is required"
+#     exit
+# fi
 
-
-if ! command -v cf &> /dev/null
-then
-    echo "CF : the cloud foundry client could not be found and is required"
-    exit
-fi
-
-if ! command -v sshpass &> /dev/null
-then
-    echo "SSHPASS : could not be found and is required"
-    exit
-fi
-
-if ! command -v pgrep &> /dev/null
-then
-    echo "PGREP : could not be found and is required (should be part of procps)"
-    exit
-fi
-
+# if ! command -v sshpass &> /dev/null
+# then
+#     echo "SSHPASS : could not be found and is required"
+#     exit
+# fi
 
 isnum_Case() { case ${1#[-+]} in ''|.|*[!0-9.]*|*.*.*) return 1;; esac ;}
 
@@ -32,42 +23,101 @@ else
     LOCAL_FILE=${1:-usagov.sql}
 fi
 
-echo "Mapping mysql to local $LOCAL_PORT and dumping to $LOCAL_FILE"
+# echo "Generating service key"
+# cf create-service-key database db-dump >/dev/null 2>&1
+# CF_GUID=$(cf app web --guid)
+# CF_INFO=$(cf curl /v2/info)
+# CF_DB_INFO=$(cf service-key database db-dump)
+# CF_DB_PORT=$(echo "$CF_DB_INFO" | grep '"port":' | sed 's/.*"port": "\([^"]*\)".*/\1/')
+# CF_DB_HOST=$(echo "$CF_DB_INFO" | grep '"host":' | sed 's/.*"host": "\([^"]*\)".*/\1/')
+# CF_DB_USER=$(echo "$CF_DB_INFO" | grep '"username":' | sed 's/.*"username": "\([^"]*\)".*/\1/')
+# CF_DB_PASS=$(echo "$CF_DB_INFO" | grep '"password":' | sed 's/.*"password": "\([^"]*\)".*/\1/')
+# CF_DB_NAME=$(echo "$CF_DB_INFO" | grep '"db_name":' | sed 's/.*"db_name": "\([^"]*\)".*/\1/')
+# CF_SSH_ENDPOINT=$(echo "$CF_INFO" | grep '"app_ssh_endpoint":' | sed 's/.*"app_ssh_endpoint": "\([^:]*\).*".*/\1/')
+# CF_SSH_CODE=$(cf ssh-code)
 
-echo "Generating service key"
-cf create-service-key database db-dump >/dev/null 2>&1
+cf create-service cloud-gov-service-account space-deployer db-service-account >/dev/null 2>&1
+cf create-service-key db-service-account db-service-key >/dev/null 2>&1
+CF_SVC_INFO=$(cf service-key db-service-account db-service-key)
+CF_SVC_USER=$(echo "$CF_SVC_INFO" | grep '"username":' | sed 's/.*"username": "\([^"]*\)".*/\1/')
+CF_SVC_PASS=$(echo "$CF_SVC_INFO" | grep '"password":' | sed 's/.*"password": "\([^"]*\)".*/\1/')
 
-echo "Collecting connection info"
-CF_GUID=$(cf app web --guid)
-CF_INFO=$(cf curl /v2/info)
-CF_DB_INFO=$(cf service-key database db-dump)
-CF_DB_PORT=$(echo "$CF_DB_INFO" | grep '"port":' | sed 's/.*"port": "\([^"]*\)".*/\1/')
-CF_DB_HOST=$(echo "$CF_DB_INFO" | grep '"host":' | sed 's/.*"host": "\([^"]*\)".*/\1/')
-CF_DB_USER=$(echo "$CF_DB_INFO" | grep '"username":' | sed 's/.*"username": "\([^"]*\)".*/\1/')
-CF_DB_PASS=$(echo "$CF_DB_INFO" | grep '"password":' | sed 's/.*"password": "\([^"]*\)".*/\1/')
-CF_DB_NAME=$(echo "$CF_DB_INFO" | grep '"db_name":' | sed 's/.*"db_name": "\([^"]*\)".*/\1/')
-CF_SSH_ENDPOINT=$(echo "$CF_INFO" | grep '"app_ssh_endpoint":' | sed 's/.*"app_ssh_endpoint": "\([^:]*\).*".*/\1/')
+# echo "Creating sql connection"
+# nohup sshpass -p $(cf ssh-code) ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -N -p 2222 -L $CF_DB_PORT:$CF_DB_HOST:$LOCAL_PORT cf:$CF_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &
+# CF_SSH_PID=$!
 
-echo "Creating sql connection"
-nohup sshpass -p $(cf ssh-code) ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -N -p 2222 -L $CF_DB_PORT:$CF_DB_HOST:$LOCAL_PORT cf:$CF_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &
-CF_SSH_PID=$!
+# echo "Waiting for connection to fully resolve"
+# sleep 5
 
-echo "Waiting for connection to fully resolve"
-sleep 5
+### this goes very slow - possible rate limiting through network
+### might need to try downloading through 'drush sql:dump' and moving the file into private s3, then downloading from there
+
+# CF_PERSONAL_SPACE=edward.narkiewicz
+# CF_PERSONAL_ORG=sandbox-gsa
 
 echo "Dumping database"
-mysqldump -h127.0.0.1 -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME --opt --set-gtid-purged=OFF > $LOCAL_FILE
+docker compose run \
+  --rm \
+  -v $(pwd):/hostfs \
+  database \
+  /bin/bash -c "/hostfs/bin/cloudgov/db-pull-docker.sh $CF_SVC_USER $CF_SVC_PASS $LOCAL_FILE"
 
-echo "Cleaning up ssh processes $CF_SSH_PID, $CF_SSH_PID, nohup.out, and service key"
-if [ -f nohup.out ]
-then 
-    rm nohup.out
-fi
-if ps -p $CF_SSH_PID >/dev/null
-then
-    pkill -9 $CF_SSH_PID
-    wait $CF_SSH_PID 2>/dev/null
-fi
+# docker compose run \
+#   --rm \
+#   -v $(pwd):/hostfs \
+#   database \
+#   bash -c "
+# echo " \
+#         echo \"[INFO] Logging into Cloud.gov\"; \
+#         cf login -a https://api.fr.cloud.gov -u $CF_SVC_USER -p $CF_SVC_PASS; \
+#         cf target -o $CF_PERSONAL_ORG -s $CF_PERSONAL_SPACE; \
+#         cf create-service-key database db-dump >/dev/null 2>&1
+#         CF_GUID=$(cf app web --guid)
+#         CF_INFO=$(cf curl /v2/info)
+#         CF_DB_INFO=$(cf service-key database db-dump)
+#         CF_DB_PORT=$(echo "$CF_DB_INFO" | grep '"port":' | sed 's/.*"port": "\([^"]*\)".*/\1/')
+#         CF_DB_HOST=$(echo "$CF_DB_INFO" | grep '"host":' | sed 's/.*"host": "\([^"]*\)".*/\1/')
+#         CF_DB_USER=$(echo "$CF_DB_INFO" | grep '"username":' | sed 's/.*"username": "\([^"]*\)".*/\1/')
+#         CF_DB_PASS=$(echo "$CF_DB_INFO" | grep '"password":' | sed 's/.*"password": "\([^"]*\)".*/\1/')
+#         CF_DB_NAME=$(echo "$CF_DB_INFO" | grep '"db_name":' | sed 's/.*"db_name": "\([^"]*\)".*/\1/')
+#         CF_SSH_ENDPOINT=$(echo "$CF_INFO" | grep '"app_ssh_endpoint":' | sed 's/.*"app_ssh_endpoint": "\([^:]*\).*".*/\1/')
+#         CF_SSH_CODE=$(cf ssh-code)
+#         echo \"[INFO] Creating local sql connection\"; \
+#         nohup sshpass -p $CF_SSH_CODE ssh \
+#             -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null \
+#             -4 -N -p 2222 -L $CF_DB_PORT:$CF_DB_HOST:$LOCAL_PORT cf:$CF_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &; \
+#         sleep 5; \
+#         echo \"[INFO] Estimate DB Size for progress bar\"; \
+#         DB_SIZE=\$(mysql \
+#             -h127.0.0.1 \
+#             -P$LOCAL_PORT \
+#             -u$CF_DB_USER \
+#             -p$CF_DB_PASS \
+#             --silent \
+#             --skip-column-names \
+#             -e \"SELECT ROUND(SUM(data_length) * 1.13) AS \\\"size_bytes\\\" \
+#             -e \"SELECT ROUND(SUM(data_length) * 1.13) AS \\\"size_bytes\\\" \
+#             FROM information_schema.TABLES \
+#             WHERE table_schema='$CF_DB_NAME';\"); \
+#         hsize=\$(numfmt --to=iec-i --suffix=B \"\$DB_SIZE\"); \
+#         echo \"[INFO] Dumping database (size≈\$hsize \$DB_SIZE) into $LOCAL_FILE ...\"; \
+#         mysqldump -h127.0.0.1 -P$LOCAL_PORT -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME --opt --hex-blob --set-gtid-purged=OFF \
+#         --compression-algorithms=zlib | pv --size \$DB_SIZE > /hostfs/$LOCAL_FILE; \
+#    "
+
+# echo "Cleaning up ssh processes $CF_SSH_PID, nohup.out, and service key"
+# if [ -f nohup.out ]
+# then 
+#     rm nohup.out
+# fi
+# if ps -p $CF_SSH_PID >/dev/null
+# then
+#     pkill -7 $CF_SSH_PID
+#     wait $CF_SSH_PID 2>/dev/null
+# fi
 cf delete-service-key database db-dump -f >/dev/null 2>&1
+cf delete-service-key db-service-account db-service-key -f >/dev/null 2>&1
+cf delete-service db-service-account -f >/dev/null 2>&1
+
 
 echo "All Done"
