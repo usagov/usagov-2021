@@ -25,6 +25,7 @@ RUN apk upgrade --update --no-cache \
     xz \
     vim \
     jq \
+    pv \
     mysql-client \
     nginx \
     php8 \
