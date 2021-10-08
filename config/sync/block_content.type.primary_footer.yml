@@ -1,0 +1,8 @@
+uuid: 140375dc-8021-41d0-9f13-bd4d99b0a9eb
+langcode: en
+status: true
+dependencies: {  }
+id: primary_footer
+label: 'Primary footer'
+revision: 0
+description: ''

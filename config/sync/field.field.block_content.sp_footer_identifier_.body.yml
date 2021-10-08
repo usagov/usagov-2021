@@ -1,0 +1,23 @@
+uuid: d6b0f613-04c2-47ca-97ac-a268827a6b34
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.sp_footer_identifier_
+    - field.storage.block_content.body
+  module:
+    - text
+id: block_content.sp_footer_identifier_.body
+field_name: body
+entity_type: block_content
+bundle: sp_footer_identifier_
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+  required_summary: false
+field_type: text_with_summary

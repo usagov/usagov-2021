@@ -1,0 +1,23 @@
+uuid: b1417cbd-e623-43fd-9671-0cf742ab1b12
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.spanish_secondary_footer
+    - field.storage.block_content.body
+  module:
+    - text
+id: block_content.spanish_secondary_footer.body
+field_name: body
+entity_type: block_content
+bundle: spanish_secondary_footer
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+  required_summary: false
+field_type: text_with_summary
