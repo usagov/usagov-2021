@@ -3,9 +3,10 @@ features:
   node_user_picture: true
   comment_user_picture: true
   comment_user_verification: true
-  favicon: true
+  favicon: false
 logo:
-  use_default: true
+  use_default: false
+  path: ''
 favicon:
   use_default: true
 cdn_provider: ''
@@ -19,7 +20,7 @@ uswds_header_mega: 0
 uswds_header_mega_display_second: 0
 uswds_government_banner: 1
 uswds_footer_style: big
-uswds_footer_agency: 1
+uswds_footer_agency: 0
 uswds_footer_agency_name: 'Name of Agency'
 uswds_footer_agency_url: '#agency'
 uswds_footer_agency_logo: logo.png

@@ -1,0 +1,11 @@
+uuid: dbdb7df3-2abe-4826-b3f5-e1e7b45e7b7f
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.sp_footer_identifier_
+id: block_content.sp_footer_identifier_
+target_entity_type_id: block_content
+target_bundle: sp_footer_identifier_
+default_langcode: es
+language_alterable: false
