@@ -177,7 +177,7 @@ gulp.task("clean-sprite", function(cb) {
 
 gulp.task('clean', (cb) => {
   cb();
-  return del.sync([`${CSS_DEST}/*`, `${JS_DEST}/*`]);
+  return del.sync([`${CSS_DEST}/*`, `${JS_DEST}/uswds*`]);
 });
 
 gulp.task("build", gulp.series(

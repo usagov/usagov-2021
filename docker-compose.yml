@@ -59,6 +59,7 @@ services:
     ports:
       - 3306:3306
     volumes:
+      - .:/app:delegated
       - database_data:/var/lib/mysql:delegated
     environment:
       MYSQL_ROOT_PASSWORD: mysql

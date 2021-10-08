@@ -24,7 +24,7 @@ chmod -R u+w ./web/sites/default/
 
 docker build --force-rm \
     -t ednark/usagov-2021:$CONTAINERTAG \
-    -f .docker/Dockerfile . \
+    -f .docker/Dockerfile-cms . \
     --build-arg GITBRANCH=$GITBRANCH \
     --build-arg GITCOMMIT=$GITCOMMIT \
     --build-arg GITTAG=$GITTAG
