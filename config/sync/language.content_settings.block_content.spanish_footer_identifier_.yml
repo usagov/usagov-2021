@@ -1,0 +1,11 @@
+uuid: 699154f7-10fa-4b51-96c2-166f895bcddf
+langcode: es
+status: true
+dependencies:
+  config:
+    - block_content.type.spanish_footer_identifier_
+id: block_content.spanish_footer_identifier_
+target_entity_type_id: block_content
+target_bundle: spanish_footer_identifier_
+default_langcode: es
+language_alterable: false
