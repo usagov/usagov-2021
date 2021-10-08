@@ -1,3 +1,4 @@
+
 {#
 /**
  * @file
@@ -57,301 +58,197 @@
 <div class="usa-overlay"></div>
 
 <header class="{{ header_classes }}" id="header" role="banner">
-
-  {% if page.header_top %}
+    {% if page.header_top %}
     <div class="usa-banner-inner">
-      {{ page.header_top }}
+        {{ page.header_top }}
     </div>
-  {% endif %}
+    {% endif %} {% if header_basic %}
+    <div class="usa-nav-container">
+        {% endif %} {{ page.header }}
 
-  {% if header_basic %}
-  <div class="usa-nav-container">
+        <nav class="usa-nav" role="navigation">
+            {% if header_extended %}
+            <div class="usa-nav__inner">
+                {% endif %}
+
+                <button class="usa-nav__close">
+                    <img src="{{ uswds_images }}close.svg" alt="close" />
+                </button>
+
+                {% if page.mobile_menu %}
+                <div class="usa-nav-mobile">
+                    {{ page.mobile_menu }}
+                </div>
+                {% endif %} {% if page.mobile_menu %}
+                <div class="usa-nav-desktop">
+                    {% endif %} {% if page.primary_menu %} {{ page.primary_menu }} {% endif %} {% if page.secondary_menu %} {{ page.secondary_menu }} {% endif %} {% if page.mobile_menu %}
+                </div>
+                {% endif %} {% if header_extended %}
+            </div>
+            {% endif %}
+        </nav>
+
+        {% if header_basic %}
+    </div>
     {% endif %}
-
-    {{ page.header }}
-
-    <nav class="usa-nav" role="navigation">
-      {% if header_extended %}
-      <div class="usa-nav__inner">
-        {% endif %}
-
-        <button class="usa-nav__close">
-          <img src="{{ uswds_images }}close.svg" alt="close"/>
-        </button>
-
-        {% if page.mobile_menu %}
-          <div class="usa-nav-mobile">
-            {{ page.mobile_menu }}
-          </div>
-        {% endif %}
-
-        {% if page.mobile_menu %}
-        <div class="usa-nav-desktop">
-          {% endif %}
-
-          {% if page.primary_menu %}
-            {{ page.primary_menu }}
-          {% endif %}
-
-          {% if page.secondary_menu %}
-            {{ page.secondary_menu }}
-          {% endif %}
-
-          {% if page.mobile_menu %}
-        </div>
-        {% endif %}
-
-        {% if header_extended %}
-      </div>
-      {% endif %}
-    </nav>
-
-    {% if header_basic %}
-  </div>
-  {% endif %}
-
 </header>
 
 {% if page.hero %}
-  <section class="usa-hero">
+<section class="usa-hero">
     <div class="grid-container">
-      {{ page.hero }}
+        {{ page.hero }}
     </div>
-  </section>
+</section>
 {% endif %}
 
-<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main"
-      id="main-content">
-  <a id="main-content" tabindex="-1"></a>{# link is in html.html.twig #}
+<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content">
+    <a id="main-content" tabindex="-1"></a>{# link is in html.html.twig #}
 
-  <div class="grid-container">
-
-    {% if page.breadcrumb or page.highlighted or page.help %}
-      <div class="grid-row">
-        {{ page.breadcrumb }}
-      </div>
-
-      <div class="">
-        {{ page.highlighted }}
-      </div>
-
-      {# Help #}
-      {% if page.help %}
-        <div class="grid-row ">
-          {{ page.help }}
+    <div class="grid-container">
+        {% if page.breadcrumb or page.highlighted or page.help %}
+        <div class="grid-row">
+            {{ page.breadcrumb }}
         </div>
-      {% endif %}
-    {% endif %}
 
-    <div class="grid-row grid-gap">
-      {% if page.sidebar_first %}
-        <aside
-          class="usa-layout-docs__sidenav desktop:grid-col-3 layout-sidebar-first"
-          role="complementary">
-          {{ page.sidebar_first }}
-        </aside>
-      {% endif %}
+        <div class="">
+            {{ page.highlighted }}
+        </div>
 
-      <div class="usa-layout-docs__main desktop:grid-col-{% if page.sidebar_first or page.sidebar_second %}9{% else %}fill{% endif %}">
-        {{ page.content }}
-      </div>{# /.layout-content #}
+        {# Help #} {% if page.help %}
+        <div class="grid-row">
+            {{ page.help }}
+        </div>
+        {% endif %} {% endif %}
 
-      {% if page.sidebar_second %}
-        <aside
-          class="usa-layout-docs__sidenav desktop:grid-col-3 layout-sidebar-second"
-          role="complementary">
-          {{ page.sidebar_second }}
-        </aside>
-      {% endif %}
+        <div class="grid-row grid-gap">
+            {% if page.sidebar_first %}
+            <aside class="usa-layout-docs__sidenav desktop:grid-col-3 layout-sidebar-first" role="complementary">
+                {{ page.sidebar_first }}
+            </aside>
+            {% endif %}
+
+            <div class="usa-layout-docs__main desktop:grid-col-{% if page.sidebar_first or page.sidebar_second %}9{% else %}fill{% endif %}">
+                {{ page.content }}
+            </div>
+            {# /.layout-content #} {% if page.sidebar_second %}
+            <aside class="usa-layout-docs__sidenav desktop:grid-col-3 layout-sidebar-second" role="complementary">
+                {{ page.sidebar_second }}
+            </aside>
+            {% endif %}
+        </div>
     </div>
-  </div>
 </main>
 
 <footer class="{{ footer_classes }}" role="contentinfo">
-  <div class="grid-container usa-footer__return-to-top">
-    <a href="#">{{ 'Return to top'|t }}</a>
-  </div>
+    <div class="grid-container usa-footer__return-to-top">
+        <a href="#">{{ 'Return to top'|t }}</a>
+    </div>
 
-  {% if display_footer_primary %}
+    {% if display_footer_primary %}
     <div class="usa-footer__primary-section">
-
-      <div class="usa-footer__primary-content">
-        {% if footer_style != 'medium' %}
-        <div class="grid-container">
-          <div class="grid-row grid-gap">
-            {% endif %}
-
-            {% if page.footer_menu %}
-              {{ page.footer_menu }}
-            {% endif %}
-
-            {% if footer_slim and (footer_phone or footer_email) %}
-              <div class="mobile-lg:grid-col-4">
-                <address class="usa-footer__address">
-                  <div class="grid-row grid-gap mobile-lg:grid-gap-0">
-
-                    {% if footer_phone %}
-                      <div
-                        class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto">
-                        <div class="usa-footer-contact_info">
-                          <a
-                            href="tel:{{ footer_phone }}">{{ footer_phone }}</a>
-                        </div>
-                      </div>
-                    {% endif %}
-
-                    {% if footer_email %}
-                      <div
-                        class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto">
-                        <div class="usa-footer-contact_info">
-                          <a
-                            href="mailto:{{ footer_email }}">{{ footer_email }}</a>
-                        </div>
-                      </div>
-                    {% endif %}
-                  </div>
-                </address>
-              </div>
-            {% endif %}
-
+        <div class="usa-footer__primary-content">
             {% if footer_style != 'medium' %}
-          </div>
-        </div>
-        {% endif %}
-
-        {% if page.footer %}
-          <div class="grid-container">
-            <div class="grid-row grid-gap">
-              <div class="grid-col-fill">
-                {{ page.footer }}
-              </div>
+            <div class="grid-container">
+                <div class="grid-row grid-gap">
+                    {% endif %} {% if page.footer_menu %} {{ page.footer_menu }} {% endif %} {% if footer_slim and (footer_phone or footer_email) %}
+                    <div class="mobile-lg:grid-col-4">
+                        <address class="usa-footer__address">
+                            <div class="grid-row grid-gap mobile-lg:grid-gap-0">
+                                {% if footer_phone %}
+                                <div class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto">
+                                    <div class="usa-footer-contact_info">
+                                        <a href="tel:{{ footer_phone }}">{{ footer_phone }}</a>
+                                    </div>
+                                </div>
+                                {% endif %} {% if footer_email %}
+                                <div class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto">
+                                    <div class="usa-footer-contact_info">
+                                        <a href="mailto:{{ footer_email }}">{{ footer_email }}</a>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </address>
+                    </div>
+                    {% endif %} {% if footer_style != 'medium' %}
+                </div>
             </div>
-          </div>
-        {% endif %}
-      </div>
-
+            {% endif %} {% if page.footer %} {{ page.footer }} {% endif %}
+        </div>
     </div>
-  {% endif %}
+    {% endif %} {% if display_footer_secondary %} {% if display_footer_agency %}
+    <div class="usa-footer__logo grid-row mobile-lg:grid-col-6 mobile-lg:grid-gap-2">
+        {% if footer_agency_url %}
+        <a href="{{ footer_agency_url }}">
+            {% endif %} {% if footer_agency_logo %}
+            <div class="mobile-lg:grid-col-auto">
+                <img class="usa-footer__logo-img" src="{{ footer_agency_logo }}" alt="{{ 'Agency logo'|t }}" />
+            </div>
+            {% endif %} {% if footer_agency_name %}
+            <div class="mobile-lg:grid-col-auto">
+                <h3 class="usa-footer__logo-heading">{{ footer_agency_name }}</h3>
+            </div>
+            {% endif %} {% if footer_agency_url %}
+        </a>
+        {% endif %}
+    </div>
 
-  {% if display_footer_secondary %}
-    <div class="usa-footer__secondary-section">
-      <div class="grid-container">
-        <div class="grid-row grid-gap">
-          {% if display_footer_agency %}
-          <div
-            class="usa-footer__logo grid-row mobile-lg:grid-col-6 mobile-lg:grid-gap-2">
-
-            {% if footer_agency_url %}
-            <a href="{{ footer_agency_url }}">
-            {% endif %}
-
-              {% if footer_agency_logo %}
-                <div class="mobile-lg:grid-col-auto">
-                  <img class="usa-footer__logo-img"
-                       src="{{ footer_agency_logo }}"
-                       alt="{{ 'Agency logo'|t }}">
-                </div>
-              {% endif %}
-
-              {% if footer_agency_name %}
-                <div class="mobile-lg:grid-col-auto">
-                  <h3
-                    class="usa-footer__logo-heading">{{ footer_agency_name }}</h3>
-                </div>
-              {% endif %}
-
-            {% if footer_agency_url %}
-            </a>
-            {% endif %}
-
-          </div>
-
-          {% if not footer_slim %}
-            <div class="usa-footer__contact-links desktop:grid-col-6">
-              {% if facebook or twitter or youtube or rss %}
-              <div class="usa-footer__social-links grid-row grid-gap-1">
-              {% if facebook %}
-                <div class="grid-col-auto">
+    {% if not footer_slim %}
+    <div class="usa-footer__contact-links desktop:grid-col-6">
+        {% if facebook or twitter or youtube or rss %}
+        <div class="usa-footer__social-links grid-row grid-gap-1">
+            {% if facebook %}
+            <div class="grid-col-auto">
                 <a class="usa-social-link usa-social-link--facebook" href="{{ facebook }}">
-                  <span>Facebook</span>
+                    <span>Facebook</span>
                 </a>
-                </div>
-              {% endif %}
-
-              {% if twitter %}
-                <div class="grid-col-auto">
-                <a class="usa-social-link usa-social-link--twitter" href="{{ twitter }}">
-                  <span>Twitter</span>
-                </a>
-                </div>
-              {% endif %}
-
-              {% if youtube %}
-                  <div class="grid-col-auto">
-                <a class="usa-social-link usa-social-link--youtube" href="{{ youtube }}">
-                  <span>YouTube</span>
-                </a>
-                  </div>
-              {% endif %}
-
-              {% if rss %}
-                <div class="grid-col-auto">
-                <a class="usa-social-link usa-social-link--rss" href="{{ rss }}">
-                  <span>RSS</span>
-                </a>
-                </div>
-              {% endif %}
-              </div>
-              {% endif %}
-              {% if contact_center %}
-                <h3
-                  class="usa-footer__contact-heading">{{ contact_center }}</h3>
-              {% endif %}
-              <address class="usa-footer__address">
-                <div class="usa-footer__contact-info grid-row grid-gap">
-                  {% if phone %}
-                    <div class="grid-col-auto">
-                      <a href="tel:{{ phone }}">{{ phone }}</a>
-                    </div>
-                  {% endif %}
-
-                  {% if email %}
-                    <div class="grid-col-auto">
-                      <a href="mailto:{{ email }}">{{ email }}</a>
-                    </div>
-                  {% endif %}
-                </div>
-              </address>
             </div>
-          {% endif %}
-
+            {% endif %} {% if twitter %}
+            <div class="grid-col-auto">
+                <a class="usa-social-link usa-social-link--twitter" href="{{ twitter }}">
+                    <span>Twitter</span>
+                </a>
+            </div>
+            {% endif %} {% if youtube %}
+            <div class="grid-col-auto">
+                <a class="usa-social-link usa-social-link--youtube" href="{{ youtube }}">
+                    <span>YouTube</span>
+                </a>
+            </div>
+            {% endif %} {% if rss %}
+            <div class="grid-col-auto">
+                <a class="usa-social-link usa-social-link--rss" href="{{ rss }}">
+                    <span>RSS</span>
+                </a>
+            </div> 
+            {% endif %}
         </div>
+        {% endif %} {% if contact_center %}
+        <h3 class="usa-footer__contact-heading">{{ contact_center }}</h3>
         {% endif %}
-
-       
-        
-      </div>
-      {% if page.footer_secondary %}
-      {#<div class="grid-container">
-        <div class="grid-row grid-gap">
-          <div class="grid-col-fill">#}
-            {{ page.footer_secondary }}
-          {#</div>
-        </div>
-      </div>#}
-    {% endif %}
+        <address class="usa-footer__address">
+            <div class="usa-footer__contact-info grid-row grid-gap">
+                {% if phone %}
+                <div class="grid-col-auto">
+                    <a href="tel:{{ phone }}">{{ phone }}</a>
+                </div>
+                {% endif %} {% if email %}
+                <div class="grid-col-auto">
+                    <a href="mailto:{{ email }}">{{ email }}</a>
+                </div>
+                {% endif %}
+            </div>
+        </address>
     </div>
+    {% endif %}
+  {% endif %} 
+  
+  {% if page.footer_secondary %} 
+    {{ page.footer_secondary }} 
+  {% endif %} 
   {% endif %}
-
 </footer>
-{# usagov tagline code #}
-<div class="usa-identifier">
-  <section class="usa-identifier__section usa-identifier__section--usagov"
-     aria-label="USAGov is the Official Guide to Government Information and Services">
-     <div class="usa-identifier__container">
-        <div class="usa-identifier__usagov-description">
-           USAGov is the Official Guide to Government Information and Services
-        </div>
-     </div>
-  </section>
-</div>
+{# usagov tagline code #} 
+{% if page.footer_identifier %} 
+  {{ page.footer_identifier }} 
+{% endif %} 
