@@ -18,60 +18,325 @@ Custom project SASS goes here.
 i.e.
 @include u-padding-right('05');
 ----------------------------------------
+/*
+@ -19,19 +19,3 @@ i.e.
+@include u-padding-right('05');
+----------------------------------------
 */
 
-.usa-sidenav{
-   color: $color-text-blue;
-
-   .active-trail{
-      font-weight: bold;
-   }
-   .usa-current{
-      color: $color-red;
-
-      &:before {
-         content: "";
-         display: block;
-         position: absolute;
-         top: 4px;
-         bottom: 4px;
-         left: 0;
-         width: 4px;
-         background: $color-red;
-         border-radius: 2px;
-     }
-   }
-   a:not(.usa-button):hover{
-      &.usa-current{
-         background-color: transparent;
-      }
-   }
-   a:not(.usa-button):not(.usa-current){
-      color: $color-text-blue;
-      &:hover{
-         color: $color-text-blue;
-         background-color: #f2f3f3;
-         text-decoration: underline;
-      }
-   }
-}
-
-/*
+/* 
 This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
 Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
 */
-.usa-button {
-  :visited {
-    color: initial;
+.usa-button:visited {
+   color: initial;
+}
+
+
+/** This to change the link color for the 
+*   header and footer links
+**/
+.usa-nav__secondary-links a, .usa-footer__secondary-link a {
+   color: color("blue-warm-70v")
+
+ }
+
+/** This is to minimize the size of the logo in 
+*   tablet and mobile
+**/
+ .usa-logo img {
+   max-width: units(5);
+   @include at-media($theme-header-min-width) {
+    max-width: units(10);
   }
 }
 
-/* 
-This style overrides a style from drupal core (/web/core/modules/system/css/components/hidden.module.css)
-The USWDS mobile footer applies a "hidden" class to closed accordions to hide the accordion content, but the drupal style hides the entire accordion.
-*/
-.usa-footer__primary-content--collapsible {
-  &.hidden {
-    display: block;
+ @media (min-width: 64em) {
+  .usa-header--extended .usa-logo { 
+     margin: 3.5rem 0 .2em;
   }
+}
+
+/** This is to make the header links align in a row
+ *  with the search instead of a column
+**/
+ .usa-nav__secondary {
+ @include at-media($theme-header-min-width) {
+   @include u-flex("row", "align-end");
+   bottom: 6rem;
+   width: 28rem;
+ }
+}
+
+/** This is to make the header link stretch out
+ *  
+**/
+.usa-nav__secondary-links {
+  @include at-media($theme-header-min-width) {
+    /*width: 14rem;*/
+    line-height: 1.9;
+  }
+}
+
+ /** This is to add content pipe before the
+ *   header search
+**/
+ .usa-search::before {
+  @include at-media($theme-header-min-width) {
+     float: right;
+     color: color("base-lighter");
+     content: "|";
+     padding-right: units(1);
+  }
+}
+
+ /** This is to the search image **/
+ @media (min-width: 30em) {
+.usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
+    background-image: url(../img/usa-icons-bg/search--dark.svg),linear-gradient(transparent,transparent);
+  }
+}
+
+/** This is to add the facebook social media icon **/
+.usa-social-link--facebook {
+  background-image: url(../images/facebook34.png),linear-gradient(transparent,transparent);
+}
+
+/** This is to add the twitter social media icon **/
+.usa-social-link--twitter {
+  background-image: url(../images/twitter34.png),linear-gradient(transparent,transparent);
+}
+
+/** This is to add the instagram social media icon **/
+.usa-social-link--instagram {
+  background-image: url(../images/instagram34.png),linear-gradient(transparent,transparent);
+}
+
+/** This is to add the youtube social media icon **/
+.usa-social-link--youtube {
+  background-image: url(../images/youtube34.png),linear-gradient(transparent,transparent);
+}
+
+
+*****.usa-footer__primary-content--collapsible.hidden{
+   display: block; 
+ }
+ 
+/** This to change the link color for the 
+*   header and footer links
+**/
+.usa-nav__secondary-links a, .usa-footer__secondary-link a {
+   color: color("blue-warm-70v")
+
+ }
+
+/** This is to minimize the size of the logo in 
+*   tablet and mobile
+**/
+ .usa-logo img {
+   max-width: units(5);
+   @include at-media($theme-header-min-width) {
+    max-width: units(10);
+  }
+}
+
+/** This is to the search image **/
+@media (min-width: 30em) {
+   .usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
+       background-image: url(../img/usa-icons-bg/search--dark.svg),linear-gradient(transparent,transparent);
+     }
+   }
+
+ @media (min-width: 64em) {
+  .usa-header--extended .usa-logo { 
+     margin: 3.5rem 0 .2em;
+  }
+}
+/** This is to make the header links align in a row
+ *  with the search instead of a column
+**/
+
+.usa-header--extended>.usa-nav>.usa-nav__inner>.usa-nav__secondary {
+   @include at-media($theme-header-min-width) {
+     @include u-flex("row", "align-end");
+     bottom: 6rem;
+     box-sizing: content-box;
+     /*width: 28rem;*/
+   }
+  }
+ 
+  .usa-header--extended>.usa-nav>.usa-nav__inner>.usa-nav__secondary>.usa-nav__secondary-links {
+   @include at-media($theme-header-min-width) {
+    /* @include u-flex("row", "align-end");
+     bottom: 6rem;
+     width: 14rem;*/
+   }
+  }
+ /** This is to make the header link stretch out
+  *  
+ **/
+ 
+ .usa-nav__secondary-links {
+   @include at-media($theme-header-min-width) {
+     width: 11rem;
+     line-height: 1.9;
+   }
+ }
+ 
+ .usa-nav__secondary-links a {
+   color: color("blue-warm-70v")
+  }
+ 
+  /** This is to add content pipe before the
+  *   header search
+ **/
+ 
+  .usa-search::before {
+   @include at-media($theme-header-min-width) {
+      float: right;
+      color: color("base-lighter");
+      content: "|";
+      padding-right: units(1);
+   }
+ }
+
+ //Footer
+ 
+.usa-form .usa-button {
+   @media (max-width: 30em){
+      width: 96px;
+   }
+}
+
+.usa-footer__primary-section {
+  background-color: color("gray-4");
+}
+
+.usa-footer__primary-content--collapsible.hidden{
+   display: block;
+} 
+
+ /** This is to add the facebook social media icon **/
+.usa-social-link--facebook {
+   background-image: url(../images/facebook34.png),linear-gradient(transparent,transparent);
+ }
+ 
+ /** This is to add the twitter social media icon **/
+ .usa-social-link--twitter {
+   background-image: url(../images/twitter34.png),linear-gradient(transparent,transparent);
+ }
+ 
+ /** This is to add the instagram social media icon **/
+ .usa-social-link--instagram {
+   background-image: url(../images/instagram34.png),linear-gradient(transparent,transparent);
+ }
+ 
+ /** This is to add the youtube social media icon **/
+ .usa-social-link--youtube {
+   background-image: url(../images/youtube34.png),linear-gradient(transparent,transparent);
+ }
+
+.usa-footer__secondary-section {
+  background-color: color("cyan-10");
+}
+
+.usa-footer__contact-links {
+   @media (max-width: 30em){
+      margin-top: 0;  
+}
+}
+
+.usa-footer__contact-heading {
+   @media (max-width: 30em){
+      text-align: left;
+      margin-bottom: .5rem;
+   }
+}
+
+.grid-row.grid-gap>* {
+   margin-top: -.5rem;
+}
+
+.margin-bottom-neg-1, .mobile-lg\:grid-col-auto p {
+   margin-bottom: .75rem;
+   margin-top: .25rem;
+}
+
+.usa-footer__secondary-section a {
+   padding-bottom: 2rem;
+}
+
+.grid-row.grid-gap-1 {
+   @media (min-width: 31em){
+      margin-right: 1.5rem;
+   }
+   @media (max-width: 30em){
+      margin-left: -.5rem;
+      padding-bottom: 3rem;
+   }
+}
+
+.usa-footer__contact-links{
+   @media (min-width: 40em){
+      margin-left: -3rem;
+   }
+}
+
+@media (min-width: 30em){
+   h3 span {
+       display: inline-block
+   }
+}
+
+@media (min-width: 30em){
+.usa-footer__contact-heading {
+   margin-top: 0; 
+   }   
+}
+.usa-social-link {
+  background-color: transparent;
+}
+
+.usa-footer__social-links {
+   @media (max-width: 30em){
+      justify-content: flex-start;
+}
+}
+
+@media (min-width: 30em){
+.usa-footer__contact-info {
+    justify-content: flex-start !important;
+}
+}
+
+.usa-identifier {
+  background-color: color("blue-80v");
+}
+
+.usa-identifier__section {
+ padding-bottom: 0;
+}
+
+.usa-identifier__usagov-description {
+  @media (min-width: 36em) {
+      display: flex;
+      justify-content: center;
+  }
+}
+
+.usa-identifier__usagov-description, .usa-identifier__usagov-description span {
+   @media (max-width: 30em) {
+      text-align: center;
+      display: inline-block;
+   }
+ }
+
+.usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
+      color: color("blue-warm-70v");
+}
+
+.usa-button {
+   @media (max-width: 30em){
+      width: 30%;
+}
 }

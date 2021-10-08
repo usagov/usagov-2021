@@ -24,6 +24,7 @@ regions:
   footer_menu: 'Footer Menu'
   footer: 'Primary Footer'
   footer_secondary: 'Secondary Footer'
+  footer_identifier: 'Footer Identifier'
 
 libraries:
   - 'usagov/global-styling'
