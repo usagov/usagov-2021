@@ -1,0 +1,40 @@
+uuid: 39893a6a-0e56-4ac1-a8a5-24ce175c0d8c
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.spanish_primary_footer
+    - field.field.block_content.spanish_primary_footer.body
+  module:
+    - text
+id: block_content.spanish_primary_footer.default
+targetEntityType: block_content
+bundle: spanish_primary_footer
+mode: default
+content:
+  body:
+    type: text_textarea_with_summary
+    weight: 26
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+      show_summary: false
+    third_party_settings: {  }
+    region: content
+  info:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  langcode:
+    type: language_select
+    weight: 2
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
+hidden: {  }

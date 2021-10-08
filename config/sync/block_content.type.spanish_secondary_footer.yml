@@ -1,0 +1,8 @@
+uuid: dd4e88cb-1f30-4230-8b93-f487ded110c7
+langcode: en
+status: true
+dependencies: {  }
+id: spanish_secondary_footer
+label: 'Spanish secondary footer'
+revision: 0
+description: ''

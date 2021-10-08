@@ -1,0 +1,23 @@
+uuid: e77642f3-fb4b-4157-9c8d-16b3473a2cbb
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.spanish_primary_footer
+    - field.field.block_content.spanish_primary_footer.body
+  module:
+    - text
+id: block_content.spanish_primary_footer.default
+targetEntityType: block_content
+bundle: spanish_primary_footer
+mode: default
+content:
+  body:
+    label: hidden
+    type: text_default
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+hidden:
+  langcode: true
