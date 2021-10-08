@@ -13,7 +13,11 @@ bin/composer install
 docker compose up
 ```
 
-Daily Setup
+# Daily Setup
+
+Pull the latest changes from main branch into feature branch
+`git checkout feature-branch`
+`git merge main`
 ```
 docker compose up
 ```
@@ -25,7 +29,26 @@ This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
 
 ## Export Database
 
+`bin/drush sql:dump --resultflie=../backup.sql`
 
+## Import Database
+`bin/ssh`
+`drush sql-cli < backup.sql`
+## Export Config
+
+1. View differences
+    * Configuration > Development > Configuration Synchronization
+    * `/admin/config/development/configuration`
+2. Export 
+    * `bin/drush cex`
+    * Export > Full Archive
+    * Export > Single Item
+3. Commit config changes to git
+
+## Import Config
+`bin/drush cim`
+
+# Troubleshooting
 ## If cms password is not accepted:
 * run `bin/drush uli`
 * copy the path of the url onto localhost in your browser's URL bar
@@ -36,4 +59,4 @@ This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
 
 ## More info on Cloud Foundry & Cloud.gov
 
-This repository was loosly based off of Cloud.gov's [cf-ex-drupal8 repo](https://github.com/cloud-gov/cf-ex-drupal8). Their README may provide other useful info.
+This repository was loosely based off of Cloud.gov's [cf-ex-drupal8 repo](https://github.com/cloud-gov/cf-ex-drupal8). Their README may provide other useful info.
