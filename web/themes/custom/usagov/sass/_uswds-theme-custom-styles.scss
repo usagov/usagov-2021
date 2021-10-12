@@ -284,16 +284,21 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 @media (min-width: 30em){
-   h3 span {
-       display: inline-block
-   }
-}
-
-@media (min-width: 30em){
 .usa-footer__contact-heading {
    margin-top: 0; 
    }   
 }
+
+
+@media (min-width: 30em){
+.usa-footer__contact-heading.es{
+    display: inline-grid;
+    margin-top: 0;
+    margin-right: 2rem;
+    text-align: left;
+   }
+}
+
 .usa-social-link {
   background-color: transparent;
 }
