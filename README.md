@@ -22,6 +22,14 @@ Pull the latest changes from main branch into feature branch
 docker compose up
 ```
 
+# Trello Ticketing
+Create a ticket
+Get URL path from ticket
+ex: 123-ticket-name
+Prepend with usa-
+ex: usa-123-ticket-name
+(If the ticket name is too long, you may shorten it or remove it. Only the usa-123 is needed)
+
 # USAgovTheme
 The USAgov theme is a subtheme of the USWDS_base theme.
 
