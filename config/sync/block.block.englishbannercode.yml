@@ -1,23 +1,23 @@
-uuid: 32797673-f15a-4c4c-98ab-b084142be18d
+uuid: 9b884a06-0d1b-497d-a689-9db6ef55d902
 langcode: en
 status: true
 dependencies:
   content:
-    - 'block_content:secondary_footer:abf0c0df-ceee-42c8-9dc0-38dab4b96c43'
+    - 'block_content:html_block:d61595f0-7e1c-4081-9eef-cdc5ebbf822b'
   module:
     - block_content
     - language
   theme:
     - usagov
-id: secondaryfooterreimagined
+id: englishbannercode
 theme: usagov
-region: footer_secondary
-weight: -13
+region: header_top
+weight: -14
 provider: null
-plugin: 'block_content:abf0c0df-ceee-42c8-9dc0-38dab4b96c43'
+plugin: 'block_content:d61595f0-7e1c-4081-9eef-cdc5ebbf822b'
 settings:
-  id: 'block_content:abf0c0df-ceee-42c8-9dc0-38dab4b96c43'
-  label: 'Secondary footer reimagined'
+  id: 'block_content:d61595f0-7e1c-4081-9eef-cdc5ebbf822b'
+  label: 'English banner code'
   provider: block_content
   label_display: '0'
   status: true

@@ -1,9 +1,9 @@
-uuid: f49cacd4-264f-4951-b7ed-09e49f9710ea
-langcode: es
+uuid: bc3725c8-1f6f-427d-a8a9-eb813cd854f7
+langcode: en
 status: true
 dependencies:
   content:
-    - 'block_content:spanish_banner:e842f253-3f84-4c76-8008-6efb17a4d9fb'
+    - 'block_content:html_block:08f40fa5-9c3d-4d4b-b5ed-60f8614b1fd0'
   module:
     - block_content
     - language
@@ -12,11 +12,11 @@ dependencies:
 id: spanishbannercode
 theme: usagov
 region: header_top
-weight: -10
+weight: 0
 provider: null
-plugin: 'block_content:e842f253-3f84-4c76-8008-6efb17a4d9fb'
+plugin: 'block_content:08f40fa5-9c3d-4d4b-b5ed-60f8614b1fd0'
 settings:
-  id: 'block_content:e842f253-3f84-4c76-8008-6efb17a4d9fb'
+  id: 'block_content:08f40fa5-9c3d-4d4b-b5ed-60f8614b1fd0'
   label: 'Spanish banner code'
   provider: block_content
   label_display: '0'

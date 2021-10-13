@@ -1,9 +1,9 @@
-uuid: f61bf26a-a18d-49d1-9b7c-3bc5b1adc4e3
+uuid: 29754a4a-5314-49fa-ad61-b669c7eadd58
 langcode: en
 status: true
 dependencies:
   content:
-    - 'block_content:spanish_header:1daf3c15-7efe-4603-83d0-f49c2e6eee0d'
+    - 'block_content:html_block:ebb01db0-8435-4a27-91e6-ff142d9d941f'
   module:
     - block_content
     - language
@@ -14,9 +14,9 @@ theme: usagov
 region: header_top
 weight: 0
 provider: null
-plugin: 'block_content:1daf3c15-7efe-4603-83d0-f49c2e6eee0d'
+plugin: 'block_content:ebb01db0-8435-4a27-91e6-ff142d9d941f'
 settings:
-  id: 'block_content:1daf3c15-7efe-4603-83d0-f49c2e6eee0d'
+  id: 'block_content:ebb01db0-8435-4a27-91e6-ff142d9d941f'
   label: 'Spanish header code'
   provider: block_content
   label_display: '0'
