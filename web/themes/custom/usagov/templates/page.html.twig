@@ -49,6 +49,12 @@
  * @see html.html.twig
  */
 #}
+{% set page_types = {
+    standard_page: '22', 
+    navigation_page: '21', 
+    navigation_cards_page: '23' } 
+  %}
+
 {% if government_banner %}
   <section class="usa-banner">
     {{ government_banner }}
@@ -122,12 +128,14 @@
 
         <div class="grid-row grid-gap">
             {% if page.sidebar_first %}
+            {% if node.field_page_type.0.target_id != page_types.navigation_cards_page %}{# If this is a navigation page, do not show the left nav #}
             <aside class="usa-layout-docs__sidenav desktop:grid-col-3 layout-sidebar-first" role="complementary">
                 {{ page.sidebar_first }}
             </aside>
             {% endif %}
+            {% endif %}
 
-            <div class="usa-layout-docs__main desktop:grid-col-{% if page.sidebar_first or page.sidebar_second %}9{% else %}fill{% endif %}">
+            <div class="usa-layout-docs__main desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and node.field_page_type.0.target_id != page_types.navigation_cards_page %}9{% else %}fill{% endif %}">
                 {{ page.content }}
             </div>
             {# /.layout-content #} {% if page.sidebar_second %}

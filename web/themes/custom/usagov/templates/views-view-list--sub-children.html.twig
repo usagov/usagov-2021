@@ -1,0 +1,78 @@
+{#
+/**
+ * @file
+ * Theme override for a view template to display a list of rows.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the container.
+ * - rows: A list of rows for this list.
+ *   - attributes: The row's HTML attributes.
+ *   - content: The row's contents.
+ * - title: The title of this group of rows. May be empty.
+ * - list: @todo.
+ *   - type: Starting tag will be either a ul or ol.
+ *   - attributes: HTML attributes for the list element.
+ *
+ * @see template_preprocess_views_view_list()
+ */
+#}
+{% set page_types = {
+  standard_page: '22', 
+  navigation_page: '21', 
+  navigation_cards_page: '23' } 
+%}
+
+{#{dd(node.field_page_type.0.target_id)}#}
+{#{dd(node)}#}
+
+{% if node.field_page_type.0.target_id == page_types.navigation_page %}
+
+<ul class="usa-list usa-list--unstyled">
+{% for row in rows %}
+<li class="">
+  <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="">
+    {{- row.content -}}
+  </a>
+</li>
+{% endfor %}
+</ul>
+
+{% elseif node.field_page_type.0.target_id == page_types.navigation_cards_page %}
+
+<ul class="usa-card-group">
+  {% for row in rows %}
+  <li class="tablet:grid-col-4 usa-card">
+    <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container">
+      {{- row.content -}}
+    </a>
+  </li>
+  {% endfor %}
+  </ul>
+
+{% elseif node.field_page_type.0.target_id == page_types.standard_page %}
+{# standard_page #}
+{% endif %}
+
+
+{# 
+{% if attributes -%}
+  <div{{ attributes }}>
+{% endif %}
+  {% if title %}
+    <h3>{{ title }}</h3>
+  {% endif %}
+
+  <{{ list.type }}{{ list.attributes }}>
+
+    {% for row in rows %}
+      <li{{ row.attributes }}>
+        {{- row.content -}}
+      </li>
+    {% endfor %}
+
+  </{{ list.type }}>
+
+{% if attributes -%}
+  </div>
+{% endif %}
+#}
