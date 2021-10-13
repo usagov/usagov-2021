@@ -1,0 +1,33 @@
+uuid: f49cacd4-264f-4951-b7ed-09e49f9710ea
+langcode: es
+status: true
+dependencies:
+  content:
+    - 'block_content:spanish_banner:e842f253-3f84-4c76-8008-6efb17a4d9fb'
+  module:
+    - block_content
+    - language
+  theme:
+    - usagov
+id: spanishbannercode
+theme: usagov
+region: header_top
+weight: -10
+provider: null
+plugin: 'block_content:e842f253-3f84-4c76-8008-6efb17a4d9fb'
+settings:
+  id: 'block_content:e842f253-3f84-4c76-8008-6efb17a4d9fb'
+  label: 'Spanish banner code'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    langcodes:
+      es: es
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
