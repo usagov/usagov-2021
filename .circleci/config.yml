@@ -29,7 +29,7 @@ commands:
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             ./bin/cloudgov/login $CF_USER $CF_PASS
-            ./bin/cloudgov/use-space << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy << pipeline.number >>
 
   install-node:
