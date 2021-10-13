@@ -1,0 +1,33 @@
+uuid: de16ed41-683a-4afb-9d86-12fb0273eac0
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:usa_header:5898c43f-4d0c-4b14-9162-46c5e1d358de'
+  module:
+    - block_content
+    - language
+  theme:
+    - usagov
+id: usaheadercode
+theme: usagov
+region: header_top
+weight: -9
+provider: null
+plugin: 'block_content:5898c43f-4d0c-4b14-9162-46c5e1d358de'
+settings:
+  id: 'block_content:5898c43f-4d0c-4b14-9162-46c5e1d358de'
+  label: 'usa header code'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    langcodes:
+      en: en
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'

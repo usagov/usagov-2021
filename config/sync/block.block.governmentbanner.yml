@@ -1,0 +1,33 @@
+uuid: d2652925-b2e8-4bef-8644-4f131b0d4521
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:government_banner:28949c66-169d-4735-be16-3caaf5ac5f91'
+  module:
+    - block_content
+    - language
+  theme:
+    - usagov
+id: governmentbanner
+theme: usagov
+region: header_top
+weight: -11
+provider: null
+plugin: 'block_content:28949c66-169d-4735-be16-3caaf5ac5f91'
+settings:
+  id: 'block_content:28949c66-169d-4735-be16-3caaf5ac5f91'
+  label: 'government banner'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    langcodes:
+      en: en
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
