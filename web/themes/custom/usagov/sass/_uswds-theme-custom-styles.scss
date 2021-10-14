@@ -51,7 +51,7 @@ Buttons with visited links would mysteriously get white text which is not access
 /** This is to minimize the size of the logo in 
 *   tablet and mobile
 **/
-.usa-logo img {
+.usa-header--extended .usa-logo img {
   max-width: units(5);
   @include at-media($theme-header-min-width) {
    max-width: units(10);
@@ -59,7 +59,7 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 @media (min-width: 64em) {
- .usa-header--extended .usa-logo { 
+.usa-header--extended .usa-logo { 
     margin: 3.5rem 0 .2em;
  }
 }
@@ -67,16 +67,22 @@ Buttons with visited links would mysteriously get white text which is not access
 /** This is to make the header links align in a row
 *  with the search instead of a column
 **/
-.usa-nav__secondary {
+.usa-header--extended .usa-nav__secondary {
 @include at-media($theme-header-min-width) {
   @include u-flex("row", "align-end");
   bottom: 6rem;
   width: 28rem;
+   }
 }
+
+.usa-header--extended .usa-nav__primary-item>.usa-nav__link:hover {
+@include at-media($theme-header-min-width) {
+   position: relative;
+   }
 }
 
 //** This is to make the header link stretch out **/
-.usa-nav__secondary-links {
+.usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
     width: 11rem;
     line-height: 1.9;
@@ -84,7 +90,7 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 /** This is to add content pipe before the **/
-.usa-search::before {
+.usa-header--extended .usa-search::before {
  @include at-media($theme-header-min-width) {
     float: right;
     color: color("base-lighter");
@@ -95,29 +101,29 @@ Buttons with visited links would mysteriously get white text which is not access
 
 /** This is to display the search image **/
 @media (min-width: 30em) {
-  .usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
+.usa-header--extended  .usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
       background-image: url(/themes/custom/usagov/images/search--dark.svg),linear-gradient(transparent,transparent);
     }
   }
 
 /** Language buttons **/
 @media (min-width: 30em) {
-  div.language-switcher-language-url  {
+.usa-header--extended  div.language-switcher-language-url  {
      margin-inline-start: auto;
-     margin-bottom: 5rem;
+     margin-bottom: 6rem;
   }
 }
 
 /** Language buttons **/
 @media (min-width: 30em) {
-  .usa-nav__primary>.usa-nav__primary-item  {
+.usa-header--extended .usa-nav__primary>.usa-nav__primary-item  {
      padding-left: .5rem;
   }
 }
 
 /** Language buttons **/
 @media (min-width: 30em) {
-  .usa-nav__primary>.usa-nav__primary-item>a  {
+.usa-header--extended  .usa-nav__primary>.usa-nav__primary-item>a.language-link  {
      color: #fff;
      text-decoration: none;
      padding: 10px 20px 10px 20px;
@@ -127,7 +133,7 @@ Buttons with visited links would mysteriously get white text which is not access
 
 /** Language buttons **/
 @media (min-width: 30em) {
-  .usa-nav__primary>.usa-nav__primary-item>a:hover  {
+.usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover  {
      color: #fff;
   }
 }
