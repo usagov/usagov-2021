@@ -29,7 +29,7 @@ commands:
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             ./bin/cloudgov/login $CF_USER $CF_PASS
-            ./bin/cloudgov/use-space << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy << pipeline.number >>
 
   install-node:
@@ -99,10 +99,7 @@ jobs:
           paths:
             - vendor
             - composer.lock
-            - web/themes/custom/usagov/css
-            - web/themes/custom/usagov/scripts
-            - web/themes/custom/usagov/fonts
-            - web/themes/custom/usagov/img
+            - web
 
   build-and-push-container:
     machine:
@@ -117,17 +114,10 @@ jobs:
           name: Import Workspace items
           command: |
             mkdir -p ./vendor/
-            mkdir -p ./web/themes/custom/usagov/
-            mkdir -p ./web/themes/custom/usagov/css/
-            mkdir -p ./web/themes/custom/usagov/fonts/
-            mkdir -p ./web/themes/custom/usagov/scripts/
-            mkdir -p ./web/themes/custom/usagov/img/
+            mkdir -p ./web/
             cp -r /tmp/workspace/vendor/* ./vendor/
             cp -r /tmp/workspace/composer.lock ./composer.lock
-            cp -r /tmp/workspace/web/themes/custom/usagov/css/* ./web/themes/custom/usagov/css/
-            cp -r /tmp/workspace/web/themes/custom/usagov/fonts/* ./web/themes/custom/usagov/fonts/
-            cp -r /tmp/workspace/web/themes/custom/usagov/scripts/* ./web/themes/custom/usagov/scripts/
-            cp -r /tmp/workspace/web/themes/custom/usagov/img/* ./web/themes/custom/usagov/img/
+            cp -r /tmp/workspace/web/* ./web/
       - run:
           name: Setup Environment for use in Scripts
           command: |

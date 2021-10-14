@@ -1,0 +1,33 @@
+uuid: 9b884a06-0d1b-497d-a689-9db6ef55d902
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:html_block:d61595f0-7e1c-4081-9eef-cdc5ebbf822b'
+  module:
+    - block_content
+    - language
+  theme:
+    - usagov
+id: englishbannercode
+theme: usagov
+region: header_top
+weight: -14
+provider: null
+plugin: 'block_content:d61595f0-7e1c-4081-9eef-cdc5ebbf822b'
+settings:
+  id: 'block_content:d61595f0-7e1c-4081-9eef-cdc5ebbf822b'
+  label: 'English banner code'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    langcodes:
+      en: en
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'

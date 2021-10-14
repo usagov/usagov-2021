@@ -1,15 +1,15 @@
-uuid: 4639e4a5-fbfd-44e6-aaae-b764ac79eae8
+uuid: f0664182-49a7-4b6c-bb8a-c936ee9f91b7
 langcode: en
 status: true
 dependencies:
   config:
-    - block_content.type.primary_footer
-    - field.field.block_content.primary_footer.body
+    - block_content.type.html_block
+    - field.field.block_content.html_block.body
   module:
     - text
-id: block_content.primary_footer.default
+id: block_content.html_block.default
 targetEntityType: block_content
-bundle: primary_footer
+bundle: html_block
 mode: default
 content:
   body:
