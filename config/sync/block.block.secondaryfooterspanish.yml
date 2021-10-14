@@ -1,23 +1,23 @@
-uuid: b93c440f-171b-4541-b661-85b18f07c32a
+uuid: c133e645-2339-481a-8573-dce1273fb3ca
 langcode: en
 status: true
 dependencies:
   content:
-    - 'block_content:spanish_primary_footer:bc8dbc15-40da-4250-997f-fb718978bd62'
+    - 'block_content:html_block:ad0612da-dd65-46d4-bbf4-836714cbc8c4'
   module:
     - block_content
     - language
   theme:
     - usagov
-id: spanishprimaryfooter
+id: secondaryfooterspanish
 theme: usagov
-region: footer
+region: footer_secondary
 weight: 0
 provider: null
-plugin: 'block_content:bc8dbc15-40da-4250-997f-fb718978bd62'
+plugin: 'block_content:ad0612da-dd65-46d4-bbf4-836714cbc8c4'
 settings:
-  id: 'block_content:bc8dbc15-40da-4250-997f-fb718978bd62'
-  label: 'Spanish primary footer'
+  id: 'block_content:ad0612da-dd65-46d4-bbf4-836714cbc8c4'
+  label: 'Secondary footer - Spanish'
   provider: block_content
   label_display: '0'
   status: true

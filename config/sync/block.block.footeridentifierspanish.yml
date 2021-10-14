@@ -1,0 +1,33 @@
+uuid: 76881ddf-ed42-4d30-b863-aa912e45bc30
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:html_block:de6e5b2f-5c2e-4f8b-b0a0-d08bf5197563'
+  module:
+    - block_content
+    - language
+  theme:
+    - usagov
+id: footeridentifierspanish
+theme: usagov
+region: footer_identifier
+weight: 0
+provider: null
+plugin: 'block_content:de6e5b2f-5c2e-4f8b-b0a0-d08bf5197563'
+settings:
+  id: 'block_content:de6e5b2f-5c2e-4f8b-b0a0-d08bf5197563'
+  label: 'Footer identifier - Spanish'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    langcodes:
+      es: es
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
