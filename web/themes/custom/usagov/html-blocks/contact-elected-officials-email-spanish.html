@@ -1,0 +1,63 @@
+
+<div>
+    <h1 class="font-serif-xl" style="color: rgb(182, 50, 31)">Contacte  al funcionario que le representa</h1>
+
+    <p class="font-serif-sm">
+        Utilice este formulario para escribirle un mensaje de correo electrónico a un funcionario electo.
+    </p>
+
+    <h2 class="font-serif-lg" style="color: rgb(27, 56, 88)">
+        Escriba su mensaje
+    </h2>
+
+    <h3 class="font-serif-sm" style="padding-bottom: 0px; margin-bottom: 0px;">
+        Usted está contactando:
+    </h3>
+
+    <p class="font serif-sm" style="margin-top: 0px;" id="display-official">
+        Official's Name<br>
+        Official's Position
+    </p>
+
+    <p class="font-serif-xs">Todos los elementos del formulario de abajo son obligatorios y están marcados con el símbolo (*).</p>
+
+    <form id="mailForm" class="usa-form" onsubmit="writeMessage()" action="../index.html" autocomplete="off">
+        <label class="usa-label" id="topicField" for="input-topic">*¿Cuál es el tema sobre el que quiere escribir?</label>
+        <textarea
+            class="usa-textarea"
+            id="input-topic"
+            aria-labelledby="input-topic"
+            name="input-topic"
+            required
+            autofocus
+        ></textarea>
+
+        <label class="usa-label" id="aboutField" for="input-about">*¿Qué quiere decir sobre el tema?</label>
+        <textarea
+            class="usa-textarea"
+            id="input-about"
+            aria-labelledby="input-about"
+            name="input-about"
+            required
+        ></textarea>
+
+        <label class="usa-label" id="actionField" for="input-action">*¿Qué quiere que haga su funcionario electo al respecto?</label>
+        <textarea
+            class="usa-textarea"
+            id="input-action"
+            aria-labelledby="input-action"
+            name="input-action"
+            required
+        ></textarea>
+
+        <button class="usa-button usa-button--accent-cool" style="width: 80%">Escribir mi mensaje</button>
+    </form>
+
+    <p id="button-alt" class="font-serif-xs" style="color: rgb(27, 56, 88)">
+        ¿Tiene problemas con el botón de arriba? Copie esta dirección de correo electrónico para utilizarla: 
+    </p>
+</div>
+
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="/themes/custom/usagov/scripts/contact.js"></script>
+<script src="/themes/custom/usagov/scripts/accessibility.js"></script>
