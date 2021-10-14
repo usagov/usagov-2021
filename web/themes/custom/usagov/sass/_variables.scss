@@ -7,7 +7,7 @@ USWDS Variables
 $theme-color-primary: 'cyan-30v';
 $theme-color-primary-lighter: 'cyan-10';
 $theme-color-primary-dark: 'cyan-40v';
-$theme-color-primary-darker: 'cyan-40v';
+$theme-color-primary-darker: 'cyan-40v'; //#009ec1
 
 // Secondary colors (These seem to only be used by usa-button--secondary)
 $theme-color-secondary: 'cyan-10'; //background
@@ -31,5 +31,56 @@ $theme-color-error: 'red-50';
 USAgov Variables
 */
 
-$color-red: #D83933;
-$color-text-blue: #1A4480;
+//Base variables - all color codes live here
+$red: #D83933;
+$white: #ffffff;
+$text-blue: #1A4480;
+$deep-blue: #11304e;
+$cyan: #3fbde3;
+$cyan-light: #ccecf2;
+$light-gray: #f3f3f3;
+
+//Component Variables - always refer to another variable
+// $navpage-banner-box-bg-color:         $deep-blue;
+// $navpage-banner-box-border-color:     $white;
+// $navpage-banner-box-color:            $cyan-light;
+
+// $navpage-card-heading-color:            $text-blue;
+// $navpage-card-heading-underline-color:  $cyan;
+// $navpage-card-border-color:             $grey;
+// $navpage-card-hover-bg-color:           $cyan-light;
+// $navpage-card-hover-border-color:       $cyan;
+
+// Trying a SASS Map
+$vars: (
+  navpage: (
+    banner: (
+      border-color: $red,
+      box-bg-color: $deep-blue,
+      box-border-color: $white,
+      box-font-color: $cyan-light
+    ),
+    card: (
+      heading-color: $text-blue,
+      heading-underline-color: $cyan,
+      // border-color: $grey,
+      hover-bg-color: $cyan-light,
+      hover-border-color: $cyan
+    ),
+    cards-bg: $light-gray
+  )
+);
+
+/*
+Call the var function to retrieve variables from sass map variables
+
+ex:
+var( $vars, navpage, banner, border-color );
+
+*/
+@function var($map, $keys...) {
+  @each $key in $keys {
+    $map: map-get($map, $key);
+  }
+  @return $map;
+}
