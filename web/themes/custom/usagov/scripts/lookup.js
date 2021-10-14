@@ -201,7 +201,11 @@ function renderResults(response, rawResponse) {
                 primaryEmail.style.marginTop = "15px";
                 primaryEmail.innerHTML = "Contact via Email";
 
-                linkToContact.setAttribute("href", "/contact-elected-officials-email?email=" + emailLinkified +
+                let path =  "/contact-your-elected-official";
+                if( document.documentElement.lang == 'es' ){
+                    let path =  "/es/contacte-al-funcionario-que-le-representa";
+                }
+                linkToContact.setAttribute("href", path + "?email=" + emailLinkified +
                     "?name=" + response.officials[i].name + "?office=" + response.officials[i].office);
                 linkToContact.appendChild(primaryEmail);
 
