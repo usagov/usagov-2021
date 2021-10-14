@@ -36,169 +36,101 @@ Buttons with visited links would mysteriously get white text which is not access
 /** This to change the link color for the 
 *   header and footer links
 **/
-.usa-nav__secondary-links a, .usa-footer__secondary-link a {
+.usa-nav__secondary-links a, .usa-footer__secondary-link a, .usa-banner__button {
    color: color("blue-warm-70v")
 
  }
 
+//Header
+
+/** Background color for government banner **/
+.usa-banner {
+   background-color: #F3F3F3;
+}
+
 /** This is to minimize the size of the logo in 
 *   tablet and mobile
 **/
- .usa-logo img {
-   max-width: units(5);
-   @include at-media($theme-header-min-width) {
-    max-width: units(10);
-  }
-}
-
- @media (min-width: 64em) {
-  .usa-header--extended .usa-logo { 
-     margin: 3.5rem 0 .2em;
-  }
-}
-
-/** This is to make the header links align in a row
- *  with the search instead of a column
-**/
- .usa-nav__secondary {
- @include at-media($theme-header-min-width) {
-   @include u-flex("row", "align-end");
-   bottom: 6rem;
-   width: 28rem;
+.usa-logo img {
+  max-width: units(5);
+  @include at-media($theme-header-min-width) {
+   max-width: units(10);
  }
 }
 
-/** This is to make the header link stretch out
- *  
+@media (min-width: 64em) {
+ .usa-header--extended .usa-logo { 
+    margin: 3.5rem 0 .2em;
+ }
+}
+
+/** This is to make the header links align in a row
+*  with the search instead of a column
 **/
+.usa-nav__secondary {
+@include at-media($theme-header-min-width) {
+  @include u-flex("row", "align-end");
+  bottom: 6rem;
+  width: 28rem;
+}
+}
+
+//** This is to make the header link stretch out **/
 .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
-    /*width: 14rem;*/
+    width: 11rem;
     line-height: 1.9;
   }
 }
 
- /** This is to add content pipe before the
- *   header search
-**/
- .usa-search::before {
-  @include at-media($theme-header-min-width) {
-     float: right;
-     color: color("base-lighter");
-     content: "|";
-     padding-right: units(1);
-  }
-}
-
- /** This is to the search image **/
- @media (min-width: 30em) {
-.usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
-    background-image: url(../img/usa-icons-bg/search--dark.svg),linear-gradient(transparent,transparent);
-  }
-}
-
-/** This is to add the facebook social media icon **/
-.usa-social-link--facebook {
-  background-image: url(../images/facebook34.png),linear-gradient(transparent,transparent);
-}
-
-/** This is to add the twitter social media icon **/
-.usa-social-link--twitter {
-  background-image: url(../images/twitter34.png),linear-gradient(transparent,transparent);
-}
-
-/** This is to add the instagram social media icon **/
-.usa-social-link--instagram {
-  background-image: url(../images/instagram34.png),linear-gradient(transparent,transparent);
-}
-
-/** This is to add the youtube social media icon **/
-.usa-social-link--youtube {
-  background-image: url(../images/youtube34.png),linear-gradient(transparent,transparent);
-}
-
-
-*****.usa-footer__primary-content--collapsible.hidden{
-   display: block; 
+/** This is to add content pipe before the **/
+.usa-search::before {
+ @include at-media($theme-header-min-width) {
+    float: right;
+    color: color("base-lighter");
+    content: "|";
+    padding-right: units(1);
  }
- 
-/** This to change the link color for the 
-*   header and footer links
-**/
-.usa-nav__secondary-links a, .usa-footer__secondary-link a {
-   color: color("blue-warm-70v")
-
- }
-
-/** This is to minimize the size of the logo in 
-*   tablet and mobile
-**/
- .usa-logo img {
-   max-width: units(5);
-   @include at-media($theme-header-min-width) {
-    max-width: units(10);
-  }
 }
 
-/** This is to the search image **/
+/** This is to display the search image **/
 @media (min-width: 30em) {
-   .usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
-       background-image: url(../img/usa-icons-bg/search--dark.svg),linear-gradient(transparent,transparent);
-     }
-   }
+  .usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
+      background-image: url(/themes/custom/usagov/images/search--dark.svg),linear-gradient(transparent,transparent);
+    }
+  }
 
- @media (min-width: 64em) {
-  .usa-header--extended .usa-logo { 
-     margin: 3.5rem 0 .2em;
+/** Language buttons **/
+@media (min-width: 30em) {
+  div.language-switcher-language-url  {
+     margin-inline-start: auto;
+     margin-bottom: 5rem;
   }
 }
-/** This is to make the header links align in a row
- *  with the search instead of a column
-**/
 
-.usa-header--extended>.usa-nav>.usa-nav__inner>.usa-nav__secondary {
-   @include at-media($theme-header-min-width) {
-     @include u-flex("row", "align-end");
-     bottom: 6rem;
-     box-sizing: content-box;
-     /*width: 28rem;*/
-   }
+/** Language buttons **/
+@media (min-width: 30em) {
+  .usa-nav__primary>.usa-nav__primary-item  {
+     padding-left: .5rem;
   }
- 
-  .usa-header--extended>.usa-nav>.usa-nav__inner>.usa-nav__secondary>.usa-nav__secondary-links {
-   @include at-media($theme-header-min-width) {
-    /* @include u-flex("row", "align-end");
-     bottom: 6rem;
-     width: 14rem;*/
-   }
+}
+
+/** Language buttons **/
+@media (min-width: 30em) {
+  .usa-nav__primary>.usa-nav__primary-item>a  {
+     color: #fff;
+     text-decoration: none;
+     padding: 10px 20px 10px 20px;
+     background-color: color("blue-warm-80v")
   }
- /** This is to make the header link stretch out
-  *  
- **/
- 
- .usa-nav__secondary-links {
-   @include at-media($theme-header-min-width) {
-     width: 11rem;
-     line-height: 1.9;
-   }
- }
- 
- .usa-nav__secondary-links a {
-   color: color("blue-warm-70v")
+}
+
+/** Language buttons **/
+@media (min-width: 30em) {
+  .usa-nav__primary>.usa-nav__primary-item>a:hover  {
+     color: #fff;
   }
- 
-  /** This is to add content pipe before the
-  *   header search
- **/
- 
-  .usa-search::before {
-   @include at-media($theme-header-min-width) {
-      float: right;
-      color: color("base-lighter");
-      content: "|";
-      padding-right: units(1);
-   }
- }
+}
 
  //Footer
  
