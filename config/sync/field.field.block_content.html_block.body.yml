@@ -1,16 +1,16 @@
-uuid: 31605775-f3a5-4b1c-a7ff-17d997bb1278
+uuid: 0c8289b8-bfa3-41a7-9b15-339dd4c46aca
 langcode: en
 status: true
 dependencies:
   config:
-    - block_content.type.header_code
+    - block_content.type.html_block
     - field.storage.block_content.body
   module:
     - text
-id: block_content.header_code.body
+id: block_content.html_block.body
 field_name: body
 entity_type: block_content
-bundle: header_code
+bundle: html_block
 label: Body
 description: ''
 required: false
