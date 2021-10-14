@@ -23,13 +23,26 @@ Pull the latest changes from main branch into feature branch
 docker compose up
 ```
 
-# Trello Ticketing
+# Workflow
+
+## Ticket
 Create a ticket
+
+## Branching
 Get URL path from ticket
 ex: 123-ticket-name
 Prepend with usa-
 ex: usa-123-ticket-name
+This will be the branch name
+
 (If the ticket name is too long, you may shorten it or remove it. Only the usa-123 is needed)
+
+We are using a script in `.git/hooks/commit-msg` to automatically add the current branch name to all commits, to make commit messages effortlessly reflect the task being worked on.
+
+## Single Item Config Export
+* Visit
+On synchronize screen, determine which configs will be used. Then go to the Export > Single Item. Find the item. Create 
+
 
 # USAgovTheme
 The USAgov theme is a subtheme of the USWDS_base theme.
@@ -48,10 +61,18 @@ This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
 1. View differences
     * Configuration > Development > Configuration Synchronization
     * `/admin/config/development/configuration`
-2. Export 
-    * `bin/drush cex`
-    * Export > Full Archive
-    * Export > Single Item
+2. Export
+    * via Command Line
+        1. `bin/drush cex`
+    * via Export Full Archive
+        1. Export > Full Archive
+        2. Move the desired configs into `/config/sync`
+    * via Export Single Item
+        1. Export > Single Item
+        2. Find the config you want to sync
+        3. Create/Edit the file in `/config/sync` with the filename shown below the config textbox
+        4. Paste the config text into the file
+        5. Repeat for each desired config
 3. Commit config changes to git
 
 ## Import Config
@@ -64,6 +85,7 @@ This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
 * follow the prompts to reset the password
 
 `Dockerfile-node` runs the gulp start command.
+
 
 
 ## More info on Cloud Foundry & Cloud.gov
