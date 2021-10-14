@@ -32,6 +32,13 @@ Buttons with visited links would mysteriously get white text which is not access
    color: initial;
 }
 
+/*
+This style ensures that we can remove the padding-top from text in a card body. Used on navigation pages.
+*/
+.usa-card__body.padding-top-0{
+  padding-top: 0;
+}
+
 
 /** This to change the link color for the 
 *   header and footer links

@@ -29,8 +29,8 @@
 
 <ul class="usa-list usa-list--unstyled">
 {% for row in rows %}
-<li class="">
-  <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="">
+<li class="usagov-navpage-item">
+  <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="text-no-underline">
     {{- row.content -}}
   </a>
 </li>
@@ -43,7 +43,7 @@
   <ul class="usa-card-group">
     {% for row in rows %}
     <li class="tablet:grid-col-4 usa-card">
-      <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-navpage-card">
+      <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-navpage-card text-no-underline">
         {{- row.content -}}
       </a>
     </li>
