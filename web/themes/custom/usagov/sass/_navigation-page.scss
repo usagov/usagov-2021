@@ -20,7 +20,6 @@ $card: var( $vars, navpage, card );
 }
 .usagov-navpage-card{
     border-radius: 0;
-    text-decoration: none;
     box-shadow: 4px 4px 10px #aaaaaa;
     &:hover{
         background-color: var( $card, hover-bg-color );
@@ -34,4 +33,12 @@ $card: var( $vars, navpage, card );
     text-decoration-color: var( $card, heading-underline-color );
     text-decoration-skip-ink: none;
     line-height: 1.8em;
+}
+
+
+.usagov-navpage-item{
+    border: 2px solid transparent;
+    &:hover{
+        border-color: var( $card, hover-border-color );
+    }
 }
