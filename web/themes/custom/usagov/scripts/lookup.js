@@ -246,11 +246,11 @@ function renderResults(response, rawResponse) {
             let appendLocation;
             let level = response.officials[i].level;
             if (level == "country") {
-                appendLocation = document.getElementById("Federal Officials");
+                appendLocation = document.getElementById(content["levels"][0]);
             } else if (level == "administrativeArea1") {
-                appendLocation = document.getElementById("State Officials");
+                appendLocation = document.getElementById(content["levels"][1]);
             }  else {
-                appendLocation = document.getElementById("Local Officials");
+                appendLocation = document.getElementById(content["levels"][2]);
             }
 
             // Append elected official section to the appropriate level accordion
