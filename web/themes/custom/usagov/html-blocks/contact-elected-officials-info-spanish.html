@@ -1,121 +1,29 @@
 <div>
-    <h1 class="font-serif-xl" style="color: rgb(182, 50, 31)">Funcionarios Electos</h1>
+    <h1 class="font-serif-xl" style="color: rgb(182, 50, 31)">Aprenda sobre los funcionarios que le representan</h1>
 
     <p class="font-serif-sm">
-        Obtenga los nombres y la información de contacto de los funcionarios que le representan a nivel federal, estatal y local.
+        Estos resultados de búsqueda pueden ayudarle a conocer a sus funcionarios electos y a ponerse en contacto con ellos y su personal.
     </p>
 
-    <div>
-        <h2 class="font-serif-lg" style="color: rgb(27, 56, 88)">
-            Escriba su dirección para encontrar a los funcionarios que le representan.
-        </h2>
+    <br>
 
-        <p class="font-serif-xs">Todos los elementos del formulario de abajo son obligatorios y están marcados con el símbolo (*).</p>
-        <form class="usa-form" action="/es/aprenda-sobre-los-funcionarios-que-le-representan" autocomplete="off">
-            <label id="myStreetAddress" class="usa-label" for="input-street">*Dirección</label>
-            <input
-                class="usa-input"
-                id="input-street"
-                aria-labelledby="myStreetAddress"
-                name="input-street"
-                type="text"
-                onkeypress="return event.keyCode != 13;"
-                required
-                autofocus
-            />
+    <h2 class="font-serif-sm" style="padding-bottom: 0px; margin-bottom: 0px;">
+        Su dirección:
+    </h2>
 
-            <label id="myCity" class="usa-label" for="input-city">*Ciudad</label>
-            <input
-                class="usa-input"
-                id="input-city"
-                aria-labelledby="myCity"
-                name="input-city"
-                type="text"
-                onkeypress="return event.keyCode != 13;"
-                required
-            />
+    <p class="font serif-sm" style="margin-top: 0px;" id="display-address">
+        Street Address<br>
+        City, State, Zip
+    </p>
 
-            <div style="display: flex;">
-                <div style="padding-right: 20px;">
-                    <label id="myState" class="usa-label" for="input-state">*Estado</label>
-                    <div class="usa-combo-box">
-                        <select aria-labelledby="myState" class="usa-select" name="input-state" id="input-state" required>
-                            <option id="AL" value="AL">Alabama</option>
-                            <option id="AK" value="AK">Alaska</option>
-                            <option id="AZ" value="AZ">Arizona</option>
-                            <option id="AR" value="AR">Arkansas</option>
-                            <option id="CA" value="CA">California</option>
-                            <option id="CO" value="CO">Colorado</option>
-                            <option id="CT" value="CT">Connecticut</option>
-                            <option id="DE" value="DE">Delaware</option>
-                            <option id="DC" value="DC">District Of Columbia</option>
-                            <option id="FL" value="FL">Florida</option>
-                            <option id="GA" value="GA">Georgia</option>
-                            <option id="HI" value="HI">Hawaii</option>
-                            <option id="ID" value="ID">Idaho</option>
-                            <option id="IL" value="IL">Illinois</option>
-                            <option id="IN" value="IN">Indiana</option>
-                            <option id="IA" value="IA">Iowa</option>
-                            <option id="KS" value="KS">Kansas</option>
-                            <option id="KY" value="KY">Kentucky</option>
-                            <option id="LA" value="LA">Louisiana</option>
-                            <option id="ME" value="ME">Maine</option>
-                            <option id="MD" value="MD">Maryland</option>
-                            <option id="MA" value="MA">Massachusetts</option>
-                            <option id="MI" value="MI">Michigan</option>
-                            <option id="MN" value="MN">Minnesota</option>
-                            <option id="MS" value="MS">Mississippi</option>
-                            <option id="MO" value="MO">Missouri</option>
-                            <option id="MT" value="MT">Montana</option>
-                            <option id="NE" value="NE">Nebraska</option>
-                            <option id="NV" value="NV">Nevada</option>
-                            <option id="NH" value="NH">New Hampshire</option>
-                            <option id="NJ" value="NJ">New Jersey</option>
-                            <option id="NM" value="NM">New Mexico</option>
-                            <option id="NY" value="NY">New York</option>
-                            <option id="NC" value="NC">North Carolina</option>
-                            <option id="ND" value="ND">North Dakota</option>
-                            <option id="OH" value="OH">Ohio</option>
-                            <option id="OK" value="OK">Oklahoma</option>
-                            <option id="OR" value="OR">Oregon</option>
-                            <option id="PA" value="PA">Pennsylvania</option>
-                            <option id="RI" value="RI">Rhode Island</option>
-                            <option id="SC" value="SC">South Carolina</option>
-                            <option id="SD" value="SD">South Dakota</option>
-                            <option id="TN" value="TN">Tennessee</option>
-                            <option id="TX" value="TX">Texas</option>
-                            <option id="UT" value="UT">Utah</option>
-                            <option id="VT" value="VT">Vermont</option>
-                            <option id="VA" value="VA">Virginia</option>
-                            <option id="WA" value="WA">Washington</option>
-                            <option id="WV" value="WV">West Virginia</option>
-                            <option id="WI" value="WI">Wisconsin</option>
-                            <option id="WY" value="WY">Wyoming</option>
-                        </select>
-                    </div>
-                </div>
+    <p class="font-serif-3xs text-underline"><a href="/es/funcionarios-electos">Editar dirección</a></p>
 
-                <div style="width: 40%">
-                    <label id="myZIP" class="usa-label" for="input-zip">*Código postal</label>
-                    <input
-                        class="usa-input"
-                        id="input-zip"
-                        aria-labelledby="myZIP"
-                        name="input-zip"
-                        type="text"
-                        onkeypress="return event.keyCode != 13;"
-                        required
-                    />
-                </div>
-            </div>
+    <br>
 
-            <p class="font-serif-3xs">Nosotros nunca venderemos su información personal.
-                <a href="https://www.usa.gov/policies">Conozca cómo USA.gov protege su privacidad.</a>
-            </p>
+    <h3 class="font-serif-lg" style="color: rgb(27, 56, 88); padding-bottom: 10px;">Sus funcionarios electos:</h3>
 
-            <button class="usa-button usa-button--accent-cool" style="width: 80%">Encontrar a mis funcionarios electos</button>
-        </form>
-    </div>
+    <div id="results"></div>
 </div>
 
-<script src="/themes/custom/usagov/scripts/accessibility.js"></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="/themes/custom/usagov/scripts/lookup.js" defer></script>
