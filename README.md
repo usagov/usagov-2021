@@ -78,6 +78,17 @@ This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
 ## Import Config
 `bin/drush cim`
 
+## Builds
+```
+bin/gulp build
+bin/composer install --ignore-platfrorm-reqs --no-interaction --no-progress --optimize-autoloader
+bin/cloudgov/login
+bin/cloudgov/container-build main
+bin/cloudgov/container-push main
+bin/cloudgov/space
+bin/cloudgov/deploy main
+```
+
 # Troubleshooting
 ## If cms password is not accepted:
 * run `bin/drush uli`
