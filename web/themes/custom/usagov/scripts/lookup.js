@@ -44,12 +44,12 @@ function renderResults(response, rawResponse) {
         "spanish": {
             "error-fetch": "ERROR: Failed trying to fetch elected officials!",
             "error-address": "ERROR: Could not find elected officials for given address!",
-            "levels": ["Federal Officials", "State Officials", "Local Officials"],
-            "party-affiliation": "Party Affiliation",
-            "address": "Address",
-            "phone-number": "Phone Number",
-            "website": "Website",
-            "contact-via-email": "Contact via Email",
+            "levels": ["Funcionarios federales", "Funcionarios estatales", "Funcionarios locales"],
+            "party-affiliation": "Afiliación de partido",
+            "address": "Dirección",
+            "phone-number": "Teléfono",
+            "website": "Sitio web",
+            "contact-via-email": "Contactar por correo electrónico",
             "path-contact": "/es/funcionarios-electos/email",
         }
     }

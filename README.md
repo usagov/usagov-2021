@@ -81,7 +81,7 @@ This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
 ## Builds
 ```
 bin/gulp build
-bin/composer install --ignore-platfrorm-reqs --no-interaction --no-progress --optimize-autoloader
+bin/composer install --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
 bin/cloudgov/login
 bin/cloudgov/container-build main
 bin/cloudgov/container-push main
