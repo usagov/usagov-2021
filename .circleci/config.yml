@@ -28,7 +28,7 @@ commands:
           name: CloudGov Deploy
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            ./bin/cloudgov/login $CF_USER $CF_PASS
+            ./bin/cloudgov/login $CF_USERNAME $CF_PASSWORD
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy << pipeline.number >>
 
@@ -94,12 +94,15 @@ jobs:
             npm install --prefix ./web/themes/custom/usagov
             npm rebuild node-sass --prefix ./web/themes/custom/usagov
             npm run build --prefix ./web/themes/custom/usagov
+            rm -rf ./web/themes/custom/usagov/node_modules
       - persist_to_workspace:
           root: ./
           paths:
             - vendor
             - composer.lock
-            - web
+            - web/core
+            - web/modules/contrib
+            - web/themes/
 
   build-and-push-container:
     machine:
@@ -114,10 +117,12 @@ jobs:
           name: Import Workspace items
           command: |
             mkdir -p ./vendor/
-            mkdir -p ./web/
+            mkdir -p ./web/themes/
+            mkdir -p ./web/modules/contrib
             cp -r /tmp/workspace/vendor/* ./vendor/
             cp -r /tmp/workspace/composer.lock ./composer.lock
-            cp -r /tmp/workspace/web/* ./web/
+            cp -r /tmp/workspace/web/themes/* ./web/themes/
+            cp -r /tmp/workspace/web/modules/contrib/* ./web/modules/contrib/
       - run:
           name: Setup Environment for use in Scripts
           command: |
