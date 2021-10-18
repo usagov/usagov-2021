@@ -117,10 +117,12 @@ jobs:
           name: Import Workspace items
           command: |
             mkdir -p ./vendor/
+            mkdir -p ./web/core/
             mkdir -p ./web/themes/
             mkdir -p ./web/modules/contrib
             cp -r /tmp/workspace/vendor/* ./vendor/
             cp -r /tmp/workspace/composer.lock ./composer.lock
+            cp -r /tmp/workspace/web/core/* ./web/core/
             cp -r /tmp/workspace/web/themes/* ./web/themes/
             cp -r /tmp/workspace/web/modules/contrib/* ./web/modules/contrib/
       - run:
