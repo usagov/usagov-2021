@@ -1,6 +1,11 @@
 #!/bin/ash 
 set -euo pipefail
 
+if [ -z "${VCAP_SERVICES:-}" ]; then
+    echo "VCAP_SERVICES must a be set in the environment: aborting bootstrap";
+    exit 1;
+fi
+
 SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
 APP_NAME=$(echo $VCAP_APPLICATION | jq -r '.name')
 APP_ROOT=$(dirname "$0")
