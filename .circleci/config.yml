@@ -52,7 +52,7 @@ commands:
 jobs:
   lint:
     docker:
-      - image: circleci/php:8.0.9-node
+      - image: circleci/php:8.0.11-node
     steps:
       - checkout
       - install-node
@@ -79,7 +79,7 @@ jobs:
 
   install-container-dependencies:
     docker:
-      - image: circleci/php:8.0.9-node
+      - image: circleci/php:8.0.11-node
     steps:
       - checkout
       - install-node
@@ -117,14 +117,10 @@ jobs:
           name: Import Workspace items
           command: |
             mkdir -p ./vendor/
-            mkdir -p ./web/core/
-            mkdir -p ./web/themes/
-            mkdir -p ./web/modules/contrib
+            mkdir -p ./web
             cp -r /tmp/workspace/vendor/* ./vendor/
             cp -r /tmp/workspace/composer.lock ./composer.lock
-            cp -r /tmp/workspace/web/core/* ./web/core/
-            cp -r /tmp/workspace/web/themes/* ./web/themes/
-            cp -r /tmp/workspace/web/modules/contrib/* ./web/modules/contrib/
+            cp -r /tmp/workspace/web/* ./web/
       - run:
           name: Setup Environment for use in Scripts
           command: |
