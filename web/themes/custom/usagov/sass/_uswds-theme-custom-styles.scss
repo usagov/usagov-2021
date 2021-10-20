@@ -292,16 +292,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }   
 }
 
-
-@media (min-width: 30em){
-.usa-footer__contact-heading.es{
-    display: inline-grid;
-    margin-top: 0;
-    margin-right: 2rem;
-    text-align: left;
-   }
-}
-
 .usa-social-link {
   background-color: transparent;
 }
@@ -314,10 +304,20 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 @media (min-width: 30em){
 .usa-footer__contact-info {
-    justify-content: flex-start !important;
+   justify-content: flex-start !important;
 }
 }
 
+.usa-footer__contact-info.es{
+   justify-content: flex-start !important;
+   margin-top: -.5rem;
+   margin-bottom: 2rem;
+   padding-left: .5rem;
+      @media (min-width: 64em){ 
+         padding-left: 1rem;
+      }
+}
+ 
 .usa-identifier {
   background-color: color("blue-80v");
 }
