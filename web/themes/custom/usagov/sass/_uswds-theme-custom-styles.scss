@@ -229,6 +229,15 @@ This style ensures that we can remove the padding-top from text in a card body. 
    display: block;
 } 
 
+@media (min-width: 30em){
+   .usa-footer__contact-heading.es{
+       display: inline-grid;
+       margin-top: 0;
+       margin-right: 2rem;
+       text-align: left;
+      }
+}
+
  /** This is to add the facebook social media icon **/
 .usa-social-link--facebook {
    background-image: url(../images/facebook34.png),linear-gradient(transparent,transparent);
