@@ -43,10 +43,9 @@ This style ensures that we can remove the padding-top from text in a card body. 
 /** This to change the link color for the 
 *   header and footer links
 **/
-.usa-nav__secondary-links a, .usa-footer__secondary-link a, .usa-banner__button {
-   color: color("blue-warm-70v")
-
- }
+.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-footer__secondary-link a, .usa-banner__button {
+   color:color("blue-warm-70v")
+}
 
 //Header
 
@@ -55,9 +54,89 @@ This style ensures that we can remove the padding-top from text in a card body. 
    background-color: #F3F3F3;
 }
 
+/** info banner **/
+@include at-media($theme-header-min-width) {
+   .usa-header--extended .usa-alert--slim .usa-alert__body {
+      max-width: 64rem;
+      margin-right: auto;
+      margin-left: auto;
+      padding-left: 2rem;
+      padding-right: 2rem;
+      display: block;
+      font-size: 1rem; 
+   }
+}
+
+/** info banner heading **/
+@include at-media($theme-header-min-width) {
+   .usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
+         margin-bottom: 0;
+      }
+   }
+
+/** Language buttons **/
+@include at-media($theme-header-min-width) {
+   .usa-header--extended .usa-navbar {
+        overflow: inherit;
+   }
+}
+
+/** Language buttons **/
+@include at-media($theme-header-min-width) {
+.usa-header--extended  div.language-switcher-language-url  {
+    margin-right: auto;
+    max-width: 64rem;
+    margin-left: auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    display: block;
+  }
+}
+
+/** Language buttons **/
+@include at-media($theme-header-min-width) {
+   .usa-header--extended div.language-switcher-language-url ul.links {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: .3rem;
+      margin-left: 0;
+   }
+}
+
+/** Language buttons **/
+@include at-media($theme-header-min-width) {
+.usa-header--extended .usa-nav__primary>.usa-nav__primary-item  {
+     padding-left: .5rem;
+  }
+}
+
+/** Language buttons **/
+@include at-media($theme-header-min-width) {
+.usa-header--extended  .usa-nav__primary>.usa-nav__primary-item>a.language-link  {
+     color: #fff;
+     text-decoration: none;
+     padding: 10px 20px 10px 20px;
+     background-color: color("blue-warm-80v")
+  }
+}
+
+/** Language buttons **/
+@include at-media($theme-header-min-width) {
+.usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover  {
+     color: #fff;
+  }
+}
+
 /** This is to minimize the size of the logo in 
 *   tablet and mobile
 **/
+
+@media (min-width: 64em) {
+   .usa-header--extended .usa-logo { 
+       margin: .5rem 0 .2em;
+   }
+}
+
 .usa-header--extended .usa-logo img {
   max-width: units(5);
   @include at-media($theme-header-min-width) {
@@ -65,11 +144,12 @@ This style ensures that we can remove the padding-top from text in a card body. 
  }
 }
 
-@media (min-width: 64em) {
-.usa-header--extended .usa-logo { 
-    margin: 3.5rem 0 .2em;
+.usa-header--extended .usa-logo img.es {
+   max-width: units(10);
+   @include at-media($theme-header-min-width) {
+    max-width: units(15);
+  }
  }
-}
 
 /** This is to make the header links align in a row
 *  with the search instead of a column
@@ -77,8 +157,9 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-header--extended .usa-nav__secondary {
 @include at-media($theme-header-min-width) {
   @include u-flex("row", "align-end");
-  bottom: 6rem;
-  width: 28rem;
+   bottom: 6rem;
+   width: 28rem;
+   opacity: 0.2;
    }
 }
 
@@ -96,7 +177,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
   }
 }
 
-/** This is to add content pipe before the **/
+/** This is to add content pipe before the search **/
 .usa-header--extended .usa-search::before {
  @include at-media($theme-header-min-width) {
     float: right;
@@ -113,37 +194,14 @@ This style ensures that we can remove the padding-top from text in a card body. 
     }
   }
 
-/** Language buttons **/
-@media (min-width: 30em) {
-.usa-header--extended  div.language-switcher-language-url  {
-     margin-inline-start: auto;
-     margin-bottom: 6rem;
+  .usa-nav__primary>.usa-nav__primary-item>a, .usa-nav__primary>.usa-nav__primary-item>a:hover {
+  @media (min-width: 64em) {
+   padding: 0.8rem;   
+   color: color("blue-warm-70v")
   }
 }
 
-/** Language buttons **/
-@media (min-width: 30em) {
-.usa-header--extended .usa-nav__primary>.usa-nav__primary-item  {
-     padding-left: .5rem;
-  }
-}
 
-/** Language buttons **/
-@media (min-width: 30em) {
-.usa-header--extended  .usa-nav__primary>.usa-nav__primary-item>a.language-link  {
-     color: #fff;
-     text-decoration: none;
-     padding: 10px 20px 10px 20px;
-     background-color: color("blue-warm-80v")
-  }
-}
-
-/** Language buttons **/
-@media (min-width: 30em) {
-.usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover  {
-     color: #fff;
-  }
-}
 
  //Footer
  
@@ -234,16 +292,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }   
 }
 
-
-@media (min-width: 30em){
-.usa-footer__contact-heading.es{
-    display: inline-grid;
-    margin-top: 0;
-    margin-right: 2rem;
-    text-align: left;
-   }
-}
-
 .usa-social-link {
   background-color: transparent;
 }
@@ -256,10 +304,20 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 @media (min-width: 30em){
 .usa-footer__contact-info {
-    justify-content: flex-start !important;
+   justify-content: flex-start !important;
 }
 }
 
+.usa-footer__contact-info.es{
+   justify-content: flex-start !important;
+   margin-top: -.5rem;
+   margin-bottom: 2rem;
+   padding-left: .5rem;
+      @media (min-width: 64em){ 
+         padding-left: 1rem;
+      }
+}
+ 
 .usa-identifier {
   background-color: color("blue-80v");
 }
