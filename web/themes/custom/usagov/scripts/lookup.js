@@ -25,13 +25,44 @@ function lookup(address, callback) {
  * @param {Object} rawResponse Raw response from the API.
  */
 function renderResults(response, rawResponse) {
+    let language="english";
+    if( document.documentElement.lang == 'es' ){
+        language="spanish";
+    }
+    const translations = {
+        "english": {
+            "error-fetch": "ERROR: Failed trying to fetch elected officials!",
+            "error-address": "ERROR: Could not find elected officials for given address!",
+            "levels": ["Federal Officials", "State Officials", "Local Officials"],
+            "party-affiliation": "Party Affiliation",
+            "address": "Address",
+            "phone-number": "Phone Number",
+            "website": "Website",
+            "contact-via-email": "Contact via Email",
+            "path-contact": "/contact-elected-officials/email",
+        },
+        "spanish": {
+            "error-fetch": "ERROR: Failed trying to fetch elected officials!",
+            "error-address": "ERROR: Could not find elected officials for given address!",
+            "levels": ["Funcionarios federales", "Funcionarios estatales", "Funcionarios locales"],
+            "party-affiliation": "Afiliación de partido",
+            "address": "Dirección",
+            "phone-number": "Teléfono",
+            "website": "Sitio web",
+            "contact-via-email": "Contactar por correo electrónico",
+            "path-contact": "/es/funcionarios-electos/email",
+        }
+    }
+    let content=translations[language];
+
     // Get location for where to attach the rendered results
     let resultsDiv = document.getElementById("results");
 
     // No response received - return error
     if (!response || response.error) {
         resultsDiv.appendChild(document.createTextNode(
-            "ERROR: Failed trying to fetch elected officials!"));
+            content["error-fetch"]
+        ));
         return;
     }
 
@@ -52,7 +83,7 @@ function renderResults(response, rawResponse) {
         container.setAttribute("aria-multiselectable", "true")
 
         // Create an accordion for each level of elected officials
-        const levels = ["Federal", "State", "Local"];
+        const levels = content["levels"];
         for (let i = 0; i < levels.length; i++) {
             let accordionHeader = document.createElement("h2");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
@@ -61,7 +92,7 @@ function renderResults(response, rawResponse) {
             accordionHeaderButton.setAttribute("class", "usa-accordion__button");
             accordionHeaderButton.setAttribute("aria-expanded", "true");
 
-            let levelName = levels[i] + " Officials";
+            let levelName = levels[i];
             accordionHeaderButton.setAttribute("aria-controls", levelName);
             accordionHeaderButton.innerHTML = levelName;
 
@@ -112,7 +143,7 @@ function renderResults(response, rawResponse) {
             // (so the accordion isn't blank if there are no details.
             let party = response.officials[i].party || "none provided";
             let nextElem = document.createElement("li");
-            nextElem.innerHTML = "<b>Party Affiliation:</b> " + party;
+            nextElem.innerHTML = "<b>"+content["party-affiliation"]+":</b> " + party;
             bulletList.appendChild(nextElem);
 
             // Display address, if provided
@@ -123,7 +154,7 @@ function renderResults(response, rawResponse) {
                 address = address[0].line1 + ", " + address[0].city + ", " + address[0].state + " " + address[0].zip;
 
                 nextElem = document.createElement("li");
-                nextElem.innerHTML = "<b>Address:</b> " + address;
+                nextElem.innerHTML = "<b>"+content["address"]+":</b> " + address;
 
                 bulletList.appendChild(nextElem);
             }
@@ -137,7 +168,7 @@ function renderResults(response, rawResponse) {
                 linkToPhone.innerHTML = phoneNumber[0];
 
                 nextElem = document.createElement("li");
-                nextElem.innerHTML = "<b>Phone Number:</b> ";
+                nextElem.innerHTML = "<b>"+content["phone-number"]+":</b> ";
                 nextElem.appendChild(linkToPhone);
 
                 bulletList.appendChild(nextElem);
@@ -158,7 +189,7 @@ function renderResults(response, rawResponse) {
                 link.innerHTML = cleanLink;
 
                 nextElem = document.createElement("li");
-                nextElem.innerHTML = "<b>Website:</b> ";
+                nextElem.innerHTML = "<b>"+content["website"]+":</b> ";
                 nextElem.appendChild(link);
 
                 bulletList.appendChild(nextElem);
@@ -199,9 +230,9 @@ function renderResults(response, rawResponse) {
 
                 primaryEmail.setAttribute("class", "usa-button usa-button--accent-cool");
                 primaryEmail.style.marginTop = "15px";
-                primaryEmail.innerHTML = "Contact via Email";
+                primaryEmail.innerHTML = content["contact-via-email"];
 
-                linkToContact.setAttribute("href", "/contact-elected-officials-email?email=" + emailLinkified +
+                linkToContact.setAttribute("href", content["path-contact"] + "?email=" + emailLinkified +
                     "?name=" + response.officials[i].name + "?office=" + response.officials[i].office);
                 linkToContact.appendChild(primaryEmail);
 
@@ -215,11 +246,11 @@ function renderResults(response, rawResponse) {
             let appendLocation;
             let level = response.officials[i].level;
             if (level == "country") {
-                appendLocation = document.getElementById("Federal Officials");
+                appendLocation = document.getElementById(content["levels"][0]);
             } else if (level == "administrativeArea1") {
-                appendLocation = document.getElementById("State Officials");
+                appendLocation = document.getElementById(content["levels"][1]);
             }  else {
-                appendLocation = document.getElementById("Local Officials");
+                appendLocation = document.getElementById(content["levels"][2]);
             }
 
             // Append elected official section to the appropriate level accordion
@@ -230,7 +261,8 @@ function renderResults(response, rawResponse) {
     } else {
         // No elected officials found - return error
         resultsDiv.appendChild(document.createTextNode(
-            "ERROR: Could not find elected officials for given address!"));
+            content["error-address"]
+        ));
     }
 }
 

@@ -1,0 +1,33 @@
+uuid: 452d03b3-9ae5-408d-beb1-184a437b04e6
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:html_block:34c0b345-aba2-4df4-bd1e-cf2e870266f9'
+  module:
+    - block_content
+    - language
+  theme:
+    - usagov
+id: secondaryfooterenglish
+theme: usagov
+region: footer_secondary
+weight: 0
+provider: null
+plugin: 'block_content:34c0b345-aba2-4df4-bd1e-cf2e870266f9'
+settings:
+  id: 'block_content:34c0b345-aba2-4df4-bd1e-cf2e870266f9'
+  label: 'Secondary footer - English'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    langcodes:
+      en: en
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
