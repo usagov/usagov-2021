@@ -1,0 +1,33 @@
+uuid: 3d01c73f-b1c4-4371-9a88-a51da4947209
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:html_block:2bd70942-1be7-4595-b6d1-76a52abfe7c0'
+  module:
+    - block_content
+    - language
+  theme:
+    - usagov
+id: footeridentifierenglish
+theme: usagov
+region: footer_identifier
+weight: 0
+provider: null
+plugin: 'block_content:2bd70942-1be7-4595-b6d1-76a52abfe7c0'
+settings:
+  id: 'block_content:2bd70942-1be7-4595-b6d1-76a52abfe7c0'
+  label: 'Footer identifier - English'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    langcodes:
+      en: en
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'

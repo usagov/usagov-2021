@@ -1,8 +1,0 @@
-uuid: dd836f87-c706-4e89-805d-eef047ce55a1
-langcode: en
-status: true
-dependencies: {  }
-id: header_code
-label: 'Header code'
-revision: 0
-description: ''

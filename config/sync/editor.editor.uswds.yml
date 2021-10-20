@@ -71,7 +71,7 @@ settings:
     language:
       language_list: un
     stylescombo:
-      styles: a.usa-button.usa-button--secondary.usa-button--big|Button
+      styles: "a.usa-button.usa-button--secondary.usa-button--big|Button\r\np.font-serif-lg|Large"
     templates:
       template_path: ''
       replace_content: 0

@@ -18,7 +18,7 @@ cdn_custom_js_min: 'https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/js/uswds.min.j
 uswds_header_style: extended
 uswds_header_mega: 0
 uswds_header_mega_display_second: 0
-uswds_government_banner: 1
+uswds_government_banner: 0
 uswds_footer_style: big
 uswds_footer_agency: 0
 uswds_footer_agency_name: 'Name of Agency'
