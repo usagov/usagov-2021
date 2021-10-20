@@ -5,6 +5,12 @@ commands:
       envname:
         default: ""
         type: string
+      cf_user:
+        default: ""
+        type: string
+      cf_pass:
+        default: ""
+        type: string
     steps:
       - checkout
       - run:
@@ -28,7 +34,7 @@ commands:
           name: CloudGov Deploy
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            ./bin/cloudgov/login $CF_USERNAME $CF_PASSWORD
+            ./bin/cloudgov/login << parameters.cf_user >> << parameters.cf_pass >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy << pipeline.number >>
 
@@ -150,15 +156,19 @@ jobs:
     steps:
       - deploy-cloudgov:
           envname: dev
+          cf_user: $CF_DEV_USER
+          cf_pass: $CF_DEV_PASS
 
-  deploy-to-cloudgov-uat:
+  deploy-to-cloudgov-stage:
     machine:
       image: ubuntu-2004:202101-01
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - deploy-cloudgov:
-          envname: uat
+          envname: stage
+          cf_user: $CF_STAGE_USER
+          cf_pass: $CF_STAGE_PASS
 
   deploy-to-cloudgov-prod:
     machine:
@@ -168,6 +178,8 @@ jobs:
     steps:
       - deploy-cloudgov:
           envname: prod
+          cf_user: $CF_PROD_USER
+          cf_pass: $CF_PROD_PASS
 
 
 workflows:
@@ -211,16 +223,16 @@ workflows:
             branches:
               only: main
 
-      - approve-uat-deployment:
+      - approve-stage-deployment:
           type: approval
           requires:
             - build-and-push-container
           filters:
             branches:
               only: main
-      - deploy-to-cloudgov-uat:
+      - deploy-to-cloudgov-stage:
           requires:
-            - approve-uat-deployment
+            - approve-stage-deployment
           filters:
             branches:
               only: main
