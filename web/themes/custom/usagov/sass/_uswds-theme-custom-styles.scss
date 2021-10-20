@@ -159,7 +159,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
   @include u-flex("row", "align-end");
    bottom: 6rem;
    width: 28rem;
-   opacity: 0.2;
+   /*opacity: 0.2;*/
    }
 }
 
@@ -185,6 +185,16 @@ This style ensures that we can remove the padding-top from text in a card body. 
     content: "|";
     padding-right: units(1);
  }
+}
+
+/** This is to gray out search button when search isn't functional **/
+.usa-header--extended .usa-button {
+   background-color: color("gray-70");
+}
+
+/** This is to gray out search button when search isn't functional **/
+.usa-header--extended .usa-header [type=search] {
+   background-color: color("gray-4");
 }
 
 /** This is to display the search image **/
