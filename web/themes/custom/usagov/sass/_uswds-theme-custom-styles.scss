@@ -63,7 +63,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
       padding-left: 2rem;
       padding-right: 2rem;
       display: block;
-      font-size: 1rem; 
+      font-size: .9rem; 
    }
 }
 
@@ -147,7 +147,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-header--extended .usa-logo img.es {
    max-width: units(10);
    @include at-media($theme-header-min-width) {
-    max-width: units(15);
+    max-width: units(mobile);
   }
  }
 
