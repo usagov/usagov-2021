@@ -50,9 +50,10 @@
  */
 #}
 
-{# {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %} #}
 {% set term_name = "" %}
-{{dd(term_name)}}
+{% if node.field_page_type.0 != null %}
+    {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
+{% endif %}
 
 {% if government_banner %}
   <section class="usa-banner">
