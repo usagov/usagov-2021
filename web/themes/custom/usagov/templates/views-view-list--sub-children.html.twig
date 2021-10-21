@@ -16,16 +16,10 @@
  * @see template_preprocess_views_view_list()
  */
 #}
-{% set page_types = {
-  standard_page: '22', 
-  navigation_page: '21', 
-  navigation_cards_page: '23' } 
-%}
 
-{#{dd(node.field_page_type.0.target_id)}#}
-{#{dd(node)}#}
+{% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
 
-{% if node.field_page_type.0.target_id == page_types.navigation_page %}
+{% if term_name == "Navigation Page" %}
 
 <ul class="usa-list usa-list--unstyled">
 {% for row in rows %}
@@ -37,7 +31,7 @@
 {% endfor %}
 </ul>
 
-{% elseif node.field_page_type.0.target_id == page_types.navigation_cards_page %}
+{% elseif term_name == "Navigation Cards Page" %}
 
 <div class="usagov-navpage-cards">
   <ul class="usa-card-group">
@@ -52,30 +46,7 @@
 </div>
 <p><span class="text-bold">Looking for something else?</span> <a href="#">Explore All Topics and Services</a></p>
 
-{% elseif node.field_page_type.0.target_id == page_types.standard_page %}
+{% elseif term_name == "Standard Page" %}
 {# standard_page #}
 {% endif %}
 
-
-{# 
-{% if attributes -%}
-  <div{{ attributes }}>
-{% endif %}
-  {% if title %}
-    <h3>{{ title }}</h3>
-  {% endif %}
-
-  <{{ list.type }}{{ list.attributes }}>
-
-    {% for row in rows %}
-      <li{{ row.attributes }}>
-        {{- row.content -}}
-      </li>
-    {% endfor %}
-
-  </{{ list.type }}>
-
-{% if attributes -%}
-  </div>
-{% endif %}
-#}
