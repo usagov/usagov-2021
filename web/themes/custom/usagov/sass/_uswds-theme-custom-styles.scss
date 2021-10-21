@@ -55,7 +55,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 /** info banner **/
-@include at-media($theme-header-min-width) {
    .usa-header--extended .usa-alert--slim .usa-alert__body {
       max-width: 64rem;
       margin-right: auto;
@@ -64,7 +63,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
       padding-right: 2rem;
       display: block;
       font-size: .9rem; 
-   }
 }
 
 /** info banner **/
