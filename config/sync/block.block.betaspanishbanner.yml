@@ -1,23 +1,23 @@
-uuid: 29754a4a-5314-49fa-ad61-b669c7eadd58
+uuid: 903b6e97-6dbd-4bb3-8c54-80f1535f33ea
 langcode: en
 status: true
 dependencies:
   content:
-    - 'block_content:html_block:ebb01db0-8435-4a27-91e6-ff142d9d941f'
+    - 'block_content:uswds_paragraphs:22e1b7bb-a272-4623-8abd-88248850d397'
   module:
     - block_content
     - language
   theme:
     - usagov
-id: spanishheadercode
+id: betaspanishbanner
 theme: usagov
 region: header_top
-weight: -9
+weight: -12
 provider: null
-plugin: 'block_content:ebb01db0-8435-4a27-91e6-ff142d9d941f'
+plugin: 'block_content:22e1b7bb-a272-4623-8abd-88248850d397'
 settings:
-  id: 'block_content:ebb01db0-8435-4a27-91e6-ff142d9d941f'
-  label: 'Spanish header code'
+  id: 'block_content:22e1b7bb-a272-4623-8abd-88248850d397'
+  label: 'Beta Spanish Banner'
   provider: block_content
   label_display: '0'
   status: true

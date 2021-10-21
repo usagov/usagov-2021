@@ -23,9 +23,9 @@ settings:
   label_display: visible
   follow: true
   follow_parent: active
-  level: 2
-  depth: 3
-  expand_all_items: false
+  level: 1
+  depth: 0
+  expand_all_items: true
   parent: 'left-menu-english:'
   suggestion: left_menu_english
   label_type: root
