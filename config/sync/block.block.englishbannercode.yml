@@ -12,7 +12,7 @@ dependencies:
 id: englishbannercode
 theme: usagov
 region: header_top
-weight: -14
+weight: -15
 provider: null
 plugin: 'block_content:d61595f0-7e1c-4081-9eef-cdc5ebbf822b'
 settings:
