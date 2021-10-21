@@ -55,7 +55,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 /** info banner **/
-@include at-media($theme-header-min-width) {
    .usa-header--extended .usa-alert--slim .usa-alert__body {
       max-width: 64rem;
       margin-right: auto;
@@ -63,8 +62,12 @@ This style ensures that we can remove the padding-top from text in a card body. 
       padding-left: 2rem;
       padding-right: 2rem;
       display: block;
-      font-size: 1rem; 
-   }
+      font-size: .9rem; 
+}
+
+/** info banner **/
+   .usa-header--extended .usa-alert--info {
+      border-left-color: #e7f6f8; 
 }
 
 /** info banner heading **/
@@ -145,9 +148,9 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 .usa-header--extended .usa-logo img.es {
-   max-width: units(10);
+   max-width: 6rem;
    @include at-media($theme-header-min-width) {
-    max-width: units(15);
+    max-width: 12rem;
   }
  }
 
@@ -159,7 +162,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
   @include u-flex("row", "align-end");
    bottom: 6rem;
    width: 28rem;
-   opacity: 0.2;
+   /*opacity: 0.2;*/
    }
 }
 
@@ -185,6 +188,16 @@ This style ensures that we can remove the padding-top from text in a card body. 
     content: "|";
     padding-right: units(1);
  }
+}
+
+/** This is to gray out search button when search isn't functional **/
+.usa-header--extended .usa-button {
+   background-color: color("gray-70");
+}
+
+/** This is to gray out search button when search isn't functional **/
+.usa-header--extended .usa-header [type=search] {
+   background-color: color("gray-4");
 }
 
 /** This is to display the search image **/
