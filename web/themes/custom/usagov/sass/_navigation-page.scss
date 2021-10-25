@@ -1,6 +1,6 @@
 $banner: var( $vars, navpage, banner );
 
-.usagov-navpage-hero{
+.usagov-hero{
     border-top: 10px solid var( $banner, border-color );
 }
 .usagov-hero__callout{
@@ -14,11 +14,11 @@ $banner: var( $vars, navpage, banner );
 }
 
 $card: var( $vars, navpage, card );
-.usagov-navpage-cards{
+.usagov-cards{
     padding: 1em;
     background-color: var( $vars, navpage, cards-bg );;
 }
-.usagov-navpage-card{
+.usagov-card{
     border-radius: 0;
     box-shadow: 4px 4px 10px #aaaaaa;
     &:hover{
@@ -26,7 +26,7 @@ $card: var( $vars, navpage, card );
         border-color: var( $card, hover-border-color );
     }
 }
-.usagov-navpage-card__heading{
+.usagov-card__heading{
     color: var( $card, heading-color );
     text-decoration-line: underline;
     text-decoration-thickness: 7px;
