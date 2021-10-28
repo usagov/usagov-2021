@@ -36,20 +36,42 @@
 
 {% elseif term_name == "Navigation Cards Page" %}
 
-<div class="usagov-navpage-cards">
+<div class="usagov-cards">
   <ul class="usa-card-group">
     {% for row in rows %}
     <li class="tablet:grid-col-4 usa-card">
-      <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-navpage-card text-no-underline">
+      <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
         {{- row.content -}}
       </a>
     </li>
     {% endfor %}
   </ul>
 </div>
-<p><span class="text-bold">Looking for something else?</span> <a href="#">Explore All Topics and Services</a></p>
+<p><span class="text-bold">Looking for something else?</span> <a href="/">Explore All Topics and Services</a></p>
 
 {% elseif term_name == "Standard Page" %}
 {# standard_page #}
 {% endif %}
 
+{% if view.current_display == "block_4" %}
+  {# block_4 is the intro_page display for this view which is used on the homepage #}
+  <div class="usagov-cards">
+    <ul class="usa-card-group">
+      {% for row in rows %}
+
+        {% set css_icon = row.content["#row"].node__field_css_icon_field_css_icon_value %}
+        {% if css_icon == null %}
+          {% set css_icon = "" %}
+        {% else %}
+          {% set css_icon = "topic-icon " ~ css_icon %}
+        {% endif %}
+        <li class="tablet:grid-col-6 usa-card">
+          <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline {{css_icon}}">
+            {{- row.content -}}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <p><span class="text-bold">Looking for our main site?</span> Visit <a href="https://www.usa.gov">USA.gov</a></p>
+{% endif %}
