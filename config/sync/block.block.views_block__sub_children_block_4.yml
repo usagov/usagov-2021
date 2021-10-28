@@ -5,7 +5,6 @@ dependencies:
   config:
     - views.view.sub_children
   module:
-    - ctools
     - system
     - views
   theme:
@@ -20,18 +19,11 @@ settings:
   id: 'views_block:sub_children-block_4'
   label: ''
   provider: views
-  label_display: visible
+  label_display: '0'
   views_label: ''
   items_per_page: none
   context_mapping: {  }
 visibility:
-  'entity_bundle:node':
-    id: 'entity_bundle:node'
-    bundles:
-      basic_page: basic_page
-    negate: false
-    context_mapping:
-      node: '@node.node_route_context:node'
   request_path:
     id: request_path
     pages: '<front>'
