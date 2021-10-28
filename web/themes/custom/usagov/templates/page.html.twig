@@ -62,13 +62,13 @@
 {% endif %}
 
 <div class="usa-overlay"></div>
+{% if page.header_top %}
 
-<header class="{{ header_classes }}" id="header" role="banner">
-    {% if page.header_top %}
-    <div class="usa-banner-inner">
         {{ page.header_top }}
-    </div>
-    {% endif %} {% if header_basic %}
+    
+{% endif %}
+{#<header class="{{ header_classes }}" id="header" role="banner">
+     {% if header_basic %}
     <div class="usa-nav-container">
         {% endif %} {{ page.header }}
 
@@ -98,7 +98,7 @@
     </div>
     {% endif %}
 </header>
-
+#}
 {% if page.hero %}
 <section class="usa-hero">
     <div class="grid-container">
