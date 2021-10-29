@@ -16,3 +16,4 @@ permissions:
   - 'use text format html'
   - 'use text format uswds'
   - 'view media'
+  - 'view paragraphs entity embed'
