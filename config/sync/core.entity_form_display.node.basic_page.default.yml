@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.basic_page.body
+    - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_header_html
     - field.field.node.basic_page.field_is_navigation_page
@@ -36,6 +37,14 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_css_icon:
+    weight: 27
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
   field_footer_html:
     weight: 13
     settings:
