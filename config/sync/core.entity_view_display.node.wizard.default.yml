@@ -1,0 +1,38 @@
+uuid: f23f29dd-2d7b-45fd-8f03-eba9cceb19be
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.wizard.body
+    - field.field.node.wizard.field_wizard_step
+    - node.type.wizard
+  module:
+    - text
+    - user
+id: node.wizard.default
+targetEntityType: node
+bundle: wizard
+mode: default
+content:
+  body:
+    label: hidden
+    type: text_default
+    weight: 101
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_wizard_step:
+    weight: 102
+    label: hidden
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+    region: content
+  links:
+    weight: 100
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  langcode: true
