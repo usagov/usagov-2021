@@ -1,0 +1,33 @@
+uuid: 77d12907-eadc-4840-a1d9-316a19b0f63d
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.wizard_step.body
+    - field.field.node.wizard_step.field_wizard_step
+    - node.type.wizard_step
+  module:
+    - text
+    - user
+id: node.wizard_step.teaser
+targetEntityType: node
+bundle: wizard_step
+mode: teaser
+content:
+  body:
+    label: hidden
+    type: text_summary_or_trimmed
+    weight: 101
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+    region: content
+  links:
+    weight: 100
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+hidden:
+  field_wizard_step: true
+  langcode: true
