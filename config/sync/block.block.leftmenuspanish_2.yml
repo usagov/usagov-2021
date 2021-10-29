@@ -7,6 +7,7 @@ dependencies:
   module:
     - language
     - menu_block
+    - node
     - system
   theme:
     - usagov
@@ -42,3 +43,10 @@ visibility:
     id: request_path
     pages: '<front>'
     negate: true
+  node_type:
+    id: node_type
+    bundles:
+      basic_page: basic_page
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
