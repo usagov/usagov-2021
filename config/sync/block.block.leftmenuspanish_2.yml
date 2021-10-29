@@ -20,7 +20,7 @@ settings:
   label: 'Left Menu Spanish'
   provider: menu_block
   label_display: visible
-  follow: true
+  follow: false
   follow_parent: active
   level: 1
   depth: 0

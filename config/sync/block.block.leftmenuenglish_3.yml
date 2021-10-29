@@ -21,7 +21,7 @@ settings:
   label: 'Left Menu English'
   provider: menu_block
   label_display: visible
-  follow: true
+  follow: false
   follow_parent: active
   level: 1
   depth: 0
