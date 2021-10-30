@@ -1,69 +1,92 @@
 version: '3.0'
 services:
-  cms:
-    container_name: cms
+  # cms:
+  #   container_name: cms
+  #   build:
+  #     context: ./
+  #     dockerfile: .docker/Dockerfile-cms
+  #   ports:
+  #     - 80:80
+  #   volumes:
+  #     - .:/var/www:delegated
+  #   env_file:
+  #     - ./env.local
+  #   environment:
+  #     COMPOSER_MEMORY_LIMIT: -1
+  #     CF_INSTANCE_INDEX: '1'
+  #     VCAP_APPLICATION: >
+  #       {"name": "web", "application_id": "docker"}
+  #     VCAP_SERVICES: >
+  #       { "aws-rds": [{
+  #           "name": "database",
+  #           "credentials": {
+  #             "db_name": "drupal",
+  #             "host": "database",
+  #             "password": "mysql",
+  #             "port": "3306",
+  #             "username": "root"
+  #           }
+  #         }],
+  #         "user-provided": [{
+  #           "name": "secrets",
+  #           "credentials": {
+  #             "ADMIN_EMAIL": "secret@example.com",
+  #             "CRON_KEY": "SECRET",
+  #             "HASH_SALT": "SECRET",
+  #             "ROOT_USER_NAME": "root",
+  #             "ROOT_USER_PASS": "root"
+  #           }
+  #         }]
+  #       }
+  #   depends_on:
+  #     - database
+
+  # database:
+  #   container_name: database
+  #   build:
+  #     context: ./
+  #     dockerfile: .docker/Dockerfile-mysql
+  #   ports:
+  #     - 3306:3306
+  #   volumes:
+  #     - .:/app:delegated
+  #     - database_data:/var/lib/mysql:delegated
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: mysql
+  #     MYSQL_DATABASE: drupal
+
+  # node:
+  #   container_name: node
+  #   build:
+  #     context: ./
+  #     dockerfile: .docker/Dockerfile-node
+  #   volumes:
+  #     - .:/app:delegated
+  #   env_file:
+  #     - ./env.local
+
+  web:
+    container_name: web
     build:
       context: ./
-      dockerfile: .docker/Dockerfile-cms
+      dockerfile: .docker/Dockerfile-web
     ports:
       - 80:80
-    volumes:
-      - .:/var/www:delegated
-    env_file:
-      - ./env.local
     environment:
-      COMPOSER_MEMORY_LIMIT: -1
-      CF_INSTANCE_INDEX: '1'
-      VCAP_APPLICATION: >
-        {"name": "web", "application_id": "docker"}
-      VCAP_SERVICES: >
-        { "aws-rds": [{
-            "name": "database",
-            "credentials": {
-              "db_name": "drupal",
-              "host": "database",
-              "password": "mysql",
-              "port": "3306",
-              "username": "root"
-            }
-          }],
-          "user-provided": [{
-            "name": "secrets",
-            "credentials": {
-              "ADMIN_EMAIL": "secret@example.com",
-              "CRON_KEY": "SECRET",
-              "HASH_SALT": "SECRET",
-              "ROOT_USER_NAME": "root",
-              "ROOT_USER_PASS": "root"
-            }
-          }]
-        }
+      - S3_BUCKET=minio:9000/web
     depends_on:
-      - database
+      - minio
 
-  node:
-    container_name: node
+  minio:
+    container_name: minio
     build:
       context: ./
-      dockerfile: .docker/Dockerfile-node
+      dockerfile: .docker/Dockerfile-minio
+    ports: 
+      - 9000:9000
+      - 9001:9001
     volumes:
-      - .:/app:delegated
-    env_file:
-      - ./env.local
-
-  database:
-    container_name: database
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-mysql
-    ports:
-      - 3306:3306
-    volumes:
-      - .:/app:delegated
-      - database_data:/var/lib/mysql:delegated
-    environment:
-      MYSQL_ROOT_PASSWORD: mysql
-      MYSQL_DATABASE: drupal
+      - ./s3:/data
 
 volumes:
   database_data:

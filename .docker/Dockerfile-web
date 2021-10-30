@@ -1,0 +1,32 @@
+FROM nginx:mainline-alpine
+
+ARG GITBRANCH
+ENV GITBRANCH ${GITBRANCH:-none}
+
+ARG GITCOMMIT
+ENV GITCOMMIT ${GITCOMMIT:-none}
+
+ARG GITTAG
+ENV GITTAG ${GITTAG:-none}
+
+# Depenancies
+RUN apk upgrade --update --no-cache \
+    && apk add --no-cache --virtual .persistent-deps \
+    ca-certificates \
+    curl \
+    tar \
+    xz \
+    jq \
+    # cleanup
+    && rm -rf /var/cache/apk/*
+
+COPY --chown=nginx:nginx .docker/etc-web /etc
+COPY --chown=nginx:nginx .docker/etc-web/motd /etc/motd
+
+RUN echo "    built:" $(date) >> /etc/motd \
+    && echo "    branch: " $GITBRANCH >> /etc/motd \
+    && echo "    gittag: " $GITTAG >> /etc/motd \
+    && echo "    commit: " $GITCOMMIT >> /etc/motd \
+    && echo >> /etc/motd
+
+EXPOSE 80
