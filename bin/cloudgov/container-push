@@ -13,12 +13,12 @@ then
       exit 1;
 fi;
 
-docker push ednark/usagov-2021:$CONTAINERTAG
+docker push ednark/usagov-2021-cms:$CONTAINERTAG
 
 if [ -n "$CONTAINERTAG2" ]
 then
-    docker push ednark/usagov-2021:$CONTAINERTAG2
+    docker push ednark/usagov-2021-cms:$CONTAINERTAG2
 fi
 
-# docker search ednark/usagov-2021:$CONTAINERTAG
+# docker search ednark/usagov-2021-cms:$CONTAINERTAG
 
