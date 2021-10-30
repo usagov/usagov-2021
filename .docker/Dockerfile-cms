@@ -101,7 +101,7 @@ RUN apk upgrade --update --no-cache \
 
 ENV PATH=/var/www/vendor/bin:$PATH
 
-COPY --chown=nginx:nginx .docker/etc /etc
+COPY --chown=nginx:nginx .docker/etc-cms /etc
 COPY --chown=nginx:nginx bootstrap.sh /var/www/bootstrap.sh
 COPY --chown=nginx:nginx composer.json /var/www/composer.json
 COPY --chown=nginx:nginx composer.lock /var/www/composer.lock

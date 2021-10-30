@@ -23,7 +23,7 @@ echo "Building usagov-2021:"$CONTAINERTAG $CONTAINERTAG2
 chmod -R u+w ./web/sites/default/
 
 docker build --force-rm \
-    -t ednark/usagov-2021:$CONTAINERTAG \
+    -t ednark/usagov-2021-cms:$CONTAINERTAG \
     -f .docker/Dockerfile-cms . \
     --build-arg GITBRANCH=$GITBRANCH \
     --build-arg GITCOMMIT=$GITCOMMIT \
@@ -31,5 +31,5 @@ docker build --force-rm \
 
 if [ -n "$CONTAINERTAG2" ]
 then
-    docker tag ednark/usagov-2021:$CONTAINERTAG ednark/usagov-2021:$CONTAINERTAG2
+    docker tag ednark/usagov-2021-cms:$CONTAINERTAG ednark/usagov-2021-cms:$CONTAINERTAG2
 fi
