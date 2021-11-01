@@ -56,13 +56,19 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 /** info banner **/
    .usa-header--extended .usa-alert--slim .usa-alert__body {
+   @include at-media($theme-header-min-width) {
       max-width: 64rem;
       margin-right: auto;
       margin-left: auto;
-      padding-left: 2rem;
-      padding-right: 2rem;
+      padding-left: 3.2rem;
+      padding-right: 3.2rem;
       display: block;
       font-size: .9rem; 
+   }
+   padding-left: 2.2rem;
+   padding-right: 2.2rem;
+   display: block;
+   font-size: .9rem;
 }
 
 /** info banner **/
@@ -201,14 +207,16 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 /** This is to gray out search button when search isn't functional **/
-.usa-header--extended .usa-header [type=search] {
+.usa-header [type=search] {
    background-color: color("gray-4");
+   font-weight: 600;
 }
 
 /** This is to display the search image **/
 @media (min-width: 30em) {
 .usa-header--extended  .usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
       background-image: url(/themes/custom/usagov/images/search--dark.svg),linear-gradient(transparent,transparent);
+      filter: brightness(215%) invert(1) contrast(2);
     }
   }
 
