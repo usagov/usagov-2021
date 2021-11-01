@@ -54,6 +54,11 @@ This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
 `bin/drush sql:dump --resultflie=../backup.sql`
 
 ## Import Database
+
+`bin/db-update `
+
+
+## Import Database
 `bin/ssh`
 `drush sql-cli < backup.sql`
 ## Export Config
