@@ -209,12 +209,14 @@ This style ensures that we can remove the padding-top from text in a card body. 
 /** This is to gray out search button when search isn't functional **/
 .usa-header [type=search] {
    background-color: color("gray-4");
+   font-weight: 600;
 }
 
 /** This is to display the search image **/
 @media (min-width: 30em) {
 .usa-header--extended  .usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
       background-image: url(/themes/custom/usagov/images/search--dark.svg),linear-gradient(transparent,transparent);
+      filter: brightness(215%) invert(1) contrast(2);
     }
   }
 
