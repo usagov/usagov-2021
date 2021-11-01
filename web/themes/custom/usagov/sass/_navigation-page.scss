@@ -41,4 +41,7 @@ $card: var( $vars, navpage, card );
     &:hover{
         border-color: var( $card, hover-border-color );
     }
+    a{
+        color:black;
+    }
 }
