@@ -1,3 +1,36 @@
+FROM node:16.8.0-alpine3.13 AS build
+RUN apk upgrade --update --no-cache \
+    && apk add --no-cache --virtual .persistent-deps \
+      ca-certificates \
+      curl \
+      git \
+      php8 \
+      php8-mbstring \
+      php8-openssl \
+      php8-phar \
+      php8-iconv \
+    && ln -s /usr/bin/php8 /usr/bin/php \
+    && npm install --global \
+      gulp-cli \
+    && cd /tmp \
+    && curl -sS https://getcomposer.org/installer | php \
+        -- --install-dir=/usr/bin --filename=composer \
+    && mkdir -p /var/www
+
+COPY composer.json /var/www/composer.json
+COPY composer.lock /var/www/composer.lock
+COPY themes/custom/ /var/www/web/themes/custom
+
+RUN cd /var/www \
+    && echo 'memory_limit = -1' | tee -a /etc/php8/conf.d/docker-php-memlimit.ini \
+    && COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader
+    # theme build
+    # && npm install --production=false --prefix /var/www/web/themes/custom/usagov \
+    # && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
+    # && npm run build --prefix /var/www/web/themes/custom/usagov
+
+###############################################################
+
 FROM alpine:3.14
 LABEL MAINTAINER=dan@mobomo.com
 
@@ -102,13 +135,14 @@ RUN apk upgrade --update --no-cache \
 ENV PATH=/var/www/vendor/bin:$PATH
 
 COPY --chown=nginx:nginx .docker/etc-cms /etc
-COPY --chown=nginx:nginx bootstrap.sh /var/www/bootstrap.sh
 COPY --chown=nginx:nginx composer.json /var/www/composer.json
 COPY --chown=nginx:nginx composer.lock /var/www/composer.lock
-COPY --chown=nginx:nginx web /var/www/web
+COPY --chown=nginx:nginx scripts/bootstrap.sh /var/www/scripts/bootstrap.sh
 COPY --chown=nginx:nginx config /var/www/config
-COPY --chown=nginx:nginx vendor /var/www/vendor
 COPY --chown=nginx:nginx patches /var/www/patches
+COPY --chown=nginx:nginx libraries /var/www/libraries
+COPY --from=0 --chown=nginx:nginx /var/www/vendor /var/www/vendor
+COPY --from=0 --chown=nginx:nginx /var/www/web /var/www/web
 
 RUN rm -f /var/www/web/sites/default/settings.local.php \
     rm -rf /var/www/web/sites/default/files/* \
@@ -121,7 +155,6 @@ RUN rm -f /var/www/web/sites/default/settings.local.php \
     && echo >> /etc/motd \
     && cp /etc/motd /var/www/build.info \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
-
 
 EXPOSE 80
 

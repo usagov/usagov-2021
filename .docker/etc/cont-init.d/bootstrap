@@ -1,4 +1,0 @@
-#!/usr/bin/execlineb -P
-
-with-contenv
-/bin/sh bootstrap.sh

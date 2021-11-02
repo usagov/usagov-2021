@@ -1,4 +1,4 @@
 #!/usr/bin/execlineb -P
 
 with-contenv
-/bin/sh bootstrap.sh
+/bin/sh /var/www/scripts/bootstrap.sh

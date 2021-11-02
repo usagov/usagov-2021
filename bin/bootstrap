@@ -6,4 +6,4 @@ docker compose run \
   --workdir /var/www \
   -v $(pwd)/:/var/www:delegated \
   cms \
-  /var/www/bootstrap.sh
+  /var/www/scripts/bootstrap.sh
