@@ -1,0 +1,24 @@
+    ignore_invalid_headers off;
+    proxy_buffering off;
+
+    # catch urls that end in a trailing slash - assume they are dirs and need an index
+    location ~* /$ {
+        allow 127.0.0.1/32;
+        allow all;
+        deny all;
+
+        resolver 127.0.0.11;
+        # resolver 169.254.0.2;
+
+        proxy_redirect off;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_connect_timeout 300;
+        proxy_http_version 1.1;
+
+        proxy_pass http://${CMS_APP}${request_uri};
+        add_header X-dan-debug http://${CMS_APP}${request_uri} always;
+    }
