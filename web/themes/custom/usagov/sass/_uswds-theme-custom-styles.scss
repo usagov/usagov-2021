@@ -154,9 +154,9 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 .usa-header--extended .usa-logo img.es {
-   max-width: 6rem;
+   max-width: 6.2rem;
    @include at-media($theme-header-min-width) {
-    max-width: 12rem;
+    max-width: 12.3rem;
   }
  }
 
