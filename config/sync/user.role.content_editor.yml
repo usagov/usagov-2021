@@ -1,0 +1,25 @@
+uuid: 49a98c55-840f-440a-be71-7f5742cee109
+langcode: en
+status: true
+dependencies: {  }
+id: content_editor
+label: 'Content Editor'
+weight: 2
+is_admin: null
+permissions:
+  - 'access administration pages'
+  - 'access site in maintenance mode'
+  - 'access toolbar'
+  - 'add paragraphs entity embed'
+  - 'administer menu'
+  - 'create audio media'
+  - 'create basic_page content'
+  - 'create file media'
+  - 'delete own basic_page content'
+  - 'delete paragraphs entity embed'
+  - 'edit any basic_page content'
+  - 'edit paragraphs entity embed'
+  - 'view own unpublished content'
+  - 'view paragraphs entity embed'
+  - 'view the administration theme'
+  - 'view unpublished paragraphs'
