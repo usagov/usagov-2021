@@ -71,12 +71,24 @@ This style ensures that we can remove the padding-top from text in a card body. 
    font-size: .9rem;
 }
 
-/** info banner **/
+/** emergency banner header **/
+.usa-header--extended .usa-alert--error {
+   color: #ffffff;
+   border-left-color: color("red-70v");
+   background-color: color("red-70v")
+}
+
+/** emergency banner header **/
+.usa-header--extended .usa-alert--error a {
+   color: #ffffff;
+}
+
+/** info banner header **/
    .usa-header--extended .usa-alert--info {
       border-left-color: #e7f6f8; 
 }
 
-/** info banner heading **/
+/** info banner header **/
 @include at-media($theme-header-min-width) {
    .usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
          margin-bottom: 0;
