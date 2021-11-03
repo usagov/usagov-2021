@@ -133,9 +133,9 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 /** Language buttons **/
 @include at-media($theme-header-min-width) {
-.usa-header--extended .usa-nav__primary>.usa-nav__primary-item  {
-     padding-left: .5rem;
-  }
+   .usa-header--extended [hreflang|=es] {
+      padding-left: .5rem;
+   }
 }
 
 /** Language buttons **/
