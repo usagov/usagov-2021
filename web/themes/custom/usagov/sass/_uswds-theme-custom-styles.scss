@@ -28,6 +28,13 @@ i.e.
 This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
 Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
 */
+
+a.disabled {
+   pointer-events: none;
+   color:#000;
+   text-decoration: none;
+}
+
 .usa-button:visited {
    color: initial;
 }
@@ -44,7 +51,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 *   header and footer links
 **/
 .usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-footer__secondary-link a, .usa-banner__button {
-   color:color("blue-warm-70v")
+   color: #000;
 }
 
 //Header
@@ -204,15 +211,32 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 
  //Footer
- 
-.usa-form .usa-button {
+ .usa-footer--big .usa-footer__primary-content--collapsible .usa-footer__primary-link{ 
+    font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
+    font-size: 1.2rem;
+ }
+
+ .usa-sign-up__heading {
+   font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
+ }
+
+.usa-form .usa-button {     
+   background-color: #454545;
+   color:white;
+   font-size: 1.06rem;
    @media (max-width: 30em){
       width: 96px;
    }
 }
 
+.usa-input {
+   color: #454545;
+   font-weight:600;
+   background-color: #F3F3F3;
+}
+
 .usa-footer__primary-section {
-  background-color: color("gray-4");
+  background-color: #F3F3F3;
 }
 
 .usa-footer__primary-content--collapsible.hidden{
