@@ -11,32 +11,30 @@
         </h2>
 
         <p class="font-serif-xs">All form elements below are required and are marked with a (*) symbol.</p>
-        <form class="usa-form" action="/contact-elected-officials/info" autocomplete="off">
-            <label id="myStreetAddress" class="usa-label" for="input-street">*Street Address</label>
-            <input
-                class="usa-input"
-                id="input-street"
-                aria-labelledby="myStreetAddress"
-                name="input-street"
-                type="text"
-                onkeypress="return event.keyCode != 13;"
-                required
-                autofocus
-            />
-
-            <label id="myCity" class="usa-label" for="input-city">*City</label>
-            <input
-                class="usa-input"
-                id="input-city"
-                aria-labelledby="myCity"
-                name="input-city"
-                type="text"
-                onkeypress="return event.keyCode != 13;"
-                required
-            />
-
-            <div style="display: flex;">
-                <div style="padding-right: 20px;">
+        <form class="usa-form maxw-none" action="/contact-elected-officials/info" autocomplete="off">
+            <div class="bg-gray-5 padding-1px">
+                <div class="maxw-mobile margin-x-auto margin-y-4">
+                    <label id="myStreetAddress" class="usa-label" for="input-street">*Street Address</label>
+                    <input
+                        class="usa-input"
+                        id="input-street"
+                        aria-labelledby="myStreetAddress"
+                        name="input-street"
+                        type="text"
+                        onkeypress="return event.keyCode != 13;"
+                        required
+                        autofocus
+                    />
+                    <label id="myCity" class="usa-label" for="input-city">*City</label>
+                    <input
+                        class="usa-input"
+                        id="input-city"
+                        aria-labelledby="myCity"
+                        name="input-city"
+                        type="text"
+                        onkeypress="return event.keyCode != 13;"
+                        required
+                    />
                     <label id="myState" class="usa-label" for="input-state">*State</label>
                     <div class="usa-combo-box">
                         <select aria-labelledby="myState" class="usa-select" name="input-state" id="input-state" required>
@@ -93,9 +91,6 @@
                             <option id="WY" value="WY">Wyoming</option>
                         </select>
                     </div>
-                </div>
-
-                <div style="width: 40%">
                     <label id="myZIP" class="usa-label" for="input-zip">*ZIP Code</label>
                     <input
                         class="usa-input"
@@ -113,7 +108,7 @@
                 <a href="https://www.usa.gov/policies">Learn how USA.gov protects your privacy.</a>
             </p>
 
-            <button class="usa-button usa-button--accent-cool" style="width: 80%">Find My Elected Officials!</button>
+            <button class="usa-button usa-button--secondary usa-button--big">Find My Elected Officials!</button>
         </form>
     </div>
 </div>

@@ -411,3 +411,12 @@ This style ensures that we can remove the padding-top from text in a card body. 
       width: 30%;
 }
 }
+
+.usagov-button--outline-black {
+   box-shadow: $button-stroke color("black");
+   color: color("black");
+   &:hover {
+      box-shadow: $button-stroke color("black");
+      color: color("black");
+  }
+}
