@@ -1,6 +1,6 @@
 uuid: 8a56c5f1-faf0-4bc4-addb-8e277dd79936
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - system.menu.left-menu-spanish
@@ -42,3 +42,4 @@ visibility:
     id: request_path
     pages: '<front>'
     negate: true
+
