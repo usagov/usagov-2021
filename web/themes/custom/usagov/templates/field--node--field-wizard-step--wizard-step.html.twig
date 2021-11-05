@@ -3,9 +3,14 @@
 {% if radio_buttons %}
 
 
+
 <fieldset class="usa-fieldset maxw-tablet margin-x-auto">
     {% for item in items %}
-        {% set title = item.content["#title"] %}
+        {% set title = item.content["#options"]["entity"].field_option_name.0.value %}
+        {% if title == null %}
+            {% set title = item.content["#title"] %}
+        {% endif %}
+        
         {% set id = title|lower|replace({' ': '-', '.': '-'}) %}
         {% set url = item.content["#url"] %}
 
