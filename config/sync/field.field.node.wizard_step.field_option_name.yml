@@ -1,0 +1,19 @@
+uuid: 8872cdd5-419c-430c-9df9-35862cb843f9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_option_name
+    - node.type.wizard_step
+id: node.wizard_step.field_option_name
+field_name: field_option_name
+entity_type: node
+bundle: wizard_step
+label: 'Option Name'
+description: 'Optional: This text will be used in the radio button instead of the title.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
