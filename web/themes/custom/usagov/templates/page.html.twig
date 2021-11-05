@@ -50,9 +50,19 @@
  */
 #}
 
+{% set content_type = "" %}
+{% if node.type.0 != null %}
+    {% set content_type = node.type.0.target_id %}
+{% endif %}
+
 {% set term_name = "" %}
 {% if node.field_page_type.0 != null %}
     {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
+{% endif %}
+
+{% set show_sidebar = true %}
+{% if term_name == "Navigation Cards Page" %}
+    {% set show_sidebar = false %}
 {% endif %}
 
 {% if government_banner %}
@@ -127,16 +137,13 @@
         {% endif %} {% endif %}
 
         <div class="grid-row grid-gap">
-            {% if page.sidebar_first %}
-                {% if term_name != "Navigation Cards Page" %}
-                {# If this is a navigation cards page, do not show the left nav #}
+            {% if page.sidebar_first and show_sidebar %}
                 <aside class="usa-layout-docs__sidenav desktop:grid-col-3 layout-sidebar-first" role="complementary">
                     {{ page.sidebar_first }}
                 </aside>
-                {% endif %}
             {% endif %}
 
-            <div class="usa-layout-docs__main desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and term_name != "Navigation Cards Page" %}9{% else %}fill{% endif %}">
+            <div class="usa-layout-docs__main desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}9{% else %}fill{% endif %}">
                 {{ page.content }}
             </div>
             {# /.layout-content #} {% if page.sidebar_second %}
