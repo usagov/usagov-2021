@@ -407,7 +407,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 .usa-button {
    @media (max-width: 30em){
-      width: 30%;
+      width: 100%;
 }
 }
 
@@ -419,6 +419,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
       color: color("black");
   }
 }
+
 
 .usa-checkbox__input:checked + .usa-checkbox__label::before,
 .usa-radio__input:checked + .usa-radio__label::before {
@@ -433,3 +434,4 @@ This style ensures that we can remove the padding-top from text in a card body. 
    border-color: black;
    background: white;
 }
+
