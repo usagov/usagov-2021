@@ -46,6 +46,7 @@ sqlite-local.db-wal
 
 # Ignore drupal core (if not versioning drupal sources)
 /vendor/*
+!/vendor/.keep
 LICENSE.txt
 .eslintignore
 .gitattributes
