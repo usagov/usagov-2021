@@ -5,6 +5,7 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.wizard_step.body
+    - field.field.node.wizard_step.field_option_name
     - field.field.node.wizard_step.field_wizard_step
     - node.type.wizard_step
   module:
@@ -29,5 +30,6 @@ content:
     third_party_settings: {  }
     region: content
 hidden:
+  field_option_name: true
   field_wizard_step: true
   langcode: true

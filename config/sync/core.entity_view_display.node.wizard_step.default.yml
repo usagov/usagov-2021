@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.wizard_step.body
+    - field.field.node.wizard_step.field_option_name
     - field.field.node.wizard_step.field_wizard_step
     - node.type.wizard_step
   module:
@@ -17,12 +18,12 @@ content:
   body:
     label: hidden
     type: text_default
-    weight: 101
+    weight: 1
     settings: {  }
     third_party_settings: {  }
     region: content
   field_wizard_step:
-    weight: 102
+    weight: 2
     label: hidden
     settings:
       link: true
@@ -30,9 +31,10 @@ content:
     type: entity_reference_label
     region: content
   links:
-    weight: 100
+    weight: 0
     region: content
     settings: {  }
     third_party_settings: {  }
 hidden:
+  field_option_name: true
   langcode: true

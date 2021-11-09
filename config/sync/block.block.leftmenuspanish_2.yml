@@ -5,9 +5,9 @@ dependencies:
   config:
     - system.menu.left-menu-spanish
   module:
+    - ctools
     - language
     - menu_block
-    - node
     - system
   theme:
     - usagov
@@ -43,8 +43,8 @@ visibility:
     id: request_path
     pages: '<front>'
     negate: true
-  node_type:
-    id: node_type
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
     bundles:
       basic_page: basic_page
     negate: false
