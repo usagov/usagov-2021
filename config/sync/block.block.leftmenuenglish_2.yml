@@ -1,6 +1,6 @@
 uuid: ce1ad467-01ae-456e-b709-34128cc6d061
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - system.menu.left-menu-english

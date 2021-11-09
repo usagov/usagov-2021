@@ -1,0 +1,8 @@
+uuid: d71a74c9-dcc7-4b7d-a5a8-11bd5bcfe3d2
+langcode: en
+status: true
+dependencies: {  }
+id: wizard_block
+label: 'Wizard Block'
+revision: 0
+description: ''

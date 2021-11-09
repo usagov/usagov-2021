@@ -5,6 +5,7 @@ dependencies:
   config:
     - system.menu.left-menu-english
   module:
+    - ctools
     - language
     - menu_block
     - system
@@ -21,11 +22,11 @@ settings:
   label: 'Left Menu English'
   provider: menu_block
   label_display: visible
-  follow: true
+  follow: false
   follow_parent: active
-  level: 2
-  depth: 3
-  expand_all_items: false
+  level: 1
+  depth: 0
+  expand_all_items: true
   parent: 'left-menu-english:'
   suggestion: left_menu_english
   label_type: root
@@ -42,3 +43,10 @@ visibility:
     negate: false
     context_mapping:
       language: '@language.current_language_context:language_interface'
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    bundles:
+      basic_page: basic_page
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'

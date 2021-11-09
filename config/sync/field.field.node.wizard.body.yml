@@ -1,0 +1,23 @@
+uuid: 35d7458b-2060-41b9-aa8c-cd0cea793270
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.wizard
+  module:
+    - text
+id: node.wizard.body
+field_name: body
+entity_type: node
+bundle: wizard
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+  required_summary: false
+field_type: text_with_summary

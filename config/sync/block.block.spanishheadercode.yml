@@ -12,7 +12,7 @@ dependencies:
 id: spanishheadercode
 theme: usagov
 region: header_top
-weight: 0
+weight: -9
 provider: null
 plugin: 'block_content:ebb01db0-8435-4a27-91e6-ff142d9d941f'
 settings:

@@ -49,11 +49,21 @@
  * @see html.html.twig
  */
 #}
-{% set page_types = {
-    standard_page: '22', 
-    navigation_page: '21', 
-    navigation_cards_page: '23' } 
-  %}
+
+{% set content_type = "" %}
+{% if node.type.0 != null %}
+    {% set content_type = node.type.0.target_id %}
+{% endif %}
+
+{% set term_name = "" %}
+{% if node.field_page_type.0 != null %}
+    {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
+{% endif %}
+
+{% set show_sidebar = true %}
+{% if term_name == "Navigation Cards Page" %}
+    {% set show_sidebar = false %}
+{% endif %}
 
 {% if government_banner %}
   <section class="usa-banner">
@@ -72,7 +82,7 @@
     <div class="usa-nav-container">
         {% endif %} {{ page.header }}
 
-        <nav class="usa-nav" role="navigation">
+        {#<nav class="usa-nav" role="navigation">
             {% if header_extended %}
             <div class="usa-nav__inner">
                 {% endif %}
@@ -92,7 +102,7 @@
                 {% endif %} {% if header_extended %}
             </div>
             {% endif %}
-        </nav>
+        </nav>#}
 
         {% if header_basic %}
     </div>
@@ -127,15 +137,13 @@
         {% endif %} {% endif %}
 
         <div class="grid-row grid-gap">
-            {% if page.sidebar_first %}
-            {% if node.field_page_type.0.target_id != page_types.navigation_cards_page %}{# If this is a navigation page, do not show the left nav #}
-            <aside class="usa-layout-docs__sidenav desktop:grid-col-3 layout-sidebar-first" role="complementary">
-                {{ page.sidebar_first }}
-            </aside>
-            {% endif %}
+            {% if page.sidebar_first and show_sidebar %}
+                <aside class="usa-layout-docs__sidenav desktop:grid-col-3 layout-sidebar-first" role="complementary">
+                    {{ page.sidebar_first }}
+                </aside>
             {% endif %}
 
-            <div class="usa-layout-docs__main desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and node.field_page_type.0.target_id != page_types.navigation_cards_page %}9{% else %}fill{% endif %}">
+            <div class="usa-layout-docs__main desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}9{% else %}fill{% endif %}">
                 {{ page.content }}
             </div>
             {# /.layout-content #} {% if page.sidebar_second %}
