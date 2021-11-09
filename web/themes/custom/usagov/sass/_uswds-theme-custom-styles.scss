@@ -65,7 +65,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
    color: color("blue-warm-70v")
 }
 
-.usa-banner__button:after {
+.usa-banner__button:after, .usa-banner__button:hover:after, .usa-banner__button:hover:visited:after {
    background-color: color("blue-warm-70v")
 }
 
