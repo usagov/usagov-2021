@@ -232,12 +232,11 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 /** This is to display the search image **/
-@media (min-width: 30em) {
 .usa-header--extended  .usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
       background-image: url(/themes/custom/usagov/images/search--dark.svg),linear-gradient(transparent,transparent);
       filter: brightness(215%) invert(1) contrast(2);
     }
-  }
+  
 
   .usa-nav__primary>.usa-nav__primary-item>a, .usa-nav__primary>.usa-nav__primary-item>a:hover {
   @media (min-width: 64em) {
@@ -408,7 +407,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 .usa-button {
    @media (max-width: 30em){
-      width: 30%;
+      width: 100%;
 }
 }
 
