@@ -65,7 +65,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
    color: color("blue-warm-70v")
 }
 
-.usa-banner__button-text:after {
+.usa-banner__button:after {
    background-color: color("blue-warm-70v")
 }
 
@@ -84,6 +84,10 @@ This style ensures that we can remove the padding-top from text in a card body. 
    padding-right: 2.2rem;
    display: block;
    font-size: .9rem;
+}
+
+.usa-header--extended .usa-alert--slim .usa-alert__body a, .usa-header--extended .usa-alert--slim .usa-alert__body a:hover, .usa-header--extended .usa-alert--slim .usa-alert__body a:visited {
+   color: color("blue-warm-70v")
 }
 
 /** emergency banner header **/
