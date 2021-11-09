@@ -419,3 +419,17 @@ This style ensures that we can remove the padding-top from text in a card body. 
       color: color("black");
   }
 }
+
+.usa-checkbox__input:checked + .usa-checkbox__label::before,
+.usa-radio__input:checked + .usa-radio__label::before {
+  background-color: color("black");
+  box-shadow: 0 0 0 units($theme-input-select-border-width) color("black"), inset 0 0 0 units($theme-input-select-border-width) color("white");;
+}
+.usa-checkbox__input--tile:checked+.usa-checkbox__label, .usa-radio__input--tile:checked+.usa-radio__label {
+   // background-color: #ccecf2;
+   border-color: var( $usagov-variables, radio-button, border-color );;
+}
+.usa-checkbox__input--tile+.usa-checkbox__label, .usa-radio__input--tile+.usa-radio__label {
+   border-color: black;
+   background: white;
+}
