@@ -40,6 +40,7 @@ $deep-blue: #11304e;
 $cyan: #3fbde3;
 $cyan-light: #ccecf2;
 $light-gray: #f3f3f3;
+$orange: #f79240;
 
 //Component Variables - always refer to another variable
 // $navpage-banner-box-bg-color:         $deep-blue;
@@ -68,6 +69,9 @@ $usagov-variables: (
     hover-background-color: $cyan-light,
     hover-border-color: $cyan,
     group-background-color: $light-gray
+  ),
+  radio-button: (
+    border-color: $orange
   )
 );
 
