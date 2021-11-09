@@ -8,8 +8,8 @@ dependencies:
     - usagov
 id: languageswitcher
 theme: usagov
-region: secondary_menu
-weight: -5
+region: header_top
+weight: -11
 provider: null
 plugin: 'language_block:language_interface'
 settings:

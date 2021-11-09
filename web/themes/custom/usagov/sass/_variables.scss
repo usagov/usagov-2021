@@ -52,22 +52,21 @@ $light-gray: #f3f3f3;
 // $navpage-card-hover-border-color:       $cyan;
 
 // Trying a SASS Map
-$vars: (
-  navpage: (
-    banner: (
-      border-color: $red,
-      box-bg-color: $deep-blue,
-      box-border-color: $white,
-      box-font-color: $cyan-light
-    ),
-    card: (
-      heading-color: $text-blue,
-      heading-underline-color: $cyan,
-      // border-color: $grey,
-      hover-bg-color: $cyan-light,
-      hover-border-color: $cyan
-    ),
-    cards-bg: $light-gray
+$usagov-variables: (
+  hero: (
+    border-color: $red,
+    background-color: $deep-blue,
+    box-border-color: $white,
+    font-color: $white,
+    secondary-font-color: $cyan-light
+  ),
+  card: (
+    heading-color: $text-blue,
+    heading-underline-color: $cyan,
+    // border-color: $grey,
+    hover-background-color: $cyan-light,
+    hover-border-color: $cyan,
+    group-background-color: $light-gray
   )
 );
 
@@ -75,7 +74,7 @@ $vars: (
 Call the var function to retrieve variables from sass map variables
 
 ex:
-var( $vars, navpage, banner, border-color );
+var( $vars, navpage, hero, border-color );
 
 */
 @function var($map, $keys...) {

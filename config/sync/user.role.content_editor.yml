@@ -1,0 +1,48 @@
+uuid: 49a98c55-840f-440a-be71-7f5742cee109
+langcode: en
+status: true
+dependencies: {  }
+id: content_editor
+label: 'Content Editor'
+weight: 2
+is_admin: null
+permissions:
+  - 'access administration pages'
+  - 'access content'
+  - 'access content overview'
+  - 'access site in maintenance mode'
+  - 'access toolbar'
+  - 'add paragraphs entity embed'
+  - 'administer menu'
+  - 'create audio media'
+  - 'create basic_page content'
+  - 'create content translations'
+  - 'create file media'
+  - 'create wizard content'
+  - 'create wizard_step content'
+  - 'delete own basic_page content'
+  - 'delete own wizard content'
+  - 'delete own wizard_step content'
+  - 'delete paragraphs entity embed'
+  - 'edit any basic_page content'
+  - 'edit any wizard content'
+  - 'edit any wizard_step content'
+  - 'edit own basic_page content'
+  - 'edit own wizard content'
+  - 'edit own wizard_step content'
+  - 'edit paragraphs entity embed'
+  - 'translate basic_page node'
+  - 'translate editable entities'
+  - 'update content translations'
+  - 'use basic_workflow transition create_new_draft'
+  - 'use basic_workflow transition publish'
+  - 'view all revisions'
+  - 'view any unpublished content'
+  - 'view basic_page revisions'
+  - 'view latest version'
+  - 'view own unpublished content'
+  - 'view paragraphs entity embed'
+  - 'view the administration theme'
+  - 'view unpublished paragraphs'
+  - 'view wizard revisions'
+  - 'view wizard_step revisions'

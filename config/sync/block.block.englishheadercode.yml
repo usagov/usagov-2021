@@ -12,7 +12,7 @@ dependencies:
 id: englishheadercode
 theme: usagov
 region: header_top
-weight: 0
+weight: -10
 provider: null
 plugin: 'block_content:644b7adb-94b1-497d-bd4d-c1f2a2bf9909'
 settings:
