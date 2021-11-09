@@ -8,7 +8,7 @@
         {% if title == null %}
             {% set title = item.content["#title"] %}
         {% endif %}
-        
+
         {% set id = title|lower|replace({' ': '-', '.': '-'}) %}
         {% set url = item.content["#url"] %}
 
@@ -16,7 +16,7 @@
         <label class="usa-radio__label" for="{{id}}">{{title}}</label>
     {% endfor %}
 
-    <div class="grid-row flex-justify-center maxw-mobile margin-x-auto">
+    <div class="grid-row flex-justify-center maxw-mobile margin-x-auto margin-y-6">
         <button class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">Begin</button>
     </div>
 </fieldset>
