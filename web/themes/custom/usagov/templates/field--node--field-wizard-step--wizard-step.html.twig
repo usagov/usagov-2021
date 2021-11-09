@@ -18,7 +18,7 @@
         <label class="usa-radio__label" for="{{id}}">{{title}}</label>
     {% endfor %}
 
-    <div class="grid-row flex-justify maxw-mobile margin-x-auto">
+    <div class="grid-row flex-justify maxw-mobile margin-x-auto margin-y-6">
         <button class="usa-button usa-button--outline usagov-button--outline-black" onclick="window.location.href = document.querySelector(`.previous-wizard-step a`).href">Prior</button>
         <button class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">Next</button>
     </div>
