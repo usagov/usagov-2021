@@ -417,7 +417,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }
  }
 
-.usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
+a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
       color: color("blue-warm-70v");
 }
 
