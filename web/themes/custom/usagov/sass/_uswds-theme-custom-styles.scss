@@ -69,6 +69,10 @@ This style ensures that we can remove the padding-top from text in a card body. 
    background-color: color("blue-warm-70v")
 }
 
+.usa-banner__button[aria-expanded=true]::after, .usa-banner__button[aria-expanded=true]:hover::after, .usa-banner__button[aria-expanded=true]:hover:visited::after {
+   background-color: color("blue-warm-70v")
+}
+
 /** info banner **/
    .usa-header--extended .usa-alert--slim .usa-alert__body {
    @include at-media($theme-header-min-width) {
