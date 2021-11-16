@@ -148,6 +148,10 @@ This style ensures that we can remove the padding-top from text in a card body. 
 /** Language buttons **/
    .usa-header--extended [hreflang|=es] {
       padding-left: .5rem;
+      border-radius: 5px;
+   }
+   .usa-header--extended [hreflang|=en] {
+      border-radius: 5px;
    }
 
 /** Language buttons **/
