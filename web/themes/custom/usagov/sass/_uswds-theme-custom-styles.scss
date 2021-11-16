@@ -138,31 +138,25 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 /** Language buttons **/
-@include at-media($theme-header-min-width) {
    .usa-header--extended div.language-switcher-language-url ul.links {
       display: flex;
       justify-content: flex-end;
       margin-top: .3rem;
       margin-left: 0;
    }
-}
 
 /** Language buttons **/
-@include at-media($theme-header-min-width) {
    .usa-header--extended [hreflang|=es] {
       padding-left: .5rem;
    }
-}
 
 /** Language buttons **/
-@include at-media($theme-header-min-width) {
 .usa-header--extended  .usa-nav__primary>.usa-nav__primary-item>a.language-link  {
      color: #fff;
      text-decoration: none;
      padding: 10px 20px 10px 20px;
      background-color: color("blue-warm-80v")
   }
-}
 
 /** Language buttons **/
 @include at-media($theme-header-min-width) {
