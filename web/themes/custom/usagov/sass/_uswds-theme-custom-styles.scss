@@ -169,6 +169,19 @@ This style ensures that we can remove the padding-top from text in a card body. 
   }
 }
 
+
+/** Mobile menu button **/
+@media (max-width: 64em) {
+.usa-header--extended .usa-navbar { 
+   margin-top: 1rem;
+   padding-bottom: 1rem;
+   }
+}
+.usa-header--extended .usa-menu-btn { 
+   background-color: color("blue-warm-80v")
+}
+
+
 /** This is to minimize the size of the logo in 
 *   tablet and mobile
 **/
