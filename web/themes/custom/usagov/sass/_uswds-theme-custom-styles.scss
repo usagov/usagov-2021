@@ -29,10 +29,6 @@ This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswd
 Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
 */
 
-ul li:not(:last-child) { 
-   margin: 24px 0;  
-}
-
 a.disabled {
    pointer-events: none;
    color:#000;
