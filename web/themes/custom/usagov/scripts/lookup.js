@@ -244,7 +244,7 @@ function renderResults(response, rawResponse) {
                     }
                     let social = socials[j].type.toLowerCase();
                     if(social in socialOptions){
-                        nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}">@${socials[j].id}</div>`;
+                        nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
                     }
                     // nextElem.appendChild(linkToSocial);
 
