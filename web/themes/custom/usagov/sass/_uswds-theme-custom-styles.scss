@@ -138,31 +138,29 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 /** Language buttons **/
-@include at-media($theme-header-min-width) {
    .usa-header--extended div.language-switcher-language-url ul.links {
       display: flex;
       justify-content: flex-end;
       margin-top: .3rem;
       margin-left: 0;
    }
-}
 
 /** Language buttons **/
-@include at-media($theme-header-min-width) {
    .usa-header--extended [hreflang|=es] {
       padding-left: .5rem;
+      border-radius: 5px;
    }
-}
+   .usa-header--extended [hreflang|=en] {
+      border-radius: 5px;
+   }
 
 /** Language buttons **/
-@include at-media($theme-header-min-width) {
 .usa-header--extended  .usa-nav__primary>.usa-nav__primary-item>a.language-link  {
      color: #fff;
      text-decoration: none;
      padding: 10px 20px 10px 20px;
      background-color: color("blue-warm-80v")
   }
-}
 
 /** Language buttons **/
 @include at-media($theme-header-min-width) {
@@ -170,6 +168,19 @@ This style ensures that we can remove the padding-top from text in a card body. 
      color: #fff;
   }
 }
+
+
+/** Mobile menu button **/
+@media (max-width: 64em) {
+.usa-header--extended .usa-navbar { 
+   margin-top: 1rem;
+   padding-bottom: 1rem;
+   }
+}
+.usa-header--extended .usa-menu-btn { 
+   background-color: color("blue-warm-80v")
+}
+
 
 /** This is to minimize the size of the logo in 
 *   tablet and mobile
