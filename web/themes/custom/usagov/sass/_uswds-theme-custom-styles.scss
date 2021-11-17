@@ -29,6 +29,20 @@ This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswd
 Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
 */
 
+h1 {
+   font-size: 180% !important;
+   color: #d83933 !important;
+}
+
+h2{
+   font-family: $theme-font-type-serif;
+   font-size: 145%;
+}
+
+#block-usagov-content article ul li, #block-usagov-content article ol li{ 
+   line-height: 2.5; 
+}
+
 a.disabled {
    pointer-events: none;
    color:#000;
@@ -464,4 +478,8 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
 
 .usa-breadcrumb__link {
    text-decoration: underline;
+}
+
+a {
+   color: #1a4480;
 }
