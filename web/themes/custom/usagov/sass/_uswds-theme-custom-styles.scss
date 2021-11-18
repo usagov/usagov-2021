@@ -483,3 +483,34 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
 a {
    color: #1a4480;
 }
+
+
+#block-betabanner .usa-alert--info{
+   // These styles are needed to position the alert icon 
+   &:before {
+      display:none;
+   }
+   .usa-alert__body {
+      position:relative;
+
+      &:before {
+         background: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
+         width: 2rem;
+         content: "";
+         display: block;
+         height: 3.5rem;
+         position:absolute;
+         left: 1.6rem;
+         top: -0.6rem;
+         background: 0 0;
+         background-color: #1b1b1b;
+         -webkit-mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
+         mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
+         background-size: 1.5rem;
+         height: 2.5rem;
+         width: 1.5rem;
+         -webkit-mask-size: 1.5rem;
+         mask-size: 1.5rem;
+      }
+   }
+}
