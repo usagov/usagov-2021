@@ -1,0 +1,11 @@
+uuid: 7f76cc02-cee1-4ec9-afe5-7b7e2fd7c6b7
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.wizard_block
+id: block_content.wizard_block
+target_entity_type_id: block_content
+target_bundle: wizard_block
+default_langcode: site_default
+language_alterable: false

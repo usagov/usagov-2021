@@ -1,0 +1,8 @@
+uuid: 62d31d65-3ee4-456b-8812-ba31cd0f7422
+langcode: en
+status: true
+dependencies: {  }
+id: wizard
+label: Wizard
+description: 'This is for the Wizards'
+locked: false
