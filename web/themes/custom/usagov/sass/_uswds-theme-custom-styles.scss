@@ -163,13 +163,26 @@ This style ensures that we can remove the padding-top from text in a card body. 
    .usa-header--extended [hreflang|=es] {
       padding-left: .5rem;
       border-radius: 5px;
+      border: none;
+      @media (max-width: 64em) {
+         padding-right: 1.3rem;
+      }
    }
+  
    .usa-header--extended [hreflang|=en] {
       border-radius: 5px;
+      border: none;
+      @media (max-width: 64em) {
+         padding-right: 1.3rem;
+      }
    }
 
 /** Language buttons **/
 .usa-header--extended  .usa-nav__primary>.usa-nav__primary-item>a.language-link  {
+   @media (max-width: 64em) {
+     font-size: .93rem;
+     font-weight: 700;   
+   }
      color: #fff;
      text-decoration: none;
      padding: 10px 20px 10px 20px;
@@ -191,10 +204,18 @@ This style ensures that we can remove the padding-top from text in a card body. 
    padding-bottom: 1rem;
    }
 }
+
 .usa-header--extended .usa-menu-btn { 
+   @media (max-width: 64em) {
+      padding-right: 1.3rem;
+      width: 7rem;
+      height: 2.3rem;
+      text-align: left;
+      font-weight: 700;
+      background-image: url(/themes/custom/usagov/images/)
+   }
    background-color: color("blue-warm-80v")
 }
-
 
 /** This is to minimize the size of the logo in 
 *   tablet and mobile
