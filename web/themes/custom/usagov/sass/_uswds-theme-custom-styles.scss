@@ -212,7 +212,10 @@ This style ensures that we can remove the padding-top from text in a card body. 
       height: 2.3rem;
       text-align: left;
       font-weight: 700;
-      background-image: url(/themes/custom/usagov/images/)
+      background-image: url(/themes/custom/usagov/images/ICONS_Search.png);
+      background-size: 1.5rem;
+      background-repeat: no-repeat;
+      background-position: 3.5rem .7rem;
    }
    background-color: color("blue-warm-80v")
 }
