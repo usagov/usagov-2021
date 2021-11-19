@@ -39,6 +39,8 @@ $deep-blue: #11304e;
 $cyan: #3fbde3;
 $cyan-light: #ccecf2;
 $light-gray: #f3f3f3;
+$orange: #f79240;
+$black: #000000;
 
 //Component Variables - always refer to another variable
 // $navpage-banner-box-bg-color:         $deep-blue;
@@ -52,22 +54,25 @@ $light-gray: #f3f3f3;
 // $navpage-card-hover-border-color:       $cyan;
 
 // Trying a SASS Map
-$vars: (
-  navpage: (
-    banner: (
-      border-color: $red,
-      box-bg-color: $deep-blue,
-      box-border-color: $white,
-      box-font-color: $cyan-light
-    ),
-    card: (
-      heading-color: $text-blue,
-      heading-underline-color: $cyan,
-      // border-color: $grey,
-      hover-bg-color: $cyan-light,
-      hover-border-color: $cyan
-    ),
-    cards-bg: $light-gray
+$usagov-variables: (
+  hero: (
+    border-color: $red,
+    background-color: $deep-blue,
+    box-border-color: $white,
+    font-color: $white,
+    secondary-font-color: $cyan-light
+  ),
+  card: (
+    heading-color: $text-blue,
+    heading-underline-color: $cyan,
+    // border-color: $grey,
+    hover-background-color: $cyan-light,
+    hover-border-color: $cyan,
+    group-background-color: $light-gray,
+    text-color: $black
+  ),
+  radio-button: (
+    border-color: $orange
   )
 );
 
