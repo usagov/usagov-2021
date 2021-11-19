@@ -1,0 +1,29 @@
+uuid: 4e31650f-12bb-47de-bb62-38913308b277
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_wizard_step
+    - node.type.wizard
+    - node.type.wizard_step
+id: node.wizard.field_wizard_step
+field_name: field_wizard_step
+entity_type: node
+bundle: wizard
+label: 'Wizard Step'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      wizard_step: wizard_step
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: true
+    auto_create_bundle: wizard
+field_type: entity_reference

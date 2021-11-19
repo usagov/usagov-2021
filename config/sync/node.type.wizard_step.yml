@@ -1,0 +1,30 @@
+uuid: 3818a85d-163d-4094-af2a-7a968b143b69
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+    - node_menus
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - wizard
+    parent: 'wizard:'
+  node_menus:
+    enabled: 0
+    languages:
+      en:
+        available_menus:
+          - main
+        parent: 'main:'
+      es:
+        available_menus:
+          - main
+        parent: 'main:'
+name: 'Wizard Step'
+type: wizard_step
+description: ''
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: false

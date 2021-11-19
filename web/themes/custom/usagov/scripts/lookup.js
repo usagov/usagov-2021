@@ -122,6 +122,8 @@ function renderResults(response, rawResponse) {
             let accordionHeaderButton = document.createElement("button");
             accordionHeaderButton.setAttribute("class", "usa-accordion__button");
             accordionHeaderButton.setAttribute("aria-expanded", "true");
+            accordionHeaderButton.classList.add("bg-secondary");
+            accordionHeaderButton.classList.add("hover:bg-secondary-dark");
 
             var officialNumber = "Official #" + i;
             accordionHeaderButton.setAttribute("aria-controls", officialNumber);
@@ -135,6 +137,7 @@ function renderResults(response, rawResponse) {
 
             // Create bullet list of details for the elected official
             let bulletList = document.createElement("ul");
+            bulletList.classList.add("add-list-reset")
 
             // Display party affiliation
             // NOTE: unlike other details, this field will display
@@ -143,18 +146,21 @@ function renderResults(response, rawResponse) {
             // (so the accordion isn't blank if there are no details.
             let party = response.officials[i].party || "none provided";
             let nextElem = document.createElement("li");
-            nextElem.innerHTML = "<b>"+content["party-affiliation"]+":</b> " + party;
+            nextElem.classList.add("padding-bottom-2")
+            nextElem.innerHTML = `<div class="text-bold">${content["party-affiliation"]}:</div><div>${party}<div>`;
             bulletList.appendChild(nextElem);
 
             // Display address, if provided
             let address = response.officials[i].address || "none provided";
             nextElem = document.createElement("li");
+            nextElem.classList.add("padding-bottom-2")
             if (address != "none provided") {
                 // Normalize address
-                address = address[0].line1 + ", " + address[0].city + ", " + address[0].state + " " + address[0].zip;
+                address = address[0].line1 + ",<br>" + address[0].city + ", " + address[0].state + " " + address[0].zip;
 
                 nextElem = document.createElement("li");
-                nextElem.innerHTML = "<b>"+content["address"]+":</b> " + address;
+            nextElem.classList.add("padding-bottom-2")
+                nextElem.innerHTML = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
 
                 bulletList.appendChild(nextElem);
             }
@@ -163,13 +169,15 @@ function renderResults(response, rawResponse) {
             let phoneNumber = response.officials[i].phones || "none provided";
             if (phoneNumber != "none provided") {
                 // Select first phone number and create clickable link
-                let linkToPhone = document.createElement("a");
-                linkToPhone.setAttribute("href", "tel:" + phoneNumber[0]);
-                linkToPhone.innerHTML = phoneNumber[0];
+                // let linkToPhone = document.createElement("a");
+                // linkToPhone.setAttribute("href", "tel:" + phoneNumber[0]);
+                // linkToPhone.innerHTML = phoneNumber[0];
+                let linkToPhone = `<a href="tel:${phoneNumber[0]}">${phoneNumber[0]}</a>`;
 
                 nextElem = document.createElement("li");
-                nextElem.innerHTML = "<b>"+content["phone-number"]+":</b> ";
-                nextElem.appendChild(linkToPhone);
+                nextElem.classList.add("padding-bottom-2")
+                nextElem.innerHTML = `<div class="text-bold">${content["phone-number"]}:</div><div>${linkToPhone}</div>`;
+                // nextElem.appendChild(linkToPhone);
 
                 bulletList.appendChild(nextElem);
             }
@@ -177,8 +185,8 @@ function renderResults(response, rawResponse) {
             // Display website, if provided
             let website = response.officials[i].urls || "none provided";
             if (website != "none provided") {
-                let link = document.createElement("a");
-                link.setAttribute("href", response.officials[i].urls[0]);
+                // let link = document.createElement("a");
+                // link.setAttribute("href", response.officials[i].urls[0]);
 
                 // Shorten the link and remove unnecessary characters
                 let cleanLink = response.officials[i].urls[0]
@@ -186,11 +194,14 @@ function renderResults(response, rawResponse) {
                 if (cleanLink[cleanLink.length - 1] == "/") {
                     cleanLink = cleanLink.slice(0, -1);
                 }
-                link.innerHTML = cleanLink;
+                let link=`<a href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
+                // link.innerHTML = cleanLink;
 
                 nextElem = document.createElement("li");
-                nextElem.innerHTML = "<b>"+content["website"]+":</b> ";
-                nextElem.appendChild(link);
+                nextElem.classList.add("padding-bottom-2")
+                // nextElem.innerHTML = "<div class="text-bold">"+content["website"]+":</div><div>";
+                nextElem.innerHTML = `<div class="text-bold">${content["website"]}:</div><div>${link}</div>`;
+                // nextElem.appendChild(link);
 
                 bulletList.appendChild(nextElem);
             }
@@ -201,21 +212,41 @@ function renderResults(response, rawResponse) {
                 for (let j = 0; j < socials.length; j++) {
                     // Create appropriate type of link
                     // for each social media account
-                    let linkToSocial = document.createElement("a");
-                    if (socials[j].type.toLowerCase() == "twitter") {
-                        linkToSocial.setAttribute("href", "https://twitter.com/" + socials[j].id);
-                    } else if (socials[j].type.toLowerCase() == "facebook") {
-                        linkToSocial.setAttribute("href", "https://facebook.com/" + socials[j].id);
-                    } else if (socials[j].type.toLowerCase() == "youtube") {
-                        linkToSocial.setAttribute("href", "https://youtube.com/" + socials[j].id);
-                    } else if (socials[j].type.toLowerCase() == "linkedin") {
-                        linkToSocial.setAttribute("href", "https://linkedin.com/in/" + socials[j].id);
-                    }
-                    linkToSocial.innerHTML = "@" + socials[j].id;
+                    
+
+                    // let linkToSocial = document.createElement("a");
+                    // let socialURL = ``;
+                    // if (socials[j].type.toLowerCase() == "twitter") {
+                    //     // linkToSocial.setAttribute("href", "https://twitter.com/" + socials[j].id);
+                    //     socialURL = "https://twitter.com/" + socials[j].id;
+                    // } else if (socials[j].type.toLowerCase() == "facebook") {
+                    //     // linkToSocial.setAttribute("href", "https://facebook.com/" + socials[j].id);
+                    //     socialURL = "https://facebook.com/" + socials[j].id;
+                    // } else if (socials[j].type.toLowerCase() == "youtube") {
+                    //     // linkToSocial.setAttribute("href", "https://youtube.com/" + socials[j].id);
+                    //     socialURL = "https://youtube.com/" + socials[j].id;
+                    // } else if (socials[j].type.toLowerCase() == "linkedin") {
+                    //     // linkToSocial.setAttribute("href", "https://linkedin.com/in/" + socials[j].id);
+                    //     socialURL = "https://linkedin.com/in/" + socials[j].id;
+                    // }
+                    // linkToSocial.innerHTML = "@" + socials[j].id;
+                    // let linkToSocial = `<a href="${socialURL}">@socials[j].id</a>`
 
                     nextElem = document.createElement("li");
-                    nextElem.innerHTML = "<b>" + socials[j].type + ":</b> ";
-                    nextElem.appendChild(linkToSocial);
+                    nextElem.classList.add("padding-bottom-2")
+                    // nextElem.innerHTML = "<div class="text-bold">" + socials[j].type + ":</div><div>";
+                    // nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div>@${socials[j].type}</div>`;
+                    let socialOptions = {
+                        "twitter": "https://twitter.com/",
+                        "facebook": "https://facebook.com/",
+                        "youtube": "https://youtube.com/",
+                        "linkedin": "https://linkedin.com/in/"
+                    }
+                    let social = socials[j].type.toLowerCase();
+                    if(social in socialOptions){
+                        nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                    }
+                    // nextElem.appendChild(linkToSocial);
 
                     bulletList.appendChild(nextElem);
                 }
@@ -224,17 +255,17 @@ function renderResults(response, rawResponse) {
             // Display email via contact button, if provided
             let email = response.officials[i].emails || "none provided";
             if (email != "none provided") {
-                let primaryEmail = document.createElement("button");
+                // let primaryEmail = document.createElement("button");
                 let linkToContact = document.createElement("a");
                 let emailLinkified = email[0].replace("@", "_");
 
-                primaryEmail.setAttribute("class", "usa-button usa-button--accent-cool");
-                primaryEmail.style.marginTop = "15px";
-                primaryEmail.innerHTML = content["contact-via-email"];
+                linkToContact.setAttribute("class", "usa-button usa-button--outline usagov-button--outline-black");
+                linkToContact.style.marginTop = "15px";
+                linkToContact.innerHTML = content["contact-via-email"];
 
                 linkToContact.setAttribute("href", content["path-contact"] + "?email=" + emailLinkified +
                     "?name=" + response.officials[i].name + "?office=" + response.officials[i].office);
-                linkToContact.appendChild(primaryEmail);
+                // linkToContact.appendChild(primaryEmail);
 
                 bulletList.appendChild(linkToContact);
             }
