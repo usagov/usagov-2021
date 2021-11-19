@@ -24,10 +24,7 @@ i.e.
 ----------------------------------------
 */
 
-/* 
-This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
-Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
-*/
+
 .text-red {
    color: #d83933;
 }
@@ -53,6 +50,10 @@ a.disabled {
 }
 
 .usa-button:visited {
+/* 
+This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
+Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
+*/
    color: initial;
 }
 
@@ -556,4 +557,9 @@ a {
       }
       
    }
+}
+
+#block-usagov-content .font-serif-lg {
+   // This style is needed to set the font size of intro text
+   font-size: 1.5rem;
 }
