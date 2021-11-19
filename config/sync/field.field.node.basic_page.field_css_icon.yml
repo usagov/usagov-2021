@@ -1,0 +1,19 @@
+uuid: 5097475a-c7df-418f-8d36-6c68b8c46daa
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_css_icon
+    - node.type.basic_page
+id: node.basic_page.field_css_icon
+field_name: field_css_icon
+entity_type: node
+bundle: basic_page
+label: 'CSS Icon'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

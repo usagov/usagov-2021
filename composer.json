@@ -36,6 +36,7 @@
         "drupal/faqfield": "^7.0",
         "drupal/field_permissions": "^1.1",
         "drupal/jquery_ui_accordion": "^1.1",
+        "drupal/language_switcher_extended": "^1.0",
         "drupal/linkit": "^6.0@beta",
         "drupal/mailsystem": "^4.3",
         "drupal/menu_block": "^1.7",

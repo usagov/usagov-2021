@@ -12,7 +12,7 @@ dependencies:
 id: spanishbannercode
 theme: usagov
 region: header_top
-weight: 0
+weight: -14
 provider: null
 plugin: 'block_content:08f40fa5-9c3d-4d4b-b5ed-60f8614b1fd0'
 settings:

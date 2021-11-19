@@ -1,0 +1,40 @@
+uuid: 6a9b973d-8d7d-4f10-a9ff-feb5b600eebe
+langcode: en
+status: false
+dependencies:
+  config:
+    - system.menu.wizard
+  module:
+    - ctools
+    - menu_block
+  theme:
+    - usagov
+id: wizard
+theme: usagov
+region: sidebar_first
+weight: 0
+provider: null
+plugin: 'menu_block:wizard'
+settings:
+  id: 'menu_block:wizard'
+  label: Wizard
+  provider: menu_block
+  label_display: visible
+  follow: false
+  follow_parent: child
+  level: 1
+  depth: 0
+  expand_all_items: false
+  parent: 'wizard:'
+  suggestion: wizard
+  label_type: block
+  label_link: false
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    bundles:
+      wizard: wizard
+      wizard_step: wizard_step
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'

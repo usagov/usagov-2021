@@ -10,9 +10,7 @@ weight: 1
 is_admin: false
 permissions:
   - 'access content'
-  - 'administer content types'
-  - 'administer nodes'
-  - 'bypass node access'
   - 'use text format html'
   - 'use text format uswds'
   - 'view media'
+  - 'view paragraphs entity embed'
