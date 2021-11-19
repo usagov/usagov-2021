@@ -28,10 +28,12 @@ i.e.
 This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
 Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
 */
+.text-red {
+   color: #d83933;
+}
 
 h1 {
-   font-size: 180% !important;
-   color: #d83933 !important;
+   font-size: 1.8em;
 }
 
 h2{
@@ -40,7 +42,8 @@ h2{
 }
 
 #block-usagov-content article ul li, #block-usagov-content article ol li{ 
-   line-height: 2.5; 
+   line-height: 1.5; 
+   margin-bottom: 1.3em;
 }
 
 a.disabled {
