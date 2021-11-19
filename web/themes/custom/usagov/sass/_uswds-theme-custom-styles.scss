@@ -78,16 +78,28 @@ This style ensures that we can remove the padding-top from text in a card body. 
    background-color: #F3F3F3;
 }
 
-.usa-banner__button-text, .usa-banner__button-text:hover, .usa-banner__button-text:visited {
-   color: color("blue-warm-70v")
+.usa-banner__button-text, .usa-banner__button-text:hover {
+   color: #1A4480;
 }
 
-.usa-banner__button:after, .usa-banner__button:hover:after, .usa-banner__button:hover:visited:after {
-   background-color: color("blue-warm-70v")
+.usa-banner__button-text:visited {
+   color: #4b4b4d;
 }
 
-.usa-banner__button[aria-expanded=true]::after, .usa-banner__button[aria-expanded=true]:hover::after, .usa-banner__button[aria-expanded=true]:hover:visited::after {
-   background-color: color("blue-warm-70v")
+.usa-banner__button:after, .usa-banner__button:hover:after {
+   background-color: #1A4480;
+}
+
+.usa-banner__button:hover:visited:after {
+   background-color: #4b4b4d;
+}
+
+.usa-banner__button[aria-expanded=true]::after, .usa-banner__button[aria-expanded=true]:hover::after {
+   background-color: #1A4480;
+}
+
+.usa-banner__button[aria-expanded=true]:hover:visited::after {
+   background-color: #4b4b4d;
 }
 
 /** info banner **/
@@ -476,7 +488,7 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
 .usa-button {
    @media (max-width: 30em){
       width: 100%;
-}
+   }
 }
 
 .usagov-button--outline-black {
@@ -538,6 +550,10 @@ a {
          width: 1.5rem;
          -webkit-mask-size: 1.5rem;
          mask-size: 1.5rem;
+         @media (max-width: 1022px) {
+            left: .4rem;
+         }
       }
+      
    }
 }
