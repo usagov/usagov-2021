@@ -7,7 +7,7 @@ dependencies:
 id: wizard_page
 label: 'Wizard page'
 type: 'canonical_entities:node'
-pattern: 'wizard/[node:title]'
+pattern: '[node:title]'
 selection_criteria:
   8ed030a2-feeb-46e9-99ce-af1217ea188c:
     id: node_type

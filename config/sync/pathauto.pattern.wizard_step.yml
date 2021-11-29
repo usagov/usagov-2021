@@ -7,7 +7,7 @@ dependencies:
 id: wizard_step
 label: wizard-step
 type: 'canonical_entities:node'
-pattern: 'wizard/[node:menu-link:parents:join-path]/[node:title]'
+pattern: '[node:menu-link:parents:join-path]/[node:title]'
 selection_criteria:
   c52dffc2-8932-47dd-a274-d09303a2bb53:
     id: node_type
