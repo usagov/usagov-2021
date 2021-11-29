@@ -18,6 +18,7 @@ permissions:
   - 'create basic_page content'
   - 'create content translations'
   - 'create file media'
+  - 'create url aliases'
   - 'create wizard content'
   - 'create wizard_step content'
   - 'delete own basic_page content'
