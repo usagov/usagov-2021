@@ -2,6 +2,8 @@ uuid: 03e05dce-30c9-419a-a2d7-e29e2b60c62d
 langcode: en
 status: true
 dependencies:
+  module:
+    - ctools
   theme:
     - usagov
 _core:
@@ -9,7 +11,7 @@ _core:
 id: usagov_page_title
 theme: usagov
 region: content
-weight: -9
+weight: -17
 provider: null
 plugin: page_title_block
 settings:
@@ -17,4 +19,12 @@ settings:
   label: 'Page title'
   provider: core
   label_display: '0'
-visibility: {  }
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    bundles:
+      wizard: wizard
+      wizard_step: wizard_step
+    negate: true
+    context_mapping:
+      node: '@node.node_route_context:node'
