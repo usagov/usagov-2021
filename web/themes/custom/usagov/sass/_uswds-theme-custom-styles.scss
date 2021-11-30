@@ -25,6 +25,10 @@ i.e.
 */
 
 
+a:visited {
+   color: #4b4b4d;
+}
+
 .text-red {
    color: #d83933;
 }
@@ -516,8 +520,14 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
    background: white;
 }
 
-.usa-breadcrumb__link {
+.usa-breadcrumb__link, .usa-breadcrumb__link:hover {
    text-decoration: underline;
+   color: initial;
+}
+
+.usa-breadcrumb__link:visited {
+   text-decoration: underline;
+   color: #4b4b4d;
 }
 
 a {
