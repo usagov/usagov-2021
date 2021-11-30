@@ -42,4 +42,3 @@ visibility:
     id: request_path
     pages: '<front>'
     negate: true
-

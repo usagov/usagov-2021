@@ -1,0 +1,8 @@
+uuid: fb8a5321-0583-48d2-8186-e54f1179bcc8
+langcode: es
+status: true
+dependencies: {  }
+id: wizard-espanol
+label: 'Wizard Espanol'
+description: 'This is for the Wizards Espanol'
+locked: false

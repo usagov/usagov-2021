@@ -9,18 +9,19 @@ third_party_settings:
   menu_ui:
     available_menus:
       - wizard
+      - wizard-espanol
     parent: 'wizard:'
   node_menus:
-    enabled: 0
+    enabled: 1
     languages:
       en:
         available_menus:
-          - main
-        parent: 'main:'
+          - wizard
+        parent: 'wizard:'
       es:
         available_menus:
-          - main
-        parent: 'main:'
+          - wizard-espanol
+        parent: 'wizard-espanol:'
 name: 'Wizard Step'
 type: wizard_step
 description: ''
