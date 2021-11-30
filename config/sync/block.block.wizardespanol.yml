@@ -20,7 +20,7 @@ settings:
   id: 'block_content:07a1ba02-6d65-482b-978a-e412f0aeab0e'
   label: 'Wizard Espanol'
   provider: block_content
-  label_display: visible
+  label_display: '0'
   status: true
   info: ''
   view_mode: full
