@@ -25,7 +25,7 @@ i.e.
 */
 
 
-a:visited {
+a:visited, .usa-footer__secondary-link a:visited {
    color: #4b4b4d;
 }
 
@@ -522,7 +522,7 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
 
 .usa-breadcrumb__link, .usa-breadcrumb__link:hover {
    text-decoration: underline;
-   color: initial;
+   color: #1A4480;
 }
 
 .usa-breadcrumb__link:visited {
