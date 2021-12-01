@@ -34,5 +34,5 @@ visibility:
       node: '@node.node_route_context:node'
   request_path:
     id: request_path
-    pages: '<front>'
+    pages: "<front>\r\n/scams-and-frauds"
     negate: true
