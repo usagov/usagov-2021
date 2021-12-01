@@ -73,5 +73,9 @@
       {% endfor %}
     </ul>
   </div>
+  {% if lang == en %}
   <p><span class="text-bold">Looking for our main site?</span> Visit <a href="https://www.usa.gov">USA.gov</a></p>
+  {% else %}
+  <p><span class="text-bold">¿Está busca el sitio principal?</span> Visite <a href="https://www.usa.gov/espanol/">USA.gov/espanol</a></p>
+  {% endif %}
 {% endif %}
