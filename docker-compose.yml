@@ -2,6 +2,7 @@ version: '3.0'
 services:
   cms:
     container_name: cms
+    image: ednark/usagov-2021:cms-latest
     build:
       context: ./
       dockerfile: .docker/Dockerfile-cms
@@ -60,6 +61,8 @@ services:
         }
     depends_on:
       - database
+    networks:
+      - gsa-gov
 
   database:
     container_name: database
@@ -74,6 +77,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: mysql
       MYSQL_DATABASE: drupal
+    networks:
+      - gsa-gov
 
   node:
     container_name: node
@@ -84,6 +89,8 @@ services:
       - .:/app:delegated
     env_file:
       - ./env.local
+    networks:
+      - gsa-gov
 
   web:
     container_name: web
@@ -91,7 +98,7 @@ services:
       context: ./
       dockerfile: .docker/Dockerfile-web
     ports:
-      - 80:80
+      - 81:80
     environment:
       - S3_BUCKET=minio:9000/web
       - CMS_APP=cms
@@ -99,6 +106,8 @@ services:
     depends_on:
       - minio
       - cms
+    networks:
+      - gsa-gov
 
   minio:
     container_name: minio
@@ -110,6 +119,86 @@ services:
       - 9001:9001
     volumes:
       - ./s3:/data
+    networks:
+      - gsa-gov
+  waf:
+    container_name: waf
+    image: skstarne/usagov-2021:waf-latest
+    build:
+      context: .docker/
+      dockerfile: Dockerfile-waf
+    ports:
+      - "80:80"
+      # only available if SETTLS was enabled:
+      - "443:443"
+
+    environment:
+      - SERVERNAME=localhost
+      - APP_NAME=USAGov
+      - BLOCKED_NAME=USAGov
+
+      #############################################
+      # CRS Variables
+      #############################################
+      # Paranoia Level
+      - PARANOIA=1
+      # Inbound and Outbound Anomaly Score Threshold
+      - ANOMALY_INBOUND=5
+      - ANOMALY_OUTBOUND=4
+      # Executing Paranoia Level
+      # - EXECUTING_PARANOIA=2
+
+      #######################################################
+      # Reverse Proxy mode
+      # (only available if SETPROXY was enabled during the
+      # parent ModSecurity image)
+      #######################################################
+      # PROXYLOCATION: Application Backend of Reverse Proxy
+      # - PROXYLOCATION=http://app:8000/
+      #
+      # If needed: add own httpd-proxy.conf (only available if SETPROXY
+      # was enabled during build of parent ModSecurity image)
+      #  - ./httpd-proxy.conf:/usr/local/apache2/conf/extra/httpd-proxy.conf
+
+      #######################################################
+      # Various CRS Variables with Default Values
+      #######################################################
+      #- ENFORCE_BODYPROC_URLENCODED=1
+      #- ALLOWED_METHODS=GET HEAD POST OPTIONS
+      #- ALLOWED_REQUEST_CONTENT_TYPE=application/x-www-form-urlencoded|multipart/form-data|text/xml|application/xml|application/soap+xml|application/x-amf|application/json|application/octet-stream|text/plain
+      #- ALLOWED_REQUEST_CONTENT_TYPE_CHARSET=utf-8|iso-8859-1|iso-8859-15|windows-1252
+      #- ALLOWED_HTTP_VERSIONS=HTTP/1.0 HTTP/1.1 HTTP/2 HTTP/2.0
+      #- RESTRICTED_EXTENSIONS=.asa/ .asax/ .ascx/ .axd/ .backup/ .bak/ .bat/ .cdx/ .cer/ .cfg/ .cmd/ .com/ .config/ .conf/ .cs/ .csproj/ .csr/ .dat/ .db/ .dbf/ .dll/ .dos/ .htr/ .htw/ .ida/ .idc/ .idq/ .inc/ .ini/ .key/ .licx/ .lnk/ .log/ .mdb/ .old/ .pass/ .pdb/ .pol/ .printer/ .pwd/ .resources/ .resx/ .sql/ .sys/ .vb/ .vbs/ .vbproj/ .vsdisco/ .webinfo/ .xsd/ .xsx/
+      #- RESTRICTED_HEADERS=/proxy/ /lock-token/ /content-range/ /if/
+      #- STATIC_EXTENSIONS=/.jpg/ /.jpeg/ /.png/ /.gif/ /.js/ /.css/ /.ico/ /.svg/ /.webp/
+
+      #######################################################
+      # CRS Variables with Default Value unlimited
+      #######################################################
+      #- MAX_NUM_ARGS=255
+      #- ARG_NAME_LENGTH=100
+      #- ARG_LENGTH=400
+      #- TOTAL_ARG_LENGTH=64000
+      #- MAX_FILE_SIZE=1048576
+      #- COMBINED_FILE_SIZES=1048576
+
+    #######################################################
+    # Volumes for ModSecurity Tuning
+    #######################################################
+    volumes:
+      - ./REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+      - ./RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
+
+    #######################################################
+    # Add TLS server certificate and key
+    # (only available if SETPROXY was enabled during the
+    # parent ModSecurity image)
+    #######################################################
+    #  - ./server.crt:/usr/local/apache2/conf/server.crt
+    #  - ./server.key:/usr/local/apache2/conf/server.key
 
 volumes:
   database_data:
+
+networks:
+  gsa-gov:
