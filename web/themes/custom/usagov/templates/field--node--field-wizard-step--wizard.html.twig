@@ -1,3 +1,4 @@
+
 {% set radio_buttons = true %}
 
 {% if radio_buttons %}
@@ -16,8 +17,15 @@
         <label class="usa-radio__label" for="{{id}}">{{title}}</label>
     {% endfor %}
 
-    <div class="grid-row flex-justify-center maxw-mobile margin-x-auto margin-y-6">
-        <button class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">Begin</button>
+    <div class="grid-row flex-justify-center maxw-mobile margin-x-auto margin-top-6">
+        <button class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">
+            {% if element["#language"] == "en" %}
+            Begin
+            {% elseif element["#language"] == "es" %}
+            Empezar
+            {% endif %}
+            
+        </button>
     </div>
 </fieldset>
 
@@ -32,13 +40,3 @@
 </ul>
 
 {% endif %}
-
-{# 
-<script>
-function submit() {
-    let url = document.querySelector(`input[name="options"]:checked`).value;
-    alert(url)
-    window.location.href = url;
-}
-</script> 
-#}
