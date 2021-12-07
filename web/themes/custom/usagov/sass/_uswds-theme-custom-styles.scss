@@ -24,23 +24,19 @@ i.e.
 ----------------------------------------
 */
 
-/* 
-This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
-Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
-*/
 
-h1 {
-   font-size: 180% !important;
-   color: #d83933 !important;
+a:visited, .usa-footer__secondary-link a:visited {
+   color: #4b4b4d;
 }
 
-h2{
-   font-family: $theme-font-type-serif;
-   font-size: 145%;
+.text-red {
+   color: #d83933;
 }
 
-#block-usagov-content article ul li, #block-usagov-content article ol li{ 
-   line-height: 2.5; 
+@media (min-width: 64em) {
+.usa-section {
+   padding-top: 2rem;
+}
 }
 
 a.disabled {
@@ -49,7 +45,18 @@ a.disabled {
    text-decoration: none;
 }
 
+.usa-sidenav__sublist a:not(.usa-button) {
+   padding-left: 2.3rem;
+}
+.usa-sidenav__sublist .usa-sidenav__sublist a:not(.usa-button) {
+   padding-left: 3.6rem;
+}
+
 .usa-button:visited {
+/* 
+This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
+Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
+*/
    color: initial;
 }
 
@@ -75,16 +82,28 @@ This style ensures that we can remove the padding-top from text in a card body. 
    background-color: #F3F3F3;
 }
 
-.usa-banner__button-text, .usa-banner__button-text:hover, .usa-banner__button-text:visited {
-   color: color("blue-warm-70v")
+.usa-banner__button-text, .usa-banner__button-text:hover {
+   color: #1A4480;
 }
 
-.usa-banner__button:after, .usa-banner__button:hover:after, .usa-banner__button:hover:visited:after {
-   background-color: color("blue-warm-70v")
+.usa-banner__button-text:visited {
+   color: #4b4b4d;
 }
 
-.usa-banner__button[aria-expanded=true]::after, .usa-banner__button[aria-expanded=true]:hover::after, .usa-banner__button[aria-expanded=true]:hover:visited::after {
-   background-color: color("blue-warm-70v")
+.usa-banner__button:after, .usa-banner__button:hover:after {
+   background-color: #1A4480;
+}
+
+.usa-banner__button:hover:visited:after {
+   background-color: #4b4b4d;
+}
+
+.usa-banner__button[aria-expanded=true]::after, .usa-banner__button[aria-expanded=true]:hover::after {
+   background-color: #1A4480;
+}
+
+.usa-banner__button[aria-expanded=true]:hover:visited::after {
+   background-color: #4b4b4d;
 }
 
 /** info banner **/
@@ -163,13 +182,26 @@ This style ensures that we can remove the padding-top from text in a card body. 
    .usa-header--extended [hreflang|=es] {
       padding-left: .5rem;
       border-radius: 5px;
+      border: none;
+      @media (max-width: 64em) {
+         padding-right: 1.3rem;
+      }
    }
+  
    .usa-header--extended [hreflang|=en] {
       border-radius: 5px;
+      border: none;
+      @media (max-width: 64em) {
+         padding-right: 1.3rem;
+      }
    }
 
 /** Language buttons **/
 .usa-header--extended  .usa-nav__primary>.usa-nav__primary-item>a.language-link  {
+   @media (max-width: 64em) {
+     font-size: .93rem;
+     font-weight: 700;   
+   }
      color: #fff;
      text-decoration: none;
      padding: 10px 20px 10px 20px;
@@ -191,10 +223,21 @@ This style ensures that we can remove the padding-top from text in a card body. 
    padding-bottom: 1rem;
    }
 }
+
 .usa-header--extended .usa-menu-btn { 
+   @media (max-width: 64em) {
+      padding-right: 1.3rem;
+      width: 7rem;
+      height: 2.3rem;
+      text-align: left;
+      font-weight: 700;
+      background-image: url(/themes/custom/usagov/images/ICONS_Search.png);
+      background-size: 1.5rem;
+      background-repeat: no-repeat;
+      background-position: 3.5rem .7rem;
+   }
    background-color: color("blue-warm-80v")
 }
-
 
 /** This is to minimize the size of the logo in 
 *   tablet and mobile
@@ -289,6 +332,12 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 
  //Footer
+
+ .ftr-list {
+   @media (min-width: 64em) {
+   padding-top: 1.4rem;
+}
+}
  .usa-footer--big .usa-footer__primary-content--collapsible .usa-footer__primary-link{ 
     font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
     font-size: 1.2rem;
@@ -297,8 +346,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
  .usa-sign-up__heading {
    font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
  }
-
-
 
 .usa-footer__primary-section {
    background-color: #F3F3F3;
@@ -449,7 +496,7 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
 .usa-button {
    @media (max-width: 30em){
       width: 100%;
-}
+   }
 }
 
 .usagov-button--outline-black {
@@ -476,10 +523,56 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
    background: white;
 }
 
-.usa-breadcrumb__link {
+.usa-breadcrumb__link, .usa-breadcrumb__link:hover {
    text-decoration: underline;
+   color: #1A4480;
+}
+
+.usa-breadcrumb__link:visited {
+   text-decoration: underline;
+   color: #4b4b4d;
 }
 
 a {
    color: #1a4480;
+}
+
+
+#block-betabanner .usa-alert--info{
+   // These styles are needed to position the alert icon 
+   &:before {
+      display:none;
+   }
+   .usa-alert__body {
+      position:relative;
+
+      &:before {
+         background: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
+         width: 2rem;
+         content: "";
+         display: block;
+         height: 3.5rem;
+         position:absolute;
+         left: 1.6rem;
+         top: -0.6rem;
+         background: 0 0;
+         background-color: #1b1b1b;
+         -webkit-mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
+         mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
+         background-size: 1.5rem;
+         height: 2.5rem;
+         width: 1.5rem;
+         -webkit-mask-size: 1.5rem;
+         mask-size: 1.5rem;
+         @media (max-width: 1022px) {
+            left: .4rem;
+         }
+      }
+      
+   }
+}
+
+#block-usagov-content .font-serif-lg {
+   // This style is needed to set the font size of intro text
+   font-size: 1.5rem;
 }
