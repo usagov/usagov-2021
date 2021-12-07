@@ -33,24 +33,23 @@ a:visited, .usa-footer__secondary-link a:visited {
    color: #d83933;
 }
 
-h1 {
-   font-size: 1.8em;
+@media (min-width: 64em) {
+.usa-section {
+   padding-top: 2rem;
 }
-
-h2{
-   font-family: $theme-font-type-serif;
-   font-size: 145%;
-}
-
-#block-usagov-content article ul li, #block-usagov-content article ol li{ 
-   line-height: 1.5; 
-   margin: 1.5em 0;
 }
 
 a.disabled {
    pointer-events: none;
    color:#000;
    text-decoration: none;
+}
+
+.usa-sidenav__sublist a:not(.usa-button) {
+   padding-left: 2.3rem;
+}
+.usa-sidenav__sublist .usa-sidenav__sublist a:not(.usa-button) {
+   padding-left: 3.6rem;
 }
 
 .usa-button:visited {
@@ -333,6 +332,12 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 
  //Footer
+
+ .ftr-list {
+   @media (min-width: 64em) {
+   padding-top: 1.4rem;
+}
+}
  .usa-footer--big .usa-footer__primary-content--collapsible .usa-footer__primary-link{ 
     font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
     font-size: 1.2rem;
@@ -341,8 +346,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
  .usa-sign-up__heading {
    font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
  }
-
-
 
 .usa-footer__primary-section {
    background-color: #F3F3F3;
