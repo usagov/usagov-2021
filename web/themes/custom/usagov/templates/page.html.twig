@@ -138,16 +138,16 @@
 
         <div class="grid-row grid-gap">
             {% if page.sidebar_first and show_sidebar %}
-                <aside class="usa-layout-docs__sidenav desktop:grid-col-3 layout-sidebar-first" role="complementary">
+                <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first" role="complementary">
                     {{ page.sidebar_first }}
                 </aside>
             {% endif %}
 
-            <div class="usa-layout-docs__main desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}9{% else %}fill{% endif %}">
+            <div class="usa-layout-docs__main usa-prose desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
                 {{ page.content }}
             </div>
             {# /.layout-content #} {% if page.sidebar_second %}
-            <aside class="usa-layout-docs__sidenav desktop:grid-col-3 layout-sidebar-second" role="complementary">
+            <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-second" role="complementary">
                 {{ page.sidebar_second }}
             </aside>
             {% endif %}

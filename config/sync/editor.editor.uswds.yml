@@ -71,7 +71,7 @@ settings:
     language:
       language_list: un
     stylescombo:
-      styles: "a.usa-button.usa-button--secondary.usa-button--big|Button\r\np.font-serif-lg.line-height-serif-3|Large\r\nh2.font-serif-lg.text-bold.text-accent-cool-darker|Wizard H2"
+      styles: "a.usa-button.usa-button--secondary.usa-button--big|Button\r\np.usa-intro|Intro\r\nh2.font-serif-lg.text-bold.text-accent-cool-darker|Wizard H2"
     templates:
       template_path: ''
       replace_content: 0
