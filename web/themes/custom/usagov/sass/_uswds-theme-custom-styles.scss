@@ -353,9 +353,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
       color: #454545;
       font-weight:600;
       background-color: #F3F3F3;
-      @include at-media($theme-site-margins-breakpoint) {
-         padding: 0.1rem;
-      }
    }
    .usa-form .usa-button {     
       background-color: #454545;
