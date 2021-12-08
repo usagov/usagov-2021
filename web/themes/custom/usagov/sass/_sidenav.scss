@@ -6,7 +6,7 @@
    .active-trail{
       font-weight: bold;
    }
-   ul:hover > li + ul:hover > li + li {
+   ul > li + ul > li + li {
       border-top: none;
    }
    .usa-current{
