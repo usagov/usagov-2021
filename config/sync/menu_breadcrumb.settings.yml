@@ -5,9 +5,9 @@ current_page_as_link: false
 stop_on_first_match: false
 append_member_page: false
 member_page_as_link: false
-remove_home: true
-add_home: false
-front_title: 2
+remove_home: false
+add_home: true
+front_title: 0
 exclude_empty_url: false
 exclude_disabled_menu_items: false
 derived_active_trail: false
