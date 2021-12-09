@@ -8,14 +8,22 @@ function lookup(address, callback) {
      * Request object for given parameters.
      * @type {gapi.client.HttpRequest}
      */
-     setTimeout(function(){
-        //TODO: Find a better way to call load function when the page is ready
-        let req = gapi.client.request({
-            "path" : "/civicinfo/v2/representatives",
-            "params" : {"address" : address}
-        });
-        req.execute(callback);
-    }, 200);
+    
+    let count=0;
+    var timer = window.setInterval(function(){
+        count++;
+        if (gapi.client.request != undefined) {
+            window.clearInterval(timer);
+            let req = gapi.client.request({
+                "path" : "/civicinfo/v2/representatives",
+                "params" : {"address" : address}
+            });
+            req.execute(callback);
+        }else if(count > 100){
+            //Stop trying after 100 attempts (10 seconds)
+            window.clearInterval(timer);
+        }
+    }, 100);
     
 }
 
