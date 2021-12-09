@@ -21,6 +21,7 @@ $card: var( $usagov-variables, card );
 .usagov-card{
     border-radius: 0;
     box-shadow: 4px 4px 10px #aaaaaa;
+    border-color: #707070;
     &:hover{
         background-color: var( $card, hover-background-color );
         border-color: var( $card, hover-border-color );
