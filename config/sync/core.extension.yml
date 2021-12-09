@@ -16,6 +16,7 @@ module:
   datetime_range: 0
   dblog: 0
   devel: 0
+  diff: 0
   dynamic_page_cache: 0
   editor: 0
   embed: 0
