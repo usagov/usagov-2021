@@ -98,7 +98,7 @@ function renderResults(response, rawResponse) {
 
             let accordionHeaderButton = document.createElement("button");
             accordionHeaderButton.setAttribute("class", "usa-accordion__button");
-            accordionHeaderButton.setAttribute("aria-expanded", "true");
+            accordionHeaderButton.setAttribute("aria-expanded", "false");
 
             let levelName = levels[i];
             accordionHeaderButton.setAttribute("aria-controls", levelName);
@@ -108,7 +108,8 @@ function renderResults(response, rawResponse) {
 
             let accordionContent = document.createElement("div");
             accordionContent.setAttribute("id", levelName);
-            accordionContent.setAttribute("class", "usa-accordion__content usa-prose")
+            accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
+            accordionContent.setAttribute("hidden", "true");
 
             container.appendChild(accordionHeader);
             container.appendChild(accordionContent);
@@ -129,7 +130,7 @@ function renderResults(response, rawResponse) {
 
             let accordionHeaderButton = document.createElement("button");
             accordionHeaderButton.setAttribute("class", "usa-accordion__button");
-            accordionHeaderButton.setAttribute("aria-expanded", "true");
+            accordionHeaderButton.setAttribute("aria-expanded", "false");
             accordionHeaderButton.classList.add("bg-secondary");
             accordionHeaderButton.classList.add("hover:bg-secondary-dark");
 
@@ -141,7 +142,8 @@ function renderResults(response, rawResponse) {
 
             let accordionContent = document.createElement("div");
             accordionContent.setAttribute("id", officialNumber);
-            accordionContent.setAttribute("class", "usa-accordion__content usa-prose")
+            accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
+            accordionContent.setAttribute("hidden", "true");
 
             // Create bullet list of details for the elected official
             let bulletList = document.createElement("ul");
