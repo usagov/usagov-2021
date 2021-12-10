@@ -34,6 +34,8 @@ applications:
   instances: 1
   disk_quota: 1G
   memory: 128M
+  services:
+    - secrets
   health-check-type: process
   env:
     APP_NAME: nginx
