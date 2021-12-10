@@ -12,7 +12,7 @@ ENV APP_NAME=USAGov \
     ERRORLOG=/var/log/nginx/error.log \
     LOGLEVEL=warn \
     USER=nginx \
-    PORT=80 \
+    PORT=443 \
     SERVERNAME=locahost \
     WORKER_CONNECTIONS=1024 \
     MODSEC_DEFAULT_PHASE1_ACTION="phase:1,pass,log,tag:'\${MODSEC_TAG}'" \
@@ -30,6 +30,10 @@ COPY src-waf/opt/modsecurity/activate-rules.sh /opt/modsecurity/
 COPY src-waf/etc/modsecurity.d/*.conf /etc/modsecurity.d/
 COPY src-waf/nginx/docker-entrypoint.sh /
 COPY src-waf/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY src-waf/nginx/snippets/ /etc/nginx/snippets/
+COPY src-waf/nginx/certs/nginx-selfsigned.crt /etc/ssl/certs/nginx-selfsigned.crt
+COPY src-waf/nginx/certs/dhparam.pem /etc/ssl/certs/dhparam.pem
+COPY src-waf/nginx/certs/nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
 
 RUN apk update && \
     apk add vim \

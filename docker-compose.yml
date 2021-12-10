@@ -127,13 +127,13 @@ services:
     build:
       context: .docker/
       dockerfile: Dockerfile-waf
-    ports:
-      - "80:80"
+    expose:
       # only available if SETTLS was enabled:
-      - "443:443"
+      - "443"
 
     environment:
       - SERVERNAME=localhost
+      - PORT=443
       - APP_NAME=USAGov
       - BLOCKED_NAME=USAGov
       - IP_ALLOWED_HEALTH=allow 52.222.122.97/32;\n\tallow 52.222.123.172/32;\n\tallow 50.81.160.164;
