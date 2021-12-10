@@ -18,7 +18,7 @@ default_config: &defaults
 applications:
 - name: cms
   docker:
-    image: ednark/usagov-2021:cms-dan
+    image: skstarne/usagov-2021:cms-latest
   memory: 256M
   disk_quota: 1G
   timeout: 180
@@ -28,18 +28,7 @@ applications:
     - storage
   instances: 1
   random-route: true
-    #- name: web
-    #  docker:
-    #    image: ednark/usagov-2021:web-latest
-    #  memory: 128M
-    #  disk_quota: 1G
-    #  timeout: 180
-    #  services:
-    #    - secrets
-    #    - storage
-    #  instances: 1
-    #  random-route: true
-- name: test-route-service-app
+- name: waf-route-app
   docker:
     image: skstarne/usagov-2021:waf-latest
   instances: 1
@@ -48,14 +37,18 @@ applications:
   health-check-type: http
   health-check-http-endpoint: /_route-service-health
   env:
-    APP_NAME: test-route-service-app
+    APP_NAME: waf-route-app
     BLOCKED_NAME: USAGov
-    ALLOWED_IPS: |
+    IP_ALLOWED_HEALTH: |
+      allow 52.222.122.97/32;
+      allow 52.222.123.172/32;
       allow 50.81.160.164;
-    TEST_COMMENT: |
+    IP_ALLOWED: |
       allow 50.81.160.164;
-      allow 70.230.121.217;
       allow 100.36.151.190;
+      allow 52.222.122.97/32;
+      allow 52.222.123.172/32;
+      allow 159.142.0.0/16;
 
 # - name: cronish
 #   <<: *defaults
