@@ -2,7 +2,7 @@ version: '3.0'
 services:
   cms:
     container_name: cms
-    image: ednark/usagov-2021:cms-latest
+    image: skstarne/usagov-2021:cms-latest
     build:
       context: ./
       dockerfile: .docker/Dockerfile-cms
@@ -136,6 +136,8 @@ services:
       - SERVERNAME=localhost
       - APP_NAME=USAGov
       - BLOCKED_NAME=USAGov
+      - IP_ALLOWED_HEALTH=allow 52.222.122.97/32;\n\tallow 52.222.123.172/32;\n\tallow 50.81.160.164;
+      - IP_ALLOWED=allow 50.81.160.164;\n\tallow 100.36.151.190;\n\tallow 52.222.122.97/32;\n\tallow 52.222.123.172/32;\n\tallow 159.142.0.0/16;
 
       #############################################
       # CRS Variables
