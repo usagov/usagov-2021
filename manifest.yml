@@ -34,10 +34,9 @@ applications:
   instances: 1
   disk_quota: 1G
   memory: 128M
-  health-check-type: http
-  health-check-http-endpoint: /_route-service-health
+  health-check-type: process
   env:
-    APP_NAME: waf-route-app
+    APP_NAME: nginx
     BLOCKED_NAME: USAGov
     IP_ALLOWED_HEALTH: |
       allow 52.222.122.97/32;
