@@ -6,11 +6,6 @@ if ! command -v jq >/dev/null; then
   exit 1
 fi
 
-if [ -z "${ALLOWED_IPS+set}" ]; then
-  echo "Must set ALLOWED_IPS environment variable to a comma separated list of IP addresses"
-  exit 1
-fi
-
 if [ -z "${ROUTE_SERVICE_APP_NAME+set}" ]; then
   echo "Must set ROUTE_SERVICE_APP_NAME environment variable"
   exit 1
@@ -25,13 +20,6 @@ if [ -z "${PROTECTED_APP_NAME+set}" ]; then
   echo "Must set PROTECTED_APP_NAME environment variable"
   exit 1
 fi
-
-IFS="," read -ra IPS <<< "$ALLOWED_IPS"
-
-NGINX_ALLOW_STATEMENTS=""
-for addr in "${IPS[@]}";
-  do NGINX_ALLOW_STATEMENTS="$NGINX_ALLOW_STATEMENTS \n allow $addr;"; true;
-done;
 
 APPS_DOMAIN=$(cf curl "/v3/domains" | jq -r '[.resources[] | select(.name|endswith("app.cloud.gov"))][0].name')
 
