@@ -74,18 +74,25 @@ done
 cf delete-service-key database test-db-ok -f
 
 # launch the apps
-cf push web --docker-image $CONTAINER:$CONTAINERTAG
+cf push cms --docker-image $CONTAINER:cms-$CONTAINERTAG
+cf push waf --docker-image $CONTAINER:waf-$CONTAINERTAG
 
 # make sure that the app knows where it's s3fs stuff lives
 cf create-service-key storage storagekey
 S3INFO=$(cf service-key storage storagekey)
 S3_BUCKET=$(echo "$S3INFO" | grep '"bucket":' | sed 's/.*"bucket": "\(.*\)",/\1/')
 S3_REGION=$(echo "$S3INFO" | grep '"region":' | sed 's/.*"region": "\(.*\)",/\1/')
-cf set-env web S3_BUCKET "$S3_BUCKET"
-cf set-env web S3_REGION "$S3_REGION"
+cf set-env cms S3_BUCKET "$S3_BUCKET"
+cf set-env cms S3_REGION "$S3_REGION"
+cf set-env waf S3_PROXY "$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com"
 cf delete-service-key storage storagekey -f
 
-cf restart web
+# internal route to cms
+cf map-route cms apps.internal --hostname usagov-cms
+cf set-env waf CMS_PROXY "usagov-cms.apps.internal"
+
+cf restart cms
+cf restart waf
 
 # # tell people where to go
 # ROUTE=$(cf apps | grep web | awk '{print $6}')

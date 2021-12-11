@@ -1,143 +1,162 @@
 version: '3.0'
 services:
-  cms:
-    container_name: cms
-    image: skstarne/usagov-2021:cms-latest
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-cms
-    ports:
-      - 8080:80
-      - 9090:9000
-    volumes:
-      - ./config:/var/www/config:delegated
-      - ./libraries:/var/www/libraries:delegated
-      - ./modules/custom:/var/www/web/modules/custom:delegated
-      - ./themes/custom:/var/www/web/themes/custom:delegated
-      - ./scripts:/var/www/scripts:delegated
-      - ./composer.json:/var/www/composer.json
-      - ./composer.lock:/var/www/composer.lock
-      - ./settings/settings.php:/var/www/web/sites/default/settings.php
-      - ./settings/settings.local.php:/var/www/web/sites/default/settings.local.php
-      - ./settings/settings.cf.php:/var/www/web/sites/default/settings.cf.php
-    env_file:
-      - ./env.local
-    environment:
-      COMPOSER_MEMORY_LIMIT: -1
-      CF_INSTANCE_INDEX: '1'
-      VCAP_APPLICATION: >
-        {"name": "cms", "application_id": "docker"}
-      VCAP_SERVICES: >
-        { "s3": [{
-            "name": "storage",
-            "credentials": {
-              "access_key_id": "minioadmin",
-              "secret_access_key": "minioadmin",
-              "region": "us-west-1",
-              "bucket": "web",
-              "hostname": "minio:9000"
-            }
-          }],
-          "aws-rds": [{
-            "name": "database",
-            "credentials": {
-              "db_name": "drupal",
-              "host": "database",
-              "password": "mysql",
-              "port": "3306",
-              "username": "root"
-            }
-          }],
-          "user-provided": [{
-            "name": "secrets",
-            "credentials": {
-              "ADMIN_EMAIL": "secret@example.com",
-              "CRON_KEY": "SECRET",
-              "HASH_SALT": "SECRET",
-              "ROOT_USER_NAME": "root",
-              "ROOT_USER_PASS": "root"
-            }
-          }]
-        }
-    depends_on:
-      - database
-    networks:
-      - gsa-gov
+  # cms:
+  #   container_name: cms
+  #   image: ednark/usagov-2021:cms-latest
+  #   build:
+  #     context: ./
+  #     dockerfile: .docker/Dockerfile-cms
+  #   ports:
+  #     - 8080:80
+  #     - 9090:9000
+  #   volumes:
+  #     - ./config:/var/www/config:delegated
+  #     - ./libraries:/var/www/libraries:delegated
+  #     - ./modules/custom:/var/www/web/modules/custom:delegated
+  #     - ./themes/custom:/var/www/web/themes/custom:delegated
+  #     - ./scripts:/var/www/scripts:delegated
+  #     - ./composer.json:/var/www/composer.json
+  #     - ./composer.lock:/var/www/composer.lock
+  #     - ./settings/settings.php:/var/www/web/sites/default/settings.php
+  #     - ./settings/settings.local.php:/var/www/web/sites/default/settings.local.php
+  #     - ./settings/settings.cf.php:/var/www/web/sites/default/settings.cf.php
+  #   env_file:
+  #     - ./env.local
+  #   environment:
+  #     COMPOSER_MEMORY_LIMIT: -1
+  #     CF_INSTANCE_INDEX: '1'
+  #     VCAP_APPLICATION: >
+  #       {"name": "cms", "application_id": "docker"}
+  #     VCAP_SERVICES: >
+  #       { "s3": [{
+  #           "name": "storage",
+  #           "credentials": {
+  #             "access_key_id": "minioadmin",
+  #             "secret_access_key": "minioadmin",
+  #             "region": "us-west-1",
+  #             "bucket": "web",
+  #             "hostname": "minio:9000"
+  #           }
+  #         }],
+  #         "aws-rds": [{
+  #           "name": "database",
+  #           "credentials": {
+  #             "db_name": "drupal",
+  #             "host": "database",
+  #             "password": "mysql",
+  #             "port": "3306",
+  #             "username": "root"
+  #           }
+  #         }],
+  #         "user-provided": [{
+  #           "name": "secrets",
+  #           "credentials": {
+  #             "ADMIN_EMAIL": "secret@example.com",
+  #             "CRON_KEY": "SECRET",
+  #             "HASH_SALT": "SECRET",
+  #             "ROOT_USER_NAME": "root",
+  #             "ROOT_USER_PASS": "root"
+  #           }
+  #         }]
+  #       }
+  #   depends_on:
+  #     - database
+  #   networks:
+  #     - gsa-gov
 
-  database:
-    container_name: database
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-mysql
-    ports:
-      - 3306:3306
-    volumes:
-      - .:/app:delegated
-      - database_data:/var/lib/mysql:delegated
-    environment:
-      MYSQL_ROOT_PASSWORD: mysql
-      MYSQL_DATABASE: drupal
-    networks:
-      - gsa-gov
+  # database:
+  #   container_name: database
+  #   build:
+  #     context: ./
+  #     dockerfile: .docker/Dockerfile-mysql
+  #   ports:
+  #     - 3306:3306
+  #   volumes:
+  #     - .:/app:delegated
+  #     - database_data:/var/lib/mysql:delegated
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: mysql
+  #     MYSQL_DATABASE: drupal
+  #   networks:
+  #     - gsa-gov
 
-  node:
-    container_name: node
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-node
-    volumes:
-      - .:/app:delegated
-    env_file:
-      - ./env.local
-    networks:
-      - gsa-gov
+  # composer:
+  #   container_name: composer
+  #   build:
+  #     context: ./
+  #     dockerfile: .docker/Dockerfile-cms
+  #     target: composer-builder
+  #   command: echo "Shutting Down on Purpose"
+  #   volumes:
+  #     - .:/var/www:delegated
+  #   env_file:
+  #     - ./env.local
 
-  web:
-    container_name: web
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-web
-    ports:
-      - 81:80
-    environment:
-      - S3_BUCKET=minio:9000/web
-      - CMS_APP=cms
-      - ALLOWED_IPS="allow all; satisfy all;"
-    depends_on:
-      - minio
-      - cms
-    networks:
-      - gsa-gov
+  # node:
+  #   container_name: node
+  #   build:
+  #     context: ./
+  #     dockerfile: .docker/Dockerfile-cms
+  #     target: theme-builder
+  #   #command: npm run watch --prefix /var/www/web/themes/custom/usagov
+  #   command: echo "Shutting Down on Purpose"
+  #   volumes:
+  #     - .:/var/www:delegated
+  #   env_file:
+  #     - ./env.local
+  #   networks:
+  #     - gsa-gov
 
-  minio:
-    container_name: minio
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-minio
-    ports:
-      - 9000:9000
-      - 9001:9001
-    volumes:
-      - ./s3:/data
-    networks:
-      - gsa-gov
+  # web:
+  #   container_name: web
+  #   build:
+  #     context: ./
+  #     dockerfile: .docker/Dockerfile-web
+  #   ports:
+  #     - 81:80
+  #   environment:
+  #     - S3_PROXY=minio:9000/web
+  #     - CMS_PROXY=cms
+  #     - ALLOWED_IPS="allow all; satisfy all;"
+  #   depends_on:
+  #     - minio
+  #     - cms
+  #   networks:
+  #     - gsa-gov
+
+  # minio:
+  #   container_name: minio
+  #   build:
+  #     context: ./
+  #     dockerfile: .docker/Dockerfile-minio
+  #   ports:
+  #     - 9000:9000
+  #     - 9001:9001
+  #   volumes:
+  #     - ./s3:/data
+  #   networks:
+  #     - gsa-gov
+
   waf:
     container_name: waf
-    image: skstarne/usagov-2021:waf-latest
+    image: ednark/usagov-2021:waf-latest
     build:
       context: .docker/
       dockerfile: Dockerfile-waf
-    expose:
+    ports:
       # only available if SETTLS was enabled:
-      - "443"
-
+      - 443:443
+      - 80:80
     environment:
+      - S3_PROXY=minio:9000/web
+      - CMS_PROXY=cms
       - SERVERNAME=localhost
       - PORT=443
       - APP_NAME=USAGov
       - BLOCKED_NAME=USAGov
-      - IP_ALLOWED_HEALTH=allow 52.222.122.97/32;\n\tallow 52.222.123.172/32;\n\tallow 50.81.160.164;
-      - IP_ALLOWED=allow 50.81.160.164;\n\tallow 100.36.151.190;\n\tallow 52.222.122.97/32;\n\tallow 52.222.123.172/32;\n\tallow 159.142.0.0/16;
+      #- IP_ALLOWED_HEALTH=allow 52.222.122.97/32;\n\tallow 52.222.123.172/32;\n\tallow 50.81.160.164;
+      #- IP_ALLOWED=allow 50.81.160.164;\n\tallow 100.36.151.190;\n\tallow 52.222.122.97/32;\n\tallow 52.222.123.172/32;\n\tallow 159.142.0.0/16;
+      - IP_ALLOWED="50.81.160.164 100.36.151.190 52.222.122.97/32 52.222.123.172/32 159.142.0.0/16"
 
       #############################################
       # CRS Variables
@@ -190,7 +209,6 @@ services:
     volumes:
       - ./REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
       - ./RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
-
     #######################################################
     # Add TLS server certificate and key
     # (only available if SETPROXY was enabled during the

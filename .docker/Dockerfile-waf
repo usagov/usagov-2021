@@ -29,11 +29,16 @@ ENV APP_NAME=USAGov \
 COPY src-waf/opt/modsecurity/activate-rules.sh /opt/modsecurity/
 COPY src-waf/etc/modsecurity.d/*.conf /etc/modsecurity.d/
 COPY src-waf/nginx/docker-entrypoint.sh /
+COPY src-waf/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY src-waf/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# COPY src-waf/nginx/certs/star-server-cert.pem /etc/ssl/certs/star-server-cert.pem
+# COPY src-waf/nginx/certs/star-server-key.pem /etc/ssl/certs/star-server-key.pem
+
 COPY src-waf/nginx/snippets/ /etc/nginx/snippets/
-COPY src-waf/nginx/certs/nginx-selfsigned.crt /etc/ssl/certs/nginx-selfsigned.crt
-COPY src-waf/nginx/certs/dhparam.pem /etc/ssl/certs/dhparam.pem
-COPY src-waf/nginx/certs/nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
+# COPY src-waf/nginx/certs/nginx-selfsigned.crt /etc/ssl/certs/nginx-selfsigned.crt
+# COPY src-waf/nginx/certs/dhparam.pem /etc/ssl/certs/dhparam.pem
+# COPY src-waf/nginx/certs/nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
 
 RUN apk update && \
     apk add vim \

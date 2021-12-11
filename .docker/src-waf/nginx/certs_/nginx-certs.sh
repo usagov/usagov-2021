@@ -2,7 +2,7 @@
 
 # print usage
 DOMAIN=$1
-if [ -z "$1" ]; then 
+if [ -z "$1" ]; then
 
     echo "USAGE: $0 domain.lan"
     echo ""
