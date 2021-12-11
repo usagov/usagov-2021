@@ -17,6 +17,7 @@
 **/._.DS_Store
 
 # Ignore configuration files that may contain sensitive information
+/web/
 /web/sites/*/*settings*.php
 /web/sites/*/*services*.yml
 
@@ -27,6 +28,14 @@
 /web/sites/*/files-public
 /web/sites/*/files-private
 
+# Ignore paths that may contain temporary files
+/web/sites/*/translations
+/web/sites/*/tmp
+/web/sites/*/cache
+
+# Ignore testing related files
+/web/sites/simpletest
+
 /content/*
 /files/*
 /html/*
@@ -35,14 +44,6 @@ env.local
 sqlite-local.db
 sqlite-local.db-shm
 sqlite-local.db-wal
-
-# Ignore paths that may contain temporary files
-/web/sites/*/translations
-/web/sites/*/tmp
-/web/sites/*/cache
-
-# Ignore testing related files
-/web/sites/simpletest
 
 # Ignore drupal core (if not versioning drupal sources)
 /vendor/*

@@ -29,6 +29,7 @@ RUN sed -i s/node:x:1000:1000/node:x:100:101/g /etc/passwd \
       git \
       openssh \
     && npm install --global \
+      git \
       gulp \
       gulp-cli
 
@@ -148,6 +149,7 @@ RUN apk upgrade --update --no-cache \
 ENV PATH=/var/www/vendor/bin:$PATH
 
 COPY --chown=nginx:nginx .docker/etc-cms /etc
+COPY  --chown=nginx:nginx .docker/motd /etc/motd
 COPY --chown=nginx:nginx composer.json /var/www/composer.json
 COPY --chown=nginx:nginx composer.lock /var/www/composer.lock
 COPY --chown=nginx:nginx scripts/bootstrap.sh /var/www/scripts/bootstrap.sh
