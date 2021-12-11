@@ -1,37 +1,50 @@
-FROM node:16.8.0-alpine3.13 AS build
-RUN apk upgrade --update --no-cache \
+
+FROM composer:latest AS composer-builder
+
+COPY composer.json /var/www/composer.json
+COPY composer.lock /var/www/composer.lock
+
+WORKDIR /var/www
+
+RUN sed -i s/utmp:x:100:/utmp:x:406/g /etc/passwd \
+    && sed -i s/svn:x:101:101/svn:x:102:102/g /etc/passwd \
+    && sed -i s/svnusers:x:101:svn/svnusers:x:102:svn/g /etc/group \
+    && addgroup -g 101 nginx \
+    && adduser nginx -G nginx -H -D -u 100 \
+    && mkdir -p /var/www/vendor \
+    && echo 'memory_limit = -1' | tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini \
+    && COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader
+
+
+###############################################################
+
+
+FROM node:16.8.0-alpine3.13 AS theme-builder
+RUN sed -i s/node:x:1000:1000/node:x:100:101/g /etc/passwd \
+    && sed -i s/node:x:1000/node:x:101/g /etc/group \
+    && apk upgrade --update --no-cache \
     && apk add --no-cache --virtual .persistent-deps \
       ca-certificates \
       curl \
       git \
-      php8 \
-      php8-mbstring \
-      php8-openssl \
-      php8-phar \
-      php8-iconv \
-    && ln -s /usr/bin/php8 /usr/bin/php \
+      openssh \
     && npm install --global \
-      gulp-cli \
-    && cd /tmp \
-    && curl -sS https://getcomposer.org/installer | php \
-        -- --install-dir=/usr/bin --filename=composer \
-    && mkdir -p /var/www
+      gulp \
+      gulp-cli
 
-COPY composer.json /var/www/composer.json
-COPY composer.lock /var/www/composer.lock
-COPY themes/custom/ /var/www/web/themes/custom
+COPY themes/custom/usagov /var/www/web/themes/custom/usagov
 
-RUN cd /var/www \
-    && echo 'memory_limit = -1' | tee -a /etc/php8/conf.d/docker-php-memlimit.ini \
-    && COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader
-    # theme build
-    # && npm install --production=false --prefix /var/www/web/themes/custom/usagov \
-    # && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
-    # && npm run build --prefix /var/www/web/themes/custom/usagov
+WORKDIR /var/www/web/themes/custom/usagov/
+
+RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
+    && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
+    && npm run build --prefix /var/www/web/themes/custom/usagov
+
 
 ###############################################################
 
-FROM alpine:3.14
+
+FROM alpine:3.14 AS cms
 LABEL MAINTAINER=dan@mobomo.com
 
 ARG S6_VERSION
@@ -141,8 +154,9 @@ COPY --chown=nginx:nginx scripts/bootstrap.sh /var/www/scripts/bootstrap.sh
 COPY --chown=nginx:nginx config /var/www/config
 COPY --chown=nginx:nginx patches /var/www/patches
 COPY --chown=nginx:nginx libraries /var/www/libraries
-COPY --from=0 --chown=nginx:nginx /var/www/vendor /var/www/vendor
-COPY --from=0 --chown=nginx:nginx /var/www/web /var/www/web
+COPY --from=composer-builder --chown=nginx:nginx /var/www/vendor /var/www/vendor
+COPY --from=composer-builder --chown=nginx:nginx /var/www/web /var/www/web
+COPY --from=theme-builder --chown=nginx:nginx /var/www/web/themes /var/www/web/themes
 
 RUN rm -f /var/www/web/sites/default/settings.local.php \
     rm -rf /var/www/web/sites/default/files/* \
