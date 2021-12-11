@@ -30,10 +30,12 @@ openssl genrsa -out "nginx-self-signed.key" 2048
 openssl req -new -subj "$(echo -n "$SUBJ" | tr "\n" "/")" -key "nginx-selfsigned.key" -out "nginx-selfsigned.csr"
 openssl x509 -req -days 3650 -in "nginx-selfsigned.csr" -signkey "nginx-selfsigned.key" -out "nginx-selfsigned.crt"
 
-
 openssl dhparam -out dhparam.pem 2048
 
 rm "nginx-selfsigned.csr"
+mv ./dhparam.pem ./etc/ssl/certs/dhparam.pem
+mv ./nginx-selfsigned.crt ./etc/ssl/certs/nginx-selfsigned.crt
+mv ./nginx-selfsigned.key ./etc/ssl/private/nginx-selfsigned.key
 
 echo ""
 echo "Next manual steps:"

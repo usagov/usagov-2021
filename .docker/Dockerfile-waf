@@ -4,6 +4,15 @@ LABEL maintainer="Felipe Zipitria <felipe.zipitria@owasp.org>"
 
 ARG RELEASE=3.3.2
 
+ARG GITBRANCH
+ENV GITBRANCH ${GITBRANCH:-none}
+
+ARG GITCOMMIT
+ENV GITCOMMIT ${GITCOMMIT:-none}
+
+ARG GITTAG
+ENV GITTAG ${GITTAG:-none}
+
 ENV APP_NAME=USAGov \
     PARANOIA=1 \
     ANOMALY_INBOUND=5 \
@@ -26,19 +35,17 @@ ENV APP_NAME=USAGov \
     MODSEC_PCRE_MATCH_LIMIT=100000 \
     MODSEC_PCRE_MATCH_LIMIT_RECURSION=100000
 
-COPY src-waf/opt/modsecurity/activate-rules.sh /opt/modsecurity/
-COPY src-waf/etc/modsecurity.d/*.conf /etc/modsecurity.d/
-COPY src-waf/nginx/docker-entrypoint.sh /
-COPY src-waf/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY src-waf/nginx/nginx.conf /etc/nginx/nginx.conf
-
-# COPY src-waf/nginx/certs/star-server-cert.pem /etc/ssl/certs/star-server-cert.pem
-# COPY src-waf/nginx/certs/star-server-key.pem /etc/ssl/certs/star-server-key.pem
-
-COPY src-waf/nginx/snippets/ /etc/nginx/snippets/
-# COPY src-waf/nginx/certs/nginx-selfsigned.crt /etc/ssl/certs/nginx-selfsigned.crt
-# COPY src-waf/nginx/certs/dhparam.pem /etc/ssl/certs/dhparam.pem
-# COPY src-waf/nginx/certs/nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
+COPY src-waf/docker-entrypoint.sh /
+COPY src-waf/etc/ /etc/
+COPY src-waf/opt/ /opt/
+# COPY src-waf/etc/nginx/nginx.conf /etc/nginx/nginx.conf
+# COPY src-waf/etc/nginx/default.conf /etc/nginx/conf.d/default.conf
+# COPY src-waf/opt/modsecurity/activate-rules.sh /opt/modsecurity/
+# COPY src-waf/etc/modsecurity.d/*.conf /etc/modsecurity.d/
+# COPY src-waf/etc/nginx/snippets/ /etc/nginx/snippets/
+# COPY src-waf/etc/nginx/certs/dhparam.pem /etc/ssl/certs/dhparam.pem
+# COPY src-waf/etc/nginx/certs/nginx-selfsigned.crt /etc/ssl/certs/nginx-selfsigned.crt
+# COPY src-waf/etc/nginx/certs/nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
 
 RUN apk update && \
     apk add vim \
@@ -56,6 +63,14 @@ RUN set -eux; \
     | tar -zxf - --strip-components=1 -C /opt/owasp-crs; \
     mv -v /opt/owasp-crs/crs-setup.conf.example /opt/owasp-crs/crs-setup.conf; \
     ln -sv /opt/owasp-crs /etc/modsecurity.d/
+
+COPY motd /etc/motd
+
+RUN echo "    built:" $(date) >> /etc/motd \
+    && echo "    branch: " $GITBRANCH >> /etc/motd \
+    && echo "    gittag: " $GITTAG >> /etc/motd \
+    && echo "    commit: " $GITCOMMIT >> /etc/motd \
+    && echo >> /etc/motd
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

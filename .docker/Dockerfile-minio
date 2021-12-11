@@ -1,6 +1,6 @@
 FROM minio/minio:latest
 
-COPY .docker/entrypoint-minio.sh /entrypoint-minio.sh
+COPY .docker/src-minio/entrypoint-minio.sh /entrypoint-minio.sh
 
 RUN curl https://dl.min.io/client/mc/release/linux-amd64/mc \
         -s -q --create-dirs \
