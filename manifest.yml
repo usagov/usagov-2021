@@ -18,7 +18,7 @@ default_config: &defaults
 applications:
 - name: cms
   docker:
-    image: skstarne/usagov-2021:cms-latest
+    image: ednark/usagov-2021:cms-test
   memory: 256M
   disk_quota: 1G
   timeout: 180
@@ -28,12 +28,12 @@ applications:
     - storage
   instances: 1
   random-route: true
-- name: waf-route-app
+- name: waf
   docker:
-    image: skstarne/usagov-2021:waf-latest
+    image: ednark/usagov-2021:waf-test
   instances: 1
   disk_quota: 1G
-  memory: 128M
+  memory: 256M
   services:
     - secrets
   health-check-type: process
