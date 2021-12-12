@@ -1,7 +1,7 @@
 #!/bin/bash
 
 mc config host rm local
-mc config host add local http://127.0.0.1:9000 minioadmin miniopass
+mc config host add local http://127.0.0.1:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-miniopass}
 mc mb -p local/web
 mc policy set public local/web
 mc policy set public local/web/*
