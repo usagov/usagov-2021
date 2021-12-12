@@ -42,7 +42,7 @@ chmod -R u+w ./web/sites/default/
 
 docker build --force-rm \
     -t ednark/usagov-2021:waf-$CONTAINERTAG \
-    -f .docker/Dockerfile-waf . \
+    -f .docker/Dockerfile-waf ./docker \
     --build-arg GITBRANCH=$GITBRANCH \
     --build-arg GITCOMMIT=$GITCOMMIT \
     --build-arg GITTAG=$GITTAG
