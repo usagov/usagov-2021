@@ -72,5 +72,5 @@ RUN echo "    built:" $(date) >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \
     && echo >> /etc/motd
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint-waf.sh"]
 CMD ["nginx", "-g", "daemon off;"]
