@@ -124,18 +124,21 @@ services:
   #   networks:
   #     - gsa-gov
 
-  # minio:
-  #   container_name: minio
-  #   build:
-  #     context: ./
-  #     dockerfile: .docker/Dockerfile-minio
-  #   ports:
-  #     - 9000:9000
-  #     - 9001:9001
-  #   volumes:
-  #     - ./s3:/data
-  #   networks:
-  #     - gsa-gov
+  minio:
+    container_name: minio
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - ./s3:/data
+    # environment:
+    #   - MINIO_ROOT_USER=minioadmin
+    #   - MINIO_ROOT_PASSWORD=miniopass
+    networks:
+      - gsa-gov
 
   waf:
     container_name: waf
@@ -147,6 +150,10 @@ services:
       # only available if SETTLS was enabled:
       - 443:443
       - 80:80
+    depends_on:
+      - minio
+    networks:
+      - gsa-gov
     environment:
       - S3_PROXY=minio:9000/web
       - CMS_PROXY=cms
@@ -154,9 +161,9 @@ services:
       - PORT=443
       - APP_NAME=USAGov
       - BLOCKED_NAME=USAGov
+      - IP_ALLOWED=50.81.160.164 100.36.151.190 52.222.122.97/32 52.222.123.172/32 159.142.0.0/16
       #- IP_ALLOWED_HEALTH=allow 52.222.122.97/32;\n\tallow 52.222.123.172/32;\n\tallow 50.81.160.164;
       #- IP_ALLOWED=allow 50.81.160.164;\n\tallow 100.36.151.190;\n\tallow 52.222.122.97/32;\n\tallow 52.222.123.172/32;\n\tallow 159.142.0.0/16;
-      - IP_ALLOWED=50.81.160.164 100.36.151.190 52.222.122.97/32 52.222.123.172/32 159.142.0.0/16
 
       #############################################
       # CRS Variables
@@ -203,19 +210,19 @@ services:
       #- MAX_FILE_SIZE=1048576
       #- COMBINED_FILE_SIZES=1048576
 
-    #######################################################
-    # Volumes for ModSecurity Tuning
-    #######################################################
-    volumes:
-      - ./REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
-      - ./RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
-    #######################################################
-    # Add TLS server certificate and key
-    # (only available if SETPROXY was enabled during the
-    # parent ModSecurity image)
-    #######################################################
-    #  - ./server.crt:/usr/local/apache2/conf/server.crt
-    #  - ./server.key:/usr/local/apache2/conf/server.key
+      #######################################################
+      # Volumes for ModSecurity Tuning
+      #######################################################
+      # volumes:
+      #   - ./src-waf/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+      #   - ./src-waf/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
+      #######################################################
+      # Add TLS server certificate and key
+      # (only available if SETPROXY was enabled during the
+      # parent ModSecurity image)
+      #######################################################
+      #  - ./server.crt:/usr/local/apache2/conf/server.crt
+      #  - ./server.key:/usr/local/apache2/conf/server.key
 
 volumes:
   database_data:

@@ -1,4 +1,4 @@
-#!/bin/ash 
+#!/bin/ash
 set -euo pipefail
 
 if [ -z "${VCAP_SERVICES:-}" ]; then
