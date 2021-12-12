@@ -35,7 +35,7 @@ ENV APP_NAME=USAGov \
     MODSEC_PCRE_MATCH_LIMIT=100000 \
     MODSEC_PCRE_MATCH_LIMIT_RECURSION=100000
 
-COPY src-waf/docker-entrypoint.sh /
+COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
 # COPY src-waf/etc/nginx/nginx.conf /etc/nginx/nginx.conf
