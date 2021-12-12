@@ -9,6 +9,6 @@ RUN curl -L https://dl.min.io/client/mc/release/linux-amd64/mc \
     && chmod +x /opt/bin/mc \
     && chmod +x /entrypoint-minio.sh
 
-ENTRYPOINT ["/entrypoint-minio.sh"]
+ENTRYPOINT ["/docker-entrypoint-minio.sh"]
 
 CMD ["server", "/data", "--console-address", ":9001"]

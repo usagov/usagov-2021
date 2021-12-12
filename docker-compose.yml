@@ -15,6 +15,7 @@ services:
       - ./modules/custom:/var/www/web/modules/custom:delegated
       - ./themes/custom:/var/www/web/themes/custom:delegated
       - ./scripts:/var/www/scripts:delegated
+      - ./patches:/var/www/patches:delegated
       - ./composer.json:/var/www/composer.json
       - ./composer.lock:/var/www/composer.lock
       - ./settings/settings.php:/var/www/web/sites/default/settings.php
@@ -172,32 +173,38 @@ services:
       #  - ./server.crt:/usr/local/apache2/conf/server.crt
       #  - ./server.key:/usr/local/apache2/conf/server.key
 
-  # composer:
-  #   container_name: composer
-  #   build:
-  #     context: ./
-  #     dockerfile: .docker/Dockerfile-cms
-  #     target: composer-builder
-  #   command: echo "Shutting Down on Purpose"
-  #   volumes:
-  #     - .:/var/www:delegated
-  #   env_file:
-  #     - ./env.local
+  composer:
+    container_name: composer
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-cms
+      target: composer-builder
+    command: echo "Shutting Down on Purpose"
+    volumes:
+      - ./composer.json:/var/www/composer.json:delegated
+      - ./composer.lock:/var/www/composer.lock:delegated
+      - ./patches:/var/www/patches:delegated
+      - ./libraries:/var/www/libraries:delegated
+      - ./vendor:/var/www/vendor:delegated
+      - ./themes/custom:/var/www/web/themes/custom:delegated
+      #- .:/var/www:delegated
+    env_file:
+      - ./env.local
 
-  # node:
-  #   container_name: node
-  #   build:
-  #     context: ./
-  #     dockerfile: .docker/Dockerfile-cms
-  #     target: theme-builder
-  #   #command: npm run watch --prefix /var/www/web/themes/custom/usagov
-  #   command: echo "Shutting Down on Purpose"
-  #   volumes:
-  #     - .:/var/www:delegated
-  #   env_file:
-  #     - ./env.local
-  #   networks:
-  #     - gsa-gov
+  node:
+    container_name: node
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-cms
+      target: theme-builder
+    command: npm run watch --prefix /var/www/web/themes/custom/usagov
+    #command: echo "Shutting Down on Purpose"
+    volumes:
+      - ./themes/custom:/var/www/web/themes/custom:delegated
+    env_file:
+      - ./env.local
+    networks:
+      - gsa-gov
 
 volumes:
   database_data:
