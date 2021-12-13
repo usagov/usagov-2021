@@ -58,7 +58,6 @@ RUN set -eux; \
     ca-certificates \
     curl \
     sed; \
-    mkdir /opt/owasp-crs; \
     curl -SL https://github.com/coreruleset/coreruleset/archive/v${RELEASE}.tar.gz \
     | tar -zxf - --strip-components=1 -C /opt/owasp-crs; \
     mv -v /opt/owasp-crs/crs-setup.conf.example /opt/owasp-crs/crs-setup.conf; \
