@@ -81,9 +81,11 @@ fi;
 if [ "$DEPLOY_TARGET" = 'dev' ]; then
   # $cms_hostname = '--hostnme cms-dev.usa.gov'
   # $waf_hostname = '--hostnme beta-dev.usa.gov'
-  cms_hostname='--hostname cms.ednark.com'
-  waf_hostname='--hostname www.ednark.com'
-  CMS_PROXY=cms.ednark.com
+  # cms_hostname='--hostname cms.ednark.com'
+  # waf_hostname='--hostname www.ednark.com'
+  #CMS_PROXY=cms.ednark.com
+  cms_hostname='--random-route'
+  waf_hostname='--random-route'
 fi;
 if [ "$DEPLOY_TARGET" = 'stage' ]; then
   # $cms_hostname = '--hostname cms-stage.usa.gov'
@@ -115,9 +117,9 @@ cf set-env waf S3_PROXY "$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com"
 cf delete-service-key storage storagekey -f
 
 # internal route to cms
-if [ ! -z "$CMS_PROXY" ]; then
-  cf set-env waf CMS_PROXY "$CMS_PROXY"
-fi;
+# if [ ! -z "$CMS_PROXY" ]; then
+#   cf set-env waf CMS_PROXY "$CMS_PROXY"
+# fi;
 
 cf restart cms
 cf restart waf
