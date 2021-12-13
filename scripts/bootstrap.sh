@@ -17,17 +17,36 @@ DB_PW=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.password')
 DB_HOST=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.host')
 DB_PORT=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.port')
 
-S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
-export S3_BUCKET
-S3_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region')
-export S3_REGION
-
 ADMIN_EMAIL=$(echo $SECRETS | jq -r '.ADMIN_EMAIL')
 
- echo  "Fixing File Permissions ... "
- chown nginx:nginx /var/www
- find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
- find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
+S3_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region')
+export S3_BUCKET
+export S3_REGION
+
+WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep www | head -n 1)
+CMS_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms | head -n 1)
+export WWW_HOST
+export CMS_HOST
+
+if [ -z "$S3_PROXY" ]; then
+  export S3_PROXY="$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com"
+fi;
+export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
+ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
+
+FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf"
+# this overwrites the files in place, so be careful mounting in docker
+for FILE in $FILES; do
+    if [ -f "$FILE" ]; then
+        envsubst "$ENV_VARIABLES" < "$FILE" > "$FILE"
+    fi
+done
+
+echo  "Fixing File Permissions ... "
+chown nginx:nginx /var/www
+find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
 
 # if [ -n "$S3_BUCKET" ] && [ -n "$S3_REGION" ]; then
 #   # Add Proxy rewrite rules to the top of the htaccess file
