@@ -67,7 +67,10 @@ RUN apk upgrade --update --no-cache \
     && apk add --no-cache --virtual .persistent-deps \
     ca-certificates \
     curl \
+    gettext \
     git \
+    jq \
+    moreutils \
     tar \
     xz \
     vim \

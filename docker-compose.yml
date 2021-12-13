@@ -9,6 +9,10 @@ services:
     ports:
       - 8080:80
       - 9090:9000
+    networks:
+      gsa-gov:
+        aliases:
+          - www-usagov.docker.local
     volumes:
       - ./config:/var/www/config:delegated
       - ./libraries:/var/www/libraries:delegated
@@ -26,10 +30,9 @@ services:
     environment:
       COMPOSER_MEMORY_LIMIT: -1
       S3_PROXY: minio:9000/web
-      CMS_PROXY: cms
       CF_INSTANCE_INDEX: '1'
       VCAP_APPLICATION: >
-        {"name": "cms", "application_id": "docker"}
+        {"name": "cms", "application_id": "docker","application_uris":["www-usagov.docker.local"]}
       VCAP_SERVICES: >
         { "s3": [{
             "name": "storage",
@@ -64,8 +67,6 @@ services:
         }
     depends_on:
       - database
-    networks:
-      - gsa-gov
 
   database:
     container_name: database
