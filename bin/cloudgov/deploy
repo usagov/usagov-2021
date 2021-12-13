@@ -81,8 +81,8 @@ fi;
 if [ "$DEPLOY_TARGET" = 'dev' ]; then
   # $cms_hostname = '--hostnme cms-dev.usa.gov'
   # $waf_hostname = '--hostnme beta-dev.usa.gov'
-  cms_hostname='--hostnme cms.ednark.com'
-  waf_hostname='--hostnme www.ednark.com'
+  cms_hostname='--hostname cms.ednark.com'
+  waf_hostname='--hostname www.ednark.com'
   CMS_PROXY=cms.ednark.com
 fi;
 if [ "$DEPLOY_TARGET" = 'stage' ]; then
