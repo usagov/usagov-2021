@@ -13,21 +13,21 @@ if [ -z "$S3_PROXY" ]; then
 fi;
 
 # which ips are whitelisted
-export IPS_ALLOWED=""
-if [ ! -z "$IP_ALLOWED" ]; then
-  read -r -a array <<< $IP_ALLOWED;
-  for element in "${array[@]}"; do
-      if [ ! -z "$element" ]; then
-        export IPS_ALLOWED=$'\n\tallow '$element';'$IPS_ALLOWED;
-      fi;
-  done;
-fi;
+export IPS_ALLOWED="$IP_ALLOWED"
+# if [ ! -z "$IP_ALLOWED" ]; then
+#   read -r -a array <<< $IP_ALLOWED;
+#   for element in "${array[@]}"; do
+#       if [ ! -z "$element" ]; then
+#         export IPS_ALLOWED=$'\n\tallow '$element';'$IPS_ALLOWED;
+#       fi;
+#   done;
+# fi;
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
 
-FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/logging.conf /etc/modsecurity.d/modsecurity-override.conf /etc/nginx/snippets/ip-restrict.conf /etc/nginx/snippets/cf-proxy.conf  /etc/nginx/snippets/ssl.conf"
+FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/logging.conf /etc/modsecurity.d/modsecurity-override.conf /etc/nginx/snippets/ip-restrict.conf /etc/nginx/snippets/cf-proxy.conf  /etc/nginx/snippets/ssl.conf /etc/nginx/snippets/pretty-forbidden.conf /etc/nginx/snippets/s3-proxy.conf"
 
 # this overwrites the files in place, so be careful mounting in docker
 for FILE in $FILES; do
