@@ -24,7 +24,7 @@ fi
 if [ "${ENV_ANY_NOT_SET+set}" ]; then
 
   printf "\nExample:\n"
-  printf "\tROUTE_SERVICE_APP_NAME=waf-route-app ROUTE_SERVICE_NAME=waf-route PROTECTED_APP_NAME=cms ${0}\n"
+  printf "\tROUTE_SERVICE_APP_NAME=waf ROUTE_SERVICE_NAME=waf-route PROTECTED_APP_NAME=cms ${0}\n"
   exit 1
 fi
 
