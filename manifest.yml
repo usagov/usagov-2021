@@ -32,6 +32,7 @@ applications:
   docker:
     image: ednark/usagov-2021:waf-latest
   instances: 1
+  random-route: true
   disk_quota: 1G
   memory: 256M
   services:
