@@ -25,6 +25,8 @@ services:
       - ./env.local
     environment:
       COMPOSER_MEMORY_LIMIT: -1
+      S3_PROXY: minio:9000/web
+      CMS_PROXY: cms
       CF_INSTANCE_INDEX: '1'
       VCAP_APPLICATION: >
         {"name": "cms", "application_id": "docker"}
@@ -111,8 +113,6 @@ services:
     networks:
       - gsa-gov
     environment:
-      - S3_PROXY=minio:9000/web
-      - CMS_PROXY=cms
       - SERVERNAME=localhost
       - PORT=443
       - APP_NAME=USAGov
