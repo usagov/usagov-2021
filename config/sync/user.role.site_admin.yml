@@ -1,0 +1,39 @@
+uuid: 5365380e-9fc0-476c-8172-029bb7324bd4
+langcode: en
+status: true
+dependencies: {  }
+id: site_admin
+label: 'Site Admin'
+weight: 3
+is_admin: true
+permissions:
+  - 'access administration pages'
+  - 'access site in maintenance mode'
+  - 'access site reports'
+  - 'access taxonomy overview'
+  - 'access toolbar'
+  - 'access user profiles'
+  - 'administer account settings'
+  - 'administer actions'
+  - 'administer permissions'
+  - 'administer taxonomy'
+  - 'administer users'
+  - 'administer views'
+  - 'administer workflows'
+  - 'create terms in content_tags'
+  - 'create terms in page_type'
+  - 'create terms in uswds_breakpoints'
+  - 'create terms in uswds_classes'
+  - 'delete terms in content_tags'
+  - 'delete terms in page_type'
+  - 'delete terms in uswds_breakpoints'
+  - 'delete terms in uswds_classes'
+  - 'edit terms in content_tags'
+  - 'edit terms in page_type'
+  - 'edit terms in uswds_breakpoints'
+  - 'edit terms in uswds_classes'
+  - 'link to any page'
+  - 'select account cancellation method'
+  - 'use tome static'
+  - 'view the administration theme'
+  - 'view user email addresses'

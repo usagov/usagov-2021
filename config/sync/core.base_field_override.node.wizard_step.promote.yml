@@ -1,0 +1,22 @@
+uuid: 8565de69-9600-4307-a82f-25e31c4193e0
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.wizard_step
+id: node.wizard_step.promote
+field_name: promote
+entity_type: node
+bundle: wizard_step
+label: 'Promoted to front page'
+description: ''
+required: false
+translatable: true
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

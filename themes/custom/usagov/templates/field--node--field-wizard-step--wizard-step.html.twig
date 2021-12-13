@@ -1,0 +1,43 @@
+{% set radio_buttons = true %}
+
+{% if radio_buttons %}
+
+{% set translation = {prior: "Prior", next: "Next"} %}
+{% if element["#language"] == "es" %}
+    {% set translation = {prior: "Previo", next: "Siguiente"} %}
+{% endif %}
+
+
+
+<fieldset class="usa-fieldset maxw-tablet margin-x-auto">
+    {% for item in items %}
+        {% set title = item.content["#options"]["entity"].field_option_name.0.value %}
+        {% if title == null %}
+            {% set title = item.content["#title"] %}
+        {% endif %}
+        
+        {% set id = title|lower|replace({' ': '-', '.': '-'}) %}
+        {% set url = item.content["#url"] %}
+
+        <input class="usa-radio__input usa-radio__input--tile" type="radio" id="{{id}}" name="options" value="{{url}}">
+        <label class="usa-radio__label" for="{{id}}">{{title}}</label>
+    {% endfor %}
+
+    <div class="grid-row flex-justify maxw-mobile margin-x-auto margin-top-6">
+        
+        <button class="usa-button usa-button--outline usagov-button--outline-black" onclick="window.location.href = document.querySelector(`.previous-wizard-step a`).href">{{translation.prior}}</button>
+        <button class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">{{translation.next}}</button>
+    </div>
+</fieldset>
+
+{% else %}
+
+<ul class="add-list-reset">
+{% for item in items %}
+    <li>
+        <a href="{{item.content["#url"]}}" class="usa-button usa-button--secondary usa-button--big">{{item.content["#title"]}}</a>
+    </li>
+{% endfor %}
+</ul>
+
+{% endif %}

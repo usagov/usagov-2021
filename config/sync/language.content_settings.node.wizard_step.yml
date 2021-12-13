@@ -1,0 +1,11 @@
+uuid: d023caea-973c-40a6-a2bc-b469832f8b78
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.wizard_step
+id: node.wizard_step
+target_entity_type_id: node
+target_bundle: wizard_step
+default_langcode: site_default
+language_alterable: true

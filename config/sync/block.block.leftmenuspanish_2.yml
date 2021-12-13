@@ -5,6 +5,7 @@ dependencies:
   config:
     - system.menu.left-menu-spanish
   module:
+    - ctools
     - language
     - menu_block
     - system
@@ -42,3 +43,10 @@ visibility:
     id: request_path
     pages: '<front>'
     negate: true
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    bundles:
+      basic_page: basic_page
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
