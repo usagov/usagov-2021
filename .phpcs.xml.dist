@@ -50,8 +50,8 @@
   </rule>
 
   <!-- Default directories to sniff if no commandline instructions -->
-  <file>web/modules/custom</file>
-  <file>web/themes/custom</file>
+  <file>modules/custom</file>
+  <file>themes/custom</file>
 
   <exclude-pattern>*/vendor/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
