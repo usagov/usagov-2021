@@ -3,6 +3,7 @@ FROM composer:latest AS composer-builder
 
 COPY composer.json /var/www/composer.json
 COPY composer.lock /var/www/composer.lock
+COPY patches /var/www/patches
 
 WORKDIR /var/www
 
@@ -33,7 +34,8 @@ RUN sed -i s/node:x:1000:1000/node:x:100:101/g /etc/passwd \
       gulp \
       gulp-cli
 
-COPY themes/custom/usagov /var/www/web/themes/custom/usagov
+COPY --from=composer-builder --chown=nginx:nginx /var/www/web /var/www/web
+COPY --chown=nginx:nginx themes/custom/usagov /var/www/web/themes/custom/usagov
 
 WORKDIR /var/www/web/themes/custom/usagov/
 
@@ -158,10 +160,12 @@ COPY --chown=nginx:nginx composer.lock /var/www/composer.lock
 COPY --chown=nginx:nginx scripts/bootstrap.sh /var/www/scripts/bootstrap.sh
 COPY --chown=nginx:nginx config /var/www/config
 COPY --chown=nginx:nginx patches /var/www/patches
-COPY --chown=nginx:nginx libraries /var/www/libraries
+COPY --chown=nginx:nginx libraries /var/www/web/libraries
+COPY --chown=nginx:nginx modules /var/www/web/modules
+COPY --chown=nginx:nginx themes /var/www/web/themes
 COPY --from=composer-builder --chown=nginx:nginx /var/www/vendor /var/www/vendor
 COPY --from=composer-builder --chown=nginx:nginx /var/www/web /var/www/web
-COPY --from=theme-builder --chown=nginx:nginx /var/www/web/themes /var/www/web/themes
+COPY --from=theme-builder --chown=nginx:nginx /var/www/web/themes/custom /var/www/web/themes/custom
 
 RUN rm -f /var/www/web/sites/default/settings.local.php \
     rm -rf /var/www/web/sites/default/files/* \
