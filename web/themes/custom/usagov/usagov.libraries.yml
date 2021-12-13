@@ -1,7 +1,0 @@
-global-styling:
-  version: 1.0
-  css:
-    theme:
-      css/styles.css: {}
-  js:
-    scripts/uswds.min.js: {}

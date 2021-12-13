@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 
-cf ssh web -c 'source /etc/profile && /var/www/bootstrap.sh'
+cf ssh web -c 'source /etc/profile && /var/www/scripts/bootstrap.sh'
