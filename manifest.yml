@@ -42,11 +42,11 @@ applications:
     APP_NAME: nginx
     BLOCKED_NAME: USAGov
     IP_ALLOWED: |
-      50.81.160.164
-      100.36.151.190
-      52.222.122.97/32
-      52.222.123.172/32
-      159.142.0.0/16
+      allow 50.81.160.164;
+      allow 100.36.151.190;
+      allow 52.222.122.97/32;
+      allow 52.222.123.172/32;
+      allow 159.142.0.0/16;
 
 # - name: cronish
 #   <<: *defaults
