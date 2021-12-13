@@ -1,6 +1,6 @@
 uuid: 8a56c5f1-faf0-4bc4-addb-8e277dd79936
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - system.menu.left-menu-spanish
@@ -13,7 +13,7 @@ dependencies:
 id: leftmenuspanish_3
 theme: usagov
 region: content
-weight: 0
+weight: -6
 provider: null
 plugin: 'menu_block:left-menu-spanish'
 settings:

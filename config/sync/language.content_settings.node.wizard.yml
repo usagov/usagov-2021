@@ -1,0 +1,11 @@
+uuid: c09fdcb6-3d30-4a22-8d35-2c696d5fc36a
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.wizard
+id: node.wizard
+target_entity_type_id: node
+target_bundle: wizard
+default_langcode: site_default
+language_alterable: true

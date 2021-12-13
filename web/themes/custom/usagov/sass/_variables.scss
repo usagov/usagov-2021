@@ -1,0 +1,92 @@
+/*
+USWDS Variables
+*/
+// $theme-prefix-separator: "--";
+$theme-image-path: "../assets/img";
+
+// Primary colors
+$theme-color-primary: 'cyan-30v';
+$theme-color-primary-lighter: 'cyan-10';
+$theme-color-primary-dark: 'cyan-40v';
+$theme-color-primary-darker: 'cyan-40v'; //#009ec1
+
+// Secondary colors (These seem to only be used by usa-button--secondary)
+$theme-color-secondary: 'cyan-10'; //background
+$theme-color-secondary-dark: 'cyan-20'; //hover
+$theme-color-secondary-darker: 'cyan-20'; //active
+
+// Process List
+$theme-process-list-counter-background-color: 'ink';
+$theme-process-list-counter-text-color: 'white';
+
+
+//Accordion
+$theme-color-base-lightest: 'gray-cool-10';
+$theme-color-base-lighter: 'gray-20';
+
+// Alert
+$theme-color-error: 'red-50';
+
+
+/*
+USAgov Variables
+*/
+
+//Base variables - all color codes live here
+$red: #D83933;
+$white: #ffffff;
+$text-blue: #1A4480;
+$deep-blue: #11304e;
+$cyan: #3fbde3;
+$cyan-light: #ccecf2;
+$light-gray: #f3f3f3;
+$orange: #f79240;
+$black: #000000;
+
+//Component Variables - always refer to another variable
+// $navpage-banner-box-bg-color:         $deep-blue;
+// $navpage-banner-box-border-color:     $white;
+// $navpage-banner-box-color:            $cyan-light;
+
+// $navpage-card-heading-color:            $text-blue;
+// $navpage-card-heading-underline-color:  $cyan;
+// $navpage-card-border-color:             $grey;
+// $navpage-card-hover-bg-color:           $cyan-light;
+// $navpage-card-hover-border-color:       $cyan;
+
+// Trying a SASS Map
+$usagov-variables: (
+  hero: (
+    border-color: $red,
+    background-color: $deep-blue,
+    box-border-color: $white,
+    font-color: $white,
+    secondary-font-color: $cyan-light
+  ),
+  card: (
+    heading-color: $text-blue,
+    heading-underline-color: $cyan,
+    // border-color: $grey,
+    hover-background-color: $cyan-light,
+    hover-border-color: $cyan,
+    group-background-color: $light-gray,
+    text-color: $black
+  ),
+  radio-button: (
+    border-color: $orange
+  )
+);
+
+/*
+Call the var function to retrieve variables from sass map variables
+
+ex:
+var( $vars, navpage, hero, border-color );
+
+*/
+@function var($map, $keys...) {
+  @each $key in $keys {
+    $map: map-get($map, $key);
+  }
+  @return $map;
+}

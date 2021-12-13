@@ -54,6 +54,21 @@ This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
 `bin/drush sql:dump --resultflie=../backup.sql`
 
 ## Import Database
+
+Copy file into the root directory
+`docker ps` to get database container ID
+`docker cp usagov.sql [MYSQL CONTAINER ID]:/home/`
+`docker exec -it [MYSQL CONTAINER ID] /bin/bash`
+`mysql -u root -p`
+* `drop database drupal;`
+* `create database drupal;`
+* `exit`
+
+`mysql -u root -p drupal < [FILENAME]`
+Clear Cache
+
+
+## Import Database
 `bin/ssh`
 `drush sql-cli < backup.sql`
 ## Export Config

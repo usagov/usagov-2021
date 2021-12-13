@@ -1,0 +1,31 @@
+uuid: 79c5c2f0-9abb-4d94-aee1-b50a4a7ba7dd
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+    - node_menus
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - wizard
+      - wizard-espanol
+    parent: 'wizard:'
+  node_menus:
+    enabled: 1
+    languages:
+      en:
+        available_menus:
+          - wizard
+        parent: 'wizard:'
+      es:
+        available_menus:
+          - wizard-espanol
+        parent: 'wizard-espanol:'
+name: Wizard
+type: wizard
+description: ''
+help: ''
+new_revision: true
+preview_mode: 0
+display_submitted: false
