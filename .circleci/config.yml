@@ -81,7 +81,7 @@ jobs:
             $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist
       - run:
           name: Theme Lint
-          command: npm run lint --prefix ./web/themes/custom/usagov
+          command: npm run lint --prefix ./themes/custom/usagov
 
   install-container-dependencies:
     docker:
@@ -97,6 +97,7 @@ jobs:
       - run:
           name: Compile Theme
           command: |
+            cp -R ./themes ./web
             npm install --prefix ./web/themes/custom/usagov
             npm rebuild node-sass --prefix ./web/themes/custom/usagov
             npm run build --prefix ./web/themes/custom/usagov
@@ -201,14 +202,14 @@ workflows:
             - approve-build-and-push-container
           filters:
             branches:
-              only: main     
+              only: main
       - build-and-push-container:
           requires:
             - install-container-dependencies
           filters:
             branches:
               only: main
-      
+
       - approve-dev-deployment:
           type: approval
           requires:
