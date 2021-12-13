@@ -73,7 +73,7 @@ jobs:
           name: PHP Lint
           command: |
             COMPOSER_DIR=$(composer -n config --global home)
-            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom
+            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./modules/custom ./themes/custom
       - run:
           name: PHP CodeSniff (ignore warnings)
           command: |
@@ -97,6 +97,8 @@ jobs:
       - run:
           name: Compile Theme
           command: |
+            cp -R ./libraries ./web
+            cp -R ./modules ./web
             cp -R ./themes ./web
             npm install --prefix ./web/themes/custom/usagov
             npm rebuild node-sass --prefix ./web/themes/custom/usagov
