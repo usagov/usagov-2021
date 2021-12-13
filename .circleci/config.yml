@@ -65,7 +65,7 @@ jobs:
       - run:
           name: Install Linters and Sniffers
           command: |
-            npm install --prefix ./web/themes/custom/usagov
+            npm install --prefix ./themes/custom/usagov
             composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer
