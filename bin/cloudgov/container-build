@@ -49,5 +49,5 @@ docker build --force-rm \
 
 if [ -n "$CONTAINERTAG2" ]
 then
-    docker tag ednark/usagov-2021:web-$CONTAINERTAG ednark/usagov-2021:web-$CONTAINERTAG2
+    docker tag ednark/usagov-2021:waf-$CONTAINERTAG ednark/usagov-2021:waf-$CONTAINERTAG2
 fi
