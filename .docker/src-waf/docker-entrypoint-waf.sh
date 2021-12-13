@@ -15,9 +15,11 @@ fi;
 # which ips are whitelisted
 export IPS_ALLOWED=""
 if [ ! -z "$IP_ALLOWED" ]; then
-  IFS=', ' read -r -a array <<< "$IP_ALLOWED";
+  read -r -a array <<< $IP_ALLOWED;
   for element in "${array[@]}"; do
-      [ ! -z "$element" ] && IPS_ALLOWED=$'\n\tallow '$element';'$IPS_ALLOWED;
+      if [ ! -z "$element" ]; then
+        export IPS_ALLOWED=$'\n\tallow '$element';'$IPS_ALLOWED;
+      fi;
   done;
 fi;
 
