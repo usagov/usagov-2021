@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# if ! command -v cf &> /dev/null
+# then
+#     echo "CF : the cloud foundry client could not be found and is required"
+#     exit
+# fi
+
+# if ! command -v sshpass &> /dev/null
+# then
+#     echo "SSHPASS : could not be found and is required"
+#     exit
+# fi
+
+echo "Dumping database"
+# gather unique timestamp for 
+cf ssh web -c 'source /etc/profile && /var/www/backup-to-s3.sh'
+
+# check s3 for dump
+
+
+echo "All Done"

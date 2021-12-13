@@ -1,8 +1,8 @@
 ---
 default_config: &defaults
-  buildpacks:
+  # buildpacks:
     # We need the "apt" buildpack to install a MySQL client for Drush; see apt.yml
-    - https://github.com/cloudfoundry/php-buildpack.git#v4.4.40
+    # - https://github.com/cloudfoundry/php-buildpack.git#v4.4.40
   disk_quota: 512M
   timeout: 180
   services:
@@ -16,9 +16,9 @@ default_config: &defaults
     - storage  # cf create-service s3 basic-sandbox storage
 
 applications:
-- name: web
+- name: cms
   docker:
-    image: ednark/usagov-2021:latest
+    image: ednark/usagov-2021:cms-latest
   memory: 256M
   disk_quota: 1G
   timeout: 180
@@ -28,6 +28,26 @@ applications:
     - storage
   instances: 1
   random-route: true
+- name: waf
+  docker:
+    image: ednark/usagov-2021:waf-latest
+  instances: 1
+  random-route: true
+  disk_quota: 1G
+  memory: 256M
+  services:
+    - secrets
+  health-check-type: process
+  env:
+    APP_NAME: nginx
+    BLOCKED_NAME: USAGov
+    IP_ALLOWED: |
+      allow 50.81.160.164;
+      allow 100.36.151.190;
+      allow 52.222.122.97/32;
+      allow 52.222.123.172/32;
+      allow 159.142.0.0/16;
+
 # - name: cronish
 #   <<: *defaults
 #   no-route: true

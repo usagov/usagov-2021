@@ -17,6 +17,7 @@
 **/._.DS_Store
 
 # Ignore configuration files that may contain sensitive information
+/web/
 /web/sites/*/*settings*.php
 /web/sites/*/*services*.yml
 
@@ -27,6 +28,14 @@
 /web/sites/*/files-public
 /web/sites/*/files-private
 
+# Ignore paths that may contain temporary files
+/web/sites/*/translations
+/web/sites/*/tmp
+/web/sites/*/cache
+
+# Ignore testing related files
+/web/sites/simpletest
+
 /content/*
 /files/*
 /html/*
@@ -36,14 +45,6 @@ sqlite-local.db
 sqlite-local.db-shm
 sqlite-local.db-wal
 
-# Ignore paths that may contain temporary files
-/web/sites/*/translations
-/web/sites/*/tmp
-/web/sites/*/cache
-
-# Ignore testing related files
-/web/sites/simpletest
-
 # Ignore drupal core (if not versioning drupal sources)
 /vendor/*
 LICENSE.txt
@@ -51,42 +52,22 @@ LICENSE.txt
 .gitattributes
 .editorconfig
 
-/drush/contrib/
-/web/core/
-/web/modules/contrib/
-/web/themes/contrib/
-/web/profiles/contrib/
-/web/modules/README.txt
-/web/profiles/README.txt
-/web/sites/README.txt
-/web/sites/example.sites.php
-/web/sites/development.services.yml
-/web/themes/README.txt
-/web/.csslintrc
-/web/.eslintrc.json
-/web/.htaccess
-/web/autoload.php
-/web/example.gitignore
-/web/README.txt
-/web/robots.txt
-/web/update.php
-/web/web.config
-
 # Ignore Compiled Theme Files
-node_modules
-web/themes/custom/usagov/css
-web/themes/custom/usagov/sass/uswds
-web/themes/custom/usagov/fonts
-web/themes/custom/usagov/assets/img
-web/themes/custom/usagov/scripts/uswds-init.min.js.map
-web/themes/custom/usagov/scripts/uswds-init.min.js
-web/themes/custom/usagov/scripts/uswds-init.js
-web/themes/custom/usagov/scripts/uswds.min.js.map
-web/themes/custom/usagov/scripts/uswds.min.js
-web/themes/custom/usagov/scripts/uswds.js
-web/themes/custom/usagov/css/styles.css
-web/themes/custom/usagov/css/styles.css.map
-web/themes/custom/usagov/npm-debug.log
+themes/custom/usagov/node_modules
+themes/custom/usagov/css
+themes/custom/usagov/sass/uswds
+themes/custom/usagov/fonts
+themes/custom/usagov/assets/img
+themes/custom/usagov/scripts/uswds-init.min.js.map
+themes/custom/usagov/scripts/uswds-init.min.js
+themes/custom/usagov/scripts/uswds-init.js
+themes/custom/usagov/scripts/uswds.min.js.map
+themes/custom/usagov/scripts/uswds.min.js
+themes/custom/usagov/scripts/uswds.js
+themes/custom/usagov/css/styles.css
+themes/custom/usagov/css/styles.css.map
+themes/custom/usagov/npm-debug.log
+themes/custom/usagov/img
 
 .vscode/settings.json
-web/themes/custom/usagov/img
+workspace.code-workspace

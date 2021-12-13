@@ -1,0 +1,75 @@
+FROM owasp/modsecurity:nginx-alpine
+
+LABEL maintainer="Felipe Zipitria <felipe.zipitria@owasp.org>"
+
+ARG RELEASE=3.3.2
+
+ARG GITBRANCH
+ENV GITBRANCH ${GITBRANCH:-none}
+
+ARG GITCOMMIT
+ENV GITCOMMIT ${GITCOMMIT:-none}
+
+ARG GITTAG
+ENV GITTAG ${GITTAG:-none}
+
+ENV APP_NAME=USAGov \
+    PARANOIA=1 \
+    ANOMALY_INBOUND=5 \
+    ANOMALY_OUTBOUND=4 \
+    NGINX_KEEPALIVE_TIMEOUT=60s \
+    ERRORLOG=/var/log/nginx/error.log \
+    LOGLEVEL=warn \
+    USER=nginx \
+    PORT=443 \
+    SERVERNAME=locahost \
+    WORKER_CONNECTIONS=1024 \
+    MODSEC_DEFAULT_PHASE1_ACTION="phase:1,pass,log,tag:'\${MODSEC_TAG}'" \
+    MODSEC_DEFAULT_PHASE2_ACTION="phase:2,pass,log,tag:'\${MODSEC_TAG}'" \
+    MODSEC_RULE_ENGINE=off \
+    MODSEC_REQ_BODY_ACCESS=on \
+    MODSEC_REQ_BODY_LIMIT=13107200 \
+    MODSEC_REQ_BODY_NOFILES_LIMIT=131072 \
+    MODSEC_RESP_BODY_ACCESS=on \
+    MODSEC_RESP_BODY_LIMIT=1048576 \
+    MODSEC_PCRE_MATCH_LIMIT=100000 \
+    MODSEC_PCRE_MATCH_LIMIT_RECURSION=100000
+
+COPY src-waf/docker-entrypoint-waf.sh /
+COPY src-waf/etc/ /etc/
+COPY src-waf/opt/ /opt/
+# COPY src-waf/etc/nginx/nginx.conf /etc/nginx/nginx.conf
+# COPY src-waf/etc/nginx/default.conf /etc/nginx/conf.d/default.conf
+# COPY src-waf/opt/modsecurity/activate-rules.sh /opt/modsecurity/
+# COPY src-waf/etc/modsecurity.d/*.conf /etc/modsecurity.d/
+# COPY src-waf/etc/nginx/snippets/ /etc/nginx/snippets/
+# COPY src-waf/etc/nginx/certs/dhparam.pem /etc/ssl/certs/dhparam.pem
+# COPY src-waf/etc/nginx/certs/nginx-selfsigned.crt /etc/ssl/certs/nginx-selfsigned.crt
+# COPY src-waf/etc/nginx/certs/nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
+
+RUN apk update && \
+    apk add vim \
+    bash \
+    jq
+
+# hadolint ignore=DL3008,SC2016
+RUN set -eux; \
+    apk add --no-cache \
+    ca-certificates \
+    curl \
+    sed; \
+    curl -SL https://github.com/coreruleset/coreruleset/archive/v${RELEASE}.tar.gz \
+    | tar -zxf - --strip-components=1 -C /opt/owasp-crs; \
+    mv -v /opt/owasp-crs/crs-setup.conf.example /opt/owasp-crs/crs-setup.conf; \
+    ln -sv /opt/owasp-crs /etc/modsecurity.d/
+
+COPY motd /etc/motd
+
+RUN echo "    built:" $(date) >> /etc/motd \
+    && echo "    branch: " $GITBRANCH >> /etc/motd \
+    && echo "    gittag: " $GITTAG >> /etc/motd \
+    && echo "    commit: " $GITCOMMIT >> /etc/motd \
+    && echo >> /etc/motd
+
+ENTRYPOINT ["/docker-entrypoint-waf.sh"]
+CMD ["nginx", "-g", "daemon off;"]

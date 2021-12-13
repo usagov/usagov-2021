@@ -1,0 +1,3 @@
+#!/usr/bin/with-contenv sh
+
+exec nginx -g "error_log /dev/stderr error;"
