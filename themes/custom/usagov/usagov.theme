@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * USWDS Base sub-theme.
+ *
+ * Place your custom PHP code in this file.
+ */
+
+/**
+* This makes the node varialbe available to the templates/html.html.twig template file
+*/
+function usagov_preprocess_html(&$variables) {
+  $variables['node'] = \Drupal::routeMatch()->getParameter('node');
+}
+
+/**
+ * Process block content
+ */
+function usagov_preprocess_block(&$variables) {
+  $variables['node'] = \Drupal::routeMatch()->getParameter('node');
+}
+
+function usagov_preprocess_views_view_list(&$variables) {
+  $variables['node'] = \Drupal::routeMatch()->getParameter('node');
+}
+
+function usagov_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+  if ($hook == 'views_view_fields') {
+    $id = $variables['view']->storage->id();
+    if ($id == "sub_children") {
+      $suggestions[] = 'views_view_fields__sub_children';
+    }
+  }
+  if ($hook == 'views_view_field') {
+    $id = $variables['view']->storage->id();
+    if ($id == "sub_children") {
+      $suggestions[] = 'views_view_field__sub_children';
+    }
+  }
+  if ($hook == 'views_view') {
+    $id = $variables['view']->storage->id();
+    if ($id == "sub_children") {
+      $suggestions[] = 'views_view__sub_children';
+    }
+  }
+  if ($hook == 'views_view_list') {
+    $id = $variables['view']->storage->id();
+    if ($id == "sub_children") {
+      $suggestions[] = 'views_view_list__sub_children';
+    }
+  }
+}
