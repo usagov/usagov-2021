@@ -118,16 +118,16 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          name: Import Workspace items
-          command: |
-            mkdir -p ./vendor/
-            mkdir -p ./web
-            cp -r /tmp/workspace/vendor/* ./vendor/
-            cp -r /tmp/workspace/composer.lock ./composer.lock
-            cp -r /tmp/workspace/web/* ./web/
+      # - attach_workspace:
+      #     at: /tmp/workspace
+      # - run:
+      #     name: Import Workspace items
+      #     command: |
+      #       mkdir -p ./vendor/
+      #       mkdir -p ./web
+      #       cp -r /tmp/workspace/vendor/* ./vendor/
+      #       cp -r /tmp/workspace/composer.lock ./composer.lock
+      #       cp -r /tmp/workspace/web/* ./web/
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -199,15 +199,9 @@ workflows:
           filters:
             branches:
               only: main
-      - install-container-dependencies:
-          requires:
-            - approve-build-and-push-container
-          filters:
-            branches:
-              only: main
       - build-and-push-container:
           requires:
-            - install-container-dependencies
+            - approve-build-and-push-container
           filters:
             branches:
               only: main
