@@ -73,6 +73,9 @@ until cf create-service-key database test-db-ok ; do
 done
 cf delete-service-key database test-db-ok -f
 
+
+cms_randomroute='--no-route'
+waf_randomroute='--no-route'
 DEPLOY_TARGET=$(cf target | grep space: | awk '{print $2}');
 if [ "$DEPLOY_TARGET" = 'personal' ]; then
   cms_randomroute='--random-route'
@@ -95,6 +98,10 @@ cf delete-service-key storage storagekey -f
 
 # Assume WAF is setup as routing service already vi a specific waf app name
 if [ "$DEPLOY_TARGET" = 'dev' ]; then
+  if [[ $(cf check-route app.cloud.gov --hostname waf-route-dev-usagov) == *"does not exist."* ]]; then
+    cf create-route app.cloud.gov --hostname waf-route-dev-usagov
+  fi;
+  cf map-route waf app.cloud.gov --hostname waf-route-dev-usagov
   # setup cms hostname
   if [[ $(cf check-route app.cloud.gov --hostname cms-dev-usagov) == *"does not exist."* ]]; then
     cf create-route app.cloud.gov --hostname cms-dev-usagov
@@ -109,6 +116,10 @@ if [ "$DEPLOY_TARGET" = 'dev' ]; then
   cf bind-route-service app.cloud.gov waf-route-dev-usagov --hostname beta-dev-usagov
 fi;
 if [ "$DEPLOY_TARGET" = 'stage' ]; then
+  if [[ $(cf check-route app.cloud.gov --hostname waf-route-stage-usagov) == *"does not exist."* ]]; then
+    cf create-route app.cloud.gov --hostname waf-route-stage-usagov
+  fi;
+  cf map-route waf app.cloud.gov --hostname waf-route-stage-usagov
   # setup cms hostname
   if [[ $(cf check-route app.cloud.gov --hostname cms-stage-usagov) == *"does not exist."* ]]; then
     cf create-route app.cloud.gov --hostname cms-stage-usagov
@@ -123,6 +134,10 @@ if [ "$DEPLOY_TARGET" = 'stage' ]; then
   cf bind-route-service app.cloud.gov waf-route-stage-usagov --hostname beta-stage-usagov
 fi;
 if [ "$DEPLOY_TARGET" = 'prod' ]; then
+  if [[ $(cf check-route app.cloud.gov --hostname waf-route-usagov) == *"does not exist."* ]]; then
+    cf create-route app.cloud.gov --hostname waf-route-usagov
+  fi;
+  cf map-route waf app.cloud.gov --hostname waf-route-usagov
   # setup cms hostname
   if [[ $(cf check-route app.cloud.gov --hostname cms-usagov) == *"does not exist."* ]]; then
     cf create-route app.cloud.gov --hostname cms-usagov
