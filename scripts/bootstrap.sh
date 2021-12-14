@@ -1,5 +1,6 @@
 #!/bin/ash
 #set -euo pipefail
+#set -uo pipefail
 
 if [ -z "${VCAP_SERVICES:-}" ]; then
     echo "VCAP_SERVICES must a be set in the environment: aborting bootstrap";
