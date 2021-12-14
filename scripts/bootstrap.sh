@@ -24,8 +24,8 @@ S3_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage
 export S3_BUCKET
 export S3_REGION
 
-WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep www | head -n 1)
-CMS_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms | head -n 1)
+WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)
+CMS_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)
 export WWW_HOST
 export CMS_HOST
 
