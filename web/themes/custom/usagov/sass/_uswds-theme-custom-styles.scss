@@ -538,7 +538,7 @@ a {
 }
 
 
-#block-betabanner .usa-alert--info{
+#block-betabanner .usa-alert--info, #block-betaspanishbanner .usa-alert--info{
    // These styles are needed to position the alert icon 
    &:before {
       display:none;
@@ -559,6 +559,40 @@ a {
          background-color: #1b1b1b;
          -webkit-mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
          mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
+         background-size: 1.5rem;
+         height: 2.5rem;
+         width: 1.5rem;
+         -webkit-mask-size: 1.5rem;
+         mask-size: 1.5rem;
+         @media (max-width: 1022px) {
+            left: .4rem;
+         }
+      }
+      
+   }
+}
+
+#block-emergencyheaderbanner .usa-alert--error {
+   // These styles are needed to position the alert icon 
+   &:before {
+      display:none;
+   }
+   .usa-alert__body {
+      position:relative;
+
+      &:before {
+         background: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
+         width: 2rem;
+         content: "";
+         display: block;
+         height: 3.5rem;
+         position:absolute;
+         left: 1.6rem;
+         top: -0.6rem;
+         background: 0 0;
+         background-color: #1b1b1b;
+         -webkit-mask: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
+         mask: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
          background-size: 1.5rem;
          height: 2.5rem;
          width: 1.5rem;
