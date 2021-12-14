@@ -163,6 +163,7 @@ COPY --chown=nginx:nginx patches /var/www/patches
 COPY --chown=nginx:nginx libraries /var/www/web/libraries
 COPY --chown=nginx:nginx modules /var/www/web/modules
 COPY --chown=nginx:nginx themes /var/www/web/themes
+COPY --chown=nginx:nginx settings /var/www/web/sites/default
 COPY --from=composer-builder --chown=nginx:nginx /var/www/vendor /var/www/vendor
 COPY --from=composer-builder --chown=nginx:nginx /var/www/web /var/www/web
 COPY --from=theme-builder --chown=nginx:nginx /var/www/web/themes/custom /var/www/web/themes/custom
