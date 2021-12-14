@@ -6,7 +6,7 @@
 
     <div class="usa-prose">
         <h2>
-            Escriba su dirección para encontrar a los funcionarios que le representan.
+            Escriba Su Dirección Para Encontrar a los Funcionarios Que le Representan
         </h2>
 
         <p>Todos los elementos del formulario de abajo son obligatorios y están marcados con el símbolo (*).</p>
@@ -14,7 +14,10 @@
         <div class="usa-alert usa-alert--warning usa-alert--no-icon usa-alert--slim">
             <div class="usa-alert__body">
                 <p class="usa-alert__text">
-                    Su búsqueda arrojará resultados en inglés.
+                    <ul>
+                        <li>La información sobre los funcionarios electos es proporcionada por la API de Información Cívica de Google. USAGov en Español no garantiza la precisión de los resultados.</li>
+                        <li>Su búsqueda arrojará resultados en inglés.</li>
+                    </ul>
                 </p>
             </div>
         </div>
@@ -31,7 +34,6 @@
                         type="text"
                         onkeypress="return event.keyCode != 13;"
                         required
-                        autofocus
                     />
 
                     <label id="myCity" class="usa-label" for="input-city">*Ciudad</label>

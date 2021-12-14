@@ -17,7 +17,7 @@
 **/._.DS_Store
 
 # Ignore configuration files that may contain sensitive information
-/web/
+/web
 /web/sites/*/*settings*.php
 /web/sites/*/*services*.yml
 
