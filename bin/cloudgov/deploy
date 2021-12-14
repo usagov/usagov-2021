@@ -116,11 +116,11 @@ if [ "$DEPLOY_TARGET" = 'stage' ]; then
   cf map-route cms app.cloud.gov --hostname cms-stage-usagov
   cf bind-route-service app.cloud.gov waf-route-stage-usagov --hostname cms-stage-usagov
   # setup wwww hostname
-  if [[ $(cf check-route app.cloud.gov --hostname beta-dev-usagov) == *"does not exist."* ]]; then
-    cf create-route app.cloud.gov --hostname beta-dev-usagov
+  if [[ $(cf check-route app.cloud.gov --hostname beta-stage-usagov) == *"does not exist."* ]]; then
+    cf create-route app.cloud.gov --hostname beta-stage-usagov
   fi;
-  cf map-route cms app.cloud.gov --hostname beta-dev-usagov
-  cf bind-route-service app.cloud.gov waf-route-dev-usagov --hostname beta-dev-usagov
+  cf map-route cms app.cloud.gov --hostname beta-stage-usagov
+  cf bind-route-service app.cloud.gov waf-route-stage-usagov --hostname beta-stage-usagov
 fi;
 if [ "$DEPLOY_TARGET" = 'prod' ]; then
   # setup cms hostname
