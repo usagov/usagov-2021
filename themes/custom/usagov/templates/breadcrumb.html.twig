@@ -8,7 +8,15 @@
  */
 #}
 {% if breadcrumb %}
-    <nav class="margin-bottom-6" role="navigation" aria-labelledby="system-breadcrumb">
+    <nav class="margin-top-neg-3
+                mobile-lg:margin-top-2
+                tablet:margin-top-neg-3
+                desktop:margin-top-0
+                margin-bottom-2
+                mobile-lg:margin-bottom-6"
+            role="navigation"
+            aria-labelledby="system-breadcrumb"
+        >
         <h2 id="system-breadcrumb" class="usa-sr-only">{{ 'Breadcrumb'|t }}</h2>
         <ol class="usa-breadcrumb__list">
             {% for item in breadcrumb %}

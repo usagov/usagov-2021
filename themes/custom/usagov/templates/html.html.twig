@@ -33,6 +33,7 @@
   {% if node.id is defined %}
   {{ drupal_field('field_header_html','node', node.id)|without('#theme') }}
   {% endif %}
+  <meta name="robots" content="noindex">
 </head>
 <body{{ attributes }}>
 {#
