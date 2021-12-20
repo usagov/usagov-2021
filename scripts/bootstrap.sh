@@ -1,6 +1,6 @@
 #!/bin/ash
 #set -euo pipefail
-#set -uo pipefail
+set -uo pipefail
 
 if [ -z "${VCAP_SERVICES:-}" ]; then
     echo "VCAP_SERVICES must a be set in the environment: aborting bootstrap";
@@ -83,7 +83,7 @@ find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xar
 #     drupal --root=$APP_ROOT config:override system.site uuid $UUID
 # }
 
-if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ "${APP_NAME}" == "web" ]; then
+if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
 #   if [ "$APP_ID" = "docker" ] ; then
 #     # make sure database is created
 #     echo "create database $DB_NAME;" | mysql --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USER" --password="$DB_PW" || true
