@@ -1,10 +1,6 @@
 
 FROM composer:latest AS composer-builder
 
-COPY composer.json /var/www/composer.json
-COPY composer.lock /var/www/composer.lock
-COPY patches /var/www/patches
-
 WORKDIR /var/www
 
 RUN sed -i s/utmp:x:100:/utmp:x:406/g /etc/passwd \
@@ -12,10 +8,18 @@ RUN sed -i s/utmp:x:100:/utmp:x:406/g /etc/passwd \
     && sed -i s/svnusers:x:101:svn/svnusers:x:102:svn/g /etc/group \
     && addgroup -g 101 nginx \
     && adduser nginx -G nginx -H -D -u 100 \
-    && mkdir -p /var/www/vendor \
     && echo 'memory_limit = -1' | tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini \
-    && COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader
+    && mkdir -p /var/www/vendor \
+    && find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
 
+COPY --chown=nginx:nginx composer.json /var/www/composer.json
+COPY --chown=nginx:nginx composer.lock /var/www/composer.lock
+COPY --chown=nginx:nginx patches /var/www/patches
+
+USER nginx
+
+RUN mkdir -p /var/www/vendor \
+    && COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader
 
 ###############################################################
 
@@ -34,8 +38,8 @@ RUN sed -i s/node:x:1000:1000/node:x:100:101/g /etc/passwd \
       gulp \
       gulp-cli
 
-COPY --from=composer-builder --chown=nginx:nginx /var/www/web /var/www/web
-COPY --chown=nginx:nginx themes/custom/usagov /var/www/web/themes/custom/usagov
+COPY --from=composer-builder --chown=node:node /var/www/web /var/www/web
+COPY --chown=node:node themes/custom/usagov /var/www/web/themes/custom/usagov
 
 WORKDIR /var/www/web/themes/custom/usagov/
 
@@ -80,6 +84,8 @@ RUN apk upgrade --update --no-cache \
     pv \
     mysql-client \
     nginx \
+    nginx-mod-http-lua \
+    nginx-mod-http-js \
     php8 \
     php8-fpm \
     php8-bcmath \

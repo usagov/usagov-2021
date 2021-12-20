@@ -25,10 +25,17 @@ services:
       - ./settings/settings.php:/var/www/web/sites/default/settings.php
       - ./settings/settings.local.php:/var/www/web/sites/default/settings.local.php
       - ./settings/settings.cf.php:/var/www/web/sites/default/settings.cf.php
+      - ./.docker/src-cms/etc/nginx/nginx.conf.tmpl:/etc/nginx/nginx.conf.tmpl
+      - ./.docker/src-cms/etc/nginx/conf.d/default.conf.tmpl:/etc/nginx/conf.d/default.conf.tmpl:delegated
+      - ./.docker/src-cms/etc/nginx/partials/drupal.conf:/etc/nginx/partials/drupal.conf:delegated
+      - ./.docker/src-cms/etc/nginx/partials/php.conf:/etc/nginx/partials/php.conf:delegated
+      - ./.docker/src-cms/etc/nginx/partials/ssl.conf:/etc/nginx/partials/ssl.conf:delegated
+      - ./.docker/src-cms/etc/nginx/partials:/etc/nginx/partials:delegated
     env_file:
       - ./env.local
     environment:
       COMPOSER_MEMORY_LIMIT: -1
+      S3_HOST: minio:9000
       S3_PROXY: minio:9000/web
       CF_INSTANCE_INDEX: '1'
       VCAP_APPLICATION: >
