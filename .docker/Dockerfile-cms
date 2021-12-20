@@ -34,8 +34,8 @@ RUN sed -i s/node:x:1000:1000/node:x:100:101/g /etc/passwd \
       gulp \
       gulp-cli
 
-COPY --from=composer-builder --chown=nginx:nginx /var/www/web /var/www/web
-COPY --chown=nginx:nginx themes/custom/usagov /var/www/web/themes/custom/usagov
+COPY --from=composer-builder --chown=node:node /var/www/web /var/www/web
+COPY --chown=node:node themes/custom/usagov /var/www/web/themes/custom/usagov
 
 WORKDIR /var/www/web/themes/custom/usagov/
 
