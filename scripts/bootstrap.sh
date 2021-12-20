@@ -1,6 +1,6 @@
 #!/bin/ash
 #set -euo pipefail
-#set -uo pipefail
+set -uo pipefail
 
 if [ -z "${VCAP_SERVICES:-}" ]; then
     echo "VCAP_SERVICES must a be set in the environment: aborting bootstrap";
@@ -33,6 +33,9 @@ export CMS_HOST
 if [ -z "$S3_PROXY" ]; then
   S3_PROXY="$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com"
 fi;
+if [ -z "$S3_HOST" ]; then
+  S3_HOST="$S3_PROXY"
+fi;
 DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 export S3_PROXY
 export DNS_SERVER
@@ -42,9 +45,9 @@ ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
 FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf"
 # this overwrites the files in place, so be careful mounting in docker
 for FILE in $FILES; do
-    if [ -f "$FILE" ]; then
-        envsubst "$ENV_VARIABLES" < "$FILE" > "$FILE.replaced"
-        mv "$FILE.replaced" "$FILE"
+    if [ -f "$FILE.tmpl" ]; then
+        envsubst "$ENV_VARIABLES" < "$FILE.tmpl" > "$FILE"
+        #mv "$FILE.replaced" "$FILE"
     fi
 done
 
@@ -83,7 +86,7 @@ find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xar
 #     drupal --root=$APP_ROOT config:override system.site uuid $UUID
 # }
 
-if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ "${APP_NAME}" == "web" ]; then
+if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
 #   if [ "$APP_ID" = "docker" ] ; then
 #     # make sure database is created
 #     echo "create database $DB_NAME;" | mysql --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USER" --password="$DB_PW" || true
@@ -114,4 +117,6 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ "${APP_NAME}" == "web" ]; then
 # #   # Clear the cache
 #     drupal cache:rebuild --no-interaction
     echo "Bootstrap finished"
+else
+    echo "Bootstrap skipping Drupal CIM because we are not Instance 0"
 fi
