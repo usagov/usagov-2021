@@ -83,6 +83,7 @@ RUN apk upgrade --update --no-cache \
     jq \
     pv \
     mysql-client \
+    mariadb-connector-c \
     nginx \
     nginx-mod-http-lua \
     nginx-mod-http-js \
