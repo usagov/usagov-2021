@@ -33,12 +33,17 @@ export CMS_HOST
 if [ -z "$S3_PROXY" ]; then
   S3_PROXY="$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com"
 fi;
+S3_HOST=${S3_HOST:-$S3_PROXY};
 if [ -z "$S3_HOST" ]; then
   S3_HOST="$S3_PROXY"
 fi;
-DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 export S3_PROXY
-export DNS_SERVER
+export S3_HOST
+
+export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
+
+export EN_404_PAGE=${EN_404_PAGE:-/404/index.html};
+export ES_404_PAGE=${ES_404_PAGE:-/es/404/index.html};
 
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
 

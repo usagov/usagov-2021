@@ -11,7 +11,7 @@ cf login -a https://api.fr.cloud.gov -u $CF_SVC_USER -p $CF_SVC_PASS
 
 echo "[INFO] Creating access keys"
 cf create-service-key database db-dump >/dev/null 2>&1
-CF_GUID=$(cf app web --guid)
+CF_GUID=$(cf app cms --guid)
 CF_INFO=$(cf curl /v2/info)
 CF_DB_INFO=$(cf service-key database db-dump)
 
@@ -48,7 +48,7 @@ DB_SIZE=$(mysql \
         WHERE table_schema='$CF_DB_NAME';" \
 )
 hsize=$(numfmt --to=iec-i --suffix=B "$DB_SIZE")
-        
+
 echo "[INFO] Dumping database (size=$hsize) into $LOCAL_FILE ..."
 mysqldump -h127.0.0.1 -P$LOCAL_PORT -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME \
     --opt --hex-blob --set-gtid-purged=OFF --compression-algorithms=zlib --quick \
