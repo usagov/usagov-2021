@@ -1,0 +1,242 @@
+# S3 traffic
+server {
+    listen 80;
+
+    server_name ${WWW_HOST} beta-usagov.docker.local www.ednark.com beta.usa.gov beta-stage.usa.gov beta-dev.usa.gov www.usa.gov www-stage.usa.gov www-dev.usa.gov;
+
+    resolver ${DNS_SERVER} valid=5s ipv6=off;
+
+    proxy_http_version     1.1;
+    proxy_redirect         off;
+    proxy_set_header       Connection "";
+    proxy_set_header       Authorization '';
+    proxy_set_header       Host ${S3_HOST};
+    proxy_set_header       X-Real-IP $remote_addr;
+    proxy_set_header       X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_hide_header      x-amz-id-2;
+    proxy_hide_header      x-amz-request-id;
+    proxy_hide_header      x-amz-meta-server-side-encryption;
+    proxy_hide_header      x-amz-server-side-encryption;
+    proxy_hide_header      Set-Cookie;
+    proxy_ignore_headers   Set-Cookie;
+    proxy_intercept_errors on;
+    add_header             Cache-Control max-age=31536000;
+
+    set_by_lua $request_uri_lowercase "return string.lower(ngx.var.uri)";
+
+    location @notFoundEnglish {
+      allow all;
+      error_page 404 403 @notFoundEnglishFallback;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      proxy_pass https://${S3_PROXY}${EN_404_PAGE}#$1;
+    }
+    location @notFoundEnglishFallback {
+      allow all;
+      default_type text/plain;
+      return 404 'English Page Not Found';
+    }
+    location @notFoundSpanish {
+      allow all;
+      error_page 404 403 @notFoundSpanishFallback;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      proxy_pass https://${S3_PROXY}${ES_404_PAGE}#$1;
+    }
+    location @notFoundSpanishFallback {
+      allow all;
+      default_type text/plain;
+      return 404 'Spanish Page Not Found';
+    }
+
+    # catch urls that end in a trailing slash - assume they are dirs and need an index
+    location ~* /(es/.+/)$ {
+      error_page 404 403 @notFoundSpanish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}index.html";
+      proxy_pass https://$indexfile;
+    }
+    # catch urls that end without an extension or trailing slash - assume they are dirs and need an index
+    location ~* ^/(es/(.*/)?[^\./]+)$ {
+      error_page 404 403 @notFoundSpanish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+      proxy_pass https://$indexfile;
+    }
+    # catch all urls - assume they are not dirs and should be proxied directly
+    location ~* ^/(es(/.*|$)) {
+      error_page 404 403 @notFoundSpanish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}";
+      proxy_pass https://$indexfile;
+    }
+
+    # catch urls that end in a trailing slash - assume they are dirs and need an index
+    location ~* /(.*/)?$ {
+      error_page 404 403 @notFoundEnglish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}index.html";
+      proxy_pass https://$indexfile;
+    }
+    # catch urls that end without an extension or trailing slash - assume they are dirs and need an index
+    location ~* /([^\./]+)$ {
+      error_page 404 403 @notFoundEnglish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+      proxy_pass https://$indexfile;
+    }
+    # catch all urls - assume they are not dirs and should be proxied directly
+    location ~* (.*) {
+      error_page 404 403 @notFoundEnglish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}";
+      proxy_pass https://$indexfile;
+    }
+
+}
+server {
+    listen 443 ssl;
+    include partials/ssl.conf;
+
+    server_name ${WWW_HOST} beta-usagov.docker.local www.ednark.com beta.usa.gov beta-stage.usa.gov beta-dev.usa.gov www.usa.gov www-stage.usa.gov www-dev.usa.gov;
+
+    resolver ${DNS_SERVER} valid=5s ipv6=off;
+
+    proxy_http_version     1.1;
+    proxy_redirect         off;
+    proxy_set_header       Connection "";
+    proxy_set_header       Authorization '';
+    proxy_set_header       Host ${S3_HOST};
+    proxy_set_header       X-Real-IP $remote_addr;
+    proxy_set_header       X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_hide_header      x-amz-id-2;
+    proxy_hide_header      x-amz-request-id;
+    proxy_hide_header      x-amz-meta-server-side-encryption;
+    proxy_hide_header      x-amz-server-side-encryption;
+    proxy_hide_header      Set-Cookie;
+    proxy_ignore_headers   Set-Cookie;
+    proxy_intercept_errors on;
+    add_header             Cache-Control max-age=31536000;
+
+    set_by_lua $request_uri_lowercase "return string.lower(ngx.var.uri)";
+
+    location @notFoundEnglish {
+      allow all;
+      error_page 404 403 @notFoundEnglishFallback;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      proxy_pass https://${S3_PROXY}${EN_404_PAGE}#$1;
+    }
+    location @notFoundEnglishFallback {
+      allow all;
+      default_type text/plain;
+      return 404 'English Page Not Found';
+    }
+    location @notFoundSpanish {
+      allow all;
+      error_page 404 403 @notFoundSpanishFallback;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      proxy_pass https://${S3_PROXY}${ES_404_PAGE}#$1;
+    }
+    location @notFoundSpanishFallback {
+      allow all;
+      default_type text/plain;
+      return 404 'Spanish Page Not Found';
+    }
+
+    # catch urls that end in a trailing slash - assume they are dirs and need an index
+    location ~* /(es/.+/)$ {
+      error_page 404 403 @notFoundSpanish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}index.html";
+      proxy_pass https://$indexfile;
+    }
+    # catch urls that end without an extension or trailing slash - assume they are dirs and need an index
+    location ~* ^/(es/(.*/)?[^\./]+)$ {
+      error_page 404 403 @notFoundSpanish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+      proxy_pass https://$indexfile;
+    }
+    # catch all urls - assume they are not dirs and should be proxied directly
+    location ~* ^/(es(/.*|$)) {
+      error_page 404 403 @notFoundSpanish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}";
+      proxy_pass https://$indexfile;
+    }
+
+    # catch urls that end in a trailing slash - assume they are dirs and need an index
+    location ~* /(.*/)?$ {
+      error_page 404 403 @notFoundEnglish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}index.html";
+      proxy_pass https://$indexfile;
+    }
+    # catch urls that end without an extension or trailing slash - assume they are dirs and need an index
+    location ~* /([^\./]+)$ {
+      error_page 404 403 @notFoundEnglish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+      proxy_pass https://$indexfile;
+    }
+    # catch all urls - assume they are not dirs and should be proxied directly
+    location ~* (.*) {
+      error_page 404 403 @notFoundEnglish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}";
+      proxy_pass https://$indexfile;
+    }
+
+}
+
+# CMS Traffic
+server {
+    listen 80 default_server;
+
+    server_name  _;
+
+    root   /var/www/web;
+
+    fastcgi_temp_path      /tmp/nginx_fastcgi 1 2;
+    client_body_temp_path  /tmp/nginx_client_body 1 2;
+    proxy_temp_path        /tmp/nginx_proxy 1 2;
+
+    real_ip_header         x-forwarded-for;
+    set_real_ip_from       10.0.0.0/8;
+    real_ip_recursive      on;
+
+    include partials/drupal.conf;
+
+}
+server {
+    listen 443 ssl default_server;
+    include partials/ssl.conf;
+    server_name  _;
+
+    root   /var/www/web;
+
+    fastcgi_temp_path      /tmp/nginx_fastcgi 1 2;
+    client_body_temp_path  /tmp/nginx_client_body 1 2;
+    proxy_temp_path        /tmp/nginx_proxy 1 2;
+
+    real_ip_header         x-forwarded-for;
+    set_real_ip_from       10.0.0.0/8;
+    real_ip_recursive      on;
+
+    include partials/drupal.conf;
+
+}

@@ -16,9 +16,9 @@ fi
 isnum_Case() { case ${1#[-+]} in ''|.|*[!0-9.]*|*.*.*) return 1;; esac ;}
 
 if isnum_Case "$1"
-then 
+then
     LOCAL_PORT=$1
-else 
+else
     LOCAL_PORT=33306
 fi
 
@@ -28,7 +28,7 @@ echo "Generating service key"
 cf create-service-key database db-portforward >/dev/null 2>&1
 
 echo "Collecting connection info"
-CF_GUID=$(cf app web --guid)
+CF_GUID=$(cf app cms --guid)
 CF_INFO=$(cf curl /v2/info)
 CF_DB_INFO=$(cf service-key database db-portforward)
 CF_DB_PORT=$(echo "$CF_DB_INFO" | grep '"port":' | sed 's/.*"port": "\([^"]*\)".*/\1/')

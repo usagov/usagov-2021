@@ -6,5 +6,5 @@ docker compose run \
   --no-deps \
   --workdir /var/www \
   -v $(pwd)/:/var/www:delegated \
-  cms \
+  composer \
   composer "$@"

@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e
 
-docker-compose run \
-  --rm \
+docker compose run \
+  -it \
+  --workdir /var/www \
+  -v $(pwd)/:/var/www:delegated \
   cms \
-  drush sql-cli \
-  "$@"
+  drush --root=/var/www/web sql-cli "$@"
