@@ -84,7 +84,7 @@ fi;
 
 # launch the apps
 cf push cms --docker-image $CONTAINER:cms-$CONTAINERTAG $cms_randomroute
-cf push waf --docker-image $CONTAINER:waf-$CONTAINERTAG $waf_randomroute
+#cf push waf --docker-image $CONTAINER:waf-$CONTAINERTAG $waf_randomroute
 
 # make sure that the app knows where it's s3fs stuff lives
 cf create-service-key storage storagekey
@@ -96,65 +96,9 @@ cf set-env cms S3_REGION "$S3_REGION"
 cf set-env waf S3_PROXY "$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com"
 cf delete-service-key storage storagekey -f
 
-# Assume WAF is setup as routing service already vi a specific waf app name
-if [ "$DEPLOY_TARGET" = 'dev' ]; then
-  if [[ $(cf check-route app.cloud.gov --hostname waf-route-dev-usagov) == *"does not exist."* ]]; then
-    cf create-route app.cloud.gov --hostname waf-route-dev-usagov
-  fi;
-  cf map-route waf app.cloud.gov --hostname waf-route-dev-usagov
-  # setup cms hostname
-  if [[ $(cf check-route app.cloud.gov --hostname cms-dev-usagov) == *"does not exist."* ]]; then
-    cf create-route app.cloud.gov --hostname cms-dev-usagov
-  fi;
-  cf map-route cms app.cloud.gov --hostname cms-dev-usagov
-  cf bind-route-service "app.cloud.gov" waf-route-dev-usagov --hostname cms-dev-usagov
-  # setup wwww hostname
-  if [[ $(cf check-route app.cloud.gov --hostname beta-dev-usagov) == *"does not exist."* ]]; then
-    cf create-route app.cloud.gov --hostname beta-dev-usagov
-  fi;
-  cf map-route cms app.cloud.gov --hostname beta-dev-usagov
-  cf bind-route-service app.cloud.gov waf-route-dev-usagov --hostname beta-dev-usagov
-fi;
-if [ "$DEPLOY_TARGET" = 'stage' ]; then
-  if [[ $(cf check-route app.cloud.gov --hostname waf-route-stage-usagov) == *"does not exist."* ]]; then
-    cf create-route app.cloud.gov --hostname waf-route-stage-usagov
-  fi;
-  cf map-route waf app.cloud.gov --hostname waf-route-stage-usagov
-  # setup cms hostname
-  if [[ $(cf check-route app.cloud.gov --hostname cms-stage-usagov) == *"does not exist."* ]]; then
-    cf create-route app.cloud.gov --hostname cms-stage-usagov
-  fi;
-  cf map-route cms app.cloud.gov --hostname cms-stage-usagov
-  cf bind-route-service app.cloud.gov waf-route-stage-usagov --hostname cms-stage-usagov
-  # setup wwww hostname
-  if [[ $(cf check-route app.cloud.gov --hostname beta-stage-usagov) == *"does not exist."* ]]; then
-    cf create-route app.cloud.gov --hostname beta-stage-usagov
-  fi;
-  cf map-route cms app.cloud.gov --hostname beta-stage-usagov
-  cf bind-route-service app.cloud.gov waf-route-stage-usagov --hostname beta-stage-usagov
-fi;
-if [ "$DEPLOY_TARGET" = 'prod' ]; then
-  if [[ $(cf check-route app.cloud.gov --hostname waf-route-usagov) == *"does not exist."* ]]; then
-    cf create-route app.cloud.gov --hostname waf-route-usagov
-  fi;
-  cf map-route waf app.cloud.gov --hostname waf-route-usagov
-  # setup cms hostname
-  if [[ $(cf check-route app.cloud.gov --hostname cms-usagov) == *"does not exist."* ]]; then
-    cf create-route app.cloud.gov --hostname cms-usagov
-  fi;
-  cf map-route cms app.cloud.gov --hostname cms-usagov
-  cf bind-route-service app.cloud.gov waf-route-usagov --hostname cms-usagov
-  # setup wwww hostname
-  if [[ $(cf check-route app.cloud.gov --hostname beta-usagov) == *"does not exist."* ]]; then
-    cf create-route app.cloud.gov --hostname beta-usagov
-  fi;
-  cf map-route cms app.cloud.gov --hostname beta-usagov
-  cf bind-route-service app.cloud.gov waf-route-usagov --hostname beta-usagov
-fi;
-
 
 cf restart cms
-cf restart waf
+#cf restart waf
 
 # # tell people where to go
 # ROUTE=$(cf apps | grep web | awk '{print $6}')
