@@ -49,6 +49,13 @@ server {
       return 404 'Spanish Page Not Found';
     }
 
+    location /es {
+      error_page 404 403 @notFoundSpanish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+      proxy_pass https://$indexfile;
+    }
     # catch urls that end in a trailing slash - assume they are dirs and need an index
     location ~* /(es/.+/)$ {
       error_page 404 403 @notFoundSpanish;
@@ -151,6 +158,13 @@ server {
       return 404 'Spanish Page Not Found';
     }
 
+    location /es {
+      error_page 404 403 @notFoundSpanish;
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+      proxy_pass https://$indexfile;
+    }
     # catch urls that end in a trailing slash - assume they are dirs and need an index
     location ~* /(es/.+/)$ {
       error_page 404 403 @notFoundSpanish;
