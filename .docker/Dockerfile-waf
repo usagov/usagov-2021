@@ -14,14 +14,14 @@ ARG GITTAG
 ENV GITTAG ${GITTAG:-none}
 
 ENV APP_NAME=USAGov \
-    PARANOIA=1 \
+    PARANOIA=2 \
     ANOMALY_INBOUND=5 \
     ANOMALY_OUTBOUND=4 \
     NGINX_KEEPALIVE_TIMEOUT=60s \
     ERRORLOG=/var/log/nginx/error.log \
     LOGLEVEL=warn \
     USER=nginx \
-    PORT=443 \
+    PORT=80 \
     SERVERNAME=locahost \
     WORKER_CONNECTIONS=1024 \
     MODSEC_DEFAULT_PHASE1_ACTION="phase:1,pass,log,tag:'\${MODSEC_TAG}'" \
@@ -32,20 +32,12 @@ ENV APP_NAME=USAGov \
     MODSEC_REQ_BODY_NOFILES_LIMIT=131072 \
     MODSEC_RESP_BODY_ACCESS=on \
     MODSEC_RESP_BODY_LIMIT=1048576 \
-    MODSEC_PCRE_MATCH_LIMIT=100000 \
-    MODSEC_PCRE_MATCH_LIMIT_RECURSION=100000
+    MODSEC_PCRE_MATCH_LIMIT=500000 \
+    MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000
 
 COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
-# COPY src-waf/etc/nginx/nginx.conf /etc/nginx/nginx.conf
-# COPY src-waf/etc/nginx/default.conf /etc/nginx/conf.d/default.conf
-# COPY src-waf/opt/modsecurity/activate-rules.sh /opt/modsecurity/
-# COPY src-waf/etc/modsecurity.d/*.conf /etc/modsecurity.d/
-# COPY src-waf/etc/nginx/snippets/ /etc/nginx/snippets/
-# COPY src-waf/etc/nginx/certs/dhparam.pem /etc/ssl/certs/dhparam.pem
-# COPY src-waf/etc/nginx/certs/nginx-selfsigned.crt /etc/ssl/certs/nginx-selfsigned.crt
-# COPY src-waf/etc/nginx/certs/nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
 
 RUN apk update && \
     apk add vim \
@@ -58,10 +50,20 @@ RUN set -eux; \
     ca-certificates \
     curl \
     sed; \
+    mkdir /tmp/owasp-crs; \
     curl -SL https://github.com/coreruleset/coreruleset/archive/v${RELEASE}.tar.gz \
-    | tar -zxf - --strip-components=1 -C /opt/owasp-crs; \
-    mv -v /opt/owasp-crs/crs-setup.conf.example /opt/owasp-crs/crs-setup.conf; \
-    ln -sv /opt/owasp-crs /etc/modsecurity.d/
+    | tar -zxf - --strip-components=1 -C /tmp/owasp-crs; \
+    mv -vf /tmp/owasp-crs/rules/* /opt/owasp-crs/rules; \
+    rm -rf /tmp/owasp-crs; \
+    ln -sv /opt/owasp-crs /etc/modsecurity.d;
+
+RUN set -eux; \
+    mkdir /var/log/modsecurity && \
+    touch /var/log/modsecurity/modsec_audit.log;
+
+COPY src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
+COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
+COPY src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
 
 COPY motd /etc/motd
 
