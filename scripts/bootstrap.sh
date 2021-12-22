@@ -30,6 +30,8 @@ CMS_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  
 export WWW_HOST
 export CMS_HOST
 
+export S3_WEBROOT=${S3_WEBROOT:-/web};
+
 if [ -z "$S3_PROXY" ]; then
   S3_PROXY="$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com"
 fi;

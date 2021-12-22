@@ -6,24 +6,40 @@ A revamped USA.gov site using Drupal 9 and Cloud Foundry.
 
 Import SQL database
 
-
 ```
+# input any secrets you need into env.local
 cp env.default env.local
+# build all the containers
 docker compose build
-bin/composer install
+# make sure a local version of vendor is created on your local fs
+bin/composer install  install --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
+# make sure a local version of node_modules is created on your local fs
+bin/npm install
+# start up the app
 docker compose up
 ```
 
-# Daily Setup
-
-Pull the latest changes from main branch into feature branch
-`git checkout feature-branch`
-`git merge main`
+# New Work
+Start with the latest changes from main branch and create a new feature branch
 ```
+git checkout main
+git fetch
+git pull
+git checkout -b new-feature-branch
 docker compose up
 ```
 
-# Workflow
+# Continuing Work
+
+Pull the latest changes from main branch into your active feature branch
+```
+git checkout main
+git fetch
+git pull
+git checkout my-feature-branch
+git merge main
+docker compose up
+```
 
 ## Ticket
 Create a ticket
@@ -41,7 +57,7 @@ We are using a script in `.git/hooks/commit-msg` to automatically add the curren
 
 ## Single Item Config Export
 * Visit
-On synchronize screen, determine which configs will be used. Then go to the Export > Single Item. Find the item. Create 
+On synchronize screen, determine which configs will be used. Then go to the Export > Single Item. Find the item. Create
 
 
 # USAgovTheme

@@ -71,6 +71,7 @@ ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION
 # Depenancies
 RUN apk upgrade --update --no-cache \
     && apk add --no-cache --virtual .persistent-deps \
+    aws-cli \
     ca-certificates \
     curl \
     gettext \
@@ -86,7 +87,6 @@ RUN apk upgrade --update --no-cache \
     mariadb-connector-c \
     nginx \
     nginx-mod-http-lua \
-    nginx-mod-http-js \
     php8 \
     php8-fpm \
     php8-bcmath \
