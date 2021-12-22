@@ -31,7 +31,7 @@ export WWW_HOST
 export CMS_HOST
 
 S3_WEBROOT=${S3_WEBROOT:-/web}
-S3_PROXY=${S3_PROXY:-$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com}
+S3_PROXY=${S3_PROXY:-$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com$S3_WEBROOT}
 S3_HOST=${S3_HOST:-$S3_PROXY}
 export S3_WEBROOT
 export S3_PROXY
