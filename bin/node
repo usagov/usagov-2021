@@ -4,6 +4,6 @@ set -e
 docker compose run \
   --rm \
   --no-deps \
-  -v $(pwd)/:/app:delegated \
+  -v $(pwd)/themes/custom:/var/www/web/themes/custom:delegated \
   node \
   node "$@"

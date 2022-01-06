@@ -7,6 +7,8 @@ if ( !empty(getenv('LOCALDB')) ) {
     ];
 }
 
+# $settings['tome_static_path_exclude'] = [];
+
 $config['admin_toolbar_tools.settings']['hoverintent_functionality'] = TRUE;
 
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml';

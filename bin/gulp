@@ -3,6 +3,7 @@ set -e
 
 docker compose run \
   --rm \
-  -v $(pwd)/:/app:delegated \
+  --no-deps \
+  -v $(pwd)/themes/custom:/var/www/web/themes/custom:delegated \
   node \
   gulp "$@"
