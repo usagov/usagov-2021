@@ -71,3 +71,6 @@ themes/custom/usagov/img
 
 .vscode/settings.json
 workspace.code-workspace
+
+.docker/src-cms/etc/nginx/conf.d/nginx.conf
+.docker/src-cms/etc/nginx/conf.d/default.conf

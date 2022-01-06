@@ -70,7 +70,9 @@
         "drupal/views_menu_children_filter": "^1.0@RC",
         "drupal/webform": "^6.0",
         "drupal/workbench_email": "^2.2",
-        "drush/drush": "^10.3"
+        "drush/drush": "^10.3",
+        "nyholm/psr7": "^1.4",
+        "nyholm/psr7-server": "^1.0"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -78,7 +80,13 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/installers": true,
+            "drupal/console-extend-plugin": true,
+            "drupal/core-composer-scaffold": true,
+            "drupal/core-project-message": true
+        }
     },
     "extra": {
         "drupal-scaffold": {
@@ -121,7 +129,7 @@
             },
             "drupal/mmf_core_fields": {
                 "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
-            }        
+            }
         }
     }
 }
