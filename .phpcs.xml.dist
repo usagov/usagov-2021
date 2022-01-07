@@ -56,5 +56,6 @@
   <exclude-pattern>*/vendor/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
   <exclude-pattern>.github/</exclude-pattern>
+  <exclude-pattern>modules/custom/tome</exclude-pattern>
 
 </ruleset>
