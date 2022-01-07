@@ -103,9 +103,12 @@ class ImportPartialFormTest extends BrowserTestBase {
     // Check that the page displays the correct information.
     $this->drupalGet('/admin/config/tome/sync/import-partial');
     $assert_session->pageTextNotContains('No content has been changed or deleted');
-    $this->assertStringContainsString($node1_name, $assert_session->elementExists('css', '[data-drupal-selector="edit-deleted"]')->getText());
-    $this->assertStringContainsString($node2_name, $assert_session->elementExists('css', '[data-drupal-selector="edit-modified"]')->getText());
-    $this->assertStringContainsString($node3_name, $assert_session->elementExists('css', '[data-drupal-selector="edit-added"]')->getText());
+    $this->assertStringContainsString($node1_name, $assert_session->elementExists('css',
+      '[data-drupal-selector="edit-deleted"]')->getText());
+    $this->assertStringContainsString($node2_name, $assert_session->elementExists('css',
+      '[data-drupal-selector="edit-modified"]')->getText());
+    $this->assertStringContainsString($node3_name, $assert_session->elementExists('css',
+      '[data-drupal-selector="edit-added"]')->getText());
 
     // Submit the form and verify that changes were actually made.
     $this->submitForm([], 'Submit');
