@@ -1,0 +1,14 @@
+name: 'Tome Static Super Cache test'
+type: module
+hidden: TRUE
+description: 'Tome Static Super Cache test'
+core: 8.x
+core_version_requirement: ^8 || ^9
+dependencies:
+  - tome:tome_static_super_cache
+  - drupal:views
+
+# Information added by Drupal.org packaging script on 2020-05-24
+version: '8.x-1.4'
+project: 'tome'
+datestamp: 1590331616

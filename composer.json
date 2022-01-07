@@ -63,7 +63,6 @@
         "drupal/taxonomy_menu": "^3.4",
         "drupal/term_reference_fancytree": "^2.0@RC",
         "drupal/term_reference_tree": "^1.0",
-        "drupal/tome": "^1.4",
         "drupal/uswds_base": "^2.4",
         "drupal/uswds_ckeditor_integration": "^1.0@beta",
         "drupal/uswds_paragraph_components": "^2.0.x-dev@dev",
