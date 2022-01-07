@@ -203,6 +203,7 @@ services:
       - ./vendor:/var/www/vendor:delegated
       - ./web:/var/www/web:delegated
       - ./themes/custom:/var/www/web/themes/custom:delegated
+      - ./modules/custom:/var/www/web/modules/custom:delegated
     env_file:
       - ./env.local
 

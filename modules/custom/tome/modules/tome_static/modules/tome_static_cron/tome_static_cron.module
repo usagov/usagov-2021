@@ -1,0 +1,74 @@
+<?php
+
+/**
+ * @file
+ * Contains hook implementations for the tome_static_cron module.
+ */
+
+use Drupal\tome_static_cron\Plugin\QueueWorker\TomeStaticQueueWorker;
+use Drupal\tome_static\TomeStaticHelper;
+
+/**
+ * Implements hook_cron().
+ */
+function tome_static_cron_cron() {
+  $base_url = \Drupal::config('tome_static_cron.settings')->get('base_url');
+
+  if (empty($base_url)) {
+    return;
+  }
+
+  if (\Drupal::queue('tome_static_cron')->numberOfItems() > 0) {
+    return;
+  }
+
+  if ($current_request = \Drupal::requestStack()->getCurrentRequest()) {
+    $original_params = TomeStaticHelper::setBaseUrl($current_request, $base_url);
+  }
+
+  \Drupal::state()->set(TomeStaticQueueWorker::STATE_KEY_INVOKE_PATHS, []);
+  \Drupal::state()->set(TomeStaticQueueWorker::STATE_KEY_OLD_PATHS, []);
+
+  /** @var \Drupal\tome_static\StaticGeneratorInterface $static */
+  $static = \Drupal::service('tome_static.generator');
+  $static->cleanupStaticDirectory();
+  $static->prepareStaticDirectory();
+  _tome_static_cron_queue_paths($static->exportPaths($static->getPaths()), $base_url);
+
+  if ($current_request) {
+    TomeStaticHelper::restoreBaseUrl($current_request, $original_params);
+  }
+}
+
+/**
+ * Enqueues paths for static generation.
+ *
+ * Paths passed to this function should have already been passed to the
+ * tome_static.generator service's exportPaths method.
+ *
+ * @param array $paths
+ *   An array of paths to queue.
+ * @param string $base_url
+ *   The base URL.
+ *
+ * @internal
+ */
+function _tome_static_cron_queue_paths(array $paths, $base_url) {
+  $old_paths = \Drupal::state()->get(TomeStaticQueueWorker::STATE_KEY_OLD_PATHS, []);
+  $paths = array_diff($paths, $old_paths);
+  if (!empty($paths)) {
+    $queue = \Drupal::queue('tome_static_cron');
+    foreach ($paths as $path) {
+      $queue->createItem([
+        'path' => $path,
+        'base_url' => $base_url,
+      ]);
+    }
+    $queue->createItem([
+      'action' => 'process_invoke_paths',
+      'base_url' => $base_url,
+    ]);
+    $old_paths = array_merge($paths, $old_paths);
+  }
+  \Drupal::state()->set(TomeStaticQueueWorker::STATE_KEY_OLD_PATHS, $old_paths);
+}

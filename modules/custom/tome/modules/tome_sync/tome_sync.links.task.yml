@@ -1,0 +1,4 @@
+tome_sync.import_partial:
+  route_name: tome_sync.import_partial
+  base_route: tome_sync.import_partial
+  title: 'Synchronize'
