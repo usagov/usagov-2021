@@ -91,10 +91,14 @@ class BookTest extends BrowserTestBase {
 
     // Test the book.
     $this->drupalLogin($this->webUser);
-    $this->checkBookNode($book, [$nodes[0], $nodes[3], $nodes[4]], FALSE, FALSE, $nodes[0], []);
-    $this->checkBookNode($nodes[0], [$nodes[1], $nodes[2]], $book, $book, $nodes[1], [$book]);
-    $this->checkBookNode($nodes[1], NULL, $nodes[0], $nodes[0], $nodes[2], [$book, $nodes[0]]);
-    $this->checkBookNode($nodes[2], NULL, $nodes[1], $nodes[0], $nodes[3], [$book, $nodes[0]]);
+    $this->checkBookNode($book, [$nodes[0], $nodes[3], $nodes[4]],
+      FALSE, FALSE, $nodes[0], []);
+    $this->checkBookNode($nodes[0], [$nodes[1], $nodes[2]], $book,
+      $book, $nodes[1], [$book]);
+    $this->checkBookNode($nodes[1], NULL, $nodes[0], $nodes[0], $nodes[2],
+      [$book, $nodes[0]]);
+    $this->checkBookNode($nodes[2], NULL, $nodes[1], $nodes[0], $nodes[3],
+      [$book, $nodes[0]]);
     $this->checkBookNode($nodes[3], NULL, $nodes[2], $book, $nodes[4], [$book]);
     $this->checkBookNode($nodes[4], NULL, $nodes[3], $book, FALSE, [$book]);
   }
