@@ -153,11 +153,11 @@ class StaticGenerator implements StaticGeneratorInterface {
 
     $path = $event->getPath();
 
-    $request = Request::create($path, 'GET', [], [], [], $this->currentRequest->server->all());
+    $request = Request::create('http://localhost'.$path, 'GET', [], [], [], $this->currentRequest->server->all());
 
     $request->attributes->set(static::REQUEST_KEY, static::REQUEST_KEY);
 
-    // $previous_stack = $this->replaceRequestStack($request);
+    $previous_stack = $this->replaceRequestStack($request);
 
     try {
       $psr17Factory = new Psr17Factory();
