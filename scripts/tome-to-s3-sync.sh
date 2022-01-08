@@ -12,6 +12,9 @@ mkdir -p /tmp/export;
 cp -R /var/www/html/* /tmp/export/
 cd /tmp/export
 
-for f in `find .`; do mv -v "$f" $(echo $f | tr '[A-Z]' '[a-z]'); done
+for f in `find /tmp/export/*`; do
+  ff=$(echo $f | tr '[A-Z]' '[a-z]');
+  [ "$f" != "$ff" ] && mv -v "$f" "$ff";
+done
 
 aws s3 sync /tmp/export s3://$BUCKET_NAME/web/ --acl public-read --delete
