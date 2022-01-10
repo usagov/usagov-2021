@@ -138,7 +138,7 @@ class StaticGenerator implements StaticGeneratorInterface {
    * {@inheritdoc}
    */
   public function requestPath($path) {
-    // $this->accountSwitcher->switchTo(new AnonymousUserSession());
+    $this->accountSwitcher->switchTo(new AnonymousUserSession());
     $invoke_paths = [];
 
     $original_path = $path;
@@ -147,7 +147,7 @@ class StaticGenerator implements StaticGeneratorInterface {
     $this->eventDispatcher->dispatch(TomeStaticEvents::PATH_PLACEHOLDER, $event);
 
     if ($event->isInvalid()) {
-      // $this->accountSwitcher->switchBack();
+      $this->accountSwitcher->switchBack();
       return [];
     }
 
@@ -171,6 +171,8 @@ class StaticGenerator implements StaticGeneratorInterface {
       $response = $httpFoundationFactory->createResponse($psrResponse);
     }
     catch (\Exception $e) {
+      $this->accountSwitcher->switchBack();
+      $this->restoreRequestStack($previous_stack);
       throw $e;
     }
 
@@ -217,8 +219,8 @@ class StaticGenerator implements StaticGeneratorInterface {
       $this->cache->setCache($request, $response, $original_path, $destination);
     }
 
-    // $this->restoreRequestStack($previous_stack);
-    // $this->accountSwitcher->switchBack();
+    $this->restoreRequestStack($previous_stack);
+    $this->accountSwitcher->switchBack();
     return $this->filterInvokePaths($invoke_paths, $request);
   }
 
