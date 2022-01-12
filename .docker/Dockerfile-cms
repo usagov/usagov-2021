@@ -23,7 +23,6 @@ RUN mkdir -p /var/www/vendor \
 
 ###############################################################
 
-
 FROM node:16.8.0-alpine3.13 AS theme-builder
 RUN sed -i s/node:x:1000:1000/node:x:100:101/g /etc/passwd \
     && sed -i s/node:x:1000/node:x:101/g /etc/group \
@@ -114,6 +113,7 @@ RUN apk upgrade --update --no-cache \
     php8-pdo_sqlite \
     php8-pear \
     php8-pecl-imagick \
+    php8-pecl-xdebug \
     php8-phar \
     php8-posix \
     php8-session \
@@ -150,11 +150,11 @@ RUN apk upgrade --update --no-cache \
     # php setup
     && ln -s /usr/bin/php8 /usr/bin/php \
     && ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm \
-    # drupal setup
-    && cd /tmp \
-    && curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/bin/composer \
-    && chmod a+x /usr/bin/composer \
+    # # drupal setup
+    # && cd /tmp \
+    # && curl -sS https://getcomposer.org/installer | php \
+    # && mv composer.phar /usr/bin/composer \
+    # && chmod a+x /usr/bin/composer \
     # cleanup
     && rm -rf /var/cache/apk/*
 
@@ -176,7 +176,8 @@ COPY --from=composer-builder --chown=nginx:nginx /var/www/web /var/www/web
 COPY --from=theme-builder --chown=nginx:nginx /var/www/web/themes/custom /var/www/web/themes/custom
 
 RUN rm -f /var/www/web/sites/default/settings.local.php \
-    rm -rf /var/www/web/sites/default/files/* \
+    && rm -rf /var/www/web/sites/default/files/* \
+    && rm -rf /var/www/web/themes/custom/usagov/node_modules \
     && chown nginx:nginx /var/www \
     && find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx \
     && echo "    built:" $(date) >> /etc/motd \
