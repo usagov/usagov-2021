@@ -53,14 +53,14 @@ menu_breadcrumb_menus:
     taxattach: 0
     langhandle: 0
   wizard:
+    enabled: 1
+    langhandle: 1
     weight: 0
-    enabled: 0
     taxattach: 0
-    langhandle: 0
   wizard-espanol:
+    enabled: 1
+    langhandle: 1
     weight: 0
-    enabled: 0
     taxattach: 0
-    langhandle: 0
 _core:
   default_config_hash: B_6w2RYqF6vEA_QZ8-0LRUI0AqnS4NZuQqlO9rXwfJs
