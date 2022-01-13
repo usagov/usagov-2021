@@ -12,7 +12,7 @@ field_name: body
 entity_type: node
 bundle: basic_page
 label: Body
-description: ''
+description: "Steps to paste from Google Docs\r\n<ol>\r\n<li>Copy content from Google Doc</li>\r\n<li>Paste into <a href=\"https://www.gdoctohtml.com/\">gdoctohtml.com</a></li>\r\n<li>Click \"Tools\" > \"Source Code\"</li>\r\n<li>Remove all: <b><code>target=\"_blank\" rel=\"noopener”</code></b></li>\r\n<li>Copy the edited source code</li>\r\n<li>Paste into CKEditor</li>\r\n</ol>\r\n\r\n<i>*If there are no links in the content, you may skip steps 3-5</i>"
 required: false
 translatable: true
 default_value: {  }
