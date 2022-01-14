@@ -4,19 +4,34 @@ A revamped USA.gov site using Drupal 9 and Cloud Foundry.
 
 # Initial Setup
 
-Import SQL database
-
 ```
 # input any secrets you need into env.local
 cp env.default env.local
 # build all the containers
 docker compose build
 # make sure a local version of vendor is created on your local fs
-bin/composer install  install --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
+bin/composer install --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
 # make sure a local version of node_modules is created on your local fs
 bin/npm install
 # start up the app
 docker compose up
+```
+
+# Update Database
+
+Import SQL database from Google Drive. https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing
+
+Copy down the database you want by checking the date in the filename. For example: usagov_01_14_2022.sql.zip
+Place that compressed sql file into the root of your repo. Unzip the file. it should now be named just usagov.sql. Then call the db update script. This will take over 10 minutes, so be patient. No messages are good. It will return you to the command prompt when it is done.
+
+```
+bin/db-update
+```
+
+By default the script expects a usagov.sql file to exist. If you have mulitple files to choose from just pass in the specific name of the sql file as a parameter.
+
+```
+bin/db-update usagov_other.sql
 ```
 
 # New Work
