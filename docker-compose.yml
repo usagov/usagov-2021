@@ -36,7 +36,7 @@ services:
       - ./.docker/src-cms/etc/nginx/partials/php.conf:/etc/nginx/partials/php.conf:delegated
       - ./.docker/src-cms/etc/nginx/partials/ssl.conf:/etc/nginx/partials/ssl.conf:delegated
       - ./.docker/src-cms/etc/nginx/partials:/etc/nginx/partials:delegated
-      - ./.docker/src-cms/50_xdebug.ini:/etc/php8/conf.d/50_xdebug.ini:delegated
+      #- ./.docker/src-cms/50_xdebug.ini:/etc/php8/conf.d/50_xdebug.ini:delegated
     env_file:
       - ./env.local
     environment:
