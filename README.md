@@ -10,9 +10,9 @@ cp env.default env.local
 # build all the containers
 docker compose build
 # make sure a local version of vendor is created on your local fs
-bin/composer install --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
+bin/composer install --ignore-platform-reqs --no-interaction --optimize-autoloader
 # make sure a local version of node_modules is created on your local fs
-bin/npm install
+bin/npm install --legacy-peer-dep
 # start up the app
 docker compose up
 ```
