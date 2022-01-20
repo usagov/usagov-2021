@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Need to create 'external-domain' service for custom routes: *.usa.gov
+# cf create-service external-domain domain stage-usagov-domain -c '{"domains": "cms-stage.usa.gov,beta-stage.usa.gov"}'
+
 if ! command -v jq >/dev/null; then
   printf "\nMust have JQ installed\n"
   exit 1
@@ -28,10 +31,14 @@ if [ "${ENV_ANY_NOT_SET+set}" ]; then
   exit 1
 fi
 
-APPS_DOMAIN=$(cf curl "/v3/domains" | jq -r '[.resources[] | select(.name|endswith("app.cloud.gov"))][0].name')
+APPS_DOMAIN=$(cf curl "/v3/domains" | jq -r '[.resources[] | select(.name|endswith("usa.gov"))][0].name')
+ROUTE_DOMAIN=$(cf curl "/v3/domains" | jq -r '[.resources[] | select(.name|endswith("app.cloud.gov"))][0].name')
 
 printf "\nFetching APPS_DOMAIN\n"
 printf "\tAPPS_DOMAIN: $APPS_DOMAIN\n"
+
+printf "\nFetching ROUTE_DOMAIN\n"
+printf "\tAPPS_DOMAIN: $ROUTE_DOMAIN\n"
 
 cf push "${ROUTE_SERVICE_APP_NAME}" --no-start --var app-name="${ROUTE_SERVICE_APP_NAME}"
 cf set-env "${ROUTE_SERVICE_APP_NAME}" ALLOWED_IPS "$(printf "%s" "${NGINX_ALLOW_STATEMENTS}")"
@@ -45,7 +52,7 @@ ROUTE_SERVICE_APP_GUID="$(cf app ${ROUTE_SERVICE_APP_NAME} --guid)"
 printf "\tprotected-app (${PROTECTED_APP_NAME}): ${PROTECTED_APP_GUID}\n"
 printf "\troute-service-app (${ROUTE_SERVICE_APP_NAME}): ${ROUTE_SERVICE_APP_GUID}\n"
 
-ROUTE_SERVICE_DOMAIN="$(cf curl "/v3/apps/$(cf app "${ROUTE_SERVICE_APP_NAME}" --guid)/routes" | jq -r --arg APPS_DOMAIN "${APPS_DOMAIN}" '[.resources[] | select(.url | endswith($APPS_DOMAIN))][0].url')"
+ROUTE_SERVICE_DOMAIN="$(cf curl "/v3/apps/$(cf app "${ROUTE_SERVICE_APP_NAME}" --guid)/routes" | jq -r --arg ROUTE_DOMAIN "${ROUTE_DOMAIN}" '[.resources[] | select(.url | endswith($ROUTE_DOMAIN))][0].url')"
 
 printf "\nFetching route-service-domain\n"
 printf "\troute-service-domain: $ROUTE_SERVICE_DOMAIN\n"
