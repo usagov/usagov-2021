@@ -616,3 +616,8 @@ a {
    display: flex;
    flex-direction: column-reverse;
  }
+
+ // This style is needed to extend the width of nav page intro text
+ .usa-prose>p.usa-intro {
+	max-width: 81ex;
+}
