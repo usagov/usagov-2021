@@ -4,7 +4,7 @@ $hero: var( $usagov-variables, hero );
 .usagov-hero-homepage{
     background-color: var( $hero, background-color );
     color: var( $hero, font-color );
-
+    margin-bottom: 0;
 }
 .usagov-hero-feature-text a{
     text-decoration-line: underline;
