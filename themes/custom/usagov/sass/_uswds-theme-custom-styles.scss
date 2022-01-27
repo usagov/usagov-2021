@@ -618,7 +618,7 @@ a {
  }
 
  // This style is needed to extend the width of nav page intro text
- .usa-prose>p.usa-intro {
+ .desktop\:grid-col-fill .usa-prose>p.usa-intro {
 	max-width: 81ex;
    margin-left: 1.2ex;
    margin-right: 1.2ex;
