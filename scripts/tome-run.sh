@@ -14,8 +14,12 @@ touch $TOMELOG
 export CONTENT_UPDATED=$(drush sql:query "SELECT SUM(c) FROM ( (SELECT count(*) as c from node_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
  UNION ( SELECT count(*) as c from block_content_field_data where changed > (UNIX_TIMESTAMP(now())-(1800))) ) as x")
 if [ "$CONTENT_UPDATED" != "0" ]; then
+  echo "Found a change to block or node content in the last 30 minutes: running static site build"
+  echo "Writing log to $TOMELOG";
   $SCRIPT_PATH/tome-build.sh $URI 2>&1 | tee $TOMELOG
   $SCRIPT_PATH/tome-sync.sh $TOMELOG
-fi;
+else
+  echo "No change to block or node content in the last 30 minutes: no need for static site build"
+fi
 
-echo "Full Log : $TOMELOG";
+echo "Full Log : $TOMELOG"
