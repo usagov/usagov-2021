@@ -71,7 +71,8 @@
         "drupal/workbench_email": "^2.2",
         "drush/drush": "^10.3",
         "nyholm/psr7": "^1.4",
-        "nyholm/psr7-server": "^1.0"
+        "nyholm/psr7-server": "^1.0",
+        "wikimedia/composer-merge-plugin": "^2.0.0"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -84,7 +85,9 @@
             "composer/installers": true,
             "drupal/console-extend-plugin": true,
             "drupal/core-composer-scaffold": true,
-            "drupal/core-project-message": true
+            "drupal/core-project-message": true,
+            "wikimedia/composer-merge-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "extra": {
