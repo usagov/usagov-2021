@@ -30,9 +30,14 @@
     {% endfor %}
 
     <div class="grid-row flex-justify maxw-mobile margin-x-auto margin-top-6">
-        
-        <button class="usa-button usa-button--outline usagov-button--outline-black" onclick="window.location.href = document.querySelector(`.previous-wizard-step a`).href">{{translation.prior}}</button>
+        {% if element["#language"] == "en" %}
+        <button class="usa-button usa-button--outline usagov-button--outline-black" onclick="window.location.href = document.querySelector(`.previous-wizard-step a`).href+'#block-wizardenglish'">{{translation.prior}}</button>
         <button class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">{{translation.next}}</button>
+        {% endif %}
+        {% if element["#language"] == "es" %}
+        <button class="usa-button usa-button--outline usagov-button--outline-black" onclick="window.location.href = document.querySelector(`.previous-wizard-step a`).href+'#block-wizardespanol'">{{translation.prior}}</button>
+        <button class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">{{translation.next}}</button>
+        {% endif %}
     </div>
 </fieldset>
 
