@@ -1,4 +1,5 @@
 
+# only the 1st instance within cloud formation should actually do anything on cron
 if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
   /var/www/scripts/tome-run.sh
 fi;
