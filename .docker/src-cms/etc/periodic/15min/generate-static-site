@@ -1,0 +1,4 @@
+
+if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
+  /var/www/scripts/tome-run.sh
+fi;

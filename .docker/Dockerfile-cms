@@ -155,6 +155,10 @@ RUN apk upgrade --update --no-cache \
     # && curl -sS https://getcomposer.org/installer | php \
     # && mv composer.phar /usr/bin/composer \
     # && chmod a+x /usr/bin/composer \
+    # cron setup
+    && mkdir -p /etc/crontab \
+    && touch /etc/crontab/root \
+    && echo "*/15 * * * * run-parts /etc/periodic/15min" >> /etc/crontabs/root
     # cleanup
     && rm -rf /var/cache/apk/*
 
