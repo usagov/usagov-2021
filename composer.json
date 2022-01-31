@@ -16,6 +16,7 @@
     ],
     "require": {
         "composer/installers": "^1.9",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
         "drupal/address": "^1.9",
         "drupal/admin_content_notification": "^3.8",
         "drupal/admin_toolbar": "3.x-dev",
@@ -72,6 +73,8 @@
         "drush/drush": "^10.3",
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
+        "slevomat/coding-standard": "^7.0",
+        "squizlabs/php_codesniffer": "^3.6",
         "wikimedia/composer-merge-plugin": "^2.0.0"
     },
     "conflict": {
