@@ -161,7 +161,8 @@ RUN apk upgrade --update --no-cache \
     # cron setup
     && mkdir -p /etc/crontab \
     && touch /etc/crontab/root \
-    && echo "*/15 * * * * run-parts /etc/periodic/15min" >> /etc/crontabs/root \
+    && mkdir -p /etc/periodic/30min \
+    && echo "*/30 * * * * run-parts /etc/periodic/30min" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*
 
