@@ -121,6 +121,7 @@ services:
       context: ./
       dockerfile: .docker/Dockerfile-cms
       target: composer-builder
+    #command: tail -f /dev/null
     command: echo "Shutting Down on Purpose"
     volumes:
       - ./composer.json:/var/www/composer.json:delegated
