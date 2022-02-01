@@ -4,7 +4,7 @@ $hero: var( $usagov-variables, hero );
 .usagov-hero-homepage{
     background-color: var( $hero, background-color );
     color: var( $hero, font-color );
-
+    margin-bottom: 0;
 }
 .usagov-hero-feature-text a{
     text-decoration-line: underline;
@@ -33,4 +33,10 @@ $hero: var( $usagov-variables, hero );
 }
 .icon-scams{
     background-image: url(../images/topics/ICONS_beta_Scams_and_Frauds.png);
+}
+.icon-health{
+    background-image: url(../images/topics/ICONS_beta_Health.png);
+}
+.icon-benefits{
+    background-image: url(../images/topics/ICONS_beta_Benefits.png);
 }

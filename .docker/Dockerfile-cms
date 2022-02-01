@@ -19,6 +19,9 @@ COPY --chown=nginx:nginx patches /var/www/patches
 USER nginx
 
 RUN mkdir -p /var/www/vendor \
+    && composer global require --dev drupal/coder:8.3.13 php-parallel-lint/php-parallel-lint \
+    && COMPOSER_DIR=$(composer -n config --global home) \
+    && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer \
     && COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader
 
 ###############################################################

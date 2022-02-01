@@ -19,14 +19,25 @@
         {% set id = title|lower|replace({' ': '-', '.': '-'}) %}
         {% set url = item.content["#url"] %}
 
-        <input class="usa-radio__input usa-radio__input--tile" type="radio" id="{{id}}" name="options" value="{{url}}">
+        {% if element["#language"] == "en" %}
+        <input class="usa-radio__input usa-radio__input--tile" type="radio" id="{{id}}" name="options" value="{{url}}#block-wizardenglish">
         <label class="usa-radio__label" for="{{id}}">{{title}}</label>
+        {% endif %}
+        {% if element["#language"] == "es" %}
+        <input class="usa-radio__input usa-radio__input--tile" type="radio" id="{{id}}" name="options" value="{{url}}#block-wizardespanol">
+        <label class="usa-radio__label" for="{{id}}">{{title}}</label>
+        {% endif %}
     {% endfor %}
 
     <div class="grid-row flex-justify maxw-mobile margin-x-auto margin-top-6">
-        
-        <button class="usa-button usa-button--outline usagov-button--outline-black" onclick="window.location.href = document.querySelector(`.previous-wizard-step a`).href">{{translation.prior}}</button>
+        {% if element["#language"] == "en" %}
+        <button class="usa-button usa-button--outline usagov-button--outline-black" onclick="window.location.href = document.querySelector(`.previous-wizard-step a`).href+'#block-wizardenglish'">{{translation.prior}}</button>
         <button class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">{{translation.next}}</button>
+        {% endif %}
+        {% if element["#language"] == "es" %}
+        <button class="usa-button usa-button--outline usagov-button--outline-black" onclick="window.location.href = document.querySelector(`.previous-wizard-step a`).href+'#block-wizardespanol'">{{translation.prior}}</button>
+        <button class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">{{translation.next}}</button>
+        {% endif %}
     </div>
 </fieldset>
 
