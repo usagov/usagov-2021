@@ -1,0 +1,3 @@
+#!/usr/bin/execlineb -P
+
+/var/www/scripts/bootstrap.sh

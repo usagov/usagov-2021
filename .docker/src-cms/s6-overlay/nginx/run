@@ -1,0 +1,4 @@
+#!/command/with-contenv /bin/sh
+
+exec /usr/sbin/nginx -g "error_log /proc/self/fd/2 error;"
+#exec s6-setuidgid nginx /usr/sbin/nginx -g "error_log /proc/self/fd/2 error;"

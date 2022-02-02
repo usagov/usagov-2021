@@ -1,0 +1,4 @@
+#!/command/with-contenv /bin/sh
+
+exec /usr/sbin/php-fpm -F
+# exec s6-setuidgid nginx /usr/sbin/php-fpm -F

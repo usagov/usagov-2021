@@ -1,16 +1,28 @@
-#!/bin/ash
-#set -euo pipefail
+#!/bin/sh
 set -uo pipefail
+
+# EFILES=$(ls /run/s6/basedir/env/)
+# for EFILE in $EFILES; do
+#   eval "${EFILE}"=`cat /run/s6/basedir/env/$EFILE`;
+#   echo "setting ${EFILE}";
+# done
+[ -f "/run/s6/basedir/env/VCAP_APPLICATION" ] && VCAP_APPLICATION=`cat /run/s6/basedir/env/VCAP_APPLICATION`
+[ -f "/run/s6/basedir/env/VCAP_SERVICES" ] && VCAP_SERVICES=`cat /run/s6/basedir/env/VCAP_SERVICES`
+
+echo $VCAP_SERVICES
+
+echo $VCAP_APPLICATION
 
 if [ -z "${VCAP_SERVICES:-}" ]; then
     echo "VCAP_SERVICES must a be set in the environment: aborting bootstrap";
     exit 1;
 fi
 
-SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
-APP_NAME=$(echo $VCAP_APPLICATION | jq -r '.name')
 APP_ROOT=$(dirname "$0")
+
+APP_NAME=$(echo $VCAP_APPLICATION | jq -r '.name')
 APP_ID=$(echo "$VCAP_APPLICATION" | jq -r '.application_id')
+SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
 
 DB_NAME=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.db_name')
 DB_USER=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.username')
@@ -55,8 +67,8 @@ done
 
 echo  "Fixing File Permissions ... "
 chown nginx:nginx /var/www
-find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
-find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+# find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+# find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
 
 # if [ -n "$S3_BUCKET" ] && [ -n "$S3_REGION" ]; then
 #   # Add Proxy rewrite rules to the top of the htaccess file

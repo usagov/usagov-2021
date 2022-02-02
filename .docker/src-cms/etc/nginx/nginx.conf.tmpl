@@ -1,7 +1,10 @@
+pid /tmp/nginx.pid;
+error_log /proc/self/fd/2;
+# error_log /tmp/nginx.error.log warn;
 
-daemon off;
+# daemon off;
 
-user nginx;
+# user nginx;
 
 # Set number of worker processes automatically based on number of CPU cores.
 worker_processes auto;
@@ -9,8 +12,6 @@ worker_processes auto;
 # Enables the use of JIT for regular expressions to speed-up their processing.
 pcre_jit on;
 
-# Configures default error logger.
-error_log /var/log/nginx/error.log warn;
 
 # Includes files with directives to load dynamic modules.
 include /etc/nginx/modules/*.conf;
@@ -22,6 +23,13 @@ events {
 }
 
 http {
+
+  client_body_temp_path /tmp/client_body;
+  fastcgi_temp_path /tmp/fastcgi_temp;
+  proxy_temp_path /tmp/proxy_temp;
+  scgi_temp_path /tmp/scgi_temp;
+  uwsgi_temp_path /tmp/uwsgi_temp;
+
 	# Includes mapping of file name extensions to MIME types of responses
 	# and defines the default type.
 	include /etc/nginx/mime.types;
@@ -78,7 +86,8 @@ http {
 			'$status $body_bytes_sent "$http_referer" '
 			'"$http_user_agent" "$http_x_forwarded_for" '
 			'vcap_request_id=$http_x_vcap_request_id';
-    access_log /var/log/nginx/access.log extended;
+    # access_log /tmp/nginx.access.log extended;
+    access_log /proc/self/fd/1 extended;
 
     # setup the scheme to use on redirects
     map $http_x_forwarded_proto $redirect_scheme {
