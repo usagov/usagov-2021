@@ -635,3 +635,8 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
 .usa-skipnav:visited {
    color: #4b4b4d;
 }
+
+.usa-social-link>img {
+   height: 2rem;
+   background-color: transparent;
+}
