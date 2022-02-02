@@ -92,77 +92,77 @@ services:
             }
           }]
         }
-  #   depends_on:
-  #     - database
+    depends_on:
+      - database
 
-  # database:
-  #   container_name: database
-  #   build:
-  #     context: ./
-  #     dockerfile: .docker/Dockerfile-mysql
-  #   ports:
-  #     - 3306:3306
-  #   volumes:
-  #     - .:/app:delegated
-  #     - database_data:/var/lib/mysql:delegated
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: mysql
-  #     MYSQL_DATABASE: drupal
-  #   cap_add:
-  #     - SYS_NICE
-  #   networks:
-  #     - gsa-gov
+  database:
+    container_name: database
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - .:/app:delegated
+      - database_data:/var/lib/mysql:delegated
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: drupal
+    cap_add:
+      - SYS_NICE
+    networks:
+      - gsa-gov
 
-  # minio:
-  #   container_name: minio
-  #   build:
-  #     context: ./
-  #     dockerfile: .docker/Dockerfile-minio
-  #   ports:
-  #     - 9000:9000
-  #     - 9001:9001
-  #   volumes:
-  #     - ./s3:/data
-  #   environment:
-  #     - MINIO_ROOT_USER=minioadmin
-  #     - MINIO_ROOT_PASSWORD=miniopass
-  #   networks:
-  #     - gsa-gov
+  minio:
+    container_name: minio
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - ./s3:/data
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=miniopass
+    networks:
+      - gsa-gov
 
-  # composer:
-  #   container_name: composer
-  #   build:
-  #     context: ./
-  #     dockerfile: .docker/Dockerfile-cms
-  #     target: composer-builder
-  #   #command: tail -f /dev/null
-  #   command: echo "Shutting Down on Purpose"
-  #   volumes:
-  #     - ./composer.json:/var/www/composer.json:delegated
-  #     - ./composer.lock:/var/www/composer.lock:delegated
-  #     - ./patches:/var/www/patches:delegated
-  #     - ./libraries:/var/www/libraries:delegated
-  #     - ./vendor:/var/www/vendor:delegated
-  #     - ./web:/var/www/web:delegated
-  #     - ./themes/custom:/var/www/web/themes/custom:delegated
-  #     - ./modules/custom:/var/www/web/modules/custom:delegated
-  #   env_file:
-  #     - ./env.local
+  composer:
+    container_name: composer
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-cms
+      target: composer-builder
+    #command: tail -f /dev/null
+    command: echo "Shutting Down on Purpose"
+    volumes:
+      - ./composer.json:/var/www/composer.json:delegated
+      - ./composer.lock:/var/www/composer.lock:delegated
+      - ./patches:/var/www/patches:delegated
+      - ./libraries:/var/www/libraries:delegated
+      - ./vendor:/var/www/vendor:delegated
+      - ./web:/var/www/web:delegated
+      - ./themes/custom:/var/www/web/themes/custom:delegated
+      - ./modules/custom:/var/www/web/modules/custom:delegated
+    env_file:
+      - ./env.local
 
-  # node:
-  #   container_name: node
-  #   build:
-  #     context: ./
-  #     dockerfile: .docker/Dockerfile-cms
-  #     target: theme-builder
-  #   command: npm run watch --prefix /var/www/web/themes/custom/usagov
-  #   #command: echo "Shutting Down on Purpose"
-  #   volumes:
-  #     - ./themes/custom:/var/www/web/themes/custom:delegated
-  #   env_file:
-  #     - ./env.local
-  #   networks:
-  #     - gsa-gov
+  node:
+    container_name: node
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-cms
+      target: theme-builder
+    command: npm run watch --prefix /var/www/web/themes/custom/usagov
+    #command: echo "Shutting Down on Purpose"
+    volumes:
+      - ./themes/custom:/var/www/web/themes/custom:delegated
+    env_file:
+      - ./env.local
+    networks:
+      - gsa-gov
 
   # waf:
   #   container_name: waf
