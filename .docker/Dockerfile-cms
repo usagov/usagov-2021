@@ -153,16 +153,11 @@ RUN apk upgrade --update --no-cache \
     # php setup
     && ln -s /usr/bin/php8 /usr/bin/php \
     && ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm \
-    # # drupal setup
-    # && cd /tmp \
-    # && curl -sS https://getcomposer.org/installer | php \
-    # && mv composer.phar /usr/bin/composer \
-    # && chmod a+x /usr/bin/composer \
     # cron setup
     && mkdir -p /etc/crontab \
     && touch /etc/crontab/root \
     && mkdir -p /etc/periodic/30min \
-    && echo "*/30 * * * * run-parts /etc/periodic/30min" >> /etc/crontabs/root \
+    && echo "*/30    *       *       *       *       run-parts /etc/periodic/30min" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*
 
@@ -201,4 +196,4 @@ EXPOSE 80
 WORKDIR /var/www
 
 # Init s6
-CMD [ "/init" ]
+ENTRYPOINT [ "/init" ]
