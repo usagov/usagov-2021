@@ -68,7 +68,9 @@ ENV GITCOMMIT ${GITCOMMIT:-none}
 ARG GITTAG
 ENV GITTAG ${GITTAG:-none}
 
-ENV S6_KEEP_ENV=1
+ENV S6_KEEP_ENV 1
+ENV S6_GLOBAL_PATH /command:/usr/bin:/bin:/usr/sbin:/sbin:/var/www/vendor/bin
+ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME 0
 
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_VERSION}/s6-overlay-noarch-${S6_VERSION}.tar.xz.sha256 /tmp/
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_VERSION}/s6-overlay-noarch-${S6_VERSION}.tar.xz /tmp/
@@ -153,25 +155,14 @@ RUN apk upgrade --update --no-cache \
     && mkdir -p /var/www/ \
     && mkdir -p /var/www/web/sites/default/files \
     && chown -R nginx:nginx /var/www \
-    # && addgroup nginx tty \
-    # && mkdir -p /var/lib/nginx/logs \
-    # && chown -R nginx:nginx /var/lib/nginx \
-    # && mkdir -p /var/log/nginx \
-    # && ln -sf /dev/stderr /var/log/nginx/error.log \
-    # && ln -sf /dev/stdout /var/log/nginx/access.log \
-    # && chown -R nginx:nginx /var/log/nginx \
-    # && touch /run/nginx.pid \
-    # && chown -R nginx:nginx /run/nginx.pid \
     # php setup
     && ln -sf /usr/bin/php8 /usr/bin/php \
     && ln -sf /usr/sbin/php-fpm8 /usr/sbin/php-fpm \
-    # && touch /run/php-fpm.pid \
-    # && chown -R nginx:nginx /run/php-fpm.pid \
     # cron setup
     && mkdir -p /etc/crontabs \
     && touch /etc/crontabs/root \
     && mkdir -p /etc/periodic/30min \
-    && echo "*/30 * * * * run-parts /etc/periodic/30min" >> /etc/crontabs/root \
+    && echo "*/30    *       *       *       *       run-parts /etc/periodic/30m" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*
 

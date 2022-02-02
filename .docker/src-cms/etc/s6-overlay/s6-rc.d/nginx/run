@@ -1,0 +1,5 @@
+#!/command/execlineb -P
+
+/usr/sbin/nginx -g "error_log /proc/self/fd/2 error;" -c /etc/nginx/nginx.conf
+
+# s6-setuidgid nginx

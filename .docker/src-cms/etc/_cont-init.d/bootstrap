@@ -1,4 +1,0 @@
-#!/command/with-contenv /bin/sh
-
-exec
-/var/www/scripts/bootstrap.sh

@@ -9,10 +9,6 @@ set -uo pipefail
 [ -f "/run/s6/basedir/env/VCAP_APPLICATION" ] && VCAP_APPLICATION=`cat /run/s6/basedir/env/VCAP_APPLICATION`
 [ -f "/run/s6/basedir/env/VCAP_SERVICES" ] && VCAP_SERVICES=`cat /run/s6/basedir/env/VCAP_SERVICES`
 
-echo $VCAP_SERVICES
-
-echo $VCAP_APPLICATION
-
 if [ -z "${VCAP_SERVICES:-}" ]; then
     echo "VCAP_SERVICES must a be set in the environment: aborting bootstrap";
     exit 1;
@@ -61,12 +57,12 @@ FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf"
 for FILE in $FILES; do
     if [ -f "$FILE.tmpl" ]; then
         envsubst "$ENV_VARIABLES" < "$FILE.tmpl" > "$FILE"
-        #mv "$FILE.replaced" "$FILE"
     fi
 done
 
-echo  "Fixing File Permissions ... "
-chown nginx:nginx /var/www
+## operating on long lists of docker mounted files for local dev is too slow, and prod doesn't need this
+# echo  "Fixing File Permissions ... "
+# chown nginx:nginx /var/www
 # find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
 # find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
 
@@ -100,7 +96,7 @@ chown nginx:nginx /var/www
 #     drupal --root=$APP_ROOT config:override system.site uuid $UUID
 # }
 
-if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
+if [ "${CF_INSTANCE_INDEX:-''}" == "1" ]; then
 #   if [ "$APP_ID" = "docker" ] ; then
 #     # make sure database is created
 #     echo "create database $DB_NAME;" | mysql --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USER" --password="$DB_PW" || true
@@ -115,6 +111,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
 #    drupal config:import
 
     echo  "Updating drupal ... "
+    PATH=$PATH:/var/www/vendor/bin
     drush state:set system.maintenance_mode 1 -y
     drush cr
     drush updatedb --no-cache-clear -y

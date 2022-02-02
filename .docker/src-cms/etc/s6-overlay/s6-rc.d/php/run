@@ -1,0 +1,5 @@
+#!/command/execlineb -P
+
+/usr/sbin/php-fpm -F
+
+# s6-setuidgid nginx
