@@ -24,9 +24,16 @@ i.e.
 ----------------------------------------
 */
 
-
-a:visited, .usa-footer__secondary-link a:visited {
-   color: #4b4b4d;
+a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
+   color: $text-blue;
+} 
+   
+a:visited{
+   color: $text-gray;
+}
+ 
+.usa-prose p a, .usa-prose p a:hover, .usa-prose ul li a, .usa-prose ul li a:hover {
+   color: $text-blue;
 }
 
 .text-red {
@@ -37,12 +44,6 @@ a:visited, .usa-footer__secondary-link a:visited {
 .usa-section {
    padding-top: 2rem;
 }
-}
-
-a.disabled {
-   pointer-events: none;
-   color:#000;
-   text-decoration: none;
 }
 
 .usa-sidenav__sublist a:not(.usa-button) {
@@ -69,10 +70,16 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 
 /** This to change the link color for the 
-*   header and footer links
-**/
-.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-footer__secondary-link a, .usa-banner__button {
-   color: #000;
+   header and footer  **/
+
+.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-footer__secondary-link a,.usa-footer__secondary-link a:hover, .usa-banner__button { 
+color: $text-blue;
+}
+
+.usa-footer__secondary-link a.disabled {
+   pointer-events: none;
+   color:#000;
+   text-decoration: none;
 }
 
 //Header
@@ -83,11 +90,11 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 .usa-banner__button-text, .usa-banner__button-text:hover {
-   color: #1A4480;
+   color: $text-blue;
 }
 
-.usa-banner__button-text:visited {
-   color: #4b4b4d;
+.usa-footer__secondary-link a:visited, .usa-banner__button-text:visited, .usa-prose a:visited, .usa-prose ul li a:visited {
+   color: $text-gray;
 }
 
 .usa-banner__button:after, .usa-banner__button:hover:after {
@@ -103,7 +110,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 .usa-banner__button[aria-expanded=true]:hover:visited::after {
-   background-color: #4b4b4d;
+   background-color: $text-gray;
 }
 
 /** info banner **/
@@ -123,10 +130,12 @@ This style ensures that we can remove the padding-top from text in a card body. 
    font-size: .9rem;
 }
 
-.usa-header--extended .usa-alert--slim .usa-alert__body a, .usa-header--extended .usa-alert--slim .usa-alert__body a:hover, .usa-header--extended .usa-alert--slim .usa-alert__body a:visited {
-   color: color("blue-warm-70v")
+.usa-header--extended .usa-alert--slim .usa-alert__body a, .usa-header--extended .usa-alert--slim .usa-alert__body a:hover{
+   color: $text-blue;
 }
-
+.usa-header--extended .usa-alert--slim .usa-alert__body a:visited {
+   color: $text-gray;
+}
 /** emergency banner header **/
 .usa-header--extended .usa-alert--error {
    color: #ffffff;
@@ -325,7 +334,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
   .usa-nav__primary>.usa-nav__primary-item>a, .usa-nav__primary>.usa-nav__primary-item>a:hover {
   @media (min-width: 64em) {
    padding: 0.8rem;   
-   color: color("blue-warm-70v")
+   color: $text-blue;
   }
 }
 
@@ -489,7 +498,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }
  }
 
-a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
+a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
       color: color("blue-warm-70v");
 }
 
@@ -525,18 +534,13 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
 
 .usa-breadcrumb__link, .usa-breadcrumb__link:hover {
    text-decoration: underline;
-   color: #1A4480;
+   color: $text-blue;
 }
 
 .usa-breadcrumb__link:visited {
    text-decoration: underline;
-   color: #4b4b4d;
+   color: $text-gray;
 }
-
-a {
-   color: #1a4480;
-}
-
 
 #block-betabanner .usa-alert--info, #block-betaspanishbanner .usa-alert--info{
    // These styles are needed to position the alert icon 
@@ -619,7 +623,23 @@ a {
 
  // This style is needed to extend the width of nav page intro text
  .desktop\:grid-col-fill .usa-prose>p.usa-intro {
-	max-width: 81ex;
+   max-width: 81ex;
    margin-left: 1.2ex;
    margin-right: 1.2ex;
+}
+
+.usa-skipnav:active, .usa-skipnav:hover {
+   color: #1A4480;
+}
+
+.usa-skipnav:visited {
+   color: #4b4b4d;
+}
+
+.usa-social-link>img {
+   height: 2rem;
+   background-color: transparent;
+   display: block;
+   margin-right: auto;
+   margin-left: auto;
 }
