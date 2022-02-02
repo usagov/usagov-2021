@@ -498,6 +498,10 @@ color: $text-blue;
    }
  }
 
+a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
+      color: color("blue-warm-70v");
+}
+
 .usa-button {
    @media (max-width: 30em){
       width: 100%;
@@ -622,4 +626,12 @@ color: $text-blue;
    max-width: 81ex;
    margin-left: 1.2ex;
    margin-right: 1.2ex;
+}
+
+.usa-skipnav:active, .usa-skipnav:hover {
+   color: #1A4480;
+}
+
+.usa-skipnav:visited {
+   color: #4b4b4d;
 }
