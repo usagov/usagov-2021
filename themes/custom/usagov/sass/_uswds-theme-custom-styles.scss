@@ -639,4 +639,7 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
 .usa-social-link>img {
    height: 2rem;
    background-color: transparent;
+   display: block;
+   margin-right: auto;
+   margin-left: auto;
 }
