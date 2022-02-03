@@ -24,16 +24,9 @@ i.e.
 ----------------------------------------
 */
 
-a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
-   color: $text-blue;
-} 
-   
-a:visited{
-   color: $text-gray;
-}
- 
-.usa-prose p a, .usa-prose p a:hover, .usa-prose ul li a, .usa-prose ul li a:hover {
-   color: $text-blue;
+
+a:visited, .usa-footer__secondary-link a:visited {
+   color: #4b4b4d;
 }
 
 .text-red {
@@ -44,6 +37,12 @@ a:visited{
 .usa-section {
    padding-top: 2rem;
 }
+}
+
+a.disabled {
+   pointer-events: none;
+   color:#000;
+   text-decoration: none;
 }
 
 .usa-sidenav__sublist a:not(.usa-button) {
@@ -70,16 +69,10 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 
 /** This to change the link color for the 
-   header and footer  **/
-
-.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-footer__secondary-link a,.usa-footer__secondary-link a:hover, .usa-banner__button { 
-color: $text-blue;
-}
-
-.usa-footer__secondary-link a.disabled {
-   pointer-events: none;
-   color:#000;
-   text-decoration: none;
+*   header and footer links
+**/
+.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-footer__secondary-link a, .usa-banner__button {
+   color: #000;
 }
 
 //Header
@@ -90,11 +83,11 @@ color: $text-blue;
 }
 
 .usa-banner__button-text, .usa-banner__button-text:hover {
-   color: $text-blue;
+   color: #1A4480;
 }
 
-.usa-footer__secondary-link a:visited, .usa-banner__button-text:visited, .usa-prose a:visited, .usa-prose ul li a:visited {
-   color: $text-gray;
+.usa-banner__button-text:visited {
+   color: #4b4b4d;
 }
 
 .usa-banner__button:after, .usa-banner__button:hover:after {
@@ -110,7 +103,7 @@ color: $text-blue;
 }
 
 .usa-banner__button[aria-expanded=true]:hover:visited::after {
-   background-color: $text-gray;
+   background-color: #4b4b4d;
 }
 
 /** info banner **/
@@ -130,12 +123,10 @@ color: $text-blue;
    font-size: .9rem;
 }
 
-.usa-header--extended .usa-alert--slim .usa-alert__body a, .usa-header--extended .usa-alert--slim .usa-alert__body a:hover{
-   color: $text-blue;
+.usa-header--extended .usa-alert--slim .usa-alert__body a, .usa-header--extended .usa-alert--slim .usa-alert__body a:hover, .usa-header--extended .usa-alert--slim .usa-alert__body a:visited {
+   color: color("blue-warm-70v")
 }
-.usa-header--extended .usa-alert--slim .usa-alert__body a:visited {
-   color: $text-gray;
-}
+
 /** emergency banner header **/
 .usa-header--extended .usa-alert--error {
    color: #ffffff;
@@ -334,7 +325,7 @@ color: $text-blue;
   .usa-nav__primary>.usa-nav__primary-item>a, .usa-nav__primary>.usa-nav__primary-item>a:hover {
   @media (min-width: 64em) {
    padding: 0.8rem;   
-   color: $text-blue;
+   color: color("blue-warm-70v")
   }
 }
 
@@ -534,13 +525,18 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
 
 .usa-breadcrumb__link, .usa-breadcrumb__link:hover {
    text-decoration: underline;
-   color: $text-blue;
+   color: #1A4480;
 }
 
 .usa-breadcrumb__link:visited {
    text-decoration: underline;
-   color: $text-gray;
+   color: #4b4b4d;
 }
+
+a {
+   color: #1a4480;
+}
+
 
 #block-betabanner .usa-alert--info, #block-betaspanishbanner .usa-alert--info{
    // These styles are needed to position the alert icon 
@@ -623,7 +619,7 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
 
  // This style is needed to extend the width of nav page intro text
  .desktop\:grid-col-fill .usa-prose>p.usa-intro {
-   max-width: 81ex;
+	max-width: 81ex;
    margin-left: 1.2ex;
    margin-right: 1.2ex;
 }
