@@ -628,6 +628,11 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
    margin-right: 1.2ex;
 }
 
+.desktop\:grid-col-8 .body-copy {
+   // Add margin only on content pages
+   margin-top: 2.5rem;
+ }
+
 .usa-skipnav:active, .usa-skipnav:hover {
    color: #1A4480;
 }
