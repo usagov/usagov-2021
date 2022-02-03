@@ -22,12 +22,14 @@ use Drupal\Core\Form\FormStateInterface;
  * )
  */
 
-class FilterGoogledocs extends FilterBase{
+class FilterGoogledocs extends FilterBase {
 
-public function process($text, $langcode){
+  public function process($text, $langcode) {
+  
     $replace = $this->t('');
     $new_text = str_replace(array('rel="noopener"', 'target="_blank"'), $replace, $text);
     $result = new FilterProcessResult($new_text);
     return $result;
+  
   }
 }
