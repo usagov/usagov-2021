@@ -1,7 +1,19 @@
 
-# need logic here to grab name of env and pass in to tome-run the correct uri for this environment
+# grab the cloudgov space we are hosted in
+APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 
 # only the 1st instance within cloud formation should actually do anything on cron
 if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
-  /var/www/scripts/tome-run.sh
+
+  # Use unique uri per environment - default to prod
+  if [ "${APP_SPACE}" = "dev" ]; then
+    URI="https://beta-dev.usa.gov"
+  elif [ "${APP_SPACE}" = "stage" ]; then
+    URI="https://beta-stage.usa.gov"
+  else
+    URI="https://beta.usa.gov"
+  fi
+
+  /var/www/scripts/tome-run.sh $URI
+
 fi;
