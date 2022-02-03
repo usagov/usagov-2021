@@ -4,6 +4,7 @@ status: true
 dependencies:
   module:
     - editor
+    - google_docs_filter
     - media
     - paragraphs_entity_embed
     - uswds_ckeditor_integration
