@@ -47,28 +47,33 @@
   'paragraph--id--' ~ paragraph.id.value,
 ]
 %}
+
+
+{% set default_icon = content.field_uswds_icon[0]['#title'] %}
+{% set default_color = content.field_uswds_color[0]['#title'] %}
 {% set icon_size = content.field_icon_size[0]['#markup'] %}
-{% set icon_color = content.field_uswds_color[0]['#title'] %}
 
-{#{dd(icon_color)}#}
-
-{# Prints div with classes, and content without Width and Background. #}
 <div{{ attributes.addClass(classes) }}>
-  <ul class="usa-icon-list
-  {{ content.field_custom_class[0] }}
-  {{ icon_size ? ' usa-icon-list--size-'~icon_size : '' }}
-  {{ icon_color ? ' usa-icon-list--'~icon_color : '' }}
-  ">
+  <ul class="usa-icon-list {{ icon_size ? ' usa-icon-list--size-'~icon_size : '' }} {{ content.field_custom_class[0] }}">
     {% for key, item in content.field_uswds_icon_list_item if key|first != '#' %}
-      {% set color = item['#paragraph'].field_uswds_color.entity.name[0].value %}
+      {% set icon = item['#paragraph'].field_uswds_icon.entity.name[0].value|default(default_icon) %}
+      {% set color = item['#paragraph'].field_uswds_color.entity.name[0].value|default(default_color) %}
+      {% set header = item['#paragraph'].field_header.value %}
+      {% set text = item['#paragraph'].field_text_plain_long.value|raw %}
+
       <li class="usa-icon-list__item">
         <div class="usa-icon-list__icon {{ color ? 'text-'~color : '' }}">
           <svg class="usa-icon" aria-hidden="true" role="img">
-            <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#{{ item['#paragraph'].field_uswds_icon.entity.name[0].value }}"></use>
+            <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#{{ icon }}"></use>
           </svg>
         </div>
         <div class="usa-icon-list__content">
-          {{ item['#paragraph'].field_text.value|raw }}
+          {% if header %}
+            <h3 class="usa-icon-list__title">{{header|raw}}</h3>
+            <p>{{text}}</p>
+          {% else %}
+            {{text}}
+          {% endif %}
         </div>
       </li>
     {% endfor %}
