@@ -4,6 +4,12 @@ USWDS Variables
 // $theme-prefix-separator: "--";
 $theme-image-path: "../assets/img";
 
+//links
+$theme-link-color: 'blue-warm-70v';
+$theme-link-hover-color: 'blue-warm-70v';
+$theme-link-active-color: 'blue-warm-70v';
+$theme-link-visited-color: 'gray-70';
+
 // Primary colors
 $theme-color-primary: 'cyan-30v';
 $theme-color-primary-lighter: 'cyan-10';
@@ -28,6 +34,7 @@ $theme-color-base-lighter: 'gray-20';
 $theme-color-error: 'red-50';
 $theme-accordion-border-color: "gray-cool-10";
 
+
 /*
 USAgov Variables
 */
@@ -43,15 +50,6 @@ $gray: #dfe1e2;
 $light-gray: #f3f3f3;
 $orange: #f79240;
 $black: #000000;
-$text-gray: #4b4b4d;
-
-
-//Component Variables - always refer to another variable
-// $navpage-banner-box-bg-color:         $deep-blue;
-
-//links
-$theme-link-color: 'blue-warm-70v';
-$theme-link-hover-color: 'blue-warm-70v';
 
 //Component Variables - always refer to another variable
 // $navpage-banner-box-bg-color:         $deep-blue;
