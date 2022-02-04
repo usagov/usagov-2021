@@ -4,6 +4,7 @@ status: true
 dependencies:
   module:
     - editor
+    - google_docs_filter
     - media
     - paragraphs_entity_embed
     - uswds_ckeditor_integration
@@ -65,6 +66,12 @@ filters:
   paragraphs_entity_embed:
     id: paragraphs_entity_embed
     provider: paragraphs_entity_embed
+    status: true
+    weight: 0
+    settings: {  }
+  filter_google_docs:
+    id: filter_google_docs
+    provider: google_docs_filter
     status: true
     weight: 0
     settings: {  }
