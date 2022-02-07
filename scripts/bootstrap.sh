@@ -103,14 +103,14 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
 #    drupal config:import
 
     echo  "Updating drupal ... "
-    drush state:set system.maintenance_mode 1 -y
-    drush cr
-    drush updatedb --no-cache-clear -y
-    drush cim -y || drush cim -y
-    drush cim -y
-    drush php-eval "node_access_rebuild();" -y
-    drush config:set system.site mail $ADMIN_EMAIL -y > /dev/null
-    drush state:set system.maintenance_mode 0 -y
+    # drush state:set system.maintenance_mode 1 -y
+    # drush cr
+    # drush updatedb --no-cache-clear -y
+    # drush cim -y || drush cim -y
+    # drush cim -y
+    # drush php-eval "node_access_rebuild();" -y
+    # drush config:set system.site mail $ADMIN_EMAIL -y > /dev/null
+    # drush state:set system.maintenance_mode 0 -y
     drush cr
 
 # #   # Import initial content

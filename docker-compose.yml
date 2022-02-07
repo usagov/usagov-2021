@@ -45,7 +45,7 @@ services:
       S3_PROXY: minio:9000/web
       CF_INSTANCE_INDEX: '1'
       VCAP_APPLICATION: >
-        {"name": "cms", "application_id": "docker","application_uris":["www-usagov.docker.local","cms-usagov.docker.local"]}
+        {"name":"cms", "application_id":"docker", "space_name":"local", "application_uris":["www-usagov.docker.local","cms-usagov.docker.local"]}
       VCAP_SERVICES: >
         { "s3": [{
             "name": "storage",
