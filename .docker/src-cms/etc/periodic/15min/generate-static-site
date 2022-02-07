@@ -1,3 +1,4 @@
+#!/bin/sh
 
 # grab the cloudgov space we are hosted in
 APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
