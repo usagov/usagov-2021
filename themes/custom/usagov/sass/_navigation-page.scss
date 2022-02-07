@@ -11,6 +11,12 @@ $hero: var( $usagov-variables, hero );
         a{
             color: var( $hero, secondary-font-color );
         }
+        &:hover{
+            color: var( $hero, secondary-font-color );
+        }
+        &:visited{
+            color: var( $hero, secondary-font-color );
+        }
     }
 }
 
