@@ -1,5 +1,12 @@
 #!/bin/ash
 
+# make sure there is a static site to sync
+STATIC_COUNT=$(ls /var/www/html/ | wc -l)
+if [ "$STATIC_COUNT" = "0" ]; then
+  echo "NO SITE TO SYNC"
+  exit 1;
+fi;
+
 TOMELOG=$1
 
 BUCKET_NAME=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
@@ -23,8 +30,8 @@ done
 
 # TODO: fix --endpoint-url and --no-verify-ssl. They are required for minio functionality on local docker but cause trouble against real s3
 #aws s3 sync /var/www/html s3://$BUCKET_NAME/web --acl public-read --endpoint-url https://$AWS_ENDPOINT --no-verify-ssl --delete
-echo "aws s3 sync /tmp/tome/$UNIQ_DIR s3://$BUCKET_NAME/web/ --acl public-read --delete"
+aws s3 sync /tmp/tome/$UNIQ_DIR s3://$BUCKET_NAME/web/ --acl public-read --delete
 
 if [ -z "$TOMELOG" ]; then
-  echo "aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome/$TOMELOG"
+  aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome/$TOMELOG
 fi;
