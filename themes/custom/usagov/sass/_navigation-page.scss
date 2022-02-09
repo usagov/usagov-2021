@@ -8,7 +8,13 @@ $hero: var( $usagov-variables, hero );
     background-color: var( $hero, background-color );
     border: 1px solid var( $hero, box-border-color );
     ul{
-        a, a:hover, a:visited{
+        a{
+            color: var( $hero, secondary-font-color );
+        }
+        &:hover{
+            color: var( $hero, secondary-font-color );
+        }
+        &:visited{
             color: var( $hero, secondary-font-color );
         }
     }
