@@ -1,3 +1,6 @@
 
-127.0.0.1 cms.usareimagined.com
-127.0.0.1 www.usareimagined.com
+127.0.0.1 apps.internal
+127.0.0.1 docker.local
+127.0.0.1 cms-usagov.docker.local
+127.0.0.1 www-usagov.docker.local
+127.0.0.1 beta-usagov.docker.local
