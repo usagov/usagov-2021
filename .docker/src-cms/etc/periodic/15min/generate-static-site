@@ -11,6 +11,8 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
     URI="https://beta-dev.usa.gov"
   elif [ "${APP_SPACE}" = "stage" ]; then
     URI="https://beta-stage.usa.gov"
+  elif [ "${APP_SPACE}" = "local" ]; then
+    URI="https://${WWW_HOST}"
   else
     URI="https://beta.usa.gov"
   fi
