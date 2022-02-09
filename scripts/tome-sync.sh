@@ -41,9 +41,9 @@ APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 # endpoint and ssl specifications only necessary on local for minio
 # maybe use --only-show-errors if logs are too spammy
 if [ "${APP_SPACE}" = "local" ]; then
-  aws s3 sync /tmp/tome/$UNIQ_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read --endpoint-url https://$AWS_ENDPOINT --no-verify-ssl 2>&1 | tee $TOMELOG
+  aws s3 sync /tmp/tome/$UNIQ_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read --endpoint-url https://$AWS_ENDPOINT --no-verify-ssl 2>&1 | tee -a $TOMELOG
 else
-  aws s3 sync /tmp/tome/$UNIQ_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read 2>&1 | tee $TOMELOG
+  aws s3 sync /tmp/tome/$UNIQ_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read 2>&1 | tee -a $TOMELOG
 fi
 
 if [ -z "$TOMELOG" ]; then
