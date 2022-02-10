@@ -24,11 +24,6 @@ i.e.
 ----------------------------------------
 */
 
-
-a:visited, .usa-footer__secondary-link a:visited {
-   color: $theme-link-visited-color;
-}
-
 .text-red {
    color: #d83933;
 }
@@ -39,7 +34,7 @@ a:visited, .usa-footer__secondary-link a:visited {
 }
 }
 
-a.disabled {
+.usa-footer__secondary-link a.disabled, .usa-footer__secondary-section a.disabled{
    pointer-events: none;
    color:#000;
    text-decoration: none;
@@ -76,10 +71,21 @@ This style ensures that we can remove the padding-top from text in a card body. 
 /** This to change the link color for the 
 *   header and footer links
 **/
-.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-footer__secondary-link a, .usa-banner__button {
+.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-banner__button {
    color: #000;
 }
 
+.usa-footer__secondary-link {
+   a {
+   color: color($theme-link-color);
+}
+   a:hover {
+   color: color($theme-link-hover-color);
+}
+   a:visited {
+   color: color($theme-link-visited-color);
+}
+}
 //Header
 
 /** Background color for government banner **/
@@ -496,6 +502,10 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
       color: color("blue-warm-70v");
+}
+
+a:hover {
+   color: color("blue-warm-70v");
 }
 
 .usa-button {
