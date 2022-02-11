@@ -6,6 +6,11 @@ $theme-image-path: "../assets/img";
 
 
 $color-palettes: ("palette-color");
+//links
+$theme-link-color: 'blue-warm-70v';
+$theme-link-hover-color: 'blue-warm-70v';
+$theme-link-active-color: 'blue-warm-70v';
+$theme-link-visited-color: 'gray-70';
 
 // Primary colors
 $theme-color-primary: 'cyan-30v';
@@ -29,6 +34,7 @@ $theme-color-base-lighter: 'gray-20';
 
 // Alert
 $theme-color-error: 'red-50';
+$theme-accordion-border-color: "gray-cool-10";
 
 
 /*
@@ -42,6 +48,7 @@ $text-blue: #1A4480;
 $deep-blue: #11304e;
 $cyan: #3fbde3;
 $cyan-light: #ccecf2;
+$gray: #dfe1e2;
 $light-gray: #f3f3f3;
 $orange: #f79240;
 $black: #000000;
@@ -77,6 +84,10 @@ $usagov-variables: (
   ),
   radio-button: (
     border-color: $orange
+  ),
+  alert: (
+    background-color: $white,
+    border-color: $gray
   )
 );
 

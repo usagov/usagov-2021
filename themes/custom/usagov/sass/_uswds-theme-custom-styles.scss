@@ -26,7 +26,7 @@ i.e.
 
 
 a:visited, .usa-footer__secondary-link a:visited {
-   color: #4b4b4d;
+   color: $theme-link-visited-color;
 }
 
 .text-red {
@@ -50,6 +50,11 @@ a.disabled {
 }
 .usa-sidenav__sublist .usa-sidenav__sublist a:not(.usa-button) {
    padding-left: 3.6rem;
+}
+
+.usa-alert--no-icon .usa-alert__body {
+   //This fixes an issue with USWDS where a slim alert with no icon and no status would still get padding to make room for an icon
+   padding-left: 1.25rem;
 }
 
 .usa-button:visited {
@@ -489,7 +494,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }
  }
 
-a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
+a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
       color: color("blue-warm-70v");
 }
 
@@ -622,4 +627,25 @@ a {
 	max-width: 81ex;
    margin-left: 1.2ex;
    margin-right: 1.2ex;
+}
+
+.desktop\:grid-col-8 .body-copy {
+   // Add margin only on content pages
+   margin-top: 2.5rem;
+ }
+
+.usa-skipnav:active, .usa-skipnav:hover {
+   color: #1A4480;
+}
+
+.usa-skipnav:visited {
+   color: #4b4b4d;
+}
+
+.usa-social-link>img {
+   height: 2rem;
+   background-color: transparent;
+   display: block;
+   margin-right: auto;
+   margin-left: auto;
 }
