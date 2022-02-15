@@ -50,6 +50,7 @@
  */
 #}
 
+{% set lang = node.langcode.value %}
 {% set content_type = "" %}
 {% if node.type.0 != null %}
     {% set content_type = node.type.0.target_id %}
@@ -153,6 +154,10 @@
             {% endif %}
         </div>
     </div>
+    	
+    <a id="backToTop" href="#main-content" data-stickyheight="500">
+        {{ lang == 'en' ? 'Top' : 'Subir' }}
+    </a>
 </main>
 
 <footer class="{{ footer_classes }}" role="contentinfo">
