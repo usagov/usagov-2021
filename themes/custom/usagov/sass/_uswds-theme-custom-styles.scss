@@ -659,3 +659,28 @@ a {
    margin-right: auto;
    margin-left: auto;
 }
+
+#backToTop{
+   position: relative;
+   float:right;
+   height: 50px;
+   width: 90px;
+   right: 0;
+   bottom: 80px;
+   background: #e8f0f7;
+   transition: right 0.5s;
+   background-image: url(/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png);
+   background-size: 45px;
+   background-position: 2px;
+   background-repeat: no-repeat;
+   padding: 0 0 0 45px;
+   border-radius: 25px 0 0 25px;
+   line-height: 50px;
+   //display: inline-block;
+   text-align: center;
+   
+   
+   &.stuck{
+     right: 0;
+   }
+ }
