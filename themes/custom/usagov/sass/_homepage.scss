@@ -13,7 +13,7 @@ $hero: var( $usagov-variables, hero );
     text-decoration-skip-ink: none;
     line-height: 1.8em;
 }
-.usagov-hero a, a:hover, a:visited{
+.usagov-hero a, .usagov-hero a:hover, .usagov-hero a:visited{
     color: inherit;
 }
 .topic-icon{
