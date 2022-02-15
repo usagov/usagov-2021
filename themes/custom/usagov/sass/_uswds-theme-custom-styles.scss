@@ -75,17 +75,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
    color: #000;
 }
 
-.usa-footer__secondary-link {
-   a {
-   color: color($theme-link-color);
-}
-   a:hover {
-   color: color($theme-link-hover-color);
-}
-   a:visited {
-   color: color($theme-link-visited-color);
-}
-}
 //Header
 
 /** Background color for government banner **/
@@ -504,8 +493,8 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
       color: color("blue-warm-70v");
 }
 
-a:hover {
-   color: color("blue-warm-70v");
+.usa-prose a:visited {
+   color: color($theme-link-visited-color);
 }
 
 .usa-button {
