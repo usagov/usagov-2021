@@ -650,11 +650,11 @@ a {
 }
 
 #backToTop{
-   position: relative;
-   float:right;
+   position: fixed;
+   //float:right;
    height: 50px;
    width: 90px;
-   right: 0;
+   right: -100px;
    bottom: 80px;
    background: #e8f0f7;
    transition: right 0.5s;
@@ -665,9 +665,9 @@ a {
    padding: 0 0 0 45px;
    border-radius: 25px 0 0 25px;
    line-height: 50px;
-   //display: inline-block;
+   display: inline-block;
    text-align: center;
-   
+   z-index: 1;
    
    &.stuck{
      right: 0;
