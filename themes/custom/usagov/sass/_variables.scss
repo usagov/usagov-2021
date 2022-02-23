@@ -21,10 +21,12 @@ $theme-color-secondary: 'cyan-10'; //background
 $theme-color-secondary-dark: 'cyan-20'; //hover
 $theme-color-secondary-darker: 'cyan-20'; //active
 
+//focus color for input
+$theme-focus-color: 'orange-40v'; 
+
 // Process List
 $theme-process-list-counter-background-color: 'ink';
 $theme-process-list-counter-text-color: 'white';
-
 
 //Accordion
 $theme-color-base-lightest: 'gray-cool-10';

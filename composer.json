@@ -53,6 +53,7 @@
         "drupal/pathauto": "^1.8",
         "drupal/redirect": "^1.6",
         "drupal/s3fs": "^3.0@alpha",
+        "drupal/samlauth": "^3.4",
         "drupal/scanner": "^1.0@RC",
         "drupal/scheduled_publish": "^3.9",
         "drupal/scheduled_transitions": "^2.0",
@@ -72,6 +73,7 @@
         "drush/drush": "^10.3",
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
+        "onelogin/php-saml": "^4.0",
         "wikimedia/composer-merge-plugin": "^2.0.0"
     },
     "conflict": {
