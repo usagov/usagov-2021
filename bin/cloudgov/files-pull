@@ -9,12 +9,14 @@ S3_ACCESS_KEY_ID=$(echo "$S3INFO" | grep '"access_key_id":' | sed 's/.*"access_k
 S3_SECRET_ACCESS_KEY=$(echo "$S3INFO" | grep '"secret_access_key":' | sed 's/.*"secret_access_key": "\([^"]*\)".*/\1/')
 
 # pass s3 credentials through to container as env vars
-mkdir -p ./.aws
-touch ./.aws/env
-echo "AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID" > ./.aws/env
-echo "AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY" >> ./.aws/env
-echo "BUCKET_NAME=$S3_BUCKET" >> ./.aws/env
-echo "AWS_DEFAULT_REGION=$S3_REGION" >> ./.aws/env
+mkdir -p $(pwd)/.aws
+touch $(pwd)/.aws/env
+echo "AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID" > $(pwd)/.aws/env
+echo "AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY" >> $(pwd)/.aws/env
+echo "BUCKET_NAME=$S3_BUCKET" >> $(pwd)/.aws/env
+echo "AWS_DEFAULT_REGION=$S3_REGION" >> $(pwd)/.aws/env
+
+cat $(pwd)/.aws/env
 
 # pull down files excluding cached versions of css, js, and templates
 docker run --rm -it --env-file=$(pwd)/.aws/env -v $(pwd)/web/sites/default/files:/aws \
@@ -24,5 +26,5 @@ docker run --rm -it --env-file=$(pwd)/.aws/env -v $(pwd)/web/sites/default/files
         --exclude "js/*"
 
 # cleanup s3 credentials
-rm -f ./.aws/env
+rm -f $(pwd)/.aws/env
 cf delete-service-key storage storagekey -f
