@@ -198,13 +198,13 @@ workflows:
           type: approval
           filters:
             branches:
-              only: main
+              only: dev
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
           filters:
             branches:
-              only: main
+              only: dev
 
       - approve-dev-deployment:
           type: approval
@@ -212,13 +212,13 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: main
+              only: dev
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
-              only: main
+              only: dev
 
       - approve-stage-deployment:
           type: approval
@@ -226,13 +226,13 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: main
+              only: stage
       - deploy-to-cloudgov-stage:
           requires:
             - approve-stage-deployment
           filters:
             branches:
-              only: main
+              only: stage
 
       - approve-prod-deployment:
           type: approval
@@ -240,17 +240,17 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: main
+              only: prod
       - really-approve-prod-deployment:
           type: approval
           requires:
             - approve-prod-deployment
           filters:
             branches:
-              only: main
+              only: prod
       - deploy-to-cloudgov-prod:
           requires:
             - really-approve-prod-deployment
           filters:
             branches:
-              only: main
+              only: prod
