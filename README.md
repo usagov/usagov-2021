@@ -35,9 +35,9 @@ bin/db-update usagov_other.sql
 ```
 
 # New Work
-Start with the latest changes from main branch and create a new feature branch
+Start with the latest changes from dev branch and create a new feature branch
 ```
-git checkout main
+git checkout dev
 git fetch
 git pull
 git checkout -b new-feature-branch
@@ -46,13 +46,13 @@ docker compose up
 
 # Continuing Work
 
-Pull the latest changes from main branch into your active feature branch
+Pull the latest changes from dev branch into your active feature branch
 ```
-git checkout main
+git checkout dev
 git fetch
 git pull
 git checkout my-feature-branch
-git merge main
+git merge dev
 docker compose up
 ```
 
