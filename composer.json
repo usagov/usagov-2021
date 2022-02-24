@@ -132,6 +132,9 @@
             },
             "drupal/mmf_core_fields": {
                 "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
+            },
+            "drupal/uswds_paragraph_components": {
+                "Issue #3262301: Icon List": "https://git.drupalcode.org/issue/uswds_paragraph_components-3262301/-/merge_requests/1.diff"
             }
         }
     }
