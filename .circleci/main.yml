@@ -189,7 +189,7 @@ jobs:
           cf_user: $CF_PROD_USER
           cf_pass: $CF_PROD_PASS
 
-  no-nothing:
+  do-nothing:
     machine: true
     steps:
       - run:
