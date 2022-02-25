@@ -189,9 +189,21 @@ jobs:
           cf_user: $CF_PROD_USER
           cf_pass: $CF_PROD_PASS
 
+  no-nothing:
+    machine: true
+    steps:
+      - run:
+          name: Skipping
+          command: echo "Skipping"
+
 
 workflows:
   version: 2
+
+  skip:
+    unless: << pipeline.parameters.is_pr >>
+    jobs:
+      - do-nothing
 
   commit:
     when: << pipeline.parameters.is_pr >>
