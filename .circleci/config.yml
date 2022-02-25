@@ -190,7 +190,7 @@ workflows:
 
   commit:
     jobs:
-      - lint
+      - lint:
           filters:
             branches:
               only:
