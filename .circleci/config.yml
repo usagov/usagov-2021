@@ -9,6 +9,7 @@ workflows:
           configuration_path: ".circleci/main.yml"
           parameters: /home/circleci/params.json
           pre-steps:
+            - checkout
             - run:
                 command: |
                   if [ -z "${CIRCLE_PULL_REQUEST##*/}" ]
