@@ -188,10 +188,6 @@ jobs:
 workflows:
   version: 2
 
-  commit:
-    jobs:
-      - lint
-
   build-and-deploy:
     jobs:
       - approve-build-and-push-container:
