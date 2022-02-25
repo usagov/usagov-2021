@@ -63,7 +63,7 @@ parameters:
 jobs:
   lint:
     docker:
-      - image: circleci/php:8.0.11-node
+      - image: cimg/php:8.0.16-node
     steps:
       - checkout
       - install-node
@@ -90,7 +90,7 @@ jobs:
 
   install-container-dependencies:
     docker:
-      - image: circleci/php:8.0.11-node
+      - image: cimg/php:8.0.16-node
     steps:
       - checkout
       - install-node
@@ -190,22 +190,21 @@ jobs:
           cf_pass: $CF_PROD_PASS
 
   do-nothing:
-    machine: true
+    docker:
+      - image: busybox:stable
     steps:
-      - run:
-          name: Skipping
-          command: echo "Skipping"
+      - run: echo "Skipping"
 
 
 workflows:
   version: 2
 
-  skip:
+  commit:
     unless: << pipeline.parameters.is_pr >>
     jobs:
       - do-nothing
 
-  commit:
+  pr-commit:
     when: << pipeline.parameters.is_pr >>
     jobs:
       - lint
