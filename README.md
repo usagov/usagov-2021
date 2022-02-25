@@ -2,7 +2,7 @@
 
 A revamped USA.gov site using Drupal 9 and Cloud Foundry.
 
-# Initial Setup
+# Initial Setup Stuff
 
 ```
 # input any secrets you need into env.local
@@ -17,7 +17,7 @@ bin/npm install --legacy-peer-dep
 docker compose up
 ```
 
-# Update the Database
+# Update Database
 
 Import SQL database from Google Drive. https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing
 
