@@ -59,6 +59,9 @@ parameters:
   is_pr:
     type: boolean
     default: false
+  is_merge:
+    type: boolean
+    default: false
 
 jobs:
   lint:
@@ -210,19 +213,24 @@ workflows:
       - lint
 
   build-and-deploy:
-    when: << pipeline.parameters.is_pr >>
     jobs:
       - approve-build-and-push-container:
           type: approval
           filters:
             branches:
-              only: dev
+              only:
+                - dev
+                - stage
+                - prod
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
           filters:
             branches:
-              only: dev
+              only:
+                - dev
+                - stage
+                - prod
 
       - approve-dev-deployment:
           type: approval
