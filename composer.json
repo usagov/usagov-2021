@@ -26,6 +26,7 @@
         "drupal/clientside_validation": "3.0.x-dev",
         "drupal/console": "^1.9",
         "drupal/content_lock": "^2.2",
+        "drupal/content_moderation_notifications": "^3.3",
         "drupal/core-composer-scaffold": "^9.1",
         "drupal/core-project-message": "^9.1",
         "drupal/core-recommended": "^9.1",
