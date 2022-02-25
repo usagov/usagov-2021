@@ -17,7 +17,7 @@ bin/npm install --legacy-peer-dep
 docker compose up
 ```
 
-# Update the Database
+# Update Database
 
 Import SQL database from Google Drive. https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing
 
