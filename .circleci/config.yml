@@ -188,6 +188,16 @@ jobs:
 workflows:
   version: 2
 
+  commit:
+    jobs:
+      - lint:
+          filters:
+            branches:
+              only:
+                - dev
+                - stage
+                - prod
+
   build-and-deploy:
     jobs:
       - approve-build-and-push-container:
