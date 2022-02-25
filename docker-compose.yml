@@ -21,9 +21,12 @@ services:
       - ./config:/var/www/config:delegated
       - ./libraries:/var/www/libraries:delegated
       - ./modules/custom:/var/www/web/modules/custom:delegated
+      - ./modules/contrib:/var/www/web/modules/contrib:delegated
       - ./themes/custom:/var/www/web/themes/custom:delegated
+      - ./themes/contrib:/var/www/web/themes/contrib:delegated
       - ./scripts:/var/www/scripts:delegated
       - ./patches:/var/www/patches:delegated
+      - ./vendor:/var/www/vendor:delegated
       - ./composer.json:/var/www/composer.json
       - ./composer.lock:/var/www/composer.lock
       - ./settings/settings.php:/var/www/web/sites/default/settings.php
