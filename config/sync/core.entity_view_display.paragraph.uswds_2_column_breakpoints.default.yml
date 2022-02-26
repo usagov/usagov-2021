@@ -14,18 +14,18 @@ bundle: uswds_2_column_breakpoints
 mode: default
 content:
   field_2_column_grid_options:
-    weight: 0
+    type: list_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    type: list_default
+    weight: 0
     region: content
   field_uswds_breakpoints:
-    weight: 1
+    type: entity_reference_label
     label: above
     settings:
       link: true
     third_party_settings: {  }
-    type: entity_reference_label
+    weight: 1
     region: content
 hidden: {  }

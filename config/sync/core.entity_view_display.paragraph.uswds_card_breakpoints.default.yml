@@ -12,20 +12,20 @@ bundle: uswds_card_breakpoints
 mode: default
 content:
   field_number_of_columns:
-    weight: 1
+    type: number_integer
     label: hidden
     settings:
       thousand_separator: ''
       prefix_suffix: true
     third_party_settings: {  }
-    type: number_integer
+    weight: 1
     region: content
   field_uswds_breakpoints:
-    weight: 0
+    type: entity_reference_label
     label: hidden
     settings:
       link: true
     third_party_settings: {  }
-    type: entity_reference_label
+    weight: 0
     region: content
 hidden: {  }

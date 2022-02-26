@@ -11,12 +11,12 @@ pattern: '[node:title]'
 selection_criteria:
   8ed030a2-feeb-46e9-99ce-af1217ea188c:
     id: node_type
-    bundles:
-      wizard: wizard
     negate: false
+    uuid: 8ed030a2-feeb-46e9-99ce-af1217ea188c
     context_mapping:
       node: node
-    uuid: 8ed030a2-feeb-46e9-99ce-af1217ea188c
+    bundles:
+      wizard: wizard
 selection_logic: and
 weight: -8
 relationships: {  }

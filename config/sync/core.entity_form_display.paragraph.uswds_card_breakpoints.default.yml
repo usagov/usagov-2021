@@ -12,18 +12,18 @@ bundle: uswds_card_breakpoints
 mode: default
 content:
   field_number_of_columns:
+    type: number
     weight: 1
+    region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
-    type: number
-    region: content
   field_uswds_breakpoints:
+    type: options_select
     weight: 0
+    region: content
     settings: {  }
     third_party_settings: {  }
-    type: options_select
-    region: content
 hidden:
   created: true
   status: true
