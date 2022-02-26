@@ -18,29 +18,29 @@ bundle: uswds_columns_3_uneven
 mode: default
 content:
   field_3_column_grid:
-    weight: 2
+    type: list_default
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    type: list_default
+    weight: 2
     region: content
   field_column_content_3_uneven:
     type: entity_reference_revisions_entity_view
-    weight: 1
     label: hidden
     settings:
       view_mode: default
       link: ''
     third_party_settings: {  }
+    weight: 1
     region: content
   field_grid_gap:
-    weight: 0
+    type: boolean
     label: hidden
     settings:
       format: default
       format_custom_false: ''
       format_custom_true: ''
     third_party_settings: {  }
-    type: boolean
+    weight: 0
     region: content
 hidden: {  }
