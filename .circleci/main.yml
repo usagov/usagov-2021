@@ -59,9 +59,6 @@ parameters:
   is_pr:
     type: boolean
     default: false
-  is_merge:
-    type: boolean
-    default: false
 
 jobs:
   lint:

@@ -9,7 +9,6 @@ workflows:
           configuration_path: ".circleci/main.yml"
           parameters: /home/circleci/params.json
           pre-steps:
-            - checkout
             - run:
                 command: |
                   if [ -z "${CIRCLE_PULL_REQUEST##*/}" ]
@@ -18,10 +17,4 @@ workflows:
                   else
                     IS_PR=true
                   fi
-                  if [ git rev-parse "HEAD^2" >nul 2>nul ]
-                  then
-                    IS_MERGE=true
-                  else
-                    IS_MERGE=false
-                  fi
-                  echo '{ "is_pr": '$IS_PR', "is_merge": '$IS_MERGE' }' >> /home/circleci/params.json
+                  echo '{ "is_pr": '$IS_PR' }' >> /home/circleci/params.json
