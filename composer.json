@@ -16,6 +16,7 @@
     ],
     "require": {
         "composer/installers": "^1.9",
+        "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
         "drupal/admin_content_notification": "^3.8",
         "drupal/admin_toolbar": "3.x-dev",
@@ -91,7 +92,8 @@
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
             "wikimedia/composer-merge-plugin": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "cweagans/composer-patches": true
         }
     },
     "extra": {
@@ -130,11 +132,8 @@
             ]
         },
         "patches": {
-            "drupal/core-recommended": {
-                "784672 - Allow text field to enforce a specific text format": "https://www.drupal.org/files/issues/2020-11-14/784672-178.patch"
-            },
-            "drupal/mmf_core_fields": {
-                "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
+            "drupal/uswds_paragraph_components": {
+                "3262301 - Icon List": "https://git.drupalcode.org/issue/uswds_paragraph_components-3262301/-/merge_requests/1.diff"
             }
         }
     }
