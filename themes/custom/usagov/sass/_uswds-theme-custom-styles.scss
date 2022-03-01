@@ -71,7 +71,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 /** This to change the link color for the 
 *   header and footer links
 **/
-.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-banner__button {
+.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-banner__button, .usa-card__body {
    color: #000;
 }
 
