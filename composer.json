@@ -32,6 +32,7 @@
         "drupal/core-recommended": "^9.1",
         "drupal/ctools": "^3.7",
         "drupal/devel": "^4.1",
+        "drupal/devel_entity_updates": "^3.0",
         "drupal/diff": "^1.0",
         "drupal/entity_reference_revisions": "^1.9",
         "drupal/faqfield": "^7.0",
