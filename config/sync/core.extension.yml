@@ -64,6 +64,7 @@ module:
   tome_static: 0
   toolbar: 0
   twig_tweak: 0
+  usa_contact_center_api: 0
   user: 0
   uswds_ckeditor_integration: 0
   uswds_paragraph_components: 0
