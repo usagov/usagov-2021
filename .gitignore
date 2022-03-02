@@ -52,7 +52,13 @@ LICENSE.txt
 .gitattributes
 .editorconfig
 
+modules/contrib
+modules/README.txt
+storage
+
 # Ignore Compiled Theme Files
+themes/contrib
+themes/README.txt
 themes/custom/usagov/node_modules
 themes/custom/usagov/css
 themes/custom/usagov/sass/uswds
