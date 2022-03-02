@@ -41,7 +41,7 @@ function usa_contact_center_api_schema() {
         'default' => 0,
       ],
     ],
-    'primary key' => ['nid',],
+    'primary key' => ['nid'],
   ];
 
   return $schema;
