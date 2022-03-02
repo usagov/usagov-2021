@@ -19,24 +19,24 @@ plugin: 'block_content:f54abad2-58b6-4c43-b1b9-e78d741d1a5b'
 settings:
   id: 'block_content:f54abad2-58b6-4c43-b1b9-e78d741d1a5b'
   label: 'Wizard English'
-  provider: block_content
   label_display: '0'
+  provider: block_content
   status: true
   info: ''
   view_mode: full
 visibility:
   'entity_bundle:node':
     id: 'entity_bundle:node'
-    bundles:
-      wizard: wizard
-      wizard_step: wizard_step
     negate: false
     context_mapping:
       node: '@node.node_route_context:node'
+    bundles:
+      wizard: wizard
+      wizard_step: wizard_step
   language:
     id: language
-    langcodes:
-      en: en
     negate: false
     context_mapping:
       language: '@language.current_language_context:language_interface'
+    langcodes:
+      en: en

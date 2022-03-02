@@ -21,9 +21,9 @@ default_value_callback: ''
 settings:
   handler: 'default:paragraph'
   handler_settings:
-    negate: 0
     target_bundles:
       uswds_card_breakpoints: uswds_card_breakpoints
+    negate: 0
     target_bundles_drag_drop:
       text_field:
         weight: 19
@@ -47,8 +47,8 @@ settings:
         weight: 25
         enabled: false
       uswds_card_breakpoints:
-        enabled: true
         weight: 18
+        enabled: true
       uswds_card_group_flag:
         weight: 26
         enabled: false
