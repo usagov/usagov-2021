@@ -14,9 +14,24 @@ $config['admin_toolbar_tools.settings']['hoverintent_functionality'] = TRUE;
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml';
 
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', true);
-
 foreach ($cf_service_data as $service_provider => $service_list) {
   foreach ($service_list as $service) {
+        if ($service['name'] === 'database') {
+      $databases['default']['default'] = array (
+        'database' => $service['credentials']['db_name'],
+        'username' => $service['credentials']['username'],
+        'password' => $service['credentials']['password'],
+        'prefix' => '',
+        'host' => $service['credentials']['host'],
+        'port' => $service['credentials']['port'],
+        'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
+        'driver' => 'mysql',
+      );
+    }
+    if ($service['name'] === 'secrets') {
+      $settings['hash_salt'] = $service['credentials']['HASH_SALT'];
+    }
+    /*
     if ($service['name'] === 'storage') {
       $config['s3fs.settings']['access_key'] = $service['credentials']['access_key_id'];
       $config['s3fs.settings']['bucket'] = $service['credentials']['bucket'];
@@ -46,5 +61,8 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       // Twig templates _shouldn't_ be in the public dir (lest they be very slow)
       $settings['php_storage']['twig']['directory'] = '../storage/php';
     }
+    */
   }
 }
+
+$settings['cache']['bins']['data'] = 'cache.backend.php';

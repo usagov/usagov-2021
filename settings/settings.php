@@ -780,14 +780,25 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 $settings['config_sync_directory'] = '/var/www/config/sync';
 $settings['install_profile'] = 'minimal';
 
-// Handle cloud.gov and docker-compose file location differences
-if (file_exists($app_root . '/' . $site_path . '/settings.cf.php')) {
-  include $app_root . '/' . $site_path . '/settings.cf.php';
-}
-if (file_exists('./sites/default/settings.cf.php')) {
-  include './sites/default/settings.cf.php';
-}
+// Default all to false
+$config['config_split.config_split.usa_local']['status'] = FALSE;
 
-if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
-  include $app_root . '/' . $site_path . '/settings.local.php';
+// Pick ones to apply
+$cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
+$cf_env = $cf_application_data['space_name'] ?? 'unknown';
+switch($cf_env) {
+  case 'local':
+    $config['config_split.config_split.usa_local']['status'] = TRUE;
+    if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+      include $app_root . '/' . $site_path . '/settings.local.php';
+    }
+    break;
+  case 'dev':
+  case 'stage':
+  case 'prod':
+  default:
+    if (file_exists('./sites/default/settings.cf.php')) {
+      include './sites/default/settings.cf.php';
+    }
+    break;
 }

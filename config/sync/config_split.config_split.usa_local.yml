@@ -1,0 +1,16 @@
+uuid: 2902da08-b3bf-4a0a-acb8-714f1f48d90a
+langcode: en
+status: true
+dependencies: {  }
+id: usa_local
+label: 'USA Local'
+description: ''
+weight: 0
+stackable: false
+storage: folder
+folder: ../config/splits/local
+module:
+  devel: 0
+theme: {  }
+complete_list: {  }
+partial_list: {  }
