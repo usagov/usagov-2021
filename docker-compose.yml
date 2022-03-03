@@ -104,22 +104,6 @@ services:
     networks:
       - gsa-gov
 
-  minio:
-    container_name: minio
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-minio
-    ports:
-      - 9000:9000
-      - 9001:9001
-    volumes:
-      - ./s3:/data
-    environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=miniopass
-    networks:
-      - gsa-gov
-
   composer:
     container_name: composer
     build:
@@ -160,6 +144,22 @@ volumes:
 
 networks:
   gsa-gov:
+
+  # minio:
+  #   container_name: minio
+  #   build:
+  #     context: ./
+  #     dockerfile: .docker/Dockerfile-minio
+  #   ports:
+  #     - 9000:9000
+  #     - 9001:9001
+  #   volumes:
+  #     - ./s3:/data
+  #   environment:
+  #     - MINIO_ROOT_USER=minioadmin
+  #     - MINIO_ROOT_PASSWORD=miniopass
+  #   networks:
+  #     - gsa-gov
 
   # waf:
   #   container_name: waf
