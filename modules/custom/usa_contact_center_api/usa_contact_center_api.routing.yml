@@ -1,0 +1,6 @@
+usa_contact_center_api.deleted_nodes:
+  path: '/jsonapi/deleted-nodes'
+  defaults:
+    _controller: 'Drupal\usa_contact_center_api\Controller\USAContactCenterController::getDeletedNodes'
+  requirements:
+    _permission: 'access content'
