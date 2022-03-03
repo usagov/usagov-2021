@@ -53,6 +53,11 @@ for FILE in $FILES; do
     fi
 done
 
+sed -i \
+    -e "s/newrelic.license =.*/newrelic.license = ${NEW_RELIC_LICENSE_KEY}/" \
+    -e "s/newrelic.appname =.*/newrelic.appname = ${NEW_RELIC_APP_NAME}/" \
+    /etc/php8/conf.d/newrelic.ini
+
 if [ ! -z "${FIX_FILE_PERMS:-}" ]; then
   echo  "Fixing File Permissions ... "
   chown nginx:nginx /var/www
