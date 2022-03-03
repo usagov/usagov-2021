@@ -1,10 +1,10 @@
 uuid: 2902da08-b3bf-4a0a-acb8-714f1f48d90a
 langcode: en
-status: true
+status: false
 dependencies: {  }
 id: usa_local
 label: 'USA Local'
-description: ''
+description: 'Setting for Local environment'
 weight: 0
 stackable: false
 storage: folder

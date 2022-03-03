@@ -1,0 +1,17 @@
+uuid: be065d42-7840-4cf2-9a4e-f6b95ff8ec36
+langcode: en
+status: true
+dependencies: {  }
+id: usa_stage
+label: 'USA Stage'
+description: 'Setting for Stage environment'
+weight: 0
+stackable: false
+storage: folder
+folder: ../config/splits/stage
+module:
+  s3fs: 0
+  devel: 0
+theme: {  }
+complete_list: {  }
+partial_list: {  }

@@ -1,0 +1,16 @@
+uuid: 5d14c38e-520c-4348-a13f-d95bb1d0c411
+langcode: en
+status: false
+dependencies: {  }
+id: usa_prod
+label: 'USA Prod'
+description: 'Setting for Production environment'
+weight: 0
+stackable: false
+storage: folder
+folder: ../config/splits/prod
+module:
+  s3fs: 0
+theme: {  }
+complete_list: {  }
+partial_list: {  }

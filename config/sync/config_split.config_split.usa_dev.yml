@@ -1,0 +1,17 @@
+uuid: bade8fcc-ccd2-4a5c-9e85-ed874b8d3215
+langcode: en
+status: true
+dependencies: {  }
+id: usa_dev
+label: 'USA Dev'
+description: 'Setting for Dev environment'
+weight: 0
+stackable: false
+storage: folder
+folder: ../config/splits/dev
+module:
+  s3fs: 0
+  devel: 0
+theme: {  }
+complete_list: {  }
+partial_list: {  }

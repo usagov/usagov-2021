@@ -782,15 +782,34 @@ $settings['install_profile'] = 'minimal';
 
 // Default all to false
 $config['config_split.config_split.usa_local']['status'] = FALSE;
+$config['config_split.config_split.usa_dev']['status'] = FALSE;
+$config['config_split.config_split.usa_stage']['status'] = FALSE;
+$config['config_split.config_split.usa_prod']['status'] = FALSE;
 
-// Pick ones to apply
+// Pick correct config_split
 $cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
 $cf_env = $cf_application_data['space_name'] ?? 'unknown';
+
 switch($cf_env) {
   case 'local':
     $config['config_split.config_split.usa_local']['status'] = TRUE;
-    if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
-      include $app_root . '/' . $site_path . '/settings.local.php';
+    break;
+  case 'dev':
+    $config['config_split.config_split.usa_dev']['status'] = TRUE;
+    break;
+  case 'stage':
+    $config['config_split.config_split.usa_stage']['status'] = TRUE;
+    break;
+  case 'prod':
+    $config['config_split.config_split.usa_prod']['status'] = TRUE;
+    break;
+}
+
+// Pick correct settings split
+switch($cf_env) {
+  case 'local':
+    if (file_exists('./sites/default/settings.local.php')) {
+      include './sites/default/settings.local.php';
     }
     break;
   case 'dev':
@@ -799,6 +818,9 @@ switch($cf_env) {
   default:
     if (file_exists('./sites/default/settings.cf.php')) {
       include './sites/default/settings.cf.php';
+    }
+    if (file_exists($app_root . '/' . $site_path . '/settings.cf.php')) {
+      include $app_root . '/' . $site_path . '/settings.cf.php';
     }
     break;
 }
