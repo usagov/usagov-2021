@@ -14,4 +14,4 @@ docker compose run \
   -v $(pwd)/themes/custom:/var/www/web/themes/custom:delegated \
   -v $(pwd)/modules/custom:/var/www/web/modules/custom:delegated \
   composer \
-  composer "$@"
+  composer "$@" --ignore-platform-reqs

@@ -53,10 +53,14 @@ for FILE in $FILES; do
     fi
 done
 
-echo  "Fixing File Permissions ... "
-chown nginx:nginx /var/www
-find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
-find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+if [ ! -z "${FIX_FILE_PERMS:-}" ]; then
+  echo  "Fixing File Permissions ... "
+  chown nginx:nginx /var/www
+  find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+  find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+else
+  echo "Skipping File Permission updates ... "
+fi
 
 # if [ -n "$S3_BUCKET" ] && [ -n "$S3_REGION" ]; then
 #   # Add Proxy rewrite rules to the top of the htaccess file
