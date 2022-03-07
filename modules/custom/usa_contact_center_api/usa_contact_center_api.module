@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Module contains functions related to usa_contact_center_api.
+ */
+
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function usa_contact_center_api_node_delete(NodeInterface $node) {
+
+  $type = $node->type->entity->id();
+  if ($type == 'basic_page') {
+    \Drupal::database()->insert('usa_node_delete_log')
+      ->fields([
+        'nid' => $node->id(),
+        'title' => $node->getTitle(),
+        'type' => $type,
+        'deleted_time' => time(),
+      ])
+      ->execute();
+  }
+}
