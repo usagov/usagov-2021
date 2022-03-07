@@ -24,62 +24,63 @@ third_party_settings:
       children:
         - field_make_card_link
         - field_button
+      label: 'Link Features'
+      region: content
       parent_name: ''
       weight: 4
       format_type: details
-      region: content
       format_settings:
-        id: ''
         classes: ''
-        description: ''
+        id: ''
         open: false
+        description: ''
         required_fields: true
-      label: 'Link Features'
     group_body_features:
       children:
         - field_text
+      label: 'Body Features'
+      region: content
       parent_name: ''
       weight: 3
       format_type: details
-      region: content
       format_settings:
-        id: ''
         classes: ''
-        description: ''
+        id: ''
         open: false
+        description: ''
         required_fields: true
-      label: 'Body Features'
     group_media_features:
       children:
         - field_image_position
         - field_card_image
+      label: 'Media Features'
+      region: content
       parent_name: ''
       weight: 2
       format_type: details
-      region: content
       format_settings:
-        id: ''
         classes: ''
-        description: ''
+        id: ''
         open: false
+        description: ''
         required_fields: true
-      label: 'Media Features'
 id: paragraph.uswds_cards_flag.default
 targetEntityType: paragraph
 bundle: uswds_cards_flag
 mode: default
 content:
   field_button:
+    type: link_default
     weight: 7
+    region: content
     settings:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
-    type: link_default
-    region: content
   field_card_breakpoints:
     type: entity_reference_paragraphs
     weight: 0
+    region: content
     settings:
       title: Paragraph
       title_plural: Paragraphs
@@ -88,43 +89,42 @@ content:
       form_display_mode: default
       default_paragraph_type: uswds_card_breakpoints
     third_party_settings: {  }
-    region: content
   field_card_image:
+    type: media_library_widget
     weight: 2
+    region: content
     settings:
       media_types: {  }
     third_party_settings: {  }
-    type: media_library_widget
-    region: content
   field_card_title:
+    type: string_textfield
     weight: 1
+    region: content
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-    type: string_textfield
-    region: content
   field_image_position:
+    type: options_select
     weight: 1
+    region: content
     settings: {  }
     third_party_settings: {  }
-    type: options_select
-    region: content
   field_make_card_link:
+    type: boolean_checkbox
     weight: 6
+    region: content
     settings:
       display_label: true
     third_party_settings: {  }
-    type: boolean_checkbox
-    region: content
   field_text:
+    type: text_textarea
     weight: 9
+    region: content
     settings:
       rows: 5
       placeholder: ''
     third_party_settings: {  }
-    type: text_textarea
-    region: content
 hidden:
   created: true
   field_number_of_columns: true

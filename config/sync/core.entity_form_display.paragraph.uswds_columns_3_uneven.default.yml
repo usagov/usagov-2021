@@ -17,14 +17,15 @@ bundle: uswds_columns_3_uneven
 mode: default
 content:
   field_3_column_grid:
+    type: options_select
     weight: 1
+    region: content
     settings: {  }
     third_party_settings: {  }
-    type: options_select
-    region: content
   field_column_content_3_uneven:
     type: entity_reference_paragraphs
     weight: 2
+    region: content
     settings:
       title: Paragraph
       title_plural: Paragraphs
@@ -33,14 +34,13 @@ content:
       form_display_mode: default
       default_paragraph_type: text_field
     third_party_settings: {  }
-    region: content
   field_grid_gap:
+    type: boolean_checkbox
     weight: 0
+    region: content
     settings:
       display_label: true
     third_party_settings: {  }
-    type: boolean_checkbox
-    region: content
 hidden:
   created: true
   status: true

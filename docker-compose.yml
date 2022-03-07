@@ -21,9 +21,12 @@ services:
       - ./config:/var/www/config:delegated
       - ./libraries:/var/www/libraries:delegated
       - ./modules/custom:/var/www/web/modules/custom:delegated
+      - ./modules/contrib:/var/www/web/modules/contrib:delegated
       - ./themes/custom:/var/www/web/themes/custom:delegated
+      - ./themes/contrib:/var/www/web/themes/contrib:delegated
       - ./scripts:/var/www/scripts:delegated
       - ./patches:/var/www/patches:delegated
+      - ./vendor:/var/www/vendor:delegated
       - ./composer.json:/var/www/composer.json
       - ./composer.lock:/var/www/composer.lock
       - ./settings/settings.php:/var/www/web/sites/default/settings.php
@@ -45,6 +48,7 @@ services:
       S3_HOST: minio:9000
       S3_PROXY: minio:9000/local/web
       CF_INSTANCE_INDEX: '1'
+      FIX_FILE_PERMS:
       VCAP_APPLICATION: >
         {"name":"cms", "application_id":"docker", "space_name":"local", "application_uris":["beta-usagov.docker.local","www-usagov.docker.local","cms-usagov.docker.local"]}
       VCAP_SERVICES: >
@@ -131,8 +135,8 @@ services:
       - ./libraries:/var/www/libraries:delegated
       - ./vendor:/var/www/vendor:delegated
       - ./web:/var/www/web:delegated
-      - ./themes/custom:/var/www/web/themes/custom:delegated
-      - ./modules/custom:/var/www/web/modules/custom:delegated
+      - ./themes:/var/www/web/themes:delegated
+      - ./modules:/var/www/web/modules:delegated
     env_file:
       - ./env.local
 
