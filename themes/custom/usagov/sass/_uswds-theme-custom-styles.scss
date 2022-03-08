@@ -28,15 +28,6 @@ i.e.
    color: #d83933;
 }
 
-//Focus outline
-[contentEditable=true]:focus, [href]:focus, [tabindex]:focus, iframe:focus, .usa-footer__secondary-link a:focus, .usa-banner__button:focus {
-   outline: 2px solid #c05600;
-   outline-offset: 0;
-}
-button:not([disabled]):focus, input:not([disabled]):focus, select:not([disabled]):focus, textarea:not([disabled]):focus {
-   outline: 2px solid #c05600;
-}
-
 @media (min-width: 64em) {
 .usa-section {
    padding-top: 2rem;
