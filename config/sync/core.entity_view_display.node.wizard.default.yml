@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.wizard.body
+    - field.field.node.wizard.field_for_contact_center_only
     - field.field.node.wizard.field_wizard_step
     - node.type.wizard
   module:
@@ -19,7 +20,7 @@ content:
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 101
+    weight: 1
     region: content
   field_wizard_step:
     type: entity_reference_label
@@ -27,12 +28,13 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 102
+    weight: 2
     region: content
   links:
     settings: {  }
     third_party_settings: {  }
-    weight: 100
+    weight: 0
     region: content
 hidden:
+  field_for_contact_center_only: true
   langcode: true

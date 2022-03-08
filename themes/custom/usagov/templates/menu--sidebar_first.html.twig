@@ -91,7 +91,7 @@ TODO: come up with a better name than start_level. Its really the delta between 
   <nav aria-label="Secondary navigation">
     <ul class="usa-sidenav">
       <li class="usa-sidenav__item">
-        <a{% if start_level == 0 %} class="usa-current"{% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
+        <a{% if start_level == 0 %} class="usa-current" aria-current="page" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
           {{ items.title }}
         </a>
       </li>
@@ -108,7 +108,7 @@ TODO: come up with a better name than start_level. Its really the delta between 
       {% if item.original_link.pluginDefinition.weight != -1 %}
         {# Set weight to -1 to hide an item from the side nav #}
         <li class="usa-sidenav__item">
-          <a{% if item.title == current_item_title %} class="usa-current"{% elseif item.in_active_trail %} href="{{ item.url }}" class="active-trail"{% else %} href="{{ item.url }}"{% endif %}>
+          <a{% if item.title == current_item_title %} class="usa-current" aria-current="page" href="{{ item.url }}" class="active-trail"{% else %} href="{{ item.url }}"{% endif %}>
             {{ item.title }}
           </a>
         </li>

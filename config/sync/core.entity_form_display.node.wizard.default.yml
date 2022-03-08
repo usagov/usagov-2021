@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.wizard.body
+    - field.field.node.wizard.field_for_contact_center_only
     - field.field.node.wizard.field_wizard_step
     - node.type.wizard
   module:
@@ -30,6 +31,14 @@ content:
     weight: 10
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_for_contact_center_only:
+    type: text_textarea
+    weight: 123
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
     third_party_settings: {  }
   field_wizard_step:
     type: entity_reference_autocomplete
