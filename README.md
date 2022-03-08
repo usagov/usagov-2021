@@ -28,7 +28,7 @@ Place that compressed sql file into the root of your repo. Unzip the file. it sh
 bin/db-update
 ```
 
-By default the script expects a usagov.sql file to exist. If you have mulitple files to choose from just pass in the specific name of the sql file as a parameter.
+By default the script expects a usagov.sql file to exist. If you have mulitple files to choose from just pass in the specific name of the sql file as a parameter
 
 ```
 bin/db-update usagov_other.sql
