@@ -6,6 +6,10 @@ services:
     build:
       context: ./
       dockerfile: .docker/Dockerfile-cms
+      args:
+        NEW_RELIC_AGENT_VERSION: "newrelic-php5-9.19.0.309-linux-musl.tar.gz"
+        NEW_RELIC_LICENSE_KEY: "980474c4b3c0a77678fe8124c4daa927a58aNRAL"
+        NEW_RELIC_APP_NAME: "New Relic PHP Container"
     ports:
       - 80:80
       - 443:443
