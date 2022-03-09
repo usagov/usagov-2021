@@ -15,6 +15,7 @@ type_settings:
     faq: faq
     uswds_accordion: uswds_accordion
     uswds_alert: uswds_alert
+    uswds_card_group_flag: uswds_card_group_flag
     uswds_card_group_regular: uswds_card_group_regular
     uswds_process_list: uswds_process_list
     uswds_step_indicator_list: uswds_step_indicator_list

@@ -8,8 +8,7 @@ $theme-image-path: "../assets/img";
 $theme-link-color: 'blue-warm-70v';
 $theme-link-hover-color: 'blue-warm-70v';
 $theme-link-active-color: 'blue-warm-70v';
-$theme-link-visited-color: 'violet-50';
-
+$theme-link-visited-color: 'violet-60v'; //#783CB9
 // Primary colors
 $theme-color-primary: 'cyan-30v';
 $theme-color-primary-lighter: 'cyan-10';
@@ -22,7 +21,11 @@ $theme-color-secondary-dark: 'cyan-20'; //hover
 $theme-color-secondary-darker: 'cyan-20'; //active
 
 //focus color for input
-$theme-focus-color: 'orange-50v'; 
+$theme-focus-color: 'orange-50v'; //#C05600
+$theme-focus-offset: 0;
+$theme-focus-style: solid;
+$theme-focus-width: 2px;
+
 
 // Process List
 $theme-process-list-counter-background-color: 'ink';
@@ -46,12 +49,14 @@ $red: #D83933;
 $white: #ffffff;
 $text-blue: #1A4480;
 $deep-blue: #11304e;
+$another-blue: #11385a; //Closest to blue-warm-80v
 $cyan: #3fbde3;
 $cyan-light: #ccecf2;
 $gray: #dfe1e2;
 $light-gray: #f3f3f3;
 $orange: #f79240;
 $black: #000000;
+
 
 //Component Variables - always refer to another variable
 // $navpage-banner-box-bg-color:         $deep-blue;
@@ -81,6 +86,11 @@ $usagov-variables: (
     hover-border-color: $cyan,
     group-background-color: $light-gray,
     text-color: $black
+  ),
+  life-events: (
+    text-color: $white,
+    heading-underline-color: $cyan,
+    background-color: $another-blue,
   ),
   radio-button: (
     border-color: $orange

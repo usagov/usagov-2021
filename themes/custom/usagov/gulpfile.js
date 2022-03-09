@@ -207,7 +207,7 @@ gulp.task('scss-lint', () => {
 
 });
 
-gulp.task('lint', gulp.series("js-lint", "scss-lint"));
+gulp.task('lint', gulp.series("js-lint", "scss-lint", "build-sass"));
 
 gulp.task("watch-sass", function() {
   gulp.watch(`${PROJECT_SASS_SRC}/**/*.scss`, gulp.series("build-sass"));
