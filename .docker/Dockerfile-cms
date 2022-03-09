@@ -156,19 +156,28 @@ RUN apk upgrade --update --no-cache \
     # cron setup
     && mkdir -p /etc/periodic/30min \
     && echo "*/30    *       *       *       *       run-parts /etc/periodic/30min" >> /etc/crontabs/root \
-    # new relic setup
-    mkdir -p /var/log/newrelic /var/run/newrelic && \
-    chmod -R g+ws /tmp /var/log/newrelic/ /var/run/newrelic/ && \
-    chown -R nginx:nginx /tmp /var/log/newrelic/ /var/run/newrelic/ && \
-    # Download and install Newrelic binary
-    export NEWRELIC_VERSION=$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux-musl\).tar.gz<.*/\1/p') && \
-    cd /tmp && curl -sS "https://download.newrelic.com/php_agent/release/${NEWRELIC_VERSION}.tar.gz" | gzip -dc | tar xf - && \
-    cd "${NEWRELIC_VERSION}" && \
-    NR_INSTALL_SILENT=true ./newrelic-install install && \
-    rm -f /var/run/newrelic-daemon.pid && \
-    rm -f /tmp/.newrelic.sock && \
     # cleanup
     && rm -rf /var/cache/apk/*
+
+# new relic setup
+RUN echo "Installing New Relic"
+
+ARG NEW_RELIC_AGENT_VERSION
+ARG NEW_RELIC_LICENSE_KEY
+ARG NEW_RELIC_APP_NAME
+
+RUN \
+  curl -L "https://download.newrelic.com/php_agent/release/${NEW_RELIC_AGENT_VERSION}" | tar -C /tmp -zx && \
+  export NR_INSTALL_USE_CP_NOT_LN=1 && \
+  export NR_INSTALL_SILENT=1 && \
+  /tmp/newrelic-php5-*/newrelic-install install && \
+  rm -rf /tmp/newrelic-php5-* /tmp/nrinstall* && \
+  sed -i \
+      -e "s/REPLACE_WITH_REAL_KEY/${NEW_RELIC_LICENSE_KEY}/" \
+      -e "s/newrelic.appname =.*/newrelic.appname = ${NEW_RELIC_APP_NAME}/" \
+      -e 's/;newrelic.daemon.app_connect_timeout =.*/newrelic.daemon.app_connect_timeout=15s/' \
+      -e 's/;newrelic.daemon.start_timeout =.*/newrelic.daemon.start_timeout=5s/' \
+       $(php -r "echo(PHP_CONFIG_FILE_SCAN_DIR);")/newrelic.ini
 
 ENV PATH=/var/www/vendor/bin:$PATH
 
