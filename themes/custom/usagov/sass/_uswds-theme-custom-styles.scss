@@ -28,6 +28,11 @@ i.e.
    color: #d83933;
 }
 
+//visited link color for big button
+p > a.usa-button .usa-button--secondary .usa-button--big:visited{
+   color: #1b1b1b !important;
+}
+
 @media (min-width: 64em) {
 .usa-section {
    padding-top: 2rem;
