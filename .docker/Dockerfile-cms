@@ -3,14 +3,27 @@ FROM composer:latest AS composer-builder
 
 WORKDIR /var/www
 
-RUN sed -i s/utmp:x:100:/utmp:x:406/g /etc/passwd \
-    && sed -i s/svn:x:101:101/svn:x:102:102/g /etc/passwd \
-    && sed -i s/svnusers:x:101:svn/svnusers:x:102:svn/g /etc/group \
-    && addgroup -g 101 nginx \
-    && adduser nginx -G nginx -H -D -u 100 \
-    && echo 'memory_limit = -1' | tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini \
-    && mkdir -p /var/www/vendor \
-    && find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+ARG UID
+ARG GID=1000
+
+RUN \
+    if [ ! -z "$UID" ]; then \
+      # check for /etc/passwd collision for uid
+      # check for /etc/passwd collision for gid
+      # check for /etc/group collision for uid
+      # check for /etc/group collision for gid
+      addgroup -S -g $GID nginx; \
+      adduser -S -G nginx -D -h /home/nginx -u $UID nginx; \
+    fi
+    # sed -i s/utmp:x:100:/utmp:x:406/g /etc/passwd \
+    # && sed -i s/svn:x:101:101/svn:x:102:102/g /etc/passwd \
+    # && sed -i s/svnusers:x:101:svn/svnusers:x:102:svn/g /etc/group \
+    # && addgroup -g 101 nginx \
+    # && adduser nginx -G nginx -H -D -u 100 \
+RUN \
+    echo 'memory_limit = -1' | tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini \
+    && mkdir -p /var/www/vendor
+    # && find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
 
 COPY --chown=nginx:nginx composer.json /var/www/composer.json
 COPY --chown=nginx:nginx composer.lock /var/www/composer.lock
@@ -18,7 +31,8 @@ COPY --chown=nginx:nginx patches /var/www/patches
 
 USER nginx
 
-RUN mkdir -p /var/www/vendor \
+RUN \
+    mkdir -p /var/www/vendor \
     && composer global require --dev drupal/coder:8.3.13 php-parallel-lint/php-parallel-lint \
     && COMPOSER_DIR=$(composer -n config --global home) \
     && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer \
