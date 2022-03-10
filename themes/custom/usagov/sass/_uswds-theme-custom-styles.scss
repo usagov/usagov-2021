@@ -673,3 +673,29 @@ a {
      right: 0;
    }
  }
+
+ //Share This Page
+ .sm-share {
+    display: inline-block;
+    background-color: transparent;
+ }
+ div #sm-share {
+   display:flex;
+   padding-top: 10px;
+   padding-bottom: 20px;
+}
+div #sm-share * {
+   margin-top: auto;
+   margin-bottom: auto;
+   padding-top: 5px;
+}
+
+div #sm-share a {
+  padding: 7px;
+  text-decoration: none;
+}
+
+div #sm-share a img {
+   width: 2rem;
+   height: 2rem;
+}
