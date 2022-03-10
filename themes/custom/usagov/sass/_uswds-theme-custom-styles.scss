@@ -675,14 +675,12 @@ a {
  }
 
  //Share This Page
- .sm-share {
-    display: inline-block;
-    background-color: transparent;
- }
+
  div #sm-share {
    display:flex;
    padding-top: 10px;
    padding-bottom: 20px;
+   background-color: transparent;
 }
 div #sm-share * {
    margin-top: auto;
