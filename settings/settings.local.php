@@ -9,6 +9,9 @@ if ( !empty(getenv('LOCALDB')) ) {
 
 # $settings['tome_static_path_exclude'] = [];
 
+$settings['new_relic_rpm.api_key'] = getenv('NEW_RELIC_API_KEY');
+$config['new_relic_rpm.settings']['api_key'] = getenv('NEW_RELIC_API_KEY');
+
 $config['admin_toolbar_tools.settings']['hoverintent_functionality'] = TRUE;
 
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml';
