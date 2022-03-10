@@ -6,6 +6,8 @@ services:
     build:
       context: ./
       dockerfile: .docker/Dockerfile-cms
+      args:
+        UID: $(id -u)
     ports:
       - 80:80
       - 443:443
