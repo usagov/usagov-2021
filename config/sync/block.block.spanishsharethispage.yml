@@ -1,0 +1,41 @@
+uuid: dc6c545d-a70b-43ef-8440-56873bc83d97
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:html_block:993cac39-706a-4854-a5bf-3fc914089898'
+  module:
+    - block_content
+    - language
+    - node
+  theme:
+    - usagov
+id: spanishsharethispage
+theme: usagov
+region: content
+weight: 0
+provider: null
+plugin: 'block_content:993cac39-706a-4854-a5bf-3fc914089898'
+settings:
+  id: 'block_content:993cac39-706a-4854-a5bf-3fc914089898'
+  label: 'Spanish Share This Page'
+  label_display: '0'
+  provider: block_content
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
+  language:
+    id: language
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es
