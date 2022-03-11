@@ -1,6 +1,6 @@
 # USAgov 2021
 
-A revamped USA.gov site using Drupal 9 and Cloud Foundry.
+A revamped USA.gov site using Drupal 9 and Cloud Foundry
 
 # Initial Setup Stuff
 
