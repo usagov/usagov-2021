@@ -3,46 +3,77 @@ FROM composer:latest AS composer-builder
 
 WORKDIR /var/www
 
-ARG UID
+ARG UID=1000
 ARG GID=1000
 
-RUN \
-    if [ ! -z "$UID" ]; then \
-      # check for /etc/passwd collision for uid
-      # check for /etc/passwd collision for gid
-      # check for /etc/group collision for uid
-      # check for /etc/group collision for gid
-      addgroup -S -g $GID nginx; \
-      adduser -S -G nginx -D -h /home/nginx -u $UID nginx; \
-    fi
-    # sed -i s/utmp:x:100:/utmp:x:406/g /etc/passwd \
-    # && sed -i s/svn:x:101:101/svn:x:102:102/g /etc/passwd \
-    # && sed -i s/svnusers:x:101:svn/svnusers:x:102:svn/g /etc/group \
-    # && addgroup -g 101 nginx \
-    # && adduser nginx -G nginx -H -D -u 100 \
-RUN \
-    echo 'memory_limit = -1' | tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini \
-    && mkdir -p /var/www/vendor
+RUN sed -E -i "s/:x:${UID}:/:x:1919:/g" /etc/passwd \
+    && sed -E -i "s/:x:([0-9]+):${GID}:/:x:\1:1919/g" /etc/passwd \
+    && sed -E -i "s/:x:${GID}:/:x:1919:/g" /etc/group \
+    && sed -E -i "s/www-data:x:[0-9]+:[0-9]+:/www-data:x:${UID}:${GID}:/g" /etc/passwd \
+    && sed -E -i "s/www-data:x:[0-9]+:/www-data:x:${GID}:/g" /etc/group \
+    && echo 'memory_limit = -1' | tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini
     # && find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
 
-COPY --chown=nginx:nginx composer.json /var/www/composer.json
-COPY --chown=nginx:nginx composer.lock /var/www/composer.lock
-COPY --chown=nginx:nginx patches /var/www/patches
+COPY --chown=www-data:www-data composer.json /var/www/composer.json
+COPY --chown=www-data:www-data composer.lock /var/www/composer.lock
+COPY --chown=www-data:www-data patches /var/www/patches
 
-USER nginx
+# pulled from composer.json installer-paths
+RUN mkdir -p /var/www \
+    && mkdir -p /var/www/vendor \
+    && mkdir -p /var/www/web \
+    && mkdir -p /var/www/web/core \
+    && mkdir -p /var/www/web/libraries \
+    && mkdir -p /var/www/web/modules \
+    && mkdir -p /var/www/web/modules/contrib \
+    && mkdir -p /var/www/web/modules/custom \
+    && mkdir -p /var/www/web/profiles \
+    && mkdir -p /var/www/web/profiles/contrib \
+    && mkdir -p /var/www/web/profiles/custom \
+    && mkdir -p /var/www/web/themes \
+    && mkdir -p /var/www/web/themes/contrib \
+    && mkdir -p /var/www/web/themes/custom \
+    && mkdir -p /var/www/drush \
+    && mkdir -p /var/www/drush/Commands \
+    && mkdir -p /var/www/drush/Commands/contrib \
+    && chown www-data:www-data /var/www \
+    && chown www-data:www-data /var/www/vendor \
+    && chown www-data:www-data /var/www/web \
+    && chown www-data:www-data /var/www/web/core \
+    && chown www-data:www-data /var/www/web/libraries \
+    && chown www-data:www-data /var/www/web/modules \
+    && chown www-data:www-data /var/www/web/modules/contrib \
+    && chown www-data:www-data /var/www/web/modules/custom \
+    && chown www-data:www-data /var/www/web/profiles \
+    && chown www-data:www-data /var/www/web/profiles/contrib \
+    && chown www-data:www-data /var/www/web/profiles/custom \
+    && chown www-data:www-data /var/www/web/themes \
+    && chown www-data:www-data /var/www/web/themes/contrib \
+    && chown www-data:www-data /var/www/web/themes/custom \
+    && chown www-data:www-data /var/www/drush \
+    && chown www-data:www-data /var/www/drush/Commands \
+    && chown www-data:www-data /var/www/drush/Commands/contrib
 
-RUN \
-    mkdir -p /var/www/vendor \
-    && composer global require --dev drupal/coder:8.3.13 php-parallel-lint/php-parallel-lint \
-    && COMPOSER_DIR=$(composer -n config --global home) \
-    && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer \
-    && COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader
+USER www-data
+
+RUN composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint \
+    && COMPOSER_DIR=$(composer -n config --global home) && echo $COMPOSER_DIR \
+    && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard \
+    && COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader \
+    && chown www-data:www-data /var/www/composer.json /var/www/composer.lock
 
 ###############################################################
 
 FROM node:16.8.0-alpine3.13 AS theme-builder
-RUN sed -i s/node:x:1000:1000/node:x:100:101/g /etc/passwd \
-    && sed -i s/node:x:1000/node:x:101/g /etc/group \
+
+ARG UID=1000
+ARG GID=1000
+
+RUN sed -E -i "s/:x:${UID}:/:x:1919:/g" /etc/passwd \
+    && sed -E -i "s/:x:([0-9]+):${GID}:/:x:\1:1919/g" /etc/passwd \
+    && sed -E -i "s/:x:${GID}:/:x:1919:/g" /etc/group \
+    && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${UID}:${GID}:/g" /etc/passwd \
+    && sed -E -i "s/node:x:[0-9]+:/node:x:${GID}:/g" /etc/group \
     && apk upgrade --update --no-cache \
     && apk add --no-cache --virtual .persistent-deps \
       ca-certificates \
@@ -52,17 +83,20 @@ RUN sed -i s/node:x:1000:1000/node:x:100:101/g /etc/passwd \
     && npm install --global \
       git \
       gulp \
-      gulp-cli
+      gulp-cli \
+    && chown -R node:node /home/node/
 
-COPY --from=composer-builder --chown=node:node /var/www/web /var/www/web
-COPY --chown=node:node themes/custom/usagov /var/www/web/themes/custom/usagov
+COPY --from=composer-builder --chown=node:node /var/www/web/themes /var/www/web/themes
 
 WORKDIR /var/www/web/themes/custom/usagov/
 
-RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
-    && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
-    && npm run build --prefix /var/www/web/themes/custom/usagov
+RUN echo $(whoami) && ls -al /var/www/web/themes/custom/usagov && sleep 10;
+# RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
+#     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
+#     && npm run build --prefix /var/www/web/themes/custom/usagov
+RUN chown -R node:node /var/www/web/themes;
 
+USER node
 
 ###############################################################
 
@@ -82,75 +116,86 @@ ENV GITCOMMIT ${GITCOMMIT:-none}
 ARG GITTAG
 ENV GITTAG ${GITTAG:-none}
 
+ARG UID
+ENV UID ${UID:-1000}
+ARG GID
+ENV UID ${GID:-1000}
+
+
 ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
 
-# Depenancies
-RUN apk upgrade --update --no-cache \
+# Dependancies
+RUN sed -E -i "s/:x:${UID}:/:x:1919:/g" /etc/passwd \
+    && sed -E -i "s/:x:([0-9]+):${GID}:/:x:\1:1919/g" /etc/passwd \
+    && sed -E -i "s/:x:${GID}:/:x:1919:/g" /etc/group \
+    && addgroup -S -g $GID nginx \
+    && adduser -S -G nginx -D -H -u $UID nginx \
+    && apk upgrade --update --no-cache \
     && apk add --no-cache --virtual .persistent-deps \
-    aws-cli \
-    ca-certificates \
-    curl \
-    gettext \
-    git \
-    jq \
-    moreutils \
-    tar \
-    xz \
-    vim \
-    jq \
-    pv \
-    mysql-client \
-    mariadb-connector-c \
-    nginx \
-    nginx-mod-http-lua \
-    php8 \
-    php8-fpm \
-    php8-bcmath \
-    php8-bz2 \
-    php8-calendar \
-    php8-curl \
-    php8-ctype \
-    php8-dom \
-    php8-fileinfo \
-    php8-ftp \
-    php8-gd \
-    php8-intl \
-    php8-iconv \
-    php8-imap \
-    php8-intl \
-    php8-json \
-    php8-ldap \
-    php8-mbstring \
-    php8-mysqlnd \
-    php8-openssl \
-    php8-opcache \
-    php8-pcntl \
-    php8-pdo \
-    php8-pdo_mysql \
-    php8-pdo_sqlite \
-    php8-pear \
-    php8-pecl-imagick \
-    php8-pecl-xdebug \
-    php8-phar \
-    php8-posix \
-    php8-session \
-    php8-simplexml \
-    php8-shmop \
-    php8-soap \
-    php8-sockets \
-    php8-sodium \
-    php8-sqlite3 \
-    php8-sysvmsg \
-    php8-sysvsem \
-    php8-sysvshm \
-    php8-tokenizer \
-    php8-tidy \
-    php8-xsl \
-    php8-xml \
-    php8-xmlreader \
-    php8-xmlwriter \
-    php8-zip \
-    php8-zlib \
+      aws-cli \
+      ca-certificates \
+      curl \
+      gettext \
+      git \
+      jq \
+      moreutils \
+      tar \
+      xz \
+      vim \
+      jq \
+      pv \
+      mysql-client \
+      mariadb-connector-c \
+      nginx \
+      nginx-mod-http-lua \
+      php8 \
+      php8-fpm \
+      php8-bcmath \
+      php8-bz2 \
+      php8-calendar \
+      php8-curl \
+      php8-ctype \
+      php8-dom \
+      php8-fileinfo \
+      php8-ftp \
+      php8-gd \
+      php8-intl \
+      php8-iconv \
+      php8-imap \
+      php8-intl \
+      php8-json \
+      php8-ldap \
+      php8-mbstring \
+      php8-mysqlnd \
+      php8-openssl \
+      php8-opcache \
+      php8-pcntl \
+      php8-pdo \
+      php8-pdo_mysql \
+      php8-pdo_sqlite \
+      php8-pear \
+      php8-pecl-imagick \
+      php8-pecl-xdebug \
+      php8-phar \
+      php8-posix \
+      php8-session \
+      php8-simplexml \
+      php8-shmop \
+      php8-soap \
+      php8-sockets \
+      php8-sodium \
+      php8-sqlite3 \
+      php8-sysvmsg \
+      php8-sysvsem \
+      php8-sysvshm \
+      php8-tokenizer \
+      php8-tidy \
+      php8-xsl \
+      php8-xml \
+      php8-xmlreader \
+      php8-xmlwriter \
+      php8-zip \
+      php8-zlib \
     && mkdir -p /var/www/web/sites/default/files \
     # s6 supervisor setup
     && tar xzf /tmp/s6overlay.tar.gz -C / \

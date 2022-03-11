@@ -7,33 +7,51 @@
 /.aws
 
 *.sql
-*.sql.gz
-*.sql.tgz
-*.sql.zip
+*.gz
+*.tgz
+*.zip
 
 .DS_Store
 ._.DS_Store
 **/.DS_Store
 **/._.DS_Store
 
-# Ignore configuration files that may contain sensitive information
-/web
-/web/sites/*/*settings*.php
-/web/sites/*/*services*.yml
+/web/.*
+/web/*.php
+/web/*.md
+/web/*.txt
+/web/*.config
+/web/example.*
+/web/core
+/web/modules/README.txt
+/web/modules/contrib/
+/web/profiles
+/web/sites/default/files
+/web/sites/default/*.zip
+/web/sites/default/*.tar
+/web/sites/default/*.tgz
 
-# Ignore paths that may contain user-generated content
+# Ignore configuration files that may contain sensitive information
+/web/sites/*.php
+/web/sites/README.txt
+/web/sites/*/*
+!/web/sites/*/settings.php
+!/web/sites/*/settings.cf.php
+!/web/sites/*/settings.local.php
+
+# # Ignore paths that may contain user-generated content
 /web/sites/*/files
 /web/sites/*/public
 /web/sites/*/private
 /web/sites/*/files-public
 /web/sites/*/files-private
 
-# Ignore paths that may contain temporary files
+# # Ignore paths that may contain temporary files
 /web/sites/*/translations
 /web/sites/*/tmp
 /web/sites/*/cache
 
-# Ignore testing related files
+# # Ignore testing related files
 /web/sites/simpletest
 
 /content/*
@@ -45,35 +63,31 @@ sqlite-local.db
 sqlite-local.db-shm
 sqlite-local.db-wal
 
-# Ignore drupal core (if not versioning drupal sources)
+# # Ignore drupal core (if not versioning drupal sources)
 /vendor/*
 LICENSE.txt
 .eslintignore
 .gitattributes
 .editorconfig
 
-modules/contrib
-modules/README.txt
-storage
-
-# Ignore Compiled Theme Files
-themes/contrib
-themes/README.txt
-themes/custom/usagov/node_modules
-themes/custom/usagov/css
-themes/custom/usagov/sass/uswds
-themes/custom/usagov/fonts
-themes/custom/usagov/assets/img
-themes/custom/usagov/scripts/uswds-init.min.js.map
-themes/custom/usagov/scripts/uswds-init.min.js
-themes/custom/usagov/scripts/uswds-init.js
-themes/custom/usagov/scripts/uswds.min.js.map
-themes/custom/usagov/scripts/uswds.min.js
-themes/custom/usagov/scripts/uswds.js
-themes/custom/usagov/css/styles.css
-themes/custom/usagov/css/styles.css.map
-themes/custom/usagov/npm-debug.log
-themes/custom/usagov/img
+# # Ignore Compiled Theme Files
+web/themes/contrib
+web/themes/README.txt
+web/themes/custom/usagov/node_modules
+web/themes/custom/usagov/css
+web/themes/custom/usagov/sass/uswds
+web/themes/custom/usagov/fonts
+web/themes/custom/usagov/assets/img
+web/themes/custom/usagov/scripts/uswds-init.min.js.map
+web/themes/custom/usagov/scripts/uswds-init.min.js
+web/themes/custom/usagov/scripts/uswds-init.js
+web/themes/custom/usagov/scripts/uswds.min.js.map
+web/themes/custom/usagov/scripts/uswds.min.js
+web/themes/custom/usagov/scripts/uswds.js
+web/themes/custom/usagov/css/styles.css
+web/themes/custom/usagov/css/styles.css.map
+web/themes/custom/usagov/npm-debug.log
+web/themes/custom/usagov/img
 
 .vscode
 .vscode/settings.json

@@ -3,17 +3,20 @@ FROM alpine:3.14
 ARG FORCEIDS=0
 ENV FORCEIDS=${FORCEIDS}
 
-ARG UID
-ENV UID=${UID}
+# ARG UID
+# ENV UID=${UID}
 
 ARG GID=1000
 ENV GID=${GID}
 
-COPY ./in-container-test.sh /
+COPY in-container-test.sh /
 
 RUN if [ "$FORCEIDS" == "1" ]; then \
+      echo "Creating NGINX use with $UID $GID"; \
       addgroup -S -g $GID nginx; \
       adduser -S -G nginx -D -h /home/nginx -u $UID nginx; \
+    else \
+      echo "Leaving NGINX alone"; \
     fi
 RUN apk upgrade --update --no-cache \
     && apk add --no-cache --virtual .persistent-deps \
