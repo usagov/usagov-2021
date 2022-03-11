@@ -1,21 +1,20 @@
 #!/bin/sh
 
-grep -niHR utmp /etc/passwd
+POST=""
+[ "$FORCEIDS" == "1" ] && POST='-forced'
 
-# sed -i s/utmp:x:100:/utmp:x:406/g /etc/passwd
+USER=$(whoami)
+MYUID=$(id -u)
+MYGID=$(id -g)
 
-# POST=
-# [ "$FORCEIDS" == "1" ] && POST='.forced'
+echo
+echo "Creating file(${USER}${POST}) as user($USER) with UID($MYUID) and GUI($MYGID)"
+rm -f /perms/${USER}${POST}
+touch /perms/${USER}${POST}
+echo $USER > /perms/${USER}${POST}
 
-# USER=$(whoami)
-# echo
-# echo "Creating file(${USER}${POST}) as user($USER)"
-# rm -f /app/${USER}${POST}
-# touch /app/${USER}${POST}
-# echo $USER > /app/${USER}${POST}
-
-# echo
-# echo "Container permissions for file"
-# echo "file created by "$(cat /app/${USER}${POST})
-# ls -al /app/${USER}${POST}
-# ls -n  /app/${USER}${POST}
+echo
+echo "Container permissions for file"
+echo "file created by "$(cat /perms/${USER}${POST})
+ls -al /perms/${USER}${POST}
+ls -n  /perms/${USER}${POST}
