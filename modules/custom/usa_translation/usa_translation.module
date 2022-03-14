@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Module contains functions related to usa_translation.
+ */
+
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_ENTITY_TYPE_translation_delete().
+ */
+function usa_translation_node_translation_delete(NodeInterface $node) {
+  $node_lang = $node->language()->getId();
+  $menu_link_manager = \Drupal::service('plugin.manager.menu.link');
+  $result = $menu_link_manager->loadLinksByRoute('entity.node.canonical', array('node' => $node->id()));
+  foreach ($result as $row) {
+    list($entity_type, $uuid) = explode(':', $row->getPluginId(), 2);
+    $menu_entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $uuid);
+    if ($node_lang == $menu_entity->language()->getId()) {
+      $menu_entity->delete();
+    }
+  }
+}
