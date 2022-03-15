@@ -4,6 +4,6 @@ set -e
 docker compose run \
   --rm \
   --workdir /var/www \
-  -v $(pwd)/:/var/www:delegated \
+  -v $(pwd):/var/www:delegated \
   cms \
   drupal --root=/var/www/web "$@"
