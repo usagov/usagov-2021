@@ -5,7 +5,7 @@ ARG BUID=1000
 ARG BGID=1000
 
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
-    && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919/g" /etc/passwd \
+    && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/group \
     && sed -E -i "s/www-data:x:[0-9]+:[0-9]+:/www-data:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/www-data:x:[0-9]+:/www-data:x:${BGID}:/g" /etc/group \
@@ -70,7 +70,7 @@ ARG BUID=1000
 ARG BGID=1000
 
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
-    && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919/g" /etc/passwd \
+    && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
     && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group \
@@ -126,7 +126,7 @@ ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION
 
 # Dependancies
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
-    && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919/g" /etc/passwd \
+    && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
     && sed -E -i "s/nginx:x:[0-9]+:[0-9]+:/nginx:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/nginx:x:[0-9]+:/nginx:x:${BGID}:/g" /etc/group \
