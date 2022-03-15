@@ -1,8 +1,6 @@
 
 FROM composer:latest AS composer-builder
 
-WORKDIR /var/www
-
 ARG UID=1000
 ARG GID=1000
 
@@ -54,6 +52,8 @@ RUN mkdir -p /var/www \
     && chown www-data:www-data /var/www/drush/Commands \
     && chown www-data:www-data /var/www/drush/Commands/contrib
 
+WORKDIR /var/www
+
 USER www-data
 
 RUN composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint \
@@ -86,17 +86,20 @@ RUN sed -E -i "s/:x:${UID}:/:x:1919:/g" /etc/passwd \
       gulp-cli \
     && chown -R node:node /home/node/
 
-COPY --from=composer-builder --chown=node:node /var/www/web/themes /var/www/web/themes
+COPY --chown=node:node web/themes/custom/ /var/www/web/themes/custom/
+COPY --chown=node:node web/libraries/ /var/www/web/libraries/
+COPY --chown=node:node --from=composer-builder /var/www/web/themes/ /var/www/web/themes/
+COPY --chown=node:node --from=composer-builder /var/www/web/libraries/ /var/www/web/libraries/
 
-WORKDIR /var/www/web/themes/custom/usagov/
+WORKDIR /var/www/web/themes/custom/usagov
 
-RUN echo $(whoami) && ls -al /var/www/web/themes/custom/usagov && sleep 10;
-# RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
-#     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
-#     && npm run build --prefix /var/www/web/themes/custom/usagov
-RUN chown -R node:node /var/www/web/themes;
+RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
+    && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
+    && npm run build --prefix /var/www/web/themes/custom/usagov \
+    && chown -R node:node /var/www/web/themes
 
 USER node
+
 
 ###############################################################
 
@@ -228,9 +231,9 @@ COPY --chown=nginx:nginx scripts /var/www/scripts
 COPY --chown=nginx:nginx config /var/www/config
 COPY --chown=nginx:nginx patches /var/www/patches
 COPY --chown=nginx:nginx libraries /var/www/web/libraries
-COPY --chown=nginx:nginx modules /var/www/web/modules
-COPY --chown=nginx:nginx themes /var/www/web/themes
-COPY --chown=nginx:nginx settings /var/www/web/sites/default
+COPY --chown=nginx:nginx web/modules /var/www/web/modules
+COPY --chown=nginx:nginx web/themes /var/www/web/themes
+COPY --chown=nginx:nginx web/sites/default /var/www/web/sites/default
 COPY --from=composer-builder --chown=nginx:nginx /var/www/vendor /var/www/vendor
 COPY --from=composer-builder --chown=nginx:nginx /var/www/web /var/www/web
 COPY --from=theme-builder --chown=nginx:nginx /var/www/web/themes/custom /var/www/web/themes/custom
