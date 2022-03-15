@@ -49,7 +49,6 @@ $red: #D83933;
 $white: #ffffff;
 $text-blue: #1A4480;
 $deep-blue: #11304e;
-$another-blue: #11385a; //Closest to blue-warm-80v
 $cyan: #3fbde3;
 $cyan-light: #ccecf2;
 $gray: #dfe1e2;
@@ -90,7 +89,7 @@ $usagov-variables: (
   life-events: (
     text-color: $white,
     heading-underline-color: $cyan,
-    background-color: $another-blue,
+    background-color: $deep-blue,
   ),
   radio-button: (
     border-color: $orange
