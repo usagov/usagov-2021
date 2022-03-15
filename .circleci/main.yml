@@ -86,7 +86,7 @@ jobs:
             $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist
       - run:
           name: Theme Lint
-          command: npm run lint --prefix ./themes/custom/usagov
+          command: npm run lint --prefix ./web/themes/custom/usagov
 
   install-container-dependencies:
     docker:
@@ -102,9 +102,6 @@ jobs:
       - run:
           name: Compile Theme
           command: |
-            cp -R ./libraries ./web
-            cp -R ./modules ./web
-            cp -R ./themes ./web
             npm install --prefix ./web/themes/custom/usagov
             npm rebuild node-sass --prefix ./web/themes/custom/usagov
             npm run build --prefix ./web/themes/custom/usagov
