@@ -70,7 +70,7 @@ jobs:
       - run:
           name: Install Linters and Sniffers
           command: |
-            npm install --prefix ./themes/custom/usagov
+            npm install --prefix ./web/themes/custom/usagov
             composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
@@ -78,7 +78,7 @@ jobs:
           name: PHP Lint
           command: |
             COMPOSER_DIR=$(composer -n config --global home)
-            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./modules/custom ./themes/custom
+            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom
       - run:
           name: PHP CodeSniff (ignore warnings)
           command: |
