@@ -60,6 +60,19 @@ Buttons with visited links would mysteriously get white text which is not access
    color: initial;
 }
 
+.usa-button--secondary {
+   border: 1px solid transparent;
+}
+
+.usa-button--secondary:hover {
+   background-color: #ccecf2;
+   border: 1px solid color("cyan-50v"); 
+}
+
+.usa-button--secondary:visited, .usa-button:visited {
+   color: #1b1b1b !important;
+}
+
 /*
 This style ensures that we can remove the padding-top from text in a card body. Used on navigation pages.
 */
