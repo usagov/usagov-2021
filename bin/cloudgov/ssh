@@ -1,4 +1,6 @@
 #!/bin/bash
 set -e
 
-cf ssh web
+WHERE=${1:-cms}
+
+cf ssh $WHERE
