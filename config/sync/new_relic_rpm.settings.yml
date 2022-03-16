@@ -8,7 +8,7 @@ ignore_roles: {  }
 ignore_urls: ''
 bg_urls: ''
 exclusive_urls: ''
-api_key: 980474c4b3c0a77678fe8124c4daa927a58aNRAL
+api_key: ''
 override_exception_handler: false
 watchdog_severities: {  }
 views_log_slow: false
