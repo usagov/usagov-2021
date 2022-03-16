@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+docker compose run \
+  --rm \
+  --workdir /var/www \
+  -e CF_INSTANCE_INDEX=0 \
+  cms \
+  echo "Done running Drupal Update"
