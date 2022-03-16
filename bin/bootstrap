@@ -4,7 +4,6 @@ set -e
 docker compose run \
   --rm \
   --workdir /var/www \
-  -v $(pwd)/:/var/www:delegated \
   -e CF_INSTANCE_INDEX=0 \
   cms \
   echo "Done running bootstrap"
