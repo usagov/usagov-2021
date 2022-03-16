@@ -13,9 +13,9 @@ use Drupal\node\NodeInterface;
 function usa_translation_node_translation_delete(NodeInterface $node) {
   $node_lang = $node->language()->getId();
   $menu_link_manager = \Drupal::service('plugin.manager.menu.link');
-  $result = $menu_link_manager->loadLinksByRoute('entity.node.canonical', array('node' => $node->id()));
+  $result = $menu_link_manager->loadLinksByRoute('entity.node.canonical', ['node' => $node->id()]);
   foreach ($result as $row) {
-    list($entity_type, $uuid) = explode(':', $row->getPluginId(), 2);
+    [$entity_type, $uuid] = explode(':', $row->getPluginId(), 2);
     $menu_entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $uuid);
     if ($node_lang == $menu_entity->language()->getId()) {
       $menu_entity->delete();
