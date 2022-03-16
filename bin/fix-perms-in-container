@@ -1,0 +1,3 @@
+#!/bin/sh
+
+find /var/www -not -user $(id -u) -not -group $(id -g) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference $(id -u):$(id -g)
