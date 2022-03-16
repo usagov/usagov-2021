@@ -34,6 +34,9 @@ docker compose run --rm --no-deps --workdir /var/www composer /var/www/bin/fix-p
 echo "Composer install"
 bin/composer install
 
+echo "Node Modules install"
+bin/npm install
+
 echo "Compile theme"
 bin/gulp build
 
