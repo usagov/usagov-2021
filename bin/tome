@@ -4,10 +4,11 @@ set -e
 docker compose run \
   --rm \
   --workdir /var/www \
-  -v $(pwd)/:/var/www \
   cms \
-  /bin/ash -c "\
-    drush --root=/var/www/web en tome_sync -y; \
-    drush --root=/var/www/web $@ -y; \
-    drush --root=/var/www/web pm-uninstall tome_sync -y; \
-  "
+  /bin/ash -c "drush --root=/var/www/web $@ -y;"
+  # -v $(pwd)/:/var/www \
+  # /bin/ash -c "\
+  #   drush --root=/var/www/web en tome_sync -y; \
+  #   drush --root=/var/www/web $@ -y; \
+  #   drush --root=/var/www/web pm-uninstall tome_sync -y; \
+  # "
