@@ -85,6 +85,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
+        "optimize-autoloader": true,
         "process-timeout":0,
         "sort-packages": true,
         "allow-plugins": {

@@ -59,6 +59,23 @@ Buttons with visited links would mysteriously get white text which is not access
 */
    color: initial;
 }
+.usa-button--secondary:hover {
+   border: 1px solid #0081a1;
+   background-color: #ccecf2;
+}
+
+.usa-button--secondary {
+   border: 1px solid transparent;
+}
+
+.usa-button--secondary:hover {
+   background-color: #ccecf2;
+   border: 1px solid color("cyan-50v"); 
+}
+
+.usa-button--secondary:visited, .usa-button:visited {
+   color: #1b1b1b !important;
+}
 
 /*
 This style ensures that we can remove the padding-top from text in a card body. Used on navigation pages.
@@ -673,3 +690,27 @@ a {
      right: 0;
    }
  }
+
+ //Share This Page
+
+ div #sm-share {
+   display:flex;
+   padding-top: 10px;
+   padding-bottom: 20px;
+   background-color: transparent;
+}
+div #sm-share * {
+   margin-top: auto;
+   margin-bottom: auto;
+   padding-top: 5px;
+}
+
+div #sm-share a {
+  padding: 7px;
+  text-decoration: none;
+}
+
+div #sm-share a img {
+   width: 2rem;
+   height: 2rem;
+}

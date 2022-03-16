@@ -2,8 +2,8 @@
 set -e
 
 docker compose run \
-  -it \
+  --rm \
   --workdir /var/www \
-  -v $(pwd)/:/var/www:delegated \
+  -v $(pwd):/var/www:delegated \
   cms \
   drush --root=/var/www/web sql-cli "$@"
