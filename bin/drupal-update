@@ -1,9 +1,13 @@
 #!/bin/bash
 set -e
 
-docker compose run \
-  --rm \
-  --workdir /var/www \
-  -e CF_INSTANCE_INDEX=0 \
-  cms \
-  echo "Done running Drupal Update"
+echo "Composer install"
+bin/composer install -y
+
+echo "Node Modules install"
+bin/npm install
+
+echo "Compile theme"
+bin/gulp build
+
+bin/bootstrap
