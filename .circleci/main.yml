@@ -70,7 +70,7 @@ jobs:
       - run:
           name: Install Linters and Sniffers
           command: |
-            npm install --prefix ./themes/custom/usagov
+            npm install --prefix ./web/themes/custom/usagov
             composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
@@ -78,7 +78,7 @@ jobs:
           name: PHP Lint
           command: |
             COMPOSER_DIR=$(composer -n config --global home)
-            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./modules/custom ./themes/custom
+            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom
       - run:
           name: PHP CodeSniff (ignore warnings)
           command: |
@@ -86,7 +86,7 @@ jobs:
             $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist
       - run:
           name: Theme Lint
-          command: npm run lint --prefix ./themes/custom/usagov
+          command: npm run lint --prefix ./web/themes/custom/usagov
 
   install-container-dependencies:
     docker:
@@ -102,9 +102,6 @@ jobs:
       - run:
           name: Compile Theme
           command: |
-            cp -R ./libraries ./web
-            cp -R ./modules ./web
-            cp -R ./themes ./web
             npm install --prefix ./web/themes/custom/usagov
             npm rebuild node-sass --prefix ./web/themes/custom/usagov
             npm run build --prefix ./web/themes/custom/usagov
