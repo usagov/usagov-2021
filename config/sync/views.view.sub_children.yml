@@ -817,9 +817,49 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
+      arguments:
+        menu_children_filter:
+          id: menu_children_filter
+          table: node
+          field: menu_children_filter
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          plugin_id: menu_children
+          default_action: default
+          exception:
+            value: all
+            title_enable: false
+            title: All
+          title_enable: false
+          title: ''
+          default_argument_type: node
+          default_argument_options: {  }
+          default_argument_skip_url: false
+          summary_options:
+            base_path: ''
+            count: true
+            override: false
+            items_per_page: 25
+          summary:
+            sort_order: asc
+            number_of_records: 0
+            format: default_summary
+          specify_validation: false
+          validate:
+            type: none
+            fail: 'not found'
+          validate_options: {  }
+          break_phrase: false
+          not: false
+          target_menus:
+            left-menu-english: left-menu-english
+            left-menu-spanish: left-menu-spanish
       defaults:
         fields: false
-        arguments: true
+        arguments: false
+      rendering_language: '***LANGUAGE_site_default***'
       display_extenders: {  }
       block_description: 'Sub Children'
       block_hide_empty: true
@@ -828,7 +868,6 @@ display:
     cache_metadata:
       max-age: -1
       contexts:
-        - 'languages:language_content'
         - 'languages:language_interface'
         - url
         - 'user.node_grants:view'
