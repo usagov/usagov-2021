@@ -1,0 +1,11 @@
+uuid: ce3627e6-2a6f-4e27-b8d1-6fc4de2cbd95
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.uswds_colors
+id: taxonomy_term.uswds_colors
+target_entity_type_id: taxonomy_term
+target_bundle: uswds_colors
+default_langcode: site_default
+language_alterable: false

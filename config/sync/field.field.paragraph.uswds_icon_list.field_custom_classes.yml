@@ -1,0 +1,19 @@
+uuid: 99d63801-ed8e-422b-80a3-b9395489725a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_custom_classes
+    - paragraphs.paragraphs_type.uswds_icon_list
+id: paragraph.uswds_icon_list.field_custom_classes
+field_name: field_custom_classes
+entity_type: paragraph
+bundle: uswds_icon_list
+label: 'Custom Classes'
+description: 'Custom classes enable advanced options like responsive icon sizing.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

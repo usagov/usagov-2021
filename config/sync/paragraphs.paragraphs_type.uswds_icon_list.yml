@@ -1,0 +1,10 @@
+uuid: 4fa4cb35-7676-45dd-af1f-72c77a28e858
+langcode: en
+status: true
+dependencies: {  }
+id: uswds_icon_list
+label: 'USWDS Icon List'
+icon_uuid: null
+icon_default: null
+description: 'Based off of <a href="https://designsystem.digital.gov/components/icon-list/">USWDS Icon List</a>'
+behavior_plugins: {  }
