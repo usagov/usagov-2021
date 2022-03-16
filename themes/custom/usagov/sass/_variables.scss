@@ -9,6 +9,9 @@ $theme-link-color: 'blue-warm-70v';
 $theme-link-hover-color: 'blue-warm-70v';
 $theme-link-active-color: 'blue-warm-70v';
 $theme-link-visited-color: 'violet-60v'; //#783CB9
+
+// buttons
+
 // Primary colors
 $theme-color-primary: 'cyan-30v';
 $theme-color-primary-lighter: 'cyan-10';
@@ -24,7 +27,7 @@ $theme-color-secondary-darker: 'cyan-20'; //active
 $theme-focus-color: 'orange-50v'; //#C05600
 $theme-focus-offset: 0;
 $theme-focus-style: solid;
-$theme-focus-width: 2px;
+$theme-focus-width: .5;
 
 
 // Process List
@@ -50,6 +53,7 @@ $white: #ffffff;
 $text-blue: #1A4480;
 $deep-blue: #11304e;
 $cyan: #3fbde3;
+$cyan-50v: #0081a1;
 $cyan-light: #ccecf2;
 $gray: #dfe1e2;
 $light-gray: #f3f3f3;
@@ -66,7 +70,7 @@ $black: #000000;
 // $navpage-card-heading-underline-color:  $cyan;
 // $navpage-card-border-color:             $grey;
 // $navpage-card-hover-bg-color:           $cyan-light;
-// $navpage-card-hover-border-color:       $cyan;
+// $navpage-card-hover-border-color:       $cyan-50v;
 
 // Trying a SASS Map
 $usagov-variables: (
@@ -82,7 +86,7 @@ $usagov-variables: (
     heading-underline-color: $cyan,
     // border-color: $grey,
     hover-background-color: $cyan-light,
-    hover-border-color: $cyan,
+    hover-border-color: $cyan-50v,
     group-background-color: $light-gray,
     text-color: $black
   ),
