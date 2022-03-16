@@ -7,8 +7,8 @@ services:
       context: ./
       dockerfile: .docker/Dockerfile-cms
       args:
-        - UID
-        - GID
+        - BUID
+        - BGID
     ports:
       - 80:80
       - 443:443
@@ -108,8 +108,8 @@ services:
       dockerfile: .docker/Dockerfile-cms
       target: composer-builder
       args:
-        - UID
-        - GID
+        - BUID
+        - BGID
     #command: tail -f /dev/null
     command: echo "Shutting Down on Purpose"
     volumes:
@@ -124,8 +124,8 @@ services:
       dockerfile: .docker/Dockerfile-cms
       target: theme-builder
       args:
-        - UID
-        - GID
+        - BUID
+        - BGID
     command: npm run watch --prefix /var/www/web/themes/custom/usagov
     #command: echo "Shutting Down on Purpose"
     volumes:

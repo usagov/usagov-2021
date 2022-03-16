@@ -1,0 +1,39 @@
+#!/bin/bash
+
+export BUID=$(id -u)
+export GUID=$(id -g)
+if [ -f ~/.zshrc ] && ! grep -q 'export BUID=' ~/.zshrc; then
+  echo "export BUID=\$(id -u)" >> ~/.zshrc
+  echo "export BGID=\$(id -g)" >> ~/.zshrc
+fi
+if [ -f ~/.bashrc ] && ! grep -q "export BUID=" ~/.bashrc; then
+  echo "export BUID=\$(id -u)" >> ~/.bashrc
+  echo "export BGID=\$(id -g)" >> ~/.bashrc
+fi
+if [ -f ~/.bash_profile ] && ! grep -q "export BUID=" ~/.bash_profile; then
+  echo "export BUID=\$(id -u)" >> ~/.bash_profile
+  echo "export BGID=\$(id -g)" >> ~/.bash_profile
+fi
+if [ -f ~/.profile ] && ! grep -q "export BUID=" ~/.profile; then
+  echo "export BUID=\$(id -u)" >> ~/.profile
+  echo "export BGID=\$(id -g)" >> ~/.profile
+fi
+
+
+echo "Init env.local"
+if [ ! -f env.local ]; then
+  cp env.default env.local
+fi
+
+echo "Init Containers"
+bin/build
+
+echo "Fix permissions inside Containers - this could take a long time"
+docker compose run --rm --no-deps --workdir /var/www composer /var/www/bin/fix-perms-in-container
+
+echo "Composer install"
+bin/composer install
+
+echo "Compile theme"
+bin/gulp build
+
