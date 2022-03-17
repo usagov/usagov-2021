@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Setup environmental variables so current User and Group Ids are available at container build time
+# spam out to a variety of possible files to cover common cases
+echo "Setup BUID and BGID environmental variables"
 export BUID=$(id -u)
 export GUID=$(id -g)
 if [ -f ~/.zshrc ] && ! grep -q 'export BUID=' ~/.zshrc; then
@@ -20,23 +23,29 @@ if [ -f ~/.profile ] && ! grep -q "export BUID=" ~/.profile; then
 fi
 
 
-echo "Init env.local"
+echo "Init local secrets file"
 if [ ! -f env.local ]; then
   cp env.default env.local
 fi
 
-echo "Init Containers"
+echo "Setup git hooks"
+if [ ! -f .git/hooks/commit-msg ]; then
+  cp .git.commit-msg .git/hooks/commit-msg
+fi
+
+echo "Build Containers"
 bin/build
 
 echo "Fix permissions inside Containers - this could take a long time"
 docker compose run --rm --no-deps --workdir /var/www composer /var/www/bin/fix-perms-in-container
 
-echo "Composer install"
-bin/composer install
+echo "Install Drupal modules"
+bin/composer install -y --no-interaction --optimize-autoloader
 
-echo "Node Modules install"
-bin/npm install
-
-echo "Compile theme"
+echo "Build theme"
+bin/npm install --legacy-peer-deps
+bin/npm rebuild node-sass
 bin/gulp build
 
+
+echo "Init process complete"

@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# we do not directly call bootstrap
+# rather, bootstrap is automatically triggered
+# during container startup only when
+# the container is declared to be index 0
 docker compose run \
   --rm \
   --workdir /var/www \
