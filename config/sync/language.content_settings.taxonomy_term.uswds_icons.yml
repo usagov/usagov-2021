@@ -1,0 +1,11 @@
+uuid: 52a377ea-6ad2-40f5-b411-e48ecf05082f
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.uswds_icons
+id: taxonomy_term.uswds_icons
+target_entity_type_id: taxonomy_term
+target_bundle: uswds_icons
+default_langcode: site_default
+language_alterable: false

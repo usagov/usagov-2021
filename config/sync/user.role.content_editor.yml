@@ -1,7 +1,24 @@
 uuid: 49a98c55-840f-440a-be71-7f5742cee109
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  config:
+    - media.type.audio
+    - media.type.file
+    - node.type.basic_page
+    - node.type.wizard
+    - node.type.wizard_step
+    - workflows.workflow.basic_workflow
+  module:
+    - content_moderation
+    - content_translation
+    - media
+    - node
+    - paragraphs
+    - paragraphs_entity_embed
+    - path
+    - system
+    - toolbar
 id: content_editor
 label: 'Content Editor'
 weight: 2

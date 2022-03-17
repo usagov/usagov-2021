@@ -1,0 +1,29 @@
+uuid: df551d37-bd7b-4c1a-8cba-fed2cbddd6a6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_uswds_icon
+    - paragraphs.paragraphs_type.uswds_icon_list_item
+    - taxonomy.vocabulary.uswds_icons
+id: paragraph.uswds_icon_list_item.field_uswds_icon
+field_name: field_uswds_icon
+entity_type: paragraph
+bundle: uswds_icon_list_item
+label: 'USWDS Icon'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      uswds_icons: uswds_icons
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference
