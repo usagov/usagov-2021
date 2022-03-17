@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e
 
-echo "Composer install"
-bin/composer install -y
+echo "Install Drupal modules"
+bin/composer install -y --no-interaction --optimize-autoloader
 
-echo "Node Modules install"
-bin/npm install
-
-echo "Compile theme"
+echo "Build theme"
+bin/npm install --legacy-peer-deps
+bin/npm rebuild node-sass
 bin/gulp build
 
+echo "Import configs into Drupal"
 bin/bootstrap
