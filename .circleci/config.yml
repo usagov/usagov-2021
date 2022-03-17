@@ -186,11 +186,11 @@ jobs:
           cf_user: $CF_PROD_USER
           cf_pass: $CF_PROD_PASS
 
-  do-nothing:
-    docker:
-      - image: busybox:stable
-    steps:
-      - run: echo "Skipping"
+  # do-nothing:
+  #   docker:
+  #     - image: busybox:stable
+  #   steps:
+  #     - run: echo "Skipping"
 
 
 workflows:
