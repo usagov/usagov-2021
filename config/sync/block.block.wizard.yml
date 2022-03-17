@@ -18,23 +18,23 @@ plugin: 'menu_block:wizard'
 settings:
   id: 'menu_block:wizard'
   label: Wizard
-  provider: menu_block
   label_display: visible
+  provider: menu_block
   follow: false
   follow_parent: child
+  label_link: false
+  label_type: block
   level: 1
   depth: 0
   expand_all_items: false
   parent: 'wizard:'
   suggestion: wizard
-  label_type: block
-  label_link: false
 visibility:
   'entity_bundle:node':
     id: 'entity_bundle:node'
-    bundles:
-      wizard: wizard
-      wizard_step: wizard_step
     negate: false
     context_mapping:
       node: '@node.node_route_context:node'
+    bundles:
+      wizard: wizard
+      wizard_step: wizard_step

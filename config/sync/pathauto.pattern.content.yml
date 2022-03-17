@@ -11,12 +11,12 @@ pattern: '[node:title]'
 selection_criteria:
   774e64db-0d25-4ce2-9604-072c146db5e9:
     id: node_type
-    bundles:
-      basic_page: basic_page
     negate: false
+    uuid: 774e64db-0d25-4ce2-9604-072c146db5e9
     context_mapping:
       node: node
-    uuid: 774e64db-0d25-4ce2-9604-072c146db5e9
+    bundles:
+      basic_page: basic_page
 selection_logic: and
 weight: -10
 relationships: {  }

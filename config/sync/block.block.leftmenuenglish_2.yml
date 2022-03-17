@@ -18,20 +18,20 @@ plugin: 'system_menu_block:left-menu-english'
 settings:
   id: 'system_menu_block:left-menu-english'
   label: 'Left Menu English Block'
-  provider: system
   label_display: visible
+  provider: system
   level: 1
   depth: 0
   expand_all_items: false
 visibility:
   request_path:
     id: request_path
-    pages: '<front>'
     negate: true
+    pages: '<front>'
   language:
     id: language
-    langcodes:
-      en: en
     negate: false
     context_mapping:
       language: '@language.current_language_context:language_interface'
+    langcodes:
+      en: en

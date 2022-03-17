@@ -1,0 +1,8 @@
+uuid: 07357790-2c8c-40ef-ad41-ce7835c42956
+langcode: en
+status: true
+dependencies: {  }
+name: 'USWDS Colors'
+vid: uswds_colors
+description: 'color tokens from the US Web Design System'
+weight: 0
