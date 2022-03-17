@@ -859,7 +859,7 @@ display:
       defaults:
         fields: false
         arguments: false
-      rendering_language: '***LANGUAGE_site_default***'
+      rendering_language: '***LANGUAGE_language_interface***'
       display_extenders: {  }
       block_description: 'Sub Children'
       block_hide_empty: true
