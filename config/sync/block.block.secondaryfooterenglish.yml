@@ -18,16 +18,16 @@ plugin: 'block_content:34c0b345-aba2-4df4-bd1e-cf2e870266f9'
 settings:
   id: 'block_content:34c0b345-aba2-4df4-bd1e-cf2e870266f9'
   label: 'Secondary footer - English'
-  provider: block_content
   label_display: '0'
+  provider: block_content
   status: true
   info: ''
   view_mode: full
 visibility:
   language:
     id: language
-    langcodes:
-      en: en
     negate: false
     context_mapping:
       language: '@language.current_language_context:language_interface'
+    langcodes:
+      en: en

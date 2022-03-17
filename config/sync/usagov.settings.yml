@@ -1,14 +1,16 @@
-schemas: {  }
+_core:
+  default_config_hash: U4h9OUhE1hn29TpiPe1uEUOhzIM5r3JxdjziQLaGtec
+favicon:
+  use_default: true
 features:
-  node_user_picture: true
   comment_user_picture: true
   comment_user_verification: true
   favicon: false
+  node_user_picture: true
 logo:
-  use_default: false
   path: ''
-favicon:
-  use_default: true
+  use_default: false
+schemas: {  }
 cdn_provider: ''
 cdn_custom_img: 'https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/img'
 cdn_custom_css: 'https://cdn.jsdelivr.net/npm/uswds@2.8.0/dist/css/uswds.css'
@@ -39,5 +41,3 @@ uswds_menu_bypass:
   sidebar_first: 0
   sidebar_second: 0
   footer_menu: 0
-_core:
-  default_config_hash: U4h9OUhE1hn29TpiPe1uEUOhzIM5r3JxdjziQLaGtec

@@ -15,13 +15,13 @@ content:
   field_media_file:
     type: file_audio
     label: visually_hidden
-    weight: 0
     settings:
       controls: true
       autoplay: false
       loop: false
       multiple_file_display_type: tags
     third_party_settings: {  }
+    weight: 0
     region: content
 hidden:
   created: true

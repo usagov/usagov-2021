@@ -1,0 +1,103 @@
+uuid: 176615b6-9824-4617-ac11-f92186235ea1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_uswds_icon_list_item
+    - paragraphs.paragraphs_type.uswds_icon_list
+    - paragraphs.paragraphs_type.uswds_icon_list_item
+  module:
+    - entity_reference_revisions
+id: paragraph.uswds_icon_list.field_uswds_icon_list_item
+field_name: field_uswds_icon_list_item
+entity_type: paragraph
+bundle: uswds_icon_list
+label: 'USWDS Icon List Item'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      uswds_icon_list_item: uswds_icon_list_item
+    negate: 0
+    target_bundles_drag_drop:
+      faq:
+        weight: 26
+        enabled: false
+      text_field:
+        weight: 27
+        enabled: false
+      uswds_2_column_breakpoints:
+        weight: 29
+        enabled: false
+      uswds_2_columns:
+        weight: 28
+        enabled: false
+      uswds_3_column_breakpoints:
+        weight: 31
+        enabled: false
+      uswds_3_columns:
+        weight: 30
+        enabled: false
+      uswds_accordion:
+        weight: 32
+        enabled: false
+      uswds_accordion_section:
+        weight: 33
+        enabled: false
+      uswds_alert:
+        weight: 34
+        enabled: false
+      uswds_card_breakpoints:
+        weight: 36
+        enabled: false
+      uswds_card_group_flag:
+        weight: 37
+        enabled: false
+      uswds_card_group_regular:
+        weight: 38
+        enabled: false
+      uswds_card_regular:
+        weight: 39
+        enabled: false
+      uswds_cards_flag:
+        weight: 35
+        enabled: false
+      uswds_column_equal_size:
+        weight: 42
+        enabled: false
+      uswds_columns_2_uneven:
+        weight: 40
+        enabled: false
+      uswds_columns_3_uneven:
+        weight: 41
+        enabled: false
+      uswds_icon_list:
+        weight: 43
+        enabled: false
+      uswds_icon_list_item:
+        weight: 44
+        enabled: true
+      uswds_modal:
+        weight: 45
+        enabled: false
+      uswds_process_item:
+        weight: 46
+        enabled: false
+      uswds_process_list:
+        weight: 47
+        enabled: false
+      uswds_step_indicator_item:
+        weight: 48
+        enabled: false
+      uswds_step_indicator_list:
+        weight: 49
+        enabled: false
+      uswds_summary_box:
+        weight: 50
+        enabled: false
+field_type: entity_reference_revisions

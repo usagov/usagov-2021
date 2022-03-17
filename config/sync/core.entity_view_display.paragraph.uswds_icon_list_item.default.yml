@@ -1,0 +1,47 @@
+uuid: 2ded188d-3dd3-4b1a-bcbb-744969e67078
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_icon_list_item.field_heading
+    - field.field.paragraph.uswds_icon_list_item.field_text_plain_long
+    - field.field.paragraph.uswds_icon_list_item.field_uswds_color
+    - field.field.paragraph.uswds_icon_list_item.field_uswds_icon
+    - paragraphs.paragraphs_type.uswds_icon_list_item
+id: paragraph.uswds_icon_list_item.default
+targetEntityType: paragraph
+bundle: uswds_icon_list_item
+mode: default
+content:
+  field_heading:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_plain_long:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_uswds_color:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_uswds_icon:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 2
+    region: content
+hidden: {  }

@@ -5,7 +5,9 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.basic_page.body
+    - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_footer_html
+    - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
     - field.field.node.basic_page.field_is_navigation_page
     - field.field.node.basic_page.field_page_intro
@@ -20,25 +22,27 @@ bundle: basic_page
 mode: teaser
 content:
   body:
-    label: hidden
     type: text_summary_or_trimmed
-    weight: 101
+    label: hidden
     settings:
       trim_length: 600
     third_party_settings: {  }
+    weight: 101
     region: content
   content_moderation_control:
-    weight: -20
     settings: {  }
     third_party_settings: {  }
+    weight: -20
     region: content
   links:
-    weight: 100
     settings: {  }
     third_party_settings: {  }
+    weight: 100
     region: content
 hidden:
+  field_css_icon: true
   field_footer_html: true
+  field_for_contact_center_only: true
   field_header_html: true
   field_is_navigation_page: true
   field_page_intro: true

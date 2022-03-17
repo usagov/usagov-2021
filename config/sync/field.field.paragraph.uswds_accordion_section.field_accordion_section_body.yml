@@ -23,13 +23,13 @@ default_value_callback: ''
 settings:
   handler: 'default:paragraph'
   handler_settings:
-    negate: 0
     target_bundles:
       text_field: text_field
+    negate: 0
     target_bundles_drag_drop:
       text_field:
-        enabled: true
         weight: 18
+        enabled: true
       uswds_accordion_section:
         weight: 34
         enabled: false

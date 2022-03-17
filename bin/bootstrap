@@ -1,9 +1,13 @@
 #!/bin/bash
 set -e
 
+# we do not directly call bootstrap
+# rather, bootstrap is automatically triggered
+# during container startup only when
+# the container is declared to be index 0
 docker compose run \
   --rm \
   --workdir /var/www \
-  -v $(pwd)/:/var/www:delegated \
+  -e CF_INSTANCE_INDEX=0 \
   cms \
-  /var/www/scripts/bootstrap.sh
+  echo "Done running bootstrap"
