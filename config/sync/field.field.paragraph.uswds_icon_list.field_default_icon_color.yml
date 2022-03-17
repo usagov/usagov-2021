@@ -1,0 +1,29 @@
+uuid: 5008e182-1cb2-495a-aed7-43205ccc3b8f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_default_icon_color
+    - paragraphs.paragraphs_type.uswds_icon_list
+    - taxonomy.vocabulary.uswds_colors
+id: paragraph.uswds_icon_list.field_default_icon_color
+field_name: field_default_icon_color
+entity_type: paragraph
+bundle: uswds_icon_list
+label: 'Default Icon Color'
+description: 'Optionally, choose a default icon color. This color can be overridden by the individual icon''''s color setting.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      uswds_colors: uswds_colors
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference
