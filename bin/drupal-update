@@ -2,7 +2,7 @@
 set -e
 
 echo "Install Drupal modules"
-bin/composer install -y --no-interaction --optimize-autoloader
+bin/composer install --no-interaction --optimize-autoloader
 
 echo "Build theme"
 bin/npm install --legacy-peer-deps
