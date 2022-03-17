@@ -1,6 +1,6 @@
 # USAgov 2021
 
-A revamped USA.gov site using Drupal 9 and Cloud Foundry.
+A revamped USA.gov site using Drupal 9 and Cloud Foundry
 
 ## Initial Project Setup
 At the start of the project and at any other time you wish to "reset" you local development environment you may run the init script to prep any necessary files and rebuild containers. Starting the containers will initially lead you to an empty Drupal site.
