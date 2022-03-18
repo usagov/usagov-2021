@@ -46,7 +46,7 @@ else
   aws s3 sync /tmp/tome/$UNIQ_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read 2>&1 | tee -a $TOMELOG
 fi
 
-if [ -z "$TOMELOG" ]; then
+if [ -f "$TOMELOG" ]; then
   aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome/$TOMELOG --only-show-errors
 fi
 
