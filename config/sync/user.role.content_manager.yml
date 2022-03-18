@@ -1,4 +1,4 @@
-uuid: 49a98c55-840f-440a-be71-7f5742cee109
+uuid: 33f0b871-7114-4500-93cd-57c9de2f6a0b
 langcode: en
 status: true
 dependencies:
@@ -19,13 +19,12 @@ dependencies:
     - path
     - system
     - toolbar
-id: content_editor
-label: 'Content Editor'
-weight: 2
+id: content_manager
+label: 'Content Manager'
+weight: 4
 is_admin: null
 permissions:
   - 'access administration pages'
-  - 'access content'
   - 'access content overview'
   - 'access site in maintenance mode'
   - 'access toolbar'
@@ -60,7 +59,6 @@ permissions:
   - 'view basic_page revisions'
   - 'view latest version'
   - 'view own unpublished content'
-  - 'view paragraphs entity embed'
   - 'view the administration theme'
   - 'view unpublished paragraphs'
   - 'view wizard revisions'
