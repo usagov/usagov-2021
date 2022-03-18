@@ -1,0 +1,19 @@
+uuid: edad3f54-ae45-4b32-bcc0-d98e534fe4c0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_plain_long
+    - paragraphs.paragraphs_type.uswds_icon_list_item
+id: paragraph.uswds_icon_list_item.field_text_plain_long
+field_name: field_text_plain_long
+entity_type: paragraph
+bundle: uswds_icon_list_item
+label: 'Text plain long'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

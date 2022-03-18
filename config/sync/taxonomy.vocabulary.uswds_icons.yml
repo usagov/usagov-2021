@@ -1,0 +1,8 @@
+uuid: a4ecc8a9-bad6-4e6d-ac1d-2df17ef9c21d
+langcode: en
+status: true
+dependencies: {  }
+name: 'USWDS Icons'
+vid: uswds_icons
+description: 'Icon names from the US Web Design System'
+weight: 0
