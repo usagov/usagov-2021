@@ -1,7 +1,20 @@
 uuid: 5365380e-9fc0-476c-8172-029bb7324bd4
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  config:
+    - taxonomy.vocabulary.content_tags
+    - taxonomy.vocabulary.page_type
+    - taxonomy.vocabulary.uswds_breakpoints
+    - taxonomy.vocabulary.uswds_classes
+  module:
+    - action
+    - system
+    - taxonomy
+    - tome_static
+    - toolbar
+    - views_ui
+    - workflows
 id: site_admin
 label: 'Site Admin'
 weight: 3
