@@ -1,0 +1,2 @@
+sso_login_path: '/saml/login'
+sso_login_text: 'Login via SSO'
