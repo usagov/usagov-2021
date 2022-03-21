@@ -71,6 +71,7 @@ module:
   usa_contact_center_api: 0
   usa_translation: 0
   usa_workflow: 0
+  usagov_login: 0
   user: 0
   uswds_ckeditor_integration: 0
   uswds_paragraph_components: 0
@@ -80,6 +81,7 @@ module:
   workflows: 0
   pathauto: 1
   content_translation: 10
+  externalauth: 10
   views: 10
   paragraphs: 11
   minimal: 1000
