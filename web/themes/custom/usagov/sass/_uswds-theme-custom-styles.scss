@@ -59,13 +59,9 @@ Buttons with visited links would mysteriously get white text which is not access
 */
    color: initial;
 }
-.usa-button--secondary:hover {
-   border: 1px solid #0081a1;
-   background-color: #ccecf2;
-}
 
 .usa-button--secondary {
-   border: 1px solid transparent;
+   border: 1px solid color("cyan-50v");
 }
 
 .usa-button--secondary:hover {

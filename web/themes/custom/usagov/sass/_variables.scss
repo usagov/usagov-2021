@@ -70,7 +70,7 @@ $black: #000000;
 
 // $navpage-card-heading-color:            $text-blue;
 // $navpage-card-heading-underline-color:  $cyan;
-// $navpage-card-border-color:             $grey;
+// $navpage-card-border-color:             $cyan-50v;
 // $navpage-card-hover-bg-color:           $cyan-light;
 // $navpage-card-hover-border-color:       $cyan-50v;
 
@@ -86,7 +86,7 @@ $usagov-variables: (
   card: (
     heading-color: $text-blue,
     heading-underline-color: $cyan,
-    // border-color: $grey,
+     border-color: $cyan-50v,
     hover-background-color: $cyan-light,
     hover-border-color: $cyan-50v,
     group-background-color: $light-gray,
