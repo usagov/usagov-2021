@@ -12,11 +12,13 @@ drupal_login_roles:
   authenticated: authenticated
   content_editor: '0'
   site_admin: '0'
+  content_manager: '0'
+  content_administrator: '0'
 sp_entity_id: 'https://secureauth.dev.gsa.gov'
 sp_name_id_format: 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
-sp_x509_certificate: 'file:/var/www/web/sites/default/sp.crt'
+sp_x509_certificate: 'file:/var/www/sp.crt'
 sp_new_certificate: ''
-sp_private_key: 'file:/var/www/web/sites/default/sp.key'
+sp_private_key: 'file:/var/www/sp.key'
 metadata_valid_secs: 60
 metadata_cache_http: false
 idp_entity_id: 'https://secureauth.dev.gsa.gov/SecureAuth515'
@@ -32,7 +34,9 @@ map_users_name: false
 map_users_mail: true
 map_users_roles:
   content_editor: content_editor
-  site_admin: '0'
+  site_admin: site_admin
+  content_manager: content_manager
+  content_administrator: content_administrator
 create_users: false
 sync_name: false
 sync_mail: false
