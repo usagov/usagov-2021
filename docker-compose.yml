@@ -60,7 +60,12 @@ services:
               "CRON_KEY": "SECRET",
               "HASH_SALT": "SECRET",
               "ROOT_USER_NAME": "root",
-              "ROOT_USER_PASS": "root",
+              "ROOT_USER_PASS": "root"
+            }
+          },
+          {
+            "name": "secauthsecrets",
+            "credentials": {
               "SPKEY": "SPKey",
               "SPCRT": "SPCert"
             }
