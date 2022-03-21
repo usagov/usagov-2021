@@ -8,6 +8,8 @@ if [ -z "${VCAP_SERVICES:-}" ]; then
 fi
 
 SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
+SECAUTHSECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secauthsecrets") | .credentials')
+
 APP_NAME=$(echo $VCAP_APPLICATION | jq -r '.name')
 APP_ROOT=$(dirname "$0")
 APP_ID=$(echo "$VCAP_APPLICATION" | jq -r '.application_id')
@@ -41,6 +43,18 @@ export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n
 
 export EN_404_PAGE=${EN_404_PAGE:-/404/index.html};
 export ES_404_PAGE=${ES_404_PAGE:-/es/404/index.html};
+
+
+SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.SPKEY')
+SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.SPCRT')
+
+# seems not to be needed
+#spkey=$(echo "$SP_KEY" | awk '{gsub(/\\n/, "\n")}1')
+#spcrt=$(echo "$SP_CRT" | awk '{gsub(/\\n/, "\n")}1')
+
+echo "$SP_KEY" > /var/www/sp.key
+echo "$SP_CRT" > /var/www/sp.crt
+
 
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
 

@@ -5,6 +5,8 @@
 /s3
 /storage
 /.aws
+/*.crt
+/*.key
 
 *.sql
 *.gz
