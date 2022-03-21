@@ -32,6 +32,7 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       $config['s3fs.settings']['region'] = $service['credentials']['region'];
       $config['s3fs.settings']['secret_key'] = $service['credentials']['secret_access_key'];
       $config['s3fs.settings']['use_https'] = TRUE;
+      $config['s3fs.settings']['disable_cert_verify'] = FALSE;
 
       $settings['s3fs.access_key'] = $service['credentials']['access_key_id'];
       $settings['s3fs.bucket'] = $service['credentials']['bucket'];
@@ -40,6 +41,7 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       $settings['s3fs.region'] = $service['credentials']['region'];
       $settings['s3fs.secret_key'] = $service['credentials']['secret_access_key'];
       $settings['s3fs.use_https'] = TRUE;
+      $settings['s3fs.disable_cert_verify'] = FALSE;
 
       $settings['s3fs.use_s3_for_public'] = TRUE;
       // Twig templates _shouldn't_ be in the public dir (lest they be very slow)
