@@ -62,6 +62,13 @@ services:
               "ROOT_USER_NAME": "root",
               "ROOT_USER_PASS": "root"
             }
+          },
+          {
+            "name": "secauthsecrets",
+            "credentials": {
+              "SPKEY": "SPKey",
+              "SPCRT": "SPCert"
+            }
           }]
         }
     depends_on:
@@ -98,8 +105,12 @@ services:
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=miniopass
+      - MINIO_SERVER_URL=https://127.0.0.1:9000
+      - MINIO_DOMAIN=minio
     networks:
-      - gsa-gov
+      gsa-gov:
+        aliases:
+          - local.minio
 
   composer:
     container_name: composer
