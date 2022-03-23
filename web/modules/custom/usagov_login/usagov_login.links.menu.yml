@@ -1,0 +1,6 @@
+usagov_login.settings_form:
+  title: 'USAgov Login Form Settings'
+  route_name: usagov_login.login_settings
+  description: 'System wide settings for the USAgov Login form'
+  parent: system.admin_config_system
+  weight: 98
