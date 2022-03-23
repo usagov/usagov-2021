@@ -1,0 +1,19 @@
+uuid: 827546e1-a127-4f24-a1b1-6c2b22a15a8e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_language_switcher_override
+    - node.type.basic_page
+id: node.basic_page.field_language_switcher_override
+field_name: field_language_switcher_override
+entity_type: node
+bundle: basic_page
+label: 'Language Toggle Override'
+description: 'Overrides the link used for the language toggle. Useful for pages that do not have a direct match.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

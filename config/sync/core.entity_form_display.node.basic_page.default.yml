@@ -9,6 +9,7 @@ dependencies:
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
     - field.field.node.basic_page.field_is_navigation_page
+    - field.field.node.basic_page.field_language_switcher_override
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
     - node.type.basic_page
@@ -76,6 +77,14 @@ content:
     region: content
     settings:
       display_label: true
+    third_party_settings: {  }
+  field_language_switcher_override:
+    type: string_textfield
+    weight: 30
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
   field_page_intro:
     type: string_textarea
