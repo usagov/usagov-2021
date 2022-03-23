@@ -1,4 +1,8 @@
 <?php
+
+$settings['new_relic_rpm.api_key'] = getenv('NEW_RELIC_API_KEY');
+$config['new_relic_rpm.settings']['api_key'] = getenv('NEW_RELIC_API_KEY');
+
 /**
  * Collect external service information from environment.
  * Cloud Foundry places all service credentials in VCAP_SERVICES
