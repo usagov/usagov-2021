@@ -117,6 +117,7 @@ cf set-env waf S3_PROXY "$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com"
 cf delete-service-key storage storagekey -f
 
 # launch the apps
+echo "cf push cms --docker-image $CONTAINER:cms-$CONTAINERTAG"
 cf push cms --docker-image $CONTAINER:cms-$CONTAINERTAG
 #cf push cms --docker-image $CONTAINER:cms-$CONTAINERTAG $cms_randomroute
 #cf push waf --docker-image $CONTAINER:waf-$CONTAINERTAG $waf_randomroute
