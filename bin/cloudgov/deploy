@@ -56,6 +56,17 @@ fi
 
 if service_exists "secrets" ; then
   echo secrets already created
+  # read in existing secrets
+  # possibly update the newrelic parts
+  # update the secrets
+  # wait until the db is fully provisioned
+  until cf create-service-key secrets update-secrets ; do
+    echo waiting until secrets-service is live...
+    sleep 20
+  done
+  cf delete-service-key database test-db-ok -f
+  yes '' | cf update-user-provided-service secrets -p "{\"CRON_KEY\": \"$CRON_KEY\", \"HASH_SALT\": \"$HASH_SALT\", \"ROOT_USER_NAME\": \"$ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$ROOT_USER_PASS\"}"
+
 else
   yes '' | cf create-user-provided-service secrets -p "{\"CRON_KEY\": \"$CRON_KEY\", \"HASH_SALT\": \"$HASH_SALT\", \"ROOT_USER_NAME\": \"$ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$ROOT_USER_PASS\"}"
 fi
@@ -64,19 +75,19 @@ if service_exists "secauthsecrets" ; then
   echo secauthsecrets already created
 else
   mkdir -p /tmp/sp
-  
+
   openssl req -new -x509 -days 3652 -nodes -out /tmp/sp/sp.crt -keyout /tmp/sp/sp.key -batch
-  
+
   # Couldn't find a way to grap these without being written to disk.
   spkey=$(</tmp/sp/sp.key)
   spcrt=$(</tmp/sp/sp.crt)
-  
+
   # convert sp.key to single line
   spkeyf=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' /tmp/sp/sp.key)
-  
+
   # convert sp.crt to single line
   spcrtf=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' /tmp/sp/sp.crt)
-  
+
   yes '' | cf create-user-provided-service secauthsecrets -p "{\"spcrt\": \"$spcrtf\", \"spkey\": \"$spkeyf\"}"
 
   # clean up
@@ -87,6 +98,12 @@ if service_exists "storage" ; then
   echo storage already created
 else
   cf create-service s3 basic-sandbox storage
+fi
+
+if service_exists "dbstorage" ; then
+  echo dbstorage already created
+else
+  cf create-service s3 basic-sandbox dbstorage
 fi
 
 # wait until the db is fully provisioned
