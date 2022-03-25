@@ -442,7 +442,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 .grid-row.grid-gap-1 {
    @media (min-width: 31em){
-      margin-right: 1.5rem;
+      margin-right: 5rem;
    }
    @media (max-width: 30em){
       margin-left: -.5rem;
