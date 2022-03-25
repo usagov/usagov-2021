@@ -442,7 +442,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 .grid-row.grid-gap-1 {
    @media (min-width: 31em){
-      margin-right: 5rem;
+      margin-right: 1.5rem;
    }
    @media (max-width: 30em){
       margin-left: -.5rem;
@@ -467,12 +467,18 @@ This style ensures that we can remove the padding-top from text in a card body. 
   background-color: transparent;
 }
 
+
 .usa-footer__social-links {
    @media (max-width: 30em){
       justify-content: flex-start;
 }
 }
 
+.sp-social-links {
+   @media (min-width: 31em){
+   padding-right: 3.5rem;
+}
+}
 @media (min-width: 30em){
 .usa-footer__contact-info {
    justify-content: flex-start !important;
