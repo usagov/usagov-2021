@@ -68,12 +68,12 @@ for FILE in $FILES; do
 done
 
 # update new relic with environment specific settings
-sed -i \
-    -e "s/;\?newrelic.license =.*/newrelic.license = ${NEW_RELIC_LICENSE_KEY}/" \
-    -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}/" \
-    /etc/php8/conf.d/newrelic.ini
-# restart php so new relic changes take effect
-s6-svc -r /var/run/s6/services/php
+# sed -i \
+#     -e "s/;\?newrelic.license =.*/newrelic.license = ${NEW_RELIC_LICENSE_KEY}/" \
+#     -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}/" \
+#     /etc/php8/conf.d/newrelic.ini
+# # restart php so new relic changes take effect
+# s6-svc -r /var/run/s6/services/php
 
 if [ ! -z "${FIX_FILE_PERMS:-}" ]; then
   echo  "Fixing File Permissions ... "
