@@ -1,0 +1,11 @@
+samlauth.samlauth_configure_form:
+  title: 'SAML authentication'
+  parent: user.admin_index
+  description: 'Configure SAML authentication behaviors'
+  weight: -10
+  route_name: samlauth.samlauth_configure_form
+samlauth.saml_controller_logout.logout:
+  weight: 10
+  menu_name: account
+  enabled: 0
+  class: Drupal\samlauth\Plugin\Menu\LoginLogoutMenuLink
