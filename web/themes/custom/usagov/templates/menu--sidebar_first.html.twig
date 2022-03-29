@@ -82,6 +82,7 @@ TODO: remove menuLevel as it is no longer used
 The build macro starts by adding the surrounding nav structure and the first item.
 Next, it loops recursively through the children until there are no more children or the level bleow the current page item has been reached
 
+
 TODO: come up with a better name than start_level. Its really the delta between the start_item and the current_item
 #}
 {% macro build(items, menuLevel, start_level, current_item_title ) %}
