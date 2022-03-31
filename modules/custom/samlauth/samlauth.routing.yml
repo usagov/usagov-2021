@@ -1,0 +1,82 @@
+samlauth.saml_controller_login:
+  path: '/saml/login'
+  defaults:
+    _controller: '\Drupal\samlauth\Controller\SamlController::login'
+    _title: 'SAML login'
+  requirements:
+    _user_is_logged_in: 'FALSE'
+  options:
+    _maintenance_access: TRUE
+    no_cache: TRUE
+    default_url_options:
+      path_processing: FALSE
+samlauth.saml_controller_logout:
+  path: '/saml/logout'
+  defaults:
+    _controller: '\Drupal\samlauth\Controller\SamlController::logout'
+    _title: 'SAML logout'
+  requirements:
+    _access: 'TRUE'
+  options:
+    _maintenance_access: TRUE
+    no_cache: TRUE
+    default_url_options:
+      path_processing: FALSE
+samlauth.saml_controller_metadata:
+  path: '/saml/metadata'
+  defaults:
+    _controller: '\Drupal\samlauth\Controller\SamlController::metadata'
+    _title: 'SAML metadata'
+  requirements:
+    _permission: 'view sp metadata'
+  options:
+    default_url_options:
+      path_processing: FALSE
+samlauth.saml_controller_acs:
+  path: '/saml/acs'
+  defaults:
+    _controller: '\Drupal\samlauth\Controller\SamlController::acs'
+    _title: 'SAML ACS'
+  requirements:
+    _access: 'TRUE'
+  options:
+    _maintenance_access: TRUE
+    no_cache: TRUE
+    default_url_options:
+      path_processing: FALSE
+samlauth.saml_controller_sls:
+  path: '/saml/sls'
+  defaults:
+    _controller: '\Drupal\samlauth\Controller\SamlController::sls'
+    _title: 'SAML SLS'
+  requirements:
+    _access: 'TRUE'
+  options:
+    _maintenance_access: TRUE
+    no_cache: TRUE
+    default_url_options:
+      path_processing: FALSE
+samlauth.saml_controller_changepw:
+  path: '/saml/changepw'
+  defaults:
+    _controller: '\Drupal\samlauth\Controller\SamlController::changepw'
+    _title: 'SAML change password'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  options:
+    default_url_options:
+      path_processing: FALSE
+samlauth.samlauth_configure_form:
+  path: '/admin/config/people/saml'
+  defaults:
+    _form: '\Drupal\samlauth\Form\SamlauthConfigureForm'
+    _title: 'SAML authentication'
+  requirements:
+    _permission: 'configure saml'
+samlauth.authmap_delete_form:
+  path: '/admin/config/people/saml/authmap/{uid}/delete'
+  defaults:
+    _form: '\Drupal\samlauth\Form\SamlauthAuthmapDeleteForm'
+    _title: 'Delete authmap entry'
+  requirements:
+    _permission: 'configure saml'
