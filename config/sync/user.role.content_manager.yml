@@ -1,0 +1,65 @@
+uuid: 33f0b871-7114-4500-93cd-57c9de2f6a0b
+langcode: en
+status: true
+dependencies:
+  config:
+    - media.type.audio
+    - media.type.file
+    - node.type.basic_page
+    - node.type.wizard
+    - node.type.wizard_step
+    - workflows.workflow.basic_workflow
+  module:
+    - content_moderation
+    - content_translation
+    - media
+    - node
+    - paragraphs
+    - paragraphs_entity_embed
+    - path
+    - system
+    - toolbar
+id: content_manager
+label: 'Content Manager'
+weight: 4
+is_admin: null
+permissions:
+  - 'access administration pages'
+  - 'access content overview'
+  - 'access site in maintenance mode'
+  - 'access toolbar'
+  - 'add paragraphs entity embed'
+  - 'administer menu'
+  - 'create audio media'
+  - 'create basic_page content'
+  - 'create content translations'
+  - 'create file media'
+  - 'create url aliases'
+  - 'create wizard content'
+  - 'create wizard_step content'
+  - 'delete own basic_page content'
+  - 'delete own wizard content'
+  - 'delete own wizard_step content'
+  - 'delete paragraphs entity embed'
+  - 'edit any basic_page content'
+  - 'edit any wizard content'
+  - 'edit any wizard_step content'
+  - 'edit own basic_page content'
+  - 'edit own wizard content'
+  - 'edit own wizard_step content'
+  - 'edit paragraphs entity embed'
+  - 'translate basic_page node'
+  - 'translate editable entities'
+  - 'update content translations'
+  - 'use basic_workflow transition approve'
+  - 'use basic_workflow transition create_new_draft'
+  - 'use basic_workflow transition move_to_review'
+  - 'view all revisions'
+  - 'view any unpublished content'
+  - 'view basic_page revisions'
+  - 'view latest version'
+  - 'view own unpublished content'
+  - 'view the administration theme'
+  - 'view unpublished paragraphs'
+  - 'view wizard revisions'
+  - 'view wizard_step revisions'

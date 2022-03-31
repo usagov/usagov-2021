@@ -1,0 +1,5 @@
+samlauth_user_fields.add:
+  route_name: samlauth_user_fields.add
+  title: 'Add mapping'
+  appears_on:
+    - samlauth_user_fields.list

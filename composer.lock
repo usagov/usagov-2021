@@ -5507,6 +5507,80 @@
             }
         },
         {
+            "name": "drupal/new_relic_rpm",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/new_relic_rpm.git",
+                "reference": "2.1.0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/new_relic_rpm-2.1.0.zip",
+                "reference": "2.1.0",
+                "shasum": "10f3a89f17b80103f05cf84038ff1783c69e4e98"
+            },
+            "require": {
+                "drupal/core": "^8.8 || ^9"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "2.1.0",
+                    "datestamp": "1615809419",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "drush": {
+                    "services": {
+                        "drush.services.yml": "^9"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Berdir",
+                    "homepage": "https://www.drupal.org/user/214652"
+                },
+                {
+                    "name": "Chris Charlton",
+                    "homepage": "https://www.drupal.org/user/17089"
+                },
+                {
+                    "name": "Jonathan Webb",
+                    "homepage": "https://www.drupal.org/user/61512"
+                },
+                {
+                    "name": "hosef",
+                    "homepage": "https://www.drupal.org/user/1203298"
+                },
+                {
+                    "name": "neclimdul",
+                    "homepage": "https://www.drupal.org/user/48673"
+                },
+                {
+                    "name": "nterbogt",
+                    "homepage": "https://www.drupal.org/user/102218"
+                },
+                {
+                    "name": "soyarma",
+                    "homepage": "https://www.drupal.org/user/286273"
+                }
+            ],
+            "description": "Provides additional newrelic integration with Drupal.",
+            "homepage": "https://drupal.org/project/new_relic_rpm",
+            "support": {
+                "source": "https://git.drupalcode.org/project/new_relic_rpm",
+                "issues": "https://drupal.org/project/issues/new_relic_rpm"
+            }
+        },
+        {
             "name": "drupal/node_menus",
             "version": "3.0.0-alpha1",
             "source": {
@@ -6110,68 +6184,6 @@
             "support": {
                 "source": "https://git.drupalcode.org/project/s3fs",
                 "issues": "https://www.drupal.org/project/issues/s3fs"
-            }
-        },
-        {
-            "name": "drupal/samlauth",
-            "version": "3.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupalcode.org/project/samlauth.git",
-                "reference": "8.x-3.5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/samlauth-8.x-3.5.zip",
-                "reference": "8.x-3.5",
-                "shasum": "e946370743bbc6c72f495dcb17b93bc6decd4d88"
-            },
-            "require": {
-                "drupal/core": "^8 || ^9",
-                "drupal/externalauth": "^1.3 || ^2",
-                "onelogin/php-saml": "^3.3.1 || ^4"
-            },
-            "type": "drupal-module",
-            "extra": {
-                "drupal": {
-                    "version": "8.x-3.5",
-                    "datestamp": "1646002610",
-                    "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
-                    }
-                },
-                "branch-alias": {
-                    "dev-8.x-3.x": "3.x-dev"
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "Mills00013@gmail.com",
-                    "homepage": "https://www.drupal.org/user/3348892"
-                },
-                {
-                    "name": "cweagans",
-                    "homepage": "https://www.drupal.org/user/404732"
-                },
-                {
-                    "name": "japerry",
-                    "homepage": "https://www.drupal.org/user/45640"
-                },
-                {
-                    "name": "roderik",
-                    "homepage": "https://www.drupal.org/user/8841"
-                }
-            ],
-            "description": "Allows users to authenticate against an external SAML identity provider.",
-            "homepage": "http://drupal.org/project/samlauth",
-            "support": {
-                "source": "http://cgit.drupalcode.org/samlauth",
-                "issues": "http://drupal.org/project/samlauth"
             }
         },
         {
