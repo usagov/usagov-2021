@@ -15,17 +15,17 @@ third_party_settings:
     group_breakpoints:
       children:
         - field_uswds_3_column_breakpoints
+      label: Breakpoints
+      region: content
       parent_name: ''
       weight: 0
       format_type: details
-      region: content
       format_settings:
-        id: ''
         classes: ''
-        description: ''
+        id: ''
         open: false
+        description: ''
         required_fields: true
-      label: Breakpoints
 id: paragraph.uswds_3_columns.default
 targetEntityType: paragraph
 bundle: uswds_3_columns
@@ -34,6 +34,7 @@ content:
   field_3_column_content:
     type: entity_reference_paragraphs
     weight: 2
+    region: content
     settings:
       title: Paragraph
       title_plural: Paragraphs
@@ -42,17 +43,17 @@ content:
       form_display_mode: default
       default_paragraph_type: text_field
     third_party_settings: {  }
-    region: content
   field_column_grid_gap:
+    type: boolean_checkbox
     weight: 1
+    region: content
     settings:
       display_label: true
     third_party_settings: {  }
-    type: boolean_checkbox
-    region: content
   field_uswds_3_column_breakpoints:
     type: entity_reference_paragraphs
     weight: 3
+    region: content
     settings:
       title: Paragraph
       title_plural: Paragraphs
@@ -61,7 +62,6 @@ content:
       form_display_mode: default
       default_paragraph_type: ''
     third_party_settings: {  }
-    region: content
 hidden:
   created: true
   status: true

@@ -15,12 +15,12 @@ bundle: uswds_column_equal_size
 mode: default
 content:
   field_column_content_equal:
-    weight: 0
+    type: entity_reference_revisions_entity_view
     label: above
     settings:
       view_mode: default
       link: ''
     third_party_settings: {  }
-    type: entity_reference_revisions_entity_view
+    weight: 0
     region: content
 hidden: {  }

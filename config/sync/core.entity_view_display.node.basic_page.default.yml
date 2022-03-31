@@ -6,6 +6,7 @@ dependencies:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_footer_html
+    - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
     - field.field.node.basic_page.field_is_navigation_page
     - field.field.node.basic_page.field_page_intro
@@ -20,45 +21,46 @@ bundle: basic_page
 mode: default
 content:
   body:
-    label: hidden
     type: text_default
-    weight: 3
+    label: hidden
     settings: {  }
     third_party_settings: {  }
+    weight: 3
     region: content
   content_moderation_control:
-    weight: 0
-    region: content
     settings: {  }
     third_party_settings: {  }
+    weight: 0
+    region: content
   field_footer_html:
-    weight: 5
+    type: basic_string
     label: above
     settings: {  }
     third_party_settings: {  }
-    type: basic_string
+    weight: 5
     region: content
   field_header_html:
-    weight: 4
+    type: text_default
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    type: text_default
+    weight: 4
     region: content
   field_page_intro:
     type: basic_string
-    weight: 2
-    region: content
     label: hidden
     settings: {  }
     third_party_settings: {  }
-  links:
-    weight: 1
+    weight: 2
     region: content
+  links:
     settings: {  }
     third_party_settings: {  }
+    weight: 1
+    region: content
 hidden:
   field_css_icon: true
+  field_for_contact_center_only: true
   field_is_navigation_page: true
   field_page_type: true
   langcode: true

@@ -33,12 +33,9 @@ function lookup(address, callback) {
  * @param {Object} rawResponse Raw response from the API.
  */
 function renderResults(response, rawResponse) {
-    let language="english";
-    if( document.documentElement.lang == 'es' ){
-        language="spanish";
-    }
+
     const translations = {
-        "english": {
+        "en": {
             "error-fetch": "ERROR: Failed trying to fetch elected officials!",
             "error-address": "ERROR: Could not find elected officials for given address!",
             "levels": ["Federal Officials", "State Officials", "Local Officials"],
@@ -49,7 +46,7 @@ function renderResults(response, rawResponse) {
             "contact-via-email": "Contact via Email",
             "path-contact": "/contact-elected-officials/email",
         },
-        "spanish": {
+        "es": {
             "error-fetch": "ERROR: Failed trying to fetch elected officials!",
             "error-address": "ERROR: Could not find elected officials for given address!",
             "levels": ["Funcionarios federales", "Funcionarios estatales", "Funcionarios locales"],
@@ -61,7 +58,7 @@ function renderResults(response, rawResponse) {
             "path-contact": "/es/funcionarios-electos/email",
         }
     }
-    let content=translations[language];
+    let content=translations[ document.documentElement.lang ];
 
     // Get location for where to attach the rendered results
     let resultsDiv = document.getElementById("results");
@@ -311,7 +308,7 @@ function renderResults(response, rawResponse) {
  * Initialize API client by setting the API key.
  */
  function setApiKey() {
-    gapi.client.setApiKey("AIzaSyCYx2xTtqC-Ayn9oQMQ0OOT0zV_53p_zXI");
+    gapi.client.setApiKey("AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A");
 }
 
 /**
