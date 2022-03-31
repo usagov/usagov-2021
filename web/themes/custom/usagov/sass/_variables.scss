@@ -4,6 +4,16 @@ USWDS Variables
 // $theme-prefix-separator: "--";
 $theme-image-path: "../assets/img";
 
+$color-palettes: ("palette-color");
+
+//links
+$theme-link-color: 'blue-warm-70v';
+$theme-link-hover-color: 'blue-warm-70v';
+$theme-link-active-color: 'blue-warm-70v';
+$theme-link-visited-color: 'violet-60v'; //#783CB9
+
+// buttons
+
 // Primary colors
 $theme-color-primary: 'cyan-30v';
 $theme-color-primary-lighter: 'cyan-10';
@@ -15,10 +25,16 @@ $theme-color-secondary: 'cyan-10'; //background
 $theme-color-secondary-dark: 'cyan-20'; //hover
 $theme-color-secondary-darker: 'cyan-20'; //active
 
+//focus color for input
+$theme-focus-color: 'orange-50v'; //#C05600
+$theme-focus-offset: 0;
+$theme-focus-style: solid;
+$theme-focus-width: .5;
+
+
 // Process List
 $theme-process-list-counter-background-color: 'ink';
 $theme-process-list-counter-text-color: 'white';
-
 
 //Accordion
 $theme-color-base-lightest: 'gray-cool-10';
@@ -26,6 +42,7 @@ $theme-color-base-lighter: 'gray-20';
 
 // Alert
 $theme-color-error: 'red-50';
+$theme-accordion-border-color: "gray-cool-10";
 
 
 /*
@@ -38,10 +55,13 @@ $white: #ffffff;
 $text-blue: #1A4480;
 $deep-blue: #11304e;
 $cyan: #3fbde3;
+$cyan-50v: #0081a1;
 $cyan-light: #ccecf2;
+$gray: #dfe1e2;
 $light-gray: #f3f3f3;
 $orange: #f79240;
 $black: #000000;
+
 
 //Component Variables - always refer to another variable
 // $navpage-banner-box-bg-color:         $deep-blue;
@@ -50,9 +70,9 @@ $black: #000000;
 
 // $navpage-card-heading-color:            $text-blue;
 // $navpage-card-heading-underline-color:  $cyan;
-// $navpage-card-border-color:             $grey;
+// $navpage-card-border-color:             $cyan-50v;
 // $navpage-card-hover-bg-color:           $cyan-light;
-// $navpage-card-hover-border-color:       $cyan;
+// $navpage-card-hover-border-color:       $cyan-50v;
 
 // Trying a SASS Map
 $usagov-variables: (
@@ -66,14 +86,23 @@ $usagov-variables: (
   card: (
     heading-color: $text-blue,
     heading-underline-color: $cyan,
-    // border-color: $grey,
+     border-color: $cyan-50v,
     hover-background-color: $cyan-light,
-    hover-border-color: $cyan,
+    hover-border-color: $cyan-50v,
     group-background-color: $light-gray,
     text-color: $black
   ),
+  life-events: (
+    text-color: $white,
+    heading-underline-color: $cyan,
+    background-color: $deep-blue,
+  ),
   radio-button: (
     border-color: $orange
+  ),
+  alert: (
+    background-color: $white,
+    border-color: $gray
   )
 );
 

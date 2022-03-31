@@ -18,16 +18,16 @@ plugin: 'block_content:ad0612da-dd65-46d4-bbf4-836714cbc8c4'
 settings:
   id: 'block_content:ad0612da-dd65-46d4-bbf4-836714cbc8c4'
   label: 'Secondary footer - Spanish'
-  provider: block_content
   label_display: '0'
+  provider: block_content
   status: true
   info: ''
   view_mode: full
 visibility:
   language:
     id: language
-    langcodes:
-      es: es
     negate: false
     context_mapping:
       language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es

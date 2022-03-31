@@ -1,0 +1,4 @@
+#!/bin/sh
+
+COMMITPREFIX=$(git branch | grep '*' | sed 's/* //') 
+echo "$COMMITPREFIX"': '$(cat "$1") > "$1"

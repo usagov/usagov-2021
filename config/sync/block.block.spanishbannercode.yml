@@ -18,16 +18,16 @@ plugin: 'block_content:08f40fa5-9c3d-4d4b-b5ed-60f8614b1fd0'
 settings:
   id: 'block_content:08f40fa5-9c3d-4d4b-b5ed-60f8614b1fd0'
   label: 'Spanish banner code'
-  provider: block_content
   label_display: '0'
+  provider: block_content
   status: true
   info: ''
   view_mode: full
 visibility:
   language:
     id: language
-    langcodes:
-      es: es
     negate: false
     context_mapping:
       language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es

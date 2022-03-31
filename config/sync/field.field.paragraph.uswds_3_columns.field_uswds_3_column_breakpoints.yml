@@ -21,9 +21,9 @@ default_value_callback: ''
 settings:
   handler: 'default:paragraph'
   handler_settings:
-    negate: 0
     target_bundles:
       uswds_3_column_breakpoints: uswds_3_column_breakpoints
+    negate: 0
     target_bundles_drag_drop:
       text_field:
         weight: 20
@@ -35,8 +35,8 @@ settings:
         weight: 30
         enabled: false
       uswds_3_column_breakpoints:
-        enabled: true
         weight: 19
+        enabled: true
       uswds_3_columns:
         weight: 31
         enabled: false

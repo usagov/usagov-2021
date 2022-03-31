@@ -18,8 +18,12 @@ if [ -z "$AWS_ENDPOINT" ] || [ "$AWS_ENDPOINT" == "null" ]; then
   export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.endpoint');
 fi
 
+# grab the cloudgov space we are hosted in
+APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
+APP_SPACE=${APP_SPACE:-local}
+
 # Use a unique dir for each run - just in case more than one of this is running
-UNIQ_DIR=$(date +"%Y_%m_%d_%H_%M_%S")
+UNIQ_DIR=$(date +"%Y_%m_%d_%H_%M_%S-${APP_SPACE}")
 
 mkdir -p /tmp/tome/$UNIQ_DIR;
 cp -R /var/www/html/* /tmp/tome/$UNIQ_DIR
@@ -36,8 +40,6 @@ for f in `find /tmp/tome/$UNIQ_DIR/*`; do
   [ "$f" != "$ff" ] && mv -v "$f" "$ff";
 done
 
-# grab the cloudgov space we are hosted in
-APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 # endpoint and ssl specifications only necessary on local for minio
 # maybe use --only-show-errors if logs are too spammy
 if [ "${APP_SPACE}" = "local" ]; then
@@ -46,7 +48,7 @@ else
   aws s3 sync /tmp/tome/$UNIQ_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read 2>&1 | tee -a $TOMELOG
 fi
 
-if [ -z "$TOMELOG" ]; then
+if [ -f "$TOMELOG" ]; then
   aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome/$TOMELOG --only-show-errors
 fi
 
