@@ -12,17 +12,17 @@ bundle: uswds_2_column_breakpoints
 mode: default
 content:
   field_2_column_grid_options:
+    type: options_select
     weight: 1
+    region: content
     settings: {  }
     third_party_settings: {  }
-    type: options_select
-    region: content
   field_uswds_breakpoints:
+    type: options_select
     weight: 0
+    region: content
     settings: {  }
     third_party_settings: {  }
-    type: options_select
-    region: content
 hidden:
   created: true
   status: true

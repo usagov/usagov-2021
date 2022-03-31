@@ -23,9 +23,9 @@ default_value_callback: ''
 settings:
   handler: 'default:paragraph'
   handler_settings:
-    negate: 0
     target_bundles:
       uswds_cards_flag: uswds_cards_flag
+    negate: 0
     target_bundles_drag_drop:
       text_field:
         weight: 9
@@ -46,6 +46,6 @@ settings:
         weight: 13
         enabled: false
       uswds_cards_flag_:
-        enabled: true
         weight: 14
+        enabled: true
 field_type: entity_reference_revisions

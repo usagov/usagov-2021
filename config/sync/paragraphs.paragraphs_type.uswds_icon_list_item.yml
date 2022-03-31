@@ -1,0 +1,10 @@
+uuid: 60045321-7278-4b8a-b674-5b475d9cf48b
+langcode: en
+status: true
+dependencies: {  }
+id: uswds_icon_list_item
+label: 'USWDS Icon List Item'
+icon_uuid: null
+icon_default: null
+description: 'Used by USWDS Icon List. DO NOT USE AS STANDALONE.'
+behavior_plugins: {  }

@@ -1,0 +1,19 @@
+uuid: a5fac30c-0bf4-4ce5-8fea-243c8ff91ad7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_heading
+    - paragraphs.paragraphs_type.uswds_icon_list_item
+id: paragraph.uswds_icon_list_item.field_heading
+field_name: field_heading
+entity_type: paragraph
+bundle: uswds_icon_list_item
+label: Heading
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

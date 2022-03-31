@@ -1,0 +1,5 @@
+#!/bin/bash
+
+LOCAL_FILE=${1:-./backup.sql}
+
+bin/drush sql:dump --result-file=$LOCAL_FILE
