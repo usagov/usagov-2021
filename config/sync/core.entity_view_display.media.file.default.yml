@@ -13,12 +13,12 @@ bundle: file
 mode: default
 content:
   field_media_file:
+    type: file_default
     label: visually_hidden
-    weight: 0
     settings:
       use_description_as_link_text: true
     third_party_settings: {  }
-    type: file_default
+    weight: 0
     region: content
 hidden:
   created: true

@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+echo "Install Drupal modules"
+bin/composer install --no-interaction --optimize-autoloader
+
+echo "Build theme"
+bin/npm install --legacy-peer-deps
+bin/npm rebuild node-sass
+bin/gulp build
+
+echo "Import configs into Drupal"
+bin/bootstrap

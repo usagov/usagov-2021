@@ -1,0 +1,67 @@
+{#
+/**
+ * @file
+ * Theme override to display a block.
+ *
+ * Available variables:
+ * - plugin_id: The ID of the block implementation.
+ * - label: The configured label of the block if visible.
+ * - configuration: A list of the block's configuration values.
+ *   - label: The configured label for the block.
+ *   - label_display: The display settings for the label.
+ *   - provider: The module or other provider that provided this block plugin.
+ *   - Block plugin specific settings will also be stored here.
+ * - content: The content of this block.
+ * - attributes: array of HTML attributes populated by modules, intended to
+ *   be added to the main container tag of this template.
+ *   - id: A valid HTML ID and guaranteed unique.
+ * - title_attributes: Same as attributes, except applied to the main title
+ *   tag that appears in the template.
+ * - title_prefix: Additional output populated by modules, intended to be
+ *   displayed in front of the main title tag that appears in the template.
+ * - title_suffix: Additional output populated by modules, intended to be
+ *   displayed after the main title tag that appears in the template.
+ *
+ * @see template_preprocess_block()
+ */
+#}
+{%
+    set classes = [
+      'block',
+      'block-' ~ configuration.provider|clean_class,
+      'block-' ~ plugin_id|clean_class,
+    ]
+  %}
+  <div{{ attributes.addClass(classes) }}>
+    {{ title_prefix }}
+    {% if label %}
+      <h2{{ title_attributes }}>{{ label }}</h2>
+    {% endif %}
+    {{ title_suffix }}
+    {% block content %}
+      {% set facebook = 'http://www.facebook.com/sharer/sharer.php?u=' %}
+      {% set twitter = 'http://twitter.com/intent/tweet?source=webclient&text=' %}
+      {% set email = 'mailto:?subject=' %}
+
+      {% set nodeID = node.nid[0].value %}
+      {% set baseURL = url('<front>') %}
+      {% set path = drupal_url('node/'~nodeID) %}
+      {% set url = baseURL|render~path|render[1:] %}
+      
+      <div id="sm-share">
+        <span id="share-page">SHARE THIS PAGE:</span>
+        <div role="img" aria-labelledby="share-page">
+          <a href="{{ facebook }}{{ url }}&v=3">
+            <img src="/themes/custom/usagov/images/Facebook_25px_whiteBG.png" alt="Facebook" />
+          </a>
+          <a href="{{ twitter }}{{ url }}">
+            <img src="/themes/custom/usagov/images/Twitter_25px_whiteBG.png " alt="Twitter" />
+          </a>
+          <a href="{{ email }}{{ url }}">
+            <img src="/themes/custom/usagov/images/Email_25px_whiteBG.png" alt="Email"/>
+          </a>
+        </div>
+      </div>
+    {% endblock %}
+  </div>
+  

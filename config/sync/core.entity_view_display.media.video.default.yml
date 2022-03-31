@@ -15,16 +15,16 @@ content:
   field_media_file:
     type: file_video
     label: visually_hidden
-    weight: 0
     settings:
-      muted: false
-      width: 640
-      height: 480
       controls: true
       autoplay: false
       loop: false
       multiple_file_display_type: tags
+      muted: false
+      width: 640
+      height: 480
     third_party_settings: {  }
+    weight: 0
     region: content
 hidden:
   created: true

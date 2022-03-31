@@ -20,33 +20,33 @@ plugin: 'menu_block:left-menu-spanish'
 settings:
   id: 'menu_block:left-menu-spanish'
   label: 'Left Menu Spanish'
-  provider: menu_block
   label_display: visible
+  provider: menu_block
   follow: false
   follow_parent: active
+  label_link: false
+  label_type: block
   level: 1
   depth: 0
   expand_all_items: true
   parent: 'left-menu-spanish:'
   suggestion: left_menu_spanish
-  label_type: block
-  label_link: false
 visibility:
   language:
     id: language
-    langcodes:
-      es: es
     negate: false
     context_mapping:
       language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es
   request_path:
     id: request_path
-    pages: '<front>'
     negate: true
+    pages: '<front>'
   'entity_bundle:node':
     id: 'entity_bundle:node'
-    bundles:
-      basic_page: basic_page
     negate: false
     context_mapping:
       node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
