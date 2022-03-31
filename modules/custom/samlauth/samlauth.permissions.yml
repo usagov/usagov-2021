@@ -1,0 +1,4 @@
+view sp metadata:
+  title: 'View service provider metadata'
+configure saml:
+  title: 'Configure SAML authentication'
