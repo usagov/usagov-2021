@@ -244,7 +244,7 @@ COPY --chown=nginx:nginx scripts /var/www/scripts
 COPY --chown=nginx:nginx config /var/www/config
 COPY --chown=nginx:nginx patches /var/www/patches
 COPY --chown=nginx:nginx web/libraries /var/www/web/libraries
-COPY --chown=nginx:nginx web/modules /var/www/web/modules
+COPY --chown=nginx:nginx modules /var/www/web/modules
 COPY --chown=nginx:nginx web/themes /var/www/web/themes
 COPY --chown=nginx:nginx web/sites/default /var/www/web/sites/default
 COPY --from=composer-builder --chown=nginx:nginx /var/www/vendor /var/www/vendor
