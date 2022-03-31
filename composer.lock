@@ -6187,68 +6187,6 @@
             }
         },
         {
-            "name": "drupal/samlauth",
-            "version": "3.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupalcode.org/project/samlauth.git",
-                "reference": "8.x-3.5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/samlauth-8.x-3.5.zip",
-                "reference": "8.x-3.5",
-                "shasum": "e946370743bbc6c72f495dcb17b93bc6decd4d88"
-            },
-            "require": {
-                "drupal/core": "^8 || ^9",
-                "drupal/externalauth": "^1.3 || ^2",
-                "onelogin/php-saml": "^3.3.1 || ^4"
-            },
-            "type": "drupal-module",
-            "extra": {
-                "drupal": {
-                    "version": "8.x-3.5",
-                    "datestamp": "1646002610",
-                    "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
-                    }
-                },
-                "branch-alias": {
-                    "dev-8.x-3.x": "3.x-dev"
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "Mills00013@gmail.com",
-                    "homepage": "https://www.drupal.org/user/3348892"
-                },
-                {
-                    "name": "cweagans",
-                    "homepage": "https://www.drupal.org/user/404732"
-                },
-                {
-                    "name": "japerry",
-                    "homepage": "https://www.drupal.org/user/45640"
-                },
-                {
-                    "name": "roderik",
-                    "homepage": "https://www.drupal.org/user/8841"
-                }
-            ],
-            "description": "Allows users to authenticate against an external SAML identity provider.",
-            "homepage": "http://drupal.org/project/samlauth",
-            "support": {
-                "source": "http://cgit.drupalcode.org/samlauth",
-                "issues": "http://drupal.org/project/samlauth"
-            }
-        },
-        {
             "name": "drupal/scanner",
             "version": "1.0.0-rc6",
             "source": {

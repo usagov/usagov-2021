@@ -1,0 +1,125 @@
+samlauth.authentication:
+  type: config_object
+  mapping:
+    login_menu_item_title:
+      type: string
+    logout_menu_item_title:
+      type: string
+    login_redirect_url:
+      type: string
+    logout_redirect_url:
+      type: string
+    error_redirect_url:
+      type: string
+    error_throw:
+      type: boolean
+    local_login_saml_error:
+      type: boolean
+    logout_different_user:
+      type: boolean
+    drupal_login_roles:
+      type: sequence
+      sequence:
+        type: string
+    sp_entity_id:
+      type: string
+    sp_force_https:
+      type: boolean
+    sp_name_id_format:
+      type: string
+    sp_x509_certificate:
+      type: string
+    sp_new_certificate:
+      type: string
+    sp_private_key:
+      type: string
+    metadata_valid_secs:
+      type: integer
+    metadata_cache_http:
+      type: boolean
+    idp_entity_id:
+      type: string
+    idp_single_sign_on_service:
+      type: string
+    idp_single_log_out_service:
+      type: string
+    idp_change_password_service:
+      type: string
+    idp_certs:
+      type: sequence
+      sequence:
+        type: string
+    idp_cert_encryption:
+      type: string
+    unique_id_attribute:
+      type: string
+    map_users:
+      type: boolean
+    map_users_name:
+      type: boolean
+    map_users_mail:
+      type: boolean
+    map_users_roles:
+      type: sequence
+      sequence:
+        type: string
+    create_users:
+      type: boolean
+    sync_name:
+      type: boolean
+    sync_mail:
+      type: boolean
+    user_name_attribute:
+      type: string
+    user_mail_attribute:
+      type: string
+    request_set_name_id_policy:
+      type: boolean
+    strict:
+      type: boolean
+    security_metadata_sign:
+      type: boolean
+    security_authn_requests_sign:
+      type: boolean
+    security_logout_requests_sign:
+      type: boolean
+    security_logout_responses_sign:
+      type: boolean
+    security_nameid_encrypt:
+      type: boolean
+    security_signature_algorithm:
+      type: string
+    security_encryption_algorithm:
+      type: string
+    security_messages_sign:
+      type: boolean
+    security_assertions_signed:
+      type: boolean
+    security_assertions_encrypt:
+      type: boolean
+    security_nameid_encrypted:
+      type: boolean
+    security_want_name_id:
+      type: boolean
+    security_request_authn_context:
+      type: boolean
+    security_lowercase_url_encoding:
+      type: boolean
+    security_logout_reuse_sigs:
+      type: boolean
+    security_allow_repeat_attribute_name:
+      type: boolean
+    debug_display_error_details:
+      type: boolean
+    debug_log_in:
+      type: boolean
+    debug_log_saml_in:
+      type: boolean
+    debug_log_saml_out:
+      type: boolean
+    debug_phpsaml:
+      type: boolean
+    use_proxy_headers:
+      type: boolean
+    use_base_url:
+      type: boolean

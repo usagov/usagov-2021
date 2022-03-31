@@ -1,0 +1,21 @@
+samlauth_user_fields.field_mapping:
+  type: mapping
+  mapping:
+    attribute_name:
+      type: string
+    field_name:
+      type: string
+    link_user_order:
+      type: integer
+
+samlauth_user_fields.mappings:
+  type: config_object
+  mapping:
+    field_mappings:
+      type: sequence
+      sequence:
+        type: samlauth_user_fields.field_mapping
+    link_first_user:
+      type: boolean
+    ignore_blocked:
+      type: boolean
