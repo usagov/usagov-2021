@@ -1,0 +1,16 @@
+name: 'Tome Sync'
+type: module
+description: 'Allows Drupal to installed from flat files and keeps content in sync.'
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: Tome
+dependencies:
+  - drupal:file
+  - drupal:serialization
+  - drupal:user
+  - tome:tome_base
+
+# Information added by Drupal.org packaging script on 2020-05-24
+version: '8.x-1.4'
+project: 'tome'
+datestamp: 1590331616

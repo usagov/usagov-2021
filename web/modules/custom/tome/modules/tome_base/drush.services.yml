@@ -1,0 +1,5 @@
+services:
+  cli.workaround:
+    class: Drupal\tome_base\Commands\CliWorkaroundCommands
+    tags:
+      -  { name: drush.command }

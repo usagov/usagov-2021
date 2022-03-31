@@ -1,0 +1,15 @@
+tome_sync.main:
+  path: '/admin/config/tome/sync'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Tome Sync'
+  requirements:
+    _permission: 'use tome sync'
+
+tome_sync.import_partial:
+  path: '/admin/config/tome/sync/import-partial'
+  defaults:
+    _form: 'Drupal\tome_sync\Form\ImportPartialForm'
+    _title: 'Synchronize content and files'
+  requirements:
+    _permission: 'use tome sync'

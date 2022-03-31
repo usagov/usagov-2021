@@ -1,0 +1,5 @@
+tome_static_cron.settings:
+  title: 'Tome Static Cron settings'
+  parent: system.admin_config_services
+  description: 'Manage Tome Static Cron settings.'
+  route_name: tome_static_cron.settings
