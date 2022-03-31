@@ -5,13 +5,5 @@ docker compose run \
   --rm \
   --no-deps \
   --workdir /var/www \
-  -v $(pwd)/composer.json:/var/www/composer.json:delegated \
-  -v $(pwd)/composer.lock:/var/www/composer.lock:delegated \
-  -v $(pwd)/patches:/var/www/patches:delegated \
-  -v $(pwd)/libraries:/var/www/libraries:delegated \
-  -v $(pwd)/vendor:/var/www/vendor:delegated \
-  -v $(pwd)/web:/var/www/web:delegated \
-  -v $(pwd)/themes/custom:/var/www/web/themes/custom:delegated \
-  -v $(pwd)/modules/custom:/var/www/web/modules/custom:delegated \
   composer \
-  composer "$@"
+  composer "$@" --ignore-platform-reqs

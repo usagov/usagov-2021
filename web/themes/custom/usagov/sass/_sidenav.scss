@@ -9,6 +9,9 @@
    ul > li + ul > li + li {
       border-top: none;
    }
+   ul > li + ul > li ~ ul ~ li {
+         border-top: none;
+   }
    .usa-current{
       color: $red;
 
@@ -24,7 +27,6 @@
          border-radius: 2px;
      }
    }
-
    a:not(.usa-button):hover{
       &.usa-current{
          background-color: transparent;

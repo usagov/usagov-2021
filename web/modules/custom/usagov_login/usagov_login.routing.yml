@@ -1,0 +1,7 @@
+usagov_login.login_settings:
+  path: '/admin/config/system/login-settings'
+  defaults:
+    _title: 'Login settings'
+    _form: 'Drupal\usagov_login\Form\LoginSettingsForm'
+  requirements:
+    _permission: 'administer site configuration'

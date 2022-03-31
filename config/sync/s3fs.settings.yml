@@ -1,6 +1,5 @@
-access_key: ''
-secret_key: ''
-use_instance_profile: false
+_core:
+  default_config_hash: cgKAYNNfiRLK7JmjmyWUVlMGvWcSkPlL-k9a_gMFM_g
 credentials_file: ''
 bucket: ''
 region: us-east-1
@@ -22,5 +21,6 @@ saveas: ''
 torrents: ''
 use_cssjs_host: false
 cssjs_host: ''
-_core:
-  default_config_hash: cgKAYNNfiRLK7JmjmyWUVlMGvWcSkPlL-k9a_gMFM_g
+access_key: ''
+secret_key: ''
+use_instance_profile: false

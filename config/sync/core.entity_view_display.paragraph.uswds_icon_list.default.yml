@@ -1,0 +1,51 @@
+uuid: c2485cbe-6cae-439f-9132-a57bc85dd20e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.uswds_icon_list.field_custom_classes
+    - field.field.paragraph.uswds_icon_list.field_default_icon_color
+    - field.field.paragraph.uswds_icon_list.field_icon_size
+    - field.field.paragraph.uswds_icon_list.field_uswds_icon_list_item
+    - paragraphs.paragraphs_type.uswds_icon_list
+  module:
+    - entity_reference_revisions
+    - options
+id: paragraph.uswds_icon_list.default
+targetEntityType: paragraph
+bundle: uswds_icon_list
+mode: default
+content:
+  field_custom_classes:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_default_icon_color:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_icon_size:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_uswds_icon_list_item:
+    type: entity_reference_revisions_entity_view
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 3
+    region: content
+hidden: {  }

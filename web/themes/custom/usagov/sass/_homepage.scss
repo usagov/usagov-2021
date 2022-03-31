@@ -4,7 +4,7 @@ $hero: var( $usagov-variables, hero );
 .usagov-hero-homepage{
     background-color: var( $hero, background-color );
     color: var( $hero, font-color );
-
+    margin-bottom: 0;
 }
 .usagov-hero-feature-text a{
     text-decoration-line: underline;
@@ -13,7 +13,7 @@ $hero: var( $usagov-variables, hero );
     text-decoration-skip-ink: none;
     line-height: 1.8em;
 }
-.usagov-hero a{
+.usagov-hero a, .usagov-hero a:hover, .usagov-hero a:visited{
     color: inherit;
 }
 .topic-icon{
@@ -22,6 +22,7 @@ $hero: var( $usagov-variables, hero );
     background-position: 1em center;
     background-size: 5em;
 }
+//Old way of doing topic icons (stored in repo)
 .icon-about{
     background-image: url(../images/topics/ICONS_beta_About_the_US_and_Its_Government.png);
 }
@@ -31,6 +32,31 @@ $hero: var( $usagov-variables, hero );
 .icon-money{
     background-image: url(../images/topics/ICONS_beta_Money_and_Credit.png);
 }
+.icon-benefits{
+    background-image: url(../images/topics/ICONS_beta_Benefits.png);
+}
+.icon-immigration{
+    background-image: url(../images/topics/ICONS_beta_Immigration.png);
+}
+.icon-voting{
+    background-image: url(../images/topics/ICONS_beta_Voting_and_Elections.png);
+}
+//New way of doing topic icons (stored in CMS, uses S3 URL)
+.icon-education{
+    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Education_0.png);
+}
+.icon-housing{
+    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Housing_0.png);
+}
+.icon-disasters{
+    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Disasters_and_Emergencies_1.png);
+}
+.icon-covid19{
+    background-image: url(http://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_COVID19_0.png);
+}
+.icon-health{
+    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Health.png);
+}
 .icon-scams{
-    background-image: url(../images/topics/ICONS_beta_Scams_and_Frauds.png);
+    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Scams_and_Frauds.png);
 }
