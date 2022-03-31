@@ -1,6 +1,9 @@
+_core:
+  default_config_hash: yXadRE77Va-G6dxhd2kPYapAvbnSvTF6hO4oXiOEynI
+langcode: en
 uuid: 6426615d-a9df-4b9a-b535-43c6cdfe8c04
 name: USA.revamp
-mail: 'null'
+mail: secret@example.com
 slogan: ''
 page:
   403: ''
@@ -8,7 +11,4 @@ page:
   front: /node/1
 admin_compact_mode: false
 weight_select_max: 100
-langcode: en
 default_langcode: en
-_core:
-  default_config_hash: yXadRE77Va-G6dxhd2kPYapAvbnSvTF6hO4oXiOEynI

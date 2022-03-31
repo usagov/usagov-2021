@@ -1,0 +1,19 @@
+uuid: 291bf7ec-7c4c-423d-9745-814f90bd7351
+langcode: en
+status: true
+dependencies: {  }
+id: submit_for_review
+workflow: basic_workflow
+transitions:
+  move_to_review: move_to_review
+roles:
+  content_manager: content_manager
+  content_administrator: content_administrator
+author: false
+site_mail: false
+emails: ''
+subject: 'New content submission'
+body:
+  value: "<p>A new content has been submitted.</p>\r\n\r\n<p>Please take some time to review it here: [node:url]</p>\r\n\r\n<p>Edit the content here: [node:edit-url]</p>\r\n"
+  format: uswds
+label: 'Submit for Review'

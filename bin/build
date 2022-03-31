@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+
+BUID=$(id -u) BGID=$(id -g) docker compose build --no-cache $@

@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the usa_contact_center_api module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function usa_contact_center_api_schema() {
+  $schema['usa_node_delete_log'] = [
+    'description' => 'Tracks deleted nodes.',
+    'fields' => [
+      'nid' => [
+        'description' => 'The {node}.nid this record affects.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'title' => [
+        'description' => 'The {node} Title.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'type' => [
+        'description' => 'The {node} Type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'deleted_time' => [
+        'description' => 'The time the {node} has been deleted.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['nid'],
+  ];
+
+  return $schema;
+}

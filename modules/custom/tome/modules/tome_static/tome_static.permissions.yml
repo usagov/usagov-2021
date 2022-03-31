@@ -1,3 +1,0 @@
-use tome static:
-  title: 'Generate static HTML using the user interface'
-  restrict access: true

@@ -1,0 +1,21 @@
+uuid: e885e94e-e284-4fc6-b821-5ceedb01852d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_icon_size
+    - paragraphs.paragraphs_type.uswds_icon_list
+  module:
+    - options
+id: paragraph.uswds_icon_list.field_icon_size
+field_name: field_icon_size
+entity_type: paragraph
+bundle: uswds_icon_list
+label: 'Icon Size'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string
