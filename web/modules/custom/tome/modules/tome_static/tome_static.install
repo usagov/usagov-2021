@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Module install and update procedures.
+ */
+
+use Drupal\tome_static\StaticGeneratorInterface;
+
+/**
+ * Implements hook_uninstall().
+ */
+function tome_static_uninstall() {
+  \Drupal::service('state')->deleteMultiple([
+    StaticGeneratorInterface::STATE_KEY_BUILDING,
+    StaticGeneratorInterface::STATE_KEY_URL,
+  ]);
+}

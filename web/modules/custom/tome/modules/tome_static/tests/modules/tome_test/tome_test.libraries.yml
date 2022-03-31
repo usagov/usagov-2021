@@ -1,0 +1,7 @@
+complex_page:
+  version: 1
+  js:
+    js/complex.js: {}
+  css:
+    theme:
+      css/complex.css: {}

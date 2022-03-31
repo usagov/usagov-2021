@@ -1,0 +1,113 @@
+<?php
+
+/**
+ * @file
+ * Keeps content, config, and files in sync.
+ */
+
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * Implements hook_entity_insert().
+ *
+ * @internal
+ */
+function tome_sync_entity_insert(EntityInterface $entity) {
+  if (_tome_sync_should_export($entity)) {
+    \Drupal::service('tome_sync.exporter')->exportContent($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ *
+ * @internal
+ */
+function tome_sync_entity_update(EntityInterface $entity) {
+  tome_sync_entity_insert($entity);
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * @internal
+ */
+function tome_sync_entity_delete(EntityInterface $entity) {
+  if (_tome_sync_should_export($entity)) {
+    \Drupal::service('tome_sync.exporter')->deleteContentExport($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_translation_delete().
+ *
+ * @internal
+ */
+function tome_sync_entity_translation_delete(EntityInterface $translation) {
+  tome_sync_entity_delete($translation);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ *
+ * Removes the field directly from content exports. Can move to a batch process
+ * similar to the field module if needed.
+ */
+function tome_sync_field_config_delete(FieldConfig $field) {
+  if (\Drupal::isConfigSyncing()) {
+    return;
+  }
+  /** @var \Drupal\Core\Config\StorageInterface $content_storage */
+  $content_storage = \Drupal::service('tome_sync.storage.content');
+  $storage = \Drupal::entityTypeManager()
+    ->getStorage($field->getTargetEntityTypeId());
+  $target_bundle = $field->getTargetBundle();
+  $bundle_key = $storage->getEntityType()->getKey('bundle');
+  foreach ($content_storage->listAll($field->getTargetEntityTypeId() . '.') as $name) {
+    if ($data = $content_storage->read($name)) {
+      if ($target_bundle && $bundle_key && isset($data[$bundle_key][0]['target_id']) && $data[$bundle_key][0]['target_id'] !== $target_bundle) {
+        continue;
+      }
+      if (isset($data[$field->getName()])) {
+        unset($data[$field->getName()]);
+        $content_storage->write($name, $data);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_pathauto_alias_alter().
+ *
+ * Disables path auto during the import process, to avoid aliases being
+ * created on entity save before exported path_alias entities are imported.
+ *
+ * This relies on a specific return statement in the pathauto codebase, see
+ * \Drupal\pathauto\PathautoGenerator::createEntityAlias after the alter call
+ * for details.
+ */
+function tome_sync_pathauto_alias_alter(&$alias, array &$context) {
+  if (\Drupal::service('tome_sync.importer')->isImporting()) {
+    $alias = '';
+  }
+}
+
+/**
+ * Determines if a given entity should be exported.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   An entity to export.
+ *
+ * @return bool
+ *   Whether or not the given entity should be exported.
+ *
+ * @internal
+ */
+function _tome_sync_should_export(EntityInterface $entity) {
+  return $entity instanceof ContentEntityInterface
+    && $entity->isDefaultRevision()
+    && !\Drupal::isConfigSyncing()
+    && !\Drupal::service('tome_sync.importer')->isImporting();
+}

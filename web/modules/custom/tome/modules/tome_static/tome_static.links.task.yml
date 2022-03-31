@@ -1,0 +1,14 @@
+tome_static.generate:
+  route_name: tome_static.generate
+  base_route: tome_static.generate
+  title: 'Generate'
+
+tome_static.download_page:
+  route_name: tome_static.download_page
+  base_route: tome_static.generate
+  title: 'Download'
+
+tome_static.preview_form:
+  route_name: tome_static.preview_form
+  base_route: tome_static.generate
+  title: 'Preview'

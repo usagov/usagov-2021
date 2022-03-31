@@ -1,0 +1,7 @@
+tome_static_cron.settings:
+  type: config_object
+  label: 'Tome Static Cron settings'
+  mapping:
+    base_url:
+      type: string
+      label: 'Base URL'
