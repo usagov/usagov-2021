@@ -5,6 +5,7 @@ dependencies:
   module:
     - media
     - paragraphs_entity_embed
+    - samlauth
     - system
 _core:
   default_config_hash: j5zLMOdJBqC0bMvSdth5UebkprJB8g_2FXHqhfpJzow
@@ -16,3 +17,4 @@ permissions:
   - 'access content'
   - 'view media'
   - 'view paragraphs entity embed'
+  - 'view sp metadata'

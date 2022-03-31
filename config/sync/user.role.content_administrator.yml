@@ -1,0 +1,118 @@
+uuid: d5ea4e32-f48e-443b-970c-12f0ec587b3c
+langcode: en
+status: true
+dependencies:
+  config:
+    - media.type.audio
+    - media.type.file
+    - media.type.image
+    - media.type.remote_video
+    - media.type.video
+    - node.type.basic_page
+    - node.type.wizard
+    - node.type.wizard_step
+    - workflows.workflow.basic_workflow
+  module:
+    - content_moderation
+    - content_translation
+    - media
+    - menu_link_content
+    - node
+    - paragraphs
+    - paragraphs_entity_embed
+    - path
+    - system
+    - toolbar
+    - usa_workflow
+id: content_administrator
+label: 'Content Administrator'
+weight: 5
+is_admin: null
+permissions:
+  - 'access administration pages'
+  - 'access content overview'
+  - 'access site in maintenance mode'
+  - 'access toolbar'
+  - 'add paragraphs entity embed'
+  - 'administer menu'
+  - 'create audio media'
+  - 'create basic_page content'
+  - 'create content translations'
+  - 'create file media'
+  - 'create image media'
+  - 'create media'
+  - 'create remote_video media'
+  - 'create url aliases'
+  - 'create video media'
+  - 'create wizard content'
+  - 'create wizard_step content'
+  - 'delete all revisions'
+  - 'delete any audio media'
+  - 'delete any basic_page content'
+  - 'delete any file media'
+  - 'delete any image media'
+  - 'delete any media'
+  - 'delete any remote_video media'
+  - 'delete any video media'
+  - 'delete any wizard content'
+  - 'delete any wizard_step content'
+  - 'delete basic_page revisions'
+  - 'delete content translations'
+  - 'delete media'
+  - 'delete own audio media'
+  - 'delete own basic_page content'
+  - 'delete own file media'
+  - 'delete own image media'
+  - 'delete own remote_video media'
+  - 'delete own video media'
+  - 'delete own wizard content'
+  - 'delete own wizard_step content'
+  - 'delete paragraphs entity embed'
+  - 'delete wizard revisions'
+  - 'delete wizard_step revisions'
+  - 'edit any audio media'
+  - 'edit any basic_page content'
+  - 'edit any file media'
+  - 'edit any image media'
+  - 'edit any remote_video media'
+  - 'edit any video media'
+  - 'edit any wizard content'
+  - 'edit any wizard_step content'
+  - 'edit own audio media'
+  - 'edit own basic_page content'
+  - 'edit own file media'
+  - 'edit own image media'
+  - 'edit own remote_video media'
+  - 'edit own video media'
+  - 'edit own wizard content'
+  - 'edit own wizard_step content'
+  - 'edit paragraphs entity embed'
+  - 'revert all revisions'
+  - 'revert basic_page revisions'
+  - 'revert wizard revisions'
+  - 'revert wizard_step revisions'
+  - 'translate any entity'
+  - 'translate basic_page node'
+  - 'translate editable entities'
+  - 'translate menu_link_content'
+  - 'update any media'
+  - 'update content translations'
+  - 'update media'
+  - 'usa approve own content'
+  - 'use basic_workflow transition approve'
+  - 'use basic_workflow transition archive'
+  - 'use basic_workflow transition create_new_draft'
+  - 'use basic_workflow transition move_to_review'
+  - 'use basic_workflow transition publish'
+  - 'use basic_workflow transition restore'
+  - 'view all media revisions'
+  - 'view all revisions'
+  - 'view any unpublished content'
+  - 'view basic_page revisions'
+  - 'view latest version'
+  - 'view own unpublished content'
+  - 'view own unpublished media'
+  - 'view the administration theme'
+  - 'view unpublished paragraphs'
+  - 'view wizard revisions'
+  - 'view wizard_step revisions'

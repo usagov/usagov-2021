@@ -32,6 +32,7 @@ docker build --force-rm \
 
 if [ -n "$CONTAINERTAG2" ]
 then
+    echo "docker tag ednark/usagov-2021:cms-$CONTAINERTAG ednark/usagov-2021:cms-$CONTAINERTAG2"
     docker tag ednark/usagov-2021:cms-$CONTAINERTAG ednark/usagov-2021:cms-$CONTAINERTAG2
 fi
 

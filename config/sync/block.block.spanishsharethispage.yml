@@ -43,4 +43,4 @@ visibility:
   request_path:
     id: request_path
     negate: true
-    pages: '<front>'
+    pages: "<front>\r\n/acerca-de-estados-unidos-y-directorios-del-gobierno\r\n/dinero-y-credito\r\n/leyes-y-asuntos-legales\r\n/estafas-y-fraudes"

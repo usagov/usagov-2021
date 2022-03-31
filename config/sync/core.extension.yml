@@ -1,6 +1,7 @@
 _core:
   default_config_hash: R4IF-ClDHXxblLcG0L7MgsLvfBIMAvi_skumNFQwkDc
 module:
+  new_relic_rpm: -20
   action: 0
   admin_toolbar: 0
   admin_toolbar_tools: 0
@@ -56,6 +57,7 @@ module:
   path_alias: 0
   responsive_image: 0
   s3fs: 0
+  samlauth: 0
   serialization: 0
   settings_tray: 0
   system: 0
@@ -69,6 +71,8 @@ module:
   twig_tweak: 0
   usa_contact_center_api: 0
   usa_translation: 0
+  usa_workflow: 0
+  usagov_login: 0
   user: 0
   uswds_ckeditor_integration: 0
   uswds_paragraph_components: 0
@@ -78,6 +82,7 @@ module:
   workflows: 0
   pathauto: 1
   content_translation: 10
+  externalauth: 10
   views: 10
   paragraphs: 11
   minimal: 1000

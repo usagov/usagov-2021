@@ -214,6 +214,20 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     # php setup
     && ln -s /usr/bin/php8 /usr/bin/php \
     && ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm \
+    # # new relic setup
+    # && export NR_VERSION=$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux\-musl\).tar.gz<.*/\1/p') \
+    # && cd /tmp \
+    # && curl -L "https://download.newrelic.com/php_agent/release/${NR_VERSION}.tar.gz" | tar -C /tmp -zx \
+    # && NR_INSTALL_USE_CP_NOT_LN=1 NR_INSTALL_USE_CP_NOT_LN=1 /tmp/newrelic-php5-*/newrelic-install install \
+    # && rm -rf /tmp/newrelic-php5-* /tmp/nrinstall* \
+    # && sed -i \
+    #   -e "s/;\?newrelic.appname =.*/newrelic.appname = USA.gov/" \
+    #   -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = usa-cms-default/" \
+    #   -e 's/;\?newrelic.daemon.app_connect_timeout =.*/newrelic.daemon.app_connect_timeout=15s/' \
+    #   -e 's/;\?newrelic.daemon.start_timeout =.*/newrelic.daemon.start_timeout=5s/' \
+    #   -e 's/;\?newrelic.logfile =.*/newrelic.logfile = \/dev\/stdout/' \
+    #   -e 's/;\?newrelic.daemon.logfile =.*/newrelic.daemon.logfile = \/dev\/stdout/' \
+    #   /etc/php8/conf.d/newrelic.ini \
     # cron setup
     && mkdir -p /etc/periodic/30min \
     && echo "*/30    *       *       *       *       run-parts /etc/periodic/30min" >> /etc/crontabs/root \
