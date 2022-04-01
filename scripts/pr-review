@@ -20,23 +20,30 @@ if [ -n "$BRANCH" ]; then
   echo "Branch '$BRANCH' found for '$TICKET'."
 fi
 
+# figure out where our current repo is
 OG_ROOT=$(git rev-parse --show-toplevel)
 
+# make sure we have docker available
 DOCKER_IS_RUNNING=$(docker ps 2>&1 > /dev/null)
 if [ "$?" != "0" ] ; then
   echo "Docker is not running. Start Docker and try again."
   exit 1
 fi
 
+# use a sepcial directory for our pr checking
 PR_DIR=pr-$BRANCH
 
+# free up docker ports
 echo "cd $OG_ROOT"
 echo "docker compose stop"
+
+# setup seperate directory for our pr
 echo "cd .."
 echo "git clone git@github.com:usagov-2021 $PR_DIR"
 echo "cd $PR_DIR"
 echo "git checkout $BRANCH"
 
+# possibly copy over db and env files from our current project
 if [ -f ${OG_ROOT}/usagov.sql ]; then
   echo "cp ${OG_ROOT}/usagov.sql ./usagov.sql"
 fi
@@ -44,11 +51,19 @@ if [ -n ${OG_ROOT}/env.local ]; then
   echo "cp ${OG_ROOT}/env.local ./env.local"
 fi
 
+# setup a new set of containers from scratch
 echo "./bin/init"
+
+# possibly load in a starter db
 if [ -f ${OG_ROOT}/usagov.sql ]; then
   echo "./bin/db-update"
 fi
+
+# install this branch's stuff onto of db
 echo "./bin/drupal-update"
+
+# start the containers
 echo "docker compose up -d"
 
+# wait for the containers to come up
 echo "Go forth and test"
