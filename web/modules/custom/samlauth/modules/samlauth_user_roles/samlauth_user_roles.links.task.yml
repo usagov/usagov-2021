@@ -1,0 +1,5 @@
+samlauth_user_roles.list:
+  title: 'User roles'
+  route_name: samlauth_user_roles.configure_form
+  base_route: samlauth.samlauth_configure_form
+  weight: 2
