@@ -1,0 +1,54 @@
+#!/bin/bash
+
+TICKET=$1
+
+if [ -z "$TICKET" ] ; then
+  echo "Usage: $0 <ticket name or number>"
+  exit 1
+fi
+
+# fuzzy search for ticket by number
+BRANCH=$(git ls-remote --heads origin | grep --ignore-case -e 'refs/heads/\(usagov-\)\?'$TICKET'\([^0-9]\|$\)' | sed 's|.*refs/heads/||')
+if [ -n "$BRANCH" ]; then
+  BRANCH_COUNT=$(echo "$BRANCH" | wc -l | tr -d ' ')
+  if [ "$BRANCH_COUNT" != "1" ]; then
+    echo "Multiple ($BRANCH_COUNT) branches found for $TICKET:"
+    echo "$BRANCH"
+    echo "... exiting"
+    exit 1
+  fi
+  echo "Branch '$BRANCH' found for '$TICKET'."
+fi
+
+OG_ROOT=$(git rev-parse --show-toplevel)
+
+DOCKER_IS_RUNNING=$(docker ps 2>&1 > /dev/null)
+if [ "$?" != "0" ] ; then
+  echo "Docker is not running. Start Docker and try again."
+  exit 1
+fi
+
+PR_DIR=pr-$BRANCH
+
+echo "cd $OG_ROOT"
+echo "docker compose stop"
+echo "cd .."
+echo "git clone git@github.com:usagov-2021 $PR_DIR"
+echo "cd $PR_DIR"
+echo "git checkout $BRANCH"
+
+if [ -f ${OG_ROOT}/usagov.sql ]; then
+  echo "cp ${OG_ROOT}/usagov.sql ./usagov.sql"
+fi
+if [ -n ${OG_ROOT}/env.local ]; then
+  echo "cp ${OG_ROOT}/env.local ./env.local"
+fi
+
+echo "./bin/init"
+if [ -f ${OG_ROOT}/usagov.sql ]; then
+  echo "./bin/db-update"
+fi
+echo "./bin/drupal-update"
+echo "docker compose up -d"
+
+echo "Go forth and test"
