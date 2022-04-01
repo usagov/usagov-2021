@@ -57,5 +57,6 @@
   <exclude-pattern>*/node_modules/*</exclude-pattern>
   <exclude-pattern>.github/</exclude-pattern>
   <exclude-pattern>web/modules/custom/tome</exclude-pattern>
+  <exclude-pattern>web/modules/custom/samlauth</exclude-pattern>
 
 </ruleset>
