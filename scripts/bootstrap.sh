@@ -44,6 +44,11 @@ export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n
 export EN_404_PAGE=${EN_404_PAGE:-/404/index.html};
 export ES_404_PAGE=${ES_404_PAGE:-/es/404/index.html};
 
+export NEW_RELIC_DISPLAY_NAME=$(echo $SECRETS | jq -r '.NEW_RELIC_DISPLAY_NAME')
+export NEW_RELIC_APP_NAME=$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')
+export NEW_RELIC_API_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')
+export NEW_RELIC_LICENSE_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')
+
 
 SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.SPKEY')
 SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.SPCRT')
