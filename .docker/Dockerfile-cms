@@ -227,6 +227,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       -e 's/;\?newrelic.daemon.start_timeout =.*/newrelic.daemon.start_timeout=5s/' \
       -e 's/;\?newrelic.logfile =.*/newrelic.logfile = \/dev\/stdout/' \
       -e 's/;\?newrelic.daemon.logfile =.*/newrelic.daemon.logfile = \/dev\/stdout/' \
+      -e 's/;\?newrelic.daemon.loglevel =.*/newrelic.daemon.loglevel = "warning"/' \
       /etc/php8/conf.d/newrelic.ini \
     # cron setup
     && mkdir -p /etc/periodic/30min \
