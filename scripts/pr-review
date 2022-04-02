@@ -95,6 +95,11 @@ echo "git clone git@github.com:usagov/usagov-2021 $PR_DIR"
 git clone git@github.com:usagov/usagov-2021 $PR_DIR
 echo "cd $PR_DIR"
 cd $PR_DIR
+# make this read-only by disabling ability to pushing changes
+# to get the repo working we have to make several changes to the files
+# and we would never want to push those changes to the repo
+#
+git remote set-url --push upstream DISABLE
 echo "git checkout $BRANCH"
 git checkout $BRANCH
 
@@ -109,54 +114,54 @@ if [ -f ${OG_ROOT}/env.local ]; then
 fi
 
 # give all container definitions a prefix so we don't collide with main developement containers
-echo "sed -i -e \"s/container_name: \(cms\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i -e "s/container_name: \(cms\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+echo "sed -i \"s/container_name: \(cms\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i "s/container_name: \(cms\)/container_name: $BRANCH-\1/" ./docker-compose.yml
 
-echo "sed -i -e \"s/container_name: \(database\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i -e "s/container_name: \(database\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+echo "sed -i \"s/container_name: \(database\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i "s/container_name: \(database\)/container_name: $BRANCH-\1/" ./docker-compose.yml
 
-echo "sed -i -e \"s/container_name: \(minio\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i -e "s/container_name: \(minio\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+echo "sed -i \"s/container_name: \(minio\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i "s/container_name: \(minio\)/container_name: $BRANCH-\1/" ./docker-compose.yml
 
-echo "sed -i -e \"s/container_name: \(composer\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i -e "s/container_name: \(composer\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+echo "sed -i \"s/container_name: \(composer\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i "s/container_name: \(composer\)/container_name: $BRANCH-\1/" ./docker-compose.yml
 
-echo "sed -i -e \"s/container_name: \(node\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i -e "s/container_name: \(node\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+echo "sed -i \"s/container_name: \(node\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i "s/container_name: \(node\)/container_name: $BRANCH-\1/" ./docker-compose.yml
 
-echo "sed -i -e \"s/container_name: \(waf\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i -e "s/container_name: \(waf\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+echo "sed -i \"s/container_name: \(waf\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i "s/container_name: \(waf\)/container_name: $BRANCH-\1/" ./docker-compose.yml
 
 
-# echo "sed -i -e \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/bootstrap"
-# sed -i -e "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/bootstrap
+# echo "sed -i \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/bootstrap"
+# sed -i "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/bootstrap
 
-# echo "sed -i -e \"s/  composer \\\/  $BRANCH-composer \\\/\" ./bin/composer"
-# sed -i -e "s/  composer \\\/  $BRANCH-composer \\\/" ./bin/composer
+# echo "sed -i \"s/  composer \\\/  $BRANCH-composer \\\/\" ./bin/composer"
+# sed -i "s/  composer \\\/  $BRANCH-composer \\\/" ./bin/composer
 
-# echo "sed -i -e \"s/  database \\\/  $BRANCH-database \\\/\" ./bin/db-update"
-# sed -i -e "s/  database \\\/  $BRANCH-database \\\/" ./bin/db-update
+# echo "sed -i \"s/  database \\\/  $BRANCH-database \\\/\" ./bin/db-update"
+# sed -i "s/  database \\\/  $BRANCH-database \\\/" ./bin/db-update
 
-# echo "sed -i -e \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/drush"
-# sed -i -e "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/drush
+# echo "sed -i \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/drush"
+# sed -i "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/drush
 
-# echo "sed -i -e \"s/  composer \\\/  $BRANCH-composer \\\/\" ./bin/init"
-# sed -i -e "s/  ccomposerms \\\/  $BRANCH-composer \\\/" ./bin/init
+# echo "sed -i \"s/  composer \\\/  $BRANCH-composer \\\/\" ./bin/init"
+# sed -i "s/  ccomposerms \\\/  $BRANCH-composer \\\/" ./bin/init
 
-# echo "sed -i -e \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/mysql"
-# sed -i -e "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/mysql
+# echo "sed -i \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/mysql"
+# sed -i "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/mysql
 
-# echo "sed -i -e \"s/  node \\\/  $BRANCH-node \\\/\" ./bin/node"
-# sed -i -e "s/  node \\\/  $BRANCH-node \\\/" ./bin/node
+# echo "sed -i \"s/  node \\\/  $BRANCH-node \\\/\" ./bin/node"
+# sed -i "s/  node \\\/  $BRANCH-node \\\/" ./bin/node
 
-# echo "sed -i -e \"s/  node \\\/  $BRANCH-node \\\/\" ./bin/npm"
-# sed -i -e "s/  node \\\/  $BRANCH-node \\\/" ./bin/npm
+# echo "sed -i \"s/  node \\\/  $BRANCH-node \\\/\" ./bin/npm"
+# sed -i "s/  node \\\/  $BRANCH-node \\\/" ./bin/npm
 
-# echo "sed -i -e \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/ssh"
-# sed -i -e "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/ssh
+# echo "sed -i \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/ssh"
+# sed -i "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/ssh
 
-# echo "sed -i -e \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/tome"
-# sed -i -e "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/tome
+# echo "sed -i \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/tome"
+# sed -i "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/tome
 
 
 # setup a new set of containers from scratch
@@ -179,4 +184,8 @@ echo "docker compose up -d"
 docker compose up -d
 
 # wait for the containers to come up
+echo "Need to make changes?"
+echo "git remote set-url --push upstream git@github.com:usagov/usagov-2021.git"
+echo
 echo "Go forth and test"
+echo "cd $PR_DIR"
