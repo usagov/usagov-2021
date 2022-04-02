@@ -58,8 +58,8 @@ USER www-data
 
 RUN composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint \
     && COMPOSER_DIR=$(composer -n config --global home) && echo $COMPOSER_DIR \
-    && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard \
-    && COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader \
+    && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader \
     && chown www-data:www-data /var/www/composer.json /var/www/composer.lock
 
 ###############################################################
@@ -73,14 +73,14 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
     && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
-    && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group \
-    && apk upgrade --update --no-cache \
+    && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group
+RUN apk upgrade --update --no-cache \
     && apk add --no-cache --virtual .persistent-deps \
       ca-certificates \
       curl \
       git \
-      openssh \
-    && npm install --global \
+      openssh
+RUN npm install --global \
       git \
       gulp \
       gulp-cli \
