@@ -68,14 +68,21 @@ for FILE in $FILES; do
 done
 
 # update new relic with environment specific settings
-# sed -i \
-#     -e "s/;\?newrelic.license =.*/newrelic.license = ${NEW_RELIC_LICENSE_KEY}/" \
-#     -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}/" \
-#     /etc/php8/conf.d/newrelic.ini
-# # restart php so new relic changes take effect
-# s6-svc -r /var/run/s6/services/php
+if [ -n "$NEW_RELIC_LICENSE_KEY" ]; then
+  sed -i \
+      -e "s/;\?newrelic.license =.*/newrelic.license = ${NEW_RELIC_LICENSE_KEY}/" \
+      -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}/" \
+      /etc/php8/conf.d/newrelic.ini
+else
+  # turn off new relic
+  sed -i \
+      -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
+      /etc/php8/conf.d/newrelic.ini
+fi
+# restart php so new relic changes take effect
+s6-svc -r /var/run/s6/services/php
 
-if [ ! -z "${FIX_FILE_PERMS:-}" ]; then
+if [ -n "${FIX_FILE_PERMS:-}" ]; then
   echo  "Fixing File Permissions ... "
   chown nginx:nginx /var/www
   find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
