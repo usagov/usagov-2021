@@ -1,0 +1,7 @@
+# Has no effect by itself, but is necessary for facilitating other modules which
+# can now define tasks on the SAML Authentication configuration page.
+samlauth.configuration:
+  title: 'Configuration'
+  route_name: samlauth.samlauth_configure_form
+  base_route: samlauth.samlauth_configure_form
+  weight: 0
