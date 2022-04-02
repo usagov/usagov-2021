@@ -72,6 +72,7 @@ if [ -n "$NEW_RELIC_LICENSE_KEY" ]; then
   sed -i \
       -e "s/;\?newrelic.license =.*/newrelic.license = ${NEW_RELIC_LICENSE_KEY}/" \
       -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}/" \
+      -e "s/;\?newrelic.appname =.*/newrelic.appname = \"${NEW_RELIC_APP_NAME:-Local;USA.gov}\"/" \
       /etc/php8/conf.d/newrelic.ini
 else
   # turn off new relic
