@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @file
+ * Helper module for SAML Authentication tests.
+ *
+ * We haven't actually implemented any real tests yet. For now, this module
+ * enables us to test (by manually enabling this module and setting state)
+ * whether outside modules can break login functionality by rendering an URL
+ * as a string in a way that causes the 'leaked metadata' exception.
+ *
+ * See e.g. https://www.lullabot.com/articles/early-rendering-a-lesson-in-debugging-drupal-8,
+ * https://www.drupal.org/project/samlauth/issues/3050122
+ *
+ * Once we start implementing real automated tests, this module might move to
+ * another location.
+ */
+
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_user_login().
+ */
+function samlauth_test_user_login($account) {
+  if (\Drupal::state()->get('samlauth_test_urltostring_mask', 0) & 1) {
+    Url::fromRoute('<front>')->toString();
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function samlauth_test_user_insert($account) {
+  if (\Drupal::state()->get('samlauth_test_urltostring_mask', 0) & 2) {
+    Url::fromRoute('<front>')->toString();
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function samlauth_test_user_update($account) {
+  if (\Drupal::state()->get('samlauth_test_urltostring_mask', 0) & 4) {
+    Url::fromRoute('<front>')->toString();
+  }
+}

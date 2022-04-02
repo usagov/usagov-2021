@@ -1,0 +1,29 @@
+samlauth_user_roles.value_mapping:
+  type: mapping
+  mapping:
+    attribute_value:
+      type: string
+    role_machine_name:
+      type: string
+
+samlauth_user_roles.mapping:
+  type: config_object
+  mapping:
+    only_first_login:
+      type: boolean
+    unassign_roles:
+      type: sequence
+      sequence:
+        type: string
+    default_roles:
+      type: sequence
+      sequence:
+        type: string
+    saml_attribute:
+      type: string
+    saml_attribute_separator:
+      type: string
+    value_map:
+      type: sequence
+      sequence:
+        type: samlauth_user_roles.value_mapping
