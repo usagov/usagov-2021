@@ -3,6 +3,13 @@
 $settings['new_relic_rpm.api_key'] = getenv('NEW_RELIC_API_KEY');
 $config['new_relic_rpm.settings']['api_key'] = getenv('NEW_RELIC_API_KEY');
 
+$settings['tome_static_path_exclude'] = [
+  '/saml', '/saml/acs', '/saml/login', '/saml/logout', '/saml/metadata', '/saml/sls',
+  '/jsonapi', '/jsonapi/deleted-nodes',
+  '/es/saml', '/es/saml/acs', '/es/saml/login', '/es/saml/logout', '/es/saml/metadata', '/es/saml/sls',
+  '/es/jsonapi', '/es/jsonapi/deleted-nodes'
+];
+
 /**
  * Collect external service information from environment.
  * Cloud Foundry places all service credentials in VCAP_SERVICES
