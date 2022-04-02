@@ -8,17 +8,66 @@ if [ -z "$TICKET" ] ; then
 fi
 
 # fuzzy search for ticket by number
-BRANCH=$(git ls-remote --heads origin | grep --ignore-case -e 'refs/heads/\(usagov-\)\?'$TICKET'\([^0-9]\|$\)' | sed 's|.*refs/heads/||')
-if [ -n "$BRANCH" ]; then
-  BRANCH_COUNT=$(echo "$BRANCH" | wc -l | tr -d ' ')
-  if [ "$BRANCH_COUNT" != "1" ]; then
-    echo "Multiple ($BRANCH_COUNT) branches found for $TICKET:"
-    echo "$BRANCH"
-    echo "... exiting"
+BRANCH=
+BRANCH_LIST=$(git ls-remote --heads origin | sed 's|.*refs/heads/||')
+MATCHES_0=$(echo "$BRANCH_LIST" | grep --ignore-case -e '\b\(usagov-\)'$TICKET'[^0-9]')
+MATCHES_1=$(echo "$BRANCH_LIST" | grep --ignore-case -e '\b\(usagov-\)'$TICKET'$')
+MATCHES_2=$(echo "$BRANCH_LIST" | grep --ignore-case -e '\b'$TICKET'$')
+MATCHES_3=$(echo "$BRANCH_LIST" | grep --ignore-case -e '\b'$TICKET'[^0-9]')
+if [ -z "$BRANCH" ] && [ -n "$MATCHES_0" ]; then
+  COUNT=$(echo "$MATCHES_0" | wc -l)
+  if [ "$COUNT" -gt 1 ] ; then
+    echo "Multiple ambiguous matches found for '$TICKET'"
+    echo "$MATCHES_0"
     exit 1
   fi
-  echo "Branch '$BRANCH' found for '$TICKET'."
+  MATCH=$(echo "$MATCHES_0" | head -n1)
+  if [ -n "$MATCH" ]; then
+    BRANCH=$MATCH
+  fi
 fi
+if [ -z "$BRANCH" ] && [ -n "$MATCHES_1" ]; then
+  COUNT=$(echo "$MATCHES_1" | wc -l)
+  if [ "$COUNT" -gt 1 ] ; then
+    echo "Multiple ambiguous matches found for '$TICKET'"
+    echo "$MATCHES_1"
+    exit 1
+  fi
+  MATCH=$(echo "$MATCHES_1" | head -n1)
+  if [ -n "$MATCH" ]; then
+    BRANCH=$MATCH
+  fi
+fi
+if [ -z "$BRANCH" ] && [ -n "$MATCHES_2" ]; then
+  COUNT=$(echo "$MATCHES_2" | wc -l)
+  if [ "$COUNT" -gt 1 ] ; then
+    echo "Multiple ambiguous matches found for '$TICKET'"
+    echo "$MATCHES_2"
+    exit 1
+  fi
+  MATCH=$(echo "$MATCHES_2" | head -n1)
+  if [ -n "$MATCH" ]; then
+    BRANCH=$MATCH
+  fi
+fi
+if [ -z "$BRANCH" ] && [ -n "$MATCHES_3" ]; then
+  COUNT=$(echo "$MATCHES_3" | wc -l)
+  if [ "$COUNT" -gt 1 ] ; then
+    echo "Multiple ambiguous matches found for '$TICKET'"
+    echo "$MATCHES_3"
+    exit 1
+  fi
+  MATCH=$(echo "$MATCHES_3" | head -n1)
+  echo "~$MATCH"
+  if [ -n "$MATCH" ]; then
+    BRANCH=$MATCH
+  fi
+fi
+if [ -z "$BRANCH" ]; then
+  echo "No branch found for '$TICKET'."
+  exit 1
+fi
+echo "Branch '$BRANCH' found for '$TICKET'."
 
 # figure out where our current repo is
 OG_ROOT=$(git rev-parse --show-toplevel)
@@ -35,36 +84,48 @@ PR_DIR=pr-$BRANCH
 
 # free up docker ports
 echo "cd $OG_ROOT"
+cd $OG_ROOT
 echo "docker compose stop"
+docker compose stop
 
 # setup seperate directory for our pr
 echo "cd .."
-echo "git clone git@github.com:usagov-2021 $PR_DIR"
+cd ..
+echo "git clone git@github.com:usagov/usagov-2021 $PR_DIR"
+git clone git@github.com:usagov/usagov-2021 $PR_DIR
 echo "cd $PR_DIR"
+cd $PR_DIR
 echo "git checkout $BRANCH"
+git checkout $BRANCH
 
 # possibly copy over db and env files from our current project
 if [ -f ${OG_ROOT}/usagov.sql ]; then
   echo "cp ${OG_ROOT}/usagov.sql ./usagov.sql"
+  cp ${OG_ROOT}/usagov.sql ./usagov.sql
 fi
-if [ -n ${OG_ROOT}/env.local ]; then
+if [ -f ${OG_ROOT}/env.local ]; then
   echo "cp ${OG_ROOT}/env.local ./env.local"
+  cp ${OG_ROOT}/env.local ./env.local
 fi
 
 # setup a new set of containers from scratch
 echo "./bin/init"
+./bin/init
 
 # can do this at the docker volume level
 # possibly load in a starter db
 if [ -f ${OG_ROOT}/usagov.sql ]; then
   echo "./bin/db-update"
+  ./bin/db-update
 fi
 
 # install this branch's stuff onto of db
 echo "./bin/drupal-update"
+./bin/drupal-update
 
 # start the containers
 echo "docker compose up -d"
+docker compose up -d
 
 # wait for the containers to come up
 echo "Go forth and test"
