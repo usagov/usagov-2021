@@ -40,6 +40,7 @@ echo "Fix permissions inside Containers - this could take a long time"
 docker compose run --rm --no-deps --workdir /var/www composer /var/www/bin/fix-perms-in-container
 
 echo "Install Drupal modules"
+bin/drush cr
 bin/composer install --no-interaction --optimize-autoloader
 
 echo "Build theme"
