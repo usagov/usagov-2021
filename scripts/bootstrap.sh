@@ -85,8 +85,10 @@ else
       -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
       /etc/php8/conf.d/newrelic.ini
 fi
-# restart php so new relic changes take effect
-s6-svc -r /var/run/s6/services/php
+# if started, php needs a restart so new relic ini changes take effect
+if [ -d /var/run/s6/services/php ]; then
+  s6-svc -r /var/run/s6/services/php
+fi
 
 if [ -n "${FIX_FILE_PERMS:-}" ]; then
   echo  "Fixing File Permissions ... "
