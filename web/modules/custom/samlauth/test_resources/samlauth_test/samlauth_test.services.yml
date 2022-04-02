@@ -1,0 +1,5 @@
+services:
+  samlauth_test.event_subscriber.test_subscriber:
+    class: Drupal\samlauth_test\EventSubscriber\TestSamlauthEventSubscriber
+    tags:
+      - { name: event_subscriber }

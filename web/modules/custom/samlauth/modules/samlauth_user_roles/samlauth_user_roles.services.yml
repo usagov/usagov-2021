@@ -1,0 +1,6 @@
+services:
+  samlauth_user_roles.event_subscriber:
+    class: Drupal\samlauth_user_roles\EventSubscriber\UserRolesEventSubscriber
+    arguments: ['@config.factory', '@logger.channel.samlauth', '@entity_type.manager']
+    tags:
+      - {name: event_subscriber}
