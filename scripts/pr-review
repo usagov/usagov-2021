@@ -108,6 +108,56 @@ if [ -f ${OG_ROOT}/env.local ]; then
   cp ${OG_ROOT}/env.local ./env.local
 fi
 
+# give all container definitions a prefix so we don't collide with main developement containers
+echo "sed -i -e \"s/container_name: \(cms\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i -e "s/container_name: \(cms\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+
+echo "sed -i -e \"s/container_name: \(database\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i -e "s/container_name: \(database\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+
+echo "sed -i -e \"s/container_name: \(minio\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i -e "s/container_name: \(minio\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+
+echo "sed -i -e \"s/container_name: \(composer\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i -e "s/container_name: \(composer\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+
+echo "sed -i -e \"s/container_name: \(node\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i -e "s/container_name: \(node\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+
+echo "sed -i -e \"s/container_name: \(waf\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
+sed -i -e "s/container_name: \(waf\)/container_name: $BRANCH-\1/" ./docker-compose.yml
+
+
+echo "sed -i -e \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/bootstrap"
+sed -i -e "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/bootstrap
+
+echo "sed -i -e \"s/  composer \\\/  $BRANCH-composer \\\/\" ./bin/composer"
+sed -i -e "s/  composer \\\/  $BRANCH-composer \\\/" ./bin/composer
+
+echo "sed -i -e \"s/  database \\\/  $BRANCH-database \\\/\" ./bin/db-update"
+sed -i -e "s/  database \\\/  $BRANCH-database \\\/" ./bin/db-update
+
+echo "sed -i -e \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/drush"
+sed -i -e "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/drush
+
+echo "sed -i -e \"s/  composer \\\/  $BRANCH-composer \\\/\" ./bin/init"
+sed -i -e "s/  ccomposerms \\\/  $BRANCH-composer \\\/" ./bin/init
+
+echo "sed -i -e \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/mysql"
+sed -i -e "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/mysql
+
+echo "sed -i -e \"s/  node \\\/  $BRANCH-node \\\/\" ./bin/node"
+sed -i -e "s/  node \\\/  $BRANCH-node \\\/" ./bin/node
+
+echo "sed -i -e \"s/  node \\\/  $BRANCH-node \\\/\" ./bin/npm"
+sed -i -e "s/  node \\\/  $BRANCH-node \\\/" ./bin/npm
+
+echo "sed -i -e \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/ssh"
+sed -i -e "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/ssh
+
+echo "sed -i -e \"s/  cms \\\/  $BRANCH-cms \\\/\" ./bin/tome"
+sed -i -e "s/  cms \\\/  $BRANCH-cms \\\/" ./bin/tome
+
 # setup a new set of containers from scratch
 echo "./bin/init"
 ./bin/init
