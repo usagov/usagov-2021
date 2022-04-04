@@ -1,0 +1,12 @@
+type: module
+name: SAML Authentication Test
+description: Testing module for SAML Authentication functionality.
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: Testing
+hidden: TRUE
+
+# Information added by Drupal.org packaging script on 2022-02-27
+version: '8.x-3.5'
+project: 'samlauth'
+datestamp: 1646002613
