@@ -43,4 +43,4 @@ visibility:
   request_path:
     id: request_path
     negate: true
-    pages: '<front>'
+    pages: "<front>\r\n/about-the-us-and-its-government\r\n/money-and-credit\r\n/laws-and-legal-issues\r\n/scams-and-frauds"
