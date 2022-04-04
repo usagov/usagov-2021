@@ -1,0 +1,7 @@
+samlauth_user_roles.configure_form:
+  path: '/admin/config/people/saml/user-roles'
+  defaults:
+    _title: 'SAML user roles'
+    _form: '\Drupal\samlauth_user_roles\Form\SamlauthRoleMappingForm'
+  requirements:
+    _permission: 'configure saml'
