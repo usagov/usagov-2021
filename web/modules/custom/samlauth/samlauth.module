@@ -1,0 +1,234 @@
+<?php
+
+/**
+ * @file
+ * Allows users to authenticate against an external SAML identity provider.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+use Drupal\Component\Utility\UrlHelper;
+use Drupal\samlauth\Controller\SamlController;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_help().
+ */
+function samlauth_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the samlauth module.
+    case 'help.page.samlauth':
+      $module_path = \Drupal::moduleHandler()->getModule('samlauth')->getPath();
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Allows users to authenticate against an external SAML identity provider.') . '</p>';
+      $output .= '<p>' . t('Most information on how to configure this module is in the <a href=":url">README.md file</a>.', [':url' => Url::fromUri("base:$module_path/README.md")->toString()]) . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for the user edit form.
+ */
+function samlauth_form_user_form_alter(&$form, FormStateInterface $form_state) {
+  // Only affect SAML-linked users without a role that is allowed to log in
+  // locally.
+  $current_uid = \Drupal::currentUser()->id();
+  /** @var \Drupal\user\Entity\User $account */
+  $account = $form_state->getBuildInfo()['callback_object']->getEntity();
+  if ($current_uid && $account->id() == $current_uid && !array_intersect(
+      $account->getRoles(),
+      \Drupal::config(SamlController::CONFIG_OBJECT_NAME)->get('drupal_login_roles') ?? []
+    )) {
+    /** @var \Drupal\externalauth\AuthmapInterface $authmap */
+    $authmap = \Drupal::service('externalauth.authmap');
+    if ($authmap->get($account->id(), 'samlauth')) {
+      // Hide the change password field, because the password has no function
+      // for users who cannot log in directly.
+      $form['account']['pass']['#access'] = FALSE;
+      // Also lock the e-mail field. We could leave it as-is because the user
+      // is very likely to not know their current password and therefore unable
+      // to change the e-mail anyway. Locking the field and removing the
+      // "current password" field just makes things more understandable for the
+      // average user. (This is the '>80% use case'; it is actually possible
+      // for a user whose account was created locally and linked to a SAML
+      // login afterwards, to know their password. If not being able to change
+      // their e-mail is a concern, then this needs to be solved by role /
+      // configuration tweaking, by custom code or by an issue in the samlauth
+      // module queue that makes a clear case for solving this in a general
+      // manner.)
+      $form['account']['mail']['#disabled'] = TRUE;
+      $form['account']['current_pass']['#access'] = FALSE;
+
+      $form['account']['saml_notice'] = [
+        '#markup' => t('<strong>NOTE:</strong> E-mail address and password are controlled via SAML.'),
+        '#weight' => -1,
+      ];
+      $url = \Drupal::config(SamlController::CONFIG_OBJECT_NAME)
+        ->get('idp_change_password_service');
+      if ($url && UrlHelper::isValid($url, TRUE)) {
+        $form['account']['saml_notice']['#markup'] .= ' '
+          . t('Please visit <a href="@link">this link</a> to change.', ['@link' => $url]);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for the login form.
+ */
+function samlauth_form_user_login_form_alter(&$form, FormStateInterface $form_state) {
+  $form['#validate'][] = 'samlauth_check_saml_user';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for the password reset form.
+ */
+function samlauth_form_user_pass_alter(&$form, FormStateInterface $form_state) {
+  $form['#validate'][] = 'samlauth_check_saml_user';
+}
+
+/**
+ * Validation callback for SAML users logging in through the normal methods.
+ */
+function samlauth_check_saml_user(&$form, FormStateInterface $form_state) {
+  // If previous validation has already failed (name/pw incorrect or blocked),
+  // bail out so we don't disclose any details about a user that otherwise
+  // wouldn't be authenticated. Also skip unworkable form state.
+  if (!$form_state->hasAnyErrors() && $form_state->hasValue('name')) {
+    // If the user has logged into the site using samlauth before, block them
+    // if they don't have a role that is allowed to log in locally. The 'name'
+    // element may contain a user name or e-mail address; the latter happens
+    // for the password reset form, and for the login form if certain contrib
+    // modules are installed.
+    /** @var \Drupal\user\Entity\User $account */
+    $account = user_load_by_name($form_state->getValue('name'));
+    if (!$account) {
+      $account = user_load_by_mail($form_state->getValue('name'));
+    }
+    if (!$account) {
+      $form_state->setErrorByName('name', t('Could not load user to do a validation check.'));
+    }
+    elseif (!array_intersect(
+      $account->getRoles(),
+      \Drupal::config(SamlController::CONFIG_OBJECT_NAME)->get('drupal_login_roles') ?? []
+    )) {
+      /** @var \Drupal\externalauth\AuthmapInterface $authmap */
+      $authmap = \Drupal::service('externalauth.authmap');
+      if ($authmap->get($account->id(), 'samlauth')) {
+        // Are we allowed to tell the user why they cannot use this form, or
+        // should we use the exact same messages as when a user does not exist
+        // (to prevent disclosing info about which accounts exist)?
+        if (\Drupal::config(SamlController::CONFIG_OBJECT_NAME)->get('local_login_saml_error')) {
+          $form_state->setErrorByName('name', t('This user is only allowed to log in through an external authentication provider.'));
+        }
+        elseif (!isset($form['#form_id']) || $form['#form_id'] !== 'user_pass') {
+          $query = $form_state->hasValue('name') ? ['name' => $form_state->getValue('name')] : [];
+          $form_state->setErrorByName('name', t('Unrecognized username or password. <a href=":password">Forgot your password?</a>', [
+            ':password' => Url::fromRoute('user.pass', [], ['query' => $query])->toString(),
+          ]));
+          \Drupal::logger('user')->notice('Local login attempt denied to SAML-only account %user.', ['%user' => $form_state->getValue('name')]);
+        }
+        else {
+          if (version_compare(\Drupal::VERSION, '9.2.0-dev') >= 0) {
+            \Drupal::messenger()->addStatus(t('If %identifier is a valid account, an email will be sent with instructions to reset your password.', [
+              '%identifier' => $form_state->getValue('name'),
+            ]));
+          }
+          else {
+            \Drupal::messenger()->addStatus(t('Further instructions have been sent to your email address.'));
+          }
+          \Drupal::logger('user')->notice('Prevented sending password reset instructions mailed to %name at %email.', ['%name' => $account->getAccountName(), '%email' => $account->getEmail()]);
+          // Prevent executing the submit callback that sends the mail and
+          // prints the same message.
+          $form['#submit'] = [];
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for the Core account settings form.
+ */
+function samlauth_form_user_admin_settings_alter(&$form, FormStateInterface $form_state) {
+  if (\Drupal::config(SamlController::CONFIG_OBJECT_NAME)->get('create_users')
+      && !isset($form['registration_cancellation']['#description'])) {
+    $form['registration_cancellation']['#description'] = t('Registration settings do not apply to accounts created by logging in through an external authentication provider.');
+  }
+}
+
+/**
+ * Implements hook_user_presave().
+ */
+function samlauth_user_presave(UserInterface $account) {
+  static $recursion_detection = FALSE;
+  // Synchronize user attributes for a new user before saving an account
+  // (instead of subscribing to the externalauth.register event), so we don't
+  // need to save the new user a second time to add our SAML attribute values.
+  // This also means that if attribute synchronization throws an exception, we
+  // don't end up with a half baked user saved in the database.
+  if (!$recursion_detection && $account->isNew()) {
+    // Check that we're processing a valid ACS request, by checking the user
+    // name attribute in the OneLogin'Saml2\Auth object. Note we get the
+    // SamlService and construct a OneLogin\Saml2\Auth object on every first
+    // user save in a request, which is not ideal but not too wasteful since
+    // user saves don't happen often.
+    /** @var \Drupal\samlauth\SamlService $saml_service */
+    $saml_service = \Drupal::service('samlauth.saml');
+    if ($saml_service->getAttributeByConfig('user_name_attribute')) {
+      // This code assumes that the first save operation of a new user is
+      // connected to SAML attributes found in a request. That's a safe bet;
+      // those attributes are really only set if a SAML response was just
+      // processed and validated by the ACS. No other code can come in between
+      // processing that request and saving a new user. (If a
+      // externalauth.authmap_alter or samlauth.user_link event feels the need
+      // to independently create and save a user... we have bigger issues.) A
+      // samlauth.user_sync event listener, which we will dispatch now, could
+      // accidentally call user_save() again on this account... which is why we
+      // implement $recursion_detection.
+      $recursion_detection = TRUE;
+      $saml_service->synchronizeUserAttributes($account, TRUE);
+    }
+  }
+}
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function samlauth_views_data_alter(array &$data) {
+  if (!isset($data['authmap']['uid'])) {
+    $data['authmap']['uid'] = [
+      'title' => t('Drupal User ID'),
+      'help' => t('The user linked to the authname.'),
+      // The 'join' on the users_field_data table in the original table
+      // definition (in externalauth.views.inc) essentially means that this
+      // table's fields can be used in a 'Users' view. This 'relationship'
+      // makes it possible to add User fields to a view of authmap entries.
+      'relationship' => [
+        'base' => 'users_field_data',
+        'base field' => 'uid',
+        'id' => 'standard',
+        'label' => t('Linked Drupal user'),
+      ],
+      'field' => [
+        'id' => 'numeric',
+      ],
+      'filter' => [
+        'id' => 'numeric',
+      ],
+      'sort' => [
+        'id' => 'standard',
+      ],
+    ];
+  }
+  if (!isset($data['authmap']['delete'])) {
+    $data['authmap']['delete'] = [
+      'title' => t('Link to delete @label entry', ['@label' => 'authmap']),
+      'help' => t('Provide a link to delete the @label entry.', ['@label' => 'authmap']),
+      'field' => [
+        'id' => 'samlauth_link_delete',
+      ],
+    ];
+  }
+}

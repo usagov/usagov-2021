@@ -1,0 +1,5 @@
+samlauth_user_fields.list:
+  title: 'User field mapping'
+  route_name: samlauth_user_fields.list
+  base_route: samlauth.samlauth_configure_form
+  weight: 1
