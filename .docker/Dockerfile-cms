@@ -74,7 +74,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
     && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group
-RUN apk upgrade --update --no-cache \
+RUN apk upgrade --update \
     && apk add --no-cache --virtual .persistent-deps \
       ca-certificates \
       curl \
@@ -132,7 +132,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/nginx:x:[0-9]+:/nginx:x:${BGID}:/g" /etc/group \
     && addgroup -S -g $BGID nginx \
     && adduser -S -G nginx -D -H -u $BUID nginx \
-    && apk upgrade --update --no-cache \
+    && apk upgrade --update \
     && apk add --no-cache --virtual .persistent-deps \
       aws-cli \
       ca-certificates \
