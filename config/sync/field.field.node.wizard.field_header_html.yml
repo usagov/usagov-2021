@@ -1,0 +1,21 @@
+uuid: bf7069ca-024d-440a-950b-22e2565854ba
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_header_html
+    - node.type.wizard
+  module:
+    - text
+id: node.wizard.field_header_html
+field_name: field_header_html
+entity_type: node
+bundle: wizard
+label: 'Header HTML'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

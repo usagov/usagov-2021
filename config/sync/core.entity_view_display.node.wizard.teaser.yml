@@ -5,7 +5,9 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.wizard.body
+    - field.field.node.wizard.field_footer_html
     - field.field.node.wizard.field_for_contact_center_only
+    - field.field.node.wizard.field_header_html
     - field.field.node.wizard.field_wizard_step
     - node.type.wizard
   module:
@@ -30,6 +32,8 @@ content:
     weight: 100
     region: content
 hidden:
+  field_footer_html: true
   field_for_contact_center_only: true
+  field_header_html: true
   field_wizard_step: true
   langcode: true
