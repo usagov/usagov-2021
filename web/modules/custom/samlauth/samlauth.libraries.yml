@@ -1,0 +1,6 @@
+# This doesn't actually work / isn't used; it's just distributed in case I feel
+# like having another try at it.
+fix1091852:
+  version: 1.x
+  js:
+    js/fix1091852.js: {}

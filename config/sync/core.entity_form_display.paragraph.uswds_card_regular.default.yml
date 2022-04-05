@@ -27,76 +27,78 @@ third_party_settings:
         - field_indent_media
         - field_extend_media
         - field_card_image
+      label: 'Media Features'
+      region: content
       parent_name: ''
       weight: 2
       format_type: details
-      region: content
       format_settings:
-        id: ''
         classes: ''
-        description: ''
+        id: ''
         open: false
+        description: ''
         required_fields: true
-      label: 'Media Features'
     group_link_features:
       children:
         - field_make_card_link
         - field_button
+      label: 'Link Features'
+      region: content
       parent_name: ''
       weight: 4
       format_type: details
-      region: content
       format_settings:
-        id: ''
         classes: ''
-        description: ''
+        id: ''
         open: false
+        description: ''
         required_fields: true
-      label: 'Link Features'
     group_title_features:
       children:
         - field_title_first
         - field_card_title
+      label: 'Title Features'
+      region: content
       parent_name: ''
       weight: 1
       format_type: details
-      region: content
       format_settings:
-        id: ''
         classes: ''
-        description: ''
+        id: ''
         open: false
+        description: ''
         required_fields: true
-      label: 'Title Features'
     group_body_features:
       children:
         - field_text
+      label: 'Body Features'
+      region: content
       parent_name: ''
       weight: 3
       format_type: details
-      region: content
       format_settings:
-        id: ''
         classes: ''
-        description: ''
+        id: ''
         open: false
+        description: ''
         required_fields: true
-      label: 'Body Features'
 id: paragraph.uswds_card_regular.default
 targetEntityType: paragraph
 bundle: uswds_card_regular
 mode: default
 content:
   field_button:
+    type: link_default
     weight: 7
+    region: content
     settings:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
-    type: link_default
-    region: content
   field_card_breakpoints:
+    type: entity_reference_paragraphs
     weight: 0
+    region: content
     settings:
       title: Paragraph
       title_plural: Paragraphs
@@ -105,59 +107,57 @@ content:
       form_display_mode: default
       default_paragraph_type: uswds_card_breakpoints
     third_party_settings: {  }
-    type: entity_reference_paragraphs
-    region: content
   field_card_image:
+    type: media_library_widget
     weight: 6
+    region: content
     settings:
       media_types: {  }
     third_party_settings: {  }
-    type: media_library_widget
-    region: content
   field_card_title:
+    type: string_textfield
     weight: 3
+    region: content
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-    type: string_textfield
-    region: content
   field_extend_media:
+    type: boolean_checkbox
     weight: 5
+    region: content
     settings:
       display_label: true
     third_party_settings: {  }
-    type: boolean_checkbox
-    region: content
   field_indent_media:
+    type: boolean_checkbox
     weight: 4
+    region: content
     settings:
       display_label: true
     third_party_settings: {  }
-    type: boolean_checkbox
-    region: content
   field_make_card_link:
+    type: boolean_checkbox
     weight: 6
+    region: content
     settings:
       display_label: true
     third_party_settings: {  }
-    type: boolean_checkbox
-    region: content
   field_text:
+    type: text_textarea
     weight: 4
+    region: content
     settings:
       rows: 5
       placeholder: ''
     third_party_settings: {  }
-    type: text_textarea
-    region: content
   field_title_first:
+    type: boolean_checkbox
     weight: 2
+    region: content
     settings:
       display_label: true
     third_party_settings: {  }
-    type: boolean_checkbox
-    region: content
 hidden:
   created: true
   field_number_of_columns: true

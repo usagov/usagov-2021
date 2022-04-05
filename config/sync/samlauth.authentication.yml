@@ -15,6 +15,7 @@ drupal_login_roles:
   content_manager: '0'
   content_administrator: '0'
 sp_entity_id: 'https://secureauth.dev.gsa.gov'
+
 sp_force_https: true
 sp_name_id_format: 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
 sp_x509_certificate: 'file:/var/www/sp.crt'

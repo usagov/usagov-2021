@@ -1,0 +1,108 @@
+{#
+/**
+ * @file
+ * Theme override for the basic structure of a single Drupal page.
+ *
+ * Variables:
+ * - logged_in: A flag indicating if user is logged in.
+ * - root_path: The root path of the current page (e.g., node, admin, user).
+ * - node_type: The content type for the current node, if the page is a node.
+ * - head_title: List of text elements that make up the head_title variable.
+ *   May contain one or more of the following:
+ *   - title: The title of the page.
+ *   - name: The name of the site.
+ *   - slogan: The slogan of the site.
+ * - page_top: Initial rendered markup. This should be printed before 'page'.
+ * - page: The rendered page markup.
+ * - page_bottom: Closing rendered markup. This variable should be printed after
+ *   'page'.
+ * - db_offline: A flag indicating if the database is offline.
+ * - placeholder_token: The token for generating head, css, js and js-bottom
+ *   placeholders.
+ *
+ * @see template_preprocess_html()
+ */
+#}
+<!DOCTYPE html>
+<html{{ html_attributes }}>
+<head>
+  <head-placeholder token="{{ placeholder_token|raw }}">
+  <title>{{ head_title|safe_join(' | ') }}</title>
+  <css-placeholder token="{{ placeholder_token|raw }}">
+  <js-placeholder token="{{ placeholder_token|raw }}">
+  {% if node.id is defined %}
+  {{ drupal_field('field_header_html','node', node.id)|without('#theme') }}
+  {% endif %}
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-W8LW6DB');</script>
+  <!-- End Google Tag Manager -->
+  <meta name="robots" content="noindex">
+</head>
+<body{{ attributes }}>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W8LW6DB"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+{#
+  Keyboard navigation/accessibility link to main content section in
+  page.html.twig.
+#}
+<a href="#main-content" class="usa-skipnav usa-sr-only focusable">
+  {{ 'Skip to main content'|t }}
+</a>
+{{ page_top }}
+{{ page }}
+{{ page_bottom }}
+<js-bottom-placeholder token="{{ placeholder_token|raw }}">
+{% if node.id is defined %}
+{{ drupal_field('field_footer_html','node', node.id)|without('#theme') }}
+{% endif %}
+
+
+<script type="text/javascript">
+  // Set a variable for our button element.
+const scrollToTopButton = document.getElementById('backToTop');
+
+// Let's set up a function that shows our scroll-to-top button if we scroll beyond the height of the initial window.
+const scrollFunc = () => {
+  // Get the current scroll value
+  let y = window.scrollY;
+  
+  // If the scroll value is greater than the window height, let's add a class to the scroll-to-top button to show it!
+  if (y > 500) {
+    scrollToTopButton.className = "stuck";
+  } else {
+    scrollToTopButton.className = "";
+  }
+};
+
+window.addEventListener("scroll", scrollFunc);
+
+const scrollToTop = () => {
+  // Let's set a variable for the number of pixels we are from the top of the document.
+  const c = document.documentElement.scrollTop || document.body.scrollTop;
+  
+  // If that number is greater than 0, we'll scroll back to 0, or the top of the document.
+  // We'll also animate that scroll with requestAnimationFrame:
+  // https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+  if (c > 0) {
+    window.requestAnimationFrame(scrollToTop);
+    // ScrollTo takes an x and a y coordinate.
+    // Increase the '10' value to get a smoother/slower scroll!
+    window.scrollTo(0, c - c / 10);
+  }
+};
+
+// When the button is clicked, run our ScrolltoTop function above!
+// scrollToTopButton.onclick = function(e) {
+ // e.preventDefault();
+// scrollToTop();
+// }
+  
+</script>
+</body>
+</html>

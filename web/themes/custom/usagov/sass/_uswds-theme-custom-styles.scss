@@ -24,11 +24,6 @@ i.e.
 ----------------------------------------
 */
 
-
-a:visited, .usa-footer__secondary-link a:visited, .usa-form a:visited {
-   color: #4b4b4d;
-}
-
 .text-red {
    color: #d83933;
 }
@@ -39,7 +34,7 @@ a:visited, .usa-footer__secondary-link a:visited, .usa-form a:visited {
 }
 }
 
-a.disabled {
+.usa-footer__secondary-link a.disabled, .usa-footer__secondary-section a.disabled{
    pointer-events: none;
    color:#000;
    text-decoration: none;
@@ -52,12 +47,30 @@ a.disabled {
    padding-left: 3.6rem;
 }
 
+.usa-alert--no-icon .usa-alert__body {
+   //This fixes an issue with USWDS where a slim alert with no icon and no status would still get padding to make room for an icon
+   padding-left: 1.25rem;
+}
+
 .usa-button:visited {
 /* 
 This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
 Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
 */
    color: initial;
+}
+
+.usa-button--secondary {
+   border: 1px solid color("cyan-50v");
+}
+
+.usa-button--secondary:hover {
+   background-color: #ccecf2;
+   border: 1px solid color("cyan-50v"); 
+}
+
+.usa-button--secondary:visited, .usa-button:visited {
+   color: #1b1b1b !important;
 }
 
 /*
@@ -71,7 +84,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 /** This to change the link color for the 
 *   header and footer links
 **/
-.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-footer__secondary-link a, .usa-banner__button {
+.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-banner__button, .usa-card__body {
    color: #000;
 }
 
@@ -359,7 +372,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
       color:white;
       font-size: 1.06rem;
       @media (max-width: 30em){
-         width: 96px;
+         width: 100px;
       }
    }
 }
@@ -489,8 +502,12 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }
  }
 
-a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link {
+a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
       color: color("blue-warm-70v");
+}
+
+.usa-prose a:visited {
+   color: color($theme-link-visited-color);
 }
 
 .usa-button {
@@ -602,11 +619,89 @@ a {
             left: .4rem;
          }
       }
-      
+
    }
 }
 
 #block-usagov-content .font-serif-lg {
    // This style is needed to set the font size of intro text
    font-size: 1.5rem;
+}
+
+.desktop\:grid-col-fill .content-wrapper {
+   // On Navigation Cards pages, display the content in reverse order. So the Nav banner is displayed above the Intro Text.
+   display: flex;
+   flex-direction: column-reverse;
+ }
+
+ // This style is needed to extend the width of nav page intro text
+ .desktop\:grid-col-fill .usa-prose>p.usa-intro {
+	max-width: 81ex;
+   margin-left: 1.2ex;
+   margin-right: 1.2ex;
+}
+
+.desktop\:grid-col-8 .body-copy {
+   // Add margin only on content pages
+   margin-top: 2.5rem;
+ }
+
+.usa-skipnav:active, .usa-skipnav:hover {
+   color: #1A4480;
+}
+
+.usa-skipnav:visited {
+   color: #4b4b4d;
+}
+
+.usa-social-link>img {
+   height: 2rem;
+   background-color: transparent;
+   display: block;
+   margin-right: auto;
+   margin-left: auto;
+}
+
+#backToTop{
+   position: fixed;
+   //float:right;
+   height: 50px;
+   width: 90px;
+   right: -100px;
+   bottom: 80px;
+   background: #e8f0f7;
+   transition: right 0.5s;
+   background-image: url(/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png);
+   background-size: 45px;
+   background-position: 2px;
+   background-repeat: no-repeat;
+   padding: 0 0 0 45px;
+   border-radius: 25px 0 0 25px;
+   line-height: 50px;
+   display: inline-block;
+   text-align: center;
+   z-index: 1;
+   
+   &.stuck{
+     right: 0;
+   }
+ }
+
+ //Share This Page
+
+ div #sm-share {
+   display:flex;
+   padding-top: 10px;
+   padding-bottom: 20px;
+   background-color: transparent;
+}
+div #sm-share * {
+   margin-top: auto;
+   margin-bottom: auto;
+   padding-top: 5px;
+}
+
+div #sm-share a {
+  padding: 7px;
+  text-decoration: none;
 }
