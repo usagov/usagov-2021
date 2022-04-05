@@ -14,6 +14,7 @@ default_config: &defaults
                # "ROOT_USER_PASS": ...,
                # }'
     - storage  # cf create-service s3 basic-sandbox storage
+    - dbstorage  # cf create-service s3 basic-sandbox dbstorage
 
 applications:
 - name: cms
@@ -26,6 +27,7 @@ applications:
     - database
     - secrets
     - storage
+    - dbstorage
   instances: 1
   random-route: true
 - name: waf
