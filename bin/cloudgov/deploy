@@ -4,6 +4,10 @@
 # and then launch everything.
 #
 
+if [ -f /home/circleci/project/env.local ]; then
+  source /home/circleci/project/env.local
+fi
+
 CONTAINER=ednark/usagov-2021
 CONTAINERTAG=${1:-latest}
 
@@ -33,6 +37,13 @@ ROOT_USER_PASS=${ROOT_USER_PASS:-$NEW_STRING}
 
 ROOT_USER_NAME=${ROOT_USER_NAME:-root}
 
+# New Relic vars need to exist in the environment when this script runs
+# they cannot be set to any reasonable defaults
+NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME:-}
+NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-}
+NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:-}
+NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-}
+
 
 # function to check if a service exists
 service_exists()
@@ -55,28 +66,54 @@ else
 fi
 
 if service_exists "secrets" ; then
-  echo secrets already created
+  echo "secrets already created"
+  CURR_SECRETS=$(cf curl /v2/user_provided_service_instances/$(cf service secrets --guid))
+  CURR_CRON_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.CRON_KEY')
+  CURR_HASH_SALT=$(echo $CURR_SECRETS | jq -r '.entity.credentials.HASH_SALT')
+  CURR_ROOT_USER_NAME=$(echo $CURR_SECRETS | jq -r '.entity.credentials.ROOT_USER_NAME')
+  CURR_ROOT_USER_PASS=$(echo $CURR_SECRETS | jq -r '.entity.credentials.ROOT_USER_PASS')
+  CURR_NEW_RELIC_DISPLAY_NAME=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_DISPLAY_NAME')
+  CURR_NEW_RELIC_APP_NAME=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_APP_NAME')
+  CURR_NEW_RELIC_LICENSE_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_LICENSE_KEY')
+  CURR_NEW_RELIC_API_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_API_KEY')
+  if [ -n "$NEW_RELIC_DISPLAY_NAME" ] && [ "$CURR_NEW_RELIC_DISPLAY_NAME" != "$NEW_RELIC_DISPLAY_NAME" ] ; then
+    CURR_NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME}
+  fi
+  if [ -n "$NEW_RELIC_APP_NAME" ] && [ "$CURR_NEW_RELIC_APP_NAME" != "$NEW_RELIC_APP_NAME" ] ; then
+    CURR_NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME}
+  fi
+  if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$CURR_NEW_RELIC_LICENSE_KEY" != "$NEW_RELIC_LICENSE_KEY" ] ; then
+    CURR_NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
+  fi
+  if [ -n "$NEW_RELIC_API_KEY" ] && [ "$CURR_NEW_RELIC_API_KEY" != "$NEW_RELIC_API_KEY" ] ; then
+    CURR_NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY}
+  fi
+
+  # Only allow update of new relic vars, all others match the existing values
+  yes '' | cf update-user-provided-service secrets -p "{\"CRON_KEY\": \"$CURR_CRON_KEY\", \"HASH_SALT\": \"$CURR_HASH_SALT\", \"ROOT_USER_NAME\": \"$CURR_ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$CURR_ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$CURR_NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$CURR_NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$CURR_NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$CURR_NEW_RELIC_API_KEY\"}"
+  # do we need to reattach this service to the apps individually?
+
 else
-  yes '' | cf create-user-provided-service secrets -p "{\"CRON_KEY\": \"$CRON_KEY\", \"HASH_SALT\": \"$HASH_SALT\", \"ROOT_USER_NAME\": \"$ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$ROOT_USER_PASS\"}"
+  yes '' | cf create-user-provided-service secrets -p "{\"CRON_KEY\": \"$CRON_KEY\", \"HASH_SALT\": \"$HASH_SALT\", \"ROOT_USER_NAME\": \"$ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$NEW_RELIC_API_KEY\"}"
 fi
 
 if service_exists "secauthsecrets" ; then
   echo secauthsecrets already created
 else
   mkdir -p /tmp/sp
-  
+
   openssl req -new -x509 -days 3652 -nodes -out /tmp/sp/sp.crt -keyout /tmp/sp/sp.key -batch
-  
+
   # Couldn't find a way to grap these without being written to disk.
   spkey=$(</tmp/sp/sp.key)
   spcrt=$(</tmp/sp/sp.crt)
-  
+
   # convert sp.key to single line
   spkeyf=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' /tmp/sp/sp.key)
-  
+
   # convert sp.crt to single line
   spcrtf=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' /tmp/sp/sp.crt)
-  
+
   yes '' | cf create-user-provided-service secauthsecrets -p "{\"spcrt\": \"$spcrtf\", \"spkey\": \"$spkeyf\"}"
 
   # clean up
@@ -89,21 +126,18 @@ else
   cf create-service s3 basic-sandbox storage
 fi
 
+if service_exists "dbstorage" ; then
+  echo dbstorage already created
+else
+  cf create-service s3 basic-sandbox dbstorage
+fi
+
 # wait until the db is fully provisioned
 until cf create-service-key database test-db-ok ; do
 	echo waiting until database is live...
 	sleep 20
 done
 cf delete-service-key database test-db-ok -f
-
-
-# cms_randomroute='--no-route'
-# waf_randomroute='--no-route'
-# DEPLOY_TARGET=$(cf target | grep space: | awk '{print $2}');
-# if [ "$DEPLOY_TARGET" = 'personal' ]; then
-#   cms_randomroute='--random-route'
-#   waf_randomroute='--random-route'
-# fi;
 
 # make sure that the app knows where s3fs stuff lives
 # we can make the assumption that the app exists during this step
@@ -119,17 +153,6 @@ cf delete-service-key storage storagekey -f
 # launch the apps
 echo "cf push cms --docker-image $CONTAINER:cms-$CONTAINERTAG"
 cf push cms --docker-image $CONTAINER:cms-$CONTAINERTAG
-#cf push cms --docker-image $CONTAINER:cms-$CONTAINERTAG $cms_randomroute
-#cf push waf --docker-image $CONTAINER:waf-$CONTAINERTAG $waf_randomroute
 
 #cf restart cms
 #cf restart waf
-
-# # tell people where to go
-# ROUTE=$(cf apps | grep web | awk '{print $6}')
-# echo
-# echo
-# echo "  to log into the drupal site, you will want to go to https://${ROUTE}/user/login and get the username/password from the output of these commands:"
-# echo "USERNAME:  cf e web | grep ROOT_USER_NAME | sed 's/.*: \"\(.*\)\".*/\1/'"
-# echo "PASSWORD:  cf e web | grep ROOT_USER_PASS | sed 's/.*: \"\(.*\)\".*/\1/'"
-# echo "  to get in.  Have fun!"
