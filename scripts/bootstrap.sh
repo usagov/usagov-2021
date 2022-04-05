@@ -8,6 +8,8 @@ if [ -z "${VCAP_SERVICES:-}" ]; then
 fi
 
 SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
+SECAUTHSECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secauthsecrets") | .credentials')
+
 APP_NAME=$(echo $VCAP_APPLICATION | jq -r '.name')
 APP_ROOT=$(dirname "$0")
 APP_ID=$(echo "$VCAP_APPLICATION" | jq -r '.application_id')
@@ -42,6 +44,23 @@ export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n
 export EN_404_PAGE=${EN_404_PAGE:-/404/index.html};
 export ES_404_PAGE=${ES_404_PAGE:-/es/404/index.html};
 
+export NEW_RELIC_DISPLAY_NAME=$(echo $SECRETS | jq -r '.NEW_RELIC_DISPLAY_NAME')
+export NEW_RELIC_APP_NAME=$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')
+export NEW_RELIC_API_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')
+export NEW_RELIC_LICENSE_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')
+
+
+SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.SPKEY')
+SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.SPCRT')
+
+# seems not to be needed
+#spkey=$(echo "$SP_KEY" | awk '{gsub(/\\n/, "\n")}1')
+#spcrt=$(echo "$SP_CRT" | awk '{gsub(/\\n/, "\n")}1')
+
+echo "$SP_KEY" > /var/www/sp.key
+echo "$SP_CRT" > /var/www/sp.crt
+
+
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
 
 FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf"
@@ -53,10 +72,32 @@ for FILE in $FILES; do
     fi
 done
 
-echo  "Fixing File Permissions ... "
-chown nginx:nginx /var/www
-find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
-find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+# update new relic with environment specific settings
+if [ -n "$NEW_RELIC_LICENSE_KEY" ]; then
+  sed -i \
+      -e "s/;\?newrelic.license =.*/newrelic.license = ${NEW_RELIC_LICENSE_KEY}/" \
+      -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}/" \
+      -e "s/;\?newrelic.appname =.*/newrelic.appname = \"${NEW_RELIC_APP_NAME:-Local;USA.gov}\"/" \
+      /etc/php8/conf.d/newrelic.ini
+else
+  # turn off new relic
+  sed -i \
+      -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
+      /etc/php8/conf.d/newrelic.ini
+fi
+# if started, php needs a restart so new relic ini changes take effect
+if [ -d /var/run/s6/services/php ]; then
+  s6-svc -r /var/run/s6/services/php
+fi
+
+if [ -n "${FIX_FILE_PERMS:-}" ]; then
+  echo  "Fixing File Permissions ... "
+  chown nginx:nginx /var/www
+  find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+  find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
+else
+  echo "Skipping File Permission updates ... "
+fi
 
 # if [ -n "$S3_BUCKET" ] && [ -n "$S3_REGION" ]; then
 #   # Add Proxy rewrite rules to the top of the htaccess file

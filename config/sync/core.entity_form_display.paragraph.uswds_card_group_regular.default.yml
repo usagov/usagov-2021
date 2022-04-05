@@ -16,6 +16,7 @@ content:
   field_cards:
     type: entity_reference_paragraphs
     weight: 1
+    region: content
     settings:
       title: Paragraph
       title_plural: Paragraphs
@@ -24,17 +25,16 @@ content:
       form_display_mode: default
       default_paragraph_type: uswds_card_regular
     third_party_settings: {  }
-    region: content
   field_uswds_classes:
+    type: entity_reference_autocomplete
     weight: 0
+    region: content
     settings:
       match_operator: CONTAINS
       match_limit: 10
       size: 60
       placeholder: ''
     third_party_settings: {  }
-    type: entity_reference_autocomplete
-    region: content
 hidden:
   created: true
   status: true

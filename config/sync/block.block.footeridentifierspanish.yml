@@ -18,16 +18,16 @@ plugin: 'block_content:de6e5b2f-5c2e-4f8b-b0a0-d08bf5197563'
 settings:
   id: 'block_content:de6e5b2f-5c2e-4f8b-b0a0-d08bf5197563'
   label: 'Footer identifier - Spanish'
-  provider: block_content
   label_display: '0'
+  provider: block_content
   status: true
   info: ''
   view_mode: full
 visibility:
   language:
     id: language
-    langcodes:
-      es: es
     negate: false
     context_mapping:
       language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es

@@ -34,6 +34,9 @@ commands:
           name: CloudGov Deploy
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;Cloud.gov;USA.gov"
+            export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
             ./bin/cloudgov/login << parameters.cf_user >> << parameters.cf_pass >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy << pipeline.number >>
@@ -55,17 +58,22 @@ commands:
             echo "Install Gulp on node "$(node --version)
             sudo npm install --global gulp-cli
 
+# parameters:
+#   is_pr:
+#     type: boolean
+#     default: false
+
 jobs:
   lint:
     docker:
-      - image: circleci/php:8.0.11-node
+      - image: cimg/php:8.0.16-node
     steps:
       - checkout
       - install-node
       - run:
           name: Install Linters and Sniffers
           command: |
-            npm install --prefix ./themes/custom/usagov
+            npm install --prefix ./web/themes/custom/usagov
             composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
@@ -73,7 +81,7 @@ jobs:
           name: PHP Lint
           command: |
             COMPOSER_DIR=$(composer -n config --global home)
-            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./modules/custom ./themes/custom
+            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom
       - run:
           name: PHP CodeSniff (ignore warnings)
           command: |
@@ -81,11 +89,11 @@ jobs:
             $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist
       - run:
           name: Theme Lint
-          command: npm run lint --prefix ./themes/custom/usagov
+          command: npm run lint --prefix ./web/themes/custom/usagov
 
   install-container-dependencies:
     docker:
-      - image: circleci/php:8.0.11-node
+      - image: cimg/php:8.0.16-node
     steps:
       - checkout
       - install-node
@@ -97,9 +105,6 @@ jobs:
       - run:
           name: Compile Theme
           command: |
-            cp -R ./libraries ./web
-            cp -R ./modules ./web
-            cp -R ./themes ./web
             npm install --prefix ./web/themes/custom/usagov
             npm rebuild node-sass --prefix ./web/themes/custom/usagov
             npm run build --prefix ./web/themes/custom/usagov
@@ -184,6 +189,12 @@ jobs:
           cf_user: $CF_PROD_USER
           cf_pass: $CF_PROD_PASS
 
+  # do-nothing:
+  #   docker:
+  #     - image: busybox:stable
+  #   steps:
+  #     - run: echo "Skipping"
+
 
 workflows:
   version: 2
@@ -192,19 +203,35 @@ workflows:
     jobs:
       - lint
 
+  # commit:
+  #   unless: << pipeline.parameters.is_pr >>
+  #   jobs:
+  #     - do-nothing
+
+  # pr-commit:
+  #   when: << pipeline.parameters.is_pr >>
+  #   jobs:
+  #     - lint
+
   build-and-deploy:
     jobs:
       - approve-build-and-push-container:
           type: approval
           filters:
             branches:
-              only: main
+              only:
+                - dev
+                - stage
+                - prod
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
           filters:
             branches:
-              only: main
+              only:
+                - dev
+                - stage
+                - prod
 
       - approve-dev-deployment:
           type: approval
@@ -212,13 +239,13 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: main
+              only: dev
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
-              only: main
+              only: dev
 
       - approve-stage-deployment:
           type: approval
@@ -226,13 +253,13 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: main
+              only: stage
       - deploy-to-cloudgov-stage:
           requires:
             - approve-stage-deployment
           filters:
             branches:
-              only: main
+              only: stage
 
       - approve-prod-deployment:
           type: approval
@@ -240,17 +267,17 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: main
+              only: prod
       - really-approve-prod-deployment:
           type: approval
           requires:
             - approve-prod-deployment
           filters:
             branches:
-              only: main
+              only: prod
       - deploy-to-cloudgov-prod:
           requires:
             - really-approve-prod-deployment
           filters:
             branches:
-              only: main
+              only: prod

@@ -11,12 +11,12 @@ pattern: '[node:menu-link:parents:join-path]/[node:title]'
 selection_criteria:
   c52dffc2-8932-47dd-a274-d09303a2bb53:
     id: node_type
-    bundles:
-      wizard_step: wizard_step
     negate: false
+    uuid: c52dffc2-8932-47dd-a274-d09303a2bb53
     context_mapping:
       node: node
-    uuid: c52dffc2-8932-47dd-a274-d09303a2bb53
+    bundles:
+      wizard_step: wizard_step
 selection_logic: and
 weight: -9
 relationships: {  }

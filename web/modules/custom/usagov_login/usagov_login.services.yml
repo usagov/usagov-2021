@@ -1,0 +1,5 @@
+services:
+  usagov_login.user_route_subscriber:
+    class: Drupal\usagov_login\RouteSubscriber\UserLoginRouteSubscriber
+    tags:
+      - { name: event_subscriber }

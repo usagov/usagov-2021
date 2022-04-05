@@ -1,0 +1,21 @@
+uuid: 150a5dfd-1dd0-43f7-956d-47098e7677b4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_for_contact_center_only
+    - node.type.wizard
+  module:
+    - text
+id: node.wizard.field_for_contact_center_only
+field_name: field_for_contact_center_only
+entity_type: node
+bundle: wizard
+label: 'For Contact Center Use Only'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long
