@@ -378,6 +378,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 .usa-footer__primary-content--collapsible.hidden{
+   //USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
    display: block;
 } 
 
@@ -425,15 +426,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
       text-align: left;
       margin-bottom: .5rem;
    }
-}
-
-.grid-row.grid-gap>* {
-   margin-top: -.5rem;
-}
-
-.margin-bottom-neg-1, .mobile-lg\:grid-col-auto p {
-   margin-bottom: .75rem;
-   margin-top: .25rem;
 }
 
 .usa-footer__secondary-section a {
