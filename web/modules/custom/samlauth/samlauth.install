@@ -1,0 +1,132 @@
+<?php
+
+/**
+ * @file
+ * Update and uninstall functions for the samlauth module.
+ */
+
+use Drupal\Core\Config\FileStorage;
+use Drupal\Core\Config\InstallStorage;
+use Drupal\samlauth\Controller\SamlController;
+use Drupal\user\Entity\Role;
+use Drupal\user\RoleInterface;
+use Drupal\views\Entity\View;
+
+/**
+ * Import view for authmap entries.
+ */
+function samlauth_install($is_syncing = FALSE) {
+  // It's strange to me that this would be explicitly necessary, and all docs
+  // I read suggest it should happen automatically, but I can't seem to
+  // simulate a module install procedure where it does happen automatically.
+  // (Code is a copy from samlauth_post_update_add_view_samlauth_map().)
+  if (!$is_syncing && \Drupal::moduleHandler()->moduleExists('views') && !View::load('samlauth_map')) {
+    $module_path = \Drupal::moduleHandler()->getModule('samlauth')->getPath();
+    $file_storage = new FileStorage($module_path . '/' . InstallStorage::CONFIG_OPTIONAL_DIRECTORY);
+    $view = \Drupal::entityTypeManager()->getStorage('view')->create($file_storage->read('views.view.samlauth_map'));
+    $view->save();
+  }
+}
+
+/**
+ * Empty.
+ */
+function samlauth_update_8301() {
+}
+
+/**
+ * Populate "Roles allowed to use Drupal login" from config or permission.
+ */
+function samlauth_update_8302() {
+  $config_role_names = [];
+  // Migrate from either a single checkbox config value (pre-3.0-RC1) or from
+  // a permission.
+  $config = \Drupal::configFactory()->getEditable(SamlController::CONFIG_OBJECT_NAME);
+  $old_config_value = $config->get('drupal_saml_login');
+  $existing_roles = Role::loadMultiple();
+  foreach ($existing_roles as $role) {
+    // Prefer the config value. Always check for / revoke the permission,
+    // though we can't really have both the permission and $config_value set.
+    /** @var \Drupal\user\Entity\Role $role */
+    if ($role->id() !== RoleInterface::ANONYMOUS_ID
+        && (isset($old_config_value) ? $old_config_value : $role->hasPermission('bypass saml login'))) {
+      $config_role_names[] = $role->id();
+    }
+    if ($role->hasPermission('bypass saml login')) {
+      $role->revokePermission('bypass saml login');
+      $role->save();
+    }
+  }
+  $config->clear('drupal_saml_login');
+  $config->set('drupal_login_roles', $config_role_names);
+  $config->save(TRUE);
+}
+
+/**
+ * Copy setting 'Attempt to link SAML data' into more fine grained settings.
+ */
+function samlauth_update_8303() {
+  $config = \Drupal::configFactory()->getEditable(SamlController::CONFIG_OBJECT_NAME);
+  if ($config->get('map_users')) {
+    $config->set('map_users_name', TRUE);
+    $config->set('map_users_mail', TRUE);
+    $config->save(TRUE);
+  }
+}
+
+/**
+ * Change 'Folder name' config for SP cert/key into two separate file names.
+ */
+function samlauth_update_8304() {
+  $config = \Drupal::configFactory()->getEditable(SamlController::CONFIG_OBJECT_NAME);
+  $cert_folder = $config->get('sp_cert_folder');
+  if ($cert_folder && is_string($cert_folder)) {
+    $config->set('sp_x509_certificate', "file:$cert_folder/certs/sp.crt");
+    $config->set('sp_private_key', "file:$cert_folder/certs/sp.key");
+    $config->clear('sp_cert_folder');
+    $config->save(TRUE);
+  }
+}
+
+/**
+ * Expand multi-value support for IdP certificates.
+ */
+function samlauth_update_8305() {
+  $config = \Drupal::configFactory()->getEditable(SamlController::CONFIG_OBJECT_NAME);
+
+  $old_cert = $config->get('idp_x509_certificate');
+  $old_cert_multi = $config->get('idp_x509_certificate_multi');
+  $new_certs = $config->get('idp_certs');
+  $new_encryption_cert = $config->get('idp_cert_encryption');
+  if (($old_cert || $old_cert_multi) && !$new_certs && !$new_encryption_cert) {
+    $new_certs = $old_cert ? [$old_cert] : [];
+    if ($old_cert_multi) {
+      if ($config->get('idp_cert_type') === 'encryption') {
+        $new_encryption_cert = $old_cert_multi;
+      }
+      else {
+        $new_certs[] = $old_cert_multi;
+      }
+    }
+    $config->set('idp_certs', $new_certs);
+    if ($new_encryption_cert) {
+      $config->set('idp_cert_encryption', $new_encryption_cert);
+    }
+    $config->clear('idp_x509_certificate');
+    $config->clear('idp_x509_certificate_multi');
+    $config->clear('idp_cert_type');
+    $config->save(TRUE);
+  }
+}
+
+// @todo - uncomment this at the moment I remove 3.2 compatibility code.
+/**
+ * Re-migrate old IdP cert configurations if necessary.
+ */
+//function samlauth_update_8400() {
+//  // It's possible that provisioning script have kept writing the IdP cert to
+//  // 'idp_x509_certificate(_multi)' config, which has not given any errors
+//  // until now. Re-migrate old -> new config again if necessary, now 3.2
+//  // compatibility has been removed.
+//  samlauth_update_8305();
+//}

@@ -1,0 +1,34 @@
+samlauth_user_fields.list:
+  path: 'admin/config/people/saml/user-fields'
+  defaults:
+    _title: 'SAML user fields attribute mapping'
+    _form: '\Drupal\samlauth_user_fields\Form\SamlauthMappingListForm'
+  requirements:
+    _permission: 'configure saml'
+
+samlauth_user_fields.add:
+  path: 'admin/config/people/saml/user-fields/add'
+  defaults:
+    _title: 'Add'
+    _title_context: 'Add a SSO user field mapping.'
+    _form: '\Drupal\samlauth_user_fields\Form\SamlauthMappingEditForm'
+  requirements:
+    _permission: 'configure saml'
+
+samlauth_user_fields.edit:
+  path: 'admin/config/people/saml/user-fields/{mapping_id}/edit'
+  defaults:
+    _title: 'Edit'
+    _title_context: 'Edit a SSO user field mapping.'
+    _form: '\Drupal\samlauth_user_fields\Form\SamlauthMappingEditForm'
+  requirements:
+    _permission: 'configure saml'
+
+samlauth_user_fields.delete:
+  path: 'admin/config/people/saml/user-fields/{mapping_id}/delete'
+  defaults:
+    _title: 'Delete'
+    _title_context: 'Delete a SSO user field mapping.'
+    _form: '\Drupal\samlauth_user_fields\Form\SamlauthMappingDeleteForm'
+  requirements:
+    _permission: 'configure saml'
