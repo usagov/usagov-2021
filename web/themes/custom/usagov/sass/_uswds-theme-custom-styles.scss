@@ -378,14 +378,15 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 .usa-footer__primary-content--collapsible.hidden{
+   //USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
    display: block;
 } 
 
 @media (min-width: 30em){
    .usa-footer__contact-heading.es{
        display: inline-grid;
-       margin-top: 0;
-       margin-right: 2rem;
+       margin-top: 0.5rem;
+       margin-right: -1.5rem;
        text-align: left;
       }
 }
@@ -427,29 +428,9 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }
 }
 
-.grid-row.grid-gap>* {
-   margin-top: -.5rem;
-}
-
-.margin-bottom-neg-1, .mobile-lg\:grid-col-auto p {
-   margin-bottom: .75rem;
-   margin-top: .25rem;
-}
-
 .usa-footer__secondary-section a {
    padding-bottom: 2rem;
 }
-
-.grid-row.grid-gap-1 {
-   @media (min-width: 31em){
-      margin-right: 1.5rem;
-   }
-   @media (max-width: 30em){
-      margin-left: -.5rem;
-      padding-bottom: 3rem;
-   }
-}
-
 
 .usa-footer__contact-links{
    @media (min-width: 40em){
@@ -459,7 +440,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 @media (min-width: 30em){
 .usa-footer__contact-heading {
-   margin-top: 0; 
+   margin-top: .5rem; 
    }   
 }
 
@@ -468,8 +449,18 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 .usa-footer__social-links {
-   @media (max-width: 30em){
+   @media (max-width: 30em)and (min-width: 30em){
       justify-content: flex-start;
+      padding-right: 0;
+}
+   @media (min-width: 31em){
+      padding-right: 2rem;
+}
+}
+
+.sm-sp-links {
+   @media (max-width: 30em)and(min-width: 30rem){
+      padding-left: 2rem;
 }
 }
 
