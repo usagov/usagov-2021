@@ -3,6 +3,7 @@ $hero: var( $usagov-variables, hero );
 .usagov-hero{
     border-top: 10px solid var( $hero, border-color );
     margin-bottom: 1.5rem;
+    margin-top: -.75rem;
 }
 .usagov-hero__callout{
     background-color: var( $hero, background-color );
