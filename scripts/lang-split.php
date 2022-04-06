@@ -63,7 +63,7 @@ foreach ($en_nids as $en_nid) {
           'type','status','title','created','changed','moderation_state','path','menu_link','body',
           'field_css_icon','field_footer_html',
           'field_for_contact_center_only','field_header_html',
-          'field_is_navigation_page','field_page_intro','field_wizard_step'
+          'field_is_navigation_page','field_page_intro','field_wizard_step', 'field_page_type'
         ]) ) {
           $es_node->set($name, $field->getValue());
         }
