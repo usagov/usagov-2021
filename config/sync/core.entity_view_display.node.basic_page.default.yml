@@ -32,6 +32,20 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
+  field_footer_html:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  field_header_html:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 4
+    region: content
   field_page_intro:
     type: basic_string
     label: hidden
@@ -46,9 +60,7 @@ content:
     region: content
 hidden:
   field_css_icon: true
-  field_footer_html: true
   field_for_contact_center_only: true
-  field_header_html: true
   field_is_navigation_page: true
   field_page_type: true
   langcode: true
