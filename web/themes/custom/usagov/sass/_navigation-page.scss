@@ -13,6 +13,9 @@ $hero: var( $usagov-variables, hero );
             color: var( $hero, secondary-font-color );
         }
     }
+    ul li{
+        margin: 25px 0;
+    }   
 }
 
 $card: var( $usagov-variables, card );
