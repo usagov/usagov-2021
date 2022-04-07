@@ -1,0 +1,40 @@
+
+{% set exclusions = [
+    '/usagov-beta',
+    '/about-the-us-and-its-government',
+    '/money-and-credit',
+    '/laws-and-legal-issues',
+    '/scams-and-frauds',
+    '/es/betausagoves',
+    '/es/acerca-de-estados-unidos-y-directorios-del-gobierno',
+    '/es/dinero-y-credito',
+    '/es/leyes-y-asuntos-legales',
+    '/es/estafas-y-fraudes'
+] %}
+{% set nodeID = node.nid[0].value %}
+{% set path = drupal_url('node/'~nodeID) %}
+
+{% if path|render not in exclusions %}
+    {% set facebook = 'http://www.facebook.com/sharer/sharer.php?u=' %}
+    {% set twitter = 'http://twitter.com/intent/tweet?source=webclient&text=' %}
+    {% set email = 'mailto:?subject=' %}
+
+    {% set baseURL = url('<front>') %}
+    {% set url = baseURL|render~path|render[1:] %}
+
+
+    <div id="sm-share">
+        <span id="share-page">{{ lang == 'en' ? "SHARE THIS PAGE:" : "Comparta esta página:" }}</span>
+        <div role="img" aria-labelledby="share-page">
+            <a href="{{ facebook }}{{ url }}&v=3">
+            <img src="/themes/custom/usagov/images/Facebook_25px_whiteBG.png" alt="Facebook" />
+            </a>
+            <a href="{{ twitter }}{{ url }}">
+            <img src="/themes/custom/usagov/images/Twitter_25px_whiteBG.png " alt="Twitter" />
+            </a>
+            <a href="{{ email }}{{ url }}">
+            <img src="/themes/custom/usagov/images/Email_25px_whiteBG.png" alt="Email"/>
+            </a>
+        </div>
+    </div>
+{% endif %}
