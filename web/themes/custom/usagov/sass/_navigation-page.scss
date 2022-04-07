@@ -3,6 +3,7 @@ $hero: var( $usagov-variables, hero );
 .usagov-hero{
     border-top: 10px solid var( $hero, border-color );
     margin-bottom: 1.5rem;
+    margin-top: -.75rem;
 }
 .usagov-hero__callout{
     background-color: var( $hero, background-color );
@@ -12,6 +13,9 @@ $hero: var( $usagov-variables, hero );
             color: var( $hero, secondary-font-color );
         }
     }
+    ul li{
+        margin: 22px 0;
+    }   
 }
 
 $card: var( $usagov-variables, card );
