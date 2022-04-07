@@ -13,9 +13,9 @@ APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 APP_SPACE=${APP_SPACE:-local}
 # Use a unique dir for each run - just in case more than one of this is running
 
-TOMELOGFILE=$YMD/$APP_SPACE-$YMDHM.log
+TOMELOGFILE=$YMD/$APP_SPACE-$YMDHMS.log
 TOMELOGDIR=/tmp/tome-log/$YMD
-TOMELOG=$TOMELOGDIR/$APP_SPACE-$YMDHM.log
+TOMELOG=$TOMELOGDIR/$APP_SPACE-$YMDHMS.log
 
 # check nodes and blocks for any content changes in the last 30 minutes
 export CONTENT_UPDATED=$(drush sql:query "SELECT SUM(c) FROM ( (SELECT count(*) as c from node_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
