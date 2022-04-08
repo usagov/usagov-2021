@@ -203,7 +203,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && tar xzf /tmp/s6overlay.tar.gz -C / \
     && rm /tmp/s6overlay.tar.gz \
     && mkdir -p /var/run/s6 \
-    && chown -R $BUID:$BGID /var/run/s6 \
+    && chown -R nginx:nginx /var/run/s6 \
     # webserver setup
     && mkdir -p /var/www/ \
     && chown -R nginx:nginx /var/www \
