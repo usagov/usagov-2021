@@ -127,8 +127,6 @@ sed -E "s/container_name: (node)/container_name: $BRANCH-\1/" ./docker-compose.y
 sed -E "s/container_name: (waf)/container_name: $BRANCH-\1/" ./docker-compose.yml > ./docker-compose.yml.bak \
     && mv ./docker-compose.yml.bak ./docker-compose.yml
 
-exit 2;
-
 # setup a new set of containers from scratch
 echo "./bin/init"
 ./bin/init
