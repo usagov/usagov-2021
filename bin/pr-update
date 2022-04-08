@@ -82,23 +82,23 @@ fi
 # use a sepcial directory for our pr checking
 PR_DIR=pr-$BRANCH
 
-# remove our pr directory - but try and be careful
-echo "cd $OG_ROOT"
-cd $OG_ROOT
-echo "cd .."
-cd ..
-if [ -d "./$PR_DIR" ] && [[ "$PR_DIR" == pr-* ]] && [[ "$PR_DIR" != *..* ]]; then
-  echo "rm -rf ./$PR_DIR"
-  rm -rf ./$PR_DIR
+# possibly copy over db and env files from our current project
+if [ -f ${OG_ROOT}/usagov.sql ]; then
+  echo "cp ${OG_ROOT}/usagov.sql ./usagov.sql"
+  cp ${OG_ROOT}/usagov.sql ./usagov.sql
+fi
+if [ -f ${OG_ROOT}/env.local ]; then
+  echo "cp ${OG_ROOT}/env.local ./env.local"
+  cp ${OG_ROOT}/env.local ./env.local
 fi
 
-# setup seperate directory for our pr
-echo "cd .."
-cd ..
-echo "git clone git@github.com:usagov/usagov-2021 $PR_DIR"
-git clone git@github.com:usagov/usagov-2021 $PR_DIR
-echo "cd $PR_DIR"
-cd $PR_DIR
+# update our pr
+echo "cd $OG_ROOT/../$PR_DIR"
+cd $OG_ROOT/../$PR_DIR
+if [ $? -ne 0 ] ; then
+  echo "Failed to find $OG_ROOT/../$PR_DIR"
+  exit 1
+fi
 echo "git fetch"
 git fetch
 echo "git checkout $BRANCH"
