@@ -114,25 +114,12 @@ if [ -f ${OG_ROOT}/env.local ]; then
 fi
 
 # give all container definitions a prefix so we don't collide with main developement containers
-echo "sed -i .bak -E \"s/container_name: \(cms\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i .bak -E "s/container_name: (cms)/container_name: $BRANCH-\1/" ./docker-compose.yml
-
-echo "sed -i .bak -E \"s/container_name: \(database\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i .bak -E "s/container_name: (database)/container_name: $BRANCH-\1/" ./docker-compose.yml
-
-echo "sed -i .bak -E \"s/container_name: \(minio\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i .bak -E "s/container_name: (minio)/container_name: $BRANCH-\1/" ./docker-compose.yml
-
-echo "sed -i .bak -E \"s/container_name: \(composer\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i .bak -E "s/container_name: (composer)/container_name: $BRANCH-\1/" ./docker-compose.yml
-
-echo "sed -i .bak -E \"s/container_name: \(node\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i .bak -E "s/container_name: (node)/container_name: $BRANCH-\1/" ./docker-compose.yml
-
-echo "sed -i .bak -E \"s/container_name: \(waf\)/container_name: $BRANCH-\1/\" ./docker-compose.yml"
-sed -i .bak -E "s/container_name: (waf)/container_name: $BRANCH-\1/" ./docker-compose.yml
-
-rm ./docker-compose.yml.bak
+sed -E "s/container_name: (cms)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
+sed -E "s/container_name: (database)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
+sed -E "s/container_name: (minio)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
+sed -E "s/container_name: (composer)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
+sed -E "s/container_name: (node)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
+sed -E "s/container_name: (waf)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
 
 # setup a new set of containers from scratch
 echo "./bin/init"
