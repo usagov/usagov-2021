@@ -92,7 +92,6 @@ if [ -d "./$PR_DIR" ] && [[ "$PR_DIR" == pr-* ]] && [[ "$PR_DIR" != *..* ]]; the
   rm -rf ./$PR_DIR
 fi
 
-
 # setup seperate directory for our pr
 echo "cd .."
 cd ..
