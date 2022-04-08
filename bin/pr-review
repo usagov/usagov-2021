@@ -114,12 +114,20 @@ if [ -f ${OG_ROOT}/env.local ]; then
 fi
 
 # give all container definitions a prefix so we don't collide with main developement containers
-sed -E "s/container_name: (cms)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
-sed -E "s/container_name: (database)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
-sed -E "s/container_name: (minio)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
-sed -E "s/container_name: (composer)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
-sed -E "s/container_name: (node)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
-sed -E "s/container_name: (waf)/container_name: $BRANCH-\1/" ./docker-compose.yml.bak && mv ./docker-compose.yml.bak ./docker-compose.yml
+sed -E "s/container_name: (cms)/container_name: $BRANCH-\1/" ./docker-compose.yml > ./docker-compose.yml.bak \
+    && mv ./docker-compose.yml.bak ./docker-compose.yml
+sed -E "s/container_name: (database)/container_name: $BRANCH-\1/" ./docker-compose.yml > ./docker-compose.yml.bak \
+    && mv ./docker-compose.yml.bak ./docker-compose.yml
+sed -E "s/container_name: (minio)/container_name: $BRANCH-\1/" ./docker-compose.yml > ./docker-compose.yml.bak \
+    && mv ./docker-compose.yml.bak ./docker-compose.yml
+sed -E "s/container_name: (composer)/container_name: $BRANCH-\1/" ./docker-compose.yml > ./docker-compose.yml.bak \
+    && mv ./docker-compose.yml.bak ./docker-compose.yml
+sed -E "s/container_name: (node)/container_name: $BRANCH-\1/" ./docker-compose.yml > ./docker-compose.yml.bak \
+    && mv ./docker-compose.yml.bak ./docker-compose.yml
+sed -E "s/container_name: (waf)/container_name: $BRANCH-\1/" ./docker-compose.yml > ./docker-compose.yml.bak \
+    && mv ./docker-compose.yml.bak ./docker-compose.yml
+
+exit 2;
 
 # setup a new set of containers from scratch
 echo "./bin/init"
