@@ -2,7 +2,8 @@
 #
 # earlier versions of Drupal are tracked in `community/PHP/`
 
-/s3
+/s3/*
+!/s3/.keep
 /storage
 /.aws
 /*.crt
