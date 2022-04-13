@@ -2,11 +2,11 @@
 
 use Drupal\node\Entity\Node;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\pathauto\PathautoState;
 
 $database = \Drupal::database();
 $mlcs = \Drupal::entityTypeManager()->getStorage('menu_link_content');
 $path_alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
-
 
 $query = \Drupal::entityQuery('node')
   ->condition('type', ['basic_page'], 'IN')
@@ -15,7 +15,7 @@ $en_nids = $query->execute();
 
 echo "EN page count: ". count($en_nids) ."\n\n";
 
-die("\nOne time use script to split spanish lanauge node translations into separate nodes. Comment out line ". (__LINE__) ." to run.\n\nUSAGE: bin/drush scr split/lang-split.php >> lang-split.log;\n\n");
+die("\nFAIL-SAFE Reached : comment out line ". (__LINE__) ." to continue.\n\nUSAGE: bin/drush scr split/lang-split.php >> lang-split.log;\n\n");
 
 $nodes_checked = [];
 $nodes_updated = [];
@@ -40,6 +40,8 @@ foreach ($en_nids as $en_nid) {
     $es_title = $translation->label();
     echo "EN node ($en_nid) has a spanish version\n en: $en_title\n es: $es_title\n";
 
+    die("\nFAIL-SAFE Reached : comment out line ". (__LINE__) ." to continue.\n\nUSAGE: bin/drush scr split/lang-split.php >> lang-split.log;\n\n");
+
     echo " - Checking for an existing separate ES node ... ";
     $query = \Drupal::entityQuery('node')
       ->condition('title', $es_title)
@@ -60,7 +62,7 @@ foreach ($en_nids as $en_nid) {
       $es_node = Node::create(['type' => 'basic_page']);
       foreach ($translation->getFields() as $name => $field) {
         if ( in_array($name,[
-          'type','status','title','created','changed','moderation_state','path','menu_link','body',
+          'type','status','title','created','changed','moderation_state','menu_link','body',
           'field_css_icon','field_footer_html',
           'field_for_contact_center_only','field_header_html',
           'field_is_navigation_page','field_page_intro','field_wizard_step', 'field_page_type'
@@ -69,9 +71,13 @@ foreach ($en_nids as $en_nid) {
         }
       }
       $es_node->langcode = "es";
-      $es_node->set('field_language_toggle', ['target_id' => $en_nid]);
+
+      // initially create pathless
+      $es_node->path = [ 'pathauto' => PathautoState::SKIP ];
 
       echo " - ES node being created ... ";
+      $es_node->save();
+      $es_node->set('field_language_toggle', ['target_id' => $en_nid]);
       $es_node->save();
 
       $es_nid = $es_node->id();
@@ -168,7 +174,7 @@ foreach ($en_nids as $en_nid) {
       echo "failure\n";
     }
 
-    // die('ONE and DONE. comment out line '. __LINE__ .' to run against entire set.');
+    die("\nFAIL-SAFE Reached : comment out line ". (__LINE__) ." to continue.\n\nUSAGE: bin/drush scr split/lang-split.php >> lang-split.log;\n\n");
   }
 }
 
