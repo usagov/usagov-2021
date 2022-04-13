@@ -50,8 +50,8 @@ export NEW_RELIC_API_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')
 export NEW_RELIC_LICENSE_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')
 
 
-SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.SPKEY')
-SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.SPCRT')
+SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.spkey')
+SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.spcrt')
 
 # seems not to be needed
 #spkey=$(echo "$SP_KEY" | awk '{gsub(/\\n/, "\n")}1')
