@@ -150,11 +150,11 @@ docker compose up -d
 echo
 echo "Go forth and test"
 echo
-echo "Need to make direct changes? Don't. Use github comments instead."
+echo "Need to make direct changes? Don't. Use github comments instead to ask for changes."
 echo "cd ../$PR_DIR"
 echo "git remote set-url --push upstream git@github.com:usagov/usagov-2021.git"
 echo
-echo "Need to Review change in Ticket?"
+echo "Need to get changes made to Ticket?"
 echo "bin/pr-update $1"
 echo
 echo "Finished reviewing?"
