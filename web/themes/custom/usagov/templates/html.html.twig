@@ -31,7 +31,7 @@
   <css-placeholder token="{{ placeholder_token|raw }}">
   <js-placeholder token="{{ placeholder_token|raw }}">
   {% if node.id is defined %}
-  {{ drupal_field('field_header_html','node', node.id)|without('#theme') }}
+    {{ node.field_header_html.value|raw }}
   {% endif %}
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -59,7 +59,7 @@
 {{ page_bottom }}
 <js-bottom-placeholder token="{{ placeholder_token|raw }}">
 {% if node.id is defined %}
-{{ drupal_field('field_footer_html','node', node.id)|without('#theme') }}
+  {{ node.field_footer_html.value|raw }}
 {% endif %}
 
 
