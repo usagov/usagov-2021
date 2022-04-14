@@ -6,10 +6,10 @@
    .active-trail{
       font-weight: bold;
    }
-   ul > li + ul > li + li {
+   ul > li > ul > li + li {
       border-top: none;
    }
-   ul > li + ul > li ~ ul ~ li {
+   ul > li > ul > li ~ ul ~ li {
          border-top: none;
    }
    .usa-current{
