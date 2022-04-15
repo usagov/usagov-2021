@@ -45,6 +45,12 @@
             {% set current_language = node.langcode[0].value %}
             {% set other_language = current_language == 'es' ? 'en' : 'es' %}
             {% set toggle_url = drupal_url('node/'~language_toggle.target_id,{ langcode:other_language }) %}
+            {% if toggle_url|render == "/es/usagov-beta-espanol" %}
+              {% set toggle_url = "/es" %}
+            {% endif %}
+            {% if toggle_url|render == "/usagov-beta" %}
+              {% set toggle_url = "/" %}
+            {% endif %}
             <ul class="links usa-nav__primary usa-accordion">
                 <li hreflang="{{ other_language }}" class="usa-nav__primary-item">
                     <a href="{{ toggle_url }}" class="language-link" hreflang="{{ other_language }}">{{ current_language == 'es' ? 'English' : 'Español' }}</a>
