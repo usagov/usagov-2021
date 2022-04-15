@@ -1,0 +1,18 @@
+<?php
+
+function usa_workflow_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id){
+//   $node = \Drupal::routeMatch()->getParameter('node');
+//   if ($node instanceof \Drupal\node\NodeInterface) {
+//     $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+//     dpm('Yes it is a node'); //working
+//     dpm($node->getRevisionUserId()); //working
+//     // dpm($node->getTranslationStatus());
+//     // $user = \Drupal::currentUser();
+//     // dpm(User::load(\Drupal::currentUser()->id()));
+//     // dpm(get_class_methods($user));
+//     //working
+//     dpm($user->id()); //working
+//     dpm(get_class_methods($node)); //working
+//     dpm($node); //working
+//   }
+}
