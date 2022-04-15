@@ -95,10 +95,10 @@ TODO: come up with a better name than start_level. Its really the delta between 
         <a{% if start_level == 0 %} class="usa-current" aria-current="page" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
           {{ items.title }}
         </a>
+        {% if items.below %}
+          {{ _self.build( items.below, 1, start_level, current_item_title) }}
+        {% endif %}
       </li>
-      {% if items.below %}
-        {{ _self.build( items.below, 1, start_level, current_item_title) }}
-      {% endif %}
     </ul>
   </nav>
 
@@ -112,10 +112,10 @@ TODO: come up with a better name than start_level. Its really the delta between 
           <a{% if item.title == current_item_title %} class="usa-current" aria-current="page" href="{{ item.url }}" class="active-trail" {% else %} href="{{ item.url }}" {% if item.in_active_trail == 1 %} class="active-trail" {% endif %} {% endif %}>
             {{ item.title }}
           </a>
+          {% if item.below and item.in_active_trail and menuLevel < start_level or item.title == current_item_title %} {# if there are items and we haven't reached the current item or this is the current item #}
+            {{ _self.build( item.below, menuLevel + 1, start_level, current_item_title) }}
+          {% endif %}
         </li>
-      {% endif %}
-      {% if item.below and item.in_active_trail and menuLevel < start_level or item.title == current_item_title %} {# if there are items and we haven't reached the current item or this is the current item #}
-        {{ _self.build( item.below, menuLevel + 1, start_level, current_item_title) }}
       {% endif %}
     {% endfor %}
   </ul>
