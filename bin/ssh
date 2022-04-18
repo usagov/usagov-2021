@@ -1,6 +1,11 @@
 #!/bin/sh
 
-docker exec -it \
-  --workdir /var/www \
-  cms \
-  /bin/ash
+set -e
+
+WHERE=${1:-cms}
+
+docker compose run \
+  --rm \
+  --no-deps \
+  $WHERE \
+  /bin/bash
