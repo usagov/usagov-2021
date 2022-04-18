@@ -17,6 +17,11 @@ if [ -z "$AWS_ENDPOINT" ] || [ "$AWS_ENDPOINT" == "null" ]; then
   export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.endpoint');
 fi
 
+S3_EXTRA_PARAMS=""
+if [ "${APP_SPACE}" = "local" ]; then
+  S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
+fi
+
 # grab the cloudgov space we are hosted in
 APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 APP_SPACE=${APP_SPACE:-local}
@@ -41,9 +46,8 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ $
   else
     echo "Tome static build failed - not pushing to S3" | tee $TOMELOG
     if [ -f "$TOMELOG" ]; then
-      --endpoint-url https://$AWS_ENDPOINT --no-verify-ssl
-      #aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE --only-show-errors
-      echo "s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE --only-show-errors"
+      echo "Saving logs of this run to S3" | tee $TOMELOG
+      aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE --only-show-errors $S3_EXTRA_PARAMS
     fi
     exit 1
   fi
