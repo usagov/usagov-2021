@@ -1,0 +1,129 @@
+#!/bin/bash
+
+TICKET=$1
+
+if [ -z "$TICKET" ] ; then
+  echo "Usage: $0 <ticket name or number>"
+  exit 1
+fi
+
+# fuzzy search for ticket by number
+BRANCH=
+BRANCH_LIST=$(git ls-remote --heads origin | sed 's|.*refs/heads/||')
+MATCHES_0=$(echo "$BRANCH_LIST" | grep --ignore-case -e '\b\(usagov-\)'$TICKET'[^0-9]')
+MATCHES_1=$(echo "$BRANCH_LIST" | grep --ignore-case -e '\b\(usagov-\)'$TICKET'$')
+MATCHES_2=$(echo "$BRANCH_LIST" | grep --ignore-case -e '\b'$TICKET'$')
+MATCHES_3=$(echo "$BRANCH_LIST" | grep --ignore-case -e '\b'$TICKET'[^0-9]')
+if [ -z "$BRANCH" ] && [ -n "$MATCHES_0" ]; then
+  COUNT=$(echo "$MATCHES_0" | wc -l)
+  if [ "$COUNT" -gt 1 ] ; then
+    echo "Multiple ambiguous matches found for '$TICKET'"
+    echo "$MATCHES_0"
+    exit 1
+  fi
+  MATCH=$(echo "$MATCHES_0" | head -n1)
+  if [ -n "$MATCH" ]; then
+    BRANCH=$MATCH
+  fi
+fi
+if [ -z "$BRANCH" ] && [ -n "$MATCHES_1" ]; then
+  COUNT=$(echo "$MATCHES_1" | wc -l)
+  if [ "$COUNT" -gt 1 ] ; then
+    echo "Multiple ambiguous matches found for '$TICKET'"
+    echo "$MATCHES_1"
+    exit 1
+  fi
+  MATCH=$(echo "$MATCHES_1" | head -n1)
+  if [ -n "$MATCH" ]; then
+    BRANCH=$MATCH
+  fi
+fi
+if [ -z "$BRANCH" ] && [ -n "$MATCHES_2" ]; then
+  COUNT=$(echo "$MATCHES_2" | wc -l)
+  if [ "$COUNT" -gt 1 ] ; then
+    echo "Multiple ambiguous matches found for '$TICKET'"
+    echo "$MATCHES_2"
+    exit 1
+  fi
+  MATCH=$(echo "$MATCHES_2" | head -n1)
+  if [ -n "$MATCH" ]; then
+    BRANCH=$MATCH
+  fi
+fi
+if [ -z "$BRANCH" ] && [ -n "$MATCHES_3" ]; then
+  COUNT=$(echo "$MATCHES_3" | wc -l)
+  if [ "$COUNT" -gt 1 ] ; then
+    echo "Multiple ambiguous matches found for '$TICKET'"
+    echo "$MATCHES_3"
+    exit 1
+  fi
+  MATCH=$(echo "$MATCHES_3" | head -n1)
+  echo "~$MATCH"
+  if [ -n "$MATCH" ]; then
+    BRANCH=$MATCH
+  fi
+fi
+if [ -z "$BRANCH" ]; then
+  echo "No branch found for '$TICKET'."
+  exit 1
+fi
+echo "Branch '$BRANCH' found for '$TICKET'."
+
+# figure out where our current repo is
+OG_ROOT=$(git rev-parse --show-toplevel)
+
+# make sure we have docker available
+DOCKER_IS_RUNNING=$(docker ps 2>&1 > /dev/null)
+if [ "$?" != "0" ] ; then
+  echo "Docker is not running. Start Docker and try again."
+  exit 1
+fi
+
+# use a sepcial directory for our pr checking
+PR_DIR=pr-$BRANCH
+
+# possibly copy over db and env files from our current project
+if [ -f ${OG_ROOT}/usagov.sql ]; then
+  echo "cp ${OG_ROOT}/usagov.sql ./usagov.sql"
+  cp ${OG_ROOT}/usagov.sql ./usagov.sql
+fi
+if [ -f ${OG_ROOT}/env.local ]; then
+  echo "cp ${OG_ROOT}/env.local ./env.local"
+  cp ${OG_ROOT}/env.local ./env.local
+fi
+
+# update our pr
+echo "cd $OG_ROOT/../$PR_DIR"
+cd $OG_ROOT/../$PR_DIR
+if [ $? -ne 0 ] ; then
+  echo "Failed to find $OG_ROOT/../$PR_DIR"
+  exit 1
+fi
+echo "git fetch"
+git fetch
+echo "git checkout $BRANCH"
+git checkout $BRANCH
+echo "git pull"
+git pull
+
+# install this branch's stuff onto of db
+echo "./bin/drupal-update"
+./bin/drupal-update
+
+# start the containers
+echo "docker compose up -d"
+docker compose up -d
+
+# wait for the containers to come up
+echo
+echo "Go forth and test"
+echo
+echo "Need to make direct changes? Don't. Use github comments instead to ask for changes."
+echo "cd ../$PR_DIR"
+echo "git remote set-url --push upstream git@github.com:usagov/usagov-2021.git"
+echo
+echo "Need to get changes made to Ticket?"
+echo "bin/pr-update $1"
+echo
+echo "Finished reviewing?"
+echo "bin/pr-cleanup $1"
