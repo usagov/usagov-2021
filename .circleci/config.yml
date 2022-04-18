@@ -88,6 +88,11 @@ jobs:
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist
       - run:
+          name: PHP Static Scan
+          command: |
+            COMPOSER_DIR=$(composer -n config --global home)
+            $COMPOSER_DIR/vendor/bin/phpcs -ns --extensions=php,inc,lib,module,info --standard=$COMPOSER_DIR/vendor/pheromone/phpcs-security-audit/example_base_ruleset.xml ./scripts ./web/modules/custom ./web/themes/custom
+      - run:
           name: Theme Lint
           command: npm run lint --prefix ./web/themes/custom/usagov
 

@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+docker compose run \
+  --rm \
+  --no-deps \
+  --workdir /var/www \
+  composer \
+  /bin/sh -c "\$(composer -n config --global home)/vendor/bin/phpcs -ns --extensions=php,inc,lib,module,info --standard=\$(composer -n config --global home)/vendor/pheromone/phpcs-security-audit/example_base_ruleset.xml ./scripts ./web/modules/custom ./web/themes/custom"

@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+docker compose run \
+  --rm \
+  --no-deps \
+  --workdir /var/www \
+  composer \
+  /bin/sh -c "\$(composer -n config --global home)/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom"
+PHP_LINT_SUCCESS=$?
+
+docker compose run \
+  --rm \
+  --no-deps \
+  node \
+  npm run lint
+JS_LINT_SUCCESS=$?
+
+if [ $PHP_LINT_SUCCESS -eq 0 ] && [ $JS_LINT_SUCCESS -eq 0 ]; then
+  exit 0
+fi
+if [ $PHP_LINT_SUCCESS -gt $JS_LINT_SUCCESS ]; then
+  exit $PHP_LINT_SUCCESS
+fi
+exit $JS_LINT_SUCCESS

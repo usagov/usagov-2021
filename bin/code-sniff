@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+docker compose run \
+  --rm \
+  --no-deps \
+  --workdir /var/www \
+  composer \
+  /bin/sh -c "\$(composer -n config --global home)/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist"

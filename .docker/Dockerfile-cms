@@ -56,9 +56,12 @@ WORKDIR /var/www
 
 USER www-data
 
-RUN composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint \
+RUN composer global require --dev \
+      drupal/coder \
+      php-parallel-lint/php-parallel-lint \
+      pheromone/phpcs-security-audit \
     && COMPOSER_DIR=$(composer -n config --global home) && echo $COMPOSER_DIR \
-    && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
+    && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard,$COMPOSER_DIR/vendor/pheromone/phpcs-security-audit
 RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader \
     && chown www-data:www-data /var/www/composer.json /var/www/composer.lock
 
