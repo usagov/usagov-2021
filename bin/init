@@ -27,6 +27,9 @@ echo "Init local secrets file"
 if [ ! -f env.local ]; then
   cp env.default env.local
 fi
+if [ -f env.local ]; then
+  source env.local
+fi
 
 echo "Setup git hooks"
 if [ ! -f .git/hooks/commit-msg ]; then

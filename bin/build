@@ -1,4 +1,11 @@
 #!/bin/bash
 set -e
 
-BUID=$(id -u) BGID=$(id -g) docker compose build --no-cache $@
+if [ -f env.local ]; then
+  source env.local
+fi
+
+CURR_UID=$(id -u)
+CURR_GID=$(id -g)
+
+BUID=${BUID:-"$CURR_UID"} BGID=${BGID:-"$CURR_GID"} docker compose build --no-cache $@
