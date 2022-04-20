@@ -8,4 +8,4 @@ docker compose run \
   --rm \
   --no-deps \
   $WHERE \
-  /bin/bash
+  /bin/sh
