@@ -84,6 +84,7 @@ RUN npm install --global \
       git \
       gulp \
       gulp-cli \
+      platform-js \
     && chown -R node:node /home/node/
 
 COPY --chown=node:node web/themes/custom/ /var/www/web/themes/custom/
