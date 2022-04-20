@@ -64,7 +64,7 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 
 ###############################################################
 
-FROM node:16.8.0-alpine3.13 AS theme-builder
+FROM node:17-alpine3.14 AS theme-builder
 
 ARG BUID=1000
 ARG BGID=1000
@@ -79,7 +79,10 @@ RUN apk upgrade --update \
       ca-certificates \
       curl \
       git \
-      openssh
+      openssh \
+      python3 \
+      py3-pip \
+      && ln -sf python3 /usr/bin/python
 RUN npm install --global \
       git \
       gulp \
