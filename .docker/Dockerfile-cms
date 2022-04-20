@@ -70,9 +70,9 @@ FROM node:17-alpine3.14 AS theme-builder
 ARG BUID=1000
 ARG BGID=1000
 
-RUN mkdir -p /root/.ssh && ls -al && pwd
-COPY ./.ssh /root/.ssh
-RUN ls -al /root/.ssh && sleep 20
+# RUN mkdir -p /root/.ssh && ls -al && pwd
+# COPY ./.ssh /root/.ssh
+# RUN ls -al /root/.ssh && sleep 20
 
 # RUN lsb_release -sirc && sleep 30
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
