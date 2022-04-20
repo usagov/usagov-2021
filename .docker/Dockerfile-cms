@@ -70,7 +70,7 @@ FROM node:17-alpine3.14 AS theme-builder
 ARG BUID=1000
 ARG BGID=1000
 
-RUN lsb_release -sirc && sleep 30
+# RUN lsb_release -sirc && sleep 30
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
