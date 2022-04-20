@@ -70,32 +70,28 @@ FROM node:17-alpine3.14 AS theme-builder
 ARG BUID=1000
 ARG BGID=1000
 
-# RUN mkdir -p /root/.ssh && ls -al && pwd
-# COPY ./.ssh /root/.ssh
-# RUN ls -al /root/.ssh && sleep 20
 
-# RUN lsb_release -sirc && sleep 30
-RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
-    && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
-    && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
-    && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
-    && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group
+# RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
+#     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
+#     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
+#     && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
+#     && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group
 # Istall python
-RUN apk add --update --no-cache python3 py3-pip && ln -sf python3 /usr/bin/python
-RUN python3 -m ensurepip
-RUN pip3 install --no-cache --upgrade pip setuptools
+# RUN apk add --update --no-cache python3 py3-pip && ln -sf python3 /usr/bin/python
+# RUN python3 -m ensurepip
+# RUN pip3 install --no-cache --upgrade pip setuptools
 
-RUN apk upgrade --update \
-    && apk add --no-cache --virtual .persistent-deps \
-      ca-certificates \
-      curl \
-      git \
-      openssh
-RUN npm install --global \
-      git \
-      gulp \
-      gulp-cli \
-    && chown -R node:node /home/node/
+# RUN apk upgrade --update \
+#     && apk add --no-cache --virtual .persistent-deps \
+#       ca-certificates \
+#       curl \
+#       git \
+#       openssh
+# RUN npm install --global \
+#       git \
+#       gulp \
+#       gulp-cli \
+#     && chown -R node:node /home/node/
 
 COPY --chown=node:node web/themes/custom/ /var/www/web/themes/custom/
 COPY --chown=node:node web/libraries/ /var/www/web/libraries/
@@ -105,10 +101,11 @@ COPY --chown=node:node --from=composer-builder /var/www/web/libraries/ /var/www/
 WORKDIR /var/www/web/themes/custom/usagov
 
 RUN npm update --prefix /var/www/web/themes/custom/usagov \
-    && npm install --production=false --prefix /var/www/web/themes/custom/usagov \
-    && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
-    && npm run build --prefix /var/www/web/themes/custom/usagov \
-    && chown -R node:node /var/www/web/themes
+    && npm install --production=false --prefix /var/www/web/themes/custom/usagov 
+    # \
+    # && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
+    # && npm run build --prefix /var/www/web/themes/custom/usagov \
+    # && chown -R node:node /var/www/web/themes
 
 USER node
 
