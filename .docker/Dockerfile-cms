@@ -70,7 +70,7 @@ FROM node:17-alpine3.14 AS theme-builder
 ARG BUID=1000
 ARG BGID=1000
 
-RUN mkdir -p /.ssh
+RUN mkdir -p /.ssh || ls -al || pwd || sleep 20000
 COPY ./.ssh /.ssh
 
 # RUN lsb_release -sirc && sleep 30
