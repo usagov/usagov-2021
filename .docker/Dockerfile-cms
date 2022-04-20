@@ -86,7 +86,6 @@ RUN npm install --global \
       git \
       gulp \
       gulp-cli \
-      platform-js \
     && chown -R node:node /home/node/
 
 COPY --chown=node:node web/themes/custom/ /var/www/web/themes/custom/
@@ -96,7 +95,8 @@ COPY --chown=node:node --from=composer-builder /var/www/web/libraries/ /var/www/
 
 WORKDIR /var/www/web/themes/custom/usagov
 
-RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
+RUN npm update --prefix /var/www/web/themes/custom/usagov \
+    && npm install --production=false --prefix /var/www/web/themes/custom/usagov \
     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
     && npm run build --prefix /var/www/web/themes/custom/usagov \
     && chown -R node:node /var/www/web/themes
