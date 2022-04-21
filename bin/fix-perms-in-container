@@ -1,5 +1,5 @@
 #!/bin/sh
 
-export BUID=$(id -u)
-export BGID=$(id -g)
+# export BUID=$(id -u)
+# export BGID=$(id -g)
 find /var/www -not -user $BUID -not -group $BGID -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference $BUID:$BGID
