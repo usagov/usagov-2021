@@ -10,6 +10,7 @@ dependencies:
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
     - field.field.node.basic_page.field_is_navigation_page
+    - field.field.node.basic_page.field_language_toggle
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
     - node.type.basic_page
@@ -45,6 +46,7 @@ hidden:
   field_for_contact_center_only: true
   field_header_html: true
   field_is_navigation_page: true
+  field_language_toggle: true
   field_page_intro: true
   field_page_type: true
   langcode: true
