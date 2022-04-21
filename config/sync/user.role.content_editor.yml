@@ -55,6 +55,7 @@ permissions:
   - 'use basic_workflow transition approve'
   - 'use basic_workflow transition create_new_draft'
   - 'use basic_workflow transition move_to_review'
+  - 'use basic_workflow transition publish'
   - 'view all revisions'
   - 'view any unpublished content'
   - 'view basic_page revisions'
