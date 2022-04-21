@@ -99,12 +99,12 @@ WORKDIR /var/www/web/themes/custom/usagov
 RUN chown -R node:node /var/www/web/themes \
     && chown -R node:node /home/node/
 
-USER node
-
 RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
     && npm run build --prefix /var/www/web/themes/custom/usagov \
     && chown -R node:node /var/www/web/themes
+
+USER node
 
 ###############################################################
 
