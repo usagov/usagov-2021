@@ -73,6 +73,20 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
     && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group
+# RUN apk upgrade --update \
+#     && apk add --no-cache --virtual .persistent-deps \
+#       ca-certificates \
+#       curl \
+#       git \
+#       openssh \
+#       python3 \
+#       py3-pip \
+#       && ln -sf python3 /usr/bin/python
+RUN npm install --global \
+      gulp \
+    && chown -R node:node /home/node/
+
+#      gulp-cli \
 
 COPY --chown=node:node web/themes/custom/ /var/www/web/themes/custom/
 COPY --chown=node:node web/libraries/ /var/www/web/libraries/
@@ -222,6 +236,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       -e 's/;\?newrelic.daemon.logfile =.*/newrelic.daemon.logfile = \/dev\/stdout/' \
       -e 's/;\?newrelic.daemon.loglevel =.*/newrelic.daemon.loglevel = "warning"/' \
       -e 's/;\?newrelic.loglevel =.*/newrelic.loglevel = "warning"/' \
+      -e 's/;\?newrelic.enabled =.*/newrelic.enabled = false/' \
       /etc/php8/conf.d/newrelic.ini \
     # cron setup
     && mkdir -p /etc/periodic/30min \
