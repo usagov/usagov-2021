@@ -257,7 +257,7 @@ RUN chmod -R +x /etc/periodic \
     && echo "    gittag: " $GITTAG >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \
     && echo >> /etc/motd \
-    && cp /etc/motd /var/www/build.info \
+    && cp /etc/motd /var/www/web/build.info \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
 
 EXPOSE 80
