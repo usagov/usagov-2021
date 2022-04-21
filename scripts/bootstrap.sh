@@ -90,6 +90,10 @@ fi
 if [ -d /var/run/s6/services/php ]; then
   s6-svc -r /var/run/s6/services/php
 fi
+# update build info
+if [ -f /etc/motd ]; then
+  cp /etc/motd /var/www/web/version.txt
+fi
 
 if [ -n "${FIX_FILE_PERMS:-}" ]; then
   echo  "Fixing File Permissions ... "
