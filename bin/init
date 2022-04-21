@@ -34,6 +34,7 @@ fi
 echo "Setup git hooks"
 if [ ! -f .git/hooks/commit-msg ]; then
   cp .git.commit-msg .git/hooks/commit-msg
+  chmod +x .git/hooks/commit-msg
 fi
 
 echo "Build Containers"
@@ -52,7 +53,7 @@ bin/composer install --no-interaction --optimize-autoloader
 echo "Build theme"
 bin/npm install --legacy-peer-deps
 bin/npm rebuild node-sass
-bin/gulp build
+bin/npm run build
 
 
 echo "Init process complete"
