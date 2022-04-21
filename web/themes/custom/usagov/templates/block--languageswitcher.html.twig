@@ -1,0 +1,65 @@
+{#
+/**
+ * @file
+ * Theme override to display a block.
+ *
+ * Available variables:
+ * - plugin_id: The ID of the block implementation.
+ * - label: The configured label of the block if visible.
+ * - configuration: A list of the block's configuration values.
+ *   - label: The configured label for the block.
+ *   - label_display: The display settings for the label.
+ *   - provider: The module or other provider that provided this block plugin.
+ *   - Block plugin specific settings will also be stored here.
+ * - content: The content of this block.
+ * - attributes: array of HTML attributes populated by modules, intended to
+ *   be added to the main container tag of this template.
+ *   - id: A valid HTML ID and guaranteed unique.
+ * - title_attributes: Same as attributes, except applied to the main title
+ *   tag that appears in the template.
+ * - title_prefix: Additional output populated by modules, intended to be
+ *   displayed in front of the main title tag that appears in the template.
+ * - title_suffix: Additional output populated by modules, intended to be
+ *   displayed after the main title tag that appears in the template.
+ *
+ * @see template_preprocess_block()
+ */
+#}
+{%
+    set classes = [
+      'block',
+      'block-' ~ configuration.provider|clean_class,
+      'block-' ~ plugin_id|clean_class,
+    ]
+  %}
+  <div{{ attributes.addClass(classes) }}>
+    {{ title_prefix }}
+    {% if label %}
+      <h2{{ title_attributes }}>{{ label }}</h2>
+    {% endif %}
+    {{ title_suffix }}
+    {% block content %}
+        {% set language_toggle = node.field_language_toggle[0].value %}
+        {# language_toggle allows content editors to manually specify a url for the language toggle #}
+        {% if language_toggle %}
+            {% set current_language = node.langcode[0].value %}
+            {% set other_language = current_language == 'es' ? 'en' : 'es' %}
+            {% set toggle_url = drupal_url('node/'~language_toggle.target_id,{ langcode:other_language }) %}
+
+            {# If nid is 1, then it is a Homepage #}
+            {% if node.nid[0].value|render == "1" %}
+              {% set toggle_url = current_language == 'es' ? '/' : '/es' %}
+            {% endif %}
+
+            <ul class="links usa-nav__primary usa-accordion">
+                <li hreflang="{{ other_language }}" class="usa-nav__primary-item">
+                    <a href="{{ toggle_url }}" class="language-link" hreflang="{{ other_language }}">{{ current_language == 'es' ? 'English' : 'Español' }}</a>
+                </li>
+            </ul>
+        {% else %}
+            {# if language_toggle is not set, then the default language_switcher content is used #}
+            {{ content }}
+        {% endif %}
+  
+    {% endblock %}
+  </div>
