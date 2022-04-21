@@ -27,6 +27,9 @@ echo "Init local secrets file"
 if [ ! -f env.local ]; then
   cp env.default env.local
 fi
+if [ -f env.local ]; then
+  source env.local
+fi
 
 echo "Setup git hooks"
 if [ ! -f .git/hooks/commit-msg ]; then
@@ -37,7 +40,10 @@ echo "Build Containers"
 bin/build
 
 echo "Fix permissions inside Containers - this could take a long time"
-docker compose run --rm --no-deps --workdir /var/www composer /var/www/bin/fix-perms-in-container
+docker compose run \
+  --rm --no-deps --workdir /var/www \
+  composer \
+  /var/www/bin/fix-perms-in-container
 
 echo "Install Drupal modules"
 bin/drush cr
