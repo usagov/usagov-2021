@@ -85,7 +85,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 #       py3-pip \
 #       && ln -sf python3 /usr/bin/python
 RUN npm install --global \
-      gulp \
+      gulp python3 py3-pip \
     && chown -R node:node /home/node/
 
 #      gulp-cli \
