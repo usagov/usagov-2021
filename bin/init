@@ -58,7 +58,7 @@ docker compose run \
 #========================
 
 echo "Install Drupal modules"
-bin/drush cr
+# bin/drush cr
 bin/composer install --no-interaction --optimize-autoloader
 
 echo "Build theme"
