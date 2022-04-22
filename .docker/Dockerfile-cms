@@ -61,6 +61,7 @@ RUN composer global require --dev drupal/coder php-parallel-lint/php-parallel-li
 RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader \
     && chown www-data:www-data /var/www/composer.json /var/www/composer.lock
 
+# USER www-data
 ###############################################################
 
 FROM node:17-alpine3.14 AS theme-builder
@@ -104,7 +105,6 @@ RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
     && npm run build --prefix /var/www/web/themes/custom/usagov \
     && chown -R node:node /var/www/web/themes
-
 
 ###############################################################
 
