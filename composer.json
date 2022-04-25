@@ -19,6 +19,7 @@
         "drupal/address": "^1.9",
         "drupal/admin_content_notification": "^3.8",
         "drupal/admin_toolbar": "3.x-dev",
+        "drupal/allowed_formats": "^1.5",
         "drupal/autosave_form": "^1.2",
         "drupal/bigmenu": "^2.0@RC",
         "drupal/block_content_revision_ui": "^2.127",
