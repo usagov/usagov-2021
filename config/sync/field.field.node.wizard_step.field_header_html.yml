@@ -1,0 +1,26 @@
+uuid: a5af817a-e074-47fe-8655-047814a4ed6f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_header_html
+    - node.type.wizard_step
+  module:
+    - allowed_formats
+    - text
+third_party_settings:
+  allowed_formats:
+    allowed_formats:
+      - html
+id: node.wizard_step.field_header_html
+field_name: field_header_html
+entity_type: node
+bundle: wizard_step
+label: 'Header HTML'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

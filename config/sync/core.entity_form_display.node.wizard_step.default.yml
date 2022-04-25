@@ -4,6 +4,8 @@ status: true
 dependencies:
   config:
     - field.field.node.wizard_step.body
+    - field.field.node.wizard_step.field_footer_html
+    - field.field.node.wizard_step.field_header_html
     - field.field.node.wizard_step.field_option_name
     - field.field.node.wizard_step.field_wizard_step
     - node.type.wizard_step
@@ -31,6 +33,22 @@ content:
     weight: 10
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_footer_html:
+    type: string_textarea
+    weight: 125
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_header_html:
+    type: text_textarea
+    weight: 124
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
     third_party_settings: {  }
   field_option_name:
     type: string_textfield
