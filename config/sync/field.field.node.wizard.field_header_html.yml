@@ -1,0 +1,26 @@
+uuid: f5aa1378-c901-423b-9511-6baa27367701
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_header_html
+    - node.type.wizard
+  module:
+    - allowed_formats
+    - text
+third_party_settings:
+  allowed_formats:
+    allowed_formats:
+      - html
+id: node.wizard.field_header_html
+field_name: field_header_html
+entity_type: node
+bundle: wizard
+label: 'Header HTML'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long
