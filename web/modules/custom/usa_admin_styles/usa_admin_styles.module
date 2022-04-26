@@ -1,0 +1,5 @@
+<?php
+
+function usa_admin_styles_preprocess_page(&$variables) {
+  $variables['#attached']['library'][] = 'usa_admin_styles/mylib';
+}
