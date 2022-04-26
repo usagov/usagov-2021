@@ -20,8 +20,8 @@ https://cm-jira.usa.gov/browse/USAGOV-
 - [ ] The branch name of this PR matches the project standards.
 - [ ] QA steps are followed and any changes to process are updated in the ticket.
 - [ ] Code Standards are followed, there are no bad practices in use.
-- [ ] Configs include only necessary changes.
+- [ ] Config changes (if any) include only necessary changes.
 - [ ] No errors in Drupal or Client Browser.
 - [ ] Code has been tested locally (if possible).
-- [ ] The AC and Testing Steps verify the change in works as expected.
-- [ ] There are no side-effects outside of expected behavior.
+- [ ] Following AC and Testing Steps verify changes work as expected.
+- [ ] There are no known side-effects outside of expected behavior.
