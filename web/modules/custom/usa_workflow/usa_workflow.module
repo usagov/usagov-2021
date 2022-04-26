@@ -1,8 +1,8 @@
 <?php
-function usa_workflow_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id){
+function usa_workflow_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id){ 
+  $newform = ['node_basic_page_form', 'node_wizard_step_form', 'node_wizard_form'];
+  if(in_array($form_id,$newform)){
     dpm($form_id);
-    dpm($form);
-    $newform = ['node_basic_page_form'];
-    $exforms = [];
-
+    unset($form['moderation_state']['widget'][0]['state']['#options']['published']);
+  }
 }
