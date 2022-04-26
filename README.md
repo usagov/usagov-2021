@@ -10,13 +10,14 @@ bin/init
 docker compose up
 ```
 
-## Full Project Setup 
+## Full Project Setup
 If a databse dump (usagov.sql) is acquired from a specific hosted environment, a full copy of that environment can be created as a starting point.
 
 ```
 bin/init
-bin/update-db
-bin/update-drupal
+docker compose up
+bin/db-update
+bin/drupal-update
 docker compose up
 ```
 

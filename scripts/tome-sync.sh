@@ -44,6 +44,31 @@ for f in `find $RENDER_DIR/*`; do
   [ "$f" != "$ff" ] && mv -v "$f" "$ff";
 done
 
+# get a count of tome generated files
+echo "Tome generated files : count total" | tee -a $TOMELOG
+TOME_COUNT=$(find $RENDER_DIR -type f 2>&1 | sort -u | wc -l | tee -a $TOMELOG)
+echo "Tome generated files : count by extension" | tee -a $TOMELOG
+find $RENDER_DIR -type f 2>&1 | sort -u | grep -o ".[^.]\+$" | uniq -c | tee -a $TOMELOG
+
+# get a count of current AWS files
+echo "S3 dir storage files : count total" | tee -a $TOMELOG
+S3_COUNT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | sort -u | wc -l | tee -a $TOMELOG)
+echo "S3 dir storage files : count by entension" | tee -a $TOMELOG
+aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | grep -o ".[^.]\+$" | sort | uniq -c | tee -a $TOMELOG
+
+TOME_TOO_MUCH=0
+TOME_TOO_LITTLE=0
+
+if [ "$TOME_TOO_MUCH" == "1" ]; then
+  echo "Tome static build suspicious - adding more content than expected" | tee $TOMELOG
+  # send message, but continue on
+fi
+if [ "$TOME_TOO_LITTLE" == "1" ]; then
+  echo "Tome static build failure - removing more content than expected" | tee $TOMELOG
+  # send message, and abort
+  exit 3
+fi
+
 # endpoint and ssl specifications only necessary on local for minio
 # maybe use --only-show-errors if logs are too spammy
 aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
