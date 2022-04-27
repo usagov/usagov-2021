@@ -1,22 +1,20 @@
 #!/bin/sh
 
-# if ! command -v cf &> /dev/null
-# then
-#     echo "CF : the cloud foundry client could not be found and is required"
-#     exit
-# fi
+if ! command -v cf &> /dev/null
+then
+    echo "CF : the cloud foundry client could not be found and is required"
+    exit
+fi
 
-# if ! command -v sshpass &> /dev/null
-# then
-#     echo "SSHPASS : could not be found and is required"
-#     exit
-# fi
+YMD=${1:-$(date +"%Y/%m/%d")}
+YMDHMS=${2:-$(date +"%Y_%m_%d_%H_%M_%S")}
 
 echo "Dumping database"
-# gather unique timestamp for 
-cf ssh web -c 'source /etc/profile && /var/www/backup-to-s3.sh'
+cf ssh web -c '/var/www/scripts/db-dump.sh '$YMD' '$YMDHMS''
 
-# check s3 for dump
+# setup s3 access so aws s3 command will work here somehow
 
+SQLFILE=usagov-$YMDHMS.sql.gz
+aws s3 cp s3://$BUCKET_NAME/db/$SQLFILE ./$SQLFILE --only-show-errors $S3_EXTRA_PARAMS
 
 echo "All Done"
