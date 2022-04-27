@@ -50,5 +50,6 @@ $card: var( $usagov-variables, card );
     }
     a{
         color: var( $card, text-color );
+        display: block;
     }
 }

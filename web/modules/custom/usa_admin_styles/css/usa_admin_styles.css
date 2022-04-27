@@ -1,0 +1,9 @@
+
+
+#block-usagov-local-tasks a[href$="/translations"]{
+    display: none;
+}
+
+#block-claro-primary-local-tasks a[href$="/translations"]{
+    display: none;
+}

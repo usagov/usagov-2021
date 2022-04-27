@@ -9,6 +9,7 @@ dependencies:
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
     - field.field.node.basic_page.field_is_navigation_page
+    - field.field.node.basic_page.field_language_toggle
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
     - node.type.basic_page
@@ -77,6 +78,16 @@ content:
     settings:
       display_label: true
     third_party_settings: {  }
+  field_language_toggle:
+    type: entity_reference_autocomplete
+    weight: 30
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_page_intro:
     type: string_textarea
     weight: 1
@@ -96,7 +107,7 @@ content:
     weight: 2
     region: content
     settings:
-      include_locked: true
+      include_locked: false
     third_party_settings: {  }
   moderation_state:
     type: moderation_state_default
