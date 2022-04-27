@@ -13,10 +13,7 @@ function usa_workflow_menu_local_tasks_alter(&$data, $route_name){
   if($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']){
     unset($data['tabs'][0]['entity.node.delete_form']);
   }
-
 }
-
-
 function wf_user_role(){
   $return = [];
   // Users and their roles from current node
