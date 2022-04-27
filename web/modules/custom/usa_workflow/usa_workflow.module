@@ -2,8 +2,12 @@
 
 use Drupal\Core\Form\FormStateInterface;
 
-function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) { 
-  $newform = ['node_basic_page_form', 'node_wizard_step_form', 'node_wizard_form'];
+function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $newform = [
+    'node_basic_page_form',
+    'node_wizard_step_form',
+    'node_wizard_form'
+  ];
   $wfusers = wf_user_role();
   if(in_array($form_id,$newform) || $wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']){
     unset($form['moderation_state']['widget'][0]['state']['#options']['published']);
