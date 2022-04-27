@@ -1,4 +1,5 @@
 <?php
+
 function usa_workflow_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id){ 
   $newform = ['node_basic_page_form', 'node_wizard_step_form', 'node_wizard_form'];
   $wfusers = wf_user_role();
@@ -8,12 +9,14 @@ function usa_workflow_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $f
     if(isset($form['actions'])) unset($form['actions']['delete']);
   }
 }
+
 function usa_workflow_menu_local_tasks_alter(&$data, $route_name){
   $wfusers = wf_user_role();
   if($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']){
     unset($data['tabs'][0]['entity.node.delete_form']);
   }
 }
+
 function wf_user_role(){
   $return = [];
   // Users and their roles from current node
