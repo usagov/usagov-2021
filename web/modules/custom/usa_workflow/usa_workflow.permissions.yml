@@ -1,3 +1,7 @@
 usa approve own content:
   title: 'Approve own content'
   description: 'Allow user to approve own content.'
+
+overwrite the Content Editor permission restriction:
+  title: 'Overwrite the Content Editor permission restriction'
+  description: 'If the Content Editor has another role, The user can overwrite the Content editor permission restriction on Publish/Deletion processes.'
