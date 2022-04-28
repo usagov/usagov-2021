@@ -10,13 +10,19 @@ function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_i
     'node_wizard_step_form',
     'node_wizard_form',
   ];
-  //&& $wfusers['currentUser']['ocepr'] === FALSE
   $wfusers = wf_user_role();
+  dpm('in_array($form_id, $newform)');
+  dpm(in_array($form_id, $newform)); //true
+  dpm('$wfusers[\'currentUser\'][\'ocepr\'] === FALSE');
+  dpm($wfusers['currentUser']['ocepr'] === FALSE); //true
+  dpm('$wfusers[\'currentUser\'][\'id\'] === $wfusers[\'reviseduser\'][\'id\']');
+  dpm($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']); //true
+  dpm('-----------------------');
+  //&& $wfusers['currentUser']['ocepr'] === FALSE
   dpm($wfusers);
-  dpm(in_array($form_id, $newform));
-  dpm($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']);
-  // || $wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']
-  if (in_array($form_id, $newform) && $wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']) {
+  if ((in_array($form_id, $newform)
+      || $wfusers['currentUser']['id'] === $wfusers['reviseduser']['id'])
+      && $wfusers['currentUser']['ocepr'] === FALSE) {
     unset($form['moderation_state']['widget'][0]['state']['#options']['published']);
     if (isset($form['new_state'])) {
       unset($form['new_state']['#options']['published']);
@@ -44,14 +50,24 @@ function wf_user_role() {
   }
   // Users and their roles from current node
   $currentUser = \Drupal::currentUser();
-  $node = \Drupal::routeMatch()->getParameter('node');
-  if ($node !== NULL && get_class($node) == 'Drupal\node\Entity\Node') {
+  $node = \Drupal::routeMatch()->getParameter('node') ?? new stdClass();
+  // dpm('...............................');
+  // dpm('$node !== NULL - must be true');
+  // dpm($node !== NULL);
+  // dpm('!empty($node) must be true');
+  // dpm(!empty($node));
+  // dpm('get_class($node) == \'Drupal\node\Entity\Node\' - must be true');
+  // dpm(get_class($node) == 'Drupal\node\Entity\Node');
+  // dpm('...............................');
+  if (($node !== NULL && !empty($node)) && get_class($node) == 'Drupal\node\Entity\Node') {
     $reviseduser = User::load(\Drupal::routeMatch()->getParameter('node')->getRevisionUserId());
-    //current logged in user
-    $return['currentUser']['id'] = $currentUser->id();
-    $return['currentUser']['roles'] = $currentUser->getRoles();
-    $return['currentUser']['ocepr'] = $ocepr;
-    //reviseduser
+  }
+  //current logged in user
+  $return['currentUser']['id'] = $currentUser->id();
+  $return['currentUser']['roles'] = $currentUser->getRoles();
+  $return['currentUser']['ocepr'] = $ocepr;
+  //reviseduser
+  if($reviseduser !== NULL){
     $return['reviseduser']['id'] = $reviseduser->id();
     $return['reviseduser']['roles'] = $reviseduser->getRoles();
   }
