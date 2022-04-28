@@ -1,0 +1,5 @@
+name: 'USA Admin Styles'
+type: module
+description: 'Styles to override admin theme.'
+core: 8.x
+core_version_requirement: ^8 || ^9
