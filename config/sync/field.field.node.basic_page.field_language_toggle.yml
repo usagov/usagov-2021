@@ -1,0 +1,25 @@
+uuid: a3551d89-f126-42b4-90e6-cd465886a317
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_language_toggle
+    - node.type.basic_page
+id: node.basic_page.field_language_toggle
+field_name: field_language_toggle
+entity_type: node
+bundle: basic_page
+label: 'Language Toggle'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: views
+  handler_settings:
+    view:
+      view_name: language_toggles
+      display_name: entity_reference_2
+      arguments: {  }
+field_type: entity_reference

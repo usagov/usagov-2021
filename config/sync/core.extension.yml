@@ -5,6 +5,8 @@ module:
   action: 0
   admin_toolbar: 0
   admin_toolbar_tools: 0
+  allowed_formats: 0
+  autologout: 0
   block: 0
   block_content: 0
   breakpoint: 0
@@ -69,6 +71,7 @@ module:
   tome_static: 0
   toolbar: 0
   twig_tweak: 0
+  usa_admin_styles: 0
   usa_contact_center_api: 0
   usa_translation: 0
   usa_workflow: 0
