@@ -1,8 +1,19 @@
 <?php
 
+/**
+ * @file
+ */
+
 use Drupal\user\Entity\User;
 use Drupal\Core\Form\FormStateInterface;
 
+/**
+ * @param mixed $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param mixed $form_id
+ *
+ * @return null
+ */
 function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $newform = [
     'node_basic_page_form',
@@ -23,6 +34,12 @@ function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_i
   }
 }
 
+/**
+ * @param mixed $data
+ * @param mixed $route_name
+ *
+ * @return null
+ */
 function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
   $wfusers = wf_user_role();
   if ($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']
@@ -31,6 +48,9 @@ function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
   }
 }
 
+/**
+ * @return array
+ */
 function wf_user_role() {
   $return = [];
   $ocepr = FALSE;
