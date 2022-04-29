@@ -63,7 +63,7 @@ bin/composer install --no-interaction --optimize-autoloader
 echo "Build theme"
 bin/npm install --legacy-peer-deps
 bin/npm rebuild node-sass
-bin/gulp build
+bin/npm run build
 
 
 echo "Init process complete"
