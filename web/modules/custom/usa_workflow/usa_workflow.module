@@ -1,11 +1,18 @@
 <?php
 
+/**
+ * @file
+ */
+
 use Drupal\user\Entity\User;
 use Drupal\Core\Form\FormStateInterface;
 
+/**
+ *
+ */
 function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   dpm($form_id);
-  
+
   $newform = [
     'node_basic_page_form',
     'node_wizard_step_form',
@@ -13,13 +20,16 @@ function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_i
   ];
   $wfusers = wf_user_role();
   dpm('in_array($form_id, $newform)');
-  dpm(in_array($form_id, $newform)); //true
+  // True.
+  dpm(in_array($form_id, $newform));
   dpm('$wfusers[\'currentUser\'][\'ocepr\'] === FALSE');
-  dpm($wfusers['currentUser']['ocepr'] === FALSE); //true
+  // True.
+  dpm($wfusers['currentUser']['ocepr'] === FALSE);
   dpm('$wfusers[\'currentUser\'][\'id\'] === $wfusers[\'reviseduser\'][\'id\']');
-  dpm($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']); //true
+  // True.
+  dpm($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']);
   dpm('-----------------------');
-  //&& $wfusers['currentUser']['ocepr'] === FALSE
+  // && $wfusers['currentUser']['ocepr'] === FALSE
   dpm($wfusers);
   if ((in_array($form_id, $newform)
       || $wfusers['currentUser']['id'] === $wfusers['reviseduser']['id'])
@@ -34,6 +44,9 @@ function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_i
   }
 }
 
+/**
+ *
+ */
 function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
   $wfusers = wf_user_role();
   if ($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']) {
@@ -41,15 +54,18 @@ function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
   }
 }
 
+/**
+ *
+ */
 function wf_user_role() {
   $return = [];
   $ocepr = FALSE;
   // Check if the user have 'overwrite the Content Editor permission restriction'
-  // 'Content Editor' user role with other role except Anonymous user role
+  // 'Content Editor' user role with other role except Anonymous user role.
   if (\Drupal::currentUser()->hasPermission('overwrite the Content Editor permission restriction')) {
     $ocepr = TRUE;
   }
-  // Users and their roles from current node
+  // Users and their roles from current node.
   $currentUser = \Drupal::currentUser();
   $node = \Drupal::routeMatch()->getParameter('node') ?? new stdClass();
   // dpm('...............................');
@@ -59,15 +75,15 @@ function wf_user_role() {
   // dpm(!empty($node));
   // dpm('get_class($node) == \'Drupal\node\Entity\Node\' - must be true');
   // dpm(get_class($node) == 'Drupal\node\Entity\Node');
-  // dpm('...............................');
+  // dpm('...............................');.
   if (($node !== NULL && !empty($node)) && get_class($node) == 'Drupal\node\Entity\Node') {
     $reviseduser = User::load(\Drupal::routeMatch()->getParameter('node')->getRevisionUserId());
   }
-  //current logged in user
+  // Current logged in user.
   $return['currentUser']['id'] = $currentUser->id();
   $return['currentUser']['roles'] = $currentUser->getRoles();
   $return['currentUser']['ocepr'] = $ocepr;
-  //reviseduser
+  // Reviseduser.
   if ($reviseduser !== NULL) {
     $return['reviseduser']['id'] = $reviseduser->id();
     $return['reviseduser']['roles'] = $reviseduser->getRoles();
