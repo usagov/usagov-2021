@@ -55,7 +55,7 @@ function wf_user_role() {
   $return = [];
   $ocepr = FALSE;
   // Check if the user have 'overwrite the Content Editor permission restriction'
-  // 'Content Editor' user role with other role except Anonymous user role.
+  // 'Content Editor' user role with other role except Anonymous user role...
   if (\Drupal::currentUser()->hasPermission('overwrites the Content Editor permission restriction')) {
     $ocepr = TRUE;
   }
