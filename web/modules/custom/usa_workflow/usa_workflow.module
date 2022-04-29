@@ -5,6 +5,7 @@ use Drupal\Core\Form\FormStateInterface;
 
 function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   dpm($form_id);
+  
   $newform = [
     'node_basic_page_form',
     'node_wizard_step_form',
@@ -67,7 +68,7 @@ function wf_user_role() {
   $return['currentUser']['roles'] = $currentUser->getRoles();
   $return['currentUser']['ocepr'] = $ocepr;
   //reviseduser
-  if($reviseduser !== NULL){
+  if ($reviseduser !== NULL) {
     $return['reviseduser']['id'] = $reviseduser->id();
     $return['reviseduser']['roles'] = $reviseduser->getRoles();
   }
