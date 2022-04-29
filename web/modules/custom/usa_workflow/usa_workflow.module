@@ -5,7 +5,6 @@ use Drupal\Core\Form\FormStateInterface;
 
 function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   dpm($form_id);
-  
   $newform = [
     'node_basic_page_form',
     'node_wizard_step_form',
