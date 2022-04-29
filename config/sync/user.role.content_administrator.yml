@@ -15,6 +15,7 @@ dependencies:
   module:
     - content_moderation
     - content_translation
+    - devel
     - media
     - menu_link_content
     - node
@@ -31,6 +32,7 @@ is_admin: null
 permissions:
   - 'access administration pages'
   - 'access content overview'
+  - 'access devel information'
   - 'access site in maintenance mode'
   - 'access toolbar'
   - 'add paragraphs entity embed'
@@ -87,6 +89,7 @@ permissions:
   - 'edit own wizard content'
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
+  - 'overwrites the Content Editor permission restriction'
   - 'revert all revisions'
   - 'revert basic_page revisions'
   - 'revert wizard revisions'
