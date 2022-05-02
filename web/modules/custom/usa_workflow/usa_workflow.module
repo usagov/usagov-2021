@@ -2,17 +2,20 @@
 
 /**
  * @file
+ * Interface with Form state.
  */
 
-use Drupal\user\Entity\User;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * @param mixed $form
- * @param \Drupal\Core\Form\FormStateInterface $form_state
- * @param mixed $form_id
+ * Description message.
  *
- * @return null
+ * @param mixed $form
+ *   Self described.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   Self described.
+ * @param mixed $form_id
+ *   Self described.
  */
 function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $newform = [
@@ -20,10 +23,17 @@ function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_i
     'node_wizard_step_form',
     'node_wizard_form',
   ];
-  $wfusers = wf_user_role();
+
+  // Call 'wfUserpermission' method from declared service
+  // 'usa_workflow.permission.service'.
+  $wfusers = Drupal::service('usa_workflow.permission.service')->wfUserpermission();
+
+  // Compare current logged in user and revised user are not the same
+  // also make sure the current logged in user as
+  // 'usa approve own content' permission.
   if ((in_array($form_id, $newform)
       || $wfusers['currentUser']['id'] === $wfusers['reviseduser']['id'])
-      && $wfusers['currentUser']['ocepr'] === FALSE) {
+      && $wfusers['currentUser']['usaapproveowncontent'] === FALSE) {
     unset($form['moderation_state']['widget'][0]['state']['#options']['published']);
     if (isset($form['new_state'])) {
       unset($form['new_state']['#options']['published']);
@@ -35,44 +45,23 @@ function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_i
 }
 
 /**
- * @param mixed $data
- * @param mixed $route_name
+ * Description message.
  *
- * @return null
+ * @param mixed $data
+ *   Self described.
+ * @param mixed $route_name
+ *   Self described.
  */
 function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
-  $wfusers = wf_user_role();
+  // Call 'wfUserpermission' method from declared
+  // service 'usa_workflow.permission.service'.
+  $wfusers = Drupal::service('usa_workflow.permission.service')->wfUserpermission();
+
+  // Compare current logged in user and revised user are not the same
+  // also make sure the current logged in user as
+  // 'usa delete own content' permission.
   if ($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']
-    && $wfusers['currentUser']['ocepr'] === FALSE) {
+    && $wfusers['currentUser']['usadeleteowncontent'] === FALSE) {
     unset($data['tabs'][0]['entity.node.delete_form']);
   }
-}
-
-/**
- * @return array
- */
-function wf_user_role() {
-  $return = [];
-  $ocepr = FALSE;
-  // Check if the user have 'overwrite the Content Editor permission restriction'
-  // 'Content Editor' user role with other role except Anonymous user role...
-  if (\Drupal::currentUser()->hasPermission('overwrites the Content Editor permission restriction')) {
-    $ocepr = TRUE;
-  }
-  // Users and their roles from current node.
-  $currentUser = \Drupal::currentUser();
-  $node = \Drupal::routeMatch()->getParameter('node') ?? new stdClass();
-  if (($node !== NULL && !empty($node)) && get_class($node) == 'Drupal\node\Entity\Node') {
-    $reviseduser = User::load(\Drupal::routeMatch()->getParameter('node')->getRevisionUserId());
-  }
-  // Current logged in user.
-  $return['currentUser']['id'] = $currentUser->id();
-  $return['currentUser']['roles'] = $currentUser->getRoles();
-  $return['currentUser']['ocepr'] = $ocepr;
-  // Reviseduser.
-  if ($reviseduser !== NULL) {
-    $return['reviseduser']['id'] = $reviseduser->id();
-    $return['reviseduser']['roles'] = $reviseduser->getRoles();
-  }
-  return $return;
 }
