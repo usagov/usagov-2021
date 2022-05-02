@@ -61,7 +61,7 @@ function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
   // also make sure the current logged in user as
   // 'usa delete own content' permission.
   if ($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']
-    && $wfusers['currentUser']['usadeleteowncontent'] === FALSE) {
+    && $wfusers['currentUser']['usadeleteowncontent'] == FALSE) {
     unset($data['tabs'][0]['entity.node.delete_form']);
   }
 }
