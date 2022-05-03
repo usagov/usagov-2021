@@ -18,14 +18,17 @@
             aria-labelledby="system-breadcrumb"
         >
         <h2 id="system-breadcrumb" class="usa-sr-only">{{ 'Breadcrumb'|t }}</h2>
-        <ol class="usa-breadcrumb__list">
+        <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">
             {% for item in breadcrumb %}
-                <li class="usa-breadcrumb__list-item">
+                <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                     {% if item.url %}
-                        <a href="{{ item.url }}" class="usa-breadcrumb__link">{{ item.text }}</a>
+                        <a href="{{ item.url }}" class="usa-breadcrumb__link" itemprop="item">
+                            <span itemprop="name">{{ item.text }}</span>
+                        </a>
                     {% else %}
-                        {{ item.text }}
+                        <span itemprop="name">{{ item.text }}</span>
                     {% endif %}
+                    <meta itemprop="position" content="{{loop.index}}" />
                 </li>
             {% endfor %}
         </ol>

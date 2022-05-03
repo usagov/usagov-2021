@@ -5,8 +5,8 @@ dependencies:
   config:
     - system.menu.wizard
   module:
-    - ctools
     - menu_block
+    - node
   theme:
     - usagov
 id: wizard
