@@ -5,9 +5,9 @@ dependencies:
   config:
     - system.menu.left-menu-spanish
   module:
-    - ctools
     - language
     - menu_block
+    - node
     - system
   theme:
     - usagov
