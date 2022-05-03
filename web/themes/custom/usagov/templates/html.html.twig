@@ -23,6 +23,11 @@
  * @see template_preprocess_html()
  */
 #}
+{% set lang = node.langcode.value %}
+{% set nodeID = node.nid[0].value %}
+{% set path = drupal_url('node/'~nodeID) %}
+{% set baseURL = url('<front>') %}
+{% set url = baseURL|render~path|render[1:] %}
 <!DOCTYPE html>
 <html{{ html_attributes }}>
 <head>
@@ -40,31 +45,37 @@
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-W8LW6DB');</script>
   <!-- End Google Tag Manager -->
- 
   {% if node.id == 1 %}
    <!-- Social Media -->
     <meta property="fb:pages" content="65369158579" />
+    <!-- End Social Media -->
+
+    <!-- Website Verification -->
     <meta name="p:domain_verify" content="f3135f7662284cd99a63b43e8371757f"/>
     <meta name="google-site-verification" content="p7YQsJ1axaK_4XZeFOVM_tVuvS-hu5fUcEFT0vYJfTM" />
     <meta name="google-site-verification" content="QsZz3rz0kvdcs5rSqFjWMkxzQyDuH40vIohA8TYF1JI" />
     <meta name="msvalidate.01" content="7ED9318B2E16491CECD0F0CFCB5594E8" />
+    <!-- End Website Verification --> 
+    {% if lang == 'en' %}
     <meta name="description" content="USA.gov can help you start your search for government information by topic and agency. " /> 
-    <!-- End Social Media --> 
+    {% else %}
+    <meta name="description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español. " />
+    {% endif %} 
   {% endif %}
-   
-
   {% if node.id != 1 %}
     <meta name="description" content="{{ node.field_page_intro.value }}" />
   {% endif %}
   <!-- Social Media -->
-  {% set nodeID = node.nid[0].value %}
-  {% set path = drupal_url('node/'~nodeID) %}
-  {% set baseURL = url('<front>') %}
-  {% set url = baseURL|render~path|render[1:] %}
   <meta property="og:url" content="{{ url }}" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="{{head_title|safe_join(' | ')}}" />
+  {% if node.id == 1 and lang == 'en' %}
+  <meta property="og:description" content="USA.gov can help you start your search for government information by topic and agency." />
+  {% elseif node.id == 1 and lang == 'es' %}
+  <meta property="og:description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español." />
+  {% else %}
   <meta property="og:description" content="{{ node.field_page_intro.value }}" />
+  {% endif %}
   <meta property="og:image" content="https://www.usa.gov/images/facebook_share_thumbnail.png" />
   <meta property="og:image:secure_url" content="https://www.usa.gov/images/facebook_share_thumbnail.png" />
   <!-- End Social Media -->
