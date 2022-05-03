@@ -60,6 +60,11 @@ function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
   // Compare current logged in user and revised user are not the same
   // also make sure the current logged in user as
   // 'usa delete own content' permission.
+  dpm($route_name);
+  dpm($wfusers);
+  dpm($wfusers['currentUser']['usadeleteowncontent'] == FALSE);
+  dpm(get_class(\Drupal::entityTypeManager()->getStorage('node')));
+  dpm(get_class_methods(\Drupal::entityTypeManager()->getStorage('node')));
   if ($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']
     && $wfusers['currentUser']['usadeleteowncontent'] == FALSE) {
     unset($data['tabs'][0]['entity.node.delete_form']);
