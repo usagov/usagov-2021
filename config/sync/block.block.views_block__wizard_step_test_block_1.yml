@@ -5,7 +5,7 @@ dependencies:
   config:
     - views.view.wizard_step_test
   module:
-    - ctools
+    - node
     - views
   theme:
     - usagov
