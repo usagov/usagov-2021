@@ -6,8 +6,8 @@ dependencies:
     - 'block_content:html_block:f54abad2-58b6-4c43-b1b9-e78d741d1a5b'
   module:
     - block_content
-    - ctools
     - language
+    - node
   theme:
     - usagov
 id: wizardenglish
