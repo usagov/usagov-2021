@@ -1,3 +1,7 @@
 usa approve own content:
   title: 'Approve own content'
   description: 'Allow user to approve own content.'
+
+usa delete own content:
+  title: 'Delete own content'
+  description: 'Allow user to delete own content.'
