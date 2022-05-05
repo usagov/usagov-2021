@@ -23,27 +23,29 @@ function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_i
     'node_wizard_step_form',
     'node_wizard_form',
   ];
+  $fmid = explode('_', $form_id);
+  if ($fmid[0] == 'node' && $fmid[count($fmid) - 1] == 'form') {
+    // Call 'wfUserpermission' method from declared service
+    // 'usa_workflow.permission.service'.
+    $wfusers = Drupal::service('usa_workflow.permission.service')->wfUserpermission();
 
-  // Call 'wfUserpermission' method from declared service
-  // 'usa_workflow.permission.service'.
-  $wfusers = Drupal::service('usa_workflow.permission.service')->wfUserpermission();
-
-  // Compare current logged in user and revised user are not the same
-  // also make sure the current logged in user as
-  // 'usa approve own content' permission.
-  if (in_array($form_id, $newform)
-    || $wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']) {
-    if (isset($form['moderation_state']['widget'][0]['state']['#options']['published'])
-      && $wfusers['currentUser']['usaapproveowncontent'] == FALSE) {
-      unset($form['moderation_state']['widget'][0]['state']['#options']['published']);
-    }
-    if (isset($form['new_state'])
-      && $wfusers['currentUser']['usaapproveowncontent'] == FALSE) {
-      unset($form['new_state']['#options']['published']);
-    }
-    if (isset($form['actions']) &&
-      $wfusers['currentUser']['usadeleteowncontent'] == FALSE) {
-      unset($form['actions']['delete']);
+    // Compare current logged in user and revised user are not the same
+    // also make sure the current logged in user as
+    // 'usa approve own content' permission.
+    if (in_array($form_id, $newform)
+      || $wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']) {
+      if (isset($form['moderation_state']['widget'][0]['state']['#options']['published'])
+        && $wfusers['currentUser']['usaapproveowncontent'] == FALSE) {
+        unset($form['moderation_state']['widget'][0]['state']['#options']['published']);
+      }
+      if (isset($form['new_state']['#options']['published'])
+        && $wfusers['currentUser']['usaapproveowncontent'] == FALSE) {
+        unset($form['new_state']['#options']['published']);
+      }
+      if (isset($form['actions']['delete']) &&
+        $wfusers['currentUser']['usadeleteowncontent'] == FALSE) {
+        unset($form['actions']['delete']);
+      }
     }
   }
 }
