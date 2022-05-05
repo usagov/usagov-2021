@@ -23,13 +23,7 @@
                 <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                     {% if item.url %}
                         <a href="{{ item.url }}" class="usa-breadcrumb__link" itemprop="item">
-                            <span itemprop="name">
-                                {% if item.url == '/es' %}
-                                    Página principal
-                                {% else %}
-                                    {{ item.text }}
-                                {% endif %}
-                            </span>
+                            <span itemprop="name">{{ item.text }}</span>
                         </a>
                     {% else %}
                         <span itemprop="name">{{ item.text }}</span>
