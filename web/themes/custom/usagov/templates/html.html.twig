@@ -65,6 +65,12 @@
   {% if node.id != 1 %}
     <meta name="description" content="{{ node.field_page_intro.value }}" />
   {% endif %}
+
+  <!-- Favicons -->
+  <link rel="apple-touch-icon-precomposed" href="/images/USA_Fav_Icon152_default.png">
+  <link rel="icon" sizes="16x16" href="/images/USA_Fav_Icon16.ico">
+  <link rel="icon" sizes="32x32" href="/images/favicon.ico">
+  <link rel="icon" sizes="152x152" href="/images/USA_Fav_Icon152_default.png">
   <!-- Social Media -->
   <meta property="og:url" content="{{ url }}" />
   <meta property="og:type" content="website" />
@@ -79,6 +85,14 @@
   <meta property="og:image" content="https://www.usa.gov/images/facebook_share_thumbnail.png" />
   <meta property="og:image:secure_url" content="https://www.usa.gov/images/facebook_share_thumbnail.png" />
   <!-- End Social Media -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "url": "https://beta.usa.gov/",
+      "logo": "https://beta.usa.gov/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png"
+    }
+    </script>
 </head>
 <body{{ attributes }}>
   <!-- Google Tag Manager (noscript) -->
@@ -142,5 +156,39 @@ const scrollToTop = () => {
 // }
   
 </script>
+
+<!-- begin code to remove tabindex from survey -->
+<script type="text/javascript">
+	// Select the node that will be observed for mutations
+	//<![CDATA[
+	var targetNode = document.getElementById('main-content');
+	// Options for the observer (which mutations to observe)
+	var config = { attributes: true, childList: true, subtree: true };
+	
+	// Callback function to execute when mutations are observed
+	var callback = function(mutationsList, observer) {
+		// Use traditional 'for loops' for IE 11
+		for(let mutation of mutationsList) {
+			if (mutation.type === 'childList') {
+				console.log('A child node has been added or removed.');
+				var c = document.querySelector(".QSIUserDefinedHTML").children[0].removeAttribute("tabindex"); console.log(c);
+				// Later, you can stop observing
+				observer.disconnect();
+			}
+			else if (mutation.type === 'attributes') {
+				console.log('The ' + mutation.attributeName + ' attribute was modified.');
+				
+			}
+		}
+	};
+	
+	// Create an observer instance linked to the callback function
+	var observer = new MutationObserver(callback);
+	
+	// Start observing the target node for configured mutations
+	observer.observe(targetNode, config);
+	//]]>
+	</script>
+<!-- end code to remove tabindex from survey  -->
 </body>
 </html>
