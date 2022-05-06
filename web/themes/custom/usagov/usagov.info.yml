@@ -32,4 +32,3 @@ libraries:
 ckeditor_stylesheets:
   - css/styles.css
   - css/USWDS_CKEditor_Custom_Styles.css
-  - css/pagelevel_survey.css
