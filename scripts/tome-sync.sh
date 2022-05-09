@@ -1,9 +1,13 @@
 #!/bin/sh
 
+TOME_MAX_CHANGE_ALLOWED=0.10
+
 TOMELOGFILE=$1
 YMDHMS=$2
 
-TOME_MAX_CHANGE_ALLOWED=0.10
+if [ -z "$YMDHMS" ]; then
+  YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
+fi;
 
 # make sure there is a static site to sync
 STATIC_COUNT=$(ls /var/www/html/ | wc -l)
@@ -25,6 +29,7 @@ fi
 APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 APP_SPACE=${APP_SPACE:-local}
 
+# endpoint and ssl specifications only necessary on local for minio support
 S3_EXTRA_PARAMS=""
 if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
@@ -34,6 +39,7 @@ fi
 RENDER_DIR=/tmp/tome/$YMDHMS
 
 mkdir -p $RENDER_DIR
+rm -rf $RENDER_DIR/.*
 cp -R /var/www/html/* $RENDER_DIR
 cd $RENDER_DIR
 
@@ -45,7 +51,6 @@ for f in `find $RENDER_DIR/*`; do
   ff=$(echo $f | tr '[A-Z]' '[a-z]');
   [ "$f" != "$ff" ] && mv -v "$f" "$ff";
 done
-
 
 # get a count of current AWS files
 echo "S3 dir storage files : count total" | tee -a $TOMELOG
@@ -60,7 +65,6 @@ echo "Tome generated files : count by extension" | tee -a $TOMELOG
 find $RENDER_DIR -type f 2>&1 | sort -u | grep -o ".[^.]\+$" | uniq -c | tee -a $TOMELOG
 
 # calculate the diff
-
 DIFF_S3_TOME=$(echo "scale=2; $S3_COUNT - $TOME_COUNT" | bc)
 DIFF_S3_TOME_OVER=$(echo "scale=2; $DIFF_S3_TOME < 0" | bc)
 DIFF_S3_TOME_UNDER=$(echo "scale=2; $DIFF_S3_TOME > 0" | bc)
@@ -73,19 +77,17 @@ DIFF_S3_TOME_IS_BAD=$(echo "scale=2; $DIFF_S3_TOME_PCT > $TOME_MAX_CHANGE_ALLOWE
 TOME_TOO_MUCH=$( ($DIFF_S3_TOME_IS_BAD == "1") && ($DIFF_S3_TOME_OVER == "1") && echo "1" || echo "0" )
 TOME_TOO_LITTLE=$( ($DIFF_S3_TOME_IS_BAD == "1") && ($DIFF_S3_TOME_UNDER == "1") && echo "1" || echo "0" )
 
-if [ "$DIFF_S3_TOME_OVER" == "1" ]; then
-  echo "Tome static build looks suspicious - adding more content than expected - Currently Have ($S3_COUNT) - Tome Generated ($TOME_COUNT)" | tee $TOMELOG
+if [ "$TOME_TOO_MUCH" == "1" ]; then
+  echo "Tome static build looks suspicious - adding more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee $TOMELOG
   # send message, but continue on
   # write message to php log so newrelic will see it
-fi
-if [ "$DIFF_S3_TOME_UNDER" == "1" ]; then
-  echo "Tome static build failure - removing more content than expected - Currently Have ($S3_COUNT) - Tome Generated ($TOME_COUNT)" | tee $TOMELOG
+elif [ "$TOME_TOO_LITTLE" == "1" ]; then
+  echo "Tome static build failure - removing more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee $TOMELOG
   # send message, and abort
   # write message to php log so newrelic will see it
   exit 3
 fi
 
-# endpoint and ssl specifications only necessary on local for minio
 # maybe use --only-show-errors if logs are too spammy
 aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 
