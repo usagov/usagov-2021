@@ -13,4 +13,4 @@ fi
 
 docker compose exec \
   database \
-  /bin/bash -c "mysql -h127.0.0.1 -P$LOCAL_PORT -uroot -pmysql drupal < /app/$LOCAL_FILE"
+  /bin/bash -c "sed -e 's/utf8mb4_0900_ai_ci/utf8mb4_unicode_ci/g' /app/$LOCAL_FILE | mysql -hlocalhost -P$LOCAL_PORT -uroot -pmysql drupal"

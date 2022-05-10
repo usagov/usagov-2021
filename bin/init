@@ -28,7 +28,7 @@ if [ ! -f env.local ]; then
   cp env.default env.local
 fi
 if [ -f env.local ]; then
-  source env.local
+  . env.local
 fi
 
 echo "Setup git hooks"
@@ -63,7 +63,7 @@ bin/composer install --no-interaction --optimize-autoloader
 echo "Build theme"
 bin/npm install --legacy-peer-deps
 bin/npm rebuild node-sass
-bin/gulp build
+bin/npm run build
 
 
 echo "Init process complete"
