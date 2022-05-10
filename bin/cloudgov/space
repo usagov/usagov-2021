@@ -2,7 +2,7 @@
 
 CLOUDDIR=$(dirname "$0")
 
-source $CLOUDDIR/../../env.local;
+. $CLOUDDIR/../../env.local;
 
 SPACE=$1
 
