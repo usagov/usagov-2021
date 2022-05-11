@@ -14,7 +14,7 @@ drupal_login_roles:
   site_admin: '0'
   content_manager: '0'
   content_administrator: '0'
-sp_entity_id: 'https://secureauth.dev.gsa.gov'
+sp_entity_id: 'https://secureauth.gsa.gov'
 sp_force_https: true
 sp_name_id_format: 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
 sp_x509_certificate: 'file:/var/www/sp.crt'
@@ -22,8 +22,8 @@ sp_new_certificate: ''
 sp_private_key: 'file:/var/www/sp.key'
 metadata_valid_secs: 60
 metadata_cache_http: false
-idp_entity_id: 'https://secureauth.dev.gsa.gov/'
-idp_single_sign_on_service: 'https://secureauth.dev.gsa.gov/SecureAuth515'
+idp_entity_id: 'GSASecAuth'
+idp_single_sign_on_service: 'https://secureauth.gsa.gov/SecureAuth273'
 idp_single_log_out_service: ''
 idp_change_password_service: ''
 idp_certs:
