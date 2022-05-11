@@ -24,11 +24,12 @@ function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_i
     'node_wizard_form',
   ];
   $fmid = explode('_', $form_id);
-  if ($fmid[0] == 'node' && $fmid[count($fmid) - 1] == 'form') {
+  if (($fmid[0] == 'node' ||
+      ($fmid[0] == 'content' && $fmid[1] == 'moderation')) &&
+      $fmid[count($fmid) - 1] == 'form') {
     // Call 'wfUserpermission' method from declared service
     // 'usa_workflow.permission.service'.
     $wfusers = Drupal::service('usa_workflow.permission.service')->wfUserpermission();
-
     // Compare current logged in user and revised user are not the same
     // also make sure the current logged in user as
     // 'usa approve own content' permission.
