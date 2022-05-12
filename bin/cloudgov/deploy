@@ -5,7 +5,7 @@
 #
 
 if [ -f /home/circleci/project/env.local ]; then
-  source /home/circleci/project/env.local
+  . /home/circleci/project/env.local
 fi
 
 CONTAINER=ednark/usagov-2021

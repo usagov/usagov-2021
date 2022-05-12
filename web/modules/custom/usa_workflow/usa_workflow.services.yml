@@ -1,0 +1,3 @@
+services:
+  usa_workflow.permission.service:
+    class: Drupal\usa_workflow\UsaWorkflowPermissionChecker
