@@ -18,8 +18,8 @@ $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml'
 
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', true);
 $aws = [
-  'access_key_id' => 'AKIA3KEVSGUREVWMQ37L',
-  'secret'        => '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',
+  'access_key_id' => $_ENV['aki'],
+  'secret'        => $_ENV['aki'],
   'bucket'        => 'usagovbeta',
 ];
 
@@ -53,10 +53,10 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       //$settings['s3fs.disable_cert_verify'] = TRUE;
 
       //$settings['s3fs.use_s3_for_public'] = TRUE;
-      
+
       // Twig templates _shouldn't_ be in the public dir (lest they be very slow)
       //$settings['php_storage']['twig']['directory'] = '../storage/php';
-      
+
       //s3fs setting
       $settings['s3fs.access_key'] = $aws['access_key_id'];
       $settings['s3fs.secret_key'] = $aws['secret'];
