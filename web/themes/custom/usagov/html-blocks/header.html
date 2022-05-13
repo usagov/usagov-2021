@@ -1,5 +1,4 @@
-<header class="usa-header usa-header--extended">
-  <div class="usa-navbar">
+<div class="usa-navbar">
     <div class="usa-logo" id="extended-logo">
       <em class="usa-logo-text">
             <a href="/" title="USAGov Logo"><img src="/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png" alt="USAGov Logo"></a>
@@ -10,26 +9,26 @@
   <nav aria-label="Primary navigation" class="usa-nav">
     <div class="usa-nav__inner">
       <button class="usa-nav__close">
-        <img src="/assets/img/usa-icons/close.svg" role="img" alt="Close" />
+        <img src="/themes/custom/usagov/assets/img/usa-icons/close.svg" role="img" alt="Close" />
       </button>
       <ul class="usa-nav__primary usa-accordion">
-        <li class="usa-nav__primary-item"><a href="" class="usa-nav__link"><span>All Topics and Services</span></a>
+        <li class="usa-nav__primary-item"><a href="/" class="usa-nav__link"><span>All Topics and Services</span></a>
         </li>
-        <li class="usa-nav__primary-item"><a href="" class="usa-nav__link"><span>About the U.S. and Its Government</span></a>
+        <li class="usa-nav__primary-item"><a href="/about-the-us" class="usa-nav__link"><span>About the U.S. and Its Government</span></a>
         </li>
-        <li class="usa-nav__primary-item"><a href="" class="usa-nav__link"><span>Money and Credit</span></a>
+        <li class="usa-nav__primary-item"><a href="/money" class="usa-nav__link"><span>Money</span></a>
         </li>
-	<li class="usa-nav__primary-item"><a href="" class="usa-nav__link"><span>Laws and Legal Issues</span></a>
+    <li class="usa-nav__primary-item"><a href="/laws-and-legal-issues" class="usa-nav__link"><span>Laws and Legal Issues</span></a>
         </li>
-	<li class="usa-nav__primary-item"><a href="" class="usa-nav__link"><span>Scams and Fraud</span></a>
+    <li class="usa-nav__primary-item"><a href="/scams-and-frauds" class="usa-nav__link"><span>Scams and Frauds</span></a>
         </li>
  </ul>
       <div class="usa-nav__secondary">
-        <ul class="usa-nav__secondary-links">
-          <li class="usa-nav__secondary-item">
+        <span class="usa-nav__secondary-links">
+          <span class="usa-nav__secondary-item">
             <a href="">Call us at 1-844-USAGOV1</a>
-          </li>
-        </ul>
+          </span>
+        </span>
 
         <form class="usa-search usa-search--small" role="search">
           <label class="usa-sr-only" for="extended-search-field-en-small">
@@ -40,7 +39,8 @@
             id="extended-search-field-en-small"
             type="search"
             name="search"
-            value="no search in beta"
+            value="Search is disabled"
+             disabled
           />
           <button class="usa-button" type="submit">
             <span class="usa-sr-only">Search</span>
@@ -49,4 +49,3 @@
       </div>
     </div>
   </nav>
-</header>
