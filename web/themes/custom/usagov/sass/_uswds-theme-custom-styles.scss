@@ -288,11 +288,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }
 }
 
-/** Disable phone number while in beta **/
-.usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item {
-      display: none;
-}
-
 .usa-header--extended .usa-nav__primary-item>.usa-nav__link:hover {
 @include at-media($theme-header-min-width) {
    position: relative;
