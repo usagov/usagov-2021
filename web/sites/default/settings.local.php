@@ -18,11 +18,11 @@ $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml'
 
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', true);
 $aws = [
-  'access_key_id' => $_ENV['aki'],
-  'secret'        => $_ENV['akis'],
+  'access_key_id' => $_ENV['AKI'],
+  'secret'        => $_ENV['AKIS'],
   'bucket'        => 'usagovbeta',
 ];
-
+$settings['file_public_path'] = 'sites/default/files';
 foreach ($cf_service_data as $service_provider => $service_list) {
   foreach ($service_list as $service) {
     if ($service['name'] === 'storage') {
