@@ -107,8 +107,6 @@ else
   echo "Tome static build looks fine. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
 fi
 
-# exit 4;
-
 # maybe use --only-show-errors if logs are too spammy
 aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 

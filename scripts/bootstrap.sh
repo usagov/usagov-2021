@@ -78,6 +78,7 @@ if [ -n "$NEW_RELIC_LICENSE_KEY" ]; then
       -e "s/;\?newrelic.license =.*/newrelic.license = ${NEW_RELIC_LICENSE_KEY}/" \
       -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}/" \
       -e "s/;\?newrelic.appname =.*/newrelic.appname = \"${NEW_RELIC_APP_NAME:-Local;USA.gov}\"/" \
+      -e "s/;\?newrelic.enabled =.*/newrelic.enabled = true/" \
       /etc/php8/conf.d/newrelic.ini
 else
   # turn off new relic
@@ -88,6 +89,10 @@ fi
 # if started, php needs a restart so new relic ini changes take effect
 if [ -d /var/run/s6/services/php ]; then
   s6-svc -r /var/run/s6/services/php
+fi
+# update build info
+if [ -f /etc/motd ]; then
+  cp /etc/motd /var/www/web/version.txt
 fi
 
 if [ -n "${FIX_FILE_PERMS:-}" ]; then

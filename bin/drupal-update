@@ -5,9 +5,9 @@ echo "Install Drupal modules"
 bin/composer install --no-interaction --optimize-autoloader
 
 echo "Build theme"
-bin/npm install --legacy-peer-deps
+bin/npm install --legacy-peer-deps --production=false
 bin/npm rebuild node-sass
-bin/gulp build
+bin/npm run build
 
 echo "Import configs into Drupal"
 bin/bootstrap
