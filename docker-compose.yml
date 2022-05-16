@@ -30,8 +30,8 @@ services:
       S3_PROXY: minio:9000/local/web
       CF_INSTANCE_INDEX: '1'
       FIX_FILE_PERMS:
-      aki: $aki
-      akis: $akis
+      AKI: $aki
+      AKIS: $akis
       VCAP_APPLICATION: >
         {"name":"cms", "application_id":"docker", "space_name":"local", "application_uris":["beta-usagov.docker.local","www-usagov.docker.local","cms-usagov.docker.local"]}
       VCAP_SERVICES: >
