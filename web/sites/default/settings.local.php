@@ -19,7 +19,7 @@ $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml'
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', true);
 $aws = [
   'access_key_id' => $_ENV['aki'],
-  'secret'        => $_ENV['aki'],
+  'secret'        => $_ENV['akis'],
   'bucket'        => 'usagovbeta',
 ];
 
@@ -60,10 +60,14 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       //s3fs setting
       $settings['s3fs.access_key'] = $aws['access_key_id'];
       $settings['s3fs.secret_key'] = $aws['secret'];
-      $settings['s3fs.use_https'] = TRUE;
+      $config['s3fs.settings']['bucket'] = $aws['bucket'];
+      $config['s3fs.settings']['region'] = 'us-east-1';
+      $config['s3fs.settings']['public_folder'] = 'files'; 
+
+      $config['s3fs.settings']['use_https'] = TRUE;
       $settings['s3fs.upload_as_private'] = TRUE;
       $settings['s3fs.use_s3_for_public'] = TRUE;
-      //$settings['s3fs.use_s3_for_private'] = TRUE;
+      $settings['s3fs.use_s3_for_private'] = FALSE;
       $settings['php_storage']['twig']['directory'] = '../storage/php';
     }
   }
