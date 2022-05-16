@@ -20,7 +20,6 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
     $node = \Drupal::routeMatch()->getParameter('node');
     $isFront = \Drupal::service('path.matcher')->isFrontPage();
     if (is_object($node) && method_exists($node, 'getFields')) {
-      dpm($node->getFields()['field_page_type']);
       if ($node->getFields()['field_page_type'] != NULL
         && !empty($node->getFields()['field_page_type']->getValue())
         && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
