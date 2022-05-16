@@ -40,7 +40,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         $variables['id'] = $node->id();
         $variables['front'] = $isFront;
         $variables['nodetype'] = $node->getType();
-        $variables['pagetype'] = $term_name;
+        $variables['pagetype'] = $term_name ?? 'noTerm';
         unset($term_name);
         unset($isFront);
       }
