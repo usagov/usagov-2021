@@ -35,7 +35,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
       }
       // Check node has all the four variables set which must not be null.
       if ($node->id() != NULL && $node->getType() != NULL
-      && $isFront != NULL && $term_name != NULL) {
+        && $isFront != NULL) {
         // Cleanup vars.
         $variables['id'] = $node->id();
         $variables['front'] = $isFront;
