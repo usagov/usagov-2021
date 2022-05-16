@@ -360,23 +360,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
    font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
  }
 
-.usa-footer__primary-section {
-   background-color: #F3F3F3;
-   .usa-input {
-      color: #454545;
-      font-weight:600;
-      background-color: #F3F3F3;
-   }
-   .usa-form .usa-button {     
-      background-color: #454545;
-      color:white;
-      font-size: 1.06rem;
-      @media (max-width: 30em){
-         width: 100px;
-      }
-   }
-}
-
 .usa-footer__primary-content--collapsible.hidden{
    //USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
    display: block;
