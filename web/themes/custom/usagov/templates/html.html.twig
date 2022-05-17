@@ -38,6 +38,15 @@
   {% if node.id is defined %}
     {{ node.field_header_html.value|raw }}
   {% endif %}
+  <script>
+    dataLayer = [{ 
+      {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'pageNode'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{node_type|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'page'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
+      {{'pagetype'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}  
+    }];
+  </script>
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -45,7 +54,7 @@
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-W8LW6DB');</script>
   <!-- End Google Tag Manager -->
-  {% if node.id == 1 %}
+  {% if front == "homepage" %}
    <!-- Social Media -->
     <meta property="fb:pages" content="65369158579" />
     <!-- End Social Media -->
@@ -62,16 +71,15 @@
     <meta name="description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español. " />
     {% endif %} 
   {% endif %}
-  {% if node.id != 1 and node_type != "wizard" and nodeID != "61" and nodeID != "483" %}
+  {% if front == "content_page" and nodetype == "basic_page" and nodeID != "61" and nodeID != "483" %}
     <meta name="description" content="{{ node.field_page_intro.value }}" />
   {% endif %}
 
   {% if node_type == "wizard" and lang == "en" or nodeID == "61" %}
   <meta name="description" content="Have you experienced a scam and want to report it? Just answer a few questions to learn how to report the scam to the right place." />
-  {% elseif node_type == "wizard" and lang == "es"or nodeID == "483" %}
+  {% elseif node_type == "wizard" and lang == "es" or nodeID == "483" %}
   <meta name="description" content="¿Ha sufrido una estafa y quiere reportarla? Solo responda unas cuantas preguntas para saber cómo reportar la estafa en el lugar correcto." />
   {% endif %}
-
   <!-- Favicons -->
   <link rel="apple-touch-icon-precomposed" href="/images/USA_Fav_Icon152_default.png">
   <link rel="icon" sizes="16x16" href="/images/USA_Fav_Icon16.ico">
@@ -81,9 +89,9 @@
   <meta property="og:url" content="{{ url }}" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="{{head_title|safe_join(' | ')}}" />
-  {% if node.id == 1 and lang == 'en' %}
+  {% if front == "homepage" and lang == 'en' %}
   <meta property="og:description" content="USA.gov can help you start your search for government information by topic and agency." />
-  {% elseif node.id == 1 and lang == 'es' %}
+  {% elseif front == "homepage" and lang == 'es' %}
   <meta property="og:description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español." />
   {% elseif node_type == "wizard" and lang == "en" or nodeID == "61" %}
   <meta name="description" content="Have you experienced a scam and want to report it? Just answer a few questions to learn how to report the scam to the right place." />
