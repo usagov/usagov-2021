@@ -44,7 +44,7 @@ function renderResults(response, rawResponse) {
             "phone-number": "Phone Number",
             "website": "Website",
             "contact-via-email": "Contact via Email",
-            "path-contact": "/contact-elected-officials/elected-officials-email",
+            "path-contact": "/elected-officials-email",
         },
         "es": {
             "error-fetch": "ERROR: Failed trying to fetch elected officials!",
@@ -55,7 +55,7 @@ function renderResults(response, rawResponse) {
             "phone-number": "Teléfono",
             "website": "Sitio web",
             "contact-via-email": "Contactar por correo electrónico",
-            "path-contact": "/es/funcionarios-electos/elected-officials-email",
+            "path-contact": "/es/funcionarios-electos-email",
         }
     }
     let content=translations[ document.documentElement.lang ];
