@@ -71,13 +71,13 @@
     <meta name="description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español. " />
     {% endif %} 
   {% endif %}
-  {% if front == "content_page" and nodetype == "basic_page" and nodeID != "61" and nodeID != "483" %}
+  {% if front == "content_page" and nodetype == "basic_page" %}
     <meta name="description" content="{{ node.field_page_intro.value }}" />
   {% endif %}
 
-  {% if node_type == "wizard" and lang == "en" or nodeID == "61" %}
+  {% if node_type == "wizard" and lang == "en" %}
   <meta name="description" content="Have you experienced a scam and want to report it? Just answer a few questions to learn how to report the scam to the right place." />
-  {% elseif node_type == "wizard" and lang == "es" or nodeID == "483" %}
+  {% elseif node_type == "wizard" and lang == "es" %}
   <meta name="description" content="¿Ha sufrido una estafa y quiere reportarla? Solo responda unas cuantas preguntas para saber cómo reportar la estafa en el lugar correcto." />
   {% endif %}
   <!-- Favicons -->
@@ -93,9 +93,9 @@
   <meta property="og:description" content="USA.gov can help you start your search for government information by topic and agency." />
   {% elseif front == "homepage" and lang == 'es' %}
   <meta property="og:description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español." />
-  {% elseif node_type == "wizard" and lang == "en" or nodeID == "61" %}
+  {% elseif node_type == "wizard" and lang == "en" %}
   <meta name="description" content="Have you experienced a scam and want to report it? Just answer a few questions to learn how to report the scam to the right place." />
-  {% elseif node_type == "wizard" and lang == "es" or nodeID == "483" %}
+  {% elseif node_type == "wizard" and lang == "es" %}
   <meta name="description" content="¿Ha sufrido una estafa y quiere reportarla? Solo responda unas cuantas preguntas para saber cómo reportar la estafa en el lugar correcto." />
   {% else %}
   <meta property="og:description" content="{{ node.field_page_intro.value }}" />
