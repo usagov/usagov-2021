@@ -28,11 +28,11 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
       }
       // Check if the page is not front page.
       if ($isFront == 1) {
-        $isFront = 'isFront';
+        $isFront = 'homepage';
 
       }
       else {
-        $isFront = 'notFront';
+        $isFront = 'content_page';
       }
       // Check node has all the four variables set which must not be null.
       if ($node->id() != NULL && $node->getType() != NULL
