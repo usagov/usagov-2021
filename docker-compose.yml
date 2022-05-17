@@ -26,6 +26,8 @@ services:
     environment:
       AKI: "${AKI}"
       AKIS: "${AKIS}"
+      MAKI: "${MAKI}"
+      MAKIS: "${MAKIS}"
       COMPOSER_MEMORY_LIMIT: -1
       WWW_HOST: beta-usagov.docker.local
       S3_HOST: minio:9000

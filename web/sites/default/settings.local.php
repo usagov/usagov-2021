@@ -58,11 +58,21 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       //$settings['php_storage']['twig']['directory'] = '../storage/php';
 
       //s3fs setting
-      $settings['s3fs.access_key'] = $aws['access_key_id'];
-      $settings['s3fs.secret_key'] = $aws['secret'];
-      $config['s3fs.settings']['bucket'] = $aws['bucket'];
-      $config['s3fs.settings']['region'] = 'us-east-1';
-      $config['s3fs.settings']['public_folder'] = 'files'; 
+      // Minio
+      //$settings['s3fs.access_key']              = $service['credentials']['access_key_id'];
+      //$settings['s3fs.secret_key']              = $service['credentials']['secret_access_key'];
+      //$config['s3fs.settings']['bucket']        = $service['credentials']['bucket'];
+      //$config['s3fs.settings']['region']        = $service['credentials']['region'];
+      //$config['s3fs.settings']['public_folder'] = 'local';
+
+      //OR
+      //AWS
+      $settings['s3fs.access_key']              = $aws['access_key_id'];
+      $settings['s3fs.secret_key']              = $aws['secret'];
+      $config['s3fs.settings']['bucket']        = $aws['bucket'];
+      $config['s3fs.settings']['region']        = 'us-east-1';
+      $config['s3fs.settings']['public_folder'] = 'files';
+      // -----------------------------------
 
       $config['s3fs.settings']['use_https'] = TRUE;
       $settings['s3fs.upload_as_private'] = TRUE;
