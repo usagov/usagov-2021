@@ -7,6 +7,11 @@
 
 use Drupal\taxonomy\Entity\Term;
 
+function usa_twig_vars_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  dpm($form_id);
+  dpm('here');
+}
+
 /**
  * Description message.
  *
@@ -46,5 +51,21 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         unset($isFront);
       }
     }
+    dpm(isset($node));
+    // dpm(get_class_methods($node->get('field_hide_page_intro')));
+    // if(isset($node->get('field_hide_page_intro')->getValue()[0]['value']) && isset($node->get('field_page_intro')->getValue()[0]['value'])){
+    //   if($node->get('field_hide_page_intro')->getValue()[0]['value'] == TRUE){
+    //     dpm($node->get('field_hide_page_intro')->getValue()[0]['value']);
+    //     dpm($node->get('field_page_intro')->getValue()[0]['value']);
+    //     $node->get('field_page_intro')->removeItem(0);
+    //     // $node->save();
+    //     // \Drupal::service('router.builder')->rebuild();
+    //   }
+    // }
+
+    // dpm($variables['entity_field.manager']);
+    // dpm($variables);
   }
 }
+
+
