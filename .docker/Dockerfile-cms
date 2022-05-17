@@ -1,4 +1,3 @@
-
 FROM composer:latest AS composer-builder
 
 ARG BUID=1000
@@ -101,12 +100,12 @@ WORKDIR /var/www/web/themes/custom/usagov
 RUN chown -R node:node /var/www/web/themes \
     && chown -R node:node /home/node/
 
+USER node
+
 RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
     && npm run build --prefix /var/www/web/themes/custom/usagov \
     && chown -R node:node /var/www/web/themes
-
-USER node
 
 ###############################################################
 
@@ -238,7 +237,9 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       -e 's/;\?newrelic.daemon.logfile =.*/newrelic.daemon.logfile = \/dev\/stdout/' \
       -e 's/;\?newrelic.daemon.loglevel =.*/newrelic.daemon.loglevel = "warning"/' \
       -e 's/;\?newrelic.daemon.collector_host =.*/newrelic.daemon.collector_host = "gov-collector.newrelic.com"/' \
+      -e 's/;\?newrelic.framework =.*/newrelic.framework = "drupal8"/' \
       -e 's/;\?newrelic.loglevel =.*/newrelic.loglevel = "warning"/' \
+      -e 's/;\?newrelic.enabled =.*/newrelic.enabled = false/' \
       /etc/php8/conf.d/newrelic.ini \
     # cron setup
     && mkdir -p /etc/periodic/30min \
@@ -274,7 +275,7 @@ RUN chmod -R +x /etc/periodic \
     && echo "    gittag: " $GITTAG >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \
     && echo >> /etc/motd \
-    && cp /etc/motd /var/www/build.info \
+    && cp /etc/motd /var/www/web/version.txt \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
 
 EXPOSE 80
