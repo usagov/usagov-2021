@@ -72,12 +72,13 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       $config['s3fs.settings']['bucket']        = $aws['bucket'];
       $config['s3fs.settings']['region']        = 'us-east-1';
       $config['s3fs.settings']['public_folder'] = 'files';
+      $config['s3fs.settings']['private_folder'] = 'private';
       // -----------------------------------
 
       $config['s3fs.settings']['use_https'] = TRUE;
-      $settings['s3fs.upload_as_private'] = TRUE;
+      $settings['s3fs.upload_as_private'] = FALSE;
       $settings['s3fs.use_s3_for_public'] = TRUE;
-      $settings['s3fs.use_s3_for_private'] = FALSE;
+      $settings['s3fs.use_s3_for_private'] = TRUE;
       $settings['php_storage']['twig']['directory'] = '../storage/php';
     }
   }
