@@ -123,6 +123,9 @@ services:
       args:
         - BUID
         - BGID
+        - GITCOMMIT
+        - GITBRANCH
+        - GITTAG
     #command: tail -f /dev/null
     command: echo "Shutting Down on Purpose"
     volumes:
