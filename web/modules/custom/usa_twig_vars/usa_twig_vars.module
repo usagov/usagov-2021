@@ -65,7 +65,6 @@ function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
         && $node->getFields()['field_hide_page_intro']->getValue()[0]['value'] != NULL
         && $node->getFields()['field_hide_page_intro']->getValue()[0]['value'] == TRUE) {
       $variables['items'][0]['content']['#context']['value'] = '';
-      dpm($variables['items'][0]['content']['#context']['value']);
     }
   }
 }
