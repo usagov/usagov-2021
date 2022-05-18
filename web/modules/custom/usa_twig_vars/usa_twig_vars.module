@@ -26,33 +26,46 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         $term_id = $node->getFields()['field_page_type']->getValue()[0]['target_id'];
         $term_name = Term::load($term_id)->get('name')->value;
       }
-
-      if ($node->getFields()['field_hide_page_intro'] != NULL
-        && !empty($node->getFields()['field_hide_page_intro']->getValue())
-        && $node->getFields()['field_hide_page_intro']->getValue()[0]['target_id'] != NULL) {
-
-        }
-
       // Check if the page is not front page.
       if ($isFront == 1) {
         $isFront = 'homepage';
 
       }
       else {
-        $isFront = 'content_page';
+        $isFront = 'not_homepage';
       }
       // Check node has all the four variables set which must not be null.
-      if ($node->id() != NULL && $node->getType() != NULL
-        && $isFront != NULL) {
+      if ($node->id() != NULL) {
         // Cleanup vars.
         $variables['id'] = $node->id();
-        $variables['front'] = $isFront;
-        $variables['nodetype'] = $node->getType();
-        $variables['pagetype'] = $term_name ?? 'noTerm';
+        $variables['front'] = $isFront ?? '';
+        $variables['nodetype'] = $node->getType() ?? '';
+        $variables['pagetype'] = $term_name ?? 'content_page';
         unset($term_name);
         unset($isFront);
       }
     }
-    dpm('HEREEEE');
+  }
+}
+
+/**
+ * Description message.
+ *
+ * @param mixed $variables
+ *   Self described.
+ */
+function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  // Check if field_hide_page_intro is True
+  // the set the value of the content to empty string
+  // but the fields content exist.
+  if (is_object($node) && method_exists($node, 'getFields')) {
+    if ($node->getFields()['field_hide_page_intro'] != NULL
+        && !empty($node->getFields()['field_hide_page_intro']->getValue())
+        && $node->getFields()['field_hide_page_intro']->getValue()[0]['value'] != NULL
+        && $node->getFields()['field_hide_page_intro']->getValue()[0]['value'] == TRUE) {
+      $variables['items'][0]['content']['#context']['value'] = '';
+      dpm($variables['items'][0]['content']['#context']['value']);
+    }
   }
 }

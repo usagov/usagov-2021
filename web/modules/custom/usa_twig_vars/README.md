@@ -10,5 +10,4 @@ Extract variable values for twig usage
 {{ front }}
 {{ nodetype }}
 {{ pagetype }}
-{{ hidePageInfo }}
 ```
