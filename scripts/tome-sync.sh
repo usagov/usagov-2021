@@ -57,10 +57,18 @@ TOMELOG=/tmp/tome-log/$TOMELOGFILE
 touch $TOMELOG
 
 # lower case all filenames in the copied dir before uploading
+LCF=0
+echo "Lower-casing files:"
 for f in `find $RENDER_DIR/*`; do
   ff=$(echo $f | tr '[A-Z]' '[a-z]');
-  [ "$f" != "$ff" ] && mv -v "$f" "$ff";
+  if [ "$f" != "$ff" ]; then
+    # VERBOSE MODE
+    # mv -v "$f" "$ff"
+    mv -v "$f" "$ff" > /dev/null
+    LCF=$((LCF+1))
+  fi
 done
+echo "    $LCF"
 
 # get a count of current AWS files, total and by extension
 echo "S3 dir storage files : count total" | tee -a $TOMELOG
@@ -107,15 +115,22 @@ else
   echo "Tome static build looks fine. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
 fi
 
-# exit 4;
-
-# maybe use --only-show-errors if logs are too spammy
-aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
-
-if [ -f "$TOMELOG" ]; then
-  aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE --only-show-errors $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
-fi
+# VERBOSE MODE
+# aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 
 if [ -d "$RENDER_DIR" ]; then
+  echo "Removing Render Dir: $RENDER_DIR" | tee -a $TOMELOG
   rm -rf "$RENDER_DIR"
+else
+  echo "No Render Dir to remove" | tee -a $TOMELOG
+fi
+
+if [ -f "$TOMELOG" ]; then
+  echo "Saving logs of this run to S3" | tee -a $TOMELOG
+  echo "SYNC FINISHED" | tee -a $TOMELOG
+  aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE --only-show-errors $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+else
+  echo "No logs of this run to S3 available"
+  echo "SYNC FINISHED"
 fi
