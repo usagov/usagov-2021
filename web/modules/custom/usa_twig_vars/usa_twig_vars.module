@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * @file
+ * Use proprocess for html twig.
+ */
+
+use Drupal\taxonomy\Entity\Term;
+
+/**
+ * Description message.
+ *
+ * @param mixed $variables
+ *   Self described.
+ * @param mixed $hook
+ *   Self described.
+ */
+function usa_twig_vars_preprocess(&$variables, $hook) {
+  if ($hook === 'html') {
+    $node = \Drupal::routeMatch()->getParameter('node');
+    $isFront = \Drupal::service('path.matcher')->isFrontPage();
+    if (is_object($node) && method_exists($node, 'getFields')) {
+      if ($node->getFields()['field_page_type'] != NULL
+        && !empty($node->getFields()['field_page_type']->getValue())
+        && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
+        $term_id = $node->getFields()['field_page_type']->getValue()[0]['target_id'];
+        $term_name = Term::load($term_id)->get('name')->value;
+      }
+      // Check if the page is not front page.
+      if ($isFront == 1) {
+        $isFront = 'homepage';
+
+      }
+      else {
+        $isFront = 'content_page';
+      }
+      // Check node has all the four variables set which must not be null.
+      if ($node->id() != NULL && $node->getType() != NULL
+        && $isFront != NULL) {
+        // Cleanup vars.
+        $variables['id'] = $node->id();
+        $variables['front'] = $isFront;
+        $variables['nodetype'] = $node->getType();
+        $variables['pagetype'] = $term_name ?? 'noTerm';
+        unset($term_name);
+        unset($isFront);
+      }
+    }
+  }
+}
