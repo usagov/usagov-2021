@@ -74,7 +74,7 @@ module:
   usa_admin_styles: 0
   usa_contact_center_api: 0
   usa_translation: 0
-  usa_twig_vars: 1
+  usa_twig_vars: 0
   usa_workflow: 0
   usagov_login: 0
   user: 0
