@@ -288,11 +288,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }
 }
 
-/** Disable phone number while in beta **/
-.usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item {
-      display: none;
-}
-
 .usa-header--extended .usa-nav__primary-item>.usa-nav__link:hover {
 @include at-media($theme-header-min-width) {
    position: relative;
@@ -317,21 +312,11 @@ This style ensures that we can remove the padding-top from text in a card body. 
  }
 }
 
-/** This is to gray out search button when search isn't functional **/
-.usa-header--extended .usa-button {
-   background-color: color("gray-70");
-}
-
-/** This is to gray out search button when search isn't functional **/
-.usa-header [type=search] {
-   background-color: color("gray-4");
-   font-weight: 600;
-}
 
 /** This is to display the search image **/
 .usa-header--extended  .usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
       background-image: url(/themes/custom/usagov/images/search--dark.svg),linear-gradient(transparent,transparent);
-      filter: brightness(215%) invert(1) contrast(2);
+      // filter: brightness(215%) invert(1) contrast(2);
     }
   
 
@@ -359,23 +344,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
  .usa-sign-up__heading {
    font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
  }
-
-.usa-footer__primary-section {
-   background-color: #F3F3F3;
-   .usa-input {
-      color: #454545;
-      font-weight:600;
-      background-color: #F3F3F3;
-   }
-   .usa-form .usa-button {     
-      background-color: #454545;
-      color:white;
-      font-size: 1.06rem;
-      @media (max-width: 30em){
-         width: 100px;
-      }
-   }
-}
 
 .usa-footer__primary-content--collapsible.hidden{
    //USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
