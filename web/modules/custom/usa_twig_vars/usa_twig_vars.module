@@ -32,7 +32,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
 
       }
       else {
-        $isFront = 'content_page';
+        $isFront = 'not_homepage';
       }
       // Check node has all the four variables set which must not be null.
       if ($node->id() != NULL && $node->getType() != NULL
@@ -41,7 +41,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         $variables['id'] = $node->id();
         $variables['front'] = $isFront;
         $variables['nodetype'] = $node->getType();
-        $variables['pagetype'] = $term_name ?? 'noTerm';
+        $variables['pagetype'] = $term_name ?? 'content_page';
         unset($term_name);
         unset($isFront);
       }
