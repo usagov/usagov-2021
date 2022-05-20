@@ -38,6 +38,15 @@
   {% if node.id is defined %}
     {{ node.field_header_html.value|raw }}
   {% endif %}
+  <script>
+    dataLayer = [{ 
+      {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'pageNode'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{node_type|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'page'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
+      {{'pagetype'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}  
+    }];
+  </script>
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -45,7 +54,7 @@
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-W8LW6DB');</script>
   <!-- End Google Tag Manager -->
-  {% if node.id == 1 %}
+  {% if front == "homepage" %}
    <!-- Social Media -->
     <meta property="fb:pages" content="65369158579" />
     <!-- End Social Media -->
@@ -62,23 +71,46 @@
     <meta name="description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español. " />
     {% endif %} 
   {% endif %}
-  {% if node.id != 1 %}
+  {% if front == "content_page" and nodetype == "basic_page" %}
     <meta name="description" content="{{ node.field_page_intro.value }}" />
   {% endif %}
+
+  {% if node_type == "wizard" and lang == "en" %}
+  <meta name="description" content="Have you experienced a scam and want to report it? Just answer a few questions to learn how to report the scam to the right place." />
+  {% elseif node_type == "wizard" and lang == "es" %}
+  <meta name="description" content="¿Ha sufrido una estafa y quiere reportarla? Solo responda unas cuantas preguntas para saber cómo reportar la estafa en el lugar correcto." />
+  {% endif %}
+  <!-- Favicons -->
+  <link rel="apple-touch-icon-precomposed" href="/images/USA_Fav_Icon152_default.png">
+  <link rel="icon" sizes="16x16" href="/images/USA_Fav_Icon16.ico">
+  <link rel="icon" sizes="32x32" href="/images/favicon.ico">
+  <link rel="icon" sizes="152x152" href="/images/USA_Fav_Icon152_default.png">
   <!-- Social Media -->
   <meta property="og:url" content="{{ url }}" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="{{head_title|safe_join(' | ')}}" />
-  {% if node.id == 1 and lang == 'en' %}
+  {% if front == "homepage" and lang == 'en' %}
   <meta property="og:description" content="USA.gov can help you start your search for government information by topic and agency." />
-  {% elseif node.id == 1 and lang == 'es' %}
+  {% elseif front == "homepage" and lang == 'es' %}
   <meta property="og:description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español." />
+  {% elseif node_type == "wizard" and lang == "en" %}
+  <meta name="description" content="Have you experienced a scam and want to report it? Just answer a few questions to learn how to report the scam to the right place." />
+  {% elseif node_type == "wizard" and lang == "es" %}
+  <meta name="description" content="¿Ha sufrido una estafa y quiere reportarla? Solo responda unas cuantas preguntas para saber cómo reportar la estafa en el lugar correcto." />
   {% else %}
   <meta property="og:description" content="{{ node.field_page_intro.value }}" />
   {% endif %}
   <meta property="og:image" content="https://www.usa.gov/images/facebook_share_thumbnail.png" />
   <meta property="og:image:secure_url" content="https://www.usa.gov/images/facebook_share_thumbnail.png" />
   <!-- End Social Media -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "url": "https://beta.usa.gov/",
+      "logo": "https://beta.usa.gov/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png"
+    }
+    </script>
 </head>
 <body{{ attributes }}>
   <!-- Google Tag Manager (noscript) -->
@@ -100,6 +132,7 @@
   {{ node.field_footer_html.value|raw }}
 {% endif %}
 
+<!-- Needed_for_USA.gov_uptime_check -->
 <script type="text/javascript">
   //<![CDATA[
     var usasearch_config = { siteHandle:"usagov" };
@@ -110,7 +143,27 @@
   //]]>
 </script>
 
-
+{% if lang == "en" %}
+<script type="text/javascript">
+  //<![CDATA[
+    var usasearch_config = { siteHandle:"usagov_all_gov" };
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "https://search.usa.gov/javascripts/remote.loader.js";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  //]]>
+  </script>
+  {% elseif lang == "es" %}
+  <script type="text/javascript">
+    //<![CDATA[
+      var usasearch_config = { siteHandle:"usagov_es_all_gov" };
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src = "https://search.usa.gov/javascripts/remote.loader.js";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    //]]>
+    </script>
+{% endif %}
 <script type="text/javascript">
   // Set a variable for our button element.
 const scrollToTopButton = document.getElementById('backToTop');
@@ -152,5 +205,41 @@ const scrollToTop = () => {
 // }
   
 </script>
+
+<!-- begin code to remove tabindex from survey -->
+<script type="text/javascript">
+	// Select the node that will be observed for mutations
+	//<![CDATA[
+	var targetNode = document.getElementById('main-content');
+	// Options for the observer (which mutations to observe)
+	var config = { attributes: true, childList: true, subtree: true };
+	
+	// Callback function to execute when mutations are observed
+	var callback = function(mutationsList, observer) {
+		// Use traditional 'for loops' for IE 11
+		for(let mutation of mutationsList) {
+			if (mutation.type === 'childList') {
+				console.log('A child node has been added or removed.');
+				var c = document.querySelector(".QSIUserDefinedHTML").children[0].removeAttribute("tabindex"); console.log(c);
+				// Later, you can stop observing
+				observer.disconnect();
+			}
+			else if (mutation.type === 'attributes') {
+				console.log('The ' + mutation.attributeName + ' attribute was modified.');
+				
+			}
+		}
+	};
+	
+	// Create an observer instance linked to the callback function
+	var observer = new MutationObserver(callback);
+	
+	// Start observing the target node for configured mutations
+	observer.observe(targetNode, config);
+	//]]>
+	</script>
+<!-- end code to remove tabindex from survey  -->
+
+<!-- Needed_for_USA.gov_uptime_check -->
 </body>
 </html>

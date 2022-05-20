@@ -1,0 +1,5 @@
+name: 'USA: Pass Variable to Twig Usage'
+type: module
+description: 'Create functions that will pass varible to twig for frontend usage.'
+core: 8.x
+core_version_requirement: ^8 || ^9
