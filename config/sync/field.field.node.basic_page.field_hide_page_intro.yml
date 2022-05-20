@@ -1,0 +1,23 @@
+uuid: 5b5dbf2a-7979-4616-8b5a-04c7ab594503
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_hide_page_intro
+    - node.type.basic_page
+id: node.basic_page.field_hide_page_intro
+field_name: field_hide_page_intro
+entity_type: node
+bundle: basic_page
+label: 'Hide Page Intro'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean
