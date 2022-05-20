@@ -41,10 +41,10 @@
   <script>
     dataLayer = [{ 
       {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'pageNode'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{node_type|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{node_type|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'page'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
-      {{'pagetype'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}  
+      {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
+      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}  
     }];
   </script>
   <!-- Google Tag Manager -->
@@ -71,7 +71,7 @@
     <meta name="description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español. " />
     {% endif %} 
   {% endif %}
-  {% if front == "content_page" and nodetype == "basic_page" %}
+  {% if front == "not_homepage" and nodetype == "basic_page" %}
     <meta name="description" content="{{ node.field_page_intro.value }}" />
   {% endif %}
 
@@ -81,10 +81,10 @@
   <meta name="description" content="¿Ha sufrido una estafa y quiere reportarla? Solo responda unas cuantas preguntas para saber cómo reportar la estafa en el lugar correcto." />
   {% endif %}
   <!-- Favicons -->
-  <link rel="apple-touch-icon-precomposed" href="/images/USA_Fav_Icon152_default.png">
-  <link rel="icon" sizes="16x16" href="/images/USA_Fav_Icon16.ico">
-  <link rel="icon" sizes="32x32" href="/images/favicon.ico">
-  <link rel="icon" sizes="152x152" href="/images/USA_Fav_Icon152_default.png">
+  <link rel="apple-touch-icon-precomposed" href="/themes/custom/usagov/images/USA_Fav_Icon152_default.png">
+  <link rel="icon" sizes="16x16" href="/themes/custom/usagov/images/USA_Fav_Icon16.ico">
+  <link rel="icon" sizes="32x32" href="/themes/custom/usagov/images/favicon.ico">
+  <link rel="icon" sizes="152x152" href="/themes/custom/usagov/images/USA_Fav_Icon152_default.png">
   <!-- Social Media -->
   <meta property="og:url" content="{{ url }}" />
   <meta property="og:type" content="website" />
