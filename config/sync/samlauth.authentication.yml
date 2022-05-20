@@ -22,7 +22,7 @@ sp_new_certificate: ''
 sp_private_key: 'file:/var/www/sp.key'
 metadata_valid_secs: 60
 metadata_cache_http: false
-idp_entity_id: 'GSASecAuth'
+idp_entity_id: GSASecAuth
 idp_single_sign_on_service: 'https://secureauth.gsa.gov/SecureAuth273'
 idp_single_log_out_service: ''
 idp_change_password_service: ''
