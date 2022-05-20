@@ -71,7 +71,7 @@
     <meta name="description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español. " />
     {% endif %} 
   {% endif %}
-  {% if front == "content_page" and nodetype == "basic_page" %}
+  {% if front == "not_homepage" and nodetype == "basic_page" %}
     <meta name="description" content="{{ node.field_page_intro.value }}" />
   {% endif %}
 
