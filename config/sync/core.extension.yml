@@ -1,0 +1,26 @@
+_core:
+  default_config_hash: R4IF-ClDHXxblLcG0L7MgsLvfBIMAvi_skumNFQwkDc
+module:
+  new_relic_rpm: -20
+  action: 0
+  admin_toolbar: 0
+  admin_toolbar_tools: 0
+  allowed_formats: 0
+  autologout: 0
+  block: 0
+  block_content: 0
+  breakpoint: 0
+  ckeditor: 0
+  ckeditor_templates: 0
+  ckeditor_templates_ui: 0
+  config: 0
+  content_moderation: 0
+  content_moderation_notifications: 0
+  contextual: 0
+  ctools: 0
+  datetime: 0
+  datetime_range: 0
+  dblog: 0
+  devel: 0
+  diff: 0
+  dynamic_page_cache: 0
