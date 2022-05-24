@@ -24,10 +24,6 @@ services:
     env_file:
       - ./env.local
     environment:
-      AKI: "${AKI}"
-      AKIS: "${AKIS}"
-      AKIB: cg-c3ecc007-c2b1-443b-9597-cd9aa4212ab5
-      AKIR: us-gov-west-1
       COMPOSER_MEMORY_LIMIT: -1
       WWW_HOST: beta-usagov.docker.local
       S3_HOST: minio:9000
