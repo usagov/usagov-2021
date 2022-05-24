@@ -118,8 +118,8 @@ TODO: come up with a better name than start_level. Its really the delta between 
             {{ item.title }}
           </a>
           {% if item.below and item.in_active_trail and menuLevel < start_level or item.title == current_item_title %} {# if there are items and we haven't reached the current item or this is the current item #}
-            {% set relatedPages = drupal_entity('node', item.url.routeParameters.node )['#node'].field_related_pages %}
-            {{ _self.build( item.below, menuLevel + 1, start_level, current_item_title, relatedPages) }}
+            {% set related = drupal_entity('node', item.url.routeParameters.node )['#node'].field_related_pages %}
+            {{ _self.build( item.below, menuLevel + 1, start_level, current_item_title, related) }}
           {% endif %}
         </li>
       {% endif %}
