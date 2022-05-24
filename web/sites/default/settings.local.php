@@ -20,7 +20,8 @@ $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', true);
 $aws = [
   'access_key_id' => $_ENV['AKI'],
   'secret'        => $_ENV['AKIS'],
-  'bucket'        => 'usagovbeta',
+  'bucket'        => $_ENV['AKIB'],
+  'region'        => $_ENV['AKIR'],
 ];
 $settings['file_public_path'] = 'sites/default/files';
 foreach ($cf_service_data as $service_provider => $service_list) {
@@ -70,7 +71,7 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       $settings['s3fs.access_key']              = $aws['access_key_id'];
       $settings['s3fs.secret_key']              = $aws['secret'];
       $config['s3fs.settings']['bucket']        = $aws['bucket'];
-      $config['s3fs.settings']['region']        = 'us-east-1';
+      $config['s3fs.settings']['region']        = $aws['region'];
       $config['s3fs.settings']['public_folder'] = 'files';
       $config['s3fs.settings']['private_folder'] = 'private';
       // -----------------------------------
