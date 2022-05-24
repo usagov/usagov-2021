@@ -19,7 +19,7 @@ default_config: &defaults
 applications:
 - name: cms
   docker:
-    image: ednark/usagov-2021:cms-latest
+    image: dnark/usagov-2021:cms-latest
   memory: 512M
   disk_quota: 2G
   timeout: 180
@@ -32,7 +32,7 @@ applications:
   random-route: true
 - name: waf
   docker:
-    image: ednark/usagov-2021:waf-latest
+    image: dnark/usagov-2021:waf-latest
   instances: 1
   random-route: true
   disk_quota: 1G

@@ -4,6 +4,8 @@
 # to be used when launching cloud.gov images
 #
 
+DOCKERREPO=dnark
+CONTAINERNAME=usagov-2021
 
 GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
@@ -19,12 +21,12 @@ then
 fi;
 
 
-echo "Building usagov-2021:cms-"$CONTAINERTAG $CONTAINERTAG2
+echo "Building ${CONTAINERNAME}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
 docker build --force-rm \
-    -t ednark/usagov-2021:cms-$CONTAINERTAG \
+    -t $DOCKERREPO/$CONTAINERNAME:cms-$CONTAINERTAG \
     -f .docker/Dockerfile-cms . \
     --build-arg GITBRANCH=$GITBRANCH \
     --build-arg GITCOMMIT=$GITCOMMIT \
@@ -32,17 +34,17 @@ docker build --force-rm \
 
 if [ -n "$CONTAINERTAG2" ]
 then
-    echo "docker tag ednark/usagov-2021:cms-$CONTAINERTAG ednark/usagov-2021:cms-$CONTAINERTAG2"
-    docker tag ednark/usagov-2021:cms-$CONTAINERTAG ednark/usagov-2021:cms-$CONTAINERTAG2
+    echo "docker tag $DOCKERREPO/$CONTAINERNAME:cms-$CONTAINERTAG $DOCKERREPO/$CONTAINERNAME:cms-$CONTAINERTAG2"
+    docker tag $DOCKERREPO/$CONTAINERNAME:cms-$CONTAINERTAG $DOCKERREPO/$CONTAINERNAME:cms-$CONTAINERTAG2
 fi
 
 
-echo "Building usagov-2021:waf-"$CONTAINERTAG $CONTAINERTAG2
+echo "Building ${CONTAINERNAME}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
 docker build --force-rm \
-    -t ednark/usagov-2021:waf-$CONTAINERTAG \
+    -t $DOCKERREPO/$CONTAINERNAME:waf-$CONTAINERTAG \
     -f .docker/Dockerfile-waf .docker \
     --build-arg GITBRANCH=$GITBRANCH \
     --build-arg GITCOMMIT=$GITCOMMIT \
@@ -50,5 +52,5 @@ docker build --force-rm \
 
 if [ -n "$CONTAINERTAG2" ]
 then
-    docker tag ednark/usagov-2021:waf-$CONTAINERTAG ednark/usagov-2021:waf-$CONTAINERTAG2
+    docker tag $DOCKERREPO/$CONTAINERNAME:waf-$CONTAINERTAG $DOCKERREPO/$CONTAINERNAME:waf-$CONTAINERTAG2
 fi
