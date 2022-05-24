@@ -223,6 +223,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-280-docker-hub
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -232,6 +233,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-280-docker-hub
 
       - approve-dev-deployment:
           type: approval
@@ -239,13 +241,17 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: dev
+              only:
+                - dev
+                - USAGOV-280-docker-hub
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
-              only: dev
+              only:
+                - dev
+                - USAGOV-280-docker-hub
 
       - approve-stage-deployment:
           type: approval
