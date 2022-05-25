@@ -36,10 +36,10 @@ services:
         { "s3": [{
             "name": "storage",
             "credentials": {
-              "access_key_id": "AKIAR7FXZINYGMVZGKMB",
-              "secret_access_key": "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",
-              "region": "us-gov-west-1",
-              "bucket": "cg-c3ecc007-c2b1-443b-9597-cd9aa4212ab5",
+              "access_key_id": "minioadmin",
+              "secret_access_key": "miniopass",
+              "region": "us-west-1",
+              "bucket": "local",
               "hostname": "minio:9000"
             }
           }],
