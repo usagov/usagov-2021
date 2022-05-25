@@ -32,7 +32,7 @@ CMS_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  
 export WWW_HOST
 export CMS_HOST
 
-S3_WEBROOT=${S3_WEBROOT:-/web}
+S3_WEBROOT=${S3_WEBROOT:-/cms}
 S3_PROXY=${S3_PROXY:-$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com$S3_WEBROOT}
 S3_HOST=${S3_HOST:-$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com}
 export S3_WEBROOT
@@ -63,7 +63,7 @@ echo "$SP_CRT" > /var/www/sp.crt
 
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
 
-FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf"
+FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/partials/drupal.conf"
 # this overwrites the files in place, so be careful mounting in docker
 for FILE in $FILES; do
     if [ -f "$FILE.tmpl" ]; then
