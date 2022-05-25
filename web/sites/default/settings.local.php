@@ -38,3 +38,4 @@ foreach ($cf_service_data as $service_provider => $service_list) {
     }
   }
 }
+$settings['file_private_path'] = 'sites/default/private';
