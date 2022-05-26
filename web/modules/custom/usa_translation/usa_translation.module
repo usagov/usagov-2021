@@ -25,6 +25,9 @@ function usa_translation_node_translation_delete(NodeInterface $node) {
   }
 }
 
+/**
+ * Implements hook_page_attachments_alter().
+ */
 function usa_translation_page_attachments_alter(&$page) {
   $cache = CacheableMetadata::createFromRenderArray($page);
   $route_match = \Drupal::routeMatch();
