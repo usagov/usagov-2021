@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Self explained.
+ */
+
 use Drupal\Core\Cache\CacheableMetadata;
 
 /**
@@ -45,12 +50,12 @@ function usa_translation_page_attachments_alter(&$page) {
     }
 
     $entity = $route_match->getParameter($name);
-    // if Field Language toggle exist and is set then get it's node value
-    if(method_exists($entity,'getFields') != FALSE
+    // If Field Language toggle exist and is set then get it's node value.
+    if (method_exists($entity, 'getFields') != FALSE
       && array_key_exists('field_language_toggle', $entity->getFields()) == TRUE
       && $entity->getFields()['field_language_toggle']->isEmpty() == FALSE) {
       $altid = $entity->getFields()['field_language_toggle']->getValue()[0]['target_id'];
-      //get the alternate ID language
+      // Get the alternate ID language.
       $altnode = \Drupal::entityTypeManager()->getStorage('node')->load($altid);
       if ($altnode->hasLinkTemplate('canonical')) {
         foreach ($altnode->getTranslationLanguages() as $language) {
@@ -87,7 +92,7 @@ function usa_translation_page_attachments_alter(&$page) {
         }
       }
     }
-  //   // Since entity was found, no need to iterate further.
+    // // Since entity was found, no need to iterate further.
     break;
   }
   // // Apply updated caching information.
