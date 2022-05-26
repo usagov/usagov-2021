@@ -35,27 +35,19 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       $settings['hash_salt'] = $service['credentials']['HASH_SALT'];
     }
     if ($service['name'] === 'storage') {
-      $config['s3fs.settings']['access_key'] = $service['credentials']['access_key_id'];
+      //s3fs setting
+      $settings['s3fs.access_key'] = $service['credentials']['access_key_id'];
+      $settings['s3fs.secret_key'] = $service['credentials']['secret_access_key'];
       $config['s3fs.settings']['bucket'] = $service['credentials']['bucket'];
-      // $config['s3fs.settings']['encryption'] = 'AES256';
+      $config['s3fs.settings']['region'] = $service['credentials']['region'];
       $config['s3fs.settings']['public_folder'] = 'public';
       $config['s3fs.settings']['private_folder'] = 'private';
-      $config['s3fs.settings']['region'] = $service['credentials']['region'];
-      $config['s3fs.settings']['secret_key'] = $service['credentials']['secret_access_key'];
+      // -----------------------------------
+
       $config['s3fs.settings']['use_https'] = TRUE;
-      $config['s3fs.settings']['disable_cert_verify'] = FALSE;
-
-      $settings['s3fs.access_key'] = $service['credentials']['access_key_id'];
-      $settings['s3fs.bucket'] = $service['credentials']['bucket'];
-      $settings['s3fs.public_folder'] = 'public';
-      $settings['s3fs.private_folder'] = 'private';
-      $settings['s3fs.region'] = $service['credentials']['region'];
-      $settings['s3fs.secret_key'] = $service['credentials']['secret_access_key'];
-      $settings['s3fs.use_https'] = TRUE;
-      $settings['s3fs.disable_cert_verify'] = FALSE;
-
+      $settings['s3fs.upload_as_private'] = FALSE;
       $settings['s3fs.use_s3_for_public'] = TRUE;
-      // Twig templates _shouldn't_ be in the public dir (lest they be very slow)
+      $settings['s3fs.use_s3_for_private'] = TRUE;
       $settings['php_storage']['twig']['directory'] = '../storage/php';
     }
   }
