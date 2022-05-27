@@ -27,8 +27,12 @@ S3_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage
 export S3_BUCKET
 export S3_REGION
 
+# SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
 WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)
 CMS_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)
+# if [ "${SPACE}" = "local" ]; then
+#     CMS_HOST="${CMS_HOST} _"
+# fi
 export WWW_HOST
 export CMS_HOST
 
