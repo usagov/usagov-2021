@@ -4,6 +4,9 @@
 # to be used when launching cloud.gov images
 #
 
+DOCKERUSER=dnark
+DOCKERREPO=usagov-2021
+
 CONTAINERTAG=${1}
 CONTAINERTAG2=${2}
 
@@ -13,18 +16,18 @@ then
       exit 1;
 fi;
 
-echo "docker push ednark/usagov-2021:cms-$CONTAINERTAG"
-docker push ednark/usagov-2021:cms-$CONTAINERTAG
+echo "docker push $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG"
+docker push $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
 if [ -n "$CONTAINERTAG2" ]
 then
-    echo "docker push ednark/usagov-2021:cms-$CONTAINERTAG2"
-    docker push ednark/usagov-2021:cms-$CONTAINERTAG2
+    echo "docker push $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2"
+    docker push $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
 fi
 
-echo "docker push ednark/usagov-2021:waf-$CONTAINERTAG"
-docker push ednark/usagov-2021:waf-$CONTAINERTAG
+echo "docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG"
+docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG
 if [ -n "$CONTAINERTAG2" ]
 then
-    echo "docker push ednark/usagov-2021:waf-$CONTAINERTAG2"
-    docker push ednark/usagov-2021:waf-$CONTAINERTAG2
+    echo "docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2"
+    docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
 fi
