@@ -1,26 +1,16 @@
 <?php
 
-$settings['new_relic_rpm.api_key'] = getenv('NEW_RELIC_API_KEY');
-$config['new_relic_rpm.settings']['api_key'] = getenv('NEW_RELIC_API_KEY');
-
-$settings['tome_static_path_exclude'] = [
-  '/saml', '/saml/acs', '/saml/login', '/saml/logout', '/saml/metadata', '/saml/sls',
-  '/jsonapi', '/jsonapi/deleted-nodes',
-  '/es/saml', '/es/saml/acs', '/es/saml/login', '/es/saml/logout', '/es/saml/metadata', '/es/saml/sls',
-  '/es/jsonapi', '/es/jsonapi/deleted-nodes'
-];
-
 /**
  * Collect external service information from environment.
  * Cloud Foundry places all service credentials in VCAP_SERVICES
  */
 
-$cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', true);
+$cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);
 
-foreach ($cf_service_data as $service_provider => $service_list) {
+foreach ($cf_service_data as $service_list) {
   foreach ($service_list as $service) {
     if ($service['name'] === 'database') {
-      $databases['default']['default'] = array (
+      $databases['default']['default'] = [
         'database' => $service['credentials']['db_name'],
         'username' => $service['credentials']['username'],
         'password' => $service['credentials']['password'],
@@ -29,7 +19,7 @@ foreach ($cf_service_data as $service_provider => $service_list) {
         'port' => $service['credentials']['port'],
         'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
         'driver' => 'mysql',
-      );
+      ];
     }
     if ($service['name'] === 'secrets') {
       $settings['hash_salt'] = $service['credentials']['HASH_SALT'];
@@ -43,7 +33,6 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       $config['s3fs.settings']['public_folder'] = 'public';
       $config['s3fs.settings']['private_folder'] = 'private';
       // -----------------------------------
-
       $config['s3fs.settings']['use_https'] = TRUE;
       $settings['s3fs.upload_as_private'] = FALSE;
       $settings['s3fs.use_s3_for_public'] = TRUE;
@@ -57,3 +46,22 @@ foreach ($cf_service_data as $service_provider => $service_list) {
 // This is from https://www.fomfus.com/articles/how-to-create-a-drupal-8-project-for-heroku-part-1
 // included here without fully understanding implications:
 $settings['cache']['bins']['data'] = 'cache.backend.php';
+
+$cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
+if (!empty($cf_application_data['space_name']) &&
+    in_array($cf_application_data['space_name'],
+             ['dev', 'stage', 'prod'])) {
+  switch (strtolower($cf_application_data['space_name'])) {
+    case "dev":
+      $settings['trusted_host_patterns'] = ['^cms-dev.usa.gov$'];
+      break;
+
+    case "stage":
+      $settings['trusted_host_patterns'] = ['^cms-stage.usa.gov$'];
+      break;
+
+    case "prod":
+      $settings['trusted_host_patterns'] = ['^cms.usa.gov$'];
+      break;
+  }
+}
