@@ -780,14 +780,25 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 $settings['config_sync_directory'] = '/var/www/config/sync';
 $settings['install_profile'] = 'minimal';
 
+$settings['tome_static_path_exclude'] = [
+  '/saml', '/saml/acs', '/saml/login', '/saml/logout', '/saml/metadata', '/saml/sls',
+  '/jsonapi', '/jsonapi/deleted-nodes',
+  '/es/saml', '/es/saml/acs', '/es/saml/login', '/es/saml/logout', '/es/saml/metadata', '/es/saml/sls',
+  '/es/jsonapi', '/es/jsonapi/deleted-nodes',
+];
+
+if (getenv('NEW_RELIC_API_KEY')) {
+  $settings['new_relic_rpm.api_key'] = getenv('NEW_RELIC_API_KEY');
+  $config['new_relic_rpm.settings']['api_key'] = getenv('NEW_RELIC_API_KEY');
+}
+
 // Handle cloud.gov and docker-compose file location differences
 if (file_exists($app_root . '/' . $site_path . '/settings.cf.php')) {
   include $app_root . '/' . $site_path . '/settings.cf.php';
-}
-if (file_exists('./sites/default/settings.cf.php')) {
+} else if (file_exists('./sites/default/settings.cf.php')) {
   include './sites/default/settings.cf.php';
 }
-
+// Overide anything special for local developement
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';
 }
