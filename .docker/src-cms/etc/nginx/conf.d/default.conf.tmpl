@@ -2,7 +2,7 @@
 server {
     listen 80;
 
-    server_name ${WWW_HOST} beta.usa.gov beta-stage.usa.gov beta-dev.usa.gov www.usa.gov www-stage.usa.gov www-dev.usa.gov;
+    server_name ${WWW_HOST};
 
     resolver ${DNS_SERVER} valid=5s ipv6=off;
 
@@ -112,7 +112,7 @@ server {
     listen 443 ssl;
     include partials/ssl.conf;
 
-    server_name ${WWW_HOST} beta.usa.gov beta-stage.usa.gov beta-dev.usa.gov www.usa.gov www-stage.usa.gov www-dev.usa.gov;
+    server_name ${WWW_HOST};
 
     resolver ${DNS_SERVER} valid=5s ipv6=off;
 
@@ -222,7 +222,7 @@ server {
 server {
     listen 80 default_server;
 
-    server_name  _;
+    server_name ${CMS_HOST} _;
 
     root   /var/www/web;
 
@@ -240,7 +240,7 @@ server {
 server {
     listen 443 ssl default_server;
     include partials/ssl.conf;
-    server_name  _;
+    server_name ${CMS_HOST} _;
 
     root   /var/www/web;
 
