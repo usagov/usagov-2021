@@ -27,6 +27,8 @@ foreach ($cf_service_data as $service_list) {
   }
 }
 
+$settings['file_private_path'] = 'sites/default/private';
+
 $settings['trusted_host_patterns'] = [
   '^localhost$',
   '^127\.0\.0\.1$',
