@@ -57,7 +57,10 @@ function usa_translation_page_attachments_alter(&$page) {
       $altid = $entity->getFields()['field_language_toggle']->getValue()[0]['target_id'];
       // Get the alternate ID language.
       $altnode = \Drupal::entityTypeManager()->getStorage('node')->load($altid);
-      if ($altnode->hasLinkTemplate('canonical')) {
+      if (!empty($altnode)
+        && is_object($altnode)
+        && method_exists($altnode, 'hasLinkTemplate')
+        && $altnode->hasLinkTemplate('canonical')) {
         foreach ($altnode->getTranslationLanguages() as $language) {
           // Skip any translation that cannot be viewed.
           $translation = $altnode->getTranslation($language->getId());
