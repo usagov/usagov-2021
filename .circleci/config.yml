@@ -223,6 +223,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - minio-local
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -232,6 +233,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - minio-local
 
       - approve-dev-deployment:
           type: approval
@@ -239,13 +241,17 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: dev
+              only:
+               - dev
+               - minio-local
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
-              only: dev
+              only:
+              - dev
+              - minio-local
 
       - approve-stage-deployment:
           type: approval
