@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a14716e08021b9f1a03f4638d80b839b",
+    "content-hash": "3644887d5882c5ed64374a70f9e630fa",
     "packages": [
         {
             "name": "alchemy/zippy",
@@ -4801,6 +4801,60 @@
             "support": {
                 "source": "https://git.drupalcode.org/project/field_permissions",
                 "issues": "https://www.drupal.org/project/issues/field_permissions"
+            }
+        },
+        {
+            "name": "drupal/image_style_warmer",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/image_style_warmer.git",
+                "reference": "8.x-1.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/image_style_warmer-8.x-1.1.zip",
+                "reference": "8.x-1.1",
+                "shasum": "b05b911281e6d45df0a7735cfa9f8816f9d6233a"
+            },
+            "require": {
+                "drupal/core": "^8.8 || ^9"
+            },
+            "require-dev": {
+                "drush/drush": "^9.0 || ^10"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.1",
+                    "datestamp": "1616082948",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "drush": {
+                    "services": {
+                        "drush.services.yml": "^9"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Steffen Schlaer (IT-Cru)",
+                    "homepage": "https://www.drupal.org/u/IT-Cru",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Create image styles of an image on upload or via queue worker.",
+            "homepage": "https://drupal.org/project/image_style_warmer",
+            "support": {
+                "source": "https://cgit.drupalcode.org/image_style_warmer",
+                "issues": "https://drupal.org/project/issues/image_style_warmer"
             }
         },
         {

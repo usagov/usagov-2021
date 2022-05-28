@@ -10,13 +10,17 @@ mkdir -p /data/local/web
 chmod -R 777 /data/local/web
 mc --insecure policy set public docker/local/web
 
-mkdir -p /data/local/public
-chmod -R 777 /data/local/public
-mc --insecure policy set public docker/local/public
+mkdir -p /data/local/cms
+chmod -R 777 /data/local/cms
+mc --insecure policy set public docker/local/cms
 
-mkdir -p /data/local/private
-chmod -R 777 /data/local/private
-mc --insecure policy set public docker/local/private
+mkdir -p /data/local/cms/public
+chmod -R 777 /data/local/cms/public
+mc --insecure policy set public docker/local/cms/public
+
+mkdir -p /data/local/cms/private
+chmod -R 777 /data/local/cms/private
+mc --insecure policy set public docker/local/cms/private
 
 mkdir -p /data/local/tome-log
 chmod -R 777 /data/local/tome-log
