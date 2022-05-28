@@ -1,26 +1,15 @@
 <?php
 
-if ( !empty(getenv('LOCALDB')) ) {
-    $databases['default']['default'] = [
-        'driver' => 'sqlite',
-        'database' => '/var/www/'.getenv('LOCALDB'),
-    ];
-}
-
 # $settings['tome_static_path_exclude'] = [];
-
-$settings['new_relic_rpm.api_key'] = getenv('NEW_RELIC_API_KEY');
-$config['new_relic_rpm.settings']['api_key'] = getenv('NEW_RELIC_API_KEY');
-
-$config['admin_toolbar_tools.settings']['hoverintent_functionality'] = TRUE;
+# $config['admin_toolbar_tools.settings']['hoverintent_functionality'] = TRUE;
 
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml';
 
-$cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', true);
+$cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);
 
 $settings['file_public_path'] = 'sites/default/files';
-/*
-foreach ($cf_service_data as $service_provider => $service_list) {
+
+foreach ($cf_service_data as $service_list) {
   foreach ($service_list as $service) {
     if ($service['name'] === 'storage') {
       $settings['s3fs.access_key'] = $service['credentials']['access_key_id'];
@@ -30,7 +19,6 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       $config['s3fs.settings']['public_folder'] = 'public';
       $config['s3fs.settings']['private_folder'] = 'private';
       // -----------------------------------
-
       $config['s3fs.settings']['root_folder'] = '';
 
       $config['s3fs.settings']['use_cname'] = TRUE;
@@ -44,11 +32,18 @@ foreach ($cf_service_data as $service_provider => $service_list) {
       $config['s3fs.settings']['disable_cert_verify'] = TRUE;
 
       $config['s3fs.settings']['use_https'] = TRUE;
+      $settings['php_storage']['twig']['directory'] = '../storage/php';
       $settings['s3fs.upload_as_private'] = FALSE;
       $settings['s3fs.use_s3_for_public'] = TRUE;
       $settings['s3fs.use_s3_for_private'] = TRUE;
-      $settings['php_storage']['twig']['directory'] = '../storage/php';
     }
   }
 }
-*/
+
+$settings['file_private_path'] = 'sites/default/private';
+
+$settings['trusted_host_patterns'] = [
+  '^localhost$',
+  '^127\.0\.0\.1$',
+  '^cms-usagov\.docker\.local$',
+];
