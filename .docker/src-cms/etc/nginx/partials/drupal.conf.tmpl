@@ -1,5 +1,6 @@
 
     location ~ ^${S3_PROXY_PATH_CMS}/(.*) {
+        error_page 404 403 @notFoundInS3;
         resolver ${DNS_SERVER} valid=5s ipv6=off;
 
         proxy_intercept_errors on;
@@ -24,7 +25,10 @@
         set $s3file "${S3_PROXY_CMS}/$1";
         proxy_pass https://$s3file;
     }
-
+    location @notFoundInS3 {
+        expires max;
+        try_files $uri @rewrite;
+    }
 
     location = /favicon.ico {
         log_not_found off;
