@@ -37,6 +37,7 @@ module:
   filter: 0
   google_docs_filter: 0
   image: 0
+  image_style_warmer: 0
   jquery_ui: 0
   jquery_ui_accordion: 0
   jsonapi: 0
