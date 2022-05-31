@@ -2,6 +2,13 @@
 
 /**
  * @file
+ * Self explained.
+ */
+use Drupal\Core\Url;
+use Drupal\Core\Cache\CacheableMetadata;
+
+/**
+ * @file
  * Module contains functions related to usa_translation.
  */
 
@@ -21,4 +28,76 @@ function usa_translation_node_translation_delete(NodeInterface $node) {
       $menu_entity->delete();
     }
   }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function usa_translation_page_attachments_alter(&$page) {
+  $cache = CacheableMetadata::createFromRenderArray($page);
+  $route_match = \Drupal::routeMatch();
+
+  // If the current route has no parameters, return.
+  if (!($route = $route_match->getRouteObject()) || !($parameters = $route->getOption('parameters'))) {
+    return;
+  }
+  $is_front = \Drupal::service('path.matcher')->isFrontPage();
+
+  // Determine if the current route represents an entity.
+  foreach ($parameters as $name => $options) {
+    if (!isset($options['type']) || strpos($options['type'], 'entity:') !== 0) {
+      continue;
+    }
+
+    $entity = $route_match->getParameter($name);
+    // If Field Language toggle exist and is set then get it's node value.
+    if (method_exists($entity, 'getFields') != FALSE
+      && array_key_exists('field_language_toggle', $entity->getFields()) == TRUE
+      && $entity->getFields()['field_language_toggle']->isEmpty() == FALSE) {
+      $altid = $entity->getFields()['field_language_toggle']->getValue()[0]['target_id'];
+      // Get the alternate ID language.
+      $altnode = \Drupal::entityTypeManager()->getStorage('node')->load($altid);
+      if (!empty($altnode)
+        && is_object($altnode)
+        && method_exists($altnode, 'hasLinkTemplate')
+        && $altnode->hasLinkTemplate('canonical')) {
+        foreach ($altnode->getTranslationLanguages() as $language) {
+          // Skip any translation that cannot be viewed.
+          $translation = $altnode->getTranslation($language->getId());
+          $access = $translation->access('view', NULL, TRUE);
+          $cache->addCacheableDependency($access);
+          if (!$access->isAllowed()) {
+            continue;
+          }
+          if ($is_front) {
+            // If the current page is front page, do not create hreflang links
+            // from the entity route, just add the languages to root path.
+            $url = Url::fromRoute('<front>', [], [
+              'absolute' => TRUE,
+              'language' => $language,
+            ])->toString();
+          }
+          // Create links for the entity path.
+          else {
+            $url = $altnode->toUrl('canonical')
+              ->setOption('language', $language)
+              ->setAbsolute()
+              ->toString();
+          }
+          $page['#attached']['html_head_link'][] = [
+            [
+              'rel' => 'alternate',
+              'hreflang' => $language->getId(),
+              'href' => $url,
+            ],
+            TRUE,
+          ];
+        }
+      }
+    }
+    // // Since entity was found, no need to iterate further.
+    break;
+  }
+  // // Apply updated caching information.
+  $cache->applyTo($page);
 }

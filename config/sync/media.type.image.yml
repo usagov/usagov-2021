@@ -6,7 +6,7 @@ id: image
 label: Image
 description: 'Basic Image'
 source: image
-queue_thumbnail_downloads: true
+queue_thumbnail_downloads: false
 new_revision: false
 source_configuration:
   source_field: field_media_image

@@ -1,0 +1,7 @@
+initial_image_styles:
+  large: large
+  media_library: media_library
+  medium: medium
+  thumbnail: thumbnail
+  wide: wide
+queue_image_styles: {  }
