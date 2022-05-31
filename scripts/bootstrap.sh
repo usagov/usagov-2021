@@ -23,21 +23,36 @@ DB_PORT=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.port')
 ADMIN_EMAIL=$(echo $SECRETS | jq -r '.ADMIN_EMAIL')
 
 S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
-S3_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region')
+S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.fips_endpoint')
 export S3_BUCKET
-export S3_REGION
+export S3_ENDPOINT
 
-WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)
-CMS_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)
+# SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
+WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)}
+CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)}
 export WWW_HOST
 export CMS_HOST
 
-S3_WEBROOT=${S3_WEBROOT:-/web}
-S3_PROXY=${S3_PROXY:-$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com$S3_WEBROOT}
-S3_HOST=${S3_HOST:-$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com}
-export S3_WEBROOT
-export S3_PROXY
+S3_ROOT_WEB=${S3_ROOT_WEB:-/web}
+S3_ROOT_CMS=${S3_ROOT_CMS:-/cms/public}
+S3_HOST=${S3_HOST:-$S3_BUCKET.$S3_ENDPOINT}
+S3_PROXY_WEB=${S3_PROXY_WEB:-$S3_HOST$S3_ROOT_WEB}
+S3_PROXY_CMS=${S3_PROXY_CMS:-$S3_HOST$S3_ROOT_CMS}
+S3_PROXY_PATH_CMS=${S3_PROXY_PATH_CMS:-/s3/files}
+export S3_ROOT_WEB
+export S3_ROOT_CMS
 export S3_HOST
+export S3_PROXY_WEB
+export S3_PROXY_CMS
+export S3_PROXY_PATH_CMS
+
+if [ -f "/etc/php8/php-fpm.d/env.conf.tmpl" ]; then
+  cp /etc/php8/php-fpm.d/env.conf.tmpl /etc/php8/php-fpm.d/env.conf
+  echo "env[S3_PROXY_PATH_CMS] = "$S3_PROXY_PATH_CMS >> /etc/php8/php-fpm.d/env.conf
+  echo "env[S3_PROXY_CMS] = "$S3_PROXY_CMS >> /etc/php8/php-fpm.d/env.conf
+  echo "env[S3_ROOT_CMS] = "$S3_ROOT_CMS >> /etc/php8/php-fpm.d/env.conf
+  echo "env[S3_HOST] = "$S3_HOST >> /etc/php8/php-fpm.d/env.conf
+fi
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 
@@ -63,7 +78,7 @@ echo "$SP_CRT" > /var/www/sp.crt
 
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
 
-FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf"
+FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/partials/drupal.conf"
 # this overwrites the files in place, so be careful mounting in docker
 for FILE in $FILES; do
     if [ -f "$FILE.tmpl" ]; then
@@ -73,26 +88,32 @@ for FILE in $FILES; do
 done
 
 # update new relic with environment specific settings
-if [ -n "$NEW_RELIC_LICENSE_KEY" ]; then
-  sed -i \
-      -e "s/;\?newrelic.license =.*/newrelic.license = ${NEW_RELIC_LICENSE_KEY}/" \
-      -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}/" \
-      -e "s/;\?newrelic.appname =.*/newrelic.appname = \"${NEW_RELIC_APP_NAME:-Local;USA.gov}\"/" \
-      -e "s/;\?newrelic.enabled =.*/newrelic.enabled = true/" \
-      /etc/php8/conf.d/newrelic.ini
-else
-  # turn off new relic
-  sed -i \
-      -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
-      /etc/php8/conf.d/newrelic.ini
+if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
+  if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$NEW_RELIC_LICENSE_KEY" != "null" ]; then
+    echo "Setting up New Relic ... "
+    sed -i \
+        -e "s/;\?newrelic.license =.*/newrelic.license = ${NEW_RELIC_LICENSE_KEY}/" \
+        -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}/" \
+        -e "s/;\?newrelic.appname =.*/newrelic.appname = \"${NEW_RELIC_APP_NAME:-Local;USA.gov}\"/" \
+        -e "s/;\?newrelic.enabled =.*/newrelic.enabled = true/" \
+        /etc/php8/conf.d/newrelic.ini
+  else
+    echo "Turning off New Relic ... "
+    sed -i \
+        -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
+        /etc/php8/conf.d/newrelic.ini
+  fi
 fi
-# if started, php needs a restart so new relic ini changes take effect
+
+# php needs a restart so new relic ini changes take effect
 if [ -d /var/run/s6/services/php ]; then
-  s6-svc -r /var/run/s6/services/php
+  echo "Asking php to reload conf ... "
+  s6-svc -2 /var/run/s6/services/php
 fi
-# update build info
-if [ -f /etc/motd ]; then
-  cp /etc/motd /var/www/web/version.txt
+# nginx needs a restart so proxy changes take effect
+if [ -d /var/run/s6/services/nginx ]; then
+  echo "Asking nginx to reload conf ... "
+  s6-svc -h /var/run/s6/services/nginx
 fi
 
 if [ -n "${FIX_FILE_PERMS:-}" ]; then
@@ -100,8 +121,6 @@ if [ -n "${FIX_FILE_PERMS:-}" ]; then
   chown nginx:nginx /var/www
   find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
   find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
-else
-  echo "Skipping File Permission updates ... "
 fi
 
 # if [ -n "$S3_BUCKET" ] && [ -n "$S3_REGION" ]; then
