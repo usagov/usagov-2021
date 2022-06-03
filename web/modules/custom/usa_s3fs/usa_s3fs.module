@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Interface with Form state.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+   * Submits the form.
+   *
+   * @param array $form
+   *   Array that contains the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   */
+  // function copyLocal() {
+  //   // $s3fs_storage = $form_state->get('s3fs');
+  //   // $config = $s3fs_storage['config'];
+  //   // $scheme = $s3fs_storage['scheme'];
+
+  //   // $uploadOptions = [
+  //   //   'upload_conditions' => $form_state->get('upload_conditions'),
+  //   // ];
+
+  //   // \Drupal::service('s3fs.file_migration_batch')->execute($config, $scheme, $uploadOptions);
+  //   $config = \Drupal::config('s3fs.settings')->get();
+  //   dpm($config);
+  // }
+function usa_s3fs_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  dpm($form_id);
+  dpm($form_state->getValues());
+  $s3fs_storage = $form_state->get('s3fs');
+  $config = $s3fs_storage['config'];
+  $scheme = $s3fs_storage['scheme'];
+
+  $uploadOptions = [
+    'upload_conditions' => $form_state->get('upload_conditions'),
+  ];
+  dpm($config);
+  // dpm();
+  // dpm();
+}
