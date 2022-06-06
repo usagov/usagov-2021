@@ -29,16 +29,16 @@ use Drupal\Core\Form\FormStateInterface;
   //   dpm($config);
   // }
 function usa_s3fs_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  dpm($form_id);
-  dpm($form_state->getValues());
-  $s3fs_storage = $form_state->get('s3fs');
-  $config = $s3fs_storage['config'];
-  $scheme = $s3fs_storage['scheme'];
+  // dpm($form_id);
+  // dpm($form_state->getValues());
+  // $s3fs_storage = $form_state->get('s3fs');
+  // $config = $s3fs_storage['config'];
+  // $scheme = $s3fs_storage['scheme'];
 
-  $uploadOptions = [
-    'upload_conditions' => $form_state->get('upload_conditions'),
-  ];
-  dpm($config);
-  // dpm();
-  // dpm();
+  // $uploadOptions = [
+  //   'upload_conditions' => $form_state->get('upload_conditions'),
+  // ];
+  // dpm($config);
+  // // dpm();
+  // // dpm();
 }

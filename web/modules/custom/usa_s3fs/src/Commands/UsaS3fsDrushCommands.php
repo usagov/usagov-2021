@@ -32,6 +32,16 @@ class UsaS3fsDrushCommands extends DrushCommands {
       $config = \Drupal::config('s3fs.settings')->get();
       var_dump($config);
       $scheme = 'public';
+      $uploadConditions = [];
+      // $s3fs_storage = $form_state->get('s3fs');
+      // $config = $s3fs_storage['config'];
+      // $scheme = $s3fs_storage['scheme'];
+
+      // $uploadOptions = [
+      //   'upload_conditions' => $form_state->get('upload_conditions'),
+      // ];
+      //
+      // \Drupal::service('s3fs.file_migration_batch')->execute($config, $scheme, $uploadOptions);
     }
 
     if ($options['uppercase']) {
