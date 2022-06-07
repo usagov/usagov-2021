@@ -223,15 +223,17 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - npm_build_fix_20220607
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
-          filters:
+          filters:  
             branches:
               only:
                 - dev
                 - stage
                 - prod
+                - npm_build_fix_20220607
 
       - approve-dev-deployment:
           type: approval
@@ -239,13 +241,17 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: dev
+              only: 
+                - dev
+                - npm_build_fix_20220607
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
-              only: dev
+              only: 
+                - dev
+                - npm_build_fix_20220607
 
       - approve-stage-deployment:
           type: approval
