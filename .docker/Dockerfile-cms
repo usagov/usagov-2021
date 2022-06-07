@@ -84,7 +84,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 #       py3-pip \
 #       && ln -sf python3 /usr/bin/python
 
-RUN apk --update add python3 nodejs npm git openssh
+RUN apk --update add python3 nodejs npm git openssh && apk add g++ make 
 
 RUN apk update && apk add --no-cache fontconfig curl curl-dev && \
     mkdir -p /usr/share && \
