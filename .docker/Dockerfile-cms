@@ -83,13 +83,16 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 #       python3 \
 #       py3-pip \
 #       && ln -sf python3 /usr/bin/python
+
+RUN apk --update add python3 nodejs npm git openssh
+
 RUN apk update && apk add --no-cache fontconfig curl curl-dev && \
     mkdir -p /usr/share && \
     cd /usr/share && \
     curl -L https://github.com/Overbryd/docker-phantomjs-alpine/releases/download/2.11/phantomjs-alpine-x86_64.tar.bz2 | tar xj && \
     ln -s /usr/share/phantomjs/phantomjs /usr/bin/phantomjs && \
     phantomjs --version
-RUN apk --update add python3 nodejs npm git openssh curl
+
 RUN npm install --global \
       gulp \
     && chown -R node:node /home/node/
@@ -108,10 +111,10 @@ RUN chown -R node:node /var/www/web/themes \
 
 USER node
 
-# RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
-#     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
-#     && npm run build --prefix /var/www/web/themes/custom/usagov \
-#     && chown -R node:node /var/www/web/themes
+RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
+    && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
+    && npm run build --prefix /var/www/web/themes/custom/usagov \
+    && chown -R node:node /var/www/web/themes
 
 ###############################################################
 
