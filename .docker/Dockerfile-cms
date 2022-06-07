@@ -64,7 +64,7 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 # USER www-data
 ###############################################################
 
-FROM node:17-alpine3.14 AS theme-builder
+FROM node:18-alpine3.14 AS theme-builder
 
 ARG BUID=1000
 ARG BGID=1000
@@ -102,10 +102,10 @@ RUN chown -R node:node /var/www/web/themes \
 
 USER node
 
-RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
-    && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
-    && npm run build --prefix /var/www/web/themes/custom/usagov \
-    && chown -R node:node /var/www/web/themes
+# RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
+#     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
+#     && npm run build --prefix /var/www/web/themes/custom/usagov \
+#     && chown -R node:node /var/www/web/themes
 
 ###############################################################
 
