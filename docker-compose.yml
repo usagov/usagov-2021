@@ -141,7 +141,8 @@ services:
         - BUID
         - BGID
     command: npm run watch --prefix /var/www/web/themes/custom/usagov
-    #command: echo "Shutting Down on Purpose"
+    # command: tail -f /dev/null
+    # command: echo "Shutting Down on Purpose"
     volumes:
       - .:/var/www:delegated
     env_file:
