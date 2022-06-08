@@ -64,7 +64,7 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 # USER www-data
 ###############################################################
 
-FROM node:17-alpine3.14 AS theme-builder
+FROM node:18-alpine3.14 AS theme-builder
 
 ARG BUID=1000
 ARG BGID=1000
@@ -83,7 +83,16 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 #       python3 \
 #       py3-pip \
 #       && ln -sf python3 /usr/bin/python
-RUN apk --update add python3
+
+RUN apk --update add python3 nodejs npm git openssh && apk add g++ make 
+
+RUN apk update && apk add --no-cache fontconfig curl curl-dev && \
+    mkdir -p /usr/share && \
+    cd /usr/share && \
+    curl -L https://github.com/Overbryd/docker-phantomjs-alpine/releases/download/2.11/phantomjs-alpine-x86_64.tar.bz2 | tar xj && \
+    ln -s /usr/share/phantomjs/phantomjs /usr/bin/phantomjs && \
+    phantomjs --version
+
 RUN npm install --global \
       gulp \
     && chown -R node:node /home/node/
