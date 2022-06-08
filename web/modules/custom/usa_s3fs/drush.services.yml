@@ -1,5 +1,0 @@
-services:
-  usa_s3fs_commands.commands:
-    class: \Drupal\usa_s3fs\Commands\UsaS3fsDrushCommands
-    tags:
-      - { name: drush.command }

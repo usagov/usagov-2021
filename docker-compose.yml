@@ -40,6 +40,7 @@ services:
               "bucket": "local",
               "fips_endpoint": "minio:9000",
               "endpoint": "minio:9000"
+              "endport": "9000"
             }
           }],
           "aws-rds": [{

@@ -1,5 +1,0 @@
-name: 'S3fs Extends'
-type: module
-description: 'Functions related to S3fs Contrib Module.'
-core: 8.x
-core_version_requirement: ^8 || ^9
