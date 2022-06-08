@@ -815,9 +815,6 @@ foreach ($cf_service_data as $service_list) {
     } else if ($service['name'] === 'secrets') {
       $settings['hash_salt'] = $service['credentials']['HASH_SALT'];
     } else if ($service['name'] === 'storage') {
-      // echo '<pre>';
-      // var_dump($service);
-      // echo '</pre>';
       $settings['s3fs.access_key'] = $service['credentials']['access_key_id'];
       $settings['s3fs.secret_key'] = $service['credentials']['secret_access_key'];
       $config['s3fs.settings']['bucket'] = $service['credentials']['bucket'];
@@ -828,20 +825,14 @@ foreach ($cf_service_data as $service_list) {
       $config['s3fs.settings']['private_folder'] = 'private';
 
       $S3_PROXY_PATH_CMS = getenv('S3_PROXY_PATH_CMS') ?: '/s3/files';
-      echo '<pre>';
-      var_dump(getenv('S3_PROXY_PATH_CMS'));
-      var_dump($S3_PROXY_PATH_CMS);
-      var_dump($_SERVER['HTTP_HOST'] . $S3_PROXY_PATH_CMS);
-      var_dump($_SERVER);
-      echo '</pre>';
 
-      // $config['s3fs.settings']['use_cname'] = TRUE;
-      // $config['s3fs.settings']['domain'] = $_SERVER['HTTP_HOST'] . $S3_PROXY_PATH_CMS;
-      // $config['s3fs.settings']['domain_root'] = 'public';
+      $config['s3fs.settings']['use_cname'] = TRUE;
+      $config['s3fs.settings']['domain'] = $_SERVER['HTTP_HOST'] . $S3_PROXY_PATH_CMS;
+      $config['s3fs.settings']['domain_root'] = 'public';
 
-      // $config['s3fs.settings']['use_customhost'] = TRUE;
-      // $config['s3fs.settings']['hostname'] = $service['credentials']['fips_endpoint'];
-      // $config['s3fs.settings']['use-path-style-endpoint'] = FALSE;
+      $config['s3fs.settings']['use_customhost'] = TRUE;
+      $config['s3fs.settings']['hostname'] = $service['credentials']['fips_endpoint'];
+      $config['s3fs.settings']['use-path-style-endpoint'] = FALSE;
 
       $config['s3fs.settings']['use_https'] = TRUE;
       $settings['s3fs.upload_as_private'] = FALSE;
