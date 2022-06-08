@@ -39,7 +39,7 @@ services:
               "region": "us-west-1",
               "bucket": "local",
               "fips_endpoint": "minio:9000",
-              "endpoint": "minio:9000"
+              "endpoint": "minio:9000",
               "endport": "9000"
             }
           }],
