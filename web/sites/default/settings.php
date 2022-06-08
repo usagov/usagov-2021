@@ -873,3 +873,8 @@ if (!empty($cf_application_data['space_name']) &&
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';
 }
+
+// echo '<pre>';
+//   var_dump($config);
+//   var_dump($settings);
+// echo '</pre>';
