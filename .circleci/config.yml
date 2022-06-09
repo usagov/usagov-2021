@@ -87,7 +87,7 @@ jobs:
             mkdir -p /tmp/results
             touch /tmp/results/php-lint.log
             touch /tmp/results/php-cs.log
-            touch /tmp/results/js-lint.log
+            touch /tmp/results/theme-lint.log
       - run:
           name: PHP Lint
           command: |
@@ -100,7 +100,7 @@ jobs:
             $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist | tee /tmp/results/php-cs.log
       - run:
           name: Theme Lint
-          command: npm run lint --prefix ./web/themes/custom/usagov | tee /tmp/results/js-lint.log
+          command: npm run lint --prefix ./web/themes/custom/usagov | tee /tmp/results/theme-lint.log
       - store_artifacts:
           path: /tmp/results
 
