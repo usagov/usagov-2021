@@ -75,9 +75,10 @@ services:
 
   database:
     container_name: database
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-mysql
+    image: mariadb:10
+    # build:
+    #  context: ./
+    #  dockerfile: .docker/Dockerfile-mysql
     ports:
       - 3306:3306
     volumes:

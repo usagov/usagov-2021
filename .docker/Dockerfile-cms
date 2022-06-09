@@ -64,7 +64,7 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 # USER www-data
 ###############################################################
 
-FROM node:18-alpine3.14 AS theme-builder
+FROM node:18-alpine3.16 AS theme-builder
 
 ARG BUID=1000
 ARG BGID=1000
@@ -84,7 +84,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 #       py3-pip \
 #       && ln -sf python3 /usr/bin/python
 
-RUN apk --update add python3 nodejs npm git openssh && apk add g++ make 
+RUN apk --update add python3 nodejs npm git openssh && apk add g++ make
 
 RUN apk update && apk add --no-cache fontconfig curl curl-dev && \
     mkdir -p /usr/share && \
@@ -119,7 +119,7 @@ RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
 ###############################################################
 
 
-FROM alpine:3.14 AS cms
+FROM alpine:3.16 AS cms
 LABEL MAINTAINER=dan@mobomo.com
 
 ARG S6_VERSION
@@ -229,9 +229,8 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && mkdir -p /run/nginx/ \
     && touch /run/nginx/nginx.pid \
     # php setup
-    && ln -s /usr/bin/php8 /usr/bin/php \
     && ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm \
-    # # new relic setup
+    # new relic setup
     && export NR_VERSION=$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux\-musl\).tar.gz<.*/\1/p') \
     && cd /tmp \
     && curl -L "https://download.newrelic.com/php_agent/release/${NR_VERSION}.tar.gz" | tar -C /tmp -zx \
