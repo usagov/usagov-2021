@@ -31,13 +31,16 @@ foreach ($cf_service_data as $service_list) {
 
       $S3_PROXY_PATH_CMS = getenv('S3_PROXY_PATH_CMS') ?: '/s3/files';
 
-      $config['s3fs.settings']['use_cname'] = TRUE;
-      $config['s3fs.settings']['domain'] = $_SERVER['HTTP_HOST'] .':'. $service['credentials']['endport']. $S3_PROXY_PATH_CMS;
-      $config['s3fs.settings']['domain_root'] = 'public';
+      // var_dump($_SERVER['HTTP_HOST'] .':' . $service['credentials']['endport'] . '/' . $config['s3fs.settings']['bucket'] . '/' . $config['s3fs.settings']['root_folder'] . '/' . $S3_PROXY_PATH_CMS);
+      // var_dump($config['s3fs.settings']);
 
-      $config['s3fs.settings']['use_customhost'] = TRUE;
-      $config['s3fs.settings']['hostname'] = $service['credentials']['fips_endpoint'];
-      $config['s3fs.settings']['use-path-style-endpoint'] = FALSE;
+      // $config['s3fs.settings']['use_cname'] = TRUE;
+      // $config['s3fs.settings']['domain'] = $_SERVER['HTTP_HOST'] .':'. $service['credentials']['endport']. $S3_PROXY_PATH_CMS;
+      // $config['s3fs.settings']['domain_root'] = 'public';
+
+      // $config['s3fs.settings']['use_customhost'] = TRUE;
+      // $config['s3fs.settings']['hostname'] = $service['credentials']['fips_endpoint'];
+      // $config['s3fs.settings']['use-path-style-endpoint'] = FALSE;
 
       $config['s3fs.settings']['use_https'] = TRUE;
       $settings['s3fs.upload_as_private'] = FALSE;
