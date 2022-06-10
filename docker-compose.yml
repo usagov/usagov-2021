@@ -102,6 +102,7 @@ services:
       - 9001:9001
     volumes:
       - ./s3:/data
+      - ./.docker/src-minio/docker-entrypoint-minio.sh:/docker-entrypoint-minio.sh
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=miniopass
