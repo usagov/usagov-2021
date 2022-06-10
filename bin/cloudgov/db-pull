@@ -1,10 +1,24 @@
 #!/bin/sh
 
-# if ! command -v cf &> /dev/null
-# then
-#     echo "CF : the cloud foundry client could not be found and is required"
-#     exit
-# fi
+if ! command -v cf &> /dev/null
+then
+    echo "CF : the cloud foundry client could not be found and is required"
+    exit
+fi
+
+LOCAL_FILE=${1:-usagov.sql}
+YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
+TEMP_FILE=/tmp/$YMDHMS.sql.gz
+
+touch $LOCAL_FILE
+echo "Creating DB Dump gzip $LOCAL_FILE.gz"
+cf ssh cms -c ". /etc/profile; drush cr; drush sql:dump | gzip > $TEMP_FILE; cat $TEMP_FILE" > $LOCAL_FILE.gz
+echo "Cleaning up remote temp file $TEMP_FILE"
+cf ssh cms -c "if [ -f $TEMP_FILE ]; then rm -f $TEMP_FILE; fi"
+if [ -f $LOCAL_FILE ]; then
+  echo "Decompressing $LOCAL_FILE"
+  gunzip -f $LOCAL_FILE.gz;
+fi
 
 # if ! command -v sshpass &> /dev/null
 # then
@@ -12,16 +26,16 @@
 #     exit
 # fi
 
-isnum_Case() { case ${1#[-+]} in ''|.|*[!0-9.]*|*.*.*) return 1;; esac ;}
+# isnum_Case() { case ${1#[-+]} in ''|.|*[!0-9.]*|*.*.*) return 1;; esac ;}
 
-if isnum_Case "$1"
-then 
-    LOCAL_PORT=$1
-    LOCAL_FILE=${2:-usagov.sql}
-else 
-    LOCAL_PORT=33306
-    LOCAL_FILE=${1:-usagov.sql}
-fi
+# if isnum_Case "$1"
+# then
+#     LOCAL_PORT=$1
+#     LOCAL_FILE=${2:-usagov.sql}
+# else
+#     LOCAL_PORT=33306
+#     LOCAL_FILE=${1:-usagov.sql}
+# fi
 
 # echo "Generating service key"
 # cf create-service-key database db-dump >/dev/null 2>&1
@@ -36,11 +50,11 @@ fi
 # CF_SSH_ENDPOINT=$(echo "$CF_INFO" | grep '"app_ssh_endpoint":' | sed 's/.*"app_ssh_endpoint": "\([^:]*\).*".*/\1/')
 # CF_SSH_CODE=$(cf ssh-code)
 
-cf create-service cloud-gov-service-account space-deployer db-service-account >/dev/null 2>&1
-cf create-service-key db-service-account db-service-key >/dev/null 2>&1
-CF_SVC_INFO=$(cf service-key db-service-account db-service-key)
-CF_SVC_USER=$(echo "$CF_SVC_INFO" | grep '"username":' | sed 's/.*"username": "\([^"]*\)".*/\1/')
-CF_SVC_PASS=$(echo "$CF_SVC_INFO" | grep '"password":' | sed 's/.*"password": "\([^"]*\)".*/\1/')
+# cf create-service cloud-gov-service-account space-deployer db-service-account >/dev/null 2>&1
+# cf create-service-key db-service-account db-service-key >/dev/null 2>&1
+# CF_SVC_INFO=$(cf service-key db-service-account db-service-key)
+# CF_SVC_USER=$(echo "$CF_SVC_INFO" | grep '"username":' | sed 's/.*"username": "\([^"]*\)".*/\1/')
+# CF_SVC_PASS=$(echo "$CF_SVC_INFO" | grep '"password":' | sed 's/.*"password": "\([^"]*\)".*/\1/')
 
 # echo "Creating sql connection"
 # nohup sshpass -p $(cf ssh-code) ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -N -p 2222 -L $CF_DB_PORT:$CF_DB_HOST:$LOCAL_PORT cf:$CF_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &
@@ -55,12 +69,12 @@ CF_SVC_PASS=$(echo "$CF_SVC_INFO" | grep '"password":' | sed 's/.*"password": "\
 # CF_PERSONAL_SPACE=edward.narkiewicz
 # CF_PERSONAL_ORG=sandbox-gsa
 
-echo "Dumping database"
-docker compose run \
-  --rm \
-  -v $(pwd):/hostfs \
-  database \
-  /bin/bash -c "/hostfs/bin/cloudgov/db-pull-docker.sh $CF_SVC_USER $CF_SVC_PASS $LOCAL_FILE"
+# echo "Dumping database"
+# docker compose run \
+#   --rm \
+#   -v $(pwd):/hostfs \
+#   database \
+#   /bin/bash -c "/hostfs/bin/cloudgov/db-pull-docker.sh $CF_SVC_USER $CF_SVC_PASS $LOCAL_FILE"
 
 # docker compose run \
 #   --rm \
@@ -107,7 +121,7 @@ docker compose run \
 
 # echo "Cleaning up ssh processes $CF_SSH_PID, nohup.out, and service key"
 # if [ -f nohup.out ]
-# then 
+# then
 #     rm nohup.out
 # fi
 # if ps -p $CF_SSH_PID >/dev/null
@@ -115,9 +129,9 @@ docker compose run \
 #     pkill -7 $CF_SSH_PID
 #     wait $CF_SSH_PID 2>/dev/null
 # fi
-cf delete-service-key database db-dump -f >/dev/null 2>&1
-cf delete-service-key db-service-account db-service-key -f >/dev/null 2>&1
-cf delete-service db-service-account -f >/dev/null 2>&1
+# cf delete-service-key database db-dump -f >/dev/null 2>&1
+# cf delete-service-key db-service-account db-service-key -f >/dev/null 2>&1
+# cf delete-service db-service-account -f >/dev/null 2>&1
 
 
 echo "All Done"

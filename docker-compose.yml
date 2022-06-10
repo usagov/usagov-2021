@@ -2,7 +2,7 @@ version: '3.9'
 services:
   cms:
     container_name: cms
-    image: ednark/usagov-2021:cms-latest
+    image: dnark/usagov-2021:cms-latest
     build:
       context: ./
       dockerfile: .docker/Dockerfile-cms
@@ -75,9 +75,10 @@ services:
 
   database:
     container_name: database
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-mysql
+    image: mariadb:10
+    # build:
+    #  context: ./
+    #  dockerfile: .docker/Dockerfile-mysql
     ports:
       - 3306:3306
     volumes:
@@ -101,6 +102,7 @@ services:
       - 9001:9001
     volumes:
       - ./s3:/data
+      - ./.docker/src-minio/docker-entrypoint-minio.sh:/docker-entrypoint-minio.sh
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=miniopass
