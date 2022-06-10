@@ -35,7 +35,11 @@ commands:
       - run:
           name: Save Image Digest of container
           command: |
-            echo "Saving ImageTag->ImageDigest"
+            CMS_DIGEST=$(docker inspect $DOCKERHUB_USERNAME/usagov-2021:cms-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
+            WAF_DIGEST=$(docker inspect $DOCKERHUB_USERNAME/usagov-2021:waf-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
+            # EGS_DIGEST=$(docker inspect $DOCKERHUB_USERNAME/usagov-2021:egress-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
+            echo "Saving cms-<< pipeline.number >> -> $CMS_DIGEST"
+            echo "Saving waf-<< pipeline.number >> -> $CMS_DIGEST"
 
   install-cloud-foundry:
     steps:

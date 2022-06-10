@@ -2,7 +2,7 @@ version: '3.9'
 services:
   cms:
     container_name: cms
-    image: ednark/usagov-2021:cms-latest
+    image: dnark/usagov-2021:cms-latest
     build:
       context: ./
       dockerfile: .docker/Dockerfile-cms
