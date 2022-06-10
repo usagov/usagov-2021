@@ -64,7 +64,11 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 # USER www-data
 ###############################################################
 
+<<<<<<< HEAD
 FROM {node}:17-alpine3.14 AS theme-builder
+=======
+FROM node:18-alpine3.16 AS theme-builder
+>>>>>>> dev
 
 ARG BUID=1000
 ARG BGID=1000
@@ -83,7 +87,16 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 #       python3 \
 #       py3-pip \
 #       && ln -sf python3 /usr/bin/python
-RUN apk --update add python3
+
+RUN apk --update add python3 nodejs npm git openssh && apk add g++ make
+
+RUN apk update && apk add --no-cache fontconfig curl curl-dev && \
+    mkdir -p /usr/share && \
+    cd /usr/share && \
+    curl -L https://github.com/Overbryd/docker-phantomjs-alpine/releases/download/2.11/phantomjs-alpine-x86_64.tar.bz2 | tar xj && \
+    ln -s /usr/share/phantomjs/phantomjs /usr/bin/phantomjs && \
+    phantomjs --version
+
 RUN npm install --global \
       gulp \
     && chown -R node:node /home/node/
@@ -110,7 +123,7 @@ RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
 ###############################################################
 
 
-FROM alpine:3.14 AS cms
+FROM alpine:3.16 AS cms
 LABEL MAINTAINER=dan@mobomo.com
 
 ARG S6_VERSION
@@ -220,9 +233,8 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && mkdir -p /run/nginx/ \
     && touch /run/nginx/nginx.pid \
     # php setup
-    && ln -s /usr/bin/php8 /usr/bin/php \
     && ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm \
-    # # new relic setup
+    # new relic setup
     && export NR_VERSION=$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux\-musl\).tar.gz<.*/\1/p') \
     && cd /tmp \
     && curl -L "https://download.newrelic.com/php_agent/release/${NR_VERSION}.tar.gz" | tar -C /tmp -zx \
