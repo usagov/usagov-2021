@@ -64,15 +64,8 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 # USER www-data
 ###############################################################
 
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-FROM {node}:17-alpine3.14 AS theme-builder
-=======
+
 FROM node:18-alpine3.16 AS theme-builder
->>>>>>> dev
-=======
-FROM amd64/node:17-alpine3.14 AS theme-builder
->>>>>>> Stashed changes
 
 ARG BUID=1000
 ARG BGID=1000
