@@ -12,17 +12,6 @@ GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
 GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "")
 
-## build tooling - composer base
-docker build \
-  --build-arg BUID=${BUID:-"$CURR_UID"} \
-  --build-arg BGID=${BGID:-"$CURR_GID"} \
-  --build-arg GITBRANCH=${GITBRANCH} \
-  --build-arg GITCOMMIT=${GITCOMMIT} \
-  --build-arg GITTAG=${GITTAG} \
-  -f .docker/Dockerfile-cms \
-  --target composer-base ./ \
-  -t dnark/usagov-2021:composer-base-latest
-
 ## build tooling - node-base
 docker build \
   --build-arg BUID=${BUID:-"$CURR_UID"} \
