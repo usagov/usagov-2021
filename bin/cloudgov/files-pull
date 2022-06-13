@@ -19,12 +19,14 @@ echo "AWS_DEFAULT_REGION=$S3_REGION" >> $(pwd)/.aws/env
 cat $(pwd)/.aws/env
 
 # pull down files excluding cached versions of css, js, and templates
-docker run --rm -it --env-file=$(pwd)/.aws/env -v $(pwd)/web/sites/default/files:/aws \
-    amazon/aws-cli:latest s3 sync s3://$S3_BUCKET/cms/public/ . \
-        --exclude "php/*" \
-        --exclude "css/*" \
-        --exclude "js/*"
+docker run --rm -it --env-file=$(pwd)/.aws/env -v $(pwd)/s3/local/cms/public:/aws \
+  amazon/aws-cli:latest s3 sync s3://$S3_BUCKET/cms/public/ . \
+      --exclude "php/*" \
+      --exclude "css/*" \
+      --exclude "js/*"
 
 # cleanup s3 credentials
 rm -f $(pwd)/.aws/env
 cf delete-service-key storage storagekey -f
+
+bin/drush s3fs:refresh-cache
