@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "check environment for arm64"
 arm=`uname -m`
 node='node'
 nodearm64='arm64v8/node'

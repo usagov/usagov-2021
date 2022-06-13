@@ -37,9 +37,6 @@ if [ ! -f .git/hooks/commit-msg ]; then
   chmod +x .git/hooks/commit-msg
 fi
 
-echo "check environment for arm64"
-bin/calls/node_amd64.sh
-
 echo "Build Containers"
 bin/build
 
