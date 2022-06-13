@@ -115,16 +115,17 @@ services:
 
   composer:
     container_name: composer
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-cms
-      target: composer-builder
-      args:
-        - BUID
-        - BGID
-        - GITCOMMIT
-        - GITBRANCH
-        - GITTAG
+    image: dnark/usagov-2021-composer:latest
+    # build:
+      # context: ./
+      # dockerfile: .docker/Dockerfile-cms
+      # target: composer-builder
+      # args:
+      #   - BUID
+      #   - BGID
+      #   - GITCOMMIT
+      #   - GITBRANCH
+      #   - GITTAG
     #command: tail -f /dev/null
     command: echo "Shutting Down on Purpose"
     volumes:
@@ -134,6 +135,7 @@ services:
 
   node:
     container_name: node
+    image: dnark/usagov-2021-theme-builder:latest
     build:
       context: ./
       dockerfile: .docker/Dockerfile-cms

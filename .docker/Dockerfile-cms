@@ -1,4 +1,5 @@
-FROM composer:latest AS composer-builder
+
+FROM composer:latest AS composer-base
 
 ARG BUID=1000
 ARG BGID=1000
@@ -9,7 +10,13 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/www-data:x:[0-9]+:[0-9]+:/www-data:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/www-data:x:[0-9]+:/www-data:x:${BGID}:/g" /etc/group \
     && echo 'memory_limit = -1' | tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini
-    # && find /var/www -not -user $(id -u www-data) -not -group $(id -g www-data) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference www-data:www-data
+
+###############################################################
+
+FROM dnark/usagov-2021:composer-latest AS composer-builder
+
+ARG BUID=1000
+ARG BGID=1000
 
 COPY --chown=www-data:www-data composer.json /var/www/composer.json
 COPY --chown=www-data:www-data composer.lock /var/www/composer.lock
@@ -61,10 +68,9 @@ RUN composer global require --dev drupal/coder php-parallel-lint/php-parallel-li
 RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader \
     && chown www-data:www-data /var/www/composer.json /var/www/composer.lock
 
-# USER www-data
 ###############################################################
 
-FROM node:18-alpine3.16 AS theme-builder
+FROM node:18-alpine3.16 AS theme-base
 
 ARG BUID=1000
 ARG BGID=1000
@@ -74,15 +80,6 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
     && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group
-# RUN apk upgrade --update \
-#     && apk add --no-cache --virtual .persistent-deps \
-#       ca-certificates \
-#       curl \
-#       git \
-#       openssh \
-#       python3 \
-#       py3-pip \
-#       && ln -sf python3 /usr/bin/python
 
 RUN apk --update add python3 nodejs npm git openssh && apk add g++ make
 
@@ -97,7 +94,12 @@ RUN npm install --global \
       gulp \
     && chown -R node:node /home/node/
 
-#      gulp-cli \
+###############################################################
+
+FROM dnark/usagov-2021:theme-base-latest AS theme-builder
+
+ARG BUID=1000
+ARG BGID=1000
 
 COPY --chown=node:node web/themes/custom/ /var/www/web/themes/custom/
 COPY --chown=node:node web/libraries/ /var/www/web/libraries/
@@ -111,28 +113,18 @@ RUN chown -R node:node /var/www/web/themes \
 
 USER node
 
-RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
-    && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
-    && npm run build --prefix /var/www/web/themes/custom/usagov \
-    && chown -R node:node /var/www/web/themes
+RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov
+RUN npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov
+RUN npm run build --prefix /var/www/web/themes/custom/usagov
+RUN chown -R node:node /var/www/web/themes
 
 ###############################################################
 
-
-FROM alpine:3.16 AS cms
+FROM alpine:3.16 AS php-base
 LABEL MAINTAINER=dan@mobomo.com
 
 ARG S6_VERSION
 ENV S6_VERSION ${S6_VERSION:-v2.2.0.3}
-
-ARG GITBRANCH
-ENV GITBRANCH ${GITBRANCH:-none}
-
-ARG GITCOMMIT
-ENV GITCOMMIT ${GITCOMMIT:-none}
-
-ARG GITTAG
-ENV GITTAG ${GITTAG:-none}
 
 ARG BUID=1000
 ARG BGID=1000
@@ -259,6 +251,31 @@ ENV PATH=/var/www/vendor/bin:$PATH
 
 COPY .docker/src-cms/etc /etc
 COPY .docker/motd /etc/motd
+
+EXPOSE 80
+
+WORKDIR /var/www
+
+# Init s6
+ENTRYPOINT [ "/init" ]
+
+###############################################################
+
+FROM dnark/usagov-2021-php-base:latest AS cms
+LABEL MAINTAINER=dan@mobomo.com
+
+ARG GITBRANCH
+ENV GITBRANCH ${GITBRANCH:-none}
+
+ARG GITCOMMIT
+ENV GITCOMMIT ${GITCOMMIT:-none}
+
+ARG GITTAG
+ENV GITTAG ${GITTAG:-none}
+
+ARG BUID=1000
+ARG BGID=1000
+
 COPY --chown=nginx:nginx composer.json /var/www/composer.json
 COPY --chown=nginx:nginx composer.lock /var/www/composer.lock
 COPY --chown=nginx:nginx scripts /var/www/scripts
@@ -285,10 +302,3 @@ RUN chmod -R +x /etc/periodic \
     && echo >> /etc/motd \
     && cp /etc/motd /var/www/web/version.txt \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
-
-EXPOSE 80
-
-WORKDIR /var/www
-
-# Init s6
-ENTRYPOINT [ "/init" ]
