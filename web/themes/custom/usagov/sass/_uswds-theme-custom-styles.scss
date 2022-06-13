@@ -283,7 +283,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 @include at-media($theme-header-min-width) {
   @include u-flex("row", "align-end");
    bottom: 6rem;
-   width: 28rem;
+   width: 29rem;
    /*opacity: 0.2;*/
    }
 }
@@ -295,7 +295,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
    @include at-media($theme-header-min-width) {
      @include u-flex("row", "align-end");
       bottom: 6rem;
-      width: 29rem;
+      width: 30rem;
       /*opacity: 0.2;*/
       }
 }
@@ -309,10 +309,18 @@ This style ensures that we can remove the padding-top from text in a card body. 
 //** This is to make the header link stretch out **/
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
-    width: 11rem;
+    width: 12rem;
     line-height: 1.9;
   }
 }
+
+// Spanish header fix for text length
+.usa-header--extended .usa-nav__secondary-links:lang(es) {
+   @include at-media($theme-header-min-width) {
+     width: 13rem;
+     line-height: 1.9;
+   }
+ }
 
 /** This is to add content pipe before the search **/
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
@@ -324,6 +332,15 @@ This style ensures that we can remove the padding-top from text in a card body. 
  }
 }
 
+// Spanish header fix for text length
+.usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
+   @include at-media($theme-header-min-width) {
+      float: right;
+      color: color("base-lighter");
+      content: "|"; // Removed while phone number is disabled
+      padding-right: .7rem;
+   }
+  }
 
 /** This is to display the search image **/
 .usa-header--extended  .usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
