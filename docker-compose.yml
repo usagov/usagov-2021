@@ -34,10 +34,10 @@ services:
         { "s3": [{
             "name": "storage",
             "credentials": {
-              "access_key_id": "",
-              "secret_access_key": "",
-              "region": "",
-              "bucket": "",
+              "access_key_id": "minioadmin",
+              "secret_access_key": "miniopass",
+              "region": "us-west-1",
+              "bucket": "local",
               "fips_endpoint": "minio:9000",
               "endpoint": "minio:9000"
             }
