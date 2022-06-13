@@ -64,7 +64,7 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 # USER www-data
 ###############################################################
 
-FROM node:18-alpine3.16 AS theme-builder
+FROM arm64v8/node:18-alpine3.16 AS theme-builder
 
 ARG BUID=1000
 ARG BGID=1000
