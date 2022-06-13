@@ -96,7 +96,7 @@ RUN apk --update add python3 nodejs npm git openssh && apk add g++ make
 
 # RUN apk add --no-cache curl fontconfig \
 #   && mkdir /tmp/phantomjs-prereq /tmp/phantomjs \
-#   && curl -sSLf -o /tmp/phantomjs-prereq.tar.gz https://github.com/dustinblackman/phantomized/releases/download/2.1.1a/dockerized-phantomjs.tar.gz \
+#   && curl -sSLfk -o /tmp/phantomjs-prereq.tar.gz https://github.com/dustinblackman/phantomized/releases/download/2.1.1a/dockerized-phantomjs.tar.gz \
 #   && curl -sSLf -o /tmp/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 \
 #   && tar xzf /tmp/phantomjs-prereq.tar.gz -C /tmp/phantomjs-prereq \
 #   && tar xjf /tmp/phantomjs.tar.bz2 -C /tmp/phantomjs --strip-components=1 \
