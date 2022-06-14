@@ -86,14 +86,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 
 RUN apk --update add python3 nodejs npm git openssh && apk add g++ make
 
-# RUN apk update && apk add --no-cache fontconfig curl curl-dev && \
-#     mkdir -p /usr/share && \
-#     cd /usr/share && \
-#     curl -L https://github.com/Overbryd/docker-phantomjs-alpine/releases/download/2.11/phantomjs-alpine-x86_64.tar.bz2 | tar xj && \
-#     ln -s /usr/share/phantomjs/phantomjs /usr/bin/phantomjs && \
-#     phantomjs --version
-
-
+# ${phantform_for_m1}
 # RUN apk add --no-cache curl fontconfig \
 #   && mkdir /tmp/phantomjs-prereq /tmp/phantomjs \
 #   && curl -sSLfk -o /tmp/phantomjs-prereq.tar.gz https://github.com/dustinblackman/phantomized/releases/download/2.1.1a/dockerized-phantomjs.tar.gz \
@@ -123,12 +116,12 @@ WORKDIR /var/www/web/themes/custom/usagov
 RUN chown -R node:node /var/www/web/themes \
     && chown -R node:node /home/node/
 
-# USER node
+USER node
 
-# RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
-#     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
-#     && npm run build --prefix /var/www/web/themes/custom/usagov \
-#     && chown -R node:node /var/www/web/themes
+RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
+    && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
+    && npm run build --prefix /var/www/web/themes/custom/usagov \
+    && chown -R node:node /var/www/web/themes
 
 ###############################################################
 
