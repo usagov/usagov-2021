@@ -1,0 +1,4 @@
+# create space
+# create service account
+# setup asg network for staging lifecycle to public
+# setup asg network for running lifecycle to restricted
