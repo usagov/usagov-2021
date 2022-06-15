@@ -1,3 +1,4 @@
+ARG  NODEBASE=node
 FROM composer:latest AS composer-builder
 
 ARG BUID=1000
@@ -63,7 +64,6 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 
 # USER www-data
 ###############################################################
-ARG  NODEBASE=node
 FROM ${NODEBASE}:18-alpine3.16 AS theme-builder
 
 ARG BUID=1000
