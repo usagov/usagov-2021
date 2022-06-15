@@ -1,4 +1,6 @@
-$life-events: var( $usagov-variables, life-events );
+@use "usagov-variables" as *;
+
+// $life-events: var( $usagov-variables, life-events );
 
 .usa-card--flag{
     .usa-card__container {
