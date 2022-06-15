@@ -30,6 +30,9 @@ fi
 if [ -f env.local ]; then
   . env.local
 fi
+if [ $(uname -m) == 'arm64' ]; then
+  sed -i '' -e 's|NODEBASE=|NODEBASE=arm64v8/node|' env.local
+fi
 
 echo "Setup git hooks"
 if [ ! -f .git/hooks/commit-msg ]; then

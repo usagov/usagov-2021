@@ -5,8 +5,7 @@ node='node'
 nodearm64='arm64v8/node'
 pfro='#{phantform_for_m1}'
 pend='#{phantform_for_m1-END}'
-# pjs=$(cat bin/calls/phantomjs)
-pjs='jknbjnaerijbaieoriboj'
+
 echo '=========='${arm}'=========='
 
 if [ ${arm} == 'arm64' ]; then
