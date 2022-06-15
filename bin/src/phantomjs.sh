@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ $(uname -m) == 'aarch64' ]; then
-  apk add g++ make && apk add --no-cache curl fontconfig \
+  apk add --no-cache curl fontconfig \
   && mkdir /tmp/phantomjs-prereq /tmp/phantomjs \
   && curl -sSLfk -o /tmp/phantomjs-prereq.tar.gz https://github.com/dustinblackman/phantomized/releases/download/2.1.1a/dockerized-phantomjs.tar.gz \
   && curl -sSLf -o /tmp/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 \
