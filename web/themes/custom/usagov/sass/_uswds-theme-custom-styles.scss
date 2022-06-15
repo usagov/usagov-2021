@@ -24,6 +24,15 @@ i.e.
 ----------------------------------------
 */
 
+@use "uswds-core" as *;
+@use "usagov-variables" as *;
+
+@forward "sidenav";
+@forward "navigation-page";
+@forward "content-page";
+@forward "homepage";
+@forward "life-events";
+
 .text-red {
    color: #d83933;
 }
@@ -504,10 +513,10 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
 }
 
 .usagov-button--outline-black {
-   box-shadow: $button-stroke color("black");
+   box-shadow: $theme-button-stroke-width color("black");
    color: color("black");
    &:hover {
-      box-shadow: $button-stroke color("black");
+      box-shadow: $theme-button-stroke-width color("black");
       color: color("black");
   }
 }
@@ -520,7 +529,7 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
 }
 .usa-checkbox__input--tile:checked+.usa-checkbox__label, .usa-radio__input--tile:checked+.usa-radio__label {
    // background-color: #ccecf2;
-   border-color: var( $usagov-variables, radio-button, border-color );;
+   border-color: var( $radio-button, border-color );;
 }
 .usa-checkbox__input--tile+.usa-checkbox__label, .usa-radio__input--tile+.usa-radio__label {
    border-color: black;
