@@ -32,6 +32,8 @@ if [ -f env.local ]; then
 fi
 if [ $(uname -m) == 'arm64' ]; then
   sed -i '' -e 's|NODEBASE=|NODEBASE=arm64v8/node|' env.local
+else
+  sed -i '' -e 's|NODEBASE=|NODEBASE=node|' env.local
 fi
 
 echo "Setup git hooks"
