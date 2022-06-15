@@ -324,16 +324,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 /** This is to add content pipe before the search **/
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
- @include at-media($theme-header-min-width) {
-    float: right;
-    color: color("base-lighter");
-    content: "|"; // Removed while phone number is disabled
-    padding-right: units(.5);
- }
-}
-
-// Spanish header fix for text length
-.usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
    @include at-media($theme-header-min-width) {
       float: right;
       color: color("base-lighter");
