@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#
+# This script will attempt to setup an APP SPACE
+# by launching apps and creating their required services
+#
+
+. $SCRIPT_DIR/deploy-app-services
+. $SCRIPT_DIR/deploy-cms
+#. $SCRIPT_DIR/deploy-waf
+

@@ -9,6 +9,8 @@ services:
       args:
         - BUID
         - BGID
+        - HOST_ARCH
+        - NODE_BASE
     ports:
       - 80:80
       - 443:443

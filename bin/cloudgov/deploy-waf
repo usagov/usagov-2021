@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+
+DOCKERUSER=dnark
+DOCKERREPO=usagov-2021
+CONTAINERTAG=${1:-latest}
+
 # Need to create 'external-domain' service for custom routes: *.usa.gov
 # cf create-service external-domain domain stage-usagov-domain -c '{"domains": "cms-stage.usa.gov,beta-stage.usa.gov"}'
 
@@ -79,3 +93,8 @@ HOST_NAMES=($(cf curl "/v3/apps/$PROTECTED_APP_GUID/routes" | jq -r --arg APPS_D
 for url in "${HOST_NAMES[@]}"; do
   cf bind-route-service "${APPS_DOMAIN}" "${ROUTE_SERVICE_NAME}" --hostname "${url}";
 done
+
+# make sure this app can talk to the egress proxy
+cf add-network-policy waf $EGRESS_APP_NAME --port $EGRESS_PORT -s $EGRESS_SPACE -o $ORG
+cf set-env waf http_proxy "https://user:pass@$EGRESS_ROUTE:8080"
+cf set-env waf https_proxy "https://user:pass@$EGRESS_ROUTE:8080"

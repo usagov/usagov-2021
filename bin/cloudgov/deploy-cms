@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+#
+# This script will attempt to deploy a cms app by tag
+#
+
+EGRESS_SPACE=shared-app-egress
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+CONTAINERTAG=${1:-latest}
+
+# The Image digest for this tag should be looked up from cloud.gov storage
+# Any tag with a stored Image digest should be referenced by hash instead of tag
+
+# launch the apps
+echo "Deploying $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG"
+cf push cms --docker-image $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+
+# make sure this app can talk to the egresss proxy
+# cf add-network-policy waf $EGRESS_APP_NAME --port $EGRESS_PORT -s $EGRESS_SPACE -o $ORG
+# cf set-env cms http_proxy "https://user:pass@$EGRESS_ROUTE:8080"
+# cf set-env cms https_proxy "https://user:pass@$EGRESS_ROUTE:8080"
+
+$SCRIPT_DIR/app-egress-setup cms $EGRESS_SPACE

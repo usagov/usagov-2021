@@ -1,4 +1,31 @@
+#!/usr/bin/env bash
+
+APP_SPACE=${1}
+ORG=gsa-tts-usagov
+
 # create space
+if [ ! cf space $APP_SPACE ]; then
+  echo "create app space $APP_SPACE"
+  echo "cf create-space $APP_SPACE"
+else
+  echo "space $APP_SPACE already exists"
+fi
+
+
 # create service account
-# setup asg network for staging lifecycle to public
-# setup asg network for running lifecycle to restricted
+if [ ! cf service cloud-gov-service-account | grep cloud-gov-service-account | grep cci-${APP_SPACE}-service-account ]; then
+  echo "create service-account cci-${APP_SPACE}-service-account"
+  echo "cf create-service cloud-gov-service-account space-deployer cci-${APP_SPACE}-service-account"
+  echo "cf create-service-key cci-${APP_SPACE}-service-account cci-${APP_SPACE}-service-key"
+  echo "cf service-key cci-${APP_SPACE}-service-account cci-${APP_SPACE}-service-key"
+else
+  echo "service-account cci-${APP_SPACE}-service-account already exists"
+fi
+
+# https://docs.cloudfoundry.org/concepts/asg.html
+
+# assume existance of proxy egress security group? is it public_networks_egress? or do we have to build it
+
+# setup asg network for both staging and running lifecycle to be restricted via egress
+cf bind-security-group public_networks_egress $ORG $SPACE --lifecycle staging
+cf bind-security-group public_networks_egress $ORG $SPACE --lifecycle running
