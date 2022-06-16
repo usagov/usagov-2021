@@ -12,6 +12,8 @@ DOCKERUSER=dnark
 DOCKERREPO=usagov-2021
 
 CONTAINERTAG=${1:-latest}
+# The Image digest for this tag should be looked up from cloud.gov storage
+# Any tag with a stored Image digest should be referenced by hash instead of tag
 
 # this function will generate a random string, or bail if uuidgen is not available.
 generate_string()
