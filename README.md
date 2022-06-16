@@ -17,29 +17,29 @@ Safe development database dumps are kept in Google Drive. You can download and i
 Unzip the file and insert directly into the **root** directory.
 
 ### Initialization
-**Note: please wait until each command finishes before running the next. Expect long wait times. We recommend keep your laptop (if you're using one) plugged in during this setup.**
+**Note: Please wait until each command finishes before running the next. Expect long wait times. We recommend keep your laptop (if you're using one) plugged in during this setup.**
 
-Open up your IDE/terminal and run the following commands.
+1. Open up your IDE/terminal and run the following commands.
 ```
 bin/init
 docker compose up
 ```
 
-In a separate terminal, run the following:
+2. In a separate terminal, run the following:
 
 ```
 bin/db-update
 bin/drupal-update
 ```
 
-Return to the original terminal where you ran `docker compose up` and type CTRL-C. 
+3. Return to the original terminal where you ran `docker compose up` and type CTRL-C. 
 
-Then run the following command:
+4. Run the following command:
 ```
 docker compose up
 ```
 
-Lastly, head to `localhost` (no port number needed) in your respective browser.
+5. Lastly, head to `localhost` (no port number needed) in your respective browser.
 
 ## Project Restart/Reset
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing contianers, networks, and volumes the procedure is the same as the full project start
