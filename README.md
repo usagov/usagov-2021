@@ -42,7 +42,7 @@ docker compose up
 5. Lastly, head to `localhost` (no port number needed) in your respective browser.
 
 ## Project Restart/Reset
-Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing contianers, networks, and volumes the procedure is the same as the full project start
+Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing contianers, networks, and volumes the procedure is the same as the full project setup.
 
 ### Docker Cleanup
 
@@ -51,14 +51,7 @@ docker compose down
 docker system prune
 ```
 
-### Full Project Start
-
-```
-bin/init
-bin/db-udpate
-bin/drupal-update
-docker compose up
-```
+Refer to `Full Project Setup` section above to continue the setup.
 
 ## Update Database
 Safe development database dumps are kept in Google Drive. You can download and import a SQL database from https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing.
