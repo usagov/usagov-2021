@@ -5,42 +5,42 @@ ORG=gsa-tts-usagov
 EGRESS_ASG=public_networks_egress
 
 # create space
-if [ ! cf space $EGRESS_SPACE ]; then
+if cf space $EGRESS_SPACE > /dev/null 2>&1; then
+  echo "space $EGRESS_SPACE already exists"
+else
   echo "create space $EGRESS_SPACE"
   echo "cf create-space $EGRESS_SPACE"
-else
-  echo "space $EGRESS_SPACE already exists"
 fi
 
 # create security group
-if [ ! cf security-group $EGRESS_ASG ]; then
+if cf security-group $EGRESS_ASG > /dev/null 2>&1; then
+  echo "security-group $EGRESS_SPACE already exists"
+else
   echo "create security-group $EGRESS_SPACE"
   echo "cf create-security-group $EGRESS_ASG asg.${EGRESS_ASG}.json"
-else
-  echo "security-group $EGRESS_SPACE already exists"
 fi
 
 # create service account
-if [ ! cf service cloud-gov-service-account | grep cloud-gov-service-account | grep cci-${EGRESS_SPACE}-service-account ]; then
+if cf service cloud-gov-service-account | grep cloud-gov-service-account | grep cci-${EGRESS_SPACE}-service-account > /dev/null 2>&1; then
+  echo "service-account cci-${EGRESS_SPACE}-service-account already exists"
+else
   echo "create service-account cci-${EGRESS_SPACE}-service-account"
   echo "cf create-service cloud-gov-service-account space-deployer cci-${EGRESS_SPACE}-service-account"
   echo "cf create-service-key cci-${EGRESS_SPACE}-service-account cci-${EGRESS_SPACE}-service-key"
   echo "cf service-key cci-${EGRESS_SPACE}-service-account cci-${EGRESS_SPACE}-service-key"
-else
-  echo "service-account cci-${EGRESS_SPACE}-service-account already exists"
 fi
 
 # setup asg network for staging/running lifecycle to be public
-if [ ! {cf security-groups | grep staging | grep $EGRESS_SPACE} ]; then
+if cf security-groups | grep staging | grep $EGRESS_SPACE > /dev/null 2>&1; then
+  echo "public_networks already bound to $EGRESS_SPACE during 'staging' lifecycle"
+else
   echo "bind public_network to $EGRESS_SPACE during 'staging' lifecycle"
   echo "cf bind-security-group public_networks $ORG $EGRESS_SPACE --lifecycle staging"
-else
-  echo "public_networks already bound to $EGRESS_SPACE during 'staging' lifecycle"
 fi
 
-if [ ! {cf security-groups | grep running | grep $EGRESS_SPACE} ]; then
+if cf security-groups | grep running | grep $EGRESS_SPACE > /dev/null 2>&1; then
+  echo "public_networks already bound to $EGRESS_SPACE during 'running' lifecycle"
+else
   echo "bind public_network to $EGRESS_SPACE during 'running' lifecycle"
   echo "cf bind-security-group public_networks $ORG $EGRESS_SPACE --lifecycle running"
-else
-  echo "public_networks already bound to $EGRESS_SPACE during 'running' lifecycle"
 fi

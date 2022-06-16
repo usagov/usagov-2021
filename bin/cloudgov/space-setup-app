@@ -1,25 +1,24 @@
 #!/usr/bin/env bash
 
-APP_SPACE=${1}
+APP_SPACE=${1:-dev-restricted}
 ORG=gsa-tts-usagov
 
 # create space
-if [ ! cf space $APP_SPACE ]; then
-  echo "create app space $APP_SPACE"
-  echo "cf create-space $APP_SPACE"
-else
+if cf space $APP_SPACE > /dev/null 2>&1; then
   echo "space $APP_SPACE already exists"
+else
+  echo "Create app space $APP_SPACE"
+  echo "cf create-space $APP_SPACE"
 fi
 
-
 # create service account
-if [ ! cf service cloud-gov-service-account | grep cloud-gov-service-account | grep cci-${APP_SPACE}-service-account ]; then
+if cf service cloud-gov-service-account | grep cloud-gov-service-account | grep cci-${APP_SPACE}-service-account > /dev/null 2>&1; then
+  echo "service-account cci-${APP_SPACE}-service-account already exists"
+else
   echo "create service-account cci-${APP_SPACE}-service-account"
   echo "cf create-service cloud-gov-service-account space-deployer cci-${APP_SPACE}-service-account"
   echo "cf create-service-key cci-${APP_SPACE}-service-account cci-${APP_SPACE}-service-key"
   echo "cf service-key cci-${APP_SPACE}-service-account cci-${APP_SPACE}-service-key"
-else
-  echo "service-account cci-${APP_SPACE}-service-account already exists"
 fi
 
 # https://docs.cloudfoundry.org/concepts/asg.html
@@ -27,5 +26,10 @@ fi
 # assume existance of proxy egress security group? is it public_networks_egress? or do we have to build it
 
 # setup asg network for both staging and running lifecycle to be restricted via egress
-cf bind-security-group public_networks_egress $ORG $SPACE --lifecycle staging
-cf bind-security-group public_networks_egress $ORG $SPACE --lifecycle running
+if cf security-groups | grep running | grep $APP_SPACE > /dev/null 2>&1; then
+  echo "public_networks_egress already bound to $APP_SPACE during 'running' lifecycle"
+else
+  echo "bind public_network to $APP_SPACE during 'running' lifecycle"
+  echo "cf bind-security-group public_networks_egress $ORG $APP_SPACE --lifecycle running"
+fi
+
