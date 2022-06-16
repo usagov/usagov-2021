@@ -1,6 +1,7 @@
 FROM minio/minio:latest
 
 COPY .docker/src-minio/docker-entrypoint-minio.sh /docker-entrypoint-minio.sh
+COPY .docker/src-minio/setup-bucket.sh /setup-bucket.sh
 COPY .docker/src-minio/certs/ /root/.minio/certs/
 
 RUN curl -L https://dl.min.io/client/mc/release/linux-amd64/mc \
