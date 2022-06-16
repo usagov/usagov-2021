@@ -1,8 +1,12 @@
+@use "usagov-variables" as *;
 
-$hero: var( $usagov-variables, hero );
+// $hero: var( $usagov-variables, hero );
+// $card: var( $usagov-variables, card );
+
 
 .usagov-hero-homepage{
     background-color: var( $hero, background-color );
+    background-image: none;
     color: var( $hero, font-color );
     margin-bottom: 0;
 }
