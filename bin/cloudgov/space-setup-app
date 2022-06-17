@@ -23,13 +23,19 @@ fi
 
 # https://docs.cloudfoundry.org/concepts/asg.html
 
-# assume existance of proxy egress security group? is it public_networks_egress? or do we have to build it
-
-# setup asg network for both staging and running lifecycle to be restricted via egress
-if cf security-groups | grep running | grep $APP_SPACE > /dev/null 2>&1; then
-  echo "public_networks_egress already bound to $APP_SPACE during 'running' lifecycle"
+# setup asg network for running lifecycle to be restricted via egress
+if cf security-groups | grep running | grep $APP_SPACE | grep restricted-egress > /dev/null 2>&1; then
+  echo "restricted-egress already bound to $APP_SPACE during 'running' lifecycle"
 else
-  echo "bind public_network to $APP_SPACE during 'running' lifecycle"
-  echo "cf bind-security-group public_networks_egress $ORG $APP_SPACE --lifecycle running"
+  echo "bind public_network_egress to $APP_SPACE during 'running' lifecycle"
+  echo "cf bind-security-group restricted-egress $ORG $APP_SPACE --lifecycle running"
+fi
+
+# setup asg network for staging lifecycle to be public
+if cf security-groups | grep staging | grep $APP_SPACE | grep public_networks_egress > /dev/null 2>&1; then
+  echo "public_networks_egress already bound to $APP_SPACE during 'staging' lifecycle"
+else
+  echo "bind public_network_egress to $APP_SPACE during 'staging' lifecycle"
+  echo "cf bind-security-group public_networks_egress $ORG $APP_SPACE --lifecycle staging"
 fi
 
