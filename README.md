@@ -25,21 +25,7 @@ bin/init
 docker compose up
 ```
 
-2. In a separate terminal, run the following:
-
-```
-bin/db-update
-bin/drupal-update
-```
-
-3. Return to the original terminal where you ran `docker compose up` and type CTRL-C. 
-
-4. Run the following command:
-```
-docker compose up
-```
-
-5. Lastly, head to `localhost` (no port number needed) in your respective browser.
+2. Head to `localhost` (no port number needed) in your respective browser.
 
 ## Project Restart/Reset
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing contianers, networks, and volumes the procedure is the same as the full project setup.
