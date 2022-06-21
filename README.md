@@ -11,7 +11,7 @@ docker compose up
 ```
 
 ## Full Project Setup
-### Import SQL Database
+### Download SQL Database
 Safe development database dumps are kept in Google Drive. You can download and import a SQL database from https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing. We recommend using the latest database available.
 
 Unzip the file and insert directly into the **root** directory.
@@ -25,7 +25,21 @@ bin/init
 docker compose up
 ```
 
-2. Head to `localhost` (no port number needed) in your respective browser.
+Wait until messages stop scrolling by; the final message will probably be a message from node saying "Starting 'watch-sass' ...
+
+2. Head to `localhost` (no port number needed) in your respective browser. Initially, this will show an empty Drupal site. 
+
+Web logging from "cms" should appear in your terminal as the request is served. This can take a minute to get started.
+
+3. Open another terminal, navigate to the root of your repo, and run this command to populate the database from the SQL file you downloaded:
+
+```
+bin/db-update
+```
+
+(Expect a message saying there's no need to update the mariadb database.)
+
+4. Reload the `localhost` page in your browser. It should now show a beta.usa.gov home page. 
 
 ## Access the Drupal Portal
 If you would like to access the Drupal Portal to make any additional configurations, you will need to follow a few more steps.
