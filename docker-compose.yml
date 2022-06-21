@@ -113,6 +113,7 @@ services:
       gsa-gov:
         aliases:
           - local.minio
+    command: server /data
 
   composer:
     container_name: composer
