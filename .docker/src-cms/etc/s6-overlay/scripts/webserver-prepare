@@ -1,0 +1,67 @@
+#!/bin/sh -e
+
+echo "webserver-prepare: Creating webserver pid and log file ... "
+
+mkdir -p /var/www
+chown nginx:nginx /var/www
+
+mkdir -p /var/log/nginx
+chown nginx:nginx /var/log/nginx
+chmod 02755 /var/log/nginx
+
+mkdir -p /run/nginx/
+touch /run/nginx/nginx.pid
+chown -R nginx:nginx /run/nginx/
+chown nginx:nginx /run/nginx/nginx.pid
+
+echo "webserver-prepare: Gathering env variables ... "
+
+if [ -z "${VCAP_SERVICES:-}" ]; then
+    echo "webserver-prepare: VCAP_SERVICES must a be set in the environment";
+    exit 1;
+fi
+
+export SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
+export SECAUTHSECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secauthsecrets") | .credentials')
+
+export APP_NAME=$(echo $VCAP_APPLICATION | jq -r '.name')
+export APP_ROOT=$(dirname "$0")
+export APP_ID=$(echo "$VCAP_APPLICATION" | jq -r '.application_id')
+
+export S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
+export S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.fips_endpoint')
+
+export WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)}
+export CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)}
+
+export S3_ROOT_WEB=${S3_ROOT_WEB:-/web}
+export S3_ROOT_CMS=${S3_ROOT_CMS:-/cms/public}
+export S3_HOST=${S3_HOST:-$S3_BUCKET.$S3_ENDPOINT}
+export S3_PROXY_WEB=${S3_PROXY_WEB:-$S3_HOST$S3_ROOT_WEB}
+export S3_PROXY_CMS=${S3_PROXY_CMS:-$S3_HOST$S3_ROOT_CMS}
+export S3_PROXY_PATH_CMS=${S3_PROXY_PATH_CMS:-/s3/files}
+
+export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
+
+export EN_404_PAGE=${EN_404_PAGE:-/404/index.html};
+export ES_404_PAGE=${ES_404_PAGE:-/es/404/index.html};
+
+echo "webserver-prepare: Creating sp keys ... "
+
+SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.spkey')
+SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.spcrt')
+
+echo "$SP_KEY" > /var/www/sp.key
+echo "$SP_CRT" > /var/www/sp.crt
+
+echo "webserver-prepare: Creating nginx config from templates ... "
+
+ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
+FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/partials/drupal.conf"
+# this overwrites the files in place, so be careful mounting in docker
+for FILE in $FILES; do
+    if [ -f "$FILE.tmpl" ]; then
+        echo "webserver-prepare: Creating $FILE from template ... "
+        envsubst "$ENV_VARIABLES" < "$FILE.tmpl" > "$FILE"
+    fi
+done

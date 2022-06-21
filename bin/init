@@ -22,19 +22,21 @@ if [ -f ~/.profile ] && ! grep -q "export BUID=" ~/.profile; then
   echo "export BGID=\$(id -g)" >> ~/.profile
 fi
 
-
 echo "Init local secrets file"
 if [ ! -f env.local ]; then
   cp env.default env.local
 fi
 if [ -f env.local ]; then
-  . env.local
+  sed -i '' -e 's|^BUID=.*|BUID=\$(id -u)|' env.local
+  sed -i '' -e 's|^BGID=.*|BGID=\$(id -g)|' env.local
+  . ./env.local
 fi
 if [ $(uname -m) == 'arm64' ]; then
-  sed -i '' -e 's|NODEBASE=.*|NODEBASE=arm64v8/node|' env.local
+  sed -i '' -e 's|^NODEBASE=.*|NODEBASE=arm64v8/node|' env.local
 else
-  sed -i '' -e 's|NODEBASE=.*|NODEBASE=node|' env.local
+  sed -i '' -e 's|^NODEBASE=.*|NODEBASE=node|' env.local
 fi
+
 
 echo "Setup git hooks"
 if [ ! -f .git/hooks/commit-msg ]; then

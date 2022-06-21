@@ -6,11 +6,12 @@ user nginx;
 # Set number of worker processes automatically based on number of CPU cores.
 worker_processes auto;
 
-# Enables the use of JIT for regular expressions to speed-up their processing.
+# Enables the use of   JIT for regular expressions to speed-up their processing.
 pcre_jit on;
 
 # Configures default error logger.
-error_log /var/log/nginx/error.log warn;
+# error_log /var/log/nginx/error.log warn;
+error_log /dev/stderr warn;
 
 # Includes files with directives to load dynamic modules.
 include /etc/nginx/modules/*.conf;
@@ -78,7 +79,8 @@ http {
 			'$status $body_bytes_sent "$http_referer" '
 			'"$http_user_agent" "$http_x_forwarded_for" '
 			'vcap_request_id=$http_x_vcap_request_id';
-    access_log /var/log/nginx/access.log extended;
+    # access_log /var/log/nginx/access.log extended;
+    access_log /dev/stdout extended;
 
     # setup the scheme to use on redirects
     map $http_x_forwarded_proto $redirect_scheme {

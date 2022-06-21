@@ -1,4 +1,5 @@
 ARG  NODEBASE=node
+
 FROM composer:latest AS composer-builder
 
 ARG BUID=1000
@@ -10,7 +11,6 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/www-data:x:[0-9]+:[0-9]+:/www-data:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/www-data:x:[0-9]+:/www-data:x:${BGID}:/g" /etc/group \
     && echo 'memory_limit = -1' | tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini
-    # && find /var/www -not -user $(id -u www-data) -not -group $(id -g www-data) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference www-data:www-data
 
 COPY --chown=www-data:www-data composer.json /var/www/composer.json
 COPY --chown=www-data:www-data composer.lock /var/www/composer.lock
@@ -58,8 +58,8 @@ USER www-data
 
 RUN composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint \
     && COMPOSER_DIR=$(composer -n config --global home) && echo $COMPOSER_DIR \
-    && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
-RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader \
+    && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard \
+    && COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader \
     && chown www-data:www-data /var/www/composer.json /var/www/composer.lock
 
 # USER www-data
@@ -74,25 +74,14 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
     && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group
-# RUN apk upgrade --update \
-#     && apk add --no-cache --virtual .persistent-deps \
-#       ca-certificates \
-#       curl \
-#       git \
-#       openssh \
-#       python3 \
-#       py3-pip \
-#       && ln -sf python3 /usr/bin/python
 
-RUN apk --update add python3 nodejs npm git openssh && apk add g++ make
+RUN apk --update add python3 nodejs npm git openssh
 
 COPY bin/src/phantomjs.sh /local/phantomjs.sh
 RUN . /local/phantomjs.sh
 RUN npm install --global \
       gulp \
     && chown -R node:node /home/node/
-
-#      gulp-cli \
 
 COPY --chown=node:node web/themes/custom/ /var/www/web/themes/custom/
 COPY --chown=node:node web/libraries/ /var/www/web/libraries/
@@ -106,19 +95,18 @@ RUN chown -R node:node /var/www/web/themes \
 
 USER node
 
-RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
+RUN npm install --prefix /var/www/web/themes/custom/usagov \
     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
     && npm run build --prefix /var/www/web/themes/custom/usagov \
     && chown -R node:node /var/www/web/themes
 
 ###############################################################
 
-
 FROM alpine:3.16 AS cms
 LABEL MAINTAINER=dan@mobomo.com
 
 ARG S6_VERSION
-ENV S6_VERSION ${S6_VERSION:-v2.2.0.3}
+ENV S6_VERSION ${S6_VERSION:-v3.1.1.0}
 
 ARG GITBRANCH
 ENV GITBRANCH ${GITBRANCH:-none}
@@ -132,9 +120,9 @@ ENV GITTAG ${GITTAG:-none}
 ARG BUID=1000
 ARG BGID=1000
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
+ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-noarch.tar.xz /tmp/s6-overlay-noarch.tar.xz
+ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-x86_64.tar.xz /tmp/s6-overlay-x86_64.tar.xz
 
-# Dependancies
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
@@ -208,30 +196,15 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       php8-xmlwriter \
       php8-zip \
       php8-zlib \
-    && mkdir -p /var/www/web/sites/default/files \
     # s6 supervisor setup
-    && tar xzf /tmp/s6overlay.tar.gz -C / \
-    && rm /tmp/s6overlay.tar.gz \
-    && mkdir -p /var/run/s6 \
-    && chown -R nginx:nginx /var/run/s6 \
-    # webserver setup
-    && mkdir -p /var/www/ \
-    && chown -R nginx:nginx /var/www \
-    && mkdir -p /var/log/nginx \
-    && chown -R nginx:nginx /var/log/nginx \
-    && ln -s /dev/stderr /var/log/nginx/error.log \
-    && ln -s /dev/stdout /var/log/nginx/access.log \
-    && mkdir -p /run/nginx/ \
-    && touch /run/nginx/nginx.pid \
+    && tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
+    && tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz \
+    && rm -f /tmp/s6-overlay-*.tar.gz \
     # php setup
-    && ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm
-
-    # new relic setup
-COPY bin/src/newrelic.sh /local/newrelic.sh
-RUN . /local/newrelic.sh
-
+    && mkdir -p /var/www/web/sites/default/files \
+    && ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm \
     # cron setup
-Run mkdir -p /etc/periodic/30min \
+    && mkdir -p /etc/periodic/30min \
     && echo "*/30    *       *       *       *       run-parts /etc/periodic/30min" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*

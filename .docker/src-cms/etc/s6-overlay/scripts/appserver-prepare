@@ -1,0 +1,62 @@
+#!/bin/sh -e
+
+echo "appserver-prepare: Creating webserver logs ... "
+
+if [ -z "${VCAP_SERVICES:-}" ]; then
+    echo "appserver-prepare: VCAP_SERVICES must a be set in the environment";
+    exit 1;
+fi
+
+export SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
+export SECAUTHSECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secauthsecrets") | .credentials')
+
+# these env vars might already be set, so use them if we can
+export S3_ROOT_WEB=${S3_ROOT_WEB:-/web}
+export S3_ROOT_CMS=${S3_ROOT_CMS:-/cms/public}
+export S3_HOST=${S3_HOST:-$S3_BUCKET.$S3_ENDPOINT}
+export S3_PROXY_WEB=${S3_PROXY_WEB:-$S3_HOST$S3_ROOT_WEB}
+export S3_PROXY_CMS=${S3_PROXY_CMS:-$S3_HOST$S3_ROOT_CMS}
+export S3_PROXY_PATH_CMS=${S3_PROXY_PATH_CMS:-/s3/files}
+
+if [ -f "/etc/php8/php-fpm.d/env.conf.tmpl" ]; then
+  echo "appserver-prepare: Setting up php env /etc/php8/php-fpm.d/env.conf ... "
+  cp /etc/php8/php-fpm.d/env.conf.tmpl /etc/php8/php-fpm.d/env.conf
+  echo "env[S3_PROXY_PATH_CMS] = "$S3_PROXY_PATH_CMS >> /etc/php8/php-fpm.d/env.conf
+  echo "env[S3_PROXY_CMS] = "$S3_PROXY_CMS >> /etc/php8/php-fpm.d/env.conf
+  echo "env[S3_ROOT_CMS] = "$S3_ROOT_CMS >> /etc/php8/php-fpm.d/env.conf
+  echo "env[S3_HOST] = "$S3_HOST >> /etc/php8/php-fpm.d/env.conf
+fi
+
+if [ $(uname -m) != 'aarch64' ]; then
+
+  echo "appserver-prepare: Installing New Relic ... "
+  export NR_VERSION=$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux\-musl\).tar.gz<.*/\1/p') \
+
+  cd /tmp
+  curl -L "https://download.newrelic.com/php_agent/release/${NR_VERSION}.tar.gz" | tar -C /tmp -zx
+  NR_INSTALL_SILENT=1 NR_INSTALL_USE_CP_NOT_LN=1 /tmp/${NR_VERSION}/newrelic-install install
+  rm -rf /tmp/newrelic-php5-* /tmp/nrinstall*
+
+  # update new relic with environment specific settings
+  if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
+    export NEW_RELIC_DISPLAY_NAME=$(echo $SECRETS | jq -r '.NEW_RELIC_DISPLAY_NAME')
+    export NEW_RELIC_APP_NAME=$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')
+    export NEW_RELIC_API_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')
+    export NEW_RELIC_LICENSE_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')
+
+    if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$NEW_RELIC_LICENSE_KEY" != "null" ]; then
+      echo "appserver-prepare: Setting up New Relic ... "
+      sed -i \
+          -e "s/;\?newrelic.license =.*/newrelic.license = ${NEW_RELIC_LICENSE_KEY}/" \
+          -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}/" \
+          -e "s/;\?newrelic.appname =.*/newrelic.appname = \"${NEW_RELIC_APP_NAME:-Local;USA.gov}\"/" \
+          -e "s/;\?newrelic.enabled =.*/newrelic.enabled = true/" \
+          /etc/php8/conf.d/newrelic.ini
+    else
+      echo "appserver-prepare: Turning off New Relic ... "
+      sed -i \
+          -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
+          /etc/php8/conf.d/newrelic.ini
+    fi
+  fi
+fi
