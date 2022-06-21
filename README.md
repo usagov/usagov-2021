@@ -28,20 +28,20 @@ docker compose up
 2. Head to `localhost` (no port number needed) in your respective browser.
 
 ## Access the Drupal Portal
-If you'd like to access the Drupal to make any additional configurations, you will need to follow a few more steps.
+If you would like to access the Drupal Portal to make any additional configurations, you will need to follow a few more steps.
 
-1. Open a separate terminal and open a new shell.
+1. Open a separate terminal, and open a new shell.
 ```
 bin/ssh
 ```
 
-2. Inside the same shell, you will need to generate a new admin account.
+2. Inside the same shell, you will need to generate a new URL to access your administrator account.
 ```
 drush uli
 ```
 
-3. The URL will be in some form of `http://default/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`.
-Replace the the `default` portion with `localhost`. It should now be in the form
+3. The ***unique*** URL will be in some form of `http://default/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`.
+Replace the the `default` portion with `localhost`. It should now be in the form:
 ```
 http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login
 ```
