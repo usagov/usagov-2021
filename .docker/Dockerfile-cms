@@ -90,15 +90,15 @@ COPY --chown=node:node --from=composer-builder /var/www/web/libraries/ /var/www/
 
 WORKDIR /var/www/web/themes/custom/usagov
 
-RUN chown -R node:node /var/www/web/themes \
-    && chown -R node:node /home/node/
+# RUN chown -R node:node /var/www/web/themes \
+#     && chown -R node:node /home/node/
 
 USER node
 
-RUN npm install --prefix /var/www/web/themes/custom/usagov \
-    && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
-    && npm run build --prefix /var/www/web/themes/custom/usagov \
-    && chown -R node:node /var/www/web/themes
+# RUN npm install --prefix /var/www/web/themes/custom/usagov \
+#     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
+#     && npm run build --prefix /var/www/web/themes/custom/usagov \
+#     && chown -R node:node /var/www/web/themes
 
 ###############################################################
 
@@ -120,8 +120,11 @@ ENV GITTAG ${GITTAG:-none}
 ARG BUID=1000
 ARG BGID=1000
 
+ARG ARCH
+ENV ARCH=x86_64
+
 ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-noarch.tar.xz /tmp/s6-overlay-noarch.tar.xz
-ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-x86_64.tar.xz /tmp/s6-overlay-x86_64.tar.xz
+ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-${ARCH}.tar.xz /tmp/s6-overlay.tar.xz
 
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
@@ -197,8 +200,8 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       php8-zlib \
     # s6 supervisor setup
     && tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
-    && tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz \
-    && rm -f /tmp/s6-overlay-*.tar.gz \
+    && tar -C / -Jxpf /tmp/s6-overlay.tar.xz \
+    && rm -f /tmp/s6-overlay*.tar.gz \
     # php setup
     && mkdir -p /var/www/web/sites/default/files \
     && ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm \
