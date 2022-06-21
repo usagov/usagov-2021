@@ -14,7 +14,5 @@ $settings['trusted_host_patterns'] = [
   '^cms-usagov\.docker\.local$',
 ];
 
-$cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);
-
 $config['system.performance']['css']['preprocess'] = FALSE; 
 $config['system.performance']['js']['preprocess'] = FALSE;
