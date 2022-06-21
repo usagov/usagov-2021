@@ -139,11 +139,10 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       git \
       jq \
       moreutils \
-      tar \
-      xz \
-      vim \
-      jq \
       pv \
+      tar \
+      vim \
+      xz \
       mysql-client \
       mariadb-connector-c \
       nginx \
