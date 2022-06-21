@@ -75,7 +75,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group
 
-RUN apk --update add python3 nodejs npm git openssh && apk add make
+RUN apk --update add python3 nodejs npm git openssh && apk add make g++
 
 COPY bin/src/phantomjs.sh /local/phantomjs.sh
 RUN . /local/phantomjs.sh
