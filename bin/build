@@ -8,7 +8,7 @@ fi
 CURR_UID=$(id -u)
 CURR_GID=$(id -g)
 
-docker compose build --no-cache \
+docker compose build \
   --build-arg BUID=${BUID:-"$CURR_UID"} \
   --build-arg BGID=${BGID:-"$CURR_GID"} \
   --build-arg GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "") \
