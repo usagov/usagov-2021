@@ -27,6 +27,29 @@ docker compose up
 
 2. Head to `localhost` (no port number needed) in your respective browser.
 
+## Access the Drupal Portal
+If you'd like to access the Drupal to make any additional configurations, you will need to follow a few more steps.
+
+1. Open a separate terminal and open a new shell.
+```
+bin/ssh
+```
+
+2. Inside the same shell, you will need to generate a new admin account.
+```
+drush uli
+```
+
+3. The URL will be in some form of `http://default/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`.
+Replace the the `default` portion with `localhost`. It should now be in the form
+```
+http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login
+```
+
+4. Adjust your credentials accordingly.
+
+**Note: This is a ONE-TIME login. You'll automatically be logged in during future uses. However, if you ever reset your container, you will have to redo this process.**
+
 ## Project Restart/Reset
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing contianers, networks, and volumes the procedure is the same as the full project setup.
 
@@ -50,7 +73,7 @@ Unzip the file. It should be renamed to just usagov.sql. Place that uncompressed
 3. Run `bin/db-update` (or `bin/db-update usagov_other.sql` if the file is not titled `usagov.sql`)
 
 ## Starting on a new ticket
-When starting new work you may have to reset your databsae to a good starting point and make sure the current Drupal config is reflected in the site.
+When starting new work you may have to reset your database to a good starting point and make sure the current Drupal config is reflected in the site.
 
 ```
 # Switch to stable starting point
