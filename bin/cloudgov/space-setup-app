@@ -21,21 +21,24 @@ else
   echo "cf service-key cci-${APP_SPACE}-service-account cci-${APP_SPACE}-service-key"
 fi
 
-# https://docs.cloudfoundry.org/concepts/asg.html
+# setup asg network for staging lifecycle
+STAGING_SECURITY_GROUPS="public_networks dns trusted_local_networks public_networks_egress trusted_local_networks_egress"
+for SECURITY_GROUP in $STAGING_SECURITY_GROUPS; do
+  if cf security-groups | grep $APP_SPACE | grep -e 'staging$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "$SECURITY_GROUP already bound to $APP_SPACE during 'staging' lifecycle"
+  else
+    echo "bind $SECURITY_GROUP to $APP_SPACE during 'staging' lifecycle"
+    echo "cf bind-security-group $SECURITY_GROUP $ORG --space $APP_SPACE --lifecycle staging"
+  fi
+done
 
-# setup asg network for running lifecycle to be restricted via egress
-if cf security-groups | grep running | grep $APP_SPACE | grep restricted-egress > /dev/null 2>&1; then
-  echo "restricted-egress already bound to $APP_SPACE during 'running' lifecycle"
-else
-  echo "bind public_network_egress to $APP_SPACE during 'running' lifecycle"
-  echo "cf bind-security-group restricted-egress $ORG $APP_SPACE --lifecycle running"
-fi
-
-# setup asg network for staging lifecycle to be public
-if cf security-groups | grep staging | grep $APP_SPACE | grep public_networks_egress > /dev/null 2>&1; then
-  echo "public_networks_egress already bound to $APP_SPACE during 'staging' lifecycle"
-else
-  echo "bind public_network_egress to $APP_SPACE during 'staging' lifecycle"
-  echo "cf bind-security-group public_networks_egress $ORG $APP_SPACE --lifecycle staging"
-fi
-
+# setup asg network for running lifecycle
+RUNNING_SECURITY_GROUPS="trusted_local_networks_egress dns"
+for SECURITY_GROUP in $RUNNING_SECURITY_GROUPS; do
+  if cf security-groups | grep $APP_SPACE | grep -e 'running$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "$SECURITY_GROUP already bound to $APP_SPACE during 'running' lifecycle"
+  else
+    echo "bind $SECURITY_GROUP to $APP_SPACE during 'running' lifecycle"
+    echo "cf bind-security-group $SECURITY_GROUP $ORG --space $APP_SPACE --lifecycle running"
+  fi
+done
