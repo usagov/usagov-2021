@@ -3,7 +3,7 @@
 # This script will attempt to deploy a cms app by tag
 #
 
-EGRESS_SPACE=shared-app-egress
+EGRESS_SPACE=dan-egress
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then

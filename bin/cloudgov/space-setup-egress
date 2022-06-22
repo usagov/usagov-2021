@@ -2,7 +2,6 @@
 
 EGRESS_SPACE=${1:-dev-egress}
 ORG=gsa-tts-usagov
-EGRESS_ASG=public_networks_egress
 
 # create space
 if cf space $EGRESS_SPACE > /dev/null 2>&1; then
@@ -12,13 +11,12 @@ else
   echo "cf create-space $EGRESS_SPACE"
 fi
 
-# create security group
-if cf security-group $EGRESS_ASG > /dev/null 2>&1; then
-  echo "security-group $EGRESS_SPACE already exists"
-else
-  echo "create security-group $EGRESS_SPACE"
-  echo "cf create-security-group $EGRESS_ASG asg.${EGRESS_ASG}.json"
-fi
+# # create security group
+# if cf security-group $EGRESS_ASG > /dev/null 2>&1; then
+#   echo "security-group $EGRESS_SPACE already exists"
+# else
+#   echo "create security-group $EGRESS_SPACE"
+# fi
 
 # create service account
 if cf service cloud-gov-service-account | grep cloud-gov-service-account | grep cci-${EGRESS_SPACE}-service-account > /dev/null 2>&1; then
@@ -30,17 +28,24 @@ else
   echo "cf service-key cci-${EGRESS_SPACE}-service-account cci-${EGRESS_SPACE}-service-key"
 fi
 
-# setup asg network for staging/running lifecycle to be public
-if cf security-groups | grep staging | grep $EGRESS_SPACE > /dev/null 2>&1; then
-  echo "public_networks already bound to $EGRESS_SPACE during 'staging' lifecycle"
-else
-  echo "bind public_network to $EGRESS_SPACE during 'staging' lifecycle"
-  echo "cf bind-security-group public_networks $ORG $EGRESS_SPACE --lifecycle staging"
-fi
+# setup asg network for staging lifecycle
+STAGING_SECURITY_GROUPS="public_networks dns trusted_local_networks trusted_local_networks_egress"
+for SECURITY_GROUP in $STAGING_SECURITY_GROUPS; do
+  if cf security-groups | grep $EGRESS_SPACE | grep -e 'staging$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "$SECURITY_GROUP already bound to $EGRESS_SPACE during 'staging' lifecycle"
+  else
+    echo "bind $SECURITY_GROUP to $EGRESS_SPACE during 'staging' lifecycle"
+    echo "cf bind-security-group $SECURITY_GROUP $ORG --space $EGRESS_SPACE --lifecycle staging"
+  fi
+done
 
-if cf security-groups | grep running | grep $EGRESS_SPACE > /dev/null 2>&1; then
-  echo "public_networks already bound to $EGRESS_SPACE during 'running' lifecycle"
-else
-  echo "bind public_network to $EGRESS_SPACE during 'running' lifecycle"
-  echo "cf bind-security-group public_networks $ORG $EGRESS_SPACE --lifecycle running"
-fi
+# setup asg network for running lifecycle
+RUNNING_SECURITY_GROUPS="public_networks_egress dns"
+for SECURITY_GROUP in $RUNNING_SECURITY_GROUPS; do
+  if cf security-groups | grep $EGRESS_SPACE | grep -e 'running$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "$SECURITY_GROUP already bound to $EGRESS_SPACE during 'running' lifecycle"
+  else
+    echo "bind $SECURITY_GROUP to $EGRESS_SPACE during 'running' lifecycle"
+    echo "cf bind-security-group $SECURITY_GROUP $ORG --space $EGRESS_SPACE --lifecycle running"
+  fi
+done
