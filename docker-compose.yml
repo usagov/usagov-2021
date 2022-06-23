@@ -2,7 +2,7 @@ version: '3.9'
 services:
   cms:
     container_name: cms
-    image: ednark/usagov-2021:cms-latest
+    image: dnark/usagov-2021:cms-latest
     build:
       context: ./
       dockerfile: .docker/Dockerfile-cms
@@ -25,9 +25,7 @@ services:
       - ./env.local
     environment:
       COMPOSER_MEMORY_LIMIT: -1
-      WWW_HOST: beta-usagov.docker.local
-      S3_HOST: minio:9000
-      S3_PROXY: minio:9000/local/web
+      WWW_HOST: beta-usagov.docker.local www-usagov.docker.local
       CF_INSTANCE_INDEX: '1'
       FIX_FILE_PERMS:
       VCAP_APPLICATION: >
@@ -40,7 +38,8 @@ services:
               "secret_access_key": "miniopass",
               "region": "us-west-1",
               "bucket": "local",
-              "hostname": "minio:9000"
+              "fips_endpoint": "minio:9000",
+              "endpoint": "minio:9000"
             }
           }],
           "aws-rds": [{
@@ -76,9 +75,10 @@ services:
 
   database:
     container_name: database
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-mysql
+    image: mariadb:10
+    # build:
+    #  context: ./
+    #  dockerfile: .docker/Dockerfile-mysql
     ports:
       - 3306:3306
     volumes:
@@ -102,6 +102,7 @@ services:
       - 9001:9001
     volumes:
       - ./s3:/data
+      - ./.docker/src-minio/docker-entrypoint-minio.sh:/docker-entrypoint-minio.sh
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=miniopass
@@ -141,7 +142,8 @@ services:
         - BUID
         - BGID
     command: npm run watch --prefix /var/www/web/themes/custom/usagov
-    #command: echo "Shutting Down on Purpose"
+    # command: tail -f /dev/null
+    # command: echo "Shutting Down on Purpose"
     volumes:
       - .:/var/www:delegated
     env_file:
