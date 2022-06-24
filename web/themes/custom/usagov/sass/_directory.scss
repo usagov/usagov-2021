@@ -195,3 +195,36 @@ hr.bl-divider {
   font-family: serif;
   font-size: small;
 }
+
+
+
+// Directory More Information Page
+.usagov-directory-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.usagov-directory-table td {
+  border: solid 1px gray;
+  padding: 1rem 1.4rem 1rem 1.4rem;
+  margin: 0;
+}
+
+.usagov-directory-table tr:nth-child(odd) {
+  background-color: lightgray;
+}
+
+.usagov-directory-table h3 {
+  margin: 0;
+  margin-bottom: 0.2rem;
+  font-weight: bold;
+}
+
+.usagov-directory-table p {
+  margin: 0;
+}
+
+.usagov-directory-table ul {
+  margin: 0;
+  padding-left: 1rem;
+}
