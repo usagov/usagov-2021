@@ -1,0 +1,12 @@
+uuid: 11c32e16-b2f0-43ba-ae70-7f4be5b3ee4d
+langcode: en
+status: true
+dependencies: {  }
+id: uswds_process_list
+label: 'USWDS Process List'
+image: modules/contrib/uswds_ckeditor_integration/images/ckeditor_templates/uswds_ckeditor_process_list.png
+description: 'A process list displays the steps or stages of important instructions or processes.'
+html:
+  value: "<ol class=\"usa-process-list\">\r\n\t<li class=\"usa-process-list__item\">\r\n\t<h4 class=\"usa-process-list__heading\">Start a process</h4>\r\n\r\n\t<p class=\"margin-top-05\">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo, ipsum sed pharetra gravida, orci magna rhoncus neque.</p>\r\n\t</li>\r\n</ol>\r\n"
+  format: full_html
+weight: 6
