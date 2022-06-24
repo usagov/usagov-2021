@@ -27,12 +27,12 @@ i.e.
 @use "uswds-core" as *;
 @use "usagov-variables" as *;
 
-@forward "state-directory";
 @forward "sidenav";
 @forward "navigation-page";
 @forward "content-page";
 @forward "homepage";
 @forward "life-events";
+@forward "state-directory";
 
 .text-red {
    color: #d83933;
