@@ -1,8 +1,8 @@
-.usagov-directory-text{
+.usagov-directory-text {
   font-size: 0.9rem;
 }
 
-.usagov-directory-container{
+.usagov-directory-container {
   padding: 3rem;
   max-width: 35rem;
   display: flex;
@@ -12,23 +12,23 @@
   box-shadow: inset 0px 0px 0px 0.15rem rgb(231, 231, 231);
 }
 
-.usagov-directory-container-az{
+.usagov-directory-container-az {
   list-style: none;
   max-width: 35rem;
-  padding:0;
+  padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr));
   gap: 1rem;
 }
 
-.usagov-directory-container-az li a{
+.usagov-directory-container-az li a {
   text-decoration: none;
   color: #000000;
   display: block;
   height: 100%;
 }
 
-.usagov-directory-container-az li{
+.usagov-directory-container-az li {
   box-shadow: inset 0px 0px 0px 0.15rem #a7d8e3;
   box-sizing: border-box;
   margin: 0;
@@ -43,21 +43,20 @@
   -webkit-transition: 200ms;
 }
 
-
-.usagov-directory-container-az li:hover{
+.usagov-directory-container-az li:hover {
   box-shadow: inset 0px 0px 0px 0.15rem black;
   background-color: white;
   -webkit-transition: 200ms;
 }
 
-hr.bl-divider{
+hr.bl-divider {
   background: rgb(231, 231, 231);
   border: 0px;
   height: 0.15rem;
   width: auto;
 }
 
-.usagov-directory-search-container{
+.usagov-directory-search-container {
   justify-content: center;
   display: flex;
   flex-direction: row;
@@ -65,26 +64,26 @@ hr.bl-divider{
   align-items: center;
 }
 
-.fed-directory-search-bar{
+.fed-directory-search-bar {
   box-shadow: 0px 0px 0px 0.15rem #a7d8e3;
   box-sizing: border-box;
   border-radius: 0.15rem;
   outline: none;
 }
 
-.fed-directory-search-input{
+.fed-directory-search-input {
   width: 14rem;
   background-color: #ccecf2;
 }
 
-.fed-directory-search-btn{
+.fed-directory-search-btn {
   background-color: #ccecf2;
   border-radius: 0.15rem;
   outline: none;
-  cursor:pointer;
+  cursor: pointer;
 }
 
-.usagov-directory-letter-heading{
+.usagov-directory-letter-heading {
   width: 3.5rem;
   height: 3.5rem;
   text-align: center;
@@ -95,14 +94,14 @@ hr.bl-divider{
   border-radius: 0.15rem;
 }
 
-.usagov-directory-bottom-nav-container{
+.usagov-directory-bottom-nav-container {
   display: flex;
   justify-content: space-between;
   list-style: none;
   padding: 0;
 }
 
-.usagov-directory-bottom-nav-btn{
+.usagov-directory-bottom-nav-btn {
   // padding: 0;
   // margin: 0;
   // width: 3.5rem;
@@ -116,14 +115,14 @@ hr.bl-divider{
   // -webkit-transition: 200ms;
 }
 
-.usagov-directory-bottom-nav-btn:hover{
+.usagov-directory-bottom-nav-btn:hover {
   // box-shadow: 0px 0px 0px 0.2rem #a7d8e3;
   // background-color: #b5dee5;
   // cursor: pointer;
   // -webkit-transition: 200ms;
 }
 
-.usagov-directory-bottom-nav-link{
+.usagov-directory-bottom-nav-link {
   text-decoration: none;
   color: #000000;
   font-weight: 600;
@@ -139,7 +138,7 @@ hr.bl-divider{
   -webkit-transition: 200ms;
 }
 
-.usagov-directory-bottom-nav-group{
+.usagov-directory-bottom-nav-group {
   align-items: center;
   display: flex;
   flex-direction: row;
@@ -149,10 +148,19 @@ hr.bl-divider{
   box-shadow: none;
 }
 
-.usagov-directory-bottom-nav-arrow{
+.usagov-directory-bottom-nav-arrow {
   text-decoration: none;
 }
 
-.usagov-directory-bottom-nav-arrow:hover{
+.usagov-directory-bottom-nav-arrow:hover {
   cursor: pointer;
+}
+
+// TODO: Test this CSS
+.usagov-directory-accordion-container {
+  // display: flex;
+}
+
+.usagov-directory-accordion-container div div {
+  display: flex;
 }
