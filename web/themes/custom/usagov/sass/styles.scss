@@ -11,14 +11,19 @@
 // -------------------------------------
 // Import individual theme settings
 
-@import "uswds/uswds-theme-general";
-@import "uswds/uswds-theme-typography";
-@import "uswds/uswds-theme-spacing";
-@import "uswds/uswds-theme-color";
-@import "uswds/uswds-theme-utilities";
+@forward "uswds-theme";
+@forward "uswds";
+@forward "uswds-theme-custom-styles";
+
+// @import "directory";
+// @import "uswds/uswds-theme-general";
+// @import "uswds/uswds-theme-typography";
+// @import "uswds/uswds-theme-spacing";
+// @import "uswds/uswds-theme-color";
+// @import "uswds/uswds-theme-utilities";
 
 // components import needs to be last
-@import "uswds/uswds-theme-components";
+// @import "uswds/uswds-theme-components";
 
 // -------------------------------------
 // Import individual USWDS packages...
@@ -73,17 +78,17 @@
 // -------------------------------------
 // ...or import the complete USWDS kit
 
-@import 'variables';
-@import '../node_modules/uswds/src/stylesheets/uswds';
+// @import 'variables';
+// @import '../node_modules/uswds/src/stylesheets/uswds';
 
 // -------------------------------------
 // Import theme custom styles
 
-@import "uswds-theme-custom-styles";
-@import "sidenav";
-@import "navigation-page";
-@import "content-page";
-@import "homepage";
-@import "usagov-styles";
-@import "life-events";
-@import "directory";
+// @import "uswds-theme-custom-styles";
+// @import "sidenav";
+// @import "navigation-page";
+// @import "content-page";
+// @import "homepage";
+// @import "usagov-styles";
+// @import "life-events";
+// @import "directory";
