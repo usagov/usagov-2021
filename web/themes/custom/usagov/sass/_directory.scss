@@ -164,13 +164,23 @@ hr.bl-divider {
   font-size: small;
 }
 
-.usagov-directory-accordion-container div div {
-  display: flex;
+.usagov-directory-accordion-container div {
+  
+  p.h-bold {
+    font-weight: bold;
+  }
+
+  div {
+    display: flex;
+    p:first-child {
+      font-weight: bold;
+    }
+  }
 }
 
-.usagov-directory-accordion-container div div p {
-  // font: bold;
-}
+// .usagov-directory-accordion-container div div p:first-child {
+//   font-weight: bold;
+// }
 
 // Directory Agency/Dept Detail
 .usagov-directory-detail {
