@@ -2,6 +2,12 @@
   font-size: 0.9rem;
 }
 
+.usagov-directory-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5rem;
+}
+
 .usagov-directory-container {
   padding: 3rem;
   max-width: 35rem;
