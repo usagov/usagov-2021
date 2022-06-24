@@ -453,6 +453,12 @@ This style ensures that we can remove the padding-top from text in a card body. 
   background-color: transparent;
 }
 
+.usa-social-link span {
+   position: absolute;
+   left: -999em;
+   right: auto;
+}
+
 .usa-footer__social-links {
    @media (max-width: 30em)and (min-width: 30em){
       justify-content: flex-start;
