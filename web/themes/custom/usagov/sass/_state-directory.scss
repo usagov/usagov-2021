@@ -1,3 +1,12 @@
-.state-dir-container {
+@use "usagov-variables" as *;
+
+.sd-container {
     display: flex;
+
+    button.sd-go-btn {
+        border-radius: 8px;
+        border: 2px solid #a7d8e3;
+        background-color: #ccecf2;
+        padding: 12px;
+    }
 }
