@@ -123,6 +123,7 @@ hr.bl-divider {
   justify-content: space-between;
   list-style: none;
   padding: 0;
+  color: #000000;
 }
 
 .usagov-directory-bottom-nav-link {
@@ -138,6 +139,11 @@ hr.bl-divider {
   text-align: center;
   line-height: 4rem;
   font-size: 25px;
+  -webkit-transition: 200ms;
+}
+
+.usagov-directory-bottom-nav-link:hover {
+  background-color: #bcdde2;
   -webkit-transition: 200ms;
 }
 
