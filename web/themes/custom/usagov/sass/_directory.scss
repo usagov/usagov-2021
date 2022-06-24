@@ -156,11 +156,24 @@ hr.bl-divider {
   cursor: pointer;
 }
 
-// TODO: Test this CSS
+// TODO: Test this
+// Accordion Section
 .usagov-directory-accordion-container {
   // display: flex;
+  font-family: serif;
+  font-size: small;
 }
 
 .usagov-directory-accordion-container div div {
   display: flex;
+}
+
+.usagov-directory-accordion-container div div p {
+  // font: bold;
+}
+
+// Directory Agency/Dept Detail
+.usagov-directory-detail {
+  font-family: serif;
+  font-size: small;
 }
