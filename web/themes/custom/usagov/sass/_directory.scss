@@ -56,7 +56,7 @@ hr.bl-divider {
   width: auto;
 }
 
-.usagov-directory-search-container {
+.usagov-directory-search-container{
   justify-content: center;
   display: flex;
   flex-direction: row;
@@ -64,23 +64,34 @@ hr.bl-divider {
   align-items: center;
 }
 
-.fed-directory-search-bar {
-  box-shadow: 0px 0px 0px 0.15rem #a7d8e3;
+.fed-directory-search-bar{
+  height:2rem;
   box-sizing: border-box;
-  border-radius: 0.15rem;
-  outline: none;
+  border-radius: 0.1rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  gap: 0.2rem;
+  box-shadow: 0px 0px 0px 0.2rem #a7d8e3;
 }
 
-.fed-directory-search-input {
-  width: 14rem;
+.fed-directory-search-input{
+  width:19rem;
   background-color: #ccecf2;
+  outline: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color:#000000;
+  padding-left: 1em;
+  border-style: none;
 }
 
-.fed-directory-search-btn {
+.fed-directory-search-btn{
   background-color: #ccecf2;
-  border-radius: 0.15rem;
   outline: none;
-  cursor: pointer;
+  cursor:pointer;
+  border-style: none;
+  outline-style: none;
 }
 
 .usagov-directory-letter-heading {
@@ -99,27 +110,6 @@ hr.bl-divider {
   justify-content: space-between;
   list-style: none;
   padding: 0;
-}
-
-.usagov-directory-bottom-nav-btn {
-  // padding: 0;
-  // margin: 0;
-  // width: 3.5rem;
-  // height: 3.5rem;
-  // box-shadow: 0px 0px 0px 0.2rem #a7d8e3;
-  // border-radius: 0.15rem;
-  // background-color: #ccecf2;
-  // text-align: center;
-  // padding: 0.5rem;
-  // font-size: 25px;
-  // -webkit-transition: 200ms;
-}
-
-.usagov-directory-bottom-nav-btn:hover {
-  // box-shadow: 0px 0px 0px 0.2rem #a7d8e3;
-  // background-color: #b5dee5;
-  // cursor: pointer;
-  // -webkit-transition: 200ms;
 }
 
 .usagov-directory-bottom-nav-link {
