@@ -27,6 +27,7 @@ i.e.
 @use "uswds-core" as *;
 @use "usagov-variables" as *;
 
+@forward "state-directory";
 @forward "sidenav";
 @forward "navigation-page";
 @forward "content-page";
