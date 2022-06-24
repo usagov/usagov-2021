@@ -11,56 +11,30 @@ docker compose up
 ```
 
 ## Full Project Setup
-### Import SQL Database
-Safe development database dumps are kept in Google Drive. You can download and import a SQL database from https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing. We recommend using the latest database available.
+If a databse dump (usagov.sql) is acquired from a specific hosted environment, a full copy of that environment can be created as a starting point.
 
-Unzip the file and insert directly into the **root** directory.
-
-### Initialization
-**Note: Please wait until each command finishes before running the next. Expect long wait times. We recommend keep your laptop (if you're using one) plugged in during this setup.**
-
-1. Open up your IDE/terminal and run the following commands.
 ```
 bin/init
 docker compose up
+bin/db-update
+bin/drupal-update
+docker compose up
 ```
 
-2. Head to `localhost` (no port number needed) in your respective browser.
-
-## Access the Drupal Portal
-If you would like to access the Drupal Portal to make any additional configurations, you will need to follow a few more steps.
-
-1. Open a separate terminal, and open a new shell.
-```
-bin/ssh
-```
-
-2. Inside the same shell, you will need to generate a new URL to access your administrator account.
-```
-drush uli
-```
-
-3. The ***unique*** URL will be in some form of `http://default/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`.
-Replace the the `default` portion with `localhost`. It should now be in the form:
-```
-http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login
-```
-
-4. Adjust your credentials accordingly.
-
-**Note: This is a ONE-TIME login. You'll automatically be logged in during future uses. However, if you ever reset your container, you will have to redo this process.**
-
-## Project Restart/Reset
-Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing contianers, networks, and volumes the procedure is the same as the full project setup.
-
-### Docker Cleanup
+## Project restart or rest
+Sometimes docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing contianers, networks, and volumes the procedure is the same as the full project start
 
 ```
+# docker cleanup
 docker compose down
 docker system prune
-```
 
-Refer to `Full Project Setup` section above to continue the setup.
+# full project start
+bin/init
+bin/db-udpate
+bin/drupal-update
+docker compose up
+```
 
 ## Update Database
 Safe development database dumps are kept in Google Drive. You can download and import a SQL database from https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing.
@@ -68,12 +42,25 @@ Safe development database dumps are kept in Google Drive. You can download and i
 Copy down the database you want by checking the date in the filename. For example: usagov_01_14_2022.sql.zip.
 Unzip the file. It should be renamed to just usagov.sql. Place that uncompressed .sql file into the root of your repo. Then call the bin/db-update script. This could take over 10 minutes, so be patient. No messages are good. It will return you to the command prompt when it is done.
 
-1. Download and Unzip the respective zip file
-2. Move `usagov.sql` to the root of your project directory
-3. Run `bin/db-update` (or `bin/db-update usagov_other.sql` if the file is not titled `usagov.sql`)
+```
+# download usagov_01_14_2022.sql.zip to tmp
+cd /tmp
+unzip usagov_01_14_2022.sql.zip
+cp usagov.sql /my/development/gitroot/usagov.sql
+cd /my/development/gitroot
+bin/db-update
+```
+
+By default the script expects a usagov.sql file to exist. If you have mulitple files to choose from just pass in the specific name of the sql file as a parameter.
+
+```
+# specify alternate file
+bin/db-update usagov_other.sql
+```
+
 
 ## Starting on a new ticket
-When starting new work you may have to reset your database to a good starting point and make sure the current Drupal config is reflected in the site.
+When starting new work you may have to reset your databsae to a good starting point and make sure the current Drupal config is reflected in the site.
 
 ```
 # Switch to stable starting point
