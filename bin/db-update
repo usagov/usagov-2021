@@ -11,7 +11,6 @@ else
     LOCAL_FILE=${1:-usagov.sql}
 fi
 
-echo "Importing database from $LOCAL_FILE"
 docker compose exec \
   database \
-  /bin/bash -c "sed -e 's/utf8mb4_0900_ai_ci/utf8mb4_unicode_ci/g' /app/$LOCAL_FILE | mysql --protocol=TCP -hlocalhost -P$LOCAL_PORT -uroot -pmysql drupal; mysql_upgrade --protocol=TCP -hlocalhost -P$LOCAL_PORT -uroot -pmysql"
+  /bin/bash -c "sed -e 's/utf8mb4_0900_ai_ci/utf8mb4_unicode_ci/g' /app/$LOCAL_FILE | mysql -hlocalhost -P$LOCAL_PORT -uroot -pmysql drupal"
