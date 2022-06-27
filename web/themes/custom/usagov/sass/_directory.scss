@@ -186,10 +186,6 @@ hr.bl-divider {
   }
 }
 
-// .usagov-directory-accordion-container div div p:first-child {
-//   font-weight: bold;
-// }
-
 // Directory Agency/Dept Detail
 .usagov-directory-detail {
   font-family: serif;
@@ -200,20 +196,20 @@ hr.bl-divider {
 .usagov-directory-table {
   border-collapse: collapse;
   width: 100%;
+
+  tr {
+    border: solid 2px lightgray;
+    padding: 1rem 1.4rem 1rem 1.4rem;
+    margin: 0;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #dfe1e2;
+  }
 }
 
 .usagov-directory-table tbody {
   padding: 0;
-}
-
-.usagov-directory-table td {
-  border: solid 1px gray;
-  padding: 1rem 1.4rem 1rem 1.4rem;
-  margin: 0;
-}
-
-.usagov-directory-table tr:nth-child(odd) {
-  background-color: lightgray;
 }
 
 .usagov-directory-table h3 {
