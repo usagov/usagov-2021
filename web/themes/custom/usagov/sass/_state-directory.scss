@@ -1,12 +1,16 @@
 @use "usagov-variables" as *;
 
 .sd-container {
-    display: flex;
+  display: flex;
+
+    div {
+      padding-right: 20px;
+    }
 
     button.sd-go-btn {
-        border-radius: 8px;
-        border: 2px solid #a7d8e3;
-        background-color: #ccecf2;
-        padding: 12px;
+      border-radius: 8px;
+      border: 2px solid #a7d8e3;
+      background-color: #ccecf2;
+      padding: 10px 24px;
     }
 }
