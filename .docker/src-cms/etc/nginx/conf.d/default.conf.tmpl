@@ -2,7 +2,7 @@
 server {
     listen 80;
 
-    server_name ${WWW_HOST} beta.usa.gov beta-stage.usa.gov beta-dev.usa.gov www.usa.gov www-stage.usa.gov www-dev.usa.gov;
+    server_name ${WWW_HOST};
 
     resolver ${DNS_SERVER} valid=5s ipv6=off;
 
@@ -29,7 +29,7 @@ server {
       error_page 404 403 @notFoundEnglishFallback;
       proxy_intercept_errors on;
       recursive_error_pages on;
-      proxy_pass https://${S3_PROXY}${EN_404_PAGE}#$1;
+      proxy_pass https://${S3_PROXY_WEB}${EN_404_PAGE}#$1;
     }
     location @notFoundEnglishFallback {
       allow all;
@@ -41,7 +41,7 @@ server {
       error_page 404 403 @notFoundSpanishFallback;
       proxy_intercept_errors on;
       recursive_error_pages on;
-      proxy_pass https://${S3_PROXY}${ES_404_PAGE}#$1;
+      proxy_pass https://${S3_PROXY_WEB}${ES_404_PAGE}#$1;
     }
     location @notFoundSpanishFallback {
       allow all;
@@ -54,7 +54,7 @@ server {
     #   error_page 404 403 @notFoundSpanish;
     #   proxy_intercept_errors on;
     #   recursive_error_pages on;
-    #   set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+    #   set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
     #   proxy_pass https://$indexfile;
     # }
     # catch urls that end in a trailing slash - assume they are dirs and need an index
@@ -62,7 +62,7 @@ server {
     #   error_page 404 403 @notFoundSpanish;
     #   proxy_intercept_errors on;
     #   recursive_error_pages on;
-    #   set $indexfile "${S3_PROXY}${request_uri_lowercase}index.html";
+    #   set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}index.html";
     #   proxy_pass https://$indexfile;
     # }
     # catch urls that end without an extension or trailing slash - assume they are dirs and need an index
@@ -70,7 +70,7 @@ server {
     #   error_page 404 403 @notFoundSpanish;
     #   proxy_intercept_errors on;
     #   recursive_error_pages on;
-    #   set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+    #   set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
     #   proxy_pass https://$indexfile;
     # }
     # catch all urls - assume they are not dirs and should be proxied directly
@@ -78,7 +78,7 @@ server {
     #   error_page 404 403 @notFoundSpanish;
     #   proxy_intercept_errors on;
     #   recursive_error_pages on;
-    #   set $indexfile "${S3_PROXY}${request_uri_lowercase}";
+    #   set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}";
     #   proxy_pass https://$indexfile;
     # }
 
@@ -87,7 +87,7 @@ server {
       error_page 404 403 @notFoundEnglish;
       proxy_intercept_errors on;
       recursive_error_pages on;
-      set $indexfile "${S3_PROXY}${request_uri_lowercase}index.html";
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}index.html";
       proxy_pass https://$indexfile;
     }
     # catch urls that end without an extension or trailing slash - assume they are dirs and need an index
@@ -95,7 +95,7 @@ server {
       error_page 404 403 @notFoundEnglish;
       proxy_intercept_errors on;
       recursive_error_pages on;
-      set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
       proxy_pass https://$indexfile;
     }
     # catch all urls - assume they are not dirs and should be proxied directly
@@ -103,7 +103,7 @@ server {
       error_page 404 403 @notFoundEnglish;
       proxy_intercept_errors on;
       recursive_error_pages on;
-      set $indexfile "${S3_PROXY}${request_uri_lowercase}";
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}";
       proxy_pass https://$indexfile;
     }
 
@@ -112,7 +112,7 @@ server {
     listen 443 ssl;
     include partials/ssl.conf;
 
-    server_name ${WWW_HOST} beta.usa.gov beta-stage.usa.gov beta-dev.usa.gov www.usa.gov www-stage.usa.gov www-dev.usa.gov;
+    server_name ${WWW_HOST};
 
     resolver ${DNS_SERVER} valid=5s ipv6=off;
 
@@ -139,7 +139,7 @@ server {
       error_page 404 403 @notFoundEnglishFallback;
       proxy_intercept_errors on;
       recursive_error_pages on;
-      proxy_pass https://${S3_PROXY}${EN_404_PAGE}#$1;
+      proxy_pass https://${S3_PROXY_WEB}${EN_404_PAGE}#$1;
     }
     location @notFoundEnglishFallback {
       allow all;
@@ -151,7 +151,7 @@ server {
       error_page 404 403 @notFoundSpanishFallback;
       proxy_intercept_errors on;
       recursive_error_pages on;
-      proxy_pass https://${S3_PROXY}${ES_404_PAGE}#$1;
+      proxy_pass https://${S3_PROXY_WEB}${ES_404_PAGE}#$1;
     }
     location @notFoundSpanishFallback {
       allow all;
@@ -163,7 +163,7 @@ server {
     #   error_page 404 403 @notFoundSpanish;
     #   proxy_intercept_errors on;
     #   recursive_error_pages on;
-    #   set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+    #   set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
     #   proxy_pass https://$indexfile;
     # }
     # catch urls that end in a trailing slash - assume they are dirs and need an index
@@ -171,7 +171,7 @@ server {
     #   error_page 404 403 @notFoundSpanish;
     #   proxy_intercept_errors on;
     #   recursive_error_pages on;
-    #   set $indexfile "${S3_PROXY}${request_uri_lowercase}index.html";
+    #   set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}index.html";
     #   proxy_pass https://$indexfile;
     # }
     # catch urls that end without an extension or trailing slash - assume they are dirs and need an index
@@ -179,7 +179,7 @@ server {
     #   error_page 404 403 @notFoundSpanish;
     #   proxy_intercept_errors on;
     #   recursive_error_pages on;
-    #   set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+    #   set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
     #   proxy_pass https://$indexfile;
     # }
     # catch all urls - assume they are not dirs and should be proxied directly
@@ -187,7 +187,7 @@ server {
     #   error_page 404 403 @notFoundSpanish;
     #   proxy_intercept_errors on;
     #   recursive_error_pages on;
-    #   set $indexfile "${S3_PROXY}${request_uri_lowercase}";
+    #   set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}";
     #   proxy_pass https://$indexfile;
     # }
 
@@ -196,7 +196,7 @@ server {
       error_page 404 403 @notFoundEnglish;
       proxy_intercept_errors on;
       recursive_error_pages on;
-      set $indexfile "${S3_PROXY}${request_uri_lowercase}index.html";
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}index.html";
       proxy_pass https://$indexfile;
     }
     # catch urls that end without an extension or trailing slash - assume they are dirs and need an index
@@ -204,7 +204,7 @@ server {
       error_page 404 403 @notFoundEnglish;
       proxy_intercept_errors on;
       recursive_error_pages on;
-      set $indexfile "${S3_PROXY}${request_uri_lowercase}/index.html";
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
       proxy_pass https://$indexfile;
     }
     # catch all urls - assume they are not dirs and should be proxied directly
@@ -212,7 +212,7 @@ server {
       error_page 404 403 @notFoundEnglish;
       proxy_intercept_errors on;
       recursive_error_pages on;
-      set $indexfile "${S3_PROXY}${request_uri_lowercase}";
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}";
       proxy_pass https://$indexfile;
     }
 
@@ -222,7 +222,7 @@ server {
 server {
     listen 80 default_server;
 
-    server_name  _;
+    server_name ${CMS_HOST} _;
 
     root   /var/www/web;
 
@@ -240,7 +240,7 @@ server {
 server {
     listen 443 ssl default_server;
     include partials/ssl.conf;
-    server_name  _;
+    server_name ${CMS_HOST} _;
 
     root   /var/www/web;
 
