@@ -87,7 +87,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 RUN apk --update add python3 nodejs npm git openssh && apk add g++ make
 
 COPY bin/src/phantomjs.sh /local/phantomjs.sh
-RUN . /local/phantomjs.sh
+RUN . /etc/profile && . /local/phantomjs.sh
 RUN npm install --global \
       gulp \
     && chown -R node:node /home/node/
