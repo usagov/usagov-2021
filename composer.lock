@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3644887d5882c5ed64374a70f9e630fa",
+    "content-hash": "9fa6a95842be3e328de390dbf7553030",
     "packages": [
         {
             "name": "alchemy/zippy",
@@ -7398,17 +7398,17 @@
         },
         {
             "name": "drupal/uswds_ckeditor_integration",
-            "version": "1.0.0",
+            "version": "1.0.0-beta10",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/uswds_ckeditor_integration.git",
-                "reference": "1.0.0"
+                "reference": "1.0.0-beta10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/uswds_ckeditor_integration-1.0.0.zip",
-                "reference": "1.0.0",
-                "shasum": "fe4f44af89394a7ae9bfd6e4035b642f614d93d1"
+                "url": "https://ftp.drupal.org/files/projects/uswds_ckeditor_integration-1.0.0-beta10.zip",
+                "reference": "1.0.0-beta10",
+                "shasum": "50a773572fd16b8519dee1c33dc8b7cfe78b959e"
             },
             "require": {
                 "drupal/ckeditor_templates": "^1.2",
@@ -7422,11 +7422,11 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "1.0.0",
-                    "datestamp": "1653420126",
+                    "version": "1.0.0-beta10",
+                    "datestamp": "1648155895",
                     "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
+                        "status": "not-covered",
+                        "message": "Beta releases are not covered by Drupal security advisories."
                     }
                 }
             },
@@ -7439,10 +7439,6 @@
                     "name": "Stephen Mustgrave (smustgrave)",
                     "homepage": "https://www.drupal.org/u/smustgrave",
                     "role": "Maintainer"
-                },
-                {
-                    "name": "smustgrave",
-                    "homepage": "https://www.drupal.org/user/3252890"
                 }
             ],
             "description": "Helps integrate some USWDS components into the ckeditor.",
@@ -13513,7 +13509,6 @@
         "drupal/scanner": 5,
         "drupal/stepbystep": 10,
         "drupal/term_reference_fancytree": 5,
-        "drupal/uswds_ckeditor_integration": 10,
         "drupal/uswds_paragraph_components": 20,
         "drupal/views_menu_children_filter": 5
     },

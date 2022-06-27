@@ -72,7 +72,7 @@
         "drupal/term_reference_tree": "^1.0",
         "drupal/tome": "^1.6",
         "drupal/uswds_base": "^2.4",
-        "drupal/uswds_ckeditor_integration": "^1.0@beta",
+        "drupal/uswds_ckeditor_integration": "1.0.0-beta10",
         "drupal/uswds_paragraph_components": "^2.0.x-dev@dev",
         "drupal/views_menu_children_filter": "^1.0@RC",
         "drupal/webform": "^6.0",
