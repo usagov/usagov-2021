@@ -3,14 +3,49 @@
 .sd-container {
   display: flex;
 
-    div {
-      padding-right: 20px;
-    }
+  div {
+    padding-right: 20px;
+  }
 
-    button.sd-go-btn {
-      border-radius: 8px;
-      border: 2px solid #a7d8e3;
-      background-color: #ccecf2;
-      padding: 10px 24px;
-    }
+  button.sd-go-btn {
+    border-radius: 8px;
+    border: 2px solid #a7d8e3;
+    background-color: #ccecf2;
+    padding: 10px 24px;
+  }
+}
+
+// State Directory Detail Page
+.usagov-sd-detail {
+  border-collapse: collapse;
+  width: 100%;
+
+  tr {
+    border: solid 2px lightgray;
+    padding: 1rem 1.4rem 1rem 1.4rem;
+    margin: 0;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #dfe1e2;
+  }
+}
+
+.usagov-directory-table tbody {
+  padding: 0;
+}
+
+.usagov-directory-table h3 {
+  margin: 0;
+  margin-bottom: 0.2rem;
+  font-weight: bold;
+}
+
+.usagov-directory-table p {
+  margin: 0;
+}
+
+.usagov-directory-table ul {
+  margin: 0;
+  padding-left: 1rem;
 }
