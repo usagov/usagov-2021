@@ -22,7 +22,7 @@
 }
 
 // State Directory Detail Page
-.usagov-sd-detail {
+.usagov-sd-table {
   border-collapse: collapse;
   width: 100%;
 
@@ -37,21 +37,21 @@
   }
 }
 
-.usagov-directory-table tbody {
+.usagov-sd-table tbody {
   padding: 0;
 }
 
-.usagov-directory-table h3 {
+.usagov-sd-table h3 {
   margin: 0;
   margin-bottom: 0.1rem;
   font-weight: bold;
 }
 
-.usagov-directory-table p {
+.usagov-sd-table p {
   margin: 0;
 }
 
-.usagov-directory-table ul {
+.usagov-sd-table ul {
   margin: 0;
   padding-left: 1rem;
 }
