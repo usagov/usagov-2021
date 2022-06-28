@@ -1,0 +1,22 @@
+TEST FILE
+
+
+{% if field_name == "field_title" %}
+        {% for item in items %}
+<div class="usa-accordion">
+  <h2 class="usa-accordion__heading">
+    <button
+      aria-controls={{item.content}}
+      aria-expanded="false"
+      class="usa-accordion__button"
+    >
+    <p>{{item.content}}</p> 
+    </button>
+  </h2>
+    <div class="usa-accordion__content usa-prose" id={{item.content}}>
+         <p>{{item.content}}</p>
+    </div>
+</div>
+   {% endfor %}
+{% endif %}
+
