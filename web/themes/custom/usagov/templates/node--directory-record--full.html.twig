@@ -1,22 +1,28 @@
-TEST FILE
+{{dd(content)}}
 
+<table class="usagov-directory-table">
+{% for key, item in content %}
+  {% if key == "field_official_website_primary" %}
+    <tr>
+      <td>
+        <h3>Website</h3>
+        <a href=item[0]>{{item[0]}}</a>
+      </td>
+    </tr>
+  {% endif %}
 
-{% if field_name == "field_title" %}
-        {% for item in items %}
-<div class="usa-accordion">
-  <h2 class="usa-accordion__heading">
-    <button
-      aria-controls={{item.content}}
-      aria-expanded="false"
-      class="usa-accordion__button"
-    >
-    <p>{{item.content}}</p> 
-    </button>
-  </h2>
-    <div class="usa-accordion__content usa-prose" id={{item.content}}>
-         <p>{{item.content}}</p>
-    </div>
-</div>
-   {% endfor %}
-{% endif %}
+  {% if key == "field_contact_link" %}
+    <tr>
+      <td>
+        <h3>Contact</h3>
+        <ul>
+          {% if key == "field_contact_link" %}
+            <li><a href=item[0]>{{item[0]}}</a></li>
+          {% endif %}
+        </ul>
+      </td>
+    </tr>
+  {% endif %}
 
+{% endfor %}
+</table>

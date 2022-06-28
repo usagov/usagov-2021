@@ -205,9 +205,12 @@ hr.bl-divider {
   width: 100%;
 
   tr {
-    border: solid 2px #F2F2F2;
+    border: solid 1.5px #d3d2d2;
     margin: 0;
-    padding: 2rem;
+  }
+
+  tr td {
+    padding: 1.4rem 2rem 1.4rem 2rem;
   }
 
   tr:nth-child(odd) td {
