@@ -207,14 +207,11 @@ hr.bl-divider {
   tr {
     border: solid 2px #F2F2F2;
     margin: 0;
+    padding: 2rem;
   }
 
   tr:nth-child(odd) td {
     background-color: #F2F2F2;
-  }
-
-  td {
-    padding: 2rem;
   }
 }
 
