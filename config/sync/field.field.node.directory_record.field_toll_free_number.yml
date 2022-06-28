@@ -1,0 +1,21 @@
+uuid: 0421958a-6934-4976-b221-f3b3fa29a07d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_toll_free_number
+    - node.type.directory_record
+  module:
+    - telephone
+id: node.directory_record.field_toll_free_number
+field_name: field_toll_free_number
+entity_type: node
+bundle: directory_record
+label: 'Toll-free Number'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: telephone
