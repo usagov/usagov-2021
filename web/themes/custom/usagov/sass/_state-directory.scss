@@ -2,9 +2,6 @@
 
 .sd-container {
   display: flex;
-  // justify-content: space-between;
-  // list-style: none;
-  // padding: 0;
 
   div {
     width:12rem;
@@ -16,11 +13,6 @@
     border-radius: 0.15rem;
     background-color: #ccecf2;
     text-align: center;
-    // line-height: 2rem;
-    // padding: 5px;
-    // display: block;
-    // height: 4rem;
-    // width: 4rem;
   }
 
   button.sd-go-btn:hover {
