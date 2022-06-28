@@ -119,11 +119,24 @@ else
   TOME_PUSH_NEW_CONTENT=1
 fi
 
-if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
+# if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   # VERBOSE MODE
   # aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
-  aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
-fi
+  # aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  www=/var/www &&\
+  html=${www}/html &&\
+  html_files=${html}/s3/files/ &&\
+  theme=${www}/web/themes/custom/usagov &&\
+  cd ${www} &&\
+  mkdir -p ${html_files}/js ${html_files}/css &&\
+  drush cr && drush cron &&\
+  drush -y s3fs-copy-local &&\
+  drush tome:static -y --uri=$URI --process-count=10 --path-count=10 &&\
+  sync $theme/fonts $theme/fonts && sync $theme/images $theme/images &&\
+  aws s3 sync s3://$S3_BUCKET/cms/public/css ${html_files}/css &&\
+  aws s3 sync s3://$S3_BUCKET/cms/public/js ${html_files}/js &&\
+  aws s3 sync ${html} s3://$S3_BUCKET/web/  --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+# fi
 
 if [ -d "$RENDER_DIR" ]; then
   echo "Removing Render Dir: $RENDER_DIR" | tee -a $TOMELOG
