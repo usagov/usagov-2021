@@ -1,28 +1,61 @@
 {{dd(content)}}
 
 <table class="usagov-directory-table">
-{% for key, item in content %}
-  {% if key == "field_official_website_primary" %}
-    <tr>
-      <td>
-        <h3>Website</h3>
-        <a href=item[0]>{{item[0]}}</a>
-      </td>
-    </tr>
-  {% endif %}
 
-  {% if key == "field_contact_link" %}
-    <tr>
-      <td>
-        <h3>Contact</h3>
-        <ul>
-          {% if key == "field_contact_link" %}
-            <li><a href=item[0]>{{item[0]}}</a></li>
-          {% endif %}
-        </ul>
-      </td>
-    </tr>
-  {% endif %}
+  <tr>
+    <td>
+      <h3>Website</h3>
+      <a href=content["field_official_website_primary"][0]>{{content["field_official_website_primary"][0]}}</a>
+    </td>
+  </tr>
 
-{% endfor %}
+  <tr>
+    <td>
+      <h3>Contact</h3>
+      <ul>
+          <li><a href=/>{{content["field_contact_link"][0]}}</a></li>
+          {% for key, obj in content["field_contact_link_additional"] %}
+            {% if key matches '/^\\d+$/' %}
+                <li><a href=/>{{content["field_contact_link_additional"][key]}}</a></li>
+            {% endif %}
+          {% endfor %}
+      </ul>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <h3>Phone Number</h3>
+      <p>{{content["field_phone_number"][0]}}</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <h3>Find an Office Near You</h3>
+      
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <h3>Main Address</h3>
+      {% for key, obj in content["field_street_1"] %}
+        {% if key matches '/^\\d+$/' %}
+          <p>{{content["field_street_1"][0]}}</p>
+        {% endif %}
+      {% endfor %}
+      {% for key, obj in content["field_street_2"] %}
+        {% if key matches '/^\\d+$/' %}
+          <p>{{content["field_street_2"][0]}}</p>
+        {% endif %}
+      {% endfor %}
+      {% for key, obj in content["field_street_3"] %}
+        {% if key matches '/^\\d+$/' %}
+          <p>{{content["field_street_3"][0]}}</p>
+        {% endif %}
+      {% endfor %}
+    </td>
+  </tr>
+
 </table>
