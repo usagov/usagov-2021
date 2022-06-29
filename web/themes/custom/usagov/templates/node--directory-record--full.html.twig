@@ -1,0 +1,67 @@
+{{ dd(content) }}
+
+<table class="usagov-sd-table">
+
+  <tr>
+    <td>
+      <h3>State Government Website</h3>
+      <a href=content["field_official_website_primary"][0]>State of {{content["field_state_abbr"][0]}}</a>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <h3>Governor</h3>
+      <p><a href=content["field_governor"][0]>{{content["field_governor"][0]}}</a></p>
+      <p><a href=content["field_governor_contact"][0]>{{content["field_governor_contact"][0]}}</a></p>
+      <h3>Phone</h3>
+      <p>{{content["field_phone_number"][0]}}</p>
+      <h3>Main Address</h3>
+      {% for key, obj in content["field_street_1"] %}
+        {% if key matches '/^\\d+$/' %}
+          <p>{{content["field_street_1"][0]}}</p>
+        {% endif %}
+      {% endfor %}
+      {% for key, obj in content["field_street_2"] %}
+        {% if key matches '/^\\d+$/' %}
+          <p>{{content["field_street_2"][0]}}</p>
+        {% endif %}
+      {% endfor %}
+      {% for key, obj in content["field_street_3"] %}
+        {% if key matches '/^\\d+$/' %}
+          <p>{{content["field_street_3"][0]}}</p>
+        {% endif %}
+      {% endfor %}
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <h3>Congress Members</h3>
+      <p><a href=content["field_house_of_reps"][0]>
+        House of Representatives
+      </a></p>
+      <p><a href=content["field_senator"][0]>
+        Senators
+      </a></p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <h3>Offices in Your State</h3>
+       <p><a href=/>{{content["field_social_services"][0]}}</a></p>
+       <p><a href=/>{{content["field_district_atto"][0]}}</a></p>
+       <p><a href=/>{{content["field_consumer_pro"][0]}}</a></p>
+       {# <p><a href=/>{{content["field_social_services"][0]}}</a></p>
+       <p><a href=/>{{content["field_social_services"][0]}}</a></p>
+       <p><a href=/>{{content["field_social_services"][0]}}</a></p> #}
+       <p><a href=/>{{content["field_education_department"][0]}}</a></p>
+       <p><a href=/>{{content["field_emergency_management_a"][0]}}</a></p>
+       {# <p><a href=/>{{content["field_health_department"][0]}}</a></p> #}
+       <p><a href=/>{{content["field_health_department"][0]}}</a></p>
+       <p><a href=/>{{content["field_motor_vehicle_office"][0]}}</a></p>
+    </td>
+  </tr>
+
+</table>
