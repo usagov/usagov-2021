@@ -208,7 +208,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - conf_gradual_update
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -218,7 +217,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - conf_gradual_update
 
       - approve-dev-deployment:
           type: approval
@@ -226,17 +224,13 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: 
-              - dev
-              - conf_gradual_update
+              only: dev
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
-              only: 
-              - dev
-              - conf_gradual_update
+              only: dev
 
       - approve-stage-deployment:
           type: approval
