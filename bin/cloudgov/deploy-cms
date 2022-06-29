@@ -32,4 +32,4 @@ cf push cms --docker-image $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
 # cf set-env cms http_proxy "https://user:pass@$EGRESS_ROUTE:8080"
 # cf set-env cms https_proxy "https://user:pass@$EGRESS_ROUTE:8080"
 
-$SCRIPT_DIR/app-egress-setup cms $EGRESS_SPACE
+# $SCRIPT_DIR/app-egress-setup cms $EGRESS_SPACE

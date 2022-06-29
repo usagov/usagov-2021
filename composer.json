@@ -142,6 +142,9 @@
             },
             "drupal/mmf_core_fields": {
                 "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
+            },
+            "drupal/tome": {
+                "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch"
             }
         }
     }
