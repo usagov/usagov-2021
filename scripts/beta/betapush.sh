@@ -12,7 +12,7 @@ cp -rf $theme/fonts/* $html/themes/custom/usagov/fonts/ && cp -rf $theme/images/
   drush -y s3fs-copy-local --root=${www} 
 
 if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
-  ./scripts/beta/betaupdate.sh
+  ${www}/scripts/beta/betaupdate.sh
 
   ## every 15 seconds commands
   #write out current crontab
