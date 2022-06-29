@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# This script will attempt to create a container image
+# to be used when launching cloud.gov images
+#
+
+
+DOCKERUSER=dnark
+DOCKERREPO=usagov-2021
+
+GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+CONTAINERTAG=${1:-$GITBRANCH}
+
+CONTAINERTAG2=${2}
+
+if [ -z "$CONTAINERTAG" ]
+then
+      echo "Must specify a container tag to build"
+      exit 1;
+fi;
+
+echo "Building ${DOCKERUSER}/${DOCKERREPO}:egress-${CONTAINERTAG} ${CONTAINERTAG2}"
+
+docker build --force-rm \
+    -t $DOCKERUSER/$DOCKERREPO:egress-$CONTAINERTAG \
+    -f .docker/Dockerfile-egress .docker/src-egress
+
+docker run --name egress-builder-tmp --rm -d $DOCKERUSER/$DOCKERREPO:egress-$CONTAINERTAG tail -f /dev/null
+docker cp egress-builder-tmp:/usr/bin/caddy .docker/src-egress/caddy
+docker stop egress-builder-tmp

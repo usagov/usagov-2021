@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-#
-# This script will attempt to setup the cms APP
-# by launching apps and creating their required services
-#
-
-# . $SCRIPT_DIR/deploy-cms
-# . $SCRIPT_DIR/deploy-waf
-

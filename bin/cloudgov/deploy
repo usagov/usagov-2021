@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# This script will attempt to setup the cms APP
+# by launching apps and creating their required services
+#
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+. $SCRIPT_DIR/deploy-cms
+. $SCRIPT_DIR/deploy-waf
