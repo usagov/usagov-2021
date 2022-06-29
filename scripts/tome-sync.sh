@@ -123,29 +123,11 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   # VERBOSE MODE
   # aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
-  # rsync
-  S3_EXTRA_PARAMS=""
-  if [ "${APP_SPACE}" = "local" ]; then
-    S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
-  fi
-  www=/var/www &&\
-  html=${www}/html &&\
-  html_files=${html}/s3/files/ &&\
-  theme=${www}/web/themes/custom/usagov &&\
-  URI=${1:-https://beta.usa.gov} &&\
-  AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.hostname') &&\
-  mkdir -p ${html_files}/js ${html_files}/css $html/themes/custom/usagov/fonts $html/themes/custom/usagov/images &&\
-  
-  ## Run once
-  drush cr --root=${www} && drush cron --root=${www} &&\
-  drush -y s3fs-copy-local --root=${www} 
 
-  ## Run every 15 seconds
-  drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www} &&\
-  cp -rf $theme/fonts/* $html/themes/custom/usagov/fonts/ && cp -rf $theme/images/* $html/themes/custom/usagov/images &&\
-  aws s3 sync s3://$S3_BUCKET/cms/public/css ${html_files}/css &&\
-  aws s3 sync s3://$S3_BUCKET/cms/public/js ${html_files}/js &&\
-  aws s3 sync ${html} s3://$S3_BUCKET/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 
+  #################################
+  # rsync
+  
+  #################################
 fi
 
 if [ -d "$RENDER_DIR" ]; then
