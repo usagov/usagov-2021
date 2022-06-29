@@ -39,6 +39,9 @@ settings:
     -
       value: Quasi-official
       label: Quasi-official
+    -
+      value: None
+      label: None
   allowed_values_function: ''
 module: options
 locked: false
