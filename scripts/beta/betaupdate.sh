@@ -14,9 +14,10 @@ aws configure set aws_access_key_id $aws_access_key_id
 aws configure set aws_secret_access_key $aws_secret_access_key
 aws configure set default.region $default_region
 ###
-
+echo 'copy css and js to html'
 aws s3 sync s3://$S3_BUCKET/cms/public/css ${html_files}/css &&\
 aws s3 sync s3://$S3_BUCKET/cms/public/js ${html_files}/js
+echo 'Run tome static'
 drush cr --root=${www} && drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www} &&\
 echo 'push html to s3 bucket web directory' &&\
 aws s3 sync ${html} s3://$bucket/web/  --acl public-read 

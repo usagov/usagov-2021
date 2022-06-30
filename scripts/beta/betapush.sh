@@ -28,7 +28,7 @@ else
   cp -rf ${www}/s3/local/cms/public/js ${html_files}/js
   echo 'Run tome static'
   tomestatic="drush cr --root=${www} && drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www}"
-  ${tomestatic}
+  drush cr --root=${www} && drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www}
   crontab -l > betacmd &&\
   sed -e '/drush tome:static/d' ./betacmd > betacmd.t && mv betacmd.t betacmd &&\
   echo "*/15 * * * * ${tomestatic}" >> betacmd &&\
