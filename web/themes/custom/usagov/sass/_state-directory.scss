@@ -25,15 +25,19 @@
 .usagov-sd-table {
   border-collapse: collapse;
   width: 100%;
+  margin-bottom: 75px;
 
   tr {
-    border: solid 2px lightgray;
-    padding: 1rem 1.4rem 1rem 1.4rem;
+    border: solid 1.5px #d3d2d2;
     margin: 0;
   }
 
+  tr td {
+    padding: 2.25rem 2rem;
+  }
+
   tr:nth-child(odd) td {
-    background-color: #dfe1e2;
+    background-color: #f2f2f2;
   }
 }
 

@@ -1,5 +1,6 @@
-{# {{ dd(content) }} #}
-
+<p class="usa-intro">
+  {{content["field_page_intro"][0]}}
+</p>
 <table class="usagov-sd-table">
 
   <tr>
@@ -11,55 +12,70 @@
 
   <tr>
     <td>
+      <ul class="usa-list usa-list--unstyled">
       <h3>Governor</h3>
-      <p><a href=content["field_governor"][0]>{{content["field_governor"][0]}}</a></p>
-      <p><a href=content["field_governor_contact"][0]>{{content["field_governor_contact"][0]}}</a></p>
+      <li><a href=content["field_governor"][0]>{{content["field_governor"][0]}}</a></li>
+      <li><a href=content["field_governor_contact"][0]>{{content["field_governor_contact"][0]}}</a></li>
+      <br/>
       <h3>Phone</h3>
-      <p>{{content["field_phone_number"][0]}}</p>
+      <li>{{content["field_phone_number"][0]}}</li>
+      <br/>
       <h3>Main Address</h3>
       {% for key, obj in content["field_street_1"] %}
         {% if key matches '/^\\d+$/' %}
-          <p>{{content["field_street_1"][0]}}</p>
+          <li>{{content["field_street_1"][0]}}</li>
         {% endif %}
       {% endfor %}
       {% for key, obj in content["field_street_2"] %}
         {% if key matches '/^\\d+$/' %}
-          <p>{{content["field_street_2"][0]}}</p>
+          <li>{{content["field_street_2"][0]}}</li>
         {% endif %}
       {% endfor %}
       {% for key, obj in content["field_street_3"] %}
         {% if key matches '/^\\d+$/' %}
-          <p>{{content["field_street_3"][0]}}</p>
+          <li>{{content["field_street_3"][0]}}</li>
         {% endif %}
       {% endfor %}
+      </ul>
     </td>
   </tr>
 
   <tr>
     <td>
       <h3>Congress Members</h3>
-      <p><a href={{content["field_house_of_reps"][0]}}>
-        House of Representatives
-      </a></p>
-      <p><a href={{content["field_senator"][0]}}>
-        Senators
-      </a></p>
+      <ul class="usa-list usa-list--unstyled">
+        {# TODO: need to be real fields #}
+        <li>
+          <a href={{content["field_house_of_reps"][0]}}>
+            House of Representatives
+          </a>
+        </li>
+        <li>
+          <a href={{content["field_senator"][0]}}>
+            Senators
+          </a>
+        </li>
+      </ul>
     </td>
   </tr>
 
   <tr>
     <td>
       <h3>Offices in Your State</h3>
-       <p><a href=/>{{content["field_social_services"][0]}}</a></p>
-       <p><a href=/>{{content["field_district_attorneys"][0]}}</a></p>
-       <p><a href=/>{{content["field_consumer_protection"][0]}}</a></p>
-       {# <p><a href=/>{{content["field_corrections_dept"][0]}}</a></p> #}
-       <p><a href=/>{{content["field_local_governments"][0]}}</a></p>
-       <p><a href=/>{{content["field_education_department"][0]}}</a></p>
-       <p><a href=/>{{content["field_emergency_management"][0]}}</a></p>
-       {# <p><a href=/>{{content["field_election_office"][0]}}</a></p> #}
-       <p><a href=/>{{content["field_health_department"][0]}}</a></p>
-       <p><a href=/>{{content["field_motor_vehicle_office"][0]}}</a></p>
+      <ul class="usa-list usa-list--unstyled">
+       <li><a href=/>{{content["field_social_services"][0]}}</a></li>
+       <li><a href=/>{{content["field_district_attorneys"][0]}}</a></li>
+       <li><a href=/>{{content["field_consumer_protection"][0]}}</a></li>
+       {# TODO: needs to be real field #}
+       <li><a href=/>{{content["field_corrections_dept"][0]}}</a>Corrections Department</li>
+       <li><a href=/>{{content["field_local_governments"][0]}}</a></li>
+       <li><a href=/>{{content["field_education_department"][0]}}</a></li>
+       <li><a href=/>{{content["field_emergency_management"][0]}}</a></li>
+       {# TODO: needs to be real field #}
+       <li><a href=/>{{content["field_election_office"][0]}}</a>Election Office</li>
+       <li><a href=/>{{content["field_health_department"][0]}}</a></li>
+       <li><a href=/>{{content["field_motor_vehicle_office"][0]}}</a></li>
+      </ul>
     </td>
   </tr>
 
