@@ -23,7 +23,8 @@ if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
   rm betacmd
 else
   drushc='/var/www/vendor/bin/drush'
-  tomestatic="${drushc} cr --root=${www} && ${drushc} tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www}"
+  tomestatic="drush cr --root=${www} && drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www}"
+  ${tomestatic}
   crontab -l > betacmd &&\
   sed -e '/drush tome:static/d' ./betacmd > betacmd.t && mv betacmd.t betacmd &&\
   echo "*/15 * * * * ${tomestatic}" >> betacmd &&\
