@@ -23,6 +23,10 @@ if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
   rm betacmd
 else
   drushc='/var/www/vendor/bin/drush'
+  echo 'copy css and js to html'
+  cp -rf ${www}/s3/local/cms/public/css ${html_files}/css &&\
+  cp -rf ${www}/s3/local/cms/public/js ${html_files}/js
+  echo 'Run tome static'
   tomestatic="drush cr --root=${www} && drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www}"
   ${tomestatic}
   crontab -l > betacmd &&\
