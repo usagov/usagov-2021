@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+www=/var/www
+sleep 300
+. ${www}/scripts/beta/betapush.sh
