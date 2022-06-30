@@ -18,7 +18,7 @@ if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
   #write out current crontab
   crontab -l > betacmd &&\
   sed -e '/drush tome:static/d' ./betacmd > betacmd.t && mv betacmd.t betacmd &&\
-  echo "*/15 * * * * . ${www}/scripts/beta/betaupdate.sh" >> betacmd &&\
+  echo "*/30 * * * * . ${www}/scripts/beta/betaupdate.sh" >> betacmd &&\
   crontab betacmd &&\
   rm betacmd
 else
@@ -31,7 +31,7 @@ else
   drush cr --root=${www} && drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www}
   crontab -l > betacmd &&\
   sed -e '/drush tome:static/d' ./betacmd > betacmd.t && mv betacmd.t betacmd &&\
-  echo "*/15 * * * * ${tomestatic}" >> betacmd &&\
+  echo "*/30 * * * * ${tomestatic}" >> betacmd &&\
   crontab betacmd &&\
   rm betacmd
 fi
