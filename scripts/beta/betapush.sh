@@ -17,13 +17,15 @@ if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
   ## every 15 seconds commands
   #write out current crontab
   crontab -l > betacmd &&\
+  sed -e '/drush tome:static/d' ./betacmd > betacmd.t && mv betacmd.t betacmd &&\
   echo "*/15 * * * * . ${www}/scripts/beta/betaupdate.sh" >> betacmd &&\
   crontab betacmd &&\
   rm betacmd
 else
   tomestatic="drush cr --root=${www} && drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www}"
   crontab -l > betacmd &&\
-  echo "*/15 * * * * . ${tomestatic}" >> betacmd &&\
+  sed -e '/drush tome:static/d' ./betacmd > betacmd.t && mv betacmd.t betacmd &&\
+  echo "*/15 * * * * nginx ${tomestatic}" >> betacmd &&\
   crontab betacmd &&\
   rm betacmd
 fi
