@@ -20,4 +20,10 @@ if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
   echo "*/15 * * * * . ${www}/scripts/beta/betaupdate.sh" >> betacmd &&\
   crontab betacmd &&\
   rm betacmd
+else
+  tomestatic="drush cr --root=${www} && drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www}"
+  crontab -l > betacmd &&\
+  echo "*/15 * * * * . ${tomestatic}" >> betacmd &&\
+  crontab betacmd &&\
+  rm betacmd
 fi
