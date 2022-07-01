@@ -11,8 +11,8 @@ if [ -f $SCRIPT_DIR/env.local ]; then
   . $SCRIPT_DIR/env.local
 fi
 
-DOCKERUSER=dnark
-DOCKERREPO=usagov-2021
+DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CONTAINERTAG=${1:-latest}
 
 # Need to create 'external-domain' service for custom routes: *.usa.gov
@@ -94,7 +94,4 @@ for url in "${HOST_NAMES[@]}"; do
   cf bind-route-service "${APPS_DOMAIN}" "${ROUTE_SERVICE_NAME}" --hostname "${url}";
 done
 
-# make sure this app can talk to the egress proxy
-cf add-network-policy waf $EGRESS_APP_NAME --port $EGRESS_PORT -s $EGRESS_SPACE -o $ORG
-cf set-env waf http_proxy "https://user:pass@$EGRESS_ROUTE:8080"
-cf set-env waf https_proxy "https://user:pass@$EGRESS_ROUTE:8080"
+$SCRIPT_DIR/setup-egress-for-apps waf

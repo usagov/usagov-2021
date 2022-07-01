@@ -3,8 +3,6 @@
 # This script will attempt to deploy a cms app by tag
 #
 
-# EGRESS_SPACE=dan-egress
-
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
@@ -22,9 +20,6 @@ CONTAINERTAG=${1:-latest}
 
 APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
 APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
-
-EGRESS_SPACE="$APP_SPACE-egress"
-EGRESS_ORG="$APP_ORG"
 
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
@@ -46,9 +41,4 @@ if [ -z "$WWW_HOST" ]; then
   cf map-route cms usa.gov --hostname www-$APP_SPACE
 fi
 
-# make sure this app can talk to the egresss proxy
-# cf add-network-policy waf $EGRESS_APP_NAME --port $EGRESS_PORT -s $EGRESS_SPACE -o $ORG
-# cf set-env cms http_proxy "https://user:pass@$EGRESS_ROUTE:8080"
-# cf set-env cms https_proxy "https://user:pass@$EGRESS_ROUTE:8080"
-
-# $SCRIPT_DIR/app-egress-setup cms $EGRESS_SPACE
+$SCRIPT_DIR/setup-egress-for-apps cms
