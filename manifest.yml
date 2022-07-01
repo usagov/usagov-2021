@@ -2,13 +2,14 @@
 applications:
 - name: cms
   docker:
-    image: dnark/usagov-2021:cms-egress
-  memory: 512M
-  disk_quota: 2G
+    image: dnark/usagov-2021:cms-latest
+  memory: 1.5G
+  disk_quota: 4G
   timeout: 180
   services:
     - database
     - secrets
+    - secauthsecrets
     - storage
     - dbstorage
   instances: 1
