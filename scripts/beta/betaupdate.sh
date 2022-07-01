@@ -1,9 +1,12 @@
 #!/bin/sh
-www=/var/www &&\
-html=${www}/html &&\
-html_files=${html}/s3/files/ &&\
-theme=${www}/web/themes/custom/usagov &&\
-URI=${1:-https://beta.usa.gov}
+while getopts c:f:h: flag
+do
+    case "${flag}" in
+        c) commands=${OPTARG};;
+        f) html_files=${OPTARG};;
+        h) html=${OPTARG};;
+    esac
+done
 
 ### login to aws & every 15 seconds
 aws_access_key_id=`echo $VCAP_SERVICES | jq '.s3[] | select(.name=="storage") | .credentials.access_key_id' | tr -d '"'`
@@ -18,6 +21,6 @@ echo 'copy css and js to html'
 aws s3 sync s3://$S3_BUCKET/cms/public/css ${html_files}/css &&\
 aws s3 sync s3://$S3_BUCKET/cms/public/js ${html_files}/js
 echo 'Run tome static'
-drush cr --root=${www} && drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www} &&\
+eval ${commands}
 echo 'push html to s3 bucket web directory' &&\
 aws s3 sync ${html} s3://$bucket/web/  --acl public-read 
