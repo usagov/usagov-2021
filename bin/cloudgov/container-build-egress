@@ -5,8 +5,8 @@
 #
 
 
-DOCKERUSER=dnark
-DOCKERREPO=usagov-2021
+DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 CONTAINERTAG=${1:-$GITBRANCH}
@@ -25,6 +25,7 @@ docker build --force-rm \
     -t $DOCKERUSER/$DOCKERREPO:egress-$CONTAINERTAG \
     -f .docker/Dockerfile-egress .docker/src-egress
 
-docker run --name egress-builder-tmp --rm -d $DOCKERUSER/$DOCKERREPO:egress-$CONTAINERTAG tail -f /dev/null
+docker run --name egress-builder-tmp -d $DOCKERUSER/$DOCKERREPO:egress-$CONTAINERTAG tail -f /dev/null
 docker cp egress-builder-tmp:/usr/bin/caddy .docker/src-egress/caddy
 docker stop egress-builder-tmp
+docker rm egress-builder-tmp
