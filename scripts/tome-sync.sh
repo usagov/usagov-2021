@@ -123,11 +123,6 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   # VERBOSE MODE
   # aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
-
-  #################################
-  # rsync
-  
-  #################################
 fi
 
 if [ -d "$RENDER_DIR" ]; then
