@@ -38,4 +38,6 @@ done
 
 . /opt/modsecurity/activate-rules.sh
 
+exec ./cert-watcher.sh &
+
 exec "$@"
