@@ -3,7 +3,7 @@
 # This script will attempt to deploy a cms app by tag
 #
 
-EGRESS_SPACE=dan-egress
+# EGRESS_SPACE=dan-egress
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -20,12 +20,31 @@ fi
 
 CONTAINERTAG=${1:-latest}
 
+APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
+APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
+
+EGRESS_SPACE="$APP_SPACE-egress"
+EGRESS_ORG="$APP_ORG"
+
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
 
 # launch the apps
 echo "Deploying $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG"
 cf push cms --docker-image $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+
+APP_HOSTS=$(cf routes | grep -e ' cms$' | awk '{print $2}')
+CMS_HOSTS=$(echo "$APP_HOSTS" | grep -e "^cms-$APP_SPACE")
+WWW_HOSTS=$(echo "$APP_HOSTS" | grep -e "^beta-$APP_SPACE")
+
+if [ -z "$CMS_HOST" ]; then
+  cf create-route usa.gov --hostname cms-$APP_SPACE
+  cf map-route cms usa.gov --hostname cms-$APP_SPACE
+fi
+if [ -z "$WWW_HOST" ]; then
+  cf create-route usa.gov --hostname www-$APP_SPACE
+  cf map-route cms usa.gov --hostname www-$APP_SPACE
+fi
 
 # make sure this app can talk to the egresss proxy
 # cf add-network-policy waf $EGRESS_APP_NAME --port $EGRESS_PORT -s $EGRESS_SPACE -o $ORG

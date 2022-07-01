@@ -1,51 +1,78 @@
 #!/usr/bin/env bash
 
-EGRESS_SPACE=${1:-dev-egress}
-ORG=gsa-tts-usagov
+STARTSPACE=$( cf target | grep space: | awk '{ print $2 }')
+STARTORG=$(   cf target | grep org:   | awk '{ print $2 }')
+
+EGRESS_SPACE=${1:-$STARTSPACE}
+EGRESS_ORG=${2:-$STARTORG}
+
+# default staging asgs: dns public_network trusted_local_networks
+# default running asgs: dns
+STAGING_SECURITY_GROUPS="dns trusted_local_networks_egress public_networks_egress"
+RUNNING_SECURITY_GROUPS="dns trusted_local_networks_egress public_networks_egress"
+
+DENIED_STAGING_SECURITY_GROUPS=""
+DENIED_RUNNING_SECURITY_GROUPS=""
+
+# If DRYRUN is set, don't run the commands, but echo them.
+if [ -n "${DRYRUN}" ]; then
+    output="echo # "
+fi
 
 # create space
 if cf space $EGRESS_SPACE > /dev/null 2>&1; then
-  echo "space $EGRESS_SPACE already exists"
+  echo "Space $EGRESS_SPACE already exists"
 else
-  echo "create space $EGRESS_SPACE"
-  echo "cf create-space $EGRESS_SPACE"
+  echo "Create space $EGRESS_SPACE"
+  $output cf create-space $EGRESS_SPACE
 fi
-
-# # create security group
-# if cf security-group $EGRESS_ASG > /dev/null 2>&1; then
-#   echo "security-group $EGRESS_SPACE already exists"
-# else
-#   echo "create security-group $EGRESS_SPACE"
-# fi
 
 # create service account
 if cf service cloud-gov-service-account | grep cloud-gov-service-account | grep cci-${EGRESS_SPACE}-service-account > /dev/null 2>&1; then
-  echo "service-account cci-${EGRESS_SPACE}-service-account already exists"
+  echo "Service-account cci-${EGRESS_SPACE}-service-account already exists"
 else
-  echo "create service-account cci-${EGRESS_SPACE}-service-account"
-  echo "cf create-service cloud-gov-service-account space-deployer cci-${EGRESS_SPACE}-service-account"
-  echo "cf create-service-key cci-${EGRESS_SPACE}-service-account cci-${EGRESS_SPACE}-service-key"
-  echo "cf service-key cci-${EGRESS_SPACE}-service-account cci-${EGRESS_SPACE}-service-key"
+  echo "Create service-account cci-${EGRESS_SPACE}-service-account"
+  $output cf create-service cloud-gov-service-account space-deployer cci-${EGRESS_SPACE}-service-account
+  $output cf create-service-key cci-${EGRESS_SPACE}-service-account cci-${EGRESS_SPACE}-service-key
+  $output cf service-key cci-${EGRESS_SPACE}-service-account cci-${EGRESS_SPACE}-service-key
 fi
 
 # setup asg network for staging lifecycle
-STAGING_SECURITY_GROUPS="public_networks dns trusted_local_networks trusted_local_networks_egress"
 for SECURITY_GROUP in $STAGING_SECURITY_GROUPS; do
   if cf security-groups | grep $EGRESS_SPACE | grep -e 'staging$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
     echo "$SECURITY_GROUP already bound to $EGRESS_SPACE during 'staging' lifecycle"
   else
-    echo "bind $SECURITY_GROUP to $EGRESS_SPACE during 'staging' lifecycle"
-    echo "cf bind-security-group $SECURITY_GROUP $ORG --space $EGRESS_SPACE --lifecycle staging"
+    echo "Binding $SECURITY_GROUP to $EGRESS_SPACE during 'staging' lifecycle"
+    $output cf bind-security-group $SECURITY_GROUP $EGRESS_ORG --space $EGRESS_SPACE --lifecycle staging
   fi
 done
 
 # setup asg network for running lifecycle
-RUNNING_SECURITY_GROUPS="public_networks_egress dns"
 for SECURITY_GROUP in $RUNNING_SECURITY_GROUPS; do
-  if cf security-groups | grep $EGRESS_SPACE | grep -e 'running$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+  if cf security-groups 2>&1 | grep " $EGRESS_SPACE " | grep -e ' running$' | grep -e '^'$SECURITY_GROUP' ' > /dev/null; then
     echo "$SECURITY_GROUP already bound to $EGRESS_SPACE during 'running' lifecycle"
   else
-    echo "bind $SECURITY_GROUP to $EGRESS_SPACE during 'running' lifecycle"
-    echo "cf bind-security-group $SECURITY_GROUP $ORG --space $EGRESS_SPACE --lifecycle running"
+    echo "Binding $SECURITY_GROUP to $EGRESS_SPACE during 'running' lifecycle"
+    $output cf bind-security-group $SECURITY_GROUP $EGRESS_ORG --space $EGRESS_SPACE --lifecycle running
+  fi
+done
+
+# setup asg network for staging lifecycle
+for SECURITY_GROUP in $DENIED_STAGING_SECURITY_GROUPS; do
+  if cf security-groups | grep $APP_SPACE | grep -e 'staging$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "Un-Binding $SECURITY_GROUP from $APP_SPACE during 'staging' lifecycle"
+    $output cf unbind-security-group $SECURITY_GROUP $APP_ORG --space $APP_SPACE --lifecycle staging
+  else
+    echo "$SECURITY_GROUP already unbound to $APP_SPACE during 'staging' lifecycle"
+  fi
+done
+
+# setup asg network for running lifecycle
+for SECURITY_GROUP in $DENIED_RUNNING_SECURITY_GROUPS; do
+  if cf security-groups | grep $APP_SPACE | grep -e 'running$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "Un-Binding $SECURITY_GROUP to $APP_SPACE during 'running' lifecycle"
+    $output cf unbind-security-group $SECURITY_GROUP $APP_ORG --space $APP_SPACE --lifecycle running
+  else
+    echo "$SECURITY_GROUP already unbound to $APP_SPACE during 'running' lifecycle"
   fi
 done
