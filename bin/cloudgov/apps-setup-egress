@@ -64,7 +64,7 @@ if [ -z "${appnames}" ]; then
     exit 1
 fi
 
-egressspace=${2:-${startspace}-egress}
+egressspace=${2:-dan-egress}
 egressorg=${3:-$startorg}
 applist="${appnames//,/ }"
 
@@ -94,20 +94,21 @@ proxyname=""
 # Try to switch to the egress org+space, error out if it's not there
 cf target -o "$egressorg" -s "$egressspace" > /dev/null 2>&1 ||
     (echo "ERROR: Space ${egressorg}/${egressspace} is not available!" && exit 1)
+
 echo "Using Egress Space ${egressorg}/${egressspace}"
 if [ -z "$proxyname" ]; then
     egressapps=$(cf apps | tail -n +4 | awk '{print $1}')
-    echo "Egress apps to choose from: $egressapps"
-    proxyname=$(echo $egressapps | grep proxy | head -n 1 || echo "")
-    echo "Egress app named 'proxy': $proxyname"
+    echo "Existing egress apps to choose from: $egressapps"
+    proxyname=$(echo $egressapps | grep -e "^${startspace}-proxy\b" | head -n 1 || echo "")
+    echo "Existing Egress app named 'proxy': $proxyname"
     if [ -z "$proxyname" ]; then
-      proxyname=$(echo $egressapps | grep egress | head -n 1 || echo "")
-      echo "Egress app named 'egress': $proxyname"
+      proxyname=$(echo $egressapps | grep "^${startspace}-egress" | head -n 1 || echo "")
+      echo "Existing Egress app named 'egress': $proxyname"
     fi
 fi
 if [ -z "$proxyname" ]; then
-    echo "Missing egress proxy application!"
-    exit 1
+    echo "No existing egress proxy application"
+    proxyname="${startspace}-proxy"
 fi
 echo "Using egress proxy app: $proxyname"
 
@@ -139,10 +140,10 @@ done
 echo "Using buckets: $buckerhosts"
 
 # We need these files to exist for each app, even if they're empty.
-echo "Touching $SCRIPT_DIR/app-egress-deny.acl"
-touch $SCRIPT_DIR/app-egress-deny.acl
-echo "Touching $SCRIPT_DIR/app-egress-allow.acl"
-touch $SCRIPT_DIR/app-egress-allow.acl
+echo "Touching $SCRIPT_DIR/apps-egress-deny.acl"
+touch $SCRIPT_DIR/apps-egress-deny.acl
+echo "Touching $SCRIPT_DIR/apps-egress-allow.acl"
+touch $SCRIPT_DIR/apps-egress-allow.acl
 
 # Assemble vars.yml file content
 
@@ -152,16 +153,16 @@ password="$(uuidgen)"
 
 # Auto-allow bound buckets
 echo "Gather ACLs including buckets"
-proxydeny=$(  cat $SCRIPT_DIR/app-egress-deny.acl || echo "" )
-proxyallow=$( cat $SCRIPT_DIR/app-egress-allow.acl <(echo "$buckethosts") || echo "" )
+proxydeny=$(  cat $SCRIPT_DIR/apps-egress-deny.acl || echo "" )
+proxyallow=$( cat $SCRIPT_DIR/apps-egress-allow.acl <(echo "$buckethosts") || echo "" )
 
 # Normalize into a YAML multiline block form
 echo "Normalize varfile yaml"
 proxydeny=$(  echo "$proxydeny"  | sed 's/ \{1,\}/\n/g' | sed '/^\s*$/d' | sed 's/^\s*/  /'  )
 proxyallow=$( echo "$proxyallow" | sed 's/ \{1,\}/\n/g' | sed '/^\s*$/d' | sed 's/^\s*/  /'  )
 
-echo "Create $SCRIPT_DIR/app-egress-vars.yml"
-touch $SCRIPT_DIR/app-egress-vars.yml
+echo "Create ./manifest-egress-vars.yml"
+touch ./manifest-egress-vars.yml
 echo "proxyname: $proxyname
 hostname: $proxyname
 username: $username
@@ -177,26 +178,16 @@ echo "Deploy Egress Proxy App"
 echo "target"
 $output cf target -o "$egressorg" -s "$egressspace" 2>&1 > /dev/null
 echo "push proxy from manifest-egress."
-$output cf push proxy -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
+$output cf push $proxyname -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
+$output cf push $proxyname -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
 if [ -n "${DRYRUN}" ]; then
     echo "# vars-file content:"
     echo "$(cat ./manifest-egress-vars.yml | sed -e 's/^/#  -->/')"
 fi
 
 # add proxy setting to each app and restart
-echo "Configure Egress settings for Apps"
-echo "target"
 $output cf target -o "$startorg" -s "$startspace" 2>&1 > /dev/null
-echo "add-network-policy"
-$output cf add-network-policy "$app" "$proxyname" -s "$egressspace" -o "$egressorg" --protocol tcp --port 8080
-echo "set-env"
-$output cf set-env "$app" http_proxy  "https://$username:$password@$proxyname.apps.internal:8080"
-$output cf set-env "$app" https_proxy "https://$username:$password@$proxyname.apps.internal:8080"
-echo "restart"
-$output cf restart "$app" --no-wait --strategy rolling
-
-$output cf target -o "$startorg" -s "$startspace" 2>&1 > /dev/null
-for app in $applist ; do
+for app in $applist; do
     echo "Configure Egress settings for $app"
     $output cf add-network-policy "$app" "$proxyname" -s "$egressspace" -o "$egressorg" --protocol tcp --port 8080
     $output cf set-env "$app" http_proxy  "https://$username:$password@$proxyname.apps.internal:8080"

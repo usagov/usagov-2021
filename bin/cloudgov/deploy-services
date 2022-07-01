@@ -37,6 +37,47 @@ generate_string()
   fi
 }
 
+generate_cert_json()
+{
+  if command -v openssl >/dev/null ; then
+    SECAUTHSECRETS=$(cf curl /v2/user_provided_service_instances/$(cf service secauthsecrets --guid) | jq -r '.entity | select(.name == "secauthsecrets") | .credentials' )
+    SP_KEY=$(echo -E "$SECAUTHSECRETS" | jq -r '.spkey')
+    SP_CRT=$(echo -E "$SECAUTHSECRETS" | jq -r '.spcrt')
+
+    if [ "$SP_KEY" == "null" ] || [ "$SP_CRT" == "null" ]; then
+      echo "Generating Cert for use with SecureAuth"
+
+      mkdir -p /tmp/sp
+      touch /tmp/sp/sp.crt
+      chmod 700 /tmp/sp/sp.crt
+      touch /tmp/sp/sp.key
+      chmod 700 /tmp/sp/sp.key
+
+      openssl req -new -x509 -days 3652 -nodes -out /tmp/sp/sp.crt -keyout /tmp/sp/sp.key -batch -config $SCRIPT_DIR/sp.conf
+      spkey=$(</tmp/sp/sp.key)
+      spcrt=$(</tmp/sp/sp.crt)
+      # convert sp.key to single line
+      spkeyf=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' /tmp/sp/sp.key)
+      # convert sp.crt to single line
+      spcrtf=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' /tmp/sp/sp.crt)
+      CERT_JSON="{\"spcrt\": \"$spcrtf\", \"spkey\": \"$spkeyf\"}"
+      rm -rf /tmp/sp
+      export CERT_JSON
+      return 0
+    else
+      echo "Existing SecureAuth cert already present."
+      return 1
+    fi
+  elif [ -n "$CERT_JSON" ]; then
+    echo "Existing \$CERT_JSON already define."
+    return 0
+  else
+    echo "cannot find openssl utility to generate cert: CERT_JSON={\"spcrt\":\"\",\"spkey\":\"\"} You will need to generate it yourself and rerrun this script."
+    exit 1
+  fi
+}
+
+
 ## GATHER OR GENERATE SECRETS
 {
   # If the user does not supply required data, generate some secrets.
@@ -102,7 +143,7 @@ generate_string()
 {
   echo "Configuring Secrets Service"
   if service_exists "secrets" ; then
-    echo "secrets already created"
+    echo "secrets already created: updating"
     CURR_SECRETS=$(cf curl /v2/user_provided_service_instances/$(cf service secrets --guid))
     CURR_CRON_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.CRON_KEY')
     CURR_HASH_SALT=$(echo $CURR_SECRETS | jq -r '.entity.credentials.HASH_SALT')
@@ -134,26 +175,16 @@ generate_string()
   fi
 
   if service_exists "secauthsecrets" ; then
-    echo secauthsecrets already created
+    # check for existance of spcrt and spkey in secrets service
+    # if not found generate
+    echo "Secauthsecrets service already created"
+    if generate_cert_json; then
+      yes '' | cf update-user-provided-service secauthsecrets -p "$CERT_JSON"
+    fi
   else
-    mkdir -p /tmp/sp
-
-    openssl req -new -x509 -days 3652 -nodes -out /tmp/sp/sp.crt -keyout /tmp/sp/sp.key -batch
-
-    # Couldn't find a way to grap these without being written to disk.
-    spkey=$(</tmp/sp/sp.key)
-    spcrt=$(</tmp/sp/sp.crt)
-
-    # convert sp.key to single line
-    spkeyf=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' /tmp/sp/sp.key)
-
-    # convert sp.crt to single line
-    spcrtf=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' /tmp/sp/sp.crt)
-
-    yes '' | cf create-user-provided-service secauthsecrets -p "{\"spcrt\": \"$spcrtf\", \"spkey\": \"$spkeyf\"}"
-
-    # clean up
-    rm -rf /tmp/sp
+    if generate_cert_json; then
+      yes '' | cf create-user-provided-service secauthsecrets -p "$CERT_JSON"
+    fi
   fi
 }
 
