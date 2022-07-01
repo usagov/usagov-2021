@@ -12,7 +12,7 @@ mkdir -p ${html_files}/js ${html_files}/css $html/themes/custom/usagov/fonts $ht
   drush cr --root=${www} && drush cron --root=${www} &&\
   drush -y s3fs-copy-local --root=${www} 
 
-tomestatic="mkdir -p /tmp/betahtml && drush cr --root=${www} && drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www} && sleep 60 && cp -rf ${www}/html /tmp/betahtml"
+tomestatic="mkdir -p /tmp/betahtml && drush cr --root=${www} && drush tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www} && sleep 60 && echo 'copy file from webroot(html) to tmp(html)' && cp -rf ${www}/html /tmp/betahtml && echo 'done copying file from webroot(html) to tmp(html)'"
 
 if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
   ${www}/scripts/beta/betaupdate.sh -c ${tomestatic} -f ${html_files} -h ${html}
