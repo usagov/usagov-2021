@@ -1,20 +1,24 @@
+{# {{dd()}} #}
+<p class="usa-intro">
+  {{content["field_page_intro"][0]}}
+</p>
 <table class="usagov-directory-table">
 
   <tr>
     <td>
       <h3>Website</h3>
-      <a href=content["field_official_website_primary"][0]>{{content["field_official_website_primary"][0]}}</a>
+      <a>{{content["field_official_website_primary"][0]}}</a>
     </td>
   </tr>
 
   <tr>
     <td>
       <h3>Contact</h3>
-      <ul>
-          <li><a href=/>{{content["field_contact_link"][0]}}</a></li>
+      <ul class="usa-list">
+          <li>{{content["field_contact_link"][0]}}</li>
           {% for key, obj in content["field_contact_link_additional"] %}
             {% if key matches '/^\\d+$/' %}
-                <li><a href=/>{{content["field_contact_link_additional"][key]}}</a></li>
+                <li>{{content["field_contact_link_additional"][key]}}</li>
             {% endif %}
           {% endfor %}
       </ul>
@@ -31,7 +35,7 @@
   <tr>
     <td>
       <h3>Find an Office Near You</h3>
-        <div>
+        <div class="usa-list">
           {{content["field_offices_near_you"][0]}}
         </div>
     </td>

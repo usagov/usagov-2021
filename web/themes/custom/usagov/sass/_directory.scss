@@ -80,7 +80,7 @@ hr.bl-divider {
 }
 
 .fed-directory-search-input {
-  width:14rem;
+  width: 14rem;
   background-color: #ccecf2;
   outline: none;
   font-size: 1rem;
@@ -162,7 +162,6 @@ hr.bl-divider {
   cursor: pointer;
 }
 
-// TODO: Test this
 // Accordion Section
 .usagov-directory-accordion-container {
   // display: flex;
@@ -183,16 +182,11 @@ hr.bl-divider {
   }
 }
 
-// Directory Agency/Dept Detail
-.usagov-directory-detail {
-  font-family: serif;
-  font-size: small;
-}
-
 // Directory Detail Page
 .usagov-directory-table {
   border-collapse: collapse;
   width: 100%;
+  margin-bottom: 75px;
 
   tr {
     border: solid 1.5px #d3d2d2;
@@ -200,11 +194,11 @@ hr.bl-divider {
   }
 
   tr td {
-    padding: 1.4rem 2rem 1.4rem 2rem;
+    padding: 2.25rem 2rem;
   }
 
   tr:nth-child(odd) td {
-    background-color: #F2F2F2;
+    background-color: #f2f2f2;
   }
 }
 
