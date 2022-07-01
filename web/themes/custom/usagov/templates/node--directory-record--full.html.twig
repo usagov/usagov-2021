@@ -15,10 +15,10 @@
     <td>
       <h3>Contact</h3>
       <ul class="usa-list">
-          <li><a href=/>{{content["field_contact_link"][0]}}</a></li>
+          <li>{{content["field_contact_link"][0]}}</li>
           {% for key, obj in content["field_contact_link_additional"] %}
             {% if key matches '/^\\d+$/' %}
-                <li><a href=/>{{content["field_contact_link_additional"][key]}}</a></li>
+                <li>{{content["field_contact_link_additional"][key]}}</li>
             {% endif %}
           {% endfor %}
       </ul>
