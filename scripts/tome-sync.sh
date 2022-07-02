@@ -34,7 +34,7 @@ APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 APP_SPACE=${APP_SPACE:-local}
 
 # endpoint and ssl specifications only necessary on local for minio support
-S3_EXTRA_PARAMS=""
+S3_EXTRA_PARAMS="--no-verify-ssl"
 if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
 fi
