@@ -42,7 +42,8 @@ COPY src-waf/opt/ /opt/
 RUN apk update && \
     apk add vim \
     bash \
-    jq
+    jq \
+    inotify-tools
 
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \
@@ -64,6 +65,7 @@ RUN set -eux; \
 COPY src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
 COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
 COPY src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
+COPY src-waf/cert-watcher.sh /cert-watcher.sh
 
 COPY motd /etc/motd
 
