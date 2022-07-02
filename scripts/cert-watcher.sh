@@ -18,7 +18,7 @@ while true ; do
     rm /tmp/sds-c2c-certs
 
     # load these certs
-    update-ca-certificates 2>&1 > /dev/null || echo ""
+    /usr/sbin/update-ca-certificates 2>&1 > /dev/null || echo ""
 
     # Do this again when the cert file is modified
     inotifywait -q -e modify /etc/cf-assets/envoy_config/sds-c2c-cert-and-key.yaml
