@@ -4,6 +4,7 @@
 *.packagist.org
 *.github.com
 *.amazonaws.com
+*.s3.amazonaws.com
 *.docker.io
 *.docker.com
 *.app.cloud.gov
