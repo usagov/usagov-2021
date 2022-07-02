@@ -16,6 +16,8 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CONTAINERTAG=${1:-latest}
 
 APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
