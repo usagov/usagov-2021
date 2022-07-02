@@ -28,7 +28,7 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
             ./bin/cloudgov/login << parameters.cf_user >> << parameters.cf_pass >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy << pipeline.number >>
+            ./bin/cloudgov/deploy-cms << pipeline.number >>
 
   save-image-digest:
     steps:
