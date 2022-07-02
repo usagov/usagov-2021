@@ -21,7 +21,7 @@ then
 fi;
 
 
-echo "Building ${CONTAINERNAME}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
+echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
