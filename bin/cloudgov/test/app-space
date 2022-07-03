@@ -33,14 +33,6 @@ fi
 
 cf target -o "$ORG" -s "$SPACE" 2>&1 > /dev/null
 
-# space has service acount
-if cf service cloud-gov-service-account 2>&1 | grep cloud-gov-service-account | grep cci-$SPACE-service-account > /dev/null; then
-  echo "$SUCCESS service-account cci-${SPACE}-service-account exists"
-else
-  echo "$FAILURE service-account cci-${SPACE}-service-account not found"
-  PASS=false
-fi
-
 # space has correct staging network rules
 STAGING_SECURITY_GROUPS="public_networks dns trusted_local_networks public_networks_egress trusted_local_networks_egress"
 for SECURITY_GROUP in $STAGING_SECURITY_GROUPS; do
