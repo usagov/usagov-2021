@@ -30,16 +30,6 @@ else
   $output cf create-space $APP_SPACE
 fi
 
-# create service account
-if cf service cloud-gov-service-account | grep cloud-gov-service-account | grep cci-${APP_SPACE}-service-account > /dev/null 2>&1; then
-  echo "Service-account cci-${APP_SPACE}-service-account already exists"
-else
-  echo "Create service-account cci-${APP_SPACE}-service-account"
-  $output cf create-service cloud-gov-service-account space-deployer cci-${APP_SPACE}-service-account
-  $output cf create-service-key cci-${APP_SPACE}-service-account cci-${APP_SPACE}-service-key
-  $output cf service-key cci-${APP_SPACE}-service-account cci-${APP_SPACE}-service-key
-fi
-
 # setup asg network for staging lifecycle
 for SECURITY_GROUP in $STAGING_SECURITY_GROUPS; do
   if cf security-groups | grep $APP_SPACE | grep -e 'staging$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
