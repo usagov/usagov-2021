@@ -3,13 +3,7 @@ commands:
   deploy-cloudgov:
     parameters:
       envname:
-        default: ""
-        type: string
-      cf_user:
-        default: ""
-        type: string
-      cf_pass:
-        default: ""
+        default: "dev"
         type: string
     steps:
       - checkout
@@ -26,7 +20,7 @@ commands:
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;Cloud.gov;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
-            ./bin/cloudgov/login << parameters.cf_user >> << parameters.cf_pass >>
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cms << pipeline.number >>
 
@@ -37,7 +31,6 @@ commands:
           command: |
             CMS_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:cms-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
             WAF_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:waf-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
-            # EGS_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:egress-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
             echo "Saving cms-<< pipeline.number >> -> $CMS_DIGEST"
             echo "Saving waf-<< pipeline.number >> -> $CMS_DIGEST"
 
@@ -149,8 +142,6 @@ jobs:
     steps:
       - deploy-cloudgov:
           envname: dev
-          cf_user: $CF_DEV_USER
-          cf_pass: $CF_DEV_PASS
 
   deploy-to-cloudgov-stage:
     machine:
@@ -160,8 +151,6 @@ jobs:
     steps:
       - deploy-cloudgov:
           envname: stage
-          cf_user: $CF_STAGE_USER
-          cf_pass: $CF_STAGE_PASS
 
   deploy-to-cloudgov-prod:
     machine:
@@ -171,8 +160,6 @@ jobs:
     steps:
       - deploy-cloudgov:
           envname: prod
-          cf_user: $CF_PROD_USER
-          cf_pass: $CF_PROD_PASS
 
   # do-nothing:
   #   docker:
