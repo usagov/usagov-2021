@@ -84,6 +84,7 @@ else
   echo "$FAILURE CMS has no running instances"
   PASS=false
 fi
+# todo: cms app needs to have certain parameters available as env vars (new_relic) set in SECRETS service
 
 # FINALE
 echo
