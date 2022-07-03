@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# you must already be logged in as an OrgManager to have enough permissions
+# to create these new spaces
+
 STARTSPACE=$( cf target | grep space: | awk '{ print $2 }')
 STARTORG=$(   cf target | grep org:   | awk '{ print $2 }')
 

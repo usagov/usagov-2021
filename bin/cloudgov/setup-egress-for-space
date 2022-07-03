@@ -65,7 +65,6 @@ function popspace() {
 # trap popspace exit
 trap popspace err
 
-
 # Try to switch to the egress org+space, error out if it's not there
 cf target -o "$egressorg" -s "$egressspace" > /dev/null 2>&1 ||
     (echo "ERROR: Space ${egressorg}/${egressspace} is not available!" && exit 1)
@@ -120,17 +119,15 @@ touch $SCRIPT_DIR/apps-egress-allow.acl
 
 # Assemble vars.yml file content
 
-echo "Regenerate user/pass for proxy"
+echo "Regenerate user/pass for use by proxy"
 username="$(uuidgen)"
 password="$(uuidgen)"
 
 # Auto-allow bound buckets
-echo "Gather ACLs including buckets"
 proxydeny=$(  cat $SCRIPT_DIR/apps-egress-deny.acl || echo "" )
 proxyallow=$( cat $SCRIPT_DIR/apps-egress-allow.acl <(echo "$buckethosts") || echo "" )
 
 # Normalize into a YAML multiline block form
-echo "Normalize varfile yaml"
 proxydeny=$(  echo "$proxydeny"  | sed 's/ \{1,\}/\n/g' | sed '/^\s*$/d' | sed 's/^\s*/  /'  )
 proxyallow=$( echo "$proxyallow" | sed 's/ \{1,\}/\n/g' | sed '/^\s*$/d' | sed 's/^\s*/  /'  )
 
@@ -148,9 +145,7 @@ $proxyallow
 
 # Deploy the proxy app
 echo "Deploy Egress Proxy App"
-echo "target"
 $output cf target -o "$egressorg" -s "$egressspace" 2>&1 > /dev/null
-echo "push proxy from manifest-egress."
 $output cf push $proxyname -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
 $output cf set-env $proxyname proxy_route "https://$username:$password@$proxyname.apps.internal:8080"
 if [ -n "${DRYRUN}" ]; then

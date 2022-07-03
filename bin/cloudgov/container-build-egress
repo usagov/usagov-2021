@@ -4,7 +4,6 @@
 # to be used when launching cloud.gov images
 #
 
-
 DOCKERUSER=${DOCKERUSER:-dnark}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
