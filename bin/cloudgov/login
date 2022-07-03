@@ -1,13 +1,31 @@
 #!/bin/bash
 set -e
 
-USER=${1}
-PASS=${2}
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
 
-if [[ -n "$USER" ]] && [[  -n "$PASS" ]]; then
+# can directly pass in a user and pass parameter
+USER=$1
+PASS=$2
+
+# if only passing in a single param, convert space name into user/pass
+if [ "$#" -eq 0 ]; then
+  USER=$CF_SERVICE_USER
+  PASS=$CF_SERVICE_PASS
+fi
+
+if [[ -n "$USER" ]] && [[ -n "$PASS" ]]; then
     cf login -a https://api.fr.cloud.gov -u $USER -p $PASS
-
-else 
+else
     cf login -a https://api.fr.cloud.gov --sso
-
 fi
