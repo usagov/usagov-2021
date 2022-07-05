@@ -133,7 +133,7 @@ echo "./bin/init"
 
 # can do this at the docker volume level
 # possibly load in a starter db
-if [ -f ${OG_ROOT}/usagov.sql ]; then
+if [ -f ./usagov.sql ]; then
   echo "./bin/db-update"
   ./bin/db-update
 fi
