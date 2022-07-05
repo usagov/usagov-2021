@@ -8,7 +8,7 @@ www=/var/www &&\
 
 # Run once
 mkdir -p ${html_files}/js ${html_files}/css $html/themes/custom/usagov/fonts $html/themes/custom/usagov/images /tmp/betahtml &&\
-  cp -rf $theme/fonts/* $html/themes/custom/usagov/fonts/ && cp -rf $theme/images/* $html/themes/custom/usagov/images &&\
+  cp -rf $theme/fonts $html/themes/custom/usagov && cp -rf $theme/images $html/themes/custom/usagov &&\
   drush cr --root=${www} && drush cron --root=${www} &&\
   drush -y s3fs-copy-local --root=${www} 
 
