@@ -3,13 +3,7 @@ commands:
   deploy-cloudgov:
     parameters:
       envname:
-        default: ""
-        type: string
-      cf_user:
-        default: ""
-        type: string
-      cf_pass:
-        default: ""
+        default: "dev"
         type: string
     steps:
       - checkout
@@ -18,18 +12,7 @@ commands:
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
-      - run:
-          name: Install CloudFoundry
-          command: |
-            wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
-            echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
-            sudo apt-get update
-            sudo apt-get install cf7-cli
-            #curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&source=github'
-            #curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&source=github-rel'
-            #curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=7.3.0&source=github-rel'
-            #sudo dpkg -i cf-cli_amd64.deb
-            cf -v
+      - install-cloud-foundry
       - run:
           name: CloudGov Deploy
           command: |
@@ -37,9 +20,30 @@ commands:
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;Cloud.gov;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
-            ./bin/cloudgov/login << parameters.cf_user >> << parameters.cf_pass >>
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy << pipeline.number >>
+            ./bin/cloudgov/deploy-cms << pipeline.number >>
+
+  save-image-digest:
+    steps:
+      - run:
+          name: Save Image Digest of container
+          command: |
+            CMS_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:cms-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
+            WAF_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:waf-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
+            echo "Saving cms-<< pipeline.number >> -> $CMS_DIGEST"
+            echo "Saving waf-<< pipeline.number >> -> $CMS_DIGEST"
+
+  install-cloud-foundry:
+    steps:
+      - run:
+          name: Install CloudFoundry
+          command: |
+            wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+            echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+            sudo apt-get update
+            sudo apt-get install cf7-cli
+            cf -v
 
   install-node:
     steps:
@@ -47,12 +51,12 @@ commands:
           name: Install Specific Node Version
           command: |
             set +e
-            wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+            wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-            nvm install v16.8.0
-            nvm alias default 16.8.0
+            nvm install v18.3.0
+            nvm alias default 18.3.0
             echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
             echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
             echo "Install Gulp on node "$(node --version)
@@ -77,44 +81,25 @@ jobs:
             composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
+            mkdir -p /tmp/results
+            touch /tmp/results/php-lint.log
+            touch /tmp/results/php-cs.log
+            touch /tmp/results/theme-lint.log
       - run:
           name: PHP Lint
           command: |
             COMPOSER_DIR=$(composer -n config --global home)
-            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom
+            $COMPOSER_DIR/vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom | tee /tmp/results/php-lint.log
       - run:
           name: PHP CodeSniff (ignore warnings)
           command: |
             COMPOSER_DIR=$(composer -n config --global home)
-            $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist
+            $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist | tee /tmp/results/php-cs.log
       - run:
           name: Theme Lint
-          command: npm run lint --prefix ./web/themes/custom/usagov
-
-  install-container-dependencies:
-    docker:
-      - image: cimg/php:8.0.16-node
-    steps:
-      - checkout
-      - install-node
-      - run:
-          name: Build Drupal
-          command: |
-            echo 'memory_limit = -1' | sudo tee -a /usr/local/etc/php/conf.d/docker-php-memlimit.ini
-            COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
-      - run:
-          name: Compile Theme
-          command: |
-            npm install --prefix ./web/themes/custom/usagov
-            npm rebuild node-sass --prefix ./web/themes/custom/usagov
-            npm run build --prefix ./web/themes/custom/usagov
-            rm -rf ./web/themes/custom/usagov/node_modules
-      - persist_to_workspace:
-          root: ./
-          paths:
-            - vendor
-            - composer.lock
-            - web
+          command: npm run lint --prefix ./web/themes/custom/usagov | tee /tmp/results/theme-lint.log
+      - store_artifacts:
+          path: /tmp/results
 
   build-and-push-container:
     machine:
@@ -123,16 +108,6 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout
-      # - attach_workspace:
-      #     at: /tmp/workspace
-      # - run:
-      #     name: Import Workspace items
-      #     command: |
-      #       mkdir -p ./vendor/
-      #       mkdir -p ./web
-      #       cp -r /tmp/workspace/vendor/* ./vendor/
-      #       cp -r /tmp/workspace/composer.lock ./composer.lock
-      #       cp -r /tmp/workspace/web/* ./web/
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -144,13 +119,16 @@ jobs:
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             echo $DOCKERHUB_ACCESS_TOKEN | $SUDO docker login -u $DOCKERHUB_USERNAME --password-stdin
+      # snyk scan code - save as artifact
+      # snyk scan code dependencies composer.json and package.json - save as artifact
       - run:
           name: Build Container
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
-
+      # snyk scan container - save as artifact
+      # - save-image-digest
       - run:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
@@ -164,8 +142,6 @@ jobs:
     steps:
       - deploy-cloudgov:
           envname: dev
-          cf_user: $CF_DEV_USER
-          cf_pass: $CF_DEV_PASS
 
   deploy-to-cloudgov-stage:
     machine:
@@ -175,8 +151,6 @@ jobs:
     steps:
       - deploy-cloudgov:
           envname: stage
-          cf_user: $CF_STAGE_USER
-          cf_pass: $CF_STAGE_PASS
 
   deploy-to-cloudgov-prod:
     machine:
@@ -186,8 +160,6 @@ jobs:
     steps:
       - deploy-cloudgov:
           envname: prod
-          cf_user: $CF_PROD_USER
-          cf_pass: $CF_PROD_PASS
 
   # do-nothing:
   #   docker:

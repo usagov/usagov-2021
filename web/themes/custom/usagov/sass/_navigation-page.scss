@@ -1,4 +1,6 @@
-$hero: var( $usagov-variables, hero );
+@use "usagov-variables" as *;
+
+// $hero: var( $usagov-variables, hero );
 
 .usagov-hero{
     border-top: 10px solid var( $hero, border-color );
@@ -14,11 +16,11 @@ $hero: var( $usagov-variables, hero );
         }
     }
     ul li{
-        margin: 22px 0;
+        margin: 15px 0;
     }   
 }
 
-$card: var( $usagov-variables, card );
+// $card: var( $usagov-variables, card );
 .usagov-cards{
     padding: 1em;
     background-color: var( $card, group-background-color );;

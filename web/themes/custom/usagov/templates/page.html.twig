@@ -62,7 +62,7 @@
 {% endif %}
 
 {% set show_sidebar = true %}
-{% if term_name == "Navigation Cards Page" %}
+{% if (term_name == "Navigation Cards Page") or (term_name == "Life Events") %}
     {% set show_sidebar = false %}
 {% endif %}
 
@@ -118,7 +118,7 @@
 </section>
 {% endif %}
 
-<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content">
+<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">    
     <a id="main-content" tabindex="-1"></a>{# link is in html.html.twig #}
 
     <div class="grid-container">
