@@ -34,7 +34,7 @@ APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 APP_SPACE=${APP_SPACE:-local}
 
 # endpoint and ssl specifications only necessary on local for minio support
-S3_EXTRA_PARAMS=""
+S3_EXTRA_PARAMS="--no-verify-ssl"
 if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
 fi
@@ -57,10 +57,18 @@ TOMELOG=/tmp/tome-log/$TOMELOGFILE
 touch $TOMELOG
 
 # lower case all filenames in the copied dir before uploading
+LCF=0
+echo "Lower-casing files:"
 for f in `find $RENDER_DIR/*`; do
   ff=$(echo $f | tr '[A-Z]' '[a-z]');
-  [ "$f" != "$ff" ] && mv -v "$f" "$ff";
+  if [ "$f" != "$ff" ]; then
+    # VERBOSE MODE
+    # mv -v "$f" "$ff"
+    mv -v "$f" "$ff" > /dev/null
+    LCF=$((LCF+1))
+  fi
 done
+echo "    $LCF"
 
 # get a count of current AWS files, total and by extension
 echo "S3 dir storage files : count total" | tee -a $TOMELOG
@@ -93,27 +101,43 @@ DIFF_S3_TOME_IS_BAD=$(echo "scale=2; $DIFF_S3_TOME_PCT > $TOME_MAX_CHANGE_ALLOWE
 TOME_TOO_MUCH=$( [[ "$DIFF_S3_TOME_IS_BAD" == "1" ]] && [[ "$DIFF_S3_TOME_OVER" == "1" ]] && echo "1" || echo "0" )
 TOME_TOO_LITTLE=$( [[ "$DIFF_S3_TOME_IS_BAD" == "1" ]] && [[ "$DIFF_S3_TOME_UNDER" == "1" ]] && echo "1" || echo "0" )
 
+TOME_PUSH_NEW_CONTENT=0
 # take actions depending on our situations
 if [ "$TOME_TOO_MUCH" == "1" ]; then
   echo "Tome static build looks suspicious - adding more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
+  TOME_PUSH_NEW_CONTENT=0
   # send message, but continue on
   # write message to php log so newrelic will see it
 elif [ "$TOME_TOO_LITTLE" == "1" ]; then
   echo "Tome static build failure - removing more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
+  TOME_PUSH_NEW_CONTENT=0
   # send message, and abort
   # write message to php log so newrelic will see it
-  exit 3
+  # exit 3
 else
   echo "Tome static build looks fine. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
+  TOME_PUSH_NEW_CONTENT=1
 fi
 
-# maybe use --only-show-errors if logs are too spammy
-aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
-
-if [ -f "$TOMELOG" ]; then
-  aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE --only-show-errors $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
+  # VERBOSE MODE
+  # aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  aws s3 sync s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/web/s3/files/ --exclude "php/*" --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 fi
 
 if [ -d "$RENDER_DIR" ]; then
+  echo "Removing Render Dir: $RENDER_DIR" | tee -a $TOMELOG
   rm -rf "$RENDER_DIR"
+else
+  echo "No Render Dir to remove" | tee -a $TOMELOG
+fi
+
+if [ -f "$TOMELOG" ]; then
+  echo "Saving logs of this run to S3" | tee -a $TOMELOG
+  echo "SYNC FINISHED" | tee -a $TOMELOG
+  aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE --only-show-errors $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+else
+  echo "No logs of this run to S3 available"
+  echo "SYNC FINISHED"
 fi

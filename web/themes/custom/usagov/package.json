@@ -29,8 +29,11 @@
     "node-sass": "^7.0.0",
     "postcss": "^8.3.0",
     "postcss-csso": "^5.0.1",
-    "sass": "^1.34.0",
-    "uswds": "^2.11.2",
+    "sass": "^1.52.3",
     "uswds-gulp": "github:uswds/uswds-gulp"
+  },
+  "dependencies": {
+    "@uswds/uswds": "3.0.1",
+    "del": "^6.1.1"
   }
 }

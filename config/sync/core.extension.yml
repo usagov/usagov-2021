@@ -37,6 +37,7 @@ module:
   filter: 0
   google_docs_filter: 0
   image: 0
+  image_style_warmer: 0
   jquery_ui: 0
   jquery_ui_accordion: 0
   jsonapi: 0
@@ -84,6 +85,7 @@ module:
   viewsreference: 0
   workflows: 0
   pathauto: 1
+  usa_twig_vars: 1
   content_translation: 10
   externalauth: 10
   views: 10
