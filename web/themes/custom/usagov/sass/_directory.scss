@@ -60,6 +60,7 @@ hr.bl-divider {
   width: auto;
 }
 
+// Search Bar
 .usagov-directory-search-container {
   justify-content: center;
   display: flex;
@@ -75,8 +76,9 @@ hr.bl-divider {
   display: flex;
   flex-direction: row;
   gap: 0.2rem;
-  box-shadow: 0px 0px 0px 0.2rem #0081a1;
+  box-shadow: 0px 0px 0px 0.15rem #0081a1;
   background-color: #ccecf2;
+  // border-radius: 0px 10px 10px 0px;
 }
 
 .fed-directory-search-input {
@@ -107,9 +109,10 @@ hr.bl-divider {
 }
 
 .usagov-directory-letter-heading {
+  font-family: sans-serif;
+  font-size: 2.5rem;
   text-align: center;
   line-height: 3.8rem;
-  font-size: 2.5rem;
   color: #000000;
   outline: solid 0.15rem black;
   width: 3.8rem;
@@ -123,6 +126,7 @@ hr.bl-divider {
   padding: 0;
 }
 
+// Bottom Navigation
 .usagov-directory-bottom-nav-group {
   align-items: center;
   display: flex;
@@ -165,8 +169,7 @@ hr.bl-divider {
 
 // Accordion Section
 .usagov-directory-accordion-container {
-  // display: flex;
-  font-family: serif;
+  font-family: sans-serif;
   font-size: small;
 }
 
