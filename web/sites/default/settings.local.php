@@ -13,6 +13,3 @@ $settings['trusted_host_patterns'] = [
   '^127\.0\.0\.1$',
   '^cms-usagov\.docker\.local$',
 ];
-
-$config['system.performance']['css']['preprocess'] = FALSE; 
-$config['system.performance']['js']['preprocess'] = FALSE;
