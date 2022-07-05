@@ -1,0 +1,12 @@
+#!/bin/sh
+
+## VERIFY
+# proxy app has all proper processes running
+# cms app _proxy env vars are set using current user/pass
+# waf app _proxy env vars are set using current user/pass
+# cms can make an https request to allowed hostname
+# cms cannot make an https request to denied hostname
+# waf can make an https request to allowed hostname
+# waf cannot make an https request to denied hostname
+
+
