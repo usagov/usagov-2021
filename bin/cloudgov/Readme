@@ -1,6 +1,6 @@
 ## Spaces
 
-Cloud.gov calls application environments Spaces. Each developer should have access to four space: a personal Space and one Space each for the Dev, UAT, and Prod environments.
+Cloud.gov calls application environments Spaces. Each developer should have access to four space: a personal Space and one Space each for the Dev, Stage, and Prod environments.
 
 ## Dashboard
 
@@ -22,7 +22,7 @@ Most actions a developer would want to perform will be built into a script place
 This command can be used to see which space you are currently targeting:
 
 ```
-bin/cloudgov/space 
+bin/cloudgov/space
 ```
 
 This command can be user to switch between spaces:
@@ -30,8 +30,9 @@ This command can be user to switch between spaces:
 ```
 bin/cloudgov/space personal
 bin/cloudgov/space dev
-bin/cloudgov/space uat
+bin/cloudgov/space stage
 bin/cloudgov/space prod
+bin/cloudgov/space shared-egress
 ```
 
 All subsequent commands will be targetted towards the choosen space
