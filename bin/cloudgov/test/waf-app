@@ -1,0 +1,7 @@
+#!/bin/sh
+
+## VERIFY
+# waf app has access to the secrets service
+# waf app is set to be the space's route service
+# waf app has all proper processes running
+# waf blocks rule-breaking requests
