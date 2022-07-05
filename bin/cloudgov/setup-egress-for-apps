@@ -131,7 +131,8 @@ for app in $applist; do
     $output cf add-network-policy "$app" "$proxyname" -s "$egressspace" -o "$egressorg" --protocol tcp --port 8080
     $output cf set-env "$app" http_proxy  $proxyroute
     $output cf set-env "$app" https_proxy $proxyroute
-    $output cf restage "$app" --no-wait --strategy rolling
+    # $output cf restart "$app" --no-wait --strategy rolling
+    $output cf restart "$app" --strategy rolling
 done
 
 popspace
