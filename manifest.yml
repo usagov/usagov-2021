@@ -1,21 +1,4 @@
 ---
-default_config: &defaults
-  # buildpacks:
-    # We need the "apt" buildpack to install a MySQL client for Drush; see apt.yml
-    # - https://github.com/cloudfoundry/php-buildpack.git#v4.4.40
-  disk_quota: 512M
-  timeout: 180
-  services:
-    - database # cf create-service aws-rds shared-mysql database
-    - secrets  # cf create-user-provided-service secrets -p '{
-               # "CRON_KEY": ...
-               # "HASH_SALT": ...
-               # "ROOT_USER_NAME": ...,
-               # "ROOT_USER_PASS": ...,
-               # }'
-    - storage  # cf create-service s3 basic-sandbox storage
-    - dbstorage  # cf create-service s3 basic-sandbox dbstorage
-
 applications:
 - name: cms
   docker:
@@ -26,6 +9,7 @@ applications:
   services:
     - database
     - secrets
+    - secauthsecrets
     - storage
     - dbstorage
   instances: 1
@@ -49,10 +33,3 @@ applications:
       allow 52.222.122.97/32;
       allow 52.222.123.172/32;
       allow 159.142.0.0/16;
-
-# - name: cronish
-#   <<: *defaults
-#   no-route: true
-#   command: ./cronish.sh
-#   health-check-type: process
-#   memory: 128M

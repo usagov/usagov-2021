@@ -1,0 +1,6 @@
+#!/bin/sh
+
+## VERIFY
+# cms app has access to secrets and database services
+# cms app can access s3 buckets
+# cms app has all proper processes running
