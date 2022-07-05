@@ -1,5 +1,6 @@
 @use "usagov-variables" as *;
 
+// State Directory - Table
 .sd-container {
   display: flex;
 
@@ -21,7 +22,7 @@
   }
 }
 
-// State Directory Detail Page
+// State Directory - Detail
 .usagov-sd-table {
   border-collapse: collapse;
   width: 100%;
