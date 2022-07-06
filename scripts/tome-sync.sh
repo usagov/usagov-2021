@@ -34,7 +34,7 @@ APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 APP_SPACE=${APP_SPACE:-local}
 
 # endpoint and ssl specifications only necessary on local for minio support
-S3_EXTRA_PARAMS=""
+S3_EXTRA_PARAMS="--no-verify-ssl"
 if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
 fi
@@ -123,6 +123,7 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   # VERBOSE MODE
   # aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  aws s3 sync s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/web/s3/files/ --exclude "php/*" --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 fi
 
 if [ -d "$RENDER_DIR" ]; then

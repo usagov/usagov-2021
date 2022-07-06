@@ -30,6 +30,12 @@ export S3_ENDPOINT
 # SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
 WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)}
 CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)}
+if [ -z "$WWW_HOST" ]; then
+  WWW_HOST="*.app.cloud.gov"
+fi
+if [ -z "$CMS_HOST" ]; then
+  CMS_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | head -n 1)
+fi
 export WWW_HOST
 export CMS_HOST
 
