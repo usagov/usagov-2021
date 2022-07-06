@@ -23,18 +23,33 @@
 
 {% set is_directory = view.element['#name'] == 'federal_agencies' %}
 {% if is_directory %}
-<div class="usagov-directory-container">
+<div class="usagov-directory-page-container">
+  <p class="usa-intro">
+    Find contact information for U.S. federal government departments and agencies including websites, 
+    emails, phone numbers, addresses, and more.
+    <a href="https://www.usa.gov/states-and-territories">
+      Get contact information for each state and territory.
+    </a>
+  </p>
 {% endif %}
   
-<ul{{is_directory ? ' class="usagov-directory-container-az"' }}>
-  {% for row in rows %}
-      <li><a href="{{ row.url }}"{{ row.attributes.addClass(row.active ? 'is-active')|without('href') }}>{{ row.link }}</a>
-      {% if options.count %}
-        ({{ row.count }})
-      {% endif %}
-    </li>
-  {% endfor %}
-</ul>
+<div {{is_directory ? ' class="usagov-directory-container"' }}>
+  <ul class="usagov-directory-container-az">
+    {% for row in rows %}
+        <li><a href="{{ row.url }}"{{ row.attributes.addClass(row.active ? 'is-active')|without('href') }}>{{ row.link }}</a>
+        {% if options.count %}
+          ({{ row.count }})
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  <div><hr class="bl-divider"></div>
+  <!-- Search Bar -->
+  <div class="usagov-directory-search-container">
+    <p>OR</p>
+    {# TODO: add remaining search bar component #}
+  <div>
+</div>
 
 {% if is_directory %}
 </div>
