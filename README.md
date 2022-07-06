@@ -216,5 +216,3 @@ bin/cloudgov/deploy TAGNAME
 ## More info on Cloud Foundry & Cloud.gov
 
 This repository was loosely based off of Cloud.gov's [cf-ex-drupal8 repo](https://github.com/cloud-gov/cf-ex-drupal8). Their README may provide other useful info.
-
-##
