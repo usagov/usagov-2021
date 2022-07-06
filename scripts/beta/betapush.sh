@@ -4,7 +4,7 @@ www=/var/www &&\
   html=${www}/html &&\
   html_files=${html}/s3/files/ &&\
   theme=${www}/web/themes/custom/usagov &&\
-  drushcmd=/var/www/vendor/bin/drush $$\
+  drushcmd=/var/www/vendor/bin/drush &&\
   S3_BUCKET=`echo $VCAP_SERVICES | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket'` &&\
   URI=${1:-https://beta.usa.gov}
 
@@ -17,7 +17,8 @@ mkdir -p ${html_files}/js ${html_files}/css $html/themes/custom/usagov/fonts $ht
 tomestatic="mkdir -p /tmp/betahtml && drush cr --root=${www} && ${drushcmd} tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www} && sleep 60 && cp -rf $theme/fonts $html/themes/custom/usagov/ && cp -rf $theme/images $html/themes/custom/usagov/ && cp -rf ${www}/html /tmp/betahtml"
 
 if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
-  ${www}/scripts/beta/betaupdate.sh -c ${tomestatic} -f ${html_files} -h ${html}
+  echo "=========== remote ==========="
+  ${www}/scripts/beta/betaupdate.sh  -f "${html_files}" -h "${html}" -c "${tomestatic}"
 
   ## every 15 seconds commands
   #write out current crontab
@@ -27,6 +28,7 @@ if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
   crontab betacmd &&\
   rm betacmd
 else
+  echo "=========== Local ==========="
   drushc='/var/www/vendor/bin/drush'
   echo 'copy css and js to html'
   cp -rf ${www}/s3/local/cms/public/css ${html_files}/css &&\
