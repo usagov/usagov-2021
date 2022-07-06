@@ -3,7 +3,6 @@ langcode: en
 status: true
 dependencies:
   config:
-    - block.block.usagov_page_title
     - node.type.directory_record
   module:
     - node
@@ -22,7 +21,7 @@ display:
     display_plugin: default
     position: 0
     display_options:
-      title: 'Federal Agencies'
+      title: 'Directory of U.S. Government Agencies and Departments'
       fields:
         title:
           id: title
@@ -214,33 +213,7 @@ display:
           query_tags: {  }
       relationships: {  }
       use_ajax: false
-      header:
-        entity_block:
-          id: entity_block
-          table: views
-          field: entity_block
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: entity
-          empty: true
-          target: page_title
-          view_mode: default
-          tokenize: false
-          bypass_access: true
-        entity_block_1:
-          id: entity_block_1
-          table: views
-          field: entity_block
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: entity
-          empty: true
-          target: usagov_page_title
-          view_mode: default
-          tokenize: true
-          bypass_access: false
+      header: {  }
       footer: {  }
       display_extenders: {  }
     cache_metadata:
@@ -352,12 +325,21 @@ display:
       defaults:
         title: true
         header: true
+      rendering_language: en
       display_extenders: {  }
       path: federal-agencies
+      menu:
+        type: none
+        title: 'Directory of US Government Agencies and Departments'
+        description: ''
+        weight: 0
+        expanded: false
+        menu_name: left-menu-english
+        parent: 'menu_link_content:845eb9ac-8879-40a1-a010-0b62b232484b'
+        context: '0'
     cache_metadata:
       max-age: -1
       contexts:
-        - 'languages:language_content'
         - 'languages:language_interface'
         - url
         - 'user.node_grants:view'
