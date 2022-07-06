@@ -26,7 +26,7 @@ docker run --rm -it --env-file=$(pwd)/.aws/env -v $(pwd)/s3/local/cms/public:/aw
       --exclude "js/*"
 
 # cleanup s3 credentials
-rm -f $(pwd)/.aws/env
-cf delete-service-key storage storagekey -f
+# rm -f $(pwd)/.aws/env
+# cf delete-service-key storage storagekey -f
 
-bin/drush s3fs:refresh-cache
+# bin/drush s3fs:refresh-cache
