@@ -1,0 +1,24 @@
+uuid: 780f7045-714c-4dea-b367-e312f9092b01
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - usagov
+id: pagetitle
+theme: usagov
+region: content
+weight: -17
+provider: null
+plugin: page_title_block
+settings:
+  id: page_title_block
+  label: 'Page title (for a view or other non-node)'
+  label_display: '0'
+  provider: core
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /federal-agencies

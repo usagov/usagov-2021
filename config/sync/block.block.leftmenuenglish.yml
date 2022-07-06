@@ -1,0 +1,36 @@
+uuid: 8637c0ae-eb33-4d64-9006-7482c54dbc74
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.left-menu-english
+  module:
+    - menu_block
+    - system
+  theme:
+    - usagov
+id: leftmenuenglish
+theme: usagov
+region: sidebar_first
+weight: 0
+provider: null
+plugin: 'menu_block:left-menu-english'
+settings:
+  id: 'menu_block:left-menu-english'
+  label: 'Left Menu English - for the Federal Agencies view'
+  label_display: visible
+  provider: menu_block
+  follow: false
+  follow_parent: child
+  label_link: false
+  label_type: block
+  level: 1
+  depth: 0
+  expand_all_items: false
+  parent: 'left-menu-english:'
+  suggestion: left_menu_english
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /federal-agencies

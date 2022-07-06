@@ -13,7 +13,7 @@ dependencies:
 id: leftmenuspanish_3
 theme: usagov
 region: content
-weight: -6
+weight: -5
 provider: null
 plugin: 'menu_block:left-menu-spanish'
 settings:
