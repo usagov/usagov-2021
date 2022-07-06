@@ -54,3 +54,56 @@
 {% if is_directory %}
 </div>
 {% endif %}
+
+{# TODO: accordion placeholder #}
+{# <div class="usa-accordion usagov-directory-accordion-container">
+  {% for key, obj in content["field_placeholder"] %}
+    {% if key matches '/^\\d+$/' %}
+        <h2 class="usa-accordion__heading">
+        <!-- TODO: MUST USE UID for aria-controls -->
+        <button
+          aria-controls="a1"
+          aria-expanded="false"
+          class="usa-accordion__button"
+          >
+            {{content["field_placeholder"]}}
+          </button>
+        </h2>
+
+        <div class="usa-accordion__content usa-prose" id="a1">
+          <p>{{content["field_placeholder"]}}</p>
+
+          <p>&nbsp;</p>
+
+          <div>
+            <p>Website:&nbsp;</p>
+
+            <p><a>{{content["field_placeholder"]}}</a></p>
+          </div>
+
+          <div>
+            <p>Phone Number:&nbsp;</p>
+
+            <p>{{content["field_placeholder"]}}</p>
+          </div>
+
+          <div>
+            <p>Contact:&nbsp;</p>
+
+            <p><a>{{content["field_placeholder"]}}</a></p>
+          </div>
+
+          <!-- TODO: Not all will have this section, hide or show depending on if available -->
+          <p class="h-bold">Find an Office Near You:</p>
+
+          <ul>
+            <li><a>{{content["field_placeholder"]}}</a></li>
+          </ul>
+
+          <p class="h-bold">
+            <a>{{content["field_placeholder"]}}</a>
+          </p>
+        </div>
+    {% endif %}
+  {% endfor %}
+</div> #}
