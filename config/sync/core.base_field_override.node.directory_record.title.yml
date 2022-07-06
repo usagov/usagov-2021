@@ -8,7 +8,7 @@ id: node.directory_record.title
 field_name: title
 entity_type: node
 bundle: directory_record
-label: 'Directory Record'
+label: 'Official Agency Name'
 description: ''
 required: true
 translatable: true
