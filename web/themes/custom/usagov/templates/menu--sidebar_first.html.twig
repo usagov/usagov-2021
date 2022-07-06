@@ -34,8 +34,15 @@ TODO: remove menuLevel as it is no longer used
 
   {% for item in items %}
     {% if item.in_active_trail %}
-      {% set active_item = item %}
-      {{ menus.explore(item.below, menuLevel + 1, item, parent, grandparent ) }}
+    {% set active_item = item %}
+      {# Skip children of the Federal Agencies view. 
+         We need them as nodes to trigger the menu, but don't want them all expanded out. 
+       #}
+      {% if active_item.url.routeName|slice(0, 22) != 'view.federal_agencies.' %} 
+        {{ menus.explore(item.below, menuLevel + 1, item, parent, grandparent ) }}
+      {% else %}
+        {% set active_item = null %}
+      {% endif %}
     {% endif %}
   {% endfor %}
 
