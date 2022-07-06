@@ -9,7 +9,7 @@ _core:
 id: usagov_local_tasks
 theme: usagov
 region: content
-weight: -13
+weight: -12
 provider: null
 plugin: local_tasks_block
 settings:

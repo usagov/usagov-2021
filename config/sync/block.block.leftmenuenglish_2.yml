@@ -12,7 +12,7 @@ dependencies:
 id: leftmenuenglish_2
 theme: usagov
 region: content
-weight: -7
+weight: -6
 provider: null
 plugin: 'system_menu_block:left-menu-english'
 settings:
