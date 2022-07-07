@@ -208,6 +208,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       php8-xmlwriter \
       php8-zip \
       php8-zlib \
+      rsync \
     && mkdir -p /var/www/web/sites/default/files \
     # s6 supervisor setup
     && tar xzf /tmp/s6overlay.tar.gz -C / \

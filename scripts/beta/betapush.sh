@@ -9,12 +9,12 @@ www=/var/www &&\
   URI=${1:-https://beta.usa.gov}
 
 # Run once
-mkdir -p ${html_files}/js ${html_files}/css $html/themes/custom/usagov/fonts $html/themes/custom/usagov/images /tmp/betahtml &&\
+mkdir -p ${html_files}/js ${html_files}/css $html/themes/custom/usagov/fonts $html/themes/custom/usagov/images /tmp/ ${www}/html/s3/files betahtml &&\
   cp -rf $theme/fonts $html/themes/custom/usagov && cp -rf $theme/images $html/themes/custom/usagov &&\
   drush cr --root=${www} && drush cron --root=${www} &&\
   drush -y s3fs-copy-local --root=${www} 
 
-tomestatic="mkdir -p /tmp/betahtml && drush cr --root=${www} && ${drushcmd} tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www} && sleep 60 && cp -rf $theme/fonts $html/themes/custom/usagov/ && cp -rf $theme/images $html/themes/custom/usagov/ && cp -rf ${www}/html /tmp/betahtml"
+tomestatic="mkdir -p /tmp/betahtml && drush cr --root=${www} && ${drushcmd} tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www} && sleep 60 && cp -rf $theme/fonts $html/themes/custom/usagov/ && cp -rf $theme/images $html/themes/custom/usagov/ && rsync -r ${www}/s3/local/cms/public/css ${www}/html/s3/files && rsync -rv ${www}/s3/local/cms/public/js ${www}/html/s3/files &&  -rf ${www}/html /tmp/betahtml"
 
 if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
   echo "=========== remote ==========="
