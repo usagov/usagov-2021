@@ -1,5 +1,7 @@
 #!/bin/sh
 
+
+
 while true ; do
     echo "C2C certificate update ..."
 
@@ -16,6 +18,11 @@ while true ; do
       awk "/-----BEGIN CERTIFICATE-----/{i++}i==$index" /tmp/sds-c2c-certs > "/usr/local/share/ca-certificates/sds-c2c-$index".crt
     done
     rm /tmp/sds-c2c-certs
+
+    # copy cloud foundary certificates
+    if [ -d "$CF_SYSTEM_CERT_PATH" ]; then
+      cp $CF_SYSTEM_CERT_PATH/*  /usr/local/share/ca-certificates/
+    fi
 
     # load these certs
     /usr/sbin/update-ca-certificates 2>&1 > /dev/null || echo ""
