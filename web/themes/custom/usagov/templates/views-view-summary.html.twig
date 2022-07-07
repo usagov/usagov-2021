@@ -48,6 +48,24 @@
   <div class="usagov-directory-search-container">
     <p>OR</p>
     {# TODO: add remaining search bar component #}
+    <section aria-label="Small search component">
+        <form class="fed-directory-search-bar" role="search">
+        <input
+            class="usa-input fed-directory-search-input"
+            id="search-field-en-small"
+            type="search"
+            placeholder="Search for a Federal Agency"
+            onfocus="this.placeholder"
+            autocomplete="off"
+        />
+        <button class="usa-button fed-directory-search-btn" type="submit">
+            {# TODO: insert custom? USWDS search icon when available #}
+            {# <svg alt="Search" class="usa-icon" aria-hidden="true" focusable="false" role="img">
+              <use xlink:href="/assets/img/sprite.svg#search"></use>
+            </svg> #}
+        </button>
+        </form>
+    </section>
   <div>
 </div>
 
