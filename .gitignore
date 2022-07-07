@@ -18,6 +18,8 @@
 ._.DS_Store
 **/.DS_Store
 **/._.DS_Store
+.dccache
+**/.dccache
 
 /web/.*
 /web/*.php
