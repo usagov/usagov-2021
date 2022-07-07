@@ -1,8 +1,7 @@
 #!/bin/sh
 
-
-
-while true ; do
+if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
+  while true ; do
     echo "C2C certificate update ..."
 
     # Capture the .crt as .pem files for ca-certificates
@@ -29,4 +28,5 @@ while true ; do
 
     # Do this again when the cert file is modified
     inotifywait -q -e modify /etc/cf-assets/envoy_config/sds-c2c-cert-and-key.yaml
-done
+  done
+fi
