@@ -2,6 +2,7 @@
 
 SCRIPT_PATH=$(dirname "$0")
 SCRIPT_NAME=$(basename "$0")
+SCRIPT_PID=$$
 
 URI=${1:-https://beta.usa.gov}
 FORCE=${2:-0}
@@ -34,18 +35,20 @@ TOMELOG=/tmp/tome-log/$TOMELOGFILE
 mkdir -p /tmp/tome-log/$YMD
 touch $TOMELOG
 
-# we should expect to see our process running : so we would expect a count of 1
-ALREADY_RUNNING=$(pgrep $SCRIPT_NAME | wc -l)
+# we should expect to see our process running: so we would expect a count of 1
+echo "Check if Tome is already running ... " | tee -a $TOMELOG
+PS_AUX=$(ps aux)
+ALREADY_RUNNING=$(echo $PS_AUX | grep $SCRIPT_NAME | grep -v $SCRIPT_PID | wc -l)
 if [ "$ALREADY_RUNNING" -gt "1" ]; then
   if [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]]; then
-    echo "Another Tome is already running. Forcing another run anyway." | tee -a $TOMELOG;
+    echo "Another Tome is already running. Forcing another run anyway." | tee -a $TOMELOG
   else
-    echo "Another Tome is already running. Exiting." | tee -a $TOMELOG;
-    exit 2;
-  fi;
+    echo "Another Tome is already running. Exiting." | tee -a $TOMELOG
+    exit 2
+  fi
 else
- echo "No other Tome is running. Proceeding on our own." | tee -a $TOMELOG;
-fi;
+ echo "No other Tome is running. Proceeding on our own." | tee -a $TOMELOG
+fi
 
 # check nodes and blocks for any content changes in the last 30 minutes
 export CONTENT_UPDATED=$(drush sql:query "SELECT SUM(c) FROM ( (SELECT count(*) as c from node_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
