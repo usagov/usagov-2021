@@ -8,8 +8,8 @@ dependencies:
 third_party_settings:
   menu_ui:
     available_menus:
-      - main
-    parent: 'main:'
+      - left-menu-english
+    parent: 'left-menu-english:'
   node_menus:
     enabled: 0
     languages:
