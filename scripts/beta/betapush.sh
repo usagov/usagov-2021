@@ -13,7 +13,7 @@ mkdir -p ${html_files}/js ${html_files}/css $html/themes/custom/usagov/fonts $ht
   cp -rf $theme/fonts $html/themes/custom/usagov && cp -rf $theme/images $html/themes/custom/usagov
   
 
-tomestatic="mkdir -p /tmp/betahtml && drush drush cr --root=${www} && drush -y s3fs-copy-local --root=${www} && ${drushcmd} tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www} && sleep 60 && cp -rf $theme/fonts $html/themes/custom/usagov/ && cp -rf $theme/images $html/themes/custom/usagov/ && rsync -r ${www}/s3/local/cms/public/css ${www}/html/s3/files && rsync -rv ${www}/s3/local/cms/public/js ${www}/html/s3/files && rsync -f ${www}/html/ /tmp/betahtml/html && rm -rf /tmp/betahtml/html/*"
+tomestatic="mkdir -p /tmp/betahtml && ${drushcmd}  cr --root=${www} && ${drushcmd}  -y s3fs-copy-local --root=${www} && ${drushcmd} tome:static -y --uri=$URI --process-count=10 --path-count=10 --root=${www} && sleep 60 && cp -rf $theme/fonts $html/themes/custom/usagov/ && cp -rf $theme/images $html/themes/custom/usagov/ && rsync -r ${www}/s3/local/cms/public/css ${www}/html/s3/files && rsync -rv ${www}/s3/local/cms/public/js ${www}/html/s3/files && rsync -f ${www}/html/ /tmp/betahtml/html && rm -rf /tmp/betahtml/html/*"
 
 if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
   echo "=========== remote ==========="
@@ -28,7 +28,6 @@ if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
   rm betacmd
 else
   echo "=========== Local ==========="
-  drushc='/var/www/vendor/bin/drush'
   echo 'copy css and js to html'
   cp -rf ${www}/s3/local/cms/public/css ${html_files}/css &&\
   cp -rf ${www}/s3/local/cms/public/js ${html_files}/js
