@@ -38,7 +38,7 @@ touch $TOMELOG
 # we should expect to see our process running: so we would expect a count of 1
 echo "Check if Tome is already running ... " | tee -a $TOMELOG
 PS_AUX=$(ps aux)
-ALREADY_RUNNING=$(echo $PS_AUX | grep $SCRIPT_NAME | grep -v $SCRIPT_PID | wc -l)
+ALREADY_RUNNING=$(echo "$PS_AUX" | grep $SCRIPT_NAME | grep -v $SCRIPT_PID | wc -l)
 if [ "$ALREADY_RUNNING" -gt "1" ]; then
   if [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]]; then
     echo "Another Tome is already running. Forcing another run anyway." | tee -a $TOMELOG
