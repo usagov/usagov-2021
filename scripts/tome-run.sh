@@ -39,7 +39,7 @@
 # echo "Check if Tome is already running ... " | tee -a $TOMELOG
 # PS_AUX=$(ps aux)
 # ALREADY_RUNNING=$(echo "$PS_AUX" | grep $SCRIPT_NAME | grep -v $SCRIPT_PID | wc -l)
-# if [ "$ALREADY_RUNNING" -gt "1" ]; then
+# if [ "$ALREADY_RUNNING" -gt "0" ]; then
 #   if [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]]; then
 #     echo "Another Tome is already running. Forcing another run anyway." | tee -a $TOMELOG
 #   else
@@ -59,7 +59,7 @@
 #   $SCRIPT_PATH/tome-static.sh $URI 2>&1 | tee -a $TOMELOG
 #   TOME_SUCCESS=$?
 #   if [ "$TOME_SUCCESS" == "0" ]; then
-#     $SCRIPT_PATH/tome-sync.sh $TOMELOGFILE $YMDHMS
+#     $SCRIPT_PATH/tome-sync.sh $TOMELOGFILE $YMDHMS $FORCE
 #   else
 #     echo "Tome static build failed with status $TOME_SUCCESS - not pushing to S3" | tee -a $TOMELOG
 #     if [ -f "$TOMELOG" ]; then
