@@ -10,8 +10,8 @@ do
 done
 echo "=================================="
 ### login to aws & every 15 seconds
-aws_access_key_id=`echo $VCAP_SERVICES | jq '.s3[] | select(.name=="storage") | .credentials.access_key_id' | tr -d
-aws_secret_access_key=`echo $VCAP_SERVICES | jq '.s3[] | select(.name=="storage") | .credentials.secret_access_key'
+aws_access_key_id=`echo $VCAP_SERVICES | jq '.s3[] | select(.name=="storage") | .credentials.access_key_id' | tr -d '"'` &&\
+aws_secret_access_key=`echo $VCAP_SERVICES | jq '.s3[] | select(.name=="storage") | .credentials.secret_access_key' | tr -d '"'` &&\
 default_region=`echo $VCAP_SERVICES | jq '.s3[] | select(.name=="storage") | .credentials.region' | tr -d '"'` &&\
 bucket=`echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')` &&\
 aws configure set aws_access_key_id $aws_access_key_id &&\
