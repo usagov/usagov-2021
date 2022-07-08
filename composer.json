@@ -99,9 +99,9 @@
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
             "wikimedia/composer-merge-plugin": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-	    "cweagans/composer-patches": true
-	}
+            "cweagans/composer-patches": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     },
     "extra": {
         "drupal-scaffold": {
@@ -149,5 +149,8 @@
                 "Paragraph Embed Preview Update": "https://www.drupal.org/files/issues/2022-05-27/paragraphs_entity_embed_csrf_token.patch"
             }
         }
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2"
     }
 }
