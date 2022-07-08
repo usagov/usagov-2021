@@ -820,6 +820,8 @@ foreach ($cf_service_data as $service_list) {
       $config['s3fs.settings']['bucket'] = $service['credentials']['bucket'];
       $config['s3fs.settings']['region'] = $service['credentials']['region'];
 
+      $config['s3fs.settings']['disable_cert_verify'] = TRUE;
+
       $config['s3fs.settings']['root_folder'] = 'cms';
       $config['s3fs.settings']['public_folder'] = 'public';
       $config['s3fs.settings']['private_folder'] = 'private';

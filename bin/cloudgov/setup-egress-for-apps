@@ -98,9 +98,9 @@ cf target -o "$egressorg" -s "$egressspace" > /dev/null 2>&1 ||
 echo "Using Egress Space ${egressorg}/${egressspace}"
 if [ -z "$proxyname" ]; then
     egressapps=$(cf apps | tail -n +4 | awk '{print $1}')
-    proxyname=$(echo $egressapps | grep -e "^${startspace}-proxy\b" | head -n 1 || echo "")
+    proxyname=$(echo "$egressapps" | grep -e "^${startspace}-proxy\b" | head -n 1 || echo "")
     if [ -z "$proxyname" ]; then
-      proxyname=$(echo $egressapps | grep "^${startspace}-egress" | head -n 1 || echo "")
+      proxyname=$(echo "$egressapps" | grep "^${startspace}-egress" | head -n 1 || echo "")
     fi
 fi
 if [ -z "$proxyname" ]; then
@@ -128,7 +128,7 @@ fi
 $output cf target -o "$startorg" -s "$startspace" 2>&1 > /dev/null
 for app in $applist; do
     echo "Configure Egress settings for $app"
-    $output cf add-network-policy "$app" "$proxyname" -s "$egressspace" -o "$egressorg" --protocol tcp --port 8080
+    $output cf add-network-policy "$app" "$proxyname" -s "$egressspace" -o "$egressorg" --protocol tcp --port 61443
     $output cf set-env "$app" http_proxy  $proxyroute
     $output cf set-env "$app" https_proxy $proxyroute
     # $output cf restart "$app" --no-wait --strategy rolling
