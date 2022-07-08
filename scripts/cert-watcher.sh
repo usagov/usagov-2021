@@ -1,14 +1,11 @@
 #!/bin/sh
 
-<<<<<<< HEAD
 if [ `echo "$VCAP_APPLICATION" | jq -r '.space_name'` != "local" ]; then
-=======
 # on non-cloud.gov systems this file won't exist, so we need to create it
 if [ ! -f /etc/cf-assets/envoy_config/sds-c2c-cert-and-key.yaml ]; then
   mkdir -p /etc/cf-assets/envoy_config/
   touch /etc/cf-assets/envoy_config/sds-c2c-cert-and-key.yaml
 fi
->>>>>>> dev
 
 
   if [ ! -f /etc/cf-assets/envoy_config/sds-c2c-cert-and-key.yaml ]; then
@@ -49,10 +46,5 @@ fi
 
     # Do this again when the cert file is modified
     inotifywait -q -e modify /etc/cf-assets/envoy_config/sds-c2c-cert-and-key.yaml
-<<<<<<< HEAD
   done
 fi
-=======
-
-done
->>>>>>> dev
