@@ -26,6 +26,10 @@ APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
 
+# remove proxy for staging
+cf set-env cms http_proxy  ""
+cf set-env cms https_proxy ""
+
 # launch the apps
 echo "Deploying $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG"
 cf push cms --docker-image $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
