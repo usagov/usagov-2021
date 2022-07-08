@@ -111,7 +111,7 @@ TOME_PUSH_NEW_CONTENT=0
 # take actions depending on our situations
 if [ "$TOME_TOO_MUCH" == "1" ]; then
   echo "Tome static build looks suspicious - adding more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
-  TOME_PUSH_NEW_CONTENT=0
+  TOME_PUSH_NEW_CONTENT=1
   # send message, but continue on
   # write message to php log so newrelic will see it
 elif [ "$TOME_TOO_LITTLE" == "1" ]; then
@@ -126,6 +126,7 @@ else
 fi
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
+  echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/"
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 fi
 
