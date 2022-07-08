@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# on non-cloud.gov systems this file won't exist, so we need to create it
 if [ ! -f /etc/cf-assets/envoy_config/sds-c2c-cert-and-key.yaml ]; then
   mkdir -p /etc/cf-assets/envoy_config/
   touch /etc/cf-assets/envoy_config/sds-c2c-cert-and-key.yaml

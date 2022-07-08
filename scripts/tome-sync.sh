@@ -57,10 +57,13 @@ TOMELOG=/tmp/tome-log/$TOMELOGFILE
 touch $TOMELOG
 
 # Tome is failing to pull in these assets so we will pull them in ourself
-# we put them into the render dir and not the main html dir
+# Add in any extra or missing data
 aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 cp -rf /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rf /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+
+# remove unwanted files
+rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
 
 # lower case all filenames in the copied dir before uploading
 LCF=0
@@ -126,7 +129,7 @@ else
 fi
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
-  echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/"
+  echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 fi
 
