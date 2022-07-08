@@ -61,6 +61,7 @@ touch $TOMELOG
 aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 cp -rf /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rf /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+cp -rf /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 
 # remove unwanted files
 rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
