@@ -4,6 +4,7 @@ TOME_MAX_CHANGE_ALLOWED=0.10
 
 TOMELOGFILE=$1
 YMDHMS=$2
+FORCE=${3:-0}
 
 if [ -z "$YMDHMS" ]; then
   YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
@@ -128,10 +129,15 @@ else
   echo "Tome static build looks fine. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
   TOME_PUSH_NEW_CONTENT=1
 fi
+if [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]]; then
+  TOME_PUSH_NEW_CONTENT=1
+fi
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+else
+  echo "Not pushing content to S3."
 fi
 
 if [ -d "$RENDER_DIR" ]; then
