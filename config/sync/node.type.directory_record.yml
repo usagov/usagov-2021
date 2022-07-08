@@ -23,7 +23,7 @@ third_party_settings:
         parent: 'main:'
 name: 'Directory Record'
 type: directory_record
-description: 'Official agency name'
+description: ''
 help: ''
 new_revision: true
 preview_mode: 1
