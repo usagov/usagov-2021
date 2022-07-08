@@ -4,6 +4,7 @@ TOME_MAX_CHANGE_ALLOWED=0.10
 
 TOMELOGFILE=$1
 YMDHMS=$2
+FORCE=${3:-0}
 
 if [ -z "$YMDHMS" ]; then
   YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
@@ -34,7 +35,7 @@ APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 APP_SPACE=${APP_SPACE:-local}
 
 # endpoint and ssl specifications only necessary on local for minio support
-S3_EXTRA_PARAMS=""
+S3_EXTRA_PARAMS="--no-verify-ssl"
 if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
 fi
@@ -56,6 +57,16 @@ mkdir -p /tmp/tome-log/
 TOMELOG=/tmp/tome-log/$TOMELOGFILE
 touch $TOMELOG
 
+# Tome is failing to pull in these assets so we will pull them in ourself
+# Add in any extra or missing data
+aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+cp -rf /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+cp -rf /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+cp -rf /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+
+# remove unwanted files
+rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
+
 # lower case all filenames in the copied dir before uploading
 LCF=0
 echo "Lower-casing files:"
@@ -72,10 +83,10 @@ echo "    $LCF"
 
 # get a count of current AWS files, total and by extension
 echo "S3 dir storage files : count total" | tee -a $TOMELOG
-S3_COUNT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | wc -l)
+S3_COUNT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bweb\/s3\/files\/" | wc -l)
 echo "     $S3_COUNT" | tee -a $TOMELOG
 echo "S3 dir storage files : count by extension" | tee -a $TOMELOG
-S3_COUNT_BY_EXT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -o ".[^.]\+$" | sort | uniq -c)
+S3_COUNT_BY_EXT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bweb\/s3\/files\/" | grep -o ".[^.]\+$" | sort | uniq -c)
 echo "  $S3_COUNT_BY_EXT" | tee -a $TOMELOG
 
 # get a count of tome generated files, total and by extension
@@ -105,7 +116,7 @@ TOME_PUSH_NEW_CONTENT=0
 # take actions depending on our situations
 if [ "$TOME_TOO_MUCH" == "1" ]; then
   echo "Tome static build looks suspicious - adding more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
-  TOME_PUSH_NEW_CONTENT=0
+  TOME_PUSH_NEW_CONTENT=1
   # send message, but continue on
   # write message to php log so newrelic will see it
 elif [ "$TOME_TOO_LITTLE" == "1" ]; then
@@ -118,11 +129,15 @@ else
   echo "Tome static build looks fine. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
   TOME_PUSH_NEW_CONTENT=1
 fi
+if [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]]; then
+  TOME_PUSH_NEW_CONTENT=1
+fi
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
-  # VERBOSE MODE
-  # aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+else
+  echo "Not pushing content to S3."
 fi
 
 if [ -d "$RENDER_DIR" ]; then

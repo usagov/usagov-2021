@@ -1,6 +1,8 @@
 #!/bin/sh
 
 SCRIPT_PATH=$(dirname "$0")
+SCRIPT_NAME=$(basename "$0")
+SCRIPT_PID=$$
 
 URI=${1:-https://beta.usa.gov}
 FORCE=${2:-0}
@@ -17,7 +19,7 @@ if [ -z "$AWS_ENDPOINT" ] || [ "$AWS_ENDPOINT" == "null" ]; then
   export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.endpoint');
 fi
 
-S3_EXTRA_PARAMS=""
+S3_EXTRA_PARAMS="--no-verify-ssl"
 if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
 fi
@@ -30,19 +32,34 @@ APP_SPACE=${APP_SPACE:-local}
 TOMELOGFILE=$YMD/$APP_SPACE-$YMDHMS.log
 TOMELOG=/tmp/tome-log/$TOMELOGFILE
 
+mkdir -p /tmp/tome-log/$YMD
+touch $TOMELOG
+
+# we should expect to see our process running: so we would expect a count of 1
+echo "Check if Tome is already running ... " | tee -a $TOMELOG
+PS_AUX=$(ps aux)
+ALREADY_RUNNING=$(echo "$PS_AUX" | grep $SCRIPT_NAME | grep -v $SCRIPT_PID | wc -l)
+if [ "$ALREADY_RUNNING" -gt "0" ]; then
+  if [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]]; then
+    echo "Another Tome is already running. Forcing another run anyway." | tee -a $TOMELOG
+  else
+    echo "Another Tome is already running. Exiting." | tee -a $TOMELOG
+    exit 2
+  fi
+else
+ echo "No other Tome is running. Proceeding on our own." | tee -a $TOMELOG
+fi
+
 # check nodes and blocks for any content changes in the last 30 minutes
 export CONTENT_UPDATED=$(drush sql:query "SELECT SUM(c) FROM ( (SELECT count(*) as c from node_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
  UNION ( SELECT count(*) as c from block_content_field_data where changed > (UNIX_TIMESTAMP(now())-(1800))) ) as x")
 if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ $(cat /proc/uptime | grep -o '^[0-9]\+') -gt 1800 ]; then
 
-  mkdir -p /tmp/tome-log/$YMD
-  touch $TOMELOG
-
   echo "Found site changes: running static site build: $TOMELOG"
   $SCRIPT_PATH/tome-static.sh $URI 2>&1 | tee -a $TOMELOG
   TOME_SUCCESS=$?
   if [ "$TOME_SUCCESS" == "0" ]; then
-    $SCRIPT_PATH/tome-sync.sh $TOMELOGFILE $YMDHMS
+    $SCRIPT_PATH/tome-sync.sh $TOMELOGFILE $YMDHMS $FORCE
   else
     echo "Tome static build failed with status $TOME_SUCCESS - not pushing to S3" | tee -a $TOMELOG
     if [ -f "$TOMELOG" ]; then
