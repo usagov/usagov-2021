@@ -1,4 +1,7 @@
 version: 2.1
+orbs:
+  snyk: snyk/snyk@1.2.2
+
 commands:
   deploy-cloudgov:
     parameters:
@@ -68,6 +71,26 @@ commands:
 #     default: false
 
 jobs:
+  scan:
+    machine:
+      image: ubuntu-2004:202107-02
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+      - snyk/scan:
+          command: code test
+          additional-arguments: ./scripts/
+          token-variable:
+          fail-on-issue: false
+          monitor-on-build: false
+          no-output-timeout: 5m
+
   lint:
     docker:
       - image: cimg/php:8.0.16-node
@@ -170,6 +193,20 @@ jobs:
 
 workflows:
   version: 2
+
+  test-scan:
+    jobs:
+      - approve-scan:
+          type: approval
+          filters:
+            branches:
+              only: scanning
+      - scan:
+          requires:
+            - approve-scan
+          filters:
+            branches:
+              only: scanning
 
   commit:
     jobs:
