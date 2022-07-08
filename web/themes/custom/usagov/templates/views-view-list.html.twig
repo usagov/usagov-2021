@@ -34,8 +34,9 @@
  * record within this loop. 
  **************************************************
 #}
-{# TODO: insert letter dynamically here #}
-<h2 class="usagov-directory-letter-heading">A</h2>
+
+{% set current_letter = view.args[0]|upper %}
+<h2 class="usagov-directory-letter-heading">{{- current_letter -}}</h2>
   {% for row in rows %}
   {{ row.content }}
   {% endfor %}
