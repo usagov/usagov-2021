@@ -71,3 +71,6 @@ for SECURITY_GROUP in $DENIED_RUNNING_SECURITY_GROUPS; do
     echo "$SECURITY_GROUP already unbound to $APP_SPACE during 'running' lifecycle"
   fi
 done
+
+echo "The Production App Space needs to disable SSH access"
+echo "cf disallow-space-ssh prod"

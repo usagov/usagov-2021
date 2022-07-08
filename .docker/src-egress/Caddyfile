@@ -34,5 +34,4 @@
 		level INFO
 		output stdout
 	}
-	tls cert.pem key.pem
 }
