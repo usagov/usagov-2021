@@ -54,8 +54,8 @@ fi
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
 startspace=$( cf target | grep space: | awk '{ print $2 }')
 
-egressspace=${2:-shared-egress}
-egressorg=${3:-$startorg}
+egressspace=${1:-shared-egress}
+egressorg=${2:-$startorg}
 
 # Drop them off where we found them
 function popspace() {
@@ -74,9 +74,9 @@ echo "Using Egress Space ${egressorg}/${egressspace}"
 proxyname=""
 if [ -z "$proxyname" ]; then
     egressapps=$(cf apps | tail -n +4 | awk '{print $1}')
-    proxyname=$(echo $egressapps | grep -e "^${startspace}-proxy\b" | head -n 1 || echo "")
+    proxyname=$(echo "$egressapps" | grep -e "^${startspace}-proxy\b" | head -n 1 || echo "")
     if [ -z "$proxyname" ]; then
-      proxyname=$(echo $egressapps | grep "^${startspace}-egress" | head -n 1 || echo "")
+      proxyname=$(echo "$egressapps" | grep "^${startspace}-egress" | head -n 1 || echo "")
     fi
 fi
 if [ -z "$proxyname" ]; then
@@ -94,22 +94,24 @@ fi
 # setup only one egress app per space, and point both waf and cms towards it
 echo "Gather Bucket names from App Space"
 buckethosts=""
+applist="cms waf"
 for app in $applist ; do
+    echo "Gathering buckets for $app"
     VCAP_SERVICES=$(cf env "$app" | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
-    n=$(echo "$VCAP_SERVICES" | jq -r '.s3 | length')
+    n=$(echo -E "$VCAP_SERVICES" | jq -r '.s3 | length')
     i=0
     while [ $i -lt "$n" ]
     do
         # Add attached buckets to the allow list
-        BUCKET=$(            echo "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
-        AWS_ENDPOINT=$(      echo "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint")
-        AWS_FIPS_ENDPOINT=$( echo "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint")
+        BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
+        AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint")
+        AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint")
         # Add both the FIPS and non-FIPS hostnames
         buckethosts="$buckethosts ${BUCKET}.${AWS_ENDPOINT} ${BUCKET}.${AWS_FIPS_ENDPOINT}"
         ((i+=1))
     done
 done
-echo "Using buckets: $buckerhosts"
+echo "Using buckets: $buckethosts"
 
 # We need these files to exist for each app, even if they're empty.
 echo "Touching $SCRIPT_DIR/apps-egress-deny.acl"
@@ -147,7 +149,8 @@ $proxyallow
 echo "Deploy Egress Proxy App"
 $output cf target -o "$egressorg" -s "$egressspace" 2>&1 > /dev/null
 $output cf push $proxyname -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
-$output cf set-env $proxyname proxy_route "https://$username:$password@$proxyname.apps.internal:8080"
+$output cf set-env $proxyname proxy_route "https://$username:$password@$proxyname.apps.internal:61443"
+
 if [ -n "${DRYRUN}" ]; then
     echo "# vars-file content:"
     echo "$(cat ./manifest-egress-vars.yml | sed -e 's/^/#  -->/')"
