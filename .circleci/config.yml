@@ -86,7 +86,8 @@ jobs:
       - run:
           name: Scan Code
           command: |
-            ./bin/scan-code 2>&1 | tee /tmp/results/scan-code.log || SCAN_RESULT=$?
+            export SCAN_RESULT=0
+            (./bin/scan-code 2>&1 | tee /tmp/results/scan-code.log) || SCAN_RESULT=$?
             cat /tmp/results/scan-code.log
             exit $SCAN_RESULT
       - store_artifacts:
