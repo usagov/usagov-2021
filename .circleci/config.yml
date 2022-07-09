@@ -83,6 +83,7 @@ jobs:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
             mkdir -p /tmp/results
             touch /tmp/results/scan-code.log
+            touch /tmp/results/scan-dependencies.log
       - run:
           name: Scan Code
           when: always
@@ -99,12 +100,6 @@ jobs:
             if (./bin/scan-dependencies | tee /tmp/results/scan-dependencies.log); then export SCAN_DEPS_RESULT=$?; else export SCAN_DEPS_RESULT=$?; fi
             cat /tmp/results/scan-dependencies.log
             exit $SCAN_DEPS_RESULT
-      # - run:
-      #     name: Scan Results
-      #     command: |
-      #       if [ "$SCAN_CODE_RESULT" -gt 0 ]; then echo "FAILED Code Scan!"; else echo "Passed Code Scan."; fi;
-      #       if [ "$SCAN_DEPS_RESULT" -gt 0 ]; then echo "FAILED Dependency Scan!"; else echo "Passed Dependency Scan."; fi;
-      #       if [ "$SCAN_CODE_RESULT" -gt 0 ] || [ "$SCAN_DEPS_RESULT" -gt 0 ]; then exit 1; fi
       - store_artifacts:
           path: /tmp/results
 
@@ -153,21 +148,51 @@ jobs:
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            mkdir -p /tmp/results
+            touch /tmp/results/scan-code.log
+            touch /tmp/results/scan-dependencies.log
+            touch /tmp/results/scan-container-cms.log
+            touch /tmp/results/scan-container-waf.log
       - run:
           name: Login to Docker Hub
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             echo $DOCKERHUB_ACCESS_TOKEN | $SUDO docker login -u $DOCKERHUB_USERNAME --password-stdin
-      # snyk scan code - save as artifact
-      # snyk scan code dependencies composer.json and package.json - save as artifact
+      - run:
+          name: Scan Code
+          command: |
+            SCAN_CODE_RESULT=0
+            if (./bin/scan-code | tee /tmp/results/scan-code.log); then export SCAN_CODE_RESULT=$?; else export SCAN_CODE_RESULT=$?; fi
+            cat /tmp/results/scan-code.log
+            exit 0
+      - run:
+          name: Scan Dependencies
+          command: |
+            SCAN_DEPS_RESULT=0
+            if (./bin/scan-dependencies | tee /tmp/results/scan-dependencies.log); then export SCAN_DEPS_RESULT=$?; else export SCAN_DEPS_RESULT=$?; fi
+            cat /tmp/results/scan-dependencies.log
+            exit 0
       - run:
           name: Build Container
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
-      # snyk scan container - save as artifact
+      - run:
+          name: Scan CMS Container
+          command: |
+            SCAN_CMS_RESULT=0
+            if (./bin/scan-container cms << pipeline.number >> | tee /tmp/results/scan-container-cms.log); then export SCAN_CMS_RESULT=$?; else export SCAN_CMS_RESULT=$?; fi
+            cat /tmp/results/scan-container-cms.log
+            exit 0
+      - run:
+          name: Scan WAF Container
+          command: |
+            SCAN_WAF_RESULT=0
+            if (./bin/scan-container waf << pipeline.number >> | tee /tmp/results/scan-container-waf.log); then export SCAN_WAF_RESULT=$?; else export SCAN_WAF_RESULT=$?; fi
+            cat /tmp/results/scan-container-waf.log
+            exit 0
       # - save-image-digest
       - run:
           name: Push Container to Docker Hub
@@ -175,6 +200,8 @@ jobs:
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-push << pipeline.number >> latest
+      - store_artifacts:
+          path: /tmp/results
 
   deploy-to-cloudgov-dev:
     machine:
@@ -249,6 +276,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - scanning
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -258,6 +286,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - scanning
 
       - approve-dev-deployment:
           type: approval
