@@ -86,8 +86,19 @@ jobs:
       - run:
           name: Scan Code
           command: |
-            ./bin/scan-code | tee /tmp/results/scan-code.log || cat /tmp/results/scan-code.log
+            if ./bin/scan-code | tee /tmp/results/scan-code.log; then
+              cat /tmp/results/scan-code.log
+              exit 0
+            fi
             cat /tmp/results/scan-code.log
+      - run:
+          name: Scan Dependencies
+          command: |
+            if ./bin/scan-dependencies | tee /tmp/results/scan-dependencies.log; then
+              cat /tmp/results/scan-dependencies.log
+              exit 0
+            fi
+            cat /tmp/results/scan-dependencies.log
       - store_artifacts:
           path: /tmp/results
   lint:
