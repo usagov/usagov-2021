@@ -87,18 +87,18 @@ jobs:
           name: Scan Code
           when: always
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            SCAN_CODE_RESULT=0
             if (./bin/scan-code | tee /tmp/results/scan-code.log); then export SCAN_CODE_RESULT=$?; else export SCAN_CODE_RESULT=$?; fi
-            echo "export SCAN_CODE_RESULT=$SCAN_CODE_RESULT" | $SUDO tee -a /home/circleci/project/env.local
             cat /tmp/results/scan-code.log
+            exit $SCAN_CODE_RESULT
       - run:
           name: Scan Dependencies
           when: always
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            SCAN_DEPS_RESULT=0
             if (./bin/scan-dependencies | tee /tmp/results/scan-dependencies.log); then export SCAN_DEPS_RESULT=$?; else export SCAN_DEPS_RESULT=$?; fi
-            echo "export SCAN_DEPS_RESULT=$SCAN_DEPS_RESULT" | $SUDO tee -a /home/circleci/project/env.local
             cat /tmp/results/scan-dependencies.log
+            exit $SCAN_DEPS_RESULT
       # - run:
       #     name: Scan Results
       #     command: |
