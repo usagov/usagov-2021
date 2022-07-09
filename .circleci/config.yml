@@ -86,7 +86,7 @@ jobs:
       - run:
           name: Scan Code
           command: |
-            ./bin/scan-code 2>&1 | tee /tmp/results/scan-code.log
+            ./bin/scan-code 2>&1 | tee /tmp/results/scan-code.log || (cat /tmp/results/scan-code.log && exit 1)
       - store_artifacts:
           path: /tmp/results
   lint:
