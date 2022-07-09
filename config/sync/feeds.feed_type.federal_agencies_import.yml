@@ -1,0 +1,238 @@
+uuid: 7502e2d2-674c-475d-9323-2ec0da3fedc4
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.base_field_override.node.directory_record.title
+    - field.field.node.directory_record.field_city
+    - field.field.node.directory_record.field_email
+    - field.field.node.directory_record.field_english_title
+    - field.field.node.directory_record.field_government_branch
+    - field.field.node.directory_record.field_mothership_uuid
+    - field.field.node.directory_record.field_page_intro
+    - field.field.node.directory_record.field_state_abbr
+    - field.field.node.directory_record.field_street_1
+    - field.field.node.directory_record.field_street_2
+    - field.field.node.directory_record.field_synonym
+    - field.field.node.directory_record.field_toll_free_number
+    - field.field.node.directory_record.field_tty_
+    - field.field.node.directory_record.field_zip
+    - node.type.directory_record
+  module:
+    - node
+label: 'Federal Agencies Import'
+id: federal_agencies_import
+description: ''
+help: ''
+import_period: -1
+fetcher: upload
+fetcher_configuration:
+  allowed_extensions: 'txt csv tsv xml opml'
+  directory: 'public://feeds'
+parser: csv
+parser_configuration:
+  delimiter: ','
+  no_headers: false
+  line_limit: 100
+processor: 'entity:node'
+processor_configuration:
+  values:
+    type: directory_record
+  langcode: en
+  insert_new: 1
+  update_existing: 2
+  update_non_existent: _keep
+  skip_hash_check: false
+  authorize: true
+  expire: -1
+  owner_feed_author: true
+  owner_id: 0
+custom_sources:
+  title:
+    value: Title
+    label: Title
+    machine_name: title
+    type: csv
+  agency:
+    value: Agency
+    label: Agency
+    machine_name: agency
+    type: csv
+  city:
+    value: City
+    label: City
+    machine_name: city
+    type: csv
+  email:
+    value: Email
+    label: Email
+    machine_name: email
+    type: csv
+  english_translation_name:
+    value: 'English Translation Name'
+    label: 'English Translation Name'
+    machine_name: english_translation_name
+    type: csv
+  state:
+    value: State
+    label: State
+    machine_name: state
+    type: csv
+  street_1:
+    value: 'Street 1'
+    label: 'Street 1'
+    machine_name: street_1
+    type: csv
+  street_2:
+    value: 'Street 2'
+    label: 'Street 2'
+    machine_name: street_2
+    type: csv
+  summary:
+    value: Summary
+    label: Summary
+    machine_name: summary
+    type: csv
+  synonym:
+    value: Synonym
+    label: Synonym
+    machine_name: synonym
+    type: csv
+  toll_free_number:
+    value: 'Toll free number'
+    label: 'Toll free number'
+    machine_name: toll_free_number
+    type: csv
+  tty_number:
+    value: 'TTY number'
+    label: 'TTY number'
+    machine_name: tty_number
+    type: csv
+  government_branch:
+    value: 'Government branch'
+    label: 'Government branch'
+    machine_name: government_branch
+    type: csv
+  zip:
+    value: ZIP
+    label: ZIP
+    machine_name: zip
+    type: csv
+  '':
+    value: ''
+    label: ''
+    machine_name: ''
+    type: csv
+  path:
+    value: Path
+    label: Path
+    machine_name: path
+    type: csv
+  uuid:
+    value: UUID
+    label: UUID
+    machine_name: uuid
+    type: csv
+mappings:
+  -
+    target: title
+    map:
+      value: title
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_government_branch
+    map:
+      value: government_branch
+    settings:
+      language: null
+  -
+    target: field_city
+    map:
+      value: city
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_email
+    map:
+      value: email
+    settings:
+      language: null
+      defuse: false
+    unique: {  }
+  -
+    target: field_english_title
+    map:
+      value: english_translation_name
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_state_abbr
+    map:
+      value: state
+    settings:
+      language: null
+  -
+    target: field_street_1
+    map:
+      value: street_1
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_street_2
+    map:
+      value: street_2
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_page_intro
+    map:
+      value: summary
+    settings:
+      language: null
+  -
+    target: field_synonym
+    map:
+      value: synonym
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_toll_free_number
+    map:
+      value: toll_free_number
+    settings:
+      language: null
+  -
+    target: field_tty_
+    map:
+      value: tty_number
+    settings:
+      language: null
+  -
+    target: field_zip
+    map:
+      value: zip
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: path
+    map:
+      alias: path
+      pathauto: ''
+    settings:
+      language: ''
+  -
+    target: field_mothership_uuid
+    map:
+      value: uuid
+    settings:
+      language: null
+    unique:
+      value: '1'

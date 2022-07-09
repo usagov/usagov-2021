@@ -1,0 +1,19 @@
+uuid: f907ec78-25c0-4a7c-b4ef-01599f629ffe
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_mothership_uuid
+    - node.type.directory_record
+id: node.directory_record.field_mothership_uuid
+field_name: field_mothership_uuid
+entity_type: node
+bundle: directory_record
+label: mothership_uuid
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
