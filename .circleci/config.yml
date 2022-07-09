@@ -101,7 +101,7 @@ jobs:
           name: Scan Results
           command: |
             if [ "$SCAN_CODE_RESULT" -gt 0 ]; then echo "FAILED Code Scan!"; else echo "Passed Code Scan."; fi;
-            if [ "$SCAN_REPS_RESULT" -gt 0 ]; then echo "FAILED Dependency Scan!"; else echo "Passed Dependency Scan."; fi;
+            if [ "$SCAN_DEPS_RESULT" -gt 0 ]; then echo "FAILED Dependency Scan!"; else echo "Passed Dependency Scan."; fi;
             if [ "$SCAN_CODE_RESULT" -gt 0 ] || [ "$SCAN_DEPS_RESULT" -gt 0 ]; then exit 1; fi
       - store_artifacts:
           path: /tmp/results
