@@ -18,5 +18,5 @@ IMAGE=${1:-"dnark/usagov-2021:cms-latest"}
 docker run -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v /var/run/docker.sock:/var/run/docker.sock \
-  snyk/snyk:alpine snyk container test $IMAGE --org=$SNYK_ORG
+  snyk/snyk:docker snyk container test $IMAGE --org=$SNYK_ORG
 
