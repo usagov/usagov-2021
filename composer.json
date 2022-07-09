@@ -101,8 +101,8 @@
             "drupal/core-project-message": true,
             "wikimedia/composer-merge-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-	    "cweagans/composer-patches": true
-	}
+            "cweagans/composer-patches": true
+        }
     },
     "extra": {
         "drupal-scaffold": {
