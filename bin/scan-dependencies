@@ -19,6 +19,6 @@ docker run -it --rm \
     -v "$(pwd)/composer.lock:/app/composer.lock" \
     -v "$(pwd)/web/themes/custom/usagov/package.json:/app/web/themes/custom/usagov/package.json" \
     -v "$(pwd)/web/themes/custom/usagov/package-lock.json:/app/web/themes/custom/usagov/package-lock.json" \
-  snyk/snyk:alpine snyk test --org=$SNYK_ORG
+  snyk/snyk:php snyk test --org=$SNYK_ORG
 
   # snyk/snyk:alpine snyk test --org=$SNYK_ORG
