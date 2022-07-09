@@ -42,7 +42,7 @@ commands:
       - run:
           name: Install AWS CLI
           command: |
-            if command aws > /dev/null; then echo "AWS client already installed"; exit 0; fi
+            if aws --version; then echo "AWS client already installed"; exit 0; fi
             sudo apt-get update
             sudo apt-get install python3 python3-pip
             sudo pip install awscli
@@ -100,22 +100,22 @@ jobs:
             mkdir -p /tmp/results
             touch /tmp/results/scan-code.log
             touch /tmp/results/scan-dependencies.log
-      - run:
-          name: Scan Code
-          when: always
-          command: |
-            SCAN_CODE_RESULT=0
-            if (./bin/scan-code | tee /tmp/results/scan-code.log); then export SCAN_CODE_RESULT=$?; else export SCAN_CODE_RESULT=$?; fi
-            cat /tmp/results/scan-code.log
-            exit $SCAN_CODE_RESULT
-      - run:
-          name: Scan Dependencies
-          when: always
-          command: |
-            SCAN_DEPS_RESULT=0
-            if (./bin/scan-dependencies | tee /tmp/results/scan-dependencies.log); then export SCAN_DEPS_RESULT=$?; else export SCAN_DEPS_RESULT=$?; fi
-            cat /tmp/results/scan-dependencies.log
-            exit $SCAN_DEPS_RESULT
+      # - run:
+      #     name: Scan Code
+      #     when: always
+      #     command: |
+      #       SCAN_CODE_RESULT=0
+      #       if (./bin/scan-code | tee /tmp/results/scan-code.log); then export SCAN_CODE_RESULT=$?; else export SCAN_CODE_RESULT=$?; fi
+      #       cat /tmp/results/scan-code.log
+      #       exit $SCAN_CODE_RESULT
+      # - run:
+      #     name: Scan Dependencies
+      #     when: always
+      #     command: |
+      #       SCAN_DEPS_RESULT=0
+      #       if (./bin/scan-dependencies | tee /tmp/results/scan-dependencies.log); then export SCAN_DEPS_RESULT=$?; else export SCAN_DEPS_RESULT=$?; fi
+      #       cat /tmp/results/scan-dependencies.log
+      #       exit $SCAN_DEPS_RESULT
       - store_artifacts:
           path: /tmp/results
 
