@@ -5,6 +5,7 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.directory_record.body
+    - field.field.node.directory_record.feeds_item
     - field.field.node.directory_record.field_city
     - field.field.node.directory_record.field_contact_link
     - field.field.node.directory_record.field_contact_link_additional
@@ -13,6 +14,7 @@ dependencies:
     - field.field.node.directory_record.field_government_branch
     - field.field.node.directory_record.field_info_for_contact_center
     - field.field.node.directory_record.field_language
+    - field.field.node.directory_record.field_mothership_uuid
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_official_website_additiona
     - field.field.node.directory_record.field_official_website_primary
@@ -41,6 +43,7 @@ content:
     region: content
 hidden:
   body: true
+  feeds_item: true
   field_city: true
   field_contact_link: true
   field_contact_link_additional: true
@@ -49,6 +52,7 @@ hidden:
   field_government_branch: true
   field_info_for_contact_center: true
   field_language: true
+  field_mothership_uuid: true
   field_offices_near_you: true
   field_official_website_additiona: true
   field_official_website_primary: true
