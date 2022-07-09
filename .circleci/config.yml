@@ -1,6 +1,4 @@
 version: 2.1
-orbs:
-  snyk: snyk/snyk@1.2.2
 
 commands:
   deploy-cloudgov:
@@ -83,13 +81,10 @@ jobs:
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
-      - snyk/scan:
-          command: code test
-          additional-arguments: ./scripts/
-          token-variable:
-          fail-on-issue: false
-          monitor-on-build: false
-          no-output-timeout: 5m
+      - run:
+          name: Scan Code
+          command: |
+            ./bin/scan-code
 
   lint:
     docker:
