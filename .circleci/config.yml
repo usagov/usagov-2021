@@ -69,7 +69,7 @@ commands:
 #     default: false
 
 jobs:
-  scan:
+  scan-code:
     machine:
       image: ubuntu-2004:202107-02
     environment:
@@ -85,6 +85,7 @@ jobs:
             touch /tmp/results/scan-code.log
       - run:
           name: Scan Code
+          when: always
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             if (./bin/scan-code | tee /tmp/results/scan-code.log); then export SCAN_CODE_RESULT=$?; else export SCAN_CODE_RESULT=$?; fi
@@ -92,19 +93,21 @@ jobs:
             cat /tmp/results/scan-code.log
       - run:
           name: Scan Dependencies
+          when: always
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             if (./bin/scan-dependencies | tee /tmp/results/scan-dependencies.log); then export SCAN_DEPS_RESULT=$?; else export SCAN_DEPS_RESULT=$?; fi
             echo "export SCAN_DEPS_RESULT=$SCAN_DEPS_RESULT" | $SUDO tee -a /home/circleci/project/env.local
             cat /tmp/results/scan-dependencies.log
-      - run:
-          name: Scan Results
-          command: |
-            if [ "$SCAN_CODE_RESULT" -gt 0 ]; then echo "FAILED Code Scan!"; else echo "Passed Code Scan."; fi;
-            if [ "$SCAN_DEPS_RESULT" -gt 0 ]; then echo "FAILED Dependency Scan!"; else echo "Passed Dependency Scan."; fi;
-            if [ "$SCAN_CODE_RESULT" -gt 0 ] || [ "$SCAN_DEPS_RESULT" -gt 0 ]; then exit 1; fi
+      # - run:
+      #     name: Scan Results
+      #     command: |
+      #       if [ "$SCAN_CODE_RESULT" -gt 0 ]; then echo "FAILED Code Scan!"; else echo "Passed Code Scan."; fi;
+      #       if [ "$SCAN_DEPS_RESULT" -gt 0 ]; then echo "FAILED Dependency Scan!"; else echo "Passed Dependency Scan."; fi;
+      #       if [ "$SCAN_CODE_RESULT" -gt 0 ] || [ "$SCAN_DEPS_RESULT" -gt 0 ]; then exit 1; fi
       - store_artifacts:
           path: /tmp/results
+
   lint:
     docker:
       - image: cimg/php:8.0.16-node
@@ -210,14 +213,14 @@ workflows:
 
   test-scan:
     jobs:
-      - approve-scan:
+      - approve-scan-code:
           type: approval
           filters:
             branches:
               only: scanning
-      - scan:
+      - scan-code:
           requires:
-            - approve-scan
+            - approve-scan-code
           filters:
             branches:
               only: scanning
