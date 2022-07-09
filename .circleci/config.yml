@@ -27,6 +27,7 @@ commands:
 
   save-image-digest:
     steps:
+      - install-cloud-foundry
       - run:
           name: Save Image Digest of container
           command: |
@@ -34,16 +35,29 @@ commands:
             WAF_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:waf-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
             echo "Saving cms-<< pipeline.number >> -> $CMS_DIGEST"
             echo "Saving waf-<< pipeline.number >> -> $CMS_DIGEST"
+            echo "cf target -s shared-egress -o gsa-tts-usagov"
+
+  install-aws-cli:
+    steps:
+      - run:
+          name: Install AWS CLI
+          command: |
+            if command aws > /dev/null; then echo "AWS client already installed"; exit 0; fi
+            sudo apt-get update
+            sudo apt-get install python python-pip
+            sudo pip install awscli
+            aws --version
 
   install-cloud-foundry:
     steps:
       - run:
           name: Install CloudFoundry
           command: |
+            if command cf > /dev/null; then echo "CF client already installed"; exit 0; fi
             wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
             echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
             sudo apt-get update
-            sudo apt-get install cf7-cli
+            sudo apt-get install cf8-cli
             cf -v
 
   install-node:
@@ -76,6 +90,8 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout
+      - install-cloud-foundry
+      - install-aws-cli
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -193,13 +209,13 @@ jobs:
             if (./bin/scan-container waf << pipeline.number >> | tee /tmp/results/scan-waf-container.log); then export SCAN_WAF_RESULT=$?; else export SCAN_WAF_RESULT=$?; fi
             cat /tmp/results/scan-waf-container.log
             exit 0
-      # - save-image-digest
       - run:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-push << pipeline.number >> latest
+      - save-image-digest
       - store_artifacts:
           path: /tmp/results
 
