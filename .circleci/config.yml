@@ -84,8 +84,9 @@ jobs:
       - run:
           name: Scan Code
           command: |
-            ./bin/scan-code
-
+            ./bin/scan-code 2>&1 > /tmp/results/scan-code.log
+      - store_artifacts:
+          path: /tmp/results
   lint:
     docker:
       - image: cimg/php:8.0.16-node
