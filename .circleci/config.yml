@@ -44,7 +44,7 @@ commands:
           command: |
             if command aws > /dev/null; then echo "AWS client already installed"; exit 0; fi
             sudo apt-get update
-            sudo apt-get install python python-pip
+            sudo apt-get install python3 python3-pip
             sudo pip install awscli
             aws --version
 
