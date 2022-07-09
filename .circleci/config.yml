@@ -81,10 +81,12 @@ jobs:
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            mkdir -p /tmp/results
+            touch /tmp/results/scan-code.log
       - run:
           name: Scan Code
           command: |
-            ./bin/scan-code 2>&1 > /tmp/results/scan-code.log
+            ./bin/scan-code | tee /tmp/results/scan-code.log
       - store_artifacts:
           path: /tmp/results
   lint:
