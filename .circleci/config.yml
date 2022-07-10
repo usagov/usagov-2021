@@ -113,8 +113,12 @@ jobs:
             export WAF_DIGEST=""
             if aws s3 cp s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/cms-<< pipeline.number >> ./cms-image-digest; then export CMS_DIGEST="@"$(cat ./cms-image-digest | sed 's/^sha256\://' ); fi
             if aws s3 cp s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest | sed 's/^sha256\://' ); fi
-            docker pull $DOCKERUSER/$DOCKERREPO:cms-latest$CMS_DIGEST
-            docker pull $DOCKERUSER/$DOCKERREPO:waf-latest$WAF_DIGEST
+
+            echo "CMS_DIGEST = $CMS_DIGEST"
+            echo "WAF_DIGEST = $WAF_DIGEST"
+
+            echo "docker pull $DOCKERUSER/$DOCKERREPO:cms-latest$CMS_DIGEST"
+            echo "docker pull $DOCKERUSER/$DOCKERREPO:waf-latest$WAF_DIGEST"
       # - run:
       #     name: Scan Code
       #     when: always
