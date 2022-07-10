@@ -92,6 +92,8 @@ jobs:
       - run:
           name: Save Key to shared space
           command: |
+            docker pull $DOCKERUSER/$DOCKERREPO:cms-latest
+            docker pull $DOCKERUSER/$DOCKERREPO:waf-latest
             CMS_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:cms-latest | jq -r '.[].Id' | grep sha256)
             WAF_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:waf-latest | jq -r '.[].Id' | grep sha256)
             echo "Saving cms-<< pipeline.number >> -> $CMS_DIGEST"
