@@ -118,7 +118,10 @@ jobs:
             echo "WAF_DIGEST = $WAF_DIGEST"
 
             echo "docker pull $DOCKERUSER/$DOCKERREPO:cms-latest$CMS_DIGEST"
+            docker pull $DOCKERUSER/$DOCKERREPO:cms-latest$CMS_DIGEST
+
             echo "docker pull $DOCKERUSER/$DOCKERREPO:waf-latest$WAF_DIGEST"
+            docker pull $DOCKERUSER/$DOCKERREPO:waf-latest$WAF_DIGEST
       # - run:
       #     name: Scan Code
       #     when: always
