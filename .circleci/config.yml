@@ -37,17 +37,6 @@ commands:
             echo "Saving waf-<< pipeline.number >> -> $CMS_DIGEST"
             echo "cf target -s shared-egress -o gsa-tts-usagov"
 
-  install-aws-cli:
-    steps:
-      - run:
-          name: Install AWS CLI
-          command: |
-            if aws --version; then echo "AWS client already installed"; exit 0; fi
-            sudo apt-get update
-            sudo apt-get install python3 python3-pip
-            sudo pip install awscli
-            aws --version
-
   install-cloud-foundry:
     steps:
       - run:
@@ -91,7 +80,6 @@ jobs:
     steps:
       - checkout
       - install-cloud-foundry
-      - install-aws-cli
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -100,6 +88,19 @@ jobs:
             mkdir -p /tmp/results
             touch /tmp/results/scan-code.log
             touch /tmp/results/scan-dependencies.log
+            touch /tmp/results/image-digest.log
+      - run:
+          name: Save Key to shared space
+          command: |
+            CMS_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:cms-latest | jq -r '.[].Id' | grep sha256)
+            WAF_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:waf-latest | jq -r '.[].Id' | grep sha256)
+            echo "Saving cms-<< pipeline.number >> -> $CMS_DIGEST"
+            echo "Saving waf-<< pipeline.number >> -> $CMS_DIGEST"
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            aws s3 cp <(echo "$CMS_DIGEST") s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/cms-<< pipeline.number >>
+            aws s3 cp s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/cms-<< pipeline.number >> /tmp/results/image-digest.log
       # - run:
       #     name: Scan Code
       #     when: always

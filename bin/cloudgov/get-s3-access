@@ -2,23 +2,41 @@
 
 SPACE=$(cf target | grep space: | awk '{print $2}');
 if [ -z "$SPACE" ]; then
-  echo "You must choose a space before procesing ./bin/cloudgov/space (personal|dev|stage|prod)"
+  echo "You must choose a space before procesing ./bin/cloudgov/space (personal|dev|stage|prod|shared-egress)"
   exit 1
 fi;
 
+SERVICE_NAME=${1:-storage}
+
+if ! cf service "$SERVICE_NAME" >/dev/null 2>&1; then
+  echo "S3 service $SERVICE_NAME does not exist in space $SPACE"
+  exit 1
+fi
+
+SERVICE_KEY="storagekey-$SPACE-$SERVICE_NAME"
+
+if ! cf service "$SERVICE_NAME" >/dev/null 2>&1; then
+  echo "S3 service $SERVICE_NAME does not exist in space $SPACE"
+  exit 1
+fi
+
 # gather s3 credentials from storage key
-cf create-service-key storage storagekey-$SPACE
-S3INFO=$(cf service-key storage storagekey-$SPACE)
-S3_BUCKET=$(echo "$S3INFO" | grep '"bucket":' | sed 's/.*"bucket": "\([^"]*\)".*/\1/')
-S3_REGION=$(echo "$S3INFO" | grep '"region":' | sed 's/.*"region": "\([^"]*\)".*/\1/')
-S3_ACCESS_KEY_ID=$(echo "$S3INFO" | grep '"access_key_id":' | sed 's/.*"access_key_id": "\([^"]*\)".*/\1/')
-S3_SECRET_ACCESS_KEY=$(echo "$S3INFO" | grep '"secret_access_key":' | sed 's/.*"secret_access_key": "\([^"]*\)".*/\1/')
+cf create-service-key $SERVICE_NAME $SERVICE_KEY
+export S3INFO=$(cf service-key $SERVICE_NAME $SERVICE_KEY)
+export S3_BUCKET=$(echo "$S3INFO" | grep '"bucket":' | sed 's/.*"bucket": "\([^"]*\)".*/\1/')
+export S3_REGION=$(echo "$S3INFO" | grep '"region":' | sed 's/.*"region": "\([^"]*\)".*/\1/')
+export S3_ACCESS_KEY_ID=$(echo "$S3INFO" | grep '"access_key_id":' | sed 's/.*"access_key_id": "\([^"]*\)".*/\1/')
+export S3_SECRET_ACCESS_KEY=$(echo "$S3INFO" | grep '"secret_access_key":' | sed 's/.*"secret_access_key": "\([^"]*\)".*/\1/')
 
 # pass s3 credentials through to container as env vars
-echo "AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID"
-echo "AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY"
-echo "BUCKET_NAME=$S3_BUCKET"
-echo "AWS_DEFAULT_REGION=$S3_REGION"
+export AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID
+export AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
+export AWS_DEFAULT_REGION=$S3_REGION
+export BUCKET_NAME=$S3_BUCKET
 
-echo "Cleanup:"
-echo "   cf delete-service-key storage storagekey-$SPACE -f"
+aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+aws configure set default.region $AWS_DEFAULT_REGION
+
+echo
+echo "cf delete-service-key $SERVICE_NAME $SERVICE_KEY -f"
