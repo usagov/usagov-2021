@@ -96,8 +96,6 @@ jobs:
             docker pull $DOCKERUSER/$DOCKERREPO:waf-latest
             CMS_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:cms-latest | jq -r '.[].Id' | grep sha256)
             WAF_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:waf-latest | jq -r '.[].Id' | grep sha256)
-            echo "Saving cms-<< pipeline.number >> -> $CMS_DIGEST"
-            echo "Saving waf-<< pipeline.number >> -> $CMS_DIGEST"
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
             . ./bin/cloudgov/get-s3-access key-value
@@ -105,8 +103,20 @@ jobs:
             echo "$WAF_DIGEST" > ./waf_digest
             aws s3 cp ./cms_digest s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/cms-<< pipeline.number >>
             aws s3 cp ./waf_digest s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/waf-<< pipeline.number >>
-            aws s3 cp s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/cms-<< pipeline.number >> /tmp/results/cms-image-digest.log
-            aws s3 cp s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/waf-<< pipeline.number >> /tmp/results/waf-image-digest.log
+      - run:
+          name: Read Keys from shared space
+          command: |
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            export CMS_DIGEST=""
+            export WAF_DIGEST=""
+            if aws s3 cp s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/cms-<< pipeline.number >> ./cms-image-digest; then export CMS_DIGEST="@"$(cat ./cms-image-digest); fi
+            if aws s3 cp s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest); fi
+            echo docker pull $DOCKERUSER/$DOCKERREPO:cms-latest$CMS_DIGEST
+            docker pull $DOCKERUSER/$DOCKERREPO:cms-latest$CMS_DIGEST
+            echo docker pull $DOCKERUSER/$DOCKERREPO:waf-latest$WAF_DIGEST
+            docker pull $DOCKERUSER/$DOCKERREPO:waf-latest$WAF_DIGEST
       # - run:
       #     name: Scan Code
       #     when: always
