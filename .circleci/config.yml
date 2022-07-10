@@ -117,7 +117,7 @@ jobs:
             echo "CMS_DIGEST = $CMS_DIGEST"
             echo "WAF_DIGEST = $WAF_DIGEST"
 
-            echo "docker pull ${DOCKERUSER}/${DOCKERREPO:cms-latest${CMS_DIGEST}"
+            echo "docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-latest${CMS_DIGEST}"
             docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-latest${CMS_DIGEST}
 
             echo "docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-latest${WAF_DIGEST}"
