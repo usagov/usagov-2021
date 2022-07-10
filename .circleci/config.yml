@@ -72,7 +72,7 @@ commands:
 #     default: false
 
 jobs:
-  scan-code:
+  test-stuff:
     machine:
       image: ubuntu-2004:202107-02
     environment:
@@ -122,22 +122,22 @@ jobs:
 
             echo "docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-latest${WAF_DIGEST}"
             docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-latest${WAF_DIGEST}
-      # - run:
-      #     name: Scan Code
-      #     when: always
-      #     command: |
-      #       SCAN_CODE_RESULT=0
-      #       if (./bin/scan-code | tee /tmp/results/scan-code.log); then export SCAN_CODE_RESULT=$?; else export SCAN_CODE_RESULT=$?; fi
-      #       cat /tmp/results/scan-code.log
-      #       exit $SCAN_CODE_RESULT
-      # - run:
-      #     name: Scan Dependencies
-      #     when: always
-      #     command: |
-      #       SCAN_DEPS_RESULT=0
-      #       if (./bin/scan-dependencies | tee /tmp/results/scan-dependencies.log); then export SCAN_DEPS_RESULT=$?; else export SCAN_DEPS_RESULT=$?; fi
-      #       cat /tmp/results/scan-dependencies.log
-      #       exit $SCAN_DEPS_RESULT
+      - run:
+          name: Scan Code
+          when: always
+          command: |
+            SCAN_CODE_RESULT=0
+            if (./bin/scan-code | tee /tmp/results/scan-code.log); then export SCAN_CODE_RESULT=$?; else export SCAN_CODE_RESULT=$?; fi
+            cat /tmp/results/scan-code.log
+            exit $SCAN_CODE_RESULT
+      - run:
+          name: Scan Dependencies
+          when: always
+          command: |
+            SCAN_DEPS_RESULT=0
+            if (./bin/scan-dependencies | tee /tmp/results/scan-dependencies.log); then export SCAN_DEPS_RESULT=$?; else export SCAN_DEPS_RESULT=$?; fi
+            cat /tmp/results/scan-dependencies.log
+            exit $SCAN_DEPS_RESULT
       - store_artifacts:
           path: /tmp/results
 
@@ -276,16 +276,16 @@ jobs:
 workflows:
   version: 2
 
-  test-scan:
+  test-things:
     jobs:
-      - approve-scan-code:
+      - approve-test-stuff:
           type: approval
           filters:
             branches:
               only: scanning
-      - scan-code:
+      - test-stuff:
           requires:
-            - approve-scan-code
+            - approve-test-stuff
           filters:
             branches:
               only: scanning
