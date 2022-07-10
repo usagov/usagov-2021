@@ -101,8 +101,12 @@ jobs:
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
             . ./bin/cloudgov/get-s3-access key-value
-            aws s3 cp <(echo "$CMS_DIGEST") s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/cms-<< pipeline.number >>
-            aws s3 cp s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/cms-<< pipeline.number >> /tmp/results/image-digest.log
+            echo "$CMS_DIGEST" > ./cms_digest
+            echo "$WAF_DIGEST" > ./waf_digest
+            aws s3 cp ./cms_digest s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/cms-<< pipeline.number >>
+            aws s3 cp ./waf_digest s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/waf-<< pipeline.number >>
+            aws s3 cp s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/cms-<< pipeline.number >> /tmp/results/cms-image-digest.log
+            aws s3 cp s3://$S3_BUCKET/$DOCKERUSER/$DOCKERREPO/waf-<< pipeline.number >> /tmp/results/waf-image-digest.log
       # - run:
       #     name: Scan Code
       #     when: always
