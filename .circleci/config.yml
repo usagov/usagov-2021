@@ -88,7 +88,8 @@ jobs:
             mkdir -p /tmp/results
             touch /tmp/results/scan-code.log
             touch /tmp/results/scan-dependencies.log
-            touch /tmp/results/image-digest.log
+            touch /tmp/results/cms_digest
+            touch /tmp/results/waf_digest
       - run:
           name: Save Key to shared space
           command: |
@@ -99,10 +100,10 @@ jobs:
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
             . ./bin/cloudgov/get-s3-access key-value
-            echo "$CMS_DIGEST" > ./cms_digest
-            echo "$WAF_DIGEST" > ./waf_digest
-            aws s3 cp ./cms_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >>
-            aws s3 cp ./waf_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >>
+            echo "$CMS_DIGEST" > /tmp/results/cms_digest
+            echo "$WAF_DIGEST" > /tmp/results/waf_digest
+            aws s3 cp /tmp/results/cms_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >>
+            aws s3 cp /tmp/restuls/waf_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >>
       - run:
           name: Read Keys from shared space
           command: |
