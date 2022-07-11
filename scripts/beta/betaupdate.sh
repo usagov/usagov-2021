@@ -19,9 +19,9 @@ aws configure set aws_secret_access_key $aws_secret_access_key &&\
 aws configure set default.region $default_region
 ###
 echo 'copy css and js to html'
-aws s3 cp --no-verify-ssl s3://${bucket}/cms/public/css ${html_files} --recursive --only-show-errors
-aws s3 cp --no-verify-ssl s3://${bucket}/cms/public/js ${html_files} --recursive --only-show-errors
+aws s3 cp s3://${bucket}/cms/public/css ${html_files} --recursive --only-show-errors
+aws s3 cp s3://${bucket}/cms/public/js ${html_files} --recursive --only-show-errors
 echo 'Run tome static' &&\
 eval ${commands} &&\
 echo 'push html to s3 bucket web directory' &&\
-aws s3 cp --no-verify-ssl /tmp/betahtml/html s3://$bucket/web/  --recursive --acl public-read --only-show-errors
+aws s3 cp /tmp/betahtml/html s3://$bucket/web/  --recursive --acl public-read --only-show-errors
