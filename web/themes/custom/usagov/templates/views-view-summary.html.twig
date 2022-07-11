@@ -50,9 +50,11 @@
     {# TODO: add remaining search bar component #}
     <section aria-label="Small search component">
         <form class="fed-directory-search-bar" role="search">
+        <label id="fedGallerySearch" class="usa-sr-only" for="search-field-en-small">Fed Gallery Search</label>
           <input
               class="usa-input fed-directory-search-input"
               id="search-field-en-small"
+              aria-labelledby="fedGallerySearch"
               type="search"
               placeholder="Search for a Federal Agency"
               onfocus="this.placeholder"
