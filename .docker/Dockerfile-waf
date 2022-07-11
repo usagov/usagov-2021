@@ -39,11 +39,11 @@ COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
 
-RUN apk update && \
+RUN apk upgrade --update && \
     apk add vim \
-    bash \
-    jq \
-    inotify-tools
+      bash \
+      jq \
+      inotify-tools
 
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \

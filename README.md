@@ -3,7 +3,7 @@
 A revamped USA.gov site using Drupal 9 and Cloud Foundry
 
 ## Initial Project Setup
-At the start of the project and at any other time you wish to "reset" you local development environment you may run the init script to prep any necessary files and rebuild containers. Starting the containers will initially lead you to an empty Drupal site.
+At the start of the project and at any other time you wish to "reset" your local development environment you may run the init script to prep any necessary files and rebuild containers. Starting the containers will initially lead you to an empty Drupal site.
 
 ```
 bin/init
@@ -11,13 +11,13 @@ docker compose up
 ```
 
 ## Full Project Setup
-### Import SQL Database
+### Download SQL Database
 Safe development database dumps are kept in Google Drive. You can download and import a SQL database from https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing. We recommend using the latest database available.
 
 Unzip the file and insert directly into the **root** directory.
 
 ### Initialization
-**Note: Please wait until each command finishes before running the next. Expect long wait times. We recommend keep your laptop (if you're using one) plugged in during this setup.**
+**Note: Please wait until each command finishes before running the next. Expect long wait times. We recommend keeping your laptop (if you're using one) plugged in during this setup.**
 
 1. Open up your IDE/terminal and run the following commands.
 ```
@@ -25,7 +25,21 @@ bin/init
 docker compose up
 ```
 
-2. Head to `localhost` (no port number needed) in your respective browser.
+Wait until messages stop scrolling by; the final message will probably be a message from node saying "Starting 'watch-sass' ..."
+
+2. Head to `localhost` (no port number needed) in your respective browser. Initially, this will show an empty Drupal site. 
+
+Web logging from "cms" should appear in your terminal as the request is served. This can take a minute to get started.
+
+3. Open another terminal, navigate to the root of your repo, and run this command to populate the database from the SQL file you downloaded:
+
+```
+bin/db-update
+```
+
+(Expect a message saying there's no need to update the mariadb database.)
+
+4. Reload the `localhost` page in your browser. It should now show a beta.usa.gov home page. 
 
 ## Access the Drupal Portal
 If you would like to access the Drupal Portal to make any additional configurations, you will need to follow a few more steps.
@@ -106,11 +120,11 @@ docker compose up
 ```
 
 ## Tickets and Branching
-A branch name must be named after it's associated Jira ticket. This is required for some parts of the automation to work. A Branch name must at minumum be USAGOV-###. You may optionally append a short lowercase dash-separated description to make things easier for humans to read.
+A branch name must be named after its associated Jira ticket. This is required for some parts of the automation to work. A Branch name must at minumum be USAGOV-###. You may optionally append a short lowercase dash-separated description to make things easier for humans to read.
 
 ex: USAGOV-123-short-ticket-name
 
-If a ticket name is too long, you may shorten or even exlude the title, only the USAGOV-### prefix is required.
+If a ticket name is too long, you may shorten or even exclude the title, only the USAGOV-### prefix is required.
 
 We are using a git script to automatically add the current branch name to all commits in an effort to make all commit messages effortlessly reflect the task being worked on. This helps with automation.
 
@@ -119,12 +133,12 @@ cp .git.commit-msg .git/hooks/commit-msg
 ```
 
 ## Single Item Config Export
-If you have lots of junk or temporary config changes in your current database you may opt to only pick out the indiviual configs you know are needed. You can see the full list of available changes on the main Config Synchronize screen (/admin/config/development/configuration). Once you determine which config changes will be needed you can go to the Export > Single Item (/admin/config/development/configuration/single/export). There you can see and export just that one item.
+If you have lots of junk or temporary config changes in your current database you may opt to only pick out the individual configs you know are needed. You can see the full list of available changes on the main Config Synchronize screen (/admin/config/development/configuration). Once you determine which config changes will be needed you can go to the Export > Single Item (/admin/config/development/configuration/single/export). There you can see and export just that one item.
 
 
 ## USAgovTheme
 The USAgov theme is a subtheme of the USWDS_base theme.
-This projects default start procedure (docker compose up) will start a container to automatically watch for changes and recompile the theme as needed.
+This project's default start procedure (docker compose up) will start a container to automatically watch for changes and recompile the theme as needed.
 
 The theme can be manually built at any time through gulp's build task. Any other gulp task can be triggered the same way.
 
@@ -190,7 +204,7 @@ This process asks drush to export the database for us since it does some cleanup
 
 `bin/drush cim`
 
-## Bulid and Deploy procedure
+## Build and Deploy procedure
 Production ready containers can be built and deployed from a local environment. To do so, proper secrets must be entered into the env.local file as environmental variables. This same procedure is used by CircleCI and is defined in .circleci/config.yml
 
 
