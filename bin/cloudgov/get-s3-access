@@ -28,12 +28,13 @@ export S3_REGION=$(echo "$S3INFO" | grep '"region":' | sed 's/.*"region": "\([^"
 export S3_ACCESS_KEY_ID=$(echo "$S3INFO" | grep '"access_key_id":' | sed 's/.*"access_key_id": "\([^"]*\)".*/\1/')
 export S3_SECRET_ACCESS_KEY=$(echo "$S3INFO" | grep '"secret_access_key":' | sed 's/.*"secret_access_key": "\([^"]*\)".*/\1/')
 
-# pass s3 credentials through to container as env vars
+# set as aws compatible env vars for local shell
 export AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
 export AWS_DEFAULT_REGION=$S3_REGION
 export BUCKET_NAME=$S3_BUCKET
 
+# set globally on system
 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
 aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
 aws configure set default.region $AWS_DEFAULT_REGION
