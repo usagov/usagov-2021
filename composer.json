@@ -101,7 +101,11 @@
             "wikimedia/composer-merge-plugin": true,
             "cweagans/composer-patches": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
+<<<<<<< HEAD
             "dealerdirect/phpcod": true
+=======
+            "cweagans/composer-patches": true
+>>>>>>> dev
         }
     },
     "extra": {
