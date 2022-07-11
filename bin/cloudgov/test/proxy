@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "NO LONGER ACCURATE - UPDATE for 61443 behavior"
+exit 1
+
 # proxy server
 echo "Proxy" | tee test-result.log
 cf target -s shared-egress 2>&1 > /dev/null
