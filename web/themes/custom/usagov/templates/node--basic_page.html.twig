@@ -76,6 +76,12 @@
     'content-wrapper',
   ]
 %}
+{% set term_name = "" %}
+{% if node.field_page_type.0 != null %}
+    {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
+{% endif %}
+
+
 <article{{ attributes }}>
 
   {{ title_prefix }}
@@ -98,6 +104,23 @@
 
   <div{{ content_attributes.addClass(classes) }}>
     {{ content }}
+  </div>
+
+  <div class="usagov-cards margin-top-3">
+    <ul class="usa-card-group">
+      {% for pageID in node.field_related_pages %}
+      <li class="tablet:grid-col-4 usa-card">
+        <a href="{{drupal_url('node/'~pageID.target_id)}}" class="usa-card__container usagov-card text-no-underline">
+          <header class="usa-card__header">
+            <h2 class="usa-card__heading usagov-card__heading">{{ drupal_field('title', 'node', pageID.target_id) }}</h2>
+          </header>
+          <div class="usa-card__body padding-top-0 usa-prose">
+            <p>{{ drupal_field('field_page_intro', 'node', pageID.target_id)[0] }}</p>
+          </div>
+        </a>
+      </li>
+        {% endfor %}
+    </ul>
   </div>
 
 </article>
