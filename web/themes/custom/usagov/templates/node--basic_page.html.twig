@@ -106,6 +106,7 @@
     {{ content }}
   </div>
 
+  {% if term_name == "Life Events" %}
   <div class="usagov-cards margin-top-3">
     <ul class="usa-card-group">
       {% for pageID in node.field_related_pages %}
@@ -119,8 +120,9 @@
           </div>
         </a>
       </li>
-        {% endfor %}
+      {% endfor %}
     </ul>
   </div>
+  {% endif %}
 
 </article>
