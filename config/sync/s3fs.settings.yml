@@ -3,7 +3,7 @@ _core:
 credentials_file: ''
 bucket: ''
 region: us-gov-west-1
-use_cname: true
+use_cname: false
 domain_root: public
 use_customhost: true
 hostname: ''
@@ -15,7 +15,7 @@ encryption: ''
 use_https: true
 ignore_cache: false
 read_only: false
-disable_cert_verify: false
+disable_cert_verify: true
 redirect_styles_ttl: 0
 root_folder: cms
 public_folder: public
@@ -23,7 +23,7 @@ private_folder: private
 presigned_urls: ''
 saveas: ''
 torrents: ''
-use_cssjs_host: false
+use_cssjs_host: true
 cssjs_host: ''
 use_credentials_cache: false
 credentials_cache_dir: ''
