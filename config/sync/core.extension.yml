@@ -14,6 +14,7 @@ module:
   ckeditor_templates: 0
   ckeditor_templates_ui: 0
   config: 0
+  content_lock: 0
   content_moderation: 0
   content_moderation_notifications: 0
   contextual: 0

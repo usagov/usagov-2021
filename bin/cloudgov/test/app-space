@@ -1,0 +1,97 @@
+#!/bin/sh
+
+STARTSPACE=$( cf target | grep space: | awk '{ print $2 }')
+STARTORG=$(   cf target | grep org:   | awk '{ print $2 }')
+
+SPACE=${1:-$STARTSPACE}
+ORG=${2:-$STARTORG}
+
+PASS=true
+
+# Drop them off where we found them
+function popspace() {
+    cf target -o "$STARTORG" -s "$STARTSPACE"  2>&1 > /dev/null
+}
+# trap popspace exit
+trap popspace err
+
+# SUCCESS='\033[0;32m✓\033[0m'
+# FAILURE='\033[0;31m✘\033[0m'
+SUCCESS=' ✓ '
+FAILURE=' ✘ '
+WARNING=' ! '
+
+echo "Testing App Space configuration"
+
+# space exists by name
+if cf space $SPACE 2>&1 > /dev/null; then
+  echo "$SUCCESS Space exists ($SPACE)"
+else
+  echo "$FAILURE Space not found ($SPACE)"
+  PASS=false
+fi
+
+cf target -o "$ORG" -s "$SPACE" 2>&1 > /dev/null
+
+# space has correct staging network rules
+STAGING_SECURITY_GROUPS="public_networks dns trusted_local_networks public_networks_egress trusted_local_networks_egress"
+for SECURITY_GROUP in $STAGING_SECURITY_GROUPS; do
+  if cf security-groups 2>&1 | grep " ${SPACE} " | grep -e ' staging$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null; then
+    echo "$SUCCESS Staging security group '$SECURITY_GROUP' bound"
+  else
+    echo "$FAILURE Staging security group '$SECURITY_GROUP' not bound"
+    PASS=false
+  fi
+done
+
+# space has correct running network rules
+RUNNING_SECURITY_GROUPS="trusted_local_networks_egress dns"
+for SECURITY_GROUP in $RUNNING_SECURITY_GROUPS; do
+  if cf security-groups 2>&1 | grep " ${SPACE} " | grep -e ' running$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null; then
+    echo "$SUCCESS Running security group '$SECURITY_GROUP' bound"
+  else
+    echo "$FAILURE Running security group '$SECURITY_GROUP' not bound"
+    PASS=false
+  fi
+done
+
+# space has waf app
+WAF_INSTANCES=$(cf app waf 2>&1 | grep ' running ' | wc -l)
+if [ "$WAF_INSTANCES" -gt 0 ]; then
+  if [ "$WAF_INSTANCES" -eq 1 ]; then
+    echo "$WARNING WAF has only a single instances running"
+  else
+    echo "$SUCCESS WAF has many instances running: $instances"
+  fi
+else
+  echo "$FAILURE WAF has no running instances"
+  PASS=false
+fi
+
+# waf is setup as a route-service in the space
+# waf is bound to the hostnames for Drupal and StaticSite
+
+
+# space has cms app
+CMS_INSTANCES=$(cf app cms 2>&1 | grep ' running ' | wc -l)
+if [ "$CMS_INSTANCES" -gt 0 ]; then
+  if [ "$CMS_INSTANCES" -eq 1 ]; then
+    echo "$WARNING CMS has only a single instances running"
+  else
+    echo "$SUCCESS CMS has many instances running: $instances"
+  fi
+else
+  echo "$FAILURE CMS has no running instances"
+  PASS=false
+fi
+# todo: cms app needs to have certain parameters available as env vars (new_relic) set in SECRETS service
+
+# FINALE
+echo
+if [ "$PASS" = false ]; then
+  echo "$FAILURE Overall Test FAIL"
+  exit 1
+else
+  echo "$SUCCESS Overall Test PASS"
+  exit 0
+fi
