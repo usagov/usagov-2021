@@ -46,11 +46,21 @@ echo "Build Containers"
 bin/build
 
 echo "Fix permissions inside Containers - this could take a long time"
+# docker compose run \
+#   --rm --no-deps --workdir /var/www \
+#  composer \
+#  /var/www/bin/fix-perms-in-container
+#========================
+#docker compose run \
+#  -e BUID=$(id -u) \
+#  -e BGID=$(id -g) \
+#  --rm --no-deps --workdir /var/www  \
+#  -u root composer /var/www/bin/fix-perms-in-container
+
 docker compose run \
- -e BUID=$(id -u) \
- -e BGID=$(id -g) \
- --rm --no-deps --workdir /var/www  \
- -u root composer /var/www/bin/fix-perms-in-container
+  --rm --no-deps --workdir /var/www  \
+  -u root composer /var/www/bin/fix-perms-in-container
+#========================
 
 echo "Install Drupal modules"
 # bin/drush cr
