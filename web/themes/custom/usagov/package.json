@@ -8,7 +8,7 @@
     "build": "gulp build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "gulp watch",
-    "lint": "gulp scss-lint; gulp js-lint",
+    "lint": "npx stylelint \"**/*.scss\"",
     "scss": "gulp scss"
   },
   "author": "",
@@ -28,7 +28,10 @@
     "node-sass": "^7.0.0",
     "postcss": "^8.3.0",
     "postcss-csso": "^5.0.1",
+    "prettier": "2.7.1",
     "sass": "^1.52.3",
+    "stylelint": "^14.9.1",
+    "stylelint-config-standard-scss": "^4.0.0",
     "uswds-gulp": "github:uswds/uswds-gulp"
   },
   "dependencies": {
