@@ -1,5 +1,3 @@
-
-
 @use "uswds-core" as *;
 
 /*
@@ -7,9 +5,9 @@ USAgov Variables
 */
 
 //Base variables
-$red: #D83933;
+$red: #d83933;
 $white: #fff;
-$text-blue: #1A4480;
+$text-blue: #1a4480;
 $deep-blue: #11304e;
 $cyan: #3fbde3;
 $cyan-50v: #0081a1;
@@ -25,7 +23,7 @@ $hero: (
   background-color: $deep-blue,
   box-border-color: $white,
   font-color: $white,
-  secondary-font-color: $cyan-light
+  secondary-font-color: $cyan-light,
 );
 $le-heading: (
   heading-color: $white,
@@ -38,7 +36,7 @@ $card: (
   hover-background-color: $cyan-light,
   hover-border-color: $cyan-50v,
   group-background-color: $light-gray,
-  text-color: $black
+  text-color: $black,
 );
 $life-events: (
   text-color: $white,
@@ -46,13 +44,12 @@ $life-events: (
   background-color: $deep-blue,
 );
 $radio-button: (
-  border-color: $orange
+  border-color: $orange,
 );
 $alert: (
   background-color: $white,
-  border-color: $gray
+  border-color: $gray,
 );
-
 
 /*
 Call the var function to retrieve variables from sass map variables
@@ -67,4 +64,3 @@ var( $vars, navpage, hero, border-color );
   }
   @return $map;
 }
-

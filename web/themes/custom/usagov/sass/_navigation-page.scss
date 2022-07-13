@@ -2,63 +2,64 @@
 
 // $hero: var( $usagov-variables, hero );
 
-.usagov-hero{
-    border-top: 10px solid var( $hero, border-color );
-    margin-bottom: 1.5rem;
-    margin-top: -.75rem;
+.usagov-hero {
+  border-top: 10px solid var($hero, border-color);
+  margin-bottom: 1.5rem;
+  margin-top: -0.75rem;
 }
 
-.usagov-hero__callout{
-    background-color: var( $hero, background-color );
-    border: 1px solid var( $hero, box-border-color );
+.usagov-hero__callout {
+  background-color: var($hero, background-color);
+  border: 1px solid var($hero, box-border-color);
 
-    ul{
-        a, a:hover, a:visited{
-            color: var( $hero, secondary-font-color );
-        }
+  ul {
+    a,
+    a:hover,
+    a:visited {
+      color: var($hero, secondary-font-color);
     }
+  }
 
-    ul li{
-        margin: 15px 0;
-    }   
+  ul li {
+    margin: 15px 0;
+  }
 }
 
 // $card: var( $usagov-variables, card );
-.usagov-cards{
-    padding: 1em;
-    background-color: var( $card, group-background-color );;
+.usagov-cards {
+  padding: 1em;
+  background-color: var($card, group-background-color);
 }
 
-.usagov-card{
-    border-radius: 0;
-    box-shadow: 4px 4px 10px #aaa;
-    border-color: var( $card, border-color );
+.usagov-card {
+  border-radius: 0;
+  box-shadow: 4px 4px 10px #aaa;
+  border-color: var($card, border-color);
 
-    &:hover{
-        background-color: var( $card, hover-background-color );
-        border-color: var( $card, hover-border-color );
-    }
+  &:hover {
+    background-color: var($card, hover-background-color);
+    border-color: var($card, hover-border-color);
+  }
 }
 
-.usagov-card__heading{
-    color: var( $card, heading-color );
-    text-decoration-line: underline;
-    text-decoration-thickness: 7px;
-    text-decoration-color: var( $card, heading-underline-color );
-    text-decoration-skip-ink: none;
-    line-height: 1.8em;
+.usagov-card__heading {
+  color: var($card, heading-color);
+  text-decoration-line: underline;
+  text-decoration-thickness: 7px;
+  text-decoration-color: var($card, heading-underline-color);
+  text-decoration-skip-ink: none;
+  line-height: 1.8em;
 }
 
+.usagov-navpage-item {
+  border: 2px solid transparent;
 
-.usagov-navpage-item{
-    border: 2px solid transparent;
-    
-    &:hover{
-        border-color: var( $card, hover-border-color );
-    }
+  &:hover {
+    border-color: var($card, hover-border-color);
+  }
 
-    a{
-        color: var( $card, text-color );
-        display: block;
-    }
+  a {
+    color: var($card, text-color);
+    display: block;
+  }
 }
