@@ -1,0 +1,82 @@
+<p class="usa-intro">
+  {{content["field_page_intro"][0]}}
+</p>
+<table class="usagov-sd-table">
+
+  <tr>
+    <td>
+      <h3>State Government Website</h3>
+      <a>{{content["field_official_website_primary"][0]}}</a>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <ul class="usa-list usa-list--unstyled">
+      <h3>Governor</h3>
+      <li><a>{{content["field_governor"][0]}}</a></li>
+      <li><a>{{content["field_governor_contact"][0]}}</a></li>
+      <br/>
+      <h3>Phone</h3>
+      <li>{{content["field_phone_number"][0]}}</li>
+      <br/>
+      <h3>Main Address</h3>
+      {% for key, obj in content["field_street_1"] %}
+        {% if key matches '/^\\d+$/' %}
+          <li>{{content["field_street_1"][0]}}</li>
+        {% endif %}
+      {% endfor %}
+      {% for key, obj in content["field_street_2"] %}
+        {% if key matches '/^\\d+$/' %}
+          <li>{{content["field_street_2"][0]}}</li>
+        {% endif %}
+      {% endfor %}
+      {% for key, obj in content["field_street_3"] %}
+        {% if key matches '/^\\d+$/' %}
+          <li>{{content["field_street_3"][0]}}</li>
+        {% endif %}
+      {% endfor %}
+      </ul>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <h3>Congress Members</h3>
+      <ul class="usa-list usa-list--unstyled">
+        {# TODO: need to be real fields #}
+        <li>
+          <a href={{content["field_house_of_reps"][0]}}>
+            House of Representatives
+          </a>
+        </li>
+        <li>
+          <a href={{content["field_senator"][0]}}>
+            Senators
+          </a>
+        </li>
+      </ul>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <h3>Offices in Your State</h3>
+      <ul class="usa-list usa-list--unstyled">
+       <li><a>{{content["field_social_services"][0]}}</a></li>
+       <li><a>{{content["field_district_attorneys"][0]}}</a></li>
+       <li><a>{{content["field_consumer_protection"][0]}}</a></li>
+       {# TODO: needs to be real field #}
+       <li><a>{{content["field_corrections_dept"][0]}}</a>Corrections Department</li>
+       <li><a>{{content["field_local_governments"][0]}}</a></li>
+       <li><a>{{content["field_education_department"][0]}}</a></li>
+       <li><a>{{content["field_emergency_management"][0]}}</a></li>
+       {# TODO: needs to be real field #}
+       <li><a>{{content["field_election_office"][0]}}</a>Election Office</li>
+       <li><a>{{content["field_health_department"][0]}}</a></li>
+       <li><a>{{content["field_motor_vehicle_office"][0]}}</a></li>
+      </ul>
+    </td>
+  </tr>
+
+</table>
