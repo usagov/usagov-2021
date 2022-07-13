@@ -3,103 +3,104 @@
 // $hero: var( $usagov-variables, hero );
 // $card: var( $usagov-variables, card );
 
-
-.usagov-hero-homepage{
-    background-color: var( $hero, background-color );
-    background-image: none;
-    color: var( $hero, font-color );
-    margin-bottom: 0;
+.usagov-hero-homepage {
+  background-color: var($hero, background-color);
+  background-image: none;
+  color: var($hero, font-color);
+  margin-bottom: 0;
 }
 
-.usagov-hero-feature-text a{
-    text-decoration-line: underline;
-    text-decoration-thickness: 7px;
-    text-decoration-color: var( $card, heading-underline-color );
-    text-decoration-skip-ink: none;
-    line-height: 1.8em;
+.usagov-hero-feature-text a {
+  text-decoration-line: underline;
+  text-decoration-thickness: 7px;
+  text-decoration-color: var($card, heading-underline-color);
+  text-decoration-skip-ink: none;
+  line-height: 1.8em;
 }
 
-.usagov-hero a, .usagov-hero a:hover, .usagov-hero a:visited{
-    color: inherit;
+.usagov-hero a,
+.usagov-hero a:hover,
+.usagov-hero a:visited {
+  color: inherit;
 }
 
-.topic-icon{
-    padding-left: 5em;
-    background-repeat: no-repeat;
-    background-position: 1em center;
-    background-size: 5em;
+.topic-icon {
+  padding-left: 5em;
+  background-repeat: no-repeat;
+  background-position: 1em center;
+  background-size: 5em;
 }
 
 //Old way of doing topic icons (stored in repo)
-.icon-about{
-    background-image: url(../images/topics/ICONS_beta_About_the_US_and_Its_Government.png);
+.icon-about {
+  background-image: url(../images/topics/ICONS_beta_About_the_US_and_Its_Government.png);
 }
 
-.icon-laws{
-    background-image: url(../images/topics/ICONS_beta_Laws_and_Legal_Issues.png);
+.icon-laws {
+  background-image: url(../images/topics/ICONS_beta_Laws_and_Legal_Issues.png);
 }
 
-.icon-money{
-    background-image: url(../images/topics/ICONS_beta_Money_and_Credit.png);
+.icon-money {
+  background-image: url(../images/topics/ICONS_beta_Money_and_Credit.png);
 }
 
-.icon-benefits{
-    background-image: url(../images/topics/ICONS_beta_Benefits.png);
+.icon-benefits {
+  background-image: url(../images/topics/ICONS_beta_Benefits.png);
 }
 
-.icon-immigration{
-    background-image: url(../images/topics/ICONS_beta_Immigration.png);
+.icon-immigration {
+  background-image: url(../images/topics/ICONS_beta_Immigration.png);
 }
 
-.icon-voting{
-    background-image: url(../images/topics/ICONS_beta_Voting_and_Elections.png);
+.icon-voting {
+  background-image: url(../images/topics/ICONS_beta_Voting_and_Elections.png);
 }
 
-.icon-military{
-    background-image: url(../images/topics/ICONS_beta_Military_and_Veterans.png);
+.icon-military {
+  background-image: url(../images/topics/ICONS_beta_Military_and_Veterans.png);
 }
 
-.icon-travel{
-    background-image: url(../images/topics/ICONS_beta_travel.png);
+.icon-travel {
+  background-image: url(../images/topics/ICONS_beta_travel.png);
 }
 
 //New way of doing topic icons (stored in CMS, uses S3 URL)
-.icon-education{
-    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Education_0.png);
+.icon-education {
+  background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Education_0.png);
 }
 
-.icon-housing{
-    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Housing_0.png);
+.icon-housing {
+  background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Housing_0.png);
 }
 
-.icon-disasters{
-    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Disasters_and_Emergencies_1.png);
+.icon-disasters {
+  background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Disasters_and_Emergencies_1.png);
 }
 
-.icon-covid19{
-    background-image: url(http://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_COVID19_0.png);
+.icon-covid19 {
+  background-image: url(http://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_COVID19_0.png);
 }
 
-.icon-health{
-    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Health.png);
+.icon-health {
+  background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Health.png);
 }
 
-.icon-scams{
-    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Scams_and_Frauds.png);
+.icon-scams {
+  background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Scams_and_Frauds.png);
 }
 
-.icon-disability{
-    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Disability.png);
+.icon-disability {
+  background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Disability.png);
 }
 
-.icon-jobs{
-    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Jobs_and_Unemployment.png);
+.icon-jobs {
+  background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Jobs_and_Unemployment.png);
 }
 
-.icon-business{
-    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Small_Business.png);
+.icon-business {
+  background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Small_Business.png);
 }
 
-.icon-taxes{
-    background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Taxes.png);
+.icon-taxes {
+  background-image: url(https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Taxes.png);
 }

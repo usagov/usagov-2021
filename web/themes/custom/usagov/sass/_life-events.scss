@@ -2,35 +2,35 @@
 
 // $life-events: var( $usagov-variables, life-events );
 [data-pagetype="Life Events"] {
-   h1{
-   background: var( $le-heading, background-color );
-   color: var($le-heading, heading-color );
-   padding: 2rem 3rem .5rem 1rem;
-   width: fit-content;
-   border-radius: 3px;
-   }
+  h1 {
+    background: var($le-heading, background-color);
+    color: var($le-heading, heading-color);
+    padding: 2rem 3rem 0.5rem 1rem;
+    width: fit-content;
+    border-radius: 3px;
+  }
 }
 
 .le-image {
-   height: 350px;
+  height: 350px;
 }
 
-.usa-card--flag{
-    .usa-card__container {
-       background: var( $life-events, background-color );
-       color: var( $life-events, text-color );
-       border: none;
-       border-radius: 0;
-    }
+.usa-card--flag {
+  .usa-card__container {
+    background: var($life-events, background-color);
+    color: var($life-events, text-color);
+    border: none;
+    border-radius: 0;
+  }
 
-    .usa-card__body {
-       color: var( $life-events, text-color );
-    }
+  .usa-card__body {
+    color: var($life-events, text-color);
+  }
 
-    .usa-card__heading{
-       text-decoration-line: underline;
-       text-decoration-thickness: 7px;
-       text-decoration-color: var( $life-events, heading-underline-color );
-       text-decoration-skip-ink: none;
-    }
- }
+  .usa-card__heading {
+    text-decoration-line: underline;
+    text-decoration-thickness: 7px;
+    text-decoration-color: var($life-events, heading-underline-color);
+    text-decoration-skip-ink: none;
+  }
+}
