@@ -29,7 +29,7 @@ const rename = require('gulp-rename');
 const jsYaml = require('js-yaml');
 const fs = require('fs');
 
-const sasslint = require('gulp-sass-lint');
+// const postcssSass = require("postcss-sass");
 const eslint = require('gulp-eslint');
 const plumber = require('gulp-plumber');
 
@@ -76,6 +76,10 @@ const onError = (err) => {
 TASKS
 ----------------------------------------
 */
+
+// postcss(plugins).process(sass, { syntax: postcssSass }).then(function (result) {
+//   result.content // Sass with transformations
+// });
 
 gulp.task("copy-uswds-setup", () => {
   return gulp
@@ -197,17 +201,17 @@ gulp.task('js-lint', () => {
     .pipe(eslint.format('table'));
 });
 
-gulp.task('scss-lint', () => {
-  const configFile = jsYaml.load(fs.readFileSync('.sass-lint.yml', 'utf-8'));
+// gulp.task('scss-lint', () => {
+//   const configFile = jsYaml.load(fs.readFileSync('.sass-lint.yml', 'utf-8'));
 
-  return gulp.src(`${PROJECT_SASS_SRC}/**/*.scss`)
-    .pipe(plumber({errorHandler: onError}))
-    .pipe(sasslint(configFile))
-    .pipe(sasslint.format());
+//   return gulp.src(`${PROJECT_SASS_SRC}/**/*.scss`)
+//     .pipe(plumber({errorHandler: onError}))
+//     // .pipe(sasslint(configFile))
+//     // .pipe(sasslint.format());
 
-});
+// });
 
-gulp.task('lint', gulp.series("js-lint", "scss-lint", "build-sass"));
+gulp.task('lint', gulp.series("js-lint", "build-sass"));
 
 gulp.task("watch-sass", function() {
   gulp.watch(`${PROJECT_SASS_SRC}/**/*.scss`, gulp.series("build-sass"));
