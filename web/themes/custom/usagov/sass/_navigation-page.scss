@@ -7,14 +7,17 @@
     margin-bottom: 1.5rem;
     margin-top: -.75rem;
 }
+
 .usagov-hero__callout{
     background-color: var( $hero, background-color );
     border: 1px solid var( $hero, box-border-color );
+
     ul{
         a, a:hover, a:visited{
             color: var( $hero, secondary-font-color );
         }
     }
+
     ul li{
         margin: 15px 0;
     }   
@@ -25,15 +28,18 @@
     padding: 1em;
     background-color: var( $card, group-background-color );;
 }
+
 .usagov-card{
     border-radius: 0;
-    box-shadow: 4px 4px 10px #aaaaaa;
+    box-shadow: 4px 4px 10px #aaa;
     border-color: var( $card, border-color );
+
     &:hover{
         background-color: var( $card, hover-background-color );
         border-color: var( $card, hover-border-color );
     }
 }
+
 .usagov-card__heading{
     color: var( $card, heading-color );
     text-decoration-line: underline;
@@ -50,6 +56,7 @@
     &:hover{
         border-color: var( $card, hover-border-color );
     }
+
     a{
         color: var( $card, text-color );
         display: block;

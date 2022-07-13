@@ -52,6 +52,7 @@ i.e.
 .usa-sidenav__sublist a:not(.usa-button) {
    padding-left: 2.3rem;
 }
+
 .usa-sidenav__sublist .usa-sidenav__sublist a:not(.usa-button) {
    padding-left: 3.6rem;
 }
@@ -112,11 +113,11 @@ This style ensures that we can remove the padding-top from text in a card body. 
    color: #4b4b4d;
 }
 
-.usa-banner__button:after, .usa-banner__button:hover:after {
+.usa-banner__button::after, .usa-banner__button:hover::after {
    background-color: #1A4480;
 }
 
-.usa-banner__button:hover:visited:after {
+.usa-banner__button:hover:visited::after {
    background-color: #4b4b4d;
 }
 
@@ -139,6 +140,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
       display: block;
       font-size: .9rem; 
    }
+
    padding-left: 2.2rem;
    padding-right: 2.2rem;
    display: block;
@@ -151,14 +153,14 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 /** emergency banner header **/
 .usa-header--extended .usa-alert--error {
-   color: #ffffff;
+   color: #fff;
    border-left-color: color("red-70v");
    background-color: color("red-70v")
 }
 
 /** emergency banner header **/
 .usa-header--extended .usa-alert--error a {
-   color: #ffffff;
+   color: #fff;
 }
 
 /** info banner header **/
@@ -224,9 +226,10 @@ This style ensures that we can remove the padding-top from text in a card body. 
      font-size: .93rem;
      font-weight: 700;   
    }
+
      color: #fff;
      text-decoration: none;
-     padding: 10px 20px 10px 20px;
+     padding: 10px 20px;
      background-color: color("blue-warm-80v")
   }
 
@@ -258,6 +261,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
       background-repeat: no-repeat;
       background-position: 3.5rem .7rem;
    }
+
    background-color: color("blue-warm-80v")
 }
 
@@ -291,9 +295,11 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-header--extended .usa-nav__secondary {
 @include at-media($theme-header-min-width) {
   @include u-flex("row", "align-end");
+
    bottom: 6rem;
    width: 29rem;
-   /*opacity: 0.2;*/
+
+   /* opacity: 0.2; */
    }
 }
 
@@ -303,9 +309,11 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-header--extended .usa-nav__secondary:lang(es) {
    @include at-media($theme-header-min-width) {
      @include u-flex("row", "align-end");
+
       bottom: 6rem;
       width: 30rem;
-      /*opacity: 0.2;*/
+
+      /* opacity: 0.2; */
       }
 }
 
@@ -366,13 +374,14 @@ This style ensures that we can remove the padding-top from text in a card body. 
    padding-top: 1.4rem;
 }
 }
+
  .usa-footer--big .usa-footer__primary-content--collapsible .usa-footer__primary-link{ 
-    font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
+    font-family: "Source Sans Pro Web","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
     font-size: 1.2rem;
  }
 
  .usa-sign-up__heading {
-   font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
+   font-family: "Source Sans Pro Web","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
  }
 
 .usa-footer__primary-content--collapsible.hidden{
@@ -519,6 +528,7 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
 .usagov-button--outline-black {
    box-shadow: $theme-button-stroke-width color("black");
    color: color("black");
+
    &:hover {
       box-shadow: $theme-button-stroke-width color("black");
       color: color("black");
@@ -531,10 +541,12 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
   background-color: color("black");
   box-shadow: 0 0 0 units($theme-input-select-border-width) color("black"), inset 0 0 0 units($theme-input-select-border-width) color("white");;
 }
+
 .usa-checkbox__input--tile:checked+.usa-checkbox__label, .usa-radio__input--tile:checked+.usa-radio__label {
    // background-color: #ccecf2;
    border-color: var( $radio-button, border-color );;
 }
+
 .usa-checkbox__input--tile+.usa-checkbox__label, .usa-radio__input--tile+.usa-radio__label {
    border-color: black;
    background: white;
@@ -557,13 +569,14 @@ a {
 
 #block-betabanner .usa-alert--info, #block-betaspanishbanner .usa-alert--info{
    // These styles are needed to position the alert icon 
-   &:before {
+   &::before {
       display:none;
    }
+
    .usa-alert__body {
       position:relative;
 
-      &:before {
+      &::before {
          background: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
          width: 2rem;
          content: "";
@@ -574,12 +587,12 @@ a {
          top: -0.6rem;
          background: 0 0;
          background-color: #1b1b1b;
-         -webkit-mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
+         mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
          mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
          background-size: 1.5rem;
          height: 2.5rem;
          width: 1.5rem;
-         -webkit-mask-size: 1.5rem;
+         mask-size: 1.5rem;
          mask-size: 1.5rem;
          @media (max-width: 1022px) {
             left: .4rem;
@@ -591,13 +604,14 @@ a {
 
 #block-emergencyheaderbanner .usa-alert--error {
    // These styles are needed to position the alert icon 
-   &:before {
+   &::before {
       display:none;
    }
+
    .usa-alert__body {
       position:relative;
 
-      &:before {
+      &::before {
          background: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
          width: 2rem;
          content: "";
@@ -608,12 +622,12 @@ a {
          top: -0.6rem;
          background: 0 0;
          background-color: #1b1b1b;
-         -webkit-mask: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
+         mask: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
          mask: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
          background-size: 1.5rem;
          height: 2.5rem;
          width: 1.5rem;
-         -webkit-mask-size: 1.5rem;
+         mask-size: 1.5rem;
          mask-size: 1.5rem;
          @media (max-width: 1022px) {
             left: .4rem;
@@ -664,6 +678,7 @@ a {
 
 #backToTop{
    position: fixed;
+
    //float:right;
    height: 50px;
    width: 90px;
@@ -695,6 +710,7 @@ a {
    padding-bottom: 20px;
    background-color: transparent;
 }
+
 div #sm-share * {
    margin-top: auto;
    margin-bottom: auto;

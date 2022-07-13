@@ -8,7 +8,7 @@ USAgov Variables
 
 //Base variables
 $red: #D83933;
-$white: #ffffff;
+$white: #fff;
 $text-blue: #1A4480;
 $deep-blue: #11304e;
 $cyan: #3fbde3;
@@ -17,7 +17,7 @@ $cyan-light: #ccecf2;
 $gray: #dfe1e2;
 $light-gray: #f3f3f3;
 $orange: #f79240;
-$black: #000000;
+$black: #000;
 
 //Component Variables
 $hero: (
@@ -27,12 +27,10 @@ $hero: (
   font-color: $white,
   secondary-font-color: $cyan-light
 );
-
 $le-heading: (
   heading-color: $white,
   background-color: $deep-blue,
 );
-
 $card: (
   heading-color: $text-blue,
   heading-underline-color: $cyan,
