@@ -59,7 +59,7 @@ i.e.
 }
 
 .usa-alert--no-icon .usa-alert__body {
-  //This fixes an issue with USWDS where a slim alert with no icon and no status would still get padding to make room for an icon
+  // This fixes an issue with USWDS where a slim alert with no icon and no status would still get padding to make room for an icon
   padding-left: 1.25rem;
 }
 
@@ -102,7 +102,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
   color: #000;
 }
 
-//Header
+// Header
 
 /** Background color for government banner **/
 .usa-banner {
@@ -270,7 +270,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
     height: 2.3rem;
     text-align: left;
     font-weight: 700;
-    background-image: url(/themes/custom/usagov/images/ICONS_Search.png);
+    background-image: url("/themes/custom/usagov/images/ICONS_Search.png");
     background-size: 1.5rem;
     background-repeat: no-repeat;
     background-position: 3.5rem 0.7rem;
@@ -337,7 +337,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
   }
 }
 
-//** This is to make the header link stretch out **/
+/* This is to make the header link stretch out */
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
     width: 12rem;
@@ -384,7 +384,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
   z-index: 1;
 }
 
-//Footer
+// Footer
 
 .ftr-list {
   @media (min-width: 64em) {
@@ -406,7 +406,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 .usa-footer__primary-content--collapsible.hidden {
-  //USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
+  // USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
   display: block;
 }
 
@@ -426,25 +426,25 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 .usa-social-link--facebook {
-  background-image: url(../images/facebook34.png),
+  background-image: url("../images/facebook34.png"),
     linear-gradient(transparent, transparent);
 }
 
 /** This is to add the twitter social media icon **/
 .usa-social-link--twitter {
-  background-image: url(../images/twitter34.png),
+  background-image: url("../images/twitter34.png"),
     linear-gradient(transparent, transparent);
 }
 
 /** This is to add the instagram social media icon **/
 .usa-social-link--instagram {
-  background-image: url(../images/instagram34.png),
+  background-image: url("../images/instagram34.png"),
     linear-gradient(transparent, transparent);
 }
 
 /** This is to add the youtube social media icon **/
 .usa-social-link--youtube {
-  background-image: url(../images/youtube34.png),
+  background-image: url("../images/youtube34.png"),
     linear-gradient(transparent, transparent);
 }
 
@@ -469,11 +469,11 @@ This style ensures that we can remove the padding-top from text in a card body. 
   padding-bottom: 2rem;
 }
 
-.usa-footer__contact-links {
-  @media (min-width: 40em) {
-    margin-left: -3rem;
-  }
-}
+// .usa-footer__contact-links {
+//   @media (min-width: 40em) {
+//     margin-left: -3rem;
+//   }
+// }
 
 @media (min-width: 30em) {
   .usa-footer__contact-heading {
@@ -610,7 +610,7 @@ a {
     position: relative;
 
     &::before {
-      background: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem
+      background: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem
         2rem;
       width: 2rem;
       content: "";
@@ -619,14 +619,12 @@ a {
       position: absolute;
       left: 1.6rem;
       top: -0.6rem;
-      background: 0 0;
       background-color: #1b1b1b;
-      mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
-      mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
+      mask: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
       background-size: 1.5rem;
-      height: 2.5rem;
-      width: 1.5rem;
-      mask-size: 1.5rem;
+
+      // height: 2.5rem;
+      // width: 1.5rem;
       mask-size: 1.5rem;
       @media (max-width: 1022px) {
         left: 0.4rem;
@@ -645,7 +643,7 @@ a {
     position: relative;
 
     &::before {
-      background: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem
+      background: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem
         2rem;
       width: 2rem;
       content: "";
@@ -654,14 +652,12 @@ a {
       position: absolute;
       left: 1.6rem;
       top: -0.6rem;
-      background: 0 0;
       background-color: #1b1b1b;
-      mask: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
-      mask: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
+      mask: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
       background-size: 1.5rem;
-      height: 2.5rem;
-      width: 1.5rem;
-      mask-size: 1.5rem;
+
+      // height: 2.5rem;
+      // width: 1.5rem;
       mask-size: 1.5rem;
       @media (max-width: 1022px) {
         left: 0.4rem;
@@ -710,17 +706,17 @@ a {
   margin-left: auto;
 }
 
-#backToTop {
+#back-to-top {
   position: fixed;
 
-  //float:right;
+  // float:right;
   height: 50px;
   width: 90px;
   right: -100px;
   bottom: 80px;
   background: #e8f0f7;
   transition: right 0.5s;
-  background-image: url(/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png);
+  background-image: url("/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png");
   background-size: 45px;
   background-position: 2px;
   background-repeat: no-repeat;
@@ -736,7 +732,7 @@ a {
   }
 }
 
-//Share This Page
+// Share This Page
 
 div #sm-share {
   display: flex;
