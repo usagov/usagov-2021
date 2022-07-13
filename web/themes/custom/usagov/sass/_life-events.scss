@@ -22,9 +22,11 @@
        border: none;
        border-radius: 0;
     }
+
     .usa-card__body {
        color: var( $life-events, text-color );
     }
+
     .usa-card__heading{
        text-decoration-line: underline;
        text-decoration-thickness: 7px;
