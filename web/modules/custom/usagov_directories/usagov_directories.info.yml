@@ -1,0 +1,8 @@
+name: USAgov Directories Module
+description: Sets up custom routing for USAGov A-Z Directories.
+package: USAgov
+
+type: module
+core: 8.x
+core_version_requirement: ^8 || ^9
+
