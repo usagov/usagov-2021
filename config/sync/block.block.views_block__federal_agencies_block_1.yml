@@ -1,22 +1,22 @@
-uuid: 932ff43f-9270-4405-af72-c60bff53d630
+uuid: 88cfe29d-c97e-4475-8861-4d20dcf7175f
 langcode: en
 status: true
 dependencies:
   config:
-    - views.view.sub_children
+    - views.view.federal_agencies
   module:
     - system
     - views
   theme:
     - usagov
-id: views_block__sub_children_block_4
+id: views_block__federal_agencies_block_1
 theme: usagov
 region: content
-weight: -11
+weight: -12
 provider: null
-plugin: 'views_block:sub_children-block_4'
+plugin: 'views_block:federal_agencies-block_1'
 settings:
-  id: 'views_block:sub_children-block_4'
+  id: 'views_block:federal_agencies-block_1'
   label: ''
   label_display: '0'
   provider: views
@@ -27,4 +27,4 @@ visibility:
   request_path:
     id: request_path
     negate: false
-    pages: '<front>'
+    pages: "/federal-agencies\r\n/federal-agencies/d\r\n/federal-agencies/o"
