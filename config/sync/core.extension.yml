@@ -14,6 +14,7 @@ module:
   ckeditor_templates: 0
   ckeditor_templates_ui: 0
   config: 0
+  content_lock: 0
   content_moderation: 0
   content_moderation_notifications: 0
   contextual: 0
@@ -37,6 +38,7 @@ module:
   filter: 0
   google_docs_filter: 0
   image: 0
+  image_style_warmer: 0
   jquery_ui: 0
   jquery_ui_accordion: 0
   jsonapi: 0

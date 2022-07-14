@@ -1,0 +1,90 @@
+#!/bin/sh
+
+STARTSPACE=$( cf target | grep space: | awk '{ print $2 }')
+STARTORG=$(   cf target | grep org:   | awk '{ print $2 }')
+
+SPACE=${1:-$STARTSPACE}
+ORG=${2:-$STARTORG}
+
+PASS=true
+
+# Drop them off where we found them
+function popspace() {
+    cf target -o "$STARTORG" -s "$STARTSPACE"  2>&1 > /dev/null
+}
+# trap popspace exit
+trap popspace err
+
+# SUCCESS='\033[0;32m✓\033[0m'
+# FAILURE='\033[0;31m✘\033[0m'
+SUCCESS=' ✓ '
+FAILURE=' ✘ '
+WARNING=' ! '
+
+echo "Testing Egress Space configuration"
+
+# space exists by name
+if cf space $SPACE 2>&1 > /dev/null; then
+  echo "$SUCCESS Space exists ($SPACE)"
+else
+  echo "$FAILURE Space not found ($SPACE)"
+  PASS=false
+fi
+
+cf target -o "$ORG" -s "$SPACE" 2>&1 > /dev/null
+
+# space has correct staging network rules
+STAGING_SECURITY_GROUPS="dns trusted_local_networks_egress public_networks_egress"
+for SECURITY_GROUP in $STAGING_SECURITY_GROUPS; do
+  if cf security-groups 2>&1 | grep " ${SPACE} " | grep -e ' staging$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null; then
+    echo "$SUCCESS Staging security group '$SECURITY_GROUP' bound"
+  else
+    echo "$FAILURE Staging security group '$SECURITY_GROUP' not bound"
+    PASS=false
+  fi
+done
+
+# space has correct running network rules
+RUNNING_SECURITY_GROUPS="dns trusted_local_networks_egress public_networks_egress"
+for SECURITY_GROUP in $RUNNING_SECURITY_GROUPS; do
+  if cf security-groups 2>&1 | grep " ${SPACE} " | grep -e ' running$' | grep -e '^'$SECURITY_GROUP' ' > /dev/null; then
+    echo "$SUCCESS Running security group '$SECURITY_GROUP' bound"
+  else
+    echo "$FAILURE Running security group '$SECURITY_GROUP' not bound"
+    PASS=false
+  fi
+done
+
+# space has proxy apps running
+APP_SPACES=$(cf spaces | tail -n +4 | grep -v '\-egress' )
+PROXY_APPS=$(cf apps 2>&1 | grep ' started ' | grep -e '\-proxy\.apps\.internal$')
+PROXY_USED=0
+
+for APP_SPACE in $APP_SPACES; do
+  if echo "$PROXY_APPS" 2>&1 | grep -e $APP_SPACE'\-proxy\.apps\.internal$' > /dev/null; then
+    echo "$SUCCESS Space '$APP_SPACE' has a proxy app running"
+    PROXY_USED=1
+  else
+    echo "$WARNING Space '$APP_SPACE' does not have an associated proxy app running"
+  fi
+done
+
+if [ "$PROXY_USED" -eq 0 ]; then
+  PASS=false
+fi
+
+# FINALE
+echo
+if [ "$PASS" = false ]; then
+  echo "$FAILURE Overall Test FAIL"
+  exit 1
+else
+  echo "$SUCCESS Overall Test PASS"
+  exit 0
+fi
+
+## VERIFY
+# space exists by name
+# space has correct staging network rules
+# space has correct running network rules
+# space has proxy app
