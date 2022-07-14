@@ -24,6 +24,15 @@ i.e.
 ----------------------------------------
 */
 
+@use "uswds-core" as *;
+@use "usagov-variables" as *;
+
+@forward "sidenav";
+@forward "navigation-page";
+@forward "content-page";
+@forward "homepage";
+@forward "life-events";
+
 .text-red {
    color: #d83933;
 }
@@ -276,19 +285,31 @@ This style ensures that we can remove the padding-top from text in a card body. 
   }
  }
 
-/** This is to make the header links align in a row
+/** This is to make the English header links align in a row
 *  with the search instead of a column
 **/
 .usa-header--extended .usa-nav__secondary {
 @include at-media($theme-header-min-width) {
   @include u-flex("row", "align-end");
    bottom: 6rem;
-   width: 28rem;
+   width: 29rem;
    /*opacity: 0.2;*/
    }
 }
 
-.usa-header--extended .usa-nav__primary-item>.usa-nav__link:hover {
+/** This is to make the Spanish header links align in a row
+*  with the search instead of a column
+**/
+.usa-header--extended .usa-nav__secondary:lang(es) {
+   @include at-media($theme-header-min-width) {
+     @include u-flex("row", "align-end");
+      bottom: 6rem;
+      width: 30rem;
+      /*opacity: 0.2;*/
+      }
+}
+
+.usa-header--extended .usa-nav__primary-item>.usa-nav__link:hover {
 @include at-media($theme-header-min-width) {
    position: relative;
    }
@@ -297,28 +318,28 @@ This style ensures that we can remove the padding-top from text in a card body. 
 //** This is to make the header link stretch out **/
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
-    width: 11rem;
+    width: 12rem;
     line-height: 1.9;
   }
 }
 
-/** This is to add content pipe before the search **/
-.usa-header--extended .usa-search::before {
- @include at-media($theme-header-min-width) {
-    float: right;
-    color: color("base-lighter");
-    /*content: "|";*/ // Removed while phone number is disabled
-    padding-right: units(1);
+// Spanish header fix for text length
+.usa-header--extended .usa-nav__secondary-links:lang(es) {
+   @include at-media($theme-header-min-width) {
+     width: 13rem;
+     line-height: 1.9;
+   }
  }
-}
 
-
-/** This is to display the search image **/
-.usa-header--extended  .usa-search--small .usa-search__submit, .usa-search--small [type=submit] {
-      background-image: url(/themes/custom/usagov/images/search--dark.svg),linear-gradient(transparent,transparent);
-      // filter: brightness(215%) invert(1) contrast(2);
-    }
-  
+/** This is to add content pipe before the search **/
+.usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
+   @include at-media($theme-header-min-width) {
+      float: right;
+      color: color("base-lighter");
+      content: "|"; // Removed while phone number is disabled
+      padding-right: .7rem;
+   }
+  }
 
   .usa-nav__primary>.usa-nav__primary-item>a, .usa-nav__primary>.usa-nav__primary-item>a:hover {
   @media (min-width: 64em) {
@@ -327,7 +348,16 @@ This style ensures that we can remove the padding-top from text in a card body. 
   }
 }
 
+// adds visible focus around entire search box
+[type=search]{
+   z-index: 1;
+}
 
+// adds visible focus around entire search button and removes padding
+.usa-button:not([disabled]):focus{    
+   outline-offset: 0;
+   z-index: 1;
+}
 
  //Footer
 
@@ -360,6 +390,11 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
  /** This is to add the facebook social media icon **/
+
+ .usa-social-link:hover {
+   background-color: #ccecf2;
+}
+
 .usa-social-link--facebook {
    background-image: url(../images/facebook34.png),linear-gradient(transparent,transparent);
  }
@@ -414,6 +449,12 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 .usa-social-link {
   background-color: transparent;
+}
+
+.usa-social-link span {
+   position: absolute;
+   left: -999em;
+   right: auto;
 }
 
 .usa-footer__social-links {
@@ -476,10 +517,10 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
 }
 
 .usagov-button--outline-black {
-   box-shadow: $button-stroke color("black");
+   box-shadow: $theme-button-stroke-width color("black");
    color: color("black");
    &:hover {
-      box-shadow: $button-stroke color("black");
+      box-shadow: $theme-button-stroke-width color("black");
       color: color("black");
   }
 }
@@ -492,7 +533,7 @@ a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
 }
 .usa-checkbox__input--tile:checked+.usa-checkbox__label, .usa-radio__input--tile:checked+.usa-radio__label {
    // background-color: #ccecf2;
-   border-color: var( $usagov-variables, radio-button, border-color );;
+   border-color: var( $radio-button, border-color );;
 }
 .usa-checkbox__input--tile+.usa-checkbox__label, .usa-radio__input--tile+.usa-radio__label {
    border-color: black;

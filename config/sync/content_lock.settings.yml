@@ -1,0 +1,56 @@
+_core:
+  default_config_hash: 6Ka3T1c-CIjEUO1Q64NXKksLthkMhj53a6zy4RJBtkc
+verbose: 1
+types:
+  block_content: {  }
+  content_moderation_state: {  }
+  entity_embed_fake_entity: {  }
+  file: {  }
+  media: {  }
+  menu_link_content: {  }
+  node:
+    '*': '*'
+  embedded_paragraphs: {  }
+  path_alias: {  }
+  taxonomy_term: {  }
+  user: {  }
+  paragraph: {  }
+types_translation_lock: {  }
+types_js_lock: {  }
+form_op_lock:
+  block_content:
+    mode: 0
+    values: {  }
+  content_moderation_state:
+    mode: 0
+    values: {  }
+  entity_embed_fake_entity:
+    mode: null
+    values: {  }
+  file:
+    mode: null
+    values: {  }
+  media:
+    mode: 0
+    values: {  }
+  menu_link_content:
+    mode: 0
+    values: {  }
+  node:
+    mode: 0
+    values: {  }
+  embedded_paragraphs:
+    mode: 0
+    values: {  }
+  path_alias:
+    mode: 0
+    values: {  }
+  taxonomy_term:
+    mode: 0
+    values: {  }
+  user:
+    mode: 0
+    values: {  }
+  paragraph:
+    mode: 0
+    values: {  }

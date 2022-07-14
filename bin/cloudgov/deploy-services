@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+#
+# This script will attempt to create the services required
+# and then launch everything. The {} are for formatting only
+#
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+# this function is a convenient symantic wrapper around a one-liner
+service_exists()
+{
+  cf service "$1" >/dev/null 2>&1
+}
+
+# this function will generate a random string, or bail if uuidgen is not available.
+generate_string()
+{
+  if [ -z "$1" ] ; then
+    if command -v uuidgen >/dev/null ; then
+      NEW_STRING=$(uuidgen)
+      export NEW_STRING
+    else
+      echo "cannot find uuidgen utility:  You will need to generate some random strings and put them in the CRON_KEY, HASH_SALT, and ROOT_USER_PASS environment variables, then re-run this script."
+      exit 1
+    fi
+  fi
+}
+
+generate_cert_json()
+{
+  if command -v openssl >/dev/null ; then
+    SECAUTHSECRETS=$(cf curl /v2/user_provided_service_instances/$(cf service secauthsecrets --guid) | jq -r '.entity | select(.name == "secauthsecrets") | .credentials' )
+    SP_KEY=$(echo -E "$SECAUTHSECRETS" | jq -r '.spkey')
+    SP_CRT=$(echo -E "$SECAUTHSECRETS" | jq -r '.spcrt')
+
+    if [ "$SP_KEY" == "null" ] || [ "$SP_CRT" == "null" ]; then
+      echo "Generating Cert for use with SecureAuth"
+
+      mkdir -p /tmp/sp
+      touch /tmp/sp/sp.crt
+      chmod 700 /tmp/sp/sp.crt
+      touch /tmp/sp/sp.key
+      chmod 700 /tmp/sp/sp.key
+
+      openssl req -new -x509 -days 3652 -nodes -out /tmp/sp/sp.crt -keyout /tmp/sp/sp.key -batch -config $SCRIPT_DIR/sp.conf
+      spkey=$(</tmp/sp/sp.key)
+      spcrt=$(</tmp/sp/sp.crt)
+      # convert sp.key to single line
+      spkeyf=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' /tmp/sp/sp.key)
+      # convert sp.crt to single line
+      spcrtf=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' /tmp/sp/sp.crt)
+      CERT_JSON="{\"spcrt\": \"$spcrtf\", \"spkey\": \"$spkeyf\"}"
+      rm -rf /tmp/sp
+      export CERT_JSON
+      return 0
+    else
+      echo "Existing SecureAuth cert already present."
+      return 1
+    fi
+  elif [ -n "$CERT_JSON" ]; then
+    echo "Existing \$CERT_JSON already define."
+    return 0
+  else
+    echo "cannot find openssl utility to generate cert: CERT_JSON={\"spcrt\":\"\",\"spkey\":\"\"} You will need to generate it yourself and rerrun this script."
+    exit 1
+  fi
+}
+
+
+## GATHER OR GENERATE SECRETS
+{
+  # If the user does not supply required data, generate some secrets.
+  generate_string "$CRON_KEY"
+  CRON_KEY=${CRON_KEY:-$NEW_STRING}
+
+  generate_string "$HASH_SALT"
+  HASH_SALT=${HASH_SALT:-$NEW_STRING}
+
+  generate_string "$ROOT_USER_PASS"
+  ROOT_USER_PASS=${ROOT_USER_PASS:-$NEW_STRING}
+  ROOT_USER_NAME=${ROOT_USER_NAME:-root}
+
+  # New Relic vars need to exist in the environment when this script runs
+  # they cannot be set to any reasonable defaults
+  NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME:-}
+  NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-}
+  NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:-}
+  NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-}
+}
+
+## DATABASE SERVICE
+{
+  echo "Configuring Database Service"
+  if service_exists "database" ; then
+    echo database already created
+  else
+    #if [ "$SPACE" = "prod" ] ; then
+    #  cf create-service aws-rds medium-mysql database
+    #else
+      cf create-service aws-rds \
+        small-mysql \
+        database \
+        -c '{"version": "8.0"}'
+    #fi
+  fi
+
+  # wait until the db is fully provisioned
+  until cf create-service-key database test-db-ok ; do
+    echo waiting until database is live...
+    sleep 20
+  done
+  cf delete-service-key database test-db-ok -f
+}
+
+## STORAGE SERVICE
+{
+  echo "Configuring Storage Service"
+  if service_exists "storage" ; then
+    echo storage already created
+  else
+    cf create-service s3 basic-sandbox storage
+  fi
+
+  if service_exists "dbstorage" ; then
+    echo dbstorage already created
+  else
+    cf create-service s3 basic-sandbox dbstorage
+  fi
+}
+
+## SECRETS SERVICE
+{
+  echo "Configuring Secrets Service"
+  if service_exists "secrets" ; then
+    echo "secrets already created: updating"
+    CURR_SECRETS=$(cf curl /v2/user_provided_service_instances/$(cf service secrets --guid))
+    CURR_CRON_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.CRON_KEY')
+    CURR_HASH_SALT=$(echo $CURR_SECRETS | jq -r '.entity.credentials.HASH_SALT')
+    CURR_ROOT_USER_NAME=$(echo $CURR_SECRETS | jq -r '.entity.credentials.ROOT_USER_NAME')
+    CURR_ROOT_USER_PASS=$(echo $CURR_SECRETS | jq -r '.entity.credentials.ROOT_USER_PASS')
+    CURR_NEW_RELIC_DISPLAY_NAME=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_DISPLAY_NAME')
+    CURR_NEW_RELIC_APP_NAME=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_APP_NAME')
+    CURR_NEW_RELIC_LICENSE_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_LICENSE_KEY')
+    CURR_NEW_RELIC_API_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_API_KEY')
+    if [ -n "$NEW_RELIC_DISPLAY_NAME" ] && [ "$CURR_NEW_RELIC_DISPLAY_NAME" != "$NEW_RELIC_DISPLAY_NAME" ] ; then
+      CURR_NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME}
+    fi
+    if [ -n "$NEW_RELIC_APP_NAME" ] && [ "$CURR_NEW_RELIC_APP_NAME" != "$NEW_RELIC_APP_NAME" ] ; then
+      CURR_NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME}
+    fi
+    if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$CURR_NEW_RELIC_LICENSE_KEY" != "$NEW_RELIC_LICENSE_KEY" ] ; then
+      CURR_NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
+    fi
+    if [ -n "$NEW_RELIC_API_KEY" ] && [ "$CURR_NEW_RELIC_API_KEY" != "$NEW_RELIC_API_KEY" ] ; then
+      CURR_NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY}
+    fi
+
+    # Only allow update of new relic vars, all others match the existing values
+    yes '' | cf update-user-provided-service secrets -p "{\"CRON_KEY\": \"$CURR_CRON_KEY\", \"HASH_SALT\": \"$CURR_HASH_SALT\", \"ROOT_USER_NAME\": \"$CURR_ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$CURR_ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$CURR_NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$CURR_NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$CURR_NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$CURR_NEW_RELIC_API_KEY\"}"
+    # do we need to reattach this service to the apps individually?
+
+  else
+    yes '' | cf create-user-provided-service secrets -p "{\"CRON_KEY\": \"$CRON_KEY\", \"HASH_SALT\": \"$HASH_SALT\", \"ROOT_USER_NAME\": \"$ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$NEW_RELIC_API_KEY\"}"
+  fi
+
+  if service_exists "secauthsecrets" ; then
+    # check for existance of spcrt and spkey in secrets service
+    # if not found generate
+    echo "Secauthsecrets service already created"
+    if generate_cert_json; then
+      yes '' | cf update-user-provided-service secauthsecrets -p "$CERT_JSON"
+    fi
+  else
+    if generate_cert_json; then
+      yes '' | cf create-user-provided-service secauthsecrets -p "$CERT_JSON"
+    fi
+  fi
+}
+
+## DONE
