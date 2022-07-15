@@ -35,4 +35,4 @@ visibility:
   request_path:
     id: request_path
     negate: true
-    pages: "<front>\r\n/scams-and-frauds\r\n/estafas-y-fraudes"
+    pages: "<front>\r\n/scams-and-frauds\r\n/scams-and-fraud\r\n/estafas-y-fraudes\r\n/estafas-y-fraude"

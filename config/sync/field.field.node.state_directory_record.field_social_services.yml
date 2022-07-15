@@ -1,0 +1,23 @@
+uuid: 169b8463-2200-4b7c-b385-16f7af8737b6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_social_services
+    - node.type.state_directory_record
+  module:
+    - link
+id: node.state_directory_record.field_social_services
+field_name: field_social_services
+entity_type: node
+bundle: state_directory_record
+label: 'Social Services'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 1
+  link_type: 17
+field_type: link
