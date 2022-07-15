@@ -12,6 +12,7 @@ applications:
     - secauthsecrets
     - storage
     - dbstorage
+  health-check-type: process
   instances: 1
   random-route: true
 - name: waf
