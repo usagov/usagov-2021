@@ -44,7 +44,7 @@ cf map-route cms usa.gov --hostname cms-$APP_SPACE
 cf create-route usa.gov --hostname beta-$APP_SPACE
 cf map-route cms usa.gov --hostname beta-$APP_SPACE
 
-if [ "$APP_SPACE" == "prod" ];
+if [ "$APP_SPACE" == "prod" ]; then
   cf create-route usa.gov --hostname cms
   cf map-route cms usa.gov --hostname cms
   cf create-route usa.gov --hostname beta
