@@ -3,7 +3,7 @@ _core:
 langcode: en
 uuid: 6426615d-a9df-4b9a-b535-43c6cdfe8c04
 name: USA.revamp
-mail: 'null'
+mail: cmp-auto-reply@gsa.gov
 slogan: ''
 page:
   403: ''
