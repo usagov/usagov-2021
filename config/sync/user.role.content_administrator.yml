@@ -13,6 +13,7 @@ dependencies:
     - node.type.wizard_step
     - workflows.workflow.basic_workflow
   module:
+    - content_lock
     - content_moderation
     - content_translation
     - devel
@@ -37,6 +38,7 @@ permissions:
   - 'access toolbar'
   - 'add paragraphs entity embed'
   - 'administer menu'
+  - 'break content lock'
   - 'create audio media'
   - 'create basic_page content'
   - 'create content translations'
