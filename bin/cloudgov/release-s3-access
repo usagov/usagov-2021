@@ -1,0 +1,14 @@
+#!/bin/sh
+
+SPACE=$(cf target | grep space: | awk '{print $2}');
+if [ -z "$SPACE" ]; then
+  echo "You must choose a space before procesing ./bin/cloudgov/space (personal|dev|stage|prod|shared-egress)"
+  exit 1
+fi;
+
+export SERVICE_NAME=${1:-storage}
+
+if ! cf service "$1" >/dev/null 2>&1
+
+export SERVICE_KEY="storagekey-$SPACE-$SERVICE_NAME"
+cf delete-service-key storage $SERVICE_KEY -f
