@@ -134,7 +134,7 @@ for app in $applist; do
     $output cf set-env "$app" AWS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
     $output cf set-env "$app" REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
     # $output cf restart "$app" --no-wait --strategy rolling
-    $output cf restart "$app" --strategy rolling
+    $output cf restart "$app"
 done
 
 popspace
