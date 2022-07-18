@@ -18,14 +18,15 @@
  * @ingroup themeable
  */
 #}
-{% set is_directory = view.element['#name']|slice(0, 16) == 'federal_agencies' %}
+
 {% if attributes %}
   <div{{ attributes }}>
 {% endif %}
   {% if title %}
     <h3>{{ title }}</h3>
   {% endif %}
- 
+
+{% set is_directory = view.element['#name']|slice(0, 16) == 'federal_agencies' %} 
 {% if is_directory %}
 {#
  **************************************************    

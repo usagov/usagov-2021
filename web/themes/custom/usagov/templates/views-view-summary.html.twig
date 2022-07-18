@@ -20,7 +20,6 @@
  * @ingroup themeable
 */
 #}
-
 {% set is_directory = view.element['#name']|slice(0, 16) == 'federal_agencies' %}
 {% if is_directory %}
 <div class="usagov-directory-page-container">
@@ -32,12 +31,17 @@
     </a>
   </p>
 {% endif %}
-  
 <div {{is_directory ? ' class="usagov-directory-container"' }}>
   <ul class="usagov-directory-container-az">
     {% for row in rows %}
-      {% set letter_url = '/federal-agencies/' ~ row.link|lower %}
-        <li><a href="{{ letter_url }}"{{ row.attributes.addClass(row.active ? 'is-active')|without('href') }}>{{ row.link }}</a>
+      <li>
+	{# TODO: we want to know the currently-displayed letter, but how? #}
+        {% set row_is_active = false %}
+        {% if row_is_active %}
+          <a {{row.attributes.addClass("is-active")}}>{{ row.link }}</a>
+        {% else %}
+          <a href="/federal-agencies?letter={{ row.link|lower }}">{{ row.link }}</a>	  
+	{% endif %}  
         {% if options.count %}
           ({{ row.count }})
         {% endif %}
