@@ -64,10 +64,31 @@ cp -rf /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov
 cp -rf /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rf /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 
-find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|beta\1.usa.gov|ig' {} \;
-
 # remove unwanted files
 rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
+
+# replacing inaccurate hostnames
+find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|beta\1.usa.gov|ig' {} \;
+
+# duplicate the logic used by the bootstrap script to find the static site hostname
+WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)
+# duplicate the logic used by the egress proxy to find bucket names
+BUCKETHOSTS=""
+n=$(echo -E "$VCAP_SERVICES" | jq -r '.s3 | length')
+i=0
+while [ $i -lt "$n" ]
+do
+  # Add attached buckets to the allow list
+  BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
+  AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint")
+  AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint")
+  BUCKETHOSTS="$BUCKETHOSTS ${BUCKET}.${AWS_ENDPOINT} ${BUCKET}.${AWS_FIPS_ENDPOINT}"
+  ((i=i+1))
+done
+for BUCKETHOST in $BUCKETHOSTS; do
+  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"$BUCKETHOST"'/cms/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
+done
+
 
 # lower case all filenames in the copied dir before uploading
 LCF=0
