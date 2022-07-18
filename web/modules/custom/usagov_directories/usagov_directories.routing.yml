@@ -1,7 +1,0 @@
-usagov.federal_agencies:
-  path: '/federal-agencies/{letter}'
-  defaults: 
-    _controller: '\Drupal\usagov_directories\Controller\DirectoryController::federalAgenciesPage'
-  requirements: 
-    _permission: 'access content'
-    letter: '\S'

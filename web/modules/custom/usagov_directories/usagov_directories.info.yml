@@ -1,5 +1,5 @@
 name: USAgov Directories Module
-description: Sets up custom routing for USAGov A-Z Directories.
+description: Sets up custom listeners for Tome for USAGov A-Z Directories.
 package: USAgov
 
 type: module
