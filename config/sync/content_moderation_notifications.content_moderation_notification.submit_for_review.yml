@@ -7,11 +7,10 @@ workflow: basic_workflow
 transitions:
   move_to_review: move_to_review
 roles:
-  content_manager: content_manager
   content_administrator: content_administrator
 author: false
-site_mail: false
-emails: ''
+site_mail: true
+emails: "jessica.milcetich@gsa.gov,leilani.martinez@gsa.gov,maria.marrero@gsa.gov,merietta.jelks@gsa.gov,stephanie.madden@gsa.gov\r\ncarolyn.cihelka@gsa.gov,claire.loxsom@gsa.gov,shoshana.mayden@gsa.gov,amy.farrell@gsa.gov,nancy.tyler@gsa.gov\r\ndavid.kaufmann@gsa.gov,joanne.mcgovern@gsa.gov,ana.ayanegui@gsa.gov,arlene.hernandez@gsa.gov"
 subject: 'New content submission'
 body:
   value: "<p>A new content has been submitted.</p>\r\n\r\n<p>Please take some time to review it here: [node:url]</p>\r\n\r\n<p>Edit the content here: [node:edit-url]</p>\r\n"
