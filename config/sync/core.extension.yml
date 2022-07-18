@@ -77,6 +77,7 @@ module:
   usa_contact_center_api: 0
   usa_translation: 0
   usa_workflow: 0
+  usagov_directories: 0
   usagov_login: 0
   user: 0
   uswds_ckeditor_integration: 0

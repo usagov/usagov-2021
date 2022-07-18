@@ -31,8 +31,8 @@
  * @ingroup themeable
  */
 #}
-{% set is_directory = view.element['#name']|slice(0, 16) == 'federal_agencies' %} 
 
+{% set is_directory = view.element['#name']|slice(0, 16) == 'federal_agencies' %}
 {% if is_directory %}
 {% set UID = 'dr-' ~ fields.nid.content|striptags|trim %} 
 {#
