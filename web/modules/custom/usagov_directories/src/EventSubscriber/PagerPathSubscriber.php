@@ -9,7 +9,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Converts "letter" query parameters, as used in A-Z directorie views,  to static paths.
- * Based on the tome_static PagerEventSubscriber. 
+ * Based on the tome_static PagerEventSubscriber.
  *
  * @internal
  */
@@ -68,10 +68,10 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    */
   protected function modifyUrl($url) {
     parse_str(parse_url($url, PHP_URL_QUERY), $query);
-    if ($query && isset($query['letter']) ) {
+    if ($query && isset($query['letter'])) {
       $base_path = preg_replace('/\?.*/', '', $url);
       if ($base_path === '/') {
-          $base_path = '';
+        $base_path = '';
       }
       $url = $base_path . '/' . $query['letter'];
     }
