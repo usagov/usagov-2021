@@ -14,11 +14,11 @@
     border-radius: 0.15rem;
     background-color: #ccecf2;
     text-align: center;
+    transition: background-color 200ms;
   }
 
   button.sd-go-btn:hover {
     background-color: #a7d8e3;
-    transition: color 200ms;
   }
 }
 
