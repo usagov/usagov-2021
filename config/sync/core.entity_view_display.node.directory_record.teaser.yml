@@ -13,6 +13,7 @@ dependencies:
     - field.field.node.directory_record.field_government_branch
     - field.field.node.directory_record.field_info_for_contact_center
     - field.field.node.directory_record.field_language
+    - field.field.node.directory_record.field_language_toggle
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_official_website_additiona
     - field.field.node.directory_record.field_official_website_primary
@@ -49,6 +50,7 @@ hidden:
   field_government_branch: true
   field_info_for_contact_center: true
   field_language: true
+  field_language_toggle: true
   field_offices_near_you: true
   field_official_website_additiona: true
   field_official_website_primary: true
