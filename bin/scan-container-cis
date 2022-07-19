@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+CONTAINERTAG=${1:-$GITBRANCH}
+DOCKER_CONTENT_TRUST=${DOCKER_CONTENT_TRUST:-1}
+
+docker run -it --rm --net host --pid host --userns host --cap-add audit_control \
+    -e DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    --label docker_bench_security \
+    docker/docker-bench-security -b \
+      -t "$DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG" \
+#      -c  "check_4,check_4_1,check_4_2,check_4_3,check_4_4,check_4_5,check_4_6,check_4_7,check_4_8,check_4_9,check_4_10,check_4_11"
+
+# docker run -it --rm --net host --pid host --userns host --cap-add audit_control \
+#     -e DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST \
+#     -v /var/run/docker.sock:/var/run/docker.sock \
+#     --label docker_bench_security \
+#     docker/docker-bench-security -b \
+#       -t "$DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG" \
+#       -c  "check_4,check_4_1,check_4_2,check_4_3,check_4_4,check_4_5,check_4_6,check_4_7,check_4_8,check_4_9,check_4_10,check_4_11"
+
+# -c "4.1,4.2,4.3,4.4,4.5,4.6,4.7,4.8,4.9,4.10,4.11" \

@@ -148,8 +148,10 @@ $proxyallow
 # Deploy the proxy app
 echo "Deploy Egress Proxy App"
 $output cf target -o "$egressorg" -s "$egressspace" 2>&1 > /dev/null
-$output cf push $proxyname -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
+$output cf set-env $proxyname PROXY_USERNAME "$username"
+$output cf set-env $proxyname PROXY_PASSWORD "$password"
 $output cf set-env $proxyname proxy_route "https://$username:$password@$proxyname.apps.internal:61443"
+$output cf push $proxyname -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
 
 if [ -n "${DRYRUN}" ]; then
     echo "# vars-file content:"
