@@ -19,4 +19,4 @@ docker run -it --rm \
     -v "$(pwd)/web/modules/custom:/app/web/modules/custom" \
     -v "/tmp/nothingburger:/app/web/modules/custom/samlauth" \
     -v "$(pwd)/web/themes/custom:/app/web/themes/custom" \
-  snyk/snyk:php snyk code test --org=$SNYK_ORG
+  snyk/snyk:php snyk code test
