@@ -1,0 +1,3 @@
+services:
+  usa_content_moderation_notifications.permission.service:
+    class: Drupal\usa_content_moderation_notifications\UsaContentModerationNotificationsPermissionChecker

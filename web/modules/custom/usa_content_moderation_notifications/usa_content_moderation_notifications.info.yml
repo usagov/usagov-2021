@@ -2,4 +2,5 @@ name: 'USA Content Moderation Notifications'
 type: module
 description: 'Functionality related to Content Moderation.'
 core: 8.x
+package: USAgov
 core_version_requirement: ^8 || ^9
