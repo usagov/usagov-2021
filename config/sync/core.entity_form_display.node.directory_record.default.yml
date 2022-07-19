@@ -12,6 +12,7 @@ dependencies:
     - field.field.node.directory_record.field_government_branch
     - field.field.node.directory_record.field_info_for_contact_center
     - field.field.node.directory_record.field_language
+    - field.field.node.directory_record.field_language_toggle
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_official_website_additiona
     - field.field.node.directory_record.field_official_website_primary
@@ -112,6 +113,16 @@ content:
     weight: 30
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_language_toggle:
+    type: entity_reference_autocomplete
+    weight: 33
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
   field_offices_near_you:
     type: text_textarea
