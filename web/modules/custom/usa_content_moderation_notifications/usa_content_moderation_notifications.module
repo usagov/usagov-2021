@@ -18,6 +18,6 @@ function usa_content_moderation_notifications_mail_alter(&$message) {
 
   if ($hasPermission) {
     $message['to'] = $currentuser->getEmail();
-    $message['headers']['Bcc'] = '';
+    unset($message['headers']['Bcc']);
   }
 }
