@@ -21,7 +21,7 @@ third_party_settings:
         available_menus:
           - main
         parent: 'main:'
-name: 'Directory Record'
+name: 'Federal Directory Record'
 type: directory_record
 description: ''
 help: ''

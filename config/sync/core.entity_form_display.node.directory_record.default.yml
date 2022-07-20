@@ -6,7 +6,6 @@ dependencies:
     - field.field.node.directory_record.body
     - field.field.node.directory_record.field_city
     - field.field.node.directory_record.field_contact_link
-    - field.field.node.directory_record.field_contact_link_additional
     - field.field.node.directory_record.field_email
     - field.field.node.directory_record.field_english_title
     - field.field.node.directory_record.field_government_branch
@@ -14,8 +13,6 @@ dependencies:
     - field.field.node.directory_record.field_language
     - field.field.node.directory_record.field_language_toggle
     - field.field.node.directory_record.field_offices_near_you
-    - field.field.node.directory_record.field_official_website_additiona
-    - field.field.node.directory_record.field_official_website_primary
     - field.field.node.directory_record.field_page_intro
     - field.field.node.directory_record.field_phone_number
     - field.field.node.directory_record.field_state_abbr
@@ -25,14 +22,37 @@ dependencies:
     - field.field.node.directory_record.field_synonym
     - field.field.node.directory_record.field_toll_free_number
     - field.field.node.directory_record.field_tty_
+    - field.field.node.directory_record.field_website
     - field.field.node.directory_record.field_zip
     - node.type.directory_record
   module:
     - content_moderation
+    - field_group
     - link
     - path
     - telephone
     - text
+third_party_settings:
+  field_group:
+    group_address:
+      children:
+        - field_street_1
+        - field_street_2
+        - field_street_3
+        - field_city
+        - field_state_abbr
+        - field_zip
+      label: Address
+      region: content
+      parent_name: ''
+      weight: 19
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        description: ''
+        required_fields: true
 id: node.directory_record.default
 targetEntityType: node
 bundle: directory_record
@@ -56,7 +76,7 @@ content:
     third_party_settings: {  }
   field_city:
     type: string_textfield
-    weight: 16
+    weight: 23
     region: content
     settings:
       size: 60
@@ -64,15 +84,7 @@ content:
     third_party_settings: {  }
   field_contact_link:
     type: link_default
-    weight: 19
-    region: content
-    settings:
-      placeholder_url: ''
-      placeholder_title: ''
-    third_party_settings: {  }
-  field_contact_link_additional:
-    type: link_default
-    weight: 20
+    weight: 13
     region: content
     settings:
       placeholder_url: ''
@@ -80,7 +92,7 @@ content:
     third_party_settings: {  }
   field_email:
     type: email_default
-    weight: 24
+    weight: 18
     region: content
     settings:
       placeholder: ''
@@ -96,27 +108,21 @@ content:
     third_party_settings: {  }
   field_government_branch:
     type: options_select
-    weight: 28
+    weight: 26
     region: content
     settings: {  }
     third_party_settings: {  }
   field_info_for_contact_center:
     type: string_textarea
-    weight: 29
+    weight: 28
     region: content
     settings:
       rows: 5
       placeholder: ''
     third_party_settings: {  }
-  field_language:
-    type: options_select
-    weight: 30
-    region: content
-    settings: {  }
-    third_party_settings: {  }
   field_language_toggle:
     type: entity_reference_autocomplete
-    weight: 33
+    weight: 29
     region: content
     settings:
       match_operator: CONTAINS
@@ -126,27 +132,11 @@ content:
     third_party_settings: {  }
   field_offices_near_you:
     type: text_textarea
-    weight: 27
+    weight: 17
     region: content
     settings:
       rows: 5
       placeholder: ''
-    third_party_settings: {  }
-  field_official_website_additiona:
-    type: link_default
-    weight: 26
-    region: content
-    settings:
-      placeholder_url: ''
-      placeholder_title: ''
-    third_party_settings: {  }
-  field_official_website_primary:
-    type: link_default
-    weight: 25
-    region: content
-    settings:
-      placeholder_url: ''
-      placeholder_title: ''
     third_party_settings: {  }
   field_page_intro:
     type: string_textarea
@@ -158,20 +148,20 @@ content:
     third_party_settings: {  }
   field_phone_number:
     type: telephone_default
-    weight: 21
+    weight: 14
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_state_abbr:
     type: options_select
-    weight: 17
+    weight: 24
     region: content
     settings: {  }
     third_party_settings: {  }
   field_street_1:
     type: string_textfield
-    weight: 13
+    weight: 20
     region: content
     settings:
       size: 60
@@ -179,7 +169,7 @@ content:
     third_party_settings: {  }
   field_street_2:
     type: string_textfield
-    weight: 14
+    weight: 21
     region: content
     settings:
       size: 60
@@ -187,7 +177,7 @@ content:
     third_party_settings: {  }
   field_street_3:
     type: string_textfield
-    weight: 15
+    weight: 22
     region: content
     settings:
       size: 60
@@ -195,7 +185,7 @@ content:
     third_party_settings: {  }
   field_synonym:
     type: string_textfield
-    weight: 12
+    weight: 27
     region: content
     settings:
       size: 60
@@ -203,21 +193,29 @@ content:
     third_party_settings: {  }
   field_toll_free_number:
     type: telephone_default
-    weight: 22
+    weight: 15
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_tty_:
     type: telephone_default
-    weight: 23
+    weight: 16
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
+  field_website:
+    type: link_default
+    weight: 12
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
   field_zip:
     type: string_textfield
-    weight: 18
+    weight: 25
     region: content
     settings:
       size: 60
@@ -281,4 +279,5 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-hidden: {  }
+hidden:
+  field_language: true
