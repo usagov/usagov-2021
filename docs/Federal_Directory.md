@@ -61,21 +61,31 @@ The left nav menu presents a challenge -- if the left nav menu is supposed to ap
 
 There is some added CSS (SASS). Perhaps someone who worked on that would like to add notes! It should be in harmony with how CSS is done elsewhere on the site.
 
-
-
 ## Setup 
 
-(upon merge or first deployment against a given database)
+Upon merge or first deployment against a given database:
 
-### Manual steps
-
+# Ensure the **USAGov Directories** module (a.k.a. `usagov_directories`) is enabled. (Confirm: does this happen automatically with the committed configuration?)
+# Sync Configuration -- this will bring in the Federal Directory Record content type, Federal Agencies view, and Block Layout.
+# **Manual step:** add a standard page with the following settings, and Publish it:
+  * **Title:** Directory of U.S. Government Agencies and Departments
+  * **Language:** English
+  * **URL alise:** /federal-agencies
+  * **Promotion options:** Not promoted
+  * **Menu settings:**
+    - **Provide a menu link:** Checked
+    - **Menu link title:** Directory of U.S. Government Agencies and Departments
+    - **Parent item:** -- About the U.S. and Its
+    - **Weight:** 0
+# Flush all the caches, of course.
 
 ## Questions to resolve before merging into dev
 
-### Rename directory_record to federal_directory_record?
+**Rename directory_record to federal_directory_record?**
 
-We will also have state directory records. Making this change percolates through Drupal structures, twig files, and possibly (but probably not) CSS. It might be worth it, though. 
+We will also have state directory records. Making this change percolates through Drupal structures, twig files, and possibly (but probably not) CSS. It might be worth it, though.
 
+**Can we get the content item for the /federal-agencies path into configuration and eliminate the manual step?**
 
 ## Known Issues and Concerns
 
@@ -121,6 +131,8 @@ Getting the `federal_agencies` view to do the right thing was a challenge. It's 
 * As above, but add an explicit Link entry for the /federal-agencies path in the "Left Menu English" menu.
    - Good: This works, at least for the initial page.
    - Bad: Didn't work /federal-agencies/a, etc. (if I recall correctly) 
+* As above, but add some of the "missing" content as header or footer elements in the View.
+   - Bad: This just plain didn't do anything.
 * Display the view as a `Block` on a standard page at the `/federal-agencies` path, using the default link generation (which produces links like `/federal-agencies/d`). 
   - Good: This solves all the layout issues for the first page.
   - Bad: It was necessary to change the path of the View itself (I chose `/federal-agencies-view`) in order to get the standard page to render at that location. This meant that the alpha list produced links to `/federal-agencies-view/d` and so on, giving us the messed-up display of the original approach.
