@@ -65,19 +65,19 @@ There is some added CSS (SASS). Perhaps someone who worked on that would like to
 
 Upon merge or first deployment against a given database:
 
-# Ensure the **USAGov Directories** module (a.k.a. `usagov_directories`) is enabled. (Confirm: does this happen automatically with the committed configuration?)
-# Sync Configuration -- this will bring in the Federal Directory Record content type, Federal Agencies view, and Block Layout.
-# **Manual step:** add a standard page with the following settings, and Publish it:
-  * **Title:** Directory of U.S. Government Agencies and Departments
-  * **Language:** English
-  * **URL alise:** /federal-agencies
-  * **Promotion options:** Not promoted
-  * **Menu settings:**
-    - **Provide a menu link:** Checked
-    - **Menu link title:** Directory of U.S. Government Agencies and Departments
-    - **Parent item:** -- About the U.S. and Its
-    - **Weight:** 0
-# Flush all the caches, of course.
+1. Ensure the **USAGov Directories** module (a.k.a. `usagov_directories`) is enabled. (Confirm: does this happen automatically with the committed configuration?)
+1. Sync Configuration -- this will bring in the Federal Directory Record content type, Federal Agencies view, and Block Layout.
+1. **Manual step:** add a standard page with the following settings, and Publish it:
+   * **Title:** Directory of U.S. Government Agencies and Departments
+   * **Language:** English
+   * **URL alise:** /federal-agencies
+   * **Promotion options:** Not promoted
+   * **Menu settings:**
+     - **Provide a menu link:** Checked
+     - **Menu link title:** Directory of U.S. Government Agencies and Departments
+     - **Parent item:** -- About the U.S. and Its
+     - **Weight:** 0
+1. Flush all the caches, of course.
 
 ## Questions to resolve before merging into dev
 
