@@ -42,14 +42,18 @@
     border-radius: 0.01rem;
     font-size: 1.5rem;
     font-weight: 600;
-    -webkit-transition: 200ms;
+    transition: box-shadow 200ms, background-color 200ms;
   }
 
   a:hover {
     box-shadow: 0px 0px 0px 0.15rem #000000;
     background-color: white;
-    -webkit-transition: 200ms;
   }
+}
+
+a.intro-links, a.intro-links:hover, a.intro-links:visited, a.intro-links:active {
+  text-decoration: none;
+  color: black;
 }
 
 hr.bl-divider {
@@ -100,11 +104,11 @@ hr.bl-divider {
   outline-style: none;
   margin-left: 0;
   margin-right: 0;
+  transition: background-color 200ms;
 }
 
 .fed-directory-search-btn:hover {
   background-color: white;
-  -webkit-transition: 200ms;
 }
 
 // Letter Heading
@@ -167,14 +171,14 @@ hr.bl-divider {
     font-weight: 600;
     width: 3.8rem;
     height: 3.8rem;
-    -webkit-transition: 200ms;
+    transition-property: outline, color, background-color;
+    transition-duration: 200ms;
   }
 
   a.nav-letter:hover {
     outline: solid 0.15rem black;
     color: #000000;
     background-color: white;
-    -webkit-transition: 200ms;
   }
 }
 
