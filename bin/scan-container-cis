@@ -19,7 +19,7 @@ DOCKERREPO=${DOCKERREPO:-usagov-2021}
 APPNAME=${1:-cms}
 
 GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
-CTAG=${1:-$GITBRANCH}
+CTAG=${2:-$GITBRANCH}
 
 docker run -it --rm --net host --pid host --userns host --cap-add audit_control \
     -e DOCKER_CONTENT_TRUST=1 \
