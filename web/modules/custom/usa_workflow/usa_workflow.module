@@ -81,7 +81,7 @@ function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
     // Check if $data['tabs'][0]['entity.node.delete_form'] exist
     // the user is the same as the revised user and does not have
     // 'usa delete own content' permission.
-    if(array_key_exists('entity.node.delete_form', $data['tabs'][0])) {
+    if (array_key_exists('entity.node.delete_form', $data['tabs'][0])) {
       if ($data['tabs'][0]['entity.node.delete_form']) {
         if ($route_name == '$route_name' &&
           $wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']
