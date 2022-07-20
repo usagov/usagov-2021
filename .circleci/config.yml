@@ -14,6 +14,7 @@ commands:
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
       - install-cloud-foundry
+      - load-image-digest
       - run:
           name: CloudGov Deploy
           command: |
@@ -23,19 +24,43 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-cms << pipeline.number >>
+            ./bin/cloudgov/deploy-cms << pipeline.number >> $CMS_DIGEST
 
   save-image-digest:
     steps:
-      - install-cloud-foundry
       - run:
-          name: Save Image Digest of container
+          name: Save Image Digest
           command: |
-            CMS_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:cms-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
-            WAF_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:waf-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
-            echo "Saving cms-<< pipeline.number >> -> $CMS_DIGEST"
-            echo "Saving waf-<< pipeline.number >> -> $CMS_DIGEST"
-            echo "cf target -s shared-egress -o gsa-tts-usagov"
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>
+            CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
+            WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            echo "$CMS_DIGEST" > /tmp/results/cms_digest
+            echo "$WAF_DIGEST" > /tmp/results/waf_digest
+            aws s3 cp /tmp/results/cms_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >>
+            aws s3 cp /tmp/results/waf_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >>
+
+  load-image-digest:
+    steps:
+      - run:
+          name: Load Image Digest
+          command: |
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            export CMS_DIGEST=""
+            export WAF_DIGEST=""
+            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >> ./cms-image-digest; then export CMS_DIGEST="@"$(cat ./cms-image-digest); fi
+            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest); fi
+            export CMS_DIGEST=$CMS_DIGEST
+            export WAF_DIGEST=$WAF_DIGEST
+            echo 'export CMS_DIGEST='"$CMS_DIGEST" >> $BASH_ENV
+            echo 'export WAF_DIGEST='"$WAF_DIGEST" >> $BASH_ENV
+            # docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>${CMS_DIGEST}
+            # docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>${WAF_DIGEST}
 
   install-cloud-foundry:
     steps:
@@ -66,13 +91,8 @@ commands:
             echo "Install Gulp on node "$(node --version)
             sudo npm install --global gulp-cli
 
-# parameters:
-#   is_pr:
-#     type: boolean
-#     default: false
-
 jobs:
-  test-stuff:
+  scan-code:
     machine:
       image: ubuntu-2004:202107-02
     environment:
@@ -88,41 +108,6 @@ jobs:
             mkdir -p /tmp/results
             touch /tmp/results/scan-code.log
             touch /tmp/results/scan-dependencies.log
-            touch /tmp/results/cms_digest
-            touch /tmp/results/waf_digest
-      - run:
-          name: Save Key to shared space
-          command: |
-            docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-latest
-            docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-latest
-            CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-latest --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
-            WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-latest --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
-            cf target -s shared-egress -o gsa-tts-usagov
-            . ./bin/cloudgov/get-s3-access key-value
-            echo "$CMS_DIGEST" > /tmp/results/cms_digest
-            echo "$WAF_DIGEST" > /tmp/results/waf_digest
-            aws s3 cp /tmp/results/cms_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >>
-            aws s3 cp /tmp/results/waf_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >>
-      - run:
-          name: Read Keys from shared space
-          command: |
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
-            cf target -s shared-egress -o gsa-tts-usagov
-            . ./bin/cloudgov/get-s3-access key-value
-            export CMS_DIGEST=""
-            export WAF_DIGEST=""
-            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >> ./cms-image-digest; then export CMS_DIGEST="@"$(cat ./cms-image-digest); fi
-            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest); fi
-
-            echo "CMS_DIGEST = $CMS_DIGEST"
-            echo "WAF_DIGEST = $WAF_DIGEST"
-
-            echo "docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-latest${CMS_DIGEST}"
-            docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-latest${CMS_DIGEST}
-
-            echo "docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-latest${WAF_DIGEST}"
-            docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-latest${WAF_DIGEST}
       - run:
           name: Scan Code
           when: always
@@ -267,26 +252,19 @@ jobs:
       - deploy-cloudgov:
           envname: prod
 
-  # do-nothing:
-  #   docker:
-  #     - image: busybox:stable
-  #   steps:
-  #     - run: echo "Skipping"
-
-
 workflows:
   version: 2
 
-  test-things:
+  code-scans:
     jobs:
-      - approve-test-stuff:
+      - approve-code-scans:
           type: approval
           filters:
             branches:
               only: scanning
-      - test-stuff:
+      - scan-code:
           requires:
-            - approve-test-stuff
+            - approve-code-scans
           filters:
             branches:
               only: scanning
@@ -294,16 +272,6 @@ workflows:
   commit:
     jobs:
       - lint
-
-  # commit:
-  #   unless: << pipeline.parameters.is_pr >>
-  #   jobs:
-  #     - do-nothing
-
-  # pr-commit:
-  #   when: << pipeline.parameters.is_pr >>
-  #   jobs:
-  #     - lint
 
   build-and-deploy:
     jobs:
