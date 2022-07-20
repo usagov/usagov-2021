@@ -817,6 +817,26 @@ if (!empty($cf_application_data['space_name']) &&
 }
 
 
+$SERVER_HTTP_POST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
+$cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
+if (!empty($cf_application_data['space_name']) &&
+    in_array($cf_application_data['space_name'],
+             ['dev', 'stage', 'prod'])) {
+  switch (strtolower($cf_application_data['space_name'])) {
+    case "dev":
+      $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
+      break;
+
+    case "stage":
+      $SERVER_HTTP_HOST = 'cms-stage.usa.gov';
+      break;
+
+    case "prod":
+      $SERVER_HTTP_HOST = 'cms.usa.gov';
+      break;
+  }
+}
+
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);
 
 foreach ($cf_service_data as $service_list) {
@@ -840,7 +860,7 @@ foreach ($cf_service_data as $service_list) {
       $config['s3fs.settings']['bucket'] = $service['credentials']['bucket'];
       $config['s3fs.settings']['region'] = $service['credentials']['region'];
 
-      $config['s3fs.settings']['disable_cert_verify'] = TRUE;
+      $config['s3fs.settings']['disable_cert_verify'] = FALSE;
 
       $config['s3fs.settings']['root_folder'] = 'cms';
       $config['s3fs.settings']['public_folder'] = 'public';
@@ -855,6 +875,9 @@ foreach ($cf_service_data as $service_list) {
       $config['s3fs.settings']['use_customhost'] = TRUE;
       $config['s3fs.settings']['hostname'] = $service['credentials']['fips_endpoint'];
       $config['s3fs.settings']['use-path-style-endpoint'] = FALSE;
+
+      $config['s3fs.settings']['use_cssjs_host'] = FALSE;
+      $config['s3fs.settings']['cssjs_host'] = '';
 
       $config['s3fs.settings']['use_https'] = TRUE;
       $settings['s3fs.upload_as_private'] = FALSE;

@@ -55,7 +55,7 @@ printf "\nFetching ROUTE_DOMAIN\n"
 printf "\tAPPS_DOMAIN: $ROUTE_DOMAIN\n"
 
 cf push "${ROUTE_SERVICE_APP_NAME}" --no-start --var app-name="${ROUTE_SERVICE_APP_NAME}"
-cf set-env "${ROUTE_SERVICE_APP_NAME}" ALLOWED_IPS "$(printf "%s" "${NGINX_ALLOW_STATEMENTS}")"
+cf set-env "${ROUTE_SERVICE_APP_NAME}" ALLOWED_IPS "$(printf "%s" "${NGINX_ALLOW_STATEMENTS:-}")"
 cf start "${ROUTE_SERVICE_APP_NAME}"
 
 printf "\nFetching GUIDs for protected-app & route-service-app\n"

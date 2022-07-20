@@ -40,17 +40,16 @@ cf push cms --docker-image ${DOCKERUSER}/${DOCKERREPO}:cms-${CTAG}${CDIGEST}
 # but cms needs to exist in the first place
 # for route mapping and egress setup to run
 
-APP_HOSTS=$(cf routes | grep -e ' cms$' | awk '{print $2}')
-CMS_HOSTS=$(echo "$APP_HOSTS" | grep -e "^cms-$APP_SPACE")
-WWW_HOSTS=$(echo "$APP_HOSTS" | grep -e "^beta-$APP_SPACE")
+cf create-route usa.gov --hostname cms-$APP_SPACE
+cf map-route cms usa.gov --hostname cms-$APP_SPACE
+cf create-route usa.gov --hostname beta-$APP_SPACE
+cf map-route cms usa.gov --hostname beta-$APP_SPACE
 
-if [ -z "$CMS_HOST" ]; then
-  cf create-route usa.gov --hostname cms-$APP_SPACE
-  cf map-route cms usa.gov --hostname cms-$APP_SPACE
-fi
-if [ -z "$WWW_HOST" ]; then
-  cf create-route usa.gov --hostname www-$APP_SPACE
-  cf map-route cms usa.gov --hostname www-$APP_SPACE
+if [ "$APP_SPACE" == "prod" ]; then
+  cf create-route usa.gov --hostname cms
+  cf map-route cms usa.gov --hostname cms
+  cf create-route usa.gov --hostname beta
+  cf map-route cms usa.gov --hostname beta
 fi
 
 # set-env any missing env vars like new_relic
