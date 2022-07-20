@@ -1,0 +1,3 @@
+usa content moderation notify own content:
+  title: 'Self content notification'
+  description: 'Allow user to notify their new "need review" contents to themselves.'
