@@ -2,11 +2,8 @@ uuid: 88cfe29d-c97e-4475-8861-4d20dcf7175f
 langcode: en
 status: true
 dependencies:
-  config:
-    - views.view.federal_agencies
   module:
     - system
-    - views
   theme:
     - usagov
 id: views_block__federal_agencies_block_1
@@ -17,9 +14,9 @@ provider: null
 plugin: 'views_block:federal_agencies-block_1'
 settings:
   id: 'views_block:federal_agencies-block_1'
-  label: ''
+  label: Broken/Missing
   label_display: '0'
-  provider: views
+  provider: core
   context_mapping: {  }
   views_label: ''
   items_per_page: none
@@ -27,4 +24,4 @@ visibility:
   request_path:
     id: request_path
     negate: false
-    pages: "/federal-agencies\r\n/federal-agencies/*"
+    pages: /federal-agencies

@@ -15,7 +15,7 @@ id: node.directory_record.field_offices_near_you
 field_name: field_offices_near_you
 entity_type: node
 bundle: directory_record
-label: 'Offices Near You'
+label: 'Find an Office Near You'
 description: 'TEMPORARY! I don''t know what we want here, format-wise, so I''ve put in a free-form block for experimentation. -akf'
 required: false
 translatable: false
