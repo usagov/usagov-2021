@@ -113,7 +113,7 @@ jobs:
           when: always
           command: |
             SCAN_CODE_RESULT=0
-            if (./bin/scan-code | tee /tmp/results/scan-code.log); then export SCAN_CODE_RESULT=$?; else export SCAN_CODE_RESULT=$?; fi
+            if (./bin/scan-code high | tee /tmp/results/scan-code.log); then export SCAN_CODE_RESULT=0; else export SCAN_CODE_RESULT=$?; fi
             cat /tmp/results/scan-code.log
             exit $SCAN_CODE_RESULT
       - run:
@@ -121,7 +121,7 @@ jobs:
           when: always
           command: |
             SCAN_DEPS_RESULT=0
-            if (./bin/scan-dependencies | tee /tmp/results/scan-dependencies.log); then export SCAN_DEPS_RESULT=$?; else export SCAN_DEPS_RESULT=$?; fi
+            if (./bin/scan-dependencies high | tee /tmp/results/scan-dependencies.log); then export SCAN_DEPS_RESULT=0; else export SCAN_DEPS_RESULT=$?; fi
             cat /tmp/results/scan-dependencies.log
             exit $SCAN_DEPS_RESULT
       - store_artifacts:
@@ -187,14 +187,14 @@ jobs:
           name: Scan Code
           command: |
             SCAN_CODE_RESULT=0
-            if (./bin/scan-code | tee /tmp/results/scan-cms-code.log); then export SCAN_CODE_RESULT=$?; else export SCAN_CODE_RESULT=$?; fi
+            if (./bin/scan-code high | tee /tmp/results/scan-cms-code.log); then export SCAN_CODE_RESULT=0; else export SCAN_CODE_RESULT=$?; fi
             cat /tmp/results/scan-cms-code.log
             exit 0
       - run:
           name: Scan Dependencies
           command: |
             SCAN_DEPS_RESULT=0
-            if (./bin/scan-dependencies | tee /tmp/results/scan-cms-dependencies.log); then export SCAN_DEPS_RESULT=$?; else export SCAN_DEPS_RESULT=$?; fi
+            if (./bin/scan-dependencies high | tee /tmp/results/scan-cms-dependencies.log); then export SCAN_DEPS_RESULT=0; else export SCAN_DEPS_RESULT=$?; fi
             cat /tmp/results/scan-cms-dependencies.log
             exit 0
       - run:
@@ -207,14 +207,14 @@ jobs:
           name: Scan CMS Container
           command: |
             SCAN_CMS_RESULT=0
-            if (./bin/scan-container cms << pipeline.number >> | tee /tmp/results/scan-cms-container.log); then export SCAN_CMS_RESULT=$?; else export SCAN_CMS_RESULT=$?; fi
+            if (./bin/scan-container cms << pipeline.number >> high | tee /tmp/results/scan-cms-container.log); then export SCAN_CMS_RESULT=0; else export SCAN_CMS_RESULT=$?; fi
             cat /tmp/results/scan-cms-container.log
             exit 0
       - run:
           name: Scan WAF Container
           command: |
             SCAN_WAF_RESULT=0
-            if (./bin/scan-container waf << pipeline.number >> | tee /tmp/results/scan-waf-container.log); then export SCAN_WAF_RESULT=$?; else export SCAN_WAF_RESULT=$?; fi
+            if (./bin/scan-container waf << pipeline.number >> | tee /tmp/results/scan-waf-container.log); then export SCAN_WAF_RESULT=0; else export SCAN_WAF_RESULT=$?; fi
             cat /tmp/results/scan-waf-container.log
             exit 0
       - run:
