@@ -34,7 +34,7 @@ export BUCKET_NAME=$S3_BUCKET
 export AWS_DEFAULT_REGION=$S3_REGION
 aws configure set default.region $AWS_DEFAULT_REGION
 
-export bucket_${SPACE}=$S3_BUCKET
+export bucket_${SPACE//\-/_}=$S3_BUCKET
 
 aws configure set AWS_ACCESS_KEY_ID $AWS_ACCESS_KEY_ID --profile cg-${SPACE}
 aws configure set AWS_SECRET_ACCESS_KEY $AWS_SECRET_ACCESS_KEY --profile cg-${SPACE}
