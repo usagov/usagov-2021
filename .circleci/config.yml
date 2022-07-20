@@ -239,7 +239,7 @@ jobs:
           when: always
           command: |
             SCAN_CMS_CIS_RESULT=0
-            if (./bin/scan-container-cis cms | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
+            if (./bin/scan-container-cis cms << pipeline.number >> | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
             echo "CMS CIS Benchmark Scan return code: $SCAN_CIS_CMS_RESULT" | tee -a /tmp/results/scan-cms-container-cis.log
             cat /tmp/results/scan-cms-container-cis.log
             exit 0
@@ -248,7 +248,7 @@ jobs:
           when: always
           command: |
             SCAN_WAF_CIS_RESULT=0
-            if (./bin/scan-container-cis waf | tee /tmp/results/scan-waf-container-cis.log); then export SCAN_WAF_CIS_RESULT=0; else export SCAN_WAF_CIS_RESULT=$?; fi
+            if (./bin/scan-container-cis waf << pipeline.number >> | tee /tmp/results/scan-waf-container-cis.log); then export SCAN_WAF_CIS_RESULT=0; else export SCAN_WAF_CIS_RESULT=$?; fi
             echo "WAF CIS Benchmark Scan return code: $SCAN_WAF_CMS_RESULT" | tee -a /tmp/results/scan-waf-container-cis.log
             cat /tmp/results/scan-waf-container-cis.log
             exit 0
