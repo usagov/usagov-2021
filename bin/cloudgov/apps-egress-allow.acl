@@ -1,6 +1,7 @@
 *.google.com
 *.drupal.org
 *.npmjs.com
+*.newrelic.com
 *.packagist.org
 *.github.com
 *.amazonaws.com
