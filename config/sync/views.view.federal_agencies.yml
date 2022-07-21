@@ -1,6 +1,6 @@
 uuid: 97c5a7ae-86f5-47e7-b39e-f7e3b1946a26
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - field.storage.node.body
@@ -9,7 +9,6 @@ dependencies:
     - field.storage.node.field_email
     - field.storage.node.field_english_title
     - field.storage.node.field_government_branch
-    - field.storage.node.field_offices_near_you
     - field.storage.node.field_page_intro
     - field.storage.node.field_phone_number
     - field.storage.node.field_state_abbr
@@ -17,7 +16,6 @@ dependencies:
     - field.storage.node.field_street_2
     - field.storage.node.field_street_3
     - field.storage.node.field_toll_free_number
-    - field.storage.node.field_tty_
     - field.storage.node.field_website
     - field.storage.node.field_zip
     - node.type.directory_record
@@ -662,68 +660,6 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-        field_offices_near_you:
-          id: field_offices_near_you
-          table: node__field_offices_near_you
-          field: field_offices_near_you
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: field
-          label: ''
-          exclude: false
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: false
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: true
-          empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: value
-          type: text_default
-          settings: {  }
-          group_column: value
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
         field_phone_number:
           id: field_phone_number
           table: node__field_phone_number
@@ -791,69 +727,6 @@ display:
           id: field_toll_free_number
           table: node__field_toll_free_number
           field: field_toll_free_number
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: field
-          label: ''
-          exclude: false
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: false
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: true
-          empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: value
-          type: telephone_link
-          settings:
-            title: ''
-          group_column: value
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
-        field_tty_:
-          id: field_tty_
-          table: node__field_tty_
-          field: field_tty_
           relationship: none
           group_type: group
           admin_label: ''
@@ -1718,7 +1591,6 @@ display:
         - 'config:field.storage.node.field_email'
         - 'config:field.storage.node.field_english_title'
         - 'config:field.storage.node.field_government_branch'
-        - 'config:field.storage.node.field_offices_near_you'
         - 'config:field.storage.node.field_page_intro'
         - 'config:field.storage.node.field_phone_number'
         - 'config:field.storage.node.field_state_abbr'
@@ -1726,7 +1598,6 @@ display:
         - 'config:field.storage.node.field_street_2'
         - 'config:field.storage.node.field_street_3'
         - 'config:field.storage.node.field_toll_free_number'
-        - 'config:field.storage.node.field_tty_'
         - 'config:field.storage.node.field_website'
         - 'config:field.storage.node.field_zip'
   page_1:
@@ -2100,68 +1971,6 @@ display:
           hide_alter_empty: true
           click_sort_column: value
           type: list_default
-          settings: {  }
-          group_column: value
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
-        field_offices_near_you:
-          id: field_offices_near_you
-          table: node__field_offices_near_you
-          field: field_offices_near_you
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: field
-          label: ''
-          exclude: false
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: false
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: true
-          empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: value
-          type: text_default
           settings: {  }
           group_column: value
           group_columns: {  }
@@ -2612,69 +2421,6 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-        field_tty_:
-          id: field_tty_
-          table: node__field_tty_
-          field: field_tty_
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: field
-          label: ''
-          exclude: false
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: false
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: true
-          empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: value
-          type: telephone_link
-          settings:
-            title: ''
-          group_column: value
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
         field_zip:
           id: field_zip
           table: node__field_zip
@@ -2933,7 +2679,6 @@ display:
         - 'config:field.storage.node.field_email'
         - 'config:field.storage.node.field_english_title'
         - 'config:field.storage.node.field_government_branch'
-        - 'config:field.storage.node.field_offices_near_you'
         - 'config:field.storage.node.field_page_intro'
         - 'config:field.storage.node.field_phone_number'
         - 'config:field.storage.node.field_state_abbr'
@@ -2941,5 +2686,4 @@ display:
         - 'config:field.storage.node.field_street_2'
         - 'config:field.storage.node.field_street_3'
         - 'config:field.storage.node.field_toll_free_number'
-        - 'config:field.storage.node.field_tty_'
         - 'config:field.storage.node.field_zip'
