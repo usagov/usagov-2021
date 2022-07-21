@@ -75,6 +75,7 @@ module:
   twig_tweak: 0
   usa_admin_styles: 0
   usa_contact_center_api: 0
+  usa_content_moderation_notifications: 0
   usa_translation: 0
   usa_workflow: 0
   usagov_directories: 0
