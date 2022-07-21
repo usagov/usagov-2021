@@ -34,7 +34,7 @@ let contact_content=contact_translations[ document.documentElement.lang ];
     let office = window.location.href.split("office=")[1].split("?")[0].split("%20").join(" ");
 
     let displayOfficial = document.getElementById("display-official");
-    displayOfficial.innerHTML = name + "<br>" + office;
+    displayOfficial.innerHTML = DOMPurify.sanitize(name + "<br>" + office);
 
     // In case the mailto button doesn't work,
     // display email for user to manually input
@@ -61,7 +61,7 @@ function writeMessage() {
 
     // Must replace spaces with %20
     let mailtoLink = (address + subject + body).replace(" ", "%20");
-    window.location.href = mailtoLink;
+    window.location.href = DOMPurify.sanitize(mailtoLink);
 
     alert(contact_content.new_window);
 }
