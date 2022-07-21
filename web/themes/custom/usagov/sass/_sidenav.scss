@@ -1,47 +1,53 @@
 @use "usagov-variables" as *;
 
-.usa-sidenav{
-   color: $text-blue;
+.usa-sidenav {
+  color: $text-blue;
 
-   .active-trail{
-      font-weight: bold;
-   }
-   ul > li > ul > li + li {
-      border-top: none;
-   }
-   ul > li > ul > li ~ ul ~ li {
-         border-top: none;
-   }
-   .usa-current{
-      color: $red;
+  .active-trail {
+    font-weight: bold;
+  }
 
-      &:before {
-         content: "";
-         display: block;
-         position: absolute;
-         top: 4px;
-         bottom: 4px;
-         left: 0;
-         width: 4px;
-         background: $red;
-         border-radius: 2px;
-     }
-   }
-   a:not(.usa-button):hover{
-      &.usa-current{
-         background-color: transparent;
-      }
-   }
-   a:not(.usa-button):not(.usa-current){
+  ul > li > ul > li + li {
+    border-top: none;
+  }
+
+  ul > li > ul > li ~ ul ~ li {
+    border-top: none;
+  }
+
+  .usa-current {
+    color: $red;
+
+    &::before {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 0;
+      width: 4px;
+      background: $red;
+      border-radius: 2px;
+    }
+  }
+
+  a:not(.usa-button):hover {
+    &.usa-current {
+      background-color: transparent;
+    }
+  }
+
+  a:not(.usa-button):not(.usa-current) {
+    color: $text-blue;
+
+    &:hover {
       color: $text-blue;
-      &:hover{
-         color: $text-blue;
-         background-color: #f2f3f3;
-         text-decoration: underline;
-      }
-   }
-   @media (max-width: 1024px) {
-      display: none;
+      background-color: #f2f3f3;
+      text-decoration: underline;
+    }
+  }
+  @media (max-width: 1024px) {
+    display: none;
   }
 }
 
