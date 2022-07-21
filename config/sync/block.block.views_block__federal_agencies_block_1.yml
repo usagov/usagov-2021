@@ -2,8 +2,11 @@ uuid: 88cfe29d-c97e-4475-8861-4d20dcf7175f
 langcode: en
 status: true
 dependencies:
+  config:
+    - views.view.federal_agencies
   module:
     - system
+    - views
   theme:
     - usagov
 id: views_block__federal_agencies_block_1
