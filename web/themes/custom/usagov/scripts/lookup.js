@@ -84,8 +84,8 @@ function renderResults(response, rawResponse) {
     if (response.officials.length > 0) {
         // Create container for rendering results
         let container = document.createElement("div");
-        container.setAttribute("class", "usa-accordion");
-        container.setAttribute("aria-multiselectable", "true")
+        container.setAttribute("class", "usa-accordion usa-accordion--multiselectable");
+        container.setAttribute("data-allow-multiple","")
 
         // Create an accordion for each level of elected officials
         const levels = content["levels"];

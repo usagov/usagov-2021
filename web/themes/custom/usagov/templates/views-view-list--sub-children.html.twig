@@ -33,6 +33,18 @@
   </a>
 </li>
 {% endfor %}
+{% for pageID in node.field_related_pages %}
+<li class="usagov-navpage-item">
+  <a href="{{drupal_url('node/'~pageID.target_id)}}" class="text-no-underline">
+    <header class="usa-card__header">
+      <h2 class="usa-card__heading usagov-card__heading">{{ drupal_field('title', 'node', pageID.target_id) }}</h2>
+    </header>
+    <div class="usa-card__body padding-top-0 usa-prose">
+      <p>{{ drupal_field('field_page_intro', 'node', pageID.target_id)[0] }}</p>
+    </div>
+  </a>
+</li>
+  {% endfor %}
 </ul>
 
 {% elseif term_name == "Navigation Cards Page" %}
@@ -47,6 +59,18 @@
       </a>
     </li>
     {% endfor %}
+    {% for pageID in node.field_related_pages %}
+    <li class="tablet:grid-col-4 usa-card">
+      <a href="{{drupal_url('node/'~pageID.target_id)}}" class="usa-card__container usagov-card text-no-underline">
+        <header class="usa-card__header">
+          <h2 class="usa-card__heading usagov-card__heading">{{ drupal_field('title', 'node', pageID.target_id) }}</h2>
+        </header>
+        <div class="usa-card__body padding-top-0 usa-prose">
+          <p>{{ drupal_field('field_page_intro', 'node', pageID.target_id)[0] }}</p>
+        </div>
+      </a>
+    </li>
+      {% endfor %}
   </ul>
 </div>
 {% if lang == "en" %}
@@ -87,3 +111,22 @@
     <p><span class="text-bold">¿Busca nuestro sitio web principal?</span> Visite <a href="https://www.usa.gov/espanol/">USA.gov/espanol</a></p>
   {% endif %}
 {% endif %}
+
+
+
+{# <h2>Related Pages From Other Topics</h2>
+{% if node.field_related_pages is not empty  %}
+  <ul class="usa-card-group">
+  {% for pageID in node.field_related_pages %}
+  <li class="usa-card tablet:grid-col-6">
+    <a href="{{drupal_url('node/'~pageID.target_id)}}">
+      <div class="usa-card__container">
+        <div class="usa-card__header">
+          <h2 class="usa-card__heading">{{ drupal_field('title', 'node', pageID.target_id) }}</h2>
+        </div>
+      </div>
+    </a>
+  </li>
+  {% endfor %}
+  </ul>
+{% endif %} #}
