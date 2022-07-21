@@ -323,7 +323,7 @@ function load() {
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
 
     let displayAddress = document.getElementById("display-address");
-    displayAddress.innerHTML = normalizedAddress.replace(", ", "<br>");
+    displayAddress.innerHTML = DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"));
 
     // Trigger offline testing based on specific input
     if (normalizedAddress == "123 Main Street, Somewhere, DC 12345") {
