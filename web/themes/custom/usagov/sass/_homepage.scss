@@ -31,9 +31,8 @@
   background-size: 5em;
 }
 
-// Old way of doing topic icons (stored in repo)
-.icon-about {
-  background-image: url("../images/topics/ICONS_beta_About_the_US_and_Its_Government.png");
+.icon-about{
+    background-image: url("../images/topics/ICONS_beta_About_the_US_and_Its_Government.png");
 }
 
 .icon-laws {
@@ -64,43 +63,33 @@
   background-image: url("../images/topics/ICONS_beta_travel.png");
 }
 
-// New way of doing topic icons (stored in CMS, uses S3 URL)
-.icon-education {
-  background-image: url("https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Education_0.png");
+.icon-education{
+    background-image: url(../images/topics/ICONS_beta_Education.png);
 }
-
-.icon-housing {
-  background-image: url("https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Housing_0.png");
+.icon-housing{
+    background-image: url(../images/topics/ICONS_beta_Housing.png);
 }
-
-.icon-disasters {
-  background-image: url("https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Disasters_and_Emergencies_1.png");
+.icon-disasters{
+    background-image: url(../images/topics/ICONS_beta_Disasters_and_Emergencies.png);
 }
-
-.icon-covid19 {
-  background-image: url("http://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_COVID19_0.png");
+.icon-covid19{
+    background-image: url(../images/topics/ICONS_COVID19.png);
 }
-
-.icon-health {
-  background-image: url("https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Health.png");
+.icon-health{
+    background-image: url(../images/topics/ICONS_beta_Health.png);
 }
-
-.icon-scams {
-  background-image: url("https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-03/ICONS_beta_Scams_and_Frauds.png");
+.icon-scams{
+    background-image: url(../images/topics/ICONS_beta_Scams_and_Frauds.png);
 }
-
-.icon-disability {
-  background-image: url("https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Disability.png");
+.icon-disability{
+    background-image: url(../images/topics/ICONS_beta_Disability.png);
 }
-
-.icon-jobs {
-  background-image: url("https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Jobs_and_Unemployment.png");
+.icon-jobs{
+    background-image: url(../images/topics/ICONS_beta_Jobs_and_Unemployment.png);
 }
-
-.icon-business {
-  background-image: url("https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Small_Business.png");
+.icon-business{
+    background-image: url(../images/topics/ICONS_beta_Small_Business.png);
 }
-
-.icon-taxes {
-  background-image: url("https://cg-c5d34aa7-f68b-46f1-973c-51b1548bbea1.s3.us-gov-west-1.amazonaws.com/public/2022-04/ICONS_beta_Taxes.png");
+.icon-taxes{
+    background-image: url(../images/topics/ICONS_beta_Taxes.png);
 }
