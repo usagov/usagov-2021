@@ -290,13 +290,13 @@ This style ensures that we can remove the padding-top from text in a card body. 
 *  with the search instead of a column
 **/
 .usa-header--extended .usa-nav__secondary {
-@include at-media($theme-header-min-width) {
-  @include u-flex("row", "align-end");
-   bottom: 6rem;
-   width: 29rem;
-   /*opacity: 0.2;*/
+   @include at-media($theme-header-min-width) {
+     @include u-flex("row", "align-end");
+      bottom: 6rem;
+      width: 32rem;
+      /*opacity: 0.2;*/
+      }
    }
-}
 
 /** This is to make the Spanish header links align in a row
 *  with the search instead of a column
@@ -305,7 +305,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
    @include at-media($theme-header-min-width) {
      @include u-flex("row", "align-end");
       bottom: 6rem;
-      width: 30rem;
+      width: 33rem;
       /*opacity: 0.2;*/
       }
 }
@@ -316,19 +316,26 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }
 }
 
+.usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item {
+   @include at-media($theme-header-min-width) {
+      display: inline;
+      padding-left: 0;
+   }
+  }
+
 //** This is to make the header link stretch out **/
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
-    width: 12rem;
-    line-height: 1.9;
+    width: 15rem;
+    line-height: 1.1rem;
   }
 }
 
 // Spanish header fix for text length
 .usa-header--extended .usa-nav__secondary-links:lang(es) {
    @include at-media($theme-header-min-width) {
-     width: 13rem;
-     line-height: 1.9;
+     width: 17rem;
+     line-height: 1.1rem;
    }
  }
 
@@ -336,9 +343,27 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
    @include at-media($theme-header-min-width) {
       float: right;
-      color: color("base-lighter");
+      color: $gray;
       content: "|"; // Removed while phone number is disabled
-      padding-right: .7rem;
+      padding-right: 1rem;
+      font-size: 2rem;
+      padding-bottom: .4rem;
+   }
+  }
+
+  .usa-header--extended .usa-nav__secondary-links a {
+   @include at-media($theme-header-min-width) {
+      font-size: 1.13rem;
+      padding-left: .5rem;
+      padding-top: .2rem;
+   }
+  }
+
+  .usa-header--extended .usa-nav__secondary-links a:lang(es) {
+   @include at-media($theme-header-min-width) {
+      font-size: 1.13rem;
+      padding-left: .2rem;
+      padding-top: .2rem;
    }
   }
 
