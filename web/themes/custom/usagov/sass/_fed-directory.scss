@@ -207,23 +207,24 @@ hr.bl-divider {
   width: 100%;
   margin-bottom: 75px;
 
-  tr {
+  div {
     border: solid 1.5px #d3d2d2;
     margin: 0;
-  }
-
-  tr td {
     padding: 2.25rem 2rem;
   }
 
-  tr:nth-child(odd) td {
+  // tr td {
+  //   padding: 2.25rem 2rem;
+  // }
+
+  div:nth-child(odd) {
     background-color: #f2f2f2;
   }
 }
 
-.usagov-directory-table tbody {
-  padding: 0;
-}
+// .usagov-directory-table tbody {
+//   padding: 0;
+// }
 
 .usagov-directory-table h3 {
   margin: 0;
