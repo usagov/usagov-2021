@@ -10,12 +10,12 @@
 
 .usagov-directory-container {
   padding: 3rem;
+
   // max-width: 35rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-
-  box-shadow: inset 0px 0px 0px 0.15rem rgb(231, 231, 231);
+  box-shadow: inset 0 0 0 0.15rem rgb(231 231 231);
 }
 
 .usagov-directory-container-az {
@@ -35,10 +35,10 @@
     width: 40px;
     height: 40px;
     text-decoration: none;
-    color: #000000;
+    color: #000;
     box-sizing: border-box;
     background-color: #ccecf2;
-    box-shadow: 0px 0px 0px 0.15rem #0081a1;
+    box-shadow: 0 0 0 0.15rem #0081a1;
     border-radius: 0.01rem;
     font-size: 1.5rem;
     font-weight: 600;
@@ -46,12 +46,12 @@
   }
 
   a:hover {
-    box-shadow: 0px 0px 0px 0.15rem #000000;
+    box-shadow: 0 0 0 0.15rem #000;
     background-color: white;
   }
 
   .is-active {
-    box-shadow: 0px 0px 0px 0.15rem #000000;
+    box-shadow: 0 0 0 0.15rem #000;
     background-color: white;    
   }
 
@@ -63,8 +63,8 @@ a.intro-links, a.intro-links:hover, a.intro-links:visited, a.intro-links:active 
 }
 
 hr.bl-divider {
-  background: rgb(231, 231, 231);
-  border: 0px;
+  background: rgb(231 231 231);
+  border: 0;
   height: 0.25rem;
   width: auto;
 }
@@ -81,12 +81,12 @@ hr.bl-divider {
 .fed-directory-search-bar {
   height: 2rem;
   box-sizing: border-box;
-  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   gap: 0.2rem;
-  box-shadow: 0px 0px 0px 0.15rem #0081a1;
+  box-shadow: 0 0 0 0.15rem #0081a1;
   background-color: #ccecf2;
+
   // border-radius: 0px 10px 10px 0px;
 }
 
@@ -96,7 +96,7 @@ hr.bl-divider {
   outline: none;
   font-size: 1rem;
   font-weight: 600;
-  color: #000000;
+  color: #000;
   border-style: none;
   text-overflow: ellipsis;
 }
@@ -123,7 +123,7 @@ hr.bl-divider {
   font-size: 2.5rem;
   text-align: center;
   line-height: 3.8rem;
-  color: #000000;
+  color: #000;
   outline: solid 0.15rem black;
   width: 3.8rem;
   height: 3.8rem;
@@ -142,6 +142,7 @@ hr.bl-divider {
 
   div {
     display: flex;
+
     p:first-child {
       font-weight: bold;
     }
@@ -172,7 +173,7 @@ hr.bl-divider {
     text-align: center;
     line-height: 3.8rem;
     font-size: 2.5rem;
-    color: #000000;
+    color: #000;
     outline: solid 0.15rem #0081a1;
     background-color: #ccecf2;
     font-weight: 600;
@@ -184,7 +185,7 @@ hr.bl-divider {
 
   a.nav-letter:hover {
     outline: solid 0.15rem black;
-    color: #000000;
+    color: #000;
     background-color: white;
   }
 }
