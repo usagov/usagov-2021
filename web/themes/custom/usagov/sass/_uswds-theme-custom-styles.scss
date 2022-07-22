@@ -312,7 +312,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
      @include u-flex("row", "align-end");
       bottom: 6rem;
       width: 32rem;
-      /*opacity: 0.2;*/
+      // opacity: 0.2;
    }
 }
 
@@ -320,11 +320,11 @@ This style ensures that we can remove the padding-top from text in a card body. 
 *  with the search instead of a column
 **/
 .usa-header--extended .usa-nav__secondary:lang(es) {
-   @include at-media($theme-header-min-width) {
-     @include u-flex("row", "align-end");
+    @include at-media($theme-header-min-width) {
+      @include u-flex("row", "align-end");
       bottom: 6rem;
       width: 33rem;
-      /*opacity: 0.2;*/
+      // opacity: 0.2;
    }
 }
 
@@ -341,7 +341,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }
 }
 
-//** This is to make the header link stretch out **/
+// This is to make the header link stretch out
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
       width: 15rem;
@@ -357,7 +357,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
    }
 }
 
-/** This is to add content pipe before the search **/
+// This is to add content pipe before the search
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
    @include at-media($theme-header-min-width) {
       float: right;
