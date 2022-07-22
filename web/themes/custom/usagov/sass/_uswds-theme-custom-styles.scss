@@ -180,9 +180,15 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 /** info banner header **/
 @include at-media($theme-header-min-width) {
+<<<<<<< Updated upstream
   .usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
     margin-bottom: 0;
   }
+=======
+.usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
+         margin-bottom: 0;
+   }
+>>>>>>> Stashed changes
 }
 
 /** Language buttons **/
@@ -206,6 +212,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 /** Language buttons **/
 .usa-header--extended div.language-switcher-language-url ul.links {
+<<<<<<< Updated upstream
   display: flex;
   justify-content: flex-end;
   margin-top: 0.3rem;
@@ -239,6 +246,43 @@ This style ensures that we can remove the padding-top from text in a card body. 
     font-size: 0.93rem;
     font-weight: 700;
   }
+=======
+      display: flex;
+      justify-content: flex-end;
+      margin-top: .3rem;
+      margin-left: 0;
+}
+
+/** Language buttons **/
+.usa-header--extended [hreflang|=es] {
+   padding-left: .5rem;
+   border-radius: 5px;
+   border: none;
+   @media (max-width: 64em) {
+         padding-right: 1.3rem;
+   }
+}
+  
+.usa-header--extended [hreflang|=en] {
+   border-radius: 5px;
+   border: none;
+   @media (max-width: 64em) {
+      padding-right: 1.3rem;
+   }
+}
+
+/** Language buttons **/
+.usa-header--extended  .usa-nav__primary>.usa-nav__primary-item>a.language-link  {
+   @media (max-width: 64em) {
+     font-size: .93rem;
+     font-weight: 700;   
+   }
+     color: #fff;
+     text-decoration: none;
+     padding: 10px 20px 10px 20px;
+     background-color: color("blue-warm-80v")
+}
+>>>>>>> Stashed changes
 
   color: #fff;
   text-decoration: none;
@@ -248,20 +292,33 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 /** Language buttons **/
 @include at-media($theme-header-min-width) {
+<<<<<<< Updated upstream
   .usa-header--extended
     .usa-nav__primary
     > .usa-nav__primary-item
     > a.language-link:hover {
     color: #fff;
   }
+=======
+.usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover  {
+     color: #fff;
+   }
+>>>>>>> Stashed changes
 }
 
 /** Mobile menu button **/
 @media (max-width: 64em) {
+<<<<<<< Updated upstream
   .usa-header--extended .usa-navbar {
     margin-top: 1rem;
     padding-bottom: 1rem;
   }
+=======
+.usa-header--extended .usa-navbar { 
+      margin-top: 1rem;
+      padding-bottom: 1rem;
+   }
+>>>>>>> Stashed changes
 }
 
 .usa-header--extended .usa-menu-btn {
@@ -293,15 +350,24 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-header--extended .usa-logo img {
   max-width: units(5);
   @include at-media($theme-header-min-width) {
+<<<<<<< Updated upstream
     max-width: units(10);
   }
+=======
+   max-width: units(10);
+   }
+>>>>>>> Stashed changes
 }
 
 .usa-header--extended .usa-logo img.es {
   max-width: 6.2rem;
   @include at-media($theme-header-min-width) {
     max-width: 12.3rem;
+<<<<<<< Updated upstream
   }
+=======
+   }
+>>>>>>> Stashed changes
 }
 
 /** This is to make the English header links align in a row
@@ -313,8 +379,8 @@ This style ensures that we can remove the padding-top from text in a card body. 
       bottom: 6rem;
       width: 32rem;
       /*opacity: 0.2;*/
-      }
    }
+}
 
 /** This is to make the Spanish header links align in a row
 *  with the search instead of a column
@@ -325,7 +391,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
       bottom: 6rem;
       width: 33rem;
       /*opacity: 0.2;*/
-      }
+   }
 }
 
 .usa-header--extended .usa-nav__primary-item > .usa-nav__link:hover {
@@ -339,23 +405,23 @@ This style ensures that we can remove the padding-top from text in a card body. 
       display: inline;
       padding-left: 0;
    }
-  }
+}
 
 //** This is to make the header link stretch out **/
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
-    width: 15rem;
-    line-height: 1.1rem;
-  }
+      width: 15rem;
+      line-height: 1.1rem;
+   }
 }
 
 // Spanish header fix for text length
 .usa-header--extended .usa-nav__secondary-links:lang(es) {
    @include at-media($theme-header-min-width) {
-     width: 17rem;
-     line-height: 1.1rem;
+      width: 17rem;
+      line-height: 1.1rem;
    }
- }
+}
 
 /** This is to add content pipe before the search **/
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
@@ -367,30 +433,38 @@ This style ensures that we can remove the padding-top from text in a card body. 
       font-size: 2rem;
       padding-bottom: .4rem;
    }
-  }
+}
 
-  .usa-header--extended .usa-nav__secondary-links a {
+.usa-header--extended .usa-nav__secondary-links a {
    @include at-media($theme-header-min-width) {
       font-size: 1.13rem;
       padding-left: .5rem;
       padding-top: .2rem;
    }
-  }
+}
 
-  .usa-header--extended .usa-nav__secondary-links a:lang(es) {
+.usa-header--extended .usa-nav__secondary-links a:lang(es) {
    @include at-media($theme-header-min-width) {
       font-size: 1.13rem;
       padding-left: .2rem;
       padding-top: .2rem;
    }
-  }
+}
 
+<<<<<<< Updated upstream
 .usa-nav__primary > .usa-nav__primary-item > a,
 .usa-nav__primary > .usa-nav__primary-item > a:hover {
   @media (min-width: 64em) {
     padding: 0.8rem;
     color: color("blue-warm-70v");
   }
+=======
+.usa-nav__primary>.usa-nav__primary-item>a, .usa-nav__primary>.usa-nav__primary-item>a:hover {
+  @media (min-width: 64em) {
+      padding: 0.8rem;   
+      color: color("blue-warm-70v")
+   }
+>>>>>>> Stashed changes
 }
 
 // adds visible focus around entire search box
