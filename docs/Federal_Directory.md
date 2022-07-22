@@ -53,9 +53,9 @@ For the A-Z view: We've added twig templates to override the default layout for 
 
 * field--node--directory-record.html.twig: Use <span> instead of <div> for fields; use unordered lists for fields that have lists with multiple entries (for example, a list of links with more than one item).
 
-The left nav menu presents a challenge -- if the left nav menu is supposed to appear on the full-page display of a directory record! In order to get the menu to populate, the directory record must be configured to appear in the menu. But we will have hundreds of directory records! Currently, a modification to the twig file for the left nav menu detects when a page is under `federal-agencies` and cuts menu generation off at that point:
+The left nav menu presents a challenge -- if the left nav menu is supposed to appear on the full-page display of a directory record! In order to get the menu to populate, the directory record must be configured to appear in the menu. But we will have hundreds of directory records! Currently, a modification to the twig file for the left nav menu detects the number of nodes at a level is greater than 50 and cuts menu generation off at that point.
 
-* **menu--sidebar_first.html.twig** suppresses menu entries below `federal-agencies`. 
+* **menu--sidebar_first.html.twig** suppresses menu listings of >50 at a level
 
 ### CSS
 
@@ -65,12 +65,12 @@ There is some added CSS (SASS). Perhaps someone who worked on that would like to
 
 Upon merge or first deployment against a given database:
 
-1. Ensure the **USAGov Directories** module (a.k.a. `usagov_directories`) is enabled. (Confirm: does this happen automatically with the committed configuration?)
+1. Ensure the **USAGov Directories** module (a.k.a. `usagov_directories`) is enabled.
 1. Sync Configuration -- this will bring in the Federal Directory Record content type, Federal Agencies view, and Block Layout.
 1. **Manual step:** add a standard page with the following settings, and Publish it:
    * **Title:** Directory of U.S. Government Agencies and Departments
    * **Language:** English
-   * **URL alise:** /federal-agencies
+   * **URL alias:** /federal-agencies
    * **Promotion options:** Not promoted
    * **Menu settings:**
      - **Provide a menu link:** Checked
@@ -79,21 +79,15 @@ Upon merge or first deployment against a given database:
      - **Weight:** 0
 1. Flush all the caches, of course.
 
-## Questions to resolve before merging into dev
-
-**Rename directory_record to federal_directory_record?**
-
-We will also have state directory records. Making this change percolates through Drupal structures, twig files, and possibly (but probably not) CSS. It might be worth it, though.
-
-**Can we get the content item for the /federal-agencies path into configuration and eliminate the manual step?**
-
 ## Known Issues and Concerns
 
 ### Left Nav Menu
 
-Need to find out from the Content team whether they actually want the left nav menu on pages showing an individual Federal Directory record. If they don't want it, we can eliminate the hacky approach in menu--sidebar_first.html.twig.
+I've introduced a limitation in the Left Nav menu -- if there are more than 50 nodes at a level, the menu will suppress that level (and of course, anything below). I cannot imagine we will want anything near 50 menu items to display, but we should expect to have more than 50 federal agency items, so this lets us keep them in the menu structure without displaying a huge menu. 
 
-Conversely, if they do want the left nav menu, we should probably include the entry for *just* the currently-displayed record, eliminating only its siblings. 
+We need to find out from the Content team whether they actually want the left nav menu on pages showing an individual Federal Directory record. If they don't want it, we still need to figure out how to get Breadcrumbs without getting the menu. 
+
+Conversely, if they do want the left nav menu, we should possibly include the entry for *just* the currently-displayed record, eliminating only its siblings. 
 
 ### Twig files more generally
 
