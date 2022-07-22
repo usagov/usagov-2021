@@ -307,20 +307,18 @@ This style ensures that we can remove the padding-top from text in a card body. 
 // This is to make the Spanish header links align in a row with the search instead of a colum
 .usa-header--extended .usa-nav__secondary {
   @include at-media($theme-header-min-width) {
-    
   @include u-flex("row", "align-end"); 
-      bottom: 6rem;
-      width: 32rem;
+    bottom: 6rem;
+    width: 32rem;
   }
 }
 
 // This is to make the Spanish header links align in a row with the search instead of a colum
 .usa-header--extended .usa-nav__secondary:lang(es) {
   @include at-media($theme-header-min-width) {
-
   @include u-flex("row", "align-end");
-      bottom: 6rem;
-      width: 33rem;
+    bottom: 6rem;
+    width: 33rem;
   }
 }
 
