@@ -180,15 +180,9 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 /** info banner header **/
 @include at-media($theme-header-min-width) {
-<<<<<<< Updated upstream
-  .usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
+.usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
     margin-bottom: 0;
   }
-=======
-.usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
-         margin-bottom: 0;
-   }
->>>>>>> Stashed changes
 }
 
 /** Language buttons **/
