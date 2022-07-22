@@ -192,7 +192,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
     drush cim -y || drush cim -y
     drush cim -y
     drush php-eval "node_access_rebuild();" -y
-    drush config:set system.site mail $ADMIN_EMAIL -y > /dev/null
+    # drush config:set system.site mail $ADMIN_EMAIL -y > /dev/null
     drush state:set system.maintenance_mode 0 -y
     drush cr
 
