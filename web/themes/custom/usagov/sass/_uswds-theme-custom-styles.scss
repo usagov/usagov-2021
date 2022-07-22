@@ -38,6 +38,20 @@ i.e.
    color: #d83933;
 }
 
+.border-top-05 {
+   border-top-color: #dfe1e2;
+}
+
+.border-left-1 {
+   border-left-color: #ccecf2;
+   margin-top: 80px;
+}
+
+.chat-icon {
+   padding: 0 10px 0 10px;
+   vertical-align: middle;
+}
+
 @media (min-width: 64em) {
 .usa-section {
    padding-top: 2rem;
