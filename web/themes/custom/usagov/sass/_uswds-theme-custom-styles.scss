@@ -310,7 +310,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
   @include u-flex("row", "align-end"); 
       bottom: 6rem;
       width: 32rem;
-      // opacity: 0.2;
   }
 }
 
@@ -320,7 +319,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
   @include u-flex("row", "align-end");
       bottom: 6rem;
       width: 33rem;
-      // opacity: 0.2;
   }
 }
 
