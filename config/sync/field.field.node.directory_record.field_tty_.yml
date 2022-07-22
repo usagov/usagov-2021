@@ -1,14 +1,14 @@
-uuid: 2e932b81-2d4a-4c22-9ab5-9c71becb2624
+uuid: ad1246c1-4f24-4b5c-a8a0-44ff46d5ba5e
 langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_tty_number
+    - field.storage.node.field_tty_
     - node.type.directory_record
   module:
     - telephone
-id: node.directory_record.field_tty_number
-field_name: field_tty_number
+id: node.directory_record.field_tty_
+field_name: field_tty_
 entity_type: node
 bundle: directory_record
 label: 'TTY Number'
