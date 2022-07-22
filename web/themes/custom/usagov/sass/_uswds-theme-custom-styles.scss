@@ -304,8 +304,8 @@ This style ensures that we can remove the padding-top from text in a card body. 
   }
 }
 
-/* This is to make the English header links align in a row
-*  with the search instead of a column
+/* This is to make the Spanish header links align in a row
+with the search instead of a colum
 */
 .usa-header--extended .usa-nav__secondary {
   @include at-media($theme-header-min-width) {
@@ -317,7 +317,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 /* This is to make the Spanish header links align in a row
-*  with the search instead of a column
+with the search instead of a colum
 */
 .usa-header--extended .usa-nav__secondary:lang(es) {
   @include at-media($theme-header-min-width) {
