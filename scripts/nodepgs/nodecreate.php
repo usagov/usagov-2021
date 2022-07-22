@@ -5,7 +5,7 @@
  * Call Drush in env.
  */
 ?>
-<!-- #!/usr/bin/env drush -->
+
 <?php
 global $argv;
 // var_dump($argv);
@@ -39,53 +39,48 @@ foreach ($nids as $nid) {
 
 echo $count . PHP_EOL;
 if ($count == 0) {
-  echo '-----------' . PHP_EOL;
-  // Check for the isLatestRevision.
-  var_dump($nids);
-  foreach ($nids as $nid) {
-    dpm($nid);
-    $node = Node::load($nid);
-    if ($node->isLatestRevision()) {
-      var_dump($node->isLatestRevision());
-      var_dump(get_class_methods($node));
-      $node->setTitle($title);
-      $node->setPublished();
-      $node->save();
-      echo 'update title' . PHP_EOL;
+  if (empty($nids) == TRUE) {
+    // Create node object with attached file.
+    $node = Node::create(['type' => $ctype]);
+    $node->set('title', $title);
+    $node->body->value = $body;
+    $node->body->format = 'html';
+    $node->set('moderation_state', "published");
+    $node->field_page_intro = '1045';
+    $node->uid = 1;
+    $node->save();
+
+  }
+  else {
+    foreach ($nids as $nid) {
+      dpm($nid);
+      $node = Node::load($nid);
+      if ($node->isLatestRevision()) {
+        // Update latest revision to publish
+        // $node->field_page_intro = '1128';.
+        $node->body->value = $body;
+        $node->body->format = 'html';
+        $node->set('moderation_state', "published");
+        $node->save();
+        dpm($node->id());
+      }
+      else {
+
+
+      }
     }
   }
 }
-
-// $node->setTitle('The new Title');
-// $node->setPublished();
-// $node->save();
-
-
-
-// $new_state = 'published';
-// $entity->set('moderation_state', $new_state);
-// if ($entity instanceof RevisionLogInterface) {
-// $entity->setRevisionLogMessage('Changed moderation state to Published.');
-// $entity->setRevisionUserId($this->currentUser()->id());
-// }
-// $entity->save();
-
-// ----------
-// create new node
-// $node = new stdClass();  // Create a new node object
-// $node->type = 'article';  // Content type
-// $node->language = LANGUAGE_NONE;  // Or e.g. 'en' if locale is enabled
-// node_object_prepare($node);  //Set some default values
-
-// $node->title = $args[1];
-// $node->body[$node->language][0]['value'] = $args[2];
-
-// $node->status = 1;   // (1 or 0): published or unpublished
-// $node->promote = 0;  // (1 or 0): promoted to front page or not
-// $node->sticky = 0;  // (1 or 0): sticky at top of lists or not
-// $node->comment = 1;  // 2 = comments open, 1 = comments closed, 0 = comments hidden
-// // Add author of the node
-// $node->uid = 1;
-
-// // Save the node
-// node_save($node);
+else {
+  // Update published node of the count id.
+  foreach ($nids as $nid) {
+    dpm($nid);
+    $node = Node::load($nid);
+    dpm(get_class_methods($node));
+    // $node->field_page_intro = '1128';
+    $node->uid = 1;
+    $node->set('moderation_state', "published");
+    $node->save();
+    dpm($node->id());
+  }
+}
