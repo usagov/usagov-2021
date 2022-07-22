@@ -309,10 +309,11 @@ with the search instead of a colum
 */
 .usa-header--extended .usa-nav__secondary {
   @include at-media($theme-header-min-width) {
-    @include u-flex("row", "align-end");
+    @include u-flex("row", "align-end") {
       bottom: 6rem;
       width: 32rem;
       // opacity: 0.2;
+    }
   }
 }
 
