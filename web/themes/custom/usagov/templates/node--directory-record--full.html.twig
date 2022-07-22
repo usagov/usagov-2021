@@ -57,8 +57,11 @@
     {% endif %}
     {% if address.field_street_3|render %}<br>
     {{ address.field_street_3 }}
-    {% endif %}      
-    {# {{ address.field_city }}, {{ address.field_state_abbr }}  {{ address.field_zip }} #}
+    {% endif %}
+    {# TODO: add multiple "if" statements? #}
+    {% if address.field_street_3|render %}
+    {{ address.field_city }}, {{ address.field_state_abbr }}  {{ address.field_zip }}
+    {% endif %}
   </div>
   {% endif %}
 </div>
