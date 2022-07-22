@@ -12,15 +12,16 @@ dependencies:
     - field.field.node.directory_record.field_info_for_contact_center
     - field.field.node.directory_record.field_language
     - field.field.node.directory_record.field_language_toggle
-    - field.field.node.directory_record.field_office_near_you
+    - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
     - field.field.node.directory_record.field_phone_number
     - field.field.node.directory_record.field_state_abbr
     - field.field.node.directory_record.field_street_1
     - field.field.node.directory_record.field_street_2
     - field.field.node.directory_record.field_street_3
+    - field.field.node.directory_record.field_synonym
     - field.field.node.directory_record.field_toll_free_number
-    - field.field.node.directory_record.field_tty_number
+    - field.field.node.directory_record.field_tty_
     - field.field.node.directory_record.field_website
     - field.field.node.directory_record.field_zip
     - node.type.directory_record
@@ -107,13 +108,13 @@ content:
     third_party_settings: {  }
   field_government_branch:
     type: options_select
-    weight: 20
+    weight: 26
     region: content
     settings: {  }
     third_party_settings: {  }
   field_info_for_contact_center:
     type: string_textarea
-    weight: 21
+    weight: 28
     region: content
     settings:
       rows: 5
@@ -121,7 +122,7 @@ content:
     third_party_settings: {  }
   field_language_toggle:
     type: entity_reference_autocomplete
-    weight: 22
+    weight: 29
     region: content
     settings:
       match_operator: CONTAINS
@@ -129,13 +130,13 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-  field_office_near_you:
-    type: link_default
-    weight: 14
+  field_offices_near_you:
+    type: text_textarea
+    weight: 17
     region: content
     settings:
-      placeholder_url: ''
-      placeholder_title: ''
+      rows: 5
+      placeholder: ''
     third_party_settings: {  }
   field_page_intro:
     type: string_textarea
@@ -147,7 +148,7 @@ content:
     third_party_settings: {  }
   field_phone_number:
     type: telephone_default
-    weight: 15
+    weight: 14
     region: content
     settings:
       placeholder: ''
@@ -182,16 +183,24 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_synonym:
+    type: string_textfield
+    weight: 27
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_toll_free_number:
     type: telephone_default
-    weight: 16
+    weight: 15
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
-  field_tty_number:
+  field_tty_:
     type: telephone_default
-    weight: 26
+    weight: 16
     region: content
     settings:
       placeholder: ''
