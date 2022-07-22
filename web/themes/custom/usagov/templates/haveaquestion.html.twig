@@ -1,0 +1,45 @@
+ {#Have a question#}
+
+ {% set exclusions = [
+    '/usagov-beta',
+    '/about-the-us',
+    '/money',
+    '/money-and-credit',
+    '/laws-and-legal-issues',
+    '/scams-and-frauds',
+    '/es',
+    '/es/betausagoves',
+    '/es/betausagoves-0',
+    '/es/acerca-de-estados-unidos',
+    '/es/dinero',
+    '/es/dinero-y-credito',
+    '/es/leyes-y-asuntos-legales',
+    '/es/estafas-y-fraudes'
+] %}
+{% set nodeID = node.nid[0].value %}
+{% set path = drupal_url('node/'~nodeID) %}
+
+{% if path|render not in exclusions %}
+
+{% set question = 'Do you have a question?' %}
+{% set talk = '/phone' %}
+{% set chat = '/chat' %}
+
+    <div class="border-top-05"></div>
+ 
+        <div class="grid-row grid-gap-lg border-left-1 ">
+
+        <span class="text-bold">{{ question }}</span>
+        
+        <p>Ask a real person any government-related question for free.  They will get you the answer or let you know where to find it.</p>
+        
+        <div class="grid-col-4">
+            <a href="{{ talk }}{{ url }}">
+            <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_talk.png" alt="talk icon">Talk to the Agent.</div>
+        <div class="grid-col-4">
+            <a href="{{ chat }}{{ url }}">
+            <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_chat.png" alt="chat icon">Chat with Agent.</div>
+        </div>
+
+{% endif %}
+    
