@@ -1,6 +1,5 @@
 {{content.field_page_intro}}
 {{content.body}}
-
 <div class="usagov-directory-table">
   <div>
     <h3>Website</h3>
@@ -26,10 +25,10 @@
   </div>
   {% endif %}
 
-  {% if content.field_tty_|render %} 
+  {% if content.field_tty_number|render %} 
   <div>
     <h3>TTY</h3>
-    <p>{{content.field_tty_}}</p>
+    <p>{{content.field_tty_number}}</p>
   </div>
   {% endif %}
 

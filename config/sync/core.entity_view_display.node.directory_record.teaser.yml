@@ -9,9 +9,8 @@ dependencies:
     - field.field.node.directory_record.field_contact_link
     - field.field.node.directory_record.field_email
     - field.field.node.directory_record.field_english_title
+    - field.field.node.directory_record.field_for_contact_center_only
     - field.field.node.directory_record.field_government_branch
-    - field.field.node.directory_record.field_info_for_contact_center
-    - field.field.node.directory_record.field_language
     - field.field.node.directory_record.field_language_toggle
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
@@ -22,7 +21,7 @@ dependencies:
     - field.field.node.directory_record.field_street_3
     - field.field.node.directory_record.field_synonym
     - field.field.node.directory_record.field_toll_free_number
-    - field.field.node.directory_record.field_tty_
+    - field.field.node.directory_record.field_tty_number
     - field.field.node.directory_record.field_website
     - field.field.node.directory_record.field_zip
     - node.type.directory_record
@@ -44,9 +43,8 @@ hidden:
   field_contact_link: true
   field_email: true
   field_english_title: true
+  field_for_contact_center_only: true
   field_government_branch: true
-  field_info_for_contact_center: true
-  field_language: true
   field_language_toggle: true
   field_offices_near_you: true
   field_page_intro: true
@@ -57,7 +55,7 @@ hidden:
   field_street_3: true
   field_synonym: true
   field_toll_free_number: true
-  field_tty_: true
+  field_tty_number: true
   field_website: true
   field_zip: true
   langcode: true

@@ -1,20 +1,20 @@
-uuid: 366a85c6-caa7-46a9-a44b-1f935cd4907c
+uuid: 3151107a-958c-4d3a-b13b-712943c8d7da
 langcode: en
 status: true
 dependencies:
   module:
     - field_permissions
     - node
+    - telephone
 third_party_settings:
   field_permissions:
     permission_type: public
-id: node.field_info_for_contact_center
-field_name: field_info_for_contact_center
+id: node.field_tty_number
+field_name: field_tty_number
 entity_type: node
-type: string_long
-settings:
-  case_sensitive: false
-module: core
+type: telephone
+settings: {  }
+module: telephone
 locked: false
 cardinality: 1
 translatable: true

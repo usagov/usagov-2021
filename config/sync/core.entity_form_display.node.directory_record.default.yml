@@ -8,9 +8,8 @@ dependencies:
     - field.field.node.directory_record.field_contact_link
     - field.field.node.directory_record.field_email
     - field.field.node.directory_record.field_english_title
+    - field.field.node.directory_record.field_for_contact_center_only
     - field.field.node.directory_record.field_government_branch
-    - field.field.node.directory_record.field_info_for_contact_center
-    - field.field.node.directory_record.field_language
     - field.field.node.directory_record.field_language_toggle
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
@@ -21,11 +20,12 @@ dependencies:
     - field.field.node.directory_record.field_street_3
     - field.field.node.directory_record.field_synonym
     - field.field.node.directory_record.field_toll_free_number
-    - field.field.node.directory_record.field_tty_
+    - field.field.node.directory_record.field_tty_number
     - field.field.node.directory_record.field_website
     - field.field.node.directory_record.field_zip
     - node.type.directory_record
   module:
+    - allowed_formats
     - content_moderation
     - field_group
     - link
@@ -45,7 +45,7 @@ third_party_settings:
       label: Address
       region: content
       parent_name: ''
-      weight: 19
+      weight: 20
       format_type: fieldset
       format_settings:
         classes: ''
@@ -60,7 +60,7 @@ mode: default
 content:
   body:
     type: text_textarea_with_summary
-    weight: 11
+    weight: 12
     region: content
     settings:
       rows: 9
@@ -70,7 +70,7 @@ content:
     third_party_settings: {  }
   created:
     type: datetime_timestamp
-    weight: 3
+    weight: 4
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -84,7 +84,7 @@ content:
     third_party_settings: {  }
   field_contact_link:
     type: link_default
-    weight: 13
+    weight: 14
     region: content
     settings:
       placeholder_url: ''
@@ -92,7 +92,7 @@ content:
     third_party_settings: {  }
   field_email:
     type: email_default
-    weight: 18
+    weight: 19
     region: content
     settings:
       placeholder: ''
@@ -100,29 +100,32 @@ content:
     third_party_settings: {  }
   field_english_title:
     type: string_textfield
-    weight: 9
+    weight: 10
     region: content
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-  field_government_branch:
-    type: options_select
-    weight: 26
-    region: content
-    settings: {  }
-    third_party_settings: {  }
-  field_info_for_contact_center:
-    type: string_textarea
-    weight: 28
+  field_for_contact_center_only:
+    type: text_textarea
+    weight: 24
     region: content
     settings:
       rows: 5
       placeholder: ''
+    third_party_settings:
+      allowed_formats:
+        hide_help: '0'
+        hide_guidelines: '0'
+  field_government_branch:
+    type: options_select
+    weight: 21
+    region: content
+    settings: {  }
     third_party_settings: {  }
   field_language_toggle:
     type: entity_reference_autocomplete
-    weight: 29
+    weight: 25
     region: content
     settings:
       match_operator: CONTAINS
@@ -131,16 +134,16 @@ content:
       placeholder: ''
     third_party_settings: {  }
   field_offices_near_you:
-    type: text_textarea
-    weight: 17
+    type: link_default
+    weight: 15
     region: content
     settings:
-      rows: 5
-      placeholder: ''
+      placeholder_url: ''
+      placeholder_title: ''
     third_party_settings: {  }
   field_page_intro:
     type: string_textarea
-    weight: 10
+    weight: 1
     region: content
     settings:
       rows: 5
@@ -148,7 +151,7 @@ content:
     third_party_settings: {  }
   field_phone_number:
     type: telephone_default
-    weight: 14
+    weight: 16
     region: content
     settings:
       placeholder: ''
@@ -185,7 +188,7 @@ content:
     third_party_settings: {  }
   field_synonym:
     type: string_textfield
-    weight: 27
+    weight: 22
     region: content
     settings:
       size: 60
@@ -193,21 +196,21 @@ content:
     third_party_settings: {  }
   field_toll_free_number:
     type: telephone_default
-    weight: 15
+    weight: 17
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
-  field_tty_:
+  field_tty_number:
     type: telephone_default
-    weight: 16
+    weight: 18
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_website:
     type: link_default
-    weight: 12
+    weight: 13
     region: content
     settings:
       placeholder_url: ''
@@ -223,40 +226,40 @@ content:
     third_party_settings: {  }
   langcode:
     type: language_select
-    weight: 1
+    weight: 2
     region: content
     settings:
-      include_locked: true
+      include_locked: false
     third_party_settings: {  }
   moderation_state:
     type: moderation_state_default
-    weight: 7
+    weight: 8
     region: content
     settings: {  }
     third_party_settings: {  }
   path:
     type: path
-    weight: 6
+    weight: 7
     region: content
     settings: {  }
     third_party_settings: {  }
   promote:
     type: boolean_checkbox
-    weight: 4
+    weight: 5
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 8
+    weight: 9
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   sticky:
     type: boolean_checkbox
-    weight: 5
+    weight: 6
     region: content
     settings:
       display_label: true
@@ -269,9 +272,14 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  translation:
+    weight: 11
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 2
+    weight: 3
     region: content
     settings:
       match_operator: CONTAINS
@@ -279,5 +287,4 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-hidden:
-  field_language: true
+hidden: {  }
