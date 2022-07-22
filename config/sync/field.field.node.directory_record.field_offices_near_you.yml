@@ -1,4 +1,4 @@
-uuid: eddeeb1a-46dc-4eaf-b4dc-5728c7534f87
+uuid: 95b07aee-9b61-4ea7-ae4d-ef077026f06b
 langcode: en
 status: true
 dependencies:
@@ -6,20 +6,18 @@ dependencies:
     - field.storage.node.field_offices_near_you
     - node.type.directory_record
   module:
-    - allowed_formats
-    - text
-third_party_settings:
-  allowed_formats:
-    allowed_formats: {  }
+    - link
 id: node.directory_record.field_offices_near_you
 field_name: field_offices_near_you
 entity_type: node
 bundle: directory_record
 label: 'Find an Office Near You'
-description: 'TEMPORARY! I don''t know what we want here, format-wise, so I''ve put in a free-form block for experimentation. -akf'
+description: ''
 required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''
-settings: {  }
-field_type: text_long
+settings:
+  title: 1
+  link_type: 16
+field_type: link

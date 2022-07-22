@@ -8,9 +8,8 @@ dependencies:
     - field.field.node.directory_record.field_contact_link
     - field.field.node.directory_record.field_email
     - field.field.node.directory_record.field_english_title
+    - field.field.node.directory_record.field_for_contact_center_only
     - field.field.node.directory_record.field_government_branch
-    - field.field.node.directory_record.field_info_for_contact_center
-    - field.field.node.directory_record.field_language
     - field.field.node.directory_record.field_language_toggle
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
@@ -21,7 +20,7 @@ dependencies:
     - field.field.node.directory_record.field_street_3
     - field.field.node.directory_record.field_synonym
     - field.field.node.directory_record.field_toll_free_number
-    - field.field.node.directory_record.field_tty_
+    - field.field.node.directory_record.field_tty_number
     - field.field.node.directory_record.field_website
     - field.field.node.directory_record.field_zip
     - node.type.directory_record
@@ -76,11 +75,11 @@ content:
     type: link
     label: hidden
     settings:
-      trim_length: 80
+      trim_length: null
       url_only: false
       url_plain: false
-      rel: ''
-      target: ''
+      rel: '0'
+      target: '0'
     third_party_settings: {  }
     weight: 4
     region: content
@@ -89,7 +88,22 @@ content:
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 8
+    weight: 9
+    region: content
+  field_english_title:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 15
+    region: content
+  field_for_contact_center_only:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 16
     region: content
   field_government_branch:
     type: list_default
@@ -97,13 +111,6 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 11
-    region: content
-  field_info_for_contact_center:
-    type: basic_string
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    weight: 13
     region: content
   field_language_toggle:
     type: entity_reference_label
@@ -114,11 +121,16 @@ content:
     weight: 12
     region: content
   field_offices_near_you:
-    type: text_default
+    type: link
     label: hidden
-    settings: {  }
+    settings:
+      trim_length: null
+      url_only: false
+      url_plain: false
+      rel: '0'
+      target: '0'
     third_party_settings: {  }
-    weight: 9
+    weight: 5
     region: content
   field_page_intro:
     type: basic_string
@@ -133,7 +145,7 @@ content:
     settings:
       title: ''
     third_party_settings: {  }
-    weight: 5
+    weight: 6
     region: content
   field_state_abbr:
     type: list_default
@@ -180,25 +192,25 @@ content:
     settings:
       title: ''
     third_party_settings: {  }
-    weight: 6
+    weight: 7
     region: content
-  field_tty_:
+  field_tty_number:
     type: telephone_link
     label: hidden
     settings:
       title: ''
     third_party_settings: {  }
-    weight: 7
+    weight: 8
     region: content
   field_website:
     type: link
     label: hidden
     settings:
-      trim_length: 80
+      trim_length: null
       url_only: false
       url_plain: false
-      rel: ''
-      target: ''
+      rel: '0'
+      target: '0'
     third_party_settings: {  }
     weight: 3
     region: content
@@ -216,6 +228,4 @@ content:
     weight: 0
     region: content
 hidden:
-  field_english_title: true
-  field_language: true
   langcode: true
