@@ -6,6 +6,8 @@
  */
 
 use Drupal\taxonomy\Entity\Term;
+use Drupal\views\ViewExecutable;
+use Drupal\views\ResultRow;
 
 /**
  * Description message.
@@ -69,3 +71,44 @@ function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
     }
   }
 }
+
+
+/**
+ * Add context to the federal_agencies view to allow us to show the current letter, 
+ * and add links to the "next" and "previous" letters.
+ * Note that the _summary preprocess hook runs first (at least for this view) and 
+ * populates a static variable with the list of possible letters, which the 
+ * _list preprocess hook needs in order to figure out prev/next.
+ */
+function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variables, $hook, $info) {
+  $our_unique_name = 'usa_twig_vars_preprocess_view_federal_agencies';
+  drupal_static_reset($our_unique_name);
+  $shared = &drupal_static($our_unique_name);
+
+  $shared = ['foo' => 'bar'];
+
+  $view = $variables['view']; 
+  $alpha_context = [];
+  // ???    $alpha_context['current'] = $view->args[0];
+  // We can get the list of letters from the summary results.
+  // $resultrow = $view->result;
+  $resultrow = $variables->rows;
+  $letters = [];
+  // title_truncated (will be uppercase)
+    
+    
+  $variables['alpha_context'] = $alpha_context;
+}
+
+/** 
+ * Add context to the federal_agencies view to allow us to show the current letter, 
+ * and add links to the "next" and "previous" letters.
+ */
+function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables, $hook, $info) {
+  $shared = &drupal_static('usa_twig_vars_preprocess_view_federal_agencies');
+  $view = $variables['view'];
+  $alpha_context = [];
+  $alpha_context['current'] = $view->args[0];
+  $variables['alpha_context'] = $alpha_context;    
+}
+
