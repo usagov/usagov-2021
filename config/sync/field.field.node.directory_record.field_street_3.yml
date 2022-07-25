@@ -1,0 +1,19 @@
+uuid: bad0a62d-0150-4984-aebf-a216b61a7dd8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_street_3
+    - node.type.directory_record
+id: node.directory_record.field_street_3
+field_name: field_street_3
+entity_type: node
+bundle: directory_record
+label: 'Street 3'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
