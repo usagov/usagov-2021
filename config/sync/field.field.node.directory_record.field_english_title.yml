@@ -1,0 +1,19 @@
+uuid: 3081adae-a187-4b68-be35-ee9dcf90e466
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_english_title
+    - node.type.directory_record
+id: node.directory_record.field_english_title
+field_name: field_english_title
+entity_type: node
+bundle: directory_record
+label: 'English Title'
+description: 'Text field for an agency name translation when the record isn’t in English. It’s not published anywhere.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
