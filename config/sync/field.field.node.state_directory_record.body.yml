@@ -1,0 +1,23 @@
+uuid: c44f3340-b750-443b-9f70-bf0918442c29
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.state_directory_record
+  module:
+    - text
+id: node.state_directory_record.body
+field_name: body
+entity_type: node
+bundle: state_directory_record
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+  required_summary: false
+field_type: text_with_summary
