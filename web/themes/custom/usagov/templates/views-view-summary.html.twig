@@ -20,7 +20,7 @@
  * @ingroup themeable
 */
 #}
-{% set is_directory = view.element['#name']|slice(0, 16) == 'federal_agencies' %}
+{% set is_directory = view.element['#name'] == 'federal_agencies' %}
 {% if is_directory %}
   {# TODO: move this into a pre-process hook? #}
   {% set current_letter = view.request.query.get('letter') ?: 'a' %}
@@ -41,7 +41,7 @@
         {% if row_is_active %}
           <a {{row.attributes.addClass("is-active")}}>{{ row.link }}</a>
         {% else %}
-          <a href="/federal-agencies?letter={{ row.link|lower }}">{{ row.link }}</a>	  
+          <a href="/agency-index?letter={{ row.link|lower }}">{{ row.link }}</a>	  
 	{% endif %}  
         {% if options.count %}
           ({{ row.count }})
