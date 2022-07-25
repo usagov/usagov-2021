@@ -94,8 +94,22 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variabl
     $letters[] = $row->title_truncated;
   }
   $current_letter = $view->getRequest()->query->get('letter') ?: 'a';
-  $shared['current'] = mb_strtoupper($current_letter);
-  $shared['letters'] = $letters;
+  $current_letter = mb_strtoupper($current_letter);
+  $shared['current'] = $current_letter;
+
+  // Figure out next and previous letters.
+  $cur_idx = array_search($current_letter, $letters);
+  $next_idx = $cur_idx + 1;
+  $prev_idx = $cur_idx - 1;
+  if ($next_idx > array_key_last($letters)) {
+    $next_idx = array_key_first($letters);
+  }
+  if ($prev_idx < array_key_first($letters)) {
+    $prev_idx = array_key_last($letters);
+  }
+  $shared['next'] = $letters[$next_idx];
+  $shared['prev'] = $letters[$prev_idx];
+
   $variables['alpha_context'] = $shared;
 }
 
