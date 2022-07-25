@@ -299,17 +299,11 @@ workflows:
 
   code-scans:
     jobs:
-      - approve-code-scans:
+      - approve-code-scans
           type: approval
-          filters:
-            branches:
-              only: scanning
       - scan-code:
           requires:
             - approve-code-scans
-          filters:
-            branches:
-              only: scanning
 
   commit:
     jobs:
@@ -325,7 +319,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - scanning
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -335,7 +328,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - scanning
 
       - approve-dev-deployment:
           type: approval
