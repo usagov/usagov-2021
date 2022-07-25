@@ -299,9 +299,8 @@ workflows:
 
   code-scans:
     jobs:
-      - approve-code-scans
-          type:
-            - approval
+      - approve-code-scans:
+          type: approval
       - scan-code:
           requires:
             - approve-code-scans
