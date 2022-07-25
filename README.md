@@ -67,6 +67,14 @@ http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/l
 ## Lint Guidelines (SCSS)
 If you make any changes to the `scss` files, make sure to lint them before finalizing your pull request.
 
+1. 
+
+Before running the following commands, you should enter the `node` Docker container. 
+
+You may also run it on your typical command line within the repository, but you must run `npm install` before proceeding if you choose this option.
+
+2. 
+
 You can run the following commands to `check` for errors:
 ```
 npx stylelint "**/*.scss"
