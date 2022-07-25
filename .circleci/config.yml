@@ -300,7 +300,8 @@ workflows:
   code-scans:
     jobs:
       - approve-code-scans
-          type: approval
+          type:
+            - approval
       - scan-code:
           requires:
             - approve-code-scans
@@ -319,6 +320,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - scanning
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -328,6 +330,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - scanning
 
       - approve-dev-deployment:
           type: approval
