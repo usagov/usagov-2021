@@ -103,3 +103,5 @@ workspace.code-workspace
 
 manifest-egress-vars.yml
 .docker/src-egress/caddy
+
+/scode

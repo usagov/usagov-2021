@@ -8,7 +8,6 @@
 
 <?php
 global $argv;
-// var_dump($argv);
 $title = $argv[3];
 $body = file_get_contents('../' . $argv[4]);
 $ctype = $argv[5];
@@ -25,7 +24,6 @@ $entity_type = 'node';
 $query = \Drupal::entityTypeManager()->getStorage($entity_type)->getQuery();
 $query->condition('title', $title);
 $nids = $query->execute();
-var_dump($nids);
 $count = 0;
 
 // Check for published node.
@@ -40,47 +38,44 @@ foreach ($nids as $nid) {
 echo $count . PHP_EOL;
 if ($count == 0) {
   if (empty($nids) == TRUE) {
-    // Create node object with attached file.
+    echo 'Create node object with attached file.' . PHP_EOL;
     $node = Node::create(['type' => $ctype]);
     $node->set('title', $title);
     $node->body->value = $body;
     $node->body->format = 'html';
     $node->set('moderation_state', "published");
-    $node->field_page_intro = '1045';
     $node->uid = 1;
     $node->save();
-
+    $message = 'create new ' . $node->id() . ' node from create code script';
+    \Drupal::logger('create_code_script')->notice($message);
   }
-  else {
-    foreach ($nids as $nid) {
-      dpm($nid);
-      $node = Node::load($nid);
-      if ($node->isLatestRevision()) {
-        // Update latest revision to publish
-        // $node->field_page_intro = '1128';.
-        $node->body->value = $body;
-        $node->body->format = 'html';
-        $node->set('moderation_state', "published");
-        $node->save();
-        dpm($node->id());
-      }
-      else {
-
-
-      }
-    }
-  }
+  //if needed to publish latest revision
+  // to-do : Compare the Date of the latest revision to Published date. if it is higher then, publish the latest revision.
+  // else {
+  //   foreach ($nids as $nid) {
+  //     $node = Node::load($nid);
+  //     if ($node->isLatestRevision()) {
+  //       echo 'Update latest revision to publish' . PHP_EOL;
+  //       $node->body->value = $body;
+  //       $node->body->format = 'html';
+  //       $node->set('moderation_state', "published");
+  //       $node->save();
+  //       $message = 'Update latestRevision ' . $node->id() . ' node from create code script';
+  //       \Drupal::logger('create_code_script')->notice($message);
+  //     }
+  //   }
+  // }
 }
 else {
-  // Update published node of the count id.
+  echo 'Update published node of the count id.' . PHP_EOL;
   foreach ($nids as $nid) {
     dpm($nid);
     $node = Node::load($nid);
     dpm(get_class_methods($node));
-    // $node->field_page_intro = '1128';
     $node->uid = 1;
     $node->set('moderation_state', "published");
     $node->save();
-    dpm($node->id());
+    $message = 'Update published ' . $node->id() . ' node from create code script';
+    \Drupal::logger('create_code_script')->notice($message);
   }
 }

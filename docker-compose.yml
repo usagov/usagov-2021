@@ -26,6 +26,7 @@ services:
     env_file:
       - ./env.local
     environment:
+      WEBDOC: '/var/www'
       COMPOSER_MEMORY_LIMIT: -1
       WWW_HOST: beta-usagov.docker.local www-usagov.docker.local
       CF_INSTANCE_INDEX: '1'
