@@ -64,6 +64,29 @@ http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/l
 
 **Note: This is a ONE-TIME login. You'll automatically be logged in during future uses. However, if you ever reset your container, you will have to redo this process.**
 
+## Lint Guidelines (SCSS)
+If you make any changes to the `scss` files, make sure to lint them before finalizing your pull request.
+
+1. 
+
+Before running the following commands, you should enter the `node` Docker container. 
+
+You may also run it on your typical command line within the repository, but you must run `npm install` before proceeding if you choose this option.
+
+2. 
+
+You can run the following commands to `check` for errors:
+```
+npx stylelint "**/*.scss"
+npx prettier --check "**/*.scss"
+```
+
+You can run the following to `fix` most errors (others require manual changes):
+```
+npx stylelint "**/*.scss" --fix
+npx prettier --write "**/*.scss"
+```
+
 ## Project Restart/Reset
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing containers, networks, and volumes the procedure is the same as the full project setup.
 
