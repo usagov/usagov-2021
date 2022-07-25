@@ -144,9 +144,8 @@
             <div class="usa-layout-docs__main usa-prose desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
                 {{ page.content }}
                 {% include '@usagov/sharethispage.html.twig' %}
-               {% include '@usagov/haveaquestion.html.twig' %}
+                {% include '@usagov/haveaquestion.html.twig' %}
 
-      
                 {% if (term_name == "" or term_name == "Standard Page") and not is_front %}
                 <div id="pagesurvey-qual-container"></div>
                 <div id="pagesurvey-trgt-qualtrics"></div>
@@ -159,13 +158,11 @@
             {% endif %}
         </div>
     </div>
-    
-	
+    	
     <a id="backToTop" href="#main-content">
         {{ lang == 'en' ? 'Top' : 'Subir' }}
     </a>
 </main>
-
 
 <footer class="{{ footer_classes }}" role="contentinfo">
     {#<div class="grid-container usa-footer__return-to-top">

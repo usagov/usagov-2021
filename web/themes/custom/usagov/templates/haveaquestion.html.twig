@@ -21,24 +21,26 @@
 
 {% if path|render not in exclusions %}
 
-{% set question = 'Do you have a question?' %}
 {% set talk = '/phone' %}
 {% set chat = '/chat' %}
 
     <div class="border-top-05"></div>
  
-        <div class="grid-row grid-gap-lg border-left-1 ">
-
-        <span class="text-bold">{{ question }}</span>
-        
-        <p>Ask a real person any government-related question for free.  They will get you the answer or let you know where to find it.</p>
-        
-        <div class="grid-col-4">
-            <a href="{{ talk }}{{ url }}">
-            <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_talk.png" alt="talk icon">Talk to the Agent.</div>
-        <div class="grid-col-4">
-            <a href="{{ chat }}{{ url }}">
-            <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_chat.png" alt="chat icon">Chat with Agent.</div>
+        <div class="grid-row grid-gap border-left-1 ">
+            <span class="text-bold">{{ lang == 'en' ? "Do you have a question?" : "¿Tiene una pregunta?" }} </span> 
+            {% if lang == 'en' %}
+                <p>Ask a real person any government-related question for free.  They will get you the answer or let you know where to find it.</p> 
+            {% else %} 
+                <p>¿Tiene una pregunta? Pregunte gratis a una persona real cualquier duda relacionada con el Gobierno. Le darán la respuesta o le indicarán dónde encontrarla.</p>
+            {% endif %}
+            <div class="grid-col-6">
+                <a class="q-icon" href="{{ talk }}{{ url }}">
+                <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_talk.png" alt="talk icon">{{ lang == 'en' ? "Call and speak to a live USAGov agent." : "Llame y hable con un agente de USAGov en Español." }}</a>
+            </div>
+            <div class="grid-col-6">
+                <a class="q-icon" href="{{ chat }}{{ url }}">
+                <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_chat.png" alt="chat icon">{{ lang == 'en' ? "Chat with a live USAGov agent." : "Chatee en vivo con un agente de USAGov en Español." }}</a>
+            </div>
         </div>
 
 {% endif %}
