@@ -1,0 +1,11 @@
+uuid: 2ed286c8-6e76-4050-8ffb-a1b49111a93b
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.state_directory_record
+id: node.state_directory_record
+target_entity_type_id: node
+target_bundle: state_directory_record
+default_langcode: site_default
+language_alterable: false
