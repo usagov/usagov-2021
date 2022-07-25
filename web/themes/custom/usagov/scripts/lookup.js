@@ -84,8 +84,8 @@ function renderResults(response, rawResponse) {
     if (response.officials.length > 0) {
         // Create container for rendering results
         let container = document.createElement("div");
-        container.setAttribute("class", "usa-accordion");
-        container.setAttribute("aria-multiselectable", "true")
+        container.setAttribute("class", "usa-accordion usa-accordion--multiselectable");
+        container.setAttribute("data-allow-multiple","")
 
         // Create an accordion for each level of elected officials
         const levels = content["levels"];
@@ -323,7 +323,7 @@ function load() {
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
 
     let displayAddress = document.getElementById("display-address");
-    displayAddress.innerHTML = normalizedAddress.replace(", ", "<br>");
+    displayAddress.innerHTML = DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"));
 
     // Trigger offline testing based on specific input
     if (normalizedAddress == "123 Main Street, Somewhere, DC 12345") {
