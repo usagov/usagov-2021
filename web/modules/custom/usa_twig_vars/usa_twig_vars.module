@@ -84,16 +84,17 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variabl
   $shared = &drupal_static($our_unique_name);
   $shared = [];
 
-  // ???    $alpha_context['current'] = $view->args[0];
-  // We can get the list of letters from the summary results.
-  // $resultrow = $view->result;
+  // Letters are the title_truncated in the rows of the view's "result."
+  // At this point the current letter is available only via the Request object.
+  // (The core view summary doesn't use the current letter, but we do.)
   $view = $variables['view'];
   $rows = $view->result;
   $letters = [];
   foreach ($rows as $row) {
     $letters[] = $row->title_truncated;
   }
-  $current_letter = $view->getRequest();
+  $current_letter = $view->getRequest()->query->get('letter') ?: 'a';
+  $shared['current'] = mb_strtoupper($current_letter);
   $shared['letters'] = $letters;
   $variables['alpha_context'] = $shared;
 }
@@ -104,7 +105,5 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variabl
  */
 function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables, $hook, $info) {
   $alpha_context = &drupal_static('usa_twig_vars_preprocess_view_federal_agencies');
-  $view = $variables['view'];
-  $alpha_context['current'] = $view->args[0];
   $variables['alpha_context'] = $alpha_context;
 }
