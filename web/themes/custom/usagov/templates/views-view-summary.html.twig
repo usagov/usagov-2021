@@ -22,6 +22,7 @@
 #}
 {% set is_directory = view.element['#name']|slice(0, 16) == 'federal_agencies' %}
 {% if is_directory %}
+{{ dd() }}
   {# TODO: move this into a pre-process hook? #}
   {% set current_letter = view.request.query.get('letter') ?: 'a' %}
 <div class="usagov-directory-page-container">
