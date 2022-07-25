@@ -45,6 +45,15 @@ i.e.
 .border-left-1 {
    border-left-color: #ccecf2;
    margin-top: 80px;
+   @media (max-width: 36em) {
+   padding-bottom: 45px;
+}
+   padding-bottom: 30px;
+}
+
+.q-icon {
+   display: flex;
+   height: 40px;
 }
 
 .chat-icon {
