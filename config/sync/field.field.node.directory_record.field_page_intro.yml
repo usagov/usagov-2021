@@ -1,0 +1,19 @@
+uuid: 8433cf6a-acbc-461c-bf5d-ee984ac1b730
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_page_intro
+    - node.type.directory_record
+id: node.directory_record.field_page_intro
+field_name: field_page_intro
+entity_type: node
+bundle: directory_record
+label: 'Page Intro'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long
