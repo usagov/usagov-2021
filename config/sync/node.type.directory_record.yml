@@ -1,0 +1,31 @@
+uuid: 6f4ec6c7-64ce-4a96-ade1-cad72c820228
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+    - node_menus
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - left-menu-english
+      - left-menu-spanish
+    parent: 'left-menu-english:menu_link_content:845eb9ac-8879-40a1-a010-0b62b232484b'
+  node_menus:
+    enabled: 1
+    languages:
+      en:
+        available_menus:
+          - left-menu-english
+        parent: 'left-menu-english:menu_link_content:845eb9ac-8879-40a1-a010-0b62b232484b'
+      es:
+        available_menus:
+          - left-menu-spanish
+        parent: 'left-menu-spanish:'
+name: 'Federal Directory Record'
+type: directory_record
+description: ''
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: false

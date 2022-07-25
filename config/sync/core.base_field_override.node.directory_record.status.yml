@@ -1,0 +1,22 @@
+uuid: 8dd55b96-05ed-4656-945d-ca00f9895e17
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.directory_record
+id: node.directory_record.status
+field_name: status
+entity_type: node
+bundle: directory_record
+label: Published
+description: ''
+required: false
+translatable: true
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean
