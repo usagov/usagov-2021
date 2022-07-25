@@ -35,7 +35,7 @@ i.e.
 @forward "state-directory";
 
 .text-red {
-   color: #d83933;
+  color: #d83933;
 }
 
 .border-top-05 {
@@ -62,151 +62,162 @@ i.e.
 }
 
 @media (min-width: 64em) {
-.usa-section {
-   padding-top: 2rem;
-}
+  .usa-section {
+    padding-top: 2rem;
+  }
 }
 
-.usa-footer__secondary-link a.disabled, .usa-footer__secondary-section a.disabled{
-   pointer-events: none;
-   color:#000;
-   text-decoration: none;
+.usa-footer__secondary-link a.disabled,
+.usa-footer__secondary-section a.disabled {
+  pointer-events: none;
+  color: #000;
+  text-decoration: none;
 }
 
 .usa-sidenav__sublist a:not(.usa-button) {
-   padding-left: 2.3rem;
+  padding-left: 2.3rem;
 }
+
 .usa-sidenav__sublist .usa-sidenav__sublist a:not(.usa-button) {
-   padding-left: 3.6rem;
+  padding-left: 3.6rem;
 }
 
 .usa-alert--no-icon .usa-alert__body {
-   //This fixes an issue with USWDS where a slim alert with no icon and no status would still get padding to make room for an icon
-   padding-left: 1.25rem;
+  // This fixes an issue with USWDS where a slim alert with no icon and no status would still get padding to make room for an icon
+  padding-left: 1.25rem;
 }
 
 .usa-button:visited {
-/* 
+  /* 
 This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
 Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
 */
-   color: initial;
+  color: initial;
 }
 
 .usa-button--secondary {
-   border: 1px solid color("cyan-50v");
+  border: 1px solid color("cyan-50v");
 }
 
 .usa-button--secondary:hover {
-   background-color: #ccecf2;
-   border: 1px solid color("cyan-50v"); 
+  background-color: #ccecf2;
+  border: 1px solid color("cyan-50v");
 }
 
-.usa-button--secondary:visited, .usa-button:visited {
-   color: #1b1b1b !important;
+.usa-button--secondary:visited,
+.usa-button:visited {
+  color: #1b1b1b !important;
 }
 
 /*
 This style ensures that we can remove the padding-top from text in a card body. Used on navigation pages.
 */
-.usa-card__body.padding-top-0{
+.usa-card__body.padding-top-0 {
   padding-top: 0;
 }
-
 
 /** This to change the link color for the 
 *   header and footer links
 **/
-.usa-nav__secondary-links a, .usa-nav__secondary-links a:hover, .usa-banner__button, .usa-card__body {
-   color: #000;
+.usa-nav__secondary-links a,
+.usa-nav__secondary-links a:hover,
+.usa-banner__button,
+.usa-card__body {
+  color: #000;
 }
 
-//Header
+// Header
 
 /** Background color for government banner **/
 .usa-banner {
-   background-color: #F3F3F3;
+  background-color: #f3f3f3;
 }
 
-.usa-banner__button-text, .usa-banner__button-text:hover {
-   color: #1A4480;
+.usa-banner__button-text,
+.usa-banner__button-text:hover {
+  color: #1a4480;
 }
 
 .usa-banner__button-text:visited {
-   color: #4b4b4d;
+  color: #4b4b4d;
 }
 
-.usa-banner__button:after, .usa-banner__button:hover:after {
-   background-color: #1A4480;
+.usa-banner__button::after,
+.usa-banner__button:hover::after {
+  background-color: #1a4480;
 }
 
-.usa-banner__button:hover:visited:after {
-   background-color: #4b4b4d;
+.usa-banner__button:hover:visited::after {
+  background-color: #4b4b4d;
 }
 
-.usa-banner__button[aria-expanded=true]::after, .usa-banner__button[aria-expanded=true]:hover::after {
-   background-color: #1A4480;
+.usa-banner__button[aria-expanded="true"]::after,
+.usa-banner__button[aria-expanded="true"]:hover::after {
+  background-color: #1a4480;
 }
 
-.usa-banner__button[aria-expanded=true]:hover:visited::after {
-   background-color: #4b4b4d;
+.usa-banner__button[aria-expanded="true"]:hover:visited::after {
+  background-color: #4b4b4d;
 }
 
 /** info banner **/
-   .usa-header--extended .usa-alert--slim .usa-alert__body {
-   @include at-media($theme-header-min-width) {
-      max-width: 64rem;
-      margin-right: auto;
-      margin-left: auto;
-      padding-left: 3.2rem;
-      padding-right: 3.2rem;
-      display: block;
-      font-size: .9rem; 
-   }
-   padding-left: 2.2rem;
-   padding-right: 2.2rem;
-   display: block;
-   font-size: .9rem;
+.usa-header--extended .usa-alert--slim .usa-alert__body {
+  @include at-media($theme-header-min-width) {
+    max-width: 64rem;
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 3.2rem;
+    padding-right: 3.2rem;
+    display: block;
+    font-size: 0.9rem;
+  }
+
+  padding-left: 2.2rem;
+  padding-right: 2.2rem;
+  display: block;
+  font-size: 0.9rem;
 }
 
-.usa-header--extended .usa-alert--slim .usa-alert__body a, .usa-header--extended .usa-alert--slim .usa-alert__body a:hover, .usa-header--extended .usa-alert--slim .usa-alert__body a:visited {
-   color: color("blue-warm-70v")
+.usa-header--extended .usa-alert--slim .usa-alert__body a,
+.usa-header--extended .usa-alert--slim .usa-alert__body a:hover,
+.usa-header--extended .usa-alert--slim .usa-alert__body a:visited {
+  color: color("blue-warm-70v");
 }
 
 /** emergency banner header **/
 .usa-header--extended .usa-alert--error {
-   color: #ffffff;
-   border-left-color: color("red-70v");
-   background-color: color("red-70v")
+  color: #fff;
+  border-left-color: color("red-70v");
+  background-color: color("red-70v");
 }
 
 /** emergency banner header **/
 .usa-header--extended .usa-alert--error a {
-   color: #ffffff;
+  color: #fff;
 }
 
 /** info banner header **/
-   .usa-header--extended .usa-alert--info {
-      border-left-color: #e7f6f8; 
+.usa-header--extended .usa-alert--info {
+  border-left-color: #e7f6f8;
 }
 
 /** info banner header **/
 @include at-media($theme-header-min-width) {
-   .usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
-         margin-bottom: 0;
-      }
-   }
-
-/** Language buttons **/
-@include at-media($theme-header-min-width) {
-   .usa-header--extended .usa-navbar {
-        overflow: inherit;
-   }
+.usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
+    margin-bottom: 0;
+  }
 }
 
 /** Language buttons **/
 @include at-media($theme-header-min-width) {
-.usa-header--extended  div.language-switcher-language-url  {
+  .usa-header--extended .usa-navbar {
+    overflow: inherit;
+  }
+}
+
+/** Language buttons **/
+@include at-media($theme-header-min-width) {
+  .usa-header--extended div.language-switcher-language-url {
     margin-right: auto;
     max-width: 64rem;
     margin-left: auto;
@@ -217,72 +228,79 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 /** Language buttons **/
-   .usa-header--extended div.language-switcher-language-url ul.links {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: .3rem;
-      margin-left: 0;
-   }
+.usa-header--extended div.language-switcher-language-url ul.links {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.3rem;
+  margin-left: 0;
+}
 
 /** Language buttons **/
-   .usa-header--extended [hreflang|=es] {
-      padding-left: .5rem;
-      border-radius: 5px;
-      border: none;
-      @media (max-width: 64em) {
-         padding-right: 1.3rem;
-      }
-   }
-  
-   .usa-header--extended [hreflang|=en] {
-      border-radius: 5px;
-      border: none;
-      @media (max-width: 64em) {
-         padding-right: 1.3rem;
-      }
-   }
-
-/** Language buttons **/
-.usa-header--extended  .usa-nav__primary>.usa-nav__primary-item>a.language-link  {
-   @media (max-width: 64em) {
-     font-size: .93rem;
-     font-weight: 700;   
-   }
-     color: #fff;
-     text-decoration: none;
-     padding: 10px 20px 10px 20px;
-     background-color: color("blue-warm-80v")
-  }
-
-/** Language buttons **/
-@include at-media($theme-header-min-width) {
-.usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover  {
-     color: #fff;
+.usa-header--extended [hreflang|="es"] {
+  padding-left: 0.5rem;
+  border-radius: 5px;
+  border: none;
+  @media (max-width: 64em) {
+    padding-right: 1.3rem;
   }
 }
 
+.usa-header--extended [hreflang|="en"] {
+  border-radius: 5px;
+  border: none;
+  @media (max-width: 64em) {
+    padding-right: 1.3rem;
+  }
+}
+
+/** Language buttons **/
+.usa-header--extended
+  .usa-nav__primary
+  > .usa-nav__primary-item
+  > a.language-link {
+  @media (max-width: 64em) {
+    font-size: 0.93rem;
+    font-weight: 700;
+  }
+
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 20px;
+  background-color: color("blue-warm-80v");
+}
+
+/** Language buttons **/
+@include at-media($theme-header-min-width) {
+  .usa-header--extended
+    .usa-nav__primary
+    > .usa-nav__primary-item
+    > a.language-link:hover {
+    color: #fff;
+  }
+}
 
 /** Mobile menu button **/
 @media (max-width: 64em) {
 .usa-header--extended .usa-navbar { 
-   margin-top: 1rem;
-   padding-bottom: 1rem;
+      margin-top: 1rem;
+      padding-bottom: 1rem;
    }
 }
 
-.usa-header--extended .usa-menu-btn { 
-   @media (max-width: 64em) {
-      padding-right: 1.3rem;
-      width: 7rem;
-      height: 2.3rem;
-      text-align: left;
-      font-weight: 700;
-      background-image: url(/themes/custom/usagov/images/ICONS_Search.png);
-      background-size: 1.5rem;
-      background-repeat: no-repeat;
-      background-position: 3.5rem .7rem;
-   }
-   background-color: color("blue-warm-80v")
+.usa-header--extended .usa-menu-btn {
+  @media (max-width: 64em) {
+    padding-right: 1.3rem;
+    width: 7rem;
+    height: 2.3rem;
+    text-align: left;
+    font-weight: 700;
+    background-image: url("/themes/custom/usagov/images/ICONS_Search.png");
+    background-size: 1.5rem;
+    background-repeat: no-repeat;
+    background-position: 3.5rem 0.7rem;
+  }
+
+  background-color: color("blue-warm-80v");
 }
 
 /** This is to minimize the size of the logo in 
@@ -290,185 +308,216 @@ This style ensures that we can remove the padding-top from text in a card body. 
 **/
 
 @media (min-width: 64em) {
-   .usa-header--extended .usa-logo { 
-       margin: .5rem 0 .2em;
-   }
+  .usa-header--extended .usa-logo {
+    margin: 0.5rem 0 0.2em;
+  }
 }
 
 .usa-header--extended .usa-logo img {
   max-width: units(5);
   @include at-media($theme-header-min-width) {
-   max-width: units(10);
- }
+    max-width: units(10);
+  }
 }
 
 .usa-header--extended .usa-logo img.es {
-   max-width: 6.2rem;
-   @include at-media($theme-header-min-width) {
+  max-width: 6.2rem;
+  @include at-media($theme-header-min-width) {
     max-width: 12.3rem;
   }
- }
+}
 
-/** This is to make the English header links align in a row
-*  with the search instead of a column
-**/
+// This is to make the Spanish header links align in a row with the search instead of a colum
 .usa-header--extended .usa-nav__secondary {
-@include at-media($theme-header-min-width) {
+  @include at-media($theme-header-min-width) {
   @include u-flex("row", "align-end");
-   bottom: 6rem;
-   width: 29rem;
-   /*opacity: 0.2;*/
-   }
+   
+  bottom: 6rem;
+  width: 32rem;
+  }
 }
 
-/** This is to make the Spanish header links align in a row
-*  with the search instead of a column
-**/
+// This is to make the Spanish header links align in a row with the search instead of a colum
 .usa-header--extended .usa-nav__secondary:lang(es) {
-   @include at-media($theme-header-min-width) {
-     @include u-flex("row", "align-end");
-      bottom: 6rem;
-      width: 30rem;
-      /*opacity: 0.2;*/
-      }
+  @include at-media($theme-header-min-width) {
+  @include u-flex("row", "align-end");
+
+  bottom: 6rem;
+  width: 33rem;
+  }
 }
 
-.usa-header--extended .usa-nav__primary-item>.usa-nav__link:hover {
-@include at-media($theme-header-min-width) {
-   position: relative;
+.usa-header--extended .usa-nav__primary-item > .usa-nav__link:hover {
+  @include at-media($theme-header-min-width) {
+    position: relative;
+  }
+}
+
+.usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item {
+   @include at-media($theme-header-min-width) {
+      display: inline;
+      padding-left: 0;
    }
 }
 
-//** This is to make the header link stretch out **/
+// This is to make the header link stretch out
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
-    width: 12rem;
-    line-height: 1.9;
-  }
+      width: 15rem;
+      line-height: 1.1rem;
+   }
 }
 
 // Spanish header fix for text length
 .usa-header--extended .usa-nav__secondary-links:lang(es) {
    @include at-media($theme-header-min-width) {
-     width: 13rem;
-     line-height: 1.9;
+      width: 17rem;
+      line-height: 1.1rem;
    }
- }
+}
 
-/** This is to add content pipe before the search **/
+// This is to add content pipe before the search
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
    @include at-media($theme-header-min-width) {
       float: right;
-      color: color("base-lighter");
+      color: $gray;
       content: "|"; // Removed while phone number is disabled
-      padding-right: .7rem;
+      padding-right: 1rem;
+      font-size: 2rem;
+      padding-bottom: .4rem;
    }
-  }
+}
 
-  .usa-nav__primary>.usa-nav__primary-item>a, .usa-nav__primary>.usa-nav__primary-item>a:hover {
+.usa-header--extended .usa-nav__secondary-links a {
+   @include at-media($theme-header-min-width) {
+      font-size: 1.13rem;
+      padding-left: .5rem;
+      padding-top: .2rem;
+   }
+}
+
+.usa-header--extended .usa-nav__secondary-links a:lang(es) {
+   @include at-media($theme-header-min-width) {
+      font-size: 1.13rem;
+      padding-left: .2rem;
+      padding-top: .2rem;
+   }
+}
+
+.usa-nav__primary > .usa-nav__primary-item > a,
+.usa-nav__primary > .usa-nav__primary-item > a:hover {
   @media (min-width: 64em) {
-   padding: 0.8rem;   
-   color: color("blue-warm-70v")
+    padding: 0.8rem;
+    color: color("blue-warm-70v");
   }
 }
 
 // adds visible focus around entire search box
-[type=search]{
-   z-index: 1;
+[type="search"] {
+  z-index: 1;
 }
 
 // adds visible focus around entire search button and removes padding
-.usa-button:not([disabled]):focus{    
-   outline-offset: 0;
-   z-index: 1;
+.usa-button:not([disabled]):focus {
+  outline-offset: 0;
+  z-index: 1;
 }
 
- //Footer
+// Footer
 
- .ftr-list {
-   @media (min-width: 64em) {
-   padding-top: 1.4rem;
-}
-}
- .usa-footer--big .usa-footer__primary-content--collapsible .usa-footer__primary-link{ 
-    font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
-    font-size: 1.2rem;
- }
-
- .usa-sign-up__heading {
-   font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
- }
-
-.usa-footer__primary-content--collapsible.hidden{
-   //USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
-   display: block;
-} 
-
-@media (min-width: 30em){
-   .usa-footer__contact-heading.es{
-       display: inline-grid;
-       margin-top: 0.5rem;
-       margin-right: -1.5rem;
-       text-align: left;
-      }
+.ftr-list {
+  @media (min-width: 64em) {
+    padding-top: 1.4rem;
+  }
 }
 
- /** This is to add the facebook social media icon **/
+.usa-footer--big
+  .usa-footer__primary-content--collapsible
+  .usa-footer__primary-link {
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
+  font-size: 1.2rem;
+}
 
- .usa-social-link:hover {
-   background-color: #ccecf2;
+.usa-sign-up__heading {
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
+}
+
+.usa-footer__primary-content--collapsible.hidden {
+  // USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
+  display: block;
+}
+
+@media (min-width: 30em) {
+  .usa-footer__contact-heading.es {
+    display: inline-grid;
+    margin-top: 0.5rem;
+    margin-right: -1.5rem;
+    text-align: left;
+  }
+}
+
+/** This is to add the facebook social media icon **/
+
+.usa-social-link:hover {
+  background-color: #ccecf2;
 }
 
 .usa-social-link--facebook {
-   background-image: url(../images/facebook34.png),linear-gradient(transparent,transparent);
- }
- 
- /** This is to add the twitter social media icon **/
- .usa-social-link--twitter {
-   background-image: url(../images/twitter34.png),linear-gradient(transparent,transparent);
- }
- 
- /** This is to add the instagram social media icon **/
- .usa-social-link--instagram {
-   background-image: url(../images/instagram34.png),linear-gradient(transparent,transparent);
- }
- 
- /** This is to add the youtube social media icon **/
- .usa-social-link--youtube {
-   background-image: url(../images/youtube34.png),linear-gradient(transparent,transparent);
- }
+  background-image: url("../images/facebook34.png"),
+    linear-gradient(transparent, transparent);
+}
+
+/** This is to add the twitter social media icon **/
+.usa-social-link--twitter {
+  background-image: url("../images/twitter34.png"),
+    linear-gradient(transparent, transparent);
+}
+
+/** This is to add the instagram social media icon **/
+.usa-social-link--instagram {
+  background-image: url("../images/instagram34.png"),
+    linear-gradient(transparent, transparent);
+}
+
+/** This is to add the youtube social media icon **/
+.usa-social-link--youtube {
+  background-image: url("../images/youtube34.png"),
+    linear-gradient(transparent, transparent);
+}
 
 .usa-footer__secondary-section {
   background-color: color("cyan-10");
 }
 
 .usa-footer__contact-links {
-   @media (max-width: 30em){
-      margin-top: 0;  
-}
+  @media (max-width: 30em) {
+    margin-top: 0;
+  }
 }
 
 .usa-footer__contact-heading {
-   @media (max-width: 30em){
-      text-align: left;
-      margin-bottom: .5rem;
-   }
+  @media (max-width: 30em) {
+    text-align: left;
+    margin-bottom: 0.5rem;
+  }
 }
 
 .usa-footer__secondary-section a {
-   padding-bottom: 2rem;
+  padding-bottom: 2rem;
 }
 
-.usa-footer__contact-links{
-   @media (min-width: 40em){
-      margin-left: -3rem;
-   }
-}
+// .usa-footer__contact-links {
+//   @media (min-width: 40em) {
+//     margin-left: -3rem;
+//   }
+// }
 
-@media (min-width: 30em){
-.usa-footer__contact-heading {
-   margin-top: .5rem; 
-   }   
+@media (min-width: 30em) {
+  .usa-footer__contact-heading {
+    margin-top: 0.5rem;
+  }
 }
 
 .usa-social-link {
@@ -476,253 +525,265 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 .usa-social-link span {
-   position: absolute;
-   left: -999em;
-   right: auto;
+  position: absolute;
+  left: -999em;
+  right: auto;
 }
 
 .usa-footer__social-links {
-   @media (max-width: 30em)and (min-width: 30em){
-      justify-content: flex-start;
-      padding-right: 0;
-}
-   @media (min-width: 31em){
-      padding-right: 2rem;
-}
+  @media (max-width: 30em) and (min-width: 30em) {
+    justify-content: flex-start;
+    padding-right: 0;
+  }
+  @media (min-width: 31em) {
+    padding-right: 2rem;
+  }
 }
 
 .sm-sp-links {
-   @media (max-width: 30em)and(min-width: 30rem){
-      padding-left: 2rem;
-}
+  @media (max-width: 30em) and(min-width: 30rem) {
+    padding-left: 2rem;
+  }
 }
 
-@media (min-width: 30em){
-.usa-footer__contact-info {
-   justify-content: flex-start !important;
-   margin-top: -.25rem;
+@media (min-width: 30em) {
+  .usa-footer__contact-info {
+    justify-content: flex-start !important;
+    margin-top: -0.25rem;
+  }
 }
-}
- 
+
 .usa-identifier {
   background-color: color("blue-80v");
 }
 
 .usa-identifier__section {
- padding-bottom: 0;
+  padding-bottom: 0;
 }
 
 .usa-identifier__usagov-description {
   @media (min-width: 36em) {
-      display: flex;
-      justify-content: center;
+    display: flex;
+    justify-content: center;
   }
 }
 
-.usa-identifier__usagov-description, .usa-identifier__usagov-description span {
-   @media (max-width: 30em) {
-      text-align: center;
-      display: inline-block;
-   }
- }
+.usa-identifier__usagov-description,
+.usa-identifier__usagov-description span {
+  @media (max-width: 30em) {
+    text-align: center;
+    display: inline-block;
+  }
+}
 
-a, .usa-alert__text a, .usa-footer__return-to-top a, .usa-link, .usa-skipnav {
-      color: color("blue-warm-70v");
+a,
+.usa-alert__text a,
+.usa-footer__return-to-top a,
+.usa-link,
+.usa-skipnav {
+  color: color("blue-warm-70v");
 }
 
 .usa-prose a:visited {
-   color: color($theme-link-visited-color);
+  color: color($theme-link-visited-color);
 }
 
 .usa-button {
-   @media (max-width: 30em){
-      width: 100%;
-   }
-}
-
-.usagov-button--outline-black {
-   box-shadow: $theme-button-stroke-width color("black");
-   color: color("black");
-   &:hover {
-      box-shadow: $theme-button-stroke-width color("black");
-      color: color("black");
+  @media (max-width: 30em) {
+    width: 100%;
   }
 }
 
+.usagov-button--outline-black {
+  box-shadow: $theme-button-stroke-width color("black");
+  color: color("black");
+
+  &:hover {
+    box-shadow: $theme-button-stroke-width color("black");
+    color: color("black");
+  }
+}
 
 .usa-checkbox__input:checked + .usa-checkbox__label::before,
 .usa-radio__input:checked + .usa-radio__label::before {
   background-color: color("black");
-  box-shadow: 0 0 0 units($theme-input-select-border-width) color("black"), inset 0 0 0 units($theme-input-select-border-width) color("white");;
-}
-.usa-checkbox__input--tile:checked+.usa-checkbox__label, .usa-radio__input--tile:checked+.usa-radio__label {
-   // background-color: #ccecf2;
-   border-color: var( $radio-button, border-color );;
-}
-.usa-checkbox__input--tile+.usa-checkbox__label, .usa-radio__input--tile+.usa-radio__label {
-   border-color: black;
-   background: white;
+  box-shadow: 0 0 0 units($theme-input-select-border-width) color("black"),
+    inset 0 0 0 units($theme-input-select-border-width) color("white");
 }
 
-.usa-breadcrumb__link, .usa-breadcrumb__link:hover {
-   text-decoration: underline;
-   color: #1A4480;
+.usa-checkbox__input--tile:checked + .usa-checkbox__label,
+.usa-radio__input--tile:checked + .usa-radio__label {
+  // background-color: #ccecf2;
+  border-color: var($radio-button, border-color);
+}
+
+.usa-checkbox__input--tile + .usa-checkbox__label,
+.usa-radio__input--tile + .usa-radio__label {
+  border-color: black;
+  background: white;
+}
+
+.usa-breadcrumb__link,
+.usa-breadcrumb__link:hover {
+  text-decoration: underline;
+  color: #1a4480;
 }
 
 .usa-breadcrumb__link:visited {
-   text-decoration: underline;
-   color: #4b4b4d;
+  text-decoration: underline;
+  color: #4b4b4d;
 }
 
 a {
-   color: #1a4480;
+  color: #1a4480;
 }
 
+#block-betabanner .usa-alert--info,
+#block-betaspanishbanner .usa-alert--info {
+  // These styles are needed to position the alert icon
+  &::before {
+    display: none;
+  }
 
-#block-betabanner .usa-alert--info, #block-betaspanishbanner .usa-alert--info{
-   // These styles are needed to position the alert icon 
-   &:before {
-      display:none;
-   }
-   .usa-alert__body {
-      position:relative;
+  .usa-alert__body {
+    position: relative;
 
-      &:before {
-         background: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
-         width: 2rem;
-         content: "";
-         display: block;
-         height: 3.5rem;
-         position:absolute;
-         left: 1.6rem;
-         top: -0.6rem;
-         background: 0 0;
-         background-color: #1b1b1b;
-         -webkit-mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
-         mask: url(../assets/img/usa-icons/info.svg) no-repeat center/2rem 2rem;
-         background-size: 1.5rem;
-         height: 2.5rem;
-         width: 1.5rem;
-         -webkit-mask-size: 1.5rem;
-         mask-size: 1.5rem;
-         @media (max-width: 1022px) {
-            left: .4rem;
-         }
+    &::before {
+      background: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem
+        2rem;
+      width: 2rem;
+      content: "";
+      display: block;
+      height: 3.5rem;
+      position: absolute;
+      left: 1.6rem;
+      top: -0.6rem;
+      background-color: #1b1b1b;
+      mask: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
+      background-size: 1.5rem;
+
+      // height: 2.5rem;
+      // width: 1.5rem;
+      mask-size: 1.5rem;
+      @media (max-width: 1022px) {
+        left: 0.4rem;
       }
-      
-   }
+    }
+  }
 }
 
 #block-emergencyheaderbanner .usa-alert--error {
-   // These styles are needed to position the alert icon 
-   &:before {
-      display:none;
-   }
-   .usa-alert__body {
-      position:relative;
+  // These styles are needed to position the alert icon
+  &::before {
+    display: none;
+  }
 
-      &:before {
-         background: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
-         width: 2rem;
-         content: "";
-         display: block;
-         height: 3.5rem;
-         position:absolute;
-         left: 1.6rem;
-         top: -0.6rem;
-         background: 0 0;
-         background-color: #1b1b1b;
-         -webkit-mask: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
-         mask: url(../assets/img/usa-icons/error.svg) no-repeat center/2rem 2rem;
-         background-size: 1.5rem;
-         height: 2.5rem;
-         width: 1.5rem;
-         -webkit-mask-size: 1.5rem;
-         mask-size: 1.5rem;
-         @media (max-width: 1022px) {
-            left: .4rem;
-         }
+  .usa-alert__body {
+    position: relative;
+
+    &::before {
+      background: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem
+        2rem;
+      width: 2rem;
+      content: "";
+      display: block;
+      height: 3.5rem;
+      position: absolute;
+      left: 1.6rem;
+      top: -0.6rem;
+      background-color: #1b1b1b;
+      mask: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
+      background-size: 1.5rem;
+
+      // height: 2.5rem;
+      // width: 1.5rem;
+      mask-size: 1.5rem;
+      @media (max-width: 1022px) {
+        left: 0.4rem;
       }
-
-   }
+    }
+  }
 }
 
 #block-usagov-content .font-serif-lg {
-   // This style is needed to set the font size of intro text
-   font-size: 1.5rem;
+  // This style is needed to set the font size of intro text
+  font-size: 1.5rem;
 }
 
 .desktop\:grid-col-fill .content-wrapper {
-   // On Navigation Cards pages, display the content in reverse order. So the Nav banner is displayed above the Intro Text.
-   display: flex;
-   flex-direction: column-reverse;
- }
+  // On Navigation Cards pages, display the content in reverse order. So the Nav banner is displayed above the Intro Text.
+  display: flex;
+  flex-direction: column-reverse;
+}
 
- // This style is needed to extend the width of nav page intro text
- .desktop\:grid-col-fill .usa-prose>p.usa-intro {
-	max-width: 81ex;
-   margin-left: 1.2ex;
-   margin-right: 1.2ex;
+// This style is needed to extend the width of nav page intro text
+.desktop\:grid-col-fill .usa-prose > p.usa-intro {
+  max-width: 81ex;
+  margin-left: 1.2ex;
+  margin-right: 1.2ex;
 }
 
 .desktop\:grid-col-8 .body-copy {
-   // Add margin only on content pages
-   margin-top: 2.5rem;
- }
+  // Add margin only on content pages
+  margin-top: 2.5rem;
+}
 
-.usa-skipnav:active, .usa-skipnav:hover {
-   color: #1A4480;
+.usa-skipnav:active,
+.usa-skipnav:hover {
+  color: #1a4480;
 }
 
 .usa-skipnav:visited {
-   color: #4b4b4d;
+  color: #4b4b4d;
 }
 
-.usa-social-link>img {
-   height: 2rem;
-   background-color: transparent;
-   display: block;
-   margin-right: auto;
-   margin-left: auto;
+.usa-social-link > img {
+  height: 2rem;
+  background-color: transparent;
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
 }
 
-#backToTop{
-   position: fixed;
-   //float:right;
-   height: 50px;
-   width: 90px;
-   right: -100px;
-   bottom: 80px;
-   background: #e8f0f7;
-   transition: right 0.5s;
-   background-image: url(/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png);
-   background-size: 45px;
-   background-position: 2px;
-   background-repeat: no-repeat;
-   padding: 0 0 0 45px;
-   border-radius: 25px 0 0 25px;
-   line-height: 50px;
-   display: inline-block;
-   text-align: center;
-   z-index: 1;
-   
-   &.stuck{
-     right: 0;
-   }
- }
+#back-to-top {
+  position: fixed;
 
- //Share This Page
+  // float:right;
+  height: 50px;
+  width: 90px;
+  right: -100px;
+  bottom: 80px;
+  background: #e8f0f7;
+  transition: right 0.5s;
+  background-image: url("/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png");
+  background-size: 45px;
+  background-position: 2px;
+  background-repeat: no-repeat;
+  padding: 0 0 0 45px;
+  border-radius: 25px 0 0 25px;
+  line-height: 50px;
+  display: inline-block;
+  text-align: center;
+  z-index: 1;
 
- div #sm-share {
-   display:flex;
-   padding-top: 10px;
-   padding-bottom: 20px;
-   background-color: transparent;
+  &.stuck {
+    right: 0;
+  }
 }
+
+// Share This Page
+
+div #sm-share {
+  display: flex;
+  padding-top: 10px;
+  padding-bottom: 20px;
+  background-color: transparent;
+}
+
 div #sm-share * {
-   margin-top: auto;
-   margin-bottom: auto;
-   padding-top: 5px;
+  margin-top: auto;
+  margin-bottom: auto;
+  padding-top: 5px;
 }
 
 div #sm-share a {
