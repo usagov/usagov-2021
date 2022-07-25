@@ -49,21 +49,21 @@ if ($count == 0) {
     $message = 'create new ' . $node->id() . ' node from create code script';
     \Drupal::logger('create_code_script')->notice($message);
   }
-  //if needed to publish latest revision
+  // If needed to publish latest revision
   // to-do : Compare the Date of the latest revision to Published date. if it is higher then, publish the latest revision.
   // else {
-  //   foreach ($nids as $nid) {
-  //     $node = Node::load($nid);
-  //     if ($node->isLatestRevision()) {
-  //       echo 'Update latest revision to publish' . PHP_EOL;
-  //       $node->body->value = $body;
-  //       $node->body->format = 'html';
-  //       $node->set('moderation_state', "published");
-  //       $node->save();
-  //       $message = 'Update latestRevision ' . $node->id() . ' node from create code script';
-  //       \Drupal::logger('create_code_script')->notice($message);
-  //     }
-  //   }
+  // foreach ($nids as $nid) {
+  // $node = Node::load($nid);
+  // if ($node->isLatestRevision()) {
+  // echo 'Update latest revision to publish' . PHP_EOL;
+  // $node->body->value = $body;
+  // $node->body->format = 'html';
+  // $node->set('moderation_state', "published");
+  // $node->save();
+  // $message = 'Update latestRevision ' . $node->id() . ' node from create code script';
+  // \Drupal::logger('create_code_script')->notice($message);
+  // }
+  // }
   // }
 }
 else {
