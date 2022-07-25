@@ -7,10 +7,9 @@ workflow: basic_workflow
 transitions:
   move_to_review: move_to_review
 roles:
-  content_manager: content_manager
   content_administrator: content_administrator
 author: false
-site_mail: false
+site_mail: true
 emails: ''
 subject: 'New content submission'
 body:

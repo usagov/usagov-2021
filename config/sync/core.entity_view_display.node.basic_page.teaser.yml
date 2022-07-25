@@ -14,6 +14,7 @@ dependencies:
     - field.field.node.basic_page.field_language_toggle
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
+    - field.field.node.basic_page.field_related_pages
     - node.type.basic_page
   module:
     - text
@@ -51,4 +52,5 @@ hidden:
   field_language_toggle: true
   field_page_intro: true
   field_page_type: true
+  field_related_pages: true
   langcode: true
