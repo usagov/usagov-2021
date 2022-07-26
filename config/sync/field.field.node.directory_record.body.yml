@@ -1,0 +1,27 @@
+uuid: a822e2c2-5068-45d4-a66b-4a133226dd0e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.directory_record
+  module:
+    - allowed_formats
+    - text
+third_party_settings:
+  allowed_formats:
+    allowed_formats: {  }
+id: node.directory_record.body
+field_name: body
+entity_type: node
+bundle: directory_record
+label: Body
+description: 'To publish text or links or a USWDS component between the page intro and the contact info'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+  required_summary: false
+field_type: text_with_summary

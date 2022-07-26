@@ -1,0 +1,18 @@
+uuid: e2e84c58-7e10-46bd-87a0-2b6baa35f709
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.directory_record
+id: node.directory_record.title
+field_name: title
+entity_type: node
+bundle: directory_record
+label: 'Official Agency Name'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

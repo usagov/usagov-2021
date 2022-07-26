@@ -13,10 +13,23 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-IMAGE=${1:-"dnark/usagov-2021:cms-latest"}
+DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
+APPNAME=${1:-cms}
+
+GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+CTAG=${2:-$GITBRANCH}
+
+THRESHOLD=${3:-low}
 
 docker run -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v /var/run/docker.sock:/var/run/docker.sock \
-  snyk/snyk:docker snyk container test $IMAGE --org=$SNYK_ORG
+    -v $(pwd)/.docker:/app \
+  snyk/snyk:docker snyk container test \
+    $DOCKERUSER/$DOCKERREPO:$APPNAME-$CTAG \
+    --file=/app/Dockerfile-$APPNAME \
+    --print-deps \
+    --severity-threshold=$THRESHOLD
 

@@ -13,7 +13,7 @@ dependencies:
 id: wizardenglish
 theme: usagov
 region: content
-weight: -16
+weight: -17
 provider: null
 plugin: 'block_content:f54abad2-58b6-4c43-b1b9-e78d741d1a5b'
 settings:

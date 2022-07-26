@@ -1,0 +1,6 @@
+#!/bin/sh
+
+cd /tmp/
+git clone https://github.com/docker/docker-bench-security.git
+cd /tmp/docker-bench-security
+docker build --no-cache -t docker-bench-security .

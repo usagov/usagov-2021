@@ -1,0 +1,25 @@
+uuid: e229ea3a-fe40-4ffc-a3f7-59237d3bb7c9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_for_contact_center_only
+    - node.type.directory_record
+  module:
+    - allowed_formats
+    - text
+third_party_settings:
+  allowed_formats:
+    allowed_formats: {  }
+id: node.directory_record.field_for_contact_center_only
+field_name: field_for_contact_center_only
+entity_type: node
+bundle: directory_record
+label: 'For Contact Center Use Only'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

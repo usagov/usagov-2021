@@ -1,0 +1,28 @@
+uuid: d951b7e4-06bd-4672-9cb2-62ab54bfd03c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_language_toggle
+    - node.type.directory_record
+id: node.directory_record.field_language_toggle
+field_name: field_language_toggle
+entity_type: node
+bundle: directory_record
+label: 'Language Toggle'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      directory_record: directory_record
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

@@ -50,3 +50,4 @@ visibility:
       node: '@node.node_route_context:node'
     bundles:
       basic_page: basic_page
+      directory_record: directory_record

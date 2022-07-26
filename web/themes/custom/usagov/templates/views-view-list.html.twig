@@ -1,0 +1,78 @@
+{#
+/**
+ * @file
+ * Default theme implementation for a view template to display a list of rows.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the container.
+ * - rows: A list of rows for this list.
+ *   - attributes: The row's HTML attributes.
+ *   - content: The row's contents.
+ * - title: The title of this group of rows. May be empty.
+ * - list: @todo.
+ *   - type: Starting tag will be either a ul or ol.
+ *   - attributes: HTML attributes for the list element.
+ *
+ * @see template_preprocess_views_view_list()
+ *
+ * @ingroup themeable
+ */
+#}
+
+{% if attributes %}
+  <div{{ attributes }}>
+{% endif %}
+  {% if title %}
+    <h3>{{ title }}</h3>
+  {% endif %}
+
+{% set is_directory = view.element['#name']|slice(0, 16) == 'federal_agencies' %} 
+{% if is_directory %}
+{#
+ **************************************************    
+ * This is USAgov-customized code for the federal agencies directory. 
+ * See views-view-fields.html.twig for layout of an individual directory 
+ * record within this loop. 
+ **************************************************
+#}
+
+{% set current_letter = view.args[0]|upper %}
+<h2 class="usagov-directory-letter-heading">{{- current_letter -}}</h2>
+  {% for row in rows %}
+  {{ row.content }}
+  {% endfor %}
+{# TODO: add back! #}
+<!-- Bottom Navigation -->
+{# <div class="usagov-directory-bottom-nav-container">
+  <div class="usagov-directory-bottom-nav-group">
+        <a class="usagov-directory-bottom-nav-arrow" href="/">
+        <?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><polygon points="0 0 24 0 24 24 0 24"/><polygon fill="#000" fill-rule="nonzero" points="11.41 7.41 10 6 4 12 10 18 11.41 16.59 6.83 12"/></g></svg>
+        </a>
+      <a class="nav-letter" href="">W</a>
+  </div>
+  <div class="usagov-directory-bottom-nav-group">
+      <a class="nav-letter" href="">B</a>
+        <a class="usagov-directory-bottom-nav-arrow" href="/">
+          <?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><polygon points="0 0 24 0 24 24 0 24"/><g fill="#000" fill-rule="nonzero" transform="translate(4.59 6)"><polygon points="9.41 0 8 1.41 12.58 6 8 10.59 9.41 12 15.41 6"/></g></g></svg>
+        </a>
+  </div>
+</div> #}
+{% else %}
+{#
+ **************************************************
+ * This is the default drupal layout for a view in "list" mode.
+ **************************************************
+#}
+  <{{ list.type }}{{ list.attributes }}>
+  {% for row in rows %}
+  <li{{ row.attributes }}>
+    {{ row.content }}
+  </li> 
+  {% endfor %}
+  </{{ list.type }}>  
+{% endif %}
+
+{% if attributes %}
+  </div>
+{% endif %}
+  

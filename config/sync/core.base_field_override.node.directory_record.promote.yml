@@ -1,0 +1,22 @@
+uuid: 296511e8-69f6-45d7-9aeb-487efa18dfad
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.directory_record
+id: node.directory_record.promote
+field_name: promote
+entity_type: node
+bundle: directory_record
+label: 'Promoted to front page'
+description: ''
+required: false
+translatable: true
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

@@ -1,0 +1,19 @@
+uuid: 7f4f8edb-af38-4125-a3ab-9aad80d572f8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_street_2
+    - node.type.directory_record
+id: node.directory_record.field_street_2
+field_name: field_street_2
+entity_type: node
+bundle: directory_record
+label: 'Street 2'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
