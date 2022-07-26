@@ -6,6 +6,8 @@
  */
 
 use Drupal\taxonomy\Entity\Term;
+use Drupal\views\ViewExecutable;
+use Drupal\views\ResultRow;
 
 /**
  * Description message.
@@ -29,7 +31,6 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
       // Check if the page is not front page.
       if ($isFront == 1) {
         $isFront = 'homepage';
-
       }
       else {
         $isFront = 'not_homepage';
@@ -68,4 +69,55 @@ function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
       $variables['items'][0]['content']['#context']['value'] = '';
     }
   }
+}
+
+/**
+ * Add context to the federal_agencies view to allow us to show the current letter,
+ * and add links to the "next" and "previous" letters.
+ * Note that the _summary preprocess hook runs first (at least for this view) and
+ * populates a static variable with the list of possible letters, which the
+ * _list preprocess hook needs in order to figure out prev/next.
+ */
+function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variables, $hook, $info) {
+  $our_unique_name = 'usa_twig_vars_preprocess_view_federal_agencies';
+  drupal_static_reset($our_unique_name);
+  $shared = &drupal_static($our_unique_name);
+  $shared = [];
+
+  // Letters are the title_truncated in the rows of the view's "result."
+  // At this point the current letter is available only via the Request object.
+  // (The core view summary doesn't use the current letter, but we do.)
+  $view = $variables['view'];
+  $rows = $view->result;
+  $letters = [];
+  foreach ($rows as $row) {
+    $letters[] = $row->title_truncated;
+  }
+  $current_letter = $view->getRequest()->query->get('letter') ?: 'a';
+  $current_letter = mb_strtoupper($current_letter);
+  $shared['current'] = $current_letter;
+
+  // Figure out next and previous letters.
+  $cur_idx = array_search($current_letter, $letters);
+  $next_idx = $cur_idx + 1;
+  $prev_idx = $cur_idx - 1;
+  if ($next_idx > array_key_last($letters)) {
+    $next_idx = array_key_first($letters);
+  }
+  if ($prev_idx < array_key_first($letters)) {
+    $prev_idx = array_key_last($letters);
+  }
+  $shared['next'] = $letters[$next_idx];
+  $shared['prev'] = $letters[$prev_idx];
+
+  $variables['alpha_context'] = $shared;
+}
+
+/**
+ * Add context to the federal_agencies view to allow us to show the current letter,
+ * and add links to the "next" and "previous" letters.
+ */
+function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables, $hook, $info) {
+  $alpha_context = &drupal_static('usa_twig_vars_preprocess_view_federal_agencies');
+  $variables['alpha_context'] = $alpha_context;
 }
