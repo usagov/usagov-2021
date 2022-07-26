@@ -16,6 +16,7 @@
     ],
     "require": {
         "composer/installers": "^1.9",
+        "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
         "drupal/admin_content_notification": "^3.8",
         "drupal/admin_toolbar": "3.x-dev",
@@ -28,7 +29,7 @@
         "drupal/clientside_validation": "3.0.x-dev",
         "drupal/console": "^1.9",
         "drupal/content_lock": "^2.2",
-        "drupal/content_moderation_notifications": "^3.3",
+        "drupal/content_moderation_notifications": "^3.4",
         "drupal/core-composer-scaffold": "^9.1",
         "drupal/core-project-message": "^9.1",
         "drupal/core-recommended": "^9.1",
@@ -44,6 +45,7 @@
         "drupal/jquery_ui_accordion": "^1.1",
         "drupal/language_switcher_extended": "^1.0",
         "drupal/linkit": "^6.0@beta",
+        "drupal/mail_safety": "^1.2",
         "drupal/mailsystem": "^4.3",
         "drupal/menu_block": "^1.7",
         "drupal/menu_breadcrumb": "^1.16",
@@ -66,14 +68,16 @@
         "drupal/scheduler": "^1.3",
         "drupal/schema_metatag": "^2.1",
         "drupal/siteimprove": "^1.10",
+        "drupal/smtp": "^1.0",
         "drupal/stepbystep": "^2.0@beta",
         "drupal/taxonomy_menu": "^3.4",
         "drupal/term_reference_fancytree": "^2.0@RC",
         "drupal/term_reference_tree": "^1.0",
         "drupal/tome": "^1.6",
+        "drupal/twig_tweak": "^3.1",
         "drupal/uswds_base": "^2.4",
         "drupal/uswds_ckeditor_integration": "^1.0@beta",
-        "drupal/uswds_paragraph_components": "^2.0.x-dev@dev",
+        "drupal/uswds_paragraph_components": "^2.2",
         "drupal/views_menu_children_filter": "^1.0@RC",
         "drupal/webform": "^6.0",
         "drupal/workbench_email": "^2.2",
@@ -98,7 +102,8 @@
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
             "wikimedia/composer-merge-plugin": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "cweagans/composer-patches": true
         }
     },
     "extra": {
@@ -137,11 +142,14 @@
             ]
         },
         "patches": {
-            "drupal/core-recommended": {
-                "784672 - Allow text field to enforce a specific text format": "https://www.drupal.org/files/issues/2020-11-14/784672-178.patch"
-            },
             "drupal/mmf_core_fields": {
                 "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
+            },
+            "drupal/tome": {
+                "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch"
+	        },
+            "drupal/paragraphs_entity_embed": {
+                "Paragraph Embed Preview Update": "https://www.drupal.org/files/issues/2022-05-27/paragraphs_entity_embed_csrf_token.patch"
             }
         }
     }

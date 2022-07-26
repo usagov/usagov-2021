@@ -1,0 +1,6 @@
+_core:
+  default_config_hash: 4eFshgjzuHff8rWGjygPry6ITMzTZtacIU4s624wZe4
+enabled: true
+send_mail_to_dashboard: true
+send_mail_to_default_mail: false
+default_mail_address: ''

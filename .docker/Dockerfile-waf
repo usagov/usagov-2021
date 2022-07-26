@@ -39,10 +39,11 @@ COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
 
-RUN apk update && \
+RUN apk upgrade --update && \
     apk add vim \
-    bash \
-    jq
+      bash \
+      jq \
+      inotify-tools
 
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \
@@ -64,6 +65,7 @@ RUN set -eux; \
 COPY src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
 COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
 COPY src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
+COPY src-waf/cert-watcher.sh /cert-watcher.sh
 
 COPY motd /etc/motd
 
@@ -72,6 +74,8 @@ RUN echo "    built:" $(date) >> /etc/motd \
     && echo "    gittag: " $GITTAG >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \
     && echo >> /etc/motd
+
+HEALTHCHECK CMD pgrep "nginx: master process"
 
 ENTRYPOINT ["/docker-entrypoint-waf.sh"]
 CMD ["nginx", "-g", "daemon off;"]

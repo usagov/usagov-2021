@@ -27,9 +27,15 @@ S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "stora
 export S3_BUCKET
 export S3_ENDPOINT
 
-# SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
+SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
 WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)}
 CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)}
+if [ -z "$WWW_HOST" ]; then
+  WWW_HOST="*.app.cloud.gov"
+fi
+if [ -z "$CMS_HOST" ]; then
+  CMS_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | head -n 1)
+fi
 export WWW_HOST
 export CMS_HOST
 
@@ -103,7 +109,19 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
         /etc/php8/conf.d/newrelic.ini
   fi
+  if [ -n "$https_proxy" ]; then
+    sed -i \
+      -e "s/;\?newrelic.daemon.ssl_ca_bundle =.*/newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"/" \
+      -e "s/;\?newrelic.daemon.ssl_ca_path =.*/newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"/" \
+      -e "s/;\?newrelic.daemon.proxy =.*/newrelic.daemon.proxy = \"$https_proxy\"/" \
+      /etc/php8/conf.d/newrelic.ini
+  fi
 fi
+
+echo "TEMPORARY WHILE WE FIX NEW RELIC THROUGH PROXY : Turning off New Relic ... "
+sed -i \
+    -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
+    /etc/php8/conf.d/newrelic.ini
 
 # php needs a restart so new relic ini changes take effect
 if [ -d /var/run/s6/services/php ]; then
@@ -174,7 +192,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
     drush cim -y || drush cim -y
     drush cim -y
     drush php-eval "node_access_rebuild();" -y
-    drush config:set system.site mail $ADMIN_EMAIL -y > /dev/null
+    # drush config:set system.site mail $ADMIN_EMAIL -y > /dev/null
     drush state:set system.maintenance_mode 0 -y
     drush cr
 

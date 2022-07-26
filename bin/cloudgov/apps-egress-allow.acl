@@ -1,0 +1,11 @@
+*.google.com
+*.drupal.org
+*.npmjs.com
+*.newrelic.com
+*.packagist.org
+*.github.com
+*.amazonaws.com
+*.s3.amazonaws.com
+*.docker.io
+*.docker.com
+*.app.cloud.gov

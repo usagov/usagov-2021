@@ -18,6 +18,9 @@ elif [ "$SPACE" = "prod" ]; then
 elif [ "$SPACE" = "personal" ]; then
     cf target -o $CF_PERSONAL_ORG -s $CF_PERSONAL_SPACE
 
+elif [ "$SPACE" = "shared-egress" ] || [ "$SPACE" = "egress" ]; then
+    cf target -o $CF_EGRESS_ORG -s $CF_EGRESS_SPACE
+
 else
     cf target
 
