@@ -1,0 +1,13 @@
+#!/bin/sh
+cd $WEBDOC
+### The System Is Down
+drush scr scripts/nodepgs/nodecreate.php "The System Is Down" "scripts/nodepgs/systemdown.txt" "basic_page"
+
+### Page Not Found
+drush scr scripts/nodepgs/nodecreate.php "Page Not Found" "scripts/nodepgs/codepages/404.txt" "basic_page"
+drush scr scripts/nodepgs/nodecreate.php "No se encontró la página" "scripts/nodepgs/codepages/404es.txt" "basic_page" 'es'
+
+mkdir -p $WEBDOC/scode/
+wget https://localhost/page-not-found --no-check-certificate -O $WEBDOC/scode/page-not-found.html
+wget https://localhost/system-down --no-check-certificats6-svc -r /var/run/s6/services/php/
+s6-svc -r /var/run/s6/services/nginx/
