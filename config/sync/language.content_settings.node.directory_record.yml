@@ -1,0 +1,18 @@
+uuid: ea659013-a1d3-426f-b780-6304cf1b87d7
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.directory_record
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: true
+    bundle_settings:
+      untranslatable_fields_hide: '1'
+id: node.directory_record
+target_entity_type_id: node
+target_bundle: directory_record
+default_langcode: en
+language_alterable: true

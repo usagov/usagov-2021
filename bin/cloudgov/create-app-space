@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# you must already be logged in as an OrgManager to have enough permissions
+# to create these new spaces
+
+STARTSPACE=$( cf target | grep space: | awk '{ print $2 }')
+STARTORG=$(   cf target | grep org:   | awk '{ print $2 }')
+
+APP_SPACE=${1:-$STARTSPACE}
+APP_ORG=${2:-$STARTORG}
+
+# default staging asgs: dns public_network trusted_local_networks
+# default running asgs: dns
+STAGING_SECURITY_GROUPS="dns trusted_local_networks_egress public_networks_egress"
+RUNNING_SECURITY_GROUPS="dns trusted_local_networks_egress"
+
+DENIED_STAGING_SECURITY_GROUPS=""
+DENIED_RUNNING_SECURITY_GROUPS="public_network_egress"
+
+# If DRYRUN is set, don't run the commands, but echo them.
+if [ -n "${DRYRUN}" ]; then
+    output="echo # "
+fi
+
+# create space
+if cf space $APP_SPACE > /dev/null 2>&1; then
+  echo "space $APP_SPACE already exists"
+else
+  echo "Create app space $APP_SPACE"
+  $output cf create-space $APP_SPACE
+fi
+
+# setup asg network for staging lifecycle
+for SECURITY_GROUP in $STAGING_SECURITY_GROUPS; do
+  if cf security-groups | grep $APP_SPACE | grep -e 'staging$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "$SECURITY_GROUP already bound to $APP_SPACE during 'staging' lifecycle"
+  else
+    echo "Binding $SECURITY_GROUP to $APP_SPACE during 'staging' lifecycle"
+    $output cf bind-security-group $SECURITY_GROUP $APP_ORG --space $APP_SPACE --lifecycle staging
+  fi
+done
+
+# setup asg network for running lifecycle
+for SECURITY_GROUP in $RUNNING_SECURITY_GROUPS; do
+  if cf security-groups | grep $APP_SPACE | grep -e 'running$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "$SECURITY_GROUP already bound to $APP_SPACE during 'running' lifecycle"
+  else
+    echo "Binding $SECURITY_GROUP to $APP_SPACE during 'running' lifecycle"
+    $output cf bind-security-group $SECURITY_GROUP $APP_ORG --space $APP_SPACE --lifecycle running
+  fi
+done
+
+
+
+# setup asg network for staging lifecycle
+for SECURITY_GROUP in $DENIED_STAGING_SECURITY_GROUPS; do
+  if cf security-groups | grep $APP_SPACE | grep -e 'staging$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "Un-Binding $SECURITY_GROUP from $APP_SPACE during 'staging' lifecycle"
+    $output cf unbind-security-group $SECURITY_GROUP $APP_ORG $APP_SPACE --lifecycle staging
+  else
+    echo "$SECURITY_GROUP already unbound to $APP_SPACE during 'staging' lifecycle"
+  fi
+done
+
+# setup asg network for running lifecycle
+for SECURITY_GROUP in $DENIED_RUNNING_SECURITY_GROUPS; do
+  if cf security-groups | grep $APP_SPACE | grep -e 'running$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "Un-Binding $SECURITY_GROUP to $APP_SPACE during 'running' lifecycle"
+    $output cf unbind-security-group $SECURITY_GROUP $APP_ORG $APP_SPACE --lifecycle running
+  else
+    echo "$SECURITY_GROUP already unbound to $APP_SPACE during 'running' lifecycle"
+  fi
+done
+
+echo "The Production App Space needs to disable SSH access"
+echo "cf disallow-space-ssh prod"

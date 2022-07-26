@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+THRESHOLD=${1:-low}
+
+docker run -it --rm \
+    -e "SNYK_TOKEN=$SNYK_TOKEN" \
+    -v "$(pwd)/scripts:/app/scripts" \
+    -v "$(pwd)/web/modules/custom:/app/web/modules/custom" \
+    -v "/tmp/nothingburger:/app/web/modules/custom/samlauth" \
+    -v "$(pwd)/web/themes/custom:/app/web/themes/custom" \
+  snyk/snyk:php snyk code test --severity-threshold=$THRESHOLD

@@ -1,0 +1,85 @@
+#!/bin/bash
+
+echo "NO LONGER ACCURATE - UPDATE for 61443 behavior"
+exit 1
+
+# proxy server
+echo "Proxy" | tee test-result.log
+cf target -s shared-egress 2>&1 > /dev/null
+EGRESS_GUID=$(cf app dev-proxy --guid)
+cf ssh dev-proxy -c "cat /etc/cf-assets/envoy_config/sds-c2c-cert-and-key.yaml" > sds-c2c-cert-and-key.dev-proxy.yaml
+cf ssh dev-proxy -c "cat /home/vcap/app/cert.pem" > cert.dev-proxy.pem
+cf env dev-proxy | grep proxy_route > proxy_route.dev-proxy.env
+cf ssh dev-proxy -c "date -u" > date.dev-proxy.env
+
+certcount=$(grep -c -e "-----BEGIN CERTIFICATE-----" cert.dev-proxy.pem)
+# pull each cert individually
+for index in $(seq 1 "$certcount"); do
+  awk "/-----BEGIN CERTIFICATE-----/{i++}i==$index" cert.dev-proxy.pem > "cert-$index.dev-proxy.crt"
+done
+
+EGRESS_CERT1=$(cat cert-1.dev-proxy.crt)
+EGRESS_CERT1_ID=${EGRESS_CERT1:27:6}'...'${EGRESS_CERT1: -32:6}
+EGRESS_CERT1_END=$(openssl x509 -in cert-1.dev-proxy.crt -noout -enddate  | sed 's/notAfter=//')
+EGRESS_CERT1_START=$(openssl x509 -in cert-1.dev-proxy.crt -noout -startdate  | sed 's/notBefore=//')
+EGRESS_CERT1_DNS=$(openssl x509 -in cert-1.dev-proxy.crt -noout -text | grep DNS)
+
+EGRESS_CERT2=$(cat cert-2.dev-proxy.crt)
+EGRESS_CERT2_ID=${EGRESS_CERT2:27:6}'...'${EGRESS_CERT2: -32:6}
+EGRESS_CERT2_END=$(openssl x509 -in cert-2.dev-proxy.crt -noout -enddate | sed 's/notAfter=//')
+EGRESS_CERT2_START=$(openssl x509 -in cert-2.dev-proxy.crt -noout -startdate | sed 's/notBefore=//')
+EGRESS_CERT2_DNS=$(openssl x509 -in cert-2.dev-proxy.crt -noout -text | grep DNS)
+
+echo "Proxy route        : "$(cat proxy_route.dev-proxy.env) | tee -a test-result.log
+echo "Proxy Date Curr    : "$(cat date.dev-proxy.env) | tee -a test-result.log
+echo "Proxy Cert 1       :"$EGRESS_CERT1_ID | tee -a test-result.log
+echo "Proxy Cert 1 DNS   :"$EGRESS_CERT1_DNS | tee -a test-result.log
+echo "Proxy Cert 1 START : "$EGRESS_CERT1_START | tee -a test-result.log
+echo "Proxy Cert 1 END   : "$EGRESS_CERT1_END | tee -a test-result.log
+echo "Proxy Cert 2       :"$EGRESS_CERT2_ID | tee -a test-result.log
+echo "Proxy Cert 2 DNS   :"$EGRESS_CERT2_DNS | tee -a test-result.log
+echo "Proxy Cert 2 START : "$EGRESS_CERT2_START | tee -a test-result.log
+echo "Proxy Cert 2 END   : "$EGRESS_CERT2_END | tee -a test-result.log
+echo | tee -a test-result.log
+
+
+# cms server
+echo "CMS" | tee -a test-result.log
+cf target -s dev 2>&1 > /dev/null
+CMS_GUID=$(cf app cms --guid)
+cf ssh cms -c "cat /etc/cf-assets/envoy_config/sds-c2c-cert-and-key.yaml" > sds-c2c-cert-and-key.cms.yaml
+cf ssh cms -c "cat /usr/local/share/ca-certificates/sds-c2c-1.crt" > cert-1.cms.crt
+cf ssh cms -c "cat /usr/local/share/ca-certificates/sds-c2c-2.crt" > cert-2.cms.crt
+cf env cms | grep https_proxy > https_proxy.cms.env
+cf ssh cms -c "date -u" > date.cms.env
+
+CMS_CERT1=$(cat cert-1.cms.crt)
+CMS_CERT1_ID=${CMS_CERT1:27:6}'...'${CMS_CERT1: -32:6}
+CMS_CERT1_END=$(openssl x509 -in cert-1.cms.crt -noout -enddate  | sed 's/notAfter=//')
+CMS_CERT1_START=$(openssl x509 -in cert-1.cms.crt -noout -startdate  | sed 's/notBefore=//')
+CMS_CERT1_DNS=$(openssl x509 -in cert-1.cms.crt -noout -text | grep DNS)
+
+CMS_CERT2=$(cat cert-2.cms.crt)
+CMS_CERT2_ID=${CMS_CERT2:27:6}'...'${CMS_CERT2: -32:6}
+CMS_CERT2_END=$(openssl x509 -in cert-2.cms.crt -noout -enddate | sed 's/notAfter=//')
+CMS_CERT2_START=$(openssl x509 -in cert-2.cms.crt -noout -startdate | sed 's/notBefore=//')
+CMS_CERT2_DNS=$(openssl x509 -in cert-2.cms.crt -noout -text | grep DNS)
+
+echo "CMS https_proxy  : "$(cat https_proxy.cms.env) | tee -a test-result.log
+echo "CMS Date Curr    : "$(cat date.cms.env) | tee -a test-result.log
+echo "CMS Cert 1       :"$CMS_CERT1_ID | tee -a test-result.log
+echo "CMS Cert 1 DNS   :"$CMS_CERT1_DNS | tee -a test-result.log
+echo "CMS Cert 1 START : "$CMS_CERT1_START | tee -a test-result.log
+echo "CMS Cert 1 END   : "$CMS_CERT1_END | tee -a test-result.log
+echo "CMS Cert 2       :"$CMS_CERT2_ID | tee -a test-result.log
+echo "CMS Cert 2 DNS   :"$CMS_CERT2_DNS | tee -a test-result.log
+echo "CMS Cert 2 START : "$CMS_CERT2_START | tee -a test-result.log
+echo "CMS Cert 2 END   : "$CMS_CERT2_END | tee -a test-result.log
+echo | tee -a test-result.log
+
+echo "PROXY TESTS FROM CMS" | tee -a test-result.log
+cf ssh cms -c "curl https://www.google.com 2>&1" 2>&1 | tee test--curl-google.cms.log
+cf ssh cms -c "curl -vvv https://www.google.com 2>&1" 2>&1 | tee test--curl-vvv-google.cms.log
+cf ssh cms -c "curl -vvvk --proxy-insecure https://www.google.com 2>&1" 2>&1 | tee test--curl-vvv-insecure-google.cms.log
+cf ssh cms -c "/sbin/apk add openssl; echo | openssl s_client -showcerts -connect dev-proxy.apps.internal:8080 2>&1" 2>&1 | tee test--openssl-sclient-proxy.cms.log
+cf ssh cms -c "curl -vvvk --proxy-insecure https://yahoo.com 2>&1" 2>&1 | tee test--curl-vvv-insecure-yahoo.cms.log

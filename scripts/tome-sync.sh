@@ -4,6 +4,7 @@ TOME_MAX_CHANGE_ALLOWED=0.10
 
 TOMELOGFILE=$1
 YMDHMS=$2
+FORCE=${3:-0}
 
 if [ -z "$YMDHMS" ]; then
   YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
@@ -56,6 +57,40 @@ mkdir -p /tmp/tome-log/
 TOMELOG=/tmp/tome-log/$TOMELOGFILE
 touch $TOMELOG
 
+# Tome is failing to pull in these assets so we will pull them in ourself
+echo "Add in any extra or missing files ... "
+aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" --exclude "*.gz" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+cp -rf /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+cp -rf /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+cp -rf /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+
+echo "Removing unwanted files ... "
+rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
+
+# replacing inaccurate hostnames
+echo "Replacing references to CMS hostname ... "
+find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|beta\1.usa.gov|ig' {} \;
+
+# duplicate the logic used by the bootstrap script to find the static site hostname
+WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)
+# duplicate the logic used by the egress proxy to find bucket names
+n=$(echo -E "$VCAP_SERVICES" | jq -r '.s3 | length')
+i=0
+echo "Replacing references to S3 Bucket hostnames ... "
+while [ $i -lt "$n" ]
+do
+  # Add attached buckets to the allow list
+  BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
+  AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint")
+  AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint")
+  echo " ... $BUCKET"
+  # the (cms)? of the regex was used for a specfic reference we kept finding that used /public instead of /cms/public
+  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${BUCKET}.${AWS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
+  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${BUCKET}.${AWS_FIPS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
+  i=$((i+1))
+done
+
+
 # lower case all filenames in the copied dir before uploading
 LCF=0
 echo "Lower-casing files:"
@@ -72,10 +107,10 @@ echo "    $LCF"
 
 # get a count of current AWS files, total and by extension
 echo "S3 dir storage files : count total" | tee -a $TOMELOG
-S3_COUNT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | wc -l)
+S3_COUNT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bweb\/s3\/files\/" | wc -l)
 echo "     $S3_COUNT" | tee -a $TOMELOG
 echo "S3 dir storage files : count by extension" | tee -a $TOMELOG
-S3_COUNT_BY_EXT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -o ".[^.]\+$" | sort | uniq -c)
+S3_COUNT_BY_EXT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bweb\/s3\/files\/" | grep -o ".[^.]\+$" | sort | uniq -c)
 echo "  $S3_COUNT_BY_EXT" | tee -a $TOMELOG
 
 # get a count of tome generated files, total and by extension
@@ -105,7 +140,7 @@ TOME_PUSH_NEW_CONTENT=0
 # take actions depending on our situations
 if [ "$TOME_TOO_MUCH" == "1" ]; then
   echo "Tome static build looks suspicious - adding more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
-  TOME_PUSH_NEW_CONTENT=0
+  TOME_PUSH_NEW_CONTENT=1
   # send message, but continue on
   # write message to php log so newrelic will see it
 elif [ "$TOME_TOO_LITTLE" == "1" ]; then
@@ -118,11 +153,15 @@ else
   echo "Tome static build looks fine. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
   TOME_PUSH_NEW_CONTENT=1
 fi
+if [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]]; then
+  TOME_PUSH_NEW_CONTENT=1
+fi
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
-  # VERBOSE MODE
-  # aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+else
+  echo "Not pushing content to S3."
 fi
 
 if [ -d "$RENDER_DIR" ]; then

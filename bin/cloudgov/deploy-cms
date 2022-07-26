@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+#
+# This script will attempt to deploy a cms app by tag
+#
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+CTAG=${1:-latest}
+CDIGEST=${2:-}
+
+APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
+APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
+
+# The Image digest for this tag should be looked up from cloud.gov storage
+# Any tag with a stored Image digest should be referenced by hash instead of tag
+
+# remove proxy during staging
+cf set-env cms http_proxy  ""
+cf set-env cms https_proxy ""
+
+# launch the apps
+if [ -z "$CDIGEST" ]; then
+  echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:cms-${CTAG}"
+  cf push cms --docker-image ${DOCKERUSER}/${DOCKERREPO}:cms-${CTAG}
+else
+  echo "Deploying ${DOCKERUSER}/${DOCKERREPO} cms-${CTAG} via digest ${CDIGEST}"
+  cf push cms --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+fi
+
+# the egress-settup doesn't interfere with bootstrapping
+# but cms needs to exist in the first place
+# for route mapping and egress setup to run
+
+cf create-route usa.gov --hostname cms-$APP_SPACE
+cf map-route cms usa.gov --hostname cms-$APP_SPACE
+cf create-route usa.gov --hostname beta-$APP_SPACE
+cf map-route cms usa.gov --hostname beta-$APP_SPACE
+
+if [ "$APP_SPACE" == "prod" ]; then
+  cf create-route usa.gov --hostname cms
+  cf map-route cms usa.gov --hostname cms
+  cf create-route usa.gov --hostname beta
+  cf map-route cms usa.gov --hostname beta
+fi
+
+# set-env any missing env vars like new_relic
+# they can be copied from env.local if needed
+
+$SCRIPT_DIR/setup-egress-for-apps cms

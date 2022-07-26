@@ -1,4 +1,3 @@
-
 {#
 /**
  * @file
@@ -87,11 +86,9 @@
             {% if header_extended %}
             <div class="usa-nav__inner">
                 {% endif %}
-
                 <button class="usa-nav__close">
                     <img src="{{ uswds_images }}close.svg" alt="close" />
                 </button>
-
                 {% if page.mobile_menu %}
                 <div class="usa-nav-mobile">
                     {{ page.mobile_menu }}
@@ -147,7 +144,8 @@
             <div class="usa-layout-docs__main usa-prose desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
                 {{ page.content }}
                 {% include '@usagov/sharethispage.html.twig' %}
-                
+                {% include '@usagov/haveaquestion.html.twig' %}
+
                 {% if (term_name == "" or term_name == "Standard Page") and not is_front %}
                 <div id="pagesurvey-qual-container"></div>
                 <div id="pagesurvey-trgt-qualtrics"></div>
@@ -161,7 +159,7 @@
         </div>
     </div>
     	
-    <a id="backToTop" href="#main-content">
+    <a id="back-to-top" href="#main-content">
         {{ lang == 'en' ? 'Top' : 'Subir' }}
     </a>
 </main>
