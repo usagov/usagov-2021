@@ -4,21 +4,30 @@ status: true
 dependencies:
   config:
     - field.field.node.state_directory_record.body
+    - field.field.node.state_directory_record.field_agriculture_department
     - field.field.node.state_directory_record.field_city
+    - field.field.node.state_directory_record.field_consumer_protection
     - field.field.node.state_directory_record.field_contact_link
+    - field.field.node.state_directory_record.field_district_attorneys
+    - field.field.node.state_directory_record.field_education_department
     - field.field.node.state_directory_record.field_email
+    - field.field.node.state_directory_record.field_emergency_management
     - field.field.node.state_directory_record.field_english_title
     - field.field.node.state_directory_record.field_for_contact_center_only
-    - field.field.node.state_directory_record.field_government_branch
+    - field.field.node.state_directory_record.field_governor
+    - field.field.node.state_directory_record.field_governor_contact
+    - field.field.node.state_directory_record.field_health_department
     - field.field.node.state_directory_record.field_language_toggle
-    - field.field.node.state_directory_record.field_offices_near_you
+    - field.field.node.state_directory_record.field_local_governments
+    - field.field.node.state_directory_record.field_motor_vehicle_office
     - field.field.node.state_directory_record.field_page_intro
     - field.field.node.state_directory_record.field_phone_number
+    - field.field.node.state_directory_record.field_social_services
     - field.field.node.state_directory_record.field_state_abbr
+    - field.field.node.state_directory_record.field_state_attorney_general
     - field.field.node.state_directory_record.field_street_1
     - field.field.node.state_directory_record.field_street_2
     - field.field.node.state_directory_record.field_street_3
-    - field.field.node.state_directory_record.field_synonym
     - field.field.node.state_directory_record.field_toll_free_number
     - field.field.node.state_directory_record.field_tty_number
     - field.field.node.state_directory_record.field_website
@@ -41,6 +50,18 @@ content:
     third_party_settings: {  }
     weight: 101
     region: content
+  field_agriculture_department:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 125
+    region: content
   field_city:
     type: string
     label: above
@@ -48,6 +69,18 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 102
+    region: content
+  field_consumer_protection:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 126
     region: content
   field_contact_link:
     type: link
@@ -61,12 +94,48 @@ content:
     third_party_settings: {  }
     weight: 103
     region: content
+  field_district_attorneys:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 127
+    region: content
+  field_education_department:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 128
+    region: content
   field_email:
     type: basic_string
     label: above
     settings: {  }
     third_party_settings: {  }
     weight: 104
+    region: content
+  field_emergency_management:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 129
     region: content
   field_english_title:
     type: string
@@ -83,22 +152,15 @@ content:
     third_party_settings: {  }
     weight: 107
     region: content
-  field_government_branch:
-    type: list_default
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    weight: 108
-    region: content
-  field_language_toggle:
-    type: entity_reference_label
+  field_governor:
+    type: string
     label: above
     settings:
-      link: true
+      link_to_entity: false
     third_party_settings: {  }
-    weight: 109
+    weight: 121
     region: content
-  field_offices_near_you:
+  field_governor_contact:
     type: link
     label: above
     settings:
@@ -108,7 +170,51 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 106
+    weight: 122
+    region: content
+  field_health_department:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 130
+    region: content
+  field_language_toggle:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 109
+    region: content
+  field_local_governments:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 124
+    region: content
+  field_motor_vehicle_office:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 131
     region: content
   field_page_intro:
     type: basic_string
@@ -124,12 +230,36 @@ content:
     third_party_settings: {  }
     weight: 111
     region: content
+  field_social_services:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 132
+    region: content
   field_state_abbr:
     type: list_default
     label: above
     settings: {  }
     third_party_settings: {  }
     weight: 112
+    region: content
+  field_state_attorney_general:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 123
     region: content
   field_street_1:
     type: string
@@ -154,14 +284,6 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 115
-    region: content
-  field_synonym:
-    type: string
-    label: above
-    settings:
-      link_to_entity: false
-    third_party_settings: {  }
-    weight: 116
     region: content
   field_toll_free_number:
     type: basic_string

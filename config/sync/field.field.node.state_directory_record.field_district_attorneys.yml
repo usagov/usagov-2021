@@ -1,20 +1,20 @@
-uuid: 9f6cf622-3023-4958-a9bf-5b773b82a1f4
+uuid: 5b053851-6d10-429f-8814-a9a1b01e822f
 langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_offices_near_you
+    - field.storage.node.field_district_attorneys
     - node.type.state_directory_record
   module:
     - link
-id: node.state_directory_record.field_offices_near_you
-field_name: field_offices_near_you
+id: node.state_directory_record.field_district_attorneys
+field_name: field_district_attorneys
 entity_type: node
 bundle: state_directory_record
-label: 'Find an Office Near You'
+label: 'District Attorneys'
 description: ''
 required: false
-translatable: true
+translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:

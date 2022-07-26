@@ -5,21 +5,30 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.state_directory_record.body
+    - field.field.node.state_directory_record.field_agriculture_department
     - field.field.node.state_directory_record.field_city
+    - field.field.node.state_directory_record.field_consumer_protection
     - field.field.node.state_directory_record.field_contact_link
+    - field.field.node.state_directory_record.field_district_attorneys
+    - field.field.node.state_directory_record.field_education_department
     - field.field.node.state_directory_record.field_email
+    - field.field.node.state_directory_record.field_emergency_management
     - field.field.node.state_directory_record.field_english_title
     - field.field.node.state_directory_record.field_for_contact_center_only
-    - field.field.node.state_directory_record.field_government_branch
+    - field.field.node.state_directory_record.field_governor
+    - field.field.node.state_directory_record.field_governor_contact
+    - field.field.node.state_directory_record.field_health_department
     - field.field.node.state_directory_record.field_language_toggle
-    - field.field.node.state_directory_record.field_offices_near_you
+    - field.field.node.state_directory_record.field_local_governments
+    - field.field.node.state_directory_record.field_motor_vehicle_office
     - field.field.node.state_directory_record.field_page_intro
     - field.field.node.state_directory_record.field_phone_number
+    - field.field.node.state_directory_record.field_social_services
     - field.field.node.state_directory_record.field_state_abbr
+    - field.field.node.state_directory_record.field_state_attorney_general
     - field.field.node.state_directory_record.field_street_1
     - field.field.node.state_directory_record.field_street_2
     - field.field.node.state_directory_record.field_street_3
-    - field.field.node.state_directory_record.field_synonym
     - field.field.node.state_directory_record.field_toll_free_number
     - field.field.node.state_directory_record.field_tty_number
     - field.field.node.state_directory_record.field_website
@@ -47,21 +56,30 @@ content:
     weight: 100
     region: content
 hidden:
+  field_agriculture_department: true
   field_city: true
+  field_consumer_protection: true
   field_contact_link: true
+  field_district_attorneys: true
+  field_education_department: true
   field_email: true
+  field_emergency_management: true
   field_english_title: true
   field_for_contact_center_only: true
-  field_government_branch: true
+  field_governor: true
+  field_governor_contact: true
+  field_health_department: true
   field_language_toggle: true
-  field_offices_near_you: true
+  field_local_governments: true
+  field_motor_vehicle_office: true
   field_page_intro: true
   field_phone_number: true
+  field_social_services: true
   field_state_abbr: true
+  field_state_attorney_general: true
   field_street_1: true
   field_street_2: true
   field_street_3: true
-  field_synonym: true
   field_toll_free_number: true
   field_tty_number: true
   field_website: true
