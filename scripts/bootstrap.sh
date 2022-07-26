@@ -65,10 +65,10 @@ export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n
 export EN_404_PAGE=${EN_404_PAGE:-/404/index.html};
 export ES_404_PAGE=${ES_404_PAGE:-/es/404/index.html};
 
-export NEW_RELIC_DISPLAY_NAME=$(echo $SECRETS | jq -r '.NEW_RELIC_DISPLAY_NAME')
-export NEW_RELIC_APP_NAME=$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')
-export NEW_RELIC_API_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')
-export NEW_RELIC_LICENSE_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')
+export NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_DISPLAY_NAME')}
+export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')}
+export NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')}
+export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')}
 
 
 SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.spkey')
@@ -109,7 +109,7 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
         /etc/php8/conf.d/newrelic.ini
   fi
-  if [ -n "$https_proxy" ]; then
+  if [ -n "${https_proxy:-}" ]; then
     sed -i \
       -e "s/;\?newrelic.daemon.ssl_ca_bundle =.*/newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"/" \
       -e "s/;\?newrelic.daemon.ssl_ca_path =.*/newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"/" \
