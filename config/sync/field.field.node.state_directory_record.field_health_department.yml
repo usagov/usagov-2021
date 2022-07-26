@@ -1,0 +1,23 @@
+uuid: 66eca6b1-8374-49fa-9787-f0b62e201496
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_health_department
+    - node.type.state_directory_record
+  module:
+    - link
+id: node.state_directory_record.field_health_department
+field_name: field_health_department
+entity_type: node
+bundle: state_directory_record
+label: 'Health Department'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 1
+  link_type: 17
+field_type: link
