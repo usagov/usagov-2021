@@ -11,6 +11,8 @@ global $argv;
 $title = $argv[3];
 $body = file_get_contents('../' . $argv[4]);
 $ctype = $argv[5];
+$lang = $argv[6] ?? 'none';
+dpm($lang);
 
 use Drupal\node\Entity\Node;
 use Drupal\Core\Entity\RevisionLogInterface;
@@ -44,6 +46,7 @@ if ($count == 0) {
     $node->body->value = $body;
     $node->body->format = 'html';
     $node->set('moderation_state', "published");
+
     $node->uid = 1;
     $node->save();
     $message = 'create new ' . $node->id() . ' node from create code script';
