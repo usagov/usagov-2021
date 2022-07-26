@@ -75,5 +75,7 @@ RUN echo "    built:" $(date) >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \
     && echo >> /etc/motd
 
+HEALTHCHECK CMD pgrep "nginx: master process"
+
 ENTRYPOINT ["/docker-entrypoint-waf.sh"]
 CMD ["nginx", "-g", "daemon off;"]
