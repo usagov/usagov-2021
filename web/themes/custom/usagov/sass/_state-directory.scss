@@ -1,7 +1,5 @@
 @use "usagov-variables" as *;
 
-// TODO: MAY DELETE
-
 // State Directory - Dropdown
 .sd-container {
   display: flex;
@@ -22,43 +20,4 @@
   button.sd-go-btn:hover {
     background-color: #a7d8e3;
   }
-}
-
-// State Directory - Detail
-.usagov-sd-table {
-  border-collapse: collapse;
-  width: 100%;
-  margin-bottom: 75px;
-
-  tr {
-    border: solid 1.5px #d3d2d2;
-    margin: 0;
-  }
-
-  tr td {
-    padding: 2.25rem 2rem;
-  }
-
-  tr:nth-child(odd) td {
-    background-color: #f2f2f2;
-  }
-}
-
-.usagov-sd-table tbody {
-  padding: 0;
-}
-
-.usagov-sd-table h3 {
-  margin: 0;
-  margin-bottom: 0.1rem;
-  font-weight: bold;
-}
-
-.usagov-sd-table p {
-  margin: 0;
-}
-
-.usagov-sd-table ul {
-  margin: 0;
-  padding-left: 1rem;
 }
