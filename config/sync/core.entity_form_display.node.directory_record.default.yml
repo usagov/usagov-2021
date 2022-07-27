@@ -125,17 +125,6 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_mothership_uuid:
-    type: string_textfield
-    weight: 31
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_offices_near_you:
-    type: text_textarea
-    weight: 27
   field_language_toggle:
     type: entity_reference_autocomplete
     weight: 25
@@ -143,6 +132,14 @@ content:
     settings:
       match_operator: CONTAINS
       match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_mothership_uuid:
+    type: string_textfield
+    weight: 31
+    region: content
+    settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
