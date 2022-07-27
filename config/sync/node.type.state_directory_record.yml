@@ -10,7 +10,7 @@ third_party_settings:
     available_menus:
       - left-menu-english
       - left-menu-spanish
-    parent: 'left-menu-english:menu_link_content:3984b36c-ad0e-4e21-9d5f-7d2a25df152b'
+    parent: 'left-menu-english:menu_link_content:845eb9ac-8879-40a1-a010-0b62b232484b'
   node_menus:
     enabled: 1
     languages:
