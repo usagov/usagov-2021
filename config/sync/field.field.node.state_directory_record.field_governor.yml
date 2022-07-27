@@ -1,0 +1,19 @@
+uuid: 55b68792-b7d6-4c47-ac30-9f3490250d32
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_governor
+    - node.type.state_directory_record
+id: node.state_directory_record.field_governor
+field_name: field_governor
+entity_type: node
+bundle: state_directory_record
+label: Governor
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

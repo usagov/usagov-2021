@@ -1,0 +1,342 @@
+uuid: 9dbae5bd-def9-4d02-b5f6-3fd126aa9df1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.state_directory_record.body
+    - field.field.node.state_directory_record.field_agriculture_department
+    - field.field.node.state_directory_record.field_city
+    - field.field.node.state_directory_record.field_consumer_protection
+    - field.field.node.state_directory_record.field_contact_link
+    - field.field.node.state_directory_record.field_district_attorneys
+    - field.field.node.state_directory_record.field_education_department
+    - field.field.node.state_directory_record.field_email
+    - field.field.node.state_directory_record.field_emergency_management
+    - field.field.node.state_directory_record.field_english_title
+    - field.field.node.state_directory_record.field_for_contact_center_only
+    - field.field.node.state_directory_record.field_governor
+    - field.field.node.state_directory_record.field_governor_contact
+    - field.field.node.state_directory_record.field_health_department
+    - field.field.node.state_directory_record.field_language_toggle
+    - field.field.node.state_directory_record.field_local_governments
+    - field.field.node.state_directory_record.field_motor_vehicle_office
+    - field.field.node.state_directory_record.field_page_intro
+    - field.field.node.state_directory_record.field_phone_number
+    - field.field.node.state_directory_record.field_social_services
+    - field.field.node.state_directory_record.field_state_abbr
+    - field.field.node.state_directory_record.field_state_attorney_general
+    - field.field.node.state_directory_record.field_street_1
+    - field.field.node.state_directory_record.field_street_2
+    - field.field.node.state_directory_record.field_street_3
+    - field.field.node.state_directory_record.field_toll_free_number
+    - field.field.node.state_directory_record.field_tty_number
+    - field.field.node.state_directory_record.field_website
+    - field.field.node.state_directory_record.field_zip
+    - node.type.state_directory_record
+  module:
+    - content_moderation
+    - link
+    - path
+    - telephone
+    - text
+id: node.state_directory_record.default
+targetEntityType: node
+bundle: state_directory_record
+mode: default
+content:
+  body:
+    type: text_textarea_with_summary
+    weight: 121
+    region: content
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+      show_summary: false
+    third_party_settings: {  }
+  created:
+    type: datetime_timestamp
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_agriculture_department:
+    type: link_default
+    weight: 145
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_city:
+    type: string_textfield
+    weight: 122
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_consumer_protection:
+    type: link_default
+    weight: 146
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_contact_link:
+    type: link_default
+    weight: 123
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_district_attorneys:
+    type: link_default
+    weight: 147
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_education_department:
+    type: link_default
+    weight: 148
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_email:
+    type: email_default
+    weight: 124
+    region: content
+    settings:
+      placeholder: ''
+      size: 60
+    third_party_settings: {  }
+  field_emergency_management:
+    type: link_default
+    weight: 149
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_english_title:
+    type: string_textfield
+    weight: 125
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_for_contact_center_only:
+    type: text_textarea
+    weight: 127
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_governor:
+    type: string_textfield
+    weight: 141
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_governor_contact:
+    type: link_default
+    weight: 142
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_health_department:
+    type: link_default
+    weight: 150
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_language_toggle:
+    type: entity_reference_autocomplete
+    weight: 129
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_local_governments:
+    type: link_default
+    weight: 144
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_motor_vehicle_office:
+    type: link_default
+    weight: 151
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_page_intro:
+    type: string_textarea
+    weight: 130
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_phone_number:
+    type: telephone_default
+    weight: 131
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_social_services:
+    type: link_default
+    weight: 152
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_state_abbr:
+    type: options_select
+    weight: 132
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_state_attorney_general:
+    type: link_default
+    weight: 143
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_street_1:
+    type: string_textfield
+    weight: 133
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_street_2:
+    type: string_textfield
+    weight: 134
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_street_3:
+    type: string_textfield
+    weight: 135
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_toll_free_number:
+    type: telephone_default
+    weight: 137
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_tty_number:
+    type: telephone_default
+    weight: 138
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_website:
+    type: link_default
+    weight: 139
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_zip:
+    type: string_textfield
+    weight: 140
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  langcode:
+    type: language_select
+    weight: 2
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
+  moderation_state:
+    type: moderation_state_default
+    weight: 100
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 30
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    weight: 15
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 120
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  sticky:
+    type: boolean_checkbox
+    weight: 16
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 5
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden: {  }
