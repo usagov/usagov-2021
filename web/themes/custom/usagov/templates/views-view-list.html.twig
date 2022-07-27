@@ -26,7 +26,8 @@
     <h3>{{ title }}</h3>
   {% endif %}
 
-{% set is_directory = view.element['#name']|slice(0, 16) == 'federal_agencies' %}
+
+{% set is_directory = view.element['#name'] == 'federal_agencies' %} 
 {% if is_directory %}
 {#
  **************************************************
