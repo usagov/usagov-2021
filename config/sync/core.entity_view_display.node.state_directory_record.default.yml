@@ -34,10 +34,32 @@ dependencies:
     - field.field.node.state_directory_record.field_zip
     - node.type.state_directory_record
   module:
+    - field_group
     - link
     - options
+    - telephone
     - text
     - user
+third_party_settings:
+  field_group:
+    group_main_address:
+      children:
+        - field_street_1
+        - field_street_2
+        - field_street_3
+        - field_city
+        - field_state_abbr
+        - field_zip
+      label: 'Main Address'
+      parent_name: ''
+      region: content
+      weight: 10
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        description: ''
 id: node.state_directory_record.default
 targetEntityType: node
 bundle: state_directory_record
@@ -48,11 +70,11 @@ content:
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 101
+    weight: 2
     region: content
   field_agriculture_department:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -60,19 +82,19 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 125
+    weight: 20
     region: content
   field_city:
     type: string
-    label: above
+    label: hidden
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 102
+    weight: 12
     region: content
   field_consumer_protection:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -80,11 +102,11 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 126
+    weight: 21
     region: content
   field_contact_link:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -92,11 +114,11 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 103
+    weight: 4
     region: content
   field_district_attorneys:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -104,11 +126,11 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 127
+    weight: 22
     region: content
   field_education_department:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -116,18 +138,18 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 128
+    weight: 23
     region: content
   field_email:
     type: basic_string
-    label: above
+    label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 104
+    weight: 8
     region: content
   field_emergency_management:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -135,7 +157,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 129
+    weight: 24
     region: content
   field_english_title:
     type: string
@@ -143,26 +165,26 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 105
+    weight: 29
     region: content
   field_for_contact_center_only:
     type: text_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 107
+    weight: 30
     region: content
   field_governor:
     type: string
-    label: above
+    label: hidden
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 121
+    weight: 16
     region: content
   field_governor_contact:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -170,11 +192,11 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 122
+    weight: 17
     region: content
   field_health_department:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -182,7 +204,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 130
+    weight: 25
     region: content
   field_language_toggle:
     type: entity_reference_label
@@ -190,11 +212,11 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 109
+    weight: 28
     region: content
   field_local_governments:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -202,11 +224,11 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 124
+    weight: 19
     region: content
   field_motor_vehicle_office:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -214,25 +236,26 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 131
+    weight: 26
     region: content
   field_page_intro:
     type: basic_string
-    label: above
+    label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 110
+    weight: 1
     region: content
   field_phone_number:
-    type: basic_string
-    label: above
-    settings: {  }
+    type: telephone_link
+    label: hidden
+    settings:
+      title: ''
     third_party_settings: {  }
-    weight: 111
+    weight: 5
     region: content
   field_social_services:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -240,18 +263,18 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 132
+    weight: 27
     region: content
   field_state_abbr:
     type: list_default
-    label: above
+    label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 112
+    weight: 13
     region: content
   field_state_attorney_general:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -259,49 +282,51 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 123
+    weight: 18
     region: content
   field_street_1:
     type: string
-    label: above
+    label: hidden
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 113
+    weight: 9
     region: content
   field_street_2:
     type: string
-    label: above
+    label: hidden
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 114
+    weight: 10
     region: content
   field_street_3:
     type: string
-    label: above
+    label: hidden
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 115
+    weight: 11
     region: content
   field_toll_free_number:
-    type: basic_string
-    label: above
-    settings: {  }
+    type: telephone_link
+    label: hidden
+    settings:
+      title: ''
     third_party_settings: {  }
-    weight: 117
+    weight: 6
     region: content
   field_tty_number:
-    type: basic_string
-    label: above
-    settings: {  }
+    type: telephone_link
+    label: hidden
+    settings:
+      title: ''
     third_party_settings: {  }
-    weight: 118
+    weight: 7
     region: content
   field_website:
     type: link
-    label: above
+    label: hidden
     settings:
       trim_length: 80
       url_only: false
@@ -309,20 +334,20 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 119
+    weight: 3
     region: content
   field_zip:
     type: string
-    label: above
+    label: hidden
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 120
+    weight: 14
     region: content
   links:
     settings: {  }
     third_party_settings: {  }
-    weight: 100
+    weight: 0
     region: content
 hidden:
   langcode: true
