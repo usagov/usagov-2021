@@ -1,4 +1,4 @@
-uuid: 366a85c6-caa7-46a9-a44b-1f935cd4907c
+uuid: 9160a444-93cc-4781-83fa-caa01d1c047b
 langcode: en
 status: true
 dependencies:
@@ -8,15 +8,15 @@ dependencies:
 third_party_settings:
   field_permissions:
     permission_type: public
-id: node.field_info_for_contact_center
-field_name: field_info_for_contact_center
+id: node.field_related_pages
+field_name: field_related_pages
 entity_type: node
-type: string_long
+type: entity_reference
 settings:
-  case_sensitive: false
+  target_type: node
 module: core
 locked: false
-cardinality: 1
+cardinality: -1
 translatable: true
 indexes: {  }
 persist_with_no_fields: false

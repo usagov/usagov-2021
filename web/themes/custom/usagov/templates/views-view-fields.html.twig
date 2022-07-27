@@ -31,10 +31,10 @@
  * @ingroup themeable
  */
 #}
-{% set is_directory = view.element['#name'] == 'federal_agencies' %}
-{% set UID = 'dr-' ~ fields.nid.content|striptags|trim %} 
 
+{% set is_directory = view.element['#name'] == 'federal_agencies' %}
 {% if is_directory %}
+{% set UID = 'dr-' ~ fields.nid.content|striptags|trim %} 
 {#
  **************************************************
  * This is USAgov-customized code for the federal agencies directory. 
@@ -54,39 +54,42 @@
   <div class="usa-accordion__content usa-prose" id="{{- UID -}}">
     <p>{{- fields.field_page_intro.content -}}</p>
 
-    <p>&nbsp;</p>
-
+    {% if fields.field_website.content|striptags|trim %}
     <div>
       <p>Website:&nbsp;</p>
 
-      <p>{{- fields.field_official_website_primary.content -}}</p>
+      <p>{{- fields.field_website.content -}}</p>
     </div>
+    {% endif %}
 
+    {% if fields.field_phone_number.content|striptags|trim %}
     <div>
       <p>Phone Number:&nbsp;</p>
 
       <p>{{- fields.field_phone_number.content -}}</p>
     </div>
+    {% endif %}
 
+    {% if fields.field_contact_link.content|striptags|trim %}
     <div>
       <p>Contact:&nbsp;</p>
-
-      <p><a>{{- fields.field_contact_link.content -}}</a></p>
+      <p>{{- fields.field_contact_link.content -}}</p>
     </div>
+    {% endif %}
 
-    {# 
-    <!-- TODO: Not all will have this section, hide or show depending on if available -->
-    <p class="h-bold">Find an Office Near You:</p>
+    {% if fields.field_offices_near_you.content|striptags|trim %}    
+    <div>
+      <p>Find an Office Near You:</p>
+      <p>{{- fields.field_offices_near_you.content -}}</p>
+    </div>
+    {% endif %}
 
-    <ul>
-      <li><a>{{- fields.field_offices_near_you.content -}}</a></li>
-    </ul>
-    #}
-
+    {% if fields.nothing.content|striptags|trim %}        
     <div>
       <p>{{- fields.nothing.content -}}</p>
     </div>
-    {{ dd(fields) }}
+    {% endif %}    
+
   </div>
 </div>
 {% else %}

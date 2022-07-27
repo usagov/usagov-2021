@@ -12,7 +12,7 @@ dependencies:
 id: views_block__sub_children_block_4
 theme: usagov
 region: content
-weight: -10
+weight: -11
 provider: null
 plugin: 'views_block:sub_children-block_4'
 settings:
