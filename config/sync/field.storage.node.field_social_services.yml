@@ -1,0 +1,19 @@
+uuid: 0b4fdca7-5c7b-42c6-a682-5373bc561277
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - node
+id: node.field_social_services
+field_name: field_social_services
+entity_type: node
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
