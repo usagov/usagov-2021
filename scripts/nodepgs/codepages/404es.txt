@@ -2,11 +2,3 @@
 <p>Lo sentimos, pero puede que la página que busca haya sido eliminada, se le haya cambiado el nombre o no esté disponible por ahora.</p>
 <p>Si escribió el URL a mano, verifique su ortografía y el uso de mayúsculas. Nuestros URLs aparecen así: <strong>usa.gov/espanol/ejemplo-uno</strong>.</p>
 <p>Puede ir a nuestra página de&nbsp;<a href="/espanol/servicios-informacion">servicios</a>&nbsp;para buscar la información que necesita por tema, usar nuestro buscador o&nbsp;<a href="/espanol/contactenos">contactarnos</a>&nbsp;si aún tiene alguna duda.</p>
-<div id="cntctbx">
-    <h2 id="">¿Tiene una pregunta?</h2>
-    <p>Pregúntenos de forma gratuita sobre el Gobierno de Estados Unidos. Nuestros agentes le responderán directamente o le dirán dónde puede encontrar la respuesta que necesita.</p>
-    <ul>
-        <li><a href="/es/centro-de-llamadas">Llame y hable con un agente de USAGov en Español</a></li>
-        <li><a href="/es/chat">Chatee con un agente de USAGov en Español</a></li>
-    </ul>
-</div>

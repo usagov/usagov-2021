@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d9d52731762741839f3d786cfffdc63",
+    "content-hash": "955dba2f56b40c2722de794f182aee37",
     "packages": [
         {
             "name": "alchemy/zippy",
@@ -7398,6 +7398,54 @@
             }
         },
         {
+            "name": "drupal/untranslated_404",
+            "version": "1.0.0-beta3",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/untranslated_404.git",
+                "reference": "1.0.0-beta3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/untranslated_404-1.0.0-beta3.zip",
+                "reference": "1.0.0-beta3",
+                "shasum": "ba138363c5deefb2df5568c70d1f72fcf0148f2f"
+            },
+            "require": {
+                "drupal/core": "^8.8 || ^9"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "1.0.0-beta3",
+                    "datestamp": "1637154609",
+                    "security-coverage": {
+                        "status": "not-covered",
+                        "message": "Beta releases are not covered by Drupal security advisories."
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "L_VanDamme",
+                    "homepage": "https://www.drupal.org/user/3162503"
+                },
+                {
+                    "name": "daften",
+                    "homepage": "https://www.drupal.org/user/176274"
+                }
+            ],
+            "description": "Show a dedicated 404 page for untranslated content.",
+            "homepage": "https://www.drupal.org/project/untranslated_404",
+            "support": {
+                "source": "https://git.drupalcode.org/project/untranslated_404"
+            }
+        },
+        {
             "name": "drupal/uswds_base",
             "version": "2.13.0",
             "source": {
@@ -13329,6 +13377,7 @@
         "drupal/scanner": 5,
         "drupal/stepbystep": 10,
         "drupal/term_reference_fancytree": 5,
+        "drupal/untranslated_404": 10,
         "drupal/uswds_ckeditor_integration": 10,
         "drupal/views_menu_children_filter": 5
     },
