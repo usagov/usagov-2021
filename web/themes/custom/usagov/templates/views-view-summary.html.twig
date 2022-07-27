@@ -20,23 +20,29 @@
  * @ingroup themeable
 */
 #}
-
 {% set is_directory = view.element['#name'] == 'federal_agencies' %}
 {% if is_directory %}
+  {# TODO: move this into a pre-process hook? #}
+  {% set current_letter = view.request.query.get('letter') ?: 'a' %}
 <div class="usagov-directory-page-container">
   <p class="usa-intro">
-    Find contact information for U.S. federal government departments and agencies including websites, 
+    Find contact information for U.S. federal government departments and agencies including websites,
     emails, phone numbers, addresses, and more.
-    <a href="https://www.usa.gov/states-and-territories">
+    <a href="https://www.usa.gov/states-and-territories" class="intro-links">
       Get contact information for each state and territory.
     </a>
   </p>
 {% endif %}
-  
 <div {{is_directory ? ' class="usagov-directory-container"' }}>
   <ul class="usagov-directory-container-az">
     {% for row in rows %}
-        <li><a href="{{ row.url }}"{{ row.attributes.addClass(row.active ? 'is-active')|without('href') }}>{{ row.link }}</a>
+      <li>
+        {% set row_is_active = current_letter == row.link|lower %}
+        {% if row_is_active %}
+          <a {{row.attributes.addClass("is-active")}}>{{ row.link }}</a>
+        {% else %}
+          <a href="/agency-index?letter={{ row.link|lower }}">{{ row.link }}</a>	  
+	{% endif %}  
         {% if options.count %}
           ({{ row.count }})
         {% endif %}
@@ -47,22 +53,20 @@
   <!-- Search Bar -->
   <div class="usagov-directory-search-container">
     <p>OR</p>
-    {# TODO: add remaining search bar component #}
     <section aria-label="Small search component">
         <form class="fed-directory-search-bar" role="search">
+          <label id="fedGallerySearch" class="usa-sr-only" for="search-field-en-small">Fed Gallery Search</label>
           <input
               class="usa-input fed-directory-search-input"
               id="search-field-en-small"
+              aria-labelledby="fedGallerySearch"
               type="search"
               placeholder="Search for a Federal Agency"
               onfocus="this.placeholder"
               autocomplete="off"
           />
-          <button class="usa-button fed-directory-search-btn" type="submit">
-              {# TODO: insert custom? USWDS search icon when available #}
-              {# <svg alt="Search" class="usa-icon" aria-hidden="true" focusable="false" role="img">
-                <use xlink:href="/assets/img/sprite.svg#search"></use> #}
-              </svg>
+          <button class="fed-directory-search-btn" type="submit">
+            <img src="/themes/custom/usagov/images/search--dark.svg" alt="Search">
           </button>
         </form>
     </section>

@@ -10,12 +10,12 @@
 
 .usagov-directory-container {
   padding: 3rem;
+
   // max-width: 35rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-
-  box-shadow: inset 0px 0px 0px 0.15rem rgb(231, 231, 231);
+  box-shadow: inset 0 0 0 0.15rem rgb(231 231 231);
 }
 
 .usagov-directory-container-az {
@@ -28,34 +28,47 @@
 }
 
 .usagov-directory-container-az li {
-  a, a:visited {
+  a,
+  a:visited {
     display: table-cell;
     text-align: center;
     vertical-align: middle;
     width: 40px;
     height: 40px;
     text-decoration: none;
-    color: #000000;
+    color: #000;
     box-sizing: border-box;
     background-color: #ccecf2;
-    box-shadow: 0px 0px 0px 0.15rem #0081a1;
+    box-shadow: 0 0 0 0.15rem #0081a1;
     border-radius: 0.01rem;
     font-size: 1.5rem;
     font-weight: 600;
-    -webkit-transition: 200ms;
+    transition: box-shadow 200ms, background-color 200ms;
   }
 
   a:hover {
-    box-shadow: 0px 0px 0px 0.15rem #000000;
+    box-shadow: 0 0 0 0.15rem #000;
     background-color: white;
-    -webkit-transition: 200ms;
+  }
+
+  .is-active {
+    box-shadow: 0 0 0 0.15rem #000;
+    background-color: white;
   }
 }
 
+a.intro-links,
+a.intro-links:hover,
+a.intro-links:visited,
+a.intro-links:active {
+  text-decoration: none;
+  color: black;
+}
+
 hr.bl-divider {
-  background: rgb(231, 231, 231);
-  border: 0px;
-  height: 0.15rem;
+  background: rgb(231 231 231);
+  border: 0;
+  height: 0.25rem;
   width: auto;
 }
 
@@ -71,12 +84,12 @@ hr.bl-divider {
 .fed-directory-search-bar {
   height: 2rem;
   box-sizing: border-box;
-  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   gap: 0.2rem;
-  box-shadow: 0px 0px 0px 0.15rem #0081a1;
+  box-shadow: 0 0 0 0.15rem #0081a1;
   background-color: #ccecf2;
+
   // border-radius: 0px 10px 10px 0px;
 }
 
@@ -86,7 +99,7 @@ hr.bl-divider {
   outline: none;
   font-size: 1rem;
   font-weight: 600;
-  color: #000000;
+  color: #000;
   border-style: none;
   text-overflow: ellipsis;
 }
@@ -98,13 +111,11 @@ hr.bl-divider {
   border-style: none;
   border-left: 3px solid #ffff;
   outline-style: none;
-  margin-left: 0;
-  margin-right: 0;
+  transition: background-color 200ms;
 }
 
 .fed-directory-search-btn:hover {
   background-color: white;
-  -webkit-transition: 200ms;
 }
 
 // Letter Heading
@@ -113,7 +124,7 @@ hr.bl-divider {
   font-size: 2.5rem;
   text-align: center;
   line-height: 3.8rem;
-  color: #000000;
+  color: #000;
   outline: solid 0.15rem black;
   width: 3.8rem;
   height: 3.8rem;
@@ -132,6 +143,7 @@ hr.bl-divider {
 
   div {
     display: flex;
+
     p:first-child {
       font-weight: bold;
     }
@@ -143,7 +155,8 @@ hr.bl-divider {
   display: flex;
   justify-content: space-between;
   list-style: none;
-  padding: 0;
+  margin-top: 2rem;
+  margin-bottom: 75px;
 }
 
 .usagov-directory-bottom-nav-group {
@@ -161,20 +174,20 @@ hr.bl-divider {
     text-align: center;
     line-height: 3.8rem;
     font-size: 2.5rem;
-    color: #000000;
+    color: #000;
     outline: solid 0.15rem #0081a1;
     background-color: #ccecf2;
     font-weight: 600;
     width: 3.8rem;
     height: 3.8rem;
-    -webkit-transition: 200ms;
+    transition-property: outline, color, background-color;
+    transition-duration: 200ms;
   }
 
   a.nav-letter:hover {
     outline: solid 0.15rem black;
-    color: #000000;
+    color: #000;
     background-color: white;
-    -webkit-transition: 200ms;
   }
 }
 
@@ -192,22 +205,15 @@ hr.bl-divider {
   width: 100%;
   margin-bottom: 75px;
 
-  tr {
+  div {
     border: solid 1.5px #d3d2d2;
     margin: 0;
-  }
-
-  tr td {
     padding: 2.25rem 2rem;
   }
 
-  tr:nth-child(odd) td {
+  div:nth-child(odd) {
     background-color: #f2f2f2;
   }
-}
-
-.usagov-directory-table tbody {
-  padding: 0;
 }
 
 .usagov-directory-table h3 {

@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * Call classes.
+ */
+
+use Drupal\user\Entity\User;
+use Drupal\user\Entity\Role;
+
+/**
+ * Update the content notification logic.
+ */
+function usa_content_moderation_notifications_mail_alter(&$message) {
+  $currentuser = User::load(\Drupal::currentUser()->id());
+  $hasPermission = $currentuser->hasPermission('Self content notification');
+  $message['to'] = \Drupal::config('system.site')->get('mail');
+
+  if ($hasPermission) {
+    $message['to'] = $currentuser->getEmail();
+    unset($message['headers']['Bcc']);
+  }
+}

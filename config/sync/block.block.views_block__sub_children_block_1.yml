@@ -13,7 +13,7 @@ dependencies:
 id: views_block__sub_children_block_1
 theme: usagov
 region: content
-weight: -8
+weight: -9
 provider: null
 plugin: 'views_block:sub_children-block_1'
 settings:
@@ -35,4 +35,4 @@ visibility:
   request_path:
     id: request_path
     negate: true
-    pages: "<front>\r\n/scams-and-frauds\r\n/estafas-y-fraudes"
+    pages: "<front>\r\n/scams-and-frauds\r\n/scams-and-fraud\r\n/estafas-y-fraudes\r\n/estafas-y-fraude"

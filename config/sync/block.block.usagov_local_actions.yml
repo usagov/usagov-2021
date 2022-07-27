@@ -9,7 +9,7 @@ _core:
 id: usagov_local_actions
 theme: usagov
 region: content
-weight: -13
+weight: -15
 provider: null
 plugin: local_actions_block
 settings:

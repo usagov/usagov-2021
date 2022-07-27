@@ -13,6 +13,7 @@ dependencies:
     - node.type.wizard_step
     - workflows.workflow.basic_workflow
   module:
+    - content_lock
     - content_moderation
     - content_translation
     - devel
@@ -24,6 +25,7 @@ dependencies:
     - path
     - system
     - toolbar
+    - usa_content_moderation_notifications
     - usa_workflow
 id: content_administrator
 label: 'Content Administrator'
@@ -37,6 +39,7 @@ permissions:
   - 'access toolbar'
   - 'add paragraphs entity embed'
   - 'administer menu'
+  - 'break content lock'
   - 'create audio media'
   - 'create basic_page content'
   - 'create content translations'
@@ -102,6 +105,7 @@ permissions:
   - 'update content translations'
   - 'update media'
   - 'usa approve own content'
+  - 'usa content moderation notify own content'
   - 'usa delete own content'
   - 'use basic_workflow transition approve'
   - 'use basic_workflow transition archive'

@@ -796,6 +796,46 @@ if (getenv('NEW_RELIC_API_KEY')) {
  * Collect external service information from environment.
  * Cloud Foundry places all service credentials in VCAP_SERVICES
  */
+$cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
+$SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'];
+if (!empty($cf_application_data['space_name']) &&
+    in_array($cf_application_data['space_name'],
+             ['dev', 'stage', 'prod'])) {
+  switch (strtolower($cf_application_data['space_name'])) {
+    case "dev":
+      $SERVER_HTTP_HOST = 'https://cms-dev.usa.gov';
+      break;
+
+    case "stage":
+      $SERVER_HTTP_HOST = 'https://cms-stage.usa.gov';
+      break;
+
+    case "prod":
+      $SERVER_HTTP_HOST = 'https://cms.usa.gov';
+      break;
+  }
+}
+
+
+$SERVER_HTTP_POST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
+$cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
+if (!empty($cf_application_data['space_name']) &&
+    in_array($cf_application_data['space_name'],
+             ['dev', 'stage', 'prod'])) {
+  switch (strtolower($cf_application_data['space_name'])) {
+    case "dev":
+      $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
+      break;
+
+    case "stage":
+      $SERVER_HTTP_HOST = 'cms-stage.usa.gov';
+      break;
+
+    case "prod":
+      $SERVER_HTTP_HOST = 'cms.usa.gov';
+      break;
+  }
+}
 
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);
 
@@ -820,7 +860,7 @@ foreach ($cf_service_data as $service_list) {
       $config['s3fs.settings']['bucket'] = $service['credentials']['bucket'];
       $config['s3fs.settings']['region'] = $service['credentials']['region'];
 
-      $config['s3fs.settings']['disable_cert_verify'] = TRUE;
+      $config['s3fs.settings']['disable_cert_verify'] = FALSE;
 
       $config['s3fs.settings']['root_folder'] = 'cms';
       $config['s3fs.settings']['public_folder'] = 'public';
@@ -829,12 +869,15 @@ foreach ($cf_service_data as $service_list) {
       $S3_PROXY_PATH_CMS = getenv('S3_PROXY_PATH_CMS') ?: '/s3/files';
 
       $config['s3fs.settings']['use_cname'] = TRUE;
-      $config['s3fs.settings']['domain'] = $_SERVER['HTTP_HOST'] . $S3_PROXY_PATH_CMS;
+      $config['s3fs.settings']['domain'] = $SERVER_HTTP_HOST . $S3_PROXY_PATH_CMS;
       $config['s3fs.settings']['domain_root'] = 'public';
 
       $config['s3fs.settings']['use_customhost'] = TRUE;
       $config['s3fs.settings']['hostname'] = $service['credentials']['fips_endpoint'];
       $config['s3fs.settings']['use-path-style-endpoint'] = FALSE;
+
+      $config['s3fs.settings']['use_cssjs_host'] = FALSE;
+      $config['s3fs.settings']['cssjs_host'] = '';
 
       $config['s3fs.settings']['use_https'] = TRUE;
       $settings['s3fs.upload_as_private'] = FALSE;
@@ -852,7 +895,6 @@ $settings['php_storage']['twig']['directory'] = '../storage/php';
 // included here without fully understanding implications:
 $settings['cache']['bins']['data'] = 'cache.backend.php';
 
-$cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
 if (!empty($cf_application_data['space_name']) &&
     in_array($cf_application_data['space_name'],
              ['dev', 'stage', 'prod'])) {

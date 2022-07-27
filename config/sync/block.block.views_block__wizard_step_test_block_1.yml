@@ -12,7 +12,7 @@ dependencies:
 id: views_block__wizard_step_test_block_1
 theme: usagov
 region: content
-weight: -9
+weight: -10
 provider: null
 plugin: 'views_block:wizard_step_test-block_1'
 settings:
