@@ -20,10 +20,7 @@
  * @ingroup themeable
 */
 #}
-{% set is_directory = view.element['#name']|slice(0, 16) == 'federal_agencies' %}
-{% if is_directory %}
-  {# TODO: move this into a pre-process hook? #}
-  {% set current_letter = view.request.query.get('letter') ?: 'a' %}
+{% set current_letter = alpha_context.current %}
 <div class="usagov-directory-page-container">
   <p class="usa-intro">
     Find contact information for U.S. federal government departments and agencies including websites,
@@ -32,17 +29,16 @@
       Get contact information for each state and territory.
     </a>
   </p>
-{% endif %}
-<div {{is_directory ? ' class="usagov-directory-container"' }}>
+<div class="usagov-directory-container">
   <ul class="usagov-directory-container-az">
     {% for row in rows %}
       <li>
-        {% set row_is_active = current_letter == row.link|lower %}
+        {% set row_is_active = current_letter == row.link %}
         {% if row_is_active %}
           <a {{row.attributes.addClass("is-active")}}>{{ row.link }}</a>
         {% else %}
-          <a href="/federal-agencies?letter={{ row.link|lower }}">{{ row.link }}</a>
-	{% endif %}
+          <a href="/agency-index?letter={{ row.link|lower }}">{{ row.link }}</a>
+	      {% endif %}
         {% if options.count %}
           ({{ row.count }})
         {% endif %}

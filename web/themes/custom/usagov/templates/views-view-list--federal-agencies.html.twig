@@ -19,15 +19,6 @@
  */
 #}
 
-{% if attributes %}
-  <div{{ attributes }}>
-{% endif %}
-  {% if title %}
-    <h3>{{ title }}</h3>
-  {% endif %}
-
-{% set is_directory = view.element['#name']|slice(0, 16) == 'federal_agencies' %}
-{% if is_directory %}
 {#
  **************************************************
  * This is USAgov-customized code for the federal agencies directory.
@@ -45,31 +36,12 @@
         <a class="usagov-directory-bottom-nav-arrow" href="/">
         <?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><polygon points="0 0 24 0 24 24 0 24"/><polygon fill="#000" fill-rule="nonzero" points="11.41 7.41 10 6 4 12 10 18 11.41 16.59 6.83 12"/></g></svg>
         </a>
-      <a class="nav-letter" href="/federal-agencies?letter={{ alpha_context.prev|lower }}">{{ alpha_context.prev }}</a>
+      <a class="nav-letter" href="/agency-index?letter={{ alpha_context.prev|lower }}">{{ alpha_context.prev }}</a>
   </div>
   <div class="usagov-directory-bottom-nav-group">
-      <a class="nav-letter" href="/federal-agencies?letter={{ alpha_context.next|lower }}">{{ alpha_context.next }}</a>
+      <a class="nav-letter" href="/agency-index?letter={{ alpha_context.next|lower }}">{{ alpha_context.next }}</a>
         <a class="usagov-directory-bottom-nav-arrow" href="/">
           <?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><polygon points="0 0 24 0 24 24 0 24"/><g fill="#000" fill-rule="nonzero" transform="translate(4.59 6)"><polygon points="9.41 0 8 1.41 12.58 6 8 10.59 9.41 12 15.41 6"/></g></g></svg>
         </a>
   </div>
 </div>
-{% else %}
-{#
- **************************************************
- * This is the default drupal layout for a view in "list" mode.
- **************************************************
-#}
-  <{{ list.type }}{{ list.attributes }}>
-  {% for row in rows %}
-  <li{{ row.attributes }}>
-    {{ row.content }}
-  </li>
-  {% endfor %}
-  </{{ list.type }}>
-{% endif %}
-
-{% if attributes %}
-  </div>
-{% endif %}
-
