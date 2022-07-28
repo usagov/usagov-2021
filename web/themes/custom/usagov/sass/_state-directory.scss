@@ -5,12 +5,16 @@
   display: flex;
 
   div {
-    width: 12rem;
-    padding-right: 10px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .usa-combo-box {
+    width: 15rem;
   }
 
   button.sd-go-btn {
-    box-shadow: 0 0 0 0.2rem #a7d8e3;
+    box-shadow: 0 0 0 0.15rem #0081a1;
     border-radius: 0.15rem;
     background-color: #ccecf2;
     text-align: center;
