@@ -107,6 +107,7 @@ permissions:
   - 'revert wizard_step revisions'
   - 'translate any entity'
   - 'translate basic_page node'
+  - 'translate directory_record node'
   - 'translate editable entities'
   - 'translate menu_link_content'
   - 'update any media'
@@ -133,3 +134,4 @@ permissions:
   - 'view unpublished paragraphs'
   - 'view wizard revisions'
   - 'view wizard_step revisions'
+  
