@@ -27,5 +27,12 @@
  * Implements hook_theme_suggestions_page() to set 40x template suggestions
  */
 function usa_404_theme_suggestions_page(array $variables) {
+  $path_args = explode('/', trim(\Drupal::service('path.current')->getPath(), '/'));
+  $route_name = \Drupal::routeMatch()->getRouteName();
   
+  dpm(theme_get_suggestions($path_args, 'page'));
+  // dpm(\Drupal::service('path.current')->getPath());
+  dpm(explode('/', trim(\Drupal::service('path.current')->getPath(), '/')));
+  dpm(\Drupal::routeMatch()->getRouteName());
+  dpm($variables);
 }
