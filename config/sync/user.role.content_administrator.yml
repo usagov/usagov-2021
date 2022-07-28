@@ -9,6 +9,7 @@ dependencies:
     - media.type.remote_video
     - media.type.video
     - node.type.basic_page
+    - node.type.directory_record
     - node.type.wizard
     - node.type.wizard_step
     - workflows.workflow.basic_workflow
@@ -43,6 +44,7 @@ permissions:
   - 'create audio media'
   - 'create basic_page content'
   - 'create content translations'
+  - 'create directory_record content'
   - 'create file media'
   - 'create image media'
   - 'create media'
@@ -54,6 +56,7 @@ permissions:
   - 'delete all revisions'
   - 'delete any audio media'
   - 'delete any basic_page content'
+  - 'delete any directory_record content'
   - 'delete any file media'
   - 'delete any image media'
   - 'delete any media'
@@ -63,9 +66,11 @@ permissions:
   - 'delete any wizard_step content'
   - 'delete basic_page revisions'
   - 'delete content translations'
+  - 'delete directory_record revisions'
   - 'delete media'
   - 'delete own audio media'
   - 'delete own basic_page content'
+  - 'delete own directory_record content'
   - 'delete own file media'
   - 'delete own image media'
   - 'delete own remote_video media'
@@ -77,6 +82,7 @@ permissions:
   - 'delete wizard_step revisions'
   - 'edit any audio media'
   - 'edit any basic_page content'
+  - 'edit any directory_record content'
   - 'edit any file media'
   - 'edit any image media'
   - 'edit any remote_video media'
@@ -85,6 +91,7 @@ permissions:
   - 'edit any wizard_step content'
   - 'edit own audio media'
   - 'edit own basic_page content'
+  - 'edit own directory_record content'
   - 'edit own file media'
   - 'edit own image media'
   - 'edit own remote_video media'
@@ -95,6 +102,7 @@ permissions:
   - 'overwrites the Content Editor permission restriction'
   - 'revert all revisions'
   - 'revert basic_page revisions'
+  - 'revert directory_record revisions'
   - 'revert wizard revisions'
   - 'revert wizard_step revisions'
   - 'translate any entity'
@@ -117,6 +125,7 @@ permissions:
   - 'view all revisions'
   - 'view any unpublished content'
   - 'view basic_page revisions'
+  - 'view directory_record revisions'
   - 'view latest version'
   - 'view own unpublished content'
   - 'view own unpublished media'
