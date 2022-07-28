@@ -2,7 +2,7 @@
 
 Currently under development!
 
-The Federal Directory is a glossary-style index, which will appear at the path /federal-agencies. 
+The Federal Directory is a glossary-style index, which will appear at the path /agency-index. 
 
 ## What it Does
 
@@ -18,26 +18,26 @@ The following are accessbile within the Drupal Admin UI:
 
 * **Federal Directory Record** Content type (Machine name: `directory_record`)
 * **Federal Agencies** View (Machine name: `federal_agencies`)
-* **Block Layout** modified to include the Federal Agencies View Block in the content area when the displayed page matches the /federal-agencies path. 
-* **Basic Page at /federal-agencies path**: This is the "home" for a Block provided by the Federal Agencies View. It provides the page title and menu configuration (for the left sidebar). 
+* **Block Layout** modified to include the Federal Agencies View Block in the content area when the displayed page matches the /agency-index path. 
+* **Basic Page at /agency-index path**: This is the "home" for a Block provided by the Federal Agencies View. It provides the page title and menu configuration (for the left sidebar). 
 
-Content editors will be able to create and manage content of type "Federal Directory Record" in the same way as they do other content. They are not expected to modify the Federal Agencies View or the block layout. It will be possible to modify the intro or body of the basic page at /federal-agencies, although no such need is anticipated.
+Content editors will be able to create and manage content of type "Federal Directory Record" in the same way as they do other content. They are not expected to modify the Federal Agencies View or the block layout. It will be possible to modify the intro or body of the basic page at /agency-index, although no such need is anticipated.
 
 The `directory_record` content type, `federal_agencies` view, and Block Layout all produce artifacts (YAML) that are checked in to this repo.
 
-The basic page at /federal-agencies is constructed manually via the Drupal admin UI.
+The basic page at /agency-index is constructed manually via the Drupal admin UI.
 
 #### More on the Federal Agencies View setup
 
-The `federal_agencies` view uses a contextual filter on the query parameter "letter" to get the current letter to display (defaulting to "a" if none is supplied). This format (as opposed to using a path part like "/a") plays nicely with Drupal's routing, which by default sees /federal-agencies and /federal-agencies/a as requests for different nodes. The path-part syntax would have worked well if we used the "page" display of the view, but that did not play well with the rest of our existing layout.
+The `federal_agencies` view uses a contextual filter on the query parameter "letter" to get the current letter to display (defaulting to "a" if none is supplied). This format (as opposed to using a path part like "/a") plays nicely with Drupal's routing, which by default sees /agency-index and /agency-index/a as requests for different nodes. The path-part syntax would have worked well if we used the "page" display of the view, but that did not play well with the rest of our existing layout.
 
-The final form of this view has `Page`, `Block`, and `Alpha List` displays. At the /federal-agencies path, we call for  the `Block` display, which brings along `Alpha List` (the list of linked letters) as an attachment. DO NOT DELETE the `Page` Display, though -- without it, Drupal hits an error while rendering the `Alpha List`.
+The final form of this view has `Page`, `Block`, and `Alpha List` displays. At the /agency-index path, we call for  the `Block` display, which brings along `Alpha List` (the list of linked letters) as an attachment. DO NOT DELETE the `Page` Display, though -- without it, Drupal hits an error while rendering the `Alpha List`.
 
 ### "USAGov Directories" Drupal Module
 
 Files in `web/modules/custom/usagov_directories`
 
-This very small module converts URLs with query parameters like `?letter=a` to path parts like `/a` when Tome is used to generate the static site pages. This makes static site generation work for the federal-agencies pages, and makes paths that match what the current usa.gov uses. 
+This very small module converts URLs with query parameters like `?letter=a` to path parts like `/a` when Tome is used to generate the static site pages. This makes static site generation work for the agency-index pages, and makes paths that match what the current usa.gov uses. 
 
 The module adds an event subscriber that listens for two `tome_static` events and rewrites URLs. The code is based on a class Tome already includes that rewrites `page=2` query parameters for views that use that convention. (The Tome version checks both for the `page` parameter and for an integer value. The usagov_directories version looks for a `letter` parameter but doesn't validate the values further. It might make sense to look for a single character.)
 
@@ -45,9 +45,9 @@ The module adds an event subscriber that listens for two `tome_static` events an
 
 **Bolded** items are doing something that might be "interesting." 
 
-For the A-Z view: We've added twig templates to override the default layout for a view. This is accomplished using conditional clauses within the usagov twig templates -- "if we're at the federal-agencies path, do this layout, otherwise do the default thing." In addition to layout, we're overriding how links are built for the glossary letters; by default we would get links to the bare view, not back to the /federal-agencies page.
+For the A-Z view: We've added twig templates to override the default layout for a view. This is accomplished using conditional clauses within the usagov twig templates -- "if we're displaying the federal_agencies view, do this layout, otherwise do the default thing." In addition to layout, we're overriding how links are built for the glossary letters; by default we would get links to the bare view, not back to the /agency-index page.
 
-* **views-view-summary.html.twig:** Overrides link generation for the letters (producing "/federal-agencies?letter=b", for example). Plus a bunch of specific layout, including the search box.
+* **views-view-summary.html.twig:** Overrides link generation for the letters (producing "/agency-index?letter=b", for example). Plus a bunch of specific layout, including the search box.
 * views-view-list.html.twig: Overrides the layout of the part of the view that shows a heading and list. Mostly it's just adding the H2 heading and emitting the content without the unordered-list output the standard viewws get. 
 * views-view-fields.html.twig: Lays out the fields for an individual directory record within the view. (A subset of the directory record content is displayed within an accordion design element.) 
 
@@ -70,7 +70,7 @@ Upon merge or first deployment against a given database:
 1. **Manual step:** add a standard page with the following settings, and Publish it:
    * **Title:** Directory of U.S. Government Agencies and Departments
    * **Language:** English
-   * **URL alias:** /federal-agencies
+   * **URL alias:** /agency-index
    * **Promotion options:** Not promoted
    * **Menu settings:**
      - **Provide a menu link:** Checked
@@ -116,7 +116,7 @@ Known features that have yet to be implemented:
 
 ## Rejected Approaches
 
-Getting the `federal_agencies` view to do the right thing was a challenge. It's basically a View in glossary mode, which is probably 80% of what we want. The last 20% consists of page layout and playing nicely with Tome. Things I (@akf) tried that didn't work:
+Getting the `federal_agencies` view to do the right thing was a challenge. It's basically a View in glossary mode, which is probably 80% of what we want. The last 20% consists of page layout and playing nicely with Tome. (Note that in these attempts, the URL path was /federal-agencies; the change to /agency-index came later.) Things I (@akf) tried that didn't work:
 
 * Set the View's path to `/federal-agencies`. This shows the View's `Page` Display (with `Alpha List` attached).
    - Good: View displays, uses path-part syntax for URLs, e.g., `/federal-agencies/d` sets the View to show agencies that start with "D". Letter-based pagination works and the URLs should be just fine for static site generation with Tome.

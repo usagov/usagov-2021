@@ -2662,7 +2662,7 @@ display:
         header: true
       rendering_language: en
       display_extenders: {  }
-      path: federal-agencies-view
+      path: agency-index-view
       menu:
         type: none
         title: 'Directory of US Government Agencies and Departments'
