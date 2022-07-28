@@ -796,6 +796,26 @@ if (getenv('NEW_RELIC_API_KEY')) {
  * Collect external service information from environment.
  * Cloud Foundry places all service credentials in VCAP_SERVICES
  */
+$cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
+$SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'];
+if (!empty($cf_application_data['space_name']) &&
+    in_array($cf_application_data['space_name'],
+             ['dev', 'stage', 'prod'])) {
+  switch (strtolower($cf_application_data['space_name'])) {
+    case "dev":
+      $SERVER_HTTP_HOST = 'https://cms-dev.usa.gov';
+      break;
+
+    case "stage":
+      $SERVER_HTTP_HOST = 'https://cms-stage.usa.gov';
+      break;
+
+    case "prod":
+      $SERVER_HTTP_HOST = 'https://cms.usa.gov';
+      break;
+  }
+}
+
 
 $SERVER_HTTP_POST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
 $cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
