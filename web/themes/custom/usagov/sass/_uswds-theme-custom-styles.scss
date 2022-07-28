@@ -594,6 +594,14 @@ a,
   color: color($theme-link-visited-color);
 }
 
+.usagov-hero a:visited {
+  color: color("violet-30v");
+}
+
+.usagov-hero__callout ul a:visited {
+  color: color("violet-30v");
+}
+
 .usa-button {
   @media (max-width: 30em) {
     width: 100%;
@@ -660,9 +668,9 @@ a {
       width: 2rem;
       content: "";
       display: block;
-      height: 3.5rem;
+      height: 2.4rem;
       position: absolute;
-      left: 1.6rem;
+      left: 1.3rem;
       top: -0.6rem;
       background-color: #1b1b1b;
       mask: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
