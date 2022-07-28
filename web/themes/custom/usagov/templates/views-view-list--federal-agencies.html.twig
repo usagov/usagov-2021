@@ -19,16 +19,6 @@
  */
 #}
 
-{% if attributes %}
-  <div{{ attributes }}>
-{% endif %}
-  {% if title %}
-    <h3>{{ title }}</h3>
-  {% endif %}
-
-
-{% set is_directory = view.element['#name'] == 'federal_agencies' %}
-{% if is_directory %}
 {#
  **************************************************
  * This is USAgov-customized code for the federal agencies directory.
@@ -55,22 +45,3 @@
         </a>
   </div>
 </div>
-{% else %}
-{#
- **************************************************
- * This is the default drupal layout for a view in "list" mode.
- **************************************************
-#}
-  <{{ list.type }}{{ list.attributes }}>
-  {% for row in rows %}
-  <li{{ row.attributes }}>
-    {{ row.content }}
-  </li>
-  {% endfor %}
-  </{{ list.type }}>
-{% endif %}
-
-{% if attributes %}
-  </div>
-{% endif %}
-
