@@ -1,24 +1,26 @@
 @use "usagov-variables" as *;
 
-// State Directory - Table
+// TODO: MAY DELETE
+
+// State Directory - Dropdown
 .sd-container {
   display: flex;
 
   div {
-    width:12rem;
+    width: 12rem;
     padding-right: 10px;
   }
 
   button.sd-go-btn {
-    box-shadow: 0px 0px 0px 0.2rem #a7d8e3;
+    box-shadow: 0 0 0 0.2rem #a7d8e3;
     border-radius: 0.15rem;
     background-color: #ccecf2;
     text-align: center;
+    transition: background-color 200ms;
   }
 
   button.sd-go-btn:hover {
     background-color: #a7d8e3;
-    -webkit-transition: 200ms;
   }
 }
 

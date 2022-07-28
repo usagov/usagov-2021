@@ -1,0 +1,30 @@
+uuid: f8f2e567-cece-4134-ad32-6ee54fa0528a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_related_pages
+    - node.type.basic_page
+    - node.type.wizard
+id: node.basic_page.field_related_pages
+field_name: field_related_pages
+entity_type: node
+bundle: basic_page
+label: 'Related Pages'
+description: 'For Navigation pages to include pages that are not direct children.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      basic_page: basic_page
+      wizard: wizard
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: basic_page
+field_type: entity_reference

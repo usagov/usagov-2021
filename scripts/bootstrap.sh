@@ -27,7 +27,7 @@ S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "stora
 export S3_BUCKET
 export S3_ENDPOINT
 
-# SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
+SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
 WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)}
 CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)}
 if [ -z "$WWW_HOST" ]; then
@@ -65,10 +65,10 @@ export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n
 export EN_404_PAGE=${EN_404_PAGE:-/404/index.html};
 export ES_404_PAGE=${ES_404_PAGE:-/es/404/index.html};
 
-export NEW_RELIC_DISPLAY_NAME=$(echo $SECRETS | jq -r '.NEW_RELIC_DISPLAY_NAME')
-export NEW_RELIC_APP_NAME=$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')
-export NEW_RELIC_API_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')
-export NEW_RELIC_LICENSE_KEY=$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')
+export NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_DISPLAY_NAME')}
+export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')}
+export NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')}
+export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')}
 
 
 SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.spkey')
@@ -108,6 +108,13 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
     sed -i \
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
         /etc/php8/conf.d/newrelic.ini
+  fi
+  if [ -n "${https_proxy:-}" ]; then
+    sed -i \
+      -e "s/;\?newrelic.daemon.ssl_ca_bundle =.*/newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"/" \
+      -e "s/;\?newrelic.daemon.ssl_ca_path =.*/newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"/" \
+      -e "s/;\?newrelic.daemon.proxy =.*/newrelic.daemon.proxy = \"$https_proxy\"/" \
+      /etc/php8/conf.d/newrelic.ini
   fi
 fi
 
@@ -185,7 +192,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
     drush cim -y || drush cim -y
     drush cim -y
     drush php-eval "node_access_rebuild();" -y
-    drush config:set system.site mail $ADMIN_EMAIL -y > /dev/null
+    # drush config:set system.site mail $ADMIN_EMAIL -y > /dev/null
     drush state:set system.maintenance_mode 0 -y
     drush cr
 
