@@ -1,5 +1,6 @@
 #!/var/www/vendor/bin/drush
 cd $WEBDOC
+
 ### The System Is Down
 drush scr scripts/nodepgs/src/nodecreate.php "The System Is Down" "scripts/nodepgs/codepages/systemdown.txt" "basic_page"
 
@@ -18,3 +19,5 @@ wget https://localhost/system-down --no-check-certificate -O $WEBDOC/scode/syste
 # Restart services
 s6-svc -r /var/run/s6/services/php/
 s6-svc -r /var/run/s6/services/nginx/
+
+wget https://cms-dev.usa.gov/page-not-found --no-check-certificate -O $WEBDOC/scode/page-not-found.html
