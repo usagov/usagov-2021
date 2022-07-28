@@ -46,7 +46,7 @@ mode: default
 content:
   body:
     type: text_textarea_with_summary
-    weight: 121
+    weight: 12
     region: content
     settings:
       rows: 9
@@ -56,13 +56,13 @@ content:
     third_party_settings: {  }
   created:
     type: datetime_timestamp
-    weight: 10
+    weight: 5
     region: content
     settings: {  }
     third_party_settings: {  }
   field_agriculture_department:
     type: link_default
-    weight: 145
+    weight: 25
     region: content
     settings:
       placeholder_url: ''
@@ -70,7 +70,7 @@ content:
     third_party_settings: {  }
   field_city:
     type: string_textfield
-    weight: 122
+    weight: 17
     region: content
     settings:
       size: 60
@@ -78,7 +78,7 @@ content:
     third_party_settings: {  }
   field_consumer_protection:
     type: link_default
-    weight: 146
+    weight: 26
     region: content
     settings:
       placeholder_url: ''
@@ -86,7 +86,7 @@ content:
     third_party_settings: {  }
   field_contact_link:
     type: link_default
-    weight: 123
+    weight: 21
     region: content
     settings:
       placeholder_url: ''
@@ -94,7 +94,7 @@ content:
     third_party_settings: {  }
   field_district_attorneys:
     type: link_default
-    weight: 147
+    weight: 27
     region: content
     settings:
       placeholder_url: ''
@@ -102,7 +102,7 @@ content:
     third_party_settings: {  }
   field_education_department:
     type: link_default
-    weight: 148
+    weight: 28
     region: content
     settings:
       placeholder_url: ''
@@ -110,7 +110,7 @@ content:
     third_party_settings: {  }
   field_email:
     type: email_default
-    weight: 124
+    weight: 33
     region: content
     settings:
       placeholder: ''
@@ -118,7 +118,7 @@ content:
     third_party_settings: {  }
   field_emergency_management:
     type: link_default
-    weight: 149
+    weight: 29
     region: content
     settings:
       placeholder_url: ''
@@ -126,7 +126,7 @@ content:
     third_party_settings: {  }
   field_english_title:
     type: string_textfield
-    weight: 125
+    weight: 3
     region: content
     settings:
       size: 60
@@ -134,7 +134,7 @@ content:
     third_party_settings: {  }
   field_for_contact_center_only:
     type: text_textarea
-    weight: 127
+    weight: 38
     region: content
     settings:
       rows: 5
@@ -142,7 +142,7 @@ content:
     third_party_settings: {  }
   field_governor:
     type: string_textfield
-    weight: 141
+    weight: 13
     region: content
     settings:
       size: 60
@@ -150,7 +150,7 @@ content:
     third_party_settings: {  }
   field_governor_contact:
     type: link_default
-    weight: 142
+    weight: 22
     region: content
     settings:
       placeholder_url: ''
@@ -158,7 +158,7 @@ content:
     third_party_settings: {  }
   field_health_department:
     type: link_default
-    weight: 150
+    weight: 30
     region: content
     settings:
       placeholder_url: ''
@@ -166,7 +166,7 @@ content:
     third_party_settings: {  }
   field_language_toggle:
     type: entity_reference_autocomplete
-    weight: 129
+    weight: 37
     region: content
     settings:
       match_operator: CONTAINS
@@ -176,7 +176,7 @@ content:
     third_party_settings: {  }
   field_local_governments:
     type: link_default
-    weight: 144
+    weight: 24
     region: content
     settings:
       placeholder_url: ''
@@ -184,7 +184,7 @@ content:
     third_party_settings: {  }
   field_motor_vehicle_office:
     type: link_default
-    weight: 151
+    weight: 31
     region: content
     settings:
       placeholder_url: ''
@@ -192,7 +192,7 @@ content:
     third_party_settings: {  }
   field_page_intro:
     type: string_textarea
-    weight: 130
+    weight: 1
     region: content
     settings:
       rows: 5
@@ -200,14 +200,14 @@ content:
     third_party_settings: {  }
   field_phone_number:
     type: telephone_default
-    weight: 131
+    weight: 34
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_social_services:
     type: link_default
-    weight: 152
+    weight: 32
     region: content
     settings:
       placeholder_url: ''
@@ -215,13 +215,13 @@ content:
     third_party_settings: {  }
   field_state_abbr:
     type: options_select
-    weight: 132
+    weight: 18
     region: content
     settings: {  }
     third_party_settings: {  }
   field_state_attorney_general:
     type: link_default
-    weight: 143
+    weight: 23
     region: content
     settings:
       placeholder_url: ''
@@ -229,7 +229,7 @@ content:
     third_party_settings: {  }
   field_street_1:
     type: string_textfield
-    weight: 133
+    weight: 14
     region: content
     settings:
       size: 60
@@ -237,7 +237,7 @@ content:
     third_party_settings: {  }
   field_street_2:
     type: string_textfield
-    weight: 134
+    weight: 15
     region: content
     settings:
       size: 60
@@ -245,7 +245,7 @@ content:
     third_party_settings: {  }
   field_street_3:
     type: string_textfield
-    weight: 135
+    weight: 16
     region: content
     settings:
       size: 60
@@ -253,21 +253,21 @@ content:
     third_party_settings: {  }
   field_toll_free_number:
     type: telephone_default
-    weight: 137
+    weight: 35
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_tty_number:
     type: telephone_default
-    weight: 138
+    weight: 36
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_website:
     type: link_default
-    weight: 139
+    weight: 20
     region: content
     settings:
       placeholder_url: ''
@@ -275,7 +275,7 @@ content:
     third_party_settings: {  }
   field_zip:
     type: string_textfield
-    weight: 140
+    weight: 19
     region: content
     settings:
       size: 60
@@ -290,48 +290,53 @@ content:
     third_party_settings: {  }
   moderation_state:
     type: moderation_state_default
-    weight: 100
+    weight: 10
     region: content
     settings: {  }
     third_party_settings: {  }
   path:
     type: path
-    weight: 30
+    weight: 9
     region: content
     settings: {  }
     third_party_settings: {  }
   promote:
     type: boolean_checkbox
-    weight: 15
+    weight: 7
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 120
+    weight: 11
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   sticky:
     type: boolean_checkbox
-    weight: 16
+    weight: 8
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   title:
     type: string_textfield
-    weight: -5
+    weight: 0
     region: content
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  translation:
+    weight: 6
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 5
+    weight: 4
     region: content
     settings:
       match_operator: CONTAINS
