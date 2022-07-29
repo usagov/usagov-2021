@@ -6,6 +6,7 @@ dependencies:
     - media.type.audio
     - media.type.file
     - node.type.basic_page
+    - node.type.directory_record
     - node.type.wizard
     - node.type.wizard_step
     - workflows.workflow.basic_workflow
@@ -30,9 +31,11 @@ permissions:
   - 'access toolbar'
   - 'add paragraphs entity embed'
   - 'administer menu'
+  - 'administer nodes'
   - 'create audio media'
   - 'create basic_page content'
   - 'create content translations'
+  - 'create directory_record content'
   - 'create file media'
   - 'create url aliases'
   - 'create wizard content'
