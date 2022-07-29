@@ -31,6 +31,7 @@ permissions:
   - 'access toolbar'
   - 'add paragraphs entity embed'
   - 'administer menu'
+  - 'administer nodes'
   - 'create audio media'
   - 'create basic_page content'
   - 'create content translations'
