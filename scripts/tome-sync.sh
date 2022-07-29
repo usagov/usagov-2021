@@ -81,11 +81,13 @@ while [ $i -lt "$n" ]
 do
   # Add attached buckets to the allow list
   BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
-  AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint")
-  AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint")
+  AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint" | uniq )
+  AWS_ENDPOINT_ALT=$(  echo -E "$AWS_ENDPOINT"  | sed '/s3\-us\-/s3.us-/' | uniq )
+  AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
   echo " ... $BUCKET"
   # the (cms)? of the regex was used for a specfic reference we kept finding that used /public instead of /cms/public
   find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${BUCKET}.${AWS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
+  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${BUCKET}.${AWS_ENDPOINT_ALT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
   find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${BUCKET}.${AWS_FIPS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
   i=$((i+1))
 done
@@ -174,7 +176,7 @@ fi
 if [ -f "$TOMELOG" ]; then
   echo "Saving logs of this run to S3" | tee -a $TOMELOG
   echo "SYNC FINISHED" | tee -a $TOMELOG
-  aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE --only-show-errors $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 else
   echo "No logs of this run to S3 available"
   echo "SYNC FINISHED"
