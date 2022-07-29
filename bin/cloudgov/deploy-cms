@@ -28,8 +28,8 @@ APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
 # Any tag with a stored Image digest should be referenced by hash instead of tag
 
 # remove proxy during staging
-# cf set-env cms http_proxy  ""
-# cf set-env cms https_proxy ""
+cf set-env cms http_proxy  ""
+cf set-env cms https_proxy ""
 
 # launch the apps
 if [ -z "$CDIGEST" ]; then

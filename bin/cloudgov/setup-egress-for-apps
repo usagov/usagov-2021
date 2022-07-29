@@ -138,7 +138,7 @@ for app in $applist; do
     # devs may have to call cf restart directly in some cases where this script
     # is used standone from the deploy scripts
 
-    # $output cf restart "$app" --no-wait --strategy rolling
+    $output cf restart "$app" --no-wait --strategy rolling
     # $output cf restart "$app"
 done
 

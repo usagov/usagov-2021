@@ -54,6 +54,10 @@ printf "\tAPPS_DOMAIN: $APPS_DOMAIN\n"
 printf "\nFetching ROUTE_DOMAIN\n"
 printf "\tAPPS_DOMAIN: $ROUTE_DOMAIN\n"
 
+# remove proxy during staging
+cf set-env cms http_proxy  ""
+cf set-env cms https_proxy ""
+
 cf push "${ROUTE_SERVICE_APP_NAME}" --no-start --var app-name="${ROUTE_SERVICE_APP_NAME}"
 cf set-env "${ROUTE_SERVICE_APP_NAME}" ALLOWED_IPS "$(printf "%s" "${NGINX_ALLOW_STATEMENTS:-}")"
 cf start "${ROUTE_SERVICE_APP_NAME}"
