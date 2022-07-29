@@ -105,7 +105,7 @@ for app in $applist ; do
         # Add attached buckets to the allow list
         BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
         AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint" | uniq )
-        AWS_ENDPOINT_ALT=$(  echo -E "$AWS_ENDPOINT"  | sed '/s3\-us\-/s3.us-/' | uniq )
+        AWS_ENDPOINT_ALT=$(  echo -E "$AWS_ENDPOINT"  | sed 's/s3\-us\-/s3.us-/g' | uniq )
         AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
         # Add both the FIPS and non-FIPS hostnames
         buckethosts="$buckethosts ${BUCKET}.${AWS_ENDPOINT} ${BUCKET}.${AWS_ENDPOINT_ALT} ${BUCKET}.${AWS_FIPS_ENDPOINT}"
