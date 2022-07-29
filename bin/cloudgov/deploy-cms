@@ -28,8 +28,8 @@ APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
 # Any tag with a stored Image digest should be referenced by hash instead of tag
 
 # remove proxy during staging
-cf set-env cms http_proxy  ""
-cf set-env cms https_proxy ""
+# cf set-env cms http_proxy  ""
+# cf set-env cms https_proxy ""
 
 # launch the apps
 if [ -z "$CDIGEST" ]; then
@@ -40,7 +40,7 @@ else
   cf push cms --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
 fi
 
-# the egress-settup doesn't interfere with bootstrapping
+# the egress-setup doesn't interfere with bootstrapping
 # but cms needs to exist in the first place
 # for route mapping and egress setup to run
 
