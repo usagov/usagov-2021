@@ -2,3 +2,5 @@ secureauth.gsa.gov
 *.docker.io
 *.docker.com
 *.newrelic.com
+*.app.cloud.gov
+*.apps.internal
