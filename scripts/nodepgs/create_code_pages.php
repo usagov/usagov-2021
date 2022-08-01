@@ -1,4 +1,5 @@
 #!/var/www/vendor/bin/drush
+WEBDOC='/var/www'
 cd $WEBDOC
 
 ### The System Is Down
@@ -12,9 +13,11 @@ drush scr scripts/nodepgs/src/nodecreate.php "No se encontró la página" "scrip
 drush config:set system.site page.404 '/page-not-found' -y
 
 mkdir -p $WEBDOC/scode/
-wget https://localhost/page-not-found --no-check-certificate -O $WEBDOC/scode/page-not-found.html
-wget https://localhost/es/no-se-encontro-la-pagina --no-check-certificate -O $WEBDOC/scode/no-se-encontro-la-pagina.html
-wget https://localhost/system-down --no-check-certificate -O $WEBDOC/scode/system-down.html
+
+# wget -r -l 2 --page-requisites http://example.com/your/page.html
+wget -r -l 2 https://localhost/page-not-found --no-check-certificate -O $WEBDOC/scode/page-not-found.html
+wget -r -l 2 https://localhost/es/no-se-encontro-la-pagina --no-check-certificate -O $WEBDOC/scode/no-se-encontro-la-pagina.html
+wget -r -l 2 https://localhost/system-down --no-check-certificate -O $WEBDOC/scode/system-down.html
 
 # Restart services
 s6-svc -r /var/run/s6/services/php/
