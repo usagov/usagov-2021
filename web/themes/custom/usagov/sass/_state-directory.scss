@@ -3,25 +3,28 @@
 // State Directory - Dropdown
 .sd-container {
   display: flex;
+  padding-bottom: 5px;
 
   div {
-    display: flex;
-    gap: 10px;
+    // display: flex;
+    // gap: 10px;
+    width: 18rem;
+    padding-right: 10px;
   }
 
-  .usa-combo-box {
-    width: 15rem;
-  }
+  // .usa-combo-box {
+  //   width: 15rem;
+  // }
+}
 
-  button.sd-go-btn {
-    box-shadow: 0 0 0 0.15rem #0081a1;
-    border-radius: 0.15rem;
-    background-color: #ccecf2;
-    text-align: center;
-    transition: background-color 200ms;
-  }
+button.sd-go-btn {
+  box-shadow: 0 0 0 0.15rem #0081a1;
+  border-radius: 0.15rem;
+  background-color: #ccecf2;
+  text-align: center;
+  transition: background-color 200ms;
+}
 
-  button.sd-go-btn:hover {
-    background-color: #a7d8e3;
-  }
+button.sd-go-btn:hover {
+  background-color: #a7d8e3;
 }
