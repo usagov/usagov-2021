@@ -41,14 +41,13 @@ i.e.
 
 .question-icon {
   display: flex;
-  height: 40px;
 }
 
 .chat-icon {
     @media (max-width: 40em) {
       padding: 5px 10px 0 0;
     }
-
+  width: 70px;
   padding: 0 10px;
   vertical-align: middle;
 }
