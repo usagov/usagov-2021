@@ -31,6 +31,7 @@ commands:
       - run:
           name: Save Image Digest
           command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>
             docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>
             CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
@@ -48,6 +49,7 @@ commands:
       - run:
           name: Load Image Digest
           command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
             . ./bin/cloudgov/get-s3-access key-value
@@ -57,8 +59,8 @@ commands:
             if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest); fi
             export CMS_DIGEST=$CMS_DIGEST
             export WAF_DIGEST=$WAF_DIGEST
-            echo 'export CMS_DIGEST='"$CMS_DIGEST" >> $BASH_ENV
-            echo 'export WAF_DIGEST='"$WAF_DIGEST" >> $BASH_ENV
+            echo 'export CMS_DIGEST='"$CMS_DIGEST" | $SUDO tee -a $BASH_ENV
+            echo 'export WAF_DIGEST='"$WAF_DIGEST" | $SUDO tee -a $BASH_ENV
             # docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>${CMS_DIGEST}
             # docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>${WAF_DIGEST}
 
