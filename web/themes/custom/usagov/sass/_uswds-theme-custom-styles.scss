@@ -39,42 +39,6 @@ i.e.
   color: #d83933;
 }
 
-.question-top-border {
-  border-top-color: #dfe1e2;
-}
-
-.do-you {
-  margin-top: 0;
-  font-family: "Merriweather Web","Georgia","Cambria","Times New Roman","Times","serif";
-}
-
-.question_b {
-  @media (min-width:64em) {
-  margin-left: 1rem;
-  }
-
-  @media (max-width:61em) {
-  margin-left: .5rem;
-  }
-
- padding-bottom: 2rem;
-}
-
-.question-left-border{  
-  margin-top: 80px; 
-  border-left-color: #ccecf2;        
-  padding-bottom: 30px;
-
-    @media (max-width: 36em) {
-      padding-bottom: 45px;
-    }
-
-    @media (max-width: 61em) {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    } 
-}
-
 .question-icon {
   display: flex;
   height: 40px;
