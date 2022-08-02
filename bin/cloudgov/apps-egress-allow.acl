@@ -1,11 +1,6 @@
-*.google.com
-*.drupal.org
-*.npmjs.com
-*.newrelic.com
-*.packagist.org
-*.github.com
-*.amazonaws.com
-*.s3.amazonaws.com
+secureauth.gsa.gov
 *.docker.io
 *.docker.com
+*.newrelic.com
 *.app.cloud.gov
+*.apps.internal
