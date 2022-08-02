@@ -10,8 +10,6 @@
 
 .usagov-directory-container {
   padding: 3rem;
-
-  // max-width: 35rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -39,7 +37,7 @@
     color: #000;
     box-sizing: border-box;
     background-color: #ccecf2;
-    box-shadow: 0 0 0 0.15rem #0081a1;
+    box-shadow: 0 0 0 2px #0081a1; 
     border-radius: 0.01rem;
     font-size: 1.5rem;
     font-weight: 600;
@@ -47,13 +45,18 @@
   }
 
   a:hover {
+    box-shadow: 0 0 0 3px #1b1b1b;
+    background-color: #99deea;
+  }
+
+  a.is-active {
     box-shadow: 0 0 0 0.15rem #000;
     background-color: white;
   }
 
-  .is-active {
+  a.is-active:hover {
     box-shadow: 0 0 0 0.15rem #000;
-    background-color: white;
+    background-color: white;    
   }
 }
 
@@ -87,21 +90,42 @@ hr.bl-divider {
   display: flex;
   flex-direction: row;
   gap: 0.2rem;
-  box-shadow: 0 0 0 0.15rem #0081a1;
+  outline: 2px solid #0081a1;
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
   background-color: #ccecf2;
-
-  // border-radius: 0px 10px 10px 0px;
 }
 
 .fed-directory-search-input {
   width: 14rem;
   background-color: #ccecf2;
   outline: none;
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 600;
-  color: #000;
+  color: #1b1b1b;
   border-style: none;
   text-overflow: ellipsis;
+
+  ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color: #1b1b1b;
+  }
+  :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: #1b1b1b;
+    opacity: 1;
+  }
+  ::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: #1b1b1b;
+    opacity: 1;
+  }
+  :-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: #1b1b1b;
+  }
+  ::-ms-input-placeholder { /* Microsoft Edge */
+    color: #1b1b1b;
+  }
+  ::placeholder {
+    color: #1b1b1b;
+  }
 }
 
 .fed-directory-search-btn {
@@ -115,19 +139,18 @@ hr.bl-divider {
 }
 
 .fed-directory-search-btn:hover {
-  background-color: white;
+  background-color: #99deea;
 }
 
 // Letter Heading
 .usagov-directory-letter-heading {
   font-family: sans-serif;
-  font-size: 2.5rem;
+  font-size: 38px;
   text-align: center;
-  line-height: 3.8rem;
-  color: #000;
-  outline: solid 0.15rem black;
-  width: 3.8rem;
-  height: 3.8rem;
+  line-height: 52px;
+  outline: solid 0.15rem #1b1b1b;
+  width: 52px;
+  height: 52px;
 }
 
 // Accordion
@@ -172,14 +195,14 @@ hr.bl-divider {
   a.nav-letter:visited {
     text-decoration: none;
     text-align: center;
-    line-height: 3.8rem;
-    font-size: 2.5rem;
+    line-height: 52px;
+    font-size: 38px;
     color: #000;
     outline: solid 0.15rem #0081a1;
     background-color: #ccecf2;
     font-weight: 600;
-    width: 3.8rem;
-    height: 3.8rem;
+    width: 52px;
+    height: 52px;
     transition-property: outline, color, background-color;
     transition-duration: 200ms;
   }
