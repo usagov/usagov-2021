@@ -94,6 +94,10 @@ hr.bl-divider {
   border-top-right-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
   background-color: #ccecf2;
+
+  input::placeholder {
+    color: #1b1b1b;
+  }
 }
 
 .fed-directory-search-input {
@@ -102,30 +106,8 @@ hr.bl-divider {
   outline: none;
   font-size: 0.98rem;
   font-weight: 600;
-  color: #1b1b1b;
   border-style: none;
   text-overflow: ellipsis;
-
-  ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
-    color: #1b1b1b;
-  }
-  :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color: #1b1b1b;
-    opacity: 1;
-  }
-  ::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color: #1b1b1b;
-    opacity: 1;
-  }
-  :-ms-input-placeholder { /* Internet Explorer 10-11 */
-    color: #1b1b1b;
-  }
-  ::-ms-input-placeholder { /* Microsoft Edge */
-    color: #1b1b1b;
-  }
-  ::placeholder {
-    color: #1b1b1b;
-  }
 }
 
 .fed-directory-search-btn {
