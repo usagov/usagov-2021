@@ -9,6 +9,10 @@ STARTORG=$(   cf target | grep org:   | awk '{ print $2 }')
 APP_SPACE=${1:-$STARTSPACE}
 APP_ORG=${2:-$STARTORG}
 
+# we have no control over the container host so we cannot tell it about our proxy
+# we must allow apps that are in a staging state un-proxied access to docker hub
+# so the host can access the available images
+
 # default staging asgs: dns public_network trusted_local_networks
 # default running asgs: dns
 STAGING_SECURITY_GROUPS="dns trusted_local_networks_egress public_networks_egress"

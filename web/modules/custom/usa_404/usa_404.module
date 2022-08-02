@@ -29,10 +29,30 @@
 function usa_404_theme_suggestions_page(array $variables) {
   $path_args = explode('/', trim(\Drupal::service('path.current')->getPath(), '/'));
   $route_name = \Drupal::routeMatch()->getRouteName();
+  $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  $languagename =  \Drupal::languageManager()->getCurrentLanguage()->getName();
+  $requested_path = \Drupal::service('request_stack')->getMasterRequest()->getRequestUri();
+
+  $nid = '624';
+  $node = \Drupal\node\Entity\Node::load($nid);
+  // $params = Url::fromUri("internal:" . $custom_403_page_path)->getRouteParameters();
+
+  //comparison
+  dpm('$language === $node->language()->getId()');
+  dpm($language === $node->language()->getId());
+  dpm('$route_name === "system.404"');
+  dpm($route_name === 'system.404');
+  // dpm();
+  // dpm($route_name);
+  // dpm($language);
+  dpm($requested_path);
+  dpm($node->language()->getId());
+  dpm(get_class_methods($node->language()));
+  dpm($node);
+  dpm(get_class_methods($node));
   
   dpm(theme_get_suggestions($path_args, 'page'));
   // dpm(\Drupal::service('path.current')->getPath());
   dpm(explode('/', trim(\Drupal::service('path.current')->getPath(), '/')));
-  dpm(\Drupal::routeMatch()->getRouteName());
-  dpm($variables);
+  // dpm($variables);
 }
