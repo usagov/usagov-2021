@@ -40,31 +40,53 @@ i.e.
 }
 
 .question-top-border {
-   border-top-color: #dfe1e2;
+  border-top-color: #dfe1e2;
+}
+
+.do-you {
+  margin-top: 0;
+  font-family: merriweather web;
+}
+
+.question_b {
+  @media (min-width:64em) {
+  margin-left: 1rem;
+  }
+
+  @media (max-width:61em) {
+  margin-left: .5rem;
+  }
+
+ padding-bottom: 2rem;
 }
 
 .question-left-border{  
-   @media (max-width: 36em) {
+  margin-top: 80px; 
+  border-left-color: #ccecf2;        
+  padding-bottom: 30px;
+
+    @media (max-width: 36em) {
       padding-bottom: 45px;
-   }
-   
-   margin-top: 80px; 
-   border-left-color: #ccecf2;        
-   padding-bottom: 30px;
+    }
+
+    @media (max-width: 61em) {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    } 
 }
 
 .question-icon {
-   display: flex;
-   height: 40px;
+  display: flex;
+  height: 40px;
 }
 
 .chat-icon {
-      @media (max-width: 40em) {
-         padding: 5px 10px 0 0;
-      }
+    @media (max-width: 40em) {
+      padding: 5px 10px 0 0;
+    }
 
-   padding: 0 10px;
-   vertical-align: middle;
+  padding: 0 10px;
+  vertical-align: middle;
 }
 
 @media (min-width: 64em) {
