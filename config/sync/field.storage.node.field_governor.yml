@@ -1,18 +1,16 @@
-uuid: 933fd148-18f1-4550-a997-a267153880be
+uuid: 28e4d5ce-001b-4676-9f8c-e0cc9f1aa106
 langcode: en
 status: true
 dependencies:
   module:
+    - link
     - node
 id: node.field_governor
 field_name: field_governor
 entity_type: node
-type: string
-settings:
-  max_length: 255
-  case_sensitive: false
-  is_ascii: false
-module: core
+type: link
+settings: {  }
+module: link
 locked: false
 cardinality: 1
 translatable: true

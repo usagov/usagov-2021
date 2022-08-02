@@ -70,7 +70,7 @@ content:
     third_party_settings: {  }
   field_city:
     type: string_textfield
-    weight: 17
+    weight: 16
     region: content
     settings:
       size: 60
@@ -86,7 +86,7 @@ content:
     third_party_settings: {  }
   field_contact_link:
     type: link_default
-    weight: 21
+    weight: 20
     region: content
     settings:
       placeholder_url: ''
@@ -141,12 +141,12 @@ content:
       placeholder: ''
     third_party_settings: {  }
   field_governor:
-    type: string_textfield
-    weight: 13
+    type: link_default
+    weight: 21
     region: content
     settings:
-      size: 60
-      placeholder: ''
+      placeholder_url: ''
+      placeholder_title: ''
     third_party_settings: {  }
   field_governor_contact:
     type: link_default
@@ -215,7 +215,7 @@ content:
     third_party_settings: {  }
   field_state_abbr:
     type: options_select
-    weight: 18
+    weight: 17
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -229,7 +229,7 @@ content:
     third_party_settings: {  }
   field_street_1:
     type: string_textfield
-    weight: 14
+    weight: 13
     region: content
     settings:
       size: 60
@@ -237,7 +237,7 @@ content:
     third_party_settings: {  }
   field_street_2:
     type: string_textfield
-    weight: 15
+    weight: 14
     region: content
     settings:
       size: 60
@@ -245,7 +245,7 @@ content:
     third_party_settings: {  }
   field_street_3:
     type: string_textfield
-    weight: 16
+    weight: 15
     region: content
     settings:
       size: 60
@@ -267,7 +267,7 @@ content:
     third_party_settings: {  }
   field_website:
     type: link_default
-    weight: 20
+    weight: 19
     region: content
     settings:
       placeholder_url: ''
@@ -275,7 +275,7 @@ content:
     third_party_settings: {  }
   field_zip:
     type: string_textfield
-    weight: 19
+    weight: 18
     region: content
     settings:
       size: 60
