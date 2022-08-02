@@ -9,24 +9,30 @@
 {% set talk = '/phone' %}
 {% set chat = '/chat' %}
 <div id="question_box">
-    <div class="border-top-05 question-top-border"></div>
-        <div class="question_b">
-            <div class="grid-row grid-gap border-left-1 question-left-border">
-                <h3 class="do-you">{{ lang == 'en' ? "Do you have a question?" : "¿Tiene una pregunta?" }} </h3> 
-                {% if lang == 'en' %}
-                    <p>Ask a real person any government-related question for free.  They will get you the answer or let you know where to find it.</p> 
-                {% else %} 
-                    <p>¿Tiene una pregunta? Pregunte gratis a una persona real cualquier duda relacionada con el Gobierno. Le darán la respuesta o le indicarán dónde encontrarla.</p>
-                {% endif %}
-                <div class="grid-col-6">
-                    <a class="question-icon" href="{{ talk }}{{ url }}">
-                    <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_talk.png" alt="talk icon">{{ lang == 'en' ? "Call and speak to a live USAGov agent." : "Llame y hable con un agente de USAGov en Español." }}</a>
-                </div>
-                <div class="grid-col-6">
-                    <a class="question-icon" href="{{ chat }}{{ url }}">
-                    <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_chat.png" alt="chat icon">{{ lang == 'en' ? "Chat with a live USAGov agent." : "Chatee en vivo con un agente de USAGov en Español." }}</a>
-                </div>
+    <div class="border-top-05  border-base-lightest"></div>
+    <div class="border-left-1 padding-left-1 border-cyan-10 margin-top-10 padding-bottom-4">
+        <h3 class="font-family-heading margin-top-0">
+            {{ lang == 'en' ? "Do you have a question?" : "¿Tiene una pregunta?" }}
+        </h3> 
+        {% if lang == 'en' %}
+            <p>Ask a real person any government-related question for free.  They will get you the answer or let you know where to find it.</p> 
+        {% else %} 
+            <p>¿Tiene una pregunta? Pregunte gratis a una persona real cualquier duda relacionada con el Gobierno. Le darán la respuesta o le indicarán dónde encontrarla.</p>
+        {% endif %}
+        <div class="grid-row grid-gap">
+            <div class="grid-col-6">
+                <a class="question-icon" href="{{ talk }}{{ url }}">
+                    <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_talk.png" alt="talk icon">
+                    {{ lang == 'en' ? "Call and speak to a live USAGov agent." : "Llame y hable con un agente de USAGov en Español." }}
+                </a>
+            </div>
+            <div class="grid-col-6">
+                <a class="question-icon" href="{{ chat }}{{ url }}">
+                    <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_chat.png" alt="chat icon">
+                    {{ lang == 'en' ? "Chat with a live USAGov agent." : "Chatee en vivo con un agente de USAGov en Español." }}
+                </a>
             </div>
         </div>
-    </div>   
+    </div>
+</div>   
 {% endif %}
