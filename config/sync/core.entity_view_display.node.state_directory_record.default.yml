@@ -53,7 +53,7 @@ third_party_settings:
       label: 'Main Address'
       parent_name: ''
       region: content
-      weight: 10
+      weight: 9
       format_type: fieldset
       format_settings:
         classes: ''
@@ -82,7 +82,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 20
+    weight: 14
     region: content
   field_city:
     type: string
@@ -102,7 +102,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 21
+    weight: 15
     region: content
   field_contact_link:
     type: link
@@ -126,7 +126,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 22
+    weight: 16
     region: content
   field_education_department:
     type: link
@@ -138,7 +138,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 23
+    weight: 17
     region: content
   field_email:
     type: basic_string
@@ -157,7 +157,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 24
+    weight: 18
     region: content
   field_english_title:
     type: string
@@ -165,22 +165,26 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 29
+    weight: 23
     region: content
   field_for_contact_center_only:
     type: text_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 30
+    weight: 24
     region: content
   field_governor:
-    type: string
+    type: link
     label: hidden
     settings:
-      link_to_entity: false
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
     third_party_settings: {  }
-    weight: 16
+    weight: 10
     region: content
   field_governor_contact:
     type: link
@@ -192,7 +196,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 17
+    weight: 11
     region: content
   field_health_department:
     type: link
@@ -204,7 +208,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 25
+    weight: 19
     region: content
   field_language_toggle:
     type: entity_reference_label
@@ -212,7 +216,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 28
+    weight: 22
     region: content
   field_local_governments:
     type: link
@@ -224,7 +228,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 19
+    weight: 13
     region: content
   field_motor_vehicle_office:
     type: link
@@ -236,7 +240,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 26
+    weight: 20
     region: content
   field_page_intro:
     type: basic_string
@@ -263,7 +267,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 27
+    weight: 21
     region: content
   field_state_abbr:
     type: list_default
@@ -282,7 +286,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 18
+    weight: 12
     region: content
   field_street_1:
     type: string
