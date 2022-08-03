@@ -39,32 +39,18 @@ i.e.
   color: #d83933;
 }
 
-.question-top-border {
-   border-top-color: #dfe1e2;
-}
-
-.question-left-border{  
-   @media (max-width: 36em) {
-      padding-bottom: 45px;
-   }
-   
-   margin-top: 80px; 
-   border-left-color: #ccecf2;        
-   padding-bottom: 30px;
-}
-
 .question-icon {
-   display: flex;
-   height: 40px;
+  display: flex;
+  height: 40px;
 }
 
 .chat-icon {
-      @media (max-width: 40em) {
-         padding: 5px 10px 0 0;
-      }
+    @media (max-width: 40em) {
+      padding: 5px 10px 0 0;
+    }
 
-   padding: 0 10px;
-   vertical-align: middle;
+  padding: 0 10px;
+  vertical-align: middle;
 }
 
 @media (min-width: 64em) {
