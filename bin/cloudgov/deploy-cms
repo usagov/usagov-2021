@@ -18,7 +18,8 @@ fi
 
 DOCKERUSER=${DOCKERUSER:-dnark}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
-CONTAINERTAG=${1:-latest}
+CTAG=${1:-latest}
+CDIGEST=${2:-}
 
 APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
 APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
@@ -26,30 +27,33 @@ APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
 
-# remove proxy for staging
+# remove proxy during staging
 cf set-env cms http_proxy  ""
 cf set-env cms https_proxy ""
 
 # launch the apps
-echo "Deploying $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG"
-cf push cms --docker-image $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+if [ -z "$CDIGEST" ]; then
+  echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:cms-${CTAG}"
+  cf push cms --docker-image ${DOCKERUSER}/${DOCKERREPO}:cms-${CTAG}
+else
+  echo "Deploying ${DOCKERUSER}/${DOCKERREPO} cms-${CTAG} via digest ${CDIGEST}"
+  cf push cms --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+fi
 
-# egress should be setup before push if possible so the restage from
 # the egress-settup doesn't interfere with bootstrapping
 # but cms needs to exist in the first place
 # for route mapping and egress setup to run
 
-APP_HOSTS=$(cf routes | grep -e ' cms$' | awk '{print $2}')
-CMS_HOSTS=$(echo "$APP_HOSTS" | grep -e "^cms-$APP_SPACE")
-WWW_HOSTS=$(echo "$APP_HOSTS" | grep -e "^beta-$APP_SPACE")
+cf create-route usa.gov --hostname cms-$APP_SPACE
+cf map-route cms usa.gov --hostname cms-$APP_SPACE
+cf create-route usa.gov --hostname beta-$APP_SPACE
+cf map-route cms usa.gov --hostname beta-$APP_SPACE
 
-if [ -z "$CMS_HOST" ]; then
-  cf create-route usa.gov --hostname cms-$APP_SPACE
-  cf map-route cms usa.gov --hostname cms-$APP_SPACE
-fi
-if [ -z "$WWW_HOST" ]; then
-  cf create-route usa.gov --hostname www-$APP_SPACE
-  cf map-route cms usa.gov --hostname www-$APP_SPACE
+if [ "$APP_SPACE" == "prod" ]; then
+  cf create-route usa.gov --hostname cms
+  cf map-route cms usa.gov --hostname cms
+  cf create-route usa.gov --hostname beta
+  cf map-route cms usa.gov --hostname beta
 fi
 
 # set-env any missing env vars like new_relic

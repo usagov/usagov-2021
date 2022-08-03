@@ -1,4 +1,5 @@
 version: 2.1
+
 commands:
   deploy-cloudgov:
     parameters:
@@ -13,6 +14,7 @@ commands:
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
       - install-cloud-foundry
+      - load-image-digest
       - run:
           name: CloudGov Deploy
           command: |
@@ -22,27 +24,56 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-cms << pipeline.number >>
+            ./bin/cloudgov/deploy-cms << pipeline.number >> $CMS_DIGEST
 
   save-image-digest:
     steps:
       - run:
-          name: Save Image Digest of container
+          name: Save Image Digest
           command: |
-            CMS_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:cms-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
-            WAF_DIGEST=$(docker inspect $DOCKERUSER/$DOCKERREPO:waf-<< pipeline.number >> | jq -r '.[].Id' | grep sha256)
-            echo "Saving cms-<< pipeline.number >> -> $CMS_DIGEST"
-            echo "Saving waf-<< pipeline.number >> -> $CMS_DIGEST"
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>
+            CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
+            WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            echo "$CMS_DIGEST" > /tmp/results/cms_digest
+            echo "$WAF_DIGEST" > /tmp/results/waf_digest
+            aws s3 cp /tmp/results/cms_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >>
+            aws s3 cp /tmp/results/waf_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >>
+
+  load-image-digest:
+    steps:
+      - run:
+          name: Load Image Digest
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            export CMS_DIGEST=""
+            export WAF_DIGEST=""
+            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >> ./cms-image-digest; then export CMS_DIGEST="@"$(cat ./cms-image-digest); fi
+            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest); fi
+            export CMS_DIGEST=$CMS_DIGEST
+            export WAF_DIGEST=$WAF_DIGEST
+            echo 'export CMS_DIGEST='"$CMS_DIGEST" | $SUDO tee -a $BASH_ENV
+            echo 'export WAF_DIGEST='"$WAF_DIGEST" | $SUDO tee -a $BASH_ENV
+            # docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>${CMS_DIGEST}
+            # docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>${WAF_DIGEST}
 
   install-cloud-foundry:
     steps:
       - run:
           name: Install CloudFoundry
           command: |
+            if command cf > /dev/null; then echo "CF client already installed"; exit 0; fi
             wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
             echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
             sudo apt-get update
-            sudo apt-get install cf7-cli
+            sudo apt-get install cf8-cli
             cf -v
 
   install-node:
@@ -62,12 +93,59 @@ commands:
             echo "Install Gulp on node "$(node --version)
             sudo npm install --global gulp-cli
 
-# parameters:
-#   is_pr:
-#     type: boolean
-#     default: false
-
 jobs:
+  scan-code:
+    machine:
+      image: ubuntu-2004:202107-02
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - checkout
+      - install-cloud-foundry
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            mkdir -p /tmp/results
+            touch /tmp/results/scan-cms-code.log
+            touch /tmp/results/scan-cms-dependencies.log
+      - run:
+          name: Scan Code
+          when: always
+          command: |
+            SCAN_CODE_RESULT=0
+            if (./bin/scan-code low | tee /tmp/results/scan-cms-code.log); then export SCAN_CODE_RESULT=0; else export SCAN_CODE_RESULT=$?; fi
+            echo "CMS Code Scan return code: $SCAN_CODE_RESULT" | tee -a /tmp/results/scan-cms-code.log
+            cat /tmp/results/scan-cms-code.log
+            exit $SCAN_CODE_RESULT
+      - run:
+          name: Scan Dependencies
+          when: always
+          command: |
+            SCAN_DEPS_RESULT=0
+            if (./bin/scan-dependencies low | tee /tmp/results/scan-cms-dependencies.log); then export SCAN_DEPS_RESULT=0; else export SCAN_DEPS_RESULT=$?; fi
+            echo "CMS Dependency Scan return code: $SCAN_DEPS_RESULT" | tee -a /tmp/results/scan-cms-dependencies.log
+            cat /tmp/results/scan-cms-dependencies.log
+            exit $SCAN_DEPS_RESULT
+      - run:
+          name: Check CIS Benchmarks
+          when: always
+          command: |
+            # build a fresh docker-bench-security container
+            cd /tmp/
+            git clone https://github.com/docker/docker-bench-security.git
+            cd /tmp/docker-bench-security
+            docker build --no-cache -t docker-bench-security .
+            # use the fresh container to scan
+            SCAN_CIS_RESULT=0
+            if (./bin/scan-container-cis | tee /tmp/results/scan-cms-cis.log); then export SCAN_CIS_RESULT=0; else export SCAN_CIS_RESULT=$?; fi
+            echo "CMS CIS Benchmark Scan return code: $SCAN_CMS_RESULT" | tee -a /tmp/results/scan-cms-cis.log
+            cat /tmp/results/scan-cms-cis.log
+            exit $SCAN_CIS_RESULT
+      - store_artifacts:
+          path: /tmp/results
+
   lint:
     docker:
       - image: cimg/php:8.0.16-node
@@ -113,28 +191,85 @@ jobs:
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            mkdir -p /tmp/results
+            touch /tmp/results/scan-cms-code.log
+            touch /tmp/results/scan-cms-dependencies.log
+            touch /tmp/results/scan-cms-container.log
+            touch /tmp/results/scan-waf-container.log
+            touch /tmp/results/scan-cms-container-cis.log
+            touch /tmp/results/scan-waf-container-cis.log
       - run:
           name: Login to Docker Hub
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             echo $DOCKERHUB_ACCESS_TOKEN | $SUDO docker login -u $DOCKERHUB_USERNAME --password-stdin
-      # snyk scan code - save as artifact
-      # snyk scan code dependencies composer.json and package.json - save as artifact
+      - run:
+          name: Scan Code
+          command: |
+            SCAN_CODE_RESULT=0
+            if (./bin/scan-code high | tee /tmp/results/scan-cms-code.log); then export SCAN_CODE_RESULT=0; else export SCAN_CODE_RESULT=$?; fi
+            echo "Code Scan return code: $SCAN_CODE_RESULT" | tee -a /tmp/results/scan-cms-code.log
+            cat /tmp/results/scan-cms-code.log
+            exit 0
+      - run:
+          name: Scan Dependencies
+          command: |
+            SCAN_DEPS_RESULT=0
+            if (./bin/scan-dependencies high | tee /tmp/results/scan-cms-dependencies.log); then export SCAN_DEPS_RESULT=0; else export SCAN_DEPS_RESULT=$?; fi
+            echo "Dependencies Scan return code: $SCAN_DEPS_RESULT" | tee -a /tmp/results/scan-cms-dependencies.log
+            cat /tmp/results/scan-cms-dependencies.log
+            exit 0
       - run:
           name: Build Container
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
-      # snyk scan container - save as artifact
-      # - save-image-digest
+      - run:
+          name: Scan CMS Container
+          command: |
+            SCAN_CMS_RESULT=0
+            if (./bin/scan-container cms << pipeline.number >> high | tee /tmp/results/scan-cms-container.log); then export SCAN_CMS_RESULT=0; else export SCAN_CMS_RESULT=$?; fi
+            echo "CMS Continer Scan return code: $SCAN_CMS_RESULT" | tee -a /tmp/results/scan-cms-container.log
+            cat /tmp/results/scan-cms-container.log
+            exit 0
+      - run:
+          name: Scan WAF Container
+          command: |
+            SCAN_WAF_RESULT=0
+            if (./bin/scan-container waf << pipeline.number >> high | tee /tmp/results/scan-waf-container.log); then export SCAN_WAF_RESULT=0; else export SCAN_WAF_RESULT=$?; fi
+            echo "WAF Container Scan return code: $SCAN_WAF_RESULT" | tee -a /tmp/results/scan-waf-container.log
+            cat /tmp/results/scan-waf-container.log
+            exit 0
+      - run:
+          name: Check CMS CIS Benchmarks
+          when: always
+          command: |
+            SCAN_CMS_CIS_RESULT=0
+            if (./bin/scan-container-cis cms << pipeline.number >> | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
+            echo "CMS CIS Benchmark Scan return code: $SCAN_CIS_CMS_RESULT" | tee -a /tmp/results/scan-cms-container-cis.log
+            cat /tmp/results/scan-cms-container-cis.log
+            exit 0
+      - run:
+          name: Check WAF CIS Benchmarks
+          when: always
+          command: |
+            SCAN_WAF_CIS_RESULT=0
+            if (./bin/scan-container-cis waf << pipeline.number >> | tee /tmp/results/scan-waf-container-cis.log); then export SCAN_WAF_CIS_RESULT=0; else export SCAN_WAF_CIS_RESULT=$?; fi
+            echo "WAF CIS Benchmark Scan return code: $SCAN_WAF_CMS_RESULT" | tee -a /tmp/results/scan-waf-container-cis.log
+            cat /tmp/results/scan-waf-container-cis.log
+            exit 0
       - run:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-push << pipeline.number >> latest
+      - install-cloud-foundry
+      - save-image-digest
+      - store_artifacts:
+          path: /tmp/results
 
   deploy-to-cloudgov-dev:
     machine:
@@ -161,29 +296,20 @@ jobs:
       - deploy-cloudgov:
           envname: prod
 
-  # do-nothing:
-  #   docker:
-  #     - image: busybox:stable
-  #   steps:
-  #     - run: echo "Skipping"
-
-
 workflows:
   version: 2
+
+  code-scans:
+    jobs:
+      - approve-code-scans:
+          type: approval
+      - scan-code:
+          requires:
+            - approve-code-scans
 
   commit:
     jobs:
       - lint
-
-  # commit:
-  #   unless: << pipeline.parameters.is_pr >>
-  #   jobs:
-  #     - do-nothing
-
-  # pr-commit:
-  #   when: << pipeline.parameters.is_pr >>
-  #   jobs:
-  #     - lint
 
   build-and-deploy:
     jobs:
@@ -195,6 +321,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - scanning
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -204,6 +331,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - scanning
 
       - approve-dev-deployment:
           type: approval

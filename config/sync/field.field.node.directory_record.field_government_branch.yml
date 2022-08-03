@@ -1,0 +1,21 @@
+uuid: c5a1418f-c82a-4996-8972-985906ef82f4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_government_branch
+    - node.type.directory_record
+  module:
+    - options
+id: node.directory_record.field_government_branch
+field_name: field_government_branch
+entity_type: node
+bundle: directory_record
+label: 'Government Branch'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

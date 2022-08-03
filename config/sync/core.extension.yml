@@ -45,6 +45,7 @@ module:
   language: 0
   language_switcher_extended: 0
   link: 0
+  mail_safety: 0
   media: 0
   media_library: 0
   menu_block: 0
@@ -75,8 +76,10 @@ module:
   twig_tweak: 0
   usa_admin_styles: 0
   usa_contact_center_api: 0
+  usa_content_moderation_notifications: 0
   usa_translation: 0
   usa_workflow: 0
+  usagov_directories: 0
   usagov_login: 0
   user: 0
   uswds_ckeditor_integration: 0
