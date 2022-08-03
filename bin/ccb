@@ -12,7 +12,7 @@ if ! git cat-file -t $COMMIT_B > /dev/null; then
   exit 1
 fi
 
-# reorder the imputs by commit time
+# reorder the inputs by commit time
 COMMIT_SORT=$(git show -s --format="%ct %S" $COMMIT_B $COMMIT_A | sort -n | awk '{print $2}')
 NEWEST=$(echo "$COMMIT_SORT" | head -n 1)
 OLDEST=$(echo "$COMMIT_SORT" | tail -n 1)
