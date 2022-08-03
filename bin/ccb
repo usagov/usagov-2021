@@ -1,21 +1,30 @@
 #!/bin/bash
 
-LATEST=${1:-prod}
-PREVIOUS=${2:-stage}
+COMMIT_A=${1:-stage}
+COMMIT_B=${2:-prod}
 
-if [ -z "$LATEST" ]; then
-    echo "Must specify branches or tags"
-    exit 1;
-fi;
+if ! git cat-file -t $COMMIT_A > /dev/null; then
+  echo "Commit '$COMMIT_A' not found in this repo"
+  exit 1
+fi
+if ! git cat-file -t $COMMIT_B > /dev/null; then
+  echo "Commit '$COMMIT_B' not found in this repo"
+  exit 1
+fi
 
-echo "Using Latest   = $LATEST"
-echo "Using Previous = $PREVIOUS"
+# reorder the imputs by commit time
+COMMIT_SORT=$(git show -s --format="%ct %S" $COMMIT_B $COMMIT_A | sort -n | awk '{print $2}')
+NEWEST=$(echo "$COMMIT_SORT" | head -n 1)
+OLDEST=$(echo "$COMMIT_SORT" | tail -n 1)
+
+if [ "$NEWEST" == "$OLDEST" ]; then
+    echo "Commits are the same $NEWEST..$OLDEST"
+    exit 0
+fi
+
+echo "Tickets between $NEWEST <-> $OLDEST"
 echo
 
-if [ "$LATEST" != "$PREVIOUS" ]; then
-    echo "Tickets between $LATEST..$PREVIOUS"
-    echo
-    git log ${LATEST}..${PREVIOUS} | grep -Eo '([A-Z]{3,}-)([0-9]+)' | sort -u
-fi;
-
-
+# the name of the repo shows up as a ticket so we have to explicitly ignore it
+# branch names have been sloppy so accept anything from "Usa 123" to "usa_123" to "USAGOV-123"
+git log ${NEWEST}..${OLDEST} | grep -Eio 'usa(gov)?[-_\s]([0-9]+)' | grep -v usagov-2021 | sort -u
