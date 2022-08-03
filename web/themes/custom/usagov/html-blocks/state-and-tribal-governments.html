@@ -1,17 +1,16 @@
 <p class="usa-intro">Find contact information for each state or territory.</p>
-<label id="stateInfoList" class="usa-label" for="state-info"
-  >Select your state:</label
->
 <form
-  id="stateInfoForm"
-  class="sd-container usa-form"
+  id="stateForm"
+  class="usa-form"
   onsubmit="stateSelect()"
-  action="javascript:void(0);"
   autocomplete="off"
 >
+  <label id="infoState" class="usa-label" for="state-info"
+    >Select your state:</label
+  >
   <div class="usa-combo-box" data-default-value="AL">
     <select
-      aria-labelledby="stateInfoList"
+      aria-labelledby="state-info"
       class="usa-select"
       name="state-info"
       id="state-info"
@@ -70,9 +69,9 @@
       <option id="WY" value="WY">Wyoming</option>
     </select>
   </div>
+  <button class="usa-button sd-go-btn" type="submit">
+    Go
+  </button>
 </form>
-<button class="usa-button sd-go-btn" form="stateInfoForm" type="submit">
-  Go
-</button>
 
 <script src="/themes/custom/usagov/scripts/selectstate.js"></script>

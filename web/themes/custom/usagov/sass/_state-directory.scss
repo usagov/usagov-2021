@@ -1,21 +1,21 @@
 @use "usagov-variables" as *;
 
 // State Directory - Dropdown
-.sd-container {
-  display: flex;
-  padding-bottom: 5px;
+// .sd-container {
+//   display: flex;
+//   padding-bottom: 5px;
 
-  div {
-    // display: flex;
-    // gap: 10px;
-    width: 18rem;
-    padding-right: 10px;
-  }
+//   div {
+//     // display: flex;
+//     // gap: 10px;
+//     width: 18rem;
+//     padding-right: 10px;
+//   }
 
-  // .usa-combo-box {
-  //   width: 15rem;
-  // }
-}
+//   // .usa-combo-box {
+//   //   width: 15rem;
+//   // }
+// }
 
 button.sd-go-btn {
   box-shadow: 0 0 0 0.15rem #0081a1;
@@ -23,6 +23,8 @@ button.sd-go-btn {
   background-color: #ccecf2;
   text-align: center;
   transition: background-color 200ms;
+  // display: flex;
+  margin-top: 1rem;
 }
 
 button.sd-go-btn:hover {
