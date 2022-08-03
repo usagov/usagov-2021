@@ -1,0 +1,19 @@
+uuid: dc4a4bba-e29f-4423-8117-ea0847c2b8c5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_email
+    - node.type.state_directory_record
+id: node.state_directory_record.field_email
+field_name: field_email
+entity_type: node
+bundle: state_directory_record
+label: Email
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: email

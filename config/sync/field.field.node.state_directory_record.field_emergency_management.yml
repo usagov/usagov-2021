@@ -1,0 +1,23 @@
+uuid: 5661dca1-9f9b-4f31-899f-650297863ad2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_emergency_management
+    - node.type.state_directory_record
+  module:
+    - link
+id: node.state_directory_record.field_emergency_management
+field_name: field_emergency_management
+entity_type: node
+bundle: state_directory_record
+label: 'Emergency Management Agency'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 1
+  link_type: 17
+field_type: link

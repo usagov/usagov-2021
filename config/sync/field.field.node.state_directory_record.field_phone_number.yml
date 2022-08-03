@@ -1,0 +1,21 @@
+uuid: ae754a5e-b105-4ba7-9b84-876fd1bbed10
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_phone_number
+    - node.type.state_directory_record
+  module:
+    - telephone
+id: node.state_directory_record.field_phone_number
+field_name: field_phone_number
+entity_type: node
+bundle: state_directory_record
+label: 'Phone Number'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: telephone
