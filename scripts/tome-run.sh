@@ -53,7 +53,7 @@ fi
 # check nodes and blocks for any content changes in the last 30 minutes
 export CONTENT_UPDATED=$(drush sql:query "SELECT SUM(c) FROM ( (SELECT count(*) as c from node_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
  UNION ( SELECT count(*) as c from block_content_field_data where changed > (UNIX_TIMESTAMP(now())-(1800))) ) as x")
-if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ $(cat /proc/uptime | grep -o '^[0-9]\+') -gt 1800 ]; then
+if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ $(cat /proc/uptime | grep -o '^[0-9]\+') -lt 1800 ]; then
 
   echo "Found site changes: running static site build: $TOMELOG"
   $SCRIPT_PATH/tome-static.sh $URI 2>&1 | tee -a $TOMELOG
