@@ -1,0 +1,21 @@
+#!/bin/bash
+
+LATEST=${1:-prod}
+PREVIOUS=${2:-stage}
+
+if [ -z "$LATEST" ]; then
+    echo "Must specify branches or tags"
+    exit 1;
+fi;
+
+echo "Using Latest   = $LATEST"
+echo "Using Previous = $PREVIOUS"
+echo
+
+if [ "$LATEST" != "$PREVIOUS" ]; then
+    echo "Tickets between $LATEST..$PREVIOUS"
+    echo
+    git log ${LATEST}..${PREVIOUS} | grep -Eo '([A-Z]{3,}-)([0-9]+)' | sort -u
+fi;
+
+
