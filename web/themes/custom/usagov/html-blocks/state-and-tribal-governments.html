@@ -1,13 +1,22 @@
 <p class="usa-intro">Find contact information for each state or territory.</p>
-<label class="usa-label" for="state-info">Select your state:</label>
+<label id="stateInfoList" class="usa-label" for="state-info"
+  >Select your state:</label
+>
 <form
   id="stateInfoForm"
-  class="sd-container"
+  class="sd-container usa-form"
   onsubmit="stateSelect()"
   action="javascript:void(0);"
+  autocomplete="off"
 >
   <div class="usa-combo-box" data-default-value="AL">
-    <select class="usa-select" name="state-info" id="state-info" required>
+    <select
+      aria-labelledby="stateInfoList"
+      class="usa-select"
+      name="state-info"
+      id="state-info"
+      required
+    >
       <option id="AL" value="AL">Alabama</option>
       <option id="AK" value="AK">Alaska</option>
       <option id="AZ" value="AZ">Arizona</option>
