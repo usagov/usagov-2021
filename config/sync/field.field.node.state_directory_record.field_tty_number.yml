@@ -1,0 +1,21 @@
+uuid: 051fa0e9-0ea3-4b70-bf4d-6948fe52fd4b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tty_number
+    - node.type.state_directory_record
+  module:
+    - telephone
+id: node.state_directory_record.field_tty_number
+field_name: field_tty_number
+entity_type: node
+bundle: state_directory_record
+label: 'TTY Number'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: telephone

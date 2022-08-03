@@ -51,3 +51,4 @@ visibility:
     bundles:
       basic_page: basic_page
       directory_record: directory_record
+      state_directory_record: state_directory_record

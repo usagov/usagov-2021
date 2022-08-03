@@ -1,0 +1,19 @@
+uuid: 28e4d5ce-001b-4676-9f8c-e0cc9f1aa106
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - node
+id: node.field_governor
+field_name: field_governor
+entity_type: node
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

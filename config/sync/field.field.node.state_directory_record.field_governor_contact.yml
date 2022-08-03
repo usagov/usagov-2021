@@ -1,0 +1,23 @@
+uuid: 2de98b15-bfc6-40a2-98de-39988acab850
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_governor_contact
+    - node.type.state_directory_record
+  module:
+    - link
+id: node.state_directory_record.field_governor_contact
+field_name: field_governor_contact
+entity_type: node
+bundle: state_directory_record
+label: 'Governor Contact'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 1
+  link_type: 17
+field_type: link

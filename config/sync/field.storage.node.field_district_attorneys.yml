@@ -1,0 +1,19 @@
+uuid: 10519c5d-6ec0-4af6-b44f-62b836fc90a6
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - node
+id: node.field_district_attorneys
+field_name: field_district_attorneys
+entity_type: node
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

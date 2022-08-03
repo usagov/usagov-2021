@@ -1,0 +1,31 @@
+uuid: 85481af9-de69-4f68-8885-d9be2a643d42
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+    - node_menus
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - left-menu-english
+      - left-menu-spanish
+    parent: 'left-menu-english:menu_link_content:845eb9ac-8879-40a1-a010-0b62b232484b'
+  node_menus:
+    enabled: 1
+    languages:
+      en:
+        available_menus:
+          - left-menu-english
+        parent: 'left-menu-english:menu_link_content:845eb9ac-8879-40a1-a010-0b62b232484b'
+      es:
+        available_menus:
+          - left-menu-spanish
+        parent: 'left-menu-spanish:'
+name: 'State Directory Record'
+type: state_directory_record
+description: ''
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: false

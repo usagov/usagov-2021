@@ -1,0 +1,19 @@
+uuid: 5895cda5-1322-4e7d-a858-72bc3825e4c0
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - node
+id: node.field_health_department
+field_name: field_health_department
+entity_type: node
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

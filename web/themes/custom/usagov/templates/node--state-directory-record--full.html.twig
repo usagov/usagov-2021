@@ -14,8 +14,7 @@
       <h3>Phone</h3>
       {{ content.field_phone_number }}<br>
       {% if content.group_main_address %}
-      {% set address = content.group_main_address %} 
-      <div>
+      {% set address = content.group_main_address %}
         <h3>Main Address</h3>
         {{ address.field_street_1 }}<br>
         {% if address.field_street_2|render %}
@@ -30,7 +29,6 @@
         {% if address.field_state_abbr or address.field_zip %} 
         {{ address.field_state_abbr }}  {{ address.field_zip }}
         {% endif %}
-      </div>
       {% endif %}
     </ul>
   </div>
