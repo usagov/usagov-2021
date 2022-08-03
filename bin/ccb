@@ -28,4 +28,4 @@ echo
 # the name of the repo shows up as a ticket so we have to explicitly ignore it
 # branch names have been sloppy so accept anything from "Usa 123" to "usa_123" to "USAGOV-123"
 # be careful because [-_ 	] has a space and a tab inside of the brackets
-git log ${NEWEST}..${OLDEST} | grep -Eio 'usa(gov)?[-_ 	]([0-9]+)' | grep -v usagov-2021 | sort -u
+git log ${NEWEST}..${OLDEST} | grep -Eio 'usa(gov)?[-_ 	]([0-9]+)' | sed -E 's/usa(gov)?[-_ 	]([0-9]+)/USAGOV-\2/ig' | grep -iv usagov-2021 | sort -u
