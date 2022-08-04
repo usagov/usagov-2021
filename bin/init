@@ -59,4 +59,5 @@ bin/npm install --legacy-peer-deps
 bin/npm rebuild node-sass
 bin/npm run build
 
+
 echo "Init process complete"
