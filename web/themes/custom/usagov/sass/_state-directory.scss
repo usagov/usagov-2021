@@ -17,16 +17,17 @@
 //   // }
 // }
 
-button.sd-go-btn {
+.sd-go-btn {
+  padding-left: 10px;
   box-shadow: 0 0 0 0.15rem #0081a1;
   border-radius: 0.15rem;
   background-color: #ccecf2;
   text-align: center;
   transition: background-color 200ms;
   // display: flex;
-  margin-top: 1rem;
+  // margin-top: 1rem;
 }
 
-button.sd-go-btn:hover {
+.sd-go-btn:hover {
   background-color: #a7d8e3;
 }
