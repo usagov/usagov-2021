@@ -1,37 +1,23 @@
 @use "usagov-variables" as *;
 
 // State Directory - Dropdown
-// .sd-container {
-//   display: flex;
-//   padding-bottom: 5px;
+.state-usa-form {
+  max-width: 40rem;
 
-//   div {
-//     // display: flex;
-//     // gap: 10px;
-//     width: 18rem;
-//     padding-right: 10px;
-//   }
-
-//   // .usa-combo-box {
-//   //   width: 15rem;
-//   // }
-// }
+  label {
+    font-size: 1.13rem;
+  }
+}
 
 .sd-go-btn {
-  padding-left: 10px;
+  margin-left: 10px;
   box-shadow: 0 0 0 0.15rem #0081a1;
   border-radius: 0.15rem;
   background-color: #ccecf2;
   text-align: center;
   transition: background-color 200ms;
-  // display: flex;
-  // margin-top: 1rem;
 }
 
 .sd-go-btn:hover {
   background-color: #a7d8e3;
-}
-
-.state-usa-form {
-  max-width: 40rem;
 }
