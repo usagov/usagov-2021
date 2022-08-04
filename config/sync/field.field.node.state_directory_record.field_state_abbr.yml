@@ -1,0 +1,21 @@
+uuid: f91b6308-961b-46e4-9db0-50ae63379355
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_state_abbr
+    - node.type.state_directory_record
+  module:
+    - options
+id: node.state_directory_record.field_state_abbr
+field_name: field_state_abbr
+entity_type: node
+bundle: state_directory_record
+label: State
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string
