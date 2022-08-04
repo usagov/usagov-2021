@@ -1,0 +1,19 @@
+uuid: 1965a939-728a-4f08-843b-55907ad4e061
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_zip
+    - node.type.state_directory_record
+id: node.state_directory_record.field_zip
+field_name: field_zip
+entity_type: node
+bundle: state_directory_record
+label: Zip
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,19 @@
+uuid: 3a5095c1-234e-44b6-a795-9f44fb869c58
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - node
+id: node.field_state_attorney_general
+field_name: field_state_attorney_general
+entity_type: node
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
