@@ -5,12 +5,9 @@ if [ -f env.local ]; then
   . env.local
 fi
 
-CURR_UID=$(id -u)
-CURR_GID=$(id -g)
-
 docker compose build --no-cache \
-  --build-arg BUID=${BUID:-"$CURR_UID"} \
-  --build-arg BGID=${BGID:-"$CURR_GID"} \
+  --build-arg BUID=${BUID:-$(id -u)} \
+  --build-arg BGID=${BGID:-$(id -g)} \
   --build-arg GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "") \
   --build-arg GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "") \
   --build-arg GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "") \
