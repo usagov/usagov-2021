@@ -133,6 +133,16 @@ custom_sources:
     label: UUID
     machine_name: uuid
     type: csv
+  langcode:
+    value: langcode
+    label: langcode
+    machine_name: langcode
+    type: csv
+  0:
+    value: '0'
+    label: '0'
+    machine_name: '0'
+    type: blank
 mappings:
   -
     target: title
@@ -219,7 +229,7 @@ mappings:
     target: path
     map:
       alias: path
-      pathauto: ''
+      pathauto: '0'
     settings:
       language: ''
   -
@@ -234,5 +244,11 @@ mappings:
     target: field_tty_number
     map:
       value: tty_number
+    settings:
+      language: null
+  -
+    target: langcode
+    map:
+      value: langcode
     settings:
       language: null
