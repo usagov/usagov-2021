@@ -44,11 +44,8 @@ i.e.
 }
 
 .chat-icon {
-  @media (max-width: 40em) {
-    padding: 5px 10px 0 0;
-  }
-  
   width: 70px;
+  height: 50px;
   padding: 0 10px;
   vertical-align: middle;
 }
@@ -258,7 +255,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
   color: #fff;
   text-decoration: none;
   padding: 10px 20px;
-  background-color: color("blue-warm-80v");
+  background-color: color("blue-80v");
 }
 
 /** Language buttons **/
