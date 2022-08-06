@@ -44,7 +44,7 @@ class DirectoryRecordsDeleteForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    if (! $form_state->getValue('confirm_delete')) {
+    if (!$form_state->getValue('confirm_delete')) {
       $form_state->setErrorByName('confirm_delete', 'You must check the box. Are you really sure?');
     }
   }
@@ -56,25 +56,23 @@ class DirectoryRecordsDeleteForm extends FormBase {
     // Get the Federal Directory Records:
     $nids = \Drupal::entityQuery('node')->condition('type', 'directory_record')->execute();
     $count = 0;
-    $errors = false;
+    $errors = FALSE;
     foreach ($nids as $nid) {
       try {
-        $node = \Drupal\node\Entity\Node::load($nid);
+        $node = Node::load($nid);
         $node->delete();
         $count++;
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
         \Drupal::logger('usagov_directories')->error('Error while attempting to delete record with nid @nid: @error',
-          [ '@nid' => $nid,
-            '@error' => $e->getMessage()
-        ]);
-        $errors = true;
+          ['@nid' => $nid, '@error' => $e->getMessage()]);
+        $errors = TRUE;
       }
     }
     if ($errors) {
       $this->messenger()->addError("Something went wrong. See the error log for details.");
     }
     $this->messenger()->addStatus($this->t("Deleted @count directory records. I hope you're happy with yourself.",
-      [ '@count' => $count]));
+      ['@count' => $count]));
   }
-
 }
