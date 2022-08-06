@@ -1,0 +1,7 @@
+usagov_directories.form:
+  path: '/admin/usagov_directories/delete_records'
+  defaults:
+    _title: 'Delete Directory Records'
+    _form: '\Drupal\usagov_directories\Form\DirectoryRecordsDeleteForm'
+  requirements:
+    _permission: 'administer site configuration'
