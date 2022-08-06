@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
 
 /**
- * Implements a form an administrator can use to delete Directory Records.
+  * Implements a form an administrator can use to delete Directory Records.
  * This is expected to be used during development and never again thereafter.
  */
 class DirectoryRecordsDeleteForm extends FormBase {
@@ -75,4 +75,5 @@ class DirectoryRecordsDeleteForm extends FormBase {
     $this->messenger()->addStatus($this->t("Deleted @count directory records. I hope you're happy with yourself.",
       ['@count' => $count]));
   }
+
 }
