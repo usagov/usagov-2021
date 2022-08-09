@@ -1,12 +1,16 @@
 <?php
 
 // $file = $argv[1];r
-$infile = "/Users/amykfarrell/dev/data_to_import/extended.xml";
-$outfile = "/Users/amykfarrell/dev/data_to_import/output.csv";
+$infile = "/Users/amykfarrell/dev/data_to_import/extended_brief.xml";
+$outfile = "/Users/amykfarrell/dev/data_to_import/extended_brief_output.csv";
 
 $fp = fopen($outfile, 'w');
 
 $records = processFile($infile);
+$headings = array_values($records[0]);
+sort($headings);
+print("Extended Fields: \n" . implode("\n\t", $headings));
+
 
 foreach ($records as $record) {
     fputcsv($fp, $record);
@@ -20,7 +24,7 @@ function processFile($filename) {
     $nodes = $doc->getElementsByTagName('node');
     $results = []; // We will return this; it will include the header row.
     $records = []; // One array per node, keyed by header
-    $fieldnames = ['title' => 1, 'uuid' => 1, 'infoForContactCenter'];
+    $fieldnames = ['title' => 1, 'uuid' => 1, 'infoForContactCenter' => 1];
     foreach ($nodes as $node) {
         $title = getPlainText($node, 'title');
         $uuid = getPlainText($node, 'uuid');
