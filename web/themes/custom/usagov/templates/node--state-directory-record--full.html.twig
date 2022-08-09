@@ -11,10 +11,10 @@
       <h3>Governor</h3>
       {{ content.field_governor }}<br>
       {{ content.field_governor_contact }}
-      <p class="fd-table-padding">Phone: {{ content.field_phone_number }}</p>
+      <p class="usagov-dir-padding">Phone: {{ content.field_phone_number }}</p>
       {% if content.group_main_address %}
       {% set address = content.group_main_address %}
-        <p class="fd-table-padding">Main Address:</p>
+        <p class="usagov-dir-padding">Main Address:</p>
         {{ address.field_street_1 }}
         {% if address.field_street_2|render %}
         <br>{{ address.field_street_2 }}
