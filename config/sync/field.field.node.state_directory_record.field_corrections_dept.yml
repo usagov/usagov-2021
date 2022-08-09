@@ -1,0 +1,23 @@
+uuid: 95118e13-238f-4008-acc2-43c8ac0f11af
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_corrections_dept
+    - node.type.state_directory_record
+  module:
+    - link
+id: node.state_directory_record.field_corrections_dept
+field_name: field_corrections_dept
+entity_type: node
+bundle: state_directory_record
+label: 'Corrections Department'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 1
+  link_type: 17
+field_type: link
