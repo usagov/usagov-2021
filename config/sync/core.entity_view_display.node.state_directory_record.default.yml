@@ -8,8 +8,10 @@ dependencies:
     - field.field.node.state_directory_record.field_city
     - field.field.node.state_directory_record.field_consumer_protection
     - field.field.node.state_directory_record.field_contact_link
+    - field.field.node.state_directory_record.field_corrections_dept
     - field.field.node.state_directory_record.field_district_attorneys
     - field.field.node.state_directory_record.field_education_department
+    - field.field.node.state_directory_record.field_election_office
     - field.field.node.state_directory_record.field_email
     - field.field.node.state_directory_record.field_emergency_management
     - field.field.node.state_directory_record.field_english_title
@@ -116,7 +118,7 @@ content:
     third_party_settings: {  }
     weight: 4
     region: content
-  field_district_attorneys:
+  field_corrections_dept:
     type: link
     label: hidden
     settings:
@@ -128,7 +130,7 @@ content:
     third_party_settings: {  }
     weight: 16
     region: content
-  field_education_department:
+  field_district_attorneys:
     type: link
     label: hidden
     settings:
@@ -139,6 +141,30 @@ content:
       target: ''
     third_party_settings: {  }
     weight: 17
+    region: content
+  field_education_department:
+    type: link
+    label: hidden
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 18
+    region: content
+  field_election_office:
+    type: link
+    label: hidden
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 20
     region: content
   field_email:
     type: basic_string
@@ -157,7 +183,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 18
+    weight: 19
     region: content
   field_english_title:
     type: string
@@ -165,14 +191,14 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 23
+    weight: 25
     region: content
   field_for_contact_center_only:
     type: text_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 24
+    weight: 26
     region: content
   field_governor:
     type: link
@@ -208,7 +234,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 19
+    weight: 21
     region: content
   field_language_toggle:
     type: entity_reference_label
@@ -216,7 +242,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 22
+    weight: 24
     region: content
   field_local_governments:
     type: link
@@ -240,7 +266,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 20
+    weight: 22
     region: content
   field_page_intro:
     type: basic_string
@@ -267,7 +293,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 21
+    weight: 23
     region: content
   field_state_abbr:
     type: list_default
