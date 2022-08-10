@@ -23,10 +23,10 @@
         <br>{{ address.field_street_3 }}
         {% endif %}
         {% if address.field_city|render %}
-        {{ address.field_city }}, 
+        <br>{{ address.field_city }}
         {% endif %}
-        {% if address.field_state_abbr or address.field_zip %} 
-        {{ address.field_state_abbr }}  {{ address.field_zip }}
+        {% if address.field_state_abbr|render or address.field_zip|render %}
+        , {{ address.field_state_abbr }} {{ address.field_zip }}
         {% endif %}
       {% endif %}
     </ul>
