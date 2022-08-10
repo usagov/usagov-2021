@@ -84,7 +84,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 14
+    weight: 13
     region: content
   field_city:
     type: string
@@ -104,7 +104,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 15
+    weight: 14
     region: content
   field_contact_link:
     type: link
@@ -128,7 +128,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 16
+    weight: 15
     region: content
   field_district_attorneys:
     type: link
@@ -164,7 +164,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 20
+    weight: 19
     region: content
   field_email:
     type: basic_string
@@ -183,7 +183,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 19
+    weight: 20
     region: content
   field_english_title:
     type: string
@@ -254,7 +254,7 @@ content:
       rel: ''
       target: ''
     third_party_settings: {  }
-    weight: 13
+    weight: 16
     region: content
   field_motor_vehicle_office:
     type: link
