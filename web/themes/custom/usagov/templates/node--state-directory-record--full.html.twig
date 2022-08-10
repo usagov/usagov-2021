@@ -39,24 +39,45 @@
 
   <div>
     <h3>Offices in Your State</h3>
-    {{ content.field_social_services }}<br>
-    {{ content.field_district_attorneys }}<br>
+    {% if content.field_consumer_protection|render %}
     {{ content.field_consumer_protection }}<br>
+    {% endif %}
 
     {% if content.field_corrections_dept|render %}
     {{ content.field_corrections_dept }}<br>
     {% endif %}
-    
+
+    {% if content.field_local_governments|render %}
     {{ content.field_local_governments }}<br>
+    {% endif %}
+
+    {% if content.field_district_attorneys|render %}
+    {{ content.field_district_attorneys }}<br>
+    {% endif %}
+
+    {% if content.field_education_department|render %}
     {{ content.field_education_department }}<br>
-    {{ content.field_emergency_management }}<br>
+    {% endif %}
 
     {% if content.field_election_office|render %}
     {{ content.field_election_office }}<br>
     {% endif %}
 
+    {% if content.field_emergency_management|render %}
+    {{ content.field_emergency_management }}<br>
+    {% endif %}
+
+    {% if content.field_health_department|render %}
     {{ content.field_health_department }}<br>
-    {{ content.field_motor_vehicle_office }}
+    {% endif %}
+
+    {% if content.field_motor_vehicle_office|render %}
+    {{ content.field_motor_vehicle_office }}<br>
+    {% endif %}
+
+    {% if content.field_social_services|render %}
+    {{ content.field_social_services }}<br>
+    {% endif %}
   </div>
 
 </div>
