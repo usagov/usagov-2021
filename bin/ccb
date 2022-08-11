@@ -1,0 +1,31 @@
+#!/bin/bash
+
+COMMIT_A=${1:-stage}
+COMMIT_B=${2:-prod}
+
+if ! git cat-file -t $COMMIT_A > /dev/null; then
+  echo "Commit '$COMMIT_A' not found in this repo"
+  exit 1
+fi
+if ! git cat-file -t $COMMIT_B > /dev/null; then
+  echo "Commit '$COMMIT_B' not found in this repo"
+  exit 1
+fi
+
+# reorder the inputs by commit time
+COMMIT_SORT=$(git show -s --format="%ct %S" $COMMIT_B $COMMIT_A | sort -n | awk '{print $2}')
+NEWEST=$(echo "$COMMIT_SORT" | head -n 1)
+OLDEST=$(echo "$COMMIT_SORT" | tail -n 1)
+
+if [ "$NEWEST" == "$OLDEST" ]; then
+    echo "Commits are the same $NEWEST..$OLDEST"
+    exit 0
+fi
+
+echo "Tickets between $NEWEST <-> $OLDEST"
+echo
+
+# the name of the repo shows up as a ticket so we have to explicitly ignore it
+# branch names have been sloppy so accept anything from "Usa 123" to "usa_123" to "USAGOV-123"
+# be careful because [-_ 	] has a space and a tab inside of the brackets
+git log ${NEWEST}..${OLDEST} | grep -Eio 'usa(gov)?[-_ 	]([0-9]+)' | sed -E 's/usa(gov)?[-_ 	]([0-9]+)/USAGOV-\2/ig' | grep -iv usagov-2021 | sort -u

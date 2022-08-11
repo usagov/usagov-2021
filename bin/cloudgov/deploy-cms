@@ -40,7 +40,7 @@ else
   cf push cms --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
 fi
 
-# the egress-settup doesn't interfere with bootstrapping
+# the egress-setup doesn't interfere with bootstrapping
 # but cms needs to exist in the first place
 # for route mapping and egress setup to run
 
