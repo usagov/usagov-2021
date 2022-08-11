@@ -3,9 +3,9 @@
 /**
  * Prep an import CSV for "basic" fields in Federal Directory records
  */
-$infile = "/Users/amykfarrell/dev/data_to_import/basic_fields_brief.csv";
-$extended_infile = "/Users/amykfarrell/dev/data_to_import/extended_brief.xml";
-$outfile = "/Users/amykfarrell/dev/data_to_import/all_brief_output.csv";
+$infile = "/Users/amykfarrell/dev/data_to_import/Directory-Report1.csv";
+$extended_infile = "/Users/amykfarrell/dev/data_to_import/extended.xml";
+$outfile = "/Users/amykfarrell/dev/data_to_import/all_output.csv";
 
 function main($infile, $extended_infile, $outfile) {
     $fp_infile = fopen($infile, 'r');
@@ -36,11 +36,11 @@ function main($infile, $extended_infile, $outfile) {
     print("Extended Fields: \n\t" . implode("\n\t", $extended_headings));
 
     $records = [];
-    $headings = array_merge($basic_headings, $extended_headings);
+    $headings = array_merge($extended_headings, $basic_headings);
     fputcsv($fp_outfile, $headings);
     foreach ($basic_records_by_uuid as $uuid => $record) {
         $extended_record = $extended_records_by_uuid[$uuid];
-        $record = array_merge($record, $extended_record);
+        $record = array_merge($extended_record, $record);
         fputcsv($fp_outfile, $record);
     }
 
@@ -67,18 +67,20 @@ function convert_fields($data, $indexes) {
     $alias = $data[$path_index];
     if (!str_starts_with($alias, '/content/')) {
         // This is unexpected.
-        throw new Exception("Path found starting with something other than '/content/': " . $alias);
-    }
-    // Trim off /content, then concatenate what remains to the correct parent path.
-    // While it would be unusual for /content/ to appear elsewhere in the path, why risk a global replace?
-    $alias = substr($alias, 9);
-    if ($data[$lang_index] == 'Spanish') {
-        $alias = '/agencia/' . $alias;
+        print("Unusual alias being left alone: " . $alias . "\n");
     }
     else {
-        $alias = '/agency/' . $alias;
+        // Trim off /content, then concatenate what remains to the correct parent path.
+        // While it would be unusual for /content/ to appear elsewhere in the path, why risk a global replace?
+        $alias = substr($alias, 9);
+        if ($data[$lang_index] == 'Spanish') {
+            $alias = '/agencia/' . $alias;
+        }
+        else {
+            $alias = '/agency/' . $alias;
+        }
+        $data[$alias_index] = $alias;
     }
-    $data[$alias_index] = $alias;
     return $data;
 }
 
@@ -92,11 +94,13 @@ function processXMLFile($filename) {
     foreach ($nodes as $node) {
         $uuid = getPlainText($node, 'uuid');
         $record = [];
+        $multivalue_hints = [];
         $contactLinks = getLinksFromCData($node, 'contactLinks');
         foreach ($contactLinks as $link) {
             foreach ($link as $key => $value) {
                 $fieldnames[$key] = 1;
                 $record[$key] = $value;
+                $multivalue_hints[] = $key;
             }
         }
         $websiteLinks = getLinksFromCData($node, 'websiteLinks');
@@ -104,6 +108,7 @@ function processXMLFile($filename) {
             foreach ($link as $key => $value) {
                 $fieldnames[$key] = 1;
                 $record[$key] = $value;
+                $multivalue_hints[] = $key;
             }
         }
         $officeLinks = getLinksFromCData($node, 'in-personLinks');
@@ -111,14 +116,22 @@ function processXMLFile($filename) {
             foreach ($link as $key => $value) {
                 $fieldnames[$key] = 1;
                 $record[$key] = $value;
+                $multivalue_hints[] = $key;
             }
         }
         $infoForContactCenter = getPlainText($node, 'moreInfo-forContactCenterOnly-');
         $record['infoForContactCenter'] = $infoForContactCenter;
+        $multivalue_hint = implode(',', $multivalue_hints);
+        $record['multivalue_hint'] = $multivalue_hint;
         $records[$uuid] = $record;
+
     }
+    // Sort the field names, and move "multivalue_hint" to the first column. It helps me.
     $fnames = array_keys($fieldnames);
+    $fnames = array_diff($fnames, ['multivalue_hint']);
     sort($fnames);
+    $fnames = array_merge(['multivalue_hint'], $fnames);
+
     $results['headings'] = $fnames;
     foreach ($records as $uuid => $record) {
         $row = [];
