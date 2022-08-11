@@ -5,12 +5,10 @@
  */
 $infile = "/Users/amykfarrell/dev/data_to_import/Directory-Report1.csv";
 $extended_infile = "/Users/amykfarrell/dev/data_to_import/extended.xml";
-$outfile = "/Users/amykfarrell/dev/data_to_import/all_output.csv";
+$outdir = "/Users/amykfarrell/dev/data_to_import/outdir";
 
-function main($infile, $extended_infile, $outfile) {
+function main($infile, $extended_infile, $outdir) {
     $fp_infile = fopen($infile, 'r');
-    $fp_xml_in = fopen($extended_infile, 'r');
-    $fp_outfile = fopen($outfile, 'w');
 
     // Deal with the CSV file first.
     $basic_records_by_uuid = [];
@@ -30,22 +28,38 @@ function main($infile, $extended_infile, $outfile) {
             $basic_records_by_uuid[$uuid] = $data;
         }
     }
+    fclose($fp_infile);
 
     $extended_records_by_uuid = processXMLFile($extended_infile);
     $extended_headings = $extended_records_by_uuid['headings'];
-    print("Extended Fields: \n\t" . implode("\n\t", $extended_headings));
+    // print("Extended Fields: \n\t" . implode("\n\t", $extended_headings));
 
     $records = [];
     $headings = array_merge($extended_headings, $basic_headings);
-    fputcsv($fp_outfile, $headings);
+    $out_files = [];
+    $num_records = 0; // DEBUG
     foreach ($basic_records_by_uuid as $uuid => $record) {
         $extended_record = $extended_records_by_uuid[$uuid];
         $record = array_merge($extended_record, $record);
-        fputcsv($fp_outfile, $record);
+        $num_records++;
+        $hint = $extended_record[0] ?: 'none';
+        if (!array_key_exists($hint, $out_files)) {
+            $out_files[$hint] = [];
+            $out_files[$hint][] = $headings;
+        }
+        $out_files[$hint][] = $record;
     }
+    print("$num_records records\n");
 
-    fclose($fp_infile);
-    fclose($fp_outfile);
+    foreach ($out_files as $hint => $data) {
+        $outfile = join(DIRECTORY_SEPARATOR, [$outdir, $hint . ".csv"]);
+        $fp_out = fopen($outfile, 'w');
+        foreach ($data as $row) {
+            fputcsv($fp_out, $row);
+        }
+        fclose($fp_out);
+    }
+    print( '=== DONE ===' );
 }
 
 /**
@@ -96,32 +110,35 @@ function processXMLFile($filename) {
         $record = [];
         $multivalue_hints = [];
         $contactLinks = getLinksFromCData($node, 'contactLinks');
+        $mapcount = count($contactLinks) ?: 1;
+        $multivalue_hints[] = 'contact_' . $mapcount;
         foreach ($contactLinks as $link) {
             foreach ($link as $key => $value) {
                 $fieldnames[$key] = 1;
                 $record[$key] = $value;
-                $multivalue_hints[] = $key;
             }
         }
         $websiteLinks = getLinksFromCData($node, 'websiteLinks');
+        $mapcount = count($websiteLinks) ?: 1;
+        $multivalue_hints[] = 'website_' . $mapcount;
         foreach ($websiteLinks as $link) {
             foreach ($link as $key => $value) {
                 $fieldnames[$key] = 1;
                 $record[$key] = $value;
-                $multivalue_hints[] = $key;
             }
         }
         $officeLinks = getLinksFromCData($node, 'in-personLinks');
+        $mapcount = count($officeLinks) ?: 1;
+        $multivalue_hints[] = 'in-person_' . $mapcount;
         foreach ($officeLinks as $link) {
             foreach ($link as $key => $value) {
                 $fieldnames[$key] = 1;
                 $record[$key] = $value;
-                $multivalue_hints[] = $key;
             }
         }
         $infoForContactCenter = getPlainText($node, 'moreInfo-forContactCenterOnly-');
         $record['infoForContactCenter'] = $infoForContactCenter;
-        $multivalue_hint = implode(',', $multivalue_hints);
+        $multivalue_hint = implode('-', $multivalue_hints);
         $record['multivalue_hint'] = $multivalue_hint;
         $records[$uuid] = $record;
 
@@ -198,5 +215,5 @@ function getLinksFromCData($node, $nodename) {
     return $results;
 }
 
-main($infile, $extended_infile, $outfile);
+main($infile, $extended_infile, $outdir);
 ?>
