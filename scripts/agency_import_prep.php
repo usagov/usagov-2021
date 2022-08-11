@@ -127,9 +127,9 @@ function processXMLFile($filename) {
                 $record[$key] = $value;
             }
         }
-        $officeLinks = getLinksFromCData($node, 'in-personLinks');
+        $officeLinks = getLinksFromCData($node, 'in-personLinks', 'officeLinks');
         $mapcount = count($officeLinks) ?: 1;
-        $multivalue_hints[] = 'in-person_' . $mapcount;
+        $multivalue_hints[] = 'office_' . $mapcount;
         foreach ($officeLinks as $link) {
             foreach ($link as $key => $value) {
                 $fieldnames[$key] = 1;
@@ -185,7 +185,8 @@ function getPlainText($node, $nodename) {
  * @param string $nodename
  * @return void
  */
-function getLinksFromCData($node, $nodename) {
+function getLinksFromCData($node, $nodename, $columnname=NULL) {
+    $columnname = $columnname ?: $nodename;
     $nodes = $node->getElementsByTagName($nodename);
     $content = '';
     $results = [];
@@ -193,7 +194,8 @@ function getLinksFromCData($node, $nodename) {
     foreach ($nodes as $node) {
         // if ($node->nodeType == XML_CDATA_SECTION_NODE) {
         if ($content = $node->textContent) {
-            $snippet = new DOMDocument("1.0", "UTF-8");
+            $snippet = new DOMDocument();
+            // Without the UTF-8 hint, HTML snippets default to the wrong charset (ISO-8859-1, I think)
             $snippet->loadHTML('<?xml encoding="UTF-8">' . $content);
             $links = $snippet->getElementsByTagName('a');
             foreach ($links as $link) {
@@ -205,8 +207,8 @@ function getLinksFromCData($node, $nodename) {
                     $url = '';
                 }
                 $text = $link->textContent;
-                $results[] = [$nodename . "_" . $idx . "_url" => $url,
-                              $nodename . "_" . $idx . "_text" => $text];
+                $results[] = [$columnname . "_" . $idx . "_url" => $url,
+                              $columnname . "_" . $idx . "_text" => $text];
                 $idx++;
             }
         }
