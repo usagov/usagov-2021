@@ -8,6 +8,8 @@ fi
 
 LOCAL_FILE=${1:-usagov.sql}
 YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
+SPACE=$( cf target | grep space: | awk '{ print $2 }')
+
 TEMP_FILE=/tmp/$YMDHMS.sql.gz
 
 touch $LOCAL_FILE
@@ -18,6 +20,8 @@ cf ssh cms -c "if [ -f $TEMP_FILE ]; then rm -f $TEMP_FILE; fi"
 if [ -f $LOCAL_FILE ]; then
   echo "Decompressing $LOCAL_FILE"
   gunzip -f $LOCAL_FILE.gz;
+  echo "Recompressing for distribution as a date formatted zip"
+  zip -r usagov-${SPACE}_$(date +"%m_%d_%Y").sql.zip usagov.sql
 fi
 
 # if ! command -v sshpass &> /dev/null
