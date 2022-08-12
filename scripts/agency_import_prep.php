@@ -3,7 +3,7 @@
 /**
  * Prep an import CSV for "basic" fields in Federal Directory records
  */
-$infile = "/Users/amykfarrell/dev/data_to_import/Directory-Report1.csv";
+$infile = "/Users/amykfarrell/dev/data_to_import/basic_directory_records.csv";
 $extended_infile = "/Users/amykfarrell/dev/data_to_import/extended.xml";
 $outdir = "/Users/amykfarrell/dev/data_to_import/outdir";
 
@@ -13,36 +13,44 @@ function main($infile, $extended_infile, $outdir) {
     // Deal with the CSV file first.
     $basic_records_by_uuid = [];
     $headings_processed = FALSE;
-    $basic_headings = [];
     while (($data = fgetcsv($fp_infile)) !== FALSE) {
         if (!$headings_processed) {
             $data[] = 'langcode';
             $data[] = 'alias';
-            $basic_headings = $data;
+            $data[] = 'phonehints';
             $array_indexes = array_flip($data);
             $headings_processed = TRUE;
         }
         else {
-            $data = convert_fields($data, $array_indexes);
+            convert_fields($data, $array_indexes);
             $uuid = $data[$array_indexes['UUID']];
             $basic_records_by_uuid[$uuid] = $data;
         }
     }
     fclose($fp_infile);
 
+    $basic_headings = array_flip($array_indexes);
     $extended_records_by_uuid = processXMLFile($extended_infile);
     $extended_headings = $extended_records_by_uuid['headings'];
-    // print("Extended Fields: \n\t" . implode("\n\t", $extended_headings));
+    print("Basic Headings: \n\t" . implode("\n\t", $basic_headings) . "\n");
 
     $records = [];
     $headings = array_merge($extended_headings, $basic_headings);
     $out_files = [];
-    $num_records = 0; // DEBUG
+    $num_records = 0; // We'll count them on output, just so we can report.
     foreach ($basic_records_by_uuid as $uuid => $record) {
         $extended_record = $extended_records_by_uuid[$uuid];
+
+        // Get the "hints" from both records and concatenate them to group records
+        // by number of multi-value fields to map:
+        $hint = $extended_record[0] ?: 'none';
+        $phonehint_index = $array_indexes['phonehints'];
+        $hint .= '_' .  $record[$phonehint_index];
+
+        // Now merge the records.
         $record = array_merge($extended_record, $record);
         $num_records++;
-        $hint = $extended_record[0] ?: 'none';
+
         if (!array_key_exists($hint, $out_files)) {
             $out_files[$hint] = [];
             $out_files[$hint][] = $headings;
@@ -63,13 +71,13 @@ function main($infile, $extended_infile, $outdir) {
 }
 
 /**
- * Map and convert selected fields.
+ * Map and convert selected fields. Modifies both the $data and $indexes inputs.
  *
  * @param Array $data
  * @param Array $indexes
- * @return Array
+ * @return void
  */
-function convert_fields($data, $indexes) {
+function convert_fields(&$data, &$indexes) {
     // Language -> langcode
     $lang_index = $indexes['Language'];
     $lc_index = $indexes['langcode'];
@@ -95,6 +103,29 @@ function convert_fields($data, $indexes) {
         }
         $data[$alias_index] = $alias;
     }
+    // Phone number fields are lists of plain text strings, joined by '###'.
+    $phone_map = [
+        'Phone number' => 'phone',
+        'Toll free number' => 'toll',
+        'TTY number' => 'tty',
+    ];
+    // We want to know how many numbers to map, but we always map at least 1.
+    $hints = ['phone' => 1, 'toll' => 1, 'tty' => 1];
+    foreach ($phone_map as $fieldname => $shortname) {
+        $num_index = $indexes[$fieldname];
+        $numbers = explode('###', $data[$num_index]);
+        $numcount = 0;
+        foreach ($numbers as $num) {
+            $fn = $shortname . '_' . ++$numcount;
+            if (!array_key_exists($fn, $indexes)) {
+                $indexes[$fn] = count($indexes);
+            }
+            $data[$indexes[$fn]] = $num;
+        }
+        $hints[$shortname] = $numcount;
+    }
+
+    $data[$indexes['phonehints']] = implode('-', ['phone_' . $hints['phone'], 'toll_' . $hints['toll'], 'tty_' . $hints['tty']]);
     return $data;
 }
 
