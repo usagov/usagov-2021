@@ -45,7 +45,7 @@ function main($infile, $extended_infile, $outdir) {
         // by number of multi-value fields to map:
         $hint = $extended_record[0] ?: 'none';
         $phonehint_index = $array_indexes['phonehints'];
-        $hint .= '_' .  $record[$phonehint_index];
+        $hint .= '-' .  $record[$phonehint_index];
 
         // Now merge the records.
         $record = array_merge($extended_record, $record);
