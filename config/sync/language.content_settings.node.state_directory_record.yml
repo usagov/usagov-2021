@@ -12,5 +12,5 @@ third_party_settings:
 id: node.state_directory_record
 target_entity_type_id: node
 target_bundle: state_directory_record
-default_langcode: site_default
+default_langcode: en
 language_alterable: true
