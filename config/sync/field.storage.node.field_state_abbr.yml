@@ -186,6 +186,9 @@ settings:
     -
       value: WY
       label: WY
+    -
+      value: AE
+      label: AE
   allowed_values_function: ''
 module: options
 locked: false

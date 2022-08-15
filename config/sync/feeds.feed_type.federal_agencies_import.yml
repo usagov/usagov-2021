@@ -10,7 +10,6 @@ dependencies:
     - field.field.node.directory_record.field_english_title
     - field.field.node.directory_record.field_government_branch
     - field.field.node.directory_record.field_mothership_uuid
-    - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
     - field.field.node.directory_record.field_state_abbr
     - field.field.node.directory_record.field_street_1
@@ -167,7 +166,7 @@ custom_sources:
     machine_name: in_personlinks_1_url
     type: csv
   in_personlinks_1_text:
-    value: in_personLinks_1_text
+    value: in-personLinks_1_text
     label: in_personLinks_1_text
     machine_name: in_personlinks_1_text
     type: csv
@@ -190,6 +189,21 @@ custom_sources:
     value: websiteLinks_2_text
     label: websiteLinks_2_text
     machine_name: websitelinks_2_text
+    type: csv
+  websitelinks_1_url:
+    value: websiteLinks_1_url
+    label: websiteLinks_1_url
+    machine_name: websitelinks_1_url
+    type: csv
+  in_personlinks_2_url:
+    value: in-personLinks_2_url
+    label: in-personLinks_2_url
+    machine_name: in_personlinks_2_url
+    type: csv
+  in_personlinks_2_text:
+    value: in-personLinks_2_text
+    label: in-personLinks_2_text
+    machine_name: in_personlinks_2_text
     type: csv
 mappings:
   -
@@ -308,23 +322,16 @@ mappings:
     settings:
       language: null
   -
-    target: field_offices_near_you
-    map:
-      uri: in_personlinks_1_url
-      title: in_personlinks_1_text
-    settings:
-      language: null
-  -
     target: field_website
     map:
-      uri: websitelinks_1_uri
+      uri: websitelinks_1_url
       title: websitelinks_1_text
     settings:
       language: null
   -
-    target: field_website
+    target: field_offices_near_you
     map:
-      uri: websitelinks_2_url
-      title: websitelinks_2_text
+      uri: in_personlinks_1_url
+      title: in_personlinks_1_text
     settings:
       language: null
