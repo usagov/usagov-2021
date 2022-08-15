@@ -1,0 +1,18 @@
+uuid: e3f112dc-7d51-48bb-872c-c792886d9ba5
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.state_directory_record
+id: node.state_directory_record.title
+field_name: title
+entity_type: node
+bundle: state_directory_record
+label: 'State Name'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
