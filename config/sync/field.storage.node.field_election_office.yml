@@ -1,0 +1,19 @@
+uuid: a0c28863-4750-4245-b293-b1f6ca676e23
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - node
+id: node.field_election_office
+field_name: field_election_office
+entity_type: node
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
