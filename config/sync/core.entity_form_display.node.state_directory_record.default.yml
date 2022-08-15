@@ -8,8 +8,10 @@ dependencies:
     - field.field.node.state_directory_record.field_city
     - field.field.node.state_directory_record.field_consumer_protection
     - field.field.node.state_directory_record.field_contact_link
+    - field.field.node.state_directory_record.field_corrections_dept
     - field.field.node.state_directory_record.field_district_attorneys
     - field.field.node.state_directory_record.field_education_department
+    - field.field.node.state_directory_record.field_election_office
     - field.field.node.state_directory_record.field_email
     - field.field.node.state_directory_record.field_emergency_management
     - field.field.node.state_directory_record.field_english_title
@@ -62,7 +64,7 @@ content:
     third_party_settings: {  }
   field_agriculture_department:
     type: link_default
-    weight: 25
+    weight: 24
     region: content
     settings:
       placeholder_url: ''
@@ -78,7 +80,7 @@ content:
     third_party_settings: {  }
   field_consumer_protection:
     type: link_default
-    weight: 26
+    weight: 25
     region: content
     settings:
       placeholder_url: ''
@@ -92,15 +94,15 @@ content:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
-  field_district_attorneys:
+  field_corrections_dept:
     type: link_default
-    weight: 27
+    weight: 26
     region: content
     settings:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
-  field_education_department:
+  field_district_attorneys:
     type: link_default
     weight: 28
     region: content
@@ -108,9 +110,25 @@ content:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
+  field_education_department:
+    type: link_default
+    weight: 29
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_election_office:
+    type: link_default
+    weight: 30
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
   field_email:
     type: email_default
-    weight: 33
+    weight: 35
     region: content
     settings:
       placeholder: ''
@@ -118,7 +136,7 @@ content:
     third_party_settings: {  }
   field_emergency_management:
     type: link_default
-    weight: 29
+    weight: 31
     region: content
     settings:
       placeholder_url: ''
@@ -134,7 +152,7 @@ content:
     third_party_settings: {  }
   field_for_contact_center_only:
     type: text_textarea
-    weight: 38
+    weight: 40
     region: content
     settings:
       rows: 5
@@ -158,7 +176,7 @@ content:
     third_party_settings: {  }
   field_health_department:
     type: link_default
-    weight: 30
+    weight: 32
     region: content
     settings:
       placeholder_url: ''
@@ -166,7 +184,7 @@ content:
     third_party_settings: {  }
   field_language_toggle:
     type: entity_reference_autocomplete
-    weight: 37
+    weight: 39
     region: content
     settings:
       match_operator: CONTAINS
@@ -176,7 +194,7 @@ content:
     third_party_settings: {  }
   field_local_governments:
     type: link_default
-    weight: 24
+    weight: 27
     region: content
     settings:
       placeholder_url: ''
@@ -184,7 +202,7 @@ content:
     third_party_settings: {  }
   field_motor_vehicle_office:
     type: link_default
-    weight: 31
+    weight: 33
     region: content
     settings:
       placeholder_url: ''
@@ -200,14 +218,14 @@ content:
     third_party_settings: {  }
   field_phone_number:
     type: telephone_default
-    weight: 34
+    weight: 36
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_social_services:
     type: link_default
-    weight: 32
+    weight: 34
     region: content
     settings:
       placeholder_url: ''
@@ -253,14 +271,14 @@ content:
     third_party_settings: {  }
   field_toll_free_number:
     type: telephone_default
-    weight: 35
+    weight: 37
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_tty_number:
     type: telephone_default
-    weight: 36
+    weight: 38
     region: content
     settings:
       placeholder: ''
