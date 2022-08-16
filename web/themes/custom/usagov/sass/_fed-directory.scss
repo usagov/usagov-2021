@@ -36,7 +36,7 @@
     color: #000;
     box-sizing: border-box;
     background-color: #ccecf2;
-    box-shadow: 0 0 0 2px #0081a1; 
+    box-shadow: 0 0 0 2px #0081a1;
     border-radius: 0.01rem;
     font-size: 1.5rem;
     font-weight: 600;
@@ -55,7 +55,7 @@
 
   a.is-active:hover {
     box-shadow: 0 0 0 0.15rem #000;
-    background-color: white;    
+    background-color: white;
   }
 }
 
@@ -95,7 +95,6 @@ hr.bl-divider {
   outline: 2px solid #0081a1;
   border-top-right-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
-  // padding-left: 10px;
   background-color: #ccecf2;
 
   input::placeholder {
