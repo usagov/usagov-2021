@@ -74,6 +74,7 @@ services:
         }
     depends_on:
       - database
+      - minio
 
   database:
     container_name: database
