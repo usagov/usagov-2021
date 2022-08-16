@@ -1,4 +1,4 @@
-(function ($) {
+jQuery(document).ready(function ($) {
   if (window.innerWidth <= 950) {
     $(".field--type-telephone").replaceWith(function () {
       return $(
@@ -12,4 +12,4 @@
       return $('<span class="num">' + $(this).html() + "</span>");
     });
   }
-})(jQuery);
+});
