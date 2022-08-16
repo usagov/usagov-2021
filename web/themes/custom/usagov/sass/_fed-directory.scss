@@ -79,8 +79,12 @@ hr.bl-divider {
   justify-content: center;
   display: flex;
   flex-direction: row;
-  gap: 2rem;
+  gap: 10px;
   align-items: center;
+
+  p {
+    font-size: 18px;
+  }
 }
 
 .fed-directory-search-bar {
@@ -88,10 +92,10 @@ hr.bl-divider {
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
-  gap: 0.2rem;
   outline: 2px solid #0081a1;
   border-top-right-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
+  // padding-left: 10px;
   background-color: #ccecf2;
 
   input::placeholder {
