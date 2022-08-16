@@ -78,3 +78,19 @@
   </div>
   {% endif %}
 </div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+  if (window.innerWidth <= 950) {
+    $(".num").replaceWith(function (){
+      return $("<a href='tel:" + $(this).html() + "'>" + $(this).html() + "</a>");   
+    });
+  };
+
+  if (window.innerWidth >= 950) {
+    $('a[href^="tel:"]').replaceWith(function (){
+      return $('<span class="num">'+ $(this).html() + '</span>');   
+    });
+  };
+</script>
