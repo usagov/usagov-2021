@@ -76,10 +76,10 @@ if [ -f env.local ]; then
   . env.local
 fi
 
-echo "Alter Node base image for M1 macs"
 # m1 macs need to use a arm64 node image to work
 host_node_base=node
 if [[ "$os_osx_m1" == "yes" ]]; then
+  echo "Alter Node base image since we think you are on an M1 mac"
   host_node_base=arm64v8/node
 fi
 
