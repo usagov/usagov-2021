@@ -1,64 +1,26 @@
 @use "usagov-variables" as *;
 
-// TODO: MAY DELETE
+// State Directory - Form/Combo Box
+.state-usa-form {
+  max-width: 40rem;
 
-// State Directory - Dropdown
-.sd-container {
-  display: flex;
-
-  div {
-    width: 12rem;
-    padding-right: 10px;
-  }
-
-  button.sd-go-btn {
-    box-shadow: 0 0 0 0.2rem #a7d8e3;
-    border-radius: 0.15rem;
-    background-color: #ccecf2;
-    text-align: center;
-    transition: background-color 200ms;
-  }
-
-  button.sd-go-btn:hover {
-    background-color: #a7d8e3;
+  label {
+    font-size: 1.13rem;
+    margin-top: 35px;
+    margin-bottom: 10px;
   }
 }
 
-// State Directory - Detail
-.usagov-sd-table {
-  border-collapse: collapse;
-  width: 100%;
-  margin-bottom: 75px;
-
-  tr {
-    border: solid 1.5px #d3d2d2;
-    margin: 0;
-  }
-
-  tr td {
-    padding: 2.25rem 2rem;
-  }
-
-  tr:nth-child(odd) td {
-    background-color: #f2f2f2;
-  }
+// State Directory - Go Button
+.sd-go-btn {
+  margin-left: 10px;
+  box-shadow: 0 0 0 0.15rem #0081a1;
+  border-radius: 0.15rem;
+  background-color: #ccecf2;
+  text-align: center;
+  transition: background-color 200ms;
 }
 
-.usagov-sd-table tbody {
-  padding: 0;
-}
-
-.usagov-sd-table h3 {
-  margin: 0;
-  margin-bottom: 0.1rem;
-  font-weight: bold;
-}
-
-.usagov-sd-table p {
-  margin: 0;
-}
-
-.usagov-sd-table ul {
-  margin: 0;
-  padding-left: 1rem;
+.sd-go-btn:hover {
+  background-color: #a7d8e3;
 }
