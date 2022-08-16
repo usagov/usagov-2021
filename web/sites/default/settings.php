@@ -912,6 +912,9 @@ if (!empty($cf_application_data['space_name']) &&
       break;
   }
 }
+$settings['cache']['bins']['render'] = 'cache.backend.null';
+$settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.null';
+$settings['cache']['bins']['page'] = 'cache.backend.null';
 
 // Overide anything special for local developement
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
