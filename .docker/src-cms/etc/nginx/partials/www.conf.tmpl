@@ -11,8 +11,8 @@ server {
     add_header Cache-Control max-age=31536000;
     expires max;
 
-    include /etc/nginx/partials/s3proxy.conf
-    include /etc/nginx/partials/static404s.conf
+    include /etc/nginx/partials/s3proxy.conf;
+    include /etc/nginx/partials/404s.conf;
 }
 
 server {
@@ -28,6 +28,6 @@ server {
     add_header Cache-Control max-age=31536000;
     expires max;
 
-    include /etc/nginx/partials/s3proxy.conf
-    include /etc/nginx/partials/static404s.conf
+    include /etc/nginx/partials/s3proxy.conf;
+    include /etc/nginx/partials/404s.conf;
 }
