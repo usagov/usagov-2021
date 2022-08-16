@@ -13,17 +13,17 @@ function main($infile, $extended_infile, $outdir) {
     // Deal with the CSV file first.
     $basic_records_by_uuid = [];
     $headings_processed = FALSE;
-    while (($data = fgetcsv($fp_infile)) !== FALSE) {
+    while (($row = fgetcsv($fp_infile)) !== FALSE) {
         if (!$headings_processed) {
-            $data[] = 'langcode';
-            $data[] = 'alias';
-            $data[] = 'phonehints';
-            $array_indexes = array_flip($data);
+            $row[] = 'langcode';
+            $row[] = 'alias';
+            $row[] = 'phonehint';
+            $array_indexes = array_flip($row);
             $headings_processed = TRUE;
         }
         else {
-            convert_fields($data, $array_indexes);
-            $uuid = $data[$array_indexes['UUID']];
+            $data = convert_fields($row, $array_indexes);
+            $uuid = $data['UUID'];
             $basic_records_by_uuid[$uuid] = $data;
         }
     }
@@ -38,24 +38,29 @@ function main($infile, $extended_infile, $outdir) {
     $headings = array_merge($extended_headings, $basic_headings);
     $out_files = [];
     $num_records = 0; // We'll count them on output, just so we can report.
-    foreach ($basic_records_by_uuid as $uuid => $record) {
+    foreach ($basic_records_by_uuid as $uuid => $basic_record) {
         $extended_record = $extended_records_by_uuid[$uuid];
 
         // Get the "hints" from both records and concatenate them to group records
         // by number of multi-value fields to map:
-        $hint = $extended_record[0] ?: 'none';
-        $phonehint_index = $array_indexes['phonehints'];
-        $hint .= '-' .  $record[$phonehint_index];
+        $hint = $extended_record['multivalue_hint'] ?: 'none';
+        $hint .= '-' .  $basic_record['phonehint'];
 
-        // Now merge the records.
-        $record = array_merge($extended_record, $record);
+        // Now combine the records into a flat array, in the same order as $headings above.
+        $flat_record = [];
+        foreach ($extended_headings as $eh) {
+            $flat_record[] = array_key_exists($eh, $extended_record) ? $extended_record[$eh] : '';
+        }
+        foreach ($basic_headings as $bh) {
+            $flat_record[] = array_key_exists($bh, $basic_record) ? $basic_record[$bh] : '';
+        }
         $num_records++;
 
         if (!array_key_exists($hint, $out_files)) {
             $out_files[$hint] = [];
             $out_files[$hint][] = $headings;
         }
-        $out_files[$hint][] = $record;
+        $out_files[$hint][] = $flat_record;
     }
     print("$num_records records\n");
 
@@ -71,22 +76,22 @@ function main($infile, $extended_infile, $outdir) {
 }
 
 /**
- * Map and convert selected fields. Modifies both the $data and $indexes inputs.
+ * Map and convert selected fields. Returns an array indexed by field name. Modifies the $indexes inputs.
  *
- * @param Array $data
+ * @param Array $row
  * @param Array $indexes
- * @return void
+ * @return Array
  */
-function convert_fields(&$data, &$indexes) {
+function convert_fields($row, &$indexes) {
     // Language -> langcode
     $lang_index = $indexes['Language'];
     $lc_index = $indexes['langcode'];
-    $data[$lc_index] = $data[$lang_index] == 'Spanish' ? 'es' : 'en';
+    $row[$lc_index] = $row[$lang_index] == 'Spanish' ? 'es' : 'en';
 
     // Path -> alias
     $path_index = $indexes['Path'];
     $alias_index = $indexes['alias'];
-    $alias = $data[$path_index];
+    $alias = $row[$path_index];
     if (!str_starts_with($alias, '/content/')) {
         // This is unexpected.
         print("Unusual alias being left alone: " . $alias . "\n");
@@ -95,13 +100,13 @@ function convert_fields(&$data, &$indexes) {
         // Trim off /content, then concatenate what remains to the correct parent path.
         // While it would be unusual for /content/ to appear elsewhere in the path, why risk a global replace?
         $alias = substr($alias, 9);
-        if ($data[$lang_index] == 'Spanish') {
+        if ($row[$lang_index] == 'Spanish') {
             $alias = '/agencia/' . $alias;
         }
         else {
             $alias = '/agency/' . $alias;
         }
-        $data[$alias_index] = $alias;
+        $row[$alias_index] = $alias;
     }
     // Phone number fields are lists of plain text strings, joined by '###'.
     $phone_map = [
@@ -113,19 +118,25 @@ function convert_fields(&$data, &$indexes) {
     $hints = ['phone' => 1, 'toll' => 1, 'tty' => 1];
     foreach ($phone_map as $fieldname => $shortname) {
         $num_index = $indexes[$fieldname];
-        $numbers = explode('###', $data[$num_index]);
+        $numbers = explode('###', $row[$num_index]);
         $numcount = 0;
         foreach ($numbers as $num) {
             $fn = $shortname . '_' . ++$numcount;
             if (!array_key_exists($fn, $indexes)) {
                 $indexes[$fn] = count($indexes);
             }
-            $data[$indexes[$fn]] = $num;
+            $row[$indexes[$fn]] = $num;
         }
         $hints[$shortname] = $numcount;
     }
+    $data = [];
+    $index_flip = array_flip($indexes);
+    foreach ($row as $idx => $val) {
+        $key = $index_flip[$idx];
+        $data[$key] = $val;
+    }
 
-    $data[$indexes['phonehints']] = implode('-', ['phone_' . $hints['phone'], 'toll_' . $hints['toll'], 'tty_' . $hints['tty']]);
+    $data['phonehint'] = implode('-', ['phone_' . $hints['phone'], 'toll_' . $hints['toll'], 'tty_' . $hints['tty']]);
     return $data;
 }
 
@@ -133,7 +144,6 @@ function processXMLFile($filename) {
     $doc = new DOMDocument("1.0", "UTF-8");
     $doc->load($filename);
     $nodes = $doc->getElementsByTagName('node');
-    $results = []; // We will return this; it will include the header row.
     $records = []; // One array per node, keyed by header
     $fieldnames = ['infoForContactCenter' => 1];
     foreach ($nodes as $node) {
@@ -180,16 +190,8 @@ function processXMLFile($filename) {
     sort($fnames);
     $fnames = array_merge(['multivalue_hint'], $fnames);
 
-    $results['headings'] = $fnames;
-    foreach ($records as $uuid => $record) {
-        $row = [];
-        foreach ($fnames as $field) {
-            $val = array_key_exists($field, $record) ? $record[$field] : '';
-            $row[] = $val;
-        }
-        $results[$uuid] = $row;
-    }
-    return $results;
+    $records['headings'] = $fnames;
+    return $records;
 }
 
 /**
