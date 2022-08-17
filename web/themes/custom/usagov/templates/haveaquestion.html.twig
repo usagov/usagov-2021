@@ -4,12 +4,11 @@
     {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
 {% endif %}
 
-{% if (term_name == "Standard Page") or (content_type == "wizard") or (content_type == "wizard_step") %}
+{% if (term_name == "Standard Page") or (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
 
 {% set talk = '/phone' %}
 {% set chat = '/chat' %}
 <div id="question_box">
-    <div class="border-top-05  border-base-lightest"></div>
     <div class="border-left-1 padding-left-205 border-cyan-10 margin-top-8 margin-bottom-9 padding-bottom-4">
         <h3 class="font-family-heading margin-top-0">
             {{ lang == 'en' ? "Do you have a question?" : "¿Tiene una pregunta?" }}
