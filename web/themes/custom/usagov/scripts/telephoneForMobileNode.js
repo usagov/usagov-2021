@@ -12,9 +12,7 @@ jQuery(document).ready(function ($) {
       }
       // strip all non-numerical numbers to only link the actual phone number
       const numberAndDesc = $(this).text();
-      console.log("numberAndDesc " + numberAndDesc);
       const onlyPhoneNumber = numberAndDesc.replace(/\D/g, "");
-      console.log("onlyPhoneNumber " + onlyPhoneNumber);
       const onlyDesc = numberAndDesc.replace(/\d/g, "");
       console.log("onlyDesc" + onlyDesc);
       // if length is 10 there's no country code
@@ -35,8 +33,8 @@ jQuery(document).ready(function ($) {
     });
   }
   if (window.innerWidth > 950) {
-    $(".field--type-telephone").replaceWith(function () {
-      return $("<p> big </p>");
+    $('a[href^="tel:"]').replaceWith(function () {
+      return $("<p> " + $(this).text() + " </p>");
     });
   }
 });
