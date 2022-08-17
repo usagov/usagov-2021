@@ -119,8 +119,8 @@ git fetch
 git pull
 
 # Reset db
-bin/update-db
-bin/update-drupal
+bin/db-update
+bin/drupal-update
 docker compose up
 
 # Start new work
