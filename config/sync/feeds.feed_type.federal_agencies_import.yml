@@ -10,6 +10,7 @@ dependencies:
     - field.field.node.directory_record.field_english_title
     - field.field.node.directory_record.field_government_branch
     - field.field.node.directory_record.field_mothership_uuid
+    - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
     - field.field.node.directory_record.field_state_abbr
     - field.field.node.directory_record.field_street_1
@@ -205,6 +206,16 @@ custom_sources:
     label: in-personLinks_2_text
     machine_name: in_personlinks_2_text
     type: csv
+  officelinks_1_url:
+    value: officeLinks_1_url
+    label: officeLinks_1_url
+    machine_name: officelinks_1_url
+    type: csv
+  officelinks_1_text:
+    value: officeLinks_1_text
+    label: officeLinks_1_text
+    machine_name: officelinks_1_text
+    type: csv
 mappings:
   -
     target: title
@@ -331,7 +342,7 @@ mappings:
   -
     target: field_offices_near_you
     map:
-      uri: in_personlinks_1_url
-      title: in_personlinks_1_text
+      uri: officelinks_1_url
+      title: officelinks_1_text
     settings:
       language: null
