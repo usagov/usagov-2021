@@ -1,11 +1,32 @@
 <?php
 
 /**
- * Prep an import CSV for "basic" fields in Federal Directory records
+ * This script converts Federal Directory Record data exported from the
+ * previous USA.gov site into CSV files for import into the new site.
+ * The import will be done using the Drupal Feeds module. Once we've
+ * finished transferring data, there will be no further need for this script.
+ *
+ * This script takes paths to two input files and an output directory:
+ *  - A CSV file with most of the fields in plain-text form
+ *  - An XML file with fields that are not plain text (generally, HTML snippets)
+ *  - A directory where you want your output
+ *
+ * Both files include create and update timestamps on all records, for the
+ * purpose of doing incremental updates (to be implemented).
+ *
+ * Due to a problem importing records with multiple-value "link" mappings, in
+ * which some of the mappings are blank, this script splits its output into
+ * multiple files, based on the combination of "link" fields present in each
+ * record. That means multiple map-and-import steps for the user.
+ * See https://www.drupal.org/project/feeds/issues/3302749 for details on
+ * the underlying issue.
+ *
+ * - akf, 2022-08-17
  */
-$infile = "/Users/amykfarrell/dev/data_to_import/basic_directory_records.csv";
-$extended_infile = "/Users/amykfarrell/dev/data_to_import/extended.xml";
-$outdir = "/Users/amykfarrell/dev/data_to_import/outdir";
+
+$infile = $argv[1];
+$extended_infile = $argv[2];
+$outdir = $argv[3];
 
 function main($infile, $extended_infile, $outdir) {
     $fp_infile = fopen($infile, 'r');
@@ -32,7 +53,6 @@ function main($infile, $extended_infile, $outdir) {
     $basic_headings = array_flip($array_indexes);
     $extended_records_by_uuid = processXMLFile($extended_infile);
     $extended_headings = $extended_records_by_uuid['headings'];
-    print("Basic Headings: \n\t" . implode("\n\t", $basic_headings) . "\n");
 
     $records = [];
     $headings = array_merge($extended_headings, $basic_headings);
@@ -72,7 +92,7 @@ function main($infile, $extended_infile, $outdir) {
         }
         fclose($fp_out);
     }
-    print( '=== DONE ===' );
+    print( "=== DONE ===\n" );
 }
 
 /**
