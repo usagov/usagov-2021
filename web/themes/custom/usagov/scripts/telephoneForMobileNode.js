@@ -6,10 +6,4 @@ jQuery(document).ready(function ($) {
       );
     });
   }
-
-  if (window.innerWidth >= 950) {
-    $('a[href^="tel:"]').replaceWith(function () {
-      return $('<span class="num">' + $(this).html() + "</span>");
-    });
-  }
 });
