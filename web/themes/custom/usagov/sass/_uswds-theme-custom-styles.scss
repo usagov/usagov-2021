@@ -192,7 +192,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 /** info banner header **/
 @include at-media($theme-header-min-width) {
-.usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
+  .usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
     margin-bottom: 0;
   }
 }
@@ -270,10 +270,10 @@ This style ensures that we can remove the padding-top from text in a card body. 
 
 /** Mobile menu button **/
 @media (max-width: 64em) {
-.usa-header--extended .usa-navbar { 
-      margin-top: 1rem;
-      padding-bottom: 1rem;
-   }
+  .usa-header--extended .usa-navbar {
+    margin-top: 1rem;
+    padding-bottom: 1rem;
+  }
 }
 
 .usa-header--extended .usa-menu-btn {
@@ -319,20 +319,20 @@ This style ensures that we can remove the padding-top from text in a card body. 
 // This is to make the Spanish header links align in a row with the search instead of a colum
 .usa-header--extended .usa-nav__secondary {
   @include at-media($theme-header-min-width) {
-  @include u-flex("row", "align-end");
-   
-  bottom: 6rem;
-  width: 32rem;
+    @include u-flex("row", "align-end");
+
+    bottom: 6rem;
+    width: 32rem;
   }
 }
 
 // This is to make the Spanish header links align in a row with the search instead of a colum
 .usa-header--extended .usa-nav__secondary:lang(es) {
   @include at-media($theme-header-min-width) {
-  @include u-flex("row", "align-end");
+    @include u-flex("row", "align-end");
 
-  bottom: 6rem;
-  width: 33rem;
+    bottom: 6rem;
+    width: 33rem;
   }
 }
 
@@ -343,54 +343,56 @@ This style ensures that we can remove the padding-top from text in a card body. 
 }
 
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item {
-   @include at-media($theme-header-min-width) {
-      display: inline;
-      padding-left: 0;
-   }
+  @include at-media($theme-header-min-width) {
+    display: inline;
+    padding-left: 0;
+  }
 }
 
 // This is to make the header link stretch out
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
-      width: 15rem;
-      line-height: 1.1rem;
-   }
+    width: 15rem;
+    line-height: 1.1rem;
+  }
 }
 
 // Spanish header fix for text length
 .usa-header--extended .usa-nav__secondary-links:lang(es) {
-   @include at-media($theme-header-min-width) {
-      width: 17rem;
-      line-height: 1.1rem;
-   }
+  @include at-media($theme-header-min-width) {
+    width: 17rem;
+    line-height: 1.1rem;
+  }
 }
 
 // This is to add content pipe before the search
-.usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
-   @include at-media($theme-header-min-width) {
-      float: right;
-      color: $gray;
-      content: "|"; // Removed while phone number is disabled
-      padding-right: 1rem;
-      font-size: 2rem;
-      padding-bottom: .4rem;
-   }
+.usa-header--extended
+  .usa-nav__secondary-links
+  .usa-nav__secondary-item::after {
+  @include at-media($theme-header-min-width) {
+    float: right;
+    color: $gray;
+    content: "|"; // Removed while phone number is disabled
+    padding-right: 1rem;
+    font-size: 2rem;
+    padding-bottom: 0.4rem;
+  }
 }
 
 .usa-header--extended .usa-nav__secondary-links a {
-   @include at-media($theme-header-min-width) {
-      font-size: 1.13rem;
-      padding-left: .5rem;
-      padding-top: .2rem;
-   }
+  @include at-media($theme-header-min-width) {
+    font-size: 1.13rem;
+    padding-left: 0.5rem;
+    padding-top: 0.2rem;
+  }
 }
 
 .usa-header--extended .usa-nav__secondary-links a:lang(es) {
-   @include at-media($theme-header-min-width) {
-      font-size: 1.13rem;
-      padding-left: .2rem;
-      padding-top: .2rem;
-   }
+  @include at-media($theme-header-min-width) {
+    font-size: 1.13rem;
+    padding-left: 0.2rem;
+    padding-top: 0.2rem;
+  }
 }
 
 .usa-nav__primary > .usa-nav__primary-item > a,
@@ -786,4 +788,135 @@ div #sm-share * {
 div #sm-share a {
   padding: 7px;
   text-decoration: none;
+}
+
+// Changed footer styles
+
+.ftr-list {
+  @media (min-width: 64em) {
+    padding-top: 1.4rem;
+  }
+}
+
+.usa-footer--big
+  .usa-gov-footer__primary-content--collapsible
+  .usa-gov-footer__primary-link {
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
+  color: red;
+  font-size: 1.2rem;
+}
+
+.usa-sign-up__heading {
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
+}
+
+.usa-gov-footer__primary-content--collapsible.hidden {
+  // USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
+  display: block;
+}
+
+@media (min-width: 30em) {
+  .usa-gov-footer__contact-heading.es {
+    display: inline-grid;
+    margin-top: 0.5rem;
+    margin-right: -1.5rem;
+    text-align: left;
+  }
+}
+
+/** This is to add the facebook social media icon **/
+
+.usa-social-link:hover {
+  background-color: #ccecf2;
+}
+
+.usa-social-link--facebook {
+  background-image: url("../images/facebook34.png"),
+    linear-gradient(transparent, transparent);
+}
+
+/** This is to add the twitter social media icon **/
+.usa-social-link--twitter {
+  background-image: url("../images/twitter34.png"),
+    linear-gradient(transparent, transparent);
+}
+
+/** This is to add the instagram social media icon **/
+.usa-social-link--instagram {
+  background-image: url("../images/instagram34.png"),
+    linear-gradient(transparent, transparent);
+}
+
+/** This is to add the youtube social media icon **/
+.usa-social-link--youtube {
+  background-image: url("../images/youtube34.png"),
+    linear-gradient(transparent, transparent);
+}
+
+.usa-gov-footer__secondary-section {
+  background-color: color("cyan-10");
+}
+
+.usa-gov-footer__contact-links {
+  @media (max-width: 30em) {
+    margin-top: 0;
+  }
+}
+
+.usa-gov-footer__contact-heading {
+  @media (max-width: 30em) {
+    text-align: left;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.usa-gov-footer__secondary-section a {
+  padding-bottom: 2rem;
+}
+
+// .usa-gov-footer__contact-links {
+//   @media (min-width: 40em) {
+//     margin-left: -3rem;
+//   }
+// }
+
+@media (min-width: 30em) {
+  .usa-gov-footer__contact-heading {
+    margin-top: 0.5rem;
+  }
+}
+
+.usa-social-link {
+  background-color: transparent;
+}
+
+.usa-social-link span {
+  position: absolute;
+  left: -999em;
+  right: auto;
+}
+
+.usa-gov-footer__social-links {
+  @media (max-width: 30em) and (min-width: 30em) {
+    justify-content: flex-start;
+    padding-right: 0;
+  }
+  @media (min-width: 31em) {
+    padding-right: 2rem;
+  }
+}
+
+.sm-sp-links {
+  @media (max-width: 30em) and(min-width: 30rem) {
+    padding-left: 2rem;
+  }
+}
+
+@media (min-width: 30em) {
+  .usa-gov-footer__contact-info {
+    justify-content: flex-start !important;
+    margin-top: -0.25rem;
+  }
 }
