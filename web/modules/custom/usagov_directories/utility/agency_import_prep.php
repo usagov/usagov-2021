@@ -24,9 +24,12 @@
  * - akf, 2022-08-17
  */
 
-$infile = $argv[1];
-$extended_infile = $argv[2];
-$outdir = $argv[3];
+// TODO: fix aliases like /content/administraci%C3%B3n-de-salud-mental-y-abuso-de-sustancias
+// TODO: fix /node/.... aliases
+
+$infile = '/Users/amykfarrell/dev/data_to_import/basic_directory_records.csv'; // $argv[1];
+$extended_infile = '/Users/amykfarrell/dev/data_to_import/extended.xml'; // $argv[2];
+$outdir = '/Users/amykfarrell/dev/data_to_import/outdir'; // $argv[3];
 
 function main($infile, $extended_infile, $outdir) {
     $fp_infile = fopen($infile, 'r');
@@ -108,26 +111,33 @@ function convert_fields($row, &$indexes) {
     $lc_index = $indexes['langcode'];
     $row[$lc_index] = $row[$lang_index] == 'Spanish' ? 'es' : 'en';
 
+    // We'll be converting URL aliases in a Spanish locale
+    // $orig_locale = setlocale(LC_CTYPE,"0");
+    // setlocale(LC_CTYPE, 'es-US');
+
     // Path -> alias
     $path_index = $indexes['Path'];
     $alias_index = $indexes['alias'];
     $alias = $row[$path_index];
     if (!str_starts_with($alias, '/content/')) {
-        // This is unexpected.
-        print("Unusual alias being left alone: " . $alias . "\n");
+        // Replace it with an alias based on the title.
+        $alias = $row[$indexes['Title']];
     }
     else {
         // Trim off /content, then concatenate what remains to the correct parent path.
         // While it would be unusual for /content/ to appear elsewhere in the path, why risk a global replace?
         $alias = substr($alias, 9);
-        if ($row[$lang_index] == 'Spanish') {
-            $alias = '/agencia/' . $alias;
-        }
-        else {
-            $alias = '/agency/' . $alias;
-        }
-        $row[$alias_index] = $alias;
     }
+    $alias = make_clean_alias($alias);
+
+    if ($row[$lang_index] == 'Spanish') {
+        $alias = '/agencia/' . $alias;
+    }
+    else {
+       $alias = '/agency/' . $alias;
+    }
+    $row[$alias_index] = $alias;
+
     // Phone number fields are lists of plain text strings, joined by '###'.
     $phone_map = [
         'Phone number' => 'phone',
@@ -157,6 +167,7 @@ function convert_fields($row, &$indexes) {
     }
 
     $data['phonehint'] = implode('-', ['phone_' . $hints['phone'], 'toll_' . $hints['toll'], 'tty_' . $hints['tty']]);
+   // setlocale(LC_CTYPE, $orig_locale);
     return $data;
 }
 
@@ -268,6 +279,33 @@ function getLinksFromCData($node, $nodename, $columnname=NULL) {
         // }
     }
     return $results;
+}
+
+/**
+ * Ensure our path aliases don't have diacriticals (or urlencoded diacriticals)
+ * or other non-ascii characters. Path alias may be from the path provided
+ * in the import, or it may be the node's Title.
+ *
+ * $str might have url-encoded characters, so clean it up:
+ *  - urldecode it
+ *  - ascii-fy it (with transliteration)
+ *  - remove any single quotes
+ *  - urlencode it (just in case there are spaces or chars I didn't think of)
+ */
+function make_clean_alias($str) {
+    $str = urldecode($str);
+    $str = iconv('UTF-8', 'ASCII//TRANSLIT', $str);
+
+    // $str is now plain ASCII
+    $chars = ["'", ' '];
+    $subs = ['', '-'];
+    $str = str_replace($chars, $subs, strtolower($str));
+
+    // Any other punctuation, replace with -:
+    $str = preg_replace('/[^\w\d]/i', '-', $str);
+
+    $str = urlencode($str);
+    return $str;
 }
 
 main($infile, $extended_infile, $outdir);
