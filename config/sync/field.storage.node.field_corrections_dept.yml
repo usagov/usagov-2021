@@ -1,0 +1,19 @@
+uuid: bb73941c-c688-4564-ac86-836424cf4779
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - node
+id: node.field_corrections_dept
+field_name: field_corrections_dept
+entity_type: node
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
