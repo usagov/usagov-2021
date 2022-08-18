@@ -4,17 +4,27 @@ window.addEventListener("load", checkForMobile);
 function showLinks(event) {
   (function ($) {
     var button = event.target;
-    console.log("going to show links of " + button);
+    // console.log("going to show links of " + button);
 
     var isOpen = button.getAttribute("aria-expanded") === "true";
-    console.log("isOpen " + isOpen);
+    // console.log("isOpen " + isOpen);
     $(".usa-gov-footer__primary-link").each(function (currentElement) {
       $(this).attr("aria-expanded", "false");
     });
+
     button.setAttribute("aria-expanded", !isOpen);
-    console.log("aria-expanded " + button.getAttribute("aria-expanded"));
+    // console.log("aria-expanded " + button.getAttribute("aria-expanded"));
     var isOpen = button.getAttribute("aria-expanded") === "true";
-    console.log("isOpen " + isOpen);
+    // console.log("isOpen " + isOpen);
+    var CONTROLS = "aria-controls";
+    var HIDDEN = "hidden";
+    var id = button.getAttribute(CONTROLS);
+    var controls = document.getElementById(id);
+    if (isOpen) {
+      controls.removeAttribute(HIDDEN);
+    } else {
+      controls.setAttribute(HIDDEN, "");
+    }
   })(jQuery);
 }
 
@@ -57,6 +67,12 @@ function checkForMobile() {
         $(this).next().attr("id", menuId);
         newElement.setAttribute("type", "button");
         newElement.addEventListener("click", showLinks);
+        var CONTROLS = "aria-controls";
+        var HIDDEN = "hidden";
+        var id = newElement.getAttribute(CONTROLS);
+        var controls = document.getElementById(id);
+
+        controls.setAttribute(HIDDEN, "");
       }
 
       $(this).after(newElement);
