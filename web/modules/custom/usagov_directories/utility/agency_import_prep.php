@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This script converts Federal Directory Record data exported from the
  * previous USA.gov site into CSV files for import into the new site.
@@ -25,8 +24,8 @@
  */
 
 $infile = $argv[1];
-$extended_infile =  $argv[2];
-$outdir =  $argv[3];
+$extended_infile = $argv[2];
+$outdir = $argv[3];
 
 function main($infile, $extended_infile, $outdir) {
   $fp_infile = fopen($infile, 'r');
@@ -51,7 +50,7 @@ function main($infile, $extended_infile, $outdir) {
   fclose($fp_infile);
 
   $basic_headings = array_flip($array_indexes);
-  $extended_records_by_uuid = processXMLFile($extended_infile);
+  $extended_records_by_uuid = process_xml_file($extended_infile);
   $extended_headings = $extended_records_by_uuid['headings'];
 
   $records = [];
@@ -64,7 +63,7 @@ function main($infile, $extended_infile, $outdir) {
     // Get the "hints" from both records and concatenate them to group records
     // by number of multi-value fields to map:
     $hint = $extended_record['multivalue_hint'] ?: 'none';
-    $hint .= '-' .  $basic_record['phonehint'];
+    $hint .= '-' . $basic_record['phonehint'];
 
     // Now combine the records into a flat array, in the same order as $headings above.
     $flat_record = [];
@@ -85,14 +84,14 @@ function main($infile, $extended_infile, $outdir) {
   print("$num_records records\n");
 
   foreach ($out_files as $hint => $data) {
-    $outfile = join(DIRECTORY_SEPARATOR, [$outdir, $hint . ".csv"]);
+    $outfile = implode(DIRECTORY_SEPARATOR, [$outdir, $hint . ".csv"]);
     $fp_out = fopen($outfile, 'w');
     foreach ($data as $row) {
       fputcsv($fp_out, $row);
     }
     fclose($fp_out);
   }
-  print( "=== DONE ===\n" );
+  print("=== DONE ===\n");
 }
 
 /**
@@ -159,21 +158,25 @@ function convert_fields($row, &$indexes) {
     $data[$key] = $val;
   }
 
-  $data['phonehint'] = implode('-', ['phone_' . $hints['phone'], 'toll_' . $hints['toll'], 'tty_' . $hints['tty']]);
+  $data['phonehint'] = implode('-', [
+    'phone_' . $hints['phone'],
+    'toll_' . $hints['toll'],
+    'tty_' . $hints['tty']
+  ]);
   return $data;
 }
 
-function processXMLFile($filename) {
+function process_xml_file($filename) {
   $doc = new DOMDocument("1.0", "UTF-8");
   $doc->load($filename);
   $nodes = $doc->getElementsByTagName('node');
   $records = []; // One array per node, keyed by header
   $fieldnames = ['infoForContactCenter' => 1];
   foreach ($nodes as $node) {
-    $uuid = getPlainText($node, 'uuid');
+    $uuid = get_plain_text($node, 'uuid');
     $record = [];
     $multivalue_hints = [];
-    $contactLinks = getLinksFromCData($node, 'contactLinks');
+    $contactLinks = get_links_from_cdata($node, 'contactLinks');
     $mapcount = count($contactLinks) ?: 1;
     $multivalue_hints[] = 'contact_' . $mapcount;
     foreach ($contactLinks as $link) {
@@ -182,7 +185,7 @@ function processXMLFile($filename) {
         $record[$key] = $value;
       }
     }
-    $websiteLinks = getLinksFromCData($node, 'websiteLinks');
+    $websiteLinks = get_links_from_cdata($node, 'websiteLinks');
     $mapcount = count($websiteLinks) ?: 1;
     $multivalue_hints[] = 'website_' . $mapcount;
     foreach ($websiteLinks as $link) {
@@ -191,7 +194,7 @@ function processXMLFile($filename) {
         $record[$key] = $value;
       }
     }
-    $officeLinks = getLinksFromCData($node, 'in-personLinks', 'officeLinks');
+    $officeLinks = get_links_from_cdata($node, 'in-personLinks', 'officeLinks');
     $mapcount = count($officeLinks) ?: 1;
     $multivalue_hints[] = 'office_' . $mapcount;
     foreach ($officeLinks as $link) {
@@ -200,7 +203,7 @@ function processXMLFile($filename) {
         $record[$key] = $value;
       }
     }
-    $infoForContactCenter = getPlainText($node, 'moreInfo-forContactCenterOnly-');
+    $infoForContactCenter = get_plain_text($node, 'moreInfo-forContactCenterOnly-');
     $record['infoForContactCenter'] = $infoForContactCenter;
     $multivalue_hint = implode('-', $multivalue_hints);
     $record['multivalue_hint'] = $multivalue_hint;
@@ -225,7 +228,7 @@ function processXMLFile($filename) {
  * @param string $nodename
  * @return void
  */
-function getPlainText($node, $nodename) {
+function get_plain_text($node, $nodename) {
   $nodes = $node->getElementsByTagName($nodename);
   foreach ($nodes as $node) {
     return $node->textContent;
@@ -241,7 +244,7 @@ function getPlainText($node, $nodename) {
  * @param string $nodename
  * @return void
  */
-function getLinksFromCData($node, $nodename, $columnname=NULL) {
+function get_links_from_cdata($node, $nodename, $columnname = NULL) {
   $columnname = $columnname ?: $nodename;
   $nodes = $node->getElementsByTagName($nodename);
   $content = '';
@@ -262,8 +265,10 @@ function getLinksFromCData($node, $nodename, $columnname=NULL) {
           $url = '';
         }
         $text = $link->textContent;
-        $results[] = [$columnname . "_" . $idx . "_url" => $url,
-        $columnname . "_" . $idx . "_text" => $text];
+        $results[] = [
+          $columnname . "_" . $idx . "_url" => $url,
+          $columnname . "_" . $idx . "_text" => $text
+        ];
         $idx++;
       }
     }
