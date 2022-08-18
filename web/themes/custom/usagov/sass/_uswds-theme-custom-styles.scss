@@ -885,3 +885,7 @@ div #sm-share a {
 .usa-footer__primary-section .usa-list {
   margin-top: 1rem;
 }
+
+.usa-gov-footer__primary-link--button:not([disabled]):focus {
+  outline-offset: -0.25rem;
+}
