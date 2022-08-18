@@ -793,7 +793,7 @@ div #sm-share a {
 // Changed footer styles
 
 .usa-gov-footer__primary-link {
-  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   font-feature-settings: "kern" 1;
   font-kerning: normal;
   box-sizing: inherit;
@@ -816,13 +816,13 @@ div #sm-share a {
 }
 
 .usa-gov-footer__primary-link--button {
-  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   font-feature-settings: "kern" 1;
   font-kerning: normal;
   box-sizing: inherit;
   overflow: visible;
   text-transform: none;
-  -webkit-appearance: button;
+  appearance: button;
   padding: 1rem;
   color: #1b1b1b;
   text-decoration: none;
@@ -845,28 +845,7 @@ div #sm-share a {
 }
 
 .usa-gov-footer__primary-link--button:focus {
-  -webkit-text-size-adjust: 100%;
-  font-feature-settings: "kern" 1;
-  font-kerning: normal;
-  box-sizing: inherit;
-  overflow: visible;
-  text-transform: none;
-  -webkit-appearance: button;
-  padding: 1rem;
-  color: #1b1b1b;
-  width: 100%;
-  border: 0;
-  cursor: pointer;
   text-decoration: underline;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 0;
   outline: 0.25rem solid #c05600;
   outline-offset: -0.25rem;
-  align-items: center;
-  display: flex;
-  justify-content: flex-start;
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
-  font-size: 1.2rem;
 }
