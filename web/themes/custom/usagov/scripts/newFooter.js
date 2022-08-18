@@ -30,17 +30,12 @@ function showLinks(event) {
 
 function checkForMobile() {
   (function ($) {
-    // console.log("Hello world from js!");
-
-    // console.log(window.innerWidth);
-    // setting isMobile with same chack that telephone numbers use to set to links beta uses 500
+    // setting isMobile with same chack that telephone numbers use to set to links
     var isMobile = window.innerWidth <= 500 ? true : false;
 
     var newElementType = isMobile ? "button" : "h3";
 
     $(".usa-gov-footer__primary-link").each(function (currentElement) {
-      // console.log($(this));
-
       var newElement = document.createElement(newElementType);
 
       // hardcoded because we know what it is
@@ -53,8 +48,6 @@ function checkForMobile() {
 
       newElement.innerText = $(this).text();
 
-      // console.log(newElement);
-      // console.log("created new element");
       if (isMobile) {
         var menuId = "usa-footer-menu-list-".concat(
           Math.floor(Math.random() * 100000)
