@@ -1,6 +1,23 @@
 window.addEventListener("resize", checkForMobile);
 window.addEventListener("load", checkForMobile);
 
+function showLinks(event) {
+  (function ($) {
+    var button = event.target;
+    console.log("going to show links of " + button);
+
+    var isOpen = button.getAttribute("aria-expanded") === "true";
+    console.log("isOpen " + isOpen);
+    $(".usa-gov-footer__primary-link").each(function (currentElement) {
+      $(this).attr("aria-expanded", "false");
+    });
+    button.setAttribute("aria-expanded", !isOpen);
+    console.log("aria-expanded " + button.getAttribute("aria-expanded"));
+    var isOpen = button.getAttribute("aria-expanded") === "true";
+    console.log("isOpen " + isOpen);
+  })(jQuery);
+}
+
 function checkForMobile() {
   (function ($) {
     console.log("Hello world from js!");
@@ -39,6 +56,7 @@ function checkForMobile() {
         newElement.setAttribute("aria-expanded", "false");
         $(this).next().attr("id", menuId);
         newElement.setAttribute("type", "button");
+        newElement.addEventListener("click", showLinks);
       }
 
       $(this).after(newElement);
