@@ -792,131 +792,81 @@ div #sm-share a {
 
 // Changed footer styles
 
-.ftr-list {
-  @media (min-width: 64em) {
-    padding-top: 1.4rem;
-  }
-}
-
-.usa-footer--big
-  .usa-gov-footer__primary-content--collapsible
-  .usa-gov-footer__primary-link {
+.usa-gov-footer__primary-link {
+  -webkit-text-size-adjust: 100%;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal;
+  box-sizing: inherit;
+  color: #1b1b1b;
+  text-decoration: none;
+  padding-left: 0;
+  padding-right: 0;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  padding-bottom: 0;
+  padding-top: 0;
+  margin-bottom: 0.5rem;
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
     sans-serif;
-  color: red;
   font-size: 1.2rem;
 }
 
-.usa-sign-up__heading {
+.usa-gov-footer__primary-link--button {
+  -webkit-text-size-adjust: 100%;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal;
+  box-sizing: inherit;
+  overflow: visible;
+  text-transform: none;
+  -webkit-appearance: button;
+  padding: 1rem;
+  color: #1b1b1b;
+  text-decoration: none;
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
     sans-serif;
+  font-size: 1.2rem;
 }
 
-.usa-gov-footer__primary-content--collapsible.hidden {
-  // USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
-  display: block;
+.usa-gov-footer__primary-link--button:hover {
+  text-decoration: underline;
 }
 
-@media (min-width: 30em) {
-  .usa-gov-footer__contact-heading.es {
-    display: inline-grid;
-    margin-top: 0.5rem;
-    margin-right: -1.5rem;
-    text-align: left;
-  }
-}
-
-/** This is to add the facebook social media icon **/
-
-.usa-social-link:hover {
-  background-color: #ccecf2;
-}
-
-.usa-social-link--facebook {
-  background-image: url("../images/facebook34.png"),
-    linear-gradient(transparent, transparent);
-}
-
-/** This is to add the twitter social media icon **/
-.usa-social-link--twitter {
-  background-image: url("../images/twitter34.png"),
-    linear-gradient(transparent, transparent);
-}
-
-/** This is to add the instagram social media icon **/
-.usa-social-link--instagram {
-  background-image: url("../images/instagram34.png"),
-    linear-gradient(transparent, transparent);
-}
-
-/** This is to add the youtube social media icon **/
-.usa-social-link--youtube {
-  background-image: url("../images/youtube34.png"),
-    linear-gradient(transparent, transparent);
-}
-
-.usa-gov-footer__secondary-section {
-  background-color: color("cyan-10");
-}
-
-.usa-gov-footer__contact-links {
-  @media (max-width: 30em) {
-    margin-top: 0;
-  }
-}
-
-.usa-gov-footer__contact-heading {
-  @media (max-width: 30em) {
-    text-align: left;
-    margin-bottom: 0.5rem;
-  }
-}
-
-.usa-gov-footer__secondary-section a {
-  padding-bottom: 2rem;
-}
-
-// .usa-gov-footer__contact-links {
-//   @media (min-width: 40em) {
-//     margin-left: -3rem;
-//   }
-// }
-
-@media (min-width: 30em) {
-  .usa-gov-footer__contact-heading {
-    margin-top: 0.5rem;
-  }
-}
-
-.usa-social-link {
-  background-color: transparent;
-}
-
-.usa-social-link span {
-  position: absolute;
-  left: -999em;
-  right: auto;
-}
-
-.usa-gov-footer__social-links {
-  @media (max-width: 30em) and (min-width: 30em) {
-    justify-content: flex-start;
-    padding-right: 0;
-  }
-  @media (min-width: 31em) {
-    padding-right: 2rem;
-  }
-}
-
-.sm-sp-links {
-  @media (max-width: 30em) and(min-width: 30rem) {
-    padding-left: 2rem;
-  }
-}
-
-@media (min-width: 30em) {
-  .usa-gov-footer__contact-info {
-    justify-content: flex-start !important;
-    margin-top: -0.25rem;
-  }
+.usa-gov-footer__primary-link--button:focus {
+  -webkit-text-size-adjust: 100%;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal;
+  box-sizing: inherit;
+  overflow: visible;
+  text-transform: none;
+  -webkit-appearance: button;
+  padding: 1rem;
+  color: #1b1b1b;
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  outline: 0.25rem solid #c05600;
+  outline-offset: -0.25rem;
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
+  font-size: 1.2rem;
 }
