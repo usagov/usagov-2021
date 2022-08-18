@@ -139,6 +139,7 @@ jobs:
             docker build --no-cache -t docker-bench-security .
             # use the fresh container to scan
             SCAN_CIS_RESULT=0
+	    cd /home/circleci/project
             if (./bin/scan-container-cis | tee /tmp/results/scan-cms-cis.log); then export SCAN_CIS_RESULT=0; else export SCAN_CIS_RESULT=$?; fi
             echo "CMS CIS Benchmark Scan return code: $SCAN_CMS_RESULT" | tee -a /tmp/results/scan-cms-cis.log
             cat /tmp/results/scan-cms-cis.log
