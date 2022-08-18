@@ -1,7 +1,55 @@
 #!/bin/bash
 
+# figure out which host os we are since not all build/install commands work the same on all os
+# some node packages also need to be different on m1 chips
+export os_osx="no"
+export os_osx_x86="no"
+export os_osx_m1="no"
+export os_win="no"
+export os_wsl="no"
+export os_linux="no"
+
+if [[ "$(uname)" == "Darwin" ]]; then
+  export os_osx="yes"
+  if [[ "$(arch)" == "arm64" ]]; then
+    export os_osx_m1="yes"
+  else
+    export os_osx_x86="yes"
+  fi
+elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
+  export os_linux="yes"
+  if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
+    export os_wsl="yes"
+  fi
+elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]]; then
+  export os_win="yes"
+elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]]; then
+  export os_win="yes"
+fi
+
+echo "HOST OS Detector:"
+if [[ "$os_osx" == "yes" ]]; then
+  if [[ "$os_osx_x86" == "yes" ]]; then
+    echo "- Mac x86"
+  fi
+  if [[ "#os_osx_m1" == "yes" ]]; then
+    echo "- Mac M1"
+  fi
+fi
+if [[ "$os_linux" == "yes" ]]; then
+  if [[ "$os_wsl" == "yes" ]]; then
+    echo "- Win WSL"
+  else
+      echo "- Linux"
+  fi
+fi
+if [[ "$os_win" == "yes" ]]; then
+  echo "- Windows"
+fi
+
+
 # Setup environmental variables so current User and Group Ids are available at container build time
-# spam out to a variety of possible files to cover common cases
+# spam out to a variety of possible files to cover common cases acrosss dev machines
 echo "Setup BUID and BGID environmental variables"
 if [ -f ~/.zshrc ] && ! grep -q 'export BUID=' ~/.zshrc; then
   echo "export BUID=\$(id -u)" >> ~/.zshrc
@@ -20,7 +68,6 @@ if [ -f ~/.profile ] && ! grep -q "export BUID=" ~/.profile; then
   echo "export BGID=\$(id -g)" >> ~/.profile
 fi
 
-
 echo "Init local secrets file"
 if [ ! -f env.local ]; then
   cp env.default env.local
@@ -28,11 +75,17 @@ fi
 if [ -f env.local ]; then
   . env.local
 fi
-if [ $(uname -m) == 'arm64' ]; then
-  sed -i '' -e 's|NODEBASE=.*|NODEBASE=arm64v8/node|' env.local
-else
-  sed -i '' -e 's|NODEBASE=.*|NODEBASE=node|' env.local
+
+echo "Alter Node base image for M1 macs"
+# m1 macs need to use a arm64 node image to work
+host_node_base=node
+if [[ "$os_osx_m1" == "yes" ]]; then
+  host_node_base=arm64v8/node
 fi
+
+# can't get sed -i to work cross platform so just do it dirty
+sed -e 's|NODE_BASE=.*|NODE_BASE='$host_node_base'|' env.local > env.local.new
+mv env.local.new env.local
 
 echo "Setup git hooks"
 if [ ! -f .git/hooks/commit-msg ]; then
