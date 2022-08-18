@@ -1228,7 +1228,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<a href="{{ view_node }}">More information on {{ title }}&nbsp;></a>'
+            text: '<a href="{{ view_node }}">More information about {{ title }}&nbsp;></a>'
             make_link: false
             path: ''
             absolute: false
