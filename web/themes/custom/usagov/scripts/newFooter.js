@@ -1,6 +1,7 @@
 window.addEventListener("resize", checkForMobile);
 window.addEventListener("load", checkForMobile);
 
+var EXPANDED = "aria-expanded";
 var CONTROLS = "aria-controls";
 var HIDDEN = "hidden";
 
@@ -9,20 +10,20 @@ function showLinks(event) {
     if (window.innerWidth <= 500) {
       var button = event.target;
 
-      var isOpen = button.getAttribute("aria-expanded") === "true";
-      $(".usa-gov-footer__primary-link").each(function (currentElement) {
-        $(this).attr("aria-expanded", "false");
+      var isOpen = button.getAttribute(EXPANDED) === "true";
+      $(".usa-gov-footer__primary-link").each(function () {
+        $(this).attr(EXPANDED, "false");
       });
 
-      button.setAttribute("aria-expanded", !isOpen);
-      var isOpen = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute(EXPANDED, !isOpen);
+      var isOpen = button.getAttribute(EXPANDED) === "true";
 
       var id = button.getAttribute(CONTROLS);
-      var controls = document.getElementById(id);
+      var acontrols = document.getElementById(id);
       if (isOpen) {
-        controls.removeAttribute(HIDDEN);
+        acontrols.removeAttribute(HIDDEN);
       } else {
-        controls.setAttribute(HIDDEN, "");
+        acontrols.setAttribute(HIDDEN, "");
       }
     }
   })(jQuery);
@@ -35,10 +36,10 @@ function checkForMobile() {
 
     var newElementType = isMobile ? "button" : "h3";
 
-    $(".usa-gov-footer__primary-link").each(function (currentElement) {
+    $(".usa-gov-footer__primary-link").each(function () {
       var newElement = document.createElement(newElementType);
 
-      // hardcoded because we know what it is
+      // hardcoded because we know what it is and this should only be used until update from uswds
       newElement.setAttribute("class", "usa-gov-footer__primary-link");
 
       newElement.classList.toggle(
@@ -52,15 +53,15 @@ function checkForMobile() {
         var menuId = "usa-footer-menu-list-".concat(
           Math.floor(Math.random() * 100000)
         );
-        newElement.setAttribute("aria-controls", menuId);
-        newElement.setAttribute("aria-expanded", "false");
+        newElement.setAttribute(CONTROLS, menuId);
+        newElement.setAttribute(EXPANDED, "false");
         $(this).next().attr("id", menuId);
         newElement.setAttribute("type", "button");
 
         var id = newElement.getAttribute(CONTROLS);
-        var controls = document.getElementById(id);
+        var acontrols = document.getElementById(id);
 
-        controls.setAttribute(HIDDEN, "");
+        acontrols.setAttribute(HIDDEN, "");
         newElement.addEventListener("click", showLinks);
       } else {
         $(this).next().removeAttr(HIDDEN);

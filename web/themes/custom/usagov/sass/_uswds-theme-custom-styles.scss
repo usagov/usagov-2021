@@ -816,29 +816,13 @@ div #sm-share a {
 }
 
 .usa-gov-footer__primary-link--button {
-  text-size-adjust: 100%;
-  font-feature-settings: "kern" 1;
-  font-kerning: normal;
-  box-sizing: inherit;
   overflow: visible;
   text-transform: none;
   appearance: button;
   padding: 1rem;
-  color: #1b1b1b;
-  text-decoration: none;
   width: 100%;
   border: 0;
   cursor: pointer;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 0;
-  margin-bottom: 0;
-  align-items: center;
-  display: flex;
-  justify-content: flex-start;
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
-  font-size: 1.2rem;
 }
 
 .usa-gov-footer__primary-link--button::before {
@@ -851,18 +835,13 @@ div #sm-share a {
   justify-content: center;
   margin-right: 0.25rem;
   margin-left: -0.25rem;
-  background: 0 0;
   background-color: currentcolor;
-  mask: url(../assets/img/usa-icons/expand_more.svg) no-repeat center/contain;
-  mask: url(../assets/img/usa-icons/expand_more.svg) no-repeat center/contain;
+  mask: url("../assets/img/usa-icons/expand_more.svg") no-repeat center/contain;
 }
 
 .usa-gov-footer__primary-link--button[aria-expanded="false"]::before {
-  background: 0 0;
   background-color: currentcolor;
-  mask: url(../assets/img/usa-icons/navigate_next.svg) no-repeat center/contain;
-  mask: url(../assets/img/usa-icons/navigate_next.svg) no-repeat center/contain;
-  background: url(../assets/img/usa-icons/navigate_next.svg) no-repeat
+  mask: url("../assets/img/usa-icons/navigate_next.svg") no-repeat
     center/contain;
   display: inline-block;
   height: 1.25rem;
