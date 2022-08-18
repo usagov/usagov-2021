@@ -6,22 +6,24 @@ var HIDDEN = "hidden";
 
 function showLinks(event) {
   (function ($) {
-    var button = event.target;
+    if (window.innerWidth <= 500) {
+      var button = event.target;
 
-    var isOpen = button.getAttribute("aria-expanded") === "true";
-    $(".usa-gov-footer__primary-link").each(function (currentElement) {
-      $(this).attr("aria-expanded", "false");
-    });
+      var isOpen = button.getAttribute("aria-expanded") === "true";
+      $(".usa-gov-footer__primary-link").each(function (currentElement) {
+        $(this).attr("aria-expanded", "false");
+      });
 
-    button.setAttribute("aria-expanded", !isOpen);
-    var isOpen = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", !isOpen);
+      var isOpen = button.getAttribute("aria-expanded") === "true";
 
-    var id = button.getAttribute(CONTROLS);
-    var controls = document.getElementById(id);
-    if (isOpen) {
-      controls.removeAttribute(HIDDEN);
-    } else {
-      controls.setAttribute(HIDDEN, "");
+      var id = button.getAttribute(CONTROLS);
+      var controls = document.getElementById(id);
+      if (isOpen) {
+        controls.removeAttribute(HIDDEN);
+      } else {
+        controls.setAttribute(HIDDEN, "");
+      }
     }
   })(jQuery);
 }
@@ -32,7 +34,7 @@ function checkForMobile() {
 
     // console.log(window.innerWidth);
     // setting isMobile with same chack that telephone numbers use to set to links beta uses 500
-    var isMobile = window.innerWidth <= 950 ? true : false;
+    var isMobile = window.innerWidth <= 500 ? true : false;
 
     var newElementType = isMobile ? "button" : "h3";
 
@@ -67,6 +69,8 @@ function checkForMobile() {
 
         controls.setAttribute(HIDDEN, "");
         newElement.addEventListener("click", showLinks);
+      } else {
+        $(this).next().removeAttr(HIDDEN);
       }
 
       $(this).after(newElement);
