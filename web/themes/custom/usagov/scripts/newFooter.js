@@ -8,63 +8,60 @@ var HIDDEN = "hidden";
 function showLinks(event) {
   (function ($) {
     if (window.innerWidth <= 500) {
-      var button = event.target;
+      // get current selected button settings for later
+      var selected = event.target;
+      var selectedWasOpen = selected.getAttribute(EXPANDED) === "true";
 
-      var isOpen = button.getAttribute(EXPANDED) === "true";
-      console.log(button.innerText + " isOpen: " + isOpen);
+      // change(close) other selected settings
       $(".usa-gov-footer__primary-link").each(function () {
-        $(this).attr(EXPANDED, "false");
-        console.log($(this).text() + " isOpen: " + isOpen);
-      });
+        var button = $(this);
+        button.attr(EXPANDED, "false");
 
-      button.setAttribute(EXPANDED, !isOpen);
+        var isExpanded = button.attr(EXPANDED) === "true";
 
-      var isOpen = button.getAttribute(EXPANDED) === "true";
-      console.log(button.innerText + " isOpen: " + isOpen);
-      var id = button.getAttribute(CONTROLS);
-      var acontrols = document.getElementById(id);
-      if (isOpen) {
-        acontrols.removeAttribute(HIDDEN);
-      } else {
-        acontrols.setAttribute(HIDDEN, "");
-      }
+        var buttonId = button.attr(CONTROLS);
+        var buttonControls = document.getElementById(buttonId);
 
-      $(".usa-gov-footer__primary-link").each(function () {
-        var isExpanded = $(this).attr(EXPANDED) === "true";
-        var id = $(this).attr(CONTROLS);
-        var acontrols = document.getElementById(id);
-        console.log($(this).text() + " isExpanded: " + isExpanded);
         if (isExpanded) {
-          acontrols.removeAttribute(HIDDEN);
+          buttonControls.removeAttribute(HIDDEN);
         } else {
-          acontrols.setAttribute(HIDDEN, "");
+          buttonControls.setAttribute(HIDDEN, "");
         }
       });
 
-      console.log("~~~~~~~~~~~~~~");
+      // change current selected settings
+      selected.setAttribute(EXPANDED, !selectedWasOpen);
+      var selectedIsOpen = selected.getAttribute(EXPANDED) === "true";
+
+      var selectedId = selected.getAttribute(CONTROLS);
+      var selectedControls = document.getElementById(selectedId);
+      if (selectedIsOpen) {
+        selectedControls.removeAttribute(HIDDEN);
+      } else {
+        selectedControls.setAttribute(HIDDEN, "");
+      }
     }
   })(jQuery);
 }
 
 function checkForMobile() {
   (function ($) {
-    // setting isMobile with same chack that telephone numbers use to set to links
+    // isMobile uses same check that telephone numbers use to set to links
     var isMobile = window.innerWidth <= 500 ? true : false;
-
     var newElementType = isMobile ? "button" : "h3";
 
     $(".usa-gov-footer__primary-link").each(function () {
+      var primaryLink = $(this);
       var newElement = document.createElement(newElementType);
+
+      newElement.innerText = primaryLink.text();
 
       // hardcoded because we know what it is and this should only be used until update from uswds
       newElement.setAttribute("class", "usa-gov-footer__primary-link");
-
       newElement.classList.toggle(
         "usa-gov-footer__primary-link--button",
         isMobile
       );
-
-      newElement.innerText = $(this).text();
 
       if (isMobile) {
         var menuId = "usa-footer-menu-list-".concat(
@@ -72,20 +69,20 @@ function checkForMobile() {
         );
         newElement.setAttribute(CONTROLS, menuId);
         newElement.setAttribute(EXPANDED, "false");
-        $(this).next().attr("id", menuId);
+        primaryLink.next().attr("id", menuId);
         newElement.setAttribute("type", "button");
 
-        var id = newElement.getAttribute(CONTROLS);
-        var acontrols = document.getElementById(id);
+        var primaryLinkId = newElement.getAttribute(CONTROLS);
+        var primaryLinkControls = document.getElementById(primaryLinkId);
 
-        acontrols.setAttribute(HIDDEN, "");
+        primaryLinkControls.setAttribute(HIDDEN, "");
         newElement.addEventListener("click", showLinks);
       } else {
-        $(this).next().removeAttr(HIDDEN);
+        primaryLink.next().removeAttr(HIDDEN);
       }
 
-      $(this).after(newElement);
-      $(this).remove();
+      primaryLink.after(newElement);
+      primaryLink.remove();
     });
   })(jQuery);
 }
