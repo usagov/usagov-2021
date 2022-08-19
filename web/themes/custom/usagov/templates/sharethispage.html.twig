@@ -41,5 +41,8 @@
             </a>
         </div>
     </div>
-    
+
+    {% if (term_name == "Standard Page") or (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
+    <div class="border-top-05  border-base-lightest"></div>
+    {% endif %}
 {% endif %}
