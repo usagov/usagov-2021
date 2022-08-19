@@ -11,13 +11,16 @@ function showLinks(event) {
       var button = event.target;
 
       var isOpen = button.getAttribute(EXPANDED) === "true";
+      console.log(button.innerText + " isOpen: " + isOpen);
       $(".usa-gov-footer__primary-link").each(function () {
         $(this).attr(EXPANDED, "false");
+        console.log($(this).text() + " isOpen: " + isOpen);
       });
 
       button.setAttribute(EXPANDED, !isOpen);
-      var isOpen = button.getAttribute(EXPANDED) === "true";
 
+      var isOpen = button.getAttribute(EXPANDED) === "true";
+      console.log(button.innerText + " isOpen: " + isOpen);
       var id = button.getAttribute(CONTROLS);
       var acontrols = document.getElementById(id);
       if (isOpen) {
@@ -25,6 +28,20 @@ function showLinks(event) {
       } else {
         acontrols.setAttribute(HIDDEN, "");
       }
+
+      $(".usa-gov-footer__primary-link").each(function () {
+        var isExpanded = $(this).attr(EXPANDED) === "true";
+        var id = $(this).attr(CONTROLS);
+        var acontrols = document.getElementById(id);
+        console.log($(this).text() + " isExpanded: " + isExpanded);
+        if (isExpanded) {
+          acontrols.removeAttribute(HIDDEN);
+        } else {
+          acontrols.setAttribute(HIDDEN, "");
+        }
+      });
+
+      console.log("~~~~~~~~~~~~~~");
     }
   })(jQuery);
 }
