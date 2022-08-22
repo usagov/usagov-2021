@@ -8,5 +8,3 @@ global-styling:
     scripts/newFooter.js: {}
   dependencies:
     - core/drupal
-    - core/jquery
-    - core/once
