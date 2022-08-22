@@ -54,7 +54,7 @@ function checkForMobile() {
       var primaryLink = $(this);
       var newElement = document.createElement(newElementType);
 
-      newElement.innerText = primaryLink.text();
+      newElement.textContent = primaryLink.text();
 
       // hardcoded because we know what it is and this should only be used until update from uswds
       newElement.setAttribute("class", "usa-gov-footer__primary-link");
