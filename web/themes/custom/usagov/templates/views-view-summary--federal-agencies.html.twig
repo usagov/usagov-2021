@@ -25,7 +25,7 @@
   <p class="usa-intro">
     Find contact information for U.S. federal government departments and agencies including websites,
     emails, phone numbers, addresses, and more.
-    <a href="https://www.usa.gov/states-and-territories" class="intro-links">
+    <a href="/states" class="intro-links">
       Get contact information for each state and territory.
     </a>
   </p>
@@ -37,7 +37,11 @@
         {% if row_is_active %}
           <a {{row.attributes.addClass("is-active")}}>{{ row.link }}</a>
         {% else %}
-          <a href="/agency-index?letter={{ row.link|lower }}">{{ row.link }}</a>
+          {% if row.link == "A" or row.link == "a" %}
+            <a href="/agency-index">{{ row.link }}</a>
+          {% else %}
+            <a href="/agency-index?letter={{ row.link|lower }}">{{ row.link }}</a>
+          {% endif %}
 	      {% endif %}
         {% if options.count %}
           ({{ row.count }})
