@@ -15,7 +15,6 @@ A short summary of the behavior of the sidebar nav:
 
 {% import _self as menus %}
 
-{# {% set relatedPages = drupal_entity('node', items.url.routeParameters.node )['#node'].field_related_pages %} #}
 
 {{ menus.explore(items, 0, null, null) }}
 
@@ -27,8 +26,6 @@ Then, it calls the build macro with:
  - the starting item
  - the number of levels between starting item and current page item
  - the title of the current page item
-
-TODO: remove menuLevel as it is no longer used
 #}
 {% macro explore(items, menuLevel, parent, grandparent, greatgrandparent ) %}
 
@@ -36,7 +33,7 @@ TODO: remove menuLevel as it is no longer used
 
   {% for item in items %}
     {% if item.in_active_trail %}
-    {% set active_item = item %}
+      {% set active_item = item %}
       {# Skip children of the Federal Agencies view. 
          We need them as nodes to trigger the menu, but don't want them all expanded out. 
        #}
@@ -49,40 +46,43 @@ TODO: remove menuLevel as it is no longer used
   {% endfor %}
 
   {% if active_item == null %}
-    {# parent is the current page #}
-
-    {% set current_item = parent.title %}
-    
-    {% set start_item = null %}
-    {% set start_level = 0 %}
-    {% if items|length == 0 %}
-      {# There are no children, start from grandparent (or 0 if no grandparent) #}
-
-      {% if greatgrandparent %}
-        {% set start_item = greatgrandparent %}
-        {% set start_level = 2 %}
-      {% elseif grandparent %}
-        {% set start_item = grandparent %}
-        {% set start_level = 1 %}
-      {% else %}
-        {% set start_item = parent %}
-        {% set start_level = 0 %}
-      {% endif %}
-
+    {% if menuLevel == 0 %}
+      {# There is no active trail. The current page has no parent page and is not in the menu structure. #}
     {% else %}
-      {# There are children, show them and start from parent (or 0 if no parent) #}
+      {# The active trail has ended. The parent is the current page #}
+      {% set currentItemNodeID = parent.url.routeParameters.node %}
+      
+      {% set start_item = null %}
+      {% set start_level = 0 %}
+      {% if items|length == 0 %}
+        {# There are no children, start from grandparent (or 0 if no grandparent) #}
 
-      {% if grandparent %}
-        {% set start_item = grandparent %}
-        {% set start_level = 1 %}
+        {% if greatgrandparent %}
+          {% set start_item = greatgrandparent %}
+          {% set start_level = 2 %}
+        {% elseif grandparent %}
+          {% set start_item = grandparent %}
+          {% set start_level = 1 %}
+        {% else %}
+          {% set start_item = parent %}
+          {% set start_level = 0 %}
+        {% endif %}
+
       {% else %}
-        {% set start_item = parent %}
-        {% set start_level = 0 %}
-      {% endif %}
+        {# There are children, show them and start from parent (or 0 if no parent) #}
 
+        {% if grandparent %}
+          {% set start_item = grandparent %}
+          {% set start_level = 1 %}
+        {% else %}
+          {% set start_item = parent %}
+          {% set start_level = 0 %}
+        {% endif %}
+
+      {% endif %}
+      
+      {{ _self.build( start_item, 0, start_level, currentItemNodeID, null) }}
     {% endif %}
-    
-    {{ _self.build( start_item, 0, start_level, parent.title, null) }}
 
   {% endif %}
 
@@ -91,15 +91,10 @@ TODO: remove menuLevel as it is no longer used
 {# 
 The build macro starts by adding the surrounding nav structure and the first item.
 Next, it loops recursively through the children until there are no more children or the level bleow the current page item has been reached
-
-
-TODO: come up with a better name than start_level. Its really the delta between the start_item and the current_item
 #}
-{% macro build(items, menuLevel, start_level, current_item_title, relatedPages ) %}
+{% macro build(items, menuLevel, start_level, currentItemNodeID, relatedPages ) %}
 
   {% if menuLevel == 0 %}
-
-  
 
   <nav aria-label="Secondary navigation">
     <ul class="usa-sidenav">
@@ -107,9 +102,9 @@ TODO: come up with a better name than start_level. Its really the delta between 
         <a{% if start_level == 0 %} class="usa-current" aria-current="page" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
           {{ items.title }}
         </a>
+        {% set related = drupal_entity('node', items.url.routeParameters.node )['#node'].field_related_pages %}
         {% if items.below %}
-          {% set relatedPages = drupal_entity('node', items.url.routeParameters.node )['#node'].field_related_pages %}
-          {{ _self.build( items.below, 1, start_level, current_item_title, relatedPages) }}
+          {{ _self.build( items.below, 1, start_level, currentItemNodeID, related) }}
         {% endif %}
       </li>
     </ul>
@@ -117,28 +112,60 @@ TODO: come up with a better name than start_level. Its really the delta between 
 
   {% else %}
 
-  <ul class="usa-sidenav__sublist">
-    {% for item in items %}
-      {% if item.original_link.pluginDefinition.weight != -1 %}
-        {# Set weight to -1 to hide an item from the side nav #}
-        <li class="usa-sidenav__item">
-          <a{% if item.title == current_item_title %} class="usa-current" aria-current="page" href="{{ item.url }}" class="active-trail" {% else %} href="{{ item.url }}" {% if item.in_active_trail == 1 %} class="active-trail" {% endif %} {% endif %}>
-            {{ item.title }}
-          </a>
-          {% if item.below and item.in_active_trail and menuLevel < start_level or item.title == current_item_title %} {# if there are items and we haven't reached the current item or this is the current item #}
-            {% set related = drupal_entity('node', item.url.routeParameters.node )['#node'].field_related_pages %}
-            {{ _self.build( item.below, menuLevel + 1, start_level, current_item_title, related) }}
-          {% endif %}
-        </li>
+  {% set processedNodeIDs = [] %}
+  {% set relatedPagesData = [] %}
+  {% set remainingPages = [] %}
+    {% for page in relatedPages %}
+      {% set relatedPagesData = relatedPagesData|merge([{
+        relationship:  "RelatedPage",
+        url:  drupal_url('node/'~page.target_id),
+        title: drupal_field('title', 'node', page.target_id)[0]["#context"].value,
+        nodeID: page.target_id
+      }]) %}
+      {% set processedNodeIDs = processedNodeIDs|merge([page.target_id]) %}
+    {% endfor %}
+    {% for page in items %}
+      {% set nodeID = page.url.routeParameters.node %}
+      {% if nodeID not in processedNodeIDs %}
+        {% set remainingPages = remainingPages|merge([{
+          relationship:  "ChildPage",
+          url:  drupal_url('node/' ~ nodeID),
+          title: page.title,
+          in_active_trail: page.in_active_trail,
+          weight: page.original_link.pluginDefinition.weight,
+          children: page.below,
+          nodeID: nodeID
+        }]) %}
+        {% set processedNodeIDs = processedNodeIDs|merge([nodeID]) %}
       {% endif %}
     {% endfor %}
-    {% if relatedPages is not empty  %}
-      {% for pageID in relatedPages %}
-        {% set page = drupal_entity('node', pageID.target_id)['#node'] %}
-        <li class="usa-sidenav__item relatedPage"><a href="{{drupal_url('node/'~pageID.target_id)}}">{{ page.title.value }}</a></li>
+    <ul class="usa-sidenav__sublist">
+      {% for item in relatedPagesData %}
+          <li class="usa-sidenav__item">
+            <a href="{{ item.url }}">
+              {{ item.title }}
+            </a>
+            {% if item.children and item.in_active_trail and menuLevel < start_level or item.nodeID == currentItemNodeID %} {# if there are items and we haven't reached the current item or this is the current item #}
+              {% set related = drupal_entity('node', item.url.routeParameters.node )['#node'].field_related_pages %}
+              {{ _self.build( item.children, menuLevel + 1, start_level, currentItemNodeID, related) }}
+            {% endif %}
+          </li>
       {% endfor %}
-    {% endif %}
-  </ul>
+      {% for item in remainingPages %}
+        {% if item.weight != -1 %}
+          {# Set weight to -1 to hide an item from the side nav #}
+          <li class="usa-sidenav__item">
+            <a{% if item.nodeID == currentItemNodeID %} class="usa-current" aria-current="page" href="{{ item.url }}" class="active-trail" {% else %} href="{{ item.url }}" {% if item.in_active_trail == 1 %} class="active-trail" {% endif %} {% endif %}>
+              {{ item.title }}
+            </a>
+            {% if item.children and item.in_active_trail and menuLevel < start_level or item.nodeID == currentItemNodeID %} {# if there are items and we haven't reached the current item or this is the current item #}
+              {% set related = drupal_entity('node', item.url.routeParameters.node )['#node'].field_related_pages %}
+              {{ _self.build( item.children, menuLevel + 1, start_level, currentItemNodeID, related) }}
+            {% endif %}
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
 
   {% endif %}
   

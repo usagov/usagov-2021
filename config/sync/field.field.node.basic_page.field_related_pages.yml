@@ -11,7 +11,7 @@ field_name: field_related_pages
 entity_type: node
 bundle: basic_page
 label: 'Related Pages'
-description: 'For Navigation pages to include pages that are not direct children.'
+description: 'Related Pages are displayed before child pages and you can drag & drop them here to change their order.'
 required: false
 translatable: false
 default_value: {  }

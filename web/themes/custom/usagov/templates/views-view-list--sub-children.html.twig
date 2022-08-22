@@ -23,65 +23,85 @@
     {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
 {% endif %}
 
+
+{#
+  Loop through:
+    - Child Pages (rows)
+    - Related Pages (node.field_related_pages)
+  Collect info:
+    - relationship
+    - url
+    - title
+    - intro
+  Group into 2 arrays
+    - relatedPages
+    - childPages
+  Keep track of proccessed Node IDs to avoid displaying duplicate items
+#}
+{% set relatedPages = [] %}
+{% set remainingPages = [] %}
+{% set processedNodeIDs = [] %}
+
+{% for page in node.field_related_pages %}
+  {% set relatedPages = relatedPages|merge([{
+    relationship:  "RelatedPage",
+    url:  drupal_url('node/'~page.target_id),
+    title: drupal_field('title', 'node', page.target_id)[0]["#context"].value,
+    intro: drupal_field('field_page_intro', 'node', page.target_id)[0]
+  }]) %}
+  {% set processedNodeIDs = processedNodeIDs|merge([page.target_id]) %}
+{% endfor %}
+
+{% for page in rows %}
+  {% set nodeID = page.content["#row"].nid %}
+  {% if nodeID not in processedNodeIDs %}
+    {# {% set title = drupal_field('title', 'node', nodeID) %}
+    {% set intro = drupal_field('field_page_intro', 'node', nodeID) %} #}
+    {% set remainingPages = remainingPages|merge([{
+      relationship:  "ChildPage",
+      url:  drupal_url('node/' ~ page.content["#row"].nid),
+      title: drupal_field('title', 'node', nodeID)[0]["#context"].value,
+      intro: drupal_field('field_page_intro', 'node', nodeID)[0]["#context"].value
+    }]) %}
+    {% set processedNodeIDs = processedNodeIDs|merge([nodeID]) %}
+  {% endif %}
+{% endfor %}
+
+
+
 {% if term_name == "Navigation Page" %}
 
-<ul class="usa-list usa-list--unstyled">
-{% for row in rows %}
-<li class="usagov-navpage-item">
-  <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="text-no-underline">
-    {{- row.content -}}
-  </a>
-</li>
-{% endfor %}
-{% for pageID in node.field_related_pages %}
-<li class="usagov-navpage-item">
-  <a href="{{drupal_url('node/'~pageID.target_id)}}" class="text-no-underline">
-    <header class="usa-card__header">
-      <h2 class="usa-card__heading usagov-card__heading">{{ drupal_field('title', 'node', pageID.target_id) }}</h2>
-    </header>
-    <div class="usa-card__body padding-top-0 usa-prose">
-      <p>{{ drupal_field('field_page_intro', 'node', pageID.target_id)[0] }}</p>
-    </div>
-  </a>
-</li>
-  {% endfor %}
-</ul>
+  <ul class="usa-list usa-list--unstyled">
+    {% for item in relatedPages %}
+      {% include "@usagov/NavPageListItem.twig" with {'item': item} %}
+    {% endfor %}
+    {% for item in remainingPages %}
+      {% include "@usagov/NavPageListItem.twig" with {'item': item} %}
+    {% endfor %}
+  </ul>
 
 {% elseif term_name == "Navigation Cards Page" %}
 
-
-<div class="usagov-cards margin-top-3">
-  <ul class="usa-card-group">
-    {% for row in rows %}
-    <li class="tablet:grid-col-4 usa-card">
-      <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
-        {{- row.content -}}
-      </a>
-    </li>
-    {% endfor %}
-    {% for pageID in node.field_related_pages %}
-    <li class="tablet:grid-col-4 usa-card">
-      <a href="{{drupal_url('node/'~pageID.target_id)}}" class="usa-card__container usagov-card text-no-underline">
-        <header class="usa-card__header">
-          <h2 class="usa-card__heading usagov-card__heading">{{ drupal_field('title', 'node', pageID.target_id) }}</h2>
-        </header>
-        <div class="usa-card__body padding-top-0 usa-prose">
-          <p>{{ drupal_field('field_page_intro', 'node', pageID.target_id)[0] }}</p>
-        </div>
-      </a>
-    </li>
+  <div class="usagov-cards margin-top-3">
+    <ul class="usa-card-group">
+      {% for item in featuredPages %}
+        {% include "@usagov/NavPageCard.twig" with {'item': item} %}
       {% endfor %}
-  </ul>
-</div>
-{% if lang == "en" %}
-<p><span class="text-bold">Looking for something else?</span> <a href="/">Explore All Topics and Services</a></p>
-{% else %}
-<p><span class="text-bold">¿Busca algo más? <a href="/es">Encuentre más temas y servicios</a></span></p>
+      {% for item in remainingPages %}
+        {% include "@usagov/NavPageCard.twig" with {'item': item} %}
+      {% endfor %}
+    </ul>
+  </div>
+
+  {% if lang == "en" %}
+    <p><span class="text-bold">Looking for something else?</span> <a href="/">Explore All Topics and Services</a></p>
+  {% else %}
+    <p><span class="text-bold">¿Busca algo más? <a href="/es">Encuentre más temas y servicios</a></span></p>
+  {% endif %}
+
 {% endif %}
 
-{% elseif term_name == "Standard Page" %}
-{# standard_page #}
-{% endif %}
+
 
 {% if view.current_display == "block_4" %}
   {# block_4 is the intro_page display for this view which is used on the homepage #}
@@ -111,22 +131,3 @@
     <p><span class="text-bold">¿Busca nuestro sitio web principal?</span> Visite <a href="https://www.usa.gov/espanol/">USA.gov/espanol</a></p>
   {% endif %}
 {% endif %}
-
-
-
-{# <h2>Related Pages From Other Topics</h2>
-{% if node.field_related_pages is not empty  %}
-  <ul class="usa-card-group">
-  {% for pageID in node.field_related_pages %}
-  <li class="usa-card tablet:grid-col-6">
-    <a href="{{drupal_url('node/'~pageID.target_id)}}">
-      <div class="usa-card__container">
-        <div class="usa-card__header">
-          <h2 class="usa-card__heading">{{ drupal_field('title', 'node', pageID.target_id) }}</h2>
-        </div>
-      </div>
-    </a>
-  </li>
-  {% endfor %}
-  </ul>
-{% endif %} #}
