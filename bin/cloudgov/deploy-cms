@@ -27,6 +27,15 @@ APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
 
+instances="-i 1"
+if [ "$APP_SPACE" == "prod" ]; then
+  instances="-i 2"
+elif [ "$APP_SPACE" == "stage" ]; then
+  instances="-i 1"
+elif [ "$APP_SPACE" == "dev" ]; then
+  instances="-i 1"
+fi
+
 # remove proxy during staging
 cf set-env cms http_proxy  ""
 cf set-env cms https_proxy ""
@@ -34,10 +43,10 @@ cf set-env cms https_proxy ""
 # launch the apps
 if [ -z "$CDIGEST" ]; then
   echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:cms-${CTAG}"
-  cf push cms --docker-image ${DOCKERUSER}/${DOCKERREPO}:cms-${CTAG}
+  cf push cms $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:cms-${CTAG}
 else
   echo "Deploying ${DOCKERUSER}/${DOCKERREPO} cms-${CTAG} via digest ${CDIGEST}"
-  cf push cms --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+  cf push cms $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
 fi
 
 # the egress-setup doesn't interfere with bootstrapping
