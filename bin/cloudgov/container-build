@@ -20,22 +20,23 @@ then
 fi;
 
 
-echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
+# echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
-chmod -R u+w ./web/sites/default/
+# chmod -R u+w ./web/sites/default/
 
-docker build --force-rm \
-    -t $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG \
-    -f .docker/Dockerfile-cms . \
-    --build-arg GITBRANCH=$GITBRANCH \
-    --build-arg GITCOMMIT=$GITCOMMIT \
-    --build-arg GITTAG=$GITTAG
+# docker build --force-rm \
+#     -t $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG \
+#     -f .docker/Dockerfile-cms . \
+#     --build-arg GITBRANCH=$GITBRANCH \
+#     --build-arg GITCOMMIT=$GITCOMMIT \
+#     --build-arg GITTAG=$GITTAG \
+#     --build-arg CONTAINERTAG=$CONTAINERTAG
 
-if [ -n "$CONTAINERTAG2" ]
-then
-    echo "docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2"
-    docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
-fi
+# if [ -n "$CONTAINERTAG2" ]
+# then
+#     echo "docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2"
+#     docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
+# fi
 
 echo "Building ${CONTAINERNAME}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
