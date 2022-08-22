@@ -62,8 +62,8 @@ fi
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 
-export EN_404_PAGE=${EN_404_PAGE:-/404/index.html};
-export ES_404_PAGE=${ES_404_PAGE:-/es/404/index.html};
+export EN_404_PAGE=${EN_404_PAGE:-/page-error/index.html};
+export ES_404_PAGE=${ES_404_PAGE:-/es/pagina-error/index.html};
 
 export NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_DISPLAY_NAME')}
 export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')}
