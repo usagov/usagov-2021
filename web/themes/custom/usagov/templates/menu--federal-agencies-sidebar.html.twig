@@ -1,0 +1,30 @@
+{% import _self as menus %}
+{# get my parent-- title #}
+{% set parent = items.title %}
+
+{# get myself -- current_item_title#}
+{% set current_item = context.current_item_title %}
+
+{# get my siblings -- items.below  #}
+{# done within the menu #}
+
+<nav aria-label="Secondary navigation">
+  <ul class="usa-sidenav">
+    <li class="usa-sidenav__item"> 
+      <a class="active-trail" href="/about-the-us"> {{parent}} </a>
+    </li>  
+    <ul class="usa-sidenav__sublist">
+      {% for item in items.below %}
+        {% if item.title == current_item_title %}
+          <li class="usa-sidenav__item"> 
+            <a class="usa-current" href="{{item.url}}">{{item.title}} </a>
+          </li>
+        {% else %} 
+          <li class="usa-sidenav__item relatedPage"> 
+            <a class="" href="{{item.url}}">{{item.title}} </a>
+          </li>
+        {% endif %}
+      {% endfor %}     
+    </ul>
+  </ul>
+</nav>
