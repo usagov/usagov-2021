@@ -6,8 +6,6 @@
  */
 
 use Drupal\taxonomy\Entity\Term;
-use Drupal\views\ViewExecutable;
-use Drupal\views\ResultRow;
 
 /**
  * Description message.
@@ -23,10 +21,11 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
     $isFront = \Drupal::service('path.matcher')->isFrontPage();
     if (is_object($node) && method_exists($node, 'getFields')) {
       if ($node->getFields()['field_page_type'] != NULL
-        && !empty($node->getFields()['field_page_type']->getValue())
-        && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
+          && !empty($node->getFields()['field_page_type']->getValue())
+          && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
         $term_id = $node->getFields()['field_page_type']->getValue()[0]['target_id'];
-        $term_name = Term::load($term_id)->get('name')->value;
+        $term = Term::load($term_id);
+        $term_name = $term ? $term->get('name')->value : '';
       }
       // Check if the page is not front page.
       if ($isFront == 1) {
@@ -36,12 +35,33 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         $isFront = 'not_homepage';
       }
       // Check node has all the four variables set which must not be null.
-      if ($node->id() != NULL && $node->getType() != NULL
-        && $isFront != NULL) {
+      $node_real_type = $node->getType();
+      if ($node->id() != NULL && $node_real_type != NULL && $isFront != NULL) {
+        // Check for a few special cases:
+        $special_node_type = FALSE;
+        // change "directory_record" to "federal_directory_record"
+        if ($node_real_type == 'directory_record') {
+          $special_node_type = 'federal_directory_record';
+        }
+        else {
+          // Check for special nodes by path:
+          switch ($node->toUrl()->toString()) {
+            case '/agency-index':
+            case '/es/indice-agencias':
+              $special_node_type = 'federal_directory_index';
+              break;
+
+            case '/states':
+            case '/es/estados':
+              $special_node_type = 'state_directory_index';
+              break;
+          }
+        }
+
         // Cleanup vars.
         $variables['id'] = $node->id();
         $variables['front'] = $isFront;
-        $variables['nodetype'] = $node->getType();
+        $variables['nodetype'] = $special_node_type ?: $node_real_type;
         $variables['pagetype'] = $term_name ?? 'content_page';
         unset($term_name);
         unset($isFront);
@@ -51,7 +71,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
 }
 
 /**
- * Description message.
+ * Remove field_page_intro content if field_hide_page_intro is set to TRUE.
  *
  * @param mixed $variables
  *   Self described.

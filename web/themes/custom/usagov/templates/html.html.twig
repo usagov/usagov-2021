@@ -39,12 +39,12 @@
     {{ node.field_header_html.value|raw }}
   {% endif %}
   <script>
-    dataLayer = [{ 
+    dataLayer = [{
       {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{node_type|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}  
+      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
     }];
   </script>
   <!-- Google Tag Manager -->
@@ -64,12 +64,12 @@
     <meta name="google-site-verification" content="p7YQsJ1axaK_4XZeFOVM_tVuvS-hu5fUcEFT0vYJfTM" />
     <meta name="google-site-verification" content="QsZz3rz0kvdcs5rSqFjWMkxzQyDuH40vIohA8TYF1JI" />
     <meta name="msvalidate.01" content="7ED9318B2E16491CECD0F0CFCB5594E8" />
-    <!-- End Website Verification --> 
+    <!-- End Website Verification -->
     {% if lang == 'en' %}
-    <meta name="description" content="USA.gov can help you start your search for government information by topic and agency. " /> 
+    <meta name="description" content="USA.gov can help you start your search for government information by topic and agency. " />
     {% else %}
     <meta name="description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español. " />
-    {% endif %} 
+    {% endif %}
   {% endif %}
   {% if front == "not_homepage" and nodetype == "basic_page" %}
     <meta name="description" content="{{ node.field_page_intro.value }}" />
@@ -176,7 +176,7 @@ const scrollToTopButton = document.getElementById('back-to-top');
 const scrollFunc = () => {
   // Get the current scroll value
   let y = window.scrollY;
-  
+
   // If the scroll value is greater than the window height, let's add a class to the scroll-to-top button to show it!
   if (y > 500) {
     scrollToTopButton.className = "stuck";
@@ -190,7 +190,7 @@ window.addEventListener("scroll", scrollFunc);
 const scrollToTop = () => {
   // Let's set a variable for the number of pixels we are from the top of the document.
   const c = document.documentElement.scrollTop || document.body.scrollTop;
-  
+
   // If that number is greater than 0, we'll scroll back to 0, or the top of the document.
   // We'll also animate that scroll with requestAnimationFrame:
   // https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
@@ -207,7 +207,7 @@ const scrollToTop = () => {
  // e.preventDefault();
 // scrollToTop();
 // }
-  
+
 </script>
 
 <!-- begin code to remove tabindex from survey -->
@@ -217,7 +217,7 @@ const scrollToTop = () => {
 	var targetNode = document.getElementById('main-content');
 	// Options for the observer (which mutations to observe)
 	var config = { attributes: true, childList: true, subtree: true };
-	
+
 	// Callback function to execute when mutations are observed
 	var callback = function(mutationsList, observer) {
 		// Use traditional 'for loops' for IE 11
@@ -230,14 +230,14 @@ const scrollToTop = () => {
 			}
 			else if (mutation.type === 'attributes') {
 				console.log('The ' + mutation.attributeName + ' attribute was modified.');
-				
+
 			}
 		}
 	};
-	
+
 	// Create an observer instance linked to the callback function
 	var observer = new MutationObserver(callback);
-	
+
 	// Start observing the target node for configured mutations
 	observer.observe(targetNode, config);
 	//]]>
