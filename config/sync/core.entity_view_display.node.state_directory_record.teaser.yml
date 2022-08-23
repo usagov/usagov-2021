@@ -9,8 +9,10 @@ dependencies:
     - field.field.node.state_directory_record.field_city
     - field.field.node.state_directory_record.field_consumer_protection
     - field.field.node.state_directory_record.field_contact_link
+    - field.field.node.state_directory_record.field_corrections_dept
     - field.field.node.state_directory_record.field_district_attorneys
     - field.field.node.state_directory_record.field_education_department
+    - field.field.node.state_directory_record.field_election_office
     - field.field.node.state_directory_record.field_email
     - field.field.node.state_directory_record.field_emergency_management
     - field.field.node.state_directory_record.field_english_title
@@ -60,8 +62,10 @@ hidden:
   field_city: true
   field_consumer_protection: true
   field_contact_link: true
+  field_corrections_dept: true
   field_district_attorneys: true
   field_education_department: true
+  field_election_office: true
   field_email: true
   field_emergency_management: true
   field_english_title: true

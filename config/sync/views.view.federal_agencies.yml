@@ -654,7 +654,7 @@ display:
           group_column: value
           group_columns: {  }
           group_rows: true
-          delta_limit: 0
+          delta_limit: 1
           delta_offset: 0
           delta_reversed: false
           delta_first_last: false
@@ -1228,7 +1228,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<a href="{{ view_node }}">More information on {{ title }}&nbsp;></a>'
+            text: '<a href="{{ view_node }}">More information about {{ title }}&nbsp;></a>'
             make_link: false
             path: ''
             absolute: false
@@ -1389,7 +1389,7 @@ display:
           group_column: ''
           group_columns: {  }
           group_rows: true
-          delta_limit: 0
+          delta_limit: 1
           delta_offset: 0
           delta_reversed: false
           delta_first_last: false
@@ -1456,7 +1456,7 @@ display:
           group_column: ''
           group_columns: {  }
           group_rows: true
-          delta_limit: 0
+          delta_limit: 1
           delta_offset: 0
           delta_reversed: false
           delta_first_last: false
@@ -1527,7 +1527,7 @@ display:
           delta_offset: 0
           delta_reversed: false
           delta_first_last: false
-          multi_type: separator
+          multi_type: ul
           separator: ', '
           field_api_classes: false
         field_tty_number:
@@ -2555,7 +2555,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<a href="{{ view_node }}">More information on {{ title }}&nbsp;></a>'
+            text: '<a href="{{ view_node }}">More information about {{ title }}&nbsp;></a>'
             make_link: false
             path: ''
             absolute: false
