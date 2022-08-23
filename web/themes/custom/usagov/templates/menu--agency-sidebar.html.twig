@@ -12,7 +12,7 @@
 
 {# get my grandparent #}
 
-{{devel_breakpoint()}}
+{# {{devel_breakpoint()}} #}
 
 <nav aria-label="Secondary navigation">
   <ul class="usa-sidenav">
@@ -23,11 +23,12 @@
       {% for item in items.below %}
         {% if item.title == current_item_title %}
           <li class="usa-sidenav__item"> 
-            <a class="usa-current" href="/agency-index">{{item.title}} </a>
+            <a class="usa-current" href="{{item.url}}">{{item.title}} </a>
           </li>
         {% else %}
+        {# {% set page = drupal_entity('node', item.target_id)['#node'] %} #}          
           <li class="usa-sidenav__item relatedPage"> 
-            <a class="" href="/elected-officials">{{item.title}} </a>
+            <a class="" href="{{item.url}}">{{item.title}} </a>
           </li>
         {% endif %}
       {% endfor %}     
