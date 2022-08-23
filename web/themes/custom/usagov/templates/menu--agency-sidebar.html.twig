@@ -1,5 +1,3 @@
-<p> In other template - this should print </p>
-
 {% import _self as menus %}
 {# get my parent-- title #}
 {% set parent = items.title %}
@@ -9,10 +7,6 @@
 
 {# get my siblings -- items.below  #}
 {# done within the menu #}
-
-{# get my grandparent #}
-
-{# {{devel_breakpoint()}} #}
 
 <nav aria-label="Secondary navigation">
   <ul class="usa-sidenav">
@@ -25,8 +19,7 @@
           <li class="usa-sidenav__item"> 
             <a class="usa-current" href="{{item.url}}">{{item.title}} </a>
           </li>
-        {% else %}
-        {# {% set page = drupal_entity('node', item.target_id)['#node'] %} #}          
+        {% else %} 
           <li class="usa-sidenav__item relatedPage"> 
             <a class="" href="{{item.url}}">{{item.title}} </a>
           </li>
@@ -35,5 +28,3 @@
     </ul>
   </ul>
 </nav>
-
-<p> should print this tooo</p>

@@ -1,0 +1,35 @@
+<p> in agency 3 </p>
+{% import _self as menus %}
+{# get my grandparent-- title #}
+{% set grandparent = items.title %}
+
+{# get my parent #}
+
+{# get myself -- current_item_title#}
+{% set current_item = current_item_title %}
+{% set current_item_url = path('<current>') %}
+
+{# get my siblings -- items.below  #}
+{# done within the menu #}
+
+<nav aria-label="Secondary navigation">
+  <ul class="usa-sidenav">
+    <li class="usa-sidenav__item"> 
+      <a class="active-trail" href="/about-the-us"> {{grandparent}} </a>
+    </li>  
+    <ul class="usa-sidenav__sublist">
+      {% for item in items.below %}
+          <li class="usa-sidenav__item relatedPage"> 
+            <a class="" href="{{item.url}}">{{item.title}} </a>
+          </li>
+           {% if item.in_active_trail == true %}
+                <li class="usa-sidenav__item"> 
+                    <a class="usa-current" href="{{current_item_url}}">{{current_item}} </a>
+                </li>
+          {% endif %}
+      {% endfor %}     
+    </ul>
+  </ul>
+</nav>
+
+

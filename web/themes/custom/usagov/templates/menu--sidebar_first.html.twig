@@ -98,6 +98,8 @@ TODO: come up with a better name than start_level. Its really the delta between 
 {% macro build(items, menuLevel, start_level, current_item_title, relatedPages ) %}
   {% if path('<current>') == '/agency-index'%}
     {% include 'menu--agency-sidebar.html.twig' %}
+  {% elseif path('<current>') matches '#\/agencies\/*#' %}
+    {% include 'menu--agency2-sidebar.html.twig' %}
   {% else %}
     {% if menuLevel == 0 %}
 
