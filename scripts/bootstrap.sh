@@ -65,6 +65,7 @@ export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n
 export EN_404_PAGE=${EN_404_PAGE:-/404/index.html};
 export ES_404_PAGE=${ES_404_PAGE:-/es/404/index.html};
 
+export NEW_RELIC_AGENT_VERSION=${NEW_RELIC_AGENT_VERSION:-$(echo $SECRETS | jq -r '.NEW_RELIC_AGENT_VERSION')}
 export NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_DISPLAY_NAME')}
 export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')}
 export NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')}
@@ -97,31 +98,40 @@ done
 if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
   if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$NEW_RELIC_LICENSE_KEY" != "null" ]; then
     echo "Setting up New Relic ... "
+    echo "Downloading New Relic Agent $NEW_RELIC_AGENT_VERSION ... "
+    curl -L "https://download.newrelic.com/php_agent/archive/${NEW_RELIC_AGENT_VERSION}/newrelic-php5-${NEW_RELIC_AGENT_VERSION}-linux.tar.gz" | tar -C /tmp -zx \
+     && export NR_INSTALL_KEY=${NEW_RELIC_LICENSE_KEY} \
+     && export NR_INSTALL_USE_CP_NOT_LN=1 \
+     && export NR_INSTALL_SILENT=1 \
+     && /tmp/newrelic-php5-*/newrelic-install install \
+     && rm -rf /tmp/newrelic-php5-* /tmp/nrinstall* \
+
     sed -i \
         -e "s|;\?newrelic.license =.*|newrelic.license = ${NEW_RELIC_LICENSE_KEY}|" \
         -e "s|;\?newrelic.process_host.display_name =.*|newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}|" \
         -e "s|;\?newrelic.appname =.*|newrelic.appname = \"${NEW_RELIC_APP_NAME:-Local;USA.gov}\"|" \
+        -e "s|;\?newrelic.daemon.address =.*|newrelic.daemon.address = \"${NEW_RELIC_DAEMON_ADDRESS:-newrelic:31339}\"|" \
         -e "s|;\?newrelic.enabled =.*|newrelic.enabled = true|" \
         /etc/php8/conf.d/newrelic.ini
   else
     echo "Turning off New Relic ... "
     sed -i \
-        -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
+        -e "s|;\?newrelic.enabled =.*|newrelic.enabled = false|" \
         /etc/php8/conf.d/newrelic.ini
   fi
-  if [ -n "${https_proxy:-}" ]; then
-    sed -i \
-      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
-      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
-      -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"$https_proxy\"|" \
-      /etc/php8/conf.d/newrelic.ini
-  fi
+#  if [ -n "${https_proxy:-}" ]; then
+#    sed -i \
+#      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
+#      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
+#      -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"$https_proxy\"|" \
+#      /etc/php8/conf.d/newrelic.ini
+#  fi
 fi
 
-# echo "TEMPORARY WHILE WE FIX NEW RELIC THROUGH PROXY : Turning off New Relic ... "
-# sed -i \
-#     -e "s|;\?newrelic.enabled =.*|newrelic.enabled = false|" \
-#     /etc/php8/conf.d/newrelic.ini
+#echo "TEMPORARY WHILE WE FIX NEW RELIC THROUGH PROXY : Turning off New Relic ... "
+#sed -i \
+#    -e "s|;\?newrelic.enabled =.*|newrelic.enabled = false|" \
+#    /etc/php8/conf.d/newrelic.ini
 
 # php needs a restart so new relic ini changes take effect
 if [ -d /var/run/s6/services/php ]; then

@@ -153,6 +153,16 @@ services:
     networks:
       - gsa-gov
 
+  newrelic:
+    container_name: newrelic
+    image: newrelic/php-daemon
+    volumes:
+      - ./.docker/src-newrelic/newrelic.cfg:/etc/newrelic/newrelic.cfg
+    env_file:
+      - ./env.local
+    networks:
+      - gsa-gov
+
 
 volumes:
   database_data:
