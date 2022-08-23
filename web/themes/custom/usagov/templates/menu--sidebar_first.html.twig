@@ -95,51 +95,88 @@ Next, it loops recursively through the children until there are no more children
 
 TODO: come up with a better name than start_level. Its really the delta between the start_item and the current_item
 #}
-{% macro build(items, menuLevel, start_level, current_item_title, relatedPages ) %}
 
-  {% if menuLevel == 0 %}
 
-  
+  {% macro build(items, menuLevel, start_level, current_item_title, relatedPages ) %}
+    
+    {% if 0 == 1 %}
+        {% if menuLevel == 0 %}
 
-  <nav aria-label="Secondary navigation">
-    <ul class="usa-sidenav">
-      <li class="usa-sidenav__item">
-        <a{% if start_level == 0 %} class="usa-current" aria-current="page" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
-          {{ items.title }}
-        </a>
-        {% if items.below %}
-          {% set relatedPages = drupal_entity('node', items.url.routeParameters.node )['#node'].field_related_pages %}
-          {{ _self.build( items.below, 1, start_level, current_item_title, relatedPages) }}
-        {% endif %}
-      </li>
-    </ul>
-  </nav>
 
-  {% else %}
 
-  <ul class="usa-sidenav__sublist">
-    {% for item in items %}
-      {% if item.original_link.pluginDefinition.weight != -1 %}
-        {# Set weight to -1 to hide an item from the side nav #}
-        <li class="usa-sidenav__item">
-          <a{% if item.title == current_item_title %} class="usa-current" aria-current="page" href="{{ item.url }}" class="active-trail" {% else %} href="{{ item.url }}" {% if item.in_active_trail == 1 %} class="active-trail" {% endif %} {% endif %}>
-            {{ item.title }}
-          </a>
-          {% if item.below and item.in_active_trail and menuLevel < start_level or item.title == current_item_title %} {# if there are items and we haven't reached the current item or this is the current item #}
-            {% set related = drupal_entity('node', item.url.routeParameters.node )['#node'].field_related_pages %}
-            {{ _self.build( item.below, menuLevel + 1, start_level, current_item_title, related) }}
+        <nav aria-label="Secondary navigation">
+          <ul class="usa-sidenav">
+            <li class="usa-sidenav__item">
+            <p>Am I getting called?</p>
+              {{devel_breakpoint()}}
+            <p>Can I break?</p>
+            {{devel_breakpoint()}}
+              <a{% if start_level == 0 %} class="usa-current" aria-current="page" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
+                {{ items.title }}
+              </a>
+              {% if items.below %}
+                {% set relatedPages = drupal_entity('node', items.url.routeParameters.node )['#node'].field_related_pages %}
+                {{ _self.build( items.below, 1, start_level, current_item_title, relatedPages) }}
+              {% endif %}
+            </li>
+          </ul>
+        </nav>
+
+        {% else %}
+
+        <ul class="usa-sidenav__sublist">
+          {% for item in items %}
+            {% if item.original_link.pluginDefinition.weight != -1 %}
+              {# Set weight to -1 to hide an item from the side nav #}
+              <li class="usa-sidenav__item">
+                <a{% if item.title == current_item_title %} class="usa-current" aria-current="page" href="{{ item.url }}" class="active-trail" {% else %} href="{{ item.url }}" {% if item.in_active_trail == 1 %} class="active-trail" {% endif %} {% endif %}>
+                  {{ item.title }}
+                </a>
+                {% if item.below and item.in_active_trail and menuLevel < start_level or item.title == current_item_title %} {# if there are items and we haven't reached the current item or this is the current item #}
+                  {% set related = drupal_entity('node', item.url.routeParameters.node )['#node'].field_related_pages %}
+                  {{ _self.build( item.below, menuLevel + 1, start_level, current_item_title, related) }}
+                {% endif %}
+              </li>
+            {% endif %}
+          {% endfor %}
+          {% if relatedPages is not empty  %}
+            {% for pageID in relatedPages %}
+              {% set page = drupal_entity('node', pageID.target_id)['#node'] %}
+              <li class="usa-sidenav__item relatedPage"><a href="{{drupal_url('node/'~pageID.target_id)}}">{{ page.title.value }}</a></li>
+            {% endfor %}
           {% endif %}
-        </li>
-      {% endif %}
-    {% endfor %}
-    {% if relatedPages is not empty  %}
-      {% for pageID in relatedPages %}
-        {% set page = drupal_entity('node', pageID.target_id)['#node'] %}
-        <li class="usa-sidenav__item relatedPage"><a href="{{drupal_url('node/'~pageID.target_id)}}">{{ page.title.value }}</a></li>
-      {% endfor %}
-    {% endif %}
-  </ul>
+        </ul>
 
-  {% endif %}
-  
-{% endmacro %}
+        {% endif %}
+    {% else %}
+      <nav aria-label="Secondary navigation">
+        <ul class="usa-sidenav">
+          <li class="usa-sidenav__item"> 
+            <a class="active-trail"> About the U.S and Its Government </a>
+          </li>
+          <li class="usa-sidenav__item"> 
+            <a class="">Elected Officials </a>
+          </li>
+          <li class="usa-sidenav__item"> 
+            <a class="active-trail">Directory of U.S Government Agencies and Departments </a>
+          </li>
+          <li class="usa-sidenav__item"> 
+            <a class="usa-current">Agency Placeholder </a>
+          </li>
+          <li class="usa-sidenav__item"> 
+            <a class="">Branches of Government </a>
+          </li>
+          <li class="usa-sidenav__item"> 
+            <a class="">U.S Facts and Figures </a>
+          </li>
+          <li class="usa-sidenav__item"> 
+            <a class="">Buying from the U.S Government </a>
+          </li>
+          <li class="usa-sidenav__item"> 
+            <a class="">Indian Tribes and Resources for Native Americans </a>
+          </li>
+        </ul>
+      </nav>
+    {% endif %}
+  {% endmacro %}
+
