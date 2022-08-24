@@ -118,10 +118,10 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
   fi
 fi
 
-echo "TEMPORARY WHILE WE FIX NEW RELIC THROUGH PROXY : Turning off New Relic ... "
-sed -i \
-    -e "s|;\?newrelic.enabled =.*|newrelic.enabled = false|" \
-    /etc/php8/conf.d/newrelic.ini
+# echo "TEMPORARY WHILE WE FIX NEW RELIC THROUGH PROXY : Turning off New Relic ... "
+# sed -i \
+#     -e "s|;\?newrelic.enabled =.*|newrelic.enabled = false|" \
+#     /etc/php8/conf.d/newrelic.ini
 
 # php needs a restart so new relic ini changes take effect
 if [ -d /var/run/s6/services/php ]; then

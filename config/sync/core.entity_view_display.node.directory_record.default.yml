@@ -4,12 +4,14 @@ status: true
 dependencies:
   config:
     - field.field.node.directory_record.body
+    - field.field.node.directory_record.feeds_item
     - field.field.node.directory_record.field_city
     - field.field.node.directory_record.field_contact_link
     - field.field.node.directory_record.field_email
     - field.field.node.directory_record.field_english_title
     - field.field.node.directory_record.field_for_contact_center_only
     - field.field.node.directory_record.field_government_branch
+    - field.field.node.directory_record.field_mothership_uuid
     - field.field.node.directory_record.field_language_toggle
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
@@ -110,7 +112,7 @@ content:
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 11
+    weight: 124
     region: content
   field_language_toggle:
     type: entity_reference_label
@@ -119,6 +121,14 @@ content:
       link: true
     third_party_settings: {  }
     weight: 12
+    region: content
+  field_mothership_uuid:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 126
     region: content
   field_offices_near_you:
     type: link
@@ -228,4 +238,5 @@ content:
     weight: 0
     region: content
 hidden:
+  feeds_item: true
   langcode: true
