@@ -5,3 +5,6 @@ global-styling:
       css/styles.css: {}
   js:
     scripts/uswds.min.js: {}
+    scripts/newFooter.js: {}
+  dependencies:
+    - core/drupal
