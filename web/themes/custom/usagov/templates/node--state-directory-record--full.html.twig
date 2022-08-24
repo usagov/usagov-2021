@@ -2,13 +2,13 @@
 {{ content.body }}
 <div class="usagov-directory-table">
   <div>
-    <h3>State Government Website</h3>
+    <h3 class="usa-prose">State Government Website</h3>
     {{ content.field_website }}
   </div>
 
   <div>
     <ul class="usa-list usa-list--unstyled">
-      <h3>Governor</h3>
+      <h3 class="usa-prose">Governor</h3>
       {{ content.field_governor }}<br>
       {{ content.field_governor_contact }}
       <p class="usagov-dir-padding">Phone: {{ content.field_phone_number }}</p>
@@ -33,12 +33,12 @@
   </div>
 
   <div>
-    <h3>Congress Members</h3>
+    <h3 class="usa-prose">Congress Members</h3>
     <a href="/elected-officials">Find the names and contact information for your elected officials</a>
   </div>
 
   <div>
-    <h3>State Agencies</h3>
+    <h3 class="usa-prose">State Agencies</h3>
     {% if content.field_consumer_protection|render %}
     {{ content.field_consumer_protection }}<br>
     {% endif %}
