@@ -855,7 +855,7 @@ foreach ($cf_service_data as $service_list) {
         'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
         'driver' => 'mysql'
       ];
-      if ( $IN_CLOUDGOV===TRUE ) {
+      if ( $IS_CLOUDGOV===TRUE ) {
         $databases['default']['default']['pdo'] = [
           \PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/certs/rds-combined-ca-us-gov-bundle.pem',
           \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => TRUE
