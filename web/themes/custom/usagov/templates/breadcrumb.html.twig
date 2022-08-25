@@ -7,48 +7,47 @@
  * - breadcrumb: Breadcrumb trail items.
  */
 #}
-
 {% if path('<current>') == '/agency-index' or path('<current>') matches '#\/agencies\/*#'%}
     <nav class="margin-top-neg-3 mobile-lg:margin-top-2 tablet:margin-top-neg-3 desktop:margin-top-0 margin-bottom-2 mobile-lg:margin-bottom-6" role="navigation" aria-labelledby="system-breadcrumb" >
-    
-        <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">
-            
-        <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-            <a href="/" class="usa-breadcrumb__link" itemprop="item">
-            <span itemprop="name">
-                {% if item.url == '/es' %}
-                    Página principal
-                {% else %}
-                    Home
-                {% endif %}
-            </span>
-            </a>
-        </li>
-        <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-            <a href="/about-the-us" class="usa-breadcrumb__link" itemprop="item">
-                <span itemprop="name">
-                    About the U.S and Its Government
-                </span>
-            </a>
-        </li>
-        {% if path('<current>') == '/agency-index'%}
+        <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">    
             <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                <a href="/" class="usa-breadcrumb__link" itemprop="item">
+                    <span itemprop="name">
+                        Home
+                    </span>
+                </a>
+                <meta itemprop="position" content="0" />
+            </li>
+            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                <a href="/about-the-us" class="usa-breadcrumb__link" itemprop="item">
+                    <span itemprop="name">
+                        About the U.S and Its Government
+                    </span>
+                </a>
+                <meta itemprop="position" content="1" />
+            </li>
+            {% if path('<current>') == '/agency-index'%}
+                <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                     <span itemprop="name">Directory of U.S. Government Agencies and Departments</span>
-            </li> 
-        {% else %}
-            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                    <meta itemprop="position" content="2" />
+                </li> 
+            {% else %}
+                <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                     <a href="/agency-index" class="usa-breadcrumb__link" itemprop="item">
                         <span itemprop="name">
                             Directory of U.S. Government Agencies and Departments
                         </span>
                     </a>
-                </li>
-            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                    <meta itemprop="position" content="2" />
+                    </li>
+                <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                     <span itemprop="name">{{ drupal_title() }}</span>
-            </li> 
-        {% endif %}
+                    <meta itemprop="position" content="3" />
+                </li> 
+            {% endif %}
         </ol>
     </nav>
+
 {% else %}
     {% if breadcrumb %}
         <nav class="margin-top-neg-3
