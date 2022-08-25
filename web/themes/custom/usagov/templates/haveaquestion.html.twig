@@ -4,7 +4,8 @@
     {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
 {% endif %}
 
-{% if (term_name == "Standard Page") or (front == "not_homepage") and (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
+{% if (term_name == "Standard Page") or (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
+
 {% set talk = '/phone' %}
 {% set chat = '/chat' %}
 <div id="question_box">
