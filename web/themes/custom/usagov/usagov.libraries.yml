@@ -6,5 +6,8 @@ global-styling:
   js:
     scripts/uswds.min.js: {}
     scripts/newFooter.js: {}
+    scripts/telephoneForMobileNode.js: {}
   dependencies:
     - core/drupal
+    - core/jquery
+    - core/once
