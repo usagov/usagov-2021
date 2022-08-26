@@ -20,12 +20,12 @@ A short summary of the behavior of the sidebar nav:
 
 {% if path('<current>') == '/agency-index' or path('<current>') == '/states'%}
   {% include 'menu--federal-agencies-sidebar.html.twig' %}
-{% elseif path('<current>') matches '#\/agencies\/*#' or path('<current>') matches '#\/states\/*#' %}    
+ {% elseif path('<current>') matches '#\/agencies\/*#' or path('<current>') matches '#\/states\/*#' %}    
   {% include 'menu--agency-sidebar.html.twig' %}
-{% elseif path('<current>') == '/es/indice-agencias' or path('<current>') == '/gobiernos-estatales' %}    
+{# {% elseif path('<current>') == '/es/indice-agencias' or path('<current>') == '/gobiernos-estatales' %}    
   {% include 'menu--es-federal-agencies-sidebar.html.twig' %}
 {% elseif path('<current>') matches '#\/es\/agencias\/*#' or path('<current>') matches '#\/es\/estados\/*#'%}    
-  {% include 'menu--es-agency-sidebar.html.twig' %}
+  {% include 'menu--es-agency-sidebar.html.twig' %} #}
 {% else %}
   {{ menus.explore(items, 0, null, null) }}
 {% endif %}

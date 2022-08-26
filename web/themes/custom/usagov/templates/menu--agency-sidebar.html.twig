@@ -1,3 +1,5 @@
+{% set current_url = "#{path('<current>')}" %}
+
 <nav aria-label="Secondary navigation">
   <ul class="usa-sidenav">
     <li class="usa-sidenav__item"> 
@@ -7,7 +9,7 @@
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/elected-officials">Elected Officials </a>
       </li>
-      {% if {{current_url}} matches '#\/agencies\/*#' %}
+      {% if current_url matches '#\/agencies\/*#' %}
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/states">State Government</a>
       </li>
@@ -30,7 +32,7 @@
       </ul>
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/agency-index">Directory of U.S Government Agencies and Departments </a>
-      </li>
+      </li> 
       {% endif %}
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/branches-of-government">Branches of Government </a>
