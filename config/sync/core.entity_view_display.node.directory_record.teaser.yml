@@ -5,12 +5,14 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.directory_record.body
+    - field.field.node.directory_record.feeds_item
     - field.field.node.directory_record.field_city
     - field.field.node.directory_record.field_contact_link
     - field.field.node.directory_record.field_email
     - field.field.node.directory_record.field_english_title
     - field.field.node.directory_record.field_for_contact_center_only
     - field.field.node.directory_record.field_government_branch
+    - field.field.node.directory_record.field_mothership_uuid
     - field.field.node.directory_record.field_language_toggle
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
@@ -39,6 +41,7 @@ content:
     region: content
 hidden:
   body: true
+  feeds_item: true
   field_city: true
   field_contact_link: true
   field_email: true
@@ -46,6 +49,7 @@ hidden:
   field_for_contact_center_only: true
   field_government_branch: true
   field_language_toggle: true
+  field_mothership_uuid: true
   field_offices_near_you: true
   field_page_intro: true
   field_phone_number: true
