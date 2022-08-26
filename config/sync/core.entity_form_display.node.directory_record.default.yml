@@ -4,12 +4,14 @@ status: true
 dependencies:
   config:
     - field.field.node.directory_record.body
+    - field.field.node.directory_record.feeds_item
     - field.field.node.directory_record.field_city
     - field.field.node.directory_record.field_contact_link
     - field.field.node.directory_record.field_email
     - field.field.node.directory_record.field_english_title
     - field.field.node.directory_record.field_for_contact_center_only
     - field.field.node.directory_record.field_government_branch
+    - field.field.node.directory_record.field_mothership_uuid
     - field.field.node.directory_record.field_language_toggle
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
@@ -130,6 +132,14 @@ content:
     settings:
       match_operator: CONTAINS
       match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_mothership_uuid:
+    type: string_textfield
+    weight: 31
+    region: content
+    settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
@@ -287,4 +297,5 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-hidden: {  }
+hidden:
+  feeds_item: true

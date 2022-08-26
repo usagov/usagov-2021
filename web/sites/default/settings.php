@@ -816,7 +816,7 @@ if (!empty($cf_application_data['space_name']) &&
   }
 }
 
-
+$IS_CLOUDGOV=FALSE;
 $SERVER_HTTP_POST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
 $cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
 if (!empty($cf_application_data['space_name']) &&
@@ -824,14 +824,17 @@ if (!empty($cf_application_data['space_name']) &&
              ['dev', 'stage', 'prod'])) {
   switch (strtolower($cf_application_data['space_name'])) {
     case "dev":
+      $IS_CLOUDGOV=TRUE;
       $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
       break;
 
     case "stage":
+      $IS_CLOUDGOV=TRUE;
       $SERVER_HTTP_HOST = 'cms-stage.usa.gov';
       break;
 
     case "prod":
+      $IS_CLOUDGOV=TRUE;
       $SERVER_HTTP_HOST = 'cms.usa.gov';
       break;
   }
@@ -850,8 +853,14 @@ foreach ($cf_service_data as $service_list) {
         'host' => $service['credentials']['host'],
         'port' => $service['credentials']['port'],
         'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
-        'driver' => 'mysql',
+        'driver' => 'mysql'
       ];
+      if ( $IS_CLOUDGOV===TRUE ) {
+        $databases['default']['default']['pdo'] = [
+          \PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/certs/rds-combined-ca-us-gov-bundle.pem',
+          \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => TRUE
+        ];
+      }
     } else if ($service['name'] === 'secrets') {
       $settings['hash_salt'] = $service['credentials']['HASH_SALT'];
     } else if ($service['name'] === 'storage') {
