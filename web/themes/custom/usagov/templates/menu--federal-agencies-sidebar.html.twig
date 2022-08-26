@@ -1,4 +1,5 @@
-{{current_url}}
+{% set current_url = "#{path('<current>')}" %}
+<p>current_url :  {{current_url}} </p>
 <nav aria-label="Secondary navigation">
   <ul class="usa-sidenav">
     <li class="usa-sidenav__item"> 
@@ -8,7 +9,7 @@
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/elected-officials">Elected Officials </a>
       </li>
-      {% if {{current_url}} == '/agency-index' %}
+      {% if current_url matches '#\/agency-index#' %}
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/states">State Government</a>
       </li>
