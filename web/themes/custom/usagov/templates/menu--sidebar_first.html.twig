@@ -18,9 +18,9 @@ A short summary of the behavior of the sidebar nav:
 {# {% set relatedPages = drupal_entity('node', items.url.routeParameters.node )['#node'].field_related_pages %} #}
 
 
-{% if path('<current>') == '/agency-index'%}
+{% if path('<current>') == '/agency-index' or path('<current>') == '/states'%}
   {% include 'menu--federal-agencies-sidebar.html.twig' %}
-{% elseif path('<current>') matches '#\/agencies\/*#' %}    
+{% elseif path('<current>') matches '#\/agencies\/*#' or path('<current>') matches '#\/states\/*#' %}    
   {% include 'menu--agency-sidebar.html.twig' %}
 {% elseif path('<current>') == '/es/indice-agencias' %}    
   {% include 'menu--es-federal-agencies-sidebar.html.twig' %}

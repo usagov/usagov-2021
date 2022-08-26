@@ -1,3 +1,4 @@
+{{current_url}}
 <nav aria-label="Secondary navigation">
   <ul class="usa-sidenav">
     <li class="usa-sidenav__item"> 
@@ -7,12 +8,21 @@
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/elected-officials">Elected Officials </a>
       </li>
+      {% if {{current_url}} == '/agency-index' %}
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/states">State Government</a>
       </li>
       <li class="usa-sidenav__item"> 
         <a class="usa-current" href="/agency-index">Directory of U.S Government Agencies and Departments </a>
       </li>
+      {% else %}
+       <li class="usa-sidenav__item relatedPage"> 
+        <a class="usa-current" href="/states">State Government</a>
+      </li>
+      <li class="usa-sidenav__item"> 
+        <a class="" href="/agency-index">Directory of U.S Government Agencies and Departments </a>
+      </li>
+      {% endif %}
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/branches-of-government">Branches of Government </a>
       </li>
