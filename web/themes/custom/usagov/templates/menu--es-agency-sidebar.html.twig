@@ -8,6 +8,7 @@
         <a class="active-trail" href="/es/indice-agencias">Agencias del Gobierno</a>
       </li>
       <ul class="usa-sidenav__sublist">
+      {% if {{current_url}} == '/indice-agencias' %}
         <li class="usa-sidenav__item"> 
           <a class="active-trail" href="/es/indice-agencias">Agencias federales</a>
         </li>
@@ -19,6 +20,19 @@
         <li class="usa-sidenav__item relatedPage"> 
           <a class="" href="/es/indice-agencias-estatales">Agencias estatales</a>
         </li>
+        {% else %}  
+        <li class="usa-sidenav__item relatedPage"> 
+          <a class="" href="/es/indice-agencias">Agencias federales</a>
+        </li>
+        <li class="usa-sidenav__item "> 
+          <a class="active-trail" href="/es/indice-agencias-estatales">Agencias estatales</a>
+        </li>
+        <ul class="usa-sidenav__sublist">
+          <li class="usa-sidenav__item"> 
+            <a class="usa-current" href={{current_url}}>{{ drupal_title() }} </a>
+          </li>   
+        </ul>
+        {% endif %}
         <li class="usa-sidenav__item relatedPage"> 
           <a class="" href="/es/estados-consumidor">Oficinas estatales de protección al consumidor</a>
         </li>

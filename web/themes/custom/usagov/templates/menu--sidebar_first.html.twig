@@ -22,9 +22,9 @@ A short summary of the behavior of the sidebar nav:
   {% include 'menu--federal-agencies-sidebar.html.twig' %}
 {% elseif path('<current>') matches '#\/agencies\/*#' or path('<current>') matches '#\/states\/*#' %}    
   {% include 'menu--agency-sidebar.html.twig' %}
-{% elseif path('<current>') == '/es/indice-agencias' %}    
+{% elseif path('<current>') == '/es/indice-agencias' or path('<current>') == '/gobiernos-estatales' %}    
   {% include 'menu--es-federal-agencies-sidebar.html.twig' %}
-{% elseif path('<current>') matches '#\/es\/agencias\/*#' %}    
+{% elseif path('<current>') matches '#\/es\/agencias\/*#' or path('<current>') matches '#\/es\/estados\/*#'%}    
   {% include 'menu--es-agency-sidebar.html.twig' %}
 {% else %}
   {{ menus.explore(items, 0, null, null) }}
