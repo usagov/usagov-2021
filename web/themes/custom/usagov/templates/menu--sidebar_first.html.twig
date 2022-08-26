@@ -22,6 +22,10 @@ A short summary of the behavior of the sidebar nav:
   {% include 'menu--federal-agencies-sidebar.html.twig' %}
 {% elseif path('<current>') matches '#\/agencies\/*#' %}    
   {% include 'menu--agency-sidebar.html.twig' %}
+{% elseif path('<current>') == '/es/indice-agencias' %}    
+  {% include 'menu--es-federal-agencies-sidebar.html.twig' %}
+{% elseif path('<current>') matches '#\/es\/agencias\/*#' %}    
+  {% include 'menu--es-agency-sidebar.html.twig' %}
 {% else %}
   {{ menus.explore(items, 0, null, null) }}
 {% endif %}
