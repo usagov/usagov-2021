@@ -130,6 +130,9 @@ ENV GITCOMMIT ${GITCOMMIT:-none}
 ARG GITTAG
 ENV GITTAG ${GITTAG:-none}
 
+ARG CONTAINERTAG
+ENV CONTAINERTAG ${CONTAINERTAG:-none}
+
 ARG BUID=1000
 ARG BGID=1000
 
@@ -264,6 +267,7 @@ RUN chmod -R +x /etc/periodic \
     && echo "    branch: " $GITBRANCH >> /etc/motd \
     && echo "    gittag: " $GITTAG >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \
+    && echo "    containertag: " $CONTAINERTAG >> /etc/motd \
     && echo >> /etc/motd \
     && cp /etc/motd /var/www/web/version.txt \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
