@@ -1,3 +1,4 @@
+{% set current_url_string = "#{path('<current>')}" %}
 <nav aria-label="Secondary navigation">
   <ul class="usa-sidenav">
     <li class="usa-sidenav__item"> 
@@ -8,7 +9,7 @@
         <a class="active-trail" href="/es/agencias-gobierno"> Agencias del Gobierno </a>
       </li>
       <ul class="usa-sidenav__sublist">
-       {% if {{current_url}} == '/indice-agencias' %}
+       {% if current_url_string == '/indice-agencias' %}
         <li class="usa-sidenav__item"> 
           <a class="usa-current" href="/es/indice-agencias">Agencias federales</a>
         </li>
