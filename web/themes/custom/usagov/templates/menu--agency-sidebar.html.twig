@@ -7,17 +7,31 @@
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/elected-officials">Elected Officials </a>
       </li>
+      {% if {{current_url}} matches '#\/agencies\/*#' %}
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/states">State Government</a>
       </li>
       <li class="usa-sidenav__item"> 
         <a class="active-trail" href="/agency-index">Directory of U.S Government Agencies and Departments </a>
       </li>
-        <ul class="usa-sidenav__sublist">
+      <ul class="usa-sidenav__sublist">
         <li class="usa-sidenav__item"> 
           <a class="usa-current" href={{current_url}}>{{ drupal_title() }} </a>
         </li>   
       </ul>
+      {% else %}
+      <li class="usa-sidenav__item"> 
+        <a class="active-trail" href="/states">State Government</a>
+      </li>
+      <ul class="usa-sidenav__sublist">
+        <li class="usa-sidenav__item"> 
+          <a class="usa-current" href={{current_url}}>{{ drupal_title() }} </a>
+        </li>   
+      </ul>
+      <li class="usa-sidenav__item relatedPage"> 
+        <a class="" href="/agency-index">Directory of U.S Government Agencies and Departments </a>
+      </li>
+      {% endif %}
       <li class="usa-sidenav__item relatedPage"> 
         <a class="" href="/branches-of-government">Branches of Government </a>
       </li>
