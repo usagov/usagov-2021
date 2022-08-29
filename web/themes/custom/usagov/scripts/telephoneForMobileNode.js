@@ -1,5 +1,3 @@
-console.log("in the og");
-
 function reformatNumForMobile(toReformat) {
   //get phone number and description from innerText
   const numAndDesc = toReformat.innerText;
@@ -11,28 +9,36 @@ function reformatNumForMobile(toReformat) {
 }
 
 if (window.innerWidth <= 480) {
-  // for /agency-index
-  const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
-  for (let i = 0; i < telephoneNumbers.length; i++) {
-    telephoneNumbers[i].innerHTML = reformatNumForMobile(telephoneNumbers[i]);
-  }
+  const phoneNumberFieldExists =
+    document.getElementsByClassName("phoneNumberField").length > 0;
 
-  //for agency pages
-  const telly = document.querySelector(".field--type-telephone");
-  for (let i = 0; i < telly.children.length; i++) {
-    telly.children[i].innerHTML = reformatNumForMobile(telly.children[i]);
+  if (phoneNumberFieldExists) {
+    // for /agency-index
+    const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
+    for (let i = 0; i < telephoneNumbers.length; i++) {
+      telephoneNumbers[i].innerHTML = reformatNumForMobile(telephoneNumbers[i]);
+    }
+  } else {
+    //for agency pages
+    const telly = document.querySelector(".field--type-telephone");
+    for (let i = 0; i < telly.children.length; i++) {
+      telly.children[i].innerHTML = reformatNumForMobile(telly.children[i]);
+    }
   }
 } else {
-  const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
-  for (let i = 0; i < telephoneNumbers.length; i++) {
-    //get phone number and description from innerText
-    const numAndDesc = telephoneNumbers[i].innerText;
-    telephoneNumbers[i].innerHTML = `<p> ${numAndDesc} </p> `;
-  }
-  //for agency pages
-  const telly = document.querySelector(".field--type-telephone");
-  for (let i = 0; i < telly.children.length; i++) {
-    const numAndDesc = telly.children[i].innerText;
-    telly.children[i].innerHTML = `<p> ${numAndDesc} </p> `;
+  const phoneNumberFieldExists =
+    document.getElementsByClassName("phoneNumberField").length > 0;
+  if (phoneNumberFieldExists) {
+    const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
+    for (let i = 0; i < telephoneNumbers.length; i++) {
+      const numAndDesc = telephoneNumbers[i].innerText;
+      telephoneNumbers[i].innerHTML = `${numAndDesc}`;
+    }
+  } else {
+    const telly = document.querySelector(".field--type-telephone");
+    for (let i = 0; i < telly.children.length; i++) {
+      const numAndDesc = telly.children[i].innerText;
+      telly.children[i].innerHTML = `<p> ${numAndDesc} </p> `;
+    }
   }
 }
