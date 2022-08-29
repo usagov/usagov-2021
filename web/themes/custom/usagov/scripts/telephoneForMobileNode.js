@@ -1,32 +1,31 @@
-jQuery(document).ready(function ($) {
-  if (window.innerWidth <= 950) {
-    $(".field--type-telephone").replaceWith(function () {
-      // using same delimiter as mothership (" ") split number and description
-      // unable to
-      const numberSplitter = $(this).text().split(" ");
-      const cleanNumber = numberSplitter[0].replace(/\D/g, "");
-      const onlyDesc = numberSplitter.slice(1, numberSplitter.length).join(" ");
+console.log("in the og");
+if (window.innerWidth <= 480) {
+  const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
+  for (let i = 0; i < telephoneNumbers.length; i++) {
+    //get phone number and description from innerText
+    const numAndDesc = telephoneNumbers[i].innerText;
+    console.log("numAndDec: " + numAndDesc);
+    const numberSplitter = numAndDesc.split(" ");
+    console.log("numberSplitter: " + numberSplitter);
+    const onlyNum = numberSplitter[0];
+    const cleanNumber = onlyNum.replace(/\D/g, "");
+    console.log("cleanNumber: " + cleanNumber);
+    const onlyDesc = numberSplitter.slice(1, numberSplitter.length).join(" ");
+    console.log("onlyDesc: " + onlyDesc);
 
-      if (cleanNumber.length == 10 || cleanNumber.length == 11) {
-        return $(
-          "<p><a href='tel:" +
-            cleanNumber +
-            "'>" +
-            numberSplitter[0] +
-            "</a> " +
-            onlyDesc +
-            "</p>"
-        );
-      } else {
-        // split using " " didn't work so return unformatted number
-        return $("<p> " + $(this).text() + " </p>");
-      }
-    });
+    // replace innerHTML with format
+    telephoneNumbers[
+      i
+    ].innerHTML = `<a href="tel: ${cleanNumber}"> ${onlyNum} </a> ${onlyDesc} `;
   }
-  //needed because default is for field to make into a link
-  if (window.innerWidth > 950) {
-    $('a[href^="tel:"]').replaceWith(function () {
-      return $("<p> " + $(this).text() + " </p>");
-    });
+} else {
+  const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
+  for (let i = 0; i < telephoneNumbers.length; i++) {
+    //get phone number and description from innerText
+    const numAndDesc = telephoneNumbers[i].innerText;
+    console.log("numAndDec: " + numAndDesc);
+
+    // replace innerHTML with format
+    telephoneNumbers[i].innerHTML = `<p"> ${numAndDesc} </p> `;
   }
-});
+}

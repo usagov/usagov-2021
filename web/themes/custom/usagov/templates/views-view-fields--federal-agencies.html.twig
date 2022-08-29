@@ -56,7 +56,6 @@
     {% if fields.field_website.content|striptags|trim %}
     <div>
       <p>Website:&nbsp;</p>
-
       <p>{{- fields.field_website.content -}}</p>
     </div>
     {% endif %}
@@ -64,8 +63,7 @@
     {% if fields.field_phone_number.content|striptags|trim %}
     <div>
       <p>Phone Number:&nbsp;</p>
-
-      <span>{{- fields.field_phone_number.content -}}</span>
+      <p class="phoneNumberField">{{- fields.field_phone_number.content -}}</p>
     </div>
     {% endif %}
 
