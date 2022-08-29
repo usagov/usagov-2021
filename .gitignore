@@ -40,9 +40,10 @@
 /web/sites/*.php
 /web/sites/README.txt
 /web/sites/*/*
+/web/sites/*/settings.local.php
 !/web/sites/*/settings.php
 !/web/sites/*/settings.cf.php
-!/web/sites/*/settings.local.php
+!/web/sites/*/usagov.example.settings.local.php
 
 # # Ignore paths that may contain user-generated content
 /web/sites/*/files
@@ -103,3 +104,4 @@ workspace.code-workspace
 
 manifest-egress-vars.yml
 .docker/src-egress/caddy
+.docker/src-newrelic/newrelic-daemon

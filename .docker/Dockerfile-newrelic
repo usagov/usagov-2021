@@ -1,6 +1,7 @@
 FROM ubuntu:xenial-20210804 AS build
 
-ENV NEWRELIC_VERSION 10.0.0.312
+ARG NEWRELIC_VERSION
+ENV NEWRELIC_VERSION ${NEWRELIC_VERSION:-10.0.0.312}
 ENV NEWRELIC_NAME newrelic-php5-${NEWRELIC_VERSION}-linux
 
 RUN  apt-get update \
@@ -13,17 +14,3 @@ RUN set -ex; \
         tar -xzf ${NEWRELIC_NAME}.tar.gz; \
         export NR_INSTALL_SILENT=1; \
         ${NEWRELIC_NAME}/newrelic-install install_daemon
-
-#FROM alpine:3.13
-#
-## The daemon needs certs installed to run
-#RUN apk add --no-cache \
-#        ca-certificates
-#
-#RUN set -ex; \
-#    mkdir /var/log/newrelic
-#
-#COPY --from=build /usr/bin/newrelic-daemon /usr/bin/newrelic-daemon
-#COPY .docker/src-newrelic/newrelic.cfg /etc/newrelic/newrelic.cfg
-#
-#CMD /usr/bin/newrelic-daemon --address=newrelic.app.cloud.gov:61443  --watchdog-foreground

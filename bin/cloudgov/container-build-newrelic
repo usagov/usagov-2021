@@ -4,6 +4,19 @@
 # to be used when launching cloud.gov images
 #
 
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
 DOCKERUSER=${DOCKERUSER:-dnark}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
@@ -22,6 +35,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:newrelic-${CONTAINERTAG} ${CONTAINERT
 
 docker build --force-rm \
     -t $DOCKERUSER/$DOCKERREPO:newrelic-$CONTAINERTAG \
+    --build-arg NEWRELIC_VERSION=$NEW_RELIC_AGENT_VERSION \
     -f .docker/Dockerfile-newrelic .docker/src-newrelic
 
 docker run --name newrelic-builder-tmp -d $DOCKERUSER/$DOCKERREPO:newrelic-$CONTAINERTAG tail -f /dev/null
