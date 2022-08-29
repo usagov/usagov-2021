@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# This script will attempt to create a container image
+# to be used when launching cloud.gov images
+#
+
+DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
+GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+CONTAINERTAG=${1:-$GITBRANCH}
+
+CONTAINERTAG2=${2}
+
+if [ -z "$CONTAINERTAG" ]
+then
+      echo "Must specify a container tag to build"
+      exit 1;
+fi;
+
+echo "Building ${DOCKERUSER}/${DOCKERREPO}:newrelic-${CONTAINERTAG} ${CONTAINERTAG2}"
+
+docker build --force-rm \
+    -t $DOCKERUSER/$DOCKERREPO:newrelic-$CONTAINERTAG \
+    -f .docker/Dockerfile-newrelic .docker/src-newrelic
+
+docker run --name newrelic-builder-tmp -d $DOCKERUSER/$DOCKERREPO:newrelic-$CONTAINERTAG tail -f /dev/null
+docker cp newrelic-builder-tmp:/usr/bin/newrelic-daemon .docker/src-newrelic/newrelic-daemon
+docker stop newrelic-builder-tmp
+docker rm newrelic-builder-tmp

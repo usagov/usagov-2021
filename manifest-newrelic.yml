@@ -1,0 +1,14 @@
+---
+version: 1
+applications:
+  - name: newrelic
+    path: .docker/src-newrelic
+    buildpacks:
+      - https://github.com/cloudfoundry/apt-buildpack
+      - binary_buildpack
+    health-check-type: process
+    instances: 1
+    memory: 64M
+    command: ./newrelic-daemon --logfile /proc/self/fd/1 --address=newrelic.apps.internal:31339 --watchdog-foreground
+    env:
+      NEW_RELIC_AGENT_VERSION: 10.0.0.312
