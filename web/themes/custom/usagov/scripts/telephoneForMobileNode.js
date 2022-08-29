@@ -15,10 +15,20 @@ function reformatNumForMobile(toReformat) {
 }
 
 if (window.innerWidth <= 480) {
+  // for /agency-index
   const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
   for (let i = 0; i < telephoneNumbers.length; i++) {
     // replace innerHTML with format
     telephoneNumbers[i].innerHTML = reformatNumForMobile(telephoneNumbers[i]);
+  }
+
+  //for agency pages
+  const telly = document.querySelector(".field--type-telephone");
+  // console.log("check for telly: " + telly.innerHTML);
+  for (let i = 0; i < telly.children.length; i++) {
+    // replace innerHTML with format
+    // console.log("telly: " + telly.children[i].innerText);
+    telly.children[i].innerHTML = reformatNumForMobile(telly.children[i]);
   }
 } else {
   const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
@@ -28,6 +38,15 @@ if (window.innerWidth <= 480) {
     console.log("numAndDec: " + numAndDesc);
 
     // replace innerHTML with format
-    telephoneNumbers[i].innerHTML = `<p"> ${numAndDesc} </p> `;
+    telephoneNumbers[i].innerHTML = `<p> ${numAndDesc} </p> `;
+  }
+  //for agency pages
+  const telly = document.querySelector(".field--type-telephone");
+  console.log("check for telly: " + telly.innerHTML);
+  for (let i = 0; i < telly.children.length; i++) {
+    // replace innerHTML with format
+    console.log("telly: " + telly.children[i].innerText);
+    const numAndDesc = telly.children[i].innerText;
+    telly.children[i].innerHTML = `<p> ${numAndDesc} </p> `;
   }
 }
