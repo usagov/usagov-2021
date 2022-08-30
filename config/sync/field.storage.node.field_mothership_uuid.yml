@@ -1,4 +1,4 @@
-uuid: 9160a444-93cc-4781-83fa-caa01d1c047b
+uuid: 073b7946-3140-46f1-bacb-1d6aa87c1a3c
 langcode: en
 status: true
 dependencies:
@@ -8,15 +8,17 @@ dependencies:
 third_party_settings:
   field_permissions:
     permission_type: public
-id: node.field_related_pages
-field_name: field_related_pages
+id: node.field_mothership_uuid
+field_name: field_mothership_uuid
 entity_type: node
-type: entity_reference
+type: string
 settings:
-  target_type: node
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
 module: core
 locked: false
-cardinality: -1
+cardinality: 1
 translatable: true
 indexes: {  }
 persist_with_no_fields: false

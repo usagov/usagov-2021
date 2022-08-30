@@ -40,6 +40,7 @@
         "drupal/entity_reference_revisions": "^1.9",
         "drupal/externalauth": "^2",
         "drupal/faqfield": "^7.0",
+        "drupal/feeds": "^3.0@beta",
         "drupal/field_permissions": "^1.1",
         "drupal/image_style_warmer": "^1.1",
         "drupal/jquery_ui_accordion": "^1.1",
