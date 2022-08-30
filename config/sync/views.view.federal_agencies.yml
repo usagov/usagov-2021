@@ -280,8 +280,34 @@ display:
           query_tags: {  }
       relationships: {  }
       use_ajax: false
-      header: {  }
-      footer: {  }
+      header:
+        area:
+          id: area
+          table: views
+          field: area
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text
+          empty: false
+          content:
+            value: ''
+            format: uswds
+          tokenize: false
+      footer:
+        area:
+          id: area
+          table: views
+          field: area
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text
+          empty: false
+          content:
+            value: ''
+            format: uswds
+          tokenize: false
       display_extenders: {  }
     cache_metadata:
       max-age: -1
