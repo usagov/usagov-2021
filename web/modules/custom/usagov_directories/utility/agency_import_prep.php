@@ -123,10 +123,10 @@ function convert_fields($row, &$indexes) {
   $alias = make_clean_alias($alias);
 
   if ($row[$lang_index] == 'Spanish') {
-    $alias = '/agencia/' . $alias;
+    $alias = '/agencias/' . $alias;
   }
   else {
-    $alias = '/agency/' . $alias;
+    $alias = '/agencies/' . $alias;
   }
   $row[$alias_index] = $alias;
 
