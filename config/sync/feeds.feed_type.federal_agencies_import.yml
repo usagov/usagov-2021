@@ -12,6 +12,7 @@ dependencies:
     - field.field.node.directory_record.field_mothership_uuid
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
+    - field.field.node.directory_record.field_phone_number
     - field.field.node.directory_record.field_state_abbr
     - field.field.node.directory_record.field_street_1
     - field.field.node.directory_record.field_street_2
@@ -216,6 +217,21 @@ custom_sources:
     label: officeLinks_1_text
     machine_name: officelinks_1_text
     type: csv
+  toll_1:
+    value: toll_1
+    label: toll_1
+    machine_name: toll_1
+    type: csv
+  tty_1:
+    value: tty_1
+    label: tty_1
+    machine_name: tty_1
+    type: csv
+  phone_1:
+    value: phone_1
+    label: phone_1
+    machine_name: phone_1
+    type: csv
 mappings:
   -
     target: title
@@ -288,7 +304,7 @@ mappings:
   -
     target: field_toll_free_number
     map:
-      value: toll_free_number
+      value: toll_1
     settings:
       language: null
   -
@@ -309,7 +325,7 @@ mappings:
   -
     target: field_tty_number
     map:
-      value: tty_number
+      value: tty_1
     settings:
       language: null
   -
@@ -344,5 +360,11 @@ mappings:
     map:
       uri: officelinks_1_url
       title: officelinks_1_text
+    settings:
+      language: null
+  -
+    target: field_phone_number
+    map:
+      value: phone_1
     settings:
       language: null
