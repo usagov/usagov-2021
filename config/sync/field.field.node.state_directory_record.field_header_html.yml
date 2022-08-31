@@ -10,7 +10,8 @@ dependencies:
     - text
 third_party_settings:
   allowed_formats:
-    allowed_formats: {  }
+    allowed_formats:
+      - plain_text
 id: node.state_directory_record.field_header_html
 field_name: field_header_html
 entity_type: node
