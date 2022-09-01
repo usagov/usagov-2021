@@ -20,9 +20,9 @@ if (window.innerWidth <= 480) {
     }
   } else {
     //for agency pages
-    const telly = document.querySelector(".field--type-telephone");
-    for (let i = 0; i < telly.children.length; i++) {
-      telly.children[i].innerHTML = reformatNumForMobile(telly.children[i]);
+    const telly = document.querySelectorAll(".field--type-telephone");
+    for (let i = 0; i < telly.length; i++) {
+      telly[i].innerHTML = reformatNumForMobile(telly[i]);
     }
   }
 } else {
@@ -35,10 +35,11 @@ if (window.innerWidth <= 480) {
       telephoneNumbers[i].innerHTML = `${numAndDesc}`;
     }
   } else {
-    const telly = document.querySelector(".field--type-telephone");
-    for (let i = 0; i < telly.children.length; i++) {
-      const numAndDesc = telly.children[i].innerText;
-      telly.children[i].innerHTML = `<p> ${numAndDesc} </p> `;
+    const telly = document.querySelectorAll(".field--type-telephone");
+    for (let i = 0; i < telly.length; i++) {
+      const numAndDesc = telly[i].innerText;
+      console.log("numAndDesc: " + numAndDesc);
+      telly[i].innerHTML = `<p> ${numAndDesc} </p> `;
     }
   }
 }
