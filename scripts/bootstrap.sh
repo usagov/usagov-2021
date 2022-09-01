@@ -62,8 +62,8 @@ fi
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 
-export EN_404_PAGE=${EN_404_PAGE:-/404/index.html};
-export ES_404_PAGE=${ES_404_PAGE:-/es/404/index.html};
+export EN_404_PAGE=${EN_404_PAGE:-/page-error/index.html};
+export ES_404_PAGE=${ES_404_PAGE:-/es/pagina-error/index.html};
 
 export NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_DISPLAY_NAME')}
 export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')}
@@ -81,15 +81,14 @@ SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.spcrt')
 echo "$SP_KEY" > /var/www/sp.key
 echo "$SP_CRT" > /var/www/sp.crt
 
-
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
-
-FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/partials/drupal.conf"
 # this overwrites the files in place, so be careful mounting in docker
-for FILE in $FILES; do
-    if [ -f "$FILE.tmpl" ]; then
-        envsubst "$ENV_VARIABLES" < "$FILE.tmpl" > "$FILE"
-        #mv "$FILE.replaced" "$FILE"
+echo "Inserting environment variables into nginx config templates ... "
+for FILE in /etc/nginx/*/*.conf.tmpl ; do
+    if [ -f "$FILE" ]; then
+        OUTFILE=${FILE%.tmpl}
+        echo " generating $OUTFILE"
+        envsubst "$ENV_VARIABLES" < "$FILE" > "$OUTFILE"
     fi
 done
 
