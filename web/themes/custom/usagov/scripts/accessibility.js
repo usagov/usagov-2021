@@ -26,6 +26,28 @@ const a11y_translations = {
 }
 let a11y_content = a11y_translations[ document.documentElement.lang ];
 
+function myforms(event) {
+    // stop form submission
+    let elementVal = ["input", "textarea"];
+    for (let n = 0; n < elementVal.length; n++) {
+        let elmnts = document.forms["myform"].getElementsByTagName(elementVal[n]);
+        for (let k = 0; k < elmnts.length; k++) {
+        let error = elmnts[k].previousElementSibling.id;
+            if (elmnts[k].value == "") {
+                let message = a11y_content[error];
+                elmnts[k].previousElementSibling.innerHTML = message;
+                event.preventDefault();
+                return false;    
+            }
+            else
+            if (elmnts[k].value != "") {
+                elmnts[k].previousElementSibling.innerHTML = "";
+            } 
+        }   
+    }
+};
+
+
 window.addEventListener("load", function() {
     // Customize input validation error messages by
     // specifying the name of each input field. Only
@@ -60,3 +82,4 @@ window.addEventListener("load", function() {
         toggleButtons[i].removeAttribute("tabindex");
     }
 });
+
