@@ -1,0 +1,9 @@
+#!/bin/env bash
+# 
+# If we want to have easy access to stuff in env.local:
+# It's this, or add 'export ' to echo var in env.local
+# ...
+#
+set -a
+. ./env.local
+set +a
