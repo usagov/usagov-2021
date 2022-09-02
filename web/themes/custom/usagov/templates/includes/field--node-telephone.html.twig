@@ -1,0 +1,16 @@
+{% set phone_numbers = items %}
+<p> Hi Isabel </p>
+{% if phone_numbers|length == 1 %}
+    <p>{{ phone_numbers[0] }}</p>
+{% elseif phone_numbers|length > 1 %}
+    <ul>
+        {% for phone_number in phone_numbers %}
+            <li>{{ phone_number }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    {# <p> Issue (will delete) </p> #}
+    <p> </p>
+{% endif %}
+{# {{ devel_breakpoint() }}  #}
+<p> Hi Bob </p>
