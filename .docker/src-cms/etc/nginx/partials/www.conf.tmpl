@@ -13,6 +13,7 @@ server {
 
     include /etc/nginx/partials/s3proxy.conf;
     include /etc/nginx/partials/404s.conf;
+    include /etc/nginx/partials/staticsite.conf;
 }
 
 server {
@@ -30,4 +31,5 @@ server {
 
     include /etc/nginx/partials/s3proxy.conf;
     include /etc/nginx/partials/404s.conf;
+    include /etc/nginx/partials/staticsite.conf;
 }
