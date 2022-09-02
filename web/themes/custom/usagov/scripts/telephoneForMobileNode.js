@@ -18,12 +18,13 @@ if (window.innerWidth <= 480) {
     for (let i = 0; i < telephoneNumbers.length; i++) {
       telephoneNumbers[i].innerHTML = reformatNumForMobile(telephoneNumbers[i]);
     }
-  } else {
-    //for agency pages
-    const telly = document.querySelectorAll(".field--type-telephone");
-    for (let i = 0; i < telly.length; i++) {
-      telly[i].innerHTML = reformatNumForMobile(telly[i]);
-    }
+  }
+  //  else {
+  //   //for agency pages
+  //   const telly = document.querySelectorAll(".field--type-telephone");
+  //   for (let i = 0; i < telly.length; i++) {
+  //     telly[i].innerHTML = reformatNumForMobile(telly[i]);
+  //   }
   }
 } else {
   const phoneNumberFieldExists =
@@ -34,12 +35,13 @@ if (window.innerWidth <= 480) {
       const numAndDesc = telephoneNumbers[i].innerText;
       telephoneNumbers[i].innerHTML = `${numAndDesc}`;
     }
-  } else {
-    const telly = document.querySelectorAll(".field--type-telephone");
-    for (let i = 0; i < telly.length; i++) {
-      const numAndDesc = telly[i].innerText;
-      console.log("numAndDesc: " + numAndDesc);
-      telly[i].innerHTML = `<p> ${numAndDesc} </p> `;
-    }
-  }
+  } 
+  // else {
+  //   const telly = document.querySelectorAll(".field--type-telephone");
+  //   for (let i = 0; i < telly.length; i++) {
+  //     const numAndDesc = telly[i].innerText;
+  //     console.log("numAndDesc: " + numAndDesc);
+  //     telly[i].innerHTML = `<p> ${numAndDesc} </p> `;
+  //   }
+  // }
 }
