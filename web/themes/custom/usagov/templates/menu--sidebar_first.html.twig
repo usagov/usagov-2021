@@ -18,7 +18,10 @@ A short summary of the behavior of the sidebar nav:
 {# {% set relatedPages = drupal_entity('node', items.url.routeParameters.node )['#node'].field_related_pages %} #}
 
 
-{% if path('<current>') matches '#\/agencies\/*#' or path('<current>') matches '#\/states\/*#' %}    
+{% if path('<current>') matches '#\/agencies\/*#'%}    
+  {% include 'menu--agency-sidebar.html.twig' %}
+
+{% elseif path('<current>') matches '#\/states\/*#' %}    
   {% include 'menu--agency-sidebar.html.twig' %}
 
 {% elseif path('<current>') matches '#\/es\/agencias\/*#' or path('<current>') matches '#\/es\/estados\/*#'%}    
