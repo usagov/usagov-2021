@@ -1,11 +1,11 @@
 {% set phone_numbers = items %}
 <p> Hi Isabel </p>
 {% if phone_numbers|length == 1 %}
-    <p>{{ phone_numbers[0] }}</p>
+    <p class="phoneNumberField">{{ phone_numbers[0] }}</p>
 {% elseif phone_numbers|length > 1 %}
     <ul>
         {% for phone_number in phone_numbers %}
-            <li>{{ phone_number }}</li>
+            <li class="phoneNumberField">{{ phone_number }}</li>
         {% endfor %}
     </ul>
 {% else %}
