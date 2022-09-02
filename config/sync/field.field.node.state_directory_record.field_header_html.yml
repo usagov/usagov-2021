@@ -1,0 +1,26 @@
+uuid: 00848683-79c6-4f4c-b7d7-ec0afc1aedf5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_header_html
+    - node.type.state_directory_record
+  module:
+    - allowed_formats
+    - text
+third_party_settings:
+  allowed_formats:
+    allowed_formats:
+      - plain_text
+id: node.state_directory_record.field_header_html
+field_name: field_header_html
+entity_type: node
+bundle: state_directory_record
+label: 'Header HTML'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

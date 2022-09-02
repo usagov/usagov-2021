@@ -9,10 +9,12 @@ dependencies:
     - field.field.node.directory_record.field_contact_link
     - field.field.node.directory_record.field_email
     - field.field.node.directory_record.field_english_title
+    - field.field.node.directory_record.field_footer_html
     - field.field.node.directory_record.field_for_contact_center_only
     - field.field.node.directory_record.field_government_branch
-    - field.field.node.directory_record.field_mothership_uuid
+    - field.field.node.directory_record.field_header_html
     - field.field.node.directory_record.field_language_toggle
+    - field.field.node.directory_record.field_mothership_uuid
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
     - field.field.node.directory_record.field_phone_number
@@ -100,6 +102,13 @@ content:
     third_party_settings: {  }
     weight: 15
     region: content
+  field_footer_html:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 128
+    region: content
   field_for_contact_center_only:
     type: text_default
     label: above
@@ -113,6 +122,13 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 124
+    region: content
+  field_header_html:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 127
     region: content
   field_language_toggle:
     type: entity_reference_label
