@@ -16,9 +16,11 @@ dependencies:
     - field.field.node.state_directory_record.field_email
     - field.field.node.state_directory_record.field_emergency_management
     - field.field.node.state_directory_record.field_english_title
+    - field.field.node.state_directory_record.field_footer_html
     - field.field.node.state_directory_record.field_for_contact_center_only
     - field.field.node.state_directory_record.field_governor
     - field.field.node.state_directory_record.field_governor_contact
+    - field.field.node.state_directory_record.field_header_html
     - field.field.node.state_directory_record.field_health_department
     - field.field.node.state_directory_record.field_language_toggle
     - field.field.node.state_directory_record.field_local_governments
@@ -69,9 +71,11 @@ hidden:
   field_email: true
   field_emergency_management: true
   field_english_title: true
+  field_footer_html: true
   field_for_contact_center_only: true
   field_governor: true
   field_governor_contact: true
+  field_header_html: true
   field_health_department: true
   field_language_toggle: true
   field_local_governments: true
