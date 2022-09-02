@@ -1,32 +1,19 @@
-jQuery(document).ready(function ($) {
-  if (window.innerWidth <= 950) {
-    $(".field--type-telephone").replaceWith(function () {
-      // using same delimiter as mothership (" ") split number and description
-      // unable to
-      const numberSplitter = $(this).text().split(" ");
-      const cleanNumber = numberSplitter[0].replace(/\D/g, "");
-      const onlyDesc = numberSplitter.slice(1, numberSplitter.length).join(" ");
+function reformatNumForMobile(toReformat) {
+  //get phone number and description from innerText
+  const numAndDesc = toReformat.innerText;
+  const numberSplitter = numAndDesc.split(" ");
+  const onlyNum = numberSplitter[0];
+  const cleanNumber = onlyNum.replace(/\D/g, "");
+  const onlyDesc = numberSplitter.slice(1, numberSplitter.length).join(" ");
+  return `<a href="tel: ${cleanNumber}"> ${onlyNum} </a> ${onlyDesc} `;
+}
 
-      if (cleanNumber.length == 10 || cleanNumber.length == 11) {
-        return $(
-          "<p><a href='tel:" +
-            cleanNumber +
-            "'>" +
-            numberSplitter[0] +
-            "</a> " +
-            onlyDesc +
-            "</p>"
-        );
-      } else {
-        // split using " " didn't work so return unformatted number
-        return $("<p> " + $(this).text() + " </p>");
-      }
-    });
+const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
+for (let i = 0; i < telephoneNumbers.length; i++) {
+  const numAndDesc = telephoneNumbers[i].innerText;
+  if (window.innerWidth <= 480) {
+    telephoneNumbers[i].innerHTML = reformatNumForMobile(telephoneNumbers[i]);
+  } else {
+    telephoneNumbers[i].innerHTML = `${numAndDesc}`;
   }
-  //needed because default is for field to make into a link
-  if (window.innerWidth > 950) {
-    $('a[href^="tel:"]').replaceWith(function () {
-      return $("<p> " + $(this).text() + " </p>");
-    });
-  }
-});
+}
