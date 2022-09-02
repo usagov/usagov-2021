@@ -1,5 +1,4 @@
 {% set phone_numbers = items %}
-<p> Hi Isabel </p>
 {% if phone_numbers|length == 1 %}
     <p class="phoneNumberField">{{ phone_numbers[0] }}</p>
 {% elseif phone_numbers|length > 1 %}
@@ -13,4 +12,3 @@
     <p> </p>
 {% endif %}
 {# {{ devel_breakpoint() }}  #}
-<p> Hi Bob </p>
