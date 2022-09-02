@@ -1,14 +1,27 @@
-{% set phone_numbers = items %}
-{% if phone_numbers|length == 1 %}
-    <p class="phoneNumberField">{{ phone_numbers[0] }}</p>
-{% elseif phone_numbers|length > 1 %}
+{#
+/**
+ **************************************************
+ * This is USAgov-customized code for the telephone number fields
+ **************************************************
+ *
+ * @file
+ * Default view template to display all the fields in a row.
+ *
+ * Available variables:
+ * - items: Array of telephone numbers.
+ */
+#}
+
+{% if items|length == 1 %}
+    <p class="phoneNumberField">{{ items[0]["content"]["#title"] }}</p>
+{% elseif items|length > 1 %}
     <ul>
-        {% for phone_number in phone_numbers %}
-            <li class="phoneNumberField">{{ phone_number }}</li>
+        {% for phone_number in items %}
+            <li class="phoneNumberField">{{ phone_number["content"]["#title"] }}</li>
         {% endfor %}
     </ul>
 {% else %}
-    {# <p> Issue (will delete) </p> #}
+    {# this should never hit #}
     <p> </p>
 {% endif %}
-{# {{ devel_breakpoint() }}  #}
+{{ devel_breakpoint() }} 
