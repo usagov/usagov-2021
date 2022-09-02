@@ -10,10 +10,12 @@ dependencies:
     - field.field.node.directory_record.field_contact_link
     - field.field.node.directory_record.field_email
     - field.field.node.directory_record.field_english_title
+    - field.field.node.directory_record.field_footer_html
     - field.field.node.directory_record.field_for_contact_center_only
     - field.field.node.directory_record.field_government_branch
-    - field.field.node.directory_record.field_mothership_uuid
+    - field.field.node.directory_record.field_header_html
     - field.field.node.directory_record.field_language_toggle
+    - field.field.node.directory_record.field_mothership_uuid
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
     - field.field.node.directory_record.field_phone_number
@@ -46,8 +48,10 @@ hidden:
   field_contact_link: true
   field_email: true
   field_english_title: true
+  field_footer_html: true
   field_for_contact_center_only: true
   field_government_branch: true
+  field_header_html: true
   field_language_toggle: true
   field_mothership_uuid: true
   field_offices_near_you: true
