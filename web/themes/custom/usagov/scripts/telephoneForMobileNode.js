@@ -8,40 +8,12 @@ function reformatNumForMobile(toReformat) {
   return `<a href="tel: ${cleanNumber}"> ${onlyNum} </a> ${onlyDesc} `;
 }
 
-if (window.innerWidth <= 480) {
-  const phoneNumberFieldExists =
-    document.getElementsByClassName("phoneNumberField").length > 0;
-
-  if (phoneNumberFieldExists) {
-    // for /agency-index
-    const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
-    for (let i = 0; i < telephoneNumbers.length; i++) {
-      telephoneNumbers[i].innerHTML = reformatNumForMobile(telephoneNumbers[i]);
-    }
+const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
+for (let i = 0; i < telephoneNumbers.length; i++) {
+  const numAndDesc = telephoneNumbers[i].innerText;
+  if (window.innerWidth <= 480) {
+    telephoneNumbers[i].innerHTML = reformatNumForMobile(telephoneNumbers[i]);
+  } else {
+    telephoneNumbers[i].innerHTML = `${numAndDesc}`;
   }
-  //  else {
-  //   //for agency pages
-  //   const telly = document.querySelectorAll(".field--type-telephone");
-  //   for (let i = 0; i < telly.length; i++) {
-  //     telly[i].innerHTML = reformatNumForMobile(telly[i]);
-  //   }
-  }
-} else {
-  const phoneNumberFieldExists =
-    document.getElementsByClassName("phoneNumberField").length > 0;
-  if (phoneNumberFieldExists) {
-    const telephoneNumbers = document.querySelectorAll(".phoneNumberField");
-    for (let i = 0; i < telephoneNumbers.length; i++) {
-      const numAndDesc = telephoneNumbers[i].innerText;
-      telephoneNumbers[i].innerHTML = `${numAndDesc}`;
-    }
-  } 
-  // else {
-  //   const telly = document.querySelectorAll(".field--type-telephone");
-  //   for (let i = 0; i < telly.length; i++) {
-  //     const numAndDesc = telly[i].innerText;
-  //     console.log("numAndDesc: " + numAndDesc);
-  //     telly[i].innerHTML = `<p> ${numAndDesc} </p> `;
-  //   }
-  // }
 }
