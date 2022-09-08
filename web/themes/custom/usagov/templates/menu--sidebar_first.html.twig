@@ -15,7 +15,19 @@ A short summary of the behavior of the sidebar nav:
 
 {% import _self as menus %}
 
-{{ menus.explore(items, 0, null, null) }}
+{# {% set relatedPages = drupal_entity('node', items.url.routeParameters.node )['#node'].field_related_pages %} #}
+
+
+{% if path('<current>') matches '#\/agencies\/.+#' or path('<current>') matches '#\/states\/.+#'%}    
+  {% include 'menu--agency-sidebar.html.twig' %}
+
+{% elseif path('<current>') matches '#\/es\/agencias\/*#' or path('<current>') matches '#\/es\/estados\/*#'%}    
+  {% include 'menu--es-agency-sidebar.html.twig' %} 
+
+{% else %}
+  {{ menus.explore(items, 0, null, null) }}
+{% endif %}
+
 
 {# 
 The explore macro follows the active trail until it ends to determine the current page item.
@@ -96,7 +108,6 @@ TODO: come up with a better name than start_level. Its really the delta between 
 {% macro build(items, menuLevel, start_level, current_item_title ) %}
 
   {% if menuLevel == 0 %}
-  
   <nav aria-label="Secondary navigation">
     <ul class="usa-sidenav">
       <li class="usa-sidenav__item">
