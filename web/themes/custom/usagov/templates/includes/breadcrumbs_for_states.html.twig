@@ -1,0 +1,39 @@
+<nav class="margin-top-neg-3 mobile-lg:margin-top-2 tablet:margin-top-neg-3 desktop:margin-top-0 margin-bottom-2 mobile-lg:margin-bottom-6" role="navigation" aria-labelledby="system-breadcrumb" >
+    <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">    
+        <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/" class="usa-breadcrumb__link" itemprop="item">
+                <span itemprop="name">
+                    Home
+                </span>
+            </a>
+            <meta itemprop="position" content="0" />
+        </li>
+        <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/about-the-us" class="usa-breadcrumb__link" itemprop="item">
+                <span itemprop="name">
+                    About the U.S and Its Government
+                </span>
+            </a>
+            <meta itemprop="position" content="1" />
+        </li>
+        {% if path('<current>') == '/states'%}
+            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                <span itemprop="name">State Governments</span>
+                <meta itemprop="position" content="2" />
+            </li> 
+        {% else %}
+            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                <a href="/states" class="usa-breadcrumb__link" itemprop="item">
+                    <span itemprop="name">
+                        State Governments
+                    </span>
+                </a>
+                <meta itemprop="position" content="2" />
+                </li>
+            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                <span itemprop="name">{{ drupal_title() }}</span>
+                <meta itemprop="position" content="3" />
+            </li> 
+        {% endif %}
+    </ol>
+</nav>

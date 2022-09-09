@@ -12,6 +12,7 @@ dependencies:
     - field.field.node.directory_record.field_mothership_uuid
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
+    - field.field.node.directory_record.field_phone_number
     - field.field.node.directory_record.field_state_abbr
     - field.field.node.directory_record.field_street_1
     - field.field.node.directory_record.field_street_2
@@ -216,6 +217,301 @@ custom_sources:
     label: officeLinks_1_text
     machine_name: officelinks_1_text
     type: csv
+  toll_1:
+    value: toll_1
+    label: toll_1
+    machine_name: toll_1
+    type: csv
+  tty_1:
+    value: tty_1
+    label: tty_1
+    machine_name: tty_1
+    type: csv
+  phone_1:
+    value: phone_1
+    label: phone_1
+    machine_name: phone_1
+    type: csv
+  phone_2:
+    value: phone_2
+    label: phone_2
+    machine_name: phone_2
+    type: csv
+  phone_3:
+    value: phone_3
+    label: phone_3
+    machine_name: phone_3
+    type: csv
+  websitelinks_3_url:
+    value: websiteLinks_3_url
+    label: websiteLinks_3_url
+    machine_name: websitelinks_3_url
+    type: csv
+  websitelinks_3_text:
+    value: websiteLinks_3_text
+    label: websiteLinks_3_text
+    machine_name: websitelinks_3_text
+    type: csv
+  websitelinks_4_url:
+    value: websiteLinks_4_url
+    label: websiteLinks_4_url
+    machine_name: websitelinks_4_url
+    type: csv
+  websitelinks_4_text:
+    value: websiteLinks_4_text
+    label: websiteLinks_4_text
+    machine_name: websitelinks_4_text
+    type: csv
+  officelinks_2_url:
+    value: officeLinks_2_url
+    label: officeLinks_2_url
+    machine_name: officelinks_2_url
+    type: csv
+  officelinks_2_text:
+    value: officeLinks_2_text
+    label: officeLinks_2_text
+    machine_name: officelinks_2_text
+    type: csv
+  officelinks_3_url:
+    value: officeLinks_3_url
+    label: officeLinks_3_url
+    machine_name: officelinks_3_url
+    type: csv
+  officelinks_3_text:
+    value: officeLinks_3_text
+    label: officeLinks_3_text
+    machine_name: officelinks_3_text
+    type: csv
+  officelinks_4_url:
+    value: officeLinks_4_url
+    label: officeLinks_4_url
+    machine_name: officelinks_4_url
+    type: csv
+  officelinks_4_text:
+    value: officeLinks_4_text
+    label: officeLinks_4_text
+    machine_name: officelinks_4_text
+    type: csv
+  contactlinks_2_url:
+    value: contactLinks_2_url
+    label: contactLinks_2_url
+    machine_name: contactlinks_2_url
+    type: csv
+  contactlinks_2_text:
+    value: contactLinks_2_text
+    label: contactLinks_2_text
+    machine_name: contactlinks_2_text
+    type: csv
+  contactlinks_3_url:
+    value: contactLinks_3_url
+    label: contactLinks_3_url
+    machine_name: contactlinks_3_url
+    type: csv
+  contactlinks_3_text:
+    value: contactLinks_3_text
+    label: contactLinks_3_text
+    machine_name: contactlinks_3_text
+    type: csv
+  contactlinks_4_url:
+    value: contactLinks_4_url
+    label: contactLinks_4_url
+    machine_name: contactlinks_4_url
+    type: csv
+  contactlinks_4_text:
+    value: contactLinks_4_text
+    label: contactLinks_4_text
+    machine_name: contactlinks_4_text
+    type: csv
+  contactlinks_5_url:
+    value: contactLinks_5_url
+    label: contactLinks_5_url
+    machine_name: contactlinks_5_url
+    type: csv
+  contactlinks_5_text:
+    value: contactLinks_5_text
+    label: contactLinks_5_text
+    machine_name: contactlinks_5_text
+    type: csv
+  contactlinks_6_url:
+    value: contactLinks_6_url
+    label: contactLinks_6_url
+    machine_name: contactlinks_6_url
+    type: csv
+  contactlinks_6_text:
+    value: contactLinks_6_text
+    label: contactLinks_6_text
+    machine_name: contactlinks_6_text
+    type: csv
+  contactlinks_7_url:
+    value: contactLinks_7_url
+    label: contactLinks_7_url
+    machine_name: contactlinks_7_url
+    type: csv
+  contactlinks_7_text:
+    value: contactLinks_7_text
+    label: contactLinks_7_text
+    machine_name: contactlinks_7_text
+    type: csv
+  contactlinks_8_url:
+    value: contactLinks_8_url
+    label: contactLinks_8_url
+    machine_name: contactlinks_8_url
+    type: csv
+  contactlinks_8_text:
+    value: contactLinks_8_text
+    label: contactLinks_8_text
+    machine_name: contactlinks_8_text
+    type: csv
+  contactlinks_9_url:
+    value: contactLinks_9_url
+    label: contactLinks_9_url
+    machine_name: contactlinks_9_url
+    type: csv
+  contactlinks_9_text:
+    value: contactLinks_9_text
+    label: contactLinks_9_text
+    machine_name: contactlinks_9_text
+    type: csv
+  officelinks_5_url:
+    value: officeLinks_5_url
+    label: officeLinks_5_url
+    machine_name: officelinks_5_url
+    type: csv
+  officelinks_5_text:
+    value: officeLinks_5_text
+    label: officeLinks_5_text
+    machine_name: officelinks_5_text
+    type: csv
+  officelinks_6_url:
+    value: officeLinks_6_url
+    label: officeLinks_6_url
+    machine_name: officelinks_6_url
+    type: csv
+  officelinks_6_text:
+    value: officeLinks_6_text
+    label: officeLinks_6_text
+    machine_name: officelinks_6_text
+    type: csv
+  officelinks_7_url:
+    value: officeLinks_7_url
+    label: officeLinks_7_url
+    machine_name: officelinks_7_url
+    type: csv
+  officelinks_7_text:
+    value: officeLinks_7_text
+    label: officeLinks_7_text
+    machine_name: officelinks_7_text
+    type: csv
+  officelinks_8_url:
+    value: officeLinks_8_url
+    label: officeLinks_8_url
+    machine_name: officelinks_8_url
+    type: csv
+  officelinks_8_text:
+    value: officeLinks_8_text
+    label: officeLinks_8_text
+    machine_name: officelinks_8_text
+    type: csv
+  officelinks_9_url:
+    value: officeLinks_9_url
+    label: officeLinks_9_url
+    machine_name: officelinks_9_url
+    type: csv
+  officelinks_9_text:
+    value: officeLinks_9_text
+    label: officeLinks_9_text
+    machine_name: officelinks_9_text
+    type: csv
+  officelinks_10_url:
+    value: officeLinks_10_url
+    label: officeLinks_10_url
+    machine_name: officelinks_10_url
+    type: csv
+  officelinks_10_text:
+    value: officeLinks_10_text
+    label: officeLinks_10_text
+    machine_name: officelinks_10_text
+    type: csv
+  officelinks_11_url:
+    value: officeLinks_11_url
+    label: officeLinks_11_url
+    machine_name: officelinks_11_url
+    type: csv
+  officelinks_11_text:
+    value: officeLinks_11_text
+    label: officeLinks_11_text
+    machine_name: officelinks_11_text
+    type: csv
+  officelinks_12_url:
+    value: officeLinks_12_url
+    label: officeLinks_12_url
+    machine_name: officelinks_12_url
+    type: csv
+  officelinks_12_text:
+    value: officeLinks_12_text
+    label: officeLinks_12_text
+    machine_name: officelinks_12_text
+    type: csv
+  officelinks_13_url:
+    value: officeLinks_13_url
+    label: officeLinks_13_url
+    machine_name: officelinks_13_url
+    type: csv
+  officelinks_13_text:
+    value: officeLinks_13_text
+    label: officeLinks_13_text
+    machine_name: officelinks_13_text
+    type: csv
+  officelinks_14_url:
+    value: officeLinks_14_url
+    label: officeLinks_14_url
+    machine_name: officelinks_14_url
+    type: csv
+  officelinks_14_text:
+    value: officeLinks_14_text
+    label: officeLinks_14_text
+    machine_name: officelinks_14_text
+    type: csv
+  officelinks_15_url:
+    value: officeLinks_15_url
+    label: officeLinks_15_url
+    machine_name: officelinks_15_url
+    type: csv
+  officelinks_15_text:
+    value: officeLinks_15_text
+    label: officeLinks_15_text
+    machine_name: officelinks_15_text
+    type: csv
+  officelinks_16_url:
+    value: officeLinks_16_url
+    label: officeLinks_16_url
+    machine_name: officelinks_16_url
+    type: csv
+  officelinks_16_text:
+    value: officeLinks_16_text
+    label: officeLinks_16_text
+    machine_name: officelinks_16_text
+    type: csv
+  officelinks_17_url:
+    value: officeLinks_17_url
+    label: officeLinks_17_url
+    machine_name: officelinks_17_url
+    type: csv
+  officelinks_17_text:
+    value: officeLinks_17_text
+    label: officeLinks_17_text
+    machine_name: officelinks_17_text
+    type: csv
+  officelinks_18_url:
+    value: officeLinks_18_url
+    label: officeLinks_18_url
+    machine_name: officelinks_18_url
+    type: csv
+  officelinks_18_text:
+    value: officeLinks_18_text
+    label: officeLinks_18_text
+    machine_name: officelinks_18_text
+    type: csv
 mappings:
   -
     target: title
@@ -288,7 +584,7 @@ mappings:
   -
     target: field_toll_free_number
     map:
-      value: toll_free_number
+      value: toll_1
     settings:
       language: null
   -
@@ -309,7 +605,7 @@ mappings:
   -
     target: field_tty_number
     map:
-      value: tty_number
+      value: tty_1
     settings:
       language: null
   -
@@ -344,5 +640,11 @@ mappings:
     map:
       uri: officelinks_1_url
       title: officelinks_1_text
+    settings:
+      language: null
+  -
+    target: field_phone_number
+    map:
+      value: phone_1
     settings:
       language: null

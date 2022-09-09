@@ -15,9 +15,11 @@ dependencies:
     - field.field.node.state_directory_record.field_email
     - field.field.node.state_directory_record.field_emergency_management
     - field.field.node.state_directory_record.field_english_title
+    - field.field.node.state_directory_record.field_footer_html
     - field.field.node.state_directory_record.field_for_contact_center_only
     - field.field.node.state_directory_record.field_governor
     - field.field.node.state_directory_record.field_governor_contact
+    - field.field.node.state_directory_record.field_header_html
     - field.field.node.state_directory_record.field_health_department
     - field.field.node.state_directory_record.field_language_toggle
     - field.field.node.state_directory_record.field_local_governments
@@ -193,6 +195,13 @@ content:
     third_party_settings: {  }
     weight: 25
     region: content
+  field_footer_html:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 27
+    region: content
   field_for_contact_center_only:
     type: text_default
     label: above
@@ -223,6 +232,13 @@ content:
       target: ''
     third_party_settings: {  }
     weight: 11
+    region: content
+  field_header_html:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 28
     region: content
   field_health_department:
     type: link
