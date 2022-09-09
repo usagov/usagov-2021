@@ -7,6 +7,7 @@ dependencies:
     - media.type.file
     - node.type.basic_page
     - node.type.directory_record
+    - node.type.state_directory_record
     - node.type.wizard
     - node.type.wizard_step
     - workflows.workflow.basic_workflow
@@ -37,22 +38,31 @@ permissions:
   - 'create content translations'
   - 'create directory_record content'
   - 'create file media'
+  - 'create state_directory_record content'
   - 'create url aliases'
   - 'create wizard content'
   - 'create wizard_step content'
   - 'delete own basic_page content'
+  - 'delete own directory_record content'
+  - 'delete own state_directory_record content'
   - 'delete own wizard content'
   - 'delete own wizard_step content'
   - 'delete paragraphs entity embed'
   - 'edit any basic_page content'
+  - 'edit any directory_record content'
+  - 'edit any state_directory_record content'
   - 'edit any wizard content'
   - 'edit any wizard_step content'
   - 'edit own basic_page content'
+  - 'edit own directory_record content'
+  - 'edit own state_directory_record content'
   - 'edit own wizard content'
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
   - 'translate basic_page node'
+  - 'translate directory_record node'
   - 'translate editable entities'
+  - 'translate state_directory_record node'
   - 'update content translations'
   - 'use basic_workflow transition approve'
   - 'use basic_workflow transition create_new_draft'
@@ -60,8 +70,10 @@ permissions:
   - 'view all revisions'
   - 'view any unpublished content'
   - 'view basic_page revisions'
+  - 'view directory_record revisions'
   - 'view latest version'
   - 'view own unpublished content'
+  - 'view state_directory_record revisions'
   - 'view the administration theme'
   - 'view unpublished paragraphs'
   - 'view wizard revisions'
