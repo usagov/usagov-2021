@@ -1,0 +1,26 @@
+{#
+/**
+ **************************************************
+ * This is USAgov-customized code for the telephone number fields
+ **************************************************
+ *
+ * @file
+ * Default view template to display all the fields in a row.
+ *
+ * Available variables:
+ * - items: Array of telephone numbers.
+ */
+#}
+
+{% if items|length == 1 %}
+    <p class="phoneNumberField">{{ items[0]["content"]["#title"] }}</p>
+{% elseif items|length > 1 %}
+    <ul>
+        {% for phone_number in items %}
+            <li class="phoneNumberField">{{ phone_number["content"]["#title"] }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    {# this should never hit #}
+    <p> </p>
+{% endif %}

@@ -54,7 +54,6 @@ function main($infile, $extended_infile, $outdir) {
   $extended_records_by_uuid = process_xml_file($extended_infile);
   $extended_headings = $extended_records_by_uuid['headings'];
 
-  $records = [];
   $headings = array_merge($extended_headings, $basic_headings);
   $out_files = [];
   $num_records = 0; // We'll count them on output, just so we can report.
@@ -124,10 +123,10 @@ function convert_fields($row, &$indexes) {
   $alias = make_clean_alias($alias);
 
   if ($row[$lang_index] == 'Spanish') {
-    $alias = '/agencia/' . $alias;
+    $alias = '/agencias/' . $alias;
   }
   else {
-    $alias = '/agency/' . $alias;
+    $alias = '/agencies/' . $alias;
   }
   $row[$alias_index] = $alias;
 
@@ -162,7 +161,7 @@ function convert_fields($row, &$indexes) {
   $data['phonehint'] = implode('-', [
     'phone_' . $hints['phone'],
     'toll_' . $hints['toll'],
-    'tty_' . $hints['tty']
+    'tty_' . $hints['tty'],
   ]);
   return $data;
 }
@@ -253,9 +252,19 @@ function get_links_from_cdata($node, $nodename, $columnname = NULL) {
   $idx = 1;
   foreach ($nodes as $node) {
     if ($content = $node->textContent) {
+      $libxml_error_setting = libxml_use_internal_errors(TRUE);
       $snippet = new DOMDocument();
       // Without the UTF-8 hint, HTML snippets default to the wrong charset (ISO-8859-1, I think)
       $snippet->loadHTML('<?xml encoding="UTF-8">' . $content);
+      $errs = libxml_get_errors();
+      if (count($errs)) {
+        foreach ($errs as $error) {
+          if (!str_contains($error->message, "htmlParseEntityRef: expecting ';'")) {
+            print("WARNING: " . $error->message);
+          }
+        }
+      }
+      libxml_use_internal_errors($libxml_error_setting);
       $links = $snippet->getElementsByTagName('a');
       foreach ($links as $link) {
         $a = $link->attributes['a'];
@@ -268,7 +277,7 @@ function get_links_from_cdata($node, $nodename, $columnname = NULL) {
         $text = $link->textContent;
         $results[] = [
           $columnname . "_" . $idx . "_url" => $url,
-          $columnname . "_" . $idx . "_text" => $text
+          $columnname . "_" . $idx . "_text" => $text,
         ];
         $idx++;
       }
