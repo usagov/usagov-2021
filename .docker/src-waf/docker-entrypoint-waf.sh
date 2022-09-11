@@ -1,5 +1,37 @@
 #!/bin/bash -e
 
+valid_cidr() {
+  local CIDR="$1"
+
+  # Parse "a.b.c.d/n" into five separate variables
+  IFS="./" read -r ip1 ip2 ip3 ip4 N <<< "$CIDR"
+
+  # Convert IP address from quad notation to integer
+  local ip=$(($ip1 * 256 ** 3 + $ip2 * 256 ** 2 + $ip3 * 256 + $ip4))
+
+  # Remove upper bits and check that all $N lower bits are 0
+  if [ $(($ip % 2**(32-$N))) = 0 ]
+  then
+    return 0 # CIDR OK!
+  else
+    return 1 # CIDR NOT OK!
+  fi
+}
+
+valid_ip() {
+  # Set up local variables
+  local ip=$1
+  local IFS=.; local -a a=($ip)
+  # Start with a regex format test
+  [[ $ip =~ ^[0-9]+(\.[0-9]+){3}$ ]] || return 1
+  # Test values of quads
+  local quad
+  for quad in {0..3}; do
+    [[ "${a[$quad]}" -gt 255 ]] && return 1
+  done
+  return 0
+}
+
 # where do we go to find the cms
 if [ -z "$CMS_PROXY" ]; then
   export CMS_PROXY="usagov-cms.apps.internal"
@@ -14,14 +46,20 @@ fi;
 
 # which ips are whitelisted
 export IPS_ALLOWED="$IP_ALLOWED"
-# if [ ! -z "$IP_ALLOWED" ]; then
-#   read -r -a array <<< $IP_ALLOWED;
-#   for element in "${array[@]}"; do
-#       if [ ! -z "$element" ]; then
-#         export IPS_ALLOWED=$'\n\tallow '$element';'$IPS_ALLOWED;
-#       fi;
-#   done;
-# fi;
+if [ ! -z "$IP_ALLOWED" ]; then
+   ### discard all characters except 0-9, the period, comma and the semicolon
+   ### this allows a variety of (valid) common formats to be safely used as input
+   IPS_ALLOWED=($(echo $IP_ALLOWED | sed -r 's/[^0-9.,;\/]//g' | tr ',' ';' | tr ';' ' '))
+   for ip in "${IPS_ALLOWED[@]}"; do
+     if valid_ip $ip; then
+       export OUTPUT_IPS_ALLOWED=$'\n\tallow '$ip';'$OUTPUT_IPS_ALLOWED;
+     else
+       if valid_cidr $ip; then
+         export OUTPUT_IPS_ALLOWED=$'\n\tallow '$ip';'$OUTPUT_IPS_ALLOWED;
+       fi
+     fi
+   done;
+fi
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 
