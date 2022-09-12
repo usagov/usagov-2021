@@ -72,6 +72,7 @@ hr.bl-divider {
   border: 0;
   height: 0.25rem;
   width: auto;
+  display: none;
 }
 
 // Search Bar
@@ -81,6 +82,7 @@ hr.bl-divider {
   flex-direction: row;
   gap: 10px;
   align-items: center;
+  display: none;
 
   p {
     font-size: 18px;
