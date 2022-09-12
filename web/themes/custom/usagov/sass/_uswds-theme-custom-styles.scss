@@ -869,7 +869,7 @@ div #sm-share a {
   outline-offset: -0.25rem;
 }
 
-//error styles for elected officials
+// error styles for elected officials
 
 .usa-error {
   color: #d83933;
@@ -884,8 +884,9 @@ div #sm-share a {
 
 .usa-main-border-error {
   border-left: 3px solid #d83933;
+
   .usa-border-error {
-    border-left:0px;
+    border-left: none;
   }
 }
 
@@ -903,4 +904,8 @@ div #sm-share a {
 
 #myform.usa-form .usa-input, #myform .usa-combo-box__input {
   max-width: 20rem;
+}
+
+.usa-error--alert {
+  display: none;
 }
