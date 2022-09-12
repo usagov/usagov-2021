@@ -45,17 +45,17 @@ if [ -z "$S3_PROXY" ]; then
 fi;
 
 # which ips are whitelisted
-export IPS_ALLOWED="$IP_ALLOWED"
+export IPS_ALLOWED=""
 if [ ! -z "$IP_ALLOWED" ]; then
    ### discard all characters except 0-9, the period, comma and the semicolon
    ### this allows a variety of (valid) common formats to be safely used as input
-   IPS_ALLOWED=($(echo $IP_ALLOWED | sed -r 's/[^0-9.,;\/]//g' | tr ',' ';' | tr ';' ' '))
-   for ip in "${IPS_ALLOWED[@]}"; do
+   IPS=$(echo $IP_ALLOWED | sed -r 's/[^0-9.,;\/]//g' | tr ',' ';' | tr ';' ' ')
+   for ip in $IPS; do
      if valid_ip $ip; then
-       export OUTPUT_IPS_ALLOWED=$'\n\tallow '$ip';'$OUTPUT_IPS_ALLOWED;
+       export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
      else
        if valid_cidr $ip; then
-         export OUTPUT_IPS_ALLOWED=$'\n\tallow '$ip';'$OUTPUT_IPS_ALLOWED;
+         export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
        fi
      fi
    done;
