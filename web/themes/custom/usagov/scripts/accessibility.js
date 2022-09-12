@@ -67,12 +67,14 @@ function myforms(event) {
         }     
     }
     if (test.length == 4) {
+        document.getElementById("error-box").classList.remove("usa-error--alert")
         document.getElementById("error-border").classList.add("usa-main-border-error");
     }
     else
     if (test.length < 4){
-        document.getElementById("error-border").classList.remove("usa-main-border-error")
+        document.getElementById("error-border").classList.remove("usa-main-border-error");
     }
+   
     if (errorFound) {
         dataLayer.push({'event':'myform','error type':test.join(";")});
         return false
