@@ -67,14 +67,39 @@ function myforms(event) {
         }     
     }
     if (test.length == 4) {
-        document.getElementById("error-box").classList.remove("usa-error--alert")
-        document.getElementById("error-border").classList.add("usa-main-border-error");
+        document.getElementById("error-border").classList.add("usa-main-border-error")  
     }
     else
     if (test.length < 4){
         document.getElementById("error-border").classList.remove("usa-main-border-error");
     }
-   
+    if (errorFound) {
+        document.getElementById("error-box").classList.remove("usa-error--alert")
+    }
+    if (errorFound && document.getElementById("input-street").value != "") {
+        document.getElementById("error-street").classList.add("usa-text--alert");
+    }
+    else
+    {document.getElementById("error-street").classList.remove("usa-text--alert");}
+
+    if (errorFound && document.getElementById("input-city").value != "") {
+        document.getElementById("error-city").classList.add("usa-text--alert");
+    }
+    else
+    {document.getElementById("error-city").classList.remove("usa-text--alert");}
+
+    if (errorFound && document.getElementById("input-state").value != "") {
+        document.getElementById("error-state").classList.add("usa-text--alert");
+    }
+    else
+    {document.getElementById("error-state").classList.remove("usa-text--alert");}
+
+    if (errorFound && document.getElementById("input-zip").value != "") {
+        document.getElementById("error-zip").classList.add("usa-text--alert");
+    }
+    else
+    {document.getElementById("error-zip").classList.remove("usa-text--alert");}
+
     if (errorFound) {
         dataLayer.push({'event':'myform','error type':test.join(";")});
         return false
