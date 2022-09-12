@@ -38,7 +38,6 @@ function myforms(event) {
                 let error = elmnts[k].previousElementSibling.id;
                 test.push(error + " missing");
                 elmnts[k].classList.add("usa-user-error");
-                //elmnts[k].parentElement.parentElement.classList.add("usa-border-error");
                 elmnts[k].previousElementSibling.classList.add("usa-error");
                 let message = a11y_content[error];
                 elmnts[k].previousElementSibling.innerHTML = message;
