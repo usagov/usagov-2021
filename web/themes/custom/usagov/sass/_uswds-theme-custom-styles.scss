@@ -897,15 +897,21 @@ div #sm-share a {
 .usa-form-spacing {
   padding-left: 1rem;
 }
-/**
+
+#myform div.margin-x-auto {
+  margin-left: 3rem;
+}
+
 #myform div.maxw-mobile {
   max-width: 26rem;
 }
 
+/**
 #myform.usa-form .usa-input, #myform .usa-combo-box__input {
   max-width: 20rem;
 }
 */
+
 .usa-error--alert {
   display: none;
 }
