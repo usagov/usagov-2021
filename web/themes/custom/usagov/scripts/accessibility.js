@@ -30,6 +30,7 @@ function myforms(event) {
     // stop form submission
     let elementVal = ["input", "textarea"];
     let test = [];
+    totalCount = document.getElementById("testing").childElementCount;
     let errorFound = false;
     for (let n = 0; n < elementVal.length; n++) {
         let elmnts = document.forms["myform"].getElementsByTagName(elementVal[n]);
@@ -66,6 +67,7 @@ function myforms(event) {
             } 
         }     
     }
+
     if (test.length == 4) {
         document.getElementById("error-border").classList.add("usa-main-border-error") 
         document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px"; 
@@ -115,8 +117,11 @@ function myforms(event) {
     {
         document.getElementById("error-zip").classList.remove("usa-error--alert");
     }
-
+    
+    document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + totalCount + " errors";
+    
     if (errorFound) {
+        document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + test.length + " errors";
         dataLayer.push({'event':'myform','error type':test.join(";")});
         return false
     }
