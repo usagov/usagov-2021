@@ -118,8 +118,6 @@ function myforms(event) {
         document.getElementById("error-zip").classList.remove("usa-error--alert");
     }
     
-    document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + totalCount + " errors";
-    
     if (errorFound) {
         document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + test.length + " errors";
         dataLayer.push({'event':'myform','error type':test.join(";")});
