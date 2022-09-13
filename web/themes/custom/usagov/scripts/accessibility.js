@@ -67,38 +67,54 @@ function myforms(event) {
         }     
     }
     if (test.length == 4) {
-        document.getElementById("error-border").classList.add("usa-main-border-error")  
+        document.getElementById("error-border").classList.add("usa-main-border-error") 
+        document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px"; 
+        document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px"; 
+        document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
     }
     else
     if (test.length < 4){
         document.getElementById("error-border").classList.remove("usa-main-border-error");
+        document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px"; 
+        document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px"; 
+        document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
     }
     if (errorFound) {
         document.getElementById("error-box").classList.remove("usa-error--alert")
     }
     if (errorFound && document.getElementById("input-street").value != "") {
-        document.getElementById("error-street").classList.add("usa-text--alert");
+        document.getElementById("error-street").classList.add("usa-error--alert");
     }
     else
-    {document.getElementById("error-street").classList.remove("usa-text--alert");}
+    {
+        document.getElementById("error-street").classList.remove("usa-error--alert");
+    }
 
     if (errorFound && document.getElementById("input-city").value != "") {
-        document.getElementById("error-city").classList.add("usa-text--alert");
+        document.getElementById("error-city").classList.add("usa-error--alert");
     }
     else
-    {document.getElementById("error-city").classList.remove("usa-text--alert");}
+    {document.getElementById("error-city").classList.remove("usa-error--alert");}
 
     if (errorFound && document.getElementById("input-state").value != "") {
-        document.getElementById("error-state").classList.add("usa-text--alert");
+        document.getElementById("error-state").classList.add("usa-error--alert");
     }
     else
-    {document.getElementById("error-state").classList.remove("usa-text--alert");}
+    {
+        document.getElementById("error-state").classList.remove("usa-error--alert");
+        document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px"; 
+        document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px"; 
+        document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
+    }
 
     if (errorFound && document.getElementById("input-zip").value != "") {
-        document.getElementById("error-zip").classList.add("usa-text--alert");
+        document.getElementById("error-zip").classList.add("usa-error--alert");
+
     }
     else
-    {document.getElementById("error-zip").classList.remove("usa-text--alert");}
+    {
+        document.getElementById("error-zip").classList.remove("usa-error--alert");
+    }
 
     if (errorFound) {
         dataLayer.push({'event':'myform','error type':test.join(";")});
