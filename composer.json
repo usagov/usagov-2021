@@ -59,7 +59,6 @@
         "drupal/openapi_ui_swagger": "^1.0@RC",
         "drupal/paragraphs_collapsible": "^1.2",
         "drupal/paragraphs_entity_embed": "^2.0@alpha",
-        "drupal/paragraphs_inline_entity_form": "^1.0@beta",
         "drupal/pathauto": "^1.8",
         "drupal/redirect": "^1.6",
         "drupal/s3fs": "^3.0@alpha",
