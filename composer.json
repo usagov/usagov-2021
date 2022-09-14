@@ -152,7 +152,7 @@
                 "Paragraph Embed Preview Update": "https://www.drupal.org/files/issues/2022-05-27/paragraphs_entity_embed_csrf_token.patch"
             },
             "drupal/core": {
-                "MenuActiveTrail issue with duplicate menu items": "https://www.drupal.org/files/issues/2859703-find-correct-link-6.patch"
+                "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail.patch"
             }
         }
     }
