@@ -51,14 +51,45 @@ function writeMessage() {
     let topicField = document.getElementById("input-topic");
     let aboutField = document.getElementById("input-about");
     let actionField = document.getElementById("input-action");
-
+    
     // Note: %0D%0A = newline character
     let address = "mailto:" + email;
     let subject = "?subject=" + contact_content.subject;
-    let body = "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
+    let body = [];
+    if (topicField.value != "" && aboutField.value != "" && actionField.value != "") {
+        body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
         contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A" +
-        contact_content.idea + "%0D%0A" + actionField.value;
+        contact_content.idea + "%0D%0A" + actionField.value);
+    }
+    else
+    if (topicField.value != "" && aboutField.value == "" && actionField.value != "") {
+        body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
+        contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
+    }
+    else
+    if (topicField.value != "" && aboutField.value != "" && actionField.value == "") {
+        body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
+        contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A");
+    }
+    else
+    if (topicField.value == "" && aboutField.value != "" && actionField.value != "") {
+        body.push( "&body=" + contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A" + 
+        contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
+    }
+    else
+    if (topicField.value != "" && aboutField.value == "" && actionField.value == "") {
+        body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A");
+    }
+    else
+    if (topicField.value == "" && aboutField.value != "" && actionField.value == "") {
+        body.push( "&body=" + contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A");
+    }
+    else
+    if (topicField.value == "" && aboutField.value == "" && actionField.value != "") {
+        body.push( "&body=" + contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
+    }
 
+    
     // Must replace spaces with %20
     let mailtoLink = (address + subject + body).replace(" ", "%20");
     window.location.href = DOMPurify.sanitize(mailtoLink);
