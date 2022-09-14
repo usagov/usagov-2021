@@ -1,7 +1,5 @@
 <div class="usa-prose">
-    <p class="usa-intro">
-        Obtenga los nombres y la información de contacto de los funcionarios que le representan a nivel federal, estatal y local.
-    </p>
+    
 
     <div class="usa-prose">
         <h2>
@@ -20,10 +18,34 @@
             </div>
         </div>
         <p>Todos los elementos del formulario que están marcados con el símbolo (*) son obligatorios.</p>
-        <form class="usa-form maxw-none" action="/es/funcionarios-electos/info" autocomplete="off">
-            <div class="bg-gray-5 padding-1px">
+
+<div id="error-box" class="usa-alert usa-alert--slim usa-alert--error usa-error--alert">
+    <div class="usa-alert__body">
+        <h3 class="usa-alert__heading">Your information contains errors</h3>
+        <ul id="testing">
+            <li id="error-street" class="usa-alert__text">
+                <a href="#input-street"><span>Por favor, escriba la dirección.</span></a>
+            </li>
+            <li  id="error-city" class="usa-alert__text">
+                <a href="#input-city"><span>Por favor, escriba el nombre de la ciudad.</span></a>
+            </li>
+            <li  id="error-state" class="usa-alert__text">
+                <a href="#input-state"><span>PPor favor, escriba el nombre del estado.</span></a>
+            </li>
+            <li  id="error-zip" class="usa-alert__text">
+                <a href="#input-zip"><span>Por favor, escriba código postal.</span></a>
+            </li> 
+        </ul> 
+    </div>
+</div>
+        <form class="usa-form maxw-none" action="/elected-officials-results" autocomplete="off" name="myform" id="myform" novalidate onsubmit="return myforms(event);">
+            <div class="padding-1px bg-gray-4">
                 <div class="maxw-mobile margin-x-auto margin-y-4">
+                <p>Please complete the fields below. <strong>All fields are required.</strong></p>
+                   <div id="error-border" >
+                    <div class="usa-form-spacing">
                     <label id="myStreetAddress" class="usa-label" for="input-street">*Dirección</label>
+                    <span id="street" class="errors"></span>
                     <input
                         class="usa-input"
                         id="input-street"
@@ -33,8 +55,10 @@
                         onkeypress="return event.keyCode != 13;"
                         required
                     />
-
+                    </div>
+                    <div class="usa-form-spacing">
                     <label id="myCity" class="usa-label" for="input-city">*Ciudad</label>
+                    <span id="city" class="errors"></span>
                     <input
                         class="usa-input"
                         id="input-city"
@@ -44,7 +68,8 @@
                         onkeypress="return event.keyCode != 13;"
                         required
                     />
-
+                    </div>
+                    <div class="usa-form-spacing">
                     <label id="myState" class="usa-label" for="input-state">*Estado</label>
                     <div class="usa-combo-box">
                         <select aria-labelledby="myState" class="usa-select" name="input-state" id="input-state" required>
@@ -100,9 +125,12 @@
                             <option id="WI" value="WI">Wisconsin</option>
                             <option id="WY" value="WY">Wyoming</option>
                         </select>
+                    <span id="state" class="errors"></span>
                     </div>
-                    
+                    </div>
+                    <div class="usa-form-spacing">
                     <label id="myZIP" class="usa-label" for="input-zip">*Código postal</label>
+                    <span id="zip" class="errors"></span>
                     <input
                         class="usa-input"
                         id="input-zip"
@@ -112,14 +140,15 @@
                         onkeypress="return event.keyCode != 13;"
                         required
                     />
-                </div>
-            </div>
-
-            <p>Nosotros nunca venderemos su información personal.
+                    </div>
+                    </div>
+                                <p>Nosotros nunca venderemos su información personal.
                 <a href="/es/privacidad-seguridad">Conozca cómo USAGov en Español protege su privacidad.</a>
             </p>
-
-            <button class="usa-button usa-button--secondary usa-button--big">Encontrar a mis funcionarios electos</button>
+<button class="usa-button usa-button--secondary usa-button--big">Encontrar a mis funcionarios electos</button>
+                </div>
+            </div>
+            
         </form>
     </div>
 </div>
