@@ -28,9 +28,9 @@ function usagov_directories_views_pre_render($view) {
           $new_result[$res]->_entity->title[0]->value = $node_title;
         }
 
-       }
-     }
+      }
+    }
 
-     $view->result = $new_result;
+    $view->result = $new_result;
   }
 }
