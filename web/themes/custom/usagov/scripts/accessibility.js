@@ -26,6 +26,104 @@ const a11y_translations = {
 }
 let a11y_content = a11y_translations[ document.documentElement.lang ];
 
+function myforms(event) {
+    // stop form submission
+    let elementVal = ["input", "textarea"];
+    let errorText = [];
+    let errorFound = false;
+    for (let n = 0; n < elementVal.length; n++) {
+        let elmnts = document.forms["myform"].getElementsByTagName(elementVal[n]);
+        for (let k = 0; k < elmnts.length; k++) {
+            if (elmnts[k].value == "") {
+                let error = elmnts[k].previousElementSibling.id;
+                errorText.push(error + " missing");
+                elmnts[k].classList.add("usa-user-error");
+                elmnts[k].previousElementSibling.classList.add("usa-error");
+                let message = a11y_content[error];
+                elmnts[k].previousElementSibling.innerHTML = message;
+                event.preventDefault();
+                errorFound = true;  
+            }
+            if (elmnts[k].value == "" && elmnts[k].previousElementSibling.id == "street") {
+                elmnts[k].parentElement.classList.add("usa-border-error");
+            }
+            if (elmnts[k].value == "" && elmnts[k].previousElementSibling.id == "city") {
+                elmnts[k].parentElement.classList.add("usa-border-error");
+            }
+            if (elmnts[k].value == "" && elmnts[k].previousElementSibling.id == "state") {
+                elmnts[k].parentElement.parentElement.classList.add("usa-border-error");
+            }
+            if (elmnts[k].value == "" && elmnts[k].previousElementSibling.id == "zip") {
+                elmnts[k].parentElement.classList.add("usa-border-error");
+            }
+            else
+            if (elmnts[k].value != "") {
+                elmnts[k].classList.remove("usa-user-error");
+                elmnts[k].parentElement.classList.remove("usa-border-error");
+                elmnts[k].previousElementSibling.classList.remove("usa-error");
+                elmnts[k].parentElement.parentElement.classList.remove("usa-border-error");
+                elmnts[k].previousElementSibling.innerHTML = "";   
+            } 
+        }     
+    }
+
+    if (errorText.length == 4) {
+        document.getElementById("error-border").classList.add("usa-main-border-error") 
+        document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px"; 
+        document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px"; 
+        document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
+    }
+    else
+    if (errorText.length < 4){
+        document.getElementById("error-border").classList.remove("usa-main-border-error");
+        document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px"; 
+        document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px"; 
+        document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
+    }
+    if (errorFound) {
+        document.getElementById("error-box").classList.remove("usa-error--alert")
+    }
+    if (errorFound && document.getElementById("input-street").value != "") {
+        document.getElementById("error-street").classList.add("usa-error--alert");
+    }
+    else
+    {
+        document.getElementById("error-street").classList.remove("usa-error--alert");
+    }
+
+    if (errorFound && document.getElementById("input-city").value != "") {
+        document.getElementById("error-city").classList.add("usa-error--alert");
+    }
+    else
+    {document.getElementById("error-city").classList.remove("usa-error--alert");}
+
+    if (errorFound && document.getElementById("input-state").value != "") {
+        document.getElementById("error-state").classList.add("usa-error--alert");
+    }
+    else
+    {
+        document.getElementById("error-state").classList.remove("usa-error--alert");
+        document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px"; 
+        document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px"; 
+        document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
+    }
+
+    if (errorFound && document.getElementById("input-zip").value != "") {
+        document.getElementById("error-zip").classList.add("usa-error--alert");
+
+    }
+    else
+    {
+        document.getElementById("error-zip").classList.remove("usa-error--alert");
+    }
+    
+    if (errorFound) {
+        document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + errorText.length + " error" + (errorText.length == 1 ? "" : "s");
+        dataLayer.push({'event':'form error','error type':errorText.join(";")});
+        return false
+    }
+};
+
 window.addEventListener("load", function() {
     // Customize input validation error messages by
     // specifying the name of each input field. Only
@@ -60,3 +158,4 @@ window.addEventListener("load", function() {
         toggleButtons[i].removeAttribute("tabindex");
     }
 });
+
