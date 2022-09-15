@@ -69,16 +69,10 @@ function myforms(event) {
 
     if (errorText.length == 4) {
         document.getElementById("error-border").classList.add("usa-main-border-error") 
-        document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px"; 
-        document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px"; 
-        document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
     }
     else
     if (errorText.length < 4){
         document.getElementById("error-border").classList.remove("usa-main-border-error");
-        document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px"; 
-        document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px"; 
-        document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
     }
     if (errorFound) {
         document.getElementById("error-box").classList.remove("usa-error--alert")
@@ -103,9 +97,6 @@ function myforms(event) {
     else
     {
         document.getElementById("error-state").classList.remove("usa-error--alert");
-        document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px"; 
-        document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px"; 
-        document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
     }
 
     if (errorFound && document.getElementById("input-zip").value != "") {
