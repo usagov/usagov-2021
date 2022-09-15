@@ -93,8 +93,6 @@ function writeMessage() {
     // Must replace spaces with %20
     let mailtoLink = (address + subject + body).replace(" ", "%20");
     window.location.href = DOMPurify.sanitize(mailtoLink);
-
-    alert(contact_content.new_window);
 }
 
 load();
