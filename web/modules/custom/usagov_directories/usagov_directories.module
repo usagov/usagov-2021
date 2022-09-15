@@ -9,32 +9,28 @@ use Drupal\node\Entity\Node;
 /**
  *
  */
-function usagov_directories_views_pre_render($view)
-{
-    if ($view->id() == 'federal_agencies' && $view->current_display == 'block_1') {
+function usagov_directories_views_pre_render($view){
+  if ($view->id() == 'federal_agencies' && $view->current_display == 'block_1') {
 
-        $new_result = $view->result;
-        for ($res = 0; $res < count($new_result); $res++) {
-            $nid = $new_result[$res]->_entity->nid[0]->value;
-            $node = Node::load($nid);
-            $node_title = $node->get('title')[0]->value;
+    $new_result = $view->result;
+      for ($res = 0; $res < count($new_result); $res++) {
+        $nid = $new_result[$res]->_entity->nid[0]->value;
+        $node = Node::load($nid);
+        $node_title = $node->get('title')[0]->value;
 
-            $type_str = $new_result[$res]->_entity->type[0]->target_id;
-            if ($type_str == "agency_synonym") {
-                $pid_str = $new_result[$res]->_entity->field_agency_reference->target_id;
-                // Need this check in case synonyms were not backlinked to their directory.
-                if ($pid_str) {
-                    $parent = Node::load($pid_str);
-                    $new_result[$res]->_entity = clone $parent;
-                    $new_result[$res]->_entity->title[0]->value = $node_title;
-                }
+        $type_str = $new_result[$res]->_entity->type[0]->target_id;
+        if ($type_str == "agency_synonym") {
+          $pid_str = $new_result[$res]->_entity->field_agency_reference->target_id;
+          // Need this check in case synonyms were not backlinked to their directory.
+          if ($pid_str) {
+            $parent = Node::load($pid_str);
+            $new_result[$res]->_entity = clone $parent;
+            $new_result[$res]->_entity->title[0]->value = $node_title;
+          }
 
-            }
         }
+      }
 
-        $view->result = $new_result;
-    }
-    else {
-        // Do nothing specific.
+      $view->result = $new_result;
     }
 }
