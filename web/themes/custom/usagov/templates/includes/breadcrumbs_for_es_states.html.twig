@@ -1,0 +1,39 @@
+<nav class="margin-top-neg-3 mobile-lg:margin-top-2 tablet:margin-top-neg-3 desktop:margin-top-0 margin-bottom-2 mobile-lg:margin-bottom-6" role="navigation" aria-labelledby="system-breadcrumb" >
+    <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">    
+        <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/es" class="usa-breadcrumb__link" itemprop="item">
+                <span itemprop="name">
+                    Página principal 
+                </span>
+            </a>
+            <meta itemprop="position" content="0" />
+        </li>
+        <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="/es/acerca-de-estados-unidos" class="usa-breadcrumb__link" itemprop="item">
+                <span itemprop="name">
+                    Acerca de Estados Unidos y su Gobierno
+                </span>
+            </a>
+            <meta itemprop="position" content="1" />
+        </li>
+        {% if path('<current>') == '/gobiernos-estatales'%}
+            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                <span itemprop="name">Agencias estatales </span>
+                <meta itemprop="position" content="2" />
+            </li> 
+        {% else %}
+            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                <a href="/es/gobiernos-estatales" class="usa-breadcrumb__link" itemprop="item">
+                    <span itemprop="name">
+                        Agencias estatales
+                    </span>
+                </a>
+                <meta itemprop="position" content="2" />
+                </li>
+            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                <span itemprop="name">{{ drupal_title() }}</span>
+                <meta itemprop="position" content="3" />
+            </li> 
+        {% endif %}
+    </ol>
+</nav>
