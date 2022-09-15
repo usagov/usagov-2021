@@ -30,7 +30,7 @@
                 <a href="#input-city"><span>Por favor, escriba el nombre de la ciudad.</span></a>
             </li>
             <li  id="error-state" class="usa-alert__text">
-                <a href="#input-state"><span>Por favor, escriba el nombre del estado.</span></a>
+                <a href="#input-state"><span>PPor favor, escriba el nombre del estado.</span></a>
             </li>
             <li  id="error-zip" class="usa-alert__text">
                 <a href="#input-zip"><span>Por favor, escriba código postal.</span></a>
@@ -71,8 +71,9 @@
                     </div>
                     <div class="usa-form-spacing">
                     <label id="myState" class="usa-label" for="input-state">*Estado</label>
+                    <span id="state" class="errors"></span>
                     <div class="usa-combo-box">
-                        <select aria-labelledby="myState" class="usa-select" name="input-state" id="input-state" required>
+                        <select aria-labelledby="input-state-label" class="usa-select" name="input-state" id="input-state" required>
                             <option id="AL" value="AL">Alabama</option>
                             <option id="AK" value="AK">Alaska</option>
                             <option id="AZ" value="AZ">Arizona</option>
@@ -125,7 +126,7 @@
                             <option id="WI" value="WI">Wisconsin</option>
                             <option id="WY" value="WY">Wyoming</option>
                         </select>
-                    <span id="state" class="errors"></span>
+                    
                     </div>
                     </div>
                     <div class="usa-form-spacing">
