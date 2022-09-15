@@ -118,6 +118,7 @@ function myforms(event) {
     }
     
     if (errorFound) {
+        document.getElementById("error-box").focus();
         document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + errorText.length + " error" + (errorText.length == 1 ? "" : "s");
         dataLayer.push({'event':'form error','error type':errorText.join(";")});
         return false
