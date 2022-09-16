@@ -6,7 +6,9 @@
 
 {% if (term_name == "Standard Page") or (front == "not_homepage") and (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
 {% set talk = '/phone' %}
-{% set chat = '/chat' %}
+{% set chat = 'https://www.usa.gov/chat' %}
+{% set sp_chat = 'https://www.usa.gov/espanol/chat' %}
+
 <div id="question_box">
     <div class="border-left-1 padding-left-205 border-cyan-10 margin-top-8 margin-bottom-9 padding-bottom-4">
         <h3 class="font-family-heading margin-top-0">
@@ -19,13 +21,18 @@
         {% endif %}
         <div class="grid-row grid-gap">
             <div class="grid-col-6">
-                <a class="question-icon" href="{{ talk }}{{ url }}">
+                <a class="question-icon" href="{{ talk }}">
                     <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_talk.png" alt="talk icon">
                     {{ lang == 'en' ? "Call and speak to a live USAGov agent." : "Llame y hable con un agente de USAGov en Español." }}
                 </a>
             </div>
             <div class="grid-col-6">
-                <a class="question-icon" href="{{ chat }}{{ url }}">
+                {% if lang == 'en' %}
+                    <a class="question-icon" href="{{ chat }}">
+                {% else %}
+                    <a class="question-icon" href="{{ sp_chat }}">
+                {% endif %}
+
                     <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_chat.png" alt="chat icon">
                     {{ lang == 'en' ? "Chat with a live USAGov agent." : "Chatee en vivo con un agente de USAGov en Español." }}
                 </a>
