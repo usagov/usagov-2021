@@ -4,8 +4,13 @@ status: true
 dependencies:
   config:
     - node.type.agency_synonym
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: true
 id: node.agency_synonym
 target_entity_type_id: node
 target_bundle: agency_synonym
-default_langcode: site_default
-language_alterable: false
+default_langcode: en
+language_alterable: true
