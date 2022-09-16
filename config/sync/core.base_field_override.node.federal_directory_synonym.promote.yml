@@ -1,13 +1,13 @@
-uuid: 9bec084e-c153-4e62-af92-202db50ce60a
+uuid: 38de7534-f9e2-4900-a3ad-f788dc9fbd11
 langcode: en
 status: true
 dependencies:
   config:
-    - node.type.agency_synonym
-id: node.agency_synonym.promote
+    - node.type.federal_directory_synonym
+id: node.federal_directory_synonym.promote
 field_name: promote
 entity_type: node
-bundle: agency_synonym
+bundle: federal_directory_synonym
 label: 'Promoted to front page'
 description: ''
 required: false
