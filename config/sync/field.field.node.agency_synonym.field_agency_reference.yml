@@ -1,4 +1,4 @@
-uuid: 45e79464-0093-4be2-8e69-8b7630fc0060
+uuid: 42804af6-7486-4388-94fd-200e03f74b36
 langcode: en
 status: true
 dependencies:
@@ -12,7 +12,7 @@ entity_type: node
 bundle: agency_synonym
 label: 'Agency Reference'
 description: ''
-required: false
+required: true
 translatable: false
 default_value: {  }
 default_value_callback: ''

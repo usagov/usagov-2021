@@ -3,16 +3,28 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.agency_synonym.body
     - field.field.node.agency_synonym.field_agency_reference
     - node.type.agency_synonym
   module:
     - content_moderation
     - path
+    - text
 id: node.agency_synonym.default
 targetEntityType: node
 bundle: agency_synonym
 mode: default
 content:
+  body:
+    type: text_textarea_with_summary
+    weight: 121
+    region: content
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+      show_summary: false
+    third_party_settings: {  }
   created:
     type: datetime_timestamp
     weight: 10
@@ -21,7 +33,7 @@ content:
     third_party_settings: {  }
   field_agency_reference:
     type: entity_reference_autocomplete
-    weight: 121
+    weight: 122
     region: content
     settings:
       match_operator: CONTAINS
@@ -76,11 +88,6 @@ content:
     settings:
       size: 60
       placeholder: ''
-    third_party_settings: {  }
-  translation:
-    weight: 10
-    region: content
-    settings: {  }
     third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete

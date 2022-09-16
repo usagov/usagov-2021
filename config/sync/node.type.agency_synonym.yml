@@ -20,10 +20,10 @@ third_party_settings:
         available_menus:
           - main
         parent: 'main:'
-name: 'Federal Directory Synonym'
+name: 'Agency Synonym'
 type: agency_synonym
 description: ''
 help: ''
 new_revision: true
 preview_mode: 1
-display_submitted: false
+display_submitted: true
