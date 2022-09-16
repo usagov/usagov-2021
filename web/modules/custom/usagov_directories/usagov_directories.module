@@ -19,7 +19,7 @@ function usagov_directories_views_pre_render($view) {
       $node_title = $node->get('title')[0]->value;
 
       $type_str = $new_result[$res]->_entity->type[0]->target_id;
-      if ($type_str == "agency_synonym") {
+      if ($type_str == "federal_directory_synonym") {
         $pid_str = $new_result[$res]->_entity->field_agency_reference->target_id;
         // Need this check in case synonyms were not backlinked to their directory.
         if ($pid_str) {
