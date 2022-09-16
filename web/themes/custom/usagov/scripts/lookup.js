@@ -271,7 +271,7 @@ function renderResults(response, rawResponse) {
                 linkToContact.innerHTML = content["contact-via-email"];
 
                 linkToContact.setAttribute("href", content["path-contact"] + "?email=" + emailLinkified +
-                    "?name=" + response.officials[i].name + "?office=" + response.officials[i].office);
+                    "?name=" + response.officials[i].name + "?office=" + response.officials[i].office) + "#skip-to-h1";
                 // linkToContact.appendChild(primaryEmail);
 
                 bulletList.appendChild(linkToContact);
