@@ -1,18 +1,18 @@
-uuid: 45e79464-0093-4be2-8e69-8b7630fc0060
+uuid: 2eeaefe8-ad28-4a70-9345-6bc7e7106761
 langcode: en
 status: true
 dependencies:
   config:
     - field.storage.node.field_agency_reference
-    - node.type.agency_synonym
     - node.type.directory_record
-id: node.agency_synonym.field_agency_reference
+    - node.type.federal_directory_synonym
+id: node.federal_directory_synonym.field_agency_reference
 field_name: field_agency_reference
 entity_type: node
-bundle: agency_synonym
+bundle: federal_directory_synonym
 label: 'Agency Reference'
 description: ''
-required: false
+required: true
 translatable: false
 default_value: {  }
 default_value_callback: ''
@@ -22,7 +22,7 @@ settings:
     target_bundles:
       directory_record: directory_record
     sort:
-      field: _none
+      field: title
       direction: ASC
     auto_create: false
     auto_create_bundle: ''

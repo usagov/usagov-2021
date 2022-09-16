@@ -1,16 +1,16 @@
-uuid: 09947f8c-4505-425f-8459-436af29fbbfa
+uuid: 87223e8d-0eb5-4864-96f1-b52645024790
 langcode: en
 status: true
 dependencies:
   config:
-    - node.type.agency_synonym
+    - node.type.federal_directory_synonym
   module:
     - content_translation
 third_party_settings:
   content_translation:
     enabled: true
-id: node.agency_synonym
+id: node.federal_directory_synonym
 target_entity_type_id: node
-target_bundle: agency_synonym
+target_bundle: federal_directory_synonym
 default_langcode: en
 language_alterable: true

@@ -1,15 +1,15 @@
-uuid: 58aa3f30-1c4a-4b0e-a968-6c94e9bc1fd8
+uuid: 69e44bbe-a09a-4910-b7a5-f8ba1ddcae0c
 langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.agency_synonym.field_agency_reference
-    - node.type.agency_synonym
+    - field.field.node.federal_directory_synonym.field_agency_reference
+    - node.type.federal_directory_synonym
   module:
     - user
-id: node.agency_synonym.default
+id: node.federal_directory_synonym.default
 targetEntityType: node
-bundle: agency_synonym
+bundle: federal_directory_synonym
 mode: default
 content:
   field_agency_reference:
@@ -18,7 +18,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 101
+    weight: 102
     region: content
   links:
     settings: {  }
