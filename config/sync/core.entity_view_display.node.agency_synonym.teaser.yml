@@ -1,16 +1,16 @@
-uuid: c1c4ea62-bed5-4881-9c6e-f364cc3fb394
+uuid: de386d52-a680-4ef3-af03-bf73eb3f1ded
 langcode: en
 status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
-    - field.field.node.federal_directory_synonym.field_agency_reference
-    - node.type.federal_directory_synonym
+    - field.field.node.agency_synonym.field_agency_reference
+    - node.type.agency_synonym
   module:
     - user
-id: node.federal_directory_synonym.teaser
+id: node.agency_synonym.teaser
 targetEntityType: node
-bundle: federal_directory_synonym
+bundle: agency_synonym
 mode: teaser
 content:
   links:

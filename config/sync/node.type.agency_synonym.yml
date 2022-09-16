@@ -1,4 +1,4 @@
-uuid: 71e97924-06b0-4bce-9445-57398105857e
+uuid: c6bbc689-8f3e-46a5-9892-efa1a4e97300
 langcode: en
 status: true
 dependencies:
@@ -21,7 +21,7 @@ third_party_settings:
           - main
         parent: 'main:'
 name: 'Federal Directory Synonym'
-type: federal_directory_synonym
+type: agency_synonym
 description: ''
 help: ''
 new_revision: true
