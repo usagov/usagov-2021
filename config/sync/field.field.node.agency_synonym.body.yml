@@ -1,0 +1,23 @@
+uuid: a5f311f3-f5c0-4dc2-8e22-40a1cf241db4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.agency_synonym
+  module:
+    - text
+id: node.agency_synonym.body
+field_name: body
+entity_type: node
+bundle: agency_synonym
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+  required_summary: false
+field_type: text_with_summary
