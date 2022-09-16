@@ -208,11 +208,12 @@ hr.bl-divider {
 .usagov-directory-table {
   border-collapse: collapse;
   width: 100%;
+  padding-top: 25px;
 
   div {
     border: solid 1.5px #d3d2d2;
     margin: 0;
-    padding: 2.75rem;
+    padding: 25px 0px 25px 25px;
   }
 
   div:nth-child(odd) {
