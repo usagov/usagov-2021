@@ -10,6 +10,7 @@ dependencies:
     - media.type.video
     - node.type.basic_page
     - node.type.directory_record
+    - node.type.state_directory_record
     - node.type.wizard
     - node.type.wizard_step
     - workflows.workflow.basic_workflow
@@ -50,6 +51,7 @@ permissions:
   - 'create image media'
   - 'create media'
   - 'create remote_video media'
+  - 'create state_directory_record content'
   - 'create url aliases'
   - 'create video media'
   - 'create wizard content'
@@ -62,6 +64,7 @@ permissions:
   - 'delete any image media'
   - 'delete any media'
   - 'delete any remote_video media'
+  - 'delete any state_directory_record content'
   - 'delete any video media'
   - 'delete any wizard content'
   - 'delete any wizard_step content'
@@ -75,10 +78,12 @@ permissions:
   - 'delete own file media'
   - 'delete own image media'
   - 'delete own remote_video media'
+  - 'delete own state_directory_record content'
   - 'delete own video media'
   - 'delete own wizard content'
   - 'delete own wizard_step content'
   - 'delete paragraphs entity embed'
+  - 'delete state_directory_record revisions'
   - 'delete wizard revisions'
   - 'delete wizard_step revisions'
   - 'edit any audio media'
@@ -87,6 +92,7 @@ permissions:
   - 'edit any file media'
   - 'edit any image media'
   - 'edit any remote_video media'
+  - 'edit any state_directory_record content'
   - 'edit any video media'
   - 'edit any wizard content'
   - 'edit any wizard_step content'
@@ -96,6 +102,7 @@ permissions:
   - 'edit own file media'
   - 'edit own image media'
   - 'edit own remote_video media'
+  - 'edit own state_directory_record content'
   - 'edit own video media'
   - 'edit own wizard content'
   - 'edit own wizard_step content'
@@ -104,6 +111,7 @@ permissions:
   - 'revert all revisions'
   - 'revert basic_page revisions'
   - 'revert directory_record revisions'
+  - 'revert state_directory_record revisions'
   - 'revert wizard revisions'
   - 'revert wizard_step revisions'
   - 'translate any entity'
@@ -111,6 +119,7 @@ permissions:
   - 'translate directory_record node'
   - 'translate editable entities'
   - 'translate menu_link_content'
+  - 'translate state_directory_record node'
   - 'update any media'
   - 'update content translations'
   - 'update media'
@@ -131,6 +140,7 @@ permissions:
   - 'view latest version'
   - 'view own unpublished content'
   - 'view own unpublished media'
+  - 'view state_directory_record revisions'
   - 'view the administration theme'
   - 'view unpublished paragraphs'
   - 'view wizard revisions'

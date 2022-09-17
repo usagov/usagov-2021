@@ -868,3 +868,50 @@ div #sm-share a {
 .usa-gov-footer__primary-link--button:not([disabled]):focus {
   outline-offset: -0.25rem;
 }
+
+// error styles for elected officials
+
+.usa-error {
+  color: #d83933;
+  font-weight: 600;
+}
+
+.usa-user-error {
+  border-color: #d83933;
+  border-width: 3px;
+  border-style:  solid;
+}
+
+.usa-main-border-error {
+  border-left: 3px solid #d83933;
+
+  .usa-border-error {
+    border-left: none;
+  }
+}
+
+.usa-border-error {
+  border-left: 3px solid #d83933;
+}
+
+.usa-form-spacing {
+  padding-left: 1rem;
+}
+
+#myform div.margin-x-auto {
+  margin-left: 3rem;
+}
+
+#myform div.maxw-mobile {
+  max-width: 26rem;
+}
+
+/**
+#myform.usa-form .usa-input, #myform .usa-combo-box__input {
+  max-width: 20rem;
+}
+*/
+
+.usa-error--alert {
+  display: none;
+}
