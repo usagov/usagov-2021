@@ -5,9 +5,16 @@
   h1 {
     background: var($le-heading, background-color);
     color: var($le-heading, heading-color);
-    padding: 2rem 3rem 0.5rem 1rem;
+    padding: 15px 45px 8px 35px;
     width: fit-content;
     border-radius: 3px;
+  }
+  .usagov-hero {
+    border-top: none;
+    margin-top: 0px;
+  }
+  .usa-prose > h1 + * {
+    margin-top: 0px;
   }
 }
 
