@@ -7,7 +7,7 @@
     color: var($le-heading, heading-color);
     padding: 15px 45px 8px 35px;
     width: fit-content;
-    border-radius: 3px;
+    // border-radius: 3px;
   }
   .usagov-hero {
     border-top: none;
@@ -24,7 +24,7 @@
 }
 
 .le-image {
-  max-height: 315px;
+  height: 315px;
   max-width: 960px;
 }
 
