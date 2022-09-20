@@ -16,6 +16,10 @@
   .usa-prose > h1 + * {
     margin-top: 0px;
   }
+  .usagov-cards {
+    width: 960px;
+    background: var($light-gray);
+  }
 }
 
 .le-image {

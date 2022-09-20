@@ -81,6 +81,15 @@
     {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
 {% endif %}
 
+{# field_navigation_banner_image #}
+{% if term_name == "Life Events" %}
+  {% if node.field_navigation_banner_image.value %}
+    {# {{ file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri) }} #}
+    <img src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
+  {% endif %}
+{% endif %}
+{# {{ devel_breakpoint() }} #}
+
 
 <article{{ attributes }}>
 
@@ -107,3 +116,4 @@
   </div>
 
 </article>
+
