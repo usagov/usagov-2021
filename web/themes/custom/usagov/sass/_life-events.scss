@@ -5,14 +5,27 @@
   h1 {
     background: var($le-heading, background-color);
     color: var($le-heading, heading-color);
-    padding: 2rem 3rem 0.5rem 1rem;
+    padding: 15px 45px 8px 35px;
     width: fit-content;
-    border-radius: 3px;
+    // border-radius: 3px;
+  }
+  .usagov-hero {
+    border-top: none;
+    margin-top: 0px;
+  }
+  .usa-prose > h1 + * {
+    margin-top: 0px;
+  }
+  .usagov-cards {
+    max-width: 960px;
+    background: var($light-gray);
+    margin-right: 0px;
   }
 }
 
 .le-image {
-  height: 350px;
+  height: 315px;
+  max-width: 960px;
 }
 
 .usa-card--flag {
