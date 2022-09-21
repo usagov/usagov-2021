@@ -59,7 +59,12 @@
   background-size: cover;
 }
 .life-events-landing-page-card-title{
+  display: flex;
+  align-items: center;
   background: var($life-events, background-color);
   color: var($life-events, text-color);
+  height: 3.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
   padding: 1rem;
 }
