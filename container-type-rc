@@ -3,11 +3,11 @@
 # this sequence is used a couple times in our build/deploy scripts
 #
 export CONTAINERTYPE=$1
+shift 1
 if [ -z "$CONTAINERTYPE" ]; then
       echo "First parameter must specify a container type to build (waf,cms,etc)"
       exit 1
 else
-      shift 1
       case $CONTAINERTYPE in
         waf | cms)
           echo "Building $CONTAINERTYPE container"
@@ -24,6 +24,7 @@ fi;
 ### Fix missing vars on provided CONTAINERTAG
 ###
 CONTAINERTAG=$1
+shift 1
 if [ -z "$CONTAINERTAG" ]; then
    GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
    GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
@@ -33,11 +34,10 @@ if [ -z "$CONTAINERTAG" ]; then
    export CONTAINERTAG
 else
   echo "User provided container tag: $CONTAINERTAG"
-  shift 1
 fi
 
 export CONTAINERTAG2=$1
-
+shift 1
 if [ -z "$CONTAINERTAG" ]
 then
   echo "Can't find the container tag or git branch info.  WTH?"
