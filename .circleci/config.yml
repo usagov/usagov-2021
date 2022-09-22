@@ -222,12 +222,17 @@ jobs:
             cat /tmp/results/scan-cms-dependencies.log
             exit 0
       - run:
-          name: Build Container
+          name: Build CMS Container
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
+            $SUDO ./bin/cloudgov/container-build cms << pipeline.number >> latest
       - run:
+          name: Build WAF Container
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            $SUDO ./bin/cloudgov/container-build waf << pipeline.number >> latest      - run:
           name: Scan CMS Container
           command: |
             SCAN_CMS_RESULT=0
@@ -273,11 +278,17 @@ jobs:
             cat /tmp/results/scan-waf-container-cis.log
             exit 0
       - run:
-          name: Push Container to Docker Hub
+          name: Push CMS Container to Docker Hub
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            $SUDO ./bin/cloudgov/container-push << pipeline.number >> latest
+            $SUDO ./bin/cloudgov/container-push cms << pipeline.number >> latest
+      - run:
+          name: Push WAF Container to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            $SUDO ./bin/cloudgov/container-push waf << pipeline.number >> latest
       - install-cloud-foundry
       - save-image-digest
       - store_artifacts:
