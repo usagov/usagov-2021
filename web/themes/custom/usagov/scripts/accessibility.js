@@ -29,14 +29,15 @@ let a11y_content = a11y_translations[ document.documentElement.lang ];
 function myforms(event) {
     // stop form submission
     let elementVal = ["input", "textarea"];
-    let errorText = [];
+    let test = [];
+    totalCount = document.getElementById("testing").childElementCount;
     let errorFound = false;
     for (let n = 0; n < elementVal.length; n++) {
         let elmnts = document.forms["myform"].getElementsByTagName(elementVal[n]);
         for (let k = 0; k < elmnts.length; k++) {
             if (elmnts[k].value == "") {
                 let error = elmnts[k].previousElementSibling.id;
-                errorText.push(error + " missing");
+                test.push(error + " missing");
                 elmnts[k].classList.add("usa-user-error");
                 elmnts[k].previousElementSibling.classList.add("usa-error");
                 let message = a11y_content[error];
@@ -67,14 +68,14 @@ function myforms(event) {
         }     
     }
 
-    if (errorText.length == 4) {
+    if (test.length == 4) {
         document.getElementById("error-border").classList.add("usa-main-border-error") 
         document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px"; 
         document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px"; 
         document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
     }
     else
-    if (errorText.length < 4){
+    if (test.length < 4){
         document.getElementById("error-border").classList.remove("usa-main-border-error");
         document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px"; 
         document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px"; 
@@ -118,11 +119,16 @@ function myforms(event) {
     }
     
     if (errorFound) {
-        document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + errorText.length + " error" + (errorText.length == 1 ? "" : "s");
-        dataLayer.push({'event':'form error','error type':errorText.join(";")});
+        document.getElementById("error-box").focus();
+	    document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + test.length + " errors";
+        dataLayer.push({'event':'myform','error type':test.join(";")});
         return false
     }
+    document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px"; 
+    document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px"; 
+    document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
 };
+
 
 window.addEventListener("load", function() {
     // Customize input validation error messages by
