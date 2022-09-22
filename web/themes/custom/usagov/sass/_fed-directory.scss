@@ -72,15 +72,18 @@ hr.bl-divider {
   border: 0;
   height: 0.25rem;
   width: auto;
+  display: none;
 }
 
 // Search Bar
 .usagov-directory-search-container {
   justify-content: center;
-  display: flex;
+
+  /* display: flex; */
   flex-direction: row;
   gap: 10px;
   align-items: center;
+  display: none;
 
   p {
     font-size: 18px;
@@ -209,7 +212,7 @@ hr.bl-divider {
   div {
     border: solid 1.5px #d3d2d2;
     margin: 0;
-    padding: 2.25rem 2rem;
+    padding: 2.75rem;
   }
 
   div:nth-child(odd) {
