@@ -11,6 +11,7 @@ dependencies:
     - field.field.node.basic_page.field_hide_page_intro
     - field.field.node.basic_page.field_is_navigation_page
     - field.field.node.basic_page.field_language_toggle
+    - field.field.node.basic_page.field_navigation_banner_image
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
     - node.type.basic_page
@@ -54,5 +55,6 @@ hidden:
   field_hide_page_intro: true
   field_is_navigation_page: true
   field_language_toggle: true
+  field_navigation_banner_image: true
   field_page_type: true
   langcode: true
