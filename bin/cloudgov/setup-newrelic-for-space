@@ -17,7 +17,7 @@ fi
 
 
 usage="
-$0: (Re-)deploy egress proxy for an environment
+$0: (Re-)deploy newrelic for an environment
 
 Usage:
    $0 -h
@@ -35,10 +35,8 @@ Requirements:
 - You must be a SpaceDeveloper in the current space and the egress_space.
 
 NOTES:
-- Files <app>.<allow|deny>.acl will be created if they don't exist
 - Any S3 buckets bound to an app will automatically be allowed for that app
 - Your apps will be restarted in a rolling fashion to pick up variable changes
-- Post-restart, just use the http_proxy variable when making egress connections!
 "
 
 if [[ "$1" == "-h" ]]; then
