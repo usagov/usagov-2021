@@ -232,7 +232,8 @@ jobs:
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            $SUDO ./bin/cloudgov/container-build waf << pipeline.number >> latest      - run:
+            $SUDO ./bin/cloudgov/container-build waf << pipeline.number >> latest
+      - run:
           name: Scan CMS Container
           command: |
             SCAN_CMS_RESULT=0
