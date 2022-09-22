@@ -334,6 +334,7 @@ workflows:
                 - stage
                 - prod
                 - scanning
+                - USAGOV-454-atomize-container-build-push
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -344,6 +345,7 @@ workflows:
                 - stage
                 - prod
                 - scanning
+                - USAGOV-454-atomize-container-build-push
 
       - approve-dev-deployment:
           type: approval
