@@ -19,7 +19,7 @@
         </div>
         <p>Todos los elementos del formulario que están marcados con el símbolo (*) son obligatorios.</p>
 
-<div id="error-box" class="usa-alert usa-alert--slim usa-alert--error usa-error--alert">
+<div id="error-box" class="usa-alert usa-alert--slim usa-alert--error usa-error--alert" tabindex="-1">
     <div class="usa-alert__body">
         <h3 class="usa-alert__heading">Your information contains errors</h3>
         <ul id="testing">
@@ -72,7 +72,7 @@
                     <div class="usa-form-spacing">
                     <label id="myState" class="usa-label" for="input-state">*Estado</label>
                     <div class="usa-combo-box">
-                        <select aria-labelledby="myState" class="usa-select" name="input-state" id="input-state" required>
+                        <select aria-labelledby="input-state-label" class="usa-select" name="input-state" id="input-state" required>
                             <option id="AL" value="AL">Alabama</option>
                             <option id="AK" value="AK">Alaska</option>
                             <option id="AZ" value="AZ">Arizona</option>
@@ -126,6 +126,7 @@
                             <option id="WY" value="WY">Wyoming</option>
                         </select>
                     <span id="state" class="errors"></span>
+                    
                     </div>
                     </div>
                     <div class="usa-form-spacing">
