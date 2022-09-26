@@ -1,0 +1,31 @@
+uuid: fcb4b037-6614-417b-8f29-ebaca2ceed6a
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+    - node_menus
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - left-menu-english
+      - left-menu-spanish
+    parent: 'left-menu-english:'
+  node_menus:
+    enabled: 1
+    languages:
+      en:
+        available_menus:
+          - left-menu-english
+        parent: 'left-menu-english:'
+      es:
+        available_menus:
+          - left-menu-spanish
+        parent: 'left-menu-spanish:'
+name: 'Home Page'
+type: home_page
+description: ''
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: false
