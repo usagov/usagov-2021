@@ -1,0 +1,80 @@
+
+
+
+{# Determine Language to decide which menu to display #}
+{% if node.langcode.langcode == "es" %}
+  {% set main_nav_items = simplify_menu('left-menu-spanish') %}
+{% else %}
+  {% set main_nav_items = simplify_menu('left-menu-english') %}
+{% endif %}
+
+
+{# Create an array of the active trail items from each level of the menu (up to the active item) #}
+{% set active_trail = [] %}
+{% set found_active_item = false %}
+{% set submenu = main_nav_items.menu_tree %}
+{% for i in 0..10 if not found_active_item %}
+  {% for menu_item in submenu if menu_item.active_trail %}
+    {% set active_trail = active_trail|merge([menu_item]) %}
+    {% set submenu = menu_item.submenu %}
+    {% if menu_item.active %}
+      {% set found_active_item = true %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+
+
+{# Build the mobile nav #}
+<nav class="navigation__items">
+
+  {% if active_trail is empty %}
+    {# The current page is not in the menu structure. Show All Topics and Services #}
+    <ul>
+      <li class="navigation__item">
+        <a class="active" href="/">{{ node.langcode.langcode == "es" ? "Todos los temas y servicios" : "All topics and services" }}</a>
+        <ul>
+          {% for menu_item in main_nav_items.menu_tree %}
+            <li class="navigation__item">
+              <a href="{{ menu_item.url }}">{{ menu_item.text }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </li>
+    </ul>
+
+  {% else %}
+    
+    <ul class="ancestors">
+    {% for menu_item in active_trail %}
+      {% set class = "" %}
+
+      {# The first item is an umbrella category unless it is the current page #}
+      {% if loop.index == 1 %}
+        {% set class = " umbrella" %}
+      {% endif %}
+
+      {# The current page #}
+      {% if menu_item.active %}
+        {% set class = " active" %}
+      {% endif %}
+
+      {# Show the first item and up to 3 items at the end of the active trail #}
+      {% if loop.index == 1 or loop.index + 3 > active_trail|length %}
+        <li class="navigation__item{{class}}">
+          <a href="{{ menu_item.url }}">{{ menu_item.text }}</a>
+
+          {# Show any children of the active item #}
+          {% if menu_item.active and menu_item.submenu is not empty %}
+            <ul>
+              {% for child in menu_item.submenu %}
+                <li class="navigation__item">
+                  <a href="{{ child.url }}">{{ child.text }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+</nav>

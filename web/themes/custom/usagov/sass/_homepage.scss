@@ -102,3 +102,29 @@
 .icon-taxes {
   background-image: url("../images/topics/ICONS_beta_Taxes.png");
 }
+
+
+// Mobile Nav
+/*
+Temporary styles.
+Just enough style to test that the template is providing the correct structure.
+*/
+nav.navigation__items{
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  $max-indent: 5;
+  @for $i from 1 to $max-indent {
+    .ancestors>.navigation__item:nth-of-type(#{$i}){
+      padding-left: $i * 1rem;
+    }
+  }
+  .umbrella {
+    background-color: cornflowerblue;
+  }
+  .active>a {
+    border-left: 8px solid red;
+  }
+}
