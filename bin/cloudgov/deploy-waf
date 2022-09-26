@@ -21,7 +21,10 @@ CDIGEST=${2:-}
 
 
 # Need to create 'external-domain' service for custom routes: *.usa.gov
-# cf create-service external-domain domain stage-usagov-domain -c '{"domains": "cms-stage.usa.gov,beta-stage.usa.gov"}'
+# cf delete-service dev-usagov-domain
+# cf create-service external-domain domain dev-usagov-domain -c '{"domains": "cms-dev.usa.gov,beta-dev.usa.gov"}'
+# cf create-service external-domain domain-with-cdn stage-usagov-domain -c '{"domains": "cms-stage.usa.gov,beta-stage.usa.gov"}'
+# cf create-service external-domain domain-with-cdn prod-usagov-domain -c '{"domains": "cms.usa.gov,beta.usa.gov"}'
 
 if ! command -v jq >/dev/null; then
   printf "\nMust have JQ installed\n"
