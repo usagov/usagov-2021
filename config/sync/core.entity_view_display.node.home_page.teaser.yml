@@ -1,0 +1,25 @@
+uuid: 2c75037f-10ac-4980-be91-de2e018fd8af
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.home_page.field_hero_description
+    - field.field.node.home_page.field_home_page_banner
+    - node.type.home_page
+  module:
+    - user
+id: node.home_page.teaser
+targetEntityType: node
+bundle: home_page
+mode: teaser
+content:
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_hero_description: true
+  field_home_page_banner: true
+  langcode: true
