@@ -8,7 +8,7 @@
     "build": "gulp build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "gulp watch",
-    "lint": "npx stylelint \"**/*.scss\"",
+    "lint": "npx stylelint \"**/*.scss\"; gulp js-lint",
     "scss": "gulp scss"
   },
   "author": "",

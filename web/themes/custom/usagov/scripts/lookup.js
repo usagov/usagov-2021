@@ -8,7 +8,7 @@ function lookup(address, callback) {
      * Request object for given parameters.
      * @type {gapi.client.HttpRequest}
      */
-    
+
     let count=0;
     var timer = window.setInterval(function(){
         count++;
@@ -24,7 +24,7 @@ function lookup(address, callback) {
             window.clearInterval(timer);
         }
     }, 100);
-    
+
 }
 
 /**
@@ -219,7 +219,7 @@ function renderResults(response, rawResponse) {
                 for (let j = 0; j < socials.length; j++) {
                     // Create appropriate type of link
                     // for each social media account
-                    
+
 
                     // let linkToSocial = document.createElement("a");
                     // let socialURL = ``;
@@ -271,8 +271,7 @@ function renderResults(response, rawResponse) {
                 linkToContact.innerHTML = content["contact-via-email"];
 
                 linkToContact.setAttribute("href", content["path-contact"] + "?email=" + emailLinkified +
-                    "?name=" + response.officials[i].name + "?office=" + response.officials[i].office);
-                // linkToContact.appendChild(primaryEmail);
+                    "?name=" + response.officials[i].name + "?office=" + response.officials[i].office) + "#skip-to-h1";
 
                 bulletList.appendChild(linkToContact);
             }
@@ -315,10 +314,11 @@ function renderResults(response, rawResponse) {
  * Process form data, display the address, and search for elected officials.
  */
 function load() {
-    let inputStreet = window.location.href.split("input-street=")[1].split("&")[0].split("+").join(" ");
-    let inputCity = window.location.href.split("input-city=")[1].split("&")[0].split("+").join(" ");
-    let inputState = window.location.href.split("input-state=")[1].split("&")[0];
-    let inputZip = window.location.href.split("input-zip=")[1].split("&")[0];
+    let hrefWithoutHash = window.location.href.replace(window.location.hash, "");
+    let inputStreet = hrefWithoutHash.split("input-street=")[1].split("&")[0].split("+").join(" ");
+    let inputCity = hrefWithoutHash.split("input-city=")[1].split("&")[0].split("+").join(" ");
+    let inputState = hrefWithoutHash.split("input-state=")[1].split("&")[0];
+    let inputZip = hrefWithoutHash.split("input-zip=")[1].split("&")[0];
 
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
 
@@ -365,7 +365,7 @@ var offlineResponse = {
             party: "General Services Administration",
             address: [{line1: "123 Main Street", city: "Somewhere", state: "DC", zip: "12345"}],
             phones: ["(123) 456-7890"],
-            urls: ["https://usa.gov/elected-officials"],
+            urls: ["https://example.gov/elected-officials"],
             channels: [{type: "LinkedIn", id: "cliu13"}],
             emails: ["charlie.liu@gsa.gov"],
         },
@@ -374,7 +374,7 @@ var offlineResponse = {
             party: "General Services Administration",
             address: [{line1: "123 Main Street", city: "Somewhere", state: "DC", zip: "12345"}],
             phones: ["(123) 456-7890"],
-            urls: ["https://usa.gov/elected-officials"],
+            urls: ["https://example.gov/elected-officials"],
             channels: [{type: "LinkedIn", id: "jacob-cuomo-659937125"}],
             emails: ["jacob.cuomo@gsa.gov"],
         },
