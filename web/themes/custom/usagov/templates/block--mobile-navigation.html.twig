@@ -1,11 +1,29 @@
 
 
 
-{# Determine Language to decide which menu to display #}
+{# Determine Language to decide which menu and translations to use #}
 {% if node.langcode.langcode == "es" %}
   {% set main_nav_items = simplify_menu('left-menu-spanish') %}
+  {% set translations = {
+    'home': 'Página principal',
+    'home_URL': '/es',
+    'close': 'Cerrar',
+    'search': 'Buscar',
+    'search_placeholder': 'Busque en USAGov en Español',
+    'search_affiliate': 'usagov_es_all_gov',
+    'all_topics': 'Todos los temas y servicios'
+  } %}
 {% else %}
   {% set main_nav_items = simplify_menu('left-menu-english') %}
+  {% set translations = {
+    'home': 'Home',
+    'home_URL': '/',
+    'close': 'Close',
+    'search': 'Search',
+    'search_placeholder': 'Search all government',
+    'search_affiliate': 'usagov_all_gov',
+    'all_topics': 'All topics and services'
+  } %}
 {% endif %}
 
 
@@ -23,16 +41,44 @@
   {% endfor %}
 {% endfor %}
 
+{# Build the mobile menu #}
+<nav aria-label="Primary navigation" class="usa-nav usagov-nav">
+  <div class="usa-nav__inner">
+    <div class="usagov-mobile-menu-top">
+      <div class="usagov-mobile-menu-controls">
+        <a href="{{ translations.home_URL }}">
+          <img src="/themes/custom/usagov/assets/img/usa-icons/home.svg" role="img" alt="{{ translations.home }}">{{ translations.home }}
+        </a>
+        <button>
+          <img src="/themes/custom/usagov/assets/img/usa-icons/highlight_off.svg" role="img" alt="{{ translations.close }}">{{ translations.close }}
+        </button>
+      </div>
+      <div class="usa-nav__secondary">
+        <form class="usa-search usa-search--small" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
+            <label id="top-srch" class="usa-sr-only" for="search-field-small">{{ translations.search }}</label>
+            <input id="affiliate" name="affiliate" type="hidden" value="{{ translations.search_affiliate }}">
+            <input id="search-field-small" class="usa-input text usagov-search-autocomplete ui-autocomplete-input" type="search" name="query" placeholder="{{ translations.search_placeholder }}" onfocus="this.placeholder = ''" autocomplete="off" aria-autocomplete="list" aria-haspopup="true">
+            <button class="usa-button" type="submit">
+              <img src="/themes/custom/usagov/images/search--dark.svg" class="usa-search__submit-icon" alt="{{ translations.search }}">
+            </button>
+        </form>
+        <span class="usa-nav__secondary-links">
+          <span id="top-phone" class="usa-nav__secondary-item">
+            <a href="/phone" class="">1-844-USAGOV1</a>
+          </span>
+        </span>
+      </div>
+    </div>
+
 
 {# Build the mobile nav #}
-<nav class="navigation__items">
-
   {% if active_trail is empty %}
+
     {# The current page is not in the menu structure. Show All Topics and Services #}
-    <ul>
-      <li class="navigation__item">
-        <a class="active" href="/">{{ node.langcode.langcode == "es" ? "Todos los temas y servicios" : "All topics and services" }}</a>
-        <ul>
+    <ul class="navigation__items ancestors">
+      <li class="navigation__item active">
+        <a href="/">{{ translations.all_topics }}</a>
+        <ul class="navigation__items children">
           {% for menu_item in main_nav_items.menu_tree %}
             <li class="navigation__item">
               <a href="{{ menu_item.url }}">{{ menu_item.text }}</a>
@@ -44,7 +90,7 @@
 
   {% else %}
     
-    <ul class="ancestors">
+    <ul class="navigation__items ancestors">
     {% for menu_item in active_trail %}
       {% set class = "" %}
 
@@ -65,7 +111,7 @@
 
           {# Show any children of the active item #}
           {% if menu_item.active and menu_item.submenu is not empty %}
-            <ul>
+            <ul class="navigation__items children">
               {% for child in menu_item.submenu %}
                 <li class="navigation__item">
                   <a href="{{ child.url }}">{{ child.text }}</a>
@@ -77,4 +123,7 @@
       {% endif %}
     {% endfor %}
   {% endif %}
+
+
+</div>
 </nav>
