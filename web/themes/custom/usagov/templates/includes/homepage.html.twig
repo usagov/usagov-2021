@@ -1,52 +1,54 @@
 <div class="grid-container homepage-banner">
-<section class="message-box">
-	<h1>{{ node.title.value }}</h1>
-	<p>{{ node.body.value | raw}}</p>
-</section>
+	<section class="message-box">
+		<h1>{{ node.title.value }}</h1>
+		<p>{{ node.body.value | raw}}</p>
+	</section>
 
-	<div class="grid-row">
+	<div class="grid-row banner">
 		<div class="grid-col">
 			<img class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
 
 		</div>
 	</div>
 </div>
-<section class="life-events">
-	<div class="grid-container">
-		{# <div class="grid-row">
-			<section class="how-box">
-				<h2>How do I...</h2>
-				<section class="button-grid">
-					{% for link in node.field_homepage_top_links %}
-						<a class="how-button" href={{link.uri}}>
-							{{link.title}}
-						</a>
-					{% endfor %}
-				</section>
-			</div> #}
-		</div>
+	{# <section > #}
+<div class="grid-container  life-events">
 
-	</section>
+	<div class="grid-row"> <section class="how-box">
+		<h2>How do I...</h2>
+		<section class="button-grid">
+			{% for link in node.field_homepage_top_links %}
+				<a class="how-button" href={{link.uri}}>
+					{{link.title}}
+				</a>
+			{% endfor %}
+		</section>
+	</div>
+</div>
+
+{# </section> #}
+{# </div> #}
+
 
 
 	{# <section class="homepage-banner">
-		<img class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
+				<img class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
 
 
-		<section class="message-box">
-			<h1>{{ node.title.value }}</h1>
-			<p>{{ node.body.value | raw}}</p>
-		</section>
-	</section>
-	<section class="life-events">
-
-		<section class="how-box">
-			<h2>How do I...</h2>
-			<section class="button-grid">
-				{% for link in node.field_homepage_top_links %}
-					<a class="how-button" href={{link.uri}}>
-						{{link.title}}
-					</a>
-				{% endfor %}
+				<section class="message-box">
+					<h1>{{ node.title.value }}</h1>
+					<p>{{ node.body.value | raw}}</p>
+				</section>
 			</section>
-		</section> #}
+			<section class="life-events">
+
+				<section class="how-box">
+					<h2>How do I...</h2>
+					<section class="button-grid">
+						{% for link in node.field_homepage_top_links %}
+							<a class="how-button" href={{link.uri}}>
+								{{link.title}}
+							</a>
+						{% endfor %}
+					</section>
+				</section> #}
