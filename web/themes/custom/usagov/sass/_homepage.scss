@@ -129,14 +129,6 @@
 
 }
 
-// .homepage-hero {
-//   border-top: none;
-//   height: auto;
-//   max-width: 100%;
-//   margin: 0 auto;
-//   position: relative;
-// }
-
 .message-box h1 {
   margin: 0px;
   padding: 0px;
@@ -144,10 +136,6 @@
   font-weight: bold;
   font-size: 35.2px;
 }
-
-// .homepage-main {
-//   padding-top: 0px;
-// }
 
 .message-box p {
   margin: 0px;
@@ -167,20 +155,8 @@
   position: relative;
 }
 
-.life-events {
-  padding: 0px;
-  display: flex;
-  justify-content: center;
-  position: relative;
-
-  //   background-color: var($homepage, background-color);
-  //   margin: 0px;
-  //   padding: 0px;
-  //   height: 386px;
-}
-
 .how-box {
-  background-color: pink;
+  background-color: white;
   border-radius: 3px;
   max-width: 960px;
 
@@ -209,7 +185,6 @@
 }
 
 .how-button {
-
   height: 60px;
   padding: 0px;
   padding-left: 12px;
@@ -228,28 +203,16 @@
 // mobile
 @media (max-width: 480px) {
   .message-box {
-    //REMEMBER TO DELETE THIS
-    background-color: greenyellow;
     right: 25px;
     left: 25px;
     padding-right: 28px;
   }
 }
 
-// //tablet
-// @media (min-width: 481px) {
-//   .message-box {
-//     background-color: rgb(223, 43, 154);
-//     right: 25px;
-//     padding-right: 28px;
-//   }
-// }
 
 //desktop
 @media (min-width: 1024px) {
   .message-box {
-    //REMEMBER TO DELETE THIS
-    background-color: rgb(47, 64, 255);
     left: 50%;
   }
 }
