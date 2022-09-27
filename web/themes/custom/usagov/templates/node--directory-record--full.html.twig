@@ -17,14 +17,14 @@
 
   {% if content.field_phone_number|render %}
   <div>
-    <h3 class="usa-prose">Phone Number</h3>
+    <h3 class="usa-prose">Phone number</h3>
     <p>{{content.field_phone_number}}</p>
   </div>
   {% endif %}
 
   {% if content.field_toll_free_number|render %}
   <div>
-    <h3 class="usa-prose">Toll-Free Number</h3>
+    <h3 class="usa-prose">Toll-free number</h3>
     <p>{{content.field_toll_free_number}}</p>
   </div>
   {% endif %}
@@ -45,7 +45,7 @@
 
   {% if content.field_offices_near_you|render %}
   <div>
-    <h3 class="usa-prose">Find an Office Near You</h3>
+    <h3 class="usa-prose">Find an office near you</h3>
     {{content.field_offices_near_you}}
   </div>
   {% endif %}
@@ -53,7 +53,7 @@
   {% if content.group_main_address %}
   {% set address = content.group_main_address %}
   <div>
-    <h3 class="usa-prose">Main Address</h3>
+    <h3 class="usa-prose">Main address</h3>
     {{ address.field_street_1 }}
     {% if address.field_street_2|render %}
     <br>{{ address.field_street_2 }}

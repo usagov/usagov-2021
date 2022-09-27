@@ -72,15 +72,16 @@ hr.bl-divider {
   border: 0;
   height: 0.25rem;
   width: auto;
+  display: none;
 }
 
 // Search Bar
 .usagov-directory-search-container {
   justify-content: center;
-  display: flex;
   flex-direction: row;
   gap: 10px;
   align-items: center;
+  display: none;
 
   p {
     font-size: 18px;
