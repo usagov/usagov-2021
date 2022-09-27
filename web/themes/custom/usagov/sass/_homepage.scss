@@ -104,7 +104,7 @@
 }
 
 .life-events {
-  background-color: #112f4e;
+  background-color: var($homepage, background-color);
   margin: 0px;
   padding: 0px;
   height: 386px;
@@ -122,23 +122,23 @@
 
 .homepage-hero {
   border-top: none;
-  height: 386px;
-  max-width: 1024px;
+  height: auto;
+  max-width: 100%;
   margin: 0 auto;
   position: relative;
 }
 
 .message-box {
-  background-color: #112f4e;
+  background-color: var($homepage, background-color);
   box-shadow: 0px 6px 6px rgba(17, 47, 78, 0.4);
 
   position: absolute;
   max-width: 440px;
   top: 35px;
-  left: 50%;
+  // left: 50%;
   right: 80px;
 
-  color: #ffffff;
+  color: var($homepage, white);
   padding-left: 25px;
   padding-right: 40px;
   padding-top: 20px;
@@ -164,53 +164,81 @@
 }
 
 .message-box p a {
-  color: #00bde3;
+  color: var($homepage, link-color);
+  text-decoration: underline;
 }
 
-.how-box {
-  background-color: #ffffff;
-  border-radius: 3px;
+// .how-box {
+//   background-color: #ffffff;
+//   border-radius: 3px;
 
-  height: 146px;
-  max-width: 960px;
+//   height: 146px;
+//   max-width: 960px;
 
-  position: relative;
-  top: -86px;
+//   position: relative;
+//   top: -86px;
 
-  margin-right: auto;
-  margin-left: auto;
-  padding: 0px;
-  padding-top: 13px;
-  padding-left: 25px;
-  padding-right: 25px;
-  padding-bottom: 20px;
+//   margin-right: auto;
+//   margin-left: auto;
+//   padding: 0px;
+//   padding-top: 13px;
+//   padding-left: 25px;
+//   padding-right: 25px;
+//   padding-bottom: 20px;
+// }
+
+// .how-box h2 {
+//   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+//     sans-serif;
+//   color: var($homepage, font-color);
+
+//   margin: 0px;
+//   padding-bottom: 20px;
+// }
+
+// .button-grid {
+//   display: flex;
+// }
+
+// .how-box a {
+//   width: 200px;
+//   height: 60px;
+//   margin: auto;
+//   margin-left: 0;
+//   padding: 0px;
+//   padding-left: 12px;
+//   border: none;
+//   border-left: 3px solid var($homepage, border-color);
+//   text-align: left;
+//   font-size: 17.6px;
+//   text-decoration: none;
+//   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+//   color: var($homepage, font-color);
+// }
+
+//mobile
+@media (max-width: 480px) {
+  .message-box {
+    background-color: greenyellow;
+    right: 25px;
+    left: 25px;
+    padding-right: 28px;
+  }
 }
 
-.how-box h2 {
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
-  color: #1b1b1b;
-
-  margin: 0px;
-  padding-bottom: 20px;
+//tablet
+@media (min-width: 481px) {
+  .message-box {
+    background-color: rgb(223, 43, 154);
+    right: 25px;
+    padding-right: 28px;
+  }
 }
 
-.button-grid {
-  display: flex;
-}
-
-.how-box a {
-  width: 200px;
-  height: 60px;
-  margin: auto;
-  padding: 0px;
-  padding-left: 12px;
-  border: none;
-  border-left: 3px solid #00bde3;
-  text-align: left;
-  font-size: 17.6px;
-  text-decoration: none;
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
-  color: #1b1b1b;
+//desktop
+@media (min-width: 1024px) {
+  .message-box {
+      background-color: rgb(47, 64, 255);
+      left: 50%;
+    }
 }
