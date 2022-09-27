@@ -172,7 +172,7 @@
   display: flex;
   justify-content: center;
   position: relative;
-  max-width: 960px;
+
   //   background-color: var($homepage, background-color);
   //   margin: 0px;
   //   padding: 0px;
@@ -182,50 +182,48 @@
 .how-box {
   background-color: pink;
   border-radius: 3px;
+  max-width: 960px;
 
-  // height: 146px;
-  // max-width: 960px;
+  height: 146px;
+  max-width: 960px;
 
   position: relative;
   top: -86px;
 
-  // margin-right: auto;
-  // margin-left: auto;
-  // padding: 0px;
-  // padding-top: 13px;
-  // padding-left: 25px;
-  // padding-right: 25px;
-  // padding-bottom: 20px;
+  margin-right: auto;
+  margin-left: auto;
+  padding: 0px;
+  padding-top: 13px;
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-bottom: 20px;
 }
 
-// .how-box h2 {
-//   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-//     sans-serif;
-//   color: var($homepage, font-color);
+.how-box h2 {
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
+  color: var($homepage, font-color);
 
-//   margin: 0px;
-//   padding-bottom: 20px;
-// }
+  margin: 0px;
+  padding-bottom: 20px;
+}
 
-// .button-grid {
-//   display: flex;
-// }
+.how-button {
 
-// .how-box a {
-//   width: 200px;
-//   height: 60px;
-//   margin: auto;
-//   margin-left: 0;
-//   padding: 0px;
-//   padding-left: 12px;
-//   border: none;
-//   border-left: 3px solid var($homepage, border-color);
-//   text-align: left;
-//   font-size: 17.6px;
-//   text-decoration: none;
-//   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-//   color: var($homepage, font-color);
-// }
+  height: 60px;
+  padding: 0px;
+  padding-left: 12px;
+  border: none;
+  border-left: 3px solid var($homepage, border-color);
+  text-align: left;
+}
+
+.how-box a {
+  font-size: 17.6px;
+  text-decoration: none;
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  color: var($homepage, font-color);
+}
 
 // mobile
 @media (max-width: 480px) {
