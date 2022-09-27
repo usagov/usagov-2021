@@ -103,18 +103,15 @@
   background-image: url("../images/topics/ICONS_beta_Taxes.png");
 }
 
-
-
 .homepage-banner {
   padding: 0px;
   display: flex;
   justify-content: center;
   position: relative;
-  max-width:1024px;
-
+  max-width: 1024px;
 }
 
-.message-box{
+.message-box {
   position: absolute;
   top: 35px;
   right: 80px;
@@ -140,7 +137,6 @@
 //   position: relative;
 // }
 
-
 .message-box h1 {
   margin: 0px;
   padding: 0px;
@@ -148,13 +144,6 @@
   font-weight: bold;
   font-size: 35.2px;
 }
-
-// .life-events {
-//   background-color: var($homepage, background-color);
-//   margin: 0px;
-//   padding: 0px;
-//   height: 386px;
-// }
 
 // .homepage-main {
 //   padding-top: 0px;
@@ -164,7 +153,6 @@
   margin: 0px;
   padding: 0px;
   padding-top: 20px;
-
   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
     sans-serif;
   font-size: 20px;
@@ -175,24 +163,40 @@
   text-decoration: underline;
 }
 
-// .how-box {
-//   background-color: pink;
-//   border-radius: 3px;
+.banner {
+  position: relative;
+}
 
-//   height: 146px;
-//   max-width: 960px;
+.life-events {
+  padding: 0px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  max-width: 960px;
+  //   background-color: var($homepage, background-color);
+  //   margin: 0px;
+  //   padding: 0px;
+  //   height: 386px;
+}
 
-//   position: relative;
-//   top: -86px;
+.how-box {
+  background-color: pink;
+  border-radius: 3px;
 
-//   margin-right: auto;
-//   margin-left: auto;
-//   padding: 0px;
-//   padding-top: 13px;
-//   padding-left: 25px;
-//   padding-right: 25px;
-//   padding-bottom: 20px;
-// }
+  // height: 146px;
+  // max-width: 960px;
+
+  position: relative;
+  top: -86px;
+
+  // margin-right: auto;
+  // margin-left: auto;
+  // padding: 0px;
+  // padding-top: 13px;
+  // padding-left: 25px;
+  // padding-right: 25px;
+  // padding-bottom: 20px;
+}
 
 // .how-box h2 {
 //   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
@@ -247,7 +251,7 @@
 @media (min-width: 1024px) {
   .message-box {
     //REMEMBER TO DELETE THIS
-      background-color: rgb(47, 64, 255);
-      left: 50%;
-    }
+    background-color: rgb(47, 64, 255);
+    left: 50%;
+  }
 }
