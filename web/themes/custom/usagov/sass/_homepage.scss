@@ -103,47 +103,43 @@
   background-image: url("../images/topics/ICONS_beta_Taxes.png");
 }
 
-.life-events {
-  background-color: var($homepage, background-color);
-  margin: 0px;
-  padding: 0px;
-  height: 386px;
-}
 
-.homepage-main {
-  padding-top: 0px;
-}
 
 .homepage-banner {
+  padding: 0px;
   display: flex;
   justify-content: center;
   position: relative;
+  max-width:1024px;
+
 }
 
-.homepage-hero {
-  border-top: none;
-  height: auto;
-  max-width: 100%;
-  margin: 0 auto;
-  position: relative;
-}
+.message-box{
+  position: absolute;
+  top: 35px;
+  right: 80px;
+  max-width: 400px;
+  z-index: 100;
 
-.message-box {
   background-color: var($homepage, background-color);
   box-shadow: 0px 6px 6px rgba(17, 47, 78, 0.4);
-
-  position: absolute;
-  max-width: 440px;
-  top: 35px;
-  // left: 50%;
-  right: 80px;
-
   color: var($homepage, white);
+
   padding-left: 25px;
   padding-right: 40px;
   padding-top: 20px;
   padding-bottom: 25px;
+
 }
+
+// .homepage-hero {
+//   border-top: none;
+//   height: auto;
+//   max-width: 100%;
+//   margin: 0 auto;
+//   position: relative;
+// }
+
 
 .message-box h1 {
   margin: 0px;
@@ -152,6 +148,17 @@
   font-weight: bold;
   font-size: 35.2px;
 }
+
+// .life-events {
+//   background-color: var($homepage, background-color);
+//   margin: 0px;
+//   padding: 0px;
+//   height: 386px;
+// }
+
+// .homepage-main {
+//   padding-top: 0px;
+// }
 
 .message-box p {
   margin: 0px;
@@ -169,7 +176,7 @@
 }
 
 // .how-box {
-//   background-color: #ffffff;
+//   background-color: pink;
 //   border-radius: 3px;
 
 //   height: 146px;
@@ -216,9 +223,10 @@
 //   color: var($homepage, font-color);
 // }
 
-//mobile
+// mobile
 @media (max-width: 480px) {
   .message-box {
+    //REMEMBER TO DELETE THIS
     background-color: greenyellow;
     right: 25px;
     left: 25px;
@@ -226,18 +234,19 @@
   }
 }
 
-//tablet
-@media (min-width: 481px) {
-  .message-box {
-    background-color: rgb(223, 43, 154);
-    right: 25px;
-    padding-right: 28px;
-  }
-}
+// //tablet
+// @media (min-width: 481px) {
+//   .message-box {
+//     background-color: rgb(223, 43, 154);
+//     right: 25px;
+//     padding-right: 28px;
+//   }
+// }
 
 //desktop
 @media (min-width: 1024px) {
   .message-box {
+    //REMEMBER TO DELETE THIS
       background-color: rgb(47, 64, 255);
       left: 50%;
     }
