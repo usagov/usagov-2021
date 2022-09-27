@@ -18,6 +18,12 @@ $orange: #f79240;
 $black: #000;
 
 // Component Variables
+$mobile-nav: (
+  red: $red,
+  white: $white,
+  blue: $text-blue,
+  light-gray: $light-gray,
+);
 $hero: (
   border-color: $red,
   background-color: $deep-blue,
