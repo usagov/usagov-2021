@@ -1,23 +1,56 @@
-{# {{ devel_breakpoint() }} #}
-{% if node.field_navigation_banner_image.value %}
-  <section class="usa-hero usagov-hero homepage-hero" aria-label="Introduction" style="background-image: url({{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}})">
+<section class="one">
+<section class="usa-hero usagov-hero homepage-hero" aria-label="Introduction" style="background-image: url({{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}})">
 
-    <section class="message-box">
-      <h1 class="usa-prose">{{ node.title.value }}</h1>
-      <p class="usa-prose">{{ node.body.value | raw}}</p>
-      </section>
+		<section class="message-box">
+			<h1 class="usa-prose">Welcome to USAGov</h1>
+			<p class="usa-prose">We are here to help you navigate your Federal Government. Check out our
+				<a>Top Pages section</a>
+				below to see what others are looking for, or jump to
+				<a>All Topics and Services</a>.</p>
+		</section>
+	</section>
+</section>
+<section class="two">
+	<section class="how-box">
+		<h2 class="usa-prose">How do I...</h2>
+		<section class="button-grid">
+			<button type=" button" class=" how-button">
+				Prepare for hurricane season
+			</button>
+			<button type="button" class="how-button">
+				Check the status of my tax refund</button>
+			<button type="button" class="how-button">
+				Reach out to a Federal Agency
+			</button>
+			<button type="button" class="how-button">
+				Get government benefits and financial
+			</button>
+		</section>
+	</section>
+
+	{# {{ devel_breakpoint() }}
+	{% if node.field_navigation_banner_image.value %}
+		<section class="usa-hero usagov-hero homepage-hero" aria-label="Introduction" style="background-image: url({{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}})">
+
+			<section class="message-box">
+				<h1 class="usa-prose">{{ node.title.value }}</h1>
+				<p class="usa-prose">{{ node.body.value | raw}}</p>
+			</section>
 
 
+		</section>
+		<section class="how-box">
+			<h2 class="usa-prose">How do I...</h2>
+			<button type="button" class="how-button">
+				Prepare for hurricane season
+			</button>
+			<button type="button" class="how-button">
+				Check the status of my tax refund</button>
+			<button type="button" class="how-button">
+				Reach out to a Federal Agency
+			</button>
+			<button type="button" class="how-button">
+				Get government benefits and financial assistance</button>
 
-  </section>
-      <section class="how-box">
-      <h2 class="usa-prose">How do I...</h2>
-      <button type="button" class="how-button"> Prepare for hurricane season </button>
-      <button type="button" class="how-button"> Check the status of my tax refund</button>
-      <button type="button" class="how-button"> Reach out to a Federal Agency </button>
-      <button type="button" class="how-button"> Get government benefits and financial assistance</button>
-
-    </section>
-{% endif %}
-
-
+		</section>
+	{% endif %} #}

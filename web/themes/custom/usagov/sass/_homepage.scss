@@ -103,58 +103,82 @@
   background-image: url("../images/topics/ICONS_beta_Taxes.png");
 }
 
+.one {
+  background-color: #ffffff;
+  margin: 0px;
+  padding: 0px;
+  height: 386px;
+}
+
+.two {
+  background-color: #112f4e;
+  margin: 0px;
+  padding: 0px;
+  height: 386px;
+}
+p {
+  margin: 0px;
+  padding: 0px;
+}
 .homepage-hero {
-  position:relative;
+  position: relative;
   margin-left: auto;
   margin-right: auto;
   border-top: none;
   height: 386px;
-  width: 1024px;
+  max-width: 1024px;
+}
+
+.life-events {
+  background-color: #112f4e;
+  position: relative;
+  top: -386px;
 }
 
 .message-box {
-  background-color: #112f4e ;
-  color: #FFFFFF;
-  width: 430px;
-  box-shadow: 0px 6px 6px rgba(17, 47, 78, .4);
+  background-color: #112f4e;
+  box-shadow: 0px 6px 6px rgba(17, 47, 78, 0.4);
 
-  position:absolute;
+  position: absolute;
   top: 35px;
   left: 50%;
+  right: 80px;
 
-
-  margin: 0px;
-  padding-right: 40px;
+  color: #ffffff;
   padding-left: 25px;
+  padding-right: 40px;
+  padding-top: 20px;
 }
+
 .message-box h1 {
-  font-family: Merriweather Web,Georgia,Cambria,Times New Roman,Times,serif;
+  margin: 0px;
+  padding: 0px;
+  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
   font-weight: bold;
   font-size: 35.2px;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  margin: 0px;
 }
+
 .message-box p {
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-  sans-serif;
-  font-size: 20px;
-  padding-bottom: 25px;
   margin: 0px;
+  padding: 0px;
+  padding-top: 20px;
+  padding-bottom: 25px;
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
+  font-size: 20px;
 }
 
 .message-box p a {
-  color: #00BDE3;
+  color: #00bde3;
 }
 
-
 .how-box {
-  background-color: #FFFFFF ;
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-  color: #1b1b1b;
+  background-color: #ffffff;
+  /* font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif; */
+  /* color: #1b1b1b; */
   border-radius: 3px;
 
-  height: 146px;
+  /* height: 146px; */
   width: 960px;
 
   position: relative;
@@ -163,24 +187,111 @@
   margin-right: auto;
   margin-left: auto;
   padding: 0px;
+  padding-top: 13px;
   padding-left: 25px;
+  padding-right: 25px;
+  padding-bottom: 20px;
 }
 
 .how-box h2 {
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,sans-serif;
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
   color: #1b1b1b;
 
   margin: 0px;
-  padding-top: 13px;
   padding-bottom: 20px;
-  }
+}
+
+.button-grid {
+  display: flex;
+}
 
 .how-box button {
   width: 200px;
   height: 60px;
+  margin: auto;
   padding: 0px;
-  margin: 0px;
   padding-left: 12px;
-  border-left: 3px solid #00BDE3;
+  border: none;
+  border-left: 3px solid #00bde3;
 }
 
+// .homepage-hero {
+//   position: relative;
+//   margin-left: auto;
+//   margin-right: auto;
+//   border-top: none;
+//   height: 386px;
+//   width: 1024px;
+// }
+
+// .message-box {
+//   background-color: #112f4e;
+//   color: #ffffff;
+//   width: 430px;
+//   box-shadow: 0px 6px 6px rgba(17, 47, 78, 0.4);
+
+//   position: absolute;
+//   top: 35px;
+//   left: 50%;
+
+//   margin: 0px;
+//   padding-right: 40px;
+//   padding-left: 25px;
+// }
+// .message-box h1 {
+//   font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+//   font-weight: bold;
+//   font-size: 35.2px;
+//   padding-top: 20px;
+//   padding-bottom: 20px;
+//   margin: 0px;
+// }
+// .message-box p {
+//   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+//     sans-serif;
+//   font-size: 20px;
+//   padding-bottom: 25px;
+//   margin: 0px;
+// }
+
+// .message-box p a {
+//   color: #00bde3;
+// }
+
+// .how-box {
+//   background-color: #ffffff;
+//   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+//     sans-serif;
+//   color: #1b1b1b;
+//   border-radius: 3px;
+
+//   height: 146px;
+//   width: 960px;
+
+//   position: relative;
+//   top: -86px;
+
+//   margin-right: auto;
+//   margin-left: auto;
+//   padding: 0px;
+//   padding-left: 25px;
+// }
+
+// .how-box h2 {
+//   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+//     sans-serif;
+//   color: #1b1b1b;
+
+//   margin: 0px;
+//   padding-top: 13px;
+//   padding-bottom: 20px;
+// }
+
+// .how-box button {
+//   width: 200px;
+//   height: 60px;
+//   padding: 0px;
+//   margin: 0px;
+//   padding-left: 12px;
+//   border-left: 3px solid #00bde3;
+// }
