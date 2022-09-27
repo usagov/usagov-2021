@@ -85,24 +85,24 @@
 		{{ page.header }}
 
 		{#<nav class="usa-nav" role="navigation">
-		            {% if header_extended %}
-		            <div class="usa-nav__inner">
-		                {% endif %}
-		                <button class="usa-nav__close">
-		                    <img src="{{ uswds_images }}close.svg" alt="close" />
-		                </button>
-		                {% if page.mobile_menu %}
-		                <div class="usa-nav-mobile">
-		                    {{ page.mobile_menu }}
-		                </div>
-		                {% endif %} {% if page.mobile_menu %}
-		                <div class="usa-nav-desktop">
-		                    {% endif %} {% if page.primary_menu %} {{ page.primary_menu }} {% endif %} {% if page.secondary_menu %} {{ page.secondary_menu }} {% endif %} {% if page.mobile_menu %}
-		                </div>
-		                {% endif %} {% if header_extended %}
-		            </div>
-		            {% endif %}
-		        </nav>#}
+				            {% if header_extended %}
+				            <div class="usa-nav__inner">
+				                {% endif %}
+				                <button class="usa-nav__close">
+				                    <img src="{{ uswds_images }}close.svg" alt="close" />
+				                </button>
+				                {% if page.mobile_menu %}
+				                <div class="usa-nav-mobile">
+				                    {{ page.mobile_menu }}
+				                </div>
+				                {% endif %} {% if page.mobile_menu %}
+				                <div class="usa-nav-desktop">
+				                    {% endif %} {% if page.primary_menu %} {{ page.primary_menu }} {% endif %} {% if page.secondary_menu %} {{ page.secondary_menu }} {% endif %} {% if page.mobile_menu %}
+				                </div>
+				                {% endif %} {% if header_extended %}
+				            </div>
+				            {% endif %}
+				        </nav>#}
 
 		{% if header_basic %}
 		</div>
@@ -117,8 +117,10 @@
 	</section>
 {% endif %}
 
-<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
-	{% if term_name != "Home Page" %}
+
+{% if term_name != "Home Page" %}
+	<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+
 		<a id="main-content" tabindex="-1"></a>
 		{# link is in html.html.twig #}
 
@@ -169,16 +171,22 @@
 		<a id="back-to-top" href="#main-content">
 			{{ lang == 'en' ? 'Top' : 'Subir' }}
 		</a>
-	{% else %}
+	</main>
+
+{% else %}
+	<main class="main-content usa-layout-docs {{ main_classes }} homepage-main" role="main" id="main-content" data-pagetype="{{term_name}}">
+
 		{% include directory ~ '/templates/includes/homepage.html.twig' %}
-	{% endif %}
-</main>
+	</main>
+
+{% endif %}
+
 
 <footer
 	class="{{ footer_classes }}" role="contentinfo">
 	{#<div class="grid-container usa-footer__return-to-top">
-	        <a href="#">{{ 'Return to top'|t }}</a>
-	    </div>#}
+		        <a href="#">{{ 'Return to top'|t }}</a>
+		    </div>#}
 
 	{% if display_footer_primary %}
 		<div class="usa-footer__primary-section">
