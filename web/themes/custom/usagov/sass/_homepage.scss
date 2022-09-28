@@ -103,30 +103,25 @@
   background-image: url("../images/topics/ICONS_beta_Taxes.png");
 }
 
-.homepage-banner {
-  padding: 0px;
-  display: flex;
-  justify-content: center;
+.banner-msg-container {
   position: relative;
-  max-width: 1024px;
 }
 
 .message-box {
-  position: absolute;
-  top: 35px;
-  right: 80px;
-  max-width: 400px;
-  z-index: 100;
-
+  margin-top: 35px;
+  margin-bottom: 40px;
   background-color: var($homepage, background-color);
-  box-shadow: 0px 6px 6px rgba(17, 47, 78, 0.4);
+  box-shadow: 0px 6px 6px var($homepage, blue-shadow);
   color: var($homepage, white);
-
   padding-left: 25px;
   padding-right: 40px;
   padding-top: 20px;
   padding-bottom: 25px;
 
+}
+
+.message-box p {
+  margin-bottom: 0px;
 }
 
 .message-box h1 {
@@ -141,8 +136,7 @@
   margin: 0px;
   padding: 0px;
   padding-top: 20px;
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
   font-size: 20px;
 }
 
@@ -151,20 +145,16 @@
   text-decoration: underline;
 }
 
-.banner {
-  position: relative;
+.how-do-i-container {
+  background-color: var($homepage, background-color);
+  padding-bottom: 20px;
 }
 
-.how-box {
+.how-do-i-box {
+  padding-top: 13px;
   background-color: white;
   border-radius: 3px;
   max-width: 960px;
-
-  height: 146px;
-  max-width: 960px;
-
-  position: relative;
-  top: -86px;
 
   margin-right: auto;
   margin-left: auto;
@@ -175,7 +165,7 @@
   padding-bottom: 20px;
 }
 
-.how-box h2 {
+.how-do-i-box h2 {
   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
     sans-serif;
   color: var($homepage, font-color);
@@ -193,7 +183,7 @@
   text-align: left;
 }
 
-.how-box a {
+.how-button a {
   font-size: 17.6px;
   text-decoration: none;
   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
@@ -202,17 +192,11 @@
 
 // mobile
 @media (max-width: 480px) {
-  .message-box {
-    right: 25px;
-    left: 25px;
-    padding-right: 28px;
+  .how-button {
+    margin-bottom: 15px;
   }
-}
 
-
-//desktop
-@media (min-width: 1024px) {
   .message-box {
-    left: 50%;
+    margin-bottom: 35px;
   }
 }
