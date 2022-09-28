@@ -120,6 +120,13 @@
   margin-right: 0rem;
 }
 
+h2 {
+  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+  text-align: left;
+  font-weight: bold;
+  margin: 0px;
+}
+
 /* Banner
 */
 .banner-container {
@@ -208,7 +215,6 @@
   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
     sans-serif;
   color: var($homepage, font-color);
-  margin: 0px;
   padding-bottom: 20px;
 }
 
@@ -247,13 +253,10 @@
   margin-top: 50px;
 }
 
-.life-events-box h2 {
-  margin: 0px;
-  padding: 0px;
-  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
-  font-weight: bold;
+.life-events-header h2 {
   font-size: 35.2px;
 }
+
 
 .life-events-box p {
   margin-top: 13px;
@@ -262,9 +265,10 @@
   padding-bottom: 0px;
 }
 
-.jump  {
+.jump {
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
 
 .jump a {
@@ -279,21 +283,25 @@
   height: 500px;
 }
 
-.topics-box {
+.topics-header-background {
   margin: 0px;
-  padding: 0px;
-  max-width: 960px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 50px;
+  background-color: white;
+  width: 100%;
+  height: fit-content;
+  padding-top: 40px;
+  border-bottom: 10px solid var($homepage, red);
 }
 
-.topics-box h2 {
-  margin: 0px;
-  padding: 0px;
-  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
-  font-weight: bold;
-  font-size: 35.2px;
+.topics-header h2 {
+  font-size: 48.8px;
+  color: var($homepage, red);
+}
+
+.topics-box {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  // margin-top: 50px;
 }
 
 /* Mobile
