@@ -238,9 +238,6 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-header--extended [hreflang|="en"] {
   border-radius: 5px;
   border: none;
-  @media (max-width: 64em) {
-    padding-right: 1.3rem;
-  }
 }
 
 /** Language buttons **/
