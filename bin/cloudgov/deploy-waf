@@ -13,10 +13,18 @@ fi
 
 DOCKERUSER=${DOCKERUSER:-dnark}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
-CONTAINERTAG=${1:-latest}
+CTAG=${1:-latest}
+CDIGEST=${2:-}
+
+# The Image digest for this tag should be looked up from cloud.gov storage
+# Any tag with a stored Image digest should be referenced by hash instead of tag
+
 
 # Need to create 'external-domain' service for custom routes: *.usa.gov
-# cf create-service external-domain domain stage-usagov-domain -c '{"domains": "cms-stage.usa.gov,beta-stage.usa.gov"}'
+# cf delete-service dev-usagov-domain
+# cf create-service external-domain domain dev-usagov-domain -c '{"domains": "cms-dev.usa.gov,beta-dev.usa.gov"}'
+# cf create-service external-domain domain-with-cdn stage-usagov-domain -c '{"domains": "cms-stage.usa.gov,beta-stage.usa.gov"}'
+# cf create-service external-domain domain-with-cdn prod-usagov-domain -c '{"domains": "cms.usa.gov,beta.usa.gov"}'
 
 if ! command -v jq >/dev/null; then
   printf "\nMust have JQ installed\n"
@@ -58,7 +66,19 @@ printf "\tAPPS_DOMAIN: $ROUTE_DOMAIN\n"
 cf set-env waf http_proxy  ""
 cf set-env waf https_proxy ""
 
-cf push "${ROUTE_SERVICE_APP_NAME}" --no-start --var app-name="${ROUTE_SERVICE_APP_NAME}"
+# launch the app
+if [ -z "$CDIGEST" ]; then
+  echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}"
+  cf push "${ROUTE_SERVICE_APP_NAME}" --no-start \
+    --var app-name="${ROUTE_SERVICE_APP_NAME}" \
+    --docker-image ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}
+else
+  echo "Deploying ${DOCKERUSER}/${DOCKERREPO} waf-${CTAG} via digest ${CDIGEST}"
+  cf push "${ROUTE_SERVICE_APP_NAME}" --no-start \
+    --var app-name="${ROUTE_SERVICE_APP_NAME}" \
+    --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+fi
+
 cf set-env "${ROUTE_SERVICE_APP_NAME}" ALLOWED_IPS "$(printf "%s" "${NGINX_ALLOW_STATEMENTS:-}")"
 cf start "${ROUTE_SERVICE_APP_NAME}"
 
