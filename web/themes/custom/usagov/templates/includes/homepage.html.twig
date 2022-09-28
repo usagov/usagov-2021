@@ -8,56 +8,62 @@
 		class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
 		{# </div> #}
 
-		<section class="grid-container messages-container">
+		<div class="grid-container messages-container">
+			<div class="grid-row">
+				<div class="grid-col-10 grid-offset-1 desktop:grid-col-5 desktop:grid-offset-6">
 
-			<div class="message-div grid-col-10 grid-offset-1 desktop:grid-col-5 desktop:grid-offset-6">
-
-				<div class=" message-box ">
-					<h1>{{ node.title.value }}</h1>
-					<p>{{ node.body.value | raw}}</p>
-				</div>
-			</div>
-
-
-			<div class="grid-col-10 grid-offset-1 how-do-i-box">
-				<div class="grid-row">
-					<div class="grid-col">
-						<h2>How do I...</h2>
+					<div class=" message-box ">
+						<h1>{{ node.title.value }}</h1>
+						<p>{{ node.body.value | raw}}</p>
 					</div>
 				</div>
+			</div>
 
-				<div class="grid-row">
-					{% for link in node.field_homepage_top_links %}
-						<div class="how-button grid-col-12 desktop:grid-col-3">
-							<a href={{link.uri}}>
-
-								{{link.title}}
-							</a>
+			<div class="grid-row">
+				<div class="grid-col-10 grid-offset-1 how-do-i-box">
+					<div class="grid-row">
+						<div class="grid-col">
+							<h2>How do I...</h2>
 						</div>
-					{% endfor %}
+					</div>
+
+					<div class="grid-row">
+						{% for link in node.field_homepage_top_links %}
+							<div class="how-button grid-col-12 desktop:grid-col-3">
+								<a href={{link.uri}}>
+
+									{{link.title}}
+								</a>
+							</div>
+						{% endfor %}
+					</div>
+
 				</div>
 			</div>
-		</section>
+		</div>
 
 	</div>
 
 	<div class="grid-row life-events-container">
 
 		<div class="life-events-box">
+			<div class="grid-row">
+				{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
+			</div>
 
-			{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
-			<div class="grid-row header2 life-events-header">
-				<div class="grid-col-10 offset-1">
-					<h2>
+			<div class="grid-row">
+				<div class="grid-col-12">
+					<h2 class="life-events-header">
 						Life Events
 					</h2>
 				</div>
-				<div class="grid-row">
-					<div class="grid-col-10 offset-1">
-						<p>
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur luctus dignissim dui, eget finibus ante tincidunt sed. Proin vehicula posuere leo, a posuere magna consectetur et. Suspendisse ligula ipsum, rutrum quis fringilla at, dictum sit amet ligula. Nullam posuere bibendum placerat. Nam ut facilisis elit. Nunc venenatis, dui vitae sollicitudin eleifend, nunc augue volutpat erat, quis sagittis turpis sem eget lectus.
-						</p>
-					</div>
+			</div>
+
+			<div class="grid-row">
+				<div class="grid-col-12">
+					<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur luctus dignissim dui, eget finibus ante tincidunt sed. Proin vehicula posuere leo, a posuere magna consectetur et. Suspendisse ligula ipsum, rutrum quis fringilla at, dictum sit amet ligula. Nullam posuere bibendum placerat. Nam ut facilisis elit. Nunc venenatis, dui vitae sollicitudin eleifend, nunc augue volutpat erat, quis sagittis turpis sem eget lectus.
+					</p>
 				</div>
 			</div>
 
@@ -65,8 +71,8 @@
 			<div class="grid-row">
 				{% include directory ~ '/templates/includes/homepage-carousel.html.twig' %}
 			</div>
-			<div class="grid-row">
 
+			<div class="grid-row">
 				{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
 			</div>
 
@@ -75,19 +81,19 @@
 	</div>
 
 	<div class="grid-row topics-container">
-<div class="topics-box">
-		<div class="grid-row topics-header-background">
-<div class="grid-col-10 grid-offset-1 topics-header">
+		{# <div class="topics-box"> #}
+			<div class="grid-row topics-header-background">
+				<div class="grid-col-10 grid-offset-1 topics-header">
 
-				<h2>All Topics and Services</h2>
+					<h2>All Topics and Services</h2>
+				</div>
 			</div>
-		</div>
 
-		<div class="grid-row topics-box">
-			<div class="grid-col-12">
-				{% include directory ~ '/templates/includes/alltopics-cards.html.twig' %}
+			<div class="grid-row topics-box">
+				<div class="grid-col-12">
+					{% include directory ~ '/templates/includes/alltopics-cards.html.twig' %}
+				</div>
 			</div>
-		</div>
-</div>
+		{# </div> #}
 	</div>
 </section>

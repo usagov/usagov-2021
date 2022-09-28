@@ -133,20 +133,7 @@ h2 {
   height: 386px;
   max-width: 1024px;
   margin: auto;
-  // background-color: rgb(225, 69, 168);
-  // position: relative;
-  // z-index: 1;
 }
-
-.messages-container {
-  height: 386px;
-  max-width: 1024px;
-  margin: auto;
-  // background-color: rgb(225, 69, 168);
-  position: relative;
-  z-index: 1;
-}
-
 .homepage-hero {
   position: absolute;
   z-index: -1;
@@ -154,8 +141,12 @@ h2 {
   height: 386px;
 }
 
-.message-div {
-  z-index: 2;
+.messages-container {
+  // height: 386px;
+  // max-width: 1024px;
+  // margin: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .message-box {
@@ -196,7 +187,7 @@ h2 {
 }
 
 .how-do-i-box {
-  margin-top: 40px;
+  // margin-top: 40px;
   padding-top: 13px;
   background-color: white;
   border-radius: 3px;
@@ -251,9 +242,12 @@ h2 {
   margin-left: auto;
   margin-right: auto;
   margin-top: 50px;
+
+  //to delete
+  padding-top:50px;
 }
 
-.life-events-header h2 {
+.life-events-header {
   font-size: 35.2px;
 }
 
@@ -283,6 +277,13 @@ h2 {
   height: 500px;
 }
 
+.topics-box {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  // margin-top: 50px;
+}
+
 .topics-header-background {
   margin: 0px;
   background-color: white;
@@ -297,12 +298,7 @@ h2 {
   color: var($homepage, red);
 }
 
-.topics-box {
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  // margin-top: 50px;
-}
+
 
 /* Mobile
 */
