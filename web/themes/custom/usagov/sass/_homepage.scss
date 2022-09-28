@@ -108,9 +108,16 @@
   padding-left: 0rem;
   padding-right: 0rem;
 }
+.homepage-hero {
+  position: absolute;
+  z-index: -1;
+  max-width: 1024px;
+  height: 386px;
+}
 
 .banner-msg-container {
   position: relative;
+  z-index: 1;
 }
 
 .message-box {
@@ -152,7 +159,7 @@
 }
 
 .how-do-i-container {
-  background-color: var($homepage, background-color);
+  // background-color: var($homepage, background-color);
   padding-bottom: 20px;
 }
 
@@ -220,5 +227,9 @@
 
   .how-do-i-box h2 {
     padding-bottom: 30px;
+  }
+
+  .homepage-hero {
+    height: auto;
   }
 }

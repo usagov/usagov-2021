@@ -1,5 +1,7 @@
 <section class="grid-container homepage-container">
-	<div class="grid-row banner-msg-container" style=" background-image: url({{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}})">
+<img class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
+
+	<div class="grid-row banner-msg-container">
 
 
 		<div class="grid-col-10 grid-offset-1 desktop:grid-col-5 desktop:grid-offset-6">
@@ -31,13 +33,4 @@
 		</div>
 	</div>
 
-
-	{# <div class="grid-row banner">
-							<div class="grid-col">
-								<img class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
-
-							</div>
-						</div> #}
 </section>
-
-<section class="grid-container how-box"></section>
