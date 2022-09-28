@@ -103,6 +103,12 @@
   background-image: url("../images/topics/ICONS_beta_Taxes.png");
 }
 
+.homepage-container{
+  max-width: 1024px;
+  padding-left: 0rem;
+  padding-right: 0rem;
+}
+
 .banner-msg-container {
   position: relative;
 }
@@ -181,6 +187,8 @@
   border: none;
   border-left: 3px solid var($homepage, border-color);
   text-align: left;
+  display: flex;
+  align-items: center;
 }
 
 .how-button a {
@@ -198,5 +206,19 @@
 
   .message-box {
     margin-bottom: 35px;
+    padding-right: 28px;
+  }
+
+  .homepage-container {
+    padding-left: 0rem;
+    padding-right: 0rem;
+  }
+
+  .how-do-i-box {
+    padding-top: 30px;
+  }
+
+  .how-do-i-box h2 {
+    padding-bottom: 30px;
   }
 }
