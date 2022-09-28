@@ -102,7 +102,97 @@
 .icon-taxes {
   background-image: url("../images/topics/ICONS_beta_Taxes.png");
 }
+/* Global*/
+.homepage-container {
+  background-color: pink;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0px;
+}
 
+/*Message Box*/
+.message-box {
+  margin-top: 35px;
+  margin-bottom: 40px;
+  background-color: #112f4e;
+  box-shadow: 0px 6px 6px rgba(17, 47, 78, 0.4);
+  color: white;
+  padding-left: 25px;
+  padding-right: 40px;
+  padding-top: 20px;
+  padding-bottom: 25px;}
+
+.message-box h1 {
+  margin: 0px;
+  padding: 0px;
+  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+  font-weight: bold;
+  font-size: 35.2px;
+}
+
+.message-box p {
+  margin-bottom: 0px;
+}
+
+.message-box p a {
+  color: var($homepage, link-color);
+  text-decoration: underline;
+}
+/* How Do I Box*/
+.how-do-i-container {
+  background-color: white;
+    padding-top: 13px;
+    border-radius: 3px;
+    max-width: 960px;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 0px;
+    padding-top: 13px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-bottom: 20px;
+}
+
+.how-do-i-container h2 {
+  font-family: helvetica neue, helvetica, roboto, arial, sans-serif;
+  color: var($homepage, font-color);
+  padding-bottom: 20px;
+}
+
+.how-button {
+  height: 60px;
+    padding: 0px;
+    padding-left: 12px;
+    border: none;
+    border-left: 3px solid #00bde3;
+    text-align: left;
+    display: flex;
+    align-items: center;
+}
+
+/* Mobile
+*/
+@media (max-width: 480px) {
+  .how-button {
+    margin-bottom: 15px;
+  }
+
+  .message-box {
+    margin-bottom: 35px;
+    padding-right: 28px;
+  }
+
+
+  .how-do-i-container{
+    padding-top: 30px;
+  }
+
+  .how-do-i-container h2 {
+    padding-bottom: 30px;
+  }
+
+}
 /* Globals
 */
 // .text-content {

@@ -1,124 +1,102 @@
-<section class="grid-container homepage-container text-content" style="background-color:pink; max-width:960px; margin-left:auto; margin-right:auto; padding:0px">
-<div class="grid-row">
-<div class="grid-col-5 grid-offset-6">
-<div class=" message-box" style="  margin-top: 35px; margin-bottom: 40px; background-color: #112f4e; box-shadow: 0px 6px 6px rgba(17, 47, 78, 0.4); color: white; padding-left: 25px; padding-right: 40px; padding-top: 20px;padding-bottom: 25px;">
-<h1 style=" margin: 0px; padding: 0px;font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;font-weight: bold;font-size: 35.2px;">
-{{ node.title.value }}</h1>
-<p style="margin-bottom: 0px;">{{ node.body.value | raw}}</p>
+<section class="grid-container homepage-container text-content" >
+	<div class="grid-row">
+<div class="grid-col-10 grid-offset-1 desktop:grid-col-5 desktop:grid-offset-6 message-box">
 
-</div>
+			<h1>
+				{{ node.title.value }}
+			</h1>
+			<p>
+				{{ node.body.value | raw}}
+			</p>
+		</div>
+	</div>
 
-</div>
-</div>
+	<div class="grid-row">
+		<div class="grid-col-10 grid-offset-1 how-do-i-container">
+			<div class="grid-row">
+				<div class="grid-col">
+					<h2>How do I...</h2>
+				</div>
+			</div>
 
-<div class="grid-row">
-<div class="grid-col-10 grid-offset-1" style="background-color:white;   padding-top: 13px; border-radius: 3px; max-width: 960px; margin-right: auto;
-margin-left: auto;
-padding: 0px;
-padding-top: 13px;
-padding-left: 25px;
-padding-right: 25px;
-padding-bottom: 20px;">
+			<div class="grid-row">
+				{% for link in node.field_homepage_top_links %}
+					<div class="how-button grid-col-12 desktop:grid-col-3">
+						<a href={{link.uri}}>
+							{{link.title}}
+						</a>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
 
-
-<div class="grid-row">
-<div class="grid-col">
-<h2 style="  font-family: helvetica neue, helvetica, roboto, arial, sans-serif;
-color: var($homepage, font-color);
-padding-bottom: 20px;">How do I...</h2>
-
-</div>
-</div>
-
-<div class="grid-row">
-{% for link in node.field_homepage_top_links %}
-<div class="how-button grid-col-12 desktop:grid-col-3" style="  height: 60px;
-padding: 0px;
-padding-left: 12px;
-border: none;
-border-left: 3px solid #00bde3;
-
-text-align: left;
-display: flex;
-align-items: center;">
-
-<a href={{link.uri}}>
-
-{{link.title}}
-</a>
-</div>
-{% endfor %}
-</div>
-
-</div>
-</div>
-
-<div class="grid-row">
-<div class="grid-col-12" style="background-color:green; text-align:center;  padding:20px;">
-
-{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
-
-</div>
-</div>
-
-<div class="grid-row" style="color:white; margin: 0px;
-padding: 0px;
-max-width: 960px;
-margin-left: auto;
-margin-right: auto;
-margin-top: 50px;" >
-
-<div class="grid-col-10 grid-offset-1" style="background-color:#00bde3;" >
-
-
-<h2 class="life-events-header" style=" font-size: 35.2px; font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
-		  text-align: left;
-		  font-weight: bold;
-		  margin: 0px;">
-
-
-Life Events
-</h2>
-<p>
-	Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur luctus dignissim dui, eget finibus ante tincidunt sed. Proin vehicula posuere leo, a posuere magna consectetur et. Suspendisse ligula ipsum, rutrum quis fringilla at, dictum sit amet ligula. Nullam posuere bibendum placerat. Nam ut facilisis elit. Nunc venenatis, dui vitae sollicitudin eleifend, nunc augue volutpat erat, quis sagittis turpis sem eget lectus.
-</p>
-
-
-</div>
-</div>
-
-<div class="grid-row">
-<div class="grid-col" style="background-color:blue;">
-
-<p>Carousel</p>
-</div>
-</div>
-
-<div class="grid-row">
+	<div class="grid-row">
 	<div class="grid-col-12" style="background-color:green; text-align:center;  padding:20px;">
 
-		{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
+	{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
 
 	</div>
-</div>
+	</div>
 
-<div class="grid-row">
-<div class="grid-col" style="background-color:white; font-size: 35.2px; font-family: merriweather web, georgia, cambria, times new roman, times, serif; text-align: left; color:#d83933; font-weight: bold; margin: 0px;  padding-top: 40px; border-bottom: 10px solid #d83933;">
+	<div class="grid-row" style="color:white; margin: 0px;
+	padding: 0px;
+	max-width: 960px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 50px;" >
+
+	<div class="grid-col-10 grid-offset-1" style="background-color:#00bde3;" >
+
+
+	<h2 class="life-events-header" style=" font-size: 35.2px; font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+				text-align: left;
+				font-weight: bold;
+				margin: 0px;">
+
+
+	Life Events
+	</h2>
+	<p>
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur luctus dignissim dui, eget finibus ante tincidunt sed. Proin vehicula posuere leo, a posuere magna consectetur et. Suspendisse ligula ipsum, rutrum quis fringilla at, dictum sit amet ligula. Nullam posuere bibendum placerat. Nam ut facilisis elit. Nunc venenatis, dui vitae sollicitudin eleifend, nunc augue volutpat erat, quis sagittis turpis sem eget lectus.
+	</p>
+
+
+	</div>
+	</div>
+
+	<div class="grid-row">
+	<div class="grid-col" style="background-color:blue;">
+
+	<p>Carousel</p>
+	</div>
+	</div>
+
+	<div class="grid-row">
+		<div class="grid-col-12" style="background-color:green; text-align:center;  padding:20px;">
+
+			{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
+
+		</div>
+	</div>
+
+	<div class="grid-row">
+	<div class="grid-col" style="background-color:white; font-size: 35.2px; font-family: merriweather web, georgia, cambria, times new roman, times, serif; text-align: left; color:#d83933; font-weight: bold; margin: 0px;  padding-top: 40px; border-bottom: 10px solid #d83933;">
 
 
 
 
 
-<h2 style="margin:0px;">All Topics and Services</h2>
+	<h2 style="margin:0px;">All Topics and Services</h2>
 
-</div>
-</div>
-<div class="grid-row">
-<div class="grid-col" >
+	</div>
+	</div>
+	<div class="grid-row">
+	<div class="grid-col" >
 
-<p>Cards</p>
-</div>
-</div>
+	<p>Cards</p>
+	</div>
+	</div>
 
 
 </section>
