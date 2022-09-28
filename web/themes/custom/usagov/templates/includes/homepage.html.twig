@@ -46,26 +46,48 @@
 		<div class="life-events-box">
 
 			{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
+			<div class="grid-row header2 life-events-header">
+				<div class="grid-col-10 offset-1">
+					<h2>
+						Life Events
+					</h2>
+				</div>
+				<div class="grid-row">
+					<div class="grid-col-10 offset-1">
+						<p>
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur luctus dignissim dui, eget finibus ante tincidunt sed. Proin vehicula posuere leo, a posuere magna consectetur et. Suspendisse ligula ipsum, rutrum quis fringilla at, dictum sit amet ligula. Nullam posuere bibendum placerat. Nam ut facilisis elit. Nunc venenatis, dui vitae sollicitudin eleifend, nunc augue volutpat erat, quis sagittis turpis sem eget lectus.
+						</p>
+					</div>
+				</div>
+			</div>
 
-			<h2>
-				Life Events
-			</h2>
 
-			<p>
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur luctus dignissim dui, eget finibus ante tincidunt sed. Proin vehicula posuere leo, a posuere magna consectetur et. Suspendisse ligula ipsum, rutrum quis fringilla at, dictum sit amet ligula. Nullam posuere bibendum placerat. Nam ut facilisis elit. Nunc venenatis, dui vitae sollicitudin eleifend, nunc augue volutpat erat, quis sagittis turpis sem eget lectus. Donec eleifend, elit quis hendrerit tempor, augue quam luctus risus, a convallis lectus turpis vel eros. Donec quis sem fermentum, sollicitudin erat sit amet, dapibus purus. Nunc quis urna nec est bibendum gravida non dictum nisi. Praesent et dui vel leo laoreet tempor. Maecenas consequat est sem, sit amet molestie dolor molestie id. Vivamus tempus elit et augue pharetra, at molestie lorem ultrices. Maecenas eget purus eu velit malesuada pellentesque id sit amet ipsum. Proin sit amet urna ut quam eleifend iaculis. Nullam tincidunt aliquam quam vel semper.</p>
+			<div class="grid-row">
+				{% include directory ~ '/templates/includes/homepage-carousel.html.twig' %}
+			</div>
+			<div class="grid-row">
 
+				{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
+			</div>
 
-			{% include directory ~ '/templates/includes/homepage-carousel.html.twig' %}
-
-			{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
 		</div>
 
 	</div>
 
 	<div class="grid-row topics-container">
-		<div class="topics-box">
-			<h2>All Topics and Services</h2>
+<div class="topics-box">
+		<div class="grid-row topics-header-background">
+<div class="grid-col-10 grid-offset-1 topics-header">
+
+				<h2>All Topics and Services</h2>
+			</div>
 		</div>
 
+		<div class="grid-row topics-box">
+			<div class="grid-col-12">
+				{% include directory ~ '/templates/includes/alltopics-cards.html.twig' %}
+			</div>
+		</div>
+</div>
 	</div>
 </section>
