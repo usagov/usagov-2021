@@ -52,9 +52,7 @@
     text-decoration-color: var($life-events, heading-underline-color);
     text-decoration-skip-ink: none;
     text-transform: lowercase;
-}
-.usagov-card__heading:first-letter {
-    text-transform: uppercase;
+  }
 }
 
 .life-events-landing-page-card-image {
