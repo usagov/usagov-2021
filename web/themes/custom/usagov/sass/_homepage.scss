@@ -111,11 +111,22 @@
   margin-right: 0rem;
 }
 
-.banner-msg-container {
+.banner-container {
   height: 386px;
-  background-color: rgb(225, 69, 168);
+  max-width: 1024px;
+  margin: auto;
+  // background-color: rgb(225, 69, 168);
   // position: relative;
   // z-index: 1;
+}
+
+.messages-container {
+  height: 386px;
+  max-width: 1024px;
+  margin: auto;
+  // background-color: rgb(225, 69, 168);
+  position: relative;
+  z-index: 1;
 }
 
 .homepage-hero {
@@ -124,7 +135,9 @@
   max-width: 1024px;
   height: 386px;
 }
-
+.message-div {
+  z-index: 2;
+}
 .message-box {
   margin-top: 35px;
   margin-bottom: 40px;
@@ -163,7 +176,7 @@
   text-decoration: underline;
 }
 
-.how-do-i-container {
+.life-events-container {
   background-color: var($homepage, background-color);
   padding-bottom: 20px;
   max-width: 100%;
@@ -171,6 +184,7 @@
 }
 
 .how-do-i-box {
+  margin-top: 40px;
   padding-top: 13px;
   background-color: white;
   border-radius: 3px;
