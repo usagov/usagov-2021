@@ -1,36 +1,41 @@
 <section class="grid-container homepage-container">
-<img class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
+
 
 	<div class="grid-row banner-msg-container">
+		{# <img
+		class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}"> #}
 
+	{#
+			<div class="grid-col-10 grid-offset-1 desktop:grid-col-5 desktop:grid-offset-6">
 
-		<div class="grid-col-10 grid-offset-1 desktop:grid-col-5 desktop:grid-offset-6">
-
-			<div class="message-box">
-				<h1>{{ node.title.value }}</h1>
-				<p>{{ node.body.value | raw}}</p>
-			</div>
-		</div>
-	</div>
-
-	<div class="grid-row how-do-i-container">
-		<div class="grid-col-10 grid-offset-1 how-do-i-box">
-			<div class="grid-row">
-				<div class="grid-col">
-					<h2>How do I...</h2>
+				<div class="message-box">
+					<h1>{{ node.title.value }}</h1>
+					<p>{{ node.body.value | raw}}</p>
 				</div>
-			</div>
-
-			<div class="grid-row">
-				{% for link in node.field_homepage_top_links %}
-					<div class="how-button grid-col-12 desktop:grid-col-3">
-						<a href={{link.uri}}>
-							{{link.title}}
-						</a>
-					</div>
-				{% endfor %}
-			</div>
-		</div>
+			</div> #}
 	</div>
+
+	<div
+		class="grid-row how-do-i-container">{# <div class="grid-col-10 grid-offset-1 how-do-i-box">
+						<div class="grid-row">
+							<div class="grid-col">
+								<h2>How do I...</h2>
+							</div>
+						</div>
+
+						<div class="grid-row">
+							{% for link in node.field_homepage_top_links %}
+								<div class="how-button grid-col-12 desktop:grid-col-3">
+									<a href={{link.uri}}>
+										{{link.title}}
+									</a>
+								</div>
+							{% endfor %}
+						</div>
+					</div> #}
+	</div>
+<div class="grid-row topics-container"></div>
+
+
 
 </section>
