@@ -49,6 +49,10 @@
   text-decoration-color: var($card, heading-underline-color);
   text-decoration-skip-ink: none;
   line-height: 1.8em;
+  text-transform: lowercase;
+}
+.usagov-card__heading:first-letter {
+    text-transform: uppercase;
 }
 
 .usagov-navpage-item {
