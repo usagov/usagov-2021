@@ -16,7 +16,7 @@ $gray: #dfe1e2;
 $light-gray: #f3f3f3;
 $orange: #f79240;
 $black: #000;
-
+$blue-shadow: rgba(17, 47, 78, 0.4);
 // Component Variables
 $hero: (
   border-color: $red,
@@ -31,6 +31,7 @@ $homepage: (
   background-color: $deep-blue,
   font-color: #1b1b1b,
   white: $white,
+  blue-shadow: $blue-shadow,
 );
 $le-heading: (
   heading-color: $white,
