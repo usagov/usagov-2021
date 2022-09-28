@@ -37,7 +37,7 @@ ul.navigation__items{
   }
 }
 
-.usagov-nav{
+.usagov-mobile-menu{
   width: 100%;
   max-width: 30rem;
   padding: 0;
@@ -60,6 +60,10 @@ ul.navigation__items{
   color: black;
   font-weight: bold;
   font-size: larger;
+  text-decoration: none;
+  margin: unset;
+  width: auto;
+  height: auto;
 }
 .usagov-mobile-menu-controls a img {
   padding: 0.16rem;
@@ -70,15 +74,33 @@ ul.navigation__items{
 }
 .usagov-mobile-menu-controls button img {
   height: 2.5rem;
+  width: auto;
 }
-.usa-nav__secondary-links {
+.usagov-mobile-menu .usa-nav__secondary-links {
   margin: 1rem;
   display: block;
 }
 
+.usa-header--extended button.usa-menu-btn {
+  background-color: transparent;
+  color: $deep-blue;
+  background-image: url(/themes/custom/usagov/images/Button_header_open_mobile-menu.svg);
+  background-size: 2.8rem;
+  background-position: 1px 0px;
+  width: 3rem;
+  padding: 0;
+  padding-top: 2rem;
+  height: auto;
+  font-size: 1rem;
+  font-weight: normal;
+  cursor: pointer;
+}
+#block-languageswitcher{
+  z-index: 1;
+}
 
 @media (min-width: 64em){
-  ul.navigation__items, .usagov-mobile-menu-controls{
+  .usagov-mobile-menu{
     display: none;
   }
 }
@@ -86,7 +108,14 @@ ul.navigation__items{
   .usa-nav.is-visible {
     display: none;
   }
-  .usagov-nav.is-visible {
+  .usagov-mobile-menu.is-visible {
     display: flex;
+  }
+  .usa-header--extended div.language-switcher-language-url ul.links {
+    position: absolute;
+    display: block;
+    width: auto;
+    right: 60px;
+    top: 4px;
   }
 }
