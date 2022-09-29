@@ -13,7 +13,7 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-SS_TAG=${2:-$(date +%Y-%m-%d_%H:%M:%S)}
+SS_TAG=${2:-$(date +%Y-%m-%d_%H-%M-%S)}
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
