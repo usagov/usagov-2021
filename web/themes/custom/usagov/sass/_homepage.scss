@@ -106,10 +106,11 @@
 /* Global*/
 .homepage-container {
     // max-width: 960px;
-    margin-left: auto;
-    margin-right: auto;
+    width:100%;
+    margin-left: 0px;
+    margin-right: 0px;
     padding: 0px;
-
+    max-width:100%;
 }
 
 /*Row sizes*/
