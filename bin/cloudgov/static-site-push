@@ -14,7 +14,7 @@ if [ -f ./env.local ]; then
 fi
 
 SS_SOURCE_DIR=${1}
-SS_TAG=${2:-$(date +%Y-%m-%d_%H:%M:%S)}
+SS_TAG=${2:-$(date +%Y-%m-%d_%H-%M-%S)}
 
 if [ -z "$SS_SOURCE_DIR" ]; then
   echo "Usage: $0 <source directory> <tag?>"
