@@ -105,13 +105,53 @@
 
 /* Global*/
 .homepage-container {
-    max-width: 960px;
+    // max-width: 960px;
     margin-left: auto;
     margin-right: auto;
     padding: 0px;
 
 }
+
+/*Row sizes*/
+.banner-row {
+  max-width: 1024px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.how-row {
+  max-width: 1024px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.jump-row {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.life-events-row {
+  color: white;
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 30px;
+}
+.carousel-row{
+  width: 100%;
+}
+
+.all-topics-row {
+  width: 100%;
+  border-bottom: 10px solid #d83933;
+}
+.cards-row {
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
 /* Homepage Hero Image*/
+
 .homepage-hero {
   position: absolute;
   z-index: -1;
@@ -209,15 +249,7 @@
  margin-bottom: 5px;
 }
 /*Life Events*/
-.life-events-row {
-  color: white;
-  margin: 0px;
-  padding: 0px;
-  max-width: 960px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-bottom: 30px;
-}
+
 
 .life-events-row h2 {
   font-size: 35.2px;
@@ -235,10 +267,7 @@
   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
 }
 /*All Topics*/
-.all-topics-row{
-  width: 100%;
-  border-bottom: 10px solid #d83933;
-}
+
 
 .all-topics-header {
   background-color: white;
