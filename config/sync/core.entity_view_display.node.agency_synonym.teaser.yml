@@ -1,0 +1,24 @@
+uuid: de386d52-a680-4ef3-af03-bf73eb3f1ded
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.agency_synonym.field_agency_reference
+    - node.type.agency_synonym
+  module:
+    - user
+id: node.agency_synonym.teaser
+targetEntityType: node
+bundle: agency_synonym
+mode: teaser
+content:
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  body: true
+  field_agency_reference: true
+  langcode: true
