@@ -61,16 +61,33 @@ if [ ! -z "$IP_ALLOWED" ]; then
    done;
 fi
 
+export IPS_ALLOWED_WWW="$IPS_ALLOWED"
+export IPS_ALLOWED_CMS="$IPS_ALLOWED"
+
 # check if no-ip-restriction and add an explicit 'allow all'
-if [ "$IP_ALLOW_ALL" == "1" ]; then
-  export IPS_ALLOWED=$'\n\tallow all;'"$IPS_ALLOWED";
+if [ "$IP_ALLOW_ALL_WWW" == "1" ]; then
+  export IPS_ALLOWED_WWW=$'\n\tallow all;'"$IPS_ALLOWED_WWW";
 fi
+if [ "$IP_ALLOW_ALL_CMS" == "1" ]; then
+  export IPS_ALLOWED_CMS=$'\n\tallow all;'"$IPS_ALLOWED_CMS";
+fi
+
+WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)}
+CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)}
+if [ -z "$WWW_HOST" ]; then
+  WWW_HOST="*.app.cloud.gov"
+fi
+if [ -z "$CMS_HOST" ]; then
+  CMS_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | head -n 1)
+fi
+export WWW_HOST
+export CMS_HOST
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
 
-FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/logging.conf /etc/modsecurity.d/modsecurity-override.conf /etc/nginx/snippets/ip-restrict.conf /etc/nginx/snippets/ssl.conf"
+FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/logging.conf /etc/modsecurity.d/modsecurity-override.conf /etc/nginx/snippets/ip-restrict.conf /etc/nginx/snippets/ip-restrict-cms.conf /etc/nginx/snippets/ip-restrict-www.conf /etc/nginx/snippets/ssl.conf"
 
 # this overwrites the files in place, so be careful mounting in docker
 for FILE in $FILES; do
