@@ -1,19 +1,19 @@
 <section class="grid-container homepage-container text-content" >
-	<div class="grid-row">
-<img class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
+	<div class="grid-row banner-row">
+		<img class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
 
-<div class="grid-col-10 grid-offset-1 desktop:grid-col-5 desktop:grid-offset-6 message-box">
+		<div class="grid-col-10 grid-offset-1 desktop:grid-col-5 desktop:grid-offset-6 message-box">
 
-			<h1>
-				{{ node.title.value }}
-			</h1>
-			<p>
-				{{ node.body.value | raw}}
-			</p>
+					<h1>
+						{{ node.title.value }}
+					</h1>
+					<p>
+						{{ node.body.value | raw}}
+					</p>
 		</div>
 	</div>
 
-	<div class="grid-row">
+	<div class="grid-row how-row">
 		<div class="grid-col-10 grid-offset-1 how-do-i-container">
 			<div class="grid-row">
 				<div class="grid-col">
@@ -33,48 +33,45 @@
 		</div>
 	</div>
 
-<div class="grid-row" style="  background-color: #112f4e;">
-
-
+	<div class="grid-row jump-row" style="  background-color: #112f4e;">
 		<div class="grid-col-12">
 			{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
 		</div>
 	</div>
 
-<div class="grid-row life-events-row" style="  background-color: #112f4e;">
-
-
+	<div class="grid-row life-events-row" style="  background-color: #112f4e;">
 		<div class=" grid-col-10 grid-offset-1 desktop:grid-col-9 desktop:grid-offset-2">
 			<h2> Life Events </h2>
 			<p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur luctus dignissim dui, eget finibus ante tincidunt sed. Proin vehicula posuere leo, a posuere magna consectetur et. Suspendisse ligula ipsum, rutrum quis fringilla at, dictum sit amet ligula. Nullam posuere bibendum placerat. Nam ut facilisis elit. Nunc venenatis, dui vitae sollicitudin eleifend, nunc augue volutpat erat, quis sagittis turpis sem eget lectus. </p>
 		</div>
 	</div>
 
-<div class="grid-row" style="  background-color: #112f4e; font-color:#FFFFFF;">
+	<div class="grid-row carousel-row" style="  background-color: #112f4e; color:#FFFFFF;">
 
-	<div class="grid-col">
-		{% include directory ~ '/templates/includes/life-events-caousel.html.twig' %}
+
+		<div class="grid-col">
+			{% include directory ~ '/templates/includes/life-events-caousel.html.twig' %}
+		</div>
 	</div>
-</div>
 
-<div class="grid-row" style="  background-color: #112f4e;">
+	<div class="grid-row jump-row" style="  background-color: #112f4e;">
 
-	<div class="grid-col-12">
-		{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
+		<div class="grid-col-12">
+			{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
+		</div>
 	</div>
-</div>
 
 
-<div class="grid-row all-topics-row">
-	<div class="grid-col all-topics-header">
-		<h2>All Topics and Services</h2>
+	<div class="grid-row all-topics-row">
+		<div class="grid-col all-topics-header">
+			<h2>All Topics and Services</h2>
+		</div>
 	</div>
-</div>
 
-<div class="grid-row " style="  background-color: #E5F8FD;">
+	<div class="grid-row cards-row" style="  background-color: #E5F8FD;">
 
-	<div class="grid-col" >
-		{% include directory ~ '/templates/includes/all-topics-cards.html.twig' %}
+		<div class="grid-col" >
+			{% include directory ~ '/templates/includes/all-topics-cards.html.twig' %}
+		</div>
 	</div>
-</div>
 </section>
