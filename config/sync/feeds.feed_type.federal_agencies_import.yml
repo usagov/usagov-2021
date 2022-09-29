@@ -13,6 +13,7 @@ dependencies:
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
     - field.field.node.directory_record.field_phone_number
+    - field.field.node.directory_record.field_show_in_a_z_index
     - field.field.node.directory_record.field_state_abbr
     - field.field.node.directory_record.field_street_1
     - field.field.node.directory_record.field_street_2
@@ -126,7 +127,7 @@ custom_sources:
     value: ''
     label: ''
     machine_name: ''
-    type: blank
+    type: csv
   path:
     value: Path
     label: Path
@@ -512,6 +513,11 @@ custom_sources:
     label: officeLinks_18_text
     machine_name: officelinks_18_text
     type: csv
+  show_on_az_index:
+    value: 'Show on AZ Index'
+    label: 'Show on AZ Index'
+    machine_name: show_on_az_index
+    type: csv
 mappings:
   -
     target: title
@@ -519,7 +525,8 @@ mappings:
       value: title
     settings:
       language: null
-    unique: {  }
+    unique:
+      value: '1'
   -
     target: field_government_branch
     map:
@@ -648,3 +655,9 @@ mappings:
       value: phone_1
     settings:
       language: null
+  -
+    target: field_show_in_a_z_index
+    map:
+      value: show_on_az_index
+    settings:
+      language: ''
