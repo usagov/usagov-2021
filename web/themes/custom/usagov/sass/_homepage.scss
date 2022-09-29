@@ -145,12 +145,14 @@
 
 .all-topics-row {
   width: 100%;
+  background-color: white;
   border-bottom: 10px solid #d83933;
 }
 .cards-row {
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
+  background-color: #E5F8FD;
 }
 
 /* Homepage Hero Image*/
@@ -252,8 +254,13 @@
 }
 /*Life Events*/
 
+.life-events-content{
+  max-width:960px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-.life-events-row h2 {
+.life-events-content h2 {
   font-size: 35.2px;
   font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
   text-align: left;
@@ -261,7 +268,7 @@
   margin: 0px;
 }
 
-.life-events-row p {
+.life-events-content p {
   margin: 0px;
   margin-top: 13px;
   color: white;
@@ -269,7 +276,7 @@
   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
 }
 
-.carousel-col {
+.carousel-content {
   max-width: 960px;
   margin-left: auto;
   margin-right: auto;
@@ -278,12 +285,6 @@
 
 /*All Topics*/
 .all-topics-header {
-  background-color: white;
-  font-size: 35.2px;
-  font-family: merriweather web, georgia, cambria, times new roman, times, serif;
-  text-align: left;
-  color: #d83933;
-  font-weight: bold;
   margin: 0px;
   padding-top: 40px;
   max-width: 960px;
@@ -296,7 +297,21 @@
   max-width: 960px;
   margin-left: auto;
   margin-right: auto;
+
+  font-size: 48.8px;
+  font-family: merriweather web, georgia, cambria, times new roman, times, serif;
+  text-align: left;
+  color: #d83933;
+  font-weight: bold;
 }
+
+.cards-content {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
 /* Mobile */
 @media (max-width: 480px) {
   .how-button {
