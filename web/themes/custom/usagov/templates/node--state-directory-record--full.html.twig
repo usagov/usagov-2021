@@ -2,7 +2,7 @@
 {{ content.body }}
 <div class="usagov-directory-table">
   <div>
-    <h3 class="usa-prose">State Government Website</h3>
+    <h3 class="usa-prose">State government website</h3>
     {{ content.field_website }}
   </div>
 
@@ -14,7 +14,7 @@
       <p class="usagov-dir-padding">Phone: {{ content.field_phone_number }}</p>
       {% if content.group_main_address %}
       {% set address = content.group_main_address %}
-        <p class="usagov-dir-padding">Main Address:</p>
+        <p class="usagov-dir-padding">Main address:</p>
         {{ address.field_street_1 }}
         {% if address.field_street_2|render %}
         <br>{{ address.field_street_2 }}
@@ -33,12 +33,12 @@
   </div>
 
   <div>
-    <h3 class="usa-prose">Congress Members</h3>
+    <h3 class="usa-prose">Congress members</h3>
     <a href="/elected-officials">Find the names and contact information for your elected officials</a>
   </div>
 
   <div>
-    <h3 class="usa-prose">State Agencies</h3>
+    <h3 class="usa-prose">State agencies</h3>
     {% if content.field_consumer_protection|render %}
     {{ content.field_consumer_protection }}<br>
     {% endif %}
