@@ -109,6 +109,14 @@
     margin-left: auto;
     margin-right: auto;
     padding: 0px;
+
+}
+/* Homepage Hero Image*/
+.homepage-hero {
+  position: absolute;
+  z-index: -1;
+  max-width: 1024px;
+  height: 386px;
 }
 
 /*Message Box*/
@@ -227,6 +235,11 @@
   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
 }
 /*All Topics*/
+.all-topics-row{
+  width: 100%;
+  border-bottom: 10px solid #d83933;
+}
+
 .all-topics-header {
   background-color: white;
     font-size: 35.2px;
@@ -236,7 +249,7 @@
     font-weight: bold;
     margin: 0px;
     padding-top: 40px;
-    border-bottom: 10px solid #d83933;
+
 }
 .all-topics-header h2{
   margin: 0px;
