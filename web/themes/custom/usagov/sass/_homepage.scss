@@ -140,6 +140,7 @@
 }
 .carousel-row{
   width: 100%;
+  background-color: #112f4e;
 }
 
 .all-topics-row {
@@ -151,8 +152,8 @@
   margin-left: auto;
   margin-right: auto;
 }
-/* Homepage Hero Image*/
 
+/* Homepage Hero Image*/
 .homepage-hero {
   position: absolute;
   z-index: -1;
@@ -267,22 +268,34 @@
   font-size: 17.6px;
   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
 }
+
+.carousel-col {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #FFFFFF;
+}
+
 /*All Topics*/
-
-
 .all-topics-header {
   background-color: white;
-    font-size: 35.2px;
-    font-family: merriweather web, georgia, cambria, times new roman, times, serif;
-    text-align: left;
-    color: #d83933;
-    font-weight: bold;
-    margin: 0px;
-    padding-top: 40px;
-
+  font-size: 35.2px;
+  font-family: merriweather web, georgia, cambria, times new roman, times, serif;
+  text-align: left;
+  color: #d83933;
+  font-weight: bold;
+  margin: 0px;
+  padding-top: 40px;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
 }
+
 .all-topics-header h2{
   margin: 0px;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
 }
 /* Mobile */
 @media (max-width: 480px) {
