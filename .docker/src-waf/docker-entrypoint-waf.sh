@@ -72,14 +72,23 @@ if [ "$IP_ALLOW_ALL_CMS" == "1" ]; then
   export IPS_ALLOWED_CMS=$'\n\tallow all;'"$IPS_ALLOWED_CMS";
 fi
 
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)}
-CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)}
-if [ -z "$WWW_HOST" ]; then
-  WWW_HOST="*.app.cloud.gov"
+
+SPACE_NAME=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
+WWW_HOST_GUESS="beta-${SPACE_NAME}.usa.gov"
+CMS_HOST_GUESS="cms-${SPACE_NAME}.usa.gov"
+if [ "$SPACE_NAME" == "prod" ]; then
+  WWW_HOST_GUESS="beta.usa.gov"
+  CMS_HOST_GUESS="cms.usa.gov"
+elif [ "$SPACE_NAME" == "stage" ]; then
+  WWW_HOST_GUESS="beta-stage.usa.gov"
+  CMS_HOST_GUESS="cms-stage.usa.gov"
+elif [ "$SPACE_NAME" == "dev" ]; then
+  WWW_HOST_GUESS="beta-dev.usa.gov"
+  CMS_HOST_GUESS="cms-dev.usa.gov"
 fi
-if [ -z "$CMS_HOST" ]; then
-  CMS_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | head -n 1)
-fi
+
+WWW_HOST=${WWW_HOST:-$WWW_HOST_GUESS}
+CMS_HOST=${CMS_HOST:-$CMS_HOST_GUESS}
 export WWW_HOST
 export CMS_HOST
 
