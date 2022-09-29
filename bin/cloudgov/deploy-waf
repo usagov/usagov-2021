@@ -48,8 +48,9 @@ fi
 
 if [ "${ENV_ANY_NOT_SET+set}" ]; then
 
+  SPACE=$( cf target | grep space: | awk '{ print $2 }')
   printf "\nExample:\n"
-  printf "\tROUTE_SERVICE_APP_NAME=waf ROUTE_SERVICE_NAME=waf-route PROTECTED_APP_NAME=cms ${0}\n"
+  printf "\tROUTE_SERVICE_APP_NAME=waf ROUTE_SERVICE_NAME=waf-route-$SPACE-usagov PROTECTED_APP_NAME=cms ${0}\n"
   exit 1
 fi
 
@@ -116,6 +117,11 @@ HOST_NAMES=($(cf curl "/v3/apps/$PROTECTED_APP_GUID/routes" | jq -r --arg APPS_D
 
 for url in "${HOST_NAMES[@]}"; do
   cf bind-route-service "${APPS_DOMAIN}" "${ROUTE_SERVICE_NAME}" --hostname "${url}";
+  if [ $(echo "$url" | grep 'cms') ]; then
+    cf set-env waf CMS_HOST "$url"
+  elif [ $(echo "$url" | grep 'beta') ]; then
+    cf set-env waf WWW_HOST "$url"
+  fi
 done
 
 $SCRIPT_DIR/setup-egress-for-apps waf
