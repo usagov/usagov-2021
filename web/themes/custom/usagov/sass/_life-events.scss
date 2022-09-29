@@ -1,18 +1,37 @@
 @use "usagov-variables" as *;
 
 // $life-events: var( $usagov-variables, life-events );
-[data-pagetype="Life Events"] {
+[data-pagetype="Life Events"], [data-pagetype="Life Events Landing Page"] {
   h1 {
     background: var($le-heading, background-color);
     color: var($le-heading, heading-color);
-    padding: 2rem 3rem 0.5rem 1rem;
+    padding: 15px 45px 8px 35px;
     width: fit-content;
-    border-radius: 3px;
+    // border-radius: 3px;
+  }
+  .usagov-hero {
+    border-top: none;
+    margin-top: 0px;
+  }
+  .usa-prose > h1 + * {
+    margin-top: 0px;
+  }
+  .usagov-cards {
+    max-width: 960px;
+    background: var($light-gray);
+    margin-right: 0px;
+  }
+}
+
+[data-pagetype="Life Events Landing Page"]{
+  .usagov-card {
+    border-color: var($life-events, text-color);
   }
 }
 
 .le-image {
-  height: 350px;
+  height: 315px;
+  max-width: 960px;
 }
 
 .usa-card--flag {
@@ -33,4 +52,19 @@
     text-decoration-color: var($life-events, heading-underline-color);
     text-decoration-skip-ink: none;
   }
+}
+
+.life-events-landing-page-card-image {
+  aspect-ratio: 5/2;
+  background-size: cover;
+}
+.life-events-landing-page-card-title{
+  display: flex;
+  align-items: center;
+  background: var($life-events, background-color);
+  color: var($life-events, text-color);
+  height: 3.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding: 1rem;
 }

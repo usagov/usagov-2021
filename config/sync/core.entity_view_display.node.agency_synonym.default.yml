@@ -1,0 +1,30 @@
+uuid: 58aa3f30-1c4a-4b0e-a968-6c94e9bc1fd8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.agency_synonym.field_agency_reference
+    - node.type.agency_synonym
+  module:
+    - user
+id: node.agency_synonym.default
+targetEntityType: node
+bundle: agency_synonym
+mode: default
+content:
+  field_agency_reference:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 102
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  body: true
+  langcode: true
