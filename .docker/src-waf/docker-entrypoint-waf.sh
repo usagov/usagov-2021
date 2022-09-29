@@ -61,6 +61,11 @@ if [ ! -z "$IP_ALLOWED" ]; then
    done;
 fi
 
+# check if no-ip-restriction and add an explicit 'allow all'
+if [ "$IP_ALLOW_ALL" == "1" ]; then
+  export IPS_ALLOWED=$'\n\tallow all;'"$IPS_ALLOWED";
+fi
+
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
