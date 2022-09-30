@@ -42,7 +42,7 @@ processor: 'entity:node'
 processor_configuration:
   values:
     type: directory_record
-  langcode: und
+  langcode: zxx
   insert_new: 1
   update_existing: 2
   update_non_existent: _keep
@@ -517,6 +517,26 @@ custom_sources:
     label: 'Show on AZ Index'
     machine_name: show_on_az_index
     type: csv
+  tty_2:
+    value: tty_2
+    label: tty_2
+    machine_name: tty_2
+    type: csv
+  tty_3:
+    value: tty_3
+    label: tty_3
+    machine_name: tty_3
+    type: csv
+  toll_2:
+    value: toll_2
+    label: toll_2
+    machine_name: toll_2
+    type: csv
+  toll_3:
+    value: toll_3
+    label: toll_3
+    machine_name: toll_3
+    type: csv
 mappings:
   -
     target: title
@@ -653,3 +673,39 @@ mappings:
       value: show_on_az_index
     settings:
       language: ''
+  -
+    target: field_phone_number
+    map:
+      value: phone_2
+    settings:
+      language: null
+  -
+    target: field_phone_number
+    map:
+      value: phone_3
+    settings:
+      language: null
+  -
+    target: field_tty_number
+    map:
+      value: tty_2
+    settings:
+      language: null
+  -
+    target: field_tty_number
+    map:
+      value: tty_3
+    settings:
+      language: null
+  -
+    target: field_toll_free_number
+    map:
+      value: toll_2
+    settings:
+      language: null
+  -
+    target: field_toll_free_number
+    map:
+      value: toll_3
+    settings:
+      language: null
