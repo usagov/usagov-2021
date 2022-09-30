@@ -73,30 +73,30 @@ if [ "$IP_ALLOW_ALL_CMS" == "1" ]; then
 fi
 
 
-SPACE_NAME=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
-WWW_HOST_GUESS="beta-${SPACE_NAME}.usa.gov"
-CMS_HOST_GUESS="cms-${SPACE_NAME}.usa.gov"
-if [ "$SPACE_NAME" == "prod" ]; then
-  WWW_HOST_GUESS="beta.usa.gov"
-  CMS_HOST_GUESS="cms.usa.gov"
-elif [ "$SPACE_NAME" == "stage" ]; then
-  WWW_HOST_GUESS="beta-stage.usa.gov"
-  CMS_HOST_GUESS="cms-stage.usa.gov"
-elif [ "$SPACE_NAME" == "dev" ]; then
-  WWW_HOST_GUESS="beta-dev.usa.gov"
-  CMS_HOST_GUESS="cms-dev.usa.gov"
-fi
+# SPACE_NAME=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
+# WWW_HOST_GUESS="beta-${SPACE_NAME}.usa.gov"
+# CMS_HOST_GUESS="cms-${SPACE_NAME}.usa.gov"
+# if [ "$SPACE_NAME" == "prod" ]; then
+#   WWW_HOST_GUESS="beta.usa.gov"
+#   CMS_HOST_GUESS="cms.usa.gov"
+# elif [ "$SPACE_NAME" == "stage" ]; then
+#   WWW_HOST_GUESS="beta-stage.usa.gov"
+#   CMS_HOST_GUESS="cms-stage.usa.gov"
+# elif [ "$SPACE_NAME" == "dev" ]; then
+#   WWW_HOST_GUESS="beta-dev.usa.gov"
+#   CMS_HOST_GUESS="cms-dev.usa.gov"
+# fi
 
-WWW_HOST=${WWW_HOST:-$WWW_HOST_GUESS}
-CMS_HOST=${CMS_HOST:-$CMS_HOST_GUESS}
-export WWW_HOST
-export CMS_HOST
+# WWW_HOST=${WWW_HOST:-$WWW_HOST_GUESS}
+# CMS_HOST=${CMS_HOST:-$CMS_HOST_GUESS}
+# export WWW_HOST
+# export CMS_HOST
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
 
-FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/logging.conf /etc/modsecurity.d/modsecurity-override.conf /etc/nginx/snippets/ip-restrict.conf /etc/nginx/snippets/ip-restrict-cms.conf /etc/nginx/snippets/ip-restrict-www.conf /etc/nginx/snippets/ssl.conf"
+FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/logging.conf /etc/modsecurity.d/modsecurity-override.conf /etc/nginx/snippets/ip-restrict.conf /etc/nginx/snippets/ip-restrict-cms.conf /etc/nginx/snippets/ip-restrict-www.conf /etc/nginx/snippets/ssl.conf /etc/nginx/snippets/proxy-to-app.conf"
 
 # this overwrites the files in place, so be careful mounting in docker
 for FILE in $FILES; do
