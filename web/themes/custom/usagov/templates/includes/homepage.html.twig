@@ -14,19 +14,21 @@
 		height: 100%
 	}
 
-	#picdiv {
+	#banner-row {
 		margin-left: auto;
 		margin-right: auto;
 		max-width: 1024px;
 		height: 100%
 	}
-	.pic {
+
+	.banner {
 		height: 100%;
+		object-fit: cover;
+
 	}
 
 	#intro {
 		grid-column-start: 1;
-		/* grid-column-end: 3; */
 		grid-row-start: 1;
 		grid-row-end: 2;
 		display: grid;
@@ -50,7 +52,7 @@
 		margin-top: 35px;
 		margin-bottom: 40px;
 		padding: 20px 40px 25px 25px;
-		max-width:400px;
+		max-width: 400px;
 		color: white;
 	}
 
@@ -184,43 +186,41 @@
 
 	/*All Topics*/
 	#all-topics {
-		grid-column-start: 1;
-		grid-column-end: 2;
+		grid-column: 1/-1;
 		grid-row-start: 5;
 		grid-row-end: 6;
-		color: white;
-	}
-
-	.all-topics-header {
-		margin: 0 auto;
-		padding-top: 40px;
-		max-width: 960px;
+		background-color: white;
 	}
 
 	.all-topics-header h2 {
-		margin: 0 auto;
-		max-width: 960px;
-
 		font-size: 48.8px;
 		font-family: merriweather web, georgia, cambria, times new roman, times, serif;
 		text-align: left;
 		color: #d83933;
 		font-weight: bold;
+		margin-bottom: 0px;
 	}
 
-	.all-topics-row {
-		width: 100%;
+{#.all-topics-row {
+
+
+		 width: 100%;
 		background-color: white;
-		border-bottom: 10px solid #d83933;
+
+		 margin:0px;
 		margin-top: -40px;
-		padding-top: -40px;
-	}
+		padding:0px;
+padding-top: -40px;
+
+	}#}
 
 	.cards-row {
 		max-width: 100%;
 		margin-left: auto;
 		margin-right: auto;
 		background-color: #e5f8fd;
+border-top: 10px solid #d83933;
+
 	}
 
 	.cards-content {
@@ -229,22 +229,22 @@
 		margin-right: auto;
 	}
 
-/* Tablet */
-		@media(max-width: 1024px) {
-			#intro {
-					grid-template-columns: repeat(12, 1fr);
-			}
+	/* Tablet */
+	@media(max-width: 1024px) {
+		#intro {
+			grid-template-columns: repeat(12, 1fr);
+		}
 		#intro2 {
 			grid-column-start: 6;
 			grid-column-end: 13;
 		}
 	}
 
-/* Tablet */
-		@media(max-width: 640px) {
-			#intro {
-					grid-template-columns: repeat(12, 1fr);
-			}
+	/* Tablet */
+	@media(max-width: 640px) {
+		#intro {
+			grid-template-columns: repeat(12, 1fr);
+		}
 		#intro2 {
 			grid-column-start: 2;
 			grid-column-end: 12;
@@ -288,14 +288,11 @@
 			margin-top: -70px;
 		}
 	}
-
-
-
 </style>
 <div class="wrapper">
 	<div id="banner">
-		<div id="picdiv">
-			<img class="pic" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
+		<div id="banner-row">
+			<img class="banner" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
 		</div>
 	</div>
 
@@ -368,11 +365,15 @@
 		</div>
 	</div>
 
-	<div id="all-topics" class="all-topics grid-container">
+	<div id="all-topics" class="all-topics">
+<div class="all-topics-row  grid-container">
 
-		<div class="grid-row all-topics-header">
-			<h2>All Topics and Services</h2>
+			<div class="grid-row all-topics-header">
+
+				<h2>All Topics and Services</h2>
+			</div>
 		</div>
+
 
 		<div class="grid-row cards-row">
 			<div class="grid-col cards-content">
