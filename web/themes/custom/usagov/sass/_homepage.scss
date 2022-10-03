@@ -104,272 +104,272 @@
 }
 
 /* Global*/
-#banner {
-  z-index: 1;
-  position: relative;
-}
+// #banner {
+//   z-index: 1;
+//   position: relative;
+// }
 
-.homepage-container {
-    // max-width: 960px;
-    width:100%;
-    margin-left: 0px;
-    margin-right: 0px;
-    padding: 0px;
-    max-width:100%;
-}
+// .homepage-container {
+//   // max-width: 960px;
+//   width:100%;
+//   margin-left: 0px;
+//   margin-right: 0px;
+//   padding: 0px;
+//   max-width:100%;
+// }
 
-/*Row sizes*/
-.banner-row {
-  max-width: 1024px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.how-row {
-  max-width: 1024px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.jump-row {
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-}
-.life-events-row {
-  color: white;
-  margin: 0px;
-  padding: 0px;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding-bottom: 30px;
-}
-.carousel-row{
-  width: 100%;
-  background-color: #112f4e;
-}
+// /*Row sizes*/
+// .banner-row {
+//   max-width: 1024px;
+//   margin-left: auto;
+//   margin-right: auto;
+// }
+// .how-row {
+//   max-width: 1024px;
+//   margin-left: auto;
+//   margin-right: auto;
+// }
+// .jump-row {
+//   width: 100%;
+//   margin-left: auto;
+//   margin-right: auto;
+// }
+// .life-events-row {
+//   color: white;
+//   margin: 0px;
+//   padding: 0px;
+//   width: 100%;
+//   margin-left: auto;
+//   margin-right: auto;
+//   padding-bottom: 30px;
+// }
+// .carousel-row{
+//   width: 100%;
+//   background-color: #112f4e;
+// }
 
-.all-topics-row {
-  width: 100%;
-  background-color: white;
-  border-bottom: 10px solid #d83933;
-  margin-top:-40px;
-  padding-top:-40px;
-}
-.cards-row {
-  max-width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  background-color: #E5F8FD;
-}
+// .all-topics-row {
+//   width: 100%;
+//   background-color: white;
+//   border-bottom: 10px solid #d83933;
+//   margin-top:-40px;
+//   padding-top:-40px;
+// }
+// .cards-row {
+//   max-width: 100%;
+//   margin-left: auto;
+//   margin-right: auto;
+//   background-color: #E5F8FD;
+// }
 
-/* Homepage Hero Image*/
-.homepage-hero {
-  position: absolute;
-  z-index: -1;
-  max-width: 1024px;
-  height: 100%;
-}
+// /* Homepage Hero Image*/
+// .homepage-hero {
+//   position: absolute;
+//   z-index: -1;
+//   max-width: 1024px;
+//   height: 100%;
+// }
 
-/*Message Box*/
-.message-box {
-  background-color: var($homepage, background-color);
-  box-shadow: 0px 6px 6px var($homepage, box-shadow-color);
+// /*Message Box*/
+// .message-box {
+//   background-color: var($homepage, background-color);
+//   box-shadow: 0px 6px 6px var($homepage, box-shadow-color);
 
-  margin-top: 35px;
-  margin-bottom: 40px;
+//   margin-top: 35px;
+//   margin-bottom: 40px;
 
-  padding-left: 25px;
-  padding-right: 40px;
-  padding-top: 20px;
-  padding-bottom: 25px;
+//   padding-left: 25px;
+//   padding-right: 40px;
+//   padding-top: 20px;
+//   padding-bottom: 25px;
 
-  color: white;
-}
+//   color: white;
+// }
 
-.message-box h1 {
-  margin: 0px;
-  padding: 0px;
-  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
-  font-weight: bold;
-  font-size: 35.2px;
-}
+// .message-box h1 {
+//   margin: 0px;
+//   padding: 0px;
+//   font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+//   font-weight: bold;
+//   font-size: 35.2px;
+// }
 
-.message-box p {
-  font-size: 20px;
-  margin-bottom: 0px;
-  margin-top: 20px;
-}
+// .message-box p {
+//   font-size: 20px;
+//   margin-bottom: 0px;
+//   margin-top: 20px;
+// }
 
-.message-box p a {
-  color: var($homepage, link-color);
-  text-decoration: underline;
-}
+// .message-box p a {
+//   color: var($homepage, link-color);
+//   text-decoration: underline;
+// }
 
-/* How Do I Box*/
-.how-do-i-container {
-  background-color: white;
-    padding-top: 13px;
-    border-radius: 3px;
-    max-width: 960px;
-    margin-right: auto;
-    margin-left: auto;
-    padding: 0px;
-    padding-top: 13px;
-    padding-left: 25px;
-    padding-right: 25px;
-    padding-bottom: 20px;
-}
+// /* How Do I Box*/
+// .how-do-i-container {
+//   background-color: white;
+//     padding-top: 13px;
+//     border-radius: 3px;
+//     max-width: 960px;
+//     margin-right: auto;
+//     margin-left: auto;
+//     padding: 0px;
+//     padding-top: 13px;
+//     padding-left: 25px;
+//     padding-right: 25px;
+//     padding-bottom: 20px;
+// }
 
-.how-do-i-container h2 {
-  font-family: helvetica neue, helvetica, roboto, arial, sans-serif;
-  color: var($homepage, font-color);
-  padding-bottom: 20px;
-  margin-top:0px;
-  margin-bottom: 0px;
-}
+// .how-do-i-container h2 {
+//   font-family: helvetica neue, helvetica, roboto, arial, sans-serif;
+//   color: var($homepage, font-color);
+//   padding-bottom: 20px;
+//   margin-top:0px;
+//   margin-bottom: 0px;
+// }
 
-.how-do-i-container a {
-  color: var($homepage, font-color);
-  text-decoration: none;
-}
+// .how-do-i-container a {
+//   color: var($homepage, font-color);
+//   text-decoration: none;
+// }
 
-.how-button {
-  height: 60px;
-    padding: 0px;
-    padding-left: 12px;
-    padding-right:2px;
-    border: none;
-    border-left: 3px solid #00bde3;
-    text-align: left;
-    display: flex;
-    align-items: center;
-}
-#links {
-  position: relative;
-  /*  To display a pseudo element behind its element, the element must have a position value  */
-  margin-bottom: 0;
-}
+// .how-button {
+//   height: 60px;
+//     padding: 0px;
+//     padding-left: 12px;
+//     padding-right:2px;
+//     border: none;
+//     border-left: 3px solid #00bde3;
+//     text-align: left;
+//     display: flex;
+//     align-items: center;
+// }
+// #links {
+//   position: relative;
+//   /*  To display a pseudo element behind its element, the element must have a position value  */
+//   margin-bottom: 0;
+// }
 
-#links::before {
-  content: "";
-  display: block;
-  position: absolute;
-  top: 50%;
-  left: -20px;
-  background: #112f4e;
+// #links::before {
+//   content: "";
+//   display: block;
+//   position: absolute;
+//   top: 50%;
+//   left: -20px;
+//   background: #112f4e;
 
-  width: 120vw;
-  height: 50%;
-  z-index: -1;
-}
+//   width: 120vw;
+//   height: 50%;
+//   z-index: -1;
+// }
 
-/*Jump to All Topics*/
-.jump {
-  text-align: center;
-  padding: 20px;
-  padding-bottom:16px;
-}
+// /*Jump to All Topics*/
+// .jump {
+//   text-align: center;
+//   padding: 20px;
+//   padding-bottom:16px;
+// }
 
-.jump a {
-  color: white;
-  text-decoration: underline;
-  font-size: 17.6px;
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-}
-.jump p {
- margin:0px;
- margin-bottom: 5px;
-}
-/*Life Events*/
+// .jump a {
+//   color: white;
+//   text-decoration: underline;
+//   font-size: 17.6px;
+//   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+// }
+// .jump p {
+//  margin:0px;
+//  margin-bottom: 5px;
+// }
+// /*Life Events*/
 
-.life-events-content{
-  max-width:960px;
-  margin-left: auto;
-  margin-right: auto;
-}
+// .life-events-content{
+//   max-width:960px;
+//   margin-left: auto;
+//   margin-right: auto;
+// }
 
-.life-events-content h2 {
-  font-size: 35.2px;
-  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
-  text-align: left;
-  font-weight: bold;
-  margin: 0px;
-}
+// .life-events-content h2 {
+//   font-size: 35.2px;
+//   font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+//   text-align: left;
+//   font-weight: bold;
+//   margin: 0px;
+// }
 
-.life-events-content p {
-  margin: 0px;
-  margin-top: 13px;
-  color: white;
-  font-size: 17.6px;
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-}
+// .life-events-content p {
+//   margin: 0px;
+//   margin-top: 13px;
+//   color: white;
+//   font-size: 17.6px;
+//   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+// }
 
-.carousel-content {
-  max-width: 960px;
-  margin-left: auto;
-  margin-right: auto;
-  color: #FFFFFF;
-}
+// .carousel-content {
+//   max-width: 960px;
+//   margin-left: auto;
+//   margin-right: auto;
+//   color: #FFFFFF;
+// }
 
-/*All Topics*/
-.all-topics-header {
-  margin: 0px;
-  padding-top: 40px;
-  max-width: 960px;
-  margin-left: auto;
-  margin-right: auto;
-}
+// /*All Topics*/
+// .all-topics-header {
+//   margin: 0px;
+//   padding-top: 40px;
+//   max-width: 960px;
+//   margin-left: auto;
+//   margin-right: auto;
+// }
 
-.all-topics-header h2{
-  margin: 0px;
-  max-width: 960px;
-  margin-left: auto;
-  margin-right: auto;
+// .all-topics-header h2{
+//   margin: 0px;
+//   max-width: 960px;
+//   margin-left: auto;
+//   margin-right: auto;
 
-  font-size: 48.8px;
-  font-family: merriweather web, georgia, cambria, times new roman, times, serif;
-  text-align: left;
-  color: #d83933;
-  font-weight: bold;
-}
+//   font-size: 48.8px;
+//   font-family: merriweather web, georgia, cambria, times new roman, times, serif;
+//   text-align: left;
+//   color: #d83933;
+//   font-weight: bold;
+// }
 
-.cards-content {
-  max-width: 960px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-
-/* Mobile */
-@media (max-width: 480px) {
-  .how-button {
-    margin-bottom: 15px;
-  }
-
-  .message-box {
-    margin-bottom: 35px;
-    padding-right: 28px;
-  }
+// .cards-content {
+//   max-width: 960px;
+//   margin-left: auto;
+//   margin-right: auto;
+// }
 
 
-  .how-do-i-container{
-    padding-top: 30px;
-    padding-bottom: 20px;
-  }
+// /* Mobile */
+// @media (max-width: 480px) {
+//   .how-button {
+//     margin-bottom: 15px;
+//   }
 
-  .how-do-i-container h2 {
-    padding-bottom: 30px;
-    margin-bottom: 0px;
-  }
-  .jump {
-    padding-bottom: 50px;
-  }
+//   .message-box {
+//     margin-bottom: 35px;
+//     padding-right: 28px;
+//   }
 
-  .life-events-row{
-    padding-bottom:20px;
-  }
 
-  .all-topics-row {
-    margin-top: -70px;
-  }
-}
+//   .how-do-i-container{
+//     padding-top: 30px;
+//     padding-bottom: 20px;
+//   }
+
+//   .how-do-i-container h2 {
+//     padding-bottom: 30px;
+//     margin-bottom: 0px;
+//   }
+//   .jump {
+//     padding-bottom: 50px;
+//   }
+
+//   .life-events-row{
+//     padding-bottom:20px;
+//   }
+
+//   .all-topics-row {
+//     margin-top: -70px;
+//   }
+// }
