@@ -104,6 +104,14 @@
 }
 
 /* Global*/
+#banner {
+  background: maroon;
+  z-index: 1;
+  position: relative;
+}
+
+
+
 .homepage-container {
     // max-width: 960px;
     width:100%;
@@ -197,6 +205,7 @@
   color: var($homepage, link-color);
   text-decoration: underline;
 }
+
 /* How Do I Box*/
 .how-do-i-container {
   background-color: white;
@@ -229,12 +238,32 @@
   height: 60px;
     padding: 0px;
     padding-left: 12px;
+    padding-right:2px;
     border: none;
     border-left: 3px solid #00bde3;
     text-align: left;
     display: flex;
     align-items: center;
 }
+#links {
+  position: relative;
+  /*  To display a pseudo element behind its element, the element must have a position value  */
+  margin-bottom: 0;
+}
+
+#links::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: -20px;
+  background: #112f4e;
+
+  width: 100vw;
+  height: 50%;
+  z-index: -1;
+}
+
 /*Jump to All Topics*/
 .jump {
   text-align: center;
