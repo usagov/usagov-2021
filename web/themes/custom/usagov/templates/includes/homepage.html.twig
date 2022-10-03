@@ -4,9 +4,10 @@
 		grid-template-columns: 1fr;
 		background-color: #fff4e6;
 	}
+
 	#banner {
 		grid-column-start: 1;
-		grid-column-end: 3;
+		grid-column-end: 2;
 		grid-row-start: 1;
 		grid-row-end: 3;
 		width: 100%;
@@ -29,13 +30,12 @@
 		grid-row-start: 1;
 		grid-row-end: 2;
 		display: grid;
-		grid-template-columns: 1fr 1fr 1fr 1fr;
-
+		grid-template-columns: repeat(12, 1fr);
 	}
 
 	#intro2 {
-		grid-column-start: 3;
-		grid-column-end: 4;
+		grid-column-start: 7;
+		grid-column-end: 11;
 		grid-row-start: 1;
 		grid-row-end: 2;
 		background: #112F4E;
@@ -50,7 +50,7 @@
 		margin-top: 35px;
 		margin-bottom: 40px;
 		padding: 20px 40px 25px 25px;
-
+		max-width:400px;
 		color: white;
 	}
 
@@ -76,7 +76,7 @@
 	/* How Do I Box*/
 	#links {
 		grid-column-start: 1;
-		grid-column-end: 3;
+		grid-column-end: 2;
 		grid-row-start: 2;
 		grid-row-end: 4;
 		z-index: 1;
@@ -117,7 +117,7 @@
 	/* Blue Background */
 	#life-events-background {
 		grid-column-start: 1;
-		grid-column-end: 3;
+		grid-column-end: 2;
 		grid-row-start: 3;
 		grid-row-end: 5;
 		background-color: #112f4e;
@@ -141,7 +141,7 @@
 	/* Life Events */
 	#life-events {
 		grid-column-start: 1;
-		grid-column-end: 3;
+		grid-column-end: 2;
 		grid-row-start: 4;
 		grid-row-end: 5;
 		color: white;
@@ -185,7 +185,7 @@
 	/*All Topics*/
 	#all-topics {
 		grid-column-start: 1;
-		grid-column-end: 3;
+		grid-column-end: 2;
 		grid-row-start: 5;
 		grid-row-end: 6;
 		color: white;
@@ -228,6 +228,29 @@
 		margin-left: auto;
 		margin-right: auto;
 	}
+
+/* Tablet */
+		@media(max-width: 1024px) {
+			#intro {
+					grid-template-columns: repeat(12, 1fr);
+			}
+		#intro2 {
+			grid-column-start: 6;
+			grid-column-end: 13;
+		}
+	}
+
+/* Tablet */
+		@media(max-width: 640px) {
+			#intro {
+					grid-template-columns: repeat(12, 1fr);
+			}
+		#intro2 {
+			grid-column-start: 2;
+			grid-column-end: 12;
+		}
+	}
+
 	/* Mobile */
 	@media(max-width: 480px) {
 		.how-button {
@@ -237,6 +260,11 @@
 		.message-box {
 			margin-bottom: 35px;
 			padding-right: 28px;
+		}
+
+		#intro2 {
+			grid-column-start: 2;
+			grid-column-end: 12;
 		}
 
 		.how-do-i-container {
@@ -260,6 +288,9 @@
 			margin-top: -70px;
 		}
 	}
+
+
+
 </style>
 <div class="wrapper">
 	<div id="banner">
