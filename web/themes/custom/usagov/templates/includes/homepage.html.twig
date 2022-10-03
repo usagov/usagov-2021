@@ -2,18 +2,21 @@
 	.wrapper {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		/*   grid-template-rows: repeat(4, auto); */
+		background-color: #fff4e6;
 	}
-
 	#banner {
 		grid-column-start: 1;
 		grid-column-end: 3;
 		grid-row-start: 1;
 		grid-row-end: 3;
- 		background-image: url({{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}});
+
+	}
+	.banner-img {
+		background-image: url({{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}});
 		background-size: cover;
 		background-position: center;
 	}
+
 	#intro {
 		grid-column-start: 2;
 		grid-column-end: 3;
@@ -21,105 +24,276 @@
 		grid-row-end: 2;
 		background: #112F4E;
 		color: white;
-		margin: 40px;
 	}
 
+	.message-box {
+		background-color: var($homepage, background-color);
+		box-shadow: 0 6px 6px var($homepage, box-shadow-color);
+
+		margin-top: 35px;
+		margin-bottom: 40px;
+		padding: 20px 40px 25px 25px;
+
+		color: white;
+	}
+
+	.message-box h1 {
+		margin: 0;
+		padding: 0;
+		font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+		font-weight: bold;
+		font-size: 35.2px;
+	}
+
+	.message-box p {
+		font-size: 20px;
+		margin-bottom: 0;
+		margin-top: 20px;
+	}
+
+	.message-box p a {
+		color: var($homepage, link-color);
+		text-decoration: underline;
+	}
+
+	/* How Do I Box*/
 	#links {
 		grid-column-start: 1;
 		grid-column-end: 3;
 		grid-row-start: 2;
 		grid-row-end: 4;
 		z-index: 1;
-		background-color: white;
-		margin: 40px;
 	}
-	#life-events-wrapper {
+
+	.how-do-i-container {
+		background-color: white;
+		padding: 13px 25px 20px;
+		border-radius: 3px;
+		max-width: 960px;
+		margin-right: auto;
+		margin-left: auto;
+	}
+
+	.how-do-i-container h2 {
+		font-family: helvetica neue, helvetica, roboto, arial, sans-serif;
+		color: var($homepage, font-color);
+		padding-bottom: 20px;
+		margin-top: 0;
+		margin-bottom: 0;
+	}
+
+	.how-do-i-container a {
+		color: var($homepage, font-color);
+		text-decoration: none;
+	}
+
+	.how-button {
+		height: 60px;
+		padding: 0 2px 0 12px;
+		border: none;
+		border-left: 3px solid #00bde3;
+		text-align: left;
+		display: flex;
+		align-items: center;
+	}
+
+	/* Blue Background */
+	#life-events-background {
 		grid-column-start: 1;
 		grid-column-end: 3;
 		grid-row-start: 3;
 		grid-row-end: 5;
-		background-color: #112F4E;
+		background-color: #112f4e;
 	}
+	/* Jump Sections */
+	.jump {
+		text-align: center;
+		padding: 20px 20px 16px;
+	}
+
+	.jump a {
+		color: white;
+		text-decoration: underline;
+		font-size: 17.6px;
+		font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+	}
+	.jump p {
+		margin: 0 0 5px;
+	}
+
+	/* Life Events */
 	#life-events {
 		grid-column-start: 1;
 		grid-column-end: 3;
 		grid-row-start: 4;
 		grid-row-end: 5;
 		color: white;
-		margin: 40px;
-	}
-	.wrapper {
-		background-color: #fff4e6;
 	}
 
-	.box {
-		/*   margin: 40px; */
-		padding: 20px;
-		box-shadow: 5px 5px 5px rgb(0 0 0 / 0.2);
-		border-radius: 5px;
+	.life-events-row {
+		color: white;
+		margin: 0 auto;
+		padding: 0 0 30px;
+		width: 100%;
 	}
+
+	.life-events-content {
+		max-width: 960px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.life-events-content h2 {
+		font-size: 35.2px;
+		font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+		text-align: left;
+		font-weight: bold;
+		margin: 0;
+	}
+
+	.life-events-content p {
+		margin: 13px 0 0;
+		color: white;
+		font-size: 17.6px;
+		font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+	}
+
+	.carousel-content {
+		max-width: 960px;
+		margin-left: auto;
+		margin-right: auto;
+		color: #ffffff;
+	}
+
+	/*All Topics*/
+	#all-topics {
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-row-start: 5;
+  grid-row-end: 6;
+  color: white;
+}
+
+.all-topics-header {
+  margin: 0px;
+  padding-top: 40px;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.all-topics-header h2 {
+  margin: 0px;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+
+  font-size: 48.8px;
+  font-family: merriweather web, georgia, cambria, times new roman, times, serif;
+  text-align: left;
+  color: #d83933;
+  font-weight: bold;
+}
+
+.all-topics-row {
+  width: 100%;
+  background-color: white;
+  border-bottom: 10px solid #d83933;
+  margin-top: -40px;
+  padding-top: -40px;
+}
+
+.cards-row {
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #e5f8fd;
+}
+
+.cards-content {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* Mobile */
+@media (max-width: 480px) {
+  .how-button {
+    margin-bottom: 15px;
+  }
+
+  .message-box {
+    margin-bottom: 35px;
+    padding-right: 28px;
+  }
+
+  .how-do-i-container {
+    padding-top: 30px;
+    padding-bottom: 20px;
+  }
+
+  .how-do-i-container h2 {
+    padding-bottom: 30px;
+    margin-bottom: 0px;
+  }
+  .jump {
+    padding-bottom: 50px;
+  }
+
+  .life-events-row {
+    padding-bottom: 20px;
+  }
+
+  .all-topics-row {
+    margin-top: -70px;
+  }
+}
+
 </style>
 <div class="wrapper">
-	<div id="banner"></div>
-	<div id="intro" class="box">
-		Lorem ipsum dolor sit, amet consectetur adipisicing elit. Amet magnam quisquam ea explicabo repudiandae sed reiciendis id corrupti quasi culpa cupiditate dolorum velit iure alias aspernatur harum repellendus et quos molestias, ut molestiae. Id, magnam error illum atque maxime cumque sint suscipit eaque architecto quaerat corporis quae eum nam odio non consectetur tenetur vitae quia illo ducimus nihil dicta voluptate officia. Maxime quam accusamus quasi esse, adipisci eveniet consectetur unde dignissimos sed asperiores quo. Odit consequuntur minima natus, quia odio quo ea optio quisquam illo aliquid sed voluptatem impedit dicta nam enim ex facere blanditiis incidunt perferendis quis vitae facilis nulla iure? Praesentium aut vel possimus perferendis in officia unde, quae hic numquam? Pariatur similique excepturi accusantium maxime labore doloribus autem eaque quo quibusdam necessitatibus optio, sunt, beatae sequi quod id illo tenetur vero error ipsa ut. Incidunt architecto facere placeat laboriosam rerum magnam quibusdam, laudantium necessitatibus aperiam id nesciunt ea fugit! Assumenda facere illum saepe, quis vel illo et. Inventore obcaecati eos praesentium asperiores magnam nobis impedit eveniet, eum nam voluptate atque natus. Incidunt officiis ducimus quidem quisquam dolores libero nesciunt officia sapiente temporibus iure eveniet ipsum, sit, reiciendis sint soluta iste doloribus deleniti autem qui tenetur voluptatibus. Aperiam!
+	<div id="banner" class="banner-img"></div>
+
+	<div id="intro" class="message-box">
+		<h1>
+			{{ node.title.value }}
+		</h1>
+		<p>
+			{{ node.body.value | raw}}
+		</p>
 	</div>
-	<div id="links" class="box">
-		Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat eaque dolore alias voluptatum molestias veritatis! Eaque, doloremque alias. Officiis consectetur dolorem suscipit, quia aut rerum repellendus minima facilis at, in quis perferendis provident. Nulla id at fugiat harum voluptatibus repellendus tempora culpa aperiam quaerat? Iste aperiam libero, atque modi corrupti quos at velit, minima neque ex nam quis soluta. Veritatis mollitia animi enim eveniet atque maxime rem cumque itaque quod adipisci labore, nobis eius id, delectus nisi quasi doloribus deleniti. Id, libero autem, modi enim, fugiat eligendi consequuntur possimus illum qui pariatur asperiores odit quis sapiente ab praesentium. Natus, doloribus.
-	</div>
-	<div id="life-events-wrapper"></div>
-	<div id="life-events">
-		Lorem ipsum dolor sit amet consectetur, adipisicing elit. Pariatur quos ducimus nobis omnis magnam doloremque consectetur fugit eum labore est ipsam soluta suscipit voluptates maxime dolore officiis mollitia laudantium accusamus, veniam explicabo blanditiis aliquam. Nobis non, sint magni laborum sunt autem eligendi minima sit placeat saepe? Earum, et sequi unde deleniti cum voluptatibus reprehenderit ipsum optio, iste adipisci consectetur labore ipsa dolorem mollitia hic. Repudiandae voluptatibus commodi ea velit illo eaque quia, libero totam excepturi, esse dolorum beatae reiciendis harum eligendi, eveniet doloremque saepe aliquid deleniti rem accusamus quasi. Tenetur aut nulla sunt doloremque harum accusantium praesentium, totam nostrum voluptatum voluptate fuga suscipit omnis dolore, deserunt repudiandae sint voluptas aspernatur ex consequuntur architecto velit? Aperiam suscipit iusto ipsa mollitia animi magni obcaecati similique et tempore dignissimos quam ut sint tenetur nihil quisquam placeat incidunt eaque, necessitatibus illum nostrum sunt deleniti? Porro asperiores, ipsam eaque impedit perferendis magnam tempore quod eligendi culpa voluptatem sapiente doloribus veritatis iure quisquam vitae numquam! Rerum ex, incidunt cupiditate, dignissimos expedita sed quibusdam dolores ab cumque quisquam, similique eos. Ab vero asperiores rerum officia quas fugit quasi, laborum voluptatem dolore eum tenetur! Cupiditate doloribus enim maxime et excepturi sed unde rem, aliquam odio reprehenderit. Accusantium dolorum saepe voluptas facilis sit debitis ipsum accusamus temporibus explicabo quaerat veritatis, quo pariatur! Consectetur sint dignissimos recusandae quibusdam tempora quae id cumque illum nostrum natus, veniam, ipsam ad voluptatem repellendus voluptatum nesciunt laboriosam exercitationem doloremque ex eligendi aut praesentium quas unde. Autem, corporis? Animi, fuga! Placeat magni corrupti eum debitis similique aspernatur illo libero rerum aut! In quas sit culpa tempora alias quia accusamus nostrum id, placeat pariatur nulla laudantium ipsam, deserunt voluptates? Numquam nisi doloribus, minima, officia labore minus possimus voluptas mollitia exercitationem hic vero a nesciunt quisquam deserunt quod autem saepe commodi temporibus, laboriosam beatae! Id, voluptatibus laborum.
-	</div>
-</div>
+
+	<div id="links" class="how-do-i-container grid-container">
 
 
-{# <section class="grid-container homepage-container text-content">
-	<div id="banner">
-		<div class="grid-row banner-row">
-			<img class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
-
-			<div class="grid-col-10 grid-offset-1 desktop:grid-col-5 desktop:grid-offset-6 message-box">
-
-				<h1>
-					{{ node.title.value }}
-				</h1>
-				<p>
-					{{ node.body.value | raw}}
-				</p>
+		<div class="grid-row">
+			<div class="grid-col">
+				<h2>How do I...</h2>
 			</div>
 		</div>
-		<div id="links">
-			<div class="grid-row how-row">
-				<div class="grid-col-10 grid-offset-1 how-do-i-container">
-					<div class="grid-row">
-						<div class="grid-col">
-							<h2>How do I...</h2>
-						</div>
-					</div>
 
-					<div class="grid-row">
-						{% for link in node.field_homepage_top_links %}
-							<div class="how-button grid-col-12 desktop:grid-col-3">
-								<a href={{link.uri}}>
-									{{link.title}}
-								</a>
-							</div>
-						{% endfor %}
-					</div>
+		<div class="grid-row">
+			{% for link in node.field_homepage_top_links %}
+				<div class="how-button grid-col-12 desktop:grid-col-3">
+					<a href={{link.uri}}>
+						{{link.title}}
+					</a>
 				</div>
-			</div>
+			{% endfor %}
 		</div>
+
+
 	</div>
-	<div id="life-events"></div>
-	<div class="grid-row jump-row" style="  background-color: #112f4e;">
-			<div class="grid-col-12">
+
+	<div id="life-events-background"></div>
+
+	<div id="life-events" class="grid-container">
+		<div class="grid-row jump-row">
+			<div class="grid-col">
 				{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
 			</div>
 		</div>
 
-<div class="grid-row life-events-row" style="  background-color: #112f4e;">
-			<div class=" grid-col-10 grid-offset-1 desktop:grid-col-9 desktop:grid-offset-2 life-events-content">
+		<div class="grid-row life-events-row">
+			<div class=" grid-col-10 grid-offset-1 desktop:grid-col-11 desktop:grid-offset-1 life-events-content">
 				<h2>
 					Life Events
 				</h2>
@@ -129,30 +303,32 @@
 			</div>
 		</div>
 
-			<div class="grid-row carousel-row" style="  ">
-				<div class="grid-col carousel-content">
-					{% include directory ~ '/templates/includes/life-events-carousel.html.twig' %}
-				</div>
+		<div class="grid-row carousel-row">
+			<div class="grid-col-10 grid-offset-1 desktop:grid-col-11 desktop:grid-offset-1 carousel-content">
+
+				{% include directory ~ '/templates/includes/life-events-carousel.html.twig' %}
 			</div>
+		</div>
 
-	<div class="grid-row jump-row" style="  background-color: #112f4e;">
-
-			<div class="grid-col-12">
+		<div class="grid-row jump-row">
+			<div class="grid-col">
 				{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
 			</div>
 		</div>
+	</div>
 
+	<div id= "all-topics" class="all-topics grid-container">
 
-	<div class="grid-row all-topics-row">
-			<div class="grid-col all-topics-header">
-				<h2>All Topics and Services</h2>
-			</div>
+		<div class="grid-row all-topics-header">
+			<h2>All Topics and Services</h2>
 		</div>
 
-	<div class="grid-row cards-row">
-
+		<div class="grid-row cards-row">
 			<div class="grid-col cards-content">
 				{% include directory ~ '/templates/includes/all-topics-cards.html.twig' %}
 			</div>
 		</div>
-</section> #}
+
+	</div>
+
+</div>
