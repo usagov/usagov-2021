@@ -127,6 +127,7 @@ function myforms(event) {
     document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px"; 
     document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px"; 
     document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
+    dataLayer.push({'event':'CEO_form_submit','form_result':'success'});
 };
 
 
