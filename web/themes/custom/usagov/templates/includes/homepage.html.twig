@@ -1,4 +1,80 @@
-<section class="grid-container homepage-container text-content">
+<style>
+	.wrapper {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		/*   grid-template-rows: repeat(4, auto); */
+	}
+
+	#banner {
+		grid-column-start: 1;
+		grid-column-end: 3;
+		grid-row-start: 1;
+		grid-row-end: 3;
+ 		background-image: url({{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}});
+		background-size: cover;
+		background-position: center;
+	}
+	#intro {
+		grid-column-start: 2;
+		grid-column-end: 3;
+		grid-row-start: 1;
+		grid-row-end: 2;
+		background: #112F4E;
+		color: white;
+		margin: 40px;
+	}
+
+	#links {
+		grid-column-start: 1;
+		grid-column-end: 3;
+		grid-row-start: 2;
+		grid-row-end: 4;
+		z-index: 1;
+		background-color: white;
+		margin: 40px;
+	}
+	#life-events-wrapper {
+		grid-column-start: 1;
+		grid-column-end: 3;
+		grid-row-start: 3;
+		grid-row-end: 5;
+		background-color: #112F4E;
+	}
+	#life-events {
+		grid-column-start: 1;
+		grid-column-end: 3;
+		grid-row-start: 4;
+		grid-row-end: 5;
+		color: white;
+		margin: 40px;
+	}
+	.wrapper {
+		background-color: #fff4e6;
+	}
+
+	.box {
+		/*   margin: 40px; */
+		padding: 20px;
+		box-shadow: 5px 5px 5px rgb(0 0 0 / 0.2);
+		border-radius: 5px;
+	}
+</style>
+<div class="wrapper">
+	<div id="banner"></div>
+	<div id="intro" class="box">
+		Lorem ipsum dolor sit, amet consectetur adipisicing elit. Amet magnam quisquam ea explicabo repudiandae sed reiciendis id corrupti quasi culpa cupiditate dolorum velit iure alias aspernatur harum repellendus et quos molestias, ut molestiae. Id, magnam error illum atque maxime cumque sint suscipit eaque architecto quaerat corporis quae eum nam odio non consectetur tenetur vitae quia illo ducimus nihil dicta voluptate officia. Maxime quam accusamus quasi esse, adipisci eveniet consectetur unde dignissimos sed asperiores quo. Odit consequuntur minima natus, quia odio quo ea optio quisquam illo aliquid sed voluptatem impedit dicta nam enim ex facere blanditiis incidunt perferendis quis vitae facilis nulla iure? Praesentium aut vel possimus perferendis in officia unde, quae hic numquam? Pariatur similique excepturi accusantium maxime labore doloribus autem eaque quo quibusdam necessitatibus optio, sunt, beatae sequi quod id illo tenetur vero error ipsa ut. Incidunt architecto facere placeat laboriosam rerum magnam quibusdam, laudantium necessitatibus aperiam id nesciunt ea fugit! Assumenda facere illum saepe, quis vel illo et. Inventore obcaecati eos praesentium asperiores magnam nobis impedit eveniet, eum nam voluptate atque natus. Incidunt officiis ducimus quidem quisquam dolores libero nesciunt officia sapiente temporibus iure eveniet ipsum, sit, reiciendis sint soluta iste doloribus deleniti autem qui tenetur voluptatibus. Aperiam!
+	</div>
+	<div id="links" class="box">
+		Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat eaque dolore alias voluptatum molestias veritatis! Eaque, doloremque alias. Officiis consectetur dolorem suscipit, quia aut rerum repellendus minima facilis at, in quis perferendis provident. Nulla id at fugiat harum voluptatibus repellendus tempora culpa aperiam quaerat? Iste aperiam libero, atque modi corrupti quos at velit, minima neque ex nam quis soluta. Veritatis mollitia animi enim eveniet atque maxime rem cumque itaque quod adipisci labore, nobis eius id, delectus nisi quasi doloribus deleniti. Id, libero autem, modi enim, fugiat eligendi consequuntur possimus illum qui pariatur asperiores odit quis sapiente ab praesentium. Natus, doloribus.
+	</div>
+	<div id="life-events-wrapper"></div>
+	<div id="life-events">
+		Lorem ipsum dolor sit amet consectetur, adipisicing elit. Pariatur quos ducimus nobis omnis magnam doloremque consectetur fugit eum labore est ipsam soluta suscipit voluptates maxime dolore officiis mollitia laudantium accusamus, veniam explicabo blanditiis aliquam. Nobis non, sint magni laborum sunt autem eligendi minima sit placeat saepe? Earum, et sequi unde deleniti cum voluptatibus reprehenderit ipsum optio, iste adipisci consectetur labore ipsa dolorem mollitia hic. Repudiandae voluptatibus commodi ea velit illo eaque quia, libero totam excepturi, esse dolorum beatae reiciendis harum eligendi, eveniet doloremque saepe aliquid deleniti rem accusamus quasi. Tenetur aut nulla sunt doloremque harum accusantium praesentium, totam nostrum voluptatum voluptate fuga suscipit omnis dolore, deserunt repudiandae sint voluptas aspernatur ex consequuntur architecto velit? Aperiam suscipit iusto ipsa mollitia animi magni obcaecati similique et tempore dignissimos quam ut sint tenetur nihil quisquam placeat incidunt eaque, necessitatibus illum nostrum sunt deleniti? Porro asperiores, ipsam eaque impedit perferendis magnam tempore quod eligendi culpa voluptatem sapiente doloribus veritatis iure quisquam vitae numquam! Rerum ex, incidunt cupiditate, dignissimos expedita sed quibusdam dolores ab cumque quisquam, similique eos. Ab vero asperiores rerum officia quas fugit quasi, laborum voluptatem dolore eum tenetur! Cupiditate doloribus enim maxime et excepturi sed unde rem, aliquam odio reprehenderit. Accusantium dolorum saepe voluptas facilis sit debitis ipsum accusamus temporibus explicabo quaerat veritatis, quo pariatur! Consectetur sint dignissimos recusandae quibusdam tempora quae id cumque illum nostrum natus, veniam, ipsam ad voluptatem repellendus voluptatum nesciunt laboriosam exercitationem doloremque ex eligendi aut praesentium quas unde. Autem, corporis? Animi, fuga! Placeat magni corrupti eum debitis similique aspernatur illo libero rerum aut! In quas sit culpa tempora alias quia accusamus nostrum id, placeat pariatur nulla laudantium ipsam, deserunt voluptates? Numquam nisi doloribus, minima, officia labore minus possimus voluptas mollitia exercitationem hic vero a nesciunt quisquam deserunt quod autem saepe commodi temporibus, laboriosam beatae! Id, voluptatibus laborum.
+	</div>
+</div>
+
+
+{# <section class="grid-container homepage-container text-content">
 	<div id="banner">
 		<div class="grid-row banner-row">
 			<img class="homepage-hero" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
@@ -79,4 +155,4 @@
 				{% include directory ~ '/templates/includes/all-topics-cards.html.twig' %}
 			</div>
 		</div>
-</section>
+</section> #}
