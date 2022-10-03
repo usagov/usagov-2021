@@ -121,7 +121,7 @@ function myforms(event) {
     if (errorFound) {
         document.getElementById("error-box").focus();
 	    document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + test.length + " errors";
-        dataLayer.push({'event':'myform','error type':test.join(";")});
+        dataLayer.push({'event':'CEO form error','error type':test.join(";")});
         return false
     }
     document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px"; 
