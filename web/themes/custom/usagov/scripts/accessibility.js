@@ -121,12 +121,13 @@ function myforms(event) {
     if (errorFound) {
         document.getElementById("error-box").focus();
 	    document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + test.length + " errors";
-        dataLayer.push({'event':'myform','error type':test.join(";")});
+        dataLayer.push({'event':'CEO form error','error type':test.join(";")});
         return false
     }
     document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px"; 
     document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px"; 
     document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
+    dataLayer.push({'event':'CEO_form_submit','form_result':'success'});
 };
 
 
