@@ -61,9 +61,9 @@ function main($infile, $extended_infile, $outdir) {
     $extended_record = $extended_records_by_uuid[$uuid];
 
     // Get the "hints" from both records and concatenate them to group records
-    // by number of multi-value fields to map:
+    // by number of multi-value Link fields to map:
+    // $hint = $basic_record['langcode'] . '-' . $extended_record['multivalue_hint'];
     $hint = $extended_record['multivalue_hint'] ?: 'none';
-    $hint .= '-' . $basic_record['phonehint'];
 
     // Now combine the records into a flat array, in the same order as $headings above.
     $flat_record = [];
