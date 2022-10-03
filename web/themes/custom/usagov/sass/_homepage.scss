@@ -152,6 +152,8 @@
   width: 100%;
   background-color: white;
   border-bottom: 10px solid #d83933;
+  margin-top:-40px;
+  padding-top:-40px;
 }
 .cards-row {
   max-width: 100%;
@@ -365,5 +367,9 @@
 
   .life-events-row{
     padding-bottom:20px;
+  }
+
+  .all-topics-row {
+    margin-top: -70px;
   }
 }
