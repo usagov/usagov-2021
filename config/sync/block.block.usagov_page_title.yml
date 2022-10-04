@@ -4,6 +4,7 @@ status: true
 dependencies:
   module:
     - node
+    - system
   theme:
     - usagov
 _core:
@@ -28,3 +29,7 @@ visibility:
     bundles:
       wizard: wizard
       wizard_step: wizard_step
+  request_path:
+    id: request_path
+    negate: true
+    pages: /welcome-usagov
