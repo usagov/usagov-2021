@@ -31,7 +31,16 @@
 		border-radius: 3px;
 		box-shadow: 0 3px 6px rgb(122 122 122 / 154);
 		margin: 0 auto;
-		padding: 100px 0 0;
+		padding: 0;
+
+	}
+	.homepage-icon {
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: contain;
+		height: 70px;
+		margin-top: 15px;
+		margin-bottom: 15px;
 
 	}
 
@@ -48,7 +57,11 @@
 	.homepage-card-container h2 {
 		text-transform: uppercase;
 		font-weight: bold;
+    text-align:center;
 	}
+
+.homepage-card-container p {
+}
 
 	/* Mobile */
 	@media(max-width: 480px) {
@@ -137,13 +150,21 @@
 		<ul class="usa-card-group">
 			{% for row in rows %}
 				{# {{ devel_breakpoint() }} #}
+				{% set css_icon = row.content["#row"].node__field_css_icon_field_css_icon_value %}
+				{% if css_icon == null %}
+					{% set css_icon = "" %}
+				{% else %}
+					{% set css_icon = "topic-icon " ~ css_icon %}
+				{% endif %}
 
 				<li class="usa-card tablet:grid-col-3 homepage-card">
 					<a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}">
 
-						<div class="usa-card__container homepage-card-container">
 
-							<div class="usa-card__header">
+						<div class="usa-card__container homepage-card-container">
+							<div class="homepage-icon {{css_icon}}"></div>
+
+							<div class="">
 								<h2 class="usa-card__heading">{{row.content["#row"].node_field_data_title}}</h2>
 
 							</div>
