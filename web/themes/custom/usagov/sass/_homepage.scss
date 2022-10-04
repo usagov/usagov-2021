@@ -103,39 +103,32 @@
   background-image: url("../images/topics/ICONS_beta_Taxes.png");
 }
 
-main-grid {
+.main-grid {
   margin: 0;
   padding: 0;
+    display: grid;
+      grid-template-columns: 1fr 1fr;
 }
 
-h1,
-h2,
-p {
+.main-grid h1,
+.main-grid h2,
+.main-grid p {
   color: #FFFFFF;
 }
 
-h1 {
+.main-grid h1 {
   font-size: 35.2px;
   margin: 0 0 20px;
 }
 
-p {
+.main-grid p {
   font-size: 20px;
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-a {
+.main-grid a {
   color: #00BDE3;
-}
-
-.menu {
-  height: 70px;
-}
-
-.main-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
 }
 
 .banner-wrapper {
