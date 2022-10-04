@@ -106,8 +106,8 @@
 .main-grid {
   margin: 0;
   padding: 0;
-    display: grid;
-      grid-template-columns: 1fr 1fr;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
 .main-grid h1,
@@ -152,7 +152,7 @@
   grid-column: 2 / 3;
   grid-row: 1 / 2;
   background-color: #112f4e;
-  box-shadow: 0 6px 6px rgb(17 47 78 / .4 );
+  box-shadow: 0 6px 6px rgb(17 47 78 / .4);
   max-width: 400px;
 
   margin-top: 35px;
@@ -206,7 +206,27 @@
 .life-events {
   grid-column: 1 / 3;
   grid-row: 4 / 5;
-  background-color: 112f4e;
+  background-color: #112f4e;
+
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 0 0 75px;
+}
+
+.life-events h2 {
+  margin: 0 0 13px;
+  font-size: 35.2px;
+  font-family: merriweather web, georgia, cambria, times new roman, times, serif;
+}
+
+.life-events p {
+  font-size: 17.6px;
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+}
+
+.life-events-carousel {
+  margin: 30px 0 0;
 }
 
 .jump {
@@ -233,12 +253,19 @@
 }
 
 .all-topics-header h2 {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 0 0 75px;
+
   font-size: 48.8px;
   font-family: merriweather web, georgia, cambria, times new roman, times, serif;
   text-align: left;
   color: #d83933;
   font-weight: bold;
   margin-bottom: 0;
+
+
 }
 
 .all-topics {
@@ -250,6 +277,9 @@
 .all-topics p {
   color: #1b1b1b;
 }
+
+
+
 
 /* Mobile */
 @media(max-width: 480px) {
