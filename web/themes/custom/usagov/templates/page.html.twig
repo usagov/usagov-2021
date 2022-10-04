@@ -84,26 +84,6 @@
 		{% endif %}
 		{{ page.header }}
 
-		{#<nav class="usa-nav" role="navigation">
-						            {% if header_extended %}
-						            <div class="usa-nav__inner">
-						                {% endif %}
-						                <button class="usa-nav__close">
-						                    <img src="{{ uswds_images }}close.svg" alt="close" />
-						                </button>
-						                {% if page.mobile_menu %}
-						                <div class="usa-nav-mobile">
-						                    {{ page.mobile_menu }}
-						                </div>
-						                {% endif %} {% if page.mobile_menu %}
-						                <div class="usa-nav-desktop">
-						                    {% endif %} {% if page.primary_menu %} {{ page.primary_menu }} {% endif %} {% if page.secondary_menu %} {{ page.secondary_menu }} {% endif %} {% if page.mobile_menu %}
-						                </div>
-						                {% endif %} {% if header_extended %}
-						            </div>
-						            {% endif %}
-						        </nav>#}
-
 		{% if header_basic %}
 		</div>
 	{% endif %}
@@ -174,7 +154,6 @@
 		</a>
 	{% else %}
 		{{ page.content }}
-
 	{% endif %}
 
 </main>

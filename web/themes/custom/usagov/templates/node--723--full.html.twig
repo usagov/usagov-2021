@@ -6,13 +6,9 @@
 		</div>
 	</div>
 	<div class="welcome-box">
-		<h1>Welcome to USAGov</h1>
-		<p>
-			We are here to help you navigate your Federal Government. Check out our
-			<a>Top Pages section</a>
-			below to see what others are looking for, or jump to
-			<a>All Topics and Services.</a>
-		</p>
+		<h1>{{ node.title.value }}</h1>
+		<p>{{ node.body.value | raw}}</p>
+
 	</div>
 	<div class="blue-back"></div>
 	<div class="how-box">
@@ -42,8 +38,6 @@
 		<h2>All Topics and Services</h2>
 	</div>
 	<div class="all-topics">
-		<p>
-
-		</p>
+		<p></p>
 	</div>
 </div>
