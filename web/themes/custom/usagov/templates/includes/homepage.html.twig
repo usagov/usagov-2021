@@ -1,95 +1,118 @@
-<div class="wrapper">
-	<div id="banner">
-		<div id="banner-row">
-			<img class="banner" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}">
+<div class="main-grid">
+	<div class="banner-wrapper">
+		<div class="banner_div">
+			<img class="banner" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}"/>
+
 		</div>
 	</div>
-
-
-	<div id="intro">
-		<div id="intro2" class="message-box">
-
-
-			<h1>
-				{{ node.title.value }}
-			</h1>
-			<p>
-				{{ node.body.value | raw}}
-			</p>
-		</div>
+	<div class="welcome-box">
+		<h1>Welcome to USAGov</h1>
+		<p>
+			We are here to help you navigate your Federal Government. Check out
+						          our
+			<a>Top Pages section</a>
+			below to see what others are looking for,
+						          or jump to
+			<a>All Topics and Services.</a>
+		</p>
 	</div>
-	<div id="links" class="how-do-i-container grid-container">
-
-
-		<div class="grid-row">
-			<div class="grid-col">
-				<h2>How do I...</h2>
-			</div>
-		</div>
-
-		<div class="grid-row">
+	<div class="blue-back"></div>
+	<div class="how-box">
+		<h2>How do I...</h2>
+		<div class="how-button-list">
 			{% for link in node.field_homepage_top_links %}
-				<div class="how-button grid-col-12 desktop:grid-col-3">
+				<div class="how-button">
 					<a href={{link.uri}}>
 						{{link.title}}
 					</a>
 				</div>
 			{% endfor %}
 		</div>
-
+		<p></p>
+	</div>
+	<div class="life-events">
+{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
+		<p>
+			Lorem ipsum dolor sit amet consectetur, adipisicing elit. Pariatur
+						          quos ducimus nobis omnis magnam doloremque consectetur fugit eum
+						          labore est ipsam soluta suscipit voluptates maxime dolore officiis
+						          mollitia laudantium accusamus, veniam explicabo blanditiis aliquam.
+						          Nobis non, sint magni laborum sunt autem eligendi minima sit placeat
+						          saepe? Earum, et sequi unde deleniti cum voluptatibus reprehenderit
+						          ipsum optio, iste adipisci consectetur labore ipsa dolorem mollitia
+						          hic. Repudiandae voluptatibus commodi ea velit illo eaque quia, libero
+						          totam excepturi, esse dolorum beatae reiciendis harum eligendi,
+						          eveniet doloremque saepe aliquid deleniti rem accusamus quasi. Tenetur
+						          aut nulla sunt doloremque harum accusantium praesentium, totam nostrum
+						          voluptatum voluptate fuga suscipit omnis dolore, deserunt repudiandae
+						          sint voluptas aspernatur ex consequuntur architecto velit? Aperiam
+						          suscipit iusto ipsa mollitia animi magni obcaecati similique et
+						          tempore dignissimos quam ut sint tenetur nihil quisquam placeat
+						          incidunt eaque, necessitatibus illum nostrum sunt deleniti? Porro
+						          asperiores, ipsam eaque impedit perferendis magnam tempore quod
+						          eligendi culpa voluptatem sapiente doloribus veritatis iure quisquam
+						          vitae numquam! Rerum ex, incidunt cupiditate, dignissimos expedita sed
+						          quibusdam dolores ab cumque quisquam, similique eos. Ab vero
+						          asperiores rerum officia quas fugit quasi, laborum voluptatem dolore
+						          eum tenetur! Cupiditate doloribus enim maxime et excepturi sed unde
+						          rem, aliquam odio reprehenderit. Accusantium dolorum saepe voluptas
+						          facilis sit debitis ipsum accusamus temporibus explicabo quaerat
+						          veritatis, quo pariatur! Consectetur sint dignissimos recusandae
+						          quibusdam tempora quae id cumque illum nostrum natus, veniam, ipsam ad
+						          voluptatem repellendus voluptatum nesciunt laboriosam exercitationem
+						          doloremque ex eligendi aut praesentium quas unde. Autem, corporis?
+						          Animi, fuga! Placeat magni corrupti eum debitis similique aspernatur
+						          illo libero rerum aut! In quas sit culpa tempora alias quia accusamus
+						          nostrum id, placeat pariatur nulla laudantium ipsam, deserunt
+						          voluptates? Numquam nisi doloribus, minima, officia labore minus
+						          possimus voluptas mollitia exercitationem hic vero a nesciunt quisquam
+						          deserunt quod autem saepe commodi temporibus, laboriosam beatae! Id,
+						          voluptatibus laborum.
+		</p>
+{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
 
 	</div>
 
-	<div id="life-events-background"></div>
-
-	<div id="life-events" class="grid-container">
-		<div class="grid-row jump-row">
-			<div class="grid-col">
-				{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
-			</div>
-		</div>
-
-		<div class="grid-row life-events-row">
-			<div class=" grid-col-10 grid-offset-1 desktop:grid-col-11 desktop:grid-offset-1 life-events-content">
-				<h2>
-					Life Events
-				</h2>
-				<p>
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur luctus dignissim dui, eget finibus ante tincidunt sed. Proin vehicula posuere leo, a posuere magna consectetur et. Suspendisse ligula ipsum, rutrum quis fringilla at, dictum sit amet ligula. Nullam posuere bibendum placerat. Nam ut facilisis elit. Nunc venenatis, dui vitae sollicitudin eleifend, nunc augue volutpat erat, quis sagittis turpis sem eget lectus.
-				</p>
-			</div>
-		</div>
-
-		<div class="grid-row carousel-row">
-			<div class="grid-col-10 grid-offset-1 desktop:grid-col-11 desktop:grid-offset-1 carousel-content">
-
-				{% include directory ~ '/templates/includes/life-events-carousel.html.twig' %}
-			</div>
-		</div>
-
-		<div class="grid-row jump-row">
-			<div class="grid-col">
-				{% include directory ~ '/templates/includes/alltopicsjump.html.twig' %}
-			</div>
-		</div>
+	<div class="all-topics-header">
+		<h2>All Topics and Services</h2>
 	</div>
-
-	<div id="all-topics" class="all-topics">
-<div class="all-topics-row  grid-container">
-
-			<div class="grid-row all-topics-header">
-
-				<h2>All Topics and Services</h2>
-			</div>
-		</div>
-
-
-		<div class="grid-row cards-row">
-			<div class="grid-col cards-content">
-				{% include directory ~ '/templates/includes/all-topics-cards.html.twig' %}
-			</div>
-		</div>
-
+	<div class="all-topics">
+		<p>
+			Lorem ipsum dolor sit amet consectetur, adipisicing elit. Pariatur
+						          quos ducimus nobis omnis magnam doloremque consectetur fugit eum
+						          labore est ipsam soluta suscipit voluptates maxime dolore officiis
+						          mollitia laudantium accusamus, veniam explicabo blanditiis aliquam.
+						          Nobis non, sint magni laborum sunt autem eligendi minima sit placeat
+						          saepe? Earum, et sequi unde deleniti cum voluptatibus reprehenderit
+						          ipsum optio, iste adipisci consectetur labore ipsa dolorem mollitia
+						          hic. Repudiandae voluptatibus commodi ea velit illo eaque quia, libero
+						          totam excepturi, esse dolorum beatae reiciendis harum eligendi,
+						          eveniet doloremque saepe aliquid deleniti rem accusamus quasi. Tenetur
+						          aut nulla sunt doloremque harum accusantium praesentium, totam nostrum
+						          voluptatum voluptate fuga suscipit omnis dolore, deserunt repudiandae
+						          sint voluptas aspernatur ex consequuntur architecto velit? Aperiam
+						          suscipit iusto ipsa mollitia animi magni obcaecati similique et
+						          tempore dignissimos quam ut sint tenetur nihil quisquam placeat
+						          incidunt eaque, necessitatibus illum nostrum sunt deleniti? Porro
+						          asperiores, ipsam eaque impedit perferendis magnam tempore quod
+						          eligendi culpa voluptatem sapiente doloribus veritatis iure quisquam
+						          vitae numquam! Rerum ex, incidunt cupiditate, dignissimos expedita sed
+						          quibusdam dolores ab cumque quisquam, similique eos. Ab vero
+						          asperiores rerum officia quas fugit quasi, laborum voluptatem dolore
+						          eum tenetur! Cupiditate doloribus enim maxime et excepturi sed unde
+						          rem, aliquam odio reprehenderit. Accusantium dolorum saepe voluptas
+						          facilis sit debitis ipsum accusamus temporibus explicabo quaerat
+						          veritatis, quo pariatur! Consectetur sint dignissimos recusandae
+						          quibusdam tempora quae id cumque illum nostrum natus, veniam, ipsam ad
+						          voluptatem repellendus voluptatum nesciunt laboriosam exercitationem
+						          doloremque ex eligendi aut praesentium quas unde. Autem, corporis?
+						          Animi, fuga! Placeat magni corrupti eum debitis similique aspernatur
+						          illo libero rerum aut! In quas sit culpa tempora alias quia accusamus
+						          nostrum id, placeat pariatur nulla laudantium ipsam, deserunt
+						          voluptates? Numquam nisi doloribus, minima, officia labore minus
+						          possimus voluptas mollitia exercitationem hic vero a nesciunt quisquam
+						          deserunt quod autem saepe commodi temporibus, laboriosam beatae! Id,
+						          voluptatibus laborum.
+		</p>
 	</div>
-
 </div>
