@@ -1,13 +1,28 @@
 <style>
 	.homepage-cards {
 		background-color: #E5F8FD;
+	}
+
+	.homepage-cards .usa-card-group {
+
+		max-width: 960px;
+		margin-right: auto;
+		margin-left: auto;
+		display: flex;
+		justify-content: center;
 
 	}
 
 	.homepage-cards .usa-card {
 		padding: 0;
-	}
+		margin-right: 12px;
+		max-width: 194px;
 
+	}
+	.homepage-card a {
+		text-decoration: none;
+
+	}
 	.homepage-card-container {
 		background-color: #FFFFFF;
 
@@ -17,20 +32,34 @@
 		box-shadow: 0 3px 6px rgb(122 122 122 / 154);
 		margin: 0 auto;
 		padding: 100px 0 0;
-		max-width: 194px;
+
 	}
 
 	.homepage-card-container h2,
 	.homepage-card-container p {
+
 
 		font-size: 17.6px;
 		color: #1b1b1b;
 		font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
 	}
 
+
 	.homepage-card-container h2 {
 		text-transform: uppercase;
 		font-weight: bold;
+	}
+
+	/* Mobile */
+	@media(max-width: 480px) {
+		.homepage-cards .usa-card {
+			padding: 0;
+			margin-right: auto;
+			margin-left: auto;
+
+			max-width: 300px;
+
+		}
 	}
 </style>
 
@@ -104,6 +133,7 @@
 
 {% elseif term_name == "Home Page" %}
 	<div class=" homepage-cards">
+
 		<ul class="usa-card-group">
 			{% for row in rows %}
 				{# {{ devel_breakpoint() }} #}
@@ -112,14 +142,6 @@
 					<a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}">
 
 						<div class="usa-card__container homepage-card-container">
-
-
-							{% set css_icon = row.content["#row"].node__field_css_icon_field_css_icon_value %}
-							{% if css_icon != null %}
-								{{css_icon}}
-
-							{% endif %}
-
 
 							<div class="usa-card__header">
 								<h2 class="usa-card__heading">{{row.content["#row"].node_field_data_title}}</h2>
