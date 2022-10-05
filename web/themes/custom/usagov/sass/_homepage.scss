@@ -103,6 +103,14 @@
   background-image: url("../images/topics/ICONS_beta_Taxes.png");
 }
 
+.homepage-section {
+  padding: 0px;
+}
+
+.homepage-footer {
+  padding-top: 0px;
+}
+
 .main-grid {
   margin: 0;
   padding: 0;
@@ -118,7 +126,7 @@
 
 .main-grid h1 {
   font-size: 35.2px;
-  margin: 0 0 20px;
+  margin: 0px;
 }
 
 .main-grid p {
@@ -156,9 +164,13 @@
   max-width: 400px;
 
   margin-top: 35px;
-  margin-bottom: 40px;
+  margin-bottom: 0px;
 
   padding: 20px 40px 25px 25px;
+}
+
+.welcome-box p {
+  margin-top: 20px;
 }
 
 .blue-back {
@@ -175,6 +187,7 @@
   max-width: 960px;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 40px;
   padding-top: 13px;
   padding-left: 25px;
   padding-bottom: 20px;
@@ -215,13 +228,15 @@
 }
 
 .life-events h2 {
-  margin: 0 0 13px;
+  margin: 0 0 0px;
+  padding-top: 16px;
   font-size: 35.2px;
   font-family: merriweather web, georgia, cambria, times new roman, times, serif;
 }
 
 .life-events p {
   font-size: 17.6px;
+  padding-top: 13px;
   font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
 }
 
@@ -231,7 +246,7 @@
 
 .jump {
   text-align: center;
-  padding: 20px 20px 16px;
+  padding: 20px 20px 0px;
 }
 
 .jump a {
@@ -264,8 +279,6 @@
   color: #d83933;
   font-weight: bold;
   margin-bottom: 0;
-
-
 }
 
 .all-topics {
@@ -278,8 +291,59 @@
   color: #1b1b1b;
 }
 
+.homepage-cards {
+  background-color: #E5F8FD;
+}
 
+.homepage-cards .usa-card-group {
 
+  max-width: 960px;
+  margin-right: auto;
+  margin-left: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.homepage-cards .usa-card {
+  padding: 0;
+  margin: 6px;
+  max-width: 194px;
+}
+
+.homepage-card a {
+  text-decoration: none;
+}
+
+.homepage-card-container {
+  background-color: #FFFFFF;
+  border-color: #707070;
+  border-radius: 3px;
+  box-shadow: 0 3px 6px rgb(122 122 122 / .15);
+  margin: 0 auto;
+  padding: 0;
+}
+
+.homepage-icon {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  height: 70px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.homepage-card-container h2,
+.homepage-card-container p {
+  font-size: 17.6px;
+  color: #1b1b1b;
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+}
+
+.homepage-card-container h2 {
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: center;
+}
 
 /* Mobile */
 @media(max-width: 480px) {
@@ -290,7 +354,7 @@
     margin-right: 25px;
     margin-left: 25px;
 
-    margin-bottom: 35px;
+    margin-bottom: 0px;
 
 
     padding-right: 28px;
@@ -302,7 +366,7 @@
     max-width: 400px;
     margin-right: 25px;
     margin-left: 25px;
-
+    margin-top: 35px;
     padding-top: 30px;
     padding-bottom: 20px;
   }
@@ -332,5 +396,16 @@
 
   .life-events-carousel {
     margin: 20px 0 0;
+  }
+
+  .homepage-cards .usa-card {
+    padding: 0;
+    margin: 5px auto;
+    max-width: 300px;
+  }
+
+  .homepage-card_header {
+    padding-left: 30px;
+    padding-right: 30px;
   }
 }
