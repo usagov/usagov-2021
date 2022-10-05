@@ -264,14 +264,17 @@ function renderResults(response, rawResponse) {
             if (email != "none provided") {
                 // let primaryEmail = document.createElement("button");
                 let linkToContact = document.createElement("a");
-                let emailLinkified = email[0].replace("@", "_");
+                let firstEmail = email[0];
 
                 linkToContact.setAttribute("class", "usa-button usa-button--outline usagov-button--outline-black");
                 linkToContact.style.marginTop = "15px";
                 linkToContact.innerHTML = content["contact-via-email"];
 
-                linkToContact.setAttribute("href", content["path-contact"] + "?email=" + emailLinkified +
-                    "?name=" + response.officials[i].name + "?office=" + response.officials[i].office) + "#skip-to-h1";
+                linkToContact.setAttribute("href", content["path-contact"] 
+                                           + "?email=" + encodeURIComponent(firstEmail) 
+                                           + "?name="  + encodeURIComponent(response.officials[i].name) 
+                                           + "?office=" + encodeURIComponent(response.officials[i].office)
+                                           + "#skip-to-h1");
 
                 bulletList.appendChild(linkToContact);
             }

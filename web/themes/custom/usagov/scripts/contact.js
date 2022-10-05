@@ -28,10 +28,13 @@
 }
 let contact_content=contact_translations[ document.documentElement.lang ];
 
- function load() {
-    let email = window.location.href.split("email=")[1].split("?")[0].replace("_", "@");
-    let name = window.location.href.split("name=")[1].split("?")[0].split("%20").join(" ");
-    let office = window.location.href.split("office=")[1].split("?")[0].split("%20").join(" ");
+
+
+function load() {
+    let hrefWithoutHash = window.location.href.replace(window.location.hash, "");
+    let email = decodeURIComponent(hrefWithoutHash.split("email=")[1].split("?")[0]);
+    let name = decodeURIComponent(hrefWithoutHash.split("name=")[1].split("?")[0].split("%20").join(" "));
+    let office = decodeURIComponent(hrefWithoutHash.split("office=")[1].split("?")[0].split("%20").join(" "));
 
     let displayOfficial = document.getElementById("display-official");
     displayOfficial.innerHTML = DOMPurify.sanitize(name + "<br>" + office);
@@ -39,60 +42,95 @@ let contact_content=contact_translations[ document.documentElement.lang ];
     // In case the mailto button doesn't work,
     // display email for user to manually input
     let buttonAlt = document.getElementById("button-alt");
-    buttonAlt.innerHTML += email;
+    buttonAlt.innerHTML += DOMPurify.sanitize(email);
 }
 
 /**
  * Execute mailto link based on user-submitted content.
  */
 function writeMessage() {
-    let email = window.location.href.split("email=")[1].split("?")[0].replace("_", "@");
+    let hrefWithoutHash = window.location.href.replace(window.location.hash, "");    
+    let email = decodeURIComponent(hrefWithoutHash.split("email=")[1].split("?")[0]);
 
     let topicField = document.getElementById("input-topic");
     let aboutField = document.getElementById("input-about");
     let actionField = document.getElementById("input-action");
-    
-    // Note: %0D%0A = newline character
-    let address = "mailto:" + email;
-    let subject = "?subject=" + contact_content.subject;
-    let body = [];
-    if (topicField.value != "" && aboutField.value != "" && actionField.value != "") {
-        body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
-        contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A" +
-        contact_content.idea + "%0D%0A" + actionField.value);
-    }
-    else
-    if (topicField.value != "" && aboutField.value == "" && actionField.value != "") {
-        body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
-        contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
-    }
-    else
-    if (topicField.value != "" && aboutField.value != "" && actionField.value == "") {
-        body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
-        contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A");
-    }
-    else
-    if (topicField.value == "" && aboutField.value != "" && actionField.value != "") {
-        body.push( "&body=" + contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A" + 
-        contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
-    }
-    else
-    if (topicField.value != "" && aboutField.value == "" && actionField.value == "") {
-        body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A");
-    }
-    else
-    if (topicField.value == "" && aboutField.value != "" && actionField.value == "") {
-        body.push( "&body=" + contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A");
-    }
-    else
-    if (topicField.value == "" && aboutField.value == "" && actionField.value != "") {
-        body.push( "&body=" + contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
-    }
 
+    // Minimal check of email address; it must not start with a protocol://, etc.
+    // This is solely to eliminate an "open redirect" vulnerability. It would be
+    // better to look up the official's address, find the matching email address, and
+    // use the email string returned from the Civic API.
+    email = email.trim();
+    let protocol_regex = /^\w+:/;
+    let protocol_match = email.match(protocol_regex);
+    let parts = email.split('@');
+    let parts_bad = false;
+    // There should be at least 2 parts:
+    if (parts.length < 2) {
+      parts_bad = true;
+    }
+    if (parts.length > 2) {
+        // Multiple @s are bad unless the first part of the address is in quotation marks. 
+        let lastpart = parts[parts.length - 1];
+        let prevpart = parts[parts.length - 2];
+        let firstpart = parts[0];
+        if (firstpart.substring(0,1) != '"') {
+          parts_bad = true;
+        }
+        else if (prevpart.substring(prevpart.length - 1) != '"') {
+          parts_bad = true;
+        }
+        // The part after the @ must not contain quotation marks. 
+        if (! parts_bad) {
+          if (lastpart.indexOf('"') != -1) {
+              parts_bad = true;
+          }
+        }
+    }
     
-    // Must replace spaces with %20
-    let mailtoLink = (address + subject + body).replace(" ", "%20");
-    window.location.href = DOMPurify.sanitize(mailtoLink);
+    if (! parts_bad && (protocol_match == undefined)) {
+      let address = parts.join('@');
+      let subject = "?subject=" + contact_content.subject;
+      let body = [];
+
+      // Note: %0D%0A = newline character
+      if (topicField.value != "" && aboutField.value != "" && actionField.value != "") {
+          body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
+                   contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A" +
+                   contact_content.idea + "%0D%0A" + actionField.value);
+      }
+      else
+        if (topicField.value != "" && aboutField.value == "" && actionField.value != "") {
+            body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
+                         contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
+          }
+      else
+        if (topicField.value != "" && aboutField.value != "" && actionField.value == "") {
+            body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
+                       contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A");
+        }
+      else
+        if (topicField.value == "" && aboutField.value != "" && actionField.value != "") {
+            body.push( "&body=" + contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A" + 
+                       contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
+        }
+      else
+        if (topicField.value != "" && aboutField.value == "" && actionField.value == "") {
+            body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A");
+        }
+      else
+        if (topicField.value == "" && aboutField.value != "" && actionField.value == "") {
+            body.push( "&body=" + contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A");
+        }
+      else
+        if (topicField.value == "" && aboutField.value == "" && actionField.value != "") {
+            body.push( "&body=" + contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
+        }
+
+      // Must replace spaces with %20
+      let mailtoLink = 'mailto:' + (address + subject + body).replace(" ", "%20");
+      window.location.href = mailtoLink;
+    }
 }
 
 load();
