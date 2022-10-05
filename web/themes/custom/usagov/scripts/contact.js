@@ -90,46 +90,27 @@ function writeMessage() {
     
     if (! parts_bad && (protocol_match == undefined)) {
       let address = parts.join('@');
-      let subject = "?subject=" + contact_content.subject;
+      let subject = "?subject=" + encodeURIComponent(contact_content.subject);
       let body = [];
-
-      // Note: %0D%0A = newline character
-      if (topicField.value != "" && aboutField.value != "" && actionField.value != "") {
-          body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
-                   contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A" +
-                   contact_content.idea + "%0D%0A" + actionField.value);
+	
+      if (topicField.value != "") {
+	  body.push(encodeURIComponent(contact_content.issue + "\n"));
+	  body.push(encodeURIComponent(topicField.value + "\n\n"));
       }
-      else
-        if (topicField.value != "" && aboutField.value == "" && actionField.value != "") {
-            body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
-                         contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
-          }
-      else
-        if (topicField.value != "" && aboutField.value != "" && actionField.value == "") {
-            body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A" +
-                       contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A");
-        }
-      else
-        if (topicField.value == "" && aboutField.value != "" && actionField.value != "") {
-            body.push( "&body=" + contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A" + 
-                       contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
-        }
-      else
-        if (topicField.value != "" && aboutField.value == "" && actionField.value == "") {
-            body.push( "&body=" + contact_content.issue + "%0D%0A" + topicField.value + "%0D%0A%0D%0A");
-        }
-      else
-        if (topicField.value == "" && aboutField.value != "" && actionField.value == "") {
-            body.push( "&body=" + contact_content.concern + "%0D%0A" + aboutField.value + "%0D%0A%0D%0A");
-        }
-      else
-        if (topicField.value == "" && aboutField.value == "" && actionField.value != "") {
-            body.push( "&body=" + contact_content.idea + "%0D%0A" + actionField.value + "%0D%0A%0D%0A");
-        }
+      if (aboutField.value != "") {
+	  body.push(encodeURIComponent(contact_content.concern + "\n"));
+	  body.push(encodeURIComponent(aboutField.value + "\n\n"));
+      }
+      if (actionField.value != "") {
+	  body.push(encodeURIComponent(contact_content.idea + "\n"));
+	  body.push(encodeURIComponent(actionField.value));
+      }
 
-      // Must replace spaces with %20
-      let mailtoLink = 'mailto:' + (address + subject + body).replace(" ", "%20");
-      window.location.href = mailtoLink;
+      body_string = "&body=" + body.join('');
+
+      let mailtoLink = 'mailto:' + (address + subject + body_string);
+      //window.location.href = mailtoLink;
+      window.location.assign(mailtoLink);
     }
 }
 
