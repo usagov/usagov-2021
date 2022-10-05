@@ -98,9 +98,9 @@
 {% endif %}
 
 
-
-{% if term_name != "Home Page" %}
-	<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+{# {% if term_name != "Home Page" %} #}
+<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+	{% if term_name != "Home Page" %}
 
 		<a id="main-content" tabindex="-1"></a>
 		{# link is in html.html.twig #}
@@ -153,21 +153,22 @@
 			{{ lang == 'en' ? 'Top' : 'Subir' }}
 		</a>
 	{% else %}
-	<main class="main-content usa-layout-docs usa-section homepage-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
-
 		{{ page.content }}
 	{% endif %}
 
 </main>
 
-{% if term_name == "Home Page" %}
-<footer class="{{ footer_classes }} homepage-footer" role="contentinfo">
+{# {% else %}
+	<main class="main-content usa-layout-docs {{ main_classes }} homepage-main" role="main" id="main-content" data-pagetype="{{term_name}}">
 
-{% else %}
-<footer class="{{ footer_classes }}" role="contentinfo">
+		{% include directory ~ '/templates/includes/homepage.html.twig' %}
+	</main>
 
-{% endif %}
+{% endif %} #}
 
+
+<footer
+	class="{{ footer_classes }}" role="contentinfo">
 	{#<div class="grid-container usa-footer__return-to-top">
 			        <a href="#">{{ 'Return to top'|t }}</a>
 			    </div>#}
