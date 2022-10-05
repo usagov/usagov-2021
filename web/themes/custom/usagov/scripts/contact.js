@@ -29,9 +29,10 @@
 let contact_content=contact_translations[ document.documentElement.lang ];
 
  function load() {
-    let email = window.location.href.split("email=")[1].split("?")[0].replace("_", "@");
-    let name = window.location.href.split("name=")[1].split("?")[0].split("%20").join(" ");
-    let office = window.location.href.split("office=")[1].split("?")[0].split("%20").join(" ");
+    let hrefWithoutHash = window.location.href.replace(window.location.hash, "");
+    let email = hrefWithoutHash.split("email=")[1].split("?")[0].replace("_", "@");
+    let name = hrefWithoutHash.split("name=")[1].split("?")[0].split("%20").join(" ");
+    let office = hrefWithoutHash.split("office=")[1].split("?")[0].split("%20").join(" ");
 
     let displayOfficial = document.getElementById("display-official");
     displayOfficial.innerHTML = DOMPurify.sanitize(name + "<br>" + office);
@@ -39,7 +40,7 @@ let contact_content=contact_translations[ document.documentElement.lang ];
     // In case the mailto button doesn't work,
     // display email for user to manually input
     let buttonAlt = document.getElementById("button-alt");
-    buttonAlt.innerHTML += email;
+    buttonAlt.innerHTML += DOMPurify.sanitize(email);
 }
 
 /**
@@ -53,7 +54,7 @@ function writeMessage() {
     let actionField = document.getElementById("input-action");
     
     // Note: %0D%0A = newline character
-    let address = "mailto:" + email;
+    let address = email;
     let subject = "?subject=" + contact_content.subject;
     let body = [];
     if (topicField.value != "" && aboutField.value != "" && actionField.value != "") {
@@ -91,7 +92,7 @@ function writeMessage() {
 
     
     // Must replace spaces with %20
-    let mailtoLink = (address + subject + body).replace(" ", "%20");
+    let mailtoLink = 'mailto:' + (address + subject + body).replace(" ", "%20");
     window.location.href = DOMPurify.sanitize(mailtoLink);
 }
 
