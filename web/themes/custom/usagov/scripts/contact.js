@@ -28,14 +28,11 @@
 }
 let contact_content=contact_translations[ document.documentElement.lang ];
 
-
-
 function load() {
     let hrefWithoutHash = window.location.href.replace(window.location.hash, "");
     let email = decodeURIComponent(hrefWithoutHash.split("email=")[1].split("?")[0]);
     let name = decodeURIComponent(hrefWithoutHash.split("name=")[1].split("?")[0].split("%20").join(" "));
     let office = decodeURIComponent(hrefWithoutHash.split("office=")[1].split("?")[0].split("%20").join(" "));
-
     let displayOfficial = document.getElementById("display-official");
     displayOfficial.innerHTML = DOMPurify.sanitize(name + "<br>" + office);
 
@@ -51,7 +48,6 @@ function load() {
 function writeMessage() {
     let hrefWithoutHash = window.location.href.replace(window.location.hash, "");    
     let email = decodeURIComponent(hrefWithoutHash.split("email=")[1].split("?")[0]);
-
     let topicField = document.getElementById("input-topic");
     let aboutField = document.getElementById("input-about");
     let actionField = document.getElementById("input-action");

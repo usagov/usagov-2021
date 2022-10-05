@@ -275,7 +275,6 @@ function renderResults(response, rawResponse) {
                                            + "?name="  + encodeURIComponent(response.officials[i].name) 
                                            + "?office=" + encodeURIComponent(response.officials[i].office)
                                            + "#skip-to-h1");
-
                 bulletList.appendChild(linkToContact);
             }
 
