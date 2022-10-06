@@ -54,9 +54,9 @@
   </ul>
 </div>
 {% if lang == "en" %}
-<p><span class="text-bold">Looking for something else?</span> <a href="/">Explore all topics and services</a></p>
+<p><span class="text-bold">Looking for something else?</span> <a id="something-else" href="/#all_topics">Explore all topics and services</a></p>
 {% else %}
-<p><span class="text-bold">¿Busca algo más? <a href="/es">Encuentre más temas y servicios</a></span></p>
+<p><span class="text-bold">¿Busca algo más? <a id="something-else-es" href="/es#all_topics">Encuentre más temas y servicios</a></span></p>
 {% endif %}
 
 {% elseif term_name == "Standard Page" %}
@@ -65,6 +65,7 @@
 
 {% if view.current_display == "block_4" %}
   {# block_4 is the intro_page display for this view which is used on the homepage #}
+ <span id="all_topics"></span>
   <div class="usagov-cards">
     <ul class="usa-card-group">
       {% for row in rows %}
