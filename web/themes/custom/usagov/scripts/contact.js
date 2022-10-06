@@ -28,10 +28,11 @@
 }
 let contact_content=contact_translations[ document.documentElement.lang ];
 
- function load() {
-    let email = window.location.href.split("email=")[1].split("?")[0].replace("_", "@");
-    let name = window.location.href.split("name=")[1].split("?")[0].split("%20").join(" ");
-    let office = window.location.href.split("office=")[1].split("?")[0].split("%20").join(" ");
+function load() {
+    let hrefWithoutHash = window.location.href.replace(window.location.hash, "");
+    let email = hrefWithoutHash.split("email=")[1].split("?")[0].replace("_", "@");
+    let name = hrefWithoutHash.split("name=")[1].split("?")[0].split("%20").join(" ");
+    let office = hrefWithoutHash.split("office=")[1].split("?")[0].split("%20").join(" ");
 
     let displayOfficial = document.getElementById("display-official");
     displayOfficial.innerHTML = DOMPurify.sanitize(name + "<br>" + office);
@@ -46,7 +47,8 @@ let contact_content=contact_translations[ document.documentElement.lang ];
  * Execute mailto link based on user-submitted content.
  */
 function writeMessage() {
-    let email = window.location.href.split("email=")[1].split("?")[0].replace("_", "@");
+    let hrefWithoutHash = window.location.href.replace(window.location.hash, "");
+    let email = hrefWithoutHash.split("email=")[1].split("?")[0].replace("_", "@");
 
     let topicField = document.getElementById("input-topic");
     let aboutField = document.getElementById("input-about");
