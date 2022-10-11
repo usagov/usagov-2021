@@ -153,6 +153,9 @@
             },
             "drupal/core": {
                 "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail.patch"
+            },
+            "drupal/views_menu_children_filter": {
+                "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
             }
         }
     }
