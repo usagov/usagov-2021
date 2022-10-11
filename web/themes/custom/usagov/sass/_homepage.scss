@@ -361,6 +361,19 @@
   text-align: center;
 }
 
+/*Tablet */
+ @media(max-width: 700px) {
+
+   .how-button-list {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     margin-top: 30px;
+   }
+
+   .how-button {
+     margin-bottom: 15px;
+   }
+ }
 
 /* Mobile */
 @media(max-width: 480px) {
