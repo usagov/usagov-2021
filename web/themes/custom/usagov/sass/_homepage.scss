@@ -308,6 +308,8 @@
 }
 
 /* All Topics Cards */
+
+
 .homepage-cards {
   background-color: var($homepage, light-blue-color);
 }
@@ -364,6 +366,10 @@
 
 /*Tablet */
 @media(max-width: 800px) {
+  .homepage-card-group {
+    flex-direction: row;
+  }
+
   .homepage-cards .usa-card {
     max-width: none;
   }
