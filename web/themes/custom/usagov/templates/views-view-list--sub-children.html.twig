@@ -69,7 +69,8 @@
 {% elseif term_name == "Home Page" %}
 	<div class=" homepage-cards">
 
-		<ul class="usa-card-group">
+<ul class="usa-card-group homepage-card-group">
+
 			{% for row in rows %}
 				{# {{ devel_breakpoint() }} #}
 				{% set css_icon = row.content["#row"].node__field_css_icon_field_css_icon_value %}
@@ -79,7 +80,9 @@
 					{% set css_icon = "topic-icon " ~ css_icon %}
 				{% endif %}
 
-				<li class="usa-card tablet:grid-col-3 homepage-card">
+<li class="usa-card mobile-lg:grid-col-5 tablet:grid-col-3  homepage-card">
+
+
 					<a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}">
 
 
