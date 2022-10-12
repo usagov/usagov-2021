@@ -382,6 +382,15 @@
   text-align: center;
 }
 
+.homepage-card-container:hover {
+  background-color: var($homepage, hover-color);
+}
+
+.homepage-card-container:focus {
+  outline: 0.25rem solid #c05600;
+  outline-offset: 0;
+}
+
 /*Tablet */
 @media(max-width: 800px) {
   .homepage-card-group {
