@@ -38,12 +38,12 @@ function renderResults(response, rawResponse) {
         "en": {
             "error-fetch": "ERROR: Failed trying to fetch elected officials!",
             "error-address": "ERROR: Could not find elected officials for given address!",
-            "levels": ["Federal Officials", "State Officials", "Local Officials"],
-            "party-affiliation": "Party Affiliation",
+            "levels": ["Federal officials", "State officials", "Local officials"],
+            "party-affiliation": "Party affiliation",
             "address": "Address",
-            "phone-number": "Phone Number",
+            "phone-number": "Phone number",
             "website": "Website",
-            "contact-via-email": "Contact via Email",
+            "contact-via-email": "Contact via email",
             "path-contact": "/elected-officials-email",
         },
         "es": {
@@ -271,7 +271,8 @@ function renderResults(response, rawResponse) {
                 linkToContact.innerHTML = content["contact-via-email"];
 
                 linkToContact.setAttribute("href", content["path-contact"] + "?email=" + emailLinkified +
-                    "?name=" + response.officials[i].name + "?office=" + response.officials[i].office) + "#skip-to-h1";
+					   "?name=" + response.officials[i].name + "?office=" + 
+					   response.officials[i].office + "#skip-to-h1");
 
                 bulletList.appendChild(linkToContact);
             }

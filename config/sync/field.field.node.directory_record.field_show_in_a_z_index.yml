@@ -1,0 +1,23 @@
+uuid: 234dc9bd-4ca6-4396-9841-a1a2eb56bcb1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_show_in_a_z_index
+    - node.type.directory_record
+id: node.directory_record.field_show_in_a_z_index
+field_name: field_show_in_a_z_index
+entity_type: node
+bundle: directory_record
+label: 'Show in A-Z Index'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean
