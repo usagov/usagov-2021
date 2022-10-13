@@ -1,0 +1,13 @@
+--- web/modules/contrib/views_menu_children_filter/src/Plugin/views/argument/MenuChildren.php	2022-10-11 14:06:58.000000000 -0400
++++ web/modules/contrib/views_menu_children_filter/src/Plugin/views/argument/MenuChildrenNew.php	2022-10-11 14:06:48.000000000 -0400
+@@ -171,8 +171,8 @@
+         if ($menu === 'all_menus') {
+           $menu = NULL;
+         }
+-
+-        $menu_links = $this->menuLinkManager->loadLinksByRoute($route, $routeParameters, $menu);
++        $link_sort_order = ['mlid'=>'ASC'];
++        $menu_links = $this->menuLinkManager->loadLinksByRoute($route, $routeParameters, $menu, $link_sort_order);
+ 
+         if (!empty($menu_links)) {
+           // Ideally, only one result is returned.
