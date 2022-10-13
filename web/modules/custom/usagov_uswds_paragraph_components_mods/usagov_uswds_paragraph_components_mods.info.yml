@@ -1,0 +1,13 @@
+# Package info
+name: "USAgov USWDS Paragraph Components Modifications"
+description: "Make modifications to the elements we get from USWDS Paragraph Components"
+type: module
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: USAgov
+
+# Dependencies
+dependencies:
+  - field
+  - text
+  - uswds_paragraph_components
