@@ -326,16 +326,19 @@
 
 /* All Topics Cards */
 
+
 .homepage-cards {
   background-color: var($homepage, light-blue-color);
   padding-bottom: 30px;
 }
 
-.homepage-cards .usa-card-group {
-
+.homepage-card-group {
   max-width: 960px;
   margin-right: auto;
   margin-left: auto;
+}
+
+.homepage-cards .usa-card-group {
   display: flex;
   justify-content: center;
 }
@@ -457,7 +460,6 @@
 
   .life-events {
     max-width: 400px;
-
     margin-right: 25px;
     margin-left: 25px;
     padding: 0px;
@@ -469,6 +471,13 @@
 
   .life-events-carousel {
     margin: 20px 0 0;
+  }
+
+
+
+  .all-topics-header h2 {
+    margin-left: 25px;
+    padding: 0px;
   }
 
   .homepage-cards .usa-card {
