@@ -386,7 +386,7 @@
   background-color: var($homepage, hover-color);
 }
 
-.homepage-card-container:focus {
+.homepage-card:focus-within {
   outline: 0.25rem solid #c05600;
   outline-offset: 0;
 }
