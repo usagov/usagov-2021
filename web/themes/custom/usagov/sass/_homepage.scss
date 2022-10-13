@@ -295,22 +295,23 @@
   grid-column: 1 / 3;
   grid-row: 7 / 9;
   background-color: var($homepage, white-color);
-  border-bottom: 10px solid var($homepage, red-color);
+
   margin-top: 20px;
 }
 
 .all-topics-header h2 {
-  max-width: 960px;
+  max-width: 1024px;
   margin-left: auto;
   margin-right: auto;
-  padding: 0 0 0 75px;
+  padding: 0 0 5px 75px;
 
   font-size: 39.04px;
   font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
   text-align: left;
   color: var($homepage, red-color);
   font-weight: bold;
-  margin-bottom: 5px;
+  border-bottom: 10px solid var($homepage, red-color);
+  margin-bottom: 0px;
 }
 
 .all-topics {
