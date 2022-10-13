@@ -110,10 +110,10 @@
 /* HomePage Grid */
 
 .main-grid {
-  margin: 0;
-  padding: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  margin: 0;
+  padding: 0;
 }
 
 .main-grid h1,
@@ -123,15 +123,15 @@
 }
 
 .main-grid h1 {
-  font-size: 35.2px;
-  margin: 0px;
   font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+  font-size: var($homepage, medium-font-size);
+  margin: 0px;
 }
 
 .main-grid p {
+  font-family: sans-serif;
   font-size: 20px;
   margin: 0;
-  font-family: sans-serif;
 }
 
 .main-grid a {
@@ -141,120 +141,113 @@
 
 /* Banner */
 .banner-wrapper {
+  display: grid;
   grid-column: 1 / 3;
   grid-row: 1 / 3;
-  display: grid;
   grid-template-columns: minmax(0px, 1fr) minmax(auto, 1024px) minmax(0px, 1fr);
 }
 
 .banner_div {
-  grid-column: 1 / 4;
   background-position: center;
   background-size: cover;
+  grid-column: 1 / 4;
 }
-
-.banner {
-  // height: 100%;
-  // max-width: 1024px;
-  // object-fit: cover;
-}
-
 
 .welcome-box {
+  background-color: var($homepage, deep-blue-color);
+  box-shadow: 0 6px 6px rgb(17 47 78 / .4);
   grid-column: 2 / 3;
   grid-row: 1 / 2;
-  background-color: var($homepage, background-color);
-  box-shadow: 0 6px 6px rgb(17 47 78 / .4);
-  max-width: 400px;
-  margin-top: 35px;
   margin-bottom: 0px;
+  margin-top: 35px;
+  max-width: 400px;
   padding: 30px 40px 35px 30px;
 }
 
 .welcome-box p {
-  margin-top: 10px;
   font-size: 18px;
   line-height: 1.3;
+  margin-top: 10px;
 }
 
 /* Background */
 .blue-back {
+  background-color: var($homepage, deep-blue-color);
   grid-column: 1 / 3;
   grid-row: 3 / 8;
-  background-color: var($homepage, background-color);
 }
 
 /* How do I box */
 .how-box {
-  grid-column: 1 / 3;
-  grid-row: 2 / 4;
   background-color: var($homepage, white-color);
   border-radius: 3px;
-  max-width: 1024px;
+  grid-column: 1 / 3;
+  grid-row: 2 / 4;
   margin-left: auto;
   margin-right: auto;
   margin-top: 40px;
-  padding-top: 18px;
-  padding-left: 25px;
+  max-width: var($homepage, larger-max-width);
   padding-bottom: 20px;
+  padding-left: 25px;
   padding-right: 25px;
+  padding-top: 18px;
 }
 
 .how-box h2,
 .how-box a {
   color: var($homepage, font-color);
-  text-decoration: none;
   margin: 0;
+  text-decoration: none;
 }
 
 .how-box h2 {
   font-size: 30px;
-  max-width: 960px;
   margin-left: auto;
   margin-right: auto;
+  max-width: var($homepage, smaller-max-width);
 }
 
 .how-button-list {
+  align-items: center;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  margin-top: 20px;
-  align-items: center;
-  max-width: 960px;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 20px;
+  max-width: var($homepage, smaller-max-width);
 }
 
 .how-button {
-  height: 60px;
+  align-items: center;
   border-left: 3px solid var($homepage, aqua-color);
+  display: flex;
+  height: 60px;
   padding-left: 12px;
   padding-right: 20px;
-  display: flex;
-  align-items: center;
 }
 
 /* Life Events */
 .life-events {
+  background-color: var($homepage, deep-blue-color);
   grid-column: 1 / 3;
   grid-row: 5 / 6;
-  background-color: var($homepage, background-color);
-  max-width: 960px;
   margin-left: auto;
   margin-right: auto;
+  max-width: var($homepage, smaller-max-width);
   padding: 0 0 0 75px;
 }
 
 .life-events h2 {
+  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+  font-size: var($homepage, medium-font-size);
   margin: 0 0 0px;
   padding-top: 16px;
-  font-size: 35.2px;
-  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
 }
 
 .life-events p {
-  font-size: 17.6px;
-  padding-top: 13px;
   font-family: sans-serif;
+  font-size: var($homepage, small-font-size);
+  padding-top: 13px;
 }
 
 .life-events-carousel {
@@ -263,8 +256,8 @@
 
 /* Jump */
 .jump {
-  text-align: center;
   padding: 0px;
+  text-align: center;
 }
 
 .jump1 {
@@ -281,9 +274,9 @@
 
 .jump a {
   color: white;
-  text-decoration: underline;
-  font-size: 17.6px;
   font-family: sans-serif;
+  font-size: var($homepage, small-font-size);
+  text-decoration: underline;
 }
 
 .jump p {
@@ -292,32 +285,30 @@
 
 /* All Topics Header */
 .all-topics-header {
+  background-color: var($homepage, white-color);
   grid-column: 1 / 3;
   grid-row: 7 / 9;
-  background-color: var($homepage, white-color);
-
   margin-top: 20px;
 }
 
 .all-topics-header h2 {
-  max-width: 1024px;
+  border-bottom: 10px solid var($homepage, red-color);
+  color: var($homepage, red-color);
+  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+  font-size: 39.04px;
+  font-weight: bold;
+  margin-bottom: 0px;
   margin-left: auto;
   margin-right: auto;
+  max-width: var($homepage, larger-max-width);
   padding: 0 0 5px 75px;
-
-  font-size: 39.04px;
-  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
   text-align: left;
-  color: var($homepage, red-color);
-  font-weight: bold;
-  border-bottom: 10px solid var($homepage, red-color);
-  margin-bottom: 0px;
 }
 
 .all-topics {
+  background-color: var($homepage, light-blue-color);
   grid-column: 1 / 3;
   grid-row: 9 / 10;
-  background-color: var($homepage, light-blue-color);
 
 }
 
@@ -326,17 +317,15 @@
 }
 
 /* All Topics Cards */
-
-
 .homepage-cards {
   background-color: var($homepage, light-blue-color);
   padding-bottom: 30px;
 }
 
 .homepage-card-group {
-  max-width: 960px;
-  margin-right: auto;
   margin-left: auto;
+  margin-right: auto;
+  max-width: var($homepage, smaller-max-width);
 }
 
 .homepage-cards .usa-card-group {
@@ -345,9 +334,9 @@
 }
 
 .homepage-cards .usa-card {
-  padding: 0;
   margin: 6px;
   max-width: 220px;
+  padding: 0;
   text-align: center;
 }
 
@@ -364,20 +353,11 @@
   padding: 0;
 }
 
-.homepage-icon {
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  height: 50px;
-  margin-top: 20px;
-  margin-bottom: 25px;
-}
-
 .homepage-card-container h2,
 .homepage-card-container p {
-  font-size: 17.6px;
   color: var($homepage, font-color);
   font-family: sans-serif;
+  font-size: var($homepage, small-font-size);
   line-height: 1.3;
 }
 
@@ -394,6 +374,15 @@
 .homepage-card:focus-within {
   outline: 0.25rem solid #c05600;
   outline-offset: 0;
+}
+
+.homepage-icon {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 50px;
+  margin-bottom: 25px;
+  margin-top: 20px;
 }
 
 /*Tablet */
@@ -421,31 +410,27 @@
   }
 }
 
-
 /* Mobile */
 @media(max-width: 480px) {
   .welcome-box {
     grid-column: 1 / 3;
     grid-row: 1 / 2;
-    max-width: 400px;
-    margin-right: 25px;
-    margin-left: 25px;
-
     margin-bottom: 0px;
-
-
+    margin-left: 5vw;
+    margin-right: 5vw;
+    max-width: 400px;
     padding-right: 28px;
   }
 
   .how-box {
     grid-column: 1 / 3;
     grid-row: 2 / 4;
-    max-width: 400px;
-    margin-right: 25px;
-    margin-left: 25px;
+    margin-left: 5vw;
+    margin-right: 5vw;
     margin-top: 35px;
-    padding-top: 30px;
+    max-width: 400px;
     padding-bottom: 20px;
+    padding-top: 30px;
   }
 
   .how-button-list {
@@ -460,9 +445,9 @@
   }
 
   .life-events {
+    margin-left: 5vw;
+    margin-right: 5vw;
     max-width: 400px;
-    margin-right: 25px;
-    margin-left: 25px;
     padding: 0px;
   }
 
@@ -474,17 +459,17 @@
     margin: 20px 0 0;
   }
 
-
-
   .all-topics-header h2 {
-    margin-left: 25px;
+    margin-left: 5vw;
+    margin-right: 5vw;
+    max-width: 90%;
     padding: 0px;
   }
 
   .homepage-cards .usa-card {
-    padding: 0;
     margin: 5px auto;
     max-width: 300px;
+    padding: 0;
   }
 
   .homepage-card_header {
