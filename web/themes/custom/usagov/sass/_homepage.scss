@@ -288,7 +288,6 @@
   background-color: var($homepage, white-color);
   grid-column: 1 / 3;
   grid-row: 7 / 9;
-  margin-top: 20px;
 }
 
 .all-topics-header h2 {
@@ -300,6 +299,7 @@
   margin-bottom: 0px;
   margin-left: auto;
   margin-right: auto;
+  margin-top:55px;
   max-width: var($homepage, larger-max-width);
   padding: 0 0 5px 75px;
   text-align: left;
@@ -320,6 +320,7 @@
 .homepage-cards {
   background-color: var($homepage, light-blue-color);
   padding-bottom: 30px;
+  padding-top:5px;
 }
 
 .homepage-card-group {
@@ -350,7 +351,7 @@
   border-radius: 3px;
   box-shadow: 0 3px 6px rgb(122 122 122 / .15);
   margin: 0 auto;
-  padding: 0;
+  padding: 0px 10px;
 }
 
 .homepage-card-container h2,
