@@ -270,6 +270,7 @@
 .jump1 {
   grid-column: 1 / 3;
   grid-row: 4 / 5;
+  padding-top: 15px;
 }
 
 .jump2 {
@@ -309,7 +310,7 @@
   text-align: left;
   color: var($homepage, red-color);
   font-weight: bold;
-  margin-bottom: 0;
+  margin-bottom: 5px;
 }
 
 .all-topics {
