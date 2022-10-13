@@ -1,7 +1,8 @@
-<div class=" homepage-cards">
+<div class= "homepage-cards">
+
 	<ul class="usa-card-group homepage-card-group">
+
 		{% for row in rows %}
-			{# {{ devel_breakpoint() }} #}
 			{% set css_icon = row.content["#row"].node__field_css_icon_field_css_icon_value %}
 			{% if css_icon == null %}
 				{% set css_icon = "" %}
