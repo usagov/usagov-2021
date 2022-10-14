@@ -17,7 +17,6 @@ dependencies:
     - field.field.node.directory_record.field_state_abbr
     - field.field.node.directory_record.field_street_1
     - field.field.node.directory_record.field_street_2
-    - field.field.node.directory_record.field_synonym
     - field.field.node.directory_record.field_toll_free_number
     - field.field.node.directory_record.field_tty_number
     - field.field.node.directory_record.field_website
@@ -43,15 +42,15 @@ processor: 'entity:node'
 processor_configuration:
   values:
     type: directory_record
-  langcode: en
+  langcode: zxx
   insert_new: 1
   update_existing: 2
   update_non_existent: _keep
   skip_hash_check: false
   authorize: true
   expire: -1
-  owner_feed_author: true
-  owner_id: 0
+  owner_feed_author: false
+  owner_id: 19
 custom_sources:
   title:
     value: Title
@@ -518,6 +517,26 @@ custom_sources:
     label: 'Show on AZ Index'
     machine_name: show_on_az_index
     type: csv
+  tty_2:
+    value: tty_2
+    label: tty_2
+    machine_name: tty_2
+    type: csv
+  tty_3:
+    value: tty_3
+    label: tty_3
+    machine_name: tty_3
+    type: csv
+  toll_2:
+    value: toll_2
+    label: toll_2
+    machine_name: toll_2
+    type: csv
+  toll_3:
+    value: toll_3
+    label: toll_3
+    machine_name: toll_3
+    type: csv
 mappings:
   -
     target: title
@@ -581,13 +600,6 @@ mappings:
       value: summary
     settings:
       language: null
-  -
-    target: field_synonym
-    map:
-      value: synonym
-    settings:
-      language: null
-    unique: {  }
   -
     target: field_toll_free_number
     map:
@@ -661,3 +673,39 @@ mappings:
       value: show_on_az_index
     settings:
       language: ''
+  -
+    target: field_phone_number
+    map:
+      value: phone_2
+    settings:
+      language: null
+  -
+    target: field_phone_number
+    map:
+      value: phone_3
+    settings:
+      language: null
+  -
+    target: field_tty_number
+    map:
+      value: tty_2
+    settings:
+      language: null
+  -
+    target: field_tty_number
+    map:
+      value: tty_3
+    settings:
+      language: null
+  -
+    target: field_toll_free_number
+    map:
+      value: toll_2
+    settings:
+      language: null
+  -
+    target: field_toll_free_number
+    map:
+      value: toll_3
+    settings:
+      language: null
