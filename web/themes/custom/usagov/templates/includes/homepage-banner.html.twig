@@ -4,7 +4,13 @@
 	<div
 		class="banner-wrapper">
 		{# <div class="banner_div" style="background-image: url({{ image_uri|image_style('max_640w') }}"></div> #}
-<div class="banner_div" style="background-image: -webkit-image-set(url({{image_uri|image_style('max_480w')}}) 1x) ">
+<div class="banner_div" style="background-image: -webkit-image-set(url({{image_uri|image_style('max_1024w')}}) 1x, url({{image_uri|image_style('max_2048w')}}) 2x, url({{image_uri|image_style('max_3072w')}}) 3x); background-image: image-set(url({{image_uri|image_style('max_1024w')}}), url({{image_uri|image_style('max_2048w')}}), url({{image_uri|image_style('max_3072w')}}) ) ">
+
+
+
+
+
+
 </div>
 
 
@@ -16,7 +22,10 @@ url({{ image_uri|image_style('max_2048w') }}) )" #}
 
 
 		{# <div class="banner_div">
-			<img src="	{{ image_uri|image_style('max_480w') }}" srcset="{{ image_uri|image_style('max_640w') }} 640w, {{ image_uri|image_style('max_1024w') }} 1024w, {{ image_uri|image_style('max_2048w') }} 2048w">
+<img class="banner_img" src="	{{ image_uri|image_style('max_480w') }}" srcset="{{ image_uri|image_style('max_640w') }} 640w, {{ image_uri|image_style('max_1024w') }} 1024w, {{ image_uri|image_style('max_2048w') }} 2048w">
+
+
+
 		</div> #}
 	</div>
 {% endif %}
