@@ -1,8 +1,12 @@
 {% set image_uri = node.field_homepage_banner|file_uri %}
 {% if image_uri is not null %}
 
-	<div class="banner-wrapper">
-		<div class="banner_div" style="background-image: url({{ image_uri|image_style('max_480w') }})"></div>
+	<div
+		class="banner-wrapper">
+		{# <div class="banner_div" style="background-image: url({{ image_uri|image_style('max_640w') }}"></div> #}
+		<div class="banner_div">
+			<img src="	{{ image_uri|image_style('max_480w') }}" srcset="{{ image_uri|image_style('max_640w') }} 640w, {{ image_uri|image_style('max_1024w') }} 1024w, {{ image_uri|image_style('max_2048w') }} 2048w">
+		</div>
 	</div>
 {% endif %}
 
@@ -14,8 +18,3 @@
 		{{ node.body.value | raw}}
 	</p>
 </div>
-
-
-{# {{devel_breakpoint()}} #}
-{# $context["elements"]["field_homepage_banner"] #}
-{# | image_style('max_480w') #}
