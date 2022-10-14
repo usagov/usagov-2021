@@ -17,7 +17,7 @@ function usagov_login_form_user_login_form_alter(&$form, FormStateInterface $for
   $loginPath = $config->get('sso_login_path');
   $loginText = $config->get('sso_login_text');
 
-  $state = \Drupal::state()->get('usagov_login_local_form', 1);
+  $state = \Drupal::state()->get('usagov_login_local_form', 0);
 
   if ($loginPath) {
 
