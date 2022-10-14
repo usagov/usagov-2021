@@ -1,32 +1,83 @@
 {% set image_uri = node.field_homepage_banner|file_uri %}
 {% if image_uri is not null %}
+	<style>
+		.banner_div {
+			background-image: url({{ image_uri|image_style('max_480w') }});
+		}
 
-	<div
-		class="banner-wrapper">
-		{# <div class="banner_div" style="background-image: url({{ image_uri|image_style('max_640w') }}"></div> #}
-<div class="banner_div" style="background-image: -webkit-image-set(url({{image_uri|image_style('max_1024w')}}) 1x, url({{image_uri|image_style('max_2048w')}}) 2x, url({{image_uri|image_style('max_3072w')}}) 3x); background-image: image-set(url({{image_uri|image_style('max_1024w')}}), url({{image_uri|image_style('max_2048w')}}), url({{image_uri|image_style('max_3072w')}}) ) ">
+		/* Mobile 1.5x */
+		@media(min-width: 720px) {
+			.banner_div {
+				background-image: url({{ image_uri|image_style('max_720w') }});
+			}
+		}
 
+		/* Mobile 3x */
+		@media(min-width: 1440px) {
+			.banner_div {
+				background-image: url({{ image_uri|image_style('max_1440w') }});
+			}
+		}
 
+		/* Tablet 1x*/
+		@media(min-width: 640px) {
+			.banner_div {
+				background-image: url({{ image_uri|image_style('max_640w') }});
+			}
+		}
 
+		/* Tablet 1.5x & Mobile 2x*/
+		@media(min-width: 960px) {
+			.banner_div {
+				background-image: url({{ image_uri|image_style('max_960w') }});
+			}
+		}
 
+		/* Tablet 2x*/
+		@media(min-width: 1280px) {
+			.banner_div {
+				background-image: url({{ image_uri|image_style('max_1280w') }});
+			}
+		}
 
+		/* Tablet 3x*/
+		@media(min-width: 1920px) {
+			.banner_div {
+				background-image: url({{ image_uri|image_style('max_1920w') }});
+			}
+		}
 
-</div>
+		/* Desktop 1x*/
+		@media(min-width: 1024px) {
+			.banner_div {
+				background-image: url({{ image_uri|image_style('max_1024w') }});
+			}
+		}
 
+		/* Desktop 1.5x*/
+		@media(min-width: 1536px) {
+			.banner_div {
+				background-image: url({{ image_uri|image_style('max_1536w') }});
+			}
+		}
 
-{#
-, background-image: image-set(
-url({{ image_uri|image_style('max_640w')}}),
-url({{ image_uri|image_style('max_1024w') }}),
-url({{ image_uri|image_style('max_2048w') }}) )" #}
+		/* Desktop 2x*/
+		@media(min-width: 2048px) {
+			.banner_div {
+				background-image: url({{ image_uri|image_style('max_2048w') }});
+			}
+		}
 
+		/* Desktop 3x*/
+		@media(min-width: 3072px) {
+			.banner_div {
+				background-image: url({{ image_uri|image_style('max_3072w') }});
+			}
+		}
+	</style>
 
-		{# <div class="banner_div">
-<img class="banner_img" src="	{{ image_uri|image_style('max_480w') }}" srcset="{{ image_uri|image_style('max_640w') }} 640w, {{ image_uri|image_style('max_1024w') }} 1024w, {{ image_uri|image_style('max_2048w') }} 2048w">
-
-
-
-		</div> #}
+	<div class="banner-wrapper">
+		<div class="banner_div" "></div>
 	</div>
 {% endif %}
 
