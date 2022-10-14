@@ -152,7 +152,9 @@
   background-size: cover;
   grid-column: 1 / 4;
 }
-
+.banner_img {
+  object-fit: contain;
+}
 .welcome-box {
   background-color: var($homepage, deep-blue-color);
   box-shadow: 0 6px 6px rgb(17 47 78 / .4);
