@@ -1,5 +1,26 @@
-<div class="banner-wrapper">
-	<div class="banner_div" style="background-image: url({{file_url(node.field_homepage_banner.0.entity.uri.value)}})"></div>
+<div
+	class="banner-wrapper">
+	{# <div class="banner_div" style="background-image: url({{file_url(node.field_homepage_banner.0.entity.uri.value) | image_style('max_480w')}})"></div> #}
+
+
+	<div class="banner_div">
+		{# {% set responsiveImage= file_url(node.field_homepage_banner.entity.uri.value) %} <img src="{{responsiveImage}}">works#}
+
+		{# {% set responsiveImage= file_url(node.field_homepage_banner.0.entity.uri.value) %} #}
+		{# <img src="{{responsiveImage}}"> works #}
+
+		{% set image_uri = node.field_homepage_banner|file_uri %}
+
+			{% if image_uri is not null %}
+
+		<img src="	{{ image_uri|image_style('max_480w') }}"> {% endif %}
+
+
+		{# <img
+					src= "{{file_url(node.field_homepage_banner.0.entity.uri.value ) | image_style('max_480w')}}
+					"> #}
+		{# <img src="{{ file_url(node.field_homepage_banner.entity.uri.value)  }}"> #}
+	</div>
 </div>
 <div class="welcome-box">
 	<h1 id="skip-to-h1">
@@ -13,3 +34,4 @@
 
 {# {{devel_breakpoint()}} #}
 {# $context["elements"]["field_homepage_banner"] #}
+{# | image_style('max_480w') #}
