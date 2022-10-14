@@ -13,3 +13,6 @@ $settings['trusted_host_patterns'] = [
   '^127\.0\.0\.1$',
   '^cms-usagov\.docker\.local$',
 ];
+
+#$settings['user.settings']['register'] = 'visitors_admin_approval';
+#$settings['usagov_login_local_form'] = 1;
