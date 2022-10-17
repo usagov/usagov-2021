@@ -403,15 +403,15 @@
 }
 
 /*Tablet */
-@media(max-width: 800px) {
-  .homepage-card-group {
-    flex-direction: row;
-  }
+// @media(max-width: 800px) {
+  // .homepage-card-group {
+  //   flex-direction: row;
+  // }
 
-  .homepage-cards .usa-card {
-    max-width: none;
-  }
-}
+  // .homepage-cards .usa-card {
+  //   max-width: none;
+  // }
+// }
 
 /*Tablet */
 @media(max-width: 700px) {
@@ -483,14 +483,17 @@
     padding: 0px;
   }
 
-  .homepage-cards .usa-card {
-    margin: 5px auto;
-    max-width: 300px;
-    padding: 0;
-  }
-
   .homepage-card_header {
     padding-left: 30px;
     padding-right: 30px;
   }
+
+  .homepage-card-group {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 300px));
+  }
+        // .homepage-cards .usa-card {
+        //   margin: 5px auto;
+        //   max-width: 300px;
+        //   padding: 0;
+        // }
 }
