@@ -9,6 +9,7 @@ dependencies:
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
     - field.field.node.basic_page.field_hide_page_intro
+    - field.field.node.basic_page.field_homepage_banner
     - field.field.node.basic_page.field_homepage_top_links
     - field.field.node.basic_page.field_is_navigation_page
     - field.field.node.basic_page.field_language_toggle
@@ -16,8 +17,10 @@ dependencies:
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
     - node.type.basic_page
+    - responsive_image.styles.homepage_banner_sizing
   module:
     - link
+    - responsive_image
     - text
     - user
 id: node.basic_page.default
@@ -36,6 +39,15 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 0
+    region: content
+  field_homepage_banner:
+    type: responsive_image
+    label: above
+    settings:
+      responsive_image_style: homepage_banner_sizing
+      image_link: ''
+    third_party_settings: {  }
+    weight: 5
     region: content
   field_homepage_top_links:
     type: link
