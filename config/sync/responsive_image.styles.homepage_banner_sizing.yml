@@ -1,0 +1,41 @@
+uuid: 1cada0b9-caab-471d-8b6b-e2aa6e8dc6ca
+langcode: en
+status: true
+dependencies:
+  config:
+    - image.style.max
+    - image.style.max_10
+    - image.style.max_1280px
+    - image.style.max_1440w
+    - image.style.max_1536
+    - image.style.max_1920
+    - image.style.max_2048
+    - image.style.max_3072w
+    - image.style.max_480w
+    - image.style.max_640w
+    - image.style.max_720w
+    - image.style.wide
+id: homepage_banner_sizing
+label: 'Homepage Banner Sizing'
+image_style_mappings:
+  -
+    image_mapping_type: sizes
+    image_mapping:
+      sizes: '(max-width: 480px) 480px, (max-width: 640px) 640px, (max-width: 1024px) 1024px, 100vw'
+      sizes_image_styles:
+        - max
+        - max_10
+        - max_1280px
+        - max_1440w
+        - max_1536
+        - max_1920
+        - max_2048
+        - max_3072w
+        - max_480w
+        - max_640w
+        - max_720w
+        - wide
+    breakpoint_id: responsive_image.viewport_sizing
+    multiplier: 1x
+breakpoint_group: responsive_image
+fallback_image_style: max_480w
