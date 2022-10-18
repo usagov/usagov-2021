@@ -1,12 +1,21 @@
 # To get the homepage working
 1. Make sure that the config changes are imported into drupal
   1. If they are you should see homepage banner, homepage top links in basic page & a new taxonomy term of Home Page
+    1. If not: import config changes on sync
+      1. If no Home Page taxonomy term --> go to taxonomy -> edit page type add new term "Home Page"
+      2. If no Home Page Banner and or Top Links:
+        1.  Go to Administration  -> Structure ->  Content types  -> Basic Page
+        2. Add field
+        3. Banner: Field Type of Image (not media to apply resolutions), Machine Name: field_homepage_banner
+          1. admin/structure/types/manage/basic_page/display
+          2. HomePage -> Responsive image -> Responsive image style
+        4. Top Links: Field type of Link; Label: Homepage Top Links,  Machine Name: field_homepage_top_links, Unlimited number of values
   2. Image styles for 480px, 640px and 1024px at 1x, 1.5x, 2x and 3x resolutions should be created.
 2. On Homepage in Drupal add
-  1. a homepage banner,
-  2. top links,
-  3. body text for the welcome box and,
-  4. "Home Page" as the page type.
+  1. Body text for the welcome box and,
+  2. "Home Page" as the page type,
+  3. A homepage banner,
+  4. Top links
 
 
 # Code Organization
