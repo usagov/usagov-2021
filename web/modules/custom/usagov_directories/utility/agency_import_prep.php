@@ -88,7 +88,9 @@ function main($infile, $extended_infile, $outdir) {
     $outfile = implode(DIRECTORY_SEPARATOR, [$outdir, $hint . ".csv"]);
     $fp_out = fopen($outfile, 'w');
     foreach ($data as $row) {
-      fputcsv($fp_out, $row);
+      // Before writing out the row, trim whitespace from each cell.
+      $trimmed_row = array_map('trim', $row);
+      fputcsv($fp_out, $trimmed_row);
     }
     fclose($fp_out);
   }
