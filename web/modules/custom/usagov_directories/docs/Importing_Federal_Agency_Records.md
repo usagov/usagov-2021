@@ -40,8 +40,10 @@ For example (your paths will surely vary):
 
 A successful run will print a message like this:
 
+```  
   667 records
   === DONE ===
+```
 
 ... and will populate your output directory with a bunch of CSV files
 with names like contact_1-website_1-office_1.csv,
@@ -86,10 +88,12 @@ will report how many records were imported. It may also report records
 that did not validate and why. The only expected error (for the
 initial import) is this (the content team will craft a new USAGov entry):
 
+```
   The content USAGov failed to validate with the following errors:
   field_website.0: The path 'internal:/explore' is invalid.
+```
 
-Spot check: Go to Admin -> Content. The newest records will be what
+**Spot check**: Go to Admin -> Content. The newest records will be what
 you just imported, so they'll be at the top. Just look at a couple of
 records and see that they look right. 
 
@@ -112,7 +116,7 @@ they start with:
 5. Save your changes, then go back to Admin -> Content -> Feeds and
 repeat the steps you did for the first file.
 
-Spot check: Inspect one of the records imported, and make sure all the
+**Spot check**: Inspect one of the records imported, and make sure all the
 links imported correctly. The potential mistake here is putting a URL
 in a text field, or getting the link entries out of order. (Consider
 comparing to the corresponding page on mothership.)
