@@ -61,6 +61,7 @@
         "drupal/paragraphs_entity_embed": "^2.0@alpha",
         "drupal/pathauto": "^1.8",
         "drupal/redirect": "^1.6",
+        "drupal/remove_http_headers": "^1.0",
         "drupal/s3fs": "^3.0@alpha",
         "drupal/scanner": "^1.0@RC",
         "drupal/scheduled_publish": "^3.9",
@@ -153,6 +154,9 @@
             },
             "drupal/core": {
                 "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail.patch"
+            },
+            "drupal/views_menu_children_filter": {
+                "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
             }
         }
     }
