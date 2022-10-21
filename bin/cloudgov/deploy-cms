@@ -53,16 +53,16 @@ fi
 # but cms needs to exist in the first place
 # for route mapping and egress setup to run
 
-cf create-route usa.gov --hostname cms-$APP_SPACE
-cf map-route cms usa.gov --hostname cms-$APP_SPACE
-cf create-route usa.gov --hostname beta-$APP_SPACE
-cf map-route cms usa.gov --hostname beta-$APP_SPACE
-
 if [ "$APP_SPACE" == "prod" ]; then
   cf create-route usa.gov --hostname cms
   cf map-route cms usa.gov --hostname cms
   cf create-route usa.gov --hostname beta
   cf map-route cms usa.gov --hostname beta
+else
+  cf create-route usa.gov --hostname cms-$APP_SPACE
+  cf map-route cms usa.gov --hostname cms-$APP_SPACE
+  cf create-route usa.gov --hostname beta-$APP_SPACE
+  cf map-route cms usa.gov --hostname beta-$APP_SPACE
 fi
 
 # set-env any missing env vars like new_relic
