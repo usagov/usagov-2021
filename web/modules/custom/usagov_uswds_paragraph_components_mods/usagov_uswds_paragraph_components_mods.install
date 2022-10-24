@@ -3,11 +3,13 @@
 use Drupal\field\Entity\FieldStorageConfig;
 
 /**
- * Increase the length of "field_alert_body" and "field_alert_title" to 600 characters.
+ * On installation, increase the lengths of "field_alert_body" and "field_alert_title"
+ * to 600 characters.
  */
-function usagov_uswds_paragraph_components_mods_update_8002() {
+function usagov_uswds_paragraph_components_mods_install() {
   $results = [];
-  // Both of these fields are VARCHAR and are getting bigger (existing data will fit)
+
+  // Both of these fields are VARCHAR and are getting bigger, so existing data will fit.
   $field_specs = [
     [
       'entity_type' => 'paragraph',
