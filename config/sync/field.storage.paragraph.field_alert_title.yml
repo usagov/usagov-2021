@@ -11,7 +11,7 @@ field_name: field_alert_title
 entity_type: paragraph
 type: string
 settings:
-  max_length: 255
+  max_length: 600
   case_sensitive: false
   is_ascii: false
 module: core
