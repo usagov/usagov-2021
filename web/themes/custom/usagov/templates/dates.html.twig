@@ -1,0 +1,41 @@
+{% set date = date|date_modify("-5 hour") %}
+{% if lang == 'es' %}
+	{#{date|date("F j, Y")}#}
+	{{date|date("j")}}
+
+	de
+	
+	{% set month=date|date("F") %}
+	{% if month == "January" %}
+		enero
+	{% elseif month == "February" %}
+		febrero
+	{% elseif month == "March" %}
+		marzo
+	{% elseif month == "April" %}
+		abril
+	{% elseif month == "May" %}
+		mayo
+	{% elseif month == "June" %}
+		junio
+	{% elseif month == "July" %}
+		julio
+	{% elseif month == "August" %}
+		agosto
+	{% elseif month == "September" %}
+		septiembre
+	{% elseif month == "October" %}
+		octubre
+	{% elseif month == "November" %}
+		noviembre
+	{% elseif month == "December" %}
+		diciembre
+	{% endif %}
+
+	de
+
+	{{date|date("Y")}}
+{% else %}
+    {{date|date("F j, Y")}}
+{% endif %}
+
