@@ -15,6 +15,7 @@ $settings['trusted_host_patterns'] = [
 ];
 
 ### Uncomment and clear cache to allow local logins
+### Re-comment and clear cache to return to default settings (no local logins)
 #$config['user.settings']['register'] = 'visitors_admin_approval';
 #$settings['usagov_login_local_form'] = 1;
 
