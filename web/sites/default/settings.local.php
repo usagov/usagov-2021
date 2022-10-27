@@ -14,11 +14,5 @@ $settings['trusted_host_patterns'] = [
   '^cms-usagov\.docker\.local$',
 ];
 
-### Uncomment and clear cache to allow local logins
-### Re-comment and clear cache to return to default settings (no local logins)
-#$config['user.settings']['register'] = 'visitors_admin_approval';
-#$settings['usagov_login_local_form'] = 1;
-
-### Admin Only is the new system default
-#$config['user.settings']['register'] = 'admin_only';
-#$settings['usagov_login_local_form'] = 0;
+$config['user.settings']['register'] = 'admin_only';
+$settings['usagov_login_local_form'] = 1;
