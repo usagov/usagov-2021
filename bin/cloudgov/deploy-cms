@@ -27,45 +27,92 @@ APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
 
-instances="-i 1"
-if [ "$APP_SPACE" == "prod" ]; then
-  instances="-i 2"
-elif [ "$APP_SPACE" == "stage" ]; then
-  instances="-i 1"
-elif [ "$APP_SPACE" == "dev" ]; then
-  instances="-i 1"
-fi
+function appExists {  # appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  echo cf app $app > /dev/null 2>&1
+  cf app $app > /dev/null 2>&1
+  return $?
+}
 
-# remove proxy during staging
-cf set-env cms http_proxy  ""
-cf set-env cms https_proxy ""
+function restartApp { #appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  cf restart $app --no-wait --strategy rolling
+}
 
-# launch the apps
-if [ -z "$CDIGEST" ]; then
-  echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:cms-${CTAG}"
-  cf push cms $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:cms-${CTAG}
+function pushApp { #appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+
+  instances="-i 1"
+  if [ "$APP_SPACE" == "prod" ]; then
+    instances="-i 2"
+  elif [ "$APP_SPACE" == "stage" ]; then
+    instances="-i 1"
+  elif [ "$APP_SPACE" == "dev" ]; then
+    instances="-i 1"
+  fi
+
+  if [ -z "$CDIGEST" ]; then
+    echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}"
+    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}
+  else
+    echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${CTAG} via digest ${CDIGEST}"
+    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+  fi
+}
+
+function setupRoutes { #appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  # the egress-setup doesn't interfere with bootstrapping
+  # but cms needs to exist in the first place
+  # for route mapping and egress setup to run
+
+  if [ "$APP_SPACE" == "prod" ]; then
+    cf create-route usa.gov --hostname cms
+    cf map-route $app usa.gov --hostname cms
+    cf create-route usa.gov --hostname beta
+    cf map-route $app usa.gov --hostname beta
+  else
+    cf create-route usa.gov --hostname cms-$APP_SPACE
+    cf map-route $app usa.gov --hostname cms-$APP_SPACE
+    cf create-route usa.gov --hostname beta-$APP_SPACE
+    cf map-route $app usa.gov --hostname beta-$APP_SPACE
+  fi
+}
+
+function setupEgress { #appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
+}
+
+if appExists cms; then
+  setupRoutes cms
+  setupEgress cms
+  pushApp cms
 else
-  echo "Deploying ${DOCKERUSER}/${DOCKERREPO} cms-${CTAG} via digest ${CDIGEST}"
-  cf push cms $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+  cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
+  pushApp cms
+  setupRoutes cms
+  setupEgress cms
+  cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
+  restartApp cms
 fi
-
-# the egress-setup doesn't interfere with bootstrapping
-# but cms needs to exist in the first place
-# for route mapping and egress setup to run
-
-cf create-route usa.gov --hostname cms-$APP_SPACE
-cf map-route cms usa.gov --hostname cms-$APP_SPACE
-cf create-route usa.gov --hostname beta-$APP_SPACE
-cf map-route cms usa.gov --hostname beta-$APP_SPACE
-
-if [ "$APP_SPACE" == "prod" ]; then
-  cf create-route usa.gov --hostname cms
-  cf map-route cms usa.gov --hostname cms
-  cf create-route usa.gov --hostname beta
-  cf map-route cms usa.gov --hostname beta
-fi
-
-# set-env any missing env vars like new_relic
-# they can be copied from env.local if needed
-
-$SCRIPT_DIR/setup-egress-for-apps cms
