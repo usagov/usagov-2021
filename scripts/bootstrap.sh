@@ -28,8 +28,10 @@ export S3_BUCKET
 export S3_ENDPOINT
 
 SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)}
-CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)}
+#WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'beta\|www' | head -n 1)}
+#CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms  | head -n 1)}
+WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'beta\|www' | tr '\n' ' ')}
+CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms | tr '\n' ' ')}
 if [ -z "$WWW_HOST" ]; then
   WWW_HOST="*.app.cloud.gov"
 fi
@@ -140,49 +142,7 @@ if [ -n "${FIX_FILE_PERMS:-}" ]; then
   find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
 fi
 
-# if [ -n "$S3_BUCKET" ] && [ -n "$S3_REGION" ]; then
-#   # Add Proxy rewrite rules to the top of the htaccess file
-#   # sed "s/^#RewriteRule .s3fs/RewriteRule ^s3fs/" "$APP_ROOT/web/template-.htaccess" > "$APP_ROOT/web/.htaccess"
-#   # Add Proxy rewrite rule to nginx ???
-# else
-#   # cp "$APP_ROOT/web/template-.htaccess" "$APP_ROOT/web/.htaccess"
-# fi
-
-# install_drupal() {
-#     ROOT_USER_NAME=$(echo $SECRETS | jq -r '.ROOT_USER_NAME')
-#     ROOT_USER_PASS=$(echo $SECRETS | jq -r '.ROOT_USER_PASS')
-
-#     : "${ROOT_USER_NAME:?Need and root user name for Drupal}"
-#     : "${ROOT_USER_PASS:?Need and root user pass for Drupal}"
-
-#     drupal site:install \
-#         --root=$APP_ROOT/web \
-#         --no-interaction \
-#         --account-name="$ROOT_USER_NAME" \
-#         --account-pass="$ROOT_USER_PASS" \
-#         --langcode="en"
-#     # Delete some data created in the "standard" install profile
-#     # See https://www.drupal.org/project/drupal/issues/2583113
-#     drupal --root=$APP_ROOT entity:delete shortcut_set default --no-interaction
-#     drupal --root=$APP_ROOT config:delete active field.field.node.article.body --no-interaction
-#     # Set site uuid to match our config
-#     UUID=$(grep uuid $APP_ROOT/web/sites/default/config/system.site.yml | cut -d' ' -f2)
-#     drupal --root=$APP_ROOT config:override system.site uuid $UUID
-# }
-
-if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
-#   if [ "$APP_ID" = "docker" ] ; then
-#     # make sure database is created
-#     echo "create database $DB_NAME;" | mysql --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USER" --password="$DB_PW" || true
-#   fi
-
-#    drupal list | grep database > /dev/null || echo "install_drupal"
-#   # Mild data migration: fully delete database entries related to these
-#   # modules. These plugins (and the dependencies) can be removed once they've
-#   # been uninstalled in all environments
-
-#   # Sync configs from code
-#    drupal config:import
+if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ]; then
 
     echo  "Updating drupal ... "
     drush state:set system.maintenance_mode 1 -y
@@ -191,16 +151,10 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
     drush cim -y || drush cim -y
     drush cim -y
     drush php-eval "node_access_rebuild();" -y
-    # drush config:set system.site mail $ADMIN_EMAIL -y > /dev/null
     drush state:set system.maintenance_mode 0 -y
     drush cr
 
-# #   # Import initial content
-# #   # drush --root=$APP_ROOT/web default-content-deploy:import --no-interaction
-
-# #   # Clear the cache
-#     drupal cache:rebuild --no-interaction
     echo "Bootstrap finished"
 else
-    echo "Bootstrap skipping Drupal CIM because we are not Instance 0"
+    echo "Bootstrap skipping Drupal CIM because: Instance=${CF_INSTANCE_INDEX:-''} Skip=${SKIP_DRUPAL_BOOTSTRAP:-''}"
 fi
