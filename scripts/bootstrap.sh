@@ -156,5 +156,5 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" && empty($SKIP_DRUPAL_BOOTSTRAP) ]; then
 
     echo "Bootstrap finished"
 else
-    echo "Bootstrap skipping Drupal CIM because we are not Instance 0"
+    echo "Bootstrap skipping Drupal CIM because: Instance=$CF_INSTANCE_INDEX Skip=$SKIP_DRUPAL_BOOTSTRAP"
 fi
