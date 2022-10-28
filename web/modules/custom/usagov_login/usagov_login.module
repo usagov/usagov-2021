@@ -21,7 +21,7 @@ function usagov_login_form_user_login_form_alter(&$form, FormStateInterface $for
   # allow override for local login forms via drush sset, or $settings[] in settings.local.php
   $state = \Drupal::state()->get('usagov_login_local_form', 0);
   $settings_state = Settings::get('usagov_login_local_form');
-  if ( $settings_state || $state ) {
+  if ($settings_state || $state) {
     $state = 1;
   }
 
