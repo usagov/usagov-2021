@@ -11,3 +11,10 @@ global-styling:
     - core/drupal
     - core/jquery
     - core/once
+
+carousel:
+  js:
+    scripts/carousel.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
