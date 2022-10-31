@@ -580,11 +580,15 @@ a,
 }
 
 .usagov-hero a:visited {
-  color: color("violet-30v");
+  color: color("cyan-10");
+}
+
+.usagov-hero a, .usagov-hero__callout ul a {
+  color: color("cyan-30v");
 }
 
 .usagov-hero__callout ul a:visited {
-  color: color("violet-30v");
+  color: color("cyan-10");
 }
 
 .usa-button {
