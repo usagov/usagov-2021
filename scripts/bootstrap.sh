@@ -142,7 +142,7 @@ if [ -n "${FIX_FILE_PERMS:-}" ]; then
   find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
 fi
 
-if [ "${CF_INSTANCE_INDEX:-''}" == "0" && empty($SKIP_DRUPAL_BOOTSTRAP) ]; then
+if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ]; then
 
     echo  "Updating drupal ... "
     drush state:set system.maintenance_mode 1 -y
@@ -156,5 +156,5 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" && empty($SKIP_DRUPAL_BOOTSTRAP) ]; then
 
     echo "Bootstrap finished"
 else
-    echo "Bootstrap skipping Drupal CIM because: Instance=$CF_INSTANCE_INDEX Skip=$SKIP_DRUPAL_BOOTSTRAP"
+    echo "Bootstrap skipping Drupal CIM because: Instance=${CF_INSTANCE_INDEX:-''} Skip=${SKIP_DRUPAL_BOOTSTRAP:-''}"
 fi
