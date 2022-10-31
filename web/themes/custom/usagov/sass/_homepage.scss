@@ -398,9 +398,9 @@
   text-align: center;
 }
 
-// .homepage-card-container:hover {
-//   background-color: var($homepage, hover-color);
-// }
+.homepage-card:hover {
+  background-color: var($homepage, hover-color);
+}
 
 .homepage-card:focus-within {
   outline: 0.25rem solid #c05600;
