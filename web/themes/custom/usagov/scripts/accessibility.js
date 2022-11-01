@@ -1,5 +1,8 @@
 /**
  * Improve the accessibility of pages with input fields.
+ * Creating error messages so users know which fields need attention. Error messages are managed on CMS in the body element and element ID's are used to get the respective text.
+ * Used on pages: find and contact elected officials; email your elected official
+ * a11y_translations is used as fallback for pages where error message is not included in the CMS.
  */
 
 const a11y_translations = {
