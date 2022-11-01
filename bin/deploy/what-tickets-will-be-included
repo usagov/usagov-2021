@@ -1,0 +1,13 @@
+#!/bin/sh
+
+SCRIPT_DIR="$(dirname $(readlink -f "$0"))"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+assertRequires tee
+
+echo "Tickets in deployment:" | toLogs
+bin/ccb stage prod | toLogs
+
+return 0
