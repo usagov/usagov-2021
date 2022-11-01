@@ -1,0 +1,19 @@
+#!/bin/sh
+
+cf target -o gsa-tts-usagov -s shared-egress
+
+cf target -o gsa-tts-usagov -s tools
+dev_routes=$(cf routes)
+
+cf target -o gsa-tts-usagov -s dev
+dev_routes=$(cf routes)
+if [ -z "$(echo \"$dev_routes\" | grep ^dev | grep ' waf-route-dev-usagov ' | grep ' app.cloud.gov ' | grep waf$)" ]; then assert_dev_waf='✗' else assert_dev_waf='✓' fi
+if [ -z "$(echo \"$dev_routes\" | grep ^dev | grep ' cms-dev '  | grep ' usa.gov ' | grep cms$)" ]; then assert_dev_cms='✗' else assert_dev_cms='✓' fi)
+if [ -z "$(echo \"$dev_routes\" | grep ^dev | grep ' www-dev '  | grep ' usa.gov ' | grep cms$)" ]; then assert_dev_www='✗' else assert_dev_www='✓' fi)
+if [ -z "$(echo \"$dev_routes\" | grep ^dev | grep ' beta-dev ' | grep ' usa.gov ' | grep cms$)" ]; then assert_dev_beta='✗' else assert_dev_beta='✓' fi)
+
+cf target -o gsa-tts-usagov -s stage
+stage_routes=$(cf routes)
+
+cf target -o gsa-tts-usagov -s prod
+prod_routes=$(cf routes)

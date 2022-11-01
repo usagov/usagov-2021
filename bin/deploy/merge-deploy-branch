@@ -1,0 +1,18 @@
+#!/bin/sh
+
+SCRIPT_DIR="$(dirname $(readlink -f "$0"))"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+assertRequires git
+
+# Make sure git is up to date
+echo "Merging git branches stage => prod" | toLogs
+
+git checkout stage | toLogs
+git merge prod | toLogs
+git checkout prod | toLogs
+git merge stage | toLogs
+
+return 0
