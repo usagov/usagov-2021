@@ -101,18 +101,18 @@
 {% if term_name != "Home Page" %}
 	<main
 		class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
-{% else %}
+{# {% else %}
 	<main class="main-content usa-layout-docs {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
-{% endif %}
+{% endif %} #}
 
 		<a id="main-content" tabindex="-1"></a>
 		{# link is in html.html.twig #}
 
-	{% if term_name != "Home Page" %}
+{#	{% if term_name != "Home Page" %}#}
 		<div class="grid-container">
-	{% else %}
+{#	{% else %}
 		<div>
-	{% endif %}
+	{% endif %}#}
 
 			{% if page.breadcrumb or page.highlighted or page.help %}
 				<div class="grid-row">
@@ -160,11 +160,11 @@
 		<a id="back-to-top" href="#main-content">
 			{{ lang == 'en' ? 'Top' : 'Subir' }}
 		</a>
-	{# {% else %}
+ {% else %}
 		<main class="main-content usa-layout-docs {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
 
 			{{ page.content }}
-		{% endif %} #}
+		{% endif %}
 
 	</main>
 
