@@ -10,7 +10,9 @@ assertRequires git
 # Make sure git is up to date
 echo "Merging git branches stage => prod" | toLogs
 
-git checkout dan | toLogs
-git merge dev | toLogs
-git checkout dev | toLogs
-git merge dan
+git checkout stage | toLogs
+git merge prod | toLogs
+git checkout prod | toLogs
+git merge stage | toLogs
+
+return 0
