@@ -40,7 +40,17 @@ function myforms(event) {
                 test.push(error + " missing");
                 elmnts[k].classList.add("usa-user-error");
                 elmnts[k].previousElementSibling.classList.add("usa-error");
-                let message = a11y_content[error];
+                
+		// Changing to use the error method specified in the CMS if available
+        	var errorID = "error-" + error;
+        	var cmsError = document.getElementById(errorID);
+        	if(cmsError){
+          		var message = cmsError.getElementsByTagName("span")[0].innerHTML;
+
+        	}else {
+          		var message = a11y_content[error];
+        	}
+
                 elmnts[k].previousElementSibling.innerHTML = message;
                 event.preventDefault();
                 errorFound = true;  
@@ -120,7 +130,19 @@ function myforms(event) {
     
     if (errorFound) {
         document.getElementById("error-box").focus();
+	if (test.length == 1) {
+      	  if (document.documentElement.lang == "en") {
+            document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains an error";
+	  } else {
+	    document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Su información contiene 1 error";
+	  }
+    	} else {
+	  if (document.documentElement.lang == "en") {
 	    document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + test.length + " errors";
+	  } else {
+	    document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Su información contiene " + test.length + " errores";
+      	  }
+    	}
         dataLayer.push({'event':'CEO form error','error type':test.join(";")});
         return false
     }
