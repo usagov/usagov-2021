@@ -1,0 +1,103 @@
+#!/bin/sh
+
+export INCLUDE_PATH="$(readlink -f "$0")"
+export SCRIPT_DIR="$(dirname $INCLUDE_PATH)"
+export LOGS_DIR="$SCRIPT_DIR/logs"
+export SCRIPT_ROOT="$(dirname $SCRIPT_DIR)"
+export REPO_ROOT="$(dirname $SCRIPT_ROOT)"
+export YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
+
+# Grab the starting space and org where the command was run
+startorg=$(   cf target | grep org:   | awk '{ print $2 }')
+startspace=$( cf target | grep space: | awk '{ print $2 }')
+# Drop them off where we found them
+function popspace() {
+    echo "Popspace: ${startorg}/${startspace}"
+    cf target -o "$startorg" -s "$startspace" > /dev/null 2>&1
+}
+# trap popspace exit
+trap popspace err
+
+mkdir -p $LOGS_DIR
+
+if [ -f $REPO_ROOT/env.local ]; then
+  . $REPO_ROOT/env.local
+fi
+
+function assertRequires() {
+  for cmd in $@; do
+    if ! command -v $cmd &> /dev/null; then
+      echo "ERROR: $cmd is required"
+      exit 1
+    fi
+  done
+}
+
+
+function envEmpty() { # list of env vars
+  if [ -z "$1" ]; then # if zero length varname
+    return 0; # true
+  fi
+  eval val="\${$1}"
+  if [ -z "$val" ]; then # if zero length value
+    return 0; # true
+  fi
+  return 1; # false
+}
+
+function assertEnv() { # list of env vars
+  for var in "$@"; do
+    if envEmpty $var; then
+      echo "ERROR: Env var '$var' is empty"
+      exit 1; #false
+    fi
+  done
+}
+
+function envVarsSet() { # list of env vars
+  for var in "$@"; do
+    if envEmpty $var; then
+      return 1; #false
+    fi
+  done
+  return 0; # true
+}
+
+function activeCFLogin() {
+  cf target &> /dev/null
+  return $?
+}
+
+function getApproval() { # prompt message
+  prompt=${1:-"Continue?"}
+  read -r -p "$prompt [y/N] " response
+  case "$response" in
+    [yY][eE][sS]|[yY])
+        return 0
+        ;;
+    *)
+        return 1
+        ;;
+  esac
+}
+
+function pauseForInput() { # prompt message
+  prompt=${1:-"Pausing ..."}
+  read -r -n 1 -p "$prompt [press any key to continue] "
+  return 0
+}
+
+function toLogs() { # input and/or param string
+  if [ -n "$@" ]; then
+    echo "$@" | tee -a $LOGS_DIR/$(basename "$0").log
+  fi
+  head=$(dd bs=1 count=1 2>/dev/null; echo a)
+  head=${head%a}
+  if [ "x$head" != x"" ]; then
+    { printf %s "$head"; cat; } | tee -a $LOGS_DIR/$(basename "$0").log
+  fi
+}
+
+function clearLogs() {
+  echo | tee $LOGS_DIR/$(basename "$0").log
+}

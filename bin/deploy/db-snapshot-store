@@ -1,0 +1,3 @@
+#!/bin/sh
+
+# use google cloud storage to store the db snapshot

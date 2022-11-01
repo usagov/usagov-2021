@@ -1,0 +1,13 @@
+#!/bin/sh
+
+SCRIPT_DIR="$(dirname $(readlink -f "$0"))"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+# Make sure git is up to date
+echo "Mergin git branches stage => prod" | toLogs
+
+git request-pull dev https://github.com/usagov/usagov-2021 dan -p "WIP TEST" | toLogs
+
+git request-pull dan https://github.com/usagov/usagov-2021 dev -p "WIP TEST" | toLogs

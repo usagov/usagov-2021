@@ -1,0 +1,30 @@
+#!/bin/sh
+
+SCRIPT_DIR="$(dirname $(readlink -f "$0"))"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
+
+clearLogs
+
+. $SCRIPT_DIR/check-for-credentials
+
+# . $SCRIPT_DIR/update-git
+
+. $SCRIPT_DIR/what-tickets-will-be-included
+. $SCRIPT_DIR/what-prs-are-open
+
+. $SCRIPT_DIR/check-current-deployment
+
+if getApproval "Generate DB Backup?"; then
+  . $SCRIPT_DIR/db-snapshot-create $YMDHMS
+fi
+
+if getApproval "Generate Static Site Backup?"; then
+  . $SCRIPT_ROOT/cloudgov/static-site-snapshot $YMDHMS | toLogs
+fi
+. $SCRIPT_ROOT/cloudgov/static-site-list | toLogs
+
+. $SCRIPT_DIR/fin
