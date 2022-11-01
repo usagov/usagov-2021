@@ -415,6 +415,7 @@
   margin-bottom: 25px;
   margin-top: 20px;
 }
+
 /** Wrapper **********************/
 .carousel {
   position: relative;
@@ -425,6 +426,7 @@
   padding: 0;
   display: flex;
 }
+
 /** Previous/next buttons ********/
 .previous,
 .next {
@@ -450,7 +452,7 @@
   flex: 0 0 calc(100% - 10px);
   margin: 0 5px;
   padding: 20px;
-  height: var(--carousel-height);
+  height: 300px;
 
   font-size: 18px;
   line-height: 26px;
@@ -617,5 +619,17 @@
 
   .how-button {
     margin-bottom: 15px;
+  }
+
+}
+
+/*Tablet */
+@media(max-width: 1024px) and (min-width:480px) {
+  .life-events {
+    max-width: 100%;
+  }
+
+  .carousel {
+    max-width: 100%;
   }
 }
