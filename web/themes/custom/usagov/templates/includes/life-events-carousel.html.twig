@@ -1,1 +1,231 @@
-<p> Carousel goes here </p>
+{{ attach_library('usagov/carousel') }}
+<style>
+
+:root {
+  --carousel-height: 300px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f5f5f5;
+  padding: 20px;
+  font-family: "Merriweather", serif;
+}
+
+/** Wrapper **********************/
+.carousel {
+  position: relative;
+  width: calc(100% - 40px);
+  max-width: 900px;
+  height: var(--carousel-height);
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+/** Previous/next buttons ********/
+.previous,
+.next {
+  margin: 0px;
+  padding: 0px;
+  width: 40px;
+  border: none;
+  background-color: transparent;
+}
+
+/** Slides track ***************/
+.slides {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+}
+
+/** Individual slides ***********/
+.slide {
+  flex: 0 0 calc(100% - 10px);
+  margin: 0 5px;
+  padding: 20px;
+  height: var(--carousel-height);
+
+  font-size: 18px;
+  line-height: 26px;
+}
+
+@media screen and (min-width: 480px) {
+  .slide {
+    flex: 0 0 calc(100% / 2 - 10px);
+  }
+}
+@media screen and (min-width: 1024px) {
+  .slide {
+    flex: 0 0 calc(100% / 3 - 10px);
+  }
+}
+
+
+.slide a {
+  color: white;
+  text-decoration: none;
+}
+
+.slide a:visited {
+  color: white;
+  text-decoration: none;
+}
+
+/** Pagination ******************/
+.navigation li {
+  width:40px;
+  height:40px;
+  margin:0px;
+
+  }
+.navigation li:not(:last-child) {
+margin-right:15px;
+}
+
+.navigation li {
+  width:40px;
+  height:40px;
+  border: none;
+  background-color: #112F4E;
+  color: #00BDE3;
+  border: 2px solid #00BDE3;
+  font-size:30px;
+}
+
+.navigation li a {
+  text-decoration:none;
+}
+.navigation li a:focus {
+  outline-offset: 4px;
+}
+
+.usa-pagination__button {
+  border: none;
+}
+
+/** Active slide dot */
+.navigation li a[aria-current="true"] {
+  background-color: #FFFFFF;
+  color: #112F4E;
+}
+
+.sr-only {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.thumbnailBanner {
+  width: 100%;
+  height: 85px;
+  margin: auto;
+}
+
+h3 {
+  margin: 0px;
+}
+
+p {
+  margin: 0px;
+  font-weight: normal;
+}
+
+</style>
+<section class="carousel" aria-label="carousel">
+  <p class="sr-only">
+    Carousel with three slides shown at a time. Use the Previous and Next
+    buttons to navigate, or the slide dot buttons at the end to jump to
+    slides.
+  </p>
+
+  <button class="previous">
+    <span class="sr-only">Previous slides</span>
+    <img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" />
+  </button>
+
+  <div class="slides">
+    <div class="slide" role="group" aria-label="slide 1 of 6">
+      <a href="#"><h3>Birth</h3>
+      <p>
+        Find government programs to help during pregnancy and early
+        childhood.
+      </p>
+        <img class="thumbnailBanner" src="/themes/custom/usagov/images/topics/Banner_img_About_the_US_and_Its_Government.png" />
+      </a>
+    </div>
+
+    <div class="slide" role="group" aria-label="slide 2 of 6">
+      <a href="#"><h3>Death of a loved one:</h3>
+      <p>
+        Find out how to report a death to government agencies. Get copies of
+        death certificates and other records, and find benefits for final
+        expenses.
+      </p>
+        <img class="thumbnailBanner" src="/themes/custom/usagov/images/topics/Banner_img_About_the_US_and_Its_Government.png" />
+      </a>
+    </div>
+
+    <div class="slide" role="group" aria-label="slide 3 of 6">
+      <a href="#"><h3>Financial hardship:</h3>
+      <p>
+        Learn how to apply for government programs to help with food, bills,
+        housing, and more.
+      </p>
+        <img class="thumbnailBanner" src="/themes/custom/usagov/images/topics/Banner_img_About_the_US_and_Its_Government.png" />
+      </a>
+    </div>
+
+    <div class="slide" role="group" aria-label="slide 4 of 6">
+      <a href="#"><h3>Natural disaster:</h3>
+      <p>
+        Find out how to get government assistance after a disaster.
+        Reconnect with loved ones and learn how to help survivors.
+      </p>
+        <img class="thumbnailBanner" src="/themes/custom/usagov/images/topics/Banner_img_About_the_US_and_Its_Government.png" />
+      </a>
+    </div>
+
+    <div class="slide" role="group" aria-label="slide 5 of 6">
+      <a href="#"><h3>Turning 18:</h3>
+      <p>
+        Learn about the new opportunities and responsibilities of adulthood,
+        including voting, jobs and education, military service, and taxes.
+      </p>
+        <img class="thumbnailBanner" src="/themes/custom/usagov/images/topics/Banner_img_About_the_US_and_Its_Government.png" />
+      </a>
+    </div>
+
+    <div class="slide" role="group" aria-label="slide 6 of 6">
+      <a href="#"><h3>Turning 65:</h3>
+      <p>
+        Get ready for retirement with planning tools and tips to help you
+        apply for Medicare and Social Security.
+      </p>
+        <img class="thumbnailBanner" src="/themes/custom/usagov/images/topics/Banner_img_About_the_US_and_Its_Government.png" />
+      </a>
+    </div>
+  </div>
+
+  <button class="next">
+    <span class="sr-only">Next slides</span>
+    <img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" />
+  </button>
+
+
+</section>
+  <nav aria-label="Pagination" class="usa-pagination">
+    <ul class=" navigation usa-pagination__list">
+    </ul>
+  </nav>
