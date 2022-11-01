@@ -10,7 +10,7 @@ asssertRequires cf
 YMDHMS=${1:-$(date +"%Y_%m_%d_%H_%M_%S")}
 
 . $SCRIPT_ROOT/cloudgov/login
-cf target -s prod
+cf target -s $TARGET_ENV
 echo ". $SCRIPT_ROOT/cloudgov/db-pull usagov.sql $YMDHMS" | toLogs
 
 popspace

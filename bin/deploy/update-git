@@ -6,7 +6,7 @@ if [ -f $SCRIPT_DIR/includes ]; then
 fi
 
 # Make sure git is up to date
-echo "Updating git branches - dev, stage, prod" | toLogs
+echo "Updating git perma-branches: dev, stage, prod" | toLogs
 
 git fetch --all -q
 git checkout dev -q
@@ -15,5 +15,19 @@ git checkout stage -q
 git pull -q
 git checkout prod -q
 git pull -q
+
+DEPLOY_BRANCH=${DEPLOY_BRANCH:-}
+if [ -n "$DEPLOY_BRANCH" ] && [ ! "$DEPLOY_BRANCH" == "dev" ] && [ ! "$DEPLOY_BRANCH" == "stage" ] && [ ! "$DEPLOY_BRANCH" == "prod" ]; then
+  git checkout $DEPLOY_BRANCH -q
+  git pull -q
+fi
+
+MERGE_BRANCH=${MERGE_BRANCH:-}
+if [ -n "$MERGE_BRANCH" ] && [ ! "$MERGE_BRANCH" == "$DEPLOY_BRANCH" ] && [ ! "$MERGE_BRANCH" == "dev" ] && [ ! "$MERGE_BRANCH" == "stage" ] && [ ! "$MERGE_BRANCH" == "prod" ]; then
+  git checkout $MERGE_BRANCH -q
+  git pull -q
+fi
+
+popbranch
 
 return 0

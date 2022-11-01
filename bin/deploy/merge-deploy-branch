@@ -7,12 +7,16 @@ fi
 
 assertRequires git
 
-# Make sure git is up to date
-echo "Merging git branches stage => prod" | toLogs
+DEPLOY_BRANCH=${DEPLOY_BRANCH:-}
+MERGE_BRANCH=${MERGE_BRANCH:-}
 
-git checkout stage | toLogs
-git merge prod | toLogs
-git checkout prod | toLogs
-git merge stage | toLogs
+# Make sure git is up to date
+echo "Merging git branches $MERGE_BRANCH => $DEPLOY_BRANCH" | toLogs
+
+git checkout $MERGE_BRANCH | toLogs
+git merge $DEPLOY_BRANCH | toLogs
+
+git checkout $DEPLOY_BRANCH | toLogs
+git merge $MERGE_BRANCH | toLogs
 
 return 0
