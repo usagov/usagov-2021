@@ -131,8 +131,8 @@ proxydeny=$(  cat $SCRIPT_DIR/apps-egress-deny.acl || echo "" )
 proxyallow=$( cat $SCRIPT_DIR/apps-egress-allow.acl <(echo "$buckethosts") || echo "" )
 
 # Normalize into a YAML multiline block form
-proxydeny=$(  echo "$proxydeny"  | sed 's/ \{1,\}/\n/g' | sed '/^\s*$/d' | sed 's/^\s*/  /'  )
-proxyallow=$( echo "$proxyallow" | sed 's/ \{1,\}/\n/g' | sed '/^\s*$/d' | sed 's/^\s*/  /'  )
+proxydeny=$(  echo "$proxydeny"  | sed 's/ \{1,\}/\n/g' | sed '/^\s*$/d' | sed 's/^/  /'  )
+proxyallow=$( echo "$proxyallow" | sed 's/ \{1,\}/\n/g' | sed '/^\s*$/d' | sed 's/^/  /'  )
 
 echo "Create ./manifest-egress-vars.yml"
 touch ./manifest-egress-vars.yml
