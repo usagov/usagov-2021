@@ -67,25 +67,7 @@
 	{% endif %}
 
 {% elseif term_name == "Home Page" %}
-	{% if view.current_display == "block_5" %}
-		{# block_4 is the intro_page display for this view which is used on the homepage #}
-		<div class="grid-container usa-life-event usagov-life-event-homepage">
-			<div class="usagov-cards margin-top-3">
-				<ul class="usa-card-group">
-					{% for row in rows %}
-						<li class="tablet:grid-col-4 usa-card">
-							<a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
-							{% if term_name == "Life Events Landing Page" %}
-							{% else %}
-								{{- row.content -}}
-							{% endif %}
-							</a>
-						</li>
-					{% endfor %}
-				</ul>
-			</div>
-		</div>
-	{% endif %}
+
 	{% if view.current_display == "block_4" %}
 		{% include directory ~ '/templates/includes/homepage-cards.html.twig' %}
 	{% endif %}
