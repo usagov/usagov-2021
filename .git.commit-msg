@@ -1,4 +1,12 @@
 #!/bin/sh
 
+COMMIT_MESSAGE_FILE="$1"
+COMMIT_MESSAGE=$(cat "$COMMIT_MESSAGE_FILE" | grep -v '^#')
+
 COMMITPREFIX=$(git branch | grep '*' | sed 's/* //') 
-echo "$COMMITPREFIX"': '$(cat "$1") > "$1"
+
+if [ ${#COMMIT_MESSAGE} = 0 ]
+then
+    exit 1
+fi
+echo "$COMMITPREFIX"': '"$COMMIT_MESSAGE" > "$COMMIT_MESSAGE_FILE"
