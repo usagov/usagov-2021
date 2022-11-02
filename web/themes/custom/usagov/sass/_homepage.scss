@@ -633,3 +633,74 @@
     max-width: 100%;
   }
 }
+
+// life events
+.usagov-life-event-homepage {
+  background-color: var($hero, background-color);
+  background-image: none;
+  color: var($hero, font-color);
+  margin-bottom: 0;
+}
+
+.usagov-life-event-feature-text a {
+  text-decoration-line: underline;
+  text-decoration-thickness: 7px;
+  text-decoration-color: var($card, heading-underline-color);
+  text-decoration-skip-ink: none;
+  line-height: 1.8em;
+}
+
+.usa-life-event {
+  padding-bottom: 2rem;
+  padding-top: 2rem;
+}
+
+.usagov-life-event a,
+.usagov-life-event a:hover,
+.usagov-life-event a:visited {
+  color: inherit;
+}
+
+.usa-life-event .usagov-cards {
+  padding: 0;
+  background-color: #112f4e;
+}
+
+.usa-life-event .usagov-card,
+.usagov-card:visited {
+  box-shadow: none;
+  border: none;
+}
+
+
+
+// style for view
+
+.usa-life-event .usagov-cards .usa-card__container {
+  background-color: #112f4e;
+}
+
+.usa-life-event .usa-card__header {
+  padding: 1.5rem 0 0;
+}
+
+.usa-life-event .usagov-cards .usa-card__header .usa-card__heading {
+  color: #fff;
+  text-decoration-line: none;
+}
+
+.usa-life-event .life-events-landing-page-card-title {
+  padding: 1rem 1rem 1rem 0;
+}
+
+.usa-life-event .usa-card__body {
+  background-color: #112f4e;
+  color: #fff;
+  padding: 0.5rem 0;
+}
+
+.usa-life-event img {
+  border-style: solid;
+  border-color: #fff;
+}
+

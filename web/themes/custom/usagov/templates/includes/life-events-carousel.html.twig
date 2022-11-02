@@ -1,6 +1,6 @@
 {{ attach_library('usagov/carousel') }}
 
-<section class="carousel" aria-label="carousel">
+{# <section class="carousel" aria-label="carousel">
   <p class="sr-only">
     Carousel with three slides shown at a time. Use the Previous and Next
     buttons to navigate, or the slide dot buttons at the end to jump to
@@ -85,4 +85,31 @@
   <nav aria-label="Pagination" class="usa-pagination">
     <ul class=" navigation usa-pagination__list">
     </ul>
-  </nav>
+  </nav> #}
+{% if view.current_display == "block_5" %}
+  {# block_4 is the intro_page display for this view which is used on the homepage #}
+  <div class="grid-container usa-life-event usagov-life-event-homepage">
+  <div class="usagov-cards margin-top-3">
+    <ul class="usa-card-group">
+      {% for row in rows %}
+      <li class="tablet:grid-col-4 usa-card">
+        <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
+         {% if term_name == "Life Events Landing Page" %}
+       {#  <div class="life-events-landing-page-card-title">{{row.content["#row"].node_field_page_intro}}</div>
+        <div class="life-events-landing-page-card-title">{{row.content["#row"].node_field_data_title}}</div> #}
+         {% else %}
+            {{- row.content -}}
+          {% endif %}
+        {# <div class="life-events-landing-page-card-title">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's</div>
+        <div class="life-events-landing-page-card-image" style="background-image: url({{file_url(row.content["#row"]._entity.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}})"></div> #}
+
+         {# {% else %}
+            {{- row.content -}}
+          {% endif %} #}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  </div>
+{% endif %}
