@@ -430,7 +430,7 @@
 .carousel {
   position: relative;
   width: calc(100% - 40px);
-  max-width: 900px;
+  // max-width: 900px;
   height: 300px;
   margin: 0;
   padding: 0;
@@ -440,11 +440,16 @@
 /* Previous/next buttons */
 .previous,
 .next {
-  margin: 0px;
+  margin: 0 20px;
   padding: 0px;
   width: 40px;
   border: none;
   background-color: transparent;
+}
+
+.previous img,
+.next img{
+  width: 40px;
 }
 
 /* Slides track */
@@ -493,6 +498,8 @@
 
 .slide h3 {
   margin: 0px;
+  color: white;
+  text-decoration: none;
 }
 
 .slide p {
@@ -500,6 +507,9 @@
   font-weight: normal;
 }
 
+.slide .usa-card__container {
+  background-color: transparent;
+}
 /* Pagination */
 .navigation li {
   width: 40px;

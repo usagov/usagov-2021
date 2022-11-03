@@ -4,11 +4,15 @@
 #}
 {% if view.current_display == "block_5" and view.title == "Life Events Carousel"%}
   {# {{ devel_breakpoint() }} #}
-  <a href="#">
-    <h3>{{row.node_field_data_title}}</h3>
-    <p>{{ row.node__field_page_intro_field_page_intro_value}}</p>
-    {# Until we get the images fixed #}
-    <img class="thumbnailBanner" src="/themes/custom/usagov/images/topics/Banner_img_About_the_US_and_Its_Government.png" />
-    {{row.node__field_navigation_banner_image_field_navigation_banner_}}
-  </a>
+
+  <h3 class="usa-card__heading usagov-card__heading">
+    {{row.node_field_data_title}}
+  </h3>
+  <p class="usa-card__body padding-top-0 usa-prose">
+    {{ row.node__field_page_intro_field_page_intro_value}}
+  </p>
+  {# Until we get the images fixed- see comment below #}
+  <img class="thumbnailBanner" src="/themes/custom/usagov/images/topics/Banner_img_About_the_US_and_Its_Government.png" />
+  {# {{row.node__field_navigation_banner_image_field_navigation_banner_}} #}
+
 {% endif %}
