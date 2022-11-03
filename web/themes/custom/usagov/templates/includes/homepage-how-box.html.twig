@@ -1,8 +1,8 @@
 <div class="how-box">
 	<h2>How do I...</h2>
-	<div class="usa-button-group">
+	<div class="how-button-list">
 		{% for link in node.field_homepage_top_links %}
-			<div class="usa-button-group__item how-button">
+			<div class="how-button">
 				<a href={{link.uri}}>
 					{{link.title}}
 				</a>

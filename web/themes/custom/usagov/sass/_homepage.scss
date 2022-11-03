@@ -217,10 +217,11 @@
   max-width: var($homepage, smaller-max-width);
 }
 
-.how-box .usa-button-group {
-  flex-wrap: nowrap;
+.how-button-list {
   align-items: center;
-
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(4, 1fr);
   margin-left: auto;
   margin-right: auto;
   margin-top: 30px;
@@ -231,7 +232,6 @@
   align-items: center;
   border-left: 3px solid var($homepage, aqua-color);
   display: flex;
-  flex: 1;
   height: 60px;
   padding-left: 12px;
   padding-right: 20px;
