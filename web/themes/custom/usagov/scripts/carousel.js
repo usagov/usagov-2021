@@ -85,6 +85,7 @@ jQuery(document).ready(function ($) {
       );
     }
  else if (window.innerWidth > 480 && window.innerWidth < 1024) {
+  console.log("OFFSET WIDTH: " + slidesContainer.offsetWidth);
       $(slidesContainer).animate(
         {
           "scrollLeft":
