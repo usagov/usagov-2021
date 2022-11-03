@@ -416,7 +416,17 @@
   margin-top: 20px;
 }
 
-/** Wrapper **********************/
+/********** Carousel **********************/
+.sr-only {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Carousel Wrapper */
 .carousel {
   position: relative;
   width: calc(100% - 40px);
@@ -427,7 +437,7 @@
   display: flex;
 }
 
-/** Previous/next buttons ********/
+/* Previous/next buttons */
 .previous,
 .next {
   margin: 0px;
@@ -437,7 +447,7 @@
   background-color: transparent;
 }
 
-/** Slides track ***************/
+/* Slides track */
 .slides {
   list-style: none;
   padding: 0;
@@ -447,7 +457,7 @@
   overflow: hidden;
 }
 
-/** Individual slides ***********/
+/* Individual slides */
 .slide {
   flex: 0 0 calc(100% - 10px);
   margin: 0 5px;
@@ -490,7 +500,7 @@
   font-weight: normal;
 }
 
-/** Pagination ******************/
+/* Pagination */
 .navigation li {
   width: 40px;
   height: 40px;
@@ -521,21 +531,14 @@
   border: none;
 }
 
-/** Active page number */
+/* Active page number */
 .navigation li a[aria-current="true"] {
   background-color: #FFFFFF;
   border: none;
   color: #112F4E;
 }
 
-.sr-only {
-  position: absolute;
-  left: -10000px;
-  top: auto;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-}
+
 
 .thumbnailBanner {
   width: 100%;
