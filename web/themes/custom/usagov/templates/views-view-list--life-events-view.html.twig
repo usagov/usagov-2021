@@ -1,11 +1,88 @@
+<style>
+
+
+  .carousel .grid-container{
+   width:100%;
+  }
+
+  .carousel .usagov-cards{
+    background-color:transparent;
+    padding:0px;
+  }
+
+  .slides {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .slide {
+    height: 275px;
+    flex: 0 0 calc(100% - 61px);
+  }
+
+  .slide:not(:last-child) {
+    margin-right: 61px;
+  }
+
+  @media screen and (min-width: 480px) {
+    .slide {
+      flex: 0 0 calc(100% / 2 - 61px);
+    }
+  }
+
+  @media screen and (min-width: 1024px) {
+    .slide {
+      flex: 0 0 calc(100% / 3 - 61px);
+    }
+  }
+
+  .carousel .usa-card__container{
+    background-color:transparent;
+    box-shadow: none;
+  }
+
+  .carousel .usagov-card{
+    border:none;
+  }
+
+  .slide a {
+    color: white;
+    text-decoration: none;
+  }
+
+  .slide a:visited {
+    color: white;
+    text-decoration: none;
+  }
+
+  .slide h3 {
+    margin: 0px;
+    color: white;
+    text-decoration: none;
+      font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+  }
+
+  .slide p {
+    margin: 0px;
+    font-weight: normal;
+      font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+      font-size:17.6px;
+  }
+
+</style>
+
 {% if view.current_display == "block_5" %}
 
-<div class="grid-container usa-life-event usagov-life-event-homepage">
-  <div class="usagov-cards margin-top-3">
+<div class="grid-container padding-left-0">
+  <div class="usagov-cards">
     <ul class="usa-card-group">
       <div class="slides">
         {% for row in rows %}
-          <div class="slide usa-card" role="group" aria-label="slide {{loop.index}} of 6">
+          <div class="slide usa-card " role="group" aria-label="slide {{loop.index}} of 6">
             <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
               {{- row.content -}}
             </a>

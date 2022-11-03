@@ -2,13 +2,24 @@
 /**
 **/
 #}
+<style>
+.thumbnailBanner {
+  width: 100%;
+  height: 85px;
+  margin: auto;
+   box-shadow: 0 6px 6px rgb(17 47 78 / .4);
+     border-style: solid;
+  border-color: #fff;
+}
+</style>
+
 {% if view.current_display == "block_5" and view.title == "Life Events Carousel"%}
   {# {{ devel_breakpoint() }} #}
 
   <h3 class="usa-card__heading usagov-card__heading">
     {{row.node_field_data_title}}
   </h3>
-  <p class="usa-card__body padding-top-0 usa-prose">
+  <p class="usa-card__body padding-top-0 padding-right-0 padding-left-0 padding-bottom-0 usa-prose">
     {{ row.node__field_page_intro_field_page_intro_value}}
   </p>
   {# Until we get the images fixed- see comment below #}
