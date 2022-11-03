@@ -1,8 +1,6 @@
 <style>
-
-
   .carousel .grid-container{
-   width:100%;
+    width:100%;
   }
 
   .carousel .usagov-cards{
@@ -21,23 +19,7 @@
 
   .slide {
     height: 275px;
-    flex: 0 0 calc(100% - 61px);
-  }
-
-  .slide:not(:last-child) {
-    margin-right: 61px;
-  }
-
-  @media screen and (min-width: 480px) {
-    .slide {
-      flex: 0 0 calc(100% / 2 - 61px);
-    }
-  }
-
-  @media screen and (min-width: 1024px) {
-    .slide {
-      flex: 0 0 calc(100% / 3 - 61px);
-    }
+    flex: 0 0 calc(100%);
   }
 
   .carousel .usa-card__container{
@@ -63,21 +45,53 @@
     margin: 0px;
     color: white;
     text-decoration: none;
-      font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+    font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
   }
 
   .slide p {
     margin: 0px;
     font-weight: normal;
-      font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
-      font-size:17.6px;
+    font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+    font-size:17.6px;
+  }
+
+  /*Tablet*/
+  @media (min-width: 480px) {
+    .carousel .usa-card-group {
+      margin-left: 0px;
+      margin-right:0px;
+    }
+
+    .slide {
+      flex: 0 0 calc(100% / 2);
+      padding-right: 61px;
+    }
+
+    .slide:not(:last-child) {
+      margin-right: 0px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+      .carousel .usa-card-group {
+      margin-left: 0px;
+      margin-right:0px;
+    }
+    .slide {
+      flex: 0 0 calc(100% / 3);
+      padding-right:61px
+    }
+    .slide:not(:last-child) {
+      margin-right: 0px;
+
+    }
   }
 
 </style>
 
 {% if view.current_display == "block_5" %}
 
-<div class="grid-container padding-left-0">
+<div class="grid-container padding-left-0 padding-right-0">
   <div class="usagov-cards">
     <ul class="usa-card-group">
       <div class="slides">
