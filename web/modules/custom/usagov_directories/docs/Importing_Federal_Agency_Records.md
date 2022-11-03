@@ -68,7 +68,10 @@ import.
 
 ## Importing the data to beta (first time) 
 
-The Drupal Admin area has a feed type and a feed to support importing:
+The Drupal Admin area has a feed type for the import. The "Federal
+Agencies" feed must be created manually, as it is a piece of content
+in the CMS. It's only necessary to create the feed once, so may
+already have both:
 
 * Feed type: Admin -> Structure -> Feed types -> Federal Agencies
   Import
@@ -78,8 +81,11 @@ The saved configuration supports zero or one of each link type, and
 will import your contact_1-website_1-office_1.csv file:
 
 1. Go to Admin -> Content -> Feeds
-2. Click "Edit" for the Federal Agencies feed.
-3. Upload the contact_1-website_1-office_1.csv file. (You might need
+2. If you see a "Federal Agencies" feed, click its "Edit"
+   button. Otherwise, click "Add feed" and enter "Federal Agencies" in
+   the Title field. (If more than one Feed Type were defined, you
+   would probably need to select the "Federal Agencies Import" type too!) 
+3. In the File field, upload the contact_1-website_1-office_1.csv file. (You might need
 to Remove a previously-uploaded file.)
 4. Click "Save and import"
 
@@ -120,6 +126,10 @@ repeat the steps you did for the first file.
 links imported correctly. The potential mistake here is putting a URL
 in a text field, or getting the link entries out of order. (Consider
 comparing to the corresponding page on mothership.)
+
+When you are finished, go back to the Federal Agencies Feed *Type*,
+Mappings, and remove any of the "extra" fields you added (step 4
+above), so the field mappings are in a consistent state next time.
 
 ## Re-importing or Updating
 
