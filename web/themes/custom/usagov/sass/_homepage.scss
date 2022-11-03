@@ -263,7 +263,7 @@
 }
 
 .life-events-carousel {
-  margin: 20px 0 0;
+  margin: 30px 0 0;
 }
 
 /* Jump */
@@ -367,8 +367,6 @@
 .homepage-card a {
   text-decoration: none;
 }
-
-
 
 .homepage-card {
   font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
@@ -557,7 +555,6 @@
   font-size: 17.6px;
 }
 
-
 .thumbnailBanner {
   width: 100%;
   height: 85px;
@@ -567,7 +564,7 @@
   border-color: #fff;
 }
 
-/* Desktop */
+/* Tablet & Desktop */
 @media(min-width: 480px) {
   .welcome-box {
     grid-column: 2 / 3;
@@ -587,41 +584,51 @@
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: 1fr;
     margin-top: 20px;
-
   }
 
   .how-button {
     margin-bottom: auto;
   }
 
-  .life-events {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: var($homepage, larger-max-width);
-    padding: 0px;
-  }
-
-  .life-events-inner {
-    margin-left: 0;
-    margin-right: auto;
-    max-width: var($homepage, smaller-max-width);
-    padding: 0 0 0 75px;
-  }
-
   .life-events h2 {
-
     padding-top: 16px;
   }
 
+  .carousel-mover {
+    max-width: 100%;
+    padding-left: 37px;
+    padding-right: 37px;
+  }
+
+  .life-events-carousel .usa-pagination {
+    margin: 34px 0px;
+  }
+
+  .navigation li:not(:last-child) {
+    margin: 0px;
+    margin-right: 15px;
+  }
+
+  .carousel .usa-card-group {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
+  .slide {
+    flex: 0 0 calc(100% / 2);
+    padding-right: 61px;
+  }
+
+  .slide:not(:last-child) {
+    margin-right: 0px;
+  }
+
   .all-topics-header h2 {
-
-
     margin-left: auto;
     margin-right: auto;
 
     max-width: var($homepage, larger-max-width);
     padding: 0 0 5px 75px;
-
   }
 
   .homepage-card_header {
@@ -646,76 +653,48 @@
   .how-button {
     margin-bottom: 15px;
   }
-
 }
 
+/* Desktop */
 @media (min-width:1024px) {
+
   .life-events {
     width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: var($homepage, larger-max-width);
+    padding: 0px;
+  }
+
+  .life-events-intro {
+    margin-left: 0;
+    margin-right: auto;
+    max-width: var($homepage, smaller-max-width);
+    padding: 0 0 0 75px;
   }
 
   .life-events-carousel {
     width: 1024px;
   }
+
+  .carousel-mover {
+    width: 100%;
+    max-width: 960px;
+    margin-left: 0px;
+    margin-right: auto;
+  }
+
+  .carousel .usa-card-group {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
+  .slide {
+    flex: 0 0 calc(100% / 3);
+    padding-right: 61px
+  }
+
+  .slide:not(:last-child) {
+    margin-right: 0px;
+  }
 }
-
-  /*Tablet */
-  @media (min-width:480px) {
-    .carousel-mover {
-      max-width: 100%;
-      padding-left: 37px;
-      padding-right: 37px;
-    }
-
-    .life-events-carousel .usa-pagination {
-      margin: 34px 0px;
-    }
-
-    .navigation li:not(:last-child) {
-      margin: 0px;
-      margin-right: 15px;
-    }
-  }
-
-  @media (min-width:1024px) {
-    .carousel-mover {
-      width: 100%;
-      max-width: 960px;
-      margin-left: 0px;
-      margin-right: auto;
-    }
-  }
-
-  /*Tablet*/
-  @media (min-width: 480px) {
-    .carousel .usa-card-group {
-      margin-left: 0px;
-      margin-right: 0px;
-    }
-
-    .slide {
-      flex: 0 0 calc(100% / 2);
-      padding-right: 61px;
-    }
-
-    .slide:not(:last-child) {
-      margin-right: 0px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .carousel .usa-card-group {
-      margin-left: 0px;
-      margin-right: 0px;
-    }
-
-    .slide {
-      flex: 0 0 calc(100% / 3);
-      padding-right: 61px
-    }
-
-    .slide:not(:last-child) {
-      margin-right: 0px;
-
-    }
-  }
