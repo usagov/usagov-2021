@@ -10,6 +10,7 @@ jQuery(document).ready(function ($) {
   slides = slidesContainer.querySelectorAll(".slide");
   makeDots();
   slideDots = document.querySelectorAll(".navigation li a");
+  previousButton.style.visibility = "hidden";
   if (slideDots.length > 0) {
     slideDots[0].setAttribute("aria-current", true);
   }
@@ -54,18 +55,17 @@ jQuery(document).ready(function ($) {
   function previousSlide() {
     if (leftMostSlideIndex > 0) {
       goToSlide(leftMostSlideIndex - 1);
-    }
- else {
+    } else {
       goToSlide(slides.length - 1);
     }
+
   }
 
   /** Go to next slide */
   function nextSlide() {
     if (leftMostSlideIndex < slides.length - 1) {
       goToSlide(leftMostSlideIndex + 1);
-    }
- else {
+    } else {
       goToSlide(0);
     }
   }
@@ -76,33 +76,31 @@ jQuery(document).ready(function ($) {
     if (window.innerWidth >= 1024) {
       $(slidesContainer).animate(
         {
-          "scrollLeft":
+          scrollLeft:
             (slidesContainer.offsetWidth / 3) * nextLeftMostSlideIndex,
         },
         {
-          "duration": 200,
+          duration: 200,
         }
       );
-    }
- else if (window.innerWidth > 480 && window.innerWidth < 1024) {
-  console.log("OFFSET WIDTH: " + slidesContainer.offsetWidth);
+    } else if (window.innerWidth > 480 && window.innerWidth < 1024) {
+      console.log("OFFSET WIDTH: " + slidesContainer.offsetWidth);
       $(slidesContainer).animate(
         {
-          "scrollLeft":
+          scrollLeft:
             (slidesContainer.offsetWidth / 2) * nextLeftMostSlideIndex,
         },
         {
-          "duration": 200,
+          duration: 200,
         }
       );
-    }
- else {
+    } else {
       $(slidesContainer).animate(
         {
-          "scrollLeft": slidesContainer.offsetWidth * nextLeftMostSlideIndex,
+          scrollLeft: slidesContainer.offsetWidth * nextLeftMostSlideIndex,
         },
         {
-          "duration": 200,
+          duration: 200,
         }
       );
     }
@@ -120,6 +118,16 @@ jQuery(document).ready(function ($) {
 
     // Update each slide so that the ones that are now off-screen are fully hidden.
     hideNonVisibleSlides();
+
+    //check if the left or right arrow should be hidden
+    if (leftMostSlideIndex == 0) {
+      previousButton.style.visibility = "hidden";
+    } else if (leftMostSlideIndex == slides.length - 1) {
+      nextButton.style.visibility = "hidden";
+    } else {
+      previousButton.style.visibility = "visible";
+      nextButton.style.visibility = "visible";
+    }
   }
 
   /**
@@ -146,13 +154,11 @@ jQuery(document).ready(function ($) {
       offset = 3;
       rightLimit = 3;
       leftLimit = 3;
-    }
- else if (window.innerWidth > 480 && window.innerWidth < 1024) {
+    } else if (window.innerWidth > 480 && window.innerWidth < 1024) {
       offset = 2;
       rightLimit = 2;
       leftLimit = 4;
-    }
- else {
+    } else {
       offset = 1;
       rightLimit = 1;
       leftLimit = 5;
@@ -170,8 +176,7 @@ jQuery(document).ready(function ($) {
             focusableElement.removeAttribute("tabindex");
           });
       }
-    }
- else {
+    } else {
       for (var i = leftLimit; i < numItems; i++) {
         slides[i].removeAttribute("aria-hidden");
 
