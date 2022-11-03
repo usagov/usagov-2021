@@ -1,22 +1,30 @@
 {% if view.current_display == "block_5" %}
-  {# block_4 is the intro_page display for this view which is used on the homepage #}
-  <div class="grid-container usa-life-event usagov-life-event-homepage">
-    <div class="usagov-cards margin-top-3">
-      <ul class="usa-card-group">
-        {% for row in rows %}
-        <li class="tablet:grid-col-4 usa-card">
-        <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
-        {% if term_name == "Life Events Landing Page" %}
-        {% else %}
-        {{- row.content -}}
-        {% endif %}
-        </a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
+<section class="carousel" aria-label="carousel">
+  <p class="sr-only">
+      Carousel with three slides shown at a time. Use the Previous and Next
+    buttons to navigate, or the slide dot buttons at the end to jump to
+    slides.
+  </p>
+    <button class="previous">
+    <span class="sr-only">Previous slides</span>
+    <img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" />
+  </button>
 
+    <div class="slides">
+      {% for row in rows %}
+        <div class="slide" role="group" aria-label="slide " {{loop.index}} " of 6">
+          {{- row.content -}}
+        </div>
+      {% endfor %}
+    </div>
+
+    <button class="next">
+    <span class="sr-only">Next slides</span>
+    <img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" />
+  </button>
+
+
+</section>
   <nav aria-label="Pagination" class="usa-pagination">
     <ul class=" navigation usa-pagination__list">
     </ul>
