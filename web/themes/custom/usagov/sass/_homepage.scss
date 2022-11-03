@@ -416,6 +416,157 @@
   margin-top: 20px;
 }
 
+.life-events {
+  max-width: 100%;
+}
+
+.life-events-carousel {
+  max-width: 100%;
+}
+
+.sr-only {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.previous,
+.next {
+  padding: 0px;
+  width: 40px;
+  border: none;
+  background-color: transparent;
+}
+
+.previous img,
+.next img {
+  width: 40px;
+}
+
+.navigation li {
+  width: 40px;
+  height: 40px;
+  font-size: 30px;
+}
+
+.navigation li:not(:last-child) {
+  margin: 0px;
+  margin-right: 10px;
+}
+
+.navigation li a {
+  text-decoration: none;
+  color: #00BDE3;
+  border: 2px solid #00BDE3;
+}
+
+.navigation li a:focus {
+  outline-offset: 4px;
+}
+
+.usa-pagination__button {
+  border: none;
+}
+
+.usa-pagination__button:focus {
+  border: none;
+  color: #00BDE3;
+}
+
+.life-events-carousel .usa-pagination {
+  margin: 30px 0px 70px 0px;
+}
+
+.navigation li a[aria-current="true"] {
+  background-color: #FFFFFF;
+  border: none;
+  color: #112F4E;
+}
+
+.carousel-mover {
+  width: calc(100% - 80px);
+  padding-left: 11px;
+  padding-right: 11px;
+}
+
+.carousel .grid-container {
+  width: 100%;
+}
+
+.carousel .usagov-cards {
+  background-color: transparent;
+  padding: 0px;
+}
+
+.slides {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+}
+
+.slide {
+  height: 275px;
+  flex: 0 0 calc(100%);
+}
+
+.carousel .usa-card__container {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.carousel .usagov-card {
+  border: none;
+}
+
+.slide a {
+  color: white;
+  text-decoration: none;
+}
+
+.slide a:visited {
+  color: white;
+  text-decoration: none;
+}
+
+.slide h3 {
+  margin: 0px;
+  color: white;
+  text-decoration: none;
+  font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+}
+
+.slide p {
+  margin: 0px;
+  font-weight: normal;
+  font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+  font-size: 17.6px;
+}
+
+
+.thumbnailBanner {
+  width: 100%;
+  height: 85px;
+  margin: auto;
+  box-shadow: 0 6px 6px rgb(17 47 78 / .4);
+  border-style: solid;
+  border-color: #fff;
+}
+
 /* Desktop */
 @media(min-width: 480px) {
   .welcome-box {
@@ -498,13 +649,73 @@
 
 }
 
-/*Tablet */
-@media(max-width: 1024px) and (min-width:480px) {
-  // .life-events {
-  //   max-width: 100%;
-  // }
+@media (min-width:1024px) {
+  .life-events {
+    width: 1024px;
+  }
 
-  // .carousel {
-  //   max-width: 100%;
-  // }
+  .life-events-carousel {
+    width: 1024px;
+  }
 }
+
+  /*Tablet */
+  @media (min-width:480px) {
+    .carousel-mover {
+      max-width: 100%;
+      padding-left: 37px;
+      padding-right: 37px;
+    }
+
+    .life-events-carousel .usa-pagination {
+      margin: 34px 0px;
+    }
+
+    .navigation li:not(:last-child) {
+      margin: 0px;
+      margin-right: 15px;
+    }
+  }
+
+  @media (min-width:1024px) {
+    .carousel-mover {
+      width: 100%;
+      max-width: 960px;
+      margin-left: 0px;
+      margin-right: auto;
+    }
+  }
+
+  /*Tablet*/
+  @media (min-width: 480px) {
+    .carousel .usa-card-group {
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+
+    .slide {
+      flex: 0 0 calc(100% / 2);
+      padding-right: 61px;
+    }
+
+    .slide:not(:last-child) {
+      margin-right: 0px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .carousel .usa-card-group {
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+
+    .slide {
+      flex: 0 0 calc(100% / 3);
+      padding-right: 61px
+    }
+
+    .slide:not(:last-child) {
+      margin-right: 0px;
+
+    }
+  }
