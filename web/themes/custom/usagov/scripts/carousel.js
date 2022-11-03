@@ -122,7 +122,9 @@ jQuery(document).ready(function ($) {
     //check if the left or right arrow should be hidden
     if (leftMostSlideIndex == 0) {
       previousButton.style.visibility = "hidden";
+      nextButton.style.visibility = "visible";
     } else if (leftMostSlideIndex == slides.length - 1) {
+      previousButton.style.visibility = "visible";
       nextButton.style.visibility = "hidden";
     } else {
       previousButton.style.visibility = "visible";
