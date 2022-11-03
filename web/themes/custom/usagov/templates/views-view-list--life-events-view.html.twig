@@ -10,14 +10,13 @@
     <img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" />
   </button>
 
-    <div class="slides">
+    <div class="slides grid-container usa-life-event usagov-life-event-homepage">
       {% for row in rows %}
         <div class="slide" role="group" aria-label="slide " {{loop.index}} " of 6">
           {{- row.content -}}
         </div>
       {% endfor %}
-    </div>
-
+</div>
     <button class="next">
     <span class="sr-only">Next slides</span>
     <img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" />
