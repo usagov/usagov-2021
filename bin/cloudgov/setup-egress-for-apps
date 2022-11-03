@@ -52,20 +52,32 @@ if [[ "$1" == "-h" ]]; then
     exit 1
 fi
 
-appnames=$1
+appnames=""
+restartRequired=1
+
+if [[ "$1" == "--no-restart" ]]; then
+  restartRequired=0
+  appnames=$2
+elif [[ "$2" == "--no-restart" ]]; then
+  restartRequired=0
+  appnames=$1
+else
+  restartRequired=1
+  appnames=$1
+fi
 
 # Grab the starting space and org where the command was run
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
 startspace=$( cf target | grep space: | awk '{ print $2 }')
 
 if [ -z "${appnames}" ]; then
-    echo "ERROR: You must supply at least appnames."
+    echo "ERROR: You must supply a comma-delimited list of appnames."
     echo "${usage}"
     exit 1
 fi
 
-egressspace=${2:-shared-egress}
-egressorg=${3:-$startorg}
+egressspace=shared-egress
+egressorg="$startorg"
 applist="${appnames//,/ }"
 
 # Drop them off where we found them
@@ -131,6 +143,8 @@ for app in $applist; do
     $output cf add-network-policy "$app" "$proxyname" -s "$egressspace" -o "$egressorg" --protocol tcp --port 61443
     $output cf set-env "$app" http_proxy  $proxyroute
     $output cf set-env "$app" https_proxy $proxyroute
+    $output cf set-env "$app" HTTP_PROXY  $proxyroute
+    $output cf set-env "$app" HTTPS_PROXY $proxyroute
     $output cf set-env "$app" AWS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
     $output cf set-env "$app" REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
@@ -138,8 +152,10 @@ for app in $applist; do
     # devs may have to call cf restart directly in some cases where this script
     # is used standone from the deploy scripts
 
-    $output cf restart "$app" --no-wait --strategy rolling
-    # $output cf restart "$app"
+    if [ $restartRequired -eq 1 ]; then
+      $output cf restart "$app" --no-wait --strategy rolling
+      # $output cf restart "$app"
+    fi
 done
 
 popspace

@@ -580,11 +580,15 @@ a,
 }
 
 .usagov-hero a:visited {
-  color: color("violet-30v");
+  color: color("cyan-10");
+}
+
+.usagov-hero a, .usagov-hero__callout ul a {
+  color: color("cyan-30v");
 }
 
 .usagov-hero__callout ul a:visited {
-  color: color("violet-30v");
+  color: color("cyan-10");
 }
 
 .usa-button {
@@ -770,11 +774,15 @@ a {
   }
 }
 
+//Last Updated
+.last {
+  padding-top: 75px;
+}
+
 // Share This Page
 
 div #sm-share {
   display: flex;
-  padding-top: 75px;
   padding-bottom: 22px;
   background-color: transparent;
 }
@@ -782,7 +790,6 @@ div #sm-share {
 div #sm-share * {
   margin-top: auto;
   margin-bottom: auto;
-  padding-top: 5px;
 }
 
 div #sm-share a {

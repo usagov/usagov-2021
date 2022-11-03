@@ -1,0 +1,16 @@
+#!/bin/sh
+
+SCRIPT_DIR="$(dirname $(readlink -f "$0"))"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+asssertRequires cf
+
+YMDHMS=${1:-$(date +"%Y_%m_%d_%H_%M_%S")}
+
+. $SCRIPT_ROOT/cloudgov/login
+cf target -s $TARGET_ENV
+echo ". $SCRIPT_ROOT/cloudgov/db-pull usagov.sql $YMDHMS" | toLogs
+
+popspace
