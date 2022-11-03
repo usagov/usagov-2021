@@ -83,7 +83,8 @@ will import your contact_1-website_1-office_1.csv file:
 1. Go to Admin -> Content -> Feeds
 2. If you see a "Federal Agencies" feed, click its "Edit"
    button. Otherwise, click "Add feed" and enter "Federal Agencies" in
-   the Title field. (If more than one Feed Type were defined, you
+   the Title field. Make sure the "Active" box is *not* checked under "Import Options."
+   (If more than one Feed Type were defined, you
    would probably need to select the "Federal Agencies Import" type too!) 
 3. In the File field, upload the contact_1-website_1-office_1.csv file. (You might need
 to Remove a previously-uploaded file.)
