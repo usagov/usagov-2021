@@ -224,7 +224,7 @@
   margin-left: auto;
   margin-right: auto;
   margin-top: 30px;
-  var($homepage, smaller-max-width);
+  max-width: var($homepage, smaller-max-width);
 }
 
 .how-button {
