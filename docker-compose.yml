@@ -22,6 +22,7 @@ services:
           - cms-usagov.docker.local
     volumes:
       - .:/var/www:delegated
+      - ./.docker/src-cms/etc/periodic/15min/generate-static-site:/etc/periodic/15min/generate-static-site:delegated
       #- ./.docker/src-cms/50_xdebug.ini:/etc/php8/conf.d/50_xdebug.ini:delegated
     env_file:
       - ./env.local
@@ -106,6 +107,7 @@ services:
     volumes:
       - ./s3:/data
       - ./.docker/src-minio/docker-entrypoint-minio.sh:/docker-entrypoint-minio.sh
+      - ./.docker/src-minio/setup-bucket.sh:/setup-bucket.sh
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=miniopass

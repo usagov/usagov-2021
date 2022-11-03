@@ -5,7 +5,7 @@ if [ -f env.local ]; then
   . env.local
 fi
 
-docker compose build --no-cache \
+docker compose build \
   --build-arg BUID=${BUID:-$(id -u)} \
   --build-arg BGID=${BGID:-$(id -g)} \
   --build-arg GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "") \
