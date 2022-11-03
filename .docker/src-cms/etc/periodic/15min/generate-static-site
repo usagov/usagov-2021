@@ -17,6 +17,6 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
     URI="https://beta.usa.gov"
   fi
 
-  /var/www/scripts/tome-run.sh $URI
+  /var/www/scripts/tome-run.sh $URI $@
 
 fi;
