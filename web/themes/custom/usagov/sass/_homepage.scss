@@ -552,7 +552,7 @@
   margin: 0px;
   font-weight: normal;
   font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
-  font-size: 17.6px;
+  font-size: var($homepage, small-font-size);
 }
 
 .thumbnailBanner {
