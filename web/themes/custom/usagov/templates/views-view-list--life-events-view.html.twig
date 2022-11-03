@@ -1,29 +1,30 @@
 {% if view.current_display == "block_5" %}
-<section class="carousel" aria-label="carousel">
-  <p class="sr-only">
-      Carousel with three slides shown at a time. Use the Previous and Next
-    buttons to navigate, or the slide dot buttons at the end to jump to
-    slides.
-  </p>
+  <section class="carousel" aria-label="carousel">
+    <p class="sr-only">
+      Carousel with three slides shown at a time on desktop, two on tablets and one on movile. Use the Previous and Next buttons to navigate, or the slide number buttons at the end to jump to slides.
+    </p>
     <button class="previous">
-    <span class="sr-only">Previous slides</span>
-    <img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" />
-  </button>
+      <span class="sr-only">Previous slides</span>
+      <img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" />
+    </button>
 
     <div class="slides grid-container usa-life-event usagov-life-event-homepage">
-      {% for row in rows %}
-        <div class="slide" role="group" aria-label="slide " {{loop.index}} " of 6">
-          {{- row.content -}}
-        </div>
-      {% endfor %}
-</div>
+        {% for row in rows %}
+          <div class="slide usa-card" role="group" aria-label="slide " {{loop.index}} " of 6">
+            <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
+              {{- row.content -}}
+            </a>
+          </div>
+        {% endfor %}
+      </ul>
+    </div>
+
     <button class="next">
-    <span class="sr-only">Next slides</span>
-    <img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" />
-  </button>
+      <span class="sr-only">Next slides</span>
+      <img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" />
+    </button>
 
-
-</section>
+  </section>
   <nav aria-label="Pagination" class="usa-pagination">
     <ul class=" navigation usa-pagination__list">
     </ul>
