@@ -1,5 +1,5 @@
 jQuery(document).ready(function ($) {
-  console.log("in carousel js");
+  // console.log("in carousel js");
   var previousButton, nextButton;
   var slidesContainer, slides, slideDots;
   var leftMostSlideIndex = 0;
@@ -30,9 +30,9 @@ jQuery(document).ready(function ($) {
 
   /** For Pagination */
   function makeDots() {
-    console.log("in make dots");
+    // console.log("in make dots");
     var numSlides = slides.length;
-    console.log(numSlides);
+    // console.log(numSlides);
     var dots = document.getElementsByClassName("navigation")[0];
     for (var i = 0; i < numSlides; i++) {
       var li = document.createElement("li");
