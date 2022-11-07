@@ -1,6 +1,6 @@
 <div class="all-topics-background">
 	<div class="smaller-width-div">
-		<ul class="homepage-card-group">
+		<ul class="homepage-card-group usa-card-group">
 			{% for row in rows %}
 				{% set css_icon = row.content["#row"].node__field_css_icon_field_css_icon_value %}
 				{% if css_icon == null %}
@@ -9,14 +9,13 @@
 					{% set css_icon = "topic-icon " ~ css_icon %}
 				{% endif %}
 
-				<li class="homepage-card">
+				<li class="homepage-card usa-card__container">
 					<a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}">
 						<div class="homepage-icon {{css_icon}}"></div>
-						<div class="homepage-card_header">
+						<div class="usa-card__header homepage-card_header">
 							<h2>{{row.content["#row"].node_field_data_title}}</h2>
 						</div>
 						<div class="usa-card__body">
-
 							<p>
 								{{row.content["#row"].node__field_page_intro_field_page_intro_value}}
 							</p>
