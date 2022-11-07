@@ -12,7 +12,7 @@ field_name: field_alert_body
 entity_type: paragraph
 type: text
 settings:
-  max_length: 255
+  max_length: 600
 module: text
 locked: false
 cardinality: 1
