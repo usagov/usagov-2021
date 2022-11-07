@@ -520,6 +520,7 @@
 .slide {
   height: 275px;
   flex: 0 0 calc(100%);
+  margin-top: 10px;
 }
 
 .carousel .usa-card__container {
@@ -546,6 +547,7 @@
   color: white;
   text-decoration: none;
   font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+  line-height: 1.25;
 }
 
 .slide p {
@@ -553,6 +555,8 @@
   font-weight: normal;
   font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
   font-size: var($homepage, small-font-size);
+  line-height: 1.25;
+  padding-top: 10px;
 }
 
 .thumbnailBanner {
@@ -596,8 +600,8 @@
 
   .carousel-mover {
     max-width: 100%;
-    padding-left: 37px;
-    padding-right: 37px;
+    padding-left: 0px;
+    padding-right: 0px;
   }
 
   .life-events-carousel .usa-pagination {
@@ -616,7 +620,8 @@
 
   .slide {
     flex: 0 0 calc(100% / 2);
-    padding-right: 61px;
+    padding-right: 30px;
+    padding-left: 30px;
   }
 
   .slide:not(:last-child) {
@@ -691,7 +696,8 @@
 
   .slide {
     flex: 0 0 calc(100% / 3);
-    padding-right: 61px
+    padding-right: 30px;
+    padding-right: 30px;
   }
 
   .slide:not(:last-child) {
