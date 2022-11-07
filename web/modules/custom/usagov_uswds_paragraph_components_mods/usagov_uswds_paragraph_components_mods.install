@@ -1,0 +1,63 @@
+<?php
+
+use Drupal\field\Entity\FieldStorageConfig;
+
+/**
+ * On installation, increase the lengths of "field_alert_body" and "field_alert_title"
+ * to 600 characters.
+ */
+function usagov_uswds_paragraph_components_mods_install() {
+  $results = [];
+
+  // Both of these fields are VARCHAR and are getting bigger, so existing data will fit.
+  $field_specs = [
+    [
+      'entity_type' => 'paragraph',
+      'field_name' => 'field_alert_body',
+      'field_length' => 600,
+    ],
+    [
+      'entity_type' => 'paragraph',
+      'field_name' => 'field_alert_title',
+      'field_length' => 600,
+    ],
+  ];
+
+  foreach ($field_specs as $field_spec) {
+    $entity_type = $field_spec['entity_type'];
+    $field_name = $field_spec['field_name'];
+    $field_length = $field_spec['field_length'];
+
+    // Update database schema.
+    $database = \Drupal::database();
+    // Resize the main field data table.
+    $database->query("ALTER TABLE {$entity_type}__{$field_name} MODIFY {$field_name}_value VARCHAR({$field_length})");
+    // Resize the revision field data table.
+    $database->query("ALTER TABLE {$entity_type}_revision__{$field_name} MODIFY {$field_name}_value VARCHAR({$field_length})");
+
+    // Update storage schema.
+    $storage_key = $entity_type . '.field_schema_data.' . $field_name;
+    $storage_schema = \Drupal::keyValue('entity.storage_schema.sql');
+    $field_schema = $storage_schema->get($storage_key);
+    $field_schema[$entity_type . '__' . $field_name]['fields'][$field_name . '_value']['length'] = $field_length;
+    $field_schema[$entity_type . '_revision__' . $field_name]['fields'][$field_name . '_value']['length'] = $field_length;
+    $storage_schema->set($storage_key, $field_schema);
+
+    // Update field configuration.
+    $config = \Drupal::configFactory()
+      ->getEditable("field.storage.{$entity_type}.{$field_name}");
+    $config->set('settings.max_length', $field_length);
+    $config->save(TRUE);
+
+    // Update field storage configuration.
+    FieldStorageConfig::loadByName($entity_type, $field_name)->save();
+
+    $results[] = t('Length of @entity-type.@field-name was updated to @field-length', [
+      '@entity-type' => $entity_type,
+      '@field-name' => $field_name,
+      '@field-length' => $field_length,
+    ]);
+  }
+
+  return implode('\n', $results);
+}
