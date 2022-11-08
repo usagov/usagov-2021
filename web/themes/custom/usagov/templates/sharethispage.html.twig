@@ -29,15 +29,15 @@
 
     <div id="sm-share">
         <span id="share-page">{{ lang == 'en' ? "SHARE THIS PAGE:" : "Comparta esta página:" }}</span>
-        <div role="img" aria-labelledby="share-page">
-            <a href="{{ facebook }}{{ url }}&v=3">
-            <img src="/themes/custom/usagov/images/facebook.png" alt="Facebook" />
+        <div aria-labelledby="share-page">
+            <a id="fb" href="{{ facebook }}{{ url }}&v=3">
+            <img aria-labelledby="fb" src="/themes/custom/usagov/images/facebook.png" alt="Facebook" />
             </a>
-            <a href="{{ twitter }}{{ url }}">
-            <img src="/themes/custom/usagov/images/twitter.png " alt="Twitter" />
+            <a id="twr" href="{{ twitter }}{{ url }}">
+            <img aria-labelledby="twr" src="/themes/custom/usagov/images/twitter.png " alt="Twitter" />
             </a>
-            <a href="{{ email }}{{ url }}">
-            <img src="/themes/custom/usagov/images/email.png" alt="Email"/>
+            <a id="email" href="{{ email }}{{ url }}">
+            <img aria-labelledby="email" src="/themes/custom/usagov/images/email.png" alt="Email"/>
             </a>
         </div>
     </div>
