@@ -1,0 +1,45 @@
+#!/bin/env bash
+#
+# this sequence is used a couple times in our build/deploy scripts
+#
+export CONTAINERTYPE=$1
+shift 1
+if [ -z "$CONTAINERTYPE" ]; then
+      echo "First parameter must specify a container type to build (waf,cms,etc)"
+      exit 1
+else
+      case $CONTAINERTYPE in
+        waf | cms)
+          echo "Building $CONTAINERTYPE container"
+          ;;
+        *)
+         echo "First parameter must specify a container type to build (waf,cms,etc)"
+         echo "Found: $CONTAINERTYPE instead."
+         exit 1;
+         ;;
+       esac
+fi;
+
+###
+### Fix missing vars on provided CONTAINERTAG
+###
+CONTAINERTAG=$1
+shift 1
+if [ -z "$CONTAINERTAG" ]; then
+   GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+   GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
+   GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "")\
+   CONTAINERTAG=$GITBRANCH
+   echo "Extracted a container tag from git: $CONTAINERTAG"
+   export CONTAINERTAG
+else
+  echo "User provided container tag: $CONTAINERTAG"
+fi
+
+export CONTAINERTAG2=$1
+shift 1
+if [ -z "$CONTAINERTAG" ]
+then
+  echo "Can't find the container tag or git branch info.  WTH?"
+  exit 1;
+fi;

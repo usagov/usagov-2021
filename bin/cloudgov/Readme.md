@@ -11,7 +11,7 @@ https://dashboard.fr.cloud.gov/
 ## Command line
 
 All interaction with CloudGov happens with the CloudFoundry Client (cf) via the command line.
-To be able to run commands targetted toward a CloudGov Space you must be logged in. Run this command and follow the instructions:
+To be able to run commands targeted toward a CloudGov Space you must be logged in. Run this command and follow the instructions:
 
 ```
 bin/cloudgov/login
@@ -35,11 +35,11 @@ bin/cloudgov/space prod
 bin/cloudgov/space shared-egress
 ```
 
-All subsequent commands will be targetted towards the choosen space
+All subsequent commands will be targeted towards the chosen space
 
 ### Build/Deploy
 
-The process of deploying this application to a hosted environmnet is comprised of three steps:
+The process of deploying this application to a hosted environment comprises three steps:
 1. Building the Container representing a release of the application (bin/cloudgov/container-build)
 2. Pushing the container to a Docker Hub location that can be accessed by CloudGov (bin/cloudgov/container-push)
 3. Deploying the CloudGov App based on the Container (bin/cloudgov/deploy)

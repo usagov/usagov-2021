@@ -35,9 +35,9 @@ ENV APP_NAME=USAGov \
     MODSEC_PCRE_MATCH_LIMIT=500000 \
     MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000
 
-COPY src-waf/docker-entrypoint-waf.sh /
-COPY src-waf/etc/ /etc/
-COPY src-waf/opt/ /opt/
+COPY .docker/src-waf/docker-entrypoint-waf.sh /
+COPY .docker/src-waf/etc/ /etc/
+COPY .docker/src-waf/opt/ /opt/
 
 RUN apk upgrade --update && \
     apk add vim \
@@ -63,12 +63,12 @@ RUN set -eux; \
     mkdir /var/log/modsecurity && \
     touch /var/log/modsecurity/modsec_audit.log;
 
-COPY src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
-COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
-COPY src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
-COPY src-waf/cert-watcher.sh /cert-watcher.sh
+COPY .docker/src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
+COPY .docker/src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
+COPY .docker/src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
+COPY .docker/src-waf/cert-watcher.sh /cert-watcher.sh
 
-COPY motd /etc/motd
+COPY .docker/motd /etc/motd
 
 RUN echo "    built:" $(date) >> /etc/motd \
     && echo "    branch: " $GITBRANCH >> /etc/motd \
