@@ -104,7 +104,7 @@
 }
 
 .homepage-section {
-  padding-top: 0rem;
+  padding-top: 0;
 }
 
 /* HomePage Grid */
@@ -125,7 +125,7 @@
 .main-grid h1 {
   font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
   font-size: var($homepage, medium-font-size);
-  margin: 0px;
+  margin: 0;
 }
 
 .main-grid p {
@@ -144,16 +144,16 @@
   display: grid;
   grid-column: 1 / 3;
   grid-row: 1 / 3;
-  grid-template-columns: minmax(0px, 1fr) minmax(auto, 1024px) minmax(0px, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(auto, 1024px) minmax(0, 1fr);
 }
 
-.banner_div {
+.banner-div {
   background-position: center;
   background-size: cover;
   grid-column: 1 / 4;
 }
 
-.banner_img {
+.banner-img {
   object-fit: contain;
 }
 
@@ -162,7 +162,7 @@
   box-shadow: 0 6px 6px rgb(17 47 78 / .4);
   grid-column: 1 / 3;
   grid-row: 1 / 2;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   margin-top: 35px;
   margin-left: 5vw;
   margin-right: 5vw;
@@ -246,13 +246,13 @@
   margin-left: 5vw;
   margin-right: 5vw;
   max-width: 400px;
-  padding: 0px;
+  padding: 0;
 }
 
 .life-events h2 {
   font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
   font-size: var($homepage, medium-font-size);
-  margin: 0 0 0px;
+  margin: 0 0 0;
   padding-top: 50px;
 }
 
@@ -268,7 +268,7 @@
 
 /* Jump */
 .jump {
-  padding: 0px;
+  padding: 0;
   text-align: center;
 }
 
@@ -308,12 +308,12 @@
   font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
   font-size: 39.04px;
   font-weight: bold;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   margin-left: 5vw;
   margin-right: 5vw;
   margin-top: 55px;
   max-width: 90%;
-  padding: 0px;
+  padding: 0;
   text-align: left;
 }
 
@@ -377,7 +377,7 @@
   border-radius: 3px;
   box-shadow: 0 3px 6px rgb(122 122 122 / .15);
   margin: 0;
-  padding: 0px;
+  padding: 0;
 }
 
 .homepage-card h2,
@@ -387,7 +387,7 @@
   font-size: var($homepage, small-font-size);
   line-height: 1.3;
   text-align: center;
-  padding: 0px 10px;
+  padding: 0 10px;
 }
 
 .homepage-card h2 {
@@ -442,7 +442,7 @@
 
 .previous,
 .next {
-  padding: 0px;
+  padding: 0;
   width: 40px;
   border: none;
   background-color: transparent;
@@ -460,7 +460,7 @@
 }
 
 .navigation li:not(:last-child) {
-  margin: 0px;
+  margin: 0;
   margin-right: 10px;
 }
 
@@ -483,8 +483,13 @@
   color: #00BDE3;
 }
 
+.usa-pagination__button:hover {
+  border: 3px solid #FFFFFF;
+  color: #FFFFFF;
+}
+
 .life-events-carousel .usa-pagination {
-  margin: 30px 0px 70px 0px;
+  margin: 30px 0 70px 0;
 }
 
 .navigation li a[aria-current="true"] {
@@ -505,7 +510,7 @@
 
 .carousel .usagov-cards {
   background-color: transparent;
-  padding: 0px;
+  padding: 0;
 }
 
 .slides {
@@ -543,7 +548,7 @@
 }
 
 .slide h3 {
-  margin: 0px;
+  margin: 0;
   color: white;
   text-decoration: none;
   font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
@@ -551,7 +556,7 @@
 }
 
 .slide p {
-  margin: 0px;
+  margin: 0;
   font-weight: normal;
   font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
   font-size: var($homepage, small-font-size);
@@ -600,16 +605,16 @@
 
   .carousel-mover {
     max-width: 100%;
-    padding-left: 0px;
-    padding-right: 0px;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .life-events-carousel .usa-pagination {
-    margin: 34px 0px;
+    margin: 34px 0;
   }
 
   .navigation li:not(:last-child) {
-    margin: 0px;
+    margin: 0;
     margin-right: 15px;
   }
 
@@ -625,7 +630,7 @@
   }
 
   .slide:not(:last-child) {
-    margin-right: 0px;
+    margin-right: 0;
   }
 
   .all-topics-header h2 {
@@ -637,8 +642,8 @@
   }
 
   .homepage-card_header {
-    padding-left: 0px;
-    padding-right: 0px;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .homepage-card-group {
@@ -668,7 +673,7 @@
     margin-left: auto;
     margin-right: auto;
     max-width: var($homepage, larger-max-width);
-    padding: 0px;
+    padding: 0;
   }
 
   .life-events-intro {
@@ -685,13 +690,13 @@
   .carousel-mover {
     width: 100%;
     max-width: 960px;
-    margin-left: 0px;
+    margin-left: 0;
     margin-right: auto;
   }
 
   .carousel .usa-card-group {
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .slide {
@@ -701,6 +706,6 @@
   }
 
   .slide:not(:last-child) {
-    margin-right: 0px;
+    margin-right: 0;
   }
 }
