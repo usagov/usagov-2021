@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export INCLUDE_PATH="$0"
-export SCRIPT_DIR="$(dirname $INCLUDE_PATH)"
+export SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+export INCLUDE_PATH="${SCRIPT_DIR}/$(basename "$0")"
 export LOGS_DIR="$SCRIPT_DIR/logs"
 export SCRIPT_ROOT="$(dirname $SCRIPT_DIR)"
 export REPO_ROOT="$(dirname $SCRIPT_ROOT)"
