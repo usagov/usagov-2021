@@ -80,7 +80,7 @@ class LoginSettingsForm extends ConfigFormBase {
     $form['display_local'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Display the local login form'),
-      '#default_value' => $this->state->get('usagov_login_local_form', 1),
+      '#default_value' => $this->state->get('usagov_login_local_form', 0),
     ];
 
     return parent::buildForm($form, $form_state);
