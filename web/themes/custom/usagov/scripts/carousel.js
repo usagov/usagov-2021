@@ -11,7 +11,7 @@ jQuery(document).ready(function ($) {
   slidesForFocus = slidesContainer.querySelectorAll(".slide a");
   carouselHeaders = document.querySelectorAll(".carouselHeaders");
   makeDots();
-  slideDots = document.querySelectorAll(".navigation li");
+  slideDots = document.querySelectorAll(".navigation li button");
   previousButton.style.visibility = "hidden";
   if (slideDots.length > 0) {
     slideDots[0].setAttribute("aria-current", true);
@@ -44,8 +44,11 @@ jQuery(document).ready(function ($) {
         numSlides +
         ": " +
         carouselHeaders[i].textContent;
-      li.setAttribute("aria-label", label );
-      li.classList.add("carousel__navigation_dot");
+      // li.setAttribute("aria-label", label );
+      // li.setAttribute("tabindex",0);
+      // li.classList.add("carousel__navigation_dot");
+      li.innerHTML =
+        ' <button class="carousel__navigation_dot" aria-label=" '+ label + '"></button> ';
       dots.appendChild(li);
     }
   }

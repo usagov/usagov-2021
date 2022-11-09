@@ -468,7 +468,9 @@
   width: 15px;
   height: 15px;
   border: 2px solid #00BDE3;
+  background-color: transparent;
   border-radius: 50%;
+  margin-right: 10px;
 }
 
 .carousel__navigation_dot:not(:last-child) {
