@@ -7,7 +7,6 @@ export SCRIPT_ROOT="$(dirname $SCRIPT_DIR)"
 export REPO_ROOT="$(dirname $SCRIPT_ROOT)"
 export YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
 
-
 startbranch=${startbranch:-$( command -v git &> /dev/null && git rev-parse --abbrev-ref HEAD || echo "" )}
 # Grab the starting space and org where the command was run
 startorg=${startorg:-$(     cf target | grep org:   | awk '{ print $2 }')}
