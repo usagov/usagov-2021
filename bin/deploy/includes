@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-export INCLUDE_PATH="$(readlink -f "$0")"
+export INCLUDE_PATH="$0"
 export SCRIPT_DIR="$(dirname $INCLUDE_PATH)"
 export LOGS_DIR="$SCRIPT_DIR/logs"
 export SCRIPT_ROOT="$(dirname $SCRIPT_DIR)"
@@ -26,8 +26,8 @@ function popbranch() {
   fi
 }
 # trap pops on exit
-trap popspace err
-trap popbranch err
+# trap popspace err
+# trap popbranch err
 
 mkdir -p $LOGS_DIR
 

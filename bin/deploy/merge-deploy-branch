@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-SCRIPT_DIR="$(dirname $(readlink -f "$0"))"
+SCRIPT_DIR="$(dirname $0)"
 if [ -f $SCRIPT_DIR/includes ]; then
   . $SCRIPT_DIR/includes
 fi
@@ -18,5 +18,3 @@ git merge $DEPLOY_BRANCH | toLogs
 
 git checkout $DEPLOY_BRANCH | toLogs
 git merge $MERGE_BRANCH | toLogs
-
-return 0

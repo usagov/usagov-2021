@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
 TARGET_ENV=$1
 SOURCE_BRANCH=${2:-}
 MERGE_BRANCH=${3:-}
 
-if [ ! "$TARGET_ENV" == "dev" ] && [ ! "$TARGET_ENV" == "stage" ] && [ ! "$TARGET_ENV" == "prod" ]; then
+if [ ! "$TARGET_ENV" = "dev" ] && [ ! "$TARGET_ENV" = "stage" ] && [ ! "$TARGET_ENV" = "prod" ]; then
   # technically this could be the name of any existing cf space
   echo "Target Env can only be: dev, stage, prod not '$TARGET_ENV'" | toLogs
   exit 1
