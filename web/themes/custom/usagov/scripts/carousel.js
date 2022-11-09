@@ -9,7 +9,7 @@ jQuery(document).ready(function ($) {
   slidesContainer = document.querySelector(".slides");
   slides = slidesContainer.querySelectorAll(".slide");
   makeDots();
-  slideDots = document.querySelectorAll(".navigation li a");
+  slideDots = document.querySelectorAll(".navigation li");
   previousButton.style.visibility = "hidden";
   if (slideDots.length > 0) {
     slideDots[0].setAttribute("aria-current", true);
@@ -30,23 +30,30 @@ jQuery(document).ready(function ($) {
 
   /** For Pagination */
   function makeDots() {
-    // console.log("in make dots");
+    /*var numSlides = slides.length;
+    var dots = document.getElementsByClassName("carousel__navigation")[0];
+    for (var i = 0; i < numSlides; i++) {
+      var li = document.createElement("li");
+      li.classList.add("carousel__navigation_dot");
+      var pageNum = i + 1;
+      li.innerHTML =
+        ' <a href="javascript:void(0);" aria-label="Card ' +
+        pageNum +
+        '"> </a> ';
+      dots.appendChild(li);*/
+
     var numSlides = slides.length;
-    // console.log(numSlides);
     var dots = document.getElementsByClassName("navigation")[0];
     for (var i = 0; i < numSlides; i++) {
       var li = document.createElement("li");
-      li.classList.add("usa-pagination__item");
-      li.classList.add("usa-pagination__page-no");
-      // var klass = 'class="sr-only" ';
       var pageNum = i + 1;
-      li.innerHTML =
-        // '<button> <span class="sr-only"> Go to slide ' + i + "</span></button>";
-        ' <a href="javascript:void(0);" class="usa-pagination__button" aria-label="Page ' +
-        pageNum +
-        '">' +
-        pageNum +
-        "</a> ";
+      var label = "Page " + pageNum;
+      li.setAttribute("aria-label", label );
+      li.classList.add("carousel__navigation_dot");
+      // li.innerHTML =
+      //   ' <a href="javascript:void(0);" class="" aria-label="Page ' +
+      //   pageNum +
+      //   '"> </a> ';
       dots.appendChild(li);
     }
   }
