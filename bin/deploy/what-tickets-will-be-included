@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-SCRIPT_DIR="$(dirname $(readlink -f "$0"))"
+SCRIPT_DIR="$(dirname $0)"
 if [ -f $SCRIPT_DIR/includes ]; then
   . $SCRIPT_DIR/includes
 fi
@@ -9,5 +9,3 @@ DEPLOY_BRANCH=${DEPLOY_BRANCH:-}
 MERGE_BRANCH=${MERGE_BRANCH:-}
 echo "Tickets in deployment:" | toLogs
 bin/ccb $MERGE_BRANCH $DEPLOY_BRANCH | toLogs
-
-return 0
