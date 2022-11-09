@@ -9,6 +9,7 @@ jQuery(document).ready(function ($) {
   slidesContainer = document.querySelector(".slides");
   slides = slidesContainer.querySelectorAll(".slide");
   slidesForFocus = slidesContainer.querySelectorAll(".slide a");
+  carouselHeaders = document.querySelectorAll(".carouselHeaders");
   makeDots();
   slideDots = document.querySelectorAll(".navigation li");
   previousButton.style.visibility = "hidden";
@@ -31,30 +32,20 @@ jQuery(document).ready(function ($) {
 
   /** For Pagination */
   function makeDots() {
-    /*var numSlides = slides.length;
-    var dots = document.getElementsByClassName("carousel__navigation")[0];
-    for (var i = 0; i < numSlides; i++) {
-      var li = document.createElement("li");
-      li.classList.add("carousel__navigation_dot");
-      var pageNum = i + 1;
-      li.innerHTML =
-        ' <a href="javascript:void(0);" aria-label="Card ' +
-        pageNum +
-        '"> </a> ';
-      dots.appendChild(li);*/
-
     var numSlides = slides.length;
     var dots = document.getElementsByClassName("navigation")[0];
     for (var i = 0; i < numSlides; i++) {
       var li = document.createElement("li");
       var pageNum = i + 1;
-      var label = "Page " + pageNum;
+      var label =
+        "Card " +
+        pageNum +
+        " of " +
+        numSlides +
+        ": " +
+        carouselHeaders[i].textContent;
       li.setAttribute("aria-label", label );
       li.classList.add("carousel__navigation_dot");
-      // li.innerHTML =
-      //   ' <a href="javascript:void(0);" class="" aria-label="Page ' +
-      //   pageNum +
-      //   '"> </a> ';
       dots.appendChild(li);
     }
   }
