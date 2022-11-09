@@ -15,6 +15,7 @@ dependencies:
     - field.field.node.basic_page.field_navigation_banner_image
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
+    - field.field.node.basic_page.field_short_description
     - node.type.basic_page
   module:
     - text
@@ -53,4 +54,5 @@ hidden:
   field_navigation_banner_image: true
   field_page_intro: true
   field_page_type: true
+  field_short_description: true
   langcode: true
