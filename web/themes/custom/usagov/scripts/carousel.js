@@ -8,6 +8,7 @@ jQuery(document).ready(function ($) {
   nextButton = document.querySelector(".next");
   slidesContainer = document.querySelector(".slides");
   slides = slidesContainer.querySelectorAll(".slide");
+  slidesForFocus = slidesContainer.querySelectorAll(".slide a");
   makeDots();
   slideDots = document.querySelectorAll(".navigation li");
   previousButton.style.visibility = "hidden";
@@ -137,6 +138,9 @@ jQuery(document).ready(function ($) {
       previousButton.style.visibility = "visible";
       nextButton.style.visibility = "visible";
     }
+
+    //set focus on current slide
+    slidesForFocus[nextLeftMostSlideIndex].focus();
   }
 
   /**
