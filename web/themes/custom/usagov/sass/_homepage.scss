@@ -453,49 +453,36 @@
   width: 40px;
 }
 
-.navigation li {
-  width: 40px;
-  height: 40px;
-  font-size: 30px;
+.carousel__navigation {
+  margin: 30px 0 70px 0;
+  list-style-type: none;
+  padding-left: 0;
+  align-items: center;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  width: auto;
 }
 
-.navigation li:not(:last-child) {
+.carousel__navigation_dot {
+  width: 15px;
+  height: 15px;
+  border: 2px solid #00BDE3;
+  border-radius: 50%;
+}
+
+.carousel__navigation_dot:not(:last-child) {
   margin: 0;
   margin-right: 10px;
 }
 
-.navigation li a {
-  text-decoration: none;
-  color: #00BDE3;
-  border: 2px solid #00BDE3;
-}
-
-.navigation li a:focus {
+.carousel__navigation_dot:focus {
   outline-offset: 4px;
 }
 
-.usa-pagination__button {
-  border: none;
-}
-
-.usa-pagination__button:focus {
-  border: none;
-  color: #00BDE3;
-}
-
-.usa-pagination__button:hover {
-  border: 3px solid #FFFFFF;
-  color: #FFFFFF;
-}
-
-.life-events-carousel .usa-pagination {
-  margin: 30px 0 70px 0;
-}
-
-.navigation li a[aria-current="true"] {
+.carousel__navigation_dot[aria-current="true"] {
   background-color: #FFFFFF;
   border: none;
-  color: #112F4E;
 }
 
 .carousel-mover {
@@ -609,14 +596,14 @@
     padding-right: 0;
   }
 
-  .life-events-carousel .usa-pagination {
-    margin: 34px 0;
-  }
+  // .life-events-carousel .carousel__navigation {
+  //   margin: 34px 0;
+  // }
 
-  .navigation li:not(:last-child) {
-    margin: 0;
-    margin-right: 15px;
-  }
+  // .navigation li:not(:last-child) {
+  //   margin: 0;
+  //   margin-right: 15px;
+  // }
 
   .carousel .usa-card-group {
     margin-left: 0px;
