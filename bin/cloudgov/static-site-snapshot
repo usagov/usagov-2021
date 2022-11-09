@@ -21,4 +21,4 @@ source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 # do some sanity checking on the directory (steal from tome-sync)
 
 # upload that static site directory to a location within an s3 bucket represented by the tag
-aws s3 cp -–recursive --only-show-errors s3://$S3_BUCKET/web/ s3://$S3_BUCKET/web-backup/$SS_TAG/
+echo aws s3 cp -–recursive --only-show-errors s3://$S3_BUCKET/web/ s3://$S3_BUCKET/web-backup/$SS_TAG/
