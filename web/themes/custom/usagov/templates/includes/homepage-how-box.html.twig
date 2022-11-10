@@ -1,12 +1,12 @@
 <div class="how-box">
 	<h2>How do I...</h2>
-	<div class="how-button-list">
+	<ul class="how-button-list">
 		{% for link in node.field_homepage_top_links %}
-			<div class="how-button">
+			<li class="how-button">
 				<a href={{link.uri}}>
 					{{link.title}}
 				</a>
-			</div>
+			</li>
 		{% endfor %}
-	</div>
+	</ul>
 </div>
