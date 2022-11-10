@@ -14,6 +14,7 @@ dependencies:
     - field.field.node.basic_page.field_navigation_banner_image
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
+    - field.field.node.basic_page.field_short_description
     - node.type.basic_page
     - workflows.workflow.basic_workflow
   module:
@@ -28,7 +29,7 @@ mode: default
 content:
   body:
     type: text_textarea_with_summary
-    weight: 11
+    weight: 12
     region: content
     settings:
       rows: 9
@@ -38,13 +39,13 @@ content:
     third_party_settings: {  }
   created:
     type: datetime_timestamp
-    weight: 5
+    weight: 6
     region: content
     settings: {  }
     third_party_settings: {  }
   field_css_icon:
     type: string_textfield
-    weight: 17
+    weight: 18
     region: content
     settings:
       size: 60
@@ -52,7 +53,7 @@ content:
     third_party_settings: {  }
   field_footer_html:
     type: string_textarea
-    weight: 14
+    weight: 15
     region: content
     settings:
       rows: 5
@@ -60,7 +61,7 @@ content:
     third_party_settings: {  }
   field_for_contact_center_only:
     type: text_textarea
-    weight: 18
+    weight: 19
     region: content
     settings:
       rows: 5
@@ -68,7 +69,7 @@ content:
     third_party_settings: {  }
   field_header_html:
     type: text_textarea
-    weight: 13
+    weight: 14
     region: content
     settings:
       rows: 5
@@ -76,21 +77,21 @@ content:
     third_party_settings: {  }
   field_hide_page_intro:
     type: boolean_checkbox
-    weight: 2
+    weight: 3
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   field_is_navigation_page:
     type: boolean_checkbox
-    weight: 15
+    weight: 16
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   field_language_toggle:
     type: entity_reference_autocomplete
-    weight: 19
+    weight: 20
     region: content
     settings:
       match_operator: CONTAINS
@@ -100,7 +101,7 @@ content:
     third_party_settings: {  }
   field_navigation_banner_image:
     type: media_library_widget
-    weight: 26
+    weight: 21
     region: content
     settings:
       media_types: {  }
@@ -115,46 +116,54 @@ content:
     third_party_settings: {  }
   field_page_type:
     type: options_select
-    weight: 16
+    weight: 17
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_short_description:
+    type: string_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
   langcode:
     type: language_select
-    weight: 3
+    weight: 4
     region: content
     settings:
       include_locked: false
     third_party_settings: {  }
   moderation_state:
     type: moderation_state_default
-    weight: 9
+    weight: 10
     region: content
     settings: {  }
     third_party_settings: {  }
   path:
     type: path
-    weight: 8
+    weight: 9
     region: content
     settings: {  }
     third_party_settings: {  }
   promote:
     type: boolean_checkbox
-    weight: 6
+    weight: 7
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 10
+    weight: 11
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   sticky:
     type: boolean_checkbox
-    weight: 7
+    weight: 8
     region: content
     settings:
       display_label: true
@@ -168,13 +177,13 @@ content:
       placeholder: ''
     third_party_settings: {  }
   translation:
-    weight: 12
+    weight: 13
     region: content
     settings: {  }
     third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 4
+    weight: 5
     region: content
     settings:
       match_operator: CONTAINS
