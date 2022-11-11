@@ -34,7 +34,9 @@ function lookup(address, callback) {
  */
 function renderResults(response, rawResponse) {
 
-    const translations = {
+    // Text strings for the page's language should be assigned to "usagovCEOtext" in 
+    // an inline script in the page's Header HTML. The translations here are retained for backward compatibility. 
+    const backupTranslations = {
         "en": {
             "error-fetch": "ERROR: Failed trying to fetch elected officials!",
             "error-address": "ERROR: Could not find elected officials for given address!",
@@ -58,7 +60,8 @@ function renderResults(response, rawResponse) {
             "path-contact": "/es/funcionarios-electos-email",
         }
     }
-    let content=translations[ document.documentElement.lang ];
+
+    const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
 
     // Get location for where to attach the rendered results
     let resultsDiv = document.getElementById("results");
@@ -317,4 +320,4 @@ function getSearchParams() {
 
 // Load the GAPI Client Library
 gapi.load("client", setApiKey);
-document.body.onload = load();
+document.addEventListener('DOMContentLoaded', function() { load (); });
