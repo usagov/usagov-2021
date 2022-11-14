@@ -7,5 +7,5 @@ fi
 
 DEPLOY_BRANCH=${DEPLOY_BRANCH:-}
 MERGE_BRANCH=${MERGE_BRANCH:-}
-echo "Tickets in deployment:" | toLogs
+echo "Tickets in deployment from ($DEPLOY_BRANCH) with merges from ($MERGE_BRANCH)" | toLogs
 $SCRIPT_ROOT/ccb $MERGE_BRANCH $DEPLOY_BRANCH | toLogs
