@@ -351,13 +351,17 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only: dev
+              only:
+               - dev
+               - USAGOV-592-media-upload
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
-              only: dev
+              only:
+               - dev
+               - USAGOV-592-media-upload
 
       - approve-stage-deployment:
           type: approval
