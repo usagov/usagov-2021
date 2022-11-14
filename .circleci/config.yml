@@ -334,6 +334,7 @@ workflows:
                 - stage
                 - prod
                 - scanning
+                - USAGOV-592-media-upload
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -344,6 +345,7 @@ workflows:
                 - stage
                 - prod
                 - scanning
+                - USAGOV-592-media-upload
 
       - approve-dev-deployment:
           type: approval
