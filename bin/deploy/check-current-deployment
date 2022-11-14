@@ -7,8 +7,32 @@ fi
 
 assertRequires cf
 
+TARGET_ENV=${1:-"$TARGET_ENV"}
+if [ -z "$TARGET_ENV" ]; then
+  # technically this could be the name of any existing cf space
+  echo "Must specify Target Env like: dev, stage, or prod" | toLogs
+  exit 1
+fi
+
+echo "Checking current deployment in $TARGET_ENV" | toLogs
+cf target -s $TARGET_ENV | toLogs
+
 echo "Current CMS Deploy:" | toLogs
-cf ssh cms -c "cat /etc/motd" | toLogs
+tmpOut=/tmp/cf_cms_out.txt
+touch "$tmpOut"
+cf ssh cms -c "cat /etc/motd" > "$tmpOut"
+if [ -f "$tmpOut" ]; then
+  cat "$tmpOut" | toLogs
+  rm -f "$tmpOut"
+fi
 
 echo "Current WAF Deploy:" | toLogs
-cf ssh waf -c "cat /etc/motd" | toLogs
+tmpOut=/tmp/cf_waf_out.txt
+touch "$tmpOut"
+cf ssh waf -c "cat /etc/motd" > "$tmpOut"
+if [ -f "$tmpOut" ]; then
+  cat "$tmpOut" | toLogs
+  rm -f "$tmpOut"
+fi
+
+popspace

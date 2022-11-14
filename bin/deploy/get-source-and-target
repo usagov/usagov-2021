@@ -6,7 +6,7 @@ if [ -f $SCRIPT_DIR/includes ]; then
 fi
 
 TARGET_ENV=$1
-SOURCE_BRANCH=${2:-}
+DEPLOY_BRANCH=${2:-}
 MERGE_BRANCH=${3:-}
 
 if [ ! "$TARGET_ENV" = "dev" ] && [ ! "$TARGET_ENV" = "stage" ] && [ ! "$TARGET_ENV" = "prod" ]; then
@@ -16,7 +16,7 @@ if [ ! "$TARGET_ENV" = "dev" ] && [ ! "$TARGET_ENV" = "stage" ] && [ ! "$TARGET_
 fi
 
 # unless otherwise specified, default to branch-promotion scenario
-if [ -z "$SOURCE_BRANCH" ]; then
+if [ -z "$DEPLOY_BRANCH" ]; then
   if [ "$TARGET_ENV" = "dev" ]; then
     SOURCE_BRANCH="dev"
   elif [ "$TARGET_ENV" = "stage" ]; then
@@ -31,5 +31,5 @@ if [ -z "$SOURCE_BRANCH" ]; then
 fi
 
 echo "Target Environment: $TARGET_ENV" | toLogs
-echo "Deploy Branch: $SOURCE_BRANCH" | toLogs
+echo "Deploy Branch: $DEPLOY_BRANCH" | toLogs
 echo "Merge Branch: $MERGE_BRANCH" | toLogs
