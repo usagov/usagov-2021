@@ -453,6 +453,11 @@
   width: 40px;
 }
 
+.previous img:hover,
+.next img:hover {
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
+}
+
 .carousel__navigation {
   margin: 30px 0 70px 0;
   list-style-type: none;
@@ -480,6 +485,10 @@
 
 .carousel__navigation_dot:focus {
   outline-offset: 4px;
+}
+
+.carousel__navigation_dot:hover {
+    border: 2px solid #FFFFFF;
 }
 
 .carousel__navigation_dot[aria-current="true"] {
