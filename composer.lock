@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "92945c6a318a9db3552a2a751323bf9c",
+    "content-hash": "bc582412130e7937487be5b67a7b7ac1",
     "packages": [
         {
             "name": "alchemy/zippy",
@@ -182,16 +182,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.242.1",
+            "version": "3.243.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "9bfd85f696fff6a9b7810f1361751ad33a9b23d1"
+                "reference": "c4ac1ff8f40f11fcf0d8e58b3d13838a44a8a582"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/9bfd85f696fff6a9b7810f1361751ad33a9b23d1",
-                "reference": "9bfd85f696fff6a9b7810f1361751ad33a9b23d1",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c4ac1ff8f40f11fcf0d8e58b3d13838a44a8a582",
+                "reference": "c4ac1ff8f40f11fcf0d8e58b3d13838a44a8a582",
                 "shasum": ""
             },
             "require": {
@@ -270,9 +270,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.242.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.243.2"
             },
-            "time": "2022-11-11T19:59:24+00:00"
+            "time": "2022-11-15T13:14:49+00:00"
         },
         {
             "name": "caxy/php-htmldiff",
@@ -3874,17 +3874,17 @@
         },
         {
             "name": "drupal/ctools",
-            "version": "3.11.0",
+            "version": "3.12.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/ctools.git",
-                "reference": "8.x-3.11"
+                "reference": "8.x-3.12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/ctools-8.x-3.11.zip",
-                "reference": "8.x-3.11",
-                "shasum": "67da670df43155d1e15c80c7b0e326b3049ac5a2"
+                "url": "https://ftp.drupal.org/files/projects/ctools-8.x-3.12.zip",
+                "reference": "8.x-3.12",
+                "shasum": "3146b8f7f9e5a586ff68c836fd84bba7cdee42f6"
             },
             "require": {
                 "drupal/core": "^9.3 || ^10"
@@ -3892,8 +3892,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-3.11",
-                    "datestamp": "1660167573",
+                    "version": "8.x-3.12",
+                    "datestamp": "1668486476",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -4852,17 +4852,17 @@
         },
         {
             "name": "drupal/jquery_ui",
-            "version": "1.5.0",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/jquery_ui.git",
-                "reference": "8.x-1.5"
+                "reference": "8.x-1.6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/jquery_ui-8.x-1.5.zip",
-                "reference": "8.x-1.5",
-                "shasum": "70cd0d72013b78f837ff4e15bccd52a74fa2743b"
+                "url": "https://ftp.drupal.org/files/projects/jquery_ui-8.x-1.6.zip",
+                "reference": "8.x-1.6",
+                "shasum": "0ddccdcf35a066de1843e1d9670677ee1a2faac0"
             },
             "require": {
                 "drupal/core": "^9.2 || ^10"
@@ -4870,8 +4870,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.5",
-                    "datestamp": "1668437968",
+                    "version": "8.x-1.6",
+                    "datestamp": "1668521197",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -7512,17 +7512,17 @@
         },
         {
             "name": "drupal/uswds_paragraph_components",
-            "version": "2.3.1",
+            "version": "2.3.2",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/uswds_paragraph_components.git",
-                "reference": "2.3.1"
+                "reference": "2.3.2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/uswds_paragraph_components-2.3.1.zip",
-                "reference": "2.3.1",
-                "shasum": "35acc5922cd2e0d0fdef3e1dc83f1af2d5107a22"
+                "url": "https://ftp.drupal.org/files/projects/uswds_paragraph_components-2.3.2.zip",
+                "reference": "2.3.2",
+                "shasum": "b052ca145c80581eaaedd837074689b3c0a06fc4"
             },
             "require": {
                 "drupal/core": "^9 || ^10",
@@ -7539,8 +7539,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.3.1",
-                    "datestamp": "1667418303",
+                    "version": "2.3.2",
+                    "datestamp": "1668474447",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
