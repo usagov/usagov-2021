@@ -1,0 +1,19 @@
+uuid: 95345523-e2dd-495a-b9ca-1c889440da3b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_short_description
+    - node.type.basic_page
+id: node.basic_page.field_short_description
+field_name: field_short_description
+entity_type: node
+bundle: basic_page
+label: 'Short Description'
+description: 'The short description appears on cards for the homepage and nav pages. Aim for less than 80 characters. If left blank the page intro will be used.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

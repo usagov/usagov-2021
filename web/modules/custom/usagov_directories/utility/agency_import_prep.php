@@ -39,6 +39,7 @@ function main($infile, $extended_infile, $outdir) {
       $row[] = 'langcode';
       $row[] = 'alias';
       $row[] = 'phonehint';
+      $row[] = 'Street 3';
       $array_indexes = array_flip($row);
       $headings_processed = TRUE;
     }
@@ -61,9 +62,9 @@ function main($infile, $extended_infile, $outdir) {
     $extended_record = $extended_records_by_uuid[$uuid];
 
     // Get the "hints" from both records and concatenate them to group records
-    // by number of multi-value fields to map:
+    // by number of multi-value Link fields to map:
+    // $hint = $basic_record['langcode'] . '-' . $extended_record['multivalue_hint'];
     $hint = $extended_record['multivalue_hint'] ?: 'none';
-    $hint .= '-' . $basic_record['phonehint'];
 
     // Now combine the records into a flat array, in the same order as $headings above.
     $flat_record = [];
@@ -87,7 +88,9 @@ function main($infile, $extended_infile, $outdir) {
     $outfile = implode(DIRECTORY_SEPARATOR, [$outdir, $hint . ".csv"]);
     $fp_out = fopen($outfile, 'w');
     foreach ($data as $row) {
-      fputcsv($fp_out, $row);
+      // Before writing out the row, trim whitespace from each cell.
+      $trimmed_row = array_map('trim', $row);
+      fputcsv($fp_out, $trimmed_row);
     }
     fclose($fp_out);
   }
@@ -117,7 +120,8 @@ function convert_fields($row, &$indexes) {
   }
   else {
     // Trim off /content, then concatenate what remains to the correct parent path.
-    // While it would be unusual for /content/ to appear elsewhere in the path, why risk a global replace?
+    // While it would be unusual for /content/ to appear elsewhere in the path,
+    // why risk a global replace?
     $alias = substr($alias, 9);
   }
   $alias = make_clean_alias($alias);
@@ -129,6 +133,14 @@ function convert_fields($row, &$indexes) {
     $alias = '/agencies/' . $alias;
   }
   $row[$alias_index] = $alias;
+
+  // Streets: If there is a "Subdivision", it becomes "Street 1", "Street 1" becomes "Street 2",
+  // and "Street 2" becomes "Street 3".
+  if ($subdivision = $row[$indexes['Subdivision']]) {
+    $row[$indexes['Street 3']] = $row[$indexes['Street 2']];
+    $row[$indexes['Street 2']] = $row[$indexes['Street 1']];
+    $row[$indexes['Street 1']] = $subdivision;
+  }
 
   // Phone number fields are lists of plain text strings, joined by '###'.
   $phone_map = [
