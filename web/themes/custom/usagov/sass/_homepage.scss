@@ -119,7 +119,7 @@
 .main-grid h1,
 .main-grid h2,
 .main-grid p {
-  color: var($homepage, white-color);
+  color: var($white);
 }
 
 .main-grid h1 {
@@ -135,7 +135,7 @@
 }
 
 .main-grid a {
-  color: var($homepage, aqua-color);
+  color: var($cyan-30v);
   text-decoration: underline;
 }
 
@@ -158,8 +158,8 @@
 }
 
 .welcome-box {
-  background-color: var($homepage, deep-blue-color);
-  box-shadow: 0 6px 6px rgb(17 47 78 / .4);
+  background-color: var($deep-blue);
+  box-shadow: 0 6px 6px var($blue-shadow);
   grid-column: 1 / 3;
   grid-row: 1 / 2;
   margin-bottom: 0;
@@ -178,14 +178,14 @@
 
 /* Background */
 .blue-back {
-  background-color: var($homepage, deep-blue-color);
+  background-color: var($deep-blue);
   grid-column: 1 / 3;
   grid-row: 3 / 8;
 }
 
 /* How do I box */
 .how-box {
-  background-color: var($homepage, white-color);
+  background-color: var($white);
   border-radius: 3px;
   grid-column: 1 / 3;
   grid-row: 2 / 4;
@@ -201,9 +201,13 @@
 
 .how-box h2,
 .how-box a {
-  color: var($homepage, font-color);
+  color: var($off-black);
   margin: 0;
   text-decoration: none;
+}
+
+.how-box a {
+  font-weight: normal;
 }
 
 .how-box a:hover {
@@ -230,7 +234,7 @@
 
 .how-button {
   align-items: center;
-  border-left: 3px solid var($homepage, aqua-color);
+  border-left: 4px solid var($cyan-30v);
   display: flex;
   height: 60px;
   padding-left: 12px;
@@ -240,7 +244,7 @@
 
 /* Life Events */
 .life-events {
-  background-color: var($homepage, deep-blue-color);
+  background-color: var($deep-blue);
   grid-column: 1 / 3;
   grid-row: 5 / 6;
   margin-left: 5vw;
@@ -285,7 +289,7 @@
 }
 
 .jump a {
-  color: white;
+  color:var($white);
   font-family: sans-serif;
   font-size: var($homepage, small-font-size);
   text-decoration: underline;
@@ -297,14 +301,14 @@
 
 /* All Topics Header */
 .all-topics-header {
-  background-color: var($homepage, white-color);
+  background-color: var($white);
   grid-column: 1 / 3;
   grid-row: 7 / 9;
 }
 
 .all-topics-header h2 {
-  border-bottom: 10px solid var($homepage, red-color);
-  color: var($homepage, red-color);
+  border-bottom: 10px solid var($red);
+  color: var($red);
   font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
   font-size: 39.04px;
   font-weight: bold;
@@ -318,19 +322,19 @@
 }
 
 .all-topics {
-  background-color: var($homepage, light-blue-color);
+  background-color: var($light-blue);
   grid-column: 1 / 3;
   grid-row: 9 / 10;
 
 }
 
 .all-topics p {
-  color: var($homepage, font-color);
+  color: var($off-black);
 }
 
 /* All Topics Cards */
 .all-topics-background {
-  background-color: var($homepage, light-blue-color);
+  background-color: var($light-blue);
   padding-bottom: 30px;
   padding-top: 5px;
 }
@@ -372,8 +376,8 @@
   font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
   border-width: 2px;
   border-style: solid;
-  background-color: var($homepage, white-color);
-  border-color: var($homepage, outline-color);
+  background-color: var($white);
+  border-color: var($deep-gray);
   border-radius: 3px;
   box-shadow: 0 3px 6px rgb(122 122 122 / .15);
   margin: 0;
@@ -382,7 +386,7 @@
 
 .homepage-card h2,
 .homepage-card p {
-  color: var($homepage, font-color);
+  color: var($off-black);
   font-family: sans-serif;
   font-size: var($homepage, small-font-size);
   line-height: 1.3;
@@ -397,11 +401,11 @@
 }
 
 .homepage-card:hover {
-  background-color: var($homepage, hover-color);
+  background-color: var($cyan-light);
 }
 
 .homepage-card:focus-within {
-  outline: 0.25rem solid #c05600;
+  outline: 0.25rem solid var($deep-orange);
   outline-offset: 0;
 }
 
@@ -444,6 +448,9 @@
 .next {
   padding: 0;
   width: 40px;
+  height: 40px;
+  margin-top: auto;
+  margin-bottom: auto;
   border: none;
   background-color: transparent;
 }
@@ -472,9 +479,9 @@
 .carousel__navigation_dot {
   width: 15px;
   height: 15px;
-  border: 2px solid #00BDE3;
+  border: 2px solid var($cyan-30v);
   background-color: transparent;
-  border-radius: 50%;
+  border-radius: 60%;
   margin-right: 10px;
 }
 
@@ -488,12 +495,12 @@
 }
 
 .carousel__navigation_dot:hover {
-    border: 2px solid #FFFFFF;
+  border: 2px solid var($white);
 }
 
 .carousel__navigation_dot[aria-current="true"] {
-  background-color: #FFFFFF;
-  border: none;
+  background-color: var($white);
+  border: 2px solid var($white);
 }
 
 .carousel-mover {
@@ -536,18 +543,18 @@
 }
 
 .slide a {
-  color: white;
+  color: var($white);
   text-decoration: none;
 }
 
 .slide a:visited {
-  color: white;
+  color: var($white);
   text-decoration: none;
 }
 
 .slide h3 {
   margin: 0;
-  color: white;
+  color: var($white);
   text-decoration: none;
   font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
   line-height: 1.25;
@@ -566,9 +573,9 @@
   width: 100%;
   height: 85px;
   margin: auto;
-  box-shadow: 0 6px 6px rgb(17 47 78 / .4);
+  box-shadow: 0 6px 6px var($blue-shadow);
   border-style: solid;
-  border-color: #fff;
+  border-color: var($white);
 }
 
 /* Tablet & Desktop */
