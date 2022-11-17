@@ -51,7 +51,7 @@ jQuery(document).ready(function ($) {
       // li.classList.add("carousel__navigation_dot");
       // li.innerHTML =
       //   ' <button class="carousel__navigation_dot" aria-label=" '+ label + '"></button> ';
-      li.innerHTML = '<button class="carousel__navigation_button"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="50%" r="50" /> </svg> </button>';
+      li.innerHTML = '<button class="carousel__navigation_button"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="50%" r="49" /> </svg> </button>';
       dots.appendChild(li);
     }
   }

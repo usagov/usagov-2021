@@ -476,14 +476,32 @@
   width: auto;
 }
 
+.carousel__navigation_button{
+  width: 44px;
+  height: 44px;
+  background-color: transparent;
+  border: none;
+}
+
 // .carousel__navigation_dot {
-//   width: 15px;
-//   height: 15px;
-//   border: 2px solid var($cyan-30v);
-//   background-color: transparent;
-//   border-radius: 60%;
-//   margin-right: 10px;
+  // width: 15px;
+  // height: 15px;
+  // border: 2px solid var($cyan-30v);
+  // background-color: transparent;
+  // border-radius: 60%;
+  // margin-right: 10px;
 // }
+
+.carousel__navigation_dot {
+  fill: transparent;
+  stroke: var($cyan-30v);
+  stroke-width: 2px;
+}
+
+.carousel__navigation_dot:hover {
+  stroke: var(white);
+  stroke-width: 2px;
+}
 
 // .carousel__navigation_dot:not(:last-child) {
 //   margin: 0;
@@ -498,10 +516,11 @@
 //   border: 2px solid var($white);
 // }
 
-// .carousel__navigation_dot[aria-current="true"] {
-//   background-color: var($white);
-//   border: 2px solid var($white);
-// }
+.carousel__navigation_button[aria-current="true"] .carousel__navigation_dot{
+  fill: var($white);
+  stroke: var(white);
+  stroke-width: 2px;
+}
 
 .carousel-mover {
   width: calc(100% - 80px);
@@ -715,18 +734,5 @@
   }
 }
 
-.carousel__navigation_button {
-  width: 44px;
-  height: 44px;
-  background-color: transparent;
-}
-
-.carousel__navigation_dot {
-  fill: #33be66;
-}
-
-.carousel__navigation_dot:hover {
-  fill: #d71919;
-}
 
 
