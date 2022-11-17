@@ -110,11 +110,12 @@ else
     -r "https://${ROUTE_SERVICE_DOMAIN}";
 fi
 
-printf "\nBindng [ ${PROTECTED_APP_NAME} ] routes to [${ROUTE_SERVICE_NAME}]\n"
+printf "\nBindng [ ${PROTECTED_APP_NAME} ] routes to [ ${ROUTE_SERVICE_NAME} ]\n"
 
 HOST_NAMES=($(cf curl "/v3/apps/$PROTECTED_APP_GUID/routes" | jq -r --arg APPS_DOMAIN "${APPS_DOMAIN}" '[.resources[] | select(.url | endswith($APPS_DOMAIN))][].host'))
 
 for url in "${HOST_NAMES[@]}"; do
+  echo "\nBinding ${url}.${APPS_DOMAIN} to ${ROUTE_SERVICE_NAME}\n"
   cf bind-route-service "${APPS_DOMAIN}" "${ROUTE_SERVICE_NAME}" --hostname "${url}";
   if [ $(echo "$url" | grep 'cms') ]; then
     cf set-env waf CMS_HOST "$url"
