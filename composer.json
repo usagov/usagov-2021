@@ -62,7 +62,7 @@
         "drupal/pathauto": "^1.8",
         "drupal/redirect": "^1.6",
         "drupal/remove_http_headers": "^1.0",
-        "drupal/s3fs": "^3.0@alpha",
+        "drupal/s3fs": "^3.0",
         "drupal/scanner": "^1.0@RC",
         "drupal/scheduled_publish": "^3.9",
         "drupal/scheduled_transitions": "^2.0",
@@ -157,6 +157,9 @@
             },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
+            },
+            "drupal/s3fs": {
+                "Generating derivative images behind a proxy fails": "https://www.drupal.org/files/issues/2021-09-30/s3fs-image-derivative-proxy-workaround-2901060-11.patch"
             }
         }
     }

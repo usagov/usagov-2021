@@ -16,6 +16,7 @@ dependencies:
     - field.field.node.basic_page.field_navigation_banner_image
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
+    - field.field.node.basic_page.field_short_description
     - node.type.basic_page
     - responsive_image.styles.homepage_banner_sizing
   module:
@@ -83,4 +84,5 @@ hidden:
   field_language_toggle: true
   field_navigation_banner_image: true
   field_page_type: true
+  field_short_description: true
   langcode: true
