@@ -401,8 +401,8 @@ display:
       tags:
         - 'config:field.storage.node.body'
         - 'config:field.storage.node.field_page_intro'
-  block_5:
-    id: block_5
+  life_events_block:
+    id: life_events_block
     display_title: 'Life Events'
     display_plugin: block
     position: 5
