@@ -1,22 +1,24 @@
 # To get the homepage working
-1. Make sure that the config changes are imported into drupal
-  1. If they are you should see homepage banner, homepage top links in basic page & a new taxonomy term of Home Page
+1. Add the taxonomy term "Home Page"
+  1. Go to taxonomy -> edit page type --> add new term "Home Page"
+  2. Taxonomy terms are content in drupal and if not already in database need to be manually added.
+2. Go to the homepage and press edit to make sure that the config changes are imported into drupal
+  1. If they are you should see homepage banner and homepage top links in basic page cms
     1. If not: import config changes on sync
-      1. If no Home Page taxonomy term --> go to taxonomy -> edit page type add new term "Home Page"
-      2. If no Home Page Banner and or Top Links:
-        1.  Go to Administration  -> Structure ->  Content types  -> Basic Page
+      1. If no Home Page Banner and or Top Links:
+        1. Go to Administration  -> Structure ->  Content types  -> Basic Page
         2. Add field
-        3. Banner: Field Type of Image (not media to apply resolutions), Machine Name: field_homepage_banner
-          1. admin/structure/types/manage/basic_page/display
-          2. HomePage -> Responsive image -> Responsive image style
-        4. Top Links: Field type of Link; Label: Homepage Top Links,  Machine Name: field_homepage_top_links, Unlimited number of values
+          1. Banner: Field Type of Media, Machine Name: field_homepage_banner
+            1. admin/structure/types/manage/basic_page/display
+          2. Top Links: Field type of Link; Label: Homepage Top Links,  Machine Name: field_homepage_top_links, Unlimited number of values
   2. Image styles for 480px, 640px and 1024px at 1x, 1.5x, 2x and 3x resolutions should be created.
-2. On Homepage in Drupal add
+3. On Homepage in Drupal add
   1. Body text for the welcome box and,
   2. "Home Page" as the page type,
   3. A homepage banner,
   4. Top links
 
+**Note** --> If homepage banner does not show after doing the above, refresh the page. The image styles may not have loaded. Similarly if you change the size of your window you may need to refresh. This should not be an issue on dev, stage or prod as tome will create the necessary files for the static site. If however you still do not see the banner go to content -> media -> media library. Try and upload media there. If it works there is a bug somewhere else in the code. If it does not there is an issue with media in general on the site and should be fixed by creating a new ticket for it.
 
 # Code Organization
 The homepage is currently in node--1--full.html.twig. Page.html.twig checks if the term_name is "Home Page" and if so in calls 		`<main class="main-content usa-layout-docs {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
