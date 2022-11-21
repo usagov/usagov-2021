@@ -9,6 +9,7 @@ function wizardError() {
         if ( selected == true ) {
             document.getElementById("msg").innerHTML = "";
             document.getElementById("msg").removeAttribute("tabindex", "-1");
+            dataLayer.push({'Wizard_Success':'Begin'});
         return true;
         }
         else if (document.getElementsByTagName('html')[0].getAttribute('lang') == "en" ) {
@@ -20,7 +21,7 @@ function wizardError() {
             document.getElementById("msg").focus();
         }
     }
-        
+    dataLayer.push({'Wizard_Error':'Begin'});
 }
 
 
