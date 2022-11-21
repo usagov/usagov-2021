@@ -43,7 +43,7 @@
 				<li class="tablet:grid-col-4 usa-card">
 					<a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
 						{% if term_name == "Life Events Landing Page" %}
-							<div class="life-events-landing-page-card-image" style="background-image: url({{file_url(row.content[" #row"]._entity.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}})"></div>
+							<div class="life-events-landing-page-card-image" style="background-image: url({{file_url(row.content["#row"]._entity.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}})"></div>
 							<div class="life-events-landing-page-card-title">{{row.content["#row"].node_field_data_title}}</div>
 						{% else %}
 							{{- row.content -}}

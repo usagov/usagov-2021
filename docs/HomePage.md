@@ -59,9 +59,9 @@ The All topics jump buttons are the same components. The first is in row 4. The 
 The life experience components spans row 5. The intro copy is written in /includes/homepage-life-events.html.twig.
 
 ### Carousel
-The carousel is a view (life_events_view) of the life experience pages. It uses the short description field
+The carousel is a view (life_events_view) of the life experience pages. It uses the short description field from the life experience pages instead of the page intro. The navigation banners are also used from the pages.
 
-
+The carousel is written in javascript found in /scripts/carousel.js. The navigation svg dots are created dynamically depending on the number of life experiences pages. The carousel displays 3 cards in desktop, two in tablet and one in mobile.
 
 ## All Topics
 ### Header
