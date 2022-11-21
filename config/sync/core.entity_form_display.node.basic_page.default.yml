@@ -16,12 +16,11 @@ dependencies:
     - field.field.node.basic_page.field_navigation_banner_image
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
-    - image.style.thumbnail
+    - field.field.node.basic_page.field_short_description
     - node.type.basic_page
     - workflows.workflow.basic_workflow
   module:
     - content_moderation
-    - image
     - link
     - media_library
     - path
@@ -87,12 +86,11 @@ content:
       display_label: true
     third_party_settings: {  }
   field_homepage_banner:
-    type: image_image
+    type: media_library_widget
     weight: 28
     region: content
     settings:
-      progress_indicator: throbber
-      preview_image_style: thumbnail
+      media_types: {  }
     third_party_settings: {  }
   field_homepage_top_links:
     type: link_default

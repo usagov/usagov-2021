@@ -18,10 +18,8 @@ dependencies:
     - field.field.node.basic_page.field_page_type
     - field.field.node.basic_page.field_short_description
     - node.type.basic_page
-    - responsive_image.styles.homepage_banner_sizing
   module:
     - link
-    - responsive_image
     - text
     - user
 id: node.basic_page.default
@@ -42,11 +40,11 @@ content:
     weight: 0
     region: content
   field_homepage_banner:
-    type: responsive_image
+    type: entity_reference_entity_view
     label: above
     settings:
-      responsive_image_style: homepage_banner_sizing
-      image_link: ''
+      view_mode: default
+      link: false
     third_party_settings: {  }
     weight: 5
     region: content
