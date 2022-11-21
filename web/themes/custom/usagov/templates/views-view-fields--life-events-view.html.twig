@@ -2,7 +2,6 @@
 /**
 **/
 #}
-
 {% if view.current_display == "life_events_block" and view.title == "Life Events Carousel"%}
   {# {{ devel_breakpoint() }} #}
 
@@ -12,8 +11,6 @@
   <p class="usa-card__body padding-right-0 padding-left-0 padding-bottom-0 usa-prose">
     {{ row.node__field_short_description_field_short_description_value}}
   </p>
-  {# Until we get the images fixed- see comment below #}
-  <img class="thumbnailBanner" src="/themes/custom/usagov/images/topics/Banner_img_About_the_US_and_Its_Government.png" />
-  {# {{row.node__field_navigation_banner_image_field_navigation_banner_}} #}
+  <img class="thumbnailBanner" src={{file_url(row._entity.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}} />
 
 {% endif %}
