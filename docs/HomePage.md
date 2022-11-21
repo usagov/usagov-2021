@@ -45,6 +45,9 @@ The title and welcome box text are variables set as {{ node.title.value }} and {
 
 ## How Do I Box
 The how do I Box is set to span rows 2 & 3 of the grid. This allows it to "sit" on top of the banner image and the blue background.
+An unordered list contains the links which are set in the cms as an array of{{field_homepage_top_links}}. The links are list items and styled as buttons. They are not buttons as links should be used when linking between a site's page per uswds guidelines and accessibility.
+
+The links should present four across in desktop, two across in tablet and stacked in mobile.
 
 ### Blue Background
 The full span blue background is set to span rows 2 - 7 of the grid.
@@ -52,10 +55,11 @@ The full span blue background is set to span rows 2 - 7 of the grid.
 ## All Topics Jump Button
 The All topics jump buttons are the same components. The first is in row 4. The second is in row 6.
 
-## Life Events
-The life events components spans row 5.
+## Life Experiences
+The life experience components spans row 5. The intro copy is written in /includes/homepage-life-events.html.twig.
+
 ### Carousel
-TBD
+The carousel is a view (life_events_view) of the life experience pages. It uses the short description field
 
 
 
