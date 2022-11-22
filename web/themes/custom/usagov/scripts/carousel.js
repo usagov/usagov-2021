@@ -37,13 +37,7 @@ jQuery(document).ready(function ($) {
     for (var i = 0; i < numSlides; i++) {
       var li = document.createElement("li");
       var pageNum = i + 1;
-      var label =
-        "Card " +
-        pageNum +
-        " of " +
-        numSlides +
-        ": " +
-        carouselHeaders[i].textContent;
+      var label = `Card ${pageNum} of ${numSlides}: ${carouselHeaders[i].textContent.trim()}`;
       li.innerHTML = '<button class="carousel__navigation_button" aria-label=" '+ label + '"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="50%" r="49" /> </svg> </button>';
       dots.appendChild(li);
     }
