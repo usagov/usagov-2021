@@ -2,7 +2,7 @@ uuid: 130b871c-982e-490e-8776-e53ad712d63f
 langcode: en
 status: true
 dependencies: {  }
-name: max_1920
+name: max_1920w
 label: 'Max 1920w'
 effects:
   08aa972f-0f32-4a04-970f-6e8d78284b16:
