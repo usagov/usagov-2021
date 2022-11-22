@@ -17,7 +17,16 @@
 						</div>
 						<div class="usa-card__body">
 							<p>
-								{{row.content["#row"].node__field_page_intro_field_page_intro_value}}
+							{% set short_description = row.content["#row"].node__field_short_description_field_short_description_value %}
+							{% if short_description != null %}
+								{{short_description}}
+							{% else %}
+								{% set page_intro = row.content["#row"].node__field_page_intro_field_page_intro_value %}
+								{% if page_intro != null %}
+									{{page_intro}}
+								{% endif %}
+							{% endif %}
+								{# {{row.content["#row"].node__field_page_intro_field_page_intro_value}} #}
 							</p>
 						</div>
 					</a>
