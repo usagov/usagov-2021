@@ -1,5 +1,4 @@
 jQuery(document).ready(function ($) {
-  // console.log("in carousel js");
   var previousButton, nextButton;
   var slidesContainer, slides, slideDots;
   var leftMostSlideIndex = 0;
@@ -45,11 +44,6 @@ jQuery(document).ready(function ($) {
         numSlides +
         ": " +
         carouselHeaders[i].textContent;
-      // li.setAttribute("aria-label", label );
-      // li.setAttribute("tabindex",0);
-      // li.classList.add("carousel__navigation_dot");
-      // li.innerHTML =
-      //   ' <button class="carousel__navigation_dot" aria-label=" '+ label + '"></button> ';
       li.innerHTML = '<button class="carousel__navigation_button" aria-label=" '+ label + '"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="50%" r="49" /> </svg> </button>';
       dots.appendChild(li);
     }
@@ -88,7 +82,6 @@ jQuery(document).ready(function ($) {
         }
       );
     } else if (window.innerWidth > 480 && window.innerWidth < 1024) {
-      console.log("OFFSET WIDTH: " + slidesContainer.offsetWidth);
       $(slidesContainer).animate(
         {
           scrollLeft:
