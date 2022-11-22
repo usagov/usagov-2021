@@ -16,6 +16,8 @@
  */
 
 
+// Text strings for the page's language should be assigned to "usagovCEOtext" in 
+// an inline script in the page's Header HTML. The translations here are retained for backward compatibility. 
 const contact_translations = {
     "en": {
         "topic": "Please fill out the topic field.",
@@ -38,7 +40,8 @@ const contact_translations = {
         "idea": "Y mis ideas para abordar este cuestión son:"
     }
 }
-let contact_content = contact_translations[ document.documentElement.lang ];
+
+let contact_content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : contact_translations[ document.documentElement.lang ];
 let foundOfficial = false; // This value is calculated in one function and used in more than one.
 
 function getSearchParams() {
@@ -166,4 +169,4 @@ function lookup(address, callback) {
 
 // Load the GAPI Client Library
 gapi.load("client", setApiKey);
-document.body.onload = load();
+document.addEventListener('DOMContentLoaded', function() { load (); });
