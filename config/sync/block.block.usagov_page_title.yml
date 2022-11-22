@@ -12,7 +12,7 @@ _core:
 id: usagov_page_title
 theme: usagov
 region: content
-weight: -18
+weight: -17
 provider: null
 plugin: page_title_block
 settings:
