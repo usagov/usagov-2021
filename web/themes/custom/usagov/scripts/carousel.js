@@ -12,8 +12,7 @@ jQuery(document).ready(function ($) {
   carouselHeaders = document.querySelectorAll(".carouselHeaders");
   makeDots();
   slideDots = document.querySelectorAll(".navigation li button");
-  console.log("i did updates");
-  console.log(slideDots);
+
   previousButton.style.visibility = "hidden";
   if (slideDots.length > 0) {
     slideDots[0].setAttribute("aria-current", true);
@@ -51,7 +50,7 @@ jQuery(document).ready(function ($) {
       // li.classList.add("carousel__navigation_dot");
       // li.innerHTML =
       //   ' <button class="carousel__navigation_dot" aria-label=" '+ label + '"></button> ';
-      li.innerHTML = '<button class="carousel__navigation_button"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="50%" r="49" /> </svg> </button>';
+      li.innerHTML = '<button class="carousel__navigation_button" aria-label=" '+ label + '"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="50%" r="49" /> </svg> </button>';
       dots.appendChild(li);
     }
   }
