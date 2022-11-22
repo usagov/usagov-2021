@@ -68,14 +68,14 @@
 
 {% elseif term_name == "Home Page" %}
 
-	{% if view.current_display == "block_4" %}
+	{% if view.current_display == "all_topics_block" %}
 		{% include directory ~ '/templates/includes/homepage-cards.html.twig' %}
 	{% endif %}
 {% endif %}
 
-{% if view.current_display == "block_4" and term_name != "Home Page"%}
+{% if view.current_display == "all_topics_block" and term_name != "Home Page"%}
 
-	{# block_4 is the intro_page display for this view which is used on the homepage #}
+	{# all_topics_block is the intro_page display for this view which is used on the homepage #}
 	<span id="all_topics"></span>
 	<div class="usagov-cards">
 		<ul class="usa-card-group">
