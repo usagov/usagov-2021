@@ -55,7 +55,6 @@ function checkForMobile() {
         "usa-gov-footer__primary-link--button",
         isMobile
       );
-      // console.log("before mobile");
       if (isMobile) {
         var menuId = "usa-footer-menu-list-".concat(
           Math.floor(Math.random() * 100000)
