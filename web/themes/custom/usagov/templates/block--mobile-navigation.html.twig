@@ -1,5 +1,11 @@
 
+{# 
+  For Testing on Federalist, replace
+  href="
+  with
+  href="/site/cwacht/test/mobilemenudemo
 
+  #}
 
 {# Determine Language to decide which menu and translations to use #}
 {% if node.langcode.langcode == "es" %}
@@ -30,14 +36,21 @@
 {# Create an array of the active trail items from each level of the menu (up to the active item) #}
 {% set active_trail = [] %}
 {% set found_active_item = false %}
+{% set active_item_has_children = false %}
+{% set sibblings_of_active_item = null %}
 {% set submenu = main_nav_items.menu_tree %}
 {% for i in 0..10 if not found_active_item %}
   {% for menu_item in submenu if menu_item.active_trail %}
     {% set active_trail = active_trail|merge([menu_item]) %}
-    {% set submenu = menu_item.submenu %}
     {% if menu_item.active %}
       {% set found_active_item = true %}
+      {% if menu_item.submenu %}
+        {% set active_item_has_children = true %}
+      {% else %}
+        {% set sibblings_of_active_item = submenu %}
+      {% endif %}
     {% endif %}
+    {% set submenu = menu_item.submenu %}
   {% endfor %}
 {% endfor %}
 
@@ -46,7 +59,7 @@
   <div class="usa-nav__inner">
     <div class="usagov-mobile-menu-top">
       <div class="usagov-mobile-menu-controls">
-        <a href="{{ translations.home_URL }}">
+        <a id="mobile-menu-home-link" href="{{ translations.home_URL }}">
           <img src="/themes/custom/usagov/assets/img/usa-icons/home.svg" role="img" alt="{{ translations.home }}">{{ translations.home }}
         </a>
         <button class="usa-nav__close">
@@ -80,7 +93,7 @@
         <a href="/">{{ translations.all_topics }}</a>
         <ul class="navigation__items children">
           {% for menu_item in main_nav_items.menu_tree %}
-            <li class="navigation__item">
+            <li class="navigation__item child">
               <a href="{{ menu_item.url }}">{{ menu_item.text }}</a>
             </li>
           {% endfor %}
@@ -106,20 +119,40 @@
 
       {# Show the first item and up to 3 items at the end of the active trail #}
       {% if loop.index == 1 or loop.index + 3 > active_trail|length %}
-        <li class="navigation__item{{class}}">
-          <a href="{{ menu_item.url }}">{{ menu_item.text }}</a>
-
-          {# Show any children of the active item #}
-          {% if menu_item.active and menu_item.submenu is not empty %}
-            <ul class="navigation__items children">
-              {% for child in menu_item.submenu %}
-                <li class="navigation__item">
-                  <a href="{{ child.url }}">{{ child.text }}</a>
+        {% if not active_item_has_children and loop.index == active_trail|length %}
+          {# The current page has no children, so we should show its siblings instead #}
+          <li class="navigation__item">
+            <ul class="navigation__items">
+              {% for child in sibblings_of_active_item %}
+                {% set class = "" %}
+                {% if child.active %}
+                  {% set class = " active" %}
+                {% else %}
+                  {% set class = " sibling" %}
+                {% endif %}
+                <li class="navigation__item{{class}}">
+                  <a href="{{ child.active ? "#" : child.url }}">{{ child.text }}</a>
                 </li>
               {% endfor %}
             </ul>
-          {% endif %}
-        </li>
+          </li>
+        {% else %}
+          <li class="navigation__item{{class}}">
+            <a href="{{ menu_item.active ? "#" : menu_item.url }}">{{ menu_item.text }}</a>
+
+            {# Show any children of the active item #}
+            {% if menu_item.active and menu_item.submenu is not empty %}
+              <ul class="navigation__items children">
+                {% for child in menu_item.submenu %}
+                  <li class="navigation__item child">
+                    <a href="{{ child.url }}">{{ child.text }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% endif %}
+        
       {% endif %}
     {% endfor %}
     </ul>
@@ -128,3 +161,4 @@
 
 </div>
 </nav>
+{# {{dd()}} #}
