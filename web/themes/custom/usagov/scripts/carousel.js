@@ -38,6 +38,7 @@ jQuery(document).ready(function ($) {
       var li = document.createElement("li");
       var pageNum = i + 1;
       var title = carouselHeaders[i].textContent.trim();
+      console.log(title);
       var titleWoQuotes = title.replace(/['"]+/g, '');
       var label = `Card ${pageNum} of ${numSlides}: ${titleWoQuotes}`;
       li.innerHTML = '<button class="carousel__navigation_button" aria-label=" '+ label + '"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="50%" r="49" /> </svg> </button>';
@@ -128,8 +129,7 @@ jQuery(document).ready(function ($) {
     slidesForFocus[nextLeftMostSlideIndex].focus();
   }
 
-  //
-  Fully hide non-visible slides by adding aria-hidden="true" and tabindex="-1" when they go out of view
+  //Fully hide non-visible slides by adding aria-hidden="true" and tabindex="-1" when they go out of view
 
   function hideNonVisibleSlides() {
     // Start by hiding all the slides and their content
