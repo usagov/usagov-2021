@@ -35,6 +35,10 @@ ul.navigation__items{
     border-left: 0.5rem solid var($mobile-nav, red);
     color: var($mobile-nav, red);
   }
+  .sibling > a {
+    font-weight: normal;
+    margin-left: 0.5rem;
+  }
 }
 
 .usagov-mobile-menu{
