@@ -30,20 +30,22 @@ jQuery(document).ready(function ($) {
   // Ensure that all non-visible slides are impossible to reach.
   hideNonVisibleSlides();
 
-  /** For Pagination */
+  // For Pagination
   function makeDots() {
     var numSlides = slides.length;
     var dots = document.getElementsByClassName("navigation")[0];
     for (var i = 0; i < numSlides; i++) {
       var li = document.createElement("li");
       var pageNum = i + 1;
-      var label = `Card ${pageNum} of ${numSlides}: ${carouselHeaders[i].textContent.trim()}`;
+      var title = carouselHeaders[i].textContent.trim();
+      var titleWoQuotes = title.replace(/['"]+/g, '');
+      var label = `Card ${pageNum} of ${numSlides}: ${titleWoQuotes}`;
       li.innerHTML = '<button class="carousel__navigation_button" aria-label=" '+ label + '"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="50%" r="49" /> </svg> </button>';
       dots.appendChild(li);
     }
   }
 
-  /** Go to previous slide */
+  // Go to previous slide
   function previousSlide() {
     if (leftMostSlideIndex > 0) {
       goToSlide(leftMostSlideIndex - 1);
@@ -53,7 +55,7 @@ jQuery(document).ready(function ($) {
 
   }
 
-  /** Go to next slide */
+  // Go to next slide
   function nextSlide() {
     if (leftMostSlideIndex < slides.length - 1) {
       goToSlide(leftMostSlideIndex + 1);
@@ -62,7 +64,7 @@ jQuery(document).ready(function ($) {
     }
   }
 
-  /** Go to a specific slide */
+  // Go to a specific slide
   function goToSlide(nextLeftMostSlideIndex) {
     // Smoothly scroll to the requested slide
     if (window.innerWidth >= 1024) {
@@ -126,9 +128,9 @@ jQuery(document).ready(function ($) {
     slidesForFocus[nextLeftMostSlideIndex].focus();
   }
 
-  /**
+  //
   Fully hide non-visible slides by adding aria-hidden="true" and tabindex="-1" when they go out of view
-*/
+
   function hideNonVisibleSlides() {
     // Start by hiding all the slides and their content
     slides.forEach(function (slide) {
