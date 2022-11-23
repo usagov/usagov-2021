@@ -69,6 +69,35 @@ class DirectoryRecordsAddTogglesForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $toggle_map = $form_state->get('toggle_map');
+    $firstrow = TRUE;
+    foreach ($toggle_map as $map_entry) {
+      [$entity_uuid, $toggle_uuid] = $map_entry;
+      if (!$entity_uuid && !$toggle_uuid) {
+        // blank line, ignore.
+        continue;
+      }
+      $nids = \Drupal::entityQuery('node')->condition('field_mothership_uuid', $entity_uuid)->execute();
+      $toggle_nids = \Drupal::entityQuery('node')->condition('field_mothership_uuid', $toggle_uuid)->execute();
+      $nid = reset($nids);
+      $toggle_nid = reset($toggle_nids);
+      if ($nid && $toggle_nid) {
+        $node = Node::load($nid);
+        $node->set('field_language_toggle', ['target_id' => $toggle_nid]);
+        $node->save();
+      }
+      else {
+        if (!$firstrow) {
+          if (!count($nids)) {
+            $this->messenger()->addWarning("No node found with mothership_uuid $entity_uuid");
+          }
+          if (count($toggle_nids)) {
+            $this->messenger()->addWarning("No node found with mothership_uuid $entity_uuid (for toggle value)");
+          }
+        }
+      }
+      $firstrow = FALSE;
+    }
   }
 
 }
