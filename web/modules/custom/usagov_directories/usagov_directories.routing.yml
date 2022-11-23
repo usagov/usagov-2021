@@ -1,7 +1,14 @@
-usagov_directories.form:
+usagov_directories.delete_form:
   path: '/admin/usagov_directories/delete_records'
   defaults:
     _title: 'Delete Directory Records'
     _form: '\Drupal\usagov_directories\Form\DirectoryRecordsDeleteForm'
+  requirements:
+    _permission: 'administer site configuration'
+usagov_directories.add_toggles_form:
+  path: '/admin/usagov_directories/add_language_toggles'
+  defaults:
+    _title: 'Add Language Toggles'
+    _form: '\Drupal\usagov_directories\Form\DirectoryRecordsAddTogglesForm'
   requirements:
     _permission: 'administer site configuration'
