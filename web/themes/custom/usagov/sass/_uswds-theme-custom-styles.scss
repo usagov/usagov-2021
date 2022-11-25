@@ -726,6 +726,12 @@ a {
   margin-right: 1.2ex;
 }
 
+@media (max-width: 30em) {
+  .usa-alert, .usa-prose {
+    font-size: 1.1rem;
+  }
+}
+  
 .desktop\:grid-col-8 .body-copy {
   // Add margin only on content pages
   margin-top: 2.5rem;
