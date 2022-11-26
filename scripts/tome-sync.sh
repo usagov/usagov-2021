@@ -80,15 +80,15 @@ echo "Replacing references to S3 Bucket hostnames ... "
 while [ $i -lt "$n" ]
 do
   # Add attached buckets to the allow list
-  BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
-  AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint" | uniq )
-  AWS_ENDPOINT_ALT=$(  echo -E "$AWS_ENDPOINT"  | sed '/s3\-us\-/s3.us-/' | uniq )
-  AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
-  echo " ... $BUCKET"
+  REF_BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
+  REF_AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint" | uniq )
+  REF_AWS_ENDPOINT_ALT=$(  echo -E "$REF_AWS_ENDPOINT"  | sed '/s3\-us\-/s3.us-/' | uniq )
+  REF_AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
+  echo " ... $REF_BUCKET"
   # the (cms)? of the regex was used for a specfic reference we kept finding that used /public instead of /cms/public
-  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${BUCKET}.${AWS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
-  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${BUCKET}.${AWS_ENDPOINT_ALT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
-  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${BUCKET}.${AWS_FIPS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
+  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${REF_BUCKET}.${REF_AWS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
+  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${REF_BUCKET}.${REF_AWS_ENDPOINT_ALT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
+  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${REF_BUCKET}.${REF_AWS_FIPS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
   i=$((i+1))
 done
 
