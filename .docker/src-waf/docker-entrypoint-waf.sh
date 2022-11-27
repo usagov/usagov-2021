@@ -97,16 +97,26 @@ fi
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 
-ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
-
-FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/logging.conf /etc/modsecurity.d/modsecurity-override.conf /etc/nginx/snippets/ip-restrict.conf /etc/nginx/snippets/ip-restrict-cms.conf /etc/nginx/snippets/ip-restrict-www.conf /etc/nginx/snippets/ssl.conf /etc/nginx/snippets/proxy-to-app.conf"
-
+#ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
+#FILES="/etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/logging.conf /etc/modsecurity.d/modsecurity-override.conf /etc/nginx/snippets/ip-restrict.conf /etc/nginx/snippets/ip-restrict-cms.conf /etc/nginx/snippets/ip-restrict-www.conf /etc/nginx/snippets/ssl.conf /etc/nginx/snippets/proxy-to-app.conf"
 # this overwrites the files in place, so be careful mounting in docker
-for FILE in $FILES; do
+# for FILE in $FILES; do
+#     if [ -f "$FILE" ]; then
+#         envsubst "$ENV_VARIABLES" <"$FILE" | sponge "$FILE"
+#     fi
+# done
+
+ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
+# this overwrites the files in place, so be careful mounting in docker
+echo "Inserting environment variables into nginx config templates ... "
+for FILE in /etc/nginx/*/*.conf.tmpl ; do
     if [ -f "$FILE" ]; then
-        envsubst "$ENV_VARIABLES" <"$FILE" | sponge "$FILE"
+        OUTFILE=${FILE%.tmpl}
+        echo " generating $OUTFILE"
+        envsubst "$ENV_VARIABLES" < "$FILE" > "$OUTFILE"
     fi
 done
+
 
 . /opt/modsecurity/activate-rules.sh
 
