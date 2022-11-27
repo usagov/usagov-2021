@@ -91,7 +91,7 @@ services:
           - beta-local.usa.gov
           - cms-local.usa.gov
     volumes:
-      - .docker/src-waf/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:delegated
+      - .docker/src-waf/etc/nginx/nginx.conf.tmpl:/etc/nginx/nginx.conf.tmpl:delegated
       - .docker/src-waf/etc/nginx/conf.d:/etc/nginx/conf.d:delegated
       - .docker/src-waf/etc/nginx/snippets:/etc/nginx/snippets:delegated
     environment:
