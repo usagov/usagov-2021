@@ -10,8 +10,7 @@ valid_cidr() {
   local ip=$(($ip1 * 256 ** 3 + $ip2 * 256 ** 2 + $ip3 * 256 + $ip4))
 
   # Remove upper bits and check that all $N lower bits are 0
-  if [ $(($ip % 2**(32-$N))) = 0 ]
-  then
+  if [ $(($ip % 2**(32-$N))) = 0 ]; then
     return 0 # CIDR OK!
   else
     return 1 # CIDR NOT OK!
@@ -23,18 +22,22 @@ valid_ip() {
   local ip=$1
   local IFS=.; local -a a=($ip)
   # Start with a regex format test
-  [[ $ip =~ ^[0-9]+(\.[0-9]+){3}$ ]] || return 1
+  if [[ ! $ip =~ ^[0-9]+(\.[0-9]+){3}(\/[0-9]+)?$ ]]; then
+    return 1
+  fi
   # Test values of quads
   local quad
   for quad in {0..3}; do
-    [[ "${a[$quad]}" -gt 255 ]] && return 1
+    if [[ "${a[$quad]}" -gt 255 ]]; then
+      return 1
+    fi
   done
   return 0
 }
 
 # where do we go to find the cms
 if [ -z "$CMS_PROXY" ]; then
-  export CMS_PROXY="usagov-cms.apps.internal"
+  export CMS_PROXY="cms-usagov.apps.internal"
 fi;
 
 # where do we go to find the static site
