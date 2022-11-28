@@ -12,3 +12,10 @@ usagov_directories.add_toggles_form:
     _form: '\Drupal\usagov_directories\Form\DirectoryRecordsAddTogglesForm'
   requirements:
     _permission: 'administer site configuration'
+usagov_directories.add_synonyms_form:
+  path: '/admin/usagov_directories/add_synonyms'
+  defaults:
+    _title: 'Add Synonyms'
+    _form: '\Drupal\usagov_directories\Form\DirectoryRecordsAddSynonymsForm'
+  requirements:
+    _permission: 'administer site configuration'
