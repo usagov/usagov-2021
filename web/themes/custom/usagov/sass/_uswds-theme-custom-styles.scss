@@ -727,7 +727,7 @@ a {
 }
 
 @media (max-width: 30em) {
-  .usa-alert, .usa-prose {
+  .usa-alert, .usa-prose, .usa-table, .usa-form, .usa-radio__label, .usa-footer {
     font-size: 1.1rem;
   }
 }
