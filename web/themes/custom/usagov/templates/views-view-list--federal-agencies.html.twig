@@ -46,10 +46,7 @@
       <a class="usagov-directory-bottom-nav-arrow" href={{ agencyindex }}>
         {{leftArrow|raw}}
       </a>
-      {% if view.current_display == "block_1" %}
       <a class="nav-letter" href={{ agencyindex }}>{{ alpha_context.prev }}</a>
-      {% else %}
-      {% endif %}
     {% else %}
       <a class="usagov-directory-bottom-nav-arrow" href="{{ agencyindex }}?letter={{ alpha_context.prev|lower }}">
         {{leftArrow|raw}}
