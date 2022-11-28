@@ -141,12 +141,3 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
   $alpha_context = &drupal_static('usa_twig_vars_preprocess_view_federal_agencies');
   $variables['alpha_context'] = $alpha_context;
 }
-
-/**
- * Add context to the agencias_federales view to allow us to show the current letter,
- * and add links to the "next" and "previous" letters.
- * Note that the _summary preprocess hook runs first (at least for this view) and
- * populates a static variable with the list of possible letters, which the
- * _list preprocess hook needs in order to figure out prev/next.
- */
-
