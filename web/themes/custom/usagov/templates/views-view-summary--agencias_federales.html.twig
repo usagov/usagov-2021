@@ -32,9 +32,9 @@
           <a {{row.attributes.addClass("is-active")}}>{{ row.link }}</a>
         {% else %}
           {% if row.link == "A" or row.link == "a" %}
-            <a href="/es/indice-agencia">{{ row.link }}</a>
+            <a href="/es/indice-agencias">{{ row.link }}</a>
           {% else %}
-            <a href="/es/indice-agencia?letter={{ row.link|lower }}">{{ row.link }}</a>
+            <a href="/es/indice-agencias?letter={{ row.link|lower }}">{{ row.link }}</a>
           {% endif %}
 	      {% endif %}
         {% if options.count %}
