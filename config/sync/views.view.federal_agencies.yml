@@ -1650,7 +1650,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<a href="{{ view_node }}">More information about {{ title }}&nbsp;></a>'
+            text: '{{ view_node }}'
             make_link: false
             path: ''
             absolute: false
@@ -2977,7 +2977,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<a href="{{ view_node }}">More information about {{ title }}&nbsp;></a>'
+            text: '{{ view_node }}'
             make_link: false
             path: ''
             absolute: false

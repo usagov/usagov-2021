@@ -82,9 +82,12 @@
     {% endif %}
 
     {% if fields.nothing.content|striptags|trim %}
-    <div>
-      <p>{{- fields.nothing.content -}}</p>
-    </div>
+      <div>
+        <p>
+        {# {{- fields.nothing.content -}} #}
+          <a href={{- fields.nothing.content|striptags|trim -}} > {{ lang == 'en' ? ' More information about ' : '(Spanish) More information about ' }} {{ fields.title.content  }}&nbsp; ></a>
+        </p>
+      </div>
     {% endif %}
 
   </div>
