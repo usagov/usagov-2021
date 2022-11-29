@@ -24,9 +24,9 @@
  * - akf, 2022-08-17
  */
 
-$infile = '/Users/amykfarrell/dev/data_to_import/mothership_20221128/directory-report.csv'; // $argv[1];
-$extended_infile = '/Users/amykfarrell/dev/data_to_import/mothership_20221128/views_data_export.xml'; // $argv[2];
-$outdir = '/Users/amykfarrell/dev/data_to_import/mothership_20221128/outdir'; // $argv[3];
+$infile = $argv[1];
+$extended_infile = $argv[2];
+$outdir = $argv[3];
 
 function main($infile, $extended_infile, $outdir) {
   $fp_infile = fopen($infile, 'r');
