@@ -39,15 +39,14 @@ The final form of this view has `Page`, `Block`, and `Alpha List` displays. At t
 #### Agency Synonyms in Federal Agencies View
 The synonyms are shown on the Federal Agencies View along with the Federal Directory Records. To show them in the view a filter criteria of “content type = agency synonym” was added to a new filter group. This filter group is separate from the filter group for federal directory records with an OR clause.
 
-### "USAGov Directories" Drupal Module
+### "USAGov Directories" Custom Drupal Module
 
-Files in `web/modules/custom/usagov_directories`
+Files in `web/modules/custom/usagov_directories`. This module provides two kinds of functionality:
 
-This very small module converts URLs with query parameters like `?letter=a` to path parts like `/a` when Tome is used to generate the static site pages. This makes static site generation work for the agency-index pages, and makes paths that match what the current usa.gov uses. 
+* Convert URLs with query parameters like `?letter=a` to path parts like `/a` when Tome is used to generate the static site pages.
+* Admin forms to support parts of the import process. (We'll be able to remove these eventually.)
 
-The module adds an event subscriber that listens for two `tome_static` events and rewrites URLs. The code is based on a class Tome already includes that rewrites `page=2` query parameters for views that use that convention. (The Tome version checks both for the `page` parameter and for an integer value. The usagov_directories version looks for a `letter` parameter but doesn't validate the values further. It might make sense to look for a single character.)
-
-For the synonyms to show their “parent” agency a pre-rendering hook was added to the `usagov_directories.module file`. This hook grabs the result array of the federal agencies view and for every result that is a synonym creates a shallow copy its parent agency. The view displays the synonym title and the information from the copy of the parent agency. A shallow copy was created because creating a reference to the parent agency in the result array instead did not allow for the synonym title to be shown in the view. 
+Refer to the files in `web/modules/custom/usagov_directories/docs` for more details. 
 
 ### Twig Templates
 
@@ -106,21 +105,6 @@ Everyone working on this so far is new at twig. We have probably done some awkwa
 * node--directory-record--full.html.twig
 
 There are probably some things being calculated in twig that should be handled in a preprocess hook, or something. 
-
-## TODO
-
-Known features that have yet to be implemented: 
-
-### Non-trivial features: 
-
-* Synonyms
-* Data import from mothership
-
-### Probably well-understood:
-
-* Spanish version of the glossary-style view. 
-* Carousel-style letters at the bottom of a glossary page
-
 
 ## Rejected Approaches
 
