@@ -28,6 +28,8 @@ regions:
 
 libraries:
   - 'usagov/global-styling'
+  - 'usagov/wizard'
+  - 'usagov/wizardStep'
 
 ckeditor_stylesheets:
   - css/styles.css
