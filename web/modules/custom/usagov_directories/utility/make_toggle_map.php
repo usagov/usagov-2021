@@ -15,8 +15,8 @@
  * - akf, 2022-08-31
  */
 
-$infile = '/Users/amykfarrell/dev/data_to_import/mothership/directory-report.csv'; // $argv[1];
-$outfile = '/Users/amykfarrell/dev/data_to_import/mothership/toggle_map.csv'; // $argv[2];
+$infile = $argv[1];
+$outfile = $argv[2];
 
 function main($infile, $outfile) {
   $fp_infile = fopen($infile, 'r');

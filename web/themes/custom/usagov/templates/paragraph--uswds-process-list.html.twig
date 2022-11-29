@@ -53,7 +53,10 @@
   <ol class="usa-process-list">
     {% for key, item in content.field_process_items if key|first != '#' %}
       <li class="usa-process-list__item">
-        <h4 class="usa-process-list__heading">{{ item['#paragraph'].field_header.value }}</h4>
+        {% set process_head = item['#paragraph'].field_header.value %}
+        {% if process_head != null %}
+          <h4 class="usa-process-list__heading">{{ process_head}}</h4>
+        {% endif %}
         {# Use the same render array as item and set the '#paragraph'. #}
         {% set section_body = item %}
         {% set lang = section_body['#paragraph'].langcode[0].value %}
