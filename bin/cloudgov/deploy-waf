@@ -64,11 +64,11 @@ printf "\tAPPS_DOMAIN: $APPS_DOMAIN\n"
 printf "\nFetching ROUTE_DOMAIN\n"
 printf "\tAPPS_DOMAIN: $ROUTE_DOMAIN\n"
 
-# remove proxy during staging
-# cf set-env waf http_proxy  ""
-# cf set-env waf https_proxy ""
-# cf set-env waf HTTPS_PROXY ""
-# cf set-env waf HTTP_PROXY ""
+# remove proxy
+cf set-env waf http_proxy  ""
+cf set-env waf https_proxy ""
+cf set-env waf HTTPS_PROXY ""
+cf set-env waf HTTP_PROXY ""
 
 # launch the app
 if [ -z "$CDIGEST" ]; then
@@ -130,5 +130,9 @@ for url in "${HOST_NAMES[@]}"; do
     cf set-env waf WWW_HOST "$url"
   fi
 done
+
+cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 443
+cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 80
+cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 61443
 
 #$SCRIPT_DIR/setup-egress-for-apps waf
