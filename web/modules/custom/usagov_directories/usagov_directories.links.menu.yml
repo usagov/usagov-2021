@@ -1,0 +1,27 @@
+usagov_directories.admin:
+  title: 'USAGov Directories'
+  parent: system.admin_config
+  route_name: usagov_directories.main
+  description: 'Tools for importing Directory Records'
+  weight: 100
+
+usagov_directories.admin_import_language_toggles:
+  title: 'Import language toggles'
+  description: 'Add language toggles to existing directory records'
+  parent: usagov_directories.admin
+  route_name: usagov_directories.add_toggles_form
+  weight: 100
+
+usagov_directories.admin_import_synonyms:
+  title: 'Import synonyms'
+  description: 'Import synonyms for existing directory records.'
+  parent: usagov_directories.admin
+  route_name: usagov_directories.add_synonyms_form
+  weight: 200
+
+usagov_directories.admin_delete_records:
+  title: 'Delete directory records'
+  description: 'Use this form to delete all (federal) Directory Record entities. To be used in case of a really bad import.'
+  parent: usagov_directories.admin
+  route_name: usagov_directories.delete_form
+  weight: 300
