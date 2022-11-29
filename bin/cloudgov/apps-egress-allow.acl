@@ -5,5 +5,9 @@ docker.io
 docker.com
 *.newrelic.com
 newrelic.com
+*.github.com
+github.com
 *.app.cloud.gov
 *.apps.internal
+*.cloudfoundry.org
+cloudfoundry.org
