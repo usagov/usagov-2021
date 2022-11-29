@@ -1,17 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
-export INCLUDE_PATH="$(readlink -f "$0")"
-export SCRIPT_DIR="$(dirname $INCLUDE_PATH)"
+export SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+export INCLUDE_PATH="${SCRIPT_DIR}/$(basename "$0")"
 export LOGS_DIR="$SCRIPT_DIR/logs"
 export SCRIPT_ROOT="$(dirname $SCRIPT_DIR)"
 export REPO_ROOT="$(dirname $SCRIPT_ROOT)"
 export YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
 
-
-startbranch=${startbranch:-$( command -v git &> /dev/null && git rev-parse --abbrev-ref HEAD || echo "" )}
+startbranch=$( command -v git &> /dev/null && git rev-parse --abbrev-ref HEAD || echo "" )
 # Grab the starting space and org where the command was run
-startorg=${startorg:-$(     cf target | grep org:   | awk '{ print $2 }')}
-startspace=${startspace:-$( cf target | grep space: | awk '{ print $2 }')}
+startorg=$(     cf target | grep org:   | awk '{ print $2 }')
+startspace=$( cf target | grep space: | awk '{ print $2 }')
 # Drop them off where we found them
 function popspace() {
   if [ -n "$startorg" ] && [ -n "$startspace" ]; then
@@ -26,8 +25,8 @@ function popbranch() {
   fi
 }
 # trap pops on exit
-trap popspace err
-trap popbranch err
+# trap popspace err
+# trap popbranch err
 
 mkdir -p $LOGS_DIR
 
