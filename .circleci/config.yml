@@ -333,7 +333,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-582-deploy-scripts
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -343,7 +342,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-582-deploy-scripts
 
       - approve-dev-deployment:
           type: approval
@@ -351,17 +349,13 @@ workflows:
             - build-and-push-container
           filters:
             branches:
-              only:
-                - dev
-                - USAGOV-582-deploy-scripts
+              only: dev
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
-              only:
-                - dev
-                - USAGOV-582-deploy-scripts
+              only: dev
 
       - approve-stage-deployment:
           type: approval
