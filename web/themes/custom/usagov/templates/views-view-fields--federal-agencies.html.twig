@@ -36,9 +36,9 @@
  */
 #}
 
-{% set lang = row._entity.langcode.value%}
+{% set lang = row._entity.langcode.value %}
 {% set UID = 'dr-' ~ fields.title.content|striptags|trim %}
-{# {{ devel_breakpoint() }} #}
+
 <div class="usa-accordion usagov-directory-accordion-container">
   <h2 class="usa-accordion__heading">
     <button
@@ -85,7 +85,7 @@
       <div>
         <p>
         {# {{- fields.nothing.content -}} #}
-          <a href={{- fields.nothing.content|striptags|trim -}} > {{ lang == 'en' ? ' More information about ' : '(Spanish) More information about ' }} {{ fields.title.content  }}&nbsp; ></a>
+          <a href={{- fields.nothing.content|striptags|trim -}} > {{ lang == 'en' ? ' More information about ' : 'Más información sobre ' }} {{ fields.title.content  }}&nbsp; ></a>
         </p>
       </div>
     {% endif %}
