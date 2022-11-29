@@ -1,6 +1,13 @@
 # How to import Federal Agency records
 
-## Exporting the records from Mothership
+There are several steps to this process:
+
+* Export the records from "mothership"
+* Prepare the files for import
+* Import the language toggles
+* Import the synonyms
+
+## Exporting the records from "mothership"
 
 First, you will need to export the Federal Directory records from
 mothership. There are two exports:
@@ -21,7 +28,7 @@ Text Fields".
 2. Remove the extraneous blank line from the beginning of each
 file. (Just edit the files as plain text.)
 
-## Prepare the files for import
+## Preparing the files for import
 
 (You must have php (version 8) installed where you're going to do
 this.)
@@ -150,6 +157,25 @@ errors.
 (I considered splitting the imports by language, but even that didn't
 eliminate the problem.) 
 
+## Importing the language toggles
 
+(You must have php (version 8) installed where you're going to do
+this.)
 
+Use the script utility/make_toggle_map.php to read in the same CSV
+file you used for the base import (probably called
+directory-report.csv) and generate a CSV file mapping mothership UUIDs
+to their corresponding "toggle" entities' UUIDs. The script takes two
+arguments: the path to the input file, and the path to the output
+file.
 
+Log in to Drupal and navigate to admin -> Configuration -> USAGov
+Directories -> Import language toggles. Upload the new file and submit
+the form. 
+
+## Importing the synonyms
+
+When you ran agency_import_prep.php, it should have created a
+"synonyms.csv" file. Navigate to admin -> Configuration -> USAGov
+Directories -> Import synonyms, upload the synonyms.csv file, and
+submit the form. 
