@@ -35,7 +35,6 @@ class DirectoryRecordsAddSynonymsForm extends FormBase {
         'file_validate_extensions' => ['csv'], // Does nothing for 'file'
       ],
       '#title' => $this->t('Upload a csv file of "mothership_uuid,langcode,synonyms"'),
-      // '#required' => TRUE, // might work in 9.5? https://www.drupal.org/project/drupal/issues/59750
     ];
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = [
@@ -71,6 +70,7 @@ class DirectoryRecordsAddSynonymsForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $synonym_map = $form_state->get('synonym_map');
     $firstrow = TRUE;
+    $node_count = $synonym_count = $skipped_count = 0;
     foreach ($synonym_map as $map_entry) {
       [$entity_uuid, $langcode, $synonyms_str] = $map_entry;
       if (!$entity_uuid) {
@@ -80,11 +80,17 @@ class DirectoryRecordsAddSynonymsForm extends FormBase {
       $synonyms = explode('###', $synonyms_str);
       $nids = \Drupal::entityQuery('node')->condition('field_mothership_uuid', $entity_uuid)->execute();
       $nid = reset($nids);
-      $synonym_count = $node_count = 0;
 
       if ($nid) {
         $node_count++;
         foreach ($synonyms as $synonym_title) {
+          /* A couple of synonyms have &#151; for an em-dash. &#151; is in a weird little group of
+           * codes (see https://stackoverflow.com/questions/631406/what-is-the-difference-between-em-dash-151-and-8212)
+           * that don't neatly decode into UTF-8. It turns out these are the *only* character
+           * entities showing up in synonyms in mothership, so rather than decode them, we'll
+           * do this one substitution:
+           */
+          $synonym_title = str_replace('&#151;', '—', $synonym_title);
           // Check for an existing synonym:
           $existing_nids = \Drupal::entityQuery('node')->condition('type', 'agency_synonym')
             ->condition('title', $synonym_title)->execute();
@@ -99,10 +105,10 @@ class DirectoryRecordsAddSynonymsForm extends FormBase {
             $syn_node->save();
             $synonym_count++;
           }
+          else {
+            $skipped_count++;
+          }
         }
-        // $node = Node::load($nid);
-        // $node->set('field_language_toggle', ['target_id' => $toggle_nid]);
-        // $node->save();
       }
       else {
         if (!$firstrow) {
@@ -113,7 +119,11 @@ class DirectoryRecordsAddSynonymsForm extends FormBase {
       }
       $firstrow = FALSE;
     }
-    $this->messenger()->addMessage("$synonym_count Synonyms created for $node_count Directory Records.");
+    $status_message = "Created $synonym_count Synonym[s] for $node_count Directory Record[s].";
+    if ($skipped_count) {
+      $status_message .= " Skipped $skipped_count synonym[s] that already existed.";
+    }
+    $this->messenger()->addMessage($status_message);
   }
 
 }
