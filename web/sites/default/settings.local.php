@@ -12,7 +12,6 @@ $settings['trusted_host_patterns'] = [
   '^localhost$',
   '^127\.0\.0\.1$',
   '^cms-usagov\.docker\.local$',
-  '^cms-local-usagov\.apps\.internal$',
 ];
 
 $config['user.settings']['register'] = 'admin_only';

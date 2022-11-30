@@ -904,30 +904,20 @@ $settings['php_storage']['twig']['directory'] = '../storage/php';
 // included here without fully understanding implications:
 $settings['cache']['bins']['data'] = 'cache.backend.php';
 
-$settings['trusted_host_patterns'] = [];
-
 if (!empty($cf_application_data['space_name']) &&
     in_array($cf_application_data['space_name'],
-             ['local','dev', 'stage', 'prod'])) {
+             ['dev', 'stage', 'prod'])) {
   switch (strtolower($cf_application_data['space_name'])) {
-    case "local":
-      $settings['trusted_host_patterns'][] = '^cms-local.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-local-usagov.apps.internal$';
-      break;
-
     case "dev":
-      $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-dev-usagov.apps.internal$';
+      $settings['trusted_host_patterns'] = ['^cms-dev.usa.gov$'];
       break;
 
     case "stage":
-      $settings['trusted_host_patterns'][] = '^cms-stage.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-stage-usagov.apps.internal$';
+      $settings['trusted_host_patterns'] = ['^cms-stage.usa.gov$'];
       break;
 
     case "prod":
-      $settings['trusted_host_patterns'][] = '^cms.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-prod-usagov.apps.internal$';
+      $settings['trusted_host_patterns'] = ['^cms.usa.gov$'];
       break;
   }
 }
