@@ -36,7 +36,7 @@
  */
 #}
 
-
+{% set lang = row._entity.langcode.value %}
 {% set UID = 'dr-' ~ fields.title.content|striptags|trim %}
 
 <div class="usa-accordion usagov-directory-accordion-container">
@@ -55,36 +55,39 @@
 
     {% if fields.field_website.content|striptags|trim %}
     <div id="field_website">
-      <p>Website:&nbsp;</p>
+      <p>{{ lang == 'en' ? 'Website' : 'Sitio web' }}:&nbsp;</p>
       <p>{{- fields.field_website.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_phone_number.content|striptags|trim %}
     <div id="field_phone">
-      <p>Phone number:&nbsp;</p>
+      <p>{{ lang == 'en' ? 'Phone number' : 'Teléfono' }}:&nbsp;</p>
       <p class="phoneNumberField">{{- fields.field_phone_number.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_contact_link.content|striptags|trim %}
     <div id="field_contact">
-      <p>Contact:&nbsp;</p>
+      <p>{{ lang == 'en' ? 'Contact' : 'Contacto' }}:&nbsp;</p>
       <p>{{- fields.field_contact_link.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_offices_near_you.content|striptags|trim %}
     <div id="field_office">
-      <p>Find an office near you:&nbsp;</p>
+      <p>{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}:&nbsp;</p>
       <p>{{- fields.field_offices_near_you.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.nothing.content|striptags|trim %}
-    <div>
-      <p>{{- fields.nothing.content -}}</p>
-    </div>
+      <div>
+        <p>
+        {# {{- fields.nothing.content -}} #}
+          <a href={{- fields.nothing.content|striptags|trim -}} > {{ lang == 'en' ? ' More information about ' : 'Más información sobre ' }} {{ fields.title.content  }}&nbsp; ></a>
+        </p>
+      </div>
     {% endif %}
 
   </div>
