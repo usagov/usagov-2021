@@ -57,6 +57,7 @@ function main($infile, $extended_infile, $outdir) {
 
   $headings = array_merge($extended_headings, $basic_headings);
   $out_files = [];
+  $out_files['synonyms'] = []; // for a separate file mapping mothership_uuid to langcode, synonyms.
   $num_records = 0; // We'll count them on output, just so we can report.
   foreach ($basic_records_by_uuid as $uuid => $basic_record) {
     $extended_record = $extended_records_by_uuid[$uuid];
@@ -81,6 +82,14 @@ function main($infile, $extended_infile, $outdir) {
       $out_files[$hint][] = $headings;
     }
     $out_files[$hint][] = $flat_record;
+
+    if ($basic_record['Synonym']) {
+      $out_files['synonyms'][] = [
+        $basic_record['UUID'],
+        $basic_record['langcode'],
+        $basic_record['Synonym'],
+      ];
+    }
   }
   print("$num_records records\n");
 
@@ -98,7 +107,7 @@ function main($infile, $extended_infile, $outdir) {
 }
 
 /**
- * Map and convert selected fields. Returns an array indexed by field name. Modifies the $indexes inputs.
+ * Map and convert selected fields. Returns an array indexed by field name. Modifies $indexes.
  *
  * @param Array $row
  * @param Array $indexes
