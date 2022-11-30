@@ -24,7 +24,6 @@ class DirectoryRecordsAddTogglesForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    // $form['attributes'] = ['enctype' => 'multipart/form-data'];
     $form['description'] = [
       '#type' => 'processed_text',
       '#text' => $this->t('Submit this form to add or update the language toggles on records imported from Mothership.'),
