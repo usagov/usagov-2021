@@ -96,15 +96,19 @@ done
 # lower case all filenames in the copied dir before uploading
 LCF=0
 echo "Lower-casing files:"
+old_IFS = "$IFS"
+IFS=$'\n'
 for f in `find $RENDER_DIR/*`; do
   ff=$(echo $f | tr '[A-Z]' '[a-z]');
-  if [ "$f" != "$ff" ]; then
+  fff=$(echo $ff | tr ' ' '_');
+  if [ "$f" != "$fff" ]; then
     # VERBOSE MODE
     # mv -v "$f" "$ff"
-    mv -v "$f" "$ff" > /dev/null
+    mv -v "$f" "$fff" > /dev/null
     LCF=$((LCF+1))
   fi
 done
+IFS = "$old_IFS"
 echo "    $LCF"
 
 # get a count of current AWS files, total and by extension
