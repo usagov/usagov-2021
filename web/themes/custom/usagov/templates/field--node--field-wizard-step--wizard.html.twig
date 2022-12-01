@@ -9,6 +9,7 @@
 
 
 <fieldset class="usa-fieldset maxw-tablet margin-x-auto">
+    <legend aria-hidden="true">
     {% for item in items %}
         {% set title = item.content["#options"]["entity"].field_option_name.0.value %}
         {% if title == null %}
@@ -31,14 +32,9 @@
             Empezar
             
             {% endif %}
-
-         
-
-
-        </button>
-       
-        
+        </button>       
     </div>
+</legend>
 </fieldset>
 
 {% else %}

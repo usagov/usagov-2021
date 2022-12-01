@@ -19,7 +19,7 @@ STAGING_SECURITY_GROUPS="dns trusted_local_networks_egress public_networks_egres
 RUNNING_SECURITY_GROUPS="dns trusted_local_networks_egress"
 
 DENIED_STAGING_SECURITY_GROUPS=""
-DENIED_RUNNING_SECURITY_GROUPS="public_network_egress"
+DENIED_RUNNING_SECURITY_GROUPS="public_networks_egress"
 
 # If DRYRUN is set, don't run the commands, but echo them.
 if [ -n "${DRYRUN}" ]; then
