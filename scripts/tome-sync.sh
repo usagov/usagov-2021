@@ -100,11 +100,10 @@ old_IFS = "$IFS"
 IFS=$'\n'
 for f in `find $RENDER_DIR/*`; do
   ff=$(echo $f | tr '[A-Z]' '[a-z]');
-  fff=$(echo $ff | tr ' ' '_');
-  if [ "$f" != "$fff" ]; then
+  if [ "$f" != "$ff" ]; then
     # VERBOSE MODE
     # mv -v "$f" "$ff"
-    mv -v "$f" "$fff" > /dev/null
+    mv -v "$f" "$ff" > /dev/null
     LCF=$((LCF+1))
   fi
 done
