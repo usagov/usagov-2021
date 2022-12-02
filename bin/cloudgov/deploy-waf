@@ -26,7 +26,9 @@ SPACE=$( cf target | grep space: | awk '{ print $2 }')
 # cf delete-service dev-usagov-domain
 # cf create-service external-domain domain dev-usagov-domain -c '{"domains": "cms-dev.usa.gov,beta-dev.usa.gov"}'
 # cf create-service external-domain domain-with-cdn stage-usagov-domain -c '{"domains": "cms-stage.usa.gov,beta-stage.usa.gov"}'
-# cf create-service external-domain domain-with-cdn prod-usagov-domain -c '{"domains": "cms.usa.gov,beta.usa.gov"}'
+# cf create-service external-domain domain-with-cdn prod-www-usagov-domain -c '{"domains": "beta.usa.gov"}'
+# cf create-service external-domain domain          prod-cms-usagov-domain -c '{"domains": "cms.usa.gov"}'
+# cf service prod-cms-usagov-domain
 
 if ! command -v jq >/dev/null; then
   printf "\nMust have JQ installed\n"
@@ -108,7 +110,7 @@ if cf curl "/v3/service_instances?type=user-provided&names=${ROUTE_SERVICE_NAME}
 
   cf create-user-provided-service \
     "${ROUTE_SERVICE_NAME}" \
-    -r "https://${ROUTE_SERVICE_DOMAIN}";
+    -r "https://${ROUTE_SERVICE_DOMAIN}";cf
 else
   printf "\nUpdating route-service\n"
 
