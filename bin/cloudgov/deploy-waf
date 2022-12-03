@@ -110,7 +110,7 @@ if cf curl "/v3/service_instances?type=user-provided&names=${ROUTE_SERVICE_NAME}
 
   cf create-user-provided-service \
     "${ROUTE_SERVICE_NAME}" \
-    -r "https://${ROUTE_SERVICE_DOMAIN}";cf
+    -r "https://${ROUTE_SERVICE_DOMAIN}";
 else
   printf "\nUpdating route-service\n"
 
