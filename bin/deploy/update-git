@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-SCRIPT_DIR="$(dirname $(readlink -f "$0"))"
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 if [ -f $SCRIPT_DIR/includes ]; then
   . $SCRIPT_DIR/includes
 fi
@@ -8,26 +8,24 @@ fi
 # Make sure git is up to date
 echo "Updating git perma-branches: dev, stage, prod" | toLogs
 
+git fetch --all --tags -q
 git fetch --all -q
-git checkout dev -q
-git pull -q
-git checkout stage -q
-git pull -q
-git checkout prod -q
-git pull -q
+git fetch origin dev
+git fetch origin stage
+git fetch origin prod
 
 DEPLOY_BRANCH=${DEPLOY_BRANCH:-}
 if [ -n "$DEPLOY_BRANCH" ] && [ ! "$DEPLOY_BRANCH" == "dev" ] && [ ! "$DEPLOY_BRANCH" == "stage" ] && [ ! "$DEPLOY_BRANCH" == "prod" ]; then
-  git checkout $DEPLOY_BRANCH -q
-  git pull -q
+  git fetch origin $DEPLOY_BRANCH
+  #git checkout $DEPLOY_BRANCH -q
+  #git pull -q
 fi
 
 MERGE_BRANCH=${MERGE_BRANCH:-}
 if [ -n "$MERGE_BRANCH" ] && [ ! "$MERGE_BRANCH" == "$DEPLOY_BRANCH" ] && [ ! "$MERGE_BRANCH" == "dev" ] && [ ! "$MERGE_BRANCH" == "stage" ] && [ ! "$MERGE_BRANCH" == "prod" ]; then
-  git checkout $MERGE_BRANCH -q
-  git pull -q
+  git fetch origin $MERGE_BRANCH
+  #git checkout $MERGE_BRANCH -q
+  #git pull -q
 fi
 
 popbranch
-
-return 0

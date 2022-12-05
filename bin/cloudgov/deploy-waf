@@ -16,6 +16,9 @@ DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CTAG=${1:-latest}
 CDIGEST=${2:-}
 
+
+SPACE=$( cf target | grep space: | awk '{ print $2 }')
+
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
 
@@ -23,7 +26,9 @@ CDIGEST=${2:-}
 # cf delete-service dev-usagov-domain
 # cf create-service external-domain domain dev-usagov-domain -c '{"domains": "cms-dev.usa.gov,beta-dev.usa.gov"}'
 # cf create-service external-domain domain-with-cdn stage-usagov-domain -c '{"domains": "cms-stage.usa.gov,beta-stage.usa.gov"}'
-# cf create-service external-domain domain-with-cdn prod-usagov-domain -c '{"domains": "cms.usa.gov,beta.usa.gov"}'
+# cf create-service external-domain domain-with-cdn prod-www-usagov-domain -c '{"domains": "beta.usa.gov"}'
+# cf create-service external-domain domain          prod-cms-usagov-domain -c '{"domains": "cms.usa.gov"}'
+# cf service prod-cms-usagov-domain
 
 if ! command -v jq >/dev/null; then
   printf "\nMust have JQ installed\n"
@@ -47,7 +52,6 @@ fi
 
 if [ "${ENV_ANY_NOT_SET+set}" ]; then
 
-  SPACE=$( cf target | grep space: | awk '{ print $2 }')
   printf "\nExample:\n"
   printf "\tROUTE_SERVICE_APP_NAME=waf ROUTE_SERVICE_NAME=waf-route-$SPACE-usagov PROTECTED_APP_NAME=cms ${0} ${CTAG} ${CDIGEST}\n"
   exit 1
@@ -62,9 +66,11 @@ printf "\tAPPS_DOMAIN: $APPS_DOMAIN\n"
 printf "\nFetching ROUTE_DOMAIN\n"
 printf "\tAPPS_DOMAIN: $ROUTE_DOMAIN\n"
 
-# remove proxy during staging
+# remove proxy
 cf set-env waf http_proxy  ""
 cf set-env waf https_proxy ""
+cf set-env waf HTTPS_PROXY ""
+cf set-env waf HTTP_PROXY ""
 
 # launch the app
 if [ -z "$CDIGEST" ]; then
@@ -78,6 +84,9 @@ else
     --var app-name="${ROUTE_SERVICE_APP_NAME}" \
     --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
 fi
+
+cf create-route app.cloud.gov --hostname $ROUTE_SERVICE_NAME
+cf map-route "$ROUTE_SERVICE_APP_NAME" app.cloud.gov --hostname $ROUTE_SERVICE_NAME
 
 cf set-env "${ROUTE_SERVICE_APP_NAME}" ALLOWED_IPS "$(printf "%s" "${NGINX_ALLOW_STATEMENTS:-}")"
 cf start "${ROUTE_SERVICE_APP_NAME}"
@@ -124,4 +133,8 @@ for url in "${HOST_NAMES[@]}"; do
   fi
 done
 
-$SCRIPT_DIR/setup-egress-for-apps waf
+cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 443
+cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 80
+cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 61443
+
+#$SCRIPT_DIR/setup-egress-for-apps waf
