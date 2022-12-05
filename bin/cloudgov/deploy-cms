@@ -82,16 +82,23 @@ function setupRoutes { #appname
   # but cms needs to exist in the first place
   # for route mapping and egress setup to run
 
+  cf create-route apps.internal --hostname cms-$APP_SPACE-usagov
+  cf map-route $app apps.internal --hostname cms-$APP_SPACE-usagov
+  cf create-route apps.internal --hostname beta-$APP_SPACE-usagov
+  cf map-route $app apps.internal --hostname beta-$APP_SPACE-usagov
+
   if [ "$APP_SPACE" == "prod" ]; then
     cf create-route usa.gov --hostname cms
     cf map-route $app usa.gov --hostname cms
     cf create-route usa.gov --hostname beta
     cf map-route $app usa.gov --hostname beta
+
   else
     cf create-route usa.gov --hostname cms-$APP_SPACE
     cf map-route $app usa.gov --hostname cms-$APP_SPACE
     cf create-route usa.gov --hostname beta-$APP_SPACE
     cf map-route $app usa.gov --hostname beta-$APP_SPACE
+
   fi
 }
 
