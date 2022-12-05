@@ -333,8 +333,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - scanning
-                - USAGOV-592-media-upload
+                - USAGOV-502-all-topics
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -344,8 +343,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - scanning
-                - USAGOV-592-media-upload
+                - USAGOV-502-all-topics
 
       - approve-dev-deployment:
           type: approval
@@ -355,7 +353,7 @@ workflows:
             branches:
               only:
                - dev
-               - USAGOV-592-media-upload
+               - USAGOV-502-all-topics
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -363,7 +361,7 @@ workflows:
             branches:
               only:
                - dev
-               - USAGOV-592-media-upload
+               - USAGOV-502-all-topics
 
       - approve-stage-deployment:
           type: approval
