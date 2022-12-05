@@ -38,7 +38,7 @@ then
      docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
 fi
 
-echo "Building ${CONTAINERNAME}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
+echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
