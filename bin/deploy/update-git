@@ -10,20 +10,20 @@ echo "Updating git perma-branches: dev, stage, prod" | toLogs
 
 git fetch --all --tags -q
 git fetch --all -q
-git fetch origin dev:dev
-git fetch origin stage:stage
-git fetch origin prod:prod
+git fetch origin dev
+git fetch origin stage
+git fetch origin prod
 
 DEPLOY_BRANCH=${DEPLOY_BRANCH:-}
 if [ -n "$DEPLOY_BRANCH" ] && [ ! "$DEPLOY_BRANCH" == "dev" ] && [ ! "$DEPLOY_BRANCH" == "stage" ] && [ ! "$DEPLOY_BRANCH" == "prod" ]; then
-  git fetch origin $DEPLOY_BRANCH:$DEPLOY_BRANCH
+  git fetch origin $DEPLOY_BRANCH
   #git checkout $DEPLOY_BRANCH -q
   #git pull -q
 fi
 
 MERGE_BRANCH=${MERGE_BRANCH:-}
 if [ -n "$MERGE_BRANCH" ] && [ ! "$MERGE_BRANCH" == "$DEPLOY_BRANCH" ] && [ ! "$MERGE_BRANCH" == "dev" ] && [ ! "$MERGE_BRANCH" == "stage" ] && [ ! "$MERGE_BRANCH" == "prod" ]; then
-  git fetch origin $MERGE_BRANCH:$MERGE_BRANCH
+  git fetch origin $MERGE_BRANCH
   #git checkout $MERGE_BRANCH -q
   #git pull -q
 fi
