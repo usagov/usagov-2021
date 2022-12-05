@@ -18,6 +18,7 @@ $light-blue: #E5F8FD;
 $gray: #dfe1e2;
 $deep-gray: #707070;
 $light-gray: #f3f3f3;
+$light-blue: #d2ebf1;
 $orange: #f79240;
 $deep-orange: #c05600;
 $black: #000;
@@ -49,6 +50,7 @@ $card: (
   hover-border-color: $cyan-50v,
   group-background-color: $light-gray,
   text-color: $black,
+  background-color:$light-blue,
 );
 $life-events: (
   text-color: $white,
