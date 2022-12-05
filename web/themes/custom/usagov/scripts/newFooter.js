@@ -31,8 +31,7 @@ function showLinks(event) {
     var selectedControls = document.getElementById(selectedId);
     if (selectedIsOpen) {
       selectedControls.removeAttribute(HIDDEN);
-    }
- else {
+    } else {
       selectedControls.setAttribute(HIDDEN, "");
     }
   }
@@ -55,6 +54,7 @@ function checkForMobile() {
         "usa-gov-footer__primary-link--button",
         isMobile
       );
+      console.log("before mobile");
       if (isMobile) {
         var menuId = "usa-footer-menu-list-".concat(
           Math.floor(Math.random() * 100000)
@@ -67,8 +67,7 @@ function checkForMobile() {
         var primaryLinkControls = document.getElementById(primaryLinkId);
         primaryLinkControls.setAttribute(HIDDEN, "");
         newElement.addEventListener("click", showLinks);
-      }
- else {
+      } else {
         primaryLink.nextElementSibling.removeAttribute(HIDDEN);
       }
       primaryLink.after(newElement);
