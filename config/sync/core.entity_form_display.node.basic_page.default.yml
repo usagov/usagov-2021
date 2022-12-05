@@ -9,8 +9,6 @@ dependencies:
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
     - field.field.node.basic_page.field_hide_page_intro
-    - field.field.node.basic_page.field_homepage_banner
-    - field.field.node.basic_page.field_homepage_top_links
     - field.field.node.basic_page.field_is_navigation_page
     - field.field.node.basic_page.field_language_toggle
     - field.field.node.basic_page.field_navigation_banner_image
@@ -21,7 +19,6 @@ dependencies:
     - workflows.workflow.basic_workflow
   module:
     - content_moderation
-    - link
     - media_library
     - path
     - text
@@ -84,21 +81,6 @@ content:
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
-  field_homepage_banner:
-    type: media_library_widget
-    weight: 28
-    region: content
-    settings:
-      media_types: {  }
-    third_party_settings: {  }
-  field_homepage_top_links:
-    type: link_default
-    weight: 27
-    region: content
-    settings:
-      placeholder_url: ''
-      placeholder_title: ''
     third_party_settings: {  }
   field_is_navigation_page:
     type: boolean_checkbox
