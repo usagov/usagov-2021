@@ -20,75 +20,53 @@
 {% set lang = node.langcode.value %}
 {% set term_name = "" %}
 {% if node.field_page_type.0 != null %}
-    {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
+	{% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
 {% endif %}
 
 {% if term_name == "Navigation Page" %}
-
-<ul class="usa-list usa-list--unstyled">
-{% for row in rows %}
-<li class="usagov-navpage-item">
-  <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="text-no-underline">
-    {{- row.content -}}
-  </a>
-</li>
-{% endfor %}
-</ul>
+	<ul class="usa-list usa-list--unstyled">
+		{% for row in rows %}
+			<li class="usagov-navpage-item">
+				<a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="text-no-underline">
+					{{- row.content -}}
+				</a>
+			</li>
+		{% endfor %}
+	</ul>
 
 {% elseif term_name == "Navigation Cards Page" or term_name == "Life Events" or term_name == "Life Events Landing Page" %}
+	<div class="usagov-cards margin-top-3">
+		<ul class="usa-card-group">
+			{% for row in rows %}
+				<li class="tablet:grid-col-4 usa-card">
+					<a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
+						{% if term_name == "Life Events Landing Page" %}
+							<div class="life-events-landing-page-card-image" style="background-image: url({{file_url(row.content["#row"]._entity.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}})"></div>
+							<div class="life-events-landing-page-card-title">{{row.content["#row"].node_field_data_title}}</div>
+						{% else %}
+							{{- row.content -}}
+						{% endif %}
+					</a>
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+	{% if lang == "en" %}
+		<p>
+			<span class="text-bold">Looking for something else?</span>
+			<a id="something-else" href="/#all_topics">Explore all topics and services</a>
+		</p>
+	{% else %}
+		<p>
+			<span class="text-bold">¿Busca algo más?
+				<a id="something-else" href="/es#all_topics">Encuentre más temas y servicios</a>
+			</span>
+		</p>
+	{% endif %}
 
-<div class="usagov-cards margin-top-3">
-  <ul class="usa-card-group">
-    {% for row in rows %}
-    <li class="tablet:grid-col-4 usa-card">
-      <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
-      {% if term_name == "Life Events Landing Page" %}
-       <div class="life-events-landing-page-card-image" style="background-image: url({{file_url(row.content["#row"]._entity.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}})"></div>
-       <div class="life-events-landing-page-card-title">{{row.content["#row"].node_field_data_title}}</div>
-      {% else %}
-        {{- row.content -}}
-      {% endif %}
-      </a>
-    </li>
-    {% endfor %}
-  </ul>
-</div>
-{% if lang == "en" %}
-<p><span class="text-bold">Looking for something else?</span> <a id="something-else" href="/#all_topics">Explore all topics and services</a></p>
-{% else %}
-<p><span class="text-bold">¿Busca algo más? <a id="something-else" href="/es#all_topics">Encuentre más temas y servicios</a></span></p>
-{% endif %}
+{% elseif term_name == "Home Page" %}
 
-{% elseif term_name == "Standard Page" %}
-{# standard_page #}
-{% endif %}
-
-{% if view.current_display == "block_4" %}
-  {# block_4 is the intro_page display for this view which is used on the homepage #}
- <span id="all_topics"></span>
-  <div class="usagov-cards">
-    <ul class="usa-card-group">
-      {% for row in rows %}
-
-        {% set css_icon = row.content["#row"].node__field_css_icon_field_css_icon_value %}
-        {% if css_icon == null %}
-          {% set css_icon = "" %}
-        {% else %}
-          {% set css_icon = "topic-icon " ~ css_icon %}
-        {% endif %}
-        <li class="tablet:grid-col-6 usa-card">
-          <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline {{css_icon}}">
-            {{- row.content -}}
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-  </div>
-
-
-  {% if lang == "en" %}
-    <p><span class="text-bold">Looking for our main site?</span> Visit <a href="https://www.usa.gov">USA.gov</a></p>
-  {% elseif lang == "es" %}
-    <p><span class="text-bold">¿Busca nuestro sitio web principal?</span> Visite <a href="https://www.usa.gov/espanol/">USA.gov/espanol</a></p>
-  {% endif %}
+	{% if view.current_display == "all_topics_block" %}
+		{% include directory ~ '/templates/includes/homepage-cards.html.twig' %}
+	{% endif %}
 {% endif %}

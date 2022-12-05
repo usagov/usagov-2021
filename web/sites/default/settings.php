@@ -792,6 +792,10 @@ if (getenv('NEW_RELIC_API_KEY')) {
   $config['new_relic_rpm.settings']['api_key'] = getenv('NEW_RELIC_API_KEY');
 }
 
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' && $_SERVER["REQUEST_SCHEME"] == 'http') {
+  $_SERVER['HTTPS'] = 'on';
+}
+
 /**
  * Collect external service information from environment.
  * Cloud Foundry places all service credentials in VCAP_SERVICES
