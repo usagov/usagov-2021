@@ -5,7 +5,11 @@
 	<div class="life-events-intro">
 		<h2>{{ lang == 'en' ? 'Life experiences' : 'Etapas importantes de la vida' }}</h2>
 		<p>
+			{% if lang == 'en' %}
 			Discover government benefits and services to help you and your family through <a class= "life_experiences_link" href="/life-experiences">every stage of life</a>.
+			{% else %}
+			Conozca los servicios y beneficios del Gobierno que le ayudarán a usted y a su familia en <a class= "life_experiences_link" href="/es/etapas-importantes-de-la-vida">cada etapa de la vida</a>.
+			{% endif %}
 		</p>
 	</div>
 	<div class="life-events-carousel">
