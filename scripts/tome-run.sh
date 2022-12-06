@@ -55,7 +55,7 @@ export CONTENT_UPDATED=$(drush sql:query "SELECT SUM(c) FROM ( (SELECT count(*) 
  UNION ( SELECT count(*) as c from block_content_field_data where changed > (UNIX_TIMESTAMP(now())-(1800))) ) as x")
 if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ $(cat /proc/uptime | grep -o '^[0-9]\+') -lt 1800 ]; then
 
-  echo "Found site changes: running static site build: $TOMELOG"
+  echo "Running static site build: content-updated($CONTENT_UPDATED) container-updated($CONTAINER_UPDATED) forced($FORCED) $TOMELOG" | tee -a $TOMELOG
   $SCRIPT_PATH/tome-static.sh $URI 2>&1 | tee -a $TOMELOG
   TOME_SUCCESS=$?
   if [ "$TOME_SUCCESS" == "0" ]; then
@@ -69,5 +69,5 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ $
     exit 1
   fi
 else
-  echo "No change to block or node content in the last 30 minutes: no need for static site build"
+  echo "No change to block or node content in the last 30 minutes: no need for static site build" | tee -a $TOMELOG
 fi
