@@ -3,7 +3,7 @@
 
 document.getElementById("prior").addEventListener("click", priorStepFunction);
 function priorStepFunction() {
-    dataLayer.push({'Wizard_Prior':'Prior'});
+    dataLayer.push({'event':'Wizard_Prior'});
 }
 document.getElementById("next").addEventListener("click", wizardStepError);
 function wizardStepError() {
@@ -13,7 +13,7 @@ function wizardStepError() {
         if ( selected == true ) {
             document.getElementById("msg").innerHTML = "";
             document.getElementById("msg").removeAttribute("tabindex", "-1");
-            dataLayer.push({'Wizard_Success':'Next'});
+            dataLayer.push({'event':'Wizard_Next'});
         return true;
         }
         else if (document.getElementsByTagName('html')[0].getAttribute('lang') == "en" ) {
@@ -25,5 +25,5 @@ function wizardStepError() {
             document.getElementById("msg").focus();
         }
     }
-    dataLayer.push({'Wizard_Error':'Next'});
+    dataLayer.push({'event':'Wizard_Error', 'button':'Next'});
 }
