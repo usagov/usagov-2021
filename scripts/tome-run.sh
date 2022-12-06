@@ -50,12 +50,21 @@ else
  echo "No other Tome is running. Proceeding on our own." | tee -a $TOMELOG
 fi
 
+export CONTAINER_UPDATED=0
+if [ -f /container_start_timestamp ]; then
+  start_time=$(cat /container_start_timestamp);
+  run_time=$(date +"%s")
+  if [ -n "$start_time" ] && [ $(($run_time - $start_time)) -lt 1800 ]; then
+    export CONTAINER_UPDATED=1
+  fi
+fi
+
 # check nodes and blocks for any content changes in the last 30 minutes
 export CONTENT_UPDATED=$(drush sql:query "SELECT SUM(c) FROM ( (SELECT count(*) as c from node_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
  UNION ( SELECT count(*) as c from block_content_field_data where changed > (UNIX_TIMESTAMP(now())-(1800))) ) as x")
-if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ $(cat /proc/uptime | grep -o '^[0-9]\+') -lt 1800 ]; then
+if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "$CONTAINER_UPDATED" != "0" ]; then
 
-  echo "Found site changes: running static site build: $TOMELOG"
+  echo "Running static site build: content-updated($CONTENT_UPDATED) container-updated($CONTAINER_UPDATED) forced($FORCED) $TOMELOG"
   $SCRIPT_PATH/tome-static.sh $URI 2>&1 | tee -a $TOMELOG
   TOME_SUCCESS=$?
   if [ "$TOME_SUCCESS" == "0" ]; then
