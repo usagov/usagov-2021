@@ -7,6 +7,10 @@ if [ -z "${VCAP_SERVICES:-}" ]; then
     exit 1;
 fi
 
+if [ ! -f /container_start_timestamp ]; then
+    echo "$(date +'%s')" > /container_start_timestamp;
+fi
+
 SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
 SECAUTHSECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secauthsecrets") | .credentials')
 
