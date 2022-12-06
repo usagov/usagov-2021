@@ -1,4 +1,5 @@
+{% set lang = node.langcode.value %}
 <div class="all-topics-header" id="all-topics-header">
-	<h2>All topics and services</h2>
+	<h2>{{ lang == 'en' ? 'All topics and services' : 'Todos los temas y servicios' }}</h2>
 </div>
 <div class="all-topics"></div>

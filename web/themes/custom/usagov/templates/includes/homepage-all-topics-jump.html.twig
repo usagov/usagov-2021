@@ -1,6 +1,7 @@
+{% set lang = node.langcode.value %}
 <p>
 	<a href="#all-topics-header">
-		Jump to all topics and services
+	{{ lang == 'en' ? 'Jump to all topics and services' : 'Vaya a todos los temas y servicios' }}
 		<br/>
 		<img src="/themes/custom/usagov/images/Reimagined_Jump_to_Arrow.svg">
 	</a>
