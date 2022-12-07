@@ -13,7 +13,6 @@ if (menu_paths.includes(path)) {
     let listItem = document.getElementById("usagov__logo");
     listItem.innerHTML =
       "<a role='link' aria-disabled='true' title='USAGov Logo'><img src='/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png' alt='USAGov Logo'></a>";
-
   } else if (path == "/about-the-us") {
     let listItem = document.getElementById("usa-nav__about");
     listItem.innerHTML =
