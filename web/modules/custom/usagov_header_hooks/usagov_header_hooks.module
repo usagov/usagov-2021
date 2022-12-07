@@ -1,0 +1,24 @@
+<?php
+
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_view_alter().
+ * From Drupal.org -> "If a module wishes to act on the rendered HTML of the entity rather than the structured content array, it may use this hook to add a #post_render callback."
+*/
+function usagov_header_hooks_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+  usagov_header_hooks_remove_shortlink($build);
+}
+
+function usagov_header_hooks_remove_shortlink(array &$attachments) {
+  if (!isset($attachments['#attached']['html_head_link'])) {
+    return;
+  }
+
+  foreach ($attachments['#attached']['html_head_link'] as $key => $value) {
+    if (isset($value[0]['rel']) && $value[0]['rel'] == 'shortlink') {
+      unset($attachments['#attached']['html_head_link'][$key]);
+    }
+  }
+}
