@@ -1,0 +1,94 @@
+#!/bin/bash
+
+export HTTPS_TEST_URL="https://www.pandemicoversight.gov/version.txt";
+export AWS_TEST_URL="https://s3-us-gov-west-1.amazonaws.com";
+export EXISTING_BETA_FILE_FROM_S3="https://beta.usa.gov/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png";
+export EXISTING_CMS_FILE_FROM_S3="https://cms.usa.gov/s3/files/2022-03/Banner_img_Housing.png";
+export TEST_FILE_FOR_S3="test.txt";
+export RUNTIME=$(date);
+
+function runTests {
+  # run all the tests
+  getInfoPHPWrappers;
+  getInfoPHPTransports;
+  testDrupalStreamWrapperPrivate;
+}
+
+function testThatCurlCanReachAWS {
+  # curl can reach aws host from the commandline
+  echo
+}
+
+
+function testThatAWSClientCanReachAWS {
+  # aws client can reach aws from the commandline
+  echo
+}
+
+function testThatNGINXCanReadS3 {
+  # nginx can respond with proxies files living in s3
+  echo
+}
+
+function testThatPHPCanReachAWS {
+  # php can initiate a connection to aws
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"$response = file_get_contents('$AWS_TEST_URL')); print_r($http_response_header);\""
+}
+
+function testThatDrupalCanReachAWS {
+  # drupal can initiate a connection to aws through drush
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"\$client = \Drupal::httpClient; \$response = \$client->get('$AWS_TEST_URL'); print_r(\$response); echo \"\nStatus Code: \".\$response->getStatusCode.\"\n\";"
+}
+
+function testDrupalStreamWrapperS3 {
+  # drupal can use the s3:// stream wrapper to read and write to s3
+  echo "Expecting to write and read $RUNTIME to s3://$TEST_FILE_FOR_S3"
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_put_contents('s3://$TEST_FILE_FOR_S3','$RUNTIME'));\""
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('s3://$TEST_FILE_FOR_S3'));\""
+  # independantly check for existance of the file via aws cli
+}
+
+
+function testDrupalStreamWrapperPublic {
+  echo "Expecting to write and read $RUNTIME to public://$TEST_FILE_FOR_S3"
+  # drupal can use the public:// stream wrapper to read and write to s3
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_put_contents('public://$TEST_FILE_FOR_S3','$RUNTIME'));\""
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('public://$TEST_FILE_FOR_S3'));\""
+  # independantly check for existance of the file via aws cli
+}
+
+function testDrupalStreamWrapperPrivate {
+  echo
+  echo "Expecting to write and read $RUNTIME to private://$TEST_FILE_FOR_S3"
+  # drupal can use the private:// stream wrapper to read and write to s3
+  echo cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_put_contents('private://$TEST_FILE_FOR_S3','$RUNTIME'));\""
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_put_contents('private://$TEST_FILE_FOR_S3','$RUNTIME'));\""
+  echo cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('private://$TEST_FILE_FOR_S3'));\""
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('private://$TEST_FILE_FOR_S3'));\""
+  echo cf logs cms --recent | tail -n 10
+  cf logs cms --recent | tail -n 10
+  # independantly check for existance of the file via aws cli
+}
+
+function testDrupalStreamWrapperHTTPS {
+  echo "Expecting to read a SEMVER vX.Y.Z from $HTTPS_TEST_URL"
+  # drupal can use the https:// stream wrapper to read to a non-s3 file
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('$HTTPS_TEST_URL'));\""
+}
+
+function getInfoPHPTransports {
+  echo
+  echo "PHP stream_get_transports:"
+  echo cf ssh cms -c '. /etc/profile; drush ev --root=/var/www/ "print_r(stream_get_transports());"'
+  cf ssh cms -c '. /etc/profile; drush ev --root=/var/www/ "print_r(stream_get_transports());"'
+}
+
+function getInfoPHPWrappers {
+  echo
+  echo "PHP stream_get_wrappers:"
+  echo cf ssh cms -c '. /etc/profile; drush ev --root=/var/www/ "print_r(stream_get_wrappers());"'
+  cf ssh cms -c '. /etc/profile; drush ev --root=/var/www/ "print_r(stream_get_wrappers());"'
+}
+
+
+runTests;
