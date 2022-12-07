@@ -1,6 +1,4 @@
-console.log("testing disable menu");
 let path = window.location.pathname;
-console.log(path);
 
 let menu_paths = [
   "/",
