@@ -1,5 +1,4 @@
 let path = window.location.pathname;
-console.log(`THE PATH IS: ${path}`);
 
 let menu_paths = [
   "/",
