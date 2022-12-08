@@ -43,3 +43,5 @@ else
   echo
   echo "$available_tags" | sort
 fi
+
+# todo: add a file count next to each dir so we can tell if it is a bogus build
