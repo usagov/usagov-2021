@@ -10,6 +10,7 @@ server {
 
     proxy_hide_header Cache-Control;
     proxy_hide_header expires;
+    add_header Cache-Control max-age=54000;
 
     include /etc/nginx/partials/s3proxy.conf;
     include /etc/nginx/partials/404s.conf;
@@ -28,6 +29,7 @@ server {
 
     proxy_hide_header Cache-Control;
     proxy_hide_header expires;
+    add_header Cache-Control max-age=54000;    
 
     include /etc/nginx/partials/s3proxy.conf;
     include /etc/nginx/partials/404s.conf;
