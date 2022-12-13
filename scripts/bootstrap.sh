@@ -141,6 +141,12 @@ if [ -d /var/run/s6/services/nginx ]; then
   s6-svc -h /var/run/s6/services/nginx
 fi
 
+if [ ! -d /var/www/private ]; then
+  echo "Creating private directory ... "
+  mkdir /var/www/private
+  chown nginx:nginx /var/www/private
+fi
+
 if [ -n "${FIX_FILE_PERMS:-}" ]; then
   echo  "Fixing File Permissions ... "
   chown nginx:nginx /var/www
