@@ -1,9 +1,12 @@
 #!/bin/bash
 
+# doesn't check for the existence of the the thumbnail of an uploaded file
+
 export HTTPS_TEST_URL="https://www.pandemicoversight.gov/version.txt";
 export AWS_TEST_URL="https://s3-us-gov-west-1.amazonaws.com";
 export EXISTING_BETA_FILE_FROM_S3="https://beta.usa.gov/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png";
 export EXISTING_CMS_FILE_FROM_S3="https://cms.usa.gov/s3/files/2022-03/Banner_img_Housing.png";
+export EXISTING_LOCAL_FILE="2022-03/Banner_img_Housing.png";
 export TEST_FILE_FOR_S3="test.txt";
 export RUNTIME=$(date);
 
@@ -43,11 +46,19 @@ function testThatDrupalCanReachAWS {
 function testDrupalStreamWrapperS3 {
   # drupal can use the s3:// stream wrapper to read and write to s3
   echo "Expecting to write and read $RUNTIME to s3://$TEST_FILE_FOR_S3"
-  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_put_contents('s3://$TEST_FILE_FOR_S3','$RUNTIME'));\""
-  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('s3://$TEST_FILE_FOR_S3'));\""
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_put_contents('s3://public/$TEST_FILE_FOR_S3','$RUNTIME'));\""
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('s3://public/$TEST_FILE_FOR_S3'));\""
   # independantly check for existance of the file via aws cli
 }
 
+function testDrupalImageDerivationPublic {
+  echo "Expecting Drush to generate a thumbnail for $EXISTING_LOCAL_FILE"
+  cf ssh cms -c ". /etc/profile; drush --root=/var/www/ image-derive thumbnail public://$EXISTING_LOCAL_FILE"
+}
+function testDrupalImageDerivationS3 {
+  echo "Expecting Drush to generate a thumbnail for $EXISTING_LOCAL_FILE"
+  cf ssh cms -c ". /etc/profile; drush --root=/var/www/ image-derive thumbnail s3://public/$EXISTING_LOCAL_FILE"
+}
 
 function testDrupalStreamWrapperPublic {
   echo "Expecting to write and read $RUNTIME to public://$TEST_FILE_FOR_S3"
