@@ -1,0 +1,454 @@
+#!/bin/bash
+
+needsRestage=0
+
+appSpace=tools
+appName=nr-php
+proxySpace=shared-egress
+proxyName=nr-proxy
+
+testName=xxxxx
+
+SCRIPT_DIR="$(dirname $(readlink -f "$0"))"
+
+startorg=$(     cf target | grep org:   | awk '{ print $2 }')
+startspace=$( cf target | grep space: | awk '{ print $2 }')
+function popspace() {
+  if [ -n "$startorg" ] && [ -n "$startspace" ]; then
+    cf target -o "$startorg" -s "$startspace" > /dev/null 2>&1
+  fi
+}
+
+function createProxy() {
+    cf target -s $proxySpace -o gsa-tts-usagov > /dev/null 2>&1
+    if ! cf apps | grep "^$proxyName " >/dev/null 2>&1; then
+        echo "Pushing proxy '$proxyName' in space '$proxySpace'"
+        cd $SCRIPT_DIR/proxy
+        ./build
+        ./deploy
+    else
+        echo "Proxy '$proxyName' exists"
+    fi
+}
+function startProxy() {
+    cf target -s $proxySpace -o gsa-tts-usagov > /dev/null 2>&1
+    cd $SCRIPT_DIR/proxy
+    if ! proxyIsRunning; then
+        echo "Starting proxy '$proxyName' in space '$proxySpace'"
+        cf start $proxyName
+    else
+        echo "Proxy '$proxyName' is running"
+    fi
+}
+function stopProxy() {
+    cf target -s $proxySpace -o gsa-tts-usagov > /dev/null 2>&1
+    cd $SCRIPT_DIR/proxy
+    if proxyIsRunning; then
+        echo "Stopping proxy '$proxyName' in space '$proxySpace'"
+        cf stop $proxyName
+    else
+        echo "Proxy '$proxyName' is stopped"
+    fi
+}
+function proxyIsRunning() {
+    cf target -s $proxySpace -o gsa-tts-usagov > /dev/null 2>&1
+    cd $SCRIPT_DIR/proxy
+    if ! cf apps | grep "^$proxyName " | grep "started" >/dev/null 2>&1; then
+        return 1
+    fi
+    return 0
+}
+
+
+function createApp() {
+    cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+    cd $SCRIPT_DIR/php
+    if ! cf apps | grep "^$appName " >/dev/null 2>&1; then
+        echo "Pushing app '$appName' in space '$appSpace'"
+        if [ ! -f $SCRIPT_DIR/php/manifest-vars.yml ]; then
+          cp $SCRIPT_DIR/php/manifest-vars.yml.default $SCRIPT_DIR/php/manifest-vars.yml
+        fi
+        cf push $appName --vars-file $SCRIPT_DIR/php/manifest-vars.yml
+    else
+        echo "App '$appName' exists"
+    fi
+}
+function startApp() {
+    cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+    cd $SCRIPT_DIR/php
+    if ! appIsRunning; then
+        echo "Starting app '$appName' in space '$appSpace'"
+        cf start $appName
+    else
+        echo "App '$appName' is running"
+    fi
+}
+function stopApp() {
+    cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+    cd $SCRIPT_DIR/php
+    if appIsRunning; then
+        echo "Stopping app '$appName' in space '$appSpace'"
+        cf stop $appName
+    else
+        echo "App '$appName' is stopped"
+    fi
+}
+function appIsRunning() {
+    cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+    cd $SCRIPT_DIR/php
+    if ! cf apps | grep "^$appName " | grep "started" >/dev/null 2>&1; then
+        return 1
+    fi
+    return 0
+}
+
+function allowAppAccessToProxy() {
+    echo "Allowing app '$appName' access to proxy '$proxyName' in space '$proxySpace'";
+    cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1;
+    cf add-network-policy $appName $proxyName -s $proxySpace -o gsa-tts-usagov --protocol tcp --port 61443;
+    cf add-network-policy $appName $proxyName -s $proxySpace -o gsa-tts-usagov --protocol udp --port 61443;
+    cf add-network-policy $appName $proxyName -s $proxySpace -o gsa-tts-usagov --protocol tcp --port 8080;
+    cf add-network-policy $appName $proxyName -s $proxySpace -o gsa-tts-usagov --protocol tcp --port 80;
+}
+
+function setNewRelicACL() {
+    cf target -s $proxySpace -o gsa-tts-usagov > /dev/null 2>&1
+    if [ "$1" = "1" ]; then
+        echo "Setting ACL to allow access to NewRelic"
+        cf ssh $proxyName -c " \
+            if ! grep newrelic /app/allow.acl > /dev/null; then \
+                echo 'newrelic.com' >> /app/allow.acl; \
+                echo '*.newrelic.com' >> /app/allow.acl; \
+                echo 'gov-collector.newrelic.com' >> /app/allow.acl; \
+                sed -i '/^$/d' /app/allow.acl; \
+                cd /app; \
+                ./caddy reload; \
+            fi; \
+        "
+    elif [ "$1" = "0" ]; then
+        echo "Setting ACL to deny access to NewRelic"
+        cf ssh $proxyName -c " \
+            if grep newrelic /app/allow.acl > /dev/null; then \
+                sed -i 's/.*newrelic.*//' /app/allow.acl; \
+                sed -i '/^$/d' /app/allow.acl; \
+                cd /app; \
+                ./caddy reload; \
+            fi; \
+        "
+    fi
+}
+
+function setNRProxy() {
+    if [ "$1" = "1" ]; then
+        echo "Setting NewRelic Proxy to $proxyName"
+        cf target -s $proxySpace -o gsa-tts-usagov > /dev/null 2>&1;
+        nrproxyroute=$(cf env $proxyName | grep proxy_route | awk '{print $2}' | sed -e "s/https/http/")
+        if [ -z "$nrproxyroute" ]; then
+            echo "ERROR: $proxyName does not have a proxy_route set"
+            return 1
+        fi;
+        cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+        cf set-env $appName nr_proxy $nrproxyroute
+        needsRestage=1
+        setNRProxySSL $2;
+        # if appIsRunning; then
+        #     cf ssh $appName -c "/home/vcap/app/nr-set-proxy.sh 1"
+        # fi
+    elif [ "$1" = "0" ]; then
+        echo "Setting NewRelic Proxy to empty"
+        cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+        cf set-env $appName nr_proxy ""
+        needsRestage=1
+        # if appIsRunning; then
+        #   cf ssh $appName -c "/home/vcap/app/nr-set-proxy.sh 0"
+        # fi
+    fi
+}
+
+
+function setNRProxySSL() {
+    cf target -s $proxySpace -o gsa-tts-usagov > /dev/null 2>&1;
+    nrproxyroute=$(cf env $proxyName | grep proxy_route | awk '{print $2}' | sed -e "s/https/http/")
+    if [ -z "$nrproxyroute" ]; then
+        echo "ERROR: $proxyName does not have a proxy_route set"
+        return 1
+    fi
+    if [ "$1" = "1" ]; then
+        echo "Setting NewRelic Proxy port to 61443"
+        if ! echo "$nrproxyroute" | grep -q ":61443$"; then
+            cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+            nrproxyroute=$(echo "$nrproxyroute" | sed -re "s/:[0-9]+$/:61443/")
+            cf set-env $appName nr_proxy $nrproxyroute
+            needsRestage=1
+            # if appIsRunning; then
+            #     cf ssh $appName -c "/home/vcap/app/nr-set-proxy-ssl.sh 1"
+            # fi
+        fi
+    elif [ "$1" = "0" ]; then
+        echo "Setting NewRelic Proxy port to 8080"
+        if ! echo "$nrproxyroute" | grep -q ":8080$"; then
+            cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+            nrproxyroute=$(echo "$nrproxyroute" | sed -re "s/:[0-9]+$/:8080/")
+            cf set-env $appName nr_proxy $nrproxyroute
+            needsRestage=1
+            # if appIsRunning; then
+            #     cf ssh $appName -c "/home/vcap/app/nr-set-proxy-ssl.sh 1"
+            # fi;
+        fi;
+    fi;
+}
+
+function setHTTPProxy() {
+    if [ "$1" = "1" ]; then
+        echo "Setting http_proxy to $proxyName"
+        cf target -s $proxySpace -o gsa-tts-usagov > /dev/null 2>&1;
+        proxyroute=$(cf env $proxyName | grep proxy_route | awk '{print $2}')
+        if [ -z "$proxyroute" ]; then
+            echo "ERROR: $proxyName does not have a proxy_route set"
+            exit 1
+        fi;
+        cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+        cf set-env $appName https_proxy $proxyroute
+        cf set-env $appName HTTPS_PROXY $proxyroute
+        cf set-env $appName http_proxy $proxyroute
+        cf set-env $appName HTTP_PROXY $proxyroute
+        needsRestage=1
+    elif [ "$1" = "0" ]; then
+        echo "Setting http_proxy to empty"
+        cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+        cf unset-env $appName https_proxy
+        cf unset-env $appName HTTPS_PROXY
+        cf unset-env $appName http_proxy
+        cf unset-env $appName HTTP_PROXY
+        needsRestage=1
+    fi;
+}
+
+function setSpacePublicAccess() {
+    cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+    cf bind-security-group trusted_local_networks_egress gsa-tts-usagov --space $appSpace --lifecycle running
+    if [ "$1" = "1" ]; then
+        echo "Setting space to public"
+        if ! cf security-groups | grep $appSpace | grep -e 'running$' | grep -e '^'public_networks_egress'[[:space:]]' > /dev/null 2>&1; then
+            cf bind-security-group public_networks_egress gsa-tts-usagov --space $appSpace --lifecycle running
+        fi
+    elif [ "$1" = "0" ]; then
+        echo "Setting space to private"
+        if cf security-groups | grep $appSpace | grep -e 'running$' | grep -e '^'public_networks_egress'[[:space:]]' > /dev/null 2>&1; then
+            cf unbind-security-group public_networks_egress gsa-tts-usagov $appSpace --lifecycle running
+        fi
+    fi;
+}
+
+function makeNoise() {
+    echo "Making Noise from inside the app"
+    cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1;
+    cf ssh $appName -c "/home/vcap/app/nr-make-noise.sh ${1:-}";
+
+    echo "Making Web Noise from outside the app"
+    echo "Curl https://$appName-test.app.cloud.gov: $(curl -skI https://$appName-test.app.cloud.gov/ | grep 'HTTP')"
+    echo "Curl https://$appName-test.app.cloud.gov: $(curl -skI https://$appName-test.app.cloud.gov/ | grep 'HTTP')"
+    echo
+}
+
+function restartApp() {
+    echo "Restarting $appName";
+    cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1;
+    cf restart $appName;
+}
+function maybeRestageApp() {
+    if [ "$needsRestage" = "1" ]; then
+        echo "App $appName needs a restaging with HTTPProxy($1)";
+        cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1;
+        if [ "$1" = "1" ]; then
+            echo "Restaging $appName with http_proxy empty";
+            setHTTPProxy 0;
+            cf restage $appName;
+            echo "Restarting $appName with http_proxy set";
+            setHTTPProxy 1;
+            cf restart $appName;
+        elif [ "$1" = "0" ]; then
+            echo "Restaging $appName with http_proxy set";
+            cf restage $appName;
+        else
+            echo "ERROR: Invalid HTTPProxy value [$1]";
+        fi
+    else
+        echo "App $appName does not need to be restaged";
+    fi
+}
+function restageApp() {
+    echo "App $appName needs a restaging with HTTPProxy($1)";
+    cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1;
+    if [ "$1" = "1" ]; then
+        echo "Restaging $appName with http_proxy empty";
+        setHTTPProxy 0;
+        cf restage $appName;
+        echo "Restarting $appName with http_proxy set";
+        setHTTPProxy 1;
+        cf restart $appName;
+    elif [ "$1" = "0" ]; then
+        echo "Restaging $appName with http_proxy set";
+        cf restage $appName;
+    else
+        cf restage $appName;
+        echo "ERROR: Invalid HTTPProxy value [$1]";
+    fi
+}
+
+function makeAllLocalLogs() {
+    for aTestName in "00000" "00001" "00010" "00011" "00100" "00101" "00110" "00111" "01000" "01001" "01010" "01011" "01100" "01101" "01110" "01111" "10000" "10001" "10010" "10011" "10100" "10101" "10110" "10111" "11000" "11001" "11010" "11011" "11100" "11101" "11110" "11111"; do
+        makeLocalLogs $aTestName
+    done;
+}
+function makeLocalLogs() {
+    echo "Making logs for $1"
+    mkdir -p $SCRIPT_DIR/logs/$1;
+
+    touch $SCRIPT_DIR/logs/$1/cloudgov.log;
+    touch $SCRIPT_DIR/logs/$1/security-groups.log;
+    touch $SCRIPT_DIR/logs/$1/proxy.log;
+
+    touch $SCRIPT_DIR/logs/$1/newrelic-agent.log;
+    touch $SCRIPT_DIR/logs/$1/newrelic-daemon.log;
+    touch $SCRIPT_DIR/logs/$1/newrelic-process-list.log;
+
+    touch $SCRIPT_DIR/logs/$1/php-info.log;
+    touch $SCRIPT_DIR/logs/$1/php-ini.log;
+    touch $SCRIPT_DIR/logs/$1/boot.log;
+
+    touch $SCRIPT_DIR/logs/$1/test.log;
+}
+
+function pullLogs() {
+    echo "Pulling logs for $appName";
+    mkdir -p $SCRIPT_DIR/logs/$testName;
+
+    if [ -f $SCRIPT_DIR/logs/$testName/.has.success.messages ]; then
+      rm -f $SCRIPT_DIR/logs/$testName/.has.success.messages;
+    fi
+    if [ -f $SCRIPT_DIR/logs/$testName/.has.failure.messages ]; then
+      rm -f $SCRIPT_DIR/logs/$testName/.has.failure.messages;
+    fi
+
+    cf target -s $proxySpace -o gsa-tts-usagov > /dev/null 2>&1;
+    cf logs $proxyName --recent > $SCRIPT_DIR/logs/$testName/proxy.log;
+
+    cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1;
+    cf logs $appName --recent > $SCRIPT_DIR/logs/$testName/cloudgov.log;
+
+    # cf security-groups | grep $appSpace | grep -e 'running$' > ./logs/$testName/security-groups.log;
+    cf security-groups | grep -E "[[:space:]]($appSpace|<all>)[[:space:]]" | grep 'running$' > $SCRIPT_DIR/logs/$testName/security-groups.log;
+
+    cf ssh $appName -c "cat /home/vcap/app/logs/newrelic.log" > $SCRIPT_DIR/logs/$testName/newrelic-agent.log;
+    cf ssh $appName -c "cat /home/vcap/app/logs/newrelic-daemon.log" > $SCRIPT_DIR/logs/$testName/newrelic-daemon.log;
+    cf ssh $appName -c "ps aux | grep newrelic-daemon | grep -v grep" > $SCRIPT_DIR/logs/$testName/newrelic-process-list.log;
+
+    cf ssh $appName -c "/home/vcap/app/php/bin/php -c /home/vcap/app/php/etc/ -i | grep newrelic" > $SCRIPT_DIR/logs/$testName/php-info.log;
+    cf ssh $appName -c "cat /home/vcap/app/php/etc/php.ini | grep newrelic | grep -v grep" > $SCRIPT_DIR/logs/$testName/php-ini.log;
+
+    cf ssh $appName -c "cat /tmp/bootstrap.log" > $SCRIPT_DIR/logs/$testName/boot.log;
+
+    success_message=$(grep "command='connect'" $SCRIPT_DIR/logs/$testName/newrelic-daemon.log | grep -v 'response={}|response={null}|response={\[\]}')
+    success_message="${success_message} $(grep \"command='analytic_event_data'\" $SCRIPT_DIR/logs/$testName/newrelic-daemon.log | grep -v 'response={}|response={null}|response={\[\]}')"
+    success_message=$(echo "$success_message" | sed -E '/^[[:space:]]*$/d')
+    if echo "$success_message" | grep -qe '\S'; then
+        echo "$success_message" > $SCRIPT_DIR/logs/$testName/.has.success.messages;
+    fi
+
+    failure_message=$(grep "command='connect'" $SCRIPT_DIR/logs/$testName/newrelic-daemon.log | grep 'response={}|response={null}|response={\[\]}')
+    failure_message="${failure_message} $(grep 'attempt to perform preconnect failed' $SCRIPT_DIR/logs/$testName/newrelic-daemon.log)"
+    failure_message="${failure_message} $(grep 'unexpected EOF' $SCRIPT_DIR/logs/$testName/newrelic-daemon.log)"
+    failure_message=$(echo "$failure_message" | sed -E '/^[[:space:]]*$/d')
+    if echo "$failure_message" | grep -qe '\S'; then
+        echo "$failure_message" > $SCRIPT_DIR/logs/$testName/.has.failure.messages;
+    fi
+}
+
+function setupTestingState() {
+    echo "Testing: Space-Public-Access($1), NR-in-ACL($2), HTTPProxy($3), NRProxy($4), NRProxySSL($5)";
+
+    setSpacePublicAccess $1;
+    setNewRelicACL $2;
+    setHTTPProxy $3;
+    setNRProxy $4 $5;
+
+    restartApp;
+    # restageApp $3;
+}
+
+function runTest() {
+    echo;
+    echo "--------------------------------------";
+    echo $(date +%H:%M)" Test [${1}${2}${3}${4}${5}]";
+    export testName="${1}${2}${3}${4}${5}";
+    makeLocalLogs $testName
+    cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1;
+    cd $SCRIPT_DIR/php;
+    cf stop $appName
+    setupTestingState $1 $2 $3 $4 $5;
+    cf start $appName
+    echo
+    NOISE_DATE=$(date +%H:%M)
+    echo "$NOISE_DATE Test [${1}${2}${3}${4}${5}]";
+    # ... waiting for 3 mins";
+    rm -f $SCRIPT_DIR/logs/$testName/.noise.at.*
+    touch $SCRIPT_DIR/logs/$testName/.noise.at.$NOISE_DATE
+    # makeNoise; sleep 30; makeNoise; sleep 30;
+    # makeNoise; sleep 30; makeNoise; sleep 30;
+    # makeNoise; sleep 30; makeNoise; sleep 30;
+    pullLogs;
+    echo
+    echo $(date +%H:%M)" Test [${1}${2}${3}${4}${5}] Stopping $appName";
+    stopApp;
+    # sleep 120;
+}
+
+createProxy;
+createApp;
+allowAppAccessToProxy;
+makeAllLocalLogs;
+
+# Space-Public-Access($1), NewRelic-in-ACL($2), HTTPProxy($3), NRProxy($4), NRPoxySSL($5)
+
+runTest 0 1 0 0 0 | tee $SCRIPT_DIR/logs/01000/test.log;
+# runTest 0 1 0 0 1 | tee $SCRIPT_DIR/logs/01001/test.log;
+# runTest 0 1 0 1 0 | tee $SCRIPT_DIR/logs/01010/test.log;
+# runTest 0 1 0 1 1 | tee $SCRIPT_DIR/logs/01011/test.log;
+
+# runTest 0 0 0 0 0 | tee $SCRIPT_DIR/logs/00000/test.log;
+# runTest 0 0 0 0 1 | tee $SCRIPT_DIR/logs/00001/test.log;
+# runTest 0 0 0 1 0 | tee $SCRIPT_DIR/logs/00010/test.log;
+# runTest 0 0 0 1 1 | tee $SCRIPT_DIR/logs/00011/test.log;
+# runTest 0 0 1 0 0 | tee $SCRIPT_DIR/logs/00100/test.log;
+# runTest 0 0 1 0 1 | tee $SCRIPT_DIR/logs/00101/test.log;
+# runTest 0 0 1 1 0 | tee $SCRIPT_DIR/logs/00110/test.log;
+# runTest 0 0 1 1 1 | tee $SCRIPT_DIR/logs/00111/test.log;
+# runTest 0 1 0 0 0 | tee $SCRIPT_DIR/logs/01000/test.log;
+# runTest 0 1 0 0 1 | tee $SCRIPT_DIR/logs/01001/test.log;
+# runTest 0 1 0 1 0 | tee $SCRIPT_DIR/logs/01010/test.log;
+# runTest 0 1 0 1 1 | tee $SCRIPT_DIR/logs/01011/test.log;
+# runTest 0 1 1 0 0 | tee $SCRIPT_DIR/logs/01100/test.log;
+# runTest 0 1 1 0 1 | tee $SCRIPT_DIR/logs/01101/test.log;
+# runTest 0 1 1 1 0 | tee $SCRIPT_DIR/logs/01110/test.log;
+# runTest 0 1 1 1 1 | tee $SCRIPT_DIR/logs/01111/test.log;
+
+# runTest 1 0 0 0 0 | tee $SCRIPT_DIR/logs/10000/test.log;
+# runTest 1 0 0 0 1 | tee $SCRIPT_DIR/logs/10001/test.log;
+# runTest 1 0 0 1 0 | tee $SCRIPT_DIR/logs/10010/test.log;
+# runTest 1 0 0 1 1 | tee $SCRIPT_DIR/logs/10011/test.log;
+# runTest 1 0 1 0 0 | tee $SCRIPT_DIR/logs/10100/test.log;
+# runTest 1 0 1 0 1 | tee $SCRIPT_DIR/logs/10101/test.log;
+# runTest 1 0 1 1 0 | tee $SCRIPT_DIR/logs/10110/test.log;
+# runTest 1 0 1 1 1 | tee $SCRIPT_DIR/logs/10111/test.log;
+# runTest 1 1 0 0 0 | tee $SCRIPT_DIR/logs/11000/test.log;
+# runTest 1 1 0 0 1 | tee $SCRIPT_DIR/logs/11001/test.log;
+# runTest 1 1 0 1 0 | tee $SCRIPT_DIR/logs/11010/test.log;
+# runTest 1 1 0 1 1 | tee $SCRIPT_DIR/logs/11011/test.log;
+# runTest 1 1 1 0 0 | tee $SCRIPT_DIR/logs/11100/test.log;
+# runTest 1 1 1 0 1 | tee $SCRIPT_DIR/logs/11101/test.log;
+# runTest 1 1 1 1 0 | tee $SCRIPT_DIR/logs/11110/test.log;
+# runTest 1 1 1 1 1 | tee $SCRIPT_DIR/logs/11111/test.log;
+
+echo "Finished tests";
+popspace;
