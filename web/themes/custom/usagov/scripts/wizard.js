@@ -9,19 +9,20 @@ function wizardError() {
         if ( selected == true ) {
             document.getElementById("msg").innerHTML = "";
             document.getElementById("msg").removeAttribute("tabindex", "-1");
-            dataLayer.push({'Wizard_Success':'Begin'});
+            dataLayer.push({'event':'Wizard_Begin'});
         return true;
         }
         else if (document.getElementsByTagName('html')[0].getAttribute('lang') == "en" ) {
-            document.getElementById("msg").innerHTML = "Please choose one option";
+            document.getElementById("msg").innerHTML = "Error:Please choose one of the following options";
             document.getElementById("msg").focus();
         } 
         else {
-            document.getElementById("msg").innerHTML = "Por favor elija una opción";
+            document.getElementById("msg").innerHTML = "Error:Por favor elija una opción";
             document.getElementById("msg").focus();
         }
     }
-    dataLayer.push({'Wizard_Error':'Begin'});
+    dataLayer.push({'event':'Wizard_Error','button':'Begin'});
+    return false;
 }
 
 
