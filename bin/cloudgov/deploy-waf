@@ -11,7 +11,7 @@ if [ -f $SCRIPT_DIR/env.local ]; then
   . $SCRIPT_DIR/env.local
 fi
 
-DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CTAG=${1:-latest}
 CDIGEST=${2:-}
