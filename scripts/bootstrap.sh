@@ -7,6 +7,12 @@ if [ -z "${VCAP_SERVICES:-}" ]; then
     exit 1;
 fi
 
+if [ ! -f /container_start_timestamp ]; then
+  touch /container_start_timestamp
+  chmod a+r /container_start_timestamp
+  echo "$(date +'%s')" > /container_start_timestamp
+fi
+
 SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
 SECAUTHSECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secauthsecrets") | .credentials')
 
@@ -133,6 +139,12 @@ fi
 if [ -d /var/run/s6/services/nginx ]; then
   echo "Asking nginx to reload conf ... "
   s6-svc -h /var/run/s6/services/nginx
+fi
+
+if [ ! -d /var/www/private ]; then
+  echo "Creating private directory ... "
+  mkdir /var/www/private
+  chown nginx:nginx /var/www/private
 fi
 
 if [ -n "${FIX_FILE_PERMS:-}" ]; then
