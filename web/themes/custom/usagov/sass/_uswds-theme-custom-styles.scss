@@ -77,7 +77,7 @@ i.e.
 }
 
 .usa-button:visited {
-  /* 
+  /*
 This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
 Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
 */
@@ -297,7 +297,7 @@ add padding at the top of the cards
   background-color: color("blue-warm-80v");
 }
 
-/** This is to minimize the size of the logo in 
+/** This is to minimize the size of the logo in
 *   tablet and mobile
 **/
 
@@ -736,7 +736,7 @@ a {
     font-size: 1.1rem;
   }
 }
-  
+
 .desktop\:grid-col-8 .body-copy {
   // Add margin only on content pages
   margin-top: 2.5rem;
@@ -785,8 +785,8 @@ a {
   }
 }
 
-//Last Updated
-.last {
+//Last Updated, Share and Survey
+.additional_body_info {
   padding-top: 75px;
 }
 
