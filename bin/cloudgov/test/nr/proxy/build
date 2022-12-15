@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "Building New Relic proxy"
+
+docker build --force-rm \
+    -t egress-binary-builder \
+    -f ./Dockerfile ./src-egress
+
+docker run --name egress-builder-tmp -d egress-binary-builder tail -f /dev/null
+docker cp egress-builder-tmp:/usr/bin/caddy ./src-egress/caddy
+docker stop egress-builder-tmp
+docker rm egress-builder-tmp

@@ -1,0 +1,13 @@
+---
+applications:
+- name: nr-php
+  buildpacks:
+    - php_buildpack
+  memory: 128M
+  disk_quota: 5G
+  timeout: 180
+  instances: 1
+  routes:
+    - route: nr-php-test.app.cloud.gov
+  env:
+    NEWRELIC_LICENSE: ((newrelic_license))
