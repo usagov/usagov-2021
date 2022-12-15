@@ -311,4 +311,8 @@
 </footer>
 
 {# usagov tagline code #}
-{% include directory ~ '/html-blocks/footer-identifier.html' %}
+{% if lang =="es" %}
+	{% include directory ~ '/html-blocks/footer-identifier-spanish.html' %}
+{% else %}
+	{% include directory ~ '/html-blocks/footer-identifier.html' %}
+{% endif %}
