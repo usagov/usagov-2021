@@ -180,22 +180,14 @@
 	</a>
 </main>
 
-<footer
-	class="{{ footer_classes }}" role="contentinfo">
-
+<footer	class="{{ footer_classes }}" role="contentinfo">
 	{% if lang =="es" %}
-		{% include 'block--primaryfooterspanish.html.twig' %}
-		{% include 'block--secondaryfooterspanish.html.twig' %}
+			{% include directory ~ '/html-blocks/footer-primary-spanish.html' %}
+			{% include directory ~ '/html-blocks/footer-secondary-spanish.html' %}
+			{% include directory ~ '/html-blocks/footer-identifier-spanish.html' %}
 	{% else %}
-		{% include 'block--primaryfooterenglish.html.twig' %}
-		{% include 'block--secondaryfooterenglish.html.twig' %}
+		{% include directory ~ '/html-blocks/footer-primary.html' %}
+		{% include directory ~ '/html-blocks/footer-secondary.html' %}
+		{% include directory ~ '/html-blocks/footer-identifier.html' %}
 	{% endif %}
-
 </footer>
-
-{# usagov tagline code #}
-{% if lang =="es" %}
-	{% include directory ~ '/html-blocks/footer-identifier-spanish.html' %}
-{% else %}
-	{% include directory ~ '/html-blocks/footer-identifier.html' %}
-{% endif %}
