@@ -2,7 +2,7 @@
 applications:
 - name: cms
   docker:
-    image: dnark/usagov-2021:cms-latest
+    image: gsatts/usagov-2021:cms-latest
   memory: 1.5G
   disk_quota: 4G
   timeout: 180
@@ -15,7 +15,7 @@ applications:
   health-check-type: process
 - name: waf
   docker:
-    image: dnark/usagov-2021:waf-latest
+    image: gsatts/usagov-2021:waf-latest
   disk_quota: 1G
   memory: 256M
   services:
@@ -34,27 +34,27 @@ applications:
       allow 18.116.191.222;
       allow 18.116.197.208;
       allow 18.189.206.159;
-      allow 18.190.68.80; 
+      allow 18.190.68.80;
       allow 18.216.137.252;
       allow 18.223.191.8;
       allow 3.13.121.241;
-      allow 3.133.38.181; 
-      allow 3.135.49.180; 
-      allow 3.136.111.218; 
-      allow 3.138.54.100; 
-      allow 18.219.35.44; 
+      allow 3.133.38.181;
+      allow 3.135.49.180;
+      allow 3.136.111.218;
+      allow 3.138.54.100;
+      allow 18.219.35.44;
       allow 18.157.140.51;
       allow 18.159.218.224;
-      allow 18.196.205.2; 
-      allow 18.198.120.55; 
-      allow 3.124.26.114; 
-      allow 3.125.99.135; 
+      allow 18.196.205.2;
+      allow 18.198.120.55;
+      allow 3.124.26.114;
+      allow 3.125.99.135;
       allow 3.64.159.177;
-      allow 3.66.247.32; 
-      allow 3.68.122.244; 
-      allow 52.57.167.198; 
-      allow 35.158.180.204; 
+      allow 3.66.247.32;
+      allow 3.68.122.244;
+      allow 52.57.167.198;
+      allow 35.158.180.204;
       allow 18.192.147.131;
-      allow 52.58.146.230; 
-      allow 185.229.145.22; 
-      allow 3.129.126.175; 
+      allow 52.58.146.230;
+      allow 185.229.145.22;
+      allow 3.129.126.175;

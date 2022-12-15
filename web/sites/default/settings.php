@@ -528,7 +528,7 @@ $settings['update_free_access'] = FALSE;
  * See https://www.drupal.org/documentation/modules/file for more information
  * about securing private files.
  */
-# $settings['file_private_path'] = '';
+$settings['file_private_path'] = '/var/www/private';
 
 /**
  * Temporary file path:
@@ -541,7 +541,7 @@ $settings['update_free_access'] = FALSE;
  *
  * @see \Drupal\Component\FileSystem\FileSystem::getOsTemporaryDirectory()
  */
-# $settings['file_temp_path'] = '/tmp';
+$settings['file_temp_path'] = '/tmp';
 
 /**
  * Session write interval:
@@ -904,20 +904,30 @@ $settings['php_storage']['twig']['directory'] = '../storage/php';
 // included here without fully understanding implications:
 $settings['cache']['bins']['data'] = 'cache.backend.php';
 
+$settings['trusted_host_patterns'] = [];
+
 if (!empty($cf_application_data['space_name']) &&
     in_array($cf_application_data['space_name'],
-             ['dev', 'stage', 'prod'])) {
+             ['local','dev', 'stage', 'prod'])) {
   switch (strtolower($cf_application_data['space_name'])) {
+    case "local":
+      $settings['trusted_host_patterns'][] = '^cms-local.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-local-usagov.apps.internal$';
+      break;
+
     case "dev":
-      $settings['trusted_host_patterns'] = ['^cms-dev.usa.gov$'];
+      $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-dev-usagov.apps.internal$';
       break;
 
     case "stage":
-      $settings['trusted_host_patterns'] = ['^cms-stage.usa.gov$'];
+      $settings['trusted_host_patterns'][] = '^cms-stage.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-stage-usagov.apps.internal$';
       break;
 
     case "prod":
-      $settings['trusted_host_patterns'] = ['^cms.usa.gov$'];
+      $settings['trusted_host_patterns'][] = '^cms.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-prod-usagov.apps.internal$';
       break;
   }
 }

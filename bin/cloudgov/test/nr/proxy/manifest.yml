@@ -1,0 +1,19 @@
+---
+version: 1
+applications:
+  - name: ((proxyname))
+    path: ./src-egress
+    buildpacks:
+      - https://github.com/cloudfoundry/apt-buildpack
+      - binary_buildpack
+    routes:
+      - route: ((hostname)).apps.internal
+    health-check-type: process
+    instances: 1
+    memory: 64M
+    command: ./start.sh
+    env:
+      PROXY_USERNAME: ((username))
+      PROXY_PASSWORD: ((password))
+      PROXY_DENY: ((proxydeny))
+      PROXY_ALLOW: ((proxyallow))

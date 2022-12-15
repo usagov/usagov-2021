@@ -57,6 +57,7 @@ function main($infile, $extended_infile, $outdir) {
 
   $headings = array_merge($extended_headings, $basic_headings);
   $out_files = [];
+  $out_files['synonyms'] = []; // for a separate file mapping mothership_uuid to langcode, synonyms.
   $num_records = 0; // We'll count them on output, just so we can report.
 
   // Define headings for a "reviewer's" CSV file. This will include a subset of the
@@ -107,6 +108,15 @@ function main($infile, $extended_infile, $outdir) {
     }
     $out_files[$hint][] = $flat_record;
 
+    // Add to the Synonym file, if appropriate:
+    if ($basic_record['Synonym']) {
+      $out_files['synonyms'][] = [
+        $basic_record['UUID'],
+        $basic_record['langcode'],
+        $basic_record['Synonym'],
+      ];
+    }
+
     // Combine the records into a different flat array for the reviewer's csv:
     $review_record = [];
     foreach ($reviewer_headings as $col) {
@@ -121,6 +131,7 @@ function main($infile, $extended_infile, $outdir) {
       }
     }
     $out_files[$reviewer_csv][] = $review_record;
+
   }
 
   print("$num_records records\n");
@@ -139,7 +150,7 @@ function main($infile, $extended_infile, $outdir) {
 }
 
 /**
- * Map and convert selected fields. Returns an array indexed by field name. Modifies the $indexes inputs.
+ * Map and convert selected fields. Returns an array indexed by field name. Modifies $indexes.
  *
  * @param Array $row
  * @param Array $indexes
