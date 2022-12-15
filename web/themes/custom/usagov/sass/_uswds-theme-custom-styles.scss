@@ -77,7 +77,7 @@ i.e.
 }
 
 .usa-button:visited {
-  /* 
+  /*
 This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
 Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
 */
@@ -104,7 +104,12 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-card__body.padding-top-0 {
   padding-top: 0;
 }
-
+/* 
+add padding at the top of the cards 
+*/
+.usa-card-group {
+  padding-top: 60px;
+}
 /** This to change the link color for the 
 *   header and footer links
 **/
@@ -292,7 +297,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
   background-color: color("blue-warm-80v");
 }
 
-/** This is to minimize the size of the logo in 
+/** This is to minimize the size of the logo in
 *   tablet and mobile
 **/
 
@@ -727,11 +732,11 @@ a {
 }
 
 @media (max-width: 30em) {
-  .usa-alert, .usa-prose, .usa-table, .usa-form, .usa-radio__label, .usa-footer {
+  .usa-alert, .usa-prose, .usa-table, .usa-form, .usa-radio__label, .usa-footer, .usa-nav .usa-accordion, .usa-accordian__heading, .text-primary-lighter, .usa-hero, .usa-identifier, .usa-label {
     font-size: 1.1rem;
   }
 }
-  
+
 .desktop\:grid-col-8 .body-copy {
   // Add margin only on content pages
   margin-top: 2.5rem;
@@ -780,8 +785,8 @@ a {
   }
 }
 
-//Last Updated
-.last {
+//Last Updated, Share and Survey
+.additional_body_info {
   padding-top: 75px;
 }
 
