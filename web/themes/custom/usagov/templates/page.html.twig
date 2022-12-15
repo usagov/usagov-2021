@@ -182,132 +182,15 @@
 
 <footer
 	class="{{ footer_classes }}" role="contentinfo">
-	{#<div class="grid-container usa-footer__return-to-top">
-	        <a href="#">{{ 'Return to top'|t }}</a>
-	    </div>#}
 
-	{% if display_footer_primary %}
-		<div class="usa-footer__primary-section">
-			<div class="usa-footer__primary-content">
-				{% if footer_style != 'medium' %}
-					<div class="grid-container">
-						<div class="grid-row grid-gap">
-						{% endif %}
-						{% if page.footer_menu %}
-							{{ page.footer_menu }}
-						{% endif %}
-						{% if footer_slim and (footer_phone or footer_email) %}
-							<div class="mobile-lg:grid-col-4">
-								<address class="usa-footer__address">
-									<div class="grid-row grid-gap mobile-lg:grid-gap-0">
-										{% if footer_phone %}
-											<div class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto">
-												<div class="usa-footer-contact_info">
-													<a href="tel:{{ footer_phone }}">{{ footer_phone }}</a>
-												</div>
-											</div>
-										{% endif %}
-										{% if footer_email %}
-											<div class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto">
-												<div class="usa-footer-contact_info">
-													<a href="mailto:{{ footer_email }}">{{ footer_email }}</a>
-												</div>
-											</div>
-										{% endif %}
-									</div>
-								</address>
-							</div>
-						{% endif %}
-						{% if footer_style != 'medium' %}
-						</div>
-					</div>
-				{% endif %}
-				{% if page.footer %}
-					{{ page.footer }}
-				{% endif %}
-			</div>
-		</div>
+	{% if lang =="es" %}
+		{% include 'block--primaryfooterspanish.html.twig' %}
+		{% include 'block--secondaryfooterspanish.html.twig' %}
+	{% else %}
+		{% include 'block--primaryfooterenglish.html.twig' %}
+		{% include 'block--secondaryfooterenglish.html.twig' %}
 	{% endif %}
-	{% if display_footer_secondary %}
-		{% if display_footer_agency %}
-			<div class="usa-footer__logo grid-row mobile-lg:grid-col-6 mobile-lg:grid-gap-2">
-				{% if footer_agency_url %}
-					<a href="{{ footer_agency_url }}">
-					{% endif %}
-					{% if footer_agency_logo %}
-						<div class="mobile-lg:grid-col-auto">
-							<img class="usa-footer__logo-img" src="{{ footer_agency_logo }}" alt="{{ 'Agency logo'|t }}"/>
-						</div>
-					{% endif %}
-					{% if footer_agency_name %}
-						<div class="mobile-lg:grid-col-auto">
-							<h3 class="usa-footer__logo-heading">{{ footer_agency_name }}</h3>
-						</div>
-					{% endif %}
-					{% if footer_agency_url %}
-					</a>
-				{% endif %}
-			</div>
 
-			{% if not footer_slim %}
-				<div class="usa-footer__contact-links desktop:grid-col-6">
-					{% if facebook or twitter or youtube or rss %}
-						<div class="usa-footer__social-links grid-row grid-gap-1">
-							{% if facebook %}
-								<div class="grid-col-auto">
-									<a class="usa-social-link usa-social-link--facebook" href="{{ facebook }}">
-										<span>Facebook</span>
-									</a>
-								</div>
-							{% endif %}
-							{% if twitter %}
-								<div class="grid-col-auto">
-									<a class="usa-social-link usa-social-link--twitter" href="{{ twitter }}">
-										<span>Twitter</span>
-									</a>
-								</div>
-							{% endif %}
-							{% if youtube %}
-								<div class="grid-col-auto">
-									<a class="usa-social-link usa-social-link--youtube" href="{{ youtube }}">
-										<span>YouTube</span>
-									</a>
-								</div>
-							{% endif %}
-							{% if rss %}
-								<div class="grid-col-auto">
-									<a class="usa-social-link usa-social-link--rss" href="{{ rss }}">
-										<span>RSS</span>
-									</a>
-								</div>
-							{% endif %}
-						</div>
-					{% endif %}
-					{% if contact_center %}
-						<h3 class="usa-footer__contact-heading">{{ contact_center }}</h3>
-					{% endif %}
-					<address class="usa-footer__address">
-						<div class="usa-footer__contact-info grid-row grid-gap">
-							{% if phone %}
-								<div class="grid-col-auto">
-									<a href="tel:{{ phone }}">{{ phone }}</a>
-								</div>
-							{% endif %}
-							{% if email %}
-								<div class="grid-col-auto">
-									<a href="mailto:{{ email }}">{{ email }}</a>
-								</div>
-							{% endif %}
-						</div>
-					</address>
-				</div>
-			{% endif %}
-		{% endif %}
-
-		{% if page.footer_secondary %}
-			{{ page.footer_secondary }}
-		{% endif %}
-	{% endif %}
 </footer>
 
 {# usagov tagline code #}
