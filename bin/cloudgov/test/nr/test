@@ -394,6 +394,7 @@ function runTest() {
     # ... waiting for 3 mins";
     rm -f $SCRIPT_DIR/logs/$testName/.noise.at.*
     touch $SCRIPT_DIR/logs/$testName/.noise.at.$NOISE_DATE
+    makeNoise;
     # makeNoise; sleep 30; makeNoise; sleep 30;
     # makeNoise; sleep 30; makeNoise; sleep 30;
     # makeNoise; sleep 30; makeNoise; sleep 30;
@@ -411,9 +412,8 @@ makeAllLocalLogs;
 
 # Space-Public-Access($1), NewRelic-in-ACL($2), HTTPProxy($3), NRProxy($4), NRPoxySSL($5)
 
-runTest 0 1 0 0 0 | tee $SCRIPT_DIR/logs/01000/test.log;
-runTest 0 1 0 0 1 | tee $SCRIPT_DIR/logs/01001/test.log;
-# runTest 0 1 0 1 0 | tee $SCRIPT_DIR/logs/01010/test.log;
+#runTest 0 1 0 1 0 | tee $SCRIPT_DIR/logs/01010/test.log;
+#runTest 0 1 1 1 0 | tee $SCRIPT_DIR/logs/01110/test.log;
 
 # runTest 0 1 0 1 1 | tee $SCRIPT_DIR/logs/01011/test.log;
 # runTest 0 1 1 1 0 | tee $SCRIPT_DIR/logs/01110/test.log;

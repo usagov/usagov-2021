@@ -3,7 +3,8 @@
 # doesn't check for the existence of the the thumbnail of an uploaded file
 
 export HTTPS_TEST_URL="https://www.pandemicoversight.gov/version.txt";
-export AWS_TEST_URL="https://s3-us-gov-west-1.amazonaws.com";
+export AWS_S3_DOMAIN="s3-us-gov-west-1.amazonaws.com";
+export AWS_TEST_URL="https://${AWS_S3_DOMAIN}";
 export EXISTING_BETA_FILE_FROM_S3="https://beta.usa.gov/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png";
 export EXISTING_CMS_FILE_FROM_S3="https://cms.usa.gov/s3/files/2022-03/Banner_img_Housing.png";
 export EXISTING_LOCAL_FILE="2022-03/Banner_img_Housing.png";
@@ -18,27 +19,32 @@ function runTests {
   # getInfoDrupalTransports;
   # testDrupalStreamWrapperPublic;
   # testDrupalStreamWrapperPrivate;
-  testDrupalStreamWrapperS3;
+  testThatCurlCanReachAWS;
+  # testThatAWSClientCanReachAWS;
+  # testDrupalStreamWrapperS3;
 }
 
 function testThatCurlCanReachAWS {
   # curl can reach aws host from the commandline
-  echo
+  echo cf ssh cms -c ". /etc/profile; . /var/www/scripts/setup-aws-cli.sh; curl -skI https://\${S3_BUCKET}.${AWS_S3_DOMAIN};"
+  cf ssh cms -c ". /etc/profile; . /var/www/scripts/setup-aws-cli.sh; curl -skI https://\${S3_BUCKET}.${AWS_S3_DOMAIN};"
 }
 
 
 function testThatAWSClientCanReachAWS {
   # aws client can reach aws from the commandline
-  echo
+  echocf ssh cms -c ". /etc/profile; . /var/www/scripts/setup-aws-cli.sh; aws s3 ls s3://\${BUCKET_NAME};"
+  cf ssh cms -c ". /etc/profile; . /var/www/scripts/setup-aws-cli.sh; aws s3 ls s3://\${BUCKET_NAME};"
 }
 
 function testThatNGINXCanReadS3 {
   # nginx can respond with proxies files living in s3
-  echo
+  echo cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"\$client = \Drupal::httpClient; \$response = \$client->get('$EXISTING_BETA_FILE_FROM_S3'); print_r(\$response); echo \"\nStatus Code: \".\$response->getStatusCode.\"\n\";"
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"\$client = \Drupal::httpClient; \$response = \$client->get('$EXISTING_BETA_FILE_FROM_S3'); print_r(\$response); echo \"\nStatus Code: \".\$response->getStatusCode.\"\n\";"
 }
 
 function testThatPHPCanReachAWS {
-  # php can initiate a connection to aws
+  # php can initiate asconnection to aws
   echo cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"$response = file_get_contents('$AWS_TEST_URL')); print_r($http_response_header);\""
   cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"$response = file_get_contents('$AWS_TEST_URL')); print_r($http_response_header);\""
 }
@@ -61,18 +67,6 @@ function testDrupalStreamWrapperS3 {
   # independantly check for existance of the file via aws cli
 }
 
-function testDrupalImageDerivationPublic {
-  echo "Expecting Drush to generate a thumbnail for $EXISTING_LOCAL_FILE"
-
-  echo cf ssh cms -c ". /etc/profile; drush --root=/var/www/ image-derive thumbnail public://$EXISTING_LOCAL_FILE"
-  cf ssh cms -c ". /etc/profile; drush --root=/var/www/ image-derive thumbnail public://$EXISTING_LOCAL_FILE"
-}
-function testDrupalImageDerivationS3 {
-  echo "Expecting Drush to generate a thumbnail for $EXISTING_LOCAL_FILE"
-
-  echo cf ssh cms -c ". /etc/profile; drush --root=/var/www/ image-derive thumbnail s3://public/$EXISTING_LOCAL_FILE"
-  cf ssh cms -c ". /etc/profile; drush --root=/var/www/ image-derive thumbnail s3://public/$EXISTING_LOCAL_FILE"
-}
 
 function testDrupalStreamWrapperPublic {
   echo "Expecting to write and read $RUNTIME to public://$TEST_FILE_FOR_S3"
@@ -109,6 +103,22 @@ function testDrupalStreamWrapperHTTPS {
   # drupal can use the https:// stream wrapper to read to a non-s3 file
   cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('$HTTPS_TEST_URL'));\""
 }
+
+
+function testDrupalImageDerivationPublic {
+  echo "Expecting Drush to generate a thumbnail for $EXISTING_LOCAL_FILE"
+
+  echo cf ssh cms -c ". /etc/profile; drush --root=/var/www/ image-derive thumbnail public://$EXISTING_LOCAL_FILE"
+  cf ssh cms -c ". /etc/profile; drush --root=/var/www/ image-derive thumbnail public://$EXISTING_LOCAL_FILE"
+}
+function testDrupalImageDerivationS3 {
+  echo "Expecting Drush to generate a thumbnail for $EXISTING_LOCAL_FILE"
+
+  echo cf ssh cms -c ". /etc/profile; drush --root=/var/www/ image-derive thumbnail s3://public/$EXISTING_LOCAL_FILE"
+  cf ssh cms -c ". /etc/profile; drush --root=/var/www/ image-derive thumbnail s3://public/$EXISTING_LOCAL_FILE"
+}
+
+
 
 function getInfoPHPTransports {
   echo
