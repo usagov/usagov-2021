@@ -71,6 +71,27 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
 }
 
 /**
+ * To allow for the hiding of menu items with page type set to Standard Page- Nav Hidden.
+ *
+ */
+function usa_twig_vars_preprocess_menu__sidebar_first(&$variables, $hook) {
+  if ($hook === 'menu') {
+    $node = \Drupal::routeMatch()->getParameter('node');
+    if (is_object($node) && method_exists($node, 'getFields')) {
+      if ($node->getFields()['field_page_type'] != NULL
+          && !empty($node->getFields()['field_page_type']->getValue())
+          && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
+        $term_id = $node->getFields()['field_page_type']->getValue()[0]['target_id'];
+        $term = Term::load($term_id);
+        $term_name = $term ? $term->get('name')->value : '';
+      }
+        $variables['pagetype'] = $term_name ?? 'content_page';
+        unset($term_name);
+      }
+    }
+  }
+
+/**
  * Remove field_page_intro content if field_hide_page_intro is set to TRUE.
  *
  * @param mixed $variables
@@ -141,3 +162,4 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
   $alpha_context = &drupal_static('usa_twig_vars_preprocess_view_federal_agencies');
   $variables['alpha_context'] = $alpha_context;
 }
+
