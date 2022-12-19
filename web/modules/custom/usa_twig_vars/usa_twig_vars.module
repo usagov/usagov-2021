@@ -75,19 +75,17 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
  *
  */
 function usa_twig_vars_preprocess_menu__sidebar_first(&$variables, $hook) {
-  if ($hook === 'menu') {
-    $node = \Drupal::routeMatch()->getParameter('node');
-    if (is_object($node) && method_exists($node, 'getFields')) {
-      if ($node->getFields()['field_page_type'] != NULL
-          && !empty($node->getFields()['field_page_type']->getValue())
-          && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
-        $term_id = $node->getFields()['field_page_type']->getValue()[0]['target_id'];
-        $term = Term::load($term_id);
-        $term_name = $term ? $term->get('name')->value : '';
-      }
-        $variables['pagetype'] = $term_name ?? 'content_page';
-        unset($term_name);
-      }
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if (is_object($node) && method_exists($node, 'getFields')) {
+    if ($node->getFields()['field_page_type'] != NULL
+        && !empty($node->getFields()['field_page_type']->getValue())
+        && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
+      $term_id = $node->getFields()['field_page_type']->getValue()[0]['target_id'];
+      $term = Term::load($term_id);
+      $term_name = $term ? $term->get('name')->value : '';
+    }
+      $variables['pagetype'] = $term_name ?? 'content_page';
+      unset($term_name);
     }
   }
 
