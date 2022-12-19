@@ -19,14 +19,8 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
   if ($hook === 'html') {
     $node = \Drupal::routeMatch()->getParameter('node');
     $isFront = \Drupal::service('path.matcher')->isFrontPage();
+
     if (is_object($node) && method_exists($node, 'getFields')) {
-      if ($node->getFields()['field_page_type'] != NULL
-          && !empty($node->getFields()['field_page_type']->getValue())
-          && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
-        $term_id = $node->getFields()['field_page_type']->getValue()[0]['target_id'];
-        $term = Term::load($term_id);
-        $term_name = $term ? $term->get('name')->value : '';
-      }
       // Check if the page is not front page.
       if ($isFront == 1) {
         $isFront = 'homepage';
@@ -62,8 +56,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         $variables['id'] = $node->id();
         $variables['front'] = $isFront;
         $variables['nodetype'] = $special_node_type ?: $node_real_type;
-        $variables['pagetype'] = $term_name ?? 'content_page';
-        unset($term_name);
+        $variables['pagetype'] = get_page_type($node);
         unset($isFront);
       }
     }
@@ -77,17 +70,20 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
 function usa_twig_vars_preprocess_menu__sidebar_first(&$variables, $hook) {
   $node = \Drupal::routeMatch()->getParameter('node');
   if (is_object($node) && method_exists($node, 'getFields')) {
-    if ($node->getFields()['field_page_type'] != NULL
-        && !empty($node->getFields()['field_page_type']->getValue())
-        && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
-      $term_id = $node->getFields()['field_page_type']->getValue()[0]['target_id'];
-      $term = Term::load($term_id);
-      $term_name = $term ? $term->get('name')->value : '';
-    }
-      $variables['pagetype'] = $term_name ?? 'content_page';
-      unset($term_name);
-    }
+    $variables['pagetype'] = get_page_type($node);
   }
+}
+
+function get_page_type(&$node){
+  if ($node->getFields()['field_page_type'] != NULL
+      && !empty($node->getFields()['field_page_type']->getValue())
+      && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
+    $term_id = $node->getFields()['field_page_type']->getValue()[0]['target_id'];
+    $term = Term::load($term_id);
+    $page_type = $term ? $term->get('name')->value : '';
+    return $page_type ?? 'content_page';
+  }
+}
 
 /**
  * Remove field_page_intro content if field_hide_page_intro is set to TRUE.
@@ -109,6 +105,8 @@ function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
     }
   }
 }
+
+
 
 /**
  * Add context to the federal_agencies view to allow us to show the current letter,
