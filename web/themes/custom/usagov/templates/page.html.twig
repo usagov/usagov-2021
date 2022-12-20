@@ -52,240 +52,136 @@
 {% set lang = node.langcode.value %}
 {% set content_type = "" %}
 {% if node.type.0 != null %}
-    {% set content_type = node.type.0.target_id %}
+	{% set content_type = node.type.0.target_id %}
 {% endif %}
 
 {% set term_name = "" %}
 {% if node.field_page_type.0 != null %}
-    {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
+	{% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
 {% endif %}
 
 {% set show_sidebar = true %}
 {% if term_name == "Navigation Cards Page" or term_name == "Life Events" or term_name == "Life Events Landing Page" %}
-    {% set show_sidebar = false %}
+	{% set show_sidebar = false %}
 {% endif %}
 
 {% if government_banner %}
-  <section class="usa-banner">
-    {{ government_banner }}
-  </section>
+	<section class="usa-banner">
+		{{ government_banner }}
+	</section>
 {% endif %}
 
 <div class="usa-overlay"></div>
 
 <header class="{{ header_classes }}" id="header" role="banner">
-    {% if page.header_top %}
-    <div class="usa-banner-inner">
-        {{ page.header_top }}
-    </div>
-    {% endif %} {% if header_basic %}
-    <div class="usa-nav-container">
-        {% endif %} {{ page.header }}
+	{% if page.header_top %}
+		<div class="usa-banner-inner">
+			{{ page.header_top }}
+		</div>
+	{% endif %}
+	{% if header_basic %}
+		<div class="usa-nav-container">
+		{% endif %}
+		{{ page.header }}
 
-        {#<nav class="usa-nav" role="navigation">
-            {% if header_extended %}
-            <div class="usa-nav__inner">
-                {% endif %}
-                <button class="usa-nav__close">
-                    <img src="{{ uswds_images }}close.svg" alt="close" />
-                </button>
-                {% if page.mobile_menu %}
-                <div class="usa-nav-mobile">
-                    {{ page.mobile_menu }}
-                </div>
-                {% endif %} {% if page.mobile_menu %}
-                <div class="usa-nav-desktop">
-                    {% endif %} {% if page.primary_menu %} {{ page.primary_menu }} {% endif %} {% if page.secondary_menu %} {{ page.secondary_menu }} {% endif %} {% if page.mobile_menu %}
-                </div>
-                {% endif %} {% if header_extended %}
-            </div>
-            {% endif %}
-        </nav>#}
+		{#<nav class="usa-nav" role="navigation">
+		            {% if header_extended %}
+		            <div class="usa-nav__inner">
+		                {% endif %}
+		                <button class="usa-nav__close">
+		                    <img src="{{ uswds_images }}close.svg" alt="close" />
+		                </button>
+		                {% if page.mobile_menu %}
+		                <div class="usa-nav-mobile">
+		                    {{ page.mobile_menu }}
+		                </div>
+		                {% endif %} {% if page.mobile_menu %}
+		                <div class="usa-nav-desktop">
+		                    {% endif %} {% if page.primary_menu %} {{ page.primary_menu }} {% endif %} {% if page.secondary_menu %} {{ page.secondary_menu }} {% endif %} {% if page.mobile_menu %}
+		                </div>
+		                {% endif %} {% if header_extended %}
+		            </div>
+		            {% endif %}
+		        </nav>#}
 
-        {% if header_basic %}
-    </div>
-    {% endif %}
+		{% if header_basic %}
+		</div>
+	{% endif %}
 </header>
 
 {% if page.hero %}
-<section class="usa-hero">
-    <div class="grid-container">
-        {{ page.hero }}
-    </div>
-</section>
+	<section class="usa-hero">
+		<div class="grid-container">
+			{{ page.hero }}
+		</div>
+	</section>
 {% endif %}
 
-<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
-    {# link is in html.html.twig #}
+<main
+	class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+	{# link is in html.html.twig #}
 
-    <div class="grid-container">
-        {% if page.breadcrumb or page.highlighted or page.help %}
-        <div class="grid-row">
-            {{ page.breadcrumb }}
-        </div>
+	<div class="grid-container">
+		{% if page.breadcrumb or page.highlighted or page.help %}
+			<div class="grid-row">
+				{{ page.breadcrumb }}
+			</div>
 
-        <div class="">
-            {{ page.highlighted }}
-        </div>
+			<div class="">
+				{{ page.highlighted }}
+			</div>
 
-        {# Help #} {% if page.help %}
-        <div class="grid-row">
-            {{ page.help }}
-        </div>
-        {% endif %} {% endif %}
+			{# Help #}
+			{% if page.help %}
+				<div class="grid-row">
+					{{ page.help }}
+				</div>
+			{% endif %}
+		{% endif %}
 
-        <div class="grid-row grid-gap">
-            {% if page.sidebar_first and show_sidebar %}
-                <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first" role="complementary">
-                    {{ page.sidebar_first }}
-                </aside>
-            {% endif %}
+		<div class="grid-row grid-gap">
+			{% if page.sidebar_first and show_sidebar %}
+				<aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first" role="complementary">
+					{{ page.sidebar_first }}
+				</aside>
+			{% endif %}
 
-            <div class="usa-layout-docs__main usa-prose desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
-                {{ page.content }}
+			<div class="usa-layout-docs__main usa-prose desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
+				{{ page.content }}
 
-            <div class="additional_body_info">
-                {% if (term_name == "" or term_name == "Standard Page") and not is_front or (content_type == "Federal Directory Record") or (content_type == "State Directory Record") %}
-                {% if node.changed.value %}
-                    <p class="last">{{ lang == 'en' ? 'Last updated: ' : 'Última actualización: '}}
-                    {% set date = node.changed.value %}
-                    {% include '@usagov/dates.html.twig' %}
-                    </p>
-                {% endif %}
-                {% endif %}
+				{% if (term_name == "" or term_name == "Standard Page") and not is_front or (content_type == "Federal Directory Record") or (content_type == "State Directory Record") %}
+					{% if node.changed.value %}
+						<p class="last">{{ lang == 'en' ? 'Last updated: ' : 'Última actualización: '}}
+							{% set date = node.changed.value %}
+							{% include '@usagov/dates.html.twig' %}
+						</p>
+					{% endif %}
+				{% endif %}
 
-                {% include '@usagov/sharethispage.html.twig' %}
-                {% include '@usagov/haveaquestion.html.twig' %}
+				{% include '@usagov/sharethispage.html.twig' %}
+				{% include '@usagov/haveaquestion.html.twig' %}
 
-                {% if (term_name == "" or term_name == "Standard Page") and not is_front %}
-                    <div id="pagesurvey-qual-container"></div>
-                    <div id="pagesurvey-trgt-qualtrics"></div>
-                {% endif %}
-                </div>
-            </div>
-            {# /.layout-content #} {% if page.sidebar_second %}
-            <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-second" role="complementary">
-                {{ page.sidebar_second }}
-            </aside>
-            {% endif %}
-        </div>
-    </div>
+				{% if (term_name == "" or term_name == "Standard Page") and not is_front %}
+					<div id="pagesurvey-qual-container"></div>
+					<div id="pagesurvey-trgt-qualtrics"></div>
+				{% endif %}
+			</div>
+			{# /.layout-content #}
+			{% if page.sidebar_second %}
+				<aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-second" role="complementary">
+					{{ page.sidebar_second }}
+				</aside>
+			{% endif %}
+		</div>
+	</div>
 
-    <a id="back-to-top" href="#main-content">
-        {{ lang == 'en' ? 'Top' : 'Subir' }}
-    </a>
+	<a id="back-to-top" href="#main-content">
+		{{ lang == 'en' ? 'Top' : 'Subir' }}
+	</a>
 </main>
 
-<footer class="{{ footer_classes }}" role="contentinfo">
-    {#<div class="grid-container usa-footer__return-to-top">
-        <a href="#">{{ 'Return to top'|t }}</a>
-    </div>#}
-
-    {% if display_footer_primary %}
-    <div class="usa-footer__primary-section">
-        <div class="usa-footer__primary-content">
-            {% if footer_style != 'medium' %}
-            <div class="grid-container">
-                <div class="grid-row grid-gap">
-                    {% endif %} {% if page.footer_menu %} {{ page.footer_menu }} {% endif %} {% if footer_slim and (footer_phone or footer_email) %}
-                    <div class="mobile-lg:grid-col-4">
-                        <address class="usa-footer__address">
-                            <div class="grid-row grid-gap mobile-lg:grid-gap-0">
-                                {% if footer_phone %}
-                                <div class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto">
-                                    <div class="usa-footer-contact_info">
-                                        <a href="tel:{{ footer_phone }}">{{ footer_phone }}</a>
-                                    </div>
-                                </div>
-                                {% endif %} {% if footer_email %}
-                                <div class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto">
-                                    <div class="usa-footer-contact_info">
-                                        <a href="mailto:{{ footer_email }}">{{ footer_email }}</a>
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </address>
-                    </div>
-                    {% endif %} {% if footer_style != 'medium' %}
-                </div>
-            </div>
-            {% endif %} {% if page.footer %} {{ page.footer }} {% endif %}
-        </div>
-    </div>
-    {% endif %} {% if display_footer_secondary %} {% if display_footer_agency %}
-    <div class="usa-footer__logo grid-row mobile-lg:grid-col-6 mobile-lg:grid-gap-2">
-        {% if footer_agency_url %}
-        <a href="{{ footer_agency_url }}">
-            {% endif %} {% if footer_agency_logo %}
-            <div class="mobile-lg:grid-col-auto">
-                <img class="usa-footer__logo-img" src="{{ footer_agency_logo }}" alt="{{ 'Agency logo'|t }}" />
-            </div>
-            {% endif %} {% if footer_agency_name %}
-            <div class="mobile-lg:grid-col-auto">
-                <h3 class="usa-footer__logo-heading">{{ footer_agency_name }}</h3>
-            </div>
-            {% endif %} {% if footer_agency_url %}
-        </a>
-        {% endif %}
-    </div>
-
-    {% if not footer_slim %}
-    <div class="usa-footer__contact-links desktop:grid-col-6">
-        {% if facebook or twitter or youtube or rss %}
-        <div class="usa-footer__social-links grid-row grid-gap-1">
-            {% if facebook %}
-            <div class="grid-col-auto">
-                <a class="usa-social-link usa-social-link--facebook" href="{{ facebook }}">
-                    <span>Facebook</span>
-                </a>
-            </div>
-            {% endif %} {% if twitter %}
-            <div class="grid-col-auto">
-                <a class="usa-social-link usa-social-link--twitter" href="{{ twitter }}">
-                    <span>Twitter</span>
-                </a>
-            </div>
-            {% endif %} {% if youtube %}
-            <div class="grid-col-auto">
-                <a class="usa-social-link usa-social-link--youtube" href="{{ youtube }}">
-                    <span>YouTube</span>
-                </a>
-            </div>
-            {% endif %} {% if rss %}
-            <div class="grid-col-auto">
-                <a class="usa-social-link usa-social-link--rss" href="{{ rss }}">
-                    <span>RSS</span>
-                </a>
-            </div>
-            {% endif %}
-        </div>
-        {% endif %} {% if contact_center %}
-        <h3 class="usa-footer__contact-heading">{{ contact_center }}</h3>
-        {% endif %}
-        <address class="usa-footer__address">
-            <div class="usa-footer__contact-info grid-row grid-gap">
-                {% if phone %}
-                <div class="grid-col-auto">
-                    <a href="tel:{{ phone }}">{{ phone }}</a>
-                </div>
-                {% endif %} {% if email %}
-                <div class="grid-col-auto">
-                    <a href="mailto:{{ email }}">{{ email }}</a>
-                </div>
-                {% endif %}
-            </div>
-        </address>
-    </div>
-    {% endif %}
-  {% endif %}
-
-  {% if page.footer_secondary %}
-    {{ page.footer_secondary }}
-  {% endif %}
-  {% endif %}
+<footer	class="{{ footer_classes }}" role="contentinfo">
+	{% include '@usagov/footer-primary.html.twig' %}
+	{% include '@usagov/footer-secondary.html.twig' %}
+	{% include '@usagov/footer-identifier.html.twig' %}
 </footer>
-{# usagov tagline code #}
-{% if page.footer_identifier %}
-  {{ page.footer_identifier }}
-{% endif %}
