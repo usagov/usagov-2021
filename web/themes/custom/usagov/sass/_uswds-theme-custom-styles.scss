@@ -104,10 +104,10 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-card__body.padding-top-0 {
   padding-top: 0;
 }
-/*
-add padding at the top of the cards
+/* 
+add padding at the top of flag cards 
 */
-.usa-card-group {
+.paragraph--type--uswds-card-group-flag .usa-card-group {
   padding-top: 60px;
 }
 /** This to change the link color for the
