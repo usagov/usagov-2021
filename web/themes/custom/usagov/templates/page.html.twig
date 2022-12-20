@@ -182,12 +182,12 @@
 
 <footer	class="{{ footer_classes }}" role="contentinfo">
 	{% if lang =="es" %}
-		{% include directory ~ '/html-blocks/footer-primary-spanish.html' %}
-		{% include directory ~ '/html-blocks/footer-secondary-spanish.html' %}
-		{% include directory ~ '/html-blocks/footer-identifier-spanish.html' %}
+		{% include '@usagov/footer-primary-spanish.html' %}
+		{% include '@usagov/footer-secondary-spanish.html' %}
+		{% include '@usagov/footer-identifier-spanish.html' %}
 	{% else %}
-		{% include directory ~ '/html-blocks/footer-primary.html' %}
-		{% include directory ~ '/html-blocks/footer-secondary.html' %}
-		{% include directory ~ '/html-blocks/footer-identifier.html' %}
+		{% include '@usagov/footer-primary.html' %}
+		{% include '@usagov/footer-secondary.html' %}
+		{% include '@usagov/footer-identifier.html' %}
 	{% endif %}
 </footer>
