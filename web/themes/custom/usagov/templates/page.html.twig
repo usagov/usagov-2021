@@ -181,13 +181,7 @@
 </main>
 
 <footer	class="{{ footer_classes }}" role="contentinfo">
-	{% if lang =="es" %}
-		{% include directory ~ '/html-blocks/footer-primary-spanish.html' %}
-		{% include directory ~ '/html-blocks/footer-secondary-spanish.html' %}
-		{% include directory ~ '/html-blocks/footer-identifier-spanish.html' %}
-	{% else %}
-		{% include directory ~ '/html-blocks/footer-primary.html' %}
-		{% include directory ~ '/html-blocks/footer-secondary.html' %}
-		{% include directory ~ '/html-blocks/footer-identifier.html' %}
-	{% endif %}
+	{% include '@usagov/footer-primary.html.twig' %}
+	{% include '@usagov/footer-secondary.html.twig' %}
+	{% include '@usagov/footer-identifier.html.twig' %}
 </footer>
