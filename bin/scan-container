@@ -13,7 +13,7 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 APPNAME=${1:-cms}
