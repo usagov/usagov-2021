@@ -181,12 +181,7 @@
 </main>
 
 <footer	class="{{ footer_classes }}" role="contentinfo">
-	{% if lang =="es" %}
-		{% include '@usagov/footer-primary-spanish.html.twig' %}
-	{% else %}
-		{% include '@usagov/footer-primary.html.twig' %}
-	{% endif %}
-{% include '@usagov/footer-secondary.html.twig' %}
-{% include '@usagov/footer-identifier.html.twig' %}
-
+	{% include '@usagov/footer-primary.html.twig' %}
+	{% include '@usagov/footer-secondary.html.twig' %}
+	{% include '@usagov/footer-identifier.html.twig' %}
 </footer>
