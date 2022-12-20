@@ -104,13 +104,13 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-card__body.padding-top-0 {
   padding-top: 0;
 }
-/* 
-add padding at the top of the cards 
+/*
+add padding at the top of the cards
 */
 .usa-card-group {
   padding-top: 60px;
 }
-/** This to change the link color for the 
+/** This to change the link color for the
 *   header and footer links
 **/
 .usa-nav__secondary-links a,
@@ -932,4 +932,18 @@ div #sm-share a {
 
 .usa-error--alert {
   display: none;
+}
+.currentMenuItem {
+  position:relative
+}
+.currentMenuItem::after {
+  background-color: #00bde3;
+  border-radius: 0;
+  content: "";
+  display: block;
+  position: absolute;
+  height: .25rem;
+  left: 1rem;
+  right: 1rem;
+  bottom: 0;
 }
