@@ -59,6 +59,31 @@ function main($infile, $extended_infile, $outdir) {
   $out_files = [];
   $out_files['synonyms'] = []; // for a separate file mapping mothership_uuid to langcode, synonyms.
   $num_records = 0; // We'll count them on output, just so we can report.
+
+  // Define headings for a "reviewer's" CSV file. This will include a subset of the
+  // set of fields, with an entry for every federal agency record.
+  $reviewer_csv = 'federal_agencies_from_mothership';
+  $reviewer_headings = [
+    'Title', 'Language', 'Show on AZ Index', 'Summary', 'Government branch',
+    'Synonym', 'Email',
+    'Street 1', 'Street 2', 'Street 3', 'City', 'State', 'ZIP',
+  ];
+  // Add the variable number of phone columns from basic headings:
+  foreach (['phone_', 'toll_', 'tty_'] as $phonetype) {
+    $reviewer_headings = array_merge($reviewer_headings, array_filter($basic_headings, fn($e) => str_contains($e, $phonetype)));
+  }
+  // Add the variable link columns from extended headings:
+  foreach (['contactLinks_', 'websiteLinks_', 'officeLinks_'] as $linktype) {
+    $reviewer_headings = array_merge($reviewer_headings, array_filter($extended_headings, fn($e) => str_contains($e, $linktype)));
+  }
+  $reviewer_headings = array_merge($reviewer_headings, [
+    'English Toggle', 'Spanish Toggle', 'alias', 'UUID', 'UNUSED --->',
+    'Acronym', 'Agency', 'Agency Tags', 'Alpha-order-name', 'Archive Date', 'CAH Description',
+    'CFO Agency', 'Child Records', 'Comments', 'English Translation Name', 'Owner',
+    'Parent Record', 'Date Last Reviewed', 'Post date', 'Updated date',
+  ]);
+  $out_files[$reviewer_csv] = [$reviewer_headings];
+
   foreach ($basic_records_by_uuid as $uuid => $basic_record) {
     $extended_record = $extended_records_by_uuid[$uuid];
 
@@ -83,6 +108,7 @@ function main($infile, $extended_infile, $outdir) {
     }
     $out_files[$hint][] = $flat_record;
 
+    // Add to the Synonym file, if appropriate:
     if ($basic_record['Synonym']) {
       $out_files['synonyms'][] = [
         $basic_record['UUID'],
@@ -90,7 +116,24 @@ function main($infile, $extended_infile, $outdir) {
         $basic_record['Synonym'],
       ];
     }
+
+    // Combine the records into a different flat array for the reviewer's csv:
+    $review_record = [];
+    foreach ($reviewer_headings as $col) {
+      if (array_key_exists($col, $basic_record)) {
+        $review_record[] = $basic_record[$col] ?: '';
+      }
+      elseif (array_key_exists($col, $extended_record)) {
+        $review_record[] = $extended_record[$col] ?: '';
+      }
+      else {
+        $review_record[] = '';
+      }
+    }
+    $out_files[$reviewer_csv][] = $review_record;
+
   }
+
   print("$num_records records\n");
 
   foreach ($out_files as $hint => $data) {
