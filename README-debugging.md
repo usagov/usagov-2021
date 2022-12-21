@@ -52,12 +52,6 @@ Use ssh, substituting the value you got from the first command for PROCESS_GUID 
  % ssh -p 2222 -R 9003:localhost:9003 cf:PROCESS_GUID/0@ssh.fr.cloud.gov
 ```
 
-Today, the ssh command above looks like this:
-
-```
- % ssh -p 2222 -R 9003:localhost:9003 cf:9def0121-c7e9-4969-9b42-31f40d5d7cd4/0@ssh.fr.cloud.gov
-``` 
-
 You will be prompted for a password; type in what you got from "cf ssh-code".
 
 Now you should be looking at a shell prompt, and if all went well, you can start the debugger in VSCode, set a breakpoint, and get php on the CMS app to connect to it by going to https://cms-dev.usa.gov?XDEBUG_SESSION_START=foo . (Any page will do, and any value works in place of "foo.")
