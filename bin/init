@@ -108,9 +108,8 @@ echo "Install Drupal modules"
 bin/composer install --no-interaction --optimize-autoloader
 
 echo "Build theme"
-bin/npm install --legacy-peer-deps
-bin/npm rebuild node-sass
-bin/npm run build
+bin/npm install
+bin/npm run init
 
 
 echo "Init process complete"
