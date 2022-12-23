@@ -19,12 +19,12 @@ function runTests {
   # getInfoPHPTransports;
   # getInfoDrupalWrappers;
   # getInfoDrupalTransports;
-  # testThatDrupalCanReachAWS;
   testDrupalStreamWrapperPublic;
   # testDrupalStreamWrapperPrivate;
   # testDrupalStreamWrapperS3;
   # testDrupalStreamWrapperHTTPS;
-  testThatPHPCanReachAWS;
+  # testThatPHPCanReachAWS;
+  # testThatDrupalCanReachAWS;  
   # testThatCurlCanReachAWS;
   # testThatAWSClientCanReachAWS;
   # testDrupalImageDerivationPublic;
@@ -53,14 +53,20 @@ function testThatNGINXCanReadS3 {
 function testThatPHPCanReachAWS {
   echo "Expecting to read from $AWS_TEST_URL_FOR_DEV (written by another test)"
   # php can read a file from AWS without Drupal
-  echo cf ssh cms -c ". /etc/profile; php -r \"print_r(file_get_contents('$AWS_TEST_URL_FOR_DEV'));\""
-  cf ssh cms -c ". /etc/profile; php -r \"print_r(file_get_contents('$AWS_TEST_URL_FOR_DEV'));\""
+  echo cf ssh cms -c ". /etc/profile; export HTTPS_PROXY=https://F5D1B783-35A4-4252-8DE9-E3D18FB01560:850626D8-ED91-4A9D-9BC4-D41AB99885CF@dev-proxy.apps.internal:61443;  php -r \"print_r(file_get_contents('$AWS_TEST_URL_FOR_DEV'));\""
+  cf ssh cms -c ". /etc/profile; export HTTPS_PROXY=https://F5D1B783-35A4-4252-8DE9-E3D18FB01560:850626D8-ED91-4A9D-9BC4-D41AB99885CF@dev-proxy.apps.internal:61443; php -r \"print_r(file_get_contents('$AWS_TEST_URL_FOR_DEV'));\""
 }
 
+# function testThatDrupalCanReachAWS {
+#   # drupal can initiate a connection to aws through drush
+#   echo cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"\$client = \Drupal::httpClient; \$response = \$client->get('$AWS_TEST_URL_FOR_DEV'); print_r(\$response); echo \"\nStatus Code: \".\$response->getStatusCode.\"\n\";"
+#   cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"\$client = \Drupal::httpClient; \$response = \$client->get('$AWS_TEST_URL_FOR_DEV'); print_r(\$response); echo \"\nStatus Code: \".\$response->getStatusCode.\"\n;\""
+# }
+
 function testThatDrupalCanReachAWS {
-  # drupal can initiate a connection to aws through drush
-  echo cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"\$client = \Drupal::httpClient; \$response = \$client->get('$AWS_TEST_URL'); print_r(\$response); echo \"\nStatus Code: \".\$response->getStatusCode.\"\n\";"
-  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"\$client = \Drupal::httpClient; \$response = \$client->get('$AWS_TEST_URL'); print_r(\$response); echo \"\nStatus Code: \".\$response->getStatusCode.\"\n\";"
+    # Test that file_get_contents works through drush on the https s3 URL.
+    echo ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('$AWS_TEST_URL_FOR_DEV'));\""
+    cf ssh cms -c ". /etc/profile; printenv HTTPS_PROXY; drush ev --root=/var/www/ \"var_dump(file_get_contents('$AWS_TEST_URL_FOR_DEV'));\""
 }
 
 function testDrupalStreamWrapperS3 {
@@ -83,8 +89,20 @@ function testDrupalStreamWrapperPublic {
   echo cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_put_contents('public://$TEST_FILE_FOR_S3','$RUNTIME'));\""
   cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_put_contents('public://$TEST_FILE_FOR_S3','$RUNTIME'));\""
 
-  echo cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('public://$TEST_FILE_FOR_S3'));\""
-  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('public://$TEST_FILE_FOR_S3'));\""
+  echo ""
+  echo "EXISTING CONFIGURATION:" 
+  echo cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('public://$TEST_FILE_FOR_S3'));\""  
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('public://$TEST_FILE_FOR_S3'));\""  
+
+  echo "" 
+  echo "CLEAR HTTPS_PROXY:"
+  echo cf ssh cms -c ". /etc/profile; export HTTPS_PROXY=''; drush ev --root=/var/www/ \"var_dump(file_get_contents('public://$TEST_FILE_FOR_S3'));\""
+  cf ssh cms -c ". /etc/profile; export HTTPS_PROXY=''; drush ev --root=/var/www/ \"var_dump(file_get_contents('public://$TEST_FILE_FOR_S3'));\""
+
+  echo ""
+  echo "EXPLICITLY SET HTTPS_PROXY:"
+  echo cf ssh cms -c ". /etc/profile; export HTTPS_PROXY='https://120E7B8E-3ABF-4EB1-9E4D-5B22CD99D9BA:BE8E78EC-0A01-44A2-83A2-9677DCC64528@stage-proxy.apps.internal:61443'; drush ev --root=/var/www/ \"var_dump(file_get_contents('public://$TEST_FILE_FOR_S3'));\""
+  cf ssh cms -c ". /etc/profile; export HTTPS_PROXY='https://120E7B8E-3ABF-4EB1-9E4D-5B22CD99D9BA:BE8E78EC-0A01-44A2-83A2-9677DCC64528@stage-proxy.apps.internal:61443'; drush ev --root=/var/www/ \"var_dump(file_get_contents('public://$TEST_FILE_FOR_S3'));\""
 
   # independantly check for existance of the file via aws cli
 }
