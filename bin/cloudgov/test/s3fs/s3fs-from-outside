@@ -8,7 +8,9 @@ export AWS_TEST_URL="https://${AWS_S3_DOMAIN}";
 export EXISTING_BETA_FILE_FROM_S3="https://beta.usa.gov/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png";
 export EXISTING_CMS_FILE_FROM_S3="https://cms.usa.gov/s3/files/2022-03/Banner_img_Housing.png";
 export EXISTING_LOCAL_FILE="2022-03/Banner_img_Housing.png";
+# export EXISTING_LOCAL_FILE="2022-12/retro-bg-2.png";
 export TEST_FILE_FOR_S3="test.txt";
+export AWS_TEST_URL_FOR_DEV="https://cg-cd5efae4-00e9-4b94-afac-63ba9e871b93.s3-fips.us-gov-west-1.amazonaws.com/cms/public/${TEST_FILE_FOR_S3}";
 export RUNTIME=$(date);
 
 function runTests {
@@ -17,11 +19,16 @@ function runTests {
   # getInfoPHPTransports;
   # getInfoDrupalWrappers;
   # getInfoDrupalTransports;
-  # testDrupalStreamWrapperPublic;
+  # testThatDrupalCanReachAWS;
+  testDrupalStreamWrapperPublic;
   # testDrupalStreamWrapperPrivate;
-  testThatCurlCanReachAWS;
-  # testThatAWSClientCanReachAWS;
   # testDrupalStreamWrapperS3;
+  # testDrupalStreamWrapperHTTPS;
+  testThatPHPCanReachAWS;
+  # testThatCurlCanReachAWS;
+  # testThatAWSClientCanReachAWS;
+  # testDrupalImageDerivationPublic;
+  # testDrupalImageDerivationS3;
 }
 
 function testThatCurlCanReachAWS {
@@ -33,7 +40,7 @@ function testThatCurlCanReachAWS {
 
 function testThatAWSClientCanReachAWS {
   # aws client can reach aws from the commandline
-  echocf ssh cms -c ". /etc/profile; . /var/www/scripts/setup-aws-cli.sh; aws s3 ls s3://\${BUCKET_NAME};"
+  echo cf ssh cms -c ". /etc/profile; . /var/www/scripts/setup-aws-cli.sh; aws s3 ls s3://\${BUCKET_NAME};"
   cf ssh cms -c ". /etc/profile; . /var/www/scripts/setup-aws-cli.sh; aws s3 ls s3://\${BUCKET_NAME};"
 }
 
@@ -44,9 +51,10 @@ function testThatNGINXCanReadS3 {
 }
 
 function testThatPHPCanReachAWS {
-  # php can initiate asconnection to aws
-  echo cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"$response = file_get_contents('$AWS_TEST_URL')); print_r($http_response_header);\""
-  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"$response = file_get_contents('$AWS_TEST_URL')); print_r($http_response_header);\""
+  echo "Expecting to read from $AWS_TEST_URL_FOR_DEV (written by another test)"
+  # php can read a file from AWS without Drupal
+  echo cf ssh cms -c ". /etc/profile; php -r \"print_r(file_get_contents('$AWS_TEST_URL_FOR_DEV'));\""
+  cf ssh cms -c ". /etc/profile; php -r \"print_r(file_get_contents('$AWS_TEST_URL_FOR_DEV'));\""
 }
 
 function testThatDrupalCanReachAWS {
@@ -136,14 +144,14 @@ function getInfoPHPWrappers {
 
 function getInfoDrupalTransports {
   echo
-  echo "PHP stream_get_transports:"
+  echo "PHP stream_get_transports via drush:"
   echo cf ssh cms -c '. /etc/profile; drush ev --root=/var/www/ "print_r(stream_get_transports());"'
   cf ssh cms -c '. /etc/profile; drush ev --root=/var/www/ "print_r(stream_get_transports());"'
 }
 
 function getInfoDrupalWrappers {
   echo
-  echo "PHP stream_get_wrappers:"
+  echo "PHP stream_get_wrappers via drush:"
   echo cf ssh cms -c '. /etc/profile; drush ev --root=/var/www/ "print_r(stream_get_wrappers());"'
   cf ssh cms -c '. /etc/profile; drush ev --root=/var/www/ "print_r(stream_get_wrappers());"'
 }
