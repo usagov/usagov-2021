@@ -48,9 +48,11 @@
 
 
 
-  .usa-card__img{
+  .usa-card__img, &.usa-card--media-right .usa-card__img{
     border-top-left-radius: unset;
     border-bottom-left-radius: unset;
+    border-top-right-radius: unset;
+    border-bottom-right-radius: unset;
   }
 
   .usa-card__container .usa-card__header .usa-card__heading .card-link{
