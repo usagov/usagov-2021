@@ -62,7 +62,7 @@
         "drupal/pathauto": "^1.8",
         "drupal/redirect": "^1.6",
         "drupal/remove_http_headers": "^1.0",
-        "drupal/s3fs": "3.0.0-beta4",
+        "drupal/s3fs": "^3.1",
         "drupal/scanner": "^1.0@RC",
         "drupal/scheduled_publish": "^3.9",
         "drupal/scheduled_transitions": "^2.0",

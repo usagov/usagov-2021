@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c0c0c5f4303832e310df84f7d2a2ae9c",
+    "content-hash": "21d08163fe2af6efdece3d5160bb9ddd",
     "packages": [
         {
             "name": "alchemy/zippy",
@@ -6308,24 +6308,24 @@
         },
         {
             "name": "drupal/s3fs",
-            "version": "3.0.0-beta4",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/s3fs.git",
-                "reference": "8.x-3.0-beta4"
+                "reference": "8.x-3.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/s3fs-8.x-3.0-beta4.zip",
-                "reference": "8.x-3.0-beta4",
-                "shasum": "740f65a9f999c4a914b2ce7732785b229b162363"
+                "url": "https://ftp.drupal.org/files/projects/s3fs-8.x-3.1.zip",
+                "reference": "8.x-3.1",
+                "shasum": "8de42701f4ce25c2c16c9efe28e605a712f1be9e"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.18",
-                "drupal/core": "^8.8 || ^9"
+                "drupal/core": "^8.8 || ^9 || ~10.0.0"
             },
             "require-dev": {
-                "drush/drush": "^10.0"
+                "drush/drush": "^10 || ^11"
             },
             "suggest": {
                 "doctrine/cache": "~1.4"
@@ -6333,11 +6333,11 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-3.0-beta4",
-                    "datestamp": "1639032055",
+                    "version": "8.x-3.1",
+                    "datestamp": "1670992386",
                     "security-coverage": {
-                        "status": "not-covered",
-                        "message": "Beta releases are not covered by Drupal security advisories."
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
                     }
                 }
             },
