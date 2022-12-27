@@ -1,0 +1,198 @@
+<div class="usa-footer__primary-section">
+  <div class="grid-container">
+    <div class="grid-row grid-gap">
+
+      <div class="tablet:grid-col-8">
+        <nav class="usa-footer__nav" aria-label="Footer navigation">
+          <div class="grid-row grid-gap-4">
+
+            <div class="mobile-lg:grid-col-6 desktop:grid-col-3">
+
+              <section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
+                <h3 class="usa-gov-footer__primary-link">
+                  {{ lang == 'en' ? "Government information" : "Información del Gobierno" }}
+                </h3>
+                <ul class="usa-list usa-list--unstyled">
+                  <li class="usa-footer__secondary-link">
+                    {% if lang =="en" %}
+                      <a href="/#all_topics">
+                        All topics and services
+                      </a>
+                    {% else %}
+                      <a href="/es#all_topics">
+                        Todos los temas y servicios
+                      </a>
+                    {% endif %}
+                  </li>
+                  <li class="usa-footer__secondary-link">
+                    {% if lang =="en" %}
+                      <a href="https://www.usa.gov/federal-agencies">
+                        Directory of U.S. government agencies and departments
+                      </a>
+                    {% else %}
+                      <a href="https://www.usa.gov/espanol/agencias-federales">
+                        Directorios de agencias y departamentos del Gobierno de EE. UU.
+                      </a>
+                    {% endif %}
+                  </li>
+                  <li class="usa-footer__secondary-link">
+                    {% if lang =="en" %}
+                      <a href="/branches-of-government">
+                        Branches of government
+                      </a>
+                    {% else %}
+                      <a href="https://beta.usa.gov/es/ramas-gobierno-estados-unidos">
+                        Ramas del Gobierno
+                      </a>
+                    {% endif %}
+                  </li>
+                </ul>
+              </section>
+
+            </div>
+
+            <div class="mobile-lg:grid-col-6 desktop:grid-col-3">
+              <section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
+                <h3 class="usa-gov-footer__primary-link">
+                  {{ lang == 'en' ? "About us" : "Sobre nosotros" }}
+                </h3>
+
+                <ul class="usa-list usa-list--unstyled">
+                  <li class="usa-footer__secondary-link ftr-list">
+                    {% if lang =="en" %}
+                      <a href="/mission-history">
+                        Our mission and history
+                      </a>
+                    {% else %}
+                      <a href="https://www.usa.gov/espanol/quienes-somos">
+                        Nuestra historia y misión
+                      </a>
+                    {% endif %}
+                  </li>
+
+                  <li class="usa-footer__secondary-link">
+                    {% if lang =="en" %}
+                      <a href="/privacy-security">
+                      Privacy and security policies
+                      </a>
+                    {% else %}
+                      <a href="/es/privacidad-seguridad">
+                      Políticas de privacidad y seguridad
+                      </a>
+                    {% endif %}
+                  </li>
+
+                  <li class="usa-footer__secondary-link">
+                    {% if lang =="en" %}
+                      <a href="/accessibility">
+                      Accessibility policy
+                      </a>
+                    {% else %}
+                      <a href="/es/accesibilidad">
+                      Política de accesibilidad
+                      </a>
+                    {% endif %}
+                  </li>
+
+                  {% if lang =="en" %}
+                    <li class="usa-footer__secondary-link"></li>
+                      <a href="/how-to-cite">
+                        How to cite USA.gov
+                      </a>
+                    </li>
+                    <li class="usa-footer__secondary-link">
+                      <a href="https://analytics.usa.gov/">
+                        Real-time website data
+                      </a>
+                    </li>
+                  {% endif %}
+                </ul>
+              </section>
+            </div>
+
+            <div class="mobile-lg:grid-col-6 desktop:grid-col-3">
+              <section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
+                <h3 class="usa-gov-footer__primary-link">
+                  {{ lang == 'en' ? "For federal agencies" : "Para agencias federales" }}
+                </h3>
+                <ul class="usa-list usa-list--unstyled">
+                  <li class="usa-footer__secondary-link">
+                    {% if lang =="en" %}
+                      <a href="/partner-with-usagov">
+                        Partner with us
+                      </a>
+                    {% else %}
+                      <a href="https://www.usa.gov/espanol/colabore-con-nosotros#item-211505">
+                        Colabore con nosotros
+                      </a>
+                    {% endif %}
+                  </li>
+
+                  <li class="usa-footer__secondary-link">
+                    {% if lang =="en" %}
+                      <a href="https://blog.usa.gov/">
+                        USAGov blog
+                      </a>
+                    {% else %}
+                      <a href="https://blog.usa.gov">
+                        Blog de USAGov
+                      </a>
+                    {% endif %}
+                  </li>
+                </ul>
+              </section>
+            </div>
+
+            <div class="mobile-lg:grid-col-6 desktop:grid-col-3">
+              <section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
+                <h3 class="usa-gov-footer__primary-link">
+                  {{ lang == 'en' ? "For media" : "Para medios de comunicación" }}
+                </h3>
+                <ul class="usa-list usa-list--unstyled">
+                  {% if lang =="en" %}
+                    <li class="usa-footer__secondary-link ftr-list">
+                      <a href="/features">
+                        Feature articles
+                      </a>
+                  {% else %}
+                    <li class="usa-footer__secondary-link ">
+                      <a href="https://beta.usa.gov/es/articulos">
+                        Artículos de interés
+                      </a>
+                    {% endif %}
+                  </li>
+                </ul>
+              </section>
+            </div>
+
+          </div>
+        </nav>
+      </div>
+
+      <div class="tablet:grid-col-4">
+        <div class="usa-sign-up">
+          <h4 class="usa-sign-up__heading">
+            {{ lang == 'en' ? "Sign up to receive email updates" : "Suscríbase para recibir información actualizada" }}
+          </h4>
+
+          {% if lang =="en" %}
+            <form class="usa-form" action="https://connect.usa.gov/subscribe" method="get">
+          {% else %}
+            <form class="usa-form" action="https://conectate.gobiernousa.gov/suscripciones" method="get">
+          {% endif %}
+            <label class="usa-label" for="email">
+              {{ lang == 'en' ? "Enter your email" : "Escriba su email" }}
+            </label>
+            <input class="usa-input" id="email" name="email" type="email">
+            <button class="usa-button" type="submit">
+              {{ lang == 'en' ? "Sign up" : "Suscríbase ahora" }}
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="/themes/custom/usagov/scripts/newFooter.js"></script>
