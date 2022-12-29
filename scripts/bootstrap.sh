@@ -77,6 +77,9 @@ export NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME:-$(echo $SECRETS | jq -r 
 export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')}
 export NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')}
 export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')}
+export NEW_RELIC_DAEMON_DOMAIN=${NEW_RELIC_DAEMON_DOMAIN:-$(echo $SECRETS | jq -r '.NEW_RELIC_DAEMON_DOMAIN')}
+export NEW_RELIC_DAEMON_PORT=${NEW_RELIC_DAEMON_PORT:-$(echo $SECRETS | jq -r '.NEW_RELIC_DAEMON_PORT')}
+export NEW_RELIC_DAEMON_PORT_DEFAULT=${NEW_RELIC_DAEMON_PORT_DEFAULT:-$(echo $SECRETS | jq -r '.NEW_RELIC_DAEMON_PORT_DEFAULT')}
 
 
 SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.spkey')
@@ -107,6 +110,7 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
     sed -i \
         -e "s|;\?newrelic.license =.*|newrelic.license = ${NEW_RELIC_LICENSE_KEY}|" \
         -e "s|;\?newrelic.process_host.display_name =.*|newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}|" \
+        -e "s|;\?newrelic.daemon.address =.*|newrelic.daemon.address = ${NEW_RELIC_DAEMON_DOMAIN:-newrelic.apps.internal}:${NEW_RELIC_DAEMON_PORT:-NEW_RELIC_DAEMON_PORT_DEFAULT}|" \
         -e "s|;\?newrelic.appname =.*|newrelic.appname = \"${NEW_RELIC_APP_NAME:-Local;USA.gov}\"|" \
         -e "s|;\?newrelic.enabled =.*|newrelic.enabled = true|" \
         /etc/php8/conf.d/newrelic.ini
@@ -125,10 +129,10 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
   fi
 fi
 
-echo "TEMPORARY WHILE WE FIX NEW RELIC THROUGH PROXY : Turning off New Relic ... "
-sed -i \
-    -e "s|;\?newrelic.enabled =.*|newrelic.enabled = false|" \
-    /etc/php8/conf.d/newrelic.ini
+#echo "TEMPORARY WHILE WE FIX NEW RELIC THROUGH PROXY : Turning off New Relic ... "
+#sed -i \
+#    -e "s|;\?newrelic.enabled =.*|newrelic.enabled = false|" \
+#    /etc/php8/conf.d/newrelic.ini
 
 # php needs a restart so new relic ini changes take effect
 if [ -d /var/run/s6/services/php ]; then
