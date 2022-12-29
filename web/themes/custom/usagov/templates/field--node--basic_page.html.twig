@@ -41,30 +41,45 @@
     label_display == 'visually_hidden' ? 'usa-sr-only',
   ]
 %}
-  
+
+{% set p = path('<current>') %}
+
+{# {% if p == '/states' %}
+{% include directory ~ '/templates/includes/selectstates.html.twig' %}
+{% endif %} #}
+
 {% if label_hidden %}
-  {% if multiple %}
-    <div{{ attributes }}>
-      {% for item in items %}
-        <div class="usa-prose body-copy">{{ item.content }}</div>
-      {% endfor %}
-    </div>
-  {% else %}
-    {% for item in items %}
-      <div class="usa-prose body-copy">{{ item.content }}</div>
-    {% endfor %}
-  {% endif %}
+	{% if multiple %}
+		<div{{attributes}}>
+			{% for item in items %}
+				<div class="usa-prose body-copy">
+					{{ item.content }}</div>
+			{% endfor %}
+		</div>
+	{% else %}
+		{% if p == '/states' %}
+			<div class="usa-prose body-copy">
+				{% include directory ~ '/templates/includes/selectstates.html.twig' %}
+			</div>
+		{% else %}
+			{% for item in items %}
+				<div class="usa-prose body-copy">{{ item.content }}</div>
+			{% endfor %}
+		{% endif %}
+	{% endif %}
+
 {% else %}
-  <div{{ attributes }}>
-    <div{{ title_attributes.addClass(title_classes) }}>{{ label }}</div>
-    {% if multiple %}
-      <div>
-    {% endif %}
-    {% for item in items %}
-      <div class="usa-prose body-copy">{{ item.content }}</div>
-    {% endfor %}
-    {% if multiple %}
-      </div>
-    {% endif %}
-  </div>
+	<div{{attributes}}>
+		<div{{title_attributes.addClass(title_classes)}}>{{ label }}</div>
+		{% if multiple %}
+			<div>
+			{% endif %}
+			{% for item in items %}
+				<div class="usa-prose body-copy">
+					{{ item.content }}</div>
+			{% endfor %}
+			{% if multiple %}
+			</div>
+		{% endif %}
+	</div>
 {% endif %}
