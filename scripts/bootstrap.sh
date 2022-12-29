@@ -125,9 +125,10 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
       /etc/php8/conf.d/newrelic.ini
   else
     sed -i \
-    -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"\"|" \
-    -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"\"|" \
-    -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"\"|" \
+      -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"\"|" \
+      /etc/php8/conf.d/newrelic.ini
   fi
 fi
 
