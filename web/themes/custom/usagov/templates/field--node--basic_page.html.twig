@@ -61,13 +61,9 @@
 			<div class="usa-prose body-copy">
 				{% include directory ~ '/templates/includes/selectstates.html.twig' %}
 			</div>
-		{% elseif p == '/elected-officials' %}
+		{% elseif p == '/elected-officials' or  p == '/es/funcionarios-electos'%}
 			<div class="usa-prose body-copy">
 				{% include directory ~ '/templates/includes/electedofficials.html.twig' %}
-			</div>
-		{% elseif p == '/es/funcionarios-electos'%}
-			<div class="usa-prose body-copy">
-				{% include directory ~ '/templates/includes/electosfuncionarios.html.twig' %}
 			</div>
 		{% else %}
 			{% for item in items %}
