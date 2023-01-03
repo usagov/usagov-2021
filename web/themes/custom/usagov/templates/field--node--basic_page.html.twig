@@ -42,32 +42,18 @@
   ]
 %}
 
-{% set p = path('<current>') %}
-
 {% if label_hidden %}
 	{% if multiple %}
 		<div{{attributes}}>
 			{% for item in items %}
-				<div class="usa-prose body-copy">
-					{{ item.content }}</div>
+				<div class="usa-prose body-copy">{{ item.content }}</div>
 			{% endfor %}
 		</div>
 	{% else %}
-		{% if p == '/states' %}
-			<div class="usa-prose body-copy">
-				{% include directory ~ '/templates/includes/selectstates.html.twig' %}
-			</div>
-		{# {% elseif p == '/elected-officials' or  p == '/es/funcionarios-electos'%} #}
-			{# <div class="usa-prose body-copy"> #}
-				{# {% include directory ~ '/templates/includes/electedofficials.html.twig' %} #}
-			{# </div> #}
-		{% else %}
-			{% for item in items %}
-				<div class="usa-prose body-copy">{{ item.content }}</div>
-			{% endfor %}
-		{% endif %}
+		{% for item in items %}
+			<div class="usa-prose body-copy">{{ item.content }}</div>
+		{% endfor %}
 	{% endif %}
-
 {% else %}
 	<div{{attributes}}>
 		<div{{title_attributes.addClass(title_classes)}}>{{ label }}</div>
@@ -75,8 +61,7 @@
 			<div>
 			{% endif %}
 			{% for item in items %}
-				<div class="usa-prose body-copy">
-					{{ item.content }}</div>
+				<div class="usa-prose body-copy">{{ item.content }}</div>
 			{% endfor %}
 			{% if multiple %}
 			</div>
