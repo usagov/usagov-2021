@@ -6,6 +6,7 @@ dependencies:
     - core.entity_view_mode.node.teaser
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_css_icon
+    - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
@@ -45,6 +46,7 @@ content:
     region: content
 hidden:
   field_css_icon: true
+  field_custom_twig_content: true
   field_footer_html: true
   field_for_contact_center_only: true
   field_header_html: true
