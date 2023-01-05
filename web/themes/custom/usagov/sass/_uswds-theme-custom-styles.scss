@@ -968,6 +968,7 @@ div #sm-share a {
 
 #block-wizardenglish h1, #block-wizardespanol h1 {
   color: #112f43;
+  margin-top: .5em;
 }
 
 #block-wizardenglish .usa-prose, #block-wizardespanol .usa-prose {
@@ -982,4 +983,13 @@ button#submit.usa-button {
 #block-wizardenglish div.field p, #block-wizardespanol div.field p {
   margin: 0;
   font-size: 1.2rem;
+}
+.usa-prose>p.usa-scam-label {
+ max-width: 72ex;
+}
+
+.usa-scam-label {
+  border-bottom: 1px solid gray;
+  color: #112f43;
+  font-weight: 500;
 }
