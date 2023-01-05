@@ -37,12 +37,14 @@
 #}
 
 {% set lang = row._entity.langcode.value %}
-{% set UID = 'dr-' ~ fields.title.content|striptags|trim %}
+{% set UTitle = 'dr-' ~ fields.title.content|striptags|trim %}
+{% set UID = fields.nid.content|striptags|trim %}
 
 <div class="usa-accordion usagov-directory-accordion-container">
   <h2 class="usa-accordion__heading">
     <button
-      aria-controls="{{- UID -}}"
+      aria-controls="{{- UTitle -}}"
+      data-node-id="{{- UID -}}"
       aria-expanded="false"
       class="usa-accordion__button"
       >
@@ -50,7 +52,7 @@
     </button>
   </h2>
 
-  <div class="usa-accordion__content usa-prose" id="{{- UID -}}">
+  <div class="usa-accordion__content usa-prose" id="{{- UTitle -}}" data-node-id="{{- UID -}}">
     <p>{{- fields.field_page_intro.content -}}</p>
 
     {% if fields.field_website.content|striptags|trim %}

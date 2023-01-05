@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.wizard.field_footer_html
     - field.field.node.wizard.field_for_contact_center_only
     - field.field.node.wizard.field_header_html
+    - field.field.node.wizard.field_language_toggle
     - field.field.node.wizard.field_wizard_step
     - node.type.wizard
   module:
@@ -41,4 +42,5 @@ hidden:
   field_footer_html: true
   field_for_contact_center_only: true
   field_header_html: true
+  field_language_toggle: true
   langcode: true
