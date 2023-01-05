@@ -950,14 +950,23 @@ div #sm-share a {
 
 // scams reskin
 
-#block-wizardenglish {
+#block-wizardenglish, #block-wizardespanol {
   background-color: #f3f3f3;
   border-top: 2px solid #112f43;
   padding-top: 2rem;
-  padding-left: 2rem;
+  padding-left: 3rem;
+  padding-right: 2rem;
 }
 
-#block-wizardenglish h1 {
+@media (min-width: 64em) {
+  div#block-wizardenglish, div#block-wizardenglish~div#block-usagov-content, 
+  div#block-wizardespanol, div#block-wizardespanol~div#block-usagov-content {
+    margin-left: 5rem;
+    max-width: 80%;
+  }
+}
+
+#block-wizardenglish h1, #block-wizardespanol h1 {
   color: #112f43;
 }
 
@@ -966,6 +975,6 @@ button#submit.usa-button {
   background-color: #ccecf2;
 }
 
-#block-wizardenglish div.field p {
+#block-wizardenglish div.field p, #block-wizardespanol div.field p {
   margin: 0;
 }
