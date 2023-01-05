@@ -156,7 +156,6 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       inotify-tools \
       jq \
       moreutils \
-      openssl \
       pv \
       tar \
       xz \
