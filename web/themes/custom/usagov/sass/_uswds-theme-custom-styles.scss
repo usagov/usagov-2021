@@ -970,6 +970,10 @@ div #sm-share a {
   color: #112f43;
 }
 
+#block-wizardenglish .usa-prose, #block-wizardespanol .usa-prose {
+  font-size: 1.2rem;
+}
+
 button#submit.usa-button {
   color: #112F4E;
   background-color: #ccecf2;
@@ -977,4 +981,5 @@ button#submit.usa-button {
 
 #block-wizardenglish div.field p, #block-wizardespanol div.field p {
   margin: 0;
+  font-size: 1.2rem;
 }
