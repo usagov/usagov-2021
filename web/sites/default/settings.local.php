@@ -7,6 +7,14 @@ $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml'
 
 $config['s3fs.settings']['disable_version_sync'] = TRUE;
 $config['s3fs.settings']['disable_cert_verify'] = TRUE;
+$settings['cache']['bins']['render'] = 'cache.backend.null';
+$settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.null';
+$settings['cache']['bins']['page'] = 'cache.backend.null';
+
+if (class_exists('Kint')) {
+  // Change the maximum depth to prevent out-of-memory errors.
+  \Kint::$depth_limit= 4;
+}
 
 $settings['trusted_host_patterns'] = [
   '^localhost$',
