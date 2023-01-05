@@ -333,7 +333,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - proxy_removal_tests
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -343,7 +342,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - proxy_removal_tests
 
       - approve-dev-deployment:
           type: approval
@@ -353,7 +351,6 @@ workflows:
             branches:
               only:
               - dev
-              - proxy_removal_tests
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -361,8 +358,6 @@ workflows:
             branches:
               only:
               - dev
-              - proxy_removal_tests
-
       - approve-stage-deployment:
           type: approval
           requires:
