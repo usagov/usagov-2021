@@ -947,3 +947,25 @@ div #sm-share a {
   right: 1rem;
   bottom: 0;
 }
+
+// scams reskin
+
+#block-wizardenglish {
+  background-color: #f3f3f3;
+  border-top: 2px solid #112f43;
+  padding-top: 2rem;
+  padding-left: 2rem;
+}
+
+#block-wizardenglish h1 {
+  color: #112f43;
+}
+
+button#submit.usa-button {
+  color: #112F4E;
+  background-color: #ccecf2;
+}
+
+#block-wizardenglish div.field p {
+  margin: 0;
+}
