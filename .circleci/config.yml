@@ -333,6 +333,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - nr_test_rolling_for_proxy
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -342,6 +343,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - nr_test_rolling_for_proxy
 
       - approve-dev-deployment:
           type: approval
@@ -351,6 +353,7 @@ workflows:
             branches:
               only:
               - dev
+              - nr_test_rolling_for_proxy
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -358,6 +361,7 @@ workflows:
             branches:
               only:
               - dev
+              - nr_test_rolling_for_proxy
       - approve-stage-deployment:
           type: approval
           requires:
