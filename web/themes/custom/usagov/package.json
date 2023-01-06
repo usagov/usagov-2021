@@ -8,13 +8,15 @@
     "build": "npx gulp compile",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "npx gulp watch",
-    "lint": "npx stylelint \"**/*.scss\"; gulp js-lint",
-    "scss": "npx gulp compileSass"
+    "lint": "npx stylelint sass/**/*.scss; npx eslint scripts/*",
+    "scss": "npx gulp compileSass",
+    "eslint": "npx gulp compileSass"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@uswds/compile": "^1.0.0",
+    "eslint": "^8.31.0",
     "prettier": "2.7.1",
     "stylelint": "^14.9.1",
     "stylelint-config-prettier-scss": "^0.0.1",
