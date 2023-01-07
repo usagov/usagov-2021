@@ -342,6 +342,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+
       - approve-dev-deployment:
           type: approval
           requires:
