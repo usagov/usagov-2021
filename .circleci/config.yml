@@ -333,6 +333,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-618-add-salesforce-ips-to-allow-list
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -342,7 +343,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-
+                - USAGOV-618-add-salesforce-ips-to-allow-list
       - approve-dev-deployment:
           type: approval
           requires:
@@ -351,6 +352,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-618-add-salesforce-ips-to-allow-list
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -358,6 +360,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-618-add-salesforce-ips-to-allow-list
       - approve-stage-deployment:
           type: approval
           requires:
