@@ -34,7 +34,4 @@
 		level INFO
 		output stdout
 	}
-	tls {
-    ca /etc/ssl/certs/
-  }
 }
