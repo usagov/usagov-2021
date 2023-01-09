@@ -4,6 +4,7 @@ status: true
 dependencies:
   module:
     - node
+    - system
   theme:
     - usagov
 _core:
@@ -11,7 +12,7 @@ _core:
 id: usagov_page_title
 theme: usagov
 region: content
-weight: -18
+weight: -17
 provider: null
 plugin: page_title_block
 settings:
@@ -28,3 +29,7 @@ visibility:
     bundles:
       wizard: wizard
       wizard_step: wizard_step
+  request_path:
+    id: request_path
+    negate: true
+    pages: "/welcome-usagov\r\n<front>"
