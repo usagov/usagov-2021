@@ -126,10 +126,14 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
       -e "s|;\?newrelic.daemon.proxy =.*|;newrelic.daemon.proxy = \"$https_proxy\"|" \
       /etc/php8/conf.d/newrelic.ini
   else
+    if [ x$https_proxy != x ]; then
+      sed -i \
+       -e "s|;\?newrelic.daemon.proxy =.*|;newrelic.daemon.proxy = \"\"|" \
+       /etc/php8/conf.d/newrelic.ini
+    fi
     sed -i \
       -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|;newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
       -e "s|;\?newrelic.daemon.ssl_ca_path =.*|;newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
-      -e "s|;\?newrelic.daemon.proxy =.*|;newrelic.daemon.proxy = \"$https_proxy\"|" \
       /etc/php8/conf.d/newrelic.ini
   fi
 fi
