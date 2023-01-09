@@ -62,6 +62,9 @@
     text-decoration-color: var($life-events, heading-underline-color);
     text-decoration-skip-ink: none;
   }
+  .usa-card__heading {
+    line-height: 1.8em;
+  }
   .usa-card__header{
     padding-bottom: 0.5rem;
   }
