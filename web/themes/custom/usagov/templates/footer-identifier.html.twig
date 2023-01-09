@@ -1,0 +1,10 @@
+{% set lang = node.langcode.value %}
+<div class="usa-identifier">
+	<section class="usa-identifier__section usa-identifier__section--usagov" aria-label="USAGov is the Official Guide to Government Information and Services">
+		<div class="usa-identifier__container">
+			<div class="usa-identifier__usagov-description">
+				{{ lang == 'es' ?  "USAGov en Español es la guía oficial de información y servicios del Gobierno" : "USAGov is the Official Guide to Government Information and Services" }}
+			</div>
+		</div>
+	</section>
+</div>
