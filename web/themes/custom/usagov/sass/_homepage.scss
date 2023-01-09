@@ -413,13 +413,28 @@
   }
 }
 
-.thumbnailBanner {
+.slide a:hover>h3 {
+  text-decoration: underline;
+}
+
+.slide a:hover .thumbnailBanner {
+  opacity: 0.5;
+}
+
+.thumbnailDiv {
+  background: #ccecf2;
   width: 100%;
   height: 85px;
   margin: auto;
   box-shadow: 0 6px 6px var($blue-shadow);
   border-style: solid;
-  border-color: var($white);
+  border-color:var($white);
+}
+
+.thumbnailBanner {
+  width: 100%;
+  height: 100%;
+  margin: auto;
 }
 
 /* Jump */
