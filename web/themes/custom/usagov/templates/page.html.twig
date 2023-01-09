@@ -149,22 +149,27 @@
 			<div class="usa-layout-docs__main usa-prose desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
 				{{ page.content }}
 
-				{% if (term_name == "" or term_name == "Standard Page") and not is_front or (content_type == "Federal Directory Record") or (content_type == "State Directory Record") %}
-					{% if node.changed.value %}
-						<p class="last">{{ lang == 'en' ? 'Last updated: ' : 'Última actualización: '}}
-							{% set date = node.changed.value %}
-							{% include '@usagov/dates.html.twig' %}
-						</p>
+				<div class="additional_body_info">
+{% if (term_name == "" or term_name == "Standard Page" or term_name =="Standard Page- Nav Hidden") and not is_front or (content_type == "Federal Directory Record") or (content_type == "State Directory Record") %}
+
+						{% if node.changed.value %}
+							<p class="last">{{ lang == 'en' ? 'Last updated: ' : 'Última actualización: '}}
+								{% set date = node.changed.value %}
+								{% include '@usagov/dates.html.twig' %}
+							</p>
+						{% endif %}
 					{% endif %}
-				{% endif %}
 
-				{% include '@usagov/sharethispage.html.twig' %}
-				{% include '@usagov/haveaquestion.html.twig' %}
+					{% include '@usagov/sharethispage.html.twig' %}
+					{% include '@usagov/haveaquestion.html.twig' %}
 
-				{% if (term_name == "" or term_name == "Standard Page") and not is_front %}
-					<div id="pagesurvey-qual-container"></div>
-					<div id="pagesurvey-trgt-qualtrics"></div>
-				{% endif %}
+{% if (term_name == "" or term_name == "Standard Page" or term_name =="Standard Page- Nav Hidden") and not is_front %}
+
+						<div id="pagesurvey-qual-container"></div>
+						<div id="pagesurvey-trgt-qualtrics"></div>
+					{% endif %}
+				</div>
+
 			</div>
 			{# /.layout-content #}
 			{% if page.sidebar_second %}
