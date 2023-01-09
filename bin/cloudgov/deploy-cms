@@ -16,7 +16,7 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CTAG=${1:-latest}
 CDIGEST=${2:-}
@@ -111,15 +111,26 @@ function setupEgress { #appname
   $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
 }
 
+function setupNewrelic { #appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart
+}
+
 if appExists cms; then
   setupRoutes cms
-  setupEgress cms
+#  setupEgress cms
+  setupNewrelic cms
   pushApp cms
 else
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
   pushApp cms
   setupRoutes cms
-  setupEgress cms
+#  setupEgress cms
+  setupNewrelic cms
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
   restartApp cms
 fi

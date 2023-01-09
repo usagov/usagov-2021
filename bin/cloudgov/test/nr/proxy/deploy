@@ -1,0 +1,22 @@
+#!/bin/sh
+
+echo "Building egress"
+
+proxySpace=shared-egress
+proxyApp=nr-proxy
+proxyOrg=gsa-tts-usagov
+
+## arbitrary test username and password - git safe
+username=F5D1B783-35A4-4252-8DE9-E3D18FB01560
+password=850626D8-ED91-4A9D-9BC4-D41AB99885CF
+
+cf target -o "$proxyOrg" -s "$proxySpace" 2>&1 > /dev/null
+cf push $proxyApp -f ./manifest.yml --vars-file ./manifest-vars.yml --no-start
+
+cf create-route apps.internal --hostname $proxyApp
+cf map-route $proxyApp apps.internal --hostname $proxyApp
+
+cf set-env $proxyApp PROXY_USERNAME "$username"
+cf set-env $proxyApp PROXY_PASSWORD "$password"
+cf set-env $proxyApp proxy_route "https://$username:$password@$proxyApp.apps.internal:8080"
+cf push $proxyApp -f ./manifest.yml --no-wait --strategy rolling --vars-file ./manifest-vars.yml
