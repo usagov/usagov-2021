@@ -7,6 +7,12 @@ if [ -z "${VCAP_SERVICES:-}" ]; then
     exit 1;
 fi
 
+if [ ! -f /container_start_timestamp ]; then
+  touch /container_start_timestamp
+  chmod a+r /container_start_timestamp
+  echo "$(date +'%s')" > /container_start_timestamp
+fi
+
 SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
 SECAUTHSECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secauthsecrets") | .credentials')
 
@@ -101,7 +107,10 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
     sed -i \
         -e "s|;\?newrelic.license =.*|newrelic.license = ${NEW_RELIC_LICENSE_KEY}|" \
         -e "s|;\?newrelic.process_host.display_name =.*|newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}|" \
-        -e "s|;\?newrelic.appname =.*|newrelic.appname = \"${NEW_RELIC_APP_NAME:-Local;USA.gov}\"|" \
+        -e "s|;\?newrelic.daemon.address =.*|newrelic.daemon.address = ${NEW_RELIC_DAEMON_DOMAIN:-newrelic.apps.internal}:${NEW_RELIC_AGENT_PORT:-31339}|" \
+        -e "s|;\?newrelic.appname =.*|newrelic.appname = \"${NEW_RELIC_APP_NAME:-CMS-dev;USA.gov}\"|" \
+        -e "s|;\?newrelic.daemon.loglevel =.*|newrelic.daemon.loglevel = \"${NEW_RELIC_LOG_LEVEL:-debug}\"|" \
+        -e "s|;\?newrelic.daemon.dont_launch =.*|newrelic.daemon.dont_launch = 3|" \
         -e "s|;\?newrelic.enabled =.*|newrelic.enabled = true|" \
         /etc/php8/conf.d/newrelic.ini
   else
@@ -110,19 +119,25 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
         /etc/php8/conf.d/newrelic.ini
   fi
-  if [ -n "${https_proxy:-}" ]; then
+  if [ -n "${https_proxy:-}" ]; then # I'M CHEATING REMOVE THE SEMICOLONS AFTER TESTING
     sed -i \
-      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
-      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
-      -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"$https_proxy\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|;newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|;newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
+      -e "s|;\?newrelic.daemon.proxy =.*|;newrelic.daemon.proxy = \"$https_proxy\"|" \
+      /etc/php8/conf.d/newrelic.ini
+  else
+    sed -i \
+      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|;newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|;newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
+      -e "s|;\?newrelic.daemon.proxy =.*|;newrelic.daemon.proxy = \"$https_proxy\"|" \
       /etc/php8/conf.d/newrelic.ini
   fi
 fi
 
-echo "TEMPORARY WHILE WE FIX NEW RELIC THROUGH PROXY : Turning off New Relic ... "
-sed -i \
-    -e "s|;\?newrelic.enabled =.*|newrelic.enabled = false|" \
-    /etc/php8/conf.d/newrelic.ini
+#echo "TEMPORARY WHILE WE FIX NEW RELIC THROUGH PROXY : Turning off New Relic ... "
+#sed -i \
+#    -e "s|;\?newrelic.enabled =.*|newrelic.enabled = false|" \
+#    /etc/php8/conf.d/newrelic.ini
 
 # php needs a restart so new relic ini changes take effect
 if [ -d /var/run/s6/services/php ]; then
@@ -133,6 +148,12 @@ fi
 if [ -d /var/run/s6/services/nginx ]; then
   echo "Asking nginx to reload conf ... "
   s6-svc -h /var/run/s6/services/nginx
+fi
+
+if [ ! -d /var/www/private ]; then
+  echo "Creating private directory ... "
+  mkdir /var/www/private
+  chown nginx:nginx /var/www/private
 fi
 
 if [ -n "${FIX_FILE_PERMS:-}" ]; then

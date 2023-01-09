@@ -2,7 +2,7 @@ version: '3.9'
 services:
   cms:
     container_name: cms
-    image: dnark/usagov-2021:cms-latest
+    image: gsatts/usagov-2021:cms-latest
     build:
       context: ./
       dockerfile: .docker/Dockerfile-cms
@@ -197,7 +197,7 @@ networks:
 
   # waf:
   #   container_name: waf
-  #   image: ednark/usagov-2021:waf-latest
+  #   image: gsatts/usagov-2021:waf-latest
   #   build:
   #     context: .docker/
   #     dockerfile: Dockerfile-waf
@@ -224,7 +224,7 @@ networks:
 
   # waf:
   #   container_name: waf
-  #   image: ednark/usagov-2021:waf-latest
+  #   image: gsatts/usagov-2021:waf-latest
   #   build:
   #     context: .docker/
   #     dockerfile: Dockerfile-waf
