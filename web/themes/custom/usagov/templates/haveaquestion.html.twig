@@ -4,7 +4,9 @@
     {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
 {% endif %}
 
-{% if (term_name == "Standard Page") or (front == "not_homepage") and (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
+{% if (term_name == "Standard Page") or (term_name == "Standard Page- Nav Hidden") or (front == "not_homepage") and (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
+
+
 {% set talk = '/phone' %}
 {% set chat = 'https://www.usa.gov/chat' %}
 {% set sp_chat = 'https://www.usa.gov/espanol/chat' %}
@@ -13,10 +15,10 @@
     <div class="border-left-1 padding-left-205 border-cyan-10 margin-top-8 margin-bottom-9 padding-bottom-4">
         <h2 class="font-family-heading margin-top-0">
             {{ lang == 'en' ? "Do you have a question?" : "¿Tiene una pregunta?" }}
-        </h2> 
+        </h2>
         {% if lang == 'en' %}
-            <p>Ask a real person any government-related question for free.  They will get you the answer or let you know where to find it.</p> 
-        {% else %} 
+            <p>Ask a real person any government-related question for free.  They will get you the answer or let you know where to find it.</p>
+        {% else %}
             <p>¿Tiene una pregunta? Pregunte gratis a una persona real cualquier duda relacionada con el Gobierno. Le darán la respuesta o le indicarán dónde encontrarla.</p>
         {% endif %}
         <div class="grid-row grid-gap">
@@ -39,5 +41,5 @@
             </div>
         </div>
     </div>
-</div>   
+</div>
 {% endif %}
