@@ -74,39 +74,24 @@
 <div class="usa-overlay"></div>
 
 <header class="{{ header_classes }}" id="header" role="banner">
+
 	{% if page.header_top %}
 		<div class="usa-banner-inner">
 			{{ page.header_top }}
 		</div>
 	{% endif %}
+
 	{% if header_basic %}
 		<div class="usa-nav-container">
-		{% endif %}
-		{{ page.header }}
+	{% endif %}
 
-		{#<nav class="usa-nav" role="navigation">
-		            {% if header_extended %}
-		            <div class="usa-nav__inner">
-		                {% endif %}
-		                <button class="usa-nav__close">
-		                    <img src="{{ uswds_images }}close.svg" alt="close" />
-		                </button>
-		                {% if page.mobile_menu %}
-		                <div class="usa-nav-mobile">
-		                    {{ page.mobile_menu }}
-		                </div>
-		                {% endif %} {% if page.mobile_menu %}
-		                <div class="usa-nav-desktop">
-		                    {% endif %} {% if page.primary_menu %} {{ page.primary_menu }} {% endif %} {% if page.secondary_menu %} {{ page.secondary_menu }} {% endif %} {% if page.mobile_menu %}
-		                </div>
-		                {% endif %} {% if header_extended %}
-		            </div>
-		            {% endif %}
-		        </nav>#}
+	{% include '@usagov/top_nav.html.twig' %}
+	{{ page.header }}
 
-		{% if header_basic %}
+	{% if header_basic %}
 		</div>
 	{% endif %}
+
 </header>
 
 {% if page.hero %}
@@ -150,7 +135,7 @@
 				{{ page.content }}
 
 				<div class="additional_body_info">
-{% if (term_name == "" or term_name == "Standard Page" or term_name =="Standard Page- Nav Hidden") and not is_front or (content_type == "Federal Directory Record") or (content_type == "State Directory Record") %}
+					{% if (term_name == "" or term_name == "Standard Page" or term_name =="Standard Page- Nav Hidden") and not is_front or (content_type == "Federal Directory Record") or (content_type == "State Directory Record") %}
 
 						{% if node.changed.value %}
 							<p class="last">{{ lang == 'en' ? 'Last updated: ' : 'Última actualización: '}}
@@ -163,7 +148,7 @@
 					{% include '@usagov/sharethispage.html.twig' %}
 					{% include '@usagov/haveaquestion.html.twig' %}
 
-{% if (term_name == "" or term_name == "Standard Page" or term_name =="Standard Page- Nav Hidden") and not is_front %}
+					{% if (term_name == "" or term_name == "Standard Page" or term_name =="Standard Page- Nav Hidden") and not is_front %}
 
 						<div id="pagesurvey-qual-container"></div>
 						<div id="pagesurvey-trgt-qualtrics"></div>
@@ -185,7 +170,7 @@
 	</a>
 </main>
 
-<footer	class="{{ footer_classes }}" role="contentinfo">
+<footer class="{{ footer_classes }}" role="contentinfo">
 	{% include '@usagov/footer-primary.html.twig' %}
 	{% include '@usagov/footer-secondary.html.twig' %}
 	{% include '@usagov/footer-identifier.html.twig' %}
