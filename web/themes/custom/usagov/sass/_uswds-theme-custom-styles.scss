@@ -78,7 +78,7 @@ i.e.
 }
 
 .usa-button:visited {
-  /* 
+  /*
 This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
 Buttons with visited links would mysteriously get white text which is not accessible contrast on our theme's primary and secondary colors.
 */
@@ -105,8 +105,13 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-card__body.padding-top-0 {
   padding-top: 0;
 }
-
-/** This to change the link color for the 
+/* 
+add padding at the top of flag cards 
+*/
+.paragraph--type--uswds-card-group-flag .usa-card-group {
+  padding-top: 60px;
+}
+/** This to change the link color for the
 *   header and footer links
 **/
 .usa-nav__secondary-links a,
@@ -290,7 +295,7 @@ This style ensures that we can remove the padding-top from text in a card body. 
   background-color: color("blue-warm-80v");
 }
 
-/** This is to minimize the size of the logo in 
+/** This is to minimize the size of the logo in
 *   tablet and mobile
 **/
 
@@ -578,11 +583,15 @@ a,
 }
 
 .usagov-hero a:visited {
-  color: color("violet-30v");
+  color: color("cyan-10");
+}
+
+.usagov-hero a, .usagov-hero__callout ul a {
+  color: color("cyan-30v");
 }
 
 .usagov-hero__callout ul a:visited {
-  color: color("violet-30v");
+  color: color("cyan-10");
 }
 
 .usa-button {
@@ -720,6 +729,12 @@ a {
   margin-right: 1.2ex;
 }
 
+@media (max-width: 30em) {
+  .usa-alert, .usa-prose, .usa-table, .usa-form, .usa-radio__label, .usa-footer, .usa-nav .usa-accordion, .usa-accordian__heading, .text-primary-lighter, .usa-hero, .usa-identifier, .usa-label {
+    font-size: 1.1rem;
+  }
+}
+
 .desktop\:grid-col-8 .body-copy {
   // Add margin only on content pages
   margin-top: 2.5rem;
@@ -768,11 +783,15 @@ a {
   }
 }
 
+//Last Updated, Share and Survey
+.additional_body_info {
+  padding-top: 75px;
+}
+
 // Share This Page
 
 div #sm-share {
   display: flex;
-  padding-top: 75px;
   padding-bottom: 22px;
   background-color: transparent;
 }
@@ -780,7 +799,6 @@ div #sm-share {
 div #sm-share * {
   margin-top: auto;
   margin-bottom: auto;
-  padding-top: 5px;
 }
 
 div #sm-share a {
@@ -877,7 +895,7 @@ div #sm-share a {
 .usa-user-error {
   border-color: #d83933;
   border-width: 3px;
-  border-style:  solid;
+  border-style: solid;
 }
 
 .usa-main-border-error {
@@ -912,4 +930,18 @@ div #sm-share a {
 
 .usa-error--alert {
   display: none;
+}
+.currentMenuItem {
+  position:relative
+}
+.currentMenuItem::after {
+  background-color: #00bde3;
+  border-radius: 0;
+  content: "";
+  display: block;
+  position: absolute;
+  height: .25rem;
+  left: 1rem;
+  right: 1rem;
+  bottom: 0;
 }

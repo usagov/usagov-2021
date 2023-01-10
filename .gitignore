@@ -100,3 +100,16 @@ workspace.code-workspace
 
 manifest-egress-vars.yml
 .docker/src-egress/caddy
+
+bin/deploy/logs/*.log
+bin/cloudgov/test/nr/logs/*
+bin/cloudgov/test/nr/logs/*/*
+bin/cloudgov/test/nr/proxy/src-egress/caddy
+bin/cloudgov/test/nr/php/manifest-vars.yml
+
+# Ignore Compiled Assets
+.docker/src-waf/etc/nginx/nginx.conf
+.docker/src-waf/etc/nginx/snippets/ip-restrict-cms.conf
+.docker/src-waf/etc/nginx/snippets/ip-restrict-www.conf
+
+

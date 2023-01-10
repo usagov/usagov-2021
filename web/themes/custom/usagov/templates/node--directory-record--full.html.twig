@@ -1,37 +1,38 @@
+{% set lang = node.langcode.value %}
 {{ content.field_page_intro }}
 {{ content.body }}
 <div class="usagov-directory-table">
   {% if content.field_website|render %}
   <div>
-    <h3 class="usa-prose">Website</h3>
+    <h3 class="usa-prose">{{ lang == 'en' ? 'Website' : 'Sitio web' }}</h3>
     {{ content.field_website }}
   </div>
   {% endif %}
 
   {% if content.field_contact_link|render %}
   <div>
-    <h3 class="usa-prose">Contact</h3>
+    <h3 class="usa-prose">{{ lang == 'en' ? 'Contact' : 'Contacto' }}</h3>
     {{ content.field_contact_link }}
   </div>
   {% endif %}
 
   {% if content.field_phone_number|render %}
   <div>
-    <h3 class="usa-prose">Phone Number</h3>
+    <h3 class="usa-prose">{{ lang == 'en' ? 'Phone number' : 'Teléfono' }}</h3>
     <p>{{content.field_phone_number}}</p>
   </div>
   {% endif %}
 
   {% if content.field_toll_free_number|render %}
   <div>
-    <h3 class="usa-prose">Toll-Free Number</h3>
+    <h3 class="usa-prose">{{ lang == 'en' ? 'Toll-free number' : 'Número de teléfono gratuito' }}</h3>
     <p>{{content.field_toll_free_number}}</p>
   </div>
   {% endif %}
 
   {% if content.field_tty_number|render %}
   <div>
-    <h3 class="usa-prose">TTY</h3>
+    <h3 class="usa-prose">{{ lang == 'en' ? 'TTY' : 'TTY (para personas con problemas auditivos)' }}</h3>
     <p>{{content.field_tty_number}}</p>
   </div>
   {% endif %}
@@ -45,7 +46,7 @@
 
   {% if content.field_offices_near_you|render %}
   <div>
-    <h3 class="usa-prose">Find an Office Near You</h3>
+    <h3 class="usa-prose">{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}</h3>
     {{content.field_offices_near_you}}
   </div>
   {% endif %}
@@ -53,7 +54,7 @@
   {% if content.group_main_address %}
   {% set address = content.group_main_address %}
   <div>
-    <h3 class="usa-prose">Main Address</h3>
+    <h3 class="usa-prose">{{ lang == 'en' ? 'Main address' : 'Dirección' }}</h3>
     {{ address.field_street_1 }}
     {% if address.field_street_2|render %}
     <br>{{ address.field_street_2 }}
@@ -62,10 +63,10 @@
     <br>{{ address.field_street_3 }}
     {% endif %}
     {% if address.field_city|render %}
-    <br>{{ address.field_city }}
+    <br>{{ address.field_city}}
     {% endif %}
     {% if address.field_state_abbr|render or address.field_zip|render %}
-    , {{ address.field_state_abbr }} {{ address.field_zip }}
+    {{ address.field_state_abbr }} {{ address.field_zip }}
     {% endif %}
   </div>
   {% endif %}

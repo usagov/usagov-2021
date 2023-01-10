@@ -21,8 +21,16 @@
 */
 #}
 {% set current_letter = alpha_context.current %}
+
+{% set lang = rows[0]._entity.langcode.value %}
+{% if lang == "en" %}
+  {% set agencyindex = "/agency-index"%}
+{% else %}
+  {% set agencyindex = "/es/indice-agencias"%}
+{% endif %}
+
 <div class="usagov-directory-page-container">
-  
+
 <div class="usagov-directory-container">
   <ul class="usagov-directory-container-az">
     {% for row in rows %}
@@ -32,9 +40,9 @@
           <a {{row.attributes.addClass("is-active")}}>{{ row.link }}</a>
         {% else %}
           {% if row.link == "A" or row.link == "a" %}
-            <a href="/agency-index">{{ row.link }}</a>
+            <a href={{ agencyindex }}>{{ row.link }}</a>
           {% else %}
-            <a href="/agency-index?letter={{ row.link|lower }}">{{ row.link }}</a>
+            <a href="{{ agencyindex }}?letter={{ row.link|lower }}">{{ row.link }}</a>
           {% endif %}
 	      {% endif %}
         {% if options.count %}
@@ -49,13 +57,13 @@
     <p>OR</p>
     <section aria-label="Small search component">
         <form class="fed-directory-search-bar" role="search">
-          <label id="fedGallerySearch" class="usa-sr-only" for="search-field-en-small">Fed Gallery Search</label>
+          <label id="fedGallerySearch" class="usa-sr-only" for="search-field-en-small">Fed gallery search</label>
           <input
               class="usa-input fed-directory-search-input"
               id="search-field-en-small"
               aria-labelledby="fedGallerySearch"
               type="search"
-              placeholder="Search for a Federal Agency"
+              placeholder="Search for a federal agency"
               onfocus="this.placeholder"
               autocomplete="off"
           />

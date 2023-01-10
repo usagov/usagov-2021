@@ -46,11 +46,30 @@
     color: var($life-events, text-color);
   }
 
-  .usa-card__heading {
+
+
+  .usa-card__img, &.usa-card--media-right .usa-card__img{
+    border-top-left-radius: unset;
+    border-bottom-left-radius: unset;
+    border-top-right-radius: unset;
+    border-bottom-right-radius: unset;
+  }
+
+  .usa-card__container .usa-card__header .usa-card__heading .card-link{
+    color: var($life-events, text-color);
     text-decoration-line: underline;
     text-decoration-thickness: 7px;
     text-decoration-color: var($life-events, heading-underline-color);
     text-decoration-skip-ink: none;
+  }
+  .usa-card__heading {
+    line-height: 1.8em;
+  }
+  .usa-card__header{
+    padding-bottom: 0.5rem;
+  }
+  .usa-card__body{
+    padding-bottom: 1.5rem;
   }
 }
 

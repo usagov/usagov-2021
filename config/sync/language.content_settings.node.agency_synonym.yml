@@ -1,0 +1,16 @@
+uuid: 09947f8c-4505-425f-8459-436af29fbbfa
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.agency_synonym
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: true
+id: node.agency_synonym
+target_entity_type_id: node
+target_bundle: agency_synonym
+default_langcode: en
+language_alterable: true

@@ -1,0 +1,43 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <target-env> <optional:source-branch> <optional:merge-branch>"
+  exit 1
+fi
+
+YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
+
+clearLogs
+
+. $SCRIPT_DIR/get-source-and-target $1 ${2:-} ${3:-}
+
+. $SCRIPT_DIR/check-for-credentials
+
+. $SCRIPT_DIR/update-git
+
+. $SCRIPT_DIR/what-tickets-will-be-included
+. $SCRIPT_DIR/what-prs-are-open
+
+. $SCRIPT_DIR/check-current-deployment
+
+if getApproval "Generate DB Backup?"; then
+  . $SCRIPT_DIR/db-snapshot-create $YMDHMS
+  . $SCRIPT_DIR/db-snapshot-store $YMDHMS
+fi
+
+if getApproval "Generate Static Site Backup?"; then
+  . $SCRIPT_DIR/site-snapshot-create $YMDHMS | toLogs
+  . $SCRIPT_DIR/site-snapshot-store $YMDHMS | toLogs
+fi
+. $SCRIPT_DIR/site-snapshot-list | toLogs
+
+. $SCRIPT_DIR/check-system-resources | toLogs
+
+# . $SCRIPT_DIR/merge-deploy-branch | toLogs
+
+. $SCRIPT_DIR/fin

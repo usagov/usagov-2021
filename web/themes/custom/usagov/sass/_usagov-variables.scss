@@ -11,9 +11,11 @@ $text-blue: #1a4480;
 $deep-blue: #112f4e;
 $cyan: #3fbde3;
 $cyan-50v: #0081a1;
+$cyan-30v: #00bde3;
 $cyan-light: #ccecf2;
 $gray: #dfe1e2;
 $light-gray: #f3f3f3;
+$light-blue: #d2ebf1;
 $orange: #f79240;
 $black: #000;
 
@@ -43,6 +45,7 @@ $card: (
   hover-border-color: $cyan-50v,
   group-background-color: $light-gray,
   text-color: $black,
+  background-color:$light-blue,
 );
 $life-events: (
   text-color: $white,

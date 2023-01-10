@@ -3,7 +3,7 @@
 # This script will attempt to create a container image
 # to be used when launching cloud.gov images
 #
-DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
@@ -38,7 +38,7 @@ then
      docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
 fi
 
-echo "Building ${CONTAINERNAME}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
+echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 

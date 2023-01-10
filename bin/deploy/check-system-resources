@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# check cloud.gov available resources routes/memory
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi

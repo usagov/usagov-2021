@@ -7,7 +7,7 @@ then
 fi
 
 LOCAL_FILE=${1:-usagov.sql}
-YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
+YMDHMS=${2:-$(date +"%Y_%m_%d_%H_%M_%S")}
 SPACE=$( cf target | grep space: | awk '{ print $2 }')
 
 TEMP_FILE=/tmp/$YMDHMS.sql.gz

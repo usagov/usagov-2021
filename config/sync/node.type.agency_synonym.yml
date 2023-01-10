@@ -1,0 +1,29 @@
+uuid: c6bbc689-8f3e-46a5-9892-efa1a4e97300
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+    - node_menus
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+  node_menus:
+    enabled: 0
+    languages:
+      en:
+        available_menus:
+          - main
+        parent: 'main:'
+      es:
+        available_menus:
+          - main
+        parent: 'main:'
+name: 'Federal Directory Synonym'
+type: agency_synonym
+description: ''
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: false
