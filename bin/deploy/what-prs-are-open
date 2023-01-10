@@ -1,0 +1,14 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+assertRequires jq curl
+
+echo "Currently Open PRs:" | toLogs
+curl -u $GITHUB_USER:$GITHUB_TOKEN -s \
+  -H "Accept: application/vnd.github+json" \
+  https://api.github.com/repos/usagov/usagov-2021/pulls \
+  | jq -r '.[] | "\(.issue_url)  \(.title)"' | toLogs

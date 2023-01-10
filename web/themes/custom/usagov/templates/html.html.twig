@@ -126,7 +126,7 @@
   page.html.twig.
 #}
 <a href="#skip-to-h1" class="usa-skipnav usa-sr-only focusable">
-  {{ 'Skip to main content'|t }}
+ {{ lang == 'en' ? 'Skip to main content'|t : 'Saltar al contenido principal'|t }}
 </a>
 {{ page_top }}
 {{ page }}
@@ -137,15 +137,6 @@
 {% endif %}
 
 <!-- Needed_for_USA.gov_uptime_check -->
-<script type="text/javascript">
-  //<![CDATA[
-    var usasearch_config = { siteHandle:"usagov" };
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = "https://search.usa.gov/javascripts/remote.loader.js";
-    document.getElementsByTagName("head")[0].appendChild(script);
-  //]]>
-</script>
 
 {% if lang == "en" %}
 <script type="text/javascript">
@@ -209,6 +200,18 @@ const scrollToTop = () => {
 // }
 
 </script>
+
+<!-- siteimprove usability -->
+<script type="text/javascript">
+	/*<![CDATA[*/
+	(function() {
+	var sz = document.createElement('script'); sz.type = 'text/javascript'; sz.async = true;
+	sz.src = '//siteimproveanalytics.com/js/siteanalyze_51567.js';
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(sz, s);
+	})();
+	/*]]>*/
+</script>
+<!-- end siteimprove usability -->
 
 <!-- begin code to remove tabindex from survey -->
 <script type="text/javascript">

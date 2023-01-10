@@ -1,0 +1,35 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+TARGET_ENV=$1
+DEPLOY_BRANCH=${2:-}
+MERGE_BRANCH=${3:-}
+
+if [ ! "$TARGET_ENV" = "dev" ] && [ ! "$TARGET_ENV" = "stage" ] && [ ! "$TARGET_ENV" = "prod" ]; then
+  # technically this could be the name of any existing cf space
+  echo "Target Env can only be: dev, stage, prod not '$TARGET_ENV'" | toLogs
+  exit 1
+fi
+
+# unless otherwise specified, default to branch-promotion scenario
+if [ -z "$DEPLOY_BRANCH" ]; then
+  if [ "$TARGET_ENV" = "dev" ]; then
+    SOURCE_BRANCH="dev"
+  elif [ "$TARGET_ENV" = "stage" ]; then
+    SOURCE_BRANCH="stage"
+    MERGE_BRANCH=${MERGE_BRANCH:-"dev"}
+  elif [ "$TARGET_ENV" = "prod" ]; then
+    SOURCE_BRANCH="prod"
+    MERGE_BRANCH=${MERGE_BRANCH:-"stage"}
+  else
+    SOURCE_BRANCH="$TARGET_ENV"
+  fi
+fi
+
+echo "Target Environment: $TARGET_ENV" | toLogs
+echo "Deploy Branch: $DEPLOY_BRANCH" | toLogs
+echo "Merge Branch: $MERGE_BRANCH" | toLogs

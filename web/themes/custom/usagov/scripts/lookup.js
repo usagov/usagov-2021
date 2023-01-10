@@ -12,7 +12,7 @@ function lookup(address, callback) {
     let count=0;
     var timer = window.setInterval(function(){
         count++;
-        if (gapi.client.request != undefined) {
+        if (gapi.client != undefined) {
             window.clearInterval(timer);
             let req = gapi.client.request({
                 "path" : "/civicinfo/v2/representatives",
@@ -34,16 +34,18 @@ function lookup(address, callback) {
  */
 function renderResults(response, rawResponse) {
 
-    const translations = {
+    // Text strings for the page's language should be assigned to "usagovCEOtext" in 
+    // an inline script in the page's Header HTML. The translations here are retained for backward compatibility. 
+    const backupTranslations = {
         "en": {
             "error-fetch": "ERROR: Failed trying to fetch elected officials!",
             "error-address": "ERROR: Could not find elected officials for given address!",
-            "levels": ["Federal Officials", "State Officials", "Local Officials"],
-            "party-affiliation": "Party Affiliation",
+            "levels": ["Federal officials", "State officials", "Local officials"],
+            "party-affiliation": "Party affiliation",
             "address": "Address",
-            "phone-number": "Phone Number",
+            "phone-number": "Phone number",
             "website": "Website",
-            "contact-via-email": "Contact via Email",
+            "contact-via-email": "Contact via email",
             "path-contact": "/elected-officials-email",
         },
         "es": {
@@ -58,7 +60,8 @@ function renderResults(response, rawResponse) {
             "path-contact": "/es/funcionarios-electos-email",
         }
     }
-    let content=translations[ document.documentElement.lang ];
+
+    const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
 
     // Get location for where to attach the rendered results
     let resultsDiv = document.getElementById("results");
@@ -219,30 +222,8 @@ function renderResults(response, rawResponse) {
                 for (let j = 0; j < socials.length; j++) {
                     // Create appropriate type of link
                     // for each social media account
-
-
-                    // let linkToSocial = document.createElement("a");
-                    // let socialURL = ``;
-                    // if (socials[j].type.toLowerCase() == "twitter") {
-                    //     // linkToSocial.setAttribute("href", "https://twitter.com/" + socials[j].id);
-                    //     socialURL = "https://twitter.com/" + socials[j].id;
-                    // } else if (socials[j].type.toLowerCase() == "facebook") {
-                    //     // linkToSocial.setAttribute("href", "https://facebook.com/" + socials[j].id);
-                    //     socialURL = "https://facebook.com/" + socials[j].id;
-                    // } else if (socials[j].type.toLowerCase() == "youtube") {
-                    //     // linkToSocial.setAttribute("href", "https://youtube.com/" + socials[j].id);
-                    //     socialURL = "https://youtube.com/" + socials[j].id;
-                    // } else if (socials[j].type.toLowerCase() == "linkedin") {
-                    //     // linkToSocial.setAttribute("href", "https://linkedin.com/in/" + socials[j].id);
-                    //     socialURL = "https://linkedin.com/in/" + socials[j].id;
-                    // }
-                    // linkToSocial.innerHTML = "@" + socials[j].id;
-                    // let linkToSocial = `<a href="${socialURL}">@socials[j].id</a>`
-
                     nextElem = document.createElement("li");
                     nextElem.classList.add("padding-bottom-2")
-                    // nextElem.innerHTML = "<div class="text-bold">" + socials[j].type + ":</div><div>";
-                    // nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div>@${socials[j].type}</div>`;
                     let socialOptions = {
                         "twitter": "https://twitter.com/",
                         "facebook": "https://facebook.com/",
@@ -250,11 +231,9 @@ function renderResults(response, rawResponse) {
                         "linkedin": "https://linkedin.com/in/"
                     }
                     let social = socials[j].type.toLowerCase();
-                    if(social in socialOptions){
+                    if (social in socialOptions){
                         nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
                     }
-                    // nextElem.appendChild(linkToSocial);
-
                     bulletList.appendChild(nextElem);
                 }
             }
@@ -264,15 +243,20 @@ function renderResults(response, rawResponse) {
             if (email != "none provided") {
                 // let primaryEmail = document.createElement("button");
                 let linkToContact = document.createElement("a");
-                let emailLinkified = email[0].replace("@", "_");
+                let firstEmail = email[0];
 
                 linkToContact.setAttribute("class", "usa-button usa-button--outline usagov-button--outline-black");
                 linkToContact.style.marginTop = "15px";
                 linkToContact.innerHTML = content["contact-via-email"];
 
-                linkToContact.setAttribute("href", content["path-contact"] + "?email=" + emailLinkified +
-                    "?name=" + response.officials[i].name + "?office=" + response.officials[i].office) + "#skip-to-h1";
+                // Build search params for email page.
+                let searchParams = getSearchParams();
+                searchParams.set('email', firstEmail);
+                searchParams.set('name', response.officials[i].name);
+                searchParams.set('office', response.officials[i].office);
 
+                linkToContact.setAttribute("href", content["path-contact"] + "?"
+                                           + searchParams.toString() + "#skip-to-h1");
                 bulletList.appendChild(linkToContact);
             }
 
@@ -295,7 +279,8 @@ function renderResults(response, rawResponse) {
             appendLocation.appendChild(accordionHeader);
             appendLocation.appendChild(accordionContent);
         }
-    } else {
+    }
+    else {
         // No elected officials found - return error
         resultsDiv.appendChild(document.createTextNode(
             content["error-address"]
@@ -314,79 +299,25 @@ function renderResults(response, rawResponse) {
  * Process form data, display the address, and search for elected officials.
  */
 function load() {
-    let hrefWithoutHash = window.location.href.replace(window.location.hash, "");
-    let inputStreet = hrefWithoutHash.split("input-street=")[1].split("&")[0].split("+").join(" ");
-    let inputCity = hrefWithoutHash.split("input-city=")[1].split("&")[0].split("+").join(" ");
-    let inputState = hrefWithoutHash.split("input-state=")[1].split("&")[0];
-    let inputZip = hrefWithoutHash.split("input-zip=")[1].split("&")[0];
+    let searchParams = getSearchParams();
+    let inputStreet = searchParams.get('input-street');
+    let inputCity = searchParams.get('input-city');
+    let inputState = searchParams.get('input-state');
+    let inputZip = searchParams.get('input-zip');
 
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
-
     let displayAddress = document.getElementById("display-address");
     displayAddress.innerHTML = DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"));
-
-    // Trigger offline testing based on specific input
-    if (normalizedAddress == "123 Main Street, Somewhere, DC 12345") {
-        console.log("[DEBUG] Offline testing enabled!");
-        displayAddress.innerHTML += "<br>[DEBUG: Offline Testing Enabled]"
-
-        renderResults(offlineResponse, null);
-        return;
-    }
 
     lookup(normalizedAddress, renderResults);
 }
 
+function getSearchParams() {
+    const paramsString = window.location.search;
+    const searchParams = new URLSearchParams(paramsString);
+    return searchParams;
+}
+
 // Load the GAPI Client Library
 gapi.load("client", setApiKey);
-
-// Mock response for offline testing
-var offlineResponse = {
-    offices: [
-        {
-            name: "Website Creator",
-            levels: ["country"],
-            officialIndices: [0, 1],
-        },
-        {
-            name: "Governor",
-            levels: ["administrativeArea1"],
-            officialIndices: [2],
-        },
-        {
-            name: "Mayor",
-            levels: ["locality"],
-            officialIndices: [3],
-        },
-    ],
-    officials: [
-        {
-            name: "Charlie Liu",
-            party: "General Services Administration",
-            address: [{line1: "123 Main Street", city: "Somewhere", state: "DC", zip: "12345"}],
-            phones: ["(123) 456-7890"],
-            urls: ["https://example.gov/elected-officials"],
-            channels: [{type: "LinkedIn", id: "cliu13"}],
-            emails: ["charlie.liu@gsa.gov"],
-        },
-        {
-            name: "Jacob Cuomo",
-            party: "General Services Administration",
-            address: [{line1: "123 Main Street", city: "Somewhere", state: "DC", zip: "12345"}],
-            phones: ["(123) 456-7890"],
-            urls: ["https://example.gov/elected-officials"],
-            channels: [{type: "LinkedIn", id: "jacob-cuomo-659937125"}],
-            emails: ["jacob.cuomo@gsa.gov"],
-        },
-        {
-            name: "John Smith",
-            party: "Democratic Party",
-        },
-        {
-            name: "Jane Doe",
-            party: "Republican Party",
-        },
-    ],
-};
-
-document.body.onload = load();
+document.addEventListener('DOMContentLoaded', function() { load (); });

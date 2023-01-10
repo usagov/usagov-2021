@@ -1,0 +1,13 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+popspace
+popbranch
+
+echo
+echo "All Done"
+echo

@@ -1,5 +1,8 @@
 /**
  * Improve the accessibility of pages with input fields.
+ * Creating error messages so users know which fields need attention. Error messages are managed on CMS in the body element and element ID's are used to get the respective text.
+ * Used on pages: find and contact elected officials; email your elected official
+ * a11y_translations is used as fallback for pages where error message is not included in the CMS.
  */
 
 const a11y_translations = {
@@ -40,7 +43,17 @@ function myforms(event) {
                 test.push(error + " missing");
                 elmnts[k].classList.add("usa-user-error");
                 elmnts[k].previousElementSibling.classList.add("usa-error");
-                let message = a11y_content[error];
+                
+		// Changing to use the error method specified in the CMS if available
+        	var errorID = "error-" + error;
+        	var cmsError = document.getElementById(errorID);
+        	if(cmsError){
+          		var message = cmsError.getElementsByTagName("span")[0].innerHTML;
+
+        	}else {
+          		var message = a11y_content[error];
+        	}
+
                 elmnts[k].previousElementSibling.innerHTML = message;
                 event.preventDefault();
                 errorFound = true;  
@@ -120,13 +133,26 @@ function myforms(event) {
     
     if (errorFound) {
         document.getElementById("error-box").focus();
+	if (test.length == 1) {
+      	  if (document.documentElement.lang == "en") {
+            document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains an error";
+	  } else {
+	    document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Su información contiene 1 error";
+	  }
+    	} else {
+	  if (document.documentElement.lang == "en") {
 	    document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + test.length + " errors";
-        dataLayer.push({'event':'myform','error type':test.join(";")});
+	  } else {
+	    document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Su información contiene " + test.length + " errores";
+      	  }
+    	}
+        dataLayer.push({'event':'CEO form error','error type':test.join(";")});
         return false
     }
     document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px"; 
     document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px"; 
     document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
+    dataLayer.push({'event':'CEO_form_submit','form_result':'success'});
 };
 
 

@@ -39,6 +39,7 @@ function main($infile, $extended_infile, $outdir) {
       $row[] = 'langcode';
       $row[] = 'alias';
       $row[] = 'phonehint';
+      $row[] = 'Street 3';
       $array_indexes = array_flip($row);
       $headings_processed = TRUE;
     }
@@ -56,14 +57,40 @@ function main($infile, $extended_infile, $outdir) {
 
   $headings = array_merge($extended_headings, $basic_headings);
   $out_files = [];
+  $out_files['synonyms'] = []; // for a separate file mapping mothership_uuid to langcode, synonyms.
   $num_records = 0; // We'll count them on output, just so we can report.
+
+  // Define headings for a "reviewer's" CSV file. This will include a subset of the
+  // set of fields, with an entry for every federal agency record.
+  $reviewer_csv = 'federal_agencies_from_mothership';
+  $reviewer_headings = [
+    'Title', 'Language', 'Show on AZ Index', 'Summary', 'Government branch',
+    'Synonym', 'Email',
+    'Street 1', 'Street 2', 'Street 3', 'City', 'State', 'ZIP',
+  ];
+  // Add the variable number of phone columns from basic headings:
+  foreach (['phone_', 'toll_', 'tty_'] as $phonetype) {
+    $reviewer_headings = array_merge($reviewer_headings, array_filter($basic_headings, fn($e) => str_contains($e, $phonetype)));
+  }
+  // Add the variable link columns from extended headings:
+  foreach (['contactLinks_', 'websiteLinks_', 'officeLinks_'] as $linktype) {
+    $reviewer_headings = array_merge($reviewer_headings, array_filter($extended_headings, fn($e) => str_contains($e, $linktype)));
+  }
+  $reviewer_headings = array_merge($reviewer_headings, [
+    'English Toggle', 'Spanish Toggle', 'alias', 'UUID', 'UNUSED --->',
+    'Acronym', 'Agency', 'Agency Tags', 'Alpha-order-name', 'Archive Date', 'CAH Description',
+    'CFO Agency', 'Child Records', 'Comments', 'English Translation Name', 'Owner',
+    'Parent Record', 'Date Last Reviewed', 'Post date', 'Updated date',
+  ]);
+  $out_files[$reviewer_csv] = [$reviewer_headings];
+
   foreach ($basic_records_by_uuid as $uuid => $basic_record) {
     $extended_record = $extended_records_by_uuid[$uuid];
 
     // Get the "hints" from both records and concatenate them to group records
-    // by number of multi-value fields to map:
+    // by number of multi-value Link fields to map:
+    // $hint = $basic_record['langcode'] . '-' . $extended_record['multivalue_hint'];
     $hint = $extended_record['multivalue_hint'] ?: 'none';
-    $hint .= '-' . $basic_record['phonehint'];
 
     // Now combine the records into a flat array, in the same order as $headings above.
     $flat_record = [];
@@ -80,14 +107,42 @@ function main($infile, $extended_infile, $outdir) {
       $out_files[$hint][] = $headings;
     }
     $out_files[$hint][] = $flat_record;
+
+    // Add to the Synonym file, if appropriate:
+    if ($basic_record['Synonym']) {
+      $out_files['synonyms'][] = [
+        $basic_record['UUID'],
+        $basic_record['langcode'],
+        $basic_record['Synonym'],
+      ];
+    }
+
+    // Combine the records into a different flat array for the reviewer's csv:
+    $review_record = [];
+    foreach ($reviewer_headings as $col) {
+      if (array_key_exists($col, $basic_record)) {
+        $review_record[] = $basic_record[$col] ?: '';
+      }
+      elseif (array_key_exists($col, $extended_record)) {
+        $review_record[] = $extended_record[$col] ?: '';
+      }
+      else {
+        $review_record[] = '';
+      }
+    }
+    $out_files[$reviewer_csv][] = $review_record;
+
   }
+
   print("$num_records records\n");
 
   foreach ($out_files as $hint => $data) {
     $outfile = implode(DIRECTORY_SEPARATOR, [$outdir, $hint . ".csv"]);
     $fp_out = fopen($outfile, 'w');
     foreach ($data as $row) {
-      fputcsv($fp_out, $row);
+      // Before writing out the row, trim whitespace from each cell.
+      $trimmed_row = array_map('trim', $row);
+      fputcsv($fp_out, $trimmed_row);
     }
     fclose($fp_out);
   }
@@ -95,7 +150,7 @@ function main($infile, $extended_infile, $outdir) {
 }
 
 /**
- * Map and convert selected fields. Returns an array indexed by field name. Modifies the $indexes inputs.
+ * Map and convert selected fields. Returns an array indexed by field name. Modifies $indexes.
  *
  * @param Array $row
  * @param Array $indexes
@@ -117,7 +172,8 @@ function convert_fields($row, &$indexes) {
   }
   else {
     // Trim off /content, then concatenate what remains to the correct parent path.
-    // While it would be unusual for /content/ to appear elsewhere in the path, why risk a global replace?
+    // While it would be unusual for /content/ to appear elsewhere in the path,
+    // why risk a global replace?
     $alias = substr($alias, 9);
   }
   $alias = make_clean_alias($alias);
@@ -129,6 +185,14 @@ function convert_fields($row, &$indexes) {
     $alias = '/agencies/' . $alias;
   }
   $row[$alias_index] = $alias;
+
+  // Streets: If there is a "Subdivision", it becomes "Street 1", "Street 1" becomes "Street 2",
+  // and "Street 2" becomes "Street 3".
+  if ($subdivision = $row[$indexes['Subdivision']]) {
+    $row[$indexes['Street 3']] = $row[$indexes['Street 2']];
+    $row[$indexes['Street 2']] = $row[$indexes['Street 1']];
+    $row[$indexes['Street 1']] = $subdivision;
+  }
 
   // Phone number fields are lists of plain text strings, joined by '###'.
   $phone_map = [

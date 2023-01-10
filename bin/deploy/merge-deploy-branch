@@ -1,0 +1,20 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+assertRequires git
+
+DEPLOY_BRANCH=${DEPLOY_BRANCH:-}
+MERGE_BRANCH=${MERGE_BRANCH:-}
+
+# Make sure git is up to date
+echo "Merging git branches $MERGE_BRANCH => $DEPLOY_BRANCH" | toLogs
+
+git checkout $MERGE_BRANCH | toLogs
+git merge $DEPLOY_BRANCH | toLogs
+
+git checkout $DEPLOY_BRANCH | toLogs
+git merge $MERGE_BRANCH | toLogs

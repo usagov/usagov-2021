@@ -80,15 +80,15 @@ echo "Replacing references to S3 Bucket hostnames ... "
 while [ $i -lt "$n" ]
 do
   # Add attached buckets to the allow list
-  BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
-  AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint" | uniq )
-  AWS_ENDPOINT_ALT=$(  echo -E "$AWS_ENDPOINT"  | sed '/s3\-us\-/s3.us-/' | uniq )
-  AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
-  echo " ... $BUCKET"
+  REF_BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
+  REF_AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint" | uniq )
+  REF_AWS_ENDPOINT_ALT=$(  echo -E "$REF_AWS_ENDPOINT"  | sed '/s3\-us\-/s3.us-/' | uniq )
+  REF_AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
+  echo " ... $REF_BUCKET"
   # the (cms)? of the regex was used for a specfic reference we kept finding that used /public instead of /cms/public
-  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${BUCKET}.${AWS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
-  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${BUCKET}.${AWS_ENDPOINT_ALT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
-  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${BUCKET}.${AWS_FIPS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
+  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${REF_BUCKET}.${REF_AWS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
+  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${REF_BUCKET}.${REF_AWS_ENDPOINT_ALT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
+  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${REF_BUCKET}.${REF_AWS_FIPS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
   i=$((i+1))
 done
 
@@ -96,15 +96,18 @@ done
 # lower case all filenames in the copied dir before uploading
 LCF=0
 echo "Lower-casing files:"
+old_IFS="$IFS"
+IFS=$'\n'
 for f in `find $RENDER_DIR/*`; do
   ff=$(echo $f | tr '[A-Z]' '[a-z]');
   if [ "$f" != "$ff" ]; then
     # VERBOSE MODE
-    # mv -v "$f" "$ff"
+    # mv -v "$f" "$fff"
     mv -v "$f" "$ff" > /dev/null
     LCF=$((LCF+1))
   fi
 done
+IFS="$old_IFS"
 echo "    $LCF"
 
 # get a count of current AWS files, total and by extension

@@ -36,13 +36,15 @@
  */
 #}
 
-
-{% set UID = 'dr-' ~ fields.nid.content|striptags|trim %}
+{% set lang = row._entity.langcode.value %}
+{% set UTitle = 'dr-' ~ fields.title.content|striptags|trim %}
+{% set UID = fields.nid.content|striptags|trim %}
 
 <div class="usa-accordion usagov-directory-accordion-container">
   <h2 class="usa-accordion__heading">
     <button
-      aria-controls="{{- UID -}}"
+      aria-controls="{{- UTitle -}}"
+      data-node-id="{{- UID -}}"
       aria-expanded="false"
       class="usa-accordion__button"
       >
@@ -50,41 +52,44 @@
     </button>
   </h2>
 
-  <div class="usa-accordion__content usa-prose" id="{{- UID -}}">
+  <div class="usa-accordion__content usa-prose" id="{{- UTitle -}}" data-node-id="{{- UID -}}">
     <p>{{- fields.field_page_intro.content -}}</p>
 
     {% if fields.field_website.content|striptags|trim %}
-    <div>
-      <p>Website:&nbsp;</p>
+    <div id="field_website">
+      <p>{{ lang == 'en' ? 'Website' : 'Sitio web' }}:&nbsp;</p>
       <p>{{- fields.field_website.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_phone_number.content|striptags|trim %}
-    <div>
-      <p>Phone Number:&nbsp;</p>
+    <div id="field_phone">
+      <p>{{ lang == 'en' ? 'Phone number' : 'Teléfono' }}:&nbsp;</p>
       <p class="phoneNumberField">{{- fields.field_phone_number.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_contact_link.content|striptags|trim %}
-    <div>
-      <p>Contact:&nbsp;</p>
+    <div id="field_contact">
+      <p>{{ lang == 'en' ? 'Contact' : 'Contacto' }}:&nbsp;</p>
       <p>{{- fields.field_contact_link.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_offices_near_you.content|striptags|trim %}
-    <div>
-      <p>Find an Office Near You:&nbsp;</p>
+    <div id="field_office">
+      <p>{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}:&nbsp;</p>
       <p>{{- fields.field_offices_near_you.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.nothing.content|striptags|trim %}
-    <div>
-      <p>{{- fields.nothing.content -}}</p>
-    </div>
+      <div>
+        <p>
+        {# {{- fields.nothing.content -}} #}
+          <a href={{- fields.nothing.content|striptags|trim -}} > {{ lang == 'en' ? ' More information about ' : 'Más información sobre ' }} {{ fields.title.content  }}&nbsp; ></a>
+        </p>
+      </div>
     {% endif %}
 
   </div>
