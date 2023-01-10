@@ -83,12 +83,14 @@
 
 	{% if header_basic %}
 		<div class="usa-nav-container">
-	{% endif %}
-
-	{% include '@usagov/top_nav.html.twig' %}
-	{{ page.header }}
-
-	{% if header_basic %}
+		{% endif %}
+		{% if lang == 'es' %}
+			{% include '@usagov/top_nav_es.html.twig' %}
+		{% else %}
+			{% include '@usagov/top_nav.html.twig' %}
+		{% endif %}
+		{{ page.header }}
+		{% if header_basic %}
 		</div>
 	{% endif %}
 

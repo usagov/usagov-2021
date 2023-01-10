@@ -1,0 +1,9 @@
+<ul class="usa-nav__primary usa-accordion">
+	{% for item in items %}
+		<li class="usa-nav__primary-item" id="{{ item.original_link.description }}">
+			<a href={{ item.url }} class="usa-nav__link">
+				<span>{{ item.title }}</span>
+			</a>
+		</li>
+	{% endfor %}
+</ul>
