@@ -10,6 +10,12 @@
 {% endif %}
 
 <div class="usa-prose">
+{% if element["#language"] == "en" %}
+    <p class="usa-scam-label">WHERE TO REPORT A SCAM</p>
+{% else %}
+    <p class="usa-scam-label">Dónde reportar una estafa</p>
+{% endif %}
+
 <h1 class="text-blue" id="skip-to-h1"><span>{{ element['#object'].title.value }}</span></h1>
 </div>
 

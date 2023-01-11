@@ -950,7 +950,7 @@ div #sm-share a {
 
 // scams reskin
 
-#block-wizardenglish, #block-wizardespanol {
+#block-wizardenglish, #block-wizardespanol, #block-wizardenglishborder {
   background-color: #f3f3f3;
   border-top: 2px solid #112f4e;
   padding-top: 2rem;
@@ -972,14 +972,26 @@ div #sm-share a {
 div#block-wizardenglish~div#block-usagov-content .usa-prose h1, #block-wizardespanol~div#block-usagov-content .usa-prose h1 {
   color: #112f4e;
   padding-bottom: 1.5rem;
-  padding-left: .5rem;
-  @media (max-width: 64em) {
-    padding-left: 0;
-    }
+  margin-top: 1rem;
+  //padding-left: .5rem;
+  //@media (max-width: 64em) {
+  //  padding-left: 0;
+  //  }
 }
 
-div#block-wizardenglish~div#block-usagov-content article.padding-5 {
- padding-top: 1rem;
+div#block-wizardenglish~div#block-usagov-content .usa-prose h1.usa-wizard-title,
+div#block-wizardespanol~div#block-usagov-content .usa-prose h1.usa-wizard-title {
+  margin-top: 0;
+  padding-bottom: 0;
+}
+
+div#block-wizardenglish~div#block-usagov-content .usa-prose h1.usa-wizard-title~div.usa-pros {
+  padding-bottom: 1rem;
+}
+
+div#block-wizardenglish~div#block-usagov-content article.padding-5, 
+div#block-wizardespanol~div#block-usagov-content article.padding-5 {
+ padding-top: 0;
 }
 
 #block-wizardenglish .usa-prose, #block-wizardespanol .usa-prose {
@@ -995,8 +1007,13 @@ button#submit.usa-button {
   margin: 0;
   font-size: 1.2rem;
 }
+
+#block-wizardespanol div.field p {
+  padding-bottom: 1rem;
+}
+
 .usa-prose>p.usa-scam-label {
- max-width: 72ex;
+ max-width: 110ex;
 }
 
 .usa-scam-label {
@@ -1013,4 +1030,9 @@ button#prior.usa-button--outline {
 button#next.usa-button {
   background-color: #ccecf2;
   box-shadow: inset  0 0 0 2px #0081a1;
+}
+
+div#block-wizardenglish~div#block-usagov-content .usa-prose>p,
+div#block-wizardespanol~div#block-usagov-content .usa-prose>p {
+  max-width: 110ex;
 }
