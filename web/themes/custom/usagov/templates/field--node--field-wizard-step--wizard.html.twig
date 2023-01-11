@@ -4,8 +4,16 @@
 
 {% if radio_buttons %}
 
-
-<p class="usa-prose">Have you experienced a scam and want to report it? Just answer a few questions to learn how to report the scam to the right place.</p>
+<div class="usa-prose">
+{% if element["#language"] == "en" %}
+    <h1 class="text-blue usa-wizard-title" id="skip-to-h1"><span>Where to report a scam</span></h1>
+    <p class="usa-prose">Have you experienced a scam and want to report it? Just answer a few questions to learn how to report the scam to the right place.</p>
+{% else %}
+    <h1 class="text-blue usa-wizard-title" id="skip-to-h1"><span>Dónde reportar una estafa</span></h1>
+    <p class="usa-prose">¿Ha sufrido una estafa y quiere reportarla? Solo responda unas cuantas preguntas para saber cómo reportar la estafa en el lugar correcto.</p>
+    <p class="usa-prose">Su búsqueda podría arrojar resultados en inglés.</p>
+{% endif %}
+</div>
 
 <fieldset class="usa-fieldset maxw-tablet margin-x-auto">
     <legend class="usa-sr-only">{{ element['#object'].body[0].value|raw }}</legend>
