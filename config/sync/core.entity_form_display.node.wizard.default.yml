@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.wizard.field_footer_html
     - field.field.node.wizard.field_for_contact_center_only
     - field.field.node.wizard.field_header_html
+    - field.field.node.wizard.field_language_toggle
     - field.field.node.wizard.field_wizard_step
     - node.type.wizard
   module:
@@ -56,6 +57,16 @@ content:
     region: content
     settings:
       rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_language_toggle:
+    type: entity_reference_autocomplete
+    weight: 126
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
       placeholder: ''
     third_party_settings: {  }
   field_wizard_step:
