@@ -1,0 +1,22 @@
+uuid: 81593628-e717-483a-bbb1-fcf9d5aa08b1
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - node
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: node.field_custom_twig_content
+field_name: field_custom_twig_content
+entity_type: node
+type: boolean
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
