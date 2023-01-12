@@ -1,8 +1,4 @@
-{{ attach_library('wizard') }}
 
-{% set radio_buttons = true %}
-
-{% if radio_buttons %}
 
 <div class="usa-prose">
 {% if element["#language"] == "en" %}
@@ -17,40 +13,18 @@
 
 <fieldset class="usa-fieldset maxw-tablet margin-x-auto">
     <legend class="usa-sr-only">{{ element['#object'].body[0].value|raw }}</legend>
-    <div id="msg" class="maxw-tablet margin-x-auto usa-error" tabindex= "-1"></div>
     {% for item in items %}
-        {% set title = item.content["#options"]["entity"].field_option_name.0.value %}
-        {% if title == null %}
-            {% set title = item.content["#title"] %}
-        {% endif %}
-        {% set id = title|lower|replace({' ': '-', '.': '-'}) %}
         {% set url = item.content["#url"] %}
-        
-        <input class="usa-radio__input usa-radio__input--tile" type="radio" id="{{id}}" name="options" value="{{url}}#block-usagov-content">
-        <label class="usa-radio__label" for="{{id}}">{{title}}</label>
+        <div class="grid-row flex-justify-center maxw-mobile margin-x-auto margin-top-6">
+            <a class="usa-button" href="{{url}}">
+                {% if element["#language"] == "en" %}
+                Find the right place to report a scam
+                {% elseif element["#language"] == "es" %}
+                Empezar
+                
+                {% endif %}
+            </a>   
+        </div>
     {% endfor %}
-
-    <div class="grid-row flex-justify-center maxw-mobile margin-x-auto margin-top-6">
-         
-        <button id="submit" class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">
-            {% if element["#language"] == "en" %}
-            Find the right place to report a scam
-            {% elseif element["#language"] == "es" %}
-            Empezar
-            
-            {% endif %}
-        </button>       
-    </div>
+     
 </fieldset>
-
-{% else %}
-
-<ul class="add-list-reset">
-{% for item in items %}
-    <li>
-        <a href="{{item.content["#url"]}}" class="usa-button usa-button--secondary usa-button--big">{{item.content["#title"]}}</a>
-    </li>
-{% endfor %}
-</ul>
-
-{% endif %}
