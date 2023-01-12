@@ -11,7 +11,7 @@
 	debug
 	log {
 		format console
-		level INFO
+		level ERROR
 	}
 	auto_https off
 }
@@ -31,10 +31,7 @@
 	}
 	log {
 		format json
-		level INFO
+		level DEBUG
 		output stdout
 	}
-	tls {
-    ca /etc/ssl/certs/
-  }
 }
