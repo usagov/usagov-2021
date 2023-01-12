@@ -950,7 +950,7 @@ div #sm-share a {
 
 // scams reskin
 
-#block-wizardenglish, #block-wizardespanol, #block-wizardenglishborder {
+.block-wizardenglish, #block-wizardespanol {
   background-color: #f3f3f3;
   border-top: 2px solid #112f4e;
   padding-top: 2rem;
@@ -962,61 +962,42 @@ div #sm-share a {
 }
 
 @media (min-width: 64em) {
-  div#block-wizardenglish, div#block-wizardenglish~div#block-usagov-content, 
-  div#block-wizardespanol, div#block-wizardespanol~div#block-usagov-content {
+  .block-wizardenglish {
     margin-left: 5rem;
     max-width: 80%;
   }
 }
 
-div#block-wizardenglish~div#block-usagov-content .usa-prose h1, #block-wizardespanol~div#block-usagov-content .usa-prose h1 {
+.block-wizardenglish div.usa-prose h1, #block-wizardespanol~div#block-usagov-content .usa-prose h1 {
   color: #112f4e;
   padding-bottom: 1.5rem;
-  margin-top: 1rem;
-  //padding-left: .5rem;
-  //@media (max-width: 64em) {
-  //  padding-left: 0;
-  //  }
+  margin-top: 0;
 }
 
-div#block-wizardenglish~div#block-usagov-content .usa-prose h1.usa-wizard-title,
-div#block-wizardespanol~div#block-usagov-content .usa-prose h1.usa-wizard-title {
-  margin-top: 0;
+.block-wizardenglish div.usa-prose h1.usa-wizard-title {
   padding-bottom: 0;
 }
 
-div#block-wizardenglish~div#block-usagov-content .usa-prose h1.usa-wizard-title~div.usa-pros {
+.block-wizardenglish div.usa-prose h1 .usa-pros {
   padding-bottom: 1rem;
 }
 
-div#block-wizardenglish~div#block-usagov-content article.padding-5, 
-div#block-wizardespanol~div#block-usagov-content article.padding-5 {
- padding-top: 0;
-}
-
-#block-wizardenglish .usa-prose, #block-wizardespanol .usa-prose {
+.block-wizardenglish .usa-prose, #block-wizardespanol .usa-prose {
   font-size: 1.2rem;
 }
 
-button#submit.usa-button {
+.block-wizardenglish .usa-button {
   color: #112F4E;
   background-color: #ccecf2;
 }
 
-#block-wizardenglish div.field p, #block-wizardespanol div.field p {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-#block-wizardespanol div.field p {
-  padding-bottom: 1rem;
-}
-
-.usa-prose>p.usa-scam-label {
+.block-wizardenglish .usa-prose>p.usa-scam-label {
  max-width: 110ex;
+ padding-bottom: .2rem;
+ margin-bottom: 1rem;
 }
 
-.usa-scam-label {
+.block-wizardenglish .usa-scam-label {
   border-bottom: 1px solid gray;
   color: #112f43;
   font-weight: 500;
@@ -1032,7 +1013,7 @@ button#next.usa-button {
   box-shadow: inset  0 0 0 2px #0081a1;
 }
 
-div#block-wizardenglish~div#block-usagov-content .usa-prose>p,
+.block-wizardenglish .usa-prose>p,
 div#block-wizardespanol~div#block-usagov-content .usa-prose>p {
   max-width: 110ex;
 }
