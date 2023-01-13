@@ -12,16 +12,30 @@ scp_src=$2
 scp_dst=$3
 instance_index=${4:-0}
 
+# See "using other utilities" under "Changes to your app in the CAPI" here: 
+# https://cloud.gov/knowledge-base/2021-05-17-troubleshooting-ssh-connections/#changes-to-your-app-in-the-capi
+# We need the PROCESS_GUID for the "web process" for our app. 
+echo "getting ssh_host"
 ssh_host=`cf curl /v2/info | jq .app_ssh_endpoint | awk -F : '{print $1}' | sed 's/\"//g'`
-app_id=`cf env ${app_name} | grep application_id | awk '{print $2}' | sed 's/\"//g' | sed 's/,//g'`
+
+echo "getting app_guid"
+app_guid=`cf env ${app_name} | grep application_id | awk '{print $2}' | sed 's/\"//g' | sed 's/,//g'`
+
+echo "getting process_guid"
+process_guid=`cf curl /v3/apps/${app_guid}/processes | jq --raw-output '.resources | .[] | select(.type == "web").guid'`
+
+echo "getting ssh_code" 
 ssh_code=`cf ssh-code`
 
 echo "settings ------"
 echo "ssh_host : ${ssh_host}"
 echo "app_name : ${app_name}"
-echo "app_id : ${app_id}"
+echo "app_guid : ${app_guid}"
+echo "process_guid: ${process_guid}"
 echo "ssh_code : ${ssh_code}"
 echo ""
 
 echo "start scp ------"
-sshpass -p "${ssh_code}" scp -v -P 2222 -o StrictHostKeyChecking=no -o User=cf:${app_id}/${instance_index} ${scp_src} ${ssh_host}:${scp_dst}
+
+sshpass -p "${ssh_code}" scp -P 2222 -o StrictHostKeyChecking=no -o User=cf:${process_guid}/${instance_index} ${ssh_host}:${scp_src} ${scp_dst}
+
