@@ -100,7 +100,7 @@ ul.navigation__items{
   cursor: pointer;
 }
 #block-languageswitcher{
-  z-index: 1;
+  position: relative;
 }
 
 @media (min-width: 64em){
