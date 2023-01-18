@@ -1,0 +1,29 @@
+uuid: 5ddec73c-3948-4a6a-a8f8-31998a42e650
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_homepage_banner
+    - media.type.image
+    - node.type.basic_page
+id: node.basic_page.field_homepage_banner
+field_name: field_homepage_banner
+entity_type: node
+bundle: basic_page
+label: 'Homepage Banner'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:media'
+  handler_settings:
+    target_bundles:
+      image: image
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference
