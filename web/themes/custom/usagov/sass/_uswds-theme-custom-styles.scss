@@ -987,7 +987,7 @@ div #sm-share a {
 }
 
 .block-wizardenglish .usa-button {
-  color: #112F4E;
+  color: #1b1b1b;
   background-color: #ccecf2;
 }
 
@@ -1016,4 +1016,8 @@ button#next.usa-button {
 .block-wizardenglish .usa-prose>p,
 div#block-wizardespanol~div#block-usagov-content .usa-prose>p {
   max-width: 110ex;
+}
+
+.block-wizardenglish .usa-radio__input--tile:checked+[class*=__label] {
+  background-color: #ccecf2;
 }
