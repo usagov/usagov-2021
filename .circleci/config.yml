@@ -333,6 +333,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-675-client-max-body-size-on-WAF
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -342,7 +343,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-
+                - USAGOV-675-client-max-body-size-on-WAF
       - approve-dev-deployment:
           type: approval
           requires:
