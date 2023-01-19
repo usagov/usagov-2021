@@ -9,6 +9,7 @@
     {% set translation = {prior: "Previo", next: "Siguiente"} %}
 {% endif %}
 
+<div id="wizard_border">
 <div id="msg" class="maxw-tablet margin-x-auto usa-error" tabindex= "-1"></div>
 
 <fieldset class="usa-fieldset maxw-tablet margin-x-auto">
@@ -32,7 +33,7 @@
         <button id="next" class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">{{translation.next}}</button>
     </div>
 </fieldset>
-
+</div>
 {% else %}
 
 <ul class="add-list-reset">
