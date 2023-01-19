@@ -124,6 +124,9 @@ done
 
 . /opt/modsecurity/activate-rules.sh
 
+# Run crond
+exec /usr/sbin/crond -c /etc/crontabs &
+
 exec /cert-watcher.sh &
 
 exec "$@"
