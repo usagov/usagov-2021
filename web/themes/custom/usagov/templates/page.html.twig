@@ -74,19 +74,26 @@
 <div class="usa-overlay"></div>
 
 <header class="{{ header_classes }}" id="header" role="banner">
+
 	{% if page.header_top %}
 		<div class="usa-banner-inner">
 			{{ page.header_top }}
 		</div>
 	{% endif %}
+
 	{% if header_basic %}
 		<div class="usa-nav-container">
 		{% endif %}
+		{% if lang == 'es' %}
+			{% include '@usagov/top_nav_es.html.twig' %}
+		{% else %}
+			{% include '@usagov/top_nav.html.twig' %}
+		{% endif %}
 		{{ page.header }}
-
 		{% if header_basic %}
 		</div>
 	{% endif %}
+
 </header>
 
 {% if page.hero %}
@@ -144,6 +151,7 @@
 
 						{% include '@usagov/sharethispage.html.twig' %}
 						{% include '@usagov/haveaquestion.html.twig' %}
+
 
 						{% if (term_name == "" or term_name == "Standard Page" or term_name =="Standard Page- Nav Hidden") and not is_front %}
 
