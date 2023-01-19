@@ -34,6 +34,5 @@ if (menu_paths.includes(path)) {
   }
   let aElem = listItem.getElementsByTagName("a")[0];
   aElem.setAttribute("href", "#skip-to-h1");
-  aElem.setAttribute("aria-current", "page");
   aElem.classList.add("currentMenuItem");
 }

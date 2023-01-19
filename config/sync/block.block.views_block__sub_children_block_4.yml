@@ -1,4 +1,4 @@
-uuid: 118558b8-d2e2-4f51-950a-f8af82c3304b
+uuid: 932ff43f-9270-4405-af72-c60bff53d630
 langcode: en
 status: true
 dependencies:
@@ -9,14 +9,14 @@ dependencies:
     - views
   theme:
     - usagov
-id: views_block__sub_children_all_topics_block
+id: views_block__sub_children_block_4
 theme: usagov
 region: content
 weight: -10
 provider: null
-plugin: 'views_block:sub_children-all_topics_block'
+plugin: 'views_block:sub_children-block_4'
 settings:
-  id: 'views_block:sub_children-all_topics_block'
+  id: 'views_block:sub_children-block_4'
   label: ''
   label_display: '0'
   provider: views
@@ -27,4 +27,4 @@ visibility:
   request_path:
     id: request_path
     negate: false
-    pages: "<front>\r\n/welcome-usagov"
+    pages: '<front>'

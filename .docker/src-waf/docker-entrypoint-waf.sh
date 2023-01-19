@@ -50,11 +50,9 @@ fi;
 # which ips are whitelisted
 export IPS_ALLOWED=""
 if [ ! -z "$IP_ALLOWED" ]; then
-   ### Some of us like to be able to add comments. Strip those out now:
-   IPS_NO_COMMENTS=$(echo "$IP_ALLOWED" | sed -r 's/^[ \t]*#.*$//g')
    ### discard all characters except 0-9, the period, comma and the semicolon
    ### this allows a variety of (valid) common formats to be safely used as input
-   IPS=$(echo $IPS_NO_COMMENTS | sed -r 's/[^0-9.,;\/]//g' | tr ',' ';' | tr ';' ' ')
+   IPS=$(echo $IP_ALLOWED | sed -r 's/[^0-9.,;\/]//g' | tr ',' ';' | tr ';' ' ')
    for ip in $IPS; do
      if valid_ip $ip; then
        export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
