@@ -1,0 +1,19 @@
+{% if view.current_display == "life_events_block" %}
+
+<div class="grid-container padding-left-0 padding-right-0">
+  <div class="usagov-cards">
+    <ul class="usa-card-group">
+      <div class="slides">
+        {% for row in rows %}
+          <div class="slide usa-card " role="group" aria-label="slide {{loop.index}} of 6">
+            <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
+              {{- row.content -}}
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </ul>
+  </div>
+</div>
+
+{% endif %}
