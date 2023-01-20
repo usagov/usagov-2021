@@ -1,5 +1,13 @@
 #!/bin/sh
 
+read -p "This will copy files to S3 with PUBLIC READ permission.
+Continue? (y/n): "
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "bailing!"
+    exit 1 || return 1
+fi
+
+
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
@@ -23,6 +31,7 @@ printf "Uploading files from $localdir to S3 ..."
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 # TODO: make backup
-# TODO: add --delete flag or similar. 
-aws s3 sync $localdir s3://$S3_BUCKET/cms/public/ 
+# TODO: add --delete flag or similar.
+aws s3 sync $localdir s3://$S3_BUCKET/cms/public/ --acl public-read 
+
 
