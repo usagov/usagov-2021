@@ -1,4 +1,4 @@
-version: 2.1
+ version: 2.1
 
 commands:
   deploy-cloudgov:
@@ -333,6 +333,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-673-block-domain
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -342,6 +343,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-673-block-domain
       - approve-dev-deployment:
           type: approval
           requires:
