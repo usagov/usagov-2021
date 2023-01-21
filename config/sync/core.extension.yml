@@ -83,6 +83,7 @@ module:
   usa_translation: 0
   usa_workflow: 0
   usagov_directories: 0
+  usagov_header_hooks: 0
   usagov_login: 0
   usagov_uswds_paragraph_components_mods: 0
   user: 0

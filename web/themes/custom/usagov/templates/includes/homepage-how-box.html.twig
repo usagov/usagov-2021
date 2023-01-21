@@ -1,0 +1,13 @@
+{% set lang = node.langcode.value %}
+<div class="how-box">
+	<h2>{{ lang == 'en' ? 'How do I ...' : 'Cómo puedo...' }}</h2>
+	<ul class="how-button-list">
+		{% for link in node.field_homepage_top_links %}
+			<li class="how-button">
+				<a href={{link.url}}>
+					{{link.title}}
+				</a>
+			</li>
+		{% endfor %}
+	</ul>
+</div>
