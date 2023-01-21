@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_css_icon
+    - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
@@ -38,6 +39,16 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 0
+    region: content
+  field_custom_twig_content:
+    type: boolean
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 6
     region: content
   field_homepage_banner:
     type: entity_reference_entity_view

@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_css_icon
+    - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
@@ -48,15 +49,22 @@ content:
     third_party_settings: {  }
   field_css_icon:
     type: string_textfield
-    weight: 18
+    weight: 19
     region: content
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_custom_twig_content:
+    type: boolean_checkbox
+    weight: 13
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
   field_footer_html:
     type: string_textarea
-    weight: 15
+    weight: 16
     region: content
     settings:
       rows: 5
@@ -64,7 +72,7 @@ content:
     third_party_settings: {  }
   field_for_contact_center_only:
     type: text_textarea
-    weight: 19
+    weight: 20
     region: content
     settings:
       rows: 5
@@ -72,7 +80,7 @@ content:
     third_party_settings: {  }
   field_header_html:
     type: text_textarea
-    weight: 14
+    weight: 15
     region: content
     settings:
       rows: 5
@@ -102,14 +110,14 @@ content:
     third_party_settings: {  }
   field_is_navigation_page:
     type: boolean_checkbox
-    weight: 16
+    weight: 17
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   field_language_toggle:
     type: entity_reference_autocomplete
-    weight: 20
+    weight: 21
     region: content
     settings:
       match_operator: CONTAINS
@@ -119,7 +127,7 @@ content:
     third_party_settings: {  }
   field_navigation_banner_image:
     type: media_library_widget
-    weight: 21
+    weight: 22
     region: content
     settings:
       media_types: {  }
@@ -134,7 +142,7 @@ content:
     third_party_settings: {  }
   field_page_type:
     type: options_select
-    weight: 17
+    weight: 18
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -195,7 +203,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
   translation:
-    weight: 13
+    weight: 14
     region: content
     settings: {  }
     third_party_settings: {  }
