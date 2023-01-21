@@ -12,6 +12,7 @@ global-styling:
     - core/drupal
     - core/jquery
     - core/once
+
 wizard:
   js:
     scripts/wizard.js: {}
@@ -21,6 +22,13 @@ wizard:
 wizardStep:
   js:
     scripts/wizardStep.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+
+carousel:
+  js:
+    scripts/carousel.js: {}
   dependencies:
     - core/drupal
     - core/jquery
