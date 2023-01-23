@@ -950,7 +950,7 @@ div #sm-share a {
 
 // scams reskin
 
-.block-wizardenglish, #block-wizardespanol {
+.block-wizardenglish, .block-wizardespanol {
   background-color: #f3f3f3;
   border-top: 2px solid #112f4e;
   padding-top: 2rem;
@@ -1020,4 +1020,8 @@ div#block-wizardespanol~div#block-usagov-content .usa-prose>p {
 
 .block-wizardenglish .usa-radio__input--tile:checked+[class*=__label] {
   background-color: #ccecf2;
+}
+
+.wizard_error {
+  border-left: 3px solid #d83933;
 }
