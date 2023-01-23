@@ -1,0 +1,126 @@
+<div class="usa-prose margin-top-1em">
+	<p>Enter your physical address in the form below in order to get a list of elected officials at the federal, state, and local levels.</p>
+	<div id="error-box" class="usa-alert usa-alert--slim usa-alert--error usa-error--alert" tabindex="-1">
+		<div class="usa-alert__body">
+			<h3 class="usa-alert__heading">Your information contains errors</h3>
+			<ul id="testing">
+				<li id="error-street" class="usa-alert__text">
+					<a href="#input-street">
+						<span>Please fill out the street field.</span>
+					</a>
+				</li>
+				<li id="error-city" class="usa-alert__text">
+					<a href="#input-city">
+						<span>Please fill out the city field.</span>
+					</a>
+				</li>
+				<li id="error-state" class="usa-alert__text">
+					<a href="#input-state">
+						<span>Please fill out the state field.</span>
+					</a>
+				</li>
+				<li id="error-zip" class="usa-alert__text">
+					<a href="#input-zip">
+						<span>Please fill out the zip field.</span>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<form class="usa-form maxw-none" action="/elected-officials-results#skip-to-h1" autocomplete="off" name="myform" id="myform" novalidate onsubmit="return myforms(event);">
+		<div class="padding-1px bg-gray-4">
+			<div class="maxw-mobile margin-x-auto margin-y-4">
+				<p>Please complete the fields below.
+					<strong>All fields are required.</strong>
+				</p>
+				<div id="error-border">
+					<div class="usa-form-spacing">
+						<label id="myStreetAddress" class="usa-label" for="input-street">Street Address</label>
+						<span id="street" class="errors"></span>
+						<input class="usa-input" id="input-street" aria-labelledby="myStreetAddress" name="input-street" type="text" onkeypress="return event.keyCode != 13;" required/>
+					</div>
+					<div class="usa-form-spacing">
+						<label id="myCity" class="usa-label" for="input-city">City</label>
+						<span id="city" class="errors"></span>
+						<input class="usa-input" id="input-city" aria-labelledby="myCity" name="input-city" type="text" onkeypress="return event.keyCode != 13;" required/>
+					</div>
+					<div class="usa-form-spacing">
+						<label id="input-state-label" class="usa-label" for="input-state">
+							State
+						</label>
+						<div class="usa-combo-box">
+							<label class="visuallyhidden">
+								Select your state:
+								<select aria-labelledby="input-state-label" class="usa-select" name="input-state" id="input-state" required>
+									<option id="AL" value="AL">Alabama</option>
+									<option id="AK" value="AK">Alaska</option>
+									<option id="AZ" value="AZ">Arizona</option>
+									<option id="AR" value="AR">Arkansas</option>
+									<option id="CA" value="CA">California</option>
+									<option id="CO" value="CO">Colorado</option>
+									<option id="CT" value="CT">Connecticut</option>
+									<option id="DE" value="DE">Delaware</option>
+									<option id="DC" value="DC">District Of Columbia</option>
+									<option id="FL" value="FL">Florida</option>
+									<option id="GA" value="GA">Georgia</option>
+									<option id="HI" value="HI">Hawaii</option>
+									<option id="ID" value="ID">Idaho</option>
+									<option id="IL" value="IL">Illinois</option>
+									<option id="IN" value="IN">Indiana</option>
+									<option id="IA" value="IA">Iowa</option>
+									<option id="KS" value="KS">Kansas</option>
+									<option id="KY" value="KY">Kentucky</option>
+									<option id="LA" value="LA">Louisiana</option>
+									<option id="ME" value="ME">Maine</option>
+									<option id="MD" value="MD">Maryland</option>
+									<option id="MA" value="MA">Massachusetts</option>
+									<option id="MI" value="MI">Michigan</option>
+									<option id="MN" value="MN">Minnesota</option>
+									<option id="MS" value="MS">Mississippi</option>
+									<option id="MO" value="MO">Missouri</option>
+									<option id="MT" value="MT">Montana</option>
+									<option id="NE" value="NE">Nebraska</option>
+									<option id="NV" value="NV">Nevada</option>
+									<option id="NH" value="NH">New Hampshire</option>
+									<option id="NJ" value="NJ">New Jersey</option>
+									<option id="NM" value="NM">New Mexico</option>
+									<option id="NY" value="NY">New York</option>
+									<option id="NC" value="NC">North Carolina</option>
+									<option id="ND" value="ND">North Dakota</option>
+									<option id="OH" value="OH">Ohio</option>
+									<option id="OK" value="OK">Oklahoma</option>
+									<option id="OR" value="OR">Oregon</option>
+									<option id="PA" value="PA">Pennsylvania</option>
+									<option id="RI" value="RI">Rhode Island</option>
+									<option id="SC" value="SC">South Carolina</option>
+									<option id="SD" value="SD">South Dakota</option>
+									<option id="TN" value="TN">Tennessee</option>
+									<option id="TX" value="TX">Texas</option>
+									<option id="UT" value="UT">Utah</option>
+									<option id="VT" value="VT">Vermont</option>
+									<option id="VA" value="VA">Virginia</option>
+									<option id="WA" value="WA">Washington</option>
+									<option id="WV" value="WV">West Virginia</option>
+									<option id="WI" value="WI">Wisconsin</option>
+									<option id="WY" value="WY">Wyoming</option>
+								</select>
+							</label>
+							<span id="state" class="errors"></span>
+						</div>
+					</div>
+					<div class="usa-form-spacing">
+						<label id="myZIP" class="usa-label" for="input-zip">ZIP Code</label>
+						<span id="zip" class="errors"></span>
+						<input class="usa-input" id="input-zip" aria-labelledby="myZIP" name="input-zip" type="text" onkeypress="return event.keyCode != 13;" required/>
+					</div>
+				</div>
+				<p>We will never sell your personal information.
+					<a href="/privacy-security">Learn how USA.gov protects your privacy.</a>
+				</p>
+				<button class="usa-button usa-button--secondary usa-button--big">Find My Elected Officials</button>
+			</div>
+		</div>
+	</form>
+</div>
+<script src="/themes/custom/usagov/scripts/accessibility.js"></script>
