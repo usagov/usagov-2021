@@ -17,20 +17,18 @@ use Drupal\node\Entity\Node;
  * @param mixed $hook
  *   Self described.
  */
-function usagov_top_navigation_menu_preprocess(&$variables, $hook) {
-  if ($hook === 'html') {
-    $node = \Drupal::routeMatch()->getParameter('node');
-
-    if (is_object($node) && method_exists($node, 'getFields')) {
-        $test_str = "testing isabel can pass vars";
-        kint($test_str);
-        // $variables['top_nav'] = usagov_top_navigation_menu_get_top_nav($node);
-      }
-    }
-  }
 
 
-function usagov_top_navigation_menu_get_top_nav(&$node) {
+function usagov_top_navigation_menu_page_attachments(array &$page) {
+  // $test_str2 = "testing isabel can pass vars2";
+  // kint($test_str2);
+  $page['#attached']['library'][] = 'usagov_top_navigation_menu/usagov_top_navigation_menu_js';
+
+  $top_nav_menu = usagov_top_navigation_menu_get_top_nav();
+  $page['#attached']['drupalSettings']['mymoduleComputedData']['title'] = $top_nav_menu;
+}
+
+function usagov_top_navigation_menu_get_top_nav() {
   $menu_parameters = new MenuTreeParameters();
   $tree = \Drupal::menuTree()->load('top-navigation', $menu_parameters);
   $topnav = array();
