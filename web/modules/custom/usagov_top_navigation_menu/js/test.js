@@ -18,6 +18,12 @@
 
       if (current_path in dicts) {
         console.log("YUP");
+        let listItem;
+        listItem = document.getElementById(dicts[current_path]);
+        let aElem = listItem.getElementsByTagName("a")[0];
+        aElem.setAttribute("href", "#skip-to-h1");
+        aElem.setAttribute("aria-current", "page");
+        aElem.classList.add("currentMenuItem");
       } else {
         console.log("NOPE");
       }
