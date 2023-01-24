@@ -14,10 +14,8 @@
       }
 
       let current_path = window.location.pathname;
-      console.log(`HELLO FROM JS ${current_path}`);
 
       if (current_path in dicts) {
-        console.log("YUP");
         let listItem;
         listItem = document.getElementById(dicts[current_path]);
         let aElem = listItem.getElementsByTagName("a")[0];
@@ -25,7 +23,6 @@
         aElem.setAttribute("aria-current", "page");
         aElem.classList.add("currentMenuItem");
       } else {
-        console.log("NOPE");
       }
     },
   };
