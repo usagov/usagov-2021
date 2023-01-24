@@ -20,8 +20,6 @@ use Drupal\node\Entity\Node;
 
 
 function usagov_top_navigation_menu_page_attachments(array &$page) {
-  // $test_str2 = "testing isabel can pass vars2";
-  // kint($test_str2);
   $page['#attached']['library'][] = 'usagov_top_navigation_menu/usagov_top_navigation_menu_js';
 
   $top_nav_menu = usagov_top_navigation_menu_get_top_nav();
@@ -39,7 +37,6 @@ function usagov_top_navigation_menu_get_top_nav() {
     $menu_item = [$menu_path => $menu_id];
     array_push($topnav, $menu_item);
   }
-  // kint($topnav);
   return $topnav;
 }
 
