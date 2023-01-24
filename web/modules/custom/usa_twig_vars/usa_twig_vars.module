@@ -6,8 +6,6 @@
  */
 
 use Drupal\taxonomy\Entity\Term;
-use Drupal\Core\Menu\MenuTreeParameters;
-use Drupal\node\Entity\Node;
 
 /**
  * Description message.
@@ -59,7 +57,6 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         $variables['front'] = $isFront;
         $variables['nodetype'] = $special_node_type ?: $node_real_type;
         $variables['pagetype'] = usa_twig_vars_get_page_type($node);
-        usa_twig_vars_get_top_nav($node);
         unset($isFront);
       }
     }
@@ -86,21 +83,6 @@ function usa_twig_vars_get_page_type(&$node) {
     $page_type = $term ? $term->get('name')->value : '';
     return $page_type ?? 'content_page';
   }
-}
-
-function usa_twig_vars_get_top_nav(&$node) {
-  $menu_parameters = new MenuTreeParameters();
-  $tree = \Drupal::menuTree()->load('top-navigation', $menu_parameters);
-  $topnav = array();
-
-  foreach ($tree as $item) {
-    $menu_path = $item->link->getUrlObject()->toString();
-    $menu_id = $item->link->getDescription();
-    $menu_item = [$menu_path => $menu_id];
-    array_push( $topnav, $menu_item);
-  }
-  kint($topnav);
-  // return $topnav;
 }
 
 /**
