@@ -7,7 +7,6 @@ global-styling:
     scripts/uswds.min.js: {}
     scripts/newFooter.js: {}
     scripts/telephoneForMobileNode.js: {}
-    scripts/disableMenuLinks.js: {}
   dependencies:
     - core/drupal
     - core/jquery
