@@ -6,6 +6,8 @@
  */
 
 use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\Menu\MenuTreeParameters;
+use Drupal\node\Entity\Node;
 
 /**
  * Description message.
@@ -57,6 +59,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         $variables['front'] = $isFront;
         $variables['nodetype'] = $special_node_type ?: $node_real_type;
         $variables['pagetype'] = usa_twig_vars_get_page_type($node);
+        usa_twig_vars_get_top_nav($node);
         unset($isFront);
       }
     }
@@ -83,6 +86,31 @@ function usa_twig_vars_get_page_type(&$node) {
     $page_type = $term ? $term->get('name')->value : '';
     return $page_type ?? 'content_page';
   }
+}
+
+function usa_twig_vars_get_top_nav(&$node) {
+  $menu_parameters = new MenuTreeParameters();
+  $manipulators = [
+    ['callable' => 'menu.default_tree_manipulators:checkNodeAccess'],
+    ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+    ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+  ];
+  $tree = \Drupal::menuTree()->load('top-navigation', $menu_parameters);
+  $tree = \Drupal::menuTree()->transform($tree, $manipulators);
+  foreach ($tree as $item) {
+    // kint($item);
+    kint($item->link->getTitle());
+    kint($item->link->getDescription());
+    $url = $item->link->getUrlObject();
+    $url_string = $url->toString();
+    kint($url_string);
+    kint("TWO");
+  }
+  // $variables['#attached']['drupalSettings']['mymodule']['color_body'] = $color_body;
+  // return $tree;
+  // kint($tree);
+  // return $tree;
+  // $form['content'] = \Drupal::menuTree()->build($tree);
 }
 
 /**
