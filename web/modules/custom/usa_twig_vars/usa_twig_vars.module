@@ -90,27 +90,17 @@ function usa_twig_vars_get_page_type(&$node) {
 
 function usa_twig_vars_get_top_nav(&$node) {
   $menu_parameters = new MenuTreeParameters();
-  $manipulators = [
-    ['callable' => 'menu.default_tree_manipulators:checkNodeAccess'],
-    ['callable' => 'menu.default_tree_manipulators:checkAccess'],
-    ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
-  ];
   $tree = \Drupal::menuTree()->load('top-navigation', $menu_parameters);
-  $tree = \Drupal::menuTree()->transform($tree, $manipulators);
+  $topnav = array();
+
   foreach ($tree as $item) {
-    // kint($item);
-    kint($item->link->getTitle());
-    kint($item->link->getDescription());
-    $url = $item->link->getUrlObject();
-    $url_string = $url->toString();
-    kint($url_string);
-    kint("TWO");
+    $menu_path = $item->link->getUrlObject()->toString();
+    $menu_id = $item->link->getDescription();
+    $menu_item = [$menu_path => $menu_id];
+    array_push( $topnav, $menu_item);
   }
-  // $variables['#attached']['drupalSettings']['mymodule']['color_body'] = $color_body;
-  // return $tree;
-  // kint($tree);
-  // return $tree;
-  // $form['content'] = \Drupal::menuTree()->build($tree);
+  kint($topnav);
+  // return $topnav;
 }
 
 /**
