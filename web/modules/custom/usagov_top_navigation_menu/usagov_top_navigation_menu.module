@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ * Use proprocess for html twig.
+ */
+
+use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\Menu\MenuTreeParameters;
+use Drupal\node\Entity\Node;
+
+/**
+ * Description message.
+ *
+ * @param mixed $variables
+ *   Self described.
+ * @param mixed $hook
+ *   Self described.
+ */
+function usagov_top_navigation_menu_preprocess(&$variables, $hook) {
+  if ($hook === 'html') {
+    $node = \Drupal::routeMatch()->getParameter('node');
+
+    if (is_object($node) && method_exists($node, 'getFields')) {
+        $test_str = "testing isabel can pass vars";
+        kint($test_str);
+        // $variables['top_nav'] = usagov_top_navigation_menu_get_top_nav($node);
+      }
+    }
+  }
+
+
+function usagov_top_navigation_menu_get_top_nav(&$node) {
+  $menu_parameters = new MenuTreeParameters();
+  $tree = \Drupal::menuTree()->load('top-navigation', $menu_parameters);
+  $topnav = array();
+
+  foreach ($tree as $item) {
+    $menu_path = $item->link->getUrlObject()->toString();
+    $menu_id = $item->link->getDescription();
+    $menu_item = [$menu_path => $menu_id];
+    array_push($topnav, $menu_item);
+  }
+  // kint($topnav);
+  return $topnav;
+}
+
