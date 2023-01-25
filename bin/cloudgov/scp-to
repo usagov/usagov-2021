@@ -32,7 +32,6 @@ echo "ssh_host : ${ssh_host}"
 echo "app_name : ${app_name}"
 echo "app_guid : ${app_guid}"
 echo "process_guid: ${process_guid}"
-echo "ssh_code : ${ssh_code}"
 echo ""
 
 echo "start scp ------"
