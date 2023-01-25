@@ -18,7 +18,6 @@ use Drupal\node\Entity\Node;
  *   Self described.
  */
 
-
 function usagov_top_navigation_menu_page_attachments(array &$page) {
   $page['#attached']['library'][] = 'usagov_top_navigation_menu/usagov_top_navigation_menu_js';
 
@@ -47,4 +46,3 @@ function usagov_top_navigation_menu_get_top_nav() {
   }
   return $topnav;
 }
-
