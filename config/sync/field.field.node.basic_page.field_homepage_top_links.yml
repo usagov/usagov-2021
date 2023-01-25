@@ -1,0 +1,23 @@
+uuid: 1959924f-6499-48d7-8004-3c5106ced98a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_homepage_top_links
+    - node.type.basic_page
+  module:
+    - link
+id: node.basic_page.field_homepage_top_links
+field_name: field_homepage_top_links
+entity_type: node
+bundle: basic_page
+label: 'Homepage Top Links'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 1
+  link_type: 17
+field_type: link
