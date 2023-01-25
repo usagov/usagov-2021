@@ -22,13 +22,21 @@ use Drupal\node\Entity\Node;
 function usagov_top_navigation_menu_page_attachments(array &$page) {
   $page['#attached']['library'][] = 'usagov_top_navigation_menu/usagov_top_navigation_menu_js';
 
+
   $top_nav_menu = usagov_top_navigation_menu_get_top_nav();
   $page['#attached']['drupalSettings']['top_nav_menu'] = $top_nav_menu;
 }
 
 function usagov_top_navigation_menu_get_top_nav() {
   $menu_parameters = new MenuTreeParameters();
-  $tree = \Drupal::menuTree()->load('top-navigation', $menu_parameters);
+  $menu_lang = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  if ($menu_lang == 'es'){
+    $menu_name = 'top-navigation-es';
+  }
+  else{
+    $menu_name = 'top-navigation';
+  }
+  $tree = \Drupal::menuTree()->load($menu_name, $menu_parameters);
   $topnav = array();
 
   foreach ($tree as $item) {
