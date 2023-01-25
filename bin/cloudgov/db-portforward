@@ -28,7 +28,8 @@ echo "Generating service key"
 cf create-service-key database db-portforward >/dev/null 2>&1
 
 echo "Collecting connection info"
-CF_GUID=$(cf app cms --guid)
+CF_APP_GUID=$(cf app cms --guid)
+CF_PROCESS_GUID=`cf curl /v3/apps/${CF_APP_GUID}/processes | jq --raw-output '.resources | .[] | select(.type == "web").guid'`
 CF_INFO=$(cf curl /v2/info)
 CF_DB_INFO=$(cf service-key database db-portforward)
 CF_DB_PORT=$(echo "$CF_DB_INFO" | grep '"port":' | sed 's/.*"port": "\([^"]*\)".*/\1/')
@@ -39,16 +40,19 @@ CF_DB_NAME=$(echo "$CF_DB_INFO" | grep '"db_name":' | sed 's/.*"db_name": "\([^"
 CF_SSH_ENDPOINT=$(echo "$CF_INFO" | grep '"app_ssh_endpoint":' | sed 's/.*"app_ssh_endpoint": "\([^:]*\).*".*/\1/')
 
 echo "Creating sql connection"
-nohup sshpass -p $(cf ssh-code) ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -4 -N -p 2222 -L $LOCAL_PORT:$CF_DB_HOST:$CF_DB_PORT cf:$CF_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &
+nohup sshpass -p $(cf ssh-code) ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -4 -N -p 2222 -L $LOCAL_PORT:$CF_DB_HOST:$CF_DB_PORT cf:$CF_PROCESS_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &
 CF_SSH_PID=$!
 
 echo "Waiting for connection to fully resolve"
 sleep 5
+
+echo "Deleting service key" 
+cf delete-service-key database db-portforward -f
+
 echo
 echo "Connection String:"
 echo "mysql -h127.0.0.1 -P$LOCAL_PORT -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME"
 echo
 echo "Clean up:"
 echo "pkill -9 -P $CF_SSH_PID"
-echo "cf delete-service-key database db-portforward -f"
 echo "ps -ef | grep cf: | grep ssh | grep 2222 | awk '{print \$2}'"
