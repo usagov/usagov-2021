@@ -5,10 +5,13 @@ dependencies:
   config:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_css_icon
+    - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
     - field.field.node.basic_page.field_hide_page_intro
+    - field.field.node.basic_page.field_homepage_banner
+    - field.field.node.basic_page.field_homepage_top_links
     - field.field.node.basic_page.field_is_navigation_page
     - field.field.node.basic_page.field_language_toggle
     - field.field.node.basic_page.field_navigation_banner_image
@@ -17,6 +20,7 @@ dependencies:
     - field.field.node.basic_page.field_short_description
     - node.type.basic_page
   module:
+    - link
     - text
     - user
 id: node.basic_page.default
@@ -35,6 +39,37 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 0
+    region: content
+  field_custom_twig_content:
+    type: boolean
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  field_homepage_banner:
+    type: entity_reference_entity_view
+    label: above
+    settings:
+      view_mode: default
+      link: false
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  field_homepage_top_links:
+    type: link
+    label: hidden
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 4
     region: content
   field_page_intro:
     type: basic_string
