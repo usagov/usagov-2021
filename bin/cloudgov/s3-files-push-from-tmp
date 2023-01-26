@@ -1,4 +1,6 @@
 #!/bin/sh
+# Push files from a local temporary directory to the S3 bucket for the current targeted space
+# s3-files-push-from-tmp /local/existing/directory
 
 read -p "This will copy files to S3 with PUBLIC READ permission.
 Continue? (y/n): "
@@ -24,7 +26,6 @@ fi
 localdir="$1"
 
 # TODO: check for localdir; should be a directory full of files. 
-
 printf "Uploading files from $localdir to S3 ..."
 
 # Get access

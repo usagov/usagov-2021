@@ -1,4 +1,6 @@
 #!/bin/sh
+# Pull public files from the current targeted space's S3 bucket to a temporary local directory
+# s3-files-pull-to-tmp /local/existing/directory
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
