@@ -1,4 +1,16 @@
 #!/bin/sh
+# List files in s3.
+# s3-files-list [S3_PATH] [--recursive]
+
+S3_PATH=${1:-''}
+S3_LS_PARAMS=''
+i=$(($#-2))
+while [ $i -ge 0 ];
+do
+    S3_LS_PARAMS="${S3_LS_PARAMS} ${BASH_ARGV[$i]}"
+    i=$((i-1))
+done
+
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -26,7 +38,8 @@ fi
 # display a list of available tags (directories) and their last updated date
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
-aws s3 ls --recursive  s3://$S3_BUCKET/cms
+echo "aws s3 ls s3://$S3_BUCKET/$S3_PATH $S3_LS_PARAMS"
+aws s3 ls s3://$S3_BUCKET/$S3_PATH $S3_LS_PARAMS
 
 # Hints from troubleshooting this ... 
 # 

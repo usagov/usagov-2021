@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Create an SSH tunnel to enable mysql access to the database in the current space.
 
 if ! command -v cf &> /dev/null
 then

@@ -1,4 +1,6 @@
 #!/bin/bash
+# scp file(s) from an app in cloud.gov. 
+# scp-from app /path/on/app /local/path [instance_index]
 
 echo "check commands ------"
 set -e
