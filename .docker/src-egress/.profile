@@ -32,7 +32,7 @@ ntnefina deny.acl
 ntnefina allow.acl
 
 # Make it easy to run curl tests on ourselves
-https_proxy="https://$PROXY_USERNAME:$PROXY_PASSWORD@$(echo "$VCAP_APPLICATION" |  jq .application_uris[0] | sed 's/"//g'):$PORT"
+https_proxy="https://$PROXY_USERNAME:$PROXY_PASSWORD@$(echo "$VCAP_APPLICATION" |  jq .application_uris[0] | sed 's/"//g'):61443"
 export https_proxy
 echo
 echo
