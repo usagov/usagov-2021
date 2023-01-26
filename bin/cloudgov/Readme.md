@@ -79,7 +79,7 @@ Still targeting stage, upload the database dump to the cms instance. (I use gzip
 cf target -s stage
 bin/cloudgov/scp-to cms usagov-prod_[datestring].sql.zip /tmp
 cf ssh cms
- (on stage)
+ (on cms)
  cd /tmp
  unzip bin/cloudgov/scp-to cms usagov-prod_[datestring].sql.zip /tmp
  (should extract usagov.sql)
