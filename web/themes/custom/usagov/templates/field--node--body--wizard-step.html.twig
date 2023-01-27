@@ -1,7 +1,12 @@
 {% set test = element['#object'].body[0].value|raw %}
 
 {% if "Based on your answers" in test or "Basándose en sus respuestas" in test %}
-
+<div class="usa-prose">
+{% if element["#language"] == "en" %}
+    <p class="usa-scam-label">WHERE TO REPORT A SCAM</p>
+{% else %}
+    <p class="usa-scam-label">Dónde reportar una estafa</p>
+{% endif %}
 <div class="maxw-tablet margin-x-auto">
     {% for item in items %}
       <div{{ item.attributes }}>{{ item.content }}</div>
