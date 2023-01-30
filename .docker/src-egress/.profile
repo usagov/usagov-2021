@@ -38,6 +38,3 @@ echo
 echo
 echo "The proxy connection URL is:"
 echo "  $https_proxy"
-
-# Ensure the inotify-tools binaries are found
-export PATH=$PATH:/home/vcap/deps/0/apt/usr/bin
