@@ -110,6 +110,13 @@ add padding at the top of flag cards
 .paragraph--type--uswds-card-group-flag .usa-card-group {
   padding-top: 60px;
 }
+
+.paragraph--type--uswds-card-group-regular .usa-card__container:focus-within,
+.paragraph--type--uswds-card-group-flag .usa-card__container:focus-within,
+.paragraph--type--uswds-card-group-flag .usa-card__container:hover,
+.paragraph--type--uswds-card-group-regular .usa-card__container:hover {
+  box-shadow: none;
+}
 /** This to change the link color for the
 *   header and footer links
 **/
