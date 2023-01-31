@@ -19,6 +19,8 @@ http {
   sendfile on;
   tcp_nopush on;
 
+  client_max_body_size 512m;
+
   keepalive_timeout 60s;
 
   resolver ${DNS_SERVER} valid=5s ipv6=off;
