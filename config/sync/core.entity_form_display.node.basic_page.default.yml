@@ -51,7 +51,7 @@ content:
     third_party_settings: {  }
   field_css_icon:
     type: string_textfield
-    weight: 21
+    weight: 22
     region: content
     settings:
       size: 60
@@ -59,14 +59,14 @@ content:
     third_party_settings: {  }
   field_custom_twig_content:
     type: boolean_checkbox
-    weight: 13
+    weight: 15
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   field_footer_html:
     type: string_textarea
-    weight: 22
+    weight: 23
     region: content
     settings:
       rows: 5
@@ -74,7 +74,7 @@ content:
     third_party_settings: {  }
   field_for_contact_center_only:
     type: text_textarea
-    weight: 23
+    weight: 24
     region: content
     settings:
       rows: 5
@@ -82,7 +82,7 @@ content:
     third_party_settings: {  }
   field_header_html:
     type: text_textarea
-    weight: 15
+    weight: 16
     region: content
     settings:
       rows: 5
@@ -168,7 +168,7 @@ content:
     third_party_settings: {  }
   field_navigation_banner_image:
     type: media_library_widget
-    weight: 24
+    weight: 21
     region: content
     settings:
       media_types: {  }
