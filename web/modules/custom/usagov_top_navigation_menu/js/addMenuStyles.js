@@ -2,7 +2,7 @@
   /**
    * @namespace
    */
-  Drupal.behaviors.mymoduleAccessData = {
+  Drupal.behaviors.usagovtopnavigationmenuAddMenuStyles = {
     attach: function (context) {
       var top_nav = drupalSettings.top_nav_menu;
       // console.log(top_nav);
@@ -21,12 +21,12 @@
         //check to make sure the description was not left null
         if (listItem) {
           let aElem = listItem.getElementsByTagName("a")[0];
-          console.log(`the list item is: ${aElem}`);
+          // console.log(`the list item is: ${aElem}`);
           aElem.setAttribute("href", "#skip-to-h1");
           aElem.setAttribute("aria-current", "page");
           aElem.classList.add("currentMenuItem");
-        }else{
-          console.error("Top nav description was left empty in cms");
+        } else {
+          // console.error("Top nav description was left empty in cms");
         }
       }
     },
