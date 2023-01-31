@@ -22,6 +22,7 @@ function wizardStepError() {
       if (selected == true) {
         document.getElementById("msg").innerHTML = "";
         document.getElementById("msg").removeAttribute("tabindex", "-1");
+        document.getElementById("wizard_border").classList.remove("wizard_error");
         dataLayer.push({ event: "Wizard_Next" });
         return true;
       } else if (
@@ -30,10 +31,12 @@ function wizardStepError() {
         document.getElementById("msg").innerHTML =
           "Error:Please choose one of the following options";
         document.getElementById("msg").focus();
+        document.getElementById("wizard_border").classList.add("wizard_error");
       } else {
         document.getElementById("msg").innerHTML =
           "Error:Por favor elija una opción";
         document.getElementById("msg").focus();
+        document.getElementById("wizard_border").classList.add("wizard_error");
       }
     }
   }
