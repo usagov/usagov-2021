@@ -727,20 +727,19 @@ display:
         options:
           offset: 0
       sorts:
-        title:
-          id: title
-          table: node_field_data
-          field: title
+        menu_children_sort:
+          id: menu_children_sort
+          table: node
+          field: menu_children_sort
           relationship: none
           group_type: group
           admin_label: ''
           entity_type: node
-          entity_field: title
-          plugin_id: standard
+          plugin_id: menu_children
           order: ASC
           expose:
             label: ''
-            field_identifier: title
+            field_identifier: ''
           exposed: false
       arguments:
         nid:
