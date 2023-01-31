@@ -5,10 +5,13 @@ docker.io
 docker.com
 *.newrelic.com
 newrelic.com
-gov-collector.newrelic.com
 *.github.com
 github.com
 *.app.cloud.gov
 *.apps.internal
 *.cloudfoundry.org
 cloudfoundry.org
+gov-collector.newrelic.com
+dev-proxy.apps.internal
+stage-proxy.apps.internal
+prod-proxy.apps.internal
