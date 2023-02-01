@@ -996,6 +996,9 @@ div #sm-share a {
 .block-wizardenglish .usa-button {
   color: #1b1b1b;
   background-color: #ccecf2;
+  @media (max-width: 40em) {
+      margin-bottom: 8px;
+  }
 }
 
 .block-wizardenglish .usa-prose>p.usa-scam-label {
@@ -1032,4 +1035,10 @@ div#block-wizardespanol~div#block-usagov-content .usa-prose>p {
 .wizard_error {
   border-left: 3px solid #d83933;
   padding-left: 5px;
+}
+
+@media (max-width: 40em) {
+  .usa-reverse {
+    flex-direction: column-reverse;
+    }
 }
