@@ -1,7 +1,10 @@
-{% set test = element['#object'].body[0].value|raw %}
+{% set answer = element['#object'].body[0].value|raw %}
 
-{% if "Based on your answers" in test or "Basándose en sus respuestas" in test %}
+{% if "Based on your answers" in answer or "Basándose en sus respuestas" in answer %}
 
+<div class="usa-prose">
+<h1 class="text-blue" id="skip-to-h1"><span>{{ element['#object'].title.value }}</span></h1>
+</div>
 <div class="maxw-tablet margin-x-auto">
     {% for item in items %}
       <div{{ item.attributes }}>{{ item.content }}</div>
