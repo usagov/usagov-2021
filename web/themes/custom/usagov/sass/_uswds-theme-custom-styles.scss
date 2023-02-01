@@ -989,7 +989,7 @@ div #sm-share a {
   padding-bottom: 1rem;
 }
 
-.block-wizardenglish .usa-prose, #block-wizardespanol .usa-prose {
+.block-wizardenglish .usa-prose, .block-wizardespanol .usa-prose {
   font-size: 1.2rem;
 }
 
@@ -1031,5 +1031,9 @@ div#block-wizardespanol~div#block-usagov-content .usa-prose>p {
 
 .wizard_error {
   border-left: 3px solid #d83933;
+  padding-left: 5px;
+}
+
+.block-wizardenglish div.usa-error {
   padding-left: 5px;
 }
