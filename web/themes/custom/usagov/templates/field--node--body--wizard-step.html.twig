@@ -1,6 +1,6 @@
 {% set answer = element['#object'].body[0].value|raw %}
 
-{% if "Based on your answers" in test or "Basándose en sus respuestas" in test %}
+{% if "Based on your answers" in answer or "Basándose en sus respuestas" in answer %}
 <div class="usa-prose">
 {% if element["#language"] == "en" %}
     <p class="usa-scam-label">WHERE TO REPORT A SCAM</p>
