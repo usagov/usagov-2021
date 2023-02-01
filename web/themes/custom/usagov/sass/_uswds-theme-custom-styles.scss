@@ -1036,8 +1036,16 @@ div#block-wizardespanol~div#block-usagov-content .usa-prose>p {
 
 .block-wizardenglish div.usa-error {
   padding-left: 5px;
+  padding-right: 5px;
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked+.usa-radio__label {
   border-color: #c05600;
+}
+
+.block-wizardenglish [tabindex]:focus {
+  outline: 0.25rem solid #c05600;
+  outline-offset: 0;
+  width: fit-content;
+  margin-left: 0;
 }
