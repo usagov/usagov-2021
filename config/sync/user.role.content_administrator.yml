@@ -25,6 +25,7 @@ dependencies:
     - paragraphs
     - paragraphs_entity_embed
     - path
+    - redirect
     - system
     - toolbar
     - usa_content_moderation_notifications
@@ -42,6 +43,8 @@ permissions:
   - 'add paragraphs entity embed'
   - 'administer menu'
   - 'administer nodes'
+  - 'administer redirect settings'
+  - 'administer redirects'
   - 'break content lock'
   - 'create audio media'
   - 'create basic_page content'
