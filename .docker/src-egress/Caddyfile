@@ -2,11 +2,6 @@
 # - For staging/prod:
 #   - Document how to tunnel sftp://
 #   - Document how to test with cf ssh port-forwarding to your browser!
-# - For development:
-#   - Document how to test with cf ssh port-forwarding to your browser!
-#   	- Add test Dockerfile/directory to compose, similar to what Aaron did for Logstash
-#   	- curl tests could also just run in the container, and reference localhost
-#   	- Then run with `docker-compose exec caddy test``
 {
 	debug
 	log {

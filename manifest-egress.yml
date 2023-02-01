@@ -2,7 +2,6 @@
 version: 1
 applications:
   - name: ((proxyname))
-    path: .docker/src-egress
     buildpacks:
       - binary_buildpack
     routes:
