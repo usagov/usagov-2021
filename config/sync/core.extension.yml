@@ -13,6 +13,7 @@ module:
   ckeditor: 0
   ckeditor_templates: 0
   ckeditor_templates_ui: 0
+  conditional_fields: 0
   config: 0
   content_lock: 0
   content_moderation: 0
@@ -86,6 +87,7 @@ module:
   usagov_directories: 0
   usagov_header_hooks: 0
   usagov_login: 0
+  usagov_top_navigation_menu: 0
   usagov_uswds_paragraph_components_mods: 0
   user: 0
   uswds_ckeditor_integration: 0
