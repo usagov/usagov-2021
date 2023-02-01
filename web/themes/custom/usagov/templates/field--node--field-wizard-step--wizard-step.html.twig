@@ -4,15 +4,25 @@
 
 {% if radio_buttons %}
 
-{% set translation = {prior: "Prior", next: "Next"} %}
+{% set translation = {prior: "Back", next: "Next"} %}
 {% if element["#language"] == "es" %}
     {% set translation = {prior: "Previo", next: "Siguiente"} %}
 {% endif %}
 
-<div id="msg" class="maxw-tablet margin-x-auto usa-error" tabindex= "-1"></div>
 
+<div class="usa-prose">
+{% if element["#language"] == "en" %}
+    <p class="usa-scam-label">WHERE TO REPORT A SCAM</p>
+{% else %}
+    <p class="usa-scam-label">Dónde reportar una estafa</p>
+{% endif %}
+
+<h1 class="text-blue" id="skip-to-h1"><span>{{ element['#object'].title.value }}</span></h1>
+</div>
+<div id="wizard_border">
 <fieldset class="usa-fieldset maxw-tablet margin-x-auto">
     <legend class="usa-sr-only">{{ element['#object'].body[0].value|raw }}</legend>
+    <div id="msg" class="maxw-tablet margin-x-auto usa-error" tabindex= "-1"></div>
     {% for item in items %}
         {% set title = item.content["#options"]["entity"].field_option_name.0.value %}
         {% if title == null %}
@@ -26,13 +36,13 @@
         <label class="usa-radio__label" for="{{id}}">{{title}}</label>
     {% endfor %}
 
-    <div class="grid-row flex-justify maxw-mobile margin-x-auto margin-top-6">
-        
+</fieldset>
+</div>
+
+ <div class="grid-row flex-justify maxw-mobile margin-x-auto margin-top-6">
         <button id="prior" class="usa-button usa-button--outline usagov-button--outline-black" onclick="window.location.href = document.querySelector(`.previous-wizard-step a`).href+'#block-usagov-content'">{{translation.prior}}</button>
         <button id="next" class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">{{translation.next}}</button>
     </div>
-</fieldset>
-
 {% else %}
 
 <ul class="add-list-reset">
