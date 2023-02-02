@@ -29,12 +29,12 @@ function wizardStepError() {
         document.getElementsByTagName("html")[0].getAttribute("lang") == "en"
       ) {
         document.getElementById("msg").innerHTML =
-          "Error:Please choose one of the following options";
+          "Error: Please choose one of the following options";
         document.getElementById("msg").focus();
         document.getElementById("wizard_border").classList.add("wizard_error");
       } else {
         document.getElementById("msg").innerHTML =
-          "Error:Por favor elija una opción";
+          "Error: Por favor elija una opción";
         document.getElementById("msg").focus();
         document.getElementById("wizard_border").classList.add("wizard_error");
       }
