@@ -8,6 +8,7 @@
 
 
 {% set talk = '/phone' %}
+{% set talk_es = '/es/centro-de-llamadas' %}
 {% set chat = 'https://www.usa.gov/chat' %}
 {% set sp_chat = 'https://www.usa.gov/espanol/chat' %}
 
@@ -23,7 +24,7 @@
         {% endif %}
         <div class="grid-row grid-gap">
             <div class="grid-col-6">
-                <a class="question-icon" href="{{ talk }}">
+                <a class="question-icon" href="{{ lang == 'es' ? talk_es : talk }}">
                     <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_talk.png" alt="talk icon">
                     {{ lang == 'en' ? "Call and speak to a live USAGov agent." : "Llame y hable con un agente de USAGov en Español." }}
                 </a>
