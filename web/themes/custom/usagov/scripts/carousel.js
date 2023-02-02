@@ -117,7 +117,7 @@ jQuery(document).ready(function ($) {
     slideDots[nextLeftMostSlideIndex].setAttribute("aria-current", true);
 
     // Update the record of the left-most slide
-    leftMostSlideIndex = nextLeftMostSlideIndex;
+    leftMostSlideIndex = Number(nextLeftMostSlideIndex);
 
     // Update each slide so that the ones that are now off-screen are fully hidden.
     hideNonVisibleSlides();
