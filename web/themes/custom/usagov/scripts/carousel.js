@@ -73,7 +73,7 @@ jQuery(document).ready(function ($) {
 
   // Go to a specific slide
   function goToSlide(nextLeftMostSlideIndex) {
-    console.log(`nextLeftMostSlideIndex: ${nextLeftMostSlideIndex}`);
+    // console.log(`nextLeftMostSlideIndex: ${nextLeftMostSlideIndex}`);
     sessionStorage.setItem("currentSlideIndexSS", nextLeftMostSlideIndex);
 
     // Smoothly scroll to the requested slide
