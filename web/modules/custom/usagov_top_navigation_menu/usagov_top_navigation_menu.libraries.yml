@@ -1,0 +1,7 @@
+usagov_top_navigation_menu_js:
+  js:
+    js/addMenuStyles.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupalSettings
