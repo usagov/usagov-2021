@@ -21,6 +21,8 @@ dependencies:
     - node.type.basic_page
     - workflows.workflow.basic_workflow
   module:
+    - allowed_formats
+    - conditional_fields
     - content_moderation
     - link
     - media_library
@@ -33,7 +35,7 @@ mode: default
 content:
   body:
     type: text_textarea_with_summary
-    weight: 12
+    weight: 14
     region: content
     settings:
       rows: 9
@@ -43,13 +45,13 @@ content:
     third_party_settings: {  }
   created:
     type: datetime_timestamp
-    weight: 6
+    weight: 8
     region: content
     settings: {  }
     third_party_settings: {  }
   field_css_icon:
     type: string_textfield
-    weight: 19
+    weight: 22
     region: content
     settings:
       size: 60
@@ -57,14 +59,14 @@ content:
     third_party_settings: {  }
   field_custom_twig_content:
     type: boolean_checkbox
-    weight: 13
+    weight: 15
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   field_footer_html:
     type: string_textarea
-    weight: 16
+    weight: 23
     region: content
     settings:
       rows: 5
@@ -72,7 +74,7 @@ content:
     third_party_settings: {  }
   field_for_contact_center_only:
     type: text_textarea
-    weight: 20
+    weight: 24
     region: content
     settings:
       rows: 5
@@ -80,34 +82,73 @@ content:
     third_party_settings: {  }
   field_header_html:
     type: text_textarea
-    weight: 15
+    weight: 16
     region: content
     settings:
       rows: 5
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      allowed_formats:
+        hide_help: '1'
+        hide_guidelines: '0'
   field_hide_page_intro:
     type: boolean_checkbox
-    weight: 3
+    weight: 2
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   field_homepage_banner:
     type: media_library_widget
-    weight: 28
+    weight: 20
     region: content
     settings:
       media_types: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        c8b9382b-bbf0-47a7-94dc-cf89307c47c6:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '21'
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_homepage_top_links:
     type: link_default
-    weight: 27
+    weight: 19
     region: content
     settings:
       placeholder_url: ''
       placeholder_title: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        5fa20c83-8b00-4c08-bca0-407e4fb5e6e3:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '21'
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_is_navigation_page:
     type: boolean_checkbox
     weight: 17
@@ -117,7 +158,7 @@ content:
     third_party_settings: {  }
   field_language_toggle:
     type: entity_reference_autocomplete
-    weight: 21
+    weight: 6
     region: content
     settings:
       match_operator: CONTAINS
@@ -127,11 +168,27 @@ content:
     third_party_settings: {  }
   field_navigation_banner_image:
     type: media_library_widget
-    weight: 22
+    weight: 21
     region: content
     settings:
       media_types: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        74b5d775-620e-4741-9451-b1af58e1ea7d:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            condition: value
+            grouping: AND
+            values_set: 3
+            value: ''
+            values: "19\r\n20"
+            value_form: {  }
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_page_intro:
     type: string_textarea
     weight: 1
@@ -148,7 +205,7 @@ content:
     third_party_settings: {  }
   field_short_description:
     type: string_textarea
-    weight: 2
+    weight: 3
     region: content
     settings:
       rows: 1
@@ -163,33 +220,33 @@ content:
     third_party_settings: {  }
   moderation_state:
     type: moderation_state_default
-    weight: 10
+    weight: 12
     region: content
     settings: {  }
     third_party_settings: {  }
   path:
     type: path
-    weight: 9
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
   promote:
     type: boolean_checkbox
-    weight: 7
+    weight: 9
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 11
+    weight: 13
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   sticky:
     type: boolean_checkbox
-    weight: 8
+    weight: 10
     region: content
     settings:
       display_label: true
@@ -203,18 +260,23 @@ content:
       placeholder: ''
     third_party_settings: {  }
   translation:
-    weight: 14
+    weight: 5
     region: content
     settings: {  }
     third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 5
+    weight: 7
     region: content
     settings:
       match_operator: CONTAINS
       match_limit: 10
       size: 60
       placeholder: ''
+    third_party_settings: {  }
+  url_redirects:
+    weight: 50
+    region: content
+    settings: {  }
     third_party_settings: {  }
 hidden: {  }
