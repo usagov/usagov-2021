@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ * Use proprocess for html twig.
+ */
+
+use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\Menu\MenuTreeParameters;
+use Drupal\node\Entity\Node;
+
+/**
+ * Description message.
+ *
+ * @param mixed $variables
+ *   Self described.
+ * @param mixed $hook
+ *   Self described.
+ */
+
+function usagov_top_navigation_menu_page_attachments(array &$page) {
+  $page['#attached']['library'][] = 'usagov_top_navigation_menu/usagov_top_navigation_menu_js';
+
+  $top_nav_menu = usagov_top_navigation_menu_get_top_nav();
+  $page['#attached']['drupalSettings']['top_nav_menu'] = $top_nav_menu;
+}
+
+function usagov_top_navigation_menu_get_top_nav() {
+  $menu_parameters = new MenuTreeParameters();
+  $menu_lang = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  if ($menu_lang == 'es') {
+    $menu_name = 'top-navigation-es';
+  }
+  else {
+    $menu_name = 'top-navigation';
+  }
+  $tree = \Drupal::menuTree()->load($menu_name, $menu_parameters);
+  $topnav = [];
+
+  foreach ($tree as $item) {
+    $menu_path = $item->link->getUrlObject()->toString();
+    $menu_id = $item->link->getDescription();
+    $menu_item = [$menu_path => $menu_id];
+    array_push($topnav, $menu_item);
+  }
+  return $topnav;
+}
