@@ -1,11 +1,31 @@
-{% set test = element['#object'].body[0].value|raw %}
+{% set answer = element['#object'].body[0].value|raw %}
 
-{% if "Based on your answers" in test or "Basándose en sus respuestas" in test %}
-
+{% if "Based on your answers" in answer or "Basándose en sus respuestas" in answer %}
+<div class="usa-prose">
+{% if element["#language"] == "en" %}
+    <p class="usa-scam-label">WHERE TO REPORT A SCAM</p>
+    <h1 class="text-blue" id="skip-to-h1"><span>{{ element['#object'].title.value }}</span></h1>
+{% else %}
+    <p class="usa-scam-label">Dónde reportar una estafa</p>
+    <h1 class="text-blue" id="skip-to-h1"><span>{{ element['#object'].title.value }}</span></h1>
+{% endif %}
+</div>
 <div class="maxw-tablet margin-x-auto">
     {% for item in items %}
       <div{{ item.attributes }}>{{ item.content }}</div>
     {% endfor %}
 </div>
-
+     {% if element["#language"] == "en" %}
+        <div class="grid-row flex-justify-center maxw-mobile margin-x-auto margin-top-6">
+            <a class="usa-button" href="/where-report-scams#block-usagov-content">
+                Start over
+            </a>   
+        </div>
+        {% elseif element["#language"] == "es" %}
+        <div class="grid-row flex-justify-center maxw-mobile margin-x-auto margin-top-6">
+            <a class="usa-button" href="/es/donde-reportar-una-estafa#block-usagov-content">
+                Empezar
+            </a>   
+        </div>
+        {% endif %}
 {% endif %}
