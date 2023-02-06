@@ -13,3 +13,9 @@ effects:
       width: 720
       height: null
       upscale: false
+  4ea30093-a1eb-4cab-b366-953a16774ec7:
+    uuid: 4ea30093-a1eb-4cab-b366-953a16774ec7
+    id: image_convert
+    weight: 2
+    data:
+      extension: webp
