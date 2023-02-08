@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "Building nginx proxy"
+
+docker build --force-rm \
+    -t egress-binary-builder \
+    -f ./Dockerfile ./src-egress
+
+docker run --name egress-builder-tmp -d egress-binary-builder tail -f /dev/null
+docker cp egress-builder-tmp:/usr/local/nginx/sbin/nginx ./src-egress/nginx
+docker stop egress-builder-tmp
+docker rm egress-builder-tmp

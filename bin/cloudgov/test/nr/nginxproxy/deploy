@@ -3,7 +3,7 @@
 echo "Building egress"
 
 proxySpace=shared-egress
-proxyApp=nr-proxy
+proxyApp=nginx-proxy
 proxyOrg=gsa-tts-usagov
 
 ## arbitrary test username and password - git safe

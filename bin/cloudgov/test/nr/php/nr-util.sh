@@ -65,7 +65,7 @@ function enableNewRelic () {
 
     setIniVal newrelic.daemon.collector_host gov-collector.newrelic.com
     setIniVal newrelic.daemon.address @newrelic-daemon
-    setIniVal newrelic.daemon.port /home/vcap/app/newrelic/daemon.sock
+    setIniVal newrelic.daemon.port ""
 
     setIniVal newrelic.daemon.loglevel debug
     setIniVal newrelic.loglevel verbosedebug

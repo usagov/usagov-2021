@@ -25,13 +25,12 @@
 				allow_file allow.acl
 				deny all
 			}
-			ports 80 443 22
-			serve_pac
+			ports 80
 		}
 	}
 	log {
 		format json
-		level INFO
+		level DEBUG
 		output stdout
 	}
 }

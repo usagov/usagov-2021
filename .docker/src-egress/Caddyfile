@@ -11,7 +11,7 @@
 	debug
 	log {
 		format console
-		level INFO
+		level DEBUG
 	}
 	auto_https off
 }
@@ -26,12 +26,11 @@
 				deny all
 			}
 			ports 80 443 22
-			serve_pac
 		}
 	}
 	log {
 		format json
-		level INFO
+		level DEBUG
 		output stdout
 	}
 }
