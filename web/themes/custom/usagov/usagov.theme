@@ -50,4 +50,14 @@ function usagov_theme_suggestions_alter(array &$suggestions, array $variables, $
       $suggestions[] = 'views_view_list__sub_children';
     }
   }
+  if ($hook == 'field') {
+    if (in_array('field__node__field_custom_twig_content', $suggestions) &&
+        $variables['element']['#object']->field_custom_twig_content->value) {
+      $current_path = \Drupal::service('path.current')->getPath();
+      $current_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+      $no_slash = ltrim($current_alias, '/');
+      $no_dash = str_replace('-', '_', $no_slash);
+      $suggestions[] = 'field__node__field_custom_twig_content_' . $no_dash;
+    }
+  }
 }
