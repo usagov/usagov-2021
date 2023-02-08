@@ -35,6 +35,13 @@ TOMELOG=/tmp/tome-log/$TOMELOGFILE
 mkdir -p /tmp/tome-log/$YMD
 touch $TOMELOG
 
+# Don't even start if this flag is set:
+export NO_RUN=$(drush sget usagov.tome_run_disabled)
+if [ "$NO_RUN" != '' ]; then
+    echo "Tome run is disabled. Exiting." | tee -a $TOMELOG
+    exit 2
+fi
+
 # we should expect to see our process running: so we would expect a count of 1
 echo "Check if Tome is already running ... " | tee -a $TOMELOG
 PS_AUX=$(ps aux)
