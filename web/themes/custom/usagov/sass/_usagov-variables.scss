@@ -9,16 +9,20 @@ $red: #d83933;
 $white: #fff;
 $text-blue: #1a4480;
 $deep-blue: #112f4e;
+$off-black: #1b1b1b;
 $cyan: #3fbde3;
 $cyan-50v: #0081a1;
 $cyan-30v: #00bde3;
 $cyan-light: #ccecf2;
+$light-blue: #E5F8FD;
 $gray: #dfe1e2;
+$deep-gray: #707070;
 $light-gray: #f3f3f3;
 $light-blue: #d2ebf1;
 $orange: #f79240;
+$deep-orange: #c05600;
 $black: #000;
-
+$blue-shadow: rgba(17, 47, 78, 0.4);
 // Component Variables
 $hero: (
   border-color: $red,
@@ -26,6 +30,13 @@ $hero: (
   box-border-color: $white,
   font-color: $white,
   secondary-font-color: $cyan-light,
+);
+
+$homepage: (
+  larger-max-width: 1024px,
+  smaller-max-width:960px,
+  small-font-size: 17.6px,
+  medium-font-size: 35.2px,
 );
 $le-heading: (
   heading-color: $white,
@@ -45,6 +56,9 @@ $life-events: (
   text-color: $white,
   heading-underline-color: $cyan,
   background-color: $deep-blue,
+  card-hover-text-color: $black,
+  card-hover-background-color: $cyan-light,
+  card-hover-heading-color: $text-blue,
 );
 $radio-button: (
   border-color: $orange,
@@ -65,5 +79,6 @@ var( $vars, navpage, hero, border-color );
   @each $key in $keys {
     $map: map-get($map, $key);
   }
+
   @return $map;
 }

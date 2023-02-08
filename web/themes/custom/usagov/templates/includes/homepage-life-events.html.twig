@@ -1,0 +1,19 @@
+{{ attach_library('usagov/carousel') }}
+{% set lang = node.langcode.value %}
+
+<div class="life-events">
+	<div class="life-events-intro">
+		<h2>{{ lang == 'en' ? 'Life events' : 'Etapas importantes de la vida' }}</h2>
+		<p>
+			{% if lang == 'en' %}
+			Discover government benefits and services to help you and your family through <a class= "life_experiences_link" href="/life-events">every stage of life</a>.
+			{% else %}
+			Conozca los servicios y beneficios del Gobierno que le ayudarán a usted y a su familia en <a class= "life_experiences_link" href="/es/etapas-importantes-de-la-vida">cada etapa de la vida</a>.
+			{% endif %}
+		</p>
+	</div>
+	<div class="life-events-carousel">
+		{% include directory ~ '/templates/includes/life-events-carousel.html.twig' %}
+	</div>
+</div>
+
