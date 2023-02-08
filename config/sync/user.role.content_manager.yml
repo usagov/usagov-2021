@@ -19,6 +19,7 @@ dependencies:
     - paragraphs
     - paragraphs_entity_embed
     - path
+    - redirect
     - system
     - toolbar
 id: content_manager
@@ -33,6 +34,8 @@ permissions:
   - 'add paragraphs entity embed'
   - 'administer menu'
   - 'administer nodes'
+  - 'administer redirect settings'
+  - 'administer redirects'
   - 'create audio media'
   - 'create basic_page content'
   - 'create content translations'

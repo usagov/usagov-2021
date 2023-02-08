@@ -71,6 +71,20 @@
   .usa-card__body{
     padding-bottom: 1.5rem;
   }
+  &:hover {
+    .usa-card__img img {
+      filter: contrast(0.5) brightness(1.5);
+    }
+    .usa-card__container {
+      background-color: var($life-events, card-hover-background-color);
+      .usa-card__body {
+        color: var($life-events, card-hover-text-color);
+      }
+      .usa-card__header .usa-card__heading .card-link {
+        color: var($life-events, card-hover-heading-color);
+      }
+    }
+  }
 }
 
 .life-events-landing-page-card-image {
@@ -86,4 +100,14 @@
   padding-left: 1rem;
   padding-right: 1rem;
   padding: 1rem;
+}
+
+.usa-card:hover{
+  .life-events-landing-page-card-image {
+    filter: contrast(0.5) brightness(1.5);
+  }
+  .life-events-landing-page-card-title{
+    background-color: var($life-events, card-hover-background-color);
+    color: var($life-events, card-hover-heading-color);
+  }
 }

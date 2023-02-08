@@ -119,8 +119,13 @@ for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
     fi
 done
 
+# Update the list of IPs blocked via domain lookup:
+/etc/nginx/dynamic/deny_domain_by_ip.sh --no-reload
 
 . /opt/modsecurity/activate-rules.sh
+
+# Run crond
+exec /usr/sbin/crond -c /etc/crontabs &
 
 exec /cert-watcher.sh &
 
