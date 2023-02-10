@@ -1,65 +1,71 @@
 <?php
 
 /**
- * @file
- * Use proprocess for html twig.
- */
+* @file
+* Use proprocess for html twig.
+*/
 
 use Drupal\taxonomy\Entity\Term;
 
 /**
- * Description message.
- *
- * @param mixed $variables
- *   Self described.
- * @param mixed $hook
- *   Self described.
- */
+* Description message.
+*
+* @param mixed $variables
+*   Self described.
+* @param mixed $hook
+*   Self described.
+*/
 function usa_twig_vars_preprocess(&$variables, $hook) {
-  if ($hook === 'html') {
-    $node = \Drupal::routeMatch()->getParameter('node');
-    $isFront = \Drupal::service('path.matcher')->isFrontPage();
+  if ($hook === 'html' || $hook === 'page') {
+    $usa_twig_vars = &drupal_static(__FUNCTION__);
+    if (!isset($usa_twig_vars)) {
+      $node = \Drupal::routeMatch()->getParameter('node');
+      $isFront = \Drupal::service('path.matcher')->isFrontPage();
 
-    if (is_object($node) && method_exists($node, 'getFields')) {
-      // Check if the page is not front page.
-      if ($isFront == 1) {
-        $isFront = 'homepage';
-      }
-      else {
-        $isFront = 'not_homepage';
-      }
-      // Check node has all the four variables set which must not be null.
-      $node_real_type = $node->getType();
-      if ($node->id() != NULL && $node_real_type != NULL && $isFront != NULL) {
-        // Check for a few special cases:
-        $special_node_type = FALSE;
-        // change "directory_record" to "federal_directory_record"
-        if ($node_real_type == 'directory_record') {
-          $special_node_type = 'federal_directory_record';
+      if (is_object($node) && method_exists($node, 'getFields')) {
+        // Check if the page is not front page.
+        if ($isFront == 1) {
+          $isFront = 'homepage';
         }
         else {
-          // Check for special nodes by path:
-          switch ($node->toUrl()->toString()) {
-            case '/agency-index':
-            case '/es/indice-agencias':
-              $special_node_type = 'federal_directory_index';
-              break;
-
-            case '/states':
-            case '/es/estados':
-              $special_node_type = 'state_directory_index';
-              break;
-          }
+          $isFront = 'not_homepage';
         }
+        // Check node has all the four variables set which must not be null.
+        $node_real_type = $node->getType();
+        if ($node->id() != NULL && $node_real_type != NULL && $isFront != NULL) {
+          // Check for a few special cases:
+          $special_node_type = FALSE;
+          // change "directory_record" to "federal_directory_record"
+          if ($node_real_type == 'directory_record') {
+            $special_node_type = 'federal_directory_record';
+          }
+          else {
+            // Check for special nodes by path:
+            switch ($node->toUrl()->toString()) {
+              case '/agency-index':
+              case '/es/indice-agencias':
+                $special_node_type = 'federal_directory_index';
+                break;
 
-        // Cleanup vars.
-        $variables['id'] = $node->id();
-        $variables['front'] = $isFront;
-        $variables['nodetype'] = $special_node_type ?: $node_real_type;
-        $variables['pagetype'] = usa_twig_vars_get_page_type($node);
-        unset($isFront);
+              case '/states':
+              case '/es/estados':
+                $special_node_type = 'state_directory_index';
+                break;
+            }
+          }
+
+          // Cleanup vars.
+          $usa_twig_vars['id'] = $node->id();
+          $usa_twig_vars['front'] = $isFront;
+          $usa_twig_vars['nodetype'] = $special_node_type ?: $node_real_type;
+          $usa_twig_vars['pagetype'] = usa_twig_vars_get_page_type($node);
+          unset($isFront);
+        }
       }
     }
+  }
+  foreach ($usa_twig_vars as $key => $value) {
+    $variables[$key] = $value;
   }
 }
 
@@ -76,8 +82,8 @@ function usa_twig_vars_preprocess_menu__sidebar_first(&$variables, $hook) {
 
 function usa_twig_vars_get_page_type(&$node) {
   if ($node->getFields()['field_page_type'] != NULL
-      && !empty($node->getFields()['field_page_type']->getValue())
-      && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
+  && !empty($node->getFields()['field_page_type']->getValue())
+  && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
     $term_id = $node->getFields()['field_page_type']->getValue()[0]['target_id'];
     $term = Term::load($term_id);
     $page_type = $term ? $term->get('name')->value : '';
@@ -86,11 +92,11 @@ function usa_twig_vars_get_page_type(&$node) {
 }
 
 /**
- * Remove field_page_intro content if field_hide_page_intro is set to TRUE.
- *
- * @param mixed $variables
- *   Self described.
- */
+* Remove field_page_intro content if field_hide_page_intro is set to TRUE.
+*
+* @param mixed $variables
+*   Self described.
+*/
 function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
   $node = \Drupal::routeMatch()->getParameter('node');
   // Check if field_hide_page_intro is True
@@ -98,21 +104,21 @@ function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
   // but the fields content exist.
   if (is_object($node) && method_exists($node, 'getFields')) {
     if ($node->getFields()['field_hide_page_intro'] != NULL
-        && !empty($node->getFields()['field_hide_page_intro']->getValue())
-        && $node->getFields()['field_hide_page_intro']->getValue()[0]['value'] != NULL
-        && $node->getFields()['field_hide_page_intro']->getValue()[0]['value'] == TRUE) {
+    && !empty($node->getFields()['field_hide_page_intro']->getValue())
+    && $node->getFields()['field_hide_page_intro']->getValue()[0]['value'] != NULL
+    && $node->getFields()['field_hide_page_intro']->getValue()[0]['value'] == TRUE) {
       $variables['items'][0]['content']['#context']['value'] = '';
     }
   }
 }
 
 /**
- * Add context to the federal_agencies view to allow us to show the current letter,
- * and add links to the "next" and "previous" letters.
- * Note that the _summary preprocess hook runs first (at least for this view) and
- * populates a static variable with the list of possible letters, which the
- * _list preprocess hook needs in order to figure out prev/next.
- */
+* Add context to the federal_agencies view to allow us to show the current letter,
+* and add links to the "next" and "previous" letters.
+* Note that the _summary preprocess hook runs first (at least for this view) and
+* populates a static variable with the list of possible letters, which the
+* _list preprocess hook needs in order to figure out prev/next.
+*/
 function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variables, $hook, $info) {
   $our_unique_name = 'usa_twig_vars_preprocess_view_federal_agencies';
   drupal_static_reset($our_unique_name);
@@ -149,9 +155,9 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variabl
 }
 
 /**
- * Add context to the federal_agencies view to allow us to show the current letter,
- * and add links to the "next" and "previous" letters.
- */
+* Add context to the federal_agencies view to allow us to show the current letter,
+* and add links to the "next" and "previous" letters.
+*/
 function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables, $hook, $info) {
   $alpha_context = &drupal_static('usa_twig_vars_preprocess_view_federal_agencies');
   $variables['alpha_context'] = $alpha_context;
