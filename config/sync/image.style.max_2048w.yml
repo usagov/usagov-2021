@@ -1,0 +1,21 @@
+uuid: 5f9d3d5a-18d2-43d4-be3d-9635442be73b
+langcode: en
+status: true
+dependencies: {  }
+name: max_2048w
+label: 'Max 2048w'
+effects:
+  a10ffd30-14fa-46a0-9ddf-1fbc3984c9c5:
+    uuid: a10ffd30-14fa-46a0-9ddf-1fbc3984c9c5
+    id: image_scale
+    weight: 1
+    data:
+      width: 2048
+      height: null
+      upscale: false
+  bf0bffcd-fdbe-4b96-b8f7-c9b737fa8b6d:
+    uuid: bf0bffcd-fdbe-4b96-b8f7-c9b737fa8b6d
+    id: image_convert
+    weight: 2
+    data:
+      extension: webp

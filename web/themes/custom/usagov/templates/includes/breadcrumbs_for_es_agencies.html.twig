@@ -16,16 +16,10 @@
             </a>
             <meta itemprop="position" content="1" />
         </li>
-        <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-            <a href="/es/agencias-gobierno" class="usa-breadcrumb__link" itemprop="item">
-                <span itemprop="name">Agencias del Gobierno</span>
-            </a>
-            <meta itemprop="position" content="2" />
-        </li> 
         {% if path('<current>') == '/es/indice-agencias'%}
             <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                 <span itemprop="name">Agencias federales</span>
-                <meta itemprop="position" content="3" />
+                <meta itemprop="position" content="2" />
             </li> 
         {% else %}
             <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
@@ -34,11 +28,11 @@
                         Agencias federales
                     </span>
                 </a>
-                <meta itemprop="position" content="3" />
+                <meta itemprop="position" content="2" />
                 </li>
             <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                 <span itemprop="name">{{ drupal_title() }}</span>
-                <meta itemprop="position" content="4" />
+                <meta itemprop="position" content="3" />
             </li> 
         {% endif %}
     </ol>

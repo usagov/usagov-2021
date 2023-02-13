@@ -1,0 +1,29 @@
+{{ attach_library('usagov/carousel') }}
+<p class="sr-only">
+  Carousel with three slides shown at a time on desktop, two on tablets and one on mobile. Use the Previous and Next buttons to navigate, or the slide number buttons at the end to jump to slides.
+  </p>
+
+<section class="carousel" aria-label="carousel">
+
+  <button class="previous">
+    <span class="sr-only">Previous slides</span>
+    <img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" alt="Go to previous card"/>
+
+  </button>
+
+  <div class="carousel-mover">
+    {{ drupal_view('life_events_view', 'life_events_block') }}
+  </div>
+
+  <button class="next">
+    <span class="sr-only">Next slides</span>
+    <img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" alt="Go to next card"/>
+
+  </button>
+
+</section>
+
+<nav aria-label="Carousel Navigation">
+  <ul class="navigation carousel__navigation">
+  </ul>
+</nav>

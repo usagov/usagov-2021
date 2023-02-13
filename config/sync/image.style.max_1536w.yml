@@ -1,0 +1,21 @@
+uuid: 68cc0046-ec5d-4a3f-8f8b-8195e3b249e7
+langcode: en
+status: true
+dependencies: {  }
+name: max_1536w
+label: 'Max 1536w'
+effects:
+  a11e9b08-3623-4626-aec6-c7cf011498c4:
+    uuid: a11e9b08-3623-4626-aec6-c7cf011498c4
+    id: image_scale
+    weight: 1
+    data:
+      width: 1536
+      height: null
+      upscale: false
+  d9ef3f1c-2153-44b1-bf05-1b0850890436:
+    uuid: d9ef3f1c-2153-44b1-bf05-1b0850890436
+    id: image_convert
+    weight: 2
+    data:
+      extension: webp

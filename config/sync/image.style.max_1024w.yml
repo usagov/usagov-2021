@@ -1,0 +1,21 @@
+uuid: 91a279cd-c52e-41d1-b7c9-f54591f482b9
+langcode: en
+status: true
+dependencies: {  }
+name: max_1024w
+label: 'Max 1024w'
+effects:
+  e22420d2-0473-4489-84d9-207f5a2668f7:
+    uuid: e22420d2-0473-4489-84d9-207f5a2668f7
+    id: image_scale
+    weight: 1
+    data:
+      width: 1024
+      height: null
+      upscale: false
+  84d79138-82d2-4122-bb0f-4bc77ae52a04:
+    uuid: 84d79138-82d2-4122-bb0f-4bc77ae52a04
+    id: image_convert
+    weight: 2
+    data:
+      extension: webp

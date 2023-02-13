@@ -1,0 +1,21 @@
+uuid: 7adabf25-6d33-4153-a441-bf46b215e40b
+langcode: en
+status: true
+dependencies: {  }
+name: max_1280w
+label: 'Max 1280w'
+effects:
+  fbd80717-e0d0-430d-8c54-a72b09ad9a71:
+    uuid: fbd80717-e0d0-430d-8c54-a72b09ad9a71
+    id: image_scale
+    weight: 1
+    data:
+      width: 1280
+      height: null
+      upscale: false
+  a11595f4-e23b-46cf-b25f-0aae2a6ef5a2:
+    uuid: a11595f4-e23b-46cf-b25f-0aae2a6ef5a2
+    id: image_convert
+    weight: 2
+    data:
+      extension: webp

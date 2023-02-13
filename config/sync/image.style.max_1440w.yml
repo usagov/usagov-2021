@@ -1,0 +1,21 @@
+uuid: 9183eed6-1f55-4dcf-82fa-fa1e091d21f7
+langcode: en
+status: true
+dependencies: {  }
+name: max_1440w
+label: 'Max 1440w'
+effects:
+  c67bd18e-3eb3-4164-9cc2-b66e4802a794:
+    uuid: c67bd18e-3eb3-4164-9cc2-b66e4802a794
+    id: image_scale
+    weight: 1
+    data:
+      width: 1440
+      height: null
+      upscale: false
+  43fffee0-d6dc-4b25-b6d0-e77a5dcbfda7:
+    uuid: 43fffee0-d6dc-4b25-b6d0-e77a5dcbfda7
+    id: image_convert
+    weight: 2
+    data:
+      extension: webp
