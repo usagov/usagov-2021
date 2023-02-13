@@ -18,17 +18,19 @@
 
 
 (function menuButtonModifications() {
-	// USWDS applies aria-hidden attribute to non-nav elements but misses the usa-navbar element.
+	// USWDS applies aria-hidden attribute to non-nav elements but misses some because Drupal adds markup that USWDS does not account for.
 	// As a result, screen reader users can navigate out of the mobile menu while it is open.
-	// To prevent this, we are applying aria-hidden to the usa-navbar ourselves when the menu is opened.
+	// To prevent this, we are applying aria-hidden to the the elements that USWDS missed.
 	// We also set the focus to the home link because that is the first focusable element in our mobile menu.
 
 	let menu_button = document.querySelector('.usa-menu-btn');
-	let navbar = document.querySelector('.usa-navbar');
 	let home_link = document.querySelector('#mobile-menu-home-link');
 	menu_button.addEventListener("click", function (e) {
-		navbar.setAttribute('aria-hidden', 'true');
-		navbar.setAttribute('data-nav-hidden', 'true');
+		let header_non_nav_elements = document.querySelectorAll('.usa-banner-inner>div>:not(.usagov-mobile-menu)');
+		for (const element of header_non_nav_elements) {
+			element.setAttribute('aria-hidden', 'true');
+			element.setAttribute('data-nav-hidden', 'true');
+		}
 		setTimeout(() => {
 			home_link.focus();
 		}, 100);
