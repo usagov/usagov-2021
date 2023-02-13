@@ -1,0 +1,21 @@
+uuid: d3d7a4fe-51c7-41b0-99a4-fe056b536da8
+langcode: en
+status: true
+dependencies: {  }
+name: max_960w
+label: 'Max 960w'
+effects:
+  99280d5c-8f54-43c7-93dc-b41e8ebbe136:
+    uuid: 99280d5c-8f54-43c7-93dc-b41e8ebbe136
+    id: image_scale
+    weight: 1
+    data:
+      width: 960
+      height: null
+      upscale: false
+  76c7e964-54b3-494a-9088-ea4d88b13437:
+    uuid: 76c7e964-54b3-494a-9088-ea4d88b13437
+    id: image_convert
+    weight: 2
+    data:
+      extension: webp

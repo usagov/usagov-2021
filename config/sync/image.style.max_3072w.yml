@@ -1,0 +1,21 @@
+uuid: 123db954-b4c4-472a-ae1d-6ce7563494ca
+langcode: en
+status: true
+dependencies: {  }
+name: max_3072w
+label: 'Max 3072w'
+effects:
+  d5cf07da-d480-4beb-a55f-8ac80f2df2e5:
+    uuid: d5cf07da-d480-4beb-a55f-8ac80f2df2e5
+    id: image_scale
+    weight: 1
+    data:
+      width: 3072
+      height: null
+      upscale: false
+  6a8f751b-4da2-4429-9835-314703b13b2e:
+    uuid: 6a8f751b-4da2-4429-9835-314703b13b2e
+    id: image_convert
+    weight: 2
+    data:
+      extension: webp

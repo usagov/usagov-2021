@@ -1,0 +1,21 @@
+uuid: 23c1a480-64d6-4a8b-8396-b14f132abae8
+langcode: en
+status: true
+dependencies: {  }
+name: max_480w
+label: 'Max 480w'
+effects:
+  7bc4f1dd-af49-4271-89b7-59463facada4:
+    uuid: 7bc4f1dd-af49-4271-89b7-59463facada4
+    id: image_scale
+    weight: 1
+    data:
+      width: 480
+      height: null
+      upscale: false
+  b999a901-4b9e-4a3b-9660-726cbdf9697f:
+    uuid: b999a901-4b9e-4a3b-9660-726cbdf9697f
+    id: image_convert
+    weight: 2
+    data:
+      extension: webp
