@@ -12,30 +12,33 @@ use Drupal\node\Entity\Node;
 */
 class ToggleStaticSiteGenerationForm extends FormBase {
 
- /**
+  /**
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'toggle_static_site_generation_form';
+    return get_static_state_form_id();
   }
 
   /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+ 
     $form['description'] = [
       '#type' => 'processed_text',
       '#text' => $this->t('Are you sure you want to toggle Tome site generation (this will not cancel a Tome run that is already in progress) ?'),
     ];
-    $form['confirm_toggle'] = [
+
+    $toggle_state = \Drupal::state()->get(get_static_state_var()) ? TRUE : FALSE;
+    $form[get_static_state_button_name()] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Check this box to Confirm!'),
-      '#default_value' => TRUE
+      '#title' => $this->t('Check this box to ENABLE Static Site Generation.  Uncheck to DISABLE.'),
+      '#default_value' => $toggle_state,
     ];
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Toggle Static'),
+      '#value' => $this->t('Toggle Static Site Generation'),
       '#button_type' => 'primary',
     ];
     return $form;
@@ -44,11 +47,8 @@ class ToggleStaticSiteGenerationForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    /*if (!$form_state->getValue('confirm_toggle')) {
-      $form_state->setErrorByName('confirm_toggle', 'You must check the box. Are you really sure?');
-    }*/
-  }
+  /*public function validateForm(array &$form, FormStateInterface $form_state) {
+  }*/
 
   /**
    * {@inheritdoc}
@@ -56,13 +56,15 @@ class ToggleStaticSiteGenerationForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
     $errors = FALSE;
-    $toggle_state = $form_state->getValue('confirm_toggle');
+    $toggle_state = $form_state->getValue(get_static_state_button_name());
 
     try {
       if ( $toggle_state ) {
         $this->messenger()->addStatus($this->t("Toggling Tome ON."));
+        \Drupal::state()->set(get_static_state_var(),TRUE);
       } else {
         $this->messenger()->addStatus($this->t("Toggling Tome OFF."));
+        \Drupal::state()->delete(get_static_state_var());
       }
     }
     catch (\Exception $e) {
