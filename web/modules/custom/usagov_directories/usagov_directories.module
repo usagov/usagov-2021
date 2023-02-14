@@ -34,7 +34,7 @@ function usagov_directories_get_static_state_var() {
 function usagov_directories_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == usagov_directories_get_static_state_form_id()) {
     $toggle_state = \Drupal::state()->get(usagov_directories_get_static_state_var()) ? 1 : 0;
-    $form_state->setValue(usagov_directories_get_static_state_button_name(),$toggle_state ? TRUE : FALSE);
+    $form_state->setValue(usagov_directories_get_static_state_button_name(), $toggle_state ? TRUE : FALSE);
   }
 }
 
