@@ -26,7 +26,7 @@ class ToggleStaticSiteGenerationForm extends FormBase {
 
     $toggle_state = \Drupal::state()->get(usagov_directories_get_static_state_var()) ? 'Enable' : 'Disable';
 
-    $desc_text = $this->t(\Drupal::state()->get(usagov_directories_get_static_state_var()) ?  
+    $desc_text = $this->t(\Drupal::state()->get(usagov_directories_get_static_state_var()) ?
       "Static Site Generation is currently DISABLED. Note: Disabling will not cancel a Tome run that is already in progress." :
       "Static Site Generation is currently ENABLED."
     );
@@ -38,15 +38,15 @@ class ToggleStaticSiteGenerationForm extends FormBase {
     ];
 
     /*$form[usagov_directories_get_static_state_button_name()] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Check this box to ENABLE Static Site Generation.  Uncheck to DISABLE.'),
-      '#default_value' => $toggle_state,
+    '#type' => 'checkbox',
+    '#title' => $this->t('Check this box to ENABLE Static Site Generation.  Uncheck to DISABLE.'),
+    '#default_value' => $toggle_state,
     ];*/
 
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t( '@able Static Site Generation',['@able'=>$toggle_state]),
+      '#value' => $this->t('@able Static Site Generation', ['@able' => $toggle_state]),
       '#button_type' => 'primary',
     ];
     return $form;
@@ -61,10 +61,11 @@ class ToggleStaticSiteGenerationForm extends FormBase {
 
     try {
       $toggle_state = \Drupal::state()->get(usagov_directories_get_static_state_var()) ? FALSE : TRUE;
-      //$toggle_state = $form_state->getValue(usagov_directories_get_static_state_button_name()) ? TRUE : FALSE;     
-      if ( $toggle_state ) {
-        \Drupal::state()->set(usagov_directories_get_static_state_var(),TRUE);
-      } else {
+      //$toggle_state = $form_state->getValue(usagov_directories_get_static_state_button_name()) ? TRUE : FALSE;
+      if ($toggle_state) {
+        \Drupal::state()->set(usagov_directories_get_static_state_var(), TRUE);
+      }
+      else {
         \Drupal::state()->delete(usagov_directories_get_static_state_var());
       }
     }
