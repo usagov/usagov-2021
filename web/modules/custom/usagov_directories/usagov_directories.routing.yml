@@ -29,3 +29,11 @@ usagov_directories.add_synonyms_form:
     _form: '\Drupal\usagov_directories\Form\DirectoryRecordsAddSynonymsForm'
   requirements:
     _permission: 'administer site configuration'
+
+usagov_directories.toggle_tome:
+  path: '/admin/config/usagov_directories/toggle_tome'
+  defaults:
+    _title: 'Toggle Static Site Generation'
+    _form: '\Drupal\usagov_directories\Form\ToggleStaticSiteGenerationForm'
+  requirements:
+    _permission: 'administer site configuration'
