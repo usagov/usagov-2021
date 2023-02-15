@@ -1,7 +1,29 @@
 initial_image_styles:
   large: large
+  max_1024w: max_1024w
+  max_1280w: max_1280w
+  max_1440w: max_1440w
+  max_1536w: max_1536w
+  max_1920w: max_1920w
+  max_2048w: max_2048w
+  max_3072w: max_3072w
+  max_480w: max_480w
+  max_640w: max_640w
+  max_720w: max_720w
+  max_960w: max_960w
   media_library: media_library
   medium: medium
   thumbnail: thumbnail
   wide: wide
-queue_image_styles: {  }
+queue_image_styles:
+  max_1024w: max_1024w
+  max_1280w: max_1280w
+  max_1440w: max_1440w
+  max_1536w: max_1536w
+  max_1920w: max_1920w
+  max_2048w: max_2048w
+  max_3072w: max_3072w
+  max_480w: max_480w
+  max_640w: max_640w
+  max_720w: max_720w
+  max_960w: max_960w
