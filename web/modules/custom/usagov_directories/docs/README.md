@@ -14,5 +14,5 @@ For the synonyms to show their “parent” agency a pre-rendering hook was adde
 
 ## Tools for importing records from "mothership"
 
-To import records, we use the Drupal "Feeds" module, plus several utilities and forms hosted in this module. Refer to [Importing_Federal_Agency_Records](Importing_Federal_Agency_Records.md) for details.
+To import records, we use the Drupal "Feeds" module, plus several utilities and forms hosted in this module. Refer to [Importing_Federal_Agency_Records](Importing_Federal_Agency_Records.md) and [Importing_State_Records](Importing_State_Records.md) for details.
 
