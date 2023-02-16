@@ -15,17 +15,18 @@
  * Due to a problem importing records with multiple-value "link" mappings, in
  * which some of the mappings are blank, this script splits its output into
  * multiple files, based on the combination of "link" fields present in each
- * record. That means multiple map-and-import steps for the user.
+ * record. That means multiple map-and-import steps for the user. (State records
+ * may not actually have multiple links, though.)
  * See https://www.drupal.org/project/feeds/issues/3302749 for details on
  * the underlying issue.
  *
  * - akf, 2022-02-14
  */
 
-$infile = '/Users/amykfarrell/dev/data_to_import/states/state-directory-report-2023-02-15T19-41-27.csv'; // $argv[1];
-$extended_infile = '/Users/amykfarrell/dev/data_to_import/states/state-richtext-2023-02-15T19-36-04.xml'; // $argv[2];
-$details_infile = '/Users/amykfarrell/dev/data_to_import/states/StateDetails.csv'; // $argv[3];
-$outdir = '/Users/amykfarrell/dev/data_to_import/states/outdir'; //$argv[4];
+$infile = $argv[1];
+$extended_infile = $argv[2];
+$details_infile = $argv[3];
+$outdir = $argv[4];
 
 function main($infile, $extended_infile, $details_infile, $outdir) {
   $fp_infile = fopen($infile, 'r');
@@ -69,7 +70,7 @@ function main($infile, $extended_infile, $details_infile, $outdir) {
           $data[$key] = strtoupper($val);
         }
         else {
-                  $data[$key] = $val;
+          $data[$key] = $val;
         }
       }
       $nid = $data['SD Nid'];
