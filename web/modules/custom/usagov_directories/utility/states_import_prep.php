@@ -22,8 +22,8 @@
  * - akf, 2022-02-14
  */
 
-$infile = '/Users/amykfarrell/dev/data_to_import/states/state-directory-report-2023-02-14T18-20-52.csv'; // $argv[1];
-$extended_infile = '/Users/amykfarrell/dev/data_to_import/states/state-richtext-2023-02-14T18-25-21.xml'; // $argv[2];
+$infile = '/Users/amykfarrell/dev/data_to_import/states/state-directory-report-2023-02-15T19-41-27.csv'; // $argv[1];
+$extended_infile = '/Users/amykfarrell/dev/data_to_import/states/state-richtext-2023-02-15T19-36-04.xml'; // $argv[2];
 $details_infile = '/Users/amykfarrell/dev/data_to_import/states/StateDetails.csv'; // $argv[3];
 $outdir = '/Users/amykfarrell/dev/data_to_import/states/outdir'; //$argv[4];
 
@@ -65,9 +65,14 @@ function main($infile, $extended_infile, $details_infile, $outdir) {
       $data = [];
       foreach ($row as $idx => $val) {
         $key = $detail_headings[$idx];
-        $data[$key] = $val;
+        if ($key == 'State Acronym') {
+          $data[$key] = strtoupper($val);
+        }
+        else {
+                  $data[$key] = $val;
+        }
       }
-      $nid = $data['Nid'];
+      $nid = $data['SD Nid'];
       if ($uuid = $basic_uuids_by_details_nid[$nid]) {
         $basic_records_by_uuid[$uuid] = array_merge($basic_records_by_uuid[$uuid], $data);
       }
