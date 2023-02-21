@@ -957,7 +957,7 @@ div #sm-share a {
 
 // scams reskin
 
-.block-wizardenglish, .block-wizardespanol {
+.block-wizardenglish {
   background-color: #f3f3f3;
   border-top: 4px solid #112f4e;
   padding-top: 2rem;
@@ -975,10 +975,15 @@ div #sm-share a {
   }
 }
 
-.block-wizardenglish div.usa-prose h1, #block-wizardespanol~div#block-usagov-content .usa-prose h1 {
+.block-wizardenglish div.usa-prose h1 {
   color: #112f4e;
   padding-bottom: 1.5rem;
   margin-top: 0;
+  font-size: 2.25rem;
+  @media (max-width: 40em) {
+    font-size: 2rem;
+  }
+  
 }
 
 .block-wizardenglish div.usa-prose h1.usa-wizard-title {
@@ -989,7 +994,7 @@ div #sm-share a {
   padding-bottom: 1rem;
 }
 
-.block-wizardenglish .usa-prose, .block-wizardespanol .usa-prose {
+.block-wizardenglish .usa-prose {
   font-size: 1.2rem;
 }
 
@@ -1023,8 +1028,7 @@ button#next.usa-button, .block-wizardenglish a.usa-button {
   box-shadow: inset  0 0 0 2px #0081a1;
 }
 
-.block-wizardenglish .usa-prose>p,
-div#block-wizardespanol~div#block-usagov-content .usa-prose>p {
+.block-wizardenglish .usa-prose>p {
   max-width: 110ex;
 }
 
