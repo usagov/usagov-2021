@@ -31,6 +31,7 @@ i.e.
 @forward "navigation-page";
 @forward "content-page";
 @forward "homepage";
+@forward "mobile-menu";
 @forward "life-events";
 @forward "fed-directory";
 @forward "state-directory";
@@ -249,9 +250,6 @@ add padding at the top of flag cards
 .usa-header--extended [hreflang|="en"] {
   border-radius: 5px;
   border: none;
-  @media (max-width: 64em) {
-    padding-right: 1.3rem;
-  }
 }
 
 /** Language buttons **/
@@ -979,6 +977,11 @@ div #sm-share a {
   color: #112f4e;
   padding-bottom: 1.5rem;
   margin-top: 0;
+  font-size: 2.25rem;
+  @media (max-width: 40em) {
+    font-size: 2rem;
+  }
+  
 }
 
 .block-wizardenglish div.usa-prose h1.usa-wizard-title {
