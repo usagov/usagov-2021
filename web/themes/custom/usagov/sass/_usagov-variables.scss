@@ -24,6 +24,12 @@ $deep-orange: #c05600;
 $black: #000;
 $blue-shadow: rgba(17, 47, 78, 0.4);
 // Component Variables
+$mobile-nav: (
+  red: $red,
+  white: $white,
+  blue: $text-blue,
+  light-gray: $light-gray,
+);
 $hero: (
   border-color: $red,
   background-color: $deep-blue,
