@@ -37,9 +37,6 @@ file. (Just edit the files as plain text.)
 
 ## Preparing the files for import
 
-(You must have php (version 8) installed where you're going to do
-this.)
-
 Use the script utility/states_import_prep.php to read in both files
 and produce CSV files for import. This script takes four arguments:
 
@@ -48,9 +45,13 @@ and produce CSV files for import. This script takes four arguments:
 3. Path to the State Details CSV file
 4. Path to a directory where you want the output
 
-For example (your paths will surely vary):
+Use the bin/php script to execute php within your docker CMS
+container. Paths will be relative to your usagov-2021 repo root (so
+you need to temporarily put your input and output files there):
 
-% php ~/dev/usagov-2021/web/modules/custom/usagov_directories/utility/states_import_prep.php state-directory-report-2023-02-15T19-41-27.csv state-richtext-2023-02-15T19-36-04.xml StateDetails.csv outdir
+For example, if I have my files in "tmpdir": 
+
+% bin/php web/modules/custom/usagov_directories/utility/states_import_prep.php tmpdir/state-directory-report-2023-02-15T19-41-27.csv tmpdir/state-richtext-2023-02-15T19-36-04.xml tmpdir/StateDetails.csv tmpdir/outdir
 
 
 
