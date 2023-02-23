@@ -28,8 +28,6 @@ $extended_infile = $argv[2];
 $details_infile = $argv[3];
 $outdir = $argv[4];
 
-setlocale(LC_CTYPE, 'es_ES.UTF-8'); // Needed for iconv?
-
 function main($infile, $extended_infile, $details_infile, $outdir) {
   $fp_infile = fopen($infile, 'r');
 
