@@ -125,7 +125,7 @@
   }
 
   h1 {
-    font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times, serif;
     font-size: var($homepage, medium-font-size);
     margin: 0;
   }
@@ -165,10 +165,7 @@
   box-shadow: 0 6px 6px var($blue-shadow);
   grid-column: 1 / 3;
   grid-row: 1 / 2;
-  margin-bottom: 0;
-  margin-top: 35px;
-  margin-left: 5vw;
-  margin-right: 5vw;
+  margin: 25px 5vw 0;
   max-width: 400px;
   padding: 30px 28px 35px 30px;
 
@@ -196,10 +193,7 @@
   margin-right: 5vw;
   margin-top: 35px;
   max-width: 400px;
-  padding-bottom: 20px;
-  padding-left: 25px;
-  padding-right: 25px;
-  padding-top: 30px;
+  padding: 30px 25px 20px;
 
   h2,
   a {
@@ -252,14 +246,13 @@
   grid-row: 5 / 6;
   margin-left: 5vw;
   margin-right: 5vw;
-  max-width: 400px;
   padding: 0;
   max-width: 100%;
 
   h2 {
-    font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times, serif;
     font-size: var($homepage, medium-font-size);
-    margin: 0 0 0;
+    margin: 0;
     padding-top: 50px;
   }
 
@@ -331,7 +324,7 @@
 }
 
 .carousel__navigation {
-  margin: 30px 0 70px 0;
+  margin: 30px 0 70px;
   list-style-type: none;
   padding-left: 0;
   align-items: center;
@@ -399,14 +392,14 @@
     margin: 0;
     color: var($white);
     text-decoration: none;
-    font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
     line-height: 1.25;
   }
 
   p {
     margin: 0;
     font-weight: normal;
-    font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
     font-size: var($homepage, small-font-size);
     line-height: 1.25;
     padding-top: 10px;
@@ -469,7 +462,6 @@
   a  span{
     background-color: var($deep-blue);
   }
-  //
 }
 
 /* All Topics Header */
@@ -481,13 +473,10 @@
   h2 {
     border-bottom: 10px solid var($red);
     color: var($red);
-    font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times, serif;
     font-size: 39.04px;
     font-weight: bold;
-    margin-bottom: 0;
-    margin-left: 5vw;
-    margin-right: 5vw;
-    margin-top: 65px;
+    margin: 65px 5vw 0;
     max-width: 90%;
     padding: 0;
     text-align: left;
@@ -536,13 +525,13 @@
 
 .homepage-card {
   display: flex;
-  font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
   border-width: 2px;
   border-style: solid;
   background-color: var($white);
   border-color: var($deep-gray);
   border-radius: 3px;
-  box-shadow: 0 3px 6px rgb(122 122 122 / .15);
+  box-shadow: 0 3px 6px rgb(122 122 122 / 15%);
   margin: 0;
   padding: 0;
 
@@ -627,8 +616,8 @@
   }
 
   .carousel .usa-card-group {
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .slide {
@@ -660,7 +649,6 @@
 
 /*Tablet */
 @media(max-width: 700px) and (min-width:480px) {
-
   .how-button-list {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -674,7 +662,6 @@
 
 /* Desktop */
 @media (min-width:1024px) {
-
   .life-events {
     width: 1024px;
     margin-left: auto;
@@ -708,7 +695,6 @@
 
   .slide {
     flex: 0 0 calc(100% / 3);
-    padding-right: 30px;
     padding-right: 30px;
   }
 
