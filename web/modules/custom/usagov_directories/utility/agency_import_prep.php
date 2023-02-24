@@ -28,6 +28,8 @@ $infile = $argv[1];
 $extended_infile = $argv[2];
 $outdir = $argv[3];
 
+error_reporting(-1); // Will let us know if iconv fails. 
+
 function main($infile, $extended_infile, $outdir) {
   $fp_infile = fopen($infile, 'r');
 
@@ -363,7 +365,8 @@ function get_links_from_cdata($node, $nodename, $columnname = NULL) {
  */
 function make_clean_alias($str) {
   $str = urldecode($str);
-  $str = iconv('UTF-8', 'ASCII//TRANSLIT', $str);
+  // $str = iconv('UTF-8', 'ASCII//TRANSLIT', $str); // musl iconv does not support //TRANSLIT
+  $str = iconv('UTF-8', 'ASCII', $str);
 
   // $str is now plain ASCII
   $chars = ["'", ' '];
