@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# gather s3 credentials from storage key
+cf create-service-key storage storagekey
+S3INFO=$(cf service-key storage storagekey)
+S3_BUCKET=$(echo "$S3INFO" | grep '"bucket":' | sed 's/.*"bucket": "\([^"]*\)".*/\1/')
+S3_REGION=$(echo "$S3INFO" | grep '"region":' | sed 's/.*"region": "\([^"]*\)".*/\1/')
+S3_ACCESS_KEY_ID=$(echo "$S3INFO" | grep '"access_key_id":' | sed 's/.*"access_key_id": "\([^"]*\)".*/\1/')
+S3_SECRET_ACCESS_KEY=$(echo "$S3INFO" | grep '"secret_access_key":' | sed 's/.*"secret_access_key": "\([^"]*\)".*/\1/')
+
+# pass s3 credentials through to container as env vars
+mkdir -p $(pwd)/.aws
+touch $(pwd)/.aws/env
+echo "AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID" > $(pwd)/.aws/env
+echo "AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY" >> $(pwd)/.aws/env
+echo "BUCKET_NAME=$S3_BUCKET" >> $(pwd)/.aws/env
+echo "AWS_DEFAULT_REGION=$S3_REGION" >> $(pwd)/.aws/env
+
+# pull down files excluding cached versions of css, js, and templates
+docker run --rm -it --env-file=$(pwd)/.aws/env -v $(pwd)/s3/local/cms/public:/aws \
+  amazon/aws-cli:latest s3api get-bucket-encryption --bucket $S3_BUCKET --output json
