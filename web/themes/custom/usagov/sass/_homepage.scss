@@ -264,7 +264,7 @@
 }
 
 .life-events-carousel {
-  margin: 30px 0 0;
+  margin: 40px 0 0;
   max-width: 100%;
 }
 
@@ -344,22 +344,22 @@
 .carousel__navigation_dot {
   fill: transparent;
   stroke: var($cyan-30v);
-  stroke-width: 2px;
+  stroke-width: 6px;
 
   &:hover {
     stroke: var(white);
-    stroke-width: 2px;
+    stroke-width: 6px;
   }
 }
 
 .carousel__navigation_button[aria-current="true"] .carousel__navigation_dot {
   fill: var($white);
   stroke: var(white);
-  stroke-width: 2px;
+  stroke-width: 6px;
 }
 
 .carousel-mover {
-  width: calc(100% - 80px);
+  width: calc(100% - 100px);
   padding-left: 11px;
   padding-right: 11px;
 }
@@ -390,7 +390,7 @@
 
   h3 {
     margin: 0;
-    color: var($white);
+    color: var($cyan-30v);
     text-decoration: none;
     font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
     line-height: 1.25;
@@ -408,6 +408,8 @@
 
 .slide a:hover>h3 {
   text-decoration: underline;
+  text-decoration-color: initial;
+  text-decoration-thickness: initial;
 }
 
 .slide a:hover .thumbnailBanner {
@@ -607,7 +609,7 @@
   }
 
   .life-events h2 {
-    padding-top: 16px;
+    padding-top: 30px;
   }
 
   .carousel-mover {
@@ -684,7 +686,7 @@
 
   .carousel-mover {
     width: 100%;
-    max-width: 960px;
+    max-width: 940px;
     margin-left: 0;
     margin-right: auto;
   }
