@@ -408,6 +408,8 @@
 
 .slide a:hover>h3 {
   text-decoration: underline;
+  text-decoration-color: initial;
+  text-decoration-thickness: initial;
 }
 
 .slide a:hover .thumbnailBanner {
