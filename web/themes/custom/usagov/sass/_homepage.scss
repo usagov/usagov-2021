@@ -344,18 +344,18 @@
 .carousel__navigation_dot {
   fill: transparent;
   stroke: var($cyan-30v);
-  stroke-width: 2px;
+  stroke-width: 6px;
 
   &:hover {
     stroke: var(white);
-    stroke-width: 2px;
+    stroke-width: 6px;
   }
 }
 
 .carousel__navigation_button[aria-current="true"] .carousel__navigation_dot {
   fill: var($white);
   stroke: var(white);
-  stroke-width: 2px;
+  stroke-width: 6px;
 }
 
 .carousel-mover {
