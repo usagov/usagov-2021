@@ -9,7 +9,7 @@ dependencies:
 id: languageswitcher
 theme: usagov
 region: header_top
-weight: -11
+weight: -14
 provider: null
 plugin: 'language_block:language_interface'
 settings:
