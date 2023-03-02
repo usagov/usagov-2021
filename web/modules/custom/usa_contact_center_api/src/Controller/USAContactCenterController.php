@@ -55,8 +55,8 @@ class USAContactCenterController extends ControllerBase {
       $query->condition('deleted_time', $date, '>=');
     }
     $result = $query->execute()->fetchAll();
-
-    return new JsonResponse($result);
+    $wrapped_result = ['data' => $result];
+    return new JsonResponse($wrapped_result);
   }
 
 }
