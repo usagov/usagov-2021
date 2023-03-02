@@ -505,18 +505,17 @@ add padding at the top of flag cards
   }
 }
 
-.usa-footer__secondary-section a {
+.usa-footer__secondary-section .grid-container{
   padding-bottom: 2rem;
+}
+
+.usa-footer__secondary-section .grid-row.grid-gap-1>* {
+  padding-right: 0;
 }
 
 .footer-question {
   height: 15px;
 }
-// .usa-footer__contact-links {
-//   @media (min-width: 40em) {
-//     margin-left: -3rem;
-//   }
-// }
 
 @media (min-width: 30em) {
   .usa-footer__contact-heading {
@@ -538,9 +537,6 @@ add padding at the top of flag cards
   @media (max-width: 30em) and (min-width: 30em) {
     justify-content: flex-start;
     padding-right: 0;
-  }
-  @media (min-width: 31em) {
-    padding-right: 2rem;
   }
 }
 
@@ -760,11 +756,9 @@ a {
 }
 
 .usa-social-link > img {
-  height: 2rem;
-  background-color: transparent;
   display: block;
-  margin-right: auto;
-  margin-left: auto;
+  height: auto;
+  width: 100%;
 }
 
 #back-to-top {
