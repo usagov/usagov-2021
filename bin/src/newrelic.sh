@@ -1,16 +1,4 @@
 #!/bin/sh
-# we might be running in circleci
-if [ -f /home/circleci/project/env.local ]; then
-  . /home/circleci/project/env.local
-fi
-# we might be running from a local dev machine
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f "$SCRIPT_DIR"/env.local ]; then
-  . "$SCRIPT_DIR"/env.local
-fi
-if [ -f ./env.local ]; then
-  . ./env.local
-fi
 if [ $(uname -m) != 'aarch64' ]; then
   export NR_VERSION=$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux\-musl\).tar.gz<.*/\1/p') \
     && cd /tmp \
@@ -29,6 +17,5 @@ if [ $(uname -m) != 'aarch64' ]; then
       -e 's/;\?newrelic.framework =.*/newrelic.framework = "drupal8"/' \
       -e 's/;\?newrelic.loglevel =.*/newrelic.loglevel = "warning"/' \
       -e 's/;\?newrelic.enabled =.*/newrelic.enabled = false/' \
-      /etc/php8/conf.d/newrelic.ini \
-    && sudo NEW_RELIC_API_KEY="${NEW_RELIC_API_KEY}" NEW_RELIC_ACCOUNT_ID="${NEW_RELIC_ACCOUNT_ID}" /usr/local/bin/newrelic install -n logs-integration
+      /etc/php8/conf.d/newrelic.ini
 fi
