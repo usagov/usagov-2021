@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.state_directory_record.body
+    - field.field.node.state_directory_record.feeds_item
     - field.field.node.state_directory_record.field_agriculture_department
     - field.field.node.state_directory_record.field_city
     - field.field.node.state_directory_record.field_consumer_protection
@@ -23,6 +24,7 @@ dependencies:
     - field.field.node.state_directory_record.field_health_department
     - field.field.node.state_directory_record.field_language_toggle
     - field.field.node.state_directory_record.field_local_governments
+    - field.field.node.state_directory_record.field_mothership_uuid
     - field.field.node.state_directory_record.field_motor_vehicle_office
     - field.field.node.state_directory_record.field_page_intro
     - field.field.node.state_directory_record.field_phone_number
@@ -218,6 +220,14 @@ content:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
+  field_mothership_uuid:
+    type: string_textfield
+    weight: 51
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_motor_vehicle_office:
     type: link_default
     weight: 33
@@ -380,4 +390,10 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-hidden: {  }
+  url_redirects:
+    weight: 50
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  feeds_item: true
