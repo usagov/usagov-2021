@@ -189,6 +189,18 @@ settings:
     -
       value: AE
       label: AE
+    -
+      value: MP
+      label: MP
+    -
+      value: MH
+      label: MH
+    -
+      value: PW
+      label: PW
+    -
+      value: FM
+      label: FM
   allowed_values_function: ''
 module: options
 locked: false

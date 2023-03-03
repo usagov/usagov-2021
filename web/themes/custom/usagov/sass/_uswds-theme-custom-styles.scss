@@ -105,8 +105,8 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-card__body.padding-top-0 {
   padding-top: 0;
 }
-/* 
-add padding at the top of flag cards 
+/*
+add padding at the top of flag cards
 */
 .paragraph--type--uswds-card-group-flag .usa-card-group {
   padding-top: 60px;
@@ -505,15 +505,17 @@ add padding at the top of flag cards
   }
 }
 
-.usa-footer__secondary-section a {
+.usa-footer__secondary-section .grid-container{
   padding-bottom: 2rem;
 }
 
-// .usa-footer__contact-links {
-//   @media (min-width: 40em) {
-//     margin-left: -3rem;
-//   }
-// }
+.usa-footer__secondary-section .grid-row.grid-gap-1>* {
+  padding-right: 0;
+}
+
+.footer-question {
+  height: 15px;
+}
 
 @media (min-width: 30em) {
   .usa-footer__contact-heading {
@@ -535,9 +537,6 @@ add padding at the top of flag cards
   @media (max-width: 30em) and (min-width: 30em) {
     justify-content: flex-start;
     padding-right: 0;
-  }
-  @media (min-width: 31em) {
-    padding-right: 2rem;
   }
 }
 
@@ -757,11 +756,9 @@ a {
 }
 
 .usa-social-link > img {
-  height: 2rem;
-  background-color: transparent;
   display: block;
-  margin-right: auto;
-  margin-left: auto;
+  height: auto;
+  width: 100%;
 }
 
 #back-to-top {
@@ -981,7 +978,7 @@ div #sm-share a {
   @media (max-width: 40em) {
     font-size: 2rem;
   }
-  
+
 }
 
 .block-wizardenglish div.usa-prose h1.usa-wizard-title {
