@@ -1,0 +1,23 @@
+uuid: c37f5b7f-f282-4ca9-acb6-59fd65af8c5a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.feeds_item
+    - node.type.state_directory_record
+  module:
+    - feeds
+id: node.state_directory_record.feeds_item
+field_name: feeds_item
+entity_type: node
+bundle: state_directory_record
+label: 'Feeds item'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:feeds_feed'
+  handler_settings: {  }
+field_type: feeds_item
