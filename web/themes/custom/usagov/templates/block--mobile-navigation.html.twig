@@ -195,9 +195,17 @@
                 {% endfor %}
               </ul>
             {% endif %}
+
             {# Show the current page if this is the last iteration but the active item was never found #}
             {% if loop.index == active_trail|length and not found_active_item %}
               <ul class="navigation__items">
+                {% if menu_item.submenu is not empty %}
+                  {% for child in menu_item.submenu %}
+                    <li class="navigation__item sibling">
+                      <a href="{{ child.url }}">{{ child.text }}</a>
+                    </li>
+                  {% endfor %}
+                {% endif %}
                 <li class="navigation__item active">
                   <a href="#">{{node.title.value}}</a>
                 </li>
