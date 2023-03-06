@@ -77,6 +77,7 @@ export NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME:-$(echo $SECRETS | jq -r 
 export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')}
 export NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')}
 export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')}
+export NEW_RELIC_ACCOUNT_ID=${NEW_RELIC_ACCOUNT_ID:-$(echo $SECRETS | jq -r '.NEW_RELIC_ACCOUNT_ID')}
 
 
 SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.spkey')
@@ -113,6 +114,8 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
         -e "s|;\?newrelic.daemon.dont_launch =.*|newrelic.daemon.dont_launch = 3|" \
         -e "s|;\?newrelic.enabled =.*|newrelic.enabled = true|" \
         /etc/php8/conf.d/newrelic.ini
+    curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.sh | bash
+    sudo NEW_RELIC_API_KEY="${NEW_RELIC_API_KEY}" NEW_RELIC_ACCOUNT_ID="${NEW_RELIC_ACCOUNT_ID}" /usr/local/bin/newrelic install -n php-agent-installer
   else
     echo "Turning off New Relic ... "
     sed -i \
