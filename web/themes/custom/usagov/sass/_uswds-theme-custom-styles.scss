@@ -1057,3 +1057,8 @@ button#next.usa-button, .block-wizardenglish a.usa-button {
     flex-direction: column-reverse;
     }
 }
+
+button.usa-combo-box__clear-input:focus,
+button.usa-combo-box__toggle-list:focus {
+  opacity: 1;
+}
