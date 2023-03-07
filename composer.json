@@ -57,7 +57,6 @@
         "drupal/module_filter": "^3.1",
         "drupal/new_relic_rpm": "^2.1",
         "drupal/node_menus": "^3.0@alpha",
-        "drupal/openapi_ui_swagger": "^1.0@RC",
         "drupal/paragraphs_collapsible": "^1.2",
         "drupal/paragraphs_entity_embed": "^2.0@alpha",
         "drupal/pathauto": "^1.8",
