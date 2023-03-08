@@ -13,29 +13,23 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-DB_TAG=${1}
+# just testing?
+#export echo=echo
 
-if [ -z "$DB_TAG" ]; then
+DEPLOY_TAG=${1}
+
+if [ -z "$DEPLOY_TAG" ]; then
   echo "Usage: $0 <tag>"
   echo "This will attempt to pull the database backup for the provided tag in the local directory. Use db-list to see available db backups." 
   exit 1
 fi
 
 SPACE=$( cf target | grep space: | awk '{ print $2 }')
-PREFIX=usagov-${TAG}-${SPACE}
-
-SQL_FILE=$PREFIX.sql
-
-GZIP_FILE=$SQL_FILE.gz
+PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
+GZIP_FILE=$PREFIX.sql.gz
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
-echo "Downloading file from s3. This could take awhile." 
-aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$G $LOCAL_DEST_DIR --recursive
-
-echo "Creating zip file usagov-${LOCAL_DEST_DIR}.zip." 
-zip -rq usagov-${LOCAL_DEST_DIR}.zip ${LOCAL_DEST_DIR}
-
-echo "Done." 
-exit 0
-
+echo "Attempting to download $GZIP_FILE from s3. This could take awhile." 
+echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
+$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE

@@ -16,14 +16,26 @@ fi
 # just testing?
 #export echo=echo
 
-DB_GZIP_FILE=${1}
-if [ x"$DB_GZIP_FILE" != x ]; then   
+DEPLOY_TAG=${1}
+
+if [ -z "$DEPLOY_TAG" ]; then
+  echo "Usage: $0 <tag>"
+  echo "This will attempt to push the database backup for the provided tag to s3" 
+  exit 1
+fi
+
+SPACE=$(cf target | grep space: | awk '{ print $2 }')
+PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
+SQL_FILE=$PREFIX.sql
+GZIP_FILE=$SQL_FILE.gz
+
+if [ x"$DEPLOY_TAG" != x ]; then   
   # locate a local database gzip file
   if [ x$echo != x ]; then
-    if [ -f "$DB_GZIP_FILE" ]; then     
-      echo "Found local database file: $DB_GZIP_FILE"
+    if [ -f "$GZIP_FILE" ]; then     
+      echo "Found local database file: $GZIP_FILE"
     else
-      echo "ERROR: Local database file not found: $DB_GZIP_FILE"
+      echo "ERROR: Local database file not found: $GZIP_FILE"
       exit 1
     fi
   fi
@@ -35,5 +47,5 @@ fi
 $echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 # upload that database gzip file to a location within an s3 bucket represented by the tag
-echo  aws s3 cp --only-show-errors $DB_GZIP_FILE s3://$S3_BUCKET/db-backup/$DB_GZIP_FILE
-$echo aws s3 cp --only-show-errors $DB_GZIP_FILE s3://$S3_BUCKET/db-backup/$DB_GZIP_FILE
+echo  aws s3 cp --only-show-errors $GZIP_FILE s3://$S3_BUCKET/db-backup/$GZIP_FILE
+$echo aws s3 cp --only-show-errors $GZIP_FILE s3://$S3_BUCKET/db-backup/$GZIP_FILE
