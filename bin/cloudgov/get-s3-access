@@ -46,4 +46,4 @@ aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
 aws configure set AWS_SECRET_ACCESS_KEY $AWS_SECRET_ACCESS_KEY
 
 echo "Cleanup:"
-echo "   cf delete-service-key storage storagekey-$SPACE -f"
+echo "   cf delete-service-key $SERVICE_NAME $SERVICE_KEY -f"
