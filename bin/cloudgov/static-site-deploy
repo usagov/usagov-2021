@@ -13,7 +13,7 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-SS_TAG=${2:-$(date +%Y-%m-%d_%H-%M-%S)}
+SS_TAG=${1:-$(date +%Y-%m-%d_%H-%M-%S)}
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
@@ -22,3 +22,4 @@ source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 # upload that static site directory to a location within an s3 bucket represented by the tag
 echo aws s3 sync s3://$S3_BUCKET/web-backup/$SS_TAG/ s3://$S3_BUCKET/web/ --only-show-errors --delete --acl public-read
+aws s3 sync s3://$S3_BUCKET/web-backup/$SS_TAG/ s3://$S3_BUCKET/web/ --only-show-errors --delete --acl public-read
