@@ -114,8 +114,6 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
         -e "s|;\?newrelic.daemon.dont_launch =.*|newrelic.daemon.dont_launch = 3|" \
         -e "s|;\?newrelic.enabled =.*|newrelic.enabled = true|" \
         /etc/php8/conf.d/newrelic.ini
-    curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.sh | bash
-    sudo NEW_RELIC_API_KEY="${NEW_RELIC_API_KEY}" NEW_RELIC_ACCOUNT_ID="${NEW_RELIC_ACCOUNT_ID}" /usr/local/bin/newrelic install -n php-agent-installer
   else
     echo "Turning off New Relic ... "
     sed -i \
