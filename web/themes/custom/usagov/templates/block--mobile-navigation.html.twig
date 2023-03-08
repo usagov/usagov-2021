@@ -17,7 +17,8 @@
     'search': 'Buscar',
     'search_placeholder': 'Busque en USAGov en Español',
     'search_affiliate': 'usagov_es_all_gov',
-    'all_topics': 'Todos los temas y servicios'
+    'all_topics': 'Todos los temas y servicios',
+    'phone_URL': '/es/centro-de-llamadas'
   } %}
 {% else %}
   {% set main_nav_items = simplify_menu('left-menu-english') %}
@@ -28,7 +29,8 @@
     'search': 'Search',
     'search_placeholder': 'Search all government',
     'search_affiliate': 'usagov_all_gov',
-    'all_topics': 'All topics and services'
+    'all_topics': 'All topics and services',
+    'phone_URL': '/phone'
   } %}
 {% endif %}
 
@@ -77,7 +79,7 @@
         </form>
         <span class="usa-nav__secondary-links">
           <span id="top-phone" class="usa-nav__secondary-item">
-            <a href="/phone" class="">1-844-USAGOV1</a>
+            <a href="{{ translations.phone_URL }}" class="">1-844-USAGOV1</a>
           </span>
         </span>
       </div>
@@ -90,7 +92,7 @@
     {# The current page is not in the menu structure. Show All Topics and Services #}
     <ul class="navigation__items ancestors">
       <li class="navigation__item active">
-        <a href="/">{{ translations.all_topics }}</a>
+        <a href="{{ translations.home_URL }}#all-topics-header">{{ translations.all_topics }}</a>
         <ul class="navigation__items children">
           {% for menu_item in main_nav_items.menu_tree %}
             <li class="navigation__item child">
