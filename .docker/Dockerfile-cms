@@ -219,6 +219,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       php8-xmlwriter \
       php8-zip \
       php8-zlib \
+      sudo \
     && mkdir -p /var/www/web/sites/default/files \
     # s6 supervisor setup
     && tar xzf /tmp/s6overlay.tar.gz -C / \
@@ -242,8 +243,9 @@ COPY bin/src/newrelic.sh /local/newrelic.sh
 RUN . /local/newrelic.sh
 RUN curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.sh | bash && sudo NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY} NEW_RELIC_ACCOUNT_ID=${NEW_RELIC_ACCOUNT_ID} /usr/local/bin/newrelic install -n logs-integration
 
+RUN apk del sudo
     # cron setup
-Run mkdir -p /etc/periodic/30min \
+RUN mkdir -p /etc/periodic/30min \
     && echo "*/30    *       *       *       *       run-parts /etc/periodic/30min" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*
