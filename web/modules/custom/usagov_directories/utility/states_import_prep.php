@@ -1,40 +1,41 @@
 <?php
 
 /**
- * This script converts Federal Directory Record data exported from the
+ * This script converts State Directory Record data exported from the
  * previous USA.gov site into CSV files for import into the new site.
  * The import will be done using the Drupal Feeds module. Once we've
  * finished transferring data, there will be no further need for this script.
  *
- * This script takes paths to two input files and an output directory:
- *  - A CSV file with most of the fields in plain-text form
- *  - An XML file with fields that are not plain text (generally, HTML snippets)
+ * This script takes paths to three input files and an output directory:
+ *  - A CSV file with most of the fields from State Directory records in plain-text form
+ *  - An XML file with rich-text fields from State Directory records
+ *  - A CSV file with fields from State Details records
  *  - A directory where you want your output
- *
- * Both files include create and update timestamps on all records, for the
- * purpose of doing incremental updates (to be implemented).
  *
  * Due to a problem importing records with multiple-value "link" mappings, in
  * which some of the mappings are blank, this script splits its output into
  * multiple files, based on the combination of "link" fields present in each
- * record. That means multiple map-and-import steps for the user.
+ * record. That means multiple map-and-import steps for the user. (State records
+ * may not actually have multiple links, though.)
  * See https://www.drupal.org/project/feeds/issues/3302749 for details on
  * the underlying issue.
  *
- * - akf, 2022-08-17
+ * - akf, 2022-02-14
  */
 
 $infile = $argv[1];
 $extended_infile = $argv[2];
-$outdir = $argv[3];
+$details_infile = $argv[3];
+$outdir = $argv[4];
 
 error_reporting(-1); // Will let us know if iconv fails.
 
-function main($infile, $extended_infile, $outdir) {
+function main($infile, $extended_infile, $details_infile, $outdir) {
   $fp_infile = fopen($infile, 'r');
 
   // Deal with the CSV file first.
   $basic_records_by_uuid = [];
+  $basic_uuids_by_details_nid = [];
   $headings_processed = FALSE;
   while (($row = fgetcsv($fp_infile)) !== FALSE) {
     if (!$headings_processed) {
@@ -48,12 +49,42 @@ function main($infile, $extended_infile, $outdir) {
     else {
       $data = convert_fields($row, $array_indexes);
       $uuid = $data['UUID'];
+      $details_nid = $data['State Details NID'];
       $basic_records_by_uuid[$uuid] = $data;
+      $basic_uuids_by_details_nid[$details_nid] = $uuid;
     }
   }
   fclose($fp_infile);
 
+  $fp_detailsfile = fopen($details_infile, 'r');
+  $headings_processed = FALSE;
+  $detail_headings = NULL;
+  while (($row = fgetcsv($fp_detailsfile)) !== FALSE) {
+    if (!$headings_processed) {
+      $detail_headings = $row;
+      $headings_processed = TRUE;
+    }
+    else {
+      $data = [];
+      foreach ($row as $idx => $val) {
+        $key = $detail_headings[$idx];
+        if ($key == 'State Acronym') {
+          $data[$key] = strtoupper($val);
+        }
+        else {
+          $data[$key] = $val;
+        }
+      }
+      $nid = $data['SD Nid'];
+      if ($uuid = $basic_uuids_by_details_nid[$nid]) {
+        $basic_records_by_uuid[$uuid] = array_merge($basic_records_by_uuid[$uuid], $data);
+      }
+    }
+  }
+  fclose($fp_detailsfile);
+
   $basic_headings = array_flip($array_indexes);
+  $basic_headings = array_merge($basic_headings, $detail_headings);
   $extended_records_by_uuid = process_xml_file($extended_infile);
   $extended_headings = $extended_records_by_uuid['headings'];
 
@@ -64,9 +95,10 @@ function main($infile, $extended_infile, $outdir) {
 
   // Define headings for a "reviewer's" CSV file. This will include a subset of the
   // set of fields, with an entry for every federal agency record.
-  $reviewer_csv = 'federal_agencies_from_mothership';
+  // TODO: identify desired reviewer headings.
+  $reviewer_csv = 'state_records_from_mothership';
   $reviewer_headings = [
-    'Title', 'Language', 'Show on AZ Index', 'Summary', 'Government branch',
+    'Title', 'Language', 'Summary', 'Government branch',
     'Synonym', 'Email',
     'Street 1', 'Street 2', 'Street 3', 'City', 'State', 'ZIP',
   ];
@@ -164,27 +196,16 @@ function convert_fields($row, &$indexes) {
   $lc_index = $indexes['langcode'];
   $row[$lc_index] = $row[$lang_index] == 'Spanish' ? 'es' : 'en';
 
-  // Path -> alias
-  $path_index = $indexes['Path'];
+  // Create path alias. We'll use the Title here and ignore any pre-existing path.
   $alias_index = $indexes['alias'];
-  $alias = $row[$path_index];
-  if (!str_starts_with($alias, '/content/')) {
-    // Replace it with an alias based on the title.
-    $alias = $row[$indexes['Title']];
-  }
-  else {
-    // Trim off /content, then concatenate what remains to the correct parent path.
-    // While it would be unusual for /content/ to appear elsewhere in the path,
-    // why risk a global replace?
-    $alias = substr($alias, 9);
-  }
+  $alias = $row[$indexes['Title']];
   $alias = make_clean_alias($alias);
 
   if ($row[$lang_index] == 'Spanish') {
-    $alias = '/agencias/' . $alias;
+    $alias = '/estados/' . $alias;
   }
   else {
-    $alias = '/agencies/' . $alias;
+    $alias = '/states/' . $alias;
   }
   $row[$alias_index] = $alias;
 
@@ -380,4 +401,4 @@ function make_clean_alias($str) {
   return $str;
 }
 
-main($infile, $extended_infile, $outdir);
+main($infile, $extended_infile, $details_infile, $outdir);

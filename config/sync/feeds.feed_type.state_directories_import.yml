@@ -1,0 +1,512 @@
+uuid: 755d22c0-3cd9-4d69-bb8c-3648a1f1ddfa
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.base_field_override.node.state_directory_record.title
+    - field.field.node.state_directory_record.field_agriculture_department
+    - field.field.node.state_directory_record.field_city
+    - field.field.node.state_directory_record.field_consumer_protection
+    - field.field.node.state_directory_record.field_contact_link
+    - field.field.node.state_directory_record.field_corrections_dept
+    - field.field.node.state_directory_record.field_district_attorneys
+    - field.field.node.state_directory_record.field_education_department
+    - field.field.node.state_directory_record.field_election_office
+    - field.field.node.state_directory_record.field_email
+    - field.field.node.state_directory_record.field_emergency_management
+    - field.field.node.state_directory_record.field_english_title
+    - field.field.node.state_directory_record.field_governor
+    - field.field.node.state_directory_record.field_health_department
+    - field.field.node.state_directory_record.field_local_governments
+    - field.field.node.state_directory_record.field_mothership_uuid
+    - field.field.node.state_directory_record.field_motor_vehicle_office
+    - field.field.node.state_directory_record.field_phone_number
+    - field.field.node.state_directory_record.field_social_services
+    - field.field.node.state_directory_record.field_state_abbr
+    - field.field.node.state_directory_record.field_state_attorney_general
+    - field.field.node.state_directory_record.field_street_1
+    - field.field.node.state_directory_record.field_street_2
+    - field.field.node.state_directory_record.field_street_3
+    - field.field.node.state_directory_record.field_toll_free_number
+    - field.field.node.state_directory_record.field_tty_number
+    - field.field.node.state_directory_record.field_website
+    - field.field.node.state_directory_record.field_zip
+    - node.type.state_directory_record
+  module:
+    - node
+label: 'State Directories import'
+id: state_directories_import
+description: ''
+help: ''
+import_period: -1
+fetcher: upload
+fetcher_configuration:
+  allowed_extensions: 'txt csv tsv xml opml'
+  directory: 'private://feeds'
+parser: csv
+parser_configuration:
+  delimiter: ','
+  no_headers: false
+  line_limit: 100
+processor: 'entity:node'
+processor_configuration:
+  values:
+    type: state_directory_record
+  langcode: es
+  insert_new: 1
+  update_existing: 2
+  update_non_existent: _keep
+  skip_hash_check: false
+  authorize: true
+  expire: -1
+  owner_feed_author: false
+  owner_id: 19
+custom_sources:
+  agriculture_department_url:
+    value: 'Agriculture Department: URL'
+    label: 'Agriculture Department: URL'
+    machine_name: agriculture_department_url
+    type: csv
+  agriculture_department_title:
+    value: 'Agriculture Department: Title'
+    label: 'Agriculture Department: Title'
+    machine_name: agriculture_department_title
+    type: csv
+  city:
+    value: City
+    label: City
+    machine_name: city
+    type: csv
+  consumer_protection_offices_title:
+    value: 'Corrections Department: Title'
+    label: 'Corrections Department: Title'
+    machine_name: consumer_protection_offices_title
+    type: csv
+  consumer_protection_offices_url:
+    value: 'Consumer Protection Offices: URL'
+    label: 'Consumer Protection Offices: URL'
+    machine_name: consumer_protection_offices_url
+    type: csv
+  contactlinks_1_url:
+    value: contactLinks_1_url
+    label: contactLinks_1_url
+    machine_name: contactlinks_1_url
+    type: csv
+  contactlinks_1_text:
+    value: contactLinks_1_text
+    label: contactLinks_1_text
+    machine_name: contactlinks_1_text
+    type: csv
+  corrections_department_url:
+    value: 'Corrections Department: URL'
+    label: 'Corrections Department: URL'
+    machine_name: corrections_department_url
+    type: csv
+  corrections_department_title:
+    value: 'Corrections Department: Title'
+    label: 'Corrections Department: Title'
+    machine_name: corrections_department_title
+    type: csv
+  district_attorneys_url:
+    value: 'District Attorneys: URL'
+    label: 'District Attorneys: URL'
+    machine_name: district_attorneys_url
+    type: csv
+  district_attorneys_title:
+    value: 'District Attorneys: Title'
+    label: 'District Attorneys: Title'
+    machine_name: district_attorneys_title
+    type: csv
+  education_department_url:
+    value: 'Education Department: URL'
+    label: 'Education Department: URL'
+    machine_name: education_department_url
+    type: csv
+  education_department_title:
+    value: 'Education Department: Title'
+    label: 'Education Department: Title'
+    machine_name: education_department_title
+    type: csv
+  emergency_management_agency_url:
+    value: 'Emergency Management Agency: URL'
+    label: 'Emergency Management Agency: URL'
+    machine_name: emergency_management_agency_url
+    type: csv
+  emergency_management_agency_title:
+    value: 'Emergency Management Agency: Title'
+    label: 'Emergency Management Agency: Title'
+    machine_name: emergency_management_agency_title
+    type: csv
+  email:
+    value: Email
+    label: Email
+    machine_name: email
+    type: csv
+  english_translation_name:
+    value: 'English Translation Name'
+    label: 'English Translation Name'
+    machine_name: english_translation_name
+    type: csv
+  more_info_for_contact_center_only_:
+    value: 'More info (for contact  center only)'
+    label: 'More info (for contact  center only)'
+    machine_name: more_info_for_contact_center_only_
+    type: csv
+  governor_contact_url:
+    value: 'Governor Contact: URL'
+    label: 'Governor Contact: URL'
+    machine_name: governor_contact_url
+    type: csv
+  governor_contact_title:
+    value: 'Governor Contact: Title'
+    label: 'Governor Contact: Title'
+    machine_name: governor_contact_title
+    type: csv
+  health_department_url:
+    value: 'Health Department: URL'
+    label: 'Health Department: URL'
+    machine_name: health_department_url
+    type: csv
+  health_department_title:
+    value: 'Health Department: Title'
+    label: 'Health Department: Title'
+    machine_name: health_department_title
+    type: csv
+  langcode:
+    value: langcode
+    label: langcode
+    machine_name: langcode
+    type: csv
+  local_governments_url:
+    value: 'Local Governments: URL'
+    label: 'Local Governments: URL'
+    machine_name: local_governments_url
+    type: csv
+  local_governments_title:
+    value: 'Local Governments: Title'
+    label: 'Local Governments: Title'
+    machine_name: local_governments_title
+    type: csv
+  motor_vehicle_offices_url:
+    value: 'Motor Vehicle Offices: URL'
+    label: 'Motor Vehicle Offices: URL'
+    machine_name: motor_vehicle_offices_url
+    type: csv
+  motor_vehicle_offices_title:
+    value: 'Motor Vehicle Offices: Title'
+    label: 'Motor Vehicle Offices: Title'
+    machine_name: motor_vehicle_offices_title
+    type: csv
+  phone_1:
+    value: phone_1
+    label: phone_1
+    machine_name: phone_1
+    type: csv
+  social_services_url:
+    value: 'Social Services: URL'
+    label: 'Social Services: URL'
+    machine_name: social_services_url
+    type: csv
+  social_services_title:
+    value: 'Social Services: Title'
+    label: 'Social Services: Title'
+    machine_name: social_services_title
+    type: csv
+  state_acronym:
+    value: 'State Acronym'
+    label: 'State Acronym'
+    machine_name: state_acronym
+    type: csv
+  attorney_general_url:
+    value: 'Attorney General: URL'
+    label: 'Attorney General: URL'
+    machine_name: attorney_general_url
+    type: csv
+  attorney_general_title:
+    value: 'Attorney General: Title'
+    label: 'Attorney General: Title'
+    machine_name: attorney_general_title
+    type: csv
+  title:
+    value: Title
+    label: Title
+    machine_name: title
+    type: csv
+  street_1:
+    value: 'Street 1'
+    label: 'Street 1'
+    machine_name: street_1
+    type: csv
+  street_2:
+    value: 'Street 2'
+    label: 'Street 2'
+    machine_name: street_2
+    type: csv
+  street_3:
+    value: 'Street 3'
+    label: 'Street 3'
+    machine_name: street_3
+    type: csv
+  tty_1:
+    value: tty_1
+    label: tty_1
+    machine_name: tty_1
+    type: csv
+  toll_1:
+    value: toll_1
+    label: toll_1
+    machine_name: toll_1
+    type: csv
+  alias:
+    value: alias
+    label: alias
+    machine_name: alias
+    type: csv
+  0:
+    value: '0'
+    label: '0'
+    machine_name: '0'
+    type: blank
+  websitelinks_1_url:
+    value: websiteLinks_1_url
+    label: websiteLinks_1_url
+    machine_name: websitelinks_1_url
+    type: csv
+  websitelinks_1_text:
+    value: websiteLinks_1_text
+    label: websiteLinks_1_text
+    machine_name: websitelinks_1_text
+    type: csv
+  zip:
+    value: ZIP
+    label: ZIP
+    machine_name: zip
+    type: csv
+  uuid:
+    value: UUID
+    label: UUID
+    machine_name: uuid
+    type: csv
+  '':
+    value: ''
+    label: ''
+    machine_name: ''
+    type: csv
+  election_office_url:
+    value: 'Election Office: URL'
+    label: 'Election Office: URL'
+    machine_name: election_office_url
+    type: csv
+  election_office_title:
+    value: 'Election Office: Title'
+    label: 'Election Office: Title'
+    machine_name: election_office_title
+    type: csv
+mappings:
+  -
+    target: field_agriculture_department
+    map:
+      uri: agriculture_department_url
+      title: agriculture_department_title
+    settings:
+      language: null
+  -
+    target: field_city
+    map:
+      value: city
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_consumer_protection
+    map:
+      uri: consumer_protection_offices_title
+      title: consumer_protection_offices_url
+    settings:
+      language: null
+  -
+    target: field_contact_link
+    map:
+      uri: contactlinks_1_url
+      title: contactlinks_1_text
+    settings:
+      language: null
+  -
+    target: field_corrections_dept
+    map:
+      uri: corrections_department_url
+      title: corrections_department_title
+    settings:
+      language: null
+  -
+    target: field_district_attorneys
+    map:
+      uri: district_attorneys_url
+      title: district_attorneys_title
+    settings:
+      language: null
+  -
+    target: field_education_department
+    map:
+      uri: education_department_url
+      title: education_department_title
+    settings:
+      language: null
+  -
+    target: field_emergency_management
+    map:
+      uri: emergency_management_agency_url
+      title: emergency_management_agency_title
+    settings:
+      language: null
+  -
+    target: field_email
+    map:
+      value: email
+    settings:
+      language: null
+      defuse: false
+    unique: {  }
+  -
+    target: field_english_title
+    map:
+      value: english_translation_name
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_governor
+    map:
+      uri: governor_contact_url
+      title: governor_contact_title
+    settings:
+      language: null
+  -
+    target: field_health_department
+    map:
+      uri: health_department_url
+      title: health_department_title
+    settings:
+      language: null
+  -
+    target: langcode
+    map:
+      value: langcode
+    settings:
+      language: null
+  -
+    target: field_local_governments
+    map:
+      uri: local_governments_url
+      title: local_governments_title
+    settings:
+      language: null
+  -
+    target: field_motor_vehicle_office
+    map:
+      uri: motor_vehicle_offices_url
+      title: motor_vehicle_offices_title
+    settings:
+      language: null
+  -
+    target: field_phone_number
+    map:
+      value: phone_1
+    settings:
+      language: null
+  -
+    target: field_social_services
+    map:
+      uri: social_services_url
+      title: social_services_title
+    settings:
+      language: null
+  -
+    target: field_state_abbr
+    map:
+      value: state_acronym
+    settings:
+      language: null
+  -
+    target: field_state_attorney_general
+    map:
+      uri: attorney_general_url
+      title: attorney_general_title
+    settings:
+      language: null
+  -
+    target: title
+    map:
+      value: title
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_street_1
+    map:
+      value: street_1
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_street_2
+    map:
+      value: street_2
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_street_3
+    map:
+      value: street_3
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_tty_number
+    map:
+      value: tty_1
+    settings:
+      language: null
+  -
+    target: field_toll_free_number
+    map:
+      value: toll_1
+    settings:
+      language: null
+  -
+    target: path
+    map:
+      alias: alias
+      pathauto: '0'
+    settings:
+      language: null
+  -
+    target: field_website
+    map:
+      uri: websitelinks_1_url
+      title: websitelinks_1_text
+    settings:
+      language: null
+  -
+    target: field_zip
+    map:
+      value: zip
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_mothership_uuid
+    map:
+      value: uuid
+    settings:
+      language: null
+    unique:
+      value: '1'
+  -
+    target: field_election_office
+    map:
+      uri: election_office_url
+      title: election_office_title
+    settings:
+      language: null
