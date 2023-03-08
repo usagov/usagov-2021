@@ -13,10 +13,10 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-SS_TAG=${1}
+DEPLOY_TAG=${1}
 LOCAL_DEST_DIR=${1}
 
-if [ -z "$SS_TAG" ]; then
+if [ -z "$DEPLOY_TAG" ]; then
   echo "Usage: $0 <tag>"
   echo "This will create a backup named for the tag in the local directory. Use static-site-list to see available tags." 
   exit 1
