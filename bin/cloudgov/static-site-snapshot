@@ -13,12 +13,7 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-if [ x$SS_TAG = x ]; then
-   SS_TAG=${1:-$(date +%Y-%m-%d_%H-%M-%S)}
-else
-   echo $SS_TAG
-   exit
-fi
+SS_TAG=${1:-$(date +%Y-%m-%d_%H-%M-%S)}
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
