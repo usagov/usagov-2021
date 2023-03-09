@@ -17,14 +17,14 @@ fi
 #export echo=echo
 
 DEPLOY_TAG=${1}
+SPACE=$(cf target | grep space: | awk '{ print $2 }')
 
 if [ -z "$DEPLOY_TAG" ]; then
   echo "Usage: $0 <tag>"
-  echo "This will attempt to push the database backup for the provided tag to s3" 
+  echo "This will attempt to push the database backup for the provided tag to $SPACE s3" 
   exit 1
 fi
 
-SPACE=$(cf target | grep space: | awk '{ print $2 }')
 PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
 SQL_FILE=$PREFIX.sql
 GZIP_FILE=$SQL_FILE.gz
