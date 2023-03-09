@@ -19,7 +19,7 @@ commands:
           name: CloudGov Deploy
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;Cloud.gov;USA.gov"
+            export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
@@ -146,6 +146,10 @@ jobs:
             exit $SCAN_CIS_RESULT
       - store_artifacts:
           path: /tmp/results
+          destination: circleci-docs
+      - store_test_results:
+          path: /tmp/results/test-results
+
 
   lint:
     docker:
