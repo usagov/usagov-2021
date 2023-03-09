@@ -1,0 +1,52 @@
+#!/bin/sh
+# Backup and Restore Site and DB snapshots
+
+## Preparation for backup and restore
+
+### just display commands, comment when comfortable
+export echo=echo
+
+export SPACE=$1
+export BACKUP_TAG=$2
+
+if [ x$SPACE != x -a x$BACKUP_TAG != x ]; then
+
+    cf target -s $SPACE
+    cf ssh cms -c "cat /etc/motd" > $SPACE.motd
+
+    if [ -s $SPACE.motd ]; then
+
+        export CONTAINER_TAG=$(grep containertag $SPACE.motd | sed 's/containertag\:\s*//' | sed 's/^\s*//')
+
+        if [ -n $CONTAINER_TAG ]; then
+            export BACKUP_TAG=${BACKUP_TAG}.${CONTAINER_TAG}
+            PREFIX=$BACKUP_TAG.$SPACE
+        else
+            echo "Failed to extract containertag from $SPACE motd file"
+            exit 2
+        fi
+
+    else
+        echo "Failed to retreive motd file from $SPACE"
+        exit 3
+    fi
+
+else
+   echo "Usage: $0 <cf-space-name> <backup-tag (use deployment ticket number)>"
+   echo "       $0 dev"
+   exit 1
+fi
+
+## Static Site Backup
+
+$echo bin/cloudgov/static-site-snapshot $BACKUP_TAG
+$echo bin/cloudgov/static-site-pull $BACKUP_TAG
+$echo bin/cloudgov/static-site-list
+
+## DB Backup
+
+$echo bin/cloudgov/db-pull $BACKUP_TAG
+$echo bin/cloudgov/db-push $BACKUP_TAG
+$echo bin/cloudgov/db-list
+
+## Random commands, just for now
