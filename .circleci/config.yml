@@ -148,7 +148,7 @@ jobs:
           path: /tmp/results
           destination: circleci-docs
       - store_test_results:
-          path: /tmp/results/test-results
+          path: /tmp/results
 
 
   lint:
