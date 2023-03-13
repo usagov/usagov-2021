@@ -3,7 +3,7 @@ if [ $(uname -m) != 'aarch64' ]; then
   export NR_VERSION=$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux\-musl\).tar.gz<.*/\1/p') \
     && cd /tmp \
     && curl -L "https://download.newrelic.com/php_agent/release/${NR_VERSION}.tar.gz" | tar -C /tmp -zx \
-    && NR_INSTALL_USE_CP_NOT_LN=1 NR_INSTALL_USE_CP_NOT_LN=1 /tmp/newrelic-php5-*/newrelic-install install \
+    && NR_INSTALL_USE_CP_NOT_LN=1 NR_INSTALL_USE_CP_NOT_LN=1 /tmp/newrelic-php5-*/newrelic-install install -n logs-integration \
     && rm -rf /tmp/newrelic-php5-* /tmp/nrinstall* \
     && sed -i \
       -e "s/;\?newrelic.appname =.*/newrelic.appname = \"USA.gov\"/" \
