@@ -1,0 +1,36 @@
+uuid: ba88b0a4-52e5-4783-9a97-d569a3371e56
+langcode: en
+status: true
+dependencies:
+  module:
+    - language
+    - node
+    - system
+  theme:
+    - usagov
+id: mobile_navigation_dr_en
+theme: usagov
+region: header_top
+weight: -10
+provider: null
+plugin: system_main_block
+settings:
+  id: system_main_block
+  label: 'Mobile Navigation - Directory Records - English'
+  label_display: visible
+  provider: system
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      directory_record: directory_record
+  language:
+    id: language
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      en: en

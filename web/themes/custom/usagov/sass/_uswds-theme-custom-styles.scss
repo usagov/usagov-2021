@@ -1062,3 +1062,57 @@ button.usa-combo-box__clear-input:focus,
 button.usa-combo-box__toggle-list:focus {
   opacity: 1;
 }
+
+@media only screen and (max-width: 500px) {
+  .usa-identifier {
+    // Prevent Tagline from being covered by the Feedback button
+    position: absolute;
+    z-index: 2000000005;
+  }
+}
+
+#backToTop {
+  z-index: 2000000003;
+}
+
+
+// BEGIN Page Level Survey extra CSS
+#pagesurvey-trgt-qualtrics {
+  background: white;
+  max-width: 960px;
+  display: inline-block;
+  margin: 0 auto 0 auto;
+}
+
+div[class^="QSIUserDefinedHTML"] {
+  z-index: 1;
+}
+
+#pagesurvey-qual-hdr {
+  background: #CCECF2;
+  font-size: 130%;
+  display: block;
+  color: #1B1B1B;
+  padding: 12px 0 15px 0px;
+  margin: 0 auto 0 auto;
+  max-width: 960px;
+  height: auto;
+  text-align: center;
+  font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+  font-weight: bold;
+}
+
+.scrollable {
+  overflow: unset !important;
+}
+
+#pagesurvey-qual-container:focus {
+  outline: #C05600 solid 3px;
+}
+
+@media only screen and (max-width: 500px) {
+  div[class^="QSIUserDefinedHTML"] {
+    left: -16px;
+  }
+}
+// END Page Level Survey extra CSS
