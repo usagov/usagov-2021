@@ -40,5 +40,6 @@ docker build --force-rm \
 
 docker run --name newrelic-builder-tmp -d $DOCKERUSER/$DOCKERREPO:newrelic-$CONTAINERTAG tail -f /dev/null
 docker cp newrelic-builder-tmp:/usr/bin/newrelic-daemon .docker/src-newrelic/newrelic-daemon
+docker cp newrelic-builder-tmp:/usr/local/bin/newrelic .docker/src-newrelic/newrelic
 docker stop newrelic-builder-tmp
 docker rm newrelic-builder-tmp
