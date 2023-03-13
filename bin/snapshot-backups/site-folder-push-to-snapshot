@@ -16,7 +16,6 @@ fi
 # just testing?
 export echo=echo
 
-
 DEPLOY_TAG=${1}
 SOURCE_DIR=$DEPLOY_TAG
 
@@ -25,13 +24,20 @@ if [ -z "$SOURCE_DIR" ]; then
   exit 1
 fi
 
-# locate a local directory that contains a build of the static site
-# do some sanity checking on the directory (steal from tome-sync)
-if [ -d "$SOURCE_DIR" ]; then
-  echo "Found source directory: $SOURCE_DIR"
+if [ x"$DEPLOY_TAG" != x ]; then
+  # locate a local directory that contains a build of the static site
+  # do some sanity checking on the directory (steal from tome-sync)
+  if [ x$echo = x ]; then
+    if [ -d "$SOURCE_DIR" ]; then
+      echo "Found source directory: $SOURCE_DIR"
+    else
+      echo "ERROR: Source directory not found: $SOURCE_DIR"
+      exit 1
+    fi
+  fi
 else
-  echo "ERROR: Source directory not found: $SOURCE_DIR"
-  exit 1
+   echo "Usage: $0 <tag>"
+   exit 1
 fi
 
 $echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1

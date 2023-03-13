@@ -1,29 +1,30 @@
 #!/bin/sh
 
 # ## Static Site Backup
+#bin/snapshot-backups/stw $1 $2 $3 bin/snapshot-backups/site-snapshot-create
 
 # t
-#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/site-snapshot-create
-
-# t
-#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/site-snapshot-download
+#bin/snapshot-backups/stw $1 $2 $3 bin/snapshot-backups/site-snapshot-download
 
 # t --- not needed unless local changes are to be pushed to the working env
-#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/site-folder-push-to-snapshot
+# FIXME: stw depends on the current branch to create the tagname, so we cannot
+#        use site-folder-push-to-snapshot with stw yet, unless we are pushing
+#        a modified version of the download we already have. It's complicated...?
+#bin/snapshot-backups/stw $1 $2 $3 bin/snapshot-backups/site-folder-push-to-snapshot
 
-#bin/cloudgov/site-snapshot-list
+#bin/snapshot-backups/site-snapshot-list
 
 ## DB Backup
 
 # t
-#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/db-dump-download
+bin/snapshot-backups/stw $1 $2 $3 bin/snapshot-backups/db-dump-download
 
 # t
-#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/db-dump-push-to-snapshot
+#bin/snapshot-backups/stw $1 $2 $3 bin/snapshot-backups/db-dump-push-to-snapshot
 
-# t
-#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/db-snapshot-download
+# t  --- not needed unless retreiving previous db snapshot
+#bin/snapshot-backups/stw $1 $2 $3 bin/snapshot-backups/db-snapshot-download
 
-#bin/cloudgov/db-list
+#bin/snapshot-backups/db-list
 
 ## Random commands, just for now
