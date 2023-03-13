@@ -13,8 +13,12 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-SOURCE_DIR=${1}
-DEPLOY_TAG=${2:-$(date +%Y-%m-%d_%H-%M-%S)}
+# just testing?
+export echo=echo
+
+
+DEPLOY_TAG=${1}
+SOURCE_DIR=$DEPLOY_TAG
 
 if [ -z "$SOURCE_DIR" ]; then
   echo "Usage: $0 <source directory> <tag?>"
@@ -30,8 +34,8 @@ else
   exit 1
 fi
 
-source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+$echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 # upload that static site directory to a location within an s3 bucket represented by the tag
-echo aws s3 cp --only-show-errors $SOURCE_DIR s3://$S3_BUCKET/web-backup/$DEPLOY_TAG/ --recursive 
-aws s3 cp --only-show-errors $SOURCE_DIR s3://$S3_BUCKET/web-backup/$DEPLOY_TAG/ --recursive 
+echo aws s3 cp --only-show-errors $SOURCE_DIR s3://$S3_BUCKET/web-backup/$DEPLOY_TAG/ --recursive
+$echo aws s3 cp --only-show-errors $SOURCE_DIR s3://$S3_BUCKET/web-backup/$DEPLOY_TAG/ --recursive

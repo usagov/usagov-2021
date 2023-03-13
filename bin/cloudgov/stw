@@ -1,0 +1,28 @@
+#!/bin/sh
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+SPACE=$1
+BRANCH=$2
+SUFFIX=$3
+COMMAND=$4
+
+if [ x$SPACE != x -a x$BRANCH != x -a x$SUFFIX != x -a x$COMMAND != x ]; then
+
+   BACKUP_TAG=$(createAssertedBackupTag $SPACE $BRANCH $SUFFIX)
+   echo "Running '$COMMAND' with tag:  $BACKUP_TAG"
+   echo
+
+else
+   echo "Usage: $0 <cf-space-name> <branch-name (use deployment ticket number)> <suffix (pre_deploy or post_deploy)> <script>"
+   echo "       $0 dev USAGOV-787 pre_deploy"
+   exit 1
+fi
+
+$echo $COMMAND $BACKUP_TAG

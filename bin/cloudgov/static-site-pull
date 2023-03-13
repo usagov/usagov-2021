@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# we might be running in circleci (really?) 
+# we might be running in circleci (really?)
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
 fi
@@ -13,30 +13,33 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+export echo=echo
+
 DEPLOY_TAG=${1}
-LOCAL_DEST_DIR=${1}
 
 if [ -z "$DEPLOY_TAG" ]; then
   echo "Usage: $0 <tag>"
-  echo "This will create a backup named for the tag in the local directory. Use static-site-list to see available tags." 
+  echo "This will create a backup named for the tag in the local directory. Use static-site-list to see available tags."
   exit 1
 fi
 
-mkdir $LOCAL_DEST_DIR
+mkdir $DEPLOY_TAG
 success=$?
 
 if [ "$success" != "0" ]; then
-    echo "Unable to create directory $LOCAL_DEST_DIR."
+    echo "Unable to create directory $DEPLOY_TAG."
     exit 1
 fi
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
-echo "Downloading files from s3. This could take awhile." 
-aws s3 cp --only-show-errors s3://$S3_BUCKET/web/ $LOCAL_DEST_DIR --recursive
+echo "Downloading files from s3. This could take awhile."
+echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web/ $DEPLOY_TAG --recursive
+$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web/ $DEPLOY_TAG --recursive
 
-echo "Creating zip file usagov-${LOCAL_DEST_DIR}.zip." 
-zip -rq usagov-${LOCAL_DEST_DIR}.zip ${LOCAL_DEST_DIR}
+echo "Creating zip file ${DEPLOY_TAG}.zip."
+echo zip -rq ${DEPLOY_TAG}.zip ${DEPLOY_TAG}
+$echo zip -rq ${DEPLOY_TAG}.zip ${DEPLOY_TAG}
 
-echo "Done." 
+echo "Done."
 exit 0

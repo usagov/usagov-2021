@@ -43,7 +43,6 @@ function assertRequires() {
   done
 }
 
-
 function envEmpty() { # list of env vars
   if [ -z "$1" ]; then # if zero length varname
     return 0; # true
@@ -110,4 +109,69 @@ function toLogs() { # input and/or param string
 
 function clearLogs() {
   echo | tee $LOGS_DIR/$(basename "$0").log
+}
+
+function assertBranch() { # desired branch
+  desiredBranch=${1}
+  if [ x${desiredBranch} != x$startbranch ]; then
+      echo "ERROR: Current branch ($startbranch) is not $desiredBranch"
+      exit 1; #false
+  fi
+}
+
+function assertSpace() { # desired space
+  desiredSpace=${1}
+  if [ x${desiredSpace} != x$startspace ]; then
+      echo "ERROR: Current space ($startspace) is not $desiredSpace"
+      exit 1; #false
+  fi
+}
+
+function spaceCCIContainerTag() {
+  desiredSpace=${1}
+  assertSpace $desiredSpace
+  tmpMotd=$(mktemp /tmp/motd.${desiredSpace}.XXXXXX)
+  cf ssh cms -c "cat /etc/motd" > $tmpMotd
+    if [ -s $tmpMotd ]; then
+        CONTAINER_TAG=$(grep containertag $tmpMotd | sed 's/containertag\:\s*//' | sed 's/^\s*//')
+        if [ -n $CONTAINER_TAG ]; then
+            echo ${desiredSpace}.$CONTAINER_TAG
+            rm -f $tmpMotd
+        else
+            echo "Failed to extract containertag from $SPACE motd file"
+            rm -f $tmpMotd
+            exit 1
+        fi
+    else
+        echo "Failed to retreive motd file from $SPACE"
+        rm -f $tmpMotd
+        exit 2
+    fi
+}
+
+function createAssertedBackupTag() {
+   desiredSpace=$1
+   desiredBranch=$2
+
+   assertSpace $desiredSpace
+   assertBranch $desiredBranch
+
+  CONTAINER_TAG=$(spaceCCIContainerTag $desiredSpace)
+  BACKUP_TAG=${BRANCH}.${CONTAINER_TAG}
+
+  TAG_SUFFIX=$3
+  if [ x$TAG_SUFFIX != x ]; then
+    BACKUP_TAG=${BACKUP_TAG}.${TAG_SUFFIX}
+  fi
+
+  #echo Space:                      $desiredSpace
+  #echo CCI Deployed Container Tag: $CONTAINER_TAG
+  #echo
+  #echo Branch:                     $desiredBranch
+  #echo Optional Suffix:            $TAG_SUFFIX
+  #echo
+  #echo Created Backup Tag:         $BACKUP_TAG
+  #echo
+
+  echo $BACKUP_TAG
 }

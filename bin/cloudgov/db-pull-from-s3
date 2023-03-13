@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# we might be running in circleci (really?) 
+# we might be running in circleci (really?)
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
 fi
@@ -14,13 +14,13 @@ if [ -f ./env.local ]; then
 fi
 
 # just testing?
-#export echo=echo
+export echo=echo
 
 DEPLOY_TAG=${1}
 
 if [ -z "$DEPLOY_TAG" ]; then
   echo "Usage: $0 <tag>"
-  echo "This will attempt to pull the database backup for the provided tag in the local directory. Use db-list to see available db backups." 
+  echo "This will attempt to pull the database backup for the provided tag in the local directory. Use db-list to see available db backups."
   exit 1
 fi
 
@@ -28,8 +28,8 @@ SPACE=$( cf target | grep space: | awk '{ print $2 }')
 PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
 GZIP_FILE=$PREFIX.sql.gz
 
-source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+$echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
-echo "Attempting to download $GZIP_FILE from s3. This could take awhile." 
+echo "Attempting to download $GZIP_FILE from s3. This could take awhile."
 echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
 $echo aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
