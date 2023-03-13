@@ -13,14 +13,14 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+# just testing?
+#export echo=echo
+
 if ! command -v cf &> /dev/null
 then
     echo "CF : the cloud foundry client could not be found and is required"
     exit 1
 fi
-
-# just testing?
-export echo=echo
 
 TAG=${1}
 
