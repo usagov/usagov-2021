@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# ## Static Site Backup
+
+# t
+#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/site-snapshot-create
+
+# t
+#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/site-snapshot-download
+
+# t --- not needed unless local changes are to be pushed to the working env
+#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/site-folder-push-to-snapshot
+
+#bin/cloudgov/site-snapshot-list
+
+## DB Backup
+
+# t
+#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/db-dump-download
+
+# t
+#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/db-dump-push-to-snapshot
+
+# t
+#bin/cloudgov/stw $1 $2 $3 bin/cloudgov/db-snapshot-download
+
+#bin/cloudgov/db-list
+
+## Random commands, just for now
