@@ -364,6 +364,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-192-remove-global-noindex-meta	      
       - approve-stage-deployment:
           type: approval
           requires:
