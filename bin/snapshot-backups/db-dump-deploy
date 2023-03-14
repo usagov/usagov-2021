@@ -20,7 +20,7 @@ then
 fi
 
 # just testing?
-export echo=echo
+#export echo=echo
 
 DEPLOY_TAG=${1}
 SPACE=$(cf target | grep space: | awk '{ print $2 }')
@@ -32,7 +32,7 @@ if [ -z "$DEPLOY_TAG" ]; then
 fi
 
 #PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
-SQL_FILE=${TAG}.sql
+SQL_FILE=${DEPLOY_TAG}.sql
 GZIP_FILE=$SQL_FILE.gz
 
 if [ ! -f $GZIP_FILE ]; then

@@ -14,7 +14,7 @@ if [ -f ./env.local ]; then
 fi
 
 # just testing?
-export echo=echo
+#export echo=echo
 
 DEPLOY_TAG=${1}
 SPACE=$(cf target | grep space: | awk '{ print $2 }')
