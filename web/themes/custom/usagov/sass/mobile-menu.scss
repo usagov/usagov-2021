@@ -1,0 +1,126 @@
+@use "usagov-variables" as *;
+
+ul.navigation__items{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  
+  a {
+    display: flex;
+    height: 4rem;
+    align-items: center;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .children a{
+    font-weight: normal;
+  }
+  
+  $max-indent: 5;
+  @for $i from 1 to $max-indent {
+    &.ancestors > .navigation__item:nth-of-type(#{$i}) {
+      a {
+        padding-left: $i * 1rem;
+      }
+      .children a {
+        padding-left: ($i + 2) * 1rem;
+      }
+    }
+  }
+  .umbrella a {
+    background-color: var($mobile-nav, blue);
+    color: var($mobile-nav, white);
+  }
+  .active > a {
+    border-left: 0.5rem solid var($mobile-nav, red);
+    color: var($mobile-nav, red);
+  }
+  .sibling > a {
+    font-weight: normal;
+    margin-left: 0.5rem;
+  }
+}
+
+.usagov-mobile-menu{
+  width: 100%;
+  max-width: 30rem;
+  padding: 0;
+  overflow: scroll;
+  z-index: 2000000003;
+}
+
+.usagov-mobile-menu-top {
+  padding: 1rem;
+  background-color: var($mobile-nav, light-gray);
+}
+.usagov-mobile-menu-controls {
+  display: flex;
+  justify-content: space-between;
+}
+.usagov-mobile-menu-controls>* {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: black;
+  font-weight: bold;
+  font-size: larger;
+  text-decoration: none;
+  margin: unset;
+  width: auto;
+  height: auto;
+}
+.usagov-mobile-menu-controls a img {
+  padding: 0.16rem;
+  margin: 0.1rem;
+  border: 3px solid black;
+  border-radius: 100%;
+  height: 2.16rem;
+}
+.usagov-mobile-menu-controls button img {
+  height: 2.5rem;
+  width: auto;
+}
+.usagov-mobile-menu .usa-nav__secondary-links {
+  margin: 1rem;
+  display: block;
+}
+
+.usa-header--extended button.usa-menu-btn {
+  background-color: transparent;
+  color: $deep-blue;
+  background-image: url(/themes/custom/usagov/images/Button_header_open_mobile-menu.svg);
+  background-size: 2.8rem;
+  background-position: 1px 0px;
+  width: 3rem;
+  padding: 0;
+  padding-top: 2rem;
+  height: auto;
+  font-size: 1rem;
+  font-weight: normal;
+  cursor: pointer;
+}
+#block-languageswitcher{
+  position: relative;
+}
+
+@media (min-width: 64em){
+  .usagov-mobile-menu{
+    display: none;
+  }
+}
+@media (max-width: 63.99em){
+  .usa-nav.is-visible {
+    display: none;
+  }
+  .usagov-mobile-menu.is-visible {
+    display: flex;
+  }
+  .usa-header--extended div.language-switcher-language-url ul.links {
+    position: absolute;
+    display: block;
+    width: auto;
+    right: 60px;
+    top: 4px;
+  }
+}
