@@ -164,6 +164,10 @@ function convert_fields($row, &$indexes) {
   $lc_index = $indexes['langcode'];
   $row[$lc_index] = $row[$lang_index] == 'Spanish' ? 'es' : 'en';
 
+  // Convert "Show on AZ Index" from Yes/No to 1/0:
+  $az_index = $indexes['Show on AZ Index'];
+  $row[$az_index] = $row[$az_index] == 'Yes' ? 1 : 0;
+
   // Path -> alias
   $path_index = $indexes['Path'];
   $alias_index = $indexes['alias'];
@@ -365,8 +369,7 @@ function get_links_from_cdata($node, $nodename, $columnname = NULL) {
  */
 function make_clean_alias($str) {
   $str = urldecode($str);
-  // $str = iconv('UTF-8', 'ASCII//TRANSLIT', $str); // musl iconv does not support //TRANSLIT
-  $str = iconv('UTF-8', 'ASCII', $str);
+  $str = iconv('UTF-8', 'ASCII//TRANSLIT', $str); // musl iconv does not support //TRANSLIT, but we need it for these
 
   // $str is now plain ASCII
   $chars = ["'", ' '];
