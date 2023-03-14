@@ -1,0 +1,23 @@
+diff --git a/package.json b/package.json
+index 77d4e9a..92c7300 100644
+--- a/package.json
++++ b/package.json
+@@ -3,18 +3,5 @@
+   "description": "Add USWDS support to CKEditor.",
+   "author": "Stephen Mustgrave",
+   "version": "2.0.1",
+-  "scripts": {
+-    "css:compile": "node-sass scss/ --output-style expanded -o css",
+-    "css:build": "npm run css:compile",
+-    "build": "npm run css:build",
+-    "lint": "gulp lint"
+-  },
+-  "dependencies": {
+-    "gulp": "^4.0.2",
+-    "gulp-eslint": "^6.0.0",
+-    "gulp-sass-lint": "^1.4.0",
+-    "node-sass": "^7.0.1",
+-    "sass-lint": "^1.13.1"
+-  },
+   "license": "ISC"
+ }
