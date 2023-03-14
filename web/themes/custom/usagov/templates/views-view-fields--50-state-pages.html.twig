@@ -31,10 +31,17 @@
  * @ingroup themeable
  */
 #}
+
 {% for field in fields -%}
-  {% if field.class == view.args[0] or field.class == 'title'%}
+
+  {% if field.class == 'title'%}
+    {{ field.content }}
+    {# {{ devel_breakpoint() }} #}
+  {% endif %}
+
+  {% if field.class == view.args[0]%}
     {{ field.content }}
   {% endif %}
 {%- endfor %}
-{{ devel_breakpoint() }}
+
 
