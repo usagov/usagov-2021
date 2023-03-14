@@ -14,6 +14,7 @@ dependencies:
     - field.field.node.directory_record.field_government_branch
     - field.field.node.directory_record.field_header_html
     - field.field.node.directory_record.field_language_toggle
+    - field.field.node.directory_record.field_meta_description
     - field.field.node.directory_record.field_mothership_uuid
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
@@ -48,7 +49,7 @@ third_party_settings:
       label: Address
       region: content
       parent_name: ''
-      weight: 20
+      weight: 21
       format_type: fieldset
       format_settings:
         classes: ''
@@ -63,7 +64,7 @@ mode: default
 content:
   body:
     type: text_textarea_with_summary
-    weight: 12
+    weight: 13
     region: content
     settings:
       rows: 9
@@ -73,7 +74,7 @@ content:
     third_party_settings: {  }
   created:
     type: datetime_timestamp
-    weight: 4
+    weight: 5
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -87,7 +88,7 @@ content:
     third_party_settings: {  }
   field_contact_link:
     type: link_default
-    weight: 14
+    weight: 15
     region: content
     settings:
       placeholder_url: ''
@@ -95,7 +96,7 @@ content:
     third_party_settings: {  }
   field_email:
     type: email_default
-    weight: 19
+    weight: 20
     region: content
     settings:
       placeholder: ''
@@ -103,7 +104,7 @@ content:
     third_party_settings: {  }
   field_english_title:
     type: string_textfield
-    weight: 10
+    weight: 11
     region: content
     settings:
       size: 60
@@ -111,7 +112,7 @@ content:
     third_party_settings: {  }
   field_footer_html:
     type: string_textarea
-    weight: 33
+    weight: 27
     region: content
     settings:
       rows: 5
@@ -119,7 +120,7 @@ content:
     third_party_settings: {  }
   field_for_contact_center_only:
     type: text_textarea
-    weight: 24
+    weight: 23
     region: content
     settings:
       rows: 5
@@ -130,13 +131,13 @@ content:
         hide_guidelines: '0'
   field_government_branch:
     type: options_select
-    weight: 21
+    weight: 22
     region: content
     settings: {  }
     third_party_settings: {  }
   field_header_html:
     type: text_textarea
-    weight: 32
+    weight: 26
     region: content
     settings:
       rows: 5
@@ -144,7 +145,7 @@ content:
     third_party_settings: {  }
   field_language_toggle:
     type: entity_reference_autocomplete
-    weight: 25
+    weight: 24
     region: content
     settings:
       match_operator: CONTAINS
@@ -152,9 +153,17 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_meta_description:
+    type: string_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 1
+      placeholder: ''
+    third_party_settings: {  }
   field_mothership_uuid:
     type: string_textfield
-    weight: 31
+    weight: 25
     region: content
     settings:
       size: 60
@@ -162,7 +171,7 @@ content:
     third_party_settings: {  }
   field_offices_near_you:
     type: link_default
-    weight: 15
+    weight: 16
     region: content
     settings:
       placeholder_url: ''
@@ -178,14 +187,14 @@ content:
     third_party_settings: {  }
   field_phone_number:
     type: telephone_default
-    weight: 16
+    weight: 17
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_show_in_a_z_index:
     type: boolean_checkbox
-    weight: 34
+    weight: 28
     region: content
     settings:
       display_label: true
@@ -222,21 +231,21 @@ content:
     third_party_settings: {  }
   field_toll_free_number:
     type: telephone_default
-    weight: 17
+    weight: 18
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_tty_number:
     type: telephone_default
-    weight: 18
+    weight: 19
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_website:
     type: link_default
-    weight: 13
+    weight: 14
     region: content
     settings:
       placeholder_url: ''
@@ -252,40 +261,40 @@ content:
     third_party_settings: {  }
   langcode:
     type: language_select
-    weight: 2
+    weight: 3
     region: content
     settings:
       include_locked: false
     third_party_settings: {  }
   moderation_state:
     type: moderation_state_default
-    weight: 8
+    weight: 9
     region: content
     settings: {  }
     third_party_settings: {  }
   path:
     type: path
-    weight: 7
+    weight: 8
     region: content
     settings: {  }
     third_party_settings: {  }
   promote:
     type: boolean_checkbox
-    weight: 5
+    weight: 6
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 9
+    weight: 10
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   sticky:
     type: boolean_checkbox
-    weight: 6
+    weight: 7
     region: content
     settings:
       display_label: true
@@ -299,19 +308,24 @@ content:
       placeholder: ''
     third_party_settings: {  }
   translation:
-    weight: 11
+    weight: 12
     region: content
     settings: {  }
     third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 3
+    weight: 4
     region: content
     settings:
       match_operator: CONTAINS
       match_limit: 10
       size: 60
       placeholder: ''
+    third_party_settings: {  }
+  url_redirects:
+    weight: 29
+    region: content
+    settings: {  }
     third_party_settings: {  }
 hidden:
   feeds_item: true
