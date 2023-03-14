@@ -168,20 +168,9 @@ function convert_fields($row, &$indexes) {
   $az_index = $indexes['Show on AZ Index'];
   $row[$az_index] = $row[$az_index] == 'Yes' ? 1 : 0;
 
-  // Path -> alias
-  $path_index = $indexes['Path'];
+  // Make a path alias based on the Agency's title:
   $alias_index = $indexes['alias'];
-  $alias = $row[$path_index];
-  if (!str_starts_with($alias, '/content/')) {
-    // Replace it with an alias based on the title.
-    $alias = $row[$indexes['Title']];
-  }
-  else {
-    // Trim off /content, then concatenate what remains to the correct parent path.
-    // While it would be unusual for /content/ to appear elsewhere in the path,
-    // why risk a global replace?
-    $alias = substr($alias, 9);
-  }
+  $alias = $row[$indexes['Title']];
   $alias = make_clean_alias($alias);
 
   if ($row[$lang_index] == 'Spanish') {
