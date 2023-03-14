@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.basic_page.body
+    - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_footer_html
@@ -21,6 +22,7 @@ dependencies:
     - node.type.basic_page
   module:
     - link
+    - options
     - text
     - user
 id: node.basic_page.default
@@ -39,6 +41,13 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 0
+    region: content
+  field_50_state_pages_type:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 7
     region: content
   field_custom_twig_content:
     type: boolean
