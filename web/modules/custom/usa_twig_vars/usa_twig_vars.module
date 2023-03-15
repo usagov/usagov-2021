@@ -59,6 +59,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           $usa_twig_vars['front'] = $isFront;
           $usa_twig_vars['nodetype'] = $special_node_type ?: $node_real_type;
           $usa_twig_vars['pagetype'] = usa_twig_vars_get_page_type($node);
+          $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
           unset($isFront);
         }
       }
@@ -89,6 +90,27 @@ function usa_twig_vars_get_page_type(&$node) {
     $page_type = $term ? $term->get('name')->value : '';
     return $page_type ?? 'content_page';
   }
+}
+
+/**
+ * Get a string for the <meta description> tag, as entered in the CMS. Attempt
+ * to get text from field_meta_description, and if that is absent or does not
+ * contain text, from field_page_intro (which will be the more common case).
+ *
+ * @param [type] $node
+ * @return string, NULL
+ */
+function usa_twig_vars_get_meta_description(&$node) {
+  $fields = $node->getFields();
+  foreach (['field_meta_description', 'field_page_intro'] as $field_name) {
+    if ($fields[$field_name] != NULL) {
+      $value = trim($fields[$field_name]->value);
+      if (strlen($value) > 0) {
+        return $value;
+      }
+    }
+  }
+  return '';
 }
 
 /**
