@@ -38,8 +38,10 @@
     {% set titlevar = field.content %}
     {# {{ devel_breakpoint() }} #}
   {% endif %}
-  {% if field.class == view.args[0]%}
+  {% if field.class == view.args[0] %}
    {% set urlvar = field.content %}
   {% endif %}
 {%- endfor %}
+{% if titlevar and urlvar %}
   <option value={{urlvar}}>{{titlevar}}</option> 
+{% endif %}
