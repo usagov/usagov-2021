@@ -31,17 +31,15 @@
  * @ingroup themeable
  */
 #}
-
+{% set titlevar = "" %}
+{% set urlvar = "" %}
 {% for field in fields -%}
-
   {% if field.class == 'title'%}
-    {{ field.content }}
+    {% set titlevar = field.content %}
     {# {{ devel_breakpoint() }} #}
   {% endif %}
-
   {% if field.class == view.args[0]%}
-    {{ field.content }}
+   {% set urlvar = field.content %}
   {% endif %}
 {%- endfor %}
-
-
+  <option value={{urlvar}}>{{titlevar}}</option> 
