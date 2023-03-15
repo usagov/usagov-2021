@@ -65,6 +65,13 @@
 	{% set show_sidebar = false %}
 {% endif %}
 
+{% set show_last_updated = term_name in ["", "Standard Page", "Standard Page- Nav Hidden"] %}
+{% if is_front or nodetype in ["federal_directory_record", "state_directory_record", "federal_directory_index", "state_directory_index"]  %}
+  {% set show_last_updated = false %} 
+{% endif %}
+
+
+
 {% if government_banner %}
 	<section class="usa-banner">
 		{{ government_banner }}
@@ -139,7 +146,7 @@
 					{{ page.content }}
 
 					<div class="additional_body_info">
-						{% if (term_name == "" or term_name == "Standard Page" or term_name =="Standard Page- Nav Hidden") and not is_front or (content_type == "Federal Directory Record") or (content_type == "State Directory Record") %}
+						{% if show_last_updated %}
 
 							{% if node.changed.value %}
 								<p class="last">{{ lang == 'en' ? 'Last updated: ' : 'Última actualización: '}}
