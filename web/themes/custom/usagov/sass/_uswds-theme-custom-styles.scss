@@ -1058,6 +1058,11 @@ button#next.usa-button, .block-wizardenglish a.usa-button {
     }
 }
 
+button.usa-combo-box__clear-input:focus,
+button.usa-combo-box__toggle-list:focus {
+  opacity: 1;
+}
+
 @media only screen and (max-width: 500px) {
   .usa-identifier {
     // Prevent Tagline from being covered by the Feedback button
