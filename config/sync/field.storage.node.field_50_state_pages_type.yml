@@ -19,9 +19,6 @@ settings:
       value: field-agriculture-department
       label: field-agriculture-department
     -
-      value: field-consumer-protection
-      label: field-consumer-protection
-    -
       value: field-corrections-dept
       label: field-corrections-dept
     -
@@ -39,9 +36,6 @@ settings:
     -
       value: field-governor
       label: field-governor
-    -
-      value: field-governor-contact
-      label: field-governor-contact
     -
       value: field-health-department
       label: field-health-department
