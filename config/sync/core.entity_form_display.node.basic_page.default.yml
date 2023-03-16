@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.basic_page.body
+    - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_footer_html
@@ -47,6 +48,12 @@ content:
   created:
     type: datetime_timestamp
     weight: 9
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_50_state_pages_type:
+    type: options_select
+    weight: 51
     region: content
     settings: {  }
     third_party_settings: {  }
