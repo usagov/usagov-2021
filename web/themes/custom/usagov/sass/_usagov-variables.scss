@@ -14,7 +14,7 @@ $cyan: #3fbde3;
 $cyan-50v: #0081a1;
 $cyan-30v: #00bde3;
 $cyan-light: #ccecf2;
-$light-blue: #E5F8FD;
+$light-blue: #e5f8fd;
 $gray: #dfe1e2;
 $deep-gray: #707070;
 $light-gray: #f3f3f3;
@@ -22,7 +22,8 @@ $light-blue: #d2ebf1;
 $orange: #f79240;
 $deep-orange: #c05600;
 $black: #000;
-$blue-shadow: rgba(17, 47, 78, 0.4);
+$blue-shadow: rgb(17 47 78 / 40%);
+
 // Component Variables
 $mobile-nav: (
   red: $red,
@@ -37,10 +38,9 @@ $hero: (
   font-color: $white,
   secondary-font-color: $cyan-light,
 );
-
 $homepage: (
   larger-max-width: 1024px,
-  smaller-max-width:960px,
+  smaller-max-width: 960px,
   small-font-size: 17.6px,
   medium-font-size: 35.2px,
 );
@@ -56,7 +56,7 @@ $card: (
   hover-border-color: $cyan-50v,
   group-background-color: $light-gray,
   text-color: $black,
-  background-color:$light-blue,
+  background-color: $light-blue,
 );
 $life-events: (
   text-color: $white,
