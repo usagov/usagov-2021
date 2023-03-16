@@ -7,9 +7,13 @@
 
   #}
 
+
 {# Determine Language to decide which menu and translations to use #}
 {% if node.langcode.langcode == "es" %}
   {% set main_nav_items = simplify_menu('left-menu-spanish') %}
+  {% if node.type[0].value.target_id == "wizard" or node.type[0].value.target_id == "wizard_step" %}
+    {% set main_nav_items = simplify_menu('wizard-espanol') %}
+  {% endif %}
   {% set translations = {
     'home': 'Página principal',
     'home_URL': '/es',
@@ -22,6 +26,10 @@
   } %}
 {% else %}
   {% set main_nav_items = simplify_menu('left-menu-english') %}
+  {% if node.type[0].value.target_id == "wizard" or node.type[0].value.target_id == "wizard_step" %}
+    {% set main_nav_items = simplify_menu('wizard') %}
+  {% endif %}
+  
   {% set translations = {
     'home': 'Home',
     'home_URL': '/',
@@ -55,6 +63,41 @@
     {% set submenu = menu_item.submenu %}
   {% endfor %}
 {% endfor %}
+
+{% if node.type[0].value.target_id == "directory_record" %}
+  {% if node.langcode.langcode == "es" %}
+    {% set active_trail = [
+      {
+        text: "Acerca de EE. UU. y directorios del Gobierno",
+        url: "/es/acerca-de-estados-unidos",
+        active_trail: true,
+        active: false
+      },
+      {
+        text: "Agencias federales",
+        url: "/es/indice-agencias",
+        active_trail: true,
+        active: false
+      }
+    ] %}
+  {% else %}
+    {% set active_trail = [
+      {
+        text: "About the U.S. and its government",
+        url: "/about-the-us",
+        active_trail: true,
+        active: false
+      },
+      {
+        text: "A-Z index of U.S. government departments and agencies",
+        url: "/agency-index",
+        active_trail: true,
+        active: false
+      }
+    ] %}
+  {% endif %}
+{% endif %}
+
 
 {# Build the mobile menu #}
 <nav aria-label="Primary navigation" class="usa-nav usagov-mobile-menu">
@@ -121,7 +164,7 @@
 
       {# Show the first item and up to 3 items at the end of the active trail #}
       {% if loop.index == 1 or loop.index + 3 > active_trail|length %}
-        {% if not active_item_has_children and loop.index == active_trail|length %}
+        {% if not active_item_has_children and loop.index == active_trail|length and found_active_item %}
           {# The current page has no children, so we should show its siblings instead #}
           <li class="navigation__item">
             <ul class="navigation__items">
@@ -150,6 +193,22 @@
                     <a href="{{ child.url }}">{{ child.text }}</a>
                   </li>
                 {% endfor %}
+              </ul>
+            {% endif %}
+
+            {# Show the current page if this is the last iteration but the active item was never found #}
+            {% if loop.index == active_trail|length and not found_active_item %}
+              <ul class="navigation__items">
+                {% if menu_item.submenu is not empty %}
+                  {% for child in menu_item.submenu %}
+                    <li class="navigation__item sibling">
+                      <a href="{{ child.url }}">{{ child.text }}</a>
+                    </li>
+                  {% endfor %}
+                {% endif %}
+                <li class="navigation__item active">
+                  <a href="#">{{node.title.value}}</a>
+                </li>
               </ul>
             {% endif %}
           </li>
