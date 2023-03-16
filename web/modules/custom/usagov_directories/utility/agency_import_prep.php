@@ -1,28 +1,28 @@
 <?php
 
 /**
-* This script converts Federal Directory Record data exported from the
-* previous USA.gov site into CSV files for import into the new site.
-* The import will be done using the Drupal Feeds module. Once we've
-* finished transferring data, there will be no further need for this script.
-*
-* This script takes paths to two input files and an output directory:
-*  - A CSV file with most of the fields in plain-text form
-*  - An XML file with fields that are not plain text (generally, HTML snippets)
-*  - A directory where you want your output
-*
-* Both files include create and update timestamps on all records, for the
-* purpose of doing incremental updates (to be implemented).
-*
-* Due to a problem importing records with multiple-value "link" mappings, in
-* which some of the mappings are blank, this script splits its output into
-* multiple files, based on the combination of "link" fields present in each
-* record. That means multiple map-and-import steps for the user.
-* See https://www.drupal.org/project/feeds/issues/3302749 for details on
-* the underlying issue.
-*
-* - akf, 2022-08-17
-*/
+ * This script converts Federal Directory Record data exported from the
+ * previous USA.gov site into CSV files for import into the new site.
+ * The import will be done using the Drupal Feeds module. Once we've
+ * finished transferring data, there will be no further need for this script.
+ *
+ * This script takes paths to two input files and an output directory:
+ *  - A CSV file with most of the fields in plain-text form
+ *  - An XML file with fields that are not plain text (generally, HTML snippets)
+ *  - A directory where you want your output
+ *
+ * Both files include create and update timestamps on all records, for the
+ * purpose of doing incremental updates (to be implemented).
+ *
+ * Due to a problem importing records with multiple-value "link" mappings, in
+ * which some of the mappings are blank, this script splits its output into
+ * multiple files, based on the combination of "link" fields present in each
+ * record. That means multiple map-and-import steps for the user.
+ * See https://www.drupal.org/project/feeds/issues/3302749 for details on
+ * the underlying issue.
+ *
+ * - akf, 2022-08-17
+ */
 
 $infile = $argv[1];
 $extended_infile = $argv[2];
@@ -173,12 +173,12 @@ function main($infile, $extended_infile, $outdir) {
 }
 
 /**
-* Map and convert selected fields. Returns an array indexed by field name. Modifies $indexes.
-*
-* @param Array $row
-* @param Array $indexes
-* @return Array
-*/
+ * Map and convert selected fields. Returns an array indexed by field name. Modifies $indexes.
+ *
+ * @param Array $row
+ * @param Array $indexes
+ * @return Array
+ */
 function convert_fields($row, &$indexes) {
   // Language -> langcode
   $lang_index = $indexes['Language'];
@@ -301,13 +301,13 @@ function process_xml_file($filename) {
 }
 
 /**
-* Get the plain-text string from the named element. Assumes there is just one node
-* matching the element name $nodename, and that it is a plain-text node.
-*
-* @param DomNode $node
-* @param string $nodename
-* @return void
-*/
+ * Get the plain-text string from the named element. Assumes there is just one node
+ * matching the element name $nodename, and that it is a plain-text node.
+ *
+ * @param DomNode $node
+ * @param string $nodename
+ * @return void
+ */
 function get_plain_text($node, $nodename) {
   $nodes = $node->getElementsByTagName($nodename);
   foreach ($nodes as $node) {
@@ -317,13 +317,13 @@ function get_plain_text($node, $nodename) {
 }
 
 /**
-* Get Links (as URL and Text parts) from the named element. Assumes there is just one node
-* matching the element name $nodename, and that it contains CDATA.
-*
-* @param DomNode $node
-* @param string $nodename
-* @return void
-*/
+ * Get Links (as URL and Text parts) from the named element. Assumes there is just one node
+ * matching the element name $nodename, and that it contains CDATA.
+ *
+ * @param DomNode $node
+ * @param string $nodename
+ * @return void
+ */
 function get_links_from_cdata($node, $nodename, $columnname = NULL) {
   $columnname = $columnname ?: $nodename;
   $nodes = $node->getElementsByTagName($nodename);
@@ -367,16 +367,16 @@ function get_links_from_cdata($node, $nodename, $columnname = NULL) {
 }
 
 /**
-* Ensure our path aliases don't have diacriticals (or urlencoded diacriticals)
-* or other non-ascii characters. Path alias may be from the path provided
-* in the import, or it may be the node's Title.
-*
-* $str might have url-encoded characters, so clean it up:
-*  - urldecode it
-*  - ascii-fy it (with transliteration)
-*  - remove any single quotes
-*  - urlencode it (just in case there are spaces or chars I didn't think of)
-*/
+ * Ensure our path aliases don't have diacriticals (or urlencoded diacriticals)
+ * or other non-ascii characters. Path alias may be from the path provided
+ * in the import, or it may be the node's Title.
+ *
+ * $str might have url-encoded characters, so clean it up:
+ *  - urldecode it
+ *  - ascii-fy it (with transliteration)
+ *  - remove any single quotes
+ *  - urlencode it (just in case there are spaces or chars I didn't think of)
+ */
 function make_clean_alias($str) {
   $str = trim($str);
 
