@@ -17,40 +17,40 @@ settings:
   allowed_values:
     -
       value: field-agriculture-department
-      label: field-agriculture-department
+      label: 'Agriculture Department'
     -
       value: field-corrections-dept
-      label: field-corrections-dept
+      label: 'Correctons Department'
     -
       value: field-district-attorneys
-      label: field-district-attorneys
+      label: 'District Attorney'
     -
       value: field-education-department
-      label: field-education-department
+      label: 'Education Department'
     -
       value: field-election-office
-      label: field-election-office
+      label: 'Election Office'
     -
       value: field-emergency-management
-      label: field-emergency-management
+      label: 'Emergency Management'
     -
       value: field-governor
-      label: field-governor
+      label: Governor
     -
       value: field-health-department
-      label: field-health-department
+      label: 'Health Department'
     -
       value: field-local-governments
-      label: field-local-governments
+      label: 'Local Government'
     -
       value: field-motor-vehicle-office
-      label: field-motor-vehicle-office
+      label: 'Motor Vehicle Office'
     -
       value: field-social-services
-      label: field-social-services
+      label: 'Social Services'
     -
       value: field-state-attorney-general
-      label: field-state-attorney-general
+      label: 'State Attorney General'
   allowed_values_function: ''
 module: options
 locked: false
