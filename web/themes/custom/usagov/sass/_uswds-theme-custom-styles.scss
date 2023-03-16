@@ -1124,7 +1124,7 @@ button#next.usa-button,
 #statego {
   display: inline-block;
   text-align: center;
-  float: right;
+  float: none;
   height: 38px;
   margin: 3px 0 0;
   color: #000;
@@ -1143,10 +1143,6 @@ button#next.usa-button,
 #statego:hover {
   background-color: #00a6b2;
   text-decoration: underline;
-}
-
-#statego {
-  float: none;
 }
 
 @media (min-width: 992px) {
