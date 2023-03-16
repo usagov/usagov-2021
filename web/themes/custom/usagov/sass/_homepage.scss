@@ -339,6 +339,9 @@
   height: 44px;
   background-color: transparent;
   border: none;
+  padding-left: 0px;
+  padding-right: 0px;
+  margin-right: 8px;
 }
 
 .carousel__navigation_dot {
@@ -498,7 +501,7 @@
 /* All Topics Cards */
 .all-topics-background {
   background-color: var($light-blue);
-  padding-bottom: 30px;
+  padding-bottom: 100px;
   padding-top: 10px;
 }
 

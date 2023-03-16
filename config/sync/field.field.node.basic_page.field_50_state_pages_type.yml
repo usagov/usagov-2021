@@ -1,0 +1,21 @@
+uuid: d2e99979-98a2-4e1d-b799-ada38475da5a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_50_state_pages_type
+    - node.type.basic_page
+  module:
+    - options
+id: node.basic_page.field_50_state_pages_type
+field_name: field_50_state_pages_type
+entity_type: node
+bundle: basic_page
+label: '50 State Pages Type'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string
