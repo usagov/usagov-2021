@@ -175,3 +175,30 @@ function createAssertedBackupTag() {
 
   echo $BACKUP_TAG
 }
+
+function createSpaceAssertedBackupTag() {
+   desiredSpace=$1
+   desiredBranch=$2
+
+   assertSpace $desiredSpace
+   ####assertBranch $desiredBranch ### <--- this is a huge PITA.
+
+  CONTAINER_TAG=$(spaceCCIContainerTag $desiredSpace)
+  BACKUP_TAG=${BRANCH}.${CONTAINER_TAG}
+
+  TAG_SUFFIX=$3
+  if [ x$TAG_SUFFIX != x ]; then
+    BACKUP_TAG=${BACKUP_TAG}.${TAG_SUFFIX}
+  fi
+
+  #echo Space:                      $desiredSpace
+  #echo CCI Deployed Container Tag: $CONTAINER_TAG
+  #echo
+  #echo Branch:                     $desiredBranch
+  #echo Optional Suffix:            $TAG_SUFFIX
+  #echo
+  #echo Created Backup Tag:         $BACKUP_TAG
+  #echo
+
+  echo $BACKUP_TAG
+}

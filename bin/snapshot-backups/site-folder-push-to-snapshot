@@ -14,7 +14,10 @@ if [ -f ./env.local ]; then
 fi
 
 # just testing?
-#export echo=echo
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
 
 DEPLOY_TAG=${1}
 SOURCE_DIR=$DEPLOY_TAG

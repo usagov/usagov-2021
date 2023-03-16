@@ -8,7 +8,11 @@ else
    exit 1
 fi
 
-export echo=echo
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
 
 SPACE=$1
 BRANCH=$2
@@ -27,7 +31,7 @@ if [ x$SPACE != x -a x$BRANCH != x -a x$SUFFIX != x -a x$COMMAND != x ]; then
       exit 1
    fi
 
-   BACKUP_TAG=$(createAssertedBackupTag $SPACE $BRANCH $SUFFIX)
+   BACKUP_TAG=$(createSpaceAssertedBackupTag $SPACE $BRANCH $SUFFIX)
    echo
    echo "Running '$COMMAND' with tag:  $BACKUP_TAG"
    echo
@@ -39,4 +43,4 @@ else
    exit 1
 fi
 
-$echo ${SCRIPT_DIR}/${COMMAND} $BACKUP_TAG
+$echo ${COMMAND} $BACKUP_TAG
