@@ -3,6 +3,7 @@ FROM owasp/modsecurity:nginx-alpine
 LABEL maintainer="Felipe Zipitria <felipe.zipitria@owasp.org>"
 
 ARG RELEASE=3.3.2
+ARG NRVERSION=3.2.5
 
 ARG GITBRANCH
 ENV GITBRANCH ${GITBRANCH:-none}
@@ -45,6 +46,16 @@ RUN apk upgrade --update && \
       jq \
       inotify-tools \
       gettext
+
+# New Relic infrastructure integration
+# libc6-compat so that newrelic doesn't freak out
+RUN set -eux; \
+    apk add libc6-compat; \
+    mkdir /tmp/nr-integration; \
+    curl -SL https://download.newrelic.com/infrastructure_agent/binaries/linux/amd64/nri-nginx_linux_${NRVERSION}_amd64.tar.gz \
+    | tar -zxf - -C /tmp/nr-integration; \
+    chmod +x /tmp/newrelic-infra/installer.sh;
+RUN /tmp/newrelic-infra/installer.sh;
 
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \
