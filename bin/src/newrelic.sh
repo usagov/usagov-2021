@@ -6,7 +6,7 @@ if [ $(uname -m) != 'aarch64' ]; then
     && NR_INSTALL_USE_CP_NOT_LN=1 NR_INSTALL_USE_CP_NOT_LN=1 /tmp/newrelic-php5-*/newrelic-install install \
     && rm -rf /tmp/newrelic-php5-* /tmp/nrinstall* \
     && sed -i \
-      -e "s/;\?newrelic.appname =.*/newrelic.appname = \"USA.gov;LocalDev\"/" \
+      -e "s/;\?newrelic.appname =.*/newrelic.appname = \"USA.gov\"/" \
       -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = usa-cms-local/" \
       -e 's/;\?newrelic.daemon.app_connect_timeout =.*/newrelic.daemon.app_connect_timeout=15s/' \
       -e 's/;\?newrelic.daemon.start_timeout =.*/newrelic.daemon.start_timeout=5s/' \
