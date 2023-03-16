@@ -13,7 +13,11 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-#export echo=echo
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
 
 DEPLOY_TAG=$1
 SPACE=$( cf target | grep space: | awk '{ print $2 }')
