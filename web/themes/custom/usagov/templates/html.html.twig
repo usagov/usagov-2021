@@ -31,13 +31,17 @@
 <!DOCTYPE html>
 <html{{ html_attributes }}>
 <head>
-  <head-placeholder token="{{ placeholder_token|raw }}">
-  <title>{{ head_title|safe_join(' | ') }}</title>
+{% if meta_noindex %}
+<meta name="robots" content="noindex" />
+{% endif %}
+<head-placeholder token="{{ placeholder_token|raw }}">
+<title>{{ head_title|safe_join(' | ') }}</title>
   <css-placeholder token="{{ placeholder_token|raw }}">
   <js-placeholder token="{{ placeholder_token|raw }}">
   {% if node.id is defined %}
     {{ node.field_header_html.value|raw }}
   {% endif %}
+  
   <script>
     dataLayer = [{
       {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
@@ -103,8 +107,6 @@
   <meta property="og:image:secure_url" content="https://www.usa.gov/images/facebook_share_thumbnail.png" />
   <!-- End Social Media -->
 
-  <meta name="robots" content="noindex, nofollow" />
-
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -112,7 +114,8 @@
       "url": "https://beta.usa.gov/",
       "logo": "https://beta.usa.gov/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png"
     }
-    </script>
+  </script>
+
 </head>
 <body{{ attributes }}>
   <!-- Google Tag Manager (noscript) -->
