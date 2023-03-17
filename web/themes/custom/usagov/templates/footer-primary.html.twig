@@ -29,7 +29,7 @@
 												Directorios de agencias y departamentos del Gobierno de EE. UU.
 											</a>
 										{% else %}
-											<a href="https://www.usa.gov/federal-agencies">
+											<a href="/agency-index">
 												Directory of U.S. government agencies and departments
 											</a>
 										{% endif %}
@@ -63,8 +63,8 @@
 												Nuestra historia y misión
 											</a>
 										{% else %}
-											<a href="/mission-history">
-												Our mission and history
+											<a href="/about">
+												About USAGov
 											</a>
 										{% endif %}
 									</li>
@@ -95,104 +95,119 @@
 
 									{% if lang != "es" %}
 										<li class="usa-footer__secondary-link">
-										<a href="/how-to-cite">
-											How to cite USA.gov
-										</a>
-									</li>
+											<a href="">
+												Report a website issue
+											</a>
+										</li>
+										<li class="usa-footer__secondary-link">
+											<a href="https://analytics.usa.gov/">
+												Real-time website data
+											</a>
+										</li>
+									{% endif %}
+								</ul>
+							</section>
+						</div>
+
+						<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
+							<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
+								<h3 class="usa-gov-footer__primary-link">
+									{{ lang == 'es' ?  "Para agencias federales" : "For federal agencies"  }}
+								</h3>
+								<ul class="usa-list usa-list--unstyled">
 									<li class="usa-footer__secondary-link">
-										<a href="https://analytics.usa.gov/">
-											Real-time website data
-										</a>
+										{% if lang == "es" %}
+											<a href="https://www.usa.gov/espanol/colabore-con-nosotros#item-211505">
+												Colabore con nosotros
+											</a>
+										{% else %}
+											<a href="/partner-with-usagov">
+												Partner with us
+											</a>
+										{% endif %}
 									</li>
-								{% endif %}
-							</ul>
-						</section>
-					</div>
 
-					<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
-						<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
-							<h3 class="usa-gov-footer__primary-link">
-								{{ lang == 'es' ?  "Para agencias federales" : "For federal agencies"  }}
-							</h3>
-							<ul class="usa-list usa-list--unstyled">
-								<li class="usa-footer__secondary-link">
+									<li class="usa-footer__secondary-link">
+										{% if lang == "es" %}
+											<a href="https://blog.usa.gov">
+												Blog de USAGov
+											</a>
+										{% else %}
+											<a href="https://blog.usa.gov/">
+												Read our blog
+											</a>
+										{% endif %}
+									</li>
+								</ul>
+							</section>
+						</div>
+
+						<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
+							<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
+								<h3 class="usa-gov-footer__primary-link">
+									{{ lang == 'es' ?  "Para medios de comunicación" : "For media" }}
+
+
+								</h3>
+								<ul class="usa-list usa-list--unstyled">
 									{% if lang == "es" %}
-										<a href="https://www.usa.gov/espanol/colabore-con-nosotros#item-211505">
-											Colabore con nosotros
-										</a>
-									{% else %}
-										<a href="/partner-with-usagov">
-											Partner with us
-										</a>
-									{% endif %}
-								</li>
+										<li class="usa-footer__secondary-link ">
+											<a href="https://beta.usa.gov/es/articulos">
+												Artículos de interés
+											</a>
+										</li>
 
-								<li class="usa-footer__secondary-link">
+									{% else %}
+										<li class="usa-footer__secondary-link ftr-list">
+											<a href="/outreach">
+												USAGov Outreach
+											</a>
+										</li>
+									{% endif %}
+
 									{% if lang == "es" %}
-										<a href="https://blog.usa.gov">
-											Blog de USAGov
-										</a>
+										<li class="usa-footer__secondary-link ">
+											<a href="https://beta.usa.gov/es/articulos">
+												Artículos de interés
+											</a>
+										</li>
+
 									{% else %}
-										<a href="https://blog.usa.gov/">
-											USAGov blog
-										</a>
+										<li class="usa-footer__secondary-link ftr-list">
+											<a href="/features">
+												Feature articles
+											</a>
+										</li>
 									{% endif %}
-								</li>
-							</ul>
-						</section>
+								</ul>
+							</section>
+						</div>
 					</div>
+				</nav>
+			</div>
 
-					<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
-						<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
-							<h3 class="usa-gov-footer__primary-link">
-								{{ lang == 'es' ?  "Para medios de comunicación" : "For media" }}
-
-
-							</h3>
-							<ul class="usa-list usa-list--unstyled">
-								{% if lang == "es" %}
-									<li class="usa-footer__secondary-link ">
-										<a href="https://beta.usa.gov/es/articulos">
-											Artículos de interés
-										</a>
-									</li>
-
-								{% else %}
-									<li class="usa-footer__secondary-link ftr-list">
-										<a href="/features">
-											Feature articles
-										</a>
-									</li>
-								{% endif %}
-							</li>
-						</ul>
-					</section>
+			<div class="tablet:grid-col-4">
+				<div class="usa-sign-up">
+					<h4 class="usa-sign-up__heading">
+						{{ lang == 'es' ? "Suscríbase para recibir información actualizada" :  "Sign up to receive email updates" }}
+					</h4>
+					{% if lang == "es" %}
+						<form class="usa-form" action="https://conectate.gobiernousa.gov/suscripciones" method="get">
+						{% else %}
+							<form class="usa-form" action="https://connect.usa.gov/subscribe" method="get">
+							{% endif %}
+							<label class="usa-label" for="email">
+								{{ lang == 'es' ?  "Escriba su email" : "Enter your email"  }}
+							</label>
+							<input class="usa-input" id="email" name="email" type="email">
+							<button class="usa-button" type="submit">
+								{{ lang == 'es' ?  "Suscríbase ahora" : "Sign up" }}
+							</button>
+						</form>
+					</div>
 				</div>
 
 			</div>
-		</nav>
-	</div>
-
-	<div class="tablet:grid-col-4">
-		<div class="usa-sign-up">
-			<h4 class="usa-sign-up__heading">
-				{{ lang == 'es' ? "Suscríbase para recibir información actualizada" :  "Sign up to receive email updates" }}
-			</h4>
-			{% if lang == "es" %}
-				<form class="usa-form" action="https://conectate.gobiernousa.gov/suscripciones" method="get">
-				{% else %}
-					<form class="usa-form" action="https://connect.usa.gov/subscribe" method="get">
-					{% endif %}
-					<label class="usa-label" for="email">
-						{{ lang == 'es' ?  "Escriba su email" : "Enter your email"  }}
-					</label>
-					<input class="usa-input" id="email" name="email" type="email">
-					<button class="usa-button" type="submit">
-						{{ lang == 'es' ?  "Suscríbase ahora" : "Sign up" }}
-					</button>
-				</form>
-			</div>
 		</div>
-
 	</div>
-</div></div><script src="/themes/custom/usagov/scripts/newFooter.js"></script>
+	<script src="/themes/custom/usagov/scripts/newFooter.js"></script>
