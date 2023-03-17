@@ -56,33 +56,3 @@
       set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}";
       proxy_pass https://$indexfile;
     }
-
-    # redirect to website analytics app
-    # website analytics app url - easier as a separate case vs in another regex
-    location ~* ^/(website-analytics)$ {
-      error_page 404 403 @notFoundEnglish;
-      proxy_intercept_errors on;
-      recursive_error_pages on;
-      return 301 /website-analytics/index.html;
-    }
-    # website analytics app - catch urls that end in a trailing slash - assume they are dirs and need an index
-    location ~* ^/(website-analytics/(.+/)?)$ {
-      error_page 404 403 @notFoundEnglish;
-      proxy_intercept_errors on;
-      recursive_error_pages on;
-      return 301 /website-analytics/index.html;
-    }
-    # website analytics app - catch urls that end without an extension or trailing slash - assume they are dirs and need an index
-    location ~* ^/(website-analytics/(.*/)?[^\./]+)$ {
-      error_page 404 403 @notFoundEnglish;
-      proxy_intercept_errors on;
-      recursive_error_pages on;
-      return 301 /website-analytics/index.html;
-    }
-    # website analytics app - catch all urls - assume they are not dirs and should be proxied directly
-    location ~* ^/(website-analytics/(.*/)) {
-      error_page 404 403 @notFoundEnglish;
-      proxy_intercept_errors on;
-      recursive_error_pages on;
-      return 301 /website-analytics/$2/index.html;
-    }

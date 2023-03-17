@@ -75,6 +75,10 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
   $SCRIPT_PATH/tome-static.sh $URI 2>&1 | tee -a $TOMELOG
   TOME_SUCCESS=$?
   if [ "$TOME_SUCCESS" == "0" ]; then
+    # Use a unique dir for each run - just in case more than one of this is running
+    RENDER_DIR=/tmp/tome/$YMDHMS
+    ANALYTICS_DIR=$(realpath ../website-analytics)
+    cp -R "$ANALYTICS_DIR" "$RENDER_DIR"
     $SCRIPT_PATH/tome-sync.sh $TOMELOGFILE $YMDHMS $FORCE
   else
     echo "Tome static build failed with status $TOME_SUCCESS - not pushing to S3" | tee -a $TOMELOG
