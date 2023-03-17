@@ -19,7 +19,14 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
   if ($hook === 'html' || $hook === 'page') {
     $usa_twig_vars = &drupal_static(__FUNCTION__);
     if (!isset($usa_twig_vars)) {
-      $usa_twig_vars = [];
+      // pre-populate $usa_twig_vars so we can rely on certain fields being present:
+      $usa_twig_vars = [
+        'id' => NULL,
+        'front' => 'not_homepage',
+        'nodetype' => NULL,
+        'pagetype' => NULL,
+        'meta_noindex' => NULL,
+      ];
       $node = \Drupal::routeMatch()->getParameter('node');
       $isFront = \Drupal::service('path.matcher')->isFrontPage();
       $noindex = FALSE;
@@ -93,10 +100,12 @@ function usa_twig_vars_preprocess_menu__sidebar_first(&$variables, $hook) {
 }
 
 function usa_twig_vars_get_page_type(&$node) {
-  if ($node->getFields()['field_page_type'] != NULL
-      && !empty($node->getFields()['field_page_type']->getValue())
-      && $node->getFields()['field_page_type']->getValue()[0]['target_id'] != NULL) {
-    $term_id = $node->getFields()['field_page_type']->getValue()[0]['target_id'];
+  $fields = $node->getFields();
+  if (array_key_exists('field_page_type', $fields)
+      && $fields['field_page_type'] != NULL
+      && !empty($fields['field_page_type']->getValue())
+      && $fields['field_page_type']->getValue()[0]['target_id'] != NULL) {
+    $term_id = $fields['field_page_type']->getValue()[0]['target_id'];
     $term = Term::load($term_id);
     $page_type = $term ? $term->get('name')->value : '';
     return $page_type ?? 'content_page';
