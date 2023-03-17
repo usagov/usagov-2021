@@ -19,6 +19,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
   if ($hook === 'html' || $hook === 'page') {
     $usa_twig_vars = &drupal_static(__FUNCTION__);
     if (!isset($usa_twig_vars)) {
+      $usa_twig_vars = [];
       $node = \Drupal::routeMatch()->getParameter('node');
       $isFront = \Drupal::service('path.matcher')->isFrontPage();
 
@@ -63,9 +64,9 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         }
       }
     }
-  }
-  foreach ($usa_twig_vars as $key => $value) {
-    $variables[$key] = $value;
+    foreach ($usa_twig_vars as $key => $value) {
+      $variables[$key] = $value;
+    }
   }
 }
 
