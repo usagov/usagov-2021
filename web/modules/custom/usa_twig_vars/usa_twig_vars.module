@@ -21,6 +21,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
     if (!isset($usa_twig_vars)) {
       $node = \Drupal::routeMatch()->getParameter('node');
       $isFront = \Drupal::service('path.matcher')->isFrontPage();
+      $noindex = FALSE;
 
       if (is_object($node) && method_exists($node, 'getFields')) {
         // Check if the page is not front page.
@@ -45,6 +46,10 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
               case '/agency-index':
               case '/es/indice-agencias':
                 $special_node_type = 'federal_directory_index';
+                $current_letter = \Drupal::request()->query->get('letter') ?: 'a';
+                if ($current_letter != 'a') {
+                  $noindex = TRUE;
+                }
                 break;
 
               case '/states':
@@ -54,12 +59,18 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             }
           }
 
+          $nodetype = $special_node_type ?: $node_real_type;
+          if ($nodetype == 'wizard_step') {
+            $noindex = TRUE;
+          }
+
           // Cleanup vars.
           $usa_twig_vars['id'] = $node->id();
           $usa_twig_vars['front'] = $isFront;
-          $usa_twig_vars['nodetype'] = $special_node_type ?: $node_real_type;
+          $usa_twig_vars['nodetype'] = $nodetype;
           $usa_twig_vars['pagetype'] = usa_twig_vars_get_page_type($node);
           $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
+          $usa_twig_vars['meta_noindex'] = $noindex;
           unset($isFront);
         }
       }
