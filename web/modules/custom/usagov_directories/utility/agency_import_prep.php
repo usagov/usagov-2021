@@ -70,6 +70,13 @@ function main($infile, $extended_infile, $outdir) {
     'Synonym', 'Email',
     'Street 1', 'Street 2', 'Street 3', 'City', 'State', 'ZIP',
   ];
+
+  $paths_csv = 'path_updates';
+  $paths_headings = [
+    'Title', 'UUID', 'alias', 'Show on AZ Index',
+  ];
+  $out_files[$paths_csv] = [$paths_headings];
+
   // Add the variable number of phone columns from basic headings:
   foreach (['phone_', 'toll_', 'tty_'] as $phonetype) {
     $reviewer_headings = array_merge($reviewer_headings, array_filter($basic_headings, fn($e) => str_contains($e, $phonetype)));
@@ -134,6 +141,20 @@ function main($infile, $extended_infile, $outdir) {
     }
     $out_files[$reviewer_csv][] = $review_record;
 
+    // Make a version with just what's needed for path alias updates:
+    $paths_record = [];
+    foreach ($paths_headings as $col) {
+      if (array_key_exists($col, $basic_record)) {
+        $paths_record[] = $basic_record[$col] ?: '';
+      }
+      elseif (array_key_exists($col, $extended_record)) {
+        $paths_record[] = $extended_record[$col] ?: '';
+      }
+      else {
+        $paths_record[] = '';
+      }
+    }
+    $out_files[$paths_csv][] = $paths_record;
   }
 
   print("$num_records records\n");
@@ -164,20 +185,13 @@ function convert_fields($row, &$indexes) {
   $lc_index = $indexes['langcode'];
   $row[$lc_index] = $row[$lang_index] == 'Spanish' ? 'es' : 'en';
 
-  // Path -> alias
-  $path_index = $indexes['Path'];
+  // Convert "Show on AZ Index" from Yes/No to 1/0:
+  $az_index = $indexes['Show on AZ Index'];
+  $row[$az_index] = $row[$az_index] == 'Yes' ? 1 : 0;
+
+  // Make a path alias based on the Agency's title:
   $alias_index = $indexes['alias'];
-  $alias = $row[$path_index];
-  if (!str_starts_with($alias, '/content/')) {
-    // Replace it with an alias based on the title.
-    $alias = $row[$indexes['Title']];
-  }
-  else {
-    // Trim off /content, then concatenate what remains to the correct parent path.
-    // While it would be unusual for /content/ to appear elsewhere in the path,
-    // why risk a global replace?
-    $alias = substr($alias, 9);
-  }
+  $alias = $row[$indexes['Title']];
   $alias = make_clean_alias($alias);
 
   if ($row[$lang_index] == 'Spanish') {
@@ -364,19 +378,22 @@ function get_links_from_cdata($node, $nodename, $columnname = NULL) {
  *  - urlencode it (just in case there are spaces or chars I didn't think of)
  */
 function make_clean_alias($str) {
-  $str = urldecode($str);
-  // $str = iconv('UTF-8', 'ASCII//TRANSLIT', $str); // musl iconv does not support //TRANSLIT
-  $str = iconv('UTF-8', 'ASCII', $str);
+  $str = trim($str);
 
-  // $str is now plain ASCII
-  $chars = ["'", ' '];
-  $subs = ['', '-'];
-  $str = str_replace($chars, $subs, strtolower($str));
+  // We want to replace ' and ~ with - first, because later we'll want to eliminate ' from transliteration
+  $str = str_replace(['\'', '~'], ['-'], $str);
 
-  // Any other punctuation, replace with -:
-  $str = preg_replace('/[^\w\d]/i', '-', $str);
+  $str = iconv('UTF-8', 'ASCII//TRANSLIT', $str); // musl iconv does not support //TRANSLIT, but we need it for these
 
-  $str = urlencode($str);
+  // conversion of some characters may have introduced ' and ~
+  $str = str_replace(['\'', '~'], [''], strtolower($str));
+
+  // Any non-alphanumeric characters, replace with -:
+  $str = preg_replace('/[^\w\d\/]/i', '-', $str);
+  $str = preg_replace('/-+/', '-', $str);
+  $str = preg_replace('/^-+/', '', $str);
+  $str = preg_replace('/-+$/', '', $str);
+
   return $str;
 }
 
