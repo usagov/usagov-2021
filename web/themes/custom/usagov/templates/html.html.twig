@@ -31,13 +31,17 @@
 <!DOCTYPE html>
 <html{{ html_attributes }}>
 <head>
-  <head-placeholder token="{{ placeholder_token|raw }}">
-  <title>{{ head_title|safe_join(' | ') }}</title>
+{% if meta_noindex %}
+<meta name="robots" content="noindex" />
+{% endif %}
+<head-placeholder token="{{ placeholder_token|raw }}">
+<title>{{ head_title|safe_join(' | ') }}</title>
   <css-placeholder token="{{ placeholder_token|raw }}">
   <js-placeholder token="{{ placeholder_token|raw }}">
   {% if node.id is defined %}
     {{ node.field_header_html.value|raw }}
   {% endif %}
+  
   <script>
     dataLayer = [{
       {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
@@ -116,7 +120,8 @@
       "url": "https://beta.usa.gov/",
       "logo": "https://beta.usa.gov/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png"
     }
-    </script>
+  </script>
+
 </head>
 <body{{ attributes }}>
   <!-- Google Tag Manager (noscript) -->
@@ -251,5 +256,6 @@ const scrollToTop = () => {
 
 <!-- Needed_for_USA.gov_uptime_check -->
 <script src="/themes/custom/usagov/scripts/modifyMobileNav.js"></script>
+{{ dd() }}
 </body>
 </html>
