@@ -26,7 +26,7 @@
 
 ## 2. Snapshot backup using helper (creates tag from Branch, Space, Suffix. Then runs command)
 
-### See *bin/deploy/includes*, specifically the functions *assertSpace, assertBranch, spaceCCIContainerTag* and *createAssertedBackupTag* for details of how the *stw* (snapshoot tool wrapper) script assembles the backup tag, and asserts that the currect branch and space match the arguments provided to *stw*
+### See *bin/deploy/includes*, specifically the functions *assertSpace,  spaceCCIContainerTag* and *createSpaceAssertedBackupTag* for details of how the *stw* (snapshoot tool wrapper) script assembles the backup tag, and asserts that the currect space matches the arguments provided to *stw*
 
 ### Static site backup
         export echo=echo
