@@ -23,7 +23,6 @@ dependencies:
     - workflows.workflow.basic_workflow
   module:
     - allowed_formats
-    - conditional_fields
     - content_moderation
     - link
     - media_library
@@ -111,25 +110,7 @@ content:
     region: content
     settings:
       media_types: {  }
-    third_party_settings:
-      conditional_fields:
-        c8b9382b-bbf0-47a7-94dc-cf89307c47c6:
-          entity_type: node
-          bundle: basic_page
-          dependee: field_page_type
-          settings:
-            state: visible
-            condition: value
-            grouping: AND
-            values_set: 1
-            value: ''
-            values: {  }
-            value_form:
-              -
-                target_id: '21'
-            effect: show
-            effect_options: {  }
-            selector: ''
+    third_party_settings: {  }
   field_homepage_top_links:
     type: link_default
     weight: 19
@@ -137,25 +118,7 @@ content:
     settings:
       placeholder_url: ''
       placeholder_title: ''
-    third_party_settings:
-      conditional_fields:
-        5fa20c83-8b00-4c08-bca0-407e4fb5e6e3:
-          entity_type: node
-          bundle: basic_page
-          dependee: field_page_type
-          settings:
-            state: visible
-            condition: value
-            grouping: AND
-            values_set: 1
-            value: ''
-            values: {  }
-            value_form:
-              -
-                target_id: '21'
-            effect: show
-            effect_options: {  }
-            selector: ''
+    third_party_settings: {  }
   field_is_navigation_page:
     type: boolean_checkbox
     weight: 17
@@ -179,23 +142,7 @@ content:
     region: content
     settings:
       media_types: {  }
-    third_party_settings:
-      conditional_fields:
-        74b5d775-620e-4741-9451-b1af58e1ea7d:
-          entity_type: node
-          bundle: basic_page
-          dependee: field_page_type
-          settings:
-            state: visible
-            condition: value
-            grouping: AND
-            values_set: 3
-            value: ''
-            values: "19\r\n20"
-            value_form: {  }
-            effect: show
-            effect_options: {  }
-            selector: ''
+    third_party_settings: {  }
   field_page_intro:
     type: string_textarea
     weight: 1
