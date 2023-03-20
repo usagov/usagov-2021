@@ -30,6 +30,7 @@ libraries:
   - 'usagov/global-styling'
   - 'usagov/wizard'
   - 'usagov/wizardStep'
+  - 'usagov/stateDirectory'
 
 ckeditor_stylesheets:
   - css/styles.css

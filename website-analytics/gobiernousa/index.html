@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Initalize title and data source variables -->
+  
+  <head>
+  <!--
+
+    Hi! Welcome to our source code.
+
+    This dashboard uses data from the Digital Analytics Program, a US
+    government team inside the General Services Administration, an independent
+    federal agency.
+
+
+    For a detailed tech breakdown of how 18F and friends built this site:
+
+    https://18f.gsa.gov/2015/03/19/how-we-built-analytics-usa-gov/
+
+
+    This is a fully open source project, and your contributions are welcome.
+
+    Frontend static site: https://github.com/GSA/analytics.usa.gov
+    Backend data reporting: https://github.com/18F/analytics-reporter
+
+    -->
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <link rel="stylesheet" href="/website-analytics/css/vendor/css/uswds.v0.9.1.css">
+    <link rel="stylesheet" href="/website-analytics/css/public_analytics.css">
+    <link rel="icon" type="image/x-icon" href="/website-analytics/images/analytics-favicon.ico">
+
+    <meta name="twitter:site" content="@usagov">
+    <meta name="twitter:creator" content="@usagov">
+    <meta property="og:type" content="website" />
+
+    <meta property="og:url" content="https://www.usa.gov/website-analytics/" />
+    <link rel="canonical" href="https://www.usa.gov/website-analytics/" />
+
+    <title>USAGov Web Analytics | USAGov</title>
+    <meta property="og:title" content="USAGov Web Analytics | USAGov" />
+    <meta property="og:site_name" content="USAGov Web Analytics | USAGov" />
+
+    <meta name="description" content="Official data on web traffic to USAGov government websites.">
+    <meta property="og:description" content="Official data on web traffic to USAGov government websites." />
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:image" content="/website-analytics/images/share-image.png" />
+    <script src="/website-analytics/js/vendor/d3.v3.min.js"></script>
+
+     <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-KV4BZFD');</script>
+    <!-- End Google Tag Manager -->
+  
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-28227333-1', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('set', 'forceSSL', true);
+    ga('send', 'pageview');
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+
+      d3.selectAll('.download-data').on('click', function() {
+        var link = this.href;
+        var text = this.text;
+        ga('send','event','Download Data', link, text);
+      });
+
+      d3.selectAll('.external-link').on('click', function() {
+        var link = this.href;
+        var text = this.text;
+        ga('send','event','External Link', link, text);
+      });
+
+      d3.selectAll('.top-download-page').on('click', function() {
+        var link = this.href;
+        var text = this.text;
+        ga('send','event','Top-Download Page', link, text);
+      });
+
+      d3.selectAll('.top-download-file').on('click', function() {
+        var link = this.href;
+        var text = this.text;
+        ga('send','event','Top-Download File', link, text);
+      });
+
+    });
+  </script>
+
+    <!--[if lte IE 9]>
+    <script src="/website-analytics/js/vendor/aight.v2.min.js"></script>
+    <![endif]-->
+
+    <script src="/website-analytics/js/vendor/q.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/website-analytics/css/google-fonts.css" rel="stylesheet" />
+</head>
+
+
+  <body>
+    	<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KV4BZFD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+    <header>
+        <div class="inner clearfix">
+            <h1>
+              <a href="/website-analytics/" class="external-link">
+                <img src="/website-analytics/images/usagov.png" alt="USAGov" />Analytics Dashboard
+              </a>
+            </h1>
+            <div class="header-right-wrap">
+              
+              
+                
+                  <div class="agency-selector-wrap">
+                    <form>
+                      <label for="agency-selector">Select an agency</label>
+                      <select name="agency-selector" id="agency-selector" title="Agency Selection Dropdown">
+                        <option value="/website-analytics/">USA.gov and USA.gov/espanol</option>
+                        
+                          <option value="/website-analytics/usagov/">USA.gov</option>
+                        
+                          <option value="/website-analytics/gobiernousa/">USA.gov/espanol</option>
+                        
+                      </select>
+                    </form>
+                  </div>
+                
+              
+              <ul class="links">
+                <li><a href="#explanation">About <span class="sm-hide">this site</span></a></li>
+                <li><a href="/website-analytics/gobiernousa/data/">Data</a></li>
+              </ul>
+          </div>
+        </div>
+    </header>
+    <div class="container">
+
+      
+
+
+             
+    <!--
+      JavaScript block hooks look for any element with both data-block and
+      data-source attributes:
+      <section data-block="users" data-source="path/to/data.json">
+        The "loading", "loaded", and "error" classes are set on this element
+        the data-source URL is loaded. Then the renderer is called on the first
+        child of the block with the "data" class:
+        <div class="data">
+        </div>
+        Some renderers expect to be called on HTML tables, in which
+        case you would use:
+        <table class="data">
+        </table>
+      </section>
+      -->
+      <div id="main_data" class="width-two-thirds">
+       <!-- <section id="realtime"
+          data-block="realtime"
+          data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/realtime.json"
+          data-refresh="15">
+          <h2 id="current_visitors" class="data">...</h2>
+          <div class="chart_subtitle">people on USA.gov/espanol now</div>
+        </section>
+
+        <section class="section_headline visits_today">
+          <h3>Visits Today</h3>
+          <h4>Eastern Time</h4>
+        </section>
+        <section id="time_series"
+          data-block="today"
+          data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/today.json"
+          data-refresh="15">
+          <svg class="data time-series">
+          </svg>
+        </section> -->
+
+        <!-- begin past 30 days section -->
+        <section class="section_headline">
+          <h3>Total visits in the last 30 days</h3>
+        </section>
+        <section id="realtime"
+        data-block="traffic-sources-30-days-totals"
+        data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/traffic-sources-30-days.json">
+          <h2 id="current_visitors" class="data">...</h2>
+        </section>
+
+        <section class="section_headline">
+          <h3>Visits in the Past 30 Days</h3>
+        </section>
+
+        <section id="time_series"
+          data-block="traffic-sources-30-days"
+          data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/traffic-sources-30-days.json">
+          <svg class="data time-series">
+          </svg>
+        </section>
+         <!-- end past 30 days section -->
+         
+        <section class="section_headline">
+          <h3>Visits in the Past 90 Days</h3>
+        </section>
+
+        <section class="section_subheadline">
+          There were <span id="total_visitors" class="data">...</span> visits over the past 90 days.
+        </section>
+
+        <section id="devices" class="three_column"
+          data-block="devices"
+          data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/devices.json">
+          <h4>Devices</h4>
+          <figure id="chart_device_types">
+            <div class="data bar-chart">
+            </div>
+          </figure>
+
+          <p>
+            Based on rough network segmentation data, we estimate that <strong>less than 5%</strong> of all traffic across all agencies comes from U.S. federal government networks.
+          </p>
+
+          <p>
+            Much more detailed data is available in <strong><a href="data/">downloadable CSV and JSON</a></strong>. This includes data on combined browser and OS usage.
+          </p>
+        </section>
+
+        <section id="browsers" class="three_column">
+          <h4>Browsers</h4>
+
+          <figure id="chart_browsers"
+            data-block="browsers"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/browsers.json">
+            <div class="data bar-chart">
+            </div>
+          </figure>
+
+          <figure id="chart_ie"
+            data-block="ie"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/ie.json"
+            data-scale-to-parent="true">
+            <h4>Internet Explorer</h4>
+            <div class="data bar-chart">
+            </div>
+          </figure>
+        </section>
+
+        <section id="operating_systems" class="three_column">
+          <h4>Operating Systems</h4>
+
+          <figure id="chart_os"
+            data-block="os"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/os.json">
+            <div class="data bar-chart">
+            </div>
+          </figure>
+
+          <figure id="chart_windows"
+            data-block="windows"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/windows.json"
+            data-scale-to-parent="true">
+            <h4>Windows</h4>
+            <div class="data bar-chart">
+            </div>
+          </figure>
+        </section>
+
+        <!-- forces section to wrap, couldn't find a better way -->
+        <div style="clear: both"></div>
+
+        <section class="section_headline">
+          <h3>Visitor Locations over the Past 90 Days</h3>
+        </section>
+
+        <section id="cities" class="three_column"
+          data-block="cities"
+          data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/top-cities-90-days.json">
+          <h4>Cities</h4>
+          <figure id="chart_top-cities-90-days">
+            <div class="data bar-chart">
+            </div>
+          </figure>
+        </section>
+
+        <section id="countries" class="three_column">
+          <h4>Countries</h4>
+
+          <figure id="chart_us"
+            data-block="countries"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/top-countries-90-days.json">
+            <div class="data bar-chart">
+            </div>
+          </figure>
+
+          <figure id="chart_countries"
+            data-block="international_visits"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/top-countries-90-days.json">
+            <h4>International</h4>
+            <div class="data bar-chart">
+            </div>
+          </figure>
+        </section>
+
+      </div>
+
+      <div id="secondary_data" class="width-one-third">
+        <section id="top_100_table">
+
+          <!-- see: http://heydonworks.com/practical_aria_examples/ -->
+          <h3>Top <span id="top_table_type">Pages</span></h3>
+          <ul class="pills" role="tablist">
+            <li><a role="tab" data-type="Pages" aria-selected="true" href="#top-pages-realtime" class="site-nav">Now</a></li>
+            <li><a role="tab" data-type="Domains" aria-selected="true" href="#top-pages-7-days" class="site-nav">7 Days</a></li>
+            <li><a role="tab" data-type="Domains" href="#top-pages-30-days" class="site-nav">30 Days</a></li>
+          </ul>
+
+          <figure class="top-pages" id="top-pages-realtime" role="tabpanel"
+            data-block="top-pages-realtime"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/top-pages-realtime.json"
+            data-refresh="15">
+            <h5><em>
+              Visits on a <strong>single, specific page</strong> now.
+            </em></h5>
+            <div class="data bar-chart">
+            </div>
+          </figure>
+
+          <figure class="top-pages" id="top-pages-7-days" role="tabpanel"
+            data-block="top-pages"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/top-pages-7-days.json">
+            <h5><em>Visits over the last week to <strong>single, specific pages</strong>.</em></h5>
+            <div class="data bar-chart">
+            </div>
+          </figure>
+
+          <figure class="top-pages" id="top-pages-30-days" role="tabpanel"
+            data-block="top-pages"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/top-pages-30-days.json">
+            <h5><em>
+              Visits over the last 30 days to <strong>single, specific pages</strong>.
+            </em></h5>
+            <div class="data bar-chart">
+            </div>
+          </figure>
+
+        </section>
+
+        <section id="top_external_links_table">
+
+          <!-- see: http://heydonworks.com/practical_aria_examples/ -->
+          <h3>Top <span id="top_external_links_table_type">External Links</span></h3>
+          <ul class="pills" role="tablist">
+            <li><a role="tab" data-type="Links" aria-selected="true" href="#top-external-links-yesterday" class="site-nav">Yesterday</a></li>
+            <li><a role="tab" data-type="Links" href="#top-external-links-7-days" class="site-nav">7 Days</a></li>
+            <li><a role="tab" data-type="Links" href="#top-external-links-30-days" class="site-nav">30 Days</a></li>
+          </ul>
+
+          <figure class="top-pages" id="top-external-links-yesterday" role="tabpanel"
+            data-block="top-external-links"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/top-external-links-yesterday.json"
+            data-refresh="15">
+            <h5><em>
+              Total external links clicked yesterday on USA.gov/espanol.
+            </em></h5>
+            <div class="data bar-chart">
+            </div>
+          </figure>
+
+          <figure class="top-pages" id="top-external-links-7-days" role="tabpanel"
+            data-block="top-external-links"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/top-external-links-7-days.json">
+            <h5><em>Total external links clicked over the last week on USA.gov/espanol.</em></h5>
+            <div class="data bar-chart">
+            </div>
+          </figure>
+
+          <figure class="top-pages" id="top-external-links-30-days" role="tabpanel"
+            data-block="top-external-links"
+            data-source="https://app-usa-modeast-prod-a01239f-ecas.s3.amazonaws.com/analytics/raw-data/gobierno/top-external-links-30-days.json">
+            <h5><em>
+              Total external links clicked over the last 30 days on USA.gov/espanol.</a>
+            </em></h5>
+            <div class="data bar-chart">
+            </div>
+          </figure>
+
+        </section>
+      </div>
+
+
+
+
+    </div>
+    <div class="container">
+      <section id="explanation" class="width-two-thirds">
+
+          <h3>About this Site</h3>
+          <p>
+            This data provides a window into how people are interacting with <a href="https://www.usa.gov/">USA.gov</a> and <a href="https://www.usa.gov/espanol/">USA.gov/espanol</a> online. The data comes from a unified Google Analytics account for U.S. federal government agencies known as the <a href="https://www.digitalgov.gov/services/dap/" class="external-link">Digital Analytics Program</a>. This program helps government agencies understand how people find, access, and use government services online. The program <a href="https://www.digitalgov.gov/services/dap/common-questions-about-dap-faq/#part-4" class="external-link">does not track individuals</a>, and <a href="https://support.google.com/analytics/answer/2763052?hl=en" class="external-link">anonymizes the IP addresses</a> of visitors.
+          </p>
+
+          <p>
+            This dashboard is based on the analytics.usa.gov open source project. You can find the <a href="https://github.com/GSA/analytics.usa.gov" class="external-link">code for this website</a> and the <a href="https://github.com/18F/analytics-reporter" class="external-link">code behind the data collection</a> on GitHub.
+          </p>
+          <!--
+          <p>
+            We plan to expand the data made available here. If you have any suggestions, or spot any issues or bugs, please <a href="https://github.com/GSA/analytics.usa.gov/issues" class="external-link">open an issue on GitHub</a> or contact the <a href="mailto:DAP@support.digitalgov.gov" class="external-link">Digital Analytics Program</a>.
+          </p>
+          -->
+      </section>
+      <section class="width-one-third">
+        <h3>Download the data</h3>
+        <p>You can <a href="/website-analytics/gobiernousa/data/">download the data here.</a> Available in JSON and CSV format.</p>
+      </section>
+</div>
+
+
+  </body>
+
+    <!--
+    IE detection, used to guide console formatting in subsequent include.
+  -->
+  <script type="text/javascript">window._ie9 = false;</script>
+
+  <!--[if IE 9 ]>
+    <script type="text/javascript">window._ie9 = true;</script>
+  <![endif]-->
+
+  <!--
+   IE10 JS targeting: https://stackoverflow.com/a/17099988
+   IE11 JS targeting: https://stackoverflow.com/a/17447695
+  -->
+  <script type="text/javascript">
+    window._ie10 = ("onpropertychange" in document && !!window.matchMedia);
+    window._ie11 = !!navigator.userAgent.match(/Trident\/7.0; rv 11/);
+    window._ie = window._ie9 || window._ie10 || window._ie11;
+  </script>
+
+  <script src="/website-analytics/js/vendor/uswds.v0.9.1.js"></script>
+  <script src="/website-analytics/js/index.js"></script>
+
+
+</html>
