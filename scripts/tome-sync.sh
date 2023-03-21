@@ -162,6 +162,10 @@ if [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]]; then
   TOME_PUSH_NEW_CONTENT=1
 fi
 
+ANALYTICS_DIR=/var/www/website-analytics
+echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
+cp -rf "$ANALYTICS_DIR" "$RENDER_DIR"
+
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
