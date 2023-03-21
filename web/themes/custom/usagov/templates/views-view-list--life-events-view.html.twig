@@ -5,7 +5,7 @@
     <ul class="usa-card-group">
       <li class="slides">
         {% for row in rows %}
-          <div class="slide usa-card " role="group" aria-label="slide {{loop.index}} of 6">
+          <div class="slide usa-card" aria-label="slide {{loop.index}} of 6">
             <a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
               {{- row.content -}}
             </a>
