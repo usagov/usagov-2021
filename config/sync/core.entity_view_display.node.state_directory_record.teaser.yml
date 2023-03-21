@@ -25,6 +25,7 @@ dependencies:
     - field.field.node.state_directory_record.field_health_department
     - field.field.node.state_directory_record.field_language_toggle
     - field.field.node.state_directory_record.field_local_governments
+    - field.field.node.state_directory_record.field_meta_description
     - field.field.node.state_directory_record.field_mothership_uuid
     - field.field.node.state_directory_record.field_motor_vehicle_office
     - field.field.node.state_directory_record.field_page_intro
@@ -82,6 +83,7 @@ hidden:
   field_health_department: true
   field_language_toggle: true
   field_local_governments: true
+  field_meta_description: true
   field_mothership_uuid: true
   field_motor_vehicle_office: true
   field_page_intro: true
