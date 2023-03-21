@@ -78,6 +78,7 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
     # Use a unique dir for each run - just in case more than one of this is running
     RENDER_DIR=/tmp/tome/$YMDHMS
     ANALYTICS_DIR=$(realpath ../website-analytics)
+    echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
     cp -R "$ANALYTICS_DIR" "$RENDER_DIR"
     $SCRIPT_PATH/tome-sync.sh $TOMELOGFILE $YMDHMS $FORCE
   else
