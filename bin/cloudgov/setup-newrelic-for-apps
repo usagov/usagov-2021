@@ -19,6 +19,10 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+# If DRYRUN is set, don't run the commands, but echo them.
+if [ -n "${DRYRUN}" ]; then
+    output="echo # "
+fi
 
 usage="
 $0: (Re-)deploy newrelic for an environment
@@ -60,6 +64,12 @@ else
   appnames=$1
 fi
 
+if [ x$3 != x ]; then
+   newrelicspace=$3
+else
+  newrelicspace=shared-egress
+fi
+
 # Grab the starting space and org where the command was run
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
 startspace=$( cf target | grep space: | awk '{ print $2 }')
@@ -70,7 +80,6 @@ if [ -z "${appnames}" ]; then
     exit 1
 fi
 
-newrelicspace=shared-egress
 newrelicorg="$startorg"
 applist="${appnames//,/ }"
 
@@ -92,11 +101,6 @@ if [ -n "${appmissing}" ]; then
     exit 1
 fi
 echo "Applying newrelic info to: $applist"
-
-# If DRYRUN is set, don't run the commands, but echo them.
-if [ -n "${DRYRUN}" ]; then
-    output="echo # "
-fi
 
 # add proxy setting to each app and restart
 $output cf target -o "$startorg" -s "$startspace" 2>&1 > /dev/null

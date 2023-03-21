@@ -11,6 +11,11 @@ if [ -f $SCRIPT_DIR/env.local ]; then
   . $SCRIPT_DIR/env.local
 fi
 
+# If DRYRUN is set, don't run the commands, but echo them.
+if [ -n "${DRYRUN}" ]; then
+    output="echo # "
+fi
+
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CTAG=${1:-latest}
@@ -67,29 +72,29 @@ printf "\nFetching ROUTE_DOMAIN\n"
 printf "\tAPPS_DOMAIN: $ROUTE_DOMAIN\n"
 
 # remove proxy
-cf set-env waf http_proxy  ""
-cf set-env waf https_proxy ""
-cf set-env waf HTTPS_PROXY ""
-cf set-env waf HTTP_PROXY ""
+$output cf set-env waf http_proxy  ""
+$output cf set-env waf https_proxy ""
+$output cf set-env waf HTTPS_PROXY ""
+$output cf set-env waf HTTP_PROXY ""
 
 # launch the app
 if [ -z "$CDIGEST" ]; then
   echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}"
-  cf push "${ROUTE_SERVICE_APP_NAME}" --no-start \
+  $output cf push "${ROUTE_SERVICE_APP_NAME}" --no-start \
     --var app-name="${ROUTE_SERVICE_APP_NAME}" \
     --docker-image ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}
 else
   echo "Deploying ${DOCKERUSER}/${DOCKERREPO} waf-${CTAG} via digest ${CDIGEST}"
-  cf push "${ROUTE_SERVICE_APP_NAME}" --no-start \
+  $output cf push "${ROUTE_SERVICE_APP_NAME}" --no-start \
     --var app-name="${ROUTE_SERVICE_APP_NAME}" \
     --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
 fi
 
-cf create-route app.cloud.gov --hostname $ROUTE_SERVICE_NAME
-cf map-route "$ROUTE_SERVICE_APP_NAME" app.cloud.gov --hostname $ROUTE_SERVICE_NAME
+$output cf create-route app.cloud.gov --hostname $ROUTE_SERVICE_NAME
+$output cf map-route "$ROUTE_SERVICE_APP_NAME" app.cloud.gov --hostname $ROUTE_SERVICE_NAME
 
-cf set-env "${ROUTE_SERVICE_APP_NAME}" ALLOWED_IPS "$(printf "%s" "${NGINX_ALLOW_STATEMENTS:-}")"
-cf start "${ROUTE_SERVICE_APP_NAME}"
+$output cf set-env "${ROUTE_SERVICE_APP_NAME}" ALLOWED_IPS "$(printf "%s" "${NGINX_ALLOW_STATEMENTS:-}")"
+$output cf start "${ROUTE_SERVICE_APP_NAME}"
 
 printf "\nFetching GUIDs for protected-app & route-service-app\n"
 
@@ -108,13 +113,13 @@ if cf curl "/v3/service_instances?type=user-provided&names=${ROUTE_SERVICE_NAME}
 
   printf "\nCreating route-service\n"
 
-  cf create-user-provided-service \
+  $output cf create-user-provided-service \
     "${ROUTE_SERVICE_NAME}" \
     -r "https://${ROUTE_SERVICE_DOMAIN}";
 else
   printf "\nUpdating route-service\n"
 
-  cf update-user-provided-service \
+  $output cf update-user-provided-service \
     "${ROUTE_SERVICE_NAME}" \
     -r "https://${ROUTE_SERVICE_DOMAIN}";
 fi
@@ -125,16 +130,16 @@ HOST_NAMES=($(cf curl "/v3/apps/$PROTECTED_APP_GUID/routes" | jq -r --arg APPS_D
 
 for url in "${HOST_NAMES[@]}"; do
   echo "\nBinding ${url}.${APPS_DOMAIN} to ${ROUTE_SERVICE_NAME}\n"
-  cf bind-route-service "${APPS_DOMAIN}" "${ROUTE_SERVICE_NAME}" --hostname "${url}";
+  $output cf bind-route-service "${APPS_DOMAIN}" "${ROUTE_SERVICE_NAME}" --hostname "${url}";
   if [ $(echo "$url" | grep 'cms') ]; then
-    cf set-env waf CMS_HOST "$url"
+    $output cf set-env waf CMS_HOST "$url"
   elif [ $(echo "$url" | grep 'beta') ]; then
-    cf set-env waf WWW_HOST "$url"
+    $output cf set-env waf WWW_HOST "$url"
   fi
 done
 
-cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 443
-cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 80
-cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 61443
+$output cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 443
+$output cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 80
+$output cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 61443
 
 #$SCRIPT_DIR/setup-egress-for-apps waf

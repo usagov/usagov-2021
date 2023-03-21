@@ -15,6 +15,10 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+# If DRYRUN is set, don't run the commands, but echo them.
+if [ -n "${DRYRUN}" ]; then
+    output="echo # "
+fi
 
 usage="
 $0: (Re-)deploy newrelic for an environment
@@ -66,11 +70,6 @@ cf target -o "$egressorg" -s "$egressspace" > /dev/null 2>&1 ||
 echo "Using Egress Space ${egressorg}/${egressspace}"
 
 popspace
-
-# If DRYRUN is set, don't run the commands, but echo them.
-if [ -n "${DRYRUN}" ]; then
-    output="echo # "
-fi
 
 # Assemble manifest-newrelic-vars.yml file content
 echo "Create ./manifest-newrelic-vars.yml"

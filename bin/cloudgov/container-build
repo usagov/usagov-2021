@@ -3,6 +3,28 @@
 # This script will attempt to create a container image
 # to be used when launching cloud.gov images
 #
+
+set -e
+set -o pipefail
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+# If DRYRUN is set, don't run the commands, but echo them.
+if [ -n "${DRYRUN}" ]; then
+    output="echo # "
+fi
+
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
@@ -22,9 +44,9 @@ fi;
 
 echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
-chmod -R u+w ./web/sites/default/
+$output chmod -R u+w ./web/sites/default/
 
-docker build --force-rm \
+$output docker build --force-rm \
      -t $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG \
      -f .docker/Dockerfile-cms . \
      --build-arg GITBRANCH=$GITBRANCH \
@@ -35,14 +57,14 @@ docker build --force-rm \
 if [ -n "$CONTAINERTAG2" ]
 then
      echo "docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2"
-     docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
+     $output docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
 fi
 
 echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
-chmod -R u+w ./web/sites/default/
+$output chmod -R u+w ./web/sites/default/
 
-docker build --force-rm \
+$output docker build --force-rm \
     -t $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG \
     -f .docker/Dockerfile-waf .docker \
     --build-arg GITBRANCH=$GITBRANCH \
@@ -51,5 +73,5 @@ docker build --force-rm \
 
 if [ -n "$CONTAINERTAG2" ]
 then
-    docker tag $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
+    $output docker tag $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
 fi

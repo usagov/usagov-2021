@@ -16,6 +16,11 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+# If DRYRUN is set, don't run the commands, but echo them.
+if [ -n "${DRYRUN}" ]; then
+    output="echo # "
+fi
+
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CTAG=${1:-latest}
@@ -44,7 +49,7 @@ function restartApp { #appname
     echo "ERROR: appname is required"
     exit 1
   fi
-  cf restart $app --no-wait --strategy rolling
+  $output cf restart $app --no-wait --strategy rolling
 }
 
 function pushApp { #appname
@@ -61,14 +66,18 @@ function pushApp { #appname
     instances="-i 1"
   elif [ "$APP_SPACE" == "dev" ]; then
     instances="-i 1"
+  elif [ "$APP_SPACE" == "dev-dr" ]; then
+    instances="-i 1"
+    random_route="--random-route"
+    newrelicspace="shared-egress-dr"
   fi
 
   if [ -z "$CDIGEST" ]; then
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}
+    $output cf push $app $instances ${random_route} --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}
   else
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${CTAG} via digest ${CDIGEST}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+    $output cf push $app $instances  ${random_route} --docker-image ${DOCKERUSER}/${DOCKERREPO}\@${CDIGEST}
   fi
 }
 
@@ -82,22 +91,22 @@ function setupRoutes { #appname
   # but cms needs to exist in the first place
   # for route mapping and egress setup to run
 
-  cf create-route apps.internal --hostname cms-$APP_SPACE-usagov
-  cf map-route $app apps.internal --hostname cms-$APP_SPACE-usagov
-  cf create-route apps.internal --hostname beta-$APP_SPACE-usagov
-  cf map-route $app apps.internal --hostname beta-$APP_SPACE-usagov
+  $output cf create-route apps.internal --hostname cms-$APP_SPACE-usagov
+  $output cf map-route $app apps.internal --hostname cms-$APP_SPACE-usagov
+  $output cf create-route apps.internal --hostname beta-$APP_SPACE-usagov
+  $output cf map-route $app apps.internal --hostname beta-$APP_SPACE-usagov
 
   if [ "$APP_SPACE" == "prod" ]; then
-    cf create-route usa.gov --hostname cms
-    cf map-route $app usa.gov --hostname cms
-    cf create-route usa.gov --hostname beta
-    cf map-route $app usa.gov --hostname beta
+    $output cf create-route usa.gov --hostname cms
+    $output cf map-route $app usa.gov --hostname cms
+    $output cf create-route usa.gov --hostname beta
+    $output cf map-route $app usa.gov --hostname beta
 
   else
-    cf create-route usa.gov --hostname cms-$APP_SPACE
-    cf map-route $app usa.gov --hostname cms-$APP_SPACE
-    cf create-route usa.gov --hostname beta-$APP_SPACE
-    cf map-route $app usa.gov --hostname beta-$APP_SPACE
+    $output cf create-route usa.gov --hostname cms-$APP_SPACE
+    $output cf map-route $app usa.gov --hostname cms-$APP_SPACE
+    $output cf create-route usa.gov --hostname beta-$APP_SPACE
+    $output cf map-route $app usa.gov --hostname beta-$APP_SPACE
 
   fi
 }
@@ -108,29 +117,30 @@ function setupEgress { #appname
     echo "ERROR: appname is required"
     exit 1
   fi
-  $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
+  $output $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
 }
 
 function setupNewrelic { #appname
   app=$1
+  space=$2
   if [ -z "$app" ]; then
     echo "ERROR: appname is required"
     exit 1
   fi
-  $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart
+  $output $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart $space
 }
 
 if appExists cms; then
   setupRoutes cms
 #  setupEgress cms
-  setupNewrelic cms
+  setupNewrelic cms $newrelicspace
   pushApp cms
 else
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
   pushApp cms
   setupRoutes cms
 #  setupEgress cms
-  setupNewrelic cms
+  setupNewrelic cms $newrelicspace
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
   restartApp cms
 fi

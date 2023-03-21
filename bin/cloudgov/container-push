@@ -3,6 +3,26 @@
 # This script will attempt to store a container image on docker hub
 # to be used when launching cloud.gov images
 #
+set -e
+set -o pipefail
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+# If DRYRUN is set, don't run the commands, but echo them.
+if [ -n "${DRYRUN}" ]; then
+    output="echo # "
+fi
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
@@ -17,17 +37,17 @@ then
 fi;
 
 echo "docker push $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG"
-docker push $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+$output docker push $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
 if [ -n "$CONTAINERTAG2" ]
 then
     echo "docker push $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2"
-    docker push $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
+    $output docker push $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
 fi
 
 echo "docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG"
-docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG
+$output docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG
 if [ -n "$CONTAINERTAG2" ]
 then
     echo "docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2"
-    docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
+    $output docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
 fi
