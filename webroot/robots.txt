@@ -60,3 +60,5 @@ Disallow: /modules/
 Disallow: /profiles/
 Disallow: /scripts/
 Disallow: /themes/
+# We shouldn't have these, but:
+Disallow: /node/
