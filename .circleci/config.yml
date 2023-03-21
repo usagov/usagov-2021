@@ -337,6 +337,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-33-robots.txt
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -346,6 +347,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-33-robots.txt
       - approve-dev-deployment:
           type: approval
           requires:
@@ -354,6 +356,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-33-robots.txt
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -361,6 +364,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-33-robots.txt
       - approve-stage-deployment:
           type: approval
           requires:
