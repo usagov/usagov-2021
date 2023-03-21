@@ -31,7 +31,7 @@
   <{{ list.type }}{{ list.attributes }}>
   <ul id="statelist" class="one-column-bullet">
     {% for row in rows %}
-      <li{{ row.attributes }}>
+      <li{{ row.attributes }} class="usa-state--list">
         {{- row.content -}}
       </li>
     {% endfor %}
