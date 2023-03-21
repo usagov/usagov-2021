@@ -15,7 +15,6 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 COPY --chown=www-data:www-data composer.json /var/www/composer.json
 COPY --chown=www-data:www-data composer.lock /var/www/composer.lock
 COPY --chown=www-data:www-data patches /var/www/patches
-COPY --chown=www-data:www-data webroot /var/www/webroot
 
 # pulled from composer.json installer-paths
 RUN mkdir -p /var/www \
