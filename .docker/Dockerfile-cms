@@ -15,6 +15,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 COPY --chown=www-data:www-data composer.json /var/www/composer.json
 COPY --chown=www-data:www-data composer.lock /var/www/composer.lock
 COPY --chown=www-data:www-data patches /var/www/patches
+COPY --chown=www-data:www-data webroot /var/www/webroot
 
 # pulled from composer.json installer-paths
 RUN mkdir -p /var/www \
@@ -51,10 +52,6 @@ RUN mkdir -p /var/www \
     && chown www-data:www-data /var/www/drush \
     && chown www-data:www-data /var/www/drush/Commands \
     && chown www-data:www-data /var/www/drush/Commands/contrib
-
-# Add our static files for the web root: 
-RUN mkdir -p /var/www/webroot \
-    && chown www-data:www-data /var/www/webroot
 
 WORKDIR /var/www
 
