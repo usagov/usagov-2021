@@ -8,6 +8,7 @@ dependencies:
     - field.field.node.wizard.field_for_contact_center_only
     - field.field.node.wizard.field_header_html
     - field.field.node.wizard.field_language_toggle
+    - field.field.node.wizard.field_meta_description
     - field.field.node.wizard.field_wizard_step
     - node.type.wizard
   module:
@@ -43,4 +44,5 @@ hidden:
   field_for_contact_center_only: true
   field_header_html: true
   field_language_toggle: true
+  field_meta_description: true
   langcode: true
