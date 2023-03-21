@@ -1078,6 +1078,7 @@ button#next.usa-button,
 
 .one-column-bullet li {
   margin: 0 0 10px;
+  list-style-type: disc;
 }
 
 .custom-select {
@@ -1143,6 +1144,15 @@ button#next.usa-button,
 #statego:hover {
   background-color: #00a6b2;
   text-decoration: underline;
+}
+
+select {
+  margin: 0.2em 0;
+}
+
+button:not([disabled]):focus,
+select:not([disabled]):focus {
+  outline: #c05600 solid 3px;
 }
 
 @media (min-width: 992px) {

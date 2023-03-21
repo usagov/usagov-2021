@@ -29,15 +29,13 @@
   {% endif %}
 
   <{{ list.type }}{{ list.attributes }}>
-<header><h2><label for="stateselect">Find your state or territory:</label></h2></header>
-  <div class="custom-select">
-  <select id="stateselect" name="stateselect">
+  <ul id="statelist" class="one-column-bullet">
     {% for row in rows %}
       <li{{ row.attributes }}>
         {{- row.content -}}
       </li>
     {% endfor %}
-</select></div>
+  </ul>
   </{{ list.type }}>
 
 {% if attributes -%}
