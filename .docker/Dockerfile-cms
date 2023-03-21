@@ -52,6 +52,10 @@ RUN mkdir -p /var/www \
     && chown www-data:www-data /var/www/drush/Commands \
     && chown www-data:www-data /var/www/drush/Commands/contrib
 
+# Add our static files for the web root: 
+RUN mkdir -p /var/www/webroot \
+    && chown www-data:www-data /var/www/webroot
+
 WORKDIR /var/www
 
 USER www-data
