@@ -60,16 +60,3 @@ Disallow: /modules/
 Disallow: /profiles/
 Disallow: /scripts/
 Disallow: /themes/
-# Specific pathing blocks for USA.gov and USA.gov en Espanol
-Disallow: /search/
-Disallow: /congress
-Disallow: /narrative_content.html
-Disallow: /taxonomy/term/
-Disallow: /forms/gtm.js
-Disallow: /forms/gtm.start
-Disallow: /site-index/gtm.start
-Disallow: /change-text
-Disallow: /site-index
-Disallow: /espanol/sitio-indice
-Disallow: /partner-with-us-redirect
-Disallow: /usagov-blog-redirect
