@@ -28,7 +28,7 @@ function main($infile, $outfile) {
   $data = [];  // We will generate this: array of array[ mothership_uuid => toggle_mothership_uuid]
   $array_indexes = NULL;
 
-  // First, read the file and gather uuid -> node_id and node_ids by language and title: 
+  // First, read the file and gather uuid -> node_id and node_ids by language and title:
   while (($row = fgetcsv($fp_infile)) !== FALSE) {
     if (!$array_indexes) {
       $array_indexes = array_flip($row);
@@ -38,10 +38,10 @@ function main($infile, $outfile) {
       $node_id = $row[$array_indexes['DR Nid']];
       $uuid_map[$node_id] = $mothership_uuid;
       if ($row[$array_indexes['langcode']] == 'en') {
-         $en_nodes_by_title[$row[$array_indexes['Title']]] = $node_id;
-      } 
+        $en_nodes_by_title[$row[$array_indexes['Title']]] = $node_id;
+      }
       else {
-         $es_nodes_by_title[$row[$array_indexes['Title']]] = $node_id;
+        $es_nodes_by_title[$row[$array_indexes['Title']]] = $node_id;
       }
     }
   }
@@ -49,15 +49,15 @@ function main($infile, $outfile) {
 
   // Now use the node_ids by language and title to create the toggle mapping:
   foreach ($en_nodes_by_title as $title => $node_id) {
-      $toggle_node_id = $es_nodes_by_title[$title];
-      $mothership_uuid = $uuid_map[$node_id];
-      $toggle_node_map[$mothership_uuid] = $toggle_node_id;
+    $toggle_node_id = $es_nodes_by_title[$title];
+    $mothership_uuid = $uuid_map[$node_id];
+    $toggle_node_map[$mothership_uuid] = $toggle_node_id;
   }
   // Presumably they are bidirectional, but just in case we'll do the es -> en map too.
   foreach ($es_nodes_by_title as $title => $node_id) {
-      $toggle_node_id = $en_nodes_by_title[$title];
-      $mothership_uuid = $uuid_map[$node_id];
-      $toggle_node_map[$mothership_uuid] = $toggle_node_id;
+    $toggle_node_id = $en_nodes_by_title[$title];
+    $mothership_uuid = $uuid_map[$node_id];
+    $toggle_node_map[$mothership_uuid] = $toggle_node_id;
   }
 
   // Next, generate a map of mothership_uuid => toggle mothership_uuid
