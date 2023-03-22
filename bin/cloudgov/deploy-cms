@@ -23,8 +23,10 @@ fi
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
-CTAG=${1:-latest}
-CDIGEST=${2:-}
+
+APP_NAME=${1:-cms}
+CTAG=${2:-latest}
+CDIGEST=${3:-}
 
 APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
 APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
@@ -88,23 +90,23 @@ function setupRoutes { #appname
     exit 1
   fi
   # the egress-setup doesn't interfere with bootstrapping
-  # but cms needs to exist in the first place
+  # but $APP_NAME needs to exist in the first place
   # for route mapping and egress setup to run
 
-  $output cf create-route apps.internal --hostname cms-$APP_SPACE-usagov
-  $output cf map-route $app apps.internal --hostname cms-$APP_SPACE-usagov
+  $output cf create-route apps.internal --hostname ${APP_NAME}-$APP_SPACE-usagov
+  $output cf map-route $app apps.internal --hostname ${APP_NAME}-$APP_SPACE-usagov
   $output cf create-route apps.internal --hostname beta-$APP_SPACE-usagov
   $output cf map-route $app apps.internal --hostname beta-$APP_SPACE-usagov
 
   if [ "$APP_SPACE" == "prod" ]; then
-    $output cf create-route usa.gov --hostname cms
-    $output cf map-route $app usa.gov --hostname cms
+    $output cf create-route usa.gov --hostname ${APP_NAME}
+    $output cf map-route $app usa.gov --hostname ${APP_NAME}
     $output cf create-route usa.gov --hostname beta
     $output cf map-route $app usa.gov --hostname beta
 
   else
-    $output cf create-route usa.gov --hostname cms-$APP_SPACE
-    $output cf map-route $app usa.gov --hostname cms-$APP_SPACE
+    $output cf create-route usa.gov --hostname ${APP_NAME}-$APP_SPACE
+    $output cf map-route $app usa.gov --hostname ${APP_NAME}-$APP_SPACE
     $output cf create-route usa.gov --hostname beta-$APP_SPACE
     $output cf map-route $app usa.gov --hostname beta-$APP_SPACE
 
@@ -130,17 +132,17 @@ function setupNewrelic { #appname
   $output $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart $space
 }
 
-if appExists cms; then
-  setupRoutes cms
-#  setupEgress cms
-  setupNewrelic cms $newrelicspace
-  pushApp cms
+if appExists ${APP_NAME}; then
+  setupRoutes ${APP_NAME}
+#  setupEgress ${APP_NAME}
+  setupNewrelic ${APP_NAME} $newrelicspace
+  pushApp ${APP_NAME}
 else
-  cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
-  pushApp cms
-  setupRoutes cms
-#  setupEgress cms
-  setupNewrelic cms $newrelicspace
-  cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
-  restartApp cms
+  cf set-env ${APP_NAME} SKIP_DRUPAL_BOOTSTRAP "skip"
+  pushApp ${APP_NAME}
+  setupRoutes ${APP_NAME}
+#  setupEgress ${APP_NAME}
+  setupNewrelic ${APP_NAME} $newrelicspace
+  cf set-env ${APP_NAME} SKIP_DRUPAL_BOOTSTRAP ""
+  restartApp ${APP_NAME}
 fi

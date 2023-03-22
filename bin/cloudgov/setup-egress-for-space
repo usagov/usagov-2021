@@ -19,6 +19,10 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+# If DRYRUN is set, don't run the commands, but echo them.
+if [ -n "${DRYRUN}" ]; then
+    output="echo # "
+fi
 
 usage="
 $0: (Re-)deploy egress proxy for an environment
@@ -54,8 +58,18 @@ fi
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
 startspace=$( cf target | grep space: | awk '{ print $2 }')
 
-egressspace=${1:-shared-egress}
-egressorg=${2:-$startorg}
+egressspace=${1}
+egressorg=${2}
+
+if [ -z "egressspace" -o -z "$egressorg" ]; then
+    echo "${usage}"
+    exit 2
+#else
+#    echo DRYRUN: $DRYRUN
+#    echo egresspace: $egresspace
+#    echo egressorg: $egressorg
+#    exit 0
+fi
 
 # Drop them off where we found them
 function popspace() {
@@ -85,11 +99,6 @@ fi
 echo "Using egress proxy app: $proxyname"
 
 popspace
-
-# If DRYRUN is set, don't run the commands, but echo them.
-if [ -n "${DRYRUN}" ]; then
-    output="echo # "
-fi
 
 # setup only one egress app per space, and point both waf and cms towards it
 echo "Gather Bucket names from App Space"

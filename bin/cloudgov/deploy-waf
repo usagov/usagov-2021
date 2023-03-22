@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+#set -eo pipefail
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -13,7 +13,9 @@ fi
 
 # If DRYRUN is set, don't run the commands, but echo them.
 if [ -n "${DRYRUN}" ]; then
-    output="echo # "
+  output="echo # "
+else
+  output=""
 fi
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
@@ -21,8 +23,34 @@ DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CTAG=${1:-latest}
 CDIGEST=${2:-}
 
+function appExists {  # appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  echo cf app $app > /dev/null 2>&1
+  cf app $app > /dev/null 2>&1
+  return $?
+}
+
+function restartApp { #appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  $output cf restart $app --no-wait --strategy rolling
+}
 
 SPACE=$( cf target | grep space: | awk '{ print $2 }')
+if [ "$SPACE" == "prod" ]; then
+    instances="-i 2"
+else
+    instances="-i 1"
+    random_route="--random-route"
+    #newrelicspace="shared-egress-dr"
+fi
 
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
@@ -71,23 +99,25 @@ printf "\tAPPS_DOMAIN: $APPS_DOMAIN\n"
 printf "\nFetching ROUTE_DOMAIN\n"
 printf "\tAPPS_DOMAIN: $ROUTE_DOMAIN\n"
 
-# remove proxy
-$output cf set-env waf http_proxy  ""
-$output cf set-env waf https_proxy ""
-$output cf set-env waf HTTPS_PROXY ""
-$output cf set-env waf HTTP_PROXY ""
-
 # launch the app
 if [ -z "$CDIGEST" ]; then
   echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}"
-  $output cf push "${ROUTE_SERVICE_APP_NAME}" --no-start \
+  $output cf push $instances ${random_route} "${ROUTE_SERVICE_APP_NAME}" --no-start \
     --var app-name="${ROUTE_SERVICE_APP_NAME}" \
     --docker-image ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}
 else
   echo "Deploying ${DOCKERUSER}/${DOCKERREPO} waf-${CTAG} via digest ${CDIGEST}"
-  $output cf push "${ROUTE_SERVICE_APP_NAME}" --no-start \
+  $output cf push $instances ${random_route} "${ROUTE_SERVICE_APP_NAME}" --no-start \
     --var app-name="${ROUTE_SERVICE_APP_NAME}" \
-    --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+    --docker-image ${DOCKERUSER}/${DOCKERREPO}\@${CDIGEST}
+fi
+
+if appExists waf; then
+  # remove proxy
+  $output cf set-env waf http_proxy  ""
+  $output cf set-env waf https_proxy ""
+  $output cf set-env waf HTTPS_PROXY ""
+  $output cf set-env waf HTTP_PROXY ""
 fi
 
 $output cf create-route app.cloud.gov --hostname $ROUTE_SERVICE_NAME

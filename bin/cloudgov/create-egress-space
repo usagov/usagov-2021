@@ -57,21 +57,21 @@ done
 
 # setup asg network for staging lifecycle
 for SECURITY_GROUP in $DENIED_STAGING_SECURITY_GROUPS; do
-  if cf security-groups | grep $APP_SPACE | grep -e 'staging$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
-    echo "Un-Binding $SECURITY_GROUP from $APP_SPACE during 'staging' lifecycle"
-    $output cf unbind-security-group $SECURITY_GROUP $APP_ORG $APP_SPACE --lifecycle staging
+  if cf security-groups | grep $EGRESS_SPACE | grep -e 'staging$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "Un-Binding $SECURITY_GROUP from $EGRESS_SPACE during 'staging' lifecycle"
+    $output cf unbind-security-group $SECURITY_GROUP $APP_ORG $EGRESS_SPACE --lifecycle staging
   else
-    echo "$SECURITY_GROUP already unbound to $APP_SPACE during 'staging' lifecycle"
+    echo "$SECURITY_GROUP already unbound to $EGRESS_SPACE during 'staging' lifecycle"
   fi
 done
 
 # setup asg network for running lifecycle
 for SECURITY_GROUP in $DENIED_RUNNING_SECURITY_GROUPS; do
-  if cf security-groups | grep $APP_SPACE | grep -e 'running$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
-    echo "Un-Binding $SECURITY_GROUP to $APP_SPACE during 'running' lifecycle"
-    $output cf unbind-security-group $SECURITY_GROUP $APP_ORG --space $APP_SPACE --lifecycle running
+  if cf security-groups | grep $EGRESS_SPACE | grep -e 'running$' | grep -e '^'$SECURITY_GROUP'[[:space:]]' > /dev/null 2>&1; then
+    echo "Un-Binding $SECURITY_GROUP to $EGRESS_SPACE during 'running' lifecycle"
+    $output cf unbind-security-group $SECURITY_GROUP $APP_ORG --space $EGRESS_SPACE --lifecycle running
   else
-    echo "$SECURITY_GROUP already unbound to $APP_SPACE during 'running' lifecycle"
+    echo "$SECURITY_GROUP already unbound to $EGRESS_SPACE during 'running' lifecycle"
   fi
 done
 
@@ -81,6 +81,9 @@ done
   if service_exists "key-value" ; then
     echo key-value already created
   else
+    startspace=$( cf target | grep space: | awk '{ print $2 }')
+    cf target -s $EGRESS_SPACE
     cf create-service s3 basic-sandbox key-value
+    cf target -s $startspace
   fi
 }
