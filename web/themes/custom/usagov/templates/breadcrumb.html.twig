@@ -17,7 +17,7 @@
 {% elseif path('<current>') == '/es/indice-agencias' or path('<current>') matches '#\/es\/agencias\/*#' %}
     {% include directory ~ '/templates/includes/breadcrumbs_for_es_agencies.html.twig' %}
 
-{% elseif path('<current>') == '/gobiernos-estatales' or path('<current>') matches '#\/estados\/*#' %}
+{% elseif path('<current>') matches '#\/estados\/*#' %}
     {% include directory ~ '/templates/includes/breadcrumbs_for_es_states.html.twig' %}
 
 
