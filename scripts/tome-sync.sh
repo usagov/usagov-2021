@@ -64,6 +64,9 @@ cp -rf /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov
 cp -rf /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rf /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 
+# Copy "webroot" assets (files like robots.txt and site.xml)
+cp -rf /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
+
 echo "Removing unwanted files ... "
 rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
 
