@@ -5,6 +5,7 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.state_directory_record.body
+    - field.field.node.state_directory_record.feeds_item
     - field.field.node.state_directory_record.field_agriculture_department
     - field.field.node.state_directory_record.field_city
     - field.field.node.state_directory_record.field_consumer_protection
@@ -24,6 +25,8 @@ dependencies:
     - field.field.node.state_directory_record.field_health_department
     - field.field.node.state_directory_record.field_language_toggle
     - field.field.node.state_directory_record.field_local_governments
+    - field.field.node.state_directory_record.field_meta_description
+    - field.field.node.state_directory_record.field_mothership_uuid
     - field.field.node.state_directory_record.field_motor_vehicle_office
     - field.field.node.state_directory_record.field_page_intro
     - field.field.node.state_directory_record.field_phone_number
@@ -60,6 +63,7 @@ content:
     weight: 100
     region: content
 hidden:
+  feeds_item: true
   field_agriculture_department: true
   field_city: true
   field_consumer_protection: true
@@ -79,6 +83,8 @@ hidden:
   field_health_department: true
   field_language_toggle: true
   field_local_governments: true
+  field_meta_description: true
+  field_mothership_uuid: true
   field_motor_vehicle_office: true
   field_page_intro: true
   field_phone_number: true

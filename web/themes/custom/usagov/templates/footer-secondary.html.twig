@@ -4,16 +4,17 @@
 		<div class="grid-row grid-gap">
 
 			<div class="usa-footer__logo grid-row mobile-lg:grid-col-6 mobile-lg:grid-gap-2">
-				<span id="bottom-phone">
+				<span id="footer-phone">
+
 
 					<div class="mobile-lg:grid-col-auto">
 						<h4 class="usa-footer__logo-heading">
-							{{ lang == 'es' ?  "Centro de contacto de USAGov en Español" : "USAGov Contact Center"  }}
+							{{ lang == 'es' ?  "Centro de llamadas de USAGov" : "USAGov Contact Center"  }}
 						</h4>
 					</div>
 
 					<div class="mobile-lg:grid-col-auto">
-						<p>
+						<p class="footer-question">
 							{{ lang == 'es' ?   "Haga una pregunta a USAGov en Español al" : "Ask USA.gov a question at" }}
 						</p>
 
@@ -47,7 +48,7 @@
 								{% else %}
 									<a class="usa-social-link" href="https://www.facebook.com/USAgov" alt="Facebook USAGov">
 									{% endif %}
-									<img src="/themes/custom/usagov/images/facebook34.png" alt="Facebook USAGov"/>
+									<img src="/themes/custom/usagov/images/footer_icon_facebook.svg" alt="Facebook USAGov"/>
 									<span>Facebook</span>
 								</a>
 							</div>
@@ -58,7 +59,8 @@
 									{% else %}
 										<a class="usa-social-link" href="https://twitter.com/USAgov" alt="Twitter USAGov">
 										{% endif %}
-										<img src="/themes/custom/usagov/images/twitter34.png" alt="Twitter USAGov"/>
+										<img src="/themes/custom/usagov/images/footer_icon_twitter.svg" alt="Twitter USAGov"/>
+
 										<span>Twitter</span>
 									</a>
 								</div>
@@ -69,7 +71,8 @@
 										{% else %}
 											<a class="usa-social-link" href="https://www.youtube.com/usagov1" alt="YouTube USAGov">
 											{% endif %}
-											<img src="/themes/custom/usagov/images/youtube34.png" alt="Youtube USAGov"/>
+											<img src="/themes/custom/usagov/images/footer_icon_youtube.svg" alt="Youtube USAGov"/>
+
 											<span>YouTube</span>
 										</a>
 									</div>
@@ -77,7 +80,8 @@
 									{% if lang != "es" %}
 										<div class="grid-col-auto">
 											<a class="usa-social-link" href="https://www.instagram.com/usagov/" alt="Instagram" usagov>
-												<img src="/themes/custom/usagov/images/instagram34.png" alt="Instagram USAGov"/>
+												<img src="/themes/custom/usagov/images/footer_icon_instagram.svg" alt="Instagram USAGov"/>
+
 												<span>Instagram</span>
 											</a>
 										</div>

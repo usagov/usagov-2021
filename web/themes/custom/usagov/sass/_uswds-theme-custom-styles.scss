@@ -31,6 +31,7 @@ i.e.
 @forward "navigation-page";
 @forward "content-page";
 @forward "homepage";
+@forward "mobile-menu";
 @forward "life-events";
 @forward "fed-directory";
 @forward "state-directory";
@@ -104,8 +105,9 @@ This style ensures that we can remove the padding-top from text in a card body. 
 .usa-card__body.padding-top-0 {
   padding-top: 0;
 }
-/* 
-add padding at the top of flag cards 
+
+/*
+add padding at the top of flag cards
 */
 .paragraph--type--uswds-card-group-flag .usa-card-group {
   padding-top: 60px;
@@ -117,6 +119,7 @@ add padding at the top of flag cards
 .paragraph--type--uswds-card-group-regular .usa-card__container:hover {
   box-shadow: none;
 }
+
 /** This to change the link color for the
 *   header and footer links
 **/
@@ -249,9 +252,6 @@ add padding at the top of flag cards
 .usa-header--extended [hreflang|="en"] {
   border-radius: 5px;
   border: none;
-  @media (max-width: 64em) {
-    padding-right: 1.3rem;
-  }
 }
 
 /** Language buttons **/
@@ -507,15 +507,17 @@ add padding at the top of flag cards
   }
 }
 
-.usa-footer__secondary-section a {
+.usa-footer__secondary-section .grid-container {
   padding-bottom: 2rem;
 }
 
-// .usa-footer__contact-links {
-//   @media (min-width: 40em) {
-//     margin-left: -3rem;
-//   }
-// }
+.usa-footer__secondary-section .grid-row.grid-gap-1 > * {
+  padding-right: 0;
+}
+
+.footer-question {
+  height: 15px;
+}
 
 @media (min-width: 30em) {
   .usa-footer__contact-heading {
@@ -537,9 +539,6 @@ add padding at the top of flag cards
   @media (max-width: 30em) and (min-width: 30em) {
     justify-content: flex-start;
     padding-right: 0;
-  }
-  @media (min-width: 31em) {
-    padding-right: 2rem;
   }
 }
 
@@ -595,7 +594,8 @@ a,
   color: color("cyan-10");
 }
 
-.usagov-hero a, .usagov-hero__callout ul a {
+.usagov-hero a,
+.usagov-hero__callout ul a {
   color: color("cyan-30v");
 }
 
@@ -739,7 +739,18 @@ a {
 }
 
 @media (max-width: 30em) {
-  .usa-alert, .usa-prose, .usa-table, .usa-form, .usa-radio__label, .usa-footer, .usa-nav .usa-accordion, .usa-accordian__heading, .text-primary-lighter, .usa-hero, .usa-identifier, .usa-label {
+  .usa-alert,
+  .usa-prose,
+  .usa-table,
+  .usa-form,
+  .usa-radio__label,
+  .usa-footer,
+  .usa-nav .usa-accordion,
+  .usa-accordian__heading,
+  .text-primary-lighter,
+  .usa-hero,
+  .usa-identifier,
+  .usa-label {
     font-size: 1.1rem;
   }
 }
@@ -759,11 +770,9 @@ a {
 }
 
 .usa-social-link > img {
-  height: 2rem;
-  background-color: transparent;
   display: block;
-  margin-right: auto;
-  margin-left: auto;
+  height: auto;
+  width: 100%;
 }
 
 #back-to-top {
@@ -940,16 +949,18 @@ div #sm-share a {
 .usa-error--alert {
   display: none;
 }
+
 .currentMenuItem {
-  position:relative
+  position: relative;
 }
+
 .currentMenuItem::after {
   background-color: #00bde3;
   border-radius: 0;
   content: "";
   display: block;
   position: absolute;
-  height: .25rem;
+  height: 0.25rem;
   left: 1rem;
   right: 1rem;
   bottom: 0;
@@ -964,7 +975,7 @@ div #sm-share a {
   padding-left: 3rem;
   padding-right: 2rem;
   @media (max-width: 64em) {
-  padding-left: 2rem;
+    padding-left: 2rem;
   }
 }
 
@@ -983,7 +994,6 @@ div #sm-share a {
   @media (max-width: 40em) {
     font-size: 2rem;
   }
-  
 }
 
 .block-wizardenglish div.usa-prose h1.usa-wizard-title {
@@ -1002,14 +1012,14 @@ div #sm-share a {
   color: #1b1b1b;
   background-color: #ccecf2;
   @media (max-width: 40em) {
-      margin-bottom: 8px;
+    margin-bottom: 8px;
   }
 }
 
-.block-wizardenglish .usa-prose>p.usa-scam-label {
- max-width: 110ex;
- padding-bottom: .2rem;
- margin-bottom: 1rem;
+.block-wizardenglish .usa-prose > p.usa-scam-label {
+  max-width: 110ex;
+  padding-bottom: 0.2rem;
+  margin-bottom: 1rem;
 }
 
 .block-wizardenglish .usa-scam-label {
@@ -1020,19 +1030,20 @@ div #sm-share a {
 
 button#prior.usa-button--outline {
   background-color: #fff;
-  box-shadow: inset  0 0 0 2px #000;
+  box-shadow: inset 0 0 0 2px #000;
 }
 
-button#next.usa-button, .block-wizardenglish a.usa-button {
+button#next.usa-button,
+.block-wizardenglish a.usa-button {
   background-color: #ccecf2;
-  box-shadow: inset  0 0 0 2px #0081a1;
+  box-shadow: inset 0 0 0 2px #0081a1;
 }
 
-.block-wizardenglish .usa-prose>p {
+.block-wizardenglish .usa-prose > p {
   max-width: 110ex;
 }
 
-.block-wizardenglish .usa-radio__input--tile:checked+[class*=__label] {
+.block-wizardenglish .usa-radio__input--tile:checked + [class*="__label"] {
   background-color: #ccecf2;
 }
 
@@ -1046,7 +1057,7 @@ button#next.usa-button, .block-wizardenglish a.usa-button {
   padding-right: 5px;
 }
 
-.block-wizardenglish .usa-radio__input--tile:checked+.usa-radio__label {
+.block-wizardenglish .usa-radio__input--tile:checked + .usa-radio__label {
   border-color: #c05600;
 }
 
@@ -1060,5 +1071,143 @@ button#next.usa-button, .block-wizardenglish a.usa-button {
 @media (max-width: 40em) {
   .usa-reverse {
     flex-direction: column-reverse;
-    }
+  }
 }
+
+//state directory
+
+.one-column-bullet li {
+  margin: 0 0 10px;
+}
+
+.custom-select {
+  width: 295px;
+  overflow: hidden;
+  border: 1px solid #777580;
+  background: url("../images/Icon_Arrow_Dropdown.png") 95% 50% no-repeat;
+  background-color: #fff;
+  display: inline-block;
+  vertical-align: text-top;
+  margin: 0 5px 0 0;
+}
+
+.custom-select select {
+  width: 293px;
+  appearance: none;
+  appearance: none;
+  appearance: none;
+  appearance: none;
+  font-size: 1em;
+  height: 36px;
+  padding: 0 0 0 10px;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.custom-select select::-ms-expand {
+  display: none;
+}
+
+@media (min-width: 600px) {
+  .custom-select {
+    margin: 0 20px 70px 0;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 599px) {
+  .custom-select {
+    margin: 0 20px 20px 0;
+  }
+}
+
+#statego {
+  display: inline-block;
+  text-align: center;
+  float: none;
+  height: 38px;
+  margin: 3px 0 0;
+  color: #000;
+  font-size: 100%;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  line-height: 18px;
+  padding: 6px 12px;
+  border: 1px #02bfe7 solid;
+  position: relative;
+  font-weight: bold;
+  background-color: #02bfe7;
+  vertical-align: text-top;
+  width: auto;
+}
+
+#statego:hover {
+  background-color: #00a6b2;
+  text-decoration: underline;
+}
+
+@media (min-width: 992px) {
+  .noemllft {
+    margin-left: 26%;
+    text-align: center;
+  }
+}
+
+button.usa-combo-box__clear-input:focus,
+button.usa-combo-box__toggle-list:focus {
+  opacity: 1;
+}
+
+@media only screen and (max-width: 500px) {
+  .usa-identifier {
+    // Prevent Tagline from being covered by the Feedback button
+    position: absolute;
+    z-index: 2000000005;
+  }
+}
+
+#backToTop {
+  z-index: 2000000003;
+}
+
+// BEGIN Page Level Survey extra CSS
+#pagesurvey-trgt-qualtrics {
+  background: white;
+  max-width: 960px;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+div[class^="QSIUserDefinedHTML"] {
+  z-index: 1;
+}
+
+#pagesurvey-qual-hdr {
+  background: #ccecf2;
+  font-size: 130%;
+  display: block;
+  color: #1b1b1b;
+  padding: 12px 0 15px;
+  margin: 0 auto;
+  max-width: 960px;
+  height: auto;
+  text-align: center;
+  font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times,
+    serif;
+  font-weight: bold;
+}
+
+.scrollable {
+  overflow: unset !important;
+}
+
+#pagesurvey-qual-container:focus {
+  outline: #c05600 solid 3px;
+}
+
+@media only screen and (max-width: 500px) {
+  div[class^="QSIUserDefinedHTML"] {
+    left: -16px;
+  }
+}
+
+// END Page Level Survey extra CSS
