@@ -1,4 +1,4 @@
-<div class="display-inline-block">
+{# <div class="display-inline-block">
 	<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
 		<label id="state-info-label" class="usa-label" for="state-info">Select your state:</label>
 		<div class="display-inline-block">
@@ -64,6 +64,8 @@
 			<button class="usa-button sd-go-btn" type="submit">Go</button>
 		</div>
 	</form>
-</div>
+</div> #}
 
-<script src="/themes/custom/usagov/scripts/selectstate.js"></script>
+	{{ drupal_view('states_and_territories', 'states_and_territories_en_block')}}
+
+	<script src="/themes/custom/usagov/scripts/selectstate.js"></script>
