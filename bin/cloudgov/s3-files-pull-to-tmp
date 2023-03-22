@@ -1,0 +1,30 @@
+#!/bin/sh
+# Pull public files from the current targeted space's S3 bucket to a temporary local directory
+# s3-files-pull-to-tmp /local/existing/directory
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+localdir="$1"
+
+# TODO: check for localdir; should be an emtpy directory. Or, create one! 
+
+printf "Downloading S3 files to $localdir ..."
+
+# Get access
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+aws s3 sync s3://$S3_BUCKET/cms/public/ $localdir \
+    --exclude "php/*" \
+    --exclude "css/*" \
+    --exclude "js/*"
