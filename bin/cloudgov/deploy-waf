@@ -57,14 +57,17 @@ if [ "${ENV_ANY_NOT_SET+set}" ]; then
   exit 1
 fi
 
-APPS_DOMAIN=$(cf curl "/v3/domains" | jq -r '[.resources[] | select(.name|endswith("usa.gov"))][0].name')
-ROUTE_DOMAIN=$(cf curl "/v3/domains" | jq -r '[.resources[] | select(.name|endswith("app.cloud.gov"))][0].name')
-
 printf "\nFetching APPS_DOMAIN\n"
+APPS_DOMAIN=$(cf curl "/v3/domains" | jq -r '[.resources[] | select(.name|endswith("usa.gov"))][0].name')
 printf "\tAPPS_DOMAIN: $APPS_DOMAIN\n"
 
 printf "\nFetching ROUTE_DOMAIN\n"
-printf "\tAPPS_DOMAIN: $ROUTE_DOMAIN\n"
+ROUTE_DOMAIN=$(cf curl "/v3/domains" | jq -r '[.resources[] | select(.name|endswith("app.cloud.gov"))][0].name')
+printf "\tROUTE_DOMAIN: $ROUTE_DOMAIN\n"
+
+printf "\nFetching APP_SPACE\n"
+APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
+printf "\tAPP_SPACE: $APP_SPACE\n"
 
 # remove proxy
 cf set-env waf http_proxy  ""
@@ -72,15 +75,25 @@ cf set-env waf https_proxy ""
 cf set-env waf HTTPS_PROXY ""
 cf set-env waf HTTP_PROXY ""
 
+
+instances="-i 1"
+if [ "$APP_SPACE" == "prod" ]; then
+  instances="-i 2"
+elif [ "$APP_SPACE" == "stage" ]; then
+  instances="-i 1"
+elif [ "$APP_SPACE" == "dev" ]; then
+  instances="-i 1"
+fi
+
 # launch the app
 if [ -z "$CDIGEST" ]; then
   echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}"
-  cf push "${ROUTE_SERVICE_APP_NAME}" --no-start \
+  cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
     --var app-name="${ROUTE_SERVICE_APP_NAME}" \
     --docker-image ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}
 else
   echo "Deploying ${DOCKERUSER}/${DOCKERREPO} waf-${CTAG} via digest ${CDIGEST}"
-  cf push "${ROUTE_SERVICE_APP_NAME}" --no-start \
+  cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
     --var app-name="${ROUTE_SERVICE_APP_NAME}" \
     --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
 fi
