@@ -18,12 +18,16 @@
  * @ingroup themeable
  */
 #}
+{% set lang = node.langcode.value %}
+
 <div class="display-inline-block">
 	<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
-		<label id="state-info-label" class="usa-label" for="state-info">Select your state:</label>
+		<label id="state-info-label" class="usa-label" for="state-info">
+			{{ lang == 'es' ?  "Encuentre su estado o territorio:" : "Select your state:"  }}</label>
 		<div class="display-inline-block">
 			<div class="usa-combo-box" data-default-value="alabama">
-				<label class="visuallyhidden">Select your state:
+				<label class="visuallyhidden">
+					{{ lang == 'es' ?  "Encuentre su estado o territorio:" : "Select your state:"  }}
 					<select aria-labelledby="state-info-label" class="usa-select" name="state-info" id="state-info" required>
 
 						{% if attributes -%}
@@ -51,7 +55,7 @@
 			</div>
 		</div>
 		<div class="display-inline-block">
-			<button class="usa-button sd-go-btn" type="submit">Go</button>
+			<button class="usa-button sd-go-btn" type="submit">{{ lang == 'es' ?  "Ir:" : "Go:"  }}</button>
 		</div>
 	</form>
 </div>
