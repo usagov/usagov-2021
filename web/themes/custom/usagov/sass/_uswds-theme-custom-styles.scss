@@ -1058,6 +1058,80 @@ button#next.usa-button, .block-wizardenglish a.usa-button {
     }
 }
 
+//state directory
+
+.one-column-bullet li {
+  margin: 0 0 10px 0; }
+
+.custom-select {
+  width: 295px;
+  overflow: hidden;
+  border: 1px solid #777580;
+  background: url("../images/Icon_Arrow_Dropdown.png") 95% 50% no-repeat;
+  background-color: #fff;
+  display: inline-block;
+  vertical-align: text-top;
+  margin: 0px 5px 0px 0px; }
+
+.custom-select select {
+  width: 293px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+  font-size: 1em;
+  height: 36px;
+  padding: 0 0 0 10px;
+  border: none;
+  border-radius: 0;
+  background-color: transparent; }
+
+.custom-select select::-ms-expand {
+  display: none; }
+
+@media (min-width: 600px) {
+  .custom-select {
+    margin: 0px 20px 70px 0px; } }
+
+@media (min-width: 481px) and (max-width: 599px) {
+  .custom-select {
+    margin: 0px 20px 20px 0px; } }
+
+#statego {
+  display: inline-block;
+  text-align: center;
+  float: right;
+  height: 38px;
+  margin: 3px 0 0 0;
+  color: #000000;
+  font-size: 100%;
+  font-family: Tahoma, Verdana, Arial, Sans-serif;
+  line-height: 18px;
+  padding: 6px 12px 6px 12px;
+  border: 1px #02bfe7 solid;
+  position: relative;
+  font-weight: bold;
+  background-color: #02bfe7;
+  vertical-align: text-top;
+  width: auto; }
+
+#statego:hover {
+  background-color: #00a6b2;
+  text-decoration: underline; }
+
+#statego {
+  float: none; }
+
+@media (min-width: 992px) {
+  .noemllft {
+    margin-left: 26%;
+    text-align: center; } }
+
+button.usa-combo-box__clear-input:focus,
+button.usa-combo-box__toggle-list:focus {
+  opacity: 1;
+}
+
 @media only screen and (max-width: 500px) {
   .usa-identifier {
     // Prevent Tagline from being covered by the Feedback button
