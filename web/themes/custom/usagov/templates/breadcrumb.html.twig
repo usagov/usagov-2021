@@ -19,7 +19,7 @@
 
 {% elseif path('<current>') == '/gobiernos-estatales' or path('<current>') matches '#\/estados\/*#' %}
     {% include directory ~ '/templates/includes/breadcrumbs_for_es_states.html.twig' %}
-   
+
 
 {% else %}
     {% if breadcrumb %}
@@ -30,9 +30,8 @@
                     margin-bottom-2
                     mobile-lg:margin-bottom-6"
                 role="navigation"
-                aria-labelledby="system-breadcrumb"
+                aria-label="Breadcrumb"
             >
-            <h2 id="system-breadcrumb" class="usa-sr-only">{{ 'Breadcrumb'|t }}</h2>
             <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">
                 {% for item in breadcrumb %}
                     <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
