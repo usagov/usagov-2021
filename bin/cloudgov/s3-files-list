@@ -1,0 +1,49 @@
+#!/bin/sh
+# List files in s3.
+# s3-files-list [S3_PATH] [--recursive]
+
+S3_PATH=${1:-''}
+S3_LS_PARAMS=''
+i=$(($#-2))
+while [ $i -ge 0 ];
+do
+    S3_LS_PARAMS="${S3_LS_PARAMS} ${BASH_ARGV[$i]}"
+    i=$((i-1))
+done
+
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+printf "Existing S3 files ... \n"
+
+WITH_DATES="0"
+SORT_METHOD="sort"
+if [ "$1" == "--with-dates" ]; then
+  WITH_DATES="1"
+  SORT_METHOD="sort -rn -k1"
+fi
+
+# locate a directory within an s3 bucket that contains a build of the static site
+# display a list of available tags (directories) and their last updated date
+
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+echo "aws s3 ls s3://$S3_BUCKET/$S3_PATH $S3_LS_PARAMS"
+aws s3 ls s3://$S3_BUCKET/$S3_PATH $S3_LS_PARAMS
+
+# Hints from troubleshooting this ... 
+# 
+# To examine the ACL on a known object: 
+# aws s3api get-object-acl --bucket $S3_BUCKET --key cms/public/2023-01/Banner_img_Turning_65_en.png
+
+
