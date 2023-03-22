@@ -10,7 +10,10 @@ server {
 
     proxy_hide_header Cache-Control;
     proxy_hide_header expires;
-    add_header Cache-Control max-age=54000;
+    add_header Cache-Control max-age=900;
+
+    # X-Robots-Tag header to be removed from config on "prod" only!
+    add_header X-Robots-Tag noindex;
 
     include /etc/nginx/partials/s3proxy.conf;
     include /etc/nginx/partials/404s.conf;
@@ -29,7 +32,10 @@ server {
 
     proxy_hide_header Cache-Control;
     proxy_hide_header expires;
-    add_header Cache-Control max-age=54000;    
+    add_header Cache-Control max-age=900;
+
+    # X-Robots-Tag header to be removed from config on "prod" only!
+    add_header X-Robots-Tag noindex;
 
     include /etc/nginx/partials/s3proxy.conf;
     include /etc/nginx/partials/404s.conf;

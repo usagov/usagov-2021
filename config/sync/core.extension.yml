@@ -13,7 +13,6 @@ module:
   ckeditor: 0
   ckeditor_templates: 0
   ckeditor_templates_ui: 0
-  conditional_fields: 0
   config: 0
   content_lock: 0
   content_moderation: 0
@@ -70,6 +69,7 @@ module:
   samlauth: 0
   serialization: 0
   settings_tray: 0
+  simplify_menu: 0
   system: 0
   taxonomy: 0
   telephone: 0

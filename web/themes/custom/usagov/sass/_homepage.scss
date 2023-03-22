@@ -32,75 +32,79 @@
 }
 
 .icon-about {
-  background-image: url("../images/topics/ICONS_beta_About_the_US_and_Its_Government.png");
+  background-image: url("../images/topics/ICONS_Reimagined_About_the_US_and_Its_Government.svg");
 }
 
 .icon-laws {
-  background-image: url("../images/topics/ICONS_beta_Laws_and_Legal_Issues.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Laws_and_Legal_Issues.svg");
 }
 
 .icon-money {
-  background-image: url("../images/topics/ICONS_beta_Money_and_Credit.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Money.svg");
 }
 
 .icon-benefits {
-  background-image: url("../images/topics/ICONS_beta_Benefits.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Benefits.svg");
 }
 
 .icon-immigration {
-  background-image: url("../images/topics/ICONS_beta_Immigration.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Immigration.svg");
 }
 
 .icon-voting {
-  background-image: url("../images/topics/ICONS_beta_Voting_and_Elections.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Voting_and_Elections.svg");
 }
 
 .icon-military {
-  background-image: url("../images/topics/ICONS_beta_Military_and_Veterans.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Military_and_Veterans.svg");
 }
 
 .icon-travel {
-  background-image: url("../images/topics/ICONS_beta_travel.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Travel.svg");
 }
 
 .icon-education {
-  background-image: url("../images/topics/ICONS_beta_Education.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Education.svg");
 }
 
 .icon-housing {
-  background-image: url("../images/topics/ICONS_beta_Housing.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Housing.svg");
 }
 
 .icon-disasters {
-  background-image: url("../images/topics/ICONS_beta_Disasters_and_Emergencies.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Disasters_and_Emergencies.svg");
 }
 
 .icon-covid19 {
-  background-image: url("../images/topics/ICONS_COVID19.png");
+  background-image: url("../images/topics/ICONS_Reimagined_COVID19.svg");
 }
 
 .icon-health {
-  background-image: url("../images/topics/ICONS_beta_Health.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Health.svg");
 }
 
 .icon-scams {
-  background-image: url("../images/topics/ICONS_beta_Scams_and_Frauds.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Scams_and_Fraud.svg");
 }
 
 .icon-disability {
-  background-image: url("../images/topics/ICONS_beta_Disability.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Disability_Services.svg");
 }
 
 .icon-jobs {
-  background-image: url("../images/topics/ICONS_beta_Jobs_and_Unemployment.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Jobs_and_Unemployment.svg");
 }
 
 .icon-business {
-  background-image: url("../images/topics/ICONS_beta_Small_Business.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Small_Business.svg");
 }
 
 .icon-taxes {
-  background-image: url("../images/topics/ICONS_beta_Taxes.png");
+  background-image: url("../images/topics/ICONS_Reimagined_Taxes.svg");
+}
+
+.icon-complaints {
+  background-image: url("../images/topics/ICONS_Complaints.svg");
 }
 
 .homepage-section {
@@ -125,7 +129,8 @@
   }
 
   h1 {
-    font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times,
+      serif;
     font-size: var($homepage, medium-font-size);
     margin: 0;
   }
@@ -165,10 +170,7 @@
   box-shadow: 0 6px 6px var($blue-shadow);
   grid-column: 1 / 3;
   grid-row: 1 / 2;
-  margin-bottom: 0;
-  margin-top: 35px;
-  margin-left: 5vw;
-  margin-right: 5vw;
+  margin: 25px 5vw 0;
   max-width: 400px;
   padding: 30px 28px 35px 30px;
 
@@ -176,7 +178,7 @@
     font-size: 18px;
     line-height: 1.3;
     margin-top: 20px;
-    }
+  }
 }
 
 /* Background */
@@ -196,10 +198,7 @@
   margin-right: 5vw;
   margin-top: 35px;
   max-width: 400px;
-  padding-bottom: 20px;
-  padding-left: 25px;
-  padding-right: 25px;
-  padding-top: 30px;
+  padding: 30px 25px 20px;
 
   h2,
   a {
@@ -252,14 +251,14 @@
   grid-row: 5 / 6;
   margin-left: 5vw;
   margin-right: 5vw;
-  max-width: 400px;
   padding: 0;
   max-width: 100%;
 
   h2 {
-    font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times,
+      serif;
     font-size: var($homepage, medium-font-size);
-    margin: 0 0 0;
+    margin: 0;
     padding-top: 50px;
   }
 
@@ -271,7 +270,7 @@
 }
 
 .life-events-carousel {
-  margin: 30px 0 0;
+  margin: 40px 0 0;
   max-width: 100%;
 }
 
@@ -325,13 +324,14 @@
     width: 40px;
 
     &:hover {
-      filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
+      filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg)
+        brightness(103%) contrast(103%);
     }
   }
 }
 
 .carousel__navigation {
-  margin: 30px 0 70px 0;
+  margin: 30px 0 70px;
   list-style-type: none;
   padding-left: 0;
   align-items: center;
@@ -346,27 +346,30 @@
   height: 44px;
   background-color: transparent;
   border: none;
+  padding-left: 0;
+  padding-right: 0;
+  margin-right: 8px;
 }
 
 .carousel__navigation_dot {
   fill: transparent;
   stroke: var($cyan-30v);
-  stroke-width: 2px;
+  stroke-width: 6px;
 
   &:hover {
     stroke: var(white);
-    stroke-width: 2px;
+    stroke-width: 6px;
   }
 }
 
 .carousel__navigation_button[aria-current="true"] .carousel__navigation_dot {
   fill: var($white);
   stroke: var(white);
-  stroke-width: 2px;
+  stroke-width: 6px;
 }
 
 .carousel-mover {
-  width: calc(100% - 80px);
+  width: calc(100% - 100px);
   padding-left: 11px;
   padding-right: 11px;
 }
@@ -397,24 +400,28 @@
 
   h3 {
     margin: 0;
-    color: var($white);
+    color: var($cyan-30v);
     text-decoration: none;
-    font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
+      Arial, sans-serif;
     line-height: 1.25;
   }
 
   p {
     margin: 0;
     font-weight: normal;
-    font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
+      Arial, sans-serif;
     font-size: var($homepage, small-font-size);
     line-height: 1.25;
     padding-top: 10px;
   }
 }
 
-.slide a:hover>h3 {
+.slide a:hover > h3 {
   text-decoration: underline;
+  text-decoration-color: initial;
+  text-decoration-thickness: initial;
 }
 
 .slide a:hover .thumbnailBanner {
@@ -428,7 +435,7 @@
   margin: auto;
   box-shadow: 0 6px 6px var($blue-shadow);
   border-style: solid;
-  border-color:var($white);
+  border-color: var($white);
 }
 
 .thumbnailBanner {
@@ -458,7 +465,17 @@
   grid-column: 1 / 3;
   grid-row: 4 / 5;
   padding-top: 20px;
-  background-color:var($deep-blue);
+  background-color: var($deep-blue);
+}
+
+.jump2 {
+  grid-column: 1 / 3;
+  grid-row: 6 / 8;
+  z-index: 2;
+
+  a span {
+    background-color: var($deep-blue);
+  }
 }
 
 /* All Topics Header */
@@ -470,13 +487,11 @@
   h2 {
     border-bottom: 10px solid var($red);
     color: var($red);
-    font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times,
+      serif;
     font-size: 39.04px;
     font-weight: bold;
-    margin-bottom: 0;
-    margin-left: 5vw;
-    margin-right: 5vw;
-    margin-top: 55px;
+    margin: 65px 5vw 0;
     max-width: 90%;
     padding: 0;
     text-align: left;
@@ -496,8 +511,8 @@
 /* All Topics Cards */
 .all-topics-background {
   background-color: var($light-blue);
-  padding-bottom: 30px;
-  padding-top: 5px;
+  padding-bottom: 100px;
+  padding-top: 10px;
 }
 
 .smaller-width-div {
@@ -521,17 +536,19 @@
 .homepage-card_header {
   padding-left: 30px;
   padding-right: 30px;
+  padding-top: 12px;
 }
 
 .homepage-card {
   display: flex;
-  font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
   border-width: 2px;
   border-style: solid;
   background-color: var($white);
   border-color: var($deep-gray);
   border-radius: 3px;
-  box-shadow: 0 3px 6px rgb(122 122 122 / .15);
+  box-shadow: 0 3px 6px rgb(122 122 122 / 15%);
   margin: 0;
   padding: 0;
 
@@ -546,7 +563,7 @@
 
   a {
     text-decoration: none;
-    height:100%;
+    height: 100%;
   }
 
   h2,
@@ -555,7 +572,7 @@
     font-family: sans-serif;
     font-size: var($homepage, small-font-size);
     line-height: 1.3;
-    text-align: left;
+    text-align: center;
     padding: 0 10px;
   }
 
@@ -566,17 +583,22 @@
   }
 }
 
+.homepage-card-description {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 .homepage-icon {
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
   height: 50px;
-  margin-bottom: 25px;
-  margin-top: 20px;
+  margin-bottom: 12px;
+  margin-top: 25px;
 }
 
 /* Tablet & Desktop */
-@media(min-width: 480px) {
+@media (min-width: 480px) {
   .welcome-box {
     grid-column: 2 / 3;
     padding: 30px 40px 35px 30px;
@@ -601,7 +623,7 @@
   }
 
   .life-events h2 {
-    padding-top: 16px;
+    padding-top: 30px;
   }
 
   .carousel-mover {
@@ -611,8 +633,8 @@
   }
 
   .carousel .usa-card-group {
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .slide {
@@ -642,9 +664,8 @@
   }
 }
 
-/*Tablet */
-@media(max-width: 700px) and (min-width:480px) {
-
+/* Tablet */
+@media (max-width: 700px) and (min-width: 480px) {
   .how-button-list {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -657,8 +678,7 @@
 }
 
 /* Desktop */
-@media (min-width:1024px) {
-
+@media (min-width: 1024px) {
   .life-events {
     width: 1024px;
     margin-left: auto;
@@ -680,7 +700,7 @@
 
   .carousel-mover {
     width: 100%;
-    max-width: 960px;
+    max-width: 940px;
     margin-left: 0;
     margin-right: auto;
   }
@@ -692,7 +712,6 @@
 
   .slide {
     flex: 0 0 calc(100% / 3);
-    padding-right: 30px;
     padding-right: 30px;
   }
 
