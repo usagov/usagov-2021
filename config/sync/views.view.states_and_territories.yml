@@ -217,7 +217,7 @@ display:
           plugin_id: language
           operator: in
           value:
-            en: en
+            es: es
           group: 1
           exposed: false
           expose:
@@ -286,6 +286,22 @@ display:
   states_and_territories_en_block:
     id: states_and_territories_en_block
     display_title: English_Block
+    display_plugin: block
+    position: 1
+    display_options:
+      display_description: ''
+      display_extenders: {  }
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - 'user.node_grants:view'
+        - user.permissions
+      tags: {  }
+  states_and_territories_sp_block:
+    id: states_and_territories_sp_block
+    display_title: Spanish_Block
     display_plugin: block
     position: 1
     display_options:
