@@ -64,6 +64,9 @@ cp -rf /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov
 cp -rf /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rf /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 
+# Copy "webroot" assets (files like robots.txt and site.xml)
+cp -rf /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
+
 echo "Removing unwanted files ... "
 rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
 
@@ -161,6 +164,10 @@ fi
 if [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]]; then
   TOME_PUSH_NEW_CONTENT=1
 fi
+
+ANALYTICS_DIR=/var/www/website-analytics
+echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
+cp -rf "$ANALYTICS_DIR" "$RENDER_DIR"
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
