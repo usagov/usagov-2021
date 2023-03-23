@@ -30,22 +30,11 @@
 				<label class="visuallyhidden">
 					{{ lang == 'es' ?  "Encuentre su estado o territorio:" : "Select your state or territory:"  }}
 					<select aria-labelledby="state-info-label" class="usa-select" name="state-info" id="state-info" required>
-						{% if attributes -%}
-							<div{{attributes}}>
-						{% endif %}
-						{% if title %}
-							<h3>{{ title }}</h3>
-						{% endif %}
-						<{{list.type}}{{list.attributes}}>
 						{% for row in rows %}
 							<li{{row.attributes}}>
 								{{- row.content -}}
 							</li>
 						{% endfor %}
-						</{{list.type}}>
-						{% if attributes -%}
-							</div>
-						{% endif %}
 					</select>
 				</label>
 			</div>
