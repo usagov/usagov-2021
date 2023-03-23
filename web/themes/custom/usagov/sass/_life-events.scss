@@ -1,29 +1,34 @@
 @use "usagov-variables" as *;
 
 // $life-events: var( $usagov-variables, life-events );
-[data-pagetype="Life Events"], [data-pagetype="Life Events Landing Page"] {
+[data-pagetype="Life Events"],
+[data-pagetype="Life Events Landing Page"] {
   h1 {
     background: var($le-heading, background-color);
     color: var($le-heading, heading-color);
     padding: 15px 45px 8px 35px;
     width: fit-content;
+
     // border-radius: 3px;
   }
+
   .usagov-hero {
     border-top: none;
-    margin-top: 0px;
+    margin-top: 0;
   }
+
   .usa-prose > h1 + * {
-    margin-top: 0px;
+    margin-top: 0;
   }
+
   .usagov-cards {
     max-width: 960px;
     background: var($light-gray);
-    margin-right: 0px;
+    margin-right: 0;
   }
 }
 
-[data-pagetype="Life Events Landing Page"]{
+[data-pagetype="Life Events Landing Page"] {
   .usagov-card {
     border-color: var($life-events, text-color);
   }
@@ -46,40 +51,46 @@
     color: var($life-events, text-color);
   }
 
-
-
-  .usa-card__img, &.usa-card--media-right .usa-card__img{
+  .usa-card__img,
+  &.usa-card--media-right .usa-card__img {
     border-top-left-radius: unset;
     border-bottom-left-radius: unset;
     border-top-right-radius: unset;
     border-bottom-right-radius: unset;
   }
 
-  .usa-card__container .usa-card__header .usa-card__heading .card-link{
+  .usa-card__container .usa-card__header .usa-card__heading .card-link {
     color: var($life-events, text-color);
     text-decoration-line: underline;
     text-decoration-thickness: 7px;
     text-decoration-color: var($life-events, heading-underline-color);
     text-decoration-skip-ink: none;
   }
+
   .usa-card__heading {
     line-height: 1.8em;
   }
-  .usa-card__header{
+
+  .usa-card__header {
     padding-bottom: 0.5rem;
   }
-  .usa-card__body{
+
+  .usa-card__body {
     padding-bottom: 1.5rem;
   }
+
   &:hover {
     .usa-card__img img {
       filter: contrast(0.5) brightness(1.5);
     }
+
     .usa-card__container {
       background-color: var($life-events, card-hover-background-color);
+
       .usa-card__body {
         color: var($life-events, card-hover-text-color);
       }
+
       .usa-card__header .usa-card__heading .card-link {
         color: var($life-events, card-hover-heading-color);
       }
@@ -91,7 +102,8 @@
   aspect-ratio: 5/2;
   background-size: cover;
 }
-.life-events-landing-page-card-title{
+
+.life-events-landing-page-card-title {
   display: flex;
   align-items: center;
   background: var($life-events, background-color);
@@ -102,11 +114,12 @@
   padding: 1rem;
 }
 
-.usa-card:hover{
+.usa-card:hover {
   .life-events-landing-page-card-image {
     filter: contrast(0.5) brightness(1.5);
   }
-  .life-events-landing-page-card-title{
+
+  .life-events-landing-page-card-title {
     background-color: var($life-events, card-hover-background-color);
     color: var($life-events, card-hover-heading-color);
   }
