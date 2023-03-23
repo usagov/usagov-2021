@@ -76,7 +76,7 @@ if [ -z "${appnames}" ]; then
     exit 1
 fi
 
-egressspace=shared-egress
+egressspace=shared-egress-dr
 egressorg="$startorg"
 applist="${appnames//,/ }"
 

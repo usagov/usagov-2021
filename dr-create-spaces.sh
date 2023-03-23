@@ -10,11 +10,11 @@ EGRESS_SPACE=shared-egress-dr
 #exit
 
 #bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
-#cf target -s $APP_SPACE
 #exit
 
 ## this takes a while to create the database service, and emits a FAILED each
 ## time it tests if the db is active, prior to the db becoming active.
+#cf target -s $APP_SPACE
 #bin/cloudgov/deploy-services  | tee ds.log
 #exit
 
