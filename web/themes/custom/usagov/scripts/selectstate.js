@@ -2,13 +2,12 @@ function stateSelect() {
     let stateForm = document.getElementById("stateForm");
     let stateData = new FormData(stateForm);
     let stateValue = stateData.get('state-info');
-    let enEspanol = window.location.pathname.substr(0,4) == '/es/';
-    let statePath = enEspanol ? '/es/estados/' : '/states/';
+    let stateName = stateValue.split("/")[2];
     dataLayer.push({
         'event': '50_state_submit',
-        '50_state_url': statePath + stateValue,
-        '50_state_name': stateValue
+        '50_state_url':  stateValue,
+        '50_state_name': stateName
     });
-    window.location.assign(window.location.origin + statePath + stateValue);
+    window.location.assign(window.location.origin + stateValue);
 }
 

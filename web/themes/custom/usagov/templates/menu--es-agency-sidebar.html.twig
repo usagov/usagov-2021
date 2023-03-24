@@ -1,36 +1,49 @@
 {% set current_url_string = "#{path('<current>')}" %}
 
 <nav aria-label="Secondary navigation">
-  <ul class="usa-sidenav">
-    <li class="usa-sidenav__item"> 
-       <a class="active-trail" href="/es/acerca-de-estados-unidos">Acerca de Estados Unidos y su Gobierno  </a>
-    </li>      
-    <ul class="usa-sidenav__sublist">
-      <li class="usa-sidenav__item"> 
-          <a class="active-trail" href="/es/indice-agencias">Agencias federales</a>
-      </li>
-      <ul class="usa-sidenav__sublist">
-        <li class="usa-sidenav__item"> 
-            <a class="usa-current" href={{current_url}}>{{ drupal_title() }} </a>
-        </li>
-      </ul>
-      {#
-      <li class="usa-sidenav__item relatedPage"> 
-          <a class="" href="/es/gobiernos-estatales">Agencias estatales</a>
-      </li>
-      #}
-      <li class="usa-sidenav__item">
-          <a class="" href="/es/informacion-general-sobre-estados-unidos">Información general sobre EE. UU.</a>
-      </li>
-      <li class="usa-sidenav__item">
-          <a href="/es/ramas-gobierno-estados-unidos">Ramas del Gobierno de EE. UU.</a>
-      </li>
-      <li class="usa-sidenav__item">
-          <a href="/es/funcionarios-electos">Funcionarios electos</a>
-      </li>
-      <li class="usa-sidenav__item">
-          <a href="/es/dias-festivos-estados-unidos">Días festivos federales</a>
-      </li>
-    </ul>
-  </ul>
+	<ul class="usa-sidenav">
+		<li class="usa-sidenav__item">
+			<a class="active-trail" href="/es/acerca-de-estados-unidos">Acerca de Estados Unidos y su Gobierno
+			</a>
+		</li>
+		<ul class="usa-sidenav__sublist">
+			<li class="usa-sidenav__item">
+				<a class="active-trail" href="/es/indice-agencias">Agencias federales</a>
+			</li>
+			{% if path('<current>') matches '#\/es\/agencias\/*#' %}
+				<ul class="usa-sidenav__sublist">
+					<li class="usa-sidenav__item">
+						<a class="usa-current" href={{current_url}}>{{ drupal_title() }}
+						</a>
+					</li>
+				</ul>
+			{% endif %}
+
+
+			<li class="usa-sidenav__item">
+				<a class="" href="/es/gobiernos-estatales">Gobiernos estatales</a>
+				{% if path('<current>') matches '#\/es\/estados\/*#' %}
+					<ul class="usa-sidenav__sublist">
+						<li class="usa-sidenav__item">
+							<a class="usa-current" href={{current_url}}>{{ drupal_title() }}
+							</a>
+						</li>
+					</ul>
+				{% endif %}
+			</li>
+
+			<li class="usa-sidenav__item">
+				<a class="" href="/es/informacion-general-sobre-estados-unidos">Información general sobre EE. UU.</a>
+			</li>
+			<li class="usa-sidenav__item">
+				<a href="/es/ramas-gobierno-estados-unidos">Ramas del Gobierno de EE. UU.</a>
+			</li>
+			<li class="usa-sidenav__item">
+				<a href="/es/funcionarios-electos">Funcionarios electos</a>
+			</li>
+			<li class="usa-sidenav__item">
+				<a href="/es/dias-festivos-estados-unidos">Días festivos federales</a>
+			</li>
+		</ul>
+	</ul>
 </nav>
