@@ -21,6 +21,8 @@
 
 {{ attach_library('stateDirectory') }}
 
+{% set lang = node.langcode.value %}
+
 {% if attributes -%}
   <div{{ attributes }}>
 {% endif %}
@@ -29,13 +31,52 @@
   {% endif %}
 
   <{{ list.type }}{{ list.attributes }}>
+<header>
+<h2>
+  {% if lang == "en" %}
+  <label for="stateselect">Find your state or territory:</label>
+    {% elseif lang == "es" %}
+     <label for="stateselect">Encuentre su estado o territorio:</label>
+  {% endif %}
+</h2>
+</header>
+
+<div class="display-inline-block">
+	<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
+		<label id="state-info-label" class="usa-label" for="state-info">Select your state:</label>
+		<div class="display-inline-block">
+			<div class="usa-combo-box usa-combo-box--pristine" data-default-value="alabama" data-enhanced="true">
+
   <ul id="statelist" class="one-column-bullet">
     {% for row in rows %}
-      <li{{ row.attributes }} class="usa-state--list">
+      
         {{- row.content -}}
-      </li>
+     
     {% endfor %}
   </ul>
+<input id="state-info" aria-owns="state-info--list" aria-controls="state-info--list" aria-autocomplete="list" aria-describedby="state-info--assistiveHint" aria-expanded="false" autocapitalize="off" autocomplete="off" class="usa-combo-box__input" type="text" role="combobox" required="" aria-labelledby="state-info-label" aria-activedescendant="">
+    <span class="usa-combo-box__clear-input__wrapper" tabindex="-1">
+        <button type="button" class="usa-combo-box__clear-input" aria-label="Clear the select contents">&nbsp;</button>
+      </span>
+      <span class="usa-combo-box__input-button-separator">&nbsp;</span>
+      <span class="usa-combo-box__toggle-list__wrapper" tabindex="-1">
+        <button type="button" tabindex="-1" class="usa-combo-box__toggle-list" aria-label="Toggle the dropdown list">&nbsp;</button>
+      </span>
+      <ul tabindex="-1" id="state-info--list" class="usa-combo-box__list" role="listbox" aria-labelledby="state-info-label" hidden="">
+      </ul>
+      <div class="usa-combo-box__status usa-sr-only" role="status"></div>
+      <span id="state-info--assistiveHint" class="usa-sr-only">
+        When autocomplete results are available use up and down arrows to review and enter to select.
+        Touch device users, explore by touch or with swipe gestures.
+      </span></div>
+		</div>
+		<div id="test" class="display-inline-block">
+			{#<button id="statego" class="usa-button sd-go-btn" type="submit">Go</button>#}
+		</div>
+	</form>
+</div>
+
+
   </{{ list.type }}>
 
 {% if attributes -%}
