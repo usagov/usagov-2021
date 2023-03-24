@@ -17,7 +17,7 @@ jQuery(document).ready(function ($) {
     b.click(function(){
       window.location.href = url;
     });
-    $('#test').after(b);
+    $('#state-go').after(b);
     $('#stateselect').on('change', function(){
       url=$(this).val();
     });
