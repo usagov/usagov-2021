@@ -6,10 +6,10 @@ jQuery(document).ready(function ($) {
     var b;
     if($('html').attr('lang')=="en"){
      // $('#test').after('<header><h2><label for="stateselect">Find your state or territory:</label></h2></header>');
-      b=$('<button id="statego" class="usa-button sd-go-btn" type="submit">Go</button>');
+      b=$('<button class="usa-button sd-go-btn" type="submit">Go</button>');
     }else{
      // $('#statelist').after('<header><h2><label for="stateselect">Encuentre su estado o territorio:</label></h2></header>');
-      b=$('<button id="statego" class="usa-button sd-go-btn" type="submit">Ir</button>');
+      b=$('<button class="usa-button sd-go-btn" type="submit">Ir</button>');
     }
     $('#statelist').remove();
    
