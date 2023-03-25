@@ -1,0 +1,16 @@
+#!/bin/sh
+
+
+CMS_TAG=latest
+WAF_TAG=latest
+
+# These are from the 2023/04/23 deployment to stage
+CMS_DIGEST="sha256:cd88eb134fca6cc8405009b71902b76e227f78b0e21549f15630384fbfbc5f76"
+WAF_DIGEST="sha256:de2adeb366411df4a2328f993e2fbeb1cbe0a04ed57a304cc9d785c1ffbf6999"
+
+ORG=gsa-tts-usagov
+APP_SPACE=dev-dr
+EGRESS_SPACE=shared-egress-dr
+
+DRYRUN=1
+export DRYRUN
