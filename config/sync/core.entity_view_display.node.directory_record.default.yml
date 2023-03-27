@@ -14,6 +14,7 @@ dependencies:
     - field.field.node.directory_record.field_government_branch
     - field.field.node.directory_record.field_header_html
     - field.field.node.directory_record.field_language_toggle
+    - field.field.node.directory_record.field_meta_description
     - field.field.node.directory_record.field_mothership_uuid
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
@@ -100,35 +101,35 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 13
+    weight: 12
     region: content
   field_footer_html:
     type: basic_string
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 18
+    weight: 17
     region: content
   field_for_contact_center_only:
     type: text_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 14
+    weight: 13
     region: content
   field_government_branch:
     type: list_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 15
+    weight: 14
     region: content
   field_header_html:
     type: text_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 17
+    weight: 16
     region: content
   field_language_toggle:
     type: entity_reference_label
@@ -144,7 +145,7 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 16
+    weight: 15
     region: content
   field_offices_near_you:
     type: link
@@ -247,5 +248,6 @@ content:
     region: content
 hidden:
   feeds_item: true
+  field_meta_description: true
   field_show_in_a_z_index: true
   langcode: true

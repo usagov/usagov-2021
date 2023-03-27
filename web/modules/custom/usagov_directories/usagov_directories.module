@@ -54,12 +54,13 @@ function usagov_directories_views_pre_render($view) {
       if ($type_str == "agency_synonym") {
         $pid_str = $new_result[$res]->_entity->field_agency_reference->target_id;
         // Need this check in case synonyms were not backlinked to their directory.
-        if ($pid_str) {
-          $parent = Node::load($pid_str);
+        if ($pid_str && ($parent = Node::load($pid_str))) {
           $new_result[$res]->_entity = clone $parent;
           $new_result[$res]->_entity->title[0]->value = $node_title;
         }
-
+        else {// Skip this synonym; it points to a record that no longer exists.
+          unset($new_result[$res]);
+        }
       }
     }
 
