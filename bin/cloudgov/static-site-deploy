@@ -1,4 +1,6 @@
 #!/bin/sh
+# usage: static-site-deploy TAG
+# TAG should be a static site tag obtained from static-site-list. 
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -13,12 +15,14 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-SS_TAG=${2:-$(date +%Y-%m-%d_%H-%M-%S)}
+SS_TAG=${1}
+
+if [ -z "$SS_TAG" ]; then
+    echo "Usage: $0 <TAG>"
+    exit 1
+fi
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
-
-# locate a local directory that contains a build of the static site
-# do some sanity checking on the directory (steal from tome-sync)
 
 # upload that static site directory to a location within an s3 bucket represented by the tag
 echo aws s3 sync s3://$S3_BUCKET/web-backup/$SS_TAG/ s3://$S3_BUCKET/web/ --only-show-errors --delete --acl public-read
