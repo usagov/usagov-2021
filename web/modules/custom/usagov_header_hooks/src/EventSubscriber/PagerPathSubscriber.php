@@ -36,9 +36,6 @@ class PagerPathSubscriber implements EventSubscriberInterface {
         $new_href = '/es/' . substr($original_href, 3);
       }
       if ($new_href) {
-        $event->addInvokePath($new_href);
-        $new_href = $this->modifyUrl($new_href);
-        $event->addExcludePath($new_href);
         $html = str_replace($original_href, $new_href, $html);
         $event->setHtml($html);
       }
