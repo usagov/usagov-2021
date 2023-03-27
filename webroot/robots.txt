@@ -17,8 +17,7 @@ User-agent: *
 Crawl-delay: 10
 
 # Sitemaps
-# Sitemap: https://www.usa.gov/sitemap.xml
-# Sitemap: https://www.usa.gov/es/sitemap.xml
+Sitemap: https://www.usa.gov/sitemap.xml
 
 # CSS, JS, Images
 Allow: /misc/*.css$
