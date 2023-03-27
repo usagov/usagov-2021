@@ -6,19 +6,22 @@
 			<a href="/about-the-us" class="active-trail">
 				About the U.S. and its government
 			</a>
-
 			<ul class="usa-sidenav__sublist">
 				<li class="usa-sidenav__item">
-					<a href="/agency-index">
-						A-Z index of U.S. government departments and agencies
-					</a>
 					{% if path('<current>') matches '#\/agencies\/.+#' %}
+						<a class="active-trail" href="/agency-index">
+							A-Z index of U.S. government departments and agencies
+						</a>
 						<ul class="usa-sidenav__sublist">
 							<li class="usa-sidenav__item">
 								<a class="usa-current" href={{current_url}}>{{ drupal_title() }}
 								</a>
 							</li>
 						</ul>
+					{% else %}
+						<a href="/agency-index">
+							A-Z index of U.S. government departments and agencies
+						</a>
 					{% endif %}
 				</li>
 				<li class="usa-sidenav__item">
@@ -37,16 +40,20 @@
 					</a>
 				</li>
 				<li class="usa-sidenav__item">
-					<a href="/state-governments">
-						State governments
-					</a>
-						{% if path('<current>') matches '#\/states\/.+#'%}
+					{% if path('<current>') matches '#\/states\/.+#'%}
+						<a href="/state-governments" class="active-trail">
+							State governments
+						</a>
 						<ul class="usa-sidenav__sublist">
 							<li class="usa-sidenav__item">
 								<a class="usa-current" href={{current_url}}>{{ drupal_title() }}
 								</a>
 							</li>
 						</ul>
+					{% else %}
+						<a href="/state-governments">
+							State governments
+						</a>
 					{% endif %}
 				</li>
 				<li class="usa-sidenav__item">
