@@ -1075,9 +1075,10 @@ button#next.usa-button,
 }
 
 //state directory
-
+/*
 .one-column-bullet li {
   margin: 0 0 10px;
+  list-style-type: disc;
 }
 
 .custom-select {
@@ -1126,23 +1127,32 @@ button#next.usa-button,
   text-align: center;
   float: none;
   height: 38px;
-  margin: 3px 0 0;
+  margin: 3px 10px 0;
   color: #000;
   font-size: 100%;
   font-family: Tahoma, Verdana, Arial, sans-serif;
   line-height: 18px;
   padding: 6px 12px;
-  border: 1px #02bfe7 solid;
+  border: 1px #0081a1 solid;
   position: relative;
   font-weight: bold;
-  background-color: #02bfe7;
-  vertical-align: text-top;
+  background-color: #ccecf2;
+  //vertical-align: text-top;
   width: auto;
 }
 
 #statego:hover {
   background-color: #00a6b2;
   text-decoration: underline;
+}
+
+select {
+  margin: 0.2em 0;
+}
+
+button:not([disabled]):focus,
+select:not([disabled]):focus {
+  outline: #c05600 solid 3px;
 }
 
 @media (min-width: 992px) {
@@ -1156,6 +1166,7 @@ button.usa-combo-box__clear-input:focus,
 button.usa-combo-box__toggle-list:focus {
   opacity: 1;
 }
+*/
 
 @media only screen and (max-width: 500px) {
   .usa-identifier {
@@ -1164,6 +1175,8 @@ button.usa-combo-box__toggle-list:focus {
     z-index: 2000000005;
   }
 }
+
+
 
 #backToTop {
   z-index: 2000000003;
