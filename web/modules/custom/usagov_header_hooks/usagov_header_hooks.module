@@ -39,25 +39,3 @@ function usagov_header_hooks_modify_canonical_link(array &$attachments) {
     }
   }
 }
-
-/**
- * Implements hook_page_attachments_alter.
- * We just want to add / to the alternate links on the home pages.
- */
-function usagov_header_hooks_page_attachments_alter(array &$attachments) {
-  if (!isset($attachments['#attached']['html_head_link'])) {
-    return;
-  }
-  if (\Drupal::service('path.matcher')->isFrontPage()) {
-    foreach ($attachments['#attached']['html_head_link'] as $key => $links) {
-      $modified_links = [];
-      foreach ($links as $link) {
-        if (($link['rel'] == "alternate") && !str_ends_with($link['href'], '/')) {
-          $link['href'] .= "/";
-        }
-        $modified_links[] = $link;
-      }
-      $attachments['#attached']['html_head_link'][$key] = $modified_links;
-    }
-  }
-}
