@@ -15,6 +15,7 @@ server {
     # X-Robots-Tag header to be removed from config on "prod" only!
     add_header X-Robots-Tag noindex;
 
+    include /etc/nginx/partials/internal_redirects.conf;
     include /etc/nginx/partials/s3proxy.conf;
     include /etc/nginx/partials/404s.conf;
     include /etc/nginx/partials/staticsite.conf;
@@ -36,6 +37,9 @@ server {
 
     # X-Robots-Tag header to be removed from config on "prod" only!
     add_header X-Robots-Tag noindex;
+
+    include /etc/nginx/partials/internal_redirects.conf;
+    rewrite /es /es/ permanent; # special; cannot be applied to the CMS because Drupal redirects /es/ to /es
 
     include /etc/nginx/partials/s3proxy.conf;
     include /etc/nginx/partials/404s.conf;
