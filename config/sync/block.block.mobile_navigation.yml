@@ -45,5 +45,3 @@ visibility:
       node: '@node.node_route_context:node'
     bundles:
       basic_page: basic_page
-      wizard: wizard
-      wizard_step: wizard_step

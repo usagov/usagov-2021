@@ -1,0 +1,48 @@
+uuid: f2b2e2a1-9143-429c-85ab-abf6856ded56
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.wizard
+  module:
+    - language
+    - menu_block
+    - node
+  theme:
+    - usagov
+id: mobile_navigation_wizard_english
+theme: usagov
+region: header_top
+weight: 0
+provider: null
+plugin: 'menu_block:wizard'
+settings:
+  id: 'menu_block:wizard'
+  label: 'Mobile Navigation - Wizard - English'
+  label_display: '0'
+  provider: menu_block
+  follow: false
+  follow_parent: child
+  label_link: false
+  label_type: block
+  level: 1
+  depth: 0
+  expand_all_items: false
+  parent: 'wizard:'
+  suggestion: wizard
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      wizard: wizard
+      wizard_step: wizard_step
+  language:
+    id: language
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      en: en
