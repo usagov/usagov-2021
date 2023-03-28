@@ -60,8 +60,8 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
                 }
                 break;
 
-              case '/states':
-              case '/es/estados':
+              case '/state-governments':
+              case '/es/gobiernos-estatales':
                 $special_node_type = 'state_directory_index';
                 break;
             }
