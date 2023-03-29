@@ -15,6 +15,7 @@ dependencies:
     - field.field.node.directory_record.field_government_branch
     - field.field.node.directory_record.field_header_html
     - field.field.node.directory_record.field_language_toggle
+    - field.field.node.directory_record.field_meta_description
     - field.field.node.directory_record.field_mothership_uuid
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
@@ -53,6 +54,7 @@ hidden:
   field_government_branch: true
   field_header_html: true
   field_language_toggle: true
+  field_meta_description: true
   field_mothership_uuid: true
   field_offices_near_you: true
   field_page_intro: true
