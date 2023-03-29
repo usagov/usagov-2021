@@ -60,8 +60,8 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
                 }
                 break;
 
-              case '/states':
-              case '/es/estados':
+              case '/state-governments':
+              case '/es/gobiernos-estatales':
                 $special_node_type = 'state_directory_index';
                 break;
             }
@@ -124,7 +124,7 @@ function usa_twig_vars_get_page_type(&$node) {
 function usa_twig_vars_get_meta_description(&$node) {
   $fields = $node->getFields();
   foreach (['field_meta_description', 'field_page_intro'] as $field_name) {
-    if ($fields[$field_name] != NULL) {
+    if (array_key_exists($field_name, $fields) && ($fields[$field_name] !== NULL)) {
       $value = trim($fields[$field_name]->value);
       if (strlen($value) > 0) {
         return $value;
@@ -146,10 +146,11 @@ function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
   // the set the value of the content to empty string
   // but the fields content exist.
   if (is_object($node) && method_exists($node, 'getFields')) {
-    if ($node->getFields()['field_hide_page_intro'] != NULL
-        && !empty($node->getFields()['field_hide_page_intro']->getValue())
-        && $node->getFields()['field_hide_page_intro']->getValue()[0]['value'] != NULL
-        && $node->getFields()['field_hide_page_intro']->getValue()[0]['value'] == TRUE) {
+    $fields = $node->getFields();
+    if (array_key_exists('field_hide_page_intro', $fields) && ($fields['field_hide_page_intro'] != NULL)
+        && !empty($fields['field_hide_page_intro']->getValue())
+        && ($fields['field_hide_page_intro']->getValue()[0]['value'] != NULL)
+        && ($fields['field_hide_page_intro']->getValue()[0]['value'] == TRUE)) {
       $variables['items'][0]['content']['#context']['value'] = '';
     }
   }
