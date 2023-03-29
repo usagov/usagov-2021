@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+if ! command -v cf &> /dev/null
+then
+    echo "CF : the cloud foundry client could not be found and is required"
+    exit 1
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+DEPLOY_TAG=${1}
+SPACE=$(cf target | grep space: | awk '{ print $2 }')
+
+if [ -z "$DEPLOY_TAG" ]; then
+  echo "Usage: $0 <tag>"
+  echo "This will attempt to deploy the s3 backup of the database to $SPACE"
+  exit 1
+fi
+
+#PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
+SQL_FILE=${DEPLOY_TAG}.sql
+GZIP_FILE=$SQL_FILE.gz
+
+if [ ! -f $GZIP_FILE ]; then
+   echo Cannot locate $GZIP_FILE
+   exit 2
+fi
+
+echo "Attempting to deploy database backup $GZIP_FILE to $SPACE"
+
+$echo cat $GZIP_FILE | cf ssh cms -c "cat - > /tmp/$GZIP_FILE"
+$echo cf ssh cms -c "if [ -f /tmp/$GZIP_FILE ]; then . /etc/profile; drush sql-drop -y; zcat /tmp/$GZIP_FILE | drush sql-cli; drush cr; fi"

@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# we might be running in circleci (really?)
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+DEPLOY_TAG=${1}
+
+if [ -z "$DEPLOY_TAG" ]; then
+  echo "Usage: $0 <tag>"
+  echo "This will attempt to pull the database backup for the provided tag in the local directory. Use db-list to see available db backups."
+  exit 1
+fi
+
+SPACE=$( cf target | grep space: | awk '{ print $2 }')
+PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
+GZIP_FILE=$PREFIX.sql.gz
+
+$echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+echo "Attempting to download $GZIP_FILE from s3. This could take awhile."
+echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
+$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
