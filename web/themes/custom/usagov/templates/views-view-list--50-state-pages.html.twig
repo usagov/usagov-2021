@@ -21,6 +21,8 @@
 
 {{ attach_library('stateDirectory') }}
 
+{% set lang = node.langcode.value %}
+
 {% if attributes -%}
   <div{{ attributes }}>
 {% endif %}
@@ -28,16 +30,40 @@
     <h3>{{ title }}</h3>
   {% endif %}
 
-  <{{ list.type }}{{ list.attributes }}>
-<header><h2><label for="stateselect">Find your state or territory:</label></h2></header>
-  <div class="custom-select">
-  <select id="stateselect" name="stateselect">
+  {#<{{ list.type }}{{ list.attributes }}>#}
+<header>
+<h2>
+  {% if lang == "en" %}
+  <label for="stateselect">Find your state or territory:</label>
+    {% elseif lang == "es" %}
+     <label for="stateselect">Encuentre su estado o territorio:</label>
+  {% endif %}
+</h2>
+</header>
+
+<div class="display-inline-block">
+	<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
+		<label id="state-info-label" class="usa-label" for="state-info">Select your state:</label>
+		<div class="display-inline-block">
+			<div class="usa-combo-box usa-combo-box--pristine" data-default-value="alabama" data-enhanced="true">
+
+  <ul id="statelist" class="one-column-bullet">
     {% for row in rows %}
-      <li{{ row.attributes }}>
+      
         {{- row.content -}}
-      </li>
+     
     {% endfor %}
-</select></div>
+  </ul>
+<input id="state-info" aria-owns="state-info--list" aria-controls="state-info--list" aria-autocomplete="list" aria-describedby="state-info--assistiveHint" aria-expanded="false" autocapitalize="off" autocomplete="off" class="usa-combo-box__input" type="text" role="combobox" required="" aria-labelledby="state-info-label" aria-activedescendant="">
+    </div>
+		</div>
+		<div id="state-go" class="display-inline-block">
+			{#<button class="usa-button sd-go-btn" type="submit">Go</button>#}
+		</div>
+	</form>
+</div>
+
+
   </{{ list.type }}>
 
 {% if attributes -%}
