@@ -19,8 +19,11 @@ settings:
       value: field-agriculture-department
       label: 'Agriculture Department'
     -
+      value: field-consumer-protection
+      label: 'Consumer Protection'
+    -
       value: field-corrections-dept
-      label: 'Correctons Department'
+      label: 'Corrections Department'
     -
       value: field-district-attorneys
       label: 'District Attorney'

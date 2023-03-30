@@ -43,5 +43,5 @@
   {% endif %}
 {%- endfor %}
 {% if titlevar and urlvar %}
-  <option value= {{urlvar}} >{{titlevar}}</option>
+  <li><a class="url" href={{urlvar}}>{{titlevar}}</a></li>
 {% endif %}
