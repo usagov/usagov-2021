@@ -78,7 +78,17 @@
       {% else %}
         <meta name="description" content="Página principal de USAGov en Español, el portal oficial del Gobierno de Estados Unidos en español. " />
       {% endif %}
-   {% endif %}
+    {% endif %}
+    {% if lang == 'en' %}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "USA.gov",
+        "url": "https://usa.gov/",
+      }
+    </script>
+    {% endif %}
   {% endif %}
   {% if front == "not_homepage" and meta_description %}
     <meta name="description" content="{{ meta_description }}" />
