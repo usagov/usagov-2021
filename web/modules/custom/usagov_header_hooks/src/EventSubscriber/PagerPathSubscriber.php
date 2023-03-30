@@ -25,6 +25,7 @@ class PagerPathSubscriber implements EventSubscriberInterface {
     $document = new \DOMDocument();
     @$document->loadHTML($html);
     $xpath = new \DOMXPath($document);
+    $changes = FALSE;
     /** @var \DOMElement $node */
     foreach ($xpath->query('//a[(starts-with(@href,"/es"))]') as $node) {
       $original_href = $node->getAttribute('href');
@@ -39,10 +40,13 @@ class PagerPathSubscriber implements EventSubscriberInterface {
         $new_href = '/es/' . substr($original_href, 3);
       }
       if ($new_href) {
+        $changes = TRUE;
         $node->setAttribute('href', $new_href);
-        $html = $document->saveHTML();
-        $event->setHtml($html);
       }
+    }
+    if ($changes) {
+      $html = $document->saveHTML();
+      $event->setHtml($html);
     }
   }
 
