@@ -7,14 +7,13 @@ jQuery(document).ready(function ($) {
     
     var b;
     if($('html').attr('lang')=="en"){
-     // $('#test').after('<header><h2><label for="stateselect">Find your state or territory:</label></h2></header>');
       b=$('<button class="usa-button sd-go-btn" type="submit">Go</button>');
     }else{
-     // $('#statelist').after('<header><h2><label for="stateselect">Encuentre su estado o territorio:</label></h2></header>');
       b=$('<button class="usa-button sd-go-btn" type="submit">Ir</button>');
     }
+
     $('#statelist').remove();
-   
+
     var url=$('#stateselect').val();
     b.click(function(){
       window.location.href = url;
@@ -22,5 +21,13 @@ jQuery(document).ready(function ($) {
     $('#state-go').after(b);
     $('#stateselect').on('change', function(){
       url=$(this).val();
+      statename=$('#stateselect option:selected').text();
+      dataLayer.push({
+        'event': '50_state_submit',
+        '50_state_url': url,
+        '50_state_name': statename
+      });
     });
+    
   });
+  
