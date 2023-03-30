@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+DEPLOY_TAG=$1
+SPACE=$( cf target | grep space: | awk '{ print $2 }')
+
+if [ -z "$DEPLOY_TAG" ]; then
+  echo "Usage: $0 <tag>"
+  echo "This will attempt to deploy the s3 backup of the static site to $SPACE"
+  exit 1
+else
+  echo "Attempting to deploy the $DEPLOY_TAG s3 backup of the static site to $SPACE"
+fi
+
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+echo aws s3 sync s3://$S3_BUCKET/web-backup/$DEPLOY_TAG/ s3://$S3_BUCKET/web/ --only-show-errors --delete --acl public-read
+$echo aws s3 sync s3://$S3_BUCKET/web-backup/$DEPLOY_TAG/ s3://$S3_BUCKET/web/ --only-show-errors --delete --acl public-read
