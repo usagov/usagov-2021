@@ -27,6 +27,7 @@ visibility:
       node: '@node.node_route_context:node'
     bundles:
       directory_record: directory_record
+      state_directory_record: state_directory_record
   language:
     id: language
     negate: false

@@ -24,6 +24,7 @@ dependencies:
     - field.field.node.state_directory_record.field_health_department
     - field.field.node.state_directory_record.field_language_toggle
     - field.field.node.state_directory_record.field_local_governments
+    - field.field.node.state_directory_record.field_meta_description
     - field.field.node.state_directory_record.field_mothership_uuid
     - field.field.node.state_directory_record.field_motor_vehicle_office
     - field.field.node.state_directory_record.field_page_intro
@@ -52,7 +53,7 @@ mode: default
 content:
   body:
     type: text_textarea_with_summary
-    weight: 12
+    weight: 13
     region: content
     settings:
       rows: 9
@@ -62,27 +63,11 @@ content:
     third_party_settings: {  }
   created:
     type: datetime_timestamp
-    weight: 5
+    weight: 6
     region: content
     settings: {  }
     third_party_settings: {  }
   field_agriculture_department:
-    type: link_default
-    weight: 24
-    region: content
-    settings:
-      placeholder_url: ''
-      placeholder_title: ''
-    third_party_settings: {  }
-  field_city:
-    type: string_textfield
-    weight: 16
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_consumer_protection:
     type: link_default
     weight: 25
     region: content
@@ -90,15 +75,15 @@ content:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
-  field_contact_link:
-    type: link_default
-    weight: 20
+  field_city:
+    type: string_textfield
+    weight: 17
     region: content
     settings:
-      placeholder_url: ''
-      placeholder_title: ''
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
-  field_corrections_dept:
+  field_consumer_protection:
     type: link_default
     weight: 26
     region: content
@@ -106,71 +91,7 @@ content:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
-  field_district_attorneys:
-    type: link_default
-    weight: 28
-    region: content
-    settings:
-      placeholder_url: ''
-      placeholder_title: ''
-    third_party_settings: {  }
-  field_education_department:
-    type: link_default
-    weight: 29
-    region: content
-    settings:
-      placeholder_url: ''
-      placeholder_title: ''
-    third_party_settings: {  }
-  field_election_office:
-    type: link_default
-    weight: 30
-    region: content
-    settings:
-      placeholder_url: ''
-      placeholder_title: ''
-    third_party_settings: {  }
-  field_email:
-    type: email_default
-    weight: 35
-    region: content
-    settings:
-      placeholder: ''
-      size: 60
-    third_party_settings: {  }
-  field_emergency_management:
-    type: link_default
-    weight: 31
-    region: content
-    settings:
-      placeholder_url: ''
-      placeholder_title: ''
-    third_party_settings: {  }
-  field_english_title:
-    type: string_textfield
-    weight: 3
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_footer_html:
-    type: string_textarea
-    weight: 42
-    region: content
-    settings:
-      rows: 5
-      placeholder: ''
-    third_party_settings: {  }
-  field_for_contact_center_only:
-    type: text_textarea
-    weight: 40
-    region: content
-    settings:
-      rows: 5
-      placeholder: ''
-    third_party_settings: {  }
-  field_governor:
+  field_contact_link:
     type: link_default
     weight: 21
     region: content
@@ -178,23 +99,47 @@ content:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
-  field_governor_contact:
+  field_corrections_dept:
     type: link_default
-    weight: 22
+    weight: 27
     region: content
     settings:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
-  field_header_html:
-    type: text_textarea
-    weight: 41
+  field_district_attorneys:
+    type: link_default
+    weight: 29
     region: content
     settings:
-      rows: 5
-      placeholder: ''
+      placeholder_url: ''
+      placeholder_title: ''
     third_party_settings: {  }
-  field_health_department:
+  field_education_department:
+    type: link_default
+    weight: 30
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_election_office:
+    type: link_default
+    weight: 31
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_email:
+    type: email_default
+    weight: 36
+    region: content
+    settings:
+      placeholder: ''
+      size: 60
+    third_party_settings: {  }
+  field_emergency_management:
     type: link_default
     weight: 32
     region: content
@@ -202,9 +147,65 @@ content:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
+  field_english_title:
+    type: string_textfield
+    weight: 4
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_footer_html:
+    type: string_textarea
+    weight: 43
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_for_contact_center_only:
+    type: text_textarea
+    weight: 41
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_governor:
+    type: link_default
+    weight: 22
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_governor_contact:
+    type: link_default
+    weight: 23
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_header_html:
+    type: text_textarea
+    weight: 42
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_health_department:
+    type: link_default
+    weight: 33
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
   field_language_toggle:
     type: entity_reference_autocomplete
-    weight: 39
+    weight: 40
     region: content
     settings:
       match_operator: CONTAINS
@@ -214,15 +215,23 @@ content:
     third_party_settings: {  }
   field_local_governments:
     type: link_default
-    weight: 27
+    weight: 28
     region: content
     settings:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
+  field_meta_description:
+    type: string_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 1
+      placeholder: ''
+    third_party_settings: {  }
   field_mothership_uuid:
     type: string_textfield
-    weight: 51
+    weight: 45
     region: content
     settings:
       size: 60
@@ -230,7 +239,7 @@ content:
     third_party_settings: {  }
   field_motor_vehicle_office:
     type: link_default
-    weight: 33
+    weight: 34
     region: content
     settings:
       placeholder_url: ''
@@ -246,14 +255,14 @@ content:
     third_party_settings: {  }
   field_phone_number:
     type: telephone_default
-    weight: 36
+    weight: 37
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_social_services:
     type: link_default
-    weight: 34
+    weight: 35
     region: content
     settings:
       placeholder_url: ''
@@ -261,13 +270,13 @@ content:
     third_party_settings: {  }
   field_state_abbr:
     type: options_select
-    weight: 17
+    weight: 18
     region: content
     settings: {  }
     third_party_settings: {  }
   field_state_attorney_general:
     type: link_default
-    weight: 23
+    weight: 24
     region: content
     settings:
       placeholder_url: ''
@@ -275,7 +284,7 @@ content:
     third_party_settings: {  }
   field_street_1:
     type: string_textfield
-    weight: 13
+    weight: 14
     region: content
     settings:
       size: 60
@@ -283,7 +292,7 @@ content:
     third_party_settings: {  }
   field_street_2:
     type: string_textfield
-    weight: 14
+    weight: 15
     region: content
     settings:
       size: 60
@@ -291,7 +300,7 @@ content:
     third_party_settings: {  }
   field_street_3:
     type: string_textfield
-    weight: 15
+    weight: 16
     region: content
     settings:
       size: 60
@@ -299,21 +308,21 @@ content:
     third_party_settings: {  }
   field_toll_free_number:
     type: telephone_default
-    weight: 37
+    weight: 38
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_tty_number:
     type: telephone_default
-    weight: 38
+    weight: 39
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_website:
     type: link_default
-    weight: 19
+    weight: 20
     region: content
     settings:
       placeholder_url: ''
@@ -321,7 +330,7 @@ content:
     third_party_settings: {  }
   field_zip:
     type: string_textfield
-    weight: 18
+    weight: 19
     region: content
     settings:
       size: 60
@@ -329,40 +338,40 @@ content:
     third_party_settings: {  }
   langcode:
     type: language_select
-    weight: 2
+    weight: 3
     region: content
     settings:
       include_locked: true
     third_party_settings: {  }
   moderation_state:
     type: moderation_state_default
-    weight: 10
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
   path:
     type: path
-    weight: 9
+    weight: 10
     region: content
     settings: {  }
     third_party_settings: {  }
   promote:
     type: boolean_checkbox
-    weight: 7
+    weight: 8
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 11
+    weight: 12
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   sticky:
     type: boolean_checkbox
-    weight: 8
+    weight: 9
     region: content
     settings:
       display_label: true
@@ -376,13 +385,13 @@ content:
       placeholder: ''
     third_party_settings: {  }
   translation:
-    weight: 6
+    weight: 7
     region: content
     settings: {  }
     third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 4
+    weight: 5
     region: content
     settings:
       match_operator: CONTAINS
@@ -391,7 +400,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
   url_redirects:
-    weight: 50
+    weight: 44
     region: content
     settings: {  }
     third_party_settings: {  }

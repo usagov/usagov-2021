@@ -42,6 +42,10 @@
 
   <div>
     <h3 class="usa-prose">{{ lang == 'en' ? 'State agencies' : 'Agencias estatales' }}</h3>
+    {% if content.field_social_services|render %}
+    {{ content.field_social_services }}<br>
+    {% endif %}
+    
     {% if content.field_consumer_protection|render %}
     {{ content.field_consumer_protection }}<br>
     {% endif %}
@@ -76,10 +80,6 @@
 
     {% if content.field_motor_vehicle_office|render %}
     {{ content.field_motor_vehicle_office }}<br>
-    {% endif %}
-
-    {% if content.field_social_services|render %}
-    {{ content.field_social_services }}<br>
     {% endif %}
   </div>
 
