@@ -54,11 +54,11 @@
      
     {% endfor %}
   </ul>
-<input id="state-info" aria-owns="state-info--list" aria-controls="state-info--list" aria-autocomplete="list" aria-describedby="state-info--assistiveHint" aria-expanded="false" autocapitalize="off" autocomplete="off" class="usa-combo-box__input" type="text" role="combobox" required="" aria-labelledby="state-info-label" aria-activedescendant="">
+<input id="state-info" aria-owns="state-info--list" aria-controls="state-info--list" aria-autocomplete="list" aria-describedby="state-info--assistiveHint" aria-expanded="false" autocapitalize="off" autocomplete="off" class="usa-combo-box__input" type="text" role="combobox" required="" aria-labelledby="state-info-label" aria-activedescendant="" value="Alabama">
     </div>
 		</div>
 		<div id="state-go" class="display-inline-block">
-			{#<button class="usa-button sd-go-btn" type="submit">Go</button>#}
+			
 		</div>
 	</form>
 </div>
@@ -69,3 +69,4 @@
 {% if attributes -%}
   </div>
 {% endif %}
+{#{{dd()}}#}
