@@ -39,7 +39,8 @@ class PagerPathSubscriber implements EventSubscriberInterface {
         $new_href = '/es/' . substr($original_href, 3);
       }
       if ($new_href) {
-        $html = str_replace($original_href, $new_href, $html);
+        $node->setAttribute('href', $new_href);
+        $html = $document->saveHTML();
         $event->setHtml($html);
       }
     }
