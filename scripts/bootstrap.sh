@@ -101,13 +101,12 @@ for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
 done
 
 # Specifically for www prod, remove the "noindex" header:
-# TODO: uncomment this at/after cutover!
-# if [ -f "/etc/nginx/partials/www.conf" ]; then
-#     if [ $SPACE == "prod" ]; then
-# 	echo "Snipping X-Robots-Tag out of nginx www.conf"
-# 	sed -i -e "s|.*X-Robots-Tag.*||" /etc/nginx/partials/www.conf
-#     fi
-# fi
+if [ -f "/etc/nginx/partials/www.conf" ]; then
+    if [ $SPACE == "prod" ]; then
+        echo "Snipping X-Robots-Tag out of nginx www.conf"
+        sed -i -e "s|.*X-Robots-Tag.*||" /etc/nginx/partials/www.conf
+    fi
+fi
 
 
 # update new relic with environment specific settings
