@@ -101,10 +101,10 @@ for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
 done
 
 # Specifically for www prod, remove the "noindex" header:
-# TODO: uncomment this at/after cutover! 
+# TODO: uncomment this at/after cutover!
 # if [ -f "/etc/nginx/partials/www.conf" ]; then
 #     if [ $SPACE == "prod" ]; then
-# 	echo "Snipping X-Robots-Tag out of nginx www.conf" 
+# 	echo "Snipping X-Robots-Tag out of nginx www.conf"
 # 	sed -i -e "s|.*X-Robots-Tag.*||" /etc/nginx/partials/www.conf
 #     fi
 # fi
@@ -175,13 +175,21 @@ fi
 if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ]; then
 
     echo  "Updating drupal ... "
-    drush state:set system.maintenance_mode 1 -y
+    initial_mm_state=$(drush state:get system.maintenance_mode)
+    if [ x$initial_mm_state = x0 ]; then
+       echo "maintenance mode is off:  turning on for updatedb"
+       drush state:set system.maintenance_mode 1 -y
+    fi
+
     drush cr
     drush updatedb --no-cache-clear -y
     drush cim -y || drush cim -y
     drush cim -y
     drush php-eval "node_access_rebuild();" -y
-    drush state:set system.maintenance_mode 0 -y
+
+    if [ x$initial_mm_state = x0 ]; then
+      drush state:set system.maintenance_mode 0 -y
+    fi
     drush cr
 
     echo "Bootstrap finished"
