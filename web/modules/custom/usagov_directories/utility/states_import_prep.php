@@ -385,20 +385,39 @@ function get_links_from_cdata($node, $nodename, $columnname = NULL) {
  *  - urlencode it (just in case there are spaces or chars I didn't think of)
  */
 function make_clean_alias($str) {
-  $str = urldecode($str);
+  $str = trim($str);
+
+  // We want to replace ' and ~ with - first, because later we'll want to eliminate ' from transliteration
+  $str = str_replace(['\'', '~'], ['-'], $str);
+
   // $str = iconv('UTF-8', 'ASCII//TRANSLIT', $str); // musl iconv does not support //TRANSLIT
   $str = iconv('UTF-8', 'ASCII', $str);
 
-  // $str is now plain ASCII
-  $chars = ["'", ' '];
-  $subs = ['', '-'];
-  $str = str_replace($chars, $subs, strtolower($str));
+  // conversion of some characters may have introduced ' and ~
+  $str = str_replace(['\'', '~'], [''], strtolower($str));
 
-  // Any other punctuation, replace with -:
-  $str = preg_replace('/[^\w\d]/i', '-', $str);
+  // Any non-alphanumeric characters, replace with -:
+  $str = preg_replace('/[^\w\d\/]/i', '-', $str);
+  $str = preg_replace('/-+/', '-', $str);
+  $str = preg_replace('/^-+/', '', $str);
+  $str = preg_replace('/-+$/', '', $str);
 
-  $str = urlencode($str);
   return $str;
+}
+
+function sanitize_for_url($string = '') {
+  $string = remove_accents($string);
+
+  $string = trim($string);
+  $string = strtolower($string);
+  $string = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $string);
+
+  $string = preg_replace('/[^a-zA-Z0-9\/]+/', '-', $string);
+  $string = preg_replace('/-+/', '-', $string);
+  $string = preg_replace('/^-+/', '', $string);
+  $string = preg_replace('/-+$/', '', $string);
+
+  return $string;
 }
 
 main($infile, $extended_infile, $details_infile, $outdir);
