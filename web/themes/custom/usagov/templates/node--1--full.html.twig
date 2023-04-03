@@ -1,3 +1,5 @@
+{% set lang = node.langcode.value %}
+
 <div class="main-grid">
 	{% include directory ~ '/templates/includes/homepage-banner.html.twig' %}
 
@@ -15,5 +17,9 @@
 	</div>
 
 	{% include directory ~ '/templates/includes/homepage-all-topics.html.twig' %}
+
+	<a id="back-to-top" href="#main-content">
+		{{ lang == 'en' ? 'Top' : 'Subir' }}
+	</a>
 
 </div>
