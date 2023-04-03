@@ -11,4 +11,4 @@ export SERVICE_NAME=${1:-storage}
 if ! cf service "$1" >/dev/null 2>&1
 
 export SERVICE_KEY="storagekey-$SPACE-$SERVICE_NAME"
-cf delete-service-key storage $SERVICE_KEY -f
+cf delete-service-key $SERVICE_NAME $SERVICE_KEY -f
