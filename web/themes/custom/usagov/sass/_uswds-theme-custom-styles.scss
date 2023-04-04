@@ -1231,17 +1231,18 @@ div[class^="QSIUserDefinedHTML"] {
   line-height: 1.5;
 }
 
-.usa-prose>p {
+.usa-prose>p, .usa-accordion__heading>button {
   font-size: var($regular-text-font-size);
 }
 
-.usa-accordion__heading>button{
+#question_box>div>p, #question_box>div>div {
   font-size: var($regular-text-font-size);
 }
 
-#question_box>div>p {
+#wizard_border>fieldset>label, #prior, #next{
   font-size: var($regular-text-font-size);
 }
-#question_box>div>div{
+
+.last, #share-page {
   font-size: var($regular-text-font-size);
 }
