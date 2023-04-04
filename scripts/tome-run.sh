@@ -4,7 +4,7 @@ SCRIPT_PATH=$(dirname "$0")
 SCRIPT_NAME=$(basename "$0")
 SCRIPT_PID=$$
 
-URI=${1:-https://beta.usa.gov}
+URI=${1:-https://www.usa.gov}
 FORCE=${2:-0}
 
 YMD=$(date +"%Y/%m/%d")
