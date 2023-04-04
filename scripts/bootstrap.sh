@@ -100,16 +100,6 @@ for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
     fi
 done
 
-# Specifically for www prod, remove the "noindex" header:
-# TODO: uncomment this at/after cutover!
-# if [ -f "/etc/nginx/partials/www.conf" ]; then
-#     if [ $SPACE == "prod" ]; then
-# 	echo "Snipping X-Robots-Tag out of nginx www.conf"
-# 	sed -i -e "s|.*X-Robots-Tag.*||" /etc/nginx/partials/www.conf
-#     fi
-# fi
-
-
 # update new relic with environment specific settings
 if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
   if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$NEW_RELIC_LICENSE_KEY" != "null" ]; then
