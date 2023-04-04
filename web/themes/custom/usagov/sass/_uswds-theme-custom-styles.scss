@@ -1230,3 +1230,18 @@ div[class^="QSIUserDefinedHTML"] {
 .usa-banner__header-text, .usa-banner__header-action{
   line-height: 1.5;
 }
+
+.usa-prose>p {
+  font-size: var($regular-text-font-size);
+}
+
+.usa-accordion__heading>button{
+  font-size: var($regular-text-font-size);
+}
+
+#question_box>div>p {
+  font-size: var($regular-text-font-size);
+}
+#question_box>div>div{
+  font-size: var($regular-text-font-size);
+}
