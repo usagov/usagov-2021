@@ -337,6 +337,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-863-simpler-config-maybe
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -346,6 +347,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-863-simpler-config-maybe
       - approve-dev-deployment:
           type: approval
           requires:
@@ -354,6 +356,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-863-simpler-config-maybe
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -361,6 +364,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-863-simpler-config-maybe
       - approve-stage-deployment:
           type: approval
           requires:
