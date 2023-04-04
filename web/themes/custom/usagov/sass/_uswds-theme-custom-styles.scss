@@ -1168,7 +1168,6 @@ button.usa-combo-box__toggle-list:focus {
   opacity: 1;
 }
 
-
 @media only screen and (max-width: 500px) {
   .usa-identifier {
     // Prevent Tagline from being covered by the Feedback button
@@ -1176,8 +1175,6 @@ button.usa-combo-box__toggle-list:focus {
     z-index: 2000000005;
   }
 }
-
-
 
 #backToTop {
   z-index: 2000000003;
@@ -1227,22 +1224,28 @@ div[class^="QSIUserDefinedHTML"] {
 // END Page Level Survey extra CSS
 
 //government banner
-.usa-banner__header-text, .usa-banner__header-action{
+.usa-banner__header-text,
+.usa-banner__header-action {
   line-height: 1.5;
 }
 
-.usa-prose>p, .usa-accordion__heading>button {
+.usa-prose > p,
+.usa-accordion__heading > button {
   font-size: var($regular-text-font-size);
 }
 
-#question_box>div>p, #question_box>div>div {
+#question_box > div > p,
+#question_box > div > div {
   font-size: var($regular-text-font-size);
 }
 
-#wizard_border>fieldset>label, #prior, #next{
+#wizard_border > fieldset > label,
+#prior,
+#next {
   font-size: var($regular-text-font-size);
 }
 
-.last, #share-page {
+.last,
+#share-page {
   font-size: var($regular-text-font-size);
 }
