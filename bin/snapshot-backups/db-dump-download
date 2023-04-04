@@ -34,11 +34,6 @@ if [[  x$SSH_ALLOWED == x ]]; then
   exit 1
 fi
 
-exit 1
-exit 1
-exit 1
-
-
 SQL_FILE=$TAG.sql
 GZIP_FILE=$SQL_FILE.gz
 ZIP_FILE=$SQL_FILE.zip
