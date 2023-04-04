@@ -1,49 +1,106 @@
+##################################################
+# Prod hosts: www and beta
 
 server {
     listen 80;
 
-    server_name ${WWW_HOST};
+    server_name www.usa.gov; 
 
-    resolver ${DNS_SERVER} valid=5s ipv6=off;
-
-    set_by_lua $request_uri_lowercase "return string.lower(ngx.var.uri)";
-
-    proxy_hide_header Cache-Control;
-    proxy_hide_header expires;
-    add_header Cache-Control max-age=900;
-
-    # X-Robots-Tag header to be removed from config on "prod" only!
-    add_header X-Robots-Tag noindex;
-
-    include /etc/nginx/partials/internal_redirects.conf;
-    include /etc/nginx/partials/s3proxy.conf;
-    include /etc/nginx/partials/404s.conf;
-    include /etc/nginx/partials/staticsite.conf;
+    include /etc/nginx/partials/www_common.conf;
 }
 
 server {
     listen 443 ssl;
     include partials/ssl.conf;
 
-    server_name ${WWW_HOST};
+    server_name www.usa.gov
 
-    resolver ${DNS_SERVER} valid=5s ipv6=off;
+    include /etc/nginx/partials/www_common.conf;
 
-    set_by_lua $request_uri_lowercase "return string.lower(ngx.var.uri)";
+    ### We might want to add something like this back. There were problems with it that weren't fully understood
+    ### rewrite ^/es$ /es/ permanent; # special; cannot be applied to the CMS because Drupal redirects /es/ to /es
+}
 
-    proxy_hide_header Cache-Control;
-    proxy_hide_header expires;
-    add_header Cache-Control max-age=900;
+server {
+    listen 80;
 
-    # X-Robots-Tag header to be removed from config on "prod" only!
+    server_name beta.usa.gov; 
+
+    include /etc/nginx/partials/www_common.conf;
+    
+    # Only www.usa.gov should be indexed. 
+    add_header X-Robots-Tag noindex;
+}
+
+server {
+    listen 443 ssl;
+    include partials/ssl.conf;
+
+    server_name beta.usa.gov;
+
+    include /etc/nginx/partials/www_common.conf;
+
+    # Only www.usa.gov should be indexed. 
     add_header X-Robots-Tag noindex;
 
-    include /etc/nginx/partials/internal_redirects.conf;
+    ### We might want to add something like this back. There were problems with it that weren't fully understood
+    ### rewrite ^/es$ /es/ permanent; # special; cannot be applied to the CMS because Drupal redirects /es/ to /es
+}
 
-    ### vvv - should not be needed once pages are corrected - vvv
-    ###rewrite ^/es$ /es/ permanent; # special; cannot be applied to the CMS because Drupal redirects /es/ to /es
+##################################################
+# Staging
 
-    include /etc/nginx/partials/s3proxy.conf;
-    include /etc/nginx/partials/404s.conf;
-    include /etc/nginx/partials/staticsite.conf;
+server {
+    listen 80;
+
+    server_name beta-stage.usa.gov;
+
+    include /etc/nginx/partials/www_common.conf;
+    
+    # Only www.usa.gov should be indexed. 
+    add_header X-Robots-Tag noindex;
+}
+
+server {
+    listen 443 ssl;
+    include partials/ssl.conf;
+
+    server_name beta-stage.usa.gov;
+
+    include /etc/nginx/partials/www_common.conf;
+
+    # Only www.usa.gov should be indexed. 
+    add_header X-Robots-Tag noindex;
+
+    ### We might want to add something like this back. There were problems with it that weren't fully understood
+    ### rewrite ^/es$ /es/ permanent; # special; cannot be applied to the CMS because Drupal redirects /es/ to /es
+}
+
+##################################################
+# Dev
+
+server {
+    listen 80;
+
+    server_name beta-dev.usa.gov;
+
+    include /etc/nginx/partials/www_common.conf;
+    
+    # Only www.usa.gov should be indexed. 
+    add_header X-Robots-Tag noindex;
+}
+
+server {
+    listen 443 ssl;
+    include partials/ssl.conf;
+
+    server_name beta-dev.usa.gov;
+
+    include /etc/nginx/partials/www_common.conf;
+
+    # Only www.usa.gov should be indexed. 
+    add_header X-Robots-Tag noindex;
+
+    ### We might want to add something like this back. There were problems with it that weren't fully understood
+    ### rewrite ^/es$ /es/ permanent; # special; cannot be applied to the CMS because Drupal redirects /es/ to /es
 }
