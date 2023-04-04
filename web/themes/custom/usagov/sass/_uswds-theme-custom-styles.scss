@@ -37,7 +37,7 @@ i.e.
 @forward "state-directory";
 
 .text-red {
-  color: #d83933;
+  color: var($red);
 }
 
 .question-icon {
@@ -60,7 +60,7 @@ i.e.
 .usa-footer__secondary-link a.disabled,
 .usa-footer__secondary-section a.disabled {
   pointer-events: none;
-  color: #000;
+  color: var($black);
   text-decoration: none;
 }
 
@@ -90,13 +90,13 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary:hover {
-  background-color: #ccecf2;
+  background-color: var($cyan-light);
   border: 1px solid color("cyan-50v");
 }
 
 .usa-button--secondary:visited,
 .usa-button:visited {
-  color: #1b1b1b !important;
+  color: var($off-black) !important;
 }
 
 /*
@@ -127,41 +127,41 @@ add padding at the top of flag cards
 .usa-nav__secondary-links a:hover,
 .usa-banner__button,
 .usa-card__body {
-  color: #000;
+  color: var($black);
 }
 
 // Header
 
 /** Background color for government banner **/
 .usa-banner {
-  background-color: #f3f3f3;
+  background-color: var($light-gray);
 }
 
 .usa-banner__button-text,
 .usa-banner__button-text:hover {
-  color: #1a4480;
+  color: var($text-blue);
 }
 
 .usa-banner__button-text:visited {
-  color: #4b4b4d;
+  color: var($dark-gray);
 }
 
 .usa-banner__button::after,
 .usa-banner__button:hover::after {
-  background-color: #1a4480;
+  background-color: var($text-blue);
 }
 
 .usa-banner__button:hover:visited::after {
-  background-color: #4b4b4d;
+  background-color: var($dark-gray);
 }
 
 .usa-banner__button[aria-expanded="true"]::after,
 .usa-banner__button[aria-expanded="true"]:hover::after {
-  background-color: #1a4480;
+  background-color: var($text-blue);
 }
 
 .usa-banner__button[aria-expanded="true"]:hover:visited::after {
-  background-color: #4b4b4d;
+  background-color: var($dark-gray);
 }
 
 /** info banner **/
@@ -190,19 +190,19 @@ add padding at the top of flag cards
 
 /** emergency banner header **/
 .usa-header--extended .usa-alert--error {
-  color: #fff;
+  color: var($white);
   border-left-color: color("red-70v");
   background-color: color("red-70v");
 }
 
 /** emergency banner header **/
 .usa-header--extended .usa-alert--error a {
-  color: #fff;
+  color: var($white);
 }
 
 /** info banner header **/
 .usa-header--extended .usa-alert--info {
-  border-left-color: #e7f6f8;
+  border-left-color:var($pale-blue);
 }
 
 /** info banner header **/
@@ -264,7 +264,7 @@ add padding at the top of flag cards
     font-weight: 700;
   }
 
-  color: #fff;
+  color: var($white);
   text-decoration: none;
   padding: 10px 20px;
   background-color: color("blue-80v");
@@ -276,7 +276,7 @@ add padding at the top of flag cards
     .usa-nav__primary
     > .usa-nav__primary-item
     > a.language-link:hover {
-    color: #fff;
+    color: var($white);
   }
 }
 
@@ -464,7 +464,7 @@ add padding at the top of flag cards
 /** This is to add the facebook social media icon **/
 
 .usa-social-link:hover {
-  background-color: #ccecf2;
+  background-color: var($cyan-light);
 }
 
 .usa-social-link--facebook {
@@ -641,16 +641,16 @@ a,
 .usa-breadcrumb__link,
 .usa-breadcrumb__link:hover {
   text-decoration: underline;
-  color: #1a4480;
+  color: var($text-blue);
 }
 
 .usa-breadcrumb__link:visited {
   text-decoration: underline;
-  color: #4b4b4d;
+  color: var($dark-gray);
 }
 
 a {
-  color: #1a4480;
+  color: var($text-blue);
 }
 
 #block-betabanner .usa-alert--info,
@@ -673,7 +673,7 @@ a {
       position: absolute;
       left: 1.3rem;
       top: -0.6rem;
-      background-color: #1b1b1b;
+      background-color: var($off-black);
       mask: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
       background-size: 1.5rem;
 
@@ -706,7 +706,7 @@ a {
       position: absolute;
       left: 1.6rem;
       top: -0.6rem;
-      background-color: #1b1b1b;
+      background-color: var($off-black);
       mask: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
       background-size: 1.5rem;
 
@@ -762,11 +762,11 @@ a {
 
 .usa-skipnav:active,
 .usa-skipnav:hover {
-  color: #1a4480;
+  color: var($text-blue);
 }
 
 .usa-skipnav:visited {
-  color: #4b4b4d;
+  color: var($dark-gray);
 }
 
 .usa-social-link > img {
@@ -783,7 +783,7 @@ a {
   width: 90px;
   right: -100px;
   bottom: 80px;
-  background: #e8f0f7;
+  background:var($off-white);
   transition: right 0.5s;
   background-image: url("/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png");
   background-size: 45px;
@@ -834,7 +834,7 @@ div #sm-share a {
   font-feature-settings: "kern" 1;
   font-kerning: normal;
   box-sizing: inherit;
-  color: #1b1b1b;
+  color: var($off-black);
   text-decoration: none;
   padding: 0;
   font-weight: 700;
@@ -891,7 +891,7 @@ div #sm-share a {
 
 .usa-gov-footer__primary-link--button:focus {
   text-decoration: underline;
-  outline: 0.25rem solid #c05600;
+  outline: 0.25rem solid var($deep-orange);
   outline-offset: -0.25rem;
 }
 
@@ -906,18 +906,18 @@ div #sm-share a {
 // error styles for elected officials
 
 .usa-error {
-  color: #d83933;
+  color: var($red);
   font-weight: 600;
 }
 
 .usa-user-error {
-  border-color: #d83933;
+  border-color: var($red);
   border-width: 3px;
   border-style: solid;
 }
 
 .usa-main-border-error {
-  border-left: 3px solid #d83933;
+  border-left: 3px solid var($red);
 
   .usa-border-error {
     border-left: none;
@@ -925,7 +925,7 @@ div #sm-share a {
 }
 
 .usa-border-error {
-  border-left: 3px solid #d83933;
+  border-left: 3px solid var($red);
 }
 
 .usa-form-spacing {
@@ -955,7 +955,7 @@ div #sm-share a {
 }
 
 .currentMenuItem::after {
-  background-color: #00bde3;
+  background-color: var($cyan-30v);
   border-radius: 0;
   content: "";
   display: block;
@@ -969,8 +969,8 @@ div #sm-share a {
 // scams reskin
 
 .block-wizardenglish {
-  background-color: #f3f3f3;
-  border-top: 4px solid #112f4e;
+  background-color: var($light-gray);
+  border-top: 4px solid var($deep-blue);
   padding-top: 2rem;
   padding-left: 3rem;
   padding-right: 2rem;
@@ -987,7 +987,7 @@ div #sm-share a {
 }
 
 .block-wizardenglish div.usa-prose h1 {
-  color: #112f4e;
+  color: var($deep-blue);
   padding-bottom: 1.5rem;
   margin-top: 0;
   font-size: 2.25rem;
@@ -1009,8 +1009,8 @@ div #sm-share a {
 }
 
 .block-wizardenglish .usa-button {
-  color: #1b1b1b;
-  background-color: #ccecf2;
+  color: var($off-black);
+  background-color: var($cyan-light);
   @media (max-width: 40em) {
     margin-bottom: 8px;
   }
@@ -1024,19 +1024,19 @@ div #sm-share a {
 
 .block-wizardenglish .usa-scam-label {
   border-bottom: 1px solid gray;
-  color: #112f43;
+  color:var($dark-blue);
   font-weight: 500;
 }
 
 button#prior.usa-button--outline {
-  background-color: #fff;
-  box-shadow: inset 0 0 0 2px #000;
+  background-color: var($white);
+  box-shadow: inset 0 0 0 2px var($black);
 }
 
 button#next.usa-button,
 .block-wizardenglish a.usa-button {
-  background-color: #ccecf2;
-  box-shadow: inset 0 0 0 2px #0081a1;
+  background-color: var($cyan-light);
+  box-shadow: inset 0 0 0 2px var($cyan-50v);
 }
 
 .block-wizardenglish .usa-prose > p {
@@ -1044,11 +1044,11 @@ button#next.usa-button,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked + [class*="__label"] {
-  background-color: #ccecf2;
+  background-color: var($cyan-light);
 }
 
 .wizard_error {
-  border-left: 3px solid #d83933;
+  border-left: 3px solid var($red);
   padding-left: 5px;
 }
 
@@ -1058,11 +1058,11 @@ button#next.usa-button,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked + .usa-radio__label {
-  border-color: #c05600;
+  border-color: var($deep-orange);
 }
 
 .block-wizardenglish [tabindex]:focus {
-  outline: 0.25rem solid #c05600;
+  outline: 0.25rem solid var($deep-orange);
   outline-offset: 0;
   width: fit-content;
   margin-left: 0;
@@ -1196,10 +1196,10 @@ div[class^="QSIUserDefinedHTML"] {
 }
 
 #pagesurvey-qual-hdr {
-  background: #ccecf2;
+  background: var($cyan-light);
   font-size: 130%;
   display: block;
-  color: #1b1b1b;
+  color: var($off-black);
   padding: 12px 0 15px;
   margin: 0 auto;
   max-width: 960px;
@@ -1215,7 +1215,7 @@ div[class^="QSIUserDefinedHTML"] {
 }
 
 #pagesurvey-qual-container:focus {
-  outline: #c05600 solid 3px;
+  outline: var($deep-orange) solid 3px;
 }
 
 @media only screen and (max-width: 500px) {
