@@ -2,7 +2,7 @@ _core:
   default_config_hash: yXadRE77Va-G6dxhd2kPYapAvbnSvTF6hO4oXiOEynI
 langcode: en
 uuid: 6426615d-a9df-4b9a-b535-43c6cdfe8c04
-name: USA.gov
+name: USAGov
 mail: cmp-auto-reply@gsa.gov
 slogan: ''
 page:
