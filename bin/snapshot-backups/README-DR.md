@@ -21,7 +21,7 @@ Create environment variables in your shell session for
 
 ### Static site backup
 
-        echo=echo   Do NOT export echo. Ask me how I know this (tm).
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
         $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX site-snapshot-create
         $echo bin/snapshot-backups/site-snapshot-list ${dryrun}
@@ -29,7 +29,7 @@ Create environment variables in your shell session for
 
 ### DB backup
 
-        echo=echo   Do NOT export echo. Ask me how I know this (tm).
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
         $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-download
         $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-push-to-snapshot
@@ -77,13 +77,13 @@ Specifically the functions *assertSpace,  spaceCCIContainerTag* and *createSpace
 
 ### Static Site Restore
 
-        echo=echo   Do NOT export echo. Ask me how I know this (tm).
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
         $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX site-snapshot-deploy
 
 ### DB Restore
 
-        echo=echo   Do NOT export echo. Ask me how I know this (tm).
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
         $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-deploy
 ___
@@ -101,7 +101,7 @@ ___
 
 ### Manually Tagged Static site backup
 
-        echo=echo   Do NOT export echo. Ask me how I know this (tm).
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
         $echo bin/snapshot-backups/site-snapshot-create $BACKUP_TAG
         $echo bin/snapshot-backups/site-snapshot-download $BACKUP_TAG
@@ -109,11 +109,11 @@ ___
 
 ### Manually Tagged DB backup
 
-        echo=echo   Do NOT export echo. Ask me how I know this (tm).
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
         $echo bin/snapshot-backups/db-dump-download $BACKUP_TAG
         $echo bin/snapshot-backups/db-dump-push-to-snapshot $BACKUP_TAG
-        $echo bin/snapshot-backups/db-list
+        $echo bin/snapshot-backups/db-snapshot-list
 
 ## 3. Snapshot restore
 
