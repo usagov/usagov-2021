@@ -3,7 +3,8 @@
 
     location @notFoundEnglish {
       allow all;
-      error_page 404 403 @notFoundEnglishFallback;
+      error_page 404 @notFoundEnglishFallback;
+      error_page 403 =404 @notFoundEnglishFallback;
       proxy_intercept_errors on;
       recursive_error_pages on;
       set $errorfile "${S3_PROXY_WEB}${EN_404_PAGE}";
@@ -20,7 +21,8 @@
 
     location @notFoundSpanish {
       allow all;
-      error_page 404 403 @notFoundSpanishFallback;
+      error_page 404 @notFoundSpanishFallback;
+      error_page 403 =404 @notFoundSpanishFallback;
       proxy_intercept_errors on;
       recursive_error_pages on;
       set $errorfile "${S3_PROXY_WEB}${ES_404_PAGE}";
