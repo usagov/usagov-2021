@@ -14,7 +14,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
   elif [ "${APP_SPACE}" = "local" ]; then
     URI="https://${WWW_HOST}"
   else
-    URI="https://beta.usa.gov"
+    URI="https://www.usa.gov"
   fi
 
   /var/www/scripts/tome-run.sh $URI $@
