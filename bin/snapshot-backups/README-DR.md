@@ -5,7 +5,15 @@
 
 ### Setup prior to taking a snapshot backup
 
-Create environment variables in your shell session for
+A. In the target environment, make sure in the CMS, that:
+
+1. Maintenance Mode is ON
+
+1. Static Site Generation is DISABLED
+
+1. If Tome is running, wait until it has completed before starting steps in *Static site backup* section below
+
+B. Create environment variables in your shell session for
 
 1. The Jira build ticket id
 
@@ -34,6 +42,14 @@ Create environment variables in your shell session for
         $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-download
         $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-push-to-snapshot
         $echo bin/snapshot-backups/db-list ${dryrun}
+
+### Post snapshot backup procedure
+
+A. In the target environment, make sure in the CMS, that:
+
+1. Maintenance Mode is OFF
+
+2. Static Site Generation is ENABLED
 
 ### ***TL;DR for helper script***
 
