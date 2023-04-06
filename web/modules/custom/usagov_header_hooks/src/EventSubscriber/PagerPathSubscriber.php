@@ -2,6 +2,7 @@
 
 namespace Drupal\usagov_header_hooks\EventSubscriber;
 
+use Drupal\tome_static\Event\ModifyDestinationEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
