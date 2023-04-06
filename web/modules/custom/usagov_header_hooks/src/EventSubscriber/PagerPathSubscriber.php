@@ -31,7 +31,7 @@ class PagerPathSubscriber implements EventSubscriberInterface {
     $destination = $event->getDestination();
     $url_parts = parse_url($destination);
     // TODO: Also check that this URL is on-site
-    if ($url_parts['path'] == '/es/') {
+    if ($url_parts && $url_parts['path'] == '/es/') {
       $url_parts['path'] = '/es';
       $url = $url_parts['path'];
       if ($query = $url_parts['query']) {
