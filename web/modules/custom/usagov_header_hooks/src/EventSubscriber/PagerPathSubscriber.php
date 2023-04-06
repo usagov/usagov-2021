@@ -6,7 +6,6 @@ use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-
 /**
  * Converts links to "/es" to "/es/".
  * Based on the tome_static PagerEventSubscriber.
