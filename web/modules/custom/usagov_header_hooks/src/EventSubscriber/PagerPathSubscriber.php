@@ -29,8 +29,19 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    */
   public function modifyDestination(ModifyDestinationEvent $event) {
     $destination = $event->getDestination();
-    $destination = $this->modifyUrl($destination);
-    $event->setDestination($destination);
+    $url_parts = parse_url($destination);
+    // TODO: Also check that this URL is on-site
+    if ($url_parts['path'] == '/es/') {
+      $url_parts['path'] = '/es';
+      $url = $url_parts['path'];
+      if ($query = $url_parts['query']) {
+        $url .= '?' . $query;
+      }
+      if ($fragment = $url_parts['fragment']) {
+        $url .= '#' . $fragment;
+      }
+      $event->setDestination($url);
+    }
   }
 
   /**
@@ -67,25 +78,6 @@ class PagerPathSubscriber implements EventSubscriberInterface {
       $html = $document->saveHTML();
       $event->setHtml($html);
     }
-  }
-
-  /**
-   * Modifies a URL to replace "/es/" with "/es".
-   *
-   * @param string $url
-   *   A URL.
-   *
-   * @return string
-   *   The modified URL.
-   */
-  protected function modifyUrl($url) {
-    $url_parts = parse_url($url);
-    // TODO: Also check that this URL is on-site
-    if ($url_parts['path'] == '/es/') {
-      $url_parts['path'] = '/es';
-      $url = unparse_url($url_parts);
-    }
-    return $url;
   }
 
   /**
