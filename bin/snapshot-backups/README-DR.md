@@ -41,7 +41,7 @@ B. Create environment variables in your shell session for
         dryrun='--dryrun'
         $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-download
         $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-push-to-snapshot
-        $echo bin/snapshot-backups/db-list ${dryrun}
+        $echo bin/snapshot-backups/db-snapshot-list ${dryrun}
 
 ### Post snapshot backup procedure
 
