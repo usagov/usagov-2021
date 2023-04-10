@@ -60,7 +60,9 @@
 		{% if items %}
 			{% for item in items %}
 				{% set link_title = item.title %}
-				{% set link_attributes = item.attributes %}
+				{% set link_description = item.original_link.description %}
+
+
 				{% if menu_level == 0 and item.below %}
 					<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
 						<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
@@ -68,17 +70,21 @@
 								{{ link_title }}
 							</h3>
 						{% else %}
-							<li class="usa-footer__secondary-link">
-							{{ link(link_title, item.url) }}
-						</li>
+							{% if link_description == "add_space" %}
+								<li class="usa-footer__secondary-link ftr-list">
+              {% else %}
+                <li class="usa-footer__secondary-link">
+              {% endif %}
+									{{ link(link_title, item.url) }}
+								</li>
+							{% endif %}
+							{% if item.below %}
+								<ul class="usa-list usa-list--unstyled">
+									{{ _self.menu_links(item.below, attributes.removeClass(classes), menu_level + 1) }}
+								</ul>
+							</section>
+						</div>
 					{% endif %}
-					{% if item.below %}
-						<ul class="usa-list usa-list--unstyled">
-							{{ _self.menu_links(item.below, attributes.removeClass(classes), menu_level + 1) }}
-						</ul>
-					</section>
-				</div>
+				{% endfor %}
 			{% endif %}
-		{% endfor %}
-	{% endif %}
-{% endmacro %}
+		{% endmacro %}
