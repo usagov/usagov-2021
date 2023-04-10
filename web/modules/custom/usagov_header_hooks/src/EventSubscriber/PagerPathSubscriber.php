@@ -2,6 +2,7 @@
 
 namespace Drupal\usagov_header_hooks\EventSubscriber;
 
+use Drupal\tome_static\Event\ModifyDestinationEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -12,7 +13,36 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal
  */
+
 class PagerPathSubscriber implements EventSubscriberInterface {
+
+  /**
+   * Reacts to a modify destination event. This converts "/es/" to "/es", because
+   * Drupal will always redirect a path with a trailing / to its equivalent without,
+   * and we do not want to create a redirect at /es/index.html!
+   * This catches cases where text content includes links to "/es/".
+   * Content based on entity references will never have the trailing /, which is
+   * why we have to add it in an EventSubscriber.
+   *
+   * @param \Drupal\tome_static\Event\ModifyDestinationEvent $event
+   *   The event.
+   */
+  public function modifyDestination(ModifyDestinationEvent $event) {
+    $destination = $event->getDestination();
+    $url_parts = parse_url($destination);
+    // TODO: Also check that this URL is on-site
+    if ($url_parts && in_array('path', $url_parts) && ($url_parts['path'] == '/es/')) {
+      $url_parts['path'] = '/es';
+      $url = $url_parts['path'];
+      if ($query = $url_parts['query']) {
+        $url .= '?' . $query;
+      }
+      if ($fragment = $url_parts['fragment']) {
+        $url .= '#' . $fragment;
+      }
+      $event->setDestination($url);
+    }
+  }
 
   /**
    * Reacts to a modify HTML event.
@@ -54,6 +84,7 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
+    $events[TomeStaticEvents::MODIFY_DESTINATION][] = ['modifyDestination'];
     $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
     return $events;
   }
