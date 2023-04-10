@@ -34,7 +34,7 @@ export S3_BUCKET
 export S3_ENDPOINT
 
 SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep www | tr '\n' ' ')}
+WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | tr '\n' ' ')}
 WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | tr '\n' ' ')}
 CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms | tr '\n' ' ')}
 if [ -z "$WWW_HOST" ]; then
