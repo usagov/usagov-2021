@@ -87,7 +87,7 @@ See the file
 
         bin/deploy/includes
 
-Specifically the functions *assertSpace,  spaceCCIContainerTag* and *createSpaceAssertedBackupTag* for details of how the *stw* (snapshoot tool wrapper) script assembles the backup tag, and asserts that the currect space matches the arguments provided to *stw*
+Specifically the functions *assertSpace,  spaceCCIContainerTag* and *createSpaceAssertedBackupTag* for details of how the *stw* (snapshot tool wrapper) script assembles the backup tag, and asserts that the currect space matches the arguments provided to *stw*
 
 ## Snapshot restore using helper
 
@@ -119,18 +119,18 @@ ___
 
         echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
-        $echo bin/snapshot-backups/site-snapshot-create $BACKUP_TAG
-        $echo bin/snapshot-backups/site-snapshot-download $BACKUP_TAG
-        $echo bin/snapshot-backups/site-snapshot-list
+        $echo bin/snapshot-backups/site-snapshot-create ${dryrun} $BACKUP_TAG
+        $echo bin/snapshot-backups/site-snapshot-download  ${dryrun} $BACKUP_TAG
+        $echo bin/snapshot-backups/site-snapshot-list ${dryrun}
 
 ### Manually Tagged DB backup
 
         echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
-        $echo bin/snapshot-backups/db-dump-download $BACKUP_TAG
-        $echo bin/snapshot-backups/db-dump-push-to-snapshot $BACKUP_TAG
-        $echo bin/snapshot-backups/db-snapshot-list
+        $echo bin/snapshot-backups/db-dump-download ${dryrun} $BACKUP_TAG
+        $echo bin/snapshot-backups/db-dump-push-to-snapshot ${dryrun}  $BACKUP_TAG
+        $echo bin/snapshot-backups/db-snapshot-list ${dryrun}
 
 ## 3. Snapshot restore
 
-TBD
+        Implemented for both static site and db - not documented yet
