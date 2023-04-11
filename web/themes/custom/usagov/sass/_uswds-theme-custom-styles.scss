@@ -516,7 +516,7 @@ add padding at the top of flag cards
 }
 
 .footer-question {
-  height: 15px;
+  min-height: 15px;
 }
 
 @media (min-width: 30em) {
@@ -1233,4 +1233,7 @@ div[class^="QSIUserDefinedHTML"] {
 
 #footer-email {
   border-color: var($off-black);
+}
+.footer-button{
+  border: 1px solid #1b1b1b;
 }
