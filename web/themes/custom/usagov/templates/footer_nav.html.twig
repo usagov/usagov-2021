@@ -1,3 +1,4 @@
+{% set lang = node.langcode.value %}
 <footer class="{{ footer_classes }}" role="contentinfo">
 	{% if lang == 'es' %}
 		{{ drupal_menu('primary-footer-spanish', expand=true) }}
