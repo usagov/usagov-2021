@@ -158,12 +158,8 @@
 						{% include '@usagov/sharethispage.html.twig' %}
 						{% include '@usagov/haveaquestion.html.twig' %}
 
-
-						{% if (term_name == "" or term_name == "Standard Page" or term_name =="Standard Page- Nav Hidden") and not is_front %}
-
-							<div id="pagesurvey-qual-container"></div>
-							<div id="pagesurvey-trgt-qualtrics"></div>
-						{% endif %}
+						<div id="pagesurvey-qual-container"></div>
+						<div id="pagesurvey-trgt-qualtrics"></div>
 					</div>
 
 				</div>
@@ -176,14 +172,15 @@
 			</div>
 		</div>
 
-		<a id="back-to-top" href="#main-content">
-			{{ lang == 'en' ? 'Top' : 'Subir' }}
-		</a>
+
 	{% else %}
 		<main class="main-content usa-layout-docs no-footer-gap {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
 
 			{{ page.content }}
 		{% endif %}
+<a id="back-to-top" href="#main-content">
+	{{ lang == 'en' ? 'Top' : 'Subir' }}
+</a>
 
 	</main>
 
