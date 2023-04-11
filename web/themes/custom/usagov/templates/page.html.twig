@@ -172,14 +172,15 @@
 			</div>
 		</div>
 
-		<a id="back-to-top" href="#main-content">
-			{{ lang == 'en' ? 'Top' : 'Subir' }}
-		</a>
+
 	{% else %}
 		<main class="main-content usa-layout-docs no-footer-gap {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
 
 			{{ page.content }}
 		{% endif %}
+<a id="back-to-top" href="#main-content">
+	{{ lang == 'en' ? 'Top' : 'Subir' }}
+</a>
 
 	</main>
 
