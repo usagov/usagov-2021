@@ -1245,6 +1245,9 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
+.wizard_result > p {
+  font-size: var($regular-text-font-size);
+}
 .last,
 #share-page {
   font-size: var($smaller-text-font-size);
