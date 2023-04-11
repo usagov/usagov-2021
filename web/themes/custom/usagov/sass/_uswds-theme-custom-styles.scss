@@ -516,7 +516,7 @@ add padding at the top of flag cards
 }
 
 .footer-question {
-  height: 15px;
+  min-height: 15px;
 }
 
 @media (min-width: 30em) {
@@ -1229,4 +1229,8 @@ div[class^="QSIUserDefinedHTML"] {
 //government banner
 .usa-banner__header-text, .usa-banner__header-action{
   line-height: 1.5;
+}
+
+.footer-button{
+  border: 1px solid #1b1b1b;
 }
