@@ -1161,12 +1161,13 @@ select:not([disabled]):focus {
     text-align: center;
   }
 }
+*/
 
 button.usa-combo-box__clear-input:focus,
 button.usa-combo-box__toggle-list:focus {
   opacity: 1;
 }
-*/
+
 
 @media only screen and (max-width: 500px) {
   .usa-identifier {
@@ -1228,4 +1229,8 @@ div[class^="QSIUserDefinedHTML"] {
 //government banner
 .usa-banner__header-text, .usa-banner__header-action{
   line-height: 1.5;
+}
+
+.footer-button{
+  border: 1px solid #1b1b1b;
 }
