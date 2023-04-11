@@ -1,7 +1,7 @@
 #!/bin/sh
 set -x
 
-URI=${1:-https://beta.usa.gov}
+URI=${1:-https://www.usa.gov}
 
 echo "Starting Static Site Generation : "$(date)
 mkdir -p /var/www/html
