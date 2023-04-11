@@ -1,6 +1,9 @@
 <footer class="{{ footer_classes }}" role="contentinfo">
-  {{ drupal_menu('primary-footer', expand=true) }}
-	{# {% include '@usagov/footer-primary.html.twig' %} #}
+	{% if lang == 'es' %}
+		{{ drupal_menu('primary-footer-spanish', expand=true) }}
+	{% else %}
+		{{ drupal_menu('primary-footer', expand=true) }}
+	{% endif %}
 	{% include '@usagov/footer-secondary.html.twig' %}
 	{% include '@usagov/footer-identifier.html.twig' %}
 </footer>
