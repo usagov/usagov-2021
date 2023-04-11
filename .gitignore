@@ -8,6 +8,7 @@
 /.aws
 /*.crt
 /*.key
+/.idea
 
 *.sql
 *.gz
