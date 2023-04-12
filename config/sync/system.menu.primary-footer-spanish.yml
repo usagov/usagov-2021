@@ -1,0 +1,8 @@
+uuid: 6bb15a51-f79b-44d5-84fc-d9564aaf0138
+langcode: en
+status: true
+dependencies: {  }
+id: primary-footer-spanish
+label: 'Primary Footer Spanish'
+description: ''
+locked: false
