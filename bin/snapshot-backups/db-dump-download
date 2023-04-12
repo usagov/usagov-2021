@@ -26,6 +26,13 @@ then
 fi
 
 TAG=${1}
+SPACE=$(cf target | grep space: | awk '{ print $2 }')
+
+SSH_ALLOWED=$(cf space-ssh-allowed $SPACE | grep enabled)
+if [[  x$SSH_ALLOWED == x ]]; then
+  echo Cloud Foundry ssh to $SPACE is not enabled - exiting
+  exit 1
+fi
 
 SQL_FILE=$TAG.sql
 GZIP_FILE=$SQL_FILE.gz
