@@ -1,7 +1,110 @@
 
 # Backup and Restore Site and DB snapshots
 
-## 1. Snapshot backup
+## 1. Snapshot backup using helper script *bin/cloudgov/snapshot-backups/stw*
+
+### Setup prior to taking a snapshot backup
+
+A. In the target environment, make sure in the CMS, that:
+
+1. Maintenance Mode is ON
+
+1. Static Site Generation is DISABLED
+
+1. If Tome is running, wait until it has completed before starting steps in *Static site backup* section below
+
+B. Create environment variables in your shell session for
+
+1. The Jira build ticket id
+
+1. The cloud.gov space to which deployment is taking place
+
+1. A description of whether this snapshot is pre or post deployment
+
+        export BRANCH=USAGOV-999
+        export SPACE=prod
+        export SUFFIX=pre-deploy
+
+1. Proceed to *Static site backup* step
+
+### Static site backup
+
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
+        dryrun='--dryrun'
+        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX site-snapshot-create
+        $echo bin/snapshot-backups/site-snapshot-list ${dryrun}
+        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX site-snapshot-download
+
+### DB backup
+
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
+        dryrun='--dryrun'
+        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-download
+        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-push-to-snapshot
+        $echo bin/snapshot-backups/db-snapshot-list ${dryrun}
+
+### Post snapshot backup procedure
+
+A. In the target environment, make sure in the CMS, that:
+
+1. Maintenance Mode is OFF
+
+2. Static Site Generation is ENABLED
+
+### ***TL;DR for helper script***
+
+*stw* creates a tag string from the branch, space, and suffix arguments, and then runs the command specificed by the last argument.
+
+Note that *stw* will also grab the build string from /etc/motd on the target cms deployment and include it in the tag string.
+
+The tag created by *stw* will look like:
+
+        USAGOV-784.prod.4250.pre-deploy
+
+### A note on the arguments for stw, listed in the examples below:
+
+1. **$SPACE** - specify the space in which the snapshot will be taken/restored (MUST be the current space - this is on purpose)
+
+1. **$BRANCH** - this is free-form, but should probably be the ticket ID for the branch being used to document the deployment being backed up.
+
+1. **$SUFFIX** - this is free-form, but should probably be used to specify at which point in the deployment process the snapshot is taken (e.g. pre-deploy, post-deploy)
+
+1. **command** this is the name of the script to be run by stw (without the path).  Possbible commands are:
+
+* *site-snapshot-create*
+
+* *site-snapshot-download*
+
+* *db-dump-download*
+
+* *db-dump-push-to-snapshot*
+
+### Example
+
+        bin/snapshot-backups/stw prod USAGOV-787 pre-deploy site-snapshot-create
+
+See the file
+
+        bin/deploy/includes
+
+Specifically the functions *assertSpace,  spaceCCIContainerTag* and *createSpaceAssertedBackupTag* for details of how the *stw* (snapshot tool wrapper) script assembles the backup tag, and asserts that the currect space matches the arguments provided to *stw*
+
+## Snapshot restore using helper
+
+### Static Site Restore
+
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
+        dryrun='--dryrun'
+        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX site-snapshot-deploy
+
+### DB Restore
+
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
+        dryrun='--dryrun'
+        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-deploy
+___
+
+## 2. Snapshot backup - Manual Tag Creation
 
 ### Preparation for backup and restore
 
@@ -12,33 +115,22 @@
         For example:
         USAGOV-784-defacement-recovery.dev.4250.process_test_001
 
-### Static site backup
-        export echo=echo
-        $echo bin/snapshot-backups/site-snapshot-create $BACKUP_TAG
-        $echo bin/snapshot-backups/site-snapshot-download $BACKUP_TAG
-        $echo bin/snapshot-backups/site-snapshot-list
+### Manually Tagged Static site backup
 
-### DB backup
-        export echo=echo
-        $echo bin/snapshot-backups/db-dump-download $BACKUP_TAG
-        $echo bin/snapshot-backups/db-dump-push-to-snapshot $BACKUP_TAG
-        $echo bin/snapshot-backups/db-list
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
+        dryrun='--dryrun'
+        $echo bin/snapshot-backups/site-snapshot-create ${dryrun} $BACKUP_TAG
+        $echo bin/snapshot-backups/site-snapshot-download  ${dryrun} $BACKUP_TAG
+        $echo bin/snapshot-backups/site-snapshot-list ${dryrun}
 
-## 2. Snapshot backup using helper (creates tag from Branch, Space, Suffix. Then runs command)
+### Manually Tagged DB backup
 
-### See *bin/deploy/includes*, specifically the functions *assertSpace,  spaceCCIContainerTag* and *createSpaceAssertedBackupTag* for details of how the *stw* (snapshoot tool wrapper) script assembles the backup tag, and asserts that the currect space matches the arguments provided to *stw*
+        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
+        dryrun='--dryrun'
+        $echo bin/snapshot-backups/db-dump-download ${dryrun} $BACKUP_TAG
+        $echo bin/snapshot-backups/db-dump-push-to-snapshot ${dryrun}  $BACKUP_TAG
+        $echo bin/snapshot-backups/db-snapshot-list ${dryrun}
 
-### Static site backup
-        export echo=echo
-        $echo bin/snapshot-backups/stw $SPACE $BRANCH $SUFFIX site-snapshot-create
-        $echo bin/snapshot-backups/stw $SPACE $BRANCH $SUFFIX site-snapshot-download
-        $echo bin/snapshot-backups/site-snapshot-list
-
-### DB backup
-        export echo=echo
-        $echo bin/snapshot-backups/stw $BACKUP_TAG db-dump-download
-        $echo bin/snapshot-backups/stw $BACKUP_TAG db-dump-push-to-snapshot
-        $echo bin/snapshot-backups/db-list
 ## 3. Snapshot restore
 
-## 4. Snapshot restore using helper
+        Implemented for both static site and db - not documented yet
