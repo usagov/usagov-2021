@@ -13,6 +13,17 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+if [ x$echo == xecho ]; then
+  echo "Existing Database Tags ... (dry run - no tags will be collected)"
+   exit
+fi
+
 printf "Existing Database Tags ..."
 
 WITH_DATES="0"
