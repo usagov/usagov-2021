@@ -516,7 +516,7 @@ add padding at the top of flag cards
 }
 
 .footer-question {
-  height: 15px;
+  min-height: 15px;
 }
 
 @media (min-width: 30em) {
@@ -789,7 +789,7 @@ a {
   background-size: 45px;
   background-position: 2px;
   background-repeat: no-repeat;
-  padding: 0 0 0 45px;
+  padding: 0 15px 0 50px;
   border-radius: 25px 0 0 25px;
   line-height: 50px;
   display: inline-block;
@@ -1168,7 +1168,6 @@ button.usa-combo-box__toggle-list:focus {
   opacity: 1;
 }
 
-
 @media only screen and (max-width: 500px) {
   .usa-identifier {
     // Prevent Tagline from being covered by the Feedback button
@@ -1176,8 +1175,6 @@ button.usa-combo-box__toggle-list:focus {
     z-index: 2000000005;
   }
 }
-
-
 
 #backToTop {
   z-index: 2000000003;
@@ -1227,6 +1224,34 @@ div[class^="QSIUserDefinedHTML"] {
 // END Page Level Survey extra CSS
 
 //government banner
-.usa-banner__header-text, .usa-banner__header-action{
+.usa-banner__header-text,
+.usa-banner__header-action {
   line-height: 1.5;
+}
+
+.usa-prose > p,
+.usa-accordion__heading > button {
+  font-size: var($regular-text-font-size);
+}
+
+#question_box > div > p,
+#question_box > div > div {
+  font-size: var($regular-text-font-size);
+}
+
+#wizard_border > fieldset > label,
+#prior,
+#next {
+  font-size: var($regular-text-font-size);
+}
+
+.wizard_result > p {
+  font-size: var($regular-text-font-size);
+}
+.last,
+#share-page {
+  font-size: var($smaller-text-font-size);
+}
+.footer-button{
+  border: 1px solid #1b1b1b;
 }
