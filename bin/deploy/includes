@@ -133,7 +133,7 @@ function spaceCCIContainerTag() {
   tmpMotd=$(mktemp /tmp/motd.${desiredSpace}.XXXXXX)
   cf ssh cms -c "cat /etc/motd" > $tmpMotd
     if [ -s $tmpMotd ]; then
-        CONTAINER_TAG=$(grep containertag $tmpMotd | sed 's/containertag\:\s*//' | sed 's/^\s*//')
+        CONTAINER_TAG=$(grep containertag $tmpMotd | sed 's/containertag\:[[:space:]]*//' | sed 's/^[[:space:]]*//')
         if [ -n $CONTAINER_TAG ]; then
             echo ${desiredSpace}.$CONTAINER_TAG
             rm -f $tmpMotd

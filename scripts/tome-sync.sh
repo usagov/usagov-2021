@@ -70,12 +70,14 @@ cp -rf /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
 echo "Removing unwanted files ... "
 rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
 
+# duplicate the logic used by the bootstrap script to find the static site hostname
+WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | head -n 1)
+WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)}
+
 # replacing inaccurate hostnames
 echo "Replacing references to CMS hostname ... "
-find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|beta\1.usa.gov|ig' {} \;
+find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|'"$WWW_HOST"'|ig' {} \;
 
-# duplicate the logic used by the bootstrap script to find the static site hostname
-WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)
 # duplicate the logic used by the egress proxy to find bucket names
 n=$(echo -E "$VCAP_SERVICES" | jq -r '.s3 | length')
 i=0
