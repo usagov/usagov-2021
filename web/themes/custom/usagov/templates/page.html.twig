@@ -148,7 +148,7 @@
 						{% if show_last_updated %}
 
 							{% if node.changed.value %}
-								<p class="last">{{ lang == 'en' ? 'Last updated: ' : 'Última actualización: '}}
+								<p class="last">{{ lang == 'en' ? 'LAST UPDATED: ' : 'Última actualización: '}}
 									{% set date = node.changed.value %}
 									{% include '@usagov/dates.html.twig' %}
 								</p>
