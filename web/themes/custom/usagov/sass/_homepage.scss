@@ -348,7 +348,7 @@
   border: none;
   padding-left: 0;
   padding-right: 0;
-  margin-right: 8px;
+  margin-right: 0px;
 }
 
 .carousel__navigation_dot {
@@ -363,8 +363,8 @@
 }
 
 .carousel__navigation_button[aria-current="true"] .carousel__navigation_dot {
-  fill: var($white);
-  stroke: var(white);
+  fill: var($cyan-30v);
+  stroke: var($cyan-30v);
   stroke-width: 6px;
 }
 
