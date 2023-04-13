@@ -180,7 +180,7 @@ fi
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
-  aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --size-only --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 else
   echo "Not pushing content to S3."
 fi
