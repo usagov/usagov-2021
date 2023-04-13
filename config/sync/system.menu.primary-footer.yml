@@ -1,0 +1,8 @@
+uuid: 066b6075-3805-48fe-8064-a70f6e63bdc0
+langcode: en
+status: true
+dependencies: {  }
+id: primary-footer
+label: 'Primary Footer'
+description: ''
+locked: false

@@ -32,7 +32,7 @@ echo
 
 echo "=========================================================================================="
 echo "List static site backups present in S3:"
-bin/snapshot-backups/site-snapshot-list
+bin/snapshot-backups/site-snapshot-list ${dryrun}
 echo
 
 ####
@@ -53,4 +53,4 @@ echo
 
 echo "=========================================================================================="
 echo "List database dumps present in S3:"
-bin/snapshot-backups/db-snapshot-list
+bin/snapshot-backups/db-snapshot-list ${dryrun}
