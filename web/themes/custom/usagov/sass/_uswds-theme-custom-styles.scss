@@ -1074,95 +1074,6 @@ button#next.usa-button,
   }
 }
 
-//state directory
-/*
-.one-column-bullet li {
-  margin: 0 0 10px;
-  list-style-type: disc;
-}
-
-.custom-select {
-  width: 295px;
-  overflow: hidden;
-  border: 1px solid #777580;
-  background: url("../images/Icon_Arrow_Dropdown.png") 95% 50% no-repeat;
-  background-color: #fff;
-  display: inline-block;
-  vertical-align: text-top;
-  margin: 0 5px 0 0;
-}
-
-.custom-select select {
-  width: 293px;
-  appearance: none;
-  appearance: none;
-  appearance: none;
-  appearance: none;
-  font-size: 1em;
-  height: 36px;
-  padding: 0 0 0 10px;
-  border: none;
-  border-radius: 0;
-  background-color: transparent;
-}
-
-.custom-select select::-ms-expand {
-  display: none;
-}
-
-@media (min-width: 600px) {
-  .custom-select {
-    margin: 0 20px 70px 0;
-  }
-}
-
-@media (min-width: 481px) and (max-width: 599px) {
-  .custom-select {
-    margin: 0 20px 20px 0;
-  }
-}
-
-#statego {
-  display: inline-block;
-  text-align: center;
-  float: none;
-  height: 38px;
-  margin: 3px 10px 0;
-  color: #000;
-  font-size: 100%;
-  font-family: Tahoma, Verdana, Arial, sans-serif;
-  line-height: 18px;
-  padding: 6px 12px;
-  border: 1px #0081a1 solid;
-  position: relative;
-  font-weight: bold;
-  background-color: #ccecf2;
-  //vertical-align: text-top;
-  width: auto;
-}
-
-#statego:hover {
-  background-color: #00a6b2;
-  text-decoration: underline;
-}
-
-select {
-  margin: 0.2em 0;
-}
-
-button:not([disabled]):focus,
-select:not([disabled]):focus {
-  outline: #c05600 solid 3px;
-}
-
-@media (min-width: 992px) {
-  .noemllft {
-    margin-left: 26%;
-    text-align: center;
-  }
-}
-*/
-
 button.usa-combo-box__clear-input:focus,
 button.usa-combo-box__toggle-list:focus {
   opacity: 1;
@@ -1229,29 +1140,27 @@ div[class^="QSIUserDefinedHTML"] {
   line-height: 1.5;
 }
 
-
-.usa-prose > p, .usa-prose li,
-.usa-prose a,
-.usa-accordion__heading > button {
+.usa-prose p, .usa-prose li, .usa-prose a {
   font-size: var($regular-text-font-size);
 }
 
-#question_box > div > p,
-#question_box > div > div {
+.usa-accordion__heading button , .usa-accordion__heading p, .usa-accordion__heading a{
   font-size: var($regular-text-font-size);
 }
 
-#wizard_border > fieldset > label,
-#prior,
-#next {
+#question_box > div > p, #question_box > div > div {
   font-size: var($regular-text-font-size);
 }
 
-.wizard_result > p {
+#prior, #next {
   font-size: var($regular-text-font-size);
 }
-.last,
-#share-page {
+
+#wizard_border>fieldset>label, .wizard_result > p {
+  font-size: var($regular-text-font-size);
+}
+
+.last, #share-page {
   font-size: var($smaller-text-font-size);
 }
 
