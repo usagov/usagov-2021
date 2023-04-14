@@ -1,23 +1,23 @@
 {#
 /**
- * @file
- * Default theme implementation to display a menu.
- *
- * Available variables:
- * - classes: A list of classes to apply to the top level <ul> element.
- * - dropdown_classes: A list of classes to apply to the dropdown <ul> element.
- * - menu_name: The machine name of the menu.
- * - items: A nested list of menu items. Each menu item contains:
- *   - attributes: HTML attributes for the menu item.
- *   - below: The menu item child items.
- *   - title: The menu link title.
- *   - url: The menu link url, instance of \Drupal\Core\Url
- *   - localized_options: Menu link localized options.
- *
- * @ingroup templates
- *
- * Define a custom macro that will render all menu trees.
- */
+* @file
+* Default theme implementation to display a menu.
+*
+* Available variables:
+* - classes: A list of classes to apply to the top level <ul> element.
+* - dropdown_classes: A list of classes to apply to the dropdown <ul> element.
+* - menu_name: The machine name of the menu.
+* - items: A nested list of menu items. Each menu item contains:
+*   - attributes: HTML attributes for the menu item.
+*   - below: The menu item child items.
+*   - title: The menu link title.
+*   - url: The menu link url, instance of \Drupal\Core\Url
+*   - localized_options: Menu link localized options.
+*
+* @ingroup templates
+*
+* Define a custom macro that will render all menu trees.
+*/
 #}
 
 {% import _self as menus %}
@@ -62,7 +62,6 @@
 				{% set link_title = item.title %}
 				{% set link_description = item.original_link.description %}
 
-
 				{% if menu_level == 0 and item.below %}
 					<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
 						<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
@@ -72,10 +71,12 @@
 						{% else %}
 							{% if link_description == "add_space" %}
 								<li class="usa-footer__secondary-link ftr-list">
-              {% else %}
-                <li class="usa-footer__secondary-link">
-              {% endif %}
-									{{ link(link_title, item.url) }}
+								{% else %}
+									<li class="usa-footer__secondary-link">
+									{% endif %}
+									<a href="{{ item.url }}">
+										{{ link_title}}
+									</a>
 								</li>
 							{% endif %}
 							{% if item.below %}
