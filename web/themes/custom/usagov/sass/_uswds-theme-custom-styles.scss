@@ -202,7 +202,7 @@ add padding at the top of flag cards
 
 /** info banner header **/
 .usa-header--extended .usa-alert--info {
-  border-left-color:var($pale-blue);
+  border-left-color: var($pale-blue);
 }
 
 /** info banner header **/
@@ -783,7 +783,7 @@ a {
   width: 90px;
   right: -100px;
   bottom: 80px;
-  background:var($off-white);
+  background: var($off-white);
   transition: right 0.5s;
   background-image: url("/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png");
   background-size: 45px;
@@ -1024,7 +1024,7 @@ div #sm-share a {
 
 .block-wizardenglish .usa-scam-label {
   border-bottom: 1px solid gray;
-  color:var($dark-blue);
+  color: var($dark-blue);
   font-weight: 500;
 }
 
@@ -1140,31 +1140,39 @@ div[class^="QSIUserDefinedHTML"] {
   line-height: 1.5;
 }
 
-.usa-prose p, .usa-prose li, .usa-prose a {
+.usa-prose p,
+.usa-prose li,
+.usa-prose a {
   font-size: var($regular-text-font-size);
 }
 
-.usa-accordion__heading button , .usa-accordion__heading p, .usa-accordion__heading a{
+.usa-accordion__heading button,
+.usa-accordion__heading p,
+.usa-accordion__heading a {
   font-size: var($regular-text-font-size);
 }
 
-#question_box > div > p, #question_box > div > div {
+#question_box > div > p,
+#question_box > div > div {
   font-size: var($regular-text-font-size);
 }
 
-#prior, #next {
+#prior,
+#next {
   font-size: var($regular-text-font-size);
 }
 
-#wizard_border>fieldset>label, .wizard_result > p {
+#wizard_border > fieldset > label,
+.wizard_result > p {
   font-size: var($regular-text-font-size);
 }
 
-.last, #share-page {
+.last,
+#share-page {
   font-size: var($smaller-text-font-size);
 }
 
-.footer-button{
+.footer-button {
   border: 1px solid #1b1b1b;
 }
 #footer-email {
