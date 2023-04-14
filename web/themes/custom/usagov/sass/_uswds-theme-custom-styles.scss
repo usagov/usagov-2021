@@ -202,7 +202,7 @@ add padding at the top of flag cards
 
 /** info banner header **/
 .usa-header--extended .usa-alert--info {
-  border-left-color:var($pale-blue);
+  border-left-color: var($pale-blue);
 }
 
 /** info banner header **/
@@ -788,7 +788,7 @@ a {
   width: 90px;
   right: -100px;
   bottom: 80px;
-  background:var($off-white);
+  background: var($off-white);
   transition: right 0.5s;
   background-image: url("/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png");
   background-size: 45px;
@@ -1029,7 +1029,7 @@ div #sm-share a {
 
 .block-wizardenglish .usa-scam-label {
   border-bottom: 1px solid gray;
-  color:var($dark-blue);
+  color: var($dark-blue);
   font-weight: 500;
 }
 
@@ -1078,95 +1078,6 @@ button#next.usa-button,
     flex-direction: column-reverse;
   }
 }
-
-//state directory
-/*
-.one-column-bullet li {
-  margin: 0 0 10px;
-  list-style-type: disc;
-}
-
-.custom-select {
-  width: 295px;
-  overflow: hidden;
-  border: 1px solid #777580;
-  background: url("../images/Icon_Arrow_Dropdown.png") 95% 50% no-repeat;
-  background-color: #fff;
-  display: inline-block;
-  vertical-align: text-top;
-  margin: 0 5px 0 0;
-}
-
-.custom-select select {
-  width: 293px;
-  appearance: none;
-  appearance: none;
-  appearance: none;
-  appearance: none;
-  font-size: 1em;
-  height: 36px;
-  padding: 0 0 0 10px;
-  border: none;
-  border-radius: 0;
-  background-color: transparent;
-}
-
-.custom-select select::-ms-expand {
-  display: none;
-}
-
-@media (min-width: 600px) {
-  .custom-select {
-    margin: 0 20px 70px 0;
-  }
-}
-
-@media (min-width: 481px) and (max-width: 599px) {
-  .custom-select {
-    margin: 0 20px 20px 0;
-  }
-}
-
-#statego {
-  display: inline-block;
-  text-align: center;
-  float: none;
-  height: 38px;
-  margin: 3px 10px 0;
-  color: #000;
-  font-size: 100%;
-  font-family: Tahoma, Verdana, Arial, sans-serif;
-  line-height: 18px;
-  padding: 6px 12px;
-  border: 1px #0081a1 solid;
-  position: relative;
-  font-weight: bold;
-  background-color: #ccecf2;
-  //vertical-align: text-top;
-  width: auto;
-}
-
-#statego:hover {
-  background-color: #00a6b2;
-  text-decoration: underline;
-}
-
-select {
-  margin: 0.2em 0;
-}
-
-button:not([disabled]):focus,
-select:not([disabled]):focus {
-  outline: #c05600 solid 3px;
-}
-
-@media (min-width: 992px) {
-  .noemllft {
-    margin-left: 26%;
-    text-align: center;
-  }
-}
-*/
 
 button.usa-combo-box__clear-input:focus,
 button.usa-combo-box__toggle-list:focus {
@@ -1234,9 +1145,15 @@ div[class^="QSIUserDefinedHTML"] {
   line-height: 1.5;
 }
 
+.usa-prose p,
+.usa-prose li,
+.usa-prose a {
+  font-size: var($regular-text-font-size);
+}
 
-.usa-prose > p,
-.usa-accordion__heading > button {
+.usa-accordion__heading button,
+.usa-accordion__heading p,
+.usa-accordion__heading a {
   font-size: var($regular-text-font-size);
 }
 
@@ -1245,21 +1162,22 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
-#wizard_border > fieldset > label,
 #prior,
 #next {
   font-size: var($regular-text-font-size);
 }
 
+#wizard_border > fieldset > label,
 .wizard_result > p {
   font-size: var($regular-text-font-size);
 }
+
 .last,
 #share-page {
   font-size: var($smaller-text-font-size);
 }
 
-.footer-button{
+.footer-button {
   border: 1px solid #1b1b1b;
 }
 #footer-email {
