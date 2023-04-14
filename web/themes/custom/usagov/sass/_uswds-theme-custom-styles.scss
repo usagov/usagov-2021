@@ -415,6 +415,11 @@ add padding at the top of flag cards
   }
 }
 
+.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a,
+.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a:hover {
+  padding: 0.7rem;
+}
+
 // adds visible focus around entire search box
 [type="search"] {
   z-index: 1;
@@ -1260,3 +1265,5 @@ div[class^="QSIUserDefinedHTML"] {
 #footer-email {
   border-color: var($off-black);
 }
+
+
