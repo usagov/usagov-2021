@@ -1230,7 +1230,8 @@ div[class^="QSIUserDefinedHTML"] {
 }
 
 
-.usa-prose > p,
+.usa-prose > p, .usa-prose li,
+.usa-prose a,
 .usa-accordion__heading > button {
   font-size: var($regular-text-font-size);
 }
