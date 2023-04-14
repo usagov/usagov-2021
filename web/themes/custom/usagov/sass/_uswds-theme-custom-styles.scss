@@ -1260,3 +1260,8 @@ div[class^="QSIUserDefinedHTML"] {
 #footer-email {
   border-color: var($off-black);
 }
+
+.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a,
+.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a:hover {
+  padding: 0.7rem;
+}
