@@ -174,7 +174,7 @@ cp -rf "$ANALYTICS_DIR" "$RENDER_DIR"
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
 ES_HOME_HTML_SIZE=$(stat -c%s "$ES_HOME_HTML_FILE")
 if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
-   echo "*** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***"
+   echo "*** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***" | tee -a $TOMELOG
   TOME_PUSH_NEW_CONTENT=0
 fi
 
