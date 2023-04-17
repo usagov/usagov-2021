@@ -1,5 +1,21 @@
 #!/bin/sh
 
+usage="
+$0: Runs php inside the docker container.
+
+Usage:
+   $0 -h
+   $0 ARG
+
+Options:
+-h:            show help and exit
+ARG            php command
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 docker exec -it \
   --workdir /var/www \
   cms \

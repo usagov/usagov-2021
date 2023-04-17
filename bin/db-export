@@ -1,5 +1,20 @@
 #!/bin/bash
 
+usage="
+$0: Dumps the contents of your local database to the named sql file.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+LOCAL_FILE:    the name of the local sql file to dump to (default: backup.sql)
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 LOCAL_FILE=${1:-./backup.sql}
 
 bin/drush sql:dump --result-file=$LOCAL_FILE

@@ -1,5 +1,21 @@
 #!/bin/sh
 
+usage="
+$0: Spins up synk container and tests selected container.
+
+Usage:
+   $0 -h
+   $0 APPNAME
+
+Options:
+-h:            show help and exit
+APPNAME:       Name of the app to be tested (default: cms)
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local

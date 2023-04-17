@@ -1,6 +1,22 @@
 #!/bin/bash
 set -e
 
+usage="
+$0: Updates composer permissions.  Called by composer.sh.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+BUID:          User ID
+BGID:          Group ID
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 docker compose run \
   --rm \
   --no-deps \

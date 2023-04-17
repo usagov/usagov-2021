@@ -1,6 +1,21 @@
 #!/bin/bash
 set -e
 
+usage="
+$0: Does docker compose run to automatically run the bootstrap file
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+"
+
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 # we do not directly call bootstrap
 # rather, bootstrap is automatically triggered
 # during container startup only when

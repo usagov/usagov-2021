@@ -1,6 +1,21 @@
 #!/bin/bash
 set -e
 
+usage="
+$0: Runs Drush in your local container.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+ARG:           Drush command
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 docker compose run \
   --rm \
   --workdir /var/www \

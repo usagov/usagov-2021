@@ -1,5 +1,19 @@
 #!/bin/sh
 
+usage="
+$0: Runs ssh to get inside the docker container.  Starts with ash.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 docker exec -it \
   --workdir /var/www \
   cms \
