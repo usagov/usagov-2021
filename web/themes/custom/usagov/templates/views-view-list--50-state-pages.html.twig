@@ -31,15 +31,7 @@
   {% endif %}
 
   {#<{{ list.type }}{{ list.attributes }}>#}
-<header>
-<h2>
-  {% if lang == "en" %}
-  <label for="stateselect">Find your state or territory:</label>
-    {% elseif lang == "es" %}
-     <label for="stateselect">Encuentre su estado o territorio:</label>
-  {% endif %}
-</h2>
-</header>
+
 
 <div class="display-inline-block">
 	<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
