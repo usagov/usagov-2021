@@ -1,5 +1,21 @@
 #!/bin/bash
 
+usage="
+$0: Removes PR containers made with pr-review.sh.
+
+Usage:
+   $0 -h
+   $0 TICKET
+
+Options:
+-h:            show help and exit
+TICKET         Name or number of JIra ticket
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 TICKET=$1
 
 if [ -z "$TICKET" ] ; then

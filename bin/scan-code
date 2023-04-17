@@ -1,5 +1,19 @@
 #!/bin/sh
 
+usage="
+$0: Spins up synk container and tests Drupal custom code.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local

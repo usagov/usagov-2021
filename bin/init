@@ -1,5 +1,29 @@
 #!/bin/bash
 
+usage="
+$0: Init for building local containers.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+
+NOTES:
+This is what the script does:
+1. Figures out what OS it's running on.
+2. Gets the BUID and BGID.
+3. Special stuff for M1 macs.
+4. Builds containers.
+5. Fixes container permissions.
+6. Installs Drupal modules.
+7. Builds theme.
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 # figure out which host os we are since not all build/install commands work the same on all os
 # some node packages also need to be different on m1 chips
 export os_osx="no"

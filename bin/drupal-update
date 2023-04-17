@@ -1,6 +1,20 @@
 #!/bin/bash
 set -e
 
+usage="
+$0: Rebuilds Drupal by reinstalling modules, rebuilding theme, and running the bootstrap script.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 echo "Install Drupal modules"
 bin/composer install --no-interaction --optimize-autoloader
 

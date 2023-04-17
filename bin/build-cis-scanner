@@ -1,5 +1,19 @@
 #!/bin/sh
 
+usage="
+$0: Builds the docker-bench-security contianer.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 cd /tmp/
 git clone https://github.com/docker/docker-bench-security.git
 cd /tmp/docker-bench-security

@@ -1,6 +1,20 @@
 #!/bin/bash
 set -e
 
+usage="
+$0: Builds composer container and runs fix script.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 docker compose run \
   --rm \
   --no-deps \

@@ -1,6 +1,22 @@
 #!/bin/bash
 set -e
 
+usage="
+$0: Builds CMS container.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+
+If run locally, it will load the BUID and BGID from env.local.
+"
+if [[ "$1" == "-h" ]]; then
+    echo "${usage}"
+    exit 1
+fi
+
 if [ -f env.local ]; then
   . env.local
 fi
