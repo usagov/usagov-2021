@@ -30,7 +30,9 @@ if [ -f $SQLZ ]; then
    if [[ -n $(zcat ${SQLGZ} | head | grep 'SET NAMES utf8mb4') ]]; then
       if [[ -n $(zcat ${SQLGZ} | tail | grep 'Dump completed on' ) ]]; then
          $echo bin/snapshot-backups/db-dump-push-to-snapshot $dryrun $TAG
-         echo snapshotted $SQLGZ
+         echo snapshotted $TAG
+         echo "cleaning local files:"
+         ls -l ${TAG}*
          rm -f $SQLGZ
          rm -f $SQLZIP
       else
