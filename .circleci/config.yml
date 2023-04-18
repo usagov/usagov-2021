@@ -105,7 +105,6 @@ commands:
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
-
       - install-cloud-foundry
       - run:
           name: Static Site Snapshot
@@ -115,6 +114,28 @@ commands:
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/snapshot-backups/site-snapshot-create << pipeline.git.branch >>.<< parameters.envname >>.<< pipeline.number >>
+
+  db-dump-snapshot:
+    parameters:
+      envname:
+        default: "dev"
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+      - install-cloud-foundry
+      - run:
+          name: Database Dump Snapshot
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.branch >>.<< parameters.envname >>.<< pipeline.number >>
 
 jobs:
   scan-code:
@@ -344,6 +365,15 @@ jobs:
       - static-site-snapshot:
           envname: dev
 
+  db-dump-snapshot-dev:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - db-dump-snapshot:
+          envname: dev
+
 workflows:
   version: 2
 
@@ -368,9 +398,20 @@ workflows:
               only:
                 - USAGOV-908-snapshots-from-circleci
 
+      - approve-db-dump-snapshot:
+          type: approval
+          filters:
+            branches:
+              only:
+                - USAGOV-908-snapshots-from-circleci
+
       - static-site-snapshot-dev:
           requires:
             - approve-static-site-snapshot
+
+      - db-dump-snapshot-dev:
+          requires:
+            - approve-db-dump-snapshot
 
   build-and-deploy:
     jobs:
