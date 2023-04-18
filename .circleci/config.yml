@@ -100,14 +100,9 @@ commands:
         type: string
     steps:
       - checkout
-      - run:
-          name: Setup Environment for use in Scripts
-          command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
       - install-cloud-foundry
       - run:
-          name: Static Site Snapshot
+          name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.branch >>.<< parameters.envname >>.<< pipeline.number >>
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
@@ -362,13 +357,6 @@ workflows:
   snapshot-backup:
     jobs:
       - approve-snapshot-backup:
-          type: approval
-          filters:
-            branches:
-              only:
-                - USAGOV-908-snapshots-from-circleci
-
-      - approve-db-dump-snapshot:
           type: approval
           filters:
             branches:

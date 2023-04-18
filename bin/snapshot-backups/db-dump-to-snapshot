@@ -33,8 +33,9 @@ if [ -f $SQLZ ]; then
          echo snapshotted $TAG
          echo "cleaning local files:"
          ls -l ${TAG}*
-         rm -f $SQLGZ
-         rm -f $SQLZIP
+         rm -f ${TAG}*
+         echo "checking for leftovers:"
+         ls -l ${TAG}*
       else
          echo "SQL dump does not appear to be valid (no 'Dump completed on' string found on tail of file)"
       fi
