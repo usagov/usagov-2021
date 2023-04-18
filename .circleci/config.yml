@@ -368,7 +368,7 @@ workflows:
               only:
                 - USAGOV-420-circleci-snapshot-backups
 
-      - static-site-snapshot:
+      - static-site-snapshot-dev:
           requires:
             - approve-static-site-snapshot
 
