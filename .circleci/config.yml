@@ -366,7 +366,7 @@ workflows:
           filters:
             branches:
               only:
-                - USAGOV-420-circleci-snapshot-backups
+                - USAGOV-908-snapshots-from-circleci
 
       - static-site-snapshot-dev:
           requires:
