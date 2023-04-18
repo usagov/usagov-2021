@@ -19,7 +19,7 @@
  */
 #}
 
-{{ attach_library('stateDirectory') }}
+{{ attach_library('usagov/stateDirectory') }}
 
 {% set lang = node.langcode.value %}
 
@@ -35,7 +35,7 @@
 
 <div class="display-inline-block">
 	<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
-		<label id="state-info-label" class="usa-label" for="state-info">Select your state:</label>
+		<label id="state-info-label" class="usa-label" for="state-info">{{ lang == 'es' ?  "Elija un estado o territorio:" : "Select your state or territory:"  }}</label>
 		<div class="display-inline-block">
 			<div class="usa-combo-box usa-combo-box--pristine" data-default-value="alabama" data-enhanced="true">
 
