@@ -19,9 +19,14 @@ This is what the script does:
 6. Installs Drupal modules.
 7. Builds theme.
 "
-if [[ "$1" == "-h" ]]; then
-    echo "${usage}"
-    exit 1
+
+PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
 fi
 
 # figure out which host os we are since not all build/install commands work the same on all os
