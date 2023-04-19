@@ -6,20 +6,6 @@
 set -e
 set -o pipefail
 
-# we might be running in circleci
-if [ -f /home/circleci/project/env.local ]; then
-  . /home/circleci/project/env.local
-fi
-# we might be running from a local dev machine
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f $SCRIPT_DIR/env.local ]; then
-  . $SCRIPT_DIR/env.local
-fi
-if [ -f ./env.local ]; then
-  . ./env.local
-fi
-
-
 usage="
 $0: (Re-)deploy newrelic for an environment
 
@@ -41,9 +27,13 @@ Requirements:
 - You must be a SpaceDeveloper in the current space and the newrelic_space.
 "
 
-if [[ "$1" == "-h" ]]; then
-    echo "${usage}"
-    exit 1
+PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
 fi
 
 appnames=""
