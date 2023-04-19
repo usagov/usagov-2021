@@ -19,7 +19,7 @@ commands:
           name: CloudGov Deploy
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;Cloud.gov;USA.gov"
+            export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
@@ -70,7 +70,7 @@ commands:
           name: Install CloudFoundry
           command: |
             if command cf > /dev/null; then echo "CF client already installed"; exit 0; fi
-            wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+            wget --user-agent="Mozilla" -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
             echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
             sudo apt-get update
             sudo apt-get install cf8-cli
@@ -146,6 +146,10 @@ jobs:
             exit $SCAN_CIS_RESULT
       - store_artifacts:
           path: /tmp/results
+          destination: circleci-docs
+      - store_test_results:
+          path: /tmp/results/test-results
+
 
   lint:
     docker:

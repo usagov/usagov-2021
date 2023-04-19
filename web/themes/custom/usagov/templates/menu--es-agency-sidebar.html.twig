@@ -1,44 +1,57 @@
 {% set current_url_string = "#{path('<current>')}" %}
 
 <nav aria-label="Secondary navigation">
-  <ul class="usa-sidenav">
-    <li class="usa-sidenav__item"> 
-       <a class="active-trail" href="/es/acerca-de-estados-unidos">Acerca de Estados Unidos y su Gobierno  </a>
-    </li>      
-    <ul class="usa-sidenav__sublist">
-      <li class="usa-sidenav__item"> 
-        <a class="active-trail" href="/es/indice-agencias">Agencias del Gobierno</a>
-      </li>
-      <ul class="usa-sidenav__sublist">
-      {% if current_url_string == '/agencias' %}
-        <li class="usa-sidenav__item"> 
-          <a class="active-trail" href="/es/indice-agencias">Agencias federales</a>
-        </li>
-          <ul class="usa-sidenav__sublist">
-          <li class="usa-sidenav__item"> 
-            <a class="usa-current" href={{current_url}}>{{ drupal_title() }} </a>
-          </li>   
-        </ul>
-        <li class="usa-sidenav__item relatedPage"> 
-          <a class="" href="/es/gobiernos-estatales">Agencias estatales</a>
-        </li>
-        {% else %}  
-        <li class="usa-sidenav__item relatedPage"> 
-          <a class="" href="/es/indice-agencias">Agencias federales</a>
-        </li>
-        <li class="usa-sidenav__item "> 
-          <a class="active-trail" href="/es/gobiernos-estatales">Agencias estatales</a>
-        </li>
-        <ul class="usa-sidenav__sublist">
-          <li class="usa-sidenav__item"> 
-            <a class="usa-current" href={{current_url}}>{{ drupal_title() }} </a>
-          </li>   
-        </ul>
-        {% endif %}
-        <li class="usa-sidenav__item relatedPage"> 
-          <a class="" href="/es/estados-consumidor">Oficinas estatales de protección al consumidor</a>
-        </li>
-      </ul>
-    </ul>
-  </ul>
-</nav>
+	<ul class="usa-sidenav">
+		<li class="usa-sidenav__item">
+			<a class="active-trail" href="/es/acerca-de-estados-unidos">Acerca de EE. UU. y directorios del Gobierno
+			</a>
+		</li>
+		{% if path('<current>') matches '#\/es\/agencias\/*#' %}
+			<ul class="usa-sidenav__sublist">
+				<li class="usa-sidenav__item">
+					<a class="active-trail" href="/es/indice-agencias">Agencias federales</a>
+				</li>
+
+				<ul class="usa-sidenav__sublist">
+					<li class="usa-sidenav__item">
+						<a class="usa-current" href={{current_url}}>{{ drupal_title() }}
+						</a>
+					</li>
+				</ul>
+			{% else %}
+				<ul class="usa-sidenav__sublist">
+					<li class="usa-sidenav__item">
+						<a href="/es/indice-agencias">Agencias federales</a>
+					</li>
+				{% endif %}
+				<li class="usa-sidenav__item">
+					{% if path('<current>') matches '#\/es\/estados\/*#' %}
+						<a class="active-trail" href="/es/gobiernos-estatales">Gobiernos estatales</a>
+						<ul class="usa-sidenav__sublist">
+							<li class="usa-sidenav__item">
+								<a class="usa-current" href={{current_url}}>{{ drupal_title() }}
+								</a>
+							</li>
+						</ul>
+					{% else %}
+						<a href="/es/gobiernos-estatales">Gobiernos estatales</a>
+					{% endif %}
+				</li>
+	<li class="usa-sidenav__item">
+					<a class="" href="/es/estatal-consumidor">Oficinas estatales de protección al consumidor</a>
+				</li>
+				<li class="usa-sidenav__item">
+					<a class="" href="/es/informacion-general-sobre-estados-unidos">Información general sobre EE. UU.</a>
+				</li>
+				<li class="usa-sidenav__item">
+					<a href="/es/ramas-gobierno-estados-unidos">Ramas del Gobierno de EE. UU.</a>
+				</li>
+				<li class="usa-sidenav__item">
+					<a href="/es/funcionarios-electos">Funcionarios electos</a>
+				</li>
+				<li class="usa-sidenav__item">
+					<a href="/es/dias-festivos-estados-unidos">Días festivos federales</a>
+				</li>
+			</ul>
+		</ul>
+	</nav>

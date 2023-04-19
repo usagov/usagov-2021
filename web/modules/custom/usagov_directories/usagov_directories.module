@@ -7,7 +7,39 @@
 use Drupal\node\Entity\Node;
 
 /**
- *
+* Static Site Generation Toggle State Form ID
+*/
+function usagov_directories_get_static_state_form_id() {
+  return 'toggle_static_site_generation_form';
+}
+
+/**
+* Static Site Generation Toggle State Form Button Name
+*/
+function usagov_directories_get_static_state_button_name() {
+  return 'confirm_toggle';
+}
+
+/**
+ * Toggle State variable name for sset/sget/sdel
+ */
+function usagov_directories_get_static_state_var() {
+  return 'usagov.tome_run_disabled';
+}
+
+/**
+  * Implements hook_form_alter().
+  * Static Site Generation form text updates.
+  */
+function usagov_directories_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == usagov_directories_get_static_state_form_id()) {
+    $toggle_state = \Drupal::state()->get(usagov_directories_get_static_state_var()) ? 1 : 0;
+    $form_state->setValue(usagov_directories_get_static_state_button_name(), $toggle_state ? TRUE : FALSE);
+  }
+}
+
+/**
+ * Implements hook_views_pre_render()
  */
 function usagov_directories_views_pre_render($view) {
   if ($view->id() == 'federal_agencies' && $view->current_display == 'block_1') {
@@ -22,12 +54,13 @@ function usagov_directories_views_pre_render($view) {
       if ($type_str == "agency_synonym") {
         $pid_str = $new_result[$res]->_entity->field_agency_reference->target_id;
         // Need this check in case synonyms were not backlinked to their directory.
-        if ($pid_str) {
-          $parent = Node::load($pid_str);
+        if ($pid_str && ($parent = Node::load($pid_str))) {
           $new_result[$res]->_entity = clone $parent;
           $new_result[$res]->_entity->title[0]->value = $node_title;
         }
-
+        else {// Skip this synonym; it points to a record that no longer exists.
+          unset($new_result[$res]);
+        }
       }
     }
 

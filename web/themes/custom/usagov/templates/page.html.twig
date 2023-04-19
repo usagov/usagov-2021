@@ -65,6 +65,13 @@
 	{% set show_sidebar = false %}
 {% endif %}
 
+{% set show_last_updated = term_name in ["", "Standard Page", "Standard Page- Nav Hidden"] %}
+{% if is_front or nodetype in ["federal_directory_record", "state_directory_record", "federal_directory_index", "state_directory_index"]  %}
+  {% set show_last_updated = false %}
+{% endif %}
+
+
+
 {% if government_banner %}
 	<section class="usa-banner">
 		{{ government_banner }}
@@ -106,7 +113,6 @@
 {% if term_name != "Home Page" %}
 
 	<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
-		<a id="main-content" tabindex="-1"></a>
 
 		{# link is in html.html.twig #}
 
@@ -139,10 +145,10 @@
 					{{ page.content }}
 
 					<div class="additional_body_info">
-						{% if (term_name == "" or term_name == "Standard Page" or term_name =="Standard Page- Nav Hidden") and not is_front or (content_type == "Federal Directory Record") or (content_type == "State Directory Record") %}
+						{% if show_last_updated %}
 
 							{% if node.changed.value %}
-								<p class="last">{{ lang == 'en' ? 'Last updated: ' : 'Última actualización: '}}
+								<p class="last">{{ lang == 'en' ? 'LAST UPDATED: ' : 'Última actualización: '}}
 									{% set date = node.changed.value %}
 									{% include '@usagov/dates.html.twig' %}
 								</p>
@@ -152,12 +158,8 @@
 						{% include '@usagov/sharethispage.html.twig' %}
 						{% include '@usagov/haveaquestion.html.twig' %}
 
-
-						{% if (term_name == "" or term_name == "Standard Page" or term_name =="Standard Page- Nav Hidden") and not is_front %}
-
-							<div id="pagesurvey-qual-container"></div>
-							<div id="pagesurvey-trgt-qualtrics"></div>
-						{% endif %}
+						<div id="pagesurvey-qual-container"></div>
+						<div id="pagesurvey-trgt-qualtrics"></div>
 					</div>
 
 				</div>
@@ -170,20 +172,20 @@
 			</div>
 		</div>
 
-		<a id="back-to-top" href="#main-content">
-			{{ lang == 'en' ? 'Top' : 'Subir' }}
-		</a>
+
 	{% else %}
 		<main class="main-content usa-layout-docs no-footer-gap {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
 
 			{{ page.content }}
 		{% endif %}
+<a id="back-to-top" href="#main-content" title="{{ lang == 'en' ? 'Back to top' : 'Subir a la parte superior' }}">
+
+
+	{{ lang == 'en' ? 'Top' : 'Subir' }}
+</a>
 
 	</main>
 
+{% include '@usagov/footer_nav.html.twig' %}
 
-	<footer class="{{ footer_classes }}" role="contentinfo">
-		{% include '@usagov/footer-primary.html.twig' %}
-		{% include '@usagov/footer-secondary.html.twig' %}
-		{% include '@usagov/footer-identifier.html.twig' %}
-	</footer>
+

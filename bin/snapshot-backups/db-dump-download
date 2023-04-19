@@ -1,0 +1,62 @@
+#!/bin/sh
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+if ! command -v cf &> /dev/null
+then
+    echo "CF : the cloud foundry client could not be found and is required"
+    exit 1
+fi
+
+TAG=${1}
+SPACE=$(cf target | grep space: | awk '{ print $2 }')
+
+SSH_ALLOWED=$(cf space-ssh-allowed $SPACE | grep enabled)
+if [[  x$SSH_ALLOWED == x ]]; then
+  echo Cloud Foundry ssh to $SPACE is not enabled - exiting
+  exit 1
+fi
+
+SQL_FILE=$TAG.sql
+GZIP_FILE=$SQL_FILE.gz
+ZIP_FILE=$SQL_FILE.zip
+
+echo cf ssh cms -c ". /etc/profile; drush cr; drush sql:dump | gzip > /tmp/$GZIP_FILE; cat /tmp/$GZIP_FILE"
+$echo cf ssh cms -c ". /etc/profile; drush cr; drush sql:dump | gzip > /tmp/$GZIP_FILE; cat /tmp/$GZIP_FILE" > $GZIP_FILE
+
+echo cf ssh cms -c "if [ -f $GZIP_FILE ]; then rm -f /tmp/$GZIP_FILE; fi"
+$echo cf ssh cms -c "if [ -f $GZIP_FILE ]; then rm -f /tmp/$GZIP_FILE; fi"
+
+if [ -n "$echo" -o  -f $GZIP_FILE ]; then
+
+  echo  gunzip -f $GZIP_FILE
+  $echo gunzip -f $GZIP_FILE
+
+  echo  zip -r $ZIP_FILE $SQL_FILE
+  $echo zip -r $ZIP_FILE $SQL_FILE
+
+  echo  gzip $SQL_FILE
+  $echo gzip $SQL_FILE
+
+else
+
+   echo It appears that $GZIP_FILE was not created or not downloaded from $SPACE
+   exit 2
+fi

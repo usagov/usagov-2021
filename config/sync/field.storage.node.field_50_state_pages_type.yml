@@ -1,0 +1,64 @@
+uuid: 636d8dfa-8868-41d7-98ca-593c84764bfd
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - node
+    - options
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: node.field_50_state_pages_type
+field_name: field_50_state_pages_type
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: field-agriculture-department
+      label: 'Agriculture Department'
+    -
+      value: field-consumer-protection
+      label: 'Consumer Protection'
+    -
+      value: field-corrections-dept
+      label: 'Corrections Department'
+    -
+      value: field-district-attorneys
+      label: 'District Attorney'
+    -
+      value: field-education-department
+      label: 'Education Department'
+    -
+      value: field-election-office
+      label: 'Election Office'
+    -
+      value: field-emergency-management
+      label: 'Emergency Management'
+    -
+      value: field-governor
+      label: Governor
+    -
+      value: field-health-department
+      label: 'Health Department'
+    -
+      value: field-local-governments
+      label: 'Local Government'
+    -
+      value: field-motor-vehicle-office
+      label: 'Motor Vehicle Office'
+    -
+      value: field-social-services
+      label: 'Social Services'
+    -
+      value: field-state-attorney-general
+      label: 'State Attorney General'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

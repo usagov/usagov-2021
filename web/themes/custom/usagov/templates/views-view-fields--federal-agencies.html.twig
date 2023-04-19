@@ -56,28 +56,28 @@
     <p>{{- fields.field_page_intro.content -}}</p>
 
     {% if fields.field_website.content|striptags|trim %}
-    <div id="field_website">
+    <div>
       <p>{{ lang == 'en' ? 'Website' : 'Sitio web' }}:&nbsp;</p>
       <p>{{- fields.field_website.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_phone_number.content|striptags|trim %}
-    <div id="field_phone">
+    <div>
       <p>{{ lang == 'en' ? 'Phone number' : 'Teléfono' }}:&nbsp;</p>
       <p class="phoneNumberField">{{- fields.field_phone_number.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_contact_link.content|striptags|trim %}
-    <div id="field_contact">
+    <div>
       <p>{{ lang == 'en' ? 'Contact' : 'Contacto' }}:&nbsp;</p>
       <p>{{- fields.field_contact_link.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_offices_near_you.content|striptags|trim %}
-    <div id="field_office">
+    <div>
       <p>{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}:&nbsp;</p>
       <p>{{- fields.field_offices_near_you.content -}}</p>
     </div>

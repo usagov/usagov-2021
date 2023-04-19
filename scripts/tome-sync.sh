@@ -64,15 +64,20 @@ cp -rf /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov
 cp -rf /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rf /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 
+# Copy "webroot" assets (files like robots.txt and site.xml)
+cp -rf /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
+
 echo "Removing unwanted files ... "
 rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
 
+# duplicate the logic used by the bootstrap script to find the static site hostname
+WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | head -n 1)
+WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | head -n 1)}
+
 # replacing inaccurate hostnames
 echo "Replacing references to CMS hostname ... "
-find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|beta\1.usa.gov|ig' {} \;
+find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|'"$WWW_HOST"'|ig' {} \;
 
-# duplicate the logic used by the bootstrap script to find the static site hostname
-WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep beta | head -n 1)
 # duplicate the logic used by the egress proxy to find bucket names
 n=$(echo -E "$VCAP_SERVICES" | jq -r '.s3 | length')
 i=0
@@ -82,7 +87,7 @@ do
   # Add attached buckets to the allow list
   REF_BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
   REF_AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint" | uniq )
-  REF_AWS_ENDPOINT_ALT=$(  echo -E "$REF_AWS_ENDPOINT"  | sed '/s3\-us\-/s3.us-/' | uniq )
+  REF_AWS_ENDPOINT_ALT=$(  echo -E "$REF_AWS_ENDPOINT"  | sed 's/s3\-us\-/s3.us-/' | uniq )
   REF_AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
   echo " ... $REF_BUCKET"
   # the (cms)? of the regex was used for a specfic reference we kept finding that used /public instead of /cms/public
@@ -160,6 +165,17 @@ else
 fi
 if [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]]; then
   TOME_PUSH_NEW_CONTENT=1
+fi
+
+ANALYTICS_DIR=/var/www/website-analytics
+echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
+cp -rf "$ANALYTICS_DIR" "$RENDER_DIR"
+
+ES_HOME_HTML_FILE=/var/www/html/es/index.html
+ES_HOME_HTML_SIZE=$(stat -c%s "$ES_HOME_HTML_FILE")
+if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
+   echo "*** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***"
+  TOME_PUSH_NEW_CONTENT=0
 fi
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
