@@ -4,7 +4,7 @@ SCRIPT_PATH=$(dirname "$0")
 SCRIPT_NAME=$(basename "$0")
 SCRIPT_PID=$$
 
-URI=${1:-https://beta.usa.gov}
+URI=${1:-https://www.usa.gov}
 FORCE=${2:-0}
 
 YMD=$(date +"%Y/%m/%d")
@@ -34,6 +34,13 @@ TOMELOG=/tmp/tome-log/$TOMELOGFILE
 
 mkdir -p /tmp/tome-log/$YMD
 touch $TOMELOG
+
+# Don't even start if this flag is set:
+export NO_RUN=$(drush sget usagov.tome_run_disabled)
+if [ "$NO_RUN" != '' ]; then
+    echo "Tome run is disabled. Exiting." | tee -a $TOMELOG
+    exit 2
+fi
 
 # we should expect to see our process running: so we would expect a count of 1
 echo "Check if Tome is already running ... " | tee -a $TOMELOG

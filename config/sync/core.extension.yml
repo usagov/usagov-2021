@@ -13,6 +13,7 @@ module:
   ckeditor: 0
   ckeditor_templates: 0
   ckeditor_templates_ui: 0
+  conditional_fields: 0
   config: 0
   content_lock: 0
   content_moderation: 0
@@ -21,7 +22,6 @@ module:
   ctools: 0
   datetime: 0
   datetime_range: 0
-  dblog: 0
   devel: 0
   diff: 0
   dynamic_page_cache: 0
@@ -46,6 +46,7 @@ module:
   language: 0
   language_switcher_extended: 0
   link: 0
+  log_stdout: 0
   mail_safety: 0
   media: 0
   media_library: 0
@@ -62,12 +63,14 @@ module:
   paragraphs_entity_embed: 0
   path: 0
   path_alias: 0
+  redirect: 0
   remove_http_headers: 0
   responsive_image: 0
   s3fs: 0
   samlauth: 0
   serialization: 0
   settings_tray: 0
+  simplify_menu: 0
   system: 0
   taxonomy: 0
   telephone: 0
@@ -85,6 +88,7 @@ module:
   usagov_directories: 0
   usagov_header_hooks: 0
   usagov_login: 0
+  usagov_top_navigation_menu: 0
   usagov_uswds_paragraph_components_mods: 0
   user: 0
   uswds_ckeditor_integration: 0

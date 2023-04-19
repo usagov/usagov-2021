@@ -7,7 +7,6 @@ global-styling:
     scripts/uswds.min.js: {}
     scripts/newFooter.js: {}
     scripts/telephoneForMobileNode.js: {}
-    scripts/disableMenuLinks.js: {}
   dependencies:
     - core/drupal
     - core/jquery
@@ -21,7 +20,13 @@ wizard:
     - core/jquery
 wizardStep:
   js:
-    scripts/wizardStep.js: {}
+    scripts/wizardStep.js: {}  
+  dependencies:
+    - core/drupal
+    - core/jquery  
+stateDirectory:
+  js:
+    scripts/stateDirectory.js: {}
   dependencies:
     - core/drupal
     - core/jquery

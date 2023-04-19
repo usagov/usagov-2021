@@ -1,0 +1,47 @@
+uuid: c7dd9b01-0afc-404b-ba8e-a6ad8f901151
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.left-menu-english
+  module:
+    - language
+    - menu_block
+    - node
+  theme:
+    - usagov
+id: mobile_navigation
+theme: usagov
+region: header_top
+weight: -11
+provider: null
+plugin: 'menu_block:left-menu-english'
+settings:
+  id: 'menu_block:left-menu-english'
+  label: 'Mobile Navigation - English'
+  label_display: visible
+  provider: menu_block
+  follow: false
+  follow_parent: child
+  label_link: false
+  label_type: block
+  level: 1
+  depth: 0
+  expand_all_items: true
+  parent: 'left-menu-english:'
+  suggestion: left_menu_english
+visibility:
+  language:
+    id: language
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      en: en
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
