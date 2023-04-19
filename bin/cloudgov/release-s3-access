@@ -1,4 +1,25 @@
-#!/bin/sh
+#!/bin/bash
+
+usage="
+$0: Releases user access to s3.
+
+Usage:
+   $0 -h
+   $0 SERVICE_NAME
+
+Options:
+-h:            show help and exit
+SERVICE_NAME:  service that stores s3 credentials (default: storage)
+"
+
+PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
 
 SPACE=$(cf target | grep space: | awk '{print $2}');
 if [ -z "$SPACE" ]; then
@@ -7,8 +28,6 @@ if [ -z "$SPACE" ]; then
 fi;
 
 export SERVICE_NAME=${1:-storage}
-
-if ! cf service "$1" >/dev/null 2>&1
 
 export SERVICE_KEY="storagekey-$SPACE-$SERVICE_NAME"
 cf delete-service-key $SERVICE_NAME $SERVICE_KEY -f
