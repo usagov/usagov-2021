@@ -5,10 +5,8 @@ $0: scp file(s) to an app in cloud.gov.
 
 Usage:
    $0 -h
-   $0 app_name
-   $0 scp_src
-   $0 scp_dst
-   $0 instance_index
+   $0 app_name scp_src scp_dst
+   $0 app_name scp_src scp_dst instance_index
 
 Options:
 -h:             show help and exit

@@ -6,7 +6,7 @@ $0: Runs npm inside the docker container.
 
 Usage:
    $0 -h
-   $0 ARG
+   $0 NPM command
 
 Options:
 -h:            show help and exit

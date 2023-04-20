@@ -5,7 +5,7 @@ $0: Pushes a local build of the static site to current environment.
 
 Usage:
    $0 -h
-   $1 DEPLOY_TAG
+   $0 DEPLOY_TAG
 
 Options:
 -h:     show help and exit

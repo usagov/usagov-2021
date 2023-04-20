@@ -6,6 +6,7 @@ labeled by the Jira ticket ID.
 
 Usage:
    $0 -h
+   $0 branch1 branch2
 
 Options:
 -h:            show help and exit

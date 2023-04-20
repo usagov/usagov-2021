@@ -6,6 +6,7 @@ $0: Runs Drush in your local container.
 
 Usage:
    $0 -h
+   $0 Drush command
 
 Options:
 -h:            show help and exit

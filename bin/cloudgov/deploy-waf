@@ -6,10 +6,8 @@ $0: Attempts to deploy a WAF app by tag.
 
 Usage:
    $0 -h
-   $0 DOCKERUSER
-   $0 DOCKERREPO
    $0 CTAG
-   $0 CDIGEST
+   $0 CTAG CDIGEST
 
 Options:
 -h:            show help and exit
@@ -17,6 +15,9 @@ DOCKERUSER:    Docker Hub user (default: gsatts)
 DOCKERREPO:    Docker Hub repo (default: usagov-2021)
 CTAG:          Docker container tag (default: latest)
 CDIGEST:       Container digest
+
+NOTES:
+Docker user and pass arguments come from environment.
 "
 
 PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")

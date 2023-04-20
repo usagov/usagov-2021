@@ -5,7 +5,7 @@ $0: Selects a version of the static site by tag in the s3 backup and pushes it t
 
 Usage:
    $0 -h
-   $1 DEPLOY_TAG
+   $0 DEPLOY_TAG
 
 Options:
 -h:     show help and exit

@@ -2,15 +2,14 @@
 set -e
 
 usage="
-$0: Updates composer permissions.  Called by composer.sh.
+$0: Runs gulp command in local container.
 
 Usage:
    $0 -h
+   $0 Gulp command
 
 Options:
 -h:            show help and exit
-BUID:          User ID
-BGID:          Group ID
 "
 
 PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")

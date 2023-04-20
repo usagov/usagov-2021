@@ -6,12 +6,10 @@ $0: List files in s3.
 Usage:
    $0 -h
    $0 S3_PATH
-   $0 S3_LS_PARAMS
 
 Options:
 -h:                 show help and exit
 SERVICE_PATH:       service that stores s3 credentials (default: storage)
-SERVICE_LS_PARAMS:  service that stores s3 credentials (default: storage)
 "
 
 PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")

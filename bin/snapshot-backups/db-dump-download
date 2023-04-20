@@ -5,7 +5,7 @@ $0: Dumps a backup of current environment's database.
 
 Usage:
    $0 -h
-   $1 TAG
+   $0 TAG
 
 Options:
 -h:     show help and exit

@@ -5,7 +5,7 @@ $0: Deploys an s3 snapshot backup of current environment's static site and datab
 
 Usage:
    $0 -h
-   $1 DEPLOY_TAG
+   $0 DEPLOY_TAG
 
 Options:
 -h:            show help and exit

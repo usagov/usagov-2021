@@ -5,7 +5,7 @@ $0: Runs php inside the docker container.
 
 Usage:
    $0 -h
-   $0 ARG
+   $0 PHP command
 
 Options:
 -h:            show help and exit

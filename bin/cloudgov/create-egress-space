@@ -5,13 +5,13 @@ $0: Creates a CF space for egress with appropriate permissions.
 
 Usage:
    $0 -h
-   $0 APP_SPACE
-   $0 APP_ORG
+   $0 EGRESS_SPACE
+   $0 EGRESS_SPACE EGRESS_ORG
 
 Options:
--h:            show help and exit
-APP_SPACE:     Space to work on (default: $STARTSPACE)
-APP_ORG:       App to work on (default: $STARTORG)
+-h:               show help and exit
+EGRESS_SPACE:     Space to work on (default: $STARTSPACE)
+EGRESS_ORG:       Org to work on (default: $STARTORG)
 
 REQUIREMENTS:
 Must be an OrgManager to have the permissions required for this script to work.

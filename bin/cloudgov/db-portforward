@@ -5,16 +5,11 @@ $0: Creates an SSH tunnel to enable mysql access to the database in the current 
 
 Usage:
    $0 -h
-   $0 APP_SPACE
-   $0 APP_ORG
+   $0 LOCAL_PORT
 
 Options:
 -h:            show help and exit
-APP_SPACE:     Space to work on (default: $STARTSPACE)
-APP_ORG:       App to work on (default: $STARTORG)
-
-REQUIREMENTS:
-Must be an OrgManager to have the permissions required for this script to work.
+LOCAL_PORT:    local database server port
 "
 
 PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")

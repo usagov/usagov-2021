@@ -5,6 +5,7 @@ $0: Dumps the contents of your local database to the named sql file.
 
 Usage:
    $0 -h
+   $0 LOCAL_FILE
 
 Options:
 -h:            show help and exit
