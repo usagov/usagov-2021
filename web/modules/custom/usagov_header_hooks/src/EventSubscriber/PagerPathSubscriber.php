@@ -2,6 +2,7 @@
 
 namespace Drupal\usagov_header_hooks\EventSubscriber;
 
+use Drupal\Core\Site\Settings;
 use Drupal\tome_static\Event\ModifyDestinationEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\CollectPathsEvent;
@@ -62,7 +63,6 @@ class PagerPathSubscriber implements EventSubscriberInterface {
       $url_parts = parse_url($path);
       // Redirect module produces paths like "_redirect:1234", hence check for path:
       if (array_key_exists('path', $url_parts) && ($url_parts['path'] == '/es/')) {
-        \Drupal::logger('FOO')->notice("'/es/' found and removed");
         unset($paths[$path]);
       }
     }
@@ -78,7 +78,7 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    *   The collect paths event.
    */
   public function excludeDirectories(CollectPathsEvent $event) {
-    $excluded_directories = ['/saml/', '/jsonapi/', '/es/saml/', '/es/jsonapi/'];
+    $excluded_directories = self::getExcludedDirectories();
     $paths = $event->getPaths(TRUE);
     foreach ($paths as $path => $metadata) {
       foreach ($excluded_directories as $excluded_directory) {
@@ -89,6 +89,25 @@ class PagerPathSubscriber implements EventSubscriberInterface {
       }
     }
     $event->replacePaths($paths);
+  }
+
+  /**
+   * Returns per-site excluded paths that look like directories.
+   *
+   * @return array
+   *   An array of excluded paths.
+   */
+  public static function getExcludedDirectories() {
+    $excluded_paths = [];
+    $site_paths = Settings::get('tome_static_path_exclude', []);
+    if (is_array($site_paths)) {
+      foreach ($site_paths as $path) {
+        if (str_ends_with($path, '/')) {
+          $excluded_paths[] = $path;
+        }
+      }
+    }
+    return $excluded_paths;
   }
 
   /**
