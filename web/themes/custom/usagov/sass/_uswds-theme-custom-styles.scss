@@ -415,8 +415,8 @@ add padding at the top of flag cards
   }
 }
 
-.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a,
-.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a:hover {
+.usa-nav__primary > .usa-nav___primary-item-smaller-padding > a,
+.usa-nav__primary > .usa-nav___primary-item-smaller-padding > a:hover {
   padding: 0.7rem;
 }
 
@@ -817,6 +817,7 @@ div #sm-share {
   display: flex;
   padding-bottom: 22px;
   background-color: transparent;
+  font-size: var($smaller-text-font-size);
 }
 
 div #sm-share * {
@@ -825,8 +826,22 @@ div #sm-share * {
 }
 
 div #sm-share a {
-  padding: 7px;
   text-decoration: none;
+}
+
+.share-icons {
+  margin-left: 16px;
+  height: 44px;
+  line-height: 44px;
+  display: flex;
+}
+
+.share-icon {
+  margin-right: 12px;
+  width: 32px;
+  height: 32px;
+  color: #1b1b1b;
+  display: block;
 }
 
 // Changed footer styles
@@ -1172,8 +1187,7 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
-.last,
-#share-page {
+.last {
   font-size: var($smaller-text-font-size);
 }
 
@@ -1183,5 +1197,3 @@ div[class^="QSIUserDefinedHTML"] {
 #footer-email {
   border-color: var($off-black);
 }
-
-
