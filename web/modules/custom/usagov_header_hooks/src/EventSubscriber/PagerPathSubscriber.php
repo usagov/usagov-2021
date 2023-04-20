@@ -4,6 +4,7 @@ namespace Drupal\usagov_header_hooks\EventSubscriber;
 
 use Drupal\tome_static\Event\ModifyDestinationEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
+use Drupal\tome_static\Event\CollectPathsEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -42,6 +43,52 @@ class PagerPathSubscriber implements EventSubscriberInterface {
       }
       $event->setDestination($url);
     }
+  }
+
+  /**
+   * Reacts to a collect paths event. Replaces any '/es/' (without sub-path) with '/es'
+   * Purpose: prevent a condition where Tome creates a redirect page at /es/index.html,
+   * presumably due to Drupal and the redirect module making a redirect from /es/ to /es.
+   *
+   * We don't need to replace /es/ with /es, because Tome will find the /es page as a node
+   * to process regardless.
+   *
+   * @param \Drupal\tome_static\Event\CollectPathsEvent $event
+   *   The collect paths event.
+   */
+  public function excludeEsSlash(CollectPathsEvent $event) {
+    $paths = $event->getPaths(TRUE);
+    foreach ($paths as $path => $metadata) {
+      $url_parts = parse_url($path);
+      // Redirect module produces paths like "_redirect:1234", hence check for path:
+      if (array_key_exists('path', $url_parts) && ($url_parts['path'] == '/es/')) {
+        \Drupal::logger('FOO')->notice("'/es/' found and removed");
+        unset($paths[$path]);
+      }
+    }
+    $event->replacePaths($paths);
+  }
+
+  /**
+   * Reacts to a collect paths event. Deletes any paths that start with specified strings.
+   * Intended to exclude whole directories, which should end with "/".
+   * Set tome_static_path_include in settings to exclude individual paths; it's built in.
+   *
+   * @param \Drupal\tome_static\Event\CollectPathsEvent $event
+   *   The collect paths event.
+   */
+  public function excludeDirectories(CollectPathsEvent $event) {
+    $excluded_directories = ['/saml/', '/jsonapi/', '/es/saml/', '/es/jsonapi/'];
+    $paths = $event->getPaths(TRUE);
+    foreach ($paths as $path => $metadata) {
+      foreach ($excluded_directories as $excluded_directory) {
+        if (str_starts_with($path, $excluded_directory) ||
+            (isset($metadata['original_path']) && str_starts_with($metadata['original_path'], $excluded_directory))) {
+          unset($paths[$path]);
+        }
+      }
+    }
+    $event->replacePaths($paths);
   }
 
   /**
@@ -84,8 +131,10 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    $events[TomeStaticEvents::MODIFY_DESTINATION][] = ['modifyDestination'];
+    // $events[TomeStaticEvents::MODIFY_DESTINATION][] = ['modifyDestination'];
     $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
+    $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeEsSlash', -1];
+    $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories', -1];
     return $events;
   }
 
