@@ -6,7 +6,7 @@ $0: Runs node inside the docker container.
 
 Usage:
    $0 -h
-   $0 ARG
+   $0 Node Command
 
 Options:
 -h:            show help and exit

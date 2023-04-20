@@ -5,7 +5,7 @@ $0: Creates a backup on s3 of the current static site on current environment.
 
 Usage:
    $0 -h
-   $1 DEPLOY_TAG
+   $0 DEPLOY_TAG
 
 Options:
 -h:     show help and exit

@@ -10,6 +10,9 @@ Options:
 -h:            show help and exit
 BUID:          User ID
 BGID:          Group ID
+
+NOTES:
+Arguments come from environment.
 "
 
 PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
@@ -21,5 +24,5 @@ else
    exit 1
 fi
 
-echo "Updating premissions in /var/www to $BUID:$BGID"
+echo "Updating permissions in /var/www to $BUID:$BGID"
 find /var/www -not -user $BUID -not -group $BGID -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference $BUID:$BGID

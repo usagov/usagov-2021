@@ -5,10 +5,6 @@ $0: Attempts to create a container image for web app to be used when launching c
 
 Usage:
    $0 -h
-   $0 DOCKERUSER
-   $0 DOCKERREPO
-   $0 CONTAINERTAG
-   $0 CONTAINERTAG2
 
 Options:
 -h:            show help and exit
@@ -16,6 +12,9 @@ DOCKERUSER:    Docker Hub username (default: gsatts [don't change this])
 DOCKERREPO:    Docker Hub repo (default: usagov-2021 [don't change this])
 CONTAINERTAG:  Git tag of the container being created (default: $GITBRANCH)
 CONTAINERTAG2: Optional tag label
+
+NOTES:
+Arguments come from environment.
 "
 
 PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")

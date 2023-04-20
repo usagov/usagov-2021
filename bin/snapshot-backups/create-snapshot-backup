@@ -5,9 +5,7 @@ $0: Create s3 snapshot backup of current environment's static site and database.
 
 Usage:
    $0 -h
-   $1 Desired environment
-   $2 Desired branch
-   $3 Tag Suffix
+   $0 environment branch suffix
 
 Options:
 -h:            show help and exit

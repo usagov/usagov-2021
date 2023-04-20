@@ -78,7 +78,7 @@ fi
 
 
 # Setup environmental variables so current User and Group Ids are available at container build time
-# spam out to a variety of possible files to cover common cases acrosss dev machines
+# spam out to a variety of possible files to cover common cases across dev machines
 echo "Setup BUID and BGID environmental variables"
 if [ -f ~/.zshrc ] && ! grep -q 'export BUID=' ~/.zshrc; then
   echo "export BUID=\$(id -u)" >> ~/.zshrc

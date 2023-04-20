@@ -9,7 +9,8 @@ Usage:
 
 Options:
 -h:          show help and exit
-SPACE:       app to pull fromdesired space
+SPACE:       space to switch to
+"
 
 PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
 if [ -f "$PREAMBLE" ]; then

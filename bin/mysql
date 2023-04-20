@@ -6,7 +6,7 @@ $0: Runs sql inside the docker container.
 
 Usage:
    $0 -h
-   $0 ARG
+   $0 SQL query
 
 Options:
 -h:            show help and exit

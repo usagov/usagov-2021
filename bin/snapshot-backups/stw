@@ -5,10 +5,7 @@ $0: Creates a tag for snapshot scripts and runs the selected script.
 
 Usage:
    $0 -h
-   $1 SPACE
-   $2 BRANCH
-   $3 SUFFIX
-   $4 COMMAND
+   $0 SPACE BRANCH SUFFIX COMMAND
 
 Options:
 -h:        show help and exit

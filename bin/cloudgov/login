@@ -6,9 +6,8 @@ $0: Logs in to cloud.gov
 
 Usage:
    $0 -h
-   $0 USER
-   $0 PASS
-   $0 SPACE
+   $0 USER PASS
+   $0 USER PASS SPACE
 
 Options:
 -h:            show help and exit
