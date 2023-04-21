@@ -107,12 +107,15 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       if ($new_href) {
         $changes = TRUE;
         $node->setAttribute('href', $new_href);
+        $event->addExcludePath($new_href);
       }
     }
     if ($changes) {
       $html = $document->saveHTML();
       $event->setHtml($html);
     }
+    // Add /es/ to the exclude paths regardless; it may already be present:
+    $event->addExcludePath('/es/');
   }
 
   /**
