@@ -109,7 +109,7 @@ bin/composer install --no-interaction --optimize-autoloader
 
 echo "Build theme"
 bin/npm install
-bin/npm run init
+bin/npm run build
 
 
 echo "Init process complete"
