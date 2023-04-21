@@ -9,7 +9,7 @@ jQuery(document).ready(function ($) {
   slidesForFocus = slidesContainer.querySelectorAll(".slide a");
   carouselHeaders = document.querySelectorAll(".carouselHeaders");
   makeDots();
-  slideDots = document.querySelectorAll(".navigation li button");
+  slideDots = document.querySelectorAll(".navigation li div");
 
   // Set up the slide dot behaviors
   slideDots.forEach(function (dot, index) {
@@ -47,7 +47,7 @@ jQuery(document).ready(function ($) {
       var title = carouselHeaders[i].textContent.trim();
       var titleWoQuotes = title.replace(/['"]+/g, '');
       var label = `Card ${pageNum} of ${numSlides}: ${titleWoQuotes}`;
-      li.innerHTML = '<button class="carousel__navigation_button" aria-label=" '+ label + '"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="48%" r="45" /> </svg> </button>';
+      li.innerHTML = '<div class="carousel__navigation_button" aria-label=" '+ label + '"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="48%" r="25" /> </svg> </div>';
       dots.appendChild(li);
     }
   }
