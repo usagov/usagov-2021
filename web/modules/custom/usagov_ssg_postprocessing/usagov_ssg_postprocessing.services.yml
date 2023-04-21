@@ -1,0 +1,5 @@
+services:
+  usagov_ssg_postprocessing_events_subscriber:
+    class: '\Drupal\usagov_ssg_postprocessing\EventSubscriber\TomeEventSubscriber'
+    tags:
+      - { name: 'event_subscriber' }
