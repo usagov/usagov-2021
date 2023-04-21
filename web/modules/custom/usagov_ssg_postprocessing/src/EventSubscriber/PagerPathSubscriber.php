@@ -23,8 +23,10 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    */
   public function modifyDestination(ModifyDestinationEvent $event) {
     $destination = $event->getDestination();
-    $destination = $this->modifyUrl($destination);
-    $event->setDestination($destination);
+    $new_destination = $this->modifyUrl($destination);
+    if ($destination != $new_destination) {
+      $event->setDestination($destination);
+    }
   }
 
   /**
