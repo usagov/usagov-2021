@@ -61,3 +61,37 @@ function usagov_ssg_postprocessing_page_attachments_alter(array &$attachments) {
     }
   }
 }
+
+/** Enable/Disable Tome Static Site Generation Form **/
+
+/**
+* Static Site Generation Toggle State Form ID
+*/
+function usagov_ssg_postprocessing_get_static_state_form_id() {
+  return 'toggle_static_site_generation_form';
+}
+
+/**
+* Static Site Generation Toggle State Form Button Name
+*/
+function usagov_ssg_postprocessing_get_static_state_button_name() {
+  return 'confirm_toggle';
+}
+
+/**
+ * Toggle State variable name for sset/sget/sdel
+ */
+function usagov_ssg_postprocessing_get_static_state_var() {
+  return 'usagov.tome_run_disabled';
+}
+
+/**
+  * Implements hook_form_alter().
+  * Static Site Generation form text updates.
+  */
+function usagov_ssg_postprocessing_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == usagov_ssg_postprocessing_get_static_state_form_id()) {
+    $toggle_state = \Drupal::state()->get(usagov_ssg_postprocessing_get_static_state_var()) ? 1 : 0;
+    $form_state->setValue(usagov_ssg_postprocessing_get_static_state_button_name(), $toggle_state ? TRUE : FALSE);
+  }
+}
