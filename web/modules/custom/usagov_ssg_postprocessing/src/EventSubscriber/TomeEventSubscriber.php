@@ -122,7 +122,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
-    $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeEsSlash', 99]; // Best to do last, probably
+    $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeEsSlash', -99]; // Best to do last
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories', -1];
     return $events;
   }
