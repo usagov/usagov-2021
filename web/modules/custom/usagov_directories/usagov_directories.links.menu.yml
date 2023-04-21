@@ -26,9 +26,3 @@ usagov_directories.admin_delete_records:
   route_name: usagov_directories.delete_form
   weight: 300
 
-usagov_directories.admin_toggle_static_site_generation:
-  title: 'Toggle static site generation'
-  description: 'Use this form to temporarily enable or disable Tome'
-  parent: usagov_directories.admin
-  route_name: usagov_directories.toggle_tome
-  weight: 400

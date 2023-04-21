@@ -3,7 +3,6 @@
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
 use Drupal\Core\Site\Settings;
-use Drupal\tome_static\Event\ModifyDestinationEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\CollectPathsEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
@@ -11,7 +10,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Converts links to "/es" to "/es/".
- * Based on the tome_static PagerEventSubscriber.
  *
  * @internal
  */
@@ -122,8 +120,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
-    $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeEsSlash', -99]; // Best to do last
-    $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories', -1];
+    $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeEsSlash'];
+    $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories'];
     return $events;
   }
 
