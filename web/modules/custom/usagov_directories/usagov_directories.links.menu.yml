@@ -25,4 +25,3 @@ usagov_directories.admin_delete_records:
   parent: usagov_directories.admin
   route_name: usagov_directories.delete_form
   weight: 300
-
