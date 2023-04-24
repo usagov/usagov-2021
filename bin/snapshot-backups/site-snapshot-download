@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# we might be running in circleci (really?)
+# we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
 fi
