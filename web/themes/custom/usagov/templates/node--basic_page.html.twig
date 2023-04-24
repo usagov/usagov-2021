@@ -119,6 +119,12 @@
 		{{ content }}
 	</div>
 {% if term_name == "State Office Page" %}
-	{{ drupal_view('50_state_pages', '50_state_pages_block', node.field_50_state_pages_type.value) }}
+	{% set lang = node.langcode.value %}
+
+	{% if lang == 'es' %}
+		{{ drupal_view('50_state_pages', '50_state_pages_block_spanish', node.field_50_state_pages_type.value) }}
+	{% else %}
+		{{ drupal_view('50_state_pages', '50_state_pages_block', node.field_50_state_pages_type.value) }}
+	{% endif %}
 {% endif %}
 </article>
