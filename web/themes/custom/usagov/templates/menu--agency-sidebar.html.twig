@@ -25,6 +25,23 @@
 					{% endif %}
 				</li>
 				<li class="usa-sidenav__item">
+					{% if path('<current>') matches '#\/states\/.+#'%}
+						<a href="/state-local-governments" class="active-trail">
+							State and local governments
+						</a>
+						<ul class="usa-sidenav__sublist">
+							<li class="usa-sidenav__item">
+								<a class="usa-current" href={{current_url}}>{{ drupal_title() }}
+								</a>
+							</li>
+						</ul>
+					{% else %}
+						<a href="/state-local-governments">
+							State and local governments
+						</a>
+					{% endif %}
+				</li>
+				<li class="usa-sidenav__item">
 					<a href="/facts-figures">
 						U.S. facts and figures
 					</a>
@@ -39,23 +56,7 @@
 						Elected officials
 					</a>
 				</li>
-				<li class="usa-sidenav__item">
-					{% if path('<current>') matches '#\/states\/.+#'%}
-						<a href="/state-governments" class="active-trail">
-							State governments
-						</a>
-						<ul class="usa-sidenav__sublist">
-							<li class="usa-sidenav__item">
-								<a class="usa-current" href={{current_url}}>{{ drupal_title() }}
-								</a>
-							</li>
-						</ul>
-					{% else %}
-						<a href="/state-governments">
-							State governments
-						</a>
-					{% endif %}
-				</li>
+
 				<li class="usa-sidenav__item">
 					<a href="/buy-from-government">
 						Buying from the U.S. government

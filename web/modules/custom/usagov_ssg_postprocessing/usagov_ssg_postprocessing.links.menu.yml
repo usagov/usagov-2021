@@ -1,0 +1,13 @@
+usagov_ssg_postprocessing.admin:
+  title: 'USAgov SSG and HTML Post-Processing'
+  parent: system.admin_config
+  route_name: usagov_ssg_postprocessing.main
+  description: 'SSG and HTML output tweaks'
+  weight: 100
+
+usagov_ssg_postprocessing.admin_toggle_static_site_generation:
+  title: 'Toggle static site generation'
+  description: 'Use this form to temporarily enable or disable Tome'
+  parent: usagov_ssg_postprocessing.admin
+  route_name: usagov_ssg_postprocessing.toggle_tome
+  weight: 400
