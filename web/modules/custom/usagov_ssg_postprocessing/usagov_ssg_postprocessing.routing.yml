@@ -1,0 +1,15 @@
+usagov_ssg_postprocessing.main:
+  path: '/admin/config/usagov_ssg_postprocessing/main'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'USAGov SSG and HTML PostProcessing'
+  requirements:
+    _permission: 'administer site configuration'
+
+usagov_ssg_postprocessing.toggle_tome:
+  path: '/admin/config/usagov_ssg_postprocessing/toggle_tome'
+  defaults:
+    _title: 'Toggle Static Site Generation'
+    _form: '\Drupal\usagov_ssg_postprocessing\Form\ToggleStaticSiteGenerationForm'
+  requirements:
+    _permission: 'administer site configuration'
