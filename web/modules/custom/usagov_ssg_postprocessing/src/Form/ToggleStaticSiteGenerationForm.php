@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\usagov_directories\Form;
+namespace Drupal\usagov_ssg_postprocessing\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -16,7 +16,7 @@ class ToggleStaticSiteGenerationForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return usagov_directories_get_static_state_form_id();
+    return usagov_ssg_postprocessing_get_static_state_form_id();
   }
 
   /**
@@ -24,12 +24,11 @@ class ToggleStaticSiteGenerationForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    $toggle_state = \Drupal::state()->get(usagov_directories_get_static_state_var()) ? 'Enable' : 'Disable';
+    $toggle_state = \Drupal::state()->get(usagov_ssg_postprocessing_get_static_state_var()) ? 'Enable' : 'Disable';
 
-    $desc_text = $this->t(\Drupal::state()->get(usagov_directories_get_static_state_var()) ?
-      "Static Site Generation is currently DISABLED. Note: Disabling will not cancel a Tome run that is already in progress." :
-      "Static Site Generation is currently ENABLED."
-    );
+    $desc_text = $this->t(\Drupal::state()->get(usagov_ssg_postprocessing_get_static_state_var()) ?
+      "Static Site Generation is currently DISABLED." :
+      "Static Site Generation is currently ENABLED. Note: Disabling will not cancel a Tome run that is already in progress.");
 
     $form['description'] = [
       '#type' => 'processed_text',
@@ -37,7 +36,7 @@ class ToggleStaticSiteGenerationForm extends FormBase {
       '#text' => $desc_text,
     ];
 
-    /*$form[usagov_directories_get_static_state_button_name()] = [
+    /*$form[usagov_ssg_postprocessing_get_static_state_button_name()] = [
     '#type' => 'checkbox',
     '#title' => $this->t('Check this box to ENABLE Static Site Generation.  Uncheck to DISABLE.'),
     '#default_value' => $toggle_state,
@@ -60,17 +59,17 @@ class ToggleStaticSiteGenerationForm extends FormBase {
     $errors = FALSE;
 
     try {
-      $toggle_state = \Drupal::state()->get(usagov_directories_get_static_state_var()) ? FALSE : TRUE;
-      //$toggle_state = $form_state->getValue(usagov_directories_get_static_state_button_name()) ? TRUE : FALSE;
+      $toggle_state = \Drupal::state()->get(usagov_ssg_postprocessing_get_static_state_var()) ? FALSE : TRUE;
+      //$toggle_state = $form_state->getValue(usagov_ssg_postprocessing_get_static_state_button_name()) ? TRUE : FALSE;
       if ($toggle_state) {
-        \Drupal::state()->set(usagov_directories_get_static_state_var(), TRUE);
+        \Drupal::state()->set(usagov_ssg_postprocessing_get_static_state_var(), TRUE);
       }
       else {
-        \Drupal::state()->delete(usagov_directories_get_static_state_var());
+        \Drupal::state()->delete(usagov_ssg_postprocessing_get_static_state_var());
       }
     }
     catch (\Exception $e) {
-      \Drupal::logger('usagov_directories')->error('Error while attempting toggle tome: @error',
+      \Drupal::logger('usagov_ssg_postprocessing')->error('Error while attempting toggle tome: @error',
         ['@error' => $e->getMessage()]);
       $errors = TRUE;
     }
