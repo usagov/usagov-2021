@@ -1,0 +1,9 @@
+services:
+  usagov_ssg_postprocessing_tome_misc_events_subscriber:
+    class: '\Drupal\usagov_ssg_postprocessing\EventSubscriber\TomeEventSubscriber'
+    tags:
+      - { name: 'event_subscriber' }
+  usagov_ssg_postprocessing_pagerpath_events_subscriber:
+    class: '\Drupal\usagov_ssg_postprocessing\EventSubscriber\PagerPathSubscriber'
+    tags:
+      - { name: 'event_subscriber' }
