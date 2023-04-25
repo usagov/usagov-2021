@@ -52,7 +52,7 @@ function usagov_ssg_postprocessing_page_attachments_alter(array &$attachments) {
     foreach ($attachments['#attached']['html_head_link'] as $key => $links) {
       $modified_links = [];
       foreach ($links as $link) {
-        if (($link['rel'] == "alternate") && !str_ends_with($link['href'], '/')) {
+        if (is_array($link) && ($link['rel'] == "alternate") && !str_ends_with($link['href'], '/')) {
           $link['href'] .= "/";
         }
         $modified_links[] = $link;
