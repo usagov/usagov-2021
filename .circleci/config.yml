@@ -359,6 +359,9 @@ workflows:
       - approve-snapshot-backup:
           type: approval
           filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-DEPLOYMENT/
             branches:
               only:
                 - USAGOV-908-snapshots-from-circleci
