@@ -1,4 +1,5 @@
 jQuery(document).ready(function ($) {
+  "use strict";
   var previousButton, nextButton;
   var slidesContainer, slides, slideDots;
   var leftMostSlideIndex = 0;
@@ -128,11 +129,11 @@ jQuery(document).ready(function ($) {
     hideNonVisibleSlides();
 
     // check if the left or right arrow should be hidden
-    if (leftMostSlideIndex == 0) {
+    if (leftMostSlideIndex === 0) {
       previousButton.style.visibility = "hidden";
       nextButton.style.visibility = "visible";
     }
- else if (leftMostSlideIndex == slides.length - 1) {
+ else if (leftMostSlideIndex === slides.length - 1) {
       previousButton.style.visibility = "visible";
       nextButton.style.visibility = "hidden";
     }
@@ -194,10 +195,10 @@ jQuery(document).ready(function ($) {
       }
     }
  else {
-      for (var i = leftLimit; i < numItems; i++) {
-        slides[i].removeAttribute("aria-hidden");
+      for (var j = leftLimit; j < numItems; j++) {
+        slides[j].removeAttribute("aria-hidden");
 
-        slides[i]
+        slides[j]
           .querySelectorAll(
             'a, button, select, input, textarea, [tabindex="0"]'
           )

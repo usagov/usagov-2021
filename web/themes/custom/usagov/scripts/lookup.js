@@ -4,6 +4,7 @@
  * @param {function(Object)} callback Function which takes the response object as a parameter.
  */
 function lookup(address, callback) {
+    "use strict";
     /**
      * Request object for given parameters.
      * @type {gapi.client.HttpRequest}
@@ -12,7 +13,7 @@ function lookup(address, callback) {
     let count=0;
     var timer = window.setInterval(function() {
         count++;
-        if (gapi.client != undefined) {
+        if (typeof gapi.client !== "undefined") {
             window.clearInterval(timer);
             let req = gapi.client.request({
                 "path": "/civicinfo/v2/representatives",
@@ -34,6 +35,7 @@ else if (count > 100) {
  * @param {Object} rawResponse Raw response from the API.
  */
 function renderResults(response, rawResponse) {
+    "use strict";
 
     // Text strings for the page's language should be assigned to "usagovCEOtext" in
     // an inline script in the page's Header HTML. The translations here are retained for backward compatibility.
@@ -165,7 +167,7 @@ function renderResults(response, rawResponse) {
             let address = response.officials[i].address || "none provided";
             nextElem = document.createElement("li");
             nextElem.classList.add("padding-bottom-2");
-            if (address != "none provided") {
+            if (address !== "none provided") {
                 // Normalize address
                 address = address[0].line1 + ",<br>" + address[0].city + ", " + address[0].state + " " + address[0].zip;
 
@@ -178,7 +180,7 @@ function renderResults(response, rawResponse) {
 
             // Display phone number, if provided
             let phoneNumber = response.officials[i].phones || "none provided";
-            if (phoneNumber != "none provided") {
+            if (phoneNumber !== "none provided") {
                 // Select first phone number and create clickable link
                 // let linkToPhone = document.createElement("a");
                 // linkToPhone.setAttribute("href", "tel:" + phoneNumber[0]);
@@ -195,14 +197,14 @@ function renderResults(response, rawResponse) {
 
             // Display website, if provided
             let website = response.officials[i].urls || "none provided";
-            if (website != "none provided") {
+            if (website !== "none provided") {
                 // let link = document.createElement("a");
                 // link.setAttribute("href", response.officials[i].urls[0]);
 
                 // Shorten the link and remove unnecessary characters
                 let cleanLink = response.officials[i].urls[0]
                     .replace("https://", "").replace("http://", "").replace("www.", "");
-                if (cleanLink[cleanLink.length - 1] == "/") {
+                if (cleanLink[cleanLink.length - 1] === "/") {
                     cleanLink = cleanLink.slice(0, -1);
                 }
                 let link=`<a href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
@@ -219,7 +221,7 @@ function renderResults(response, rawResponse) {
 
             // Display social media accounts, if provided
             let socials = response.officials[i].channels || "none provided";
-            if (socials != "none provided") {
+            if (socials !== "none provided") {
                 for (let j = 0; j < socials.length; j++) {
                     // Create appropriate type of link
                     // for each social media account
@@ -241,7 +243,7 @@ function renderResults(response, rawResponse) {
 
             // Display email via contact button, if provided
             let email = response.officials[i].emails || "none provided";
-            if (email != "none provided") {
+            if (email !== "none provided") {
                 // let primaryEmail = document.createElement("button");
                 let linkToContact = document.createElement("a");
                 let firstEmail = email[0];
@@ -267,10 +269,10 @@ function renderResults(response, rawResponse) {
             // Determine under which level accordion the elected official section should be appended
             let appendLocation;
             let level = response.officials[i].level;
-            if (level == "country") {
+            if (level === "country") {
                 appendLocation = document.getElementById(content["levels"][0]);
             }
- else if (level == "administrativeArea1") {
+ else if (level === "administrativeArea1") {
                 appendLocation = document.getElementById(content["levels"][1]);
             }
   else {
@@ -295,6 +297,7 @@ function renderResults(response, rawResponse) {
  * Initialize API client by setting the API key.
  */
  function setApiKey() {
+    "use strict";
     gapi.client.setApiKey("AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A");
 }
 
@@ -302,6 +305,7 @@ function renderResults(response, rawResponse) {
  * Process form data, display the address, and search for elected officials.
  */
 function load() {
+    "use strict";
     let searchParams = getSearchParams();
     let inputStreet = searchParams.get('input-street');
     let inputCity = searchParams.get('input-city');
@@ -316,6 +320,7 @@ function load() {
 }
 
 function getSearchParams() {
+    "use strict";
     const paramsString = window.location.search;
     const searchParams = new URLSearchParams(paramsString);
     return searchParams;
@@ -323,4 +328,7 @@ function getSearchParams() {
 
 // Load the GAPI Client Library
 gapi.load("client", setApiKey);
-document.addEventListener('DOMContentLoaded', function() { load (); });
+document.addEventListener('DOMContentLoaded', function() {
+    "use strict";
+    load ();
+});

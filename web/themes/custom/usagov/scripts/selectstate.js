@@ -1,4 +1,5 @@
 function stateSelect() {
+    "use strict";
     let stateForm = document.getElementById("stateForm");
     let stateData = new FormData(stateForm);
     let stateValue = stateData.get('state-info');
