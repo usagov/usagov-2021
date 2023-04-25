@@ -356,19 +356,26 @@ workflows:
 
   snapshot-backup:
     jobs:
-      - approve-snapshot-backup:
+      - approve-snapshot-backup-dev:
           type: approval
           filters:
             tags:
               only:
-              - /^USAGOV-(.*)-DEPLOYMENT/
+              - /^USAGOV-(.*)-DEPLOYMENT-DEV/
             branches:
-              only:
-                - USAGOV-908-snapshots-from-circleci
+              ignore:
+              - /.*/
 
       - snapshot-backup-dev:
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-DEPLOYMENT-DEV/
+            branches:
+              ignore:
+              - /.*/
           requires:
-            - approve-snapshot-backup
+            - approve-snapshot-backup-dev
 
   build-and-deploy:
     jobs:
