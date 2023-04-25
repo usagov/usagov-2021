@@ -102,14 +102,14 @@ commands:
       - checkout
       - install-cloud-foundry
       - run:
-          name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.branch >>.<< parameters.envname >>.<< pipeline.number >>
+          name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/snapshot-backups/site-snapshot-create << pipeline.git.branch >>.<< parameters.envname >>.<< pipeline.number >>
-            ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.branch >>.<< parameters.envname >>.<< pipeline.number >>
+            ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+            ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
 
 jobs:
   scan-code:
