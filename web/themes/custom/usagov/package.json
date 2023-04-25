@@ -8,7 +8,7 @@
     "build": "npx gulp compile",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "npx gulp watch",
-    "lint": "npx stylelint sass/**/*.scss; npx eslint scripts/*",
+    "lint": "npx stylelint sass/**.scss; npx eslint scripts/*",
     "scss": "npx gulp compileSass",
     "eslint": "npx gulp compileSass"
   },
