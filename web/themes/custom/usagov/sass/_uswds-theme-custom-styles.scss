@@ -806,7 +806,7 @@ a {
   }
 }
 
-//Last Updated, Share and Survey
+// Last Updated, Share and Survey
 .additional_body_info {
   padding-top: 75px;
 }
@@ -1092,10 +1092,6 @@ button.usa-combo-box__toggle-list:focus {
   }
 }
 
-#backToTop {
-  z-index: 2000000003;
-}
-
 // BEGIN Page Level Survey extra CSS
 #pagesurvey-trgt-qualtrics {
   background: white;
@@ -1139,7 +1135,7 @@ div[class^="QSIUserDefinedHTML"] {
 
 // END Page Level Survey extra CSS
 
-//government banner
+// government banner
 .usa-banner__header-text,
 .usa-banner__header-action {
   line-height: 1.5;
@@ -1157,8 +1153,8 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
-#question_box > div > p,
-#question_box > div > div {
+#question-box > div > p,
+#question-box > div > div {
   font-size: var($regular-text-font-size);
 }
 
@@ -1167,7 +1163,7 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
-#wizard_border > fieldset > label,
+#wizard-border > fieldset > label,
 .wizard_result > p {
   font-size: var($regular-text-font-size);
 }

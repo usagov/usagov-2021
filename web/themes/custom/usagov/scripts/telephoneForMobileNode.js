@@ -1,4 +1,5 @@
 function reformatNumForMobile(toReformat) {
+  "use strict";
   // get phone number and description from innerText
   const numAndDesc = toReformat.innerText;
   const numberSplitter = numAndDesc.split(" ");
