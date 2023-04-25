@@ -16,8 +16,8 @@
  */
 
 
-// Text strings for the page's language should be assigned to "usagovCEOtext" in 
-// an inline script in the page's Header HTML. The translations here are retained for backward compatibility. 
+// Text strings for the page's language should be assigned to "usagovCEOtext" in
+// an inline script in the page's Header HTML. The translations here are retained for backward compatibility.
 const contact_translations = {
     "en": {
         "topic": "Please fill out the topic field.",
@@ -39,7 +39,7 @@ const contact_translations = {
         "concern": "Mis inquietudes con respecto a este tema son:",
         "idea": "Y mis ideas para abordar este cuestión son:"
     }
-}
+};
 
 let contact_content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : contact_translations[ document.documentElement.lang ];
 let foundOfficial = false; // This value is calculated in one function and used in more than one.
@@ -60,7 +60,7 @@ function load() {
 
     // Look up officials and verify that the selection (email, name, office) are valid.
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
-    lookup(normalizedAddress, function(response, rawResponse) { validateAndDisplay(searchParams, response)});
+    lookup(normalizedAddress, function(response, rawResponse) { validateAndDisplay(searchParams, response);});
 }
 
 function validateAndDisplay(searchParams, response) {
@@ -91,7 +91,7 @@ function validateAndDisplay(searchParams, response) {
         let foundOffice = response.offices.find(function(office) {
             return office.officialIndices.indexOf(foundOfficialIndex) !== -1;
         });
-        let displayOffice = foundOffice ? foundOffice.name : ''
+        let displayOffice = foundOffice ? foundOffice.name : '';
         displayOfficial.innerHTML = DOMPurify.sanitize(foundOfficial.name + "<br>" + displayOffice);
         let buttonAlt = document.getElementById("button-alt");
         buttonAlt.innerHTML += DOMPurify.sanitize(foundOfficial.email);
@@ -142,17 +142,17 @@ function lookup(address, callback) {
      */
 
     let count=0;
-    var timer = window.setInterval(function(){
+    var timer = window.setInterval(function() {
         count++;
         if (gapi.client != undefined) {
             window.clearInterval(timer);
             let req = gapi.client.request({
-                "path" : "/civicinfo/v2/representatives",
-                "params" : {"address" : address}
+                "path": "/civicinfo/v2/representatives",
+                "params": {"address": address}
             });
             req.execute(callback);
         }
-        else if(count > 100){
+        else if (count > 100) {
             // Stop trying after 100 attempts (10 seconds)
             window.clearInterval(timer);
         }

@@ -5,7 +5,7 @@ function stateSelect() {
     let stateName = stateValue.split("/")[2];
     dataLayer.push({
         'event': '50_state_submit',
-        '50_state_url':  stateValue,
+        '50_state_url': stateValue,
         '50_state_name': stateName
     });
     window.location.assign(window.location.origin + stateValue);
