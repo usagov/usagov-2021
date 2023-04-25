@@ -10,17 +10,18 @@ function lookup(address, callback) {
      */
 
     let count=0;
-    var timer = window.setInterval(function(){
+    var timer = window.setInterval(function() {
         count++;
         if (gapi.client != undefined) {
             window.clearInterval(timer);
             let req = gapi.client.request({
-                "path" : "/civicinfo/v2/representatives",
-                "params" : {"address" : address}
+                "path": "/civicinfo/v2/representatives",
+                "params": {"address": address}
             });
             req.execute(callback);
-        }else if(count > 100){
-            //Stop trying after 100 attempts (10 seconds)
+        }
+else if (count > 100) {
+            // Stop trying after 100 attempts (10 seconds)
             window.clearInterval(timer);
         }
     }, 100);
@@ -34,8 +35,8 @@ function lookup(address, callback) {
  */
 function renderResults(response, rawResponse) {
 
-    // Text strings for the page's language should be assigned to "usagovCEOtext" in 
-    // an inline script in the page's Header HTML. The translations here are retained for backward compatibility. 
+    // Text strings for the page's language should be assigned to "usagovCEOtext" in
+    // an inline script in the page's Header HTML. The translations here are retained for backward compatibility.
     const backupTranslations = {
         "en": {
             "error-fetch": "ERROR: Failed trying to fetch elected officials!",
@@ -59,7 +60,7 @@ function renderResults(response, rawResponse) {
             "contact-via-email": "Contactar por correo electrónico",
             "path-contact": "/es/funcionarios-electos-email",
         }
-    }
+    };
 
     const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
 
@@ -88,7 +89,7 @@ function renderResults(response, rawResponse) {
         // Create container for rendering results
         let container = document.createElement("div");
         container.setAttribute("class", "usa-accordion usa-accordion--multiselectable");
-        container.setAttribute("data-allow-multiple","")
+        container.setAttribute("data-allow-multiple","");
 
         // Create an accordion for each level of elected officials
         const levels = content["levels"];
@@ -147,7 +148,7 @@ function renderResults(response, rawResponse) {
 
             // Create bullet list of details for the elected official
             let bulletList = document.createElement("ul");
-            bulletList.classList.add("add-list-reset")
+            bulletList.classList.add("add-list-reset");
 
             // Display party affiliation
             // NOTE: unlike other details, this field will display
@@ -156,20 +157,20 @@ function renderResults(response, rawResponse) {
             // (so the accordion isn't blank if there are no details.
             let party = response.officials[i].party || "none provided";
             let nextElem = document.createElement("li");
-            nextElem.classList.add("padding-bottom-2")
+            nextElem.classList.add("padding-bottom-2");
             nextElem.innerHTML = `<div class="text-bold">${content["party-affiliation"]}:</div><div>${party}<div>`;
             bulletList.appendChild(nextElem);
 
             // Display address, if provided
             let address = response.officials[i].address || "none provided";
             nextElem = document.createElement("li");
-            nextElem.classList.add("padding-bottom-2")
+            nextElem.classList.add("padding-bottom-2");
             if (address != "none provided") {
                 // Normalize address
                 address = address[0].line1 + ",<br>" + address[0].city + ", " + address[0].state + " " + address[0].zip;
 
                 nextElem = document.createElement("li");
-            nextElem.classList.add("padding-bottom-2")
+            nextElem.classList.add("padding-bottom-2");
                 nextElem.innerHTML = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
 
                 bulletList.appendChild(nextElem);
@@ -185,7 +186,7 @@ function renderResults(response, rawResponse) {
                 let linkToPhone = `<a href="tel:${phoneNumber[0]}">${phoneNumber[0]}</a>`;
 
                 nextElem = document.createElement("li");
-                nextElem.classList.add("padding-bottom-2")
+                nextElem.classList.add("padding-bottom-2");
                 nextElem.innerHTML = `<div class="text-bold">${content["phone-number"]}:</div><div>${linkToPhone}</div>`;
                 // nextElem.appendChild(linkToPhone);
 
@@ -208,7 +209,7 @@ function renderResults(response, rawResponse) {
                 // link.innerHTML = cleanLink;
 
                 nextElem = document.createElement("li");
-                nextElem.classList.add("padding-bottom-2")
+                nextElem.classList.add("padding-bottom-2");
                 // nextElem.innerHTML = "<div class="text-bold">"+content["website"]+":</div><div>";
                 nextElem.innerHTML = `<div class="text-bold">${content["website"]}:</div><div>${link}</div>`;
                 // nextElem.appendChild(link);
@@ -223,15 +224,15 @@ function renderResults(response, rawResponse) {
                     // Create appropriate type of link
                     // for each social media account
                     nextElem = document.createElement("li");
-                    nextElem.classList.add("padding-bottom-2")
+                    nextElem.classList.add("padding-bottom-2");
                     let socialOptions = {
                         "twitter": "https://twitter.com/",
                         "facebook": "https://facebook.com/",
                         "youtube": "https://youtube.com/",
                         "linkedin": "https://linkedin.com/in/"
-                    }
+                    };
                     let social = socials[j].type.toLowerCase();
-                    if (social in socialOptions){
+                    if (social in socialOptions) {
                         nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
                     }
                     bulletList.appendChild(nextElem);
@@ -268,9 +269,11 @@ function renderResults(response, rawResponse) {
             let level = response.officials[i].level;
             if (level == "country") {
                 appendLocation = document.getElementById(content["levels"][0]);
-            } else if (level == "administrativeArea1") {
+            }
+ else if (level == "administrativeArea1") {
                 appendLocation = document.getElementById(content["levels"][1]);
-            }  else {
+            }
+  else {
                 appendLocation = document.getElementById(content["levels"][2]);
             }
 

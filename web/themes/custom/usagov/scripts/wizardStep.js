@@ -5,7 +5,7 @@ if (priorButton != null) {
 }
 
 function priorStepFunction() {
-  dataLayer.push({ event: "Wizard_Prior" });
+  dataLayer.push({"event": "Wizard_Prior"});
 }
 
 let nextButton = document.getElementById("next");
@@ -23,16 +23,18 @@ function wizardStepError() {
         document.getElementById("msg").innerHTML = "";
         document.getElementById("msg").removeAttribute("tabindex", "-1");
         document.getElementById("wizard_border").classList.remove("wizard_error");
-        dataLayer.push({ event: "Wizard_Next" });
+        dataLayer.push({"event": "Wizard_Next"});
         return true;
-      } else if (
+      }
+ else if (
         document.getElementsByTagName("html")[0].getAttribute("lang") == "en"
       ) {
         document.getElementById("msg").innerHTML =
           "Error: Please choose one of the following options";
         document.getElementById("msg").focus();
         document.getElementById("wizard_border").classList.add("wizard_error");
-      } else {
+      }
+ else {
         document.getElementById("msg").innerHTML =
           "Error: Por favor elija una opción";
         document.getElementById("msg").focus();
@@ -40,6 +42,6 @@ function wizardStepError() {
       }
     }
   }
-  dataLayer.push({ event: "Wizard_Error", button: "Next" });
+  dataLayer.push({"event": "Wizard_Error", "button": "Next"});
   return false;
 }
