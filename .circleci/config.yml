@@ -339,6 +339,24 @@ jobs:
       - snapshot-backup:
           envname: dev
 
+  snapshot-backup-stage:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - snapshot-backup:
+          envname: stage
+
+  snapshot-backup-prod:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - snapshot-backup:
+          envname: prod
+
 workflows:
   version: 2
 
@@ -361,21 +379,60 @@ workflows:
           filters:
             tags:
               only:
-              - /^USAGOV-(.*)-DEPLOYMENT-DEV/
+              - /^USAGOV-(.*)-DEV-SNAP(.*)/
             branches:
               ignore:
               - /.*/
-
       - snapshot-backup-dev:
           filters:
             tags:
               only:
-              - /^USAGOV-(.*)-DEPLOYMENT-DEV/
+              - /^USAGOV-(.*)-DEV-SNAP(.*)/
             branches:
               ignore:
               - /.*/
           requires:
             - approve-snapshot-backup-dev
+
+      - approve-snapshot-backup-stage:
+          type: approval
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-STAGE-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+      - snapshot-backup-stage:
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-STAGE-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+          requires:
+            - approve-snapshot-backup-stage
+
+      - approve-snapshot-backup-prod:
+          type: approval
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-PROD-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+      - snapshot-backup-prod:
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-PROD-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+          requires:
+            - approve-snapshot-backup-prod
 
   build-and-deploy:
     jobs:
