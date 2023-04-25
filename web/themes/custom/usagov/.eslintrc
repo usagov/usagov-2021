@@ -15,7 +15,7 @@
       "Modernizr": false,
       "CKEDITOR": true
     },
-    "ignorePatterns": ["purify.min.js", "uswds.js", "uswds.min.js"],
+    "ignorePatterns": ["*.min.js*", "uswds.js"],
     "rules": {
       // Errors.
       "block-scoped-var": 2,
