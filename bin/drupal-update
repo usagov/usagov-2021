@@ -6,7 +6,7 @@ bin/composer install --no-interaction --optimize-autoloader
 
 echo "Build theme"
 bin/npm install
-bin/npm run update
+bin/npm run build
 
 echo "Import configs into Drupal"
 bin/bootstrap
