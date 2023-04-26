@@ -24,6 +24,7 @@ dependencies:
     - workflows.workflow.basic_workflow
   module:
     - allowed_formats
+    - conditional_fields
     - content_moderation
     - link
     - media_library
@@ -52,13 +53,31 @@ content:
     third_party_settings: {  }
   field_50_state_pages_type:
     type: options_select
-    weight: 51
+    weight: 20
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        0dcdaabc-7fc9-4edc-ab41-991cfb00cc7d:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '23'
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_css_icon:
     type: string_textfield
-    weight: 23
+    weight: 24
     region: content
     settings:
       size: 60
@@ -73,7 +92,7 @@ content:
     third_party_settings: {  }
   field_footer_html:
     type: string_textarea
-    weight: 24
+    weight: 25
     region: content
     settings:
       rows: 5
@@ -81,7 +100,7 @@ content:
     third_party_settings: {  }
   field_for_contact_center_only:
     type: text_textarea
-    weight: 25
+    weight: 26
     region: content
     settings:
       rows: 5
@@ -107,19 +126,55 @@ content:
     third_party_settings: {  }
   field_homepage_banner:
     type: media_library_widget
-    weight: 21
+    weight: 22
     region: content
     settings:
       media_types: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        7f093408-cb5c-4136-9820-07643cb7a90e:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '22'
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_homepage_top_links:
     type: link_default
-    weight: 20
+    weight: 21
     region: content
     settings:
       placeholder_url: ''
       placeholder_title: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        9725ccb7-933d-455b-9a69-cc954c865bde:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '22'
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_is_navigation_page:
     type: boolean_checkbox
     weight: 18
@@ -147,11 +202,29 @@ content:
     third_party_settings: {  }
   field_navigation_banner_image:
     type: media_library_widget
-    weight: 22
+    weight: 23
     region: content
     settings:
       media_types: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        e53806e4-4dcc-42d8-b102-35ad6c044010:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            condition: value
+            grouping: AND
+            values_set: 3
+            value: ''
+            values: "19\r\n20"
+            value_form:
+              -
+                target_id: '19'
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_page_intro:
     type: string_textarea
     weight: 1
@@ -238,7 +311,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
   url_redirects:
-    weight: 26
+    weight: 27
     region: content
     settings: {  }
     third_party_settings: {  }
