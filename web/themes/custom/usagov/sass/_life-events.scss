@@ -49,14 +49,12 @@
 
   .usa-card__body {
     color: var($life-events, text-color);
+    padding-bottom: 1.5rem;
   }
 
   .usa-card__img,
   &.usa-card--media-right .usa-card__img {
-    border-top-left-radius: unset;
-    border-bottom-left-radius: unset;
-    border-top-right-radius: unset;
-    border-bottom-right-radius: unset;
+    border-radius: unset;
   }
 
   .usa-card__container .usa-card__header .usa-card__heading .card-link {
@@ -73,10 +71,6 @@
 
   .usa-card__header {
     padding-bottom: 0.5rem;
-  }
-
-  .usa-card__body {
-    padding-bottom: 1.5rem;
   }
 
   &:hover {
@@ -109,8 +103,6 @@
   background: var($life-events, background-color);
   color: var($life-events, text-color);
   height: 3.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
   padding: 1rem;
 }
 
