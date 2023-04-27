@@ -1,0 +1,10 @@
+name: USAgov SSG and HTML Post-Processing
+description: Post-processing actions on HTML, SSG output, etc. Tome tweaks and more.
+package: USAgov
+
+type: module
+core: 8.x
+core_version_requirement: ^8 || ^9
+
+dependencies:
+ - tome:tome_static
