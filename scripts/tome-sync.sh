@@ -50,7 +50,7 @@ mkdir -p $RENDER_DIR
 
 # copy from tome's output directory to our working directory RENDER_DIR
 # RISK: tome's output diretory is not locked, mulitple processes could cause issues
-cp -R /var/www/html/* $RENDER_DIR
+cp -Rp /var/www/html/* $RENDER_DIR
 cd $RENDER_DIR
 
 mkdir -p /tmp/tome-log/
@@ -60,12 +60,12 @@ touch $TOMELOG
 # Tome is failing to pull in these assets so we will pull them in ourself
 echo "Add in any extra or missing files ... "
 aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" --exclude "*.gz" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
-cp -rf /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
-cp -rf /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
-cp -rf /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+cp -rfp /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+cp -rfp /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+cp -rfp /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 
 # Copy "webroot" assets (files like robots.txt and site.xml)
-cp -rf /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
+cp -rfp /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
 
 echo "Removing unwanted files ... "
 rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
@@ -169,7 +169,7 @@ fi
 
 ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
-cp -rf "$ANALYTICS_DIR" "$RENDER_DIR"
+cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
 
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
 ES_HOME_HTML_SIZE=$(stat -c%s "$ES_HOME_HTML_FILE")
