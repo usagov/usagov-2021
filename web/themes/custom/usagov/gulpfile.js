@@ -26,4 +26,5 @@ uswds.paths.dist.js = './scripts';
 exports.init = uswds.init;
 exports.compile = uswds.compile;
 exports.compileSass = uswds.compileSass;
+exports.update = uswds.updateUswds;
 exports.watch = uswds.watch;
