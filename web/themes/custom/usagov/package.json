@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "init": "npx gulp init",
-    "usagov-init": "cp sass/usagov-theme-custom-styles.scss sass/_uswds-theme-custom-styles.scss; cp sass/usagov-theme.scss sass/_uswds-theme.scss",
     "build": "npx gulp compile",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "npx gulp watch",
