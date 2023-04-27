@@ -114,3 +114,5 @@ bin/cloudgov/test/nr/php/manifest-vars.yml
 .docker/src-waf/etc/nginx/snippets/ip-restrict-www.conf
 
 
+web/themes/custom/usagov/sass/_uswds-theme-custom-styles.scss
+web/themes/custom/usagov/sass/_uswds-theme.scss
