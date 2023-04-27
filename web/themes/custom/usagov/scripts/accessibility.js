@@ -34,7 +34,6 @@ function myforms(event) {
     // stop form submission
     let elementVal = ["input", "textarea"];
     let test = [];
-    let totalCount = document.getElementById("testing").childElementCount;
     let errorFound = false;
     for (let n = 0; n < elementVal.length; n++) {
         let elmnts = document.forms["myform"].getElementsByTagName(elementVal[n]);
