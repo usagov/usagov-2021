@@ -335,7 +335,6 @@ workflows:
             branches:
               only:
                 - dev
-                - USAGOV-354-Update-Node-Modules
                 - stage
                 - prod
       - build-and-push-container:
@@ -345,7 +344,6 @@ workflows:
             branches:
               only:
                 - dev
-                - USAGOV-354-Update-Node-Modules
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -356,7 +354,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-354-Update-Node-Modules
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -364,7 +361,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-354-Update-Node-Modules
       - approve-stage-deployment:
           type: approval
           requires:
