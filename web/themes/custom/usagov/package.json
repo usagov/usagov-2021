@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "init": "npx gulp init",
-    "build": "npx gulp compile",
+    "build": "npx gulp update",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "npx gulp watch",
     "lint": "npx stylelint sass/**.scss; npx eslint scripts/*",
