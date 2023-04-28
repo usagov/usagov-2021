@@ -34,7 +34,6 @@ function myforms(event) {
     // stop form submission
     let elementVal = ["input", "textarea"];
     let test = [];
-    totalCount = document.getElementById("testing").childElementCount;
     let errorFound = false;
     for (let n = 0; n < elementVal.length; n++) {
         let elmnts = document.forms["myform"].getElementsByTagName(elementVal[n]);
@@ -171,7 +170,7 @@ window.addEventListener("load", function () {
     // applies to elements specified in the list below.
     let elementTypes = ["input", "textarea"];
     for (let i = 0; i < elementTypes.length; i++) {
-        elements = document.getElementsByTagName(elementTypes[i]);
+        let elements = document.getElementsByTagName(elementTypes[i]);
         for (let j = 0; j < elements.length; j++) {
             // Note: all input fields should have an ID starting with "input-"
             let message = a11y_content[elements[j].id.replace("input-", "")];
