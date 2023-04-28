@@ -354,6 +354,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-928-drupal-9.5.7
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -361,6 +362,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-928-drupal-9.5.7
       - approve-stage-deployment:
           type: approval
           requires:
