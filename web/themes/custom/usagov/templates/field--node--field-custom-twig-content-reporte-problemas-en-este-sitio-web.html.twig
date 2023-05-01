@@ -48,10 +48,11 @@
 
 		<input type="hidden" id="external" name="external" value="1"/>
 		<div class="g-recaptcha" title="reCAPCHA" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
-		<p style="display: none; visibility: hidden" class="extrainfo visually-hidden"></p>
-		<label for="00Nt0000000FsTK">Please ignore this box.</label>
-		<input id="00Nt0000000FsTK" maxlength="255" name="00Nt0000000FsTK" size="20" type="text"/>
 
+		<p style="display: none; visibility: hidden" class="extrainfo visually-hidden">
+			<label for="00Nt0000000FsTK">Please ignore this box.</label>
+			<input id="00Nt0000000FsTK" maxlength="255" name="00Nt0000000FsTK" size="20" type="text"/>
+		</p>
 		<p>
 			<input type="submit" name="submit" value="Enviar" onclick="return submitPressed();"/>
 		</p>
@@ -62,4 +63,3 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 <script src="https://www.google.com/recaptcha/api.js"></script>
 {{ attach_library('usagov/reportAProblem') }}
-
