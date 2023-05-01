@@ -1,16 +1,10 @@
 jQuery(document).ready(function ($) {
-  // bryant's
-  // $("#statelist").after(
-  //   '<select class="usa-select usa-sr-only usa-combo-box__select" name="state-info" id="stateselect" aria-hidden="true" tabindex="-1" required></select>'
-  // );
-
-  // mine
+  "use strict";
   $("#statelist").after(
-    '<select class="usa-select usa-combo-box__select" name="state-info" id="state-info" aria-labelledby="state-info-label" required>'
+    '<label class="visuallyhidden">Select your state:<select class="usa-select usa-sr-only usa-combo-box__select" name="state-info" id="stateselect" aria-hidden="true" tabindex="-1" required></select></label>'
   );
-
   $("#statelist li a").each(function () {
-    $("#state-info").append(
+    $("#stateselect").append(
       '<option value="' +
         $(this).attr("href") +
         '">' +
@@ -18,10 +12,12 @@ jQuery(document).ready(function ($) {
         "</option>"
     );
   });
-  // $('#state-info').after('<span class="usa-combo-box__clear-input__wrapper" tabindex="-1"><button type="button" class="usa-combo-box__clear-input" aria-label="Clear the select contents">&nbsp;</button></span><span class="usa-combo-box__input-button-separator">&nbsp;</span><span class="usa-combo-box__toggle-list__wrapper" tabindex="-1"><button type="button" tabindex="0" class="usa-combo-box__toggle-list" aria-label="Toggle the dropdown list">&nbsp;</button></span><ul tabindex="-1" id="state-info--list" class="usa-combo-box__list" role="listbox" aria-labelledby="state-info-label" hidden=""></ul><div class="usa-combo-box__status usa-sr-only" role="status"></div><span id="state-info--assistiveHint" class="usa-sr-only">When autocomplete results are available use up and down arrows to review and enter to select.Touch device users, explore by touch or with swipe gestures.</span>');
+  $("#state-info").after(
+    '<span class="usa-combo-box__clear-input__wrapper" tabindex="-1"><button type="button" class="usa-combo-box__clear-input" aria-label="Clear the select contents">&nbsp;</button></span><span class="usa-combo-box__input-button-separator">&nbsp;</span><span class="usa-combo-box__toggle-list__wrapper" tabindex="-1"><button type="button" tabindex="0" class="usa-combo-box__toggle-list" aria-label="Toggle the dropdown list">&nbsp;</button></span><ul tabindex="-1" id="state-info--list" class="usa-combo-box__list" role="listbox" aria-labelledby="state-info-label" hidden=""></ul><div class="usa-combo-box__status usa-sr-only" role="status"></div><span id="state-info--assistiveHint" class="usa-sr-only">When autocomplete results are available use up and down arrows to review and enter to select.Touch device users, explore by touch or with swipe gestures.</span>'
+  );
 
   var b;
-  if ($("html").attr("lang") == "en") {
+  if ($("html").attr("lang") === "en") {
     b = $('<button class="usa-button sd-go-btn" type="submit">Go</button>');
   }
  else {
@@ -30,15 +26,15 @@ jQuery(document).ready(function ($) {
 
   $("#statelist").remove();
 
-  var url = $("#state-info").val();
+  var url = $("#stateselect").val();
   $('input[name="Alabama"]').val("Alabama");
   b.click(function () {
     window.location.href = url;
   });
   $("#state-go").after(b);
-  $("#state-info").on("change", function () {
+  $("#stateselect").on("change", function () {
     url = $(this).val();
-    statename = $("#state-info option:selected").text();
+    statename = $("#stateselect option:selected").text();
     dataLayer.push({
       "event": "50_state_submit",
       "50_state_url": url,
