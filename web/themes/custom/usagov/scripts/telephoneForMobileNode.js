@@ -1,5 +1,6 @@
 function reformatNumForMobile(toReformat) {
-  //get phone number and description from innerText
+  "use strict";
+  // get phone number and description from innerText
   const numAndDesc = toReformat.innerText;
   const numberSplitter = numAndDesc.split(" ");
   const onlyNum = numberSplitter[0];
@@ -13,7 +14,8 @@ for (let i = 0; i < telephoneNumbers.length; i++) {
   const numAndDesc = telephoneNumbers[i].innerText;
   if (window.innerWidth <= 480) {
     telephoneNumbers[i].innerHTML = reformatNumForMobile(telephoneNumbers[i]);
-  } else {
+  }
+ else {
     telephoneNumbers[i].innerHTML = `${numAndDesc}`;
   }
 }
