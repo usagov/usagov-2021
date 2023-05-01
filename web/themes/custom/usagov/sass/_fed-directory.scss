@@ -204,6 +204,9 @@ hr.bl-divider {
     color: #000;
     background-color: white;
   }
+  a.nav-letter:focus {
+    outline: .25rem solid #c05600
+  }
 }
 
 .usagov-directory-bottom-nav-arrow {
