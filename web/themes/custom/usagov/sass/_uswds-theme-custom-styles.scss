@@ -415,8 +415,8 @@ add padding at the top of flag cards
   }
 }
 
-.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a,
-.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a:hover {
+.usa-nav__primary > .usa-nav___primary-item-smaller-padding > a,
+.usa-nav__primary > .usa-nav___primary-item-smaller-padding > a:hover {
   padding: 0.7rem;
 }
 
@@ -921,6 +921,10 @@ div #sm-share a {
   border-style: solid;
 }
 
+input:not([disabled]):focus.usa-user-error {
+  outline-offset: 1px;
+}
+
 .usa-main-border-error {
   border-left: 3px solid var($red);
 
@@ -1168,7 +1172,7 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
-.last,
+#last_updated,
 #share-page {
   font-size: var($smaller-text-font-size);
 }
@@ -1181,4 +1185,11 @@ div[class^="QSIUserDefinedHTML"] {
   border-color: var($off-black);
 }
 
-
+.visually-hidden {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
