@@ -36,7 +36,6 @@
 {% for field in fields -%}
 	{% if field.class == 'title'%}
 		{% set titlevar = field.content %}
-		{# {{ devel_breakpoint() }} #}
 	{% endif %}
 	{% if field.class == view.args[0] %}
 		{% set urlvar = field.content %}
