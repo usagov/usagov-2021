@@ -66,9 +66,16 @@ var submitPressed = function () {
   "use strict";
   if (grecaptcha.getResponse().length === 0) {
     if ($(".err-label-captcha").length < 1) {
-      $(".g-recaptcha").before(
-        '<p class="err-label err-label-captcha" tabindex="0">Please fill out the reCaptcha</p>'
-      );
+      if ($("html").attr("lang") === "en") {
+        $(".g-recaptcha").before(
+          '<p class="err-label err-label-captcha" tabindex="0">Please fill out the reCaptcha</p>'
+        );
+      }
+ else {
+        $(".g-recaptcha").before(
+          '<p class="err-label err-label-captcha" tabindex="0">Por favor, complete el reCaptcha</p>'
+        );
+      }
     }
     return false;
   }
