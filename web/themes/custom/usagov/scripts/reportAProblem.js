@@ -1,4 +1,5 @@
 (function ($, jQuery) {
+  "use strict";
   $(document).ready(function () {
     function validateEmail(email) {
       var re = /\S+@\S+\.\S+/; // This is a very simple regex for email
@@ -9,8 +10,8 @@
       $(".required").each(function () {
         var input = $(this).find("input,textarea");
         if (
-          input.val() == "" ||
-          (input.attr("id") == "email" && !validateEmail(input.val()))
+          input.val() === "" ||
+          (input.attr("id") === "email" && !validateEmail(input.val()))
         ) {
           noerrors = false;
           if (!$(this).find("p.err-label").length) {
@@ -47,8 +48,9 @@
 })(jQuery);
 
 function timestamp() {
+  "use strict";
   var response = document.getElementById("g-recaptcha-response");
-  if (response == null || response.value.trim() == "") {
+  if (response === null || response.value.trim() === "") {
     var elems = JSON.parse(
       document.getElementsByName("captcha_settings")[0].value
     );
@@ -61,6 +63,7 @@ function timestamp() {
 setInterval(timestamp, 500);
 
 var submitPressed = function () {
+  "use strict";
   if (grecaptcha.getResponse().length === 0) {
     if ($(".err-label-captcha").length < 1) {
       $(".g-recaptcha").before(
@@ -76,10 +79,12 @@ var submitPressed = function () {
 };
 
 jQuery(document).ready(function () {
+  "use strict";
   $("#cntctbx").hide();
 });
 
 jQuery(document).ready(function () {
+  "use strict";
   $("#pagesurvey-hdr").hide();
   $("#pagesurvey-trgt").hide();
   $("#pagesurvey-ombnum").hide();
