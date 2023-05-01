@@ -1,7 +1,7 @@
 jQuery(document).ready(function ($) {
   "use strict";
   $("#statelist").after(
-    '<label class="visuallyhidden">Select your state:<select class="usa-select usa-sr-only usa-combo-box__select" name="state-info" id="stateselect" aria-hidden="true" tabindex="-1" required></select></label>'
+    '<label class="visuallyhidden">Select your state or territory:<select class="usa-select usa-sr-only usa-combo-box__select" name="state-info" id="stateselect" aria-hidden="true" tabindex="-1" required></select></label>'
   );
   $("#statelist li a").each(function () {
     $("#stateselect").append(
