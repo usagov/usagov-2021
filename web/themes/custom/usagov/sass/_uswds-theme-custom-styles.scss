@@ -921,6 +921,10 @@ div #sm-share a {
   border-style: solid;
 }
 
+input:not([disabled]):focus.usa-user-error {
+  outline-offset: 1px;
+}
+
 .usa-main-border-error {
   border-left: 3px solid var($red);
 
