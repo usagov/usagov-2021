@@ -128,7 +128,7 @@ function writeMessage() {
         body.push(encodeURIComponent(actionField.value));
     }
 
-    body_string = "&body=" + body.join('');
+    let body_string = "&body=" + body.join('');
 
     let mailtoLink = 'mailto:' + (email + subject + body_string);
     window.location.assign(mailtoLink);
