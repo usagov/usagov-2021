@@ -26,16 +26,13 @@
 {% if attributes -%}
 	<div{{attributes}}>
 	{% endif %}
-	{% if title %}
-		<h3>{{ title }}</h3>
-	{% endif %}
 
 	{#<{{ list.type }}{{ list.attributes }}>#}
 
 
 	<div class="display-inline-block">
 		<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
-			<label id="state-info-label" class="usa-label" for="state-info">{{ lang == 'en' ? 'Select your state:' : 'Elija un estado o territorio:' }}</label>
+			<label id="state-info-label" class="usa-label" for="state-info">{{ lang == 'en' ? 'Select your state or territory:' : 'Elija un estado o territorio:' }}</label>
 
 			<div class="display-inline-block">
 				<div class="usa-combo-box usa-combo-box--pristine" data-default-value="alabama" data-enhanced="true">
