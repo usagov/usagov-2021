@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\usagov_directories\EventSubscriber;
+namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
 use Drupal\tome_static\Event\ModifyDestinationEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
@@ -8,7 +8,7 @@ use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Converts "letter" query parameters, as used in A-Z directorie views,  to static paths.
+ * Converts "letter" query parameters, as used in A-Z directory views,  to static paths.
  * Based on the tome_static PagerEventSubscriber.
  *
  * @internal
@@ -23,8 +23,10 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    */
   public function modifyDestination(ModifyDestinationEvent $event) {
     $destination = $event->getDestination();
-    $destination = $this->modifyUrl($destination);
-    $event->setDestination($destination);
+    $new_destination = $this->modifyUrl($destination);
+    if ($destination != $new_destination) {
+      $event->setDestination($new_destination);
+    }
   }
 
   /**
