@@ -54,6 +54,9 @@ settings:
     -
       value: field-state-attorney-general
       label: 'State Attorney General'
+    -
+      value: view-node
+      label: 'State Governments'
   allowed_values_function: ''
 module: options
 locked: false
