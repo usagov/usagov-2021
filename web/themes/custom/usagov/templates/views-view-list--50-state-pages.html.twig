@@ -19,13 +19,14 @@
  */
 #}
 
-{{ attach_library('stateDirectory') }}
+{{ attach_library('usagov/stateDirectory') }}
 
 {% set lang = node.langcode.value %}
 
 {% if attributes -%}
 	<div{{attributes}}>
 {% endif %}
+
 
 	<div class="display-inline-block">
 		<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
@@ -45,6 +46,7 @@
 	</div>
 
 </{{list.type}}>
+
 
 {% if attributes -%}
 	</div>
