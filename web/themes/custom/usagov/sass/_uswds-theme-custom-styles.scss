@@ -817,16 +817,31 @@ div #sm-share {
   display: flex;
   padding-bottom: 22px;
   background-color: transparent;
+  font-size: var($smaller-text-font-size);
 }
 
-div #sm-share * {
+#share-page {
   margin-top: auto;
   margin-bottom: auto;
 }
 
 div #sm-share a {
-  padding: 7px;
   text-decoration: none;
+}
+
+.share-icons {
+  margin-left: 10px;
+  height: 44px;
+  line-height: 44px;
+  display: flex;
+}
+
+.share-icon {
+  margin: 6px;
+  width: 32px;
+  height: 32px;
+  color: #1b1b1b;
+  display: block;
 }
 
 // Changed footer styles
@@ -1172,6 +1187,7 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
+.last,
 #last_updated,
 #share-page {
   font-size: var($smaller-text-font-size);
