@@ -80,7 +80,7 @@ hr.bl-divider {
 }
 
 .usagov-directory-accordion-container ul {
-  padding-left: 25px;
+  padding-left: 16px;
 }
 
 // Search Bar
@@ -162,6 +162,7 @@ hr.bl-divider {
 
     p:first-child {
       font-weight: bold;
+      flex-shrink: 0;
     }
   }
 }
