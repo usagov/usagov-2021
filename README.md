@@ -44,48 +44,27 @@ bin/db-update
 ## Access the Drupal Portal
 If you would like to access the Drupal Portal to make any additional configurations, you will need to follow a few more steps.
 
-1. Open a separate terminal, and open a new shell.
-```
-bin/ssh
-```
+1. Generate a new URL to access your administrator account.
+    ```
+    bin/drush uli
+    ```
 
-2. Inside the same shell, you will need to generate a new URL to access your administrator account.
-```
-drush uli
-```
+2. The ***unique*** URL will be in some form of
 
-3. The ***unique*** URL will be in some form of `http://default/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`.
-Replace the the `default` portion with `localhost`. It should now be in the form:
-```
-http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login
-```
+    `http://default/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
 
-4. Adjust your credentials accordingly.
+    Replace the the `default` portion with `localhost`. It should now be in the form:
+    
+    `http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
 
-**Note: This is a ONE-TIME login. You'll automatically be logged in during future uses. However, if you ever reset your container, you will have to redo this process.**
+3. Adjust your credentials accordingly.
 
-## Lint Guidelines (SCSS)
-If you make any changes to the `scss` files, make sure to lint them before finalizing your pull request.
+    **Note: This is a ONE-TIME login. You'll automatically be logged in during future uses. However, if you ever reset your container, you will have to redo this process.**
 
-1. 
+## Theme Lint Guidelines
+If you make any changes to the `scss` or `js` files, make sure to check for linting errors nd resolve them before submitting a pull request.
 
-Before running the following commands, you should enter the `node` Docker container. 
-
-You may also run it on your typical command line within the repository, but you must run `npm install` before proceeding if you choose this option.
-
-2. 
-
-You can run the following commands to `check` for errors:
-```
-npx stylelint "**/*.scss"
-npx prettier --check "**/*.scss"
-```
-
-You can run the following to `fix` most errors (others require manual changes):
-```
-npx stylelint "**/*.scss" --fix
-npx prettier --write "**/*.scss"
-```
+`bin/npm run lint`
 
 ## Project Restart/Reset
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing containers, networks, and volumes the procedure is the same as the full project setup.
@@ -167,24 +146,17 @@ The theme can be manually built at any time through gulp's build task. Any other
 
 ```
 # Rebuild theme
-bin/gulp build
+bin/npm run build
 ```
 
 Any changes made to the node modules needed for building the theme will require a re-install of the node_modules before build.
 
 ```
 # Reinstall node modules
-bin/npm install --legacy-peer-deps
-bin/gulp build
+bin/npm install
+bin/npm run build
 ```
 
-In some cases it may be necesary to also rebuild the node-sass libraries. If this is needed npm can be asked to do so.
-
-```
-bin/npm install --legacy-peer-deps
-bin/npm rebuild node-sass
-bin/gulp build
-```
 
 This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
 
