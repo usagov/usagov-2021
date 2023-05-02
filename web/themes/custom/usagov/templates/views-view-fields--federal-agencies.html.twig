@@ -78,8 +78,8 @@
 
     {% if fields.field_offices_near_you.content|striptags|trim %}
     <div>
-      <p class="grid-col-4">{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}:&nbsp;</p>
-      <p>{{- fields.field_offices_near_you.content -}}</p>
+      <p>{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}:&nbsp;</p>
+      {{- fields.field_offices_near_you.content -}}
     </div>
     {% endif %}
 

@@ -162,6 +162,7 @@ hr.bl-divider {
 
     p:first-child {
       font-weight: bold;
+      flex-shrink: 0;
     }
   }
 }
