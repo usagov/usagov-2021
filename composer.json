@@ -156,8 +156,7 @@
             },
             "drupal/core": {
                 "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail.patch",
-                "Make BaseFieldOverride inherit internal property from the base field": "https://www.drupal.org/files/issues/2023-01-20/3274419-42.patch",
-                "Security issues with psr dependency": "https://www.drupal.org/files/issues/2023-04-29/3357247-9.5.x-2.patch"
+                "Make BaseFieldOverride inherit internal property from the base field": "https://www.drupal.org/files/issues/2023-01-20/3274419-42.patch"
             },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
