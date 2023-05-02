@@ -820,7 +820,7 @@ div #sm-share {
   font-size: var($smaller-text-font-size);
 }
 
-div #sm-share * {
+#share-page {
   margin-top: auto;
   margin-bottom: auto;
 }
@@ -830,14 +830,14 @@ div #sm-share a {
 }
 
 .share-icons {
-  margin-left: 16px;
+  margin-left: 10px;
   height: 44px;
   line-height: 44px;
   display: flex;
 }
 
 .share-icon {
-  margin-right: 12px;
+  margin: 6px;
   width: 32px;
   height: 32px;
   color: #1b1b1b;
