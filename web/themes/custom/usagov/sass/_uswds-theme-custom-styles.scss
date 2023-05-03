@@ -90,7 +90,7 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary:hover {
-  background-color: var($cyan-light);
+  background-color: color("cyan-20");
   border: 1px solid color("cyan-50v");
 }
 
