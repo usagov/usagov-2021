@@ -221,7 +221,7 @@ RUN . /local/newrelic.sh
 
     # cron setup
 Run mkdir -p /etc/periodic/1min \
-    && echo "*/1    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root \
+    && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*
 
