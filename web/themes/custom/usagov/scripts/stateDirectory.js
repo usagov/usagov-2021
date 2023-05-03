@@ -1,6 +1,6 @@
 jQuery(document).ready(function ($) {
   "use strict";
-    $('#statelist').after('<label class="visuallyhidden">Select your state:<select class="usa-select usa-sr-only usa-combo-box__select" name="state-info" id="stateselect" aria-hidden="true" tabindex="-1" required></select></label>');
+    $('#statelist').after('<label class="visuallyhidden">Select your state or territory:<select class="usa-select usa-sr-only usa-combo-box__select" name="state-info" id="stateselect" aria-hidden="true" tabindex="-1" required></select></label>');
     $('#statelist li a').each(function() {
       $('#stateselect').append('<option value="'+$(this).attr('href')+'">'+$(this).text()+'</option>');
     });
@@ -17,9 +17,14 @@ else {
     $('#statelist').remove();
 
     var url=$('#stateselect').val();
-    $('input[name="Alabama"]').val('Alabama');
-    b.click(function() {
+    var statename=$('input[name="Alabama"]').val('Alabama');
+    b.on('click', function() {
       window.location.href = url;
+      dataLayer.push({
+        'event': '50_state_submit',
+        '50_state_url': url,
+        '50_state_name': 'Alabama'
+      });
     });
     $('#state-go').after(b);
     $('#stateselect').on('change', function() {
