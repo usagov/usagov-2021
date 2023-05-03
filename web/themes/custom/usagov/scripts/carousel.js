@@ -7,8 +7,8 @@ jQuery(document).ready(function ($) {
   nextButton = document.querySelector(".next");
   slidesContainer = document.querySelector(".slides");
   slides = slidesContainer.querySelectorAll(".slide");
-  slidesForFocus = slidesContainer.querySelectorAll(".slide a");
-  carouselHeaders = document.querySelectorAll(".carouselHeaders");
+  let slidesForFocus = slidesContainer.querySelectorAll(".slide a");
+  let carouselHeaders = document.querySelectorAll(".carouselHeaders");
   makeDots();
   slideDots = document.querySelectorAll(".navigation li div");
 
