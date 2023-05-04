@@ -5,10 +5,11 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  margin-top: 1.8em;
 }
 
 .usagov-directory-container {
-  padding: 3rem;
+  padding: 2.1rem 2.8rem 2.1rem 2.8rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -80,7 +81,7 @@ hr.bl-divider {
 }
 
 .usagov-directory-accordion-container ul {
-  padding-left: 25px;
+  padding-left: 16px;
 }
 
 // Search Bar
@@ -162,6 +163,7 @@ hr.bl-divider {
 
     p:first-child {
       font-weight: bold;
+      flex-shrink: 0;
     }
   }
 }
