@@ -8,11 +8,11 @@
 }
 
 .usagov-directory-container {
-  padding: 3rem;
+  padding: 1rem 2.8rem 1rem 2.8rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  box-shadow: inset 0 0 0 0.15rem rgb(231 231 231);
+  box-shadow: inset 0 0 0 0.15rem #fff;
 }
 
 .usagov-directory-container-az {
@@ -73,6 +73,14 @@ hr.bl-divider {
   height: 0.25rem;
   width: auto;
   display: none;
+}
+
+.agency-index-label {
+  padding-right: 8px;
+}
+
+.usagov-directory-accordion-container ul {
+  padding-left: 16px;
 }
 
 // Search Bar
@@ -154,6 +162,7 @@ hr.bl-divider {
 
     p:first-child {
       font-weight: bold;
+      flex-shrink: 0;
     }
   }
 }
@@ -195,6 +204,9 @@ hr.bl-divider {
     outline: solid 0.15rem black;
     color: #000;
     background-color: white;
+  }
+  a.nav-letter:focus {
+    outline: 0.25rem solid #c05600;
   }
 }
 
