@@ -826,9 +826,6 @@ class SamlService {
         $base_url = $scheme . $http_host . $request->getBaseUrl() . '/saml';
         //$base_url = $request->getSchemeAndHttpHost() . $request->getBaseUrl() . '/saml';
       }
-      $this->logger->debug('Generate metadata: <pre>@purpose - base:@base</pre>', ['@purpose' => $purpose, '@base' => $base_url]);
-      $lib_config = static::reformatConfig($config, $base_url, $purpose, $this->keyRepository);
-      $this->logger->debug('Config: <pre>@config</pre>', ['@config' => json_encode($lib_config)]);
       $this->samlAuth[$purpose] = new Auth(static::reformatConfig($config, $base_url, $purpose, $this->keyRepository));
     }
 
