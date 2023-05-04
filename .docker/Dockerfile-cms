@@ -220,8 +220,8 @@ COPY bin/src/newrelic.sh /local/newrelic.sh
 RUN . /local/newrelic.sh
 
     # cron setup
-Run mkdir -p /etc/periodic/30min \
-    && echo "*/30    *       *       *       *       run-parts /etc/periodic/30min" >> /etc/crontabs/root \
+Run mkdir -p /etc/periodic/1min \
+    && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*
 

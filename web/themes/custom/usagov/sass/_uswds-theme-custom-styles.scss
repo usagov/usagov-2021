@@ -90,7 +90,7 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary:hover {
-  background-color: var($cyan-light);
+  background-color: color("cyan-20");
   border: 1px solid color("cyan-50v");
 }
 
@@ -415,8 +415,8 @@ add padding at the top of flag cards
   }
 }
 
-.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a,
-.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a:hover {
+.usa-nav__primary > .usa-nav___primary-item-smaller-padding > a,
+.usa-nav__primary > .usa-nav___primary-item-smaller-padding > a:hover {
   padding: 0.7rem;
 }
 
@@ -817,16 +817,31 @@ div #sm-share {
   display: flex;
   padding-bottom: 22px;
   background-color: transparent;
+  font-size: var($smaller-text-font-size);
 }
 
-div #sm-share * {
+#share-page {
   margin-top: auto;
   margin-bottom: auto;
 }
 
 div #sm-share a {
-  padding: 7px;
   text-decoration: none;
+}
+
+.share-icons {
+  margin-left: 10px;
+  height: 44px;
+  line-height: 44px;
+  display: flex;
+}
+
+.share-icon {
+  margin: 6px;
+  width: 32px;
+  height: 32px;
+  color: #1b1b1b;
+  display: block;
 }
 
 // Changed footer styles
@@ -919,6 +934,10 @@ div #sm-share a {
   border-color: var($red);
   border-width: 3px;
   border-style: solid;
+}
+
+input:not([disabled]):focus.usa-user-error {
+  outline-offset: 1px;
 }
 
 .usa-main-border-error {
@@ -1169,6 +1188,7 @@ div[class^="QSIUserDefinedHTML"] {
 }
 
 .last,
+#last_updated,
 #share-page {
   font-size: var($smaller-text-font-size);
 }
@@ -1181,4 +1201,11 @@ div[class^="QSIUserDefinedHTML"] {
   border-color: var($off-black);
 }
 
-
+.visually-hidden {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
