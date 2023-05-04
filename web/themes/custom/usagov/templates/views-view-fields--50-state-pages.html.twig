@@ -34,14 +34,15 @@
 {% set titlevar = "" %}
 {% set urlvar = "" %}
 {% for field in fields -%}
-  {% if field.class == 'title'%}
-    {% set titlevar = field.content %}
-    {# {{ devel_breakpoint() }} #}
-  {% endif %}
-  {% if field.class == view.args[0] %}
-   {% set urlvar = field.content %}
-  {% endif %}
+	{% if field.class == 'title'%}
+		{% set titlevar = field.content %}
+	{% endif %}
+	{% if field.class == view.args[0] %}
+		{% set urlvar = field.content %}
+	{% endif %}
 {%- endfor %}
 {% if titlevar and urlvar %}
-  <li><a class="url" href={{urlvar}}>{{titlevar}}</a></li>
+	<li>
+		<a class="url" href={{urlvar}}>{{titlevar}}</a>
+	</li>
 {% endif %}
