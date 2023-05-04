@@ -4,23 +4,25 @@
  * @param {function(Object)} callback Function which takes the response object as a parameter.
  */
 function lookup(address, callback) {
+    "use strict";
     /**
      * Request object for given parameters.
      * @type {gapi.client.HttpRequest}
      */
 
     let count=0;
-    var timer = window.setInterval(function(){
+    var timer = window.setInterval(function() {
         count++;
-        if (gapi.client != undefined) {
+        if (typeof gapi.client !== "undefined") {
             window.clearInterval(timer);
             let req = gapi.client.request({
-                "path" : "/civicinfo/v2/representatives",
-                "params" : {"address" : address}
+                "path": "/civicinfo/v2/representatives",
+                "params": {"address": address}
             });
             req.execute(callback);
-        }else if(count > 100){
-            //Stop trying after 100 attempts (10 seconds)
+        }
+else if (count > 100) {
+            // Stop trying after 100 attempts (10 seconds)
             window.clearInterval(timer);
         }
     }, 100);
@@ -33,9 +35,10 @@ function lookup(address, callback) {
  * @param {Object} rawResponse Raw response from the API.
  */
 function renderResults(response, rawResponse) {
+    "use strict";
 
-    // Text strings for the page's language should be assigned to "usagovCEOtext" in 
-    // an inline script in the page's Header HTML. The translations here are retained for backward compatibility. 
+    // Text strings for the page's language should be assigned to "usagovCEOtext" in
+    // an inline script in the page's Header HTML. The translations here are retained for backward compatibility.
     const backupTranslations = {
         "en": {
             "error-fetch": "ERROR: Failed trying to fetch elected officials!",
@@ -59,7 +62,7 @@ function renderResults(response, rawResponse) {
             "contact-via-email": "Contactar por correo electrónico",
             "path-contact": "/es/funcionarios-electos-email",
         }
-    }
+    };
 
     const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
 
@@ -88,7 +91,7 @@ function renderResults(response, rawResponse) {
         // Create container for rendering results
         let container = document.createElement("div");
         container.setAttribute("class", "usa-accordion usa-accordion--multiselectable");
-        container.setAttribute("data-allow-multiple","")
+        container.setAttribute("data-allow-multiple","");
 
         // Create an accordion for each level of elected officials
         const levels = content["levels"];
@@ -147,7 +150,7 @@ function renderResults(response, rawResponse) {
 
             // Create bullet list of details for the elected official
             let bulletList = document.createElement("ul");
-            bulletList.classList.add("add-list-reset")
+            bulletList.classList.add("add-list-reset");
 
             // Display party affiliation
             // NOTE: unlike other details, this field will display
@@ -156,20 +159,20 @@ function renderResults(response, rawResponse) {
             // (so the accordion isn't blank if there are no details.
             let party = response.officials[i].party || "none provided";
             let nextElem = document.createElement("li");
-            nextElem.classList.add("padding-bottom-2")
+            nextElem.classList.add("padding-bottom-2");
             nextElem.innerHTML = `<div class="text-bold">${content["party-affiliation"]}:</div><div>${party}<div>`;
             bulletList.appendChild(nextElem);
 
             // Display address, if provided
             let address = response.officials[i].address || "none provided";
             nextElem = document.createElement("li");
-            nextElem.classList.add("padding-bottom-2")
-            if (address != "none provided") {
+            nextElem.classList.add("padding-bottom-2");
+            if (address !== "none provided") {
                 // Normalize address
                 address = address[0].line1 + ",<br>" + address[0].city + ", " + address[0].state + " " + address[0].zip;
 
                 nextElem = document.createElement("li");
-            nextElem.classList.add("padding-bottom-2")
+            nextElem.classList.add("padding-bottom-2");
                 nextElem.innerHTML = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
 
                 bulletList.appendChild(nextElem);
@@ -177,7 +180,7 @@ function renderResults(response, rawResponse) {
 
             // Display phone number, if provided
             let phoneNumber = response.officials[i].phones || "none provided";
-            if (phoneNumber != "none provided") {
+            if (phoneNumber !== "none provided") {
                 // Select first phone number and create clickable link
                 // let linkToPhone = document.createElement("a");
                 // linkToPhone.setAttribute("href", "tel:" + phoneNumber[0]);
@@ -185,7 +188,7 @@ function renderResults(response, rawResponse) {
                 let linkToPhone = `<a href="tel:${phoneNumber[0]}">${phoneNumber[0]}</a>`;
 
                 nextElem = document.createElement("li");
-                nextElem.classList.add("padding-bottom-2")
+                nextElem.classList.add("padding-bottom-2");
                 nextElem.innerHTML = `<div class="text-bold">${content["phone-number"]}:</div><div>${linkToPhone}</div>`;
                 // nextElem.appendChild(linkToPhone);
 
@@ -194,21 +197,21 @@ function renderResults(response, rawResponse) {
 
             // Display website, if provided
             let website = response.officials[i].urls || "none provided";
-            if (website != "none provided") {
+            if (website !== "none provided") {
                 // let link = document.createElement("a");
                 // link.setAttribute("href", response.officials[i].urls[0]);
 
                 // Shorten the link and remove unnecessary characters
                 let cleanLink = response.officials[i].urls[0]
                     .replace("https://", "").replace("http://", "").replace("www.", "");
-                if (cleanLink[cleanLink.length - 1] == "/") {
+                if (cleanLink[cleanLink.length - 1] === "/") {
                     cleanLink = cleanLink.slice(0, -1);
                 }
                 let link=`<a href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
                 // link.innerHTML = cleanLink;
 
                 nextElem = document.createElement("li");
-                nextElem.classList.add("padding-bottom-2")
+                nextElem.classList.add("padding-bottom-2");
                 // nextElem.innerHTML = "<div class="text-bold">"+content["website"]+":</div><div>";
                 nextElem.innerHTML = `<div class="text-bold">${content["website"]}:</div><div>${link}</div>`;
                 // nextElem.appendChild(link);
@@ -218,20 +221,20 @@ function renderResults(response, rawResponse) {
 
             // Display social media accounts, if provided
             let socials = response.officials[i].channels || "none provided";
-            if (socials != "none provided") {
+            if (socials !== "none provided") {
                 for (let j = 0; j < socials.length; j++) {
                     // Create appropriate type of link
                     // for each social media account
                     nextElem = document.createElement("li");
-                    nextElem.classList.add("padding-bottom-2")
+                    nextElem.classList.add("padding-bottom-2");
                     let socialOptions = {
                         "twitter": "https://twitter.com/",
                         "facebook": "https://facebook.com/",
                         "youtube": "https://youtube.com/",
                         "linkedin": "https://linkedin.com/in/"
-                    }
+                    };
                     let social = socials[j].type.toLowerCase();
-                    if (social in socialOptions){
+                    if (social in socialOptions) {
                         nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
                     }
                     bulletList.appendChild(nextElem);
@@ -240,7 +243,7 @@ function renderResults(response, rawResponse) {
 
             // Display email via contact button, if provided
             let email = response.officials[i].emails || "none provided";
-            if (email != "none provided") {
+            if (email !== "none provided") {
                 // let primaryEmail = document.createElement("button");
                 let linkToContact = document.createElement("a");
                 let firstEmail = email[0];
@@ -266,11 +269,13 @@ function renderResults(response, rawResponse) {
             // Determine under which level accordion the elected official section should be appended
             let appendLocation;
             let level = response.officials[i].level;
-            if (level == "country") {
+            if (level === "country") {
                 appendLocation = document.getElementById(content["levels"][0]);
-            } else if (level == "administrativeArea1") {
+            }
+ else if (level === "administrativeArea1") {
                 appendLocation = document.getElementById(content["levels"][1]);
-            }  else {
+            }
+  else {
                 appendLocation = document.getElementById(content["levels"][2]);
             }
 
@@ -292,6 +297,7 @@ function renderResults(response, rawResponse) {
  * Initialize API client by setting the API key.
  */
  function setApiKey() {
+    "use strict";
     gapi.client.setApiKey("AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A");
 }
 
@@ -299,6 +305,7 @@ function renderResults(response, rawResponse) {
  * Process form data, display the address, and search for elected officials.
  */
 function load() {
+    "use strict";
     let searchParams = getSearchParams();
     let inputStreet = searchParams.get('input-street');
     let inputCity = searchParams.get('input-city');
@@ -313,6 +320,7 @@ function load() {
 }
 
 function getSearchParams() {
+    "use strict";
     const paramsString = window.location.search;
     const searchParams = new URLSearchParams(paramsString);
     return searchParams;
@@ -320,4 +328,7 @@ function getSearchParams() {
 
 // Load the GAPI Client Library
 gapi.load("client", setApiKey);
-document.addEventListener('DOMContentLoaded', function() { load (); });
+document.addEventListener('DOMContentLoaded', function() {
+    "use strict";
+    load ();
+});

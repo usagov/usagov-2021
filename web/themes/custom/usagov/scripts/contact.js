@@ -16,8 +16,8 @@
  */
 
 
-// Text strings for the page's language should be assigned to "usagovCEOtext" in 
-// an inline script in the page's Header HTML. The translations here are retained for backward compatibility. 
+// Text strings for the page's language should be assigned to "usagovCEOtext" in
+// an inline script in the page's Header HTML. The translations here are retained for backward compatibility.
 const contact_translations = {
     "en": {
         "topic": "Please fill out the topic field.",
@@ -39,18 +39,20 @@ const contact_translations = {
         "concern": "Mis inquietudes con respecto a este tema son:",
         "idea": "Y mis ideas para abordar este cuestión son:"
     }
-}
+};
 
 let contact_content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : contact_translations[ document.documentElement.lang ];
 let foundOfficial = false; // This value is calculated in one function and used in more than one.
 
 function getSearchParams() {
+    "use strict";
     const paramsString = window.location.search;
     const searchParams = new URLSearchParams(paramsString);
     return searchParams;
 }
 
 function load() {
+    "use strict";
     let searchParams = getSearchParams();
     let inputStreet = searchParams.get('input-street');
     let inputCity = searchParams.get('input-city');
@@ -60,16 +62,17 @@ function load() {
 
     // Look up officials and verify that the selection (email, name, office) are valid.
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
-    lookup(normalizedAddress, function(response, rawResponse) { validateAndDisplay(searchParams, response)});
+    lookup(normalizedAddress, function(response, rawResponse) { validateAndDisplay(searchParams, response);});
 }
 
 function validateAndDisplay(searchParams, response) {
+    "use strict";
     let email = searchParams.get('email');
     let name = searchParams.get('name');
     let foundEmail = '';
 
     let foundOfficialIndex = response.officials.findIndex(function(official) {
-        if (official.name == name) {
+        if (official.name === name) {
             let email_index = official.emails.indexOf(email);
             if (email_index !== -1) {
                 // Yes, we have just established that the email address
@@ -91,7 +94,7 @@ function validateAndDisplay(searchParams, response) {
         let foundOffice = response.offices.find(function(office) {
             return office.officialIndices.indexOf(foundOfficialIndex) !== -1;
         });
-        let displayOffice = foundOffice ? foundOffice.name : ''
+        let displayOffice = foundOffice ? foundOffice.name : '';
         displayOfficial.innerHTML = DOMPurify.sanitize(foundOfficial.name + "<br>" + displayOffice);
         let buttonAlt = document.getElementById("button-alt");
         buttonAlt.innerHTML += DOMPurify.sanitize(foundOfficial.email);
@@ -104,6 +107,7 @@ function validateAndDisplay(searchParams, response) {
  * Execute mailto link based on user-submitted content.
  */
 function writeMessage() {
+    "use strict";
     let topicField = document.getElementById("input-topic");
     let aboutField = document.getElementById("input-about");
     let actionField = document.getElementById("input-action");
@@ -111,20 +115,20 @@ function writeMessage() {
     let body = [];
     let email = foundOfficial ? foundOfficial.email : '';
 
-    if (topicField.value != "") {
+    if (topicField.value !== "") {
         body.push(encodeURIComponent(contact_content.issue + "\n"));
         body.push(encodeURIComponent(topicField.value + "\n\n"));
     }
-    if (aboutField.value != "") {
+    if (aboutField.value !== "") {
         body.push(encodeURIComponent(contact_content.concern + "\n"));
         body.push(encodeURIComponent(aboutField.value + "\n\n"));
     }
-    if (actionField.value != "") {
+    if (actionField.value !== "") {
         body.push(encodeURIComponent(contact_content.idea + "\n"));
         body.push(encodeURIComponent(actionField.value));
     }
 
-    body_string = "&body=" + body.join('');
+    let body_string = "&body=" + body.join('');
 
     let mailtoLink = 'mailto:' + (email + subject + body_string);
     window.location.assign(mailtoLink);
@@ -136,23 +140,24 @@ function writeMessage() {
  * @param {function(Object)} callback Function which takes the response object as a parameter.
  */
 function lookup(address, callback) {
+    "use strict";
     /**
      * Request object for given parameters.
      * @type {gapi.client.HttpRequest}
      */
 
     let count=0;
-    var timer = window.setInterval(function(){
+    var timer = window.setInterval(function() {
         count++;
-        if (gapi.client != undefined) {
+        if (typeof gapi.client !== "undefined") {
             window.clearInterval(timer);
             let req = gapi.client.request({
-                "path" : "/civicinfo/v2/representatives",
-                "params" : {"address" : address}
+                "path": "/civicinfo/v2/representatives",
+                "params": {"address": address}
             });
             req.execute(callback);
         }
-        else if(count > 100){
+        else if (count > 100) {
             // Stop trying after 100 attempts (10 seconds)
             window.clearInterval(timer);
         }
@@ -164,9 +169,13 @@ function lookup(address, callback) {
  * Initialize API client by setting the API key.
  */
  function setApiKey() {
+    "use strict";
     gapi.client.setApiKey("AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A");
 }
 
 // Load the GAPI Client Library
 gapi.load("client", setApiKey);
-document.addEventListener('DOMContentLoaded', function() { load (); });
+document.addEventListener('DOMContentLoaded', function() {
+    "use strict";
+    load ();
+});
