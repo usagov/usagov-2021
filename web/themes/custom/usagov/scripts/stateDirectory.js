@@ -17,18 +17,19 @@ else {
     $('#statelist').remove();
 
     var url=$('#stateselect').val();
+    var statename='Alabama';
     $('input[name="Alabama"]').val('Alabama');
     b.click(function() {
       window.location.href = url;
-    });
-    $('#state-go').after(b);
-    $('#stateselect').on('change', function() {
-      url=$(this).val();
-      statename=$('#stateselect option:selected').text();
       dataLayer.push({
         'event': '50_state_submit',
         '50_state_url': url,
         '50_state_name': statename
       });
+    });
+    $('#state-go').after(b);
+    $('#stateselect').on('change', function() {
+      url=$(this).val();
+      statename=$('#stateselect option:selected').text();
     });
   });
