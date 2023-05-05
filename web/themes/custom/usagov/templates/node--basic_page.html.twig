@@ -92,8 +92,6 @@
 {% endif %}
 {# {{ devel_breakpoint() }} #}
 
-<article{{attributes}}>
-
 	{{ title_prefix }}
 	{% if not page %}
 		<h2{{title_attributes}}>
@@ -127,4 +125,3 @@
 		{{ drupal_view('50_state_pages', '50_state_pages_block', node.field_50_state_pages_type.value) }}
 	{% endif %}
 {% endif %}
-</article>
