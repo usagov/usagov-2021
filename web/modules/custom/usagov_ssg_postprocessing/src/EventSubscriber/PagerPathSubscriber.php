@@ -25,7 +25,7 @@ class PagerPathSubscriber implements EventSubscriberInterface {
     $destination = $event->getDestination();
     $new_destination = $this->modifyUrl($destination);
     if ($destination != $new_destination) {
-      $event->setDestination($destination);
+      $event->setDestination($new_destination);
     }
   }
 

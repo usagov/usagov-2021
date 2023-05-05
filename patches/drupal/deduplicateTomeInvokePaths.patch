@@ -1,0 +1,11 @@
+--- web/modules/contrib/tome/modules/tome_static/src/Commands/StaticCommand.php.orig	2023-05-02 15:26:09.000000000 -0700
++++ web/modules/contrib/tome/modules/tome_static/src/Commands/StaticCommand.php	2023-05-02 16:11:12.000000000 -0700
+@@ -177,7 +177,7 @@
+       $show_progress && $this->io->progressAdvance($path_count);
+       $output = $process->getOutput();
+       if (!empty($output) && $json = json_decode($output, TRUE)) {
+-        $invoke_paths = array_merge($invoke_paths, $json);
++        $invoke_paths = array_unique(array_merge($invoke_paths, $json));
+       }
+     });
+ 
