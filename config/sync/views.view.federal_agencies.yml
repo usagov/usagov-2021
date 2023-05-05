@@ -21,6 +21,10 @@ dependencies:
     - field.storage.node.field_zip
     - node.type.agency_synonym
     - node.type.directory_record
+    - user.role.content_administrator
+    - user.role.content_editor
+    - user.role.content_manager
+    - user.role.site_admin
   module:
     - link
     - node
@@ -4609,7 +4613,16 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
+      access:
+        type: role
+        options:
+          role:
+            content_editor: content_editor
+            site_admin: site_admin
+            content_manager: content_manager
+            content_administrator: content_administrator
       defaults:
+        access: false
         title: true
         fields: false
         header: true
@@ -4631,7 +4644,7 @@ display:
         - 'languages:language_interface'
         - url
         - 'user.node_grants:view'
-        - user.permissions
+        - user.roles
       tags:
         - 'config:field.storage.node.body'
         - 'config:field.storage.node.field_city'
