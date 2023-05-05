@@ -1,7 +1,7 @@
 #!/bin/sh
 
 usage="
-$0: Builds the docker-bench-security contianer.
+$0: Builds the docker-bench-security container, used by bin/scan-container-cis.
 
 Usage:
    $0 -h

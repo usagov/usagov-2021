@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage="
-$0: Gives user access to s3.
+$0: Generates AWS credentials and uses \"aws configure\" to store them, to provide the user with s3 access.
 
 Usage:
    $0 -h

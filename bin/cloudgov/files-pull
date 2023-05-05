@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage="
-$0: Pulls media files from s3.
+$0: Pulls media files from s3.  This script pulls the files required to populate s3/local/cms/public on a developer's filesystem.
 
 Usage:
    $0 -h

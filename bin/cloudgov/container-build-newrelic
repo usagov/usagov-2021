@@ -26,7 +26,7 @@ else
    exit 1
 fi
 
-DOCKERUSER=${DOCKERUSER:-dnark}
+DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
