@@ -2,7 +2,7 @@
 set -e
 
 usage="
-$0: Does docker compose run to automatically run the bootstrap file
+$0: Does 'docker compose run' to automatically run scripts/bootstrap.sh
 
 Usage:
    $0 -h
@@ -22,7 +22,7 @@ fi
 
 # we do not directly call bootstrap
 # rather, bootstrap is automatically triggered
-# during container startup only when
+# during container startup. drupal config update runs only when
 # the container is declared to be index 0
 docker compose run \
   --rm \

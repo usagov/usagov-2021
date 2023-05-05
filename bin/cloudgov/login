@@ -8,12 +8,14 @@ Usage:
    $0 -h
    $0 USER PASS
    $0 USER PASS SPACE
+   $0 --sso
 
 Options:
 -h:            show help and exit
 USER:          Provisioned username (from env.local)
 PASS:          Provisioned password (from env.local)
 SPACE:         default space to login to (default: dev)
+--sso:         prompts user to use secureauth sso
 "
 
 PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")

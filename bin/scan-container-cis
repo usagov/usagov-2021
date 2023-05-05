@@ -1,7 +1,7 @@
 #!/bin/sh
 
 usage="
-$0: Spins up docker bench security container and tests selected container.
+$0: Spins up docker bench security container and runs Docker CIS Benchmarks against selected container.
 
 Usage:
    $0 -h

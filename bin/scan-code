@@ -1,7 +1,7 @@
 #!/bin/sh
 
 usage="
-$0: Spins up synk container and tests Drupal custom code.
+$0: Spins up snyk container and tests Drupal custom code.
 
 Usage:
    $0 -h

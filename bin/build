@@ -9,8 +9,6 @@ Usage:
 
 Options:
 -h:            show help and exit
-
-If run locally, it will load the BUID and BGID from env.local.
 "
 
 PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
@@ -22,6 +20,7 @@ else
    exit 1
 fi
 
+# If run locally, it will load the BUID and BGID from env.local.
 docker compose build \
   --build-arg BUID=${BUID:-$(id -u)} \
   --build-arg BGID=${BGID:-$(id -g)} \
