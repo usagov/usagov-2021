@@ -13,7 +13,7 @@ Options:
 app_name:       app to push to
 scp_src:        source directory in local
 scp_dst:        destination directory in app
-instance_index: s3 instance index
+instance_index: app instance index
 "
 
 PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
