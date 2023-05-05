@@ -90,7 +90,7 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary:hover {
-  background-color: var($cyan-light);
+  background-color: color("cyan-20");
   border: 1px solid color("cyan-50v");
 }
 
@@ -415,8 +415,8 @@ add padding at the top of flag cards
   }
 }
 
-.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a,
-.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a:hover {
+.usa-nav__primary > .usa-nav___primary-item-smaller-padding > a,
+.usa-nav__primary > .usa-nav___primary-item-smaller-padding > a:hover {
   padding: 0.7rem;
 }
 
@@ -548,7 +548,7 @@ add padding at the top of flag cards
 }
 
 .sm-sp-links {
-  @media (max-width: 30em) and(min-width: 30rem) {
+  @media (max-width: 30em) and (min-width: 30rem) {
     padding-left: 2rem;
   }
 }
@@ -806,7 +806,7 @@ a {
   }
 }
 
-//Last Updated, Share and Survey
+// Last Updated, Share and Survey
 .additional_body_info {
   padding-top: 75px;
 }
@@ -817,16 +817,31 @@ div #sm-share {
   display: flex;
   padding-bottom: 22px;
   background-color: transparent;
+  font-size: var($smaller-text-font-size);
 }
 
-div #sm-share * {
+#share-page {
   margin-top: auto;
   margin-bottom: auto;
 }
 
 div #sm-share a {
-  padding: 7px;
   text-decoration: none;
+}
+
+.share-icons {
+  margin-left: 10px;
+  height: 44px;
+  line-height: 44px;
+  display: flex;
+}
+
+.share-icon {
+  margin: 6px;
+  width: 32px;
+  height: 32px;
+  color: #1b1b1b;
+  display: block;
 }
 
 // Changed footer styles
@@ -919,6 +934,10 @@ div #sm-share a {
   border-color: var($red);
   border-width: 3px;
   border-style: solid;
+}
+
+input:not([disabled]):focus.usa-user-error {
+  outline-offset: 1px;
 }
 
 .usa-main-border-error {
@@ -1092,10 +1111,6 @@ button.usa-combo-box__toggle-list:focus {
   }
 }
 
-#backToTop {
-  z-index: 2000000003;
-}
-
 // BEGIN Page Level Survey extra CSS
 #pagesurvey-trgt-qualtrics {
   background: white;
@@ -1139,7 +1154,7 @@ div[class^="QSIUserDefinedHTML"] {
 
 // END Page Level Survey extra CSS
 
-//government banner
+// government banner
 .usa-banner__header-text,
 .usa-banner__header-action {
   line-height: 1.5;
@@ -1157,8 +1172,8 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
-#question_box > div > p,
-#question_box > div > div {
+#question-box > div > p,
+#question-box > div > div {
   font-size: var($regular-text-font-size);
 }
 
@@ -1167,12 +1182,13 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
-#wizard_border > fieldset > label,
+#wizard-border > fieldset > label,
 .wizard_result > p {
   font-size: var($regular-text-font-size);
 }
 
 .last,
+#last_updated,
 #share-page {
   font-size: var($smaller-text-font-size);
 }
@@ -1180,8 +1196,16 @@ div[class^="QSIUserDefinedHTML"] {
 .footer-button {
   border: 1px solid #1b1b1b;
 }
+
 #footer-email {
   border-color: var($off-black);
 }
 
-
+.visually-hidden {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
