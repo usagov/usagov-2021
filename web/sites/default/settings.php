@@ -780,9 +780,21 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 $settings['config_sync_directory'] = '/var/www/config/sync';
 $settings['install_profile'] = 'minimal';
 
+/**
+ * Stock tome_static exclusion variable. Does not traverse directories.
+ * We include '/es/' here to avoid creating a redirect at /es/index.html
+ */
 $settings['tome_static_path_exclude'] = [
-    'rss.xml', '/saml/', '/jsonapi/', '/es/saml/', '/es/jsonapi/',
+    '/rss.xml', '/es/',
 ];
+
+/**
+ * USAGov addition to exclude entire directories. Don't include the trailing slash.
+ */
+$settings['usagov_tome_static_path_exclude_directories'] = [
+    '/saml', '/jsonapi', '/es/saml', '/es/jsonapi',
+];
+
 
 if (getenv('NEW_RELIC_API_KEY')) {
   $settings['new_relic_rpm.api_key'] = getenv('NEW_RELIC_API_KEY');
