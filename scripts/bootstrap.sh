@@ -142,6 +142,7 @@ if [[ -n $(find . -maxdepth 3 -name "env.local" -print -quit) ]]; then
   else
     echo "Disabling OPCache..."
     sed -i 's/^opcache\.enable\s*=.*/opcache.enable=0/' "$PHP_INI"
+    sed -i 's/^opcache\.enable_cli\s*=.*/opcache.enable_cli=0/' "$PHP_INI"
     echo "OPCache disabled."
   fi
 fi
