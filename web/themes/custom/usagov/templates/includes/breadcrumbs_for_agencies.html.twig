@@ -18,14 +18,14 @@
         </li>
         {% if path('<current>') == '/agency-index'%}
             <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-                <span itemprop="name">A-Z index of U.S. government departments and agencies</span>
+                <span itemprop="name">{{ drupal_field('title', 'node', 629) }}</span>
                 <meta itemprop="position" content="2" />
             </li>
         {% else %}
             <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                 <a href="/agency-index" class="usa-breadcrumb__link" itemprop="item">
                     <span itemprop="name">
-                        A-Z index of U.S. government departments and agencies
+                        {{ drupal_field('title', 'node', 629) }}
                     </span>
                 </a>
                 <meta itemprop="position" content="2" />
