@@ -140,9 +140,8 @@ if [[ -n $(find . -maxdepth 3 -name "env.local" -print -quit) ]]; then
   if grep -q 'opcache\.enable\s*=\s*0' "$PHP_INI"; then
     echo "OPCache is already disabled."
   else
-    # Add opcache.enable=0 to the php.ini file
     echo "Disabling OPCache..."
-    echo 'opcache.enable=0' | sudo tee -a "$PHP_INI" > /dev/null
+    sed -i 's/^opcache\.enable\s*=.*/opcache.enable=0/' "$PHP_INI"
     echo "OPCache disabled."
   fi
 fi
