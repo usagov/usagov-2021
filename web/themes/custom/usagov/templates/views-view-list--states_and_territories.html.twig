@@ -26,7 +26,7 @@
                         {{ lang == 'es' ?  "Elija un estado o territorio:" : "Select your state or territory:"  }}
                 </label>
                 <div class="display-inline-block">
-                        <div class="usa-combo-box" data-default-value={{ lang == 'es' ? "/es/estados/alabama" : "/states/alabama" }}>
+                        <div class="usa-combo-box" data-default-value={{ lang == 'es' ? "/es/estados/alabama" : "/states/alabama" }} data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*" >
                                 <label class="visuallyhidden">
                                         {{ lang == 'es' ?  "Elija un estado o territorio:" : "Select your state or territory:"  }}
                                         <select aria-labelledby="state-info-label" class="usa-select" name="state-info" id="state-info" required>
