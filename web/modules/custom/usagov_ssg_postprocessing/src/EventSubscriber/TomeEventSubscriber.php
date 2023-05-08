@@ -30,7 +30,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $paths = $event->getPaths(TRUE);
     foreach ($paths as $path => $metadata) {
       $url_parts = parse_url($path);
-      // Redirect module produces paths like "_redirect:1234", hence check for path:
+      // Redirect module produces paths lacking a path entry (e.g., "_redirect:1234"), hence check for path:
       if (array_key_exists('path', $url_parts) && ($url_parts['path'] == '/es/')) {
         unset($paths[$path]);
       }
@@ -39,9 +39,10 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * Reacts to a collect paths event. Deletes any paths that start with specified strings.
-   * Intended to exclude whole directories, which should end with "/".
-   * Set tome_static_path_include in settings to exclude individual paths; it's built in.
+   * Reacts to a collect paths event. Excludes entire directories by
+   * deleting any paths that match the specified string,
+   * or that start with the string and a /.
+   * Set tome_static_path_exclude in settings to exclude individual paths; it's built in.
    *
    * @param \Drupal\tome_static\Event\CollectPathsEvent $event
    *   The collect paths event.
@@ -50,8 +51,13 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $excluded_directories = self::getExcludedDirectories();
     $paths = $event->getPaths(TRUE);
     foreach ($paths as $path => $metadata) {
-      foreach ($excluded_directories as $excluded_directory) {
-        if (str_starts_with($path, $excluded_directory) ||
+      foreach ($excluded_directories as $excluded_directory_path) {
+        $excluded_directory = $excluded_directory_path . '/';
+        if (($path == $excluded_directory_path) ||
+            (isset($metadata['original_path']) && ($metadata['original_path'] == $excluded_directory_path))) {
+          unset($paths[$path]);
+        }
+        elseif (str_starts_with($path, $excluded_directory) ||
             (isset($metadata['original_path']) && str_starts_with($metadata['original_path'], $excluded_directory))) {
           unset($paths[$path]);
         }
@@ -68,12 +74,10 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    */
   public static function getExcludedDirectories() {
     $excluded_paths = [];
-    $site_paths = Settings::get('tome_static_path_exclude', []);
+    $site_paths = Settings::get('usagov_tome_static_path_exclude_directories', []);
     if (is_array($site_paths)) {
       foreach ($site_paths as $path) {
-        if (str_ends_with($path, '/')) {
-          $excluded_paths[] = $path;
-        }
+        $excluded_paths[] = $path;
       }
     }
     return $excluded_paths;
@@ -123,7 +127,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
-    $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeEsSlash'];
+    // $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeEsSlash'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories'];
     return $events;
   }
