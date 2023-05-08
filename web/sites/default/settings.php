@@ -781,7 +781,7 @@ $settings['config_sync_directory'] = '/var/www/config/sync';
 $settings['install_profile'] = 'minimal';
 
 $settings['tome_static_path_exclude'] = [
-    'rss.xml', '/saml/', '/jsonapi/', '/es/saml/', '/es/jsonapi/',
+    '/saml/', '/jsonapi/', '/es/saml/', '/es/jsonapi/', '/paragraphs_entity_embed/autocomplete'
 ];
 
 if (getenv('NEW_RELIC_API_KEY')) {
