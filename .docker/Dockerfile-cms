@@ -65,7 +65,7 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 
 # USER www-data
 ###############################################################
-FROM ${NODE_BASE}:18-alpine3.16 AS theme-builder
+FROM ${NODE_BASE}:19.9-bullseye AS theme-builder
 
 ARG BUID=1000
 ARG BGID=1000
@@ -75,25 +75,10 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
     && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group
-RUN apk upgrade --update \
-    && apk add --no-cache --virtual .persistent-deps \
-      ca-certificates \
-      curl \
-      git \
-      openssh \
-      python3 \
-      py3-pip \
-      && ln -sf python3 /usr/bin/python
 
-RUN apk --update add python3 nodejs npm git openssh && apk add g++ make
-
-COPY bin/src/phantomjs.sh /local/phantomjs.sh
-RUN . /local/phantomjs.sh
 RUN npm install --global \
       gulp \
     && chown -R node:node /home/node/
-
-#      gulp-cli \
 
 COPY --chown=node:node web/themes/custom/ /var/www/web/themes/custom/
 COPY --chown=node:node web/libraries/ /var/www/web/libraries/
@@ -235,8 +220,8 @@ COPY bin/src/newrelic.sh /local/newrelic.sh
 RUN . /local/newrelic.sh
 
     # cron setup
-Run mkdir -p /etc/periodic/30min \
-    && echo "*/30    *       *       *       *       run-parts /etc/periodic/30min" >> /etc/crontabs/root \
+Run mkdir -p /etc/periodic/1min \
+    && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*
 

@@ -20,10 +20,10 @@ wizard:
     - core/jquery
 wizardStep:
   js:
-    scripts/wizardStep.js: {}  
+    scripts/wizardStep.js: {}
   dependencies:
     - core/drupal
-    - core/jquery  
+    - core/jquery
 stateDirectory:
   js:
     scripts/stateDirectory.js: {}
@@ -34,6 +34,13 @@ stateDirectory:
 carousel:
   js:
     scripts/carousel.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+
+reportAProblem:
+  js:
+    scripts/reportAProblem.js: {}
   dependencies:
     - core/drupal
     - core/jquery

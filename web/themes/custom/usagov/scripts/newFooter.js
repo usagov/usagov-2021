@@ -6,6 +6,7 @@ var CONTROLS = "aria-controls";
 var HIDDEN = "hidden";
 
 function showLinks(event) {
+  "use strict";
   if (window.innerWidth < 480) {
     // get current selected button settings for later
     var selected = event.target;
@@ -39,6 +40,7 @@ function showLinks(event) {
 }
 
 function checkForMobile() {
+  "use strict";
   // isMobile uses same check that telephone numbers use to set to links
   var isMobile = window.innerWidth < 480 ? true : false;
   var newElementType = isMobile ? "button" : "h3";

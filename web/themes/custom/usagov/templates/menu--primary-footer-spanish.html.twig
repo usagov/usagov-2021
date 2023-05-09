@@ -19,7 +19,6 @@
 * Define a custom macro that will render all menu trees.
 */
 #}
-
 {% import _self as menus %}
 <div class="usa-footer__primary-section">
 	<div class="grid-container">
@@ -34,7 +33,7 @@
 			<div class="tablet:grid-col-4">
 				<div class="usa-sign-up">
 					<h4 class="usa-sign-up__heading">
-						{{ lang == 'es' ? "Suscríbase para recibir información actualizada" :  "Sign up to receive email updates" }}
+						Subscríbase para recibir información actualizada
 					</h4>
 					{% if lang == "es" %}
 						<form class="usa-form" action="https://conectate.gobiernousa.gov/suscripciones" method="get">
@@ -42,11 +41,11 @@
 							<form class="usa-form" action="https://connect.usa.gov/subscribe" method="get">
 							{% endif %}
 							<label class="usa-label" for="footer-email">
-								{{ lang == 'es' ?  "Escriba su email" : "Enter your email"  }}
+								Escriba su email
 							</label>
 							<input class="usa-input" id="footer-email" name="email" type="email">
 							<button class="usa-button footer-button" type="submit">
-								{{ lang == 'es' ?  "Suscríbase ahora" : "Sign up" }}
+								Subscríbase ahora
 							</button>
 						</form>
 					</div>

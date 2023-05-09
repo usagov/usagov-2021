@@ -1,7 +1,8 @@
 {
     "root": true, // Don't use Drupal core's .eslintrc, creates build issues
     "env": {
-      "browser": true
+      "browser": true,
+      "es6": true
     },
     "globals": {
       "Drupal": true,
@@ -14,6 +15,7 @@
       "Modernizr": false,
       "CKEDITOR": true
     },
+    "ignorePatterns": ["*.min.js*", "uswds.js"],
     "rules": {
       // Errors.
       "block-scoped-var": 2,

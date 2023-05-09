@@ -136,7 +136,8 @@
   }
 
   p {
-    font-family: sans-serif;
+    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
+      Arial, sans-serif;
     font-size: 20px;
     margin: 0;
   }
@@ -263,7 +264,8 @@
   }
 
   p {
-    font-family: sans-serif;
+    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
+      Arial, sans-serif;
     font-size: var($homepage, small-font-size);
     padding-top: 13px;
   }
@@ -348,7 +350,7 @@
   border: none;
   padding-left: 0;
   padding-right: 0;
-  margin-right: 0px;
+  margin-right: 0;
 }
 
 .carousel__navigation_dot {
@@ -451,7 +453,8 @@
 
   a {
     color: var($white);
-    font-family: sans-serif;
+    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
+      Arial, sans-serif;
     font-size: var($homepage, small-font-size);
     text-decoration: underline;
     display: inline-block;
@@ -571,7 +574,8 @@
   h2,
   p {
     color: var($off-black);
-    font-family: sans-serif;
+    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
+      Arial, sans-serif;
     font-size: var($homepage, small-font-size);
     line-height: 1.3;
     text-align: center;

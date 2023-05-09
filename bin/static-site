@@ -7,7 +7,7 @@ docker compose run \
   --rm \
   --workdir /var/www \
   cms \
-  /bin/ash -c "CF_INSTANCE_INDEX=0 WWW_HOST=${WWW_HOST} /etc/periodic/15min/generate-static-site --force"
+  /bin/ash -c "CF_INSTANCE_INDEX=0 WWW_HOST=${WWW_HOST} /etc/periodic/1min/generate-static-site --force"
 
 # docker compose run \
 #   --rm \
