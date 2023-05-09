@@ -49,7 +49,7 @@ jQuery(document).ready(function ($) {
       var title = carouselHeaders[i].textContent.trim();
       var titleWoQuotes = title.replace(/['"]+/g, '');
       var label = `Card ${pageNum} of ${numSlides}: ${titleWoQuotes}`;
-      li.innerHTML = '<div class="carousel__navigation_button" aria-label=" '+ label + '"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="48%" r="25" /> </svg> </div>';
+      li.innerHTML = '<div class="carousel__navigation_button"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"  aria-label="'+ label + '"> <circle cx="50%" cy="48%" r="25" /> </svg> </div>';
       dots.appendChild(li);
     }
   }
