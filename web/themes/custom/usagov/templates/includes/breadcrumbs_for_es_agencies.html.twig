@@ -1,9 +1,10 @@
-<nav class="margin-top-neg-3 mobile-lg:margin-top-2 tablet:margin-top-neg-3 desktop:margin-top-0 margin-bottom-2 mobile-lg:margin-bottom-6" role="navigation" aria-labelledby="system-breadcrumb" >
-    <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">    
+<nav class="margin-top-neg-3 mobile-lg:margin-top-2 tablet:margin-top-neg-3 desktop:margin-top-0 margin-bottom-2 mobile-lg:margin-bottom-6" role="navigation" aria-label="Breadcrumb">
+
+    <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">
         <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
             <a href="/es" class="usa-breadcrumb__link" itemprop="item">
                 <span itemprop="name">
-                    Página principal 
+                    Página principal
                 </span>
             </a>
             <meta itemprop="position" content="0" />
@@ -18,14 +19,14 @@
         </li>
         {% if path('<current>') == '/es/indice-agencias'%}
             <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-                <span itemprop="name">Agencias federales</span>
+                <span itemprop="name">{{ drupal_field('title', 'node', 1696) }}</span>
                 <meta itemprop="position" content="2" />
-            </li> 
+            </li>
         {% else %}
             <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                 <a href="/es/indice-agencias" class="usa-breadcrumb__link" itemprop="item">
                     <span itemprop="name">
-                        Agencias federales
+                        {{ drupal_field('title', 'node', 1696) }}
                     </span>
                 </a>
                 <meta itemprop="position" content="2" />
@@ -33,7 +34,7 @@
             <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                 <span itemprop="name">{{ drupal_title() }}</span>
                 <meta itemprop="position" content="3" />
-            </li> 
+            </li>
         {% endif %}
     </ol>
 </nav>
