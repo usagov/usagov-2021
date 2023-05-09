@@ -1,6 +1,6 @@
 uuid: 40c32f5a-cbd8-4472-aaab-373bd32dfbdb
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
@@ -155,6 +155,7 @@ display:
       relationships: {  }
       header: {  }
       footer: {  }
+      display_extenders: {  }
     cache_metadata:
       max-age: -1
       contexts:
