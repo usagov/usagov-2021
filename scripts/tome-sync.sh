@@ -5,6 +5,7 @@ TOME_MAX_CHANGE_ALLOWED=0.10
 TOMELOGFILE=$1
 YMDHMS=$2
 FORCE=${3:-0}
+RETRY_SEMAPHORE_FILE=/tmp/tome-log/retry-on-next-run
 
 if [ -z "$YMDHMS" ]; then
   YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
@@ -172,9 +173,17 @@ echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
 
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
-ES_HOME_HTML_SIZE=$(stat -c%s "$ES_HOME_HTML_FILE")
+if [ -f $ES_HOME_HTML_FILE ]; then 
+  ES_HOME_HTML_SIZE=$(stat -c%s "$ES_HOME_HTML_FILE")
+else
+  ES_HOME_HTML_SIZE=0
+fi
+
 if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
-   echo "*** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***"
+  echo "*** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***"
+  # Delete the known-bad file; it may be re-created correctly on the next run. 
+  rm $ES_HOME_HTML_FILE
+  touch $RETRY_SEMAPHORE_FILE
   TOME_PUSH_NEW_CONTENT=0
 fi
 
