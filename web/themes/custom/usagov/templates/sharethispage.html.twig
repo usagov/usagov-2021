@@ -1,4 +1,3 @@
-
 {% set exclusions = [
     '/usagov-beta',
     '/about-the-us',
@@ -19,31 +18,35 @@
 {% set path = drupal_url('node/'~nodeID) %}
 
 {% if path|render not in exclusions %}
-    {% set facebook = 'https://www.facebook.com/sharer/sharer.php?u=' %}
-    {% set twitter = 'https://twitter.com/intent/tweet?source=webclient&text=' %}
-    {% set email = 'mailto:?subject=' %}
+	{% set facebook = 'http://www.facebook.com/sharer/sharer.php?u=' %}
+	{% set twitter = 'http://twitter.com/intent/tweet?source=webclient&text=' %}
+	{% set email = 'mailto:?subject=' %}
+	{% set baseURL = url('<front>') %}
+	{% set url = baseURL|render~path|render[1:] %}
 
-    {% set baseURL = url('<front>') %}
-    {% set url = baseURL|render~path|render[1:] %}
+	<div id="sm-share">
+		<span id="share-page">{{ lang == 'en' ? "SHARE THIS PAGE:" : "Comparta esta página:" }}</span>
+		<div class="share-icons">
+			<a id="fb" href="{{ facebook }}{{ url }}&v=3">
+				<div class="share-icon-div">
+					<img class="share-icon" aria-labelledby="share-page fb" src="/themes/custom/usagov/images/Facebook_Icon.svg" alt="Facebook"/>
+				</div>
+			</a>
+			<a id="twr" href="{{ twitter }}{{ url }}">
+				<div class="share-icon-div">
+					<img class="share-icon" aria-labelledby="share-page twr" src="/themes/custom/usagov/images/Twitter_Icon.svg " alt="Twitter"/>
+				</div>
+			</a>
+			<a id="em" href="{{ email }}{{ url }}">
+				<div class="share-icon-div">
+					<img class="share-icon" aria-labelledby="share-page em" src="/themes/custom/usagov/images/Email_Icon.svg" alt="Email"/>
+				</div>
+			</a>
+		</div>
+	</div>
 
+	{% if (term_name == "Standard Page") or (term_name == "Standard Page- Nav Hidden") or (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
 
-    <div id="sm-share">
-        <span id="share-page">{{ lang == 'en' ? "SHARE THIS PAGE:" : "Comparta esta página:" }}</span>
-        <div>
-            <a id="fb" href="{{ facebook }}{{ url }}&v=3">
-            <img aria-labelledby="share-page fb" src="/themes/custom/usagov/images/facebook.png" alt="Facebook" />
-            </a>
-            <a id="twr" href="{{ twitter }}{{ url }}">
-            <img aria-labelledby="share-page twr" src="/themes/custom/usagov/images/twitter.png " alt="Twitter" />
-            </a>
-            <a id="em" href="{{ email }}{{ url }}">
-            <img aria-labelledby="share-page em" src="/themes/custom/usagov/images/email.png" alt="Email"/>
-            </a>
-        </div>
-    </div>
-
-{% if (term_name == "Standard Page") or (term_name == "Standard Page- Nav Hidden") or (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
-
-    <div class="border-top-05  border-base-lightest"></div>
-    {% endif %}
+		<div class="border-top-05  border-base-lightest"></div>
+	{% endif %}
 {% endif %}

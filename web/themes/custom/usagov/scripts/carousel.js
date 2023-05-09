@@ -1,4 +1,5 @@
 jQuery(document).ready(function ($) {
+  "use strict";
   var previousButton, nextButton;
   var slidesContainer, slides, slideDots;
   var leftMostSlideIndex = 0;
@@ -6,8 +7,8 @@ jQuery(document).ready(function ($) {
   nextButton = document.querySelector(".next");
   slidesContainer = document.querySelector(".slides");
   slides = slidesContainer.querySelectorAll(".slide");
-  slidesForFocus = slidesContainer.querySelectorAll(".slide a");
-  carouselHeaders = document.querySelectorAll(".carouselHeaders");
+  let slidesForFocus = slidesContainer.querySelectorAll(".slide a");
+  let carouselHeaders = document.querySelectorAll(".carouselHeaders");
   makeDots();
   slideDots = document.querySelectorAll(".navigation li div");
 
@@ -29,7 +30,8 @@ jQuery(document).ready(function ($) {
   if (indexInSS != null) {
     currentSlideIndex = indexInSS;
     goToSlide(currentSlideIndex);
-  } else {
+  }
+ else {
     previousButton.style.visibility = "hidden";
   }
 
@@ -56,7 +58,8 @@ jQuery(document).ready(function ($) {
   function previousSlide() {
     if (leftMostSlideIndex > 0) {
       goToSlide(leftMostSlideIndex - 1);
-    } else {
+    }
+ else {
       goToSlide(slides.length - 1);
     }
 
@@ -66,7 +69,8 @@ jQuery(document).ready(function ($) {
   function nextSlide() {
     if (leftMostSlideIndex < slides.length - 1) {
       goToSlide(leftMostSlideIndex + 1);
-    } else {
+    }
+ else {
       goToSlide(0);
     }
   }
@@ -80,30 +84,32 @@ jQuery(document).ready(function ($) {
     if (window.innerWidth >= 1024) {
       $(slidesContainer).animate(
         {
-          scrollLeft:
+          "scrollLeft":
             (slidesContainer.offsetWidth / 3) * nextLeftMostSlideIndex,
         },
         {
-          duration: 200,
+          "duration": 200,
         }
       );
-    } else if (window.innerWidth > 480 && window.innerWidth < 1024) {
+    }
+ else if (window.innerWidth > 480 && window.innerWidth < 1024) {
       $(slidesContainer).animate(
         {
-          scrollLeft:
+          "scrollLeft":
             (slidesContainer.offsetWidth / 2) * nextLeftMostSlideIndex,
         },
         {
-          duration: 200,
+          "duration": 200,
         }
       );
-    } else {
+    }
+ else {
       $(slidesContainer).animate(
         {
-          scrollLeft: slidesContainer.offsetWidth * nextLeftMostSlideIndex,
+          "scrollLeft": slidesContainer.offsetWidth * nextLeftMostSlideIndex,
         },
         {
-          duration: 200,
+          "duration": 200,
         }
       );
     }
@@ -122,23 +128,25 @@ jQuery(document).ready(function ($) {
     // Update each slide so that the ones that are now off-screen are fully hidden.
     hideNonVisibleSlides();
 
-    //check if the left or right arrow should be hidden
-    if (leftMostSlideIndex == 0) {
+    // check if the left or right arrow should be hidden
+    if (leftMostSlideIndex === 0) {
       previousButton.style.visibility = "hidden";
       nextButton.style.visibility = "visible";
-    } else if (leftMostSlideIndex == slides.length - 1) {
+    }
+ else if (leftMostSlideIndex === slides.length - 1) {
       previousButton.style.visibility = "visible";
       nextButton.style.visibility = "hidden";
-    } else {
+    }
+ else {
       previousButton.style.visibility = "visible";
       nextButton.style.visibility = "visible";
     }
 
-    //set focus on current slide
+    // set focus on current slide
     slidesForFocus[nextLeftMostSlideIndex].focus();
   }
 
-  //Fully hide non-visible slides by adding aria-hidden="true" and tabindex="-1" when they go out of view
+  // Fully hide non-visible slides by adding aria-hidden="true" and tabindex="-1" when they go out of view
 
   function hideNonVisibleSlides() {
     // Start by hiding all the slides and their content
@@ -161,11 +169,13 @@ jQuery(document).ready(function ($) {
       offset = 3;
       rightLimit = 3;
       leftLimit = 3;
-    } else if (window.innerWidth > 480 && window.innerWidth < 1024) {
+    }
+ else if (window.innerWidth > 480 && window.innerWidth < 1024) {
       offset = 2;
       rightLimit = 2;
       leftLimit = 4;
-    } else {
+    }
+ else {
       offset = 1;
       rightLimit = 1;
       leftLimit = 5;
@@ -183,11 +193,12 @@ jQuery(document).ready(function ($) {
             focusableElement.removeAttribute("tabindex");
           });
       }
-    } else {
-      for (var i = leftLimit; i < numItems; i++) {
-        slides[i].removeAttribute("aria-hidden");
+    }
+ else {
+      for (var j = leftLimit; j < numItems; j++) {
+        slides[j].removeAttribute("aria-hidden");
 
-        slides[i]
+        slides[j]
           .querySelectorAll(
             'a, button, select, input, textarea, [tabindex="0"]'
           )

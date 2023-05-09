@@ -34,7 +34,7 @@
 			<div class="tablet:grid-col-4">
 				<div class="usa-sign-up">
 					<h4 class="usa-sign-up__heading">
-						{{ lang == 'es' ? "Suscríbase para recibir información actualizada" :  "Sign up to receive email updates" }}
+						Sign up to receive email updates
 					</h4>
 					{% if lang == "es" %}
 						<form class="usa-form" action="https://conectate.gobiernousa.gov/suscripciones" method="get">
@@ -42,11 +42,11 @@
 							<form class="usa-form" action="https://connect.usa.gov/subscribe" method="get">
 							{% endif %}
 							<label class="usa-label" for="footer-email">
-								{{ lang == 'es' ?  "Escriba su email" : "Enter your email"  }}
+								Enter your email
 							</label>
 							<input class="usa-input" id="footer-email" name="email" type="email">
 							<button class="usa-button footer-button" type="submit">
-								{{ lang == 'es' ?  "Suscríbase ahora" : "Sign up" }}
+								Sign up
 							</button>
 						</form>
 					</div>
