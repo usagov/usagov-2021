@@ -70,6 +70,9 @@ cp -rfp /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
 
 echo "Removing unwanted files ... "
 rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
+rm -rf $RENDER_DIR/node/ 2>&1 | tee -a $TOMELOG
+rm -rf $RENDER_DIR/es/node/ 2>&1 | tee -a $TOMELOG
+
 
 # duplicate the logic used by the bootstrap script to find the static site hostname
 WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | head -n 1)
