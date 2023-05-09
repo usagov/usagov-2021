@@ -16,33 +16,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class TomeEventSubscriber implements EventSubscriberInterface {
 
   /**
-   * Reacts to a collect paths event. Replaces any '/es/' (without sub-path) with '/es'
-   * Purpose: prevent a condition where Tome creates a redirect page at /es/index.html,
-   * presumably due to Drupal and the redirect module making a redirect from /es/ to /es.
-   *
-   * We don't need to replace /es/ with /es, because Tome will find the /es page as a node
-   * to process regardless.
-   *
-   * @param \Drupal\tome_static\Event\CollectPathsEvent $event
-   *   The collect paths event.
-   */
-  public function excludeEsSlash(CollectPathsEvent $event) {
-    $paths = $event->getPaths(TRUE);
-    foreach ($paths as $path => $metadata) {
-      $url_parts = parse_url($path);
-      // Redirect module produces paths lacking a path entry (e.g., "_redirect:1234"), hence check for path:
-      if (array_key_exists('path', $url_parts) && ($url_parts['path'] == '/es/')) {
-        unset($paths[$path]);
-      }
-    }
-    $event->replacePaths($paths);
-  }
-
-  /**
    * Reacts to a collect paths event. Excludes entire directories by
    * deleting any paths that match the specified string,
    * or that start with the string and a /.
-   * Set tome_static_path_exclude in settings to exclude individual paths; it's built in.
+   * Such directories come from the setting usagov_tome_static_path_exclude_directories.
+   *
+   * (To exclude individual paths, set tome_static_path_exclude -- it's built in.)
    *
    * @param \Drupal\tome_static\Event\CollectPathsEvent $event
    *   The collect paths event.
@@ -67,7 +46,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * Returns per-site excluded paths that look like directories.
+   * Returns per-site excluded directory paths.
    *
    * @return array
    *   An array of excluded paths.
@@ -84,7 +63,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * Reacts to a modify HTML event.
+   * Reacts to a modify HTML event; replacing links to /es (possibly with a query or
+   * fragment appended) with /es/.
    *
    * @param \Drupal\tome_static\Event\ModifyHtmlEvent $event
    *   The event.
@@ -118,8 +98,6 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       $html = $document->saveHTML();
       $event->setHtml($html);
     }
-    // Add /es/ to the exclude paths regardless; it may already be present:
-    // $event->addExcludePath('/es/');
   }
 
   /**
@@ -127,7 +105,6 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
-    // $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeEsSlash'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories'];
     return $events;
   }
