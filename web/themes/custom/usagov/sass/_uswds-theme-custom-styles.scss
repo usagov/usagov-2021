@@ -420,6 +420,13 @@ add padding at the top of flag cards
   padding: 0.7rem;
 }
 
+// adds vertical spacing for top-nav on desktop
+@media (min-width: 64em) {
+.usa-nav__primary>.usa-nav__primary-item>.usa-nav__link {
+    line-height: 1.1;
+  }
+}
+
 // adds visible focus around entire search box
 [type="search"] {
   z-index: 1;
