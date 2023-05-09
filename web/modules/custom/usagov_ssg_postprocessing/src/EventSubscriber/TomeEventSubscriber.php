@@ -119,7 +119,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       $event->setHtml($html);
     }
     // Add /es/ to the exclude paths regardless; it may already be present:
-    $event->addExcludePath('/es/');
+    // $event->addExcludePath('/es/');
   }
 
   /**
