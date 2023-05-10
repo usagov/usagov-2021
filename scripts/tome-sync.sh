@@ -176,29 +176,15 @@ echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
 
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
-ES_HOME_HTML_BAD=0
 if [ -f $ES_HOME_HTML_FILE ]; then 
   ES_HOME_HTML_SIZE=$(stat -c%s "$ES_HOME_HTML_FILE")
 else
   ES_HOME_HTML_SIZE=0
 fi
 
-# Too-small file is probably a redirect page
 if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
-  echo "WARNING: *** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***" | tee -a $TOMELOG
-  ES_HOME_HTML_BAD=1
-fi
-
-# Sometimes Tome generates an English mobile menu on the Spanish home page
-ES_HOME_CONTAINS_ENGLISH_MENU=`grep -c 'All topics and services' $ES_HOME_HTML_FILE`
-if [ "$ES_HOME_CONTAINS_ENGLISH_MENU" != "0"  ]; then
-  echo "WARNING: *** ES index.html appears to contain English nav ***" | tee -a $TOMELOG
-  ES_HOME_HTML_BAD=1
-fi
-
-
-if [ "$ES_HOME_HTML_BAD" == "1" ]; then
-  # Delete the known-bad file; it may be re-created correctly on the next run.
+  echo "*** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***"
+  # Delete the known-bad file; it may be re-created correctly on the next run. 
   rm $ES_HOME_HTML_FILE
   touch $RETRY_SEMAPHORE_FILE
   TOME_PUSH_NEW_CONTENT=0
