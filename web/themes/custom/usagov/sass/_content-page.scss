@@ -2,7 +2,9 @@
 
 // $alert: var( $usagov-variables, alert );
 
-.usa-alert:not(.usa-alert--info):not(.usa-alert--warning):not(.usa-alert--error):not(.usa-alert--success) {
+.usa-alert:not(.usa-alert--info):not(.usa-alert--warning):not(
+    .usa-alert--error
+  ):not(.usa-alert--success) {
   border-color: var($alert, border-color);
   background-color: var($alert, background-color);
 }
