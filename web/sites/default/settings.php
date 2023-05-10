@@ -792,7 +792,7 @@ $settings['tome_static_path_exclude'] = [
  * USAGov addition to exclude entire directories. Don't include the trailing slash.
  */
 $settings['usagov_tome_static_path_exclude_directories'] = [
-    '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete'
+    '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete'
 ];
 
 
