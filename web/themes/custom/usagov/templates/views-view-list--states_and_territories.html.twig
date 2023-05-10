@@ -20,29 +20,28 @@
 #}
 {% set lang = node.langcode.value %}
 
-<div class="display-inline-block">
-        <form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
-                <label id="state-info-label" class="usa-label" for="state-info">
-                        {{ lang == 'es' ?  "Elija un estado o territorio:" : "Select your state or territory:"  }}
-                </label>
-                <div class="display-inline-block">
-                        <div class="usa-combo-box" data-default-value={{ lang == 'es' ? "/es/estados/alabama" : "/states/alabama" }} data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*" >
-                                <label class="visuallyhidden">
-                                        {{ lang == 'es' ?  "Elija un estado o territorio:" : "Select your state or territory:"  }}
-                                        <select aria-labelledby="state-info-label" class="usa-select" name="state-info" id="state-info" required>
-                                                {% for row in rows %}
-                                                        <li{{row.attributes}}>
-                                                                {{- row.content -}}
-                                                        </li>
-                                                {% endfor %}
-                                        </select>
-                                </label>
-                        </div>
-                </div>
-                <div class="display-inline-block">
-                        <button class="usa-button sd-go-btn" type="submit">
-                                {{ lang == 'es' ?  "Ir" : "Go"  }}
-                        </button>
-                </div>
-        </form>
-</div>
+<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
+	<label id="state-info-label" class="usa-label" for="state-info">
+		{{ lang == 'es' ? "Elija un estado o territorio:" : "Select your state or territory:" }}
+	</label>
+	<div class="grid-row">
+		<div class="grid-col-fill mobile-lg:grid-col-auto">
+			<div class="usa-combo-box width-full mobile-lg:width-mobile" data-default-value={{ lang=='es' ? "/es/estados/alabama" : "/states/alabama" }} data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*">
+				<label class="visuallyhidden">
+					{{ lang == 'es' ? "Elija un estado o territorio:" : "Select your state or territory:" }}
+					<select aria-labelledby="state-info-label" class="usa-select" name="state-info" id="state-info" required>
+						{% for row in rows %}
+							<li{{row.attributes}}>
+								{{- row.content -}}
+							</li>
+						{% endfor %}
+					</select>
+				</label>
+			</div>
+		</div>
+		<button class="usa-button sd-go-btn" type="submit">
+			{{ lang == 'es' ? "Ir" : "Go" }}
+		</button>
+
+	</div>
+</form>
