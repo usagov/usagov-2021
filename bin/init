@@ -76,12 +76,12 @@ if [ -f env.local ]; then
   . env.local
 fi
 
-# m1 macs need to use a arm64 node image to work
 host_node_base=node
-if [[ "$os_osx_m1" == "yes" ]]; then
-  echo "Alter Node base image since we think you are on an M1 mac"
-  host_node_base=arm64v8/node
-fi
+# node image is now multi-architecture, so we don't currently need:
+# if [[ "$os_osx_m1" == "yes" ]]; then
+#   echo "Alter Node base image since we think you are on an M1 mac"
+#   host_node_base=arm64v8/node
+# fi
 
 # can't get sed -i to work cross platform so just do it dirty
 sed -e 's|NODE_BASE=.*|NODE_BASE='$host_node_base'|' env.local > env.local.new

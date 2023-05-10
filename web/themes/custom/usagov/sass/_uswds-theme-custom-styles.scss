@@ -90,7 +90,7 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary:hover {
-  background-color: var($cyan-light);
+  background-color: color("cyan-20");
   border: 1px solid color("cyan-50v");
 }
 
@@ -418,6 +418,13 @@ add padding at the top of flag cards
 .usa-nav__primary > .usa-nav___primary-item-smaller-padding > a,
 .usa-nav__primary > .usa-nav___primary-item-smaller-padding > a:hover {
   padding: 0.7rem;
+}
+
+// adds vertical spacing for top-nav on desktop
+@media (min-width: 64em) {
+.usa-nav__primary>.usa-nav__primary-item>.usa-nav__link {
+    line-height: 1.1;
+  }
 }
 
 // adds visible focus around entire search box
