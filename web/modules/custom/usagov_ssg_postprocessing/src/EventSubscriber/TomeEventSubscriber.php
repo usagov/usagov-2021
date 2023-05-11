@@ -30,6 +30,27 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $excluded_directories = self::getExcludedDirectories();
     $paths = $event->getPaths(TRUE);
     foreach ($paths as $path => $metadata) {
+      /**
+       * We are going to spend the time here to get the "real" paths for any placeholder-ed paths
+       * (that are node or taxonomy entity-types), so we can identify and exclude what we want to skip.
+       * The gamble here is that we'll save more time by excluding them than by processing them
+       * and then deleting the results after the fact.
+       */
+      $path_parts = explode(':', $path);
+      if ($path_parts[0] == '_entity') {
+        $entity_type = $path_parts[1];
+        $langcode = $path_parts[2];
+        $entity_id = $path_parts[3];
+        if (($entity_id != 1) && // <front> is special; it doesn't get its "real" path from path_alias.
+            ($newpath = \Drupal::service('path_alias.manager')->getAliasByPath('/' . $entity_type . '/' . $entity_id, $langcode))) {
+          unset($paths[$path]);
+          $path = $newpath;
+          $paths[$path] = $metadata;
+        }
+        else {
+          $path = $path;
+        }
+      }
       foreach ($excluded_directories as $excluded_directory_path) {
         $excluded_directory = $excluded_directory_path . '/';
         if (($path == $excluded_directory_path) ||
