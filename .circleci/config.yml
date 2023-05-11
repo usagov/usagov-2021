@@ -337,7 +337,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-973-automatically-rerun-tome-after-bad-es
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -347,7 +346,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-973-automatically-rerun-tome-after-bad-es
       - approve-dev-deployment:
           type: approval
           requires:
@@ -356,7 +354,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-973-automatically-rerun-tome-after-bad-es
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -364,7 +361,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-973-automatically-rerun-tome-after-bad-es
       - approve-stage-deployment:
           type: approval
           requires:
