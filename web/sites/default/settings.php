@@ -785,14 +785,15 @@ $settings['install_profile'] = 'minimal';
  * We include '/es/' here to avoid creating a redirect at /es/index.html
  */
 $settings['tome_static_path_exclude'] = [
-    '/rss.xml', '/es/',
+    '/rss.xml',
 ];
 
 /**
  * USAGov addition to exclude entire directories. Don't include the trailing slash.
  */
 $settings['usagov_tome_static_path_exclude_directories'] = [
-    '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete'
+    '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete',
+    '/taxonomy/term', '/taxonomy_term',
 ];
 
 
