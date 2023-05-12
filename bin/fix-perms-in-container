@@ -1,4 +1,28 @@
 #!/bin/sh
 
-echo "Updating premissions in /var/www to $BUID:$BGID"
+usage="
+$0: Updates container permissions.  Called by init.sh.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+BUID:          User ID
+BGID:          Group ID
+
+NOTES:
+Arguments come from environment.
+"
+
+PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
+echo "Updating permissions in /var/www to $BUID:$BGID"
 find /var/www -not -user $BUID -not -group $BGID -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference $BUID:$BGID
