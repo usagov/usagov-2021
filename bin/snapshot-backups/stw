@@ -1,27 +1,17 @@
 #!/bin/sh
 
-usage="
-$0: Creates a tag for snapshot scripts and runs the selected script.
-
-Usage:
-   $0 -h
-   $0 SPACE BRANCH SUFFIX COMMAND
-
-Options:
--h:        show help and exit
-SPACE:     Space name to work on
-BRANCH:    Arbitrary name, use deployment ticket number
-SUFFIX:    either pre-deploy or post-deploy
-COMMAND:   Name of script to run
-"
-
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
-if [ -f "$PREAMBLE" ]; then
-  # shellcheck source=bin/includes/preamble.sh
-  . "$PREAMBLE"
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
 else
-  echo Cannot find preamble at "$PREAMBLE"
-  exit 1
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
 fi
 
 SPACE=$1
