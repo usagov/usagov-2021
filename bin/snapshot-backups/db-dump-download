@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 usage="
 $0: Dumps a backup of current environment's database.

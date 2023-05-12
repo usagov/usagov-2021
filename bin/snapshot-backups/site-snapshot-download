@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 usage="
 $0: Pushes a local build of the static site to current environment.
@@ -19,6 +19,11 @@ if [ -f "$PREAMBLE" ]; then
 else
   echo Cannot find preamble at "$PREAMBLE"
   exit 1
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
 fi
 
 DEPLOY_TAG=${1}
@@ -40,8 +45,8 @@ fi
 $echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 echo "Downloading files from s3 to local directory './${DEPLOY_TAG}'. This could take awhile."
-echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web/ $DEPLOY_TAG --recursive
-$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web/ $DEPLOY_TAG --recursive
+echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web-backup/$DEPLOY_TAG $DEPLOY_TAG --recursive
+$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web-backup/$DEPLOY_TAG $DEPLOY_TAG --recursive
 
 echo "Creating zip file ${DEPLOY_TAG}.zip"
 echo zip -rq ${DEPLOY_TAG}.zip ${DEPLOY_TAG}
