@@ -132,7 +132,21 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
   fi
 fi
 
-if [[ -n $(find . -maxdepth 3 -name "env.local" -print -quit) ]]; then
+check_if_local() {
+  local dir="$1"
+
+  while [[ "$dir" != "/" ]]; do
+    if [[ -f "$dir/env.local" ]]; then
+      return 0
+    fi
+    dir=$(dirname "$dir")
+  done
+
+  return 1
+}
+
+# Check if this is a local environment
+if check_if_local "$(pwd)"; then
   # Find the php.ini file
   PHP_INI=$(php -i | grep 'Loaded Configuration File' | awk '{print $NF}')
 
@@ -140,7 +154,7 @@ if [[ -n $(find . -maxdepth 3 -name "env.local" -print -quit) ]]; then
   if grep -q 'opcache\.enable\s*=\s*0' "$PHP_INI"; then
     echo "OPCache is already disabled."
   else
-    echo "Disabling OPCache..."
+    # echo "Disabling OPCache..."
     sed -i 's/^opcache\.enable\s*=.*/opcache.enable=0/' "$PHP_INI"
     sed -i 's/^opcache\.enable_cli\s*=.*/opcache.enable_cli=0/' "$PHP_INI"
     echo "OPCache disabled."
