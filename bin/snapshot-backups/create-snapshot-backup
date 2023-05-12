@@ -1,24 +1,13 @@
 #!/bin/sh
 
-usage="
-$0: Create s3 snapshot backup of current environment's static site and database.
-
-Usage:
-   $0 -h
-   $0 environment branch suffix
-
-Options:
--h:            show help and exit
-"
-
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
-if [ -f "$PREAMBLE" ]; then
-  # shellcheck source=bin/includes/preamble.sh
-  . "$PREAMBLE"
+# just testing?
+if [ x$1 != x"--real" ]; then
+  export dryrun='--dryrun'
 else
-   echo Cannot find preamble at "$PREAMBLE"
-   exit 1
+   shift
 fi
+
+### Create s3 snapshot backup of current environment's static site and database
 
 ### 3 required arguments:
 echo "=========================================================================================="

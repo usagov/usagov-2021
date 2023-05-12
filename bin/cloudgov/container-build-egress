@@ -1,30 +1,8 @@
-#!/bin/bash
-
-usage="
-$0: Attempts to create a container image for egress proxy to be used when launching cloud.gov images.
-
-Usage:
-   $0 -h
-
-Options:
--h:            show help and exit
-DOCKERUSER:    Docker Hub username (default: gsatts [don't change this])
-DOCKERREPO:    Docker Hub repo (default: usagov-2021 [don't change this])
-CONTAINERTAG:  Git tag of the container being created (default: $GITBRANCH)
-CONTAINERTAG2: Optional tag label
-
-NOTES:
-Arguments come from environment.
-"
-
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
-if [ -f "$PREAMBLE" ]; then
-  # shellcheck source=bin/includes/preamble.sh
-  . "$PREAMBLE"
-else
-   echo Cannot find preamble at "$PREAMBLE"
-   exit 1
-fi
+#!/bin/sh
+#
+# This script will attempt to create a container image
+# to be used when launching cloud.gov images
+#
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}

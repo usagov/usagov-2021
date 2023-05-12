@@ -1,26 +1,5 @@
 #!/bin/bash
 
-usage="
-$0: Dumps the contents of your local database to the named sql file.
-
-Usage:
-   $0 -h
-   $0 LOCAL_FILE
-
-Options:
--h:            show help and exit
-LOCAL_FILE:    the name of the local sql file to dump to (default: backup.sql)
-"
-
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
-if [ -f "$PREAMBLE" ]; then
-  # shellcheck source=bin/includes/preamble.sh
-  . "$PREAMBLE"
-else
-   echo Cannot find preamble at "$PREAMBLE"
-   exit 1
-fi
-
 LOCAL_FILE=${1:-./backup.sql}
 
 bin/drush sql:dump --result-file=$LOCAL_FILE

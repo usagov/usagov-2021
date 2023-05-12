@@ -1,25 +1,6 @@
-#!/bin/bash
-
-usage="
-$0: Push files from a local temporary directory to the S3 bucket for the current targeted space.
-
-Usage:
-   $0 -h
-   $0 localdir
-
-Options:
--h:            show help and exit
-localdir:      local directory to pull files to
-"
-
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
-if [ -f "$PREAMBLE" ]; then
-  # shellcheck source=bin/includes/preamble.sh
-  . "$PREAMBLE"
-else
-   echo Cannot find preamble at "$PREAMBLE"
-   exit 1
-fi
+#!/bin/sh
+# Push files from a local temporary directory to the S3 bucket for the current targeted space
+# s3-files-push-from-tmp /local/existing/directory
 
 read -p "This will copy files to S3 with PUBLIC READ permission.
 Continue? (y/n): "
@@ -28,9 +9,23 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 1 || return 1
 fi
 
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
 localdir="$1"
 
-# TODO: check for localdir; should be a directory full of files.
+# TODO: check for localdir; should be a directory full of files. 
 printf "Uploading files from $localdir to S3 ..."
 
 # Get access
@@ -38,6 +33,6 @@ source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 # TODO: make backup
 # TODO: add --delete flag or similar.
-aws s3 sync $localdir s3://$S3_BUCKET/cms/public/ --acl public-read
+aws s3 sync $localdir s3://$S3_BUCKET/cms/public/ --acl public-read 
 
 
