@@ -25,7 +25,7 @@ NOTES:
 - Your apps will be restarted in a rolling fashion to pick up variable changes
 "
 
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
+PREAMBLE=$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"/includes/preamble.sh"
 if [ -f "$PREAMBLE" ]; then
   # shellcheck source=bin/includes/preamble.sh
   . "$PREAMBLE"
