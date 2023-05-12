@@ -33,7 +33,7 @@ NOTES:
 - Post-restart, just use the http_proxy variable when making egress connections!
 "
 
-PREAMBLE=$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"/includes/preamble.sh"
+PREAMBLE=$( cd -- "$(dirname "$0")/.." >/dev/null 2>&1 ; pwd -P )"/includes/preamble.sh"
 if [ -f "$PREAMBLE" ]; then
   # shellcheck source=bin/includes/preamble.sh
   . "$PREAMBLE"

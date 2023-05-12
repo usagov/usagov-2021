@@ -13,7 +13,7 @@ NOTES:
 Interactive.  Y/N input.
 "
 
-PREAMBLE=$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"/includes/preamble.sh"
+PREAMBLE=$( cd -- "$(dirname "$0")/.." >/dev/null 2>&1 ; pwd -P )"/includes/preamble.sh"
 if [ -f "$PREAMBLE" ]; then
   # shellcheck source=bin/includes/preamble.sh
   . "$PREAMBLE"
