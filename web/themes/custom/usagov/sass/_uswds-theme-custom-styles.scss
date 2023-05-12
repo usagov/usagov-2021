@@ -616,8 +616,9 @@ a,
 }
 
 .usa-button {
-  @media (max-width: 30em) {
-    width: 100%;
+  width: 100%;
+  @media (min-width: 30em) {
+    width: auto;
   }
 }
 
