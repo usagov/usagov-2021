@@ -1,5 +1,26 @@
 #!/bin/bash
 
+usage="
+$0: Generates AWS credentials and uses \"aws configure\" to store them, to provide the user with s3 access.
+
+Usage:
+   $0 -h
+   $0 SERVICE_NAME
+
+Options:
+-h:            show help and exit
+SERVICE_NAME:  service that stores s3 credentials (default: storage)
+"
+
+PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
 SPACE=$(cf target | grep space: | awk '{print $2}');
 if [ -z "$SPACE" ]; then
   echo "You must choose a space before procesing ./bin/cloudgov/space (personal|dev|stage|prod|shared-egress)"
