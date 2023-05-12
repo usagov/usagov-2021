@@ -1,14 +1,30 @@
 #!/bin/bash
 set -e
 
-if [ -f env.local ]; then
-  . env.local
+usage="
+$0: Builds CMS container.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+"
+
+PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
 fi
 
+# If run locally, it will load the BUID and BGID from env.local.
 docker compose build \
   --build-arg BUID=${BUID:-$(id -u)} \
   --build-arg BGID=${BGID:-$(id -g)} \
   --build-arg GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "") \
   --build-arg GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "") \
   --build-arg GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "") \
-  $@
+  "$@"
