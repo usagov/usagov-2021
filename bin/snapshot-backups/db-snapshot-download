@@ -29,9 +29,9 @@ if [ -z "$DEPLOY_TAG" ]; then
   exit 1
 fi
 
-SPACE=$( cf target | grep space: | awk '{ print $2 }')
-PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
-GZIP_FILE=$PREFIX.sql.gz
+#SPACE=$( cf target | grep space: | awk '{ print $2 }')
+#PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
+GZIP_FILE=${DEPLOY_TAG}.sql.gz
 
 $echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 

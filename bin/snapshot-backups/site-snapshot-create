@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 usage="
 $0: Creates a backup on s3 of the current static site on current environment.
