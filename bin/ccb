@@ -1,5 +1,28 @@
 #!/bin/bash
 
+usage="
+$0: Compares two branches and prints the difference between the two in comments
+labeled by the Jira ticket ID.
+
+Usage:
+   $0 -h
+   $0 branch1 branch2
+
+Options:
+-h:            show help and exit
+branch1:       the first branch
+branch2:       the second branch
+"
+
+PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
 COMMIT_A=${1:-stage}
 COMMIT_B=${2:-prod}
 
