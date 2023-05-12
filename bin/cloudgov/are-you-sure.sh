@@ -1,26 +1,4 @@
-#!/bin/bash
-
-usage="
-$0: Are you sure?!
-
-Usage:
-   $0 -h
-
-Options:
--h:            show help and exit
-
-NOTES:
-Interactive.  Y/N input.
-"
-
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
-if [ -f "$PREAMBLE" ]; then
-  # shellcheck source=bin/includes/preamble.sh
-  . "$PREAMBLE"
-else
-   echo Cannot find preamble at "$PREAMBLE"
-   exit 1
-fi
+#!/bin/sh
 
 read -p "Are you sure? " -n 1 -r
 echo
