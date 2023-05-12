@@ -1,27 +1,6 @@
 #!/bin/bash
 set -e
 
-usage="
-$0: Runs tome on CMS container.
-
-Usage:
-   $0 -h
-   $0 WWW_HOST
-
-Options:
--h:            show help and exit
-WWW_HOST:      local hostname (default: beta-usagov.docker.local)
-"
-
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
-if [ -f "$PREAMBLE" ]; then
-  # shellcheck source=bin/includes/preamble.sh
-  . "$PREAMBLE"
-else
-   echo Cannot find preamble at "$PREAMBLE"
-   exit 1
-fi
-
 WWW_HOST=${1:-beta-usagov.docker.local}
 
 docker compose run \

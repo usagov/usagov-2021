@@ -1,24 +1,16 @@
 #!/bin/sh
 
-usage="
-$0: Spins up snyk container and does a dependency scan on the selected container.
-
-Usage:
-   $0 -h
-   $0 APPNAME
-
-Options:
--h:            show help and exit
-APPNAME:       Name of the app to be tested (default: cms)
-"
-
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
-if [ -f "$PREAMBLE" ]; then
-  # shellcheck source=bin/includes/preamble.sh
-  . "$PREAMBLE"
-else
-   echo Cannot find preamble at "$PREAMBLE"
-   exit 1
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
 fi
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
