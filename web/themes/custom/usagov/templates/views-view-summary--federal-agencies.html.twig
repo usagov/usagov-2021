@@ -42,7 +42,7 @@
           {% if row.link == "A" or row.link == "a" %}
             <a href={{ agencyindex }}>{{ row.link }}</a>
           {% else %}
-            <a href="{{ agencyindex }}?letter={{ row.link|lower }}">{{ row.link }}</a>
+            <a href="{{ agencyindex }}?letter={{ row.link|lower }}#{{ row.link }}">{{ row.link }}</a>
           {% endif %}
 	      {% endif %}
         {% if options.count %}
