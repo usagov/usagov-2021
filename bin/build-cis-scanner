@@ -1,24 +1,5 @@
 #!/bin/sh
 
-usage="
-$0: Builds the docker-bench-security container, used by bin/scan-container-cis.
-
-Usage:
-   $0 -h
-
-Options:
--h:            show help and exit
-"
-
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
-if [ -f "$PREAMBLE" ]; then
-  # shellcheck source=bin/includes/preamble.sh
-  . "$PREAMBLE"
-else
-   echo Cannot find preamble at "$PREAMBLE"
-   exit 1
-fi
-
 cd /tmp/
 git clone https://github.com/docker/docker-bench-security.git
 cd /tmp/docker-bench-security
