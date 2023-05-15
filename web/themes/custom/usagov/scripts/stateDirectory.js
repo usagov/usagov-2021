@@ -26,20 +26,26 @@ jQuery(document).ready(function ($) {
 
   $("#statelist").remove();
   $("#state-go").after(b);
+  var url=$('#stateselect').val();
+  var statename='Alabama';
 
   $('input[name="Alabama"]').val('Alabama');
   b.click(function() {
     let stateData = new FormData(stateForm);
     let stateValue = stateData.get('state-info');
     if (stateValue != null) {
-      let stateName = stateValue.split("/")[2];
+      window.location.href = url;
       dataLayer.push({
         'event': '50_state_submit',
-        '50_state_url': stateValue,
-        '50_state_name': stateName
+        '50_state_url': url,
+        '50_state_name': statename
       });
-      window.location.assign(window.location.origin + stateValue);
     }
+  });
+
+  $('#stateselect').on('change', function() {
+    url=$(this).val();
+    statename=$('#stateselect option:selected').text();
   });
 });
 
