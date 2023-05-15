@@ -27,8 +27,6 @@ jQuery(document).ready(function ($) {
   $("#statelist").remove();
   $("#state-go").after(b);
 
-  var url=$('#stateselect').val();
-  var statename='Alabama';
   $('input[name="Alabama"]').val('Alabama');
   b.click(function() {
     let stateData = new FormData(stateForm);
