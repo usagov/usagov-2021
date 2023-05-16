@@ -190,7 +190,7 @@ if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
 fi
 
 # Sometimes Tome generates an English mobile menu on the Spanish home page
-ES_HOME_CONTAINS_ENGLISH_MENU=`grep -c 'All topics and services' $ES_HOME_HTML_FILE`
+ES_HOME_CONTAINS_ENGLISH_MENU=`grep -c 'About us' $ES_HOME_HTML_FILE`
 if [ "$ES_HOME_CONTAINS_ENGLISH_MENU" != "0"  ]; then
   echo "WARNING: *** ES index.html appears to contain English nav ***" | tee -a $TOMELOG
   ES_HOME_HTML_BAD=1
