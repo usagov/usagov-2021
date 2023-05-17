@@ -420,6 +420,13 @@ add padding at the top of flag cards
   padding: 0.7rem;
 }
 
+// adds vertical spacing for top-nav on desktop
+@media (min-width: 64em) {
+.usa-nav__primary>.usa-nav__primary-item>.usa-nav__link {
+    line-height: 1.1;
+  }
+}
+
 // adds visible focus around entire search box
 [type="search"] {
   z-index: 1;
@@ -926,12 +933,12 @@ div #sm-share a {
 // error styles for elected officials
 
 .usa-error {
-  color: var($red);
+  color: var($red-error);
   font-weight: 600;
 }
 
 .usa-user-error {
-  border-color: var($red);
+  border-color: var($red-error);
   border-width: 3px;
   border-style: solid;
 }
@@ -941,7 +948,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .usa-main-border-error {
-  border-left: 3px solid var($red);
+  border-left: 3px solid var($red-error);
 
   .usa-border-error {
     border-left: none;
@@ -1072,7 +1079,7 @@ button#next.usa-button,
 }
 
 .wizard_error {
-  border-left: 3px solid var($red);
+  border-left: 3px solid var($red-error);
   padding-left: 5px;
 }
 
