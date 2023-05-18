@@ -3,6 +3,9 @@
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
 use Drupal\Core\Site\Settings;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\CollectPathsEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
@@ -14,6 +17,33 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  */
 class TomeEventSubscriber implements EventSubscriberInterface {
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
+   * Constructs the EntityPathSubscriber object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   The language manager.
+   */
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, LanguageManagerInterface $language_manager) {
+    $this->entityTypeManager = $entity_type_manager;
+    $this->languageManager = $language_manager;
+  }
 
   /**
    * Reacts to a collect paths event. Excludes entire directories by
@@ -41,16 +71,25 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         $entity_type = $path_parts[1];
         $langcode = $path_parts[2];
         $entity_id = $path_parts[3];
-        if (($entity_id != 1) && // <front> is special; it doesn't get its "real" path from path_alias.
-            ($newpath = \Drupal::service('path_alias.manager')->getAliasByPath('/' . $entity_type . '/' . $entity_id, $langcode))) {
+
+        // if (($entity_id != 1) && // <front> is special; it doesn't get its "real" path from path_alias.
+        //     ($newpath = \Drupal::service('path_alias.manager')->getAliasByPath('/' . $entity_type . '/' . $entity_id, $langcode))) {
+        $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
+        if (!$entity | (!$entity instanceof ContentEntityInterface) || !$entity->hasTranslation($langcode)) {
+          continue;
+        }
+        $entity = $entity->getTranslation($langcode);
+        $url = $entity->toUrl('canonical');
+        if (!$entity->access('view') || ($entity->isDefaultTranslation() && !$url->access())) {
+          continue;
+        }
+        if ($newpath = parse_url($url->toString(), PHP_URL_PATH)) {
           unset($paths[$path]);
           $path = $newpath;
           $paths[$path] = $metadata;
         }
-        else {
-          $path = $path;
-        }
       }
+
       foreach ($excluded_directories as $excluded_directory_path) {
         $excluded_directory = $excluded_directory_path . '/';
         if (($path == $excluded_directory_path) ||
