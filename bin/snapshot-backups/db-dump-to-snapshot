@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
+fi
+
+TAG=$1
+SQLGZ=${TAG}.sql.gz
+SQLZIP=${TAG}.sql.zip
+
+$echo bin/snapshot-backups/db-dump-download $dryrun $TAG
+
+if [ -f $SQLZ ]; then
+   if [[ -n $(zcat ${SQLGZ} | head | grep 'SET NAMES utf8mb4') ]]; then
+      if [[ -n $(zcat ${SQLGZ} | tail | grep 'Dump completed on' ) ]]; then
+         $echo bin/snapshot-backups/db-dump-push-to-snapshot $dryrun $TAG
+         echo snapshotted $TAG
+         echo "cleaning local files:"
+         ls -l ${TAG}*
+         rm -f ${TAG}*
+         echo "checking for leftovers (none should be found):"
+         ls -l ${TAG}*; true
+      else
+         echo "SQL dump does not appear to be valid (no 'Dump completed on' string found on tail of file)"
+      fi
+   else
+      echo "SQL dump does not appear to be valid (no 'SET NAMES utf8mb4' string found on head of file)"
+   fi
+fi
