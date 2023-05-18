@@ -2,17 +2,20 @@
 
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
+use Drupal\tome_static\Event\ModifyHtmlEvent;
+use Drupal\tome_static\Event\CollectPathsEvent;
+use Drupal\tome_static\Event\TomeStaticEvents;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
-use Drupal\tome_static\Event\ModifyHtmlEvent;
-use Drupal\tome_static\Event\CollectPathsEvent;
-use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Converts links to "/es" to "/es/".
+ * This event subscriber modifies static site generation:
+ *  - During path collection, removes excluded directories -- allowing us to
+ *    specify the omission of entire directories like jsonapi, node, etc.
+ *  - During HTML modification, adds a trailing slash to links to the "/es" path.
  *
  * @internal
  */
@@ -61,10 +64,9 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $paths = $event->getPaths(TRUE);
     foreach ($paths as $path => $metadata) {
       /**
-       * We are going to spend the time here to get the "real" paths for any placeholder-ed paths
-       * (that are node or taxonomy entity-types), so we can identify and exclude what we want to skip.
-       * The gamble here is that we'll save more time by excluding them than by processing them
-       * and then deleting the results after the fact.
+       * We are going to spend the time here to get the "real" paths for any
+       * placeholder-ed paths, so we can identify and exclude what we want to skip.
+       * Tome would normally do this later in its process.
        */
       $path_parts = explode(':', $path);
       if ($path_parts[0] == '_entity') {
@@ -72,8 +74,6 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         $langcode = $path_parts[2];
         $entity_id = $path_parts[3];
 
-        // if (($entity_id != 1) && // <front> is special; it doesn't get its "real" path from path_alias.
-        //     ($newpath = \Drupal::service('path_alias.manager')->getAliasByPath('/' . $entity_type . '/' . $entity_id, $langcode))) {
         $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
         if (!$entity | (!$entity instanceof ContentEntityInterface) || !$entity->hasTranslation($langcode)) {
           continue;
@@ -85,7 +85,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         }
         if ($newpath = parse_url($url->toString(), PHP_URL_PATH)) {
           unset($paths[$path]);
-          $path = $newpath;
+          $metadata['original_path'] = $path;
+          $path = $newpath; // Next block tests $path against excluded directories.
           $paths[$path] = $metadata;
         }
       }
