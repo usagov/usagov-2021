@@ -444,6 +444,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-872-tome-redirect-redux
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -453,6 +454,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-872-tome-redirect-redux
       - approve-dev-deployment:
           type: approval
           requires:
@@ -461,6 +463,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-872-tome-redirect-redux
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -468,6 +471,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-872-tome-redirect-redux
       - approve-stage-deployment:
           type: approval
           requires:
