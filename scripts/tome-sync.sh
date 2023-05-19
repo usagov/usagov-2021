@@ -5,6 +5,7 @@ TOME_MAX_CHANGE_ALLOWED=0.10
 TOMELOGFILE=$1
 YMDHMS=$2
 FORCE=${3:-0}
+RETRY_SEMAPHORE_FILE=/tmp/tome-log/retry-on-next-run
 
 if [ -z "$YMDHMS" ]; then
   YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
@@ -69,6 +70,9 @@ cp -rfp /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
 
 echo "Removing unwanted files ... "
 rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
+rm -rf $RENDER_DIR/node/ 2>&1 | tee -a $TOMELOG
+rm -rf $RENDER_DIR/es/node/ 2>&1 | tee -a $TOMELOG
+
 
 # duplicate the logic used by the bootstrap script to find the static site hostname
 WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | head -n 1)
@@ -172,9 +176,31 @@ echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
 
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
-ES_HOME_HTML_SIZE=$(stat -c%s "$ES_HOME_HTML_FILE")
+ES_HOME_HTML_BAD=0
+if [ -f $ES_HOME_HTML_FILE ]; then 
+  ES_HOME_HTML_SIZE=$(stat -c%s "$ES_HOME_HTML_FILE")
+else
+  ES_HOME_HTML_SIZE=0
+fi
+
+# Too-small file is probably a redirect page
 if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
-   echo "*** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***"
+  echo "WARNING: *** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***" | tee -a $TOMELOG
+  ES_HOME_HTML_BAD=1
+fi
+
+# Sometimes Tome generates an English mobile menu on the Spanish home page
+ES_HOME_CONTAINS_ENGLISH_MENU=`grep -c 'About us' $ES_HOME_HTML_FILE`
+if [ "$ES_HOME_CONTAINS_ENGLISH_MENU" != "0"  ]; then
+  echo "WARNING: *** ES index.html appears to contain English nav ***" | tee -a $TOMELOG
+  ES_HOME_HTML_BAD=1
+fi
+
+
+if [ "$ES_HOME_HTML_BAD" == "1" ]; then
+  # Delete the known-bad file; it may be re-created correctly on the next run.
+  rm $ES_HOME_HTML_FILE
+  touch $RETRY_SEMAPHORE_FILE
   TOME_PUSH_NEW_CONTENT=0
 fi
 
