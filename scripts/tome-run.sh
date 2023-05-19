@@ -6,6 +6,7 @@ SCRIPT_PID=$$
 
 URI=${1:-https://www.usa.gov}
 FORCE=${2:-0}
+RETRY_SEMAPHORE_FILE=/tmp/tome-log/retry-on-next-run
 
 YMD=$(date +"%Y/%m/%d")
 YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
@@ -66,10 +67,17 @@ if [ -f /container_start_timestamp ]; then
   fi
 fi
 
+export RETRY_SEMAPHORE_EXISTS=0
+if [ -f $RETRY_SEMAPHORE_FILE ]; then
+  export RETRY_SEMAPHORE_EXISTS=1
+  rm $RETRY_SEMAPHORE_FILE
+fi
+
+
 # check nodes and blocks for any content changes in the last 30 minutes
 export CONTENT_UPDATED=$(drush sql:query "SELECT SUM(c) FROM ( (SELECT count(*) as c from node_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
  UNION ( SELECT count(*) as c from block_content_field_data where changed > (UNIX_TIMESTAMP(now())-(1800))) ) as x")
-if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "$CONTAINER_UPDATED" != "0" ]; then
+if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "$CONTAINER_UPDATED" != "0" ] || [ "$RETRY_SEMAPHORE_EXISTS" != "0" ] ; then
 
   echo "Running static site build: content-updated($CONTENT_UPDATED) container-updated($CONTAINER_UPDATED) forced($FORCED) $TOMELOG" | tee -a $TOMELOG
 

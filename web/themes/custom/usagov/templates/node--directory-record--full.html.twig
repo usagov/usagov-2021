@@ -1,52 +1,52 @@
 {% set lang = node.langcode.value %}
 {{ content.field_page_intro }}
 {{ content.body }}
-<div class="usagov-directory-table">
+<div class="usagov-directory-table" id="Federal-Directory-Table">
   {% if content.field_website|render %}
   <div>
-    <h3 class="usa-prose">{{ lang == 'en' ? 'Website' : 'Sitio web' }}</h3>
+    <h2 class="usa-prose">{{ lang == 'en' ? 'Website' : 'Sitio web' }}</h2>
     {{ content.field_website }}
   </div>
   {% endif %}
 
   {% if content.field_contact_link|render %}
   <div>
-    <h3 class="usa-prose">{{ lang == 'en' ? 'Contact' : 'Contacto' }}</h3>
+    <h2 class="usa-prose">{{ lang == 'en' ? 'Contact' : 'Contacto' }}</h2>
     {{ content.field_contact_link }}
   </div>
   {% endif %}
 
   {% if content.field_phone_number|render %}
   <div>
-    <h3 class="usa-prose">{{ lang == 'en' ? 'Phone number' : 'Teléfono' }}</h3>
+    <h2 class="usa-prose">{{ lang == 'en' ? 'Phone number' : 'Teléfono' }}</h2>
     <p>{{content.field_phone_number}}</p>
   </div>
   {% endif %}
 
   {% if content.field_toll_free_number|render %}
   <div>
-    <h3 class="usa-prose">{{ lang == 'en' ? 'Toll-free number' : 'Número de teléfono gratuito' }}</h3>
+    <h2 class="usa-prose">{{ lang == 'en' ? 'Toll-free number' : 'Número de teléfono gratuito' }}</h2>
     <p>{{content.field_toll_free_number}}</p>
   </div>
   {% endif %}
 
   {% if content.field_tty_number|render %}
   <div>
-    <h3 class="usa-prose">{{ lang == 'en' ? 'TTY' : 'TTY (para personas con problemas auditivos)' }}</h3>
+    <h2 class="usa-prose">{{ lang == 'en' ? 'TTY' : 'TTY (para personas con problemas auditivos)' }}</h2>
     <p>{{content.field_tty_number}}</p>
   </div>
   {% endif %}
 
   {% if content.field_email|render %}
   <div>
-    <h3 class="usa-prose">Email</h3>
+    <h2 class="usa-prose">Email</h2>
     <p>{{content.field_email}}</p>
   </div>
   {% endif %}
 
   {% if content.field_offices_near_you|render %}
   <div>
-    <h3 class="usa-prose">{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}</h3>
+    <h2 class="usa-prose">{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}</h2>
     {{content.field_offices_near_you}}
   </div>
   {% endif %}
@@ -54,7 +54,7 @@
   {% if content.group_main_address %}
   {% set address = content.group_main_address %}
   <div>
-    <h3 class="usa-prose">{{ lang == 'en' ? 'Main address' : 'Dirección' }}</h3>
+    <h2 class="usa-prose">{{ lang == 'en' ? 'Main address' : 'Dirección' }}</h2>
     {{ address.field_street_1 }}
     {% if address.field_street_2|render %}
     <br>{{ address.field_street_2 }}
