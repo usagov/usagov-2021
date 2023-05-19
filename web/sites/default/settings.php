@@ -782,11 +782,8 @@ $settings['install_profile'] = 'minimal';
 
 /**
  * Stock tome_static exclusion variable. Does not traverse directories.
- * We include '/es/' here to avoid creating a redirect at /es/index.html
  */
-$settings['tome_static_path_exclude'] = [
-    '/es/',
-];
+$settings['tome_static_path_exclude'] = [];
 
 /**
  * USAGov addition to exclude entire directories. Don't include the trailing slash.
