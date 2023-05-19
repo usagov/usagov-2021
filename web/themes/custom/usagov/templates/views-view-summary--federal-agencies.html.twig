@@ -24,9 +24,21 @@
 
 {% set lang = rows[0]._entity.langcode.value %}
 {% if lang == "en" %}
-  {% set agencyindex = "/agency-index"%}
+  {% set translations = {
+    'agencyindex': '/agency-index',
+    'agencySearchAffiliateID': 'usagov_en_az',
+    'search': 'Search',
+    'agencySearchLabel': 'Federal agency search',
+    'agencySearchPlaceholder': 'Search for a federal agency'
+  } %}
 {% else %}
-  {% set agencyindex = "/es/indice-agencias"%}
+  {% set translations = {
+    'agencyindex': '/es/indice-agencias',
+    'agencySearchAffiliateID': 'usagov_es_az',
+    'search': 'Buscar',
+    'agencySearchLabel': 'Agencia federal buscar',
+    'agencySearchPlaceholder': 'Busque una agencia federal'
+  } %}
 {% endif %}
 
 <div class="usagov-directory-page-container">
@@ -56,19 +68,21 @@
   <div class="usagov-directory-search-container">
     <p>OR</p>
     <section aria-label="Small search component">
-        <form class="fed-directory-search-bar" role="search">
-          <label id="fedGallerySearch" class="usa-sr-only" for="search-field-en-small">Fed gallery search</label>
+        <form class="fed-directory-search-bar" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
+          <label id="fedGallerySearch" class="usa-sr-only" for="search-field-en-small">{{translations.agencySearchLabel}}</label>
+          <input id="affiliate-agency-search" name="affiliate" type="hidden" value="{{translations.agencySearchAffiliateID}}">
           <input
               class="usa-input fed-directory-search-input"
               id="search-field-en-small"
               aria-labelledby="fedGallerySearch"
               type="search"
-              placeholder="Search for a federal agency"
+              name="query"
+              placeholder="{{translations.agencySearchPlaceholder}}"
               onfocus="this.placeholder"
               autocomplete="off"
           />
           <button class="fed-directory-search-btn" type="submit">
-            <img src="/themes/custom/usagov/images/search--dark.svg" alt="Search">
+            <img src="/themes/custom/usagov/images/search--dark.svg" alt="{{translations.search}}">
           </button>
         </form>
     </section>
