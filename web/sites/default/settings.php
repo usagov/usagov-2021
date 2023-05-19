@@ -785,7 +785,7 @@ $settings['install_profile'] = 'minimal';
  * We include '/es/' here to avoid creating a redirect at /es/index.html
  */
 $settings['tome_static_path_exclude'] = [
-    '/rss.xml',
+    '/es/',
 ];
 
 /**
