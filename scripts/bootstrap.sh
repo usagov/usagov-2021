@@ -120,14 +120,14 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
   fi
   if [ -z "${https_proxy:-}" ]; then # I'M CHEATING REMOVE THE SEMICOLONS AFTER TESTING
     sed -i \
-      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|;newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
-      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|;newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
       /etc/php8/conf.d/newrelic.ini
   else
     sed -i \
-      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|;newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
-      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|;newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
-      -e "s|;\?newrelic.daemon.proxy =.*|;newrelic.daemon.proxy = \"$https_proxy\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
+      -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"$https_proxy\"|" \
       /etc/php8/conf.d/newrelic.ini
   fi
 fi
