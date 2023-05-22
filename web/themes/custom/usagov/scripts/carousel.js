@@ -26,14 +26,7 @@ jQuery(document).ready(function ($) {
   hideNonVisibleSlides();
 
   var currentSlideIndex = 0;
-  let indexInSS = sessionStorage.getItem("currentSlideIndexSS");
-  if (indexInSS != null) {
-    currentSlideIndex = indexInSS;
-    goToSlide(currentSlideIndex);
-  }
- else {
     previousButton.style.visibility = "hidden";
-  }
 
   if (slideDots.length > 0) {
     slideDots[currentSlideIndex].setAttribute("aria-current", true);
@@ -77,8 +70,6 @@ jQuery(document).ready(function ($) {
 
   // Go to a specific slide
   function goToSlide(nextLeftMostSlideIndex) {
-    // console.log(`nextLeftMostSlideIndex: ${nextLeftMostSlideIndex}`);
-    sessionStorage.setItem("currentSlideIndexSS", nextLeftMostSlideIndex);
 
     // Smoothly scroll to the requested slide
     if (window.innerWidth >= 1024) {
