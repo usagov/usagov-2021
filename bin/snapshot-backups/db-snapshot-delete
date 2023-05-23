@@ -1,0 +1,56 @@
+#!/bin/sh
+
+# we might be running in circleci (really?)
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+DEPLOY_TAG=${1}
+shift
+
+if [ -z "$DEPLOY_TAG" ]; then
+  echo "Usage: $0 [--dryrun] <tag> [--download]"
+  echo "This will attempt to pull the database backup for the provided tag in the local directory. Use db-list to see available db backups."
+  echo "  --dryrun simply prints the commands that would have run"
+  echo "  --download downloads the snapshot (GNU zip file), prior to deletion"
+  exit 1
+fi
+
+$echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+if [ x$1 == x"--download" ]; then
+
+  GZIP_FILE=${DEPLOY_TAG}.sql.gz
+
+  echo "Attempting to download $GZIP_FILE from s3. This could take awhile."
+  echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
+  $echo aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
+  success=$?
+
+  if [ "$success" != "0" ]; then
+    echo "Unable to download snapshot file $GZIP_FILE"
+    exit 1
+  fi
+
+  echo "Backup Step Complete."
+fi
+
+echo "Deleting s3 db snapshot for '$DEPLOY_TAG'. This could take a while."
+echo aws s3 rm --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE
+$echo aws s3 rm --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE
+
+exit 0
