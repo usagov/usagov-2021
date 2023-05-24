@@ -202,3 +202,29 @@ function createSpaceAssertedBackupTag() {
 
   echo $BACKUP_TAG
 }
+
+function isSpaceSSHEnabled() {
+   sshSpace=$1
+   cf space-ssh-allowed $sshSpace | grep enabled &> /dev/null
+   return $?
+}
+
+function assertSpaceSSHEnabled() {
+  sshSpace=$1
+  if ! isSpaceSSHEnabled $sshSpace; then
+    echo "ERROR: SSH is not enabled for space: $sshSpace."
+    exit 1
+  fi
+}
+
+function enableSpaceSSH() {
+   sshSpace=$1
+   cf allow-space-ssh $sshSpace
+   return $?
+}
+
+function disableSpaceSSH() {
+   sshSpace=$1
+   cf disallow-space-ssh $sshSpace
+   return $?
+}
