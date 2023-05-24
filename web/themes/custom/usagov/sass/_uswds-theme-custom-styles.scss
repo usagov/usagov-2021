@@ -616,8 +616,9 @@ a,
 }
 
 .usa-button {
-  @media (max-width: 30em) {
-    width: 100%;
+  width: 100%;
+  @media (min-width: 30em) {
+    width: auto;
   }
 }
 
@@ -933,12 +934,12 @@ div #sm-share a {
 // error styles for elected officials
 
 .usa-error {
-  color: var($red);
+  color: var($red-error);
   font-weight: 600;
 }
 
 .usa-user-error {
-  border-color: var($red);
+  border-color: var($red-error);
   border-width: 3px;
   border-style: solid;
 }
@@ -948,7 +949,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .usa-main-border-error {
-  border-left: 3px solid var($red);
+  border-left: 3px solid var($red-error);
 
   .usa-border-error {
     border-left: none;
@@ -1079,7 +1080,7 @@ button#next.usa-button,
 }
 
 .wizard_error {
-  border-left: 3px solid var($red);
+  border-left: 3px solid var($red-error);
   padding-left: 5px;
 }
 
@@ -1195,7 +1196,7 @@ div[class^="QSIUserDefinedHTML"] {
 }
 
 .last,
-#last_updated,
+#last-updated,
 #share-page {
   font-size: var($smaller-text-font-size);
 }
