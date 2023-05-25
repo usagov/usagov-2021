@@ -31,9 +31,9 @@
         "drupal/console": "^1.9",
         "drupal/content_lock": "^2.2",
         "drupal/content_moderation_notifications": "^3.4",
-        "drupal/core-composer-scaffold": "9.4.14",
-        "drupal/core-project-message": "9.4.14",
-        "drupal/core-recommended": "9.4.14",
+        "drupal/core-composer-scaffold": "9.5.9",
+        "drupal/core-project-message": "9.5.9",
+        "drupal/core-recommended": "9.5.9",
         "drupal/ctools": "^3.7",
         "drupal/devel": "^4.1",
         "drupal/devel_entity_updates": "^3.0",
@@ -149,7 +149,8 @@
                 "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
             },
             "drupal/tome": {
-                "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch"
+                "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
+                "De-duplicate invoke paths in StaticCommand's exportPaths": "./patches/drupal/deduplicateTomeInvokePaths.patch"
                 },
             "drupal/paragraphs_entity_embed": {
                 "Paragraph Embed Preview Update": "https://www.drupal.org/files/issues/2022-05-27/paragraphs_entity_embed_csrf_token.patch"

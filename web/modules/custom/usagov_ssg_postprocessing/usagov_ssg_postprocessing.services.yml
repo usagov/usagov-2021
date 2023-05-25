@@ -1,6 +1,7 @@
 services:
   usagov_ssg_postprocessing_tome_misc_events_subscriber:
     class: '\Drupal\usagov_ssg_postprocessing\EventSubscriber\TomeEventSubscriber'
+    arguments: ['@entity_type.manager', '@language_manager']
     tags:
       - { name: 'event_subscriber' }
   usagov_ssg_postprocessing_pagerpath_events_subscriber:

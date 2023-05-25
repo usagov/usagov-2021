@@ -5,11 +5,10 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  margin-top: 1.8em;
 }
 
 .usagov-directory-container {
-  padding: 2.1rem 2.8rem 2.1rem 2.8rem;
+  padding: 1rem 2.8rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -81,7 +80,7 @@ hr.bl-divider {
 }
 
 .usagov-directory-accordion-container ul {
-  padding-left: 16px;
+  padding-left: 25px;
 }
 
 // Search Bar
@@ -206,8 +205,9 @@ hr.bl-divider {
     color: #000;
     background-color: white;
   }
+
   a.nav-letter:focus {
-    outline: .25rem solid #c05600
+    outline: 0.25rem solid #c05600;
   }
 }
 
@@ -220,6 +220,7 @@ hr.bl-divider {
   border-collapse: collapse;
   width: 100%;
   padding-top: 25px;
+  line-height: 2.5;
 
   div {
     border: solid 1.5px #d3d2d2;

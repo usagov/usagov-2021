@@ -132,10 +132,20 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
   fi
 fi
 
-#echo "TEMPORARY WHILE WE FIX NEW RELIC THROUGH PROXY : Turning off New Relic ... "
-#sed -i \
-#    -e "s|;\?newrelic.enabled =.*|newrelic.enabled = false|" \
-#    /etc/php8/conf.d/newrelic.ini
+if [[ -n $(find . -maxdepth 3 -name "env.local" -print -quit) ]]; then
+  # Find the php.ini file
+  PHP_INI=$(php -i | grep 'Loaded Configuration File' | awk '{print $NF}')
+
+  # Check if opcache is already disabled
+  if grep -q 'opcache\.enable\s*=\s*0' "$PHP_INI"; then
+    echo "OPCache is already disabled."
+  else
+    echo "Disabling OPCache..."
+    sed -i 's/^opcache\.enable\s*=.*/opcache.enable=0/' "$PHP_INI"
+    sed -i 's/^opcache\.enable_cli\s*=.*/opcache.enable_cli=0/' "$PHP_INI"
+    echo "OPCache disabled."
+  fi
+fi
 
 # php needs a restart so new relic ini changes take effect
 if [ -d /var/run/s6/services/php ]; then
