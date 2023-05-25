@@ -1,0 +1,13 @@
+Selector,Why,Notes,Notes2
+#top-phone-mobile-menu,Hiding Contact Center Elements to control volumes,,Used in GTM
+#mobile-menu-top-phone,Hiding Contact Center Elements to control volumes,,Used in GTM
+#top-phone,Hiding Contact Center Elements to control volumes,,Used in GTM
+#question-box,Hiding Contact Center Elements to control volumes,Also restyled when just Chat is hidden from the Ask a Q box,Used in GTM
+#footer-phone,Hiding Contact Center Elements to control volumes,,Used in GTM
+#question-box > div > div > div:nth-child(1),Hiding Contact Center Elements to control volumes,"This is the phone part, and I restyle it a little bit when Chat is hidden",Used in GTM
+#question-box > div > div > div:nth-child(2),Hiding Contact Center Elements to control volumes,"This is the chat part, and it's hidden from the Ask a Q box sometimes",Used in GTM
+#last_updated,Hiding Last Updated <p>.,"For example on CEO results pages, so we're not confusing what's been updated for the reader",Used in Head HTML Field in cms
+.body-copy,In support of hiding Last Updated. Cleans up the bottom of the content afterwards.,"For example on CEO results pages, so we're not confusing what's been updated for the reader",Used in Head HTML Field in cms
+div#sm-share,Hiding Share This Page,For example on CEO results pages so people don't share their address.,Used in Head HTML Field in cms
+"button.usa-accordion__button[aria-controls=""State officials""]",Hiding State Accordion on CEO results in DC,,
+"button.usa-accordion__button[aria-controls=""Funcionarios estatales""]",Hiding State Accordion on CEO results in DC,,
