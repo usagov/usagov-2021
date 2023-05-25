@@ -7,6 +7,33 @@ export SCRIPT_ROOT="$(dirname $SCRIPT_DIR)"
 export REPO_ROOT="$(dirname $SCRIPT_ROOT)"
 export YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
 
+function assertRequires() {
+  for cmd in $@; do
+    if ! command -v $cmd &> /dev/null; then
+      echo "ERROR: $cmd is required"
+      exit 1
+    fi
+  done
+}
+
+### everything after this assumes we have the cf CLI installed
+assertRequires cf
+
+function activeCFLogin() {
+  cf target &> /dev/null
+  return $?
+}
+
+function assertActiveCFLogin() {
+  if ! activeCFLogin; then
+     echo "ERROR: No active CF login"
+     exit 1
+  fi
+}
+
+### Do this before we execute 'cf target', so that we don't get double error messages
+assertActiveCFLogin
+
 startbranch=$( command -v git &> /dev/null && git rev-parse --abbrev-ref HEAD || echo "" )
 # Grab the starting space and org where the command was run
 startorg=$(     cf target | grep org:   | awk '{ print $2 }')
@@ -33,15 +60,6 @@ mkdir -p $LOGS_DIR
 if [ -f $REPO_ROOT/env.local ]; then
   . $REPO_ROOT/env.local
 fi
-
-function assertRequires() {
-  for cmd in $@; do
-    if ! command -v $cmd &> /dev/null; then
-      echo "ERROR: $cmd is required"
-      exit 1
-    fi
-  done
-}
 
 function envEmpty() { # list of env vars
   if [ -z "$1" ]; then # if zero length varname
@@ -70,11 +88,6 @@ function envVarsSet() { # list of env vars
     fi
   done
   return 0; # true
-}
-
-function activeCFLogin() {
-  cf target &> /dev/null
-  return $?
 }
 
 function getApproval() { # prompt message
@@ -181,10 +194,9 @@ function createSpaceAssertedBackupTag() {
    desiredBranch=$2
 
    assertSpace $desiredSpace
-   ####assertBranch $desiredBranch ### <--- this is a huge PITA.
 
   CONTAINER_TAG=$(spaceCCIContainerTag $desiredSpace)
-  BACKUP_TAG=${BRANCH}.${CONTAINER_TAG}
+  BACKUP_TAG=${desiredBranch}.${CONTAINER_TAG}
 
   TAG_SUFFIX=$3
   if [ x$TAG_SUFFIX != x ]; then
