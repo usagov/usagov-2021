@@ -93,6 +93,24 @@ commands:
             echo "Install Gulp on node "$(node --version)
             sudo npm install --global gulp-cli
 
+  snapshot-backup:
+    parameters:
+      envname:
+        default: "dev"
+        type: string
+    steps:
+      - checkout
+      - install-cloud-foundry
+      - run:
+          name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+            ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+
 jobs:
   scan-code:
     machine:
@@ -312,6 +330,33 @@ jobs:
       - deploy-cloudgov:
           envname: prod
 
+  snapshot-backup-dev:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - snapshot-backup:
+          envname: dev
+
+  snapshot-backup-stage:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - snapshot-backup:
+          envname: stage
+
+  snapshot-backup-prod:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - snapshot-backup:
+          envname: prod
+
 workflows:
   version: 2
 
@@ -326,6 +371,68 @@ workflows:
   commit:
     jobs:
       - lint
+
+  snapshot-backup:
+    jobs:
+      - approve-snapshot-backup-dev:
+          type: approval
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-DEV-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+      - snapshot-backup-dev:
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-DEV-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+          requires:
+            - approve-snapshot-backup-dev
+
+      - approve-snapshot-backup-stage:
+          type: approval
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-STAGE-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+      - snapshot-backup-stage:
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-STAGE-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+          requires:
+            - approve-snapshot-backup-stage
+
+      - approve-snapshot-backup-prod:
+          type: approval
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-PROD-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+      - snapshot-backup-prod:
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-PROD-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+          requires:
+            - approve-snapshot-backup-prod
 
   build-and-deploy:
     jobs:

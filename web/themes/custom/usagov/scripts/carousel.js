@@ -26,10 +26,16 @@ jQuery(document).ready(function ($) {
   hideNonVisibleSlides();
 
   var currentSlideIndex = 0;
-  let indexInSS = sessionStorage.getItem("currentSlideIndexSS");
+  let indexInSS;
+  if ($("html").attr("lang") === "es") {
+    indexInSS = sessionStorage.getItem("storedCarouselIndexSpanish");
+  }
+  else {
+    indexInSS = sessionStorage.getItem("storedCarouselIndexEnglish");
+  }
   if (indexInSS != null) {
     currentSlideIndex = indexInSS;
-    goToSlide(currentSlideIndex);
+    goToSlide(currentSlideIndex, {"setFocus": false});
   }
  else {
     previousButton.style.visibility = "hidden";
@@ -49,7 +55,7 @@ jQuery(document).ready(function ($) {
       var title = carouselHeaders[i].textContent.trim();
       var titleWoQuotes = title.replace(/['"]+/g, '');
       var label = `Card ${pageNum} of ${numSlides}: ${titleWoQuotes}`;
-      li.innerHTML = '<div class="carousel__navigation_button" aria-label=" '+ label + '"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" > <circle cx="50%" cy="48%" r="25" /> </svg> </div>';
+      li.innerHTML = '<div class="carousel__navigation_button"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"  aria-label="'+ label + '"> <circle cx="50%" cy="48%" r="25" /> </svg> </div>';
       dots.appendChild(li);
     }
   }
@@ -77,8 +83,12 @@ jQuery(document).ready(function ($) {
 
   // Go to a specific slide
   function goToSlide(nextLeftMostSlideIndex) {
-    // console.log(`nextLeftMostSlideIndex: ${nextLeftMostSlideIndex}`);
-    sessionStorage.setItem("currentSlideIndexSS", nextLeftMostSlideIndex);
+    if ($("html").attr("lang") === "es") {
+      sessionStorage.setItem("storedCarouselIndexSpanish", nextLeftMostSlideIndex);
+    }
+    else {
+      sessionStorage.setItem("storedCarouselIndexEnglish", nextLeftMostSlideIndex);
+    }
 
     // Smoothly scroll to the requested slide
     if (window.innerWidth >= 1024) {
@@ -143,7 +153,9 @@ jQuery(document).ready(function ($) {
     }
 
     // set focus on current slide
-    slidesForFocus[nextLeftMostSlideIndex].focus();
+    if (arguments[1] && arguments[1].setFocus !== false) {
+      slidesForFocus[nextLeftMostSlideIndex].focus();
+    }
   }
 
   // Fully hide non-visible slides by adding aria-hidden="true" and tabindex="-1" when they go out of view
