@@ -11,3 +11,5 @@ github.com
 *.apps.internal
 *.cloudfoundry.org
 cloudfoundry.org
+*.googleapis.com
+googleapis.com
