@@ -4,4 +4,9 @@ COPY .docker/src-reporter .
 RUN chmod +x /createreport.sh
 RUN apk add jq
 RUN apk add bash
+RUN npm install -g analytics-reporter
+WORKDIR /analytics-reporter
+RUN npm install minimist
+RUN npm install
+WORKDIR /
 CMD ["./createreport.sh"]

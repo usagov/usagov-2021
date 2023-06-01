@@ -2,8 +2,12 @@
 echo starting container to create reports
 cd analytics-reporter
 
-npm install -g analytics-reporter
-npm install minimist
+export http_proxy=$PROXYROUTE
+export https_proxy=$PROXYROUTE
+export HTTP_PROXY=$PROXYROUTE
+export HTTPS_PROXY=$PROXYROUTE
+
+npm config set https-proxy $PROXYROUTE
 
 AWS_REGION=$(jq -r '.["user-provided"]| .[].credentials | .["AWS_REGION"]' <<< "$VCAP_SERVICES")
 
@@ -24,7 +28,7 @@ ANALYTICS_REPORT_EMAIL=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTI
 
 ANALYTICS_KEY=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY"]' <<< "$VCAP_SERVICES")
 
-export ANALYTICS_KEY=$ANALYTICS_KEY
+export ANALYTICS_KEY=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY"]' <<< "$VCAP_SERVICES")
 export AWS_REGION=$AWS_REGION
 export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
