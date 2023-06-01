@@ -14,16 +14,22 @@
 # ref: https://discuss.circleci.com/t/sign-docker-images-with-docker-content-trust/40319
 
 CONTAINERTAG=${1}
+DCT_KEY=${DCT_KEY}
+DCT_HASH=${DCT_HASH}
+DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
+DOCKERHUB_ACCESS_TOKEN=${DOCKERHUB_ACCESS_TOKEN}
+HOME=${HOME}
+
 
 if [ -z "$DCT_KEY" ]
 then
-      echo "Skipping DCT signing; $DCT_KEY not set"
+      echo "Skipping DCT signing; DCT_KEY not set"
       exit 1;
 fi;
 
 if [ -z "$DCT_HASH" ]
 then
-      echo "Skipping DCT signing; $DCT_HASH not set"
+      echo "Skipping DCT signing; DCT_HASH not set"
       exit 1;
 fi;
 
