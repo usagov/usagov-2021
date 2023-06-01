@@ -17,6 +17,20 @@
 #
 # ref: https://discuss.circleci.com/t/sign-docker-images-with-docker-content-trust/40319
 
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+
 CONTAINERTAG=${1}
 DCT_KEY=${DCT_KEY}
 DCT_HASH=${DCT_HASH}
