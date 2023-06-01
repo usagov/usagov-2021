@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -o pipefail
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -19,18 +19,53 @@ DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 APPNAME="AnalyticsReporter"
 
-# SPACE=$( cf target | grep space: | awk '{ print $2 }')
+# Content checks
+if ! command -v jq >/dev/null; then
+  printf "\nMust have JQ installed\n"
+  exit 1
+fi
 
-# The Image digest for this tag should be looked up from cloud.gov storage
-# Any tag with a stored Image digest should be referenced by hash instead of tag
+if [ -z "$ANALYTICS_KEY" ]; then
+  echo Must set ANALYTICS_KEY in env.local
+  exit 1
+fi
 
-# Need to create 'external-domain' service for custom routes: *.usa.gov
-# cf delete-service dev-usagov-domain
-# cf create-service external-domain domain dev-usagov-domain -c '{"domains": "cms-dev.usa.gov,beta-dev.usa.gov"}'
-# cf create-service external-domain domain-with-cdn stage-usagov-domain -c '{"domains": "cms-stage.usa.gov,beta-stage.usa.gov"}'
-# cf create-service external-domain domain-with-cdn prod-www-usagov-domain -c '{"domains": "beta.usa.gov"}'
-# cf create-service external-domain domain          prod-cms-usagov-domain -c '{"domains": "cms.usa.gov"}'
-# cf service prod-cms-usagov-domain
+if [ -z "$ANALYTICS_REPORT_EMAIL" ]; then
+  echo Must set ANALYTICS_REPORT_EMAIL in env.local
+  exit 1
+fi
+
+if [ -z "$ANALYTICS_REPORT_IDS_BOTH" ]; then
+  echo Must set ANALYTICS_REPORT_IDS_BOTH in env.local
+  exit 1
+fi
+
+if [ -z "$ANALYTICS_REPORT_IDS_EN" ]; then
+  echo Must set ANALYTICS_REPORT_IDS_EN in env.local
+  exit 1
+fi
+
+if [ -z "$ANALYTICS_REPORT_IDS_ES" ]; then
+  echo Must set ANALYTICS_REPORT_IDS_ES in env.local
+  exit 1
+fi
+
+if [ -z "$AWS_BUCKET_PATH_BOTH" ]; then
+  echo Must set AWS_BUCKET_PATH_BOTH in env.local
+  exit 1
+fi
+
+
+if [ -z "$AWS_BUCKET_PATH_EN" ]; then
+  echo Must set AWS_BUCKET_PATH_EN in env.local
+  exit 1
+fi
+
+
+if [ -z "$AWS_BUCKET_PATH_ES" ]; then
+  echo Must set AWS_BUCKET_PATH_ES in env.local
+  exit 1
+fi
 
 # this function is a convenient symantic wrapper around a one-liner
 service_exists()
@@ -38,42 +73,81 @@ service_exists()
   cf service "$1" >/dev/null 2>&1
 }
 
-if ! command -v jq >/dev/null; then
-  printf "\nMust have JQ installed\n"
-  exit 1
-fi
-
-echo create services
+# create services
 if service_exists "${APPNAME}Services" ; then
   echo ${APPNAME}Services already created
 else
+  echo Creating ${APPNAME}Services user provided service
   cf cups ${APPNAME}Services
 fi
 cf create-service s3 basic-public-sandbox s3for${APPNAME}
 
-echo launch the app
+# remove proxy
+# echo Removing proxy variables just in case
+# cf unset-env ${APPNAME} http_proxy
+# cf unset-env ${APPNAME} https_proxy
+# cf unset-env ${APPNAME} HTTP_PROXY
+# cf unset-env ${APPNAME} HTTPS_PROXY
+
+# launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter"
 cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter
 
-echo bind services
+# bind services (ups should be bound already, but just in case)
+echo Binding s3 and user provided service
 cf bind-service ${APPNAME} s3for${APPNAME}
 cf bind-service ${APPNAME} ${APPNAME}Services
 
-echo collect info about s3 service
+# collect info about s3 service
+echo Collecting some info about s3
 VCAP_SERVICES=$(cf env "$APPNAME" | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
 BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.bucket")
 ACCESS_KEY_ID=$(     echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.access_key_id" | uniq )
 REGION=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
 SECRET_ACCESS_KEY=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.secret_access_key" | uniq )
 
-echo update user service
-yes '' | cf uups ${APPNAME}Services -p " {\"ANALYTICS_KEY\": \"$ANALYTICS_KEY\", \"ANALYTICS_REPORT_EMAIL\": \"$ANALYTICS_REPORT_EMAIL\", \"ANALYTICS_REPORT_IDS_BOTH\": \"$ANALYTICS_REPORT_IDS_BOTH\", \"ANALYTICS_REPORT_IDS_EN\": \"$ANALYTICS_REPORT_IDS_EN\", \"ANALYTICS_REPORT_IDS_ES\": \"$ANALYTICS_REPORT_IDS_ES\", \"AWS_ACCESS_KEY_ID\": \"$ACCESS_KEY_ID\", \"AWS_BUCKET\": \"$BUCKET\", \"AWS_BUCKET_PATH_BOTH\": \"$AWS_BUCKET_PATH_BOTH\", \"AWS_BUCKET_PATH_EN\": \"$AWS_BUCKET_PATH_EN\", \"AWS_BUCKET_PATH_ES\": \"$AWS_BUCKET_PATH_ES\", \"AWS_REGION\": \"$REGION\", \"AWS_SECRET_ACCESS_KEY\": \"$SECRET_ACCESS_KEY\"}"
+# Just make sure that we got all the s3 data we need
+if [ -z "$BUCKET" ]; then
+  echo Could not find BUCKET information.  Is the s3 service created and bound?
+  exit 1
+fi
 
-echo remove proxy
-cf set-env ${APPNAME} http_proxy ""
-cf set-env ${APPNAME} https_proxy ""
-cf set-env ${APPNAME} HTTPS_PROXY ""
-cf set-env ${APPNAME} HTTP_PROXY ""
+if [ -z "$REGION" ]; then
+  echo Could not find REGION information.  Is the s3 service created and bound?
+  exit 1
+fi
 
-echo restage for variables
-cf restage ${APPNAME}
+if [ -z "$ACCESS_KEY_ID" ]; then
+  echo Could not find ACCESS_KEY_ID information.  Is the s3 service created and bound?
+  exit 1
+fi
+
+if [ -z "$SECRET_ACCESS_KEY" ]; then
+  echo Could not find SECRET_ACCESS_KEY information.  Is the s3 service created and bound?
+  exit 1
+fi
+
+# update user service
+echo Updating ${APPNAME}Services with s3 info
+yes | cf uups ${APPNAME}Services -p "{\"ANALYTICS_KEY\": \"$ANALYTICS_KEY\", \"ANALYTICS_REPORT_EMAIL\": \"$ANALYTICS_REPORT_EMAIL\", \"ANALYTICS_REPORT_IDS_BOTH\": \"$ANALYTICS_REPORT_IDS_BOTH\", \"ANALYTICS_REPORT_IDS_EN\": \"$ANALYTICS_REPORT_IDS_EN\", \"ANALYTICS_REPORT_IDS_ES\": \"$ANALYTICS_REPORT_IDS_ES\", \"AWS_ACCESS_KEY_ID\": \"$ACCESS_KEY_ID\", \"AWS_BUCKET\": \"$BUCKET\", \"AWS_BUCKET_PATH_BOTH\": \"$AWS_BUCKET_PATH_BOTH\", \"AWS_BUCKET_PATH_EN\": \"$AWS_BUCKET_PATH_EN\", \"AWS_BUCKET_PATH_ES\": \"$AWS_BUCKET_PATH_ES\", \"AWS_REGION\": \"$REGION\", \"AWS_SECRET_ACCESS_KEY\": \"$SECRET_ACCESS_KEY\"}"
+
+# restart for variables
+echo Restarting ${APPNAME}
+cf restart ${APPNAME}
+
+# echo adding proxy variable
+# PROXYROUTE=$(cf env ${APPNAME} | \
+#   awk '/User-Provided:/{flag=1;next}/^$/{flag=0}flag' | \
+#   grep -e 'PROXYROUTE' | \
+#   sed "s/^PROXYROUTE:\s*//g")
+
+# echo PROXYROUTE is $PROXYROUTE
+
+# if [ -z "$PROXYROUTE" ]; then
+#   echo PROXYROUTE not set.  Run \"bin/cloudgov/setup-egress-for-apps ${APPNAME}\" and then re-run this script.
+#   exit 1
+# fi
+# cf set-env ${APPNAME} http_proxy ${PROXYROUTE}
+# cf set-env ${APPNAME} https_proxy ${PROXYROUTE}
+# cf set-env ${APPNAME} HTTP_PROXY ${PROXYROUTE}
+# cf set-env ${APPNAME} HTTPS_PROXY ${PROXYROUTE}
