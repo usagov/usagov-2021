@@ -401,8 +401,8 @@ display:
       tags:
         - 'config:field.storage.node.body'
         - 'config:field.storage.node.field_page_intro'
-  block_1:
-    id: block_1
+  life_events_block_english:
+    id: life_events_block_english
     display_title: 'Life Events'
     display_plugin: block
     position: 5
@@ -861,8 +861,8 @@ display:
         - 'config:field.storage.node.field_navigation_banner_image'
         - 'config:field.storage.node.field_page_intro'
         - 'config:field.storage.node.field_short_description'
-  life_events_block:
-    id: life_events_block
+  life_events_block_spanish:
+    id: life_events_block_spanish
     display_title: 'Life Events Spanish'
     display_plugin: block
     position: 5
