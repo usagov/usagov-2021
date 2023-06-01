@@ -12,9 +12,9 @@ The latter, you will find specified in bin/init. The s3 directory as a whole is 
 
 References:
 
- [https://www.funkypenguin.co.nz/blog/how-to-run-minio-in-fs-mode-again/]
+ https://www.funkypenguin.co.nz/blog/how-to-run-minio-in-fs-mode-again/
 
- [https://min.io/docs/minio/linux/operations/install-deploy-manage/deploy-minio-single-node-single-drive.html]
+ https://min.io/docs/minio/linux/operations/install-deploy-manage/deploy-minio-single-node-single-drive.html
 
 
 ## Re-setting MinIO
