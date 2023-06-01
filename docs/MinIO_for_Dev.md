@@ -25,7 +25,7 @@ You will probably only need to do this once, and only if you upgraded to "latest
 2. Run "docker system prune --all" 
 3. Delete the "s3" directory (rm -r s3) 
 4. Run "bin/init"
-6) download the latest "files" zip file from https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx to s3/local/cms (which should exist by now)
-7) Unzip that file into s3/local/cms/ (will create a "public" directory) 
-7) run "docker compose up" 
+5. download the latest "files" zip file from https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx to s3/local/cms (which should exist by now)
+6. Unzip that file into s3/local/cms/ (will create a "public" directory) 
+7. run "docker compose up" 
 
