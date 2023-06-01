@@ -3,6 +3,10 @@
 # This script will attempt to sign a container image using Docker Content Trust.
 # Accepts one parameter, $CONTAINERTAG (e.g., gsatts/usagov-2021:cms-latest)
 #
+# If the necessary environment is not present to sign an image, this script exits
+# without error, so it may be included in scripts that are to be run with and 
+# without signing. 
+#
 # The following must all be set for this to work:
 #
 # $DOCKERHUB_USERNAME (this is not the organization, but a user who can log in)
@@ -24,19 +28,19 @@ HOME=${HOME}
 if [ -z "$DCT_KEY" ]
 then
       echo "Skipping DCT signing; DCT_KEY not set"
-      exit 1;
+      exit 0;
 fi;
 
 if [ -z "$DCT_HASH" ]
 then
       echo "Skipping DCT signing; DCT_HASH not set"
-      exit 1;
+      exit 0;
 fi;
 
 if [ -z "$CONTAINERTAG" ]
 then
       echo "Must specify a container tag to build"
-      exit 1;
+      exit 0;
 fi;
 
 
