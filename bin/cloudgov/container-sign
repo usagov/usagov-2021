@@ -67,22 +67,23 @@ mkdir -p $HOME/.docker/trust/private
 echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
 
 # Set required permissions level on key file
-chmod 600 $HOME/.docker/trust/private/$KEY_HASH.key
+chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
 
-# Log into docker
-echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+# Log into docker; only if we are not already logged in
+if [ ! -f $HOME/.docker/config.json ]; then 
+    echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+    DOCKER_CONFIG_CREATED=1
+fi
+
 
 # Load key for signing
-docker trust key load $HOME/.docker/trust/private/$KEY_HASH.key --name circlecikey
+docker trust key load $HOME/.docker/trust/private/$DCT_HASH.key --name circlecikey
 
 # Sign
 docker trust sign $CONTAINERTAG
 
-# Clean up ownership of .docker files, in case we were sudo'ed.
-# Note that docker login creates .docker/config.json:
-ls -laR $HOME/.docker
-if [[ $EUID !=0 ]]; then
-    chown $HOME/.docker
-    chown -R $HOME/.docker
+# Clean up .docker files we created. 
+if [ $DOCKER_CONFIG_CREATED ]; then
+    rm $HOME/.docker/config.json
 fi
-ls -laR $HOME/.docker
+rm $HOME/.docker/trust/private/$DCT_HASH.key
