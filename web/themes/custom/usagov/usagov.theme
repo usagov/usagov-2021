@@ -14,11 +14,54 @@ function usagov_preprocess_html(&$variables) {
   $variables['node'] = \Drupal::routeMatch()->getParameter('node');
 }
 
+function children_of_active_menu_item(&$items) {
+  $result = null;
+  foreach ($items as $object) {
+    if ($object['in_active_trail'] === true) {
+        $result = $object;
+        break;
+    }
+  }
+  if ($result === null) {
+    return $items;
+  }else{
+    return children_of_active_menu_item($result['below']);
+  }
+}
 /**
  * Process block content
  */
 function usagov_preprocess_block(&$variables) {
   $variables['node'] = \Drupal::routeMatch()->getParameter('node');
+
+  if ($variables['elements']['#id'] == 'leftmenuenglish_2') {
+    $items = $variables['content']['#items'];
+    $children_of_active_menu_item = children_of_active_menu_item($items);
+    $nav_page_items = array();
+    foreach ($children_of_active_menu_item as $object) {
+      try {
+        $nid = $object['url']->getRouteParameters()['node'];
+        $node = \Drupal\node\Entity\Node::load($nid);
+        $data = new StdClass();
+        $data->title = $node->get('title')->value;
+        $data->url = $node->toUrl()->toString();
+        if ($node->hasField('field_page_intro')) {
+          $data->description = $node->get('field_page_intro')->value;
+        }else {
+          $data->description = $node->get('field_meta_description')->value;
+        }
+        array_push($nav_page_items, $data);
+      } catch (Exception $e) {
+        $menuItem = $object['original_link']->getPluginDefinition();
+        $data = new StdClass();
+        $data->title = $menuItem['title'];
+        $data->url = $menuItem['url'];
+        $data->description = $menuItem['description'];
+        array_push($nav_page_items, $data);
+      }
+    }
+    $variables['nav_page_items'] = $nav_page_items;
+  }
 }
 
 function usagov_preprocess_views_view_list(&$variables) {
