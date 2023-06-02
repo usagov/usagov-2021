@@ -78,3 +78,9 @@ docker trust key load $HOME/.docker/trust/private/$KEY_HASH.key --name circlecik
 # Sign
 docker trust sign $CONTAINERTAG
 
+# Clean up ownership of .docker files, in case we were sudo'ed.
+# Note that docker login creates .docker/config.json: 
+if [[ $EUID !=0 ]]; then
+    chown $HOME/.docker
+    chown -R $HOME/.docker
+fi
