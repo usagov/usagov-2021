@@ -12,7 +12,7 @@ bundle: basic_page
 label: 'Meta Description'
 description: 'Text to place in a "meta description" tag on this page. If this field is empty, the Page Intro will be used for the meta description. '
 required: false
-translatable: false
+translatable: true
 default_value: {  }
 default_value_callback: ''
 settings: {  }
