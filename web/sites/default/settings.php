@@ -780,9 +780,19 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 $settings['config_sync_directory'] = '/var/www/config/sync';
 $settings['install_profile'] = 'minimal';
 
-$settings['tome_static_path_exclude'] = [
-    '/saml/', '/jsonapi/', '/es/saml/', '/es/jsonapi/', '/paragraphs_entity_embed/autocomplete'
+/**
+ * Stock tome_static exclusion variable. Does not traverse directories.
+ */
+$settings['tome_static_path_exclude'] = [];
+
+/**
+ * USAGov addition to exclude entire directories. Don't include the trailing slash.
+ */
+$settings['usagov_tome_static_path_exclude_directories'] = [
+    '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete',
+    '/taxonomy/term', '/taxonomy_term',
 ];
+
 
 if (getenv('NEW_RELIC_API_KEY')) {
   $settings['new_relic_rpm.api_key'] = getenv('NEW_RELIC_API_KEY');
