@@ -24,7 +24,7 @@ shift
 
 if [ -z "$DEPLOY_TAG" ]; then
   echo "Usage: $0 [--dryrun] <tag> [--download]"
-  echo "This will attempt to pull the database backup for the provided tag in the local directory. Use db-list to see available db backups."
+  echo "This will attempt to DELETE the database backup for the provided tag in the local directory. Use db-list to see available db backups."
   echo "  --dryrun simply prints the commands that would have run"
   echo "  --download downloads the snapshot (GNU zip file), prior to deletion"
   exit 1
@@ -32,9 +32,11 @@ fi
 
 $echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
+GZIP_FILE=${DEPLOY_TAG}.sql.gz
+
 if [ x$1 == x"--download" ]; then
 
-  GZIP_FILE=${DEPLOY_TAG}.sql.gz
+
 
   echo "Attempting to download $GZIP_FILE from s3. This could take awhile."
   echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE

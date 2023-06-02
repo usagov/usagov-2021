@@ -32,7 +32,7 @@ if [ -z "$DEPLOY_TAG" ]; then
   exit 1
 fi
 
-$echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 if [ x$1 == x"--download" ]; then
 
