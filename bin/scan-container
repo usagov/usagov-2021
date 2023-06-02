@@ -13,6 +13,12 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+echo "ls -l /home/circleci/.docker/config.json"
+ls -l /home/circleci/.docker/config.json
+
+echo "ls -l /root/.docker/config.json"
+ls -l /root/.docker/config.json
+
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
