@@ -23,3 +23,5 @@ SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 if [ -f $SCRIPT_DIR/includes ]; then
   . $SCRIPT_DIR/includes
 fi
+
+$echo cf ssh cms -c /var/www/scripts/try-tome-disable.sh
