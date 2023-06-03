@@ -20,7 +20,7 @@ else
         echo
         echo Usage $0 [maxWaitMinutes]
         echo Where maxWaitMinutes must be an integer less than 30, or empty.
-        echo maxWaitMinuts defaults to 25
+        echo maxWaitMinutes defaults to 25
         exit 1
     fi
 fi
