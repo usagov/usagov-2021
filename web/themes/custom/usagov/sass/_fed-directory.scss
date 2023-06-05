@@ -94,6 +94,10 @@ hr.bl-divider {
   p {
     font-size: 18px;
   }
+  section {
+    flex-grow: 1;
+    max-width: 20rem;
+  }
 }
 
 .fed-directory-search-bar {
@@ -114,7 +118,6 @@ hr.bl-divider {
 }
 
 .fed-directory-search-input {
-  width: 14rem;
   background-color: #ccecf2;
   outline: none;
   font-size: 0.98rem;
