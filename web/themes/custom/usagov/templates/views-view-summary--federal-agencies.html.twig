@@ -28,16 +28,14 @@
     'agencyindex': '/agency-index',
     'agencySearchAffiliateID': 'usagov_en_az',
     'search': 'Search',
-    'agencySearchLabel': 'Federal agency search',
-    'agencySearchPlaceholder': 'Search for a federal agency'
+    'agencySearchLabel': 'Search agencies and departments'
   } %}
 {% else %}
   {% set translations = {
     'agencyindex': '/es/indice-agencias',
     'agencySearchAffiliateID': 'usagov_es_az',
     'search': 'Buscar',
-    'agencySearchLabel': 'Agencia federal buscar',
-    'agencySearchPlaceholder': 'Busque una agencia federal'
+    'agencySearchLabel': 'Busque una agencia o departamento'
   } %}
 {% endif %}
 
@@ -77,7 +75,7 @@
               aria-labelledby="fedGallerySearch"
               type="search"
               name="query"
-              placeholder="{{translations.agencySearchPlaceholder}}"
+              placeholder="{{translations.agencySearchLabel}}"
               onfocus="this.placeholder"
               autocomplete="off"
           />
