@@ -1,0 +1,15 @@
+#!/bin/sh
+
+source /etc/profile
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+echo "Running: /var/www/scripts/tome-disabled-toggle.sh 0"
+$echo /var/www/scripts/tome-disabled-toggle.sh 0
+
+echo "Running: /var/www/scripts/toggle-maintenance-mode.sh 0"
+$echo /var/www/scripts/maintenance-mode-toggle.sh 0
