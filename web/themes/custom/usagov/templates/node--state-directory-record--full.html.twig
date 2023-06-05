@@ -46,6 +46,12 @@
 	<div>
 		<h3 class="usa-prose">{{ lang == 'en' ? 'State agencies' : 'Agencias estatales' }}</h3>
 
+		{% if content.field_agriculture_department|render %}
+			<span class="field field--name-field-agriculture-department field--type-link field--label-hidden field__item">
+			<a href={{ node.field_agriculture_department[0].url }}>{{ node.field_agriculture_department[0].title }}</a>
+			</span><br>
+		{% endif %}
+
 		{% if content.field_social_services|render %}
 			<span class="field field--name-field-social-services field--type-link field--label-hidden field__item">
 				<a href={{ node.field_social_services[0].url }}>{{ node.field_social_services[0].title }}</a>
@@ -106,5 +112,10 @@
 			</span><br>
 		{% endif %}
 
+		{% if content.field_state_attorney_general|render %}
+			<span class="field field--name-field-state-attorney-general field--type-link field--label-hidden field__item">
+				<a href={{ node.field_state_attorney_general[0].url }}>{{ node.field_state_attorney_general[0].title }}</a>
+			</span><br>
+		{% endif %}
 	</div>
 </div>
