@@ -76,7 +76,7 @@ until [ $diffMinutes -gt $maxWaitMinutes ]; do
 
        if [ x$setMaintMode = x"maintenance" ]; then
        echo "Running: /var/www/scripts/toggle-maintenance-mode.sh 1"
-       $echo /var/www/scripts/toggle-maintenance-mode.sh 1
+       $echo /var/www/scripts/maintenance-mode-toggle.sh 1
        fi
        exit 0
     else
