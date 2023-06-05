@@ -1,4 +1,5 @@
 {{ attach_library('usagov/carousel') }}
+{% set lang = node.langcode.value %}
 <p class="sr-only">
   Carousel with three slides shown at a time on desktop, two on tablets and one on mobile. Use the Previous and Next buttons to navigate, or the slide number buttons at the end to jump to slides.
   </p>
@@ -12,7 +13,11 @@
   </button>
 
   <div class="carousel-mover">
-    {{ drupal_view('life_events_view', 'life_events_block') }}
+    {% if lang == "es" %}
+      {{ drupal_view('life_events_view', 'life_events_block_spanish') }}
+    {% else %}
+      {{ drupal_view('life_events_view', 'life_events_block_english') }}
+    {% endif %}
   </div>
 
   <button class="next">
