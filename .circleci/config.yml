@@ -503,6 +503,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1013-circleci-integration-automation
       - approve-stage-deployment:
           type: approval
           requires:
