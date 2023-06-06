@@ -37,6 +37,7 @@ DCT_HASH=${DCT_HASH}
 DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
 DOCKERHUB_ACCESS_TOKEN=${DOCKERHUB_ACCESS_TOKEN}
 HOME=${HOME}
+EUID=${EUID:-0}
 
 
 if [ -z "$DCT_KEY" ]
@@ -85,6 +86,9 @@ docker trust sign $CONTAINERTAG
 rm $HOME/.docker/trust/private/$DCT_HASH.key
 # Clean up .docker files we created. 
 if [ $DOCKER_CONFIG_CREATED ]; then
-    rm -r $HOME/.docker
+   if [[ $EUID != 0 ]]; then 
+     chown $EUID $HOME/.docker
+     chown -R $EUID $HOME/.docker
+   fi
 fi
 
