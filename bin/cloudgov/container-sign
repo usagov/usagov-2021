@@ -82,8 +82,9 @@ docker trust key load $HOME/.docker/trust/private/$DCT_HASH.key --name circlecik
 # Sign
 docker trust sign $CONTAINERTAG
 
+rm $HOME/.docker/trust/private/$DCT_HASH.key
 # Clean up .docker files we created. 
 if [ $DOCKER_CONFIG_CREATED ]; then
-    rm $HOME/.docker/config.json
+    rm -r $HOME/.docker
 fi
-rm $HOME/.docker/trust/private/$DCT_HASH.key
+
