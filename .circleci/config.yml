@@ -225,8 +225,8 @@ jobs:
           name: Login to Docker Hub
           no_output_timeout: 30m
           command: |
-            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
-            if [[ $EUID == 0 ]]; then echo $DOCKERHUB_ACCESS_TOKEN | $SUDO docker login -u $DOCKERHUB_USERNAME --password-stdin; fi
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi         
+            echo $DOCKERHUB_ACCESS_TOKEN | $SUDO docker login -u $DOCKERHUB_USERNAME --password-stdin
       - run:
           name: Scan Code
           command: |
@@ -248,8 +248,8 @@ jobs:
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            export SUDO=""
             $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
+            cat latest
       - run:
           name: Scan CMS Container
           command: |
@@ -300,7 +300,6 @@ jobs:
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            export SUDO=""
             $SUDO ./bin/cloudgov/container-push << pipeline.number >> latest
       - install-cloud-foundry
       - save-image-digest
