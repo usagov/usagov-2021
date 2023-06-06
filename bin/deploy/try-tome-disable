@@ -38,6 +38,7 @@ fi
 
 echo cf ssh cms -c "/var/www/scripts/try-tome-disable.sh 25 maintenance"
 $echo cf ssh cms -c "ls -ltr /var/www/scripts"
+$echo cf ssh cms -c "/var/www/scripts/try-tome-disable.sh 25 maintenance"
 retval=$?
 
 if [ $needsDisabled != 0 ]; then
