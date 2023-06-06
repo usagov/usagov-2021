@@ -8,8 +8,22 @@ if [ x$1 == x"--dryrun" ]; then
   shift
 fi
 
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+needsDisabled=0
+if ! isSpaceSSHEnabled $startspace; then
+  enableSpaceSSH $startspace
+  if [ "$?" -ne "0" ]; then
+      assertSpaceSSHEnabled $startspace
+  fi
+  needsDisabled=1
+fi
+
 echo "Running: /var/www/scripts/tome-disabled-toggle.sh 0"
-$echo /var/www/scripts/tome-disabled-toggle.sh 0
+$echo cf ssh cms -c "/var/www/scripts/tome-disabled-toggle.sh 0"
 
 echo "Running: /var/www/scripts/toggle-maintenance-mode.sh 0"
-$echo /var/www/scripts/maintenance-mode-toggle.sh 0
+$echo cf ssh cms -c "/var/www/scripts/maintenance-mode-toggle.sh 0"
