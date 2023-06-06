@@ -225,9 +225,8 @@ jobs:
           name: Login to Docker Hub
           no_output_timeout: 30m
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            export SUDO="";
-            echo $DOCKERHUB_ACCESS_TOKEN | $SUDO docker login -u $DOCKERHUB_USERNAME --password-stdin
+            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+            if [[ $EUID == 0 ]]; then echo $DOCKERHUB_ACCESS_TOKEN | $SUDO docker login -u $DOCKERHUB_USERNAME --password-stdin; fi
       - run:
           name: Scan Code
           command: |
