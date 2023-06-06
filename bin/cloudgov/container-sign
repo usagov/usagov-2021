@@ -39,6 +39,8 @@ DOCKERHUB_ACCESS_TOKEN=${DOCKERHUB_ACCESS_TOKEN}
 HOME=${HOME}
 EUID=${EUID:-0}
 
+DOCKERUSER=${DOCKERUSER:-gsatts}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 if [ -z "$DCT_KEY" ]
 then
@@ -57,6 +59,8 @@ then
       echo "Must specify a container tag to build"
       exit 0;
 fi;
+
+CONTAINER_TAG=$DOCKERUSER/$DOCKERREPO:$CONTAINERTAG
 
 
 echo "Signing $CONTAINERTAG"

@@ -38,8 +38,8 @@ then
      docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
 fi
 
-./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
-./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
+# ./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+# ./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
 
 echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
@@ -57,5 +57,5 @@ then
     docker tag $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
 fi
 
-./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG
-./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
+# ./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG
+# ./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2

@@ -249,7 +249,11 @@ jobs:
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
-            cat latest
+            export PIPELINE_NUMBER=pipeline.number
+            ./bin/cloudgov/container-sign cms-$PIPELINE_NUMBER
+            ./bin/cloudgov/container-sign waf-$PIPELINE_NUMBER
+            ./bin/cloudgov/container-sign cms-latest
+            ./bin/cloudgov/container-sign waf-latest
       - run:
           name: Scan CMS Container
           command: |
