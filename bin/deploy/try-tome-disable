@@ -36,11 +36,13 @@ if ! isSpaceSSHEnabled $startspace; then
   needsDisabled=1
 fi
 
-$echo cf ssh cms -c "/var/www/scripts/try-tome-disable.sh 25 maintenance"
+echo cf ssh cms -c "/var/www/scripts/try-tome-disable.sh 25 maintenance"
+$echo cf ssh cms -c "ls -ltr /var/www/scripts"
 retval=$?
 
 if [ $needsDisabled != 0 ]; then
    cf disallow-space-ssh $startspace
 fi
 
+exit 1
 exit $retval
