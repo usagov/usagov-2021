@@ -271,7 +271,7 @@ jobs:
           command: |
             # build a fresh docker-bench-security container
             cd /tmp/
-	    ls -laR /home/circleci/.docker
+            ls -laR /home/circleci/.docker
             git clone https://github.com/docker/docker-bench-security.git
             cd /tmp/docker-bench-security
             docker build --no-cache -t docker-bench-security .
