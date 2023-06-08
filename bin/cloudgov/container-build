@@ -19,6 +19,7 @@ then
       exit 1;
 fi;
 
+ls -la .docker
 
 echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
