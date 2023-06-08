@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+DEPLOY_TAG=${1}
+shift
+
+if [ -z "$DEPLOY_TAG" ]; then
+  echo
+  echo "Usage: $0 [--dryrun] <tag> [--download]"
+  echo "This will remove a tagged static site snapshot. Use static-site-list to see available tags."
+  echo "  --dryrun simply prints the commands that would have run"
+  echo "  --download downloads and creates a zip file of the snapshot, prior to deletion"
+  echo
+  exit 1
+fi
+
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+if [ x$1 == x"--download" ]; then
+
+  if [ x"$echo" != xecho ]; then
+     mkdir $DEPLOY_TAG
+     success=$?
+  else
+     success=0
+  fi
+
+  if [ "$success" != "0" ]; then
+    echo "Unable to create backup directory $DEPLOY_TAG.  Does it already exist?"
+    exit 1
+  fi
+
+  echo "Downloading files from s3 to local directory './${DEPLOY_TAG}'. This could take a while."
+  echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web-backup/$DEPLOY_TAG $DEPLOY_TAG --recursive
+  $echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web-backup/$DEPLOY_TAG $DEPLOY_TAG --recursive
+  success=$?
+
+  if [ "$success" != "0" ]; then
+    echo "Unable to download snapshot files for $DEPLOY_TAG."
+    exit 1
+  fi
+
+  echo "Creating zip file ${DEPLOY_TAG}.zip"
+  echo zip -rq ${DEPLOY_TAG}.zip ${DEPLOY_TAG}
+  $echo zip -rq ${DEPLOY_TAG}.zip ${DEPLOY_TAG}
+  success=$?
+
+  if [ "$success" != "0" ]; then
+    echo "Unable to create Zip file of backup directory $DEPLOY_TAG."
+    exit 1
+  fi
+  rm -rf $DEPLOY_TAG
+
+  echo "Backup Step Complete."
+fi
+
+echo "Deleting s3 static site snapshot '$DEPLOY_TAG'. This could take a while."
+echo aws s3 rm --only-show-errors --recursive s3://$S3_BUCKET/web-backup/$DEPLOY_TAG
+$echo aws s3 rm --only-show-errors --recursive s3://$S3_BUCKET/web-backup/$DEPLOY_TAG
+
+exit 0
