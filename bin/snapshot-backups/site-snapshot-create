@@ -28,10 +28,9 @@ fi
 
 TIR=0
 cf ssh cms -c /var/www/scripts/tome-running-check.sh && TIR=1
-
 if [ $TIR != 0 ]; then
-  echo Tome is running in the target environment.  Please
-
+  echo Tome is running in the target environment.  Please try again momentarily
+  exit 1
 fi
 
 $echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
