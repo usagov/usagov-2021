@@ -24,7 +24,7 @@ CTAG=${2:-$GITBRANCH}
 THRESHOLD=${3:-low}
 
 # Explicitly turn off DOCKER_CONTENT_TRUST, as snyk are not signing their images. 
-(export DOCKER_CONTENT_TRUST=0; docker run -it --rm \
+export DOCKER_CONTENT_TRUST=0 docker run -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v $(pwd)/.docker:/app \
@@ -32,5 +32,5 @@ THRESHOLD=${3:-low}
     $DOCKERUSER/$DOCKERREPO:$APPNAME-$CTAG \
     --file=/app/Dockerfile-$APPNAME \
     --print-deps \
-    --severity-threshold=$THRESHOLD)
+    --severity-threshold=$THRESHOLD
 
