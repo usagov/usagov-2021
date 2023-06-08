@@ -93,6 +93,12 @@ if [ ! -f .git/hooks/commit-msg ]; then
   chmod +x .git/hooks/commit-msg
 fi
 
+echo "Set up s3 file structure for MinIO"
+mkdir -p s3/local/cms
+mkdir -p s3/.minio.sys
+echo "{\"version\":\"1\",\"format\":\"fs\",\"id\":\"legacy-mode-on-purpose-for-dev\",\"fs\":{\"version\":\"2\"}}" > s3/.minio.sys/format.json
+touch s3/.keep
+
 echo "Build Containers"
 bin/build
 
