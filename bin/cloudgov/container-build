@@ -13,10 +13,6 @@ CONTAINERTAG=${1:-$GITBRANCH}
 
 CONTAINERTAG2=${2}
 
-RESTORE_DCT_SETTING=${DOCKER_CONTENT_TRUST}
-echo "RESTORE_DCT_SETTING is #${RESTORE_DCT_SETTING}#"
-export DOCKER_CONTENT_TRUST=1
-
 if [ -z "$CONTAINERTAG" ]
 then
       echo "Must specify a container tag to build"
@@ -42,9 +38,6 @@ then
      docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
 fi
 
-# ./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
-# ./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2
-
 echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
@@ -61,9 +54,3 @@ then
     docker tag $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
 fi
 
-# ./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG
-# ./bin/cloudgov/container-sign $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
-
-EXPORT DOCKER_CONTENT_TRUST=${RESTORE_DCT_SETTING}
-
-echo "DOCKER_CONTENT_TRUST IS \"${DOCKER_CONTENT_TRUST}\""
