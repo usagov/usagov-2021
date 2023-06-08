@@ -19,8 +19,6 @@ then
       exit 1;
 fi;
 
-ls -laR .
-
 echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
