@@ -9,7 +9,7 @@
 #
 # The following must all be set for this to work:
 #
-# $DOCKERHUB_USERNAME (this is not the organization, but a user who can log in)
+# $DOCKERHUB_USERNAME (this is not the organization, but rather a user who can log in)
 # $DOCKERHUB_ACCESS_TOKEN
 # $DCT_KEY
 # $DCT_HASH
@@ -37,7 +37,6 @@ DCT_HASH=${DCT_HASH}
 DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
 DOCKERHUB_ACCESS_TOKEN=${DOCKERHUB_ACCESS_TOKEN}
 HOME=${HOME}
-EUID=${EUID:-0}
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
@@ -88,17 +87,7 @@ docker trust key load $HOME/.docker/trust/private/$DCT_HASH.key --name circlecik
 docker trust sign $CONTAINERTAG
 
 # Clean up .docker files we created. 
-if [ $DOCKER_CONFIG_CREATED ]; then
-    rm -r $HOME/.docker
-fi
-
-
-# rm $HOME/.docker/trust/private/$DCT_HASH.key
-# # Clean up .docker files we created. 
 # if [ $DOCKER_CONFIG_CREATED ]; then
-#    if [[ $EUID != 0 ]]; then 
-#      chown $EUID $HOME/.docker
-#      chown -R $EUID $HOME/.docker
-#    fi
+#     rm -r $HOME/.docker
 # fi
 
