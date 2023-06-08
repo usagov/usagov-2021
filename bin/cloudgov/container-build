@@ -22,7 +22,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-DOCKER_CONTENT_TRUST=1 
+export DOCKER_CONTENT_TRUST=1 
 printenv
 docker version
 
