@@ -16,12 +16,12 @@ fi
 THRESHOLD=${1:-low}
 
 # snyk are not signing their images, so turn off DOCKER_CONTENT_TRUST here. 
-(export DOCKER_CONTENT_TRUST=0; docker run -it --rm \
+DOCKER_CONTENT_TRUST=0 docker run -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v "$(pwd)/composer.json:/app/composer.json" \
     -v "$(pwd)/composer.lock:/app/composer.lock" \
     -v "$(pwd)/web/themes/custom/usagov/package.json:/app/web/themes/custom/usagov/package.json" \
     -v "$(pwd)/web/themes/custom/usagov/package-lock.json:/app/web/themes/custom/usagov/package-lock.json" \
-  snyk/snyk:php snyk test --severity-threshold=$THRESHOLD)
+  snyk/snyk:php snyk test --severity-threshold=$THRESHOLD
 
   # snyk/snyk:alpine snyk test --org=$SNYK_ORG

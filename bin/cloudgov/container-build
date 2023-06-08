@@ -11,6 +11,7 @@ GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
 GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "")
 CONTAINERTAG=${1:-$GITBRANCH}
 
+
 CONTAINERTAG2=${2}
 
 if [ -z "$CONTAINERTAG" ]
@@ -23,7 +24,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-DOCKER_CONTENT_TRUST=1 docker build --force-rm \
+DOCKER_CONTENT_TRUST=1 $MAYBE_SUDO docker build --force-rm \
      -t $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG \
      -f .docker/Dockerfile-cms . \
      --build-arg GITBRANCH=$GITBRANCH \
@@ -41,7 +42,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-DOCKER_CONTENT_TRUST=1 docker build --force-rm \
+DOCKER_CONTENT_TRUST=1 $MAYBE_SUDO docker build --force-rm \
     -t $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG \
     -f .docker/Dockerfile-waf .docker \
     --build-arg GITBRANCH=$GITBRANCH \
