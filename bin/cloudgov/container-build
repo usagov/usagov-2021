@@ -12,8 +12,6 @@ GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort 
 CONTAINERTAG=${1:-$GITBRANCH}
 CONTAINERTAG2=${2}
 
-DOCKER_CONTENT_TRUST=1
-
 if [ -z "$CONTAINERTAG" ]
 then
       echo "Must specify a container tag to build"
@@ -25,10 +23,6 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 chmod -R u+w ./web/sites/default/
 
 echo "Canary: checking whether DOCKER_CONTENT_TRUST is having any effect" 
-docker pull owasp/modsecurity:nginx-alpine
-
-export DOCKER_CONTENT_TRUST
-echo "Canary 2: checking whether export DOCKER_CONTENT_TRUST is having any effect" 
 docker pull owasp/modsecurity:nginx-alpine
 
 docker build --force-rm \
@@ -49,7 +43,8 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-docker build --force-rm \
+# owasp aren't signing their images either. 
+docker build --disable-content-trust --force-rm \
     -t $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG \
     -f .docker/Dockerfile-waf .docker \
     --build-arg GITBRANCH=$GITBRANCH \
@@ -61,4 +56,3 @@ then
     docker tag $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
 fi
 
-export DOCKER_CONTENT_TRUST=''
