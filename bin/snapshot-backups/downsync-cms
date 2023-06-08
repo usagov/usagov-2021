@@ -1,0 +1,97 @@
+#!/bin/sh
+# Restore CMS database and files to a specific environment.
+# Typically used for "downsync" from prod to dev or stage.
+#
+# TODO: add usage statement. usage is "$0 [--dryrun] DEPLOY_TAG [FROM_SPACE]"; default FROM_SPACE is prod
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+if ! command -v cf &> /dev/null
+then
+    echo "CF : the cloud foundry client could not be found and is required"
+    exit 1
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+DEPLOY_TAG=${1}
+TO_SPACE=$(cf target | grep space: | awk '{ print $2 }')
+FROM_SPACE=${2:-prod}
+GZIP_FILE=${DEPLOY_TAG}.sql.gz
+WEB_FILES=${DEPLOY_TAG}_files
+WEB_FILES_GZIP=${WEB_FILES}.gz
+
+echo "Downloading $DEPLOY_TAG from $FROM_SPACE and deploying to $TO_SPACE"
+
+# Target FROM_SPACE. We are only copying s3 snapshots from FROM_SPACE
+echo  cf target -s $FROM_SPACE
+$echo cf target -s $FROM_SPACE
+
+# Download database
+$echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
+$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
+
+
+# Download s3 cms/public file snapshot
+# TODO: We don't save these snapshots yet. 
+# echo  aws s3 cp --only-show-errors s3:$S3_BUCKET/public-backup/$DEPLOY_TAG $WEB_FILES_GZIP
+# $echo aws s3 cp --only-show-errors s3:$S3_BUCKET/public-backup/$DEPLOY_TAG $WEB_FILES_GZIP
+
+# TODO: We don't have these snapshots yet.
+# if [ -n "$echo" -o  -f $WEB_FILES_GZIP ]; then
+#   echo  gunzip -f $WEB_FILES_GZIP
+#   $echo gunzip -f $WEB_FILES_GZIP
+# else
+#    echo It appears that $WEB_FILES_GZIP was not created or not downloaded from $SPACE
+#    exit 1
+# fi
+
+# Target TO_SPACE for deployment. 
+echo  cf target -s $TO_SPACE
+$echo cf target -s $TO_SPACE
+
+# Disable tome and set maintenance mode
+echo  $SCRIPT_DIR/../deploy/try-tome-disable
+$echo $SCRIPT_DIR/../deploy/try-tome-disable
+
+if [[ $? != 0 ]]; then
+    echo "Failed to disable tome and set maintenance mode on $TO_SPACE. Exiting."
+    exit 2
+fi
+
+# Deploy database to TO_SPACE
+echo  $SCRIPT_DIR/db-dump-deploy $DEPLOY_TAG  
+$echo $SCRIPT_DIR/db-dump-deploy $DEPLOY_TAG  
+
+
+# Deploy s3 cms/public snapshot
+# TODO: we don't have the public snapshots yet
+# $echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+# $echo aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --acl public-read 
+# echo  aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --acl public-read 
+
+# Update db and clear cache
+echo  cf ssh cms -c ". /etc/profile; drush updatedb; drush cr" 
+$echo cf ssh cms -c ". /etc/profile; drush updatedb; drush cr" 
+
+
+# Enable tome and exit maintenance mode
+echo  $SCRIPT_DIR/../deploy/try-tome-enable
+$echo $SCRIPT_DIR/../deploy/try-tome-enable
