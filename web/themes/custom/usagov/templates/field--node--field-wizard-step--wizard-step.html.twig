@@ -22,9 +22,9 @@
 <div id="wizard-border">
 <fieldset class="usa-fieldset maxw-tablet margin-x-auto">
     {% if element['#object'].title.value == "What type of scam do you need to report?" or element['#object'].title.value == "¿Qué tipo de estafa necesita reportar?" %}
-    <legend class="usa-sr-only">{{ element['#object'].body[0].value|raw }}</legend>
+    <legend class="usa-sr-only">{{ element['#object'].title.value }}</legend>
     {% else %}
-    <legend>{{ element['#object'].body[0].value|raw }}</legend>
+    <legend>{{ element['#object'].title.value }}</legend>
     {% endif %}
     <div id="msg" class="maxw-tablet margin-x-auto usa-error" tabindex= "-1"></div>
     {% for item in items %}
@@ -32,7 +32,7 @@
         {% if title == null %}
             {% set title = item.content["#title"] %}
         {% endif %}
-        
+
         {% set id = title|lower|replace({' ': '-', '.': '-'}) %}
         {% set url = item.content["#url"] %}
 
