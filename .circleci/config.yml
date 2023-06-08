@@ -247,6 +247,7 @@ jobs:
           name: Build Container
           no_output_timeout: 30m
           command: |
+            echo $EUID;
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
             # Sign as a separate step, so we don't create root-owned .docker config:
