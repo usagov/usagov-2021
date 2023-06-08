@@ -11,14 +11,14 @@ commands:
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            export SUDO="" # if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
       - install-cloud-foundry
       - load-image-digest
       - run:
           name: CloudGov Deploy
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            export SUDO="" # if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
@@ -31,7 +31,7 @@ commands:
       - run:
           name: Save Image Digest
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            export SUDO="" # if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>)
             (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>)
             CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
@@ -49,7 +49,7 @@ commands:
       - run:
           name: Load Image Digest
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            export SUDO="" # if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
             . ./bin/cloudgov/get-s3-access key-value
@@ -104,7 +104,7 @@ commands:
       - run:
           name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            export SUDO="" # if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
@@ -123,7 +123,7 @@ jobs:
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            export SUDO="" # if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
             mkdir -p /tmp/results
             touch /tmp/results/scan-cms-code.log
@@ -212,7 +212,7 @@ jobs:
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            export SUDO="" # if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
             mkdir -p /tmp/results
             touch /tmp/results/scan-cms-code.log
@@ -225,9 +225,8 @@ jobs:
           name: Login to Docker Hub
           no_output_timeout: 30m
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi         
+            export SUDO="" # if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi         
             echo $DOCKERHUB_ACCESS_TOKEN | $SUDO docker login -u $DOCKERHUB_USERNAME --password-stdin
-            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
       - run:
           name: Scan Code
           command: |
@@ -249,7 +248,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             echo $EUID;
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            export SUDO="" # if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
             # Sign as a separate step, so we don't create root-owned .docker config:
             ./bin/cloudgov/container-sign ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>
@@ -305,7 +304,7 @@ jobs:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            export SUDO="" # if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-push << pipeline.number >> latest
       - install-cloud-foundry
       - save-image-digest
