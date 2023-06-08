@@ -13,7 +13,7 @@ CONTAINERTAG=${1:-$GITBRANCH}
 
 SUDO_CMD=""
 if [ "$MAYBE_SUDO" ]; then
-    SUDO_CMD='sudo -E '
+    SUDO_CMD='sudo -preserve-env=DOCKER_CONTENT_TRUST '
 fi
 
 echo "SUDO command is \"$SUDO_CMD\""
@@ -30,7 +30,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-$SUDO DOCKER_CONTENT_TRUST=1 docker build --force-rm \
+DOCKER_CONTENT_TRUST=1 $SUDO_CMD docker build --force-rm \
      -t $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG \
      -f .docker/Dockerfile-cms . \
      --build-arg GITBRANCH=$GITBRANCH \
@@ -48,7 +48,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-$SUDO DOCKER_CONTENT_TRUST=1 docker build --force-rm \
+DOCKER_CONTENT_TRUST=1 $SUDO_CMD docker build --force-rm \
     -t $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG \
     -f .docker/Dockerfile-waf .docker \
     --build-arg GITBRANCH=$GITBRANCH \
