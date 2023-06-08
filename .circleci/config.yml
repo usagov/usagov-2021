@@ -248,7 +248,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
+            (DOCKER_CONTENT_TRUST=1; $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest)
             # Sign as a separate step, so we don't create root-owned .docker config:
             ./bin/cloudgov/container-sign ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>
             ./bin/cloudgov/container-sign ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>
@@ -449,6 +449,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-978-sign-images-with-DCT
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -458,6 +459,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-978-sign-images-with-DCT
       - approve-dev-deployment:
           type: approval
           requires:
