@@ -37,7 +37,7 @@ fi
 # locate a directory within an s3 bucket that contains a build of the static site
 # display a list of available tags (directories) and their last updated date
 
-source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+source $SCRIPT_DIR/get-s3-access storage >/dev/null 2>&1
 echo "aws s3 ls s3://$S3_BUCKET/$S3_PATH $S3_LS_PARAMS"
 aws s3 ls s3://$S3_BUCKET/$S3_PATH $S3_LS_PARAMS
 
