@@ -59,10 +59,7 @@ then
       exit 0;
 fi;
 
-CONTAINER_TAG=$DOCKERUSER/$DOCKERREPO:$CONTAINERTAG
-
-
-echo "Signing $CONTAINERTAG"
+echo "Signing $DOCKERUSER/$DOCKERREPO:$CONTAINERTAG"
 
 # Make sure directory exists
 mkdir -p $HOME/.docker/trust/private
@@ -84,7 +81,7 @@ fi
 docker trust key load $HOME/.docker/trust/private/$DCT_HASH.key --name circlecikey
 
 # Sign
-docker trust sign $CONTAINERTAG
+docker trust sign $DOCKERUSER/$DOCKERREPO:$CONTAINERTAG
 
 # Clean up .docker files we created. 
 # if [ $DOCKER_CONFIG_CREATED ]; then
