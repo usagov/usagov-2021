@@ -449,7 +449,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-978-sign-images-with-DCT
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -459,7 +458,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-978-sign-images-with-DCT
       - approve-dev-deployment:
           type: approval
           requires:
@@ -468,7 +466,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-978-sign-images-with-DCT
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -476,7 +473,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-978-sign-images-with-DCT
       - approve-stage-deployment:
           type: approval
           requires:
