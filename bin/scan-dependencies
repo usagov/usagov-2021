@@ -16,7 +16,7 @@ fi
 THRESHOLD=${1:-low}
 
 # snyk are not signing their images, so turn off DOCKER_CONTENT_TRUST here. 
-(DOCKER_CONTENT_TRUST=0; docker run -it --rm \
+(export DOCKER_CONTENT_TRUST=0; docker run -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v "$(pwd)/composer.json:/app/composer.json" \
     -v "$(pwd)/composer.lock:/app/composer.lock" \
