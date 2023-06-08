@@ -29,15 +29,13 @@ B. Create environment variables in your shell session for
 
 ### Static site backup
 
-        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
-        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX site-snapshot-create
-        $echo bin/snapshot-backups/site-snapshot-list ${dryrun}
-        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX site-snapshot-download
+        bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX site-snapshot-create
+        bin/snapshot-backups/site-snapshot-list ${dryrun}
+        bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX site-snapshot-download
 
 ### DB backup
 
-        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
         $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-download
         $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-push-to-snapshot
@@ -88,20 +86,6 @@ See the file
         bin/deploy/includes
 
 Specifically the functions *assertSpace,  spaceCCIContainerTag* and *createSpaceAssertedBackupTag* for details of how the *stw* (snapshot tool wrapper) script assembles the backup tag, and asserts that the currect space matches the arguments provided to *stw*
-
-## Snapshot restore using helper
-
-### Static Site Restore
-
-        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
-        dryrun='--dryrun'
-        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX site-snapshot-deploy
-
-### DB Restore
-
-        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
-        dryrun='--dryrun'
-        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-deploy
 ___
 
 ## 2. Snapshot backup - Manual Tag Creation
@@ -117,20 +101,27 @@ ___
 
 ### Manually Tagged Static site backup
 
-        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
-        $echo bin/snapshot-backups/site-snapshot-create ${dryrun} $BACKUP_TAG
-        $echo bin/snapshot-backups/site-snapshot-download  ${dryrun} $BACKUP_TAG
-        $echo bin/snapshot-backups/site-snapshot-list ${dryrun}
+        bin/snapshot-backups/site-snapshot-create ${dryrun} $BACKUP_TAG
+        bin/snapshot-backups/site-snapshot-download  ${dryrun} $BACKUP_TAG
+        bin/snapshot-backups/site-snapshot-list ${dryrun}
 
 ### Manually Tagged DB backup
 
-        echo=echo   ### Do NOT export echo. Ask me how I know this (tm).
         dryrun='--dryrun'
-        $echo bin/snapshot-backups/db-dump-download ${dryrun} $BACKUP_TAG
-        $echo bin/snapshot-backups/db-dump-push-to-snapshot ${dryrun}  $BACKUP_TAG
-        $echo bin/snapshot-backups/db-snapshot-list ${dryrun}
+        bin/snapshot-backups/db-dump-download ${dryrun} $BACKUP_TAG
+        bin/snapshot-backups/db-dump-push-to-snapshot ${dryrun}  $BACKUP_TAG
+        bin/snapshot-backups/db-snapshot-list ${dryrun}
+___
 
-## 3. Snapshot restore
+## 3. Snapshot restore using helper script *bin/cloudgov/snapshot-backups/stw*
 
-        Implemented for both static site and db - not documented yet
+### Static Site Restore using helper script stw
+
+        dryrun='--dryrun'
+        bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX site-snapshot-deploy
+
+### DB Restore
+
+        dryrun='--dryrun'
+        bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-deploy
