@@ -22,7 +22,9 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
+DOCKER_CONTENT_TRUST=1 
 printenv
+docker version
 
 echo "Canary: checking whether DOCKER_CONTENT_TRUST is having any effect" 
 docker pull owasp/modsecurity:nginx-alpine
