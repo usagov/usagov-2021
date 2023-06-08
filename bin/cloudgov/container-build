@@ -10,15 +10,9 @@ GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
 GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "")
 CONTAINERTAG=${1:-$GITBRANCH}
-
-SUDO_CMD=""
-if [ "$MAYBE_SUDO" ]; then
-    SUDO_CMD='sudo -preserve-env=DOCKER_CONTENT_TRUST '
-fi
-
-echo "SUDO command is \"$SUDO_CMD\""
-
 CONTAINERTAG2=${2}
+
+DOCKER_CONTENT_TRUST=1
 
 if [ -z "$CONTAINERTAG" ]
 then
@@ -30,7 +24,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-$SUDO DOCKER_CONTENT_TRUST=1 docker build --force-rm \
+docker build --force-rm \
      -t $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG \
      -f .docker/Dockerfile-cms . \
      --build-arg GITBRANCH=$GITBRANCH \
@@ -48,7 +42,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-$SUDO DOCKER_CONTENT_TRUST=1 docker build --force-rm \
+docker build --force-rm \
     -t $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG \
     -f .docker/Dockerfile-waf .docker \
     --build-arg GITBRANCH=$GITBRANCH \
@@ -60,3 +54,4 @@ then
     docker tag $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
 fi
 
+DOCKER_CONTENT_TRUST=''
