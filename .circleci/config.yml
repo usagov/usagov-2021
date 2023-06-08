@@ -250,10 +250,10 @@ jobs:
             if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
             # Sign as a separate step, so we don't create root-owned .docker config:
-            ./bin/cloudgov/container-sign cms-<< pipeline.number >>
-            ./bin/cloudgov/container-sign waf-<< pipeline.number >>
-            ./bin/cloudgov/container-sign cms-latest
-            ./bin/cloudgov/container-sign waf-latest
+            ./bin/cloudgov/container-sign ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>
+            ./bin/cloudgov/container-sign ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>
+            ./bin/cloudgov/container-sign ${DOCKERUSER}/${DOCKERREPO}:cms-latest
+            ./bin/cloudgov/container-sign ${DOCKERUSER}/${DOCKERREPO}:waf-latest
       - run:
           name: Scan CMS Container
           command: |
