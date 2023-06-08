@@ -16,7 +16,7 @@ if [ "$MAYBE_SUDO" ]; then
     SUDO_CMD='sudo -E '
 fi
 
-
+echo "SUDO command is \"$SUDO_CMD\""
 
 CONTAINERTAG2=${2}
 
@@ -30,13 +30,13 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-(export DOCKER_CONTENT_TRUST=1; $SUDO_CMD docker build --force-rm \
+$SUDO DOCKER_CONTENT_TRUST=1 docker build --force-rm \
      -t $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG \
      -f .docker/Dockerfile-cms . \
      --build-arg GITBRANCH=$GITBRANCH \
      --build-arg GITCOMMIT=$GITCOMMIT \
      --build-arg GITTAG=$GITTAG \
-     --build-arg CONTAINERTAG=$CONTAINERTAG)
+     --build-arg CONTAINERTAG=$CONTAINERTAG
 
 if [ -n "$CONTAINERTAG2" ]
 then
@@ -48,12 +48,12 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-(export DOCKER_CONTENT_TRUST=1; $SUDO_CMD docker build --force-rm \
+$SUDO DOCKER_CONTENT_TRUST=1 docker build --force-rm \
     -t $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG \
     -f .docker/Dockerfile-waf .docker \
     --build-arg GITBRANCH=$GITBRANCH \
     --build-arg GITCOMMIT=$GITCOMMIT \
-    --build-arg GITTAG=$GITTAG)
+    --build-arg GITTAG=$GITTAG
 
 if [ -n "$CONTAINERTAG2" ]
 then
