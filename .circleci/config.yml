@@ -249,7 +249,8 @@ jobs:
           command: |
             echo $EUID;
             export SUDO="" # if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            MAYBE_SUDO="sudo" ./bin/cloudgov/container-build << pipeline.number >> latest
+            export MAYBE_SUDO=1
+            ./bin/cloudgov/container-build << pipeline.number >> latest
             # Sign as a separate step, so we don't create root-owned .docker config:
             ./bin/cloudgov/container-sign ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>
             ./bin/cloudgov/container-sign ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>
