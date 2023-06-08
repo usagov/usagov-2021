@@ -252,8 +252,8 @@ jobs:
             # Sign as a separate step, so we don't create root-owned .docker config:
             ./bin/cloudgov/container-sign cms-<< pipeline.number >>
             ./bin/cloudgov/container-sign waf-<< pipeline.number >>
-            ./bin/cloudgov/container-sign cms-latest;
-            ./bin/cloudgov/container-sign waf-latest)
+            ./bin/cloudgov/container-sign cms-latest
+            ./bin/cloudgov/container-sign waf-latest
       - run:
           name: Scan CMS Container
           command: |
