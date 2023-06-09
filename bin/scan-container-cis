@@ -21,7 +21,10 @@ APPNAME=${1:-cms}
 GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 CTAG=${2:-$GITBRANCH}
 
-# See https://github.com/docker/docker-bench-security 
+# docker-bench-security is a local container we create (commands are in .circle_ci/config.yml).
+# We have to pass --disable-content-trust to run it (if we've set DOCKER_CONTENT_TRUST=1) even
+# though it's local, which I guess is fair. --akf. 
+# See also https://github.com/docker/docker-bench-security
 docker run --disable-content-trust -it --rm --net host --pid host --userns host --cap-add audit_control \
     -e DOCKER_CONTENT_TRUST=1 \
     -v /var/run/docker.sock:/var/run/docker.sock \
