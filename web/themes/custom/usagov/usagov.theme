@@ -1,5 +1,7 @@
 <?php
 
+use \Drupal\node\Entity\Node;
+
 /**
  * @file
  * USWDS Base sub-theme.
@@ -15,19 +17,21 @@ function usagov_preprocess_html(&$variables) {
 }
 
 function children_of_active_menu_item(&$items) {
-  $result = null;
+  $result = NULL;
   foreach ($items as $object) {
-    if ($object['in_active_trail'] === true) {
-        $result = $object;
-        break;
+    if ($object['in_active_trail'] === TRUE) {
+      $result = $object;
+      break;
     }
   }
-  if ($result === null) {
+  if ($result === NULL) {
     return $items;
-  }else{
+  }
+  else {
     return children_of_active_menu_item($result['below']);
   }
 }
+
 /**
  * Process block content
  */
@@ -37,19 +41,21 @@ function usagov_preprocess_block(&$variables) {
   if ($variables['elements']['#id'] == 'navigation_page_items' || $variables['elements']['#id'] == 'navigation_page_items_spanish') {
     $items = $variables['content']['#items'];
     $children_of_active_menu_item = children_of_active_menu_item($items);
-    $nav_page_items = array();
+    $nav_page_items = [];
     foreach ($children_of_active_menu_item as $object) {
       try {
         $nid = $object['url']->getRouteParameters()['node'];
-        $node = \Drupal\node\Entity\Node::load($nid);
+        $node = Node::load($nid);
         $data = new StdClass();
         $data->title = $node->get('title')->value;
         $data->url = $node->toUrl()->toString();
         if ($node->hasField('field_short_description') && $node->get('field_short_description')->value != "") {
           $data->description = $node->get('field_short_description')->value;
-        }elseif ($node->hasField('field_page_intro') && $node->get('field_page_intro')->value != "") {
+        }
+        elseif ($node->hasField('field_page_intro') && $node->get('field_page_intro')->value != "") {
           $data->description = $node->get('field_page_intro')->value;
-        }else {
+        }
+        else {
           $data->description = $node->get('field_meta_description')->value;
         }
         array_push($nav_page_items, $data);
