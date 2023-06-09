@@ -1,0 +1,52 @@
+uuid: 61469290-0b77-4076-b3c5-273270de1d26
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.left-menu-english
+  module:
+    - language
+    - menu_block
+    - node
+    - system
+  theme:
+    - usagov
+id: navigation_page_items
+theme: usagov
+region: content
+weight: 0
+provider: null
+plugin: 'menu_block:left-menu-english'
+settings:
+  id: 'menu_block:left-menu-english'
+  label: 'Navigation Page Items'
+  label_display: visible
+  provider: menu_block
+  follow: false
+  follow_parent: child
+  label_link: false
+  label_type: block
+  level: 1
+  depth: 0
+  expand_all_items: false
+  parent: 'left-menu-english:'
+  suggestion: navigation_page_items
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
+  language:
+    id: language
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      en: en
+  request_path:
+    id: request_path
+    negate: true
+    pages: '<front>'
