@@ -1,14 +1,12 @@
 
 ⬇️⬇️⬇️ NEW NAVIGATION PAGE ITEMS ⬇️⬇️⬇️
 
-
-
 {% set pagetype = "" %}
 {% if node.field_page_type.0 != null %}
     {% set pagetype = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
 {% endif %}
 
-{% if pagetype == "Navigation Cards Page" %}
+{% if pagetype == "Navigation Cards Page" or pagetype == "Life Events" %}
   
   <div class="usagov-cards">
     <ul class="usa-card-group">
@@ -27,21 +25,37 @@
     </ul>
   </div>
 
-{% elseif pagetype == "Navigation Page" %}
+  {% elseif pagetype == "Navigation Page" %}
+  
+    <ul class="usa-list usa-list--unstyled">
+      {% for item in nav_page_items %}
+        <li class="usagov-navpage-item">
+          <a href="{{ item.url }}" class="text-no-underline">
+            <div class="usa-card__header">
+              <h2 class="usa-card__heading usagov-card__heading">{{ item.title }}</h2>
+            </div>
+            <div class="usa-card__body padding-top-0 usa-prose">
+              <p>{{ item.description }}</p>
+            </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
 
-  <ul class="usa-list usa-list--unstyled">
-    {% for item in nav_page_items %}
-      <li class="usagov-navpage-item">
-        <a href="{{ item.url }}" class="text-no-underline">
-          <div class="usa-card__header">
-            <h2 class="usa-card__heading usagov-card__heading">{{ item.title }}</h2>
-          </div>
-          <div class="usa-card__body padding-top-0 usa-prose">
-            <p>{{ item.description }}</p>
-          </div>
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
 
+    {% elseif pagetype == "Life Events Landing Page" %}
+
+    <div class="usagov-cards margin-top-3">
+      <ul class="usa-card-group">
+        {% for item in nav_page_items %}
+        <li class="tablet:grid-col-4 usa-card">
+          <a href="{{ item.url }}" class="usa-card__container usagov-card text-no-underline">
+           <div class="life-events-landing-page-card-image" style="background-image: url({{item.navigation_banner_image}})"></div>
+           <div class="life-events-landing-page-card-title">{{ item.title }}</div>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    
 {% endif %}
