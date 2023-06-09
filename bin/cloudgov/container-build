@@ -41,8 +41,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-# owasp aren't signing their images either. 
-docker build --disable-content-trust --force-rm \
+docker build --force-rm \
     -t $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG \
     -f .docker/Dockerfile-waf .docker \
     --build-arg GITBRANCH=$GITBRANCH \
