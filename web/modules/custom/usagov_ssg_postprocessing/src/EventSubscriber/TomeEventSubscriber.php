@@ -2,13 +2,13 @@
 
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
-use Drupal\tome_static\Event\ModifyHtmlEvent;
-use Drupal\tome_static\Event\CollectPathsEvent;
-use Drupal\tome_static\Event\TomeStaticEvents;
-use Drupal\Core\Site\Settings;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Site\Settings;
+use Drupal\tome_static\Event\CollectPathsEvent;
+use Drupal\tome_static\Event\ModifyHtmlEvent;
+use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
