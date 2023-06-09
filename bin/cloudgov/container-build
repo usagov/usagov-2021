@@ -23,12 +23,6 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 chmod -R u+w ./web/sites/default/
 
 export DOCKER_CONTENT_TRUST=1 
-printenv
-docker version
-
-echo "Canary: checking whether DOCKER_CONTENT_TRUST is having any effect" 
-docker pull owasp/modsecurity:nginx-alpine
-
 docker build --force-rm \
      -t $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG \
      -f .docker/Dockerfile-cms . \
@@ -59,4 +53,3 @@ if [ -n "$CONTAINERTAG2" ]
 then
     docker tag $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
 fi
-
