@@ -223,11 +223,12 @@ jobs:
             touch /tmp/results/scan-waf-container-cis.log
       - run:
           name: Set up DCT signer key
-          mkdir -p $HOME/.docker/trust/private
-          # Decode and store signer key to file named as the key hash
-          echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
-          # Set required permissions level on key file
-          chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
+          command: |
+            mkdir -p $HOME/.docker/trust/private
+            # Decode and store signer key to file named as the key hash
+            echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
+            # Set required permissions level on key file
+            chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
       - run:
           name: Login to Docker Hub
           no_output_timeout: 30m
