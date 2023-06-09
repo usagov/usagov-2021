@@ -442,6 +442,7 @@ workflows:
             branches:
               only:
                 - dev
+                - nav-items-menu-block
                 - stage
                 - prod
       - build-and-push-container:
@@ -451,6 +452,7 @@ workflows:
             branches:
               only:
                 - dev
+                - nav-items-menu-block
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -461,6 +463,7 @@ workflows:
             branches:
               only:
               - dev
+              - nav-items-menu-block
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -468,6 +471,7 @@ workflows:
             branches:
               only:
               - dev
+              - nav-items-menu-block
       - approve-stage-deployment:
           type: approval
           requires:
