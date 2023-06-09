@@ -21,11 +21,12 @@ APPNAME=${1:-cms}
 GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 CTAG=${2:-$GITBRANCH}
 
+# TODO: docker/docker-bench-security (latest) is 4 years old. Is that old, or does it pull in newer rules?
 docker run -it --rm --net host --pid host --userns host --cap-add audit_control \
     -e DOCKER_CONTENT_TRUST=1 \
     -v /var/run/docker.sock:/var/run/docker.sock \
     --label docker_bench_security \
-    docker-bench-security -b \
+    docker/docker-bench-security@sha256:0037349aef7e10449ef40a10eec41195fe33b38a1440170dbc0c957386372b2d -b \
       -c "container_images,container_runtime"
 
 
