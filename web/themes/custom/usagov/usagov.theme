@@ -1,6 +1,6 @@
 <?php
 
-use \Drupal\node\Entity\Node;
+use Drupal\node\Entity\Node;
 
 /**
  * @file
@@ -59,7 +59,8 @@ function usagov_preprocess_block(&$variables) {
           $data->description = $node->get('field_meta_description')->value;
         }
         array_push($nav_page_items, $data);
-      } catch (Exception $e) {
+      }
+      catch (Exception $e) {
         $menuItem = $object['original_link']->getPluginDefinition();
         $data = new StdClass();
         $data->title = $menuItem['title'];
