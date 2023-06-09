@@ -1,0 +1,47 @@
+
+⬇️⬇️⬇️ NEW NAVIGATION PAGE ITEMS ⬇️⬇️⬇️
+
+
+
+{% set pagetype = "" %}
+{% if node.field_page_type.0 != null %}
+    {% set pagetype = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
+{% endif %}
+
+{% if pagetype == "Navigation Cards Page" %}
+  
+  <div class="usagov-cards">
+    <ul class="usa-card-group">
+      {% for item in nav_page_items %}
+        <li class="tablet:grid-col-4 usa-card">
+          <a href="{{ item.url }}" class="usa-card__container usagov-card text-no-underline">
+            <header class="usa-card__header">
+              <h2 class="usa-card__heading usagov-card__heading">{{ item.title }}</h2>
+            </header>
+            <div class="usa-card__body padding-top-0">
+              <p>{{ item.description }}</p>
+            </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+{% elseif pagetype == "Navigation Page" %}
+
+  <ul class="usa-list usa-list--unstyled">
+    {% for item in nav_page_items %}
+      <li class="usagov-navpage-item">
+        <a href="{{ item.url }}" class="text-no-underline">
+          <div class="usa-card__header">
+            <h2 class="usa-card__heading usagov-card__heading">{{ item.title }}</h2>
+          </div>
+          <div class="usa-card__body padding-top-0 usa-prose">
+            <p>{{ item.description }}</p>
+          </div>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+{% endif %}
