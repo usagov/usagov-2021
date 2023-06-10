@@ -66,6 +66,13 @@ function usagov_preprocess_block(&$variables) {
             $node->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
           );
         }
+        if ($node->hasField('field_css_icon')) {
+          $data->css_icon = $node->get('field_css_icon')[0]->value;
+        }
+        if ($node->hasField('promote')) {
+          $data->promote = $node->get('promote')->value;
+        }
+        // $data->node = $node;
         array_push($nav_page_items, $data);
       }
       catch (Exception $e) {
