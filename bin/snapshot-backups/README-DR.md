@@ -37,9 +37,16 @@ B. Create environment variables in your shell session for
 ### DB backup
 
         dryrun='--dryrun'
-        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-download
-        $echo bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-push-to-snapshot
-        $echo bin/snapshot-backups/db-snapshot-list ${dryrun}
+        bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-download
+        bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-push-to-snapshot
+        bin/snapshot-backups/db-snapshot-list ${dryrun}
+
+### CMS Public Files backup
+
+        dryrun='--dryrun'
+        bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX public-snapshot-create
+        bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX public-snapshot-list
+        bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX public-snapshot-download
 
 ### Post snapshot backup procedure
 
@@ -59,7 +66,7 @@ The tag created by *stw* will look like:
 
         USAGOV-784.prod.4250.pre-deploy
 
-### A note on the arguments for stw, listed in the examples below:
+### A note on the arguments for stw, listed in the examples below
 
 1. **$SPACE** - specify the space in which the snapshot will be taken/restored (MUST be the current space - this is on purpose)
 
@@ -112,6 +119,13 @@ ___
         bin/snapshot-backups/db-dump-download ${dryrun} $BACKUP_TAG
         bin/snapshot-backups/db-dump-push-to-snapshot ${dryrun}  $BACKUP_TAG
         bin/snapshot-backups/db-snapshot-list ${dryrun}
+
+### Manually Tagged CMS Public Files backup
+
+        dryrun='--dryrun'
+        bin/snapshot-backups/public-snapshot-create ${dryrun} $BACKUP_TAG
+        bin/snapshot-backups/public-snapshot-download ${dryrun} $BACKUP_TAG
+        bin/snapshot-backups/public-snapshot-list ${dryrun}
 ___
 
 ## 3. Snapshot restore using helper script *bin/cloudgov/snapshot-backups/stw*
@@ -125,3 +139,20 @@ ___
 
         dryrun='--dryrun'
         bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX db-dump-deploy
+
+### CMS Public Files Restore using helper script stw
+
+        dryrun='--dryrun'
+        bin/snapshot-backups/stw ${dryrun} $SPACE $BRANCH $SUFFIX public-snapshot-deploy
+
+## 4. Snapshot Restoration for Disaster Recovery Situations
+
+### Retrieving Backup Snapshots from Google Drive
+
+For each of the snapshot types, retrieve the latest snapshot from Google Drive.  There will be the following folders in the Drive
+
+CMSPublicFilesBackups
+StaticSiteBackups
+CMSDatabaseBackups
+
+Grab the latest zip file from each folder (names will be something like USAGOV-1022.prod.7286.post-deploy.zip USAGOV-1022.prod.7286.post-deploy.public.zip, USAGOV-1022.prod.7286.post-deploy.sql.zip)

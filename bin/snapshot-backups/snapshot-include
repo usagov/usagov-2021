@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# This gets set in the enclosing script
+#BUCKET_SOURCE_FOLDER=[public | web | db]
+#export BUCKET_SOURCE_FOLDER=public-test
+
+if [ x$BUCKET_SOURCE_FOLDER == x ]; then
+    echo "The following must be defined in the enclosing script: BUCKET_SOURCE_FOLDER=[public | web | db]"
+    exit
+fi
+
+export BUCKET_BACKUP_FOLDER=${BUCKET_SOURCE_FOLDER}-backup
+export BACKUP_DESCRIPTION="CMS public files"
+export BACKUP_LISTER=${BUCKET_SOURCE_FOLDER}-snapshot-list
+
+echo '==========================================='
+echo BUCKET_SOURCE_FOLDER: $BUCKET_SOURCE_FOLDER
+echo BUCKET_BACKUP_FOLDER: $BUCKET_BACKUP_FOLDER
+echo BACKUP_DESCRIPTION:   $BACKUP_DESCRIPTION
+echo BACKUP_LISTER:        $BACKUP_LISTER
+echo '==========================================='
