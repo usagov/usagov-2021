@@ -82,7 +82,7 @@ function usagov_preprocess_block(&$variables) {
         $data->url = $menuItem['url'];
         if (strncmp($data->url, "base:", 5) === 0) {
           $host = \Drupal::request()->getSchemeAndHttpHost();
-          $data->url = $host . "/" . substr($data->url, 5);
+          $data->url = "/" . substr($data->url, 5);
         }
         $data->description = $menuItem['description'];
         array_push($nav_page_items, $data);
