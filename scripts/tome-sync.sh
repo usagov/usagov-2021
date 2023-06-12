@@ -219,7 +219,7 @@ else
 fi
 
 if [ -f "$TOMELOG" ]; then
-  echo "Saving logs of this run to S3" | tee -a $TOMELOG
+  echo "Saving logs of this run to S3: $TOMELOG -> $BUCKET_NAME/tome-log/$TOMELOGFILE" | tee -a $TOMELOG
   echo "SYNC FINISHED" | tee -a $TOMELOG
   aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 else
