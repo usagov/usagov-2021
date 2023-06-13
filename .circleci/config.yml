@@ -475,6 +475,7 @@ workflows:
               only:
                 - dev
                 - USAGOV-1013-circleci-integration-automation
+                - USAGOV-1016-1013-merge
                 - stage
                 - prod
       - build-and-push-container:
@@ -485,6 +486,7 @@ workflows:
               only:
                 - dev
                 - USAGOV-1013-circleci-integration-automation
+                - USAGOV-1016-1013-merge
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -496,6 +498,7 @@ workflows:
               only:
               - dev
               - USAGOV-1013-circleci-integration-automation
+              - USAGOV-1016-1013-merge
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -504,6 +507,7 @@ workflows:
               only:
               - dev
               - USAGOV-1013-circleci-integration-automation
+              - USAGOV-1016-1013-merge
       - approve-stage-deployment:
           type: approval
           requires:
