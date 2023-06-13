@@ -25,8 +25,8 @@ if ! command -v jq >/dev/null; then
   exit 1
 fi
 
-if [ -z "$ANALYTICS_KEY" ]; then
-  echo Must set ANALYTICS_KEY in env.local
+if [ -z "$ANALYTICS_KEY_PATH" ]; then
+  echo Must set ANALYTICS_KEY_PATH in env.local
   exit 1
 fi
 
@@ -82,13 +82,6 @@ else
 fi
 cf create-service s3 basic-public-sandbox s3for${APPNAME}
 
-# remove proxy
-# echo Removing proxy variables just in case
-# cf unset-env ${APPNAME} http_proxy
-# cf unset-env ${APPNAME} https_proxy
-# cf unset-env ${APPNAME} HTTP_PROXY
-# cf unset-env ${APPNAME} HTTPS_PROXY
-
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter"
 cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter
@@ -129,25 +122,14 @@ fi
 
 # update user service
 echo Updating ${APPNAME}Services with s3 info
-yes | cf uups ${APPNAME}Services -p "{\"ANALYTICS_KEY\": \"$ANALYTICS_KEY\", \"ANALYTICS_REPORT_EMAIL\": \"$ANALYTICS_REPORT_EMAIL\", \"ANALYTICS_REPORT_IDS_BOTH\": \"$ANALYTICS_REPORT_IDS_BOTH\", \"ANALYTICS_REPORT_IDS_EN\": \"$ANALYTICS_REPORT_IDS_EN\", \"ANALYTICS_REPORT_IDS_ES\": \"$ANALYTICS_REPORT_IDS_ES\", \"AWS_ACCESS_KEY_ID\": \"$ACCESS_KEY_ID\", \"AWS_BUCKET\": \"$BUCKET\", \"AWS_BUCKET_PATH_BOTH\": \"$AWS_BUCKET_PATH_BOTH\", \"AWS_BUCKET_PATH_EN\": \"$AWS_BUCKET_PATH_EN\", \"AWS_BUCKET_PATH_ES\": \"$AWS_BUCKET_PATH_ES\", \"AWS_REGION\": \"$REGION\", \"AWS_SECRET_ACCESS_KEY\": \"$SECRET_ACCESS_KEY\"}"
+
+printf -v S3_SERVICE_DATA "{\"ANALYTICS_KEY_PATH\":\"$ANALYTICS_KEY_PATH\", \"ANALYTICS_REPORT_EMAIL\":\"$ANALYTICS_REPORT_EMAIL\", \"ANALYTICS_REPORT_IDS_BOTH\":\"$ANALYTICS_REPORT_IDS_BOTH\", \"ANALYTICS_REPORT_IDS_EN\":\"$ANALYTICS_REPORT_IDS_EN\", \"ANALYTICS_REPORT_IDS_ES\":\"$ANALYTICS_REPORT_IDS_ES\", \"AWS_ACCESS_KEY_ID\":\"$ACCESS_KEY_ID\", \"AWS_BUCKET\":\"$BUCKET\", \"AWS_BUCKET_PATH_BOTH\":\"$AWS_BUCKET_PATH_BOTH\", \"AWS_BUCKET_PATH_EN\":\"$AWS_BUCKET_PATH_EN\", \"AWS_BUCKET_PATH_ES\":\"$AWS_BUCKET_PATH_ES\", \"AWS_REGION\":\"$REGION\", \"AWS_SECRET_ACCESS_KEY\":\"$SECRET_ACCESS_KEY\"}"
+
+# convert data to json because I can't get uups to format correctly otherwise
+echo $S3_SERVICE_DATA | jq '.' > reporter-vcapsecrets.json
+
+cf uups ${APPNAME}Services -p reporter-vcapsecrets.json
 
 # restart for variables
 echo Restarting ${APPNAME}
 cf restart ${APPNAME}
-
-# echo adding proxy variable
-# PROXYROUTE=$(cf env ${APPNAME} | \
-#   awk '/User-Provided:/{flag=1;next}/^$/{flag=0}flag' | \
-#   grep -e 'PROXYROUTE' | \
-#   sed "s/^PROXYROUTE:\s*//g")
-
-# echo PROXYROUTE is $PROXYROUTE
-
-# if [ -z "$PROXYROUTE" ]; then
-#   echo PROXYROUTE not set.  Run \"bin/cloudgov/setup-egress-for-apps ${APPNAME}\" and then re-run this script.
-#   exit 1
-# fi
-# cf set-env ${APPNAME} http_proxy ${PROXYROUTE}
-# cf set-env ${APPNAME} https_proxy ${PROXYROUTE}
-# cf set-env ${APPNAME} HTTP_PROXY ${PROXYROUTE}
-# cf set-env ${APPNAME} HTTPS_PROXY ${PROXYROUTE}

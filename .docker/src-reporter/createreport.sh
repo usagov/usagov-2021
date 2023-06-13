@@ -1,12 +1,16 @@
 #!/bin/bash
 echo starting container to create reports
-cd analytics-reporter
+cat ${CF_SYSTEM_CERT_PATH}/* > /etc/combined-certs.pem
+export NODE_EXTRA_CA_CERTS=/etc/combined-certs.pem
+
+export NODE_OPTIONS=''
 
 export http_proxy=$PROXYROUTE
 export https_proxy=$PROXYROUTE
 export HTTP_PROXY=$PROXYROUTE
 export HTTPS_PROXY=$PROXYROUTE
 
+npm config set proxy $PROXYROUTE
 npm config set https-proxy $PROXYROUTE
 
 AWS_REGION=$(jq -r '.["user-provided"]| .[].credentials | .["AWS_REGION"]' <<< "$VCAP_SERVICES")
@@ -26,14 +30,18 @@ ANALYTICS_REPORT_IDS_ES=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYT
 
 ANALYTICS_REPORT_EMAIL=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_REPORT_EMAIL"]' <<< "$VCAP_SERVICES")
 
-ANALYTICS_KEY=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY"]' <<< "$VCAP_SERVICES")
+# ANALYTICS_KEY=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY"]' <<< "$VCAP_SERVICES")
+ANALYTICS_KEY_PATH=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY_PATH"]' <<< "$VCAP_SERVICES")
 
-export ANALYTICS_KEY=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY"]' <<< "$VCAP_SERVICES")
+# export ANALYTICS_KEY=$ANALYTICS_KEY
+export ANALYTICS_KEY_PATH=$ANALYTICS_KEY_PATH
 export AWS_REGION=$AWS_REGION
 export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 export AWS_BUCKET=$AWS_BUCKET
 export ANALYTICS_REPORT_EMAIL=$ANALYTICS_REPORT_EMAIL
+
+cd analytics-reporter
 
 while true;
 do
