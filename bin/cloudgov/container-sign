@@ -1,0 +1,81 @@
+#!/bin/sh
+#
+# This script will attempt to sign a container image using Docker Content Trust.
+# Accepts one parameter, $CONTAINERTAG (e.g., gsatts/usagov-2021:cms-latest)
+#
+# If the necessary environment is not present to sign an image, this script exits
+# without error, so it may be included in scripts that are to be run with and 
+# without signing. 
+#
+# The following must all be set for this to work:
+#
+# $DOCKERHUB_USERNAME (this is not the organization, but rather a user who can log in)
+# $DOCKERHUB_ACCESS_TOKEN
+# $DCT_KEY
+# $DCT_HASH
+# $HOME
+#
+# ref: https://discuss.circleci.com/t/sign-docker-images-with-docker-content-trust/40319
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+
+CONTAINERTAG=${1}
+DCT_KEY=${DCT_KEY}
+DCT_HASH=${DCT_HASH}
+DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
+DOCKERHUB_ACCESS_TOKEN=${DOCKERHUB_ACCESS_TOKEN}
+HOME=${HOME}
+
+DOCKERUSER=${DOCKERUSER:-gsatts}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
+if [ -z "$DCT_KEY" ]
+then
+      echo "Skipping DCT signing; DCT_KEY not set"
+      exit 0;
+fi;
+
+if [ -z "$DCT_HASH" ]
+then
+      echo "Skipping DCT signing; DCT_HASH not set"
+      exit 0;
+fi;
+
+if [ -z "$CONTAINERTAG" ]
+then
+      echo "Must specify a container tag to build"
+      exit 0;
+fi;
+
+echo "Signing $CONTAINERTAG"
+
+# Make sure directory exists
+mkdir -p $HOME/.docker/trust/private
+
+# Decode and store signer key to file named as the key hash
+echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
+
+# Set required permissions level on key file
+chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
+
+# Log into docker
+echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+
+# Load key for signing
+docker trust key load $HOME/.docker/trust/private/$DCT_HASH.key --name circlecikey
+
+# Sign
+docker trust sign $CONTAINERTAG
+
