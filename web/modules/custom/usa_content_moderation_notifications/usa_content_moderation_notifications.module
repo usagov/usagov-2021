@@ -5,8 +5,8 @@
  * Call classes.
  */
 
-use Drupal\user\Entity\User;
 use Drupal\user\Entity\Role;
+use Drupal\user\Entity\User;
 
 /**
  * Update the content notification logic.
