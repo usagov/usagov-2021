@@ -87,9 +87,10 @@ $echo $SCRIPT_DIR/db-dump-deploy $DEPLOY_TAG
 # $echo aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --acl public-read 
 # echo  aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --acl public-read 
 
-# Update db and clear cache
-echo  cf ssh cms -c ". /etc/profile; drush updatedb; drush cr" 
-$echo cf ssh cms -c ". /etc/profile; drush updatedb; drush cr" 
+# Update db and clear cache. Should match what we do in scripts/bootstrap.sh.
+# TODO: maybe just run bootstrap? 
+echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
+$echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
 
 
 # Enable tome and exit maintenance mode
