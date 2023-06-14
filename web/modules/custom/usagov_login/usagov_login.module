@@ -6,8 +6,8 @@
  *
  */
 
-use Drupal\Core\Site\Settings;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Site\Settings;
 
 /**
  * Implements hook_form_FORM_ID_alter().
