@@ -4,8 +4,8 @@
  * @file
  * Self explained.
  */
-use Drupal\Core\Url;
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Url;
 
 /**
  * @file
