@@ -473,7 +473,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-906-general-espanol-redirect
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -483,7 +482,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-906-general-espanol-redirect
       - approve-dev-deployment:
           type: approval
           requires:
@@ -492,7 +490,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-906-general-espanol-redirect
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -500,7 +497,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-906-general-espanol-redirect
       - approve-stage-deployment:
           type: approval
           requires:
