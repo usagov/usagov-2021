@@ -471,7 +471,6 @@ workflows:
             branches:
               only:
                 - dev
-                - USAGOV-1013-circleci-integration-automation
                 - nav-items-menu-block
                 - stage
                 - prod
@@ -482,7 +481,6 @@ workflows:
             branches:
               only:
                 - dev
-                - USAGOV-1013-circleci-integration-automation
                 - nav-items-menu-block
                 - stage
                 - prod
@@ -494,7 +492,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1013-circleci-integration-automation
               - nav-items-menu-block
       - deploy-to-cloudgov-dev:
           requires:
@@ -503,7 +500,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1013-circleci-integration-automation
               - nav-items-menu-block
       - approve-stage-deployment:
           type: approval
