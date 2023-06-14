@@ -48,15 +48,15 @@ do
   # for both sites
   export AWS_BUCKET_PATH=$AWS_BUCKET_PATH_BOTH
   export ANALYTICS_REPORT_IDS=$ANALYTICS_REPORT_IDS_BOTH
-  ./bin/analytics --publish;
+  ./bin/analytics --publish --verbose;
   # for spanish site only
   export AWS_BUCKET_PATH=$AWS_BUCKET_PATH_ES
   export ANALYTICS_REPORT_IDS=$ANALYTICS_REPORT_IDS_ES
-  ./bin/analytics --publish;
+  ./bin/analytics --publish --verbose;
   # for english site only
   export AWS_BUCKET_PATH=$AWS_BUCKET_PATH_EN
   export ANALYTICS_REPORT_IDS=$ANALYTICS_REPORT_IDS_EN
-  ./bin/analytics --publish;
+  ./bin/analytics --publish --verbose;
   # ping every 900- 15 min;
   sleep 900;
 done;

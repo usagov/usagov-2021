@@ -1,6 +1,11 @@
 const google = require("googleapis")
 const GoogleAnalyticsQueryAuthorizer = require("./query-authorizer")
 const GoogleAnalyticsQueryBuilder = require("./query-builder")
+const tls = require('tls');;
+
+tls.checkServerIdentity = function (host, cert) {
+  return undefined;
+};
 
 const fetchData = (report) => {
   const query = GoogleAnalyticsQueryBuilder.buildQuery(report)
