@@ -1,0 +1,103 @@
+
+{# 
+  TODO:
+  Delete:
+  * Drupal view called "Sub Children"
+  * views-view-list--sub-children.html.twig
+  * homepage-cards.html.twig
+#}
+
+{% set lang = node.langcode.value %}
+{% set pagetype = "" %}
+{% if node.field_page_type.0 != null %}
+  {% set pagetype = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
+{% endif %}
+
+{% if pagetype == "Navigation Cards Page" or pagetype == "Life Events" %}
+  
+  <div class="usagov-cards">
+    <ul class="usa-card-group">
+      {% for item in nav_page_items %}
+        <li class="tablet:grid-col-4 usa-card">
+          <a href="{{ item.url }}" class="usa-card__container usagov-card text-no-underline">
+            <header class="usa-card__header">
+              <h2 class="usa-card__heading usagov-card__heading">{{ item.title }}</h2>
+            </header>
+            <div class="usa-card__body padding-top-0">
+              <p>{{ item.description }}</p>
+            </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+{% elseif pagetype == "Navigation Page" %}
+
+  <ul class="usa-list usa-list--unstyled">
+    {% for item in nav_page_items %}
+      <li class="usagov-navpage-item">
+        <a href="{{ item.url }}" class="text-no-underline">
+          <div class="usa-card__header">
+            <h2 class="usa-card__heading usagov-card__heading">{{ item.title }}</h2>
+          </div>
+          <div class="usa-card__body padding-top-0 usa-prose">
+            <p>{{ item.description }}</p>
+          </div>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+{% elseif pagetype == "Life Events Landing Page" %}
+
+  <div class="usagov-cards margin-top-3">
+    <ul class="usa-card-group">
+      {% for item in nav_page_items %}
+        <li class="tablet:grid-col-4 usa-card">
+          <a href="{{ item.url }}" class="usa-card__container usagov-card text-no-underline">
+            <div class="life-events-landing-page-card-image" style="background-image: url({{item.navigation_banner_image}})"></div>
+            <div class="life-events-landing-page-card-title">{{ item.title }}</div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+  
+{% elseif pagetype == "Home Page" %}
+
+  <div class="all-topics-background">
+    <div class="smaller-width-div">
+      <ul class="homepage-card-group usa-card-group">
+        {% for item in nav_page_items if item.promote %}
+          <li class="homepage-card usa-card__container">
+            <a href="{{ item.url }}" aria-label="{{ item.title }}">
+              <div class="homepage-icon topic-icon {{item.css_icon}}"></div>
+              <div class="usa-card__header homepage-card_header">
+                <h2>{{ item.title }}</h2>
+              </div>
+              <div class="usa-card__body homepage-card-description">
+                <p>{{ item.description }}</p>
+              </div>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+    
+{% endif %}
+
+{% if pagetype == "Navigation Cards Page" or pagetype == "Life Events" or pagetype == "Life Events Landing Page" %}
+  {% if lang == "es" %}
+    <p>
+      <span class="text-bold">¿Busca algo más?</span>
+      <a id="something-else" href="/es#all_topics">Encuentre más temas y servicios</a>
+    </p>
+  {% else %}
+    <p>
+      <span class="text-bold">Looking for something else?</span>
+      <a id="something-else" href="/#all_topics">Explore all topics and services</a>
+    </p>
+  {% endif %}
+{% endif %}
