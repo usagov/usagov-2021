@@ -1,4 +1,22 @@
 {% set lang = node.langcode.value %}
+
+{# Determine Language to decide which translations to use #}
+{% if node.langcode.langcode == "es" %}
+	{% set translations = {
+		'congress_members': 'Congresistas',
+		'elected_officials_link_text': 'Obtenga los nombres y la información de contacto de los funcionarios electos',
+		'elected_officials_link_url': '/es/funcionarios-electos',
+		'state_agencies': 'Agencias estatales'
+	} %}
+{% else %}
+	{% set translations = {
+		'congress_members': 'Congress members',
+		'elected_officials_link_text': 'Find the names and contact information for your elected officials',
+		'elected_officials_link_url': '/elected-officials',
+		'state_agencies': 'State agencies'
+	} %}
+{% endif %}
+
 {{ content.field_page_intro }}
 {{ content.body }}
 <div class="usagov-directory-table" id="State-Directory-Table">
@@ -39,12 +57,12 @@
 	{% endif %}
 
 	<div>
-		<h3 class="usa-prose">{{ lang == 'en' ? 'Congress members' : 'Congresistas' }}</h3>
-		<a href="/elected-officials">Find the names and contact information for your elected officials</a>
+		<h3 class="usa-prose">{{translations.congress_members}}</h3>
+		<a href="{{translations.elected_officials_link_url}}">{{translations.elected_officials_link_text}}</a>
 	</div>
 
 	<div>
-		<h3 class="usa-prose">{{ lang == 'en' ? 'State agencies' : 'Agencias estatales' }}</h3>
+		<h3 class="usa-prose">{{translations.state_agencies}}</h3>
 
 		{% if content.field_agriculture_department|render %}
 			<span class="field field--name-field-agriculture-department field--type-link field--label-hidden field__item">
