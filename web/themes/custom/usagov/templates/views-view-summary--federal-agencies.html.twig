@@ -28,14 +28,16 @@
     'agencyindex': '/agency-index',
     'agencySearchAffiliateID': 'usagov_en_az',
     'search': 'Search',
-    'agencySearchLabel': 'Search agencies and departments'
+    'agencySearchLabel': 'Search agencies and departments',
+    'or': 'OR'
   } %}
 {% else %}
   {% set translations = {
     'agencyindex': '/es/indice-agencias',
     'agencySearchAffiliateID': 'usagov_es_az',
     'search': 'Buscar',
-    'agencySearchLabel': 'Busque una agencia o departamento'
+    'agencySearchLabel': 'Busque una agencia o departamento',
+    'or': 'O'
   } %}
 {% endif %}
 
@@ -64,7 +66,7 @@
   <div><hr class="bl-divider"></div>
   <!-- Search Bar -->
   <div class="usagov-directory-search-container">
-    <p>OR</p>
+    <p>{{translations.or}}</p>
     <section aria-label="Small search component">
         <form class="fed-directory-search-bar" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
           <label id="fedGallerySearch" class="usa-sr-only" for="search-field-en-small">{{translations.agencySearchLabel}}</label>
