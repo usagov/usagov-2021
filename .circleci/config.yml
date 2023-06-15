@@ -87,6 +87,36 @@ commands:
             echo "Install Gulp on node "$(node --version)
             sudo npm install --global gulp-cli
 
+  snapshot-preamble:
+    parameters:
+      envname:
+        default: "dev"
+        type: string
+    steps:
+      - run:
+          name: Prepare Database and Tome in << parameters.envname >> for Backup.
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/deploy/try-tome-disable
+
+  snapshot-postamble:
+    parameters:
+      envname:
+        default: "dev"
+        type: string
+    steps:
+      - run:
+          name: Restore << parameters.envname >> to normal/running state.
+          command: |
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/deploy/try-tome-enable
+
   snapshot-backup:
     parameters:
       envname:
@@ -95,6 +125,7 @@ commands:
     steps:
       - checkout
       - install-cloud-foundry
+      - snapshot-preamble
       - run:
           name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
           command: |
@@ -103,6 +134,7 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
             ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+      - snapshot-postamble
 
 jobs:
   scan-code:
@@ -327,7 +359,7 @@ jobs:
       - deploy-cloudgov:
           envname: prod
 
-  snapshot-backup-dev:
+  run-snapshot-backup-dev:
     machine:
       image: ubuntu-2004:202101-01
     environment:
@@ -336,7 +368,7 @@ jobs:
       - snapshot-backup:
           envname: dev
 
-  snapshot-backup-stage:
+  run-snapshot-backup-stage:
     machine:
       image: ubuntu-2004:202101-01
     environment:
@@ -345,7 +377,7 @@ jobs:
       - snapshot-backup:
           envname: stage
 
-  snapshot-backup-prod:
+  run-snapshot-backup-prod:
     machine:
       image: ubuntu-2004:202101-01
     environment:
@@ -369,7 +401,7 @@ workflows:
     jobs:
       - lint
 
-  snapshot-backup:
+  try-snapshot-backup:
     jobs:
       - approve-snapshot-backup-dev:
           type: approval
@@ -380,7 +412,7 @@ workflows:
             branches:
               ignore:
               - /.*/
-      - snapshot-backup-dev:
+      - run-snapshot-backup-dev:
           filters:
             tags:
               only:
@@ -400,7 +432,7 @@ workflows:
             branches:
               ignore:
               - /.*/
-      - snapshot-backup-stage:
+      - run-snapshot-backup-stage:
           filters:
             tags:
               only:
@@ -420,7 +452,7 @@ workflows:
             branches:
               ignore:
               - /.*/
-      - snapshot-backup-prod:
+      - run-snapshot-backup-prod:
           filters:
             tags:
               only:
@@ -439,7 +471,6 @@ workflows:
             branches:
               only:
                 - dev
-                - nav-items-menu-block
                 - stage
                 - prod
       - build-and-push-container:
@@ -449,7 +480,6 @@ workflows:
             branches:
               only:
                 - dev
-                - nav-items-menu-block
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -460,7 +490,6 @@ workflows:
             branches:
               only:
               - dev
-              - nav-items-menu-block
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -468,7 +497,6 @@ workflows:
             branches:
               only:
               - dev
-              - nav-items-menu-block
       - approve-stage-deployment:
           type: approval
           requires:
