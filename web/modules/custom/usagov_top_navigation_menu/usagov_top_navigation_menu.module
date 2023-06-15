@@ -5,9 +5,9 @@
  * Use proprocess for html twig.
  */
 
-use Drupal\taxonomy\Entity\Term;
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\node\Entity\Node;
+use Drupal\taxonomy\Entity\Term;
 
 /**
  * Description message.

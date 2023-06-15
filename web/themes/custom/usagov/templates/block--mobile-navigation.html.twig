@@ -1,13 +1,4 @@
 
-{# 
-  For Testing on Federalist, replace
-  href="
-  with
-  href="/site/cwacht/test/mobilemenudemo
-
-  #}
-
-
 {# Determine Language to decide which menu and translations to use #}
 {% if node.langcode.langcode == "es" %}
   {% set main_nav_items = simplify_menu('left-menu-spanish') %}

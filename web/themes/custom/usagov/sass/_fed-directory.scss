@@ -4,20 +4,21 @@
 .usagov-directory-page-container {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  align-items: center;
+  margin-top: 2em;
 }
 
 .usagov-directory-container {
   padding: 1rem 2.8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  box-shadow: inset 0 0 0 0.15rem #fff;
+  width: 100%;
+  max-width: 35rem;
+  box-shadow: inset 0 0 0 0.15rem $medium-gray;
 }
 
 .usagov-directory-container-az {
   list-style: none;
-  max-width: 35rem;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(37px, 1fr));
@@ -68,11 +69,10 @@ a.intro-links:active {
 }
 
 hr.bl-divider {
-  background: rgb(231 231 231);
+  background: $medium-gray;
   border: 0;
-  height: 0.25rem;
-  width: auto;
-  display: none;
+  height: 0.15rem;
+  width: 100%;
 }
 
 .agency-index-label {
@@ -86,13 +86,17 @@ hr.bl-divider {
 // Search Bar
 .usagov-directory-search-container {
   justify-content: center;
+  display: flex;
   flex-direction: row;
   gap: 10px;
   align-items: center;
-  display: none;
 
   p {
     font-size: 18px;
+  }
+  section {
+    flex-grow: 1;
+    max-width: 20rem;
   }
 }
 
@@ -102,17 +106,18 @@ hr.bl-divider {
   display: flex;
   flex-direction: row;
   outline: 2px solid #0081a1;
-  border-top-right-radius: 0.25rem;
-  border-bottom-right-radius: 0.25rem;
+  border-radius: 0.25rem;
   background-color: #ccecf2;
 
   input::placeholder {
     color: #1b1b1b;
   }
+  [type=search]{
+    border-radius: 0.25rem;
+  }
 }
 
 .fed-directory-search-input {
-  width: 14rem;
   background-color: #ccecf2;
   outline: none;
   font-size: 0.98rem;
@@ -129,6 +134,8 @@ hr.bl-divider {
   border-left: 3px solid #ffff;
   outline-style: none;
   transition: background-color 200ms;
+  display: flex;
+  align-items: center;
 }
 
 .fed-directory-search-btn:hover {
