@@ -422,7 +422,6 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-dev
-
       - approve-snapshot-backup-stage:
           type: approval
           filters:
@@ -442,7 +441,6 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-stage
-
       - approve-snapshot-backup-prod:
           type: approval
           filters:
@@ -462,7 +460,6 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-prod
-
   build-and-deploy:
     jobs:
       - approve-build-and-push-container:
@@ -473,6 +470,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1016-backup-cms-public
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -482,6 +480,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1016-backup-cms-public
       - approve-dev-deployment:
           type: approval
           requires:
@@ -490,6 +489,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1016-backup-cms-public
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -497,6 +497,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1016-backup-cms-public
       - approve-stage-deployment:
           type: approval
           requires:
@@ -510,7 +511,6 @@ workflows:
           filters:
             branches:
               only: stage
-
       - approve-prod-deployment:
           type: approval
           requires:
