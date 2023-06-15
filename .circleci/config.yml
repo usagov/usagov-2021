@@ -473,7 +473,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-		- USAGOV-63-domain-redirects
+                - USAGOV-63-domain-redirects
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -483,7 +483,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-		- USAGOV-63-domain-redirects
+                - USAGOV-63-domain-redirects
       - approve-dev-deployment:
           type: approval
           requires:
