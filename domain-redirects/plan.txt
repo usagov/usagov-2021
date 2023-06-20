@@ -11,8 +11,8 @@ Need to configure domains, routes, and external service domains for each additio
   # Bind URLS to waf's route service:
   # NOTE: dev example. See also deploy-waf, which binds just the usa.gov subdomains. We can bind multiple
   #       domains to a single route service. 
-  # cf bind-route-service consumeraction.gov waf-route-dev-usagov
-  # cf bind-route-service www.consumeraction.gov waf-route-dev-usagov
+  cf bind-route-service consumeraction.gov waf-route-dev-usagov
+  cf bind-route-service www.consumeraction.gov waf-route-dev-usagov
   
   
   # Can specify multiple services on one external domain.
