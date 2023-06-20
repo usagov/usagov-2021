@@ -134,6 +134,7 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
             ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+            ./bin/snapshot-backups/public-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
       - snapshot-postamble
 
 jobs:
