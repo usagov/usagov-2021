@@ -13,6 +13,8 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
 export BUCKET_SOURCE_FOLDER=public
 if [ -f ./bin/snapshot-backups/snapshot-include ]; then
   . ./bin/snapshot-backups/snapshot-include
@@ -43,8 +45,6 @@ if [ $TIR != 0 ]; then
   echo Tome is running in the target environment.  Please try again momentarily
   exit 1
 fi
-
-source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 echo "S3_REGION: $S3_REGION"
 echo "S3_BUCKET: $S3_BUCKET"
