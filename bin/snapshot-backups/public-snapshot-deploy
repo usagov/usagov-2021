@@ -13,6 +13,8 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
 export BUCKET_SOURCE_FOLDER=public
 if [ -f ./bin/snapshot-backups/snapshot-include ]; then
   . ./bin/snapshot-backups/snapshot-include
@@ -40,8 +42,6 @@ if [ -z "$DEPLOY_TAG" ]; then
 else
   echo "Attempting to deploy the $DEPLOY_TAG s3 backup of the $BACKUP_DESCRIPTION to $SPACE"
 fi
-
-source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 echo aws s3 sync s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG/ s3://$S3_BUCKET/$BUCKET_SOURCE_FOLDER/ --only-show-errors --delete --acl public-read
 $echo aws s3 sync s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG/ s3://$S3_BUCKET/$BUCKET_SOURCE_FOLDER/ --only-show-errors --delete --acl public-read
