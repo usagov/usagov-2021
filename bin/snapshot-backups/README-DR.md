@@ -149,10 +149,44 @@ ___
 
 ### Retrieving Backup Snapshots from Google Drive
 
-For each of the snapshot types, retrieve the latest snapshot from Google Drive.  There will be the following folders in the Drive
+1. For each of the snapshot types, retrieve the latest snapshot from Google Drive.  There will be the following folders in Google Drive:
 
-CMSPublicFilesBackups
-StaticSiteBackups
-CMSDatabaseBackups
+        * CMSPublicFilesBackups
 
-Grab the latest zip file from each folder (names will be something like USAGOV-1022.prod.7286.post-deploy.zip USAGOV-1022.prod.7286.post-deploy.public.zip, USAGOV-1022.prod.7286.post-deploy.sql.zip)
+        * StaticSiteBackups
+
+        * CMSDatabaseBackups
+
+1. Grab the latest zip file from each folder. Names will be something like
+
+        * USAGOV-1022.prod.7286.post-deploy.zip
+
+        * USAGOV-1022.prod.7286.post-deploy.public.zip
+
+        * USAGOV-1022.prod.7286.post-deploy.sql.zip
+
+1. Place these files your local repository root directory
+1. Create an environment variable of the snapshot tag name for these files.  In the case of the above files, the tag would be as follows
+
+        export SNAPTAG=USAGOV-1022.prod.7286.post-deploy
+
+### Pushing Backup Snapshots to S3
+
+1. Push database snapshot
+
+        dryrun='--dryrun'
+        bin/snapshot-backups/db-dump-push-to-snapshot ${dryrun} ${SNAPTAG}
+
+1. Push static site snapshot
+
+        dryrun='--dryrun'
+        unzip ${SNAPTAG}.zip
+        bin/snapshot-backups/site-folder-push-to-snapshot ${dryrun} ${SNAPTAG}
+
+1. Push CMS public files snapshot
+
+        dryrun='--dryrun'
+        unzip ${SNAPTAG}.public.zip
+        bin/snapshot-backups/public-folder-push-to-snapshot ${dryrun} ${SNAPTAG}
+
+## Deploy snapshots to CF environment
