@@ -1,6 +1,6 @@
-FROM owasp/modsecurity:nginx-alpine
+FROM owasp/modsecurity@sha256:7c431a99ead2e765860fd0c3d7d42573119734497837d4172565b8c08e114ddb
 
-LABEL maintainer="Felipe Zipitria <felipe.zipitria@owasp.org>"
+LABEL maintainer="USA.gov Web Ops"
 
 ARG RELEASE=3.3.2
 

@@ -1,4 +1,3 @@
-ARG  NODE_BASE=node
 FROM composer:latest AS composer-builder
 
 ARG BUID=1000
@@ -65,7 +64,7 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 
 # USER www-data
 ###############################################################
-FROM ${NODE_BASE}:19.9-bullseye-slim AS theme-builder
+FROM node:19.9-bullseye-slim AS theme-builder
 
 ARG BUID=1000
 ARG BGID=1000
