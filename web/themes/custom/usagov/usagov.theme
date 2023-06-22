@@ -39,6 +39,9 @@ function usagov_preprocess_block(&$variables) {
   $variables['node'] = \Drupal::routeMatch()->getParameter('node');
 
   if ($variables['elements']['#id'] == 'navigation_page_items' || $variables['elements']['#id'] == 'navigation_page_items_spanish') {
+    $added_contexts = ['url.path']; // Use url.query_args as well for an easier test case
+    $variables['#cache']['contexts'] = array_merge($variables['#cache']['contexts'], $added_contexts);
+
     $items = $variables['content']['#items'];
     $children_of_active_menu_item = children_of_active_menu_item($items);
     $nav_page_items = [];
