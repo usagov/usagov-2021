@@ -1,0 +1,56 @@
+--- domains_from_conf	2023-06-21 16:48:52.000000000 -0700
++++ domains_from_spreadsheet	2023-06-21 16:49:36.000000000 -0700
+@@ -4,16 +4,15 @@
+ blog.gobiernousa.gov
+ business.usa.gov
+ businessusa.gov
+-challenge.gov
+ consumeraction.gov
+-faq.gov   (no DNS)
+ firstgov.gov
+ forms.gov
+-gobierno.gov  (no DNS)
+ gobierno.usa.gov
+ gobiernousa.gov
+ info.gov
+ kids.gov
++kids.usa.gov
++m.gobiernousa.gov
+ m.gsa.gov
+ m.usa.gov
+ my.usa.gov
+@@ -22,33 +21,23 @@
+ promotions.usa.gov
+ publications.usa.gov
+ registry.usa.gov
+-respuestas.gobierno.gov
+ respuestas.gobiernousa.gov
+-respuestas.gov
+ tell-us.usa.gov
+ tellus.usa.gov
+ us.gov
+ usa.gov
+ usagov.gov
+-usgovernment.gov   (no DNS)
+ vote.usa.gov
+-www.business.usa.gov   NO WWW
+ www.businessusa.gov
+-www.challenge.gov
+ www.consumeraction.gov
+-www.faq.gov     (no DNS)
+ www.feedback.usa.gov
+ www.firstgov.gov
+ www.forms.gov
+-www.gobierno.gov  (no DNS)
++www.gobierno.usa.gov
+ www.gobiernousa.gov
+ www.info.gov
+ www.kids.gov
+ www.my.usa.gov
+ www.promotions.usa.gov
+-www.tellus.usa.gov   (no DNS)
+ www.us.gov
+ www.usagov.gov
+-www.usgovernment.gov  (no DNS)
+-www.vote.gov
+-www.vote.usa.gov
