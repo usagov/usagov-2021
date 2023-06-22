@@ -66,14 +66,14 @@ function usagov_preprocess_block(&$variables) {
           $data->description = $childNode->get('field_meta_description')->value;
         }
 
-        if ($childNode->hasField('field_navigation_banner_image')
+        if ($childNode->hasField('field_navigation_banner_image' && count($childNode->get('field_navigation_banner_image')))
           && $childNode->get('field_navigation_banner_image')[0]->entity
         ) {
           $data->navigation_banner_image = file_url_transform_relative(file_create_url(
             $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
           ));
         }
-        if ($childNode->hasField('field_css_icon')) {
+        if ($childNode->hasField('field_css_icon') && count($childNode->get('field_css_icon'))) {
           $data->css_icon = $childNode->get('field_css_icon')[0]->value;
         }
         if ($childNode->hasField('promote')) {
