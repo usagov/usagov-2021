@@ -84,7 +84,6 @@ function usagov_preprocess_block(&$variables) {
         $data->title = $menuItem['title'];
         $data->url = $menuItem['url'];
         if (strncmp($data->url, "base:", 5) === 0) {
-          $host = \Drupal::request()->getSchemeAndHttpHost();
           $data->url = "/" . substr($data->url, 5);
         }
         $data->description = $menuItem['description'];
