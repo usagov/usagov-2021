@@ -1,18 +1,16 @@
-{"domains": 
+{"domains":
  [
      "usa.gov",
 
      "business.usa.gov",
      "businessusa.gov",
-     "challenge.gov",
      "consumeraction.gov",
-     "faq.gov",
      "firstgov.gov",
      "forms.gov",
-     "gobierno.gov",
      "gobiernousa.gov",
      "info.gov",
-     "kids.gov",
+     "kids.usa.gov",
+     "m.gobiernousa.gov",
      "my.usa.gov",
      "promotions.usa.gov",
      "tellus.usa.gov",
@@ -21,24 +19,18 @@
      "usgovernment.gov",
      "vote.usa.gov",
 
-     "www.business.usa.gov",
      "www.businessusa.gov",
-     "www.challenge.gov",
      "www.consumeraction.gov",
-     "www.faq.gov",
      "www.firstgov.gov",
      "www.forms.gov",
-     "www.gobierno.gov",
+     "www.gobierno.usa.gov",
      "www.gobiernousa.gov",
      "www.info.gov",
      "www.kids.gov",
      "www.my.usa.gov",
      "www.promotions.usa.gov",
-     "www.tellus.usa.gov",
      "www.us.gov",
      "www.usagov.gov",
-     "www.usgovernment.gov",
-     "www.vote.usa.gov",
 
      "answers.usa.gov",
      "apps.gobiernousa.gov",
@@ -51,11 +43,8 @@
      "notifications.usa.gov",
      "publications.usa.gov",
      "registry.usa.gov",
-     "respuestas.gov",
-     "respuestas.gobierno.gov",
-     "respuestas.gobiernousa.gov",     
+     "respuestas.gobiernousa.gov",
      "tell-us.usa.gov",
      "www.feedback.usa.gov",
-     "www.vote.gov"
  ]
 }
