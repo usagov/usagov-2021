@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\node\Entity\Node;
+use Drupal\taxonomy\Entity\Term;
 
 /**
  * @file
@@ -36,47 +37,53 @@ function children_of_active_menu_item(&$items) {
  * Process block content
  */
 function usagov_preprocess_block(&$variables) {
-  $variables['node'] = \Drupal::routeMatch()->getParameter('node');
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $variables['node'] = $node;
+
+  if($node->hasField('field_page_type') && $node->get('field_page_type')[0]->target_id){
+    $pagetypeTid = $node->get('field_page_type')[0]->target_id;
+    $variables['pagetype'] = Term::load($pagetypeTid)->getName();
+  }
 
   if ($variables['elements']['#id'] == 'navigation_page_items' || $variables['elements']['#id'] == 'navigation_page_items_spanish') {
     $items = $variables['content']['#items'];
     $children_of_active_menu_item = children_of_active_menu_item($items);
     $nav_page_items = [];
-    foreach ($children_of_active_menu_item as $object) {
+    foreach ($children_of_active_menu_item as $child) {
       try {
-        $nid = $object['url']->getRouteParameters()['node'];
-        $node = Node::load($nid);
+        $childNid = $child['url']->getRouteParameters()['node'];
+        $childNode = Node::load($childNid);
         $data = new StdClass();
-        $data->title = $node->get('title')->value;
-        $data->url = $node->toUrl()->toString();
-        if ($node->hasField('field_short_description') && $node->get('field_short_description')->value != "") {
-          $data->description = $node->get('field_short_description')->value;
+        $data->title = $childNode->get('title')->value;
+        $data->url = $childNode->toUrl()->toString();
+        if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
+          $data->description = $childNode->get('field_short_description')->value;
         }
-        elseif ($node->hasField('field_page_intro') && $node->get('field_page_intro')->value != "") {
-          $data->description = $node->get('field_page_intro')->value;
+        elseif ($childNode->hasField('field_page_intro') && $childNode->get('field_page_intro')->value != "") {
+          $data->description = $childNode->get('field_page_intro')->value;
         }
         else {
-          $data->description = $node->get('field_meta_description')->value;
+          $data->description = $childNode->get('field_meta_description')->value;
         }
 
-        if ($node->hasField('field_navigation_banner_image')
-          && $node->get('field_navigation_banner_image')[0]->entity
+        if ($childNode->hasField('field_navigation_banner_image')
+          && $childNode->get('field_navigation_banner_image')[0]->entity
         ) {
-          $data->navigation_banner_image = file_create_url(
-            $node->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
-          );
+          $data->navigation_banner_image = file_url_transform_relative(file_create_url(
+            $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
+          ));
         }
-        if ($node->hasField('field_css_icon')) {
-          $data->css_icon = $node->get('field_css_icon')[0]->value;
+        if ($childNode->hasField('field_css_icon')) {
+          $data->css_icon = $childNode->get('field_css_icon')[0]->value;
         }
-        if ($node->hasField('promote')) {
-          $data->promote = $node->get('promote')->value;
+        if ($childNode->hasField('promote')) {
+          $data->promote = $childNode->get('promote')->value;
         }
-        // $data->node = $node;
+        // $data->node = $childNode;
         array_push($nav_page_items, $data);
       }
       catch (Exception $e) {
-        $menuItem = $object['original_link']->getPluginDefinition();
+        $menuItem = $child['original_link']->getPluginDefinition();
         $data = new StdClass();
         $data->title = $menuItem['title'];
         $data->url = $menuItem['url'];
