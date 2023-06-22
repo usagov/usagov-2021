@@ -19,51 +19,67 @@ DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 APPNAME="AnalyticsReporter"
 
+# Grab the starting space and org where the command was run
+startorg=$(   cf target | grep org:   | awk '{ print $2 }')
+startspace=$( cf target | grep space: | awk '{ print $2 }')
+
+# Drop them off where we found them
+function popspace() {
+    echo "Popspace: ${startorg}/${startspace}"
+    cf target -o "$startorg" -s "$startspace" > /dev/null 2>&1
+}
+# trap popspace exit
+trap popspace err
+
+cf target -o "$startorg" -s tools > /dev/null 2>&1 ||
+    (echo "ERROR: Space ${startorg}/tools is not available!" && exit 1)
+
 # Content checks
 if ! command -v jq >/dev/null; then
   printf "\nMust have JQ installed\n"
   exit 1
 fi
 
+env_checks=()
+
 if [ -z "$ANALYTICS_KEY_PATH" ]; then
-  echo Must set ANALYTICS_KEY_PATH in env.local
-  exit 1
+  env_checks+=( "ANALYTICS_KEY_PATH" )
 fi
 
 if [ -z "$ANALYTICS_REPORT_EMAIL" ]; then
-  echo Must set ANALYTICS_REPORT_EMAIL in env.local
-  exit 1
+  env_checks+=( "ANALYTICS_REPORT_EMAIL" )
 fi
 
 if [ -z "$ANALYTICS_REPORT_IDS_BOTH" ]; then
-  echo Must set ANALYTICS_REPORT_IDS_BOTH in env.local
-  exit 1
+  env_checks+=( "ANALYTICS_REPORT_IDS_BOTH" )
 fi
 
 if [ -z "$ANALYTICS_REPORT_IDS_EN" ]; then
-  echo Must set ANALYTICS_REPORT_IDS_EN in env.local
-  exit 1
+  env_checks+=( "ANALYTICS_REPORT_IDS_EN" )
 fi
 
 if [ -z "$ANALYTICS_REPORT_IDS_ES" ]; then
-  echo Must set ANALYTICS_REPORT_IDS_ES in env.local
-  exit 1
+  env_checks+=( "ANALYTICS_REPORT_IDS_ES" )
 fi
 
 if [ -z "$AWS_BUCKET_PATH_BOTH" ]; then
-  echo Must set AWS_BUCKET_PATH_BOTH in env.local
-  exit 1
+  env_checks+=( "AWS_BUCKET_PATH_BOTH" )
 fi
-
 
 if [ -z "$AWS_BUCKET_PATH_EN" ]; then
-  echo Must set AWS_BUCKET_PATH_EN in env.local
-  exit 1
+  env_checks+=( "AWS_BUCKET_PATH_EN" )
 fi
 
-
 if [ -z "$AWS_BUCKET_PATH_ES" ]; then
-  echo Must set AWS_BUCKET_PATH_ES in env.local
+  env_checks+=( "AWS_BUCKET_PATH_ES" )
+fi
+
+if (( ${#env_checks[@]} )); then
+  err_msg="ERR! Must populate the following variables in env.local:"
+  for t in "${env_checks[@]}"; do
+    err_msg+=" $t"
+  done
+  echo "$err_msg"
   exit 1
 fi
 
@@ -99,24 +115,31 @@ ACCESS_KEY_ID=$(     echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.access
 REGION=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
 SECRET_ACCESS_KEY=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.secret_access_key" | uniq )
 
+s3_checks=()
+
 # Just make sure that we got all the s3 data we need
 if [ -z "$BUCKET" ]; then
-  echo Could not find BUCKET information.  Is the s3 service created and bound?
-  exit 1
+  s3_checks+=( "BUCKET" )
 fi
 
 if [ -z "$REGION" ]; then
-  echo Could not find REGION information.  Is the s3 service created and bound?
-  exit 1
+  s3_checks+=( "BUCKET" )
 fi
 
 if [ -z "$ACCESS_KEY_ID" ]; then
-  echo Could not find ACCESS_KEY_ID information.  Is the s3 service created and bound?
-  exit 1
+  s3_checks+=( "BUCKET" )
 fi
 
 if [ -z "$SECRET_ACCESS_KEY" ]; then
-  echo Could not find SECRET_ACCESS_KEY information.  Is the s3 service created and bound?
+  s3_checks+=( "BUCKET" )
+fi
+
+if (( ${#s3_checks[@]} )); then
+  err_msg="ERR! Is the s3 service created and bound? Could not find the following s3 information:"
+  for t in "${s3_checks[@]}"; do
+    err_msg+=" $t"
+  done
+  echo "$err_msg"
   exit 1
 fi
 
@@ -133,3 +156,5 @@ cf uups ${APPNAME}Services -p reporter-vcapsecrets.json
 # restart for variables
 echo Restarting ${APPNAME}
 cf restart ${APPNAME}
+
+popspace
