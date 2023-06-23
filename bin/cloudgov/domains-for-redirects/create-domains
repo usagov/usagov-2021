@@ -1,5 +1,4 @@
 #!/bin/bash
-set -eu
 
 # This script sets up cloud.gov domains and routes for a set of "redirect domains".
 # It's essentially one-time setup. For a single domain, the process looks like this:
@@ -12,8 +11,6 @@ set -eu
 #    Note that the domain is created in the scope of the gsa-tts-usagov ORG,
 #    while the rest of the commands target the prod SPACE.
 #
-#    Finally, after all domains are created, we can create an external domain service like so:
-#    cf create-service external-domain domain domain-redirects-domain -c domains.json
 
 if ! command -v cf &> /dev/null
 then
@@ -39,4 +36,6 @@ for domain in "${DOMAINS[@]}"; do
    $ECHO cf map-route cms $domain
    echo cf bind-route-service $domain waf-route-prod-usagov
    $ECHO cf bind-route-service $domain waf-route-prod-usagov
+   echo  cf create-service external-domain domain redirect-domain-${domain} -c { "domains": "$domain" }
+   $ECHO cf create-service external-domain domain redirect-domain-${domain} -c { "domains": "$domain" }
 done
