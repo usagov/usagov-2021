@@ -1,0 +1,67 @@
+#!/bin/sh
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+export BUCKET_SOURCE_FOLDER=public
+if [ -f ./bin/snapshot-backups/snapshot-include ]; then
+  . ./bin/snapshot-backups/snapshot-include
+else
+   echo Cannot find ${PWD}/bin/snapshot-backups/snapshot-include
+   exit 1
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+if [ x$echo == xecho ]; then
+  echo "Existing $BACKUP_DESCRIPTION Tags ... (dry run - no tags will be collected)"
+   exit
+fi
+
+printf "Existing $BACKUP_DESCRIPTION Tags ..."
+
+WITH_DATES="0"
+SORT_METHOD="sort"
+if [ "$1" == "--with-dates" ]; then
+  WITH_DATES="1"
+  SORT_METHOD="sort -rn -k1"
+fi
+
+# locate a directory within an s3 bucket that contains a build of the static site
+# display a list of available tags (directories) and their last updated date
+
+
+export available_tags=$(aws s3 ls s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
+# printf "\r                             \r"
+if [ "$WITH_DATES" == "1" ]; then
+  # sort by date, most recent first
+  echo
+  for tag in $(echo $available_tags); do
+    # gather the most recently update file under the path-tag
+    # there are >1k files so make sure we push the sort/extract logic into the server side query
+    export last_updated=$(aws s3api list-objects-v2 --bucket $S3_BUCKET --prefix $BUCKET_BACKUP_FOLDER/$tag/ --query 'sort_by(Contents, &LastModified)[-1].LastModified' | sed 's/"//g')
+    echo "$last_updated $tag"
+  done | sort -rn -k1
+else
+  # default to alphabetical sorting by tag name
+  echo
+  echo "$available_tags" | sort
+fi
+
+# todo: add a file count next to each dir so we can tell if it is a bogus build
