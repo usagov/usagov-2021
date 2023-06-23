@@ -39,6 +39,9 @@ function usagov_preprocess_block(&$variables) {
   $variables['node'] = \Drupal::routeMatch()->getParameter('node');
 
   if ($variables['elements']['#id'] == 'navigation_page_items' || $variables['elements']['#id'] == 'navigation_page_items_spanish') {
+    $added_contexts = ['url.path']; // Use url.query_args as well for an easier test case
+    $variables['#cache']['contexts'] = array_merge($variables['#cache']['contexts'], $added_contexts);
+
     $items = $variables['content']['#items'];
     $children_of_active_menu_item = children_of_active_menu_item($items);
     $nav_page_items = [];
@@ -59,14 +62,14 @@ function usagov_preprocess_block(&$variables) {
           $data->description = $node->get('field_meta_description')->value;
         }
 
-        if ($node->hasField('field_navigation_banner_image')
+        if ($node->hasField('field_navigation_banner_image' && count($node->get('field_navigation_banner_image')))
           && $node->get('field_navigation_banner_image')[0]->entity
         ) {
           $data->navigation_banner_image = file_create_url(
             $node->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
           );
         }
-        if ($node->hasField('field_css_icon')) {
+        if ($node->hasField('field_css_icon') && count($node->get('field_css_icon'))) {
           $data->css_icon = $node->get('field_css_icon')[0]->value;
         }
         if ($node->hasField('promote')) {
@@ -81,7 +84,6 @@ function usagov_preprocess_block(&$variables) {
         $data->title = $menuItem['title'];
         $data->url = $menuItem['url'];
         if (strncmp($data->url, "base:", 5) === 0) {
-          $host = \Drupal::request()->getSchemeAndHttpHost();
           $data->url = "/" . substr($data->url, 5);
         }
         $data->description = $menuItem['description'];
