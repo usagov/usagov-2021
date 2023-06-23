@@ -96,8 +96,7 @@ commands:
       - run:
           name: Prepare Database and Tome in << parameters.envname >> for Backup.
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/deploy/try-tome-disable
@@ -111,8 +110,7 @@ commands:
       - run:
           name: Restore << parameters.envname >> to normal/running state.
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/deploy/try-tome-enable
@@ -134,6 +132,7 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
             ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+            ./bin/snapshot-backups/public-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
       - snapshot-postamble
 
 jobs:
@@ -422,7 +421,6 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-dev
-
       - approve-snapshot-backup-stage:
           type: approval
           filters:
@@ -442,7 +440,6 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-stage
-
       - approve-snapshot-backup-prod:
           type: approval
           filters:
@@ -462,7 +459,6 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-prod
-
   build-and-deploy:
     jobs:
       - approve-build-and-push-container:
@@ -514,7 +510,6 @@ workflows:
           filters:
             branches:
               only: stage
-
       - approve-prod-deployment:
           type: approval
           requires:
