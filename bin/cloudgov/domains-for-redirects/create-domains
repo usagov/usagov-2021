@@ -36,6 +36,10 @@ for domain in "${DOMAINS[@]}"; do
    $ECHO cf map-route cms $domain
    echo cf bind-route-service $domain waf-route-prod-usagov
    $ECHO cf bind-route-service $domain waf-route-prod-usagov
-   echo  cf create-service external-domain domain redirect-domain-${domain} -c { "domains": "$domain" }
-   $ECHO cf create-service external-domain domain redirect-domain-${domain} -c { "domains": "$domain" }
+done
+
+echo "\n\nRUN THESE COMMANDS:\n\n"
+for domain in "${DOMAINS[@]}"; do
+   domainjson=`printf "'{\"domains\": \"%s\"}'" $domain`
+   echo  cf create-service external-domain domain redirect-domain-${domain} -c $domainjson
 done
