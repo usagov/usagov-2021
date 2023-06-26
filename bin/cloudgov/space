@@ -15,6 +15,9 @@ elif [ "$SPACE" = "stage" ]; then
 elif [ "$SPACE" = "prod" ]; then
     cf target -o $CF_PROD_ORG -s $CF_PROD_SPACE
 
+elif [ "$SPACE" = "tools" ]; then
+    cf target -o $CF_TOOLS_ORG -s $CF_TOOLS_SPACE
+
 elif [ "$SPACE" = "personal" ]; then
     cf target -o $CF_PERSONAL_ORG -s $CF_PERSONAL_SPACE
 
