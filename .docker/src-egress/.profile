@@ -32,12 +32,9 @@ ntnefina deny.acl
 ntnefina allow.acl
 
 # Make it easy to run curl tests on ourselves
-https_proxy="https://$PROXY_USERNAME:$PROXY_PASSWORD@$(echo "$VCAP_APPLICATION" |  jq .application_uris[0] | sed 's/"//g'):$PORT"
+https_proxy="https://$PROXY_USERNAME:$PROXY_PASSWORD@$(echo "$VCAP_APPLICATION" |  jq .application_uris[0] | sed 's/"//g'):61443"
 export https_proxy
 echo
 echo
 echo "The proxy connection URL is:"
 echo "  $https_proxy"
-
-# Ensure the inotify-tools binaries are found
-export PATH=$PATH:/home/vcap/deps/0/apt/usr/bin
