@@ -40,7 +40,7 @@ function usagov_preprocess_block(&$variables) {
   $node = \Drupal::routeMatch()->getParameter('node');
   $variables['node'] = $node;
 
-  if ($node->hasField('field_page_type') && $node->get('field_page_type')[0]->target_id) {
+  if ($node && $node->hasField('field_page_type') && $node->get('field_page_type')[0]->target_id) {
     $pagetypeTid = $node->get('field_page_type')[0]->target_id;
     $variables['pagetype'] = Term::load($pagetypeTid)->getName();
   }
