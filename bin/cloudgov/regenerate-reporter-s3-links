@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -o pipefail
+
+# Grab the starting space and org where the command was run
+startorg=$(   cf target | grep org:   | awk '{ print $2 }')
+startspace=$( cf target | grep space: | awk '{ print $2 }')
+
+# Drop them off where we found them
+function popspace() {
+    echo "Popspace: ${startorg}/${startspace}"
+    cf target -o "$startorg" -s "$startspace" > /dev/null 2>&1
+}
+# trap popspace exit
+trap popspace err
+
+echo jumping to AR to get s3 details
+cf target -o "$startorg" -s tools > /dev/null 2>&1 ||
+    (echo "ERROR: Space ${startorg}/tools is not available!" && exit 1)
+
+echo Collecting some info about s3
+VCAP_SERVICES=$(cf env AnalyticsReporter | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
+BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.bucket")
+REGION=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
+
+popspace
+
+echo replace bucket and region info that may have changed
+cf ssh cms -c "find ./website-analytics \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i 's/cg-[^/]*/$BUCKET/g' -i"
+
+cf ssh cms -c "find ./website-analytics \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i 's/s3-[^.]*/s3-$REGION/g' -i"
