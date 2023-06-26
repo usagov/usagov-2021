@@ -92,27 +92,27 @@ if [ -n "${DRYRUN}" ]; then
 fi
 
 # setup only one egress app per space, and point both waf and cms towards it
-echo "Gather Bucket names from App Space"
-buckethosts=""
-applist="cms waf"
-for app in $applist ; do
-    echo "Gathering buckets for $app"
-    VCAP_SERVICES=$(cf env "$app" | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
-    n=$(echo -E "$VCAP_SERVICES" | jq -r '.s3 | length')
-    i=0
-    while [ $i -lt "$n" ]
-    do
-        # Add attached buckets to the allow list
-        BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
-        AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint" | uniq )
-        AWS_ENDPOINT_ALT=$(  echo -E "$AWS_ENDPOINT"  | sed 's/s3\-us\-/s3.us-/g' | uniq )
-        AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
-        # Add both the FIPS and non-FIPS hostnames
-        buckethosts="$buckethosts ${BUCKET}.${AWS_ENDPOINT} ${BUCKET}.${AWS_ENDPOINT_ALT} ${BUCKET}.${AWS_FIPS_ENDPOINT}"
-        ((i+=1))
-    done
-done
-echo "Using buckets: $buckethosts"
+# echo "Gather Bucket names from App Space"
+# buckethosts=""
+# applist="cms waf"
+# for app in $applist ; do
+#     echo "Gathering buckets for $app"
+#     VCAP_SERVICES=$(cf env "$app" | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
+#     n=$(echo -E "$VCAP_SERVICES" | jq -r '.s3 | length')
+#     i=0
+#     while [ $i -lt "$n" ]
+#     do
+#         # Add attached buckets to the allow list
+#         BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
+#         AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint" | uniq )
+#         AWS_ENDPOINT_ALT=$(  echo -E "$AWS_ENDPOINT"  | sed 's/s3\-us\-/s3.us-/g' | uniq )
+#         AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
+#         # Add both the FIPS and non-FIPS hostnames
+#         buckethosts="$buckethosts ${BUCKET}.${AWS_ENDPOINT} ${BUCKET}.${AWS_ENDPOINT_ALT} ${BUCKET}.${AWS_FIPS_ENDPOINT}"
+#         ((i+=1))
+#     done
+# done
+# echo "Using buckets: $buckethosts"
 
 # We need these files to exist for each app, even if they're empty.
 echo "Touching $SCRIPT_DIR/apps-egress-deny.acl"
