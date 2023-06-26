@@ -104,6 +104,22 @@ commands:
             ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
             ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
 
+  deploy-reporter:
+    parameters:
+      envname:
+        default: "tools"
+        type: string
+    steps:
+      - checkout
+      - install-cloud-foundry
+      - run:
+          name: Deploying Analytics Reporter to tools space.
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-reporter
+
 jobs:
   scan-code:
     machine:
@@ -354,6 +370,15 @@ jobs:
       - snapshot-backup:
           envname: prod
 
+  deploy-reporter-tools:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-reporter:
+          envname: tools
+
 workflows:
   version: 2
 
@@ -430,6 +455,28 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-prod
+
+  deploy-reporter:
+    jobs:
+      - approve-deploy-reporter:
+          type: approval
+          filters:
+            branches:
+              only:
+                - dev
+                - stage
+                - prod
+                - USAGOV-56-integrate-analytics-backend
+      - deploy-reporter-tools:
+          filters:
+            branches:
+              only:
+                - dev
+                - stage
+                - prod
+                - USAGOV-56-integrate-analytics-backend
+          requires:
+            - approve-deploy-reporter
 
   build-and-deploy:
     jobs:
