@@ -113,4 +113,5 @@ bin/cloudgov/test/nr/php/manifest-vars.yml
 .docker/src-waf/etc/nginx/snippets/ip-restrict-cms.conf
 .docker/src-waf/etc/nginx/snippets/ip-restrict-www.conf
 
-
+.docker/src-reporter/analytics.pem
+reporter-vcapsecrets.json
