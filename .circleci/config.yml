@@ -113,7 +113,7 @@ commands:
       - checkout
       - install-cloud-foundry
       - run:
-          name: Deploying Analytics Reporter to tools space.
+          name: Deploying Analytics Reporter to tools space
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
