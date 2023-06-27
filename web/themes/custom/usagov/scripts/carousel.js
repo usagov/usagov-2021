@@ -38,7 +38,7 @@ jQuery(document).ready(function ($) {
     goToSlide(currentSlideIndex, {"setFocus": false});
   }
  else {
-    previousButton.style.visibility = "hidden";
+    // previousButton.style.visibility = "hidden";
   }
 
   if (slideDots.length > 0) {
@@ -140,7 +140,7 @@ jQuery(document).ready(function ($) {
 
     // check if the left or right arrow should be hidden
     if (leftMostSlideIndex === 0) {
-      previousButton.style.visibility = "hidden";
+      // previousButton.style.visibility = "hidden";
       nextButton.style.visibility = "visible";
     }
  else if (leftMostSlideIndex === slides.length - 1) {

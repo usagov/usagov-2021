@@ -386,7 +386,9 @@
 }
 
 .slide {
-  height: 275px;
+  height: 285px;
+  width: 236px;
+  max-width: 236px;
   flex: 0 0 calc(100%);
   margin-top: 10px;
   border: 1px solid #53BBDF;
@@ -412,8 +414,6 @@
       outline: none;
     }
   }
-
-
 
   .slide:last-child {
     margin-right: 0px;
@@ -666,10 +666,6 @@
     padding-left: 30px;
   }
 
-  // .slide:not(:last-child) {
-  //   margin-right: 0;
-  // }
-
   .all-topics-header h2 {
     margin-left: auto;
     margin-right: auto;
@@ -722,10 +718,11 @@
   }
 
   .carousel-mover {
-    width: 100%;
-    max-width: 930px;
-    margin-left: 0;
-    margin-right: auto;
+    // width: 100%;
+    // max-width: 930px;
+    max-width: none;
+    padding-left: 30px;
+    padding-right: 30px;
   }
 
   .carousel .usa-card-group {
@@ -736,9 +733,7 @@
   .slide {
     flex: 0 0 calc(100% / 3);
     padding: 16px;
+    width: 260px;
+    max-width: 260px;
   }
-
-  // .slide:not(:last-child) {
-  //   margin-right: 0;
-  // }
 }
