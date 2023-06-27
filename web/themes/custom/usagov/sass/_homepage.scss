@@ -395,7 +395,7 @@
   border-radius: 4px;
   box-shadow: 0 3px 6px rgba(122,122,122,.15);
   padding: 12px;
-  margin-right: 4px;
+
 
   &:focus-within {
     border: 4px solid #c05600;
@@ -664,6 +664,7 @@
     flex: 0 0 calc(100% / 2);
     padding-right: 30px;
     padding-left: 30px;
+    margin-right: 4px;
   }
 
   .all-topics-header h2 {
@@ -735,5 +736,6 @@
     padding: 16px;
     width: 260px;
     max-width: 260px;
+    margin-right: 4px;
   }
 }
