@@ -2,9 +2,7 @@
 /**
 **/
 #}
-{% if view.current_display == "life_events_block" and view.title == "Life Events Carousel"%}
-
-
+{% if view.title == "Life Events Carousel"%}
 	<h3 class="usa-card__heading usagov-card__heading carouselHeaders">
 		{{row.node_field_data_title}}
 	</h3>
@@ -13,19 +11,15 @@
 		{% if short_description != null %}
 			{{short_description}}
 		{% else %}
-			{% set page_intro = row.node__field_page_intro_field_page_intro_value %}
+			{% set page_intro = row._entity.field_page_intro.value %}
 			{% if page_intro != null %}
 				{{page_intro}}
 			{% endif %}
 		{% endif %}
-		{# {{ row.node__field_short_description_field_short_description_value}} #}
 	</p>
 	<div class="thumbnailDiv">
 		{% set image_card_uri = row._entity.field_navigation_banner_image.entity.field_media_image.entity.fileuri %}
 		{% set image_card_alt = row._entity.field_navigation_banner_image.entity.field_media_image.alt %}
 		<img class="thumbnailBanner" alt="{{image_card_alt}}" src="{{file_url(image_card_uri|image_style('max_480w'))}}"/>
 	</div>
-	{# <img class="thumbnailBanner" src={{file_url(row._entity.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}/></div> #}
-
-
 {% endif %}

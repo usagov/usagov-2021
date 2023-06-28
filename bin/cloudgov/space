@@ -7,18 +7,27 @@ CLOUDDIR=$(dirname "$0")
 SPACE=$1
 
 if [ "$SPACE" = "dev" ]; then
+    echo cf target -o $CF_DEV_ORG -s $CF_DEV_SPACE
     cf target -o $CF_DEV_ORG -s $CF_DEV_SPACE
 
 elif [ "$SPACE" = "stage" ]; then
+    echo cf target -o $CF_STAGE_ORG -s $CF_STAGE_SPACE
     cf target -o $CF_STAGE_ORG -s $CF_STAGE_SPACE
 
 elif [ "$SPACE" = "prod" ]; then
+    echo cf target -o $CF_PROD_ORG -s $CF_PROD_SPACE
     cf target -o $CF_PROD_ORG -s $CF_PROD_SPACE
 
+elif [ "$SPACE" = "tools" ]; then
+    echo cf target -o $CF_TOOLS_ORG -s $CF_TOOLS_SPACE
+    cf target -o $CF_TOOLS_ORG -s $CF_TOOLS_SPACE
+
 elif [ "$SPACE" = "personal" ]; then
+    echo cf target -o $CF_PERSONAL_ORG -s $CF_PERSONAL_SPACE
     cf target -o $CF_PERSONAL_ORG -s $CF_PERSONAL_SPACE
 
 elif [ "$SPACE" = "shared-egress" ] || [ "$SPACE" = "egress" ]; then
+    echo cf target -o $CF_EGRESS_ORG -s $CF_EGRESS_SPACE
     cf target -o $CF_EGRESS_ORG -s $CF_EGRESS_SPACE
 
 else

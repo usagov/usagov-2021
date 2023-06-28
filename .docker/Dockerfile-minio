@@ -1,4 +1,4 @@
-FROM minio/minio:latest
+FROM minio/minio:RELEASE.2022-10-24T18-35-07Z
 
 COPY .docker/src-minio/docker-entrypoint-minio.sh /docker-entrypoint-minio.sh
 COPY .docker/src-minio/setup-bucket.sh /setup-bucket.sh
