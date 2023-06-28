@@ -113,13 +113,25 @@ commands:
       - checkout
       - install-cloud-foundry
       - run:
-          name: Deploying Analytics Reporter to tools space
+          name: Build Reporter Container
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/container-build-reporter
+      - run:
+          name: Push Reporter Container to Dockerhub
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/container-push-reporter
+      - run:
+          name: Deploy Analytics Reporter
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-reporter
 
 jobs:
