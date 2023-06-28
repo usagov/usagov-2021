@@ -113,6 +113,11 @@ commands:
       - checkout
       - install-cloud-foundry
       - run:
+          name: Login to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+      - run:
           name: Build Reporter Container
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
