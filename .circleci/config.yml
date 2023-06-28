@@ -118,6 +118,8 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/container-build-reporter
+            ./bin/cloudgov/container-push-reporter
             ./bin/cloudgov/deploy-reporter
 
 jobs:
