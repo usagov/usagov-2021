@@ -21,7 +21,7 @@ function lookup(address, callback) {
             });
             req.execute(callback);
         }
-else if (count > 100) {
+    else if (count > 100) {
             // Stop trying after 100 attempts (10 seconds)
             window.clearInterval(timer);
         }
@@ -272,10 +272,10 @@ function renderResults(response, rawResponse) {
             if (level === "country") {
                 appendLocation = document.getElementById(content["levels"][0]);
             }
- else if (level === "administrativeArea1") {
+            else if (level === "administrativeArea1") {
                 appendLocation = document.getElementById(content["levels"][1]);
             }
-  else {
+            else {
                 appendLocation = document.getElementById(content["levels"][2]);
             }
 
