@@ -114,7 +114,12 @@
 	{% endif %}
 
 	<div{{content_attributes.addClass(classes)}}>
-		{{ content }}
+		{% if term_name == "Navigation Cards Page" %}
+            {{ content.body }}
+            {{ content.field_page_intro }}
+        {% else %}
+            {{ content }}
+        {% endif %}
 	</div>
 {% if term_name == "State Office Page" %}
 	{% set lang = node.langcode.value %}

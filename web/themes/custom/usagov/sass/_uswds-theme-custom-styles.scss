@@ -741,7 +741,7 @@ a {
 .desktop\:grid-col-fill .content-wrapper {
   // On Navigation Cards pages, display the content in reverse order. So the Nav banner is displayed above the Intro Text.
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
 }
 
 // This style is needed to extend the width of nav page intro text
