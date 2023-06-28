@@ -141,10 +141,7 @@ $output cf target -o "$startorg" -s "$startspace" 2>&1 > /dev/null
 for app in $applist; do
     echo "Configure Egress settings for $app"
     $output cf add-network-policy "$app" "$proxyname" -s "$egressspace" -o "$egressorg" --protocol tcp --port 61443
-    $output cf unset-env "$app" http_proxy  # $proxyroute
-    $output cf unset-env "$app" https_proxy # $proxyroute
-    $output cf unset-env "$app" HTTP_PROXY  # $proxyroute
-    $output cf unset-env "$app" HTTPS_PROXY # $proxyroute
+    $output cf set-env "$app" PROXYROUTE $proxyroute
     $output cf set-env "$app" AWS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
     $output cf set-env "$app" REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
