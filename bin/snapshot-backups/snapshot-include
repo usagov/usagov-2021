@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# This gets set in the enclosing script
+#BUCKET_SOURCE_FOLDER=[public | web | db]
+#export BUCKET_SOURCE_FOLDER=public-test
+
+case $BUCKET_SOURCE_FOLDER in
+    public)
+        export BUCKET_SOURCE_FOLDER='cms/public'
+        export BACKUP_LISTER=public-snapshot-list
+        export BACKUP_DESCRIPTION="CMS public files"
+        ;;
+    web)
+        export BACKUP_DESCRIPTION="Static Site files"
+        export BACKUP_LISTER=${BUCKET_SOURCE_FOLDER}-snapshot-list
+        ;;
+    db)
+        export BACKUP_DESCRIPTION="CMS database files"
+        export BACKUP_LISTER=${BUCKET_SOURCE_FOLDER}-snapshot-list
+        ;;
+    *)
+        echo "Empty or unknown snapshot type: $BUCKET_SOURCE_FOLDER"
+        echo "The following must be defined in the enclosing script: BUCKET_SOURCE_FOLDER=[public | web | db]"
+        exit
+esac
+
+export BUCKET_BACKUP_FOLDER=${BUCKET_SOURCE_FOLDER}-backup
+
+echo '==========================================='
+echo BUCKET_SOURCE_FOLDER: $BUCKET_SOURCE_FOLDER
+echo BUCKET_BACKUP_FOLDER: $BUCKET_BACKUP_FOLDER
+echo BACKUP_DESCRIPTION:   $BACKUP_DESCRIPTION
+echo BACKUP_LISTER:        $BACKUP_LISTER
+echo '==========================================='

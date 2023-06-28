@@ -1,0 +1,77 @@
+{
+  "name": "analytics-reporter",
+  "version": "1.2.2",
+  "description": "A lightweight command line tool for reporting and publishing analytics data from a Google Analytics account.",
+  "keywords": [
+    "analytics",
+    "google analytics"
+  ],
+  "homepage": "https://github.com/18F/analytics-reporter",
+  "license": "CC0-1.0",
+  "scripts": {
+    "migrate": "`npm bin`/knex migrate:latest",
+    "pretest": "NODE_ENV=test npm run migrate",
+    "start": "node app.js",
+    "test": "`npm bin`/mocha test/*.test.js test/**/*.test.js"
+  },
+  "contributors": [
+    {
+      "name": "Gabriel Ramirez",
+      "email": "gabriel.ramirez@gsa.gov"
+    },
+    {
+      "name": "Eric Mill",
+      "email": "eric.mill@gsa.gov"
+    },
+    {
+      "name": "Lauren Ancona",
+      "email": "lauren.ancona@phila.gov"
+    },
+    {
+      "name": "Eric Schles",
+      "email": "eric.schles@gsa.gov"
+    }
+  ],
+  "files": [
+    "bin",
+    "src",
+    "test",
+    "reports",
+    "index.js",
+    "newrelic.js",
+    "package.json",
+    "*.md"
+  ],
+  "engines": {
+    "node": "12.x.x"
+  },
+  "preferGlobal": true,
+  "main": "index",
+  "bin": {
+    "analytics": "./bin/analytics"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/18F/analytics-reporter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/18F/analytics-reporter/issues"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.58.0",
+    "fast-csv": "^4.3.0",
+    "googleapis": "^19.0.0",
+    "minimist": "^1.2.0",
+    "winston-color": "^1.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.0.2",
+    "mocha": "^8.0.1",
+    "proxyquire": "^2.1.3"
+  },
+  "optionalDependencies": {
+    "knex": "^0.19.5",
+    "newrelic": "^1.36.1",
+    "pg": "^8.2.1"
+  }
+}

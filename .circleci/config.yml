@@ -86,6 +86,22 @@ commands:
             echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
             echo "Install Gulp on node "$(node --version)
             sudo npm install --global gulp-cli
+  signed-dockerhub-login:
+    steps:
+      - run:
+          name: Set up DCT signer key
+          command: |
+            mkdir -p $HOME/.docker/trust/private
+            # Decode and store signer key to file named as the key hash
+            echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
+            # Set required permissions level on key file
+            chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
+      - run:
+          name: Login to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+
 
   snapshot-preamble:
     parameters:
@@ -96,8 +112,7 @@ commands:
       - run:
           name: Prepare Database and Tome in << parameters.envname >> for Backup.
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/deploy/try-tome-disable
@@ -111,8 +126,7 @@ commands:
       - run:
           name: Restore << parameters.envname >> to normal/running state.
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/deploy/try-tome-enable
@@ -134,7 +148,39 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
             ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+            ./bin/snapshot-backups/public-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
       - snapshot-postamble
+
+  deploy-reporter:
+    parameters:
+      envname:
+        default: "tools"
+        type: string
+    steps:
+      - checkout
+      - install-cloud-foundry
+      - signed-dockerhub-login
+      - run:
+          name: Build Reporter Container
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/container-build-reporter
+      - run:
+          name: Push Reporter Container to Docker Hub
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/container-push-reporter
+      - run:
+          name: Deploy Analytics Reporter
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-reporter
 
 jobs:
   scan-code:
@@ -233,6 +279,7 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout
+      - signed-dockerhub-login
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -244,19 +291,6 @@ jobs:
             touch /tmp/results/scan-waf-container.log
             touch /tmp/results/scan-cms-container-cis.log
             touch /tmp/results/scan-waf-container-cis.log
-      - run:
-          name: Set up DCT signer key
-          command: |
-            mkdir -p $HOME/.docker/trust/private
-            # Decode and store signer key to file named as the key hash
-            echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
-            # Set required permissions level on key file
-            chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
-      - run:
-          name: Login to Docker Hub
-          no_output_timeout: 30m
-          command: |
-            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
       - run:
           name: Scan Code
           command: |
@@ -386,6 +420,15 @@ jobs:
       - snapshot-backup:
           envname: prod
 
+  deploy-reporter-tools:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-reporter:
+          envname: tools
+
 workflows:
   version: 2
 
@@ -422,7 +465,6 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-dev
-
       - approve-snapshot-backup-stage:
           type: approval
           filters:
@@ -442,7 +484,6 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-stage
-
       - approve-snapshot-backup-prod:
           type: approval
           filters:
@@ -462,6 +503,26 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-prod
+
+  deploy-reporter:
+    jobs:
+      - approve-deploy-reporter:
+          type: approval
+          filters:
+            branches:
+              only:
+                - dev
+                - stage
+                - prod
+      - deploy-reporter-tools:
+          filters:
+            branches:
+              only:
+                - dev
+                - stage
+                - prod
+          requires:
+            - approve-deploy-reporter
 
   build-and-deploy:
     jobs:
@@ -510,7 +571,6 @@ workflows:
           filters:
             branches:
               only: stage
-
       - approve-prod-deployment:
           type: approval
           requires:
