@@ -52,8 +52,8 @@ function renderResults(response, rawResponse) {
             "path-contact": "/elected-officials-email",
         },
         "es": {
-            "error-fetch": "ERROR: Failed trying to fetch elected officials!",
-            "error-address": "ERROR: Could not find elected officials for given address!",
+            "error-fetch": "¡Error al intentar buscar a los funcionarios electos!",
+            "error-address": "¡ERROR: No se pudieron encontrar funcionarios electos para la dirección proporcionada!",
             "levels": ["Funcionarios federales", "Funcionarios estatales", "Funcionarios locales"],
             "party-affiliation": "Afiliación de partido",
             "address": "Dirección",
