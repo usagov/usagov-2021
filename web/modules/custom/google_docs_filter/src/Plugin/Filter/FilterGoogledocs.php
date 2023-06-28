@@ -7,9 +7,9 @@
 
 namespace Drupal\google_docs_filter\Plugin\Filter;
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
-use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provides a filter to clean google doc code!
