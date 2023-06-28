@@ -1,0 +1,93 @@
+#!/bin/sh
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+export BUCKET_SOURCE_FOLDER=public
+if [ -f ./bin/snapshot-backups/snapshot-include ]; then
+  . ./bin/snapshot-backups/snapshot-include
+else
+   echo Cannot find ${PWD}/bin/snapshot-backups/snapshot-include
+   exit 1
+fi
+
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+DEPLOY_TAG=${1}
+shift
+
+if [ -z "$DEPLOY_TAG" ]; then
+  echo
+  echo "Usage: $0 [--dryrun] <tag>"
+  echo "This will create a backup named for the tag in the local directory. Use $BACKUP_LISTER to see available tags."
+  echo "  --dryrun simply prints the commands that would have run"
+  echo
+  exit 1
+fi
+
+$echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+SOURCE_DIR=${DEPLOY_TAG}.public
+ZIP_FILE=$DEPLOY_TAG.public.zip
+
+if [ x$echo != xecho ]; then
+
+  export available_tags=$(aws s3 ls s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
+  echo
+  echo "$available_tags" | grep $DEPLOY_TAG
+  if [ $? != 0 ]; then
+    echo "Unable to locate $DEPLOY_TAG in s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER"
+    exit 1
+  fi
+
+  mkdir $SOURCE_DIR
+  success=$?
+
+  if [ "$success" != "0" ]; then
+      echo "Unable to create directory $SOURCE_DIR.  Does it already exist?"
+      exit 1
+  fi
+
+else
+  if [ -e $SOURCE_DIR ]; then
+     echo
+     echo "****** The local destination folder $SOURCE_DIR (or a file with that name) already exists!"
+     echo "****** If you run this script without the '--dryrun' argument, it will refuse to overwrite the existing item."
+     echo
+  fi
+
+fi
+
+echo "Downloading files from s3 to local directory './${SOURCE_DIR}'. This could take awhile."
+echo aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG $SOURCE_DIR --recursive
+$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG $SOURCE_DIR --recursive
+
+echo "Creating zip file $ZIP_FILE"
+echo zip -rq ${ZIP_FILE} ${SOURCE_DIR}
+$echo zip -rq ${ZIP_FILE} ${SOURCE_DIR}
+success=$?
+
+if [ "$success" != "0" ]; then
+  echo "Unable to create Zip file of backup directory ${SOURCE_DIR}."
+  exit 1
+fi
+
+$echo rm -rf $SOURCE_DIR
+echo "Done."
+
+exit 0
