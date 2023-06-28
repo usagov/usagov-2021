@@ -25,7 +25,7 @@
 				allow_file allow.acl
 				deny all
 			}
-			ports 80 443 22
+			ports 80 443 22 61443
 			serve_pac
 		}
 	}
