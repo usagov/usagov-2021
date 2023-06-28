@@ -86,6 +86,22 @@ commands:
             echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
             echo "Install Gulp on node "$(node --version)
             sudo npm install --global gulp-cli
+  signed-dockerhub-login:
+    steps:
+      - run:
+          name: Set up DCT signer key
+          command: |
+            mkdir -p $HOME/.docker/trust/private
+            # Decode and store signer key to file named as the key hash
+            echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
+            # Set required permissions level on key file
+            chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
+      - run:
+          name: Login to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+
 
   snapshot-backup:
     parameters:
@@ -112,19 +128,7 @@ commands:
     steps:
       - checkout
       - install-cloud-foundry
-      - run:
-          name: Login to Docker Hub
-          no_output_timeout: 30m
-          command: |
-            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
-      - run:
-          name: Set up DCT signer key
-          command: |
-            mkdir -p $HOME/.docker/trust/private
-            # Decode and store signer key to file named as the key hash
-            echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
-            # Set required permissions level on key file
-            chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
+      - signed-dockerhub-login
       - run:
           name: Build Reporter Container
           command: |
@@ -244,6 +248,7 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout
+      - signed-dockerhub-login
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -255,19 +260,6 @@ jobs:
             touch /tmp/results/scan-waf-container.log
             touch /tmp/results/scan-cms-container-cis.log
             touch /tmp/results/scan-waf-container-cis.log
-      - run:
-          name: Set up DCT signer key
-          command: |
-            mkdir -p $HOME/.docker/trust/private
-            # Decode and store signer key to file named as the key hash
-            echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
-            # Set required permissions level on key file
-            chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
-      - run:
-          name: Login to Docker Hub
-          no_output_timeout: 30m
-          command: |
-            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
       - run:
           name: Scan Code
           command: |
