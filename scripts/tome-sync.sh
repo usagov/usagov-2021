@@ -5,6 +5,7 @@ TOME_MAX_CHANGE_ALLOWED=0.10
 TOMELOGFILE=$1
 YMDHMS=$2
 FORCE=${3:-0}
+RETRY_SEMAPHORE_FILE=/tmp/tome-log/retry-on-next-run
 
 if [ -z "$YMDHMS" ]; then
   YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
@@ -174,10 +175,53 @@ ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
 
+EN_HOME_HTML_FILE=/var/www/html/index.html
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
-ES_HOME_HTML_SIZE=$(stat -c%s "$ES_HOME_HTML_FILE")
+EN_HOME_HTML_BAD=0
+ES_HOME_HTML_BAD=0
+if [ -f $ES_HOME_HTML_FILE ]; then
+  ES_HOME_HTML_SIZE=$(stat -c%s "$ES_HOME_HTML_FILE")
+else
+  ES_HOME_HTML_SIZE=0
+fi
+
+# Too-small file is probably a redirect page
 if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
-   echo "*** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***"
+  echo "WARNING: *** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***" | tee -a $TOMELOG
+  ES_HOME_HTML_BAD=1
+fi
+
+# Sometimes Tome generates an English mobile menu on the Spanish home page
+ES_HOME_CONTAINS_ENGLISH_MENU=`grep -c 'About us' $ES_HOME_HTML_FILE`
+if [ "$ES_HOME_CONTAINS_ENGLISH_MENU" != "0"  ]; then
+  echo "WARNING: *** ES index.html appears to contain English nav ***" | tee -a $TOMELOG
+  ES_HOME_HTML_BAD=1
+fi
+
+# Check for the correct type of cards on the home page. (We can remove these checks if we don't
+# see this problem through, oh, 2023-07-30.)
+EN_HOME_CORRECT_CARDS=`grep -c 'homepage-card' $EN_HOME_HTML_FILE`
+if [ "$EN_HOME_CORRECT_CARDS" == "0" ]; then
+  echo "WARNING: *** EN index.html lacks homepage cards ***" | tee -a $TOMELOG
+  EN_HOME_HTML_BAD=1
+fi
+ES_HOME_CORRECT_CARDS=`grep -c 'homepage-card' $ES_HOME_HTML_FILE`
+if [ "$ES_HOME_CORRECT_CARDS" == "0" ]; then
+  echo "WARNING: *** ES index.html lacks homepage cards ***" | tee -a $TOMELOG
+  ES_HOME_HTML_BAD=1
+fi
+
+if [ "$EN_HOME_HTML_BAD" == "1" ]; then
+  # Delete the known-bad file; it may be re-created correctly on the next run.
+  rm $EN_HOME_HTML_FILE
+  touch $RETRY_SEMAPHORE_FILE
+  TOME_PUSH_NEW_CONTENT=0
+fi
+
+if [ "$ES_HOME_HTML_BAD" == "1" ]; then
+  # Delete the known-bad file; it may be re-created correctly on the next run.
+  rm $ES_HOME_HTML_FILE
+  touch $RETRY_SEMAPHORE_FILE
   TOME_PUSH_NEW_CONTENT=0
 fi
 
@@ -196,7 +240,7 @@ else
 fi
 
 if [ -f "$TOMELOG" ]; then
-  echo "Saving logs of this run to S3" | tee -a $TOMELOG
+  echo "Saving logs of this run to S3: $TOMELOG -> $BUCKET_NAME/tome-log/$TOMELOGFILE" | tee -a $TOMELOG
   echo "SYNC FINISHED" | tee -a $TOMELOG
   aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 else

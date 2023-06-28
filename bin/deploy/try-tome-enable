@@ -1,0 +1,52 @@
+#!/bin/bash
+
+source /etc/profile
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+needsDisabled=0
+if ! isSpaceSSHEnabled $startspace; then
+  enableSpaceSSH $startspace
+  if [ "$?" -ne "0" ]; then
+      assertSpaceSSHEnabled $startspace
+  fi
+  needsDisabled=1
+fi
+
+echo "Running: /var/www/scripts/toggle-maintenance-mode.sh 0"
+$echo cf ssh cms -c "/var/www/scripts/maintenance-mode-toggle.sh 0"
+retval=$?
+
+if [ $retval != 0 ]; then
+  echo
+  echo "Disabling Drupal's maintenance mode may have failed."
+  echo "Static Site Generation will therefore remain disabled."
+  echo "Please check this in the CMS, ASAP!"
+  echo
+else
+  echo "Running: /var/www/scripts/tome-disabled-toggle.sh 0"
+  $echo cf ssh cms -c "/var/www/scripts/tome-disabled-toggle.sh 0"
+  td_retval=$?
+  if [ $td_retval != 0 ]; then
+    echo
+    echo "Enabling Static Site Generation may have failed."
+    echo "Please check this the CMS, ASAP!"
+    echo
+    retval=$td_retval
+  fi
+fi
+
+if [ $needsDisabled != 0 ]; then
+   cf disallow-space-ssh $startspace
+fi
+
+exit $retval
