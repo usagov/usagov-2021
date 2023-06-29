@@ -85,13 +85,6 @@
     </div>
     {% endif %}
 
-    {% if fields.field_acronym.content|striptags|trim %}
-    <div>
-      <p>{{ lang == 'en' ? 'Acronym' : 'Acrónimo' }}:&nbsp;</p>
-      <p>{{- fields.field_acronym.content -}}</p>
-    </div>
-    {% endif %}
-
     {% if fields.nothing.content|striptags|trim %}
       <div>
         <p>
