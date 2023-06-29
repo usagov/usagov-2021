@@ -469,6 +469,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-669-newrelic-infrastructure-and-proxy
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -478,6 +479,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-669-newrelic-infrastructure-and-proxy
       - approve-dev-deployment:
           type: approval
           requires:
