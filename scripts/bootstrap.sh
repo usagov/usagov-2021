@@ -106,7 +106,6 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
     sed -i \
         -e "s|;\?newrelic.license =.*|newrelic.license = ${NEW_RELIC_LICENSE_KEY}|" \
         -e "s|;\?newrelic.process_host.display_name =.*|newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}|" \
-        # -e "s|;\?newrelic.daemon.address =.*|newrelic.daemon.address = ${NEW_RELIC_DAEMON_DOMAIN:-newrelic.apps.internal}:${NEW_RELIC_AGENT_PORT:-31339}|" \
         -e "s|;\?newrelic.appname =.*|newrelic.appname = \"${NEW_RELIC_APP_NAME:-CMS-dev;USA.gov}\"|" \
         -e "s|;\?newrelic.daemon.loglevel =.*|newrelic.daemon.loglevel = \"${NEW_RELIC_LOG_LEVEL:-debug}\"|" \
         -e "s|;\?newrelic.loglevel =.*|newrelic.loglevel = \"${NEW_RELIC_LOG_LEVEL:-debug}\"|" \

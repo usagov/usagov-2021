@@ -126,15 +126,15 @@ function setupNewrelic { #appname
 
 if appExists cms; then
   setupRoutes cms
-#  setupEgress cms
-  setupNewrelic cms
+ setupEgress cms
+  # setupNewrelic cms
   pushApp cms
 else
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
   pushApp cms
   setupRoutes cms
-#  setupEgress cms
-  setupNewrelic cms
+ setupEgress cms
+  # setupNewrelic cms
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
   restartApp cms
 fi
