@@ -292,6 +292,8 @@
   margin: 0;
   padding: 0;
   display: flex;
+ justify-content: space-between;
+
 
   .grid-container {
     width: 100%;
@@ -387,7 +389,7 @@
 
 .slide {
   height: 285px;
-  width: 236px;
+  // width: 236px;
   max-width: 236px;
   flex: 0 0 calc(100%);
   margin-top: 10px;
@@ -395,7 +397,8 @@
   border-radius: 4px;
   box-shadow: 0 3px 6px rgba(122,122,122,.15);
   padding: 0px;
-
+  // margin-left: calc((100% - 236px)/2);
+  // margin-right: calc((100% - 236px)/2);
 
   &:focus-within {
     border: 4px solid #c05600;
@@ -633,6 +636,15 @@
   margin-top: 25px;
 }
 
+/* Larger Mobiles */
+@media (min-width: 400px) {
+.slide {
+  width: 236px;
+  max-width: 236px;
+  margin-left: calc((100% - 236px)/2);
+  margin-right: calc((100% - 236px)/2);
+}
+}
 /* Tablet & Desktop */
 @media (min-width: 480px) {
   .welcome-box {
@@ -677,12 +689,14 @@
 
   .slide {
     flex: 0 0 calc(50% - 14px);
-    // margin-right: 15px;
     width: auto;
     max-width: inherit;
+    margin-right: 0;
+    margin-left: 0;
   }
   .slide:not(:last-child) {
     margin-right: 15px;
+    margin-left: 0;
   }
 
   .all-topics-header h2 {
@@ -746,12 +760,14 @@
 
   .slide {
     flex: 0 0 calc(50% - 14px);
-    // margin-right: 15px;
     width: auto;
     max-width: inherit;
+    margin-right: 0;
+    margin-left: 0;
   }
   .slide:not(:last-child) {
     margin-right: 15px;
+    margin-left: 0;
   }
 
   .all-topics-header h2 {
@@ -822,6 +838,8 @@
     padding: 0px;
     width: 260px;
     max-width: 260px;
+    margin-right: 0;
+    margin-left: 0;
 
     .life_events_card_text {
       padding: 16px 16px 0px 16px;
@@ -830,5 +848,6 @@
   }
   .slide:not(:last-child) {
     margin-right: 12px;
+    margin-left: 0;
   }
 }
