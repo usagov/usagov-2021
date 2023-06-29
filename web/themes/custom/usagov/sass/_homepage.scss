@@ -822,11 +822,13 @@
     padding: 0px;
     width: 260px;
     max-width: 260px;
-    margin-right: 15px;
 
     .life_events_card_text {
       padding: 16px 16px 0px 16px;
       height:210px;
     }
+  }
+  .slide:not(:last-child) {
+    margin-right: 12px;
   }
 }
