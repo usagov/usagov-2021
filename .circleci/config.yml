@@ -488,6 +488,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-669-newrelic-infrastructure-and-proxy
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -495,6 +496,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-669-newrelic-infrastructure-and-proxy
       - approve-stage-deployment:
           type: approval
           requires:
