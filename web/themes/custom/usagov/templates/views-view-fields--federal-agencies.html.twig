@@ -39,7 +39,6 @@
 {% set lang = row._entity.langcode.value %}
 {% set UTitle = 'dr-' ~ fields.title.content|striptags|trim %}
 {% set UID = fields.nid.content|striptags|trim %}
-
 <div class="usa-accordion usagov-directory-accordion-container">
   <h2 class="usa-accordion__heading">
     <button
@@ -49,6 +48,9 @@
       class="usa-accordion__button"
       >
       {{- fields.title.content -}}
+      {% if fields.field_acronym.content|striptags|trim %}
+         ({{- fields.field_acronym.content|striptags|trim -}})
+      {% endif %}
     </button>
   </h2>
 
