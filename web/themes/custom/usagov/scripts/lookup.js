@@ -110,7 +110,9 @@ function renderResults(response, rawResponse) {
         for (let j = 0; j < response.offices[i].officialIndices.length; j++) {
             let officialIndex = response.offices[i].officialIndices[j];
             response.officials[officialIndex].office = response.offices[i].name;
-            response.officials[officialIndex].level = response.offices[i].levels[0];
+            if (response.offices[i].levels) {
+                response.officials[officialIndex].level = response.offices[i].levels[0];
+            }
         }
     }
 
