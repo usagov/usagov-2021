@@ -1,8 +1,7 @@
 #!/bin/sh
 # Restore CMS database and files to a specific environment.
 # Typically used for "downsync" from prod to dev or stage.
-#
-# TODO: add usage statement. usage is "$0 [--dryrun] DEPLOY_TAG [FROM_SPACE]"; default FROM_SPACE is prod
+
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -34,7 +33,6 @@ TO_SPACE=$(cf target | grep space: | awk '{ print $2 }')
 FROM_SPACE=${2:-prod}
 GZIP_FILE=${DEPLOY_TAG}.sql.gz
 WEB_FILES=${DEPLOY_TAG}_files
-# WEB_FILES_GZIP=${WEB_FILES}.gz
 
 echo "Downloading $DEPLOY_TAG
       FROM: $FROM_SPACE
@@ -55,15 +53,6 @@ $echo aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FI
 # Download s3 cms/public file snapshot
 echo  aws s3 sync --only-show-errors s3://$S3_BUCKET/public-backup/$DEPLOY_TAG $WEB_FILES
 $echo aws s3 sync --only-show-errors s3://$S3_BUCKET/public-backup/$DEPLOY_TAG $WEB_FILES
-
-# TODO: We don't have these snapshots yet.
-# if [ -n "$echo" -o  -f $WEB_FILES_GZIP ]; then
-#   echo  gunzip -f $WEB_FILES_GZIP
-#   $echo gunzip -f $WEB_FILES_GZIP
-# else
-#    echo It appears that $WEB_FILES_GZIP was not created or not downloaded from $SPACE
-#    exit 1
-# fi
 
 # Target TO_SPACE for deployment.
 echo  cf target -s $TO_SPACE
@@ -91,7 +80,6 @@ $echo aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --ac
 echo  aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --acl public-read
 
 # Update db and clear cache. Should match what we do in scripts/bootstrap.sh.
-# TODO: maybe just run bootstrap?
 echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
 $echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
 
