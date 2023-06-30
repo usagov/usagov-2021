@@ -34,9 +34,14 @@ TO_SPACE=$(cf target | grep space: | awk '{ print $2 }')
 FROM_SPACE=${2:-prod}
 GZIP_FILE=${DEPLOY_TAG}.sql.gz
 WEB_FILES=${DEPLOY_TAG}_files
-WEB_FILES_GZIP=${WEB_FILES}.gz
+# WEB_FILES_GZIP=${WEB_FILES}.gz
 
-echo "Downloading $DEPLOY_TAG from $FROM_SPACE and deploying to $TO_SPACE"
+echo "Downloading $DEPLOY_TAG
+      FROM: $FROM_SPACE
+      TO: $TO_SPACE"
+
+. $SCRIPT_DIR/../cloudgov/are-you-sure.sh
+[[ "$?" = "1" ]] && exit 1;
 
 # Target FROM_SPACE. We are only copying s3 snapshots from FROM_SPACE
 echo  cf target -s $FROM_SPACE
@@ -47,11 +52,9 @@ $echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
 $echo aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
 
-
 # Download s3 cms/public file snapshot
-# TODO: We don't save these snapshots yet. 
-# echo  aws s3 cp --only-show-errors s3:$S3_BUCKET/public-backup/$DEPLOY_TAG $WEB_FILES_GZIP
-# $echo aws s3 cp --only-show-errors s3:$S3_BUCKET/public-backup/$DEPLOY_TAG $WEB_FILES_GZIP
+echo  aws s3 sync --only-show-errors s3://$S3_BUCKET/public-backup/$DEPLOY_TAG $WEB_FILES
+$echo aws s3 sync --only-show-errors s3://$S3_BUCKET/public-backup/$DEPLOY_TAG $WEB_FILES
 
 # TODO: We don't have these snapshots yet.
 # if [ -n "$echo" -o  -f $WEB_FILES_GZIP ]; then
@@ -62,7 +65,7 @@ $echo aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FI
 #    exit 1
 # fi
 
-# Target TO_SPACE for deployment. 
+# Target TO_SPACE for deployment.
 echo  cf target -s $TO_SPACE
 $echo cf target -s $TO_SPACE
 
@@ -76,19 +79,19 @@ if [[ $? != 0 ]]; then
 fi
 
 # Deploy database to TO_SPACE
-echo  $SCRIPT_DIR/db-dump-deploy $DEPLOY_TAG  
-$echo $SCRIPT_DIR/db-dump-deploy $DEPLOY_TAG  
+echo  $SCRIPT_DIR/db-dump-deploy $DEPLOY_TAG
+$echo $SCRIPT_DIR/db-dump-deploy $DEPLOY_TAG
 
 
 # Deploy s3 cms/public snapshot
-# TODO: we don't have the public snapshots yet
-# $echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+# get-s3-access resets S3_BUCKET as well as access credentials
+$echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
-# $echo aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --acl public-read 
-# echo  aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --acl public-read 
+$echo aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --acl public-read
+echo  aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --acl public-read
 
 # Update db and clear cache. Should match what we do in scripts/bootstrap.sh.
-# TODO: maybe just run bootstrap? 
+# TODO: maybe just run bootstrap?
 echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
 $echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
 
