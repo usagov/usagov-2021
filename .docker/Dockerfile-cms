@@ -261,6 +261,11 @@ RUN chmod -R +x /etc/periodic \
 
 RUN curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.sh | bash
 
+RUN /etc/init.d/newrelic-infra start
+
+
+RUN apk del bash
+
 EXPOSE 80
 
 WORKDIR /var/www

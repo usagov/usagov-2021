@@ -113,6 +113,14 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
         -e "s|;\?newrelic.daemon.dont_launch =.*|newrelic.daemon.dont_launch = 0|" \
         -e "s|;\?newrelic.enabled =.*|newrelic.enabled = true|" \
         /etc/php8/conf.d/newrelic.ini
+
+    sed -i \
+        -e "s|#\?license_key =.*|license_key = ${NEW_RELIC_LICENSE_KEY}|" \
+        -e "s|#\?fedramp =.*|fedramp = true|" \
+        -e "s|#\?enable_process_metrics =.*|enable_process_metrics = true|" \
+        -e "s|#\?ca_bundle_dir =.*|ca_bundle_dir = ${CF_SYSTEM_CERT_PATH}|" \
+        -e "s|#\?proxy =.*|proxy = ${PROXYROUTE}|" \
+        /etc/newrelic-infra.yml
   else
     echo "Turning off New Relic ... "
     sed -i \
