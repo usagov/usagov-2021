@@ -6,11 +6,11 @@ usagov_directories.main:
   requirements:
     _permission: 'administer site configuration'
 
-usagov_directories.delete_form:
-  path: '/admin/config/usagov_directories/delete_records'
+usagov_directories.add_acronyms_form:
+  path: '/admin/config/usagov_directories/add_acronyms'
   defaults:
-    _title: 'Delete Directory Records'
-    _form: '\Drupal\usagov_directories\Form\DirectoryRecordsDeleteForm'
+    _title: 'Add Acronyms'
+    _form: '\Drupal\usagov_directories\Form\DirectoryRecordsAddAcronymsForm'
   requirements:
     _permission: 'administer site configuration'
 
