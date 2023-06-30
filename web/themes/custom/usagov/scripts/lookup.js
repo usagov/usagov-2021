@@ -70,10 +70,39 @@ function renderResults(response, rawResponse) {
     let resultsDiv = document.getElementById("results");
 
     // No response received - return error
-    if (!response || response.error) {
+    if (!response) {
         resultsDiv.appendChild(document.createTextNode(
             content["error-fetch"]
         ));
+        dataLayer.push({
+            'event': 'CEO API Error',
+            'error type': "no-response-from-api",
+            'error message': content["error-fetch"]
+        });
+        return;
+    }
+    if (response.error) {
+        let errorType;
+        switch (response.error.code) {
+            case 400: // Failed to parse address or No address provided
+            case 404: // No information for this address
+            case 409: // Conflicting information for this address
+                errorType = "error-address";
+                break;
+            case 401: // The request was not appropriately authorized
+            case 403: // Too many OCD IDs retrieved
+            case 503: // backendError
+            default:
+                errorType = "error-fetch";
+                break;
+        }
+        resultsDiv.appendChild(document.createTextNode(content[errorType]));
+        dataLayer.push({
+            'event': 'CEO API Error',
+            'error type': errorType,
+            'error message': content[errorType],
+            'error code': response.error.code
+        });
         return;
     }
 
@@ -290,6 +319,11 @@ function renderResults(response, rawResponse) {
         resultsDiv.appendChild(document.createTextNode(
             content["error-address"]
         ));
+        dataLayer.push({
+            'event': 'CEO API Error',
+            'error type': "no-officials-from-api",
+            'error message': content["error-address"]
+        });
     }
 }
 
