@@ -8,10 +8,6 @@
 #}
 
 {% set lang = node.langcode.value %}
-{% set pagetype = "" %}
-{% if node.field_page_type.0 != null %}
-  {% set pagetype = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
-{% endif %}
 
 {% if pagetype == "Navigation Cards Page" or pagetype == "Life Events" %}
 
