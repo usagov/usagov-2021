@@ -101,7 +101,8 @@ function renderResults(response, rawResponse) {
             'event': 'CEO API Error',
             'error type': errorType,
             'error message': content[errorType],
-            'error code': response.error.code
+            'error code': response.error.code,
+            'error detail': response.error.message
         });
         return;
     }
