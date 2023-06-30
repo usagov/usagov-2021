@@ -86,12 +86,12 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary {
-  border: 1px solid color("cyan-50v");
+  border: 2px solid color("cyan-50v");
 }
 
 .usa-button--secondary:hover {
   background-color: color("cyan-20");
-  border: 1px solid color("cyan-50v");
+  border: 2px solid color("cyan-50v");
 }
 
 .usa-button--secondary:visited,
@@ -741,7 +741,7 @@ a {
 .desktop\:grid-col-fill .content-wrapper {
   // On Navigation Cards pages, display the content in reverse order. So the Nav banner is displayed above the Intro Text.
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
 }
 
 // This style is needed to extend the width of nav page intro text
