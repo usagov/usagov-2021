@@ -258,6 +258,8 @@ RUN chmod -R +x /etc/periodic \
     && cp /etc/motd /var/www/web/version.txt \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
 
+RUN curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.sh | bash
+
 EXPOSE 80
 
 WORKDIR /var/www
