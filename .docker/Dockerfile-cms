@@ -133,6 +133,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && apk upgrade --update \
     && apk add --no-cache --virtual .persistent-deps \
       aws-cli \
+      bash \
       ca-certificates \
       curl \
       gettext \
