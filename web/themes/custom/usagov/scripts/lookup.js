@@ -21,7 +21,7 @@ function lookup(address, callback) {
             });
             req.execute(callback);
         }
-else if (count > 100) {
+    else if (count > 100) {
             // Stop trying after 100 attempts (10 seconds)
             window.clearInterval(timer);
         }
@@ -52,8 +52,8 @@ function renderResults(response, rawResponse) {
             "path-contact": "/elected-officials-email",
         },
         "es": {
-            "error-fetch": "ERROR: Failed trying to fetch elected officials!",
-            "error-address": "ERROR: Could not find elected officials for given address!",
+            "error-fetch": "¡Error al intentar buscar a los funcionarios electos!",
+            "error-address": "¡ERROR: No se pudieron encontrar funcionarios electos para la dirección proporcionada!",
             "levels": ["Funcionarios federales", "Funcionarios estatales", "Funcionarios locales"],
             "party-affiliation": "Afiliación de partido",
             "address": "Dirección",
@@ -82,7 +82,9 @@ function renderResults(response, rawResponse) {
         for (let j = 0; j < response.offices[i].officialIndices.length; j++) {
             let officialIndex = response.offices[i].officialIndices[j];
             response.officials[officialIndex].office = response.offices[i].name;
-            response.officials[officialIndex].level = response.offices[i].levels[0];
+            if (response.offices[i].levels) {
+                response.officials[officialIndex].level = response.offices[i].levels[0];
+            }
         }
     }
 
@@ -272,10 +274,10 @@ function renderResults(response, rawResponse) {
             if (level === "country") {
                 appendLocation = document.getElementById(content["levels"][0]);
             }
- else if (level === "administrativeArea1") {
+            else if (level === "administrativeArea1") {
                 appendLocation = document.getElementById(content["levels"][1]);
             }
-  else {
+            else {
                 appendLocation = document.getElementById(content["levels"][2]);
             }
 
