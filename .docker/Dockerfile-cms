@@ -134,6 +134,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && apk add --no-cache --virtual .persistent-deps \
       aws-cli \
       bash \
+      sudo \
       ca-certificates \
       curl \
       gettext \
@@ -264,7 +265,7 @@ RUN curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.
 RUN /etc/init.d/newrelic-infra start
 
 
-RUN apk del bash
+RUN apk del bash sudo
 
 EXPOSE 80
 
