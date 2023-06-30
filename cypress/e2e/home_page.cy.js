@@ -2,8 +2,19 @@ describe('Home Page', () => {
     beforeEach(() => {
         // Set viewport size and base URL
         cy.viewport('macbook-13')
-        cy.visit('/') 
+        cy.visit('/')
     })
+    /*it.only('All links are valid', () => {
+        cy.get('a')
+            .filter(':visible')
+            .not('.usa-sr-only')
+            .each((link) => {
+                cy.visit(link.attr('href'));
+                cy.contains('Page not found').should('not.exist')
+
+                cy.go('back')
+            })
+    })*/
     it('Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
         cy.get('header')
             .find('.usa-banner__header')
@@ -105,7 +116,7 @@ describe('Home Page', () => {
         cy.url().should('include', '/about')
 
         // Test Benefits link
-        cy.visit('/')
+        cy.go('back')
         cy.get('#usa-nav_benefits')
             .find('a')
             .click()
@@ -113,7 +124,7 @@ describe('Home Page', () => {
         cy.url().should('include', '/benefits')
 
         // Test Housing link
-        cy.visit('/')
+        cy.go('back')
         cy.get('#usa-nav_housing')
             .find('a')
             .click()
@@ -121,7 +132,7 @@ describe('Home Page', () => {
         cy.url().should('include', '/housing-help')
 
         // Test Scams link
-        cy.visit('/')
+        cy.go('back')
         cy.get('#usa-nav__scams')
             .find('a')
             .click()
@@ -129,7 +140,7 @@ describe('Home Page', () => {
         cy.url().should('include', '/scams-and-fraud')
 
         // Test Taxes link
-        cy.visit('/')
+        cy.go('back')
         cy.get('#usa-nav_taxes')
             .find('a')
             .click()
@@ -137,7 +148,7 @@ describe('Home Page', () => {
         cy.url().should('include', '/taxes')
 
         // Test Travel link
-        cy.visit('/')
+        cy.go('back')
         cy.get('#usa-nav_travel')
             .find('a')
             .click()
@@ -150,5 +161,47 @@ describe('Home Page', () => {
         
         cy.get('.welcome-box')
             .should('be.visible')
+    })
+    it('How do I area appears correctly with links to four pages/topics', () => {
+        cy.get('.how-box')
+            .contains('How do I')
+            .should('be.visible')
+        
+        // Verify there are 4 links
+        cy.get('.how-box')
+            .find('a')
+            .as('links')
+            .should('be.visible')
+            .should('have.length', 4)
+
+        // Check each link is valid
+        cy.get('@links')
+            .each((link) => {
+                cy.visit(link.attr('href'));
+                cy.contains('Page not found').should('not.exist')
+
+                cy.go('back')
+            })
+    })
+    it('Jump to All topics and services link/button appears and jumps to correct place on page', () => {
+        // Check text and button
+        cy.get('.jump')
+            .contains('Jump to')
+            .should('be.visible')
+            
+        cy.get('.jump')
+            .find('img')
+            .should('be.visible')
+            .should('have.attr', 'src', '/themes/custom/usagov/images/Reimagined_Jump_to_Arrow.svg')
+            .should('have.attr', 'alt', 'Jump to all topics and services')
+        
+        // Verify link is valid
+        cy.get('.jump')
+            .each((el) => {
+                cy.visit(el.find('a').attr('href'))
+                cy.url().should('include', '#all-topics-header')
+
+                cy.visit('/')
+            })
     })
 })
