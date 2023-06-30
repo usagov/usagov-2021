@@ -76,8 +76,7 @@ function renderResults(response, rawResponse) {
         ));
         dataLayer.push({
             'event': 'CEO API Error',
-            'error type': "no-response-from-api",
-            'error message': content["error-fetch"]
+            'error type': "no-response-from-api"
         });
         return;
     }
@@ -100,7 +99,6 @@ function renderResults(response, rawResponse) {
         dataLayer.push({
             'event': 'CEO API Error',
             'error type': errorType,
-            'error message': content[errorType],
             'error code': response.error.code,
             'error detail': response.error.message
         });
@@ -322,8 +320,7 @@ function renderResults(response, rawResponse) {
         ));
         dataLayer.push({
             'event': 'CEO API Error',
-            'error type': "no-officials-from-api",
-            'error message': content["error-address"]
+            'error type': "no-officials-from-api"
         });
     }
 }
