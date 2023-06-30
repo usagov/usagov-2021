@@ -157,6 +157,21 @@ function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
 }
 
 /**
+ * Preprocess title for Federal Agency pages
+ *
+ */
+function usa_twig_vars_preprocess_page_title(&$variables, $hook) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if (is_object($node) && method_exists($node, 'getFields')) {
+    if (($node->getType() == 'directory_record') && $node->hasField('field_acronym')) {
+      if ($acronym = $node->get('field_acronym')->value) {
+        $variables['title_suffix']['#markup'] = '(' . $acronym . ')';
+      }
+    }
+  }
+}
+
+/**
  * Add context to the federal_agencies view to allow us to show the current letter,
  * and add links to the "next" and "previous" letters.
  * Note that the _summary preprocess hook runs first (at least for this view) and
