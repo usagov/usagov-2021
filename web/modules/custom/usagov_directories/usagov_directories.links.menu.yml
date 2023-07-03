@@ -19,9 +19,9 @@ usagov_directories.admin_import_synonyms:
   route_name: usagov_directories.add_synonyms_form
   weight: 200
 
-usagov_directories.admin_delete_records:
-  title: 'Delete directory records'
-  description: 'Use this form to delete all (federal) Directory Record entities. To be used in case of a really bad import.'
+usagov_directories.admin_import_acronyms:
+  title: 'Import acronyms'
+  description: 'Use this form to add acronyms to existing directory records'
   parent: usagov_directories.admin
-  route_name: usagov_directories.delete_form
+  route_name: usagov_directories.add_acronyms_form
   weight: 300
