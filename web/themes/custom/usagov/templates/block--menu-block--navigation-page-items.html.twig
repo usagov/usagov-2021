@@ -1,5 +1,5 @@
 
-{# 
+{#
   TODO:
   Delete:
   * Drupal view called "Sub Children"
@@ -8,13 +8,9 @@
 #}
 
 {% set lang = node.langcode.value %}
-{% set pagetype = "" %}
-{% if node.field_page_type.0 != null %}
-  {% set pagetype = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
-{% endif %}
 
 {% if pagetype == "Navigation Cards Page" or pagetype == "Life Events" %}
-  
+
   <div class="usagov-cards">
     <ul class="usa-card-group">
       {% for item in nav_page_items %}
@@ -63,7 +59,7 @@
       {% endfor %}
     </ul>
   </div>
-  
+
 {% elseif pagetype == "Home Page" %}
 
   <div class="all-topics-background">
@@ -85,19 +81,19 @@
       </ul>
     </div>
   </div>
-    
+
 {% endif %}
 
 {% if pagetype == "Navigation Cards Page" or pagetype == "Life Events" or pagetype == "Life Events Landing Page" %}
   {% if lang == "es" %}
     <p>
       <span class="text-bold">¿Busca algo más?</span>
-      <a id="something-else" href="/es#all_topics">Encuentre más temas y servicios</a>
+      <a id="something-else" href="/es#all-topics-header">Encuentre más temas y servicios</a>
     </p>
   {% else %}
     <p>
       <span class="text-bold">Looking for something else?</span>
-      <a id="something-else" href="/#all_topics">Explore all topics and services</a>
+      <a id="something-else" href="/#all-topics-header">Explore all topics and services</a>
     </p>
   {% endif %}
 {% endif %}

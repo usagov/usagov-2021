@@ -70,10 +70,38 @@ function renderResults(response, rawResponse) {
     let resultsDiv = document.getElementById("results");
 
     // No response received - return error
-    if (!response || response.error) {
+    if (!response) {
         resultsDiv.appendChild(document.createTextNode(
             content["error-fetch"]
         ));
+        dataLayer.push({
+            'event': 'CEO API Error',
+            'error type': "no-response-from-api"
+        });
+        return;
+    }
+    if (response.error) {
+        let errorType;
+        switch (response.error.code) {
+            case 400: // Failed to parse address or No address provided
+            case 404: // No information for this address
+            case 409: // Conflicting information for this address
+                errorType = "error-address";
+                break;
+            case 401: // The request was not appropriately authorized
+            case 403: // Too many OCD IDs retrieved
+            case 503: // backendError
+            default:
+                errorType = "error-fetch";
+                break;
+        }
+        resultsDiv.appendChild(document.createTextNode(content[errorType]));
+        dataLayer.push({
+            'event': 'CEO API Error',
+            'error type': errorType,
+            'error code': response.error.code,
+            'error detail': response.error.message
+        });
         return;
     }
 
@@ -82,7 +110,9 @@ function renderResults(response, rawResponse) {
         for (let j = 0; j < response.offices[i].officialIndices.length; j++) {
             let officialIndex = response.offices[i].officialIndices[j];
             response.officials[officialIndex].office = response.offices[i].name;
-            response.officials[officialIndex].level = response.offices[i].levels[0];
+            if (response.offices[i].levels) {
+                response.officials[officialIndex].level = response.offices[i].levels[0];
+            }
         }
     }
 
@@ -290,6 +320,10 @@ function renderResults(response, rawResponse) {
         resultsDiv.appendChild(document.createTextNode(
             content["error-address"]
         ));
+        dataLayer.push({
+            'event': 'CEO API Error',
+            'error type': "no-officials-from-api"
+        });
     }
 }
 
