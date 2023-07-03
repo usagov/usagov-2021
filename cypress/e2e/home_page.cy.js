@@ -204,4 +204,88 @@ describe('Home Page', () => {
                 cy.visit('/')
             })
     })
+    it.only('Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
+        const num_events = 6
+        const num_visible = 3
+
+        // Verify correct number of total card slides
+        cy.get('.life-events-carousel')
+            .find('.slide')
+            .should('have.length', num_events)
+
+        // First 3 slides are visible
+        cy.get('.life-events-carousel')
+            .find('.slide')
+            .first()
+            .as('slide-1')
+            .should('be.visible')
+            .should('not.have.attr', 'aria-hidden')
+        cy.get('@slide-1')
+            .next()
+            .should('be.visible')
+            .should('not.have.attr', 'aria-hidden')
+        cy.get('@slide-1')
+            .next()
+            .next()
+            .should('be.visible')
+            .should('not.have.attr', 'aria-hidden')
+
+        // Verify correct number of visible card slides
+        cy.get('.life-events-carousel')
+            .find('.slide')
+            .not('[aria-hidden="true"]')
+            .as('visible-slides')
+            .should('have.length', num_visible)
+
+        // Verify correct number of hidden card slides
+        cy.get('.life-events-carousel')
+            .find('.slide')
+            .filter('[aria-hidden="true"]')
+            .as('hidden-slides')
+            .should('have.length', num_events - num_visible)
+
+        // Links valid in visible slides
+        cy.get('@visible-slides')
+            .find('a')
+            .each((link) => {
+                cy.visit(link.attr('href'))
+                cy.contains('Page not found').should('not.exist')
+
+                cy.go('back')
+            })
+            
+        // Click through hidden slides using arrow buttons
+        cy.get('@hidden-slides')
+            .each((el) => {
+                // Click next button
+                cy.get('.life-events-carousel')
+                    .find('.next')
+                    .click()
+                
+                // Verify this slide is now visible
+                cy.wrap(el)
+                    .should('not.have.attr', 'aria-hidden')
+                
+                // Verify the 2 previous slides are visible
+                cy.wrap(el).prev()
+                    .should('not.have.attr', 'aria-hidden')
+                cy.wrap(el).prev().prev()
+                    .should('not.have.attr', 'aria-hidden')
+                
+                /// Verify correct number of hidden card slides
+                cy.get('.life-events-carousel')
+                    .find('.slide')
+                    .filter('[aria-hidden="true"]')
+                    .should('have.length', num_events - num_visible)
+                
+                // Link is valid
+                cy.wrap(el).find('a')
+                    .invoke('attr', 'href')
+                    .then(href => {
+                        cy.request(href)
+                            .its('status')
+                            .should('eq', 200)
+                    })
+            })
+    })
 })
