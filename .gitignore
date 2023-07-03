@@ -9,6 +9,7 @@
 /*.crt
 /*.key
 /.idea
+/node_modules/
 
 *.sql
 *.gz
