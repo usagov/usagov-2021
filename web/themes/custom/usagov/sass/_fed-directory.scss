@@ -35,7 +35,7 @@
     color: #000;
     box-sizing: border-box;
     background-color: #ccecf2;
-    box-shadow: 0 0 0 2px #0081a1;
+    border: 2px solid #0081a1;
     border-radius: 0.01rem;
     font-size: 1.5rem;
     font-weight: 600;
@@ -107,7 +107,7 @@ hr.bl-divider {
   border-radius: 0.25rem;
   background-color: #ccecf2;
   max-width: 20em;
-  margin: auto;
+  margin: 1rem auto 0.5rem;
 
   input::placeholder {
     color: #1b1b1b;
