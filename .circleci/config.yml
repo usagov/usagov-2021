@@ -534,7 +534,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1040-www-gobiernousa
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -544,7 +543,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1040-www-gobiernousa
       - approve-dev-deployment:
           type: approval
           requires:
