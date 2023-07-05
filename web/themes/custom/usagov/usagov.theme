@@ -69,8 +69,10 @@ function usagov_preprocess_block(&$variables) {
           $data->description = $childNode->get('field_meta_description')->value;
         }
 
-        if ($childNode->hasField('field_navigation_banner_image' && count($childNode->get('field_navigation_banner_image')))
-          && $childNode->get('field_navigation_banner_image')[0]->entity
+        if (
+          $childNode->hasField('field_navigation_banner_image') &&
+          count($childNode->get('field_navigation_banner_image')) &&
+          $childNode->get('field_navigation_banner_image')[0]->entity
         ) {
           $data->navigation_banner_image = file_url_transform_relative(file_create_url(
             $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
