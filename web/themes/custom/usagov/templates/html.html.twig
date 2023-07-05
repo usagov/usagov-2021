@@ -243,15 +243,16 @@ const scrollToTop = () => {
 		// Use traditional 'for loops' for IE 11
 		for(let mutation of mutationsList) {
 			if (mutation.type === 'childList') {
-				console.log('A child node has been added or removed.');
-				var c = document.querySelector(".QSIUserDefinedHTML").children[0].removeAttribute("tabindex"); console.log(c);
+				// console.log('A child node has been added or removed.');
+				var c = document.querySelector(".QSIUserDefinedHTML")?.children[0].removeAttribute("tabindex");
+        // console.log(c);
 				// Later, you can stop observing
 				observer.disconnect();
 			}
-			else if (mutation.type === 'attributes') {
-				console.log('The ' + mutation.attributeName + ' attribute was modified.');
+			// else if (mutation.type === 'attributes') {
+				// console.log('The ' + mutation.attributeName + ' attribute was modified.');
 
-			}
+			// }
 		}
 	};
 
