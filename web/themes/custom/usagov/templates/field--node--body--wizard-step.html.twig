@@ -1,31 +1,33 @@
-{% set answer = element['#object'].body[0].value|raw %}
+{% set answer = items[0].content['#text']|raw %}
+
+{# Determine Language to decide which translations to use #}
+{% if element['#language'] == "es" %}
+	{% set translations = {
+		'where_to_report_a_scam': 'Dónde reportar una estafa',
+		'what_type_of_scam_url': '/es/donde-reportar-una-estafa/que-tipo-de-estafa-necesita-reportar#block-usagov-content',
+		'start_over': 'Reiniciar'
+	} %}
+{% else %}
+	{% set translations = {
+		'where_to_report_a_scam': 'WHERE TO REPORT A SCAM',
+		'what_type_of_scam_url': '/where-report-scam/what-type-scam-do-you-need-report#block-usagov-content',
+		'start_over': 'Start over'
+	} %}
+{% endif %}
 
 {% if "Based on your answers" in answer or "Basándose en sus respuestas" in answer %}
-<div class="usa-prose">
-{% if element["#language"] == "en" %}
-    <p class="usa-scam-label">WHERE TO REPORT A SCAM</p>
-    <h1 class="text-blue" id="skip-to-h1"><span>{{ element['#object'].title.value }}</span></h1>
-{% else %}
-    <p class="usa-scam-label">Dónde reportar una estafa</p>
-    <h1 class="text-blue" id="skip-to-h1"><span>{{ element['#object'].title.value }}</span></h1>
-{% endif %}
-</div>
-<div class="maxw-tablet margin-x-auto">
-    {% for item in items %}
-        <div class="wizard_result" {{item.attributes}} >{{ item.content }}</div>
-    {% endfor %}
-</div>
-     {% if element["#language"] == "en" %}
-        <div class="grid-row flex-justify-center maxw-mobile margin-x-auto margin-top-6">
-            <a class="usa-button" href="/where-report-scam/what-type-scam-do-you-need-report#block-usagov-content">
-                Start over
-            </a>
-        </div>
-        {% elseif element["#language"] == "es" %}
-        <div class="grid-row flex-justify-center maxw-mobile margin-x-auto margin-top-6">
-            <a class="usa-button" href="/es/donde-reportar-una-estafa/que-tipo-de-estafa-necesita-reportar#block-usagov-content">
-                Reiniciar
-            </a>
-        </div>
-        {% endif %}
+    <div class="usa-prose">
+        <p class="usa-scam-label">{{translations.where_to_report_a_scam}}</p>
+        <h1 class="text-blue" id="skip-to-h1"><span>{{ element['#object'].title.value }}</span></h1>
+    </div>
+    <div class="maxw-tablet margin-x-auto">
+        {% for item in items %}
+            <div class="wizard_result" {{item.attributes}} >{{ item.content }}</div>
+        {% endfor %}
+    </div>
+    <div class="grid-row flex-justify-center maxw-mobile margin-x-auto margin-top-6">
+        <a class="usa-button" href="{{translations.what_type_of_scam_url}}">
+            {{translations.start_over}}
+        </a>
+    </div>
 {% endif %}
