@@ -40,6 +40,11 @@ describe('Home Page', () => {
             .find('img')
             .should('have.attr', 'src', '/themes/custom/usagov/images/Logo_USAGov.png')
             .should('have.attr', 'alt', 'USAGov Logo')
+            .should((img) => {
+                // Image loads
+                expect(img[0].naturalWidth).to.be.greaterThan(0)
+                expect(img[0].naturalHeight).to.be.greaterThan(0)
+            })
     })
     it('Link with Contact Center number appears in header area and links to contact page', () => {
         cy.get('header')
@@ -96,7 +101,7 @@ describe('Home Page', () => {
             cy.url().should('include', 'search.usa.gov')
         })
     })
-    it('Homepage: Main menu appears after header; links work appropriately. All topics link goes down the page.', () => {
+    it('Main menu appears after header; links work appropriately. All topics link goes down the page.', () => {
         // Main menu appears
         cy.get('.usa-nav__primary')
             .should('be.visible')
@@ -212,30 +217,49 @@ describe('Home Page', () => {
         cy.get('.life-events-carousel')
             .find('.slide')
             .should('have.length', num_events)
+            .should('be.visible')
 
         // First 3 slides are visible
         cy.get('.life-events-carousel')
             .find('.slide')
             .first()
-            .as('slide-1')
-            .should('be.visible')
+            .as('first-slide')
             .should('not.have.attr', 'aria-hidden')
-        cy.get('@slide-1')
+        cy.get('@first-slide')
             .next()
-            .should('be.visible')
             .should('not.have.attr', 'aria-hidden')
-        cy.get('@slide-1')
+        cy.get('@first-slide')
             .next()
             .next()
-            .should('be.visible')
             .should('not.have.attr', 'aria-hidden')
 
-        // Verify correct number of visible card slides
+        // Check links and imgs in visible slides
         cy.get('.life-events-carousel')
             .find('.slide')
             .not('[aria-hidden="true"]')
-            .as('visible-slides')
-            .should('have.length', num_visible)
+            .each((el) => {
+                // Current card link is valid
+                cy.wrap(el).find('a')
+                    .invoke('attr', 'href')
+                    .then(href => {
+                        cy.request(href)
+                            .its('status')
+                            .should('eq', 200)
+                    })
+
+                // Current card img is valid
+                cy.wrap(el).find('img')
+                    .should('have.attr', 'src')
+                cy.wrap(el).find('img')
+                    .should('have.attr', 'alt')
+                cy.wrap(el).find('img')
+                    .should('be.visible')
+                    .should((img) => {
+                        // Image loads
+                        expect(img[0].naturalWidth).to.be.greaterThan(0)
+                        expect(img[0].naturalHeight).to.be.greaterThan(0)
+                    })
+            })
 
         // Verify correct number of hidden card slides
         cy.get('.life-events-carousel')
@@ -243,18 +267,8 @@ describe('Home Page', () => {
             .filter('[aria-hidden="true"]')
             .as('hidden-slides')
             .should('have.length', num_events - num_visible)
-
-        // Links valid in visible slides
-        cy.get('@visible-slides')
-            .find('a')
-            .each((link) => {
-                cy.visit(link.attr('href'))
-                cy.contains('Page not found').should('not.exist')
-
-                cy.go('back')
-            })
             
-        // Click through hidden slides using arrow buttons
+        // Click through slides using arrow buttons
         cy.get('@hidden-slides')
             .each((el) => {
                 // Click next button
@@ -272,13 +286,13 @@ describe('Home Page', () => {
                 cy.wrap(el).prev().prev()
                     .should('not.have.attr', 'aria-hidden')
                 
-                /// Verify correct number of hidden card slides
+                // Verify correct number of hidden card slides
                 cy.get('.life-events-carousel')
                     .find('.slide')
                     .filter('[aria-hidden="true"]')
                     .should('have.length', num_events - num_visible)
                 
-                // Link is valid
+                // Current card link is valid
                 cy.wrap(el).find('a')
                     .invoke('attr', 'href')
                     .then(href => {
@@ -287,5 +301,64 @@ describe('Home Page', () => {
                             .should('eq', 200)
                     })
             })
+
+        // Click prev button back to the front 
+        for (let i = 0; i < num_events - num_visible; i++) {
+            cy.get('.life-events-carousel')
+                .find('.previous')
+                .click()
+        }
+
+        // First 3 slides are visible
+        cy.get('@first-slide')
+            .should('not.have.attr', 'aria-hidden')
+        cy.get('@first-slide')
+            .next()
+            .should('not.have.attr', 'aria-hidden')
+        cy.get('@first-slide')
+            .next()
+            .next()
+            .should('not.have.attr', 'aria-hidden')
+
+        // Verify correct number of hidden card slides
+        cy.get('.life-events-carousel')
+            .find('.slide')
+            .filter('[aria-hidden="true"]')
+            .should('have.length', num_events - num_visible)
+
+        // Click last nav circle
+        cy.get('.carousel__navigation_button')
+            .last()
+            .click()
+
+        // Last 3 slides are visible
+        cy.get('.life-events-carousel')
+            .find('.slide')
+            .last()
+            .as('last-slide')
+            .should('not.have.attr', 'aria-hidden')
+        cy.get('@last-slide')
+            .prev()
+            .should('not.have.attr', 'aria-hidden')
+        cy.get('@last-slide')
+            .prev()
+            .prev()
+            .should('not.have.attr', 'aria-hidden')
+        
+        // Click second nav circle
+        cy.get('.carousel__navigation_button')
+            .first()
+            .click()
+        
+        // Second 3 slides are visible
+        cy.get('@first-slide')
+            .should('not.have.attr', 'aria-hidden')
+        cy.get('@first-slide')
+            .next()
+            .should('not.have.attr', 'aria-hidden')
+        cy.get('@first-slide')
+            .next()
+            .next()
+            .should('not.have.attr', 'aria-hidden')
     })
 })
