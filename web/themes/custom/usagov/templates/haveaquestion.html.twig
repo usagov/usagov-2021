@@ -13,23 +13,18 @@
 {% set sp_chat = '/es/chat' %}
 
 <div id="question-box">
-    <div class="border-left-1 padding-left-205 border-cyan-10 margin-top-8 margin-bottom-9 padding-bottom-4">
+    <div class="border-left-1 padding-left-205 border-cyan-10 margin-top-8 margin-bottom-9 padding-bottom-2">
         <h2 class="font-family-heading margin-top-0">
-            {{ lang == 'en' ? "Do you have a question?" : "¿Tiene una pregunta?" }}
+            {{ lang == 'en' ? "Have a question?" : "¿Tiene una pregunta?" }}
         </h2>
-        {% if lang == 'en' %}
-            <p>Ask a real person any government-related question for free.  They will get you the answer or let you know where to find it.</p>
-        {% else %}
-            <p>¿Tiene una pregunta? Pregunte gratis a una persona real cualquier duda relacionada con el Gobierno. Le darán la respuesta o le indicarán dónde encontrarla.</p>
-        {% endif %}
         <div class="grid-row grid-gap">
-            <div class="grid-col-6">
+            <div class="tablet:grid-col-4 margin-bottom-2">
                 <a class="question-icon" href="{{ lang == 'es' ? talk_es : talk }}">
                     <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_talk.png" alt="talk icon">
-                    {{ lang == 'en' ? "Call and speak to a live USAGov agent." : "Llame y hable con un agente de USAGov en Español." }}
+                    {{ lang == 'en' ? "Call USAGov" : "Llame a USAGov en Español" }}
                 </a>
             </div>
-            <div class="grid-col-6">
+            <div class="grid-col-6 tablet:grid-col-8">
                 {% if lang == 'en' %}
                     <a class="question-icon" href="{{ chat }}">
                 {% else %}
@@ -37,7 +32,7 @@
                 {% endif %}
 
                     <img class="chat-icon" src="/themes/custom/usagov/images/ICONS_chat.png" alt="chat icon">
-                    {{ lang == 'en' ? "Chat with a live USAGov agent." : "Chatee en vivo con un agente de USAGov en Español." }}
+                    {{ lang == 'en' ? "Chat with USAGov" : "Chatee con USAGov en Español" }}
                 </a>
             </div>
         </div>
