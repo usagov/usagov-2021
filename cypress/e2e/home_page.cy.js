@@ -209,7 +209,7 @@ describe('Home Page', () => {
                 cy.visit('/')
             })
     })
-    it.only('Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
+    it('Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
         const num_events = 6
         const num_visible = 3
 
@@ -360,5 +360,24 @@ describe('Home Page', () => {
             .next()
             .next()
             .should('not.have.attr', 'aria-hidden')
+    })
+    it('Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
+        cy.get('.all-topics-background')
+            .find('.homepage-card')
+            .each((el) => {
+                // Validate link
+                cy.wrap(el).find('a')
+                    .invoke('attr', 'href')
+                    .then(href => {
+                        cy.request(href)
+                            .its('status')
+                            .should('eq', 200)
+                    })
+                
+                // Verify number of children
+                cy.wrap(el).find('a')
+                    .children()
+                    .should('have.length', 3)
+            })
     })
 })
