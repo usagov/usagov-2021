@@ -45,11 +45,13 @@
   a:hover {
     box-shadow: 0 0 0 3px #1b1b1b;
     background-color: #99deea;
+    border:none;
   }
 
   a.is-active {
     box-shadow: 0 0 0 0.15rem #000;
     background-color: white;
+    border:none;
   }
 
   a.is-active:hover {
