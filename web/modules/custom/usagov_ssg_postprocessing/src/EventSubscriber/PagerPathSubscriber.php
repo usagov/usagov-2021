@@ -70,12 +70,16 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    */
   protected function modifyUrl($url) {
     parse_str(parse_url($url, PHP_URL_QUERY), $query);
+    $fragment = parse_url($url, PHP_URL_FRAGMENT);
     if ($query && isset($query['letter'])) {
       $base_path = preg_replace('/\?.*/', '', $url);
       if ($base_path === '/') {
         $base_path = '';
       }
       $url = $base_path . '/' . $query['letter'];
+      if ($fragment) {
+        $url .= '#' . $fragment;
+      }
     }
     return $url;
   }
