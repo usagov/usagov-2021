@@ -22,6 +22,6 @@
 	<div class="thumbnailDiv">
 		{% set image_card_uri = row._entity.field_navigation_banner_image.entity.field_media_image.entity.fileuri %}
 		{% set image_card_alt = row._entity.field_navigation_banner_image.entity.field_media_image.alt %}
-		<img class="thumbnailBanner" alt="{{image_card_alt}}" src="{{file_url(image_card_uri|image_style('max_480w'))}}"/>
+		<img class="thumbnailBanner" alt="{{image_card_alt}}" src="{{file_url(image_card_uri|image_style('max_480w'))}} width="252" height="75" loading="lazy"/>
 	</div>
 {% endif %}
