@@ -405,6 +405,7 @@
   a {
     color: var($white);
     text-decoration: none;
+    display: flex;
 
     &:visited {
       color: var($white);
