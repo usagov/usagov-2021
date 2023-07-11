@@ -514,6 +514,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1045-add-pem-to-deployment
       - deploy-reporter-tools:
           filters:
             branches:
@@ -521,6 +522,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1045-add-pem-to-deployment
           requires:
             - approve-deploy-reporter
 
