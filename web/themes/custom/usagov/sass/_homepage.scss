@@ -396,7 +396,7 @@
   border: 1px solid #53BBDF;
   border-radius: 4px;
   box-shadow: 0 3px 6px rgba(122,122,122,.15);
-  padding: 0px;
+  padding: 0;
 
   &:focus-within {
     border: 4px solid #c05600;
@@ -417,17 +417,17 @@
     }
 
     .life_events_card_text {
-      padding: 12px 12px 0px 12px;
+      padding: 12px 12px 0 12px;
       height:210px;
     }
   }
 
   .usa-card__container{
-    margin:0px;
+    margin:0;
   }
 
   .slide:last-child {
-    margin-right: 0px;
+    margin-right: 0;
   }
 
   h3 {
@@ -447,8 +447,9 @@
     line-height: 1.25;
     padding-top: 10px;
   }
+
   .usa-card__body:last-child {
-    padding-bottom: 0px;
+    padding-bottom: 0;
   }
 }
 
@@ -647,6 +648,7 @@
     margin-right: calc((100% - 236px)/2);
   }
 }
+
 /* Tablet & Desktop */
 @media (min-width: 480px) {
   .welcome-box {
@@ -681,7 +683,6 @@
     padding-left: 0;
     padding-right: 0;
     margin-left: 15px;
-    // margin-right: 15px;
   }
 
   .carousel .usa-card-group {
@@ -696,6 +697,7 @@
     margin-right: 0;
     margin-left: 0;
   }
+
   .slide:not(:last-child) {
     margin-right: 15px;
     margin-left: 0;
@@ -752,7 +754,6 @@
     padding-left: 0;
     padding-right: 0;
     margin-left: 15px;
-    // margin-right: 15px;
   }
 
   .carousel .usa-card-group {
@@ -767,6 +768,7 @@
     margin-right: 0;
     margin-left: 0;
   }
+
   .slide:not(:last-child) {
     margin-right: 15px;
     margin-left: 0;
@@ -837,17 +839,18 @@
 
   .slide {
     flex: 0 0 calc(100% / 3);
-    padding: 0px;
+    padding: 0;
     width: 260px;
     max-width: 260px;
     margin-right: 0;
     margin-left: 0;
 
     .life_events_card_text {
-      padding: 16px 16px 0px 16px;
+      padding: 16px 16px 0 16px;
       height:210px;
     }
   }
+
   .slide:not(:last-child) {
     margin-right: 12px;
     margin-left: 0;
