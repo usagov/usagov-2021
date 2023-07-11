@@ -1,6 +1,6 @@
 uuid: 0fd13ccc-ae08-480e-9c9c-ab2cb6abc927
 langcode: en
-status: false
+status: true
 dependencies:
   config:
     - field.storage.node.field_wizard_step
