@@ -22,16 +22,18 @@ describe('Footer', () => {
     })
     it('Email subscription form appears in footer and works appropriately', () => {
         const validEmail = 'test@usa.gov'
-        const invalidEmail = 'test'
+        const invalidEmails = ['test@#$1123', 'test2@', '@test3.com']
 
-        // Test invalid email
-        cy.get('#footer-email')
-            .type(invalidEmail)
-            .should('have.value', invalidEmail)
-            .type('{enter}')
+        // Test invalid emails
+        for (let i = 0; i < invalidEmails.length; i++) {
+            cy.get('#footer-email')
+                .type(invalidEmails[i])
+                .should('have.value', invalidEmails[i])
+                .type('{enter}')
 
-        cy.get('input:invalid').should('have.length', 1)
-        cy.get('input:invalid').clear()
+            cy.get('input:invalid').should('have.length', 1)
+            cy.get('input:invalid').clear()
+        }
 
         // Test valid email
         cy.get('#footer-email')
@@ -72,45 +74,39 @@ describe('Footer', () => {
         )
     })
     it.only('Social media icons appear in footer and link to correct places', () => {
-        // Facebook
-        cy.get('.usa-footer__contact-links')
-            .find('[alt="Facebook USAGov"]')
-            .should('have.attr', 'src', '/themes/custom/usagov/images/footer_icon_facebook.svg')
+        const socials = [
+            {
+                name: 'Facebook',
+                img: '/themes/custom/usagov/images/footer_icon_facebook.svg',
+                link: 'https://www.facebook.com/USAgov'
+            },
+            {
+                name: 'Twitter',
+                img: '/themes/custom/usagov/images/footer_icon_twitter.svg',
+                link: 'https://twitter.com/USAgov'
+            },
+            {
+                name: 'Youtube',
+                img: '/themes/custom/usagov/images/footer_icon_youtube.svg',
+                link: 'https://www.youtube.com/usagov1'
+            },
+            {
+                name: 'Instagram',
+                img: '/themes/custom/usagov/images/footer_icon_instagram.svg',
+                link: 'https://www.instagram.com/usagov/'
+            },
+        ]
         
-        cy.get('.usa-footer__contact-links')
-            .find('[alt="Facebook USAGov"]')
-            .parent()
-            .as('link')
-            .should('have.attr', 'href', 'https://www.facebook.com/USAgov')
-
-        // Twitter
-        cy.get('.usa-footer__contact-links')
-            .find('[alt="Twitter USAGov"]')
-            .should('have.attr', 'src', '/themes/custom/usagov/images/footer_icon_twitter.svg')
+        for (let i = 0; i < socials.length; i++) {
+            cy.get('.usa-footer__contact-links')
+                .find(`[alt="${socials[i].name} USAGov"]`)
+                .should('have.attr', 'src', socials[i].img)
         
-        cy.get('.usa-footer__contact-links')
-            .find('[alt="Twitter USAGov"]')
-            .parent()
-            .should('have.attr', 'href', 'https://twitter.com/USAgov')
-        
-        // Youtube
-        cy.get('.usa-footer__contact-links')
-            .find('[alt="Youtube USAGov"]')
-            .should('have.attr', 'src', '/themes/custom/usagov/images/footer_icon_youtube.svg')
-        
-        cy.get('.usa-footer__contact-links')
-            .find('[alt="Youtube USAGov"]')
-            .parent()
-            .should('have.attr', 'href', 'https://www.youtube.com/usagov1')
-
-        // Instagram
-        cy.get('.usa-footer__contact-links')
-            .find('[alt="Instagram USAGov"]')
-            .should('have.attr', 'src', '/themes/custom/usagov/images/footer_icon_instagram.svg')
-        
-        cy.get('.usa-footer__contact-links')
-            .find('[alt="Instagram USAGov"]')
-            .parent()
-            .should('have.attr', 'href', 'https://www.instagram.com/usagov/')
+            cy.get('.usa-footer__contact-links')
+                .find(`[alt="${socials[i].name} USAGov"]`)
+                .parent()
+                .as('link')
+                .should('have.attr', 'href', socials[i].link)
+        }
     })
 })
