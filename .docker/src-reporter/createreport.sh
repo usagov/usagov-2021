@@ -31,7 +31,6 @@ ANALYTICS_REPORT_IDS_ES=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYT
 ANALYTICS_REPORT_EMAIL=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_REPORT_EMAIL"]' <<< "$VCAP_SERVICES")
 
 ANALYTICS_KEY_PATH=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY_PATH"]' <<< "$VCAP_SERVICES")
-ANALYTICS_KEY_BASE64=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY_BASE64"]' <<< "$VCAP_SERVICES")
 
 export ANALYTICS_KEY_PATH=$ANALYTICS_KEY_PATH
 export AWS_REGION=$AWS_REGION
@@ -40,7 +39,8 @@ export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 export AWS_BUCKET=$AWS_BUCKET
 export ANALYTICS_REPORT_EMAIL=$ANALYTICS_REPORT_EMAIL
 
-echo ${ANALYTICS_KEY_BASE64} | base64 --decode > $ANALYTICS_KEY_PATH
+echo $(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY_BASE64"]' <<< "$VCAP_SERVICES") | base64 --decode > $ANALYTICS_KEY_PATH
+chmod 600 $ANALYTICS_KEY_PATH
 
 cd analytics-reporter
 
