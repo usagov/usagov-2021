@@ -4,9 +4,6 @@ describe('Footer', () => {
         cy.viewport('macbook-13')
         cy.visit('/')
     })
-    it('screenshot test', () => {
-        cy.argosScreenshot("home")
-    })
     it('Footer links appear and work appropriately', () => {
         cy.get('.usa-footer__nav')
             .find('a')
@@ -73,7 +70,7 @@ describe('Footer', () => {
             }
         )
     })
-    it.only('Social media icons appear in footer and link to correct places', () => {
+    it('Social media icons appear in footer and link to correct places', () => {
         const socials = [
             {
                 name: 'Facebook',
@@ -108,5 +105,18 @@ describe('Footer', () => {
                 .as('link')
                 .should('have.attr', 'href', socials[i].link)
         }
+    })
+    it('Contact Center information appears in footer and phone number links to /phone', () => {
+        cy.get('#footer-phone')
+            .find('a')
+            .click()
+
+        cy.url().should('include', '/phone')
+    })
+    it('Subfooter indicating USAGov is official site appears at very bottom', () => {
+        cy.get('.usa-footer')
+            .find('.usa-identifier__usagov-description')
+            .should('contain', 'USAGov')
+            .should('contain', 'official guide')
     })
 })
