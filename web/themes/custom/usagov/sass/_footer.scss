@@ -1,0 +1,273 @@
+@use "uswds-core" as *;
+@use "usagov-variables" as *;
+
+.usa-footer__secondary-link a.disabled,
+.usa-footer__secondary-section a.disabled {
+  pointer-events: none;
+  color: var($black);
+  text-decoration: none;
+}
+
+// Footer
+
+.ftr-list {
+  @media (min-width: 64em) {
+    padding-top: 1.4rem;
+  }
+}
+
+.usa-footer--big
+  .usa-footer__primary-content--collapsible
+  .usa-footer__primary-link {
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
+  font-size: 1.2rem;
+}
+
+.usa-sign-up__heading {
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
+}
+
+.usa-footer__primary-content--collapsible.hidden {
+  // USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
+  display: block;
+}
+
+@media (min-width: 30em) {
+  .usa-footer__contact-heading.es {
+    display: inline-grid;
+    margin-top: 0.5rem;
+    margin-right: -1.5rem;
+    text-align: left;
+  }
+}
+
+/** This is to add the facebook social media icon **/
+
+.usa-social-link:hover {
+  background-color: var($cyan-light);
+}
+
+.usa-social-link--facebook {
+  background-image: url("../images/facebook34.png"),
+    linear-gradient(transparent, transparent);
+}
+
+/** This is to add the twitter social media icon **/
+.usa-social-link--twitter {
+  background-image: url("../images/twitter34.png"),
+    linear-gradient(transparent, transparent);
+}
+
+/** This is to add the instagram social media icon **/
+.usa-social-link--instagram {
+  background-image: url("../images/instagram34.png"),
+    linear-gradient(transparent, transparent);
+}
+
+/** This is to add the youtube social media icon **/
+.usa-social-link--youtube {
+  background-image: url("../images/youtube34.png"),
+    linear-gradient(transparent, transparent);
+}
+
+.usa-footer__secondary-section {
+  background-color: color("cyan-10");
+}
+
+.usa-footer__contact-links {
+  @media (max-width: 30em) {
+    margin-top: 0;
+  }
+}
+
+.usa-footer__contact-heading {
+  @media (max-width: 30em) {
+    text-align: left;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.usa-footer__secondary-section .grid-container {
+  padding-bottom: 2rem;
+}
+
+.usa-footer__secondary-section .grid-row.grid-gap-1 > * {
+  padding-right: 0;
+}
+
+.footer-question {
+  min-height: 15px;
+}
+
+@media (min-width: 30em) {
+  .usa-footer__contact-heading {
+    margin-top: 0.5rem;
+  }
+}
+
+.usa-social-link {
+  background-color: transparent;
+}
+
+.usa-social-link span {
+  position: absolute;
+  left: -999em;
+  right: auto;
+}
+
+.usa-footer__social-links {
+  @media (min-width: 30em) {
+    justify-content: flex-start;
+    padding-right: 0;
+  }
+}
+
+.sm-sp-links {
+  @media (max-width: 30em) and (min-width: 30rem) {
+    padding-left: 2rem;
+  }
+}
+
+@media (min-width: 30em) {
+  .usa-footer__contact-info {
+    justify-content: flex-start !important;
+    margin-top: -0.25rem;
+  }
+}
+
+.usa-identifier {
+  background-color: color("blue-80v");
+}
+
+.usa-identifier__section {
+  padding-bottom: 0;
+}
+
+.usa-identifier__usagov-description {
+  @media (min-width: 36em) {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.usa-identifier__usagov-description,
+.usa-identifier__usagov-description span {
+  @media (max-width: 30em) {
+    text-align: center;
+    display: inline-block;
+  }
+}
+
+.usa-social-link > img {
+  display: block;
+  height: 32px;
+  width: 32px;
+}
+
+// Changed footer styles
+.usa-footer--big {
+  padding-top: 2rem;
+}
+
+.usa-gov-footer__primary-link {
+  text-size-adjust: 100%;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal;
+  box-sizing: inherit;
+  color: var($off-black);
+  text-decoration: none;
+  padding: 0;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  margin-bottom: 0;
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
+  font-size: 1.2rem;
+}
+
+.usa-gov-footer__primary-link--button {
+  overflow: visible;
+  text-transform: none;
+  appearance: button;
+  padding: 1rem;
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+}
+
+.usa-gov-footer__primary-link--button::before {
+  height: 1.25rem;
+  width: 1.25rem;
+  align-items: center;
+  background-size: contain;
+  content: "";
+  display: inline-flex;
+  justify-content: center;
+  margin-right: 0.25rem;
+  margin-left: -0.25rem;
+  background-color: currentcolor;
+  mask: url("../assets/img/usa-icons/expand_more.svg") no-repeat center/contain;
+}
+
+.usa-gov-footer__primary-link--button[aria-expanded="false"]::before {
+  background-color: currentcolor;
+  mask: url("../assets/img/usa-icons/navigate_next.svg") no-repeat
+    center/contain;
+  display: inline-block;
+  height: 1.25rem;
+  width: 1.25rem;
+  content: "";
+  vertical-align: middle;
+  margin-right: 0.25rem;
+}
+
+.usa-gov-footer__primary-link--button:hover {
+  text-decoration: underline;
+}
+
+.usa-gov-footer__primary-link--button:focus {
+  text-decoration: underline;
+  outline: 0.25rem solid var($deep-orange);
+  outline-offset: -0.25rem;
+}
+
+.usa-footer__primary-section .usa-list {
+  margin-top: 1rem;
+}
+
+.usa-gov-footer__primary-link--button:not([disabled]):focus {
+  outline-offset: -0.25rem;
+}
+@media only screen and (max-width: 500px) {
+  .usa-identifier {
+    // Prevent Tagline from being covered by the Feedback button
+    position: absolute;
+    z-index: 2000000005;
+  }
+}
+.footer-button {
+  border: 1px solid #1b1b1b;
+}
+
+#footer-email {
+  border-color: var($off-black);
+}
+
+.footer-social-block{
+  display:inline-block;
+}
+
+.usa-footer__social-links > div > a{
+  padding: 6px;
+  width: 44px;
+  height:44px;
+}
+.usa-footer__social-links div:first-of-type{
+  padding-left: 0;
+}
