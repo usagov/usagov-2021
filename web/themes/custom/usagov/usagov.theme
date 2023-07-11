@@ -1,7 +1,10 @@
 <?php
 
+use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
+
+// use Drupal\simplify_menu\MenuItems;
 
 /**
  * @file
@@ -11,8 +14,8 @@ use Drupal\taxonomy\Entity\Term;
  */
 
 /**
-* This makes the node varialbe available to the templates/html.html.twig template file
-*/
+ * This makes the node varialbe available to the templates/html.html.twig template file
+ */
 function usagov_preprocess_html(&$variables) {
   $variables['node'] = \Drupal::routeMatch()->getParameter('node');
 }
@@ -34,24 +37,110 @@ function children_of_active_menu_item(&$items) {
 }
 
 /**
+ * Get menu items for the specified menu and ancestor node. This returns an array
+ * of items (arrays) very similar to what you would find in $variables['content']['#items']
+ * in a Menu block, and enables us to:
+ *   - include menus in other kinds of blocks than "menu" blocks (typically, "main page content,"
+ *     which has caching rules that take the current page context into consideration)
+ *   - Get menus for the current node, even if the current node's menu item is disabled.
+ *   - Get a menu for some node other than the one being displayed (we haven't seen a need for this)
+ */
+function usagov_menu_items_get_child_items($menu_name, $node_id, $include_disabled_links = FALSE) {
+  // Get the menu by name
+  $menu_tree = \Drupal::menuTree();
+  $parameters = new MenuTreeParameters();
+  if (!$include_disabled_links) {
+    $parameters->onlyEnabledLinks();
+  }
+  // FIXME: use the $node to get the desired part of the menu!
+  if ($node_id) {
+    // Use the 'menu_link_content' entity storage to look up the parent by node_id
+    // $menu_content_storage = \Drupal::entityTypeManager()->getStorage('menu_link_content');
+    /** @var \Drupal\menu_link_content\MenuLinkContentInterface $menu_link_content */
+    // Fetch an entity with parent menu link.
+    // $menu_link_content = current($menu_content_storage->loadByProperties(['menu_name' => $menu_name, 'id' => $node_id]));
+    // Build a specific value for a parent property.
+    // $parent_prop = "menu_link_content:{$menu_link_content->uuid()}";
+    // Load child menu items by 'parent' property.
+    // $menu_link_content_childs = $menu_content_storage->loadByProperties(['parent' => $parent_prop]);
+    $menu_link_service = \Drupal::getContainer()->get('plugin.manager.menu.link');
+    $route_params = array('node' => $node_id);
+    $menu_links = $menu_link_service->loadLinksByRoute('entity.node.canonical', $route_params, $menu_name);
+    if (!empty($menu_links)) {
+      $current_menu_item = reset($menu_links);
+      $parent_uuid = $current_menu_item->getPluginId();
+      $parameters->addExpandedParents([$parent_uuid]);
+    }
+  }
+
+  $manipulators = [
+    ['callable' => 'menu.default_tree_manipulators:checkNodeAccess'],
+    ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+    ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+  ];
+  $raw_items = $menu_tree->load($menu_name, $parameters);
+  if (($raw_item = current($raw_items)) && count($raw_item->subtree)) {
+    $raw_items = $raw_item->subtree;
+  }
+  $items = $menu_tree->transform($raw_items, $manipulators);
+  $items = array_map('usagov_menu_items_structure_item_for_content', $items);
+  // $menu_items = new MenuItems($menu_tree);
+  // $items = $menu_items->getMenuTree($menu_name);
+  return $items;
+}
+
+/**
+ * Given a MenuLinkTreeElement, creates an array with the same keys one would expect
+ * in $variables['content']['#items'] in a menu block.
+ * (Warning: this is based on inspection of those objects, not of the corresponding interfaces
+ * or defintions.)
+ *
+ * @param \Drupal\Core\Menu\MenuLinkTreeElement $menu_item
+ * @return array
+ */
+function usagov_menu_items_structure_item_for_content($menu_item) {
+  $menu_link = $menu_item->link; // \Drupal::Core::Menu::MenuLink
+
+  $item = [
+    'is_expanded' => $menu_link->isExpanded(),
+    'is_collapsed' => TRUE, // TODO
+    'in_active_trail' => $menu_item->inActiveTrail,
+    'attributes' => [], // FIXME (maybe we don't need)
+    'title' => $menu_link->getTitle(),
+    'url' => $menu_link->getUrlObject(),
+    'below' => [], // TODO
+    'original_link' => $menu_link,
+    'is_enabled' => $menu_link->isEnabled(),
+  ];
+  return $item;
+}
+
+/**
  * Process block content
  */
 function usagov_preprocess_block(&$variables) {
   $node = \Drupal::routeMatch()->getParameter('node');
   $variables['node'] = $node;
+  $node_id = $node->id();
 
   if ($node && $node->hasField('field_page_type') && $node->get('field_page_type')[0]->target_id) {
     $pagetypeTid = $node->get('field_page_type')[0]->target_id;
     $variables['pagetype'] = Term::load($pagetypeTid)->getName();
   }
 
+  if ($variables['elements']['#id'] == 'navigation_page_items_simplify') {
+    return _usagov_navigation_page_items_simplify($variables);
+  }
+
   if ($variables['elements']['#id'] == 'navigation_page_items' || $variables['elements']['#id'] == 'navigation_page_items_spanish') {
     $added_contexts = ['url.path']; // Use url.query_args as well for an easier test case
-    $variables['content']['#cache']['contexts'] = array_merge($variables['content']['#cache']['contexts'], $added_contexts);
     $variables['#cache']['contexts'] = array_merge($variables['#cache']['contexts'], $added_contexts);
 
     $items = $variables['content']['#items'];
+    $alternate_items = usagov_menu_items_get_child_items('left-menu-english', $node_id, TRUE);
+    $variables['alternate_items'] = $alternate_items;
     $children_of_active_menu_item = children_of_active_menu_item($items);
+    // $children_of_active_menu_item = children_of_active_menu_item($alternate_items);
     $nav_page_items = [];
     foreach ($children_of_active_menu_item as $child) {
       try {
@@ -74,7 +163,7 @@ function usagov_preprocess_block(&$variables) {
           $childNode->hasField('field_navigation_banner_image') &&
           count($childNode->get('field_navigation_banner_image')) &&
           $childNode->get('field_navigation_banner_image')[0]->entity
-        ) {
+          ) {
           $data->navigation_banner_image = file_url_transform_relative(file_create_url(
             $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
           ));
@@ -102,6 +191,76 @@ function usagov_preprocess_block(&$variables) {
     }
     $variables['nav_page_items'] = $nav_page_items;
   }
+}
+
+function _usagov_navigation_page_items_simplify(&$variables) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $variables['node'] = $node;
+
+  // Get the menu by name
+  $menu_tree = \Drupal::menuTree();
+  $menu_name = 'left-menu-english';
+  $parameters = new MenuTreeParameters();
+  $parameters->onlyEnabledLinks();
+  $manipulators = [
+    ['callable' => 'menu.default_tree_manipulators:checkNodeAccess'],
+    ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+    ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+  ];
+  $headerTreeLoad = $menu_tree->load($menu_name, $parameters);
+  $items = $menu_tree->transform($headerTreeLoad, $manipulators);
+  $items = array_map(function ($obj) {return (array) $obj;}, $items);
+  // $menu_items = new MenuItems($menu_tree);
+  // $items = $menu_items->getMenuTree($menu_name);
+  $children_of_active_menu_item = children_of_active_menu_item($items);
+  $nav_page_items = [];
+  $children_of_active_menu_item = [];
+  foreach ($children_of_active_menu_item as $child) {
+    try {
+      $childNid = $child['url']->getRouteParameters()['node'];
+      $childNode = Node::load($childNid);
+      $data = new StdClass();
+      $data->title = $childNode->get('title')->value;
+      $data->url = $childNode->toUrl()->toString();
+      if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
+        $data->description = $childNode->get('field_short_description')->value;
+      }
+      elseif ($childNode->hasField('field_page_intro') && $childNode->get('field_page_intro')->value != "") {
+        $data->description = $childNode->get('field_page_intro')->value;
+      }
+      else {
+        $data->description = $childNode->get('field_meta_description')->value;
+      }
+
+      if ($childNode->hasField('field_navigation_banner_image') &&
+          count($childNode->get('field_navigation_banner_image')) &&
+          $childNode->get('field_navigation_banner_image')[0]->entity) {
+        $data->navigation_banner_image = file_url_transform_relative(file_create_url(
+          $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
+        ));
+      }
+      if ($childNode->hasField('field_css_icon') && count($childNode->get('field_css_icon'))) {
+        $data->css_icon = $childNode->get('field_css_icon')[0]->value;
+      }
+      if ($childNode->hasField('promote')) {
+        $data->promote = $childNode->get('promote')->value;
+      }
+      // $data->node = $childNode;
+      array_push($nav_page_items, $data);
+    }
+    catch (Exception $e) {
+      $menuItem = $child['original_link']->getPluginDefinition();
+      $data = new StdClass();
+      $data->title = $menuItem['title'];
+      $data->url = $menuItem['url'];
+      if (strncmp($data->url, "base:", 5) === 0) {
+        $data->url = "/" . substr($data->url, 5);
+      }
+      $data->description = $menuItem['description'];
+      array_push($nav_page_items, $data);
+    }
+  }
+  $variables['nav_page_items'] = $nav_page_items;
 }
 
 function usagov_preprocess_views_view_list(&$variables) {
@@ -135,7 +294,7 @@ function usagov_theme_suggestions_alter(array &$suggestions, array $variables, $
   }
   if ($hook == 'field') {
     if (in_array('field__node__field_custom_twig_content', $suggestions) &&
-        $variables['element']['#object']->field_custom_twig_content->value) {
+    $variables['element']['#object']->field_custom_twig_content->value) {
       $current_path = \Drupal::service('path.current')->getPath();
       $current_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
       $no_slash = ltrim($current_alias, '/');
