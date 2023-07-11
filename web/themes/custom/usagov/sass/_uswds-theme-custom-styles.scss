@@ -548,7 +548,7 @@ add padding at the top of flag cards
 }
 
 .usa-footer__social-links {
-  @media (max-width: 30em) and (min-width: 30em) {
+  @media (min-width: 30em) {
     justify-content: flex-start;
     padding-right: 0;
   }
@@ -1216,4 +1216,12 @@ div[class^="QSIUserDefinedHTML"] {
   width: 1px;
   height: 1px;
   overflow: hidden;
+}
+
+.footer-social-block{
+  display:inline-block;
+}
+
+.usa-footer__social-links div:first-of-type{
+  padding-left: 0;
 }

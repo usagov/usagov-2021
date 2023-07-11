@@ -36,57 +36,59 @@
 				</div>
 
 				<div class="usa-footer__contact-links mobile-lg:grid-col-6">
-					<h4 class="usa-footer__contact-heading">
-						{{ lang == 'es' ?   "Encuéntrenos en las  redes sociales" : "Find us on social media" }}
-					</h4>
+					<div class="footer-social-block">
+						<h4 class="usa-footer__contact-heading">
+							{{ lang == 'es' ?   "Encuéntrenos en las  redes sociales" : "Find us on social media" }}
+						</h4>
 
-					<div class="usa-footer__social-links en-links grid-row grid-gap-1">
-
-						<div class="grid-col-auto">
-							{% if lang == "es" %}
-								<a class="usa-social-link" href="https://www.facebook.com/usagovespanol">
-								{% else %}
-									<a class="usa-social-link" href="https://www.facebook.com/USAgov">
-									{% endif %}
-									<img src="/themes/custom/usagov/images/footer_icon_facebook.svg" alt="Facebook USAGov"/>
-									<span>Facebook</span>
-								</a>
-							</div>
+						<div class="usa-footer__social-links en-links grid-row grid-gap-1">
 
 							<div class="grid-col-auto">
 								{% if lang == "es" %}
-									<a class="usa-social-link" href="https://twitter.com/usagovespanol">
+									<a class="usa-social-link" href="https://www.facebook.com/usagovespanol">
 									{% else %}
-										<a class="usa-social-link" href="https://twitter.com/USAgov">
+										<a class="usa-social-link" href="https://www.facebook.com/USAgov">
 										{% endif %}
-										<img src="/themes/custom/usagov/images/footer_icon_twitter.svg" alt="Twitter USAGov"/>
-
-										<span>Twitter</span>
+										<img src="/themes/custom/usagov/images/footer_icon_facebook.svg" alt="Facebook USAGov"/>
+										<span>Facebook</span>
 									</a>
 								</div>
 
 								<div class="grid-col-auto">
 									{% if lang == "es" %}
-										<a class="usa-social-link" href="https://www.youtube.com/USAgovespanol">
+										<a class="usa-social-link" href="https://twitter.com/usagovespanol">
 										{% else %}
-											<a class="usa-social-link" href="https://www.youtube.com/usagov1">
+											<a class="usa-social-link" href="https://twitter.com/USAgov">
 											{% endif %}
-											<img src="/themes/custom/usagov/images/footer_icon_youtube.svg" alt="Youtube USAGov"/>
+											<img src="/themes/custom/usagov/images/footer_icon_twitter.svg" alt="Twitter USAGov"/>
 
-											<span>YouTube</span>
+											<span>Twitter</span>
 										</a>
 									</div>
 
-									{% if lang != "es" %}
-										<div class="grid-col-auto">
-											<a class="usa-social-link" href="https://www.instagram.com/usagov/">
-												<img src="/themes/custom/usagov/images/footer_icon_instagram.svg" alt="Instagram USAGov"/>
+									<div class="grid-col-auto">
+										{% if lang == "es" %}
+											<a class="usa-social-link" href="https://www.youtube.com/USAgovespanol">
+											{% else %}
+												<a class="usa-social-link" href="https://www.youtube.com/usagov1">
+												{% endif %}
+												<img src="/themes/custom/usagov/images/footer_icon_youtube.svg" alt="Youtube USAGov"/>
 
-												<span>Instagram</span>
+												<span>YouTube</span>
 											</a>
 										</div>
-									{% endif %}
 
+										{% if lang != "es" %}
+											<div class="grid-col-auto">
+												<a class="usa-social-link" href="https://www.instagram.com/usagov/">
+													<img src="/themes/custom/usagov/images/footer_icon_instagram.svg" alt="Instagram USAGov"/>
+
+													<span>Instagram</span>
+												</a>
+											</div>
+										{% endif %}
+
+									</div>
 								</div>
 
 							</div>
