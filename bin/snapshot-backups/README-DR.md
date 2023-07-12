@@ -130,6 +130,28 @@ ___
 
 ## 3. Snapshot restore using helper script *bin/cloudgov/snapshot-backups/stw*
 
+### Setup prior to performing a snapshot restore
+
+A. In the target environment, make sure in the CMS, that:
+
+1. Maintenance Mode is ON
+
+1. Static Site Generation is DISABLED
+
+1. If Tome is running, wait until it has completed before starting steps in *Static site restore* section below
+
+B. Create environment variables in your shell session for
+
+1. The Jira build ticket id
+
+1. The cloud.gov space to which deployment is taking place
+
+1. A description of whether this snapshot is pre or post deployment
+
+        export BRANCH=USAGOV-999
+        export SPACE=prod
+        export SUFFIX=pre-deploy
+
 ### Static Site Restore using helper script stw
 
         dryrun='--dryrun'
@@ -147,7 +169,17 @@ ___
 
 ## 4. Snapshot restore - Manual Tag Creation
 
-### Preparation for restore
+### Setup prior to performing a snapshot restoration
+
+A. In the target environment, make sure in the CMS, that:
+
+1. Maintenance Mode is ON
+
+1. Static Site Generation is DISABLED
+
+1. If Tome is running, wait until it has completed before starting steps in *Static site backup* section below
+
+B. Create environment variable in your shell session for the backup tag you wish to restore
 
         Backup tag should be in the format of
 
