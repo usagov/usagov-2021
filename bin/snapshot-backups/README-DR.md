@@ -239,13 +239,13 @@ ___
 1. Push static site snapshot
 
         dryrun='--dryrun'
-        unzip ${SNAPTAG}.zip
+        unzip ${BACKUP_TAG}.zip
         bin/snapshot-backups/site-folder-push-to-snapshot ${dryrun} ${BACKUP_TAG}
 
 1. Push CMS public files snapshot
 
         dryrun='--dryrun'
-        unzip ${SNAPTAG}.public.zip
+        unzip ${BACKUP_TAG}.public.zip
         bin/snapshot-backups/public-folder-push-to-snapshot ${dryrun} ${BACKUP_TAG}
 
 ## 6. Deploy snapshots to CF environment
