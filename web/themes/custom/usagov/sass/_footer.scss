@@ -138,6 +138,7 @@
 
 .footer-question {
   min-height: 15px;
+  margin-block-end: 8px;
 }
 
 .usa-footer__contact-links {
@@ -155,6 +156,7 @@
 
 .footer-social-block {
   display: inline-block;
+  height:100%;
 }
 
 .usa-footer__contact-heading {
@@ -175,9 +177,13 @@
 }
 
 .usa-footer__social-links {
+
   @media (min-width: 30em) {
     justify-content: flex-start;
     padding-right: 0;
+    padding-bottom: 0;
+    position:absolute;
+    bottom: 0;
   }
 
   div {
@@ -192,7 +198,7 @@
   padding: 6px;
   width: 44px;
   height: 44px;
-
+  margin-bottom: -6px;
   &:hover {
     background-color: var($cyan-light);
   }
