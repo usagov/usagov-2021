@@ -1,3 +1,5 @@
+const socials = require('../fixtures/socials.json')
+
 describe('Footer', () => {
     beforeEach(() => {
         // Set viewport size and base URL
@@ -71,33 +73,10 @@ describe('Footer', () => {
         )
     })
     it('Social media icons appear in footer and link to correct places', () => {
-        const socials = [
-            {
-                name: 'Facebook',
-                img: '/themes/custom/usagov/images/footer_icon_facebook.svg',
-                link: 'https://www.facebook.com/USAgov'
-            },
-            {
-                name: 'Twitter',
-                img: '/themes/custom/usagov/images/footer_icon_twitter.svg',
-                link: 'https://twitter.com/USAgov'
-            },
-            {
-                name: 'Youtube',
-                img: '/themes/custom/usagov/images/footer_icon_youtube.svg',
-                link: 'https://www.youtube.com/usagov1'
-            },
-            {
-                name: 'Instagram',
-                img: '/themes/custom/usagov/images/footer_icon_instagram.svg',
-                link: 'https://www.instagram.com/usagov/'
-            },
-        ]
-        
         for (let i = 0; i < socials.length; i++) {
             cy.get('.usa-footer__contact-links')
                 .find(`[alt="${socials[i].name} USAGov"]`)
-                .should('have.attr', 'src', socials[i].img)
+                .should('have.attr', 'src', `/themes/custom/usagov/images/footer_icon_${socials[i].name.toLowerCase()}.svg`)
         
             cy.get('.usa-footer__contact-links')
                 .find(`[alt="${socials[i].name} USAGov"]`)
