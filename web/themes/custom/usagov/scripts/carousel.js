@@ -103,11 +103,11 @@ jQuery(document).ready(function ($) {
         }
       );
     }
- else if (window.innerWidth > 480 && window.innerWidth < 1024) {
+ else if (window.innerWidth > 639 && window.innerWidth < 1024) {
         $(slidesContainer).animate(
         {
           "scrollLeft":
-            (slidesContainer.offsetWidth / 2) * nextLeftMostSlideIndex,
+            ((slideForWidth.offsetWidth) * nextLeftMostSlideIndex) + (2 * nextLeftMostSlideIndex * 10) -10,
         },
         {
           "duration": 200,
