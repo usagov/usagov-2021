@@ -733,31 +733,6 @@
     padding-top: 20px;
   }
 
-  // .carousel-mover {
-  //   max-width: 100%;
-  //   padding-left: 0;
-  //   padding-right: 0;
-  //   margin-left: 15px;
-  // }
-
-  // .carousel .usa-card-group {
-  //   margin-left: 0;
-  //   margin-right: 0;
-  // }
-
-  // .slide {
-  //   flex: 0 0 calc(50% - 14px);
-  //   width: auto;
-  //   max-width: inherit;
-  //   margin-right: 0;
-  //   margin-left: 0;
-  // }
-
-  // .slide:not(:last-child) {
-  //   margin-right: 15px;
-  //   margin-left: 0;
-  // }
-
   .all-topics-header h2 {
     margin-left: auto;
     margin-right: auto;
@@ -809,34 +784,24 @@
     width: 960px;
   }
 
-  // .carousel-mover {
-  //   width: 810px;
-  //   max-width: 810px;
-  //   margin-left: 31px;
-  //   margin-right: 31px;
-  // }
+  .carousel-mover {
+    width: 810px;
+    max-width: 810px;
+    margin-left: 0px;
+    margin-right: 0px;
+  }
 
-  // .carousel .usa-card-group {
-  //   margin-left: 0;
-  //   margin-right: 0;
-  // }
+  .slide {
+    flex: 0 0 calc(100% / 3);
+    padding: 0;
+    width: 260px;
+    max-width: 260px;
+    margin-right: 10px;
+    margin-left: 0;
 
-  // .slide {
-  //   flex: 0 0 calc(100% / 3);
-  //   padding: 0;
-  //   width: 260px;
-  //   max-width: 260px;
-  //   margin-right: 0;
-  //   margin-left: 0;
-
-  //   .life_events_card_text {
-  //     padding: 16px 16px 0 16px;
-  //     height:210px;
-  //   }
-  // }
-
-  // .slide:not(:last-child) {
-  //   margin-right: 12px;
-  //   margin-left: 0;
-  // }
+    .life_events_card_text {
+      padding: 16px 16px 0 16px;
+      height:210px;
+    }
+  }
 }
