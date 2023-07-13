@@ -7,6 +7,7 @@ jQuery(document).ready(function ($) {
   nextButton = document.querySelector(".next");
   slidesContainer = document.querySelector(".slides");
   slides = slidesContainer.querySelectorAll(".slide");
+  let slideForWidth = slidesContainer.querySelector(".slide");
   let slidesForFocus = slidesContainer.querySelectorAll(".slide a");
   let carouselHeaders = document.querySelectorAll(".carouselHeaders");
   makeDots();
@@ -103,7 +104,7 @@ jQuery(document).ready(function ($) {
       );
     }
  else if (window.innerWidth > 480 && window.innerWidth < 1024) {
-      $(slidesContainer).animate(
+        $(slidesContainer).animate(
         {
           "scrollLeft":
             (slidesContainer.offsetWidth / 2) * nextLeftMostSlideIndex,
@@ -114,9 +115,11 @@ jQuery(document).ready(function ($) {
       );
     }
  else {
+  console.log(`${slideForWidth.offsetWidth}`);
+  console.log(`Sliding to card ${nextLeftMostSlideIndex} at ${(slideForWidth.offsetWidth * nextLeftMostSlideIndex) + ((nextLeftMostSlideIndex - 1) * 4) +2}`);
       $(slidesContainer).animate(
         {
-          "scrollLeft": slidesContainer.offsetWidth * nextLeftMostSlideIndex,
+          "scrollLeft": (slideForWidth.offsetWidth * nextLeftMostSlideIndex) + ((nextLeftMostSlideIndex - 1) * 4) +2,
         },
         {
           "duration": 200,
