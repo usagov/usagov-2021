@@ -39,6 +39,9 @@ export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 export AWS_BUCKET=$AWS_BUCKET
 export ANALYTICS_REPORT_EMAIL=$ANALYTICS_REPORT_EMAIL
 
+echo $(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY_BASE64"]' <<< "$VCAP_SERVICES") | base64 -d > $ANALYTICS_KEY_PATH
+chmod 600 $ANALYTICS_KEY_PATH
+
 cd analytics-reporter
 
 while true;
