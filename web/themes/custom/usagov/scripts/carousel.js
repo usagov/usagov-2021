@@ -96,7 +96,7 @@ jQuery(document).ready(function ($) {
       $(slidesContainer).animate(
         {
           "scrollLeft":
-            (slideForWidth.offsetWidth) * nextLeftMostSlideIndex + ((nextLeftMostSlideIndex)* 10),
+            (slideForWidth.offsetWidth) * nextLeftMostSlideIndex + ((nextLeftMostSlideIndex)* 32),
         },
         {
           "duration": 200,
