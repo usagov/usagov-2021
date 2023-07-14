@@ -687,6 +687,21 @@
   }
 }
 
+/* Static Mobile */
+@media (min-width: 385px) {
+  .carousel-mover {
+    width: 246px;
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .slide {
+    width: 236px;
+    max-width: 236px;
+    flex: 0 0 calc(100%);
+  }
+}
+
 /* Tablet */
 @media (min-width: 640px) {
   .carousel-mover {
