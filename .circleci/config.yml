@@ -534,6 +534,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1032-drupal-10-upgrade
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -543,6 +544,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1032-drupal-10-upgrade
       - approve-dev-deployment:
           type: approval
           requires:
