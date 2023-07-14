@@ -4,6 +4,9 @@ describe('Home Page', () => {
         cy.viewport('macbook-13')
         cy.visit('/')
     })
+    it.only('Visual test test', () => {
+        cy.compareSnapshot('home-page-full', 0.1)
+    })
     /*it.only('All links are valid', () => {
         cy.get('a')
             .filter(':visible')

@@ -24,3 +24,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
     // failing the test
     return false
 })
+
+// Import and add Cypress image command
+const compareSnapshotCommand = require('cypress-image-diff-js/dist/command')
+compareSnapshotCommand()

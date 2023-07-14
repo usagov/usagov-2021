@@ -1,4 +1,4 @@
-describe('Error Page', () => {
+describe('Life Events', () => {
     beforeEach(() => {
         cy.visit('/life-events') 
     })
