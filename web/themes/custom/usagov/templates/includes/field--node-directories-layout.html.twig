@@ -3,7 +3,7 @@
  * @file
  * Theme override for a field -- Directory Records
  *  - Uses <span> instead of <div> for fields with hidden labels.
- *  - Uses <ul> for multiple entries (with hidden labels). 
+ *  - Uses <ul> for multiple entries (with hidden labels).
  *
  * To override output, copy the "field.html.twig" from the templates directory
  * to your theme's directory and customize it, just like customizing other
@@ -69,7 +69,7 @@
     </ul>
   {% else %}
     {% for item in items %}
-      <span{{ attributes.addClass(classes, 'field__item').addClass(field_classes) }}>{{ item.content }}</span>
+      <span{{ attributes.addClass(classes, 'field__item').addClass('line-height-2').addClass(field_classes) }}>{{ item.content }}</span>
     {% endfor %}
   {% endif %}
 {% else %}
