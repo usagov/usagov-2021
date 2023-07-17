@@ -249,12 +249,17 @@ hr.bl-divider {
   div {
     border: solid 1.5px #d3d2d2;
     margin: 0;
-    padding: 25px 0 25px 25px;
+    padding: 25px;
   }
 
   div:nth-child(odd) {
     background-color: #f2f2f2;
   }
+}
+
+.usagov-directory-table h2 {
+  margin:0;
+  margin-bottom: 0.2rem;
 }
 
 .usagov-directory-table h3 {
