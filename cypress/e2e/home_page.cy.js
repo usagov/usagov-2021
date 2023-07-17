@@ -4,7 +4,7 @@ describe('Home Page', () => {
         cy.viewport('macbook-13')
         cy.visit('/')
     })
-    it.only('Visual test test', () => {
+    it('Visual test', () => {
         cy.compareSnapshot('home-page-full', 0.1)
     })
     /*it.only('All links are valid', () => {
@@ -185,7 +185,7 @@ describe('Home Page', () => {
         // Check each link is valid
         cy.get('@links')
             .each((link) => {
-                cy.visit(link.attr('href'));
+                cy.visit(link.attr('href'))
                 cy.contains('Page not found').should('not.exist')
 
                 cy.go('back')
