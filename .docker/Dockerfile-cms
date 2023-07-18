@@ -212,7 +212,8 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && mkdir -p /run/nginx/ \
     && touch /run/nginx/nginx.pid \
     # php setup
-    && ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm
+    && ln -s /usr/bin/php82 /usr/bin/php \
+    && ln -s /usr/sbin/php-fpm82 /usr/sbin/php-fpm
 
     # new relic setup
 # COPY bin/src/newrelic.sh /local/newrelic.sh
