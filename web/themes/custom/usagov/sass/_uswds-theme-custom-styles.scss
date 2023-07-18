@@ -40,9 +40,13 @@ i.e.
   color: var($red);
 }
 
+.line-height-2{
+  line-height: 2;
+}
 .question-icon {
   display: flex;
 }
+
 
 .chat-icon {
   width: 60px;
@@ -86,12 +90,12 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary {
-  border: 2px solid color("cyan-50v");
+  border: 2px solid var($secondary-border-color);
 }
 
 .usa-button--secondary:hover {
-  background-color: color("cyan-20");
-  border: 2px solid color("cyan-50v");
+  background-color: var($secondary-border-color);
+  border: 2px solid var($secondary-border-color);
 }
 
 .usa-button--secondary:visited,
