@@ -140,6 +140,23 @@ function assertSpace() { # desired space
   fi
 }
 
+function assertCurSpace() { # desired space
+  currentSpace=$( cf target | grep space: | awk '{ print $2 }')
+  desiredSpace=${1}
+  if [ x${desiredSpace} != x$currentSpace ]; then
+      echo "ERROR: Current space ($currentSpace) is not $desiredSpace"
+      exit 1; #false
+  fi
+}
+
+function assertSpaceExists() { # desired space
+  desiredSpace=$1
+  if ! cf space $desiredSpace &> /dev/null; then
+      echo "ERROR: CF space '$desiredSpace' does not exist!"
+      exit 1; #false
+  fi
+}
+
 function spaceCCIContainerTag() {
   desiredSpace=${1}
   assertSpace $desiredSpace

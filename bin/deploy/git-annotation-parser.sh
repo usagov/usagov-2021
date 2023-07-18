@@ -4,6 +4,11 @@
 # 2.  Query the content field of the reference attached to the tag, and make sure it contains correctly formated build number and digest hashes
 # 3.  Profit
 
+# TBD:
+#
+# 1. Find some way to put boundaries on the for-each-ref results - what if there are 1200 matching results?  There shouldn't be, but - seatbelts please.
+# 2. The annotation parsing works, but is "bulky" :)
+
 ### Step 1.a  (also see TBD 1.)
 ANNOTATED_TAGS=$(git for-each-ref refs/tags/USAGOV*prod*post* --sort='-*authordate' \
     --format '%(objecttype) %(refname:short)' |
@@ -21,7 +26,6 @@ for at in $ANNOTATED_TAGS; do
     #   TAG_MESSAGE="'CCI_BUILD=${CCI_BUILD}|CMS_DIGEST=${CMS_DIGEST}|WAF_DIGEST=${WAF_DIGEST}'"
     #
     # The TAG_MESSAGE is what we are deconstructing below
-
     TAG_RESULTS=$(git for-each-ref refs/tags/$at --format "%(contents)" | sed "s/'//g")
     IFS='|' read -ra ANNOTATION <<< "$TAG_RESULTS"
 
@@ -34,41 +38,47 @@ for at in $ANNOTATED_TAGS; do
             echo Invalid CircleCI build number in tag annotation for $at
             exit 1
         fi
-        echo $VAL
+        echo $field
         ;;
 
       CMS_DIGEST=*)
         VAL=$(sed 's/^CMS_DIGEST=//' <<< $field)
-        IFS=':' read -ra DIGEST <<< "$VAL"
 
-        for field in "${DIGEST[@]}"; do
+        # $VAL will be the hash string, eg:  @sha256:<hex string>.  The following
+        # code will split on ':' and do basic validation on both parts the the hash string
+        IFS=':' read -ra DIGEST <<< "$VAL"
+        for fieldpart in "${DIGEST[@]}"; do
             re1='^\@(sha[0-9]+|md[2-5])$'
             re2='^[0-9A-Fa-f]+$'
-            if ! [[ $field =~ $re1 ]]; then
-                if ! [[ $field =~ $re2 ]]; then
-                    echo "Invalid digest string ($field) in tag annotation for $at"
+            if ! [[ $fieldpart =~ $re1 ]]; then
+                if ! [[ $fieldpart =~ $re2 ]]; then
+                    echo "Invalid digest string ($fieldpart) in tag annotation for $at"
                     exit 1
                 fi
             fi
         done
-        echo $VAL
+        field=$(sed -E 's/=(.*)/="\1"/' <<< $field)
+        echo $field
         ;;
 
       WAF_DIGEST=*)
         VAL=$(sed 's/^WAF_DIGEST=//' <<< $field)
-        IFS=':' read -ra DIGEST <<< "$VAL"
 
-        for field in "${DIGEST[@]}"; do
+        # $VAL will be the hash string, eg:  @sha256:<hex string>.  The following
+        # code will split on ':' and do basic validation on both parts the the hash string
+        IFS=':' read -ra DIGEST <<< "$VAL"
+        for fieldpart in "${DIGEST[@]}"; do
             re1='^\@(sha[0-9]+|md[2-5])$'
             re2='^[0-9A-Fa-f]+$'
-            if ! [[ $field =~ $re1 ]]; then
-                if ! [[ $field =~ $re2 ]]; then
-                    echo "Invalid digest string ($field) in tag annotation for $at"
+            if ! [[ $fieldpart =~ $re1 ]]; then
+                if ! [[ $fieldpart =~ $re2 ]]; then
+                    echo "Invalid digest string ($fieldpart) in tag annotation for $at"
                     exit 1
                 fi
             fi
         done
-        echo $VAL
+        field=$(sed -E 's/=(.*)/="\1"/' <<< $field)
+        echo $field
         ;;
 
       *)
@@ -81,8 +91,3 @@ for at in $ANNOTATED_TAGS; do
     # Stop after processing first (latest) annotation
     break
 done
-
-# TBD:
-#
-# 1. Find some way to put boundaries on the for-each-ref results - what if there are 1200 matching results?  There shouldn't be, but - seatbelts please.
-# 2. The annotation parsing works, but is "bulky" :)
