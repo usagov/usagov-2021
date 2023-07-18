@@ -132,6 +132,22 @@ function assertBranch() { # desired branch
   fi
 }
 
+function assertCFService() { # desired service name
+  desiredService=$1
+  if ! cf service $desiredService &> /dev/null; then
+      echo "ERROR: CF service '$desiredService' does not exist in the current CF space"
+      exit 1; #false
+  fi
+}
+
+function existsCFService() { # desired service name
+  desiredService=$1
+  if ! cf service $desiredService &> /dev/null; then
+      echo "ERROR: CF service '$desiredService' does not exist in the current CF space"
+      return 1; #false
+  fi
+}
+
 function assertSpace() { # desired space
   desiredSpace=${1}
   if [ x${desiredSpace} != x$startspace ]; then
