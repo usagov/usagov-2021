@@ -94,7 +94,6 @@ hr.bl-divider {
   p {
     font-size: 18px;
   }
-  
   section {
     flex-grow: 1;
     max-width: 20rem;
@@ -121,21 +120,10 @@ hr.bl-divider {
     padding-right: 0;
   }
 
-  /* clear the ‘X’ from Internet Explorer */
-  input[type=search]::-ms-clear {
-    display: none;
-    width : 0;
-    height: 0;
-  
-  }
-
-  input[type=search]::-ms-reveal {
-    display: none;
-    width : 0;
-    height: 0;
-  }
-
-  /* clear the ‘X’ from Chrome */
+  /* clears the ‘X’ from Internet Explorer */
+  input[type=search]::-ms-clear { display: none; width : 0; height: 0; }
+  input[type=search]::-ms-reveal { display: none; width : 0; height: 0; }
+  /* clears the ‘X’ from Chrome */
   input[type="search"]::-webkit-search-decoration,
   input[type="search"]::-webkit-search-cancel-button,
   input[type="search"]::-webkit-search-results-button,
