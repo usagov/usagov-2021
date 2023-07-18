@@ -64,7 +64,7 @@ function renderResults(response, rawResponse) {
         }
     };
 
-    //const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
+    // const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
     const content = backupTranslations[ document.documentElement.lang ];
 
     // Get location for where to attach the rendered results
