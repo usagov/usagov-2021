@@ -80,7 +80,44 @@ describe('Home Page', () => {
             cy.url().should('include', 'search.usa.gov')
         })
     })
-    it('Footer appears as expected on mobile, topics can be expanded and links function appropriately', () => {
+    it.only('Footer appears as expected on mobile, topics can be expanded and links function appropriately', () => {
+        cy.get('.usa-footer__nav')
+            .find('.usa-footer__primary-content')
+            .each((section) => {
+                cy.wrap(section)
+                    .find('.usa-list')
+                    .should('not.be.visible')
 
+                // Expand accordion 
+                cy.wrap(section)
+                    .find('.usa-gov-footer__primary-link')
+                    .click()
+
+                cy.wrap(section)
+                    .find('.usa-list')
+                    .should('be.visible')
+
+                // Validate links
+                cy.wrap(section)
+                    .find('a')
+                    .not('[href="/website-analytics/"]')
+                    .each((link) => {
+                        cy.wrap(link).invoke('attr', 'href')
+                            .then(href => {
+                                cy.request(href)
+                                    .its('status')
+                                    .should('eq', 200)
+                            })
+                    })
+
+                // Close accordion
+                cy.wrap(section)
+                    .find('.usa-gov-footer__primary-link')
+                    .click()
+
+                cy.wrap(section)
+                    .find('.usa-list')
+                    .should('not.be.visible')
+            })
     })
 })
