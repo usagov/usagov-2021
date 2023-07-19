@@ -395,10 +395,9 @@
   margin-top: 10px;
   border: 1px solid #53BBDF;
   border-radius: 4px;
-  box-shadow: 0 3px 6px rgba(122,122,122,.15);
+  box-shadow: 4px 4px 4px 0 rgba(0 0 35%);
   padding: 0;
   margin-right: 4px;
-  // margin-left: 1px;
 
   &:focus-within {
     border: 4px solid #c05600;
@@ -419,7 +418,7 @@
     }
 
     .life_events_card_text {
-      padding: 12px 12px 0 12px;
+      padding: 12px 12px 0;
       height:210px;
     }
   }
@@ -817,8 +816,8 @@
   .carousel-mover {
     width: 850px;
     max-width: 850px;
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .slide {
@@ -830,7 +829,7 @@
     margin-left: 0;
 
     .life_events_card_text {
-      padding: 16px 16px 0 16px;
+      padding: 16px 16px 0;
       height:210px;
     }
   }
