@@ -142,7 +142,8 @@ commands:
     steps:
       - checkout
       - install-cloud-foundry
-      - snapshot-preamble
+      - snapshot-preamble:
+          envname: << parameters.envname >>
       - run:
           name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
           command: |
@@ -152,7 +153,8 @@ commands:
             ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
             ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
             ./bin/snapshot-backups/public-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
-      - snapshot-postamble
+      - snapshot-postamble:
+          envname: << parameters.envname >>
 
   deploy-reporter:
     parameters:
@@ -507,7 +509,7 @@ workflows:
           requires:
             - approve-snapshot-backup-prod
 
-  deploy-reporter:
+  try-deploy-reporter:
     jobs:
       - approve-deploy-reporter:
           type: approval
@@ -537,6 +539,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1056-store-image-digests
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -546,6 +549,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1056-store-image-digests
       - approve-dev-deployment:
           type: approval
           requires:
@@ -554,6 +558,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1056-store-image-digests
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -561,6 +566,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1056-store-image-digests
       - approve-stage-deployment:
           type: approval
           requires:
