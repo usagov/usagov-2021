@@ -7,18 +7,18 @@ dependencies:
     - node.type.basic_page
     - taxonomy.vocabulary.page_type
   content:
-    - 'taxonomy_term:page_type:91e6bbe5-6239-4368-8848-110993f657fe'
+    - 'taxonomy_term:page_type:24ada0c8-3397-4b5f-a8bc-55adff307199'
 id: node.basic_page.field_page_type
 field_name: field_page_type
 entity_type: node
 bundle: basic_page
 label: 'Page Type'
 description: ''
-required: false
+required: true
 translatable: false
 default_value:
   -
-    target_uuid: 91e6bbe5-6239-4368-8848-110993f657fe
+    target_uuid: 24ada0c8-3397-4b5f-a8bc-55adff307199
 default_value_callback: ''
 settings:
   handler: 'default:taxonomy_term'
