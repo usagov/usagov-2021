@@ -109,7 +109,7 @@ commands:
   snapshot-preamble:
     parameters:
       envname:
-        default: "dev-dr"
+        default: "dev"
         type: string
     steps:
       - run:
@@ -123,7 +123,7 @@ commands:
   snapshot-postamble:
     parameters:
       envname:
-        default: "dev-dr"
+        default: "dev"
         type: string
     steps:
       - run:
