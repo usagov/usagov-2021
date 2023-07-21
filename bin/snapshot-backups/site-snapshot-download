@@ -34,6 +34,10 @@ if [ -z "$DEPLOY_TAG" ]; then
   exit 1
 fi
 
+if [ -f $DEPLOY_TAG.zip ]; then
+  mv $DEPLOY_TAG.zip $DEPLOY_TAG.zip.bak
+fi
+
 mkdir $DEPLOY_TAG
 success=$?
 
@@ -49,8 +53,24 @@ echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web-backup/$DEPLOY_TAG $DEPLOY
 $echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web-backup/$DEPLOY_TAG $DEPLOY_TAG --recursive
 
 echo "Creating zip file ${DEPLOY_TAG}.zip"
-echo zip -rq ${DEPLOY_TAG}.zip ${DEPLOY_TAG}
-$echo zip -rq ${DEPLOY_TAG}.zip ${DEPLOY_TAG}
+echo zip -rv ${DEPLOY_TAG}.zip ${DEPLOY_TAG}
+$echo zip -rv ${DEPLOY_TAG}.zip ${DEPLOY_TAG} &> $DEPLOY_TAG.zip.log
+success=$?
+
+if [ "$success" != "0" ]; then
+  echo "Unable to create Zip file of backup directory $DEPLOY_TAG"
+  exit 1
+fi
+
+FILE_COUNT=$(grep -c deflated ${DEPLOY_TAG}.zip.log)
+rm -rf $DEPLOY_TAG
+rm ${DEPLOY_TAG}.zip.log
+
+if [ $FILE_COUNT -lt 1500 ]; then
+  echo "Only ~$FILE_COUNT files found in the $DEPLOY_TAG backup."
+  echo "This is probably not a good thing"
+  exit 1
+fi
 
 echo "Done."
 exit 0

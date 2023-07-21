@@ -1,23 +1,41 @@
 {% set lang = node.langcode.value %}
+
+{# Determine Language to decide which translations to use #}
+{% if node.langcode.langcode == "es" %}
+	{% set translations = {
+		'congress_members': 'Congresistas',
+		'elected_officials_link_text': 'Obtenga los nombres y la información de contacto de los funcionarios electos',
+		'elected_officials_link_url': '/es/funcionarios-electos',
+		'state_agencies': 'Agencias estatales'
+	} %}
+{% else %}
+	{% set translations = {
+		'congress_members': 'Congress members',
+		'elected_officials_link_text': 'Find the names and contact information for your elected officials',
+		'elected_officials_link_url': '/elected-officials',
+		'state_agencies': 'State agencies'
+	} %}
+{% endif %}
+
 {{ content.field_page_intro }}
 {{ content.body }}
-<div class="usagov-directory-table">
+<div class="usagov-directory-table" id="State-Directory-Table">
 	<div>
-		<h3 class="usa-prose">{{ lang == 'en' ? 'State government website' : 'Sitio web del Gobierno estatal ' }}</h3>
+		<h3 class="usa-prose line-height-2">{{ lang == 'en' ? 'State government website' : 'Sitio web del Gobierno estatal ' }}</h3>
 		{{ content.field_website }}
 	</div>
 
 	{% if lang == 'en' %}
 		<div>
 			<ul class="usa-list usa-list--unstyled">
-				<h3 class="usa-prose">Governor</h3>
+				<h3 class="usa-prose line-height-2">Governor</h3>
 				{{ content.field_governor }}<br>
 				{{ content.field_governor_contact }}
-				<p class="usagov-dir-padding">Phone:
+				<p class="usagov-dir-padding line-height-2">Phone:
 					{{ content.field_phone_number }}</p>
 				{% if content.group_main_address %}
 					{% set address = content.group_main_address %}
-					<p class="usagov-dir-padding">Main address:</p>
+					<p class="usagov-dir-padding line-height-2">Main address:</p>
 					{{ address.field_street_1 }}
 					{% if address.field_street_2|render %}
 						<br>{{ address.field_street_2 }}
@@ -39,72 +57,83 @@
 	{% endif %}
 
 	<div>
-		<h3 class="usa-prose">{{ lang == 'en' ? 'Congress members' : 'Congresistas' }}</h3>
-		<a href="/elected-officials">Find the names and contact information for your elected officials</a>
+		<h3 class="usa-prose line-height-2">{{translations.congress_members}}</h3>
+		<a href="{{translations.elected_officials_link_url}}">{{translations.elected_officials_link_text}}</a>
 	</div>
 
 	<div>
-		<h3 class="usa-prose">{{ lang == 'en' ? 'State agencies' : 'Agencias estatales' }}</h3>
+		<h3 class="usa-prose line-height-2">{{translations.state_agencies}}</h3>
 
-		{% if content.field_social_services|render %}
-			<span class="field field--name-field-social-services field--type-link field--label-hidden field__item">
+		{% if content.field_agriculture_department|render and node.field_agriculture_department[0].title%}
+			<span class="field field--name-field-agriculture-department field--type-link field--label-hidden field__item line-height-2 ">
+			<a href={{ node.field_agriculture_department[0].url }}>{{ node.field_agriculture_department[0].title }}</a>
+			</span><br>
+		{% endif %}
+
+		{% if content.field_social_services|render and node.field_social_services[0].title%}
+			<span class="field field--name-field-social-services field--type-link field--label-hidden field__item line-height-2">
 				<a href={{ node.field_social_services[0].url }}>{{ node.field_social_services[0].title }}</a>
 			</span><br>
 		{% endif %}
 
-		{% if content.field_consumer_protection|render %}
-			<span class="field field--name-field-consumer-protection field--type-link field--label-hidden field__item">
+		{% if content.field_consumer_protection|render and node.field_consumer_protection[0].title%}
+			<span class="field field--name-field-consumer-protection field--type-link field--label-hidden field__item line-height-2">
 				<a href={{ node.field_consumer_protection[0].url }}>{{ node.field_consumer_protection[0].title }}</a>
 			</span><br>
 		{% endif %}
 
-		{% if content.field_corrections_dept|render %}
-			<span class="field field--name-field-corrections-dept field--type-link field--label-hidden field__item">
+		{% if content.field_corrections_dept|render and node.field_corrections_dept[0].title%}
+			<span class="field field--name-field-corrections-dept field--type-link field--label-hidden field__item line-height-2">
 				<a href={{ node.field_corrections_dept[0].url }}>{{ node.field_corrections_dept[0].title }}</a>
 			</span><br>
 		{% endif %}
 
-		{% if content.field_local_governments|render %}
-			<span class="field field--name-field-local-governments field--type-link field--label-hidden field__item">
+		{% if content.field_local_governments|render and node.field_local_governments[0].title%}
+			<span class="field field--name-field-local-governments field--type-link field--label-hidden field__item line-height-2">
 				<a href={{ node.field_local_governments[0].url }}>{{ node.field_local_governments[0].title }}</a>
 			</span><br>
 		{% endif %}
 
-		{% if content.field_district_attorneys|render %}
-			<span class="field field--name-field-district-attorneys field--type-link field--label-hidden field__item">
+		{% if content.field_district_attorneys|render and node.field_district_attorneys[0].title%}
+			<span class="field field--name-field-district-attorneys field--type-link field--label-hidden field__item line-height-2">
 				<a href={{ node.field_district_attorneys[0].url }}>{{ node.field_district_attorneys[0].title }}</a>
 			</span><br>
 		{% endif %}
 
-		{% if content.field_education_department|render %}
-			<span class="field field--name-field-education-department field--type-link field--label-hidden field__item">
+		{% if content.field_education_department|render and node.field_education_department[0].title%}
+			<span class="field field--name-field-education-department field--type-link field--label-hidden field__item line-height-2">
 				<a href={{ node.field_education_department[0].url }}>{{ node.field_education_department[0].title }}</a>
 			</span><br>
 		{% endif %}
 
-		{% if content.field_election_office|render %}
-			<span class="field field--name-field-field-election-office field--type-link field--label-hidden field__item">
+		{% if content.field_election_office|render and node.field_election_office[0].title%}
+			<span class="field field--name-field-field-election-office field--type-link field--label-hidden field__item line-height-2">
 				<a href={{ node.field_election_office[0].url }}>{{ node.field_election_office[0].title }}</a>
 			</span><br>
 		{% endif %}
 
-		{% if content.field_emergency_management|render %}
-			<span class="field field--name-field-emergency-management field--type-link field--label-hidden field__item">
+		{% if content.field_emergency_management|render and node.field_emergency_management[0].title%}
+			<span class="field field--name-field-emergency-management field--type-link field--label-hidden field__item line-height-2">
 				<a href={{ node.field_emergency_management[0].url }}>{{ node.field_emergency_management[0].title }}</a>
 			</span><br>
 		{% endif %}
 
-		{% if content.field_health_department|render %}
-			<span class="field field--name-field-health-department field--type-link field--label-hidden field__item">
+		{% if content.field_health_department|render and node.field_health_department[0].title%}
+			<span class="field field--name-field-health-department field--type-link field--label-hidden field__item line-height-2">
 				<a href={{ node.field_health_department[0].url }}>{{ node.field_health_department[0].title }}</a>
 			</span><br>
 		{% endif %}
 
-		{% if content.field_motor_vehicle_office|render %}
-			<span class="field field--name-field-motor-vehicle-office field--type-link field--label-hidden field__item">
+		{% if content.field_motor_vehicle_office|render and node.field_motor_vehicle_office[0].title%}
+			<span class="field field--name-field-motor-vehicle-office field--type-link field--label-hidden field__item line-height-2">
 				<a href={{ node.field_motor_vehicle_office[0].url }}>{{ node.field_motor_vehicle_office[0].title }}</a>
 			</span><br>
 		{% endif %}
 
+		{% if content.field_state_attorney_general|render and node.field_state_attorney_general[0].title%}
+			<span class="field field--name-field-state-attorney-general field--type-link field--label-hidden field__item line-height-2">
+				<a href={{ node.field_state_attorney_general[0].url }}>{{ node.field_state_attorney_general[0].title }}</a>
+			</span><br>
+		{% endif %}
 	</div>
 </div>

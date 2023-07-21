@@ -41,11 +41,14 @@ if [ x$SPACE != x -a x$BRANCH != x -a x$SUFFIX != x -a x$COMMAND != x ]; then
       exit 1
    fi
 
-   BACKUP_TAG=$(createSpaceAssertedBackupTag $SPACE $BRANCH $SUFFIX)
-   echo
-   echo "Running '$COMMAND' with tag:  $BACKUP_TAG"
-   echo
+   if ! isSpaceSSHEnabled $SPACE; then
+      enableSpaceSSH $SPACE
+      if [ "$?" -ne "0" ]; then
+         assertSpaceSSHEnabled $SPACE
+      fi
+   fi
 
+   BACKUP_TAG=$(createSpaceAssertedBackupTag $SPACE $BRANCH $SUFFIX)
 else
    echo
    echo "Usage: $0 <cf-space-name> <branch-name (use deployment ticket number)> <suffix (pre_deploy or post_deploy)> <script>"
@@ -53,4 +56,7 @@ else
    exit 1
 fi
 
+echo
+echo "Running '$COMMAND' with tag:  $BACKUP_TAG"
+echo
 $echo ${COMMAND} $BACKUP_TAG

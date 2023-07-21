@@ -12,15 +12,27 @@
 }
 
 // State Directory - Go Button
-.sd-go-btn {
-  margin-left: 10px;
-  box-shadow: 0 0 0 0.15rem #0081a1;
-  border-radius: 0.15rem;
+.usa-form .sd-go-btn {
+  margin-left: .15rem;
+  margin-right: .15rem;
+  margin-top: 0.5rem;
+  line-height: 0.1;
+  border: 2px solid var($secondary-border-color);
+  border-radius: .15rem;
   background-color: #ccecf2;
   text-align: center;
   transition: background-color 200ms;
+  padding: 0.5rem 1.25rem;
+  height: 2.5rem;
+  @media (min-width: 30em){
+    margin-left: 10px;
+  }
 }
 
 .sd-go-btn:hover {
   background-color: #a7d8e3;
+}
+
+.usagov-directory-table .usa-list a , .usagov-directory-table .phoneNumberField , .usagov-directory-table .field__item {
+  line-height: 2;
 }

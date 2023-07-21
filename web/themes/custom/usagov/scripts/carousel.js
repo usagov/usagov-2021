@@ -7,6 +7,7 @@ jQuery(document).ready(function ($) {
   nextButton = document.querySelector(".next");
   slidesContainer = document.querySelector(".slides");
   slides = slidesContainer.querySelectorAll(".slide");
+  let slideForWidth = slidesContainer.querySelector(".slide");
   let slidesForFocus = slidesContainer.querySelectorAll(".slide a");
   let carouselHeaders = document.querySelectorAll(".carouselHeaders");
   makeDots();
@@ -26,10 +27,16 @@ jQuery(document).ready(function ($) {
   hideNonVisibleSlides();
 
   var currentSlideIndex = 0;
-  let indexInSS = sessionStorage.getItem("currentSlideIndexSS");
+  let indexInSS;
+  if ($("html").attr("lang") === "es") {
+    indexInSS = sessionStorage.getItem("storedCarouselIndexSpanish");
+  }
+  else {
+    indexInSS = sessionStorage.getItem("storedCarouselIndexEnglish");
+  }
   if (indexInSS != null) {
     currentSlideIndex = indexInSS;
-    goToSlide(currentSlideIndex);
+    goToSlide(currentSlideIndex, {"setFocus": false});
   }
  else {
     previousButton.style.visibility = "hidden";
@@ -77,26 +84,30 @@ jQuery(document).ready(function ($) {
 
   // Go to a specific slide
   function goToSlide(nextLeftMostSlideIndex) {
-    // console.log(`nextLeftMostSlideIndex: ${nextLeftMostSlideIndex}`);
-    sessionStorage.setItem("currentSlideIndexSS", nextLeftMostSlideIndex);
+    if ($("html").attr("lang") === "es") {
+      sessionStorage.setItem("storedCarouselIndexSpanish", nextLeftMostSlideIndex);
+    }
+    else {
+      sessionStorage.setItem("storedCarouselIndexEnglish", nextLeftMostSlideIndex);
+    }
 
     // Smoothly scroll to the requested slide
     if (window.innerWidth >= 1024) {
       $(slidesContainer).animate(
         {
           "scrollLeft":
-            (slidesContainer.offsetWidth / 3) * nextLeftMostSlideIndex,
+            (slideForWidth.offsetWidth) * nextLeftMostSlideIndex + ((nextLeftMostSlideIndex)* 32),
         },
         {
           "duration": 200,
         }
       );
     }
- else if (window.innerWidth > 480 && window.innerWidth < 1024) {
-      $(slidesContainer).animate(
+ else if (window.innerWidth > 639 && window.innerWidth < 1024) {
+        $(slidesContainer).animate(
         {
           "scrollLeft":
-            (slidesContainer.offsetWidth / 2) * nextLeftMostSlideIndex,
+            ((slideForWidth.offsetWidth) * nextLeftMostSlideIndex) + (2 * nextLeftMostSlideIndex * 10) -10,
         },
         {
           "duration": 200,
@@ -104,9 +115,11 @@ jQuery(document).ready(function ($) {
       );
     }
  else {
+  console.log(`${slideForWidth.offsetWidth}`);
+  console.log(`Sliding to card ${nextLeftMostSlideIndex} at ${(slideForWidth.offsetWidth * nextLeftMostSlideIndex) + ((nextLeftMostSlideIndex - 1) * 4) +2}`);
       $(slidesContainer).animate(
         {
-          "scrollLeft": slidesContainer.offsetWidth * nextLeftMostSlideIndex,
+          "scrollLeft": (slideForWidth.offsetWidth * nextLeftMostSlideIndex) + ((nextLeftMostSlideIndex - 1) * 4) +2,
         },
         {
           "duration": 200,
@@ -143,7 +156,9 @@ jQuery(document).ready(function ($) {
     }
 
     // set focus on current slide
-    slidesForFocus[nextLeftMostSlideIndex].focus();
+    if (arguments[1] && arguments[1].setFocus !== false) {
+      slidesForFocus[nextLeftMostSlideIndex].focus();
+    }
   }
 
   // Fully hide non-visible slides by adding aria-hidden="true" and tabindex="-1" when they go out of view

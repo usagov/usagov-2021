@@ -17,6 +17,16 @@
  */
 #}
 
+{###################################################################
+  NOTICE: THIS TEMPLATE IS NOT CURRENTLY IN USE.
+
+  THERE IS A NEW SYSTEM FOR DISPLAYING NAV ITEMS.
+  ONCE THE NEW SYSTEM HAS BEEN PROVEN TO WORK RELIABLY FOR A PERIOD OF TIME, THIS TEMPLATE FILE SHOULD BE DELETED.
+
+  THE NEW TEMPLATE CURRENTLY BEING USED IS:
+  block--menu-block--navigation-page-items.html.twig
+####################################################################}
+
 {% set lang = node.langcode.value %}
 {% set term_name = "" %}
 {% if node.field_page_type.0 != null %}
@@ -54,9 +64,9 @@
   </ul>
 </div>
 {% if lang == "en" %}
-<p><span class="text-bold">Looking for something else?</span> <a id="something-else" href="/#all_topics">Explore all topics and services</a></p>
+<p><span class="text-bold">Looking for something else?</span> <a id="something-else" href="/#all-topics-header">Explore all topics and services</a></p>
 {% else %}
-<p><span class="text-bold">¿Busca algo más? <a id="something-else" href="/es#all_topics">Encuentre más temas y servicios</a></span></p>
+<p><span class="text-bold">¿Busca algo más? <a id="something-else" href="/es#all-topics-header">Encuentre más temas y servicios</a></span></p>
 {% endif %}
 
 {% elseif (term_name == "Standard Page") or (term_name == "Standard Page- Nav Hidden") %}

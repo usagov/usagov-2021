@@ -148,7 +148,7 @@
 						{% if show_last_updated %}
 
 							{% if node.changed.value %}
-								<p id="last_updated">{{ lang == 'en' ? 'LAST UPDATED: ' : 'ÚLTIMA ACTUALIZACIÓN: '}}
+								<p id="last-updated">{{ lang == 'en' ? 'LAST UPDATED: ' : 'ÚLTIMA ACTUALIZACIÓN: '}}
 									{% set date = node.changed.value %}
 									{% include '@usagov/dates.html.twig' %}
 								</p>
@@ -159,7 +159,6 @@
 						{% include '@usagov/haveaquestion.html.twig' %}
 
 						<div id="pagesurvey-qual-container"></div>
-						<div id="pagesurvey-trgt-qualtrics"></div>
 					</div>
 
 				</div>

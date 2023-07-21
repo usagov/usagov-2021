@@ -47,10 +47,11 @@ if [ "$WITH_DATES" == "1" ]; then
     # gather the most recently update file under the path-tag
     # there are >1k files so make sure we push the sort/extract logic into the server side query
     export last_updated=$(aws s3api list-objects-v2 --bucket $S3_BUCKET --prefix db-backup/$tag/ --query 'sort_by(Contents, &LastModified)[-1].LastModified' | sed 's/"//g')
-    echo "$last_updated $tag"
+    JUST_THE_TAG=$(basename $tag .sql.gz)
+    echo "$last_updated $JUST_THE_TAG ($tag)"
   done | sort -rn -k1
 else
   # default to alphabetical sorting by tag name
   echo
-  echo "$available_tags" | sort
+  echo "$available_tags" | sed 's/\.sql\.gz//g' | sort
 fi

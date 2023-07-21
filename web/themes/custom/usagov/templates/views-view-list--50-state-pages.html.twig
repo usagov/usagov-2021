@@ -28,25 +28,24 @@
 {% endif %}
 
 
-	<div class="display-inline-block">
-		<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
-			<label id="state-info-label" class="usa-label" for="state-info">{{ lang == 'en' ? 'Select your state or territory:' : 'Elija un estado o territorio:' }}</label>
-			<div class="display-inline-block">
-				<div class="usa-combo-box usa-combo-box--pristine" data-default-value="alabama" data-enhanced="true">
-					<ul id="statelist" class="one-column-bullet">
-						{% for row in rows %}
-							{{- row.content -}}
-						{% endfor %}
-					</ul>
-					<input id="state-info" aria-owns="state-info--list" aria-controls="state-info--list" aria-autocomplete="list" aria-describedby="state-info--assistiveHint" aria-expanded="false" autocapitalize="off" autocomplete="off" class="usa-combo-box__input" type="text" role="combobox" required="" aria-labelledby="state-info-label" aria-activedescendant="" name="Alabama">
-				</div>
+<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
+	<label id="state-info-label" class="usa-label" for="state-info">{{ lang == 'en' ? 'Select your state or territory:' : 'Elija un estado o territorio:' }}</label>
+	<div class="grid-row">
+		<div class="grid-col-fill mobile-lg:grid-col-auto">
+			<div class="usa-combo-box usa-combo-box--pristine width-full mobile-lg:width-mobile" data-default-value="alabama" data-enhanced="true" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*">
+				<ul id="statelist" class="one-column-bullet">
+					{% for row in rows %}
+						{{- row.content -}}
+					{% endfor %}
+				</ul>
+				<input id="state-info" aria-autocomplete="list" aria-expanded="false" autocapitalize="off" autocomplete="off" class="usa-combo-box__input" type="text" aria-labelledby="state-info-label" role="combobox" name="Alabama" required>
 			</div>
-			<div id="state-go" class="display-inline-block"></div>
-		</form>
+		</div>
+		<button class="usa-button sd-go-btn" type="submit">
+			{{ lang == 'es' ? "Ir" : "Go" }}
+		</button>
 	</div>
-
-</{{list.type}}>
-
+</form>
 
 {% if attributes -%}
 	</div>

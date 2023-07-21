@@ -21,7 +21,8 @@ fi
 
 THRESHOLD=${1:-low}
 
-docker run -it --rm \
+# Explicitly turn off DOCKER_CONTENT_TRUST, as snyk are not signing their images. 
+docker run --disable-content-trust -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v "$(pwd)/scripts:/app/scripts" \
     -v "$(pwd)/web/modules/custom:/app/web/modules/custom" \

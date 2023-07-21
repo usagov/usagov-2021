@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+export BUCKET_SOURCE_FOLDER=public
+export BUCKET_BACKUP_FOLDER=public_backup
+if [ -f ./bin/snapshot-backups/snapshot-include ]; then
+  . ./bin/snapshot-backups/snapshot-include
+else
+   echo Cannot find ${PWD}/bin/snapshot-backups/snapshot-include
+   exit 1
+fi
+
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+DEPLOY_TAG=${1}
+
+if [ -z "$DEPLOY_TAG" ]; then
+  echo "Usage: $0 <tag>"
+  echo "This will create an s3 snapshot of the CMS $BACKUP_DESCRIPTION. Use $BACKUP_LISTER to see available tags."
+  exit 1
+fi
+shift
+
+TIR=0
+cf ssh cms -c /var/www/scripts/tome-running-check.sh && TIR=1
+if [ $TIR != 0 ]; then
+  echo Tome is running in the target environment.  Please try again momentarily
+  exit 1
+fi
+
+echo "S3_REGION: $S3_REGION"
+echo "S3_BUCKET: $S3_BUCKET"
+echo "==========================================="
+
+# upload that static site directory to a location within an s3 bucket represented by the tag
+echo aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_SOURCE_FOLDER/ s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG/ --recursive
+$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_SOURCE_FOLDER/ s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG/ --recursive

@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+set -o pipefail
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+DOCKERUSER=${DOCKERUSER:-gsatts}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
+APPNAME="AnalyticsReporter"
+
+# Grab the starting space and org where the command was run
+startorg=$(   cf target | grep org:   | awk '{ print $2 }')
+startspace=$( cf target | grep space: | awk '{ print $2 }')
+
+# Drop them off where we found them
+function popspace() {
+    echo "Popspace: ${startorg}/${startspace}"
+    cf target -o "$startorg" -s "$startspace" > /dev/null 2>&1
+}
+# trap popspace exit
+trap popspace err
+
+cf target -o "$startorg" -s tools > /dev/null 2>&1 ||
+    (echo "ERROR: Space ${startorg}/tools is not available!" && exit 1)
+
+# Content checks
+if ! command -v jq >/dev/null; then
+  printf "\nMust have JQ installed\n"
+  exit 1
+fi
+
+env_checks=()
+
+if [ -z "$ANALYTICS_KEY_PATH" ]; then
+  env_checks+=( "ANALYTICS_KEY_PATH" )
+fi
+
+if [ -z "$ANALYTICS_KEY_BASE64" ]; then
+  env_checks+=( "ANALYTICS_KEY_BASE64" )
+fi
+
+if [ -z "$ANALYTICS_REPORT_EMAIL" ]; then
+  env_checks+=( "ANALYTICS_REPORT_EMAIL" )
+fi
+
+if [ -z "$ANALYTICS_REPORT_IDS_BOTH" ]; then
+  env_checks+=( "ANALYTICS_REPORT_IDS_BOTH" )
+fi
+
+if [ -z "$ANALYTICS_REPORT_IDS_EN" ]; then
+  env_checks+=( "ANALYTICS_REPORT_IDS_EN" )
+fi
+
+if [ -z "$ANALYTICS_REPORT_IDS_ES" ]; then
+  env_checks+=( "ANALYTICS_REPORT_IDS_ES" )
+fi
+
+if [ -z "$AWS_BUCKET_PATH_BOTH" ]; then
+  env_checks+=( "AWS_BUCKET_PATH_BOTH" )
+fi
+
+if [ -z "$AWS_BUCKET_PATH_EN" ]; then
+  env_checks+=( "AWS_BUCKET_PATH_EN" )
+fi
+
+if [ -z "$AWS_BUCKET_PATH_ES" ]; then
+  env_checks+=( "AWS_BUCKET_PATH_ES" )
+fi
+
+if (( ${#env_checks[@]} )); then
+  err_msg="ERR! Must populate the following variables in env.local:"
+  for t in "${env_checks[@]}"; do
+    err_msg+=" $t"
+  done
+  echo "$err_msg"
+  exit 1
+fi
+
+# this function is a convenient symantic wrapper around a one-liner
+service_exists()
+{
+  cf service "$1" >/dev/null 2>&1
+}
+
+# create services
+if service_exists "${APPNAME}Services" ; then
+  echo ${APPNAME}Services already created
+else
+  echo Creating ${APPNAME}Services user provided service
+  cf cups ${APPNAME}Services
+fi
+cf create-service s3 basic-public-sandbox s3for${APPNAME}
+
+# launch the app
+echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter"
+cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter
+
+# bind services (ups should be bound already, but just in case)
+echo Binding s3 and user provided service
+cf bind-service ${APPNAME} s3for${APPNAME}
+cf bind-service ${APPNAME} ${APPNAME}Services
+
+# collect info about s3 service
+echo Collecting some info about s3
+VCAP_SERVICES=$(cf env "$APPNAME" | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
+BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.bucket")
+ACCESS_KEY_ID=$(     echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.access_key_id" | uniq )
+REGION=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
+SECRET_ACCESS_KEY=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.secret_access_key" | uniq )
+
+s3_checks=()
+
+# Just make sure that we got all the s3 data we need
+if [ -z "$BUCKET" ]; then
+  s3_checks+=( "BUCKET" )
+fi
+
+if [ -z "$REGION" ]; then
+  s3_checks+=( "BUCKET" )
+fi
+
+if [ -z "$ACCESS_KEY_ID" ]; then
+  s3_checks+=( "BUCKET" )
+fi
+
+if [ -z "$SECRET_ACCESS_KEY" ]; then
+  s3_checks+=( "BUCKET" )
+fi
+
+if (( ${#s3_checks[@]} )); then
+  err_msg="ERR! Is the s3 service created and bound? Could not find the following s3 information:"
+  for t in "${s3_checks[@]}"; do
+    err_msg+=" $t"
+  done
+  echo "$err_msg"
+  exit 1
+fi
+
+# update user service
+echo Updating ${APPNAME}Services with s3 info
+
+printf -v S3_SERVICE_DATA "{\"ANALYTICS_KEY_PATH\":\"$ANALYTICS_KEY_PATH\", \"ANALYTICS_REPORT_EMAIL\":\"$ANALYTICS_REPORT_EMAIL\", \"ANALYTICS_REPORT_IDS_BOTH\":\"$ANALYTICS_REPORT_IDS_BOTH\", \"ANALYTICS_REPORT_IDS_EN\":\"$ANALYTICS_REPORT_IDS_EN\", \"ANALYTICS_REPORT_IDS_ES\":\"$ANALYTICS_REPORT_IDS_ES\", \"AWS_ACCESS_KEY_ID\":\"$ACCESS_KEY_ID\", \"AWS_BUCKET\":\"$BUCKET\", \"AWS_BUCKET_PATH_BOTH\":\"$AWS_BUCKET_PATH_BOTH\", \"AWS_BUCKET_PATH_EN\":\"$AWS_BUCKET_PATH_EN\", \"AWS_BUCKET_PATH_ES\":\"$AWS_BUCKET_PATH_ES\", \"AWS_REGION\":\"$REGION\", \"AWS_SECRET_ACCESS_KEY\":\"$SECRET_ACCESS_KEY\", \"ANALYTICS_KEY_BASE64\":\"$ANALYTICS_KEY_BASE64\"}"
+
+# convert data to json because I can't get uups to format correctly otherwise
+echo $S3_SERVICE_DATA | jq '.' > reporter-vcapsecrets.json
+
+cf uups ${APPNAME}Services -p reporter-vcapsecrets.json
+
+# restart for variables
+echo Restarting ${APPNAME}
+cf restart ${APPNAME}
+
+popspace
