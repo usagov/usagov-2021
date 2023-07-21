@@ -132,7 +132,7 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
   fi
 fi
 
-if [[ $(find $(git rev-parse --show-toplevel) -name "env.local" -print -quit) ]]; then
+if [[ $(git rev-parse --is-inside-work-tree) ]]; then
   # Find the php.ini file
   PHP_INI=$(php -i | grep 'Loaded Configuration File' | awk '{print $NF}')
 
