@@ -514,6 +514,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-358-bin-script-updates-take2
       - deploy-reporter-tools:
           filters:
             branches:
@@ -521,6 +522,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-358-bin-script-updates-take2
           requires:
             - approve-deploy-reporter
 
@@ -534,6 +536,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-358-bin-script-updates-take2
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -543,6 +546,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-358-bin-script-updates-take2
       - approve-dev-deployment:
           type: approval
           requires:
