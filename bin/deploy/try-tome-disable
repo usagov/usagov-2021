@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
+needsDisabled=0
+if ! isSpaceSSHEnabled $startspace; then
+  enableSpaceSSH $startspace
+  if [ "$?" -ne "0" ]; then
+      assertSpaceSSHEnabled $startspace
+  fi
+  needsDisabled=1
+fi
+
+$echo cf ssh cms -c "/var/www/scripts/try-tome-disable.sh 25 maintenance"
+retval=$?
+
+if [ $needsDisabled != 0 ]; then
+   cf disallow-space-ssh $startspace
+fi
+
+exit $retval

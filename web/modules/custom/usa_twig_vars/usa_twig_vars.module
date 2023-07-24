@@ -5,6 +5,7 @@
  * Use proprocess for html twig.
  */
 
+use Drupal\Core\Render\Markup;
 use Drupal\taxonomy\Entity\Term;
 
 /**
@@ -70,6 +71,14 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           $nodetype = $special_node_type ?: $node_real_type;
           if ($nodetype == 'wizard_step') {
             $noindex = TRUE;
+          }
+
+          if (($node_real_type == 'directory_record') && $node->hasField('field_acronym')) {
+            if ($acronym = $node->get('field_acronym')->value) {
+              $usa_twig_vars['head_title'] = $variables['head_title'];
+              $usa_twig_vars['head_title']['title'] = Markup::create(trim(strip_tags($variables['page']['#title'])) .
+                  " (" . trim(strip_tags($acronym)) . ")");
+            }
           }
 
           // Cleanup vars.
@@ -152,6 +161,21 @@ function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
         && ($fields['field_hide_page_intro']->getValue()[0]['value'] != NULL)
         && ($fields['field_hide_page_intro']->getValue()[0]['value'] == TRUE)) {
       $variables['items'][0]['content']['#context']['value'] = '';
+    }
+  }
+}
+
+/**
+ * Preprocess title for Federal Agency pages
+ *
+ */
+function usa_twig_vars_preprocess_page_title(&$variables, $hook) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if (is_object($node) && method_exists($node, 'getFields')) {
+    if (($node->getType() == 'directory_record') && $node->hasField('field_acronym')) {
+      if ($acronym = $node->get('field_acronym')->value) {
+        $variables['title_suffix']['#markup'] = '(' . $acronym . ')';
+      }
     }
   }
 }

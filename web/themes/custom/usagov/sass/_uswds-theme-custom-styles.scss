@@ -35,18 +35,24 @@ i.e.
 @forward "life-events";
 @forward "fed-directory";
 @forward "state-directory";
+@forward "footer";
 
 .text-red {
   color: var($red);
+}
+
+.line-height-2 {
+  line-height: 2;
 }
 
 .question-icon {
   display: flex;
 }
 
+
 .chat-icon {
-  width: 70px;
-  height: 50px;
+  width: 60px;
+  height: 40px;
   padding: 0 10px;
   vertical-align: middle;
 }
@@ -57,12 +63,7 @@ i.e.
   }
 }
 
-.usa-footer__secondary-link a.disabled,
-.usa-footer__secondary-section a.disabled {
-  pointer-events: none;
-  color: var($black);
-  text-decoration: none;
-}
+
 
 .usa-sidenav__sublist a:not(.usa-button) {
   padding-left: 2.3rem;
@@ -86,12 +87,12 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary {
-  border: 1px solid color("cyan-50v");
+  border: 2px solid var($secondary-border-color);
 }
 
 .usa-button--secondary:hover {
-  background-color: color("cyan-20");
-  border: 1px solid color("cyan-50v");
+  background-color: var($secondary-border-color);
+  border: 2px solid var($secondary-border-color);
 }
 
 .usa-button--secondary:visited,
@@ -244,6 +245,7 @@ add padding at the top of flag cards
   padding-left: 0.5rem;
   border-radius: 5px;
   border: none;
+
   @media (max-width: 64em) {
     padding-right: 1.3rem;
   }
@@ -255,10 +257,7 @@ add padding at the top of flag cards
 }
 
 /** Language buttons **/
-.usa-header--extended
-  .usa-nav__primary
-  > .usa-nav__primary-item
-  > a.language-link {
+.usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link {
   @media (max-width: 64em) {
     font-size: 0.93rem;
     font-weight: 700;
@@ -272,10 +271,7 @@ add padding at the top of flag cards
 
 /** Language buttons **/
 @include at-media($theme-header-min-width) {
-  .usa-header--extended
-    .usa-nav__primary
-    > .usa-nav__primary-item
-    > a.language-link:hover {
+  .usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover {
     color: var($white);
   }
 }
@@ -316,6 +312,7 @@ add padding at the top of flag cards
 
 .usa-header--extended .usa-logo img {
   max-width: units(5);
+
   @include at-media($theme-header-min-width) {
     max-width: units(10);
   }
@@ -323,6 +320,7 @@ add padding at the top of flag cards
 
 .usa-header--extended .usa-logo img.es {
   max-width: 6.2rem;
+
   @include at-media($theme-header-min-width) {
     max-width: 12.3rem;
   }
@@ -348,7 +346,7 @@ add padding at the top of flag cards
   }
 }
 
-.usa-header--extended .usa-nav__primary-item > .usa-nav__link:hover {
+.usa-header--extended .usa-nav__primary-item>.usa-nav__link:hover {
   @include at-media($theme-header-min-width) {
     position: relative;
   }
@@ -378,9 +376,7 @@ add padding at the top of flag cards
 }
 
 // This is to add content pipe before the search
-.usa-header--extended
-  .usa-nav__secondary-links
-  .usa-nav__secondary-item::after {
+.usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
   @include at-media($theme-header-min-width) {
     float: right;
     color: $gray;
@@ -407,22 +403,22 @@ add padding at the top of flag cards
   }
 }
 
-.usa-nav__primary > .usa-nav__primary-item > a,
-.usa-nav__primary > .usa-nav__primary-item > a:hover {
+.usa-nav__primary>.usa-nav__primary-item>a,
+.usa-nav__primary>.usa-nav__primary-item>a:hover {
   @media (min-width: 64em) {
     padding: 0.8rem;
     color: color("blue-warm-70v");
   }
 }
 
-.usa-nav__primary > .usa-nav___primary-item-smaller-padding > a,
-.usa-nav__primary > .usa-nav___primary-item-smaller-padding > a:hover {
+.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a,
+.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a:hover {
   padding: 0.7rem;
 }
 
 // adds vertical spacing for top-nav on desktop
 @media (min-width: 64em) {
-.usa-nav__primary>.usa-nav__primary-item>.usa-nav__link {
+  .usa-nav__primary>.usa-nav__primary-item>.usa-nav__link {
     line-height: 1.1;
   }
 }
@@ -438,157 +434,7 @@ add padding at the top of flag cards
   z-index: 1;
 }
 
-// Footer
 
-.ftr-list {
-  @media (min-width: 64em) {
-    padding-top: 1.4rem;
-  }
-}
-
-.usa-footer--big
-  .usa-footer__primary-content--collapsible
-  .usa-footer__primary-link {
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
-  font-size: 1.2rem;
-}
-
-.usa-sign-up__heading {
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
-}
-
-.usa-footer__primary-content--collapsible.hidden {
-  // USWDS footer adds class 'hidden' when collapsing a section into a dropdown, but Drupal hides the whole dropdown.
-  display: block;
-}
-
-@media (min-width: 30em) {
-  .usa-footer__contact-heading.es {
-    display: inline-grid;
-    margin-top: 0.5rem;
-    margin-right: -1.5rem;
-    text-align: left;
-  }
-}
-
-/** This is to add the facebook social media icon **/
-
-.usa-social-link:hover {
-  background-color: var($cyan-light);
-}
-
-.usa-social-link--facebook {
-  background-image: url("../images/facebook34.png"),
-    linear-gradient(transparent, transparent);
-}
-
-/** This is to add the twitter social media icon **/
-.usa-social-link--twitter {
-  background-image: url("../images/twitter34.png"),
-    linear-gradient(transparent, transparent);
-}
-
-/** This is to add the instagram social media icon **/
-.usa-social-link--instagram {
-  background-image: url("../images/instagram34.png"),
-    linear-gradient(transparent, transparent);
-}
-
-/** This is to add the youtube social media icon **/
-.usa-social-link--youtube {
-  background-image: url("../images/youtube34.png"),
-    linear-gradient(transparent, transparent);
-}
-
-.usa-footer__secondary-section {
-  background-color: color("cyan-10");
-}
-
-.usa-footer__contact-links {
-  @media (max-width: 30em) {
-    margin-top: 0;
-  }
-}
-
-.usa-footer__contact-heading {
-  @media (max-width: 30em) {
-    text-align: left;
-    margin-bottom: 0.5rem;
-  }
-}
-
-.usa-footer__secondary-section .grid-container {
-  padding-bottom: 2rem;
-}
-
-.usa-footer__secondary-section .grid-row.grid-gap-1 > * {
-  padding-right: 0;
-}
-
-.footer-question {
-  min-height: 15px;
-}
-
-@media (min-width: 30em) {
-  .usa-footer__contact-heading {
-    margin-top: 0.5rem;
-  }
-}
-
-.usa-social-link {
-  background-color: transparent;
-}
-
-.usa-social-link span {
-  position: absolute;
-  left: -999em;
-  right: auto;
-}
-
-.usa-footer__social-links {
-  @media (max-width: 30em) and (min-width: 30em) {
-    justify-content: flex-start;
-    padding-right: 0;
-  }
-}
-
-.sm-sp-links {
-  @media (max-width: 30em) and (min-width: 30rem) {
-    padding-left: 2rem;
-  }
-}
-
-@media (min-width: 30em) {
-  .usa-footer__contact-info {
-    justify-content: flex-start !important;
-    margin-top: -0.25rem;
-  }
-}
-
-.usa-identifier {
-  background-color: color("blue-80v");
-}
-
-.usa-identifier__section {
-  padding-bottom: 0;
-}
-
-.usa-identifier__usagov-description {
-  @media (min-width: 36em) {
-    display: flex;
-    justify-content: center;
-  }
-}
-
-.usa-identifier__usagov-description,
-.usa-identifier__usagov-description span {
-  @media (max-width: 30em) {
-    text-align: center;
-    display: inline-block;
-  }
-}
 
 a,
 .usa-alert__text a,
@@ -617,6 +463,7 @@ a,
 
 .usa-button {
   width: 100%;
+
   @media (min-width: 30em) {
     width: auto;
   }
@@ -632,21 +479,21 @@ a,
   }
 }
 
-.usa-checkbox__input:checked + .usa-checkbox__label::before,
-.usa-radio__input:checked + .usa-radio__label::before {
+.usa-checkbox__input:checked+.usa-checkbox__label::before,
+.usa-radio__input:checked+.usa-radio__label::before {
   background-color: color("black");
   box-shadow: 0 0 0 units($theme-input-select-border-width) color("black"),
     inset 0 0 0 units($theme-input-select-border-width) color("white");
 }
 
-.usa-checkbox__input--tile:checked + .usa-checkbox__label,
-.usa-radio__input--tile:checked + .usa-radio__label {
+.usa-checkbox__input--tile:checked+.usa-checkbox__label,
+.usa-radio__input--tile:checked+.usa-radio__label {
   // background-color: #ccecf2;
   border-color: var($radio-button, border-color);
 }
 
-.usa-checkbox__input--tile + .usa-checkbox__label,
-.usa-radio__input--tile + .usa-radio__label {
+.usa-checkbox__input--tile+.usa-checkbox__label,
+.usa-radio__input--tile+.usa-radio__label {
   border-color: black;
   background: white;
 }
@@ -677,8 +524,7 @@ a {
     position: relative;
 
     &::before {
-      background: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem
-        2rem;
+      background: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
       width: 2rem;
       content: "";
       display: block;
@@ -693,6 +539,7 @@ a {
       // height: 2.5rem;
       // width: 1.5rem;
       mask-size: 1.5rem;
+
       @media (max-width: 1022px) {
         left: 0.4rem;
       }
@@ -710,8 +557,7 @@ a {
     position: relative;
 
     &::before {
-      background: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem
-        2rem;
+      background: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
       width: 2rem;
       content: "";
       display: block;
@@ -726,6 +572,7 @@ a {
       // height: 2.5rem;
       // width: 1.5rem;
       mask-size: 1.5rem;
+
       @media (max-width: 1022px) {
         left: 0.4rem;
       }
@@ -741,11 +588,11 @@ a {
 .desktop\:grid-col-fill .content-wrapper {
   // On Navigation Cards pages, display the content in reverse order. So the Nav banner is displayed above the Intro Text.
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
 }
 
 // This style is needed to extend the width of nav page intro text
-.desktop\:grid-col-fill .usa-prose > p.usa-intro {
+.desktop\:grid-col-fill .usa-prose>p.usa-intro {
   max-width: 81ex;
   margin-left: 1.2ex;
   margin-right: 1.2ex;
@@ -782,12 +629,6 @@ a {
   color: var($dark-gray);
 }
 
-.usa-social-link > img {
-  display: block;
-  height: auto;
-  width: 100%;
-}
-
 #back-to-top {
   position: fixed;
 
@@ -820,7 +661,6 @@ a {
 }
 
 // Share This Page
-
 div #sm-share {
   display: flex;
   padding-bottom: 22px;
@@ -852,84 +692,6 @@ div #sm-share a {
   display: block;
 }
 
-// Changed footer styles
-.usa-footer--big {
-  padding-top: 2rem;
-}
-
-.usa-gov-footer__primary-link {
-  text-size-adjust: 100%;
-  font-feature-settings: "kern" 1;
-  font-kerning: normal;
-  box-sizing: inherit;
-  color: var($off-black);
-  text-decoration: none;
-  padding: 0;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 0;
-  margin-bottom: 0;
-  align-items: center;
-  display: flex;
-  justify-content: flex-start;
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
-  font-size: 1.2rem;
-}
-
-.usa-gov-footer__primary-link--button {
-  overflow: visible;
-  text-transform: none;
-  appearance: button;
-  padding: 1rem;
-  width: 100%;
-  border: 0;
-  cursor: pointer;
-}
-
-.usa-gov-footer__primary-link--button::before {
-  height: 1.25rem;
-  width: 1.25rem;
-  align-items: center;
-  background-size: contain;
-  content: "";
-  display: inline-flex;
-  justify-content: center;
-  margin-right: 0.25rem;
-  margin-left: -0.25rem;
-  background-color: currentcolor;
-  mask: url("../assets/img/usa-icons/expand_more.svg") no-repeat center/contain;
-}
-
-.usa-gov-footer__primary-link--button[aria-expanded="false"]::before {
-  background-color: currentcolor;
-  mask: url("../assets/img/usa-icons/navigate_next.svg") no-repeat
-    center/contain;
-  display: inline-block;
-  height: 1.25rem;
-  width: 1.25rem;
-  content: "";
-  vertical-align: middle;
-  margin-right: 0.25rem;
-}
-
-.usa-gov-footer__primary-link--button:hover {
-  text-decoration: underline;
-}
-
-.usa-gov-footer__primary-link--button:focus {
-  text-decoration: underline;
-  outline: 0.25rem solid var($deep-orange);
-  outline-offset: -0.25rem;
-}
-
-.usa-footer__primary-section .usa-list {
-  margin-top: 1rem;
-}
-
-.usa-gov-footer__primary-link--button:not([disabled]):focus {
-  outline-offset: -0.25rem;
-}
 
 // error styles for elected officials
 
@@ -1006,6 +768,7 @@ input:not([disabled]):focus.usa-user-error {
   padding-top: 2rem;
   padding-left: 3rem;
   padding-right: 2rem;
+
   @media (max-width: 64em) {
     padding-left: 2rem;
   }
@@ -1023,6 +786,7 @@ input:not([disabled]):focus.usa-user-error {
   padding-bottom: 1.5rem;
   margin-top: 0;
   font-size: 2.25rem;
+
   @media (max-width: 40em) {
     font-size: 2rem;
   }
@@ -1043,12 +807,13 @@ input:not([disabled]):focus.usa-user-error {
 .block-wizardenglish .usa-button {
   color: var($off-black);
   background-color: var($cyan-light);
+
   @media (max-width: 40em) {
     margin-bottom: 8px;
   }
 }
 
-.block-wizardenglish .usa-prose > p.usa-scam-label {
+.block-wizardenglish .usa-prose>p.usa-scam-label {
   max-width: 110ex;
   padding-bottom: 0.2rem;
   margin-bottom: 1rem;
@@ -1071,11 +836,11 @@ button#next.usa-button,
   box-shadow: inset 0 0 0 2px var($cyan-50v);
 }
 
-.block-wizardenglish .usa-prose > p {
+.block-wizardenglish .usa-prose>p {
   max-width: 110ex;
 }
 
-.block-wizardenglish .usa-radio__input--tile:checked + [class*="__label"] {
+.block-wizardenglish .usa-radio__input--tile:checked+[class*="__label"] {
   background-color: var($cyan-light);
 }
 
@@ -1089,7 +854,7 @@ button#next.usa-button,
   padding-right: 5px;
 }
 
-.block-wizardenglish .usa-radio__input--tile:checked + .usa-radio__label {
+.block-wizardenglish .usa-radio__input--tile:checked+.usa-radio__label {
   border-color: var($deep-orange);
 }
 
@@ -1111,13 +876,7 @@ button.usa-combo-box__toggle-list:focus {
   opacity: 1;
 }
 
-@media only screen and (max-width: 500px) {
-  .usa-identifier {
-    // Prevent Tagline from being covered by the Feedback button
-    position: absolute;
-    z-index: 2000000005;
-  }
-}
+
 
 // BEGIN Page Level Survey extra CSS
 #pagesurvey-trgt-qualtrics {
@@ -1180,8 +939,8 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
-#question-box > div > p,
-#question-box > div > div {
+#question-box>div>p,
+#question-box>div>div {
   font-size: var($regular-text-font-size);
 }
 
@@ -1190,8 +949,8 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
-#wizard-border > fieldset > label,
-.wizard_result > p {
+#wizard-border>fieldset>label,
+.wizard_result>p {
   font-size: var($regular-text-font-size);
 }
 
@@ -1201,13 +960,7 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($smaller-text-font-size);
 }
 
-.footer-button {
-  border: 1px solid #1b1b1b;
-}
 
-#footer-email {
-  border-color: var($off-black);
-}
 
 .visually-hidden {
   position: absolute;

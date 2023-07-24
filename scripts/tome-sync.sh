@@ -175,9 +175,11 @@ ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
 
+EN_HOME_HTML_FILE=/var/www/html/index.html
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
+EN_HOME_HTML_BAD=0
 ES_HOME_HTML_BAD=0
-if [ -f $ES_HOME_HTML_FILE ]; then 
+if [ -f $ES_HOME_HTML_FILE ]; then
   ES_HOME_HTML_SIZE=$(stat -c%s "$ES_HOME_HTML_FILE")
 else
   ES_HOME_HTML_SIZE=0
@@ -196,6 +198,25 @@ if [ "$ES_HOME_CONTAINS_ENGLISH_MENU" != "0"  ]; then
   ES_HOME_HTML_BAD=1
 fi
 
+# Check for the correct type of cards on the home page. (We can remove these checks if we don't
+# see this problem through, oh, 2023-07-30.)
+EN_HOME_CORRECT_CARDS=`grep -c 'homepage-card' $EN_HOME_HTML_FILE`
+if [ "$EN_HOME_CORRECT_CARDS" == "0" ]; then
+  echo "WARNING: *** EN index.html lacks homepage cards ***" | tee -a $TOMELOG
+  EN_HOME_HTML_BAD=1
+fi
+ES_HOME_CORRECT_CARDS=`grep -c 'homepage-card' $ES_HOME_HTML_FILE`
+if [ "$ES_HOME_CORRECT_CARDS" == "0" ]; then
+  echo "WARNING: *** ES index.html lacks homepage cards ***" | tee -a $TOMELOG
+  ES_HOME_HTML_BAD=1
+fi
+
+if [ "$EN_HOME_HTML_BAD" == "1" ]; then
+  # Delete the known-bad file; it may be re-created correctly on the next run.
+  rm $EN_HOME_HTML_FILE
+  touch $RETRY_SEMAPHORE_FILE
+  TOME_PUSH_NEW_CONTENT=0
+fi
 
 if [ "$ES_HOME_HTML_BAD" == "1" ]; then
   # Delete the known-bad file; it may be re-created correctly on the next run.

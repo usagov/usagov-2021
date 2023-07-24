@@ -1,0 +1,47 @@
+uuid: d7a3106a-a9a6-4e5b-a1a3-02ac82d62595
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.left-menu-spanish
+  module:
+    - language
+    - menu_block
+    - node
+  theme:
+    - usagov
+id: navigation_page_items_spanish
+theme: usagov
+region: content
+weight: 0
+provider: null
+plugin: 'menu_block:left-menu-spanish'
+settings:
+  id: 'menu_block:left-menu-spanish'
+  label: 'Navigation Page Items Spanish'
+  label_display: visible
+  provider: menu_block
+  follow: false
+  follow_parent: child
+  label_link: false
+  label_type: block
+  level: 1
+  depth: 0
+  expand_all_items: false
+  parent: 'left-menu-spanish:'
+  suggestion: navigation_page_items
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
+  language:
+    id: language
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es

@@ -11,29 +11,30 @@ commands:
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
       - install-cloud-foundry
       - load-image-digest
       - run:
           name: CloudGov Deploy
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cms << pipeline.number >> $CMS_DIGEST
+            if [ $? ]; then
+              echo "Please run the following command in a local build environment, while targetting << parameters.envname >>"
+              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
+            fi
 
   save-image-digest:
     steps:
       - run:
           name: Save Image Digest
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>
-            docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>
+            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>)
+            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>)
             CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
@@ -49,7 +50,6 @@ commands:
       - run:
           name: Load Image Digest
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
             . ./bin/cloudgov/get-s3-access key-value
@@ -59,10 +59,8 @@ commands:
             if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest); fi
             export CMS_DIGEST=$CMS_DIGEST
             export WAF_DIGEST=$WAF_DIGEST
-            echo 'export CMS_DIGEST='"$CMS_DIGEST" | $SUDO tee -a $BASH_ENV
-            echo 'export WAF_DIGEST='"$WAF_DIGEST" | $SUDO tee -a $BASH_ENV
-            # docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>${CMS_DIGEST}
-            # docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>${WAF_DIGEST}
+            echo 'export CMS_DIGEST='"$CMS_DIGEST" | tee -a $BASH_ENV
+            echo 'export WAF_DIGEST='"$WAF_DIGEST" | tee -a $BASH_ENV
 
   install-cloud-foundry:
     steps:
@@ -92,6 +90,50 @@ commands:
             echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
             echo "Install Gulp on node "$(node --version)
             sudo npm install --global gulp-cli
+  signed-dockerhub-login:
+    steps:
+      - run:
+          name: Set up DCT signer key
+          command: |
+            mkdir -p $HOME/.docker/trust/private
+            # Decode and store signer key to file named as the key hash
+            echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
+            # Set required permissions level on key file
+            chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
+      - run:
+          name: Login to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+
+
+  snapshot-preamble:
+    parameters:
+      envname:
+        default: "dev"
+        type: string
+    steps:
+      - run:
+          name: Prepare Database and Tome in << parameters.envname >> for Backup.
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/deploy/try-tome-disable
+
+  snapshot-postamble:
+    parameters:
+      envname:
+        default: "dev"
+        type: string
+    steps:
+      - run:
+          name: Restore << parameters.envname >> to normal/running state.
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/deploy/try-tome-enable
 
   snapshot-backup:
     parameters:
@@ -101,15 +143,50 @@ commands:
     steps:
       - checkout
       - install-cloud-foundry
+      - snapshot-preamble:
+          envname: << parameters.envname >>
       - run:
           name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
             ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+            ./bin/snapshot-backups/public-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+      - snapshot-postamble:
+          envname: << parameters.envname >>
+
+  deploy-reporter:
+    parameters:
+      envname:
+        default: "tools"
+        type: string
+    steps:
+      - checkout
+      - install-cloud-foundry
+      - signed-dockerhub-login
+      - run:
+          name: Build Reporter Container
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/container-build-reporter
+      - run:
+          name: Push Reporter Container to Docker Hub
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/container-push-reporter
+      - run:
+          name: Deploy Analytics Reporter
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-reporter
 
 jobs:
   scan-code:
@@ -123,8 +200,7 @@ jobs:
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             mkdir -p /tmp/results
             touch /tmp/results/scan-cms-code.log
             touch /tmp/results/scan-cms-dependencies.log
@@ -209,11 +285,11 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout
+      - signed-dockerhub-login
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | $SUDO tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             mkdir -p /tmp/results
             touch /tmp/results/scan-cms-code.log
             touch /tmp/results/scan-cms-dependencies.log
@@ -221,12 +297,6 @@ jobs:
             touch /tmp/results/scan-waf-container.log
             touch /tmp/results/scan-cms-container-cis.log
             touch /tmp/results/scan-waf-container-cis.log
-      - run:
-          name: Login to Docker Hub
-          no_output_timeout: 30m
-          command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            echo $DOCKERHUB_ACCESS_TOKEN | $SUDO docker login -u $DOCKERHUB_USERNAME --password-stdin
       - run:
           name: Scan Code
           command: |
@@ -247,14 +317,13 @@ jobs:
           name: Build Container
           no_output_timeout: 30m
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            $SUDO ./bin/cloudgov/container-build << pipeline.number >> latest
+            ./bin/cloudgov/container-build << pipeline.number >> latest
       - run:
           name: Scan CMS Container
           command: |
             SCAN_CMS_RESULT=0
             if (./bin/scan-container cms << pipeline.number >> high | tee /tmp/results/scan-cms-container.log); then export SCAN_CMS_RESULT=0; else export SCAN_CMS_RESULT=$?; fi
-            echo "CMS Continer Scan return code: $SCAN_CMS_RESULT" | tee -a /tmp/results/scan-cms-container.log
+            echo "CMS Container Scan return code: $SCAN_CMS_RESULT" | tee -a /tmp/results/scan-cms-container.log
             cat /tmp/results/scan-cms-container.log
             exit 0
       - run:
@@ -298,8 +367,8 @@ jobs:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
           command: |
-            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
-            $SUDO ./bin/cloudgov/container-push << pipeline.number >> latest
+            export DOCKER_CONTENT_TRUST=1
+            ./bin/cloudgov/container-push << pipeline.number >> latest
       - install-cloud-foundry
       - save-image-digest
       - store_artifacts:
@@ -330,7 +399,7 @@ jobs:
       - deploy-cloudgov:
           envname: prod
 
-  snapshot-backup-dev:
+  run-snapshot-backup-dev:
     machine:
       image: ubuntu-2004:202101-01
     environment:
@@ -339,7 +408,7 @@ jobs:
       - snapshot-backup:
           envname: dev
 
-  snapshot-backup-stage:
+  run-snapshot-backup-stage:
     machine:
       image: ubuntu-2004:202101-01
     environment:
@@ -348,7 +417,7 @@ jobs:
       - snapshot-backup:
           envname: stage
 
-  snapshot-backup-prod:
+  run-snapshot-backup-prod:
     machine:
       image: ubuntu-2004:202101-01
     environment:
@@ -356,6 +425,15 @@ jobs:
     steps:
       - snapshot-backup:
           envname: prod
+
+  deploy-reporter-tools:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-reporter:
+          envname: tools
 
 workflows:
   version: 2
@@ -372,7 +450,7 @@ workflows:
     jobs:
       - lint
 
-  snapshot-backup:
+  try-snapshot-backup:
     jobs:
       - approve-snapshot-backup-dev:
           type: approval
@@ -383,7 +461,7 @@ workflows:
             branches:
               ignore:
               - /.*/
-      - snapshot-backup-dev:
+      - run-snapshot-backup-dev:
           filters:
             tags:
               only:
@@ -393,7 +471,6 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-dev
-
       - approve-snapshot-backup-stage:
           type: approval
           filters:
@@ -403,7 +480,7 @@ workflows:
             branches:
               ignore:
               - /.*/
-      - snapshot-backup-stage:
+      - run-snapshot-backup-stage:
           filters:
             tags:
               only:
@@ -413,7 +490,6 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-stage
-
       - approve-snapshot-backup-prod:
           type: approval
           filters:
@@ -423,7 +499,7 @@ workflows:
             branches:
               ignore:
               - /.*/
-      - snapshot-backup-prod:
+      - run-snapshot-backup-prod:
           filters:
             tags:
               only:
@@ -433,6 +509,26 @@ workflows:
               - /.*/
           requires:
             - approve-snapshot-backup-prod
+
+  try-deploy-reporter:
+    jobs:
+      - approve-deploy-reporter:
+          type: approval
+          filters:
+            branches:
+              only:
+                - dev
+                - stage
+                - prod
+      - deploy-reporter-tools:
+          filters:
+            branches:
+              only:
+                - dev
+                - stage
+                - prod
+          requires:
+            - approve-deploy-reporter
 
   build-and-deploy:
     jobs:
@@ -481,7 +577,6 @@ workflows:
           filters:
             branches:
               only: stage
-
       - approve-prod-deployment:
           type: approval
           requires:
