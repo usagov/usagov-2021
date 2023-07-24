@@ -70,7 +70,8 @@ for at in $ANNOTATED_TAGS; do
             echo Invalid CircleCI build number in tag annotation for $at
             exit 1
         fi
-        echo "$field "
+        CCI_BUILD=$VAL
+        #echo "$CCI_BUILD "
         ;;
 
       CMS_DIGEST=*)
@@ -90,7 +91,8 @@ for at in $ANNOTATED_TAGS; do
             fi
         done
         field=$(sed -E 's/=(.*)/="\1"/' <<< $field)
-        echo "$field "
+        CMS_DIGEST=$VAL
+        #echo "$CMS_DIGEST "
         ;;
 
       WAF_DIGEST=*)
@@ -110,7 +112,8 @@ for at in $ANNOTATED_TAGS; do
             fi
         done
         field=$(sed -E 's/=(.*)/="\1"/' <<< $field)
-        echo "$field "
+        WAF_DIGEST=$VAL
+        #echo "$WAF_DIGEST "
         ;;
 
       *)
@@ -123,3 +126,21 @@ for at in $ANNOTATED_TAGS; do
     # Stop after processing first (latest) annotation
     break
 done
+
+if [ -n "$CCI_BUILD" -a -n "$WAF_DIGEST" -a -n $"$CMS_DIGEST" ]; then
+  echo
+  echo "To deploy the waf, please execute the following command:"
+  echo
+  echo "   ROUTE_SERVICE_APP_NAME=waf \\
+   ROUTE_SERVICE_NAME=waf-route-${SPACE}-usagov \\
+   PROTECTED_APP_NAME=cms \\
+      bin/deploy/deploy-waf $CCI_BUILD $WAF_DIGEST"
+  echo
+  echo
+  echo "To deploy the cms, please execute the following command:"
+  echo "   bin/deploy/deploy-cms $CCI_BUILD $CMS_DIGEST"
+  echo
+else
+   echo "No tag of the form 'usagov-cci-build-*-${SPACE}' found in git repository"
+   exit 1
+fi
