@@ -18,7 +18,7 @@ SPACE:         default space to login to (default: dev)
 --sso:         prompts user to use secureauth sso
 "
 
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
+PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
 if [ -f "$PREAMBLE" ]; then
   # shellcheck source=bin/includes/preamble.sh
   . "$PREAMBLE"

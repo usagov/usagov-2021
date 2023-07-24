@@ -17,7 +17,7 @@ NOTES:
 Arguments come from environment.
 "
 
-PREAMBLE=$(sed -E 's/bin\/.*\/includes/bin\/includes/g' <<< "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/includes/preamble.sh")
+PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
 if [ -f "$PREAMBLE" ]; then
   # shellcheck source=bin/includes/preamble.sh
   . "$PREAMBLE"
@@ -45,7 +45,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-export DOCKER_CONTENT_TRUST=1 
+export DOCKER_CONTENT_TRUST=1
 docker build --force-rm \
      -t $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG \
      -f .docker/Dockerfile-cms . \
