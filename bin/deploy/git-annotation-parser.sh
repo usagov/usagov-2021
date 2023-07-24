@@ -1,5 +1,37 @@
  #!/bin/sh
 
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+    echo "File does not exist: $SCRIPT_DIR/../deploy/includes"
+    exit 1
+fi
+
+# just testing?
+if [ x$1 == x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+SPACE=${1:-please-provide-space-as-first-argument}
+SPACE=${SPACE,,} ## lowercase, so tags are properly formatted
+#assertCurSpace "$SPACE"  ### <-- no need to assert that we're actually in $SPACE, because we're not doing anything w/ CF - just git
+shift
+
 # 1.  Find the name of the latest annotated git tag matching our production post-deployment tag format
 # 2.  Query the content field of the reference attached to the tag, and make sure it contains correctly formated build number and digest hashes
 # 3.  Profit
@@ -10,7 +42,7 @@
 # 2. The annotation parsing works, but is "bulky" :)
 
 ### Step 1.a  (also see TBD 1.)
-ANNOTATED_TAGS=$(git for-each-ref refs/tags/USAGOV*prod*post* --sort='-*authordate' \
+ANNOTATED_TAGS=$(git for-each-ref refs/tags/usagov-cci-build-*-${SPACE} --sort='-*authordate' \
     --format '%(objecttype) %(refname:short)' |
     while read ty name; do [ $ty = tag ] && echo $name; done)
 
@@ -38,7 +70,7 @@ for at in $ANNOTATED_TAGS; do
             echo Invalid CircleCI build number in tag annotation for $at
             exit 1
         fi
-        echo $field
+        echo "$field "
         ;;
 
       CMS_DIGEST=*)
@@ -58,7 +90,7 @@ for at in $ANNOTATED_TAGS; do
             fi
         done
         field=$(sed -E 's/=(.*)/="\1"/' <<< $field)
-        echo $field
+        echo "$field "
         ;;
 
       WAF_DIGEST=*)
@@ -78,7 +110,7 @@ for at in $ANNOTATED_TAGS; do
             fi
         done
         field=$(sed -E 's/=(.*)/="\1"/' <<< $field)
-        echo $field
+        echo "$field "
         ;;
 
       *)
