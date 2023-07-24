@@ -273,3 +273,18 @@ function disableSpaceSSH() {
    cf disallow-space-ssh $sshSpace
    return $?
 }
+
+function assertIsImageDigest() {
+  VAL=${1:-"no string provided"}
+  IFS=':' read -ra DIGEST <<< "$VAL"
+  for fieldpart in "${DIGEST[@]}"; do
+    re1='^\@(sha[0-9]+|md[2-5])$'
+    re2='^[0-9A-Fa-f]+$'
+    if ! [[ $fieldpart =~ $re1 ]]; then
+      if ! [[ $fieldpart =~ $re2 ]]; then
+        echo "Invalid digest string '$VAL' (error at '$fieldpart')"
+        exit 1
+      fi
+    fi
+  done
+}
