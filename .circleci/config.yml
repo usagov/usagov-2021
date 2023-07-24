@@ -534,7 +534,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-358-bin-script-updates-take2
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -544,7 +543,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-358-bin-script-updates-take2
       - approve-dev-deployment:
           type: approval
           requires:
@@ -553,7 +551,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-358-bin-script-updates-take2
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -561,7 +558,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-358-bin-script-updates-take2
       - approve-stage-deployment:
           type: approval
           requires:
