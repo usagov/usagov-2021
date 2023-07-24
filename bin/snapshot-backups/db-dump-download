@@ -12,12 +12,23 @@ fi
 if [ -f ./env.local ]; then
   . ./env.local
 fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
 
 # just testing?
-if [ x$1 == x"--dryrun" ]; then
+if [ x$1 = x"--dryrun" ]; then
   export echo=echo
   shift
 fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=${SPACE,,}
+assertCurSpace $SPACE
+shift
 
 if ! command -v cf &> /dev/null
 then
@@ -26,7 +37,6 @@ then
 fi
 
 TAG=${1}
-SPACE=$(cf target | grep space: | awk '{ print $2 }')
 
 SSH_ALLOWED=$(cf space-ssh-allowed $SPACE | grep enabled)
 if [[  x$SSH_ALLOWED == x ]]; then
