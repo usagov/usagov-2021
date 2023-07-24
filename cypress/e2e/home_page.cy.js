@@ -4,20 +4,10 @@ describe('Home Page', () => {
         cy.viewport('macbook-13')
         cy.visit('/')
     })
-    it('Visual test', () => {
+    it('Full page visual test: default page looks correct upon load', () => {
+        // Threshold of 0.1 to ignore small differences
         cy.compareSnapshot('home-page-full', 0.1)
     })
-    /*it.only('All links are valid', () => {
-        cy.get('a')
-            .filter(':visible')
-            .not('.usa-sr-only')
-            .each((link) => {
-                cy.visit(link.attr('href'));
-                cy.contains('Page not found').should('not.exist')
-
-                cy.go('back')
-            })
-    })*/
     it('Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
         cy.get('header')
             .find('.usa-banner__header')

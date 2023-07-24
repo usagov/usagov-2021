@@ -1,10 +1,11 @@
-describe('Home Page', () => {
+describe('Mobile', () => {
     beforeEach(() => {
         // Set viewport size and base URL
-        cy.viewport('iphone-6')
+        cy.viewport(390, 844)
         cy.visit('/')
     })
-    it('Visual test', () => {
+    it('Full page visual test: Default page looks correct upon load', () => {
+        // Threshold of 0.1 to ignore small differences
         cy.compareSnapshot('mobile-home-page-full', 0.1)
     })
     it('Mobile menu appears and functions appropriately', () => {
@@ -80,7 +81,7 @@ describe('Home Page', () => {
             cy.url().should('include', 'search.usa.gov')
         })
     })
-    it.only('Footer appears as expected on mobile, topics can be expanded and links function appropriately', () => {
+    it('Footer appears as expected on mobile, topics can be expanded and links function appropriately', () => {
         cy.get('.usa-footer__nav')
             .find('.usa-footer__primary-content')
             .each((section) => {
