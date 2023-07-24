@@ -1,5 +1,8 @@
 <?php
 
+use Drupal\node\Entity\Node;
+use Drupal\taxonomy\Entity\Term;
+
 /**
  * @file
  * USWDS Base sub-theme.
@@ -14,11 +17,91 @@ function usagov_preprocess_html(&$variables) {
   $variables['node'] = \Drupal::routeMatch()->getParameter('node');
 }
 
+function children_of_active_menu_item(&$items) {
+  $result = NULL;
+  foreach ($items as $object) {
+    if ($object['in_active_trail'] === TRUE) {
+      $result = $object;
+      break;
+    }
+  }
+  if ($result === NULL) {
+    return $items;
+  }
+  else {
+    return children_of_active_menu_item($result['below']);
+  }
+}
+
 /**
  * Process block content
  */
 function usagov_preprocess_block(&$variables) {
-  $variables['node'] = \Drupal::routeMatch()->getParameter('node');
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $variables['node'] = $node;
+
+  if ($node && $node->hasField('field_page_type') && $node->get('field_page_type')[0]->target_id) {
+    $pagetypeTid = $node->get('field_page_type')[0]->target_id;
+    $variables['pagetype'] = Term::load($pagetypeTid)->getName();
+  }
+
+  if ($variables['elements']['#id'] == 'navigation_page_items' || $variables['elements']['#id'] == 'navigation_page_items_spanish') {
+    $added_contexts = ['url.path']; // Use url.query_args as well for an easier test case
+    $variables['content']['#cache']['contexts'] = array_merge($variables['content']['#cache']['contexts'], $added_contexts);
+    $variables['#cache']['contexts'] = array_merge($variables['#cache']['contexts'], $added_contexts);
+
+    $items = $variables['content']['#items'];
+    $children_of_active_menu_item = children_of_active_menu_item($items);
+    $nav_page_items = [];
+    foreach ($children_of_active_menu_item as $child) {
+      try {
+        $childNid = $child['url']->getRouteParameters()['node'];
+        $childNode = Node::load($childNid);
+        $data = new StdClass();
+        $data->title = $childNode->get('title')->value;
+        $data->url = $childNode->toUrl()->toString();
+        if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
+          $data->description = $childNode->get('field_short_description')->value;
+        }
+        elseif ($childNode->hasField('field_page_intro') && $childNode->get('field_page_intro')->value != "") {
+          $data->description = $childNode->get('field_page_intro')->value;
+        }
+        else {
+          $data->description = $childNode->get('field_meta_description')->value;
+        }
+
+        if (
+          $childNode->hasField('field_navigation_banner_image') &&
+          count($childNode->get('field_navigation_banner_image')) &&
+          $childNode->get('field_navigation_banner_image')[0]->entity
+        ) {
+          $data->navigation_banner_image = file_url_transform_relative(file_create_url(
+            $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
+          ));
+        }
+        if ($childNode->hasField('field_css_icon') && count($childNode->get('field_css_icon'))) {
+          $data->css_icon = $childNode->get('field_css_icon')[0]->value;
+        }
+        if ($childNode->hasField('promote')) {
+          $data->promote = $childNode->get('promote')->value;
+        }
+        // $data->node = $childNode;
+        array_push($nav_page_items, $data);
+      }
+      catch (Exception $e) {
+        $menuItem = $child['original_link']->getPluginDefinition();
+        $data = new StdClass();
+        $data->title = $menuItem['title'];
+        $data->url = $menuItem['url'];
+        if (strncmp($data->url, "base:", 5) === 0) {
+          $data->url = "/" . substr($data->url, 5);
+        }
+        $data->description = $menuItem['description'];
+        array_push($nav_page_items, $data);
+      }
+    }
+    $variables['nav_page_items'] = $nav_page_items;
+  }
 }
 
 function usagov_preprocess_views_view_list(&$variables) {
