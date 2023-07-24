@@ -12,13 +12,24 @@ fi
 if [ -f ./env.local ]; then
   . ./env.local
 fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
 
 # just testing?
-if [ x$1 == x"--dryrun" ]; then
+if [ x$1 = x"--dryrun" ]; then
   echo=echo
   dryrun=$1
   shift
 fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=${SPACE,,}
+assertCurSpace $SPACE
+shift
 
 TAG=$1
 SQLGZ=${TAG}.sql.gz

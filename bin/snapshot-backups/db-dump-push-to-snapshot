@@ -12,15 +12,26 @@ fi
 if [ -f ./env.local ]; then
   . ./env.local
 fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
 
 # just testing?
-if [ x$1 == x"--dryrun" ]; then
+if [ x$1 = x"--dryrun" ]; then
   export echo=echo
   shift
 fi
 
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=${SPACE,,}
+assertCurSpace $SPACE
+shift
+
 DEPLOY_TAG=${1}
-SPACE=$(cf target | grep space: | awk '{ print $2 }')
+#SPACE=$(cf target | grep space: | awk '{ print $2 }')
 
 if [ -z "$DEPLOY_TAG" ]; then
   echo "Usage: $0 <tag>"
