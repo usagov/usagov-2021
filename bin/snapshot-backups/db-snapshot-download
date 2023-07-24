@@ -12,12 +12,23 @@ fi
 if [ -f ./env.local ]; then
   . ./env.local
 fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
 
 # just testing?
-if [ x$1 == x"--dryrun" ]; then
+if [ x$1 = x"--dryrun" ]; then
   export echo=echo
   shift
 fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=${SPACE,,}
+assertCurSpace $SPACE
+shift
 
 DEPLOY_TAG=${1}
 
@@ -27,12 +38,11 @@ if [ -z "$DEPLOY_TAG" ]; then
   exit 1
 fi
 
-#SPACE=$( cf target | grep space: | awk '{ print $2 }')
 #PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
 GZIP_FILE=${DEPLOY_TAG}.sql.gz
 
-$echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 echo "Attempting to download $GZIP_FILE from s3. This could take awhile."
-echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
-$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
+#echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
+printOrRun "$echo" "aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE"

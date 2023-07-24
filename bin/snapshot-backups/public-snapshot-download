@@ -20,13 +20,23 @@ else
    echo Cannot find ${PWD}/bin/snapshot-backups/snapshot-include
    exit 1
 fi
-
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
 
 # just testing?
-if [ x$1 == x"--dryrun" ]; then
+if [ x$1 = x"--dryrun" ]; then
   export echo=echo
   shift
 fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=${SPACE,,}
+assertCurSpace $SPACE
+shift
 
 DEPLOY_TAG=${1}
 shift
@@ -74,12 +84,10 @@ else
 fi
 
 echo "Downloading files from s3 to local directory './${SOURCE_DIR}'. This could take awhile."
-echo aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG $SOURCE_DIR --recursive
-$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG $SOURCE_DIR --recursive
+printOrRun "$echo" "aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG $SOURCE_DIR --recursive"
 
 echo "Creating zip file $ZIP_FILE"
-echo zip -rq ${ZIP_FILE} ${SOURCE_DIR}
-$echo zip -rq ${ZIP_FILE} ${SOURCE_DIR}
+printOrRun "$echo" "zip -rq ${ZIP_FILE} ${SOURCE_DIR}"
 success=$?
 
 if [ "$success" != "0" ]; then
@@ -87,7 +95,7 @@ if [ "$success" != "0" ]; then
   exit 1
 fi
 
-$echo rm -rf $SOURCE_DIR
+printOrRun "$echo" "rm -rf $SOURCE_DIR"
 echo "Done."
 
 exit 0
