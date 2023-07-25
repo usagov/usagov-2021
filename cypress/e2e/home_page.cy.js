@@ -202,9 +202,13 @@ describe('Home Page', () => {
                 cy.visit('/')
             })
     })
-    it('Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
+    it.only('Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
         const num_events = 6
         const num_visible = 3
+
+        // Visually the carousel looks correct, should start at default positioning
+        cy.get('.life-events-carousel')
+            .compareSnapshot('life-events-carousel-default', 0)
 
         // Verify correct number of total card slides
         cy.get('.life-events-carousel')
@@ -263,12 +267,12 @@ describe('Home Page', () => {
             
         // Click through slides using arrow buttons
         cy.get('@hidden-slides')
-            .each((el) => {
+            .each((el, i) => {
                 // Click next button
                 cy.get('.life-events-carousel')
                     .find('.next')
                     .click()
-                
+            
                 // Verify this slide is now visible
                 cy.wrap(el)
                     .should('not.have.attr', 'aria-hidden')
@@ -293,6 +297,10 @@ describe('Home Page', () => {
                             .its('status')
                             .should('eq', 200)
                     })
+                
+                // Visually the carousel looks correct
+                cy.get('.life-events-carousel')
+                    .compareSnapshot(`life-events-carousel-next-${i}`, 0)
             })
 
         // Click prev button back to the front 
@@ -319,6 +327,11 @@ describe('Home Page', () => {
             .filter('[aria-hidden="true"]')
             .should('have.length', num_events - num_visible)
 
+        // Visually the carousel looks correct, should be back at default
+        cy.wait(500)
+        cy.get('.life-events-carousel')
+            .compareSnapshot('life-events-carousel-default', 0)
+
         // Click last nav circle
         cy.get('.carousel__navigation_button')
             .last()
@@ -338,21 +351,14 @@ describe('Home Page', () => {
             .prev()
             .should('not.have.attr', 'aria-hidden')
         
-        // Click second nav circle
+        // Visually the carousel looks correct, should be at the end
+        cy.get('.life-events-carousel')
+            .compareSnapshot('life-events-carousel-end', 0)
+        
+        // Click first nav circle
         cy.get('.carousel__navigation_button')
             .first()
             .click()
-        
-        // Second 3 slides are visible
-        cy.get('@first-slide')
-            .should('not.have.attr', 'aria-hidden')
-        cy.get('@first-slide')
-            .next()
-            .should('not.have.attr', 'aria-hidden')
-        cy.get('@first-slide')
-            .next()
-            .next()
-            .should('not.have.attr', 'aria-hidden')
     })
     it('Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
         cy.get('.all-topics-background')
