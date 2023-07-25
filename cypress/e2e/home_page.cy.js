@@ -264,7 +264,11 @@ describe('Home Page', () => {
             .filter('[aria-hidden="true"]')
             .as('hidden-slides')
             .should('have.length', num_events - num_visible)
-            
+           
+        /*
+         * Testing arrow buttons
+         */
+
         // Click through slides using arrow buttons
         cy.get('@hidden-slides')
             .each((el, i) => {
@@ -331,6 +335,10 @@ describe('Home Page', () => {
         cy.wait(500)
         cy.get('.life-events-carousel')
             .compareSnapshot('life-events-carousel-default', 0)
+        
+        /*
+         * Testing nav circles
+         */
 
         // Click last nav circle
         cy.get('.carousel__navigation_button')
@@ -355,10 +363,19 @@ describe('Home Page', () => {
         cy.get('.life-events-carousel')
             .compareSnapshot('life-events-carousel-end', 0)
         
-        // Click first nav circle
+        // Run through each nav button
         cy.get('.carousel__navigation_button')
-            .first()
-            .click()
+            .each((el, i) => {
+                // Skip to reduce num screenshots
+                if (i % 2 == 0) {
+                    cy.wrap(el).click()
+
+                    // Visually the carousel looks correct
+                    cy.wait(500)
+                    cy.get('.life-events-carousel')
+                        .compareSnapshot(`life-events-carousel-nav-btn-${i}`, 0)
+                }
+            })
     })
     it('Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
         cy.get('.all-topics-background')
