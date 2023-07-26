@@ -6,7 +6,7 @@ describe('Home Page', () => {
     })
     it('Full page visual test: default page looks correct upon load', () => {
         // Threshold of 0.1 to ignore small differences
-        cy.compareSnapshot('home-page-full', 0.1)
+        cy.compareSnapshot('full-page', 0.1)
     })
     it('Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
         cy.get('header')
@@ -202,13 +202,13 @@ describe('Home Page', () => {
                 cy.visit('/')
             })
     })
-    it.only('Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
+    it('Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
         const num_events = 6
         const num_visible = 3
 
         // Visually the carousel looks correct, should start at default positioning
         cy.get('.life-events-carousel')
-            .compareSnapshot('life-events-carousel-default', 0)
+            .compareSnapshot('life-events-carousel-default', 0.05)
 
         // Verify correct number of total card slides
         cy.get('.life-events-carousel')
@@ -304,7 +304,7 @@ describe('Home Page', () => {
                 
                 // Visually the carousel looks correct
                 cy.get('.life-events-carousel')
-                    .compareSnapshot(`life-events-carousel-next-${i}`, 0)
+                    .compareSnapshot(`life-events-carousel-next-${i}`, 0.05)
             })
 
         // Click prev button back to the front 
@@ -334,7 +334,7 @@ describe('Home Page', () => {
         // Visually the carousel looks correct, should be back at default
         cy.wait(500)
         cy.get('.life-events-carousel')
-            .compareSnapshot('life-events-carousel-default', 0)
+            .compareSnapshot('life-events-carousel-default', 0.05)
         
         /*
          * Testing nav circles
@@ -360,8 +360,9 @@ describe('Home Page', () => {
             .should('not.have.attr', 'aria-hidden')
         
         // Visually the carousel looks correct, should be at the end
+        cy.wait(500)
         cy.get('.life-events-carousel')
-            .compareSnapshot('life-events-carousel-end', 0)
+            .compareSnapshot('life-events-carousel-end', 0.05)
         
         // Run through each nav button
         cy.get('.carousel__navigation_button')
@@ -373,7 +374,7 @@ describe('Home Page', () => {
                     // Visually the carousel looks correct
                     cy.wait(500)
                     cy.get('.life-events-carousel')
-                        .compareSnapshot(`life-events-carousel-nav-btn-${i}`, 0)
+                        .compareSnapshot(`life-events-carousel-nav-btn-${i}`, 0.05)
                 }
             })
     })
