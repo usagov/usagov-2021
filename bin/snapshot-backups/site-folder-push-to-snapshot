@@ -54,6 +54,21 @@ else
    exit 1
 fi
 
+SSH_ALLOWED=$(cf space-ssh-allowed $SPACE | grep enabled)
+if [[  x$SSH_ALLOWED == x ]]; then
+  echo Cloud Foundry ssh to $SPACE is not enabled - exiting
+  exit 1
+fi
+
+TIR=0
+if [ -z "$echo" ]; then
+cf ssh cms -c /var/www/scripts/tome-running-check.sh && TIR=1
+  if [ $TIR != 0 ]; then
+    echo Tome is running in the target environment.  Please try again momentarily
+    exit 1
+  fi
+fi
+
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 # upload that static site directory to a location within an s3 bucket represented by the tag
