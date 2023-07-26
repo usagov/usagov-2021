@@ -57,10 +57,12 @@ fi
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 echo "Downloading files from s3 to local directory './${DEPLOY_TAG}'. This could take awhile."
-printOrRun "$echo" "aws s3 cp --only-show-errors s3://$S3_BUCKET/web-backup/$DEPLOY_TAG $DEPLOY_TAG --recursive"
+echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web-backup/$DEPLOY_TAG $DEPLOY_TAG --recursive
+$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web-backup/$DEPLOY_TAG $DEPLOY_TAG --recursive
 
 echo "Creating zip file ${DEPLOY_TAG}.zip"
-printOrRun "$echo" "$echo zip -rv ${DEPLOY_TAG}.zip ${DEPLOY_TAG} &> $DEPLOY_TAG.zip.log"
+echo "zip -rv ${DEPLOY_TAG}.zip ${DEPLOY_TAG} &> $DEPLOY_TAG.zip.log"
+$echo zip -rv ${DEPLOY_TAG}.zip ${DEPLOY_TAG} &> $DEPLOY_TAG.zip.log
 success=$?
 
 if [ "$success" != "0" ]; then
