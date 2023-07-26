@@ -44,5 +44,5 @@ GZIP_FILE=${DEPLOY_TAG}.sql.gz
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 echo "Attempting to download $GZIP_FILE from s3. This could take awhile."
-#echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
-printOrRun "$echo" "aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE"
+echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
+$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE

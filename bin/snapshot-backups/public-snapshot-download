@@ -84,10 +84,12 @@ else
 fi
 
 echo "Downloading files from s3 to local directory './${SOURCE_DIR}'. This could take awhile."
-printOrRun "$echo" "aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG $SOURCE_DIR --recursive"
+echo aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG $SOURCE_DIR --recursive
+$echo aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG $SOURCE_DIR --recursive
 
 echo "Creating zip file $ZIP_FILE"
-printOrRun "$echo" "zip -rq ${ZIP_FILE} ${SOURCE_DIR}"
+echo zip -rq ${ZIP_FILE} ${SOURCE_DIR}
+$echo zip -rq ${ZIP_FILE} ${SOURCE_DIR}
 success=$?
 
 if [ "$success" != "0" ]; then
@@ -95,7 +97,8 @@ if [ "$success" != "0" ]; then
   exit 1
 fi
 
-printOrRun "$echo" "rm -rf $SOURCE_DIR"
+echo rm -rf $SOURCE_DIR
+$echo rm -rf $SOURCE_DIR
 echo "Done."
 
 exit 0
