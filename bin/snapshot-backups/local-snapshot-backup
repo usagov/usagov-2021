@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=${SPACE,,}
+assertCurSpace $SPACE
+shift
+
+GIT_TAG=$1
+if [ -z "$GIT_TAG" ]; then
+  echo "Usage: $0 <env> <jira ticket> <cci build id>"
+  echo "This will attempt to deploy the s3 backup of the database to $SPACE"
+  exit 1
+fi
+shift
+
+CCI_BUILD=$1
+if [ -z "$CCI_BUILD" ]; then
+  echo "Usage: $0 <env> <jira ticket> <cci build id>"
+  echo "This will attempt to deploy the s3 backup of the database to $SPACE"
+  exit 1
+fi
+shift
+
+export LOCAL_SNAPSHOT=1
+
+RETVAL=0
+while [ "1" != "0" ]; do
+  bin/deploy/try-tome-disable
+  false
+  RETVAL=$?
+  break
+done
+
+if [ "$RETVAL" = "0" ]; then
+  $echo bin/snapshot-backups/site-snapshot-create   $GIT_TAG.$ENV_NAME.$CCI_BUILD
+  $echo bin/snapshot-backups/db-dump-to-snapshot    $GIT_TAG.$ENV_NAME.$CCI_BUILD
+  $echo bin/snapshot-backups/public-snapshot-create $GIT_TAG.$ENV_NAME.$CCI_BUILD
+fi

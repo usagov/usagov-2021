@@ -33,6 +33,21 @@ shift
 DEPLOY_TAG=$1
 #SPACE=$( cf target | grep space: | awk '{ print $2 }')
 
+SSH_ALLOWED=$(cf space-ssh-allowed $SPACE | grep enabled)
+if [[  x$SSH_ALLOWED == x ]]; then
+  echo Cloud Foundry ssh to $SPACE is not enabled - exiting
+  exit 1
+fi
+
+TIR=0
+if [ -z "$echo" ]; then
+cf ssh cms -c /var/www/scripts/tome-running-check.sh && TIR=1
+  if [ $TIR != 0 ]; then
+    echo Tome is running in the target environment.  Please try again momentarily
+    exit 1
+  fi
+fi
+
 if [ -z "$DEPLOY_TAG" ]; then
   echo "Usage: $0 <tag>"
   echo "This will attempt to deploy the s3 backup of the static site to $SPACE"
