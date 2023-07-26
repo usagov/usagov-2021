@@ -7,6 +7,7 @@ jQuery(document).ready(function ($) {
   nextButton = document.querySelector(".next");
   slidesContainer = document.querySelector(".slides");
   slides = slidesContainer.querySelectorAll(".slide");
+  let slideForWidth = slidesContainer.querySelector(".slide");
   let slidesForFocus = slidesContainer.querySelectorAll(".slide a");
   let carouselHeaders = document.querySelectorAll(".carouselHeaders");
   makeDots();
@@ -95,18 +96,18 @@ jQuery(document).ready(function ($) {
       $(slidesContainer).animate(
         {
           "scrollLeft":
-            (slidesContainer.offsetWidth / 3) * nextLeftMostSlideIndex,
+            (slideForWidth.offsetWidth) * nextLeftMostSlideIndex + ((nextLeftMostSlideIndex)* 32),
         },
         {
           "duration": 200,
         }
       );
     }
- else if (window.innerWidth > 480 && window.innerWidth < 1024) {
-      $(slidesContainer).animate(
+ else if (window.innerWidth > 639 && window.innerWidth < 1024) {
+        $(slidesContainer).animate(
         {
           "scrollLeft":
-            (slidesContainer.offsetWidth / 2) * nextLeftMostSlideIndex,
+            ((slideForWidth.offsetWidth) * nextLeftMostSlideIndex) + (2 * nextLeftMostSlideIndex * 10) -10,
         },
         {
           "duration": 200,
@@ -114,9 +115,11 @@ jQuery(document).ready(function ($) {
       );
     }
  else {
+  console.log(`${slideForWidth.offsetWidth}`);
+  console.log(`Sliding to card ${nextLeftMostSlideIndex} at ${(slideForWidth.offsetWidth * nextLeftMostSlideIndex) + ((nextLeftMostSlideIndex - 1) * 4) +2}`);
       $(slidesContainer).animate(
         {
-          "scrollLeft": slidesContainer.offsetWidth * nextLeftMostSlideIndex,
+          "scrollLeft": (slideForWidth.offsetWidth * nextLeftMostSlideIndex) + ((nextLeftMostSlideIndex - 1) * 4) +2,
         },
         {
           "duration": 200,
