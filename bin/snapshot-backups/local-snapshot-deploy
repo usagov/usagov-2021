@@ -57,9 +57,9 @@ if [ x$echo = x ]; then
 fi
 
 if [ "$RETVAL" = "0" ]; then
-  $echo bin/snapshot-backups/site-snapshot-deploy   $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
-  $echo bin/snapshot-backups/db-dump-deploy         $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
-  $echo bin/snapshot-backups/public-snapshot-deploy $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
+  $echo bin/snapshot-backups/site-snapshot-deploy   $dryrun $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
+  $echo bin/snapshot-backups/db-dump-deploy         $dryrun $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
+  $echo bin/snapshot-backups/public-snapshot-deploy $dryrun $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
   if [ x$echo = x ]; then
     bin/deploy/try-tome-enable
   fi
