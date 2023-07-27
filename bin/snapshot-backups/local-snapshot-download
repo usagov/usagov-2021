@@ -34,7 +34,7 @@ shift
 GIT_TAG=$1
 if [ -z "$GIT_TAG" ]; then
   echo "Usage: $0 <env> <jira ticket> <cci build id>"
-  echo "This will attempt to backup the s3 backup of the database to $SPACE"
+  echo "This will attempt to download the s3 backups from $SPACE"
   exit 1
 fi
 shift
@@ -42,27 +42,11 @@ shift
 CCI_BUILD=$1
 if [ -z "$CCI_BUILD" ]; then
   echo "Usage: $0 <env> <jira ticket> <cci build id>"
-  echo "This will attempt to backup the s3 backup of the database to $SPACE"
+  echo "This will attempt to download the s3 backups from $SPACE"
   exit 1
 fi
 shift
 
-RETVAL=0
-if [ x$echo = x ]; then
-  while [ "1" != "0" ]; do
-    bin/deploy/try-tome-disable
-    RETVAL=$?
-    break
-  done
-fi
-
-if [ "$RETVAL" = "0" ]; then
-  $echo bin/snapshot-backups/db-dump-to-snapshot    $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
-  $echo bin/snapshot-backups/site-snapshot-create   $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
-  $echo bin/snapshot-backups/public-snapshot-create $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
-  if [ x$echo = x ]; then
-    bin/deploy/try-tome-enable
-  fi
-else
-  echo "Did not run backup scripts.  Retval of tome check was: '  $RETVAL'"
-fi
+$echo bin/snapshot-backups/db-snapshot-download     $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
+$echo bin/snapshot-backups/site-snapshot-download   $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
+$echo bin/snapshot-backups/public-snapshot-download $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
