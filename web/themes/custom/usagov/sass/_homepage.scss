@@ -417,6 +417,10 @@
       outline: none;
     }
 
+    &:hover h3{
+      text-decoration: underline;
+    }
+
     .life_events_card_text {
       padding: 12px 12px 0;
       height:210px;
