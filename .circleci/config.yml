@@ -520,6 +520,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1029-update-ar-npm-modules
       - deploy-reporter-tools:
           filters:
             branches:
@@ -527,6 +528,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1029-update-ar-npm-modules
           requires:
             - approve-deploy-reporter
 
