@@ -2,5 +2,8 @@
   "devDependencies": {
     "cypress": "^12.16.0",
     "cypress-image-diff-js": "^1.26.0"
+  },
+  "dependencies": {
+    "cypress-real-events": "^1.9.1"
   }
 }

@@ -8,10 +8,15 @@ describe('Home Page', () => {
         // Threshold of 0.1 to ignore small differences
         cy.compareSnapshot('full-page', 0.1)
     })
-    it('Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
+    it.only('Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
         cy.get('header')
             .find('.usa-banner__header')
             .should('be.visible')
+
+        // Visually accordion should look correct, default
+        cy.get('header')
+            .find('.usa-banner')
+            .compareSnapshot('accordion-default')
 
         // Accordion content should not be visible
         cy.get('header')
@@ -26,6 +31,11 @@ describe('Home Page', () => {
         // Accordion content should be visible
         cy.get('.usa-banner__content')
             .should('be.visible')
+
+        // Visually accordion should look correct, expanded
+        cy.get('header')
+            .find('.usa-banner')
+            .compareSnapshot('accordion-expanded', 0.1)
     })
     it('USAGov logo appears in the header area', () => {
         cy.get('header')
@@ -378,7 +388,7 @@ describe('Home Page', () => {
                 }
             })
     })
-    it('Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
+    it.only('Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
         cy.get('.all-topics-background')
             .find('.homepage-card')
             .each((el) => {
@@ -395,6 +405,11 @@ describe('Home Page', () => {
                 cy.wrap(el).find('a')
                     .children()
                     .should('have.length', 3)
+
+                // Css check for hover state 
+                cy.wrap(el)
+                    .realHover()
+                    .should('have.css', 'background-color', 'rgb(204, 236, 242)')
             })
     })
 })
