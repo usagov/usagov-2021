@@ -60,6 +60,7 @@
   "dependencies": {
     "ansi-regex": "^3.0.1",
     "aws-sdk": "^2.1404.0",
+    "bluebird": "^3.7.2",
     "debug": "^4.1.1",
     "decode-uri-component": "^0.2.2",
     "fast-csv": "^4.3.0",
