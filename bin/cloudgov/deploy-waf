@@ -11,6 +11,14 @@ if [ -f $SCRIPT_DIR/env.local ]; then
   . $SCRIPT_DIR/env.local
 fi
 
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+    echo "File does not exist: $SCRIPT_DIR/../deploy/includes"
+    exit 1
+fi
+
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CTAG=${1:-latest}
@@ -69,12 +77,15 @@ printf "\nFetching APP_SPACE\n"
 APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
 printf "\tAPP_SPACE: $APP_SPACE\n"
 
-# remove proxy
-cf set-env waf http_proxy  ""
-cf set-env waf https_proxy ""
-cf set-env waf HTTPS_PROXY ""
-cf set-env waf HTTP_PROXY ""
-
+if ! existsCFApp waf; then
+  echo "NOTICE: waf is not running.  No worries."
+else
+  # remove proxy
+  cf set-env waf http_proxy  ""
+  cf set-env waf https_proxy ""
+  cf set-env waf HTTPS_PROXY ""
+  cf set-env waf HTTP_PROXY ""
+fi
 
 instances="-i 1"
 if [ "$APP_SPACE" == "prod" ]; then
