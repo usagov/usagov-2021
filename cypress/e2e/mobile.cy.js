@@ -3,11 +3,26 @@ describe('Mobile', () => {
         // Set viewport size and base URL
         cy.viewport(390, 844)
         cy.visit('/')
+
+        cy.injectAxe()
     })
     it('Full page visual test: Default page looks correct upon load', () => {
         // Hide back to top btn to account for different scroll speeds
         cy.get('#back-to-top').hideElement()
         cy.compareSnapshot('home-page-full', 0.1)
+    })
+    it('Has no detectable a11y violations on load', () => {
+        // Test page accessibility at initial load
+        cy.checkA11y()
+
+        // Logs a11y violations while allowing the test to pass
+        // cy.checkA11y(null, null, null, true)
+    })
+    it('Has no critical impact a11y violations on load', () => {
+        // Test on initial load, only report and assert for critical impact items
+        cy.checkA11y(null, {
+          includedImpacts: ['critical']
+        })
     })
     it('Mobile menu appears and functions appropriately', () => {
         cy.get('.usagov-mobile-menu')

@@ -1,6 +1,8 @@
 {
   "devDependencies": {
+    "axe-core": "^4.7.2",
     "cypress": "^12.16.0",
+    "cypress-axe": "^1.4.0",
     "cypress-image-diff-js": "^1.26.0"
   },
   "dependencies": {

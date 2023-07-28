@@ -3,12 +3,27 @@ describe('Home Page', () => {
         // Set viewport size and base URL
         cy.viewport('macbook-13')
         cy.visit('/')
+
+        cy.injectAxe()
     })
     it('Full page visual test: default page looks correct upon load', () => {
         // Threshold of 0.1 to ignore small differences
         cy.compareSnapshot('full-page', 0.1)
     })
-    it.only('Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
+    it('Has no detectable a11y violations on load', () => {
+        // Test page accessibility at initial load
+        cy.checkA11y()
+
+        // Logs a11y violations while allowing the test to pass
+        // cy.checkA11y(null, null, null, true)
+    })
+    it('Has no critical impact a11y violations on load', () => {
+        // Test on initial load, only report and assert for critical impact items
+        cy.checkA11y(null, {
+          includedImpacts: ['critical']
+        })
+    })
+    it('Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
         cy.get('header')
             .find('.usa-banner__header')
             .should('be.visible')
@@ -388,7 +403,7 @@ describe('Home Page', () => {
                 }
             })
     })
-    it.only('Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
+    it('Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
         cy.get('.all-topics-background')
             .find('.homepage-card')
             .each((el) => {
