@@ -47,6 +47,14 @@ if [ -z "$CCI_BUILD" ]; then
 fi
 shift
 
+SUFFIX=$1
+if [ -z "$SUFFIX" ]; then
+  echo "Usage: $0 <env> <jira ticket> <cci build id> <suffix>"
+  echo "This will attempt to download the s3 backups from $SPACE"
+  exit 1
+fi
+shift
+
 RETVAL=0
 if [ x$echo = x ]; then
   while [ "1" != "0" ]; do
@@ -56,10 +64,12 @@ if [ x$echo = x ]; then
   done
 fi
 
+$SNAPSHOT_TAG=$GIT_TAG.$SPACE.$CCI_BUILD.$SUFFIX
+
 if [ "$RETVAL" = "0" ]; then
-  $echo bin/snapshot-backups/site-snapshot-deploy   $dryrun $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
-  $echo bin/snapshot-backups/db-dump-deploy         $dryrun $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
-  $echo bin/snapshot-backups/public-snapshot-deploy $dryrun $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
+  $echo bin/snapshot-backups/site-snapshot-deploy   $dryrun $SPACE $SNAPSHOT_TAG
+  $echo bin/snapshot-backups/db-dump-deploy         $dryrun $SPACE $SNAPSHOT_TAG
+  $echo bin/snapshot-backups/public-snapshot-deploy $dryrun $SPACE $SNAPSHOT_TAG
   if [ x$echo = x ]; then
     bin/deploy/try-tome-enable
   fi

@@ -47,6 +47,16 @@ if [ -z "$CCI_BUILD" ]; then
 fi
 shift
 
-$echo bin/snapshot-backups/db-snapshot-download     $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
-$echo bin/snapshot-backups/site-snapshot-download   $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
-$echo bin/snapshot-backups/public-snapshot-download $SPACE $GIT_TAG.$SPACE.$CCI_BUILD
+SUFFIX=$1
+if [ -z "$SUFFIX" ]; then
+  echo "Usage: $0 <env> <jira ticket> <cci build id> <suffix>"
+  echo "This will attempt to download the s3 backups from $SPACE"
+  exit 1
+fi
+shift
+
+$SNAPSHOT_TAG=$GIT_TAG.$SPACE.$CCI_BUILD.$SUFFIX
+
+$echo bin/snapshot-backups/db-snapshot-download     $SPACE $SNAPSHOT_TAG
+$echo bin/snapshot-backups/site-snapshot-download   $SPACE $SNAPSHOT_TAG
+$echo bin/snapshot-backups/public-snapshot-download $SPACE $SNAPSHOT_TAG
