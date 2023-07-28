@@ -77,8 +77,9 @@ printf "\nFetching APP_SPACE\n"
 APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
 printf "\tAPP_SPACE: $APP_SPACE\n"
 
-if ! existsCFApp waf; then
-  echo "NOTICE: waf is not running.  No worries."
+if ! existsCFApp $ROUTE_SERVICE_APP_NAME; then
+  echo "NOTICE: $ROUTE_SERVICE_APP_NAME app is not running.  No worries."
+  exit ### <-- to test, uncomment this exit statement and pass "zaf" as $ROUTE_SERVICE_APP_NAME
 else
   # remove proxy
   cf set-env waf http_proxy  ""
