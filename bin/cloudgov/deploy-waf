@@ -79,7 +79,7 @@ printf "\tAPP_SPACE: $APP_SPACE\n"
 
 if ! existsCFApp $ROUTE_SERVICE_APP_NAME; then
   echo "NOTICE: $ROUTE_SERVICE_APP_NAME app is not running.  No worries."
-  exit ### <-- to test, uncomment this exit statement and pass "zaf" as $ROUTE_SERVICE_APP_NAME
+  #exit ### <-- to test, uncomment this exit statement and pass "zaf" as $ROUTE_SERVICE_APP_NAME
 else
   # remove proxy
   cf set-env waf http_proxy  ""
