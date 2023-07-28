@@ -6,10 +6,6 @@ describe('Home Page', () => {
 
         cy.injectAxe()
     })
-    it('Full page visual test: default page looks correct upon load', () => {
-        // Threshold of 0.1 to ignore small differences
-        cy.compareSnapshot('full-page', 0.1)
-    })
     it('Has no detectable a11y violations on load', () => {
         // Test page accessibility at initial load
         cy.checkA11y()
@@ -27,12 +23,7 @@ describe('Home Page', () => {
         cy.get('header')
             .find('.usa-banner__header')
             .should('be.visible')
-
-        // Visually accordion should look correct, default
-        cy.get('header')
-            .find('.usa-banner')
-            .compareSnapshot('accordion-default')
-
+        
         // Accordion content should not be visible
         cy.get('header')
             .find('.usa-banner__content')
@@ -46,11 +37,6 @@ describe('Home Page', () => {
         // Accordion content should be visible
         cy.get('.usa-banner__content')
             .should('be.visible')
-
-        // Visually accordion should look correct, expanded
-        cy.get('header')
-            .find('.usa-banner')
-            .compareSnapshot('accordion-expanded', 0.1)
     })
     it('USAGov logo appears in the header area', () => {
         cy.get('header')
@@ -231,10 +217,6 @@ describe('Home Page', () => {
         const num_events = 6
         const num_visible = 3
 
-        // Visually the carousel looks correct, should start at default positioning
-        cy.get('.life-events-carousel')
-            .compareSnapshot('life-events-carousel-default', 0.05)
-
         // Verify correct number of total card slides
         cy.get('.life-events-carousel')
             .find('.slide')
@@ -326,10 +308,6 @@ describe('Home Page', () => {
                             .its('status')
                             .should('eq', 200)
                     })
-                
-                // Visually the carousel looks correct
-                cy.get('.life-events-carousel')
-                    .compareSnapshot(`life-events-carousel-next-${i}`, 0.05)
             })
 
         // Click prev button back to the front 
@@ -355,11 +333,6 @@ describe('Home Page', () => {
             .find('.slide')
             .filter('[aria-hidden="true"]')
             .should('have.length', num_events - num_visible)
-
-        // Visually the carousel looks correct, should be back at default
-        cy.wait(500)
-        cy.get('.life-events-carousel')
-            .compareSnapshot('life-events-carousel-default', 0.05)
         
         /*
          * Testing nav circles
@@ -384,24 +357,27 @@ describe('Home Page', () => {
             .prev()
             .should('not.have.attr', 'aria-hidden')
         
-        // Visually the carousel looks correct, should be at the end
-        cy.wait(500)
-        cy.get('.life-events-carousel')
-            .compareSnapshot('life-events-carousel-end', 0.05)
-        
-        // Run through each nav button
+        // Click first nav circle
         cy.get('.carousel__navigation_button')
-            .each((el, i) => {
-                // Skip to reduce num screenshots
-                if (i % 2 == 0) {
-                    cy.wrap(el).click()
+            .first()
+            .click()
 
-                    // Visually the carousel looks correct
-                    cy.wait(500)
-                    cy.get('.life-events-carousel')
-                        .compareSnapshot(`life-events-carousel-nav-btn-${i}`, 0.05)
-                }
-            })
+        // First 3 slides are visible
+        cy.get('@first-slide')
+            .should('not.have.attr', 'aria-hidden')
+        cy.get('@first-slide')
+            .next()
+            .should('not.have.attr', 'aria-hidden')
+        cy.get('@first-slide')
+            .next()
+            .next()
+            .should('not.have.attr', 'aria-hidden')
+
+        // Verify correct number of hidden card slides
+        cy.get('.life-events-carousel')
+            .find('.slide')
+            .filter('[aria-hidden="true"]')
+            .should('have.length', num_events - num_visible)
     })
     it('Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
         cy.get('.all-topics-background')

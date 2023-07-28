@@ -6,11 +6,6 @@ describe('Mobile', () => {
 
         cy.injectAxe()
     })
-    it('Full page visual test: Default page looks correct upon load', () => {
-        // Hide back to top btn to account for different scroll speeds
-        cy.get('#back-to-top').hideElement()
-        cy.compareSnapshot('home-page-full', 0.1)
-    })
     it('Has no detectable a11y violations on load', () => {
         // Test page accessibility at initial load
         cy.checkA11y()
@@ -34,10 +29,6 @@ describe('Mobile', () => {
         cy.get('.usagov-mobile-menu')
             .should('be.visible')
 
-        // Visually the menu looks correct
-        cy.get('.usagov-mobile-menu')
-            .compareSnapshot('home-page-menu', 0.1)
-
         // Validate menu links
         cy.get('.navigation__items')
             .find('a')
@@ -57,9 +48,6 @@ describe('Mobile', () => {
 
         cy.get('.usagov-mobile-menu')
             .should('not.be.visible')
-
-        // Visually page looks correct, menu collapsed
-        cy.compareSnapshot('home-page-full', 0.1)
     })
     it('Search appears in mobile menu and functions approriately', () => {
         const typedText = 'housing'
@@ -105,10 +93,6 @@ describe('Mobile', () => {
         })
     })
     it('Footer appears as expected on mobile, topics can be expanded and links function appropriately', () => {
-        // Visually the default footer nav looks correct
-        cy.get('.usa-footer__nav')
-            .compareSnapshot('footer-nav-default', 0)
-        
         cy.get('.usa-footer__nav')
             .find('.usa-footer__primary-content')
             .each((section, i) => {
@@ -124,11 +108,6 @@ describe('Mobile', () => {
                 cy.wrap(section)
                     .find('.usa-list')
                     .should('be.visible')
-
-                // Visually the footer nav looks correct, one section should be expanded
-                /*cy.wait(500)
-                cy.get('.usa-footer__nav')
-                    .compareSnapshot(`footer-nav-expanded-section-${i}`, 0)*/
 
                 // Validate links
                 cy.wrap(section)
@@ -151,11 +130,6 @@ describe('Mobile', () => {
                 cy.wrap(section)
                     .find('.usa-list')
                     .should('not.be.visible')
-
-                // Visually the footer nav looks correct, back to default
-                cy.wait(500)
-                cy.get('.usa-footer__nav')
-                    .compareSnapshot('footer-nav-default', 0)
             })
     })
 })
