@@ -12,7 +12,7 @@ const authorizeQuery = async (query) => {
     scopes: ['https://www.googleapis.com/auth/analytics.readonly']
   });
 
-  query = Object.assign({}, query, { auth: authClient })
+  query = Object.assign({}, query, { auth: jwt })
 
   return new Promise((resolve, reject) => {
     jwt.authorize((err, result) => {
