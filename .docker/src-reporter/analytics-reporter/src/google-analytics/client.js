@@ -27,7 +27,7 @@ const _executeFetchDataRequest = (query, { realtime }) => {
 }
 
 const _get = (realtime) => {
-  const analytics = google.analytics("v3")
+  const analytics = google.analytics_v3
   if (realtime) {
     return analytics.data.realtime.get
   } else {
