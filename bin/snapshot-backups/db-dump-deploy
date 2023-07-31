@@ -28,6 +28,7 @@ fi
 # just testing?
 if [ x$1 = x"--dryrun" ]; then
   export echo=echo
+  dryrun=$1
   shift
 fi
 
@@ -65,8 +66,14 @@ SQL_FILE=${DEPLOY_TAG}.sql
 GZIP_FILE=$SQL_FILE.gz
 
 if [ ! -f $GZIP_FILE ]; then
-   echo Cannot locate $GZIP_FILE
-   exit 2
+  echo $SCRIPT_DIR/db-snapshot-download $dryrun $SPACE $DEPLOY_TAG
+  $SCRIPT_DIR/db-snapshot-download $dryrun $SPACE $DEPLOY_TAG
+  if [ ! -f $GZIP_FILE ]; then
+    if [ x$echo = x ]; then
+      echo Cannot locate $GZIP_FILE
+      exit 2
+    fi
+  fi
 fi
 
 echo "Attempting to deploy database backup $GZIP_FILE to $SPACE"

@@ -31,7 +31,6 @@ assertCurSpace $SPACE
 shift
 
 DEPLOY_TAG=${1}
-#SPACE=$(cf target | grep space: | awk '{ print $2 }')
 
 if [ -z "$DEPLOY_TAG" ]; then
   echo "Usage: $0 <tag>"

@@ -31,27 +31,34 @@ SPACE=${SPACE,,}
 assertCurSpace $SPACE
 shift
 
-TAG=$1
-SQLGZ=${TAG}.sql.gz
-SQLZIP=${TAG}.sql.zip
+DEPLOY_TAG=$1
 
-$echo bin/snapshot-backups/db-dump-download $dryrun $SPACE $TAG
+if [ -z "$DEPLOY_TAG" ]; then
+  echo "Usage: $0 <tag>"
+  echo "This will attempt to push the database backup for the provided tag to $SPACE s3"
+  exit 1
+fi
+
+SQLGZ=${DEPLOY_TAG}.sql.gz
+SQLZIP=${DEPLOY_TAG}.sql.zip
+
+$echo bin/snapshot-backups/db-dump-download $dryrun $SPACE $DEPLOY_TAG
 
 if [ -f $SQLGZ ]; then
    if [[ -n $(zcat -f ${SQLGZ} | head | grep 'SET NAMES utf8mb4') ]]; then
       if [[ -n $(zcat -f ${SQLGZ} | tail | grep 'Dump completed on' ) ]]; then
-        $echo bin/snapshot-backups/db-dump-push-to-snapshot $dryrun $SPACE $TAG
+        $echo bin/snapshot-backups/db-dump-push-to-snapshot $dryrun $SPACE $DEPLOY_TAG
         if [ $? != 0 ]; then
-          echo "Could not push snapshot '$TAG' to $SPACE s3"
+          echo "Could not push snapshot '$DEPLOY_TAG' to $SPACE s3"
           exit 1
         else
-          echo snapshotted $TAG
+          echo snapshotted $DEPLOY_TAG
           echo "Attempting to clear local files:"
-          rm -f ${TAG}*
-          ls -l ${TAG}* &> /dev/null
-          if [ "$?" != "0" ]; then
+          rm -f ${DEPLOY_TAG}*
+          ls -l ${DEPLOY_TAG}* &> /dev/null
+          if [ "$?" = "0" ]; then
              echo "Error: Could not delete temporary files:"
-             ls -l ${TAG}*
+             ls -l ${DEPLOY_TAG}*
              exit 1
           fi
         fi
@@ -62,4 +69,9 @@ if [ -f $SQLGZ ]; then
    else
       echo "SQL dump does not appear to be valid (no 'SET NAMES utf8mb4' string found on head of file)"
    fi
+else
+  if [ x$echo = x ]; then
+    echo "Database dump file '$SQLGZ' was not downloaded, possibly due to errors during backup.  Please check logs."
+    exit 1
+  fi
 fi

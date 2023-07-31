@@ -31,31 +31,13 @@ SPACE=${SPACE,,}
 assertCurSpace $SPACE
 shift
 
-GIT_TAG=$1
-if [ -z "$GIT_TAG" ]; then
-  echo "Usage: $0 <env> <jira ticket> <cci build id>"
-  echo "This will attempt to download the s3 backups from $SPACE"
+SNAPSHOT_TAG=$1
+if [ -z "$SNAPSHOT_TAG" ]; then
+  echo "Usage: $0 <env> <snapshot tag>"
+  echo "This will attempt to deploy the s3 backups to $SPACE"
   exit 1
 fi
 shift
-
-CCI_BUILD=$1
-if [ -z "$CCI_BUILD" ]; then
-  echo "Usage: $0 <env> <jira ticket> <cci build id>"
-  echo "This will attempt to download the s3 backups from $SPACE"
-  exit 1
-fi
-shift
-
-SUFFIX=$1
-if [ -z "$SUFFIX" ]; then
-  echo "Usage: $0 <env> <jira ticket> <cci build id> <suffix>"
-  echo "This will attempt to download the s3 backups from $SPACE"
-  exit 1
-fi
-shift
-
-$SNAPSHOT_TAG=$GIT_TAG.$SPACE.$CCI_BUILD.$SUFFIX
 
 $echo bin/snapshot-backups/db-snapshot-download     $SPACE $SNAPSHOT_TAG
 $echo bin/snapshot-backups/site-snapshot-download   $SPACE $SNAPSHOT_TAG
