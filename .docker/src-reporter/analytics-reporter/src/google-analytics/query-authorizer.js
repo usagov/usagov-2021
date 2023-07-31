@@ -1,5 +1,5 @@
 const {google} = require('googleapis')
-// const {JWT} = require('google-auth-library')
+const {JWT} = require('google-auth-library')
 const fs = require('fs')
 const config = require('../config')
 const GoogleAnalyticsCredentialLoader = require("./credential-loader")
@@ -7,37 +7,19 @@ const GoogleAnalyticsCredentialLoader = require("./credential-loader")
 const authorizeQuery = async (query) => {
   const credentials = _getCredentials()
 
-  const auth = new google.auth.GoogleAuth({
-    email: credentials.email,
-    key: credentials.key,
-    scopes: ['https://www.googleapis.com/auth/analytics.readonly']
-  });
-
-  const authClient = await auth.getClient();
-  google.options({auth: authClient});
-
-  query = Object.assign({}, query, { auth: authClient })
-
-  return new Promise((resolve, reject) => {
-    authClient.authorize((err, result) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(query)
-      }
-    })
-  })
-
-  // const jwt = new JWT({
+  // const auth = new google.auth.GoogleAuth({
   //   email: credentials.email,
   //   key: credentials.key,
   //   scopes: ['https://www.googleapis.com/auth/analytics.readonly']
   // });
 
-  // query = Object.assign({}, query, { auth: jwt })
+  // const authClient = await auth.getClient();
+  // google.options({auth: authClient});
+
+  // query = Object.assign({}, query, { auth: authClient })
 
   // return new Promise((resolve, reject) => {
-  //   jwt.authorize((err, result) => {
+  //   authClient.authorize((err, result) => {
   //     if (err) {
   //       reject(err)
   //     } else {
@@ -45,6 +27,24 @@ const authorizeQuery = async (query) => {
   //     }
   //   })
   // })
+
+  const jwt = new JWT({
+    email: credentials.email,
+    key: credentials.key,
+    scopes: ['https://www.googleapis.com/auth/analytics.readonly']
+  });
+
+  query = Object.assign({}, query, { auth: jwt })
+
+  return new Promise((resolve, reject) => {
+    jwt.authorize((err, result) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(query)
+      }
+    })
+  })
 }
 
 const _getCredentials = () => {
