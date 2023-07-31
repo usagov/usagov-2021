@@ -16,17 +16,17 @@ const authorizeQuery = async (query) => {
   const authClient = await auth.getClient();
   google.options({auth: authClient});
 
-  return Object.assign({}, query, { auth: authClient })
+  query = Object.assign({}, query, { auth: authClient })
 
-  // return new Promise((resolve, reject) => {
-  //   authClient.authorize((err, result) => {
-  //     if (err) {
-  //       reject(err)
-  //     } else {
-  //       resolve(query)
-  //     }
-  //   })
-  // })
+  return new Promise((resolve, reject) => {
+    authClient.authorize((err, result) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(query)
+      }
+    })
+  })
 
   // const jwt = new JWT({
   //   email: credentials.email,
