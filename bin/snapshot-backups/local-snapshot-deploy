@@ -31,29 +31,14 @@ SPACE=${SPACE,,}
 assertCurSpace $SPACE
 shift
 
-GIT_TAG=$1
-if [ -z "$GIT_TAG" ]; then
-  echo "Usage: $0 <env> <jira ticket> <cci build id>"
-  echo "This will attempt to deploy the s3 backup of the database to $SPACE"
+SNAPSHOT_TAG=$1
+if [ -z "$SNAPSHOT_TAG" ]; then
+  echo "Usage: $0 <env> <snapshot tag>"
+  echo "This will attempt to deploy the s3 backups to $SPACE"
   exit 1
 fi
 shift
 
-CCI_BUILD=$1
-if [ -z "$CCI_BUILD" ]; then
-  echo "Usage: $0 <env> <jira ticket> <cci build id>"
-  echo "This will attempt to deploy the s3 backup of the database to $SPACE"
-  exit 1
-fi
-shift
-
-SUFFIX=$1
-if [ -z "$SUFFIX" ]; then
-  echo "Usage: $0 <env> <jira ticket> <cci build id> <suffix>"
-  echo "This will attempt to download the s3 backups from $SPACE"
-  exit 1
-fi
-shift
 
 RETVAL=0
 if [ x$echo = x ]; then
@@ -64,15 +49,23 @@ if [ x$echo = x ]; then
   done
 fi
 
-$SNAPSHOT_TAG=$GIT_TAG.$SPACE.$CCI_BUILD.$SUFFIX
-
 if [ "$RETVAL" = "0" ]; then
-  $echo bin/snapshot-backups/site-snapshot-deploy   $dryrun $SPACE $SNAPSHOT_TAG
-  $echo bin/snapshot-backups/db-dump-deploy         $dryrun $SPACE $SNAPSHOT_TAG
-  $echo bin/snapshot-backups/public-snapshot-deploy $dryrun $SPACE $SNAPSHOT_TAG
-  if [ x$echo = x ]; then
-    bin/deploy/try-tome-enable
-  fi
+  #$echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX site-snapshot-deploy   #$dryrun $SPACE $SNAPSHOT_TAG
+  #$echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX db-dump-deploy         #$dryrun $SPACE $SNAPSHOT_TAG
+  #$echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX public-snapshot-deploy #$dryrun $SPACE $SNAPSHOT_TAG
+  echo  $SCRIPT_DIR/db-dump-deploy         $dryrun $SPACE $SNAPSHOT_TAG
+        $SCRIPT_DIR/db-dump-deploy         $dryrun $SPACE $SNAPSHOT_TAG
+  echo  $SCRIPT_DIR/site-snapshot-deploy   $dryrun $SPACE $SNAPSHOT_TAG
+        $SCRIPT_DIR/site-snapshot-deploy   $dryrun $SPACE $SNAPSHOT_TAG
+  echo  $SCRIPT_DIR/public-snapshot-deploy $dryrun $SPACE $SNAPSHOT_TAG
+        $SCRIPT_DIR/public-snapshot-deploy $dryrun $SPACE $SNAPSHOT_TAG
+
+  echo
+  echo "***** Read Me *****"
+  echo "Not running tome-enable or taking site out of maintenance mode."
+  echo "Check the site and then run bin/deploy/try-tome-enable when ready"
+  echo "*****  *****  *****"
+  echo
 else
   echo "Did not run backup scripts.  Retval of tome check was: '  $RETVAL'"
 fi

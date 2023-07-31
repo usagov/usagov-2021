@@ -15,11 +15,11 @@ if [ x$1 == x"--dryrun" ]; then
 fi
 
 SPACE=$1
-BRANCH=$2
+TICKET_ID=$2
 SUFFIX=$3
 COMMAND=$4
 
-if [ x$SPACE != x -a x$BRANCH != x -a x$SUFFIX != x -a x$COMMAND != x ]; then
+if [ x$SPACE != x -a x$TICKET_ID != x -a x$SUFFIX != x -a x$COMMAND != x ]; then
 
    if [ ! -f $COMMAND -a ! -x $COMMAND ]; then
       COMMAND=${SCRIPT_DIR}/${COMMAND}
@@ -38,10 +38,10 @@ if [ x$SPACE != x -a x$BRANCH != x -a x$SUFFIX != x -a x$COMMAND != x ]; then
       fi
    fi
 
-   BACKUP_TAG=$(createSpaceAssertedBackupTag $SPACE $BRANCH $SUFFIX)
+   BACKUP_TAG=$(createSpaceAssertedBackupTag $SPACE $TICKET_ID $SUFFIX)
 else
    echo
-   echo "Usage: $0 <cf-space-name> <branch-name (use deployment ticket number)> <suffix (pre_deploy or post_deploy)> <script>"
+   echo "Usage: $0 <cf-space-name> <ticket number)> <suffix (e.g. pre_deploy.20230723 or post_deploy.001, etc)> <script>"
    echo "       $0 dev USAGOV-787 pre_deploy"
    exit 1
 fi
@@ -49,4 +49,4 @@ fi
 echo
 echo "Running '$COMMAND' with tag:  $BACKUP_TAG"
 echo
-$echo ${COMMAND} $BACKUP_TAG
+$echo ${COMMAND} $SPACE $BACKUP_TAG
