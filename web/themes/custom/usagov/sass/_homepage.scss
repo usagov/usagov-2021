@@ -395,7 +395,7 @@
   margin-top: 10px;
   border: 1px solid #53BBDF;
   border-radius: 4px;
-  box-shadow: 4px 4px 4px 0 rgba(0 0 35%);
+  box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
   padding: 0;
   margin-right: 4px;
 
@@ -415,6 +415,10 @@
 
     &:focus {
       outline: none;
+    }
+
+    &:hover h3{
+      text-decoration: underline;
     }
 
     .life_events_card_text {
@@ -825,7 +829,7 @@
     padding: 0;
     width: 260px;
     max-width: 260px;
-    margin-right: 32px;
+    margin-right: 29px;
     margin-left: 0;
 
     .life_events_card_text {
