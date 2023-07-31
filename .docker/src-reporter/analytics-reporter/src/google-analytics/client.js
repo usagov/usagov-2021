@@ -26,12 +26,12 @@ const _executeFetchDataRequest = (query, { realtime }) => {
   })
 }
 
-const _get = async (realtime) => {
+const _get = (realtime) => {
   const analytics = google.analytics("v3")
   if (realtime) {
-    return await analytics.data.realtime.get()
+    return analytics.data.realtime.get()
   } else {
-    return await analytics.data.ga.get()
+    return analytics.data.ga.get()
   }
 }
 
