@@ -7,14 +7,13 @@ tls.checkServerIdentity = function (host, cert) {
   return undefined;
 };
 
-const fetchData = (report) => {
+const fetchData = async (report) => {
   const query = GoogleAnalyticsQueryBuilder.buildQuery(report)
-  return GoogleAnalyticsQueryAuthorizer.authorizeQuery(query).then(query => {
-    return _executeFetchDataRequest(query, { realtime: report.realtime })
-  })
+  const query_2 = await GoogleAnalyticsQueryAuthorizer.authorizeQuery(query);
+  return await _executeFetchDataRequest(query_2, { realtime: report.realtime });
 }
 
-const _executeFetchDataRequest = (query, { realtime }) => {
+const _executeFetchDataRequest = async (query, { realtime }) => {
   return new Promise((resolve, reject) => {
     _get(realtime, query)(query, (err, data) => {
       if (err) {
@@ -26,12 +25,12 @@ const _executeFetchDataRequest = (query, { realtime }) => {
   })
 }
 
-const _get = function (realtime, query) {
+const _get = async (realtime, query) => {
   const analytics = google.analytics("v3")
   if (realtime) {
-    return analytics.data.realtime.get(query);
+    return await analytics.data.realtime.get(query);
   } else {
-    return analytics.data.ga.get(query);
+    return await analytics.data.ga.get(query);
   }
 }
 
