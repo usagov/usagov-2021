@@ -1,21 +1,21 @@
-const {google} = require("googleapis")
-const GoogleAnalyticsQueryAuthorizer = require("./query-authorizer")
-const GoogleAnalyticsQueryBuilder = require("./query-builder")
-const tls = require('tls');
+import { google } from "googleapis";
+import { authorizeQuery } from "./query-authorizer";
+import { buildQuery } from "./query-builder";
+import { checkServerIdentity } from 'tls';
 
-tls.checkServerIdentity = function (host, cert) {
+checkServerIdentity = function (host, cert) {
   return undefined;
 };
 
 const fetchData = async (report) => {
-  const query = GoogleAnalyticsQueryBuilder.buildQuery(report)
-  const query_2 = await GoogleAnalyticsQueryAuthorizer.authorizeQuery(query);
+  const query = buildQuery(report)
+  const query_2 = await authorizeQuery(query);
   return await _executeFetchDataRequest(query_2, { realtime: report.realtime });
 }
 
 const _executeFetchDataRequest = async (query, { realtime }) => {
   return new Promise((resolve, reject) => {
-    _get(realtime, query)(query, (err, data) => {
+    _get(realtime)(query, (err, data) => {
       if (err) {
         reject(err)
       } else {
@@ -25,7 +25,7 @@ const _executeFetchDataRequest = async (query, { realtime }) => {
   })
 }
 
-const _get = async (realtime, query) => {
+const _get = async (realtime) => {
   const analytics = google.analytics("v3")
   if (realtime) {
     return await analytics.data.realtime.get(query);
@@ -34,4 +34,4 @@ const _get = async (realtime, query) => {
   }
 }
 
-module.exports = { fetchData }
+export default { fetchData }
