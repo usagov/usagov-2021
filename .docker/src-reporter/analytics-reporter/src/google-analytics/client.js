@@ -1,7 +1,7 @@
 const {google} = require("googleapis")
 const GoogleAnalyticsQueryAuthorizer = require("./query-authorizer")
 const GoogleAnalyticsQueryBuilder = require("./query-builder")
-const tls = require('tls');;
+const tls = require('tls');
 
 tls.checkServerIdentity = function (host, cert) {
   return undefined;
@@ -16,7 +16,8 @@ const fetchData = (report) => {
 
 const _executeFetchDataRequest = (query, { realtime }) => {
   return new Promise((resolve, reject) => {
-    _get(realtime, query)(query, (err, data) => {
+    const getFunction = _get(realtime, query);
+    getFunction(query, (err, data) => {
       if (err) {
         reject(err)
       } else {
