@@ -35,7 +35,7 @@
     color: #000;
     box-sizing: border-box;
     background-color: #ccecf2;
-    border: 2px solid #0081a1;
+    border: 2px solid var($secondary-border-color);
     border-radius: 0.01rem;
     font-size: 1.5rem;
     font-weight: 600;
@@ -94,6 +94,7 @@ hr.bl-divider {
   p {
     font-size: 18px;
   }
+
   section {
     flex-grow: 1;
     max-width: 20rem;
@@ -114,14 +115,25 @@ hr.bl-divider {
   input::placeholder {
     color: #1b1b1b;
   }
+
   [type=search]{
     border-radius: 0.25rem;
     padding-right: 0;
   }
 
   /* clears the ‘X’ from Internet Explorer */
-  input[type=search]::-ms-clear { display: none; width : 0; height: 0; }
-  input[type=search]::-ms-reveal { display: none; width : 0; height: 0; }
+  input[type=search]::-ms-clear {
+    display: none;
+    width : 0;
+    height: 0;
+  }
+
+  input[type=search]::-ms-reveal {
+    display: none;
+    width : 0;
+    height: 0;
+  }
+
   /* clears the ‘X’ from Chrome */
   input[type="search"]::-webkit-search-decoration,
   input[type="search"]::-webkit-search-cancel-button,
@@ -186,7 +198,6 @@ hr.bl-divider {
 
     p:first-child {
       font-weight: bold;
-      flex-shrink: 0;
     }
   }
 }
@@ -244,17 +255,22 @@ hr.bl-divider {
   border-collapse: collapse;
   width: 100%;
   padding-top: 25px;
-  line-height: 2.5;
+  line-height: 2;
 
   div {
     border: solid 1.5px #d3d2d2;
     margin: 0;
-    padding: 25px 0 25px 25px;
+    padding: 25px;
   }
 
   div:nth-child(odd) {
     background-color: #f2f2f2;
   }
+}
+
+.usagov-directory-table h2 {
+  margin:0;
+  margin-bottom: 0.2rem;
 }
 
 .usagov-directory-table h3 {

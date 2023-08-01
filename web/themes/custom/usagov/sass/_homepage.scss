@@ -292,6 +292,8 @@
   margin: 0;
   padding: 0;
   display: flex;
+ justify-content: space-between;
+
 
   .grid-container {
     width: 100%;
@@ -371,7 +373,7 @@
 }
 
 .carousel-mover {
-  width: calc(100% - 110px);
+  width: min(calc(100% - 106px),240px);
   padding-left: 11px;
   padding-right: 11px;
 }
@@ -386,18 +388,51 @@
 }
 
 .slide {
-  height: 275px;
+  height: 285px;
+  width: min(calc(100% - 4px), 234px);
+  max-width: min(calc(100% - 4px), 234px);
   flex: 0 0 calc(100%);
   margin-top: 10px;
+  border: 1px solid #53BBDF;
+  border-radius: 4px;
+  box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
+  padding: 0;
+  margin-right: 4px;
+
+  &:focus-within {
+    border: 4px solid #c05600;
+  }
 
   a {
     color: var($white);
     text-decoration: none;
+    display: flex;
 
     &:visited {
       color: var($white);
       text-decoration: none;
     }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:hover h3{
+      text-decoration: underline;
+    }
+
+    .life_events_card_text {
+      padding: 12px 12px 0;
+      height:210px;
+    }
+  }
+
+  .usa-card__container{
+    margin:0;
+  }
+
+  .slide:last-child {
+    margin-right: 0;
   }
 
   h3 {
@@ -412,11 +447,14 @@
   p {
     margin: 0;
     font-weight: normal;
-    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
-      Arial, sans-serif;
+    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
     font-size: var($homepage, small-font-size);
     line-height: 1.25;
     padding-top: 10px;
+  }
+
+  .usa-card__body:last-child {
+    padding-bottom: 0;
   }
 }
 
@@ -433,17 +471,20 @@
 .thumbnailDiv {
   background: #ccecf2;
   width: 100%;
-  height: 85px;
-  margin: auto;
+  height: 75px;
+  margin: 0;
   box-shadow: 0 6px 6px var($blue-shadow);
-  border-style: solid;
-  border-color: var($white);
+  border-radius: 0 0 4px 4px;
+  overflow: hidden;
 }
 
 .thumbnailBanner {
   width: 100%;
   height: 100%;
-  margin: auto;
+  display: block;
+  object-fit: cover;
+  margin: 0;
+  border-radius: 0 0 4px 4px;
 }
 
 /* Jump */
@@ -603,7 +644,7 @@
   margin-top: 25px;
 }
 
-/* Tablet & Desktop */
+/* Larger Mobile */
 @media (min-width: 480px) {
   .welcome-box {
     grid-column: 2 / 3;
@@ -632,25 +673,82 @@
     padding-top: 20px;
   }
 
-  .carousel-mover {
-    max-width: 100%;
+  .all-topics-header h2 {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: var($homepage, larger-max-width);
+    padding: 0 0 5px 75px;
+  }
+
+  .homepage-card_header {
     padding-left: 0;
     padding-right: 0;
   }
 
-  .carousel .usa-card-group {
-    margin-left: 0;
-    margin-right: 0;
+  .homepage-card-group {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 224px));
+  }
+}
+
+/* Static Mobile */
+@media (min-width: 385px) {
+  .carousel-mover {
+    width: 246px;
+    padding-left: 11px;
+    padding-right: 11px;
   }
 
   .slide {
-    flex: 0 0 calc(100% / 2);
-    padding-right: 30px;
-    padding-left: 30px;
+    width: 236px;
+    max-width: 236px;
+    flex: 0 0 calc(100%);
+  }
+}
+
+/* Tablet */
+@media (min-width: 640px) {
+  .carousel-mover {
+    width: calc(100% - 90px);
+    padding-left: 11px;
+    padding-right: 11px;
   }
 
-  .slide:not(:last-child) {
-    margin-right: 0;
+  .slide {
+    flex: 0 0 calc(50% - 20px);
+    width: auto;
+    max-width: inherit;
+    margin-right: 20px;
+    margin-left: 0;
+  }
+}
+
+/* Tablet & Desktop */
+@media (min-width: 700px) {
+  .welcome-box {
+    grid-column: 2 / 3;
+    padding: 30px 40px 35px 30px;
+  }
+
+  .how-box {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 40px;
+    max-width: var($homepage, larger-max-width);
+    padding-top: 18px;
+  }
+
+  .how-button-list {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 1fr;
+    margin-top: 20px;
+  }
+
+  .how-button {
+    margin-bottom: auto;
+  }
+
+  .life-events h2 {
+    padding-top: 20px;
   }
 
   .all-topics-header h2 {
@@ -670,6 +768,21 @@
   }
 }
 
+/* Static Tablet Carousel */
+@media (min-width: 723px) {
+  .carousel-mover {
+    width: 540px;
+  }
+
+  .slide {
+    flex: 0 0 calc(50% - 20px);
+    width: 260px;
+    max-width: 260px;
+    margin-right: 20px;
+  }
+}
+
+
 /* Tablet */
 @media (max-width: 700px) and (min-width: 480px) {
   .how-button-list {
@@ -686,7 +799,7 @@
 /* Desktop */
 @media (min-width: 1024px) {
   .life-events {
-    width: 1024px;
+    width: 960px;
     margin-left: auto;
     margin-right: auto;
     max-width: var($homepage, larger-max-width);
@@ -701,27 +814,27 @@
   }
 
   .life-events-carousel {
-    width: 1024px;
+    width: 960px;
   }
 
   .carousel-mover {
-    width: 100%;
-    max-width: 930px;
-    margin-left: 0;
-    margin-right: auto;
-  }
-
-  .carousel .usa-card-group {
+    width: 850px;
+    max-width: 850px;
     margin-left: 0;
     margin-right: 0;
   }
 
   .slide {
     flex: 0 0 calc(100% / 3);
-    padding-right: 30px;
-  }
+    padding: 0;
+    width: 260px;
+    max-width: 260px;
+    margin-right: 29px;
+    margin-left: 0;
 
-  .slide:not(:last-child) {
-    margin-right: 0;
+    .life_events_card_text {
+      padding: 16px 16px 0;
+      height:210px;
+    }
   }
 }
