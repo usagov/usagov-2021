@@ -16,8 +16,7 @@ const fetchData = (report) => {
 
 const _executeFetchDataRequest = (query, { realtime }) => {
   return new Promise((resolve, reject) => {
-    const getFunction = _get(realtime, query);
-    getFunction(query, (err, data) => {
+    _get(realtime, query)(query, (err, data) => {
       if (err) {
         reject(err)
       } else {
