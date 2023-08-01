@@ -6,7 +6,7 @@ describe('Home Page', () => {
 
         cy.injectAxe()
     })
-    it('Has no critical impact a11y violations on load', () => {
+    it('Has no critical impact accessibility violations on load', () => {
         // Test on initial load, only report and assert for critical impact items
         cy.checkA11y(null, {
           includedImpacts: ['critical']
@@ -160,6 +160,7 @@ describe('Home Page', () => {
     it('Banner area/image appears with Welcome text box', () => {
         cy.get('.banner-div')
             .should('be.visible')
+            .should('have.css', 'background-image')
         
         cy.get('.welcome-box')
             .should('be.visible')
