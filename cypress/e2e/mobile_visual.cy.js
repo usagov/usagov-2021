@@ -9,7 +9,7 @@ describe('Mobile', () => {
         cy.get('#back-to-top').hideElement()
         cy.compareSnapshot('home-page-full', 0.1)
     })
-    it.only('Mobile menu appears and functions appropriately', () => {
+    it('Mobile menu appears and functions appropriately', () => {
         // Open menu
         cy.get('.usa-menu-btn').click()
 
