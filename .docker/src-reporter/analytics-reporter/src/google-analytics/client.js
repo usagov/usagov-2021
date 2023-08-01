@@ -16,7 +16,7 @@ const fetchData = (report) => {
 
 const _executeFetchDataRequest = (query, { realtime }) => {
   return new Promise((resolve, reject) => {
-    _get(realtime)(query, (err, data) => {
+    _get(realtime, query)(query, (err, data) => {
       if (err) {
         reject(err)
       } else {
@@ -26,7 +26,7 @@ const _executeFetchDataRequest = (query, { realtime }) => {
   })
 }
 
-const _get = (realtime) => {
+const _get = (realtime, query) => {
   const analytics = google.analytics("v3")
   if (realtime) {
     return analytics.data.realtime.get(query);
