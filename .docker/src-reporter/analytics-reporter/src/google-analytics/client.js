@@ -15,15 +15,11 @@ const fetchData = async (report) => {
 
 const _executeFetchDataRequest = async (query, { realtime }) => {
   return new Promise((resolve, reject) => {
-    _get(query, realtime)(query, (err, data) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(data)
-      }
-    })
-  })
-}
+    _get(query, realtime) // Pass both query and realtime here
+      .then((data) => resolve(data))
+      .catch((err) => reject(err));
+  });
+};
 
 const _get = async (query, realtime) => {
   const analytics = google.analytics("v3")
