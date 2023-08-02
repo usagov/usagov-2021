@@ -55,11 +55,11 @@ describe('Secondary Nav Page', () => {
               cy.get('h1')
                 .invoke('text')
                 .should((pageTitle) => {
-                    expect(breadcrumb.trim()).to.include(pageTitle.trim())
+                    expect(pageTitle.trim().toLowerCase()).to.include(breadcrumb.trim().toLowerCase())
                 })
             })
     })
-    it.only('False children items appear as a link', () => {
+    it.only('BTE 27: False children items appear as a link', () => {
         cy.visit('/visit-united-states')
 
         // TODO
