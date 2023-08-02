@@ -19,7 +19,7 @@ describe('Mobile', () => {
           includedImpacts: ['critical']
         })
     })
-    it('Mobile menu appears and functions appropriately', () => {
+    it('BTE 17: Mobile menu appears and functions appropriately', () => {
         cy.get('.usagov-mobile-menu')
             .should('not.be.visible')
         
@@ -49,7 +49,7 @@ describe('Mobile', () => {
         cy.get('.usagov-mobile-menu')
             .should('not.be.visible')
     })
-    it('Search appears in mobile menu and functions approriately', () => {
+    it('BTE 18: Search appears in mobile menu and functions approriately', () => {
         const typedText = 'housing'
 
         // Open menu
@@ -92,7 +92,7 @@ describe('Mobile', () => {
             cy.url().should('include', 'search.usa.gov')
         })
     })
-    it('Footer appears as expected on mobile, topics can be expanded and links function appropriately', () => {
+    it('BTE 19: Footer appears as expected on mobile, topics can be expanded and links function appropriately', () => {
         cy.get('.usa-footer__nav')
             .find('.usa-footer__primary-content')
             .each((section, i) => {

@@ -12,13 +12,13 @@ describe('Nav Card Page', () => {
           includedImpacts: ['critical']
         })
     })
-    it('Banner image appears on topic pages', () => {
+    it('BTE 20: Banner image appears on topic pages', () => {
         cy.get('#block-usagov-content')
             .find('.usagov-hero')
             .should('be.visible')
             .should('have.css', 'background-image')
     })
-    it('Most popular links appear and function correctly on topic pages', () => {
+    it('BTE 21: Most popular links appear and function correctly on topic pages', () => {
         cy.get('.usagov-hero__callout')
             .should('be.visible')
 
@@ -35,7 +35,7 @@ describe('Nav Card Page', () => {
                     })
             })
     })
-    it('Cards on nav card page appear/function correctly on topic pages', () => {
+    it('BTE 22: Cards on nav card page appear/function correctly on topic pages', () => {
         cy.get('.usagov-cards')
             .find('li')
             .each((el) => {
@@ -58,5 +58,8 @@ describe('Nav Card Page', () => {
                     .realHover()
                     .should('have.css', 'background-color', 'rgb(204, 236, 242)')
             })
+    })
+    it('BTE 23: False children items appear as cards on on topic pages', () => {
+        // TODO
     })
 })
