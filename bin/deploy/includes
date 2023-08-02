@@ -132,10 +132,43 @@ function assertBranch() { # desired branch
   fi
 }
 
+function assertCFService() { # desired service name
+  desiredService=$1
+  if ! cf service $desiredService &> /dev/null; then
+      echo "ERROR: CF service '$desiredService' does not exist in the current CF space"
+      exit 1; #false
+  fi
+}
+
+function existsCFService() { # desired service name
+  desiredService=$1
+  if ! cf service $desiredService &> /dev/null; then
+      echo "ERROR: CF service '$desiredService' does not exist in the current CF space"
+      return 1; #false
+  fi
+}
+
 function assertSpace() { # desired space
   desiredSpace=${1}
   if [ x${desiredSpace} != x$startspace ]; then
       echo "ERROR: Current space ($startspace) is not $desiredSpace"
+      exit 1; #false
+  fi
+}
+
+function assertCurSpace() { # desired space
+  currentSpace=$( cf target | grep space: | awk '{ print $2 }')
+  desiredSpace=${1}
+  if [ x${desiredSpace} != x$currentSpace ]; then
+      echo "ERROR: Current space ($currentSpace) is not $desiredSpace"
+      exit 1; #false
+  fi
+}
+
+function assertSpaceExists() { # desired space
+  desiredSpace=$1
+  if ! cf space $desiredSpace &> /dev/null; then
+      echo "ERROR: CF space '$desiredSpace' does not exist!"
       exit 1; #false
   fi
 }
@@ -239,4 +272,19 @@ function disableSpaceSSH() {
    sshSpace=$1
    cf disallow-space-ssh $sshSpace
    return $?
+}
+
+function assertIsImageDigest() {
+  VAL=${1:-"no string provided"}
+  IFS=':' read -ra DIGEST <<< "$VAL"
+  for fieldpart in "${DIGEST[@]}"; do
+    re1='^\@(sha[0-9]+|md[2-5])$'
+    re2='^[0-9A-Fa-f]+$'
+    if ! [[ $fieldpart =~ $re1 ]]; then
+      if ! [[ $fieldpart =~ $re2 ]]; then
+        echo "Invalid digest string '$VAL' (error at '$fieldpart')"
+        exit 1
+      fi
+    fi
+  done
 }
