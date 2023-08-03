@@ -11,7 +11,7 @@ const query = (report) => {
   }
 
   return GoogleAnalyticsClient.fetchData(report).then(data => {
-    winston.debug(`[${report.name}] data:`, data)
+    // winston.debug(`[${report.name}] data:`, data)
     return GoogleAnalyticsDataProcessor.processData(report, data)
   })
 }
