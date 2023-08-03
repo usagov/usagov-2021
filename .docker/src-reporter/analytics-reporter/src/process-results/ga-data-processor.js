@@ -6,8 +6,8 @@ const winston = require("winston-color")
 const processData = (report, data) => {
   let result = _initializeResult({ report, data })
 
-  winston.debug(`incoming data:`, data)
-  winston.debug(`incoming data config:`, data.config)
+  // winston.debug(`incoming data:`, data)
+  // winston.debug(`incoming data config:`, data.config)
   winston.debug(`incoming data data:`, data.data)
 
   // If you use a filter that results in no data, you get null
