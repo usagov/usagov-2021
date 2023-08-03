@@ -59,9 +59,19 @@ describe('Secondary Nav Page', () => {
                 })
             })
     })
-    it.only('BTE 27: False children items appear as a link', () => {
+    it('BTE 27: False children items appear as a link', () => {
         cy.visit('/visit-united-states')
 
-        // TODO
+        // Should have links for "check status of visa application", "visa rejected"
+        let falseChildren = [
+            'check the status of your visa application', 
+            'visa application is rejected'
+        ]
+        
+        for (let i = 0; i < falseChildren.length; i++) {
+            cy.get('.usagov-navpage-item')
+                .contains(falseChildren[i])
+                .should('be.visible')
+        }
     })
 })

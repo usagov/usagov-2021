@@ -60,6 +60,17 @@ describe('Nav Card Page', () => {
             })
     })
     it('BTE 23: False children items appear as cards on on topic pages', () => {
-        // TODO
+        // Should have cards for SSDI, ADA, and voter laws
+        let falseChildren = [
+            'SSDI', 
+            'Americans with Disabilities Act', 
+            'Voter accessibility laws'
+        ]
+        
+        for (let i = 0; i < falseChildren.length; i++) {
+            cy.get('.usagov-cards')
+                .contains(falseChildren[i])
+                .should('be.visible')
+        }
     })
 })

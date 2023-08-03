@@ -1,25 +1,31 @@
-[
-    "",
-    "disability-services",
-    "disaster-financial-help",
-    "visit-united-states",
-    "disaster-assistance",
-    "branches-of-government",
-    "social-security-card",
-    "apply-adult-passport",
-    "replace-vital-documents",
-    "employer-fmla",
-    "food-stamps",
-    "features",
-    "features/five-tips-for-reporting-a-scam",
-    "elected-officials",
-    "where-report-scams#block-wizardenglish",
-    "agency-index",
-    "agencies/u-s-access-board",
-    "state-governments",
-    "states/texas",
-    "state-election-office",
-    "life-events",
-    "financial-hardship",
-    "error-test-nonexistent-path"
-]
+{
+    "eng": [
+        "",
+        "disability-services",
+        "disaster-financial-help",
+        "visit-united-states",
+        "disaster-assistance",
+        "branches-of-government",
+        "social-security-card",
+        "apply-adult-passport",
+        "replace-vital-documents",
+        "employer-fmla",
+        "food-stamps",
+        "features",
+        "features/five-tips-for-reporting-a-scam",
+        "elected-officials",
+        "where-report-scams#block-wizardenglish",
+        "agency-index",
+        "agencies/u-s-access-board",
+        "state-governments",
+        "states/texas",
+        "state-election-office",
+        "life-events",
+        "financial-hardship",
+        "error-test-nonexistent-path"
+    ], 
+    "span": [
+        "es",
+        ""
+    ]
+}
