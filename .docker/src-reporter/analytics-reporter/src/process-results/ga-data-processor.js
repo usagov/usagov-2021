@@ -1,6 +1,8 @@
 const config = require("../config")
 const ResultTotalsCalculator = require("./result-totals-calculator")
 
+const winston = require("winston-color")
+
 const processData = (report, data) => {
   let result = _initializeResult({ report, data })
 
@@ -24,6 +26,8 @@ const processData = (report, data) => {
   result.data = data.rows.map(row => {
     return _processRow({ row, report, data })
   })
+
+  winston.debug(`result.data:`, result.data)
 
   result.totals = ResultTotalsCalculator.calculateTotals(result)
 
