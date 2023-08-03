@@ -6,12 +6,10 @@ const winston = require("winston-color")
 const processData = (report, data) => {
   let result = _initializeResult({ report, data })
 
-  winston.debug(`result: before process`, result)
-  winston.debug(`data before process:`, data)
-
   // If you use a filter that results in no data, you get null
   // back from google and need to protect against it.
-  if (!data || !data.rows) {
+  if (!data || !data.data.rows) {
+    winston.error(`Response contains no data!`, data)
     return result;
   }
 
@@ -26,7 +24,7 @@ const processData = (report, data) => {
   }
 
   // Process each row
-  result.data = data.rows.map(row => {
+  result.data = data.data.rows.map(row => {
     return _processRow({ row, report, data })
   })
 
