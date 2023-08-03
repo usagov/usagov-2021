@@ -29,7 +29,7 @@ const processData = (report, data) => {
   }
 
   // Process each row
-  result.data = data.data.rows.map(row => {
+  result.data = data.data[rows].map(row => {
     return _processRow({ row, report, data })
   })
 
