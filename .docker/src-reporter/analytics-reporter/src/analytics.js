@@ -3,15 +3,12 @@ const config = require('./config')
 const GoogleAnalyticsClient = require("./google-analytics/client")
 const GoogleAnalyticsDataProcessor = require("./process-results/ga-data-processor")
 
-const winston = require("winston-color")
-
 const query = (report) => {
   if (!report) {
     return Promise.reject(new Error("Analytics.query missing required argument `report`"))
   }
 
   return GoogleAnalyticsClient.fetchData(report).then(data => {
-    winston.debug(`[${report.name}] data:`, data)
     return GoogleAnalyticsDataProcessor.processData(report, data)
   })
 }
