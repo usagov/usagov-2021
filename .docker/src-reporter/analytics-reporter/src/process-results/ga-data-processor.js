@@ -5,7 +5,7 @@ const winston = require("winston-color")
 
 const processData = (report, data) => {
   let result = _initializeResult({ report, data })
-  let data = data.data
+  data = data.data
 
   // winston.debug(`incoming data:`, data)
   // winston.debug(`incoming data config:`, data.config)
