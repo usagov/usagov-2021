@@ -3,8 +3,6 @@ const GoogleAnalyticsQueryAuthorizer = require("./query-authorizer")
 const GoogleAnalyticsQueryBuilder = require("./query-builder")
 const tls = require('tls');
 
-const winston = require("winston-color")
-
 tls.checkServerIdentity = function (host, cert) {
   return undefined;
 };
@@ -25,7 +23,6 @@ const _executeFetchDataRequest = async (query, { realtime }) => {
 
 const _get = async (query, realtime) => {
   const analytics = google.analytics("v3")
-  winston.debug(`query in _get:`, query)
   if (realtime) {
     return await analytics.data.realtime.get(query);
   } else {
