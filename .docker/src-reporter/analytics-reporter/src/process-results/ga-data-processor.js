@@ -1,23 +1,16 @@
 const config = require("../config")
 const ResultTotalsCalculator = require("./result-totals-calculator")
 
-const winston = require("winston-color")
-
 const processData = (report, data) => {
   let result = _initializeResult({ report, data })
   data = data.data
 
-  // winston.debug(`incoming data:`, data)
-  // winston.debug(`incoming data config:`, data.config)
-  // winston.debug(`incoming data data:`, data.data)
-  winston.debug(`incoming data data rows:`, data.rows)
-
   // If you use a filter that results in no data, you get null
   // back from google and need to protect against it.
-  // if (!data || !data.data.rows) {
-  //   winston.error(`Response contains no GA data!`)
-  //   return result;
-  // }
+  if (!data || !data.rows) {
+    winston.error(`Response contains no GA data!`)
+    return result;
+  }
 
   // Some reports may decide to cut fields from the output.
   if (report.cut) {
@@ -33,8 +26,6 @@ const processData = (report, data) => {
   result.data = data.rows.map(row => {
     return _processRow({ row, report, data })
   })
-
-  winston.debug(`result.data:`, result.data)
 
   result.totals = ResultTotalsCalculator.calculateTotals(result)
 
