@@ -3,7 +3,7 @@ const config = require('./config')
 const GoogleAnalyticsClient = require("./google-analytics/client")
 const GoogleAnalyticsDataProcessor = require("./process-results/ga-data-processor")
 
-
+const winston = require("winston-color")
 
 const query = (report) => {
   if (!report) {
