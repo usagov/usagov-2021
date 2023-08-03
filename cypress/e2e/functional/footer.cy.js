@@ -1,4 +1,4 @@
-const socials = require('../fixtures/socials.json')
+const socials = require('../../fixtures/socials.json')
 
 describe('Footer', () => {
     beforeEach(() => {

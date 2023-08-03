@@ -11,6 +11,7 @@ module.exports = defineConfig({
     chromeWebSecurity: false,
     responsetimeout: 10000,
     "blockHosts": ["www.google-analytics.com", "ssl.google-analytics.com"],
+    experimentalRunAllSpecs: true,
     setupNodeEvents(on, config) {
       // Cypress image diff plugin
       getCompareSnapshotsPlugin(on, config),
