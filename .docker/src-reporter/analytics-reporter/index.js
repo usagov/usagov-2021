@@ -59,6 +59,7 @@ const _runReport = (report, options) => {
 
   return Analytics.query(report).then(results => {
     winston.debug("[" + report.name + "] Saving report data...")
+    winston.debug(`[${report.name}] results:`, results)
     if (config.account.agency_name) {
       results.agency = config.account.agency_name
     }
