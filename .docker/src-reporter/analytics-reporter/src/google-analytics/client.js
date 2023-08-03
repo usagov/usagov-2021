@@ -11,9 +11,7 @@ tls.checkServerIdentity = function (host, cert) {
 
 const fetchData = async (report) => {
   const query = GoogleAnalyticsQueryBuilder.buildQuery(report)
-  winston.debug(`[${report.name}] query:`, query)
   const query_2 = await GoogleAnalyticsQueryAuthorizer.authorizeQuery(query);
-  winston.debug(`[${report.name}] query2:`, query_2)
   return await _executeFetchDataRequest(query_2, { realtime: report.realtime });
 }
 
