@@ -9,6 +9,7 @@ const processData = (report, data) => {
   // winston.debug(`incoming data:`, data)
   // winston.debug(`incoming data config:`, data.config)
   winston.debug(`incoming data data:`, data.data)
+  winston.debug(`incoming data data rows:`, data.data.rows)
 
   // If you use a filter that results in no data, you get null
   // back from google and need to protect against it.
