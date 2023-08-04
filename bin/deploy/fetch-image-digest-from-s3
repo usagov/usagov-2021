@@ -1,0 +1,85 @@
+#!/bin/sh
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+else
+    echo "File does not exist: $SCRIPT_DIR/includes"
+    exit 1
+fi
+
+### This is too painful to do for this script...
+# just testing?
+#if [ x$1 == x"--dryrun" ]; then
+#  export echo=echo
+#  shift
+#fi
+
+APP_NAME=$1
+shift
+
+CCI_BUILD_ID=$1
+
+if [ -z "$CCI_BUILD_ID" -o -z "$APP_NAME" ]; then
+  echo
+  echo "Usage:"
+  echo
+  echo "    $0 [--dryrun] <app name> <cci build number> [<space with bucket we need>]"
+  echo
+  echo "    This will try to download, from s3 the file containing the image digest for the given app and CCI build number"
+  echo
+  echo "    --dryrun simply prints the commands that would have run"
+  echo
+  exit 1
+fi
+shift
+
+SPACE=${1:-shared-egress}
+$echo assertSpaceExists $SPACE
+
+DOCKERUSER=${DOCKERUSER:-gsatts}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
+echo
+echo "Attempting to fetch docker image digest for ${APP_NAME}, from CircleCI build number ${CCI_BUILD_ID}"
+echo
+echo "If this combination (app+build) exits, it will be stored in the s3 bucket for the specified space, "
+echo "and will be downloaded to the current directory as the file '${APP_NAME}-${CCI_BUILD_ID}'"
+echo
+echo "APP_NAME      $APP_NAME"
+echo "CCI_BUILD_ID  $CCI_BUILD_ID"
+echo "SPACE         $SPACE"
+echo "DOCKERUSER    $DOCKERUSER"
+echo "DOCKERREPO    $DOCKERREPO"
+#echo "ECHO          $echo"
+echo
+
+cf target -s $SPACE &> /dev/null
+assertCurSpace $SPACE
+
+## The existsCFService test is needed because if, for some reason, the service does not exist
+## in $SPACE then get-s3-access will exit the current process, leaving us stuck in $SPACE rather than
+## politely failing and leaving us in the space we started from.
+if existsCFService key-value; then
+    $echo . ./bin/cloudgov/get-s3-access key-value
+    $echo aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/${APP_NAME}-${CCI_BUILD_ID} .
+    retval=$?
+else
+    retval=1
+fi
+
+popspace
+exit $retval
