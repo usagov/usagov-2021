@@ -231,9 +231,6 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
   $variables['alpha_context'] = $alpha_context;
 }
 
-
-
-
 /**
  * Implements hook_form_alter().
  */
@@ -241,16 +238,14 @@ function usa_twig_vars_form_alter(&$form, &$form_state, $form_id) {
   $form['#after_build'][] = 'usa_twig_vars_after_build';
 }
 
-
-
 /**
  * Custom after build function
  */
 function usa_twig_vars_after_build($form, &$form_state) {
-  // Unchecks Generate automatic URL alias if path exists
+// Unchecks Generate automatic URL alias if path exists
   if (in_array($form['#id'], ['node-basic-page-form', 'node-basic-page-edit-form'])) {
-    if (array_key_exists('path', $form)) {
-      $form['path']['widget'][0]['pathauto']['#checked'] = FALSE;
+  if (array_key_exists('path', $form)) {
+    $form['path']['widget'][0]['pathauto']['#checked'] = FALSE;
     }
   }
   return $form;
