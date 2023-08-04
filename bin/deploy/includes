@@ -132,6 +132,22 @@ function assertBranch() { # desired branch
   fi
 }
 
+function assertCFApp() { # desired app name
+  desiredApp=$1
+  if ! cf app $desiredApp &> /dev/null; then
+      echo "ERROR: CF app '$desiredApp' does not exist in the current CF space"
+      exit 1; #false
+  fi
+}
+
+function existsCFApp() { # desired app name
+  desiredApp=$1
+  if ! cf app $desiredApp &> /dev/null; then
+      echo "NOTICE: CF app '$desiredApp' does not exist in the current CF space"
+      return 1; #false
+  fi
+}
+
 function assertCFService() { # desired service name
   desiredService=$1
   if ! cf service $desiredService &> /dev/null; then
