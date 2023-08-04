@@ -1,6 +1,6 @@
 describe('State Directory', () => {
     beforeEach(() => {
-        cy.visit('/life-events') 
+        cy.visit('/state-governments') 
     })
 
     it('Landing page: state drop-down', () => {
@@ -17,9 +17,19 @@ describe('State Directory', () => {
                             .its('status')
                             .should('eq', 200)
                     })
-
-                cy.wrap(el)
-                    .visit('data-value')
             })
     })
+    it('Test Alaska Page', () => {
+        cy.visit('/states/alaska')
+
+        // Test links on page.
+        cy.get('div.State-Directory-Table').find('a').then(regLink => {
+            cy.get(regLink[0]).should('have.attr', 'href').and('include', 'https://alaska.gov/')
+            cy.get(regLink[1]).should('have.attr', 'href').and('include', 'https://gov.alaska.gov/')
+            cy.get(regLink[2]).should('have.attr', 'href').and('include', 'https://gov.alaska.gov/contact/')
+        })
+        cy.get('[data-test="back-button"]').click()
+        cy.url().should('be.equal', 'http://localhost:1313/')
+    })
+
 })
