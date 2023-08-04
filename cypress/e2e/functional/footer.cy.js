@@ -1,4 +1,4 @@
-const socials = require('../fixtures/socials.json')
+const socials = require('../../fixtures/socials.json')
 
 describe('Footer', () => {
     beforeEach(() => {
@@ -6,7 +6,7 @@ describe('Footer', () => {
         cy.viewport('macbook-13')
         cy.visit('/')
     })
-    it('Footer links appear and work appropriately', () => {
+    it('BTE 12: Footer links appear and work appropriately', () => {
         cy.get('.usa-footer__nav')
             .find('a')
             .not('[href="/website-analytics/"]')
@@ -19,7 +19,7 @@ describe('Footer', () => {
                     })
             })
     })
-    it('Email subscription form appears in footer and works appropriately', () => {
+    it('BTE 13: Email subscription form appears in footer and works appropriately', () => {
         const validEmail = 'test@usa.gov'
         const invalidEmails = ['test@#$1123', 'test2@', '@test3.com']
 
@@ -72,7 +72,7 @@ describe('Footer', () => {
             }
         )
     })
-    it('Social media icons appear in footer and link to correct places', () => {
+    it('BTE 14: Social media icons appear in footer and link to correct places', () => {
         for (let i = 0; i < socials.length; i++) {
             cy.get('.usa-footer__contact-links')
                 .find(`[alt="${socials[i].name} USAGov"]`)
@@ -85,14 +85,14 @@ describe('Footer', () => {
                 .should('have.attr', 'href', socials[i].link)
         }
     })
-    it('Contact Center information appears in footer and phone number links to /phone', () => {
+    it('BTE 15: Contact Center information appears in footer and phone number links to /phone', () => {
         cy.get('#footer-phone')
             .find('a')
             .click()
 
         cy.url().should('include', '/phone')
     })
-    it('Subfooter indicating USAGov is official site appears at very bottom', () => {
+    it('BTE 16: Subfooter indicating USAGov is official site appears at very bottom', () => {
         cy.get('.usa-footer')
             .find('.usa-identifier__usagov-description')
             .should('contain', 'USAGov')

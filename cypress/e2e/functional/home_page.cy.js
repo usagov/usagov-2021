@@ -12,7 +12,7 @@ describe('Home Page', () => {
           includedImpacts: ['critical']
         })
     })
-    it('Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
+    it('BTE 1: Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
         cy.get('header')
             .find('.usa-banner__header')
             .should('be.visible')
@@ -31,7 +31,7 @@ describe('Home Page', () => {
         cy.get('.usa-banner__content')
             .should('be.visible')
     })
-    it('USAGov logo appears in the header area', () => {
+    it('BTE 2: USAGov logo appears in the header area', () => {
         cy.get('header')
             .find('.usa-logo')
             .find('img')
@@ -43,7 +43,7 @@ describe('Home Page', () => {
                 expect(img[0].naturalHeight).to.be.greaterThan(0)
             })
     })
-    it('Link with Contact Center number appears in header area and links to contact page', () => {
+    it('BTE 3: Link with Contact Center number appears in header area and links to contact page', () => {
         cy.get('header')
             .find('#top-phone')
             .find('a')
@@ -52,7 +52,7 @@ describe('Home Page', () => {
         // Should be on a new URL which includes '/phone'
         cy.url().should('include', '/phone')
     })
-    it('Español toggle appears and links to Spanish homepage', () => {
+    it('BTE 4: Español toggle appears and links to Spanish homepage', () => {
         cy.get('header')
             .find('.language-link')
             .click()
@@ -60,7 +60,7 @@ describe('Home Page', () => {
         // Should be on a new URL which includes '/es'
         cy.url().should('include', '/es')
     })
-    it('Search bar appears with search icon in header region; can successfully complete search', () => {
+    it('BTE 5: Search bar appears with search icon in header region; can successfully complete search', () => {
         const typedText = 'housing'
 
         // Enters query into search input 
@@ -98,7 +98,7 @@ describe('Home Page', () => {
             cy.url().should('include', 'search.usa.gov')
         })
     })
-    it('Main menu appears after header; links work appropriately. All topics link goes down the page.', () => {
+    it('BTE 6: Main menu appears after header; links work appropriately. All topics link goes down the page.', () => {
         // Main menu appears
         cy.get('.usa-nav__primary')
             .should('be.visible')
@@ -157,7 +157,7 @@ describe('Home Page', () => {
         
         cy.url().should('include', '/travel')
     })
-    it('Banner area/image appears with Welcome text box', () => {
+    it('BTE 7: Banner area/image appears with Welcome text box', () => {
         cy.get('.banner-div')
             .should('be.visible')
             .should('have.css', 'background-image')
@@ -165,7 +165,7 @@ describe('Home Page', () => {
         cy.get('.welcome-box')
             .should('be.visible')
     })
-    it('How do I area appears correctly with links to four pages/topics', () => {
+    it('BTE 8: How do I area appears correctly with links to four pages/topics', () => {
         cy.get('.how-box')
             .contains('How do I')
             .should('be.visible')
@@ -186,7 +186,7 @@ describe('Home Page', () => {
                 cy.go('back')
             })
     })
-    it('Jump to All topics and services link/button appears and jumps to correct place on page', () => {
+    it('BTE 9: Jump to All topics and services link/button appears and jumps to correct place on page', () => {
         // Check text and button
         cy.get('.jump')
             .contains('Jump to')
@@ -207,7 +207,7 @@ describe('Home Page', () => {
                 cy.visit('/')
             })
     })
-    it('Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
+    it('BTE 10: Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
         const num_events = 6
         const num_visible = 3
 
@@ -373,7 +373,7 @@ describe('Home Page', () => {
             .filter('[aria-hidden="true"]')
             .should('have.length', num_events - num_visible)
     })
-    it('Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
+    it('BTE 11: Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
         cy.get('.all-topics-background')
             .find('.homepage-card')
             .each((el) => {
