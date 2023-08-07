@@ -970,3 +970,20 @@ div[class^="QSIUserDefinedHTML"] {
   height: 1px;
   overflow: hidden;
 }
+
+
+//HIDDEN UNTIL FOUND
+[hidden="until-found"]{
+  display: block;
+}
+.usa-accordion--bordered .usa-accordion__content {
+  border: 0;
+  padding: 0;
+}
+.usa-accordion--bordered .usa-accordion__content > div {
+  border-bottom: 0.25rem solid #dfe1e2;
+  border-left: 0.25rem solid #dfe1e2;
+  border-right: 0.25rem solid #dfe1e2;
+  padding: 1rem 1.25rem calc(1rem - 0.25rem);
+  padding-bottom: 1rem;
+}
