@@ -12,7 +12,7 @@ describe('Secondary Nav Page', () => {
           includedImpacts: ['critical']
         })
     })
-    it('BTE 24: Links/cards to content appear in the main body of the page and behave as expected', () => {
+    it('BTS 24: Links/cards to content appear in the main body of the page and behave as expected', () => {
         cy.get('.usagov-navpage-item')
             .each((el) => {
                 // Validate link
@@ -35,15 +35,15 @@ describe('Secondary Nav Page', () => {
                     .should('have.css', 'background-color', 'rgb(210, 235, 241)')
             })
     })
-    it('BTE 25: Left menu appears on page', () => {
+    it('BTS 25: Left menu appears on page', () => {
         cy.get('.usa-sidenav')
             .should('be.visible')
     })
-    it('BTE 26: Breadcrumb appears at top of page and indicates correct section', () => {
+    it('BTS 26: Breadcrumb appears at top of page and indicates correct section', () => {
         cy.get('.usa-breadcrumb__list')
             .find('li')
             .first()
-            .contains('Home')
+            .contains('Página principal')
 
         // Breadcrumb indicates correct section
         cy.get('.usa-breadcrumb__list')
@@ -59,13 +59,13 @@ describe('Secondary Nav Page', () => {
                 })
             })
     })
-    it('BTE 27: False children items appear as a link', () => {
+    it('BTS 27: False children items appear as a link', () => {
         cy.visit('/es/turistas-visitan-estados-unidos')
 
         // Should have links for "check status of visa application", "visa rejected"
         let falseChildren = [
-            'check the status of your visa application', 
-            'visa application is rejected'
+            'Cómo averiguar el estatus de una solicitud de visa', 
+            'Qué pasa si rechazan su solicitud de visa'
         ]
         
         for (let i = 0; i < falseChildren.length; i++) {
