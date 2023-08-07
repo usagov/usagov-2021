@@ -132,6 +132,7 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
   fi
 fi
 
+echo "Checking for .git file to identify local installation; \"fatal: not a git repository\" is expected elsewhere"
 git config --global --add safe.directory /var/www
 if [[ $(git rev-parse --is-inside-work-tree) ]]; then
   # Find the php.ini file
