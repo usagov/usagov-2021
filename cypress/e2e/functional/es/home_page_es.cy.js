@@ -12,7 +12,7 @@ describe('Home Page', () => {
           includedImpacts: ['critical']
         })
     })
-    it('BTE 1: Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
+    it('BTS 1: Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
         cy.get('header')
             .find('.usa-banner__header')
             .should('be.visible')
@@ -31,37 +31,34 @@ describe('Home Page', () => {
         cy.get('.usa-banner__content')
             .should('be.visible')
     })
-    it('BTE 2: USAGov logo appears in the header area', () => {
+    it('BTS 2: USAGov logo appears in the header area', () => {
         cy.get('header')
             .find('.usa-logo')
             .find('img')
-            .should('have.attr', 'src', '/themes/custom/usagov/images/Logo_USAGov.png')
-            .should('have.attr', 'alt', 'USAGov Logo')
+            .should('have.attr', 'src', '/themes/custom/usagov/images/Logo_USAGov_Spanish.png')
+            .should('have.attr', 'alt', 'USAGov en Español Logo')
             .should((img) => {
                 // Image loads
                 expect(img[0].naturalWidth).to.be.greaterThan(0)
                 expect(img[0].naturalHeight).to.be.greaterThan(0)
             })
     })
-    it('BTE 3: Link with Contact Center number appears in header area and links to contact page', () => {
+    it('BTS 3: Link with Contact Center number appears in header area and links to contact page', () => {
         cy.get('header')
             .find('#top-phone')
             .find('a')
             .click()
 
-        // Should be on a new URL which includes '/phone'
-        cy.url().should('include', '/phone')
+        // Should be on a new URL which includes '/es/llamenos'
+        cy.url().should('include', '/es/llamenos')
     })
-    it('BTE 4: Español toggle appears and links to Spanish homepage', () => {
+    it('BTS 4: English toggle appears and links to English homepage', () => {
         cy.get('header')
             .find('.language-link')
-            .click()
-
-        // Should be on a new URL which includes '/es'
-        cy.url().should('include', '/es')
+            .should('have.attr', 'href', '/')
     })
-    it('BTE 5: Search bar appears with search icon in header region; can successfully complete search', () => {
-        const typedText = 'housing'
+    it('BTS 5: Search bar appears with search icon in header region; can successfully complete search', () => {
+        const typedText = 'impuestos'
 
         // Enters query into search input 
         cy.get('header')
@@ -98,66 +95,58 @@ describe('Home Page', () => {
             cy.url().should('include', 'search.usa.gov')
         })
     })
-    it('BTE 6: Main menu appears after header; links work appropriately. All topics link goes down the page.', () => {
+    it('BTS 6: Main menu appears after header; links work appropriately. All topics link goes down the page.', () => {
         // Main menu appears
         cy.get('.usa-nav__primary')
             .should('be.visible')
         
         // Test All Topics link
-        cy.get('#usa-nav__topics')
+        cy.get('#usa-nav__temas')
             .find('a')
             .click()
         
         cy.url().should('include', '#all-topics-header')
 
         // Test About link
-        cy.get('#usa-nav__about')
+        cy.get('#usa-nav__acerca')
             .find('a')
             .click()
         
-        cy.url().should('include', '/about')
+        cy.url().should('include', '/acerca-de-estados-unidos')
 
         // Test Benefits link
         cy.go('back')
-        cy.get('#usa-nav_benefits')
+        cy.get('#usa-nav_beneficios')
             .find('a')
             .click()
         
-        cy.url().should('include', '/benefits')
-
-        // Test Housing link
-        cy.go('back')
-        cy.get('#usa-nav_housing')
-            .find('a')
-            .click()
-        
-        cy.url().should('include', '/housing-help')
-
-        // Test Scams link
-        cy.go('back')
-        cy.get('#usa-nav__scams')
-            .find('a')
-            .click()
-        
-        cy.url().should('include', '/scams-and-fraud')
+        cy.url().should('include', '/beneficios-gobierno')
 
         // Test Taxes link
         cy.go('back')
-        cy.get('#usa-nav_taxes')
+        cy.get('#usa-nav_impuestos')
             .find('a')
             .click()
         
-        cy.url().should('include', '/taxes')
+        cy.url().should('include', '/impuestos')
+
+        // Test Immigration link
+        cy.go('back')
+        cy.get('#usa-nav_inmigracion')
+            .find('a')
+            .click()
+        
+        cy.url().should('include', '/inmigracion-ciudadania-estados-unidos')
 
         // Test Travel link
         cy.go('back')
-        cy.get('#usa-nav_travel')
+        cy.get('#usa-nav_viajes')
             .find('a')
             .click()
         
-        cy.url().should('include', '/travel')
+        cy.url().should('include', '/viajes')
     })
-    it('BTE 7: Banner area/image appears with Welcome text box', () => {
+    it('BTS 7: Banner area/image appears with Welcome text box', () => {
         cy.get('.banner-div')
             .should('be.visible')
             .should('have.css', 'background-image')
@@ -165,9 +154,9 @@ describe('Home Page', () => {
         cy.get('.welcome-box')
             .should('be.visible')
     })
-    it('BTE 8: How do I area appears correctly with links to four pages/topics', () => {
+    it('BTS 8: How do I area appears correctly with links to four pages/topics', () => {
         cy.get('.how-box')
-            .contains('How do I')
+            .contains('Cómo puedo')
             .should('be.visible')
         
         // Verify there are 4 links
@@ -181,15 +170,15 @@ describe('Home Page', () => {
         cy.get('@links')
             .each((link) => {
                 cy.visit(link.attr('href'))
-                cy.contains('Page not found').should('not.exist')
+                cy.contains('No se encontró la página').should('not.exist')
 
                 cy.go('back')
             })
     })
-    it('BTE 9: Jump to All topics and services link/button appears and jumps to correct place on page', () => {
+    it('BTS 9: Jump to All topics and services link/button appears and jumps to correct place on page', () => {
         // Check text and button
         cy.get('.jump')
-            .contains('Jump to')
+            .contains('Vaya a todos')
             .should('be.visible')
             
         cy.get('.jump')
@@ -207,7 +196,7 @@ describe('Home Page', () => {
                 cy.visit('/')
             })
     })
-    it('BTE 10: Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
+    it('BTS 10: Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
         const num_events = 6
         const num_visible = 3
 
@@ -373,7 +362,7 @@ describe('Home Page', () => {
             .filter('[aria-hidden="true"]')
             .should('have.length', num_events - num_visible)
     })
-    it('BTE 11: Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
+    it('BTS 11: Cards under "All topics and services" appear correctly (icon, title, text, hover state) and are clickable', () => {
         cy.get('.all-topics-background')
             .find('.homepage-card')
             .each((el) => {

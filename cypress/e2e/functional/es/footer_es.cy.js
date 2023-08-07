@@ -1,4 +1,4 @@
-const socials = require('../../fixtures/socials.json')
+const socials = require('../../../fixtures/socials.json')
 
 describe('Footer', () => {
     beforeEach(() => {
@@ -6,7 +6,7 @@ describe('Footer', () => {
         cy.viewport('macbook-13')
         cy.visit('/es')
     })
-    it('BTE 12: Footer links appear and work appropriately', () => {
+    it('BTS 12: Footer links appear and work appropriately', () => {
         cy.get('.usa-footer__nav')
             .find('a')
             .not('[href="/website-analytics/"]')
@@ -19,7 +19,7 @@ describe('Footer', () => {
                     })
             })
     })
-    it('BTE 13: Email subscription form appears in footer and works appropriately', () => {
+    it('BTS 13: Email subscription form appears in footer and works appropriately', () => {
         const validEmail = 'test@usa.gov'
         const invalidEmails = ['test@#$1123', 'test2@', '@test3.com']
 
@@ -42,7 +42,7 @@ describe('Footer', () => {
         // Origin URL should now be connect.usa.gov
         const sentArgs = { email: validEmail }
         cy.origin(
-            'https://connect.usa.gov/', 
+            'https://conectate.gobiernousa.gov', 
             { args: sentArgs }, 
             ({ email }) => {
                 cy.get('input')
@@ -52,7 +52,7 @@ describe('Footer', () => {
         )
 
         // Go back to localhost to test submit button
-        cy.visit('/')
+        cy.visit('/es')
         cy.get('#footer-email')
             .type(validEmail)
             .should('have.value', validEmail)
@@ -63,7 +63,7 @@ describe('Footer', () => {
 
         // Origin URL should now be connect.usa.gov
         cy.origin(
-            'https://connect.usa.gov/', 
+            'https://conectate.gobiernousa.gov', 
             { args: sentArgs }, 
             ({ email }) => {
                 cy.get('input')
@@ -72,30 +72,32 @@ describe('Footer', () => {
             }
         )
     })
-    it('BTE 14: Social media icons appear in footer and link to correct places', () => {
+    it('BTS 14: Social media icons appear in footer and link to correct places', () => {
         for (let i = 0; i < socials.length; i++) {
-            cy.get('.usa-footer__contact-links')
+            if (socials[i].linkEs.length > 0) { 
+                cy.get('.usa-footer__contact-links')
                 .find(`[alt="${socials[i].name} USAGov"]`)
                 .should('have.attr', 'src', `/themes/custom/usagov/images/footer_icon_${socials[i].name.toLowerCase()}.svg`)
         
-            cy.get('.usa-footer__contact-links')
-                .find(`[alt="${socials[i].name} USAGov"]`)
-                .parent()
-                .as('link')
-                .should('have.attr', 'href', socials[i].link)
+                cy.get('.usa-footer__contact-links')
+                    .find(`[alt="${socials[i].name} USAGov"]`)
+                    .parent()
+                    .as('link')
+                    .should('have.attr', 'href', socials[i].linkEs)
+            }
         }
     })
-    it('BTE 15: Contact Center information appears in footer and phone number links to /phone', () => {
+    it('BTS 15: Contact Center information appears in footer and phone number links to /phone', () => {
         cy.get('#footer-phone')
             .find('a')
             .click()
 
-        cy.url().should('include', '/phone')
+        cy.url().should('include', '/es/llamenos')
     })
-    it('BTE 16: Subfooter indicating USAGov is official site appears at very bottom', () => {
+    it('BTS 16: Subfooter indicating USAGov is official site appears at very bottom', () => {
         cy.get('.usa-footer')
             .find('.usa-identifier__usagov-description')
             .should('contain', 'USAGov')
-            .should('contain', 'official guide')
+            .should('contain', 'la guía oficial')
     })
 })
