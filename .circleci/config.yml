@@ -23,6 +23,10 @@ commands:
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cms << pipeline.number >> $CMS_DIGEST
+            if [ $? ]; then
+              echo "Please run the following command in a local build environment, while targetting << parameters.envname >>"
+              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
+            fi
 
   save-image-digest:
     steps:
@@ -139,7 +143,8 @@ commands:
     steps:
       - checkout
       - install-cloud-foundry
-      - snapshot-preamble
+      - snapshot-preamble:
+          envname: << parameters.envname >>
       - run:
           name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
           command: |
@@ -149,7 +154,8 @@ commands:
             ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
             ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
             ./bin/snapshot-backups/public-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
-      - snapshot-postamble
+      - snapshot-postamble:
+          envname: << parameters.envname >>
 
   deploy-reporter:
     parameters:
@@ -504,7 +510,7 @@ workflows:
           requires:
             - approve-snapshot-backup-prod
 
-  deploy-reporter:
+  try-deploy-reporter:
     jobs:
       - approve-deploy-reporter:
           type: approval

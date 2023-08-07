@@ -5,6 +5,7 @@ global-styling:
       css/styles.css: {}
   js:
     scripts/uswds.min.js: {}
+    scripts/uswds-init.min.js: {}
     scripts/newFooter.js: {}
     scripts/telephoneForMobileNode.js: {}
     scripts/phoneForMobileinBody.js: {}
