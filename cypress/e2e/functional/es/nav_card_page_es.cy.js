@@ -12,13 +12,13 @@ describe('Nav Card Page', () => {
           includedImpacts: ['critical']
         })
     })
-    it('BTE 20: Banner image appears on topic pages', () => {
+    it('BTS 20: Banner image appears on topic pages', () => {
         cy.get('#block-usagov-content')
             .find('.usagov-hero')
             .should('be.visible')
             .should('have.css', 'background-image')
     })
-    it('BTE 21: Most popular links appear and function correctly on topic pages', () => {
+    it('BTS 21: Most popular links appear and function correctly on topic pages', () => {
         cy.get('.usagov-hero__callout')
             .should('be.visible')
 
@@ -35,7 +35,7 @@ describe('Nav Card Page', () => {
                     })
             })
     })
-    it('BTE 22: Cards on nav card page appear/function correctly on topic pages', () => {
+    it('BTS 22: Cards on nav card page appear/function correctly on topic pages', () => {
         cy.get('.usagov-cards')
             .find('li')
             .each((el) => {
@@ -59,12 +59,14 @@ describe('Nav Card Page', () => {
                     .should('have.css', 'background-color', 'rgb(204, 236, 242)')
             })
     })
-    it('BTE 23: False children items appear as cards on on topic pages', () => {
+    it('BTS 23: False children items appear as cards on on topic pages', () => {
+        cy.visit('/es/servicios-personas-con-discapacidades')
+
         // Should have cards for SSDI, ADA, and voter laws
         let falseChildren = [
-            'SSDI', 
-            'Americans with Disabilities Act', 
-            'Voter accessibility laws'
+            'Beneficios del Seguro Social por incapacidad y para personas con una discapacidad', 
+            'Sus derechos bajo la Ley para Estadounidenses con Discapacidades (ADA)', 
+            'Leyes de accesibilidad para votantes'
         ]
         
         for (let i = 0; i < falseChildren.length; i++) {
