@@ -250,5 +250,3 @@ function usa_twig_vars_after_build($form, &$form_state) {
   }
   return $form;
 }
-
- 
