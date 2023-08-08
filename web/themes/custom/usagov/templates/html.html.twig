@@ -232,10 +232,10 @@ const scrollToTop = () => {
 
 <!-- begin code to remove tabindex from survey -->
 <script type="text/javascript">
-  document.querySelectorAll(".usa-accordion__content").forEach((section) => {
-    section.onbeforematch = () => {
-      section.removeAttribute("hidden");
-      document.querySelector("[aria-controls='"+section.id+"']").setAttribute("aria-expanded", "true");
+  document.querySelectorAll(".usa-accordion__content").forEach((accordionContent) => {
+    accordionContent.onbeforematch = () => {
+      accordionContent.removeAttribute("hidden");
+      document.querySelector("[aria-controls='"+accordionContent.id+"']").setAttribute("aria-expanded", "true");
     };
     
   });
