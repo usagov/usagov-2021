@@ -1,7 +1,6 @@
 describe('Secondary Nav Page', () => {
     beforeEach(() => {
-        // Set viewport size and base URL
-        cy.viewport('macbook-13')
+        // Set base URL
         cy.visit('/disaster-financial-help')
 
         cy.injectAxe()

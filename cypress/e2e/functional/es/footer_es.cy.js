@@ -2,8 +2,7 @@ const socials = require('../../../fixtures/socials.json')
 
 describe('Footer', () => {
     beforeEach(() => {
-        // Set viewport size and base URL
-        cy.viewport('macbook-13')
+        // Set base URL
         cy.visit('/es')
     })
     it('BTS 12: Footer links appear and work appropriately', () => {
