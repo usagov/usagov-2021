@@ -10,6 +10,7 @@ body.cke_editable {
 
 .usa-accordion__content[hidden] {
   display: block;
+  content-visibility: visible;
 }
 
 html div.usa-accordion {
@@ -21,22 +22,20 @@ html div.usa-accordion {
 html div.usa-accordion::before {
   content: initial;
 }
-
-/* html div.usa-accordion .usa-accordion__heading {
-    border: initial;
-    box-sizing: initial;
-    display: inline-block;
-    padding: initial;
-} */
+html div.usa-accordion .usa-accordion__heading{
+  padding-bottom: 0;
+  border: none;
+}
 html div.usa-accordion .usa-accordion__content {
-  border: initial;
-  margin: initial;
-  padding: 1rem 1.25rem calc(1rem - 0.25rem);
+  border: initial!important;
+  margin: initial!important;
+  padding: 1rem 1.25rem calc(1rem - 0.25rem)!important;
+  margin: 0 10px!important;
 }
 
 html div.usa-accordion--bordered .usa-accordion__content {
-  border-bottom: 0.25rem solid #f0f0f0;
-  border-left: 0.25rem solid #f0f0f0;
-  border-right: 0.25rem solid #f0f0f0;
-  padding-bottom: 1rem;
+  border-bottom: 0.25rem solid #f0f0f0!important;
+  border-left: 0.25rem solid #f0f0f0!important;
+  border-right: 0.25rem solid #f0f0f0!important;
+  padding-bottom: 1rem!important;
 }
