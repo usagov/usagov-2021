@@ -24,8 +24,31 @@
         "financial-hardship",
         "error-test-nonexistent-path"
     ], 
-    "span": [
+    "es": [
         "es",
-        ""
+        "/es/desastres-emergencias",
+        "/es/servicios-personas-con-discapacidades",
+        "/es/seguros-medicos",
+        "/es/turistas-visitan-estados-unidos",
+        "/es/bibliotecas-publicas",
+        "/es/ramas-gobierno-estados-unidos",
+        "/es/sacar-reemplazar-tarjeta-seguro-social",
+        "/es/solicitar-pasaporte-estadounidense-primera-vez",
+        "/es/reemplazo-documentos-personales",
+        "/es/fmla-responsabilidades-empleador",
+        "/es/fafsa-ayuda-federal-estudiantes",
+        "/es/articulos",
+        "/es/articulos/beneficios-del-gobierno-para-usted-y-su-familia",
+        "/es/funcionarios-electos",
+        "/es/donde-reportar-una-estafa#block-wizardespanol",
+        "/es/indice-agencias",
+        "/es/agencias/consejo-de-accesibilidad-de-servicios-publicos-de-estados-unidos",
+        "/es/gobiernos-estatales",
+        "es/estados/arizona",
+        "/es/estatal-consumidor",
+        "/es/etapas-importantes-de-la-vida",
+        "/es/enfrentar-dificultades-economicas",
+        "/es/wic-asistencia-mujeres-ninos-bebes",
+        "/es/randomtext"
     ]
 }
