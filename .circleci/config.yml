@@ -520,7 +520,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1029-analytics-reporter-dependabot
       - deploy-reporter-tools:
           filters:
             branches:
@@ -528,7 +527,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1029-analytics-reporter-dependabot
           requires:
             - approve-deploy-reporter
 
