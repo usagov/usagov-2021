@@ -4,6 +4,8 @@ const getCompareSnapshotsPlugin = require('cypress-image-diff-js/dist/plugin')
 module.exports = defineConfig({
   e2e: {
     baseUrl: 'http://localhost',
+    viewportWidth: 1280,
+    viewportHeight: 800,
     "retries": {
       "runMode": 2,
       // "openMode": 0
