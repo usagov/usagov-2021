@@ -93,15 +93,17 @@ jQuery(document).ready(function ($) {
 
     // Smoothly scroll to the requested slide
     if (window.innerWidth >= 1024) {
-      $(slidesContainer).animate(
-        {
-          "scrollLeft":
-            (slideForWidth.offsetWidth) * nextLeftMostSlideIndex + ((nextLeftMostSlideIndex)* 32),
-        },
-        {
-          "duration": 200,
-        }
-      );
+      if (nextLeftMostSlideIndex <= 3) {
+        $(slidesContainer).animate(
+          {
+            "scrollLeft":
+            (slideForWidth.offsetWidth) * nextLeftMostSlideIndex + ((nextLeftMostSlideIndex)* 32) - 9,
+          },
+          {
+            "duration": 200,
+          }
+        );
+      }
     }
  else if (window.innerWidth > 639 && window.innerWidth < 1024) {
         $(slidesContainer).animate(

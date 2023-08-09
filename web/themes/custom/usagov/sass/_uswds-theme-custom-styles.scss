@@ -960,8 +960,6 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($smaller-text-font-size);
 }
 
-
-
 .visually-hidden {
   position: absolute;
   left: -10000px;
@@ -969,4 +967,14 @@ div[class^="QSIUserDefinedHTML"] {
   width: 1px;
   height: 1px;
   overflow: hidden;
+}
+
+[hidden="until-found"]{
+  display: block;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+p, a {
+  line-height: 1.5;
 }
