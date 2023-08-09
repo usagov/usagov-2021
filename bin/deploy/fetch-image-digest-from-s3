@@ -56,16 +56,6 @@ DOCKERREPO=${DOCKERREPO:-usagov-2021}
 echo
 echo "Attempting to fetch docker image digest for ${APP_NAME}, from CircleCI build number ${CCI_BUILD_ID}"
 echo
-echo "If this combination (app+build) exits, it will be stored in the s3 bucket for the specified space, "
-echo "and will be downloaded to the current directory as the file '${APP_NAME}-${CCI_BUILD_ID}'"
-echo
-echo "APP_NAME      $APP_NAME"
-echo "CCI_BUILD_ID  $CCI_BUILD_ID"
-echo "SPACE         $SPACE"
-echo "DOCKERUSER    $DOCKERUSER"
-echo "DOCKERREPO    $DOCKERREPO"
-#echo "ECHO          $echo"
-echo
 
 cf target -s $SPACE &> /dev/null
 assertCurSpace $SPACE
@@ -74,7 +64,7 @@ assertCurSpace $SPACE
 ## in $SPACE then get-s3-access will exit the current process, leaving us stuck in $SPACE rather than
 ## politely failing and leaving us in the space we started from.
 if existsCFService key-value; then
-    $echo . ./bin/cloudgov/get-s3-access key-value
+    $echo . ./bin/cloudgov/get-s3-access key-value &> /dev/null
     $echo aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/${APP_NAME}-${CCI_BUILD_ID} .
     retval=$?
 else
