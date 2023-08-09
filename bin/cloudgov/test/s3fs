@@ -24,29 +24,30 @@ function runTests {
   testDrupalImageDerivationPublic;
   testDrupalStreamWrapperS3;
   testThatDrupalCanReachAWS;
+  testThatPHPCanReachAWS;
   testThatNGINXCanReadS3;
   testThatCurlCanReachAWS;
 }
 
 function testThatCurlCanReachAWS {
-  # curl can reach aws host from the commandline
+  # curl can reach aws host from the command line
   echo
-  echo "Testing curl connection to s3."
-    cf ssh cms -c ". /etc/profile; response=$(curl $EXISTING_WWW_FILE_FROM_S3); echo \"\$response\""
+  echo "Testing CMS connection to s3."
+  cf ssh cms -c ". /etc/profile; response=\$(curl -I $EXISTING_WWW_FILE_FROM_S3); echo \$response"
 }
 
 function testThatNGINXCanReadS3 {
   # nginx can respond with proxies files living in s3
   echo
   echo "Testing NGINX read from s3."
-  cf ssh waf -c ". /etc/profile; response=$(curl $EXISTING_WWW_FILE_FROM_S3); echo \"\$response\""
+  cf ssh waf -c ". /etc/profile; response=\$(curl -I $EXISTING_WWW_FILE_FROM_S3); echo \$response"
 }
 
 function testThatPHPCanReachAWS {
   # php can initiate a connection to aws
   echo
   echo "Testing PHP connection to s3."
-  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"\$response = file_get_contents('$EXISTING_CMS_FILE_FROM_S3')); print_r(\$http_response_header);\""
+  cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ '\$response = file_get_contents(\"$AWS_TEST_URL\"); print_r(\$http_response_header);'"
 }
 
 function testThatDrupalCanReachAWS {
@@ -62,7 +63,7 @@ function testDrupalStreamWrapperS3 {
   echo "Testing Drupal Stream Wrapper for s3. Expecting to write and read $RUNTIME to s3://$TEST_FILE_FOR_S3"
   cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_put_contents('s3://public/$TEST_FILE_FOR_S3','$RUNTIME'));\""
   cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('s3://public/$TEST_FILE_FOR_S3'));\""
-  # independantly check for existance of the file via aws cli
+  # independently check for existence of the file via aws cli
 }
 
 function testDrupalImageDerivationPublic {
@@ -84,7 +85,7 @@ function testDrupalStreamWrapperPublic {
   # drupal can use the public:// stream wrapper to read and write to s3
   cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_put_contents('public://$TEST_FILE_FOR_S3','$RUNTIME'));\""
   cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('public://$TEST_FILE_FOR_S3'));\""
-  # independantly check for existance of the file via aws cli
+  # independently check for existence of the file via aws cli
 }
 
 function testDrupalStreamWrapperPrivate {
@@ -97,7 +98,7 @@ function testDrupalStreamWrapperPrivate {
   cf ssh cms -c ". /etc/profile; drush ev --root=/var/www/ \"var_dump(file_get_contents('private://$TEST_FILE_FOR_S3'));\""
   echo cf logs cms --recent | tail -n 10
   cf logs cms --recent | tail -n 10
-  # independantly check for existance of the file via aws cli
+  # independently check for existence of the file via aws cli
 }
 
 function testDrupalStreamWrapperHTTPS {
