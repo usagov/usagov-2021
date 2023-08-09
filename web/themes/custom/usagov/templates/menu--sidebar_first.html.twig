@@ -16,7 +16,12 @@ A short summary of the behavior of the sidebar nav:
 #}
 
 {% import _self as menus %}
-
+{# {{ devel_breakpoint() }} #}
+{% if menu_name == "left-menu-spanish" %}
+  {% set leftMenuName = "página" %}
+{% else %}
+  {% set leftMenuName = "page" %}
+{% endif %}
 {# {% set relatedPages = drupal_entity('node', items.url.routeParameters.node )['#node'].field_related_pages %} #}
 
 {% if path('<current>') matches '#\/agencies\/.+#' or path('<current>') matches '#\/states\/.+#'%}
@@ -24,7 +29,7 @@ A short summary of the behavior of the sidebar nav:
 {% elseif path('<current>') matches '#\/es\/agencias\/*#' or path('<current>') matches '#\/es\/estados\/*#'%}
   {% include 'menu--es-agency-sidebar.html.twig' %}
 {% else %}
-  {{ menus.explore(items, 0, null, null, null, pagetype) }}
+  {{ menus.explore(items, 0, null, null, null, pagetype, leftMenuName) }}
 {% endif %}
 
 {#
@@ -38,7 +43,7 @@ Then, it calls the build macro with:
 
 TODO: remove menuLevel as it is no longer used
 #}
-{% macro explore(items, menuLevel, parent, grandparent, greatgrandparent, pageTypeIs ) %}
+{% macro explore(items, menuLevel, parent, grandparent, greatgrandparent, pageTypeIs, leftMenuName) %}
 
   {% set active_item = null %}
 
@@ -51,7 +56,7 @@ TODO: remove menuLevel as it is no longer used
       {% if active_item.below|length > 50 %}
         {% set active_item = null %}
       {% else %}
-        {{ menus.explore(item.below, menuLevel + 1, item, parent, grandparent , pageTypeIs) }}
+        {{ menus.explore(item.below, menuLevel + 1, item, parent, grandparent , pageTypeIs, leftMenuName) }}
       {% endif %}
     {% endif %}
   {% endfor %}
@@ -99,7 +104,7 @@ TODO: remove menuLevel as it is no longer used
         </ul>
       </nav>
     {% else %}
-      {{ _self.build( start_item, 0, start_level, parent.title, pageTypeIs) }}
+      {{ _self.build( start_item, 0, start_level, parent.title, pageTypeIs, leftMenuName) }}
     {% endif %}
 
 
@@ -113,17 +118,18 @@ Next, it loops recursively through the children until there are no more children
 
 TODO: come up with a better name than start_level. Its really the delta between the start_item and the current_item
 #}
-{% macro build(items, menuLevel, start_level, current_item_title, pageTypeIs ) %}
+{% macro build(items, menuLevel, start_level, current_item_title, pageTypeIs, leftMenuName) %}
 
   {% if menuLevel == 0 %}
     <nav aria-label="Secondary navigation">
       <ul class="usa-sidenav">
         <li class="usa-sidenav__item">
-          <a{% if start_level == 0 %} class="usa-current" aria-current="page" onclick="return false;" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
+          <a{% if start_level == 0 %} class="usa-current" aria-current= {{leftMenuName}} onclick="return false;" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
             {{ items.title }}
           </a>
+
           {% if items.below %}
-            {{ _self.build( items.below, 1, start_level, current_item_title, pageTypeIs) }}
+            {{ _self.build( items.below, 1, start_level, current_item_title, pageTypeIs, leftMenuName) }}
           {% endif %}
         </li>
       </ul>
@@ -133,7 +139,8 @@ TODO: come up with a better name than start_level. Its really the delta between 
       {% for item in items %}
         <li class="usa-sidenav__item">
           {% if (item.title == current_item_title) and (pageTypeIs != 'Standard Page- Nav Hidden') %}
-            <a class="usa-current" aria-current="page" onclick="return false;" href="{{ item.url }}" class="active-trail">
+            <a class="usa-current" aria-current={{leftMenuName}} onclick="return false;" href="{{ item.url }}" class="active-trail">
+            {# {{ devel_breakpoint() }} #}
           {% else %}
             <a  href="{{ item.url }}" {% if item.in_active_trail == 1 %} class="active-trail" {% endif %} >
           {% endif %}
@@ -141,7 +148,7 @@ TODO: come up with a better name than start_level. Its really the delta between 
           </a>
           {% if item.below and item.in_active_trail and menuLevel < start_level or item.title == current_item_title %}
             {# if there are items and we haven't reached the current item or this is the current item #}
-            {{ _self.build( item.below, menuLevel + 1, start_level, current_item_title, pageTypeIs) }}
+            {{ _self.build( item.below, menuLevel + 1, start_level, current_item_title, pageTypeIs, leftMenuName) }}
           {% endif %}
         </li>
       {% endfor %}
