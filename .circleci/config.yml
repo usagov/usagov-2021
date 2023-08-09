@@ -28,7 +28,7 @@ commands:
               echo "Please run the following commands in a local build environment, while targetting << parameters.envname >>:"
               echo "cf target -s << parameters.envname >>"
               echo "git checkout << parameters.envname >>"
-              echi "git fetch --all --tags"
+              echo "git fetch --all --tags"
               echo "git pull"
               echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
               echo
