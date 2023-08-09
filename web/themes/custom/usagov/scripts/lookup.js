@@ -143,7 +143,7 @@ function renderResults(response, rawResponse) {
             let accordionContent = document.createElement("div");
             accordionContent.setAttribute("id", levelName);
             accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
-            accordionContent.setAttribute("hidden", "true");
+            accordionContent.setAttribute("hidden", "until-found");
 
             container.appendChild(accordionHeader);
             container.appendChild(accordionContent);
@@ -177,7 +177,7 @@ function renderResults(response, rawResponse) {
             let accordionContent = document.createElement("div");
             accordionContent.setAttribute("id", officialNumber);
             accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
-            accordionContent.setAttribute("hidden", "true");
+            accordionContent.setAttribute("hidden", "until-found");
 
             // Create bullet list of details for the elected official
             let bulletList = document.createElement("ul");
