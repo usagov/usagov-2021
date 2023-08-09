@@ -1,8 +1,8 @@
-describe('Scam Report', () => {
+describe('Scam Report (Spanish)', () => {
     beforeEach(() => {
-        cy.visit('/where-report-scams#block-wizardenglish') 
+        cy.visit('/es/donde-reportar-una-estafa') 
     })
-
+    // **UNFINISHED**
     it('allows for imposter reporting', () => {
         cy.get('#block-usagov-content')
             .find('a')

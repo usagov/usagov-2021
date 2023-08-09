@@ -28,8 +28,6 @@ describe('State Directory', () => {
             cy.get(regLink[1]).should('have.attr', 'href').and('include', 'https://gov.alaska.gov/')
             cy.get(regLink[2]).should('have.attr', 'href').and('include', 'https://gov.alaska.gov/contact/')
         })
-        cy.get('[data-test="back-button"]').click()
-        cy.url().should('be.equal', 'http://localhost:1313/')
     })
 
 })

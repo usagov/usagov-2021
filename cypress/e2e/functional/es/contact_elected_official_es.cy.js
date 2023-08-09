@@ -1,6 +1,6 @@
-describe('Scam Report', () => {
+describe('Contact Elected Officials (Spanish)', () => {
     beforeEach(() => {
-        cy.visit('/elected-officials') 
+        cy.visit('/es/funcionarios-electos') 
     })
 
     it('allows for form to be filled out', () => {

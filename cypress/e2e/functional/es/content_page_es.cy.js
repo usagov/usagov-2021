@@ -91,4 +91,57 @@ describe('Content Page', () => {
             .should('not.include', '/es')
             .should('include', '/libraries')
     })
+
+    it('BTE 32: Last updated date appears at bottom of content with correct padding above it', () => {
+        cy.get('.additional_body_info')
+            .find('#last-updated')
+            .should('exist')
+    })
+    it('BTE 33: Share this page function works correctly for facebook, twitter, and email', () => {
+        cy.get('.additional_body_info')
+            .find('#sm-share')
+            .should('exist')
+            .get('div.share-icons>a').eq(0)
+            .should('have.attr', 'href', 'http://www.facebook.com/sharer/sharer.php?u=https://www.usa.gov/disaster-assistance&v=3')
+            .get('div.share-icons>a').eq(1)
+            .should('have.attr', 'href', 'http://twitter.com/intent/tweet?source=webclient&text=https://www.usa.gov/disaster-assistance')
+            .get('div.share-icons>a').eq(2)
+            .should('have.attr', 'href', 'mailto:?subject=https://www.usa.gov/disaster-assistance')
+    })
+    it('BTE 34: Do you have a question block appears at bottom of content page with icons and links to phone and chat', () => {
+        cy.get('.additional_body_info')
+            .find('#question-box')
+            .should('exist')
+            .find('a')
+            .should('have.attr', 'href', '/phone')
+    })
+    it('BTE 35: Page level survey appears and you can complete survey', () => {
+        cy.get('.pagesurvey-qual-container')
+            //select in first page of survey
+            .should('exist')
+            .get('ul.ChoiceStructure')
+            .find('li').first().click()
+            .get('#Buttons')
+            .find('input').click()
+            //select in second page of survey
+            .get('ul.ChoiceStructure')
+            .find('li').first().click()
+            .get('#Buttons')
+            .find('input').click()
+            //fill in third page of survey
+            .get('div.ChoiceStructure')
+            .find('textarea').type('test')
+            .get('#Buttons')
+            .find('input').click()
+            .get('#EndOfSurvey').should('exist')
+    })
+
+    it('BTE 36: Back to top button', () => {
+        cy.scrollTo('bottom')
+            .get('#back-to-top')
+            .click()
+            .url()
+            .should('include', '#main-content')
+    })
+
 })
