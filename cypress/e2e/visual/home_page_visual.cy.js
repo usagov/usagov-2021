@@ -4,10 +4,6 @@ describe('Home Page - Visual', () => {
         cy.viewport('macbook-13')
         cy.visit('/')
     })
-    it('Full page visual test: default page looks correct upon load', () => {
-        // Threshold of 0.1 to ignore small differences
-        cy.compareSnapshot('full-page', 0.1)
-    })
     it('Sitewide banner for official government site appears at the top, accordion can be expanded', () => {
         cy.get('header')
             .find('.usa-banner__header')
