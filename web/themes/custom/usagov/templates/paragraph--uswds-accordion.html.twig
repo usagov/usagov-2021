@@ -65,7 +65,7 @@
         {{ item['#paragraph'].field_accordion_section_title.value }}
       </button>
     </h2>
-    <div id="{{ id }}" class="usa-accordion__content usa-prose" hidden>
+    <div id="{{ id }}" class="usa-accordion__content usa-prose" hidden="until-found">
       {# Loop through all of the accordion section bodies. #}
       {% for body_key, body_item in item['#paragraph'].field_accordion_section_body %}
         {# Use the same render array as item and set the '#paragraph'. #}
