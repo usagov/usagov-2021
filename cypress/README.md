@@ -30,31 +30,50 @@ To get a local copy up and running follow these simple steps.
     ```
     npx cypress open
     ```
-A window from the Cypress desktop app should pop up prompting you to choose from 2 testing types.  
+    A window from the Cypress desktop app should pop up prompting you to choose from 2 testing types. 
+
 3. Select E2E Testing. Then select the browser you would like to test from. That's it!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- TEST SUITE OVERVIEW -->
+## Comprehensive Test Suite Overview
+### `cypress.config.js`
 
+### `/cypress/e2e`
+
+### `/cypress/fixtures`
+
+### `/cypress/e2e`
+
+### `/cypress/support`
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+### Accessibility Testing
+
+
+### Functional Testing
+
+
+### Visual Testing
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
+<!-- HELP -->
+## Help
+Advise for common problems or issues.
+
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
+- [ ] Integratin with CircleCI
 - [ ] Feature 3
     - [ ] Nested Feature
-
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
