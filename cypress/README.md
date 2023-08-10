@@ -32,26 +32,18 @@ To get a local copy up and running follow these simple steps.
     ```
     A window from the Cypress desktop app should pop up prompting you to choose from 2 testing types. 
 
-3. Select E2E Testing. Then select the browser you would like to test from. That's it!
+3. Select E2E Testing. Then select the browser you would like to test from. That's it, you're ready to start testing!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- TEST SUITE OVERVIEW -->
-## Comprehensive Test Suite Overview
-### `cypress.config.js`
-
-### `/cypress/e2e`
-
-### `/cypress/fixtures`
-
-### `/cypress/e2e`
-
-### `/cypress/support`
-
-<!-- USAGE EXAMPLES -->
+<!-- USAGE -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+How to navigate the Cypress Desktop interface and utilize the test suite.
+
+TODO: add screenshots, code examples and demos; link to more resources
+
+In general, the test scripts (specs) are organized by page. The only exceptions to this are individual specs for the footer and mobile testing.
 
 ### Accessibility Testing
 
@@ -64,16 +56,34 @@ Use this space to show useful examples of how a project can be used. Additional 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- TEST SUITE OVERVIEW -->
+## Comprehensive Test Suite Overview
+### `cypress.config.js`
+explain configs
+
+### `/cypress/e2e`
+actual test scripts 
+
+### `/cypress/fixtures`
+holds test data 
+
+### `/cypress/support`
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- HELP -->
 ## Help
 Advise for common problems or issues.
 
-<!-- ROADMAP -->
-## Roadmap
+<!-- NEXT STEPS -->
+## Next Steps
 
-- [ ] Integratin with CircleCI
-- [ ] Feature 3
-    - [ ] Nested Feature
+* Integration with CircleCI
+
+### Resources
+
+* [Overview of Continuous Integration with Cypress](https://docs.cypress.io/guides/continuous-integration/introduction?utm_medium=CI+Prompt+1&utm_campaign=Learn+More&utm_source=Binary%3A+App)
+* [Using CircleCI with Cypress](https://docs.cypress.io/guides/continuous-integration/circleci?utm_source=Binary%3A+App&utm_medium=CI+Prompt+1&utm_campaign=Circle&utm_content=Automatic)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
