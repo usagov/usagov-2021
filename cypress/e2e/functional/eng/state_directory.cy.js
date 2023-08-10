@@ -2,8 +2,8 @@ describe('State Directory', () => {
     beforeEach(() => {
         cy.visit('/state-governments') 
     })
-
-    it('Landing page: state drop-down', () => {
+    
+    it('BTE 50/52: Landing page: state drop-down', () => {
         // testing dropdown menu
         cy.get('#block-usagov-content')
             .find('[id=stateForm]')
@@ -19,11 +19,12 @@ describe('State Directory', () => {
                     })
             })
     })
-    it('Test Alaska Page', () => {
+    //**UNFINISHED**
+    it('BTE 51: Test Alaska Page', () => {
         cy.visit('/states/alaska')
 
         // Test links on page.
-        cy.get('div.State-Directory-Table').find('a').then(regLink => {
+        cy.get('#State-Directory-Table').find('a').then(regLink => {
             cy.get(regLink[0]).should('have.attr', 'href').and('include', 'https://alaska.gov/')
             cy.get(regLink[1]).should('have.attr', 'href').and('include', 'https://gov.alaska.gov/')
             cy.get(regLink[2]).should('have.attr', 'href').and('include', 'https://gov.alaska.gov/contact/')

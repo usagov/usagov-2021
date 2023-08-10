@@ -3,7 +3,7 @@ describe('Scam Report', () => {
         cy.visit('/where-report-scams#block-wizardenglish') 
     })
     //**UNFINISHED**
-    it('allows for imposter reporting', () => {
+    it('BTE 47: allows for imposter reporting', () => {
         cy.get('#block-usagov-content')
             .find('a')
             .click()

@@ -3,7 +3,7 @@ describe('Scam Report (Spanish)', () => {
         cy.visit('/es/donde-reportar-una-estafa') 
     })
     // **UNFINISHED**
-    it('allows for imposter reporting', () => {
+    it('BTE 47: allows for imposter reporting', () => {
         cy.get('#block-usagov-content')
             .find('a')
             .click()

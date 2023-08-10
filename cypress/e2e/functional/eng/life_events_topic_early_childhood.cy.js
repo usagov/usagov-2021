@@ -3,7 +3,7 @@ describe('Life Events: Early Childhood', () => {
         cy.visit('/early-childhood') 
     })
 
-    it('Landing page: early childhood', () => {
+    it('BTE 54: Topic page looks correct, cards appear', () => {
         // image cards appear
         cy.get('div.usagov-cards')
                 .find('ul')
@@ -16,7 +16,7 @@ describe('Life Events: Early Childhood', () => {
 
     })
 
-    it('Topic page: food assistance', () => {
+    it('BTE 55: Topic page: food assistance', () => {
         // test first (/food-assistance) card 
         cy.get('ul.usa-card-group')
             .find('li')
@@ -42,7 +42,7 @@ describe('Life Events: Early Childhood', () => {
                     })
     })
 
-    it('Topic page: food stamps', () => {
+    it('BTE 55: Topic page: food stamps', () => {
         // test second (/food-stamps) card
         cy.get('ul.usa-card-group')
             .find('li')
@@ -68,7 +68,7 @@ describe('Life Events: Early Childhood', () => {
                     })
     })
 
-    it('Topic page: welfare benefits', () => {
+    it('BTE 55: Topic page: welfare benefits', () => {
         // test third (/welfare-benefits) card
         cy.get('ul.usa-card-group')
             .find('li')
@@ -94,7 +94,7 @@ describe('Life Events: Early Childhood', () => {
                     })
     })
 
-    it('Topic page: medicaid', () => {
+    it('BTE 55: Topic page: medicaid', () => {
         // test fourth (/medicaid-chip-insurance) card
         cy.get('ul.usa-card-group')
             .find('li')
@@ -120,7 +120,7 @@ describe('Life Events: Early Childhood', () => {
                     })
     })
 
-    it('Topic page: child support', () => {
+    it('BTE 55: Topic page: child support', () => {
         // test fifth (/child-support) card
         cy.get('ul.usa-card-group')
             .find('li')
@@ -146,7 +146,7 @@ describe('Life Events: Early Childhood', () => {
                     })
     })
     
-    it('Topic page: social security', () => {
+    it('BTE 55: Topic page: social security', () => {
         // test sixth (/social-security-card) card
         cy.get('ul.usa-card-group')
             .find('li')

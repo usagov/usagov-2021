@@ -3,7 +3,8 @@ describe('Federal Directory', () => {
         cy.visit('/es/indice-agencias') 
     })
 
-    it('Landing page: letter name navigation', () => {
+    it('BTE 48: Landing page: letter name navigation', () => {
+        // test navigating with letter names
         cy.get('ul.usagov-directory-container-az')
             .find('li')
             .should('have.length', 22)

@@ -3,7 +3,8 @@ describe('Contact Elected Officials (Spanish)', () => {
         cy.visit('/es/funcionarios-electos') 
     })
 
-    it('allows for form to be filled out', () => {
+    it('BTE 45: allows for form to be filled out', () => {
+         // input values into form
         cy.get('#input-street')
             .type('1600 Pennsylvania Avenue NW')
             .get('#input-city')
