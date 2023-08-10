@@ -480,10 +480,10 @@
       "frequency": "daily",
       "query": {
         "dimensions": ["ga:pagePath", "ga:pageTitle"],
-        "metrics": ["ga:sessions"],
+        "metrics": ["ga:uniquePageviews"],
         "start-date": "7daysAgo",
         "end-date": "yesterday",
-        "sort": "-ga:sessions",
+        "sort": "-ga:uniquePageviews",
         "max-results": "20"
       },
       "meta": {
@@ -496,10 +496,10 @@
       "frequency": "daily",
       "query": {
         "dimensions": ["ga:pagePath", "ga:pageTitle"],
-        "metrics": ["ga:sessions"],
+        "metrics": ["ga:uniquePageviews"],
         "start-date": "30daysAgo",
         "end-date": "yesterday",
-        "sort": "-ga:sessions",
+        "sort": "-ga:uniquePageviews",
         "max-results": "20"
       },
       "meta": {
