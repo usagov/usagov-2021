@@ -3,4 +3,4 @@
 docker exec -it \
   --workdir /var/www \
   cms \
-  /usr/bin/php "$@"
+  /usr/bin/php82 "$@"
