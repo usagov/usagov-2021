@@ -140,6 +140,7 @@
         },
         "patches": {
             "drupal/mmf_core_fields": {
+                "Automated Drupal 10 compatibility fixes":"https://www.drupal.org/files/issues/2022-06-16/mmf_core_fields.2.0.1.rector.patch",
                 "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
             },
             "drupal/tome": {
@@ -158,6 +159,9 @@
             },
             "drupal/uswds_ckeditor_integration": {
                 "Remove linting dependencies from USWDS CKEditor module that have security issues": "./patches/drupal/removeDependencies.patch"
+            },
+            "drupal/log_stdout": {
+                "Drupal 10 compatibility": "https://www.drupal.org/files/issues/2023-05-26/log_stdout_d10_3339853_8.patch"
             }
         }
     }

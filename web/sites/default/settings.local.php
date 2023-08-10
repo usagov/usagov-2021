@@ -17,3 +17,23 @@ $settings['trusted_host_patterns'] = [
 
 $config['user.settings']['register'] = 'admin_only';
 $settings['usagov_login_local_form'] = 1;
+
+/**
+ * Database configuration.
+ */
+$databases['default']['default'] = [
+#  'database' => getenv('DB_NAME'),
+#  'username' => getenv('DB_USER'),
+#  'password' => getenv('DB_PW'),
+#  'prefix' => '',
+#  'host' => getenv('DB_HOST'),
+#  'port' => getenv('DB_PORT'),
+  'database' => 'drupal',
+  'username' => 'root',
+  'password' => 'mysql',
+#  'prefix' => '',
+  'host' => 'database',
+  'port' => '3306',
+  'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
+  'driver' => 'mysql',
+];
