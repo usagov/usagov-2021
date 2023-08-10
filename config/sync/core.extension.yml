@@ -46,7 +46,6 @@ module:
   language: 0
   language_switcher_extended: 0
   link: 0
-  log_stdout: 0
   mail_safety: 0
   media: 0
   media_library: 0
@@ -54,7 +53,6 @@ module:
   menu_breadcrumb: 0
   menu_link_content: 0
   menu_ui: 0
-  mmf_core_fields: 0
   mysql: 0
   node: 0
   node_menus: 0
