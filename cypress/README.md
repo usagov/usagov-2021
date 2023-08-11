@@ -39,42 +39,70 @@ To get a local copy up and running follow these simple steps.
 <!-- USAGE -->
 ## Usage
 
-How to navigate the Cypress Desktop interface and utilize the test suite.
+How to navigate the Cypress Desktop interface, run tests, and utilize the test suite.
 
 TODO: add screenshots, code examples and demos; link to more resources
 
-In general, the test scripts (specs) are organized by page. The only exceptions to this are individual specs for the footer and mobile testing.
+### Cypress Desktop Navigation
+After selecting the testing browser you should be brought to a tab listing all the specs (test scripts) in the project. Scripts are separated into three directories: accessibility, functional, and visual. 
+
+To run a test script simply click on its name, or hover over a directory to have the option to run multiple test scripts at once.
 
 ### Accessibility Testing
 
 
+
 ### Functional Testing
 
+The functional test scripts are organized by page based on the regression checklist (plus individual specs for the footer and mobile testin).
 
 ### Visual Testing
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- TEST SUITE OVERVIEW -->
-## Comprehensive Test Suite Overview
+<!-- CODEBASE OVERVIEW -->
+## Codebase Overview
 ### `cypress.config.js`
-explain configs
+This is the Cypress configuration file, where you can set the base URL you're testing from (`http://localhost`), default viewport dimensions, and more.
+
+This is also where you'll find the `setupNodeEvents` function if you need to run code in Node or add a plugin to your project. 
+
+Whenever you modify your configuration file, Cypress will automatically reboot itself and kill any open browsers. This is normal. Click on the spec file again to relaunch the browser.
 
 ### `/cypress/e2e`
-actual test scripts 
+Contains all frontend test scripts organized into accessibility, functional, and visual tests. Within each of these directories, test scripts are then separated into English site tests and Spanish site tests.
 
 ### `/cypress/fixtures`
-holds test data 
+Holds test data: 
+* `socials.json` contains social media info found in the footer
+    * usages: `/cypress/e2e/functional/eng/footer.cy.js`, `/cypress/e2e/functional/es/footer_es.cy.js`
+* `subpaths.json` contains all example url subpaths listed for validation on the regression checklist
+    * usages: `/cypress/e2e/accessibility/axe_eng.cy.js`, `/cypress/e2e/accessibility/axe_es.cy.js`, `/cypress/e2e/visual/full_pg_visual_eng.cy.js`, `/cypress/e2e/visual/full_pg_visual_es.cy.js`
 
 ### `/cypress/support`
-
+custom commands and package imports
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- HELP -->
-## Help
-Advise for common problems or issues.
+<!-- WRITING TEST SCRIPTS -->
+## Writing Test Scripts
+
+
+### Element Selection
+
+
+### DOM Assertions
+
+
+### CSS Assertions 
+Most visual validation can and should be done with screenshot comparisons, but CSS validation comes in handy when visual testing fails. 
+
+### Accessibility Testing
+
+
+### Visual Testing
+
 
 <!-- NEXT STEPS -->
 ## Next Steps
