@@ -234,7 +234,7 @@ const scrollToTop = () => {
 <script type="text/javascript">
   document.querySelectorAll(".usa-accordion__content").forEach((accordionContent) => {
     accordionContent.onbeforematch = () => {
-      accordionContent.removeAttribute("hidden");
+      //accordionContent.removeAttribute("hidden");
       document.querySelector("[aria-controls='"+accordionContent.id+"']").setAttribute("aria-expanded", "true");
     };
     
