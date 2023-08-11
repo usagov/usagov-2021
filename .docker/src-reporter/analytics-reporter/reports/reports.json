@@ -488,7 +488,7 @@
       },
       "meta": {
         "name": "Top Pages (7 Days)",
-        "description": "Last week's top 20 pages, measured by visits."
+        "description": "Last week's top 20 pages, measured by unique page views."
       }
     },
     {
@@ -504,7 +504,7 @@
       },
       "meta": {
         "name": "Top Pages (30 Days)",
-        "description": "Last month's top 20 pages, measured by visits."
+        "description": "Last month's top 20 pages, measured by unique page views."
       }
     },
     {
