@@ -2,17 +2,17 @@ describe('Life Events', () => {
     beforeEach(() => {
         cy.visit('/life-events') 
     })
-    it('Landing page: banner image', () => {
+    it('BTE 53: Landing page looks correct with banner image, imge cards', () => {
+        // test banner
         cy.get('#block-usagov-content')
             .find('section')
             .should('be.visible')
-    })
-    it('Landing page: image cards', () => {
+        // test image cards
         cy.get('div.usagov-cards')
             .find('ul')
             .should('be.visible')
     })
-    it('Landing page: topic links', () => {
+    it('BTE 53: Landing page link to go to topic pages', () => {
         // test number of cards
         cy.get('ul.usa-card-group')
             .find('li')

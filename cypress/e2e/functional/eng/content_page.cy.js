@@ -108,11 +108,13 @@ describe('Content Page', () => {
             .should('include', '/solicitar-asistencia-desastre')
     })
     it('BTE 32: Last updated date appears at bottom of content with correct padding above it', () => {
+        // make sure date appears
         cy.get('.additional_body_info')
             .find('#last-updated')
             .should('exist')
     })
     it('BTE 33: Share this page function works correctly for facebook, twitter, and email', () => {
+        // test links for each social
         cy.get('.additional_body_info')
             .find('#sm-share')
             .should('exist')
@@ -124,6 +126,7 @@ describe('Content Page', () => {
             .should('have.attr', 'href', 'mailto:?subject=https://www.usa.gov/disaster-assistance')
     })
     it('BTE 34: Do you have a question block appears at bottom of content page with icons and links to phone and chat', () => {
+        // test question box
         cy.get('.additional_body_info')
             .find('#question-box')
             .should('exist')
@@ -152,6 +155,7 @@ describe('Content Page', () => {
     })
 
     it('BTE 36: Back to top button', () => {
+        //test back to top button
         cy.scrollTo('bottom')
             .get('#back-to-top')
             .click()

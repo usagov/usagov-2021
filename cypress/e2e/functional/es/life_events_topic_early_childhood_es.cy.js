@@ -3,7 +3,7 @@ describe('Life Events: Embarazo Primera Infancia', () => {
         cy.visit('/es/embarazo-primera-infancia') 
     })
 
-    it('Landing page: embarazo primera infancia', () => {
+    it('BTE 54: embarazo primera infancia', () => {
         // image cards appear
         cy.get('div.usagov-cards')
                 .find('ul')
@@ -16,7 +16,7 @@ describe('Life Events: Embarazo Primera Infancia', () => {
 
     })
 
-    it('Topic page: wic asistencia mujeres ninos bebes', () => {
+    it('BTE 55: Topic page: wic asistencia mujeres ninos bebes', () => {
         // test first (/wic-asistencia-mujeres-ninos-bebes) card 
         cy.get('ul.usa-card-group')
             .find('li')
@@ -42,7 +42,7 @@ describe('Life Events: Embarazo Primera Infancia', () => {
                     })
     })
 
-    it('Topic page: solicitar cupones alimentos snap', () => {
+    it('BTE 55: Topic page: solicitar cupones alimentos snap', () => {
         // test second (/solicitar-cupones-alimentos-snap) card
         cy.get('ul.usa-card-group')
             .find('li')
@@ -68,7 +68,7 @@ describe('Life Events: Embarazo Primera Infancia', () => {
                     })
     })
 
-    it('Topic page: tanf asistencia temporal', () => {
+    it('BTE 55: Topic page: tanf asistencia temporal', () => {
         // test third (/tanf-asistencia-temporal) card
         cy.get('ul.usa-card-group')
             .find('li')
@@ -94,7 +94,7 @@ describe('Life Events: Embarazo Primera Infancia', () => {
                     })
     })
 
-    it('Topic page: seguros medicos medicaid chip', () => {
+    it('BTE 55: Topic page: seguros medicos medicaid chip', () => {
         // test fourth (/seguros-medicos-medicaid-chip) card
         cy.get('ul.usa-card-group')
             .find('li')
@@ -120,7 +120,7 @@ describe('Life Events: Embarazo Primera Infancia', () => {
                     })
     })
 
-    it('Topic page: manutencion infantil', () => {
+    it('BTE 55: Topic page: manutencion infantil', () => {
         // test fifth (/manutencion-infantil) card
         cy.get('ul.usa-card-group')
             .find('li')
@@ -146,7 +146,7 @@ describe('Life Events: Embarazo Primera Infancia', () => {
                     })
     })
     
-    it('Topic page: sacar reemplazar tarjeta seguro social', () => {
+    it('BTE 55: Topic page: sacar reemplazar tarjeta seguro social', () => {
         // test sixth (/sacar-reemplazar-tarjeta-seguro-social) card
         cy.get('ul.usa-card-group')
             .find('li')
