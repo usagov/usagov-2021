@@ -3,7 +3,7 @@ describe('Life Events', () => {
         cy.viewport('macbook-13')
         cy.visit('/es/etapas-importantes-de-la-vida') 
     })
-    it('BTE 53: Landing page looks correct with banner image, imge cards', () => {
+    it('BTS 53: Landing page looks correct with banner image, imge cards', () => {
         //test banner
         cy.get('#block-usagov-content')
             .find('section')
@@ -13,7 +13,7 @@ describe('Life Events', () => {
             .find('ul')
             .should('be.visible')
     })
-    it('BTE 53: Landing page link to go to topic pages', () => {
+    it('BTS 53: Landing page link to go to topic pages', () => {
         // test number of cards
         cy.get('ul.usa-card-group')
             .find('li')

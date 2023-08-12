@@ -46,15 +46,20 @@ TODO: add screenshots, code examples and demos; link to more resources
 ### Cypress Desktop Navigation
 After selecting the testing browser you should be brought to a tab listing all the specs (test scripts) in the project. Scripts are separated into three directories: accessibility, functional, and visual. 
 
+![test](https://drive.google.com/file/d/1fiqm6fpqcae91XFhF1xyNpytsHLh7Spw/view?usp=sharing)
+
 To run a test script simply click on its name, or hover over a directory to have the option to run multiple test scripts at once.
-
-### Accessibility Testing
-
-
 
 ### Functional Testing
 
-The functional test scripts are organized by page based on the regression checklist (plus individual specs for the footer and mobile testin).
+The functional test scripts are organized by page based on the regression checklist (plus individual specs for the footer and mobile testing).
+
+Test cases are labeled with their ID from the regression checklist (BTE # for English site tests or BTS # for Spanish site tests).
+
+A few test cases (BTE/BTS 38-44, 49) have been excluded from functional testing due to being a purely visual-based test (checking that something looks correct).
+
+### Accessibility Testing
+
 
 ### Visual Testing
 

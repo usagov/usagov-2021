@@ -2,7 +2,7 @@ describe('Error Page (spanish)', () => {
     beforeEach(() => {
         cy.visit('/es') 
     })
-    it('BTE 56: Invalid url loads error page', () => {
+    it('BTS 56: Invalid url loads error page', () => {
         cy.request({url: '/invalidurl', failOnStatusCode: false})
             .its('status')
             .should('equal', 404)

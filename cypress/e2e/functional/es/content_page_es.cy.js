@@ -91,13 +91,13 @@ describe('Content Page', () => {
             .should('include', '/libraries')
     })
 
-    it('BTE 32: Last updated date appears at bottom of content with correct padding above it', () => {
+    it('BTS 32: Last updated date appears at bottom of content with correct padding above it', () => {
         // make sure date appears
         cy.get('.additional_body_info')
             .find('#last-updated')
             .should('exist')
     })
-    it('BTE 33: Share this page function works correctly for facebook, twitter, and email', () => {
+    it('BTS 33: Share this page function works correctly for facebook, twitter, and email', () => {
         // test links for each social
         cy.get('.additional_body_info')
             .find('#sm-share')
@@ -109,7 +109,7 @@ describe('Content Page', () => {
             .get('div.share-icons>a').eq(2)
             .should('have.attr', 'href', 'mailto:?subject=https://www.usa.gov/disaster-assistance')
     })
-    it('BTE 34: Do you have a question block appears at bottom of content page with icons and links to phone and chat', () => {
+    it('BTS 34: Do you have a question block appears at bottom of content page with icons and links to phone and chat', () => {
         // test question box
         cy.get('.additional_body_info')
             .find('#question-box')
@@ -117,7 +117,7 @@ describe('Content Page', () => {
             .find('a')
             .should('have.attr', 'href', '/phone')
     })
-    it('BTE 35: Page level survey appears and you can complete survey', () => {
+    it('BTS 35: Page level survey appears and you can complete survey', () => {
         cy.get('.pagesurvey-qual-container')
             //select in first page of survey
             .should('exist')
@@ -138,7 +138,7 @@ describe('Content Page', () => {
             .get('#EndOfSurvey').should('exist')
     })
 
-    it('BTE 36: Back to top button', () => {
+    it('BTS 36: Back to top button', () => {
         //test back to top button
         cy.scrollTo('bottom')
             .get('#back-to-top')

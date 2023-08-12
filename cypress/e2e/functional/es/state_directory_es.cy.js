@@ -3,7 +3,7 @@ describe('State Directory', () => {
         cy.visit('/es/gobiernos-estatales') 
     })
 
-    it('BTE 50/52: Landing page: state drop-down', () => {
+    it('BTS 50/52: Landing page: state drop-down', () => {
         // testing dropdown menu
         cy.get('#block-usagov-content')
             .find('[id=stateForm]')
@@ -20,7 +20,7 @@ describe('State Directory', () => {
             })
     })
     //**UNFINISHED**
-    it('BTE 51: Test Alaska Page', () => {
+    it('BTS 51: Test Alaska Page', () => {
         cy.visit('es/estados/alaska')
 
         // Test links on page.
