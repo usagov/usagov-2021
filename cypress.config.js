@@ -1,7 +1,9 @@
 const { defineConfig } = require('cypress')
 const getCompareSnapshotsPlugin = require('cypress-image-diff-js/dist/plugin')
+const { beforeRunHook } = require('cypress-mochawesome-reporter/lib')
 
 module.exports = defineConfig({
+  reporter: 'cypress-mochawesome-reporter',
   e2e: {
     baseUrl: 'http://localhost',
     viewportWidth: 1280,
@@ -15,8 +17,14 @@ module.exports = defineConfig({
     "blockHosts": ["www.google-analytics.com", "ssl.google-analytics.com"],
     experimentalRunAllSpecs: true,
     setupNodeEvents(on, config) {
-      // Cypress image diff plugin
+      // Plugins
       getCompareSnapshotsPlugin(on, config),
+      require('cypress-mochawesome-reporter/plugin')(on),
+      on('before:run', async (details) => {
+        console.log('override before:run')
+        await beforeRunHook(details)
+      }),
+      // Tasks
       on('task', {
         log(message) {
           console.log(message)

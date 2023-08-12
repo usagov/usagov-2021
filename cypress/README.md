@@ -43,12 +43,16 @@ How to navigate the Cypress Desktop interface, run tests, and utilize the test s
 
 TODO: add screenshots, code examples and demos; link to more resources
 
-### Cypress Desktop Navigation
+### Testing with Cypress Desktop 
 After selecting the testing browser you should be brought to a tab listing all the specs (test scripts) in the project. Scripts are separated into three directories: accessibility, functional, and visual. 
 
 ![test]()
 
 To run a test script simply click on its name, or hover over a directory to have the option to run multiple test scripts at once.
+
+### Testing through Terminal
+`./node_modules/.bin/cypress run --spec cypress/e2e/functional/eng/error_page.cy.js`
+`cypress run --spec cypress/e2e/accessibility`
 
 ### Functional Testing
 
