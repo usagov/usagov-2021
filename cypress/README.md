@@ -46,7 +46,7 @@ TODO: add screenshots, code examples and demos; link to more resources
 ### Cypress Desktop Navigation
 After selecting the testing browser you should be brought to a tab listing all the specs (test scripts) in the project. Scripts are separated into three directories: accessibility, functional, and visual. 
 
-![test](https://drive.google.com/file/d/1fiqm6fpqcae91XFhF1xyNpytsHLh7Spw/view?usp=sharing)
+![test]()
 
 To run a test script simply click on its name, or hover over a directory to have the option to run multiple test scripts at once.
 
@@ -103,11 +103,19 @@ custom commands and package imports
 ### CSS Assertions 
 Most visual validation can and should be done with screenshot comparisons, but CSS validation comes in handy when visual testing fails. 
 
-### Accessibility Testing
+To learn more about firing native system events in Cypress visit the [cypress-real-events](https://github.com/dmtrKovalenko/cypress-real-events).
 
+### Accessibility Testing
+The `cypress-axe` plugin is used to validate a11y complicance on the site. The a11y test scripts loop through page urls stored in `subpaths.json` and runs axe to verify that each page meets WCAG 2.0 Level AA conformance.
+
+To learn more about axe visit the [cypress-axe documentation](https://github.com/component-driven/cypress-axe).
 
 ### Visual Testing
+Similar to a11y testing, the visual testing scripts loop through page urls stored in `subpaths.json`. It takes a screenshot of each page and runs a comparison with the existing baseline screenshot with commands from the `cypress-image-diff` plugin.
 
+All screenshot images are stored in the `/cypress-visual-screenshots` directory. Baseline screenshots (what the page should look like) are stored in the `/baseline` subdirectory, new screenshots (what the page actually looks like currently after new changes have been applied) are stored in the `/comparison` subdirectory, and images highlighting the differences (if any) between the baseline and new screenshots are stored in the `/diff` subdirectory.
+
+To learn more about using the screenshot plugin visit the [cypress-image-diff documentation](https://github.com/uktrade/cypress-image-diff).
 
 <!-- NEXT STEPS -->
 ## Next Steps
