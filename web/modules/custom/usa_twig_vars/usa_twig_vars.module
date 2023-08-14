@@ -246,8 +246,10 @@ function usa_twig_vars_after_build($form, &$form_state) {
   if (in_array($form['#id'], [
     'node-basic-page-form', 'node-basic-page-edit-form'
     ])) {
+    $form['path']['widget'][0]['#open'] = TRUE;
     if (array_key_exists('path', $form)) {
       $form['path']['widget'][0]['pathauto']['#checked'] = FALSE;
+      $form['path']['widget'][0]['alias']['#required'] = TRUE; 
     }
   }
   return $form;
