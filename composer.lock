@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ea265a0e5a7645d289dce21a45e7896d",
+    "content-hash": "3364dc789ab0ae56d1fb9e6c6e791ce8",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -8033,6 +8033,64 @@
                 "source": "https://github.com/mck89/peast/tree/v1.15.3"
             },
             "time": "2023-08-03T13:14:11+00:00"
+        },
+        {
+            "name": "mglaman/composer-drupal-lenient",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mglaman/composer-drupal-lenient.git",
+                "reference": "9d9271499d86ceb1431de80f876800fadf10a9e1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mglaman/composer-drupal-lenient/zipball/9d9271499d86ceb1431de80f876800fadf10a9e1",
+                "reference": "9d9271499d86ceb1431de80f876800fadf10a9e1",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^2.0",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "composer/composer": "^2.3",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan": "^1.6",
+                "phpstan/phpstan-phpunit": "^1.1",
+                "phpstan/phpstan-strict-rules": "^1.2",
+                "phpunit/phpunit": "^9.5",
+                "squizlabs/php_codesniffer": "^3.6"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "ComposerDrupalLenient\\Plugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "ComposerDrupalLenient\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Glaman",
+                    "email": "nmd.matt@gmail.com"
+                }
+            ],
+            "support": {
+                "issues": "https://github.com/mglaman/composer-drupal-lenient/issues",
+                "source": "https://github.com/mglaman/composer-drupal-lenient/tree/1.0.3"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/mglaman",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-03-21T19:06:37+00:00"
         },
         {
             "name": "mkalkbrenner/php-htmldiff-advanced",
