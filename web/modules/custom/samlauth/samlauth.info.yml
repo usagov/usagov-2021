@@ -1,8 +1,7 @@
 name: 'SAML Authentication'
 type: module
 description: 'Allows users to authenticate against an external SAML identity provider.'
-core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^9 || ^10
 package: 'User authentication'
 configure: samlauth.samlauth_configure_form
 dependencies:
