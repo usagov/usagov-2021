@@ -38,10 +38,7 @@ To get a local copy up and running follow these simple steps.
 
 <!-- USAGE -->
 ## Usage
-
 How to navigate the Cypress Desktop interface, run tests, and utilize the test suite.
-
-TODO: add screenshots, code examples and demos; link to more resources
 
 ### Testing with Cypress Desktop 
 After selecting the testing browser you should be brought to a tab listing all the specs (test scripts) in the project. Scripts are separated into three directories: accessibility, functional, and visual. 
@@ -54,19 +51,8 @@ To run a test script simply click on its name, or hover over a directory to have
 `./node_modules/.bin/cypress run --spec cypress/e2e/functional/eng/error_page.cy.js`
 `cypress run --spec cypress/e2e/accessibility`
 
-### Functional Testing
-
-The functional test scripts are organized by page based on the regression checklist (plus individual specs for the footer and mobile testing).
-
-Test cases are labeled with their ID from the regression checklist (BTE # for English site tests or BTS # for Spanish site tests).
-
-A few test cases (BTE/BTS 38-44, 49) have been excluded from functional testing due to being a purely visual-based test (checking that something looks correct).
-
-### Accessibility Testing
-
-
-### Visual Testing
-
+### Excluding/Isolating Test Cases
+`.only` and `.not`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -94,9 +80,9 @@ custom commands and package imports
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- WRITING TEST SCRIPTS -->
-## Writing Test Scripts
-
+<!-- TEST SCRIPTS -->
+## Test Scripts
+Cypress is built with the Mocha Javascript testing framework and Chai assertion library, which support BDD / TDD assertions.
 
 ### Element Selection
 
@@ -109,6 +95,14 @@ Most visual validation can and should be done with screenshot comparisons, but C
 
 To learn more about firing native system events in Cypress visit the [cypress-real-events](https://github.com/dmtrKovalenko/cypress-real-events).
 
+### Functional Testing
+
+The functional test scripts are organized by page based on the regression checklist (plus individual specs for the footer and mobile testing).
+
+Test cases are labeled with their ID from the regression checklist (BTE # for English site tests or BTS # for Spanish site tests).
+
+A few test cases (BTE/BTS 38-44, 49) have been excluded from functional testing due to being a purely visual-based test (checking that something looks correct).
+
 ### Accessibility Testing
 The `cypress-axe` plugin is used to validate a11y complicance on the site. The a11y test scripts loop through page urls stored in `subpaths.json` and runs axe to verify that each page meets WCAG 2.0 Level AA conformance.
 
@@ -120,6 +114,9 @@ Similar to a11y testing, the visual testing scripts loop through page urls store
 All screenshot images are stored in the `/cypress-visual-screenshots` directory. Baseline screenshots (what the page should look like) are stored in the `/baseline` subdirectory, new screenshots (what the page actually looks like currently after new changes have been applied) are stored in the `/comparison` subdirectory, and images highlighting the differences (if any) between the baseline and new screenshots are stored in the `/diff` subdirectory.
 
 To learn more about using the screenshot plugin visit the [cypress-image-diff documentation](https://github.com/uktrade/cypress-image-diff).
+
+<!-- REPORTING -->
+## Test Results and Reporting
 
 <!-- NEXT STEPS -->
 ## Next Steps
