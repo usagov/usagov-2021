@@ -138,7 +138,7 @@
 
         svg.call(series);
       }),
-      
+
       // the traffic sources 30 days total block
       "traffic-sources-30-days-totals": renderBlock()
       .render(function(selection, data) {
@@ -356,7 +356,7 @@
       })
       .render(barChart()
         .label(function(d) { return d.domain; })
-        .value(function(d) { return +d.visits; })
+        .value(function(d) { return +d['ga:uniquePageviews']; })
         .scale(function(values) {
           var max = d3.max(values);
           return d3.scale.linear()
@@ -445,7 +445,7 @@
   whenRendered(["top-external-links"], function() {
       //counts the numbers of children in top external links yesterday section
       var count = document.getElementById('top-external-links-yesterday').lastElementChild.childElementCount;
-      
+
       //checking to see if there are any elements in external links yesterday section
       if (count == 0) {
         //setting a variable to a specific tab by using unique href attribute
@@ -457,7 +457,7 @@
             var links_parent = links[3].parentNode;
             //removing the parent node
             links_parent.remove();
-            
+
             //changing attributes and styles
             document.getElementsByClassName('site-nav')[3].setAttribute("aria-selected", "true");
             document.getElementById('top-external-links-yesterday').setAttribute("aria-hidden", "true");
@@ -470,8 +470,8 @@
             links_list.firstElementChild.setAttribute("style", "width:50%");
             links_list.lastElementChild.setAttribute("style", "width:50%");
           }
-        } 
-      }     
+        }
+      }
   }
 );
 
