@@ -1,4 +1,4 @@
-describe('Error Page', () => {
+describe('Error Page [ENG]', () => {
     beforeEach(() => {
         cy.visit('/') 
     })

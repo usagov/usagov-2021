@@ -1,4 +1,4 @@
-describe('State Directory', () => {
+describe('State Directory [ES]', () => {
     beforeEach(() => {
         cy.visit('/es/gobiernos-estatales') 
     })

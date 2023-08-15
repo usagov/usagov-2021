@@ -1,4 +1,4 @@
-describe('Home Page', () => {
+describe('Home Page [ENG]', () => {
     beforeEach(() => {
         // Set base URL
         cy.visit('/')

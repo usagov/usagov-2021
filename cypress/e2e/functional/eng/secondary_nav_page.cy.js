@@ -1,4 +1,4 @@
-describe('Secondary Nav Page', () => {
+describe('Secondary Nav Page [ENG]', () => {
     beforeEach(() => {
         // Set base URL
         cy.visit('/disaster-financial-help')

@@ -1,15 +1,9 @@
-describe('Content Page', () => {
+describe('Content Page [ES]', () => {
     beforeEach(() => {
         // Set base URL
         cy.visit('/es/bibliotecas-publicas')
 
         cy.injectAxe()
-    })
-    it('Has no critical impact accessibility violations on load', () => {
-        // Test on initial load, only report and assert for critical impact items
-        cy.checkA11y(null, {
-          includedImpacts: ['critical']
-        })
     })
     it('BTS 28: Left menu appears on page and indicates the page you are on', () => {
         cy.get('.usa-sidenav')

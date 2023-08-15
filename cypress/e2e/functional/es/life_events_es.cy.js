@@ -1,4 +1,4 @@
-describe('Life Events', () => {
+describe('Life Events [ES]', () => {
     beforeEach(() => {
         cy.viewport('macbook-13')
         cy.visit('/es/etapas-importantes-de-la-vida') 

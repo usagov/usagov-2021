@@ -1,4 +1,4 @@
-describe('Federal Directory', () => {
+describe('Federal Directory [ENG]', () => {
     beforeEach(() => {
         cy.visit('/agency-index') 
     })

@@ -1,4 +1,4 @@
-describe('Content Page', () => {
+describe('Content Page [ENG]', () => {
     beforeEach(() => {
         // Set base URL
         cy.visit('/disaster-assistance')

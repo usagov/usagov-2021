@@ -1,4 +1,4 @@
-describe('Mobile', () => {
+describe('Mobile [ENG]', () => {
     beforeEach(() => {
         // Set viewport size and base URL
         cy.viewport(390, 844)

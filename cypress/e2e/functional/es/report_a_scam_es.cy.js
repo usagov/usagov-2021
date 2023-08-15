@@ -1,4 +1,4 @@
-describe('Scam Report (Spanish)', () => {
+describe('Scam Report [ES]', () => {
     beforeEach(() => {
         cy.visit('/es/donde-reportar-una-estafa') 
     })

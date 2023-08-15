@@ -1,6 +1,6 @@
 const socials = require('../../../fixtures/socials.json')
 
-describe('Footer', () => {
+describe('Footer [ES]', () => {
     beforeEach(() => {
         // Set base URL
         cy.visit('/es')

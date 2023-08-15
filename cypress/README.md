@@ -43,15 +43,23 @@ How to navigate the Cypress Desktop interface, run tests, and utilize the test s
 ### Testing with Cypress Desktop 
 After selecting the testing browser you should be brought to a tab listing all the specs (test scripts) in the project. Scripts are separated into three directories: accessibility, functional, and visual. 
 
-![test]()
-
 To run a test script simply click on its name, or hover over a directory to have the option to run multiple test scripts at once.
 
 ### Testing through Terminal
-`./node_modules/.bin/cypress run --spec cypress/e2e/functional/eng/error_page.cy.js`
-`cypress run --spec cypress/e2e/accessibility`
+To generate test results or debug without opening Cypress Desktop, 
 
-### Excluding/Isolating Test Cases
+    ```
+    cypress run --spec cypress/e2e/accessibility
+    ```
+
+    ```
+    ./node_modules/.bin/cypress run --spec cypress/e2e/functional/eng/error_page.cy.js
+    ```
+
+#### Test Results and Reporting
+
+
+#### Excluding/Isolating Test Cases
 `.only` and `.not`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -114,10 +122,6 @@ Similar to a11y testing, the visual testing scripts loop through page urls store
 All screenshot images are stored in the `/cypress-visual-screenshots` directory. Baseline screenshots (what the page should look like) are stored in the `/baseline` subdirectory, new screenshots (what the page actually looks like currently after new changes have been applied) are stored in the `/comparison` subdirectory, and images highlighting the differences (if any) between the baseline and new screenshots are stored in the `/diff` subdirectory.
 
 To learn more about using the screenshot plugin visit the [cypress-image-diff documentation](https://github.com/uktrade/cypress-image-diff).
-
-<!-- REPORTING -->
-## Test Results and Reporting
-
 
 <!-- BUGS -->
 ## Bugs, (Test) Failures, and Work in Progress

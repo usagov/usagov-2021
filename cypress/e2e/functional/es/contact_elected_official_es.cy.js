@@ -1,4 +1,4 @@
-describe('Contact Elected Officials (Spanish)', () => {
+describe('Contact Elected Officials [ES]', () => {
     beforeEach(() => {
         cy.visit('/es/funcionarios-electos') 
     })

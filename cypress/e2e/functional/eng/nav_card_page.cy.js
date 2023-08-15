@@ -1,4 +1,4 @@
-describe('Nav Card Page', () => {
+describe('Nav Card Page [ENG]', () => {
     beforeEach(() => {
         // Set base URL
         cy.visit('/disability-services')
