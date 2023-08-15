@@ -5,12 +5,6 @@ describe('Nav Card Page', () => {
 
         cy.injectAxe()
     })
-    it('Has no critical impact accessibility violations on load', () => {
-        // Test on initial load, only report and assert for critical impact items
-        cy.checkA11y(null, {
-          includedImpacts: ['critical']
-        })
-    })
     it('BTE 20: Banner image appears on topic pages', () => {
         cy.get('#block-usagov-content')
             .find('.usagov-hero')

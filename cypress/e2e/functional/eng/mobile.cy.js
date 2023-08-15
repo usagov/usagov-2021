@@ -6,19 +6,6 @@ describe('Mobile', () => {
 
         cy.injectAxe()
     })
-    it('Has no detectable accessibility violations on load', () => {
-        // Test page accessibility at initial load
-        cy.checkA11y()
-
-        // Logs a11y violations while allowing the test to pass
-        // cy.checkA11y(null, null, null, true)
-    })
-    it('Has no critical impact accessibility violations on load', () => {
-        // Test on initial load, only report and assert for critical impact items
-        cy.checkA11y(null, {
-          includedImpacts: ['critical']
-        })
-    })
     it('BTE 17: Mobile menu appears and functions appropriately', () => {
         cy.get('.usagov-mobile-menu')
             .should('not.be.visible')

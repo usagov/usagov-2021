@@ -118,6 +118,11 @@ To learn more about using the screenshot plugin visit the [cypress-image-diff do
 <!-- REPORTING -->
 ## Test Results and Reporting
 
+
+<!-- BUGS -->
+## Bugs, (Test) Failures, and Work in Progress
+
+
 <!-- NEXT STEPS -->
 ## Next Steps
 
