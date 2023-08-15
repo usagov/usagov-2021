@@ -46,21 +46,34 @@ After selecting the testing browser you should be brought to a tab listing all t
 To run a test script simply click on its name, or hover over a directory to have the option to run multiple test scripts at once.
 
 ### Testing through Terminal
-To generate test results or debug without opening Cypress Desktop, 
+To run tests or debug without opening Cypress Desktop, use the `cypress run --spec <filepath>` command from your root directory. 
 
+**Note: This will generate a test report, but it is also a bit slower than using Cypress Desktop.**
+
+#### Examples:
+
+Run all tests in test suite:
+    ```
+    cypress run --spec cypress/e2e
+    ```
+
+Run all accessibility tests:
     ```
     cypress run --spec cypress/e2e/accessibility
     ```
 
+Run the English site functional test for the error page: 
     ```
-    ./node_modules/.bin/cypress run --spec cypress/e2e/functional/eng/error_page.cy.js
+    cypress run --spec cypress/e2e/functional/eng/error_page.cy.js
+    ```
+
+If the above command doesn't work try this one:
+    ```
+    ./node_modules/.bin/cypress run --spec <filepath>
     ```
 
 #### Test Results and Reporting
-
-
-#### Excluding/Isolating Test Cases
-`.only` and `.not`
+Running tests through the terminal will automatically generate an test report that you can open locally in your browser once the tests are done running. The html file can be found in `cypress/reports/html/index.html`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -90,12 +103,13 @@ custom commands and package imports
 
 <!-- TEST SCRIPTS -->
 ## Test Scripts
-Cypress is built with the Mocha Javascript testing framework and Chai assertion library, which support BDD / TDD assertions.
+How to write and debug test scripts. 
 
 ### Element Selection
 
 
 ### DOM Assertions
+Cypress is built with the Mocha Javascript testing framework and Chai assertion library, which support BDD / TDD assertions.
 
 
 ### CSS Assertions 
