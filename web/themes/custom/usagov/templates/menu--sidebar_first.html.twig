@@ -91,7 +91,7 @@ TODO: remove menuLevel as it is no longer used
 
     {% if start_item == null %}
       {# There is no parent item that leads to this page. (Probably on an error page). Show All Topics #}
-      <nav aria-label="Secondary navigation">
+      <nav aria-label={{ leftMenuName == 'página' ?  "Navegación secundaria" : "Secondary Navigation" }} >
         <ul class="usa-sidenav">
           {% for item in items %}
             <li class="usa-sidenav__item">
@@ -120,7 +120,7 @@ TODO: come up with a better name than start_level. Its really the delta between 
 {% macro build(items, menuLevel, start_level, current_item_title, pageTypeIs, leftMenuName) %}
 
   {% if menuLevel == 0 %}
-    <nav aria-label="Secondary navigation">
+    <nav aria-label={{ leftMenuName == 'página' ?  "Navegación secundaria" : "Secondary Navigation" }} >
       <ul class="usa-sidenav">
         <li class="usa-sidenav__item">
           <a{% if start_level == 0 %} class="usa-current" aria-current= {{leftMenuName}} onclick="return false;" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
