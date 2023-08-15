@@ -89,7 +89,7 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
   else
     echo "Tome static build failed with status $TOME_SUCCESS - not pushing to S3" | tee -a $TOMELOG
     echo "Deleting Tome files to prevent inconsistency in next run" | tee -a $TOMELOG
-    rm -r /var/www/html/* | tee -a $TOMELOG
+    rm -rf /var/www/html/* | tee -a $TOMELOG
     if [ -f "$TOMELOG" ]; then
       echo "Saving logs of this run to S3" | tee -a $TOMELOG
       aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE --only-show-errors $S3_EXTRA_PARAMS
