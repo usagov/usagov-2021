@@ -53,21 +53,25 @@ To run tests or debug without opening Cypress Desktop, use the `cypress run --sp
 #### Examples:
 
 Run all tests in test suite:
+
     ```
     cypress run --spec cypress/e2e
     ```
 
 Run all accessibility tests:
+
     ```
     cypress run --spec cypress/e2e/accessibility
     ```
 
 Run the English site functional test for the error page: 
+
     ```
     cypress run --spec cypress/e2e/functional/eng/error_page.cy.js
     ```
 
 If the above command doesn't work try this one:
+
     ```
     ./node_modules/.bin/cypress run --spec <filepath>
     ```
