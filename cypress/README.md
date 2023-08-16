@@ -119,7 +119,9 @@ custom commands and package imports
 How to write and debug test scripts. 
 
 ### Element Selection
-The method of selecting elements comes from the .get and .find functions. Using 
+The method of selecting elements comes from the .get and .find functions. Using these two functions you can query for any element. 
+
+Within the get function, a query parameter can be a class, id, etc., but there is a best practice use case of a 'data-cy' identifier. This would be a next steps feature as it would ensure 100% that tests are still able to run no matter the change to the website. Linked here are some cypress [best practices](https://docs.cypress.io/guides/references/best-practices).
 
 ### DOM Assertions
 Cypress is built with the Mocha Javascript testing framework and Chai assertion library, which support BDD / TDD assertions.
@@ -158,6 +160,7 @@ To learn more about using the screenshot plugin visit the [cypress-image-diff do
 ## Next Steps
 
 * Integration with CircleCI
+* Selection with best practices
 
 ### Resources
 
