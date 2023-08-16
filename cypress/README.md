@@ -17,7 +17,7 @@ An automated test suite based off the USA.gov manual regression checklist.
 * [cypress-image-diff](https://github.com/uktrade/cypress-image-diff)
 * [cypress-axe](https://github.com/component-driven/cypress-axe)
 * [cypress-real-events](https://github.com/dmtrKovalenko/cypress-real-events)
-* [cypress-mocha-awesome-reporter]
+* [cypress-mochawesome-reporter](https://github.com/LironEr/cypress-mochawesome-reporter)
 
 ### Set Up
 
@@ -31,15 +31,16 @@ To get a local copy up and running follow the steps found in the main README of 
 
 2. Open another terminal window, again, make sure you've navigated to the **root directory**. Then, run the commands linked to downloading. This will install Cypress locally as a dev dependency for your project.:
     ```
-    npm install cypress --save-dev  
+    npm i cypress --save-dev  
     ```
 
 3. To install the dev dependencies, run the following commands in the same terminal window:
     ```
     npm i -D cypress-image-diff-js
-    npm install --save-dev cypress-axe
-    npm install --save-dev cypress axe-core
-    npm install cypress-real-events
+    npm i --save-dev cypress-axe
+    npm i --save-dev cypress axe-core
+    npm i cypress-real-events
+    npm i --save-dev cypress-mochawesome-reporter
     ```
 
 4. Next, run the following command to open Cypress:
@@ -111,7 +112,22 @@ Holds test data:
     * usages: `/cypress/e2e/accessibility/axe_eng.cy.js`, `/cypress/e2e/accessibility/axe_es.cy.js`, `/cypress/e2e/visual/full_pg_visual_eng.cy.js`, `/cypress/e2e/visual/full_pg_visual_es.cy.js`
 
 ### `/cypress/support`
-custom commands and package imports
+
+#### `commands.js`
+We currently don't use any custom commands within the test suite, but this is where you can create various custom commands and overwrite existing commands.
+
+The file contains a few simple examples of commands you can create. 
+
+For more comprehensive examples of custom commands please read more here: https://on.cypress.io/custom-commands
+
+#### `e2e.js`
+
+This file is processed and loaded automatically before your test files.
+It is used to customize global configuration and behavior that modifies Cypress.
+
+You can change the location of this file or turn off automatically serving support files with the 'supportFile' configuration option.
+
+Read more here: https://on.cypress.io/configuration
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -131,15 +147,14 @@ Most DOM assertions are set up through a .should function and you can get a comp
 ### CSS Assertions 
 Most visual validation can and should be done with screenshot comparisons, but CSS validation comes in handy when visual testing fails. 
 
-Cypress can't detect state changes after events, so we use a plug in to check things like hover state.
+Cypress can't detect state changes after events, so we use a plugin to check things like hover state.
 
 Example:
-    ```
-        // Css check for hover state 
-        cy.wrap(el)
-            .realHover()
-            .should('have.css', 'background-color', 'rgb(204, 236, 242)')
-    ```
+
+    // Css check for hover state 
+    cy.wrap(el)
+        .realHover()
+        .should('have.css', 'background-color', 'rgb(204, 236, 242)')
 
 To learn more about firing native system events in Cypress visit the [cypress-real-events](https://github.com/dmtrKovalenko/cypress-real-events).
 
