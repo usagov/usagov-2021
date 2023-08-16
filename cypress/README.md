@@ -17,6 +17,7 @@ An automated test suite based off the USA.gov manual regression checklist.
 * [cypress-image-diff](https://github.com/uktrade/cypress-image-diff)
 * [cypress-axe](https://github.com/component-driven/cypress-axe)
 * [cypress-real-events](https://github.com/dmtrKovalenko/cypress-real-events)
+* [cypress-mocha-awesome-reporter]
 
 ### Set Up
 
@@ -119,6 +120,16 @@ Cypress is built with the Mocha Javascript testing framework and Chai assertion 
 ### CSS Assertions 
 Most visual validation can and should be done with screenshot comparisons, but CSS validation comes in handy when visual testing fails. 
 
+Cypress can't detect state changes after events, so we use a plug in to check things like hover state.
+
+Example:
+    ```
+        // Css check for hover state 
+        cy.wrap(el)
+            .realHover()
+            .should('have.css', 'background-color', 'rgb(204, 236, 242)')
+    ```
+
 To learn more about firing native system events in Cypress visit the [cypress-real-events](https://github.com/dmtrKovalenko/cypress-real-events).
 
 ### Functional Testing
@@ -137,13 +148,24 @@ To learn more about axe visit the [cypress-axe documentation](https://github.com
 ### Visual Testing
 Similar to a11y testing, the visual testing scripts loop through page urls stored in `subpaths.json`. It takes a screenshot of each page and runs a comparison with the existing baseline screenshot with commands from the `cypress-image-diff` plugin.
 
-All screenshot images are stored in the `/cypress-visual-screenshots` directory. Baseline screenshots (what the page should look like) are stored in the `/baseline` subdirectory, new screenshots (what the page actually looks like currently after new changes have been applied) are stored in the `/comparison` subdirectory, and images highlighting the differences (if any) between the baseline and new screenshots are stored in the `/diff` subdirectory.
+All screenshot images are stored in the `/cypress-visual-screenshots` directory. 
+Subdirectories:
+* `/baseline`: what the page should look like
+* `/comparison`: new screenshots of what the page actually looks like after new changes have been applied 
+* `/diff`:images highlighting the differences (if any) between the baseline and new screenshots
 
 To learn more about using the screenshot plugin visit the [cypress-image-diff documentation](https://github.com/uktrade/cypress-image-diff).
 
 <!-- BUGS -->
 ## Bugs, (Test) Failures, and Work in Progress
 
+
+### Conditional Visual Testing
+Verifies if a certain element or part of the page looks correct after a certain action is performed.
+
+Example: checking an accordion looks correct both before and after it's been expanded.
+
+Currently the only conditional visual testing script is `cypress/e2e/visual/home_page_visual.cy.js`
 
 <!-- NEXT STEPS -->
 ## Next Steps
