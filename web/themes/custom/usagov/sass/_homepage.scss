@@ -288,7 +288,7 @@
 .carousel {
   position: relative;
   width: 100%;
-  height: 300px;
+  height: 435px;
   margin: 0;
   padding: 0;
   display: flex;
@@ -388,7 +388,7 @@
 }
 
 .slide {
-  height: 285px;
+  height: 435px;
   width: min(calc(100% - 4px), 234px);
   max-width: min(calc(100% - 4px), 234px);
   flex: 0 0 calc(100%);
@@ -423,7 +423,7 @@
 
     .life_events_card_text {
       padding: 12px 12px 0;
-      height:210px;
+      height: 360px;
     }
   }
 
@@ -839,6 +839,40 @@
   }
 }
 
+/* Life Events Cards - Tablet  */
+@media (min-height: 700px) and (max-width: 1023px) {
+  .carousel {
+    height: 320px;
+  }
+
+  .slide {
+    height: 320px;
+
+    a {
+      .life_events_card_text {
+        height: 245px;
+      }
+    }
+  }
+}
+
+/* Life Events Cards - Desktop  */
+@media (min-width: 1024px) {
+  .carousel {
+    height: 320px;
+  }
+
+  .slide {
+    height: 320px;
+
+    a {
+      .life_events_card_text {
+        height: 245px;
+      }
+    }
+  }
+}
+
 /* Life Events Cards - shorter and narrower */
 @media (min-height: 700px) {
   @media (max-width: 400px) {
@@ -889,40 +923,6 @@
     a {
       .life_events_card_text {
         height: 305px;
-      }
-    }
-  }
-}
-
-/* Life Events Cards - Tablet  */
-@media (min-height: 700px) and (max-width: 1023px) {
-  .carousel {
-    height: 320px;
-  }
-
-  .slide {
-    height: 320px;
-
-    a {
-      .life_events_card_text {
-        height: 245px;
-      }
-    }
-  }
-}
-
-/* Life Events Cards - Desktop  */
-@media (min-width: 1024px) {
-  .carousel {
-    height: 320px;
-  }
-
-  .slide {
-    height: 320px;
-
-    a {
-      .life_events_card_text {
-        height: 245px;
       }
     }
   }
