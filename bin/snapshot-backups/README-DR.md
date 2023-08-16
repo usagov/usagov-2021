@@ -18,12 +18,16 @@ B. Ensure you are in the Cloud Foundry space which you want to backup e.g:
 
         cf target -s $SPACE
 
-C. Run the all-in-one backup script.  This will fail if the current CF space does not match the SPACE env var. This will wait for a currently-running tome job to complete before proceeding.  It will wait up to 25 muinutes.
+C. Run the all-in-one backup script.
+
+This will fail if the current CF space does not match the SPACE env var. This will wait for a currently-running tome job to complete before proceeding. It will wait up to 25 minutes.  It will then disable tome and enable Drupal maintenance mode while the backup is performed, restoring them when complete
 
         dryrun='--dryrun'
         bin/snapshot-backups/local-snapshot-backup ${dryrun} $SPACE $BRANCH $SUFFIX
 
-D. Make a note of the snapshot tag string emitted by the previous script, and set and environment variable for it.  The string will look like "USAGOV-999.prod.1234.pre-deploy" or similar.  It is made up of the TICKET, SPACE and SUFFIX environment variables, and a number - representing the CircleCI build number for the deployment being backed up:
+D. Make a note of the snapshot tag string emitted by the previous script, and set an environment variable for it.
+
+The string will look like ``USAGOV-999.prod.1234.pre-deploy`` or similar.  It is made up of the TICKET, SPACE and SUFFIX environment variables, and a number - representing the CircleCI build number for the deployment being backed up
 
       SNAPTAG=USAGOV-999.prod.1234.pre-deploy
 
