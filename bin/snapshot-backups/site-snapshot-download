@@ -34,7 +34,7 @@ DEPLOY_TAG=${1}
 
 if [ -z "$DEPLOY_TAG" ]; then
   echo "Usage: $0 <tag>"
-  echo "This will create a backup named for the tag in the local directory. Use static-site-list to see available tags."
+  echo "This will download the static site snapshot for the given tag in the current directory (as a zip). Use static-site-list to see available tags. The snapshot for the given tag must exist already in s3."
   exit 1
 fi
 
