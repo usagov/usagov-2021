@@ -20,20 +20,34 @@ An automated test suite based off the USA.gov manual regression checklist.
 
 ### Set Up
 
-To get a local copy up and running follow these simple steps.
+To get a local copy up and running follow the steps found in the main README of [usa.gov](https://github.com/usagov/usagov-2021)
 
-1. If you haven't already, open up your IDE/terminal and start your local dev server.
+1. Make sure that you're in your root directory of your local repo. If you haven't already, open up your IDE/terminal and start your local dev server.
     ```
     bin/init
     docker compose up
     ```
-2. Open another terminal window, navigate to the **root directory**, and run the following command to open Cypress:
+
+2. Open another terminal window, again, make sure you've navigated to the **root directory**. Then, run the commands linked to downloading. This will install Cypress locally as a dev dependency for your project.:
+    ```
+    npm install cypress --save-dev  
+    ```
+
+3. To install the dev dependencies, run the following commands in the same terminal window:
+    ```
+    npm i -D cypress-image-diff-js
+    npm install --save-dev cypress-axe
+    npm install --save-dev cypress axe-core
+    npm install cypress-real-events
+    ```
+
+4. Next, run the following command to open Cypress:
     ```
     npx cypress open
     ```
     A window from the Cypress desktop app should pop up prompting you to choose from 2 testing types. 
 
-3. Select E2E Testing. Then select the browser you would like to test from. That's it, you're ready to start testing!
+4. Select E2E Testing. Then select the browser you would like to test from. That's it, you're ready to start testing!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -55,27 +69,21 @@ To run tests or debug without opening Cypress Desktop, use the `cypress run --sp
 
 Run all tests in test suite:
 
-    ```
     cypress run --spec cypress/e2e
-    ```
+    
 
 Run all accessibility tests:
 
-    ```
     cypress run --spec cypress/e2e/accessibility
-    ```
 
 Run the English site functional test for the error page: 
 
-    ```
     cypress run --spec cypress/e2e/functional/eng/error_page.cy.js
-    ```
 
 If the above command doesn't work try this one:
 
-    ```
     ./node_modules/.bin/cypress run --spec <filepath>
-    ```
+
 
 #### Test Results and Reporting
 Running tests through the terminal will automatically generate an test report that you can open locally in your browser once the tests are done running. The html file can be found in `cypress/reports/html/index.html`.
@@ -111,11 +119,11 @@ custom commands and package imports
 How to write and debug test scripts. 
 
 ### Element Selection
-
+The method of selecting elements comes from the .get and .find functions. Using 
 
 ### DOM Assertions
 Cypress is built with the Mocha Javascript testing framework and Chai assertion library, which support BDD / TDD assertions.
-
+Most DOM assertions are set up through a .should function and you can get a comprehensive list of these assertions [here](https://docs.cypress.io/guides/references/assertions).
 
 ### CSS Assertions 
 Most visual validation can and should be done with screenshot comparisons, but CSS validation comes in handy when visual testing fails. 
