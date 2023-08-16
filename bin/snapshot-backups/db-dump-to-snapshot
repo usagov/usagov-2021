@@ -27,7 +27,7 @@ if [ x$1 = x"--dryrun" ]; then
 fi
 
 SPACE=${1:-please-provide-space-name-as-first-argument}
-SPACE=${SPACE,,}
+SSPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
 shift
 
