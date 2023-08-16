@@ -42,7 +42,7 @@ shift
 SUFFIX=$1
 if [ -z "$SUFFIX" ]; then
   echo "Usage: $0 <env> <jira ticket> <cci build id> <suffix>"
-  echo "This will attempt to download the s3 backups from $SPACE"
+  echo "This will attempt to backup the current state of the database, static site and public files in $SPACE"
   exit 1
 fi
 shift
