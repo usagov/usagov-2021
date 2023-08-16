@@ -99,7 +99,7 @@ RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
 ###############################################################
 
 
-FROM alpine:3.16 AS cms
+FROM alpine:3.17 AS cms
 LABEL MAINTAINER=dan@mobomo.com
 
 ARG S6_VERSION
