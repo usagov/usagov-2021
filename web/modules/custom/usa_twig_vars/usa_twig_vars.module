@@ -237,12 +237,13 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
 function usa_twig_vars_preprocess_views_view_field__published_pages_report(&$variables, $hook, $info) {
   // echo $variables['field']->field;
   if ($variables['field']->field == 'level') {
-     if (empty($variables['output'])) {
-      $variables['output'] = 1;
-     } else {
-      $output = $variables['field']->getValue($variables['row']);
-      $variables['output'] = (int)$output + 2;
-     }
+      if (empty($variables['output'])) {
+       $variables['output'] = 1;
+      }
+      else {
+       $output = $variables['field']->getValue($variables['row']);
+       $variables['output'] = (int) $output + 2;
+      }
   }
 }
 
