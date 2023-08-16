@@ -136,7 +136,7 @@ Read more here: https://on.cypress.io/configuration
 How to write and debug test scripts. 
 
 ### Element Selection
-The method of selecting elements comes from the .get and .find functions. Using these two functions you can query for any element. 
+The method of selecting elements comes from the .get and .find functions. Using these two functions you can query for any element. There are a lot of other options for element selection in Cypress as well, and their documentation can be found [here](https://example.cypress.io/commands/querying)
 
 Within the get function, a query parameter can be a class, id, etc., but there is a best practice use case of a 'data-cy' identifier. This would be a next steps feature as it would ensure 100% that tests are still able to run no matter the change to the website. Linked here are some cypress [best practices](https://docs.cypress.io/guides/references/best-practices).
 
@@ -184,6 +184,10 @@ To learn more about using the screenshot plugin visit the [cypress-image-diff do
 
 <!-- BUGS -->
 ## Bugs, (Test) Failures, and Work in Progress
+* Some tests do not work since we have an outdated data set for the USAgov website currenlty loaded on our branch
+* BTE/BTS 47: Could not get scam report form to work (clicking through a multipage form)
+* BTE/BTS 48: Could not get functional test for the federal directory query to work
+* BTE/BTS 51: Testing each individual state directory page 
 
 
 ### Conditional Visual Testing
