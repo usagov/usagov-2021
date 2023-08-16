@@ -1,15 +1,9 @@
-describe('Secondary Nav Page', () => {
+describe('Secondary Nav Page [ENG]', () => {
     beforeEach(() => {
         // Set base URL
         cy.visit('/disaster-financial-help')
 
         cy.injectAxe()
-    })
-    it('Has no critical impact accessibility violations on load', () => {
-        // Test on initial load, only report and assert for critical impact items
-        cy.checkA11y(null, {
-          includedImpacts: ['critical']
-        })
     })
     it('BTE 24: Links/cards to content appear in the main body of the page and behave as expected', () => {
         cy.get('.usagov-navpage-item')

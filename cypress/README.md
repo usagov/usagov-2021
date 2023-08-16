@@ -39,35 +39,46 @@ To get a local copy up and running follow these simple steps.
 
 <!-- USAGE -->
 ## Usage
-
 How to navigate the Cypress Desktop interface, run tests, and utilize the test suite.
-
-TODO: add screenshots, code examples and demos; link to more resources
 
 ### Testing with Cypress Desktop 
 After selecting the testing browser you should be brought to a tab listing all the specs (test scripts) in the project. Scripts are separated into three directories: accessibility, functional, and visual. 
 
-![test]()
-
 To run a test script simply click on its name, or hover over a directory to have the option to run multiple test scripts at once.
 
 ### Testing through Terminal
-`./node_modules/.bin/cypress run --spec cypress/e2e/functional/eng/error_page.cy.js`
-`cypress run --spec cypress/e2e/accessibility`
+To run tests or debug without opening Cypress Desktop, use the `cypress run --spec <filepath>` command from your root directory. 
 
-### Functional Testing
+**Note: This will generate a test report, but it is also a bit slower than using Cypress Desktop.**
 
-The functional test scripts are organized by page based on the regression checklist (plus individual specs for the footer and mobile testing).
+#### Examples:
 
-Test cases are labeled with their ID from the regression checklist (BTE # for English site tests or BTS # for Spanish site tests).
+Run all tests in test suite:
 
-A few test cases (BTE/BTS 38-44, 49) have been excluded from functional testing due to being a purely visual-based test (checking that something looks correct).
+    ```
+    cypress run --spec cypress/e2e
+    ```
 
-### Accessibility Testing
+Run all accessibility tests:
 
+    ```
+    cypress run --spec cypress/e2e/accessibility
+    ```
 
-### Visual Testing
+Run the English site functional test for the error page: 
 
+    ```
+    cypress run --spec cypress/e2e/functional/eng/error_page.cy.js
+    ```
+
+If the above command doesn't work try this one:
+
+    ```
+    ./node_modules/.bin/cypress run --spec <filepath>
+    ```
+
+#### Test Results and Reporting
+Running tests through the terminal will automatically generate an test report that you can open locally in your browser once the tests are done running. The html file can be found in `cypress/reports/html/index.html`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -95,20 +106,29 @@ custom commands and package imports
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- WRITING TEST SCRIPTS -->
-## Writing Test Scripts
-
+<!-- TEST SCRIPTS -->
+## Test Scripts
+How to write and debug test scripts. 
 
 ### Element Selection
 
 
 ### DOM Assertions
+Cypress is built with the Mocha Javascript testing framework and Chai assertion library, which support BDD / TDD assertions.
 
 
 ### CSS Assertions 
 Most visual validation can and should be done with screenshot comparisons, but CSS validation comes in handy when visual testing fails. 
 
 To learn more about firing native system events in Cypress visit the [cypress-real-events](https://github.com/dmtrKovalenko/cypress-real-events).
+
+### Functional Testing
+
+The functional test scripts are organized by page based on the regression checklist (plus individual specs for the footer and mobile testing).
+
+Test cases are labeled with their ID from the regression checklist (BTE # for English site tests or BTS # for Spanish site tests).
+
+A few test cases (BTE/BTS 38-44, 49) have been excluded from functional testing due to being a purely visual-based test (checking that something looks correct).
 
 ### Accessibility Testing
 The `cypress-axe` plugin is used to validate a11y complicance on the site. The a11y test scripts loop through page urls stored in `subpaths.json` and runs axe to verify that each page meets WCAG 2.0 Level AA conformance.
@@ -121,6 +141,10 @@ Similar to a11y testing, the visual testing scripts loop through page urls store
 All screenshot images are stored in the `/cypress-visual-screenshots` directory. Baseline screenshots (what the page should look like) are stored in the `/baseline` subdirectory, new screenshots (what the page actually looks like currently after new changes have been applied) are stored in the `/comparison` subdirectory, and images highlighting the differences (if any) between the baseline and new screenshots are stored in the `/diff` subdirectory.
 
 To learn more about using the screenshot plugin visit the [cypress-image-diff documentation](https://github.com/uktrade/cypress-image-diff).
+
+<!-- BUGS -->
+## Bugs, (Test) Failures, and Work in Progress
+
 
 <!-- NEXT STEPS -->
 ## Next Steps

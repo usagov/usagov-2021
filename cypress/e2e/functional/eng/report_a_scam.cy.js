@@ -1,4 +1,4 @@
-describe('Scam Report', () => {
+describe('Scam Report [ENG]', () => {
     beforeEach(() => {
         cy.visit('/where-report-scams#block-wizardenglish') 
     })

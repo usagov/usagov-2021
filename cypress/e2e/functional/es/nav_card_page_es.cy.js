@@ -1,15 +1,9 @@
-describe('Nav Card Page', () => {
+describe('Nav Card Page [ES]', () => {
     beforeEach(() => {
         // Set base URL
         cy.visit('/es/desastres-emergencias')
 
         cy.injectAxe()
-    })
-    it('Has no critical impact accessibility violations on load', () => {
-        // Test on initial load, only report and assert for critical impact items
-        cy.checkA11y(null, {
-          includedImpacts: ['critical']
-        })
     })
     it('BTS 20: Banner image appears on topic pages', () => {
         cy.get('#block-usagov-content')

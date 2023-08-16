@@ -4,6 +4,8 @@ const { beforeRunHook } = require('cypress-mochawesome-reporter/lib')
 
 module.exports = defineConfig({
   reporter: 'cypress-mochawesome-reporter',
+  video: false,
+  screenshotOnRunFailure: true,
   e2e: {
     baseUrl: 'http://localhost',
     viewportWidth: 1280,

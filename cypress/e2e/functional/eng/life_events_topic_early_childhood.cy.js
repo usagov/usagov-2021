@@ -1,4 +1,4 @@
-describe('Life Events: Early Childhood', () => {
+describe('Life Events: Early Childhood [ENG]', () => {
     beforeEach(() => {
         cy.visit('/early-childhood') 
     })

@@ -20,7 +20,13 @@ describe('Validate 508 accessibility compliance on Spanish site', () =>{
             'log',
             `Run axe core http://localhost/${subpath}`
         )
-        cy.checkA11y(null, null, terminalLog)
+        cy.checkA11y(
+          null, 
+          // Only detects critical errors
+          /*{
+            includedImpacts: ['critical']
+          },*/
+          terminalLog)
     })
   })
 })

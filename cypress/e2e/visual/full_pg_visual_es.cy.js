@@ -1,6 +1,6 @@
 const subpaths = require('../../fixtures/subpaths.json')
 
-describe('Visual testing for English site', () =>{
+describe('Visual testing for Spanish site', () =>{
     subpaths.es.forEach((subpath) => {
         it(`Compare full page screenshot for http://localhost/${subpath}`, () => {
             cy.visit(`http://localhost/${subpath}`, {failOnStatusCode: false})
