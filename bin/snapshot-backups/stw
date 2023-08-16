@@ -47,6 +47,6 @@ else
 fi
 
 echo
-echo "Running '$COMMAND' with tag:  $BACKUP_TAG"
+echo "Running '$COMMAND' with space '$SPACE' and tag '$BACKUP_TAG'"
 echo
 $echo ${COMMAND} $SPACE $BACKUP_TAG
