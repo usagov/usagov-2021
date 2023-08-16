@@ -50,9 +50,6 @@ if [ x$echo = x ]; then
 fi
 
 if [ "$RETVAL" = "0" ]; then
-  #$echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX site-snapshot-deploy   #$dryrun $SPACE $SNAPSHOT_TAG
-  #$echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX db-dump-deploy         #$dryrun $SPACE $SNAPSHOT_TAG
-  #$echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX public-snapshot-deploy #$dryrun $SPACE $SNAPSHOT_TAG
   echo  $SCRIPT_DIR/db-dump-deploy         $dryrun $SPACE $SNAPSHOT_TAG
         $SCRIPT_DIR/db-dump-deploy         $dryrun $SPACE $SNAPSHOT_TAG
   echo  $SCRIPT_DIR/site-snapshot-deploy   $dryrun $SPACE $SNAPSHOT_TAG
