@@ -24,6 +24,7 @@ To get a local copy up and running follow these simple steps.
 
 1. If you haven't already, open up your IDE/terminal and start your local dev server.
     ```
+    bin/init
     docker compose up
     ```
 2. Open another terminal window, navigate to the **root directory**, and run the following command to open Cypress:
@@ -80,7 +81,7 @@ This is also where you'll find the `setupNodeEvents` function if you need to run
 Whenever you modify your configuration file, Cypress will automatically reboot itself and kill any open browsers. This is normal. Click on the spec file again to relaunch the browser.
 
 ### `/cypress/e2e`
-Contains all frontend test scripts organized into accessibility, functional, and visual tests. Within each of these directories, test scripts are then separated into English site tests and Spanish site tests.
+Contains all frontend test scripts organized into accessibility, functional, and visual tests. Within each of these directories, test scripts are then separated into English site tests and Spanish site tests. Each test is labeled with the corresponding regression test.
 
 ### `/cypress/fixtures`
 Holds test data: 
