@@ -17,7 +17,7 @@ An automated test suite based off the USA.gov manual regression checklist.
 * [cypress-image-diff](https://github.com/uktrade/cypress-image-diff)
 * [cypress-axe](https://github.com/component-driven/cypress-axe)
 * [cypress-real-events](https://github.com/dmtrKovalenko/cypress-real-events)
-* [cypress-mochawesome-reporter](https://github.com/LironEr/cypress-mochawesome-reporter)
+* [cypress-mocha-awesome-reporter]
 
 ### Set Up
 
@@ -29,18 +29,18 @@ To get a local copy up and running follow the steps found in the main README of 
     docker compose up
     ```
 
-2. Open another terminal window, again, make sure you've navigated to the **root directory**. Then, run the commands linked to downloading. This will install Cypress locally as a dev dependency for your project.:
+2. Open another terminal window, again, make sure you've navigated to the **root directory**. Then, run the commands linked to downloading. This will install Cypress locally as a dev dependency for your project:
+Depending 
     ```
-    npm i cypress --save-dev  
+    npm install cypress --save-dev  
     ```
 
 3. To install the dev dependencies, run the following commands in the same terminal window:
     ```
     npm i -D cypress-image-diff-js
-    npm i --save-dev cypress-axe
-    npm i --save-dev cypress axe-core
-    npm i cypress-real-events
-    npm i --save-dev cypress-mochawesome-reporter
+    npm install --save-dev cypress-axe
+    npm install --save-dev cypress axe-core
+    npm install cypress-real-events
     ```
 
 4. Next, run the following command to open Cypress:
@@ -112,22 +112,7 @@ Holds test data:
     * usages: `/cypress/e2e/accessibility/axe_eng.cy.js`, `/cypress/e2e/accessibility/axe_es.cy.js`, `/cypress/e2e/visual/full_pg_visual_eng.cy.js`, `/cypress/e2e/visual/full_pg_visual_es.cy.js`
 
 ### `/cypress/support`
-
-#### `commands.js`
-We currently don't use any custom commands within the test suite, but this is where you can create various custom commands and overwrite existing commands.
-
-The file contains a few simple examples of commands you can create. 
-
-For more comprehensive examples of custom commands please read more here: https://on.cypress.io/custom-commands
-
-#### `e2e.js`
-
-This file is processed and loaded automatically before your test files.
-It is used to customize global configuration and behavior that modifies Cypress.
-
-You can change the location of this file or turn off automatically serving support files with the 'supportFile' configuration option.
-
-Read more here: https://on.cypress.io/configuration
+custom commands and package imports
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -136,25 +121,26 @@ Read more here: https://on.cypress.io/configuration
 How to write and debug test scripts. 
 
 ### Element Selection
-Our method of selecting elements currently relies on the DOM structure of the page. We use functions like `.get` and `.find` to query elements. There are a lot of other options for element selection in Cypress as well, and their documentation can be found [here](https://example.cypress.io/commands/querying)
+The method of selecting elements comes from the .get and .find functions. Using these two functions you can query for any element. There are a lot of other options for element selection in Cypress as well, and their documentation can be found [here](https://example.cypress.io/commands/querying)
 
 Within the get function, a query parameter can be a class, id, etc., but there is a best practice use case of a 'data-cy' identifier. This would be a next steps feature as it would ensure 100% that tests are still able to run no matter the change to the website. Linked here are some cypress [best practices](https://docs.cypress.io/guides/references/best-practices).
 
 ### DOM Assertions
 Cypress is built with the Mocha Javascript testing framework and Chai assertion library, which support BDD / TDD assertions.
-Most DOM assertions are set up through a `.should` function and you can get a comprehensive list of these assertions [here](https://docs.cypress.io/guides/references/assertions).
+Most DOM assertions are set up through a .should function and you can get a comprehensive list of these assertions [here](https://docs.cypress.io/guides/references/assertions).
 
 ### CSS Assertions 
 Most visual validation can and should be done with screenshot comparisons, but CSS validation comes in handy when visual testing fails. 
 
-Cypress can't detect state changes after events, so we use a plugin to check things like hover state.
+Cypress can't detect state changes after events, so we use a plug in to check things like hover state.
 
 Example:
-
-    // Css check for hover state 
-    cy.wrap(el)
-        .realHover()
-        .should('have.css', 'background-color', 'rgb(204, 236, 242)')
+    ```
+        // Css check for hover state 
+        cy.wrap(el)
+            .realHover()
+            .should('have.css', 'background-color', 'rgb(204, 236, 242)')
+    ```
 
 To learn more about firing native system events in Cypress visit the [cypress-real-events](https://github.com/dmtrKovalenko/cypress-real-events).
 
@@ -185,6 +171,7 @@ To learn more about using the screenshot plugin visit the [cypress-image-diff do
 <!-- BUGS -->
 ## Bugs, (Test) Failures, and Work in Progress
 * Some tests do not work since we have an outdated data set for the USAgov website currenlty loaded on our branch
+* BTE/BTS 35: outdated data set
 * BTE/BTS 47: Could not get scam report form to work (clicking through a multipage form)
 * BTE/BTS 48: Could not get functional test for the federal directory query to work
 * BTE/BTS 51: Testing each individual state directory page 

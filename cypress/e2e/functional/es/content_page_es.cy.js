@@ -97,11 +97,11 @@ describe('Content Page [ES]', () => {
             .find('#sm-share')
             .should('exist')
             .get('div.share-icons>a').eq(0)
-            .should('have.attr', 'href', 'http://www.facebook.com/sharer/sharer.php?u=https://localhost/disaster-assistance&v=3')
+            .should('have.attr', 'href', 'http://www.facebook.com/sharer/sharer.php?u=http://localhost/disaster-assistance&v=3')
             .get('div.share-icons>a').eq(1)
-            .should('have.attr', 'href', 'http://twitter.com/intent/tweet?source=webclient&text=https://localhost/disaster-assistance')
+            .should('have.attr', 'href', 'http://twitter.com/intent/tweet?source=webclient&text=http://localhost/disaster-assistance')
             .get('div.share-icons>a').eq(2)
-            .should('have.attr', 'href', 'mailto:?subject=https://localhost/disaster-assistance')
+            .should('have.attr', 'href', 'mailto:?subject=http://localhost/disaster-assistance')
     })
     it('BTS 34: Do you have a question block appears at bottom of content page with icons and links to phone and chat', () => {
         // test question box
