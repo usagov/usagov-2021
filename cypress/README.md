@@ -136,13 +136,13 @@ Read more here: https://on.cypress.io/configuration
 How to write and debug test scripts. 
 
 ### Element Selection
-The method of selecting elements comes from the .get and .find functions. Using these two functions you can query for any element. There are a lot of other options for element selection in Cypress as well, and their documentation can be found [here](https://example.cypress.io/commands/querying)
+Our method of selecting elements currently relies on the DOM structure of the page. We use functions like `.get` and `.find` to query elements. There are a lot of other options for element selection in Cypress as well, and their documentation can be found [here](https://example.cypress.io/commands/querying)
 
 Within the get function, a query parameter can be a class, id, etc., but there is a best practice use case of a 'data-cy' identifier. This would be a next steps feature as it would ensure 100% that tests are still able to run no matter the change to the website. Linked here are some cypress [best practices](https://docs.cypress.io/guides/references/best-practices).
 
 ### DOM Assertions
 Cypress is built with the Mocha Javascript testing framework and Chai assertion library, which support BDD / TDD assertions.
-Most DOM assertions are set up through a .should function and you can get a comprehensive list of these assertions [here](https://docs.cypress.io/guides/references/assertions).
+Most DOM assertions are set up through a `.should` function and you can get a comprehensive list of these assertions [here](https://docs.cypress.io/guides/references/assertions).
 
 ### CSS Assertions 
 Most visual validation can and should be done with screenshot comparisons, but CSS validation comes in handy when visual testing fails. 
