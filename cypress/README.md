@@ -30,10 +30,11 @@ To get a local copy up and running follow the steps found in the main README of 
     ```
 
 2. Open another terminal window, again, make sure you've navigated to the **root directory**. Then, run the commands linked to downloading. This will install Cypress locally as a dev dependency for your project:
-Depending 
+
     ```
     npm install cypress --save-dev  
     ```
+    If a proxy error appears, try running it without Zscalar on. There are also other options, other than npm, to install cypress, which can be found [here](https://docs.cypress.io/guides/getting-started/installing-cypress)
 
 3. To install the dev dependencies, run the following commands in the same terminal window:
     ```
