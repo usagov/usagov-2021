@@ -39,6 +39,23 @@ if [ -z "$SNAPSHOT_TAG" ]; then
 fi
 shift
 
+DB_SNAPSHOT_ZIP=${SNAPSHOT_TAG}.sql.gz
+PUBLIC_SNAPSHOT_ZIP=${SNAPSHOT_TAG}.public.zip
+SITE_SNAPSHOT_ZIP=${SNAPSHOT_TAG}.zip
+
+if [ x$echo = x ]; then
+  if [ ! -f $DB_SNAPSHOT_ZIP -o ! -f $SITE_SNAPSHOT_ZIP -o ! -f $PUBLIC_SNAPSHOT_ZIP ]; then
+    echo "One or more of the following snapshot files is missing from the current directory:"
+    echo
+    echo "    DB_SNAPSHOT_ZIP     $DB_SNAPSHOT_ZIP"
+    echo "    PUBLIC_SNAPSHOT_ZIP $PUBLIC_SNAPSHOT_ZIP"
+    echo "    SITE_SNAPSHOT_ZIP   $SITE_SNAPSHOT_ZIP"
+    echo
+    echo "Please read bin/snapshot-backups/README-DR.md for details on downloading these files from storage"
+    echo
+    exit 1
+  fi
+fi
 
 RETVAL=0
 if [ x$echo = x ]; then
@@ -51,11 +68,11 @@ fi
 
 if [ "$RETVAL" = "0" ]; then
   echo  $SCRIPT_DIR/db-dump-deploy         $dryrun $SPACE $SNAPSHOT_TAG
-        $SCRIPT_DIR/db-dump-deploy         $dryrun $SPACE $SNAPSHOT_TAG
+  $echo $SCRIPT_DIR/db-dump-deploy         $dryrun $SPACE $SNAPSHOT_TAG
   echo  $SCRIPT_DIR/site-snapshot-deploy   $dryrun $SPACE $SNAPSHOT_TAG
-        $SCRIPT_DIR/site-snapshot-deploy   $dryrun $SPACE $SNAPSHOT_TAG
+  $echo $SCRIPT_DIR/site-snapshot-deploy   $dryrun $SPACE $SNAPSHOT_TAG
   echo  $SCRIPT_DIR/public-snapshot-deploy $dryrun $SPACE $SNAPSHOT_TAG
-        $SCRIPT_DIR/public-snapshot-deploy $dryrun $SPACE $SNAPSHOT_TAG
+  $echo $SCRIPT_DIR/public-snapshot-deploy $dryrun $SPACE $SNAPSHOT_TAG
 
   echo
   echo "***** Read Me *****"
