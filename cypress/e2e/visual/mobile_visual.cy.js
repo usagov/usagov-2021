@@ -5,18 +5,28 @@ describe('Mobile', () => {
         cy.visit('/')
     })
     it('Full page visual test: Default page looks correct upon load', () => {
+        const retryOptions = {
+            limit: 0, // max number of retries
+            delay: 500 // delay before next iteration, ms
+        }
+
         // Hide back to top btn to account for different scroll speeds
         cy.get('#back-to-top').hideElement()
-        cy.compareSnapshot('home-page-full', 0.1)
+        cy.compareSnapshot('home-page-full', 0.1, retryOptions)
     })
     it('Mobile menu appears and functions appropriately', () => {
+        const retryOptions = {
+            limit: 0, // max number of retries
+            delay: 500 // delay before next iteration, ms
+        }
+
         // Open menu
         cy.get('.usa-menu-btn').click()
 
         // Menu looks correct
         cy.wait(500)
         cy.get('.usagov-mobile-menu')
-            .compareSnapshot('home-page-menu', 0.1)
+            .compareSnapshot('home-page-menu', 0.1, retryOptions)
 
         // Close menu
         cy.get('.usagov-mobile-menu-top')
@@ -25,12 +35,17 @@ describe('Mobile', () => {
 
         // Page looks correct, menu collapsed
         cy.wait(500)
-        cy.compareSnapshot('home-page-full', 0.1)
+        cy.compareSnapshot('home-page-full', 0.1, retryOptions)
     })
     it('Footer appears as expected on mobile, topics can be expanded and links function appropriately', () => {
+        const retryOptions = {
+            limit: 0, // max number of retries
+            delay: 500 // delay before next iteration, ms
+        }
+
         // Visually the default footer nav looks correct
         cy.get('.usa-footer__nav')
-            .compareSnapshot('footer-nav-default', 0)
+            .compareSnapshot('footer-nav-default', 0, retryOptions)
         
         cy.get('.usa-footer__nav')
             .find('.usa-footer__primary-content')
@@ -78,7 +93,7 @@ describe('Mobile', () => {
                 // Visually the footer nav looks correct, back to default
                 cy.wait(500)
                 cy.get('.usa-footer__nav')
-                    .compareSnapshot('footer-nav-default', 0)
+                    .compareSnapshot('footer-nav-default', 0, retryOptions)
             })
     })
 })
