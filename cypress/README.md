@@ -171,10 +171,10 @@ To learn more about using the screenshot plugin visit the [cypress-image-diff do
 <!-- BUGS -->
 ## Bugs, (Test) Failures, and Work in Progress
 * Some tests do not work since we have an outdated data set for the USAgov website currenlty loaded on our branch
-* BTE/BTS 35: outdated data set
+* BTE/BTS 35: outdated data set (page level survey won't appear)
 * BTE/BTS 47: Could not get scam report form to work (clicking through a multipage form)
-* BTE/BTS 48: Could not get functional test for the federal directory query to work
-* BTE/BTS 51: Testing each individual state directory page 
+* BTE/BTS 48: Could not get A-Z query test for the federal directory to work
+* BTE/BTS 50/52: outdated data set (state drop-down doesn't appear)
 
 
 ### Conditional Visual Testing

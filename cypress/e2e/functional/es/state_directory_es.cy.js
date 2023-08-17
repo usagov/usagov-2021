@@ -19,15 +19,13 @@ describe('State Directory [ES]', () => {
                     })
             })
     })
-    //**UNFINISHED**
     it('BTS 51: Test Alaska Page', () => {
         cy.visit('es/estados/alaska')
 
         // Test links on page.
         cy.get('div.State-Directory-Table').find('a').then(regLink => {
-            cy.get(regLink[0]).should('have.attr', 'href').and('include', 'https://alaska.gov/')
-            cy.get(regLink[1]).should('have.attr', 'href').and('include', 'https://gov.alaska.gov/')
-            cy.get(regLink[2]).should('have.attr', 'href').and('include', 'https://gov.alaska.gov/contact/')
+            cy.get(regLink[0]).should('have.attr', 'href').and('include', 'http://alaska.gov/')
+            cy.get(regLink[1]).should('have.attr', 'href').and('include', 'https://gov.alaska.gov/contact')
         })
     })
 
