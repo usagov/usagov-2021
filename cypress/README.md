@@ -39,9 +39,10 @@ To get a local copy up and running follow the steps found in the main README of 
 3. To install the dev dependencies, run the following commands in the same terminal window:
     ```
     npm i -D cypress-image-diff-js
-    npm install --save-dev cypress-axe
-    npm install --save-dev cypress axe-core
-    npm install cypress-real-events
+    npm i --save-dev cypress-axe
+    npm i --save-dev cypress axe-core
+    npm i cypress-real-events
+    npm i cypress-mochawesome-reporter
     ```
 
 4. Next, run the following command to open Cypress:
