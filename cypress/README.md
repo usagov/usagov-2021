@@ -167,6 +167,15 @@ Subdirectories:
 * `/comparison`: new screenshots of what the page actually looks like after new changes have been applied 
 * `/diff`:images highlighting the differences (if any) between the baseline and new screenshots
 
+#### Updating all baseline images for failing tests
+You should run this command after the test suite runs. It will only update baseline images that have a diff image, which basically means a test failure.
+
+```
+$ cypress-image-diff -u
+```
+
+It's important that you ensure the comparison image is the correct representation of the page under test as it will be copied over to the baseline.
+
 To learn more about using the screenshot plugin visit the [cypress-image-diff documentation](https://github.com/uktrade/cypress-image-diff).
 
 <!-- BUGS -->
