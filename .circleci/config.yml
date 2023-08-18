@@ -540,6 +540,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1108-php-to-81
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -549,6 +550,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1108-php-to-81
       - approve-dev-deployment:
           type: approval
           requires:
