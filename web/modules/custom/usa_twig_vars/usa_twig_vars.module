@@ -235,7 +235,7 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
  * Modify output of menu item level (Hierarchy level) to be human readable.
  */
 function usa_twig_vars_preprocess_views_view_field__published_pages_report(&$variables, $hook, $info) {
-  if ($variables['field']->field == 'level' ?? false) {
+  if ($variables['field']->field == 'level' ?? FALSE) {
     if (empty($variables['output'])) {
       $variables['output'] = 1;
     }
