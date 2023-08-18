@@ -480,15 +480,15 @@
       "frequency": "daily",
       "query": {
         "dimensions": ["ga:pagePath", "ga:pageTitle"],
-        "metrics": ["ga:sessions"],
+        "metrics": ["ga:uniquePageviews"],
         "start-date": "7daysAgo",
         "end-date": "yesterday",
-        "sort": "-ga:sessions",
+        "sort": "-ga:uniquePageviews",
         "max-results": "20"
       },
       "meta": {
         "name": "Top Pages (7 Days)",
-        "description": "Last week's top 20 pages, measured by visits."
+        "description": "Last week's top 20 pages, measured by unique page views."
       }
     },
     {
@@ -496,15 +496,15 @@
       "frequency": "daily",
       "query": {
         "dimensions": ["ga:pagePath", "ga:pageTitle"],
-        "metrics": ["ga:sessions"],
+        "metrics": ["ga:uniquePageviews"],
         "start-date": "30daysAgo",
         "end-date": "yesterday",
-        "sort": "-ga:sessions",
+        "sort": "-ga:uniquePageviews",
         "max-results": "20"
       },
       "meta": {
         "name": "Top Pages (30 Days)",
-        "description": "Last month's top 20 pages, measured by visits."
+        "description": "Last month's top 20 pages, measured by unique page views."
       }
     },
     {

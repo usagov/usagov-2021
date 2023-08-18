@@ -970,7 +970,7 @@ div[class^="QSIUserDefinedHTML"] {
 }
 
 [hidden="until-found"]{
-  display: block;
+  display: revert-layer;
   border: 0 !important;
   padding: 0 !important;
 }
