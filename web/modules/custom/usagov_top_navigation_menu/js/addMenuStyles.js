@@ -26,8 +26,10 @@
           if (document.documentElement.lang == "es") {
             var p = document.createElement('p');
             p.innerHTML = 'esta página';
-            var currentPage = aElem.getAttribute("id");
-            document.getElementById(currentPage).appendChild(p);
+            p.classList.add('usa-sr-only');
+            var currentPage = listItem.getAttribute("id");
+            console.log(`current-page id: ${listItem.getAttribute("id")}`);
+            document.getElementById(listItem.getAttribute("id")).firstElementChild.prepend(p);
           }
           else {
             aElem.setAttribute("aria-current", "page");
