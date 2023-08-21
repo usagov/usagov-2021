@@ -123,9 +123,17 @@ TODO: come up with a better name than start_level. Its really the delta between 
     <nav aria-label="Secondary navigation">
       <ul class="usa-sidenav">
         <li class="usa-sidenav__item">
-          <a{% if start_level == 0 %} class="usa-current" aria-current= {{leftMenuName}} onclick="return false;" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
+         {% if leftMenuName == "página" %}
+          <p class="usa-sr-only">aria-presente página</p>
+           <a{% if start_level == 0 %} class="usa-current" onclick="return false;" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
             {{ items.title }}
           </a>
+         {% else %}
+           <a{% if start_level == 0 %} class="usa-current" aria-current="page" onclick="return false;" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
+            {{ items.title }}
+          </a>
+         {% endif %}
+
 
           {% if items.below %}
             {{ _self.build( items.below, 1, start_level, current_item_title, pageTypeIs, leftMenuName) }}
@@ -138,8 +146,12 @@ TODO: come up with a better name than start_level. Its really the delta between 
       {% for item in items %}
         <li class="usa-sidenav__item">
           {% if (item.title == current_item_title) and (pageTypeIs != 'Standard Page- Nav Hidden') %}
-            <a class="usa-current" aria-current={{leftMenuName}} onclick="return false;" href="{{ item.url }}" class="active-trail">
-            {# {{ devel_breakpoint() }} #}
+          {% if leftMenuName == "página" %}
+          <p class="usa-sr-only">aria-presente página</p>
+          <a class="usa-current" onclick="return false;" href="{{ item.url }}" class="active-trail">
+          {% else %}
+          <a class="usa-current" aria-current="page" onclick="return false;" href="{{ item.url }}" class="active-trail">
+          {% endif %}
           {% else %}
             <a  href="{{ item.url }}" {% if item.in_active_trail == 1 %} class="active-trail" {% endif %} >
           {% endif %}
