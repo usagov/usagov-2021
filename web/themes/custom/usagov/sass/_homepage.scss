@@ -388,7 +388,6 @@
 }
 
 .slide {
-  // height: 435px;
   width: min(calc(100% - 4px), 234px);
   max-width: min(calc(100% - 4px), 234px);
   flex: 0 0 calc(100%);
@@ -424,7 +423,6 @@
     .life_events_card_text {
       padding: 12px 12px 0;
       flex: 1 0 auto;
-      // height: 360px;
     }
   }
 
@@ -832,7 +830,6 @@
 
     .life_events_card_text {
       padding: 16px 16px 0;
-      // height:210px;
     }
   }
 }
@@ -842,32 +839,12 @@
   .carousel {
     height: 320px;
   }
-
-  .slide {
-    // height: 320px;
-
-    a {
-      .life_events_card_text {
-        // height: 245px;
-      }
-    }
-  }
 }
 
 /* Life Events Cards - Desktop  */
 @media (min-width: 1024px) {
   .carousel {
     height: 320px;
-  }
-
-  .slide {
-    // height: 320px;
-
-    a {
-      .life_events_card_text {
-        // height: 245px;
-      }
-    }
   }
 }
 
@@ -878,15 +855,6 @@
       height: 375px;
     }
 
-    .slide {
-      // height: 375px;
-
-      a {
-        .life_events_card_text {
-          // height: 300px;
-        }
-      }
-    }
   }
 }
 
@@ -896,16 +864,6 @@
     .carousel {
       height: 325px;
     }
-
-    .slide {
-      // height: 325px;
-
-      a {
-        .life_events_card_text {
-          // height: 250px;
-        }
-      }
-    }
   }
 }
 
@@ -913,15 +871,5 @@
 @media (min-height: 790px) and (max-width:370px) {
   .carousel {
     height: 380px;
-  }
-
-  .slide {
-    // height: 380px;
-
-    a {
-      .life_events_card_text {
-        // height: 305px;
-      }
-    }
   }
 }
