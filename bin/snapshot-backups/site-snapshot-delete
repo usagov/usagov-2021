@@ -35,7 +35,7 @@ shift
 
 if [ -z "$DEPLOY_TAG" ]; then
   echo
-  echo "Usage: $0 [--dryrun] <tag> [--download]"
+  echo "Usage: $0 [--dryrun] <cf space> <tag> [--download]"
   echo "This will remove a tagged static site snapshot. Use static-site-list to see available tags."
   echo "  --dryrun simply prints the commands that would have run"
   echo "  --download downloads and creates a zip file of the snapshot, prior to deletion"

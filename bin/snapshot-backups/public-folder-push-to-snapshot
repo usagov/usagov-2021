@@ -57,7 +57,7 @@ if [ x"$DEPLOY_TAG" != x ]; then
     else
       if [ -f $ZIP_FILE ]; then
         CLEANUP_REQUIRED=1
-        unzip $ZIP_FILE
+        unzip $ZIP_FILE &> /dev/null
         if [ $? != 0 ]; then
           echo "Error unzipping $ZIP_FILE"
           exit 1
