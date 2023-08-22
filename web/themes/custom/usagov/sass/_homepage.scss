@@ -272,6 +272,8 @@
 .life-events-carousel {
   margin: 40px 0 0;
   max-width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .sr-only {
@@ -286,11 +288,11 @@
 .carousel {
   position: relative;
   width: 100%;
-  height: 435px;
   margin: 0;
   padding: 0;
   display: flex;
- justify-content: space-between;
+  justify-content: space-between;
+  flex: 1 0 auto;
 
 
   .grid-container {
@@ -332,6 +334,10 @@
         brightness(103%) contrast(103%);
     }
   }
+}
+
+.carousel__navigation_wrapper{
+  flex: 1 0 auto;
 }
 
 .carousel__navigation {
@@ -835,42 +841,3 @@
   }
 }
 
-/* Life Events Cards - Tablet  */
-@media (min-height: 700px) and (max-width: 1023px) {
-  .carousel {
-    height: 320px;
-  }
-}
-
-/* Life Events Cards - Desktop  */
-@media (min-width: 1024px) {
-  .carousel {
-    height: 320px;
-  }
-}
-
-/* Life Events Cards - shorter and narrower */
-@media (min-height: 700px) {
-  @media (max-width: 400px) {
-    .carousel {
-      height: 375px;
-    }
-
-  }
-}
-
-/* Life Events Cards - larger and wider */
-@media (min-height: 780px) {
-  @media (max-width: 640px) {
-    .carousel {
-      height: 325px;
-    }
-  }
-}
-
-/* Life Events Cards - larger and narrower  */
-@media (min-height: 790px) and (max-width:370px) {
-  .carousel {
-    height: 380px;
-  }
-}
