@@ -960,8 +960,6 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($smaller-text-font-size);
 }
 
-
-
 .visually-hidden {
   position: absolute;
   left: -10000px;
@@ -969,4 +967,22 @@ div[class^="QSIUserDefinedHTML"] {
   width: 1px;
   height: 1px;
   overflow: hidden;
+}
+
+[hidden="until-found"]{
+  display: revert-layer;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+p, a , h1, h2, h3, h4, h5 , .usa-prose>h1, .usa-prose>h2, .usa-prose>h3, .usa-prose>h4, .usa-prose>h5 , .usa-hero__heading, .usa-card__heading, .usagov-card__heading {
+  line-height: 1.5;
+}
+
+.usa-button {
+  line-height: 1.5;
+}
+
+.usa-accordion__button {
+  line-height: 1.5;
 }

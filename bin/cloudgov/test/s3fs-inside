@@ -4,7 +4,7 @@
 
 export HTTPS_TEST_URL="www.pandemicoversight.gov/version.txt";
 export AWS_TEST_URL="s3-us-gov-west-1.amazonaws.com";
-export EXISTING_BETA_FILE_FROM_S3="beta.usa.gov/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png";
+export EXISTING_WWW_FILE_FROM_S3="www.usa.gov/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png";
 export EXISTING_CMS_FILE_FROM_S3="cms.usa.gov/s3/files/2022-03/Banner_img_Housing.png";
 export EXISTING_LOCAL_FILE="2022-03/Banner_img_Housing.png";
 export RUNTIME=$(date);
@@ -14,38 +14,52 @@ function runTests {
   getInfoPHPWrappers;
   getInfoPHPTransports;
   testDrupalStreamWrapperPrivate;
+  testDrupalStreamWrapperPublic;
+  testDrupalImageDerivationS3;
+  testDrupalImageDerivationPublic;
+  testDrupalStreamWrapperS3;
+  testThatDrupalCanReachAWS;
+  testThatNGINXCanReadS3;
+  testThatAWSClientCanReachAWS;
+  testThatCurlCanReachAWS;
 }
 
 function testThatCurlCanReachAWS {
   # curl can reach aws host from the commandline
-  echo
+  echo "Testing curl connection to s3."
+  curl $AWS_TEST_URL
 }
 
 
 function testThatAWSClientCanReachAWS {
   # aws client can reach aws from the commandline
-  echo
+  echo "Testing AWS client connection to s3."
+  aws s3 ls
 }
 
 function testThatNGINXCanReadS3 {
   # nginx can respond with proxies files living in s3
-  echo
+  echo "Testing NGINX read from s3."
+  echo "....nothing happening here yet...."
+
 }
 
 function testThatPHPCanReachAWS { # AWS_TEST_URL
   # php can initiate a connection to aws
+  echo "Testing PHP connection to s3."
   drush ev --root=/var/www/ "\$response = file_get_contents('https://$AWS_TEST_URL', FALSE, NULL, 0, 1); print \"\nAssert('<') : '\"; print_r(\$response); print \"'\n\";"
 }
 
 function testThatDrupalCanReachAWS {
   # drupal can initiate a connection to aws through drush
+  echo "Testing Drupal connection to s3 through Drush."
   drush ev --root=/var/www/ "\$client = \Drupal::httpClient; \$response = \$client->get('https://$AWS_TEST_URL'); echo \"\nStatus Code: \".\$response->getStatusCode.\"\n\";"
 }
 
 function testDrupalStreamWrapperS3 {
   export TEST_FILE_FOR_S3="testDrupalStreamWrapperS3"
   # drupal can use the s3:// stream wrapper to read and write to s3
-  echo "Expecting to write and read $RUNTIME to s3://$TEST_FILE_FOR_S3"
+  echo "Testing Drupal Stream Wrapper for s3. Expecting to write and read $RUNTIME to s3://$TEST_FILE_FOR_S3"
   drush ev --root=/var/www/ "var_dump(file_put_contents('s3://public/$TEST_FILE_FOR_S3','$RUNTIME'));"
   drush ev --root=/var/www/ "var_dump(file_get_contents('s3://public/$TEST_FILE_FOR_S3'));"
   # independantly check for existance of the file via aws cli
@@ -62,7 +76,7 @@ function testDrupalImageDerivationS3 {
 
 function testDrupalStreamWrapperPublic {
   export TEST_FILE_FOR_S3="testDrupalStreamWrapperPublic"
-  echo "Expecting to write and read $RUNTIME to public://$TEST_FILE_FOR_S3"
+  echo "Testing Drupal Stream Wrapper for public folder access.  Expecting to write and read $RUNTIME to public://$TEST_FILE_FOR_S3"
   # drupal can use the public:// stream wrapper to read and write to s3
   drush ev --root=/var/www/ "var_dump(file_put_contents('public://$TEST_FILE_FOR_S3','$RUNTIME'));"
   drush ev --root=/var/www/ "var_dump(file_get_contents('public://$TEST_FILE_FOR_S3'));"
@@ -71,8 +85,7 @@ function testDrupalStreamWrapperPublic {
 
 function testDrupalStreamWrapperPrivate {
   export TEST_FILE_FOR_S3="testDrupalStreamWrapperPrivate"
-  echo
-  echo "Expecting to write and read $RUNTIME to private://$TEST_FILE_FOR_S3"
+  echo "Testing Drupal Stream Wrapper for private folder access.  Expecting to write and read $RUNTIME to private://$TEST_FILE_FOR_S3"
   # drupal can use the private:// stream wrapper to read and write to s3
   drush ev --root=/var/www/ "var_dump(file_put_contents('private://$TEST_FILE_FOR_S3','$RUNTIME'));"
   drush ev --root=/var/www/ "var_dump(file_get_contents('private://$TEST_FILE_FOR_S3'));"
@@ -80,7 +93,7 @@ function testDrupalStreamWrapperPrivate {
 }
 
 function testDrupalStreamWrapperHTTPS {
-  echo "Expecting to read a SEMVER vX.Y.Z from $HTTPS_TEST_URL"
+  echo "Testing Drupal Stream Wrapper for HTTPS.  Expecting to read a SERVER vX.Y.Z from $HTTPS_TEST_URL"
   # drupal can use the https:// stream wrapper to read to a non-s3 file
   drush ev --root=/var/www/ "var_dump(file_get_contents('$HTTPS_TEST_URL'));"
 }
