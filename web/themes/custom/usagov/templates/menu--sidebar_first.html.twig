@@ -124,7 +124,6 @@ TODO: come up with a better name than start_level. Its really the delta between 
       <ul class="usa-sidenav">
         <li class="usa-sidenav__item">
          {% if leftMenuName == "página" %}
-          <p class="usa-sr-only">esta página</p>
            <a{% if start_level == 0 %} class="usa-current" onclick="return false;" {% else %} href="{{ items.url }}" class="active-trail"{% endif %}>
             {{ items.title }}
           </a>
@@ -147,8 +146,9 @@ TODO: come up with a better name than start_level. Its really the delta between 
         <li class="usa-sidenav__item">
           {% if (item.title == current_item_title) and (pageTypeIs != 'Standard Page- Nav Hidden') %}
           {% if leftMenuName == "página" %}
-          <p class="usa-sr-only">esta página</p>
+
           <a class="usa-current" onclick="return false;" href="{{ item.url }}" class="active-trail">
+            <p class="usa-sr-only">esta página</p>
           {% else %}
           <a class="usa-current" aria-current="page" onclick="return false;" href="{{ item.url }}" class="active-trail">
           {% endif %}
