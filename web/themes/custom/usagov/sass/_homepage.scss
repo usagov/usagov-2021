@@ -305,6 +305,8 @@
   .usa-card__container {
     background-color: transparent;
     box-shadow: none;
+    display: flex;
+    flex-direction: column;
   }
 
   .usagov-card {
@@ -386,7 +388,7 @@
 }
 
 .slide {
-  height: 435px;
+  // height: 435px;
   width: min(calc(100% - 4px), 234px);
   max-width: min(calc(100% - 4px), 234px);
   flex: 0 0 calc(100%);
@@ -421,7 +423,8 @@
 
     .life_events_card_text {
       padding: 12px 12px 0;
-      height: 360px;
+      flex: 1 0 auto;
+      // height: 360px;
     }
   }
 
@@ -472,6 +475,7 @@
   box-shadow: 0 6px 6px var($blue-shadow);
   border-radius: 0 0 4px 4px;
   overflow: hidden;
+  flex: 0 0 75px;
 }
 
 .thumbnailBanner {
@@ -828,7 +832,7 @@
 
     .life_events_card_text {
       padding: 16px 16px 0;
-      height:210px;
+      // height:210px;
     }
   }
 }
@@ -840,11 +844,11 @@
   }
 
   .slide {
-    height: 320px;
+    // height: 320px;
 
     a {
       .life_events_card_text {
-        height: 245px;
+        // height: 245px;
       }
     }
   }
@@ -857,11 +861,11 @@
   }
 
   .slide {
-    height: 320px;
+    // height: 320px;
 
     a {
       .life_events_card_text {
-        height: 245px;
+        // height: 245px;
       }
     }
   }
@@ -875,11 +879,11 @@
     }
 
     .slide {
-      height: 375px;
+      // height: 375px;
 
       a {
         .life_events_card_text {
-          height: 300px;
+          // height: 300px;
         }
       }
     }
@@ -894,11 +898,11 @@
     }
 
     .slide {
-      height: 325px;
+      // height: 325px;
 
       a {
         .life_events_card_text {
-          height: 250px;
+          // height: 250px;
         }
       }
     }
@@ -912,11 +916,11 @@
   }
 
   .slide {
-    height: 380px;
+    // height: 380px;
 
     a {
       .life_events_card_text {
-        height: 305px;
+        // height: 305px;
       }
     }
   }
