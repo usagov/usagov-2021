@@ -390,6 +390,7 @@
 .slide {
   width: min(calc(100% - 4px), 234px);
   max-width: min(calc(100% - 4px), 234px);
+  min-height: 285px;
   flex: 0 0 calc(100%);
   margin-top: 10px;
   border: 1px solid #53BBDF;
