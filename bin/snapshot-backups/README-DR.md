@@ -10,7 +10,7 @@ A. Create environment variables in your shell session for
 
 1. A string indicating the type of backup (e.g. pre or post deployment, emergency, interrim, etc.)
 
-        BRANCH=USAGOV-999
+        TICKET=USAGOV-999
         SPACE=prod
         SUFFIX=pre-deploy
 
@@ -23,7 +23,7 @@ C. Run the all-in-one backup script.
 This will fail if the current CF space does not match the SPACE env var. This will wait for a currently-running tome job to complete before proceeding. It will wait up to 25 minutes.  It will then disable tome and enable Drupal maintenance mode while the backup is performed, restoring them when complete
 
         dryrun='--dryrun'
-        bin/snapshot-backups/local-snapshot-backup $dryrun $SPACE $BRANCH $SUFFIX
+        bin/snapshot-backups/local-snapshot-backup $dryrun $SPACE $TICKET $SUFFIX
 
 D. Make a note of the snapshot tag string emitted by the previous script, and set an environment variable for it.
 
