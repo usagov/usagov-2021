@@ -111,7 +111,9 @@
         "drupal-lenient": {
                 "allowed-list": [
                     "drupal/mmf_core_fields",
-                    "drupal/log_stdout"
+                    "drupal/log_stdout",
+                    "drupal/ckeditor_templates",
+                    "drupal/ckeditor_templates_ui"
                 ]
             }
         },
