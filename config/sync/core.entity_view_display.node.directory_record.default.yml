@@ -5,7 +5,6 @@ dependencies:
   config:
     - field.field.node.directory_record.body
     - field.field.node.directory_record.feeds_item
-    - field.field.node.directory_record.field_acronym
     - field.field.node.directory_record.field_city
     - field.field.node.directory_record.field_contact_link
     - field.field.node.directory_record.field_email
@@ -68,14 +67,6 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 2
-    region: content
-  field_acronym:
-    type: string
-    label: above
-    settings:
-      link_to_entity: false
-    third_party_settings: {  }
-    weight: 18
     region: content
   field_city:
     type: string

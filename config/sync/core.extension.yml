@@ -39,13 +39,13 @@ module:
   filter: 0
   google_docs_filter: 0
   image: 0
-  image_style_warmer: 0
   jquery_ui: 0
   jquery_ui_accordion: 0
   jsonapi: 0
   language: 0
   language_switcher_extended: 0
   link: 0
+  log_stdout: 0
   mail_safety: 0
   media: 0
   media_library: 0
@@ -53,6 +53,7 @@ module:
   menu_breadcrumb: 0
   menu_link_content: 0
   menu_ui: 0
+  mmf_core_fields: 0
   mysql: 0
   node: 0
   node_menus: 0
@@ -89,8 +90,9 @@ module:
   usagov_top_navigation_menu: 0
   usagov_uswds_paragraph_components_mods: 0
   user: 0
-  uswds_ckeditor_integration: 0
   uswds_paragraph_components: 0
+  uswds_paragraph_components_accordions: 0
+  uswds_paragraph_components_alerts: 0
   views_menu_children_filter: 0
   views_ui: 0
   viewsreference: 0
@@ -99,6 +101,7 @@ module:
   usa_twig_vars: 1
   content_translation: 10
   externalauth: 10
+  image_style_warmer: 10
   views: 10
   paragraphs: 11
   minimal: 1000

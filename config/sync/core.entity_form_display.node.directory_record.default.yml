@@ -5,7 +5,6 @@ dependencies:
   config:
     - field.field.node.directory_record.body
     - field.field.node.directory_record.feeds_item
-    - field.field.node.directory_record.field_acronym
     - field.field.node.directory_record.field_city
     - field.field.node.directory_record.field_contact_link
     - field.field.node.directory_record.field_email
@@ -79,14 +78,6 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_acronym:
-    type: string_textfield
-    weight: 25
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
   field_city:
     type: string_textfield
     weight: 23
@@ -121,7 +112,7 @@ content:
     third_party_settings: {  }
   field_footer_html:
     type: string_textarea
-    weight: 28
+    weight: 27
     region: content
     settings:
       rows: 5
@@ -146,7 +137,7 @@ content:
     third_party_settings: {  }
   field_header_html:
     type: text_textarea
-    weight: 27
+    weight: 26
     region: content
     settings:
       rows: 5
@@ -172,7 +163,7 @@ content:
     third_party_settings: {  }
   field_mothership_uuid:
     type: string_textfield
-    weight: 26
+    weight: 25
     region: content
     settings:
       size: 60
@@ -203,7 +194,7 @@ content:
     third_party_settings: {  }
   field_show_in_a_z_index:
     type: boolean_checkbox
-    weight: 29
+    weight: 28
     region: content
     settings:
       display_label: true
@@ -332,7 +323,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
   url_redirects:
-    weight: 30
+    weight: 29
     region: content
     settings: {  }
     third_party_settings: {  }

@@ -70,11 +70,23 @@ settings:
   plugins:
     stylescombo:
       styles: "a.usa-button.usa-button--secondary.usa-button--big|Button\r\np.usa-intro|Intro\r\nh2.font-serif-lg.text-bold.text-accent-cool-darker|Wizard H2"
-    templates:
-      template_path: ''
-      replace_content: 0
     uswds_table:
       override_table: 1
+    uswds_grid:
+      available_columns:
+        1: '1'
+        2: '2'
+        3: '3'
+        4: '4'
+        5: '5'
+        6: '6'
+        7: '7'
+        8: '8'
+        9: '9'
+        10: '10'
+        11: '11'
+        12: '12'
+      available_breakpoints: {  }
 image_upload:
   status: false
   scheme: public

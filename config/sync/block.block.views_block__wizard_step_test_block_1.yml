@@ -1,17 +1,18 @@
-uuid: 72c4ad17-351b-43a7-9864-e78e95fccc5b
+uuid: 477aa7aa-1cd3-4ee0-882b-ebf552cc2653
 langcode: en
 status: true
 dependencies:
   config:
     - views.view.wizard_step_test
   module:
+    - node
     - views
   theme:
     - usagov
 id: views_block__wizard_step_test_block_1
 theme: usagov
 region: content
-weight: 0
+weight: -9
 provider: null
 plugin: 'views_block:wizard_step_test-block_1'
 settings:
@@ -22,4 +23,11 @@ settings:
   context_mapping: {  }
   views_label: ''
   items_per_page: none
-visibility: {  }
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      wizard_step: wizard_step
