@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3364dc789ab0ae56d1fb9e6c6e791ce8",
+    "content-hash": "53d6b243cf84bed6eb916bfd96d41dfe",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2326,101 +2326,6 @@
             "homepage": "https://www.drupal.org/project/block_content_revision_ui",
             "support": {
                 "source": "https://git.drupalcode.org/project/block_content_revision_ui"
-            }
-        },
-        {
-            "name": "drupal/ckeditor",
-            "version": "1.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupalcode.org/project/ckeditor.git",
-                "reference": "1.0.2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/ckeditor-1.0.2.zip",
-                "reference": "1.0.2",
-                "shasum": "fec2ca9ad852a00c7b9584cb6040dc860364c481"
-            },
-            "require": {
-                "drupal/core": "^9.4 || ^10"
-            },
-            "require-dev": {
-                "drupal/classy": "*"
-            },
-            "type": "drupal-module",
-            "extra": {
-                "drupal": {
-                    "version": "1.0.2",
-                    "datestamp": "1687261951",
-                    "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
-                    }
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "dczepierga",
-                    "homepage": "https://www.drupal.org/user/911466"
-                },
-                {
-                    "name": "hass",
-                    "homepage": "https://www.drupal.org/user/85918"
-                },
-                {
-                    "name": "jcisio",
-                    "homepage": "https://www.drupal.org/user/210762"
-                },
-                {
-                    "name": "Jorrit",
-                    "homepage": "https://www.drupal.org/user/161217"
-                },
-                {
-                    "name": "lauriii",
-                    "homepage": "https://www.drupal.org/user/1078742"
-                },
-                {
-                    "name": "Magnus",
-                    "homepage": "https://www.drupal.org/user/73919"
-                },
-                {
-                    "name": "mkesicki",
-                    "homepage": "https://www.drupal.org/user/922884"
-                },
-                {
-                    "name": "nod_",
-                    "homepage": "https://www.drupal.org/user/598310"
-                },
-                {
-                    "name": "p.wiaderny",
-                    "homepage": "https://www.drupal.org/user/2956619"
-                },
-                {
-                    "name": "vokiel",
-                    "homepage": "https://www.drupal.org/user/2793801"
-                },
-                {
-                    "name": "Wim Leers",
-                    "homepage": "https://www.drupal.org/user/99777"
-                },
-                {
-                    "name": "wwalc",
-                    "homepage": "https://www.drupal.org/user/184556"
-                },
-                {
-                    "name": "xjm",
-                    "homepage": "https://www.drupal.org/user/65776"
-                }
-            ],
-            "description": "WYSIWYG editing for rich text fields using CKEditor.",
-            "homepage": "https://www.drupal.org/project/ckeditor",
-            "support": {
-                "source": "https://git.drupalcode.org/project/ckeditor"
             }
         },
         {
@@ -6522,22 +6427,16 @@
         },
         {
             "name": "drupal/uswds_ckeditor_integration",
-            "version": "2.0.0-alpha2",
+            "version": "dev-2.0.x",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/uswds_ckeditor_integration.git",
-                "reference": "2.0.0-alpha2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/uswds_ckeditor_integration-2.0.0-alpha2.zip",
-                "reference": "2.0.0-alpha2",
-                "shasum": "efa336eb1c13f58d15ba303905439e3d6c6447e8"
+                "reference": "9d554742a34e8c85b7656746efe81567e2025de1"
             },
             "require": {
-                "drupal/ckeditor": "*",
-                "drupal/ckeditor5_embedded_content": "*",
-                "drupal/core": "^9 || ^10"
+                "drupal/ckeditor5_embedded_content": "^1.0",
+                "drupal/core": "^9 || ^10",
+                "php": ">=8.0"
             },
             "require-dev": {
                 "drupal/paragraphs_entity_embed": "*",
@@ -6545,12 +6444,15 @@
             },
             "type": "drupal-module",
             "extra": {
+                "branch-alias": {
+                    "dev-2.0.x": "2.0.x-dev"
+                },
                 "drupal": {
-                    "version": "2.0.0-alpha2",
-                    "datestamp": "1673556083",
+                    "version": "2.0.0-alpha2+17-dev",
+                    "datestamp": "1692119637",
                     "security-coverage": {
                         "status": "not-covered",
-                        "message": "Alpha releases are not covered by Drupal security advisories."
+                        "message": "Dev releases are not covered by Drupal security advisories."
                     }
                 }
             },
@@ -6560,15 +6462,16 @@
             ],
             "authors": [
                 {
-                    "name": "smustgrave",
-                    "homepage": "https://www.drupal.org/user/3252890"
+                    "name": "Stephen Mustgrave (smustgrave)",
+                    "homepage": "https://www.drupal.org/u/smustgrave",
+                    "role": "Maintainer"
                 }
             ],
-            "description": "Helps integrate some USWDS components into ckeditor5",
+            "description": "Helps integrate some USWDS components into the ckeditor.",
             "homepage": "https://www.drupal.org/project/uswds_ckeditor_integration",
             "support": {
                 "source": "https://git.drupalcode.org/project/uswds_ckeditor_integration",
-                "error": "require.drupal/ckeditor5_embedded_content : invalid version constraint (Could not parse version constraint ^^1.0: Invalid version string \"^^1.0\")"
+                "issues": "https://www.drupal.org/project/issues/uswds_ckeditor_integration"
             }
         },
         {
@@ -12410,7 +12313,7 @@
         "drupal/paragraphs_entity_embed": 20,
         "drupal/scanner": 5,
         "drupal/simplify_menu": 10,
-        "drupal/uswds_ckeditor_integration": 15,
+        "drupal/uswds_ckeditor_integration": 20,
         "drupal/views_menu_children_filter": 5
     },
     "prefer-stable": true,
