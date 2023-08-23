@@ -45,6 +45,7 @@ Before starting the project setup install/download the following:
 * [Homebrew](https://docs.brew.sh/Installation)
 * [Git](https://formulae.brew.sh/formula/git#default)
 * [Php](https://formulae.brew.sh/formula/php#default)
+* [Composer](https://formulae.brew.sh/formula/composer#default)
 * [Docket Desktop](https://docs.docker.com/desktop/install/mac-install/)
 * [Drupal](https://www.digitalocean.com/community/tutorials/how-to-develop-a-drupal-9-website-on-your-local-machine-using-docker-and-ddev#step-1-mdash-installing-ddev)
 * [jq](https://formulae.brew.sh/formula/jq#default)
