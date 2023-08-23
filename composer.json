@@ -25,6 +25,7 @@
         "drupal/autosave_form": "^1.4",
         "drupal/bigmenu": "^2.0@RC",
         "drupal/block_content_revision_ui": "^2.280",
+        "drupal/ckeditor": "^1.0",
         "drupal/conditional_fields": "^4.0@alpha",
         "drupal/content_lock": "^2.3",
         "drupal/content_moderation_notifications": "^3.5",
