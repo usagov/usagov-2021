@@ -60,29 +60,21 @@
   label_display == 'inline' ? 'display-inline',
  ]
 %}
-{% if label_hidden %}
-  {% if multiple and (items|length > 1) %}
-    <ul{{ attributes.addClass(classes, 'field__items').addClass('usa-list').addClass(field_classes) }}>
-      {% for item in items %}
-        <li{{ item.attributes.addClass('field__item').addClass(field_classes) }}>{{ item.content }}</li>
-      {% endfor %}
-    </ul>
-  {% else %}
+
+{% if not label_hidden %}
+<div{{ attributes.addClass(classes) }}>
+  <div{{ title_attributes.addClass(title_classes) }}>{{ label }}</div>
+</div>
+{% endif %}
+
+{% if multiple and (items|length > 1) %}
+  <ul{{ attributes.addClass(classes, 'field__items').addClass('usa-list').addClass(field_classes) }}>
     {% for item in items %}
-      <span{{ attributes.addClass(classes, 'field__item').addClass('line-height-2').addClass(field_classes) }}>{{ item.content }}</span>
+      <li{{ item.attributes.addClass('field__item').addClass(field_classes) }}>{{ item.content }}</li>
     {% endfor %}
-  {% endif %}
+  </ul>
 {% else %}
-  <div{{ attributes.addClass(classes) }}>
-    <div{{ title_attributes.addClass(title_classes) }}>{{ label }}</div>
-    {% if multiple %}
-    <div>
-      {% endif %}
-      {% for item in items %}
-        <div{{ item.attributes.addClass('field__item').addClass(field_classes) }}>{{ item.content }}</div>
-      {% endfor %}
-      {% if multiple %}
-    </div>
-    {% endif %}
-  </div>
+  {% for item in items %}
+    <span{{ attributes.addClass(classes, 'field__item').addClass('line-height-2').addClass(field_classes) }}>{{ item.content }}</span>
+  {% endfor %}
 {% endif %}
