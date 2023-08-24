@@ -77,7 +77,6 @@
         "drupal/webform": "^6.1",
         "drupal/workbench_email": "^3.0",
         "drush/drush": "^12",
-        "mglaman/composer-drupal-lenient": "^1.0",
         "nyholm/psr7": "^1.6",
         "nyholm/psr7-server": "^1.0",
         "onelogin/php-saml": "^4.1",
@@ -100,7 +99,6 @@
             "wikimedia/composer-merge-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "cweagans/composer-patches": true,
-            "mglaman/composer-drupal-lenient": true
         }
     },
     "extra": {
@@ -108,13 +106,6 @@
             "locations": {
                 "web-root": "web/"
             },
-        "drupal-lenient": {
-                "allowed-list": [
-                    "drupal/ckeditor_templates",
-                    "drupal/ckeditor_templates_ui"
-                ]
-            }
-        },
         "installer-paths": {
             "web/core": [
                 "type:drupal-core"
