@@ -50,7 +50,7 @@ Before starting the project setup install/download the following:
 * [Drupal](https://www.digitalocean.com/community/tutorials/how-to-develop-a-drupal-9-website-on-your-local-machine-using-docker-and-ddev#step-1-mdash-installing-ddev)
 * [jq](https://formulae.brew.sh/formula/jq#default)
 * [npm](https://radixweb.com/blog/installing-npm-and-nodejs-on-windows-and-mac)
-* [Visual Studio Code](https://code.visualstudio.com/download)
+* An integrated development environment (IDE) such as [Visual Studio Code](https://code.visualstudio.com/download)
 
 [back to top](#usagov-2021)
 
