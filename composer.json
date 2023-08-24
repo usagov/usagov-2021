@@ -110,8 +110,6 @@
             },
         "drupal-lenient": {
                 "allowed-list": [
-                    "drupal/mmf_core_fields",
-                    "drupal/log_stdout",
                     "drupal/ckeditor_templates",
                     "drupal/ckeditor_templates_ui"
                 ]
@@ -147,10 +145,6 @@
             ]
         },
         "patches": {
-            "drupal/mmf_core_fields": {
-                "Automated Drupal 10 compatibility fixes":"https://www.drupal.org/files/issues/2022-06-16/mmf_core_fields.2.0.1.rector.patch",
-                "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
-            },
             "drupal/tome": {
                 "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
                 "De-duplicate invoke paths in StaticCommand's exportPaths": "./patches/drupal/deduplicateTomeInvokePaths.patch"
@@ -160,9 +154,6 @@
             },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
-            },
-            "drupal/log_stdout": {
-                "Drupal 10 compatibility": "https://www.drupal.org/files/issues/2023-05-26/log_stdout_d10_3339853_8.patch"
             }
         }
     }
