@@ -71,13 +71,13 @@ Follow these steps when you first start working on the project, or anytime you w
 2. Run the these commands in the terminal:
 
 
-```
-bin/init
-docker compose up
-```
+    ```
+    bin/init
+    docker compose up
+    ```
 
 
-Wait until messages stop scrolling by; the final message will probably be a message from node saying "Starting 'watch-sass' ..."
+    Wait until messages stop scrolling by; the final message will probably be a message from node saying "Starting 'watch-sass' ..."
 
 
 3. Open your browser and go to `localhost` (no port number needed). Initially, this will show an empty Drupal site.
@@ -102,13 +102,20 @@ Once you finish the previous section, follow these steps to set up your USAgov d
 3. Open a new terminal and go to your USAgov project folder.
 
 
-4. Run this command to populate the database from the SQL file you downloaded:
+4. Run one of the following commands to populate the database from the SQL file you downloaded:
 
+    If you sql file is titled `usagov.sql`, run this command:
+    ```
+    bin/db-update
+    ```
 
-```
-bin/db-update
-```
-**Note:** Expect a message saying there's no need to update the mariadb database.
+    If the file is not titled usagov.sql, run this command:
+    ```
+    bin/db-update usagov_other.sql 
+    ```
+
+    **Note:** Expect a message saying there's no need to update the mariadb database.
+
 5. Reload the `localhost` page in your browser. You should now see the beta.usa.gov home page.
 
 
@@ -144,25 +151,25 @@ If you would like to access the Drupal Portal to make any additional configurati
 1. Generate a new URL to access your administrator account.
 
 
-```
-bin/drush uli
-```
+    ```
+    bin/drush uli
+    ```
 
 
 2. The ***unique*** URL will be in some form of
 
 
-`http://default/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
+    `http://default/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
 
 
-Replace the the `default` portion with `localhost`. It should now be in the form:
-`http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
+    Replace the the `default` portion with `localhost`. It should now be in the form:
+    `http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
 
 
 3. Adjust your credentials accordingly.
 
 
-**Note:** This is a ONE-TIME login. You'll automatically be logged in during future uses. However, if you ever reset your container, you will have to redo this process.
+    **Note:** This is a ONE-TIME login. You'll automatically be logged in during future uses. However, if you ever reset your container, you will have to redo this process.
 
 
 
@@ -190,9 +197,9 @@ There are two ways in which you can do this:
 5. Type the following command in your terminal:
 
 
-```
-docker compose up
-```
+    ```
+    docker compose up
+    ```
 
 
 ### Using Docker Desktop
