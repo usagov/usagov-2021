@@ -15,7 +15,7 @@
 {% if items|length == 1 %}
     <p class="phoneNumberField">{{ items[0]["content"]["#title"] }}</p>
 {% elseif items|length > 1 %}
-    <ul>
+    <ul class="usa-list">
         {% for phone_number in items %}
             <li class="phoneNumberField">{{ phone_number["content"]["#title"] }}</li>
         {% endfor %}
