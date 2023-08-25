@@ -12,46 +12,51 @@ use Drupal\node\Entity\Node;
  */
 
 function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'node_directory_record_delete_form') {
-    $markup = "<div class=\"default-message\">" . $form_state->getFormObject()->getDescription() . "</div>";
+  if (str_contains($form_id, 'delete_form')) {
+    $markup = "<div class=\"default-message\">" .
+              $form_state->getFormObject()->getDescription() .
+              "</div>";
     $entity = $form_state->getFormObject()->getEntity();
-
-    $deleted_id = $entity->id();
-    $deleted_type = $entity->getEntityTypeId();
     $segway = "T";
-    $additional = "<br />";
+    $additional = "";
 
-    if ($deleted_type == "node") {
-      $query = \Drupal::entityQuery('node')
-        ->condition('type', 'agency_synonym')
-        ->condition('field_agency_reference', $deleted_id)
-        ->accessCheck(TRUE);
-      $results = $query->execute();
-      $synonyms = Node::loadMultiple($results);
+    if ($form_id == 'node_directory_record_delete_form') {
+      $deleted_id = $entity->id();
+      $deleted_type = $entity->getEntityTypeId();
 
-      if (!empty($synonyms)) {
-        $additional .= "<div class=\"synonym-delete\">";
-        $additional .= "<span>Deleting this node will also delete the following nodes:</span>" . PHP_EOL;
-        $additional .= "<ul>" . PHP_EOL;
-        foreach ($synonyms as $synonym) {
-          $additional .= "<li>Synonym: <a href=\"/node/" . $synonym->id() . "\" target=\"_blank\">" . $synonym->title->value . " (" . $synonym->id() . ")</a></li>" . PHP_EOL;
+      if ($deleted_type == "node") {
+        $query = \Drupal::entityQuery('node')
+          ->condition('type', 'agency_synonym')
+          ->condition('field_agency_reference', $deleted_id)
+          ->accessCheck(TRUE);
+        $results = $query->execute();
+        $synonyms = Node::loadMultiple($results);
+
+        if (!empty($synonyms)) {
+          $additional = "<br />" . PHP_EOL;
+          $additional .= "<div class=\"synonym-delete\">";
+          $additional .= "<span>Deleting this node will also delete the following nodes:</span>" . PHP_EOL;
+          $additional .= "<ul>" . PHP_EOL;
+          foreach ($synonyms as $synonym) {
+            $additional .= "<li>Synonym: <a href=\"/node/" . $synonym->id() . "\" target=\"_blank\">" . $synonym->title->value . " (" . $synonym->id() . ")</a></li>" . PHP_EOL;
+          }
+          $additional .= "</ul></div>" . PHP_EOL;
+          $segway = "Additionally, t";
         }
-        $additional .= "</ul></div>" . PHP_EOL;
-        $segway = "Additionally, t";
       }
+    }
 
-      if (!empty($entity->field_language_toggle->target_id)) {
-        $additional .= "<br />" . PHP_EOL;
-        $additional .= "<div class=\"toggle-remove\">";
-        $additional .= "<span>" . $segway . "he following nodes will have their language toggle links cleared:</span>" . PHP_EOL;
-        $additional .= "<ul>" . PHP_EOL;
-        $lang_toggle = $entity->field_language_toggle->target_id;
-        $toggle_nodes = Node::loadMultiple((array) $lang_toggle);
-        foreach ($toggle_nodes as $toggle_node) {
-          $additional .= "<li>" . $toggle_node->language()->getName() . " node: <a href=\"/node/" . $toggle_node->id() . "\" target=\"_blank\">" . $toggle_node->title->value . " (" . $toggle_node->id() . ")</a></li>" . PHP_EOL;
-        }
-        $additional .= "</ul></div>" . PHP_EOL;
+    if (!empty($entity->field_language_toggle->target_id)) {
+      $additional .= "<br />" . PHP_EOL;
+      $additional .= "<div class=\"toggle-remove\">";
+      $additional .= "<span>" . $segway . "he following nodes will have their language toggle links cleared:</span>" . PHP_EOL;
+      $additional .= "<ul>" . PHP_EOL;
+      $lang_toggle = $entity->field_language_toggle->target_id;
+      $toggle_nodes = Node::loadMultiple((array) $lang_toggle);
+      foreach ($toggle_nodes as $toggle_node) {
+        $additional .= "<li>" . $toggle_node->language()->getName() . " node: <a href=\"/node/" . $toggle_node->id() . "\" target=\"_blank\">" . $toggle_node->title->value . " (" . $toggle_node->id() . ")</a></li>" . PHP_EOL;
       }
+      $additional .= "</ul></div>" . PHP_EOL;
     }
 
     $form['description']['#markup'] = t($markup . $additional);
@@ -62,25 +67,28 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
  * Implements hook_entity_predelete.
  */
 function usa_orphaned_entities_entity_predelete($entity) {
-  if ($entity->getEntityTypeId() == "node" &&
-      $entity->getType() == 'directory_record') {
-    $deleted_id = $entity->id();
-    $query = \Drupal::entityQuery('node')
-      ->condition('type', 'agency_synonym')
-      ->condition('field_agency_reference', $deleted_id)
-      ->accessCheck(TRUE);
-    $results = $query->execute();
-    $synonyms = Node::loadMultiple($results);
+  if ($entity->getEntityTypeId() == "node") {
+    if ($entity->getType() == 'directory_record') {
+      $deleted_id = $entity->id();
+      $query = \Drupal::entityQuery('node')
+        ->condition('type', 'agency_synonym')
+        ->condition('field_agency_reference', $deleted_id)
+        ->accessCheck(TRUE);
+      $results = $query->execute();
+      $synonyms = Node::loadMultiple($results);
 
-    foreach ($synonyms as $synonym) {
-      $synonym->delete();
+      foreach ($synonyms as $synonym) {
+        $synonym->delete();
+      }
     }
 
-    $lang_toggle = $entity->field_language_toggle->target_id;
-    $toggle_nodes = Node::loadMultiple((array) $lang_toggle);
-    foreach ($toggle_nodes as $toggle_node) {
-      unset($toggle_node->field_language_toggle);
-      $toggle_node->save();
+    if (!empty($entity->field_language_toggle->target_id)) {
+      $lang_toggle = $entity->field_language_toggle->target_id;
+      $toggle_nodes = Node::loadMultiple((array) $lang_toggle);
+      foreach ($toggle_nodes as $toggle_node) {
+        unset($toggle_node->field_language_toggle);
+        $toggle_node->save();
+      }
     }
   }
 }
