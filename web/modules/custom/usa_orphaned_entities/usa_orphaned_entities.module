@@ -56,7 +56,8 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
  * Implements hook_entity_predelete.
  */
 function usa_orphaned_entities_entity_predelete($entity) {
-  if ($entity->getEntityTypeId() == "node") {
+  if ($entity->getEntityTypeId() == "node" &&
+      $entity->getType() == 'directory_record') {
     $deleted_id = $entity->id();
     $query = \Drupal::entityQuery('node')
       ->condition('type', 'agency_synonym')
