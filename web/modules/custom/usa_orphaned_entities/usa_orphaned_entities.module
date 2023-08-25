@@ -5,12 +5,12 @@
  * Auto-delete orphaned synonyms and language toggles when deleting
  * Federal Directory Records.
  */
-
- /**
+/**
  * Implements hook_form_alter.
  */
- function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
-  if($form_id == 'node_directory_record_delete_form') {
+function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id)
+{
+  if ($form_id == 'node_directory_record_delete_form') {
     $markup = $form_state->getFormObject()->getDescription();
     $entity = $form_state->getFormObject()->getEntity();
 
@@ -30,7 +30,7 @@
         $additional = "<br /><br />";
         $additional .= "WARNING! Deleting this node will also delete the following nodes:";
         foreach ($synonyms as $synonym) {
-          $additional .= "<br />Synonym: <a href=\"/node/" . $synonym->id() . "\" target=\"_blank\">" . $synonym->title->value . " (". $synonym->id() .")</a>";
+          $additional .= "<br />Synonym: <a href=\"/node/" . $synonym->id() . "\" target=\"_blank\">" . $synonym->title->value . " (" . $synonym->id() . ")</a>";
         }
         $segway = "Additionally, t";
       }
@@ -39,21 +39,22 @@
         $additional .= "<br /><br />";
         $additional .= $segway . "he following nodes will have their language toggle links cleared:";
         $lang_toggle = $entity->field_language_toggle->target_id;
-        $toggle_nodes = \Drupal\node\Entity\Node::loadMultiple((array)$lang_toggle);
+        $toggle_nodes = \Drupal\node\Entity\Node::loadMultiple((array) $lang_toggle);
         foreach ($toggle_nodes as $toggle_node) {
-          $additional .= "<br />" . $toggle_node->language()->getName() . " node: <a href=\"/node/" . $toggle_node->id() . "\" target=\"_blank\">" . $toggle_node->title->value . " (". $toggle_node->id() .")</a>";
+          $additional .= "<br />" . $toggle_node->language()->getName() . " node: <a href=\"/node/" . $toggle_node->id() . "\" target=\"_blank\">" . $toggle_node->title->value . " (" . $toggle_node->id() . ")</a>";
         }
       }
     }
 
     $form['description']['#markup'] = t($markup . $additional);
   }
- }
+}
 
 /**
  * Implements hook_entity_predelete.
  */
-function usa_orphaned_entities_entity_predelete($entity) {
+function usa_orphaned_entities_entity_predelete($entity)
+{
   if ($entity->getEntityTypeId() == "node") {
     $deleted_id = $entity->id();
     $query = \Drupal::entityQuery('node')
@@ -68,7 +69,7 @@ function usa_orphaned_entities_entity_predelete($entity) {
     }
 
     $lang_toggle = $entity->field_language_toggle->target_id;
-    $toggle_nodes = \Drupal\node\Entity\Node::loadMultiple((array)$lang_toggle);
+    $toggle_nodes = \Drupal\node\Entity\Node::loadMultiple((array) $lang_toggle);
     foreach ($toggle_nodes as $toggle_node) {
       unset($toggle_node->field_language_toggle);
     }
