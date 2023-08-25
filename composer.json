@@ -98,7 +98,7 @@
             "drupal/core-project-message": true,
             "wikimedia/composer-merge-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "cweagans/composer-patches": true,
+            "cweagans/composer-patches": true
         }
     },
     "extra": {
@@ -106,45 +106,46 @@
             "locations": {
                 "web-root": "web/"
             },
-        "installer-paths": {
-            "web/core": [
-                "type:drupal-core"
-            ],
-            "web/libraries/{$name}": [
-                "type:drupal-library"
-            ],
-            "web/modules/contrib/{$name}": [
-                "type:drupal-module"
-            ],
-            "web/profiles/contrib/{$name}": [
-                "type:drupal-profile"
-            ],
-            "web/themes/contrib/{$name}": [
-                "type:drupal-theme"
-            ],
-            "drush/Commands/contrib/{$name}": [
-                "type:drupal-drush"
-            ],
-            "web/modules/custom/{$name}": [
-                "type:drupal-custom-module"
-            ],
-            "web/profiles/custom/{$name}": [
-                "type:drupal-custom-profile"
-            ],
-            "web/themes/custom/{$name}": [
-                "type:drupal-custom-theme"
-            ]
-        },
-        "patches": {
-            "drupal/tome": {
-                "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
-                "De-duplicate invoke paths in StaticCommand's exportPaths": "./patches/drupal/deduplicateTomeInvokePaths.patch"
+            "installer-paths": {
+                "web/core": [
+                    "type:drupal-core"
+                ],
+                "web/libraries/{$name}": [
+                    "type:drupal-library"
+                ],
+                "web/modules/contrib/{$name}": [
+                    "type:drupal-module"
+                ],
+                "web/profiles/contrib/{$name}": [
+                    "type:drupal-profile"
+                ],
+                "web/themes/contrib/{$name}": [
+                    "type:drupal-theme"
+                ],
+                "drush/Commands/contrib/{$name}": [
+                    "type:drupal-drush"
+                ],
+                "web/modules/custom/{$name}": [
+                    "type:drupal-custom-module"
+                ],
+                "web/profiles/custom/{$name}": [
+                    "type:drupal-custom-profile"
+                ],
+                "web/themes/custom/{$name}": [
+                    "type:drupal-custom-theme"
+                ]
             },
-            "drupal/core": {
-                "Make BaseFieldOverride inherit internal property from the base field": "https://www.drupal.org/files/issues/2023-01-20/3274419-42.patch"
-            },
-            "drupal/views_menu_children_filter": {
-                "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
+            "patches": {
+                "drupal/tome": {
+                    "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
+                    "De-duplicate invoke paths in StaticCommand's exportPaths": "./patches/drupal/deduplicateTomeInvokePaths.patch"
+                },
+                "drupal/core": {
+                    "Make BaseFieldOverride inherit internal property from the base field": "https://www.drupal.org/files/issues/2023-01-20/3274419-42.patch"
+                },
+                "drupal/views_menu_children_filter": {
+                    "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
+                }
             }
         }
     }
