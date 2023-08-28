@@ -103,7 +103,7 @@ class UserFieldsEventSubscriber implements EventSubscriberInterface {
       foreach ($match_expression as $field_name => $value) {
         $query->condition($field_name, $value);
       }
-      $results = $query->execute();
+      $results = $query->accessCheck()->execute();
       // @todo we should figure out what we want to do with users that are
       //   already 'linked' in the authmap table. Maybe we want to exclude
       //   them from the query results; maybe we want to include them and

@@ -6,6 +6,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\Core\Url;
 use Drupal\samlauth\Controller\SamlController;
@@ -25,16 +26,26 @@ class SamlauthMappingListForm extends ConfigFormBase {
   protected $entityFieldManager;
 
   /**
+   * Renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * SamlauthMappingListForm constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager service.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The Drupal Renderer service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, EntityFieldManagerInterface $entity_field_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, EntityFieldManagerInterface $entity_field_manager, RendererInterface $renderer) {
     parent::__construct($config_factory);
     $this->entityFieldManager = $entity_field_manager;
+    $this->renderer = $renderer;
   }
 
   /**
@@ -43,7 +54,8 @@ class SamlauthMappingListForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('entity_field.manager')
+      $container->get('entity_field.manager'),
+      $container->get('renderer')
     );
   }
 
@@ -80,7 +92,7 @@ class SamlauthMappingListForm extends ConfigFormBase {
    *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state, $mapping_id = NULL) {
-    $config = $this->configFactory()->get(UserFieldsEventSubscriber::CONFIG_OBJECT_NAME);
+    $config = $this->config(UserFieldsEventSubscriber::CONFIG_OBJECT_NAME);
 
     // The bulk of this page is not a form at all, but a table. We're putting
     // that on the same page as the form options, because we have only two
@@ -90,7 +102,7 @@ class SamlauthMappingListForm extends ConfigFormBase {
     $mappings = $config->get('field_mappings');
     $form = $this->listMappings(is_array($mappings) ? $mappings : []);
 
-    if ($this->configFactory()->get(SamlController::CONFIG_OBJECT_NAME)->get('map_users')) {
+    if ($this->config(SamlController::CONFIG_OBJECT_NAME)->get('map_users')) {
       $form['config'] = [
         '#type' => 'fieldset',
         '#title' => $this->t('Configuration for linking'),
@@ -123,7 +135,7 @@ class SamlauthMappingListForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->configFactory()->getEditable(UserFieldsEventSubscriber::CONFIG_OBJECT_NAME)
+    $this->config(UserFieldsEventSubscriber::CONFIG_OBJECT_NAME)
       ->set('link_first_user', $form_state->getValue('link_first_user'))
       ->set('ignore_blocked', $form_state->getValue('ignore_blocked'))
       ->save();
@@ -141,7 +153,7 @@ class SamlauthMappingListForm extends ConfigFormBase {
    *   A renderable content array.
    */
   public function listMappings(array $mappings) {
-    $linking_enabled = $this->configFactory()->get(SamlController::CONFIG_OBJECT_NAME)->get('map_users');
+    $linking_enabled = $this->config(SamlController::CONFIG_OBJECT_NAME)->get('map_users');
 
     $output['table'] = [
       '#theme' => 'table',
@@ -203,7 +215,7 @@ class SamlauthMappingListForm extends ConfigFormBase {
         $output['table']['#rows'][$id] = [
           $mapping['attribute_name'],
           $user_field,
-          render($operations),
+          $this->renderer->render($operations),
         ];
         if ($linking_enabled) {
           array_splice($output['table']['#rows'][$id], 2, 0, [$mapping['link_user_order'] ?? '']);

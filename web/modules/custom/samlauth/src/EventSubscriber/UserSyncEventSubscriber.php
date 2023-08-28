@@ -103,6 +103,7 @@ class UserSyncEventSubscriber implements EventSubscriberInterface {
     $this->entityTypeManager = $entity_type_manager;
     $this->emailValidator = $email_validator;
     $this->logger = $logger;
+    $this->messenger = $messenger;
     $this->typedDataManager = $typed_data_manager;
     $this->config = $config_factory->get('samlauth.authentication');
     $this->setStringTranslation($translation);

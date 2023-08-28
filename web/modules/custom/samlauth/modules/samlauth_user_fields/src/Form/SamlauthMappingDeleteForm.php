@@ -76,7 +76,7 @@ class SamlauthMappingDeleteForm extends ConfirmFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, $mapping_id = NULL) {
     if ($mapping_id !== NULL) {
-      $mappings = $this->configFactory()->get(UserFieldsEventSubscriber::CONFIG_OBJECT_NAME)->get('field_mappings');
+      $mappings = $this->configFactory()->getEditable(UserFieldsEventSubscriber::CONFIG_OBJECT_NAME)->get('field_mappings');
 
       // Set these values for the confirm message to pick up on them.
       $this->attributeName = $mappings[$mapping_id]['attribute_name'];

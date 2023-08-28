@@ -52,7 +52,7 @@ class AccessDeniedSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent $event
    *   The event to process.
    */
-  public function onException(GetResponseForExceptionEvent $event) {
+  public function onException(ExceptionEvent $event) {
     $exception = $event->getException();
     // If our own routes threw a TooManyRequestsHttpException, don't spend time
     // redirecting to another page and rendering that. (Rendering would need to

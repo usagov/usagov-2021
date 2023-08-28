@@ -123,3 +123,5 @@ samlauth.authentication:
       type: boolean
     use_base_url:
       type: boolean
+    bypass_relay_state_check:
+      type: boolean

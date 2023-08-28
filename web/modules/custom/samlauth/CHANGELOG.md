@@ -1,5 +1,33 @@
-These are selected quick notes for developers. For all changes, see the
+These are selected quick notes for developers and administrators of the settings
+form. For all changes, see the
 [release notes on drupal.org](https://www.drupal.org/project/samlauth/releases).
+
+8.x-3.9:
+
+* After processing login/logout, the ACS/SLS endpoints now refuse to redirect
+  to URLS deemed unsafe. New configuration ignore_check_relay_state added, to
+  enable reverting to the 8.x-3.8 behavior. It will disappear in the next major
+  version. If your IDP sets the RelayState to an 'external' URL in their
+  login / logout responses:
+  * revert the behavior using the config option / setting only if you must;
+  * longer term: either sure that the corresponding hostnames are mentioned
+    in the 'trusted_host_patterns' setting (see settings.php), or code your
+    own solution if that's really impossible (see
+    SamlController::ensureSafeRelayState()).
+
+8.x-3.6:
+
+* Fixed possible information disclosure caused by hardcoded (settings.php)
+  configuration being saved into active (database) config. See
+  https://www.drupal.org/node/3284901 about who is vulnerable / how to fix.
+
+8.x-3.5:
+
+* Some more error messages are now properly translatable.
+
+8.x-3.4:
+
+* Configuration: security_allow_repeat_attribute_name added.
 
 8.x-3.3:
 

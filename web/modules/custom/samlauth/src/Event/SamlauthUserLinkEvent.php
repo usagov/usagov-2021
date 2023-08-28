@@ -2,8 +2,8 @@
 
 namespace Drupal\samlauth\Event;
 
+use Drupal\Component\EventDispatcher\Event;
 use Drupal\user\UserInterface;
-use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Wraps a samlauth user link event for event listeners.

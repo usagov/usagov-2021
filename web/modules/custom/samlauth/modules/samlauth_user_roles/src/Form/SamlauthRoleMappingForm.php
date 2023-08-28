@@ -41,7 +41,7 @@ class SamlauthRoleMappingForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('entity_type.manager'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -68,7 +68,7 @@ class SamlauthRoleMappingForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->configFactory()->get(UserRolesEventSubscriber::CONFIG_OBJECT_NAME);
+    $config = $this->config(UserRolesEventSubscriber::CONFIG_OBJECT_NAME);
     $roles = $this->getRoleLabels();
 
     $form['only_first_login'] = [
@@ -258,7 +258,7 @@ class SamlauthRoleMappingForm extends ConfigFormBase {
       }
     }
 
-    $this->configFactory()->getEditable(UserRolesEventSubscriber::CONFIG_OBJECT_NAME)
+    $this->config(UserRolesEventSubscriber::CONFIG_OBJECT_NAME)
       ->set('only_first_login', $form_state->getValue('only_first_login'))
       ->set('unassign_roles', array_filter($form_state->getValue('unassign_roles')))
       ->set('default_roles', array_filter($form_state->getValue('default_roles')))
