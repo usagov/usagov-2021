@@ -25,7 +25,7 @@ services:
     volumes:
       - .:/var/www:delegated
       - ./.docker/src-cms/etc/periodic/1min/generate-static-site:/etc/periodic/1min/generate-static-site:delegated
-      #- ./.docker/src-cms/50_xdebug.ini:/etc/php8/conf.d/50_xdebug.ini:delegated
+      #- ./.docker/src-cms/50_xdebug.ini:/etc/php82/conf.d/50_xdebug.ini:delegated
     env_file:
       - ./env.local
     environment:

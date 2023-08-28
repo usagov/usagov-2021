@@ -17,5 +17,5 @@ if [ $(uname -m) != 'aarch64' ]; then
       -e 's/;\?newrelic.framework =.*/newrelic.framework = "drupal8"/' \
       -e 's/;\?newrelic.loglevel =.*/newrelic.loglevel = "warning"/' \
       -e 's/;\?newrelic.enabled =.*/newrelic.enabled = false/' \
-      /etc/php8/conf.d/newrelic.ini
+      /etc/php82/conf.d/newrelic.ini
 fi

@@ -220,7 +220,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 # RUN . /local/newrelic.sh
 
     # cron setup
-Run mkdir -p /etc/periodic/1min \
+RUN mkdir -p /etc/periodic/1min \
     && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*
