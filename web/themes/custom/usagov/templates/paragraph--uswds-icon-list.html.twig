@@ -55,7 +55,8 @@
 
 <div{{ attributes.addClass(classes) }}>
   <ul class="usa-icon-list {{ icon_size ? ' usa-icon-list--size-'~icon_size : '' }} {{ content.field_custom_classes[0] }}">
-    {% for key, item in content.field_uswds_icon_list_item if key|first != '#' %}
+    {% for key, item in content.field_uswds_icon_list_item %}
+      {%  if key|first != '#' %}
       {% set icon = item['#paragraph'].field_uswds_icon.entity.name[0].value|default(default_icon) %}
       {% set color = item['#paragraph'].field_uswds_color.entity.name[0].value|default(default_color) %}
       {% set heading = item['#paragraph'].field_heading.value %}
@@ -76,6 +77,7 @@
           {% endif %}
         </div>
       </li>
+      {% endif %}
     {% endfor %}
   </ul>
 </div>

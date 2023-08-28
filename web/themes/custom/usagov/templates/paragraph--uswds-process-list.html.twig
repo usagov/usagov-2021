@@ -51,7 +51,8 @@
 {# Prints div with classes, and content without Width and Background. #}
 <div{{ attributes.addClass(classes) }}>
   <ol class="usa-process-list">
-    {% for key, item in content.field_process_items if key|first != '#' %}
+    {% for key, item in content.field_process_items %}
+      {% if key|first != '#' %}
       <li class="usa-process-list__item">
         {% set process_head = item['#paragraph'].field_header.value %}
         {% if process_head != null %}
@@ -76,6 +77,7 @@
         {# Print the compiled section body. #}
         {{ section_body['#paragraph'].field_text.value|raw }}
       </li>
+      {% endif %}
     {% endfor %}
   </ol>
 </div>

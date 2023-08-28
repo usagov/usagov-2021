@@ -75,9 +75,13 @@ function usagov_preprocess_block(&$variables) {
           count($childNode->get('field_navigation_banner_image')) &&
           $childNode->get('field_navigation_banner_image')[0]->entity
         ) {
-          $data->navigation_banner_image = file_url_transform_relative(file_create_url(
-            $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
-          ));
+          $data->navigation_banner_image = \Drupal::service('file_url_generator')->generateString(
+            // file_url_transform_relative(
+              // file_create_url(
+              \Drupal::service('file_url_generator')->generateAbsoluteString(
+              $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
+            )
+          );
         }
         if ($childNode->hasField('field_css_icon') && count($childNode->get('field_css_icon'))) {
           $data->css_icon = $childNode->get('field_css_icon')[0]->value;
