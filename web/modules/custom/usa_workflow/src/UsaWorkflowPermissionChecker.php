@@ -18,7 +18,7 @@ class UsaWorkflowPermissionChecker {
    *
    * @var bool
    */
-  private $usaapdeleteowncontent = FALSE;
+  private $usadeleteowncontent = FALSE;
 
   /**
    * WfUserpermission.

@@ -145,6 +145,9 @@
             ]
         },
         "patches": {
+            "drupal/conditional_fields": {
+              "Fix PHP 8.2 deprecation issue with DependencyHelper-class": "https://www.drupal.org/files/issues/2023-05-09/3345459-Fix-PHP-8.2-deprecation-issue.diff"
+            },
             "drupal/content_lock": {
                 "PHP 8.2 issue": "https://www.drupal.org/files/issues/2023-05-22/3343964-5.patch"
             },
