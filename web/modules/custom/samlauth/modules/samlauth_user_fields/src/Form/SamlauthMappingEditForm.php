@@ -102,7 +102,7 @@ class SamlauthMappingEditForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, $mapping_id = NULL) {
     $user_fields = $this->entityFieldManager->getFieldDefinitions('user', 'user');
-    $mappings = $this->configFactory()->get(UserFieldsEventSubscriber::CONFIG_OBJECT_NAME)->get('field_mappings');
+    $mappings = $this->configFactory()->getEditable(UserFieldsEventSubscriber::CONFIG_OBJECT_NAME)->get('field_mappings');
 
     // @todo make code that captures all attributes from a SAML authentication
     //   message (only if enabled here via a special temporary option) and
@@ -190,7 +190,7 @@ class SamlauthMappingEditForm extends FormBase {
 
     // If this is a new mapping, check to make sure a 'same' one isn't already
     // defined.
-    $mappings = $this->configFactory()->get(UserFieldsEventSubscriber::CONFIG_OBJECT_NAME)->get('field_mappings');
+    $mappings = $this->configFactory()->getEditable(UserFieldsEventSubscriber::CONFIG_OBJECT_NAME)->get('field_mappings');
     if (is_array($mappings)) {
       $our_mapping_id = $form_state->getValue('mapping_id');
       $our_match_id = $form_state->getValue('link_user_order');

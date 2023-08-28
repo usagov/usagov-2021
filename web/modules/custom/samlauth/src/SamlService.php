@@ -307,6 +307,7 @@ class SamlService {
     }
     catch (\Exception $acs_exception) {
     }
+    $account = $unique_id = NULL;
     if (!isset($acs_exception)) {
       $unique_id = $this->getAttributeByConfig('unique_id_attribute');
       if ($unique_id) {
@@ -441,7 +442,7 @@ class SamlService {
       // then by name, then by email.
       if ($config->get('map_users')) {
         $event = new SamlauthUserLinkEvent($this->getAttributes());
-        $this->eventDispatcher->dispatch(SamlauthEvents::USER_LINK, $event);
+        $this->eventDispatcher->dispatch($event, SamlauthEvents::USER_LINK);
         $account = $event->getLinkedAccount();
         if ($account) {
           $this->logger->info('Existing user @name (@uid) was newly matched to SAML login attributes; linking user and logging in.', [
@@ -552,8 +553,8 @@ class SamlService {
    *   If linking fails or is denied.
    */
   protected function linkExistingAccount($unique_id, UserInterface $account) {
-    $allowed_roles = $this->configFactory->get('samlauth.authentication')->get('map_users_roles');
-    $disallowed_roles = array_diff($account->getRoles(), $allowed_roles, [AccountInterface::AUTHENTICATED_ROLE]);
+    $allowed_roles = $this->configFactory->get('samlauth.authentication')->get('map_users_roles') ?: [];
+    $disallowed_roles = array_diff($account->getRoles(), (array)$allowed_roles, [AccountInterface::AUTHENTICATED_ROLE]);
     if ($disallowed_roles) {
       $this->logger->warning('Denying login: SAML login for unique ID @saml_id matches existing Drupal account @uid which we are not allowed to link because it has roles @roles.', [
         '@saml_id' => $unique_id,
@@ -749,7 +750,7 @@ class SamlService {
   public function synchronizeUserAttributes(UserInterface $account, $skip_save = FALSE, $first_saml_login = FALSE) {
     // Dispatch a user_sync event.
     $event = new SamlauthUserSyncEvent($account, $this->getAttributes(), $first_saml_login);
-    $this->eventDispatcher->dispatch(SamlauthEvents::USER_SYNC, $event);
+    $this->eventDispatcher->dispatch($event, SamlauthEvents::USER_SYNC);
 
     if (!$skip_save && $event->isAccountChanged()) {
       $account->save();

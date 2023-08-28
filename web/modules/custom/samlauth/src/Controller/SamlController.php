@@ -9,6 +9,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Path\PathValidatorInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Site\Settings;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\Core\Utility\Error;
@@ -220,8 +221,6 @@ class SamlController extends ControllerBase {
       $metadata_valid = $config->get('metadata_valid_secs') ?: Metadata::TIME_VALID;
       $metadata = $this->saml->getMetadata(time() + $metadata_valid);
 
-      //$this->logger->error('Debug metadata: @meta', ['@meta' => json_encode($metadata)]);
-
       // Default is TRUE for existing installs.
       if ($config->get('metadata_cache_http') ?? TRUE) {
         $response = new CacheableResponse($metadata, 200, ['Content-Type' => 'text/xml']);
@@ -371,21 +370,8 @@ class SamlController extends ControllerBase {
     if (!$ignore_relay_state) {
       $relay_state = $this->requestStack->getCurrentRequest()->get('RelayState');
       if ($relay_state) {
-        // We should be able to trust the RelayState parameter at this point
-        // because the response from the IdP was verified. Only validate general
-        // syntax.
-        if (!UrlHelper::isValid($relay_state, TRUE)) {
-          $this->logger->error('Invalid RelayState parameter found in request: @relaystate', ['@relaystate' => $relay_state]);
-        }
-        // The SAML toolkit set a default RelayState to itself
-        // (saml/log(in|out)) when starting the process, which will just cause
-        // an unnecessary intermediary redirect before AccessDeniedSubscriber
-        // routes us to the same place. Or, if the Drupal site has multiple
-        // domains and the user still isn't logged in on the domain in the
-        // RelayState, we'll have a redirect loop between us and the IdP.
-        elseif (!preg_match('|//[^/]+/saml/log|', $relay_state)) {
-          $url = $relay_state;
-        }
+        // Check relay state URL; if it's unsafe then just fall back to the default.
+        $url = $this->ensureSafeRelayState($relay_state, $after_acs);
       }
     }
 
@@ -416,6 +402,77 @@ class SamlController extends ControllerBase {
     }
 
     return $url_object;
+  }
+
+  /**
+   * Checks a relay state URL for safety.
+   *
+   * A relay state can be unsafe if it was set explicitly by the IdP, or if
+   * a request from the /saml/login endpoint was intercepted and altered (e.g.
+   * by forwarding it in an email).
+   *
+   * While not 100% guaranteed, this protected method is likely to keep
+   * existing over major versions. Systems which need nonstandard checks, can
+   * modify the acs / sls routes to a child class that overrides this method.
+   * The standard (only?) situation when this method is called, is when
+   * login/logout is already done, so after returning an empty string, the
+   * caller just redirects to a default URL instead. If you must, you can throw
+   * an exception; see handleExceptionInRenderContext() for how these are
+   * handled.
+   *
+   * @param string $relay_state
+   *   The relay state to check
+   * @param bool $after_acs
+   *   (Optional) TRUE if an ACS request was just processed.
+   *
+   * @return string
+   *   A safe URL (likely the unchanged input parameter), or empty string to
+   *   indicate that the caller should take appropriate action.
+   */
+  protected function ensureSafeRelayState(string $relay_state, bool $after_acs = FALSE): string {
+    $safe_url = '';
+
+    if (!UrlHelper::isValid($relay_state, TRUE)) {
+      $this->logger->warning('Invalid RelayState parameter found in request; ignoring: @relaystate', ['@relaystate' => $relay_state]);
+    }
+    else {
+      $safe = FALSE;
+      // Only allow hostnames set as trusted hosts. If no trusted hosts are
+      // set (which is unlikely because this prompts an error in the Core status
+      // report), then only allow the hostname from the current request.
+      // @todo remove the config option in v4.x (always check trusted_host_patterns).
+      //   also: replace base_url by router.request_context everywhere in the module.
+      if (!$this->config(self::CONFIG_OBJECT_NAME)->get('bypass_relay_state_check')) {
+        $trusted_patterns = Settings::get('trusted_host_patterns');
+        if ($trusted_patterns) {
+          $redirect_host = parse_url($relay_state, PHP_URL_HOST);
+          foreach ($trusted_patterns as $pattern) {
+            if (preg_match("[$pattern]i", $redirect_host)) {
+              $safe = TRUE;
+              break;
+            }
+          }
+        }
+        else {
+          $safe = !UrlHelper::isExternal($relay_state) || UrlHelper::externalIsLocal($relay_state, $GLOBALS['base_url']);
+        }
+        if (!$safe) {
+          $this->logger->warning('Untrusted external RelayState parameter found in request; ignoring: @relaystate', ['@relaystate' => $relay_state]);
+        }
+      }
+
+      // The SAML toolkit set a default RelayState to itself
+      // (saml/log(in|out)) when starting the process, which will just cause
+      // an unnecessary intermediary redirect before AccessDeniedSubscriber
+      // routes us to the same place. Or, if the Drupal site has multiple
+      // domains and the user still isn't logged in on the domain in the
+      // RelayState, we'll have a redirect loop between us and the IdP.
+      if ($safe && !preg_match('|//[^/]+/saml/log|', $relay_state)) {
+        $safe_url = $relay_state;
+      }
+    }
+
+    return $safe_url;
   }
 
   /**

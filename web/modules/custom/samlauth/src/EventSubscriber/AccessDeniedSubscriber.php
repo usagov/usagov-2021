@@ -2,13 +2,13 @@
 
 namespace Drupal\samlauth\EventSubscriber;
 
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Url;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
@@ -49,11 +49,11 @@ class AccessDeniedSubscriber implements EventSubscriberInterface {
   /**
    * Redirects users when access is denied.
    *
-   * @param \Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent $event
+   * @param \Symfony\Component\HttpKernel\Event\ExceptionEvent $event
    *   The event to process.
    */
   public function onException(ExceptionEvent $event) {
-    $exception = $event->getException();
+    $exception = $event->getThrowable();
     // If our own routes threw a TooManyRequestsHttpException, don't spend time
     // redirecting to another page and rendering that. (Rendering would need to
     // be done from scratch because the page needs to include includes the
