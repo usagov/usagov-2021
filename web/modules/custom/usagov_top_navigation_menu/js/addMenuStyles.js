@@ -27,8 +27,6 @@
             var p = document.createElement('p');
             p.innerHTML = 'esta página';
             p.classList.add('usa-sr-only');
-            var currentPage = listItem.getAttribute("id");
-            console.log(`current-page id: ${listItem.getAttribute("id")}`);
             document.getElementById(listItem.getAttribute("id")).firstElementChild.prepend(p);
           }
           else {
