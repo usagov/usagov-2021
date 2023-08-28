@@ -110,7 +110,17 @@
 		</div>
 	</section>
 {% endif %}
-{% if term_name != "Home Page" %}
+
+{% if term_name == "Home Page" %}
+
+	<main class="main-content usa-layout-docs no-footer-gap {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+		{{ page.content }}
+		<a id="back-to-top" href="#main-content" aria-label="{{ lang == 'en' ? 'Back to top' : 'Subir a la parte superior' }}">
+			{{ lang == 'en' ? 'Top' : 'Subir' }}
+		</a>
+	</main>
+
+{% else %}
 
 	<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
 
@@ -171,19 +181,13 @@
 			</div>
 		</div>
 
-
-	{% else %}
-		<main class="main-content usa-layout-docs no-footer-gap {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
-
-			{{ page.content }}
-		{% endif %}
-<a id="back-to-top" href="#main-content" aria-label="{{ lang == 'en' ? 'Back to top' : 'Subir a la parte superior' }}">
-
-
-	{{ lang == 'en' ? 'Top' : 'Subir' }}
-</a>
+		<a id="back-to-top" href="#main-content" aria-label="{{ lang == 'en' ? 'Back to top' : 'Subir a la parte superior' }}">
+			{{ lang == 'en' ? 'Top' : 'Subir' }}
+		</a>
 
 	</main>
+
+{% endif %}
 
 {% include '@usagov/footer_nav.html.twig' %}
 
