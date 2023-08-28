@@ -79,34 +79,15 @@ hr.bl-divider {
   padding-right: 8px;
 }
 
-/* Mobile & Tablet (385px and up)*/
-@media (min-width: 385px) {
-
-  .agency-field-offices-near-you {
-    display: block !important;
-    margin-top: 2em;
-    margin-bottom: 2em;
-  }
-
-  .agency-fields {
-    margin-top: 1em;
-    margin-bottom: 1em;
-  }
+.agency-field-offices-near-you {
+  display: block !important;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
 }
 
-/* Desktop (1024px and up) */
-@media (min-width: 1024px) {
-
-  .agency-field-offices-near-you {
-    display: block !important;
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
-  }
-
-  .agency-fields {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-  }
+.agency-fields {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
 
 .usagov-directory-accordion-container ul {
