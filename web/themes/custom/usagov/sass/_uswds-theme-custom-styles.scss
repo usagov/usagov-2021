@@ -728,6 +728,10 @@ input:not([disabled]):focus.usa-user-error {
 
 #myform div.margin-x-auto {
   margin-left: 3rem;
+  @media (max-width: 40em) {
+    margin-left: .2rem;
+    margin-right: 1rem;
+  } 
 }
 
 #myform div.maxw-mobile {
