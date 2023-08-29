@@ -19,8 +19,8 @@
   list-style: none;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(37px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(41px, 1fr));
+  gap: 16px;
 }
 
 .usagov-directory-container-az li {
@@ -29,8 +29,8 @@
     display: table-cell;
     text-align: center;
     vertical-align: middle;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     text-decoration: none;
     color: #000;
     box-sizing: border-box;
