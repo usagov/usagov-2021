@@ -20,7 +20,7 @@
   {% if node.type[0].value.target_id == "wizard" or node.type[0].value.target_id == "wizard_step" %}
     {% set main_nav_items = simplify_menu('wizard') %}
   {% endif %}
-  
+
   {% set translations = {
     'home': 'Home',
     'home_URL': '/',
@@ -125,7 +125,7 @@
 
 
 {# Build the mobile menu #}
-<nav aria-label="Primary navigation" class="usa-nav usagov-mobile-menu">
+<nav aria-label={{ node.langcode.langcode == 'es' ?  "Navegación primaria" : "Primary navigation" }} class="usa-nav usagov-mobile-menu">
   <div class="usa-nav__inner">
     <div class="usagov-mobile-menu-top">
       <div class="usagov-mobile-menu-controls">
@@ -172,7 +172,7 @@
     </ul>
 
   {% else %}
-    
+
     <ul class="navigation__items ancestors">
     {% for menu_item in active_trail %}
       {% set class = "" %}
@@ -238,7 +238,7 @@
             {% endif %}
           </li>
         {% endif %}
-        
+
       {% endif %}
     {% endfor %}
     </ul>
