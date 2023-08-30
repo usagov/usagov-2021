@@ -40,15 +40,15 @@ F. Copy the downloaded snapshot zips to the appropriate Google Drive folders:
 
 - Database snapshot zip file (e.g. USAGOV-999.prod.1234.pre-deploy.sql.gz)
 
-    usa.gov/USAgov Databases : https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx
+    usa.gov/USAgov Databases : <https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx>
 
 - Public files snapshot zip file (e.g. USAGOV-999.prod.1234.pre-deploy.public.zip)
 
-    usagov/StaticSiteBackups : https://drive.google.com/drive/folders/1EFJX3fGe4tyfYtK7T9jTqQ3GVw6Ugk0c
+    usagov/StaticSiteBackups : <https://drive.google.com/drive/folders/1EFJX3fGe4tyfYtK7T9jTqQ3GVw6Ugk0c>
 
 - Static site snapshot zip file (e.g. USAGOV-999.prod.1234.pre-deploy.zip)
 
-    usagov/CMSPublicFilesBackups : https://drive.google.com/drive/folders/1tI4k5qasEtmhxCBuznR3t0fe466milYk
+    usagov/CMSPublicFilesBackups : <https://drive.google.com/drive/folders/1tI4k5qasEtmhxCBuznR3t0fe466milYk>
 
 ## 1. All-in-one Snapshot Deploy/Restore script (preferred method)
 
@@ -64,15 +64,15 @@ Make sure each of the files has the same snapshot tag (the beginning of the file
 
 - Database snapshot zip file (e.g. USAGOV-999.prod.1234.pre-deploy.sql.gz)
 
-    usa.gov/USAgov Databases : https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx
+    usa.gov/USAgov Databases : <https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx>
 
 - Public files snapshot zip file (e.g. USAGOV-999.prod.1234.pre-deploy.public.zip)
 
-    usagov/StaticSiteBackups : https://drive.google.com/drive/folders/1EFJX3fGe4tyfYtK7T9jTqQ3GVw6Ugk0c
+    usagov/StaticSiteBackups : <https://drive.google.com/drive/folders/1EFJX3fGe4tyfYtK7T9jTqQ3GVw6Ugk0c>
 
 - Static site snapshot zip file (e.g. USAGOV-999.prod.1234.pre-deploy.zip)
 
-    usagov/CMSPublicFilesBackups : https://drive.google.com/drive/folders/1tI4k5qasEtmhxCBuznR3t0fe466milYk
+    usagov/CMSPublicFilesBackups : <https://drive.google.com/drive/folders/1tI4k5qasEtmhxCBuznR3t0fe466milYk>
 
 C. Make a note of the snapshot tag string common to the files you downloaded from Google Drive, and set an environment variable for it
 
