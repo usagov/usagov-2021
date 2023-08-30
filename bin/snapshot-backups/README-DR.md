@@ -58,7 +58,7 @@ A. Create an environment variable in your shell session for the CF space you wis
 
         SPACE=prod
 
-B. Downloaded the latest snapshot zips from the appropriate Google Drive folders, into the root directory of your local environment
+B. Download the latest snapshot zips from the appropriate Google Drive folders, into the root directory of your local environment
 
 Make sure each of the files has the same snapshot tag (the beginning of the file names should all match. eg USAGOV-999.prod.1234.pre-deploy)
 
