@@ -22,7 +22,7 @@ C. Run the all-in-one backup script.
 
 This will fail if the current CF space does not match the SPACE env var. This will wait for a currently-running tome job to complete before proceeding. It will wait up to 25 minutes.  It will then disable tome and enable Drupal maintenance mode while the backup is performed, restoring them when complete
 
-        dryrun='--dryrun'
+        # dryrun='--dryrun'
         bin/snapshot-backups/local-snapshot-backup $dryrun $SPACE $TICKET $SUFFIX
 
 D. Make a note of the snapshot tag string emitted by the previous script, and set an environment variable for it.
@@ -33,8 +33,8 @@ The string will look like ``USAGOV-999.prod.1234.pre-deploy`` or similar.  It is
 
 E. Run the all-in-one snapshot download script (downloads the snapshot zips to the current directory)
 
-        dryrun='--dryrun'
-        bin/snapshot-backups/local-snapshot-backup $dryrun $SPACE $SNAPTAG
+        # dryrun='--dryrun'
+        bin/snapshot-backups/local-snapshot-download $dryrun $SPACE $SNAPTAG
 
 F. Copy the downloaded snapshot zips to the appropriate Google Drive folders:
 
@@ -84,5 +84,5 @@ D. Ensure you are in the Cloud Foundry Space to which you wish to deploy
 
 E. Run the all-in-one restore script:
 
-      dryrun='--dryrun'
+      # dryrun='--dryrun'
       bin/snapshot-backups/local-snapshot-deploy $dryrun $SPACE $SNAPTAG
