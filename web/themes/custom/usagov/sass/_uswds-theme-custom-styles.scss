@@ -990,3 +990,10 @@ p, a , h1, h2, h3, h4, h5 , .usa-prose>h1, .usa-prose>h2, .usa-prose>h3, .usa-pr
 .usa-accordion__button {
   line-height: 1.5;
 }
+
+.usa-form .usa-button {
+  margin-left: 4rem;
+  @media (max-width: 30em) {
+    margin-left: .4rem;
+  }
+}
