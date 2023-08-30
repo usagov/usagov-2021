@@ -1,8 +1,15 @@
 function reformatNumForMobile(toReformat) {
   "use strict";
-  // get phone number and description from innerText
   const numAndDesc = toReformat.textContent || toReformat.innerText;
-  const numberSplitter = numAndDesc.split(" ");
+  const checkForBracket = numAndDesc.split(">");
+  let numberSplitter;
+  if (checkForBracket.length > 1) {
+    const removedBracket = checkForBracket[1];
+    numberSplitter = removedBracket.split(" ");
+  }
+  else {
+    numberSplitter = numAndDesc.split(" ");
+  }
   const onlyNum = numberSplitter[0];
   const cleanNumber = onlyNum.replace(/\D/g, "");
   const onlyDesc = numberSplitter.slice(1, numberSplitter.length).join(" ");
