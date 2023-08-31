@@ -47,21 +47,20 @@
       {% set baseURL = url('<front>') %}
       {% set path = drupal_url('node/'~nodeID) %}
       {% set url = baseURL|render~path|render[1:] %}
-      
+
       <div id="sm-share">
         <span id="share-page">SHARE THIS PAGE:</span>
         <div role="img" aria-labelledby="share-page">
           <a href="{{ facebook }}{{ url }}&v=3">
-            <img src="/themes/custom/usagov/images/Facebook_25px_whiteBG.png" alt="Facebook" />
+            <img src="/themes/custom/usagov/images/social-media-icons/Facebook_25px_whiteBG.png" alt="Facebook" />
           </a>
           <a href="{{ twitter }}{{ url }}">
-            <img src="/themes/custom/usagov/images/Twitter_25px_whiteBG.png " alt="Twitter" />
+            <img src="/themes/custom/usagov/images/social-media-icons/Twitter_25px_whiteBG.png " alt="Twitter" />
           </a>
           <a href="{{ email }}{{ url }}">
-            <img src="/themes/custom/usagov/images/Email_25px_whiteBG.png" alt="Email"/>
+            <img src="/themes/custom/usagov/images/social-media-icons/Email_25px_whiteBG.png" alt="Email"/>
           </a>
         </div>
       </div>
     {% endblock %}
   </div>
-  
