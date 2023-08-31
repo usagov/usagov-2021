@@ -540,7 +540,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1120-tome-issue-remediation
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -550,7 +549,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1120-tome-issue-remediation
       - approve-dev-deployment:
           type: approval
           requires:
@@ -559,7 +557,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1120-tome-issue-remediation
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -567,7 +564,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1120-tome-issue-remediation
       - approve-stage-deployment:
           type: approval
           requires:
