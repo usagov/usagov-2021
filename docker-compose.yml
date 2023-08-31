@@ -10,6 +10,7 @@ services:
         - BUID
         - BGID
         - HOST_ARCH
+        - BUILD_ENV
     ports:
       #- 8080:80
       #- 8443:443
@@ -103,6 +104,8 @@ services:
     build:
       context: ./
       dockerfile: .docker/Dockerfile-minio
+      args:
+        - BUILD_ENV
     ports:
       - 9000:9000
       - 9001:9001
