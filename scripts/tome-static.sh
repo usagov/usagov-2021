@@ -3,6 +3,8 @@ set -x
 
 URI=${1:-https://www.usa.gov}
 
+TOME_PROCESS_COUNT=${TOME_PROCESS_COUNT:-4}
+
 INT_REGEX='^[0-9]+$'
 
 if [[ $TOME_PROCESS_COUNT =~ $INT_REGEX ]]; then
