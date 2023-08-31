@@ -400,20 +400,20 @@ This process asks drush to export the database for us since it does some cleanup
 
 
 1. View differences
-* Configuration > Development > Configuration Synchronization
-* `/admin/config/development/configuration`
+   * Configuration > Development > Configuration Synchronization
+   * `/admin/config/development/configuration`
 2. Export
-* via Command Line
-1. `bin/drush cex`
-* via Export Full Archive
-1. Export > Full Archive
-2. Move the desired configs into `/config/sync`
-* via Export Single Item
-1. Export > Single Item
-2. Find the config you want to sync
-3. Create/Edit the file in `/config/sync` with the filename shown below the config textbox
-4. Paste the config text into the file
-5. Repeat for each desired config
+   * via Command Line     
+      a. `bin/drush cex`
+   * via Export Full Archive    
+      a. Export > Full Archive    
+      b. Move the desired configs into `/config/sync`
+   * via Export Single Item     
+      a. Export > Single Item       
+      b. Find the config you want to sync
+      c. Create/Edit the file in `/config/sync` with the filename shown below the config textbox      
+      d. Paste the config text into the file    
+      e. Repeat for each desired config
 3. Commit config changes to git
 
 
