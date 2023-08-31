@@ -60,7 +60,7 @@ function renderResults(response, rawResponse) {
             "phone-number": "Teléfono",
             "website": "Sitio web",
             "contact-via-email": "Contactar por correo electrónico",
-            "path-contact": "/es/funcionarios-electos-email",
+            "path-contact": "/es/funcionarios-electos-correo-electronico",
         }
     };
 
