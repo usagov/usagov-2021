@@ -17,6 +17,7 @@ else
     echo "TOME_PROCESS_COUNT '$TOME_PROCESS_COUNT' is not a valid, non-negative integer.  Adjusting to 4"
     TOME_PROCESS_COUNT=4
   fi
+fi
 
 echo "Starting Static Site Generation : "$(date)
 mkdir -p /var/www/html
