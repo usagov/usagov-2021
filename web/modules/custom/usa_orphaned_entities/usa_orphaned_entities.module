@@ -14,7 +14,7 @@ use Drupal\node\Entity\Node;
 function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
   if (str_contains($form_id, 'delete_form')) {
     $markup = "<div class=\"default-message\">" .
-              $form_state->getFormObject()->getDescription() .
+                $form_state->getFormObject()->getDescription() .
               "</div>";
     $entity = $form_state->getFormObject()->getEntity();
     $deleted_id = $entity->id();
@@ -101,4 +101,18 @@ function usa_orphaned_entities_entity_predelete($entity) {
       }
     }
   }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function usa_orphaned_entities_theme($existing, $type, $theme, $path) {
+  // Store usa_orphaned_entities preprocess theme functions in a separate .inc file.
+  \Drupal::moduleHandler()->loadInclude('usa_orphaned_entities', 'inc', 'usa_orphaned_entities.theme');
+
+  return array(
+    'usa_orphaned_entities' => array(
+      'file' => 'usa_orphaned_entities.theme.inc',
+    ),
+  );
 }

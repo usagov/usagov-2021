@@ -1,5 +1,7 @@
 name: 'USA Orphaned Entities'
 type: module
-description: 'Removes orphaned synonyms and language toggles when attached Federal Directory Records are deleted.'
-core: 8.x
-core_version_requirement: ^8 || ^9 || ^10
+description: 'Removes orphaned synonyms when attached Federal Directory Records are deleted and language toggles when any attached node is deleted.'
+# core: 8.x
+core_version_requirement: ^9 || ^10
+dependencies:
+  - drupal:views

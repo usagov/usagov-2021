@@ -1,0 +1,39 @@
+{#
+/**
+ * Default theme implementation for Views to output a usa_orphaned_entities archive.
+ *
+ * Available variables:
+ * - options: View plugin style options:
+ *   - classes: CSS classes.
+ *   - nesting: Whether months should be nested inside years.
+ *   - path: Link path. Eg.: example.com/TARDIS/2016/03
+ *   - time_pool: Two-dimension array containing years and months with content.
+ *
+ * @see template_preprocess_views_view_tardis()
+ *
+ * @ingroup themeable
+ */
+#}
+{%
+  set classes = [
+    'views-view-tardis',
+    options.classes
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  <ul>
+    {% for key, item in options.time_pool %}
+      {% if options.nesting == 1 %}
+        <li><a href="/{{ options.path }}/{{ key }}">{{ key }}</a><ul>
+        {% for subkey, subitem in item %}
+          <li><a href="/{{ options.path }}/{{ key }}/{{ subkey }}">{{ subitem }}</a></li>
+        {% endfor %}
+        </ul></li>
+      {% else %}
+        {% for subkey, subitem in item %}
+          <li><a href="/{{ options.path }}/{{ key }}/{{ subkey }}">{{ subitem }}</a></li>
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  </ul>
+</div>
