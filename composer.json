@@ -110,7 +110,6 @@
             },
         "drupal-lenient": {
                 "allowed-list": [
-                    "drupal/mmf_core_fields",
                     "drupal/log_stdout"
                 ]
             }
@@ -150,10 +149,6 @@
             },
             "drupal/content_lock": {
                 "PHP 8.2 issue": "https://www.drupal.org/files/issues/2023-05-22/3343964-5.patch"
-            },
-            "drupal/mmf_core_fields": {
-                "Automated Drupal 10 compatibility fixes":"https://www.drupal.org/files/issues/2022-06-16/mmf_core_fields.2.0.1.rector.patch",
-                "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
             },
             "drupal/tome": {
                 "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
