@@ -14,7 +14,10 @@
 
 				<ul class="usa-sidenav__sublist">
 					<li class="usa-sidenav__item">
-						<a class="usa-current" aria-current="página" onclick="return false;" href={{current_url}}>{{ drupal_title() }}
+
+						<a class="usa-current" onclick="return false;" href={{current_url}}>
+							<p class="usa-sr-only">esta página</p>
+							{{ drupal_title() }}
 						</a>
 					</li>
 				</ul>
@@ -29,7 +32,9 @@
 						<a class="active-trail" href="/es/gobiernos-estatales">Gobiernos estatales</a>
 						<ul class="usa-sidenav__sublist">
 							<li class="usa-sidenav__item">
-								<a class="usa-current" aria-current="página" onclick="return false;" href={{current_url}}>{{ drupal_title() }}
+								<a class="usa-current" onclick="return false;" href={{current_url}}>
+									<p class="usa-sr-only">esta página</p>
+									{{ drupal_title() }}
 								</a>
 							</li>
 						</ul>

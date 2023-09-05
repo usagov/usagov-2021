@@ -727,7 +727,11 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 #myform div.margin-x-auto {
-  margin-left: 3rem;
+  //margin-left: 3rem;
+  @media (max-width: 40em) {
+    margin-left: .2rem;
+    margin-right: 1rem;
+  } 
 }
 
 #myform div.maxw-mobile {
@@ -985,4 +989,11 @@ p, a , h1, h2, h3, h4, h5 , .usa-prose>h1, .usa-prose>h2, .usa-prose>h3, .usa-pr
 
 .usa-accordion__button {
   line-height: 1.5;
+}
+
+.usa-form .usa-button {
+  margin-left: 4rem;
+  @media (max-width: 30em) {
+    margin-left: .4rem;
+  }
 }
