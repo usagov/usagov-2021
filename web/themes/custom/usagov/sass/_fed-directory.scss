@@ -19,8 +19,8 @@
   list-style: none;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(37px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(41px, 1fr));
+  gap: 16px;
 }
 
 .usagov-directory-container-az li {
@@ -29,8 +29,8 @@
     display: table-cell;
     text-align: center;
     vertical-align: middle;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     text-decoration: none;
     color: #000;
     box-sizing: border-box;
@@ -77,6 +77,17 @@ hr.bl-divider {
 
 .agency-index-label {
   padding-right: 8px;
+}
+
+.agency-field-offices-near-you {
+  display: block !important;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.agency-fields {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
 
 .usagov-directory-accordion-container ul {
