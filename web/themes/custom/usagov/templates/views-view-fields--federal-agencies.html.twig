@@ -58,7 +58,7 @@
     <p>{{- fields.field_page_intro.content -}}</p>
 
     {% if fields.field_website.content|striptags|trim %}
-    <div class="agency-fields">
+    <div class="agency-first-field">
       <p class="agency-index-label">{{ lang == 'en' ? 'Website' : 'Sitio web' }}:&nbsp;</p>
       <p class="field--name-field-website">{{- fields.field_website.content -}}</p>
     </div>
@@ -79,7 +79,7 @@
     {% endif %}
 
     {% if fields.field_offices_near_you.content|striptags|trim %}
-    <div class="agency-field-offices-near-you">
+    <div class="agency-fields">
       <p>{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}:&nbsp;</p>
       <div class="field--name-field-offices-near-you">{{- fields.field_offices_near_you.content -}}</div>
     </div>
