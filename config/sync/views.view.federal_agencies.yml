@@ -1166,9 +1166,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -1229,9 +1229,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -1899,7 +1899,7 @@ display:
           click_sort_column: uri
           type: link
           settings:
-            trim_length: 80
+            trim_length: null
             url_only: false
             url_plain: false
             rel: '0'
@@ -1966,7 +1966,7 @@ display:
           click_sort_column: uri
           type: link
           settings:
-            trim_length: 80
+            trim_length: null
             url_only: false
             url_plain: false
             rel: '0'
@@ -2098,9 +2098,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -2557,9 +2557,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -2620,9 +2620,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -3290,7 +3290,7 @@ display:
           click_sort_column: uri
           type: link
           settings:
-            trim_length: 80
+            trim_length: null
             url_only: false
             url_plain: false
             rel: '0'
@@ -3357,7 +3357,7 @@ display:
           click_sort_column: uri
           type: link
           settings:
-            trim_length: 80
+            trim_length: null
             url_only: false
             url_plain: false
             rel: '0'
@@ -3489,9 +3489,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
