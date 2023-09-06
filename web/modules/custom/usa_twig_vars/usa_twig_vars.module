@@ -242,10 +242,22 @@ function usa_twig_vars_form_alter(&$form, &$form_state, $form_id) {
  * Custom after build function
  */
 function usa_twig_vars_after_build($form, &$form_state) {
-  // Unchecks Generate automatic URL alias if path exists
+  // Unchecks Generate automatic URL alias if path exists, if NOT home page
+  if (in_array('field_page_type', $form_state->getValues())) {
+    $page_type = NULL;
+    if (is_array($form_state->getValues()['field_page_type'])) {
+      $page_type = $form_state->getValues()['field_page_type'][0];
+    }
+    else {
+      $page_type = $form_state->getValues()['field_page_type'];
+    }
+    if ($page_type == "22") {
+      return $form;
+    }
+  }
   if (in_array($form['#id'], [
-    'node-basic-page-form', 'node-basic-page-edit-form'
-    ])) {
+    'node-basic-page-form', 'node-basic-page-edit-form',
+  ])) {
     $form['path']['widget'][0]['#open'] = TRUE;
     if (array_key_exists('path', $form)) {
       $form['path']['widget'][0]['pathauto']['#checked'] = FALSE;
