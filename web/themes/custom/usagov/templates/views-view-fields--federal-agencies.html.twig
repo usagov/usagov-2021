@@ -60,34 +60,34 @@
     {% if fields.field_website.content|striptags|trim %}
     <div class="agency-first-field">
       <p class="agency-index-label">{{ lang == 'en' ? 'Website' : 'Sitio web' }}:&nbsp;</p>
-      <p>{{- fields.field_website.content -}}</p>
+      <p class="field--name-field-website">{{- fields.field_website.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_phone_number.content|striptags|trim %}
     <div class="agency-fields">
       <p class="agency-index-label">{{ lang == 'en' ? 'Phone number' : 'Teléfono' }}:&nbsp;</p>
-      <p class="phoneNumberField">{{- fields.field_phone_number.content -}}</p>
+      <p class="phoneNumberField field--name-field-phone-number">{{- fields.field_phone_number.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_contact_link.content|striptags|trim %}
     <div class="agency-fields">
       <p class="agency-index-label">{{ lang == 'en' ? 'Contact' : 'Contacto' }}:&nbsp;</p>
-      <p>{{- fields.field_contact_link.content -}}</p>
+      <p class="field--name-field-contact-link">{{- fields.field_contact_link.content -}}</p>
     </div>
     {% endif %}
 
     {% if fields.field_offices_near_you.content|striptags|trim %}
     <div class="agency-fields">
       <p>{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}:&nbsp;</p>
-      {{- fields.field_offices_near_you.content -}}
+      <div class="field--name-field-offices-near-you">{{- fields.field_offices_near_you.content -}}</div>
     </div>
     {% endif %}
 
     {% if fields.nothing.content|striptags|trim %}
       <div class="agency-fields">
-        <p>
+        <p class="field--name-field-more-information">
         {# {{- fields.nothing.content -}} #}
           <a href={{- fields.nothing.content|striptags|trim -}} > {{ lang == 'en' ? ' More information about ' : 'Más información sobre ' }} {{ fields.title.content  }}&nbsp; ></a>
         </p>
