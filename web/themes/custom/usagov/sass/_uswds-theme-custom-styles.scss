@@ -997,3 +997,13 @@ p, a , h1, h2, h3, h4, h5 , .usa-prose>h1, .usa-prose>h2, .usa-prose>h3, .usa-pr
     margin-left: .4rem;
   }
 }
+
+.usa-form div.maxw-mobile p {
+  @media (max-width: 40em) {
+    padding-left: 1rem;
+  }
+}
+
+div div.field--name-field-offices-near-you{
+  display: inline;
+}
