@@ -15,8 +15,52 @@ use Drupal\taxonomy\Entity\Term;
 */
 function usagov_preprocess_html(&$variables) {
   $variables['node'] = \Drupal::routeMatch()->getParameter('node');
+  
+  /**
+   * If the FAQ checkbox is checked, then parse the content to find questions and answers
+   */
+  if ($variables['node']->hasField('field_faq_page') && $variables['node']->get('field_faq_page')[0]->value) {
+    // $variables['is_faq_page'] = $variables['node']->get('field_faq_page')[0]->value;
+    $node_body = $variables['node']->get('body')[0]->value;
+    // $variables['node_body'] = $node_body;
+    $dom = new DomDocument();
+    $dom->loadHTML($node_body);
+    $questions = $dom->getElementsByTagName('h2');
+    // $variables['questions'] = $questions[0]->nodeValue;
+    $matches = array();
+    preg_match_all(
+      '/(?<=<\/h2>\s)\S.*?(?=\s*<h2|$)/s',  //regex
+      trim(preg_replace('/\s+/',' ', $node_body)),  //I had remove newlines from the body to get the regex working
+      $matches);
+    $answers = $matches[0];
+    $faq = array();
+    foreach ($questions as $index => $question) {
+      $faq[] = (object) ['question' => $question->nodeValue, 'answer' => $answers[$index]];
+    }
+    $variables['faq'] = $faq;
+  }
 }
 
+// function parseToArray($xpath,$class)
+// {
+//     $xpathquery="//span[@class='".$class."']";
+//     $elements = $xpath->query($xpathquery);
+
+//     if (!is_null($elements)) {  
+//         $resultarray=array();
+//         foreach ($elements as $element) {
+//             $nodes = $element->childNodes;
+//             foreach ($nodes as $node) {
+//               $resultarray[] = $node->nodeValue;
+//             }
+//         }
+//         return $resultarray;
+//     }
+// }
+
+/**
+ * This is a recursive helper function for finding the children of the active menu item
+ */
 function children_of_active_menu_item(&$items) {
   $result = NULL;
   foreach ($items as $object) {
@@ -37,14 +81,24 @@ function children_of_active_menu_item(&$items) {
  * Process block content
  */
 function usagov_preprocess_block(&$variables) {
+  /**
+   * Pass node value to pages so they can access node-based properties
+   */
   $node = \Drupal::routeMatch()->getParameter('node');
   $variables['node'] = $node;
 
+  /**
+   * Pass pagetype to pages so they can know what type of page to render
+   */
   if ($node && $node->hasField('field_page_type') && $node->get('field_page_type')[0]->target_id) {
     $pagetypeTid = $node->get('field_page_type')[0]->target_id;
     $variables['pagetype'] = Term::load($pagetypeTid)->getName();
   }
 
+
+  /**
+   * Pass menu data to nav pages so they can render links to their children
+   */
   if ($variables['elements']['#id'] == 'navigation_page_items' || $variables['elements']['#id'] == 'navigation_page_items_spanish') {
     $added_contexts = ['url.path']; // Use url.query_args as well for an easier test case
     $variables['content']['#cache']['contexts'] = array_merge($variables['content']['#cache']['contexts'], $added_contexts);
