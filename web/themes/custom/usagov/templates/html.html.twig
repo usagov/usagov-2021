@@ -137,6 +137,26 @@
       "logo": "https://www.usa.gov/themes/custom/usagov/images/Logo_USAGov.png"
     }
   </script>
+  
+  {# Generate FAQ JSON #}
+  <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {% for item in faq %}
+            {
+                "@type": "Question",
+                "name": "{{ item.question }}",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "{{ item.answer }}"
+                }
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }
+    </script>
 
 </head>
 <body{{ attributes }}>
