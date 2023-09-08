@@ -12,41 +12,56 @@ fi
 if [ -f ./env.local ]; then
   . ./env.local
 fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
 
 # just testing?
-if [ x$1 == x"--dryrun" ]; then
-  export echo=echo
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
   shift
 fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
 
 DEPLOY_TAG=${1}
 
 if [ -z "$DEPLOY_TAG" ]; then
   echo "Usage: $0 <tag>"
-  echo "This will create a backup named for the tag in the local directory. Use static-site-list to see available tags."
+  echo "This will download the static site snapshot for the given tag in the current directory (as a zip). Use static-site-list to see available tags. The snapshot for the given tag must exist already in s3."
   exit 1
 fi
 
-if [ -f $DEPLOY_TAG.zip ]; then
-  mv $DEPLOY_TAG.zip $DEPLOY_TAG.zip.bak
-fi
+if [ x$echo = x ]; then
+  if [ -f $DEPLOY_TAG.zip ]; then
+    mv $DEPLOY_TAG.zip $DEPLOY_TAG.zip.bak
+  fi
 
-mkdir $DEPLOY_TAG
-success=$?
+  mkdir $DEPLOY_TAG
+  success=$?
+else
+  success=0
+fi
 
 if [ "$success" != "0" ]; then
     echo "Unable to create directory $DEPLOY_TAG.  Does it already exist?"
     exit 1
 fi
 
-$echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 echo "Downloading files from s3 to local directory './${DEPLOY_TAG}'. This could take awhile."
 echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web-backup/$DEPLOY_TAG $DEPLOY_TAG --recursive
 $echo aws s3 cp --only-show-errors s3://$S3_BUCKET/web-backup/$DEPLOY_TAG $DEPLOY_TAG --recursive
 
 echo "Creating zip file ${DEPLOY_TAG}.zip"
-echo zip -rv ${DEPLOY_TAG}.zip ${DEPLOY_TAG}
+echo "zip -rv ${DEPLOY_TAG}.zip ${DEPLOY_TAG} &> $DEPLOY_TAG.zip.log"
 $echo zip -rv ${DEPLOY_TAG}.zip ${DEPLOY_TAG} &> $DEPLOY_TAG.zip.log
 success=$?
 
@@ -55,14 +70,17 @@ if [ "$success" != "0" ]; then
   exit 1
 fi
 
-FILE_COUNT=$(grep -c deflated ${DEPLOY_TAG}.zip.log)
-rm -rf $DEPLOY_TAG
-rm ${DEPLOY_TAG}.zip.log
+#echo " [$echo] "
+if [ x$echo = x ]; then
+  FILE_COUNT=$(grep -c deflated ${DEPLOY_TAG}.zip.log)
+  rm -rf $DEPLOY_TAG
+  rm ${DEPLOY_TAG}.zip.log
 
-if [ $FILE_COUNT -lt 1500 ]; then
-  echo "Only ~$FILE_COUNT files found in the $DEPLOY_TAG backup."
-  echo "This is probably not a good thing"
-  exit 1
+  if [ $FILE_COUNT -lt 1500 ]; then
+    echo "Only ~$FILE_COUNT files found in the $DEPLOY_TAG backup."
+    echo "This is probably not a good thing"
+    exit 1
+  fi
 fi
 
 echo "Done."
