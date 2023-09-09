@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+export BUCKET_SOURCE_FOLDER=public
+if [ -f ./bin/snapshot-backups/snapshot-include ]; then
+  . ./bin/snapshot-backups/snapshot-include
+else
+   echo Cannot find ${PWD}/bin/snapshot-backups/snapshot-include
+   exit 1
+fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
+
+removeMisc=""
+removePre=""
+removePost=""
+download=""
+
+while [ 0 -eq 0 ]; do
+
+  snaptype=$1
+
+  if [ x$snaptype = x ]; then
+    break
+  fi
+  shift
+
+  case "$snaptype" in
+    "--pre")
+       removePre=1
+    ;;
+    "--post")
+      removePost=1
+    ;;
+    "--misc")
+      removeMisc=1
+    ;;
+    "--download")
+      download="--download"
+    ;;
+  esac
+
+done
+
+if [ -z "$removeMisc" -a -z "$removePost" -a -z "$removePre" ]; then
+  echo "You must specify at least one of --pre, --post or --misc"
+  exit 1
+fi
+
+echo $(basename $0)
+echo "Dry run:     $dryrun"
+echo "Remove post: $removePost"
+echo "Remove pre:  $removePre"
+echo "Remove misc: $removeMisc"
+
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+export site_available_tags=$(aws s3 ls s3://$S3_BUCKET/web-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
+export public_available_tags=$(aws s3 ls s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
+export db_available_tags=$(aws s3 ls s3://$S3_BUCKET/db-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g' | sed 's/\.sql\.gz//g')
+
+if [ x$removeMisc != x ]; then
+  echo "--------------------------------------------"
+  echo "Remove misc $SPACE snapshots:"
+  echo
+  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -iv pre-deploy | grep -iv post-deploy); do
+    $echo $(dirname $0)/db-snapshot-delete $dryrun $SPACE $tag $download
+  done
+
+  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -iv pre-deploy | grep -iv post-deploy); do
+    $echo $(dirname $0)/site-snapshot-delete $dryrun $SPACE $tag $download
+  done
+
+  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -iv pre-deploy | grep -iv post-deploy); do
+    $echo $(dirname $0)/public-snapshot-delete $dryrun $SPACE $tag $download
+  done
+fi
+
+if [ x$removePre != x ]; then
+  echo "--------------------------------------------"
+  echo "Remove pre-deploy $SPACE snapshots:"
+  echo
+
+  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i pre-deploy); do
+    $echo $(dirname $0)/db-snapshot-delete $dryrun $SPACE $tag $download
+  done
+
+  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i pre-deploy); do
+    $echo $(dirname $0)/site-snapshot-delete $dryrun $SPACE $tag $download
+  done
+
+  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i pre-deploy); do
+    $echo $(dirname $0)/public-snapshot-delete $dryrun $SPACE $tag $download
+  done
+fi
+
+if [ x$removePost != x ]; then
+  echo "--------------------------------------------"
+  echo "Remove post-deploy $SPACE snapshots:"
+  echo
+
+  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i post-deploy); do
+    $echo $(dirname $0)/db-snapshot-delete $dryrun $SPACE $tag $download
+  done
+
+  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i post-deploy); do
+    $echo $(dirname $0)/site-snapshot-delete $dryrun $SPACE $tag $download
+  done
+
+  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i post-deploy); do
+    $echo $(dirname $0)/public-snapshot-delete $dryrun $SPACE $tag $download
+  done
+fi
