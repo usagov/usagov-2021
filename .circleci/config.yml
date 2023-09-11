@@ -550,6 +550,7 @@ workflows:
               only:
                 - dev
                 - stage
+                - prod
                 - USAGOV-1138-temp-cf-cli-key-expiry-fix
       - approve-dev-deployment:
           type: approval
