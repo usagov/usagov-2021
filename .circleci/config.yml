@@ -72,7 +72,8 @@ commands:
             ###echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
             ###sudo apt-get update
             ### sudo apt-get install cf8-cli
-            wget --user-agent="Mozilla" -q -O cf8-cli-installer_8.7.2_x86-64.deb https://packages.cloudfoundry.org/stable?release=debian64&version=v8&source=github
+            wget --user-agent="Mozilla" -q -O cf8-cli-installer_8.7.2_x86-64.deb "https://packages.cloudfoundry.org/stable?release=debian64&version=v8&source=github"
+            file cf8-cli-installer_8.7.2_x86-64.deb
             sudo dpkg -i cf8-cli-installer_8.7.2_x86-64.deb && sudo apt-get install -f
             cf -v
 
