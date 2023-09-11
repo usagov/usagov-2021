@@ -68,11 +68,12 @@ commands:
           name: Install CloudFoundry
           command: |
             if command cf > /dev/null; then echo "CF client already installed"; exit 0; fi
-            wget --user-agent="Mozilla" -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
-            echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
-            sudo apt-get update
+            ###wget --user-agent="Mozilla" -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+            ###echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+            ###sudo apt-get update
             ### sudo apt-get install cf8-cli
-            sudo  apt-get install cf8-cli --allow-unauthenticated -y
+            wget --user-agent="Mozilla" -q -O - https://packages.cloudfoundry.org/stable?release=debian64&version=v8&source=github
+            sudo dpkg -i cf8-cli-installer_8.7.2_x86-64.deb && sudo apt-get install -f
             cf -v
 
   install-node:
