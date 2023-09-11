@@ -4,6 +4,10 @@ $(".slides").slick({
   "speed": 300,
   "slidesToShow": 3,
   "slidesToScroll": 1,
+  "prevArrow":
+    '<img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" alt="Go to previous card"/>',
+  "nextArrow":
+    '<img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" alt="Go to next card"/>',
   "responsive": [
     {
       "breakpoint": 1024,
@@ -11,24 +15,24 @@ $(".slides").slick({
         "slidesToShow": 3,
         "slidesToScroll": 1,
         "infinite": true,
-        "dots": true
-      }
+        "dots": true,
+      },
     },
     {
       "breakpoint": 600,
       "settings": {
         "slidesToShow": 2,
-        "slidesToScroll": 1
-      }
+        "slidesToScroll": 1,
+      },
     },
     {
       "breakpoint": 480,
       "settings": {
         "slidesToShow": 1,
-        "slidesToScroll": 1
-      }
-    }
-  ]
+        "slidesToScroll": 1,
+      },
+    },
+  ],
 });
 
 // jQuery(document).ready(function ($) {
