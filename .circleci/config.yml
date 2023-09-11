@@ -541,6 +541,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1138-temp-cf-cli-key-expiry-fix
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -549,7 +550,7 @@ workflows:
               only:
                 - dev
                 - stage
-                - prod
+                - USAGOV-1138-temp-cf-cli-key-expiry-fix
       - approve-dev-deployment:
           type: approval
           requires:
@@ -558,6 +559,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1138-temp-cf-cli-key-expiry-fix
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -565,6 +567,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1138-temp-cf-cli-key-expiry-fix
       - approve-stage-deployment:
           type: approval
           requires:
