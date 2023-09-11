@@ -80,7 +80,7 @@
 
     {% if fields.field_offices_near_you.content|striptags|trim %}
     <div class="agency-fields">
-      <p>{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}:&nbsp;</p>
+      <p class="agency-index-label">{{ lang == 'en' ? 'Find an office near you' : 'Encuentre una oficina cercana' }}:&nbsp;</p>
       <div class="field--name-field-offices-near-you">{{- fields.field_offices_near_you.content -}}</div>
     </div>
     {% endif %}
