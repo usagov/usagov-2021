@@ -285,27 +285,52 @@
   overflow: hidden;
 }
 
-// .carousel-mover {
-//   max-width: 85%;
-//   margin: auto;
+.carousel-mover {
+  max-width: 85%;
+  margin: auto;
+}
+
+.slides {
+  max-width: 100%;
+}
+
+.slide {
+  max-width: 75%;
+}
+
+// .previous{
+//   grid-area: prev;
+// }
+// .slick-list{
+//   grid-area: slides;
 // }
 
-// .slides{
-//   max-width: 100%;
+// .next{
+//   grid-area: next;
 // }
 
-// .slide {
-//   max-width: 75%;
+// .slick-dots{
+//   grid-area: nav;
 // }
+
+// #slidesList{
+//   grid-template-columns: 55px 1fr 55px;
+//   grid-template-rows: auto;
+//   grid-template-areas:
+//     "prev slides next"
+//     "nav nav nav";
+// }
+
 
 .carousel {
-  position: relative;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: space-between;
-  flex: 1 0 auto;
+  //   position: relative;
+  //   width: 100%;
+  //   margin: 0;
+  //   padding: 0;
+  //   display: grid;
+
+  //   // justify-content: space-between;
+  //   // flex: 1 0 auto;
 
   .grid-container {
     width: 100%;
@@ -313,14 +338,14 @@
 
   .usagov-cards {
     background-color: transparent;
-    padding: 0;
+    // padding: 0;
   }
 
   .usa-card__container {
     background-color: transparent;
     box-shadow: none;
-    display: flex;
-    flex-direction: column;
+    // display: flex;
+    // flex-direction: column;
   }
 
   .usagov-card {
@@ -328,82 +353,81 @@
   }
 }
 
-#slidesList{
-  display: flex;
-  // width: calc(100% - 110px);
+#slidesList {
 
   .slick-prev,
   .slick-next {
-    padding: 0;
+    //   //   padding: 0;
     width: 44px;
     height: 44px;
-    // margin-top: auto;
-    // margin-bottom: auto;
-    border: none;
-    background-color: white;
-    position: relative;
+    //   // margin-top: auto;
+    //   // margin-bottom: auto;
+    //   border: none;
+    //   position: relative;
 
-    .slick-prev-icon, .slick-next-icon{
-      font-size: 44px;
-    }
-
-
-
-    img {
-      width: 44px;
-
-      &:hover {
-        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg)
-          brightness(103%) contrast(103%);
-      }
-    }
+    //   .slick-prev-icon, .slick-next-icon{
+    //     font-size: 44px;
   }
 
-  .slick-prev{
-    left: 0px;
-    margin-right: 11px;
-  }
+  //   img {
+  //     width: 44px;
 
-  .slick-next{
-    right: 0px;
-    margin-left: 11px;
-  }
+  //     &:hover {
+  //       filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg)
+  //         brightness(103%) contrast(103%);
+  //     }
+  //   }
+  // }
+
+  // .slick-prev{
+  //   left: 0px;
+  //   margin-right: 11px;
+  // }
+
+  // .slick-next{
+  //   right: 0px;
+  //   margin-left: 11px;
+  // }
+
+  //   .slick-list{
+  //     width:calc(100% - 110px);
+  //   }
+
+  // .slick-dots {
+  //   margin: 30px 0 70px;
+  //   list-style-type: none;
+  //   padding-left: 0;
+  //   align-items: center;
+  //   display: flex;
+  //   flex-flow: row nowrap;
+  //   justify-content: center;
+  //   width: auto;
+  // }
+
+  // .slick-dots li {
+  //   width: 44px;
+  //   height: 44px;
+  //   background-color: transparent;
+  //   border: none;
+  //   padding-left: 0;
+  //   padding-right: 0;
+  //   margin-right: 0;
+  // }
+
+  // .slick-dots li button {
+  //   fill: transparent;
+  //   stroke: var($cyan-30v);
+  //   stroke-width: 6px;
+
+  //   &:hover {
+  //     stroke: var(white);
+  //     stroke-width: 6px;
+  //   }
+  // }
 }
 
 // .carousel__navigation_wrapper{
 //   flex: 1 0 auto;
-// }
-
-// .carousel__navigation {
-//   margin: 30px 0 70px;
-//   list-style-type: none;
-//   padding-left: 0;
-//   align-items: center;
-//   display: flex;
-//   flex-flow: row nowrap;
-//   justify-content: center;
-//   width: auto;
-// }
-
-// .carousel__navigation_button {
-//   width: 44px;
-//   height: 44px;
-//   background-color: transparent;
-//   border: none;
-//   padding-left: 0;
-//   padding-right: 0;
-//   margin-right: 0;
-// }
-
-// .carousel__navigation_dot {
-//   fill: transparent;
-//   stroke: var($cyan-30v);
-//   stroke-width: 6px;
-
-//   &:hover {
-//     stroke: var(white);
-//     stroke-width: 6px;
-//   }
 // }
 
 // .carousel__navigation_button[aria-current="true"] .carousel__navigation_dot {
@@ -418,22 +442,22 @@
 //   padding-right: 11px;
 // }
 
-.slides {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-}
+// .slides {
+//   list-style: none;
+//   padding: 0;
+//   margin: 0;
+//   display: flex;
+//   width: 100%;
+//   max-width: 100%;
+//   overflow: hidden;
+// }
 
 .slide {
   // width: min(calc(100% - 4px), 234px);
   // max-width: min(calc(100% - 4px), 234px);
-  min-height: 285px;
+  // min-height: 285px;
   // flex: 0 0 calc(100%);
-  margin-top: 10px;
+  // margin-top: 10px;
   border: 1px solid #53BBDF;
   border-radius: 4px;
   box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
@@ -458,7 +482,7 @@
       outline: none;
     }
 
-    &:hover h3{
+    &:hover h3 {
       text-decoration: underline;
     }
 
@@ -468,13 +492,13 @@
     }
   }
 
-  .usa-card__container{
-    margin:0;
+  .usa-card__container {
+    margin: 0;
   }
 
-  .slide:last-child {
-    margin-right: 0;
-  }
+  // .slide:last-child {
+  //   margin-right: 0;
+  // }
 
   h3 {
     margin: 0;
@@ -492,20 +516,20 @@
     padding-top: 10px;
   }
 
-  .usa-card__body:last-child {
-    padding-bottom: 0;
-  }
+  //   .usa-card__body:last-child {
+  //     padding-bottom: 0;
+  //   }
 }
 
-.slide a:hover h3 {
-  text-decoration: underline;
-  text-decoration-color: initial;
-  text-decoration-thickness: initial;
-}
+// .slide a:hover h3 {
+//   text-decoration: underline;
+//   text-decoration-color: initial;
+//   text-decoration-thickness: initial;
+// }
 
-.slide a:hover .thumbnailBanner {
-  opacity: 0.5;
-}
+// .slide a:hover .thumbnailBanner {
+//   opacity: 0.5;
+// }
 
 .thumbnailDiv {
   background: #ccecf2;
@@ -854,28 +878,27 @@
     padding: 0 0 0 75px;
   }
 
-  .life-events-carousel {
-    width: 960px;
-  }
+  // .life-events-carousel {
+  //   width: 960px;
+  // }
 
-  .carousel-mover {
-    width: 850px;
-    max-width: 850px;
-    margin-left: 0;
-    margin-right: 0;
-  }
+  // .carousel-mover {
+  //   width: 850px;
+  //   max-width: 850px;
+  //   margin-left: 0;
+  //   margin-right: 0;
+  // }
 
-  .slide {
-    // flex: 0 0 calc(100% / 3);
-    padding: 0;
-    // width: 260px;
-    // max-width: 260px;
-    // margin-right: 29px;
-    margin-left: 0;
+  // .slide {
+  //   // flex: 0 0 calc(100% / 3);
+  //   padding: 0;
+  //   // width: 260px;
+  //   // max-width: 260px;
+  //   // margin-right: 29px;
+  //   margin-left: 0;
 
-    .life_events_card_text {
-      padding: 16px 16px 0;
-    }
-  }
+  //   .life_events_card_text {
+  //     padding: 16px 16px 0;
+  //   }
+  // }
 }
-

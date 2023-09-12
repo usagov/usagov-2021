@@ -4,10 +4,15 @@ $(".slides").slick({
   "speed": 300,
   "slidesToShow": 3,
   "slidesToScroll": 1,
-  "prevArrow":
-    '<img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" alt="Go to previous card"/>',
-  "nextArrow":
-    '<img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" alt="Go to next card"/>',
+  "arrowsPlacement": 'split',
+  "prevArrow": '<button class="previous slick-prev slick-arrow">' +
+  '  <span class="sr-only">Previous slides</span>' +
+  '  <img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" alt="Go to previous card"/>' +
+  '</button>',
+"nextArrow": '<button class="next slick-next slick-arrow">' +
+  '  <span class="sr-only">Next slides</span>' +
+  '  <img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" alt="Go to next card"/>' +
+  '</button>',
   "responsive": [
     {
       "breakpoint": 1024,
