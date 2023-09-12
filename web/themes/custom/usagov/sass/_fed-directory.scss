@@ -19,8 +19,8 @@
   list-style: none;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(37px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(41px, 1fr));
+  gap: 16px;
 }
 
 .usagov-directory-container-az li {
@@ -29,8 +29,8 @@
     display: table-cell;
     text-align: center;
     vertical-align: middle;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     text-decoration: none;
     color: #000;
     box-sizing: border-box;
@@ -75,8 +75,36 @@ hr.bl-divider {
   width: 100%;
 }
 
+// Styling of the accordion field header 
 .agency-index-label {
   padding-right: 8px;
+  margin-block-end: 0 !important;
+}
+
+// Styling of the first accordion field
+.agency-first-field {
+  display: block !important;
+  margin-top: 2.2em !important;
+  margin-bottom: 2.2em !important;
+}
+
+// Styling of the accordion fields
+.agency-fields {
+  display: block !important;
+  margin-top: 2.2em;
+  margin-bottom: 2.2em;
+}
+
+// Styling of a list inside an accordion section
+div.field--name-field-offices-near-you> ul {
+  margin-top: 10px;
+}
+
+// Styling of the content inside an accordion section
+.field--name-field-website, 
+.field--name-field-phone-number, 
+.field--name-field-contact-link {
+  margin-top: 10px;
 }
 
 .usagov-directory-accordion-container ul {

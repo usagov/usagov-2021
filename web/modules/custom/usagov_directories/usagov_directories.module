@@ -42,7 +42,7 @@ function usagov_directories_form_alter(&$form, &$form_state, $form_id) {
  * Implements hook_views_pre_render()
  */
 function usagov_directories_views_pre_render($view) {
-  if ($view->id() == 'federal_agencies' && $view->current_display == 'block_1') {
+  if ($view->id() == 'federal_agencies' && ($view->current_display == 'block_1' || $view->current_display == "block_2")) {
 
     $new_result = $view->result;
     for ($res = 0; $res < count($new_result); $res++) {
