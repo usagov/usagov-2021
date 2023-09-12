@@ -285,56 +285,13 @@
   overflow: hidden;
 }
 
-.carousel-mover {
-  max-width: 85%;
-  margin: auto;
-}
-
-.slides {
-  max-width: 100%;
-}
-
-.slide {
-  max-width: 75%;
-}
-
-#slidesList {
-  .slick-prev{
-    grid-area: prevIcon;
-    align-self: center;
-  }
-
-  .slick-list{
-    grid-area: slides;
-  }
-
-  .slick-next{
-    grid-area: nextIcon;
-    align-self: center;
-  }
-}
-
-.slick-dots{
-  grid-area: navDots;
-}
-
-#slidesList{
-  display: grid;
-  grid-template-columns: 55px 1fr 55px;
-  grid-template-rows: auto;
-  grid-template-areas:
-    "prevIcon slides nextIcon"
-    "navDots navDots navDots";
-}
-
-
 .carousel {
-  //   position: relative;
-  //   width: 100%;
-  //   margin: 0;
-  //   padding: 0;
-  // justify-content: space-between;
-  // flex: 1 0 auto;
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  justify-content: space-between;
+  flex: 1 0 auto;
 
   .grid-container {
     width: 100%;
@@ -342,14 +299,14 @@
 
   .usagov-cards {
     background-color: transparent;
-    // padding: 0;
+    padding: 0;
   }
 
   .usa-card__container {
     background-color: transparent;
     box-shadow: none;
-    // display: flex;
-    // flex-direction: column;
+    display: flex;
+    flex-direction: column;
   }
 
   .usagov-card {
@@ -358,18 +315,108 @@
 }
 
 #slidesList {
+  .slick-prev {
+    grid-area: prevIcon;
+    align-self: center;
+    justify-self: start;
+    left: 0;
+  }
+
+  .slick-list {
+    grid-area: slides;
+    justify-self: center;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    // display: flex;
+
+    .slick-track {
+      display: flex !important;
+      // height: 100%;
+
+      .slick-slide {
+        height: inherit !important;
+
+        div:first-of-type{
+          height: 90%;
+        }
+      }
+    }
+  }
+
+  .slick-next {
+    grid-area: nextIcon;
+    align-self: center;
+    justify-self: end;
+    right: 0;
+  }
+
+  .slick-dots {
+    grid-area: navDots;
+    display: block;
+    position: static;
+    bottom: 0;
+    padding: 0;
+    margin: 30px 0 70px;
+    height: 40px;
+
+    li {
+      margin: 0 20px;
+      button {
+        .slick-dot-icon {
+          opacity: 1;
+          &:before {
+            position: relative;
+            // top: 0;
+            // left: 0;
+            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='24' cy='24' r='12' stroke='%2300bde3' stroke-width='3' fill='transparent' /%3E%3C/svg%3E");
+            // font-size: 35px;
+            // line-height: 1;
+            // text-align: center;
+            // transition: all .05s linear;
+          }
+        }
+      }
+
+      // Active dot
+      &.slick-active {
+        button {
+          .slick-dot-icon {
+            &:before {
+              position: relative;
+              // top: 0;
+              // left: 0;
+              // margin: 0;
+              content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='24' cy='24' r='12' stroke='%2300bde3' stroke-width='3' fill='%2300bde3' /%3E%3C/svg%3E");
+              // font-size: 35px;
+              // line-height: 1;
+              // text-align: center;
+              // transition: all .05s linear;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  display: grid;
+  grid-template-columns: 55px 1fr 55px;
+  grid-template-rows: auto;
+  grid-template-areas: "prevIcon slides nextIcon"
+  "navDots navDots navDots";
+
 
   .slick-prev,
   .slick-next {
-    //   //   padding: 0;
+    //   padding: 0;
     width: 44px;
     height: 44px;
-    //   // margin-top: auto;
-    //   // margin-bottom: auto;
-    //   border: none;
-      position: relative;
-      top: 0px;
-      display: inline-block;
+    // margin-top: auto;
+    // margin-bottom: auto;
+    border: none;
+    position: relative;
+    top: 0px;
+    display: inline-block;
 
     //   .slick-prev-icon, .slick-next-icon{
     //     font-size: 44px;
@@ -432,15 +479,9 @@
   // }
 }
 
-// .carousel__navigation_wrapper{
-//   flex: 1 0 auto;
-// }
-
-// .carousel__navigation_button[aria-current="true"] .carousel__navigation_dot {
-//   fill: var($cyan-30v);
-//   stroke: var($cyan-30v);
-//   stroke-width: 6px;
-// }
+.slides {
+  max-width: 100%;
+}
 
 // .carousel-mover {
 //   width: min(calc(100% - 106px),240px);
@@ -462,13 +503,15 @@
   // width: min(calc(100% - 4px), 234px);
   // max-width: min(calc(100% - 4px), 234px);
   // min-height: 285px;
-  // flex: 0 0 calc(100%);
-  // margin-top: 10px;
+  height: 100%;
+  margin-top: 10px;
   border: 1px solid #53BBDF;
   border-radius: 4px;
   box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
   padding: 0;
   margin-right: 4px;
+  max-width: 236px;
+  text-align: left;
 
   &:focus-within {
     border: 4px solid #c05600;
@@ -522,9 +565,9 @@
     padding-top: 10px;
   }
 
-  //   .usa-card__body:last-child {
-  //     padding-bottom: 0;
-  //   }
+  .usa-card__body:last-child {
+    padding-bottom: 0;
+  }
 }
 
 // .slide a:hover h3 {
@@ -556,6 +599,17 @@
   margin: 0;
   border-radius: 0 0 4px 4px;
 }
+
+// .carousel__navigation_wrapper{
+//   flex: 1 0 auto;
+// }
+
+// .carousel__navigation_button[aria-current="true"] .carousel__navigation_dot {
+//   fill: var($cyan-30v);
+//   stroke: var($cyan-30v);
+//   stroke-width: 6px;
+// }
+
 
 /* Jump */
 .jump {
@@ -884,27 +938,44 @@
     padding: 0 0 0 75px;
   }
 
-  // .life-events-carousel {
-  //   width: 960px;
-  // }
+  .life-events-carousel {
+    width: 960px;
+  }
 
-  // .carousel-mover {
-  //   width: 850px;
-  //   max-width: 850px;
-  //   margin-left: 0;
-  //   margin-right: 0;
-  // }
+  .carousel-mover {
+    width: 960px;
+    max-width: 960px;
+    margin: auto;
+    //   margin-left: 0;
+    //   margin-right: 0;
 
-  // .slide {
-  //   // flex: 0 0 calc(100% / 3);
-  //   padding: 0;
-  //   // width: 260px;
-  //   // max-width: 260px;
-  //   // margin-right: 29px;
-  //   margin-left: 0;
+    .usagov-cards,
+    .usa-card-group,
+    #slidesList {
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+      margin: 0;
+    }
 
-  //   .life_events_card_text {
-  //     padding: 16px 16px 0;
-  //   }
-  // }
+    #slidesList {
+      .slick-list {
+        width: 850px;
+        max-width: 850px;
+      }
+
+    }
+
+    // .slide {
+    //   // flex: 0 0 calc(100% / 3);
+    //   padding: 0;
+    //   // width: 260px;
+    //   // max-width: 260px;
+    //   // margin-right: 29px;
+    //   margin-left: 0;
+
+    //   .life_events_card_text {
+    //     padding: 16px 16px 0;
+    // }
+  }
 }

@@ -1,7 +1,9 @@
-{{ attach_library('usagov/carousel') }}
-<link rel="stylesheet" type="text/css" href="slick/slick-theme.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@accessible360/accessible-slick@1.0.1/slick/slick.min.css">
-<link rel="stylesheet" type="text/css" href="slick/accessible-slick-theme.min.css">
+{{ attach_library('usagov/carousel') }}
+{# <link rel="stylesheet" type="text/css" href="slick/slick-theme.min.css"> #}
+
+{# <link rel="stylesheet" type="text/css" href="slick/accessible-slick-theme.min.css"> #}
+
 {% set lang = node.langcode.value %}
 <p class="sr-only">
 	Carousel with three slides shown at a time on desktop, two on tablets and one on mobile. Use the Previous and Next buttons to navigate, or the slide number buttons at the end to jump to slides.
