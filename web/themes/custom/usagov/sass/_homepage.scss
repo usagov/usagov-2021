@@ -298,28 +298,34 @@
   max-width: 75%;
 }
 
-// .previous{
-//   grid-area: prev;
-// }
-// .slick-list{
-//   grid-area: slides;
-// }
+#slidesList {
+  .slick-prev{
+    grid-area: prevIcon;
+    align-self: center;
+  }
 
-// .next{
-//   grid-area: next;
-// }
+  .slick-list{
+    grid-area: slides;
+  }
 
-// .slick-dots{
-//   grid-area: nav;
-// }
+  .slick-next{
+    grid-area: nextIcon;
+    align-self: center;
+  }
+}
 
-// #slidesList{
-//   grid-template-columns: 55px 1fr 55px;
-//   grid-template-rows: auto;
-//   grid-template-areas:
-//     "prev slides next"
-//     "nav nav nav";
-// }
+.slick-dots{
+  grid-area: navDots;
+}
+
+#slidesList{
+  display: grid;
+  grid-template-columns: 55px 1fr 55px;
+  grid-template-rows: auto;
+  grid-template-areas:
+    "prevIcon slides nextIcon"
+    "navDots navDots navDots";
+}
 
 
 .carousel {
@@ -327,10 +333,8 @@
   //   width: 100%;
   //   margin: 0;
   //   padding: 0;
-  //   display: grid;
-
-  //   // justify-content: space-between;
-  //   // flex: 1 0 auto;
+  // justify-content: space-between;
+  // flex: 1 0 auto;
 
   .grid-container {
     width: 100%;
@@ -363,7 +367,9 @@
     //   // margin-top: auto;
     //   // margin-bottom: auto;
     //   border: none;
-    //   position: relative;
+      position: relative;
+      top: 0px;
+      display: inline-block;
 
     //   .slick-prev-icon, .slick-next-icon{
     //     font-size: 44px;
