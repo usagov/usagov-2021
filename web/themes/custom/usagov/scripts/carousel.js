@@ -4,6 +4,8 @@ $(".slides").slick({
   "speed": 300,
   "slidesToShow": 3,
   "slidesToScroll": 1,
+  "swipeToSlide": true,
+  "touchMove": true,
   "arrowsPlacement": 'split',
   "prevArrow": '<button class="previous slick-prev slick-arrow">' +
   '  <span class="sr-only">Previous slides</span>' +
