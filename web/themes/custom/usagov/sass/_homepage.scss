@@ -353,16 +353,20 @@
 
   .slick-dots {
     grid-area: navDots;
-    display: block;
+    display: flex;
     position: static;
     bottom: 0;
     padding: 0;
     margin: 30px 0 70px;
     height: 40px;
+    justify-content: space-between;
 
     li {
-      margin: 0 20px;
+      // margin: 0 20px 0 0;
       button {
+        width: 32px;
+        margin: 0;
+        padding-inline: 0;
         .slick-dot-icon {
           opacity: 1;
           &:before {
@@ -403,8 +407,7 @@
   grid-template-columns: 55px 1fr 55px;
   grid-template-rows: auto;
   grid-template-areas: "prevIcon slides nextIcon"
-  "navDots navDots navDots";
-
+  ". navDots .";
 
   .slick-prev,
   .slick-next {
