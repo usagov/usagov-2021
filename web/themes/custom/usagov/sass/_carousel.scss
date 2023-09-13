@@ -1,0 +1,472 @@
+@use "usagov-variables" as *;
+
+.life-events {
+  background-color: var($deep-blue);
+  grid-column: 1 / 3;
+  grid-row: 5 / 6;
+  margin-left: 5vw;
+  margin-right: 5vw;
+  padding: 0;
+  max-width: 100%;
+
+  h2 {
+    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times,
+      serif;
+    font-size: var($homepage, medium-font-size);
+    margin: 0;
+    padding-top: 50px;
+  }
+
+  p {
+    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
+      Arial, sans-serif;
+    font-size: var($homepage, small-font-size);
+    padding-top: 13px;
+  }
+}
+
+.life-events-carousel {
+  margin: 40px 0 0;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  justify-content: space-between;
+  flex: 1 0 auto;
+
+  .grid-container {
+    width: 100%;
+  }
+
+  .usagov-cards {
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .usa-card__container {
+    background-color: transparent;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .usagov-card {
+    border: none;
+  }
+}
+
+#slidesList {
+  .slick-prev {
+    grid-area: prevIcon;
+    align-self: center;
+    justify-self: start;
+    left: 0;
+  }
+
+  .slick-list {
+    grid-area: slides;
+    justify-self: center;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    // display: flex;
+
+    .slick-track {
+      display: flex !important;
+      // height: 100%;
+
+      .slick-slide {
+        height: inherit !important;
+
+        div:first-of-type {
+          height: 90%;
+        }
+      }
+    }
+  }
+
+  .slick-next {
+    grid-area: nextIcon;
+    align-self: center;
+    justify-self: end;
+    right: 0;
+  }
+
+  .slick-dots {
+    grid-area: navDots;
+    display: flex;
+    position: static;
+    bottom: 0;
+    padding: 0;
+    margin: 30px 0 10px;
+    height: 40px;
+    justify-content: space-between;
+
+    li {
+      margin-left: 0;
+      margin-right: 0;
+
+      button {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding-inline: 0;
+
+        .slick-dot-icon {
+          width: 100%;
+          height: 100%;
+          opacity: 1;
+          content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48'%3E%3Ccircle cx='24' cy='24' r='12' stroke='%2300bde3' stroke-width='3' fill='transparent' /%3E%3C/svg%3E");
+
+          &:before {
+            position: relative;
+            // top: 0;
+            // left: 0;
+            content: "";
+            // font-size: 35px;
+            // line-height: 1;
+            // text-align: center;
+            // transition: all .05s linear;
+          }
+        }
+      }
+
+      // Active dot
+      &.slick-active {
+        button {
+          width: 100%;
+          height: 100%;
+
+          .slick-dot-icon {
+            width: 100%;
+            height: 100%;
+            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48'%3E%3Ccircle cx='24' cy='24' r='12' stroke='%2300bde3' stroke-width='3' fill='%2300bde3' /%3E%3C/svg%3E");
+
+            &:before {
+              position: relative;
+              // top: 0;
+              // left: 0;
+              // margin: 0;
+              content: "";
+              // font-size: 35px;
+              // line-height: 1;
+              // text-align: center;
+              // transition: all .05s linear;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  display: grid;
+  grid-template-columns: 55px 1fr 55px;
+  grid-template-rows: auto;
+  grid-template-areas: "prevIcon slides nextIcon"
+  ". navDots .";
+
+  .slick-prev,
+  .slick-next {
+    //   padding: 0;
+    width: 44px;
+    height: 44px;
+    // margin-top: auto;
+    // margin-bottom: auto;
+    border: none;
+    position: relative;
+    top: 0px;
+    display: inline-block;
+
+    //   .slick-prev-icon, .slick-next-icon{
+    //     font-size: 44px;
+  }
+
+  .slides {
+    max-width: 100%;
+  }
+
+  .slide {
+    // width: min(calc(100% - 4px), 234px);
+    // max-width: min(calc(100% - 4px), 234px);
+    // min-height: 285px;
+    height: 100%;
+    margin-top: 10px;
+    border: 1px solid #53BBDF;
+    border-radius: 4px;
+    box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
+    padding: 0;
+    margin-right: 4px;
+    max-width: 236px;
+    text-align: left;
+
+    &:focus-within {
+      border: 4px solid #c05600;
+    }
+
+    a {
+      color: var($white);
+      text-decoration: none;
+      display: flex;
+
+      &:visited {
+        color: var($white);
+        text-decoration: none;
+      }
+
+      &:focus {
+        outline: none;
+      }
+
+      &:hover {
+        background-color: transparent;
+      }
+
+      &:hover h3 {
+        text-decoration: underline;
+        text-decoration-color: initial;
+        text-decoration-thickness: initial;
+      }
+
+      .life_events_card_text {
+        padding: 12px 12px 0;
+        flex: 1 0 auto;
+      }
+    }
+
+    .usa-card__container {
+      margin: 0;
+    }
+
+    h3 {
+      margin: 0;
+      color: var($cyan-30v);
+      text-decoration: none;
+      font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
+        Arial, sans-serif;
+    }
+
+    p {
+      margin: 0;
+      font-weight: normal;
+      font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+      font-size: var($homepage, small-font-size);
+      padding-top: 10px;
+    }
+
+    .usa-card__body:last-child {
+      padding-bottom: 0;
+    }
+
+    // .slide:last-child {
+    //   margin-right: 0;
+    // }
+
+  }
+
+  //   img {
+  //     width: 44px;
+
+  //     &:hover {
+  //       filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg)
+  //         brightness(103%) contrast(103%);
+  //     }
+  //   }
+  // }
+
+  // .slick-prev{
+  //   left: 0px;
+  //   margin-right: 11px;
+  // }
+
+  // .slick-next{
+  //   right: 0px;
+  //   margin-left: 11px;
+  // }
+
+  //   .slick-list{
+  //     width:calc(100% - 110px);
+  //   }
+
+  // .slick-dots {
+  //   margin: 30px 0 70px;
+  //   list-style-type: none;
+  //   padding-left: 0;
+  //   align-items: center;
+  //   display: flex;
+  //   flex-flow: row nowrap;
+  //   justify-content: center;
+  //   width: auto;
+  // }
+
+  // .slick-dots li {
+  //   width: 44px;
+  //   height: 44px;
+  //   background-color: transparent;
+  //   border: none;
+  //   padding-left: 0;
+  //   padding-right: 0;
+  //   margin-right: 0;
+  // }
+
+  // .slick-dots li button {
+  //   fill: transparent;
+  //   stroke: var($cyan-30v);
+  //   stroke-width: 6px;
+
+  //   &:hover {
+  //     stroke: var(white);
+  //     stroke-width: 6px;
+  //   }
+  // }
+}
+
+.thumbnailDiv {
+  background: #ccecf2;
+  width: 100%;
+  height: 75px;
+  margin: 0;
+  box-shadow: 0 6px 6px var($blue-shadow);
+  border-radius: 0 0 4px 4px;
+  overflow: hidden;
+  flex: 0 0 75px;
+}
+
+.thumbnailBanner {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  margin: 0;
+  border-radius: 0 0 4px 4px;
+}
+
+/*
+.carousel-mover {
+  width: min(calc(100% - 106px),240px);
+  padding-left: 11px;
+  padding-right: 11px;
+}
+
+.slides {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.slide a:hover .thumbnailBanner {
+  opacity: 0.5;
+}
+
+.carousel__navigation_wrapper{
+  flex: 1 0 auto;
+}
+
+.carousel__navigation_button[aria-current="true"] .carousel__navigation_dot {
+  fill: var($cyan-30v);
+  stroke: var($cyan-30v);
+  stroke-width: 6px;
+}
+*/
+
+/* Static Mobile
+@media (min-width: 385px) {
+  .carousel-mover {
+    width: 246px;
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .slide {
+    width: 236px;
+    max-width: 236px;
+    flex: 0 0 calc(100%);
+  }
+}
+*/
+
+/* Tablet
+@media (min-width: 640px) {
+  .carousel-mover {
+    width: calc(100% - 90px);
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .slide {
+    flex: 0 0 calc(50% - 20px);
+    width: auto;
+    max-width: inherit;
+    margin-right: 20px;
+    margin-left: 0;
+  }
+}
+*/
+
+/* Static Tablet Carousel
+@media (min-width: 723px) {
+  .carousel-mover {
+    width: 540px;
+  }
+
+  .slide {
+    flex: 0 0 calc(50% - 20px);
+    width: 260px;
+    max-width: 260px;
+    margin-right: 20px;
+  }
+}
+*/
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .life-events-carousel {
+    width: 960px;
+  }
+
+  .carousel-mover {
+    width: 960px;
+    max-width: 960px;
+    margin: auto;
+    //   margin-left: 0;
+    //   margin-right: 0;
+
+    .usagov-cards,
+    .usa-card-group,
+    #slidesList {
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+      margin: 0;
+    }
+
+    #slidesList {
+      .slick-list {
+        width: 850px;
+        max-width: 850px;
+      }
+
+    }
+
+    // .slide {
+    //   // flex: 0 0 calc(100% / 3);
+    //   padding: 0;
+    //   // width: 260px;
+    //   // max-width: 260px;
+    //   // margin-right: 29px;
+    //   margin-left: 0;
+
+    //   .life_events_card_text {
+    //     padding: 16px 16px 0;
+    // }
+  }
+}

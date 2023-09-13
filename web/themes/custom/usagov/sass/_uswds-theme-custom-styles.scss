@@ -27,6 +27,7 @@ i.e.
 @use "uswds-core" as *;
 @use "usagov-variables" as *;
 
+@forward "carousel";
 @forward "sidenav";
 @forward "navigation-page";
 @forward "content-page";
@@ -731,7 +732,7 @@ input:not([disabled]):focus.usa-user-error {
   @media (max-width: 40em) {
     margin-left: .2rem;
     margin-right: 1rem;
-  } 
+  }
 }
 
 #myform div.maxw-mobile {
