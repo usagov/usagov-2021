@@ -45,6 +45,14 @@ $(".slides").slick({
 });
 
 // $("#slidesList .slick-dots .slick-active button").replaceWith("<div class='slideDots'>");
+var slideDots = document.querySelectorAll("#slidesList .slick-dots li button");
+slideDots.forEach(function (buttonDot, index) {
+  console.log(`testing 12... ${index}`);
+  const tempInner = buttonDot.innerHTML;
+  const divDot = document.createElement('div');
+  divDot.innerHTML = tempInner;
+  buttonDot.replaceWith(divDot);
+});
 
 // jQuery(document).ready(function ($) {
 //   "use strict";
