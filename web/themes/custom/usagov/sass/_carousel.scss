@@ -81,9 +81,12 @@
 
       .slick-slide {
         height: inherit !important;
+        display: flex !important;
+        justify-content: center;
+        // align-items: center;
 
         div:first-of-type {
-          height: 90%;
+          // height: 90%;
         }
       }
     }
@@ -175,8 +178,8 @@
   }
 
   .slide {
-    height: 100%;
-    margin-top: 10px;
+    height: 98%;
+    margin-top: 4px;
     border: 1px solid #53BBDF;
     border-radius: 4px;
     box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
