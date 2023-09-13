@@ -75,11 +75,9 @@
     width: 100%;
     max-width: 100%;
     text-align: center;
-    // display: flex;
 
     .slick-track {
       display: flex !important;
-      // height: 100%;
 
       .slick-slide {
         height: inherit !important;
@@ -126,18 +124,11 @@
 
           &:before {
             position: relative;
-            // top: 0;
-            // left: 0;
             content: "";
-            // font-size: 35px;
-            // line-height: 1;
-            // text-align: center;
-            // transition: all .05s linear;
           }
         }
       }
 
-      // Active dot
       &.slick-active {
         button {
           width: 100%;
@@ -150,14 +141,7 @@
 
             &:before {
               position: relative;
-              // top: 0;
-              // left: 0;
-              // margin: 0;
               content: "";
-              // font-size: 35px;
-              // line-height: 1;
-              // text-align: center;
-              // transition: all .05s linear;
             }
           }
         }
@@ -173,18 +157,12 @@
 
   .slick-prev,
   .slick-next {
-    //   padding: 0;
     width: 44px;
     height: 44px;
-    // margin-top: auto;
-    // margin-bottom: auto;
     border: none;
     position: relative;
     top: 0px;
     display: inline-block;
-
-    //   .slick-prev-icon, .slick-next-icon{
-    //     font-size: 44px;
   }
 
   .slides {
@@ -192,9 +170,6 @@
   }
 
   .slide {
-    // width: min(calc(100% - 4px), 234px);
-    // max-width: min(calc(100% - 4px), 234px);
-    // min-height: 285px;
     height: 100%;
     margin-top: 10px;
     border: 1px solid #53BBDF;
@@ -225,22 +200,22 @@
 
       &:hover {
         background-color: transparent;
-      }
 
-      &:hover h3 {
-        text-decoration: underline;
-        text-decoration-color: initial;
-        text-decoration-thickness: initial;
+        h3 {
+          text-decoration: underline;
+          text-decoration-color: initial;
+          text-decoration-thickness: initial;
+        }
+
+        .thumbnailBanner {
+          opacity: 0.5;
+        }
       }
 
       .life_events_card_text {
         padding: 12px 12px 0;
         flex: 1 0 auto;
       }
-    }
-
-    .usa-card__container {
-      margin: 0;
     }
 
     h3 {
@@ -259,71 +234,14 @@
       padding-top: 10px;
     }
 
+    .usa-card__container {
+      margin: 0;
+    }
+
     .usa-card__body:last-child {
       padding-bottom: 0;
     }
-
-    // .slide:last-child {
-    //   margin-right: 0;
-    // }
-
   }
-
-  //   img {
-  //     width: 44px;
-
-  //     &:hover {
-  //       filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg)
-  //         brightness(103%) contrast(103%);
-  //     }
-  //   }
-  // }
-
-  // .slick-prev{
-  //   left: 0px;
-  //   margin-right: 11px;
-  // }
-
-  // .slick-next{
-  //   right: 0px;
-  //   margin-left: 11px;
-  // }
-
-  //   .slick-list{
-  //     width:calc(100% - 110px);
-  //   }
-
-  // .slick-dots {
-  //   margin: 30px 0 70px;
-  //   list-style-type: none;
-  //   padding-left: 0;
-  //   align-items: center;
-  //   display: flex;
-  //   flex-flow: row nowrap;
-  //   justify-content: center;
-  //   width: auto;
-  // }
-
-  // .slick-dots li {
-  //   width: 44px;
-  //   height: 44px;
-  //   background-color: transparent;
-  //   border: none;
-  //   padding-left: 0;
-  //   padding-right: 0;
-  //   margin-right: 0;
-  // }
-
-  // .slick-dots li button {
-  //   fill: transparent;
-  //   stroke: var($cyan-30v);
-  //   stroke-width: 6px;
-
-  //   &:hover {
-  //     stroke: var(white);
-  //     stroke-width: 6px;
-  //   }
-  // }
 }
 
 .thumbnailDiv {
@@ -346,87 +264,6 @@
   border-radius: 0 0 4px 4px;
 }
 
-/*
-.carousel-mover {
-  width: min(calc(100% - 106px),240px);
-  padding-left: 11px;
-  padding-right: 11px;
-}
-
-.slides {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.slide a:hover .thumbnailBanner {
-  opacity: 0.5;
-}
-
-.carousel__navigation_wrapper{
-  flex: 1 0 auto;
-}
-
-.carousel__navigation_button[aria-current="true"] .carousel__navigation_dot {
-  fill: var($cyan-30v);
-  stroke: var($cyan-30v);
-  stroke-width: 6px;
-}
-*/
-
-/* Static Mobile
-@media (min-width: 385px) {
-  .carousel-mover {
-    width: 246px;
-    padding-left: 11px;
-    padding-right: 11px;
-  }
-
-  .slide {
-    width: 236px;
-    max-width: 236px;
-    flex: 0 0 calc(100%);
-  }
-}
-*/
-
-/* Tablet
-@media (min-width: 640px) {
-  .carousel-mover {
-    width: calc(100% - 90px);
-    padding-left: 11px;
-    padding-right: 11px;
-  }
-
-  .slide {
-    flex: 0 0 calc(50% - 20px);
-    width: auto;
-    max-width: inherit;
-    margin-right: 20px;
-    margin-left: 0;
-  }
-}
-*/
-
-/* Static Tablet Carousel
-@media (min-width: 723px) {
-  .carousel-mover {
-    width: 540px;
-  }
-
-  .slide {
-    flex: 0 0 calc(50% - 20px);
-    width: 260px;
-    max-width: 260px;
-    margin-right: 20px;
-  }
-}
-*/
-
 /* Desktop */
 @media (min-width: 1024px) {
   .life-events-carousel {
@@ -437,8 +274,6 @@
     width: 960px;
     max-width: 960px;
     margin: auto;
-    //   margin-left: 0;
-    //   margin-right: 0;
 
     .usagov-cards,
     .usa-card-group,
@@ -456,17 +291,5 @@
       }
 
     }
-
-    // .slide {
-    //   // flex: 0 0 calc(100% / 3);
-    //   padding: 0;
-    //   // width: 260px;
-    //   // max-width: 260px;
-    //   // margin-right: 29px;
-    //   margin-left: 0;
-
-    //   .life_events_card_text {
-    //     padding: 16px 16px 0;
-    // }
   }
 }
