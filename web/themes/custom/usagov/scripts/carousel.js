@@ -6,15 +6,17 @@ $(".slides").slick({
   "slidesToScroll": 1,
   "swipeToSlide": true,
   "touchMove": true,
-  "arrowsPlacement": 'split',
-  "prevArrow": '<button class="previous slick-prev slick-arrow">' +
-  '  <span class="sr-only">Previous slides</span>' +
-  '  <img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" alt="Go to previous card"/>' +
-  '</button>',
-"nextArrow": '<button class="next slick-next slick-arrow">' +
-  '  <span class="sr-only">Next slides</span>' +
-  '  <img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" alt="Go to next card"/>' +
-  '</button>',
+  "arrowsPlacement": "split",
+  "prevArrow":
+    '<button class="previous slick-prev slick-arrow">' +
+    '  <span class="sr-only">Previous slides</span>' +
+    '  <img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" alt="Go to previous card"/>' +
+    "</button>",
+  "nextArrow":
+    '<button class="next slick-next slick-arrow">' +
+    '  <span class="sr-only">Next slides</span>' +
+    '  <img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" alt="Go to next card"/>' +
+    "</button>",
   "responsive": [
     {
       "breakpoint": 2048,
@@ -41,6 +43,8 @@ $(".slides").slick({
     },
   ],
 });
+
+// $("#slidesList .slick-dots .slick-active button").replaceWith("<div class='slideDots'>");
 
 // jQuery(document).ready(function ($) {
 //   "use strict";
