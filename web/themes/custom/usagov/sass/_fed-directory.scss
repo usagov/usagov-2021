@@ -77,17 +77,19 @@ hr.bl-divider {
 
 .agency-index-label {
   padding-right: 8px;
+  margin-block-end: 0 !important;
 }
 
-.agency-field-offices-near-you {
+.agency-first-field {
   display: block !important;
-  margin-top: 1.5em;
-  margin-bottom: 1.5em;
+  margin-top: 2.2em !important;
+  margin-bottom: 2.2em !important;
 }
 
 .agency-fields {
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
+  display: block !important;
+  margin-top: 2.2em;
+  margin-bottom: 2.2em;
 }
 
 .usagov-directory-accordion-container ul {
