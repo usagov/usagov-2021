@@ -44,7 +44,7 @@ $(".slides").slick({
   ],
 });
 
-$('.slides').on('breakpoint', function(event, slick, breakpoint) {
+$(".slides").on("breakpoint", function (event, slick, breakpoint) {
   removeTabAbility();
 });
 
@@ -52,7 +52,9 @@ window.addEventListener("resize", removeTabAbility);
 window.addEventListener("load", removeTabAbility);
 
 function removeTabAbility() {
-  var slideDots = document.querySelectorAll("#slidesList .slick-dots li button");
+  var slideDots = document.querySelectorAll(
+    "#slidesList .slick-dots li button"
+  );
   slideDots.forEach(function (buttonDot, index) {
     buttonDot.setAttribute("tabindex", "-1");
   });

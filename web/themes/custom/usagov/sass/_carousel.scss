@@ -83,11 +83,6 @@
         height: inherit !important;
         display: flex !important;
         justify-content: center;
-        // align-items: center;
-
-        div:first-of-type {
-          // height: 90%;
-        }
       }
     }
   }
@@ -133,7 +128,9 @@
         }
 
         &:hover {
-          .slick-dot-icon {content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48'%3E%3Ccircle cx='22' cy='22' r='11' stroke='white' stroke-width='3' fill='transparent' /%3E%3C/svg%3E");}
+          .slick-dot-icon {
+            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48'%3E%3Ccircle cx='22' cy='22' r='11' stroke='white' stroke-width='3' fill='transparent' /%3E%3C/svg%3E");
+          }
         }
       }
 
