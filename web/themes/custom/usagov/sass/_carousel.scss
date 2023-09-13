@@ -103,12 +103,13 @@
     bottom: 0;
     padding: 0;
     margin: 30px 0 10px;
-    height: 40px;
+    height: 46px;
     justify-content: space-between;
 
     li {
       margin-left: 0;
       margin-right: 0;
+      width: 44px;
 
       button {
         width: 100%;
@@ -126,6 +127,10 @@
             position: relative;
             content: "";
           }
+        }
+
+        &:hover {
+          .slick-dot-icon {content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48'%3E%3Ccircle cx='24' cy='24' r='12' stroke='white' stroke-width='3' fill='transparent' /%3E%3C/svg%3E");}
         }
       }
 
@@ -264,6 +269,28 @@
   border-radius: 0 0 4px 4px;
 }
 
+/* Tablet */
+@media (min-width: 640px) {
+  #slidesList {
+    .slick-list {
+      .slick-track {
+        .slick-slide {
+          margin-left: 5px;
+          margin-right: 5px;
+        }
+      }
+    }
+
+    .slide {
+      max-width: 260px;
+    }
+
+    .slick-dots {
+      justify-content: center;
+    }
+  }
+}
+
 /* Desktop */
 @media (min-width: 1024px) {
   .life-events-carousel {
@@ -282,14 +309,15 @@
       max-width: 100%;
       padding: 0;
       margin: 0;
-    }
 
-    #slidesList {
       .slick-list {
         width: 850px;
         max-width: 850px;
       }
 
+      .slick-dots {
+        margin-bottom: 70px;
+      }
     }
   }
 }
