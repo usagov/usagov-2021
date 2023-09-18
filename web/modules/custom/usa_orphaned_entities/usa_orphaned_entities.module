@@ -14,7 +14,7 @@ use Drupal\node\Entity\Node;
 function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
   if (str_contains($form_id, 'delete_form')) {
     $entity = $form_state->getFormObject()->getEntity();
-    $reference_data = _get_reference_data($entity);
+    $reference_data = usa_orphaned_entities_get_reference_data($entity);
 
     $markup = "<div class=\"default-message\">" .
       $form_state->getFormObject()->getDescription() .
@@ -48,7 +48,8 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
         $additional .= "</ul></div>" . PHP_EOL;
         if (!empty($reference_delete)) {
           $segway = 'Finally, t';
-        } else {
+        }
+        else {
           $segway = "Additionally, t";
         }
       }
@@ -75,7 +76,7 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
  * Implements hook_entity_predelete.
  */
 function usa_orphaned_entities_entity_predelete($entity) {
-  $reference_data = _get_reference_data($entity);
+  $reference_data = usa_orphaned_entities_get_reference_data($entity);
   if (!empty($reference_data)) {
     if (!empty($reference_data['delete'])) {
       foreach ($reference_data['delete']['references'] as $reference_delete) {
@@ -93,17 +94,17 @@ function usa_orphaned_entities_entity_predelete($entity) {
 
 }
 
-function _get_reference_data ($deleting_entity) {
+function usa_orphaned_entities_get_reference_data($deleting_entity) {
   $entityTypeManager = \Drupal::service('entity_type.manager');
   $config = \Drupal::config('orphaned_entities.settings');
 
   $reference_data = [];
   $deleted_id = $deleting_entity->id();
   $entity_references = $entityTypeManager
-      ->getStorage('field_storage_config')
-      ->loadByProperties([
-        'type' => 'entity_reference',
-      ]);
+    ->getStorage('field_storage_config')
+    ->loadByProperties([
+      'type' => 'entity_reference',
+    ]);
 
   foreach ($entity_references as $entity_reference) {
     $bundles = $entity_reference->getBundles();
@@ -133,6 +134,7 @@ function _get_reference_data ($deleting_entity) {
                 'type' => $entity_type,
               ];
               break;
+
             case 'clear':
               $reference_data['clear']['references'][$reference->id()] = $reference;
               $reference_data['clear']['metadata'] = [
@@ -140,6 +142,7 @@ function _get_reference_data ($deleting_entity) {
                 'type' => $entity_type,
               ];
               break;
+
             case 'skip':
               $reference_data['skip']['references'][$reference->id()] = $reference;
               $reference_data['skip']['metadata'] = [
@@ -147,6 +150,7 @@ function _get_reference_data ($deleting_entity) {
                 'type' => $entity_type,
               ];
               break;
+
             default:
               $reference_data['skip']['references'][$reference->id()] = $reference;
               $reference_data['skip']['metadata'] = [
