@@ -13,56 +13,58 @@ use Drupal\node\Entity\Node;
 
 function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
   if (str_contains($form_id, 'delete_form')) {
-    $markup = "<div class=\"default-message\">" .
-              $form_state->getFormObject()->getDescription() .
-              "</div>";
     $entity = $form_state->getFormObject()->getEntity();
-    $deleted_id = $entity->id();
+    $reference_data = _get_reference_data($entity);
+
+    $markup = "<div class=\"default-message\">" .
+      $form_state->getFormObject()->getDescription() .
+    "</div>";
     $segway = "T"; // it's a joke about powered scooters
     $additional = "";
 
-    if ($form_id == 'node_directory_record_delete_form') {
-      $deleted_type = $entity->getEntityTypeId();
+    if (!empty($reference_data)) {
+      if (!empty($reference_data['delete'])) {
+        $additional .= "<br />" . PHP_EOL;
+        $additional .= "<div class=\"entity-delete\">";
+        $additional .= "<span>Deleting this entity will also delete the following entities:</span>" . PHP_EOL;
+        $additional .= "<ul>" . PHP_EOL;
+        foreach ($reference_data['delete']['references'] as $reference_delete) {
+          $additional .= "<li>" . $reference_delete->getType() . ": <a href=\"/node/" . $reference_delete->id() . "\" target=\"_blank\">" . $reference_delete->title->value . " (" . $reference_delete->id() . ")</a></li>" . PHP_EOL;
+        }
+        $additional .= "</ul></div>" . PHP_EOL;
+        $segway = "Additionally, t";
+      }
 
-      if ($deleted_type == "node") {
-        $query = \Drupal::entityQuery('node')
-          ->condition('type', 'agency_synonym')
-          ->condition('field_agency_reference', $deleted_id)
-          ->accessCheck(TRUE);
-        $results = $query->execute();
-        $synonyms = Node::loadMultiple($results);
+      if (!empty($reference_data['clear'])) {
+        $additional .= "<br />" . PHP_EOL;
+        $additional .= "<div class=\"entity-remove\">";
+        $additional .= "<span>" . $segway . "he following entities will have their entity references cleared:</span>" . PHP_EOL;
+        $additional .= "<ul>" . PHP_EOL;
 
-        if (!empty($synonyms)) {
-          $additional .= "<br />" . PHP_EOL;
-          $additional .= "<div class=\"synonym-delete\">";
-          $additional .= "<span>Deleting this node will also delete the following nodes:</span>" . PHP_EOL;
-          $additional .= "<ul>" . PHP_EOL;
-          foreach ($synonyms as $synonym) {
-            $additional .= "<li>Synonym: <a href=\"/node/" . $synonym->id() . "\" target=\"_blank\">" . $synonym->title->value . " (" . $synonym->id() . ")</a></li>" . PHP_EOL;
-          }
-          $additional .= "</ul></div>" . PHP_EOL;
+        foreach ($reference_data['clear']['references'] as $reference_clear) {
+          $additional .= "<li>" . $reference_clear->getType() . ": <a href=\"/node/" . $reference_clear->id() . "\" target=\"_blank\">" . $reference_clear->title->value . " (" . $reference_clear->id() . ")</a></li>" . PHP_EOL;
+        }
+
+        $additional .= "</ul></div>" . PHP_EOL;
+        if (!empty($reference_delete)) {
+          $segway = 'Finally, t';
+        } else {
           $segway = "Additionally, t";
         }
       }
-    }
 
-    $query = \Drupal::entityQuery('node')
-      ->condition('field_language_toggle', $deleted_id)
-      ->accessCheck(TRUE);
-    $results = $query->execute();
-    if (!empty($results)) {
-      $toggle_nodes = Node::loadMultiple($results);
+      if (!empty($reference_data['skip'])) {
+        $additional .= "<br />" . PHP_EOL;
+        $additional .= "<div class=\"entity-skip\">";
+        $additional .= "<span>" . $segway . "he following entity references will be skipped and leave orphans:</span>" . PHP_EOL;
+        $additional .= "<ul>" . PHP_EOL;
 
-      $additional .= "<br />" . PHP_EOL;
-      $additional .= "<div class=\"toggle-remove\">";
-      $additional .= "<span>" . $segway . "he following nodes will have their language toggle links cleared:</span>" . PHP_EOL;
-      $additional .= "<ul>" . PHP_EOL;
+        foreach ($reference_data['skip']['references'] as $reference_skip) {
+          $additional .= "<li>" . $reference_skip->getType() . ": <a href=\"/node/" . $reference_skip->id() . "\" target=\"_blank\">" . $reference_skip->title->value . " (" . $reference_skip->id() . ")</a></li>" . PHP_EOL;
+        }
 
-      foreach ($toggle_nodes as $toggle_node) {
-        $additional .= "<li>" . $toggle_node->language()->getName() . " node: <a href=\"/node/" . $toggle_node->id() . "\" target=\"_blank\">" . $toggle_node->title->value . " (" . $toggle_node->id() . ")</a></li>" . PHP_EOL;
+        $additional .= "</ul></div>" . PHP_EOL;
       }
-
-      $additional .= "</ul></div>" . PHP_EOL;
     }
 
     $form['description']['#markup'] = t($markup . $additional);
@@ -73,32 +75,89 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
  * Implements hook_entity_predelete.
  */
 function usa_orphaned_entities_entity_predelete($entity) {
-  if ($entity->getEntityTypeId() == "node") {
-    $deleted_id = $entity->id();
-
-    if ($entity->getType() == 'directory_record') {
-      $query = \Drupal::entityQuery('node')
-        ->condition('type', 'agency_synonym')
-        ->condition('field_agency_reference', $deleted_id)
-        ->accessCheck(TRUE);
-      $results = $query->execute();
-      $synonyms = Node::loadMultiple($results);
-
-      foreach ($synonyms as $synonym) {
-        $synonym->delete();
+  $reference_data = _get_reference_data($entity);
+  if (!empty($reference_data)) {
+    if (!empty($reference_data['delete'])) {
+      foreach ($reference_data['delete']['references'] as $reference_delete) {
+        $reference_delete->delete();
       }
     }
-
-    $query = \Drupal::entityQuery('node')
-      ->condition('field_language_toggle', $deleted_id)
-      ->accessCheck(TRUE);
-    $results = $query->execute();
-    if (!empty($results)) {
-      $toggle_nodes = Node::loadMultiple($results);
-      foreach ($toggle_nodes as $toggle_node) {
-        unset($toggle_node->field_language_toggle);
-        $toggle_node->save();
+    if (!empty($reference_data['clear'])) {
+      foreach ($reference_data['clear']['references'] as $reference_clear) {
+        $field = $reference_data['clear']['metadata']['field'];
+        unset($reference_clear->$field);
+        $reference_clear->save();
       }
     }
   }
+
+}
+
+function _get_reference_data ($deleting_entity) {
+  $entityTypeManager = \Drupal::service('entity_type.manager');
+  $config = \Drupal::config('orphaned_entities.settings');
+
+  $reference_data = [];
+  $deleted_id = $deleting_entity->id();
+  $entity_references = $entityTypeManager
+      ->getStorage('field_storage_config')
+      ->loadByProperties([
+        'type' => 'entity_reference',
+      ]);
+
+  foreach ($entity_references as $entity_reference) {
+    $bundles = $entity_reference->getBundles();
+
+    foreach ($bundles as $bundle) {
+      $reference_field = $entity_reference->getName();
+      $entity_type = $entity_reference->getTargetEntityTypeId();
+
+      $query = $entityTypeManager
+        ->getStorage("$entity_type")
+        ->getQuery()
+        ->condition("$reference_field", "$deleted_id")
+        ->accessCheck(TRUE);
+      $results = $query->execute();
+      $references = $entityTypeManager
+        ->getStorage("$entity_type")
+        ->loadMultiple($results);
+
+      $action = $config->get('orphaned_entities.' . $bundle . '_' . $reference_field);
+      if (!empty($references)) {
+        foreach ($references as $reference) {
+          switch ($action) {
+            case 'delete':
+              $reference_data['delete']['references'][$reference->id()] = $reference;
+              $reference_data['delete']['metadata'] = [
+                'field' => $reference_field,
+                'type' => $entity_type,
+              ];
+              break;
+            case 'clear':
+              $reference_data['clear']['references'][$reference->id()] = $reference;
+              $reference_data['clear']['metadata'] = [
+                'field' => $reference_field,
+                'type' => $entity_type,
+              ];
+              break;
+            case 'skip':
+              $reference_data['skip']['references'][$reference->id()] = $reference;
+              $reference_data['skip']['metadata'] = [
+                'field' => $reference_field,
+                'type' => $entity_type,
+              ];
+              break;
+            default:
+              $reference_data['skip']['references'][$reference->id()] = $reference;
+              $reference_data['skip']['metadata'] = [
+                'field' => $reference_field,
+                'type' => $entity_type,
+              ];
+          }
+        }
+      }
+    }
+  }
+
+  return $reference_data;
 }
