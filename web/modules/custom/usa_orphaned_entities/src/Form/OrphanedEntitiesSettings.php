@@ -58,15 +58,15 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
         '#type' => 'fieldset',
         '#title' => $this->t($bundle),
       ];
-      foreach($fields as $reference_field) {
+      foreach ($fields as $reference_field) {
         $form[$bundle][$bundle . '_' . $reference_field] = [
           '#type' => 'radios',
           '#description' => $this->t($reference_field),
-          '#options' => array(
+          '#options' => [
             'clear' => $this->t('Clear reference'),
             'delete' => $this->t('Delete node'),
             'skip' => $this->t('Do nothing'),
-          ),
+          ],
           '#default_value' => 'clear',
         ];
       }
@@ -91,7 +91,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
         $bundles = $entity_reference->getBundles();
         foreach ($bundles as $index => $bundle) {
           $reference_field = $entity_reference->getName();
-          $config->set('orphaned_entities.' . $bundle. '_' . $reference_field, $form_state->getValue($bundle. '_' . $reference_field));
+          $config->set('orphaned_entities.' . $bundle . '_' . $reference_field, $form_state->getValue($bundle . '_' . $reference_field));
         }
       }
     }
