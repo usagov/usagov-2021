@@ -464,6 +464,7 @@ a,
 
 .usa-button {
   width: 100%;
+  line-height: 1.5;
 
   @media (min-width: 30em) {
     width: auto;
@@ -728,7 +729,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 #myform div.margin-x-auto {
-  //margin-left: 3rem;
+  // margin-left: 3rem;
   @media (max-width: 40em) {
     margin-left: .2rem;
     margin-right: 1rem;
@@ -984,9 +985,6 @@ p, a , h1, h2, h3, h4, h5 , .usa-prose>h1, .usa-prose>h2, .usa-prose>h3, .usa-pr
   line-height: 1.5;
 }
 
-.usa-button {
-  line-height: 1.5;
-}
 
 .usa-accordion__button {
   line-height: 1.5;
