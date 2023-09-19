@@ -44,20 +44,34 @@ $(".slides").slick({
   ],
 });
 
-$(".slides").on("breakpoint", function (event, slick, breakpoint) {
-  'use strict';
-  removeTabAbility();
-});
+addIndexAttributeToDots();
+setUpDotsListener();
 
-window.addEventListener("resize", removeTabAbility);
-window.addEventListener("load", removeTabAbility);
+// add indexattribute to dots for dots refocus on selection
+function addIndexAttributeToDots() {
+  var dotsList = document.querySelectorAll("#slides-list .slick-dots li button");
+  dotsList.forEach((btn, i) => {
+    btn.setAttribute("dots-index", i);
+  });
+}
 
-function removeTabAbility() {
-  'use strict';
-  var slideDots = document.querySelectorAll(
+function setUpDotsListener() {
+  var dotsForListeners = document.querySelectorAll(
     "#slides-list .slick-dots li button"
   );
-  slideDots.forEach(function (buttonDot, index) {
-    buttonDot.setAttribute("tabindex", "-1");
+  dotsForListeners.forEach((btn) => {
+    btn.addEventListener("click", setSlideFocusFromIndex);
   });
+}
+
+// set the slide with the same index to the focus
+function setSlideFocusFromIndex() {
+  "use strict";
+
+  var slideIndex = this.getAttribute("dots-index");
+
+  var slideForFocus = document.querySelector("#slides-list .slick-list .slick-track .slick-slide[data-slick-index='" + slideIndex + "'] .slide a");
+  window.setTimeout(function() {
+    slideForFocus.focus({"focusVisible": true});
+  }, 0);
 }
