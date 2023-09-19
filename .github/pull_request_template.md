@@ -4,24 +4,55 @@
 https://cm-jira.usa.gov/browse/USAGOV-
 
 ## Description
-<!--- Describe your changes in detail -->
+<!--- Summarize the chages made in this pull request, not what it's for. -->
 
-## Checklist for the Developer
-<!--- Go over all the following points, and put an `x` in all the boxes that apply. -->
-<!--- If you're unsure about any of these, don't hesitate to ask for help! -->
-- [ ] A link to the JIRA ticket has been added above.
-- [ ] The JIRA ticket identifies the desired result of this change.
-- [ ] The JIRA ticket contains clear acceptance criteria.
-- [ ] The JIRA ticket contains clear testing steps.
-- [ ] The JIRA ticket contains a description of "Done".
-- [ ] Any preparation/installation/update steps required for this code to work properly (drush commands, scripts, configuration updates) are documented in the ticket.
+## Type of Changes
+<!--- Put an `x` in all the boxes that apply. -->
+- [ ] New Feature
+- [ ] Bugfix
+- [ ] Frontend (Twig, Sass, JS)
+  - Add a screenshot on how it should look like
+- [ ] Drupal Config (requires "drush cim")
+- [ ] New Modules (requires rebuild)
+- [ ] Infrastructure
+  - [ ] CMS
+  - [ ] WAF
+  - [ ] Egress
+  - [ ] Tools
+- [ ] Other
 
-## Checklist for the Peer Reviewers
-- [ ] The branch name of this PR matches the project standards.
-- [ ] QA steps are followed and any changes to process are updated in the ticket.
-- [ ] Code Standards are followed, there are no bad practices in use.
-- [ ] Config changes (if any) include only necessary changes.
-- [ ] No errors in Drupal or Client Browser.
-- [ ] Code has been tested locally (if possible).
-- [ ] Following AC and Testing Steps verify changes work as expected.
-- [ ] There are no known side-effects outside of expected behavior.
+## Testing Instructions
+<!-- This instructions are d ifferent from “testing instructions” in Jira – those are typically for Content/UX stakeholders -->
+<!-- Not “see Jira” – if they are really the same, copy and paste. -->
+
+### Requires New Content/Config
+- [ ] Yes
+- [ ] No
+
+### Validation Steps
+- [ ] Test instruction 1
+- [ ] Test instruction 2
+- [ ] Test instruction 3
+
+## Security Review
+<!-- Checkboxes to indicate need for review -->
+
+- [ ] Adds/updates software (including a library or Drupal module)
+- [ ] Communication with external service
+- [ ] Chnges permissions or workflow
+- [ ] Requires SSPP updates
+
+
+## Reviewer Reminders
+- Reviewed code changes
+- Reviewed functionality
+- Security review complete or not required
+
+## Post PR Approval Instructions
+<!-- Follow the following steps as soon as you merge the new changes. -->
+1. Go to the [USAGov Circle CI project](https://app.circleci.com/pipelines/github/usagov/usagov-2021).
+2. Find the commit of this pull request.
+3. Click the arrow next to the "build-and-deploy" section.
+4. Under the "Jobs" section the first thing that should appear is "approve-build-and-push-container". Press the thumbs up icon, which appears next to "approve-build-and-push-container", to approve the build in CircleCI.
+5. Wait for this process to finish to continue with the next step. You'll know it's done when the check mark icon appears on the left side of "build-and-push-container."
+6. Press the thumbs up icon, which appears next to "approve-dev-deployment", to deploy the changes to dev. Once the deployment to cloudgov-dev is complete, [cms-dev.usa.gov](http://cms-dev.usa.gov/) will generate the new code and, 20 to 30 minutes later, the changes They will be made visible at [beta-dev.usa.gov](http://beta-dev.usa.gov/).
