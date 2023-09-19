@@ -11,7 +11,7 @@ https://cm-jira.usa.gov/browse/USAGOV-
 - [ ] New Feature
 - [ ] Bugfix
 - [ ] Frontend (Twig, Sass, JS)
-  - Add a screenshot on how it should look like
+  - Add screenshot showing what it should look like
 - [ ] Drupal Config (requires "drush cim")
 - [ ] New Modules (requires rebuild)
 - [ ] Infrastructure
@@ -22,24 +22,28 @@ https://cm-jira.usa.gov/browse/USAGOV-
 - [ ] Other
 
 ## Testing Instructions
-<!-- This instructions are d ifferent from “testing instructions” in Jira – those are typically for Content/UX stakeholders -->
+<!-- This instructions are different from “testing instructions” in Jira – those are typically for Content/UX stakeholders -->
 <!-- Not “see Jira” – if they are really the same, copy and paste. -->
 
-### Requires New Content/Config
+### Requires New Config
+- [ ] Yes
+- [ ] No
+
+### Requires New Content
 - [ ] Yes
 - [ ] No
 
 ### Validation Steps
-- [ ] Test instruction 1
-- [ ] Test instruction 2
-- [ ] Test instruction 3
+- Test instruction 1
+- Test instruction 2
+- Test instruction 3
 
 ## Security Review
 <!-- Checkboxes to indicate need for review -->
 
 - [ ] Adds/updates software (including a library or Drupal module)
 - [ ] Communication with external service
-- [ ] Chnges permissions or workflow
+- [ ] Changes permissions or workflow
 - [ ] Requires SSPP updates
 
 
@@ -49,10 +53,9 @@ https://cm-jira.usa.gov/browse/USAGOV-
 - Security review complete or not required
 
 ## Post PR Approval Instructions
-<!-- Follow the following steps as soon as you merge the new changes. -->
+Follow these steps as soon as you merge the new changes.
+
 1. Go to the [USAGov Circle CI project](https://app.circleci.com/pipelines/github/usagov/usagov-2021).
 2. Find the commit of this pull request.
-3. Click the arrow next to the "build-and-deploy" section.
-4. Under the "Jobs" section the first thing that should appear is "approve-build-and-push-container". Press the thumbs up icon, which appears next to "approve-build-and-push-container", to approve the build in CircleCI.
-5. Wait for this process to finish to continue with the next step. You'll know it's done when the check mark icon appears on the left side of "build-and-push-container."
-6. Press the thumbs up icon, which appears next to "approve-dev-deployment", to deploy the changes to dev. Once the deployment to cloudgov-dev is complete, [cms-dev.usa.gov](http://cms-dev.usa.gov/) will generate the new code and, 20 to 30 minutes later, the changes They will be made visible at [beta-dev.usa.gov](http://beta-dev.usa.gov/).
+3. Build and deploy the changes.
+4. Update the Jira ticket by changing the ticket status to `Review in Test` and add a comment. State whether the change is already visible on [cms-dev.usa.gov](http://cms-dev.usa.gov/) and [beta-dev.usa.gov](http://beta-dev.usa.gov/), or if the deployment is still in process.
