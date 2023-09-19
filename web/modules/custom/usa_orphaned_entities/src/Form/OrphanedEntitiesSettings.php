@@ -44,9 +44,9 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
     $reference_field_map = [];
     foreach ($entity_references as $index => $entity_reference) {
       $form['entity_reference'][$index] = $entity_reference;
+      $reference_field = $entity_reference->getName();
       $bundles = $entity_reference->getBundles();
       foreach ($bundles as $index => $bundle) {
-        $reference_field = $entity_reference->getName();
         $reference_field_map[$bundle][] = $reference_field;
       }
     }
