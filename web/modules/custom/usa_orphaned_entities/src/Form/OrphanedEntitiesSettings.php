@@ -6,6 +6,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 class OrphanedEntitiesSettings extends ConfigFormBase {
+
   /**
    * {@inheritdoc}
    */
@@ -66,7 +67,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
             'delete' => $this->t('Delete node'),
             'skip' => $this->t('Do nothing'),
           ],
-          '#default_value' =>  ($config->get('orphaned_entities.' . $bundle . '_' . $reference_field)) ?: 'skip',
+          '#default_value' => ($config->get('orphaned_entities.' . $bundle . '_' . $reference_field)) ?: 'skip',
         ];
       }
     }
