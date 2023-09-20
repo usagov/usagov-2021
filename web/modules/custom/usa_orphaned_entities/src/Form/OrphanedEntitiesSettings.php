@@ -44,9 +44,9 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
     $reference_field_map = [];
     foreach ($entity_references as $index => $entity_reference) {
       $form['entity_reference'][$index] = $entity_reference;
-      $reference_field = $entity_reference->getName();
       $bundles = $entity_reference->getBundles();
       foreach ($bundles as $index => $bundle) {
+        $reference_field = $entity_reference->getName();
         $reference_field_map[$bundle][] = $reference_field;
       }
     }
@@ -79,13 +79,13 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     // foreach ($form['entity_reference'] as $index => $entity_reference) {
-    //   $reference_field = $entity_reference->getName();
+
     //   if (!str_contains($index, '#')) {
     //     $bundles = $entity_reference->getBundles();
-
     //     foreach ($bundles as $index => $bundle) {
     //       if (empty($form_state->getValue($bundle . '_' . $reference_field)) ||
     //         $form_state->getValue($bundle . '_' . $reference_field) == NULL) {
+    //   $reference_field = $entity_reference->getName();
     //         $form_state->setErrorByName($bundle . '_' . $reference_field, $this->t('Field option must be set.'));
     //       }
     //     }
@@ -99,12 +99,11 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('orphaned_entities.settings');
     foreach ($form['entity_reference'] as $index => $entity_reference) {
-      $reference_field = $entity_reference->getName();
-
       if (!str_contains($index, '#')) {
         $bundles = $entity_reference->getBundles();
 
         foreach ($bundles as $index => $bundle) {
+          $reference_field = $entity_reference->getName();
           $config->set(
               'orphaned_entities.' . $bundle . '_' . $reference_field, $form_state->getValue($bundle . '_' . $reference_field));
         }
