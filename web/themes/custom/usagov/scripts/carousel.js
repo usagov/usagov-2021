@@ -52,7 +52,6 @@ setUpDotsListener();
 setUpNavButtonListeners();
 addAriaLabel();
 
-// add indexattribute to dots for dots refocus on selection
 function addIndexAttributeToDots() {
   var dotsList = document.querySelectorAll(
     "#slides-list .slick-dots li button"
@@ -67,7 +66,6 @@ function setUpDotsListener() {
     "#slides-list .slick-dots li button"
   );
   dotsForListeners.forEach((btn) => {
-    // btn.addEventListener("click", setSlideFocusFromIndex);
     btn.addEventListener("click", moveFocusToCurrent);
   });
 }
@@ -75,20 +73,9 @@ function setUpDotsListener() {
 function setUpNavButtonListeners() {
   var navForListeners = document.querySelectorAll(".slick-arrow");
   navForListeners.forEach((btn) => {
-    // btn.addEventListener("click", setSlideFocusFromIndex);
     btn.addEventListener("click", updateAriaText);
   });
 }
-
-// // set the slide with the same index to the focus
-// function setSlideFocusFromIndex() {
-//   "use strict";
-//   var slideIndex = this.getAttribute("dots-index");
-//   var slideForFocus = document.querySelector("#slides-list .slick-list .slick-track .slick-slide[data-slick-index='" + slideIndex + "'] .slide a");
-//   window.setTimeout(function() {
-//     slideForFocus.focus({"focusVisible": true});
-//   }, 0);
-// }
 
 function moveFocusToCurrent() {
   window.setTimeout(function () {
@@ -107,20 +94,14 @@ function addAriaLabel() {
   carouselSlides.appendChild(liveregion);
 }
 
-// On before slide change
 $(".slides").on(
   "beforeChange",
   function (event, slick, currentSlide, nextSlide) {
-    // console.log("cSlide:");
-    // console.log(currentSlide);
-    // console.log("nSlide:");
-    // console.log(nextSlide);
     slideIndex = nextSlide + 1;
   }
 );
 
 function updateAriaText() {
-  console.log("update aria text");
   carouselSlides.querySelector(".liveregion").textContent =
-    "Slide " + (slideIndex) + " of 6";
+    "Slide " + slideIndex + " of 6";
 }
