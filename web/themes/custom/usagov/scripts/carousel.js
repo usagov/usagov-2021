@@ -46,6 +46,7 @@ $(".slides").slick({
 
 var carouselSlides = document.querySelector("#slides-list");
 var slideIndex;
+var slideTitle;
 
 addIndexAttributeToDots();
 setUpDotsListener();
@@ -98,10 +99,14 @@ $(".slides").on(
   "beforeChange",
   function (event, slick, currentSlide, nextSlide) {
     slideIndex = nextSlide + 1;
+
+    var NextSlideDom=$(slick.$slides.get(nextSlide));
+
+    slideTitle = NextSlideDom.find('h3')[0].textContent || NextSlideDom.find('h3')[0].innerText;
   }
 );
 
 function updateAriaText() {
   carouselSlides.querySelector(".liveregion").textContent =
-    "Slide " + slideIndex + " of 6";
+    "Slide " + slideIndex + " of 6 " + slideTitle;
 }
