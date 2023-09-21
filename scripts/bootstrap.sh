@@ -132,6 +132,11 @@ if [ -f "/etc/php8/conf.d/newrelic.ini" ]; then
   fi
 fi
 
+# Temp turn off newrelic
+  sed -i \
+    -e "s|;\?newrelic.enabled =.*|newrelic.enabled = false|" \
+        /etc/php8/conf.d/newrelic.ini
+
 if [[ -n $(find . -maxdepth 3 -name "env.local" -print -quit) ]]; then
   # Find the php.ini file
   PHP_INI=$(php -i | grep 'Loaded Configuration File' | awk '{print $NF}')

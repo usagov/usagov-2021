@@ -3,4 +3,4 @@ description: Custom filter to strip Google Doc code.
 type: module
 package: custom
 core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^9 || ^10
