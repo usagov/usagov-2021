@@ -41,8 +41,8 @@ function renderResults(response, rawResponse) {
     // an inline script in the page's Header HTML. The translations here are retained for backward compatibility.
     const backupTranslations = {
         "en": {
-            "error-fetch": "ERROR: Failed trying to fetch elected officials!",
-            "error-address": "ERROR: Could not find elected officials for given address!",
+            "error-fetch": "We're sorry. The elected officials search tool is not working right now. Please try again later.",
+            "error-address": "There was a problem getting results for this address. Please check to be sure you entered a valid U.S. address.",
             "levels": ["Federal officials", "State officials", "Local officials"],
             "party-affiliation": "Party affiliation",
             "address": "Address",
@@ -52,19 +52,20 @@ function renderResults(response, rawResponse) {
             "path-contact": "/elected-officials-email",
         },
         "es": {
-            "error-fetch": "¡Error al intentar buscar a los funcionarios electos!",
-            "error-address": "¡ERROR: No se pudieron encontrar funcionarios electos para la dirección proporcionada!",
+            "error-fetch": "Lo sentimos. El sistema de búsqueda de funcionarios electos no está funcionando. Por favor, intente de nuevo más tarde.",
+            "error-address": "Tuvimos problemas para obtener resultados con esta dirección. Por favor, verifique si ingresó una dirección válida en EE. UU.",
             "levels": ["Funcionarios federales", "Funcionarios estatales", "Funcionarios locales"],
             "party-affiliation": "Afiliación de partido",
             "address": "Dirección",
             "phone-number": "Teléfono",
             "website": "Sitio web",
             "contact-via-email": "Contactar por correo electrónico",
-            "path-contact": "/es/funcionarios-electos-email",
+            "path-contact": "/es/funcionarios-electos-correo-electronico",
         }
     };
 
-    const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
+    // const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
+    const content = backupTranslations[ document.documentElement.lang ];
 
     // Get location for where to attach the rendered results
     let resultsDiv = document.getElementById("results");
@@ -99,7 +100,7 @@ function renderResults(response, rawResponse) {
         dataLayer.push({
             'event': 'CEO API Error',
             'error type': errorType,
-            'error code': response.error.code,
+            'error code': ''+response.error.code,
             'error detail': response.error.message
         });
         return;
@@ -142,7 +143,7 @@ function renderResults(response, rawResponse) {
             let accordionContent = document.createElement("div");
             accordionContent.setAttribute("id", levelName);
             accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
-            accordionContent.setAttribute("hidden", "true");
+            accordionContent.setAttribute("hidden", "until-found");
 
             container.appendChild(accordionHeader);
             container.appendChild(accordionContent);
@@ -176,7 +177,7 @@ function renderResults(response, rawResponse) {
             let accordionContent = document.createElement("div");
             accordionContent.setAttribute("id", officialNumber);
             accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
-            accordionContent.setAttribute("hidden", "true");
+            accordionContent.setAttribute("hidden", "until-found");
 
             // Create bullet list of details for the elected official
             let bulletList = document.createElement("ul");

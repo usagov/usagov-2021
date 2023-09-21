@@ -25,9 +25,16 @@
 #}
 {% set lang = node.langcode.value %}
 {% set nodeID = node.nid[0].value %}
-{% set path = drupal_url('node/'~nodeID) %}
-{% set baseURL = url('<front>') %}
-{% set url = baseURL|render~path|render[1:] %}
+{% set path = drupal_url('node/'~nodeID, {absolute: TRUE}) %}
+{% set url = path|render|render %}
+{% if front == "homepage"            %}
+{%   set baseURL = url('<front>')    %}
+{%   set url = baseURL|render|render %}
+{%   if not (url ends with '/')      %}
+{%     set url = url ~ '/'           %}
+{%   endif                           %}
+{% endif                             %}
+
 <!DOCTYPE html>
 <html{{ html_attributes }}>
 <head>
@@ -41,7 +48,6 @@
   {% if node.id is defined %}
     {{ node.field_header_html.value|raw }}
   {% endif %}
-  
   <script>
     dataLayer = [{
       {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
@@ -232,6 +238,13 @@ const scrollToTop = () => {
 
 <!-- begin code to remove tabindex from survey -->
 <script type="text/javascript">
+  document.querySelectorAll(".usa-accordion__content").forEach((accordionContent) => {
+    accordionContent.onbeforematch = () => {
+      //accordionContent.removeAttribute("hidden");
+      document.querySelector("[aria-controls='"+accordionContent.id+"']").setAttribute("aria-expanded", "true");
+    };
+
+  });
 	// Select the node that will be observed for mutations
 	//<![CDATA[
 	var targetNode = document.getElementById('main-content');
@@ -244,15 +257,15 @@ const scrollToTop = () => {
 		for(let mutation of mutationsList) {
 			if (mutation.type === 'childList') {
 				// console.log('A child node has been added or removed.');
-				var c = document.querySelector(".QSIUserDefinedHTML")?.children[0].removeAttribute("tabindex");
-        // console.log(c);
+				document.querySelector(".QSIUserDefinedHTML")?.children[0].removeAttribute("tabindex");
 				// Later, you can stop observing
-				observer.disconnect();
+				//observer.disconnect();
+			}else if (mutation.type === 'attributes') {
+				//console.log('The ' + mutation.attributeName + ' attribute was modified.');
+				document.querySelectorAll(".usa-accordion__content[hidden='']").forEach((hiddenAccordion) => {
+          hiddenAccordion.setAttribute("hidden", "until-found");
+        });
 			}
-			// else if (mutation.type === 'attributes') {
-				// console.log('The ' + mutation.attributeName + ' attribute was modified.');
-
-			// }
 		}
 	};
 

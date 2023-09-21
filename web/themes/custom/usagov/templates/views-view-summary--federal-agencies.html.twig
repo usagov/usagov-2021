@@ -41,28 +41,28 @@
 
 <div class="usagov-directory-page-container">
 
-<div class="usagov-directory-container">
-  <ul class="usagov-directory-container-az">
-    {% for row in rows %}
-      <li>
-        {% set row_is_active = current_letter == row.link %}
-        {% if row_is_active %}
-          <a {{row.attributes.addClass("is-active")}}>{{ row.link }}</a>
-        {% else %}
-          {% if row.link == "A" or row.link == "a" %}
-            <a href={{ agencyindex }}>{{ row.link }}</a>
+  <div class="usagov-directory-container">
+    <ul class="usagov-directory-container-az">
+      {% for row in rows %}
+        <li>
+          {% set row_is_active = current_letter == row.link %}
+          {% if row_is_active %}
+            <a {{row.attributes.addClass("is-active")}}>{{ row.link }}</a>
           {% else %}
-            <a href="{{ agencyindex }}?letter={{ row.link|lower }}#{{ row.link }}">{{ row.link }}</a>
+            {% if row.link == "A" or row.link == "a" %}
+              <a href="{{ translations.agencyindex }}#{{ row.link }}">{{ row.link }}</a>
+            {% else %}
+              <a href="{{ translations.agencyindex }}?letter={{ row.link|lower }}#{{ row.link }}">{{ row.link }}</a>
+            {% endif %}
           {% endif %}
-	      {% endif %}
-        {% if options.count %}
-          ({{ row.count }})
-        {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-  <hr class="bl-divider">
-  <!-- Search Bar -->
+          {% if options.count %}
+            ({{ row.count }})
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    <hr class="bl-divider">
+    <!-- Search Bar -->
     <section aria-label="Small search component">
         <form class="fed-directory-search-bar" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
           <label id="fedGallerySearch" class="usa-sr-only" for="search-field-en-small">{{translations.agencySearchLabel}}</label>
@@ -82,4 +82,5 @@
           </button>
         </form>
     </section>
+  </div>
 </div>

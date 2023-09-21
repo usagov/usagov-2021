@@ -17,6 +17,11 @@
         <h2 class="font-family-heading margin-top-0">
             {{ lang == 'en' ? "Have a question?" : "¿Tiene una pregunta?" }}
         </h2>
+        {% if lang == 'en' %}
+            <p>Ask a real person any government-related question for free. They will get you the answer or let you know where to find it.</p>
+        {% else %}
+            <p>Pregunte gratis a una persona real cualquier duda relacionada con el Gobierno. Le darán la respuesta o le indicarán dónde encontrarla.</p>
+        {% endif %}
         <div class="grid-row grid-gap">
             <div class="tablet:grid-col-4 margin-bottom-2">
                 <a class="question-icon" href="{{ lang == 'es' ? talk_es : talk }}">

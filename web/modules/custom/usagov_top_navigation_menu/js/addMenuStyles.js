@@ -23,8 +23,17 @@
           let aElem = listItem.getElementsByTagName("a")[0];
           // console.log(`the list item is: ${aElem}`);
           aElem.setAttribute("href", "#skip-to-h1");
-          aElem.setAttribute("aria-current", "page");
+          if (document.documentElement.lang == "es") {
+            var p = document.createElement('p');
+            p.innerHTML = 'esta página';
+            p.classList.add('usa-sr-only');
+            document.getElementById(listItem.getAttribute("id")).firstElementChild.prepend(p);
+          }
+          else {
+            aElem.setAttribute("aria-current", "page");
+          }
           aElem.classList.add("currentMenuItem");
+
         } else {
           // console.error("Top nav description was left empty in cms");
         }

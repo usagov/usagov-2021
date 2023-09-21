@@ -10,6 +10,7 @@ services:
         - BUID
         - BGID
         - HOST_ARCH
+        - BUILD_ENV
     ports:
       #- 8080:80
       #- 8443:443
@@ -25,7 +26,7 @@ services:
     volumes:
       - .:/var/www:delegated
       - ./.docker/src-cms/etc/periodic/1min/generate-static-site:/etc/periodic/1min/generate-static-site:delegated
-      #- ./.docker/src-cms/50_xdebug.ini:/etc/php8/conf.d/50_xdebug.ini:delegated
+      #- ./.docker/src-cms/50_xdebug.ini:/etc/php81/conf.d/50_xdebug.ini:delegated
     env_file:
       - ./env.local
     environment:
@@ -103,6 +104,8 @@ services:
     build:
       context: ./
       dockerfile: .docker/Dockerfile-minio
+      args:
+        - BUILD_ENV
     ports:
       - 9000:9000
       - 9001:9001
@@ -132,6 +135,7 @@ services:
         - GITCOMMIT
         - GITBRANCH
         - GITTAG
+        - BUILD_ENV	
     #command: tail -f /dev/null
     command: echo "Shutting Down on Purpose"
     volumes:

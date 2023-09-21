@@ -2,8 +2,11 @@ uuid: 9873bc87-a341-4e50-930e-85a8340a54ef
 langcode: en
 status: true
 dependencies:
+  config:
+    - field.storage.node.body
   module:
     - node
+    - text
     - user
 _core:
   default_config_hash: P7F4DFe8BL31DRVqsvS-ix9KZZqvvaPjZ7zEvGo9yNM
@@ -237,6 +240,68 @@ display:
           empty_zero: false
           hide_alter_empty: true
           destination: true
+        body:
+          id: body
+          table: node__body
+          field: body
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: field
+          label: ''
+          exclude: true
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: text_default
+          settings: {  }
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
       pager:
         type: full
         options:
@@ -273,36 +338,38 @@ display:
       sorts: {  }
       arguments: {  }
       filters:
-        title:
-          id: title
-          table: node_field_data
-          field: title
+        combine:
+          id: combine
+          table: views
+          field: combine
           relationship: none
           group_type: group
           admin_label: ''
-          entity_type: node
-          entity_field: title
-          plugin_id: string
+          plugin_id: combine
           operator: contains
           value: ''
           group: 1
           exposed: true
           expose:
-            operator_id: title_op
-            label: Title
-            description: ''
+            operator_id: combine_op
+            label: Search
+            description: 'Searches Title and Body'
             use_operator: false
-            operator: title_op
+            operator: combine_op
             operator_limit_selection: false
             operator_list: {  }
-            identifier: title
+            identifier: combine
             required: false
             remember: false
             multiple: false
             remember_roles:
               authenticated: authenticated
               anonymous: '0'
-              administrator: '0'
+              content_editor: '0'
+              site_admin: '0'
+              content_manager: '0'
+              content_administrator: '0'
+            placeholder: ''
           is_grouped: false
           group_info:
             label: ''
@@ -315,6 +382,9 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
+          fields:
+            title: title
+            body: body
         type:
           id: type
           table: node_field_data
@@ -582,7 +652,8 @@ display:
         - user
         - 'user.node_grants:view'
         - user.permissions
-      tags: {  }
+      tags:
+        - 'config:field.storage.node.body'
   page_1:
     id: page_1
     display_title: Page
@@ -614,4 +685,5 @@ display:
         - user
         - 'user.node_grants:view'
         - user.permissions
-      tags: {  }
+      tags:
+        - 'config:field.storage.node.body'
