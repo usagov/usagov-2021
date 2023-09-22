@@ -10,56 +10,156 @@ use Drupal\taxonomy\Entity\Term;
  * Place your custom PHP code in this file.
  */
 
-/**
-* This makes the node varialbe available to the templates/html.html.twig template file
-*/
 function usagov_preprocess_html(&$variables) {
-  $variables['node'] = \Drupal::routeMatch()->getParameter('node');
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $variables['node'] = $node;
   
-  /**
-   * If the FAQ checkbox is checked, then parse the content to find questions and answers
-   */
-  if ($variables['node']->hasField('field_faq_page') && $variables['node']->get('field_faq_page')[0]->value) {
-    // $variables['is_faq_page'] = $variables['node']->get('field_faq_page')[0]->value;
-    $node_body = $variables['node']->get('body')[0]->value;
-    // $variables['node_body'] = $node_body;
-    $dom = new DomDocument();
-    $dom->loadHTML($node_body);
-    $questions = $dom->getElementsByTagName('h2');
-    // $variables['questions'] = $questions[0]->nodeValue;
-    $matches = array();
-    preg_match_all(
-      '/(?<=<\/h2>\s)\S.*?(?=\s*<h2|$)/s',  //regex
-      trim(preg_replace('/\s+/',' ', $node_body)),  //I had remove newlines from the body to get the regex working
-      $matches);
-    $answers = $matches[0];
-    $faq = array();
-    foreach ($questions as $index => $question) {
-      $faq[] = (object) ['question' => $question->nodeValue, 'answer' => $answers[$index]];
-    }
-    $variables['faq'] = $faq;
+  // If the FAQ checkbox is checked, then parse the content to find questions and answers
+  if($node->hasField('field_faq_page') && $node->get('field_faq_page')[0]->value) {
+    $variables['faq'] = generate_faq($node);
   }
 }
 
-// function parseToArray($xpath,$class)
-// {
-//     $xpathquery="//span[@class='".$class."']";
-//     $elements = $xpath->query($xpathquery);
-
-//     if (!is_null($elements)) {  
-//         $resultarray=array();
-//         foreach ($elements as $element) {
-//             $nodes = $element->childNodes;
-//             foreach ($nodes as $node) {
-//               $resultarray[] = $node->nodeValue;
-//             }
-//         }
-//         return $resultarray;
-//     }
-// }
 
 /**
- * This is a recursive helper function for finding the children of the active menu item
+ * generate_faq takes a node, analyses the body content,
+ * and returns an array of objects containing a question and answer
+ */
+function generate_faq(&$node) {
+  $faq = array();
+
+  // Set up a DomDocument with the node's body content
+  $node_body = $node->get('body')[0]->value;
+  $dom = new DomDocument();
+  $dom->loadHTML($node_body);
+  $elements = $dom->documentElement->childNodes[0]->childNodes;
+  $answer = new DomDocument();
+  $answer ->loadHTML("<html><body></body></html>");
+
+  // Count the number of H2s in the body content
+  $numH2s = count($dom->getElementsByTagName('h2'));
+
+  if($numH2s > 1){
+    // There are multiple H2s
+    // Each H2 is a question
+    $question = "No Questions Found Yet";
+
+    //loop through elements of the body content
+    foreach ($elements as $element) {
+      // Check the type of element
+      if($element->nodeName == "h2"){
+        // $element is a new question
+        // If there was an existing question, store it and the answer
+        if($question != "No Questions Found Yet"){
+          $answer = faq_answer_inner_HTML($answer);
+          $faq[] = (object) [ 'question' => $question, 'answer' => $answer ];
+        }
+
+        // Set up the new question
+        $question = $element->nodeValue;
+
+        // Set up the new answer
+        $answer = new DomDocument();
+        $answer ->loadHTML("<html><body></body></html>");
+
+      }elseif($element->nodeName == "drupal-paragraph"){
+        // $element is an embedded paragraph
+        faq_process_paragraph($element, $answer);
+      }elseif($element->nodeName == "#text"){
+        // $element is a text node
+        // This is white space that we can ignore.
+      }else{
+        // $element is some kind of content
+        // Append the content to the current answer
+        $importedNode = $answer->importNode($element, true);
+        $answer->documentElement->childNodes[0]->appendChild($importedNode);
+      }
+    }    
+
+    // If there was an existing question, store it and the answer
+    if($question != "No Questions Found Yet"){
+      $answer = faq_answer_inner_HTML($answer);
+      $faq[] = (object) [ 'question' => $question, 'answer' => $answer ];
+    }
+
+  }else{
+    // There are not multiple H2s
+    // The H1 is the question
+    $question = $node->getTitle();
+
+    // Setup the answer
+    $answer ->loadHTML("<html><body></body></html>");
+
+    // Append the intro to the answer
+    $introText = $node->get('field_page_intro')[0]->value;
+    $intro = $answer->createElement('p');
+    $intro->textContent = $introText;
+    $answer->documentElement->childNodes[0]->appendChild($intro);
+
+    //loop through elements of the body content
+    foreach ($elements as $element) {
+      // Check the type of element
+      if($element->nodeName == "drupal-paragraph"){
+        // $element is an embedded paragraph
+        faq_process_paragraph($element, $answer);
+      }elseif($element->nodeName == "#text"){
+        // $element is a text node
+        // This is white space that we can ignore.
+      }else{
+        // $element is content for the answer
+        // Append the content to the current answer
+        $importedNode = $answer->importNode($element, true);
+        $answer->documentElement->childNodes[0]->appendChild($importedNode);
+      }
+    }   
+
+    $answer = faq_answer_inner_HTML($answer);
+    $faq[] = (object) [ 'question' => $question, 'answer' => $answer ];
+  }
+  return $faq;
+}
+
+function faq_process_paragraph(&$element, &$answer) {
+  // Get the paragraph entity
+  $uuid = $element->getAttribute('data-paragraph-id');
+  $embedded_paragraph = \Drupal::service('entity.repository')->loadEntityByUuid('embedded_paragraphs', $uuid);
+  $component = $embedded_paragraph->get('paragraph')[0]->entity;
+
+  $variables['paragraph'] = $component;
+
+  // Check the fields to determine whether to include it in the answer
+  if($component->hasField('field_alert_body') &&                  // $component is a USWDS Alert
+      $component->get('field_alert_status')[0]->value == null){   // $component color is grey
+
+    // Create a <p> element with the alert's body content
+    $alertBody = $component->get('field_alert_body')[0]->value;
+    $alertElement = $answer->createElement('p');
+    $alertElement->textContent = $alertBody;
+
+    //Append the content to the current answer
+    $answer->documentElement->childNodes[0]->appendChild($alertElement);
+  }
+}
+
+function faq_answer_inner_HTML(&$answer) {
+  // Remove data-mce-href attributes
+  $links = $answer->getElementsByTagName('a');
+  foreach ($links as $link) {
+    $link->removeAttribute('data-mce-href');
+  }
+
+  // Get the HTML of the answer as a string
+  $answer = $answer->saveHTML($answer->documentElement->childNodes[0]);
+
+  // Remove 6 characters ("<body>") from the beginning and 7 characters ("</body>") from the end
+  return substr( $answer , 6, -7 );
+}
+
+
+
+
+/**
+ * children_of_active_menu_item is a recursive helper function for finding the children of the active menu item
  */
 function children_of_active_menu_item(&$items) {
   $result = NULL;
