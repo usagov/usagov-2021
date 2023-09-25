@@ -500,6 +500,7 @@ a,
 
 .usa-breadcrumb__link,
 .usa-breadcrumb__link:hover {
+  line-height: 1.5;
   text-decoration: underline;
   color: var($text-blue);
 }
@@ -979,7 +980,7 @@ div[class^="QSIUserDefinedHTML"] {
   padding: 0 !important;
 }
 
-p, a {
+p, a, .usa-label, .usa-radio__label {
   line-height: 1.5;
 }
 
