@@ -502,6 +502,7 @@ a,
 
 .usa-breadcrumb__link,
 .usa-breadcrumb__link:hover {
+  line-height: 1.5;
   text-decoration: underline;
   color: var($text-blue);
 }
@@ -733,6 +734,7 @@ input:not([disabled]):focus.usa-user-error {
   @media (max-width: 40em) {
     margin-left: .2rem;
     margin-right: 1rem;
+  }
   }
 }
 
@@ -981,12 +983,7 @@ div[class^="QSIUserDefinedHTML"] {
   padding: 0 !important;
 }
 
-p, a , h1, h2, h3, h4, h5 , .usa-prose>h1, .usa-prose>h2, .usa-prose>h3, .usa-prose>h4, .usa-prose>h5 , .usa-hero__heading, .usa-card__heading, .usagov-card__heading {
-  line-height: 1.5;
-}
-
-
-.usa-accordion__button {
+p, a, .usa-label, .usa-radio__label {
   line-height: 1.5;
 }
 
