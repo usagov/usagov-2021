@@ -91,7 +91,7 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary:hover {
-  background-color: var($secondary-border-color);
+  background-color: var($secondary-background-color);
   border: 2px solid var($secondary-border-color);
 }
 
