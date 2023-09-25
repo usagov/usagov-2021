@@ -15,7 +15,7 @@ function usagov_preprocess_html(&$variables) {
   $variables['node'] = $node;
 
   // If the FAQ checkbox is checked, then parse the content to find questions and answers
-  if ($node->hasField('field_faq_page') && $node->get('field_faq_page')[0]->value) {
+  if ($node && $node->hasField('field_faq_page') && $node->get('field_faq_page')[0]->value) {
     $variables['faq'] = generate_faq($node);
   }
 }
@@ -27,12 +27,15 @@ function usagov_preprocess_html(&$variables) {
 function generate_faq(&$node) {
   $faq = [];
 
-  // Set up a DomDocument with the node's body content
+  // Set up a DOMDocument with the node's body content
   $node_body = $node->get('body')[0]->value;
-  $dom = new DomDocument();
+  $dom = new DOMDocument();
+  libxml_use_internal_errors(true);
   $dom->loadHTML($node_body);
+  libxml_clear_errors();
+  $variables['dom'] = $dom;
   $elements = $dom->documentElement->childNodes[0]->childNodes;
-  $answer = new DomDocument();
+  $answer = new DOMDocument();
   $answer->loadHTML("<html><body></body></html>");
 
   // Count the number of H2s in the body content
@@ -51,14 +54,16 @@ function generate_faq(&$node) {
         // If there was an existing question, store it and the answer
         if ($question != "No Questions Found Yet") {
           $answer = faq_answer_inner_html($answer);
-          $faq[] = (object) ['question' => $question, 'answer' => $answer];
+          if ($question && $answer) {
+            $faq[] = (object) ['question' => $question, 'answer' => $answer];
+          }
         }
 
         // Set up the new question
         $question = $element->nodeValue;
 
         // Set up the new answer
-        $answer = new DomDocument();
+        $answer = new DOMDocument();
         $answer->loadHTML("<html><body></body></html>");
 
       }
@@ -81,7 +86,9 @@ function generate_faq(&$node) {
     // If there was an existing question, store it and the answer
     if ($question != "No Questions Found Yet") {
       $answer = faq_answer_inner_html($answer);
-      $faq[] = (object) ['question' => $question, 'answer' => $answer];
+      if ($question && $answer) {
+        $faq[] = (object) ['question' => $question, 'answer' => $answer];
+      }
     }
 
   }
@@ -95,9 +102,11 @@ function generate_faq(&$node) {
 
     // Append the intro to the answer
     $introText = $node->get('field_page_intro')[0]->value;
-    $intro = $answer->createElement('p');
-    $intro->textContent = $introText;
-    $answer->documentElement->childNodes[0]->appendChild($intro);
+    if ($introText) {
+      $intro = $answer->createElement('p');
+      $intro->textContent = $introText;
+      $answer->documentElement->childNodes[0]->appendChild($intro);
+    }
 
     //loop through elements of the body content
     foreach ($elements as $element) {
@@ -119,7 +128,9 @@ function generate_faq(&$node) {
     }
 
     $answer = faq_answer_inner_html($answer);
-    $faq[] = (object) ['question' => $question, 'answer' => $answer];
+    if ($question && $answer) {
+      $faq[] = (object) ['question' => $question, 'answer' => $answer];
+    }
   }
   return $faq;
 }
@@ -129,8 +140,6 @@ function faq_process_paragraph(&$element, &$answer) {
   $uuid = $element->getAttribute('data-paragraph-id');
   $embedded_paragraph = \Drupal::service('entity.repository')->loadEntityByUuid('embedded_paragraphs', $uuid);
   $component = $embedded_paragraph->get('paragraph')[0]->entity;
-
-  $variables['paragraph'] = $component;
 
   // Check if $component is a grey USWDS Alert
   if ($component->hasField('field_alert_body') && $component->get('field_alert_status')[0]->value == NULL) {
