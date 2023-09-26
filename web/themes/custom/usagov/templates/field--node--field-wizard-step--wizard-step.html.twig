@@ -22,6 +22,13 @@
 <div id="wizard-border">
 <fieldset class="usa-fieldset maxw-tablet margin-x-auto">
     <legend class="usa-sr-only">{{ element['#object'].title.value }}</legend>
+
+    {% if element['#object'].title.value == "What type of scam do you need to report?" or element['#object'].title.value == "¿Qué tipo de estafa necesita reportar?" %}
+    <legend class="usa-sr-only">{{ element['#object'].body[0].value|raw }}</legend>
+    {% else %}
+    <legend>{{ element['#object'].body[0].value|raw }}</legend>
+    {% endif %}
+
     <div id="msg" class="maxw-tablet margin-x-auto usa-error" tabindex= "-1"></div>
     {% for item in items %}
         {% set title = item.content["#options"]["entity"].field_option_name.0.value %}
