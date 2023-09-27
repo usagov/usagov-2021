@@ -40,8 +40,8 @@
 {% set active_item_has_children = false %}
 {% set sibblings_of_active_item = null %}
 {% set submenu = main_nav_items.menu_tree %}
-{% for i in 0..10 if not found_active_item %}
-  {% for menu_item in submenu if menu_item.active_trail %}
+{% for i in 0..10|filter(i != found_active_item) %}
+  {% for menu_item in submenu|filter(menu_item => menu_item.active_trail) %}
     {% set active_trail = active_trail|merge([menu_item]) %}
     {% if menu_item.active %}
       {% set found_active_item = true %}
