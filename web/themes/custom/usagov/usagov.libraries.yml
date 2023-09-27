@@ -19,12 +19,14 @@ wizard:
   dependencies:
     - core/drupal
     - core/jquery
+
 wizardStep:
   js:
     scripts/wizardStep.js: {}
   dependencies:
     - core/drupal
     - core/jquery
+
 stateDirectory:
   js:
     scripts/stateDirectory.js: {}
