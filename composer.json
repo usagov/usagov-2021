@@ -144,6 +144,9 @@
         },
         "drupal/uswds_ckeditor_integration": {
             "Remove linting dependencies from USWDS CKEditor module that have security issues": "./patches/drupal/removeDependencies.patch"
+        },
+        "drupal/samlauth": {
+            "Force samlauth to use HTTPS no matter the Drupal configuration": "./patches/drupal/samlauthForceHttps.patch"
         }
     }
 }
