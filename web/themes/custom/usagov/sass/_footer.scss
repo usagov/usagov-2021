@@ -36,6 +36,7 @@
   text-decoration: none;
   padding: 0;
   font-weight: 700;
+  line-height: 1.2;
   margin: 0;
   margin-bottom: 0;
   align-items: center;
@@ -101,6 +102,7 @@
 
 .footer-button {
   border: 1px solid #1b1b1b;
+  line-height: 1.5;
 }
 
 #footer-email {
@@ -227,6 +229,7 @@
 }
 
 .usa-identifier__usagov-description {
+  line-height: 1.5;
   @media (min-width: 36em) {
     display: flex;
     justify-content: center;
