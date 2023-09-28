@@ -147,6 +147,9 @@
         },
         "drupal/samlauth": {
             "Force samlauth to use HTTPS no matter the Drupal configuration": "./patches/drupal/samlauthForceHttps.patch"
+        },
+        "drupal/ckeditor_templates": {
+            "Make ckeditor_templates D10 ready": "https://www.drupal.org/files/issues/2023-08-22/ckeditor_templates_d10_3296778-23.patch"
         }
     }
 }
