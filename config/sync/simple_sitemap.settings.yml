@@ -11,8 +11,8 @@ xsl: true
 base_url: ''
 default_variant: default
 custom_links_include_images: false
-disable_language_hreflang: false
-hide_branding: false
+disable_language_hreflang: true
+hide_branding: true
 excluded_languages: {  }
 enabled_entity_types:
   - node
