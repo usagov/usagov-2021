@@ -122,34 +122,28 @@
             "web/themes/custom/{$name}": [
                 "type:drupal-custom-theme"
             ]
-        }
-    },
-    "patches": {
-        "drupal/mmf_core_fields": {
-            "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
         },
-        "drupal/tome": {
-            "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
-            "De-duplicate invoke paths in StaticCommand's exportPaths": "./patches/drupal/deduplicateTomeInvokePaths.patch"
+        "patches": {
+            "drupal/mmf_core_fields": {
+                "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
             },
-        "drupal/paragraphs_entity_embed": {
-            "Paragraph Embed Preview Update": "https://www.drupal.org/files/issues/2022-05-27/paragraphs_entity_embed_csrf_token.patch"
-        },
-        "drupal/core": {
-            "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail.patch",
-            "Make BaseFieldOverride inherit internal property from the base field": "https://www.drupal.org/files/issues/2023-01-20/3274419-42.patch"
-        },
-        "drupal/views_menu_children_filter": {
-            "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
-        },
-        "drupal/uswds_ckeditor_integration": {
-            "Remove linting dependencies from USWDS CKEditor module that have security issues": "./patches/drupal/removeDependencies.patch"
-        },
-        "drupal/samlauth": {
-            "Force samlauth to use HTTPS no matter the Drupal configuration": "./patches/drupal/samlauthForceHttps.patch"
-        },
-        "drupal/ckeditor_templates": {
-            "Make ckeditor_templates D10 ready": "https://www.drupal.org/files/issues/2023-08-22/ckeditor_templates_d10_3296778-23.patch"
+            "drupal/tome": {
+                "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
+                "De-duplicate invoke paths in StaticCommand's exportPaths": "./patches/drupal/deduplicateTomeInvokePaths.patch"
+            },
+            "drupal/core": {
+                "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail.patch",
+                "Make BaseFieldOverride inherit internal property from the base field": "https://www.drupal.org/files/issues/2023-01-20/3274419-42.patch"
+            },
+            "drupal/views_menu_children_filter": {
+                "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
+            },
+            "drupal/samlauth": {
+                "Force samlauth to use HTTPS no matter the Drupal configuration": "./patches/drupal/samlauthForceHttps.patch"
+            },
+            "drupal/ckeditor_templates": {
+                "Make ckeditor_templates D10 ready": "https://www.drupal.org/files/issues/2023-08-22/ckeditor_templates_d10_3296778-23.patch"
+            }
         }
     }
 }
