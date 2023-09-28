@@ -69,7 +69,6 @@ permissions:
   - 'translate editable entities'
   - 'translate state_directory_record node'
   - 'update content translations'
-  - 'use basic_workflow transition approve'
   - 'use basic_workflow transition create_new_draft'
   - 'use basic_workflow transition move_to_review'
   - 'use basic_workflow transition publish'
