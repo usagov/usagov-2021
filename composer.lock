@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "58e00114a355d25d8cf065b4b23315eb",
+    "content-hash": "33e5c7d0a70e4f4493f1f8eb831ebd6e",
     "packages": [
         {
             "name": "alchemy/zippy",
@@ -5273,20 +5273,14 @@
         },
         {
             "name": "drupal/paragraphs_entity_embed",
-            "version": "2.0.0-alpha2",
+            "version": "dev-2.x",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/paragraphs_entity_embed.git",
-                "reference": "8.x-2.0-alpha2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/paragraphs_entity_embed-8.x-2.0-alpha2.zip",
-                "reference": "8.x-2.0-alpha2",
-                "shasum": "a95c18fb9579879cc9b1722508b8ed276df858a7"
+                "reference": "d45fa450839b93a1d08887e1ed3c5ae9d7ab2228"
             },
             "require": {
-                "drupal/core": "^8.9 || ^9",
+                "drupal/core": "^9.3 || ^10",
                 "drupal/embed": "*",
                 "drupal/entity_embed": "*",
                 "drupal/paragraphs": "*"
@@ -5294,16 +5288,20 @@
             "require-dev": {
                 "drupal/embed": "^1.4",
                 "drupal/entity_embed": "^1.1",
+                "drupal/entity_reference_revisions": "^1.8",
                 "drupal/paragraphs": "^1.12"
             },
             "type": "drupal-module",
             "extra": {
+                "branch-alias": {
+                    "dev-2.x": "2.x-dev"
+                },
                 "drupal": {
-                    "version": "8.x-2.0-alpha2",
-                    "datestamp": "1601818840",
+                    "version": "8.x-2.0-alpha2+10-dev",
+                    "datestamp": "1673628618",
                     "security-coverage": {
                         "status": "not-covered",
-                        "message": "Project has not opted into security advisory coverage!"
+                        "message": "Dev releases are not covered by Drupal security advisories."
                     }
                 }
             },
@@ -5314,28 +5312,32 @@
             "authors": [
                 {
                     "name": "Nikolay Ignatov",
-                    "homepage": "https://www.drupal.org/user/2301376",
+                    "homepage": "https://www.drupal.org/user/1443204",
                     "email": "nikolai.ignatov@gmail.com",
                     "role": "Creator and Maintainer"
                 },
                 {
                     "name": "Dobrin Dobrev",
-                    "homepage": "https://www.drupal.org/user/1443204",
+                    "homepage": "https://www.drupal.org/user/2803987",
                     "email": "ddobrev81@gmail.com",
                     "role": "Maintainer"
                 },
                 {
                     "name": "Milka Petkova",
-                    "homepage": "https://www.drupal.org/user/2803987",
+                    "homepage": "https://www.drupal.org/user/2301376",
                     "email": "milka.petkova.88@gmail.com",
                     "role": "Maintainer"
                 },
                 {
                     "name": "skek",
                     "homepage": "https://www.drupal.org/user/417078"
+                },
+                {
+                    "name": "smustgrave",
+                    "homepage": "https://www.drupal.org/user/3252890"
                 }
             ],
-            "description": "Allows for paragraph entities to be embedded as items into the CKE editor.",
+            "description": "Allows for paragraph entities to be embedded as items into the CKEditor.",
             "homepage": "https://www.drupal.org/project/paragraphs_entity_embed",
             "support": {
                 "source": "https://git.drupalcode.org/project/paragraphs_entity_embed",
@@ -12367,7 +12369,7 @@
         "drupal/feeds": 10,
         "drupal/menu_breadcrumb": 15,
         "drupal/node_menus": 15,
-        "drupal/paragraphs_entity_embed": 15,
+        "drupal/paragraphs_entity_embed": 20,
         "drupal/s3fs": 15,
         "drupal/views_menu_children_filter": 5,
         "drupal/viewsreference": 10

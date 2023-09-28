@@ -48,7 +48,7 @@
         "drupal/menu_breadcrumb": "^2.0@alpha",
         "drupal/new_relic_rpm": "^2.1",
         "drupal/node_menus": "^3.0@alpha",
-        "drupal/paragraphs_entity_embed": "^2.0@alpha",
+        "drupal/paragraphs_entity_embed": "2.x-dev@dev",
         "drupal/pathauto": "^1.8",
         "drupal/redirect": "^1.6",
         "drupal/remove_http_headers": "^1.0",
