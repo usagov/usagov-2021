@@ -82,7 +82,7 @@ WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' 
 echo "Replacing references to CMS hostname ... "
 find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" -o -name "*.xml" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|'"$WWW_HOST"'|ig' {} \;
 
-# add / at the end of the end. Add lines here
+# add / at the end of the end
 # $WWW_HOST <- hostname
 
 
@@ -234,13 +234,6 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
 else
   echo "Not pushing content to S3."
-fi
-
-if [ -d "$RENDER_DIR" ]; then
-  echo "Removing Render Dir: $RENDER_DIR" | tee -a $TOMELOG
-  rm -rf "$RENDER_DIR"
-else
-  echo "No Render Dir to remove" | tee -a $TOMELOG
 fi
 
 if [ -f "$TOMELOG" ]; then
