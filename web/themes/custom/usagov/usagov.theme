@@ -22,7 +22,7 @@ function usagov_preprocess_html(&$variables) {
 
 /**
  * generate_faq takes a node, analyses the body content,
- * and returns an array of objects containing a question and answer
+ * and returns an array of objects each containing a question and answer
  */
 function generate_faq(&$node) {
   $faq = [];
@@ -33,8 +33,13 @@ function generate_faq(&$node) {
   libxml_use_internal_errors(true);
   $dom->loadHTML($node_body);
   libxml_clear_errors();
-  $variables['dom'] = $dom;
+
+  // Make component content compatible with FAQ
+  faq_process_components($dom);
+
+  // Setup the list of elements from the processed content
   $elements = $dom->documentElement->childNodes[0]->childNodes;
+  // Setup the first answer
   $answer = new DOMDocument();
   $answer->loadHTML("<html><body></body></html>");
 
@@ -46,7 +51,7 @@ function generate_faq(&$node) {
     // Each H2 is a question
     $question = "No Questions Found Yet";
 
-    //loop through elements of the body content
+    // Loop through elements of the body content
     foreach ($elements as $element) {
       // Check the type of element
       if ($element->nodeName == "h2") {
@@ -59,17 +64,13 @@ function generate_faq(&$node) {
           }
         }
 
-        // Set up the new question
+        // Set up the next question
         $question = $element->nodeValue;
 
-        // Set up the new answer
+        // Set up the next answer
         $answer = new DOMDocument();
         $answer->loadHTML("<html><body></body></html>");
 
-      }
-      elseif ($element->nodeName == "drupal-paragraph") {
-        // $element is an embedded paragraph
-        faq_process_paragraph($element, $answer);
       }
       elseif ($element->nodeName == "#text") {
         // $element is a text node
@@ -97,9 +98,6 @@ function generate_faq(&$node) {
     // The H1 is the question
     $question = $node->getTitle();
 
-    // Setup the answer
-    $answer->loadHTML("<html><body></body></html>");
-
     // Append the intro to the answer
     $introText = $node->get('field_page_intro')[0]->value;
     if ($introText) {
@@ -108,14 +106,9 @@ function generate_faq(&$node) {
       $answer->documentElement->childNodes[0]->appendChild($intro);
     }
 
-    //loop through elements of the body content
+    // Loop through elements of the body content
     foreach ($elements as $element) {
-      // Check the type of element
-      if ($element->nodeName == "drupal-paragraph") {
-        // $element is an embedded paragraph
-        faq_process_paragraph($element, $answer);
-      }
-      elseif ($element->nodeName == "#text") {
+      if ($element->nodeName == "#text") {
         // $element is a text node
         // This is white space that we can ignore.
       }
@@ -132,28 +125,114 @@ function generate_faq(&$node) {
       $faq[] = (object) ['question' => $question, 'answer' => $answer];
     }
   }
+  $variables["dom"] = $dom;
   return $faq;
 }
 
-function faq_process_paragraph(&$element, &$answer) {
-  // Get the paragraph entity
-  $uuid = $element->getAttribute('data-paragraph-id');
-  $embedded_paragraph = \Drupal::service('entity.repository')->loadEntityByUuid('embedded_paragraphs', $uuid);
-  $component = $embedded_paragraph->get('paragraph')[0]->entity;
+/**
+ * faq_process_components gets components from drupal paragraph embeds
+ * and makes their content compatible with FAQ rich results
+ */
+function faq_process_components(&$dom) {
+  // Iterate through embedded paragraphs
+  $embeddedParagraphElements = $dom->getElementsByTagName('drupal-paragraph');
+  foreach ($embeddedParagraphElements as $element) {
+    // Get the component
+    $uuid = $element->getAttribute('data-paragraph-id');
+    $embedded_paragraph = \Drupal::service('entity.repository')->loadEntityByUuid('embedded_paragraphs', $uuid);
+    $component = $embedded_paragraph->get('paragraph')[0]->entity;
 
-  // Check if $component is a grey USWDS Alert
-  if ($component->hasField('field_alert_body') && $component->get('field_alert_status')[0]->value == NULL) {
+    // Process component by its type
+    $componentType = $component->getType();
+    if ($componentType == "uswds_accordion") {
 
-    // Create a <p> element with the alert's body content
-    $alertBody = $component->get('field_alert_body')[0]->value;
-    $alertElement = $answer->createElement('p');
-    $alertElement->textContent = $alertBody;
+      // iterate through accordion panels
+      foreach ($component->get('field_accordion_section') as $accordionPanel) {
+        // Get the accordion panel's node
+        $accordionPanelTID = $accordionPanel->get('target_id')->getValue();
+        $accorionPanelNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accordionPanelTID);
 
-    //Append the content to the current answer
-    $answer->documentElement->childNodes[0]->appendChild($alertElement);
+        // Get this panel's button text and add it to the dom as an h2
+        $accorionPanelButtonText = $accorionPanelNode->get('field_accordion_section_title')[0]->value;
+        $accorionHeading = $dom->createElement('h2');
+        $accorionHeading->textContent = $accorionPanelButtonText;
+        $element->parentNode->insertBefore($accorionHeading, $element);
+
+        // Get this panel's body content
+        $accorionPanelBodyNodeID = $accorionPanelNode->get('field_accordion_section_body')[0]->get('target_id')->getValue();
+        $accorionPanelBodyNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accorionPanelBodyNodeID);
+
+        // append accordion body content
+        $accorionBody = new DOMDocument();
+        $accorionBody->loadHTML($accorionPanelBodyNode->get('field_text')[0]->value);
+        foreach ($accorionBody->documentElement->childNodes[0]->childNodes as $accorionBodyElement) {
+          $accorionBodyElement = $dom->importNode($accorionBodyElement, TRUE);
+          if ($accorionBodyElement) {
+            $element->parentNode->insertBefore($accorionBodyElement, $element);
+          }
+        }
+      }
+      // Remove paragraph element
+      $element->parentNode->removeChild($element);
+    }
+    elseif ($componentType == "uswds_alert" && $component->get('field_alert_status')[0]->value == NULL) {
+      // $component is a grey alert
+
+      // Create a <p> element with the alert's body content
+      $alertBody = $component->get('field_alert_body')[0]->value;
+      $alertElement = $dom->createElement('p');
+      $alertElement->textContent = $alertBody;
+
+      replace_component_reference_with_content($element, $alertElement);
+    }
+    elseif ($componentType == "uswds_process_list") {
+      $simplifiedList = faq_simplify_list($dom, $component, "ol", 'field_process_items', 'field_text');
+      replace_component_reference_with_content($element, $simplifiedList);
+    }
+    elseif ($componentType == "uswds_icon_list") {
+      $simplifiedList = faq_simplify_list($dom, $component, "ul", 'field_uswds_icon_list_item', 'field_text_plain_long');
+      replace_component_reference_with_content($element, $simplifiedList);
+    }
   }
 }
 
+/**
+ * faq_simplify_list takes a USWDS list component (Process List or Icon List) and
+ * returns a DOM Element containing the component's content in a simple HTML list
+ */
+function faq_simplify_list(&$dom, &$component, $listType, $itemsFieldName, $bodyFieldName) {
+  // Create a list element of the specified type
+  $processListSimplified = $dom->createElement($listType);
+      
+  // Iterate through component items by field name
+  foreach ($component->get($itemsFieldName) as $process_item) {
+    $processItemNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($process_item->get('target_id')->getValue());
+
+    // Create a new <li> for this list item
+    $processItemContent = $dom->createElement('li');
+    
+    // Create a DOMDocument with the body content from this list item
+    $processItemBody = new DOMDocument();
+    $processItemBody->loadHTML($processItemNode->get($bodyFieldName)[0]->value);
+
+    // Append each from this list item to the <li>
+    foreach ($processItemBody->documentElement->childNodes[0]->childNodes as $processItemBodyElement) {
+      $processItemBodyElement = $dom->importNode($processItemBodyElement, TRUE);
+      if ($processItemBodyElement) {
+        $processItemContent->appendChild($processItemBodyElement);
+      }
+    }
+
+    // Append the <li> to the list element
+    $processListSimplified->appendChild($processItemContent);
+  }
+  return $processListSimplified;
+}
+
+/**
+ * faq_answer_inner_html takes a DOMDocument and returns a string of HTML within the body tag.
+ * It also removes data-mce-href attributes.
+ */
 function faq_answer_inner_html(&$answer) {
   // Remove data-mce-href attributes
   $links = $answer->getElementsByTagName('a');
@@ -166,6 +245,17 @@ function faq_answer_inner_html(&$answer) {
 
   // Remove 6 characters ("<body>") from the beginning and 7 characters ("</body>") from the end
   return substr($answer, 6, -7);
+}
+
+/**
+ * replace_component_reference_with_content takes a DOM Elements which must be part of the same DOMDocument
+ * and replaces the reference with the content
+ */
+function replace_component_reference_with_content(&$reference, &$content) {
+  // Append the content to the current answer
+  $reference->parentNode->insertBefore($content, $reference);
+  // Remove paragraph element
+  $reference->parentNode->removeChild($reference);
 }
 
 /**
