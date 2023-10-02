@@ -12,12 +12,23 @@ fi
 if [ -f ./env.local ]; then
   . ./env.local
 fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
 
 # just testing?
-if [ x$1 == x"--dryrun" ]; then
+if [ x$1 = x"--dryrun" ]; then
   export echo=echo
   shift
 fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
 
 DEPLOY_TAG=${1}
 SOURCE_DIR=$DEPLOY_TAG
@@ -27,6 +38,7 @@ if [ -z "$SOURCE_DIR" ]; then
   exit 1
 fi
 
+CLEANUP_REQUIRED=0
 if [ x"$DEPLOY_TAG" != x ]; then
   # locate a local directory that contains a build of the static site
   # do some sanity checking on the directory (steal from tome-sync)
@@ -34,8 +46,21 @@ if [ x"$DEPLOY_TAG" != x ]; then
     if [ -d "$SOURCE_DIR" ]; then
       echo "Found source directory: $SOURCE_DIR"
     else
-      echo "ERROR: Source directory not found: $SOURCE_DIR"
-      exit 1
+      if [ -f $ZIP_FILE ]; then
+        CLEANUP_REQUIRED=1
+        unzip $ZIP_FILE
+        if [ $? != 0 ]; then
+          echo "Error unzipping $ZIP_FILE"
+          exit 1
+        fi
+        if [ ! -d "$SOURCE_DIR" ]; then
+          echo "ERROR: Zip file ($ZIP_FILE) was unpacked, but seems not to have produced a valid source directory ($SOURCE_DIR)."
+          exit 1
+        fi
+      else
+        echo "ERROR: Source directory ($SOURCE_DIR) or zip file ($ZIP_FILE) not found"
+        exit 1
+      fi
     fi
   fi
 else
@@ -43,8 +68,30 @@ else
    exit 1
 fi
 
-$echo source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+SSH_ALLOWED=$(cf space-ssh-allowed $SPACE | grep enabled)
+if [[  x$SSH_ALLOWED == x ]]; then
+  echo Cloud Foundry ssh to $SPACE is not enabled - exiting
+  exit 1
+fi
+
+TIR=0
+if [ -z "$echo" ]; then
+cf ssh cms -c /var/www/scripts/tome-running-check.sh && TIR=1
+  if [ $TIR != 0 ]; then
+    echo Tome is running in the target environment.  Please try again momentarily
+    exit 1
+  fi
+fi
+
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 # upload that static site directory to a location within an s3 bucket represented by the tag
-echo aws s3 cp --only-show-errors $SOURCE_DIR s3://$S3_BUCKET/web-backup/$DEPLOY_TAG/ --recursive
+echo  aws s3 cp --only-show-errors $SOURCE_DIR s3://$S3_BUCKET/web-backup/$DEPLOY_TAG/ --recursive
 $echo aws s3 cp --only-show-errors $SOURCE_DIR s3://$S3_BUCKET/web-backup/$DEPLOY_TAG/ --recursive
+retval=$?
+
+if [ $CLEANUP_REQUIRED = 1 ]; then
+  rm -rf $SOURCE_DIR
+fi
+
+exit $retval
