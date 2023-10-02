@@ -8,6 +8,7 @@ dependencies:
     - media.type.image
     - media.type.remote_video
     - media.type.video
+    - node.type.agency_synonym
     - node.type.basic_page
     - node.type.directory_record
     - node.type.state_directory_record
@@ -46,6 +47,7 @@ permissions:
   - 'administer redirect settings'
   - 'administer redirects'
   - 'break content lock'
+  - 'create agency_synonym content'
   - 'create audio media'
   - 'create basic_page content'
   - 'create content translations'
@@ -59,7 +61,9 @@ permissions:
   - 'create video media'
   - 'create wizard content'
   - 'create wizard_step content'
+  - 'delete agency_synonym revisions'
   - 'delete all revisions'
+  - 'delete any agency_synonym content'
   - 'delete any audio media'
   - 'delete any basic_page content'
   - 'delete any directory_record content'
@@ -89,6 +93,7 @@ permissions:
   - 'delete state_directory_record revisions'
   - 'delete wizard revisions'
   - 'delete wizard_step revisions'
+  - 'edit any agency_synonym content'
   - 'edit any audio media'
   - 'edit any basic_page content'
   - 'edit any directory_record content'
@@ -111,12 +116,14 @@ permissions:
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
   - 'overwrites the Content Editor permission restriction'
+  - 'revert agency_synonym revisions'
   - 'revert all revisions'
   - 'revert basic_page revisions'
   - 'revert directory_record revisions'
   - 'revert state_directory_record revisions'
   - 'revert wizard revisions'
   - 'revert wizard_step revisions'
+  - 'translate agency_synonym node'
   - 'translate any entity'
   - 'translate basic_page node'
   - 'translate directory_record node'
@@ -135,6 +142,7 @@ permissions:
   - 'use basic_workflow transition move_to_review'
   - 'use basic_workflow transition publish'
   - 'use basic_workflow transition restore'
+  - 'view agency_synonym revisions'
   - 'view all media revisions'
   - 'view all revisions'
   - 'view any unpublished content'

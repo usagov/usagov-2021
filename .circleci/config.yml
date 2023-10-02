@@ -24,8 +24,14 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cms << pipeline.number >> $CMS_DIGEST
             if [ $? ]; then
-              echo "Please run the following command in a local build environment, while targetting << parameters.envname >>"
+              echo
+              echo "Please run the following commands in a local build environment, while targetting << parameters.envname >>:"
+              echo "cf target -s << parameters.envname >>"
+              echo "git checkout << parameters.envname >>"
+              echo "git fetch --all --tags"
+              echo "git pull"
               echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
+              echo
             fi
 
   save-image-digest:
