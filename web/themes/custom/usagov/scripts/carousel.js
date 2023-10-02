@@ -1,4 +1,3 @@
-"use strict";
 $(".slides").slick({
   "dots": true,
   "infinite": true,
