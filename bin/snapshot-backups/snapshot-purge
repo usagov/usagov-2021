@@ -41,7 +41,18 @@ if [ x$1 = x"--dryrun" ]; then
   shift
 fi
 
-SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$1
+if [ -z $SPACE ]; then
+  echo "Usage:"
+  echo "$0 [--dryrun] <env> [--partial <eg. USAGOV-9999> | --full <eg. USAGOV-9999.dev.1111.post-deploy.2020010101] [--download]"
+  echo ""
+  echo "--dryrun MUST be the first argument, or it WILL NOT BE ACKNOWLEDGED"
+  echo "--partial <string> - partial match (eg. USAGOV-9999 will match all snapshots for ticket USAGOV-9999)"
+  echo "--full <string>    - full match    (string must match the full snapshot tag)"
+  echo "--download will download a copy of the snapshot(s) before deleting them"
+  exit 1
+fi
+
 SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
 shift
@@ -49,39 +60,41 @@ shift
 removeTag=""
 removeTicket=""
 download=""
+match=""
+rematch=""
 
 while [ 0 -eq 0 ]; do
 
-  snaptype=$1
+  matchtype=$1
 
-  if [ x$snaptype = x ]; then
+  if [ -z "$matchtype" ]; then
     break
   fi
   shift
 
-  case "$snaptype" in
+  grepCommand=""
 
-      "--tag")
-        removeTag=$1
-        if [ x"$removeTag" == x ]; then
-          echo "Usage:"
-          echo "$0 [--dryrun] <env> [--ticket <eg. USAGOV-9999> | --tag <eg. USAGOV-9999.dev.1111.post-deploy.2020010101] [--download]"
-          echo ""
-          echo "--dryrun MUST be the first argument, or it WILL NOT BE ACKNOWLEGED"
-          echo "--download will download a copy of the snapshot(s) before deleting them"
-          exit 1
+  case "$matchtype" in
+
+      "--partial")
+        match=$1
+        if [ -n "$match" ]; then
+          if [ $match = "--download" ]; then
+            match=""
+          fi
+          shift
         fi
       ;;
 
-      "--ticket")
-        removeTicket=$1
-        if [ x"$removeTicket" == x ]; then
-          echo "Usage:"
-          echo "$0 [--dryrun] <env> [--ticket <eg. USAGOV-9999> | --tag <eg. USAGOV-9999.dev.1111.post-deploy.2020010101] [--download]"
-          echo ""
-          echo "--dryrun MUST be the first argument, or it WILL NOT BE ACKNOWLEGED"
-          echo "--download will download a copy of the snapshot(s) before deleting them"
-          exit 1
+      "--full")
+        match=$1
+        if [ -n "$match" ]; then
+          if [ $match = "--download" ]; then
+            match=""
+          else
+            rematch="^${match//./\\\.}$"
+          fi
+          shift
         fi
       ;;
 
@@ -92,11 +105,22 @@ while [ 0 -eq 0 ]; do
 
 done
 
-echo $(basename $0)
+if [ -z "$match" ]; then
+  echo "Usage:"
+  echo "$0 [--dryrun] <env> [--partial <eg. USAGOV-9999> | --full <eg. USAGOV-9999.dev.1111.post-deploy.2020010101] [--download]"
+  echo ""
+  echo "--dryrun MUST be the first argument, or it WILL NOT BE ACKNOWLEDGED"
+  echo "--partial <string> - partial match (eg. USAGOV-9999 will match all snapshots for ticket USAGOV-9999)"
+  echo "--full <string>    - full match    (string must match the full snapshot tag)"
+  echo "--download will download a copy of the snapshot(s) before deleting them"
+  exit 1
+fi
+
+basename "$0"
 echo "Dry run:       $dryrun"
 echo "Download:      $download"
-echo "Remove tag:    $removeTag"
-echo "Remove ticket: $removeTicket"
+echo "Match:         $match"
+echo "Regex Match:   $rematch"
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
@@ -104,32 +128,28 @@ export site_available_tags=$(aws s3 ls s3://$S3_BUCKET/web-backup/ | awk '{print
 export public_available_tags=$(aws s3 ls s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
 export db_available_tags=$(aws s3 ls s3://$S3_BUCKET/db-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g' | sed 's/\.sql\.gz//g')
 
-if [ x$removeTicket != x ]; then
-
-  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i "$removeTicket"); do
-    $echo $(dirname $0)/db-snapshot-delete $dryrun $SPACE $tag $download
+if [ -n "$rematch" ]; then
+  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
+    $echo $(dirname $0)/db-snapshot-delete $dryrun $SPACE $match $download
   done
 
-  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i "$removeTicket"); do
-    $echo $(dirname $0)/site-snapshot-delete $dryrun $SPACE $tag $download
+  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
+    $echo $(dirname $0)/site-snapshot-delete $dryrun $SPACE $match $download
   done
 
-  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i "$removeTicket"); do
-    $echo $(dirname $0)/public-snapshot-delete $dryrun $SPACE $tag $download
+  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch); do
+    $echo $(dirname $0)/public-snapshot-delete $dryrun $SPACE $match $download
   done
-fi
-
-if [ x$removeTag != x ]; then
-
-  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i "$removeTag"); do
-    $echo $(dirname $0)/db-snapshot-delete $dryrun $SPACE $tag $download
+else
+  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
+    $echo $(dirname $0)/db-snapshot-delete $dryrun $SPACE $match $download
   done
 
-  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i "$removeTag"); do
-    $echo $(dirname $0)/site-snapshot-delete $dryrun $SPACE $tag $download
+  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
+    $echo $(dirname $0)/site-snapshot-delete $dryrun $SPACE $match $download
   done
 
-  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep $SPACE | grep -i "$removeTag"); do
-    $echo $(dirname $0)/public-snapshot-delete $dryrun $SPACE $tag $download
+  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep $match); do
+    $echo $(dirname $0)/public-snapshot-delete $dryrun $SPACE $match $download
   done
 fi
