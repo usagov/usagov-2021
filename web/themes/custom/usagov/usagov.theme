@@ -136,7 +136,8 @@ function generate_faq(&$node) {
 function faq_process_components(&$dom) {
   // Iterate through embedded paragraphs
   $embeddedParagraphElements = $dom->getElementsByTagName('drupal-paragraph');
-  for ($n=$embeddedParagraphElements->length-1;$n>=0;--$n) { // Looping backwards allows for removing elements along the way without losing track of our position
+  // Loop backwards to allow for removing elements along the way without losing track of our position
+  for ($n = $embeddedParagraphElements->length - 1; $n >= 0; --$n) {
     $element = $embeddedParagraphElements->item($n);
     // Get the component
     $uuid = $element->getAttribute('data-paragraph-id');
@@ -204,14 +205,14 @@ function faq_process_components(&$dom) {
 function faq_simplify_list(&$dom, &$component, $listType, $itemsFieldName, $bodyFieldName) {
   // Create a list element of the specified type
   $processListSimplified = $dom->createElement($listType);
-      
+
   // Iterate through component items by field name
   foreach ($component->get($itemsFieldName) as $process_item) {
     $processItemNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($process_item->get('target_id')->getValue());
 
     // Create a new <li> for this list item
     $processItemContent = $dom->createElement('li');
-    
+
     // Create a DOMDocument with the body content from this list item
     $processItemBody = new DOMDocument();
     $processItemBody->loadHTML($processItemNode->get($bodyFieldName)[0]->value);
