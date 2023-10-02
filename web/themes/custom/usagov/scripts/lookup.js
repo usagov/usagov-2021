@@ -279,7 +279,7 @@ function renderResults(response, rawResponse) {
                 let linkToContact = document.createElement("a");
                 let firstEmail = email[0];
 
-                linkToContact.setAttribute("class", "usa-button usa-button--outline usagov-button--outline-black");
+                linkToContact.setAttribute("class", "usa-button usa-button--secondary");
                 linkToContact.style.marginTop = "15px";
                 linkToContact.innerHTML = content["contact-via-email"];
 

@@ -27,9 +27,8 @@ if [ x$1 == x"--dryrun" ]; then
   shift
 fi
 
-SPACE=${1,,:-please-provide-space-as-first-argument}
-SPACE=${SPACE,,} ## lowercase, so tags are properly formatted
-#assertCurSpace "$SPACE"  ### <-- no need to assert that we're actually in $SPACE, because we're not doing anything w/ CF - just git
+SPACE=${1:-please-provide-space-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]') ## lowercase, so tags are properly formatted
 shift
 
 
