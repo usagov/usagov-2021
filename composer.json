@@ -19,18 +19,17 @@
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
         "drupal/admin_toolbar": "3.x-dev",
-        "drupal/allowed_formats": "^1.5",
+        "drupal/allowed_formats": "^3.0",
         "drupal/autologout": "^1.3",
         "drupal/ckeditor_templates": "^1.2",
         "drupal/ckeditor_templates_ui": "^1.5",
         "drupal/composer_deploy": "^1.7",
         "drupal/conditional_fields": "^4.0@alpha",
-        "drupal/console": "^1.9",
         "drupal/content_lock": "^2.2",
         "drupal/content_moderation_notifications": "^3.4",
-        "drupal/core-composer-scaffold": "9.5.11",
-        "drupal/core-project-message": "9.5.11",
-        "drupal/core-recommended": "9.5.11",
+        "drupal/core-composer-scaffold": "^10",
+        "drupal/core-project-message": "^10",
+        "drupal/core-recommended": "^10",
         "drupal/ctools": "^3.7",
         "drupal/devel": "^5.1",
         "drupal/diff": "^1.0",
@@ -51,7 +50,7 @@
         "drupal/paragraphs_entity_embed": "2.x-dev@dev",
         "drupal/pathauto": "^1.8",
         "drupal/redirect": "^1.6",
-        "drupal/remove_http_headers": "^1.0",
+        "drupal/remove_http_headers": "^2.0",
         "drupal/s3fs": "^3.0@alpha",
         "drupal/samlauth": "^3.9",
         "drupal/simplify_menu": "^3.1",
@@ -63,7 +62,8 @@
         "drupal/uswds_paragraph_components": "^2.2",
         "drupal/views_menu_children_filter": "^1.0@RC",
         "drupal/viewsreference": "^2.0@beta",
-        "drush/drush": "^10.3",
+        "drush/drush": "^12",
+        "mglaman/composer-drupal-lenient": "^1.0",
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
         "onelogin/php-saml": "^4",
@@ -85,7 +85,8 @@
             "drupal/core-project-message": true,
             "wikimedia/composer-merge-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "mglaman/composer-drupal-lenient": true
         }
     },
     "extra": {
@@ -132,18 +133,19 @@
                 "De-duplicate invoke paths in StaticCommand's exportPaths": "./patches/drupal/deduplicateTomeInvokePaths.patch"
             },
             "drupal/core": {
-                "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail.patch",
                 "Make BaseFieldOverride inherit internal property from the base field": "https://www.drupal.org/files/issues/2023-01-20/3274419-42.patch"
             },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
             },
-            "drupal/samlauth": {
-                "Force samlauth to use HTTPS no matter the Drupal configuration": "./patches/drupal/samlauthForceHttps.patch"
-            },
             "drupal/ckeditor_templates": {
                 "Make ckeditor_templates D10 ready": "https://www.drupal.org/files/issues/2023-08-22/ckeditor_templates_d10_3296778-23.patch"
             }
+        },
+        "drupal-lenient": {
+            "allowed-list": [
+                "drupal/ckeditor_templates"
+            ]
         }
     }
 }
