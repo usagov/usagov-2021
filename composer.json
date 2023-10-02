@@ -56,11 +56,10 @@
         "drupal/simplify_menu": "^3.1",
         "drupal/tome": "^1.6",
         "drupal/twig_tweak": "^3.1",
-        "drupal/upgrade_status": "^4.0",
         "drupal/uswds_base": "^2.4",
         "drupal/uswds_ckeditor_integration": "^2.0",
         "drupal/uswds_paragraph_components": "^2.2",
-        "drupal/views_menu_children_filter": "^1.0@RC",
+        "drupal/views_menu_children_filter": "^3.0@RC",
         "drupal/viewsreference": "^2.0@beta",
         "drush/drush": "^12",
         "mglaman/composer-drupal-lenient": "^1.0",
@@ -125,18 +124,12 @@
             ]
         },
         "patches": {
-            "drupal/mmf_core_fields": {
-                "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
-            },
             "drupal/tome": {
                 "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
                 "De-duplicate invoke paths in StaticCommand's exportPaths": "./patches/drupal/deduplicateTomeInvokePaths.patch"
             },
             "drupal/core": {
                 "Make BaseFieldOverride inherit internal property from the base field": "https://www.drupal.org/files/issues/2023-01-20/3274419-42.patch"
-            },
-            "drupal/views_menu_children_filter": {
-                "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
             },
             "drupal/ckeditor_templates": {
                 "Make ckeditor_templates D10 ready": "https://www.drupal.org/files/issues/2023-08-22/ckeditor_templates_d10_3296778-23.patch"
