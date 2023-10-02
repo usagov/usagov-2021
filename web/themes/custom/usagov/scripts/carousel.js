@@ -55,6 +55,7 @@ setUpNavButtonListeners();
 addAriaLabel();
 
 function addIndexAttributeToDots() {
+  "use strict";
   var dotsList = document.querySelectorAll(
     "#slides-list .slick-dots li button"
   );
@@ -64,6 +65,7 @@ function addIndexAttributeToDots() {
 }
 
 function setUpDotsListener() {
+  "use strict";
   var dotsForListeners = document.querySelectorAll(
     "#slides-list .slick-dots li button"
   );
@@ -73,6 +75,7 @@ function setUpDotsListener() {
 }
 
 function setUpNavButtonListeners() {
+  "use strict";
   var navForListeners = document.querySelectorAll(".slick-arrow");
   navForListeners.forEach((btn) => {
     btn.addEventListener("click", updateAriaText);
@@ -80,6 +83,7 @@ function setUpNavButtonListeners() {
 }
 
 function moveFocusToCurrent() {
+  "use strict";
   window.setTimeout(function () {
     var slideForFocus = document.querySelector(
       "#slides-list .slick-list .slick-track .slick-slide.slick-current .slide a"
@@ -89,6 +93,7 @@ function moveFocusToCurrent() {
 }
 
 function addAriaLabel() {
+  "use strict";
   var liveregion = document.createElement("div");
   liveregion.setAttribute("aria-live", "polite");
   liveregion.setAttribute("aria-atomic", "true");
@@ -99,6 +104,7 @@ function addAriaLabel() {
 $(".slides").on(
   "beforeChange",
   function (event, slick, currentSlide, nextSlide) {
+    "use strict";
     slideIndex = nextSlide + 1;
 
     var NextSlideDom=$(slick.$slides.get(nextSlide));
@@ -108,6 +114,7 @@ $(".slides").on(
 );
 
 function updateAriaText() {
+  "use strict";
   carouselSlides.querySelector(".liveregion").textContent =
     "Slide " + slideIndex + " of 6 " + slideTitle;
 }
