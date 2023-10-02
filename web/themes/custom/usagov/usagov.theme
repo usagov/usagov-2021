@@ -15,7 +15,7 @@ function usagov_preprocess_html(&$variables) {
   $variables['node'] = $node;
 
   // If the FAQ checkbox is checked, then parse the content to find questions and answers
-  if ($node && $node->hasField('field_faq_page') && $node->get('field_faq_page')[0]->value) {
+  if ($node?->hasField('field_faq_page') && $node->get('field_faq_page')[0]?->value) {
     $variables['faq'] = generate_faq($node);
   }
 }
@@ -30,7 +30,7 @@ function generate_faq(&$node) {
   // Set up a DOMDocument with the node's body content
   $node_body = $node->get('body')[0]->value;
   $dom = new DOMDocument();
-  libxml_use_internal_errors(true);
+  libxml_use_internal_errors(TRUE);
   $dom->loadHTML($node_body);
   libxml_clear_errors();
 
@@ -136,7 +136,8 @@ function generate_faq(&$node) {
 function faq_process_components(&$dom) {
   // Iterate through embedded paragraphs
   $embeddedParagraphElements = $dom->getElementsByTagName('drupal-paragraph');
-  foreach ($embeddedParagraphElements as $element) {
+  for ($n=$embeddedParagraphElements->length-1;$n>=0;--$n) { // Looping backwards allows for removing elements along the way without losing track of our position
+    $element = $embeddedParagraphElements->item($n);
     // Get the component
     $uuid = $element->getAttribute('data-paragraph-id');
     $embedded_paragraph = \Drupal::service('entity.repository')->loadEntityByUuid('embedded_paragraphs', $uuid);
@@ -172,27 +173,27 @@ function faq_process_components(&$dom) {
           }
         }
       }
-      // Remove paragraph element
-      $element->parentNode->removeChild($element);
     }
     elseif ($componentType == "uswds_alert" && $component->get('field_alert_status')[0]->value == NULL) {
       // $component is a grey alert
 
-      // Create a <p> element with the alert's body content
+      // Insert a <p> element with the alert's body content
       $alertBody = $component->get('field_alert_body')[0]->value;
       $alertElement = $dom->createElement('p');
       $alertElement->textContent = $alertBody;
-
-      replace_component_reference_with_content($element, $alertElement);
+      $element->parentNode->insertBefore($alertElement, $element);
     }
     elseif ($componentType == "uswds_process_list") {
       $simplifiedList = faq_simplify_list($dom, $component, "ol", 'field_process_items', 'field_text');
-      replace_component_reference_with_content($element, $simplifiedList);
+      $element->parentNode->insertBefore($simplifiedList, $element);
     }
     elseif ($componentType == "uswds_icon_list") {
       $simplifiedList = faq_simplify_list($dom, $component, "ul", 'field_uswds_icon_list_item', 'field_text_plain_long');
-      replace_component_reference_with_content($element, $simplifiedList);
+      $element->parentNode->insertBefore($simplifiedList, $element);
     }
+
+    // Remove this paragraph element
+    $element->parentNode->removeChild($element);
   }
 }
 
@@ -245,17 +246,6 @@ function faq_answer_inner_html(&$answer) {
 
   // Remove 6 characters ("<body>") from the beginning and 7 characters ("</body>") from the end
   return substr($answer, 6, -7);
-}
-
-/**
- * replace_component_reference_with_content takes a DOM Elements which must be part of the same DOMDocument
- * and replaces the reference with the content
- */
-function replace_component_reference_with_content(&$reference, &$content) {
-  // Append the content to the current answer
-  $reference->parentNode->insertBefore($content, $reference);
-  // Remove paragraph element
-  $reference->parentNode->removeChild($reference);
 }
 
 /**
