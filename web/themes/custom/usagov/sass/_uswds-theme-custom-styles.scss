@@ -1002,3 +1002,25 @@ p, a, .usa-label, .usa-radio__label {
 div div.field--name-field-offices-near-you{
   display: inline;
 }
+
+@media (min-width: 64em){
+  .usa-header--extended .usa-navbar {
+    overflow: inherit;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+
+  .usa-header--extended .usa-nav__secondary, .usa-header--extended .usa-nav__secondary:lang(es) {
+    flex-direction: row;
+    align-items: flex-end;
+    align-self: center;
+    bottom: 0px;
+    /* width: 32rem; */
+    position: relative;
+    margin-top: 0rem;
+    min-width: auto;
+    right: 0px;
+  }
+}
