@@ -41,46 +41,59 @@ if [ x$1 = x"--dryrun" ]; then
   shift
 fi
 
-SPACE=$1
-if [ -z $SPACE ]; then
+function show_usage() {
   echo "Usage:"
   echo "$0 [--dryrun] <env> [--partial <eg. USAGOV-9999> | --full <eg. USAGOV-9999.dev.1111.post-deploy.2020010101] [--download]"
-  echo ""
+  echo
   echo "--dryrun MUST be the first argument, or it WILL NOT BE ACKNOWLEDGED"
+  echo
   echo "--partial <string> - partial match (eg. USAGOV-9999 will match all snapshots for ticket USAGOV-9999)"
+  echo " OR "
   echo "--full <string>    - full match    (string must match the full snapshot tag)"
+  echo
+  echo "Specify --partial OR --full - specifying none or both is invalid"
+  echo
   echo "--download will download a copy of the snapshot(s) before deleting them"
   exit 1
+}
+
+SPACE=$1
+if [ -z $SPACE ]; then
+  show_usage
 fi
 
 SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
 shift
 
-removeTag=""
-removeTicket=""
 download=""
 match=""
 rematch=""
+matchtype=""
 
 while [ 0 -eq 0 ]; do
 
-  matchtype=$1
+  arg=$1
 
-  if [ -z "$matchtype" ]; then
+  if [ -z "$arg" ]; then
     break
   fi
   shift
 
-  grepCommand=""
-
-  case "$matchtype" in
+  case "$arg" in
 
       "--partial")
         match=$1
         if [ -n "$match" ]; then
-          if [ $match = "--download" ]; then
+          if [ "$match" == "--download" ]; then
+            download=$match
             match=""
+          else
+            if [ -n "$matchtype" ]; then
+              show_usage
+            fi
+            matchtype='partial'
+            rematch=""
           fi
           shift
         fi
@@ -88,11 +101,16 @@ while [ 0 -eq 0 ]; do
 
       "--full")
         match=$1
-        if [ -n "$match" ]; then
-          if [ $match = "--download" ]; then
+	      if [ -n "$match" ]; then
+          if [ "$match" == "--download" ]; then
+            download=$match
             match=""
           else
-            rematch="^${match//./\\\.}$"
+            if [ -n "$matchtype" ]; then
+              show_usage
+            fi
+            rematch="^${match//./\\.}$"
+            matchtype="full"
           fi
           shift
         fi
@@ -106,14 +124,7 @@ while [ 0 -eq 0 ]; do
 done
 
 if [ -z "$match" ]; then
-  echo "Usage:"
-  echo "$0 [--dryrun] <env> [--partial <eg. USAGOV-9999> | --full <eg. USAGOV-9999.dev.1111.post-deploy.2020010101] [--download]"
-  echo ""
-  echo "--dryrun MUST be the first argument, or it WILL NOT BE ACKNOWLEDGED"
-  echo "--partial <string> - partial match (eg. USAGOV-9999 will match all snapshots for ticket USAGOV-9999)"
-  echo "--full <string>    - full match    (string must match the full snapshot tag)"
-  echo "--download will download a copy of the snapshot(s) before deleting them"
-  exit 1
+  show_usage
 fi
 
 basename "$0"
@@ -124,32 +135,32 @@ echo "Regex Match:   $rematch"
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
+export db_available_tags=$(aws s3 ls s3://$S3_BUCKET/db-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g' | sed 's/\.sql\.gz//g')
 export site_available_tags=$(aws s3 ls s3://$S3_BUCKET/web-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
 export public_available_tags=$(aws s3 ls s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
-export db_available_tags=$(aws s3 ls s3://$S3_BUCKET/db-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g' | sed 's/\.sql\.gz//g')
 
 if [ -n "$rematch" ]; then
   for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
-    $echo $(dirname $0)/db-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $match $download
   done
 
   for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
-    $echo $(dirname $0)/site-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $match $download
   done
 
   for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch); do
-    $echo $(dirname $0)/public-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $match $download
   done
 else
   for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
-    $echo $(dirname $0)/db-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $match $download
   done
 
   for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
-    $echo $(dirname $0)/site-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $match $download
   done
 
   for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep $match); do
-    $echo $(dirname $0)/public-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $match $download
   done
 fi
