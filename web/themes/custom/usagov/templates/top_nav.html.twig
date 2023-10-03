@@ -5,28 +5,29 @@
 		</em>
 	</div>
 	<button class="usa-menu-btn">Menu</button>
+	<div class="usa-nav__secondary">
+		<span class="usa-nav__secondary-links">
+			<span id="top-phone" class="usa-nav__secondary-item">
+				<a href="/phone" style="white-space: nowrap;">Call us at 1-844-USAGOV1</a>
+			</span>
+		</span>
+
+		<form class="usa-search usa-search--small" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
+			<label id="top-srch" class="usa-sr-only" for="search-field-small">Search</label>
+			<input id="affiliate" name="affiliate" type="hidden" value="usagov_all_gov">
+			<input id="search-field-small" class="usa-input text usagov-search-autocomplete ui-autocomplete-input" type="search" name="query" placeholder="Search all government" onfocus="this.placeholder = ''" autocomplete="off" aria-autocomplete="list" aria-haspopup="true">
+			<button class="usa-button" type="submit">
+				<img src="/themes/custom/usagov/images/search--dark.svg" class="usa-search__submit-icon" alt="Search">
+			</button>
+		</form>
+	</div>
 </div>
 <nav aria-label="Primary navigation" class="usa-nav">
 	<div class="usa-nav__inner">
 		<button class="usa-nav__close">
 			<img src="/themes/custom/usagov/assets/img/usa-icons/close.svg" role="img" alt="Close"/>
 		</button>
-		<div class="usa-nav__secondary">
-			<span class="usa-nav__secondary-links">
-				<span id="top-phone" class="usa-nav__secondary-item">
-					<a href="/phone">Call us at 1-844-USAGOV1</a>
-				</span>
-			</span>
 
-			<form class="usa-search usa-search--small" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
-				<label id="top-srch" class="usa-sr-only" for="search-field-small">Search</label>
-				<input id="affiliate" name="affiliate" type="hidden" value="usagov_all_gov">
-				<input id="search-field-small" class="usa-input text usagov-search-autocomplete ui-autocomplete-input" type="search" name="query" placeholder="Search all government" onfocus="this.placeholder = ''" autocomplete="off" aria-autocomplete="list" aria-haspopup="true">
-				<button class="usa-button" type="submit">
-					<img src="/themes/custom/usagov/images/search--dark.svg" class="usa-search__submit-icon" alt="Search">
-				</button>
-			</form>
-		</div>
 		{{ drupal_menu('top-navigation') }}
 	</div>
 </nav>
