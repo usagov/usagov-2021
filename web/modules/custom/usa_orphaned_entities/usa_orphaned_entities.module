@@ -100,6 +100,8 @@ function usa_orphaned_entities_get_reference_data($deleting_entity) {
 
   $reference_data = [];
   $deleted_id = $deleting_entity->id();
+  $deleted_entity_type = $deleting_entity->getEntityTypeId();
+
   $entity_references = $entityTypeManager
     ->getStorage('field_storage_config')
     ->loadByProperties([
@@ -112,6 +114,9 @@ function usa_orphaned_entities_get_reference_data($deleting_entity) {
     foreach ($bundles as $bundle) {
       $reference_field = $entity_reference->getName();
       $entity_type = $entity_reference->getTargetEntityTypeId();
+      if ($entity_type != $deleted_entity_type) {
+        continue;
+      }
 
       $query = $entityTypeManager
         ->getStorage("$entity_type")
