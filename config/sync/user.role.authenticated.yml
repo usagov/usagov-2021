@@ -6,10 +6,10 @@ dependencies:
     - filter.format.html
     - filter.format.uswds
   module:
-    - file
     - filter
     - media
     - paragraphs_entity_embed
+    - samlauth
     - system
 _core:
   default_config_hash: dJ0L2DNSj5q6XVZAGsuVDpJTh5UeYkIPwKrUOOpr8YI
@@ -19,8 +19,8 @@ weight: 1
 is_admin: false
 permissions:
   - 'access content'
-  - 'delete own files'
   - 'use text format html'
   - 'use text format uswds'
   - 'view media'
   - 'view paragraphs entity embed'
+  - 'view sp metadata'

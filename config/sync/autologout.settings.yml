@@ -21,5 +21,3 @@ disable_buttons: false
 yes_button: ''
 no_button: ''
 whitelisted_ip_addresses: ''
-enabled: true
-modal_width: 450

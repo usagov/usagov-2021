@@ -10,7 +10,7 @@ field_name: field_custom_twig_content
 entity_type: node
 bundle: basic_page
 label: 'Custom Twig Content'
-description: "Enable custom content from a twig file named for this page's path alias."
+description: 'Enable custom content from a twig file named for this page''s path alias.'
 required: false
 translatable: false
 default_value:

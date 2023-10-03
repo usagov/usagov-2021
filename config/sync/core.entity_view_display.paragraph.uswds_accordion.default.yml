@@ -4,9 +4,6 @@ status: true
 dependencies:
   config:
     - field.field.paragraph.uswds_accordion.field_accordion_section
-    - field.field.paragraph.uswds_accordion.field_bordered
-    - field.field.paragraph.uswds_accordion.field_default_open
-    - field.field.paragraph.uswds_accordion.field_multiselect
     - paragraphs.paragraphs_type.uswds_accordion
   module:
     - entity_reference_revisions
@@ -26,7 +23,4 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
-hidden:
-  field_bordered: true
-  field_default_open: true
-  field_multiselect: true
+hidden: {  }

@@ -6,7 +6,11 @@ dependencies:
     - field.storage.node.field_for_contact_center_only
     - node.type.directory_record
   module:
+    - allowed_formats
     - text
+third_party_settings:
+  allowed_formats:
+    allowed_formats: {  }
 id: node.directory_record.field_for_contact_center_only
 field_name: field_for_contact_center_only
 entity_type: node
@@ -17,6 +21,5 @@ required: false
 translatable: true
 default_value: {  }
 default_value_callback: ''
-settings:
-  allowed_formats: {  }
+settings: {  }
 field_type: text_long
