@@ -5,7 +5,6 @@ dependencies:
   config:
     - media.type.audio
     - media.type.file
-    - node.type.agency_synonym
     - node.type.basic_page
     - node.type.directory_record
     - node.type.state_directory_record
@@ -15,6 +14,7 @@ dependencies:
   module:
     - content_moderation
     - content_translation
+    - file
     - media
     - node
     - paragraphs
@@ -37,7 +37,6 @@ permissions:
   - 'administer nodes'
   - 'administer redirect settings'
   - 'administer redirects'
-  - 'create agency_synonym content'
   - 'create audio media'
   - 'create basic_page content'
   - 'create content translations'
@@ -47,14 +46,13 @@ permissions:
   - 'create url aliases'
   - 'create wizard content'
   - 'create wizard_step content'
-  - 'delete any agency_synonym content'
   - 'delete own basic_page content'
   - 'delete own directory_record content'
+  - 'delete own files'
   - 'delete own state_directory_record content'
   - 'delete own wizard content'
   - 'delete own wizard_step content'
   - 'delete paragraphs entity embed'
-  - 'edit any agency_synonym content'
   - 'edit any basic_page content'
   - 'edit any directory_record content'
   - 'edit any state_directory_record content'
@@ -66,7 +64,6 @@ permissions:
   - 'edit own wizard content'
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
-  - 'translate agency_synonym node'
   - 'translate basic_page node'
   - 'translate directory_record node'
   - 'translate editable entities'
@@ -74,7 +71,6 @@ permissions:
   - 'update content translations'
   - 'use basic_workflow transition create_new_draft'
   - 'use basic_workflow transition move_to_review'
-  - 'view agency_synonym revisions'
   - 'view all revisions'
   - 'view any unpublished content'
   - 'view basic_page revisions'

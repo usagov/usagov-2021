@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.paragraph.uswds_modal.field_button_text
+    - field.field.paragraph.uswds_modal.field_display_as_button
     - field.field.paragraph.uswds_modal.field_force_action
     - field.field.paragraph.uswds_modal.field_large_modal
     - field.field.paragraph.uswds_modal.field_modal_body
@@ -77,4 +78,5 @@ content:
     third_party_settings: {  }
     weight: 4
     region: content
-hidden: {  }
+hidden:
+  field_display_as_button: true

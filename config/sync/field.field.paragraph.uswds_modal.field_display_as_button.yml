@@ -1,0 +1,25 @@
+uuid: 9282cbf0-c9f1-457f-982a-a6b09f9a895c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_display_as_button
+    - paragraphs.paragraphs_type.uswds_modal
+_core:
+  default_config_hash: 3a_FJj_VKplYAvvlECmRDzVtR2Jl7PxXRDpgkNVRSbU
+id: paragraph.uswds_modal.field_display_as_button
+field_name: field_display_as_button
+entity_type: paragraph
+bundle: uswds_modal
+label: 'Display as Button'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean
