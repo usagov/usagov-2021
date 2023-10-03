@@ -1,228 +1,119 @@
-jQuery(document).ready(function ($) {
-  "use strict";
-  var previousButton, nextButton;
-  var slidesContainer, slides, slideDots;
-  var leftMostSlideIndex = 0;
-  previousButton = document.querySelector(".previous");
-  nextButton = document.querySelector(".next");
-  slidesContainer = document.querySelector(".slides");
-  slides = slidesContainer.querySelectorAll(".slide");
-  let slideForWidth = slidesContainer.querySelector(".slide");
-  let slidesForFocus = slidesContainer.querySelectorAll(".slide a");
-  let carouselHeaders = document.querySelectorAll(".carouselHeaders");
-  makeDots();
-  slideDots = document.querySelectorAll(".navigation li div");
-
-  // Set up the slide dot behaviors
-  slideDots.forEach(function (dot, index) {
-    dot.addEventListener("click", function (e) {
-      goToSlide(index);
-    });
-  });
-  // Set up previous/next button behaviors
-  previousButton.addEventListener("click", previousSlide);
-  nextButton.addEventListener("click", nextSlide);
-
-  // Ensure that all non-visible slides are impossible to reach.
-  hideNonVisibleSlides();
-
-  var currentSlideIndex = 0;
-  let indexInSS;
-  if ($("html").attr("lang") === "es") {
-    indexInSS = sessionStorage.getItem("storedCarouselIndexSpanish");
-  }
-  else {
-    indexInSS = sessionStorage.getItem("storedCarouselIndexEnglish");
-  }
-  if (indexInSS != null) {
-    currentSlideIndex = indexInSS;
-    goToSlide(currentSlideIndex, {"setFocus": false});
-  }
- else {
-    previousButton.style.visibility = "hidden";
-  }
-
-  if (slideDots.length > 0) {
-    slideDots[currentSlideIndex].setAttribute("aria-current", true);
-  }
-
-  // For Pagination
-  function makeDots() {
-    var numSlides = slides.length;
-    var dots = document.getElementsByClassName("navigation")[0];
-    for (var i = 0; i < numSlides; i++) {
-      var li = document.createElement("li");
-      var pageNum = i + 1;
-      var title = carouselHeaders[i].textContent.trim();
-      var titleWoQuotes = title.replace(/['"]+/g, '');
-      var label = `Card ${pageNum} of ${numSlides}: ${titleWoQuotes}`;
-      li.innerHTML = '<div class="carousel__navigation_button"> <svg class="carousel__navigation_dot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"  aria-label="'+ label + '"> <circle cx="50%" cy="48%" r="25" /> </svg> </div>';
-      dots.appendChild(li);
-    }
-  }
-
-  // Go to previous slide
-  function previousSlide() {
-    if (leftMostSlideIndex > 0) {
-      goToSlide(leftMostSlideIndex - 1);
-    }
- else {
-      goToSlide(slides.length - 1);
-    }
-
-  }
-
-  // Go to next slide
-  function nextSlide() {
-    if (leftMostSlideIndex < slides.length - 1) {
-      goToSlide(leftMostSlideIndex + 1);
-    }
- else {
-      goToSlide(0);
-    }
-  }
-
-  // Go to a specific slide
-  function goToSlide(nextLeftMostSlideIndex) {
-    if ($("html").attr("lang") === "es") {
-      sessionStorage.setItem("storedCarouselIndexSpanish", nextLeftMostSlideIndex);
-    }
-    else {
-      sessionStorage.setItem("storedCarouselIndexEnglish", nextLeftMostSlideIndex);
-    }
-
-    // Smoothly scroll to the requested slide
-    if (window.innerWidth >= 1024) {
-      if (nextLeftMostSlideIndex <= 3) {
-        $(slidesContainer).animate(
-          {
-            "scrollLeft":
-            (slideForWidth.offsetWidth) * nextLeftMostSlideIndex + ((nextLeftMostSlideIndex)* 32) - 9,
-          },
-          {
-            "duration": 200,
-          }
-        );
-      }
-    }
- else if (window.innerWidth > 639 && window.innerWidth < 1024) {
-        $(slidesContainer).animate(
-        {
-          "scrollLeft":
-            ((slideForWidth.offsetWidth) * nextLeftMostSlideIndex) + (2 * nextLeftMostSlideIndex * 10) -10,
-        },
-        {
-          "duration": 200,
-        }
-      );
-    }
- else {
-  console.log(`${slideForWidth.offsetWidth}`);
-  console.log(`Sliding to card ${nextLeftMostSlideIndex} at ${(slideForWidth.offsetWidth * nextLeftMostSlideIndex) + ((nextLeftMostSlideIndex - 1) * 4) +2}`);
-      $(slidesContainer).animate(
-        {
-          "scrollLeft": (slideForWidth.offsetWidth * nextLeftMostSlideIndex) + ((nextLeftMostSlideIndex - 1) * 4) +2,
-        },
-        {
-          "duration": 200,
-        }
-      );
-    }
-
-    // Unset aria-current attribute from any slide dots that have it
-    slideDots.forEach(function (dot) {
-      dot.removeAttribute("aria-current");
-    });
-
-    // Set aria-current attribute on the correct slide dot
-    slideDots[nextLeftMostSlideIndex].setAttribute("aria-current", true);
-
-    // Update the record of the left-most slide
-    leftMostSlideIndex = Number(nextLeftMostSlideIndex);
-
-    // Update each slide so that the ones that are now off-screen are fully hidden.
-    hideNonVisibleSlides();
-
-    // check if the left or right arrow should be hidden
-    if (leftMostSlideIndex === 0) {
-      previousButton.style.visibility = "hidden";
-      nextButton.style.visibility = "visible";
-    }
- else if (leftMostSlideIndex === slides.length - 1) {
-      previousButton.style.visibility = "visible";
-      nextButton.style.visibility = "hidden";
-    }
- else {
-      previousButton.style.visibility = "visible";
-      nextButton.style.visibility = "visible";
-    }
-
-    // set focus on current slide
-    if (arguments[1] && arguments[1].setFocus !== false) {
-      slidesForFocus[nextLeftMostSlideIndex].focus();
-    }
-  }
-
-  // Fully hide non-visible slides by adding aria-hidden="true" and tabindex="-1" when they go out of view
-
-  function hideNonVisibleSlides() {
-    // Start by hiding all the slides and their content
-    slides.forEach(function (slide) {
-      slide.setAttribute("aria-hidden", true);
-
-      slide
-        .querySelectorAll('a, button, select, input, textarea, [tabindex="0"]')
-        .forEach(function (focusableElement) {
-          focusableElement.setAttribute("tabindex", -1);
-        });
-    });
-
-    var offset = 0;
-    var rightLimit = 0;
-    var numItems = 6;
-    var leftLimit = 0;
-
-    if (window.innerWidth >= 1024) {
-      offset = 3;
-      rightLimit = 3;
-      leftLimit = 3;
-    }
- else if (window.innerWidth > 480 && window.innerWidth < 1024) {
-      offset = 2;
-      rightLimit = 2;
-      leftLimit = 4;
-    }
- else {
-      offset = 1;
-      rightLimit = 1;
-      leftLimit = 5;
-    }
-
-    if (leftMostSlideIndex < rightLimit) {
-      for (var i = leftMostSlideIndex; i < leftMostSlideIndex + offset; i++) {
-        slides[i].removeAttribute("aria-hidden");
-
-        slides[i]
-          .querySelectorAll(
-            'a, button, select, input, textarea, [tabindex="0"]'
-          )
-          .forEach(function (focusableElement) {
-            focusableElement.removeAttribute("tabindex");
-          });
-      }
-    }
- else {
-      for (var j = leftLimit; j < numItems; j++) {
-        slides[j].removeAttribute("aria-hidden");
-
-        slides[j]
-          .querySelectorAll(
-            'a, button, select, input, textarea, [tabindex="0"]'
-          )
-          .forEach(function (focusableElement) {
-            focusableElement.removeAttribute("tabindex");
-          });
-      }
-    }
-  }
+$(".slides").slick({
+  "dots": true,
+  "infinite": true,
+  "speed": 300,
+  "slidesToShow": 3,
+  "slidesToScroll": 1,
+  "swipeToSlide": true,
+  "touchMove": true,
+  "arrowsPlacement": "split",
+  "prevArrow":
+    '<button class="previous slick-prev slick-arrow">' +
+    '  <span class="sr-only">Previous slides</span>' +
+    '  <img src="/themes/custom/usagov/images/Reimagined_Carousel_Left_Arrow.svg" alt="Go to previous card"/>' +
+    "</button>",
+  "nextArrow":
+    '<button class="next slick-next slick-arrow">' +
+    '  <span class="sr-only">Next slides</span>' +
+    '  <img src="/themes/custom/usagov/images/Reimagined_Carousel_Right_Arrow.svg" alt="Go to next card"/>' +
+    "</button>",
+  "responsive": [
+    {
+      "breakpoint": 2048,
+      "settings": {
+        "slidesToShow": 3,
+        "slidesToScroll": 1,
+        "infinite": true,
+        "dots": true,
+      },
+    },
+    {
+      "breakpoint": 1024,
+      "settings": {
+        "slidesToShow": 2,
+        "slidesToScroll": 1,
+      },
+    },
+    {
+      "breakpoint": 639,
+      "settings": {
+        "slidesToShow": 1,
+        "slidesToScroll": 1,
+      },
+    },
+  ],
 });
+
+var carouselSlides = document.querySelector("#slides-list");
+var slideIndex;
+var slideTitle;
+
+addIndexAttributeToDots();
+setUpDotsListener();
+setUpNavButtonListeners();
+addAriaLabel();
+
+function addIndexAttributeToDots() {
+  "use strict";
+  var dotsList = document.querySelectorAll(
+    "#slides-list .slick-dots li button"
+  );
+  dotsList.forEach((btn, i) => {
+    btn.setAttribute("dots-index", i);
+  });
+}
+
+function setUpDotsListener() {
+  "use strict";
+  var dotsForListeners = document.querySelectorAll(
+    "#slides-list .slick-dots li button"
+  );
+  dotsForListeners.forEach((btn) => {
+    btn.addEventListener("click", moveFocusToCurrent);
+  });
+}
+
+function setUpNavButtonListeners() {
+  "use strict";
+  var navForListeners = document.querySelectorAll(".slick-arrow");
+  navForListeners.forEach((btn) => {
+    btn.addEventListener("click", updateAriaText);
+  });
+}
+
+function moveFocusToCurrent() {
+  "use strict";
+  window.setTimeout(function () {
+    var slideForFocus = document.querySelector(
+      "#slides-list .slick-list .slick-track .slick-slide.slick-current .slide a"
+    );
+    slideForFocus.focus({"focusVisible": true});
+  }, 200);
+}
+
+function addAriaLabel() {
+  "use strict";
+  var liveregion = document.createElement("div");
+  liveregion.setAttribute("aria-live", "polite");
+  liveregion.setAttribute("aria-atomic", "true");
+  liveregion.setAttribute("class", "liveregion visuallyhidden");
+  carouselSlides.appendChild(liveregion);
+}
+
+$(".slides").on(
+  "beforeChange",
+  function (event, slick, currentSlide, nextSlide) {
+    "use strict";
+    slideIndex = nextSlide + 1;
+
+    var NextSlideDom=$(slick.$slides.get(nextSlide));
+
+    slideTitle = NextSlideDom.find('h3')[0].textContent || NextSlideDom.find('h3')[0].innerText;
+  }
+);
+
+function updateAriaText() {
+  "use strict";
+  carouselSlides.querySelector(".liveregion").textContent =
+    "Slide " + slideIndex + " of 6 " + slideTitle;
+}
