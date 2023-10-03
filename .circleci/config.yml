@@ -543,7 +543,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - USAGOV-99-Manage-Sitemap.XML
                 - stage
                 - prod
       - build-and-push-container:
@@ -552,7 +552,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - USAGOV-99-Manage-Sitemap.XML
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -562,14 +562,14 @@ workflows:
           filters:
             branches:
               only:
-              - dev
+              - USAGOV-99-Manage-Sitemap.XML
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
               only:
-              - dev
+              - USAGOV-99-Manage-Sitemap.XML
       - approve-stage-deployment:
           type: approval
           requires:
