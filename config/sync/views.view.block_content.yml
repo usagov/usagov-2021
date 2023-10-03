@@ -8,7 +8,7 @@ dependencies:
 _core:
   default_config_hash: P7mydegwqGbeXpLHAlS1BTJBFfvX8tQ62dIECLLklb8
 id: block_content
-label: 'Content blocks'
+label: 'Custom block library'
 module: views
 description: 'Find and manage custom blocks.'
 tag: default
@@ -209,15 +209,6 @@ display:
             date_format: short
             custom_date_format: ''
             timezone: ''
-            tooltip:
-              date_format: ''
-              custom_date_format: ''
-            time_diff:
-              enabled: false
-              future_format: '@interval hence'
-              past_format: '@interval ago'
-              granularity: 2
-              refresh: 60
         operations:
           id: operations
           table: block_content
@@ -300,7 +291,7 @@ display:
       access:
         type: perm
         options:
-          perm: 'access block library'
+          perm: 'administer blocks'
       cache:
         type: tag
         options: {  }
@@ -532,15 +523,14 @@ display:
     position: 1
     display_options:
       display_extenders: {  }
-      path: admin/content/block
+      path: admin/structure/block/block-content
       menu:
         type: tab
-        title: Blocks
-        description: 'Create and edit block content.'
+        title: 'Custom block library'
+        description: ''
         weight: 0
-        expanded: false
         menu_name: admin
-        parent: system.admin_content
+        parent: block.admin_display
         context: '0'
     cache_metadata:
       max-age: -1

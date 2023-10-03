@@ -4,10 +4,14 @@ status: true
 dependencies:
   config:
     - field.storage.node.field_header_html
-    - filter.format.html
     - node.type.wizard_step
   module:
+    - allowed_formats
     - text
+third_party_settings:
+  allowed_formats:
+    allowed_formats:
+      - html
 id: node.wizard_step.field_header_html
 field_name: field_header_html
 entity_type: node
@@ -18,7 +22,5 @@ required: false
 translatable: true
 default_value: {  }
 default_value_callback: ''
-settings:
-  allowed_formats:
-    - html
+settings: {  }
 field_type: text_long

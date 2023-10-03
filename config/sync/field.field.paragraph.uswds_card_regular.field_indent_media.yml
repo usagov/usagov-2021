@@ -12,7 +12,7 @@ field_name: field_indent_media
 entity_type: paragraph
 bundle: uswds_card_regular
 label: 'Indent Media?'
-description: "Indents the media element so it doesn't extend to the edge of the card."
+description: 'Indents the media element so it doesn''t extend to the edge of the card.'
 required: false
 translatable: false
 default_value:
