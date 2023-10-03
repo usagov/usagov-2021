@@ -82,9 +82,16 @@ WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' 
 echo "Replacing references to CMS hostname ... "
 find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" -o -name "*.xml" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|'"$WWW_HOST"'|ig' {} \;
 
-# add / at the end of the end. Add lines here
-# $WWW_HOST <- hostname
-
+# Add a "/" to the end of "localhost/es" in the sitemap.
+SITEMAP_FILE="$RENDER_DIR/sitemap.xml"
+# Check if sitemap exists
+if [ -f "$SITEMAP_FILE" ]; then
+  echo "Updating sitemap ... "
+  sed -i -e "s|/es\"/>|/es/\"/>|g" -e "s|/es</loc>|/es/</loc>|g" "$SITEMAP_FILE";
+else
+  # Sitemap doesn't exists.
+  echo "$SITEMAP_FILE does not exist."
+fi
 
 # duplicate the logic used by the egress proxy to find bucket names
 n=$(echo -E "$VCAP_SERVICES" | jq -r '.s3 | length')
