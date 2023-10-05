@@ -1,4 +1,4 @@
-orphaned_entities:
+usa_orphaned_entities:
   agency_synonym_field_agency_reference: delete
   basic_page_field_homepage_banner: clear
   basic_page_field_language_toggle: clear

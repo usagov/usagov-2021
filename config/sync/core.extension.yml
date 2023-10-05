@@ -12,7 +12,6 @@ module:
   breakpoint: 0
   ckeditor: 0
   ckeditor5: 0
-  ckeditor5_embedded_content: 0
   ckeditor_templates: 0
   ckeditor_templates_ui: 0
   conditional_fields: 0
@@ -96,10 +95,6 @@ module:
   user: 0
   uswds_ckeditor_integration: 0
   uswds_paragraph_components: 0
-  uswds_paragraph_components_accordions: 0
-  uswds_paragraph_components_alerts: 0
-  uswds_paragraph_components_breakpoints: 0
-  uswds_paragraph_components_cards: 0
   views_menu_children_filter: 0
   views_ui: 0
   viewsreference: 0
