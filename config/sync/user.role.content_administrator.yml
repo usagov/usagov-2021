@@ -115,7 +115,6 @@ permissions:
   - 'edit own wizard content'
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
-  - 'overwrites the Content Editor permission restriction'
   - 'revert agency_synonym revisions'
   - 'revert all revisions'
   - 'revert basic_page revisions'
