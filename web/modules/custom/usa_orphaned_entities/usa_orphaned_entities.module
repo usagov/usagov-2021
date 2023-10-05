@@ -96,7 +96,7 @@ function usa_orphaned_entities_entity_predelete($entity) {
 
 function usa_orphaned_entities_get_reference_data($deleting_entity) {
   $entityTypeManager = \Drupal::service('entity_type.manager');
-  $config = \Drupal::config('orphaned_entities.settings');
+  $config = \Drupal::config('usa_orphaned_entities.settings');
 
   $reference_data = [];
   $deleted_id = $deleting_entity->id();

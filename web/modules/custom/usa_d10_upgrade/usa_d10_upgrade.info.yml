@@ -1,0 +1,4 @@
+name: 'USA Drupal 10 Upgrade'
+type: module
+description: 'Do stuff to help with the d10 upgrade'
+core_version_requirement: ^9 || ^10

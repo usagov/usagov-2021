@@ -22,7 +22,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
 
     $form['#attached']['library'][] = 'usa_orphaned_entities/orphaned';
     $form = parent::buildForm($form, $form_state);
-    $config = $this->config('orphaned_entities.settings');
+    $config = $this->config('usa_orphaned_entities.settings');
     $form['entity_reference'] = [];
 
     $entity_references = $entityTypeManager->getStorage('field_storage_config')->loadByProperties([
@@ -105,7 +105,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
         foreach ($bundles as $index => $bundle) {
           $reference_field = $entity_reference->getName();
           $config->set(
-              'orphaned_entities.' . $bundle . '_' . $reference_field, $form_state->getValue($bundle . '_' . $reference_field));
+              'usa_orphaned_entities.' . $bundle . '_' . $reference_field, $form_state->getValue($bundle . '_' . $reference_field));
         }
       }
     }
@@ -119,7 +119,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'orphaned_entities.settings',
+      'usa_orphaned_entities.settings',
     ];
   }
 

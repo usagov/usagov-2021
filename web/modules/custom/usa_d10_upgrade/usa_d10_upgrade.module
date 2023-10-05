@@ -1,0 +1,26 @@
+<?php
+
+function usa_d10_upgrade_update_2001() {
+  $modules_to_disable = [
+    'mmf_core_fields',
+  ];
+
+  $config_name = 'core.extension';
+
+  // Load the existing configuration.
+  $config = \Drupal::configFactory()->getEditable($config_name);
+
+  // Get the current list of enabled modules.
+  $enabled_modules = $config->get('module') ?? [];
+
+  // Disable the specified modules.
+  foreach ($modules_to_disable as $module) {
+    if (isset($enabled_modules[$module])) {
+      unset($enabled_modules[$module]);
+    }
+  }
+
+  // Update the configuration with the new list of enabled modules.
+  $config->set('module', $enabled_modules);
+  $config->save();
+}
