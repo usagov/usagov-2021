@@ -1,0 +1,22 @@
+uuid: d53a7ab2-4ac0-4c89-9a52-d8c2f05bd8ed
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: wizard_page
+label: 'Wizard page'
+type: 'canonical_entities:node'
+pattern: '[node:title]'
+selection_criteria:
+  8ed030a2-feeb-46e9-99ce-af1217ea188c:
+    id: node_type
+    negate: false
+    uuid: 8ed030a2-feeb-46e9-99ce-af1217ea188c
+    context_mapping:
+      node: node
+    bundles:
+      wizard: wizard
+selection_logic: and
+weight: -8
+relationships: {  }
