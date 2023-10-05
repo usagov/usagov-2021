@@ -31,7 +31,7 @@ function generate_faq(&$node) {
   $node_body = $node->get('body')[0]->value;
   $dom = new DOMDocument();
   libxml_use_internal_errors(TRUE);
-  $dom->loadHTML($node_body);
+  $dom->loadHTML('<?xml encoding="UTF-8">' . $node_body);
   libxml_clear_errors();
 
   // Make component content compatible with FAQ
@@ -41,7 +41,7 @@ function generate_faq(&$node) {
   $elements = $dom->documentElement->childNodes[0]->childNodes;
   // Setup the first answer
   $answer = new DOMDocument();
-  $answer->loadHTML("<html><body></body></html>");
+  $answer->loadHTML('<?xml encoding="UTF-8"><html><body></body></html>');
 
   // Count the number of H2s in the body content
   $numH2s = count($dom->getElementsByTagName('h2'));
@@ -69,7 +69,7 @@ function generate_faq(&$node) {
 
         // Set up the next answer
         $answer = new DOMDocument();
-        $answer->loadHTML("<html><body></body></html>");
+        $answer->loadHTML('<?xml encoding="UTF-8"><html><body></body></html>');
 
       }
       elseif ($element->nodeName == "#text") {
@@ -125,7 +125,6 @@ function generate_faq(&$node) {
       $faq[] = (object) ['question' => $question, 'answer' => $answer];
     }
   }
-  $variables["dom"] = $dom;
   return $faq;
 }
 
@@ -152,30 +151,30 @@ function faq_process_components(&$dom) {
       foreach ($component->get('field_accordion_section') as $accordionPanel) {
         // Get the accordion panel's node
         $accordionPanelTID = $accordionPanel->get('target_id')->getValue();
-        $accorionPanelNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accordionPanelTID);
+        $accordionPanelNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accordionPanelTID);
 
         // Get this panel's button text and add it to the dom as an h2
-        $accorionPanelButtonText = $accorionPanelNode->get('field_accordion_section_title')[0]->value;
-        $accorionHeading = $dom->createElement('h2');
-        $accorionHeading->textContent = $accorionPanelButtonText;
-        $element->parentNode->insertBefore($accorionHeading, $element);
+        $accordionPanelButtonText = $accordionPanelNode->get('field_accordion_section_title')[0]->value;
+        $accordionHeading = $dom->createElement('h2');
+        $accordionHeading->textContent = $accordionPanelButtonText;
+        $element->parentNode->insertBefore($accordionHeading, $element);
 
         // Get this panel's body content
-        $accorionPanelBodyNodeID = $accorionPanelNode->get('field_accordion_section_body')[0]->get('target_id')->getValue();
-        $accorionPanelBodyNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accorionPanelBodyNodeID);
+        $accordionPanelBodyNodeID = $accordionPanelNode->get('field_accordion_section_body')[0]->get('target_id')->getValue();
+        $accordionPanelBodyNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accordionPanelBodyNodeID);
 
         // append accordion body content
-        $accorionBody = new DOMDocument();
-        $accorionBody->loadHTML($accorionPanelBodyNode->get('field_text')[0]->value);
-        foreach ($accorionBody->documentElement->childNodes[0]->childNodes as $accorionBodyElement) {
-          $accorionBodyElement = $dom->importNode($accorionBodyElement, TRUE);
-          if ($accorionBodyElement) {
-            $element->parentNode->insertBefore($accorionBodyElement, $element);
+        $accordionBody = new DOMDocument();
+        $accordionBody->loadHTML('<?xml encoding="UTF-8">' . $accordionPanelBodyNode->get('field_text')[0]->value);
+        foreach ($accordionBody->documentElement->childNodes[0]->childNodes as $accordionBodyElement) {
+          $accordionBodyElement = $dom->importNode($accordionBodyElement, TRUE);
+          if ($accordionBodyElement) {
+            $element->parentNode->insertBefore($accordionBodyElement, $element);
           }
         }
       }
     }
-    elseif ($componentType == "uswds_alert" && $component->get('field_alert_status')[0]->value == NULL) {
+    elseif ($componentType == "uswds_alert" && $component?->get('field_alert_status')[0]?->value == NULL) {
       // $component is a grey alert
 
       // Insert a <p> element with the alert's body content
@@ -215,7 +214,7 @@ function faq_simplify_list(&$dom, &$component, $listType, $itemsFieldName, $body
 
     // Create a DOMDocument with the body content from this list item
     $processItemBody = new DOMDocument();
-    $processItemBody->loadHTML($processItemNode->get($bodyFieldName)[0]->value);
+    $processItemBody->loadHTML('<?xml encoding="UTF-8">' . $processItemNode->get($bodyFieldName)[0]->value);
 
     // Append each from this list item to the <li>
     foreach ($processItemBody->documentElement->childNodes[0]->childNodes as $processItemBodyElement) {
