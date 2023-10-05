@@ -18,73 +18,51 @@
         "composer/installers": "^1.9",
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
-        "drupal/admin_content_notification": "^3.8",
         "drupal/admin_toolbar": "3.x-dev",
         "drupal/allowed_formats": "^1.5",
         "drupal/autologout": "^1.3",
-        "drupal/autosave_form": "^1.2",
-        "drupal/bigmenu": "^2.0@RC",
-        "drupal/block_content_revision_ui": "^2.127",
-        "drupal/ckeditor_media_oembed_plugin": "^1.0",
-        "drupal/clientside_validation": "3.0.x-dev",
+        "drupal/ckeditor_templates": "^1.2",
+        "drupal/ckeditor_templates_ui": "^1.5",
+        "drupal/composer_deploy": "^1.7",
         "drupal/conditional_fields": "^4.0@alpha",
-        "drupal/console": "^1.9",
         "drupal/content_lock": "^2.2",
         "drupal/content_moderation_notifications": "^3.4",
         "drupal/core-composer-scaffold": "9.5.11",
         "drupal/core-project-message": "9.5.11",
         "drupal/core-recommended": "9.5.11",
         "drupal/ctools": "^3.7",
-        "drupal/devel": "^4.1",
-        "drupal/devel_entity_updates": "^3.0",
+        "drupal/devel": "^5.1",
         "drupal/diff": "^1.0",
         "drupal/entity_reference_revisions": "^1.9",
         "drupal/externalauth": "^2",
-        "drupal/faqfield": "^7.0",
+        "drupal/faqfield": "^7.1",
         "drupal/feeds": "^3.0@beta",
         "drupal/field_permissions": "^1.1",
         "drupal/image_style_warmer": "^1.1",
-        "drupal/jquery_ui_accordion": "^1.1",
+        "drupal/jquery_ui_accordion": "^2.0",
         "drupal/language_switcher_extended": "^1.0",
-        "drupal/linkit": "^6.0@beta",
         "drupal/log_stdout": "^1.3",
-        "drupal/mail_safety": "^1.2",
-        "drupal/mailsystem": "^4.3",
+        "drupal/mail_safety": "^2.0",
         "drupal/menu_block": "^1.7",
-        "drupal/menu_breadcrumb": "^1.16",
-        "drupal/message_notify": "^1.2",
-        "drupal/metatag": "^1.16",
-        "drupal/mmf_core_fields": "^2.0",
-        "drupal/module_filter": "^3.1",
+        "drupal/menu_breadcrumb": "^2.0@alpha",
         "drupal/new_relic_rpm": "^2.1",
         "drupal/node_menus": "^3.0@alpha",
-        "drupal/paragraphs_collapsible": "^1.2",
-        "drupal/paragraphs_entity_embed": "^2.0@alpha",
+        "drupal/paragraphs_entity_embed": "2.x-dev@dev",
         "drupal/pathauto": "^1.8",
         "drupal/redirect": "^1.6",
         "drupal/remove_http_headers": "^1.0",
         "drupal/s3fs": "^3.0@alpha",
-        "drupal/scanner": "^1.0@RC",
-        "drupal/scheduled_publish": "^3.9",
-        "drupal/scheduled_transitions": "^2.0",
-        "drupal/scheduler": "^1.3",
-        "drupal/schema_metatag": "^2.1",
-        "drupal/simplify_menu": "^2.1",
-        "drupal/siteimprove": "^1.10",
-        "drupal/smtp": "^1.0",
-        "drupal/stepbystep": "^2.0@beta",
-        "drupal/taxonomy_menu": "^3.4",
-        "drupal/term_reference_fancytree": "^2.0@RC",
-        "drupal/term_reference_tree": "^1.0",
+        "drupal/samlauth": "^3.9",
+        "drupal/simplify_menu": "^3.1",
         "drupal/tome": "^1.6",
         "drupal/twig_tweak": "^3.1",
         "drupal/uswds_base": "^2.4",
-        "drupal/uswds_ckeditor_integration": "^1.0@beta",
+        "drupal/uswds_ckeditor_integration": "^2.0",
         "drupal/uswds_paragraph_components": "^2.2",
-        "drupal/views_menu_children_filter": "^1.0@RC",
-        "drupal/webform": "^6.0",
-        "drupal/workbench_email": "^2.2",
+        "drupal/views_menu_children_filter": "^3.0@RC",
+        "drupal/viewsreference": "^2.0@beta",
         "drush/drush": "^10.3",
+        "mglaman/composer-drupal-lenient": "^1.0",
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
         "onelogin/php-saml": "^4",
@@ -146,26 +124,21 @@
             ]
         },
         "patches": {
-            "drupal/mmf_core_fields": {
-                "Issue #3198426: Working with Paragraphs": "https://git.drupalcode.org/project/mmf_core_fields/-/merge_requests/1.diff"
-            },
             "drupal/tome": {
                 "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
                 "De-duplicate invoke paths in StaticCommand's exportPaths": "./patches/drupal/deduplicateTomeInvokePaths.patch"
-                },
-            "drupal/paragraphs_entity_embed": {
-                "Paragraph Embed Preview Update": "https://www.drupal.org/files/issues/2022-05-27/paragraphs_entity_embed_csrf_token.patch"
             },
             "drupal/core": {
-                "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail.patch",
                 "Make BaseFieldOverride inherit internal property from the base field": "https://www.drupal.org/files/issues/2023-01-20/3274419-42.patch"
             },
-            "drupal/views_menu_children_filter": {
-                "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren.patch"
-            },
-            "drupal/uswds_ckeditor_integration": {
-                "Remove linting dependencies from USWDS CKEditor module that have security issues": "./patches/drupal/removeDependencies.patch"
+            "drupal/ckeditor_templates": {
+                "Make ckeditor_templates D10 ready": "https://www.drupal.org/files/issues/2023-08-22/ckeditor_templates_d10_3296778-23.patch"
             }
+        },
+        "drupal-lenient": {
+            "allowed-list": [
+                "drupal/ckeditor_templates"
+            ]
         }
     }
 }
