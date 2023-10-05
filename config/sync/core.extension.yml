@@ -12,6 +12,7 @@ module:
   breakpoint: 0
   ckeditor: 0
   ckeditor5: 0
+  ckeditor5_embedded_content: 0
   ckeditor_templates: 0
   ckeditor_templates_ui: 0
   composer_deploy: 0
