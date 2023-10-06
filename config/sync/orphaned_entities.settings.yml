@@ -1,0 +1,21 @@
+orphaned_entities:
+  agency_synonym_field_agency_reference: delete
+  basic_page_field_homepage_banner: clear
+  basic_page_field_language_toggle: clear
+  directory_record_field_language_toggle: clear
+  state_directory_record_field_language_toggle: clear
+  wizard_field_language_toggle: clear
+  basic_page_field_navigation_banner_image: clear
+  basic_page_field_page_type: clear
+  wizard_step_field_wizard_step: clear
+  wizard_field_wizard_step: clear
+  uswds_card_regular_field_card_image: clear
+  uswds_cards_flag_field_card_image: clear
+  uswds_icon_list_field_default_icon_color: clear
+  uswds_card_breakpoints_field_uswds_breakpoints: clear
+  uswds_3_column_breakpoints_field_uswds_breakpoints: clear
+  uswds_2_column_breakpoints_field_uswds_breakpoints: clear
+  uswds_card_group_regular_field_uswds_classes: clear
+  uswds_card_group_flag_field_uswds_classes: clear
+  uswds_icon_list_item_field_uswds_color: clear
+  uswds_icon_list_item_field_uswds_icon: clear
