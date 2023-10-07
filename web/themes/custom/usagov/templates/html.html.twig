@@ -138,6 +138,30 @@
     }
   </script>
 
+  {% if faq %}
+  {# Generate FAQ JSON #}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {% for item in faq %}
+        {
+          "@type": "Question",
+          "name": "{{ item.question }}",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": `{{ item.answer|raw }}`
+          }
+        }{% if not loop.last %},
+        {% endif %}
+        {% endfor %}
+
+      ]
+    }
+    </script>
+    {% endif %}
+
 </head>
 <body{{ attributes }}>
   <!-- Google Tag Manager (noscript) -->
