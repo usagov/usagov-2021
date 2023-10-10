@@ -35,7 +35,6 @@ function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_i
  * @inheritDoc
  */
 function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
-  $wfPermissions = Drupal::service('usa_workflow.permission.service')->wfUserPermission();
   $routes = [
     'entity.node.canonical',
     'entity.node.edit_form',
@@ -43,6 +42,7 @@ function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
   ];
 
   if (in_array($route_name, $routes)) {
+    $wfPermissions = Drupal::service('usa_workflow.permission.service')->wfUserPermission();
     if ($wfPermissions['usaDeleteOwnContent'] == FALSE) {
       unset($data['tabs'][0]['entity.node.delete_form']);
     }
