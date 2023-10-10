@@ -11,56 +11,43 @@ class UsaWorkflowPermissionChecker {
    *
    * @var bool
    */
-  private $usaapproveowncontent = FALSE;
+  private $usaApproveOwnContent = FALSE;
 
   /**
    * Delete own content permission.
    *
    * @var bool
    */
-  private $usaapdeleteowncontent = FALSE;
+  private $usaDeleteOwnContent = FALSE;
 
   /**
-   * WfUserpermission.
+   * WfUserPermission.
    *
    * @return array
    *   the value should be of type array
    */
-  public function wfUserpermission() {
+  public function wfUserPermission() {
+    $entityTypeManager = \Drupal::service('entity_type.manager');
+    $currentUser = \Drupal::currentUser();
+    $revisedUser = $entityTypeManager->getStorage('user')->load(\Drupal::routeMatch()->getParameter('node')->getRevisionUserId());
     $return = [];
-    // $reviseduser = '';
 
     // Check if the user have 'usa approve own content'
     // assign TRUE as value.
-    if (\Drupal::currentUser()->hasPermission('usa approve own content')) {
-      $this->usaapproveowncontent = TRUE;
+    if ($currentUser->hasPermission('usa approve own content')) {
+      $this->usaApproveOwnContent = TRUE;
     }
 
     // Check if the user have 'usa delete own content'
     // assign TRUE as value.
-    if (\Drupal::currentUser()->hasPermission('usa delete own content')) {
-      $this->usadeleteowncontent = TRUE;
+    if ($currentUser->hasPermission('usa delete own content')) {
+      $this->usaDeleteOwnContent = TRUE;
     }
 
     // Users and their roles from current node.
-    $currentUser = \Drupal::currentUser();
-    if (\Drupal::routeMatch()->getParameter('node')) {
-      $node = \Drupal::routeMatch()->getParameter('node');
-    }
-    if (isset($node)) {
-      if (($node !== NULL && !empty($node)) && get_class($node) == 'Drupal\node\Entity\Node') {
-        $reviseduser = \Drupal::entityTypeManager()->getStorage('user')->load(\Drupal::routeMatch()->getParameter('node')->getRevisionUserId());
-        // Current logged in user.
-        $return['currentUser']['id'] = $currentUser->id();
-        $return['currentUser']['roles'] = $currentUser->getRoles();
-        $return['currentUser']['usaapproveowncontent'] = $this->usaapproveowncontent ?? FALSE;
-        $return['currentUser']['usadeleteowncontent'] = $this->usadeleteowncontent ?? FALSE;
-        // Reviseduser.
-        if ($reviseduser !== NULL) {
-          $return['reviseduser']['id'] = $reviseduser->id();
-          $return['reviseduser']['roles'] = $reviseduser->getRoles();
-        }
-      }
+    if ($currentUser->id() == $revisedUser->id()) {
+      $return['usaApproveOwnContent'] = $this->usaApproveOwnContent ?? FALSE;
+      $return['usaDeleteOwnContent'] = $this->usaDeleteOwnContent ?? FALSE;
     }
     return $return;
   }

@@ -8,87 +8,43 @@
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Description message.
- *
- * @param mixed $form
- *   Self described.
- * @param \Drupal\Core\Form\FormStateInterface $form_state
- *   Self described.
- * @param mixed $form_id
- *   Self described.
+ * @inheritDoc
  */
 function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $newform = [
+  $newForm = [
     'node_basic_page_form',
     'node_wizard_step_form',
     'node_wizard_form',
   ];
-  $fmid = explode('_', $form_id);
-  if (($fmid[0] == 'node' ||
-      ($fmid[0] == 'content' && $fmid[1] == 'moderation')) &&
-      $fmid[count($fmid) - 1] == 'form') {
-    // Call 'wfUserpermission' method from declared service
-    // 'usa_workflow.permission.service'.
-    $wfusers = Drupal::service('usa_workflow.permission.service')->wfUserpermission();
-    // Compare current logged in user and revised user are not the same
-    // also make sure the current logged in user as
-    // 'usa approve own content' permission.
-    if (in_array($form_id, $newform)
-      || $wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']) {
-      if (isset($form['moderation_state']['widget'][0]['state']['#options']['published'])
-        && $wfusers['currentUser']['usaapproveowncontent'] == FALSE) {
-        unset($form['moderation_state']['widget'][0]['state']['#options']['published']);
-      }
-      if (isset($form['new_state']['#options']['published'])
-        && $wfusers['currentUser']['usaapproveowncontent'] == FALSE) {
-        unset($form['new_state']['#options']['published']);
-      }
-      if (isset($form['actions']['delete']) &&
-        $wfusers['currentUser']['usadeleteowncontent'] == FALSE) {
-        unset($form['actions']['delete']);
-      }
+
+  if (in_array($form_id, $newForm)) {
+    $wfPermissions = Drupal::service('usa_workflow.permission.service')->wfUserPermission();
+
+    if ($wfPermissions['usaApproveOwnContent'] == FALSE) {
+      unset($form['moderation_state']['widget'][0]['state']['#options']['published']);
+      unset($form['new_state']['#options']['published']);
+    }
+
+    if ($wfPermissions['usaDeleteOwnContent'] == FALSE) {
+      unset($form['actions']['delete']);
     }
   }
 }
 
 /**
- * Description message.
- *
- * @param mixed $data
- *   Self described.
- * @param mixed $route_name
- *   Self described.
+ * @inheritDoc
  */
 function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
-  // Call 'wfUserpermission' method from declared
-  // service 'usa_workflow.permission.service'.
-  $wfusers = Drupal::service('usa_workflow.permission.service')->wfUserpermission();
+  $wfPermissions = Drupal::service('usa_workflow.permission.service')->wfUserPermission();
   $routes = [
     'entity.node.canonical',
     'entity.node.edit_form',
-    'entity.node.latest_version'
+    'entity.node.latest_version',
   ];
 
-  // Compare current logged in user and revised user are not the same
-  // also make sure the current logged in user as
-  // 'usa delete own content' permission.
   if (in_array($route_name, $routes)) {
-    if ($wfusers['currentUser']['id'] === $wfusers['reviseduser']['id'] &&
-      $wfusers['currentUser']['usadeleteowncontent'] == FALSE) {
+    if ($wfPermissions['usaDeleteOwnContent'] == FALSE) {
       unset($data['tabs'][0]['entity.node.delete_form']);
-    }
-
-    // Check if $data['tabs'][0]['entity.node.delete_form'] exist
-    // the user is the same as the revised user and does not have
-    // 'usa delete own content' permission.
-    if (array_key_exists('entity.node.delete_form', $data['tabs'][0])) {
-      if ($data['tabs'][0]['entity.node.delete_form']) {
-        if ($route_name == '$route_name' &&
-          $wfusers['currentUser']['id'] === $wfusers['reviseduser']['id']
-          && $wfusers['currentUser']['usadeleteowncontent'] == FALSE) {
-          unset($data['tabs'][0]['entity.node.delete_form']);
-        }
-      }
     }
   }
 }
