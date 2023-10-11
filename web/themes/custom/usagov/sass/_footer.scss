@@ -156,17 +156,11 @@
 }
 
 .usa-footer__contact-info.grid-row.grid-gap>a {
-  @media (max-width: 30em) {
-    //padding-left: 0em;
     padding-right: 0em;
-  }
 }
 
 .usa-footer__contact-info.grid-row.grid-gap>a~a {
-  @media (max-width: 30em) {
     padding-left: 0em;
-    //padding-right:.2em;
-  }
 }
 
 .footer-social-block {
