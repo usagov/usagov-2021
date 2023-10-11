@@ -1,29 +1,17 @@
---- web/core/lib/Drupal/Core/Menu/MenuActiveTrail.php.original	2022-09-08 14:50:08.000000000 -0400
-+++ web/core/lib/Drupal/Core/Menu/MenuActiveTrail.php	2022-09-08 14:51:06.000000000 -0400
-@@ -131,8 +131,10 @@
-       $route_parameters = $this->routeMatch->getRawParameters()->all();
- 
-       // Load links matching this route.
--      $links = $this->menuLinkManager->loadLinksByRoute($route_name, $route_parameters, $menu_name);
--      // Select the first matching link.
-+      $link_sort_order = ['mlid'=>'ASC'];
-+      $links = $this->menuLinkManager->loadLinksByRoute($route_name, $route_parameters, $menu_name, $link_sort_order);
-+
-+      // Select the matching link.
-       if ($links) {
-         $found = reset($links);
-       }
---- web/core/lib/Drupal/Core/Menu/MenuLinkManager.php.original	2022-09-08 14:42:01.000000000 -0400
-+++ web/core/lib/Drupal/Core/Menu/MenuLinkManager.php	2022-09-08 14:42:33.000000000 -0400
-@@ -56,6 +56,7 @@
+--- MenuLinkFieldDefinitions.php.orig	2023-10-10 17:28:23
++++ MenuLinkFieldDefinitions.php	2023-10-10 17:27:25
+@@ -45,6 +45,8 @@
      'form_class' => 'Drupal\Core\Menu\Form\MenuLinkDefaultForm',
      // The plugin ID. Set by the plugin system based on the top-level YAML key.
      'id' => '',
++    // USAGov addition: mlid, for correct sorting of "false children."
 +    'mlid' => '',
    ];
  
-   /**
-@@ -331,9 +332,9 @@
+ }
+--- MenuLinkManager.php.orig	2023-10-10 17:29:38
++++ MenuLinkManager.php	2023-10-10 17:22:20
+@@ -292,9 +292,9 @@
    /**
     * {@inheritdoc}
     */
@@ -35,17 +23,9 @@
      foreach ($loaded as $plugin_id => $definition) {
        $instances[$plugin_id] = $this->createInstance($plugin_id);
      }
---- web/core/lib/Drupal/Core/Menu/MenuTreeStorage.php.original	2022-09-08 14:52:52.000000000 -0400
-+++ web/core/lib/Drupal/Core/Menu/MenuTreeStorage.php	2022-09-08 14:53:24.000000000 -0400
-@@ -100,6 +100,7 @@
-     'class',
-     'form_class',
-     'id',
-+    'mlid',
-   ];
- 
-   /**
-@@ -679,7 +680,7 @@
+--- MenuTreeStorage.php.orig	2023-10-10 17:30:17
++++ MenuTreeStorage.php	2023-10-10 17:22:20
+@@ -654,7 +654,7 @@
    /**
     * {@inheritdoc}
     */
@@ -54,7 +34,7 @@
      // Sort the route parameters so that the query string will be the same.
      asort($route_parameters);
      // Since this will be urlencoded, it's safe to store and match against a
-@@ -695,9 +696,26 @@
+@@ -670,9 +670,26 @@
        $query->condition('menu_name', $menu_name);
      }
      // Make the ordering deterministic.
@@ -75,7 +55,7 @@
 +        $direction='ASC';
 +      }
 +      $direction=(strtolower($direction)=='desc')?'DESC':'ASC';
-+      if(in_array($field, $this->definitionFields)){
++      if(in_array($field, $this->definitionFields())){
 +        $query->orderBy($field,$direction);
 +      }
 +    }
