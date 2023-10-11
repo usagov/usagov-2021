@@ -130,7 +130,11 @@
                 "Make tome work with drush 12": "https://www.drupal.org/files/issues/2023-08-02/tome_drush12-support.patch"
             },
             "drupal/core": {
-                "Make BaseFieldOverride inherit internal property from the base field": "https://www.drupal.org/files/issues/2023-01-20/3274419-42.patch"
+                "Make BaseFieldOverride inherit internal property from the base field": "https://www.drupal.org/files/issues/2023-01-20/3274419-42.patch",
+                "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail_d10.patch"
+            },
+            "drupal/views_menu_children_filter": {
+                "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren_d10.patch"
             },
             "drupal/ckeditor_templates": {
                 "Make ckeditor_templates D10 ready": "https://www.drupal.org/files/issues/2023-08-22/ckeditor_templates_d10_3296778-23.patch"
