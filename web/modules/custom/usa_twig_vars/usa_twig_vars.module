@@ -133,7 +133,7 @@ function usa_twig_vars_get_page_type(&$node) {
 function usa_twig_vars_get_meta_description(&$node) {
   $fields = $node->getFields();
   foreach (['field_meta_description', 'field_page_intro'] as $field_name) {
-    if (array_key_exists($field_name, $fields) && ($fields[$field_name] !== NULL)) {
+    if (array_key_exists($field_name, $fields) && ($fields[$field_name] !== NULL) && $fields[$field_name]->value) {
       $value = trim($fields[$field_name]->value);
       if (strlen($value) > 0) {
         return $value;
