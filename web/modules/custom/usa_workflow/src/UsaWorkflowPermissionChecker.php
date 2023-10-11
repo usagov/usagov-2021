@@ -32,43 +32,48 @@ class UsaWorkflowPermissionChecker {
 
     $currentUser = \Drupal::currentUser();
     if ($currentUser) {
-
       $node_param = \Drupal::routeMatch()->getParameter('node');
+
+      // Check if the user has 'usa approve own content'
+      // assign TRUE as value.
+      if ($currentUser->hasPermission('usa approve own content')) {
+        $this->usaApproveOwnContent = TRUE;
+      }
+
+      // Check if the user have 'usa delete own content'
+      // assign TRUE as value.
+      if ($currentUser->hasPermission('usa delete own content')) {
+        $this->usaDeleteOwnContent = TRUE;
+      }
+
+      // These are valid regardless of whether we have an existing node:
+      $return['usaApproveOwnContent'] = $this->usaApproveOwnContent ?? FALSE;
+      $return['usaDeleteOwnContent'] = $this->usaDeleteOwnContent ?? FALSE;
+      $return['currentUser']['id'] = $currentUser->id();
+      $return['currentUser']['roles'] = $currentUser->getRoles();
+
+      // Default revisionUser to anonymous. This way it won't match if there is no revisionUser
+      // (e.g., new page or some edge case.)
+      $return['revisionUser']['id'] = 0;
+      $return['revisionUser']['roles'] = [];
+
       if ($node_param) {
+        // Get the user who last revised this node.
+        $return['isNewPage'] = FALSE;
         $rev_uid = $node_param->getRevisionUserId();
         $entityTypeManager = \Drupal::service('entity_type.manager');
         if ($entityTypeManager) {
 
           $storage = $entityTypeManager->getStorage('user');
           if ($storage) {
-
             $revisionUser = $storage->load($rev_uid);
 
-            // Check if the user has 'usa approve own content'
-            // assign TRUE as value.
-            if ($currentUser->hasPermission('usa approve own content')) {
-              $this->usaApproveOwnContent = TRUE;
-            }
-
-            // Check if the user have 'usa delete own content'
-            // assign TRUE as value.
-            if ($currentUser->hasPermission('usa delete own content')) {
-              $this->usaDeleteOwnContent = TRUE;
-            }
-
-            // Users and their roles relative to the current node
-            $return['usaApproveOwnContent'] = $this->usaApproveOwnContent ?? FALSE;
-            $return['usaDeleteOwnContent'] = $this->usaDeleteOwnContent ?? FALSE;
-            $return['currentUser']['id'] = $currentUser->id();
-            $return['currentUser']['roles'] = $currentUser->getRoles();
             if ($revisionUser) {
               $return['revisionUser']['id'] = $revisionUser->id();
               $return['revisionUser']['roles'] = $revisionUser->getRoles(); // Do we ever need these?
             }
             else {
               // $rev_uid is invalid or $storage->load($rev_uid) failed
-              $return['revisionUser']['id'] = 0;
-              $return['revisionUser']['roles'] = [];
               \Drupal::logger('usa_workflow')->error('$rev_uid (@rev_uid) is invalid or $storage->load($rev_uid) failed',
                 ['@rev_uid' => $rev_uid ?? '']);
             }
@@ -82,7 +87,7 @@ class UsaWorkflowPermissionChecker {
         }
       }
       else {
-        \Drupal::logger('usa_workflow')->error('\Drupal::routeMatch()->getParameter("node") failed');
+        $return['isNewPage'] = TRUE;
       }
     }
     else {
