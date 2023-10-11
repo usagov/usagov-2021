@@ -365,6 +365,7 @@ add padding at the top of flag cards
   @include at-media($theme-header-min-width) {
     width: 15rem;
     line-height: 1.1rem;
+    margin-bottom: 0;
   }
 }
 
@@ -373,6 +374,7 @@ add padding at the top of flag cards
   @include at-media($theme-header-min-width) {
     width: 17rem;
     line-height: 1.1rem;
+    margin-bottom: 0;
   }
 }
 
@@ -385,6 +387,7 @@ add padding at the top of flag cards
     padding-right: 1rem;
     font-size: 2rem;
     padding-bottom: 0.4rem;
+    line-height: 1.5rem;
   }
 }
 
