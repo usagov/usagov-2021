@@ -1,0 +1,269 @@
+breakpoints:
+  card:
+    label: Card
+    prefix: none
+    columns:
+      1:
+        layouts: ''
+      2:
+        layouts: ''
+      3:
+        layouts: ''
+      4:
+        layouts: ''
+      5:
+        layouts: ''
+      6:
+        layouts: ''
+      7:
+        layouts: ''
+      8:
+        layouts: ''
+      9:
+        layouts: ''
+      10:
+        layouts: ''
+      11:
+        layouts: ''
+      12:
+        layouts: ''
+  card-lg:
+    label: 'Card Large'
+    prefix: card-lg
+    columns:
+      1:
+        layouts: ''
+      2:
+        layouts: ''
+      3:
+        layouts: ''
+      4:
+        layouts: ''
+      5:
+        layouts: ''
+      6:
+        layouts: ''
+      7:
+        layouts: ''
+      8:
+        layouts: ''
+      9:
+        layouts: ''
+      10:
+        layouts: ''
+      11:
+        layouts: ''
+      12:
+        layouts: ''
+  mobile:
+    label: Mobile
+    prefix: mobile
+    columns:
+      1:
+        layouts: ''
+      2:
+        layouts: ''
+      3:
+        layouts: ''
+      4:
+        layouts: ''
+      5:
+        layouts: ''
+      6:
+        layouts: ''
+      7:
+        layouts: ''
+      8:
+        layouts: ''
+      9:
+        layouts: ''
+      10:
+        layouts: ''
+      11:
+        layouts: ''
+      12:
+        layouts: ''
+  mobile-lg:
+    label: 'Mobile Large'
+    prefix: mobile-lg
+    columns:
+      1:
+        layouts: ''
+      2:
+        layouts: ''
+      3:
+        layouts: ''
+      4:
+        layouts: ''
+      5:
+        layouts: ''
+      6:
+        layouts: ''
+      7:
+        layouts: ''
+      8:
+        layouts: ''
+      9:
+        layouts: ''
+      10:
+        layouts: ''
+      11:
+        layouts: ''
+      12:
+        layouts: ''
+  tablet:
+    label: Tablet
+    prefix: tablet
+    columns:
+      1:
+        layouts: ''
+      2:
+        layouts: ''
+      3:
+        layouts: ''
+      4:
+        layouts: ''
+      5:
+        layouts: ''
+      6:
+        layouts: ''
+      7:
+        layouts: ''
+      8:
+        layouts: ''
+      9:
+        layouts: ''
+      10:
+        layouts: ''
+      11:
+        layouts: ''
+      12:
+        layouts: ''
+  tablet-lg:
+    label: 'Tablet Large'
+    prefix: tablet-lg
+    columns:
+      1:
+        layouts: ''
+      2:
+        layouts: ''
+      3:
+        layouts: ''
+      4:
+        layouts: ''
+      5:
+        layouts: ''
+      6:
+        layouts: ''
+      7:
+        layouts: ''
+      8:
+        layouts: ''
+      9:
+        layouts: ''
+      10:
+        layouts: ''
+      11:
+        layouts: ''
+      12:
+        layouts: ''
+  desktop:
+    label: Desktop
+    prefix: desktop
+    columns:
+      1:
+        layouts: ''
+      2:
+        layouts: ''
+      3:
+        layouts: ''
+      4:
+        layouts: ''
+      5:
+        layouts: ''
+      6:
+        layouts: ''
+      7:
+        layouts: ''
+      8:
+        layouts: ''
+      9:
+        layouts: ''
+      10:
+        layouts: ''
+      11:
+        layouts: ''
+      12:
+        layouts:
+          -
+            label: '12'
+            settings:
+              col-1: equal
+              col-2: equal
+              col-3: equal
+              col-4: equal
+              col-5: equal
+              col-6: equal
+              col-7: equal
+              col-8: equal
+              col-9: equal
+              col-10: equal
+              col-11: equal
+              col-12: equal
+            weight: '0'
+  desktop-lg:
+    label: 'Desktop Large'
+    prefix: desktop-lg
+    columns:
+      1:
+        layouts: ''
+      2:
+        layouts: ''
+      3:
+        layouts: ''
+      4:
+        layouts: ''
+      5:
+        layouts: ''
+      6:
+        layouts: ''
+      7:
+        layouts: ''
+      8:
+        layouts: ''
+      9:
+        layouts: ''
+      10:
+        layouts: ''
+      11:
+        layouts: ''
+      12:
+        layouts: ''
+  widescreen:
+    label: Widescreen
+    prefix: widescreen
+    columns:
+      1:
+        layouts: ''
+      2:
+        layouts: ''
+      3:
+        layouts: ''
+      4:
+        layouts: ''
+      5:
+        layouts: ''
+      6:
+        layouts: ''
+      7:
+        layouts: ''
+      8:
+        layouts: ''
+      9:
+        layouts: ''
+      10:
+        layouts: ''
+      11:
+        layouts: ''
+      12:
+        layouts: ''

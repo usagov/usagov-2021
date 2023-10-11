@@ -3,8 +3,8 @@ langcode: en
 status: true
 dependencies:
   module:
+    - ckeditor5_embedded_content
     - editor
-    - google_docs_filter
     - media
     - paragraphs_entity_embed
     - uswds_ckeditor_integration
@@ -26,7 +26,7 @@ filters:
     status: false
     weight: -10
     settings:
-      allowed_html: '<a href hreflang> <em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type> <li> <dl> <dt> <dd> <h2 id class> <h3 id class> <h4 id class> <h5 id class> <h6 id class> <img src alt data-entity-type data-entity-uuid data-align data-caption> <table class style width height> <caption> <tbody> <thead> <tfoot> <th scope> <td> <tr scope> <u> <s> <sup> <sub> <drupal-media data-entity-type data-entity-uuid> <div id class data-*> <button class aria-expanded aria-controls>'
+      allowed_html: '<a class="usa-button usa-button--secondary usa-button--big"> <p class="usa-intro"> <h2 class="font-serif-lg text-bold text-accent-cool-darker">'
       filter_html_help: true
       filter_html_nofollow: false
   filter_url:
@@ -69,9 +69,9 @@ filters:
     status: true
     weight: 0
     settings: {  }
-  filter_google_docs:
-    id: filter_google_docs
-    provider: google_docs_filter
+  ckeditor5_embedded_content:
+    id: ckeditor5_embedded_content
+    provider: ckeditor5_embedded_content
     status: true
-    weight: 0
+    weight: 100
     settings: {  }

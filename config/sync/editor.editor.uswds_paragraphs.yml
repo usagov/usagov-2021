@@ -1,0 +1,108 @@
+uuid: 454bf829-9b32-4673-9f53-9c441a2560f7
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.uswds_paragraphs
+  module:
+    - ckeditor
+_core:
+  default_config_hash: j-ddP2EaTJBv-tVF4fyLXc7Dtx5rjsVbOv7tveM4yxY
+format: uswds_paragraphs
+editor: ckeditor
+settings:
+  toolbar:
+    rows:
+      -
+        -
+          name: Formatting
+          items:
+            - Bold
+            - Italic
+            - Underline
+            - HorizontalRule
+            - JustifyLeft
+            - JustifyCenter
+            - JustifyRight
+            - JustifyBlock
+            - Outdent
+            - Indent
+        -
+          name: Links
+          items:
+            - DrupalLink
+            - DrupalUnlink
+        -
+          name: Lists
+          items:
+            - BulletedList
+            - NumberedList
+        -
+          name: Media
+          items:
+            - Blockquote
+            - Table
+        -
+          name: Embeds
+          items:
+            - paragraphs
+            - paragraph_layout
+        -
+          name: Tools
+          items:
+            - ShowBlocks
+            - Maximize
+            - Source
+            - Styles
+        -
+          name: Headers
+          items:
+            - Format
+        -
+          name: Components
+          items:
+            - Maximize
+            - Table
+            - uswds_grid
+            - Accordion
+            - Templates
+  plugins:
+    stylescombo:
+      styles: ''
+    templates:
+      template_path: ''
+      replace_content: 0
+    uswds_grid:
+      available_columns:
+        2: '2'
+        3: '3'
+        4: '4'
+        1: 0
+        5: 0
+        6: 0
+        7: 0
+        8: 0
+        9: 0
+        10: 0
+        11: 0
+        12: 0
+      available_breakpoints:
+        mobile: mobile
+        tablet: tablet
+        desktop: desktop
+        card: 0
+        card-lg: 0
+        mobile-lg: 0
+        tablet-lg: 0
+        desktop-lg: 0
+        widescreen: 0
+    uswds_table:
+      override_table: 1
+image_upload:
+  status: false
+  scheme: public
+  directory: inline-images
+  max_size: ''
+  max_dimensions:
+    width: null
+    height: null

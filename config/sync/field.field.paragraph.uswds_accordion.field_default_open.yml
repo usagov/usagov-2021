@@ -1,0 +1,25 @@
+uuid: 9a17ce7d-ffc2-4c6c-93c6-037db48aa04a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_default_open
+    - paragraphs.paragraphs_type.uswds_accordion
+_core:
+  default_config_hash: MByKORrmAEeyrGlDh6RsIZ90Sa09To8FTFcoon8QtBs
+id: paragraph.uswds_accordion.field_default_open
+field_name: field_default_open
+entity_type: paragraph
+bundle: uswds_accordion
+label: 'Default Open'
+description: 'Select which accordion to open by default.  Leave blank to have all closed by default'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

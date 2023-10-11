@@ -1,0 +1,25 @@
+uuid: 840fc9ef-38e9-4d71-8dd0-a5b075453395
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_multiselect
+    - paragraphs.paragraphs_type.uswds_accordion
+_core:
+  default_config_hash: VRvtPloJ7Lbg4GCoaFnwbrq2kX8M8eJRnfio4HnQDHw
+id: paragraph.uswds_accordion.field_multiselect
+field_name: field_multiselect
+entity_type: paragraph
+bundle: uswds_accordion
+label: Multiselect
+description: 'By default only 1 accordion can be opening. This allows for multiple to be open.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

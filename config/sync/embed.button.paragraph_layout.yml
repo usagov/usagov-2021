@@ -1,0 +1,20 @@
+uuid: 7d53888c-0cac-4570-bafb-b4663cb78cca
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs_entity_embed
+_core:
+  default_config_hash: C2Z25LeV-wi98SyUjiurGLYCnFb3MYhpn8j6NDbQWMs
+label: 'Paragraph Layout'
+id: paragraph_layout
+type_id: paragraphs_entity_embed
+type_settings:
+  enable_paragraph_type_filter: 1
+  paragraphs_type_filter:
+    uswds_2_columns: uswds_2_columns
+    uswds_3_columns: uswds_3_columns
+icon:
+  data: iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAArUlEQVRYhe2XIQ7CUAyGv5GF4PATU0guwBk4C45jzHEWzrADbBKFmMeRmSH2XsKSNrhV8P+mSfun/dJnXgtgIlBlim/gsfLsA7CDeQPdysNJM6dNwOCFSiPXApWRvwENcATuTr8z0ANX4GLUB+D0C6ACaiO/T3Hr1HMtez3PQuFPIAABCEAAAhCAAAQgAAFYv+LB8b5SHIGn4xm/vJbH7P3fl1HBvIGw4zQDhOkDSlMci8pG5G4AAAAASUVORK5CYII=
+  uri: 'public://embed_buttons/layout_icon_0.png'
+icon_uuid: null

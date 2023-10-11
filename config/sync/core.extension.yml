@@ -95,7 +95,10 @@ module:
   usagov_uswds_paragraph_components_mods: 0
   user: 0
   uswds_ckeditor_integration: 0
+  uswds_ckeditor_integration_embed: 0
   uswds_paragraph_components: 0
+  uswds_paragraph_components_accordions: 0
+  uswds_paragraph_components_breakpoints: 0
   views_menu_children_filter: 0
   views_ui: 0
   viewsreference: 0
