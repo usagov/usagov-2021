@@ -20,7 +20,7 @@ wizard:
     - core/drupal
     - core/jquery
 
-wizardStep:
+wizardstep:
   js:
     scripts/wizardStep.js: {}
   dependencies:
