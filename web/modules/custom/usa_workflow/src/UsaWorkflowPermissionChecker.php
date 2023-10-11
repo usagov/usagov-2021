@@ -35,7 +35,6 @@ class UsaWorkflowPermissionChecker {
 
       $node_param = \Drupal::routeMatch()->getParameter('node');
       if ($node_param) {
-
         $rev_uid = $node_param->getRevisionUserId();
         $entityTypeManager = \Drupal::service('entity_type.manager');
         if ($entityTypeManager) {
@@ -43,30 +42,33 @@ class UsaWorkflowPermissionChecker {
           $storage = $entityTypeManager->getStorage('user');
           if ($storage) {
 
-            $revisedUser = $storage->load($rev_uid);
+            $revisionUser = $storage->load($rev_uid);
 
-            if ($revisedUser) {
+            // Check if the user has 'usa approve own content'
+            // assign TRUE as value.
+            if ($currentUser->hasPermission('usa approve own content')) {
+              $this->usaApproveOwnContent = TRUE;
+            }
 
-              // Check if the user have 'usa approve own content'
-              // assign TRUE as value.
-              if ($currentUser->hasPermission('usa approve own content')) {
-                $this->usaApproveOwnContent = TRUE;
-              }
+            // Check if the user have 'usa delete own content'
+            // assign TRUE as value.
+            if ($currentUser->hasPermission('usa delete own content')) {
+              $this->usaDeleteOwnContent = TRUE;
+            }
 
-              // Check if the user have 'usa delete own content'
-              // assign TRUE as value.
-              if ($currentUser->hasPermission('usa delete own content')) {
-                $this->usaDeleteOwnContent = TRUE;
-              }
-
-              // Users and their roles from current node.
-              if ($currentUser->id() == $revisedUser->id()) {
-                $return['usaApproveOwnContent'] = $this->usaApproveOwnContent ?? FALSE;
-                $return['usaDeleteOwnContent'] = $this->usaDeleteOwnContent ?? FALSE;
-              }
+            // Users and their roles relative to the current node
+            $return['usaApproveOwnContent'] = $this->usaApproveOwnContent ?? FALSE;
+            $return['usaDeleteOwnContent'] = $this->usaDeleteOwnContent ?? FALSE;
+            $return['currentUser']['id'] = $currentUser->id();
+            $return['currentUser']['roles'] = $currentUser->getRoles();
+            if ($revisionUser) {
+              $return['revisionUser']['id'] = $revisionUser->id();
+              $return['revisionUser']['roles'] = $revisionUser->getRoles(); // Do we ever need these?
             }
             else {
               // $rev_uid is invalid or $storage->load($rev_uid) failed
+              $return['revisionUser']['id'] = 0;
+              $return['revisionUser']['roles'] = [];
               \Drupal::logger('usa_workflow')->error('$rev_uid (@rev_uid) is invalid or $storage->load($rev_uid) failed',
                 ['@rev_uid' => $rev_uid ?? '']);
             }
