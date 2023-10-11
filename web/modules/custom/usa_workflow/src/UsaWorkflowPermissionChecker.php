@@ -38,14 +38,14 @@ class UsaWorkflowPermissionChecker {
 
         $rev_uid = $node_param->getRevisionUserId();
         $entityTypeManager = \Drupal::service('entity_type.manager');
-        if ( $entityTypeManager ) {
+        if ($entityTypeManager) {
 
           $storage = $entityTypeManager->getStorage('user');
           if ($storage) {
 
             $revisedUser = $storage->load($rev_uid);
 
-            if ( $revisedUser ) {
+            if ($revisedUser) {
 
               // Check if the user have 'usa approve own content'
               // assign TRUE as value.
@@ -64,21 +64,26 @@ class UsaWorkflowPermissionChecker {
                 $return['usaApproveOwnContent'] = $this->usaApproveOwnContent ?? FALSE;
                 $return['usaDeleteOwnContent'] = $this->usaDeleteOwnContent ?? FALSE;
               }
-            } else {
+            }
+            else {
               // $rev_uid is invalid or $storage->load($rev_uid) failed
               \Drupal::logger('usa_workflow')->error('$rev_uid (@rev_uid) is invalid or $storage->load($rev_uid) failed',
-                ['@rev_uid' => isset($rev_uid) ? $rev_uid : '' ]);
+                ['@rev_uid' => $rev_uid ?? '']);
             }
-          } else {
+          }
+          else {
             \Drupal::logger('usa_workflow')->error("getStorage('user') failed");
           }
-        } else {
+        }
+        else {
           \Drupal::logger('usa_workflow')->error("Drupal::service('entity_type.manager') failed");
         }
-      } else {
+      }
+      else {
         \Drupal::logger('usa_workflow')->error('\Drupal::routeMatch()->getParameter("node") failed');
       }
-    } else {
+    }
+    else {
       \Drupal::logger('usa_workflow')->error('\Drupal::currentUser() failed');
     }
 
