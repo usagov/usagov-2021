@@ -848,6 +848,11 @@ button#next.usa-button,
   box-shadow: inset 0 0 0 2px var($cyan-50v);
 }
 
+button#next.usa-button:hover,
+.block-wizardenglish a.usa-button:hover {
+  background-color: var($secondary-background-color);
+}
+
 .block-wizardenglish .usa-prose>p {
   max-width: 110ex;
 }
