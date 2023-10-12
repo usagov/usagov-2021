@@ -15,18 +15,23 @@ function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_i
     'node_basic_page_form',
     'node_wizard_step_form',
     'node_wizard_form',
+    'content_moderation_entity_moderation_form',
   ];
 
   if (in_array($form_id, $newForm)) {
     $wfPermissions = Drupal::service('usa_workflow.permission.service')->wfUserPermission();
 
-    if ($wfPermissions['usaApproveOwnContent'] == FALSE) {
-      unset($form['moderation_state']['widget'][0]['state']['#options']['published']);
-      unset($form['new_state']['#options']['published']);
-    }
+    // Permissions are *stricter* here on the user's own content. Only some users can
+    // approve their own changes; any editor should be able to approve another editor's changes.
+    if ($wfPermissions['isNewPage'] || ($wfPermissions['currentUser']['id'] == $wfPermissions['revisionUser']['id'])) {
+      if ($wfPermissions['usaApproveOwnContent'] == FALSE) {
+        unset($form['moderation_state']['widget'][0]['state']['#options']['published']);
+        unset($form['new_state']['#options']['published']);
+      }
 
-    if ($wfPermissions['usaDeleteOwnContent'] == FALSE) {
-      unset($form['actions']['delete']);
+      if ($wfPermissions['usaDeleteOwnContent'] == FALSE) {
+        unset($form['actions']['delete']);
+      }
     }
   }
 }
