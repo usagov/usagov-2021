@@ -70,6 +70,7 @@ module:
   samlauth: 0
   serialization: 0
   settings_tray: 0
+  simple_sitemap: 0
   simplify_menu: 0
   system: 0
   taxonomy: 0
