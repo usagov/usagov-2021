@@ -1,17 +1,21 @@
---- MenuLinkFieldDefinitions.php.orig	2023-10-10 17:28:23
-+++ MenuLinkFieldDefinitions.php	2023-10-10 17:27:25
-@@ -45,6 +45,8 @@
+diff --git a/core/lib/Drupal/Core/Menu/MenuLinkFieldDefinitions.php b/core/lib/Drupal/Core/Menu/MenuLinkFieldDefinitions.php
+index 58a3c627d5..7b6b5dff21 100644
+--- a/core/lib/Drupal/Core/Menu/MenuLinkFieldDefinitions.php
++++ b/core/lib/Drupal/Core/Menu/MenuLinkFieldDefinitions.php
+@@ -45,6 +45,8 @@ trait MenuLinkFieldDefinitions {
      'form_class' => 'Drupal\Core\Menu\Form\MenuLinkDefaultForm',
      // The plugin ID. Set by the plugin system based on the top-level YAML key.
      'id' => '',
 +    // USAGov addition: mlid, for correct sorting of "false children."
 +    'mlid' => '',
    ];
- 
+
  }
---- MenuLinkManager.php.orig	2023-10-10 17:29:38
-+++ MenuLinkManager.php	2023-10-10 17:22:20
-@@ -292,9 +292,9 @@
+diff --git a/core/lib/Drupal/Core/Menu/MenuLinkManager.php b/core/lib/Drupal/Core/Menu/MenuLinkManager.php
+index c89dadd7b0..680ce1a396 100644
+--- a/core/lib/Drupal/Core/Menu/MenuLinkManager.php
++++ b/core/lib/Drupal/Core/Menu/MenuLinkManager.php
+@@ -292,9 +292,9 @@ public function getChildIds($id) {
    /**
     * {@inheritdoc}
     */
@@ -23,44 +27,44 @@
      foreach ($loaded as $plugin_id => $definition) {
        $instances[$plugin_id] = $this->createInstance($plugin_id);
      }
---- MenuTreeStorage.php.orig	2023-10-10 17:30:17
-+++ MenuTreeStorage.php	2023-10-10 17:22:20
-@@ -654,7 +654,7 @@
+diff --git a/core/lib/Drupal/Core/Menu/MenuTreeStorage.php b/core/lib/Drupal/Core/Menu/MenuTreeStorage.php
+index 1a035a0f72..6cd84a413d 100644
+--- a/core/lib/Drupal/Core/Menu/MenuTreeStorage.php
++++ b/core/lib/Drupal/Core/Menu/MenuTreeStorage.php
+@@ -654,7 +654,7 @@ public function loadByProperties(array $properties) {
    /**
     * {@inheritdoc}
     */
 -  public function loadByRoute($route_name, array $route_parameters = [], $menu_name = NULL) {
-+  public function loadByRoute($route_name, array $route_parameters = [], $menu_name = NULL, $sort_order = NULL ) {
++  public function loadByRoute($route_name, array $route_parameters = [], $menu_name = NULL, $sort_order = NULL) {
      // Sort the route parameters so that the query string will be the same.
      asort($route_parameters);
      // Since this will be urlencoded, it's safe to store and match against a
-@@ -670,9 +670,26 @@
+@@ -670,9 +670,24 @@ public function loadByRoute($route_name, array $route_parameters = [], $menu_nam
        $query->condition('menu_name', $menu_name);
      }
      // Make the ordering deterministic.
 -    $query->orderBy('depth');
 -    $query->orderBy('weight');
 -    $query->orderBy('id');
-+    $default_sort_order = ['depth'=>'ASC', 'weight'=>'ASC', 'id'=>'ASC'];
-+    if(empty($sort_order)){
++    $default_sort_order = [ 'depth' =>'ASC', 'weight' => 'ASC', 'id' => 'ASC'];
++    if (empty($sort_order)) {
 +      $sort_order = $default_sort_order;
 +    }
-+    if(!is_array($sort_order)){
-+      $sort_order=[$sort_order];
++    if (!is_array($sort_order)) {
++      $sort_order = [$sort_order];
 +    }
 +    // $allowed_fields = $this->definitionFields();
-+    foreach($sort_order as $field=>$direction){
-+      if(is_numeric($field)){
-+        $field=$direction;
-+        $direction='ASC';
++    foreach ($sort_order as $field => $direction) {
++      if (is_numeric($field)) {
++        $field = $direction;
++        $direction = 'ASC';
 +      }
-+      $direction=(strtolower($direction)=='desc')?'DESC':'ASC';
-+      if(in_array($field, $this->definitionFields())){
-+        $query->orderBy($field,$direction);
++      $direction = (strtolower($direction) == 'desc') ? 'DESC' : 'ASC';
++      if (in_array($field, $this->definitionFields())) {
++        $query->orderBy($field, $direction);
 +      }
 +    }
-+
-+
      $loaded = $this->safeExecuteSelect($query)->fetchAllAssoc('id', \PDO::FETCH_ASSOC);
      foreach ($loaded as $id => $link) {
        $loaded[$id] = $this->prepareLink($link);
