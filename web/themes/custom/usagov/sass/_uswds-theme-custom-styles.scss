@@ -308,6 +308,8 @@ add padding at the top of flag cards
 @media (min-width: 64em) {
   .usa-header--extended .usa-logo {
     margin: 0.5rem 0 0.2em;
+    width: 5rem;
+    height: 5rem;
   }
 }
 
@@ -841,6 +843,11 @@ button#next.usa-button,
 .block-wizardenglish a.usa-button {
   background-color: var($cyan-light);
   box-shadow: inset 0 0 0 2px var($cyan-50v);
+}
+
+button#next.usa-button:hover,
+.block-wizardenglish a.usa-button:hover {
+  background-color: var($secondary-background-color);
 }
 
 .block-wizardenglish .usa-prose>p {
