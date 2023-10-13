@@ -129,6 +129,11 @@
   }
 }
 
+.usa-footer__logo {
+  @media (max-width: 30em) {
+    padding-bottom: 20px;
+  }
+}
 
 .usa-footer__secondary-link a.disabled,
 .usa-footer__secondary-section a.disabled {
@@ -145,6 +150,7 @@
 .usa-footer__contact-links {
   @media (max-width: 30em) {
     margin-top: 0;
+    padding-top: 8px;
   }
 }
 
