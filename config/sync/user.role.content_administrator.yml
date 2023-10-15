@@ -27,6 +27,7 @@ dependencies:
     - paragraphs_entity_embed
     - path
     - redirect
+    - simple_sitemap
     - system
     - toolbar
     - usa_content_moderation_notifications
@@ -46,6 +47,7 @@ permissions:
   - 'administer nodes'
   - 'administer redirect settings'
   - 'administer redirects'
+  - 'administer sitemap settings'
   - 'break content lock'
   - 'create agency_synonym content'
   - 'create audio media'
