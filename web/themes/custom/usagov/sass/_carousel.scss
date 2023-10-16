@@ -87,7 +87,11 @@
 
       .slick-slide.slick-current {
         div .slide {
-          border: 3px solid white;
+          border: 4px solid white;
+
+          .life_events_card_text {
+            padding: 9px 9px 0;
+          }
 
           &:focus-within {
             border: 4px solid #c05600;
