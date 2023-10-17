@@ -7,6 +7,7 @@ $(".slides").slick({
   "swipeToSlide": true,
   "touchMove": true,
   "arrowsPlacement": "split",
+  "lazyLoad": "progressive",
   "prevArrow":
     '<button class="previous slick-prev slick-arrow">' +
     '  <span class="sr-only">Previous slides</span>' +
