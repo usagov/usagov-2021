@@ -1,3 +1,18 @@
+diff --git a/core/lib/Drupal/Core/Menu/MenuActiveTrail.php b/core/lib/Drupal/Core/Menu/MenuActiveTrail.php
+index 978aeffbf4..82f5b9b18f 100644
+--- a/core/lib/Drupal/Core/Menu/MenuActiveTrail.php
++++ b/core/lib/Drupal/Core/Menu/MenuActiveTrail.php
+@@ -131,7 +131,9 @@ public function getActiveLink($menu_name = NULL) {
+       $route_parameters = $this->routeMatch->getRawParameters()->all();
+ 
+       // Load links matching this route.
+-      $links = $this->menuLinkManager->loadLinksByRoute($route_name, $route_parameters, $menu_name);
++      $link_sort_order = ['mlid' => 'ASC'];
++      $links = $this->menuLinkManager->loadLinksByRoute($route_name, $route_parameters, $menu_name, $link_sort_order);
++
+       // Select the first matching link.
+       if ($links) {
+         $found = reset($links);
 diff --git a/core/lib/Drupal/Core/Menu/MenuLinkFieldDefinitions.php b/core/lib/Drupal/Core/Menu/MenuLinkFieldDefinitions.php
 index 58a3c627d5..7b6b5dff21 100644
 --- a/core/lib/Drupal/Core/Menu/MenuLinkFieldDefinitions.php
@@ -9,7 +24,7 @@ index 58a3c627d5..7b6b5dff21 100644
 +    // USAGov addition: mlid, for correct sorting of "false children."
 +    'mlid' => '',
    ];
-
+ 
  }
 diff --git a/core/lib/Drupal/Core/Menu/MenuLinkManager.php b/core/lib/Drupal/Core/Menu/MenuLinkManager.php
 index c89dadd7b0..680ce1a396 100644
