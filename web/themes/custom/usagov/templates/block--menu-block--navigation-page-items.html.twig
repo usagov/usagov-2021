@@ -65,7 +65,7 @@
   <div class="all-topics-background">
     <div class="smaller-width-div">
       <ul class="homepage-card-group usa-card-group">
-        {% for item in nav_page_items if item.promote %}
+        {% for item in nav_page_items|filter(item => item.promote) %}
           <li class="homepage-card usa-card__container">
             <a href="{{ item.url }}" aria-label="{{ item.title }}">
               <div class="homepage-icon topic-icon {{item.css_icon}}"></div>
