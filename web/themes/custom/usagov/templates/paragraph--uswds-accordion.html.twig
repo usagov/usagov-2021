@@ -56,7 +56,7 @@
 
 <div{{ attributes.addClass(classes) }}>
   <!-- Use the accurate heading level to maintain the document outline -->
-  {% for key, item in content.field_accordion_section if key|first != '#' %}
+  {% for key, item in content.field_accordion_section|filter((value, key) => key|first != '#') %}
     {% set id = item['#paragraph'].get('parent_id').value ~ '-' ~ key %}
     <h2 class="usa-accordion__heading">
       <button class="usa-accordion__button"

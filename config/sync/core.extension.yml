@@ -11,8 +11,11 @@ module:
   block_content: 0
   breakpoint: 0
   ckeditor: 0
+  ckeditor5: 0
+  ckeditor5_embedded_content: 0
   ckeditor_templates: 0
   ckeditor_templates_ui: 0
+  composer_deploy: 0
   conditional_fields: 0
   config: 0
   content_lock: 0
@@ -40,7 +43,6 @@ module:
   filter: 0
   google_docs_filter: 0
   image: 0
-  image_style_warmer: 0
   jquery_ui: 0
   jquery_ui_accordion: 0
   jsonapi: 0
@@ -55,7 +57,6 @@ module:
   menu_breadcrumb: 0
   menu_link_content: 0
   menu_ui: 0
-  mmf_core_fields: 0
   mysql: 0
   node: 0
   node_menus: 0
@@ -82,6 +83,7 @@ module:
   tome_static: 0
   toolbar: 0
   twig_tweak: 0
+  update: 0
   usa_admin_styles: 0
   usa_contact_center_api: 0
   usa_content_moderation_notifications: 0
@@ -104,6 +106,7 @@ module:
   usa_twig_vars: 1
   content_translation: 10
   externalauth: 10
+  image_style_warmer: 10
   views: 10
   paragraphs: 11
   minimal: 1000
