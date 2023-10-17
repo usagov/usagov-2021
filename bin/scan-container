@@ -24,11 +24,11 @@ CTAG=${2:-$GITBRANCH}
 THRESHOLD=${3:-low}
 
 # Explicitly turn off DOCKER_CONTENT_TRUST, as snyk are not signing their images.
-docker -D run --disable-content-trust -it --rm \
+docker run --disable-content-trust -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v $(pwd)/.docker:/app \
-  snyk/snyk:docker-latest snyk container test \
+  snyk/snyk:docker snyk container test \
     $DOCKERUSER/$DOCKERREPO:$APPNAME-$CTAG \
     --file=/app/Dockerfile-$APPNAME \
     --print-deps \
