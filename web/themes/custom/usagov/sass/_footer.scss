@@ -100,9 +100,17 @@
   outline-offset: -0.25rem;
 }
 
+.footer-button-container{
+  display: flex;
+  // Manages where the button is going to be positioned.
+  // Example: center, right, left.
+  justify-content: left;
+}
+
 .footer-button {
   border: 1px solid #1b1b1b;
   line-height: 1.5;
+  margin-inline: 0 !important;
 }
 
 #footer-email {
