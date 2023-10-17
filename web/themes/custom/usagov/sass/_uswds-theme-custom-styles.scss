@@ -308,6 +308,8 @@ add padding at the top of flag cards
 @media (min-width: 64em) {
   .usa-header--extended .usa-logo {
     margin: 0.5rem 0 0.2em;
+    width: 5rem;
+    height: 5rem;
   }
 }
 
@@ -365,6 +367,7 @@ add padding at the top of flag cards
   @include at-media($theme-header-min-width) {
     width: 15rem;
     line-height: 1.1rem;
+    margin-bottom: 0;
   }
 }
 
@@ -373,6 +376,7 @@ add padding at the top of flag cards
   @include at-media($theme-header-min-width) {
     width: 17rem;
     line-height: 1.1rem;
+    margin-bottom: 0;
   }
 }
 
@@ -385,6 +389,7 @@ add padding at the top of flag cards
     padding-right: 1rem;
     font-size: 2rem;
     padding-bottom: 0.4rem;
+    line-height: 2rem;
   }
 }
 
@@ -1019,7 +1024,7 @@ div div.field--name-field-offices-near-you{
 
   .usa-header--extended .usa-nav__secondary, .usa-header--extended .usa-nav__secondary:lang(es) {
     flex-direction: row;
-    align-items: flex-end;
+    align-items: baseline;
     align-self: center;
     bottom: 0px;
     /* width: 32rem; */
@@ -1028,4 +1033,15 @@ div div.field--name-field-offices-near-you{
     min-width: auto;
     right: 0px;
   }
+
+  #header > div.usa-navbar > div.usa-nav__secondary > form.usa-search.usa-search--small {
+    align-self: center;
+    margin-top: 0;
+  }
+
+  #header > div.usa-navbar > div.usa-nav__secondary > span.usa-nav__secondary-links {
+    align-self: center;
+  }
+
 }
+
