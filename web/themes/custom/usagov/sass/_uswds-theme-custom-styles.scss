@@ -730,14 +730,10 @@ input:not([disabled]):focus.usa-user-error {
   border-left: 3px solid var($red);
 }
 
-.usa-form-spacing {
-  padding-left: 1rem;
-}
-
 #myform div.margin-x-auto {
   // margin-left: 3rem;
   @media (max-width: 40em) {
-    margin-left: .2rem;
+    margin-left: 1rem;
     margin-right: 1rem;
   }
 }
@@ -761,6 +757,7 @@ input:not([disabled]):focus.usa-user-error {
 
 .ceo-button {
   margin-inline: 0 !important;
+  width: fit-content;
 }
 
 .usa-error--alert {
@@ -1005,12 +1002,6 @@ div[class^="QSIUserDefinedHTML"] {
 
 p, a, .usa-label, .usa-radio__label {
   line-height: 1.5;
-}
-
-.usa-form div.maxw-mobile p {
-  @media (max-width: 40em) {
-    padding-left: 1rem;
-  }
 }
 
 div div.field--name-field-offices-near-you{
