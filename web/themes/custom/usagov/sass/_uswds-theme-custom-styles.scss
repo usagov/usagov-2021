@@ -470,6 +470,8 @@ a,
 .usa-button {
   width: 100%;
   line-height: 1.5;
+  display: flex;
+  justify-content: left;
 
   @media (min-width: 30em) {
     width: auto;
@@ -996,7 +998,7 @@ p, a, .usa-label, .usa-radio__label {
   line-height: 1.5;
 }
 
-.usa-form .usa-button {
+.usa-form {
   margin-left: 4rem;
   @media (max-width: 30em) {
     margin-left: .4rem;
