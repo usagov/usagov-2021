@@ -44,6 +44,10 @@ $(".slides").slick({
   ],
 });
 
+var initSlide = getInitialSlide();
+console.log(`initSlide is ${initSlide}`);
+$('.slides').slick('slickGoTo', initSlide);
+
 var carouselSlides = document.querySelector("#slides-list");
 var slideIndex;
 var slideTitle;
@@ -52,6 +56,22 @@ addIndexAttributeToDots();
 setUpDotsListener();
 setUpNavButtonListeners();
 addAriaLabel();
+
+function getInitialSlide() {
+  "use strict";
+  var currentSlideIndex = 0;
+  var indexInSS;
+  if ($("html").attr("lang") === "es") {
+    indexInSS = sessionStorage.getItem("storedCarouselIndexSpanish");
+  }
+  else {
+    indexInSS = sessionStorage.getItem("storedCarouselIndexEnglish");
+  }
+  if (indexInSS != null) {
+    currentSlideIndex = indexInSS;
+  }
+  return currentSlideIndex;
+}
 
 function addIndexAttributeToDots() {
   "use strict";
@@ -112,8 +132,27 @@ $(".slides").on(
   }
 );
 
+$(".slides").on(
+  "afterChange",
+  function (event, slick, currentSlide) {
+    "use strict";
+    console.log(`afterChange event ${currentSlide}`);
+    updateSessionStorage(currentSlide);
+  }
+);
+
 function updateAriaText() {
   "use strict";
   carouselSlides.querySelector(".liveregion").textContent =
     "Slide " + slideIndex + " of 6 " + slideTitle;
+}
+
+function updateSessionStorage(currentIndex) {
+  "use strict";
+  if ($("html").attr("lang") === "es") {
+    sessionStorage.setItem("storedCarouselIndexSpanish", currentIndex);
+  }
+  else {
+    sessionStorage.setItem("storedCarouselIndexEnglish", currentIndex);
+  }
 }
