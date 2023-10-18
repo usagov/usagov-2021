@@ -238,6 +238,7 @@
         }
 
         .thumbnailBanner {
+          background-color: #ccecf2;
           opacity: 0.5;
         }
       }
@@ -282,7 +283,7 @@
 }
 
 .thumbnailDiv {
-  background: #ccecf2;
+  background: transparent;
   width: 100%;
   height: 75px;
   margin: 0;
