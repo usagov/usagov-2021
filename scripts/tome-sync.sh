@@ -77,11 +77,6 @@ rm -rf $RENDER_DIR/es/node/ 2>&1 | tee -a $TOMELOG
 WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | head -n 1)
 WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | head -n 1)}
 
-# Regenerate the sitemap.
-echo "Regenerating sitemap..."
-drush ssr
-drush ssg
-
 # replacing inaccurate hostnames
 echo "Replacing references to CMS hostname ... "
 find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" -o -name "*.xml" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|'"$WWW_HOST"'|ig' {} \;
