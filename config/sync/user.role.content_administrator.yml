@@ -31,7 +31,6 @@ dependencies:
     - system
     - toolbar
     - usa_content_moderation_notifications
-    - usa_workflow
 id: content_administrator
 label: 'Content Administrator'
 weight: 5
@@ -134,9 +133,7 @@ permissions:
   - 'update any media'
   - 'update content translations'
   - 'update media'
-  - 'usa approve own content'
   - 'usa content moderation notify own content'
-  - 'usa delete own content'
   - 'use basic_workflow transition archive'
   - 'use basic_workflow transition create_new_draft'
   - 'use basic_workflow transition move_to_review'
