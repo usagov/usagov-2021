@@ -89,7 +89,6 @@ module:
   usa_content_moderation_notifications: 0
   usa_orphaned_entities: 0
   usa_translation: 0
-  usa_workflow: 0
   usagov_directories: 0
   usagov_login: 0
   usagov_ssg_postprocessing: 0
