@@ -1,0 +1,187 @@
+
+
+
+{% set lang = node.langcode.value %}
+
+{% set life_events_data = {
+	'en': [
+		{
+			'title': 'Recovering from a disaster',
+			'body': 'Find government disaster assistance. Reconnect with loved ones and help survivors.',
+			'image': '/s3/files/styles/max_480w/public/2023-01/Banner_img_Natural_disasters_en.png.webp?itok=bJnFFdDr',
+			'image_alt': 'Radio, bottled water and other emergency kit items.',
+			'link': '/disaster',
+		},
+		{
+			'title': 'Having a child and early childhood',
+			'body': 'Find government programs to help during pregnancy and early childhood.',
+			'image': '/s3/files/styles/max_480w/public/2023-01/Banner_img_Birth_en.png.webp?itok=M6YzeTl7',
+			'image_alt': 'Mom holding newborn baby.',
+			'link': '/early-childhood',
+		},
+		{
+			'title': 'Transitioning to adulthood',
+			'body': 'As you enter adulthood, learn about voting, jobs and education, taxes, and more.',
+			'image': '/s3/files/styles/max_480w/public/2023-01/Banner_img_Turning_18_en.png.webp?itok=yLR6bF-M',
+			'image_alt': 'Smiley teenage girl with headphones and backpack.',
+			'link': '/adulthood',
+		},
+		{
+			'title': 'Approaching retirement',
+			'body': 'Get ready for retirement with planning tools and tips to help you apply for Medicare and Social Security.',
+			'image': '/s3/files/styles/max_480w/public/2023-01/Banner_img_Turning_65_en.png.webp?itok=MRFsq7y1',
+			'image_alt': 'Two older men walking behind two older women smiling.',
+			'link': '/approaching-retirement',
+		},
+		{
+			'title': 'Facing financial hardship',
+			'body': 'Learn how to apply for government programs to help with food, bills, housing, and more.',
+			'image': '/s3/files/styles/max_480w/public/2023-01/Banner_img_Life_FInancial_hardship_en.png.webp?itok=yZkr1ssl',
+			'image_alt': 'Worried couple looking at bills online using laptop.',
+			'link': '/financial-hardship',
+		},
+		{
+			'title': 'Dealing with the death of a loved one',
+			'body': 'Learn how to report a death to government agencies. Get a death certificate and survivor benefits.',
+			'image': '/s3/files/styles/max_480w/public/2023-01/Banner_img_Death_of_a_loved_one_en.png.webp?itok=ClVA35ap',
+			'image_alt': 'Last will and testament form.',
+			'link': '/death-loved-one',
+		}
+	],
+	'es': [
+		{
+			'title': 'Embarazo y primera infancia',
+			'body': 'Encuentre programas del Gobierno que ofrecen ayuda durante el embarazo y la primera infancia.',
+			'image': '/s3/files/styles/max_480w/public/2023-01/Banner_img_Birth_sp.png.webp?itok=_9KFw-2X',
+			'image_alt': 'Mamá con bebé en brazos.',
+			'link': '/es/embarazo-primera-infancia',
+		},
+		{
+			'title': 'Transición hacia la edad adulta',
+			'body': 'Durante la transición a la vida adulta, aprenda sobre el voto, los empleos y la educación, impuestos y más.',
+			'image': '/s3/files/styles/max_480w/public/2023-01/Banner_img_Turning_18_sp.png.webp?itok=04zlEgQm',
+			'image_alt': 'Jovencita adolescente sonriente portando audífonos y mochila.',
+			'link': '/es/transicion-edad-adulta',
+		},
+		{
+			'title': 'Prepararse para la jubilación',
+			'body': 'Prepárese para la jubilación con herramientas en línea y consejos que le ayudarán a solicitar Medicare y sus pagos de jubilación del Seguro Social.',
+			'image': '/s3/files/styles/max_480w/public/2023-01/Banner_img_Turning_65_sp.png.webp?itok=kfwB5zt2',
+			'image_alt': 'Dos hombres mayores caminando detrás de dos mujeres mayores sonriendo.',
+			'link': '/es/prepararse-para-la-jubilacion',
+		},
+		{
+			'title': 'Enfrentar dificultades económicas',
+			'body': 'Sepa cómo solicitar programas del Gobierno de ayuda para alimentos, facturas, vivienda y más.',
+			'image': '/s3/files/styles/max_480w/public/2023-01/Banner_img_Life_Financial_hardship_sp.png.webp?itok=H9rCwaRa',
+			'image_alt': 'Pareja preocupada viendo facturas en línea en computadora portátil.',
+			'link': '/es/enfrentar-dificultades-economicas',
+		},
+		{
+			'title': 'Recuperarse de un desastre natural',
+			'body': 'Encuentre asistencia del Gobierno para desastres. Sepa cómo localizar a sus seres queridos y ayudar a los supervivientes.',
+			'image': '/s3/files/styles/max_480w/public/2023-01/Banner_img_Natural_disasters_sp.png.webp?itok=MSCsj5KP',
+			'image_alt': 'Radio, botellas de agua y otros artículos para kit de emergencia.',
+			'link': '/es/recuperarse-desastre-natural',
+		},
+		{
+			'title': 'Hacerle frente a la muerte de un ser querido',
+			'body': 'Cómo reportar una muerte a las agencias del Gobierno. Obtenga un certificado de defunción y beneficios para sobrevivientes.',
+			'image': '/s3/files/styles/max_480w/public/2022-11/Banner_img_LastWill_Sp.png.webp?itok=AEBlzOho',
+			'image_alt': 'Formulario de última voluntad y testamento.',
+			'link': '/es/muerte-de-un-ser-querido',
+		}
+	]
+ } %}
+
+<style>
+.life-events-cards{
+	margin-top: 40px;
+	margin-bottom: 70px;
+}
+a.usa-card__container {
+	margin-top: 4px;
+	border: 1px solid #53bbdf;
+	border-radius: 4px;
+	box-shadow: 4px 4px 4px 0 rgba(0, 0, 0, .35);
+	padding: 0;
+	text-align: left;
+	background-color: transparent;
+	box-shadow: none;
+	display: flex;
+	flex-direction: column;
+	color: #fff;
+	text-decoration: none
+}
+
+.life-events a.usa-card__container:visited {
+	color: #fff;
+	text-decoration: none
+}
+
+.life-events a.usa-card__container:focus {
+	outline: 0
+}
+
+.life-events a.usa-card__container:hover {
+	background-color: transparent
+}
+
+.life-events a.usa-card__container:hover h3 {
+	text-decoration: underline;
+	text-decoration-color: initial;
+	text-decoration-thickness: initial
+}
+
+.life-events a.usa-card__container:hover .thumbnailBanner {
+	opacity: .5
+}
+
+.life-events a.usa-card__container .life_events_card_text {
+	padding: 12px 12px 0;
+	flex: 1 0 auto
+}
+
+.life-events a.usa-card__container:focus-within {
+	border: 4px solid #c05600
+}
+
+.life-events a.usa-card__container h3 {
+	margin: 0;
+	color: #00bde3;
+	text-decoration: none;
+	font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif
+}
+
+.life-events a.usa-card__container p {
+	margin: 0;
+	font-weight: 400;
+	font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+	font-size: 17.6px;
+	padding-top: 10px
+}
+.life-events ul.grid-row{
+	margin: 0;
+	padding: 0;
+}
+</style>
+
+<ul class="grid-row">
+{% for lifeEvent in life_events_data[lang] %}
+	<li class="usa-card desktop:grid-col-4 tablet:grid-col-6">
+		<a href="{{ lifeEvent.link }}" class="usa-card__container text-no-underline">
+			<header class="usa-card__header">
+				<h3 class="usa-card__heading usagov-card__heading">
+					{{ lifeEvent.title }}
+				</h3>
+			</header>
+			<p class="usa-card__body usa-prose">
+				{{ lifeEvent.body }}
+			</p>
+			<div class="thumbnailDiv">
+				<img class="thumbnailBanner" alt="{{ lifeEvent.image_alt }}" src="{{ lifeEvent.image }}" width="252" height="75" loading="lazy">
+			</div>
+		</a>
+	</li>
+{% endfor %}
+</ul>
