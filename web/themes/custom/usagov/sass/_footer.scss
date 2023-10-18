@@ -173,6 +173,15 @@
   }
 }
 
+.usa-footer__contact-info.grid-row.grid-gap>a {
+    padding-right: 0em;
+    line-height: 1.2;
+}
+
+.usa-footer__contact-info.grid-row.grid-gap>a~a {
+    padding-left: 0;
+}
+
 .footer-social-block {
   display: inline-block;
   height:100%;
