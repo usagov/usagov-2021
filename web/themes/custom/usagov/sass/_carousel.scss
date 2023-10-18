@@ -184,10 +184,10 @@
   }
 
   display: grid;
-  grid-template-columns: 55px 1fr 55px;
   grid-template-rows: auto;
   grid-template-areas: "prevIcon slides nextIcon"
   ". navDots .";
+  width: 100%;
 
   .slick-prev,
   .slick-next {
