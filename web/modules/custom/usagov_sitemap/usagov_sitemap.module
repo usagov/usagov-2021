@@ -15,10 +15,10 @@ function usagov_sitemap_simple_sitemap_links_alter(array &$links, $sitemap_varia
     /**
      *    Remove the following lines from each page in the sitemap:
      *    <xhtml:link rel="alternate" hreflang="en" href="http://default/"/>
-     *     <xhtml:link rel="alternate" hreflang="es" href="http://default/es"/>
-     *     <lastmod>2023-10-16T09:43:46-04:00</lastmod>
-     *     <changefreq>daily</changefreq>
-     *     <priority>1.0</priority>
+     *    <xhtml:link rel="alternate" hreflang="es" href="http://default/es"/>
+     *    <lastmod>2023-10-16T09:43:46-04:00</lastmod>
+     *    <changefreq>daily</changefreq>
+     *    <priority>1.0</priority>
      */
     unset($links[$key]['alternate_urls']);
     unset($links[$key]['lastmod']);
