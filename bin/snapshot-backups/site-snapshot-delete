@@ -12,19 +12,30 @@ fi
 if [ -f ./env.local ]; then
   . ./env.local
 fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
 
 # just testing?
-if [ x$1 == x"--dryrun" ]; then
+if [ x$1 = x"--dryrun" ]; then
   export echo=echo
   shift
 fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
 
 DEPLOY_TAG=${1}
 shift
 
 if [ -z "$DEPLOY_TAG" ]; then
   echo
-  echo "Usage: $0 [--dryrun] <tag> [--download]"
+  echo "Usage: $0 [--dryrun] <cf space> <tag> [--download]"
   echo "This will remove a tagged static site snapshot. Use static-site-list to see available tags."
   echo "  --dryrun simply prints the commands that would have run"
   echo "  --download downloads and creates a zip file of the snapshot, prior to deletion"

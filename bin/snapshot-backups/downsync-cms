@@ -68,9 +68,8 @@ if [[ $? != 0 ]]; then
 fi
 
 # Deploy database to TO_SPACE
-echo  $SCRIPT_DIR/db-dump-deploy $DEPLOY_TAG
-$echo $SCRIPT_DIR/db-dump-deploy $DEPLOY_TAG
-
+echo  $SCRIPT_DIR/db-dump-deploy $TO_SPACE $DEPLOY_TAG
+$echo $SCRIPT_DIR/db-dump-deploy $TO_SPACE $DEPLOY_TAG
 
 # Deploy s3 cms/public snapshot
 # get-s3-access resets S3_BUCKET as well as access credentials
