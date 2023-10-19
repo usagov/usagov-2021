@@ -26,7 +26,7 @@ function usagov_sitemap_simple_sitemap_links_alter(array &$links, $sitemap_varia
     unset($links[$key]['priority']);
 
     // Add a "/" to the end of "localhost/es" in the sitemap
-    if($links[$key]['meta']['entity_info']['id'] == "1" && $links[$key]['langcode'] == "es"){
+    if ($links[$key]['meta']['entity_info']['id'] == "1" && $links[$key]['langcode'] == "es") {
       $links[$key]['url'] = $link['url'] . '/';
     }
   }
