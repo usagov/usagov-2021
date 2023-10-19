@@ -27,6 +27,7 @@ i.e.
 @use "uswds-core" as *;
 @use "usagov-variables" as *;
 
+@forward "carousel";
 @forward "sidenav";
 @forward "navigation-page";
 @forward "content-page";
@@ -307,6 +308,8 @@ add padding at the top of flag cards
 @media (min-width: 64em) {
   .usa-header--extended .usa-logo {
     margin: 0.5rem 0 0.2em;
+    width: 5rem;
+    height: 5rem;
   }
 }
 
@@ -364,6 +367,7 @@ add padding at the top of flag cards
   @include at-media($theme-header-min-width) {
     width: 15rem;
     line-height: 1.1rem;
+    margin-bottom: 0;
   }
 }
 
@@ -372,6 +376,7 @@ add padding at the top of flag cards
   @include at-media($theme-header-min-width) {
     width: 17rem;
     line-height: 1.1rem;
+    margin-bottom: 0;
   }
 }
 
@@ -384,6 +389,7 @@ add padding at the top of flag cards
     padding-right: 1rem;
     font-size: 2rem;
     padding-bottom: 0.4rem;
+    line-height: 2rem;
   }
 }
 
@@ -463,6 +469,7 @@ a,
 
 .usa-button {
   width: 100%;
+  line-height: 1.5;
 
   @media (min-width: 30em) {
     width: auto;
@@ -723,14 +730,10 @@ input:not([disabled]):focus.usa-user-error {
   border-left: 3px solid var($red);
 }
 
-.usa-form-spacing {
-  padding-left: 1rem;
-}
-
 #myform div.margin-x-auto {
-  //margin-left: 3rem;
+  // margin-left: 3rem;
   @media (max-width: 40em) {
-    margin-left: .2rem;
+    margin-left: 1rem;
     margin-right: 1rem;
   }
 }
@@ -744,6 +747,18 @@ input:not([disabled]):focus.usa-user-error {
   max-width: 20rem;
 }
 */
+
+.ceo-button-container {
+  display: flex;
+  // Manages where the button is going to be positioned.
+  // Example: center, right, left.
+  justify-content: center;
+}
+
+.ceo-button {
+  margin-inline: 0 !important;
+  width: fit-content;
+}
 
 .usa-error--alert {
   display: none;
@@ -839,6 +854,11 @@ button#next.usa-button,
 .block-wizardenglish a.usa-button {
   background-color: var($cyan-light);
   box-shadow: inset 0 0 0 2px var($cyan-50v);
+}
+
+button#next.usa-button:hover,
+.block-wizardenglish a.usa-button:hover {
+  background-color: var($secondary-background-color);
 }
 
 .block-wizardenglish .usa-prose>p {
@@ -984,19 +1004,39 @@ p, a, .usa-label, .usa-radio__label {
   line-height: 1.5;
 }
 
-.usa-form .usa-button {
-  margin-left: 4rem;
-  @media (max-width: 30em) {
-    margin-left: .4rem;
-  }
-}
-
-.usa-form div.maxw-mobile p {
-  @media (max-width: 40em) {
-    padding-left: 1rem;
-  }
-}
-
 div div.field--name-field-offices-near-you{
   display: inline;
 }
+
+@media (min-width: 64em){
+  .usa-header--extended .usa-navbar {
+    overflow: inherit;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+
+  .usa-header--extended .usa-nav__secondary, .usa-header--extended .usa-nav__secondary:lang(es) {
+    flex-direction: row;
+    align-items: baseline;
+    align-self: center;
+    bottom: 0px;
+    /* width: 32rem; */
+    position: relative;
+    margin-top: 0rem;
+    min-width: auto;
+    right: 0px;
+  }
+
+  #header > div.usa-navbar > div.usa-nav__secondary > form.usa-search.usa-search--small {
+    align-self: center;
+    margin-top: 0;
+  }
+
+  #header > div.usa-navbar > div.usa-nav__secondary > span.usa-nav__secondary-links {
+    align-self: center;
+  }
+
+}
+

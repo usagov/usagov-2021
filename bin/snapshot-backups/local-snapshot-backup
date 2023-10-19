@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
+
+TICKET_ID=$1
+if [ -z "$TICKET_ID" ]; then
+  echo "Usage: $0 <env> <jira ticket> <cci build id>"
+  echo "This will attempt to backup the s3 backup of the database to $SPACE"
+  exit 1
+fi
+shift
+
+SUFFIX=$1
+if [ -z "$SUFFIX" ]; then
+  echo "Usage: $0 <env> <jira ticket> <cci build id> <suffix>"
+  echo "This will attempt to backup the current state of the database, static site and public files in $SPACE"
+  exit 1
+fi
+shift
+
+DOWNLOAD=$1
+#shift
+
+RETVAL=0
+if [ x$echo = x ]; then
+  while [ "1" != "0" ]; do
+    bin/deploy/try-tome-disable
+    RETVAL=$?
+    break
+  done
+fi
+
+if [ "$RETVAL" = "0" ]; then
+  $echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX db-dump-to-snapshot    #$SNAPSHOT_TAG
+  $echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX site-snapshot-create   #$SNAPSHOT_TAG
+  $echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX public-snapshot-create #$SNAPSHOT_TAG
+  if [ x$echo = x ]; then
+    bin/deploy/try-tome-enable
+  fi
+  if [ x"$DOWNLOAD" = "x--download" ]; then
+    $echo bin/snapshot-backups/local-snapshot-download $SPACE $TICKET_ID $SUFFIX
+  fi
+else
+  echo "Did not run backup scripts.  Retval of tome check was: '  $RETVAL'"
+fi

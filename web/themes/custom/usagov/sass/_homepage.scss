@@ -134,11 +134,16 @@
     margin: 0;
   }
 
+  h3 {
+    line-height: 1.25;
+  }
+
   p {
     font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
       Arial, sans-serif;
     font-size: 20px;
     margin: 0;
+    line-height: 1.5;
   }
 
   a {
@@ -241,256 +246,6 @@
   padding-left: 12px;
   padding-right: 20px;
   margin-bottom: 15px;
-}
-
-/* Life Events */
-.life-events {
-  background-color: var($deep-blue);
-  grid-column: 1 / 3;
-  grid-row: 5 / 6;
-  margin-left: 5vw;
-  margin-right: 5vw;
-  padding: 0;
-  max-width: 100%;
-
-  h2 {
-    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times,
-      serif;
-    font-size: var($homepage, medium-font-size);
-    margin: 0;
-    padding-top: 50px;
-  }
-
-  p {
-    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
-      Arial, sans-serif;
-    font-size: var($homepage, small-font-size);
-    padding-top: 13px;
-  }
-}
-
-.life-events-carousel {
-  margin: 40px 0 0;
-  max-width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.sr-only {
-  position: absolute;
-  left: -10000px;
-  top: auto;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-}
-
-.carousel {
-  position: relative;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: space-between;
-  flex: 1 0 auto;
-
-
-  .grid-container {
-    width: 100%;
-  }
-
-  .usagov-cards {
-    background-color: transparent;
-    padding: 0;
-  }
-
-  .usa-card__container {
-    background-color: transparent;
-    box-shadow: none;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .usagov-card {
-    border: none;
-  }
-}
-
-.previous,
-.next {
-  padding: 0;
-  width: 44px;
-  height: 44px;
-  margin-top: auto;
-  margin-bottom: auto;
-  border: none;
-  background-color: transparent;
-
-  img {
-    width: 44px;
-
-    &:hover {
-      filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg)
-        brightness(103%) contrast(103%);
-    }
-  }
-}
-
-.carousel__navigation_wrapper{
-  flex: 1 0 auto;
-}
-
-.carousel__navigation {
-  margin: 30px 0 70px;
-  list-style-type: none;
-  padding-left: 0;
-  align-items: center;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: center;
-  width: auto;
-}
-
-.carousel__navigation_button {
-  width: 44px;
-  height: 44px;
-  background-color: transparent;
-  border: none;
-  padding-left: 0;
-  padding-right: 0;
-  margin-right: 0;
-}
-
-.carousel__navigation_dot {
-  fill: transparent;
-  stroke: var($cyan-30v);
-  stroke-width: 6px;
-
-  &:hover {
-    stroke: var(white);
-    stroke-width: 6px;
-  }
-}
-
-.carousel__navigation_button[aria-current="true"] .carousel__navigation_dot {
-  fill: var($cyan-30v);
-  stroke: var($cyan-30v);
-  stroke-width: 6px;
-}
-
-.carousel-mover {
-  width: min(calc(100% - 106px),240px);
-  padding-left: 11px;
-  padding-right: 11px;
-}
-
-.slides {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  width: 100%;
-  overflow: hidden;
-}
-
-.slide {
-  width: min(calc(100% - 4px), 234px);
-  max-width: min(calc(100% - 4px), 234px);
-  min-height: 285px;
-  flex: 0 0 calc(100%);
-  margin-top: 10px;
-  border: 1px solid #53BBDF;
-  border-radius: 4px;
-  box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
-  padding: 0;
-  margin-right: 4px;
-
-  &:focus-within {
-    border: 4px solid #c05600;
-  }
-
-  a {
-    color: var($white);
-    text-decoration: none;
-    display: flex;
-
-    &:visited {
-      color: var($white);
-      text-decoration: none;
-    }
-
-    &:focus {
-      outline: none;
-    }
-
-    &:hover h3{
-      text-decoration: underline;
-    }
-
-    .life_events_card_text {
-      padding: 12px 12px 0;
-      flex: 1 0 auto;
-    }
-  }
-
-  .usa-card__container{
-    margin:0;
-  }
-
-  .slide:last-child {
-    margin-right: 0;
-  }
-
-  h3 {
-    margin: 0;
-    color: var($cyan-30v);
-    text-decoration: none;
-    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
-      Arial, sans-serif;
-    line-height: 1.25;
-  }
-
-  p {
-    margin: 0;
-    font-weight: normal;
-    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-    font-size: var($homepage, small-font-size);
-    padding-top: 10px;
-  }
-
-  .usa-card__body:last-child {
-    padding-bottom: 0;
-  }
-}
-
-.slide a:hover h3 {
-  text-decoration: underline;
-  text-decoration-color: initial;
-  text-decoration-thickness: initial;
-}
-
-.slide a:hover .thumbnailBanner {
-  opacity: 0.5;
-}
-
-.thumbnailDiv {
-  background: #ccecf2;
-  width: 100%;
-  height: 75px;
-  margin: 0;
-  box-shadow: 0 6px 6px var($blue-shadow);
-  border-radius: 0 0 4px 4px;
-  overflow: hidden;
-  flex: 0 0 75px;
-}
-
-.thumbnailBanner {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  margin: 0;
-  border-radius: 0 0 4px 4px;
 }
 
 /* Jump */
@@ -650,6 +405,15 @@
   margin-top: 25px;
 }
 
+.sr-only {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 /* Larger Mobile */
 @media (min-width: 480px) {
   .welcome-box {
@@ -693,38 +457,6 @@
 
   .homepage-card-group {
     grid-template-columns: repeat(auto-fit, minmax(100px, 224px));
-  }
-}
-
-/* Static Mobile */
-@media (min-width: 385px) {
-  .carousel-mover {
-    width: 246px;
-    padding-left: 11px;
-    padding-right: 11px;
-  }
-
-  .slide {
-    width: 236px;
-    max-width: 236px;
-    flex: 0 0 calc(100%);
-  }
-}
-
-/* Tablet */
-@media (min-width: 640px) {
-  .carousel-mover {
-    width: calc(100% - 90px);
-    padding-left: 11px;
-    padding-right: 11px;
-  }
-
-  .slide {
-    flex: 0 0 calc(50% - 20px);
-    width: auto;
-    max-width: inherit;
-    margin-right: 20px;
-    margin-left: 0;
   }
 }
 
@@ -774,20 +506,6 @@
   }
 }
 
-/* Static Tablet Carousel */
-@media (min-width: 723px) {
-  .carousel-mover {
-    width: 540px;
-  }
-
-  .slide {
-    flex: 0 0 calc(50% - 20px);
-    width: 260px;
-    max-width: 260px;
-    margin-right: 20px;
-  }
-}
-
 /* Tablet */
 @media (max-width: 700px) and (min-width: 480px) {
   .how-button-list {
@@ -817,29 +535,4 @@
     max-width: var($homepage, smaller-max-width);
     padding: 0 0 0 75px;
   }
-
-  .life-events-carousel {
-    width: 960px;
-  }
-
-  .carousel-mover {
-    width: 850px;
-    max-width: 850px;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .slide {
-    flex: 0 0 calc(100% / 3);
-    padding: 0;
-    width: 260px;
-    max-width: 260px;
-    margin-right: 29px;
-    margin-left: 0;
-
-    .life_events_card_text {
-      padding: 16px 16px 0;
-    }
-  }
 }
-
