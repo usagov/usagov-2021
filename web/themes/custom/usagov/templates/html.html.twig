@@ -151,7 +151,7 @@
           "name": "{{ item.question }}",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": `{{ item.answer|raw }}`
+            "text": "{{ item.answer|replace({'\"': '\\\"'})|raw }}"
           }
         }{% if not loop.last %},
         {% endif %}
