@@ -253,6 +253,8 @@ COPY .docker/zscaler_cert.pem /tmp/zscaler.crt
 RUN if [ x"${BUILD_ENV}" = x"LOCAL" ] ; then cp /tmp/zscaler.crt /usr/local/share/ca-certificates/zscaler.crt ; update-ca-certificates ; fi
 
 RUN chmod -R +x /etc/periodic \
+    && rm -f /var/www/web/core/tests/Drupal/Tests/Composer/fixtures/ensureBehatDriverVersionsFixture/composer.lock \
+    && rm -f /var/www/web/core/modules/system/tests/fixtures/HtaccessTest/composer.lock \
     && rm -f /var/www/web/sites/default/settings.local.php \
     && rm -rf /var/www/web/sites/default/files/* \
     && rm -rf /var/www/web/themes/custom/usagov/node_modules \
