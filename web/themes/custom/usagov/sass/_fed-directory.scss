@@ -75,7 +75,7 @@ hr.bl-divider {
   width: 100%;
 }
 
-// Styling of the accordion field header 
+// Styling of the accordion field header
 .agency-index-label {
   padding-right: 8px;
   margin-block-end: 0 !important;
@@ -101,8 +101,8 @@ div.field--name-field-offices-near-you> ul {
 }
 
 // Styling of the content inside an accordion section
-.field--name-field-website, 
-.field--name-field-phone-number, 
+.field--name-field-website,
+.field--name-field-phone-number,
 .field--name-field-contact-link {
   margin-top: 10px;
 }
@@ -229,6 +229,10 @@ div.field--name-field-offices-near-you> ul {
       font-weight: bold;
     }
   }
+}
+
+div div.field--name-field-offices-near-you>ul>li {
+  line-height: 2;
 }
 
 // Bottom Navigation
