@@ -106,5 +106,6 @@ echo "Build theme"
 bin/npm install
 bin/npm run build
 
+bin/rm-snyk-problems
 
 echo "Init process complete"
