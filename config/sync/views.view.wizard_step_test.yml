@@ -5,6 +5,10 @@ dependencies:
   config:
     - field.storage.node.field_wizard_step
     - node.type.wizard_step
+    - user.role.content_administrator
+    - user.role.content_editor
+    - user.role.content_manager
+    - user.role.site_admin
   module:
     - node
     - user
@@ -582,6 +586,16 @@ display:
     display_plugin: page
     position: 1
     display_options:
+      access:
+        type: role
+        options:
+          role:
+            content_editor: content_editor
+            site_admin: site_admin
+            content_manager: content_manager
+            content_administrator: content_administrator
+      defaults:
+        access: false
       display_extenders: {  }
       path: wizard-step-test
     cache_metadata:
@@ -591,6 +605,6 @@ display:
         - 'languages:language_interface'
         - url.query_args
         - 'user.node_grants:view'
-        - user.permissions
+        - user.roles
       tags:
         - 'config:field.storage.node.field_wizard_step'
