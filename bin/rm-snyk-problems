@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+#WWW_HOST=${1:-beta-usagov.docker.local}
+#
+#docker compose run \
+#  --rm \
+#  --workdir /var/www \
+#  cms \
+#  /bin/ash -c "CF_INSTANCE_INDEX=0 WWW_HOST=${WWW_HOST} /etc/periodic/1min/generate-static-site --force"
+
+docker exec -t cms rm -f /var/www/web/core/tests/Drupal/Tests/Composer/fixtures/ensureBehatDriverVersionsFixture/composer.lock
+docker exec -t cms rm -f /var/www/web/core/modules/system/tests/fixtures/HtaccessTest/composer.lock
+
