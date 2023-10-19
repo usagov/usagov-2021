@@ -91,6 +91,7 @@ module:
   usa_translation: 0
   usagov_directories: 0
   usagov_login: 0
+  usagov_sitemap: 0
   usagov_ssg_postprocessing: 0
   usagov_top_navigation_menu: 0
   usagov_uswds_paragraph_components_mods: 0
