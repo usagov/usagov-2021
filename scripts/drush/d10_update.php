@@ -47,3 +47,7 @@ foreach (\Drupal::configFactory()->listAll('pathauto.pattern.') as $pattern_conf
     }
   }
 }
+
+$query = \Drupal::database()
+  ->query("DELETE from system where type = 'module' AND name IN ('mmf_core_fields')")
+  ->execute();
