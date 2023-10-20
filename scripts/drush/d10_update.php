@@ -48,3 +48,4 @@ foreach (\Drupal::configFactory()->listAll('pathauto.pattern.') as $pattern_conf
   }
 }
 
+\Drupal::database()->schema()->dropTable('embedded_paragraphs_revision');
