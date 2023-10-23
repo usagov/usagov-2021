@@ -194,23 +194,7 @@ breakpoints:
       11:
         layouts: ''
       12:
-        layouts:
-          -
-            label: '12'
-            settings:
-              col-1: equal
-              col-2: equal
-              col-3: equal
-              col-4: equal
-              col-5: equal
-              col-6: equal
-              col-7: equal
-              col-8: equal
-              col-9: equal
-              col-10: equal
-              col-11: equal
-              col-12: equal
-            weight: '0'
+        layouts: ''
   desktop-lg:
     label: 'Desktop Large'
     prefix: desktop-lg

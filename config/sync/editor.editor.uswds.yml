@@ -1,4 +1,4 @@
-uuid: 0b8a297f-e7dd-46a0-8a14-5f2690bbca37
+uuid: 20f03326-7a60-4d8e-be80-1a49dde440be
 langcode: en
 status: true
 dependencies:
@@ -21,6 +21,7 @@ settings:
       - removeFormat
       - '|'
       - heading
+      - codeBlock
       - style
       - '|'
       - link
@@ -29,16 +30,11 @@ settings:
       - numberedList
       - '|'
       - blockQuote
-      - drupalMedia
-      - '|'
-      - codeBlock
       - '-'
-      - sourceEditing
-      - '|'
-      - insertTable
-      - uswdsGrid
-      - UswdsAccordionToolbar
+      - drupalMedia
       - embeddedContent
+      - UswdsAccordionToolbar
+      - uswdsGrid
   plugins:
     ckeditor5_alignment:
       enabled_alignments:
@@ -100,8 +96,6 @@ settings:
     ckeditor5_list:
       reversed: true
       startIndex: true
-    ckeditor5_sourceEditing:
-      allowed_tags: {  }
     ckeditor5_style:
       styles:
         -
@@ -121,8 +115,6 @@ settings:
       override_lists: false
       override_links: false
       override_tables: false
-    uswds_ckeditor_integration_ckeditor5_table_content_items:
-      table_content_items: false
     uswds_ckeditor_integration_grid:
       available_columns:
         - '1'
