@@ -1,0 +1,11 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - file
+    - image_style_warmer
+id: image_style_warmer_warmup_file
+label: 'Warmup image styles of files'
+type: file
+plugin: image_style_warmer_warmup_file
+configuration: {  }
