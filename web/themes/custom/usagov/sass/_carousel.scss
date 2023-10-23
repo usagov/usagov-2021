@@ -184,10 +184,10 @@
   }
 
   display: grid;
-  grid-template-columns: 55px 1fr 55px;
   grid-template-rows: auto;
   grid-template-areas: "prevIcon slides nextIcon"
   ". navDots .";
+  width: 100%;
 
   .slick-prev,
   .slick-next {
@@ -238,6 +238,7 @@
         }
 
         .thumbnailBanner {
+          background-color: #ccecf2;
           opacity: 0.5;
         }
       }
@@ -282,7 +283,7 @@
 }
 
 .thumbnailDiv {
-  background: #ccecf2;
+  background: transparent;
   width: 100%;
   height: 75px;
   margin: 0;
