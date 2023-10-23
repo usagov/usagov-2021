@@ -7,7 +7,7 @@ generate_duration: 10000
 entities_per_queue_item: 50
 remove_duplicates: true
 skip_untranslated: true
-xsl: true
+xsl: false
 base_url: ''
 default_variant: default
 custom_links_include_images: false

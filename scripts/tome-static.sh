@@ -21,6 +21,11 @@ else
   fi
 fi
 
+# Regenerate the sitemap.
+echo "Regenerating sitemap..."
+drush ssr
+drush --uri=$URI ssg
+
 echo "Starting Static Site Generation : "$(date)
 mkdir -p /var/www/html
 # time drush -vvv tome:static --uri=$URI --process-count=1 --path-count=1
