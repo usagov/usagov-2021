@@ -27,10 +27,10 @@ dependencies:
     - paragraphs_entity_embed
     - path
     - redirect
+    - simple_sitemap
     - system
     - toolbar
     - usa_content_moderation_notifications
-    - usa_workflow
 id: content_administrator
 label: 'Content Administrator'
 weight: 5
@@ -46,6 +46,7 @@ permissions:
   - 'administer nodes'
   - 'administer redirect settings'
   - 'administer redirects'
+  - 'administer sitemap settings'
   - 'break content lock'
   - 'create agency_synonym content'
   - 'create audio media'
@@ -132,9 +133,7 @@ permissions:
   - 'update any media'
   - 'update content translations'
   - 'update media'
-  - 'usa approve own content'
   - 'usa content moderation notify own content'
-  - 'usa delete own content'
   - 'use basic_workflow transition archive'
   - 'use basic_workflow transition create_new_draft'
   - 'use basic_workflow transition move_to_review'

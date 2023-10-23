@@ -52,7 +52,11 @@
           {% set sibblings_of_active_item = submenu %}
         {% endif %}
       {% endif %}
-      {% set submenu = menu_item.submenu %}
+      {% if menu_item.submenu %}
+         {% set submenu = menu_item.submenu %}
+      {% else %}
+         {% set submenu = [] %} {# Ends traversal here #}
+      {% endif %}
     {% endfor %}
   {% endif %}
 {% endfor %}
