@@ -11,7 +11,7 @@ field_name: field_default_icon_color
 entity_type: paragraph
 bundle: uswds_icon_list
 label: 'Default Icon Color'
-description: 'Optionally, choose a default icon color. This color can be overridden by the individual icon''''s color setting.'
+description: "Optionally, choose a default icon color. This color can be overridden by the individual icon''s color setting."
 required: false
 translatable: false
 default_value: {  }

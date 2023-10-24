@@ -121,7 +121,7 @@ ul.navigation__items {
   }
 }
 @media (max-width: 63.99em) {
-  .usa-nav.is-visible {
+  .usa-nav.is-visible, .usa-navbar>.usa-nav__secondary {
     display: none;
   }
 
