@@ -1,5 +1,4 @@
 name: 'USA Twig Variables'
 type: module
 description: 'Extract variable values for twig usage'
-core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^9 || ^10

@@ -517,6 +517,10 @@ a,
   color: var($dark-gray);
 }
 
+.usa-breadcrumb__list-item{
+  line-height: 1.5;
+}
+
 a {
   color: var($text-blue);
 }
