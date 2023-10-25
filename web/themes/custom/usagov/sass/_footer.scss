@@ -168,18 +168,8 @@
 
 .usa-footer__contact-info {
   @media (min-width: 30em) {
-    justify-content: flex-start !important;
-    margin-top: -0.25rem;
+    margin-top: 0;
   }
-}
-
-.usa-footer__contact-info.grid-row.grid-gap>a {
-    padding-right: 0em;
-    padding-top: .4rem;
-}
-
-.usa-footer__contact-info.grid-row.grid-gap>a~a {
-    padding-left: 0;
 }
 
 .footer-social-block {
