@@ -81,6 +81,7 @@ done
   if service_exists "key-value" ; then
     echo key-value already created
   else
+    cf target -s $EGRESS_SPACE
     cf create-service s3 basic-sandbox key-value
   fi
 }

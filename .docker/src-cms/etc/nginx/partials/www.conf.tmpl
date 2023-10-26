@@ -97,6 +97,7 @@ server {
     ### rewrite ^/es$ /es/ permanent; # special; cannot be applied to the CMS because Drupal redirects /es/ to /es
 }
 
+server {
     listen 443 ssl;
     include partials/ssl.conf;
 
