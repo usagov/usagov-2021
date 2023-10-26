@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * Alter the generated link data before the sitemap is saved.
+ * This hook gets invoked for every sitemap chunk generated.
+ *
+ * @param array &$links
+ *   Array containing multilingual links generated for each path to be indexed
+ *
+ * @param string|null $sitemap_variant
+ */
+function usagov_sitemap_simple_sitemap_links_alter(array &$links, $sitemap_variant) {
+
+  foreach ($links as $key => $link) {
+    /**
+     *    Remove the following lines from each page in the sitemap:
+     *    <xhtml:link rel="alternate" hreflang="en" href="http://default/"/>
+     *    <xhtml:link rel="alternate" hreflang="es" href="http://default/es"/>
+     *    <lastmod>2023-10-16T09:43:46-04:00</lastmod>
+     *    <changefreq>daily</changefreq>
+     *    <priority>1.0</priority>
+     */
+    unset($links[$key]['alternate_urls']);
+    unset($links[$key]['lastmod']);
+    unset($links[$key]['changefreq']);
+    unset($links[$key]['priority']);
+
+    // Add a "/" to the end of "localhost/es" in the sitemap
+    if ($links[$key]['meta']['entity_info']['id'] == "1" && $links[$key]['langcode'] == "es") {
+      $links[$key]['url'] = $link['url'] . '/';
+    }
+  }
+}
