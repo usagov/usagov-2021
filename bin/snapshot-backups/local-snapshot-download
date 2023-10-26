@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
+
+SNAPSHOT_TAG=$1
+if [ -z "$SNAPSHOT_TAG" ]; then
+  echo "Usage: $0 <env> <snapshot tag>"
+  echo "This will attempt to deploy the s3 backups to $SPACE"
+  exit 1
+fi
+shift
+
+$echo bin/snapshot-backups/db-snapshot-download     $SPACE $SNAPSHOT_TAG
+$echo bin/snapshot-backups/site-snapshot-download   $SPACE $SNAPSHOT_TAG
+$echo bin/snapshot-backups/public-snapshot-download $SPACE $SNAPSHOT_TAG

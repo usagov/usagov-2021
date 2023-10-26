@@ -10,13 +10,247 @@ use Drupal\taxonomy\Entity\Term;
  * Place your custom PHP code in this file.
  */
 
-/**
-* This makes the node varialbe available to the templates/html.html.twig template file
-*/
 function usagov_preprocess_html(&$variables) {
-  $variables['node'] = \Drupal::routeMatch()->getParameter('node');
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $variables['node'] = $node;
+
+  // If the FAQ checkbox is checked, then parse the content to find questions and answers
+  if ($node?->hasField('field_faq_page') && $node->get('field_faq_page')[0]?->value) {
+    $variables['faq'] = generate_faq($node);
+  }
 }
 
+/**
+ * generate_faq takes a node, analyses the body content,
+ * and returns an array of objects each containing a question and answer
+ */
+function generate_faq(&$node) {
+  $faq = [];
+
+  // Set up a DOMDocument with the node's body content
+  $node_body = $node->get('body')[0]->value;
+  $dom = new DOMDocument();
+  libxml_use_internal_errors(TRUE);
+  $dom->loadHTML('<?xml encoding="UTF-8">' . $node_body);
+  libxml_clear_errors();
+
+  // Make component content compatible with FAQ
+  faq_process_components($dom);
+
+  // Setup the list of elements from the processed content
+  $elements = $dom->documentElement->childNodes[0]->childNodes;
+  // Setup the first answer
+  $answer = new DOMDocument();
+  $answer->loadHTML('<?xml encoding="UTF-8"><html><body></body></html>');
+
+  // Count the number of H2s in the body content
+  $numH2s = count($dom->getElementsByTagName('h2'));
+
+  if ($numH2s > 1) {
+    // There are multiple H2s
+    // Each H2 is a question
+    $question = "No Questions Found Yet";
+
+    // Loop through elements of the body content
+    foreach ($elements as $element) {
+      // Check the type of element
+      if ($element->nodeName == "h2") {
+        // $element is a new question
+        // If there was an existing question, store it and the answer
+        if ($question != "No Questions Found Yet") {
+          $answer = faq_answer_inner_html($answer);
+          if ($question && $answer) {
+            $faq[] = (object) ['question' => $question, 'answer' => $answer];
+          }
+        }
+
+        // Set up the next question
+        $question = $element->nodeValue;
+
+        // Set up the next answer
+        $answer = new DOMDocument();
+        $answer->loadHTML('<?xml encoding="UTF-8"><html><body></body></html>');
+
+      }
+      elseif ($element->nodeName == "#text") {
+        // $element is a text node
+        // This is white space that we can ignore.
+      }
+      else {
+        // $element is some kind of content
+        // Append the content to the current answer
+        $importedNode = $answer->importNode($element, TRUE);
+        $answer->documentElement->childNodes[0]->appendChild($importedNode);
+      }
+    }
+
+    // If there was an existing question, store it and the answer
+    if ($question != "No Questions Found Yet") {
+      $answer = faq_answer_inner_html($answer);
+      if ($question && $answer) {
+        $faq[] = (object) ['question' => $question, 'answer' => $answer];
+      }
+    }
+
+  }
+  else {
+    // There are not multiple H2s
+    // The H1 is the question
+    $question = $node->getTitle();
+
+    // Append the intro to the answer
+    $introText = $node->get('field_page_intro')[0]->value;
+    if ($introText) {
+      $intro = $answer->createElement('p');
+      $intro->textContent = $introText;
+      $answer->documentElement->childNodes[0]->appendChild($intro);
+    }
+
+    // Loop through elements of the body content
+    foreach ($elements as $element) {
+      if ($element->nodeName == "#text") {
+        // $element is a text node
+        // This is white space that we can ignore.
+      }
+      else {
+        // $element is content for the answer
+        // Append the content to the current answer
+        $importedNode = $answer->importNode($element, TRUE);
+        $answer->documentElement->childNodes[0]->appendChild($importedNode);
+      }
+    }
+
+    $answer = faq_answer_inner_html($answer);
+    if ($question && $answer) {
+      $faq[] = (object) ['question' => $question, 'answer' => $answer];
+    }
+  }
+  return $faq;
+}
+
+/**
+ * faq_process_components gets components from drupal paragraph embeds
+ * and makes their content compatible with FAQ rich results
+ */
+function faq_process_components(&$dom) {
+  // Iterate through embedded paragraphs
+  $embeddedParagraphElements = $dom->getElementsByTagName('drupal-paragraph');
+  // Loop backwards to allow for removing elements along the way without losing track of our position
+  for ($n = $embeddedParagraphElements->length - 1; $n >= 0; --$n) {
+    $element = $embeddedParagraphElements->item($n);
+    // Get the component
+    $uuid = $element->getAttribute('data-paragraph-id');
+    $embedded_paragraph = \Drupal::service('entity.repository')->loadEntityByUuid('embedded_paragraphs', $uuid);
+    $component = $embedded_paragraph->get('paragraph')[0]->entity;
+
+    // Process component by its type
+    $componentType = $component->getType();
+    if ($componentType == "uswds_accordion") {
+
+      // iterate through accordion panels
+      foreach ($component->get('field_accordion_section') as $accordionPanel) {
+        // Get the accordion panel's node
+        $accordionPanelTID = $accordionPanel->get('target_id')->getValue();
+        $accordionPanelNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accordionPanelTID);
+
+        // Get this panel's button text and add it to the dom as an h2
+        $accordionPanelButtonText = $accordionPanelNode->get('field_accordion_section_title')[0]->value;
+        $accordionHeading = $dom->createElement('h2');
+        $accordionHeading->textContent = $accordionPanelButtonText;
+        $element->parentNode->insertBefore($accordionHeading, $element);
+
+        // Get this panel's body content
+        $accordionPanelBodyNodeID = $accordionPanelNode->get('field_accordion_section_body')[0]->get('target_id')->getValue();
+        $accordionPanelBodyNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accordionPanelBodyNodeID);
+
+        // append accordion body content
+        $accordionBody = new DOMDocument();
+        $accordionBody->loadHTML('<?xml encoding="UTF-8">' . $accordionPanelBodyNode->get('field_text')[0]->value);
+        foreach ($accordionBody->documentElement->childNodes[0]->childNodes as $accordionBodyElement) {
+          $accordionBodyElement = $dom->importNode($accordionBodyElement, TRUE);
+          if ($accordionBodyElement) {
+            $element->parentNode->insertBefore($accordionBodyElement, $element);
+          }
+        }
+      }
+    }
+    elseif ($componentType == "uswds_alert" && $component?->get('field_alert_status')[0]?->value == NULL) {
+      // $component is a grey alert
+
+      // Insert a <p> element with the alert's body content
+      $alertBody = $component->get('field_alert_body')[0]->value;
+      $alertElement = $dom->createElement('p');
+      $alertElement->textContent = $alertBody;
+      $element->parentNode->insertBefore($alertElement, $element);
+    }
+    elseif ($componentType == "uswds_process_list") {
+      $simplifiedList = faq_simplify_list($dom, $component, "ol", 'field_process_items', 'field_text');
+      $element->parentNode->insertBefore($simplifiedList, $element);
+    }
+    elseif ($componentType == "uswds_icon_list") {
+      $simplifiedList = faq_simplify_list($dom, $component, "ul", 'field_uswds_icon_list_item', 'field_text_plain_long');
+      $element->parentNode->insertBefore($simplifiedList, $element);
+    }
+
+    // Remove this paragraph element
+    $element->parentNode->removeChild($element);
+  }
+}
+
+/**
+ * faq_simplify_list takes a USWDS list component (Process List or Icon List) and
+ * returns a DOM Element containing the component's content in a simple HTML list
+ */
+function faq_simplify_list(&$dom, &$component, $listType, $itemsFieldName, $bodyFieldName) {
+  // Create a list element of the specified type
+  $processListSimplified = $dom->createElement($listType);
+
+  // Iterate through component items by field name
+  foreach ($component->get($itemsFieldName) as $process_item) {
+    $processItemNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($process_item->get('target_id')->getValue());
+
+    // Create a new <li> for this list item
+    $processItemContent = $dom->createElement('li');
+
+    // Create a DOMDocument with the body content from this list item
+    $processItemBody = new DOMDocument();
+    $processItemBody->loadHTML('<?xml encoding="UTF-8">' . $processItemNode->get($bodyFieldName)[0]->value);
+
+    // Append each from this list item to the <li>
+    foreach ($processItemBody->documentElement->childNodes[0]->childNodes as $processItemBodyElement) {
+      $processItemBodyElement = $dom->importNode($processItemBodyElement, TRUE);
+      if ($processItemBodyElement) {
+        $processItemContent->appendChild($processItemBodyElement);
+      }
+    }
+
+    // Append the <li> to the list element
+    $processListSimplified->appendChild($processItemContent);
+  }
+  return $processListSimplified;
+}
+
+/**
+ * faq_answer_inner_html takes a DOMDocument and returns a string of HTML within the body tag.
+ * It also removes data-mce-href attributes.
+ */
+function faq_answer_inner_html(&$answer) {
+  // Remove data-mce-href attributes
+  $links = $answer->getElementsByTagName('a');
+  foreach ($links as $link) {
+    $link->removeAttribute('data-mce-href');
+  }
+
+  // Get the HTML of the answer as a string
+  $answer = $answer->saveHTML($answer->documentElement->childNodes[0]);
+
+  // Remove 6 characters ("<body>") from the beginning and 7 characters ("</body>") from the end
+  return substr($answer, 6, -7);
+}
+
+/**
+ * children_of_active_menu_item is a recursive helper function for finding the children of the active menu item
+ */
 function children_of_active_menu_item(&$items) {
   $result = NULL;
   foreach ($items as $object) {
@@ -37,14 +271,23 @@ function children_of_active_menu_item(&$items) {
  * Process block content
  */
 function usagov_preprocess_block(&$variables) {
+  /**
+   * Pass node value to pages so they can access node-based properties
+   */
   $node = \Drupal::routeMatch()->getParameter('node');
   $variables['node'] = $node;
 
+  /**
+   * Pass pagetype to pages so they can know what type of page to render
+   */
   if ($node && $node->hasField('field_page_type') && $node->get('field_page_type')[0]->target_id) {
     $pagetypeTid = $node->get('field_page_type')[0]->target_id;
     $variables['pagetype'] = Term::load($pagetypeTid)->getName();
   }
 
+  /**
+   * Pass menu data to nav pages so they can render links to their children
+   */
   if ($variables['elements']['#id'] == 'navigation_page_items' || $variables['elements']['#id'] == 'navigation_page_items_spanish') {
     $added_contexts = ['url.path']; // Use url.query_args as well for an easier test case
     $variables['content']['#cache']['contexts'] = array_merge($variables['content']['#cache']['contexts'], $added_contexts);
@@ -75,7 +318,8 @@ function usagov_preprocess_block(&$variables) {
           count($childNode->get('field_navigation_banner_image')) &&
           $childNode->get('field_navigation_banner_image')[0]->entity
         ) {
-          $data->navigation_banner_image = file_url_transform_relative(file_create_url(
+          $file_url_generator = \Drupal::service('file_url_generator');
+          $data->navigation_banner_image = $file_url_generator->transformRelative($file_url_generator->generateAbsoluteString(
             $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
           ));
         }
