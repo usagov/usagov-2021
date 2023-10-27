@@ -546,7 +546,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1032-d10-upgrade
+                - USAGOV-1178-snyk-container-scan
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -556,7 +556,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1032-d10-upgrade
+                - USAGOV-1178-snyk-container-scan
       - approve-dev-deployment:
           type: approval
           requires:
