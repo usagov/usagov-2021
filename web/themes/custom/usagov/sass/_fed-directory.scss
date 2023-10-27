@@ -135,17 +135,18 @@ div.field--name-field-offices-near-you> ul {
   display: flex;
   flex-direction: row;
   outline: 2px solid #0081a1;
-  border-radius: 0.25rem;
+  border-radius: 0rem 0.25rem 0.25rem 0rem;
   background-color: #ccecf2;
   max-width: 20em;
   margin: 1rem auto 0.5rem;
 
   input::placeholder {
-    color: #1b1b1b;
+    color: #757575;
+    font-weight: 500;
   }
 
   [type=search]{
-    border-radius: 0.25rem;
+    border-radius: 0rem;
     padding-right: 0;
   }
 
@@ -170,10 +171,11 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-input {
-  background-color: #ccecf2;
+  background-color: #ffffff;
   outline: none;
   font-size: 0.98rem;
-  font-weight: 600;
+  color: #000;
+  font-weight: 500;
   border-style: none;
   line-height: 1.5;
 }
@@ -191,6 +193,10 @@ div.field--name-field-offices-near-you> ul {
 
 .fed-directory-search-btn:hover {
   background-color: #99deea;
+}
+
+.fed-directory-search-btn:focus {
+  z-index:1;
 }
 
 @media (min-width: 480px) {
@@ -271,7 +277,7 @@ div div.field--name-field-offices-near-you>ul>li {
   a.nav-letter:hover {
     outline: solid 0.15rem black;
     color: #000;
-    background-color: white;
+    background-color: #a7d8e3;
   }
 
   a.nav-letter:focus {
