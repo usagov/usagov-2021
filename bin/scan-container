@@ -24,13 +24,10 @@ CTAG=${2:-$GITBRANCH}
 THRESHOLD=${3:-low}
 
 # Explicitly turn off DOCKER_CONTENT_TRUST, as snyk are not signing their images.
-# Skip the file web/core/modules/system/tests/fixtures/HtaccessTest/composer.lock;
-#   it is an empty placeholder and breaks scanning.
 docker run --disable-content-trust -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v $(pwd)/.docker:/app \
-    -v "/tmp/do-not-scan:/var/www/web/core/modules/system/tests/fixtures/HtaccessTest" \
   snyk/snyk:docker snyk container test \
     $DOCKERUSER/$DOCKERREPO:$APPNAME-$CTAG \
     --file=/app/Dockerfile-$APPNAME \
