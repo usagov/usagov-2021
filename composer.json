@@ -51,7 +51,7 @@
         "drupal/pathauto": "^1.8",
         "drupal/redirect": "^1.6",
         "drupal/remove_http_headers": "^2.0",
-        "drupal/s3fs": "^3.0@alpha",
+        "drupal/s3fs": "^3.3",
         "drupal/samlauth": "^3.9",
         "drupal/simple_sitemap": "^4.1",
         "drupal/simplify_menu": "^3.1",
