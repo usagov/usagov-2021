@@ -4,7 +4,7 @@
 https://cm-jira.usa.gov/browse/USAGOV-
 
 ## Description
-<!--- Summarize the chages made in this pull request, not what it's for. -->
+<!--- Summarize the changes made in this pull request, not what it's for. -->
 
 ## Type of Changes
 <!--- Put an `x` in all the boxes that apply. -->
