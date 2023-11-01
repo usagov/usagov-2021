@@ -141,26 +141,26 @@ export public_available_tags=$(aws s3 ls s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/ 
 
 if [ -n "$rematch" ]; then
   for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
-    $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
   done
 
   for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
-    $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
   done
 
   for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch); do
-    $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
   done
 else
   for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
-    $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
   done
 
   for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
-    $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
   done
 
   for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep $match); do
-    $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $match $download
+    $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
   done
 fi
