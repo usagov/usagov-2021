@@ -55,7 +55,7 @@
   border: 2px solid transparent;
 
   &:hover {
-    background-color: var($card, background-color);
+    background-color: var($card, hover-background-color);
   }
 
   a {
@@ -63,3 +63,4 @@
     display: block;
   }
 }
+
