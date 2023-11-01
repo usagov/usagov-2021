@@ -43,10 +43,12 @@ fi
 
 function show_usage() {
   echo "Usage:"
-  echo "$0 [--dryrun] <env> [--partial <eg. USAGOV-9999> | --full <eg. USAGOV-9999.dev.1111.post-deploy.2020010101] [--download]"
+  echo "$0 [--dryrun] <env> [--lt USAGOV-NNNN | --partial <eg. USAGOV-9999> | --full <eg. USAGOV-9999.dev.1111.post-deploy.2020010101] [--download]"
   echo
   echo "--dryrun MUST be the first argument, or it WILL NOT BE ACKNOWLEDGED"
   echo
+  echo "--lt USAGOV-<NNNN> - ticket number less than NNNN (eg. USAGOV-1014 will match all snapshots for ticket USAGOV-1013,USAGOV-1012,USAGOV-1011,etc)"
+  echo " OR "
   echo "--partial <string> - partial match (eg. USAGOV-9999 will match all snapshots for ticket USAGOV-9999)"
   echo " OR "
   echo "--full <string>    - full match    (string must match the full snapshot tag)"
@@ -69,6 +71,7 @@ shift
 download=""
 match=""
 rematch=""
+idmatch=""
 matchtype=""
 
 while [ 0 -eq 0 ]; do
@@ -81,6 +84,27 @@ while [ 0 -eq 0 ]; do
   shift
 
   case "$arg" in
+
+      "--lt")
+        match=$1
+        if [ -n "$match" ]; then
+          if [ "$match" == "--download" ]; then
+            download=$match
+            match=""
+          else
+            if [ -n "$matchtype" ]; then
+              show_usage
+            fi
+            matchtype='lt'
+            idmatch=$(echo $match | sed -E 's/USAGOV-([0-9]+)/\1/')
+            if [ -z "$idmatch" ]; then
+              show_usage
+            fi
+            rematch=""
+          fi
+          shift
+        fi
+      ;;
 
       "--partial")
         match=$1
@@ -128,10 +152,11 @@ if [ -z "$match" ]; then
 fi
 
 basename "$0"
-echo "Dry run:       $dryrun"
-echo "Download:      $download"
-echo "Match:         $match"
-echo "Regex Match:   $rematch"
+echo "Dry run:         $dryrun"
+echo "Download:        $download"
+echo "Match:           $match"
+echo "Regex Match:     $rematch"
+echo "Ticket ID Match: $idmatch"
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
@@ -139,7 +164,28 @@ export db_available_tags=$(aws s3 ls s3://$S3_BUCKET/db-backup/ | awk '{print $N
 export site_available_tags=$(aws s3 ls s3://$S3_BUCKET/web-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
 export public_available_tags=$(aws s3 ls s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
 
-if [ -n "$rematch" ]; then
+if [ -n "$idmatch" ]; then
+  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq ); do
+    tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
+    if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
+      $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
+    fi
+  done
+
+  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq ); do
+    tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
+    if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
+      $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
+    fi
+  done
+
+  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq ); do
+    tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
+    if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
+      $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
+    fi
+  done
+elif [ -n "$rematch" ]; then
   for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
     $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
   done
