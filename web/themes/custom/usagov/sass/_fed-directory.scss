@@ -181,7 +181,7 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-btn {
-  background-color: #ccecf2;
+  background-color: #00bde3;
   outline: none;
   cursor: pointer;
   border-style: none;
@@ -189,6 +189,15 @@ div.field--name-field-offices-near-you> ul {
   transition: background-color 200ms;
   display: flex;
   align-items: center;
+  height: 2rem;
+  min-width: 3rem;
+  padding: 0 0.75rem;
+
+  img {
+    width: 1.5rem;
+    height: 1.5rem;
+    display: block;
+  }
 }
 
 .fed-directory-search-btn:hover {
