@@ -722,6 +722,10 @@ input:not([disabled]):focus.usa-user-error {
   outline-offset: 1px;
 }
 
+.usa-form-spacing {
+  padding-left: 1rem;
+}
+
 .usa-main-border-error {
   border-left: 3px solid var($red-error);
 
