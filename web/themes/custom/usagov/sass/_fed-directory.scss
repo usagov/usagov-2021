@@ -134,7 +134,7 @@ div.field--name-field-offices-near-you> ul {
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
-  outline: 2px solid #0081a1;
+  outline: 2px solid #377f9d;
   border-radius: 0rem 0.25rem 0.25rem 0rem;
   background-color: #ccecf2;
   max-width: 20em;
@@ -181,7 +181,7 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-btn {
-  background-color: #00bde3;
+  background-color: #CCECF2;
   outline: none;
   cursor: pointer;
   border-style: none;
@@ -197,6 +197,7 @@ div.field--name-field-offices-near-you> ul {
     width: 1.5rem;
     height: 1.5rem;
     display: block;
+    filter: invert(9%) sepia(2%) saturate(18%) hue-rotate(314deg) brightness(99%) contrast(96%);
   }
 }
 
