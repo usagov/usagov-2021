@@ -230,6 +230,7 @@
 .how-button-list {
   align-items: stretch;
   display: flex;
+  flex-direction: column;
   // grid-template-columns: 1fr;
   // grid-template-rows: repeat(4, 1fr);
   margin-left: auto;
@@ -243,8 +244,8 @@
   align-items: center;
   border-left: 4px solid var($cyan-30v);
   display: flex;
-  min-height: 60px;
-  max-height: 140px;
+  // min-height: 60px;
+  // max-height: 140px;
   padding-left: 12px;
   padding-right: 20px;
   margin-bottom: 15px;
@@ -432,14 +433,17 @@
   }
 
   .how-button-list {
+    flex-direction: row;
+    flex-wrap: wrap;
     // grid-template-columns: repeat(4, 1fr);
     // grid-template-rows: 1fr;
     margin-top: 20px;
   }
 
-  // .how-button {
+  .how-button {
+    flex: 1 1 50%;
     // margin-bottom: auto;
-  // }
+  }
 
   .life-events h2 {
     padding-top: 20px;
@@ -476,16 +480,6 @@
     max-width: var($homepage, larger-max-width);
     padding-top: 18px;
   }
-
-  .how-button-list {
-    // grid-template-columns: repeat(4, 1fr);
-    // grid-template-rows: 1fr;
-    margin-top: 20px;
-  }
-
-  // .how-button {
-  //   margin-bottom: auto;
-  // }
 
   .life-events h2 {
     padding-top: 20px;
@@ -536,5 +530,13 @@
     margin-right: auto;
     max-width: var($homepage, smaller-max-width);
     padding: 0 0 0 75px;
+  }
+
+  .how-button-list {
+    flex-wrap: nowrap;
+  }
+
+  .how-button {
+    flex: 1 1 0%;
   }
 }
