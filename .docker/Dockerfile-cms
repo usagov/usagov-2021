@@ -256,6 +256,7 @@ RUN chmod -R +x /etc/periodic \
     && rm -f /var/www/web/sites/default/settings.local.php \
     && rm -rf /var/www/web/sites/default/files/* \
     && rm -rf /var/www/web/themes/custom/usagov/node_modules \
+    && rm -f /var/www/web/core/modules/system/tests/fixtures/HtaccessTest/composer.lock \
     && chown nginx:nginx /var/www \
     && find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx \
     && echo "    built:" $(date) >> /etc/motd \
