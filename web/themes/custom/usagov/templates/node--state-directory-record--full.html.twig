@@ -21,14 +21,14 @@
 {{ content.body }}
 <div class="usagov-directory-table" id="State-Directory-Table">
 	<div>
-		<h3 class="usa-prose line-height-2">{{ lang == 'en' ? 'State government website' : 'Sitio web del Gobierno estatal ' }}</h3>
+		<h2 class="usa-prose line-height-2">{{ lang == 'en' ? 'State government website' : 'Sitio web del Gobierno estatal ' }}</h2>
 		{{ content.field_website }}
 	</div>
 
 	{% if lang == 'en' %}
 		<div>
 			<ul class="usa-list usa-list--unstyled">
-				<h3 class="usa-prose line-height-2">Governor</h3>
+				<h2 class="usa-prose line-height-2">Governor</h2>
 				{{ content.field_governor }}<br>
 				{{ content.field_governor_contact }}
 				<p class="usagov-dir-padding line-height-2">Phone:
@@ -58,12 +58,12 @@
 	{% endif %}
 
 	<div>
-		<h3 class="usa-prose line-height-2">{{translations.congress_members}}</h3>
+		<h2 class="usa-prose line-height-2">{{translations.congress_members}}</h2>
 		<a href="{{translations.elected_officials_link_url}}">{{translations.elected_officials_link_text}}</a>
 	</div>
 
 	<div>
-		<h3 class="usa-prose line-height-2">{{translations.state_agencies}}</h3>
+		<h2 class="usa-prose line-height-2">{{translations.state_agencies}}</h2>
 
 		<ul class="usa-list">
 
