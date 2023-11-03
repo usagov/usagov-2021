@@ -228,10 +228,10 @@
 }
 
 .how-button-list {
-  align-items: center;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: repeat(4, 1fr);
+  align-items: stretch;
+  display: flex;
+  // grid-template-columns: 1fr;
+  // grid-template-rows: repeat(4, 1fr);
   margin-left: auto;
   margin-right: auto;
   margin-top: 30px;
@@ -239,10 +239,12 @@
 }
 
 .how-button {
+  flex: 1 1 0;
   align-items: center;
   border-left: 4px solid var($cyan-30v);
   display: flex;
-  height: 60px;
+  min-height: 60px;
+  max-height: 140px;
   padding-left: 12px;
   padding-right: 20px;
   margin-bottom: 15px;
@@ -430,14 +432,14 @@
   }
 
   .how-button-list {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: 1fr;
+    // grid-template-columns: repeat(4, 1fr);
+    // grid-template-rows: 1fr;
     margin-top: 20px;
   }
 
-  .how-button {
-    margin-bottom: auto;
-  }
+  // .how-button {
+    // margin-bottom: auto;
+  // }
 
   .life-events h2 {
     padding-top: 20px;
@@ -476,14 +478,14 @@
   }
 
   .how-button-list {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: 1fr;
+    // grid-template-columns: repeat(4, 1fr);
+    // grid-template-rows: 1fr;
     margin-top: 20px;
   }
 
-  .how-button {
-    margin-bottom: auto;
-  }
+  // .how-button {
+  //   margin-bottom: auto;
+  // }
 
   .life-events h2 {
     padding-top: 20px;
@@ -509,8 +511,8 @@
 /* Tablet */
 @media (max-width: 700px) and (min-width: 480px) {
   .how-button-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    // display: grid;
+    // grid-template-columns: 1fr 1fr;
     margin-top: 30px;
   }
 
