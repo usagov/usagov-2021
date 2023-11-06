@@ -1,15 +1,24 @@
 
 # underscore catch-all allows this to work on local dockers because who knows what hostname local devs have setup
 
+#
+limit_req_zone $binary_remote_addr zone=limitreqbyaddr:10m rate=5r/s;
+limit_req_status 429;
+
+limit_conn_zone $binary_remote_addr zone=limitconnbyaddr:10m;
+
 server {
     listen 80 default_server;
+
+    limit_req zone=limitreqbyaddr burst=5 nodelay;
+
+    limit_conn limitconnbyaddr 30;
 
     server_name ${CMS_HOST} _;
 
     root   /var/www/web;
 
-    # CMS should not be indexed even if exposed.
-    add_header X-Robots-Tag noindex;
+    # CMS should not be i4e4r
 
     include partials/drupal.conf;
 }
