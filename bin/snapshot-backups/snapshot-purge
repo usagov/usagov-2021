@@ -168,6 +168,7 @@ if [ -n "$idmatch" ]; then
   for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq ); do
     tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
     if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
       $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
     fi
   done
@@ -175,6 +176,7 @@ if [ -n "$idmatch" ]; then
   for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq ); do
     tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
     if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
       $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
     fi
   done
@@ -182,31 +184,38 @@ if [ -n "$idmatch" ]; then
   for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq ); do
     tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
     if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
       $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
     fi
   done
 elif [ -n "$rematch" ]; then
   for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
     $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
   done
 
   for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
     $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
   done
 
   for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
     $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
   done
 else
   for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
     $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
   done
 
   for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
     $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
   done
 
   for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep $match); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
     $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
   done
 fi
