@@ -722,6 +722,10 @@ input:not([disabled]):focus.usa-user-error {
   outline-offset: 1px;
 }
 
+.usa-form-spacing {
+  padding-left: 1rem;
+}
+
 .usa-main-border-error {
   border-left: 3px solid var($red-error);
 
@@ -1008,6 +1012,20 @@ p, a, .usa-label, .usa-radio__label {
   line-height: 1.5;
 }
 
+
+#myform .usa-button {
+  margin-left: 4rem;
+  @media (max-width: 30em) {
+    margin-left: .4rem;
+  }
+}
+
+.usa-form div.maxw-mobile p {
+  @media (max-width: 40em) {
+    padding-left: 1rem;
+  }
+}
+
 div div.field--name-field-offices-near-you{
   display: inline;
 }
@@ -1042,5 +1060,9 @@ div div.field--name-field-offices-near-you{
     align-self: center;
   }
 
+}
+
+.color-off-black{
+  color: var($off-black);
 }
 
