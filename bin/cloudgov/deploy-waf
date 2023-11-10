@@ -82,10 +82,10 @@ if ! existsCFApp $ROUTE_SERVICE_APP_NAME; then
   #exit ### <-- to test, uncomment this exit statement and pass "zaf" as $ROUTE_SERVICE_APP_NAME
 else
   # remove proxy
-  cf set-env waf http_proxy  ""
-  cf set-env waf https_proxy ""
-  cf set-env waf HTTPS_PROXY ""
-  cf set-env waf HTTP_PROXY ""
+  cf set-env $ROUTE_SERVICE_APP_NAME http_proxy  ""
+  cf set-env $ROUTE_SERVICE_APP_NAME https_proxy ""
+  cf set-env $ROUTE_SERVICE_APP_NAME HTTPS_PROXY ""
+  cf set-env $ROUTE_SERVICE_APP_NAME HTTP_PROXY ""
 fi
 
 instances="-i 1"
@@ -152,14 +152,16 @@ for url in "${HOST_NAMES[@]}"; do
   echo "\nBinding ${url}.${APPS_DOMAIN} to ${ROUTE_SERVICE_NAME}\n"
   cf bind-route-service "${APPS_DOMAIN}" "${ROUTE_SERVICE_NAME}" --hostname "${url}";
   if [ $(echo "$url" | grep 'cms') ]; then
-    cf set-env waf CMS_HOST "$url"
+    cf set-env $ROUTE_SERVICE_APP_NAME CMS_HOST "$url"
   elif [ $(echo "$url" | grep 'beta') ]; then
-    cf set-env waf WWW_HOST "$url"
+    cf set-env $ROUTE_SERVICE_APP_NAME WWW_HOST "$url"
+  elif [ $(echo "$url" | grep 'dr') ]; then
+    cf set-env $ROUTE_SERVICE_APP_NAME WWW_HOST "$url"
   fi
 done
 
-cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 443
-cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 80
-cf add-network-policy waf cms -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 61443
+cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 443
+cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 80
+cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 61443
 
 #$SCRIPT_DIR/setup-egress-for-apps waf
