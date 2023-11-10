@@ -18,6 +18,7 @@ applications:
     image: gsatts/usagov-2021:waf-latest
   disk_quota: 1G
   memory: 256M
+  route: default
   services:
     - secrets
   health-check-type: process
