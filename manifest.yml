@@ -13,7 +13,7 @@ applications:
     - storage
     - dbstorage
   health-check-type: process
-- name: waf
+- name: waf-dr
   docker:
     image: gsatts/usagov-2021:waf-latest
   disk_quota: 1G

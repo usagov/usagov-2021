@@ -96,7 +96,7 @@ function setupRoutes { #appname
     cf map-route $app usa.gov --hostname beta
     cf create-route usa.gov --hostname www
     cf map-route $app usa.gov --hostname www
-  elif [ "$APP_SPACE" == "dr" ]; then
+  elif [ "$APP_SPACE" == "dev-dr" ]; then
     cf create-route usa.gov --hostname shared-egress-$APP_SPACE
     cf map-route $app usa.gov --hostname shared-egress-$APP_SPACE
     cf create-route usa.gov --hostname $APP_SPACE
