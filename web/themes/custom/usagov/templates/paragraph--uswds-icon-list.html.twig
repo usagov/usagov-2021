@@ -48,6 +48,28 @@
 ]
 %}
 
+{% if node.langcode.langcode == "es" %}
+  {% set translations = {
+    'icon': 'icono de',
+    'black': 'negro',
+    'green-cool-40v': 'verde',
+    'red-50': 'rojo',
+    'check_circle': 'marca de verificación',
+    'cancel': 'X',
+    'phone': 'teléfono'
+  } %}
+{% else %}
+  {% set translations = {
+    'icon': 'icon',
+    'black': 'black',
+    'green-cool-40v': 'green',
+    'red-50': 'red',
+    'check_circle': 'checkmark',
+    'cancel': 'X',
+    'phone': 'phone'
+  } %}
+{% endif %}
+
 
 {% set default_icon = content.field_uswds_icon[0]['#title'] %}
 {% set default_color = content.field_default_icon_color[0]['#title'] %}
@@ -61,9 +83,21 @@
       {% set heading = item['#paragraph'].field_heading.value %}
       {% set text = item['#paragraph'].field_text_plain_long.value|raw %}
 
+      {% set icon_parts = {
+        'color': translations[color],
+        'shape': translations[icon],
+        'icon': translations['icon']
+      } %}
+
+      {% if node.langcode.langcode == "es" %}
+        {% set icon_parts = icon_parts|reverse %}
+      {% endif %}
+      
+      {% set iconAlt = icon_parts|join(' ') %}
+
       <li class="usa-icon-list__item">
         <div class="usa-icon-list__icon {{ color ? 'text-'~color : '' }}">
-          <svg class="usa-icon" aria-hidden="true" role="img">
+          <svg class="usa-icon" aria-hidden="true" role="img" alt="{{ iconAlt }}">
             <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#{{ icon }}"></use>
           </svg>
         </div>
