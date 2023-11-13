@@ -1,4 +1,4 @@
 _core:
   default_config_hash: CkmpJe8_0UrxS99diNYffcf6SJcbRtIxgQTeCOxeOhQ
-format: "{\"drupal\": {  \"base_url\": \"@base_url\",  \"severity\": \"@severity\",  \"timestamp\": \"@timestamp\",  \"date\": \"@date\",  \"message\": \"@message\",  \"uid\": \"@uid\",  \"request_uri\": \"@request_uri\",  \"refer\": \"@refer\",  \"ip\": \"@ip\",  \"link\": \"@link\"}}"
+format: '[drupal] base_url="@base_url", severity="@severity", type="@type", date="@date", message="@message", uid="@uid", request_url="@request-uri", refer="@referer", ip="@ip", link="@link"'
 use_stderr: '1'
