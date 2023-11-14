@@ -84,7 +84,7 @@
   },
   "optionalDependencies": {
     "knex": "^2.4.0",
-    "newrelic": "^10.6.0",
+    "newrelic": "^11.5.0",
     "pg": "^8.11.1"
   }
 }
