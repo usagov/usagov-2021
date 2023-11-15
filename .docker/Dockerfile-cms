@@ -220,7 +220,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 
     # new relic setup
 COPY bin/src/newrelic.sh /local/newrelic.sh
-# RUN . /local/newrelic.sh
+RUN . /local/newrelic.sh
 
     # cron setup
 RUN mkdir -p /etc/periodic/1min \

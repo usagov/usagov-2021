@@ -116,7 +116,7 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
     echo "Turning off New Relic ... "
     sed -i \
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
-        /etc/1/conf.d/newrelic.ini
+        /etc/php81/conf.d/newrelic.ini
   fi
   if [ -z "${https_proxy:-}" ]; then # I'M CHEATING REMOVE THE SEMICOLONS AFTER TESTING
     sed -i \
