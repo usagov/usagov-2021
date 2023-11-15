@@ -546,7 +546,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1217-pin-NR-php-agent-version
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -556,7 +555,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1217-pin-NR-php-agent-version
       - approve-dev-deployment:
           type: approval
           requires:
@@ -565,7 +563,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1217-pin-NR-php-agent-version
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -573,7 +570,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1217-pin-NR-php-agent-version
       - approve-stage-deployment:
           type: approval
           requires:
