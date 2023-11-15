@@ -44,12 +44,22 @@ $(".slides").slick({
     },
   ],
 })
-.on('setPosition', function (event, slick) {
-    slick.$slides.css('height', slick.$slideTrack.find('.slick-slide').height() + 'px');
+.on("setPosition", function () {
+  resizeSlider();
 });
 
 var initSlide = getInitialSlide();
-console.log(`initSlide is ${initSlide}`);
+
+var slickHeight = $(".slick-track").outerHeight();
+
+var slideHeight = $(".slick-track").find(".slick-slide").outerHeight();
+
+function resizeSlider() {
+  $(".slick-track")
+    .find(".slick-slide .usa-card")
+    .css("height", slickHeight + "px");
+}
+
 $('.slides').slick('slickGoTo', initSlide);
 
 var carouselSlides = document.querySelector("#slides-list");
