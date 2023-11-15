@@ -43,6 +43,9 @@ $(".slides").slick({
       },
     },
   ],
+})
+.on('setPosition', function (event, slick) {
+    slick.$slides.css('height', slick.$slideTrack.find('.slick-slide').height() + 'px');
 });
 
 var initSlide = getInitialSlide();
@@ -137,7 +140,6 @@ $(".slides").on(
   "afterChange",
   function (event, slick, currentSlide) {
     "use strict";
-    console.log(`afterChange event ${currentSlide}`);
     updateSessionStorage(currentSlide);
   }
 );
