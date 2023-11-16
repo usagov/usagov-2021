@@ -49,10 +49,7 @@ $(".slides").slick({
 });
 
 var initSlide = getInitialSlide();
-
 var slickHeight = $(".slick-track").outerHeight();
-
-var slideHeight = $(".slick-track").find(".slick-slide").outerHeight();
 
 function resizeSlider() {
   $(".slick-track")
