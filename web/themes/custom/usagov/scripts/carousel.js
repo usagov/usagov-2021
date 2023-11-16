@@ -1,4 +1,3 @@
-"use strict";
 $(".slides").slick({
   "dots": true,
   "infinite": true,
@@ -46,6 +45,8 @@ $(".slides").slick({
   ],
 })
 .on("setPosition", function () {
+  "use strict";
+
   resizeSlider();
 });
 
@@ -53,6 +54,8 @@ var initSlide = getInitialSlide();
 var slickHeight = $(".slick-track").outerHeight();
 
 function resizeSlider() {
+  "use strict";
+
   $(".slick-track")
     .find(".slick-slide .usa-card")
     .css("height", slickHeight + "px");
