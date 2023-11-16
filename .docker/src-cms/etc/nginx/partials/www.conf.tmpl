@@ -97,6 +97,20 @@ server {
     ### rewrite ^/es$ /es/ permanent; # special; cannot be applied to the CMS because Drupal redirects /es/ to /es
 }
 
+##################################################
+# DR
+
+server {
+    listen 80;
+
+    server_name dev-dr.usa.gov;
+
+    include /etc/nginx/partials/www_common.conf;
+
+    # Only www.usa.gov should be indexed.
+    add_header X-Robots-Tag noindex;
+}
+
 server {
     listen 443 ssl;
     include partials/ssl.conf;
