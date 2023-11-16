@@ -35,8 +35,8 @@ export S3_ENDPOINT
 
 SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
 WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | tr '\n' ' ')}
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | tr '\n' ' ')}
-CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms | tr '\n' ' ')}
+WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep -E 'beta|dev-dr' | tr '\n' ' ')}
+CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -E 'cms|shared-egress-dr' | tr '\n' ' ')}
 if [ -z "$WWW_HOST" ]; then
   WWW_HOST="*.app.cloud.gov"
 fi
