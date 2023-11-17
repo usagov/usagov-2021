@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fb9775429bf3ac24a8c0e8915c6a308a",
+    "content-hash": "8a81e34cc587c702be973a7ee836daa4",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -4482,11 +4482,17 @@
         },
         {
             "name": "drupal/paragraphs_entity_embed",
-            "version": "dev-2.x",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/paragraphs_entity_embed.git",
-                "reference": "d45fa450839b93a1d08887e1ed3c5ae9d7ab2228"
+                "reference": "3.0.0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/paragraphs_entity_embed-3.0.0.zip",
+                "reference": "3.0.0",
+                "shasum": "d881c9f12625afb549716f50db85b7f2b2438bfe"
             },
             "require": {
                 "drupal/core": "^9.3 || ^10",
@@ -4502,15 +4508,12 @@
             },
             "type": "drupal-module",
             "extra": {
-                "branch-alias": {
-                    "dev-2.x": "2.x-dev"
-                },
                 "drupal": {
-                    "version": "8.x-2.0-alpha2+10-dev",
-                    "datestamp": "1673628618",
+                    "version": "3.0.0",
+                    "datestamp": "1697821847",
                     "security-coverage": {
-                        "status": "not-covered",
-                        "message": "Dev releases are not covered by Drupal security advisories."
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
                     }
                 }
             },
@@ -5395,17 +5398,17 @@
         },
         {
             "name": "drupal/uswds_paragraph_components",
-            "version": "2.4.3",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/uswds_paragraph_components.git",
-                "reference": "2.4.3"
+                "reference": "3.0.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/uswds_paragraph_components-2.4.3.zip",
-                "reference": "2.4.3",
-                "shasum": "9381c42d8c311a60b11b2249bee7876ea9cbac7d"
+                "url": "https://ftp.drupal.org/files/projects/uswds_paragraph_components-3.0.0.zip",
+                "reference": "3.0.0",
+                "shasum": "7613ffb6d706f5f0634347b70c1a92aaec7fe111"
             },
             "require": {
                 "drupal/core": "^9 || ^10",
@@ -5422,8 +5425,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.4.3",
-                    "datestamp": "1680273642",
+                    "version": "3.0.0",
+                    "datestamp": "1697213600",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -10984,7 +10987,6 @@
         "drupal/feeds": 10,
         "drupal/menu_breadcrumb": 15,
         "drupal/node_menus": 15,
-        "drupal/paragraphs_entity_embed": 20,
         "drupal/views_menu_children_filter": 5,
         "drupal/viewsreference": 10
     },
