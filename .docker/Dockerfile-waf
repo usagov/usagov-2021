@@ -44,6 +44,7 @@ RUN apk upgrade --update && \
       bash \
       jq \
       inotify-tools \
+      nginx-mod-http-lua \
       gettext
 
 # hadolint ignore=DL3008,SC2016
