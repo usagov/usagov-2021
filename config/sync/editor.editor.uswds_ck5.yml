@@ -1,0 +1,77 @@
+uuid: d012dc66-bfac-48b1-84ac-4bcca5c386e8
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.uswds_ck5
+  module:
+    - ckeditor5
+format: uswds_ck5
+editor: ckeditor5
+settings:
+  toolbar:
+    items:
+      - bold
+      - italic
+      - underline
+      - horizontalLine
+      - alignment
+      - indent
+      - outdent
+      - removeFormat
+      - heading
+      - style
+      - '|'
+      - link
+      - '|'
+      - bulletedList
+      - numberedList
+      - '-'
+      - blockQuote
+      - drupalMedia
+      - '|'
+      - sourceEditing
+      - '|'
+      - insertTable
+      - UswdsAccordionToolbar
+      - paragraphs
+  plugins:
+    ckeditor5_alignment:
+      enabled_alignments:
+        - center
+        - justify
+        - left
+        - right
+    ckeditor5_heading:
+      enabled_headings:
+        - heading1
+        - heading2
+        - heading3
+        - heading4
+    ckeditor5_list:
+      reversed: true
+      startIndex: true
+    ckeditor5_sourceEditing:
+      allowed_tags: {  }
+    ckeditor5_style:
+      styles:
+        -
+          label: Button
+          element: '<a class="usa-button usa-button--secondary usa-button--big">'
+        -
+          label: Intro
+          element: '<p class="usa-intro">'
+        -
+          label: 'Wizard H2'
+          element: '<h2 class="font-serif-lg text-bold text-accent-cool-darker">'
+    media_media:
+      allow_view_mode_override: false
+    uswds_ckeditor_integration_accordion:
+      bordered: false
+    uswds_ckeditor_integration_ckeditor5_overrides:
+      override_lists: false
+      override_links: false
+      override_tables: true
+    uswds_ckeditor_integration_ckeditor5_table_content_items:
+      table_content_items: true
+image_upload: {  }
