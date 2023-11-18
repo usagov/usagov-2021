@@ -5,6 +5,7 @@ dependencies:
   config:
     - filter.format.html
     - filter.format.uswds
+    - filter.format.uswds_ck5
   module:
     - filter
     - media
@@ -21,6 +22,7 @@ permissions:
   - 'access content'
   - 'use text format html'
   - 'use text format uswds'
+  - 'use text format uswds_ck5'
   - 'view media'
   - 'view paragraphs entity embed'
   - 'view sp metadata'
