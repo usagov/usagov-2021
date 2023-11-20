@@ -170,7 +170,7 @@ function renderResults(response, rawResponse) {
 
             var officialNumber = "Official #" + i;
             accordionHeaderButton.setAttribute("aria-controls", officialNumber);
-            accordionHeaderButton.innerHTML = response.officials[i].name + ", " + response.officials[i].office;
+            accordionHeaderButton.innerHTML =  response.officials[i].office + ", " + response.officials[i].name;
 
             accordionHeader.appendChild(accordionHeaderButton);
 
