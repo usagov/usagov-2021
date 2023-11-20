@@ -546,7 +546,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1227-fix-cis-benchmark-build-step
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -556,7 +555,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1227-fix-cis-benchmark-build-step
       - approve-dev-deployment:
           type: approval
           requires:
