@@ -228,10 +228,9 @@
 }
 
 .how-button-list {
-  align-items: center;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: repeat(4, 1fr);
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
   margin-left: auto;
   margin-right: auto;
   margin-top: 30px;
@@ -239,10 +238,10 @@
 }
 
 .how-button {
+  flex: 1 1 0;
   align-items: center;
   border-left: 4px solid var($cyan-30v);
   display: flex;
-  height: 60px;
   padding-left: 12px;
   padding-right: 20px;
   margin-bottom: 15px;
@@ -430,13 +429,13 @@
   }
 
   .how-button-list {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: 1fr;
+    flex-direction: row;
+    flex-wrap: wrap;
     margin-top: 20px;
   }
 
   .how-button {
-    margin-bottom: auto;
+    flex: 1 1 50%;
   }
 
   .life-events h2 {
@@ -475,16 +474,6 @@
     padding-top: 18px;
   }
 
-  .how-button-list {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: 1fr;
-    margin-top: 20px;
-  }
-
-  .how-button {
-    margin-bottom: auto;
-  }
-
   .life-events h2 {
     padding-top: 20px;
   }
@@ -509,8 +498,6 @@
 /* Tablet */
 @media (max-width: 700px) and (min-width: 480px) {
   .how-button-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
     margin-top: 30px;
   }
 
@@ -534,5 +521,14 @@
     margin-right: auto;
     max-width: var($homepage, smaller-max-width);
     padding: 0 0 0 75px;
+  }
+
+  .how-button-list {
+    flex-wrap: nowrap;
+  }
+
+  .how-button {
+    flex: 1 1 0%;
+    min-height: 60px;
   }
 }
