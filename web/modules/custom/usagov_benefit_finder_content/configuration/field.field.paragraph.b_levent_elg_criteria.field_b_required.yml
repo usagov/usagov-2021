@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_b_required
+    - paragraphs.paragraphs_type.b_levent_elg_criteria
+id: paragraph.b_levent_elg_criteria.field_b_required
+field_name: field_b_required
+entity_type: paragraph
+bundle: b_levent_elg_criteria
+label: Required
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean
