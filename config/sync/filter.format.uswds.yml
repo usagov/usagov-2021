@@ -10,9 +10,9 @@ dependencies:
     - uswds_ckeditor_integration
 _core:
   default_config_hash: 05t4sDVkoIIr93awow19xLg0zeanMekWf7kwUh6Kroo
-name: USWDS
+name: USWDS_CK4
 format: uswds
-weight: -10
+weight: -9
 filters:
   editor_file_reference:
     id: editor_file_reference
@@ -26,7 +26,7 @@ filters:
     status: false
     weight: -10
     settings:
-      allowed_html: '<a href hreflang> <em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type> <li> <dl> <dt> <dd> <h2 id class> <h3 id class> <h4 id class> <h5 id class> <h6 id class> <img src alt data-entity-type data-entity-uuid data-align data-caption> <table class style width height> <caption> <tbody> <thead> <tfoot> <th scope> <td> <tr scope> <u> <s> <sup> <sub> <drupal-media data-entity-type data-entity-uuid> <div id class data-*> <button class aria-expanded aria-controls>'
+      allowed_html: '<em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type> <li> <dl> <dt> <dd> <h2 id class> <h3 id class> <h4 id class> <h5 id class> <h6 id class> <img src alt data-entity-type data-entity-uuid data-align data-caption> <table style width height class> <caption> <tbody> <thead> <tfoot> <th scope> <td> <tr scope> <u> <s> <sup> <sub> <div id data-* class> <button aria-expanded aria-controls class> <hr> <p> <h1> <pre> <a href hreflang class="usa-button usa-button--secondary usa-button--big"> <drupal-media data-entity-type data-entity-uuid data-entity-type data-entity-uuid data-view-mode data-align data-caption alt title> <drupal-paragraph data-paragraph-id data-paragraph-revision-id data-embed-button>'
       filter_html_help: true
       filter_html_nofollow: false
   filter_url:
