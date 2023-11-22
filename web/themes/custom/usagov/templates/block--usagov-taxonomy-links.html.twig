@@ -1,0 +1,16 @@
+{#
+/**
+ * @file
+ * Taxonomy links layout. This is used for a block with the "Bookmarks" category and is
+ * not in the block layout; instead it is rendered into a variable by the usa_twig_vars_preprocess
+ * function so that bookmarks can be used to generate Taxonomy information for the HTML head
+ * of a page.
+ */
+#}
+{% set links = content['#links'] %}
+{# Since six entries are wanted, we'll probably need a "for i in 0..5" loop #}
+{# see https://twig.symfony.com/doc/3.x/tags/for.html #}
+{% for link in links %}
+text: {{ link.getText() }}
+url (path): {{ link.getUrl() }}
+{% endfor %}
