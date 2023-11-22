@@ -5,6 +5,7 @@
  * Use proprocess for html twig.
  */
 
+use Drupal\block\Entity\Block;
 use Drupal\Core\Render\Markup;
 use Drupal\taxonomy\Entity\Term;
 
@@ -27,12 +28,25 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         'nodetype' => NULL,
         'pagetype' => NULL,
         'meta_noindex' => NULL,
+        'taxonomy_link_block' => NULL,
       ];
       $node = \Drupal::routeMatch()->getParameter('node');
       $isFront = \Drupal::service('path.matcher')->isFrontPage();
       $noindex = FALSE;
 
       if (is_object($node) && method_exists($node, 'getFields')) {
+        // usagov_taxonomy_links is a "system breadcrumb" block whose twig file will render
+        // the taxonomy information for the dataLayer array. Here, we create a renderable
+        // version of the block and save it as a variable that can be rendered within the
+        // HTML <head> element in html.html.twig.
+        //
+        // The breadcrumb links aren't calculated until this block is actually rendered, so
+        // we do NOT have an opportunity to save or process the links themselves into the
+        // $variables array for html.html.twig to use.
+        $breadcrumb_block = Block::load('usagov_taxonomy_links');
+        $taxonomy_link_block = \Drupal::entityTypeManager()->getViewBuilder('block')->view($breadcrumb_block);
+        $usa_twig_vars['taxonomy_link_block'] = $taxonomy_link_block;
+
         // Check if the page is not front page.
         if ($isFront == 1) {
           $isFront = 'homepage';
