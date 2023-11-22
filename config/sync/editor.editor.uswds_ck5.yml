@@ -26,14 +26,13 @@ settings:
       - '|'
       - bulletedList
       - numberedList
-      - '-'
+      - '|'
       - blockQuote
       - drupalMedia
-      - '|'
+      - '-'
       - sourceEditing
       - '|'
       - insertTable
-      - UswdsAccordionToolbar
       - paragraphs
   plugins:
     ckeditor5_alignment:
@@ -66,8 +65,6 @@ settings:
           element: '<h2 class="font-serif-lg text-bold text-accent-cool-darker">'
     media_media:
       allow_view_mode_override: false
-    uswds_ckeditor_integration_accordion:
-      bordered: false
     uswds_ckeditor_integration_ckeditor5_overrides:
       override_lists: false
       override_links: false
