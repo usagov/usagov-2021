@@ -33,6 +33,7 @@
         "drupal/ctools": "^3.7",
         "drupal/devel": "^5.1",
         "drupal/diff": "^1.0",
+        "drupal/entity_embed": "^1.5",
         "drupal/entity_reference_revisions": "^1.9",
         "drupal/externalauth": "^2",
         "drupal/faqfield": "^7.1",
