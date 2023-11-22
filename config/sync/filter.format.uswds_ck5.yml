@@ -12,7 +12,7 @@ dependencies:
     - uswds_ckeditor_integration
 name: USWDS_CK5
 format: uswds_ck5
-weight: 0
+weight: -10
 filters:
   filter_html:
     id: filter_html
