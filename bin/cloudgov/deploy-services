@@ -105,14 +105,15 @@ generate_cert_json()
   if service_exists "database" ; then
     echo database already created
   else
-    #if [ "$SPACE" = "prod" ] ; then
-    #  cf create-service aws-rds medium-mysql database
-    #else
-      cf create-service aws-rds \
-        small-mysql \
-        database \
-        -c '{"version": "8.0"}'
-    #fi
+    if [ "$SPACE" = "dev" ] ; then
+       RDS_PLAN=small-mysql
+    else
+	RDS_PLAN=small-mysql-redundant
+    fi
+    cf create-service aws-rds \
+      $RDS_PLAN \
+      database \
+      -c '{"version": "8.0"}'
   fi
 
   # wait until the db is fully provisioned
