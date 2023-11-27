@@ -12,10 +12,11 @@ CMS_APP=cms
 ORG=gsa-tts-usagov
 APP_SPACE=dev-dr
 EGRESS_SPACE=shared-egress-dr
-CTAG=cms-7168
-CDIGEST=@sha256:58339c1210f816f482ecc5edd79b89d6600f5b034a347d11c38c8ee299ccf110
-WTAG=waf-7168
-WDIGEST=@sha256:0f654eb899672a2b727bc194b31f2f573bd98c648111d3fd6aaacddad3c7d80e
+CTAG=cms-7199
+CDIGEST=@sha256:9774ccdd022074c110c26dbd98845654e5552ea1347a57d172afc5fc25b153ba
+
+WTAG=waf-7199
+WDIGEST=@sha256:8ee375d762e12cba6aa871b2e28714e440cd05673b3ea96dede09dffcd6dce32
 
 #echo  cf delete-space $APP_SPACE
 #while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
@@ -72,16 +73,17 @@ WDIGEST=@sha256:0f654eb899672a2b727bc194b31f2f573bd98c648111d3fd6aaacddad3c7d80e
 #$echo bin/cloudgov/create-service-account | tee csa2.log
 #exit
 # 
-#echo  cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#bin/cloudgov/deploy-cms $CTAG $CDIGEST
+echo  cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+bin/cloudgov/deploy-cms $CTAG $CDIGEST
 #exit
-#
-#ROUTE_SERVICE_APP_NAME=$WAF_APP \
-#ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
-#PROTECTED_APP_NAME=$CMS_APP \
-#bin/cloudgov/deploy-waf $WTAG $WDIGEST
-#exit
+
+ROUTE_SERVICE_APP_NAME=$WAF_APP \
+ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
+PROTECTED_APP_NAME=$CMS_APP \
+bin/cloudgov/deploy-waf $WTAG $WDIGEST
+exit
+
 ###
 cat <<'ZZ'
 ### Run this on the CMS app, to test the connection to RDS
