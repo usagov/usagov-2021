@@ -1,10 +1,7 @@
 #!/bin/sh
-
 #####################################################################
-##
 ## This is meant to be a temporary script to assist in setting up
 ## the DR spaces for testing USAGOV-1083 w/ non-standard DNS records
-##
 #####################################################################
 
 WAF_APP=waf-dr
@@ -12,67 +9,67 @@ CMS_APP=cms
 ORG=gsa-tts-usagov
 APP_SPACE=dev-dr
 EGRESS_SPACE=shared-egress-dr
-CTAG=cms-7199
-CDIGEST=@sha256:9774ccdd022074c110c26dbd98845654e5552ea1347a57d172afc5fc25b153ba
+CTAG=cms-7230
+CDIGEST=@sha256:5dfeaa2eca51fd7ff86a093617b82a95677e779df0d157091f1d117f503742f2
 
-WTAG=waf-7199
-WDIGEST=@sha256:8ee375d762e12cba6aa871b2e28714e440cd05673b3ea96dede09dffcd6dce32
+WTAG=waf-7230
+WDIGEST=@sha256:cc5450808a054e5da8897dd433bdc575f5c726aa7b42ec2d1e4a18ecebf13c97
 
-#echo  cf delete-space $APP_SPACE
-#while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
+echo  cf delete-space $APP_SPACE
+while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
+exit
+ 
+echo  cf delete-space $EGRESS_SPACE
+$echo cf delete-space $EGRESS_SPACE
 #exit
-# 
-#echo  cf delete-space $EGRESS_SPACE
-#$echo cf delete-space $EGRESS_SPACE
-##exit
-# 
-#echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG  PIPE tee ce.org
-#$echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
-##exit
-# 
-#echo bin/cloudgov/create-app-space $APP_SPACE $ORG PIPE tee ca.log
-#$echo bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
-#echo cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-##exit
-# 
-#echo cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#echo bin/cloudgov/deploy-services  PIPE tee ds.log
-#$echo bin/cloudgov/deploy-services  | tee ds.log
-##exit
-# 
-#echo cf target -s $EGRESS_SPACE
-#$echo cf target -s $EGRESS_SPACE
-#echo cf create-service s3 basic-sandbox key-value  PIPE tee cskv.log
-#$echo cf create-service s3 basic-sandbox key-value  | tee cskv.log
-##exit
-# 
-#echo cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#echo  bin/cloudgov/create-service-account PIPE tee csa.log
-#$echo bin/cloudgov/create-service-account | tee csa.log
-##exit
-# 
-#echo  cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#echo  cf delete-service ${APP_SPACE}-usagov-domain
-#$echo cf delete-service ${APP_SPACE}-usagov-domain
-##exit
-# 
-#echo  cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#echo  cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "dev-dr.usa.gov,shared-egress-dr.usa.gov"}'
-#$echo cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "dev-dr.usa.gov,shared-egress-dr.usa.gov"}'
-#while [ 1 = 1 ]; do clear; cf service ${APP_SPACE}-usagov-domain; sleep 10; done
-##exit
-#
-#echo  cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#echo  bin/cloudgov/create-service-account PIPE tee csa2.log
-#$echo bin/cloudgov/create-service-account | tee csa2.log
+ 
+echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG  PIPE tee ce.org
+$echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
 #exit
-# 
+ 
+echo bin/cloudgov/create-app-space $APP_SPACE $ORG PIPE tee ca.log
+$echo bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+#exit
+ 
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+echo bin/cloudgov/deploy-services  PIPE tee ds.log
+$echo bin/cloudgov/deploy-services  | tee ds.log
+#exit
+ 
+echo cf target -s $EGRESS_SPACE
+$echo cf target -s $EGRESS_SPACE
+echo cf create-service s3 basic-sandbox key-value  PIPE tee cskv.log
+$echo cf create-service s3 basic-sandbox key-value  | tee cskv.log
+#exit
+ 
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+echo  bin/cloudgov/create-service-account PIPE tee csa.log
+$echo bin/cloudgov/create-service-account | tee csa.log
+#exit
+ 
+echo  cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+echo  cf delete-service ${APP_SPACE}-usagov-domain
+$echo cf delete-service ${APP_SPACE}-usagov-domain
+#exit
+ 
+echo  cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+echo  cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "dev-dr.usa.gov,shared-egress-dr.usa.gov"}'
+$echo cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "dev-dr.usa.gov,shared-egress-dr.usa.gov"}'
+while [ 1 = 1 ]; do clear; cf service ${APP_SPACE}-usagov-domain; sleep 10; done
+exit
+
+echo  cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+echo  bin/cloudgov/create-service-account PIPE tee csa2.log
+$echo bin/cloudgov/create-service-account | tee csa2.log
+exit
+ 
 echo  cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE
 bin/cloudgov/deploy-cms $CTAG $CDIGEST
