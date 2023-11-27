@@ -9,8 +9,8 @@ do
     curl_output=$(curl -s localhost)
     if [[ "$curl_output" == *"carouselHeaders"* ]]
     then
-        echo "Attempt #"$a": Page Loaded!"
+        echo "[$(date +'%Y-%m-%d %H:%M:%S.%3N')] Attempt #"$a": Page Loaded!"
     else
-        echo "Attempt #"$a": Error 429"
+        echo "[$(date +'%Y-%m-%d %H:%M:%S.%3N')] Attempt #"$a": Error 429"
     fi
 done
