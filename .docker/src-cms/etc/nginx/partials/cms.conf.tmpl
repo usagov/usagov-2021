@@ -2,13 +2,18 @@
 # underscore catch-all allows this to work on local dockers because who knows what hostname local devs have setup
 
 #
-limit_req_zone $binary_remote_addr zone=limitbyaddr:10m rate=9000r/m;
+limit_req_zone $binary_remote_addr zone=limitbyaddr:10m rate=10r/s;
 limit_req_status 429;
 
 server {
     listen 80 default_server;
-
-    limit_req zone=limitbyaddr burst=5;
+    # 180 burst = 194 200 code
+    # 190 burst = 200 200 code
+    # 200 burst = 207 200 code
+    # 250 burst = 256 200 code
+    # 300 burst = 307 200 code
+    # 350 burst = 356 200 code
+    limit_req zone=limitbyaddr burst=400 nodelay;
 
     server_name ${CMS_HOST} _;
 
