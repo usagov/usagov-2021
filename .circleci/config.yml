@@ -547,6 +547,7 @@ workflows:
                 - stage
                 - prod
                 - USAGOV-1083-temp-domain-names
+                - USAGOV-1236-nginx-versions-dr-space
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -557,6 +558,7 @@ workflows:
                 - stage
                 - prod
                 - USAGOV-1083-temp-domain-names
+                - USAGOV-1236-nginx-versions-dr-space
       - approve-dev-deployment:
           type: approval
           requires:
