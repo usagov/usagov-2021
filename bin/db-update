@@ -11,6 +11,10 @@ else
     LOCAL_FILE=${1:-usagov.sql}
 fi
 
+# Drop tables before importing the sql dump file
+echo "Clearing out old tables..."
+bin/drush sql-drop -y
+
 echo "Importing database from $LOCAL_FILE"
 docker compose exec \
   database \
