@@ -1,0 +1,65 @@
+
+    # spanish main url - easier as a separate case vs in another regex
+    location ~* ^/(es)$ {
+      error_page 404 @notFoundSpanish;
+      error_page 403 =404 @notFoundSpanish;      
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
+      proxy_pass https://$indexfile;
+    }
+    # spanish catch urls that end in a trailing slash - assume they are dirs and need an index
+    location ~* ^/(es/(.+/)?)$ {
+      error_page 404 @notFoundSpanish;
+      error_page 403 =404 @notFoundSpanish;      
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}index.html";
+      proxy_pass https://$indexfile;
+    }
+    # spanish catch urls that end without an extension or trailing slash - assume they are dirs and need an index
+    location ~* ^/(es/(.*/)?[^\./]+)$ {
+      error_page 404 @notFoundSpanish;
+      error_page 403 =404 @notFoundSpanish;      
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
+      proxy_pass https://$indexfile;
+    }
+    # spanish catch all urls - assume they are not dirs and should be proxied directly
+    location ~* ^/(es/.*) {
+      error_page 404 @notFoundSpanish;
+      error_page 403 =404 @notFoundSpanish;      
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}";
+      proxy_pass https://$indexfile;
+    }
+
+    # catch urls that end in a trailing slash - assume they are dirs and need an index
+    location ~* /(.*/)?$ {
+      error_page 404 @notFoundEnglish;
+      error_page 403 =404 @notFoundEnglish;      
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}index.html";
+      proxy_pass https://$indexfile;
+    }
+    # catch urls that end without an extension or trailing slash - assume they are dirs and need an index
+    location ~* /([^\./]+)$ {
+      error_page 404 @notFoundEnglish;
+      error_page 403 =404 @notFoundEnglish;      
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
+      proxy_pass https://$indexfile;
+    }
+    # catch all urls - assume they are not dirs and should be proxied directly
+    location ~* (.*) {
+      error_page 404 @notFoundEnglish;
+      error_page 403 =404 @notFoundEnglish;      
+      proxy_intercept_errors on;
+      recursive_error_pages on;
+      set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}";
+      proxy_pass https://$indexfile;
+    }
