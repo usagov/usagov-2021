@@ -1,0 +1,5 @@
+name: USAgov Benefit Finder
+type: module
+description: USAgov Benefit Finder module.
+core_version_requirement: ^9 || ^10
+package: USAgov Benefit Finder

@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * Provides usagov_benefit_finder_api.
+ */
+
+use Drupal\usagov_benefit_finder_api\Controller\LifeEventController;
+use Drupal\node\Entity\Node;
+
+/**
+ * Implements hook_node_update().
+ *
+ * @param Node $node
+ */
+function usagov_benefit_finder_api_node_update(Node $node) {
+  save_json_data($node);
+}
+
+/**
+ * Implements hook_node_insert().
+ *
+ * @param Node $node
+ */
+function usagov_benefit_finder_api_node_insert(Node $node) {
+  save_json_data($node);
+}
+
+/**
+ * Implements hook_node_delete().
+ *
+ * @param Node $node
+ */
+function usagov_benefit_finder_api_node_delete(Node $node) {
+  save_json_data($node);
+}
+
+/**
+ * Save Json data if node is benefit finder content.
+ *
+ * @param Node $node
+ */
+function save_json_data(Node $node) {
+  $config = \Drupal::config('usagov_benefit_finder.settings');
+  if ($config->get('automate_json_data_file_generating')) {
+    $content_types = [
+      'bears_agency',
+      'bears_criteria',
+      'bears_benefit',
+      'bears_life_event_form'
+    ];
+    if (in_array($node->getType(), $content_types)) {
+      $LifeEventController = new LifeEventController();
+      $result = \Drupal::service('database')
+        ->query('SELECT field_b_id_value FROM node__field_b_id WHERE bundle = :bundle', [':bundle' => 'bears_life_event_form'])
+        ->fetchAll();
+      foreach ($result as $record) {
+        $id = $record->field_b_id_value;
+        $LifeEventController->mode = "published";
+        $LifeEventController->saveJsonData($id);
+        $LifeEventController->mode = "draft";
+        $LifeEventController->saveJsonData($id);
+      }
+    }
+  }
+}

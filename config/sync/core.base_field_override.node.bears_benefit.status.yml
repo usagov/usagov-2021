@@ -1,0 +1,22 @@
+uuid: 43e9138b-cba4-4a98-a740-ebd41198f1e2
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_benefit
+id: node.bears_benefit.status
+field_name: status
+entity_type: node
+bundle: bears_benefit
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

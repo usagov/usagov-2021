@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Module contains functions related to usagov_benefit_finder_content.
+ */
+
+/**
+ * Implements hook_form_alter().
+ */
+function usagov_benefit_finder_content_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == "node_bears_benefit_edit_form") {
+    $i = 0;
+    do {
+      $ckey_widget = $form['field_b_eligibility']['widget'][$i]['subform']['field_b_criteria_key']['widget'];
+      if (empty($ckey_widget)) {
+        break;
+      }
+      $type = $ckey_widget['#type'];
+      $required = $ckey_widget['#required'];
+      if ($type == "select" && $required == 1) {
+        $form['field_b_eligibility']['widget'][$i]['subform']['field_b_criteria_key']['widget']['#options'] =
+          array('_none' => '- None -') +
+          $form['field_b_eligibility']['widget'][$i]['subform']['field_b_criteria_key']['widget']['#options'];
+      }
+      $i++;
+    } while ($i > 0);
+  }
+}

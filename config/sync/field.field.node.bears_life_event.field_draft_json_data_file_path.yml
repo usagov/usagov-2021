@@ -1,0 +1,19 @@
+uuid: f3f5e84d-cfdb-4c3d-b368-d7e63d81b4a4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_draft_json_data_file_path
+    - node.type.bears_life_event
+id: node.bears_life_event.field_draft_json_data_file_path
+field_name: field_draft_json_data_file_path
+entity_type: node
+bundle: bears_life_event
+label: 'Draft json data file path'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
