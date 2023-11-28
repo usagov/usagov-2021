@@ -1,0 +1,6 @@
+# Snyk (https://snyk.io) policy file
+
+exclude:
+    global:
+        # Exclude utility scripts in usagov_directories:
+            - web/modules/custom/usagov_directories/utility/**
