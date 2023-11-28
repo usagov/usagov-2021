@@ -3,33 +3,32 @@
 <nav aria-label="Navegación secundaria">
 	<ul class="usa-sidenav">
 		<li class="usa-sidenav__item">
-			<a class="active-trail" href="/es/acerca-de-estados-unidos">Acerca de EE. UU. y directorios del Gobierno
+			<a class="active-trail" href="/es/acerca-de-estados-unidos">
+				Acerca de EE. UU. y directorios del Gobierno
 			</a>
-		</li>
-		{% if path('<current>') matches '#\/es\/agencias\/*#' %}
 			<ul class="usa-sidenav__sublist">
 				<li class="usa-sidenav__item">
-					<a class="active-trail" href="/es/indice-agencias">Agencias federales</a>
-				</li>
-
-				<ul class="usa-sidenav__sublist">
-					<li class="usa-sidenav__item">
-
-						<a class="usa-current" onclick="return false;" href={{current_url}}>
-							<p class="usa-sr-only">esta página</p>
-							{{ drupal_title() }}
+					{% if path('<current>') matches '#\/es\/agencias\/*#' %}
+						<a class="active-trail" href="/es/indice-agencias">
+							Agencias federales
 						</a>
-					</li>
-				</ul>
-			{% else %}
-				<ul class="usa-sidenav__sublist">
-					<li class="usa-sidenav__item">
+						<ul class="usa-sidenav__sublist">
+							<li class="usa-sidenav__item">
+								<a class="usa-current" onclick="return false;" href={{current_url}}>
+									<p class="usa-sr-only">esta página</p>
+									{{ drupal_title() }}
+								</a>
+							</li>
+						</ul>
+					{% else %}
 						<a href="/es/indice-agencias">Agencias federales</a>
-					</li>
-				{% endif %}
+					{% endif %}
+				</li>
 				<li class="usa-sidenav__item">
 					{% if path('<current>') matches '#\/es\/estados\/*#' %}
-						<a class="active-trail" href="/es/gobiernos-estatales">Gobiernos estatales</a>
+						<a class="active-trail" href="/es/gobiernos-estatales">
+							Gobiernos estatales
+						</a>
 						<ul class="usa-sidenav__sublist">
 							<li class="usa-sidenav__item">
 								<a class="usa-current" onclick="return false;" href={{current_url}}>
@@ -42,21 +41,32 @@
 						<a href="/es/gobiernos-estatales">Gobiernos estatales</a>
 					{% endif %}
 				</li>
-	<li class="usa-sidenav__item">
-					<a class="" href="/es/estatal-consumidor">Oficinas estatales de protección al consumidor</a>
+				<li class="usa-sidenav__item">
+					<a href="/es/estatal-consumidor">
+						Oficinas estatales de protección al consumidor
+					</a>
 				</li>
 				<li class="usa-sidenav__item">
-					<a class="" href="/es/informacion-general-sobre-estados-unidos">Información general sobre EE. UU.</a>
+					<a href="/es/informacion-general-sobre-estados-unidos">
+						Información general sobre EE. UU.
+					</a>
 				</li>
 				<li class="usa-sidenav__item">
-					<a href="/es/ramas-gobierno-estados-unidos">Ramas del Gobierno de EE. UU.</a>
+					<a href="/es/ramas-gobierno-estados-unidos">
+						Ramas del Gobierno de EE. UU.
+					</a>
 				</li>
 				<li class="usa-sidenav__item">
-					<a href="/es/funcionarios-electos">Funcionarios electos</a>
+					<a href="/es/funcionarios-electos">
+						Funcionarios electos
+					</a>
 				</li>
 				<li class="usa-sidenav__item">
-					<a href="/es/dias-festivos-estados-unidos">Días festivos federales</a>
+					<a href="/es/dias-festivos-estados-unidos">
+						Días festivos federales
+					</a>
 				</li>
 			</ul>
-		</ul>
-	</nav>
+		</li>
+	</ul>
+</nav>
