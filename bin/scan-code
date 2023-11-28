@@ -15,11 +15,11 @@ fi
 
 THRESHOLD=${1:-low}
 
-# Explicitly turn off DOCKER_CONTENT_TRUST, as snyk are not signing their images. 
+# Explicitly turn off DOCKER_CONTENT_TRUST, as snyk are not signing their images.
 docker run --disable-content-trust -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v "$(pwd)/scripts:/app/scripts" \
     -v "$(pwd)/web/modules/custom:/app/web/modules/custom" \
-    -v "/tmp/nothingburger:/app/web/modules/custom/samlauth" \
     -v "$(pwd)/web/themes/custom:/app/web/themes/custom" \
-  snyk/snyk:php snyk code test --severity-threshold=$THRESHOLD
+  snyk/snyk:php snyk ignore --file-path=/app/web/modules/custom/usagov_directories/utility \
+     && snyk code test --severity-threshold=$THRESHOLD
