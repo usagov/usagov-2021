@@ -155,3 +155,9 @@ curl -s -o /dev/null -w "[$(date +'%Y-%m-%d %H:%M:%S')] Attempt 7: I finished\n"
 curl -s -o /dev/null -w "[$(date +'%Y-%m-%d %H:%M:%S')] Attempt 8: I finished\n" localhost &
 curl -s -o /dev/null -w "[$(date +'%Y-%m-%d %H:%M:%S')] Attempt 9: I finished\n" localhost &
 curl -s -o /dev/null -w "[$(date +'%Y-%m-%d %H:%M:%S')] Attempt 10: I finished\n" localhost &
+curl -s -o /dev/null -w "[$(date +'%Y-%m-%d %H:%M:%S')] Attempt 5: I finished\n" localhost &
+curl -s -o /dev/null -w "[$(date +'%Y-%m-%d %H:%M:%S')] Attempt 6: I finished\n" localhost &
+curl -s -o /dev/null -w "[$(date +'%Y-%m-%d %H:%M:%S')] Attempt 7: I finished\n" localhost &
+curl -s -o /dev/null -w "[$(date +'%Y-%m-%d %H:%M:%S')] Attempt 8: I finished\n" localhost &
+curl -s -o /dev/null -w "[$(date +'%Y-%m-%d %H:%M:%S')] Attempt 9: I finished\n" localhost &
+curl -s -o /dev/null -w "[$(date +'%Y-%m-%d %H:%M:%S')] Attempt 10: I finished\n" localhost &
