@@ -1,0 +1,12 @@
+usagov_benefit_finder_content.report:
+  path: '/benefit-finder/content/report'
+  defaults:
+    _controller: '\Drupal\usagov_benefit_finder_content\Controller\CheckDataController:checkData'
+    _title: 'USAgov Benefit Finder content report'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+  options:
+    parameters:
+      id:
+        type: string
