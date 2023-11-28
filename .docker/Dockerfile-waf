@@ -45,6 +45,11 @@ RUN apk upgrade --update && \
       jq \
       inotify-tools \
       nginx-mod-http-lua \
+      nano \
+      moreutils \
+      pv \
+      tar \
+      xz \
       gettext
 
 # hadolint ignore=DL3008,SC2016
