@@ -21,5 +21,5 @@ docker run --disable-content-trust -it --rm \
     -v "$(pwd)/scripts:/app/scripts" \
     -v "$(pwd)/web/modules/custom:/app/web/modules/custom" \
     -v "$(pwd)/web/themes/custom:/app/web/themes/custom" \
-  snyk/snyk:php snyk ignore --file-path=/app/web/modules/custom/usagov_directories/utility \
-     && snyk code test --severity-threshold=$THRESHOLD
+    -v "/tmp/nosuchdir:/app/web/modules/custom/usagov_directories/utility" \
+  snyk/snyk:php snyk code test --severity-threshold=$THRESHOLD
