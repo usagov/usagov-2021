@@ -5,7 +5,7 @@ usagov_benefit_finder_api.life_event_1:
     _title: 'USAgov Benefit Finder JSON API of life event'
   methods: [GET]
   requirements:
-    _access: 'TRUE'
+    _user_is_logged_in: 'TRUE'
   options:
     parameters:
       id:
@@ -17,7 +17,7 @@ usagov_bears_api.life_event_json_file_1:
     _title: 'USAgov Benefit Finder JSON file of life event'
   methods: [GET]
   requirements:
-    _access: 'TRUE'
+    _user_is_logged_in: 'TRUE'
   options:
     parameters:
       id:
@@ -29,7 +29,7 @@ usagov_benefit_finder_api.life_event:
     _title: 'USAgov Benefit Finder JSON API of life event'
   methods: [GET]
   requirements:
-    _access: 'TRUE'
+    _user_is_logged_in: 'TRUE'
   options:
     parameters:
       id:
@@ -41,7 +41,7 @@ usagov_bears_api.life_event_json_file:
     _title: 'USAgov Benefit Finder JSON file of life event'
   methods: [GET]
   requirements:
-    _access: 'TRUE'
+    _user_is_logged_in: 'TRUE'
   options:
     parameters:
       id:

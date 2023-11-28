@@ -5,7 +5,7 @@ usagov_benefit_finder_content.report:
     _title: 'USAgov Benefit Finder content report'
   methods: [GET]
   requirements:
-    _access: 'TRUE'
+    _user_is_logged_in: 'TRUE'
   options:
     parameters:
       id:

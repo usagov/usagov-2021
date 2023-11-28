@@ -2,10 +2,8 @@
 
 namespace Drupal\usagov_benefit_finder_api\Controller;
 
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Drupal\node\Entity\node;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\file\FileInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Class LifeEventController
@@ -72,8 +70,7 @@ class LifeEventController {
   /**
    * Constructs a new LifeEventController object.
    */
-  public function __construct()
-  {
+  public function __construct() {
     $this->entityTypeManager = \Drupal::service('entity_type.manager');
     $this->fileSystem = \Drupal::service('file_system');
     $this->fileRepository = \Drupal::service('file.repository');
@@ -100,7 +97,7 @@ class LifeEventController {
     if ($this->mode == "published") {
       $directory = "public://benefit-finder/api/life-event";
     }
-    else if ($this->mode == "draft") {
+    elseif ($this->mode == "draft") {
       $directory = "public://benefit-finder/api/draft/life-event";
     }
 
@@ -109,15 +106,15 @@ class LifeEventController {
     // Get JSON data.
     $this->displayData = FALSE;
     $data = json_encode([
-        'data' => $this->getData($id),
-        'method' => 'GET',
-        'status' => 200
-      ]
+      'data' => $this->getData($id),
+      'method' => 'GET',
+      'status' => 200,
+    ]
     );
 
     // Write JSON data file.
     $filename = "$directory/$id.json";
-    $file = $this->fileRepository->writeData($data, $filename, FileSystemInterface::EXISTS_REPLACE);
+    $this->fileRepository->writeData($data, $filename, FileSystemInterface::EXISTS_REPLACE);
 
     $fileUrlString = $this->fileUrlGenerator->generate($filename)->toString();
 
@@ -128,20 +125,20 @@ class LifeEventController {
       if ($this->mode == "published") {
         $field_name = 'field_json_data_file_path';
       }
-      else if ($this->mode == "draft") {
+      elseif ($this->mode == "draft") {
         $field_name = 'field_draft_json_data_file_path';
       }
       $life_event->set($field_name, [
-        'value' =>  $fileUrlString,
+        'value' => $fileUrlString,
       ]);
       $life_event->save();
     }
 
     return new JsonResponse([
-        'data' => "Saved JSON data to " . $fileUrlString,
-        'method' => 'GET',
-        'status' => 200
-      ]
+      'data' => "Saved JSON data to " . $fileUrlString,
+      'method' => 'GET',
+      'status' => 200,
+    ]
     );
   }
 
@@ -153,10 +150,10 @@ class LifeEventController {
    */
   public function getJsonData($id) {
     return new JsonResponse([
-        'data' => $this->getData($id),
-        'method' => 'GET',
-        'status' => 200
-      ]
+      'data' => $this->getData($id),
+      'method' => 'GET',
+      'status' => 200,
+    ]
     );
   }
 
@@ -196,7 +193,7 @@ class LifeEventController {
       "timeEstimate" => $life_event_form_node->get('field_b_time_estimate')->value ?? "",
       "titlePrefix" => $life_event_form_node->get('field_b_title_prefix')->value ?? "",
       "title" => $life_event_form_node->get('title')->value ?? "",
-      "summary" => $life_event_form_node->get('field_b_summary')->value ?? ""
+      "summary" => $life_event_form_node->get('field_b_summary')->value ?? "",
     ];
 
     // Get Relevant Benefits.
@@ -209,7 +206,7 @@ class LifeEventController {
         "title" => current($relevant_benefit->get('field_b_life_event_form')->referencedEntities())->get('title')->value ?? "",
         "body" => $relevant_benefit->get('field_b_body')->value ?? "",
         "link" => $relevant_benefit->get('field_b_link')->value ?? "",
-        "cta" => $relevant_benefit->get('field_b_cta')->value ?? ""
+        "cta" => $relevant_benefit->get('field_b_cta')->value ?? "",
       ];
       $life_event_form_relevant_benefits[]['lifeEvent'] = $life_event_form_relevant_benefit;
     }
@@ -224,7 +221,7 @@ class LifeEventController {
     foreach ($sections as $section) {
       $life_event_form_section = [
         "heading" => $section->get('field_b_heading')->value ?? "",
-        "description" => $section->get('field_b_description')->value ?? ""
+        "description" => $section->get('field_b_description')->value ?? "",
       ];
 
       // Get criterias of a section.
@@ -236,7 +233,8 @@ class LifeEventController {
         $criteria_fieldset = [];
         if ($criteria->type->target_id == "b_levent_elg_criteria") {
           $criteria_fieldset = $this->buildCriteriaFieldset($criteria);
-        } else if ($criteria->type->target_id == "b_levent_elg_criteria_group") {
+        }
+        elseif ($criteria->type->target_id == "b_levent_elg_criteria_group") {
           $criteria_fieldset = $this->buildCriteriaGroupFieldset($criteria);
         }
         $criteria_fieldsets[]['fieldset'] = $criteria_fieldset;
@@ -261,7 +259,7 @@ class LifeEventController {
     // Encode JSON data.
     $result = [
       "lifeEventForm" => $life_event_form,
-      "benefits" => $benefits
+      "benefits" => $benefits,
     ];
     $json = json_encode($result, JSON_PRETTY_PRINT);
 
@@ -336,7 +334,7 @@ class LifeEventController {
     // Build criteria group fieldset.
     $criteria_group_fieldset = [
       "heading" => $criteria->get("field_b_heading")->value ?? "",
-      "description" => $criteria->field_b_description->value ?? ""
+      "description" => $criteria->field_b_description->value ?? "",
     ];
 
     // Get criterias multi paragraphs.
@@ -359,8 +357,7 @@ class LifeEventController {
    * @param $criteria
    * @return array
    */
-  public function buildCriteriaFieldset($criteria)
-  {
+  public function buildCriteriaFieldset($criteria) {
     $criteria_fieldset = [];
 
     // Get criteria node.
@@ -376,8 +373,8 @@ class LifeEventController {
     $criteria_fieldset = [
       "criteriaKey" => current($criteria->get('field_b_criteria_key')->referencedEntities())->get('field_b_id')->value,
       "legend" => $criteria->get('field_b_legend')->value ?? "",
-      "required" => $criteria->get('field_b_required')->value ? "TRUE":"FALSE",
-      "hint" => $criteria->get('field_b_hint')->value ?? ""
+      "required" => $criteria->get('field_b_required')->value ? "TRUE" : "FALSE",
+      "hint" => $criteria->get('field_b_hint')->value ?? "",
     ];
 
     // Build inputCriteria.
@@ -386,25 +383,25 @@ class LifeEventController {
       "type" => $criteria_node->get('field_b_type')->value,
       "name" => $criteria_node->get('field_b_name')->value ?? "",
       "label" => $criteria_node->get('field_b_label')->value ?? "",
-      "hasChild" => $criteria_node->get('field_b_has_child')->value ? "TRUE":"FALSE",
-      "childDependencyOption" => $criteria_node->get('field_b_child_dependency_option')->value ?? ""
+      "hasChild" => $criteria_node->get('field_b_has_child')->value ? "TRUE" : "FALSE",
+      "childDependencyOption" => $criteria_node->get('field_b_child_dependency_option')->value ?? "",
     ];
 
     $criteria_values = [];
 
     if ($criteria_node->get('field_b_type')->value == 'date' || $criteria_node->get('field_b_type')->value == "Date") {
-      $criteria_values[] = array(
+      $criteria_values[] = [
         "default" => "",
-        "value" => (object)[]
-      );
+        "value" => (object) [],
+      ];
     }
 
     $b_values = $criteria_node->get('field_b_values')->getValue();
     foreach ($b_values as $b_value) {
-      $criteria_values[] = array(
+      $criteria_values[] = [
         "option" => $b_value["value"],
-        "value" => $b_value["value"]
-      );
+        "value" => $b_value["value"],
+      ];
     }
     $inputCriteria["values"] = $criteria_values;
 
@@ -420,7 +417,8 @@ class LifeEventController {
         $criteria_fieldset_1 = [];
         if ($criteria_1->type->target_id == "b_levent_elg_criteria") {
           $criteria_fieldset_1 = $this->buildCriteriaFieldset($criteria_1);
-        } else if ($criteria_1->type->target_id == "b_levent_elg_criteria_group") {
+        }
+        elseif ($criteria_1->type->target_id == "b_levent_elg_criteria_group") {
           $criteria_fieldset_1 = $this->buildCriteriaGroupFieldset($criteria_1);
         }
         $criteria_fieldset["children"][]["fieldsets"][]['fieldset'] = $criteria_fieldset_1;
@@ -443,7 +441,7 @@ class LifeEventController {
       "title" => $node->get('title')->value,
       "summary" => $node->get('field_b_summary')->value ?? "",
       "SourceLink" => $node->get('field_b_source_link')->value ?? "",
-      "SourceIsEnglish" => $node->get('field_b_source_is_english')->value ? "TRUE": "FALSE"
+      "SourceIsEnglish" => $node->get('field_b_source_is_english')->value ? "TRUE" : "FALSE",
     ];
 
     // Get agency node and build benefit agency.
@@ -453,7 +451,7 @@ class LifeEventController {
       $benefit["agency"] = [
         "title" => $agency->get('title')->value,
         "summary" => $agency->get('field_b_summary')->value ?? "",
-        "lede" => $agency->get('field_b_lede')->value ?? ""
+        "lede" => $agency->get('field_b_lede')->value ?? "",
       ];
     }
     else {
@@ -471,7 +469,7 @@ class LifeEventController {
     foreach ($lifeEvents as $lifeEvent) {
       $service = $this->entityTypeManager->getStorage('node');
       $node1 = $service->load($lifeEvent['target_id']);
-      $benefit['lifeEvents'][] = $node1->get('title')->value; // death-of-a-loved-one no Death of a loved one
+      $benefit['lifeEvents'][] = $node1->get('title')->value;
     }
 
     // Build eligibilities.
@@ -489,7 +487,7 @@ class LifeEventController {
         $benefit_eligibility['label'] = $eligibility->get('field_b_label')->value ?? "";
 
         $acceptableValues = $eligibility->get('field_b_acceptable_values')->getValue();
-        foreach ($acceptableValues as $key => $acceptableValue) {
+        foreach ($acceptableValues as $acceptableValue) {
           $benefit_eligibility['acceptableValues'][] = $acceptableValue['value'];
         }
 
@@ -555,7 +553,7 @@ class LifeEventController {
         ->query('SELECT MAX(vid) AS vid FROM node_field_revision WHERE status = 1 AND nid = :nid', [':nid' => $nid])
         ->fetchField();
     }
-    else if ($mode == "draft") {
+    elseif ($mode == "draft") {
       $vid = $this->database
         ->query('SELECT MAX(vid) AS vid FROM node_field_revision WHERE nid = :nid', [':nid' => $nid])
         ->fetchField();
