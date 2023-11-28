@@ -12,14 +12,6 @@ events {
     worker_connections 1024;
 }
 
-limit_req_zone $binary_remote_addr zone=limitbyaddr:10m rate=10r/s;
-limit_req_status 429;
-
-server {
-    listen 80;
-    limit_req zone=limitbyaddr burst=150 nodelay;
-}
-
 http {
   include /etc/nginx/mime.types;
   default_type application/octet-stream;
