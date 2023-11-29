@@ -1,0 +1,130 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.bears_benefit.field_b_agency
+    - field.field.node.bears_benefit.field_b_eligibility
+    - field.field.node.bears_benefit.field_b_headline
+    - field.field.node.bears_benefit.field_b_initial_elg_length
+    - field.field.node.bears_benefit.field_b_life_event_forms
+    - field.field.node.bears_benefit.field_b_life_events
+    - field.field.node.bears_benefit.field_b_source_is_english
+    - field.field.node.bears_benefit.field_b_source_link
+    - field.field.node.bears_benefit.field_b_summary
+    - field.field.node.bears_benefit.field_b_tags
+    - field.field.node.bears_benefit.field_language_toggle
+    - node.type.bears_benefit
+  module:
+    - entity_reference_revisions
+    - text
+    - user
+id: node.bears_benefit.default
+targetEntityType: node
+bundle: bears_benefit
+mode: default
+content:
+  field_b_agency:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  field_b_eligibility:
+    type: entity_reference_revisions_entity_view
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_b_headline:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_b_initial_elg_length:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 9
+    region: content
+  field_b_life_event_forms:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  field_b_life_events:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  field_b_source_is_english:
+    type: boolean
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 8
+    region: content
+  field_b_source_link:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 7
+    region: content
+  field_b_summary:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_b_tags:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_language_toggle:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  langcode:
+    type: language
+    label: above
+    settings:
+      link_to_entity: false
+      native_language: false
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden: {  }

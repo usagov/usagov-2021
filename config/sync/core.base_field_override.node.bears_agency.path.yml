@@ -1,0 +1,20 @@
+uuid: 51842110-da76-4f5c-bee5-a1baebdcac17
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_agency
+  module:
+    - path
+id: node.bears_agency.path
+field_name: path
+entity_type: node
+bundle: bears_agency
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

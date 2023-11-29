@@ -1,0 +1,11 @@
+uuid: 9abf9562-ae8e-44ad-81d8-32ce452e78a1
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_agency
+id: node.bears_agency
+target_entity_type_id: node
+target_bundle: bears_agency
+default_langcode: site_default
+language_alterable: true
