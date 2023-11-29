@@ -1,0 +1,18 @@
+uuid: 07eafb4e-3c78-475a-9782-56b457b0de19
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_agency
+id: node.bears_agency.title
+field_name: title
+entity_type: node
+bundle: bears_agency
+label: Title
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

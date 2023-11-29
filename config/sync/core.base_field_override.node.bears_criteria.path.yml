@@ -1,0 +1,20 @@
+uuid: ba9fa6df-b3b1-421b-8b23-0ac7e5cc113a
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_criteria
+  module:
+    - path
+id: node.bears_criteria.path
+field_name: path
+entity_type: node
+bundle: bears_criteria
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_type
+    - node.type.bears_criteria
+  module:
+    - options
+id: node.bears_criteria.field_b_type
+field_name: field_b_type
+entity_type: node
+bundle: bears_criteria
+label: Type
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string
