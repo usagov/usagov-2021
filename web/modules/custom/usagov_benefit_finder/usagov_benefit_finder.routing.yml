@@ -1,0 +1,17 @@
+usagov_benefit_finder.main:
+  path: '/admin/config/usagov_benefit_finder/main'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'USAGov Benefit Finder Tools'
+  requirements:
+    _permission: 'administer site configuration'
+
+usagov_benefit_finder.settings:
+  path: '/admin/config/development/usagov_benefit_finder'
+  defaults:
+    _title: 'Benefit Finder Settings'
+    _form: '\Drupal\usagov_benefit_finder\Form\BenefitFinderSettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE

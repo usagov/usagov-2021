@@ -1,0 +1,10 @@
+uuid: 0d3a7536-4158-4795-bce6-1d2a4c594a4d
+langcode: en
+status: true
+dependencies: {  }
+id: b_levent_elg_section
+label: Section
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

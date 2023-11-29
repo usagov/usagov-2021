@@ -1,0 +1,23 @@
+uuid: 33339d71-29f6-4ff7-a237-8c818c33d490
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_b_body
+    - paragraphs.paragraphs_type.b_levent_relevant_benefit
+  module:
+    - allowed_formats
+    - text
+id: paragraph.b_levent_relevant_benefit.field_b_body
+field_name: field_b_body
+entity_type: paragraph
+bundle: b_levent_relevant_benefit
+label: Body
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long
