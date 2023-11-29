@@ -9,11 +9,11 @@ CMS_APP=cms
 ORG=gsa-tts-usagov
 APP_SPACE=dev-dr
 EGRESS_SPACE=shared-egress-dr
-CTAG=cms-7268
-CDIGEST=@sha256:9d716d5e18b8b283126d134873afaae405edf729324ccc99ed3ec606e7d9fae1
+CTAG=cms-7292
+CDIGEST=@sha256:de16c8d39aafc5d30ef40ec39e6ba6a048adb6fa79f104453177a95fb915117b
 
-WTAG=waf-7268
-WDIGEST=@sha256:422b4ec9d997c5d8972f6f9c7ac6ecb860bd91f0e71e35dfedc5c9cb228e6f0c
+WTAG=waf-7292
+WDIGEST=@sha256:ba64891e48e991fe671ed40a4828723ed61b3231b5313700a482c6cc4b927da5
 
 #echo  cf delete-space $APP_SPACE
 #while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
@@ -70,10 +70,10 @@ WDIGEST=@sha256:422b4ec9d997c5d8972f6f9c7ac6ecb860bd91f0e71e35dfedc5c9cb228e6f0c
 #$echo bin/cloudgov/create-service-account | tee csa2.log
 #exit
  
-#echo  cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#bin/cloudgov/deploy-cms $CTAG $CDIGEST
-#exit
+echo  cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+bin/cloudgov/deploy-cms $CTAG $CDIGEST
+exit
 
 #ROUTE_SERVICE_APP_NAME=$WAF_APP \
 #ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
@@ -95,10 +95,10 @@ WDIGEST=@sha256:422b4ec9d997c5d8972f6f9c7ac6ecb860bd91f0e71e35dfedc5c9cb228e6f0c
 #ZZ
 #exit
 
-PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
-SQL_FILE=usagov.sql
- 
-echo "Attempting to deploy database backup $SQL_FILE to $APP_SPACE"
-
-$echo cat $SQL_FILE | cf ssh cms -c "cat - > /tmp/$SQL_FILE"
-cf ssh $CMS_APP -c "if [ -f /tmp/$SQL_FILE ]; then . /etc/profile; drush sql-drop -y; cat /tmp/$SQL_FILE | drush sql-cli; drush cr; fi"
+#PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
+#SQL_FILE=usagov.sql
+# 
+#echo "Attempting to deploy database backup $SQL_FILE to $APP_SPACE"
+#
+#$echo cat $SQL_FILE | cf ssh cms -c "cat - > /tmp/$SQL_FILE"
+#cf ssh $CMS_APP -c "if [ -f /tmp/$SQL_FILE ]; then . /etc/profile; drush sql-drop -y; cat /tmp/$SQL_FILE | drush sql-cli; drush cr; fi"
