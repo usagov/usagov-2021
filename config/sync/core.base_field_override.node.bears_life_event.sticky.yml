@@ -1,0 +1,22 @@
+uuid: ee1cb7ca-4dd5-403c-9d1e-31304e90f9ca
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_life_event
+id: node.bears_life_event.sticky
+field_name: sticky
+entity_type: node
+bundle: bears_life_event
+label: 'Sticky at top of lists'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

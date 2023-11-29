@@ -1,0 +1,10 @@
+uuid: 29a90adb-5087-4999-b101-9266cdd9fc8f
+langcode: en
+status: true
+dependencies: {  }
+id: b_levent_relevant_benefit
+label: 'Relevant Benefit'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }
