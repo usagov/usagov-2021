@@ -48,15 +48,29 @@
   {% if node.id is defined %}
     {{ node.field_header_html.value|raw }}
   {% endif %}
-  <script>
+   {% if nodetype == "basic_page" %}
+<script>
     dataLayer = [{
       {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
+      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
     }];
   </script>
+ {% else %}
+<script>
+    dataLayer = [{
+      {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
+    }];
+  </script>
+ {% endif %}
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

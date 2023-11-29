@@ -268,6 +268,17 @@ function children_of_active_menu_item(&$items) {
 }
 
 /**
+ * Process paragraph content
+ */
+function usagov_preprocess_paragraph(&$variables) {
+  /**
+   * Pass node value to pages so they can access node-based properties
+   */
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $variables['node'] = $node;
+}
+
+/**
  * Process block content
  */
 function usagov_preprocess_block(&$variables) {
