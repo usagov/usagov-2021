@@ -1,0 +1,23 @@
+uuid: 0af3155e-8994-4ee3-b2a9-1194de485fbb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_headline
+    - node.type.bears_benefit
+  module:
+    - allowed_formats
+    - text
+id: node.bears_benefit.field_b_headline
+field_name: field_b_headline
+entity_type: node
+bundle: bears_benefit
+label: Headline
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long
