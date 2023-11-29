@@ -546,6 +546,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1225-remove-pentes-ips-from-allowlist
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -555,6 +556,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1225-remove-pentes-ips-from-allowlist
       - approve-dev-deployment:
           type: approval
           requires:
