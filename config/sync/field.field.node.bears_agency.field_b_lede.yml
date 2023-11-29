@@ -1,0 +1,23 @@
+uuid: b6117306-c27f-4ffb-9a74-5db92ee69738
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_lede
+    - node.type.bears_agency
+  module:
+    - allowed_formats
+    - text
+id: node.bears_agency.field_b_lede
+field_name: field_b_lede
+entity_type: node
+bundle: bears_agency
+label: Lede
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

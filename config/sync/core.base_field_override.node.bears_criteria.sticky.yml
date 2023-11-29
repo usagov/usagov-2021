@@ -1,0 +1,22 @@
+uuid: 5f817fb4-838f-45c4-9a25-1587e3e0a9bc
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_criteria
+id: node.bears_criteria.sticky
+field_name: sticky
+entity_type: node
+bundle: bears_criteria
+label: 'Sticky at top of lists'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean
