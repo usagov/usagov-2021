@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_b_cta
+    - paragraphs.paragraphs_type.b_levent_relevant_benefit
+id: paragraph.b_levent_relevant_benefit.field_b_cta
+field_name: field_b_cta
+entity_type: paragraph
+bundle: b_levent_relevant_benefit
+label: CTA
+description: 'Call to action'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
