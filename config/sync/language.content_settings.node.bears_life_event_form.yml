@@ -1,0 +1,11 @@
+uuid: d97ef2b3-5a8d-4cc4-ad46-0f35891d94f7
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_life_event_form
+id: node.bears_life_event_form
+target_entity_type_id: node
+target_bundle: bears_life_event_form
+default_langcode: site_default
+language_alterable: true
