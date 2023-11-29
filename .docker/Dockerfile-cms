@@ -104,7 +104,7 @@ RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
     && chown -R node:node /var/www/web/themes
 
 ###############################################################
-FROM alpine:3.17 AS cms
+FROM alpine:3.18 AS cms
 
 ARG S6_VERSION
 ENV S6_VERSION ${S6_VERSION:-v2.2.0.3}
