@@ -12,8 +12,8 @@ EGRESS_SPACE=shared-egress-dr
 CTAG=cms-7230
 CDIGEST=@sha256:5dfeaa2eca51fd7ff86a093617b82a95677e779df0d157091f1d117f503742f2
 
-WTAG=waf-7230
-WDIGEST=@sha256:cc5450808a054e5da8897dd433bdc575f5c726aa7b42ec2d1e4a18ecebf13c97
+WTAG=waf-7260
+WDIGEST=@sha256:84a5c47f10ce3c313c579ee59728de69a64a75c9f35a765d29442590e284c253
 
 #echo  cf delete-space $APP_SPACE
 #while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
@@ -75,11 +75,11 @@ WDIGEST=@sha256:cc5450808a054e5da8897dd433bdc575f5c726aa7b42ec2d1e4a18ecebf13c97
 #bin/cloudgov/deploy-cms $CTAG $CDIGEST
 #exit
 #
-#ROUTE_SERVICE_APP_NAME=$WAF_APP \
-#ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
-#PROTECTED_APP_NAME=$CMS_APP \
-#bin/cloudgov/deploy-waf $WTAG $WDIGEST
-#exit
+ROUTE_SERVICE_APP_NAME=$WAF_APP \
+ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
+PROTECTED_APP_NAME=$CMS_APP \
+bin/cloudgov/deploy-waf $WTAG $WDIGEST
+exit
 
 ###
 #cat <<'ZZ'
