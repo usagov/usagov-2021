@@ -9,11 +9,11 @@ CMS_APP=cms
 ORG=gsa-tts-usagov
 APP_SPACE=dev-dr
 EGRESS_SPACE=shared-egress-dr
-CTAG=cms-7292
-CDIGEST=@sha256:de16c8d39aafc5d30ef40ec39e6ba6a048adb6fa79f104453177a95fb915117b
+CTAG=cms-7293
+CDIGEST=@sha256:90ddf4c90c3400e44608f4563fdeddcc5ae2fe4018ae2bb4fc874506a1ef6f30
 
-WTAG=waf-7292
-WDIGEST=@sha256:ba64891e48e991fe671ed40a4828723ed61b3231b5313700a482c6cc4b927da5
+WTAG=waf-7293
+WDIGEST=@sha256:6117b31459694f2154d0f4934c2b2fe2303be32a62dd5ed984a65fcd289fa293
 
 #echo  cf delete-space $APP_SPACE
 #while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
