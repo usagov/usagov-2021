@@ -4,12 +4,13 @@
 PREFIX=.
 IND_FILE=${PREFIX}/web/static-site-status.txt
 
-#if [ ! -f "$IND_FILE" ]; then
-   echo "
-   <ul>
-   <li>Static Site Generator, status as of %timestamp%: %status%</li>
-   </ul>" > $IND_FILE
-#fi
+echo "
+<div>
+   <span>Static Site Generator, status as of %timestamp%:</span>
+   <p>
+      %status%
+   </p>
+</div>" > $IND_FILE
 
 TR_START_TIME=$1
 if [ -n "$TR_START_TIME" ]; then
@@ -23,17 +24,10 @@ fi
 
 if [ -n "$TR_START_TIME" -a -n "$STATUS" ]; then
 
+   humanDateUTC=$(date -u -d @"$TR_START_TIME")
+   sed -i "s|%timestamp%|$humanDateUTC|" $IND_FILE
    sed -i "s|%status%|$STATUS|" $IND_FILE
    
-   OP_START_TIME=$1
-   if [ -n "$OP_START_TIME" ]; then
-       shift
-   fi
-
-   OP_FAIL_TIME=$1
-   if [ -n "$OP_FAIL_TIME" ]; then
-      shift
-   fi
 else
    echo "To few args"
    exit 1

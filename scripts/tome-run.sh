@@ -10,7 +10,7 @@ RETRY_SEMAPHORE_FILE=/tmp/tome-log/retry-on-next-run
 
 YMD=$(date +"%Y/%m/%d")
 YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
-TR_START_TIME=$(date +"%s")
+TR_START_TIME=$(date -u +"%s")
 
 export BUCKET_NAME=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
 export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region')
@@ -41,7 +41,7 @@ touch $TOMELOG
 export NO_RUN=$(drush sget usagov.tome_run_disabled)
 if [ "$NO_RUN" != '' ]; then
     echo "Tome run is disabled. Exiting." | tee -a $TOMELOG
-    $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation Disabled"
+    $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation is disabled"
     exit 2
 fi
 
@@ -84,8 +84,7 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
   echo "Running static site build: content-updated($CONTENT_UPDATED) container-updated($CONTAINER_UPDATED) forced($FORCED) $TOMELOG" | tee -a $TOMELOG
 
   set -o pipefail  # Need to capture tome-static failure on next line.
-  GEN_START_TIME=$(date +"%s")
-  $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation Started" "$TR_START_TIME" "$GEN_START_TIME"
+  $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation Started"
   $SCRIPT_PATH/tome-static.sh $URI 2>&1 | tee -a $TOMELOG
   TOME_SUCCESS=$?
   if [ "$TOME_SUCCESS" == "0" ]; then
@@ -99,7 +98,7 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
       aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE --only-show-errors $S3_EXTRA_PARAMS
     fi
     GEN_FAIL_TIME=$(date +"%s")
-    $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation Failed" "$GEN_START_TIME" "$SS_FAIL_TIME"
+    $SCRIPT_PATH/tome-status-indicator-update.sh "$GEN_FAIL_TIME" "Static Site Generation Failed"
     exit 1
   fi
 else
