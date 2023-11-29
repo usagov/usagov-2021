@@ -1,0 +1,23 @@
+uuid: e51c8940-9ec4-4208-abf2-f1ddffd5de65
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_summary
+    - node.type.bears_agency
+  module:
+    - allowed_formats
+    - text
+id: node.bears_agency.field_b_summary
+field_name: field_b_summary
+entity_type: node
+bundle: bears_agency
+label: Summary
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

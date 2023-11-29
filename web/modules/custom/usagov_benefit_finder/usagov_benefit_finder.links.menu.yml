@@ -1,0 +1,13 @@
+usagov_benefit_finder.admin:
+  title: 'Benefit Finder'
+  parent: system.admin_config
+  route_name: usagov_benefit_finder.main
+  description: 'Benefit Finder'
+  weight: 150
+
+usagov_benefit_finder.settings:
+  title: 'Benefit Finder configuration'
+  parent: usagov_benefit_finder.admin
+  route_name: usagov_benefit_finder.settings
+  description: 'Configure Benefit Finder.'
+  weight: 150
