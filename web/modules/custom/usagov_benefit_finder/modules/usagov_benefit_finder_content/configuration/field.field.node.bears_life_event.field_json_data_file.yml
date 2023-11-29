@@ -1,0 +1,26 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_json_data_file
+    - node.type.bears_life_event
+  module:
+    - file
+id: node.bears_life_event.field_json_data_file
+field_name: field_json_data_file
+entity_type: node
+bundle: bears_life_event
+label: 'JSON data file'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: benefit-finder/api/life-event
+  file_extensions: 'json'
+  max_filesize: ''
+  description_field: false
+field_type: file

@@ -1,0 +1,30 @@
+uuid: de50d302-60a6-4e7d-8673-b0a7de7f725a
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+    - node_menus
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - main
+    parent: 'main:'
+  node_menus:
+    enabled: 0
+    languages:
+      en:
+        available_menus:
+          - main
+        parent: 'main:'
+      es:
+        available_menus:
+          - main
+        parent: 'main:'
+name: Agency
+type: bears_agency
+description: ''
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: true

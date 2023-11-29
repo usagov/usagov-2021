@@ -1,0 +1,20 @@
+uuid: 29f9f4a5-7bf0-4a49-bb12-3e9b909bba2c
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_life_event
+id: node.bears_life_event.menu_link
+field_name: menu_link
+entity_type: node
+bundle: bears_life_event
+label: 'Menu link'
+description: 'Computed menu link for the node (only available during node saving).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: default
+  handler_settings: {  }
+field_type: entity_reference
