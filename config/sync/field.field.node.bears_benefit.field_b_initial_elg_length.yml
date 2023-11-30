@@ -1,0 +1,23 @@
+uuid: a5fc3cd7-e0cb-475b-a95f-7ab01833d20f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_initial_elg_length
+    - node.type.bears_benefit
+id: node.bears_benefit.field_b_initial_elg_length
+field_name: field_b_initial_elg_length
+entity_type: node
+bundle: bears_benefit
+label: 'Initial Eligibility Length'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer
