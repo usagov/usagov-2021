@@ -1,6 +1,8 @@
 #!/bin/sh
 
 TOME_MAX_CHANGE_ALLOWED=0.10
+TR_START_TIME=$(date -u +"%s")
+SCRIPT_PATH=$(dirname "$0")
 
 TOMELOGFILE=$1
 YMDHMS=$2
@@ -18,7 +20,9 @@ fi;
 # make sure there is a static site to sync
 STATIC_COUNT=$(ls /var/www/html/ | wc -l)
 if [ "$STATIC_COUNT" = "0" ]; then
-  echo "NO SITE TO SYNC"
+  MSG="NO SITE TO SYNC"
+  echo $MSG
+  $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "$MSG"
   exit 1;
 fi;
 
@@ -179,7 +183,9 @@ if [ "$TOME_TOO_MUCH" == "1" ]; then
   # send message, but continue on
   # write message to php log so newrelic will see it
 elif [ "$TOME_TOO_LITTLE" == "1" ]; then
-  echo "Tome static build failure - removing more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
+  MSG="Tome static build failure - removing more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)"
+  echo $MSG | tee -a $TOMELOG
+  $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "$MSG"
   TOME_PUSH_NEW_CONTENT=0
   # send message, and abort
   # write message to php log so newrelic will see it
@@ -249,8 +255,10 @@ fi
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation and Sync Completed Successfully"
 else
   echo "Not pushing content to S3."
+  $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation Completed Successfully, but sync to S3 failed or was not attempted"
 fi
 
 if [ -d "$RENDER_DIR" ]; then
