@@ -18,8 +18,8 @@ if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
 fi
 
-# grab the cloudgov space we are hosted in                      
-APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')     
+# grab the cloudgov space we are hosted in
+APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 APP_SPACE=${APP_SPACE:-local}
 
 echo "
