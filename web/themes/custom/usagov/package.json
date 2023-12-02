@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@uswds/compile": "^1.0.0",
+    "@uswds/compile": "^1.1.0",
     "eslint": "^8.31.0",
     "prettier": "2.7.1",
     "stylelint": "^14.9.1",
