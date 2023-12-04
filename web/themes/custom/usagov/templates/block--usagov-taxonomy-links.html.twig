@@ -10,7 +10,10 @@
 {% set links = content['#links'] %}
 {# Since six entries are wanted, we'll probably need a "for i in 0..5" loop #}
 {# see https://twig.symfony.com/doc/3.x/tags/for.html #}
+
 {% for link in links %}
-text: {{ link.getText() }}
-url (path): {{ link.getUrl() }}
+      "Taxonomy_Text_{{ loop.index }}": "{{ link.getText() }}",
+{% endfor %}
+{% for link in links %}
+      "Taxonomy_URL_{{ loop.index }}": "{{ link.getUrl() }}",
 {% endfor %}
