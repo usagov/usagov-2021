@@ -29,6 +29,7 @@ const a11y_translations = {
 };
 let a11y_content = a11y_translations[document.documentElement.lang];
 
+// This function is executed every time the "Find my elected officials" button is clicked.
 function myforms(event) {
     "use strict";
     // stop form submission
@@ -60,45 +61,48 @@ function myforms(event) {
                 event.preventDefault();
                 errorFound = true;
             }
-            if (elmnts[k].value === "" && elmnts[k].previousElementSibling.id === "street") {
+            // Check if the street address, zip code or city field is empty and if it is, add the vertical line on the left side.
+            if (elmnts[k].value === "" && (elmnts[k].previousElementSibling.id === "street" ||
+                                           elmnts[k].previousElementSibling.id === "zip" ||
+                                           elmnts[k].previousElementSibling.id === "city")) {
                 elmnts[k].parentElement.classList.add("usa-border-error");
             }
-            if (elmnts[k].value === "" && elmnts[k].previousElementSibling.id === "city") {
-                elmnts[k].parentElement.classList.add("usa-border-error");
-            }
-            if (elmnts[k].value === "" && elmnts[k].previousElementSibling.id === "state") {
+            // Check if the state field is empty and if it is, add the vertical line on the left side.
+            else if (elmnts[k].value === "" && elmnts[k].previousElementSibling.id === "state") {
                 elmnts[k].parentElement.parentElement.classList.add("usa-border-error");
             }
-            if (elmnts[k].value === "" && elmnts[k].previousElementSibling.id === "zip") {
-                elmnts[k].parentElement.classList.add("usa-border-error");
+            // If the current field is not empty, the error style is removed.
+            else if (elmnts[k].value !== "") {
+                elmnts[k].classList.remove("usa-user-error");
+                elmnts[k].parentElement.classList.remove("usa-border-error");
+                elmnts[k].previousElementSibling.classList.remove("usa-error");
+                elmnts[k].parentElement.parentElement.classList.remove("usa-border-error");
+                elmnts[k].previousElementSibling.innerHTML = "";
             }
-            else
-                if (elmnts[k].value !== "") {
-                    elmnts[k].classList.remove("usa-user-error");
-                    elmnts[k].parentElement.classList.remove("usa-border-error");
-                    elmnts[k].previousElementSibling.classList.remove("usa-error");
-                    elmnts[k].parentElement.parentElement.classList.remove("usa-border-error");
-                    elmnts[k].previousElementSibling.innerHTML = "";
-                }
         }
     }
 
+    // If all fields have an error, join the error lines on the left into one.
     if (test.length === 4) {
         document.getElementById("error-border").classList.add("usa-main-border-error");
         document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px";
         document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px";
         document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
     }
-    else
-        if (test.length < 4) {
+    // If 3 or fewer fields have an error, separate the lines on the left.
+    else if (test.length < 4) {
             document.getElementById("error-border").classList.remove("usa-main-border-error");
             document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px";
             document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px";
             document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
-        }
+    }
+
+    // If there is an error, the alert box becomes visible.
     if (errorFound) {
         document.getElementById("error-box").classList.remove("usa-error--alert");
     }
+
+    // If the "Street address" field has an error, the message "Fill out the street field/Escriba la dirección" in the alert box becomes visible.
     if (errorFound && document.getElementById("input-street").value !== "") {
         document.getElementById("error-street").classList.add("usa-error--alert");
     }
@@ -106,11 +110,15 @@ function myforms(event) {
         document.getElementById("error-street").classList.remove("usa-error--alert");
     }
 
+    // If the "City" field has an error, the message "Fill out the city field/Escriba el nombre de la ciudad" in the alert box becomes visible.
     if (errorFound && document.getElementById("input-city").value !== "") {
         document.getElementById("error-city").classList.add("usa-error--alert");
     }
-    else { document.getElementById("error-city").classList.remove("usa-error--alert"); }
+    else {
+        document.getElementById("error-city").classList.remove("usa-error--alert");
+    }
 
+    // If the "State" field has an error, the message "Fill out the state field/Escriba el nombre del estado" in the alert box becomes visible.
     if (errorFound && document.getElementById("input-state").value !== "") {
         document.getElementById("error-state").classList.add("usa-error--alert");
     }
@@ -121,38 +129,46 @@ function myforms(event) {
         document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
     }
 
+    // If the "ZIP code" field has an error, the message "Fill out the ZIP code field/Escriba el código postal" in the alert box becomes visible.
     if (errorFound && document.getElementById("input-zip").value !== "") {
         document.getElementById("error-zip").classList.add("usa-error--alert");
-
     }
     else {
         document.getElementById("error-zip").classList.remove("usa-error--alert");
     }
 
+   // If there is an error, modify the alert box header text based on the number of fields with errors.
     if (errorFound) {
         document.getElementById("error-box").focus();
+
         if (test.length === 1) {
+            // English Header text when there is only one error
             if (document.documentElement.lang === "en") {
                 document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains an error";
             }
+            // Spanish Header text when there is only one error
             else {
                 document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Su información contiene 1 error";
             }
         }
         else {
+            // English Header text when there is more than one error
             if (document.documentElement.lang === "en") {
                 document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + test.length + " errors";
             }
+            // Spanish Header text when there is more than one error
             else {
                 document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Su información contiene " + test.length + " errores";
             }
         }
+
         dataLayer.push({
             'event': 'CEO form error',
             'error type': test.join(";")
         });
         return false;
     }
+
     document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px";
     document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px";
     document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
