@@ -29,6 +29,23 @@ const a11y_translations = {
 };
 let a11y_content = a11y_translations[document.documentElement.lang];
 
+function addressUSPSValidation(streetAddress, city, state, zipCode) {
+    const USERID = "";
+    const PASSWORD = "";
+    const url = `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify \
+    &XML=<AddressValidateRequest USERID="${USERID}" PASSWORD="${PASSWORD}"><Address ID="0"><Address1>\
+    </Address1><Address2>${streetAddress}</Address2><City>${city}</City><State>${state}\
+    </State><Zip5>${zipCode}</Zip5><Zip4></Zip4></Address></AddressValidateRequest>`;
+
+    const Http = new XMLHttpRequest();
+    Http.open("GET", url);
+    Http.send();
+
+    Http.onreadystatechange = (e) => {
+        console.log(Http.responseText);
+    }
+}
+
 // This function is executed every time the "Find my elected officials" button is clicked.
 function myforms(event) {
     "use strict";
@@ -169,13 +186,21 @@ function myforms(event) {
         return false;
     }
 
-    document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px";
-    document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px";
-    document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
-    dataLayer.push({
-        'event': 'CEO_form_submit',
-        'form_result': 'success'
-    });
+    const streetAddress = document.getElementById("input-street").value;
+    const city = document.getElementById("input-city").value;
+    const state = document.getElementById("input-state").value;
+    const zipCode = document.getElementById("input-zip").value;
+
+    addressUSPSValidation(streetAddress, city, state, zipCode);
+    return false;
+
+    // document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px";
+    // document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px";
+    // document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
+    // dataLayer.push({
+    //     'event': 'CEO_form_submit',
+    //     'form_result': 'success'
+    // });
 };
 
 
