@@ -1,0 +1,36 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_eligibility
+    - node.type.bears_benefit
+    - paragraphs.paragraphs_type.b_benefit_eligibility
+  module:
+    - entity_reference_revisions
+id: node.bears_benefit.field_b_eligibility
+field_name: field_b_eligibility
+entity_type: node
+bundle: bears_benefit
+label: Eligibility
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      b_benefit_eligibility: b_benefit_eligibility
+    negate: 0
+    target_bundles_drag_drop:
+      b_benefit_eligibility:
+        weight: 4
+        enabled: true
+      b_levent_eligibility_criteria:
+        weight: 5
+        enabled: false
+      b_levent_top_level_filter:
+        weight: 6
+        enabled: false
+field_type: entity_reference_revisions

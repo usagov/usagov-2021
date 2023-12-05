@@ -1,0 +1,39 @@
+uuid: f1067be7-c468-4a02-a27d-eb67a2b6b355
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.bears_criteria.field_b_child_dependency_option
+    - field.field.node.bears_criteria.field_b_criteria_key
+    - field.field.node.bears_criteria.field_b_has_child
+    - field.field.node.bears_criteria.field_b_id
+    - field.field.node.bears_criteria.field_b_label
+    - field.field.node.bears_criteria.field_b_name
+    - field.field.node.bears_criteria.field_b_type
+    - field.field.node.bears_criteria.field_b_values
+    - field.field.node.bears_criteria.field_language_toggle
+    - node.type.bears_criteria
+  module:
+    - user
+id: node.bears_criteria.teaser
+targetEntityType: node
+bundle: bears_criteria
+mode: teaser
+content:
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_b_child_dependency_option: true
+  field_b_criteria_key: true
+  field_b_has_child: true
+  field_b_id: true
+  field_b_label: true
+  field_b_name: true
+  field_b_type: true
+  field_b_values: true
+  field_language_toggle: true
+  langcode: true

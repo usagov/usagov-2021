@@ -1,0 +1,31 @@
+uuid: 88f355b2-d7c8-46bb-8736-8fd7da05e006
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+    - node_menus
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - left-menu-english
+      - left-menu-spanish
+    parent: 'left-menu-english:'
+  node_menus:
+    enabled: 1
+    languages:
+      en:
+        available_menus:
+          - left-menu-english
+        parent: 'left-menu-english:'
+      es:
+        available_menus:
+          - left-menu-spanish
+        parent: 'left-menu-spanish:'
+name: 'Life Event'
+type: bears_life_event
+description: ''
+help: ''
+new_revision: true
+preview_mode: 0
+display_submitted: true
