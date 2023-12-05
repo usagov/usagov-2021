@@ -1,0 +1,28 @@
+uuid: b8d2d742-fb8d-4c04-a831-b17ded45814e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_language_toggle
+    - node.type.bears_benefit
+id: node.bears_benefit.field_language_toggle
+field_name: field_language_toggle
+entity_type: node
+bundle: bears_benefit
+label: 'Language Toggle'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      bears_benefit: bears_benefit
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference
