@@ -500,7 +500,10 @@ workflows:
           filters:
             branches:
               only:
-              - USAGOV-1083-temp-domain-names
+                - dev
+                - stage
+                - prod
+                - USAGOV-1083-temp-domain-names
       - approve-dev-deployment:
           type: approval
           requires:
