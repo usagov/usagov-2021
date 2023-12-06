@@ -42,7 +42,9 @@ function renderResults(response, rawResponse) {
     const backupTranslations = {
         "en": {
             "error-fetch": "We're sorry. The elected officials search tool is not working right now. Please try again later.",
+            "error-fetch-heading": "Data temporarily unavailable",
             "error-address": "There was a problem getting results for this address. Please check to be sure you entered a valid U.S. address.",
+            "error-address-heading": "Data temporarily unavailable",
             "levels": ["Federal officials", "State officials", "Local officials"],
             "party-affiliation": "Party affiliation",
             "address": "Address",
@@ -53,7 +55,9 @@ function renderResults(response, rawResponse) {
         },
         "es": {
             "error-fetch": "Lo sentimos. El sistema de búsqueda de funcionarios electos no está funcionando. Por favor, intente de nuevo más tarde.",
+            "error-fetch-heading": "Datos no disponibles temporalmente",
             "error-address": "Tuvimos problemas para obtener resultados con esta dirección. Por favor, verifique si ingresó una dirección válida en EE. UU.",
+            "error-fetch-heading": "Datos no disponibles temporalmente",
             "levels": ["Funcionarios federales", "Funcionarios estatales", "Funcionarios locales"],
             "party-affiliation": "Afiliación de partido",
             "address": "Dirección",
@@ -96,7 +100,13 @@ function renderResults(response, rawResponse) {
                 errorType = "error-fetch";
                 break;
         }
-        resultsDiv.appendChild(document.createTextNode(content[errorType]));
+        let h1 = document.getElementById("skip-to-h1");
+        let resultsSection = document.getElementById("resultsSection");
+        let intro = document.getElementsByClassName("usa-intro")[0];
+
+        h1.innerHTML = content[""+errorType+"-heading"];
+        resultsSection.innerHTML = "";
+        intro.innerHTML = content[errorType];
         dataLayer.push({
             'event': 'CEO API Error',
             'error type': errorType,
