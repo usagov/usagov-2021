@@ -30,6 +30,10 @@ elif [ "$SPACE" = "shared-egress" ] || [ "$SPACE" = "egress" ]; then
     echo cf target -o $CF_EGRESS_ORG -s $CF_EGRESS_SPACE
     cf target -o $CF_EGRESS_ORG -s $CF_EGRESS_SPACE
 
+elif [ "$SPACE" = "dev-dr" ]; then
+    echo cf target -o $CF_DEV_ORG -s $SPACE
+    cf target -o $CF_DEV_ORG -s $SPACE
+
 else
     cf target
 
