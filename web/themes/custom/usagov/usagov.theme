@@ -314,7 +314,7 @@ function usagov_preprocess_block(&$variables) {
         $childNode = Node::load($childNid);
 
         // url
-        try{
+        try {
           $data->url = $childNode->toUrl()->toString();
         }
         catch (Exception $e) {
