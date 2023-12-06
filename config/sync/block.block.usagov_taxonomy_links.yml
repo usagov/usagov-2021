@@ -14,7 +14,7 @@ provider: null
 plugin: system_breadcrumb_block
 settings:
   id: system_breadcrumb_block
-  label: 'Taxonomy links'
+  label: 'Taxonomy links for [current-page:url:path]'
   label_display: visible
   provider: system
 visibility: {  }
