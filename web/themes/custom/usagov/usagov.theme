@@ -308,12 +308,25 @@ function usagov_preprocess_block(&$variables) {
     $children_of_active_menu_item = children_of_active_menu_item($items);
     $nav_page_items = [];
     foreach ($children_of_active_menu_item as $child) {
+      $data = new StdClass();
       try {
         $childNid = $child['url']->getRouteParameters()['node'];
         $childNode = Node::load($childNid);
-        $data = new StdClass();
+
+        // url
+        try{
+          $data->url = $childNode->toUrl()->toString();
+        }
+        catch (Exception $e) {
+          $menuItem = $child['original_link']->getPluginDefinition();
+          $data->url = $menuItem['url'];
+          if (strncmp($data->url, "base:", 5) === 0) {
+            $data->url = "/" . substr($data->url, 5);
+          }
+        }
+
         $data->title = $childNode->get('title')->value;
-        $data->url = $childNode->toUrl()->toString();
+        echo 'made it 0';
         if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
           $data->description = $childNode->get('field_short_description')->value;
         }
@@ -323,7 +336,7 @@ function usagov_preprocess_block(&$variables) {
         else {
           $data->description = $childNode->get('field_meta_description')->value;
         }
-
+        echo 'made it 1';
         if (
           $childNode->hasField('field_navigation_banner_image') &&
           count($childNode->get('field_navigation_banner_image')) &&
@@ -334,23 +347,23 @@ function usagov_preprocess_block(&$variables) {
             $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
           ));
         }
+        echo 'made it 2';
         if ($childNode->hasField('field_css_icon') && count($childNode->get('field_css_icon'))) {
           $data->css_icon = $childNode->get('field_css_icon')[0]->value;
         }
         if ($childNode->hasField('promote')) {
           $data->promote = $childNode->get('promote')->value;
         }
+        echo 'made it 3';
         // $data->node = $childNode;
         array_push($nav_page_items, $data);
       }
       catch (Exception $e) {
+        echo 'CATCH';
         $menuItem = $child['original_link']->getPluginDefinition();
-        $data = new StdClass();
         $data->title = $menuItem['title'];
-        $data->url = $menuItem['url'];
-        if (strncmp($data->url, "base:", 5) === 0) {
-          $data->url = "/" . substr($data->url, 5);
-        }
+        echo $menuItem['title'];
+        echo $data->title;
         $data->description = $menuItem['description'];
         array_push($nav_page_items, $data);
       }
