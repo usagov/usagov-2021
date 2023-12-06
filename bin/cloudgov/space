@@ -32,7 +32,7 @@ elif [ "$SPACE" = "shared-egress" ] || [ "$SPACE" = "egress" ]; then
 
 elif [ "$SPACE" = "dev-dr" ]; then
     echo cf target -o $CF_DEV_ORG -s $SPACE
-    cf target -o $CF_DEV_ORG -s $SPACE
+    cf target -o gsa-tts-usagov -s dev-dr
 
 else
     cf target
