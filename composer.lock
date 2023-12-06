@@ -5349,17 +5349,17 @@
         },
         {
             "name": "drupal/uswds_ckeditor_integration",
-            "version": "2.0.0",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/uswds_ckeditor_integration.git",
-                "reference": "2.0.0"
+                "reference": "2.0.2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/uswds_ckeditor_integration-2.0.0.zip",
-                "reference": "2.0.0",
-                "shasum": "08e0277c7bca0dee01d84387e21c85c3bfc64031"
+                "url": "https://ftp.drupal.org/files/projects/uswds_ckeditor_integration-2.0.2.zip",
+                "reference": "2.0.2",
+                "shasum": "c135acbcee953fd16b977a776d18551a0fe3ec84"
             },
             "require": {
                 "drupal/ckeditor5_embedded_content": "^1.0",
@@ -5373,8 +5373,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.0.0",
-                    "datestamp": "1693248367",
+                    "version": "2.0.2",
+                    "datestamp": "1701116570",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
