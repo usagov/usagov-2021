@@ -1,8 +1,15 @@
 
 # underscore catch-all allows this to work on local dockers because who knows what hostname local devs have setup
 
+# NGINX Rate limiting configuration
+limit_req_zone $binary_remote_addr zone=limitcmsbyaddr:10m rate=10r/s;
+limit_req_status 429;
+
 server {
     listen 80 default_server;
+
+    # We are limiting 150 requests per IP address per second
+    limit_req zone=limitcmsbyaddr burst=150 nodelay;
 
     server_name ${CMS_HOST} _;
 

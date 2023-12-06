@@ -1,0 +1,18 @@
+uuid: c0484e78-bfc4-4598-b5e2-c48e06006ebd
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_life_event_form
+id: node.bears_life_event_form.changed
+field_name: changed
+entity_type: node
+bundle: bears_life_event_form
+label: Changed
+description: 'The time that the node was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed

@@ -1,0 +1,18 @@
+uuid: e1123ed0-4714-4cc6-938b-0fb4be81b2a9
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_benefit
+id: node.bears_benefit.changed
+field_name: changed
+entity_type: node
+bundle: bears_benefit
+label: Changed
+description: 'The time that the node was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed
