@@ -1,0 +1,5 @@
+name: 'USAgov Benefit Finder API'
+type: module
+description: 'Provides JSON API for Benefit Finder content.'
+core_version_requirement: ^9 || ^10
+package: 'USAgov Benefit Finder'
