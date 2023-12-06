@@ -1,0 +1,10 @@
+uuid: 2b55affa-a620-46dd-b448-92f3c68bbd67
+langcode: en
+status: true
+dependencies: {  }
+id: b_levent_elg_criteria
+label: Criteria
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

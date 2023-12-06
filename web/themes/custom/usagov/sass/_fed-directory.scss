@@ -34,7 +34,7 @@
     text-decoration: none;
     color: #000;
     box-sizing: border-box;
-    background-color: #ccecf2;
+    background-color: var($cyan-light);
     border: 2px solid var($secondary-border-color);
     border-radius: 0.01rem;
     font-size: 1.5rem;
@@ -43,7 +43,7 @@
   }
 
   a:hover {
-    box-shadow: 0 0 0 3px #1b1b1b;
+    box-shadow: 0 0 0 3px var($off-black);
     background-color: #99deea;
     border:none;
   }
@@ -134,9 +134,9 @@ div.field--name-field-offices-near-you> ul {
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
-  outline: 2px solid #377f9d;
+  outline: 2px solid var($cyan-50v);
   border-radius: 0rem 0.25rem 0.25rem 0rem;
-  background-color: #ccecf2;
+  background-color: var($cyan-light);
   max-width: 20em;
   margin: 1rem auto 0.5rem;
 
@@ -150,24 +150,6 @@ div.field--name-field-offices-near-you> ul {
     padding-right: 0;
   }
 
-  /* clears the ‘X’ from Internet Explorer */
-  input[type=search]::-ms-clear {
-    display: none;
-    width : 0;
-    height: 0;
-  }
-
-  input[type=search]::-ms-reveal {
-    display: none;
-    width : 0;
-    height: 0;
-  }
-
-  /* clears the ‘X’ from Chrome */
-  input[type="search"]::-webkit-search-decoration,
-  input[type="search"]::-webkit-search-cancel-button,
-  input[type="search"]::-webkit-search-results-button,
-  input[type="search"]::-webkit-search-results-decoration { display: none; }
 }
 
 .fed-directory-search-input {
@@ -181,7 +163,7 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-btn {
-  background-color: #CCECF2;
+  background-color: var($cyan-light);
   outline: none;
   cursor: pointer;
   border-style: none;
@@ -222,7 +204,7 @@ div.field--name-field-offices-near-you> ul {
   font-size: 38px;
   text-align: center;
   line-height: 57px;
-  outline: solid 0.15rem #1b1b1b;
+  outline: solid 0.15rem var($off-black);
   width: 57px;
   height: 57px;
 }
@@ -275,8 +257,8 @@ div div.field--name-field-offices-near-you>ul>li {
     line-height: 57px;
     font-size: 38px;
     color: #000;
-    outline: solid 0.15rem #0081a1;
-    background-color: #ccecf2;
+    outline: solid 0.15rem var($cyan-50v);
+    background-color: var($cyan-light);
     font-weight: 600;
     width: 57px;
     height: 57px;

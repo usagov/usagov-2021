@@ -1,0 +1,19 @@
+uuid: fb063d72-060c-4b45-99e8-a92e9c4b5b6c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_values
+    - node.type.bears_criteria
+id: node.bears_criteria.field_b_values
+field_name: field_b_values
+entity_type: node
+bundle: bears_criteria
+label: Values
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
