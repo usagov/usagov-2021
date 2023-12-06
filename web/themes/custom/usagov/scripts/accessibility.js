@@ -29,11 +29,70 @@ const a11y_translations = {
 };
 let a11y_content = a11y_translations[document.documentElement.lang];
 
+// Changes state name to official postal abbreviations.
+// Note: The USPS API accepts the state name, but while testing, "Pennsylvania" returned an error in the API response.
+// To avoid this, we are going to use the official postal abbreviations.
+const state_codes = {
+    "Alabama": "AL",
+    "Alaska": "AK",
+    "Arizona": "AZ",
+    "Arkansas": "AR",
+    "California": "CA",
+    "Colorado": "CO",
+    "Connecticut": "CT",
+    "Delaware": "DE",
+    "District Of Columbia": "DC",
+    "Florida": "FL",
+    "Georgia": "GA",
+    "Hawaii": "HI",
+    "Idaho": "ID",
+    "Illinois": "IL",
+    "Indiana": "IN",
+    "Iowa": "IA",
+    "Kansas": "KS",
+    "Kentucky": "KY",
+    "Louisiana": "LA",
+    "Maine": "ME",
+    "Maryland": "MD",
+    "Massachusetts": "MA",
+    "Michigan": "MI",
+    "Minnesota": "MN",
+    "Mississippi": "MS",
+    "Missouri": "MO",
+    "Montana": "MT",
+    "Nebraska": "NE",
+    "Nevada": "NV",
+    "New Hampshire": "NH",
+    "New Jersey": "NJ",
+    "New Mexico": "NM",
+    "New York": "NY",
+    "North Carolina": "NC",
+    "North Dakota": "ND",
+    "Ohio": "OH",
+    "Oklahoma": "OK",
+    "Oregon": "OR",
+    "Pennsylvania": "PA",
+    "Rhode Island": "RI",
+    "South Carolina": "SC",
+    "South Dakota": "SD",
+    "Tennessee": "TN",
+    "Texas": "TX",
+    "Utah": "UT",
+    "Vermont": "VT",
+    "Virginia": "VA",
+    "Washington": "WA",
+    "West Virginia": "WV",
+    "Wisconsin": "WI",
+    "Wyoming": "WY"
+};
+
+// This function makes the call to the USPS API and returns the response.
 function addressUSPSValidation(streetAddress, city, state, zipCode) {
+
     const USERID = "";
     const PASSWORD = "";
     const url = `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify \
-    &XML=<AddressValidateRequest USERID="${USERID}" PASSWORD="${PASSWORD}"><Address ID="0"><Address1>\
+    &XML=<AddressValidateRequest USERID="${USERID}" PASSWORD="${PASSWORD}"><Address><Address1>\
     </Address1><Address2>${streetAddress}</Address2><City>${city}</City><State>${state}\
     </State><Zip5>${zipCode}</Zip5><Zip4></Zip4></Address></AddressValidateRequest>`;
 
@@ -42,7 +101,9 @@ function addressUSPSValidation(streetAddress, city, state, zipCode) {
     Http.send();
 
     Http.onreadystatechange = (e) => {
+        // Testing. REMOVE
         console.log(Http.responseText);
+        return Http.responseText;
     }
 }
 
@@ -188,10 +249,12 @@ function myforms(event) {
 
     const streetAddress = document.getElementById("input-street").value;
     const city = document.getElementById("input-city").value;
-    const state = document.getElementById("input-state").value;
+    const state = state_codes[document.getElementById("input-state").value];
     const zipCode = document.getElementById("input-zip").value;
 
-    addressUSPSValidation(streetAddress, city, state, zipCode);
+    const response = addressUSPSValidation(streetAddress, city, state, zipCode);
+    // TO-DO: Analyze the response and decide if the address is valid or not.
+    // Testing. REMOVE
     return false;
 
     // document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px";
