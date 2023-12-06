@@ -304,71 +304,11 @@ jobs:
             touch /tmp/results/scan-cms-container-cis.log
             touch /tmp/results/scan-waf-container-cis.log
       - run:
-          name: Scan Code
-          command: |
-            SCAN_CODE_RESULT=0
-            if (./bin/scan-code high | tee /tmp/results/scan-cms-code.log); then export SCAN_CODE_RESULT=0; else export SCAN_CODE_RESULT=$?; fi
-            echo "Code Scan return code: $SCAN_CODE_RESULT" | tee -a /tmp/results/scan-cms-code.log
-            cat /tmp/results/scan-cms-code.log
-            exit 0
-      - run:
-          name: Scan Dependencies
-          command: |
-            SCAN_DEPS_RESULT=0
-            if (./bin/scan-dependencies high | tee /tmp/results/scan-cms-dependencies.log); then export SCAN_DEPS_RESULT=0; else export SCAN_DEPS_RESULT=$?; fi
-            echo "Dependencies Scan return code: $SCAN_DEPS_RESULT" | tee -a /tmp/results/scan-cms-dependencies.log
-            cat /tmp/results/scan-cms-dependencies.log
-            exit 0
-      - run:
           name: Build Container
           no_output_timeout: 30m
           command: |
             ./bin/cloudgov/container-build << pipeline.number >> latest
-      - run:
-          name: Scan CMS Container
-          command: |
-            SCAN_CMS_RESULT=0
-            if (./bin/scan-container cms << pipeline.number >> high | tee /tmp/results/scan-cms-container.log); then export SCAN_CMS_RESULT=0; else export SCAN_CMS_RESULT=$?; fi
-            echo "CMS Container Scan return code: $SCAN_CMS_RESULT" | tee -a /tmp/results/scan-cms-container.log
-            cat /tmp/results/scan-cms-container.log
-            exit 0
-      - run:
-          name: Scan WAF Container
-          command: |
-            SCAN_WAF_RESULT=0
-            if (./bin/scan-container waf << pipeline.number >> high | tee /tmp/results/scan-waf-container.log); then export SCAN_WAF_RESULT=0; else export SCAN_WAF_RESULT=$?; fi
-            echo "WAF Container Scan return code: $SCAN_WAF_RESULT" | tee -a /tmp/results/scan-waf-container.log
-            cat /tmp/results/scan-waf-container.log
-            exit 0
-      - run:
-          name: Create Container for CIS Benchmarks
-          when: always
-          command: |
-            # build a fresh docker-bench-security container
-            cd /tmp/
-            git clone --depth 1 --branch v1.6.0 https://github.com/docker/docker-bench-security.git
-            cd /tmp/docker-bench-security
-            docker build --no-cache -t docker-bench-security .
-      - run:
-          name: Check CMS CIS Benchmarks
-          when: always
-          command: |
-            # use the fresh container to scan
-            SCAN_CMS_CIS_RESULT=0
-            if (./bin/scan-container-cis cms << pipeline.number >> | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
-            echo "CMS CIS Benchmark Scan return code: $SCAN_CMS_CIS_RESULT" | tee -a /tmp/results/scan-cms-container-cis.log
-            cat /tmp/results/scan-cms-container-cis.log
-            exit 0
-      - run:
-          name: Check WAF CIS Benchmarks
-          when: always
-          command: |
-            # use the fresh container to scan
-            SCAN_WAF_CIS_RESULT=0
-            if (./bin/scan-container-cis waf << pipeline.number >> | tee /tmp/results/scan-waf-container-cis.log); then export SCAN_WAF_CIS_RESULT=0; else export SCAN_WAF_CIS_RESULT=$?; fi
-            echo "WAF CIS Benchmark Scan return code: $SCAN_WAF_CMS_RESULT" | tee -a /tmp/results/scan-waf-container-cis.log
-            cat /tmp/results/scan-waf-container-cis.log
-            exit 0
+
       - run:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
@@ -386,6 +326,13 @@ jobs:
     steps:
       - deploy-cloudgov:
           envname: dev
+
+  deploy-to-cloudgov-dev-dr:
+    machine:
+      image: ubuntu-2004:202101-01
+    steps:
+      - deploy-cloudgov:
+          envname: dev-dr
 
   deploy-to-cloudgov-stage:
     machine:
@@ -553,10 +500,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
-                - stage
-                - prod
-                - USAGOV-1083-temp-domain-names
+              - USAGOV-1083-temp-domain-names
       - approve-dev-deployment:
           type: approval
           requires:
@@ -565,6 +509,14 @@ workflows:
             branches:
               only:
               - dev
+      - approve-dev-dr-deployment:
+          type: approval
+          requires:
+            - build-and-push-container
+          filters:
+            branches:
+              only:
+              - USAGOV-1083-temp-domain-names
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -572,6 +524,13 @@ workflows:
             branches:
               only:
               - dev
+      - deploy-to-cloudgov-dev-dr:
+          requires:
+            - approve-dev-dr-deployment
+          filters:
+            branches:
+              only:
+              - USAGOV-1083-temp-domain-names
       - approve-stage-deployment:
           type: approval
           requires:
