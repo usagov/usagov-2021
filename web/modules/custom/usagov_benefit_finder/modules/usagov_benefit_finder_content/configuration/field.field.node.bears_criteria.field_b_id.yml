@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_id
+    - node.type.bears_criteria
+id: node.bears_criteria.field_b_id
+field_name: field_b_id
+entity_type: node
+bundle: bears_criteria
+label: ID
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
