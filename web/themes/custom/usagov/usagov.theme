@@ -326,7 +326,6 @@ function usagov_preprocess_block(&$variables) {
         }
 
         $data->title = $childNode->get('title')->value;
-        echo 'made it 0';
         if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
           $data->description = $childNode->get('field_short_description')->value;
         }
@@ -336,7 +335,6 @@ function usagov_preprocess_block(&$variables) {
         else {
           $data->description = $childNode->get('field_meta_description')->value;
         }
-        echo 'made it 1';
         if (
           $childNode->hasField('field_navigation_banner_image') &&
           count($childNode->get('field_navigation_banner_image')) &&
@@ -347,23 +345,18 @@ function usagov_preprocess_block(&$variables) {
             $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri()
           ));
         }
-        echo 'made it 2';
         if ($childNode->hasField('field_css_icon') && count($childNode->get('field_css_icon'))) {
           $data->css_icon = $childNode->get('field_css_icon')[0]->value;
         }
         if ($childNode->hasField('promote')) {
           $data->promote = $childNode->get('promote')->value;
         }
-        echo 'made it 3';
         // $data->node = $childNode;
         array_push($nav_page_items, $data);
       }
       catch (Exception $e) {
-        echo 'CATCH';
         $menuItem = $child['original_link']->getPluginDefinition();
         $data->title = $menuItem['title'];
-        echo $menuItem['title'];
-        echo $data->title;
         $data->description = $menuItem['description'];
         array_push($nav_page_items, $data);
       }
