@@ -28,4 +28,3 @@ queue_image_styles:
   max_640w: max_640w
   max_720w: max_720w
   max_960w: max_960w
-  webp: webp
