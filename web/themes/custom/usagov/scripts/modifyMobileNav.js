@@ -26,7 +26,7 @@
 	// We also set the focus to the home link because that is the first focusable element in our mobile menu.
 
 	let menu_button = document.querySelector('.usa-menu-btn');
-	let home_link = document.querySelector('#mobile-menu-home-link');
+	let home_link = document.querySelector('#home-link-mobile-menu');
 	menu_button.addEventListener("click", function (e) {
 		let header_non_nav_elements = document.querySelectorAll('.usa-banner-inner>div>:not(.usagov-mobile-menu)');
 		for (const element of header_non_nav_elements) {
