@@ -308,12 +308,24 @@ function usagov_preprocess_block(&$variables) {
     $children_of_active_menu_item = children_of_active_menu_item($items);
     $nav_page_items = [];
     foreach ($children_of_active_menu_item as $child) {
+      $data = new StdClass();
       try {
         $childNid = $child['url']->getRouteParameters()['node'];
         $childNode = Node::load($childNid);
-        $data = new StdClass();
+
+        // url
+        try {
+          $data->url = $childNode->toUrl()->toString();
+        }
+        catch (Exception $e) {
+          $menuItem = $child['original_link']->getPluginDefinition();
+          $data->url = $menuItem['url'];
+          if (strncmp($data->url, "base:", 5) === 0) {
+            $data->url = "/" . substr($data->url, 5);
+          }
+        }
+
         $data->title = $childNode->get('title')->value;
-        $data->url = $childNode->toUrl()->toString();
         if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
           $data->description = $childNode->get('field_short_description')->value;
         }
@@ -323,7 +335,6 @@ function usagov_preprocess_block(&$variables) {
         else {
           $data->description = $childNode->get('field_meta_description')->value;
         }
-
         if (
           $childNode->hasField('field_navigation_banner_image') &&
           count($childNode->get('field_navigation_banner_image')) &&
@@ -345,12 +356,7 @@ function usagov_preprocess_block(&$variables) {
       }
       catch (Exception $e) {
         $menuItem = $child['original_link']->getPluginDefinition();
-        $data = new StdClass();
         $data->title = $menuItem['title'];
-        $data->url = $menuItem['url'];
-        if (strncmp($data->url, "base:", 5) === 0) {
-          $data->url = "/" . substr($data->url, 5);
-        }
         $data->description = $menuItem['description'];
         array_push($nav_page_items, $data);
       }
