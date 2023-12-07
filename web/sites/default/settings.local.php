@@ -7,6 +7,7 @@ $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml'
 
 $config['s3fs.settings']['disable_version_sync'] = TRUE;
 $config['s3fs.settings']['disable_cert_verify'] = TRUE;
+  // Change the maximum depth to prevent out-of-memory errors.
 
 $settings['trusted_host_patterns'] = [
   '^localhost$',
