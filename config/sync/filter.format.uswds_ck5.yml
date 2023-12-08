@@ -1,6 +1,6 @@
 uuid: 9eab3c54-0ee9-4bce-8cbf-2f9add80db01
 langcode: en
-status: true
+status: false
 dependencies:
   module:
     - ckeditor5_embedded_content

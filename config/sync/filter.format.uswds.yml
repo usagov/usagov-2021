@@ -4,13 +4,12 @@ status: true
 dependencies:
   module:
     - editor
-    - google_docs_filter
     - media
     - paragraphs_entity_embed
     - uswds_ckeditor_integration
 _core:
   default_config_hash: 05t4sDVkoIIr93awow19xLg0zeanMekWf7kwUh6Kroo
-name: USWDS_CK4
+name: USWDS
 format: uswds
 weight: -9
 filters:
@@ -26,7 +25,7 @@ filters:
     status: false
     weight: -10
     settings:
-      allowed_html: '<em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type> <li> <dl> <dt> <dd> <h2 id class> <h3 id class> <h4 id class> <h5 id class> <h6 id class> <img src alt data-entity-type data-entity-uuid data-align data-caption> <table style width height class> <caption> <tbody> <thead> <tfoot> <th scope> <td> <tr scope> <u> <s> <sup> <sub> <div id data-* class> <button aria-expanded aria-controls class> <hr> <p> <h1> <pre> <a href hreflang class="usa-button usa-button--secondary usa-button--big"> <drupal-media data-entity-type data-entity-uuid data-entity-type data-entity-uuid data-view-mode data-align data-caption alt title> <drupal-paragraph data-paragraph-id data-paragraph-revision-id data-embed-button>'
+      allowed_html: '<a class="usa-button usa-button--secondary usa-button--big"> <p class="usa-intro"> <h2 class="font-serif-lg text-bold text-accent-cool-darker">'
       filter_html_help: true
       filter_html_nofollow: false
   filter_url:
@@ -66,12 +65,6 @@ filters:
   paragraphs_entity_embed:
     id: paragraphs_entity_embed
     provider: paragraphs_entity_embed
-    status: true
-    weight: 0
-    settings: {  }
-  filter_google_docs:
-    id: filter_google_docs
-    provider: google_docs_filter
     status: true
     weight: 0
     settings: {  }

@@ -1,6 +1,6 @@
 uuid: d012dc66-bfac-48b1-84ac-4bcca5c386e8
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - filter.format.uswds_ck5
