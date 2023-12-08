@@ -543,7 +543,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - USAGOV-1266-status-429
                 - stage
                 - prod
       - build-and-push-container:
@@ -552,7 +552,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - USAGOV-1266-status-429
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -562,14 +562,14 @@ workflows:
           filters:
             branches:
               only:
-              - dev
+              - USAGOV-1266-status-429
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
               only:
-              - dev
+              - USAGOV-1266-status-429
       - approve-stage-deployment:
           type: approval
           requires:
