@@ -11,9 +11,30 @@
 {# Since six entries are wanted, we'll probably need a "for i in 0..5" loop #}
 {# see https://twig.symfony.com/doc/3.x/tags/for.html #}
 
+{% set v = 5 %}
+{% set x = "" %}
 {% for link in links %}
+{% set x = v - loop.length %}
       "Taxonomy_Text_{{ loop.index }}": "{{ link.getText() }}",
+{% endfor %}
+{% for i in 0..x %}
+{% for link in links %}
+{% if loop.length <= v %}
+{% if loop.last %}
+      "Taxonomy_Text_{{ loop.index }}": "{{ link.getText() }}",
+{% endif %}
+{% endif %}
+{% endfor %}
 {% endfor %}
 {% for link in links %}
       "Taxonomy_URL_{{ loop.index }}": "{{ link.getUrl() }}",
+{% endfor %}
+{% for i in 0..x %}
+{% for link in links %}
+{% if loop.length <= v %}
+{% if loop.last %}
+      "Taxonomy_URL_{{ loop.index }}": "{{ link.getUrl() }}",
+{% endif %}
+{% endif %}
+{% endfor %}
 {% endfor %}
