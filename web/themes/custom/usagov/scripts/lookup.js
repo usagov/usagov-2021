@@ -266,7 +266,7 @@ function renderResults(response, rawResponse) {
                     };
                     let social = socials[j].type.toLowerCase();
                     if (social in socialOptions) {
-                        if (socials[j].type == "Twitter") {
+                        if (socials[j].type === "Twitter") {
                             nextElem.innerHTML = `<div class="text-bold">X:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
                         }
                         else {
