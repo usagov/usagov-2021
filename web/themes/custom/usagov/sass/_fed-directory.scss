@@ -43,8 +43,8 @@
   }
 
   a:hover {
-    background-color: #a7d8e3;
-    border:2px solid #377f9d;
+    background-color: var($secondary-background-color);
+    border:2px solid var($secondary-border-color);
   }
 
   a.is-active {
