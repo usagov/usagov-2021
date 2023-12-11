@@ -237,6 +237,21 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variabl
 }
 
 /**
+ * Modify output of menu item level (Hierarchy level) to be human readable.
+ */
+function usa_twig_vars_preprocess_views_view_field__published_pages_report(&$variables, $hook, $info) {
+  if ($variables['field']->field == 'level' ?? FALSE) {
+    if (empty($variables['output'])) {
+      $variables['output'] = 1;
+    }
+    else {
+      $output = $variables['field']->getValue($variables['row']);
+      $variables['output'] = (int) $output + 2;
+    }
+  }
+}
+
+/**
  * Add context to the federal_agencies view to allow us to show the current letter,
  * and add links to the "next" and "previous" letters.
  */
