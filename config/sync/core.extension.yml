@@ -20,6 +20,7 @@ module:
   content_moderation: 0
   content_moderation_notifications: 0
   contextual: 0
+  csv_serialization: 0
   ctools: 0
   datetime: 0
   datetime_range: 0
@@ -53,6 +54,7 @@ module:
   menu_block: 0
   menu_breadcrumb: 0
   menu_link_content: 0
+  menu_entity_index: 0
   menu_ui: 0
   mysql: 0
   node: 0
@@ -65,6 +67,7 @@ module:
   redirect: 0
   remove_http_headers: 0
   responsive_image: 0
+  rest: 0
   s3fs: 0
   samlauth: 0
   serialization: 0
@@ -101,6 +104,7 @@ module:
   uswds_paragraph_components: 0
   uswds_paragraph_components_breakpoints: 0
   uswds_paragraph_components_cards: 0
+  views_data_export: 0
   views_menu_children_filter: 0
   views_ui: 0
   viewsreference: 0
