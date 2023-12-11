@@ -1,15 +1,8 @@
 ##################################################
 # Prod hosts: www and beta
 
-# NGINX Rate limiting configuration
-limit_req_zone $binary_remote_addr zone=limitwafbyaddr:10m rate=10r/s;
-limit_req_status 429;
-
 server {
     listen 80;
-
-    # We are limiting 135 requests per IP address per second
-    limit_req zone=limitwafbyaddr burst=70 nodelay;
 
     server_name www.usa.gov;
 
