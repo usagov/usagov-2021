@@ -52,7 +52,7 @@
       {% for item in nav_page_items %}
         <li class="tablet:grid-col-4 usa-card">
           <a href="{{ item.url }}" class="usa-card__container usagov-card text-no-underline">
-            <div class="life-events-landing-page-card-image" style="background-image: url({{item.navigation_banner_image}})"></div>
+            <div class="life-events-landing-page-card-image" style="background-image: url({{item.navigation_banner_image|image_style('webp')}})"></div>
             <div class="life-events-landing-page-card-title">{{ item.title }}</div>
           </a>
         </li>
