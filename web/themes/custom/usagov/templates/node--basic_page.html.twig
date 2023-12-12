@@ -82,15 +82,17 @@
 {% endif %}
 
 {# field_navigation_banner_image #}
-{% if term_name == "Life Events" or term_name == "Life Events Landing Page" %}
+{% if term_name == "Life Events" or term_name == "Life Events Landing Page" or term_name == "Navigation Cards Page"%}
 	{% if node.field_navigation_banner_image.value %}
-		{# {{ file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri) }} #}
-		<section class="usa-hero usagov-hero le-image" aria-label="Introduction" style="background-image: url({{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}})"></section>
-
-		{# <img class = "usa-hero usagov-hero le-image" src="{{file_url(node.field_navigation_banner_image.entity.field_media_image.entity.fileuri)}}"> #}
+		{% set image_uri = node.field_navigation_banner_image|file_uri %}
+		{% if image_uri is not null %}
+			<section class="usa-hero usagov-hero{{ term_name == 'Navigation Cards Page' ? '' : ' le-image' }}" aria-label="Introduction" style="background-image: url({{ file_url(image_uri|image_style('webp')) }})">
+			{% if term_name == "Life Events" or term_name == "Life Events Landing Page" %}
+				</section>
+			{% endif %}
+		{% endif %}
 	{% endif %}
 {% endif %}
-{# {{ devel_breakpoint() }} #}
 
 	{{ title_prefix }}
 	{% if not page %}
