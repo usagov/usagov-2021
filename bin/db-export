@@ -12,7 +12,7 @@ Options:
 LOCAL_FILE:    the name of the local sql file to dump to (default: backup.sql)
 "
 
-PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
+PREAMBLE=$( pwd -P )/bin/includes/preamble.sh
 if [ -f "$PREAMBLE" ]; then
   # shellcheck source=bin/includes/preamble.sh
   . "$PREAMBLE"

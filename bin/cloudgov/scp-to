@@ -16,7 +16,7 @@ scp_dst:        destination directory in app
 instance_index: app instance index
 "
 
-PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
+PREAMBLE=$( pwd -P )/bin/includes/preamble.sh
 if [ -f "$PREAMBLE" ]; then
   # shellcheck source=bin/includes/preamble.sh
   . "$PREAMBLE"
