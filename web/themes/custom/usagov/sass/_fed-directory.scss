@@ -43,9 +43,8 @@
   }
 
   a:hover {
-    box-shadow: 0 0 0 3px var($off-black);
-    background-color: #99deea;
-    border:none;
+    background-color: var($secondary-background-color);
+    border:2px solid var($secondary-border-color);
   }
 
   a.is-active {
