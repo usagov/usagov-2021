@@ -41,7 +41,7 @@ function renderResults(response, rawResponse) {
     // an inline script in the page's Header HTML. The translations here are retained for backward compatibility.
     const backupTranslations = {
         "en": {
-            "error-fetch": "We're sorry. The elected officials search tool is not working right now. Please try again later.",
+            "error-fetch": "We're sorry. The Google Civic Information API that provides data for this tool is not working right now. Please try again later.",
             "error-fetch-heading": "Data temporarily unavailable",
             "error-address": "There was a problem getting results for this address. Please check to be sure you entered a valid U.S. address.",
             "error-address-heading": "Invalid address",
@@ -54,7 +54,7 @@ function renderResults(response, rawResponse) {
             "path-contact": "/elected-officials-email",
         },
         "es": {
-            "error-fetch": "Lo sentimos. El sistema de búsqueda de funcionarios electos no está funcionando. Por favor, intente de nuevo más tarde.",
+            "error-fetch": "Lo sentimos. Pero la API de información cívica de Google que provee los datos al sistema de búsqueda no está funcionando. Por favor, intente de nuevo más tarde.",
             "error-fetch-heading": "Datos no disponibles temporalmente",
             "error-address": "Tuvimos problemas para obtener resultados con esta dirección. Por favor, verifique si ingresó una dirección válida en EE. UU.",
             "error-address-heading": "Dirección incorrecta",
