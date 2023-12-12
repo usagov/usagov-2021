@@ -104,119 +104,108 @@ function addressUSPSValidation(streetAddress, city, state, zipCode) {
         // Testing. REMOVE
         console.log(Http.responseText);
         return Http.responseText;
-    }
+    };
 }
 
 // This function is executed every time the "Find my elected officials" button is clicked.
 function myforms(event) {
     "use strict";
     // stop form submission
-    let elementVal = ["input", "textarea"];
     let test = [];
     let errorFound = false;
-    for (let n = 0; n < elementVal.length; n++) {
-        let elmnts = document.forms["myform"].getElementsByTagName(elementVal[n]);
-        for (let k = 0; k < elmnts.length; k++) {
-            if (elmnts[k].value === "") {
-                let error = elmnts[k].previousElementSibling.id;
-                test.push(error + " missing");
-                elmnts[k].classList.add("usa-user-error");
-                elmnts[k].previousElementSibling.classList.add("usa-error");
 
-                // Changing to use the error method specified in the CMS if available
-                var errorID = "error-" + error;
-                var cmsError = document.getElementById(errorID);
-                var message;
-                if (cmsError) {
-                    message = cmsError.getElementsByTagName("span")[0].innerHTML;
+    const streetAddressField = document.getElementById("input-street");
+    const cityField = document.getElementById("input-city");
+    const stateField = document.getElementById("input-state");
+    const zipCodeField = document.getElementById("input-zip");
+    const formFields = [streetAddressField, cityField, stateField, zipCodeField];
 
-                }
-                else {
-                    message = a11y_content[error];
-                }
+    const response = addressUSPSValidation(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
+    // TO-DO: Analyze the response and decide if the address is valid or not.
 
-                elmnts[k].previousElementSibling.innerHTML = message;
-                event.preventDefault();
-                errorFound = true;
+    formFields.forEach(field => {
+        let error = field.previousElementSibling.id;
+        var errorID = "error-" + error;
+
+        // If the current field is empty, the error style is added.
+        if (!field.value) {
+            errorFound = true;
+            test.push(error + " missing");
+
+            // Add field border error style.
+            field.classList.add("usa-user-error");
+            // Adds the error style to the error message above the field.
+            field.previousElementSibling.classList.add("usa-error");
+
+            // Makes the error message in the alert box visible.
+            document.getElementById(errorID).classList.remove("usa-error--alert");
+
+            // Changing to use the error method specified in the CMS if available
+            var cmsError = document.getElementById(errorID);
+            var message;
+            if (cmsError) {
+                message = cmsError.getElementsByTagName("span")[0].innerHTML;
             }
+            else {
+                message = a11y_content[error];
+            }
+            field.previousElementSibling.innerHTML = message;
+            event.preventDefault();
+
             // Check if the street address, zip code or city field is empty and if it is, add the vertical line on the left side.
-            if (elmnts[k].value === "" && (elmnts[k].previousElementSibling.id === "street" ||
-                                           elmnts[k].previousElementSibling.id === "zip" ||
-                                           elmnts[k].previousElementSibling.id === "city")) {
-                elmnts[k].parentElement.classList.add("usa-border-error");
+            if (field.previousElementSibling.id === "street" ||
+                field.previousElementSibling.id === "zip" ||
+                field.previousElementSibling.id === "city") {
+                field.parentElement.classList.add("usa-border-error");
             }
             // Check if the state field is empty and if it is, add the vertical line on the left side.
-            else if (elmnts[k].value === "" && elmnts[k].previousElementSibling.id === "state") {
-                elmnts[k].parentElement.parentElement.classList.add("usa-border-error");
-            }
-            // If the current field is not empty, the error style is removed.
-            else if (elmnts[k].value !== "") {
-                elmnts[k].classList.remove("usa-user-error");
-                elmnts[k].parentElement.classList.remove("usa-border-error");
-                elmnts[k].previousElementSibling.classList.remove("usa-error");
-                elmnts[k].parentElement.parentElement.classList.remove("usa-border-error");
-                elmnts[k].previousElementSibling.innerHTML = "";
+            else if (field.previousElementSibling.id === "state") {
+                field.parentElement.parentElement.classList.add("usa-border-error");
+                // Arranges the drop-down arrow within the input field.
+                document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px";
+                document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px";
+                document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
             }
         }
-    }
+
+        // If the current field is not empty, the error style is removed.
+        else if (field.value !== "" || field.value) {
+            // Remove field border error style.
+            field.classList.remove("usa-user-error");
+
+            // Remove the vertical line on the left side.
+            field.parentElement.classList.remove("usa-border-error");
+            field.parentElement.parentElement.classList.remove("usa-border-error");
+
+            // Remove the error message above the field.
+            field.previousElementSibling.innerHTML = "";
+            // Remove the error style to the error message above the field.
+            field.previousElementSibling.classList.remove("usa-error");
+            // Hide the error message from the alert box.
+            document.getElementById(errorID).classList.add("usa-error--alert");
+
+            if(field.previousElementSibling.id === "state"){
+                // Arranges the drop-down arrow within the input field.
+                document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px";
+                document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px";
+                document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
+            }
+        }
+    });
+
 
     // If all fields have an error, join the error lines on the left into one.
     if (test.length === 4) {
         document.getElementById("error-border").classList.add("usa-main-border-error");
-        document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px";
-        document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px";
-        document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
     }
     // If 3 or fewer fields have an error, separate the lines on the left.
     else if (test.length < 4) {
-            document.getElementById("error-border").classList.remove("usa-main-border-error");
-            document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px";
-            document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px";
-            document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
-    }
-
-    // If there is an error, the alert box becomes visible.
-    if (errorFound) {
-        document.getElementById("error-box").classList.remove("usa-error--alert");
-    }
-
-    // If the "Street address" field has an error, the message "Fill out the street field/Escriba la dirección" in the alert box becomes visible.
-    if (errorFound && document.getElementById("input-street").value !== "") {
-        document.getElementById("error-street").classList.add("usa-error--alert");
-    }
-    else {
-        document.getElementById("error-street").classList.remove("usa-error--alert");
-    }
-
-    // If the "City" field has an error, the message "Fill out the city field/Escriba el nombre de la ciudad" in the alert box becomes visible.
-    if (errorFound && document.getElementById("input-city").value !== "") {
-        document.getElementById("error-city").classList.add("usa-error--alert");
-    }
-    else {
-        document.getElementById("error-city").classList.remove("usa-error--alert");
-    }
-
-    // If the "State" field has an error, the message "Fill out the state field/Escriba el nombre del estado" in the alert box becomes visible.
-    if (errorFound && document.getElementById("input-state").value !== "") {
-        document.getElementById("error-state").classList.add("usa-error--alert");
-    }
-    else {
-        document.getElementById("error-state").classList.remove("usa-error--alert");
-        document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px";
-        document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px";
-        document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
-    }
-
-    // If the "ZIP code" field has an error, the message "Fill out the ZIP code field/Escriba el código postal" in the alert box becomes visible.
-    if (errorFound && document.getElementById("input-zip").value !== "") {
-        document.getElementById("error-zip").classList.add("usa-error--alert");
-    }
-    else {
-        document.getElementById("error-zip").classList.remove("usa-error--alert");
+        document.getElementById("error-border").classList.remove("usa-main-border-error");
     }
 
    // If there is an error, modify the alert box header text based on the number of fields with errors.
     if (errorFound) {
+        document.getElementById("error-box").classList.remove("usa-error--alert");
         document.getElementById("error-box").focus();
 
         if (test.length === 1) {
@@ -247,23 +236,13 @@ function myforms(event) {
         return false;
     }
 
-    const streetAddress = document.getElementById("input-street").value;
-    const city = document.getElementById("input-city").value;
-    const state = state_codes[document.getElementById("input-state").value];
-    const zipCode = document.getElementById("input-zip").value;
-
-    const response = addressUSPSValidation(streetAddress, city, state, zipCode);
-    // TO-DO: Analyze the response and decide if the address is valid or not.
     // Testing. REMOVE
     return false;
 
-    // document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px";
-    // document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px";
-    // document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
-    // dataLayer.push({
-    //     'event': 'CEO_form_submit',
-    //     'form_result': 'success'
-    // });
+    dataLayer.push({
+        'event': 'CEO_form_submit',
+        'form_result': 'success'
+    });
 };
 
 
