@@ -1,5 +1,31 @@
 #!/usr/bin/env bash
 
+usage="
+$0: Creates a CF space for egress with appropriate permissions.
+
+Usage:
+   $0 -h
+   $0 EGRESS_SPACE
+   $0 EGRESS_SPACE EGRESS_ORG
+
+Options:
+-h:               show help and exit
+EGRESS_SPACE:     Space to work on (default: $STARTSPACE)
+EGRESS_ORG:       Org to work on (default: $STARTORG)
+
+REQUIREMENTS:
+Must be an OrgManager to have the permissions required for this script to work.
+"
+
+PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
 # you must already be logged in as an OrgManager to have enough permissions
 # to create these new spaces
 

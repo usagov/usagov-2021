@@ -1,6 +1,29 @@
 #!/bin/bash
-# scp file(s) from an app in cloud.gov. 
-# scp-from app /path/on/app /local/path [instance_index]
+
+usage="
+$0: scp file(s) from an app in cloud.gov.
+
+Usage:
+   $0 -h
+   $0 app_name scp_src scp_dst
+   $0 app_name scp_src scp_dst instance_index
+
+Options:
+-h:             show help and exit
+app_name:       app to pull from
+scp_src:        source directory in app
+scp_dst:        destination directory in local
+instance_index: app instance index
+"
+
+PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
 
 echo "check commands ------"
 set -e
@@ -14,9 +37,9 @@ scp_src=$2
 scp_dst=$3
 instance_index=${4:-0}
 
-# See "using other utilities" under "Changes to your app in the CAPI" here: 
+# See "using other utilities" under "Changes to your app in the CAPI" here:
 # https://cloud.gov/knowledge-base/2021-05-17-troubleshooting-ssh-connections/#changes-to-your-app-in-the-capi
-# We need the PROCESS_GUID for the "web process" for our app. 
+# We need the PROCESS_GUID for the "web process" for our app.
 echo "getting ssh_host"
 ssh_host=`cf curl /v2/info | jq .app_ssh_endpoint | awk -F : '{print $1}' | sed 's/\"//g'`
 
@@ -26,7 +49,7 @@ app_guid=`cf env ${app_name} | grep application_id | awk '{print $2}' | sed 's/\
 echo "getting process_guid"
 process_guid=`cf curl /v3/apps/${app_guid}/processes | jq --raw-output '.resources | .[] | select(.type == "web").guid'`
 
-echo "getting ssh_code" 
+echo "getting ssh_code"
 ssh_code=`cf ssh-code`
 
 echo "settings ------"

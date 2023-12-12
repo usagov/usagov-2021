@@ -1,6 +1,25 @@
 #!/bin/bash
 set -e
 
+usage="
+$0: Rebuilds Drupal by reinstalling modules, rebuilding theme, and running the bootstrap script.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+"
+
+PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
 echo "Install Drupal modules"
 bin/composer install --no-interaction --optimize-autoloader
 

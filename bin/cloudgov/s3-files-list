@@ -1,6 +1,25 @@
-#!/bin/sh
-# List files in s3.
-# s3-files-list [S3_PATH] [--recursive]
+#!/bin/bash
+
+usage="
+$0: List files in s3.  Useful for troubleshooting.
+
+Usage:
+   $0 -h
+   $0 S3_PATH
+
+Options:
+-h:                 show help and exit
+SERVICE_PATH:       service that stores s3 credentials (default: storage)
+"
+
+PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
 
 S3_PATH=${1:-''}
 S3_LS_PARAMS=''
@@ -41,9 +60,9 @@ source $SCRIPT_DIR/get-s3-access storage >/dev/null 2>&1
 echo "aws s3 ls s3://$S3_BUCKET/$S3_PATH $S3_LS_PARAMS"
 aws s3 ls s3://$S3_BUCKET/$S3_PATH $S3_LS_PARAMS
 
-# Hints from troubleshooting this ... 
-# 
-# To examine the ACL on a known object: 
+# Hints from troubleshooting this ...
+#
+# To examine the ACL on a known object:
 # aws s3api get-object-acl --bucket $S3_BUCKET --key cms/public/2023-01/Banner_img_Turning_65_en.png
 
 

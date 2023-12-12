@@ -1,16 +1,24 @@
 #!/bin/sh
 
-# we might be running in circleci
-if [ -f /home/circleci/project/env.local ]; then
-  . /home/circleci/project/env.local
-fi
-# we might be running from a local dev machine
-SCRIPT_DIR="$(dirname "$0")"
-if [ -f $SCRIPT_DIR/env.local ]; then
-  . $SCRIPT_DIR/env.local
-fi
-if [ -f ./env.local ]; then
-  . ./env.local
+usage="
+$0: Deploys an s3 snapshot backup of current environment's static site and database.
+
+Usage:
+   $0 -h
+   $0 DEPLOY_TAG
+
+Options:
+-h:            show help and exit
+DEPLOY_TAG:    the tag to deploy
+"
+
+PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
 fi
 
 if ! command -v cf &> /dev/null
@@ -18,24 +26,6 @@ then
     echo "CF : the cloud foundry client could not be found and is required"
     exit 1
 fi
-if [ -f $SCRIPT_DIR/../deploy/includes ]; then
-  . $SCRIPT_DIR/../deploy/includes
-else
-   echo Cannot find $SCRIPT_DIR/../deploy/includes
-   exit 1
-fi
-
-# just testing?
-if [ x$1 = x"--dryrun" ]; then
-  export echo=echo
-  dryrun=$1
-  shift
-fi
-
-SPACE=${1:-please-provide-space-name-as-first-argument}
-SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
-assertCurSpace $SPACE
-shift
 
 DEPLOY_TAG=${1}
 #SPACE=$(cf target | grep space: | awk '{ print $2 }')

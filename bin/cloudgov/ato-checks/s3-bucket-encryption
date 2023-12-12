@@ -1,5 +1,25 @@
 #!/bin/sh
 
+usage="
+$0: Pull public files from the current targeted space's S3 bucket to a temporary local directory.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+"
+
+PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
+
 # gather s3 credentials from storage key
 cf create-service-key storage storagekey
 S3INFO=$(cf service-key storage storagekey)

@@ -1,28 +1,24 @@
 #!/usr/bin/env bash
 
-# we might be running in circleci
-if [ -f /home/circleci/project/env.local ]; then
-  . /home/circleci/project/env.local
-fi
-# we might be running from a local dev machine
-SCRIPT_DIR="$(dirname "$0")"
-if [ -f $SCRIPT_DIR/env.local ]; then
-  . $SCRIPT_DIR/env.local
-fi
-if [ -f ./env.local ]; then
-  . ./env.local
-fi
-if [ -f $SCRIPT_DIR/../deploy/includes ]; then
-  . $SCRIPT_DIR/../deploy/includes
-else
-   echo Cannot find $SCRIPT_DIR/../deploy/includes
-   exit 1
-fi
+usage="
+$0: Creates a backup on s3 of the current static site on current environment.
 
-# just testing?
-if [ x$1 = x"--dryrun" ]; then
-  export echo=echo
-  shift
+Usage:
+   $0 -h
+   $0 DEPLOY_TAG
+
+Options:
+-h:     show help and exit
+DEPLOY_TAG:    the tag to deploy
+"
+
+PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+  echo Cannot find preamble at "$PREAMBLE"
+  exit 1
 fi
 
 SPACE=${1:-please-provide-space-name-as-first-argument}

@@ -1,5 +1,26 @@
 #!/bin/bash
-# Create an SSH tunnel to enable mysql access to the database in the current space.
+
+usage="
+$0: Creates an SSH tunnel to enable mysql access to the database in the current space.
+
+Usage:
+   $0 -h
+   $0 LOCAL_PORT
+
+Options:
+-h:            show help and exit
+LOCAL_PORT:    local database server port
+"
+
+PREAMBLE=$(printf "$( ( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit ) && pwd -P )/bin/includes/preamble.sh" | sed -E 's/bin\/.*\/includes/bin\/includes/g')
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
 
 if ! command -v cf &> /dev/null
 then
@@ -46,7 +67,7 @@ CF_SSH_PID=$!
 echo "Waiting for connection to fully resolve"
 sleep 5
 
-echo "Deleting service key" 
+echo "Deleting service key"
 cf delete-service-key database db-portforward -f
 
 echo
