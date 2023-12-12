@@ -215,11 +215,12 @@ content:
           dependee: field_page_type
           settings:
             state: visible
+            reset: false
             condition: value
             grouping: AND
             values_set: 3
             value: ''
-            values: "19\r\n20"
+            values: "19\r\n20\r\n12"
             value_form:
               -
                 target_id: '19'
