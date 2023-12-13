@@ -52,6 +52,7 @@ RUN set -eux; \
     apk add --no-cache \
     ca-certificates \
     curl \
+    nginx-mod-http-lua \
     sed; \
     mkdir /tmp/owasp-crs; \
     curl -SL https://github.com/coreruleset/coreruleset/archive/v${RELEASE}.tar.gz \

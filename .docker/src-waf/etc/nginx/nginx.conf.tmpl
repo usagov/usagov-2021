@@ -94,6 +94,13 @@ http {
                         'vcap_request_id=$http_x_vcap_request_id';
     access_log /var/log/nginx/access.log extended;
     
+    # setup the scheme to use on redirects
+    map $http_x_forwarded_proto $redirect_scheme {
+        default http;
+        http http;
+        https http;
+    }
+
   real_ip_header X-Forwarded-For;
   set_real_ip_from 127.0.0.1/32;
   set_real_ip_from 10.0.0.0/8;
