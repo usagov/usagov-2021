@@ -148,7 +148,7 @@ function faq_process_components(&$dom) {
     $component = $embedded_paragraph->get('paragraph')[0]->entity;
 
     // Process component by its type
-    if($component == NULL){
+    if ($component == NULL) {
       // No entity exists for this paragraph component. It is probably a reference to a deleted component.
       // Remove the element and move on.
       $element->parentNode->removeChild($element);
