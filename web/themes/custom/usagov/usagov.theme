@@ -72,6 +72,10 @@ function generate_faq(&$node) {
         $answer->loadHTML('<?xml encoding="UTF-8"><html><body></body></html>');
 
       }
+      elseif ($element->nodeName == "drupal-paragraph") {
+        // $element is a paragraph component that should not be displayed
+        // Skip it
+      }
       elseif ($element->nodeName == "#text") {
         // $element is a text node
         // This is white space that we can ignore.
@@ -144,6 +148,12 @@ function faq_process_components(&$dom) {
     $component = $embedded_paragraph->get('paragraph')[0]->entity;
 
     // Process component by its type
+    if ($component == NULL) {
+      // No entity exists for this paragraph component. It is probably a reference to a deleted component.
+      // Remove the element and move on.
+      $element->parentNode->removeChild($element);
+      break;
+    }
     $componentType = $component->getType();
     if ($componentType == "uswds_accordion") {
 
