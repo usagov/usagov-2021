@@ -1,0 +1,12 @@
+_core:
+  default_config_hash: N0NuJlV53T4Gi5cJMycuXZtKANjEXiphxOrwVGeZXko
+all_menus: false
+entity_types:
+  node: node
+menus:
+  left-menu-english: left-menu-english
+  left-menu-spanish: left-menu-spanish
+  primary-footer: primary-footer
+  primary-footer-spanish: primary-footer-spanish
+  top-navigation: top-navigation
+  top-navigation-es: top-navigation-es
