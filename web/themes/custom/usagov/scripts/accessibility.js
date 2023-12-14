@@ -94,6 +94,11 @@ async function getData(streetAddress, city, state, zipCode) {
     </Address1><Address2>${streetAddress}</Address2><City>${city}</City><State>${state}\
     </State><Zip5>${zipCode}</Zip5><Zip4></Zip4></Address></AddressValidateRequest>`;
 
+    // If the zip code contains any letters or is less or more than 5 characters, it returns an error.
+    if(zipCode.length !== 5 || !(/^\d+$/.test(zipCode))) {
+        return "Invalid Zip Code.";
+    }
+
     try {
         const response = await fetch(`https://secure.shippingapis.com/ShippingAPI.dll?API=Verify \
         &XML=<AddressValidateRequest USERID="${USERID}" PASSWORD="${PASSWORD}"><Address><Address1>\
@@ -122,19 +127,19 @@ function addressUSPSValidation(responseText) {
 
     if(responseText.includes("Invalid Address.")){
         response.fieldID = "street";
-        response.errorMessage = "Address is not valid";
+        response.errorMessage = document.documentElement.lang === "en" ? "Please enter a valid address." : "Por favor, escriba una dirección válida.";
     }
     else if(responseText.includes("Address Not Found.")){
         response.fieldID = "street";
-        response.errorMessage = "Address not found";
+        response.errorMessage = document.documentElement.lang === "en" ? "Address not found. Please enter a valid address." : "Dirección no encontrada. Por favor, escriba una dirección válida.";
     }
     else if(responseText.includes("Invalid City.")){
         response.fieldID = "city";
-        response.errorMessage = "City is not valid";
+        response.errorMessage = document.documentElement.lang === "en" ? "Please enter a valid city." : "Por favor, escriba una ciudad válida.";
     }
     else if(responseText.includes("Invalid Zip Code.")){
         response.fieldID = "zip";
-        response.errorMessage = "Zip Code is not valid";
+        response.errorMessage = document.documentElement.lang === "en" ? "Please enter a valid 5-digit ZIP code." : "Por favor, escriba un código postal válido de 5 dígitos.";
     }
     return response;
 
@@ -175,10 +180,7 @@ async function handleFormSubmission() {
             document.getElementById(errorID).classList.remove("usa-error--alert");
 
             var message;
-            if(response.fieldID == fieldID) {
-                message = response.errorMessage;
-            }
-            else {
+            if(!field.value) {
                 // Changing to use the error method specified in the CMS if available
                 var cmsError = document.getElementById(errorID);
                 if (cmsError) {
@@ -187,6 +189,12 @@ async function handleFormSubmission() {
                 else {
                     message = a11y_content[fieldID];
                 }
+            }
+            else {
+                // Change the error message above the input field.
+                message = response.errorMessage;
+                // Change the error message inside the alert box.
+                document.getElementById(errorID).getElementsByTagName("span")[0].innerHTML =  response.errorMessage;
             }
 
             field.previousElementSibling.innerHTML = message;
