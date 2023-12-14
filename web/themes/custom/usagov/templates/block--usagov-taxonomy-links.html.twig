@@ -15,35 +15,21 @@
 {# Code is not indented to keep proper formatting when viewing page source for datalayer #}
 
 {% set listLimit = 5 %}
-{% set lastItem_count = "" %}
 {% set counter = 0 %}
-{% for link in links %}
+{% for i in 0..listLimit %}
 {% set counter = counter + 1 %}
-{% set lastItem_count = listLimit - loop.length %}
-      "Taxonomy_Text_{{ counter }}": "{{ link.getText() }}",
-{% endfor %}
-{% for link in 0..lastItem_count %}
-{% for link in links %}
-{% if loop.last %}
-{% set counter = counter + 1 %}
-      "Taxonomy_Text_{{ counter }}": "{{ link.getText() }}",
+{% if links[i] %}
+{% set link = links[i] %}
 {% endif %}
-{% endfor %}
+      "Taxonomy_Text_{{ counter }}": "{{ link.getText() }}",
 {% endfor %}
 {% set counter = 0 %}
-{% for link in links %}
+{% for i in 0..listLimit %}
 {% set counter = counter + 1 %}
-{% if loop.last %}
-      "Taxonomy_URL_{{ counter }}": "{{ path }}",
-{% else %}
+{% if links[i] %}
+{% set link = links[i] %}
       "Taxonomy_URL_{{ counter }}": "{{ link.getUrl() }}",
-{% endif %}
-{% endfor %}
-{% for link in 0..lastItem_count %}
-{% for link in links %}
-{% if loop.last %}
-{% set counter = counter + 1 %}
+{% else %}
       "Taxonomy_URL_{{ counter }}": "{{ path }}",
 {% endif %}
-{% endfor %}
 {% endfor %}
