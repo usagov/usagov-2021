@@ -3,7 +3,7 @@
 # Delete file content
 > cms_rate_limit_results.txt
 
-for request_number in `seq 1 1 160`;
+for request_number in `seq 1 1 145`;
 do
 
     curl -s -o /dev/null -w "[$(date +'%Y-%m-%d %H:%M:%S')] Request $request_number: Done - HTTP Code: %{http_code}\n" localhost >> cms_rate_limit_results.txt &

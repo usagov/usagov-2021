@@ -259,14 +259,19 @@ function renderResults(response, rawResponse) {
                     nextElem = document.createElement("li");
                     nextElem.classList.add("padding-bottom-2");
                     let socialOptions = {
-                        "twitter": "https://twitter.com/",
+                        "twitter": "https://x.com/",
                         "facebook": "https://facebook.com/",
                         "youtube": "https://youtube.com/",
                         "linkedin": "https://linkedin.com/in/"
                     };
                     let social = socials[j].type.toLowerCase();
                     if (social in socialOptions) {
-                        nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                        if (socials[j].type === "Twitter") {
+                            nextElem.innerHTML = `<div class="text-bold">X:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                        }
+                        else {
+                            nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+}
                     }
                     bulletList.appendChild(nextElem);
                 }
