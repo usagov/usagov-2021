@@ -377,7 +377,8 @@ function usagov_preprocess_block(&$variables) {
         if ($childNode->hasField('promote')) {
           $data->promote = $childNode->get('promote')->value;
         }
-      } catch(Exception $e){
+      }
+      catch (Exception $e) {
       }
 
       array_push($nav_page_items, $data);
