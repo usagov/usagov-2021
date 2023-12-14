@@ -24,11 +24,9 @@
 {% for i in 0..x %}
 {% for link in links %}
 {% set counter = counter + 1 %}
-{% if loop.length <= v %}
 {% if loop.last %}
 {% set counter = counter + 1 %}
       "Taxonomy_Text_{{ counter }}": "{{ link.getText() }}",
-{% endif %}
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -43,11 +41,9 @@
 {% for i in 0..x %}
 {% for link in links %}
 {% set counter = counter + 1 %}
-{% if loop.length <= v %}
 {% if loop.last %}
 {% set counter = counter + 1 %}
       "Taxonomy_URL_{{ counter }}": "{{ path }}",
-{% endif %}
 {% endif %}
 {% endfor %}
 {% endfor %}
