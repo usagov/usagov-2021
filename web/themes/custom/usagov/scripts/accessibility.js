@@ -86,9 +86,7 @@ const state_codes = {
     "Wyoming": "WY"
 };
 
-// This function makes the call to the USPS API and returns the response.
-function addressUSPSValidation(streetAddress, city, state, zipCode) {
-
+async function getData(streetAddress, city, state, zipCode) {
     const USERID = "";
     const PASSWORD = "";
     const url = `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify \
@@ -96,19 +94,54 @@ function addressUSPSValidation(streetAddress, city, state, zipCode) {
     </Address1><Address2>${streetAddress}</Address2><City>${city}</City><State>${state}\
     </State><Zip5>${zipCode}</Zip5><Zip4></Zip4></Address></AddressValidateRequest>`;
 
-    const Http = new XMLHttpRequest();
-    Http.open("GET", url);
-    Http.send();
+    try {
+        const response = await fetch(`https://secure.shippingapis.com/ShippingAPI.dll?API=Verify \
+        &XML=<AddressValidateRequest USERID="${USERID}" PASSWORD="${PASSWORD}"><Address><Address1>\
+        </Address1><Address2>${streetAddress}</Address2><City>${city}</City><State>${state}\
+        </State><Zip5>${zipCode}</Zip5><Zip4></Zip4></Address></AddressValidateRequest>`);
 
-    Http.onreadystatechange = (e) => {
-        // Testing. REMOVE
-        console.log(Http.responseText);
-        return Http.responseText;
-    };
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.text();
+        return data;
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+
+
+// This function makes the call to the USPS API and returns the response.
+function addressUSPSValidation(responseText) {
+
+    let response = {
+        fieldID: "",
+        errorMessage: "",
+    }
+
+    if(responseText.includes("Invalid Address.")){
+        response.fieldID = "street";
+        response.errorMessage = "Address is not valid";
+    }
+    else if(responseText.includes("Address Not Found.")){
+        response.fieldID = "street";
+        response.errorMessage = "Address not found";
+    }
+    else if(responseText.includes("Invalid City.")){
+        response.fieldID = "city";
+        response.errorMessage = "City is not valid";
+    }
+    else if(responseText.includes("Invalid Zip Code.")){
+        response.fieldID = "zip";
+        response.errorMessage = "Zip Code is not valid";
+    }
+    return response;
+
 }
 
 // This function is executed every time the "Find my elected officials" button is clicked.
-function myforms(event) {
+async function handleFormSubmission() {
     "use strict";
     // stop form submission
     let test = [];
@@ -120,17 +153,18 @@ function myforms(event) {
     const zipCodeField = document.getElementById("input-zip");
     const formFields = [streetAddressField, cityField, stateField, zipCodeField];
 
-    const response = addressUSPSValidation(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
     // TO-DO: Analyze the response and decide if the address is valid or not.
+    // const response = addressUSPSValidation(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
+    const response = addressUSPSValidation(await getData(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value));
 
     formFields.forEach(field => {
-        let error = field.previousElementSibling.id;
-        var errorID = "error-" + error;
+        let fieldID = field.previousElementSibling.id;
+        var errorID = "error-" + fieldID;
 
         // If the current field is empty, the error style is added.
-        if (!field.value) {
+        if (!field.value || response.fieldID == fieldID) {
             errorFound = true;
-            test.push(error + " missing");
+            test.push(fieldID + " missing");
 
             // Add field border error style.
             field.classList.add("usa-user-error");
@@ -140,17 +174,22 @@ function myforms(event) {
             // Makes the error message in the alert box visible.
             document.getElementById(errorID).classList.remove("usa-error--alert");
 
-            // Changing to use the error method specified in the CMS if available
-            var cmsError = document.getElementById(errorID);
             var message;
-            if (cmsError) {
-                message = cmsError.getElementsByTagName("span")[0].innerHTML;
+            if(response.fieldID == fieldID) {
+                message = response.errorMessage;
             }
             else {
-                message = a11y_content[error];
+                // Changing to use the error method specified in the CMS if available
+                var cmsError = document.getElementById(errorID);
+                if (cmsError) {
+                    message = cmsError.getElementsByTagName("span")[0].innerHTML;
+                }
+                else {
+                    message = a11y_content[fieldID];
+                }
             }
+
             field.previousElementSibling.innerHTML = message;
-            event.preventDefault();
 
             // Check if the street address, zip code or city field is empty and if it is, add the vertical line on the left side.
             if (field.previousElementSibling.id === "street" ||
@@ -233,16 +272,15 @@ function myforms(event) {
             'event': 'CEO form error',
             'error type': test.join(";")
         });
-        return false;
+        return;
     }
-
-    // Testing. REMOVE
-    return false;
 
     dataLayer.push({
         'event': 'CEO_form_submit',
         'form_result': 'success'
     });
+    document.getElementById("error-box").classList.add("usa-error--alert");
+    document.getElementById("myform").submit();
 };
 
 
