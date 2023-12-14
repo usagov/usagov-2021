@@ -14,15 +14,15 @@
 {# see https://twig.symfony.com/doc/3.x/tags/for.html #}
 {# Code is not indented to keep proper formatting when viewing page source for datalayer #}
 
-{% set v = 5 %}
-{% set x = "" %}
+{% set listLimit = 5 %}
+{% set lastItem_count = "" %}
 {% set counter = 0 %}
 {% for link in links %}
 {% set counter = counter + 1 %}
-{% set x = v - loop.length %}
+{% set lastItem_count = listLimit - loop.length %}
       "Taxonomy_Text_{{ counter }}": "{{ link.getText() }}",
 {% endfor %}
-{% for link in 0..x %}
+{% for link in 0..lastItem_count %}
 {% for link in links %}
 {% if loop.last %}
 {% set counter = counter + 1 %}
@@ -39,7 +39,7 @@
       "Taxonomy_URL_{{ counter }}": "{{ link.getUrl() }}",
 {% endif %}
 {% endfor %}
-{% for i in 0..x %}
+{% for link in 0..lastItem_count %}
 {% for link in links %}
 {% if loop.last %}
 {% set counter = counter + 1 %}
