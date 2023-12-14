@@ -24,7 +24,6 @@
 {% endfor %}
 {% for link in 0..x %}
 {% for link in links %}
-{# {% set counter = counter + 1 %} #}
 {% if loop.last %}
 {% set counter = counter + 1 %}
       "Taxonomy_Text_{{ counter }}": "{{ link.getText() }}",
@@ -42,11 +41,9 @@
 {% endfor %}
 {% for i in 0..x %}
 {% for link in links %}
-{# {% set counter = counter + 1 %} #}
 {% if loop.last %}
 {% set counter = counter + 1 %}
       "Taxonomy_URL_{{ counter }}": "{{ path }}",
 {% endif %}
 {% endfor %}
 {% endfor %}
-
