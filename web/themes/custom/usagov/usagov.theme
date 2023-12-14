@@ -348,22 +348,27 @@ function usagov_preprocess_block(&$variables) {
       }
 
       // Try for other fields
-      if (
-        $childNode->hasField('field_navigation_banner_image') &&
-        count($childNode->get('field_navigation_banner_image')) &&
-        $childNode->get('field_navigation_banner_image')[0]->entity
-      ) {
+      try{
+        $childNid = $child['url']->getRouteParameters()['node'];
+        $childNode = Node::load($childNid);
+        if (
+          $childNode->hasField('field_navigation_banner_image') &&
+          count($childNode->get('field_navigation_banner_image')) &&
+          $childNode->get('field_navigation_banner_image')[0]->entity
+        ) {
         $file_url_generator = \Drupal::service('file_url_generator');
         //to allow for image_style (webp compression) to apply
         $banner_uri = $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri();
         $data->navigation_banner_image = $banner_uri;
-      }
-      if ($childNode->hasField('field_css_icon') && count($childNode->get('field_css_icon'))) {
-        $data->css_icon = $childNode->get('field_css_icon')[0]->value;
-      }
-      if ($childNode->hasField('promote')) {
-        $data->promote = $childNode->get('promote')->value;
-      }
+        }
+        if ($childNode->hasField('field_css_icon') && count($childNode->get('field_css_icon'))) {
+          $data->css_icon = $childNode->get('field_css_icon')[0]->value;
+        }
+        if ($childNode->hasField('promote')) {
+          $data->promote = $childNode->get('promote')->value;
+        }
+      }catch(Exception $e){}
+
       array_push($nav_page_items, $data);
     }
     $variables['nav_page_items'] = $nav_page_items;
