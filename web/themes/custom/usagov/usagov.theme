@@ -319,23 +319,29 @@ function usagov_preprocess_block(&$variables) {
     $nav_page_items = [];
     foreach ($children_of_active_menu_item as $child) {
       $data = new StdClass();
+      //Must get title, description and url if available; Try to get other fields
+
+      //Get Title & URL (Required Fields- Can Call Together)
       try {
         $childNid = $child['url']->getRouteParameters()['node'];
         $childNode = Node::load($childNid);
-
-        // url
-        try {
-          $data->url = $childNode->toUrl()->toString();
-        }
-        catch (Exception $e) {
-          $menuItem = $child['original_link']->getPluginDefinition();
-          $data->url = $menuItem['url'];
-          if (strncmp($data->url, "base:", 5) === 0) {
-            $data->url = "/" . substr($data->url, 5);
-          }
-        }
-
         $data->title = $childNode->get('title')->value;
+        $data->url = $childNode->toUrl()->toString();
+      }
+      catch (Exception $e) {
+        $menuItem = $child['original_link']->getPluginDefinition();
+        $data->title = $menuItem['title'];
+
+        $data->url = $menuItem['url'];
+        if (strncmp($data->url, "base:", 5) === 0) {
+          $data->url = "/" . substr($data->url, 5);
+        }
+      }
+
+      //Get Description (Optional Field - A catch on this shouldn't trigger a catch on title or url)
+      try {
+        $childNid = $child['url']->getRouteParameters()['node'];
+        $childNode = Node::load($childNid);
         if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
           $data->description = $childNode->get('field_short_description')->value;
         }
@@ -345,6 +351,16 @@ function usagov_preprocess_block(&$variables) {
         else {
           $data->description = $childNode->get('field_meta_description')->value;
         }
+      }
+      catch (Exception $e) {
+        $menuItem = $child['original_link']->getPluginDefinition();
+        $data->description = $menuItem['description'];
+      }
+
+      // Try for other fields
+      try {
+        $childNid = $child['url']->getRouteParameters()['node'];
+        $childNode = Node::load($childNid);
         if (
           $childNode->hasField('field_navigation_banner_image') &&
           count($childNode->get('field_navigation_banner_image')) &&
@@ -361,15 +377,11 @@ function usagov_preprocess_block(&$variables) {
         if ($childNode->hasField('promote')) {
           $data->promote = $childNode->get('promote')->value;
         }
-        // $data->node = $childNode;
-        array_push($nav_page_items, $data);
       }
       catch (Exception $e) {
-        $menuItem = $child['original_link']->getPluginDefinition();
-        $data->title = $menuItem['title'];
-        $data->description = $menuItem['description'];
-        array_push($nav_page_items, $data);
       }
+
+      array_push($nav_page_items, $data);
     }
     $variables['nav_page_items'] = $nav_page_items;
   }
