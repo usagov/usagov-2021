@@ -309,39 +309,26 @@ function usagov_preprocess_block(&$variables) {
     $nav_page_items = [];
     foreach ($children_of_active_menu_item as $child) {
       $data = new StdClass();
-      //Must get title, description and url; Try to get other fields
+      //Must get title, description and url if available; Try to get other fields
 
-
-      //Get Title
+      //Get Title & URL (Required Fields- Can Call Together)
       try {
         $childNid = $child['url']->getRouteParameters()['node'];
         $childNode = Node::load($childNid);
         $data->title = $childNode->get('title')->value;
-        echo "in try title: ". $data->title . "<br>";
+        $data->url = $childNode->toUrl()->toString();
       }
       catch (Exception $e) {
         $menuItem = $child['original_link']->getPluginDefinition();
         $data->title = $menuItem['title'];
-        echo "in catch title: ". $data->title . "<br>";
-      }
 
-      //Get Url
-      try {
-        $childNid = $child['url']->getRouteParameters()['node'];
-        $childNode = Node::load($childNid);
-        $data->url = $childNode->toUrl()->toString();
-        echo "in try url: ". $data->url . "<br>";
-      }
-      catch (Exception $e) {
-        $menuItem = $child['original_link']->getPluginDefinition();
         $data->url = $menuItem['url'];
         if (strncmp($data->url, "base:", 5) === 0) {
           $data->url = "/" . substr($data->url, 5);
         }
-        echo "in catch url: ". $data->url . "<br>";
       }
 
-      //Get Description
+      //Get Description (Optional Field - A catch on this shouldn't trigger a catch on title or url)
       try {
         $childNid = $child['url']->getRouteParameters()['node'];
         $childNode = Node::load($childNid);
@@ -354,12 +341,10 @@ function usagov_preprocess_block(&$variables) {
         else {
           $data->description = $childNode->get('field_meta_description')->value;
         }
-        echo "in try description: ". $data->description . "<br>";
       }
       catch (Exception $e) {
         $menuItem = $child['original_link']->getPluginDefinition();
         $data->description = $menuItem['description'];
-        echo "in catch description: ". $data->description . "<br>";
       }
 
       // Try for other fields
@@ -380,7 +365,6 @@ function usagov_preprocess_block(&$variables) {
         $data->promote = $childNode->get('promote')->value;
       }
       array_push($nav_page_items, $data);
-
     }
     $variables['nav_page_items'] = $nav_page_items;
   }
