@@ -33,8 +33,7 @@
     autocomplete="off"
     name="myform"
     id="myform"
-    novalidate
-    onsubmit="return myforms(event);">
+  >
     <div class="padding-1px bg-gray-4">
       <div class="maxw-mobile margin-x-auto margin-y-4">
         <p>
@@ -43,9 +42,9 @@
         </p>
         <div id="error-border">
           <div class="usa-form-spacing">
-            <label id="myStreetAddress" class="usa-label" for="input-street"
-             >Street address</label
-            >
+            <label id="myStreetAddress" class="usa-label" for="input-street">
+              Street address
+            </label>
             <span id="street" class="errors"></span>
             <input
               class="usa-input"
@@ -54,7 +53,10 @@
               name="input-street"
               type="text"
               onkeypress="return event.keyCode != 13;"
-              required oninvalid="this.setCustomValidity('Fill out the street field.')" oninput="this.setCustomValidity('')"/>
+              required
+              oninvalid="this.setCustomValidity('Fill out the street field.')"
+              oninput="this.setCustomValidity('')"
+              />
           </div>
           <div class="usa-form-spacing">
             <label id="myCity" class="usa-label" for="input-city">City</label>
@@ -66,7 +68,9 @@
               name="input-city"
               type="text"
               onkeypress="return event.keyCode != 13;"
-              required oninvalid="this.setCustomValidity('Fill out the city field.')" oninput="this.setCustomValidity('')" />
+              required
+              oninvalid="this.setCustomValidity('Fill out the city field.')"
+              oninput="this.setCustomValidity('')" />
           </div>
           <div class="usa-form-spacing">
             <label id="input-state-label" class="usa-label" for="input-state">
@@ -80,7 +84,9 @@
                 class="usa-select"
                 name="input-state"
                 id="input-state"
-                required oninvalid="this.setCustomValidity('Fill out the state field.')" oninput="this.setCustomValidity('')">
+                required
+                oninvalid="this.setCustomValidity('Fill out the state field.')"
+                oninput="this.setCustomValidity('')">
                 <option id="AL" value="AL">Alabama</option>
                 <option id="AK" value="AK">Alaska</option>
                 <option id="AZ" value="AZ">Arizona</option>
@@ -147,7 +153,9 @@
               name="input-zip"
               type="text"
               onkeypress="return event.keyCode != 13;"
-              required oninvalid="this.setCustomValidity('Fill out the zip field.')" oninput="this.setCustomValidity('')" />
+              required
+              oninvalid="this.setCustomValidity('Fill out the zip field.')"
+              oninput="this.setCustomValidity('')" />
           </div>
         </div>
         <p>
@@ -157,7 +165,11 @@
           >
         </p>
         <div class="ceo-button-container">
-          <button class="usa-button usa-button--secondary usa-button--big ceo-button">
+          <button
+            class="usa-button usa-button--secondary usa-button--big ceo-button"
+            type="button"
+            onclick="handleFormSubmission()"
+          >
             Find my elected officials
           </button>
         </div>
