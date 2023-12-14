@@ -14,6 +14,7 @@ initial_image_styles:
   media_library: media_library
   medium: medium
   thumbnail: thumbnail
+  webp: webp
   wide: wide
 queue_image_styles:
   max_1024w: max_1024w
