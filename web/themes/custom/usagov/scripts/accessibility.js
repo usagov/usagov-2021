@@ -86,7 +86,7 @@ const state_codes = {
     "Wyoming": "WY"
 };
 
-async function getData(streetAddress, city, state, zipCode) {
+async function addressUSPSValidation(streetAddress, city, state, zipCode) {
     const USERID = "";
     const PASSWORD = "";
     const url = `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify \
@@ -118,11 +118,14 @@ async function getData(streetAddress, city, state, zipCode) {
 
 
 // This function makes the call to the USPS API and returns the response.
-function addressUSPSValidation(responseText) {
+function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCode) {
 
     let response = {
         fieldID: "",
         errorMessage: "",
+        streetAddress: responseText.slice(responseText.indexOf('<Address2>') + 10, responseText.indexOf('</Address2>')),
+        zipCode: responseText.slice(responseText.indexOf('<Zip5>') + 6, responseText.indexOf('</Zip5>')),
+        city: responseText.slice(responseText.indexOf('<City>') + 6, responseText.indexOf('</City>'))
     }
 
     if(responseText.includes("Invalid Address.")){
@@ -141,6 +144,17 @@ function addressUSPSValidation(responseText) {
         response.fieldID = "zip";
         response.errorMessage = document.documentElement.lang === "en" ? "Please enter a valid 5-digit ZIP code." : "Por favor, escriba un código postal válido de 5 dígitos.";
     }
+
+    if(response.streetAddress.toLowerCase() === userStreetAddress.toLowerCase() || !response.streetAddress){
+        response.streetAddress = userStreetAddress;
+    }
+    if(response.city.toLowerCase() === userCity.toLowerCase() || !response.city){
+        response.city = userCity;
+    }
+    if(response.zipCode.toLowerCase() === userZipCode.toLowerCase() || !response.zipCode){
+        response.zipCode = userZipCode;
+    }
+
     return response;
 
 }
@@ -159,8 +173,9 @@ async function handleFormSubmission() {
     const formFields = [streetAddressField, cityField, stateField, zipCodeField];
 
     // TO-DO: Analyze the response and decide if the address is valid or not.
-    // const response = addressUSPSValidation(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
-    const response = addressUSPSValidation(await getData(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value));
+    // const response = uspsResponseParser(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
+    const uspsApiResponse = await addressUSPSValidation(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
+    const response = uspsResponseParser(uspsApiResponse, streetAddressField.value, cityField.value, zipCodeField.value);
 
     formFields.forEach(field => {
         let fieldID = field.previousElementSibling.id;
@@ -287,8 +302,19 @@ async function handleFormSubmission() {
         'event': 'CEO_form_submit',
         'form_result': 'success'
     });
+
+    document.getElementById("input-street").value = response.streetAddress;
+    document.getElementById("input-city").value = response.city;
+    document.getElementById("input-zip").value = response.zipCode;
+
+    // const searchParams = new URLSearchParams(window.location.search);
+
+    // searchParams.set("input-street", response.streetAddress);
+    // searchParams.set("input-city", response.city);
+    // searchParams.set("input-zip", response.zipCode);
+
     document.getElementById("error-box").classList.add("usa-error--alert");
-    document.getElementById("myform").submit();
+    // document.getElementById("myform").submit();
 };
 
 
