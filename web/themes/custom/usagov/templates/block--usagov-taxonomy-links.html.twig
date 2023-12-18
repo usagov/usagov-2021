@@ -26,10 +26,11 @@
 {% set counter = 0 %}
 {% for i in 0..listLimit %}
 {% set counter = counter + 1 %}
-{% if links[i] %}
+{% if links[i] and links[i].getUrl().toString() %}
 {% set link = links[i] %}
       "Taxonomy_URL_{{ counter }}": "{{ link.getUrl() }}",
 {% else %}
       "Taxonomy_URL_{{ counter }}": "{{ path }}",
 {% endif %}
+{{link}}
 {% endfor %}
