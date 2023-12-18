@@ -44,7 +44,6 @@ RUN apk upgrade --update && \
       bash \
       jq \
       inotify-tools \
-      nginx-mod-http-lua \
       gettext
 
 # hadolint ignore=DL3008,SC2016
@@ -59,10 +58,6 @@ RUN set -eux; \
     mv -vf /tmp/owasp-crs/rules/* /opt/owasp-crs/rules; \
     rm -rf /tmp/owasp-crs; \
     ln -sv /opt/owasp-crs /etc/modsecurity.d;
-
-RUN set -eux; \
-    apk add --no-cache \
-    nginx-mod-http-lua
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
