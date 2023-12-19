@@ -12,7 +12,7 @@ pid /var/run/nginx.pid;
 error_log /var/log/nginx/error.log warn;
 
 # Includes files with directives to load dynamic modules.
-include /etc/nginx/modules/*.conf;
+include /etc/nginx/modules/30_http_lua.conf;
 
 events {
         # The maximum number of simultaneous connections that can be opened by
