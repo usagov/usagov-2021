@@ -69,7 +69,7 @@ ul.navigation__items {
   align-items: center;
   background: transparent;
   border: 0;
-  color: black;
+  color: $off-black;
   font-weight: bold;
   font-size: larger;
   text-decoration: none;
@@ -81,7 +81,7 @@ ul.navigation__items {
 .usagov-mobile-menu-controls a img {
   padding: 0.16rem;
   margin: 0.1rem;
-  border: 3px solid black;
+  border: 3px solid $off-black;
   border-radius: 100%;
   height: 2.16rem;
 }
