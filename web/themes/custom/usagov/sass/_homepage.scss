@@ -429,8 +429,7 @@
   }
 
   .how-button-list {
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-flow: row wrap;
     margin-top: 20px;
   }
 
