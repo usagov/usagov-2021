@@ -42,3 +42,11 @@ html div.usa-accordion--bordered .usa-accordion__content {
   border-right: 0.25rem solid #f0f0f0!important;
   padding-bottom: 1rem!important;
 }
+
+.cke_widget_element.embedded-entity:empty:before {
+  content:'There is a hidden component on this page. To remove it, right-click this red box and select "cut."';
+  display:block;
+  padding: 3px;
+  background-color:lightsalmon;
+  margin:1em 0;
+}
