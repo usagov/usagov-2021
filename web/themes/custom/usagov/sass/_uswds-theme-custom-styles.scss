@@ -129,7 +129,7 @@ add padding at the top of flag cards
 .usa-nav__secondary-links a:hover,
 .usa-banner__button,
 .usa-card__body {
-  color: var($black);
+  color: var($off-black);
 }
 
 // Header
@@ -758,6 +758,7 @@ input:not([disabled]):focus.usa-user-error {
 
 .ceo-button-container {
   display: flex;
+
   // Manages where the button is going to be positioned.
   // Example: center, right, left.
   justify-content: center;
@@ -1043,12 +1044,13 @@ div div.field--name-field-offices-near-you{
     flex-direction: row;
     align-items: baseline;
     align-self: center;
-    bottom: 0px;
+    bottom: 0;
+
     /* width: 32rem; */
     position: relative;
-    margin-top: 0rem;
+    margin-top: 0;
     min-width: auto;
-    right: 0px;
+    right: 0;
   }
 
   #header > div.usa-navbar > div.usa-nav__secondary > form.usa-search.usa-search--small {
