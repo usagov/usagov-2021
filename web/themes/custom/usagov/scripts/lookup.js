@@ -356,6 +356,31 @@ function load() {
     let displayAddress = document.getElementById("display-address");
     displayAddress.innerHTML = DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"));
 
+    var z = document.createElement('div'); // is a node
+
+    z.setAttribute('class', 'usa-summary-box');
+    z.setAttribute('role', 'region');
+    z.setAttribute('aria-labelledby', 'summary-box-key-information');
+    z.innerHTML = `
+  <div class="usa-summary-box__body">
+    <h3 class="usa-summary-box__heading" id="summary-box-key-information">
+      Address Suggestion
+    </h3>
+    <div class="usa-summary-box__text">
+        We've optimized the address you provided for accuracy:
+        <p>
+        ${DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"))}
+        </p>
+        <p>
+            Want to use this improved address for your search?
+        </p>
+        <button type="button" class="usa-button">
+            Yes, use the suggested address
+        </button>
+    </div>
+  </div>`;
+    displayAddress.parentNode.parentNode.insertBefore(z,document.getElementById("result-title"));
+
     lookup(normalizedAddress, renderResults);
 }
 

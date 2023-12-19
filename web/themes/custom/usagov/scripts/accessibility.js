@@ -303,9 +303,9 @@ async function handleFormSubmission() {
         'form_result': 'success'
     });
 
-    document.getElementById("input-street").value = response.streetAddress;
-    document.getElementById("input-city").value = response.city;
-    document.getElementById("input-zip").value = response.zipCode;
+    // document.getElementById("input-street").value = response.streetAddress;
+    // document.getElementById("input-city").value = response.city;
+    // document.getElementById("input-zip").value = response.zipCode;
 
     // const searchParams = new URLSearchParams(window.location.search);
 
@@ -314,7 +314,7 @@ async function handleFormSubmission() {
     // searchParams.set("input-zip", response.zipCode);
 
     document.getElementById("error-box").classList.add("usa-error--alert");
-    // document.getElementById("myform").submit();
+    document.getElementById("myform").submit();
 };
 
 
