@@ -36,3 +36,7 @@
 .usagov-directory-table .usa-list a , .usagov-directory-table .phoneNumberField , .usagov-directory-table .field__item {
   line-height: 2;
 }
+
+.usa-combo-box__list-option--selected {
+  color: var($off-black);
+}
