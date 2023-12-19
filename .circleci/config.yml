@@ -546,6 +546,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1213-Analytics-Upgraade
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -555,6 +556,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1213-Analytics-Upgraade
       - approve-dev-deployment:
           type: approval
           requires:
@@ -563,6 +565,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1213-Analytics-Upgraade
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -570,6 +573,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1213-Analytics-Upgraade
       - approve-stage-deployment:
           type: approval
           requires:
