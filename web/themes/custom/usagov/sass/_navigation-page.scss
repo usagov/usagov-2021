@@ -31,6 +31,10 @@
   background-color: var($card, group-background-color);
 }
 
+.usa-layout-docs__main .usagov-cards {
+  margin-top: 24px;
+}
+
 .usagov-card {
   border-radius: 0;
   box-shadow: 4px 4px 10px #aaa;
