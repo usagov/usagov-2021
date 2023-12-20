@@ -233,7 +233,6 @@ a {
 }
 
 @media (max-width: 30em) {
-
   .usa-alert,
   .usa-prose,
   .usa-table,
@@ -361,7 +360,6 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 #myform div.margin-x-auto {
-
   // margin-left: 3rem;
   @media (max-width: 40em) {
     margin-left: 1rem;
@@ -573,6 +571,7 @@ div[class^="QSIUserDefinedHTML"] {
     left: -16px;
   }
 }
+
 // END Page Level Survey extra CSS
 
 .usa-prose p,
