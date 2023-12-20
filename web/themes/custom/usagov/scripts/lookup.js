@@ -341,46 +341,53 @@ function renderResults(response, rawResponse) {
     gapi.client.setApiKey("AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A");
 }
 
+function resubmitForm(){
+    localStorage.setItem("formResubmitted", true);
+    location.reload();
+}
+
 /**
  * Process form data, display the address, and search for elected officials.
  */
 function load() {
     "use strict";
     let searchParams = getSearchParams();
-    let inputStreet = searchParams.get('input-street');
-    let inputCity = searchParams.get('input-city');
+
+    if(localStorage.getItem("formResubmitted")){
+        var inputStreet = localStorage.getItem("uspsStreetAddress");
+        var inputCity = localStorage.getItem("uspsCity");
+        var inputZip = localStorage.getItem("uspsZipCode");
+    }
+    else {
+        var inputStreet = searchParams.get('input-street');
+        var inputCity = searchParams.get('input-city');
+        var inputZip = searchParams.get('input-zip');
+    }
+
     let inputState = searchParams.get('input-state');
-    let inputZip = searchParams.get('input-zip');
 
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
     let displayAddress = document.getElementById("display-address");
     displayAddress.innerHTML = DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"));
 
-    var z = document.createElement('div'); // is a node
+    if(!localStorage.getItem("formResubmitted")){
+        var z = document.createElement('div');
+        z.setAttribute('class', 'usa-alert usa-alert--info');
+        z.innerHTML = `<div class="usa-alert__body">
+                        <h4 class="usa-alert__heading">Address Suggestion</h4>
+                        <p class="usa-alert__text">
+                            We've optimized the address you provided for accuracy:
+                            <p>
+                                ${DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"))}
+                            </p>
+                            <a class="usa-link" href='#skip-to-h1' onclick="resubmitForm()">
+                                Click here if you want to use this address for your search
+                            </a>
+                        </p>
+                        </div>`;
 
-    z.setAttribute('class', 'usa-summary-box');
-    z.setAttribute('role', 'region');
-    z.setAttribute('aria-labelledby', 'summary-box-key-information');
-    z.innerHTML = `
-  <div class="usa-summary-box__body">
-    <h3 class="usa-summary-box__heading" id="summary-box-key-information">
-      Address Suggestion
-    </h3>
-    <div class="usa-summary-box__text">
-        We've optimized the address you provided for accuracy:
-        <p>
-        ${DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"))}
-        </p>
-        <p>
-            Want to use this improved address for your search?
-        </p>
-        <button type="button" class="usa-button">
-            Yes, use the suggested address
-        </button>
-    </div>
-  </div>`;
-    displayAddress.parentNode.parentNode.insertBefore(z,document.getElementById("result-title"));
-
+        displayAddress.parentNode.parentNode.insertBefore(z,document.getElementById("address-heading"));
+    }
     lookup(normalizedAddress, renderResults);
 }
 

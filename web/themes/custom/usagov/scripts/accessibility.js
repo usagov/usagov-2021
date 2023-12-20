@@ -165,6 +165,9 @@ async function handleFormSubmission() {
     // stop form submission
     let test = [];
     let errorFound = false;
+    localStorage.setItem("uspsStreetAddress", "");
+    localStorage.setItem("uspsCity", "");
+    localStorage.setItem("uspsZipCode", "");
 
     const streetAddressField = document.getElementById("input-street");
     const cityField = document.getElementById("input-city");
@@ -303,9 +306,11 @@ async function handleFormSubmission() {
         'form_result': 'success'
     });
 
-    // document.getElementById("input-street").value = response.streetAddress;
-    // document.getElementById("input-city").value = response.city;
-    // document.getElementById("input-zip").value = response.zipCode;
+    localStorage.setItem("uspsStreetAddress", response.streetAddress);
+    localStorage.setItem("uspsCity", response.city);
+    localStorage.setItem("uspsZipCode", response.zipCode);
+
+    localStorage.setItem("formResubmitted", false);
 
     // const searchParams = new URLSearchParams(window.location.search);
 
