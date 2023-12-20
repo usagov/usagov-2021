@@ -28,16 +28,16 @@ i.e.
 @use "usagov-variables" as *;
 
 @forward "carousel";
-@forward "sidenav";
-@forward "navigation-page";
 @forward "content-page";
+@forward "fed-directory";
+@forward "footer";
 @forward "header";
 @forward "homepage";
-@forward "mobile-menu";
 @forward "life-events";
-@forward "fed-directory";
+@forward "mobile-menu";
+@forward "navigation-page";
+@forward "sidenav";
 @forward "state-directory";
-@forward "footer";
 
 .text-red {
   color: var($red);
