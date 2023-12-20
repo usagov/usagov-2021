@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# TODO:
-#   Set the username/password each time? Or retrieve existing?
-
 set -e
 set -o pipefail
 
@@ -97,6 +94,8 @@ popspace
 
 # If DRYRUN is set, don't run the commands, but echo them.
 if [ -n "${DRYRUN}" ]; then
+    echo "DRYRUN specified -- very little action will be taken"
+    echo ""
     output="echo # "
 fi
 
@@ -125,9 +124,9 @@ echo "Using buckets: $buckethosts"
 
 # We need these files to exist for each app, even if they're empty.
 echo "Touching $SCRIPT_DIR/apps-egress-deny.acl"
-touch $SCRIPT_DIR/apps-egress-deny.acl
+$output touch $SCRIPT_DIR/apps-egress-deny.acl
 echo "Touching $SCRIPT_DIR/apps-egress-allow.acl"
-touch $SCRIPT_DIR/apps-egress-allow.acl
+$output touch $SCRIPT_DIR/apps-egress-allow.acl
 
 # Assemble vars.yml file content
 
@@ -144,7 +143,7 @@ proxydeny=$(  echo "$proxydeny"  | sed 's/ \{1,\}/\n/g' | sed '/^\s*$/d' | sed '
 proxyallow=$( echo "$proxyallow" | sed 's/ \{1,\}/\n/g' | sed '/^\s*$/d' | sed 's/^/  /'  )
 
 echo "Create ./manifest-egress-vars.yml"
-touch ./manifest-egress-vars.yml
+$output touch ./manifest-egress-vars.yml
 echo "proxyname: $proxyname
 hostname: $proxyname
 username: $username
@@ -154,6 +153,18 @@ $proxydeny
 proxyallow: |
 $proxyallow
 " > ./manifest-egress-vars.yml
+
+# If the caddy binary is not already in place, retrieve the latest from cg-egress-proxy.
+# (Latest? We are trusting their review process.)
+caddy_bin_file=$SCRIPT_DIR/../../.docker/src-egress/caddy
+if [ -f $caddy_bin_file ]; then
+    echo "Caddy binary already exists at $caddy_bin_file"
+else
+    echo "Getting latest caddy binary from cg-egress-proxy repo and saving it to $caddy_bin_file"
+    $output git clone --depth 1 https://github.com/GSA-TTS/cg-egress-proxy.git tmp-caddy-build
+    $output mv tmp-caddy-build/proxy $caddy_bin_file
+    $output rm -rf tmp-caddy-build
+fi
 
 # Deploy the proxy app
 echo "Deploy Egress Proxy App"
