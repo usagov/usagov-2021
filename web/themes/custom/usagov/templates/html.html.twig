@@ -56,7 +56,8 @@
       {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
+      {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{ taxonomy_link_block }}
     }];
   </script>
  {% else %}
@@ -67,7 +68,8 @@
       {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
+      {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{ taxonomy_link_block }}
     }];
   </script>
  {% endif %}
