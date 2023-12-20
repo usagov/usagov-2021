@@ -100,7 +100,6 @@ web/themes/custom/usagov/img
 workspace.code-workspace
 
 manifest-egress-vars.yml
-.docker/src-egress/caddy
 
 bin/deploy/logs/*.log
 bin/cloudgov/test/nr/logs/*
