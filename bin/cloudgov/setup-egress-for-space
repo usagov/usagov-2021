@@ -25,10 +25,12 @@ $0: (Re-)deploy egress proxy for an environment
 
 Usage:
    $0 -h
+   $0 [--restart] [egressspace] [egressorg]
 
 Options:
 -h:            show help and exit
-egressspace:   space with public egress (default: <currentspace>-egress)
+--restart:     restart apps (Apps need a restart to pick up the new proxy credentials)
+egressspace:   space with public egress (default: shared-egress)
 egressorg:     org where the public egress space is (default: <currentorg>)
 
 If the environment variable DRYRUN is set, the planned commands will be echoed rather
@@ -39,10 +41,11 @@ Requirements:
 - You must be a SpaceDeveloper in the current space and the egress_space.
 
 NOTES:
-- Files <app>.<allow|deny>.acl will be created if they don't exist
-- Any S3 buckets bound to an app will automatically be allowed for that app
-- Your apps will be restarted in a rolling fashion to pick up variable changes
-- Post-restart, just use the http_proxy variable when making egress connections!
+- This script deploys a single egress proxy app to serve all apps in the target space.
+- Files <allow|deny>.acl will be created if they don't exist
+- Any S3 buckets bound to an app will automatically be allowed
+- The username:password credentials of an existing proxy WILL BE CHANGED.
+- Run setup-egress-for-apps to reset the PROXY_ROUTE variable and restart the apps to use it.
 "
 
 if [[ "$1" == "-h" ]]; then
@@ -53,6 +56,12 @@ fi
 # Grab the starting space and org where the command was run
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
 startspace=$( cf target | grep space: | awk '{ print $2 }')
+
+restartApps=0
+if [[ "$1" == "--restart" ]]; then
+    restartApps=1
+    shift
+fi
 
 egressspace=${1:-shared-egress}
 egressorg=${2:-$startorg}
@@ -91,28 +100,28 @@ if [ -n "${DRYRUN}" ]; then
     output="echo # "
 fi
 
-# setup only one egress app per space, and point both waf and cms towards it
+# setup only one egress app per space, and add any S3 buckets bound to apps in that space to the allow.acl.
 # echo "Gather Bucket names from App Space"
-# buckethosts=""
-# applist="cms waf"
-# for app in $applist ; do
-#     echo "Gathering buckets for $app"
-#     VCAP_SERVICES=$(cf env "$app" | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
-#     n=$(echo -E "$VCAP_SERVICES" | jq -r '.s3 | length')
-#     i=0
-#     while [ $i -lt "$n" ]
-#     do
-#         # Add attached buckets to the allow list
-#         BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
-#         AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint" | uniq )
-#         AWS_ENDPOINT_ALT=$(  echo -E "$AWS_ENDPOINT"  | sed 's/s3\-us\-/s3.us-/g' | uniq )
-#         AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
-#         # Add both the FIPS and non-FIPS hostnames
-#         buckethosts="$buckethosts ${BUCKET}.${AWS_ENDPOINT} ${BUCKET}.${AWS_ENDPOINT_ALT} ${BUCKET}.${AWS_FIPS_ENDPOINT}"
-#         ((i+=1))
-#     done
-# done
-# echo "Using buckets: $buckethosts"
+buckethosts=""
+applist=$( cf apps | tail -n +4 | awk '{print $1}' )
+for app in $applist ; do
+    echo "Gathering buckets for $app"
+    VCAP_SERVICES=$(cf env "$app" | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
+    n=$(echo -E "$VCAP_SERVICES" | jq -r '.s3 | length')
+    i=0
+    while [ $i -lt "$n" ]
+    do
+        # Add attached buckets to the allow list
+        BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.bucket")
+        AWS_ENDPOINT=$(      echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.endpoint" | uniq )
+        AWS_ENDPOINT_ALT=$(  echo -E "$AWS_ENDPOINT"  | sed 's/s3\-us\-/s3.us-/g' | uniq )
+        AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
+        # Add both the FIPS and non-FIPS hostnames
+        buckethosts="$buckethosts ${BUCKET}.${AWS_ENDPOINT} ${BUCKET}.${AWS_ENDPOINT_ALT} ${BUCKET}.${AWS_FIPS_ENDPOINT}"
+        ((i+=1))
+    done
+done
+echo "Using buckets: $buckethosts"
 
 # We need these files to exist for each app, even if they're empty.
 echo "Touching $SCRIPT_DIR/apps-egress-deny.acl"
@@ -151,6 +160,7 @@ echo "Deploy Egress Proxy App"
 $output cf target -o "$egressorg" -s "$egressspace" 2>&1 > /dev/null
 $output cf set-env $proxyname PROXY_USERNAME "$username"
 $output cf set-env $proxyname PROXY_PASSWORD "$password"
+# Note: It is proxy_route here on purpose; setup-egress-for-apps looks for proxy_route and sets PROXYROUTE (no underscore) for apps.
 $output cf set-env $proxyname proxy_route "https://$username:$password@$proxyname.apps.internal:61443"
 $output cf push $proxyname -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
 
@@ -160,3 +170,9 @@ if [ -n "${DRYRUN}" ]; then
 fi
 
 popspace
+
+if [ $restartApps -eq 1 ]; then
+    for app in $applist ; do
+        $output cf restart "$app" --no-wait --strategy rolling
+    done
+fi

@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# TODO:
-#   Set the username/password each time? Or retrieve existing?
-
 set -e
 set -o pipefail
 
@@ -25,12 +22,13 @@ $0: (Re-)deploy egress proxy for an environment
 
 Usage:
    $0 -h
-   $0 app[,app2,app3...] [egressspace [egressorg] ]
+   $0 [--no-restart] app[,app2,app3...] [egressspace [egressorg] ]
 
 Options:
 -h:            show help and exit
+--no-restart:  don't restart apps (specify this if the caller will restart apps)
 appnames:      comma-separated list of apps that should have egress-proxies
-egressspace:   space with public egress (default: <currentspace>-egress)
+egressspace:   space with public egress (ALWAYS: shared-egress)
 egressorg:     org where the public egress space is (default: <currentorg>)
 
 If the environment variable DRYRUN is set, the planned commands will be echoed rather
@@ -99,8 +97,6 @@ if [ -n "${appmissing}" ]; then
 fi
 echo "Applying egress proxy to: $applist"
 
-# proxyname="proxy-$(echo "$startorg" | tr _. - )-$(echo "$startspace" | tr _. -)"
-# proxyname="test-gsa-dev-proxy"
 proxyname=""
 
 # Try to switch to the egress org+space, error out if it's not there
@@ -147,11 +143,10 @@ for app in $applist; do
 
     # do not restart app here as this causes extra restarts during cms deploy
     # devs may have to call cf restart directly in some cases where this script
-    # is used standone from the deploy scripts
+    # is used standalone from the deploy scripts
 
     if [ $restartRequired -eq 1 ]; then
       $output cf restart "$app" --no-wait --strategy rolling
-      # $output cf restart "$app"
     fi
 done
 
