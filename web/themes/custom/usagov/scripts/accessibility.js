@@ -116,7 +116,6 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
     }
 }
 
-
 // This function makes the call to the USPS API and returns the response.
 function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCode) {
 
@@ -165,9 +164,6 @@ async function handleFormSubmission() {
     // stop form submission
     let test = [];
     let errorFound = false;
-    localStorage.setItem("uspsStreetAddress", "");
-    localStorage.setItem("uspsCity", "");
-    localStorage.setItem("uspsZipCode", "");
 
     const streetAddressField = document.getElementById("input-street");
     const cityField = document.getElementById("input-city");
@@ -176,7 +172,6 @@ async function handleFormSubmission() {
     const formFields = [streetAddressField, cityField, stateField, zipCodeField];
 
     // TO-DO: Analyze the response and decide if the address is valid or not.
-    // const response = uspsResponseParser(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
     const uspsApiResponse = await addressUSPSValidation(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
     const response = uspsResponseParser(uspsApiResponse, streetAddressField.value, cityField.value, zipCodeField.value);
 
@@ -305,18 +300,9 @@ async function handleFormSubmission() {
         'event': 'CEO_form_submit',
         'form_result': 'success'
     });
-
     localStorage.setItem("uspsStreetAddress", response.streetAddress);
     localStorage.setItem("uspsCity", response.city);
     localStorage.setItem("uspsZipCode", response.zipCode);
-
-    localStorage.setItem("formResubmitted", false);
-
-    // const searchParams = new URLSearchParams(window.location.search);
-
-    // searchParams.set("input-street", response.streetAddress);
-    // searchParams.set("input-city", response.city);
-    // searchParams.set("input-zip", response.zipCode);
 
     document.getElementById("error-box").classList.add("usa-error--alert");
     document.getElementById("myform").submit();
@@ -358,4 +344,3 @@ window.addEventListener("load", function () {
         toggleButtons[i].removeAttribute("tabindex");
     }
 });
-

@@ -341,9 +341,20 @@ function renderResults(response, rawResponse) {
     gapi.client.setApiKey("AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A");
 }
 
-function resubmitForm(){
+function resubmitForm() {
+    'use strict';
+    let searchParams = getSearchParams();
     localStorage.setItem("formResubmitted", true);
-    location.reload();
+
+    var inputStreet = localStorage.getItem("uspsStreetAddress");
+    var inputCity = localStorage.getItem("uspsCity");
+    var inputZip = localStorage.getItem("uspsZipCode");
+
+    searchParams.set('input-street', inputStreet);
+    searchParams.set('input-city', inputCity);
+    searchParams.set('input-zip', inputZip);
+
+    window.location.search = searchParams.toString();
 }
 
 /**
@@ -353,32 +364,25 @@ function load() {
     "use strict";
     let searchParams = getSearchParams();
 
-    if(localStorage.getItem("formResubmitted")){
-        var inputStreet = localStorage.getItem("uspsStreetAddress");
-        var inputCity = localStorage.getItem("uspsCity");
-        var inputZip = localStorage.getItem("uspsZipCode");
-    }
-    else {
-        var inputStreet = searchParams.get('input-street');
-        var inputCity = searchParams.get('input-city');
-        var inputZip = searchParams.get('input-zip');
-    }
-
+    let inputStreet = searchParams.get('input-street');
+    let inputCity = searchParams.get('input-city');
     let inputState = searchParams.get('input-state');
+    let inputZip = searchParams.get('input-zip');
 
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
     let displayAddress = document.getElementById("display-address");
     displayAddress.innerHTML = DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"));
 
-    if(!localStorage.getItem("formResubmitted")){
-        var z = document.createElement('div');
-        z.setAttribute('class', 'usa-alert usa-alert--info');
-        z.innerHTML = `<div class="usa-alert__body">
+    if (localStorage.getItem("formResubmitted") === "false") {
+        let suggestedAddress = localStorage.getItem("uspsStreetAddress") + ", " + localStorage.getItem("uspsCity") + ", " + inputState + " " + localStorage.getItem("uspsZipCode");
+        let addressSuggestionAlert = document.createElement('div');
+        addressSuggestionAlert.setAttribute('class', 'usa-alert usa-alert--info');
+        addressSuggestionAlert.innerHTML = `<div class="usa-alert__body">
                         <h4 class="usa-alert__heading">Address Suggestion</h4>
                         <p class="usa-alert__text">
                             We've optimized the address you provided for accuracy:
                             <p>
-                                ${DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"))}
+                                ${DOMPurify.sanitize(suggestedAddress.replace(", ", "<br>"))}
                             </p>
                             <a class="usa-link" href='#skip-to-h1' onclick="resubmitForm()">
                                 Click here if you want to use this address for your search
@@ -386,8 +390,10 @@ function load() {
                         </p>
                         </div>`;
 
-        displayAddress.parentNode.parentNode.insertBefore(z,document.getElementById("address-heading"));
+        displayAddress.parentNode.parentNode.insertBefore(addressSuggestionAlert, document.getElementById("address-heading"));
+
     }
+
     lookup(normalizedAddress, renderResults);
 }
 
