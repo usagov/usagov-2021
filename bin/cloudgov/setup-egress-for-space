@@ -42,7 +42,7 @@ NOTES:
 - Files <allow|deny>.acl will be created if they don't exist
 - Any S3 buckets bound to an app will automatically be allowed
 - The username:password credentials of an existing proxy WILL BE CHANGED.
-- Run setup-egress-for-apps to reset the PROXY_ROUTE variable and restart the apps to use it.
+- Run setup-egress-for-apps to reset the PROXYROUTE variable and restart the apps to use it.
 "
 
 if [[ "$1" == "-h" ]]; then
@@ -162,7 +162,7 @@ if [ -f $caddy_bin_file ]; then
 else
     echo "Getting latest caddy binary from cg-egress-proxy repo and saving it to $caddy_bin_file"
     $output git clone --depth 1 https://github.com/GSA-TTS/cg-egress-proxy.git tmp-caddy-build
-    $output mv tmp-caddy-build/proxy $caddy_bin_file
+    $output cp -p tmp-caddy-build/proxy/caddy $caddy_bin_file
     $output rm -rf tmp-caddy-build
 fi
 
@@ -171,7 +171,7 @@ echo "Deploy Egress Proxy App"
 $output cf target -o "$egressorg" -s "$egressspace" 2>&1 > /dev/null
 $output cf set-env $proxyname PROXY_USERNAME "$username"
 $output cf set-env $proxyname PROXY_PASSWORD "$password"
-# Note: It is proxy_route here on purpose; setup-egress-for-apps looks for proxy_route and sets PROXYROUTE (no underscore) for apps.
+# Note: It is "proxy_route" here on purpose; setup-egress-for-apps looks for proxy_route and sets PROXYROUTE (no underscore) for apps.
 $output cf set-env $proxyname proxy_route "https://$username:$password@$proxyname.apps.internal:61443"
 $output cf push $proxyname -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
 
@@ -183,7 +183,21 @@ fi
 popspace
 
 if [ $restartApps -eq 1 ]; then
+    # APPNAMES=""
+    # for app in $applist ; do
+    # 	if [ $APPNAMES ]; then
+    # 	    APPNAMES="${APPNAMES},"
+    # 	fi
+    # 	APPNAMES="${APPNAMES}${app}"
+    # done
+    # echo "$SCRIPT_DIR/setup-egress-for-apps $APPNAMES"
+    # $output $SCRIPT_DIR/setup-egress-for-apps $APPNAMES
+
+    # While it seems it would be desirable to run setup-egress-for-apps with the
+    # whole list at once, in practice that script will stop after a slow-to-restart
+    # app doesn't complete in time.
     for app in $applist ; do
-        $output cf restart "$app" --no-wait --strategy rolling
+	echo "$SCRIPT_DIR/setup-egress-for-apps $app"
+	$output $SCRIPT_DIR/setup-egress-for-apps $app
     done
 fi
