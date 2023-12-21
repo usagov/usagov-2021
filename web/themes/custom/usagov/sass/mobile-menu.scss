@@ -78,15 +78,8 @@ ul.navigation__items {
   height: auto;
 }
 
-.usagov-mobile-menu-controls a img {
-  padding: 0.16rem;
-  margin: 0.1rem;
-  border: 3px solid $off-black;
-  border-radius: 100%;
-  height: 2.16rem;
-}
 
-.usagov-mobile-menu-controls svg {
+.usagov-mobile-menu-controls a svg {
   border: 3px solid $off-black;
   border-radius: 100%;
   height: 2.16rem;
@@ -95,9 +88,9 @@ ul.navigation__items {
   padding: 0.16rem;
 }
 
-.usagov-mobile-menu-controls button img {
+.usagov-mobile-menu-controls button svg {
   height: 2.5rem;
-  width: auto;
+  width: 2.5rem;
 }
 
 .usagov-mobile-menu .usa-nav__secondary-links {
