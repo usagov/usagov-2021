@@ -526,6 +526,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - usagov-1213-analytics
       - deploy-reporter-tools:
           filters:
             branches:
@@ -533,6 +534,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - usagov-1213-analytics
           requires:
             - approve-deploy-reporter
 
