@@ -142,7 +142,10 @@
           {{ translations.home }}
         </a>
         <button class="usa-nav__close">
-          <img src="/themes/custom/usagov/assets/img/usa-icons/highlight_off.svg" role="img" alt="{{ translations.close }}">{{ translations.close }}
+          <svg class="usa-icon text-base-darkest" role="img" alt="{{ translations.close }}">
+            <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#highlight_off"></use>
+          </svg>
+          {{ translations.close }}
         </button>
       </div>
       <div class="usa-nav__secondary">
