@@ -546,7 +546,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1227-docker-bench-update
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -556,7 +555,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1227-docker-bench-update
       - approve-dev-deployment:
           type: approval
           requires:
