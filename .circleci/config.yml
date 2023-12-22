@@ -287,7 +287,7 @@ jobs:
 
   build-and-push-container:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2204:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -383,14 +383,14 @@ jobs:
 
   deploy-to-cloudgov-dev:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2204:2023.10.1
     steps:
       - deploy-cloudgov:
           envname: dev
 
   deploy-to-cloudgov-stage:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2204:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -399,7 +399,7 @@ jobs:
 
   deploy-to-cloudgov-prod:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2204:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -408,7 +408,7 @@ jobs:
 
   run-snapshot-backup-dev:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2204:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -417,7 +417,7 @@ jobs:
 
   run-snapshot-backup-stage:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2204:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -426,7 +426,7 @@ jobs:
 
   run-snapshot-backup-prod:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2204:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -435,7 +435,7 @@ jobs:
 
   deploy-reporter-tools:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2204:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
