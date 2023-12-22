@@ -134,11 +134,11 @@ if [ -n "$CCI_BUILD" -a -n "$WAF_DIGEST" -a -n $"$CMS_DIGEST" ]; then
   echo "   ROUTE_SERVICE_APP_NAME=waf \\
    ROUTE_SERVICE_NAME=waf-route-${SPACE}-usagov \\
    PROTECTED_APP_NAME=cms \\
-      bin/deploy/deploy-waf $CCI_BUILD $WAF_DIGEST"
+      bin/cloudgov/deploy-waf $CCI_BUILD $WAF_DIGEST"
   echo
   echo
   echo "To deploy the cms, please execute the following command:"
-  echo "   bin/deploy/deploy-cms $CCI_BUILD $CMS_DIGEST"
+  echo "   bin/cloudgov/deploy-cms $CCI_BUILD $CMS_DIGEST"
   echo
 else
    echo "No tag of the form 'usagov-cci-build-*-${SPACE}' found in git repository"
