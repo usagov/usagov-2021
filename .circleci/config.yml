@@ -201,6 +201,7 @@ jobs:
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
+      - signed-dockerhub-login
       - checkout
       - install-cloud-foundry
       - run:
