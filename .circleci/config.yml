@@ -346,7 +346,7 @@ jobs:
           command: |
             # build a fresh docker-bench-security container
             cd /tmp/
-            git clone --depth 1 --branch v1.6.0 https://github.com/docker/docker-bench-security.git
+            git clone --depth 1 --branch v1.6.1 https://github.com/docker/docker-bench-security.git
             cd /tmp/docker-bench-security
             docker build --no-cache -t docker-bench-security .
       - run:
@@ -546,6 +546,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1227-docker-bench-update
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -555,6 +556,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1227-docker-bench-update
       - approve-dev-deployment:
           type: approval
           requires:
