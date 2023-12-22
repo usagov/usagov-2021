@@ -203,7 +203,6 @@ jobs:
     steps:
       - checkout
       - install-cloud-foundry
-      - signed-dockerhub-login
       - run:
           name: Setup Environment for use in Scripts
           command: |
