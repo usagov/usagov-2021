@@ -216,6 +216,8 @@ jobs:
           when: always
           command: |
             SCAN_CODE_RESULT=0
+            echo `pwd`
+            echo `ls`
             if (./bin/scan-code low | tee /tmp/results/scan-cms-code.log); then export SCAN_CODE_RESULT=0; else export SCAN_CODE_RESULT=$?; fi
             echo "CMS Code Scan return code: $SCAN_CODE_RESULT" | tee -a /tmp/results/scan-cms-code.log
             cat /tmp/results/scan-cms-code.log
@@ -547,7 +549,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1227-docker-bench-update
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -557,7 +558,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1227-docker-bench-update
       - approve-dev-deployment:
           type: approval
           requires:
