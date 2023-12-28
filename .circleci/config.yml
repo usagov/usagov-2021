@@ -86,12 +86,12 @@ commands:
           name: Install Specific Node Version
           command: |
             set +e
-            wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+            wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-            nvm install v18.3.0
-            nvm alias default 18.3.0
+            nvm install v20.10.0
+            nvm alias default 20.10.0
             echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
             echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
             echo "Install Gulp on node "$(node --version)
@@ -546,6 +546,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1259-upgrade-node
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -555,6 +556,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1259-upgrade-node
       - approve-dev-deployment:
           type: approval
           requires:
@@ -563,6 +565,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1259-upgrade-node
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -570,6 +573,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1259-upgrade-node
       - approve-stage-deployment:
           type: approval
           requires:
