@@ -351,12 +351,29 @@ function renderResults(response, rawResponse) {
     gapi.client.setApiKey("AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A");
 }
 
+function resubmitForm() {
+    'use strict';
+    let searchParams = getSearchParams();
+    localStorage.setItem("formResubmitted", true);
+
+    var inputStreet = localStorage.getItem("uspsStreetAddress");
+    var inputCity = localStorage.getItem("uspsCity");
+    var inputZip = localStorage.getItem("uspsZipCode");
+
+    searchParams.set('input-street', inputStreet);
+    searchParams.set('input-city', inputCity);
+    searchParams.set('input-zip', inputZip);
+
+    window.location.search = searchParams.toString();
+}
+
 /**
  * Process form data, display the address, and search for elected officials.
  */
 function load() {
     "use strict";
     let searchParams = getSearchParams();
+
     let inputStreet = searchParams.get('input-street');
     let inputCity = searchParams.get('input-city');
     let inputState = searchParams.get('input-state');
@@ -365,6 +382,27 @@ function load() {
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
     let displayAddress = document.getElementById("display-address");
     displayAddress.innerHTML = DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"));
+
+    if (localStorage.getItem("formResubmitted") === "false") {
+        let suggestedAddress = localStorage.getItem("uspsStreetAddress") + ", " + localStorage.getItem("uspsCity") + ", " + inputState + " " + localStorage.getItem("uspsZipCode");
+        let addressSuggestionAlert = document.createElement('div');
+        addressSuggestionAlert.setAttribute('class', 'usa-alert usa-alert--info');
+        addressSuggestionAlert.innerHTML = `<div class="usa-alert__body">
+                        <h4 class="usa-alert__heading">Address Suggestion</h4>
+                        <p class="usa-alert__text">
+                            We've optimized the address you provided for accuracy:
+                            <p>
+                                ${DOMPurify.sanitize(suggestedAddress.replace(", ", "<br>"))}
+                            </p>
+                            <a class="usa-link" href='#skip-to-h1' onclick="resubmitForm()">
+                                Click here if you want to use this address for your search
+                            </a>
+                        </p>
+                        </div>`;
+
+        displayAddress.parentNode.parentNode.insertBefore(addressSuggestionAlert, document.getElementById("address-heading"));
+
+    }
 
     lookup(normalizedAddress, renderResults);
 }
