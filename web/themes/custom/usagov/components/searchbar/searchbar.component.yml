@@ -26,25 +26,25 @@ props:
   properties:
     #attributes:
       #type::??
-    form_classes
+    form_classes:
       type: string
-    action
+    action:
       type: string
-    label_id
+    label_id:
       type: string
-    for_string
+    for_string:
       type: string
-    hidden_input_id
+    hidden_input_id:
       type: string
-    hidden_name_string
+    hidden_name_string:
       type: string
-    input_classes
+    input_classes:
       type: string
-    input_id
+    input_id:
       type: string
-    aria_labelledby_string
+    aria_labelledby_string:
       type: string
-    button_classes
+    button_classes:
       type: string
 
 # Slots always hold arbitrary markup. We know that beforehand, so no need for
