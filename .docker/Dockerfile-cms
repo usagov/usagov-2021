@@ -121,6 +121,12 @@ ENV GITTAG ${GITTAG:-none}
 ARG CONTAINERTAG
 ENV CONTAINERTAG ${CONTAINERTAG:-none}
 
+ARG USPS_USERID
+ENV USPS_USERID ${USPS_USERID:-none}
+
+ARG USPS_PASSWORD
+ENV USPS_PASSWORD ${USPS_PASSWORD:-none}
+
 ARG BUID=1000
 ARG BGID=1000
 
@@ -266,7 +272,9 @@ RUN chmod -R +x /etc/periodic \
     && echo "    containertag: " $CONTAINERTAG >> /etc/motd \
     && echo >> /etc/motd \
     && cp /etc/motd /var/www/web/version.txt \
-    && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
+    && echo "PATH=$PATH" > /etc/profile.d/drupal.sh \
+    && sed -i -e 's|USERID=""|USERID="${USPS_USERID}"|g' /var/www/web/themes/custom/usagov/script/accessibility.js \
+    && sed -i -e 's|PASSWORD=""|PASSWORD="${USPS_PASSWORD}"|g' /var/www/web/themes/custom/usagov/script/accessibility.js
 
 EXPOSE 80
 
