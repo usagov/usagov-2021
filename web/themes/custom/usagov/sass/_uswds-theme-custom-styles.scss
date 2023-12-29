@@ -1021,6 +1021,10 @@ p, a, .usa-label, .usa-radio__label {
   }
 }
 
+#myform input.usa-button  {
+  margin-left: 0;
+}
+
 .usa-form div.maxw-mobile p {
   @media (max-width: 40em) {
     padding-left: 1rem;
