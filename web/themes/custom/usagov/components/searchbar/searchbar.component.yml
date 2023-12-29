@@ -24,8 +24,6 @@ props:
   #   - primary
 
   properties:
-    #attributes:
-      #type::??
     form_classes:
       type: string
     action:
@@ -46,8 +44,3 @@ props:
       type: string
     button_classes:
       type: string
-
-# Slots always hold arbitrary markup. We know that beforehand, so no need for
-# a schema for slots.
-slots:
-  minimal: {}
