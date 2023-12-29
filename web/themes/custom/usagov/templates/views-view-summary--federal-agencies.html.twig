@@ -75,9 +75,16 @@
       input_id:"search-field-en-small",
       aria_labelledby_string:"fedGallerySearch",
       button_classes:"fed-directory-search-btn",
-    }%}
+      placeholder_string,
+      value_string,
+      label_string,
+      alt_string,
+    } %}
+      {% set placeholder_string = translations.agencySearchLabel %}
+      {% set value_string = translations.agencySearchAffiliateID %}
+      {% set label_string = translations.agencySearchLabel %}
+      {% set alt_string = translations.search %}
     {% endembed %}
-      {# {{ include('usagov:searchbar') }} #}
     </section>
   </div>
 </div>
