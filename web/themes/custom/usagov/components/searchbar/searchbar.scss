@@ -1,0 +1,12 @@
+// adds visible focus around entire search box
+[type="search"] {
+  z-index: 1;
+}
+
+@media (min-width: 64em){
+  #header > div.usa-navbar > div.usa-nav__secondary > form.usa-search.usa-search--small {
+    align-self: center;
+    margin-top: 0;
+  }
+}
+
