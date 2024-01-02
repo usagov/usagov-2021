@@ -14,17 +14,16 @@
     <!-- Search Bar -->
     {% embed 'usagov:searchbar' with {
       form_classes: "usa-search usa-search--small",
-      action: "https://search.usa.gov/search",
       label_id: "top-srch",
       for_string:"search-field-small",
       hidden_input_id:"affiliate",
-      hidden_name_string:"affiliate",
       input_classes:"usa-input text usagov-search-autocomplete ui-autocomplete-input",
       input_id:"search-field-small",
       button_classes:"usa-button",
       placeholder_string:"Search all government",
       value_string:"usagov_all_gov",
       label_string:"Search",
+			img_classes:"usa-search__submit-icon",
       alt_string:"Search",
     } %}
     {% endembed %}

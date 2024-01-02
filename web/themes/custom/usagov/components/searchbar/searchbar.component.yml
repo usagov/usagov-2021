@@ -26,15 +26,11 @@ props:
   properties:
     form_classes:
       type: string
-    action:
-      type: string
     label_id:
       type: string
     for_string:
       type: string
     hidden_input_id:
-      type: string
-    hidden_name_string:
       type: string
     input_classes:
       type: string
@@ -43,4 +39,6 @@ props:
     aria_labelledby_string:
       type: string
     button_classes:
+      type: string
+    img_classes:
       type: string
