@@ -36,9 +36,5 @@ props:
       type: string
     input_id:
       type: string
-    aria_labelledby_string:
-      type: string
     button_classes:
-      type: string
-    img_classes:
       type: string
