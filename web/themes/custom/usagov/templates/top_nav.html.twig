@@ -11,20 +11,32 @@
 				<a href="/phone" style="white-space: nowrap;">Call us at 1-844-USAGOV1</a>
 			</span>
 		</span>
-    {# {% embed 'usagov:searchbar' with {
-      classes: "usa-search usa-search--small",
+    <!-- Search Bar -->
+    {% embed 'usagov:searchbar' with {
+      form_classes: "usa-search usa-search--small",
       action: "https://search.usa.gov/search",
-			label_id: "top-srch",
-    }%}
-    {% endembed %} #}
-		<form class="usa-search usa-search--small" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
+      label_id: "top-srch",
+      for_string:"search-field-small",
+      hidden_input_id:"affiliate",
+      hidden_name_string:"affiliate",
+      input_classes:"usa-input text usagov-search-autocomplete ui-autocomplete-input",
+      input_id:"search-field-small",
+      button_classes:"usa-button",
+      placeholder_string:"Search all government",
+      value_string:"usagov_all_gov",
+      label_string:"Search",
+      alt_string:"Search",
+    } %}
+    {% endembed %}
+
+		{# <form class="usa-search usa-search--small" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
 			<label id="top-srch" class="usa-sr-only" for="search-field-small">Search</label>
 			<input id="affiliate" name="affiliate" type="hidden" value="usagov_all_gov">
 			<input id="search-field-small" class="usa-input text usagov-search-autocomplete ui-autocomplete-input" type="search" name="query" placeholder="Search all government" onfocus="this.placeholder" autocomplete="off" aria-autocomplete="list" aria-haspopup="true">
 			<button class="usa-button" type="submit">
 				<img src="/themes/custom/usagov/images/search--dark.svg" class="usa-search__submit-icon" alt="Search">
 			</button>
-		</form>
+		</form> #}
 	</div>
 </div>
 <nav aria-label="Primary navigation" class="usa-nav">
