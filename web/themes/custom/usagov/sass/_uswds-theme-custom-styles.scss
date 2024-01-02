@@ -1021,6 +1021,8 @@ p, a, .usa-label, .usa-radio__label {
   }
 }
 
+// Remove the margin from the "Submit" button on the "Report a Problem" page.
+// This aligns the button to the left.
 #myform input.usa-button  {
   margin-left: 0;
 }
