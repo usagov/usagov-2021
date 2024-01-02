@@ -37,6 +37,7 @@ i.e.
 @forward "fed-directory";
 @forward "state-directory";
 @forward "footer";
+@forward "../components/searchbar/searchbar";
 
 .text-red {
   color: var($red);
@@ -429,18 +430,11 @@ add padding at the top of flag cards
   }
 }
 
-// adds visible focus around entire search box
-[type="search"] {
-  z-index: 1;
-}
-
 // adds visible focus around entire search button and removes padding
 .usa-button:not([disabled]):focus {
   outline-offset: 0;
   z-index: 1;
 }
-
-
 
 a,
 .usa-alert__text a,
@@ -1051,11 +1045,6 @@ div div.field--name-field-offices-near-you{
     margin-top: 0;
     min-width: auto;
     right: 0;
-  }
-
-  #header > div.usa-navbar > div.usa-nav__secondary > form.usa-search.usa-search--small {
-    align-self: center;
-    margin-top: 0;
   }
 
   #header > div.usa-navbar > div.usa-nav__secondary > span.usa-nav__secondary-links {
