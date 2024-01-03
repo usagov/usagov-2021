@@ -371,12 +371,6 @@ input:not([disabled]):focus.usa-user-error {
   max-width: 26rem;
 }
 
-/**
-#myform.usa-form .usa-input, #myform .usa-combo-box__input {
-  max-width: 20rem;
-}
-*/
-
 .ceo-button-container {
   display: flex;
 
@@ -638,10 +632,11 @@ a,
   }
 }
 
-// Remove the margin from the "Submit" button on the "Report a Problem" page.
-// This aligns the button to the left.
+// Style for the "Submit" button on the "Report a Problem" page.
+// Aligns the button to the left and change the font size.
 #myform input.usa-button  {
   margin-left: 0;
+  font-size: 1.1rem;
 }
 
 .usa-form div.maxw-mobile p {
