@@ -87,6 +87,7 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary {
+  font-size: 1.1rem;
   border: 2px solid var($secondary-border-color);
 }
 
@@ -633,10 +634,9 @@ a,
 }
 
 // Style for the "Submit" button on the "Report a Problem" page.
-// Aligns the button to the left and change the font size.
+// Aligns the button to the left.
 #myform input.usa-button  {
   margin-left: 0;
-  font-size: 1.1rem;
 }
 
 .usa-form div.maxw-mobile p {
