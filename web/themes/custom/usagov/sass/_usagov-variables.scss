@@ -84,6 +84,11 @@ $alert: (
   border-color: $gray,
 );
 
+$fed-directories: (
+  text-color: $off-black,
+  letter-outline-color: $off-black,
+);
+
 /*
 Call the var function to retrieve variables from sass map variables
 
