@@ -25,7 +25,7 @@ filters:
     status: false
     weight: -10
     settings:
-      allowed_html: '<a class="usa-button usa-button--secondary usa-button--big"> <p class="usa-intro"> <h2 class="font-serif-lg text-bold text-accent-cool-darker">'
+      allowed_html: '<p class="usa-intro"> <h2 class="font-serif-lg text-bold text-accent-cool-darker"> <a class="usa-button usa-button--secondary usa-button--big">'
       filter_html_help: true
       filter_html_nofollow: false
   filter_url:

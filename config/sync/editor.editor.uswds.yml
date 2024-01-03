@@ -23,12 +23,12 @@ settings:
       - heading
       - codeBlock
       - style
-      - '-'
+      - '|'
       - link
       - '|'
       - bulletedList
       - numberedList
-      - '|'
+      - '-'
       - blockQuote
       - drupalMedia
       - '|'
@@ -101,14 +101,14 @@ settings:
     ckeditor5_style:
       styles:
         -
-          label: Button
-          element: '<a class="usa-button usa-button--secondary usa-button--big">'
-        -
           label: Intro
           element: '<p class="usa-intro">'
         -
           label: 'Wizard H2'
           element: '<h2 class="font-serif-lg text-bold text-accent-cool-darker">'
+        -
+          label: Button
+          element: '<a class="usa-button usa-button--secondary usa-button--big">'
     media_media:
       allow_view_mode_override: false
     uswds_ckeditor_integration_ckeditor5_overrides:
