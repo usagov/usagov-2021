@@ -132,6 +132,7 @@ function usa_twig_vars_get_page_type(&$node) {
     $term_id = $fields['field_page_type']->getValue()[0]['target_id'];
     $term = Term::load($term_id);
     $page_type = $term ? $term->get('name')->value : '';
+    $page_type = $page_type == "Standard Page" ? 'Content Page' : $page_type;
     return $page_type ?? 'content_page';
   }
 }
