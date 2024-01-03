@@ -87,9 +87,20 @@
 		{% set image_uri = node.field_navigation_banner_image|file_uri %}
 		{% if image_uri is not null %}
 			<section class="usa-hero usagov-hero{{ term_name == 'Navigation Cards Page' ? '' : ' le-image' }}" aria-label="Introduction" style="background-image: url({{ file_url(image_uri|image_style('webp')) }})">
-			{% if term_name == "Life Events" or term_name == "Life Events Landing Page" %}
+				{% if term_name == "Life Events" or term_name == "Life Events Landing Page" %}
+					</section>
+				{% endif %}
+				<div class="grid-container">
+					<div class="usa-hero__callout usagov-hero__callout">
+						<h2 class="usa-hero__heading"><span class="usa-hero__heading--alt">Most popular</h2>
+						<ul>
+							<li><a href="/check-tax-status">How to check the status of your tax refund</a></li>
+							<li><a href="/help-with-taxes">Get help filing your taxes</a></li>
+							<li><a href="/federal-tax-forms">Get federal tax forms</a></li>
+						</ul>
+					</div>
+				</div>
 				</section>
-			{% endif %}
 		{% endif %}
 	{% endif %}
 {% endif %}
