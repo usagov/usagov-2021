@@ -95,8 +95,3 @@ applications:
       allow 52.22.251.194;
       allow 52.70.135.185;
 
-      # Pen-tester for ATO assessment. Remove after (probably) 17 November 2023:
-      allow 52.4.119.32;
-      allow 18.190.148.7;
-
-      allow 76.106.29.166;

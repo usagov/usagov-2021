@@ -1,0 +1,35 @@
+{#
+/**
+ * @file
+ * Taxonomy links layout. This is used for a block with the "Bookmarks" category and is
+ * not in the block layout; instead it is rendered into a variable by the usa_twig_vars_preprocess
+ * function so that bookmarks can be used to generate Taxonomy information for the HTML head
+ * of a page.
+ */
+#}
+{% set nodeID = node.nid[0].value %}
+{% set path = drupal_url('node/'~nodeID) %}
+{% set links = content['#links'] %}
+{# Since six entries are wanted, we'll probably need a "for i in 0..5" loop #}
+{# see https://twig.symfony.com/doc/3.x/tags/for.html #}
+{# Code is not indented to keep proper formatting when viewing page source for datalayer #}
+
+{% set listLimit = 5 %}
+{% set counter = 0 %}
+{% for i in 0..listLimit %}
+{% set counter = counter + 1 %}
+{% if links[i] %}
+{% set link = links[i] %}
+{% endif %}
+      "Taxonomy_Text_{{ counter }}": "{{ link.getText() }}",
+{% endfor %}
+{% set counter = 0 %}
+{% for i in 0..listLimit %}
+{% set counter = counter + 1 %}
+{% if links[i] and links[i].getUrl().toString() %}
+{% set link = links[i] %}
+      "Taxonomy_URL_{{ counter }}": "{{ link.getUrl() }}",
+{% else %}
+      "Taxonomy_URL_{{ counter }}": "{{ path }}",
+{% endif %}
+{% endfor %}
