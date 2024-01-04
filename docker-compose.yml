@@ -11,6 +11,8 @@ services:
         - BGID
         - HOST_ARCH
         - BUILD_ENV
+        - USPS_USERID
+        - USPS_PASSWORD
     ports:
       #- 8080:80
       #- 8443:443
@@ -135,7 +137,7 @@ services:
         - GITCOMMIT
         - GITBRANCH
         - GITTAG
-        - BUILD_ENV	
+        - BUILD_ENV
     #command: tail -f /dev/null
     command: echo "Shutting Down on Purpose"
     volumes:
