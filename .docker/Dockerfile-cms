@@ -71,7 +71,7 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 
 # USER www-data
 ###############################################################
-FROM node:19.9-bullseye-slim AS theme-builder
+FROM node:20.10-bullseye-slim AS theme-builder
 
 ARG BUID=1000
 ARG BGID=1000
@@ -148,6 +148,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       tar \
       xz \
       vim \
+      nano \
       mysql-client \
       mariadb-connector-c \
       nginx \
@@ -266,7 +267,8 @@ RUN chmod -R +x /etc/periodic \
     && echo "    containertag: " $CONTAINERTAG >> /etc/motd \
     && echo >> /etc/motd \
     && cp /etc/motd /var/www/web/version.txt \
-    && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
+    && echo "PATH=$PATH" > /etc/profile.d/drupal.sh \
+    && echo "alias tll='tail -f \$(ls -tr *.log | tail -1)'" > /etc/profile.d/usagov-aliases.sh
 
 EXPOSE 80
 
