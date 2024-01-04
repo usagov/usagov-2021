@@ -26,6 +26,17 @@ if [ x$1 = x"--dryrun" ]; then
   shift
 fi
 
+needsDisabled=0
+if ! isSpaceSSHEnabled $startspace; then
+  enableSpaceSSH $startspace
+  if [ "$?" -ne "0" ]; then
+      assertSpaceSSHEnabled $startspace
+  fi
+  needsDisabled=1
+fi
+
+TOME_DISABLED_STATE=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled")
+
 SPACE=${1:-please-provide-space-name-as-first-argument}
 SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
@@ -50,6 +61,15 @@ shift
 DOWNLOAD=$1
 #shift
 
+echo "[$TOME_DISABLED_STATE]"
+if [ x$TOME_DISABLED_STATE != 1 ]; then
+  echo bin/deploy/try-tome-enable
+else
+  echo Already disabled
+fi
+
+exit
+
 RETVAL=0
 if [ x$echo = x ]; then
   while [ "1" != "0" ]; do
@@ -63,12 +83,18 @@ if [ "$RETVAL" = "0" ]; then
   $echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX db-dump-to-snapshot    #$SNAPSHOT_TAG
   $echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX site-snapshot-create   #$SNAPSHOT_TAG
   $echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX public-snapshot-create #$SNAPSHOT_TAG
-  if [ x$echo = x ]; then
-    bin/deploy/try-tome-enable
-  fi
+  #if [ x$echo = x ]; then
+    if [ x$TOME_DISABLED_STATE != 1 ]; then
+      bin/deploy/try-tome-enable
+    fi
+  #fi
   if [ x"$DOWNLOAD" = "x--download" ]; then
     $echo bin/snapshot-backups/local-snapshot-download $SPACE $TICKET_ID $SUFFIX
   fi
 else
   echo "Did not run backup scripts.  Retval of tome check was: '  $RETVAL'"
+fi
+
+if [ $needsDisabled != 0 ]; then
+   cf disallow-space-ssh $startspace
 fi
