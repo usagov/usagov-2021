@@ -4,7 +4,7 @@
 server {
     listen 80;
 
-    server_name www.usa.gov; 
+    server_name www.usa.gov;
 
     include /etc/nginx/partials/www_common.conf;
 }
@@ -24,7 +24,7 @@ server {
 server {
     listen 80;
 
-    server_name beta.usa.gov; 
+    server_name beta.usa.gov;
 
     return 301 https://www.usa.gov$request_uri;
 }
@@ -48,8 +48,8 @@ server {
     server_name beta-stage.usa.gov;
 
     include /etc/nginx/partials/www_common.conf;
-    
-    # Only www.usa.gov should be indexed. 
+
+    # Only www.usa.gov should be indexed.
     add_header X-Robots-Tag noindex;
 }
 
@@ -61,7 +61,7 @@ server {
 
     include /etc/nginx/partials/www_common.conf;
 
-    # Only www.usa.gov should be indexed. 
+    # Only www.usa.gov should be indexed.
     add_header X-Robots-Tag noindex;
 
     ### We might want to add something like this back. There were problems with it that weren't fully understood
@@ -77,8 +77,8 @@ server {
     server_name beta-dev.usa.gov;
 
     include /etc/nginx/partials/www_common.conf;
-    
-    # Only www.usa.gov should be indexed. 
+
+    # Only www.usa.gov should be indexed.
     add_header X-Robots-Tag noindex;
 }
 
@@ -90,7 +90,7 @@ server {
 
     include /etc/nginx/partials/www_common.conf;
 
-    # Only www.usa.gov should be indexed. 
+    # Only www.usa.gov should be indexed.
     add_header X-Robots-Tag noindex;
 
     ### We might want to add something like this back. There were problems with it that weren't fully understood
