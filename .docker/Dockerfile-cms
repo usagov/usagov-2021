@@ -268,7 +268,7 @@ RUN chmod -R +x /etc/periodic \
     && echo >> /etc/motd \
     && cp /etc/motd /var/www/web/version.txt \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh \
-    && echo "alias tll='less $(ls -tr *.log | tail -1)'" > /etc/profile.d/usagov-aliases.sh
+    && echo "alias tll='tail -f \$(ls -tr *.log | tail -1)'" > /etc/profile.d/usagov-aliases.sh
 
 EXPOSE 80
 
