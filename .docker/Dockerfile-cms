@@ -273,8 +273,8 @@ RUN chmod -R +x /etc/periodic \
     && echo >> /etc/motd \
     && cp /etc/motd /var/www/web/version.txt \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh \
-    && sed -i -e 's|USERID=""|USERID="${USPS_USERID}"|g' /var/www/web/themes/custom/usagov/script/accessibility.js \
-    && sed -i -e 's|PASSWORD=""|PASSWORD="${USPS_PASSWORD}"|g' /var/www/web/themes/custom/usagov/script/accessibility.js
+    && sed -i -e 's|USPSUSERID|$USPS_USERID|g' /var/www/web/themes/custom/usagov/scripts/accessibility.js \
+    && sed -i -e 's|USPSPASSWORD|$USPS_PASSWORD|g' /var/www/web/themes/custom/usagov/scripts/accessibility.js
 
 EXPOSE 80
 
