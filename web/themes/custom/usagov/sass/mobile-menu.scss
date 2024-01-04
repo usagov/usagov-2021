@@ -69,7 +69,7 @@ ul.navigation__items {
   align-items: center;
   background: transparent;
   border: 0;
-  color: black;
+  color: $off-black;
   font-weight: bold;
   font-size: larger;
   text-decoration: none;
@@ -78,17 +78,19 @@ ul.navigation__items {
   height: auto;
 }
 
-.usagov-mobile-menu-controls a img {
-  padding: 0.16rem;
-  margin: 0.1rem;
-  border: 3px solid black;
+
+.usagov-mobile-menu-controls a svg {
+  border: 3px solid $off-black;
   border-radius: 100%;
   height: 2.16rem;
+  width: 2.16rem;
+  margin: 0.1rem;
+  padding: 0.16rem;
 }
 
-.usagov-mobile-menu-controls button img {
+.usagov-mobile-menu-controls button svg {
   height: 2.5rem;
-  width: auto;
+  width: 2.5rem;
 }
 
 .usagov-mobile-menu .usa-nav__secondary-links {
