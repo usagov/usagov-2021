@@ -1,13 +1,13 @@
 # See "Adding custom Caddy modules" here:
 # https://hub.docker.com/_/caddy
 
-FROM caddy:2.6-builder AS builder
+FROM caddy:2.7-builder AS builder
 
 ARG GOARCH=amd64
 RUN xcaddy build \
     --with github.com/caddyserver/forwardproxy@caddy2
 
-FROM caddy:2.6-alpine
+FROM caddy:2.7-alpine
 
 RUN apk update
 RUN apk upgrade
