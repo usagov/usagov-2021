@@ -22,11 +22,27 @@ then
     exit 1
 fi
 
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/includes ]; then
+  . $SCRIPT_DIR/includes
+fi
+
 # just testing?
 if [ x$1 == x"--dryrun" ]; then
   export echo=echo
   shift
 fi
+
+needsDisabled=0
+if ! isSpaceSSHEnabled $startspace; then
+  enableSpaceSSH $startspace
+  if [ "$?" -ne "0" ]; then
+      assertSpaceSSHEnabled $startspace
+  fi
+  needsDisabled=1
+fi
+
+TOME_DISABLED_STATE=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled")
 
 DEPLOY_TAG=${1}
 TO_SPACE=$(cf target | grep space: | awk '{ print $2 }')
@@ -82,7 +98,12 @@ echo  aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --ac
 echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
 $echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
 
+if [ x$TOME_DISABLED_STATE = x0 ]; then
+  # Enable tome and exit maintenance mode
+  echo  $SCRIPT_DIR/../deploy/try-tome-enable
+  $echo $SCRIPT_DIR/../deploy/try-tome-enable
+fi
 
-# Enable tome and exit maintenance mode
-echo  $SCRIPT_DIR/../deploy/try-tome-enable
-$echo $SCRIPT_DIR/../deploy/try-tome-enable
+if [ $needsDisabled != 0 ]; then
+   cf disallow-space-ssh $startspace
+fi
