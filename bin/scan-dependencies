@@ -1,7 +1,7 @@
 #!/bin/sh
 
 usage="
-$0: Spins up snyk container and tests dependancies.
+$0: Spins up snyk container and tests dependencies.
 
 Usage:
    $0 -h
@@ -23,7 +23,7 @@ fi
 
 THRESHOLD=${1:-low}
 
-# snyk are not signing their images, so turn off DOCKER_CONTENT_TRUST here. 
+# snyk are not signing their images, so turn off DOCKER_CONTENT_TRUST here.
 docker run --disable-content-trust -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v "$(pwd)/composer.json:/app/composer.json" \

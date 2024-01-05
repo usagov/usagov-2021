@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 usage="
-$0: Pushes a local a backup of a database to current environment.
+$0: Pushes a local a backup of a database to current environment's backup storage.
 
 Usage:
    $0 -h

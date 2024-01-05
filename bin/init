@@ -13,11 +13,10 @@ NOTES:
 This is what the script does:
 1. Figures out what OS it's running on.
 2. Gets the BUID and BGID.
-3. Special stuff for M1 macs.
-4. Builds containers.
-5. Fixes container permissions.
-6. Installs Drupal modules.
-7. Builds theme.
+3. Builds containers.
+4. Fixes container permissions.
+5. Installs Drupal modules.
+6. Builds theme.
 "
 
 PREAMBLE=$( pwd -P )/bin/includes/preamble.sh

@@ -13,17 +13,19 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-# just testing?
-if [ "$1" == "--dryrun" ]; then
-  echo=echo
-  dryrun=$1
-  shift
-fi
+if [ -n "$1" ]; then
+  # just testing?
+  if [ "$1" == "--dryrun" ]; then
+    echo=echo
+    dryrun=$1
+    shift
+  fi
 
-# Define "usage" in the script to use help text.
-if [ -n "$usage" ]; then
-  if [[ "$1" == "-h" ]]; then
-      echo "${usage}"
-      exit 1
+  # Define "usage" in the script to use help text.
+  if [ -n "$usage" ]; then
+    if [[ "$1" == "-h" ]]; then
+        echo "${usage}"
+        exit 1
+    fi
   fi
 fi

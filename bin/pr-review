@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage="
-$0: Creates standalone container for reviewing a PR.
+$0: Creates standalone container for reviewing a PR. DOES NOT CURRENTLY WORK.
 
 Usage:
    $0 -h

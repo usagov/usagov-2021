@@ -1,7 +1,7 @@
 #!/bin/sh
 
 usage="
-$0: Pull public files from the current targeted space's S3 bucket to a temporary local directory.
+$0: Gets the encryption configuration of the $S3_BUCKET bucket in the current space, for example, \"AES256\".
 
 Usage:
    $0 -h
@@ -36,6 +36,6 @@ echo "AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY" >> $(pwd)/.aws/env
 echo "BUCKET_NAME=$S3_BUCKET" >> $(pwd)/.aws/env
 echo "AWS_DEFAULT_REGION=$S3_REGION" >> $(pwd)/.aws/env
 
-# pull down files excluding cached versions of css, js, and templates
+# get the encryption configuration of the $S3_BUCKET bucket in the current space
 docker run --rm -it --env-file=$(pwd)/.aws/env -v $(pwd)/s3/local/cms/public:/aws \
   amazon/aws-cli:latest s3api get-bucket-encryption --bucket $S3_BUCKET --output json

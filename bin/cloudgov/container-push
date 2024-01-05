@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage="
-$0: Pushes built container to Docker Hub.
+$0: Pushes built cms and waf containers to Docker Hub.
 
 Usage:
    $0 -h
