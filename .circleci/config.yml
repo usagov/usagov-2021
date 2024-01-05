@@ -197,7 +197,7 @@ commands:
 jobs:
   scan-code:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -234,7 +234,7 @@ jobs:
           command: |
             # build a fresh docker-bench-security container
             cd /tmp/
-            git clone --depth 1 --branch v1.6.0 https://github.com/docker/docker-bench-security.git
+            git clone --depth 1 https://github.com/docker/docker-bench-security.git
             cd /tmp/docker-bench-security
             docker build --no-cache -t docker-bench-security .
             # use the fresh container to scan
@@ -286,7 +286,7 @@ jobs:
 
   build-and-push-container:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -346,7 +346,7 @@ jobs:
           command: |
             # build a fresh docker-bench-security container
             cd /tmp/
-            git clone --depth 1 --branch v1.6.0 https://github.com/docker/docker-bench-security.git
+            git clone --depth 1 https://github.com/docker/docker-bench-security.git
             cd /tmp/docker-bench-security
             docker build --no-cache -t docker-bench-security .
       - run:
@@ -546,6 +546,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1310-update-circleci-machine-images
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -555,6 +556,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1310-update-circleci-machine-images
       - approve-dev-deployment:
           type: approval
           requires:
