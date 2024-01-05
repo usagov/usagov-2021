@@ -565,6 +565,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1310-update-circleci-machine-images
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
