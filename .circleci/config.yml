@@ -197,7 +197,7 @@ commands:
 jobs:
   scan-code:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2004:202107-02
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
