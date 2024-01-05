@@ -573,6 +573,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1310-update-circleci-machine-images
       - approve-stage-deployment:
           type: approval
           requires:
