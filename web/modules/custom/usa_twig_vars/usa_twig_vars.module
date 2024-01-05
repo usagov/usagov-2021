@@ -101,7 +101,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           $usa_twig_vars['front'] = $isFront;
           $usa_twig_vars['nodetype'] = $nodetype;
           $usa_twig_vars['pagetype'] = usa_twig_vars_get_page_type($node);
-          $usa_twig_vars['datalayer_pagetype'] = $usa_twig_vars['pagetype'] == 'Standard Page' ? 'Content Page': $usa_twig_vars['pagetype'];
+          $usa_twig_vars['datalayer_pagetype'] = $usa_twig_vars['pagetype'] == 'Standard Page' ? 'Content Page' : $usa_twig_vars['pagetype'];
           $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
           $usa_twig_vars['meta_noindex'] = $noindex;
           unset($isFront);
