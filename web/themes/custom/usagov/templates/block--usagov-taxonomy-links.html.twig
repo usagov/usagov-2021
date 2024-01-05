@@ -9,10 +9,39 @@
 #}
 {% set nodeID = node.nid[0].value %}
 {% set path = drupal_url('node/'~nodeID) %}
+{% set url = path|render|render %}
 {% set links = content['#links'] %}
+{% set stateName = node.title[0].value %}
 {# Since six entries are wanted, we'll probably need a "for i in 0..5" loop #}
 {# see https://twig.symfony.com/doc/3.x/tags/for.html #}
 {# Code is not indented to keep proper formatting when viewing page source for datalayer #}
+{% if '/states/' in url %}
+"Taxonomy_Text_1": "Home",
+      "Taxonomy_Text_2": "About the U.S. and its government",
+      "Taxonomy_Text_3": "State governments",
+      "Taxonomy_Text_4": "{{ stateName }}",
+      "Taxonomy_Text_5": "{{ stateName }}",
+      "Taxonomy_Text_6": "{{ stateName }}"
+      "Taxonomy_Text_1": "/",
+      "Taxonomy_Text_2": "/about-the-us",
+      "Taxonomy_Text_3": "/state-governments",
+      "Taxonomy_Text_4": "{{ path }}",
+      "Taxonomy_Text_5": "{{ path }}",
+      "Taxonomy_Text_6": "{{ path }}"
+{% elseif  '/agencies/' in url %}
+"Taxonomy_Text_1": "Home",
+      "Taxonomy_Text_2": "About the U.S. and its government",
+      "Taxonomy_Text_3": "A-Z index of U.S. government departments and agencies",
+      "Taxonomy_Text_4": "{{ stateName }}",
+      "Taxonomy_Text_5": "{{ stateName }}",
+      "Taxonomy_Text_6": "{{ stateName }}"
+      "Taxonomy_Text_1": "/",
+      "Taxonomy_Text_2": "/about-the-us",
+      "Taxonomy_Text_3": "/agency-index",
+      "Taxonomy_Text_4": "{{ path }}",
+      "Taxonomy_Text_5": "{{ path }}",
+      "Taxonomy_Text_6": "{{ path }}"
+{% else %}
 
 {% set listLimit = 5 %}
 {% set counter = 0 %}
@@ -21,7 +50,11 @@
 {% if links[i] %}
 {% set link = links[i] %}
 {% endif %}
+{% if counter < 6 %}
       "Taxonomy_Text_{{ counter }}": "{{ link.getText() }}",
+{% else %}
+      "Taxonomy_Text_{{ counter }}": "{{ link.getText() }}"
+{% endif %}
 {% endfor %}
 {% set counter = 0 %}
 {% for i in 0..listLimit %}
@@ -29,7 +62,10 @@
 {% if links[i] and links[i].getUrl().toString() %}
 {% set link = links[i] %}
       "Taxonomy_URL_{{ counter }}": "{{ link.getUrl() }}",
-{% else %}
+{% elseif counter < 6 %}
       "Taxonomy_URL_{{ counter }}": "{{ path }}",
+{% else %}
+      "Taxonomy_URL_{{ counter }}": "{{ path }}"
 {% endif %}
 {% endfor %}
+{% endif %}
