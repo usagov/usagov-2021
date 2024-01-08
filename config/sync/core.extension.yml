@@ -56,8 +56,8 @@ module:
   media_library: 0
   menu_block: 0
   menu_breadcrumb: 0
-  menu_link_content: 0
   menu_entity_index: 0
+  menu_link_content: 0
   menu_ui: 0
   mysql: 0
   node: 0

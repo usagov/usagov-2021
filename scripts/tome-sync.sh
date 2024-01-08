@@ -219,20 +219,28 @@ if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
 fi
 
 # Sometimes Tome generates an English mobile menu on the Spanish home page
-ES_HOME_CONTAINS_ENGLISH_MENU=`grep -c 'About us' $ES_HOME_HTML_FILE`
+ES_HOME_CONTAINS_ENGLISH_MENU=$(grep -c 'About us' $ES_HOME_HTML_FILE)
 if [ "$ES_HOME_CONTAINS_ENGLISH_MENU" != "0"  ]; then
   echo "WARNING: *** ES index.html appears to contain English nav ***" | tee -a $TOMELOG
   ES_HOME_HTML_BAD=1
 fi
 
+# Sometimes Tome generates an Spanish mobile menu on the English home page
+# "Navegaci&oacute;n" is the aria-label on the mobile nav (and the non-mobile nav, but we don't see this problem there)
+EN_HOME_CONTAINS_SPANISH_MENU=$(grep -c 'Navegaci&oacute;n' $EN_HOME_HTML_FILE)
+if [ "$EN_HOME_CONTAINS_SPANISH_MENU" != "0"  ]; then
+  echo "WARNING: *** EN index.html appears to contain Spanish nav ***" | tee -a $TOMELOG
+  EN_HOME_HTML_BAD=1
+fi
+
 # Check for the correct type of cards on the home page. (We can remove these checks if we don't
 # see this problem through, oh, 2023-07-30.)
-EN_HOME_CORRECT_CARDS=`grep -c 'homepage-card' $EN_HOME_HTML_FILE`
+EN_HOME_CORRECT_CARDS=$(grep -c 'homepage-card' $EN_HOME_HTML_FILE)
 if [ "$EN_HOME_CORRECT_CARDS" == "0" ]; then
   echo "WARNING: *** EN index.html lacks homepage cards ***" | tee -a $TOMELOG
   EN_HOME_HTML_BAD=1
 fi
-ES_HOME_CORRECT_CARDS=`grep -c 'homepage-card' $ES_HOME_HTML_FILE`
+ES_HOME_CORRECT_CARDS=$(grep -c 'homepage-card' $ES_HOME_HTML_FILE)
 if [ "$ES_HOME_CORRECT_CARDS" == "0" ]; then
   echo "WARNING: *** ES index.html lacks homepage cards ***" | tee -a $TOMELOG
   ES_HOME_HTML_BAD=1
@@ -248,6 +256,13 @@ fi
 if [ "$ES_HOME_HTML_BAD" == "1" ]; then
   # Delete the known-bad file; it may be re-created correctly on the next run.
   rm $ES_HOME_HTML_FILE
+  touch $RETRY_SEMAPHORE_FILE
+  TOME_PUSH_NEW_CONTENT=0
+fi
+
+if [ "$EN_HOME_HTML_BAD" == "1" ]; then
+  # Delete the known-bad file; it may be re-created correctly on the next run.
+  rm $EN_HOME_HTML_FILE
   touch $RETRY_SEMAPHORE_FILE
   TOME_PUSH_NEW_CONTENT=0
 fi
