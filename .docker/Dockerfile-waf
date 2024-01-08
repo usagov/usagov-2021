@@ -60,10 +60,6 @@ RUN set -eux; \
     ln -sv /opt/owasp-crs /etc/modsecurity.d;
 
 RUN set -eux; \
-    apk add --no-cache \
-    nginx-mod-http-lua
-
-RUN set -eux; \
     mkdir /var/log/modsecurity && \
     touch /var/log/modsecurity/modsec_audit.log;
 
