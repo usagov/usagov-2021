@@ -274,9 +274,11 @@ RUN chmod -R +x /etc/periodic \
     && cp /etc/motd /var/www/web/version.txt \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
 
-    RUN echo "Adding the USPS credentials..." \
-    && sed -i -e 's|USPSUSERID|something|g' /var/www/web/themes/custom/usagov/scripts/accessibility.js \
-    && sed -i -e 's|USPSPASSWORD|something|g' /var/www/web/themes/custom/usagov/scripts/accessibility.js
+RUN if [ -f /var/www/web/themes/custom/usagov/scripts/accessibility.js ] ; then echo "File found!" >> /tmp/usps ; else echo "File not found" >> /tmp/usps ; fi
+
+RUN echo "Adding the USPS credentials..." \
+    && sed -E -i "s|USERID_PLACEHOLDER|something|g" /var/www/web/themes/custom/usagov/scripts/usps-credentials.js \
+    && sed -E -i "s|PASSWORD_PLACEHOLDER|something|g" /var/www/web/themes/custom/usagov/scripts/usps-credentials.js
 
 EXPOSE 80
 
