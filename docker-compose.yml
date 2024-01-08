@@ -11,8 +11,6 @@ services:
         - BGID
         - HOST_ARCH
         - BUILD_ENV
-        - USPS_USERID
-        - USPS_PASSWORD
     ports:
       #- 8080:80
       #- 8443:443
