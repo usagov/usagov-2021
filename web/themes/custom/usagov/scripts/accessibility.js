@@ -191,7 +191,7 @@ async function handleFormSubmission() {
             document.getElementById(errorID).classList.remove("usa-error--alert");
 
             var message;
-            if(!field.value) {
+            if (!field.value) {
                 // Changing to use the error method specified in the CMS if available
                 var cmsError = document.getElementById(errorID);
                 if (cmsError) {
