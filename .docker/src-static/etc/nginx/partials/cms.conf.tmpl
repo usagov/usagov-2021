@@ -1,0 +1,29 @@
+
+# underscore catch-all allows this to work on local dockers because who knows what hostname local devs have setup
+
+server {
+    listen 80 default_server;
+
+    server_name ${CMS_HOST} _;
+
+    root   /var/www/web;
+
+    # CMS should not be indexed even if exposed.
+    add_header X-Robots-Tag noindex;
+
+    include partials/drupal.conf;
+}
+
+server {
+    listen 443 ssl;
+    include partials/ssl.conf;
+
+    server_name ${CMS_HOST} _;
+
+    root   /var/www/web;
+
+    # CMS should not be indexed even if exposed.
+    add_header X-Robots-Tag noindex;
+
+    include partials/drupal.conf;
+}

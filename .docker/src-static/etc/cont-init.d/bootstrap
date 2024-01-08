@@ -1,0 +1,4 @@
+#!/usr/bin/execlineb -P
+
+with-contenv
+/bin/sh -c "/var/www/scripts/bootstrap.sh 2>&1 | tee /tmp/bootstrap.log"
