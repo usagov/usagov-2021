@@ -86,14 +86,17 @@ const state_codes = {
     "Wyoming": "WY"
 };
 
+// This function makes the call to the USPS API and returns the response.
 async function addressUSPSValidation(streetAddress, city, state, zipCode) {
+    "use strict";
+    // USPS API Call
     const url = `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify \
     &XML=<AddressValidateRequest USERID="${USPS_USERID}" PASSWORD="${USPS_USERID}"><Address><Address1>\
     </Address1><Address2>${streetAddress}</Address2><City>${city}</City><State>${state}\
     </State><Zip5>${zipCode}</Zip5><Zip4></Zip4></Address></AddressValidateRequest>`;
 
     // If the zip code contains any letters or is less or more than 5 characters, it returns an error.
-    if(zipCode.length !== 5 || !(/^\d+$/.test(zipCode))) {
+    if (zipCode.length !== 5 || !(/^\d+$/.test(zipCode))) {
         return "Invalid Zip Code.";
     }
 
@@ -101,51 +104,51 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
         const response = await fetch(url);
 
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            return "USPS API not working.";
         }
-        const data = await response.text();
-        return data;
+
+        return await response.text();
     }
     catch (error) {
-        console.error(error);
+        return "USPS API not working.";
     }
 }
 
-// This function makes the call to the USPS API and returns the response.
+// This function analyzes the response received by the USPS API and returns the message that the user will see.
 function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCode) {
-
+    "use strict";
     let response = {
-        fieldID: "",
-        errorMessage: "",
-        streetAddress: responseText.slice(responseText.indexOf('<Address2>') + 10, responseText.indexOf('</Address2>')),
-        zipCode: responseText.slice(responseText.indexOf('<Zip5>') + 6, responseText.indexOf('</Zip5>')),
-        city: responseText.slice(responseText.indexOf('<City>') + 6, responseText.indexOf('</City>'))
-    }
+        "fieldID": "",
+        "errorMessage": "",
+        "streetAddress": responseText.slice(responseText.indexOf('<Address2>') + 10, responseText.indexOf('</Address2>')),
+        "zipCode": responseText.slice(responseText.indexOf('<Zip5>') + 6, responseText.indexOf('</Zip5>')),
+        "city": responseText.slice(responseText.indexOf('<City>') + 6, responseText.indexOf('</City>'))
+    };
 
-    if(responseText.includes("Invalid Address.")){
+    if (responseText.includes("Invalid Address.")) {
         response.fieldID = "street";
         response.errorMessage = document.documentElement.lang === "en" ? "Please enter a valid address." : "Por favor, escriba una dirección válida.";
     }
-    else if(responseText.includes("Address Not Found.")){
+    else if (responseText.includes("Address Not Found.")) {
         response.fieldID = "street";
         response.errorMessage = document.documentElement.lang === "en" ? "Address not found. Please enter a valid address." : "Dirección no encontrada. Por favor, escriba una dirección válida.";
     }
-    else if(responseText.includes("Invalid City.")){
+    else if (responseText.includes("Invalid City.")) {
         response.fieldID = "city";
         response.errorMessage = document.documentElement.lang === "en" ? "Please enter a valid city." : "Por favor, escriba una ciudad válida.";
     }
-    else if(responseText.includes("Invalid Zip Code.")){
+    else if (responseText.includes("Invalid Zip Code.")) {
         response.fieldID = "zip";
         response.errorMessage = document.documentElement.lang === "en" ? "Please enter a valid 5-digit ZIP code." : "Por favor, escriba un código postal válido de 5 dígitos.";
     }
 
-    if(response.streetAddress.toLowerCase() === userStreetAddress.toLowerCase() || !response.streetAddress){
+    if (response.streetAddress.toLowerCase() === userStreetAddress.toLowerCase() || !response.streetAddress) {
         response.streetAddress = userStreetAddress;
     }
-    if(response.city.toLowerCase() === userCity.toLowerCase() || !response.city){
+    if (response.city.toLowerCase() === userCity.toLowerCase() || !response.city) {
         response.city = userCity;
     }
-    if(response.zipCode.toLowerCase() === userZipCode.toLowerCase() || !response.zipCode){
+    if (response.zipCode.toLowerCase() === userZipCode.toLowerCase() || !response.zipCode) {
         response.zipCode = userZipCode;
     }
 
@@ -175,7 +178,7 @@ async function handleFormSubmission() {
         var errorID = "error-" + fieldID;
 
         // If the current field is empty, the error style is added.
-        if (!field.value || response.fieldID == fieldID) {
+        if (!field.value || response.fieldID === fieldID) {
             errorFound = true;
             test.push(fieldID + " missing");
 
@@ -239,7 +242,7 @@ async function handleFormSubmission() {
             // Hide the error message from the alert box.
             document.getElementById(errorID).classList.add("usa-error--alert");
 
-            if(field.previousElementSibling.id === "state"){
+            if (field.previousElementSibling.id === "state") {
                 // Arranges the drop-down arrow within the input field.
                 document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px";
                 document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px";
