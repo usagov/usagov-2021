@@ -121,12 +121,6 @@ ENV GITTAG ${GITTAG:-none}
 ARG CONTAINERTAG
 ENV CONTAINERTAG ${CONTAINERTAG:-none}
 
-ARG USPS_USERID
-ENV USPS_USERID ${USPS_USERID:-none}
-
-ARG USPS_PASSWORD
-ENV USPS_PASSWORD ${USPS_PASSWORD:-none}
-
 ARG BUID=1000
 ARG BGID=1000
 
@@ -273,12 +267,6 @@ RUN chmod -R +x /etc/periodic \
     && echo >> /etc/motd \
     && cp /etc/motd /var/www/web/version.txt \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
-
-RUN if [ -f /var/www/web/themes/custom/usagov/scripts/accessibility.js ] ; then echo "File found!" >> /tmp/usps ; else echo "File not found" >> /tmp/usps ; fi
-
-RUN echo "Adding the USPS credentials..." \
-    && sed -E -i "s|USERID_PLACEHOLDER|something|g" /var/www/web/themes/custom/usagov/scripts/usps-credentials.js \
-    && sed -E -i "s|PASSWORD_PLACEHOLDER|something|g" /var/www/web/themes/custom/usagov/scripts/usps-credentials.js
 
 EXPOSE 80
 
