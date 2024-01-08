@@ -324,3 +324,4 @@ content:
     third_party_settings: {  }
 hidden:
   field_is_navigation_page: true
+  menu_entity_index: true
