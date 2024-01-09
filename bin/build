@@ -22,5 +22,6 @@ if [ -n "${USPS_USERID}" ] && [ -n "${USPS_PASSWORD}" ]; then
     echo "USPS credentials added successfully!"
 else
     echo "No credentials found in the env."
+    echo "const error = 'No credentials found in the env.'" > ./web/themes/custom/usagov/scripts/usps-credentials.js
 fi
 

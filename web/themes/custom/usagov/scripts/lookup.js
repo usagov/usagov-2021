@@ -351,6 +351,8 @@ function renderResults(response, rawResponse) {
     gapi.client.setApiKey("AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A");
 }
 
+// This function is called when the user clicks the link inside the address suggestion alert box.
+// When the function is called, it will change the search values with the suggested address so that the user gets the new results.
 function resubmitForm() {
     'use strict';
     let searchParams = getSearchParams();
@@ -387,17 +389,19 @@ function load() {
     if (localStorage.getItem("formResubmitted") === "false") {
         // USPS Address Suggestions Translations
         const usps_suggestion_content = document.documentElement.lang === "en" ?
-            {
-                "suggestion-heading": "Address suggestion",
-                "suggestion-message": "We optimized the address you provided for accuracy:",
-                "suggestion-link-text": "Use this address for your search"
-            }
-            :
-            {
-                "suggestion-heading": "Dirección sugerida",
-                "suggestion-message": "Optimizamos la dirección que usted proporcionó para mayor precisión:",
-                "suggestion-link-text": "Utilizar esta dirección para la búsqueda"
-            };
+        {
+            "suggestion-heading": "Address suggestion",
+            "suggestion-message": "We optimized the address you provided for accuracy:",
+            "suggestion-link-text": "Use this address for your search"
+        }
+        :
+        {
+            "suggestion-heading": "Dirección sugerida",
+            "suggestion-message": "Optimizamos la dirección que usted proporcionó para mayor precisión:",
+            "suggestion-link-text": "Utilizar esta dirección para la búsqueda"
+        };
+
+        // USPS Address Suggestion Alert Box
         let suggestedAddress = localStorage.getItem("uspsStreetAddress") + ", " + localStorage.getItem("uspsCity") + ", " + inputState + " " + localStorage.getItem("uspsZipCode");
         let addressSuggestionAlert = document.createElement('div');
         addressSuggestionAlert.setAttribute('class', 'usa-alert usa-alert--info');
@@ -414,6 +418,8 @@ function load() {
                         </p>
                         </div>`;
 
+        // Adds the USPS address suggestion alert box above the "Your address:" section.
+        // Note: Make sure the "Your address:" header in the cms has the ID "address-heading".
         displayAddress.parentNode.parentNode.insertBefore(addressSuggestionAlert, document.getElementById("address-heading"));
 
     }
