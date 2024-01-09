@@ -1,0 +1,20 @@
+uuid: 52f28dc4-8888-425c-beef-f42bf2f64623
+langcode: en
+status: false
+dependencies:
+  module:
+    - system
+  theme:
+    - usagov
+id: usagov_taxonomy_links
+theme: usagov
+region: breadcrumb
+weight: 0
+provider: null
+plugin: system_breadcrumb_block
+settings:
+  id: system_breadcrumb_block
+  label: 'Taxonomy links for [current-page:url:path]'
+  label_display: visible
+  provider: system
+visibility: {  }
