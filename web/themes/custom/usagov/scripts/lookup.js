@@ -41,9 +41,11 @@ function renderResults(response, rawResponse) {
     // an inline script in the page's Header HTML. The translations here are retained for backward compatibility.
     const backupTranslations = {
         "en": {
-            "error-fetch": "We're sorry. The elected officials search tool is not working right now. Please try again later.",
+            "error-fetch": "We're sorry. The Google Civic Information API that provides data for this tool is not working right now. Please try again later.",
+            "error-fetch-heading": "Data temporarily unavailable",
             "error-address": "There was a problem getting results for this address. Please check to be sure you entered a valid U.S. address.",
-            "levels": ["Federal officials", "State officials", "Local officials"],
+            "error-address-heading": "Invalid address",
+            "levels": ["Federal officials represent you and your state in Washington, DC.", "State officials represent you in your state capital.", "Local officials represent you in your county or city."],
             "party-affiliation": "Party affiliation",
             "address": "Address",
             "phone-number": "Phone number",
@@ -52,9 +54,11 @@ function renderResults(response, rawResponse) {
             "path-contact": "/elected-officials-email",
         },
         "es": {
-            "error-fetch": "Lo sentimos. El sistema de búsqueda de funcionarios electos no está funcionando. Por favor, intente de nuevo más tarde.",
+            "error-fetch": "Lo sentimos. Pero la API de información cívica de Google que provee los datos al sistema de búsqueda no está funcionando. Por favor, intente de nuevo más tarde.",
+            "error-fetch-heading": "Datos no disponibles temporalmente",
             "error-address": "Tuvimos problemas para obtener resultados con esta dirección. Por favor, verifique si ingresó una dirección válida en EE. UU.",
-            "levels": ["Funcionarios federales", "Funcionarios estatales", "Funcionarios locales"],
+            "error-address-heading": "Dirección incorrecta",
+            "levels": ["Funcionarios federales que le representan a usted y a su estado en Washington, DC.", "Funcionarios estatales que le representan en la capital de su estado.", "Funcionarios locales que le representan en su condado o ciudad."],
             "party-affiliation": "Afiliación de partido",
             "address": "Dirección",
             "phone-number": "Teléfono",
@@ -96,7 +100,13 @@ function renderResults(response, rawResponse) {
                 errorType = "error-fetch";
                 break;
         }
-        resultsDiv.appendChild(document.createTextNode(content[errorType]));
+        let h1 = document.getElementById("skip-to-h1");
+        let resultsSection = document.getElementById("resultsSection");
+        let intro = document.getElementsByClassName("usa-intro")[0];
+
+        h1.innerHTML = content[""+errorType+"-heading"];
+        resultsSection.innerHTML = "";
+        intro.innerHTML = content[errorType];
         dataLayer.push({
             'event': 'CEO API Error',
             'error type': errorType,
@@ -170,7 +180,7 @@ function renderResults(response, rawResponse) {
 
             var officialNumber = "Official #" + i;
             accordionHeaderButton.setAttribute("aria-controls", officialNumber);
-            accordionHeaderButton.innerHTML = response.officials[i].name + ", " + response.officials[i].office;
+            accordionHeaderButton.innerHTML =  response.officials[i].office + ", " + response.officials[i].name;
 
             accordionHeader.appendChild(accordionHeaderButton);
 
@@ -259,14 +269,19 @@ function renderResults(response, rawResponse) {
                     nextElem = document.createElement("li");
                     nextElem.classList.add("padding-bottom-2");
                     let socialOptions = {
-                        "twitter": "https://twitter.com/",
+                        "twitter": "https://x.com/",
                         "facebook": "https://facebook.com/",
                         "youtube": "https://youtube.com/",
                         "linkedin": "https://linkedin.com/in/"
                     };
                     let social = socials[j].type.toLowerCase();
                     if (social in socialOptions) {
-                        nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                        if (socials[j].type === "Twitter") {
+                            nextElem.innerHTML = `<div class="text-bold">X:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                        }
+                        else {
+                            nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+}
                     }
                     bulletList.appendChild(nextElem);
                 }

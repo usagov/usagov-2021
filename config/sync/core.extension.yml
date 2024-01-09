@@ -23,6 +23,7 @@ module:
   content_moderation: 0
   content_moderation_notifications: 0
   contextual: 0
+  csv_serialization: 0
   ctools: 0
   datetime: 0
   datetime_range: 0
@@ -55,6 +56,7 @@ module:
   media_library: 0
   menu_block: 0
   menu_breadcrumb: 0
+  menu_entity_index: 0
   menu_link_content: 0
   menu_ui: 0
   mysql: 0
@@ -68,6 +70,7 @@ module:
   redirect: 0
   remove_http_headers: 0
   responsive_image: 0
+  rest: 0
   s3fs: 0
   samlauth: 0
   serialization: 0
@@ -89,6 +92,10 @@ module:
   usa_content_moderation_notifications: 0
   usa_orphaned_entities: 0
   usa_translation: 0
+  usagov_benefit_finder: 0
+  usagov_benefit_finder_api: 0
+  usagov_benefit_finder_content: 0
+  usagov_benefit_finder_page: 0
   usagov_directories: 0
   usagov_login: 0
   usagov_sitemap: 0
@@ -100,6 +107,7 @@ module:
   uswds_paragraph_components: 0
   uswds_paragraph_components_breakpoints: 0
   uswds_paragraph_components_cards: 0
+  views_data_export: 0
   views_menu_children_filter: 0
   views_ui: 0
   viewsreference: 0
