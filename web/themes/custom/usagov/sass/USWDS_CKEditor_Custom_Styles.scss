@@ -43,7 +43,7 @@ html div.usa-accordion--bordered .usa-accordion__content {
   padding-bottom: 1rem!important;
 }
 
-.cke_widget_element.embedded-entity:empty:before {
+.cke_widget_element.embedded-entity:empty::before {
   content:'There is a hidden component on this page. To remove it, right-click this red box and select "cut."';
   display:block;
   padding: 3px;
