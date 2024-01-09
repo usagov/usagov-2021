@@ -43,10 +43,24 @@ $(".slides").slick({
       },
     },
   ],
+})
+.on("setPosition", function () {
+  "use strict";
+
+  resizeSlider();
 });
 
 var initSlide = getInitialSlide();
-console.log(`initSlide is ${initSlide}`);
+var slickHeight = $(".slick-track").outerHeight();
+
+function resizeSlider() {
+  "use strict";
+
+  $(".slick-track")
+    .find(".slick-slide .usa-card")
+    .css("height", slickHeight + "px");
+}
+
 $('.slides').slick('slickGoTo', initSlide);
 
 var carouselSlides = document.querySelector("#slides-list");
@@ -137,7 +151,6 @@ $(".slides").on(
   "afterChange",
   function (event, slick, currentSlide) {
     "use strict";
-    console.log(`afterChange event ${currentSlide}`);
     updateSessionStorage(currentSlide);
   }
 );

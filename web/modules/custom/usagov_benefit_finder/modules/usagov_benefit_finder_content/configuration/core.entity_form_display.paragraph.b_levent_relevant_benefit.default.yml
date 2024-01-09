@@ -1,0 +1,49 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.b_levent_relevant_benefit.field_b_body
+    - field.field.paragraph.b_levent_relevant_benefit.field_b_cta
+    - field.field.paragraph.b_levent_relevant_benefit.field_b_life_event_form
+    - field.field.paragraph.b_levent_relevant_benefit.field_b_link
+    - paragraphs.paragraphs_type.b_levent_relevant_benefit
+  module:
+    - text
+id: paragraph.b_levent_relevant_benefit.default
+targetEntityType: paragraph
+bundle: b_levent_relevant_benefit
+mode: default
+content:
+  field_b_body:
+    type: text_textarea
+    weight: 0
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_b_cta:
+    type: string_textfield
+    weight: 3
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_b_life_event_form:
+    type: options_select
+    weight: 1
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_b_link:
+    type: string_textfield
+    weight: 2
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

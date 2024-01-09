@@ -1,6 +1,8 @@
 #!/bin/sh
 
 TOME_MAX_CHANGE_ALLOWED=0.10
+TR_START_TIME=$(date -u +"%s")
+SCRIPT_PATH=$(dirname "$0")
 
 TOMELOGFILE=$1
 YMDHMS=$2
@@ -18,7 +20,9 @@ fi;
 # make sure there is a static site to sync
 STATIC_COUNT=$(ls /var/www/html/ | wc -l)
 if [ "$STATIC_COUNT" = "0" ]; then
-  echo "NO SITE TO SYNC"
+  MSG="NO SITE TO SYNC"
+  echo $MSG
+  $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "$MSG"
   exit 1;
 fi;
 
@@ -179,7 +183,9 @@ if [ "$TOME_TOO_MUCH" == "1" ]; then
   # send message, but continue on
   # write message to php log so newrelic will see it
 elif [ "$TOME_TOO_LITTLE" == "1" ]; then
-  echo "Tome static build failure - removing more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
+  MSG="Tome static build failure - removing more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)"
+  echo $MSG | tee -a $TOMELOG
+  $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "$MSG"
   TOME_PUSH_NEW_CONTENT=0
   # send message, and abort
   # write message to php log so newrelic will see it
@@ -213,20 +219,28 @@ if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
 fi
 
 # Sometimes Tome generates an English mobile menu on the Spanish home page
-ES_HOME_CONTAINS_ENGLISH_MENU=`grep -c 'About us' $ES_HOME_HTML_FILE`
+ES_HOME_CONTAINS_ENGLISH_MENU=$(grep -c 'About us' $ES_HOME_HTML_FILE)
 if [ "$ES_HOME_CONTAINS_ENGLISH_MENU" != "0"  ]; then
   echo "WARNING: *** ES index.html appears to contain English nav ***" | tee -a $TOMELOG
   ES_HOME_HTML_BAD=1
 fi
 
+# Sometimes Tome generates an Spanish mobile menu on the English home page
+# "Navegaci&oacute;n" is the aria-label on the mobile nav (and the non-mobile nav, but we don't see this problem there)
+EN_HOME_CONTAINS_SPANISH_MENU=$(grep -c 'Navegaci&oacute;n' $EN_HOME_HTML_FILE)
+if [ "$EN_HOME_CONTAINS_SPANISH_MENU" != "0"  ]; then
+  echo "WARNING: *** EN index.html appears to contain Spanish nav ***" | tee -a $TOMELOG
+  EN_HOME_HTML_BAD=1
+fi
+
 # Check for the correct type of cards on the home page. (We can remove these checks if we don't
 # see this problem through, oh, 2023-07-30.)
-EN_HOME_CORRECT_CARDS=`grep -c 'homepage-card' $EN_HOME_HTML_FILE`
+EN_HOME_CORRECT_CARDS=$(grep -c 'homepage-card' $EN_HOME_HTML_FILE)
 if [ "$EN_HOME_CORRECT_CARDS" == "0" ]; then
   echo "WARNING: *** EN index.html lacks homepage cards ***" | tee -a $TOMELOG
   EN_HOME_HTML_BAD=1
 fi
-ES_HOME_CORRECT_CARDS=`grep -c 'homepage-card' $ES_HOME_HTML_FILE`
+ES_HOME_CORRECT_CARDS=$(grep -c 'homepage-card' $ES_HOME_HTML_FILE)
 if [ "$ES_HOME_CORRECT_CARDS" == "0" ]; then
   echo "WARNING: *** ES index.html lacks homepage cards ***" | tee -a $TOMELOG
   ES_HOME_HTML_BAD=1
@@ -246,11 +260,20 @@ if [ "$ES_HOME_HTML_BAD" == "1" ]; then
   TOME_PUSH_NEW_CONTENT=0
 fi
 
+if [ "$EN_HOME_HTML_BAD" == "1" ]; then
+  # Delete the known-bad file; it may be re-created correctly on the next run.
+  rm $EN_HOME_HTML_FILE
+  touch $RETRY_SEMAPHORE_FILE
+  TOME_PUSH_NEW_CONTENT=0
+fi
+
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation and Sync Completed Successfully"
 else
   echo "Not pushing content to S3."
+  $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation Completed Successfully, but sync to S3 failed or was not attempted"
 fi
 
 if [ -d "$RENDER_DIR" ]; then
