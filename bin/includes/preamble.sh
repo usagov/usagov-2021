@@ -13,7 +13,8 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-if [ -n "$1" ]; then
+FIRST=${1:-}
+if [ -n "$FIRST" ]; then
   # just testing?
   if [ "$1" == "--dryrun" ]; then
     echo=echo

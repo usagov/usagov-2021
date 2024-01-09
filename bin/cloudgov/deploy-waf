@@ -17,7 +17,7 @@ CTAG:          Docker container tag (default: latest)
 CDIGEST:       Container digest
 
 NOTES:
-Docker user and pass arguments come from environment.
+Docker user and pass arguments come from environment.  Running without additional required environment parameters will provide an example set of said environment parameters.
 "
 
 PREAMBLE=$( pwd -P )/bin/includes/preamble.sh
