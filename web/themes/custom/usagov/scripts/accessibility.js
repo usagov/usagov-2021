@@ -29,6 +29,28 @@ const a11y_translations = {
 };
 let a11y_content = a11y_translations[document.documentElement.lang];
 
+/**
+ * Creating error messages so users know which fields need attention based on the USPS WebTools API results.
+ * Error messages are managed on CMS in the body element and element ID's are used to get the respective text.
+ * Used on page: find and contact elected officials
+ * usps_translations is used as fallback for pages where error message is not included in the CMS.
+ */
+const usps_translations = {
+    "en": {
+        "invalid-street": "Please enter a valid street address.",
+        "no-street": "Address not found. Please enter a valid address.",
+        "invalid-city": "City not found. Please enter a valid city.",
+        "invalid-zip": "Please enter a valid 5-digit ZIP code."
+    },
+    "es": {
+        "invalid-street": "Por favor, escriba una dirección válida.",
+        "no-street": "Dirección no encontrada. Por favor, escriba una dirección válida.",
+        "invalid-city": "Ciudad no encontrada. Por favor, escriba una ciudad válida.",
+        "invalid-zip": "Por favor, escriba un código postal válido de 5 dígitos."
+    }
+};
+let usps_content = usps_translations[document.documentElement.lang];
+
 // Changes state name to official postal abbreviations.
 // Note: The USPS API accepts the state name, but while testing, "Pennsylvania" returned an error in the API response.
 // To avoid this, we are going to use the official postal abbreviations.
@@ -125,23 +147,25 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
         "city": responseText.slice(responseText.indexOf('<City>') + 6, responseText.indexOf('</City>'))
     };
 
+    // Set error message and field.
     if (responseText.includes("Invalid Address.")) {
         response.fieldID = "street";
-        response.errorMessage = document.documentElement.lang === "en" ? "Please enter a valid address." : "Por favor, escriba una dirección válida.";
+        response.errorMessage = usps_content["invalid-street"];
     }
     else if (responseText.includes("Address Not Found.")) {
         response.fieldID = "street";
-        response.errorMessage = document.documentElement.lang === "en" ? "Address not found. Please enter a valid address." : "Dirección no encontrada. Por favor, escriba una dirección válida.";
+        response.errorMessage = usps_content["no-street"];
     }
     else if (responseText.includes("Invalid City.")) {
         response.fieldID = "city";
-        response.errorMessage = document.documentElement.lang === "en" ? "Please enter a valid city." : "Por favor, escriba una ciudad válida.";
+        response.errorMessage = usps_content["invalid-city"];
     }
     else if (responseText.includes("Invalid Zip Code.")) {
         response.fieldID = "zip";
-        response.errorMessage = document.documentElement.lang === "en" ? "Please enter a valid 5-digit ZIP code." : "Por favor, escriba un código postal válido de 5 dígitos.";
+        response.errorMessage = usps_content["invalid-zip"];;
     }
 
+    //
     if (response.streetAddress.toLowerCase() === userStreetAddress.toLowerCase() || !response.streetAddress) {
         response.streetAddress = userStreetAddress;
     }
@@ -298,6 +322,8 @@ async function handleFormSubmission() {
         'event': 'CEO_form_submit',
         'form_result': 'success'
     });
+
+    // Stores the suggested address for the address suggestion alert box.
     localStorage.setItem("uspsStreetAddress", response.streetAddress);
     localStorage.setItem("uspsCity", response.city);
     localStorage.setItem("uspsZipCode", response.zipCode);

@@ -383,19 +383,33 @@ function load() {
     let displayAddress = document.getElementById("display-address");
     displayAddress.innerHTML = DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"));
 
+    // Displays USPS address suggestions, if any.
     if (localStorage.getItem("formResubmitted") === "false") {
+        // USPS Address Suggestions Translations
+        const usps_suggestion_content = document.documentElement.lang === "en" ?
+            {
+                "suggestion-heading": "Address suggestion",
+                "suggestion-message": "We optimized the address you provided for accuracy:",
+                "suggestion-link-text": "Use this address for your search"
+            }
+            :
+            {
+                "suggestion-heading": "Dirección sugerida",
+                "suggestion-message": "Optimizamos la dirección que usted proporcionó para mayor precisión:",
+                "suggestion-link-text": "Utilizar esta dirección para la búsqueda"
+            };
         let suggestedAddress = localStorage.getItem("uspsStreetAddress") + ", " + localStorage.getItem("uspsCity") + ", " + inputState + " " + localStorage.getItem("uspsZipCode");
         let addressSuggestionAlert = document.createElement('div');
         addressSuggestionAlert.setAttribute('class', 'usa-alert usa-alert--info');
         addressSuggestionAlert.innerHTML = `<div class="usa-alert__body">
-                        <h4 class="usa-alert__heading">Address Suggestion</h4>
+                        <h4 class="usa-alert__heading">${usps_suggestion_content["suggestion-heading"]}</h4>
                         <p class="usa-alert__text">
-                            We've optimized the address you provided for accuracy:
+                            ${usps_suggestion_content["suggestion-message"]}
                             <p>
                                 ${DOMPurify.sanitize(suggestedAddress.replace(", ", "<br>"))}
                             </p>
                             <a class="usa-link" href='#skip-to-h1' onclick="resubmitForm()">
-                                Click here if you want to use this address for your search
+                                ${usps_suggestion_content["suggestion-link-text"]}
                             </a>
                         </p>
                         </div>`;
