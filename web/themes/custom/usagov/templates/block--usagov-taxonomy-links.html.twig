@@ -77,14 +77,22 @@
 {% if links[i] %}
 {% set link = links[i] %}
 {% endif %}
+{% if lang == "es" and counter == "1" %}
+      "Taxonomy_Text_{{ counter }}": "Página principal",
+{% else %}
       "Taxonomy_Text_{{ counter }}": "{{ link.getText() }}",
+{% endif %}
 {% endfor %}
 {% set counter = 0 %}
 {% for i in 0..listLimit %}
 {% set counter = counter + 1 %}
 {% if links[i] and links[i].getUrl().toString() %}
 {% set link = links[i] %}
+{% if lang == "es" and counter == "1" %}
+      "Taxonomy_URL_{{ counter }}": "{{ link.getUrl() }}/",
+{% else %}
       "Taxonomy_URL_{{ counter }}": "{{ link.getUrl() }}",
+{% endif %}
 {% elseif counter < 6 %}
       "Taxonomy_URL_{{ counter }}": "{{ path }}",
 {% else %}
