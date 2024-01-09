@@ -111,11 +111,6 @@ const state_codes = {
 // This function makes the call to the USPS API and returns the response.
 async function addressUSPSValidation(streetAddress, city, state, zipCode) {
     "use strict";
-    // USPS API Call
-    const url = `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify \
-    &XML=<AddressValidateRequest USERID="${USPS_USERID}" PASSWORD="${USPS_USERID}"><Address><Address1>\
-    </Address1><Address2>${streetAddress}</Address2><City>${city}</City><State>${state}\
-    </State><Zip5>${zipCode}</Zip5><Zip4></Zip4></Address></AddressValidateRequest>`;
 
     // If the zip code contains any letters or is less or more than 5 characters, it returns an error.
     if (zipCode.length !== 5 || !(/^\d+$/.test(zipCode))) {
@@ -123,6 +118,12 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
     }
 
     try {
+        // USPS API Call
+        const url = `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify \
+        &XML=<AddressValidateRequest USERID="${USPS_USERID}" PASSWORD="${USPS_USERID}"><Address><Address1>\
+        </Address1><Address2>${streetAddress}</Address2><City>${city}</City><State>${state}\
+        </State><Zip5>${zipCode}</Zip5><Zip4></Zip4></Address></AddressValidateRequest>`;
+
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -142,10 +143,18 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
     let response = {
         "fieldID": "",
         "errorMessage": "",
-        "streetAddress": responseText.slice(responseText.indexOf('<Address2>') + 10, responseText.indexOf('</Address2>')),
-        "zipCode": responseText.slice(responseText.indexOf('<Zip5>') + 6, responseText.indexOf('</Zip5>')),
-        "city": responseText.slice(responseText.indexOf('<City>') + 6, responseText.indexOf('</City>'))
+        "streetAddress": "",
+        "zipCode": "",
+        "city": ""
     };
+
+    let uspsStreetAddress = responseText.slice(responseText.indexOf('<Address2>') + 10, responseText.indexOf('</Address2>'));
+    let uspsZipCode = responseText.slice(responseText.indexOf('<Zip5>') + 6, responseText.indexOf('</Zip5>'));
+    let uspsCity = responseText.slice(responseText.indexOf('<City>') + 6, responseText.indexOf('</City>'));
+
+    if (responseText === "USPS API not working.") {
+        response.errorMessage = "USPS API not working.";
+    }
 
     // Set error message and field.
     if (responseText.includes("Invalid Address.")) {
@@ -166,14 +175,13 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
     }
 
     //
-    if (response.streetAddress.toLowerCase() === userStreetAddress.toLowerCase() || !response.streetAddress) {
-        response.streetAddress = userStreetAddress;
-    }
-    if (response.city.toLowerCase() === userCity.toLowerCase() || !response.city) {
-        response.city = userCity;
-    }
-    if (response.zipCode.toLowerCase() === userZipCode.toLowerCase() || !response.zipCode) {
-        response.zipCode = userZipCode;
+    if (uspsStreetAddress.toLowerCase() !== userStreetAddress.toLowerCase() ||
+        uspsCity.toLowerCase() !== userCity.toLowerCase() ||
+        uspsZipCode.toLowerCase() !== userZipCode.toLowerCase()) {
+
+        response.streetAddress = uspsStreetAddress;
+        response.city = uspsCity;
+        response.zipCode = uspsZipCode;
     }
 
     return response;
@@ -193,7 +201,7 @@ async function handleFormSubmission() {
     const zipCodeField = document.getElementById("input-zip");
     const formFields = [streetAddressField, cityField, stateField, zipCodeField];
 
-    // TO-DO: Analyze the response and decide if the address is valid or not.
+    // Analyze the response and decide if the address is valid or not.
     const uspsApiResponse = await addressUSPSValidation(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
     const response = uspsResponseParser(uspsApiResponse, streetAddressField.value, cityField.value, zipCodeField.value);
 
@@ -323,10 +331,22 @@ async function handleFormSubmission() {
         'form_result': 'success'
     });
 
-    // Stores the suggested address for the address suggestion alert box.
-    localStorage.setItem("uspsStreetAddress", response.streetAddress);
-    localStorage.setItem("uspsCity", response.city);
-    localStorage.setItem("uspsZipCode", response.zipCode);
+    if (response.errorMessage !== "USPS API not working." &&
+        response.streetAddress !== "" &&
+        response.city !== "" &&
+        response.zipCode !== "") {
+        // Stores the suggested address for the address suggestion alert box.
+        localStorage.setItem("uspsStreetAddress", response.streetAddress);
+        localStorage.setItem("uspsCity", response.city);
+        localStorage.setItem("uspsZipCode", response.zipCode);
+        localStorage.setItem("formResubmitted", false);
+    }
+    else {
+        localStorage.removeItem("uspsStreetAddress");
+        localStorage.removeItem("uspsCity");
+        localStorage.removeItem("uspsZipCode");
+        localStorage.removeItem("formResubmitted");
+    }
 
     document.getElementById("error-box").classList.add("usa-error--alert");
     document.getElementById("myform").submit();
