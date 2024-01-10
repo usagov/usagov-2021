@@ -87,6 +87,7 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary {
+  font-size: 1.1rem;
   border: 2px solid var($secondary-border-color);
 }
 
@@ -371,12 +372,6 @@ input:not([disabled]):focus.usa-user-error {
   max-width: 26rem;
 }
 
-/**
-#myform.usa-form .usa-input, #myform .usa-combo-box__input {
-  max-width: 20rem;
-}
-*/
-
 .ceo-button-container {
   display: flex;
 
@@ -638,8 +633,8 @@ a,
   }
 }
 
-// Remove the margin from the "Submit" button on the "Report a Problem" page.
-// This aligns the button to the left.
+// Style for the "Submit" button on the "Report a Problem" page.
+// Aligns the button to the left.
 #myform input.usa-button  {
   margin-left: 0;
 }
@@ -656,6 +651,10 @@ div div.field--name-field-offices-near-you {
 
 .color-off-black {
   color: var($off-black);
+}
+
+.usa-normal {
+  font-weight: normal;
 }
 
 [href]:focus, button:not([disabled]):focus, input:not([disabled]):focus,

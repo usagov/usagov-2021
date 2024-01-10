@@ -11,6 +11,7 @@ dependencies:
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
+    - field.field.node.basic_page.field_hero_links
     - field.field.node.basic_page.field_hide_page_intro
     - field.field.node.basic_page.field_homepage_banner
     - field.field.node.basic_page.field_homepage_top_links
@@ -52,6 +53,18 @@ content:
       format_custom_true: ''
     third_party_settings: {  }
     weight: 6
+    region: content
+  field_hero_links:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 7
     region: content
   field_homepage_banner:
     type: entity_reference_entity_view
