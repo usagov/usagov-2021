@@ -657,3 +657,23 @@ div div.field--name-field-offices-near-you {
 .color-off-black {
   color: var($off-black);
 }
+
+.usa-normal {
+  font-weight: normal;
+}
+
+[href]:focus, button:not([disabled]):focus, input:not([disabled]):focus,
+.usa-footer__secondary-link a:focus, .usa-form a:focus, .usa-alert__text a:focus,
+.block-wizardenglish a.usa-button:focus, button#prior.usa-button--outline:focus,
+button#next.usa-button:focus {
+  outline: 0.2rem solid $white-inner-focus; /* inner indicator */
+  outline-offset: 0;
+  box-shadow: 0 0 0 7px $blue-outer-focus; /* outer indicator */
+  display: inline-block;
+}
+
+.homepage-card:focus-within, .block-wizardenglish [tabindex]:focus, .usa-radio__input:focus, .slick-dots>li>button>.slick-dot-icon:focus {
+  outline: 0.25rem solid $blue-outer-focus; /* inner indicator */
+  outline-offset: 0;
+}
+
