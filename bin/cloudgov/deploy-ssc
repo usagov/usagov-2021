@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+#
+# This script will attempt to deploy an ssc app by tag
+#
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+DOCKERUSER=${DOCKERUSER:-gsatts}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+STAG=${1:-latest}
+SDIGEST=${2:-}
+
+APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
+APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
+
+# The Image digest for this tag should be looked up from cloud.gov storage
+# Any tag with a stored Image digest should be referenced by hash instead of tag
+
+function appExists {  # appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  echo cf app $app > /dev/null 2>&1
+  cf app $app > /dev/null 2>&1
+  return $?
+}
+
+function restartApp { #appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  cf restart $app --no-wait --strategy rolling
+}
+
+function pushApp { #appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+
+  instances="-i 1"
+  if [ "$APP_SPACE" == "prod" ]; then
+    instances="-i 2"
+  elif [ "$APP_SPACE" == "stage" ]; then
+    instances="-i 1"
+  elif [ "$APP_SPACE" == "dev" ]; then
+    instances="-i 1"
+  fi
+
+  if [ -z "$SDIGEST" ]; then
+    echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG}"
+    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG}
+  else
+    echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${STAG} via digest ${SDIGEST}"
+    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${SDIGEST}
+  fi
+}
+
+function setupRoutes { #appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  # the egress-setup doesn't interfere with bootstrapping
+  # but cms needs to exist in the first place
+  # for route mapping and egress setup to run
+
+  #if [ "$APP_SPACE" != "dev-dr" ]; then
+  #  cf create-route apps.internal --hostname ssc-$APP_SPACE-usagov
+  #  cf map-route $app apps.internal --hostname ssc-$APP_SPACE-usagov
+  ##else
+  ##  cf create-route apps.internal --hostname shared-egress-dr-usagov
+  ##  cf map-route $app apps.internal --hostname shared-egress-dr-usagov
+  ##  cf create-route apps.internal --hostname dev-dr-usagov
+  ##  cf map-route $app apps.internal --hostname dev-dr-usagov
+  ##
+  ##  cf create-route usa.gov --hostname shared-egress-dr
+  ##  cf map-route $app usa.gov --hostname shared-egress-dr    
+  ##  cf create-route usa.gov --hostname dev-dr
+  ##  cf map-route $app usa.gov --hostname dev-dr
+  ##fi
+  ##
+  ##if [ "$APP_SPACE" == "prod" ]; then
+  ##  cf create-route apps.internal --hostname www-$APP_SPACE-usagov
+  ##  cf map-route $app apps.internal --hostname www-$APP_SPACE-usagov
+  ##  cf create-route usa.gov --hostname cms
+  ##  cf map-route $app usa.gov --hostname cms
+  ##  cf create-route usa.gov --hostname beta
+  ##  cf map-route $app usa.gov --hostname beta
+  ##  cf create-route usa.gov --hostname www
+  ##  cf map-route $app usa.gov --hostname www
+  ##else
+  ##  cf create-route usa.gov --hostname cms-$APP_SPACE
+  ##  cf map-route $app usa.gov --hostname cms-$APP_SPACE
+  ##  cf create-route usa.gov --hostname beta-$APP_SPACE
+  ##  cf map-route $app usa.gov --hostname beta-$APP_SPACE
+  ##
+  fi
+}
+
+function setupEgress { #appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
+}
+
+function setupNewrelic { #appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart
+}
+
+if appExists cms; then
+  setupRoutes cms
+#  setupEgress cms
+  setupNewrelic cms
+  pushApp cms
+else
+  cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
+  pushApp cms
+  setupRoutes cms
+#  setupEgress cms
+  setupNewrelic cms
+  cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
+  restartApp cms
+fi

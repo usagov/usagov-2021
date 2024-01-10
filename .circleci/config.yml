@@ -34,6 +34,15 @@ commands:
               echo
             fi
       - run:
+          name: CloudGov Deploy Static Site Traffic Handler
+          command: |
+            export NEW_RELIC_APP_NAME="ssc-<< parameters.envname >>;USA.gov"
+            export NEW_RELIC_DISPLAY_NAME=usa-ssc-<< parameters.envname >>
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-ssc << pipeline.number >> $SSC_DIGEST
+      - run:
           name: CloudGov Deploy WAF
           command: |
             export NEW_RELIC_APP_NAME="WAF-<< parameters.envname >>;USA.gov"
@@ -55,15 +64,19 @@ commands:
           command: |
             (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>)
             (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>)
+            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:ssc-<< pipeline.number >>)
             CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
+            SSC_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:ssc-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
             . ./bin/cloudgov/get-s3-access key-value
             echo "$CMS_DIGEST" > /tmp/results/cms_digest
             echo "$WAF_DIGEST" > /tmp/results/waf_digest
+            echo "$SSC_DIGEST" > /tmp/results/ssc_digest
             aws s3 cp /tmp/results/cms_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >>
             aws s3 cp /tmp/results/waf_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >>
+            aws s3 cp /tmp/results/ssc_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/ssc-<< pipeline.number >>
 
   load-image-digest:
     steps:
@@ -76,11 +89,14 @@ commands:
             export CMS_DIGEST=""
             export WAF_DIGEST=""
             if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >> ./cms-image-digest; then export CMS_DIGEST="@"$(cat ./cms-image-digest); fi
-            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest); fi
+            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest); fi;
+            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/ssc-<< pipeline.number >> ./ssc-image-digest; then export SSC_DIGEST="@"$(cat ./ssc-image-digest); fi
             export CMS_DIGEST=$CMS_DIGEST
             export WAF_DIGEST=$WAF_DIGEST
+            export SSC_DIGEST=$SSC_DIGEST
             echo 'export CMS_DIGEST='"$CMS_DIGEST" | tee -a $BASH_ENV
             echo 'export WAF_DIGEST='"$WAF_DIGEST" | tee -a $BASH_ENV
+            echo 'export SSC_DIGEST='"$SSC_DIGEST" | tee -a $BASH_ENV
 
   install-cloud-foundry:
     steps:
