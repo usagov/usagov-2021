@@ -672,6 +672,10 @@ button#next.usa-button:focus {
   display: inline-block;
 }
 
+#slides-list .slick-dots li button:focus {
+  box-shadow: 0 0 0 0 $blue-outer-focus; /* outer indicator */
+}
+
 .homepage-card:focus-within, .block-wizardenglish [tabindex]:focus, .usa-radio__input:focus, .slick-dots>li>button>.slick-dot-icon:focus {
   outline: 0.25rem solid $blue-outer-focus; /* inner indicator */
   outline-offset: 0;
