@@ -154,6 +154,7 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
 
     if (responseText === "USPS API not working.") {
         response.errorMessage = "USPS API not working.";
+        return response;
     }
 
     // Set error message and field.
