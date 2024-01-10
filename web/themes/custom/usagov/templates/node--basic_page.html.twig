@@ -83,13 +83,26 @@
 
 {# field_navigation_banner_image #}
 {% if term_name == "Life Events" or term_name == "Life Events Landing Page" or term_name == "Navigation Cards Page"%}
+	{% set lang = node.langcode.value %}
 	{% if node.field_navigation_banner_image.value %}
 		{% set image_uri = node.field_navigation_banner_image|file_uri %}
 		{% if image_uri is not null %}
 			<section class="usa-hero usagov-hero{{ term_name == 'Navigation Cards Page' ? '' : ' le-image' }}" aria-label="Introduction" style="background-image: url({{ file_url(image_uri|image_style('webp')) }})">
-			{% if term_name == "Life Events" or term_name == "Life Events Landing Page" %}
+				{% if term_name == "Life Events" or term_name == "Life Events Landing Page" %}
+					</section>
+				{% else %}
+				<div class="grid-container">
+					<div class="usa-hero__callout usagov-hero__callout">
+						<h2 class="usa-hero__heading"><span class="usa-hero__heading--alt">{{ lang == 'es' ? 'Lo más popular' : 'Most popular' }}</h2>
+						<ul>
+							{% for link in node.field_hero_links %}
+								<li><a href="{{ link.url }}">{{link.title}}</a></li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
 				</section>
-			{% endif %}
+				{% endif %}
 		{% endif %}
 	{% endif %}
 {% endif %}
