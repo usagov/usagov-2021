@@ -73,6 +73,7 @@ module:
   rest: 0
   s3fs: 0
   samlauth: 0
+  sdc: 0
   serialization: 0
   settings_tray: 0
   simple_sitemap: 0
