@@ -669,7 +669,11 @@ button#next.usa-button:focus {
   outline: 0.2rem solid $white-inner-focus; /* inner indicator */
   outline-offset: 0;
   box-shadow: 0 0 0 7px $blue-outer-focus; /* outer indicator */
-  display: inline-block;
+  // display: inline-block;
+}
+
+#extended-logo [href]:focus, .usa-footer__secondary-link a:focus, .usa-hero__callout [href]:focus {
+  display: flex;
 }
 
 #slides-list .slick-dots li button:focus {
