@@ -28,16 +28,17 @@ i.e.
 @use "usagov-variables" as *;
 
 @forward "carousel";
-@forward "sidenav";
-@forward "navigation-page";
 @forward "content-page";
-@forward "homepage";
-@forward "mobile-menu";
-@forward "life-events";
 @forward "fed-directory";
-@forward "state-directory";
 @forward "footer";
 @forward "../components/searchbar/searchbar";
+@forward "header";
+@forward "homepage";
+@forward "life-events";
+@forward "mobile-menu";
+@forward "navigation-page";
+@forward "sidenav";
+@forward "state-directory";
 
 .text-red {
   color: var($red);
@@ -65,8 +66,6 @@ i.e.
   }
 }
 
-
-
 .usa-sidenav__sublist a:not(.usa-button) {
   padding-left: 2.3rem;
 }
@@ -89,6 +88,7 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary {
+  font-size: 1.1rem;
   border: 2px solid var($secondary-border-color);
 }
 
@@ -511,79 +511,12 @@ a,
   color: var($dark-gray);
 }
 
-.usa-breadcrumb__list-item{
+.usa-breadcrumb__list-item {
   line-height: 1.5;
 }
 
 a {
   color: var($text-blue);
-}
-
-#block-betabanner .usa-alert--info,
-#block-betaspanishbanner .usa-alert--info {
-  // These styles are needed to position the alert icon
-  &::before {
-    display: none;
-  }
-
-  .usa-alert__body {
-    position: relative;
-
-    &::before {
-      background: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
-      width: 2rem;
-      content: "";
-      display: block;
-      height: 2.4rem;
-      position: absolute;
-      left: 1.3rem;
-      top: -0.6rem;
-      background-color: var($off-black);
-      mask: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
-      background-size: 1.5rem;
-
-      // height: 2.5rem;
-      // width: 1.5rem;
-      mask-size: 1.5rem;
-
-      @media (max-width: 1022px) {
-        left: 0.4rem;
-      }
-    }
-  }
-}
-
-#block-emergencyheaderbanner .usa-alert--error {
-  // These styles are needed to position the alert icon
-  &::before {
-    display: none;
-  }
-
-  .usa-alert__body {
-    position: relative;
-
-    &::before {
-      background: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
-      width: 2rem;
-      content: "";
-      display: block;
-      height: 3.5rem;
-      position: absolute;
-      left: 1.6rem;
-      top: -0.6rem;
-      background-color: var($off-black);
-      mask: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
-      background-size: 1.5rem;
-
-      // height: 2.5rem;
-      // width: 1.5rem;
-      mask-size: 1.5rem;
-
-      @media (max-width: 1022px) {
-        left: 0.4rem;
-      }
-    }
-  }
 }
 
 #block-usagov-content .font-serif-lg {
@@ -698,7 +631,6 @@ div #sm-share a {
   display: block;
 }
 
-
 // error styles for elected officials
 
 .usa-error {
@@ -743,12 +675,6 @@ input:not([disabled]):focus.usa-user-error {
 #myform div.maxw-mobile {
   max-width: 26rem;
 }
-
-/**
-#myform.usa-form .usa-input, #myform .usa-combo-box__input {
-  max-width: 20rem;
-}
-*/
 
 .ceo-button-container {
   display: flex;
@@ -904,8 +830,6 @@ button.usa-combo-box__toggle-list:focus {
   opacity: 1;
 }
 
-
-
 // BEGIN Page Level Survey extra CSS
 #pagesurvey-trgt-qualtrics {
   background: white;
@@ -949,12 +873,6 @@ div[class^="QSIUserDefinedHTML"] {
 
 // END Page Level Survey extra CSS
 
-// government banner
-.usa-banner__header-text,
-.usa-banner__header-action {
-  line-height: 1.5;
-}
-
 .usa-prose p,
 .usa-prose li,
 .usa-prose a {
@@ -997,22 +915,32 @@ div[class^="QSIUserDefinedHTML"] {
   overflow: hidden;
 }
 
-[hidden="until-found"]{
+[hidden="until-found"] {
   display: revert-layer;
   border: 0 !important;
   padding: 0 !important;
 }
 
-p, a, .usa-label, .usa-radio__label {
+p,
+a,
+.usa-label,
+.usa-radio__label {
   line-height: 1.5;
 }
 
 
 #myform .usa-button {
   margin-left: 4rem;
+
   @media (max-width: 30em) {
     margin-left: .4rem;
   }
+}
+
+// Style for the "Submit" button on the "Report a Problem" page.
+// Aligns the button to the left.
+#myform input.usa-button  {
+  margin-left: 0;
 }
 
 .usa-form div.maxw-mobile p {
@@ -1021,7 +949,7 @@ p, a, .usa-label, .usa-radio__label {
   }
 }
 
-div div.field--name-field-offices-near-you{
+div div.field--name-field-offices-near-you {
   display: inline;
 }
 
@@ -1055,5 +983,24 @@ div div.field--name-field-offices-near-you{
 
 .color-off-black{
   color: var($off-black);
+}
+
+.usa-normal {
+  font-weight: normal;
+}
+
+[href]:focus, button:not([disabled]):focus, input:not([disabled]):focus,
+.usa-footer__secondary-link a:focus, .usa-form a:focus, .usa-alert__text a:focus,
+.block-wizardenglish a.usa-button:focus, button#prior.usa-button--outline:focus,
+button#next.usa-button:focus {
+  outline: 0.2rem solid $white-inner-focus; /* inner indicator */
+  outline-offset: 0;
+  box-shadow: 0 0 0 7px $blue-outer-focus; /* outer indicator */
+  display: inline-block;
+}
+
+.homepage-card:focus-within, .block-wizardenglish [tabindex]:focus, .usa-radio__input:focus, .slick-dots>li>button>.slick-dot-icon:focus {
+  outline: 0.25rem solid $blue-outer-focus; /* inner indicator */
+  outline-offset: 0;
 }
 
