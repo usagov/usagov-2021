@@ -16,7 +16,7 @@
     {% for item in items %}
         {% set url = item.content["#url"] %}
         <div class="grid-row flex-justify-center maxw-mobile margin-x-auto margin-top-6">
-            <a id="WizardStartButton" class="usa-button usa-button--secondary" href="{{url}}#block-usagov-content" role="button">
+            <a id="WizardStartButton" class="usa-button usa-button--secondary usa-button--big" href="{{url}}#block-usagov-content" role="button">
                 {% if element["#language"] == "en" %}
                 Find the right place to report a scam
                 {% elseif element["#language"] == "es" %}
