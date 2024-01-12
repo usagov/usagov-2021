@@ -661,11 +661,20 @@ div div.field--name-field-offices-near-you {
 [href]:focus, button:not([disabled]):focus, input:not([disabled]):focus,
 .usa-footer__secondary-link a:focus, .usa-form a:focus, .usa-alert__text a:focus,
 .block-wizardenglish a.usa-button:focus, button#prior.usa-button--outline:focus,
-button#next.usa-button:focus {
+button#next.usa-button:focus, .usa-radio__input:focus+[class*=__label]::before, .Skin label.q-radio:focus,
+.Skin #Buttons #NextButton:focus, .Skin #Buttons #PreviousButton:focus, [tabindex]:focus {
   outline: 0.2rem solid $white-inner-focus; /* inner indicator */
   outline-offset: 0;
   box-shadow: 0 0 0 7px $blue-outer-focus; /* outer indicator */
-  display: inline-block;
+  // display: inline-block;
+}
+
+#extended-logo [href]:focus, .usa-footer__secondary-link a:focus, .usa-hero__callout [href]:focus {
+  display: flex;
+}
+
+#slides-list .slick-dots li button:focus {
+  box-shadow: 0 0 0 0 $blue-outer-focus; /* outer indicator */
 }
 
 .homepage-card:focus-within, .block-wizardenglish [tabindex]:focus, .usa-radio__input:focus, .slick-dots>li>button>.slick-dot-icon:focus {
