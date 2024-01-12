@@ -126,13 +126,16 @@ ul.navigation__items {
 
 @media (max-width: 63.99em) {
 
+  // Make the header sticky for devices with a screen size less than or equal to 1024px.
   .usa-header {
+    // For Safari
     position: -webkit-sticky;
+    // For other browsers
     position: sticky;
+
     background: #fff;
     width: 100%;
     z-index: 500;
-    top: -27.1953px;
   }
 
   .usa-nav.is-visible, .usa-navbar>.usa-nav__secondary {
@@ -149,11 +152,5 @@ ul.navigation__items {
     width: auto;
     right: 60px;
     top: 4px;
-  }
-}
-
-@media (max-width: 480px) {
-  .usa-header {
-    top: -56.3906px;
   }
 }
