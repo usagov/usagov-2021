@@ -122,7 +122,19 @@ ul.navigation__items {
     display: none;
   }
 }
+
+
 @media (max-width: 63.99em) {
+
+  .usa-header {
+    position: -webkit-sticky;
+    position: sticky;
+    background: #fff;
+    width: 100%;
+    z-index: 7000;
+    top: -27.1953px;
+  }
+
   .usa-nav.is-visible, .usa-navbar>.usa-nav__secondary {
     display: none;
   }
@@ -137,5 +149,11 @@ ul.navigation__items {
     width: auto;
     right: 60px;
     top: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .usa-header {
+    top: -56.3906px;
   }
 }
