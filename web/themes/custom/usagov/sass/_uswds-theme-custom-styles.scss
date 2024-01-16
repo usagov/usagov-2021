@@ -245,7 +245,8 @@ a {
   .text-primary-lighter,
   .usa-hero,
   .usa-identifier,
-  .usa-label {
+  .usa-label,
+  .usa-description {
     font-size: 1.1rem;
   }
 }
@@ -620,10 +621,32 @@ div[class^="QSIUserDefinedHTML"] {
 p,
 a,
 .usa-label,
+.usa-description,
 .usa-radio__label {
   line-height: 1.5;
 }
 
+// Style of the description used for the input field of a form.
+.usa-description {
+  @include typeset(
+    $theme-form-font-family,
+    $theme-body-font-size,
+    $theme-input-line-height
+  );
+  display: block;
+  font-weight: font-weight("normal");
+  margin-top: 0.5rem;
+  max-width: units($theme-input-max-width);
+}
+
+.usa-input-textarea {
+  height: auto;
+}
+
+.recaptcha-container {
+  @extend .ceo-button-container;
+  margin-bottom: 1em;
+}
 
 #myform .usa-button {
   margin-left: 4rem;
