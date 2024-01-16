@@ -1,56 +1,95 @@
-<div id="emlfnd">
+<div id="emlfnd" class="padding-1px bg-gray-4">
 	<form action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8" class="validate" id="myform" method="post" name="myform">
-		<input type="hidden" name="captcha_settings" value='{"keyname":"Recaptcha_FCIC","fallback":"true","orgId":"00DU0000000Leux","ts":""}'/>
-		<input type="hidden" name="orgid" value="00DU0000000Leux"/>
-		<input type="hidden" name="retURL" value="https://www.usa.gov/thank-you-issue-report"/>
-		<input name="recordType" type="hidden" value="012U00000001eYv"/>
-		<input name="Sender_IP__c" type="hidden" value="192.168.1.1"/>
-		<input name="Site_Version__c" type="hidden" value="New"/>
-		<input name="Call_Topic__c" type="hidden" value="About USAGov"/>
-		<input name="Case_Topic_Other__c" type="hidden" value="From USAGov Issue Form"/>
-		<input name="Gender__c" type="hidden" value="Unknown"/>
-		<p>
-			Please complete the fields below.
-			<strong>All fields are required.</strong>
-		</p>
-		<p class="required">
-			<label id="label_name" for="00NU0000004z90C">First name</label>
-			<input aria-required="true" data-error="Error: Please enter your first name" data-name="First Name" id="00NU0000004z90C" maxlength="255" name="00NU0000004z90C" size="40" type="text"/>
-		</p>
-		<p class="required">
-			<label id="label_email" for="email">Email address</label>
-			<input aria-required="true" data-error="Error: Please enter a valid email address" data-name="Email Address" id="email" maxlength="80" name="email" size="40" type="email"/>
-		</p>
-		<p class="required">
-			<label id="label_description" for="description" class="dscrptn">Describe the issue here. Please include the web address (URL) of the page with the problem.</label>
-		</p>
-		<p class="required">
-			<textarea aria-required="true" type="text" id="description" cols="40" rows="10" maxlength="1000" name="description" data-name="Description" data-error="Error: Please enter an issue description."></textarea>
-		</p>
+		<div class="padding-1px bg-gray-4">
+      		<div class="maxw-mobile margin-x-auto margin-y-4">
+				<input type="hidden" name="captcha_settings" value='{"keyname":"Recaptcha_FCIC","fallback":"true","orgId":"00DU0000000Leux","ts":""}'/>
+				<input type="hidden" name="orgid" value="00DU0000000Leux"/>
+				<input type="hidden" name="retURL" value="https://www.usa.gov/thank-you-issue-report"/>
+				<input name="recordType" type="hidden" value="012U00000001eYv"/>
+				<input name="Sender_IP__c" type="hidden" value="192.168.1.1"/>
+				<input name="Site_Version__c" type="hidden" value="New"/>
+				<input name="Call_Topic__c" type="hidden" value="About USAGov"/>
+				<input name="Case_Topic_Other__c" type="hidden" value="From USAGov Issue Form"/>
+				<input name="Gender__c" type="hidden" value="Unknown"/>
+				<p>
+					Please complete the fields below.
+					<strong>All fields are required.</strong>
+				</p>
+				<p class="required usa-form-spacing">
+					<label id="label_name" class="usa-label" for="00NU0000004z90C">First name</label>
+					<span id="error-name" class="errors usa-error">Please enter your first name</span>
+					<input
+						aria-required="true"
+						class="usa-input"
+						id="00NU0000004z90C"
+						name="00NU0000004z90C"
+						data-name="First Name"
+						type="text"
+						required
+						maxlength="255"
+						size="40"
+					/>
+				</p>
 
-		<p>Maximum length is 1000 characters.</p>
+				<p class="required usa-form-spacing">
+					<label id="label_email" class="usa-label" for="email">Email address</label>
+					<span id="error-email" class="errors usa-error">Please enter a valid email address</span>
+					<input
+						aria-required="true"
+						class="usa-input"
+						id="email"
+						name="email"
+						data-name="Email Address"
+						type="email"
+						required
+						maxlength="80"
+						size="40"
+					/>
+				</p>
 
-		<div style="visibility: hidden; z-index: 2" class="_e725ae-textarea_btn _e725ae-anonymous _e725ae-not_focused" data-grammarly-reactid=".0">
-			<div class="_e725ae-transform_wrap" data-grammarly-reactid=".0.0">
-				<div title="Protected by Grammarly" class="_e725ae-status" data-grammarly-reactid=".0.0.0">
-					&nbsp;
+				<p class="required usa-form-spacing">
+					<label id="label_description" class="usa-label dscrptn" for="description">Describe the issue here. Please include the web address (URL) of the page with the problem.</label>
+					<span id="error-description" class="errors usa-error"></span>
+					<textarea
+						aria-required="true"
+						class="usa-input usa-input-textarea usa-user-error"
+						id="description"
+						name="description"
+						data-name="Description"
+						type="text"
+						cols="40"
+						rows="10"
+						maxlength="1000"
+						required
+						oninvalid="this.setCustomValidity('Fill out the street field.')" oninput="this.setCustomValidity('')"
+					></textarea>
+					<text class="usa-description">Maximum length is 1000 characters.</text>
+				</p>
+
+				<div style="visibility: hidden; z-index: 2" class="_e725ae-textarea_btn _e725ae-anonymous _e725ae-not_focused" data-grammarly-reactid=".0">
+					<div class="_e725ae-transform_wrap" data-grammarly-reactid=".0.0">
+						<div title="Protected by Grammarly" class="_e725ae-status" data-grammarly-reactid=".0.0.0">
+							&nbsp;
+						</div>
+					</div>
+					<span class="_e725ae-btn_text" data-grammarly-reactid=".0.1">Not signed in</span>
+				</div>
+
+				<input type="hidden" id="external" name="external" value="1"/>
+
+				<div class="recaptcha-container">
+					<div class="g-recaptcha ceo-button" title="reCAPCHA" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
+				</div>
+				<p style="display: none; visibility: hidden" class="extrainfo visually-hidden">
+					<label for="00Nt0000000FsTK">Please ignore this box.</label>
+					<input id="00Nt0000000FsTK" maxlength="255" name="00Nt0000000FsTK" size="20" type="text"/>
+				</p>
+
+				<div class="ceo-button-container">
+					<input class="usa-button usa-button--secondary usa-button--big ceo-button" type="submit" name="submit" value="Submit" onclick="return submitPressed();"/>
 				</div>
 			</div>
-			<span class="_e725ae-btn_text" data-grammarly-reactid=".0.1">Not signed in</span>
 		</div>
-
-		<input type="hidden" id="external" name="external" value="1"/>
-
-		<div class="g-recaptcha" title="reCAPCHA" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
-
-		<p style="display: none; visibility: hidden" class="extrainfo visually-hidden">
-			<label for="00Nt0000000FsTK">Please ignore this box.</label>
-			<input id="00Nt0000000FsTK" maxlength="255" name="00Nt0000000FsTK" size="20" type="text"/>
-		</p>
-
-		<p>
-			<input class="usa-button usa-button--secondary usa-button--big" type="submit" name="submit" value="Submit" onclick="return submitPressed();"/>
-		</p>
 	</form>
 </div>
 <p class="clearfix">&nbsp;</p>
