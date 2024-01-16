@@ -1,5 +1,11 @@
 <div id="emlfnd" class="padding-1px bg-gray-4">
-	<form action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8" class="validate" id="myform" method="post" name="myform">
+	<form
+		action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8"
+		class="validate"
+		id="myform"
+		method="post"
+		name="myform"
+		novalidate>
 		<div class="padding-1px bg-gray-4">
       		<div class="maxw-mobile margin-x-auto margin-y-4">
 				<input type="hidden" name="captcha_settings" value='{"keyname":"Recaptcha_FCIC","fallback":"true","orgId":"00DU0000000Leux","ts":""}'/>
@@ -17,7 +23,6 @@
 				</p>
 				<p class="required usa-form-spacing">
 					<label id="label_name" class="usa-label" for="00NU0000004z90C">First name</label>
-					<span id="error-name" class="errors usa-error">Please enter your first name</span>
 					<input
 						aria-required="true"
 						class="usa-input"
@@ -25,15 +30,16 @@
 						name="00NU0000004z90C"
 						data-name="First Name"
 						type="text"
-						required
 						maxlength="255"
 						size="40"
+						required
+						data-error="Please enter your first name."
+						data-name="First Name"
 					/>
 				</p>
 
 				<p class="required usa-form-spacing">
 					<label id="label_email" class="usa-label" for="email">Email address</label>
-					<span id="error-email" class="errors usa-error">Please enter a valid email address</span>
 					<input
 						aria-required="true"
 						class="usa-input"
@@ -41,18 +47,19 @@
 						name="email"
 						data-name="Email Address"
 						type="email"
-						required
 						maxlength="80"
 						size="40"
+						required\
+						data-error="Please enter a valid email address."
+						data-name="Email Address"
 					/>
 				</p>
 
 				<p class="required usa-form-spacing">
 					<label id="label_description" class="usa-label dscrptn" for="description">Describe the issue here. Please include the web address (URL) of the page with the problem.</label>
-					<span id="error-description" class="errors usa-error"></span>
 					<textarea
 						aria-required="true"
-						class="usa-input usa-input-textarea usa-user-error"
+						class="usa-input usa-input-textarea"
 						id="description"
 						name="description"
 						data-name="Description"
@@ -61,7 +68,8 @@
 						rows="10"
 						maxlength="1000"
 						required
-						oninvalid="this.setCustomValidity('Fill out the street field.')" oninput="this.setCustomValidity('')"
+						data-error="Please enter an issue description."
+						data-name="Description"
 					></textarea>
 					<text class="usa-description">Maximum length is 1000 characters.</text>
 				</p>

@@ -626,6 +626,7 @@ a,
   line-height: 1.5;
 }
 
+// Report an issue page Style
 // Style of the description used for the input field of a form.
 .usa-description {
   @include typeset(
@@ -648,18 +649,17 @@ a,
   margin-bottom: 1em;
 }
 
+.err-label-captcha {
+  @extend .usa-error;
+  text-align: center;
+}
+
 #myform .usa-button {
   margin-left: 4rem;
 
   @media (max-width: 30em) {
     margin-left: .4rem;
   }
-}
-
-// Style for the "Submit" button on the "Report a Problem" page.
-// Aligns the button to the left.
-#myform input.usa-button  {
-  margin-left: 0;
 }
 
 .usa-form div.maxw-mobile p {
