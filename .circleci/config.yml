@@ -565,7 +565,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1300-redirects-for-benefits-tool
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
