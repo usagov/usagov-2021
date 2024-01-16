@@ -14,25 +14,29 @@
           (input.attr("id") === "email" && !validateEmail(input.val()))
         ) {
           noerrors = false;
-          if (!$(this).find("p.err-label").length) {
+          if (!$(this).find("span.err-label").length) {
             var error = input.attr("data-error");
             var errorId = "error_" + input.attr("id");
             var label = $(this).find("label");
             label.after(
-              '<p id="' +
+              '<span id="' +
                 errorId +
-                '" class="err-label" tabindex="0">' +
+                '" class="err-label usa-error" tabindex="0">' +
                 error +
-                "</p>"
+                "</span>"
             );
             input.attr("aria-labelledby", label.attr("id") + " " + errorId);
           }
+
+          document.getElementById(input.attr("id")).classList.add("usa-user-error");
+
         }
- else if ($(this).find("p.err-label").length) {
-          $(this).find("p.err-label").remove();
-          // input.removeAttribute('aria-labelledby');
+        else if ($(this).find("span.err-label").length) {
+          $(this).find("span.err-label").remove();
+          document.getElementById(input.attr("id")).classList.remove("usa-user-error");
         }
       });
+
       if (!noerrors) {
         var elem = document.querySelector(".err-label");
         elem.focus();
@@ -67,19 +71,19 @@ var submitPressed = function () {
   if (grecaptcha.getResponse().length === 0) {
     if ($(".err-label-captcha").length < 1) {
       if ($("html").attr("lang") === "en") {
-        $(".g-recaptcha").before(
+        $(".recaptcha-container").before(
           '<p class="err-label err-label-captcha" tabindex="0">Please fill out the reCaptcha</p>'
         );
       }
- else {
-        $(".g-recaptcha").before(
+      else {
+        $(".recaptcha-container").before(
           '<p class="err-label err-label-captcha" tabindex="0">Por favor, complete el reCaptcha</p>'
         );
       }
     }
-    return false;
+    return true; // FIX BEFORE PR. THIS IS FOR TESTING IN LOCAL
   }
- else {
+  else {
     $(".err-label-captcha").remove();
   }
   return true;
