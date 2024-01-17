@@ -626,7 +626,7 @@ a,
   line-height: 1.5;
 }
 
-// Report an issue page Style
+// "Report an issue" page style
 // Style of the description used for the input field of a form.
 .usa-description {
   @include typeset(
@@ -640,30 +640,41 @@ a,
   max-width: units($theme-input-max-width);
 }
 
+// Fix the height of the "Describe the issue" field.
 .usa-input-textarea {
   height: auto;
 }
 
+// Alignment of recaptcha error message and recaptcha box.
 .recaptcha-container {
   @extend .ceo-button-container;
   margin-bottom: 1em;
   flex-direction: column;
 }
 
-.recaptcha-alignment {
-  margin-top: 0.5rem;
-  display: flex;
-  justify-content: center;
-}
-
-.recaptcha-outline-padding {
-  padding: 5px;
-}
-
+// Centers the recaptcha error message
 .err-label-captcha {
   @extend .usa-error;
   text-align: center;
 }
+
+// Centers the recaptcha box
+.recaptcha-alignment {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+// Add a space between the recaptcha box and the error outline.
+.recaptcha-outline-padding {
+  padding: 5px;
+}
+
+.issue-button {
+  @extend .ceo-button;
+  margin-top: 1.5rem;
+}
+// End of "Report an issue" page style
 
 #myform .usa-button {
   margin-left: 4rem;

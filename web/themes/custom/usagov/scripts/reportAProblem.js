@@ -66,27 +66,33 @@ function timestamp() {
 
 setInterval(timestamp, 500);
 
+// This function runs every time the "Submit" button is pressed on the "Report an issue" page.
 var submitPressed = function () {
   "use strict";
   if (grecaptcha.getResponse().length === 0) {
+    // Check if reCaptcha is checked.
     if ($(".err-label-captcha").length < 1) {
       if ($("html").attr("lang") === "en") {
+        // Adds an english error message before the captcha box.
         $(".recaptcha-alignment").before(
           '<span class="err-label err-label-captcha" tabindex="0">Please fill out the reCaptcha</span>'
         );
       }
       else {
+        // Adds a spanish error message before the captcha box.
         $(".recaptcha-alignment").before(
           '<span class="err-label err-label-captcha" tabindex="0">Por favor, complete el reCaptcha</span>'
         );
       }
+      // Adds the error outline to the reCaptcha box.
       document.getElementsByClassName("recaptcha-outline-padding")[0].classList.add("usa-user-error");
 
     }
-    return true; // FIX BEFORE PR. THIS IS FOR TESTING IN LOCAL
+    return false;
   }
   else {
-    // $(".recaptcha-outline-padding").classList.remove("usa-user-error");
+    // Removes the error style from the reCaptcha.
+    document.getElementsByClassName("recaptcha-outline-padding")[0].classList.remove("usa-user-error");
     $(".err-label-captcha").remove();
   }
   return true;
