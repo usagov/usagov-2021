@@ -1,4 +1,4 @@
-FROM owasp/modsecurity-crs
+FROM owasp/modsecurity-crs@sha256:94c67e36f8c48553b4e51378579f6afc818a5d9d2e0c6e09cf846913ee9fac31
 #FROM owasp/modsecurity@sha256:7c431a99ead2e765860fd0c3d7d42573119734497837d4172565b8c08e114ddb
 
 LABEL maintainer="USA.gov Web Ops"
