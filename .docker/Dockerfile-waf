@@ -37,8 +37,8 @@ ENV APP_NAME=USAGov \
     MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000
 
 COPY src-waf/docker-entrypoint-waf.sh /
-COPY src-waf/etc/ /etc/
-COPY src-waf/opt/ /opt/
+#COPY src-waf/etc/ /etc/
+#COPY src-waf/opt/ /opt/
 
 RUN apk upgrade --update && \
     apk add vim \
