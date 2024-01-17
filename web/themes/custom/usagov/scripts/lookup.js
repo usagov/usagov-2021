@@ -45,7 +45,7 @@ function renderResults(response, rawResponse) {
             "error-fetch-heading": "Data temporarily unavailable",
             "error-address": "There was a problem getting results for this address. Please check to be sure you entered a valid U.S. address.",
             "error-address-heading": "Invalid address",
-            "levels": ["Federal officials represent you and your state in Washington, DC.", "State officials represent you in your state capital.", "Local officials represent you in your county or city."],
+            "levels": ["Federal officials <span class='usa-normal'>represent you and your state in Washington, DC.</span>", "State officials <span class='usa-normal'>represent you in your state capital.</span>", "Local officials <span class='usa-normal'>represent you in your county or city.</span>"],
             "party-affiliation": "Party affiliation",
             "address": "Address",
             "phone-number": "Phone number",
@@ -58,7 +58,7 @@ function renderResults(response, rawResponse) {
             "error-fetch-heading": "Datos no disponibles temporalmente",
             "error-address": "Tuvimos problemas para obtener resultados con esta dirección. Por favor, verifique si ingresó una dirección válida en EE. UU.",
             "error-address-heading": "Dirección incorrecta",
-            "levels": ["Funcionarios federales que le representan a usted y a su estado en Washington, DC.", "Funcionarios estatales que le representan en la capital de su estado.", "Funcionarios locales que le representan en su condado o ciudad."],
+            "levels": ["Funcionarios federales <span class='usa-normal'>que le representan a usted y a su estado en Washington, DC.</span>", "Funcionarios estatales <span class='usa-normal'>que le representan en la capital de su estado.</span>", "Funcionarios locales <span class='usa-normal'>que le representan en su condado o ciudad.</span>"],
             "party-affiliation": "Afiliación de partido",
             "address": "Dirección",
             "phone-number": "Teléfono",
@@ -248,7 +248,7 @@ function renderResults(response, rawResponse) {
                 if (cleanLink[cleanLink.length - 1] === "/") {
                     cleanLink = cleanLink.slice(0, -1);
                 }
-                let link=`<a href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
+                let link=`<a class="ceoLink" href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
                 // link.innerHTML = cleanLink;
 
                 nextElem = document.createElement("li");
@@ -351,12 +351,31 @@ function renderResults(response, rawResponse) {
     gapi.client.setApiKey("AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A");
 }
 
+// This function is called when the user clicks the link inside the address suggestion alert box.
+// When the function is called, it will change the search values with the suggested address so that the user gets the new results.
+function resubmitForm() {
+    'use strict';
+    let searchParams = getSearchParams();
+    localStorage.setItem("formResubmitted", true);
+
+    var inputStreet = localStorage.getItem("uspsStreetAddress");
+    var inputCity = localStorage.getItem("uspsCity");
+    var inputZip = localStorage.getItem("uspsZipCode");
+
+    searchParams.set('input-street', inputStreet);
+    searchParams.set('input-city', inputCity);
+    searchParams.set('input-zip', inputZip);
+
+    window.location.search = searchParams.toString();
+}
+
 /**
  * Process form data, display the address, and search for elected officials.
  */
 function load() {
     "use strict";
     let searchParams = getSearchParams();
+
     let inputStreet = searchParams.get('input-street');
     let inputCity = searchParams.get('input-city');
     let inputState = searchParams.get('input-state');
@@ -365,6 +384,45 @@ function load() {
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
     let displayAddress = document.getElementById("display-address");
     displayAddress.innerHTML = DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"));
+
+    // Displays USPS address suggestions, if any.
+    if (localStorage.getItem("formResubmitted") === "false") {
+        // USPS Address Suggestions Translations
+        const usps_suggestion_content = document.documentElement.lang === "en" ?
+        {
+            "suggestion-heading": "Address suggestion",
+            "suggestion-message": "We optimized the address you provided for accuracy:",
+            "suggestion-link-text": "Use this address for your search"
+        }
+        :
+        {
+            "suggestion-heading": "Dirección sugerida",
+            "suggestion-message": "Optimizamos la dirección que usted proporcionó para mayor precisión:",
+            "suggestion-link-text": "Utilizar esta dirección para la búsqueda"
+        };
+
+        // USPS Address Suggestion Alert Box
+        let suggestedAddress = localStorage.getItem("uspsStreetAddress") + ", " + localStorage.getItem("uspsCity") + ", " + inputState + " " + localStorage.getItem("uspsZipCode");
+        let addressSuggestionAlert = document.createElement('div');
+        addressSuggestionAlert.setAttribute('class', 'usa-alert usa-alert--info');
+        addressSuggestionAlert.innerHTML = `<div class="usa-alert__body">
+                        <h4 class="usa-alert__heading">${usps_suggestion_content["suggestion-heading"]}</h4>
+                        <p class="usa-alert__text">
+                            ${usps_suggestion_content["suggestion-message"]}
+                            <p>
+                                ${DOMPurify.sanitize(suggestedAddress.replace(", ", "<br>"))}
+                            </p>
+                            <a class="usa-link" href='#skip-to-h1' onclick="resubmitForm()">
+                                ${usps_suggestion_content["suggestion-link-text"]}
+                            </a>
+                        </p>
+                        </div>`;
+
+        // Adds the USPS address suggestion alert box above the "Your address:" section.
+        // Note: Make sure the "Your address:" header in the cms has the ID "address-heading".
+        displayAddress.parentNode.parentNode.insertBefore(addressSuggestionAlert, document.getElementById("address-heading"));
+
+    }
 
     lookup(normalizedAddress, renderResults);
 }
