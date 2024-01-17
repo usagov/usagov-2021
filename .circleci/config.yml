@@ -33,16 +33,6 @@ commands:
               echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
               echo
             fi
-      - run:
-          name: CloudGov Deploy Static Site Traffic Handler
-          command: |
-            export NEW_RELIC_APP_NAME="ssc-<< parameters.envname >>;USA.gov"
-            export NEW_RELIC_DISPLAY_NAME=usa-ssc-<< parameters.envname >>
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
-            ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-ssc << pipeline.number >> $SSC_DIGEST
-      - run:
           name: CloudGov Deploy WAF
           command: |
             export NEW_RELIC_APP_NAME="WAF-<< parameters.envname >>;USA.gov"
