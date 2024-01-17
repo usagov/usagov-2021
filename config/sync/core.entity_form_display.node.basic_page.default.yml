@@ -11,6 +11,7 @@ dependencies:
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
+    - field.field.node.basic_page.field_hero_links
     - field.field.node.basic_page.field_hide_page_intro
     - field.field.node.basic_page.field_homepage_banner
     - field.field.node.basic_page.field_homepage_top_links
@@ -125,6 +126,33 @@ content:
       allowed_formats:
         hide_help: '1'
         hide_guidelines: '0'
+  field_hero_links:
+    type: link_default
+    weight: 28
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings:
+      conditional_fields:
+        2ec0f886-5358-48ed-bd93-df7ceb66e0b5:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 3
+            value: ''
+            values: '12'
+            value_form:
+              -
+                target_id: '10'
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_hide_page_intro:
     type: boolean_checkbox
     weight: 2
@@ -324,3 +352,4 @@ content:
     third_party_settings: {  }
 hidden:
   field_is_navigation_page: true
+  menu_entity_index: true
