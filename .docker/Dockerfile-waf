@@ -37,14 +37,9 @@ ENV APP_NAME=USAGov \
     MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000
 
 COPY src-waf/docker-entrypoint-waf.sh /
-#COPY src-waf/etc/ /etc/
-COPY src-waf/etc/nginx/dynamic /etc/nginx/dynamic
-COPY src-waf/etc/nginx/snippets /etc/nginx/snippets
-COPY src-waf/etc/ssl /etc/ssl
-COPY src-waf/etc/periodic /etc/periodic
-
+COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
-#RUN rm -rf /opt/owasp-crs/tests
+RUN rm -rf /opt/owasp-crs/tests;
 
 RUN apk upgrade --update && \
     apk add vim \
@@ -59,23 +54,17 @@ RUN apk upgrade --update && \
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \
     apk add --no-cache \
-    ca-certificates
-#    ; \
-#    mkdir /tmp/owasp-crs; \
-#    curl -SL https://github.com/coreruleset/coreruleset/archive/v${RELEASE}.tar.gz \
-#    | tar -zxf - --strip-components=1 -C /tmp/owasp-crs; \
-#    mv -vf /tmp/owasp-crs/rules/* /opt/owasp-crs/rules; \
-#    rm -rf /tmp/owasp-crs; \
-#    ln -sv /opt/owasp-crs /etc/modsecurity.d;
+    ca-certificates; \
+    ln -sv /opt/owasp-crs /etc/modsecurity.d;
 
-#RUN set -eux; \
-#    mkdir /var/log/modsecurity && \
-#    touch /var/log/modsecurity/modsec_audit.log;
+RUN set -eux; \
+    mkdir /var/log/modsecurity && \
+    touch /var/log/modsecurity/modsec_audit.log;
 
-#COPY src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
-#COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
-#COPY src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
-#COPY src-waf/cert-watcher.sh /cert-watcher.sh
+COPY src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
+COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
+COPY src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
+COPY src-waf/cert-watcher.sh /cert-watcher.sh
 
 COPY motd /etc/motd
 
