@@ -33,6 +33,7 @@ commands:
               echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
               echo
             fi
+      - run:
           name: CloudGov Deploy WAF
           command: |
             export NEW_RELIC_APP_NAME="WAF-<< parameters.envname >>;USA.gov"
