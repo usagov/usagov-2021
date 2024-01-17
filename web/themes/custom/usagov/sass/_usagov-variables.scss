@@ -23,6 +23,7 @@ $light-blue: #e5f8fd;
 $pale-blue: #e7f6f8;
 $light-gray: #f3f3f3;
 $gray: #dfe1e2;
+$usagov-gray: #f0f0f0;
 $medium-gray: #e7e7e7;
 $deep-gray: #707070;
 $dark-gray: #4b4b4d;
@@ -66,7 +67,7 @@ $card: (
   border-color: $cyan-50v,
   hover-background-color: $cyan-light,
   hover-border-color: $cyan-50v,
-  group-background-color: $light-gray,
+  group-background-color: $usagov-gray,
   text-color: $black,
   background-color: $light-blue,
 );
