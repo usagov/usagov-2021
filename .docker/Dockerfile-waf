@@ -38,7 +38,13 @@ ENV APP_NAME=USAGov \
 
 COPY src-waf/docker-entrypoint-waf.sh /
 #COPY src-waf/etc/ /etc/
-#COPY src-waf/opt/ /opt/
+COPY src-waf/etc/nginx/dynamic /etc/nginx/dynamic
+COPY src-waf/etc/nginx/snippets /etc/nginx/snippets
+COPY src-waf/etc/ssl /etc/ssl
+COPY src-waf/etc/periodic /etc/periodic
+
+COPY src-waf/opt/ /opt/
+#RUN rm -rf /opt/owasp-crs/tests
 
 RUN apk upgrade --update && \
     apk add vim \
