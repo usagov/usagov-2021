@@ -77,6 +77,7 @@ function timestamp() {
 setInterval(timestamp, 500);
 
 function modifyAlertErrorBox() {
+  'use strict';
   // If there is an error, modify the alert box header text based on the number of fields with errors.
   document.getElementById("error-box").classList.remove("usa-error--alert");
   document.getElementById("error-box").focus();
