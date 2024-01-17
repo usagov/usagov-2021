@@ -71,19 +71,22 @@ var submitPressed = function () {
   if (grecaptcha.getResponse().length === 0) {
     if ($(".err-label-captcha").length < 1) {
       if ($("html").attr("lang") === "en") {
-        $(".recaptcha-container").before(
-          '<p class="err-label err-label-captcha" tabindex="0">Please fill out the reCaptcha</p>'
+        $(".recaptcha-alignment").before(
+          '<span class="err-label err-label-captcha" tabindex="0">Please fill out the reCaptcha</span>'
         );
       }
       else {
-        $(".recaptcha-container").before(
-          '<p class="err-label err-label-captcha" tabindex="0">Por favor, complete el reCaptcha</p>'
+        $(".recaptcha-alignment").before(
+          '<span class="err-label err-label-captcha" tabindex="0">Por favor, complete el reCaptcha</span>'
         );
       }
+      document.getElementsByClassName("recaptcha-outline-padding")[0].classList.add("usa-user-error");
+
     }
     return true; // FIX BEFORE PR. THIS IS FOR TESTING IN LOCAL
   }
   else {
+    // $(".recaptcha-outline-padding").classList.remove("usa-user-error");
     $(".err-label-captcha").remove();
   }
   return true;
