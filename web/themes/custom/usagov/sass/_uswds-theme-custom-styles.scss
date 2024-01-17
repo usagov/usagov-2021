@@ -647,6 +647,17 @@ a,
 .recaptcha-container {
   @extend .ceo-button-container;
   margin-bottom: 1em;
+  flex-direction: column;
+}
+
+.recaptcha-alignment {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.recaptcha-outline-padding {
+  padding: 5px;
 }
 
 .err-label-captcha {
