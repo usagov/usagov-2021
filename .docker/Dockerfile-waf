@@ -54,8 +54,8 @@ RUN apk upgrade --update && \
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \
     apk add --no-cache \
-    ca-certificates; \
-    ln -sv /opt/owasp-crs /etc/modsecurity.d;
+    ca-certificates;
+# \    ln -sv /opt/owasp-crs /etc/modsecurity.d;
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
