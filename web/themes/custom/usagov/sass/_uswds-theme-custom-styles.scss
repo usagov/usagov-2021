@@ -704,3 +704,7 @@ button#next.usa-button:focus, .usa-radio__input:focus+[class*=__label]::before, 
   outline-offset: 0;
 }
 
+.ceoLink {
+  word-wrap:break-word;
+  overflow-wrap: break-word;
+}
