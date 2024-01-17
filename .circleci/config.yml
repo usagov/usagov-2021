@@ -197,7 +197,7 @@ commands:
 jobs:
   scan-code:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -234,7 +234,7 @@ jobs:
           command: |
             # build a fresh docker-bench-security container
             cd /tmp/
-            git clone --depth 1 --branch v1.6.0 https://github.com/docker/docker-bench-security.git
+            git clone --depth 1 https://github.com/docker/docker-bench-security.git
             cd /tmp/docker-bench-security
             docker build --no-cache -t docker-bench-security .
             # use the fresh container to scan
@@ -286,7 +286,7 @@ jobs:
 
   build-and-push-container:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -346,7 +346,7 @@ jobs:
           command: |
             # build a fresh docker-bench-security container
             cd /tmp/
-            git clone --depth 1 --branch v1.6.0 https://github.com/docker/docker-bench-security.git
+            git clone --depth 1 https://github.com/docker/docker-bench-security.git
             cd /tmp/docker-bench-security
             docker build --no-cache -t docker-bench-security .
       - run:
@@ -382,14 +382,14 @@ jobs:
 
   deploy-to-cloudgov-dev:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     steps:
       - deploy-cloudgov:
           envname: dev
 
   deploy-to-cloudgov-stage:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -398,7 +398,7 @@ jobs:
 
   deploy-to-cloudgov-prod:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -407,7 +407,7 @@ jobs:
 
   run-snapshot-backup-dev:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -416,7 +416,7 @@ jobs:
 
   run-snapshot-backup-stage:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -425,7 +425,7 @@ jobs:
 
   run-snapshot-backup-prod:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -434,7 +434,7 @@ jobs:
 
   deploy-reporter-tools:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:

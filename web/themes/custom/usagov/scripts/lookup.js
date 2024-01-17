@@ -248,7 +248,7 @@ function renderResults(response, rawResponse) {
                 if (cleanLink[cleanLink.length - 1] === "/") {
                     cleanLink = cleanLink.slice(0, -1);
                 }
-                let link=`<a href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
+                let link=`<a class="ceoLink" href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
                 // link.innerHTML = cleanLink;
 
                 nextElem = document.createElement("li");
