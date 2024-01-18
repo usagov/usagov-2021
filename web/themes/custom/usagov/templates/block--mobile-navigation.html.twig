@@ -149,14 +149,25 @@
         </button>
       </div>
       <div class="usa-nav__secondary">
-        <form class="usa-search usa-search--small" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
-            <label id="top-srch-mobile-menu" class="usa-sr-only" for="search-field-small-mobile-menu">{{ translations.search }}</label>
-            <input id="affiliate-mobile-menu" name="affiliate" type="hidden" value="{{ translations.search_affiliate }}">
-            <input id="search-field-small-mobile-menu" class="usa-input text usagov-search-autocomplete ui-autocomplete-input" type="search" name="query" placeholder="{{ translations.search_placeholder }}" onfocus="this.placeholder" autocomplete="off" aria-autocomplete="list" aria-haspopup="true">
-            <button class="usa-button" type="submit">
-              <img src="/themes/custom/usagov/images/search--dark.svg" class="usa-search__submit-icon" alt="{{ translations.search }}">
-            </button>
-        </form>
+        <!-- Search Bar -->
+        {% embed 'usagov:searchbar' with {
+          form_classes: "usa-search usa-search--small",
+          label_id: "top-srch-mobile-menu",
+          for_string:"search-field-small-mobile-menu",
+          hidden_input_id:"affiliate-mobile-menu",
+          input_id:"search-field-small-mobile-menu",
+          input_classes:"usa-input text usagov-search-autocomplete ui-autocomplete-input",
+          button_classes:"usa-button",
+          placeholder_string,
+          value_string,
+          label_string,
+          alt_string,
+        } %}
+          {% set placeholder_string = translations.search_placeholder %}
+          {% set value_string = translations.search_affiliate %}
+          {% set label_string = translations.search %}
+          {% set alt_string = translations.search %}
+        {% endembed %}
         <span class="usa-nav__secondary-links">
           <span id="top-phone-mobile-menu" class="usa-nav__secondary-item">
             <a href="{{ translations.phone_URL }}" class="">1-844-USAGOV1</a>
