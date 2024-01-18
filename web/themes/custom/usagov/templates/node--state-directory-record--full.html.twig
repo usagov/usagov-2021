@@ -16,6 +16,7 @@
 		'state_agencies': 'State agencies'
 	} %}
 {% endif %}
+{% set territories_array = ["AS","FM","GU","MP","PR","PW","MH","VI"] %}
 
 {{ content.field_page_intro }}
 {{ content.body }}
@@ -57,10 +58,12 @@
 		</div>
 	{% endif %}
 
-	<div>
-		<h2 class="usa-prose line-height-2">{{translations.congress_members}}</h2>
-		<a href="{{translations.elected_officials_link_url}}">{{translations.elected_officials_link_text}}</a>
-	</div>
+	{% if node.field_state_abbr[0].value not in territories_array %}
+		<div>
+			<h2 class="usa-prose line-height-2">{{translations.congress_members}}</h2>
+			<a href="{{translations.elected_officials_link_url}}">{{translations.elected_officials_link_text}}</a>
+		</div>
+	{% endif %}
 
 	<div>
 		<h2 class="usa-prose line-height-2">{{translations.state_agencies}}</h2>

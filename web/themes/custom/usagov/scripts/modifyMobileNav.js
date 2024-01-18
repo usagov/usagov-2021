@@ -39,3 +39,26 @@
 	});
 })();
 
+// This function sets the "top" property for the header so that only
+// the nav bar is visible when scrolling on devices with a screen size less than or equal to 1024px.
+function setMobileStickyProperties() {
+	"use strict";
+	let header = document.getElementById('header');
+	let banner = document.getElementById('usagov-banner');
+
+	if (window.innerWidth <= 1024) {
+		header.style.top = "-" + banner.offsetHeight + "px";
+	}
+	else {
+		header.style.removeProperty("top");
+	}
+}
+
+// Calls the setMobileStickyProperties function when the page loads and when the window size changes.
+(function mobileStickyNav() {
+	"use strict";
+	setMobileStickyProperties();
+	window.addEventListener("resize", setMobileStickyProperties);
+})();
+
+
