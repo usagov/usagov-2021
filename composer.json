@@ -21,6 +21,8 @@
         "drupal/admin_toolbar": "3.x-dev",
         "drupal/allowed_formats": "^3.0",
         "drupal/autologout": "^1.3",
+        "drupal/ckeditor_templates": "^1.3",
+        "drupal/ckeditor_templates_ui": "^1.5",
         "drupal/composer_deploy": "^1.7",
         "drupal/conditional_fields": "^4.0@alpha",
         "drupal/content_lock": "^2.2",
@@ -138,6 +140,11 @@
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren_d10.patch"
             }
+        },
+        "drupal-lenient": {
+            "allowed-list": [
+                "drupal/ckeditor_templates"
+            ]
         }
     }
 }
