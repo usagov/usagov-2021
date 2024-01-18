@@ -197,13 +197,3 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
 else
     echo "Bootstrap skipping Drupal CIM because: Instance=${CF_INSTANCE_INDEX:-''} Skip=${SKIP_DRUPAL_BOOTSTRAP:-''}"
 fi
-
-echo "Adding the USPS credentials..."
-if [ -n "${USPS_USERID}" ] && [ -n "${USPS_PASSWORD}" ]; then
-    echo "const USPS_USERID = '${USPS_USERID}';" > ./web/themes/custom/usagov/scripts/usps-credentials.js
-    echo "const USPS_PASSWORD = '${USPS_PASSWORD}';" >> ./web/themes/custom/usagov/scripts/usps-credentials.js
-    echo "USPS credentials added successfully!"
-else
-    echo "No credentials found in the env."
-    echo "const error = 'No credentials found in the env.'" > ./web/themes/custom/usagov/scripts/usps-credentials.js
-fi
