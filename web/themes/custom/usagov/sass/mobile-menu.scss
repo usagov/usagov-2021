@@ -122,7 +122,22 @@ ul.navigation__items {
     display: none;
   }
 }
+
+
 @media (max-width: 63.99em) {
+
+  // Make the header sticky for devices with a screen size less than or equal to 1024px.
+  .usa-header {
+    // For Safari
+    position: -webkit-sticky;
+    // For other browsers
+    position: sticky;
+
+    background: #fff;
+    width: 100%;
+    z-index: 500;
+  }
+
   .usa-nav.is-visible, .usa-navbar>.usa-nav__secondary {
     display: none;
   }
