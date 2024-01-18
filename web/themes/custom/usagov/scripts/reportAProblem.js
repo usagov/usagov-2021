@@ -84,7 +84,6 @@ function fieldValidation(){
 
 function modifyErrorMessages() {
   'use strict';
-  console.log("modify Error Messages start");
   // If there is an error, modify the alert box header text based on the number of fields with errors.
   document.getElementById("error-box").classList.remove("usa-error--alert");
   document.getElementById("error-box").focus();
@@ -112,6 +111,7 @@ function modifyErrorMessages() {
       }
   }
 
+  errors = document.querySelectorAll('[id*="alert_error_"]:not(.usa-error--alert):not(#alert_error_00NU0000004z90C)');
   if (errors.length >= 3) {
     // Adds the line without spaces when all 3 fields are incorrect.
     document.getElementById("error-border").classList.add("usa-main-border-error");
@@ -120,7 +120,6 @@ function modifyErrorMessages() {
     // Removes the line without spaces.
     document.getElementById("error-border").classList.remove("usa-main-border-error");
   }
-  console.log("modify Error Messages end");
 }
 
 // This function runs every time the "Submit" button is pressed on the "Report an issue" page.
@@ -158,9 +157,7 @@ var submitPressed = function () {
   }
 
   var validationResult = fieldValidation();
-  if (!validationResult) {
-    modifyErrorMessages();
-  }
+  modifyErrorMessages();
   return validationResult;
 };
 
