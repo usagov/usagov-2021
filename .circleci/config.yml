@@ -17,8 +17,8 @@ commands:
       - run:
           name: CloudGov Deploy
           command: |
-            export USPS_USERID="<< parameters.envname >>"
-            export USPS_PASSWORD="<< parameters.envname >>"
+            export USPS_USERID
+            export USPS_PASSWORD
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
