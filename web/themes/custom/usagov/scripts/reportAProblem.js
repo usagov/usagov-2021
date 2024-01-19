@@ -29,7 +29,7 @@ function validateEmail(email) {
  * are valid, and if invalid, makes error messages and error styling visible.
  * @returns {boolean} indicates if all the fields are valid or not.
  */
-function fieldValidation(){
+function fieldValidation() {
   "use strict";
 
   var noErrors = true;
