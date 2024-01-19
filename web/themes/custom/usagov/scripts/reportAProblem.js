@@ -13,29 +13,42 @@ function timestamp() {
 
 setInterval(timestamp, 500);
 
+/**
+ * This function validates if the text entered is an email.
+ * @param {string} email - the text to be validated
+ * @returns {boolean} indicates whether the input text is an email or not.
+ */
 function validateEmail(email) {
   "use strict";
   var re = /\S+@\S+\.\S+/; // This is a very simple regex for email
   return re.test(email);
 }
 
-// This function is called when the form is submitted.
+/**
+ * This function has the objective of checking if the fields (Name, Email, Describe the issue)
+ * are valid, and if invalid, makes error messages and error styling visible.
+ * @returns {boolean} indicates if all the fields are valid or not.
+ */
 function fieldValidation(){
   "use strict";
-  console.log("Field Validation start");
-  // Removes the line without spaces.
-  document.getElementById("error-border").classList.remove("usa-main-border-error");
-  var noerrors = true;
-  $(".required").each(function () {
-    var input = $(this).find("input,textarea");
-    var errorId = "error_" + input.attr("id");
-    var alertErrorId = "alert_" + errorId;
 
+  var noErrors = true;
+
+  // Iterate through all fields.
+  $(".required").each(function () {
+
+    var input = $(this).find("input,textarea"); // Current field
+    var errorId = "error_" + input.attr("id");
+    var alertErrorId = "alert_" + errorId; // Id of field error text in alert box
+
+    // Check if the current field is valid
     if (
       input.val() === "" ||
       (input.attr("id") === "email" && !validateEmail(input.val()))
     ) {
-      noerrors = false;
+      noErrors = false;
+
+      // If the error is not yet visible, it adds it to the form.
       if (!$(this).find("span.err-label").length) {
         var error = input.attr("data-error");
 
@@ -68,8 +81,8 @@ function fieldValidation(){
     }
   });
 
-  // If
-  if (!noerrors) {
+  // If there is at least 1 error, focus the screen on the first error message.
+  if (!noErrors) {
     var elem = document.querySelector(".err-label");
     elem.focus();
     var viewportOffset = elem.getBoundingClientRect();
@@ -78,16 +91,22 @@ function fieldValidation(){
       window.scrollTo(0, window.pageYOffset - (108 - top));
     }
   }
-  console.log("Field Validation end");
-  return noerrors;
+
+  return noErrors;
 }
 
-function modifyErrorMessages() {
+/**
+ * This function has the objective
+ * @returns {undefined} This function does not return any value
+ */
+function modifyErrorElements() {
   'use strict';
+
   // If there is an error, modify the alert box header text based on the number of fields with errors.
   document.getElementById("error-box").classList.remove("usa-error--alert");
   document.getElementById("error-box").focus();
 
+  // Gets all error text elements from the alert box to check how many errors we have (this includes reCaptcha and all fields)
   var errors = document.querySelectorAll('[id*="alert_error_"]:not(.usa-error--alert)');
 
   if (errors.length === 1) {
@@ -111,21 +130,29 @@ function modifyErrorMessages() {
       }
   }
 
-  errors = document.querySelectorAll('[id*="alert_error_"]:not(.usa-error--alert):not(#alert_error_00NU0000004z90C)');
+  // Gets all error text elements from the alert box to check how many errors we have (this only includes all fields, not the reCaptcha)
+  errors = document.querySelectorAll('[id*="alert_error_"]:not(.usa-error--alert):not(#alert_error_recaptcha)');
   if (errors.length >= 3) {
-    // Adds the line without spaces when all 3 fields are incorrect.
+    // Adds the side line without spaces when all 3 fields are incorrect.
     document.getElementById("error-border").classList.add("usa-main-border-error");
   }
   else {
-    // Removes the line without spaces.
+    // Removes the side line without spaces.
     document.getElementById("error-border").classList.remove("usa-main-border-error");
   }
 }
 
-// This function runs every time the "Submit" button is pressed on the "Report an issue" page.
+/**
+ * This function runs every time the "Submit" button is pressed on the "Report an issue" page.
+ * The function checks if the user's input is valid. If it's valid, the form is submitted, otherwise it modifies the page to make errors visible.
+ * @returns {boolean} indicates whether the form can be submitted or not.
+ */
 var submitPressed = function () {
   "use strict";
-  var reCaptchaResult = true;
+
+  // reCaptcha Validation
+  var captchaValidationResult = true;
+
   if (grecaptcha.getResponse().length === 0) {
     // Check if reCaptcha is checked.
     if ($(".err-label-captcha").length < 1) {
@@ -145,8 +172,8 @@ var submitPressed = function () {
       document.getElementsByClassName("recaptcha-outline-padding")[0].classList.add("usa-user-error");
       // Makes the reCaptcha error text visible in the alert box.
       document.getElementById("alert_error_recaptcha").classList.remove("usa-error--alert");
+      captchaValidationResult = false;
     }
-    reCaptchaResult = false;
   }
   else {
     // Removes the error style from the reCaptcha.
@@ -156,9 +183,11 @@ var submitPressed = function () {
     document.getElementById("alert_error_recaptcha").classList.add("usa-error--alert");
   }
 
-  var validationResult = fieldValidation();
-  modifyErrorMessages();
-  return validationResult;
+  // Field Validation
+  var fieldValidationResult = fieldValidation();
+  // Hides or shows error elements.
+  modifyErrorElements();
+  return captchaValidationResult && fieldValidationResult;
 };
 
 jQuery(document).ready(function () {
