@@ -77,6 +77,8 @@ export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RE
 export NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')}
 export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')}
 
+export USPS_USERID=${USPS_USERID:-$(echo $SECRETS | jq -r '.USPS_USERID')}
+export USPS_PASSWORD=${USPS_PASSWORD:-$(echo $SECRETS | jq -r '.USPS_PASSWORD')}
 
 SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.spkey')
 SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.spcrt')
@@ -196,4 +198,14 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
     echo "Bootstrap finished"
 else
     echo "Bootstrap skipping Drupal CIM because: Instance=${CF_INSTANCE_INDEX:-''} Skip=${SKIP_DRUPAL_BOOTSTRAP:-''}"
+fi
+
+echo "Adding the USPS credentials..."
+if [ -n "${USPS_USERID}" ] && [ -n "${USPS_PASSWORD}" ]; then
+    echo "const USPS_USERID = '${USPS_USERID:-''}';" > ./web/themes/custom/usagov/scripts/usps-credentials.js
+    echo "const USPS_PASSWORD = '${USPS_USERID:-''}';" >> ./web/themes/custom/usagov/scripts/usps-credentials.js
+    echo "USPS credentials added successfully!"
+else
+    echo "No credentials found in the env."
+    echo "const error = 'No credentials found in the env.'" > ./web/themes/custom/usagov/scripts/usps-credentials.js
 fi

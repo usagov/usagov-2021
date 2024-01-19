@@ -17,6 +17,9 @@ commands:
       - run:
           name: CloudGov Deploy
           command: |
+            export USPS_USERID="<< parameters.envname >>"
+            export USPS_PASSWORD="<< parameters.envname >>"
+            export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
