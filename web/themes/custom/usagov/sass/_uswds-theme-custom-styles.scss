@@ -31,6 +31,7 @@ i.e.
 @forward "content-page";
 @forward "fed-directory";
 @forward "footer";
+@forward "../components/searchbar/searchbar";
 @forward "header";
 @forward "homepage";
 @forward "life-events";
@@ -479,6 +480,7 @@ button#next.usa-button,
 .block-wizardenglish a.usa-button {
   background-color: var($cyan-light);
   box-shadow: inset 0 0 0 2px var($cyan-50v);
+  border: none;
 }
 
 button#next.usa-button:hover,
@@ -681,7 +683,6 @@ button#next.usa-button:focus, .usa-radio__input:focus+[class*=__label]::before, 
   outline-offset: 0;
 }
 
-.ceoLink {
-  word-wrap:break-word;
-  overflow-wrap: break-word;
+.usagov-button{
+  font-size: 1.1rem;
 }
