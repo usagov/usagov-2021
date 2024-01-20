@@ -1,6 +1,27 @@
 #!/bin/bash
 set -e
 
+usage="
+$0: Runs sql inside the docker container.
+
+Usage:
+   $0 -h
+   $0 SQL query
+
+Options:
+-h:            show help and exit
+ARG            SQL query string
+"
+
+PREAMBLE=$( pwd -P )/bin/includes/preamble.sh
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
 docker compose run \
   --rm \
   --workdir /var/www \

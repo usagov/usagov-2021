@@ -1,6 +1,28 @@
 #!/usr/bin/env bash
 set -o pipefail
 
+usage="
+$0: Swap the urls in the frontend of the Analytics Reporter to point to the newly generated S3 links.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+
+NOTES:
+Arguments come from environment.
+"
+
+PREAMBLE=$( pwd -P )/bin/includes/preamble.sh
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
 # Grab the starting space and org where the command was run
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
 startspace=$( cf target | grep space: | awk '{ print $2 }')

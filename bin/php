@@ -1,5 +1,26 @@
 #!/bin/sh
 
+usage="
+$0: Runs php inside the docker container.
+
+Usage:
+   $0 -h
+   $0 PHP command
+
+Options:
+-h:            show help and exit
+ARG            php command
+"
+
+PREAMBLE=$( pwd -P )/bin/includes/preamble.sh
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
 docker exec -it \
   --workdir /var/www \
   cms \

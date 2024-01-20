@@ -1,5 +1,29 @@
 #!/bin/bash
 
+usage="
+$0: Imports the contents of a local sql file to the local database.
+
+Usage:
+   $0 -h
+   $0
+   $0 LOCAL_PORT
+   $0 LOCAL_PORT LOCAL_FILE
+
+Options:
+-h:            show help and exit
+LOCAL_PORT:    port that mysql is mapped to (default: 3306)
+LOCAL_FILE:    the name of the local sql file to import
+"
+
+PREAMBLE=$( pwd -P )/bin/includes/preamble.sh
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
 isnum_Case() { case ${1#[-+]} in ''|.|*[!0-9.]*|*.*.*) return 1;; esac ;}
 
 if isnum_Case "$1"

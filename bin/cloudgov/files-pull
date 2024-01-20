@@ -1,4 +1,23 @@
-#!/bin/sh
+#!/bin/bash
+
+usage="
+$0: Pulls media files from s3.  This script pulls the files required to populate s3/local/cms/public on a developer's filesystem.
+
+Usage:
+   $0 -h
+
+Options:
+-h:            show help and exit
+"
+
+PREAMBLE=$( pwd -P )/bin/includes/preamble.sh
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
 
 # gather s3 credentials from storage key
 cf create-service-key storage storagekey

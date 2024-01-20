@@ -1,5 +1,26 @@
 #!/bin/bash
 
+usage="
+$0: Creates standalone container for reviewing a PR. DOES NOT CURRENTLY WORK.
+
+Usage:
+   $0 -h
+   $0 TICKET
+
+Options:
+-h:            show help and exit
+TICKET         Name or number of JIra ticket
+"
+
+PREAMBLE=$( pwd -P )/bin/includes/preamble.sh
+if [ -f "$PREAMBLE" ]; then
+  # shellcheck source=bin/includes/preamble.sh
+  . "$PREAMBLE"
+else
+   echo Cannot find preamble at "$PREAMBLE"
+   exit 1
+fi
+
 TICKET=$1
 
 if [ -z "$TICKET" ] ; then
