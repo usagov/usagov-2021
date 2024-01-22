@@ -12,10 +12,6 @@ commands:
           name: Setup Environment for use in Scripts
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
-            cf set-env cms USPS_USERID $USPS_USERID
-            cf set-env cms USPS_PASSWORD $USPS_PASSWORD
-            cf set-env waf USPS_USERID $USPS_USERID
-            cf set-env waf USPS_PASSWORD $USPS_PASSWORD
       - install-cloud-foundry
       - load-image-digest
       - run:
@@ -83,6 +79,10 @@ commands:
             sudo apt-get update
             sudo apt-get install cf8-cli
             cf -v
+            cf set-env cms USPS_USERID $USPS_USERID
+            cf set-env cms USPS_PASSWORD $USPS_PASSWORD
+            cf set-env waf USPS_USERID $USPS_USERID
+            cf set-env waf USPS_PASSWORD $USPS_PASSWORD
 
   install-node:
     steps:
