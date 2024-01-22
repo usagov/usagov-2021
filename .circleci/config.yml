@@ -17,8 +17,6 @@ commands:
       - run:
           name: CloudGov Deploy
           command: |
-            echo 'export USPS_USERID="$USPS_USERID"' >> "$BASH_ENV"
-            echo 'export USPS_PASSWORD="$USPS_PASSWORD"' >> "$BASH_ENV"
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
@@ -202,6 +200,8 @@ jobs:
       image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      USPS_USERID: $USPS_USERID
+      USPS_PASSWORD: $USPS_PASSWORD
     steps:
       - checkout
       - install-cloud-foundry
@@ -291,6 +291,8 @@ jobs:
       image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      USPS_USERID: $USPS_USERID
+      USPS_PASSWORD: $USPS_PASSWORD
     steps:
       - checkout
       - signed-dockerhub-login
@@ -394,6 +396,8 @@ jobs:
       image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      USPS_USERID: $USPS_USERID
+      USPS_PASSWORD: $USPS_PASSWORD
     steps:
       - deploy-cloudgov:
           envname: stage
@@ -403,6 +407,8 @@ jobs:
       image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      USPS_USERID: $USPS_USERID
+      USPS_PASSWORD: $USPS_PASSWORD
     steps:
       - deploy-cloudgov:
           envname: prod
@@ -412,6 +418,8 @@ jobs:
       image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      USPS_USERID: $USPS_USERID
+      USPS_PASSWORD: $USPS_PASSWORD
     steps:
       - snapshot-backup:
           envname: dev
@@ -421,6 +429,8 @@ jobs:
       image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      USPS_USERID: $USPS_USERID
+      USPS_PASSWORD: $USPS_PASSWORD
     steps:
       - snapshot-backup:
           envname: stage
@@ -430,6 +440,8 @@ jobs:
       image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      USPS_USERID: $USPS_USERID
+      USPS_PASSWORD: $USPS_PASSWORD
     steps:
       - snapshot-backup:
           envname: prod
@@ -439,6 +451,8 @@ jobs:
       image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      USPS_USERID: $USPS_USERID
+      USPS_PASSWORD: $USPS_PASSWORD
     steps:
       - deploy-reporter:
           envname: tools
