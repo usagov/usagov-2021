@@ -57,6 +57,34 @@
       {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+{% if front == "homepage" and lang == "en" %}
+      "Taxonomy_Text_1": "Home",
+      "Taxonomy_Text_2": "Home",
+      "Taxonomy_Text_3": "Home",
+      "Taxonomy_Text_4": "Home",
+      "Taxonomy_Text_5": "Home",
+      "Taxonomy_Text_6": "Home",
+      "Taxonomy_Text_1": "/",
+      "Taxonomy_Text_2": "/",
+      "Taxonomy_Text_3": "/",
+      "Taxonomy_Text_4": "/",
+      "Taxonomy_Text_5": "/",
+      "Taxonomy_Text_6": "/"
+{% endif %}
+{% if front == "homepage" and lang == "es" %}
+      "Taxonomy_Text_1": "Página principal",
+      "Taxonomy_Text_2": "Página principal",
+      "Taxonomy_Text_3": "Página principal",
+      "Taxonomy_Text_4": "Página principal",
+      "Taxonomy_Text_5": "Página principal",
+      "Taxonomy_Text_6": "Página principal",
+      "Taxonomy_Text_1": "/es/",
+      "Taxonomy_Text_2": "/es/",
+      "Taxonomy_Text_3": "/es/",
+      "Taxonomy_Text_4": "/es/",
+      "Taxonomy_Text_5": "/es/",
+      "Taxonomy_Text_6": "/es/"
+{% endif %}
       {{ taxonomy_link_block }}
     }];
   </script>
