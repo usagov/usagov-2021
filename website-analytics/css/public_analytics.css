@@ -528,10 +528,10 @@ ul.pills {
         background: #0071bc; }
     ul.pills > li:last-child > a {
       border-right: none; }
-      
+
     #top_100_table ul.pills li:first-child {
       display: none; }
-        
+
     #top_100_table ul.pills li {
       width: 50%; }
 
@@ -636,3 +636,43 @@ figure figure .bar-chart {
   transition: opacity 0.3s ease-in 0.5s; }
   *[data-block].loading {
     opacity: .8; }
+
+.usa-skipnav {
+  color: #1a4480;
+}
+.usa-skipnav:active,
+.usa-skipnav:hover {
+  color: #1a4480;
+}
+
+.usa-skipnav:visited {
+  color: #4b4b4d;
+}
+
+.usa-sr-only {
+  position: absolute;
+  left: -999em;
+}
+
+.skip-to-main-content-link {
+  font-size: 1.06em;
+  line-height: 1.5;
+  text-decoration: underline;
+  background: 0 0;
+  left: 0;
+  padding: 0.5em 1em;
+  position: absolute;
+  top: -3.8em;
+  transition: .15s ease-in-out;
+  z-index: 100;
+}
+.skip-to-main-content-link:focus {
+  background: #fff;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transition: .15s ease-in-out;
+  outline: 0.2em solid #fff;
+  outline-offset: 0;
+  box-shadow: 0 0 0 7px #0186a2;
+}
