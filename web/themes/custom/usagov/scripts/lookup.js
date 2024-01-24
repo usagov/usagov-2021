@@ -341,8 +341,15 @@ function renderResults(response, rawResponse) {
             // Determine under which level accordion the elected official section should be appended
             let appendLocation;
             let level = response.officials[i].level;
+
+            // Add the Mayor to the City officials accordion
+            // There are some Mayors, such as the Mayor of Anchorage, that do not appear at the city level.
+            if (response.officials[i].office.toLowerCase().includes("mayor") &&
+                response.officials[i].office.toLowerCase().includes(response.normalizedInput.city.toLowerCase())) {
+                appendLocation = document.getElementById(content["local_levels"][0]);
+            }
             // Add to Federal officials accordion
-            if (level === "country") {
+            else if (level === "country") {
                 appendLocation = document.getElementById(content["levels"][0]);
             }
             // Add to State officials accordion
