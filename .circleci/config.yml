@@ -15,7 +15,7 @@ commands:
       - install-cloud-foundry
       - load-image-digest
       - run:
-          name: CloudGov Deploy
+          name: CloudGov Deploy CMS
           command: |
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
@@ -33,7 +33,21 @@ commands:
               echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
               echo
             fi
-
+      - run:
+          name: CloudGov Deploy WAF
+          command: |
+            export NEW_RELIC_APP_NAME="WAF-<< parameters.envname >>;USA.gov"
+            export NEW_RELIC_DISPLAY_NAME=usa-waf-<< parameters.envname >>
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            DWAF_APP=waf
+            DCMS_APP=cms
+            DAPP_SPACE=<< parameters.envname >>
+            ROUTE_SERVICE_APP_NAME=$DWAF_APP \
+            ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
+            PROTECTED_APP_NAME=$DCMS_APP \
+            ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
   save-image-digest:
     steps:
       - run:
