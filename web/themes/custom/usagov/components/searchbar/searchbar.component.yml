@@ -1,0 +1,40 @@
+# Everything in this file is optional. Still, the file needs to exist. Adding
+# metadata here will improve the DX when using components.
+
+# Note: currently in Drupal 10.1, the schema will fail to validate if
+# props section is not present. This may change in a future  release.
+
+# This is so your IDE knows about the syntax for fixes and autocomplete.
+$schema: https://git.drupalcode.org/project/sdc/-/raw/1.x/src/metadata.schema.json
+
+# The human readable name.
+name: SearchBar
+
+# Schema for the props. We support JSON Schema. Learn more about the
+# syntax at https://json-schema.org
+# The props section is currently required. See Components without
+# Properties section below.
+props:
+  # Props are always an object with keys. Each key is a variable in your
+  # component template.
+  type: object
+
+  # If your component has required properties, you list them here.
+  # required:
+  #   - primary
+
+  properties:
+    form_classes:
+      type: string
+    label_id:
+      type: string
+    for_string:
+      type: string
+    hidden_input_id:
+      type: string
+    input_classes:
+      type: string
+    input_id:
+      type: string
+    button_classes:
+      type: string
