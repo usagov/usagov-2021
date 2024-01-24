@@ -689,3 +689,7 @@ textarea:not([disabled]):focus, .usagov-directory-bottom-nav-group a.nav-letter:
 .usagov-button{
   font-size: 1.1rem;
 }
+
+.usa-accordion__button:not(.bg-secondary) {
+  background-color: #f0f0f0;
+}
