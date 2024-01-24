@@ -557,7 +557,6 @@ workflows:
           filters:
             branches:
               only:
-                - USAGOV-1347-waf-update-owasp-modsec-src
                 - dev
                 - stage
                 - prod
@@ -567,7 +566,6 @@ workflows:
           filters:
             branches:
               only:
-                - USAGOV-1347-waf-update-owasp-modsec-src
                 - dev
                 - stage
                 - prod
@@ -578,7 +576,6 @@ workflows:
           filters:
             branches:
               only:
-              - USAGOV-1347-waf-update-owasp-modsec-src
               - dev
       - deploy-to-cloudgov-dev:
           requires:
@@ -586,7 +583,6 @@ workflows:
           filters:
             branches:
               only:
-              - USAGOV-1347-waf-update-owasp-modsec-src
               - dev
       - approve-stage-deployment:
           type: approval
