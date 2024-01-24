@@ -48,9 +48,8 @@ function renderResults(response, rawResponse) {
             "levels": ["Federal officials <span class='usa-normal'>represent you and your state in Washington, DC.</span>",
                        "State officials <span class='usa-normal'>represent you in your state capital.</span>",
                        "Local officials <span class='usa-normal'>represent you in your county or city.</span>"],
-            "local_levels": ["County officials",
-                             "City officials",
-                             "Special Districts officials"],
+            "local_levels": ["City officials",
+                             "County officials"],
             "party-affiliation": "Party affiliation",
             "address": "Address",
             "phone-number": "Phone number",
@@ -66,9 +65,8 @@ function renderResults(response, rawResponse) {
             "levels": ["Funcionarios federales <span class='usa-normal'>que le representan a usted y a su estado en Washington, DC.</span>",
                        "Funcionarios estatales <span class='usa-normal'>que le representan en la capital de su estado.</span>",
                        "Funcionarios locales <span class='usa-normal'>que le representan en su condado o ciudad.</span>"],
-            "local_levels": ["Funcionarios del condado",
-                             "Funcionaros de la ciudad",
-                             "Funcionarios de distritos especiales"],
+            "local_levels": ["Funcionaros de la ciudad",
+                             "Funcionarios del condado"],
             "party-affiliation": "Afiliación de partido",
             "address": "Dirección",
             "phone-number": "Teléfono",
@@ -343,20 +341,21 @@ function renderResults(response, rawResponse) {
             // Determine under which level accordion the elected official section should be appended
             let appendLocation;
             let level = response.officials[i].level;
+            // Add to Federal officials accordion
             if (level === "country") {
                 appendLocation = document.getElementById(content["levels"][0]);
             }
+            // Add to State officials accordion
             else if (level === "administrativeArea1") {
                 appendLocation = document.getElementById(content["levels"][1]);
             }
+            // Add to County officials accordion
             else if (level === "administrativeArea2") {
-                appendLocation = document.getElementById(content["local_levels"][0]);
-            }
-            else if (level === "locality") {
                 appendLocation = document.getElementById(content["local_levels"][1]);
             }
+            // Add to City officials accordion
             else {
-                appendLocation = document.getElementById(content["local_levels"][2]);
+                appendLocation = document.getElementById(content["local_levels"][0]);
             }
 
             // Append elected official section to the appropriate level accordion
