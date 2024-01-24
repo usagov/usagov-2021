@@ -45,7 +45,12 @@ function renderResults(response, rawResponse) {
             "error-fetch-heading": "Data temporarily unavailable",
             "error-address": "There was a problem getting results for this address. Please check to be sure you entered a valid U.S. address.",
             "error-address-heading": "Invalid address",
-            "levels": ["Federal officials <span class='usa-normal'>represent you and your state in Washington, DC.</span>", "State officials <span class='usa-normal'>represent you in your state capital.</span>", "Local officials <span class='usa-normal'>represent you in your county or city.</span>"],
+            "levels": ["Federal officials <span class='usa-normal'>represent you and your state in Washington, DC.</span>",
+                       "State officials <span class='usa-normal'>represent you in your state capital.</span>",
+                       "Local officials <span class='usa-normal'>represent you in your county or city.</span>"],
+            "local_levels": ["County officials",
+                             "City officials",
+                             "Special Districts officials"],
             "party-affiliation": "Party affiliation",
             "address": "Address",
             "phone-number": "Phone number",
@@ -58,7 +63,12 @@ function renderResults(response, rawResponse) {
             "error-fetch-heading": "Datos no disponibles temporalmente",
             "error-address": "Tuvimos problemas para obtener resultados con esta dirección. Por favor, verifique si ingresó una dirección válida en EE. UU.",
             "error-address-heading": "Dirección incorrecta",
-            "levels": ["Funcionarios federales <span class='usa-normal'>que le representan a usted y a su estado en Washington, DC.</span>", "Funcionarios estatales <span class='usa-normal'>que le representan en la capital de su estado.</span>", "Funcionarios locales <span class='usa-normal'>que le representan en su condado o ciudad.</span>"],
+            "levels": ["Funcionarios federales <span class='usa-normal'>que le representan a usted y a su estado en Washington, DC.</span>",
+                       "Funcionarios estatales <span class='usa-normal'>que le representan en la capital de su estado.</span>",
+                       "Funcionarios locales <span class='usa-normal'>que le representan en su condado o ciudad.</span>"],
+            "local_levels": ["Funcionarios del condado",
+                             "Funcionaros de la ciudad",
+                             "Funcionarios de distritos especiales"],
             "party-affiliation": "Afiliación de partido",
             "address": "Dirección",
             "phone-number": "Teléfono",
@@ -162,12 +172,35 @@ function renderResults(response, rawResponse) {
         // Append container to the location for rendered results
         resultsDiv.appendChild(container);
 
+        // Create an accordion for each level of elected officials
+        const local_levels = content["local_levels"];
+        for (let i = 0; i < local_levels.length; i++) {
+            let accordionHeader = document.createElement("h3");
+            accordionHeader.setAttribute("class", "usa-accordion__heading");
+
+            let accordionHeaderButton = document.createElement("button");
+            accordionHeaderButton.setAttribute("class", "usa-accordion__button");
+            accordionHeaderButton.setAttribute("aria-expanded", "false");
+
+            let levelName = local_levels[i];
+            accordionHeaderButton.setAttribute("aria-controls", levelName);
+            accordionHeaderButton.innerHTML = levelName;
+
+            accordionHeader.appendChild(accordionHeaderButton);
+
+            let accordionContent = document.createElement("div");
+            accordionContent.setAttribute("id", levelName);
+            accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
+            accordionContent.setAttribute("hidden", "until-found");
+
+            // Adds the sub-accordion to the Local officials accordion.
+            // Note: If the Local officials accordion is not the last accordion in the container, you will need to change it.
+            container.lastElementChild.appendChild(accordionHeader);
+            container.lastElementChild.appendChild(accordionContent);
+        }
+
         // Create an accordion section for each elected official
         for (let i = 0; i < response.officials.length; i++) {
-            // let titleHeader = document.createElement("h3");
-            // titleHeader.setAttribute("class", "font-serif-md");
-            // titleHeader.style.color = "rgb(26, 54, 85)";
-            // titleHeader.innerHTML = response.officials[i].name + ", " + response.officials[i].office;
 
             let accordionHeader = document.createElement("h4");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
@@ -223,9 +256,6 @@ function renderResults(response, rawResponse) {
             let phoneNumber = response.officials[i].phones || "none provided";
             if (phoneNumber !== "none provided") {
                 // Select first phone number and create clickable link
-                // let linkToPhone = document.createElement("a");
-                // linkToPhone.setAttribute("href", "tel:" + phoneNumber[0]);
-                // linkToPhone.innerHTML = phoneNumber[0];
                 let linkToPhone = `<a href="tel:${phoneNumber[0]}">${phoneNumber[0]}</a>`;
 
                 nextElem = document.createElement("li");
@@ -239,8 +269,6 @@ function renderResults(response, rawResponse) {
             // Display website, if provided
             let website = response.officials[i].urls || "none provided";
             if (website !== "none provided") {
-                // let link = document.createElement("a");
-                // link.setAttribute("href", response.officials[i].urls[0]);
 
                 // Shorten the link and remove unnecessary characters
                 let cleanLink = response.officials[i].urls[0]
@@ -321,8 +349,14 @@ function renderResults(response, rawResponse) {
             else if (level === "administrativeArea1") {
                 appendLocation = document.getElementById(content["levels"][1]);
             }
+            else if (level === "administrativeArea2") {
+                appendLocation = document.getElementById(content["local_levels"][0]);
+            }
+            else if (level === "locality") {
+                appendLocation = document.getElementById(content["local_levels"][1]);
+            }
             else {
-                appendLocation = document.getElementById(content["levels"][2]);
+                appendLocation = document.getElementById(content["local_levels"][2]);
             }
 
             // Append elected official section to the appropriate level accordion
