@@ -690,7 +690,8 @@
 
       bin.exit().remove();
 
-      var enter = bin.enter().append("div")
+      var enter = bin.enter().append("li");
+      enter.append("div")
         .attr("class", "bin");
       enter.append("div")
         .attr("class", "label");
