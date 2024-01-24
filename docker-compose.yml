@@ -135,7 +135,7 @@ services:
         - GITCOMMIT
         - GITBRANCH
         - GITTAG
-        - BUILD_ENV	
+        - BUILD_ENV
     #command: tail -f /dev/null
     command: echo "Shutting Down on Purpose"
     volumes:
