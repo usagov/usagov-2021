@@ -661,17 +661,20 @@ div div.field--name-field-offices-near-you {
 
 [href]:focus, button:not([disabled]):focus, input:not([disabled]):focus,
 .usa-footer__secondary-link a:focus, .usa-form a:focus, .usa-alert__text a:focus,
-.block-wizardenglish a.usa-button:focus, button#prior.usa-button--outline:focus,
-button#next.usa-button:focus, .usa-radio__input:focus+[class*=__label]::before, .Skin label.q-radio:focus,
-.Skin #Buttons #NextButton:focus, .Skin #Buttons #PreviousButton:focus, [tabindex]:focus {
-  outline: 0.2rem solid $white-inner-focus; /* inner indicator */
+button#prior.usa-button--outline:focus, button#next.usa-button:focus, .usa-radio__input:focus+[class*=__label]::before,
+textarea:not([disabled]):focus, .usagov-directory-bottom-nav-group a.nav-letter:focus, .Skin label.q-radio:focus,
+.Skin #Buttons #NextButton:focus, .Skin #Buttons #PreviousButton:focus, [tabindex]:focus, #pagesurvey-qual-ombnum a:focus {
+  outline: 0.25rem solid  $blue-outer-focus;
   outline-offset: 0;
-  box-shadow: 0 0 0 7px $blue-outer-focus; /* outer indicator */
-  // display: inline-block;
+  box-shadow: inset 0 0 0 2px $white-inner-focus;
+}
+
+.block-wizardenglish .usa-radio__input--tile:checked+[class*=__label] {
+  border-color: $blue-outer-focus;
 }
 
 #extended-logo [href]:focus, .usa-footer__secondary-link a:focus, .usa-hero__callout [href]:focus {
-  display: flex;
+  display: inherit;
 }
 
 #slides-list .slick-dots li button:focus {
