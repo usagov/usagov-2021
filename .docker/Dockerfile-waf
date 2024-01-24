@@ -1,4 +1,4 @@
-FROM owasp/modsecurity@sha256:7c431a99ead2e765860fd0c3d7d42573119734497837d4172565b8c08e114ddb
+FROM owasp/modsecurity-crs@sha256:94c67e36f8c48553b4e51378579f6afc818a5d9d2e0c6e09cf846913ee9fac31
 
 LABEL maintainer="USA.gov Web Ops"
 
@@ -38,26 +38,23 @@ ENV APP_NAME=USAGov \
 COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
+RUN rm -rf /opt/owasp-crs/tests;
 
 RUN apk upgrade --update && \
     apk add vim \
+      nano \
       bash \
       jq \
       inotify-tools \
-      gettext
+      gettext \
+      curl \
+      sed
 
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \
     apk add --no-cache \
-    ca-certificates \
-    curl \
-    sed; \
-    mkdir /tmp/owasp-crs; \
-    curl -SL https://github.com/coreruleset/coreruleset/archive/v${RELEASE}.tar.gz \
-    | tar -zxf - --strip-components=1 -C /tmp/owasp-crs; \
-    mv -vf /tmp/owasp-crs/rules/* /opt/owasp-crs/rules; \
-    rm -rf /tmp/owasp-crs; \
-    ln -sv /opt/owasp-crs /etc/modsecurity.d;
+    ca-certificates;
+# \    ln -sv /opt/owasp-crs /etc/modsecurity.d;
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
