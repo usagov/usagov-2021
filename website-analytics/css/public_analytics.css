@@ -131,6 +131,7 @@ a:visited {
 
 ul li {
   display: block;
+  line-height: normal;
 }
 
 ul li:after,
