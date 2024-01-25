@@ -59,6 +59,10 @@ commands:
             WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
+            cf set-env cms USPS_USERID $USPS_USERID
+            cf set-env cms USPS_PASSWORD $USPS_PASSWORD
+            cf set-env waf USPS_USERID $USPS_USERID
+            cf set-env waf USPS_PASSWORD $USPS_PASSWORD
             . ./bin/cloudgov/get-s3-access key-value
             echo "$CMS_DIGEST" > /tmp/results/cms_digest
             echo "$WAF_DIGEST" > /tmp/results/waf_digest
@@ -93,10 +97,6 @@ commands:
             sudo apt-get update
             sudo apt-get install cf8-cli
             cf -v
-            cf set-env cms USPS_USERID $USPS_USERID
-            cf set-env cms USPS_PASSWORD $USPS_PASSWORD
-            cf set-env waf USPS_USERID $USPS_USERID
-            cf set-env waf USPS_PASSWORD $USPS_PASSWORD
 
   install-node:
     steps:
