@@ -1,52 +1,185 @@
 /*
-These styles are used in the CKEditor frame.
-They add addtional styling during content editing that is not needed on rendered pages.
+These styles modify the content displayed in CK Editor.
+They help make content within the editor match how it will look on the web page.
+In some cases, rather than aiming to match the web page, styles are altered to be more helpful for content editing.
 */
 
-body.cke_editable {
-  max-width: 64em;
-  margin: auto;
-}
+/*
+.ck-content is the text input area of CK Editor.
+ALL STYLES IN THIS FILE SHOULD BE WRAPPED IN THIS SELECTOR.
+Otherwise they can effect other areas of the CMS.
+*/
+.ck-content {
+  font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+  font-size: 1.1rem;
 
-.usa-accordion__content[hidden] {
-  display: block;
-  content-visibility: visible;
-}
+  >p {
+    max-width: 68ex;
+  }
 
-html div.usa-accordion {
-  border: initial;
-  padding: initial;
-  position: initial;
-}
+  >h1,
+  >h2,
+  >h3,
+  >h4 {
+    font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+    font-size: 2.44rem;
+    line-height: 1.2;
+    font-weight: 700;
+  }
 
-html div.usa-accordion::before {
-  content: initial;
-}
+  >h2 {
+    font-size: 1.95rem;
+  }
 
-html div.usa-accordion .usa-accordion__heading{
-  padding-bottom: 0;
-  border: none;
-}
+  >h3 {
+    font-size: 1.34rem;
+  }
 
-html div.usa-accordion .usa-accordion__content {
-  border: initial!important;
+  >h4 {
+    font-size: .98rem;
+  }
 
-  // margin: initial!important;
-  padding: 1rem 1.25rem calc(1rem - 0.25rem)!important;
-  margin: 0 10px!important;
-}
+  >*+h1,
+  >*+h2,
+  >*+h3,
+  >*+h4,
+  >*+h5,
+  >*+h6 {
+    margin-top: 1.5em;
+  }
 
-html div.usa-accordion--bordered .usa-accordion__content {
-  border-bottom: 0.25rem solid #f0f0f0!important;
-  border-left: 0.25rem solid #f0f0f0!important;
-  border-right: 0.25rem solid #f0f0f0!important;
-  padding-bottom: 1rem!important;
-}
+  >ul,
+  >ol {
+    margin-left: 0;
+    padding-left: 3ch;
+    margin-bottom: 1em;
+    margin-top: 1em;
 
-.cke_widget_element.embedded-entity:empty::before {
-  content:'There is a hidden component on this page. To remove it, right-click this red box and select "cut."';
-  display:block;
-  padding: 3px;
-  background-color:lightsalmon;
-  margin:1em 0;
+    li {
+      font-size: 1.1rem;
+      margin-bottom: .25em;
+    }
+  }
+
+  ul.usa-icon-list,
+  ol.usa-process-list {
+    margin: 0;
+  }
+
+  .usa-accordion__content[hidden] { // Always show all accordion panels so content editors can see all the content.
+    display: block;
+    content-visibility: visible;
+  }
+
+  div.usa-accordion {
+    border: initial;
+    padding: initial;
+    position: initial;
+  }
+
+  div.usa-accordion::before {
+    content: initial;
+  }
+
+  div.usa-accordion .usa-accordion__heading {
+    padding-bottom: 0;
+    border: none;
+  }
+
+  div.usa-accordion .usa-accordion__content {
+    border: initial !important;
+    padding: 1rem 1.25rem calc(1rem - 0.25rem) !important;
+    margin: 0 10px !important;
+  }
+
+  div.usa-accordion--bordered .usa-accordion__content {
+    border-bottom: 0.25rem solid #f0f0f0 !important;
+    border-left: 0.25rem solid #f0f0f0 !important;
+    border-right: 0.25rem solid #f0f0f0 !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .embedded-entity:empty::before {
+    // Empty embedded entities are probably created by accident and may cause unexpected behavior.
+    // This style announces the presence of any empty embedded entities and explains how to remove them.
+    content: 'There is a hidden component on this page. To remove it, delete this red box.';
+    display: block;
+    padding: 3px;
+    background-color: lightsalmon;
+    margin: 1em 0;
+  }
+
+  // CK Editor 5 puts the USWDS Table classes on a <figure> element rather than to the expected <table> element,
+  // so we need to add USWDS table styles to table elements based on the classes on the <figure> element
+  figure.ck-widget.usa-table {
+    margin: initial;
+
+    table {
+      border: unset;
+
+      td,
+      th {
+        border: 1px solid #1b1b1b;
+        height: unset;
+        padding: .5rem 1rem;
+      }
+
+      th {
+        background: unset;
+        font-weight: unset;
+      }
+
+      thead {
+
+        td,
+        th {
+          background: #c9c9c9;
+          color: #1b1b1b;
+          background-clip: padding-box;
+          font-weight: 700;
+          line-height: 1.3;
+        }
+      }
+    }
+  }
+
+  // Override some styles for borderless tables
+  figure.ck-widget.usa-table.usa-table--borderless {
+    thead th {
+      background-color: transparent;
+      border-top: 0;
+    }
+
+    th,
+    td {
+      border-left: 0;
+      border-right: 0;
+    }
+  }
+
+  // On mobile, stacked tables normaly hide the header cells and displays their values as labels of the cells in their column.
+  // But, those labels are not displayed in CK Editor, so the values get completely hidden on mobile.
+  // This style unhides the header cells so editors can see and edit them even on mobile.
+  figure.ck-widget.usa-table.usa-table--stacked {
+    thead {
+      display: table-header-group;
+    }
+  }
+
+  .paragraph--type--uswds-card-group-flag .usa-card__container {
+    .usa-card__body {
+      order: 1;
+    }
+
+    .usa-card__header {
+      order: 0;
+    }
+  }
+
+  .paragraph--type--uswds-card-group-regular,
+  .paragraph--type--uswds-card-group-flag {
+    .usa-card__container .usa-card__img div {
+      display: inline;
+    }
+  }
 }
