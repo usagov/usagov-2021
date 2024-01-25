@@ -382,19 +382,21 @@ function renderResults(response, rawResponse) {
         }
 
         // Hides the City officials accordion if no results
+        let cityHeaderID = "heading_" + content["local_levels"][0].toLowerCase().replace(" ", "_");
         if (!cityHasResults) {
-            document.getElementById("heading_city_officials").classList.add("usa-accordion__heading-hidden");
+            document.getElementById(cityHeaderID).classList.add("usa-accordion__heading-hidden");
         }
         else {
-            document.getElementById("heading_city_officials").classList.remove("usa-accordion__heading-hidden");
+            document.getElementById(cityHeaderID).classList.remove("usa-accordion__heading-hidden");
         }
 
         // Hides the County officials accordion if no results
+        let countyHeaderID = "heading_" + content["local_levels"][1].toLowerCase().replace(" ", "_");
         if (!countyHasResults) {
-            document.getElementById("heading_county_officials").classList.add("usa-accordion__heading-hidden");
+            document.getElementById(countyHeaderID).classList.add("usa-accordion__heading-hidden");
         }
         else {
-            document.getElementById("heading_county_officials").classList.remove("usa-accordion__heading-hidden");
+            document.getElementById(countyHeaderID).classList.remove("usa-accordion__heading-hidden");
         }
     }
     else {
