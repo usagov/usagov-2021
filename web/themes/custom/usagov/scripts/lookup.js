@@ -137,6 +137,11 @@ function renderResults(response, rawResponse) {
 
     // If elected officials were actually found:
     if (response.officials.length > 0) {
+        // Indicates if the accordion of city officials has results/officials. By default this variable indicates that it has no results.
+        let cityHasResults = false;
+        // Indicates if the accordion of county officials has results/officials. By default this variable indicates that it has no results.
+        let countyHasResults = false;
+
         // Create container for rendering results
         let container = document.createElement("div");
         container.setAttribute("class", "usa-accordion usa-accordion--multiselectable");
@@ -175,6 +180,7 @@ function renderResults(response, rawResponse) {
         for (let i = 0; i < local_levels.length; i++) {
             let accordionHeader = document.createElement("h3");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
+            accordionHeader.setAttribute("id", "heading_" + local_levels[i].toLowerCase().replace(" ", "_"));
 
             let accordionHeaderButton = document.createElement("button");
             accordionHeaderButton.setAttribute("class", "usa-accordion__button");
@@ -307,7 +313,7 @@ function renderResults(response, rawResponse) {
                         }
                         else {
                             nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
-}
+                        }
                     }
                     bulletList.appendChild(nextElem);
                 }
@@ -347,6 +353,7 @@ function renderResults(response, rawResponse) {
             if (response.officials[i].office.toLowerCase().includes("mayor") &&
                 response.officials[i].office.toLowerCase().includes(response.normalizedInput.city.toLowerCase())) {
                 appendLocation = document.getElementById(content["local_levels"][0]);
+                cityHasResults = true;
             }
             // Add to Federal officials accordion
             else if (level === "country") {
@@ -359,16 +366,35 @@ function renderResults(response, rawResponse) {
             // Add to County officials accordion
             else if (level === "administrativeArea2") {
                 appendLocation = document.getElementById(content["local_levels"][1]);
+                // Change the variable to indicate that it does have results.
+                countyHasResults = true;
             }
             // Add to City officials accordion
             else {
                 appendLocation = document.getElementById(content["local_levels"][0]);
+                // Change the variable to indicate that it does have results.
+                cityHasResults = true;
             }
 
             // Append elected official section to the appropriate level accordion
-            // appendLocation.appendChild(titleHeader);
             appendLocation.appendChild(accordionHeader);
             appendLocation.appendChild(accordionContent);
+        }
+
+        // Hides the City officials accordion if no results
+        if (!cityHasResults) {
+            document.getElementById("heading_city_officials").classList.add("usa-accordion__heading-hidden");
+        }
+        else {
+            document.getElementById("heading_city_officials").classList.remove("usa-accordion__heading-hidden");
+        }
+
+        // Hides the County officials accordion if no results
+        if (!countyHasResults) {
+            document.getElementById("heading_county_officials").classList.add("usa-accordion__heading-hidden");
+        }
+        else {
+            document.getElementById("heading_county_officials").classList.remove("usa-accordion__heading-hidden");
         }
     }
     else {
