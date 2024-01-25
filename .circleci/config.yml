@@ -33,6 +33,8 @@ commands:
               echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
               echo
             fi
+            cf set-env cms USPS_USERID $USPS_USERID
+            cf set-env cms USPS_PASSWORD $USPS_PASSWORD
       - run:
           name: CloudGov Deploy WAF
           command: |
@@ -48,6 +50,8 @@ commands:
             ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
             PROTECTED_APP_NAME=$DCMS_APP \
             ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
+            cf set-env waf USPS_USERID $USPS_USERID
+            cf set-env waf USPS_PASSWORD $USPS_PASSWORD
   save-image-digest:
     steps:
       - run:
@@ -59,10 +63,6 @@ commands:
             WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
-            cf set-env cms USPS_USERID $USPS_USERID
-            cf set-env cms USPS_PASSWORD $USPS_PASSWORD
-            cf set-env waf USPS_USERID $USPS_USERID
-            cf set-env waf USPS_PASSWORD $USPS_PASSWORD
             . ./bin/cloudgov/get-s3-access key-value
             echo "$CMS_DIGEST" > /tmp/results/cms_digest
             echo "$WAF_DIGEST" > /tmp/results/waf_digest
