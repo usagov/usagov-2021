@@ -507,7 +507,7 @@ button#next.usa-button:hover,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked+.usa-radio__label {
-  border-color: var($deep-orange);
+  border-color: var($blue-outer-focus);
 }
 
 .block-wizardenglish [tabindex]:focus {
@@ -661,16 +661,16 @@ div div.field--name-field-offices-near-you {
 
 [href]:focus, button:not([disabled]):focus, input:not([disabled]):focus,
 .usa-footer__secondary-link a:focus, .usa-form a:focus, .usa-alert__text a:focus,
-button#prior.usa-button--outline:focus, button#next.usa-button:focus, .usa-radio__input:focus+[class*=__label]::before,
-textarea:not([disabled]):focus, .usagov-directory-bottom-nav-group a.nav-letter:focus, .Skin label.q-radio:focus,
+button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wizardenglish a.usa-button:focus,
+.usa-radio__input:focus+[class*=__label]::before, textarea:not([disabled]):focus, .usagov-directory-bottom-nav-group a.nav-letter:focus, .Skin label.q-radio:focus,
 .Skin #Buttons #NextButton:focus, .Skin #Buttons #PreviousButton:focus, [tabindex]:focus, #pagesurvey-qual-ombnum a:focus {
   outline: 0.25rem solid  $blue-outer-focus;
   outline-offset: 0;
   box-shadow: inset 0 0 0 2px $white-inner-focus;
 }
 
-.block-wizardenglish .usa-radio__input--tile:checked+[class*=__label] {
-  border-color: $blue-outer-focus;
+.life-events-intro a:focus, .usa-hero__callout a:focus {
+  box-shadow: none;
 }
 
 #extended-logo [href]:focus, .usa-footer__secondary-link a:focus, .usa-hero__callout [href]:focus {
@@ -678,11 +678,11 @@ textarea:not([disabled]):focus, .usagov-directory-bottom-nav-group a.nav-letter:
 }
 
 #slides-list .slick-dots li button:focus {
-  box-shadow: 0 0 0 0 $blue-outer-focus; /* outer indicator */
+  box-shadow: 0 0 0 0 $blue-outer-focus;
 }
 
 .homepage-card:focus-within, .block-wizardenglish [tabindex]:focus, .usa-radio__input:focus, .slick-dots>li>button>.slick-dot-icon:focus {
-  outline: 0.25rem solid $blue-outer-focus; /* inner indicator */
+  outline: 0.25rem solid $blue-outer-focus;
   outline-offset: 0;
 }
 
