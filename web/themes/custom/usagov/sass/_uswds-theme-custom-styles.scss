@@ -583,6 +583,11 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
+// Hides the City or County accordion header when there are no results.
+.usa-accordion__heading-hidden {
+  display: none;
+}
+
 #question-box>div>p,
 #question-box>div>div {
   font-size: var($regular-text-font-size);
