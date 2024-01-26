@@ -557,7 +557,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - USAGOV-1303-update-ar
                 - stage
                 - prod
       - build-and-push-container:
@@ -566,7 +566,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - USAGOV-1303-update-ar
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -576,14 +576,14 @@ workflows:
           filters:
             branches:
               only:
-              - dev
+              - USAGOV-1303-update-ar
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
               only:
-              - dev
+              - USAGOV-1303-update-ar
       - approve-stage-deployment:
           type: approval
           requires:
