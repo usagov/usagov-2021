@@ -213,7 +213,7 @@ a,
   color: var($text-blue);
 }
 .usa-breadcrumb__currrent {
-  var($global-default, text-color);
+  color: var($global-default, text-color);
 }
 
 a {
