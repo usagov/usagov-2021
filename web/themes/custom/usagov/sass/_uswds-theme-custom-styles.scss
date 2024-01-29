@@ -205,11 +205,15 @@ a,
 
 .usa-breadcrumb__link:visited {
   text-decoration: underline;
-  color: var($dark-gray);
+  color: var($text-blue);
 }
 
 .usa-breadcrumb__list-item {
   line-height: 1.5;
+  color: var($text-blue);
+}
+.usa-breadcrumb__currrent {
+  color:var($off-black);
 }
 
 a {
