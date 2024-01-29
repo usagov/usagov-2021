@@ -32,7 +32,7 @@
   font-feature-settings: "kern" 1;
   font-kerning: normal;
   box-sizing: inherit;
-  color: var($off-black);
+  color: var($global-default, text-color);
   text-decoration: none;
   padding: 0;
   font-weight: 700;
@@ -124,7 +124,7 @@
 }
 
 #footer-email {
-  border-color: var($off-black);
+  border-color: var($global-default, text-color);
 }
 
 .ftr-list {
