@@ -116,7 +116,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <header>
         <div class="inner clearfix">
-            <h1>
+          <a href="#skip-to-h1" class="skip-to-main-content-link">
+            Skip to main content
+          </a>
+            <h1 id="skip-to-h1">
               <a href="/website-analytics/" class="external-link">
                 <img src="/website-analytics/images/usagov.png" alt="USAGov" />Analytics Dashboard
               </a>
@@ -224,8 +227,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           data-source="https://s3-us-gov-west-1.amazonaws.com/cg-adc9086a-68d3-44af-8379-81b8b1fa476e/usagov-analytics/en/devices.json">
           <h3>Devices</h3>
           <figure id="chart_device_types">
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
 
           <p>
@@ -243,8 +246,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <figure id="chart_browsers"
             data-block="browsers"
             data-source="https://s3-us-gov-west-1.amazonaws.com/cg-adc9086a-68d3-44af-8379-81b8b1fa476e/usagov-analytics/en/browsers.json">
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
 
           <figure id="chart_ie"
@@ -252,8 +255,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             data-source="https://s3-us-gov-west-1.amazonaws.com/cg-adc9086a-68d3-44af-8379-81b8b1fa476e/usagov-analytics/en/ie.json"
             data-scale-to-parent="true">
             <h3>Internet Explorer</h3>
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
         </section>
 
@@ -263,8 +266,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <figure id="chart_os"
             data-block="os"
             data-source="https://s3-us-gov-west-1.amazonaws.com/cg-adc9086a-68d3-44af-8379-81b8b1fa476e/usagov-analytics/en/os.json">
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
 
           <figure id="chart_windows"
@@ -272,8 +275,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             data-source="https://s3-us-gov-west-1.amazonaws.com/cg-adc9086a-68d3-44af-8379-81b8b1fa476e/usagov-analytics/en/windows.json"
             data-scale-to-parent="true">
             <h3>Windows</h3>
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
         </section>
 
@@ -289,8 +292,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           data-source="https://s3-us-gov-west-1.amazonaws.com/cg-adc9086a-68d3-44af-8379-81b8b1fa476e/usagov-analytics/en/top-cities-90-days.json">
           <h3>Cities</h3>
           <figure id="chart_top-cities-90-days">
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
         </section>
 
@@ -300,16 +303,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <figure id="chart_us"
             data-block="countries"
             data-source="https://s3-us-gov-west-1.amazonaws.com/cg-adc9086a-68d3-44af-8379-81b8b1fa476e/usagov-analytics/en/top-countries-90-days.json">
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
 
           <figure id="chart_countries"
             data-block="international_visits"
             data-source="https://s3-us-gov-west-1.amazonaws.com/cg-adc9086a-68d3-44af-8379-81b8b1fa476e/usagov-analytics/en/top-countries-90-days.json">
             <h3>International</h3>
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
         </section>
 
@@ -333,16 +336,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h3><em>
               Visits on a <strong>single, specific page</strong> now.
             </em></h3>
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
 
           <figure class="top-pages" id="top-pages-7-days" role="tabpanel"
             data-block="top-pages"
             data-source="https://s3-us-gov-west-1.amazonaws.com/cg-adc9086a-68d3-44af-8379-81b8b1fa476e/usagov-analytics/en/top-pages-7-days.json">
             <h3><em>Unique pageviews over the last week.</em></h3>
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
 
           <figure class="top-pages" id="top-pages-30-days" role="tabpanel"
@@ -351,8 +354,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h3><em>
               Unique pageviews over the last 30 days.
             </em></h3>
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
 
         </section>
@@ -374,16 +377,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h3><em>
               Total external links clicked yesterday on USA.gov.
             </em></h3>
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
 
           <figure class="top-pages" id="top-external-links-7-days" role="tabpanel"
             data-block="top-external-links"
             data-source="https://s3-us-gov-west-1.amazonaws.com/cg-adc9086a-68d3-44af-8379-81b8b1fa476e/usagov-analytics/en/top-external-links-7-days.json">
             <h3><em>Total external links clicked over the last week on USA.gov.</em></h3>
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
 
           <figure class="top-pages" id="top-external-links-30-days" role="tabpanel"
@@ -392,8 +395,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h3><em>
               Total external links clicked over the last 30 days on USA.gov.</a>
             </em></h3>
-            <div class="data bar-chart">
-            </div>
+            <ul class="data bar-chart">
+            </ul>
           </figure>
 
         </section>
