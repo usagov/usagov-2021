@@ -51,7 +51,9 @@ commands:
             ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
             PROTECTED_APP_NAME=$DCMS_APP \
             ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
-
+            cf set-env waf USPS_USERID $USPS_USERID
+            cf set-env waf USPS_PASSWORD $USPS_PASSWORD
+            cf restage waf
   save-image-digest:
     steps:
       - run:
