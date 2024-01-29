@@ -148,10 +148,6 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
         "city": ""
     };
 
-    let uspsStreetAddress = responseText.slice(responseText.indexOf('<Address2>') + 10, responseText.indexOf('</Address2>'));
-    let uspsZipCode = responseText.slice(responseText.indexOf('<Zip5>') + 6, responseText.indexOf('</Zip5>'));
-    let uspsCity = responseText.slice(responseText.indexOf('<City>') + 6, responseText.indexOf('</City>'));
-
     if (responseText === "USPS API not working.") {
         response.errorMessage = "USPS API not working.";
         return response;
@@ -172,17 +168,31 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
     }
     else if (responseText.includes("Invalid Zip Code.")) {
         response.fieldID = "zip";
-        response.errorMessage = usps_content["invalid-zip"];;
+        response.errorMessage = usps_content["invalid-zip"];
     }
+    else if (responseText.includes("Multiple addresses were found")) {
+        // No errors received from USPS API
+        response.fieldID = "no errors";
+    }
+    else {
+        // No errors received from USPS API
+        response.fieldID = "no errors";
 
-    //
-    if (uspsStreetAddress.toLowerCase() !== userStreetAddress.toLowerCase() ||
-        uspsCity.toLowerCase() !== userCity.toLowerCase() ||
-        uspsZipCode.toLowerCase() !== userZipCode.toLowerCase()) {
+        // Gets the address suggested by the USPS API
+        let uspsStreetAddress = responseText.slice(responseText.indexOf('<Address2>') + 10, responseText.indexOf('</Address2>'));
+        let uspsZipCode = responseText.slice(responseText.indexOf('<Zip5>') + 6, responseText.indexOf('</Zip5>'));
+        let uspsCity = responseText.slice(responseText.indexOf('<City>') + 6, responseText.indexOf('</City>'));
 
-        response.streetAddress = uspsStreetAddress;
-        response.city = uspsCity;
-        response.zipCode = uspsZipCode;
+        // Checks if the address suggested by the USPS API is different from the user's address.
+        // If it's different, it returns the USPS address in the response
+        if (uspsStreetAddress.toLowerCase() !== userStreetAddress.toLowerCase() ||
+            uspsCity.toLowerCase() !== userCity.toLowerCase() ||
+            uspsZipCode.toLowerCase() !== userZipCode.toLowerCase()) {
+
+            response.streetAddress = uspsStreetAddress;
+            response.city = uspsCity;
+            response.zipCode = uspsZipCode;
+        }
     }
 
     return response;
