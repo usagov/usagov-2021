@@ -206,7 +206,7 @@
 
   h2,
   a {
-    color: var($off-black);
+    color: var($global-default, text-color);
     margin: 0;
     text-decoration: none;
   }
@@ -300,7 +300,7 @@
   grid-row: 9 / 10;
 
   p {
-    color: var($off-black);
+    color: var($global-default, text-color);
   }
 }
 
@@ -364,7 +364,7 @@
 
   h2,
   p {
-    color: var($off-black);
+    color: var($global-default, text-color);
     font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
       Arial, sans-serif;
     font-size: var($homepage, small-font-size);
