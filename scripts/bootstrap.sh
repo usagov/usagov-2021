@@ -200,7 +200,7 @@ fi
 echo "Adding the USPS credentials..."
 if [[ ${USPS_USERID:-"unset"} != "unset" ]] && [[ ${USPS_PASSWORD:-"unset"} != "unset" ]]; then
     echo "const USPS_USERID = '${USPS_USERID}';" > ./web/themes/custom/usagov/scripts/usps-credentials.js
-    echo "const USPS_PASSWORD = '${USPS_USERID}';" >> ./web/themes/custom/usagov/scripts/usps-credentials.js
+    echo "const USPS_PASSWORD = '${USPS_PASSWORD}';" >> ./web/themes/custom/usagov/scripts/usps-credentials.js
     echo "USPS credentials added successfully!"
 else
     echo "No credentials found in the env."
