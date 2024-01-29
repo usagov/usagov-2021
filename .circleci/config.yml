@@ -563,7 +563,7 @@ workflows:
           filters:
             branches:
               only:
-                - USAGOV-1214-Fix-credentials-script-generation
+                - dev
                 - stage
                 - prod
       - build-and-push-container:
@@ -572,7 +572,7 @@ workflows:
           filters:
             branches:
               only:
-                - USAGOV-1214-Fix-credentials-script-generation
+                - dev
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -582,14 +582,14 @@ workflows:
           filters:
             branches:
               only:
-              - USAGOV-1214-Fix-credentials-script-generation
+              - dev
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
               only:
-              - USAGOV-1214-Fix-credentials-script-generation
+              - dev
       - approve-stage-deployment:
           type: approval
           requires:
