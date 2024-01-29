@@ -99,7 +99,7 @@ Buttons with visited links would mysteriously get white text which is not access
 
 .usa-button--secondary:visited,
 .usa-button:visited {
-  color: var($off-black) !important;
+  color: var($global-default, text-color) !important;
 }
 
 /*
@@ -130,7 +130,7 @@ add padding at the top of flag cards
 .usa-nav__secondary-links a:hover,
 .usa-banner__button,
 .usa-card__body {
-  color: var($off-black);
+  color: var($global-default, text-color);
 }
 
 a,
@@ -213,7 +213,7 @@ a,
   color: var($text-blue);
 }
 .usa-breadcrumb__currrent {
-  color:var($off-black);
+  var($global-default, text-color);
 }
 
 a {
@@ -455,7 +455,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .block-wizardenglish .usa-button {
-  color: var($off-black);
+  color: var($global-default, text-color);
   background-color: var($cyan-light);
 
   @media (max-width: 40em) {
@@ -548,7 +548,7 @@ div[class^="QSIUserDefinedHTML"] {
   background: var($cyan-light);
   font-size: 130%;
   display: block;
-  color: var($off-black);
+  color: var($global-default, text-color);
   padding: 12px 0 15px;
   margin: 0 auto;
   max-width: 960px;
@@ -658,10 +658,6 @@ a,
 
 div div.field--name-field-offices-near-you {
   display: inline;
-}
-
-.color-off-black {
-  color: var($off-black);
 }
 
 .usa-normal {
