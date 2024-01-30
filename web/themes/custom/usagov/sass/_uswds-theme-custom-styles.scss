@@ -670,8 +670,8 @@ button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wiz
 .usa-radio__input:focus+[class*=__label]::before, textarea:not([disabled]):focus,
 .usagov-directory-bottom-nav-group a.nav-letter:focus, .usa-breadcrumb__list-item:nth-last-child(2)
 .usa-breadcrumb__link:focus, [tabindex]:focus, #pagesurvey-qual-container:focus,
-#pagesurvey-qual-ombnum a:focus, #pagesurvey-qual-ombnum .Skin label.q-radio:focus,
-#pagesurvey-qual-ombnum .Skin #Buttons #NextButton:focus, #pagesurvey-qual-ombnum .Skin #Buttons #PreviousButton:focus {
+#pagesurvey-qual-ombnum a:focus, #pagesurvey-qual-container .Skin label.q-radio:focus,
+#pagesurvey-qual-container .Skin #Buttons #NextButton:focus, #pagesurvey-qual-container .Skin #Buttons #PreviousButton:focus {
 
   outline: 0.25rem solid  $blue-outer-focus;
   outline-offset: 0;
