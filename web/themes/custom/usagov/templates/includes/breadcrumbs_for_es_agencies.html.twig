@@ -18,7 +18,7 @@
             <meta itemprop="position" content="1" />
         </li>
         {% if path('<current>') == '/es/indice-agencias'%}
-            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <li class="usa-breadcrumb__list-item usa-breadcrumb__currrent" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                 <span itemprop="name">{{ drupal_field('title', 'node', 1696) }}</span>
                 <meta itemprop="position" content="2" />
             </li>
@@ -31,7 +31,7 @@
                 </a>
                 <meta itemprop="position" content="2" />
                 </li>
-            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <li class="usa-breadcrumb__list-item usa-breadcrumb__currrent" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                 <span itemprop="name">{{ drupal_title() }}</span>
                 <meta itemprop="position" content="3" />
             </li>
