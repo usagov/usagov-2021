@@ -116,6 +116,12 @@ a,
 a:visited {
   color: #112e51; }
 
+a:focus {
+  box-shadow: 0 0 0 7px #0186a2;
+  outline: 0.2rem solid #fff;
+  outline-offset: 0;
+}
+
 .technical-difficulties {
   color: #981b1e;
   background: #fff;
@@ -128,6 +134,11 @@ a:visited {
 
 .clearfix:after {
   clear: both; }
+
+ul li {
+  display: block;
+  line-height: normal;
+}
 
 ul li:after,
 ul li:before {
@@ -286,6 +297,7 @@ header #agency-selector {
 /*
 * end top navigation bar
 */
+
 section {
   background: #fff;
   padding: 1em; }
@@ -528,80 +540,116 @@ ul.pills {
         background: #0071bc; }
     ul.pills > li:last-child > a {
       border-right: none; }
-      
+
     #top_100_table ul.pills li:first-child {
       display: none; }
-        
+
     #top_100_table ul.pills li {
       width: 50%; }
 
 .bar-chart {
   margin: 1rem 0;
   position: relative;
-  font-size: 90%; }
-  .bar-chart .bar-chart {
-    font-size: 80%; }
-    .bar-chart .bar-chart .bin {
-      margin-left: 2em;
-      margin-bottom: 0rem; }
-      .bar-chart .bar-chart .bin .bar {
-        display: none; }
-  .bar-chart .bin {
-    position: relative;
-    overflow: hidden;
-    margin: 0 0 1rem 0; }
-    .bar-chart .bin::after {
-      clear: both;
-      content: "";
-      display: table; }
-    .bar-chart .bin .bar:after {
-      content: " ";
-      display: block;
-      position: absolute;
-      background: #f9f9f9;
-      top: 0;
-      left: 100%;
-      width: 1000px;
-      height: 100%;
-      z-index: 1; }
-  .bar-chart .bar {
-    height: .8rem;
-    background: #0071bc;
-    position: relative;
-    z-index: 2;
-    min-width: 1px;
-    -webkit-transition: width 0.5s linear;
-    -moz-transition: width 0.5s linear;
-    transition: width 0.5s linear; }
-  .bar-chart .label {
-    white-space: nowrap;
-    height: 2.2rem;
-    margin-right: 4em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; }
-    .bar-chart .label a {
-      text-decoration: none; }
-    .bar-chart .label a:hover {
-      text-decoration: underline; }
-  .bar-chart .value {
-    text-align: right;
-    height: 2rem;
-    white-space: nowrap;
-    margin-top: -2.2rem;
-    margin-bottom: .45rem; }
+  font-size: 90%;
+  display: block;
+}
+
+.bar-chart .bar-chart {
+  font-size: 80%;
+}
+
+.bar-chart .bar-chart .bin {
+  margin-left: 2em;
+  margin-bottom: 0rem;
+}
+
+.bar-chart .bar-chart .bin .bar {
+  display: none;
+}
+
+.bar-chart .bin {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 1rem 0;
+}
+
+.bar-chart .bin::after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+.bar-chart .bin .bar:after {
+  content: " ";
+  display: block;
+  position: absolute;
+  background: #f9f9f9;
+  top: 0;
+  left: 100%;
+  width: 1000px;
+  height: 100%;
+  z-index: 1;
+}
+
+.bar-chart .bar {
+  height: .8rem;
+  background: #0071bc;
+  position: relative;
+  z-index: 2;
+  min-width: 1px;
+  -webkit-transition: width 0.5s linear;
+  -moz-transition: width 0.5s linear;
+  transition: width 0.5s linear;
+}
+
+.bar-chart .label {
+  white-space: nowrap;
+  height: 2.2rem;
+  margin-right: 4em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bar-chart .label a {
+  text-decoration: none;
+}
+
+.bar-chart .label a:hover {
+  text-decoration: underline;
+}
+
+.bar-chart .label:focus-within {
+  height: 4rem;
+}
+
+.bar-chart .label a:focus {
+  display: inline-block;
+  margin-inline: 7px;
+  margin-block: 7px;
+}
+
+.bar-chart .value {
+  text-align: right;
+  height: 2rem;
+  white-space: nowrap;
+  margin-top: -2.2rem;
+  margin-bottom: .45rem;
+}
 
 #top-downloads .bar-chart .label, #top_external_links_table .bar-chart .label {
   height: auto;
-  line-height: 1.6; }
-  #top-downloads .bar-chart .label .name, #top_external_links_table .bar-chart .label .name {
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; }
-  #top-downloads .bar-chart .label .domain, #top_external_links_table .bar-chart .label .domain {
-    color: #323a45;
-    font-size: 0.8em; }
+  line-height: 1.6;
+}
+#top-downloads .bar-chart .label .name, #top_external_links_table .bar-chart .label .name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#top-downloads .bar-chart .label .domain, #top_external_links_table .bar-chart .label .domain {
+  color: #323a45;
+  font-size: 0.8em;
+}
 
 g.axis path,
 g.axis line {
@@ -636,3 +684,48 @@ figure figure .bar-chart {
   transition: opacity 0.3s ease-in 0.5s; }
   *[data-block].loading {
     opacity: .8; }
+
+.usa-skipnav {
+  color: #1a4480;
+}
+.usa-skipnav:active,
+.usa-skipnav:hover {
+  color: #1a4480;
+}
+
+.usa-skipnav:visited {
+  color: #4b4b4d;
+}
+
+.usa-sr-only {
+  position: absolute;
+  left: -999em;
+}
+
+.skip-to-main-content-link {
+  font-size: 1.06em;
+  line-height: 1.5;
+  text-decoration: underline;
+  background: 0 0;
+  left: 0;
+  padding: 0.5em 1em;
+  position: absolute;
+  top: -3.8em;
+  transition: .15s ease-in-out;
+  z-index: 100;
+}
+.skip-to-main-content-link:focus {
+  background: #fff;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transition: .15s ease-in-out;
+  outline: 0.2em solid #fff;
+  outline-offset: 0;
+  box-shadow: 0 0 0 7px #0186a2;
+}
+
+.label .domain:focus-within {
+  display: inline-block;
+  height: 4rem;
+}
