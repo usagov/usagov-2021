@@ -27,9 +27,11 @@
  **************************************************
 #}
 <h2 class="usagov-directory-letter-heading" tabindex="-1" id="{{- alpha_context.current -}}">{{- alpha_context.current -}}</h2>
+<div class="usa-accordion">
   {% for row in rows %}
   {{ row.content }}
   {% endfor %}
+</div>
 {# <!-- Bottom Navigation --> #}
 <div class="usagov-directory-bottom-nav-container">
   {% set leftArrow = '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><polygon points="0 0 24 0 24 24 0 24"/><polygon fill="#000" fill-rule="nonzero" points="11.41 7.41 10 6 4 12 10 18 11.41 16.59 6.83 12"/></g></svg>' %}
