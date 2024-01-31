@@ -192,7 +192,7 @@ a,
 
 .usa-checkbox__input--tile+.usa-checkbox__label,
 .usa-radio__input--tile+.usa-radio__label {
-  border-color: #1b1b1b;
+  border-color: var($off-black);
   background: white;
 }
 
@@ -511,7 +511,7 @@ button#next.usa-button:hover,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked+.usa-radio__label {
-  border-color: var($blue-outer-focus);
+  border-color: var($off-black);
 }
 
 .block-wizardenglish [tabindex]:focus {
