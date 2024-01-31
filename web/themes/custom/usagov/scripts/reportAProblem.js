@@ -159,13 +159,13 @@ var submitPressed = function () {
       if ($("html").attr("lang") === "en") {
         // Adds an english error message before the captcha box.
         $(".recaptcha-alignment").before(
-          '<span class="err-label err-label-captcha" tabindex="0">Please fill out the reCaptcha</span>'
+          '<span class="err-label err-label-captcha" tabindex="0">Fill out the reCaptcha</span>'
         );
       }
       else {
         // Adds a spanish error message before the captcha box.
         $(".recaptcha-alignment").before(
-          '<span class="err-label err-label-captcha" tabindex="0">Por favor, complete el reCaptcha</span>'
+          '<span class="err-label err-label-captcha" tabindex="0">Complete el reCaptcha</span>'
         );
       }
       // Adds the error outline to the reCaptcha box.
