@@ -67,3 +67,17 @@ function usagov_directories_views_pre_render($view) {
     $view->result = $new_result;
   }
 }
+
+// /**
+//  * Implements function hook_views_preview_info_alter
+//  */
+function usagov_directories_views_preview_info_alter(array &$rows, ViewExecutable $view) {
+  echo("<script>console.log('test me');</script>");
+  print 'hello';
+  echo 'goodbye';
+
+  if ($view->id() == 'federal_directory_export' && ($view->current_display == 'fed_dir_json_export')) {
+      $output = views_embed_view('federal_directory_export	', 'fed_dir_json_export');
+  file_unmanaged_save_data($output , 'sites/default/files/public/fed_dir.json', FILE_EXISTS_REPLACE);
+  }
+}
