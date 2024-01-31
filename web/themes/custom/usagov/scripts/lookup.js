@@ -492,6 +492,25 @@ function load() {
 
     }
 
+    // Checks if the element exists in the CMS content.
+    var editAddressLink = document.getElementById("edit-address-link");
+    if (editAddressLink) {
+        let link = document.createElement('a');
+
+        // Add the href and link text depending on the language.
+        if (document.documentElement.lang === "en") {
+            link.setAttribute('href', `/elected-officials${window.location.search}`);
+            link.innerHTML = "Edit my address";
+        }
+        else {
+            link.setAttribute('href', `/es/funcionarios-electos${window.location.search}`);
+            link.innerHTML = "Editar mi dirección";
+        }
+
+        // Add the link to the <p> element in the cms.
+        editAddressLink.appendChild(link);
+    }
+
     lookup(normalizedAddress, renderResults);
 }
 
