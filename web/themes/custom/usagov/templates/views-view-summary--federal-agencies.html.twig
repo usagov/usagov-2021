@@ -41,7 +41,7 @@
 
 <div class="usagov-directory-page-container">
 
-  <div class="usagov-directory-container">
+  <div id="usagov-directory-container" class="usagov-directory-container">
     <ul class="usagov-directory-container-az">
       {% for row in rows %}
         <li>
@@ -66,6 +66,7 @@
     <section aria-label="Small search component">
     {% embed 'usagov:searchbar' with {
       form_classes: "fed-directory-search-bar",
+      form_id:"fed-dir-id",
       label_id: "fedGallerySearch",
       for_string:"search-field-en-small",
       hidden_input_id:"affiliate-agency-search",
@@ -82,6 +83,7 @@
       {% set label_string = translations.agencySearchLabel %}
       {% set alt_string = translations.search %}
     {% endembed %}
+    <div id="fed-dir-search-results"></div>
     </section>
   </div>
 </div>
