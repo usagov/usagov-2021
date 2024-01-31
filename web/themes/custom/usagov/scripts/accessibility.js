@@ -1,3 +1,10 @@
+function getSearchParams() {
+    "use strict";
+    const paramsString = window.location.search;
+    const searchParams = new URLSearchParams(paramsString);
+    return searchParams;
+}
+
 /**
  * Improve the accessibility of pages with input fields.
  * Creating error messages so users know which fields need attention. Error messages are managed on CMS in the body element and element ID's are used to get the respective text.
@@ -363,13 +370,15 @@ async function handleFormSubmission() {
     document.getElementById("myform").submit();
 };
 
-
 window.addEventListener("load", function () {
     "use strict";
     // Customize input validation error messages by
     // specifying the name of each input field. Only
     // applies to elements specified in the list below.
     let elementTypes = ["input", "textarea"];
+
+    let searchParams = getSearchParams();
+
     for (let i = 0; i < elementTypes.length; i++) {
         let elements = document.getElementsByTagName(elementTypes[i]);
         for (let j = 0; j < elements.length; j++) {
@@ -377,6 +386,16 @@ window.addEventListener("load", function () {
             let message = a11y_content[elements[j].id.replace("input-", "")];
             elements[j].setAttribute("oninvalid", "this.setCustomValidity('" + message + "')");
             elements[j].setAttribute("oninput", "this.setCustomValidity('')");
+
+            let inputParam = searchParams.get(elements[j].id);
+            if (elements[j].id.includes('input-') && inputParam) {
+                if (elements[j].id == "input-state") {
+                    document.getElementById("input-state--list").querySelector(`option[data-value="${inputParam}"]`).setAttribute("tabindex", "-1");
+                }
+                else {
+                    elements[j].setAttribute('value', inputParam);
+                }
+            }
         }
     }
 
