@@ -370,9 +370,9 @@ async function handleFormSubmission() {
     document.getElementById("myform").submit();
 };
 
-window.addEventListener("load", function () {
+document.addEventListener("readystatechange", function () {
     "use strict";
-    // Customize input validation error messages by
+       // Customize input validation error messages by
     // specifying the name of each input field. Only
     // applies to elements specified in the list below.
     let elementTypes = ["input", "textarea"];
@@ -387,17 +387,23 @@ window.addEventListener("load", function () {
             elements[j].setAttribute("oninvalid", "this.setCustomValidity('" + message + "')");
             elements[j].setAttribute("oninput", "this.setCustomValidity('')");
 
-            let inputParam = searchParams.get(elements[j].id);
-            if (elements[j].id.includes('input-') && inputParam) {
-                if (elements[j].id == "input-state") {
-                    document.getElementById("input-state--list").querySelector(`option[data-value="${inputParam}"]`).setAttribute("tabindex", "-1");
-                }
-                else {
-                    elements[j].setAttribute('value', inputParam);
-                }
-            }
+            // let inputParam = searchParams.get(elements[j].id);
+            // if (elements[j].id.includes('input-') && inputParam) {
+            //     if (elements[j].id == "input-state") {
+            //         var comboBoxElement = document.getElementsByClassName("usa-combo-box")[0];
+            //         comboBoxElement.setAttribute("data-default-value", inputParam);
+            //     }
+            //     else {
+            //         elements[j].setAttribute('value', inputParam);
+            //     }
+            // }
         }
     }
+
+});
+
+window.addEventListener("load", function () {
+    "use strict";
 
     // Clarify the purpose of the dropdown menu's clear button
     let clearButtons = document.getElementsByClassName("usa-combo-box__clear-input");

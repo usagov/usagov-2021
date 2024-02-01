@@ -49,7 +49,14 @@
               <label id="input-state-label" class="usa-label" for="input-state">Estado</label>
               <div class="usa-combo-box" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*">
                 <label class="visuallyhidden"> Estado:
-                  <select aria-describedby="state" class="usa-select" name="input-state" id="input-state" required oninvalid="this.setCustomValidity('Fill out the state field.')" oninput="this.setCustomValidity('')">
+                  <select
+                    aria-describedby="state"
+                    class="usa-select"
+                    name="input-state"
+                    id="input-state"
+                    required
+                    oninvalid="this.setCustomValidity('Fill out the state field.')"
+                    oninput="this.setCustomValidity('')">
                     <option id="AL" value="AL">Alabama</option>
                     <option id="AK" value="AK">Alaska</option>
                     <option id="AZ" value="AZ">Arizona</option>

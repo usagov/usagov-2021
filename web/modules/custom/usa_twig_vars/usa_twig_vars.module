@@ -30,6 +30,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         'datalayer_pagetype' => NULL,
         'meta_noindex' => NULL,
         'taxonomy_link_block' => NULL,
+        'input_state' => NULL,
       ];
       $node = \Drupal::routeMatch()->getParameter('node');
       $isFront = \Drupal::service('path.matcher')->isFrontPage();
@@ -94,6 +95,11 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
               $usa_twig_vars['head_title']['title'] = Markup::create(trim(strip_tags($variables['page']['#title'])) .
                   " (" . trim(strip_tags($acronym)) . ")");
             }
+          }
+
+          $current_path = \Drupal::service('path.current')->getPath();
+          if (str_contains($current_path, "/elected-officials") && str_contains($current_path, "input-state")) {
+            $usa_twig_vars['input_state'] = \Drupal::request()->query->get('input-state');
           }
 
           // Cleanup vars.
