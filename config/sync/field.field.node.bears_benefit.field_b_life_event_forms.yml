@@ -5,7 +5,6 @@ dependencies:
   config:
     - field.storage.node.field_b_life_event_forms
     - node.type.bears_benefit
-    - node.type.bears_life_event_form
 id: node.bears_benefit.field_b_life_event_forms
 field_name: field_b_life_event_forms
 entity_type: node
@@ -17,13 +16,10 @@ translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:
-  handler: 'default:node'
+  handler: views
   handler_settings:
-    target_bundles:
-      bears_life_event_form: bears_life_event_form
-    sort:
-      field: _none
-      direction: ASC
-    auto_create: false
-    auto_create_bundle: ''
+    view:
+      view_name: benefit_finder
+      display_name: entity_reference_3
+      arguments: {  }
 field_type: entity_reference
