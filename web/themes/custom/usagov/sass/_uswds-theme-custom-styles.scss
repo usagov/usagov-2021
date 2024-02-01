@@ -511,7 +511,7 @@ button#next.usa-button:hover,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked+.usa-radio__label {
-  border-color: var($deep-orange);
+  border-color: var($blue-outer-focus);
 }
 
 .block-wizardenglish [tabindex]:focus {
@@ -667,15 +667,19 @@ div div.field--name-field-offices-near-you {
 [href]:focus, button:not([disabled]):focus, input:not([disabled]):focus,
 .usa-footer__secondary-link a:focus, .usa-form a:focus, .usa-alert__text a:focus,
 button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wizardenglish a.usa-button:focus,
-.usa-radio__input:focus+[class*=__label]::before, textarea:not([disabled]):focus, .usagov-directory-bottom-nav-group a.nav-letter:focus, .Skin label.q-radio:focus,
-.Skin #Buttons #NextButton:focus, .Skin #Buttons #PreviousButton:focus, [tabindex]:focus, #pagesurvey-qual-ombnum a:focus {
+.usa-radio__input:focus+[class*=__label]::before, textarea:not([disabled]):focus,
+.usagov-directory-bottom-nav-group a.nav-letter:focus, .usa-breadcrumb__list-item:nth-last-child(2)
+.usa-breadcrumb__link:focus, [tabindex]:focus, #pagesurvey-qual-container:focus,
+#pagesurvey-qual-ombnum a:focus, #pagesurvey-qual-container .Skin label.q-radio:focus,
+#pagesurvey-qual-container .Skin #Buttons #NextButton:focus, #pagesurvey-qual-container .Skin #Buttons #PreviousButton:focus {
+
   outline: 0.25rem solid  $blue-outer-focus;
   outline-offset: 0;
   box-shadow: inset 0 0 0 2px $white-inner-focus;
 }
 
-.block-wizardenglish .usa-radio__input--tile:checked+[class*=__label] {
-  border-color: $blue-outer-focus;
+.life-events-intro a:focus, .usa-hero__callout a:focus {
+  box-shadow: none;
 }
 
 #extended-logo [href]:focus, .usa-footer__secondary-link a:focus, .usa-hero__callout [href]:focus {
@@ -695,6 +699,6 @@ button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wiz
   font-size: 1.1rem;
 }
 
-.usa-accordion__button:not(.bg-secondary) {
+#main-content .usa-accordion__button:not(.bg-secondary) {
   background-color: #f0f0f0;
 }
