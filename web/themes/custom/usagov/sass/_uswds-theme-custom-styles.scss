@@ -99,7 +99,7 @@ Buttons with visited links would mysteriously get white text which is not access
 
 .usa-button--secondary:visited,
 .usa-button:visited {
-  color: var($off-black) !important;
+  color: var($global-default, text-color) !important;
 }
 
 /*
@@ -130,7 +130,7 @@ add padding at the top of flag cards
 .usa-nav__secondary-links a:hover,
 .usa-banner__button,
 .usa-card__body {
-  color: var($off-black);
+  color: var($global-default, text-color);
 }
 
 a,
@@ -205,11 +205,15 @@ a,
 
 .usa-breadcrumb__link:visited {
   text-decoration: underline;
-  color: var($dark-gray);
+  color: var($text-blue);
 }
 
 .usa-breadcrumb__list-item {
   line-height: 1.5;
+  color: var($text-blue);
+}
+.usa-breadcrumb__currrent {
+  color: var($global-default, text-color);
 }
 
 a {
@@ -451,7 +455,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .block-wizardenglish .usa-button {
-  color: var($off-black);
+  color: var($global-default, text-color);
   background-color: var($cyan-light);
 
   @media (max-width: 40em) {
@@ -507,7 +511,7 @@ button#next.usa-button:hover,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked+.usa-radio__label {
-  border-color: var($deep-orange);
+  border-color: var($blue-outer-focus);
 }
 
 .block-wizardenglish [tabindex]:focus {
@@ -544,7 +548,7 @@ div[class^="QSIUserDefinedHTML"] {
   background: var($cyan-light);
   font-size: 130%;
   display: block;
-  color: var($off-black);
+  color: var($global-default, text-color);
   padding: 12px 0 15px;
   margin: 0 auto;
   max-width: 960px;
@@ -656,38 +660,45 @@ div div.field--name-field-offices-near-you {
   display: inline;
 }
 
-.color-off-black {
-  color: var($off-black);
-}
-
 .usa-normal {
   font-weight: normal;
 }
 
 [href]:focus, button:not([disabled]):focus, input:not([disabled]):focus,
 .usa-footer__secondary-link a:focus, .usa-form a:focus, .usa-alert__text a:focus,
-.block-wizardenglish a.usa-button:focus, button#prior.usa-button--outline:focus,
-button#next.usa-button:focus, .usa-radio__input:focus+[class*=__label]::before, .Skin label.q-radio:focus,
-.Skin #Buttons #NextButton:focus, .Skin #Buttons #PreviousButton:focus, [tabindex]:focus {
-  outline: 0.2rem solid $white-inner-focus; /* inner indicator */
+button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wizardenglish a.usa-button:focus,
+.usa-radio__input:focus+[class*=__label]::before, textarea:not([disabled]):focus,
+.usagov-directory-bottom-nav-group a.nav-letter:focus, .usa-breadcrumb__list-item:nth-last-child(2)
+.usa-breadcrumb__link:focus, [tabindex]:focus, #pagesurvey-qual-container:focus,
+#pagesurvey-qual-ombnum a:focus, #pagesurvey-qual-container .Skin label.q-radio:focus,
+#pagesurvey-qual-container .Skin #Buttons #NextButton:focus, #pagesurvey-qual-container .Skin #Buttons #PreviousButton:focus {
+
+  outline: 0.25rem solid  $blue-outer-focus;
   outline-offset: 0;
-  box-shadow: 0 0 0 7px $blue-outer-focus; /* outer indicator */
-  // display: inline-block;
+  box-shadow: inset 0 0 0 2px $white-inner-focus;
+}
+
+.life-events-intro a:focus, .usa-hero__callout a:focus {
+  box-shadow: none;
 }
 
 #extended-logo [href]:focus, .usa-footer__secondary-link a:focus, .usa-hero__callout [href]:focus {
-  display: flex;
+  display: inherit;
 }
 
 #slides-list .slick-dots li button:focus {
-  box-shadow: 0 0 0 0 $blue-outer-focus; /* outer indicator */
+  box-shadow: 0 0 0 0 $blue-outer-focus;
 }
 
 .homepage-card:focus-within, .block-wizardenglish [tabindex]:focus, .usa-radio__input:focus, .slick-dots>li>button>.slick-dot-icon:focus {
-  outline: 0.25rem solid $blue-outer-focus; /* inner indicator */
+  outline: 0.25rem solid $blue-outer-focus;
   outline-offset: 0;
 }
 
 .usagov-button{
   font-size: 1.1rem;
+}
+
+#main-content .usa-accordion__button:not(.bg-secondary) {
+  background-color: #f0f0f0;
 }
