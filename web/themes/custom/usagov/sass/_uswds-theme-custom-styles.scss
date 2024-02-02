@@ -179,8 +179,8 @@ a,
 
 .usa-checkbox__input:checked+.usa-checkbox__label::before,
 .usa-radio__input:checked+.usa-radio__label::before {
-  background-color: color("black");
-  box-shadow: 0 0 0 units($theme-input-select-border-width) color("black"),
+  background-color: var($off-black);
+  box-shadow: 0 0 0 units($theme-input-select-border-width) var($off-black),
     inset 0 0 0 units($theme-input-select-border-width) color("white");
 }
 
@@ -192,7 +192,7 @@ a,
 
 .usa-checkbox__input--tile+.usa-checkbox__label,
 .usa-radio__input--tile+.usa-radio__label {
-  border-color: black;
+  border-color: var($off-black);
   background: white;
 }
 
@@ -744,6 +744,6 @@ button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wiz
   font-size: 1.1rem;
 }
 
-.usa-accordion__button:not(.bg-secondary) {
+#main-content .usa-accordion__button:not(.bg-secondary) {
   background-color: #f0f0f0;
 }
