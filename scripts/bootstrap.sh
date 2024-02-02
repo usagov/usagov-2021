@@ -187,7 +187,8 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
     drush cim -y
     drush php-eval "node_access_rebuild();" -y
 
-    if [ x$initial_mm_state = x0 ]; then
+    initial_mm_state=$(drush state:get system.maintenance_mode)
+    if [ x$initial_mm_state = x1 ]; then
       drush state:set system.maintenance_mode 0 -y
     fi
     drush cr
