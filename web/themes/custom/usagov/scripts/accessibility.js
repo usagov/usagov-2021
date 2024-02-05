@@ -387,16 +387,17 @@ document.addEventListener("readystatechange", function () {
             elements[j].setAttribute("oninvalid", "this.setCustomValidity('" + message + "')");
             elements[j].setAttribute("oninput", "this.setCustomValidity('')");
 
-            // let inputParam = searchParams.get(elements[j].id);
-            // if (elements[j].id.includes('input-') && inputParam) {
-            //     if (elements[j].id == "input-state") {
-            //         var comboBoxElement = document.getElementsByClassName("usa-combo-box")[0];
-            //         comboBoxElement.setAttribute("data-default-value", inputParam);
-            //     }
-            //     else {
-            //         elements[j].setAttribute('value', inputParam);
-            //     }
-            // }
+            let inputParam = searchParams.get(elements[j].id);
+            if (elements[j].id.includes('input-') && inputParam) {
+                if (elements[j].id != "input-state") {
+                    // var comboBoxElement = document.getElementsByClassName("usa-combo-box")[0];
+                    // comboBoxElement.setAttribute("data-default-value", input_state);
+                    elements[j].setAttribute('value', inputParam);
+                }
+                // else {
+                //     elements[j].setAttribute('value', inputParam);
+                // }
+            }
         }
     }
 

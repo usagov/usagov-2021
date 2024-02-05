@@ -30,7 +30,6 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         'datalayer_pagetype' => NULL,
         'meta_noindex' => NULL,
         'taxonomy_link_block' => NULL,
-        'input_state' => NULL,
       ];
       $node = \Drupal::routeMatch()->getParameter('node');
       $isFront = \Drupal::service('path.matcher')->isFrontPage();
@@ -95,11 +94,6 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
               $usa_twig_vars['head_title']['title'] = Markup::create(trim(strip_tags($variables['page']['#title'])) .
                   " (" . trim(strip_tags($acronym)) . ")");
             }
-          }
-
-          $current_path = \Drupal::service('path.current')->getPath();
-          if (str_contains($current_path, "/elected-officials") && str_contains($current_path, "input-state")) {
-            $usa_twig_vars['input_state'] = \Drupal::request()->query->get('input-state');
           }
 
           // Cleanup vars.
@@ -266,6 +260,24 @@ function usa_twig_vars_preprocess_views_view_field__published_pages_report(&$var
 function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables, $hook, $info) {
   $alpha_context = &drupal_static('usa_twig_vars_preprocess_view_federal_agencies');
   $variables['alpha_context'] = $alpha_context;
+}
+
+// TODO: There must be some way to avoid having two separate functions.
+
+function usa_twig_vars_preprocess_field__node__field_custom_twig_content_elected_officials(&$variables) {
+
+  $state = \Drupal::request()->query->get('input-state');
+  if ($state) {
+    $variables['input_state'] = $state;
+  }
+}
+
+function usa_twig_vars_preprocess_field__node__field_custom_twig_content_funcionarios_electos(&$variables) {
+
+  $state = \Drupal::request()->query->get('input-state');
+  if ($state) {
+    $variables['input_state'] = $state;
+  }
 }
 
 /**
