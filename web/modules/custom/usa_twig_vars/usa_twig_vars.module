@@ -270,12 +270,12 @@ function usa_twig_vars_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Add our uswds_ckeditor_integration override on all pages: 
+ * Add our uswds_ckeditor_integration override on all pages:
  */
 function usa_twig_vars_page_attachments(array &$page) {
   $page['#attached']['library'][] = 'usa_twig_vars/usa_twig_vars_lib';
 }
- 
+
 /**
  * Custom after build function
  */
