@@ -161,7 +161,6 @@ a:visited {
 a:focus {
   box-shadow: none;
   outline: 2px solid #0186a2;
-  /* outline-offset: 0; */
 }
 
 .technical-difficulties {
@@ -386,6 +385,12 @@ header .agency-selector-wrap {
   vertical-align: middle;
   color: #112e51;
 }
+
+#agency-selector:focus{
+  box-shadow: none;
+  outline: 2px solid #0186a2;
+}
+
 @media screen and (max-width: 992px) {
   #agency-selector {
     font-size: 16px;
