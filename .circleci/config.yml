@@ -566,7 +566,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1372-maintenence-mode-fix
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -576,7 +575,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1372-maintenence-mode-fix
       - approve-dev-deployment:
           type: approval
           requires:
@@ -585,7 +583,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1372-maintenence-mode-fix
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -593,7 +590,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1372-maintenence-mode-fix
       - approve-stage-deployment:
           type: approval
           requires:
