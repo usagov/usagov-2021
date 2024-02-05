@@ -728,6 +728,11 @@ ul.pills > li > a {
 ul.pills > li > a:hover {
   text-decoration: underline;
 }
+ul.pills > li > a:focus {
+  margin-left: 2px;
+  margin-right: 2px;
+  width: calc(100% - 6px);
+}
 ul.pills > li > a[aria-selected="true"] {
   color: #fff;
   background: #0071bc;
