@@ -99,7 +99,7 @@ Buttons with visited links would mysteriously get white text which is not access
 
 .usa-button--secondary:visited,
 .usa-button:visited {
-  color: var($off-black) !important;
+  color: var($global-default, text-color) !important;
 }
 
 /*
@@ -130,7 +130,7 @@ add padding at the top of flag cards
 .usa-nav__secondary-links a:hover,
 .usa-banner__button,
 .usa-card__body {
-  color: var($off-black);
+  color: var($global-default, text-color);
 }
 
 a,
@@ -179,8 +179,8 @@ a,
 
 .usa-checkbox__input:checked+.usa-checkbox__label::before,
 .usa-radio__input:checked+.usa-radio__label::before {
-  background-color: color("black");
-  box-shadow: 0 0 0 units($theme-input-select-border-width) color("black"),
+  background-color: var($off-black);
+  box-shadow: 0 0 0 units($theme-input-select-border-width) var($off-black),
     inset 0 0 0 units($theme-input-select-border-width) color("white");
 }
 
@@ -192,7 +192,7 @@ a,
 
 .usa-checkbox__input--tile+.usa-checkbox__label,
 .usa-radio__input--tile+.usa-radio__label {
-  border-color: black;
+  border-color: var($off-black);
   background: white;
 }
 
@@ -205,11 +205,15 @@ a,
 
 .usa-breadcrumb__link:visited {
   text-decoration: underline;
-  color: var($dark-gray);
+  color: var($text-blue);
 }
 
 .usa-breadcrumb__list-item {
   line-height: 1.5;
+  color: var($text-blue);
+}
+.usa-breadcrumb__currrent {
+  color: var($global-default, text-color);
 }
 
 a {
@@ -246,7 +250,8 @@ a {
   .text-primary-lighter,
   .usa-hero,
   .usa-identifier,
-  .usa-label {
+  .usa-label,
+  .usa-description {
     font-size: 1.1rem;
   }
 }
@@ -451,7 +456,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .block-wizardenglish .usa-button {
-  color: var($off-black);
+  color: var($global-default, text-color);
   background-color: var($cyan-light);
 
   @media (max-width: 40em) {
@@ -507,7 +512,7 @@ button#next.usa-button:hover,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked+.usa-radio__label {
-  border-color: var($deep-orange);
+  border-color: var($blue-outer-focus);
 }
 
 .block-wizardenglish [tabindex]:focus {
@@ -544,7 +549,7 @@ div[class^="QSIUserDefinedHTML"] {
   background: var($cyan-light);
   font-size: 130%;
   display: block;
-  color: var($off-black);
+  color: var($global-default, text-color);
   padding: 12px 0 15px;
   margin: 0 auto;
   max-width: 960px;
@@ -627,10 +632,60 @@ div[class^="QSIUserDefinedHTML"] {
 p,
 a,
 .usa-label,
+.usa-description,
 .usa-radio__label {
   line-height: 1.5;
 }
 
+// "Report an issue" page style
+// Style of the description used for the input field of a form.
+.usa-description {
+  @include typeset(
+    $theme-form-font-family,
+    $theme-body-font-size,
+    $theme-input-line-height
+  );
+  display: block;
+  font-weight: font-weight("normal");
+  margin-top: 0.5rem;
+  max-width: units($theme-input-max-width);
+}
+
+// Fix the height of the "Describe the issue" field.
+.usa-input-textarea {
+  height: auto;
+}
+
+// Alignment of recaptcha error message and recaptcha box.
+.recaptcha-container {
+  @extend .ceo-button-container;
+  margin-bottom: 1em;
+  flex-direction: column;
+}
+
+// Centers the recaptcha error message
+.err-label-captcha {
+  @extend .usa-error;
+  text-align: center;
+}
+
+// Centers the recaptcha box
+.recaptcha-alignment {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+// Add a space between the recaptcha box and the error outline.
+.recaptcha-outline-padding {
+  padding: 5px;
+}
+
+.issue-button {
+  @extend .ceo-button;
+  margin-top: 1.5rem;
+}
+// End of "Report an issue" page style
 
 #myform .usa-button {
   margin-left: 4rem;
@@ -638,12 +693,6 @@ a,
   @media (max-width: 30em) {
     margin-left: .4rem;
   }
-}
-
-// Style for the "Submit" button on the "Report a Problem" page.
-// Aligns the button to the left.
-#myform input.usa-button  {
-  margin-left: 0;
 }
 
 .usa-form div.maxw-mobile p {
@@ -656,38 +705,45 @@ div div.field--name-field-offices-near-you {
   display: inline;
 }
 
-.color-off-black {
-  color: var($off-black);
-}
-
 .usa-normal {
   font-weight: normal;
 }
 
 [href]:focus, button:not([disabled]):focus, input:not([disabled]):focus,
 .usa-footer__secondary-link a:focus, .usa-form a:focus, .usa-alert__text a:focus,
-.block-wizardenglish a.usa-button:focus, button#prior.usa-button--outline:focus,
-button#next.usa-button:focus, .usa-radio__input:focus+[class*=__label]::before, .Skin label.q-radio:focus,
-.Skin #Buttons #NextButton:focus, .Skin #Buttons #PreviousButton:focus, [tabindex]:focus {
-  outline: 0.2rem solid $white-inner-focus; /* inner indicator */
+button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wizardenglish a.usa-button:focus,
+.usa-radio__input:focus+[class*=__label]::before, textarea:not([disabled]):focus,
+.usagov-directory-bottom-nav-group a.nav-letter:focus, .usa-breadcrumb__list-item:nth-last-child(2)
+.usa-breadcrumb__link:focus, [tabindex]:focus, #pagesurvey-qual-container:focus,
+#pagesurvey-qual-ombnum a:focus, #pagesurvey-qual-container .Skin label.q-radio:focus,
+#pagesurvey-qual-container .Skin #Buttons #NextButton:focus, #pagesurvey-qual-container .Skin #Buttons #PreviousButton:focus {
+
+  outline: 0.25rem solid  $blue-outer-focus;
   outline-offset: 0;
-  box-shadow: 0 0 0 7px $blue-outer-focus; /* outer indicator */
-  // display: inline-block;
+  box-shadow: inset 0 0 0 2px $white-inner-focus;
+}
+
+.life-events-intro a:focus, .usa-hero__callout a:focus {
+  box-shadow: none;
 }
 
 #extended-logo [href]:focus, .usa-footer__secondary-link a:focus, .usa-hero__callout [href]:focus {
-  display: flex;
+  display: inherit;
 }
 
 #slides-list .slick-dots li button:focus {
-  box-shadow: 0 0 0 0 $blue-outer-focus; /* outer indicator */
+  box-shadow: 0 0 0 0 $blue-outer-focus;
 }
 
 .homepage-card:focus-within, .block-wizardenglish [tabindex]:focus, .usa-radio__input:focus, .slick-dots>li>button>.slick-dot-icon:focus {
-  outline: 0.25rem solid $blue-outer-focus; /* inner indicator */
+  outline: 0.25rem solid $blue-outer-focus;
   outline-offset: 0;
 }
 
 .usagov-button{
   font-size: 1.1rem;
+}
+
+#main-content .usa-accordion__button:not(.bg-secondary) {
+  background-color: #f0f0f0;
 }
