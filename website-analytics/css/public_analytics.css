@@ -816,6 +816,10 @@ ul.pills > li:last-child > a {
   text-decoration: none;
 }
 
+.bar-chart .label .domain a {
+  margin-left: 3px;
+}
+
 .bar-chart .label a:hover {
   text-decoration: underline;
 }
@@ -826,8 +830,15 @@ ul.pills > li:last-child > a {
 
 .bar-chart .label a:focus {
   display: inline-block;
-  margin-inline: 7px;
-  margin-block: 7px;
+  margin-left: 3px;
+  margin-top: 3px;
+  text-overflow: clip;
+  white-space: nowrap;
+  overflow: hidden;
+  width: calc(95%);
+}
+.bar-chart .label .domain a:focus {
+  margin-left: 3px;
 }
 
 .bar-chart .value {
