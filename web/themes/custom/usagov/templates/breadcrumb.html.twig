@@ -34,7 +34,7 @@
             >
             <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">
                 {% for item in breadcrumb %}
-                    <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                    <li class="usa-breadcrumb__list-item {{ item.url ? '' : 'usa-breadcrumb__currrent' }}" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                         {% if item.url %}
                             <a href="{{ item.url }}" class="usa-breadcrumb__link" itemprop="item">
                                 <span itemprop="name">

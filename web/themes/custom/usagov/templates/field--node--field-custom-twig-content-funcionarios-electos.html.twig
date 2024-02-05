@@ -27,8 +27,7 @@
       autocomplete="off"
       name="myform"
       id="myform"
-      novalidate
-      onsubmit="return myforms(event);">
+      >
       <div class="padding-1px bg-gray-4">
         <div class="maxw-mobile margin-x-auto margin-y-4">
           <p>Por favor, rellene el formulario que aparece a continuación. <strong>Todos los campos son obligatorios.</strong></p>
@@ -119,7 +118,8 @@
             <a href="/es/privacidad-seguridad">Conozca cómo USAGov en Español protege su privacidad.</a>
           </p>
           <div class="ceo-button-container">
-            <button class="usa-button usa-button--secondary usa-button--big ceo-button">
+            <button class="usa-button usa-button--secondary usa-button--big ceo-button" type="button"
+            onclick="handleFormSubmission()">
               Encontrar a mis funcionarios electos
             </button>
           </div>
