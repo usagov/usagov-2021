@@ -1,0 +1,6 @@
+usa_twig_vars_lib:
+  js:
+    js/override_uswds_accordion_behavior.js: {}
+  dependencies:
+    - uswds_ckeditor_integration/uswds_accordion.frontend
+    - core/jquery
