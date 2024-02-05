@@ -812,6 +812,11 @@ ul.pills > li:last-child > a {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.bar-chart .label .domain {
+  width: 100%;
+}
+
 .bar-chart .label a {
   text-decoration: none;
 }
@@ -839,6 +844,7 @@ ul.pills > li:last-child > a {
 }
 .bar-chart .label .domain a:focus {
   margin-left: 3px;
+  width: calc(75%);
 }
 
 .bar-chart .value {
