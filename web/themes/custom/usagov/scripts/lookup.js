@@ -144,8 +144,7 @@ function renderResults(response, rawResponse) {
 
         // Create container for rendering results
         let container = document.createElement("div");
-        container.setAttribute("class", "usa-accordion usa-accordion--multiselectable");
-        container.setAttribute("data-allow-multiple","");
+        container.setAttribute("class", "usa-accordion");
 
         // Create an accordion for each level of elected officials
         const levels = content["levels"];
@@ -165,7 +164,7 @@ function renderResults(response, rawResponse) {
 
             let accordionContent = document.createElement("div");
             accordionContent.setAttribute("id", levelName);
-            accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
+            accordionContent.setAttribute("class", "usa-accordion usa-accordion__content usa-prose");
             accordionContent.setAttribute("hidden", "until-found");
 
             container.appendChild(accordionHeader);
@@ -194,7 +193,7 @@ function renderResults(response, rawResponse) {
 
             let accordionContent = document.createElement("div");
             accordionContent.setAttribute("id", levelName);
-            accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
+            accordionContent.setAttribute("class", "usa-accordion usa-accordion__content usa-prose");
             accordionContent.setAttribute("hidden", "until-found");
 
             // Adds the sub-accordion to the Local officials accordion.
