@@ -14,7 +14,6 @@ settings:
       - bold
       - italic
       - underline
-      - horizontalLine
       - alignment
       - outdent
       - indent
