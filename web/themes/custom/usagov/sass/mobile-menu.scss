@@ -69,7 +69,7 @@ ul.navigation__items {
   align-items: center;
   background: transparent;
   border: 0;
-  color: $off-black;
+  color: var($global-default, text-color);
   font-weight: bold;
   font-size: larger;
   text-decoration: none;
@@ -80,7 +80,7 @@ ul.navigation__items {
 
 
 .usagov-mobile-menu-controls a svg {
-  border: 3px solid $off-black;
+  border: 3px solid var($global-default, text-color);
   border-radius: 100%;
   height: 2.16rem;
   width: 2.16rem;

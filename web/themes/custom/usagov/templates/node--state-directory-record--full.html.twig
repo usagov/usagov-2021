@@ -28,10 +28,11 @@
 
 	{% if lang == 'en' %}
 		<div>
-			<ul class="usa-list usa-list--unstyled">
-				<h2 class="usa-prose line-height-2">Governor</h2>
-				{{ content.field_governor }}<br>
-				{{ content.field_governor_contact }}
+			<h2 class="usa-prose line-height-2">Governor</h2>
+				<ul class="usa-list usa-list--unstyled">
+					<li class="usa-list usa-list--unstyled">{{ content.field_governor }}</li>
+					<li class="usa-list usa-list--unstyled">{{ content.field_governor_contact }}</li>
+				</ul>
 				<p class="usagov-dir-padding line-height-2">Phone:
 					{{ content.field_phone_number }}</p>
 				{% if content.group_main_address %}
@@ -54,7 +55,6 @@
 						{{ address.field_zip }}
 					{% endif %}
 				{% endif %}
-			</ul>
 		</div>
 	{% endif %}
 

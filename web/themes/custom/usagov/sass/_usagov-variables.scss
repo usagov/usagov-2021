@@ -37,6 +37,11 @@ $secondary-background-color: #a7d8e3;
 $blue-outer-focus: #0186a2;
 $white-inner-focus: #ffffff;
 
+// Global Default Attribute
+$global-default: (
+  text-color: $off-black,
+);
+
 // Component Variables
 $mobile-nav: (
   red: $red,
