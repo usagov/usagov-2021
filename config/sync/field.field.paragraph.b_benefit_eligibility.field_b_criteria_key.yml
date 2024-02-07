@@ -4,7 +4,6 @@ status: true
 dependencies:
   config:
     - field.storage.paragraph.field_b_criteria_key
-    - node.type.bears_criteria
     - paragraphs.paragraphs_type.b_benefit_eligibility
 id: paragraph.b_benefit_eligibility.field_b_criteria_key
 field_name: field_b_criteria_key
@@ -17,13 +16,10 @@ translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:
-  handler: 'default:node'
+  handler: views
   handler_settings:
-    target_bundles:
-      bears_criteria: bears_criteria
-    sort:
-      field: _none
-      direction: ASC
-    auto_create: false
-    auto_create_bundle: ''
+    view:
+      view_name: benefit_finder
+      display_name: entity_reference_2
+      arguments: {  }
 field_type: entity_reference
