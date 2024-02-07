@@ -35,7 +35,6 @@ commands:
             fi
             cf set-env cms USPS_USERID $USPS_USERID
             cf set-env cms USPS_PASSWORD $USPS_PASSWORD
-            # cf restage cms
       - run:
           name: CloudGov Deploy WAF
           command: |
@@ -53,7 +52,6 @@ commands:
             ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
             cf set-env waf USPS_USERID $USPS_USERID
             cf set-env waf USPS_PASSWORD $USPS_PASSWORD
-            cf restage waf
   save-image-digest:
     steps:
       - run:
