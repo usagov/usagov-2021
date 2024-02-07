@@ -32,14 +32,10 @@ content:
     settings: {  }
     third_party_settings: {  }
   field_b_agency:
-    type: entity_reference_autocomplete
+    type: options_select
     weight: 8
     region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
+    settings: {  }
     third_party_settings: {  }
   field_b_eligibility:
     type: paragraphs
@@ -75,14 +71,10 @@ content:
       placeholder: ''
     third_party_settings: {  }
   field_b_life_event_forms:
-    type: entity_reference_autocomplete
+    type: options_buttons
     weight: 7
     region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
+    settings: {  }
     third_party_settings: {  }
   field_b_life_events:
     type: options_buttons
@@ -202,4 +194,5 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-hidden: {  }
+hidden:
+  menu_entity_index: true

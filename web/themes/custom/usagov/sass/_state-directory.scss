@@ -38,7 +38,7 @@
 }
 
 .usa-combo-box__list-option--selected {
-  color: var($off-black);
+  color: var($global-default, text-color);
 }
 
 .ceoLink {
