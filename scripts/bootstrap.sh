@@ -187,8 +187,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
     drush cim -y
     drush php-eval "node_access_rebuild();" -y
 
-    initial_mm_state=$(drush state:get system.maintenance_mode)
-    if [ x$initial_mm_state = x1 ]; then
+    if [ x$initial_mm_state = x0 ]; then
       drush state:set system.maintenance_mode 0 -y
     fi
     drush cr
@@ -199,7 +198,8 @@ else
 fi
 
 echo "Adding the USPS credentials..."
-if [[ ${USPS_USERID:-"unset"} != "unset" ]] && [[ ${USPS_PASSWORD:-"unset"} != "unset" ]]; then
+if [[ ${USPS_USERID:-"unset"} != "unset" ]] &&
+   [[ ${USPS_PASSWORD:-"unset"} != "unset" ]]; then
     echo "const USPS_USERID = '${USPS_USERID}';" > ./web/themes/custom/usagov/scripts/usps-credentials.js
     echo "const USPS_PASSWORD = '${USPS_PASSWORD}';" >> ./web/themes/custom/usagov/scripts/usps-credentials.js
     echo "USPS credentials added successfully!"
