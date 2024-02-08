@@ -124,6 +124,11 @@ function setupNewrelic { #appname
   $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart
 }
 
+function setUSPSCreds {
+  cf set-env cms USPS_USERID $USPS_USERID
+  cf set-env cms USPS_PASSWORD $USPS_PASSWORD
+}
+
 if appExists cms; then
   setupRoutes cms
 #  setupEgress cms

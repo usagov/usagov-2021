@@ -33,8 +33,6 @@ commands:
               echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
               echo
             fi
-            cf set-env cms USPS_USERID $USPS_USERID
-            cf set-env cms USPS_PASSWORD $USPS_PASSWORD
       - run:
           name: CloudGov Deploy WAF
           command: |
@@ -50,8 +48,6 @@ commands:
             ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
             PROTECTED_APP_NAME=$DCMS_APP \
             ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
-            cf set-env waf USPS_USERID $USPS_USERID
-            cf set-env waf USPS_PASSWORD $USPS_PASSWORD
   save-image-digest:
     steps:
       - run:
@@ -564,6 +560,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1372-maintenence-mode-fix
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -573,6 +570,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1372-maintenence-mode-fix
       - approve-dev-deployment:
           type: approval
           requires:
@@ -581,6 +579,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1372-maintenence-mode-fix
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -588,6 +587,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1372-maintenence-mode-fix
       - approve-stage-deployment:
           type: approval
           requires:
