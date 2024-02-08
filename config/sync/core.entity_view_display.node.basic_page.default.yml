@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
+    - field.field.node.basic_page.field_exclude_from_contact_cente
     - field.field.node.basic_page.field_faq_page
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_for_contact_center_only
@@ -53,6 +54,16 @@ content:
       format_custom_true: ''
     third_party_settings: {  }
     weight: 6
+    region: content
+  field_exclude_from_contact_cente:
+    type: boolean
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 8
     region: content
   field_hero_links:
     type: link
