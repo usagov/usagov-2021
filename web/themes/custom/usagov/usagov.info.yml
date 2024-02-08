@@ -30,6 +30,13 @@ libraries:
   - 'usagov/wizard'
   - 'usagov/wizardstep'
 
+libraries-override:
+  # Remove the accordion logic from uswds_ckeditor_integration
+  # beacause it overwrites the IDs of accordions from our templates and USWDS paragraph components
+  uswds_ckeditor_integration/uswds_accordion: false
+  uswds_ckeditor_integration/uswds_accordion.admin: false
+  uswds_ckeditor_integration/uswds_accordion.frontend: false
+
 ckeditor_stylesheets:
   - css/styles.css
   - css/USWDS_CKEditor_Custom_Styles.css
