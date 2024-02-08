@@ -134,6 +134,7 @@ if appExists cms; then
 #  setupEgress cms
   setupNewrelic cms
   pushApp cms
+  setUSPSCreds
 else
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
   pushApp cms
