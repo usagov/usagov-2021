@@ -564,6 +564,7 @@ workflows:
             branches:
               only:
                 - dev
+                - USAGOV-1342-update-core-10.2.2
                 - stage
                 - prod
       - build-and-push-container:
@@ -573,6 +574,7 @@ workflows:
             branches:
               only:
                 - dev
+                - USAGOV-1342-update-core-10.2.2
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -583,6 +585,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1342-update-core-10.2.2
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -590,6 +593,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1342-update-core-10.2.2
       - approve-stage-deployment:
           type: approval
           requires:
