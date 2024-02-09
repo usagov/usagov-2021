@@ -55,16 +55,6 @@ content:
     third_party_settings: {  }
     weight: 6
     region: content
-  field_exclude_from_contact_cente:
-    type: boolean
-    label: above
-    settings:
-      format: default
-      format_custom_false: ''
-      format_custom_true: ''
-    third_party_settings: {  }
-    weight: 8
-    region: content
   field_hero_links:
     type: link
     label: above
@@ -113,6 +103,7 @@ content:
 hidden:
   field_50_state_pages_type: true
   field_css_icon: true
+  field_exclude_from_contact_cente: true
   field_faq_page: true
   field_footer_html: true
   field_for_contact_center_only: true
