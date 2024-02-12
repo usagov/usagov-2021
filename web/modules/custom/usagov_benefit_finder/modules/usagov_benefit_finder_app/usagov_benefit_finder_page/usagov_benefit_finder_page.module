@@ -42,6 +42,13 @@ function usagov_benefit_finder_page_page_attachments_alter(array &$page) {
   if ($node && $node->bundle() == "bears_life_event") {
     if (\Drupal::routeMatch()->getRouteName() == 'entity.node.canonical') {
       $page['#attached']['library'][] = 'usagov_benefit_finder_page/benefit_finder_app';
+      $url = $node->toUrl('canonical')->setAbsolute(TRUE);
+      $page['#attached']['html_head_link'][] = [
+        [
+          'rel' => 'canonical',
+          'href' => $url->toString(),
+        ],
+      ];
     }
   }
 }
