@@ -1,8 +1,6 @@
 const search_input = document.getElementById("search-field-en-small");
 const dir_search_results = document.getElementById("fed-dir-search-results");
 let lang = document.documentElement.lang;
-console.log(lang);
-
 let search_term = "";
 
 function fetchAgencies() {
@@ -11,7 +9,7 @@ function fetchAgencies() {
       (response) => response.json()
     );
   }
-else {
+  else {
     return fetch("sites/default/files/directory_report_federal").then(
       (response) => response.json()
     );
@@ -25,7 +23,6 @@ function searchAgencies(allAgencies) {
 }
 
 function showAgencies(filteredAgencies) {
-  console.log(filteredAgencies);
   dir_search_results.innerText = "";
   const usasearch_sayt = document.createElement("div");
   usasearch_sayt.classList.add("usasearch_sayt");
@@ -77,7 +74,6 @@ function listen_for_clear_results() {
 if (search_input) {
   search_input.addEventListener("input", (e) => {
     search_term = e.target.value;
-    console.log(search_term);
     if (search_term != "") {
       getAgencies();
     }
