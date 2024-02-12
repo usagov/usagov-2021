@@ -9,7 +9,7 @@ function fetchAgencies() {
       (response) => response.json()
     );
   }
-  else {
+ else {
     return fetch("sites/default/files/directory_report_federal").then(
       (response) => response.json()
     );
@@ -36,8 +36,15 @@ function showAgencies(filteredAgencies) {
     resultBox.setAttribute("role", "option");
 
     const anchor = document.createElement("a");
+    const type = agency.agency_type;
+    // need to get either the agency or synonym url. They will have the same value but are stored in 2 seperate fields
+    if (type == "Federal Directory Record") {
+      anchor.href = agency.agency_url;
+    }
+ else {
+      anchor.href = agency.synonym_url;
+    }
 
-    anchor.href = agency.agency_url;
     anchor.innerText = agency.agency_title;
 
     resultBox.appendChild(anchor);
