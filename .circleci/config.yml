@@ -566,6 +566,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - usagov-1158-cms-login-button
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -575,6 +576,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - usagov-1158-cms-login-button
       - approve-dev-deployment:
           type: approval
           requires:
@@ -583,6 +585,7 @@ workflows:
             branches:
               only:
               - dev
+              - usagov-1158-cms-login-button
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -590,6 +593,7 @@ workflows:
             branches:
               only:
               - dev
+              - usagov-1158-cms-login-button
       - approve-stage-deployment:
           type: approval
           requires:
