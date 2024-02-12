@@ -389,7 +389,7 @@ document.addEventListener("readystatechange", function () {
 
             let inputParam = searchParams.get(elements[j].id);
             if (elements[j].id.includes('input-') && inputParam) {
-                if (elements[j].id != "input-state") {
+                if (elements[j].id !== "input-state") {
                     // var comboBoxElement = document.getElementsByClassName("usa-combo-box")[0];
                     // comboBoxElement.setAttribute("data-default-value", input_state);
                     elements[j].setAttribute('value', inputParam);
