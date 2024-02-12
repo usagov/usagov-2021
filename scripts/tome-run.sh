@@ -45,6 +45,14 @@ if [ "$NO_RUN" != '' ]; then
     exit 2
 fi
 
+# Also, don't start if we're in maintenance mode:
+export MAINT_MODE_STATE=$(drush sget system.maintenance_mode)
+if [ x$MAINT_MODE_STATE == x1 ]; then
+    echo "Maintenance mode is enabled. Exiting." | tee -a $TOMELOG
+    $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Maintenance mode is enabled; static site will not generate"
+    exit 2
+fi
+
 # we should expect to see our process running: so we would expect a count of 1
 echo "Check if Tome is already running ... " | tee -a $TOMELOG
 PS_AUX=$(ps aux)
