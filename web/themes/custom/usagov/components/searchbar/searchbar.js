@@ -1,42 +1,46 @@
-const search_input = document.getElementById('search-field-en-small');
-const dir_search_results = document.getElementById('fed-dir-search-results');
+const search_input = document.getElementById("search-field-en-small");
+const dir_search_results = document.getElementById("fed-dir-search-results");
 
-let search_term = '';
+let search_term = "";
 
 function fetchAgencies() {
-  return fetch('sites/default/files/directory_report_federal')
-    .then((response) => response.json());
-};
+  return fetch("sites/default/files/directory_report_federal").then(
+    (response) => response.json()
+  );
+}
 
 function searchAgencies(allAgencies) {
-  return allAgencies
-  .filter(agency =>
-      agency.agency_title.toLowerCase().includes(search_term.toLowerCase())
+  return allAgencies.filter((agency) =>
+    agency.agency_title.toLowerCase().includes(search_term.toLowerCase())
   );
 }
 
 function showAgencies(filteredAgencies) {
   console.log(filteredAgencies);
   dir_search_results.innerText = "";
-  const usasearch_sayt = document.createElement('div');
-  usasearch_sayt.classList.add('usasearch_sayt');
-  const ul = document.createElement('ul');
+  const usasearch_sayt = document.createElement("div");
+  usasearch_sayt.classList.add("usasearch_sayt");
+  usasearch_sayt.setAttribute("id", "usasearch_sayt");
+  const ul = document.createElement("ul");
 
-  filteredAgencies
-    .forEach(agency => {
-        const li = document.createElement('li');
-        const anchor = document.createElement('a');
+  filteredAgencies.forEach((agency) => {
+    const resultBox = document.createElement("li");
+    resultBox.classList.add("resultBox");
+    resultBox.setAttribute("id", "resultBox");
+    resultBox.setAttribute("role", "option");
 
-        anchor.href = agency.agency_url;
-        anchor.innerText = agency.agency_title;
+    const anchor = document.createElement("a");
 
-        li.appendChild(anchor);
-        ul.appendChild(li);
-    });
+    anchor.href = agency.agency_url;
+    anchor.innerText = agency.agency_title;
+
+    resultBox.appendChild(anchor);
+    ul.appendChild(resultBox);
+  });
 
   usasearch_sayt.appendChild(ul);
   dir_search_results.appendChild(usasearch_sayt);
-};
+}
 
 async function getAgencies() {
   try {
@@ -44,15 +48,33 @@ async function getAgencies() {
     let filteredAgencies = await searchAgencies(allAgencies);
     await showAgencies(filteredAgencies);
   }
-  catch (status) {
+ catch (status) {
     // no suggestions found
   }
 }
 
-if (search_input) {
-  search_input.addEventListener('input', e => {
-    search_term = e.target.value;
-    getAgencies();
-  });
+function listen_for_clear_results() {
+  const fed_dir_results = document.getElementById("usasearch_sayt");
+  if (fed_dir_results) {
+    window.addEventListener("click", function (e) {
+      // Clicked outside box need to clear the reults box
+      if (!fed_dir_results.contains(e.target)) {
+        dir_search_results.innerText = "";
+      }
+    });
+  }
 }
 
+if (search_input) {
+  search_input.addEventListener("input", (e) => {
+    search_term = e.target.value;
+    console.log(search_term);
+    if (search_term != "") {
+      getAgencies();
+    }
+ else {
+      dir_search_results.innerText = "";
+    }
+    listen_for_clear_results();
+  });
+}
