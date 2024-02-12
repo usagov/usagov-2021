@@ -124,10 +124,16 @@ function setupNewrelic { #appname
   $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart
 }
 
+function setUSPSCreds {
+  cf set-env cms USPS_USERID $USPS_USERID
+  cf set-env cms USPS_PASSWORD $USPS_PASSWORD
+}
+
 if appExists cms; then
   setupRoutes cms
 #  setupEgress cms
   setupNewrelic cms
+  setUSPSCreds
   pushApp cms
 else
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
@@ -135,6 +141,7 @@ else
   setupRoutes cms
 #  setupEgress cms
   setupNewrelic cms
+  setUSPSCreds
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
   restartApp cms
 fi
