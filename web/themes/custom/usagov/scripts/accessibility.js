@@ -370,39 +370,6 @@ async function handleFormSubmission() {
     document.getElementById("myform").submit();
 };
 
-document.addEventListener("readystatechange", function () {
-    "use strict";
-       // Customize input validation error messages by
-    // specifying the name of each input field. Only
-    // applies to elements specified in the list below.
-    let elementTypes = ["input", "textarea"];
-
-    let searchParams = getSearchParams();
-
-    for (let i = 0; i < elementTypes.length; i++) {
-        let elements = document.getElementsByTagName(elementTypes[i]);
-        for (let j = 0; j < elements.length; j++) {
-            // Note: all input fields should have an ID starting with "input-"
-            let message = a11y_content[elements[j].id.replace("input-", "")];
-            elements[j].setAttribute("oninvalid", "this.setCustomValidity('" + message + "')");
-            elements[j].setAttribute("oninput", "this.setCustomValidity('')");
-
-            let inputParam = searchParams.get(elements[j].id);
-            if (elements[j].id.includes('input-') && inputParam) {
-                if (elements[j].id !== "input-state") {
-                    // var comboBoxElement = document.getElementsByClassName("usa-combo-box")[0];
-                    // comboBoxElement.setAttribute("data-default-value", input_state);
-                    elements[j].setAttribute('value', inputParam);
-                }
-                // else {
-                //     elements[j].setAttribute('value', inputParam);
-                // }
-            }
-        }
-    }
-
-});
-
 window.addEventListener("load", function () {
     "use strict";
 
@@ -424,4 +391,41 @@ window.addEventListener("load", function () {
     for (let i = 0; i < toggleButtons.length; i++) {
         toggleButtons[i].removeAttribute("tabindex");
     }
+
 });
+
+(function(){
+    // Customize input validation error messages by
+    // specifying the name of each input field. Only
+    // applies to elements specified in the list below.
+    // It also prepropulates the form if the URL has the parameters.
+    let elementTypes = ["input", "textarea", "select"];
+
+    // Stores the URL parameters
+    let searchParams = getSearchParams();
+
+    for (let i = 0; i < elementTypes.length; i++) {
+        let elements = document.getElementsByTagName(elementTypes[i]);
+
+        for (let j = 0; j < elements.length; j++) {
+            // Note: all input fields should have an ID starting with "input-"
+            let message = a11y_content[elements[j].id.replace("input-", "")];
+            elements[j].setAttribute("oninvalid", "this.setCustomValidity('" + message + "')");
+            elements[j].setAttribute("oninput", "this.setCustomValidity('')");
+
+            let inputParam = searchParams.get(elements[j].id);
+            if (elements[j].id.includes('input-') && inputParam) {
+
+                // Prepopulates the dropdown of the states.
+                if (elements[j].id === "input-state") {
+                    var div = document.querySelector(`div.usa-combo-box`);
+                    div.setAttribute("data-default-value", inputParam);
+                }
+                // Prepopulates all the input fields (street, city, zip).
+                else {
+                    elements[j].setAttribute('value', inputParam);
+                }
+            }
+        }
+    }
+})();

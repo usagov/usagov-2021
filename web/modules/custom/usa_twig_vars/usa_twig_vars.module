@@ -262,24 +262,6 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
   $variables['alpha_context'] = $alpha_context;
 }
 
-// TODO: There must be some way to avoid having two separate functions.
-
-function usa_twig_vars_preprocess_field__node__field_custom_twig_content_elected_officials(&$variables) {
-
-  $state = \Drupal::request()->query->get('input-state');
-  if ($state) {
-    $variables['input_state'] = $state;
-  }
-}
-
-function usa_twig_vars_preprocess_field__node__field_custom_twig_content_funcionarios_electos(&$variables) {
-
-  $state = \Drupal::request()->query->get('input-state');
-  if ($state) {
-    $variables['input_state'] = $state;
-  }
-}
-
 /**
  * Implements hook_form_alter().
  */
