@@ -720,7 +720,7 @@ ul.pills > li > a {
   font-size: 0.8em;
   display: inline-block;
   padding: 0.32em 0em;
-  text-decoration: none;
+  text-decoration: underline;
   border-top: 1px solid #e4e4e4;
   border-bottom: 1px solid #e4e4e4;
   border-right: 1px solid #e4e4e4;
@@ -818,7 +818,7 @@ ul.pills > li:last-child > a {
 }
 
 .bar-chart .label a {
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 .bar-chart .label .domain a {
