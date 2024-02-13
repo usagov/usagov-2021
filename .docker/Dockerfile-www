@@ -1,6 +1,6 @@
 
 ###############################################################
-FROM alpine:3.18 AS static
+FROM alpine:3.18 AS www
 
 ARG S6_VERSION
 ENV S6_VERSION ${S6_VERSION:-v2.2.0.3}
