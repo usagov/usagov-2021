@@ -82,36 +82,16 @@ function setupRoutes { #appname
   # but cms needs to exist in the first place
   # for route mapping and egress setup to run
 
-  #if [ "$APP_SPACE" != "dev-dr" ]; then
-  #  cf create-route apps.internal --hostname ssc-$APP_SPACE-usagov
-  #  cf map-route $app apps.internal --hostname ssc-$APP_SPACE-usagov
-  ##else
-  ##  cf create-route apps.internal --hostname shared-egress-dr-usagov
-  ##  cf map-route $app apps.internal --hostname shared-egress-dr-usagov
-  ##  cf create-route apps.internal --hostname dev-dr-usagov
-  ##  cf map-route $app apps.internal --hostname dev-dr-usagov
-  ##
-  ##  cf create-route usa.gov --hostname shared-egress-dr
-  ##  cf map-route $app usa.gov --hostname shared-egress-dr    
-  ##  cf create-route usa.gov --hostname dev-dr
-  ##  cf map-route $app usa.gov --hostname dev-dr
-  ##fi
-  ##
-  ##if [ "$APP_SPACE" == "prod" ]; then
-  ##  cf create-route apps.internal --hostname www-$APP_SPACE-usagov
-  ##  cf map-route $app apps.internal --hostname www-$APP_SPACE-usagov
-  ##  cf create-route usa.gov --hostname cms
-  ##  cf map-route $app usa.gov --hostname cms
-  ##  cf create-route usa.gov --hostname beta
-  ##  cf map-route $app usa.gov --hostname beta
-  ##  cf create-route usa.gov --hostname www
-  ##  cf map-route $app usa.gov --hostname www
-  ##else
-  ##  cf create-route usa.gov --hostname cms-$APP_SPACE
-  ##  cf map-route $app usa.gov --hostname cms-$APP_SPACE
-  ##  cf create-route usa.gov --hostname beta-$APP_SPACE
-  ##  cf map-route $app usa.gov --hostname beta-$APP_SPACE
-  ##
+  if [ "$APP_SPACE" == "dev-dr" ]; then
+    #cf create-route apps.internal --hostname shared-egress-dr-usagov
+    #cf map-route $app apps.internal --hostname shared-egress-dr-usagov
+    cf create-route apps.internal --hostname dev-dr-usagov
+    cf map-route $app apps.internal --hostname dev-dr-usagov
+
+    #cf create-route usa.gov --hostname shared-egress-dr
+    #cf map-route $app usa.gov --hostname shared-egress-dr    
+    cf create-route usa.gov --hostname dev-dr
+    cf map-route $app usa.gov --hostname dev-dr
   fi
 }
 
@@ -134,16 +114,16 @@ function setupNewrelic { #appname
 }
 
 if appExists cms; then
-  setupRoutes cms
+  setupRoutes www
 #  setupEgress cms
-  setupNewrelic cms
-  pushApp cms
+  setupNewrelic www
+  pushApp www
 else
-  cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
-  pushApp cms
-  setupRoutes cms
+  cf set-env www SKIP_DRUPAL_BOOTSTRAP "skip"
+  pushApp www
+  setupRoutes www
 #  setupEgress cms
-  setupNewrelic cms
-  cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
-  restartApp cms
+  setupNewrelic www
+  cf set-env www SKIP_DRUPAL_BOOTSTRAP ""
+  restartApp www
 fi

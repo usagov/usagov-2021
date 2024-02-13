@@ -36,6 +36,25 @@ commands:
               echo
             fi
       - run:
+          name: CloudGov Deploy Static Site
+          command: |
+            export NEW_RELIC_APP_NAME="WWW-<< parameters.envname >>;USA.gov"
+            export NEW_RELIC_DISPLAY_NAME=usa-www-<< parameters.envname >>
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-www << pipeline.number >> $CMS_DIGEST
+            if [ $? ]; then
+              echo
+              echo "Please run the following commands in a local build environment, while targetting << parameters.envname >>:"
+              echo "cf target -s << parameters.envname >>"
+              echo "git checkout << parameters.envname >>"
+              echo "git fetch --all --tags"
+              echo "git pull"
+              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
+              echo
+            fi      
+      - run:
           name: CloudGov Deploy WAF
           command: |
             export NEW_RELIC_APP_NAME="WAF-<< parameters.envname >>;USA.gov"
