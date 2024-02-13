@@ -12,15 +12,16 @@
 
 #fed-dir-search-results {
   margin-bottom: 8px;
+  margin-top: 2px;
 }
 
 .usasearch_sayt {
-  max-width: 20em;
+  max-width: 20.1em;
   margin: 0 auto;
   max-height: 13.4em;
   overflow-x: hidden;
   overflow-y: scroll;
-  border: 1px solid #000;
+  outline: 1px solid #000;
 }
 
 .usasearch_sayt>ul {
