@@ -131,8 +131,8 @@ function modifyErrorElements() {
   }
 
   // Gets all error text elements from the alert box to check how many errors we have (this only includes all fields, not the reCaptcha)
-  errors = document.querySelectorAll('[id*="alert_error_"]:not(.usa-error--alert):not(#alert_error_recaptcha)');
-  if (errors.length >= 3) {
+  errors = document.querySelectorAll('[id*="alert_error_"]:not(.usa-error--alert)');
+  if (errors.length >= 4) {
     // Adds the side line without spaces when all 3 fields are incorrect.
     document.getElementById("error-border").classList.add("usa-main-border-error");
   }
@@ -159,13 +159,13 @@ var submitPressed = function () {
       if ($("html").attr("lang") === "en") {
         // Adds an english error message before the captcha box.
         $(".recaptcha-alignment").before(
-          '<span class="err-label err-label-captcha" tabindex="0">Fill out the reCaptcha</span>'
+          '<span class="err-label usa-error" tabindex="0">Fill out the reCaptcha</span>'
         );
       }
       else {
         // Adds a spanish error message before the captcha box.
         $(".recaptcha-alignment").before(
-          '<span class="err-label err-label-captcha" tabindex="0">Complete el reCaptcha</span>'
+          '<span class="err-label usa-error" tabindex="0">Complete el reCaptcha</span>'
         );
       }
       // Adds the error outline to the reCaptcha box.
