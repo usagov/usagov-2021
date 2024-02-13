@@ -961,3 +961,7 @@ figure figure .bar-chart .bin {
   display: inline-block;
   height: 4rem;
 }
+
+a {
+  text-decoration: underline;
+}
