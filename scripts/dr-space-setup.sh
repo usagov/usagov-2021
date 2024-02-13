@@ -7,6 +7,7 @@
 ##
 #####################################################################
 
+WWW_APP=www
 WAF_APP=waf-dr
 CMS_APP=cms
 ORG=gsa-tts-usagov
@@ -17,6 +18,9 @@ CDIGEST=@sha256:9774ccdd022074c110c26dbd98845654e5552ea1347a57d172afc5fc25b153ba
 
 WTAG=waf-7199
 WDIGEST=@sha256:8ee375d762e12cba6aa871b2e28714e440cd05673b3ea96dede09dffcd6dce32
+
+STAG=www-7199
+SDIGEST=@sha256:8ee375d762e12cba6aa871b2e28714e440cd05673b3ea96dede09dffcd6dce32
 
 #echo  cf delete-space $APP_SPACE
 #while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
@@ -73,16 +77,16 @@ WDIGEST=@sha256:8ee375d762e12cba6aa871b2e28714e440cd05673b3ea96dede09dffcd6dce32
 #$echo bin/cloudgov/create-service-account | tee csa2.log
 #exit
 # 
-echo  cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
-bin/cloudgov/deploy-cms $CTAG $CDIGEST
+#echo  cf target -s $APP_SPACE
+#$echo cf target -s $APP_SPACE
+#bin/cloudgov/deploy-cms $CTAG $CDIGEST
 #exit
 
-ROUTE_SERVICE_APP_NAME=$WAF_APP \
-ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
-PROTECTED_APP_NAME=$CMS_APP \
-bin/cloudgov/deploy-waf $WTAG $WDIGEST
-exit
+#ROUTE_SERVICE_APP_NAME=$WAF_APP \
+#ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
+#PROTECTED_APP_NAME=$CMS_APP \
+#bin/cloudgov/deploy-waf $WTAG $WDIGEST
+#exit
 
 ###
 cat <<'ZZ'
