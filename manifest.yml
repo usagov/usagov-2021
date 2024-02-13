@@ -13,6 +13,15 @@ applications:
     - storage
     - dbstorage
   health-check-type: process
+- name: www
+  docker:
+    image: gsatts/usagov-2021:www-latest
+  memory: 1.5G
+  disk_quota: 4G
+  timeout: 180
+  services:
+    - secrets
+  health-check-type: process
 - name: waf-dr
   docker:
     image: gsatts/usagov-2021:waf-latest
