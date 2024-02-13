@@ -77,6 +77,7 @@ commands:
             . ./bin/cloudgov/get-s3-access key-value
             echo "$CMS_DIGEST" > /tmp/results/cms_digest
             echo "$WAF_DIGEST" > /tmp/results/waf_digest
+            echo "$WWW_DIGEST" > /tmp/results/www_digest
             aws s3 cp /tmp/results/cms_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >>
             aws s3 cp /tmp/results/waf_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >>
             aws s3 cp /tmp/results/www_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/www-<< pipeline.number >>
