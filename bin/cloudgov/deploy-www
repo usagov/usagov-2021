@@ -113,7 +113,7 @@ function setupNewrelic { #appname
   $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart
 }
 
-if appExists cms; then
+if appExists www; then
   setupRoutes www
 #  setupEgress cms
   setupNewrelic www
