@@ -394,7 +394,7 @@ window.addEventListener("load", function () {
 
 });
 
-(function(){
+(function() {
     "use strict";
     // Customize input validation error messages by
     // specifying the name of each input field. Only
