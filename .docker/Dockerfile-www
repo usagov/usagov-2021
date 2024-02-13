@@ -127,7 +127,7 @@ RUN mkdir -p /etc/periodic/1min \
 
 ENV PATH=/var/www/vendor/bin:$PATH
 
-COPY .docker/src-static/etc /etc
+COPY .docker/src-www/etc /etc
 COPY .docker/motd /etc/motd
 COPY --chown=nginx:nginx scripts /var/www/scripts
 COPY --chown=nginx:nginx config /var/www/config
