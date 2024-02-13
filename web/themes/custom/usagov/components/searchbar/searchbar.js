@@ -18,7 +18,7 @@ function fetchAgencies() {
 
 function searchAgencies(allAgencies) {
   return allAgencies.filter((agency) =>
-    agency.agency_title.toLowerCase().includes(search_term.toLowerCase())
+    agency.agency_title.toLowerCase().includes(search_term.toLowerCase()) || agency.agency_acronym.toLowerCase().includes(search_term.toLowerCase())
   );
 }
 
@@ -46,6 +46,7 @@ function showAgencies(filteredAgencies) {
     }
 
     anchor.innerText = agency.agency_title;
+    anchor.acronym = agency.agency_acronym;
 
     resultBox.appendChild(anchor);
     ul.appendChild(resultBox);
