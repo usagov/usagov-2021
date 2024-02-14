@@ -13,14 +13,17 @@ CMS_APP=cms
 ORG=gsa-tts-usagov
 APP_SPACE=dev-dr
 EGRESS_SPACE=shared-egress-dr
-CTAG=cms-7199
-CDIGEST=@sha256:9774ccdd022074c110c26dbd98845654e5552ea1347a57d172afc5fc25b153ba
 
-WTAG=waf-7199
-WDIGEST=@sha256:8ee375d762e12cba6aa871b2e28714e440cd05673b3ea96dede09dffcd6dce32
+ATAG=8141
 
-STAG=www-7199
-SDIGEST=@sha256:8ee375d762e12cba6aa871b2e28714e440cd05673b3ea96dede09dffcd6dce32
+CTAG=$ATAG
+CDIGEST=@sha256:6fe112d20ae4777f73b1afcfec771eacaf4edd6c40c8950f0c3e7cb02c6ba1fb
+
+WTAG=$ATAG
+WDIGEST=@sha256:7034b90eef4e5b1182ea2b1818c26c1da8e70ed8668ee9acc8ad491a18040068
+
+STAG=$ATAG
+SDIGEST=@sha256:5451cb294e1a4f215be7c4495f28d7fec16260e6d7b25506a082858f33fa42b9
 
 #echo  cf delete-space $APP_SPACE
 #while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
@@ -105,7 +108,6 @@ exit
 #PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
 SQL_FILE=usagov.sql
  
-echo "Attempting to deploy database backup $SQL_FILE to $APP_SPACE"
-
-$echo cat $SQL_FILE | cf ssh cms -c "cat - > /tmp/$SQL_FILE"
-cf ssh $CMS_APP -c "if [ -f /tmp/$SQL_FILE ]; then . /etc/profile; drush sql-drop -y; cat /tmp/$SQL_FILE | drush sql-cli; drush cr; fi"
+#echo "Attempting to deploy database backup $SQL_FILE to $APP_SPACE"
+#$echo cat $SQL_FILE | cf ssh cms -c "cat - > /tmp/$SQL_FILE"
+#cf ssh $CMS_APP -c "if [ -f /tmp/$SQL_FILE ]; then . /etc/profile; drush sql-drop -y; cat /tmp/$SQL_FILE | drush sql-cli; drush cr; fi"
