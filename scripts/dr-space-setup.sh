@@ -14,52 +14,56 @@ ORG=gsa-tts-usagov
 APP_SPACE=dev-dr
 EGRESS_SPACE=shared-egress-dr
 
-ATAG=8141
+#echo=echo
 
+ATAG=8143
 CTAG=$ATAG
-CDIGEST=@sha256:6fe112d20ae4777f73b1afcfec771eacaf4edd6c40c8950f0c3e7cb02c6ba1fb
-
 WTAG=$ATAG
-WDIGEST=@sha256:7034b90eef4e5b1182ea2b1818c26c1da8e70ed8668ee9acc8ad491a18040068
-
 STAG=$ATAG
-SDIGEST=@sha256:5451cb294e1a4f215be7c4495f28d7fec16260e6d7b25506a082858f33fa42b9
+export CDIGEST=@sha256:7a10a01d39e1d1d2acd5d14078a6f5a24da486012e419c0a9ac5babe7e35ab66
+export WDIGEST=@sha256:8ad902e4a41535bfb147087b97f7bbfa918369a25f1d7c9f28ea3f37e9242fc4
+export SDIGEST=@sha256:af3d65fca948dbc7c7d299b9b89a9b0002a4989d2d1e295170286360f9f6b962
 
 #echo  cf delete-space $APP_SPACE
 #while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
 #exit
-# 
+
 #echo  cf delete-space $EGRESS_SPACE
 #$echo cf delete-space $EGRESS_SPACE
-##exit
-# 
+#exit
+ 
 #echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG  PIPE tee ce.org
 #$echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
-##exit
-# 
+#exit
+
+#
 #echo bin/cloudgov/create-app-space $APP_SPACE $ORG PIPE tee ca.log
 #$echo bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
 #echo cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
-##exit
-# 
+#exit
+
+#
 #echo cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
 #echo bin/cloudgov/deploy-services  PIPE tee ds.log
 #$echo bin/cloudgov/deploy-services  | tee ds.log
-##exit
+#exit
+
 # 
 #echo cf target -s $EGRESS_SPACE
 #$echo cf target -s $EGRESS_SPACE
 #echo cf create-service s3 basic-sandbox key-value  PIPE tee cskv.log
 #$echo cf create-service s3 basic-sandbox key-value  | tee cskv.log
-##exit
+#exit
+
 # 
-#echo cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#echo  bin/cloudgov/create-service-account PIPE tee csa.log
-#$echo bin/cloudgov/create-service-account | tee csa.log
-##exit
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+echo  bin/cloudgov/create-service-account PIPE tee csa.log
+$echo bin/cloudgov/create-service-account | tee csa.log
+exit
+
 # 
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
