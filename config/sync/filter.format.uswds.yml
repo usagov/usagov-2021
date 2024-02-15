@@ -20,6 +20,24 @@ filters:
     status: true
     weight: 0
     settings: {  }
+  filter_align:
+    id: filter_align
+    provider: filter
+    status: true
+    weight: 0
+    settings: {  }
+  filter_caption:
+    id: filter_caption
+    provider: filter
+    status: true
+    weight: 0
+    settings: {  }
+  filter_google_docs:
+    id: filter_google_docs
+    provider: google_docs_filter
+    status: true
+    weight: 0
+    settings: {  }
   filter_html:
     id: filter_html
     provider: filter
@@ -29,6 +47,12 @@ filters:
       allowed_html: '<a href hreflang> <em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type> <li> <dl> <dt> <dd> <h2 id class> <h3 id class> <h4 id class> <h5 id class> <h6 id class> <img src alt data-entity-type data-entity-uuid data-align data-caption> <table class style width height> <caption> <tbody> <thead> <tfoot> <th scope> <td> <tr scope> <u> <s> <sup> <sub> <drupal-media data-entity-type data-entity-uuid> <div id class data-*> <button class aria-expanded aria-controls>'
       filter_html_help: true
       filter_html_nofollow: false
+  filter_table_attributes:
+    id: filter_table_attributes
+    provider: uswds_ckeditor_integration
+    status: true
+    weight: 0
+    settings: {  }
   filter_url:
     id: filter_url
     provider: filter
@@ -45,33 +69,9 @@ filters:
       default_view_mode: default
       allowed_view_modes: {  }
       allowed_media_types: {  }
-  filter_align:
-    id: filter_align
-    provider: filter
-    status: true
-    weight: 0
-    settings: {  }
-  filter_caption:
-    id: filter_caption
-    provider: filter
-    status: true
-    weight: 0
-    settings: {  }
-  filter_table_attributes:
-    id: filter_table_attributes
-    provider: uswds_ckeditor_integration
-    status: true
-    weight: 0
-    settings: {  }
   paragraphs_entity_embed:
     id: paragraphs_entity_embed
     provider: paragraphs_entity_embed
-    status: true
-    weight: 0
-    settings: {  }
-  filter_google_docs:
-    id: filter_google_docs
-    provider: google_docs_filter
     status: true
     weight: 0
     settings: {  }

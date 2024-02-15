@@ -144,8 +144,7 @@ function renderResults(response, rawResponse) {
 
         // Create container for rendering results
         let container = document.createElement("div");
-        container.setAttribute("class", "usa-accordion usa-accordion--multiselectable");
-        container.setAttribute("data-allow-multiple","");
+        container.setAttribute("class", "usa-accordion");
 
         // Create an accordion for each level of elected officials
         const levels = content["levels"];
@@ -165,7 +164,7 @@ function renderResults(response, rawResponse) {
 
             let accordionContent = document.createElement("div");
             accordionContent.setAttribute("id", levelName);
-            accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
+            accordionContent.setAttribute("class", "usa-accordion usa-accordion__content usa-prose");
             accordionContent.setAttribute("hidden", "until-found");
 
             container.appendChild(accordionHeader);
@@ -194,7 +193,7 @@ function renderResults(response, rawResponse) {
 
             let accordionContent = document.createElement("div");
             accordionContent.setAttribute("id", levelName);
-            accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
+            accordionContent.setAttribute("class", "usa-accordion usa-accordion__content usa-prose");
             accordionContent.setAttribute("hidden", "until-found");
 
             // Adds the sub-accordion to the Local officials accordion.
@@ -490,6 +489,25 @@ function load() {
         // Note: Make sure the "Your address:" header in the cms has the ID "address-heading".
         displayAddress.parentNode.parentNode.insertBefore(addressSuggestionAlert, document.getElementById("address-heading"));
 
+    }
+
+    // Checks if the element exists in the CMS content.
+    var editAddressLink = document.getElementById("edit-address-link");
+    if (editAddressLink) {
+        let link = document.createElement('a');
+
+        // Add the href and link text depending on the language.
+        if (document.documentElement.lang === "en") {
+            link.setAttribute('href', `/elected-officials${window.location.search}`);
+            link.innerHTML = "Edit my address";
+        }
+        else {
+            link.setAttribute('href', `/es/funcionarios-electos${window.location.search}`);
+            link.innerHTML = "Editar mi dirección";
+        }
+
+        // Add the link to the <p> element in the cms.
+        editAddressLink.appendChild(link);
     }
 
     lookup(normalizedAddress, renderResults);
