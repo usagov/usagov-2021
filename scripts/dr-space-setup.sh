@@ -58,25 +58,25 @@ export SDIGEST=@sha256:af3d65fca948dbc7c7d299b9b89a9b0002a4989d2d1e295170286360f
 #exit
 
 # 
-echo cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
-echo  bin/cloudgov/create-service-account PIPE tee csa.log
-$echo bin/cloudgov/create-service-account | tee csa.log
-exit
+#echo cf target -s $APP_SPACE
+#$echo cf target -s $APP_SPACE
+#echo  bin/cloudgov/create-service-account PIPE tee csa.log
+#$echo bin/cloudgov/create-service-account | tee csa.log
+#exit
 
 # 
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
 #echo  cf delete-service ${APP_SPACE}-usagov-domain
 #$echo cf delete-service ${APP_SPACE}-usagov-domain
-##exit
+#exit
 # 
-#echo  cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#echo  cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "dev-dr.usa.gov,shared-egress-dr.usa.gov"}'
-#$echo cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "dev-dr.usa.gov,shared-egress-dr.usa.gov"}'
-#while [ 1 = 1 ]; do clear; cf service ${APP_SPACE}-usagov-domain; sleep 10; done
-##exit
+echo  cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+echo  cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "dev-dr.usa.gov,shared-egress-dr.usa.gov"}'
+$echo cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "dev-dr.usa.gov,shared-egress-dr.usa.gov"}'
+while [ 1 = 1 ]; do clear; cf service ${APP_SPACE}-usagov-domain; sleep 10; done
+exit
 #
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
