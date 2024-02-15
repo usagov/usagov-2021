@@ -25,24 +25,3 @@ usagov_directories.admin_import_acronyms:
   parent: usagov_directories.admin
   route_name: usagov_directories.add_acronyms_form
   weight: 300
-
-usagov_directories.exports:
-  title: 'USAGov Exports'
-  parent: system.admin
-  route_name: usagov_directories.exports
-  description: 'USAGov Exports'
-  weight: 100
-
-usagov_directories.admin_export_federal:
-  title: 'Export Federal Directory Records (CSV)'
-  description: 'Download the Federal directory records in CSV format'
-  parent: usagov_directories.exports
-  url: internal:/admin/directory_report_federal.csv
-  weight: 10
-
-usagov_directories.admin_export_states:
-  title: 'Export State Directory Records (CSV)'
-  description: 'Download the State directory records in CSV format'
-  parent: usagov_directories.exports
-  url: internal:/admin/directory_report_states.csv
-  weight: 20

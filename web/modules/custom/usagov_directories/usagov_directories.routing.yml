@@ -29,12 +29,3 @@ usagov_directories.add_synonyms_form:
     _form: '\Drupal\usagov_directories\Form\DirectoryRecordsAddSynonymsForm'
   requirements:
     _permission: 'administer site configuration'
-
-usagov_directories.exports:
-  path: '/admin/config/usagov_directories/exports'
-  defaults:
-    _controller: '\Drupal\system\Controller\SystemController::overview'
-    link_id: usagov_directories.exports
-    _title: 'USAGov Exports'
-  requirements:
-    _permission: 'access administration pages'
