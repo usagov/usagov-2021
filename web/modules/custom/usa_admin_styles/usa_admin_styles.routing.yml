@@ -1,8 +1,7 @@
 usa_admin_styles.main:
   path: '/admin/config/usa_admin_styles/main'
   defaults:
-    _controller: '\Drupal\system\Controller\SystemController::overview'
-    link_id: usa_admin_styles_main
+    _controller: '\Drupal\usa_admin_styles\Controller\UsaAdminController::mainPage'
     _title: 'USAGov tools'
   requirements:
     _permission: 'access administration pages'
