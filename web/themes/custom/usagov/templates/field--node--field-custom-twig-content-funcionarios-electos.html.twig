@@ -30,7 +30,7 @@
       >
       <div class="padding-1px bg-gray-4">
         <div class="maxw-mobile margin-x-auto margin-y-4">
-          <p>Por favor, rellene el formulario que aparece a continuación. <strong>Todos los campos son obligatorios.</strong></p>
+          <p><strong>Todos los campos son obligatorios.</strong></p>
 
           <div id="error-border" >
             <div class="usa-form-spacing">
@@ -47,9 +47,16 @@
 
             <div class="usa-form-spacing">
               <label id="input-state-label" class="usa-label" for="input-state">Estado</label>
-              <div class="usa-combo-box" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*">
+              <div class="usa-combo-box" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*" data-default-value={{ input_state }}>
                 <label class="visuallyhidden"> Estado:
-                  <select aria-describedby="state" class="usa-select" name="input-state" id="input-state" required oninvalid="this.setCustomValidity('Fill out the state field.')" oninput="this.setCustomValidity('')">
+                  <select
+                    aria-describedby="state"
+                    class="usa-select"
+                    name="input-state"
+                    id="input-state"
+                    required
+                    oninvalid="this.setCustomValidity('Fill out the state field.')"
+                    oninput="this.setCustomValidity('')">
                     <option id="AL" value="AL">Alabama</option>
                     <option id="AK" value="AK">Alaska</option>
                     <option id="AZ" value="AZ">Arizona</option>
@@ -113,9 +120,9 @@
               <input class="usa-input" id="input-zip" aria-describedby="zip" name="input-zip" type="text" onkeypress="return event.keyCode != 13;" required oninvalid="this.setCustomValidity('Escriba el código postal')" oninput="this.setCustomValidity('')" />
             </div>
           </div>
-
-          <p>Nosotros nunca venderemos su información personal.
-            <a href="/es/privacidad-seguridad">Conozca cómo USAGov en Español protege su privacidad.</a>
+          <p>Los resultados son proporcionados en inglés por la API de información cívica de Google. USAGov en Español no garantiza la precisión de los resultados.</p>
+          <p>
+            <a href="/es/privacidad-seguridad">Conozca cómo USAGov en Español protege su privacidad</a>.
           </p>
           <div class="ceo-button-container">
             <button class="usa-button usa-button--secondary usa-button--big ceo-button" type="button"

@@ -1,3 +1,10 @@
+function getSearchParams() {
+    "use strict";
+    const paramsString = window.location.search;
+    const searchParams = new URLSearchParams(paramsString);
+    return searchParams;
+}
+
 /**
  * Improve the accessibility of pages with input fields.
  * Creating error messages so users know which fields need attention. Error messages are managed on CMS in the body element and element ID's are used to get the respective text.
@@ -363,22 +370,8 @@ async function handleFormSubmission() {
     document.getElementById("myform").submit();
 };
 
-
 window.addEventListener("load", function () {
     "use strict";
-    // Customize input validation error messages by
-    // specifying the name of each input field. Only
-    // applies to elements specified in the list below.
-    let elementTypes = ["input", "textarea"];
-    for (let i = 0; i < elementTypes.length; i++) {
-        let elements = document.getElementsByTagName(elementTypes[i]);
-        for (let j = 0; j < elements.length; j++) {
-            // Note: all input fields should have an ID starting with "input-"
-            let message = a11y_content[elements[j].id.replace("input-", "")];
-            elements[j].setAttribute("oninvalid", "this.setCustomValidity('" + message + "')");
-            elements[j].setAttribute("oninput", "this.setCustomValidity('')");
-        }
-    }
 
     // Clarify the purpose of the dropdown menu's clear button
     let clearButtons = document.getElementsByClassName("usa-combo-box__clear-input");
@@ -398,4 +391,42 @@ window.addEventListener("load", function () {
     for (let i = 0; i < toggleButtons.length; i++) {
         toggleButtons[i].removeAttribute("tabindex");
     }
+
 });
+
+(function() {
+    "use strict";
+    // Customize input validation error messages by
+    // specifying the name of each input field. Only
+    // applies to elements specified in the list below.
+    // It also prepropulates the form if the URL has the parameters.
+    let elementTypes = ["input", "textarea", "select"];
+
+    // Stores the URL parameters
+    let searchParams = getSearchParams();
+
+    for (let i = 0; i < elementTypes.length; i++) {
+        let elements = document.getElementsByTagName(elementTypes[i]);
+
+        for (let j = 0; j < elements.length; j++) {
+            // Note: all input fields should have an ID starting with "input-"
+            let message = a11y_content[elements[j].id.replace("input-", "")];
+            elements[j].setAttribute("oninvalid", "this.setCustomValidity('" + message + "')");
+            elements[j].setAttribute("oninput", "this.setCustomValidity('')");
+
+            let inputParam = searchParams.get(elements[j].id);
+            if (elements[j].id.includes('input-') && inputParam) {
+
+                // Prepopulates the dropdown of the states.
+                if (elements[j].id === "input-state") {
+                    var div = document.querySelector(`div.usa-combo-box`);
+                    div.setAttribute("data-default-value", inputParam);
+                }
+                // Prepopulates all the input fields (street, city, zip).
+                else {
+                    elements[j].setAttribute('value', inputParam);
+                }
+            }
+        }
+    }
+})();
