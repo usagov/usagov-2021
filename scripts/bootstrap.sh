@@ -197,6 +197,8 @@ else
     echo "Bootstrap skipping Drupal CIM because: Instance=${CF_INSTANCE_INDEX:-''} Skip=${SKIP_DRUPAL_BOOTSTRAP:-''}"
 fi
 
+sed -i 's/^\s*newrelic.enabled\s*=.*/newrelic.enabled = false/' /etc/php81/conf.d/newrelic.ini
+
 echo "Adding the USPS credentials..."
 if [[ ${USPS_USERID:-"unset"} != "unset" ]] && [[ ${USPS_PASSWORD:-"unset"} != "unset" ]]; then
     echo "const USPS_USERID = '${USPS_USERID}';" > ./web/themes/custom/usagov/scripts/usps-credentials.js
