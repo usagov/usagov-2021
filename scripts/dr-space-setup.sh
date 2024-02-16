@@ -16,13 +16,13 @@ EGRESS_SPACE=shared-egress-dr
 
 #echo=echo
 
-ATAG=8143
+ATAG=8179
 CTAG=$ATAG
 WTAG=$ATAG
 STAG=$ATAG
-export CDIGEST=@sha256:7a10a01d39e1d1d2acd5d14078a6f5a24da486012e419c0a9ac5babe7e35ab66
-export WDIGEST=@sha256:8ad902e4a41535bfb147087b97f7bbfa918369a25f1d7c9f28ea3f37e9242fc4
-export SDIGEST=@sha256:af3d65fca948dbc7c7d299b9b89a9b0002a4989d2d1e295170286360f9f6b962
+export CDIGEST=@sha256:496ae1b256c7082e7df1235f05274397e7f49070ac29ee22f3b313201c8b0b09
+export WDIGEST=@sha256:d3ae4a37b095bc9868fd668b5d50b407ba33ba6f58c8b8465ad2c34b16bb2e6d
+export SDIGEST=@sha256:87d84e1b041763906b3e21649e372a5ff830c7f33531fbcb66ac7fd8b60a3c79
 
 #echo  cf delete-space $APP_SPACE
 #while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
