@@ -69,6 +69,7 @@ commands:
           command: |
             (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>)
             (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>)
+            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >>)
             CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             WWW_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
