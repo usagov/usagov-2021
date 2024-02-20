@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.bears_life_event.field_b_id
     - field.field.node.bears_life_event.field_draft_json_data_file
     - field.field.node.bears_life_event.field_draft_json_data_file_path
+    - field.field.node.bears_life_event.field_header_html
     - field.field.node.bears_life_event.field_json_data_file
     - field.field.node.bears_life_event.field_json_data_file_path
     - field.field.node.bears_life_event.field_language_toggle
@@ -33,6 +34,7 @@ hidden:
   field_b_id: true
   field_draft_json_data_file: true
   field_draft_json_data_file_path: true
+  field_header_html: true
   field_json_data_file: true
   field_json_data_file_path: true
   field_language_toggle: true

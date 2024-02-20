@@ -6,6 +6,7 @@ dependencies:
     - field.field.node.bears_life_event.field_b_id
     - field.field.node.bears_life_event.field_draft_json_data_file
     - field.field.node.bears_life_event.field_draft_json_data_file_path
+    - field.field.node.bears_life_event.field_header_html
     - field.field.node.bears_life_event.field_json_data_file
     - field.field.node.bears_life_event.field_json_data_file_path
     - field.field.node.bears_life_event.field_language_toggle
@@ -13,6 +14,7 @@ dependencies:
     - node.type.bears_life_event
   module:
     - file
+    - text
     - user
 id: node.bears_life_event.default
 targetEntityType: node
@@ -47,6 +49,13 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 6
+    region: content
+  field_header_html:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 9
     region: content
   field_json_data_file:
     type: file_default
