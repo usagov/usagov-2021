@@ -27,11 +27,6 @@ dependencies:
     - field.storage.node.field_zip
     - node.type.agency_synonym
     - node.type.directory_record
-    - user.role.authenticated
-    - user.role.content_administrator
-    - user.role.content_editor
-    - user.role.content_manager
-    - user.role.site_admin
   module:
     - csv_serialization
     - link
@@ -40,7 +35,6 @@ dependencies:
     - rest
     - serialization
     - text
-    - user
     - views_data_export
 id: federal_directory_export
 label: 'Federal Directory Export'
@@ -1692,14 +1686,8 @@ display:
           sort_asc_label: Asc
           sort_desc_label: Desc
       access:
-        type: role
-        options:
-          role:
-            authenticated: authenticated
-            content_editor: content_editor
-            site_admin: site_admin
-            content_manager: content_manager
-            content_administrator: content_administrator
+        type: none
+        options: {  }
       cache:
         type: tag
         options: {  }
@@ -1860,7 +1848,6 @@ display:
         - 'languages:language_interface'
         - url.query_args
         - 'user.node_grants:view'
-        - user.roles
       tags:
         - 'config:field.storage.node.body'
         - 'config:field.storage.node.field_acronym'
@@ -1919,7 +1906,6 @@ display:
         - 'languages:language_interface'
         - request_format
         - 'user.node_grants:view'
-        - user.roles
       tags:
         - 'config:field.storage.node.body'
         - 'config:field.storage.node.field_acronym'
@@ -1944,7 +1930,7 @@ display:
         - 'config:field.storage.node.field_zip'
   data_export_2:
     id: data_export_2
-    display_title: 'JSON export ES'
+    display_title: 'SAYT Es'
     display_plugin: data_export
     position: 1
     display_options:
@@ -2467,13 +2453,12 @@ display:
         - 'languages:language_interface'
         - request_format
         - 'user.node_grants:view'
-        - user.roles
       tags:
         - 'config:field.storage.node.field_acronym'
         - 'config:field.storage.node.field_agency_reference'
   fed_dir_json_export:
     id: fed_dir_json_export
-    display_title: 'JSON export'
+    display_title: 'SAYT En'
     display_plugin: data_export
     position: 1
     display_options:
@@ -3099,7 +3084,6 @@ display:
         - 'languages:language_interface'
         - request_format
         - 'user.node_grants:view'
-        - user.roles
       tags:
         - 'config:field.storage.node.field_acronym'
         - 'config:field.storage.node.field_agency_reference'
