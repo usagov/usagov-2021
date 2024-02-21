@@ -56,8 +56,6 @@ commands:
             ZWAF_APP=waf-dr
             ZCMS_APP=cms
             ZAPP_SPACE=dev-dr
-            cf set-env $ZWAF_APP USPS_USERID $USPS_USERID
-            cf set-env $ZWAF_APP USPS_PASSWORD $USPS_PASSWORD
             ROUTE_SERVICE_APP_NAME=$ZWAF_APP \
             ROUTE_SERVICE_NAME=waf-route-${ZAPP_SPACE}-usagov \
             PROTECTED_APP_NAME=$ZCMS_APP \
