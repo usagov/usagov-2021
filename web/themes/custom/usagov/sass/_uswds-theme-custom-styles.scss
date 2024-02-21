@@ -672,10 +672,13 @@ a,
 // Centers the recaptcha box
 .recaptcha-alignment {
   display: flex;
-  justify-content: left;
+  //justify-content: left;
   margin-top: 0.5rem;
-  transform: scale(0.80);
-  transform-origin: 0 0;
+
+  // @media (max-width: 40em) {
+  //   transform: scale(0.80);
+  //   transform-origin: 0 0;
+  // }
 }
 
 // Add a space between the recaptcha box and the error outline.

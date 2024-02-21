@@ -69,6 +69,8 @@ function fieldValidation() {
       document.getElementById(input.attr("id")).parentElement.classList.add("usa-border-error");
       // Makes the error text visible in the alert box.
       document.getElementById(alertErrorId).classList.remove("usa-error--alert");
+      // Adds the left padding from the fields.
+      document.getElementById(input.attr("id")).parentElement.classList.add("usa-form-spacing");
     }
     else if ($(this).find("span.err-label").length) {
       $(this).find("span.err-label").remove();
@@ -78,6 +80,8 @@ function fieldValidation() {
       document.getElementById(input.attr("id")).parentElement.classList.remove("usa-border-error");
       // Makes the error text invisible in the alert box.
       document.getElementById(alertErrorId).classList.add("usa-error--alert");
+      // Removes the left padding from the fields.
+      document.getElementById(input.attr("id")).parentElement.classList.remove("usa-form-spacing");
     }
   });
 
@@ -155,7 +159,8 @@ var submitPressed = function () {
 
   if (grecaptcha.getResponse().length === 0) {
     // Check if reCaptcha is checked.
-    if ($(".err-label-captcha").length < 1) {
+    if ($(".err-label-captcha").length < 1 && !document.querySelector("span.err-label")) {
+
       if ($("html").attr("lang") === "en") {
         // Adds an english error message before the captcha box.
         $(".recaptcha-alignment").before(
@@ -172,6 +177,8 @@ var submitPressed = function () {
       document.getElementsByClassName("recaptcha-outline-padding")[0].classList.add("usa-user-error");
       // Makes the reCaptcha error text visible in the alert box.
       document.getElementById("alert_error_recaptcha").classList.remove("usa-error--alert");
+      // Adds left padding from recaptcha.
+      document.getElementById("recaptcha").classList.add("usa-form-spacing", "usa-border-error");
       captchaValidationResult = false;
     }
   }
@@ -181,6 +188,8 @@ var submitPressed = function () {
     $(".err-label-captcha").remove();
     // Makes the reCaptcha error text invisible in the alert box.
     document.getElementById("alert_error_recaptcha").classList.add("usa-error--alert");
+    // Removes left padding from recaptcha.
+    document.getElementById("recaptcha").classList.remove("usa-form-spacing", "usa-border-error");
   }
 
   // Field Validation
