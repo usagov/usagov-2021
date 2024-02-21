@@ -1,0 +1,21 @@
+uuid: 83e3ae73-3d07-46fb-b634-76b0437a395f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_exclude_from_contact_cente
+    - node.type.basic_page
+id: node.basic_page.field_exclude_from_contact_cente
+field_name: field_exclude_from_contact_cente
+entity_type: node
+bundle: basic_page
+label: 'Exclude From Contact Center'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean
