@@ -47,11 +47,6 @@
 		</button>
 	 </div> #}
 
-		{% block rows %}
-			{% for row in rows %}
-				{{- row.content -}}
-			{% endfor %}
-		{% endblock %}
 
 		{% embed 'usagov:usa-combo-box' with {
 			label_id: "state-info-label",
@@ -66,9 +61,13 @@
 			input_name:"Alabama",
 			button_classes:"usa-button sd-go-btn usa-button--secondary"
 		} %}
-		{% set label_text = lang == 'en' ? 'Select your state or territory:' : 'Elija un estado o territorio:' %}
-		{% set list_contents = rows %}
-		{% set button_text = lang == 'es' ? "Ir" : "Go" %}
+			{% set label_text = lang == 'en' ? 'Select your state or territory:' : 'Elija un estado o territorio:' %}
+			{% set list_contents %}
+				{% for row in rows %}
+					{{- row.content -}}
+				{% endfor %}
+			{% endset %}
+			{% set button_text = lang == 'es' ? "Ir" : "Go" %}
 		{% endembed %}
 
 </form>

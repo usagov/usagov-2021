@@ -3,9 +3,7 @@
   <div class="grid-col-fill mobile-lg:grid-col-auto">
     <div class="usa-combo-box {{ usa_combo_box_modifiers }}" {% if default_value %} data-default-value="{{ default_value }}" {% endif %} data-enhanced="true" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*">
       <ul id="{{ list_id }}" class="{{ list_classes }}">
-        {% for row in rows %}
-          {{- row.content -}}
-        {% endfor %}
+      {{ list_contents }}
       </ul>
       <input id="{{ input_id }}" aria-autocomplete="list" aria-expanded="false" autocapitalize="off" autocomplete="off" class="{{ input_classes }}" type="text" aria-labelledby="{{ input_aria_labelledby }}" role="combobox" name="{{ input_name }}" required>
     </div>
