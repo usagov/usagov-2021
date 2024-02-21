@@ -5,7 +5,8 @@ jQuery(document).ready(function ($) {
   );
   $("#statelist li a").each(function () {
     $("#stateselect").append(
-      '<option value="' +
+      '<option key="' + $(this).attr("key") +'"' +
+      ' value="' +
         $(this).attr("href") +
         '">' +
         $(this).text() +
