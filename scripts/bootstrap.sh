@@ -99,6 +99,11 @@ for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
 done
 
 # update new relic with environment specific settings
+echo "Disabling NewRelic for dev-dr environment"
+if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
+  mv /etc/php81/conf.d/newrelic.ini /root
+fi
+
 if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
   if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$NEW_RELIC_LICENSE_KEY" != "null" ]; then
     echo "Setting up New Relic ... "
@@ -196,8 +201,6 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
 else
     echo "Bootstrap skipping Drupal CIM because: Instance=${CF_INSTANCE_INDEX:-''} Skip=${SKIP_DRUPAL_BOOTSTRAP:-''}"
 fi
-
-sed -i 's/^\s*newrelic.enabled\s*=.*/newrelic.enabled = false/' /etc/php81/conf.d/newrelic.ini
 
 echo "Adding the USPS credentials..."
 if [[ ${USPS_USERID:-"unset"} != "unset" ]] && [[ ${USPS_PASSWORD:-"unset"} != "unset" ]]; then
