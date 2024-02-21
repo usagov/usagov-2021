@@ -27,11 +27,10 @@
 	<div{{attributes}}>
 {% endif %}
 
-{% embed 'usagov:usa-combo-box'%}
-{% endembed %}
 
-{# <form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
-	<label id="state-info-label" class="usa-label" for="state-info">{{ lang == 'en' ? 'Select your state or territory:' : 'Elija un estado o territorio:' }}</label>
+
+<form id="stateForm" class="usa-form state-usa-form" onsubmit="stateSelect()" action="javascript:void(0);" autocomplete="off">
+	{# <label id="state-info-label" class="usa-label" for="state-info">{{ lang == 'en' ? 'Select your state or territory:' : 'Elija un estado o territorio:' }}</label>
 	<div class="grid-row">
 		<div class="grid-col-fill mobile-lg:grid-col-auto">
 			<div class="usa-combo-box usa-combo-box--pristine width-full mobile-lg:width-mobile" data-default-value="alabama" data-enhanced="true" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*">
@@ -42,12 +41,18 @@
 				</ul>
 				<input id="state-info" aria-autocomplete="list" aria-expanded="false" autocapitalize="off" autocomplete="off" class="usa-combo-box__input" type="text" aria-labelledby="state-info-label" role="combobox" name="Alabama" required>
 			</div>
-		</div>
+		</div> #}
+		{% embed 'usagov:usa-combo-box' with {
+			label_id: "state-info-label",
+			label_for:"state-info"
+		} %}
+		{% set label_text = lang == 'en' ? 'Select your state or territory:' : 'Elija un estado o territorio:' %}
+		{% endembed %}
 		<button class="usa-button sd-go-btn usa-button--secondary" type="submit">
 			{{ lang == 'es' ? "Ir" : "Go" }}
 		</button>
-	</div>
-</form> #}
+	{# </div> #}
+</form>
 
 {% if attributes -%}
 	</div>
