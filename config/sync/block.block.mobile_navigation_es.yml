@@ -45,3 +45,4 @@ visibility:
       node: '@node.node_route_context:node'
     bundles:
       basic_page: basic_page
+      bears_life_event: bears_life_event
