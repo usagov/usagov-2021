@@ -178,7 +178,6 @@ display:
           default_argument_type: fixed
           default_argument_options:
             argument: a
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: false
@@ -464,7 +463,6 @@ display:
           default_argument_type: fixed
           default_argument_options:
             argument: o
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: false
@@ -686,7 +684,6 @@ display:
           default_argument_type: fixed
           default_argument_options:
             argument: o
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: false
@@ -2283,7 +2280,6 @@ display:
             query_param: letter
             fallback: a
             multiple: and
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: false
@@ -3674,7 +3670,6 @@ display:
             query_param: letter
             fallback: a
             multiple: and
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: false
