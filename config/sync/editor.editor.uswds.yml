@@ -1,80 +1,78 @@
-uuid: 903a028e-b474-4252-9493-871a5a5e1122
+uuid: 948722dd-5242-4c6a-b205-4a518863af30
 langcode: en
 status: true
 dependencies:
   config:
     - filter.format.uswds
   module:
-    - ckeditor
-_core:
-  default_config_hash: mvnDkaobYWbVmZWSIEBciD5c8T7blJ-m1QFDBMxNAq4
+    - ckeditor5
 format: uswds
-editor: ckeditor
+editor: ckeditor5
 settings:
   toolbar:
-    rows:
-      -
-        -
-          name: Formatting
-          items:
-            - Bold
-            - Italic
-            - Underline
-            - HorizontalRule
-            - JustifyLeft
-            - JustifyCenter
-            - JustifyRight
-            - Outdent
-            - Indent
-            - RemoveFormat
-        -
-          name: Headings
-          items:
-            - Format
-            - Styles
-        -
-          name: Links
-          items:
-            - DrupalLink
-            - DrupalUnlink
-        -
-          name: Lists
-          items:
-            - BulletedList
-            - NumberedList
-        -
-          name: Copy/Paste
-          items:
-            - Cut
-            - Paste
-            - PasteFromWord
-            - PasteText
-        -
-          name: Media
-          items:
-            - Blockquote
-            - DrupalMediaLibrary
-        -
-          name: Tools
-          items:
-            - Source
-        -
-          name: Components
-          items:
-            - Maximize
-            - Table
-            - uswds_grid
-            - Accordion
-            - Templates
-            - paragraphs
+    items:
+      - bold
+      - italic
+      - underline
+      - alignment
+      - outdent
+      - indent
+      - removeFormat
+      - '|'
+      - heading
+      - style
+      - '|'
+      - link
+      - '|'
+      - bulletedList
+      - numberedList
+      - '-'
+      - blockQuote
+      - drupalMedia
+      - '|'
+      - sourceEditing
+      - '|'
+      - insertTable
+      - paragraphs
   plugins:
-    stylescombo:
-      styles: "a.usa-button.usa-button--secondary.usa-button--big|Button\r\np.usa-intro|Intro\r\nh2.font-serif-lg.text-bold.text-accent-cool-darker|Wizard H2"
-    templates:
-      template_path: ''
-      replace_content: 0
-    uswds_table:
-      override_table: 1
+    ckeditor5_alignment:
+      enabled_alignments:
+        - center
+        - justify
+        - left
+        - right
+    ckeditor5_heading:
+      enabled_headings:
+        - heading1
+        - heading2
+        - heading3
+        - heading4
+    ckeditor5_list:
+      properties:
+        reversed: true
+        startIndex: true
+      multiBlock: true
+    ckeditor5_sourceEditing:
+      allowed_tags: {  }
+    ckeditor5_style:
+      styles:
+        -
+          label: Intro
+          element: '<p class="usa-intro">'
+        -
+          label: 'Wizard H2'
+          element: '<h2 class="font-serif-lg text-bold text-accent-cool-darker">'
+        -
+          label: Button
+          element: '<a class="usa-button usa-button--secondary usa-button--big">'
+    media_media:
+      allow_view_mode_override: false
+    uswds_ckeditor_integration_ckeditor5_overrides:
+      override_lists: false
+      override_links: false
+      override_tables: true
+    uswds_ckeditor_integration_ckeditor5_table_content_items:
+      table_content_items: true
 image_upload:
   status: false
   scheme: public
