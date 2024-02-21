@@ -1,3 +1,15 @@
+/* For federal agencies search bar.
+
+This allows a drop down to show of suggested agencies as users type. It checks against agency names, synonyms and acronyms from the Federal Directory Record Content Type.
+
+Relies on the view federal_directory_export specifically the json export displays: SAYT Es and SAYT En.
+
+Examples:
+~ If a user enters "fda" the drop down should show "food and drug administration".
+~ If a user enters "commerce" the drop down should show "commerce department, department of commerce and U.S Department of commerce" (all of which go to the same url).
+~ If a user enters "homeland security" the drop down should show "Department of Homeland Security, Homeland Security Department, U.S. Department of Homeland Security" (all of which go to the same url).
+*/
+
 const search_input = document.getElementById("search-field-en-small");
 const dir_search_results = document.getElementById("fed-dir-search-results");
 let lang = document.documentElement.lang;
