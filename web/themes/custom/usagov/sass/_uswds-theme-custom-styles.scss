@@ -27,15 +27,18 @@ i.e.
 @use "uswds-core" as *;
 @use "usagov-variables" as *;
 
-@forward "sidenav";
-@forward "navigation-page";
+@forward "carousel";
 @forward "content-page";
-@forward "homepage";
-@forward "mobile-menu";
-@forward "life-events";
 @forward "fed-directory";
-@forward "state-directory";
 @forward "footer";
+@forward "../components/searchbar/searchbar";
+@forward "header";
+@forward "homepage";
+@forward "life-events";
+@forward "mobile-menu";
+@forward "navigation-page";
+@forward "sidenav";
+@forward "state-directory";
 
 .text-red {
   color: var($red);
@@ -63,8 +66,6 @@ i.e.
   }
 }
 
-
-
 .usa-sidenav__sublist a:not(.usa-button) {
   padding-left: 2.3rem;
 }
@@ -87,17 +88,18 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary {
+  font-size: 1.1rem;
   border: 2px solid var($secondary-border-color);
 }
 
 .usa-button--secondary:hover {
-  background-color: var($secondary-border-color);
+  background-color: var($secondary-background-color);
   border: 2px solid var($secondary-border-color);
 }
 
 .usa-button--secondary:visited,
 .usa-button:visited {
-  color: var($off-black) !important;
+  color: var($global-default, text-color) !important;
 }
 
 /*
@@ -128,313 +130,8 @@ add padding at the top of flag cards
 .usa-nav__secondary-links a:hover,
 .usa-banner__button,
 .usa-card__body {
-  color: var($black);
+  color: var($global-default, text-color);
 }
-
-// Header
-
-/** Background color for government banner **/
-.usa-banner {
-  background-color: var($light-gray);
-}
-
-.usa-banner__button-text,
-.usa-banner__button-text:hover {
-  color: var($text-blue);
-}
-
-.usa-banner__button-text:visited {
-  color: var($dark-gray);
-}
-
-.usa-banner__button::after,
-.usa-banner__button:hover::after {
-  background-color: var($text-blue);
-}
-
-.usa-banner__button:hover:visited::after {
-  background-color: var($dark-gray);
-}
-
-.usa-banner__button[aria-expanded="true"]::after,
-.usa-banner__button[aria-expanded="true"]:hover::after {
-  background-color: var($text-blue);
-}
-
-.usa-banner__button[aria-expanded="true"]:hover:visited::after {
-  background-color: var($dark-gray);
-}
-
-/** info banner **/
-.usa-header--extended .usa-alert--slim .usa-alert__body {
-  @include at-media($theme-header-min-width) {
-    max-width: 64rem;
-    margin-right: auto;
-    margin-left: auto;
-    padding-left: 3.2rem;
-    padding-right: 3.2rem;
-    display: block;
-    font-size: 0.9rem;
-  }
-
-  padding-left: 2.2rem;
-  padding-right: 2.2rem;
-  display: block;
-  font-size: 0.9rem;
-}
-
-.usa-header--extended .usa-alert--slim .usa-alert__body a,
-.usa-header--extended .usa-alert--slim .usa-alert__body a:hover,
-.usa-header--extended .usa-alert--slim .usa-alert__body a:visited {
-  color: color("blue-warm-70v");
-}
-
-/** emergency banner header **/
-.usa-header--extended .usa-alert--error {
-  color: var($white);
-  border-left-color: color("red-70v");
-  background-color: color("red-70v");
-}
-
-/** emergency banner header **/
-.usa-header--extended .usa-alert--error a {
-  color: var($white);
-}
-
-/** info banner header **/
-.usa-header--extended .usa-alert--info {
-  border-left-color: var($pale-blue);
-}
-
-/** info banner header **/
-@include at-media($theme-header-min-width) {
-  .usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
-    margin-bottom: 0;
-  }
-}
-
-/** Language buttons **/
-@include at-media($theme-header-min-width) {
-  .usa-header--extended .usa-navbar {
-    overflow: inherit;
-  }
-}
-
-/** Language buttons **/
-@include at-media($theme-header-min-width) {
-  .usa-header--extended div.language-switcher-language-url {
-    margin-right: auto;
-    max-width: 64rem;
-    margin-left: auto;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    display: block;
-  }
-}
-
-/** Language buttons **/
-.usa-header--extended div.language-switcher-language-url ul.links {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 0.3rem;
-  margin-left: 0;
-}
-
-/** Language buttons **/
-.usa-header--extended [hreflang|="es"] {
-  padding-left: 0.5rem;
-  border-radius: 5px;
-  border: none;
-
-  @media (max-width: 64em) {
-    padding-right: 1.3rem;
-  }
-}
-
-.usa-header--extended [hreflang|="en"] {
-  border-radius: 5px;
-  border: none;
-}
-
-/** Language buttons **/
-.usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link {
-  @media (max-width: 64em) {
-    font-size: 0.93rem;
-    font-weight: 700;
-  }
-
-  color: var($white);
-  text-decoration: none;
-  padding: 10px 20px;
-  background-color: color("blue-80v");
-}
-
-/** Language buttons **/
-@include at-media($theme-header-min-width) {
-  .usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover {
-    color: var($white);
-  }
-}
-
-/** Mobile menu button **/
-@media (max-width: 64em) {
-  .usa-header--extended .usa-navbar {
-    margin-top: 1rem;
-    padding-bottom: 1rem;
-  }
-}
-
-.usa-header--extended .usa-menu-btn {
-  @media (max-width: 64em) {
-    padding-right: 1.3rem;
-    width: 7rem;
-    height: 2.3rem;
-    text-align: left;
-    font-weight: 700;
-    background-image: url("/themes/custom/usagov/images/ICONS_Search.png");
-    background-size: 1.5rem;
-    background-repeat: no-repeat;
-    background-position: 3.5rem 0.7rem;
-  }
-
-  background-color: color("blue-warm-80v");
-}
-
-/** This is to minimize the size of the logo in
-*   tablet and mobile
-**/
-
-@media (min-width: 64em) {
-  .usa-header--extended .usa-logo {
-    margin: 0.5rem 0 0.2em;
-  }
-}
-
-.usa-header--extended .usa-logo img {
-  max-width: units(5);
-
-  @include at-media($theme-header-min-width) {
-    max-width: units(10);
-  }
-}
-
-.usa-header--extended .usa-logo img.es {
-  max-width: 6.2rem;
-
-  @include at-media($theme-header-min-width) {
-    max-width: 12.3rem;
-  }
-}
-
-// This is to make the Spanish header links align in a row with the search instead of a colum
-.usa-header--extended .usa-nav__secondary {
-  @include at-media($theme-header-min-width) {
-    @include u-flex("row", "align-end");
-
-    bottom: 6rem;
-    width: 32rem;
-  }
-}
-
-// This is to make the Spanish header links align in a row with the search instead of a colum
-.usa-header--extended .usa-nav__secondary:lang(es) {
-  @include at-media($theme-header-min-width) {
-    @include u-flex("row", "align-end");
-
-    bottom: 6rem;
-    width: 33rem;
-  }
-}
-
-.usa-header--extended .usa-nav__primary-item>.usa-nav__link:hover {
-  @include at-media($theme-header-min-width) {
-    position: relative;
-  }
-}
-
-.usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item {
-  @include at-media($theme-header-min-width) {
-    display: inline;
-    padding-left: 0;
-  }
-}
-
-// This is to make the header link stretch out
-.usa-header--extended .usa-nav__secondary-links {
-  @include at-media($theme-header-min-width) {
-    width: 15rem;
-    line-height: 1.1rem;
-  }
-}
-
-// Spanish header fix for text length
-.usa-header--extended .usa-nav__secondary-links:lang(es) {
-  @include at-media($theme-header-min-width) {
-    width: 17rem;
-    line-height: 1.1rem;
-  }
-}
-
-// This is to add content pipe before the search
-.usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
-  @include at-media($theme-header-min-width) {
-    float: right;
-    color: $gray;
-    content: "|"; // Removed while phone number is disabled
-    padding-right: 1rem;
-    font-size: 2rem;
-    padding-bottom: 0.4rem;
-  }
-}
-
-.usa-header--extended .usa-nav__secondary-links a {
-  @include at-media($theme-header-min-width) {
-    font-size: 1.13rem;
-    padding-left: 0.5rem;
-    padding-top: 0.2rem;
-  }
-}
-
-.usa-header--extended .usa-nav__secondary-links a:lang(es) {
-  @include at-media($theme-header-min-width) {
-    font-size: 1.13rem;
-    padding-left: 0.2rem;
-    padding-top: 0.2rem;
-  }
-}
-
-.usa-nav__primary>.usa-nav__primary-item>a,
-.usa-nav__primary>.usa-nav__primary-item>a:hover {
-  @media (min-width: 64em) {
-    padding: 0.8rem;
-    color: color("blue-warm-70v");
-  }
-}
-
-.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a,
-.usa-nav__primary>.usa-nav___primary-item-smaller-padding>a:hover {
-  padding: 0.7rem;
-}
-
-// adds vertical spacing for top-nav on desktop
-@media (min-width: 64em) {
-  .usa-nav__primary>.usa-nav__primary-item>.usa-nav__link {
-    line-height: 1.1;
-  }
-}
-
-// adds visible focus around entire search box
-[type="search"] {
-  z-index: 1;
-}
-
-// adds visible focus around entire search button and removes padding
-.usa-button:not([disabled]):focus {
-  outline-offset: 0;
-  z-index: 1;
-}
-
-
 
 a,
 .usa-alert__text a,
@@ -463,6 +160,7 @@ a,
 
 .usa-button {
   width: 100%;
+  line-height: 1.5;
 
   @media (min-width: 30em) {
     width: auto;
@@ -481,8 +179,8 @@ a,
 
 .usa-checkbox__input:checked+.usa-checkbox__label::before,
 .usa-radio__input:checked+.usa-radio__label::before {
-  background-color: color("black");
-  box-shadow: 0 0 0 units($theme-input-select-border-width) color("black"),
+  background-color: var($off-black);
+  box-shadow: 0 0 0 units($theme-input-select-border-width) var($off-black),
     inset 0 0 0 units($theme-input-select-border-width) color("white");
 }
 
@@ -494,90 +192,32 @@ a,
 
 .usa-checkbox__input--tile+.usa-checkbox__label,
 .usa-radio__input--tile+.usa-radio__label {
-  border-color: black;
+  border-color: var($off-black);
   background: white;
 }
 
 .usa-breadcrumb__link,
 .usa-breadcrumb__link:hover {
+  line-height: 1.5;
   text-decoration: underline;
   color: var($text-blue);
 }
 
 .usa-breadcrumb__link:visited {
   text-decoration: underline;
-  color: var($dark-gray);
+  color: var($text-blue);
+}
+
+.usa-breadcrumb__list-item {
+  line-height: 1.5;
+  color: var($text-blue);
+}
+.usa-breadcrumb__currrent {
+  color: var($global-default, text-color);
 }
 
 a {
   color: var($text-blue);
-}
-
-#block-betabanner .usa-alert--info,
-#block-betaspanishbanner .usa-alert--info {
-  // These styles are needed to position the alert icon
-  &::before {
-    display: none;
-  }
-
-  .usa-alert__body {
-    position: relative;
-
-    &::before {
-      background: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
-      width: 2rem;
-      content: "";
-      display: block;
-      height: 2.4rem;
-      position: absolute;
-      left: 1.3rem;
-      top: -0.6rem;
-      background-color: var($off-black);
-      mask: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
-      background-size: 1.5rem;
-
-      // height: 2.5rem;
-      // width: 1.5rem;
-      mask-size: 1.5rem;
-
-      @media (max-width: 1022px) {
-        left: 0.4rem;
-      }
-    }
-  }
-}
-
-#block-emergencyheaderbanner .usa-alert--error {
-  // These styles are needed to position the alert icon
-  &::before {
-    display: none;
-  }
-
-  .usa-alert__body {
-    position: relative;
-
-    &::before {
-      background: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
-      width: 2rem;
-      content: "";
-      display: block;
-      height: 3.5rem;
-      position: absolute;
-      left: 1.6rem;
-      top: -0.6rem;
-      background-color: var($off-black);
-      mask: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
-      background-size: 1.5rem;
-
-      // height: 2.5rem;
-      // width: 1.5rem;
-      mask-size: 1.5rem;
-
-      @media (max-width: 1022px) {
-        left: 0.4rem;
-      }
-    }
-  }
 }
 
 #block-usagov-content .font-serif-lg {
@@ -610,7 +250,8 @@ a {
   .text-primary-lighter,
   .usa-hero,
   .usa-identifier,
-  .usa-label {
+  .usa-label,
+  .usa-description {
     font-size: 1.1rem;
   }
 }
@@ -692,7 +333,6 @@ div #sm-share a {
   display: block;
 }
 
-
 // error styles for elected officials
 
 .usa-error {
@@ -710,6 +350,10 @@ input:not([disabled]):focus.usa-user-error {
   outline-offset: 1px;
 }
 
+.usa-form-spacing {
+  padding-left: 1rem;
+}
+
 .usa-main-border-error {
   border-left: 3px solid var($red-error);
 
@@ -722,27 +366,30 @@ input:not([disabled]):focus.usa-user-error {
   border-left: 3px solid var($red);
 }
 
-.usa-form-spacing {
-  padding-left: 1rem;
-}
-
 #myform div.margin-x-auto {
-  //margin-left: 3rem;
+  // margin-left: 3rem;
   @media (max-width: 40em) {
-    margin-left: .2rem;
+    margin-left: 1rem;
     margin-right: 1rem;
-  } 
+  }
 }
 
 #myform div.maxw-mobile {
   max-width: 26rem;
 }
 
-/**
-#myform.usa-form .usa-input, #myform .usa-combo-box__input {
-  max-width: 20rem;
+.ceo-button-container {
+  display: flex;
+
+  // Manages where the button is going to be positioned.
+  // Example: center, right, left.
+  justify-content: center;
 }
-*/
+
+.ceo-button {
+  margin-inline: 0 !important;
+  width: fit-content;
+}
 
 .usa-error--alert {
   display: none;
@@ -809,7 +456,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .block-wizardenglish .usa-button {
-  color: var($off-black);
+  color: var($global-default, text-color);
   background-color: var($cyan-light);
 
   @media (max-width: 40em) {
@@ -838,6 +485,12 @@ button#next.usa-button,
 .block-wizardenglish a.usa-button {
   background-color: var($cyan-light);
   box-shadow: inset 0 0 0 2px var($cyan-50v);
+  border: none;
+}
+
+button#next.usa-button:hover,
+.block-wizardenglish a.usa-button:hover {
+  background-color: var($secondary-background-color);
 }
 
 .block-wizardenglish .usa-prose>p {
@@ -859,7 +512,7 @@ button#next.usa-button,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked+.usa-radio__label {
-  border-color: var($deep-orange);
+  border-color: var($blue-outer-focus);
 }
 
 .block-wizardenglish [tabindex]:focus {
@@ -880,8 +533,6 @@ button.usa-combo-box__toggle-list:focus {
   opacity: 1;
 }
 
-
-
 // BEGIN Page Level Survey extra CSS
 #pagesurvey-trgt-qualtrics {
   background: white;
@@ -898,7 +549,7 @@ div[class^="QSIUserDefinedHTML"] {
   background: var($cyan-light);
   font-size: 130%;
   display: block;
-  color: var($off-black);
+  color: var($global-default, text-color);
   padding: 12px 0 15px;
   margin: 0 auto;
   max-width: 960px;
@@ -925,12 +576,6 @@ div[class^="QSIUserDefinedHTML"] {
 
 // END Page Level Survey extra CSS
 
-// government banner
-.usa-banner__header-text,
-.usa-banner__header-action {
-  line-height: 1.5;
-}
-
 .usa-prose p,
 .usa-prose li,
 .usa-prose a {
@@ -941,6 +586,11 @@ div[class^="QSIUserDefinedHTML"] {
 .usa-accordion__heading p,
 .usa-accordion__heading a {
   font-size: var($regular-text-font-size);
+}
+
+// Hides the City or County accordion header when there are no results.
+.usa-accordion__heading-hidden {
+  display: none;
 }
 
 #question-box>div>p,
@@ -973,27 +623,127 @@ div[class^="QSIUserDefinedHTML"] {
   overflow: hidden;
 }
 
-[hidden="until-found"]{
+[hidden="until-found"] {
   display: revert-layer;
   border: 0 !important;
   padding: 0 !important;
 }
 
-p, a , h1, h2, h3, h4, h5 , .usa-prose>h1, .usa-prose>h2, .usa-prose>h3, .usa-prose>h4, .usa-prose>h5 , .usa-hero__heading, .usa-card__heading, .usagov-card__heading {
+p,
+a,
+.usa-label,
+.usa-description,
+.usa-radio__label {
   line-height: 1.5;
 }
 
-.usa-button {
-  line-height: 1.5;
+// "Report an issue" page style
+// Style of the description used for the input field of a form.
+.usa-description {
+  @include typeset(
+    $theme-form-font-family,
+    $theme-body-font-size,
+    $theme-input-line-height
+  );
+  display: block;
+  font-weight: font-weight("normal");
+  margin-top: 0.5rem;
+  max-width: units($theme-input-max-width);
 }
 
-.usa-accordion__button {
-  line-height: 1.5;
+// Fix the height of the "Describe the issue" field.
+.usa-input-textarea {
+  height: auto;
 }
 
-.usa-form .usa-button {
+// Alignment of recaptcha error message and recaptcha box.
+.recaptcha-container {
+  @extend .ceo-button-container;
+  margin-bottom: 1em;
+  flex-direction: column;
+}
+
+// Centers the recaptcha error message
+.err-label-captcha {
+  @extend .usa-error;
+  text-align: center;
+}
+
+// Centers the recaptcha box
+.recaptcha-alignment {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+// Add a space between the recaptcha box and the error outline.
+.recaptcha-outline-padding {
+  padding: 5px;
+}
+
+.issue-button {
+  @extend .ceo-button;
+  margin-top: 1.5rem;
+}
+// End of "Report an issue" page style
+
+#myform .usa-button {
   margin-left: 4rem;
+
   @media (max-width: 30em) {
     margin-left: .4rem;
   }
+}
+
+.usa-form div.maxw-mobile p {
+  @media (max-width: 40em) {
+    padding-left: 1rem;
+  }
+}
+
+div div.field--name-field-offices-near-you {
+  display: inline;
+}
+
+.usa-normal {
+  font-weight: normal;
+}
+
+[href]:focus, button:not([disabled]):focus, input:not([disabled]):focus,
+.usa-footer__secondary-link a:focus, .usa-form a:focus, .usa-alert__text a:focus,
+button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wizardenglish a.usa-button:focus,
+.usa-radio__input:focus+[class*=__label]::before, textarea:not([disabled]):focus,
+.usagov-directory-bottom-nav-group a.nav-letter:focus, .usa-breadcrumb__list-item:nth-last-child(2)
+.usa-breadcrumb__link:focus, [tabindex]:focus, #pagesurvey-qual-container:focus,
+#pagesurvey-qual-ombnum a:focus, #pagesurvey-qual-container .Skin label.q-radio:focus,
+#pagesurvey-qual-container .Skin #Buttons #NextButton:focus, #pagesurvey-qual-container .Skin #Buttons #PreviousButton:focus {
+
+  outline: 0.25rem solid  $blue-outer-focus;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 2px $white-inner-focus;
+}
+
+.life-events-intro a:focus, .usa-hero__callout a:focus {
+  box-shadow: none;
+}
+
+#extended-logo [href]:focus, .usa-footer__secondary-link a:focus, .usa-hero__callout [href]:focus {
+  display: inherit;
+}
+
+#slides-list .slick-dots li button:focus {
+  box-shadow: 0 0 0 0 $blue-outer-focus;
+}
+
+.homepage-card:focus-within, .block-wizardenglish [tabindex]:focus, .usa-radio__input:focus, .slick-dots>li>button>.slick-dot-icon:focus {
+  outline: 0.25rem solid $blue-outer-focus;
+  outline-offset: 0;
+}
+
+.usagov-button{
+  font-size: 1.1rem;
+}
+
+#main-content .usa-accordion__button:not(.bg-secondary) {
+  background-color: #f0f0f0;
 }

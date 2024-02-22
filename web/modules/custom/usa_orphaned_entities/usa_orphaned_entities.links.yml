@@ -1,0 +1,5 @@
+orphaned_entities.form:
+  title: 'Orphaned Entities'
+  description: 'Configure management of orphaned entities.'
+  route_name: orphaned_entities.form
+  parent: 'system.admin_config_content'

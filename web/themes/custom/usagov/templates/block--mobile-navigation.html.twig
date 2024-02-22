@@ -40,19 +40,25 @@
 {% set active_item_has_children = false %}
 {% set sibblings_of_active_item = null %}
 {% set submenu = main_nav_items.menu_tree %}
-{% for i in 0..10 if not found_active_item %}
-  {% for menu_item in submenu if menu_item.active_trail %}
-    {% set active_trail = active_trail|merge([menu_item]) %}
-    {% if menu_item.active %}
-      {% set found_active_item = true %}
-      {% if menu_item.submenu %}
-        {% set active_item_has_children = true %}
-      {% else %}
-        {% set sibblings_of_active_item = submenu %}
+{% for i in 0..10 %}
+  {% if not found_active_item %}
+    {% for menu_item in submenu|filter(menu_item => menu_item.active_trail) %}
+      {% set active_trail = active_trail|merge([menu_item]) %}
+      {% if menu_item.active %}
+        {% set found_active_item = true %}
+        {% if menu_item.submenu %}
+          {% set active_item_has_children = true %}
+        {% else %}
+          {% set sibblings_of_active_item = submenu %}
+        {% endif %}
       {% endif %}
-    {% endif %}
-    {% set submenu = menu_item.submenu %}
-  {% endfor %}
+      {% if menu_item.submenu %}
+         {% set submenu = menu_item.submenu %}
+      {% else %}
+         {% set submenu = [] %} {# Ends traversal here #}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 {% endfor %}
 
 {% if node.type[0].value.target_id == "directory_record" %}
@@ -130,21 +136,38 @@
     <div class="usagov-mobile-menu-top">
       <div class="usagov-mobile-menu-controls">
         <a id="home-link-mobile-menu" href="{{ translations.home_URL }}">
-          <img src="/themes/custom/usagov/assets/img/usa-icons/home.svg" role="img" alt="{{ translations.home }}">{{ translations.home }}
+          <svg class="usa-icon text-base-darkest" role="img" alt="{{ translations.home }}">
+            <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#home"></use>
+          </svg>
+          {{ translations.home }}
         </a>
         <button class="usa-nav__close">
-          <img src="/themes/custom/usagov/assets/img/usa-icons/highlight_off.svg" role="img" alt="{{ translations.close }}">{{ translations.close }}
+          <svg class="usa-icon text-base-darkest" role="img" alt="{{ translations.close }}">
+            <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#highlight_off"></use>
+          </svg>
+          {{ translations.close }}
         </button>
       </div>
       <div class="usa-nav__secondary">
-        <form class="usa-search usa-search--small" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
-            <label id="top-srch-mobile-menu" class="usa-sr-only" for="search-field-small-mobile-menu">{{ translations.search }}</label>
-            <input id="affiliate-mobile-menu" name="affiliate" type="hidden" value="{{ translations.search_affiliate }}">
-            <input id="search-field-small-mobile-menu" class="usa-input text usagov-search-autocomplete ui-autocomplete-input" type="search" name="query" placeholder="{{ translations.search_placeholder }}" onfocus="this.placeholder = ''" autocomplete="off" aria-autocomplete="list" aria-haspopup="true">
-            <button class="usa-button" type="submit">
-              <img src="/themes/custom/usagov/images/search--dark.svg" class="usa-search__submit-icon" alt="{{ translations.search }}">
-            </button>
-        </form>
+        <!-- Search Bar -->
+        {% embed 'usagov:searchbar' with {
+          form_classes: "usa-search usa-search--small",
+          label_id: "top-srch-mobile-menu",
+          for_string:"search-field-small-mobile-menu",
+          hidden_input_id:"affiliate-mobile-menu",
+          input_id:"search-field-small-mobile-menu",
+          input_classes:"usa-input text usagov-search-autocomplete ui-autocomplete-input",
+          button_classes:"usa-button usagov-button",
+          placeholder_string,
+          value_string,
+          label_string,
+          alt_string,
+        } %}
+          {% set placeholder_string = translations.search_placeholder %}
+          {% set value_string = translations.search_affiliate %}
+          {% set label_string = translations.search %}
+          {% set alt_string = translations.search %}
+        {% endembed %}
         <span class="usa-nav__secondary-links">
           <span id="top-phone-mobile-menu" class="usa-nav__secondary-item">
             <a href="{{ translations.phone_URL }}" class="">1-844-USAGOV1</a>

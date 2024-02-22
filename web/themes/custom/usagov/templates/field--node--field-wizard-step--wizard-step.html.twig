@@ -1,4 +1,4 @@
-{{ attach_library('wizardStep') }}
+{{ attach_library('wizardstep') }}
 
 {% set radio_buttons = true %}
 
@@ -22,6 +22,13 @@
 <div id="wizard-border">
 <fieldset class="usa-fieldset maxw-tablet margin-x-auto">
     <legend class="usa-sr-only">{{ element['#object'].title.value }}</legend>
+
+    {% if element['#object'].title.value == "What type of scam do you need to report?" or element['#object'].title.value == "¿Qué tipo de estafa necesita reportar?" %}
+    <legend class="usa-sr-only">{{ element['#object'].body[0].value|raw }}</legend>
+    {% else %}
+    <legend>{{ element['#object'].body[0].value|raw }}</legend>
+    {% endif %}
+
     <div id="msg" class="maxw-tablet margin-x-auto usa-error" tabindex= "-1"></div>
     {% for item in items %}
         {% set title = item.content["#options"]["entity"].field_option_name.0.value %}
@@ -40,8 +47,8 @@
 </div>
 
  <div class="grid-row flex-justify maxw-mobile margin-x-auto margin-top-6  usa-reverse">
-        <button id="prior" class="usa-button usa-button--outline usagov-button--outline-black" onclick="window.location.href = document.querySelector(`.previous-wizard-step a`).href+'#block-usagov-content'">{{translation.prior}}</button>
-        <button id="next" class="usa-button" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">{{translation.next}}</button>
+        <button id="prior" class="usa-button usa-button--outline usagov-button--outline-black usa-button--big" onclick="window.location.href = document.querySelector(`.previous-wizard-step a`).href+'#block-usagov-content'">{{translation.prior}}</button>
+        <button id="next" class="usa-button usa-button--secondary usa-button--big" onclick="window.location.href = document.querySelector(`input[name='options']:checked`).value">{{translation.next}}</button>
     </div>
 {% else %}
 

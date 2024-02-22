@@ -31,6 +31,10 @@
   background-color: var($card, group-background-color);
 }
 
+.usa-layout-docs__main .usagov-cards {
+  margin-top: 24px;
+}
+
 .usagov-card {
   border-radius: 0;
   box-shadow: 4px 4px 10px #aaa;
@@ -48,13 +52,14 @@
   text-decoration-thickness: 7px;
   text-decoration-color: var($card, heading-underline-color);
   text-decoration-skip-ink: none;
+  line-height: 1.8em;
 }
 
 .usagov-navpage-item {
   border: 2px solid transparent;
 
   &:hover {
-    background-color: var($card, background-color);
+    background-color: var($card, hover-background-color);
   }
 
   a {
@@ -62,3 +67,4 @@
     display: block;
   }
 }
+

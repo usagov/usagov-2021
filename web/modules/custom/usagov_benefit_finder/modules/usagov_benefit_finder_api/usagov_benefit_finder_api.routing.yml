@@ -1,0 +1,48 @@
+usagov_benefit_finder_api.life_event_1:
+  path: '/bears/api/life-event/{id}'
+  defaults:
+    _controller: '\Drupal\usagov_benefit_finder_api\Controller\LifeEventController:getJsonData'
+    _title: 'USAgov Benefit Finder JSON API of life event'
+  methods: [GET]
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  options:
+    parameters:
+      id:
+        type: string
+usagov_bears_api.life_event_json_file_1:
+  path: '/bears/api/life-event/{id}/jsonfile'
+  defaults:
+    _controller: '\Drupal\usagov_benefit_finder_api\Controller\LifeEventController:saveJsonData'
+    _title: 'USAgov Benefit Finder JSON file of life event'
+  methods: [GET]
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  options:
+    parameters:
+      id:
+        type: string
+usagov_benefit_finder_api.life_event:
+  path: '/benefit-finder/api/life-event/{id}'
+  defaults:
+    _controller: '\Drupal\usagov_benefit_finder_api\Controller\LifeEventController:getJsonData'
+    _title: 'USAgov Benefit Finder JSON API of life event'
+  methods: [GET]
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  options:
+    parameters:
+      id:
+        type: string
+usagov_bears_api.life_event_json_file:
+  path: '/benefit-finder/api/life-event/{id}/jsonfile'
+  defaults:
+    _controller: '\Drupal\usagov_benefit_finder_api\Controller\LifeEventController:saveJsonData'
+    _title: 'USAgov Benefit Finder JSON file of life event'
+  methods: [GET]
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  options:
+    parameters:
+      id:
+        type: string

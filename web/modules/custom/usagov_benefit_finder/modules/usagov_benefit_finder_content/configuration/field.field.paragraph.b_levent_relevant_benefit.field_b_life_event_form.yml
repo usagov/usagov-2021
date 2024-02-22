@@ -1,0 +1,28 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_b_life_event_form
+    - node.type.bears_life_event_form
+    - paragraphs.paragraphs_type.b_levent_relevant_benefit
+id: paragraph.b_levent_relevant_benefit.field_b_life_event_form
+field_name: field_b_life_event_form
+entity_type: paragraph
+bundle: b_levent_relevant_benefit
+label: 'Life Event Form'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      bears_life_event_form: bears_life_event_form
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

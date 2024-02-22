@@ -1,0 +1,26 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.bears_agency.field_b_lede
+    - field.field.node.bears_agency.field_b_summary
+    - field.field.node.bears_agency.field_language_toggle
+    - node.type.bears_agency
+  module:
+    - user
+id: node.bears_agency.teaser
+targetEntityType: node
+bundle: bears_agency
+mode: teaser
+content:
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_b_lede: true
+  field_b_summary: true
+  field_language_toggle: true
+  langcode: true

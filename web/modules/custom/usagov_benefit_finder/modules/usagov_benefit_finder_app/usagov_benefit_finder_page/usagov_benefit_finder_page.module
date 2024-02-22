@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * @file
+ * Module contains functions related to usagov_benefit_finder_page.
+ */
+
+/**
+ * Implements hook_theme().
+ *
+ * @return array
+ */
+function usagov_benefit_finder_page_theme() {
+  $theme['page__benefit_finder_life_event'] = [
+    'base hook' => 'page',
+  ];
+  return $theme;
+}
+
+/**
+ * Implements hook_theme_suggestions_page_alter().
+ *
+ * @param array &$suggestions
+ * @param array $variables
+ */
+function usagov_benefit_finder_page_theme_suggestions_page_alter(array &$suggestions, array $variables) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if ($node && $node->bundle() == "bears_life_event") {
+    if (\Drupal::routeMatch()->getRouteName() == 'entity.node.canonical') {
+      $suggestions[] = 'page__benefit_finder_life_event';
+    }
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ *
+ * @param array $page
+ */
+function usagov_benefit_finder_page_page_attachments_alter(array &$page) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if ($node && $node->bundle() == "bears_life_event") {
+    if (\Drupal::routeMatch()->getRouteName() == 'entity.node.canonical') {
+      $page['#attached']['library'][] = 'usagov_benefit_finder_page/benefit_finder_app';
+      $url = $node->toUrl('canonical')->setAbsolute(TRUE);
+      $page['#attached']['html_head_link'][] = [
+        [
+          'rel' => 'canonical',
+          'href' => $url->toString(),
+        ],
+      ];
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ *
+ * @param $variables
+ */
+function usagov_benefit_finder_page_preprocess_page(&$variables) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if ($node && $node->bundle() == "bears_life_event") {
+    if (\Drupal::routeMatch()->getRouteName() == 'entity.node.canonical') {
+      $variables['json_data_file_path'] = $node->get('field_json_data_file_path')->value;
+      $variables['draft_json_data_file_path'] = $node->get('field_draft_json_data_file_path')->value;
+    }
+  }
+}

@@ -32,10 +32,11 @@
   font-feature-settings: "kern" 1;
   font-kerning: normal;
   box-sizing: inherit;
-  color: var($off-black);
+  color: var($global-default, text-color);
   text-decoration: none;
   padding: 0;
   font-weight: 700;
+  line-height: 1.2;
   margin: 0;
   margin-bottom: 0;
   align-items: center;
@@ -53,6 +54,7 @@
   padding: 1rem;
   width: 100%;
   border: 0;
+  background-color: #f0f0f0;
   cursor: pointer;
 }
 
@@ -91,6 +93,10 @@
   outline-offset: -0.25rem;
 }
 
+.usa-footer__primary-section {
+  background-color: #f0f0f0;
+}
+
 .usa-footer__primary-section .usa-list {
   margin-top: 1rem;
 }
@@ -99,12 +105,27 @@
   outline-offset: -0.25rem;
 }
 
+.footer-button-container{
+  display: flex;
+
+  // Manages where the button is going to be positioned.
+  // Example: center, right, left.
+  justify-content: left;
+}
+
 .footer-button {
+  border: 1px solid #1b1b1b;
+  line-height: 1.5;
+  margin-inline: 0 !important;
+  font-size: 1.1rem;
+}
+
+.footer-button:hover {
   border: 1px solid #1b1b1b;
 }
 
 #footer-email {
-  border-color: var($off-black);
+  border-color: var($global-default, text-color);
 }
 
 .ftr-list {
@@ -127,6 +148,11 @@
   }
 }
 
+.usa-footer__logo {
+  @media (max-width: 30em) {
+    padding-bottom: 20px;
+  }
+}
 
 .usa-footer__secondary-link a.disabled,
 .usa-footer__secondary-section a.disabled {
@@ -137,19 +163,19 @@
 
 .footer-question {
   min-height: 15px;
-  margin-block-end: 8px;
+  margin-block-end: 0;
 }
 
 .usa-footer__contact-links {
   @media (max-width: 30em) {
     margin-top: 0;
+    padding-top: 8px;
   }
 }
 
 .usa-footer__contact-info {
   @media (min-width: 30em) {
-    justify-content: flex-start !important;
-    margin-top: -0.25rem;
+    margin-top: 0;
   }
 }
 
@@ -212,6 +238,8 @@
     display: block;
     height: 32px;
     width: 32px;
+    background-color: var($white);
+    border-radius: 3px;
   }
 }
 
@@ -227,6 +255,7 @@
 }
 
 .usa-identifier__usagov-description {
+  line-height: 1.5;
   @media (min-width: 36em) {
     display: flex;
     justify-content: center;

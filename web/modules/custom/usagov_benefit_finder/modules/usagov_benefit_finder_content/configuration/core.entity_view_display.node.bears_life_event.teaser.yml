@@ -1,0 +1,39 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.bears_life_event.field_b_id
+    - field.field.node.bears_life_event.field_draft_json_data_file
+    - field.field.node.bears_life_event.field_draft_json_data_file_path
+    - field.field.node.bears_life_event.field_json_data_file
+    - field.field.node.bears_life_event.field_json_data_file_path
+    - field.field.node.bears_life_event.field_language_toggle
+    - field.field.node.bears_life_event.field_summary
+    - node.type.bears_life_event
+  module:
+    - user
+id: node.bears_life_event.teaser
+targetEntityType: node
+bundle: bears_life_event
+mode: teaser
+content:
+  content_moderation_control:
+    settings: {  }
+    third_party_settings: {  }
+    weight: -20
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_b_id: true
+  field_draft_json_data_file: true
+  field_draft_json_data_file_path: true
+  field_json_data_file: true
+  field_json_data_file_path: true
+  field_language_toggle: true
+  field_summary: true
+  langcode: true

@@ -1,0 +1,7 @@
+orphaned_entities.form:
+  path: '/admin/config/content/orphaned-entities'
+  defaults:
+    _form: '\Drupal\usa_orphaned_entities\Form\OrphanedEntitiesSettings'
+    _title: 'Orphaned Entities settings'
+  requirements:
+    _permission: 'administer site configuration'

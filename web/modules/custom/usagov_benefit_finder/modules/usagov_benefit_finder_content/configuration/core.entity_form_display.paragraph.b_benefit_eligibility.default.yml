@@ -1,0 +1,38 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.b_benefit_eligibility.field_b_acceptable_values
+    - field.field.paragraph.b_benefit_eligibility.field_b_criteria_key
+    - field.field.paragraph.b_benefit_eligibility.field_b_label
+    - paragraphs.paragraphs_type.b_benefit_eligibility
+id: paragraph.b_benefit_eligibility.default
+targetEntityType: paragraph
+bundle: b_benefit_eligibility
+mode: default
+content:
+  field_b_acceptable_values:
+    type: string_textfield
+    weight: 2
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_b_criteria_key:
+    type: options_select
+    weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_b_label:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

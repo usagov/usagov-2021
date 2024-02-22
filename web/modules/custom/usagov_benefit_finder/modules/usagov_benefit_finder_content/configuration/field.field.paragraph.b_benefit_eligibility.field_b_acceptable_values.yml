@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_b_acceptable_values
+    - paragraphs.paragraphs_type.b_benefit_eligibility
+id: paragraph.b_benefit_eligibility.field_b_acceptable_values
+field_name: field_b_acceptable_values
+entity_type: paragraph
+bundle: b_benefit_eligibility
+label: 'Acceptable Values'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

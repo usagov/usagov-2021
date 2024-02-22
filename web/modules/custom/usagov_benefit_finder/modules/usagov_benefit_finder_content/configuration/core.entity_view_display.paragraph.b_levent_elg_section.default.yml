@@ -1,0 +1,42 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.b_levent_elg_section.field_b_criterias
+    - field.field.paragraph.b_levent_elg_section.field_b_description
+    - field.field.paragraph.b_levent_elg_section.field_b_heading
+    - paragraphs.paragraphs_type.b_levent_elg_section
+  module:
+    - entity_reference_revisions
+    - text
+id: paragraph.b_levent_elg_section.default
+targetEntityType: paragraph
+bundle: b_levent_elg_section
+mode: default
+content:
+  field_b_criterias:
+    type: entity_reference_revisions_entity_view
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_b_description:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_b_heading:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  field_b_fieldsets: true

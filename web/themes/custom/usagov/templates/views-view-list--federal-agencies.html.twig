@@ -27,9 +27,11 @@
  **************************************************
 #}
 <h2 class="usagov-directory-letter-heading" tabindex="-1" id="{{- alpha_context.current -}}">{{- alpha_context.current -}}</h2>
+<div class="usa-accordion">
   {% for row in rows %}
   {{ row.content }}
   {% endfor %}
+</div>
 {# <!-- Bottom Navigation --> #}
 <div class="usagov-directory-bottom-nav-container">
   {% set leftArrow = '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><polygon points="0 0 24 0 24 24 0 24"/><polygon fill="#000" fill-rule="nonzero" points="11.41 7.41 10 6 4 12 10 18 11.41 16.59 6.83 12"/></g></svg>' %}
@@ -43,27 +45,27 @@
 
   <div class="usagov-directory-bottom-nav-group">
     {% if alpha_context.prev == "A" or alpha_context.prev == "a" %}
-      <a class="usagov-directory-bottom-nav-arrow" href={{ agencyindex }}>
+      <a class="usagov-directory-bottom-nav-arrow" href="{{ agencyindex }}#{{ alpha_context.prev }}">
         {{leftArrow|raw}} <span class="usa-sr-only">{{ agencyindex == '/agency-index' ? 'previous' : 'previo' }}</span>
       </a>
-      <a class="nav-letter" href={{ agencyindex }}>{{ alpha_context.prev }}</a>
+      <a class="nav-letter" href="{{ agencyindex }}#{{ alpha_context.prev }}">{{ alpha_context.prev }}</a>
     {% else %}
-      <a class="usagov-directory-bottom-nav-arrow" href="{{ agencyindex }}?letter={{ alpha_context.prev|lower }}">
+      <a class="usagov-directory-bottom-nav-arrow" href="{{ agencyindex }}?letter={{ alpha_context.prev|lower }}#{{ alpha_context.prev }}">
         {{leftArrow|raw}} <span class="usa-sr-only">{{ agencyindex == '/agency-index' ? 'previous' : 'previo' }}</span>
       </a>
-      <a class="nav-letter" href="{{ agencyindex }}?letter={{ alpha_context.prev|lower }}">{{ alpha_context.prev }}</a>
+      <a class="nav-letter" href="{{ agencyindex }}?letter={{ alpha_context.prev|lower }}#{{ alpha_context.prev}}">{{ alpha_context.prev }}</a>
     {% endif %}
   </div>
 
   <div class="usagov-directory-bottom-nav-group">
     {% if alpha_context.next == "A" or alpha_context.next == "a" %}
-      <a class="nav-letter" href={{ agencyindex }}>{{ alpha_context.next }}</a>
-      <a class="usagov-directory-bottom-nav-arrow" href={{ agencyindex }}>
+      <a class="nav-letter" href="{{ agencyindex }}#{{ alpha_context.next }}">{{ alpha_context.next }}</a>
+      <a class="usagov-directory-bottom-nav-arrow" href="{{ agencyindex }}#{{ alpha_context.next }}">
         <span class="usa-sr-only">{{ agencyindex == '/agency-index' ? 'next' : 'siguiente' }}</span> {{rightArrow|raw}}
       </a>
     {% else %}
-      <a class="nav-letter" href="{{ agencyindex }}?letter={{ alpha_context.next|lower }}">{{ alpha_context.next }}</a>
-      <a class="usagov-directory-bottom-nav-arrow" href="{{ agencyindex }}?letter={{ alpha_context.next|lower }}">
+      <a class="nav-letter" href="{{ agencyindex }}?letter={{ alpha_context.next|lower }}#{{ alpha_context.next }}">{{ alpha_context.next }}</a>
+      <a class="usagov-directory-bottom-nav-arrow" href="{{ agencyindex }}?letter={{ alpha_context.next|lower }}#{{ alpha_context.next }}">
        <span class="usa-sr-only">{{ agencyindex == '/agency-index' ? 'next' : 'siguiente' }}</span> {{rightArrow|raw}}
       </a>
     {% endif %}

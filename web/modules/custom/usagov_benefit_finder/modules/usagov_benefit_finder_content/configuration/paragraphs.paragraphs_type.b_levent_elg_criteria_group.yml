@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies: {  }
+id: b_levent_elg_criteria_group
+label: 'Criteria Group'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

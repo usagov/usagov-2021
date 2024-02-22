@@ -11,13 +11,13 @@
         <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
             <a href="/about-the-us" class="usa-breadcrumb__link" itemprop="item">
                 <span itemprop="name">
-                    About the U.S and Its Government
+                    About the U.S. and its government
                 </span>
             </a>
             <meta itemprop="position" content="1" />
         </li>
         {% if path('<current>') == '/agency-index'%}
-            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <li class="usa-breadcrumb__list-item usa-breadcrumb__currrent" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                 <span itemprop="name">{{ drupal_field('title', 'node', 629) }}</span>
                 <meta itemprop="position" content="2" />
             </li>
@@ -30,7 +30,7 @@
                 </a>
                 <meta itemprop="position" content="2" />
                 </li>
-            <li class="usa-breadcrumb__list-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <li class="usa-breadcrumb__list-item usa-breadcrumb__currrent" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                 <span itemprop="name">{{ drupal_title() }}</span>
                 <meta itemprop="position" content="3" />
             </li>

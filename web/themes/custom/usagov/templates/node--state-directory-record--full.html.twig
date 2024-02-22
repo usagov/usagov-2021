@@ -16,21 +16,23 @@
 		'state_agencies': 'State agencies'
 	} %}
 {% endif %}
+{% set territories_array = ["AS","FM","GU","MP","PR","PW","MH","VI"] %}
 
 {{ content.field_page_intro }}
 {{ content.body }}
 <div class="usagov-directory-table" id="State-Directory-Table">
 	<div>
-		<h3 class="usa-prose line-height-2">{{ lang == 'en' ? 'State government website' : 'Sitio web del Gobierno estatal ' }}</h3>
+		<h2 class="usa-prose line-height-2">{{ lang == 'en' ? 'State government website' : 'Sitio web del Gobierno estatal ' }}</h2>
 		{{ content.field_website }}
 	</div>
 
 	{% if lang == 'en' %}
 		<div>
-			<ul class="usa-list usa-list--unstyled">
-				<h3 class="usa-prose line-height-2">Governor</h3>
-				{{ content.field_governor }}<br>
-				{{ content.field_governor_contact }}
+			<h2 class="usa-prose line-height-2">Governor</h2>
+				<ul class="usa-list usa-list--unstyled">
+					<li class="usa-list usa-list--unstyled">{{ content.field_governor }}</li>
+					<li class="usa-list usa-list--unstyled">{{ content.field_governor_contact }}</li>
+				</ul>
 				<p class="usagov-dir-padding line-height-2">Phone:
 					{{ content.field_phone_number }}</p>
 				{% if content.group_main_address %}
@@ -43,26 +45,28 @@
 					{% if address.field_street_3|render %}
 						<br>{{ address.field_street_3 }}
 					{% endif %}
+					{% apply spaceless %}
 					{% if address.field_city|render %}
 						<br>{{ address.field_city }}
 					{% endif %}
+					{% endapply %},
 					{% if address.field_state_abbr|render or address.field_zip|render %}
-						,
 						{{ address.field_state_abbr }}
 						{{ address.field_zip }}
 					{% endif %}
 				{% endif %}
-			</ul>
+		</div>
+	{% endif %}
+
+	{% if node.field_state_abbr[0].value not in territories_array %}
+		<div>
+			<h2 class="usa-prose line-height-2">{{translations.congress_members}}</h2>
+			<a href="{{translations.elected_officials_link_url}}">{{translations.elected_officials_link_text}}</a>
 		</div>
 	{% endif %}
 
 	<div>
-		<h3 class="usa-prose line-height-2">{{translations.congress_members}}</h3>
-		<a href="{{translations.elected_officials_link_url}}">{{translations.elected_officials_link_text}}</a>
-	</div>
-
-	<div>
-		<h3 class="usa-prose line-height-2">{{translations.state_agencies}}</h3>
+		<h2 class="usa-prose line-height-2">{{translations.state_agencies}}</h2>
 
 		<ul class="usa-list">
 

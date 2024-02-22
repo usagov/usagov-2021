@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_time_estimate
+    - node.type.bears_life_event_form
+id: node.bears_life_event_form.field_b_time_estimate
+field_name: field_b_time_estimate
+entity_type: node
+bundle: bears_life_event_form
+label: 'Time Estimate'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

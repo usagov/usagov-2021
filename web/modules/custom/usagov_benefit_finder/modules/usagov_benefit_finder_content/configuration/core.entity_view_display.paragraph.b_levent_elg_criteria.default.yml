@@ -1,0 +1,61 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.b_levent_elg_criteria.field_b_children
+    - field.field.paragraph.b_levent_elg_criteria.field_b_criteria_key
+    - field.field.paragraph.b_levent_elg_criteria.field_b_hint
+    - field.field.paragraph.b_levent_elg_criteria.field_b_legend
+    - field.field.paragraph.b_levent_elg_criteria.field_b_required
+    - paragraphs.paragraphs_type.b_levent_elg_criteria
+  module:
+    - entity_reference_revisions
+id: paragraph.b_levent_elg_criteria.default
+targetEntityType: paragraph
+bundle: b_levent_elg_criteria
+mode: default
+content:
+  field_b_children:
+    type: entity_reference_revisions_entity_view
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  field_b_criteria_key:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_b_hint:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_b_legend:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_b_required:
+    type: boolean
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 3
+    region: content
+hidden: {  }

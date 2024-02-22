@@ -48,15 +48,59 @@
   {% if node.id is defined %}
     {{ node.field_header_html.value|raw }}
   {% endif %}
-  <script>
+   {% if nodetype == "basic_page" %}
+<script>
     dataLayer = [{
       {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
+      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+{% if front == "homepage" and lang == "en" %}
+      "Taxonomy_Text_1": "Home",
+      "Taxonomy_Text_2": "Home",
+      "Taxonomy_Text_3": "Home",
+      "Taxonomy_Text_4": "Home",
+      "Taxonomy_Text_5": "Home",
+      "Taxonomy_Text_6": "Home",
+      "Taxonomy_URL_1": "/",
+      "Taxonomy_URL_2": "/",
+      "Taxonomy_URL_3": "/",
+      "Taxonomy_URL_4": "/",
+      "Taxonomy_URL_5": "/",
+      "Taxonomy_URL_6": "/"
+{% endif %}
+{% if front == "homepage" and lang == "es" %}
+      "Taxonomy_Text_1": "Página principal",
+      "Taxonomy_Text_2": "Página principal",
+      "Taxonomy_Text_3": "Página principal",
+      "Taxonomy_Text_4": "Página principal",
+      "Taxonomy_Text_5": "Página principal",
+      "Taxonomy_Text_6": "Página principal",
+      "Taxonomy_URL_1": "/es/",
+      "Taxonomy_URL_2": "/es/",
+      "Taxonomy_URL_3": "/es/",
+      "Taxonomy_URL_4": "/es/",
+      "Taxonomy_URL_5": "/es/",
+      "Taxonomy_URL_6": "/es/"
+{% endif %}
+      {{ taxonomy_link_block }}
     }];
   </script>
+ {% else %}
+<script>
+    dataLayer = [{
+      {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+      {{ taxonomy_link_block }}
+    }];
+  </script>
+ {% endif %}
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -125,8 +169,8 @@
   {% elseif node_type == "wizard" and lang == "es" or node_type == "wizard_step" and lang == "es" %}
   <meta name="og:description" content="¿Ha sufrido una estafa y quiere reportarla? Solo responda unas cuantas preguntas para saber cómo reportar la estafa en el lugar correcto." />
   {% endif %}
-  <meta property="og:image" content="https://www.usa.gov/images/facebook_share_thumbnail.png" />
-  <meta property="og:image:secure_url" content="https://www.usa.gov/images/facebook_share_thumbnail.png" />
+  <meta property="og:image" content="https://www.usa.gov/themes/custom/usagov/images/Logo_USAGov.png" />
+  <meta property="og:image:secure_url" content="https://www.usa.gov/themes/custom/usagov/images/Logo_USAGov.png" />
   <!-- End Social Media -->
 
   <script type="application/ld+json">
@@ -137,6 +181,30 @@
       "logo": "https://www.usa.gov/themes/custom/usagov/images/Logo_USAGov.png"
     }
   </script>
+
+  {% if faq %}
+  {# Generate FAQ JSON #}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {% for item in faq %}
+        {
+          "@type": "Question",
+          "name": "{{ item.question }}",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "{{ item.answer|replace({'\"': '\\\"'})|raw }}"
+          }
+        }{% if not loop.last %},
+        {% endif %}
+        {% endfor %}
+
+      ]
+    }
+    </script>
+    {% endif %}
 
 </head>
 <body{{ attributes }}>

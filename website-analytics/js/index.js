@@ -690,7 +690,8 @@
 
       bin.exit().remove();
 
-      var enter = bin.enter().append("div")
+      var enter = bin.enter().append("li");
+      enter.append("div")
         .attr("class", "bin");
       enter.append("div")
         .attr("class", "label");
@@ -818,8 +819,7 @@
         .data(bars);
       bar.exit().remove();
       var enter = bar.enter().append("g")
-        .attr("class", "bar")
-        .attr("tabindex", 0);
+        .attr("class", "bar");
       enter.append("rect")
         .attr("width", barWidth)
         .attr("y", 0)

@@ -38,8 +38,11 @@ class PagerPathSubscriber implements EventSubscriberInterface {
   public function modifyHtml(ModifyHtmlEvent $event) {
     $html = $event->getHtml();
     $path = $event->getPath();
+
+    // LIBXML_SCHEMA_CREATE fixes a problem wherein DOMDocument would remove closing HTML
+    // tags within quoted text in a script element. See https://bugs.php.net/bug.php?id=74628
     $document = new \DOMDocument();
-    @$document->loadHTML($html);
+    @$document->loadHTML($html, LIBXML_SCHEMA_CREATE);
     $xpath = new \DOMXPath($document);
     /** @var \DOMElement $node */
     foreach ($xpath->query('//a[(contains(@href,"?letter=") or contains(@href,"&letter="))]') as $node) {
@@ -69,8 +72,9 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    *   The modified URL.
    */
   protected function modifyUrl($url) {
-    parse_str(parse_url($url, PHP_URL_QUERY), $query);
+    $parsed_url = parse_url($url, PHP_URL_QUERY) ?? '';
     $fragment = parse_url($url, PHP_URL_FRAGMENT);
+    parse_str($parsed_url, $query);
     if ($query && isset($query['letter'])) {
       $base_path = preg_replace('/\?.*/', '', $url);
       if ($base_path === '/') {

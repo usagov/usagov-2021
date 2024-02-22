@@ -1,0 +1,11 @@
+uuid: b9915137-53a8-4554-a3f2-648ac24ed37b
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_criteria
+id: node.bears_criteria
+target_entity_type_id: node
+target_bundle: bears_criteria
+default_langcode: site_default
+language_alterable: true

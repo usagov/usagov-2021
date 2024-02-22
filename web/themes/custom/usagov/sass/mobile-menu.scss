@@ -69,7 +69,7 @@ ul.navigation__items {
   align-items: center;
   background: transparent;
   border: 0;
-  color: black;
+  color: var($global-default, text-color);
   font-weight: bold;
   font-size: larger;
   text-decoration: none;
@@ -78,17 +78,19 @@ ul.navigation__items {
   height: auto;
 }
 
-.usagov-mobile-menu-controls a img {
-  padding: 0.16rem;
-  margin: 0.1rem;
-  border: 3px solid black;
+
+.usagov-mobile-menu-controls a svg {
+  border: 3px solid var($global-default, text-color);
   border-radius: 100%;
   height: 2.16rem;
+  width: 2.16rem;
+  margin: 0.1rem;
+  padding: 0.16rem;
 }
 
-.usagov-mobile-menu-controls button img {
+.usagov-mobile-menu-controls button svg {
   height: 2.5rem;
-  width: auto;
+  width: 2.5rem;
 }
 
 .usagov-mobile-menu .usa-nav__secondary-links {
@@ -120,8 +122,23 @@ ul.navigation__items {
     display: none;
   }
 }
+
+
 @media (max-width: 63.99em) {
-  .usa-nav.is-visible {
+
+  // Make the header sticky for devices with a screen size less than or equal to 1024px.
+  .usa-header {
+    // For Safari
+    position: -webkit-sticky;
+    // For other browsers
+    position: sticky;
+
+    background: #fff;
+    width: 100%;
+    z-index: 500;
+  }
+
+  .usa-nav.is-visible, .usa-navbar>.usa-nav__secondary {
     display: none;
   }
 

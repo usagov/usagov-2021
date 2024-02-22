@@ -1,0 +1,5 @@
+name: USAgov Benefit Finder content
+type: module
+description: 'Prepare content for Benefit Finder v2.'
+core_version_requirement: ^9 || ^10
+package: USAgov Benefit Finder
