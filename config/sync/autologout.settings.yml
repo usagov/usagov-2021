@@ -1,8 +1,10 @@
 _core:
   default_config_hash: j-ZIPT_JseG1aLxuAdzS-NomYUmBK3OUOjP53Pg8uA8
+enabled: true
 timeout: 1800
 max_timeout: 1800
 padding: 20
+logout_regardless_of_activity: false
 no_individual_logout_threshold: true
 role_logout: false
 role_logout_max: false
@@ -11,6 +13,7 @@ no_dialog: false
 message: 'Your session is about to expire. Do you want to reset it?'
 inactivity_message: 'You have been logged out due to inactivity.'
 inactivity_message_type: status
+modal_width: null
 enforce_admin: true
 jstimer_format: '%hours%:%mins%:%secs%'
 jstimer_js_load_option: false
