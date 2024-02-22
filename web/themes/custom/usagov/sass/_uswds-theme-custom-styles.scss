@@ -714,7 +714,7 @@ div div.field--name-field-offices-near-you {
 button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wizardenglish a.usa-button:focus,
 .usa-radio__input:focus+[class*=__label]::before, textarea:not([disabled]):focus,
 .usagov-directory-bottom-nav-group a.nav-letter:focus, .usa-breadcrumb__list-item:nth-last-child(2)
-.usa-breadcrumb__link:focus, [tabindex]:focus, #pagesurvey-qual-container:focus {
+.usa-breadcrumb__link:focus, [tabindex]:focus, select:not([disabled]):focus, #pagesurvey-qual-container:focus {
 
   outline: 0.25rem solid  $blue-outer-focus;
   outline-offset: 0;
