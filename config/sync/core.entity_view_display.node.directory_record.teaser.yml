@@ -21,6 +21,7 @@ dependencies:
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
     - field.field.node.directory_record.field_phone_number
+    - field.field.node.directory_record.field_popular_services
     - field.field.node.directory_record.field_show_in_a_z_index
     - field.field.node.directory_record.field_state_abbr
     - field.field.node.directory_record.field_street_1
@@ -61,6 +62,7 @@ hidden:
   field_offices_near_you: true
   field_page_intro: true
   field_phone_number: true
+  field_popular_services: true
   field_show_in_a_z_index: true
   field_state_abbr: true
   field_street_1: true
