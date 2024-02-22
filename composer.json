@@ -138,6 +138,9 @@
             },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren_d10.patch"
+            },
+            "drupal/autologout":{
+                "Auto redirect if user didn't click the popup": "https://www.drupal.org/files/issues/2023-12-21/3368585-6.patch"
             }
         },
         "drupal-lenient": {
