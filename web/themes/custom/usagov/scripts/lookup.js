@@ -159,6 +159,8 @@ function renderResults(response, rawResponse) {
         let cityHasResults = false;
         // Indicates if the accordion of county officials has results/officials. By default this variable indicates that it has no results.
         let countyHasResults = false;
+        // Indicates if the accordion of state officials has results/officials. By default this variable indicates that it has no results.
+        let stateHasResults = false;
 
         // Create container for rendering results
         let container = document.createElement("div");
@@ -167,15 +169,17 @@ function renderResults(response, rawResponse) {
         // Create an accordion for each level of elected officials
         const levels = content["levels"];
         for (let i = 0; i < levels.length; i++) {
+            let levelName = levels[i];
+            let levelNameID = replaceSpaces(levelName.heading);
+
             let accordionHeader = document.createElement("h2");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
+            accordionHeader.setAttribute("id", "heading_" + levelNameID);
 
             let accordionHeaderButton = document.createElement("button");
             accordionHeaderButton.setAttribute("class", "usa-accordion__button");
             accordionHeaderButton.setAttribute("aria-expanded", "false");
 
-            let levelName = levels[i];
-            let levelNameID = replaceSpaces(levelName.heading);
             accordionHeaderButton.setAttribute("aria-controls", levelNameID);
             accordionHeaderButton.innerHTML = `${levelName.heading} <span class='usa-normal'>${levelName.description}</span>`;
 
@@ -382,6 +386,8 @@ function renderResults(response, rawResponse) {
             // Add to State officials accordion
             else if (level === "administrativeArea1") {
                 appendLocation = document.getElementById(replaceSpaces(content["levels"][1].heading));
+                // Change the variable to indicate that it does have results.
+                stateHasResults = true;
             }
             // Add to County officials accordion
             else if (level === "administrativeArea2") {
@@ -417,6 +423,15 @@ function renderResults(response, rawResponse) {
         }
         else {
             document.getElementById(countyHeaderID).classList.remove("usa-accordion__heading-hidden");
+        }
+
+        // Hides the State officials accordion if no results
+        let stateHeaderID = "heading_" + replaceSpaces(content["levels"][1].heading);
+        if (!stateHasResults) {
+            document.getElementById(stateHeaderID).classList.add("usa-accordion__heading-hidden");
+        }
+        else {
+            document.getElementById(stateHeaderID).classList.remove("usa-accordion__heading-hidden");
         }
     }
     else {
