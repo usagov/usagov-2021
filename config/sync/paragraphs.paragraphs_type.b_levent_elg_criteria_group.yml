@@ -1,0 +1,10 @@
+uuid: 405f88b6-c875-40a2-b31b-50ed93230158
+langcode: en
+status: true
+dependencies: {  }
+id: b_levent_elg_criteria_group
+label: 'Criteria Group'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

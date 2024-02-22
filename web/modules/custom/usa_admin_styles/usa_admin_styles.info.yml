@@ -1,5 +1,7 @@
-name: 'USA Admin Styles'
+name: 'USA Admin'
 type: module
-description: 'Styles to override admin theme.'
-core: 8.x
-core_version_requirement: ^8 || ^9
+description: 'USAGov admin-area menus and styles to override admin theme.'
+core_version_requirement: ^9 || ^10
+
+dependencies:
+  - usagov_directories:usagov_directories

@@ -12,34 +12,66 @@ fi
 if [ -f ./env.local ]; then
   . ./env.local
 fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
 
 # just testing?
-if [ x$1 == x"--dryrun" ]; then
+if [ x$1 = x"--dryrun" ]; then
   echo=echo
   dryrun=$1
   shift
 fi
 
-TAG=$1
-SQLGZ=${TAG}.sql.gz
-SQLZIP=${TAG}.sql.zip
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SSPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
 
-$echo bin/snapshot-backups/db-dump-download $dryrun $TAG
+DEPLOY_TAG=$1
+
+if [ -z "$DEPLOY_TAG" ]; then
+  echo "Usage: $0 <tag>"
+  echo "This will attempt to push the database backup for the provided tag to $SPACE s3"
+  exit 1
+fi
+
+SQLGZ=${DEPLOY_TAG}.sql.gz
+SQLZIP=${DEPLOY_TAG}.sql.zip
+
+$echo bin/snapshot-backups/db-dump-download $dryrun $SPACE $DEPLOY_TAG
 
 if [ -f $SQLGZ ]; then
    if [[ -n $(zcat -f ${SQLGZ} | head | grep 'SET NAMES utf8mb4') ]]; then
       if [[ -n $(zcat -f ${SQLGZ} | tail | grep 'Dump completed on' ) ]]; then
-         $echo bin/snapshot-backups/db-dump-push-to-snapshot $dryrun $TAG
-         echo snapshotted $TAG
-         echo "cleaning local files:"
-         ls -l ${TAG}*
-         rm -f ${TAG}*
-         echo "checking for leftovers (none should be found):"
-         ls -l ${TAG}*; true
+        $echo bin/snapshot-backups/db-dump-push-to-snapshot $dryrun $SPACE $DEPLOY_TAG
+        if [ $? != 0 ]; then
+          echo "Could not push snapshot '$DEPLOY_TAG' to $SPACE s3"
+          exit 1
+        else
+          echo snapshotted $DEPLOY_TAG
+          echo "Attempting to clear local files:"
+          rm -f ${DEPLOY_TAG}*
+          ls -l ${DEPLOY_TAG}* &> /dev/null
+          if [ "$?" = "0" ]; then
+             echo "Error: Could not delete temporary files:"
+             ls -l ${DEPLOY_TAG}*
+             exit 1
+          fi
+        fi
+        exit 0
       else
-         echo "SQL dump does not appear to be valid (no 'Dump completed on' string found on tail of file)"
+        echo "SQL dump does not appear to be valid (no 'Dump completed on' string found on tail of file)"
       fi
    else
       echo "SQL dump does not appear to be valid (no 'SET NAMES utf8mb4' string found on head of file)"
    fi
+else
+  if [ x$echo = x ]; then
+    echo "Database dump file '$SQLGZ' was not downloaded, possibly due to errors during backup.  Please check logs."
+    exit 1
+  fi
 fi

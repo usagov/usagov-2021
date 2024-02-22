@@ -1,0 +1,20 @@
+uuid: b52833e0-36d8-4b8b-a004-cc32fbe28aff
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_criteria
+id: node.bears_criteria.menu_link
+field_name: menu_link
+entity_type: node
+bundle: bears_criteria
+label: 'Menu link'
+description: 'Computed menu link for the node (only available during node saving).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: default
+  handler_settings: {  }
+field_type: entity_reference

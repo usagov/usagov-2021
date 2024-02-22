@@ -20,12 +20,23 @@ else
    echo Cannot find ${PWD}/bin/snapshot-backups/snapshot-include
    exit 1
 fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
 
 # just testing?
-if [ x$1 == x"--dryrun" ]; then
+if [ x$1 = x"--dryrun" ]; then
   export echo=echo
   shift
 fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
 
 DEPLOY_TAG=${1}
 SOURCE_DIR=${DEPLOY_TAG}.public
@@ -46,7 +57,7 @@ if [ x"$DEPLOY_TAG" != x ]; then
     else
       if [ -f $ZIP_FILE ]; then
         CLEANUP_REQUIRED=1
-        unzip $ZIP_FILE
+        unzip $ZIP_FILE &> /dev/null
         if [ $? != 0 ]; then
           echo "Error unzipping $ZIP_FILE"
           exit 1

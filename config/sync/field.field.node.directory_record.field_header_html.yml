@@ -8,10 +8,6 @@ dependencies:
   module:
     - allowed_formats
     - text
-third_party_settings:
-  allowed_formats:
-    allowed_formats:
-      - plain_text
 id: node.directory_record.field_header_html
 field_name: field_header_html
 entity_type: node
@@ -22,5 +18,7 @@ required: false
 translatable: true
 default_value: {  }
 default_value_callback: ''
-settings: {  }
+settings:
+  allowed_formats:
+    - plain_text
 field_type: text_long

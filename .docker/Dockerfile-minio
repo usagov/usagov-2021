@@ -1,8 +1,16 @@
 FROM minio/minio:RELEASE.2022-10-24T18-35-07Z
 
+ARG BUILD_ENV
+ENV BUILD_ENV ${BUILD_ENV:-none}
+
 COPY .docker/src-minio/docker-entrypoint-minio.sh /docker-entrypoint-minio.sh
 COPY .docker/src-minio/setup-bucket.sh /setup-bucket.sh
 COPY .docker/src-minio/certs/ /root/.minio/certs/
+
+# Add the zscaler certificate to the trusted certs only on local builds
+# COPY cannot be conditional, but RUN can run conditional code.
+COPY .docker/zscaler_cert.pem /tmp/zscaler.crt
+RUN if [ x"${BUILD_ENV}" = x"LOCAL" ] ; then cp /tmp/zscaler.crt /etc/pki/ca-trust/source/anchors/zscaler.crt ; update-ca-trust ; fi
 
 RUN curl -L https://dl.min.io/client/mc/release/linux-amd64/mc \
         -s -q --create-dirs \

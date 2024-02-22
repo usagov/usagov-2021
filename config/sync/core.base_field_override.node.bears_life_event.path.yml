@@ -1,0 +1,20 @@
+uuid: 00c61f5f-548b-4192-a4de-b264a09fef21
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_life_event
+  module:
+    - path
+id: node.bears_life_event.path
+field_name: path
+entity_type: node
+bundle: bears_life_event
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

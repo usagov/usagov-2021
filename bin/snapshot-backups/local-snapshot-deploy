@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
+
+SNAPSHOT_TAG=$1
+if [ -z "$SNAPSHOT_TAG" ]; then
+  echo "Usage: $0 <env> <snapshot tag>"
+  echo "This will attempt to deploy the s3 backups to $SPACE"
+  exit 1
+fi
+shift
+
+DB_SNAPSHOT_ZIP=${SNAPSHOT_TAG}.sql.gz
+PUBLIC_SNAPSHOT_ZIP=${SNAPSHOT_TAG}.public.zip
+SITE_SNAPSHOT_ZIP=${SNAPSHOT_TAG}.zip
+
+if [ x$echo = x ]; then
+  if [ ! -f $DB_SNAPSHOT_ZIP -o ! -f $SITE_SNAPSHOT_ZIP -o ! -f $PUBLIC_SNAPSHOT_ZIP ]; then
+    echo "One or more of the following snapshot files is missing from the current directory:"
+    echo
+    echo "    DB_SNAPSHOT_ZIP     $DB_SNAPSHOT_ZIP"
+    echo "    PUBLIC_SNAPSHOT_ZIP $PUBLIC_SNAPSHOT_ZIP"
+    echo "    SITE_SNAPSHOT_ZIP   $SITE_SNAPSHOT_ZIP"
+    echo
+    echo "Please read bin/snapshot-backups/README-DR.md for details on downloading these files from storage"
+    echo
+    exit 1
+  fi
+fi
+
+RETVAL=0
+if [ x$echo = x ]; then
+  while [ "1" != "0" ]; do
+    bin/deploy/try-tome-disable
+    RETVAL=$?
+    break
+  done
+fi
+
+if [ "$RETVAL" = "0" ]; then
+  echo  $SCRIPT_DIR/db-dump-deploy         $dryrun $SPACE $SNAPSHOT_TAG
+  $echo $SCRIPT_DIR/db-dump-deploy         $dryrun $SPACE $SNAPSHOT_TAG
+  echo  $SCRIPT_DIR/site-snapshot-deploy   $dryrun $SPACE $SNAPSHOT_TAG
+  $echo $SCRIPT_DIR/site-snapshot-deploy   $dryrun $SPACE $SNAPSHOT_TAG
+  echo  $SCRIPT_DIR/public-snapshot-deploy $dryrun $SPACE $SNAPSHOT_TAG
+  $echo $SCRIPT_DIR/public-snapshot-deploy $dryrun $SPACE $SNAPSHOT_TAG
+
+  echo
+  echo "***** Read Me *****"
+  echo "Not running tome-enable or taking site out of maintenance mode."
+  echo "Check the site and then run bin/deploy/try-tome-enable when ready"
+  echo "*****  *****  *****"
+  echo
+else
+  echo "Did not run backup scripts.  Retval of tome check was: '  $RETVAL'"
+fi

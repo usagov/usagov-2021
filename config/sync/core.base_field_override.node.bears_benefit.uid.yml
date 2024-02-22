@@ -1,0 +1,20 @@
+uuid: 0b7297c1-69e2-4cbb-9579-e292d9673b98
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_benefit
+id: node.bears_benefit.uid
+field_name: uid
+entity_type: node
+bundle: bears_benefit
+label: 'Authored by'
+description: 'The username of the content author.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: 'Drupal\node\Entity\Node::getDefaultEntityOwner'
+settings:
+  handler: default
+  handler_settings: {  }
+field_type: entity_reference

@@ -1,0 +1,25 @@
+uuid: 8b71fe02-d1b2-451b-bc41-0edbf5e4da0b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_agency
+    - node.type.bears_benefit
+id: node.bears_benefit.field_b_agency
+field_name: field_b_agency
+entity_type: node
+bundle: bears_benefit
+label: Agency
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: views
+  handler_settings:
+    view:
+      view_name: benefit_finder
+      display_name: entity_reference_1
+      arguments: {  }
+field_type: entity_reference

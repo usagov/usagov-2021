@@ -28,7 +28,7 @@ if [ x$1 == x"--dryrun" ]; then
 fi
 
 SPACE=${1:-please-provide-space-as-first-argument}
-SPACE=${SPACE,,} ## lowercase, so tags are properly formatted
+SSPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]') ## lowercase, so tags are properly formatted
 #assertCurSpace "$SPACE"  ### <-- no need to assert that we're actually in $SPACE, because we're not doing anything w/ CF - just git
 shift
 
@@ -134,11 +134,11 @@ if [ -n "$CCI_BUILD" -a -n "$WAF_DIGEST" -a -n $"$CMS_DIGEST" ]; then
   echo "   ROUTE_SERVICE_APP_NAME=waf \\
    ROUTE_SERVICE_NAME=waf-route-${SPACE}-usagov \\
    PROTECTED_APP_NAME=cms \\
-      bin/deploy/deploy-waf $CCI_BUILD $WAF_DIGEST"
+      bin/cloudgov/deploy-waf $CCI_BUILD $WAF_DIGEST"
   echo
   echo
   echo "To deploy the cms, please execute the following command:"
-  echo "   bin/deploy/deploy-cms $CCI_BUILD $CMS_DIGEST"
+  echo "   bin/cloudgov/deploy-cms $CCI_BUILD $CMS_DIGEST"
   echo
 else
    echo "No tag of the form 'usagov-cci-build-*-${SPACE}' found in git repository"

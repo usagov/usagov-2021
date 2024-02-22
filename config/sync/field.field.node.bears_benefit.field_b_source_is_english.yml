@@ -1,0 +1,23 @@
+uuid: 43a17638-998d-4a3a-a14b-338b154ca901
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_source_is_english
+    - node.type.bears_benefit
+id: node.bears_benefit.field_b_source_is_english
+field_name: field_b_source_is_english
+entity_type: node
+bundle: bears_benefit
+label: 'Source Is English'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

@@ -20,7 +20,11 @@ function assertRequires() {
 assertRequires cf
 
 function activeCFLogin() {
-  cf target &> /dev/null
+
+  ### cf target still works after the auth token has expired, leading
+  ### this function returning a false positive. cf orgs will fail properly
+  ###cf target &> /dev/null
+  cf orgs &> /dev/null
   return $?
 }
 

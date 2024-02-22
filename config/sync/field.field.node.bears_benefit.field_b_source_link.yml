@@ -1,0 +1,19 @@
+uuid: c4ab4fab-6603-4bfd-87cd-bdf057287f10
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_source_link
+    - node.type.bears_benefit
+id: node.bears_benefit.field_b_source_link
+field_name: field_b_source_link
+entity_type: node
+bundle: bears_benefit
+label: 'Source Link'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,19 @@
+uuid: 82794509-2668-466e-9205-27bb532d72a8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_b_heading
+    - paragraphs.paragraphs_type.b_levent_elg_section
+id: paragraph.b_levent_elg_section.field_b_heading
+field_name: field_b_heading
+entity_type: paragraph
+bundle: b_levent_elg_section
+label: Heading
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

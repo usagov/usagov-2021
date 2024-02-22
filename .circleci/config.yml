@@ -15,7 +15,7 @@ commands:
       - install-cloud-foundry
       - load-image-digest
       - run:
-          name: CloudGov Deploy
+          name: CloudGov Deploy CMS
           command: |
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
@@ -24,10 +24,30 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cms << pipeline.number >> $CMS_DIGEST
             if [ $? ]; then
-              echo "Please run the following command in a local build environment, while targetting << parameters.envname >>"
+              echo
+              echo "Please run the following commands in a local build environment, while targetting << parameters.envname >>:"
+              echo "cf target -s << parameters.envname >>"
+              echo "git checkout << parameters.envname >>"
+              echo "git fetch --all --tags"
+              echo "git pull"
               echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
+              echo
             fi
-
+      - run:
+          name: CloudGov Deploy WAF
+          command: |
+            export NEW_RELIC_APP_NAME="WAF-<< parameters.envname >>;USA.gov"
+            export NEW_RELIC_DISPLAY_NAME=usa-waf-<< parameters.envname >>
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            DWAF_APP=waf
+            DCMS_APP=cms
+            DAPP_SPACE=<< parameters.envname >>
+            ROUTE_SERVICE_APP_NAME=$DWAF_APP \
+            ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
+            PROTECTED_APP_NAME=$DCMS_APP \
+            ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
   save-image-digest:
     steps:
       - run:
@@ -80,12 +100,12 @@ commands:
           name: Install Specific Node Version
           command: |
             set +e
-            wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+            wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-            nvm install v18.3.0
-            nvm alias default 18.3.0
+            nvm install v20.10.0
+            nvm alias default 20.10.0
             echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
             echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
             echo "Install Gulp on node "$(node --version)
@@ -191,7 +211,7 @@ commands:
 jobs:
   scan-code:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -228,7 +248,7 @@ jobs:
           command: |
             # build a fresh docker-bench-security container
             cd /tmp/
-            git clone https://github.com/docker/docker-bench-security.git
+            git clone --depth 1 https://github.com/docker/docker-bench-security.git
             cd /tmp/docker-bench-security
             docker build --no-cache -t docker-bench-security .
             # use the fresh container to scan
@@ -280,7 +300,7 @@ jobs:
 
   build-and-push-container:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -340,7 +360,7 @@ jobs:
           command: |
             # build a fresh docker-bench-security container
             cd /tmp/
-            git clone https://github.com/docker/docker-bench-security.git
+            git clone --depth 1 https://github.com/docker/docker-bench-security.git
             cd /tmp/docker-bench-security
             docker build --no-cache -t docker-bench-security .
       - run:
@@ -376,14 +396,14 @@ jobs:
 
   deploy-to-cloudgov-dev:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     steps:
       - deploy-cloudgov:
           envname: dev
 
   deploy-to-cloudgov-stage:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -392,7 +412,7 @@ jobs:
 
   deploy-to-cloudgov-prod:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -401,7 +421,7 @@ jobs:
 
   run-snapshot-backup-dev:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -410,7 +430,7 @@ jobs:
 
   run-snapshot-backup-stage:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -419,7 +439,7 @@ jobs:
 
   run-snapshot-backup-prod:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -428,7 +448,7 @@ jobs:
 
   deploy-reporter-tools:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:

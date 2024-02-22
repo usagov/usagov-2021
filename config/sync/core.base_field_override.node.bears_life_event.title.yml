@@ -1,0 +1,18 @@
+uuid: 18926616-393e-4f0f-bf51-f42f2d0c7f08
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_life_event
+id: node.bears_life_event.title
+field_name: title
+entity_type: node
+bundle: bears_life_event
+label: Title
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

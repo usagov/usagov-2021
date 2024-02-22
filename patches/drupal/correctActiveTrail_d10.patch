@@ -1,0 +1,96 @@
+diff --git a/core/lib/Drupal/Core/Menu/MenuActiveTrail.php b/core/lib/Drupal/Core/Menu/MenuActiveTrail.php
+index 978aeffbf4..cc8afb0292 100644
+--- a/core/lib/Drupal/Core/Menu/MenuActiveTrail.php
++++ b/core/lib/Drupal/Core/Menu/MenuActiveTrail.php
+@@ -131,7 +131,8 @@ public function getActiveLink($menu_name = NULL) {
+       $route_parameters = $this->routeMatch->getRawParameters()->all();
+
+       // Load links matching this route.
+-      $links = $this->menuLinkManager->loadLinksByRoute($route_name, $route_parameters, $menu_name);
++      $link_sort_order = ['mlid' => 'ASC'];
++      $links = $this->menuLinkManager->loadLinksByRoute($route_name, $route_parameters, $menu_name, $link_sort_order);
+       // Select the first matching link.
+       if ($links) {
+         $found = reset($links);
+diff --git a/core/lib/Drupal/Core/Menu/MenuLinkFieldDefinitions.php b/core/lib/Drupal/Core/Menu/MenuLinkFieldDefinitions.php
+index 58a3c627d5..7b6b5dff21 100644
+--- a/core/lib/Drupal/Core/Menu/MenuLinkFieldDefinitions.php
++++ b/core/lib/Drupal/Core/Menu/MenuLinkFieldDefinitions.php
+@@ -45,4 +45,6 @@ trait MenuLinkFieldDefinitions {
+     'form_class' => 'Drupal\Core\Menu\Form\MenuLinkDefaultForm',
+     // The plugin ID. Set by the plugin system based on the top-level YAML key.
+     'id' => '',
++    // USAGov addition: mlid, for correct sorting of "false children."
++    'mlid' => '',
+   ];
+ }
+diff --git a/core/lib/Drupal/Core/Menu/MenuLinkManager.php b/core/lib/Drupal/Core/Menu/MenuLinkManager.php
+index c89dadd7b0..680ce1a396 100644
+--- a/core/lib/Drupal/Core/Menu/MenuLinkManager.php
++++ b/core/lib/Drupal/Core/Menu/MenuLinkManager.php
+@@ -292,9 +292,9 @@ public function getChildIds($id) {
+   /**
+    * {@inheritdoc}
+    */
+-  public function loadLinksByRoute($route_name, array $route_parameters = [], $menu_name = NULL) {
++  public function loadLinksByRoute($route_name, array $route_parameters = [], $menu_name = NULL, $sort_order = NULL) {
+     $instances = [];
+-    $loaded = $this->treeStorage->loadByRoute($route_name, $route_parameters, $menu_name);
++    $loaded = $this->treeStorage->loadByRoute($route_name, $route_parameters, $menu_name, $sort_order);
+     foreach ($loaded as $plugin_id => $definition) {
+       $instances[$plugin_id] = $this->createInstance($plugin_id);
+     }
+diff --git a/core/lib/Drupal/Core/Menu/MenuTreeStorage.php b/core/lib/Drupal/Core/Menu/MenuTreeStorage.php
+index 1a035a0f72..b2b08b9de1 100644
+--- a/core/lib/Drupal/Core/Menu/MenuTreeStorage.php
++++ b/core/lib/Drupal/Core/Menu/MenuTreeStorage.php
+@@ -654,7 +654,7 @@ public function loadByProperties(array $properties) {
+   /**
+    * {@inheritdoc}
+    */
+-  public function loadByRoute($route_name, array $route_parameters = [], $menu_name = NULL) {
++  public function loadByRoute($route_name, array $route_parameters = [], $menu_name = NULL, $sort_order = NULL) {
+     // Sort the route parameters so that the query string will be the same.
+     asort($route_parameters);
+     // Since this will be urlencoded, it's safe to store and match against a
+@@ -670,9 +670,24 @@ public function loadByRoute($route_name, array $route_parameters = [], $menu_nam
+       $query->condition('menu_name', $menu_name);
+     }
+     // Make the ordering deterministic.
+-    $query->orderBy('depth');
+-    $query->orderBy('weight');
+-    $query->orderBy('id');
++    $default_sort_order = ['depth' => 'ASC', 'weight' => 'ASC', 'id' => 'ASC'];
++    if (empty($sort_order)) {
++      $sort_order = $default_sort_order;
++    }
++    if (!is_array($sort_order)) {
++      $sort_order = [$sort_order];
++    }
++    // $allowed_fields = $this->definitionFields();
++    foreach ($sort_order as $field => $direction) {
++      if (is_numeric($field)) {
++        $field = $direction;
++        $direction = 'ASC';
++      }
++      $direction = (strtolower($direction) == 'desc') ? 'DESC' : 'ASC';
++      if (in_array($field, $this->definitionFields())) {
++        $query->orderBy($field, $direction);
++      }
++    }
+     $loaded = $this->safeExecuteSelect($query)->fetchAllAssoc('id', \PDO::FETCH_ASSOC);
+     foreach ($loaded as $id => $link) {
+       $loaded[$id] = $this->prepareLink($link);
+diff --git a/core/lib/Drupal/Core/Menu/MenuTreeStorageInterface.php b/core/lib/Drupal/Core/Menu/MenuTreeStorageInterface.php
+index 8eb9289b17..ef0724c959 100644
+--- a/core/lib/Drupal/Core/Menu/MenuTreeStorageInterface.php
++++ b/core/lib/Drupal/Core/Menu/MenuTreeStorageInterface.php
+@@ -86,7 +86,7 @@ public function loadByProperties(array $properties);
+    * @return array
+    *   An array of menu link definitions keyed by ID and ordered by depth.
+    */
+-  public function loadByRoute($route_name, array $route_parameters = [], $menu_name = NULL);
++  public function loadByRoute($route_name, array $route_parameters = [], $menu_name = NULL, $sort_order = NULL);
+
+   /**
+    * Saves a plugin definition to the storage.

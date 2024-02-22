@@ -1,0 +1,25 @@
+uuid: cc5e153e-4949-41c8-8b2a-7df1ec1c2e74
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_b_criteria_key
+    - paragraphs.paragraphs_type.b_levent_elg_criteria
+id: paragraph.b_levent_elg_criteria.field_b_criteria_key
+field_name: field_b_criteria_key
+entity_type: paragraph
+bundle: b_levent_elg_criteria
+label: 'Criteria Key'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: views
+  handler_settings:
+    view:
+      view_name: benefit_finder
+      display_name: entity_reference_2
+      arguments: {  }
+field_type: entity_reference

@@ -178,7 +178,6 @@ display:
           default_argument_type: fixed
           default_argument_options:
             argument: a
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: false
@@ -464,7 +463,6 @@ display:
           default_argument_type: fixed
           default_argument_options:
             argument: o
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: false
@@ -686,7 +684,6 @@ display:
           default_argument_type: fixed
           default_argument_options:
             argument: o
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: false
@@ -730,6 +727,7 @@ display:
           plugin_id: bundle
           value:
             directory_record: directory_record
+          group: 1
           expose:
             operator_limit_selection: false
             operator_list: {  }
@@ -813,10 +811,95 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
+        type_1:
+          id: type_1
+          table: node_field_data
+          field: type
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: type
+          plugin_id: bundle
+          operator: in
+          value:
+            agency_synonym: agency_synonym
+          group: 2
+          exposed: false
+          expose:
+            operator_id: ''
+            label: ''
+            description: ''
+            use_operator: false
+            operator: ''
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: ''
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+        langcode_1:
+          id: langcode_1
+          table: node_field_data
+          field: langcode
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: langcode
+          plugin_id: language
+          operator: in
+          value:
+            es: es
+          group: 2
+          exposed: false
+          expose:
+            operator_id: ''
+            label: ''
+            description: ''
+            use_operator: false
+            operator: ''
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: ''
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
       filter_groups:
-        operator: AND
+        operator: OR
         groups:
           1: AND
+          2: AND
       style:
         type: html_list
         options:
@@ -1166,9 +1249,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -1229,9 +1312,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -2098,9 +2181,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -2197,7 +2280,6 @@ display:
             query_param: letter
             fallback: a
             multiple: and
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: false
@@ -2557,9 +2639,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -2620,9 +2702,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -3489,9 +3571,9 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: telephone_link
+          type: string
           settings:
-            title: ''
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -3588,7 +3670,6 @@ display:
             query_param: letter
             fallback: a
             multiple: and
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: false
@@ -3632,6 +3713,7 @@ display:
           plugin_id: bundle
           value:
             directory_record: directory_record
+          group: 1
           expose:
             operator_limit_selection: false
             operator_list: {  }
@@ -3715,10 +3797,95 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
+        type_1:
+          id: type_1
+          table: node_field_data
+          field: type
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: type
+          plugin_id: bundle
+          operator: in
+          value:
+            agency_synonym: agency_synonym
+          group: 2
+          exposed: false
+          expose:
+            operator_id: ''
+            label: ''
+            description: ''
+            use_operator: false
+            operator: ''
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: ''
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+        langcode_1:
+          id: langcode_1
+          table: node_field_data
+          field: langcode
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: langcode
+          plugin_id: language
+          operator: in
+          value:
+            es: es
+          group: 2
+          exposed: false
+          expose:
+            operator_id: ''
+            label: ''
+            description: ''
+            use_operator: false
+            operator: ''
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: ''
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
       filter_groups:
-        operator: AND
+        operator: OR
         groups:
           1: AND
+          2: AND
       defaults:
         title: true
         fields: false

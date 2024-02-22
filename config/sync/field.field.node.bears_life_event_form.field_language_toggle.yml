@@ -1,0 +1,28 @@
+uuid: 5ee121cd-19d2-42cb-97a1-5b1dec1b390c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_language_toggle
+    - node.type.bears_life_event_form
+id: node.bears_life_event_form.field_language_toggle
+field_name: field_language_toggle
+entity_type: node
+bundle: bears_life_event_form
+label: 'Language Toggle'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      bears_life_event_form: bears_life_event_form
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

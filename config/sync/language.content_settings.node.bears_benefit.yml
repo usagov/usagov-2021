@@ -1,0 +1,11 @@
+uuid: 03759d49-8595-4c23-bc83-d1312c44b81a
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_benefit
+id: node.bears_benefit
+target_entity_type_id: node
+target_bundle: bears_benefit
+default_langcode: site_default
+language_alterable: true

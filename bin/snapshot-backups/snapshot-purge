@@ -1,0 +1,221 @@
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+export BUCKET_SOURCE_FOLDER=public
+if [ -f ./bin/snapshot-backups/snapshot-include ]; then
+  . ./bin/snapshot-backups/snapshot-include
+else
+   echo Cannot find ${PWD}/bin/snapshot-backups/snapshot-include
+   exit 1
+fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
+fi
+
+function show_usage() {
+  echo "Usage:"
+  echo "$0 [--dryrun] <env> [--lt USAGOV-NNNN | --partial <eg. USAGOV-9999> | --full <eg. USAGOV-9999.dev.1111.post-deploy.2020010101] [--download]"
+  echo
+  echo "--dryrun MUST be the first argument, or it WILL NOT BE ACKNOWLEDGED"
+  echo
+  echo "--lt USAGOV-<NNNN> - ticket number less than NNNN (eg. USAGOV-1014 will match all snapshots for ticket USAGOV-1013,USAGOV-1012,USAGOV-1011,etc)"
+  echo " OR "
+  echo "--partial <string> - partial match (eg. USAGOV-9999 will match all snapshots for ticket USAGOV-9999)"
+  echo " OR "
+  echo "--full <string>    - full match    (string must match the full snapshot tag)"
+  echo
+  echo "Specify --partial OR --full - specifying none or both is invalid"
+  echo
+  echo "--download will download a copy of the snapshot(s) before deleting them"
+  exit 1
+}
+
+SPACE=$1
+if [ -z $SPACE ]; then
+  show_usage
+fi
+
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
+
+download=""
+match=""
+rematch=""
+idmatch=""
+matchtype=""
+
+while [ 0 -eq 0 ]; do
+
+  arg=$1
+
+  if [ -z "$arg" ]; then
+    break
+  fi
+  shift
+
+  case "$arg" in
+
+      "--lt")
+        match=$1
+        if [ -n "$match" ]; then
+          if [ "$match" == "--download" ]; then
+            download=$match
+            match=""
+          else
+            if [ -n "$matchtype" ]; then
+              show_usage
+            fi
+            matchtype='lt'
+            idmatch=$(echo $match | sed -E 's/USAGOV-([0-9]+)/\1/')
+            if [ -z "$idmatch" ]; then
+              show_usage
+            fi
+            rematch=""
+          fi
+          shift
+        fi
+      ;;
+
+      "--partial")
+        match=$1
+        if [ -n "$match" ]; then
+          if [ "$match" == "--download" ]; then
+            download=$match
+            match=""
+          else
+            if [ -n "$matchtype" ]; then
+              show_usage
+            fi
+            matchtype='partial'
+            rematch=""
+          fi
+          shift
+        fi
+      ;;
+
+      "--full")
+        match=$1
+	      if [ -n "$match" ]; then
+          if [ "$match" == "--download" ]; then
+            download=$match
+            match=""
+          else
+            if [ -n "$matchtype" ]; then
+              show_usage
+            fi
+            rematch="^${match//./\\.}$"
+            matchtype="full"
+          fi
+          shift
+        fi
+      ;;
+
+      "--download")
+        download="--download"
+      ;;
+  esac
+
+done
+
+if [ -z "$match" ]; then
+  show_usage
+fi
+
+basename "$0"
+echo "Dry run:         $dryrun"
+echo "Download:        $download"
+echo "Match:           $match"
+echo "Regex Match:     $rematch"
+echo "Ticket ID Match: $idmatch"
+
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+export db_available_tags=$(aws s3 ls s3://$S3_BUCKET/db-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g' | sed 's/\.sql\.gz//g')
+export site_available_tags=$(aws s3 ls s3://$S3_BUCKET/web-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
+export public_available_tags=$(aws s3 ls s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
+
+if [ -n "$idmatch" ]; then
+  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq ); do
+    tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
+    if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
+      $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
+    fi
+  done
+
+  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq ); do
+    tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
+    if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
+      $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
+    fi
+  done
+
+  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq ); do
+    tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
+    if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
+      $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
+    fi
+  done
+elif [ -n "$rematch" ]; then
+  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
+    $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
+  done
+
+  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
+    $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
+  done
+
+  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
+    $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
+  done
+else
+  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
+    $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
+  done
+
+  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
+    $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
+  done
+
+  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep $match); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
+    $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
+  done
+fi

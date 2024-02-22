@@ -1,0 +1,19 @@
+uuid: e1e5c69f-3326-4d02-8da7-87acd0fa224d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_child_dependency_option
+    - node.type.bears_criteria
+id: node.bears_criteria.field_b_child_dependency_option
+field_name: field_b_child_dependency_option
+entity_type: node
+bundle: bears_criteria
+label: 'Child Dependency Option'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

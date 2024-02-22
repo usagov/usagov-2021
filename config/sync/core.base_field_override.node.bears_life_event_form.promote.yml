@@ -1,0 +1,22 @@
+uuid: 7899855f-1bc2-491c-82dd-5172ef46aebb
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_life_event_form
+id: node.bears_life_event_form.promote
+field_name: promote
+entity_type: node
+bundle: bears_life_event_form
+label: 'Promoted to front page'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

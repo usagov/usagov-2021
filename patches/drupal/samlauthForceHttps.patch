@@ -1,0 +1,82 @@
+diff --git a/config/schema/samlauth.schema.yml b/config/schema/samlauth.schema.yml
+index 2cb14df..eb46597 100644
+--- a/config/schema/samlauth.schema.yml
++++ b/config/schema/samlauth.schema.yml
+@@ -43,6 +43,9 @@ samlauth.authentication:
+     sp_entity_id:
+       type: string
+       label: 'Entity ID'
++    sp_force_https:
++      type: boolean
++      label: 'Force HTTPS'
+     sp_name_id_format:
+       type: string
+       label: 'NameID Format'
+diff --git a/src/Form/SamlauthSamlConfigureForm.php b/src/Form/SamlauthSamlConfigureForm.php
+index 729664f..8a32ee2 100644
+--- a/src/Form/SamlauthSamlConfigureForm.php
++++ b/src/Form/SamlauthSamlConfigureForm.php
+@@ -156,6 +156,7 @@ class SamlauthSamlConfigureForm extends ConfigFormBase {
+     $this->addElementsFromSchema($form['service_provider'], $schema_definition, $config, [
+       'security_metadata_sign' => $this->t('Add a UUID to the metadata XML and sign it (using the key whose public equivalent is published inside this same metadata).'),
+       'sp_entity_id' => $this->t('An identifier for the SP. Free form (unless mandated by IdP administrators).'),
++      'sp_force_https' => $this->t('Force HTTPS for ACS and SLS regardless of Drupal host configuration.'),
+     ]);
+ 
+     // Create options for cert/key type select element, and list of Keys for
+@@ -1148,6 +1149,7 @@ class SamlauthSamlConfigureForm extends ConfigFormBase {
+ 
+     foreach ([
+       'sp_entity_id',
++      'sp_force_https',
+       'sp_name_id_format',
+       'metadata_cache_http',
+       'idp_entity_id',
+diff --git a/src/SamlService.php b/src/SamlService.php
+index 03357aa..cb87853 100644
+--- a/src/SamlService.php
++++ b/src/SamlService.php
+@@ -864,12 +864,15 @@ class SamlService {
+     if (!isset($this->samlAuth[$purpose])) {
+       $base_url = '';
+       $config = $this->configFactory->get('samlauth.authentication');
+-      if ($config->get('use_base_url')) {
++      if (TRUE || $config->get('use_base_url')) {
+         $request = $this->requestStack->getCurrentRequest();
+         // The 'base url' for the SAML Toolkit is apparently 'all except the
+         // last part of the endpoint URLs'. (Whoever wants a better explanation
+         // can try to extract it from e.g. Utils::getSelfRoutedURLNoQuery().)
+-        $base_url = $request->getSchemeAndHttpHost() . $request->getBaseUrl() . '/saml';
++        $scheme = 'https://';
++        $http_host = $request->getHttpHost();
++        $base_url = $scheme . $http_host . $request->getBaseUrl() . '/saml';
++        // $base_url = $request->getSchemeAndHttpHost() . $request->getBaseUrl() . '/saml';
+       }
+       $this->samlAuth[$purpose] = new Auth(static::reformatConfig($config, $base_url, $purpose, $this->keyRepository));
+     }
+@@ -993,6 +996,12 @@ class SamlService {
+    *   The library configuration array.
+    */
+   protected static function reformatConfig(ImmutableConfig $config, $base_url = '', $purpose = '', KeyRepositoryInterface $key_repository = NULL) {
++    $sp_urls_opts = ['absolute' => TRUE];
++
++    if ($config->get('sp_force_https')) {
++      $sp_urls_opts['https'] = TRUE;
++    }
++
+     $library_config = [
+       'debug' => (bool) $config->get('debug_phpsaml'),
+       'sp' => [
+@@ -1000,10 +1009,10 @@ class SamlService {
+         'assertionConsumerService' => [
+           // See ExecuteInRenderContextTrait if curious why the long chained
+           // call is necessary.
+-          'url' => Url::fromRoute('samlauth.saml_controller_acs', [], ['absolute' => TRUE])->toString(TRUE)->getGeneratedUrl(),
++          'url' => Url::fromRoute('samlauth.saml_controller_sls', [], $sp_urls_opts)->toString(TRUE)->getGeneratedUrl(),
+         ],
+         'singleLogoutService' => [
+-          'url' => Url::fromRoute('samlauth.saml_controller_sls', [], ['absolute' => TRUE])->toString(TRUE)->getGeneratedUrl(),
++          'url' => Url::fromRoute('samlauth.saml_controller_sls', [], $sp_urls_opts)->toString(TRUE)->getGeneratedUrl(),
+         ],
+         'NameIDFormat' => $config->get('sp_name_id_format') ?: NULL,
+       ],

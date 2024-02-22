@@ -1,0 +1,18 @@
+uuid: 69fc24e7-184a-40bf-bc8b-beda536a874e
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_agency
+id: node.bears_agency.changed
+field_name: changed
+entity_type: node
+bundle: bears_agency
+label: Changed
+description: 'The time that the node was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed

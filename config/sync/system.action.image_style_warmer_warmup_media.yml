@@ -1,0 +1,11 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - media
+    - image_style_warmer
+id: image_style_warmer_warmup_media
+label: 'Warmup image styles of media entities'
+type: media
+plugin: image_style_warmer_warmup_media
+configuration: {  }

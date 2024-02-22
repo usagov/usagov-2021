@@ -1,0 +1,23 @@
+uuid: b0e2fd66-7273-4916-ad7b-70b409eef58f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_summary
+    - node.type.bears_life_event_form
+  module:
+    - allowed_formats
+    - text
+id: node.bears_life_event_form.field_b_summary
+field_name: field_b_summary
+entity_type: node
+bundle: bears_life_event_form
+label: Summary
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

@@ -1,0 +1,33 @@
+uuid: 254f0bcd-acf6-430c-8b21-b212b78dab4d
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_b_type
+field_name: field_b_type
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: Boolean
+      label: Boolean
+    -
+      value: Date
+      label: Date
+    -
+      value: Select
+      label: Select
+    -
+      value: Radio
+      label: Radio
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

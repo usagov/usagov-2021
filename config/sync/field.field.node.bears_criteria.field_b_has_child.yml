@@ -1,0 +1,23 @@
+uuid: 5d03df0c-dfd8-404d-b5fa-db9d96fe571c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_has_child
+    - node.type.bears_criteria
+id: node.bears_criteria.field_b_has_child
+field_name: field_b_has_child
+entity_type: node
+bundle: bears_criteria
+label: 'Has Child'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

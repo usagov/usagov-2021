@@ -1,0 +1,14 @@
+diff --git a/src/Plugin/views/argument/MenuChildren.php b/src/Plugin/views/argument/MenuChildren.php
+index a9c62f2..e98056a 100644
+--- a/src/Plugin/views/argument/MenuChildren.php
++++ b/src/Plugin/views/argument/MenuChildren.php
+@@ -194,7 +194,8 @@ class MenuChildren extends NumericArgument {
+           $menu = NULL;
+         }
+
+-        $menu_links = $this->menuLinkManager->loadLinksByRoute($route, $routeParameters, $menu);
++        $link_sort_order = ['mlid' => 'ASC'];
++        $menu_links = $this->menuLinkManager->loadLinksByRoute($route, $routeParameters, $menu, $link_sort_order);
+
+         if (!empty($menu_links)) {
+           // Ideally, only one result is returned.

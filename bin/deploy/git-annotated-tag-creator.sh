@@ -27,9 +27,8 @@ if [ x$1 == x"--dryrun" ]; then
   shift
 fi
 
-SPACE=${1,,:-please-provide-space-as-first-argument}
-SPACE=${SPACE,,} ## lowercase, so tags are properly formatted
-#assertCurSpace "$SPACE"  ### <-- no need to assert that we're actually in $SPACE, because we're not doing anything w/ CF - just git
+SPACE=${1:-please-provide-space-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]') ## lowercase, so tags are properly formatted
 shift
 
 
@@ -58,7 +57,7 @@ TAG_MESSAGE="'CCI_BUILD=${CCI_BUILD}|CMS_DIGEST=${CMS_DIGEST}|WAF_DIGEST=${WAF_D
 
 BACKUP_TAG=usagov-cci-build-${CCI_BUILD}-${SPACE}
 
-$echo git tag -d $BACKUP_TAG
+$echo git tag -d $BACKUP_TAG &>/dev/null
 $echo git tag -a -m $TAG_MESSAGE $BACKUP_TAG
 if [ $? ]; then
     $echo git push origin $BACKUP_TAG

@@ -5,6 +5,20 @@ dependencies:
   config:
     - field.storage.node.field_page_type
     - system.menu.admin
+<<<<<<< HEAD
+=======
+    - system.menu.footer
+    - system.menu.left-menu-english
+    - system.menu.left-menu-spanish
+    - system.menu.main
+    - system.menu.primary-footer
+    - system.menu.primary-footer-spanish
+    - system.menu.top-navigation
+    - system.menu.top-navigation-es
+    - system.menu.wizard
+    - system.menu.wizard-espanol
+    - user.role.authenticated
+>>>>>>> dev
     - user.role.content_administrator
     - user.role.content_editor
     - user.role.content_manager
@@ -34,6 +48,7 @@ display:
     display_options:
       title: 'Published Pages Report'
       fields:
+<<<<<<< HEAD
         level:
           id: level
           table: menu_entity_index
@@ -199,12 +214,18 @@ display:
           text: '{{ view_node }}'
           output_url_as_text: true
           absolute: false
+=======
+>>>>>>> dev
         nid:
           id: nid
           table: node_field_data
           field: nid
           relationship: none
+<<<<<<< HEAD
           group_type: group
+=======
+          group_type: count
+>>>>>>> dev
           admin_label: ''
           entity_type: node
           entity_field: nid
@@ -330,6 +351,354 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
+<<<<<<< HEAD
+=======
+        field_page_type:
+          id: field_page_type
+          table: node__field_page_type
+          field: field_page_type
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: field
+          label: 'Page Type'
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: target_id
+          type: entity_reference_label
+          settings:
+            link: false
+          group_column: target_id
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        type:
+          id: type
+          table: node_field_data
+          field: type
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: type
+          plugin_id: field
+          label: 'Content type'
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: target_id
+          type: entity_reference_label
+          settings:
+            link: false
+          group_column: target_id
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        view_node:
+          id: view_node
+          table: node
+          field: view_node
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          plugin_id: entity_link
+          label: 'Friendly URL'
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          text: '{{ view_node }}'
+          output_url_as_text: true
+          absolute: false
+        langcode:
+          id: langcode
+          table: node
+          field: langcode
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: langcode
+          plugin_id: field
+          label: Language
+          exclude: false
+          alter:
+            alter_text: true
+            text: 'USAGov {{ langcode }}'
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: language
+          settings:
+            link_to_entity: false
+            native_language: false
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        entity_id:
+          id: entity_id
+          table: menu_entity_index
+          field: entity_id
+          relationship: entity_id
+          group_type: group
+          admin_label: ''
+          plugin_id: standard
+          label: 'Menu ID'
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+        menu_name:
+          id: menu_name
+          table: menu_entity_index
+          field: menu_name
+          relationship: entity_id
+          group_type: group
+          admin_label: ''
+          plugin_id: menu
+          label: Menu
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: 'No Menu Entry'
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+>>>>>>> dev
         title_1:
           id: title_1
           table: menu_link_content_data
@@ -640,7 +1009,11 @@ display:
           empty: ''
           hide_empty: false
           empty_zero: false
+<<<<<<< HEAD
           hide_alter_empty: true
+=======
+          hide_alter_empty: false
+>>>>>>> dev
           click_sort_column: value
           type: string
           settings:
@@ -655,6 +1028,7 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
+<<<<<<< HEAD
         langcode:
           id: langcode
           table: node
@@ -721,6 +1095,8 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
+=======
+>>>>>>> dev
         view_node_1:
           id: view_node_1
           table: node
@@ -827,6 +1203,58 @@ display:
           text: view
           output_url_as_text: true
           absolute: true
+<<<<<<< HEAD
+=======
+        level:
+          id: level
+          table: menu_entity_index
+          field: level
+          relationship: entity_id
+          group_type: group
+          admin_label: ''
+          plugin_id: standard
+          label: 'Hierarchy level'
+          exclude: false
+          alter:
+            alter_text: false
+            text: '<pre>{{ level }}</pre>'
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+>>>>>>> dev
       pager:
         type: full
         options:
@@ -852,7 +1280,11 @@ display:
         type: basic
         options:
           submit_button: Apply
+<<<<<<< HEAD
           reset_button: false
+=======
+          reset_button: true
+>>>>>>> dev
           reset_button_label: Reset
           exposed_sorts_label: 'Sort by'
           expose_sort_order: true
@@ -862,12 +1294,20 @@ display:
         type: role
         options:
           role:
+<<<<<<< HEAD
+=======
+            authenticated: authenticated
+>>>>>>> dev
             content_editor: content_editor
             site_admin: site_admin
             content_manager: content_manager
             content_administrator: content_administrator
       cache:
+<<<<<<< HEAD
         type: tag
+=======
+        type: none
+>>>>>>> dev
         options: {  }
       empty: {  }
       sorts:
@@ -902,6 +1342,208 @@ display:
             operator: ''
             operator_limit_selection: false
             operator_list: {  }
+<<<<<<< HEAD
+=======
+        nid:
+          id: nid
+          table: node_field_data
+          field: nid
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: nid
+          plugin_id: numeric
+          operator: '='
+          value:
+            min: ''
+            max: ''
+            value: ''
+          group: 1
+          exposed: true
+          expose:
+            operator_id: nid_op
+            label: 'Page ID'
+            description: ''
+            use_operator: false
+            operator: nid_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: nid
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              content_editor: '0'
+              site_admin: '0'
+              content_manager: '0'
+              content_administrator: '0'
+            min_placeholder: ''
+            max_placeholder: ''
+            placeholder: ''
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+        menu_name:
+          id: menu_name
+          table: menu_link_content_data
+          field: menu_name
+          relationship: entity_id
+          group_type: group
+          admin_label: ''
+          entity_type: menu_link_content
+          entity_field: menu_name
+          plugin_id: menu
+          operator: in
+          value:
+            footer: footer
+            left-menu-english: left-menu-english
+            left-menu-spanish: left-menu-spanish
+            main: main
+            primary-footer: primary-footer
+            primary-footer-spanish: primary-footer-spanish
+            top-navigation: top-navigation
+            top-navigation-es: top-navigation-es
+            wizard: wizard
+            wizard-espanol: wizard-espanol
+          group: 1
+          exposed: true
+          expose:
+            operator_id: menu_name_op
+            label: 'Menu name'
+            description: ''
+            use_operator: false
+            operator: menu_name_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: menu_name
+            required: false
+            remember: false
+            multiple: true
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              content_editor: '0'
+              site_admin: '0'
+              content_manager: '0'
+              content_administrator: '0'
+            reduce: true
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+        type:
+          id: type
+          table: node_field_data
+          field: type
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: type
+          plugin_id: bundle
+          operator: in
+          value: {  }
+          group: 1
+          exposed: true
+          expose:
+            operator_id: type_op
+            label: 'Content type'
+            description: ''
+            use_operator: false
+            operator: type_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: type
+            required: false
+            remember: false
+            multiple: true
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              content_editor: '0'
+              site_admin: '0'
+              content_manager: '0'
+              content_administrator: '0'
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+        langcode:
+          id: langcode
+          table: node
+          field: langcode
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: langcode
+          plugin_id: language
+          operator: in
+          value: {  }
+          group: 1
+          exposed: true
+          expose:
+            operator_id: langcode_op
+            label: Language
+            description: ''
+            use_operator: false
+            operator: langcode_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: langcode
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              content_editor: '0'
+              site_admin: '0'
+              content_manager: '0'
+              content_administrator: '0'
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+>>>>>>> dev
       style:
         type: table
         options:
@@ -909,6 +1551,7 @@ display:
           row_class: ''
           default_row_class: true
           columns:
+<<<<<<< HEAD
             level: level
             field_page_type: field_page_type
             view_node: view_node
@@ -925,6 +1568,34 @@ display:
           default: '-1'
           info:
             level:
+=======
+            nid: nid
+            title: title
+            field_page_type: field_page_type
+            type: type
+            view_node: view_node
+            langcode: langcode
+            menu_name: menu_name
+            title_5: title_5
+            title_4: title_4
+            title_3: title_3
+            title_2: title_2
+            title_1: title_1
+            view_node_1: view_node_1
+            view_node_2: view_node_2
+            link__title: link__title
+            level: level
+          default: nid
+          info:
+            nid:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            title:
+>>>>>>> dev
               sortable: false
               default_sort_order: asc
               align: ''
@@ -938,6 +1609,16 @@ display:
               separator: ''
               empty_column: false
               responsive: ''
+<<<<<<< HEAD
+=======
+            type:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+>>>>>>> dev
             view_node:
               sortable: false
               default_sort_order: asc
@@ -945,15 +1626,60 @@ display:
               separator: ''
               empty_column: false
               responsive: ''
+<<<<<<< HEAD
             nid:
               sortable: true
+=======
+            langcode:
+              sortable: false
+>>>>>>> dev
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+<<<<<<< HEAD
             title:
               sortable: true
+=======
+            menu_name:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            title_5:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: true
+              responsive: ''
+            title_4:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: true
+              responsive: ''
+            title_3:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: true
+              responsive: ''
+            title_2:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            title_1:
+              sortable: false
+>>>>>>> dev
               default_sort_order: asc
               align: ''
               separator: ''
@@ -973,20 +1699,29 @@ display:
               separator: ''
               empty_column: false
               responsive: ''
+<<<<<<< HEAD
             title_1:
+=======
+            link__title:
+>>>>>>> dev
               sortable: false
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+<<<<<<< HEAD
             title_2:
+=======
+            level:
+>>>>>>> dev
               sortable: false
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+<<<<<<< HEAD
             title_3:
               sortable: false
               default_sort_order: asc
@@ -1015,6 +1750,8 @@ display:
               separator: ''
               empty_column: true
               responsive: ''
+=======
+>>>>>>> dev
           override: true
           sticky: false
           summary: ''
@@ -1086,7 +1823,33 @@ display:
           admin_label: 'Parent menu link (Level 5)'
           plugin_id: standard
           required: false
+<<<<<<< HEAD
       header: {  }
+=======
+      group_by: false
+      header:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: false
+          content: "<h3>Using Published Pages Report</h3>\r\n\r\n<h3>Using the filters</h3> \r\n<br>\r\nFilters enable you to narrow down the content shown based on fields, terms, and other conditions.<br>\r\n\r\n<br> Note: The Following Content types do not have menu items and the breadcrumbs are set manually. The majority of the Breadcrumbs are generated from the Menu items\r\n<br><br>\r\n  <ul>\r\n    <li>Agency\r\n    <li>Benefit\r\n    <li>Criteria\r\n    <li>Federal Directory Record\r\n    <li>Federal Directory Synonym\r\n    <li>Life Event Form\r\n    <li>State Directory Record\r\n    <li>Wizard Step\r\n </ul>\r\n<br>\r\n <ul>\r\n    <li>Level 1 = Actual Menu item or Breadcrumb\r\n    <li>Level 2 = Parent Item\r\n    <li>Level 3 = Parent Item of level 2\r\n    <li>Level 4 = Parent Item of level 3\r\n    <li>Level 5 = Parent Item of level 4\r\n</ul>\r\n<br>\r\nNote: For Duplicate Items to the actual Menu ID associated one is the parent is the one with lower Menu ID.\r\n<br>\r\nExample: Enter the number '28' in the Page ID you will see 2 results the one with Menu ID 26 is the real menu or breadcrumbs.\r\n<br>"
+          tokenize: false
+        result:
+          id: result
+          table: views
+          field: result
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: result
+          empty: false
+          content: '<b>Displaying @start - @end of @total </b>'
+>>>>>>> dev
       footer: {  }
       display_extenders: {  }
     cache_metadata:
@@ -1094,6 +1857,10 @@ display:
       contexts:
         - 'languages:language_content'
         - 'languages:language_interface'
+<<<<<<< HEAD
+=======
+        - url
+>>>>>>> dev
         - url.query_args
         - 'user.node_grants:view'
         - user.roles
@@ -1137,6 +1904,10 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - request_format
+<<<<<<< HEAD
+=======
+        - url
+>>>>>>> dev
         - 'user.node_grants:view'
         - user.roles
       tags:
@@ -1154,7 +1925,11 @@ display:
         type: normal
         title: 'Published Pages Report'
         description: 'CSV Exportable Report for Published Pages'
+<<<<<<< HEAD
         weight: 10
+=======
+        weight: -55
+>>>>>>> dev
         expanded: false
         menu_name: admin
         parent: system.admin_reports
@@ -1164,6 +1939,10 @@ display:
       contexts:
         - 'languages:language_content'
         - 'languages:language_interface'
+<<<<<<< HEAD
+=======
+        - url
+>>>>>>> dev
         - url.query_args
         - 'user.node_grants:view'
         - user.roles

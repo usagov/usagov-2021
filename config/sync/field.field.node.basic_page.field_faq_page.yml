@@ -1,0 +1,23 @@
+uuid: 2a1d056c-720a-49db-bf1f-331f7ee513a4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_faq_page
+    - node.type.basic_page
+id: node.basic_page.field_faq_page
+field_name: field_faq_page
+entity_type: node
+bundle: basic_page
+label: 'FAQ Page'
+description: 'If selected, FAQ data is generated from the page content so search engines can display rich results.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

@@ -8,7 +8,13 @@ dependencies:
     - media.type.image
     - media.type.remote_video
     - media.type.video
+    - node.type.agency_synonym
     - node.type.basic_page
+    - node.type.bears_agency
+    - node.type.bears_benefit
+    - node.type.bears_criteria
+    - node.type.bears_life_event
+    - node.type.bears_life_event_form
     - node.type.directory_record
     - node.type.state_directory_record
     - node.type.wizard
@@ -26,10 +32,10 @@ dependencies:
     - paragraphs_entity_embed
     - path
     - redirect
+    - simple_sitemap
     - system
     - toolbar
     - usa_content_moderation_notifications
-    - usa_workflow
 id: content_administrator
 label: 'Content Administrator'
 weight: 5
@@ -45,9 +51,16 @@ permissions:
   - 'administer nodes'
   - 'administer redirect settings'
   - 'administer redirects'
+  - 'administer sitemap settings'
   - 'break content lock'
+  - 'create agency_synonym content'
   - 'create audio media'
   - 'create basic_page content'
+  - 'create bears_agency content'
+  - 'create bears_benefit content'
+  - 'create bears_criteria content'
+  - 'create bears_life_event content'
+  - 'create bears_life_event_form content'
   - 'create content translations'
   - 'create directory_record content'
   - 'create file media'
@@ -59,9 +72,16 @@ permissions:
   - 'create video media'
   - 'create wizard content'
   - 'create wizard_step content'
+  - 'delete agency_synonym revisions'
   - 'delete all revisions'
+  - 'delete any agency_synonym content'
   - 'delete any audio media'
   - 'delete any basic_page content'
+  - 'delete any bears_agency content'
+  - 'delete any bears_benefit content'
+  - 'delete any bears_criteria content'
+  - 'delete any bears_life_event content'
+  - 'delete any bears_life_event_form content'
   - 'delete any directory_record content'
   - 'delete any file media'
   - 'delete any image media'
@@ -72,11 +92,21 @@ permissions:
   - 'delete any wizard content'
   - 'delete any wizard_step content'
   - 'delete basic_page revisions'
+  - 'delete bears_agency revisions'
+  - 'delete bears_benefit revisions'
+  - 'delete bears_criteria revisions'
+  - 'delete bears_life_event revisions'
+  - 'delete bears_life_event_form revisions'
   - 'delete content translations'
   - 'delete directory_record revisions'
   - 'delete media'
   - 'delete own audio media'
   - 'delete own basic_page content'
+  - 'delete own bears_agency content'
+  - 'delete own bears_benefit content'
+  - 'delete own bears_criteria content'
+  - 'delete own bears_life_event content'
+  - 'delete own bears_life_event_form content'
   - 'delete own directory_record content'
   - 'delete own file media'
   - 'delete own image media'
@@ -89,8 +119,14 @@ permissions:
   - 'delete state_directory_record revisions'
   - 'delete wizard revisions'
   - 'delete wizard_step revisions'
+  - 'edit any agency_synonym content'
   - 'edit any audio media'
   - 'edit any basic_page content'
+  - 'edit any bears_agency content'
+  - 'edit any bears_benefit content'
+  - 'edit any bears_criteria content'
+  - 'edit any bears_life_event content'
+  - 'edit any bears_life_event_form content'
   - 'edit any directory_record content'
   - 'edit any file media'
   - 'edit any image media'
@@ -101,6 +137,11 @@ permissions:
   - 'edit any wizard_step content'
   - 'edit own audio media'
   - 'edit own basic_page content'
+  - 'edit own bears_agency content'
+  - 'edit own bears_benefit content'
+  - 'edit own bears_criteria content'
+  - 'edit own bears_life_event content'
+  - 'edit own bears_life_event_form content'
   - 'edit own directory_record content'
   - 'edit own file media'
   - 'edit own image media'
@@ -110,13 +151,19 @@ permissions:
   - 'edit own wizard content'
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
-  - 'overwrites the Content Editor permission restriction'
+  - 'revert agency_synonym revisions'
   - 'revert all revisions'
   - 'revert basic_page revisions'
+  - 'revert bears_agency revisions'
+  - 'revert bears_benefit revisions'
+  - 'revert bears_criteria revisions'
+  - 'revert bears_life_event revisions'
+  - 'revert bears_life_event_form revisions'
   - 'revert directory_record revisions'
   - 'revert state_directory_record revisions'
   - 'revert wizard revisions'
   - 'revert wizard_step revisions'
+  - 'translate agency_synonym node'
   - 'translate any entity'
   - 'translate basic_page node'
   - 'translate directory_record node'
@@ -126,19 +173,22 @@ permissions:
   - 'update any media'
   - 'update content translations'
   - 'update media'
-  - 'usa approve own content'
   - 'usa content moderation notify own content'
-  - 'usa delete own content'
-  - 'use basic_workflow transition approve'
   - 'use basic_workflow transition archive'
   - 'use basic_workflow transition create_new_draft'
   - 'use basic_workflow transition move_to_review'
   - 'use basic_workflow transition publish'
   - 'use basic_workflow transition restore'
+  - 'view agency_synonym revisions'
   - 'view all media revisions'
   - 'view all revisions'
   - 'view any unpublished content'
   - 'view basic_page revisions'
+  - 'view bears_agency revisions'
+  - 'view bears_benefit revisions'
+  - 'view bears_criteria revisions'
+  - 'view bears_life_event revisions'
+  - 'view bears_life_event_form revisions'
   - 'view directory_record revisions'
   - 'view latest version'
   - 'view own unpublished content'

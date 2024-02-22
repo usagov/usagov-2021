@@ -1,0 +1,25 @@
+uuid: 7034b3bf-a20f-42d5-b663-a8ee545d4db1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_b_criteria_key
+    - paragraphs.paragraphs_type.b_benefit_eligibility
+id: paragraph.b_benefit_eligibility.field_b_criteria_key
+field_name: field_b_criteria_key
+entity_type: paragraph
+bundle: b_benefit_eligibility
+label: 'Criteria Key'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: views
+  handler_settings:
+    view:
+      view_name: benefit_finder
+      display_name: entity_reference_2
+      arguments: {  }
+field_type: entity_reference

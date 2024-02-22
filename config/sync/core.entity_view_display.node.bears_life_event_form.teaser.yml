@@ -1,0 +1,39 @@
+uuid: 0b28c385-4070-42b5-83f2-ddfb6a062e15
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.bears_life_event_form.field_b_elg_criteria_desc
+    - field.field.node.bears_life_event_form.field_b_id
+    - field.field.node.bears_life_event_form.field_b_json_file
+    - field.field.node.bears_life_event_form.field_b_relevant_benefits
+    - field.field.node.bears_life_event_form.field_b_sections_elg_criteria
+    - field.field.node.bears_life_event_form.field_b_summary
+    - field.field.node.bears_life_event_form.field_b_time_estimate
+    - field.field.node.bears_life_event_form.field_b_title_prefix
+    - field.field.node.bears_life_event_form.field_language_toggle
+    - node.type.bears_life_event_form
+  module:
+    - user
+id: node.bears_life_event_form.teaser
+targetEntityType: node
+bundle: bears_life_event_form
+mode: teaser
+content:
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_b_elg_criteria_desc: true
+  field_b_id: true
+  field_b_json_file: true
+  field_b_relevant_benefits: true
+  field_b_sections_elg_criteria: true
+  field_b_summary: true
+  field_b_time_estimate: true
+  field_b_title_prefix: true
+  field_language_toggle: true
+  langcode: true

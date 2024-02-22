@@ -1,0 +1,20 @@
+uuid: f699488e-128c-42df-a29f-7cb4fcdd2d9f
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_benefit
+  module:
+    - path
+id: node.bears_benefit.path
+field_name: path
+entity_type: node
+bundle: bears_benefit
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

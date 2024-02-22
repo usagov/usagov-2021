@@ -26,9 +26,9 @@ esac
 
 export BUCKET_BACKUP_FOLDER=${BUCKET_SOURCE_FOLDER}-backup
 
-echo '==========================================='
-echo BUCKET_SOURCE_FOLDER: $BUCKET_SOURCE_FOLDER
-echo BUCKET_BACKUP_FOLDER: $BUCKET_BACKUP_FOLDER
-echo BACKUP_DESCRIPTION:   $BACKUP_DESCRIPTION
-echo BACKUP_LISTER:        $BACKUP_LISTER
-echo '==========================================='
+#echo '==========================================='
+#echo BUCKET_SOURCE_FOLDER: $BUCKET_SOURCE_FOLDER
+#echo BUCKET_BACKUP_FOLDER: $BUCKET_BACKUP_FOLDER
+#echo BACKUP_DESCRIPTION:   $BACKUP_DESCRIPTION
+#echo BACKUP_LISTER:        $BACKUP_LISTER
+#echo '==========================================='

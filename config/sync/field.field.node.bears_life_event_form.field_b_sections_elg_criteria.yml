@@ -1,0 +1,115 @@
+uuid: 9a88688d-4993-4077-bab1-7d65c90a57d5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_b_sections_elg_criteria
+    - node.type.bears_life_event_form
+    - paragraphs.paragraphs_type.b_levent_elg_section
+  module:
+    - entity_reference_revisions
+id: node.bears_life_event_form.field_b_sections_elg_criteria
+field_name: field_b_sections_elg_criteria
+entity_type: node
+bundle: bears_life_event_form
+label: 'Sections (Eligibility Criteria)'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      b_levent_elg_section: b_levent_elg_section
+    negate: 0
+    target_bundles_drag_drop:
+      b_benefit_eligibility:
+        weight: 29
+        enabled: false
+      b_levent_elg_criteria:
+        weight: 30
+        enabled: false
+      b_levent_elg_criteria_group:
+        weight: 32
+        enabled: false
+      b_levent_elg_section:
+        weight: 31
+        enabled: true
+      faq:
+        weight: 32
+        enabled: false
+      text_field:
+        weight: 33
+        enabled: false
+      uswds_2_column_breakpoints:
+        weight: 35
+        enabled: false
+      uswds_2_columns:
+        weight: 34
+        enabled: false
+      uswds_3_column_breakpoints:
+        weight: 37
+        enabled: false
+      uswds_3_columns:
+        weight: 36
+        enabled: false
+      uswds_accordion:
+        weight: 38
+        enabled: false
+      uswds_accordion_section:
+        weight: 39
+        enabled: false
+      uswds_alert:
+        weight: 40
+        enabled: false
+      uswds_card_breakpoints:
+        weight: 42
+        enabled: false
+      uswds_card_group_flag:
+        weight: 43
+        enabled: false
+      uswds_card_group_regular:
+        weight: 44
+        enabled: false
+      uswds_card_regular:
+        weight: 45
+        enabled: false
+      uswds_cards_flag:
+        weight: 41
+        enabled: false
+      uswds_column_equal_size:
+        weight: 48
+        enabled: false
+      uswds_columns_2_uneven:
+        weight: 46
+        enabled: false
+      uswds_columns_3_uneven:
+        weight: 47
+        enabled: false
+      uswds_icon_list:
+        weight: 49
+        enabled: false
+      uswds_icon_list_item:
+        weight: 50
+        enabled: false
+      uswds_modal:
+        weight: 51
+        enabled: false
+      uswds_process_item:
+        weight: 52
+        enabled: false
+      uswds_process_list:
+        weight: 53
+        enabled: false
+      uswds_step_indicator_item:
+        weight: 54
+        enabled: false
+      uswds_step_indicator_list:
+        weight: 55
+        enabled: false
+      uswds_summary_box:
+        weight: 56
+        enabled: false
+field_type: entity_reference_revisions

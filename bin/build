@@ -2,7 +2,8 @@
 set -e
 
 if [ -f env.local ]; then
-  . env.local
+    . env.local
+    BUILD_ENV=LOCAL
 fi
 
 docker compose build \
@@ -11,4 +12,5 @@ docker compose build \
   --build-arg GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "") \
   --build-arg GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "") \
   --build-arg GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "") \
+  --build-arg BUILD_ENV=${BUILD_ENV:-unspecified} \
   $@

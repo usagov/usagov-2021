@@ -8,9 +8,12 @@ dependencies:
     - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
+    - field.field.node.basic_page.field_exclude_from_contact_cente
+    - field.field.node.basic_page.field_faq_page
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
+    - field.field.node.basic_page.field_hero_links
     - field.field.node.basic_page.field_hide_page_intro
     - field.field.node.basic_page.field_homepage_banner
     - field.field.node.basic_page.field_homepage_top_links
@@ -52,9 +55,12 @@ hidden:
   field_50_state_pages_type: true
   field_css_icon: true
   field_custom_twig_content: true
+  field_exclude_from_contact_cente: true
+  field_faq_page: true
   field_footer_html: true
   field_for_contact_center_only: true
   field_header_html: true
+  field_hero_links: true
   field_hide_page_intro: true
   field_homepage_banner: true
   field_homepage_top_links: true

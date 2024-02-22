@@ -1,0 +1,39 @@
+uuid: c21f3352-0d1c-4aaa-916a-f38203c8de28
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.b_benefit_eligibility.field_b_acceptable_values
+    - field.field.paragraph.b_benefit_eligibility.field_b_criteria_key
+    - field.field.paragraph.b_benefit_eligibility.field_b_label
+    - paragraphs.paragraphs_type.b_benefit_eligibility
+id: paragraph.b_benefit_eligibility.default
+targetEntityType: paragraph
+bundle: b_benefit_eligibility
+mode: default
+content:
+  field_b_acceptable_values:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_b_criteria_key:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_b_label:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }
