@@ -106,7 +106,7 @@ elif [ "$APP_SPACE" == "stage" ]; then
 fi
 
 if ! existsCFApp $ROUTE_SERVICE_APP_NAME; then
-  echo "WARNING: You will need to restage $ROUTE_SERVICE_APP_NAME to apply the correct firewall rules"
+  echo "WARNING: You will need re-run this script to apply the correct firewall rules"
   #exit ### <-- to test, uncomment this exit statement and pass "zaf" as $ROUTE_SERVICE_APP_NAME
 else
   # remove proxy
