@@ -106,6 +106,10 @@ exit
 #bin/cloudgov/deploy-waf $WTAG $WDIGEST
 #exit
 
+#cf set-env $WAF_APP IP_ALLOW_ALL_CMS 1
+#cf set-env $WAF_APP IP_ALLOW_ALL_WWW 1
+#cf restage $WAF_APP
+
 ###
 cat <<'ZZ'
 ### Run this on the CMS app, to test the connection to RDS
