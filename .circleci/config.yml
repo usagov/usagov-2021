@@ -55,10 +55,11 @@ commands:
 
             ZWAF_APP=waf-dr
             ZCMS_APP=cms
+            ZWWW_APP=www
             ZAPP_SPACE=dev-dr
             ROUTE_SERVICE_APP_NAME=$ZWAF_APP \
             ROUTE_SERVICE_NAME=waf-route-${ZAPP_SPACE}-usagov \
-            PROTECTED_APP_NAME=$ZCMS_APP \
+            PROTECTED_APP_NAMES="$ZCMS_APP,$ZWWW_APP" \
             ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
   save-image-digest:
     steps:
