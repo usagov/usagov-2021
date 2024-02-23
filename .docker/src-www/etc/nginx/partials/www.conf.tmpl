@@ -3,7 +3,7 @@
 server {
     listen 80;
 
-    server_name ${SSC_HOST} _;
+    server_name ${WWW_HOST} _;
 
     include /etc/nginx/partials/www_common.conf;
 
@@ -15,7 +15,7 @@ server {
     listen 443 ssl;
     include partials/ssl.conf;
 
-    server_name ${SSC_HOST} _;
+    server_name ${WWW_HOST} _;
 
     include /etc/nginx/partials/www_common.conf;
 
