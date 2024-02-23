@@ -16,12 +16,12 @@ EGRESS_SPACE=shared-egress-dr
 
 #echo=echo
 
-ATAG=8179
+ATAG=8244
 CTAG=$ATAG
 WTAG=$ATAG
 STAG=$ATAG
 export CDIGEST=@sha256:496ae1b256c7082e7df1235f05274397e7f49070ac29ee22f3b313201c8b0b09
-export WDIGEST=@sha256:d3ae4a37b095bc9868fd668b5d50b407ba33ba6f58c8b8465ad2c34b16bb2e6d
+export WDIGEST=@sha256:49cb15b6bbbc2873ea8952802094f938bbd8c99310491c91f381b664516c1857
 export SDIGEST=@sha256:87d84e1b041763906b3e21649e372a5ff830c7f33531fbcb66ac7fd8b60a3c79
 
 #echo  cf delete-space $APP_SPACE
@@ -89,10 +89,10 @@ export SDIGEST=@sha256:87d84e1b041763906b3e21649e372a5ff830c7f33531fbcb66ac7fd8b
 #exit
 
 # 
-echo  cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
-bin/cloudgov/deploy-cms $CTAG $CDIGEST
-exit
+#echo  cf target -s $APP_SPACE
+#$echo cf target -s $APP_SPACE
+#bin/cloudgov/deploy-cms $CTAG $CDIGEST
+#exit
 
 # 
 #echo  cf target -s $APP_SPACE
@@ -100,11 +100,11 @@ exit
 #bin/cloudgov/deploy-www $STAG $SDIGEST
 #exit
 
-#ROUTE_SERVICE_APP_NAME=$WAF_APP \
-#ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
-#PROTECTED_APP_NAME=$CMS_APP \
-#bin/cloudgov/deploy-waf $WTAG $WDIGEST
-#exit
+ROUTE_SERVICE_APP_NAME=$WAF_APP \
+ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
+PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP" \
+bin/cloudgov/deploy-waf $WTAG $WDIGEST
+exit
 
 #cf set-env $WAF_APP IP_ALLOW_ALL_CMS 1
 #cf set-env $WAF_APP IP_ALLOW_ALL_WWW 1
