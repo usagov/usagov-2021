@@ -78,7 +78,7 @@ APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
 printf "\tAPP_SPACE: $APP_SPACE\n"
 
 if ! existsCFApp $ROUTE_SERVICE_APP_NAME; then
-  echo "NOTICE: $ROUTE_SERVICE_APP_NAME app is not running.  No worries."
+  # existsCFApp will print an appropriate message.
   #exit ### <-- to test, uncomment this exit statement and pass "zaf" as $ROUTE_SERVICE_APP_NAME
 else
   # remove proxy
@@ -104,7 +104,7 @@ elif [ "$APP_SPACE" == "stage" ]; then
     IP_ALLOW_ALL_CMS=1
     IP_ALLOW_ALL_WAF=1
 elif [ "$APP_SPACE" == "dev" ]; then
-  instances="-i 1"
+    instances="-i 1"
 fi
 
 if ! existsCFApp $ROUTE_SERVICE_APP_NAME; then
