@@ -20,6 +20,7 @@ dependencies:
     - field.field.node.directory_record.field_offices_near_you
     - field.field.node.directory_record.field_page_intro
     - field.field.node.directory_record.field_phone_number
+    - field.field.node.directory_record.field_popular_services
     - field.field.node.directory_record.field_show_in_a_z_index
     - field.field.node.directory_record.field_state_abbr
     - field.field.node.directory_record.field_street_1
@@ -201,6 +202,14 @@ content:
     settings:
       placeholder: ''
     third_party_settings: {  }
+  field_popular_services:
+    type: link_default
+    weight: 31
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
   field_show_in_a_z_index:
     type: boolean_checkbox
     weight: 29
@@ -294,6 +303,11 @@ content:
     settings:
       display_label: true
     third_party_settings: {  }
+  simple_sitemap:
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   status:
     type: boolean_checkbox
     weight: 10
@@ -338,3 +352,4 @@ content:
     third_party_settings: {  }
 hidden:
   feeds_item: true
+  menu_entity_index: true
