@@ -289,7 +289,6 @@ display:
           title: ''
           default_argument_type: node
           default_argument_options: {  }
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: true
@@ -305,8 +304,8 @@ display:
             fail: 'not found'
           validate_options: {  }
           break_phrase: false
-          not: false
           target_menus: {  }
+          not: false
       filters:
         status:
           id: status
@@ -754,7 +753,6 @@ display:
           title: ''
           default_argument_type: node
           default_argument_options: {  }
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: true
@@ -770,10 +768,10 @@ display:
             fail: 'not found'
           validate_options: {  }
           break_phrase: false
-          not: false
           target_menus:
             left-menu-english: left-menu-english
             left-menu-spanish: left-menu-spanish
+          not: false
       filters:
         status:
           id: status
@@ -1127,7 +1125,6 @@ display:
           title: ''
           default_argument_type: node
           default_argument_options: {  }
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: true
@@ -1143,8 +1140,8 @@ display:
             fail: 'not found'
           validate_options: {  }
           break_phrase: false
-          not: false
           target_menus: {  }
+          not: false
       filters:
         status:
           id: status
@@ -1478,7 +1475,6 @@ display:
           title: ''
           default_argument_type: node
           default_argument_options: {  }
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: true
@@ -1494,10 +1490,10 @@ display:
             fail: 'not found'
           validate_options: {  }
           break_phrase: false
-          not: false
           target_menus:
             left-menu-english: left-menu-english
             left-menu-spanish: left-menu-spanish
+          not: false
       defaults:
         fields: false
         arguments: false
@@ -1707,7 +1703,6 @@ display:
           title: ''
           default_argument_type: node
           default_argument_options: {  }
-          default_argument_skip_url: false
           summary_options:
             base_path: ''
             count: true
