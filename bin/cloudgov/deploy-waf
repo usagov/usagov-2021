@@ -77,11 +77,10 @@ printf "\nFetching APP_SPACE\n"
 APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
 printf "\tAPP_SPACE: $APP_SPACE\n"
 
-if ! existsCFApp $ROUTE_SERVICE_APP_NAME; then
-  # existsCFApp will print an appropriate message.
-  #exit ### <-- to test, uncomment this exit statement and pass "zaf" as $ROUTE_SERVICE_APP_NAME
-else
-  # remove proxy
+# remove existing HTTP proxy variables, if any. (This will probably change one day.)
+if existsCFApp $ROUTE_SERVICE_APP_NAME; then
+  # existsCFApp will print an appropriate message if the app does not exist.
+  # If the app doesn't exist, this is likely a first deployment in this space.
   cf set-env $ROUTE_SERVICE_APP_NAME http_proxy  ""
   cf set-env $ROUTE_SERVICE_APP_NAME https_proxy ""
   cf set-env $ROUTE_SERVICE_APP_NAME HTTPS_PROXY ""
@@ -103,8 +102,7 @@ elif [ "$APP_SPACE" == "stage" ]; then
     instances="-i 1"
     IP_ALLOW_ALL_CMS=1
     IP_ALLOW_ALL_WAF=1
-elif [ "$APP_SPACE" == "dev" ]; then
-    instances="-i 1"
+# Defaults are appropriate for dev and any other dev-like space.
 fi
 
 if ! existsCFApp $ROUTE_SERVICE_APP_NAME; then
