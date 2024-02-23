@@ -179,6 +179,8 @@ var submitPressed = function () {
       document.getElementById("alert_error_recaptcha").classList.remove("usa-error--alert");
       // Adds left padding from recaptcha.
       document.getElementById("recaptcha").classList.add("usa-form-spacing", "usa-border-error");
+
+      document.getElementsByClassName("recaptcha-alignment")[0].style.justifyContent = "left";
       captchaValidationResult = false;
     }
   }
@@ -190,6 +192,7 @@ var submitPressed = function () {
     document.getElementById("alert_error_recaptcha").classList.add("usa-error--alert");
     // Removes left padding from recaptcha.
     document.getElementById("recaptcha").classList.remove("usa-form-spacing", "usa-border-error");
+    document.getElementsByClassName("recaptcha-alignment")[0].style.justifyContent = "center";
   }
 
   // Field Validation
