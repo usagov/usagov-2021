@@ -26,7 +26,7 @@ services:
     volumes:
       - .:/var/www:delegated
       - ./.docker/src-cms/etc/periodic/1min/generate-static-site:/etc/periodic/1min/generate-static-site:delegated
-      #- ./.docker/src-cms/50_xdebug.ini:/etc/php81/conf.d/50_xdebug.ini:delegated
+      - ./.docker/src-cms/50_xdebug.ini:/etc/php81/conf.d/50_xdebug.ini:delegated
     env_file:
       - ./env.local
     environment:
@@ -123,6 +123,13 @@ services:
         aliases:
           - local.minio
 
+  cypress:
+    container_name: cypress
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-cypress
+    command: npm run e2e
+        
   composer:
     container_name: composer
     build:
