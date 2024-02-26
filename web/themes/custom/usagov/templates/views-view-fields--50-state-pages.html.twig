@@ -33,16 +33,21 @@
 #}
 {% set titlevar = "" %}
 {% set urlvar = "" %}
+{% set abbrvar = "" %}
 {% for field in fields -%}
 	{% if field.class == 'title'%}
 		{% set titlevar = field.content %}
+	{% endif %}
+	{% if field.class == 'field-abbreviations'%}
+		{% set abbrvar = field.content %}
 	{% endif %}
 	{% if field.class == view.args[0] %}
 		{% set urlvar = field.content %}
 	{% endif %}
 {%- endfor %}
+
 {% if titlevar and urlvar %}
 	<li>
-		<a class="url" href={{urlvar}}>{{titlevar}}</a>
+		<a class="url" key={{abbrvar}} href={{urlvar}}>{{titlevar}}</a>
 	</li>
 {% endif %}
