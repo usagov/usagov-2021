@@ -14,6 +14,7 @@ const search_input = document.getElementById("search-field-en-small");
 const dir_search_results = document.getElementById("fed-dir-search-results");
 let lang = document.documentElement.lang;
 let search_term = "";
+var allAgencies;
 
 function fetchAgencies() {
   if (lang == "es") {
@@ -70,7 +71,9 @@ function showAgencies(filteredAgencies) {
 
 async function getAgencies() {
   try {
-    let allAgencies = await fetchAgencies();
+    if (!allAgencies) {
+      allAgencies = await fetchAgencies();
+    }
     let filteredAgencies = await searchAgencies(allAgencies);
     await showAgencies(filteredAgencies);
   }
