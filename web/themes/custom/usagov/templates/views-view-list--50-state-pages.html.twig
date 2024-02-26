@@ -63,68 +63,9 @@
 		} %}
 			{% set label_text = lang == 'en' ? 'Select your state or territory:' : 'Elija un estado o territorio:' %}
 			{% set list_contents %}
-			<li><a key="AL" href="/states/alabama">Alabama</a></li>
-			<li><a key="AK" href="/states/alaska">Alaska</a></li>
-			<li><a key="" href="/states/american-samoa">American Samoa</a></li>
-			<li><a key="AZ" href="/states/arizona">Arizona</a></li>
-			<li><a key="AR" href="/states/arkansas">Arkansas</a></li>
-			<li><a key="CA" href="/states/california">California</a></li>
-			<li><a key="CO" href="/states/colorado">Colorado</a></li>
-			<li><a key="CT" href="/states/connecticut">Connecticut</a></li>
-			<li><a key="DE" href="/states/delaware">Delaware</a></li>
-			<li><a key="DC" href="/states/district-of-columbia">District of Columbia</a></li>
-			<li><a key="" href="/states/federated-states-of-micronesia">Federated States of Micronesia</a></li>
-			<li><a key="FL" href="/states/florida">Florida</a></li>
-			<li><a key="GA" href="/states/georgia">Georgia</a></li>
-			<li><a key="" href="/states/guam">Guam</a></li>
-			<li><a key="HI" href="/states/hawaii">Hawaii</a></li>
-			<li><a key="ID" href="/states/idaho">Idaho</a></li>
-			<li><a key="IL" href="/states/illinois">Illinois</a></li>
-			<li><a key="IN" href="/states/indiana">Indiana</a></li>
-			<li><a key="IA" href="/states/iowa">Iowa</a></li>
-			<li><a key="KS" href="/states/kansas">Kansas</a></li>
-			<li><a key="KY" href="/states/kentucky">Kentucky</a></li>
-			<li><a key="LA" href="/states/louisiana">Louisiana</a></li>
-			<li><a key="ME" href="/states/maine">Maine</a></li>
-			<li><a key="MD" href="/states/maryland">Maryland</a></li>
-			<li><a key="MA" href="/states/massachusetts">Massachusetts</a></li>
-			<li><a key="MI" href="/states/michigan">Michigan</a></li>
-			<li><a key="MN" href="/states/minnesota">Minnesota</a></li>
-			<li><a key="MS" href="/states/mississippi">Mississippi</a></li>
-			<li><a key="MO" href="/states/missouri">Missouri</a></li>
-			<li><a key="MT" href="/states/montana">Montana</a></li>
-			<li><a key="NE" href="/states/nebraska">Nebraska</a></li>
-			<li><a key="NV" href="/states/nevada">Nevada</a></li>
-			<li><a key="NH" href="/states/new-hampshire">New Hampshire</a></li>
-			<li><a key="NJ" href="/states/new-jersey">New Jersey</a></li>
-			<li><a key="NM" href="/states/new-mexico">New Mexico</a></li>
-			<li><a key="NY" href="/states/new-york">New York</a></li>
-			<li><a key="NC" href="/states/north-carolina">North Carolina</a></li>
-			<li><a key="ND" href="/states/north-dakota">North Dakota</a></li>
-			<li><a key="" href="/states/northern-mariana-islands">Northern Mariana Islands</a></li>
-			<li><a key="OH" href="/states/ohio">Ohio</a></li>
-			<li><a key="OK" href="/states/oklahoma">Oklahoma</a></li>
-			<li><a key="OR" href="/states/oregon">Oregon</a></li>
-			<li><a key="PA" href="/states/pennsylvania">Pennsylvania</a></li>
-			<li><a key="" href="/states/puerto-rico">Puerto Rico</a></li>
-			<li><a key="" href="/states/republic-of-palau">Republic of Palau</a></li>
-			<li><a key="" href="/states/republic-of-the-marshall-islands">Republic of the Marshall Islands</a></li>
-			<li><a key="RI" href="/states/rhode-island">Rhode Island</a></li>
-			<li><a key="SC" href="/states/south-carolina">South Carolina</a></li>
-			<li><a key="SD" href="/states/south-dakota">South Dakota</a></li>
-			<li><a key="TN" href="/states/tennessee">Tennessee</a></li>
-			<li><a key="TX" href="/states/texas">Texas</a></li>
-			<li><a key="" href="/states/u-s-virgin-islands">U.S. Virgin Islands</a></li>
-			<li><a key="UT" href="/states/utah">Utah</a></li>
-			<li><a key="VT" href="/states/vermont">Vermont</a></li>
-			<li><a key="VA" href="/states/virginia">Virginia</a></li>
-			<li><a key="WA" href="/states/washington">Washington</a></li>
-			<li><a key="WV" href="/states/west-virginia">West Virginia</a></li>
-			<li><a key="WI" href="/states/wisconsin">Wisconsin</a></li>
-			<li><a key="WY" href="/states/wyoming">Wyoming</a></li>
-			{# {% for row in rows %}
-				{{- row.content -}}
-			{% endfor %} #}
+				{% for row in rows %}
+					{{- row.content -}}
+				{% endfor %}
 			{% endset %}
 			{% set button_text = lang == 'es' ? "Ir" : "Go" %}
 		{% endembed %}
