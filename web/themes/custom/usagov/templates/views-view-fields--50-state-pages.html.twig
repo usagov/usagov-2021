@@ -47,7 +47,13 @@
 {%- endfor %}
 
 {% if titlevar and urlvar %}
-	<li>
-		<a class="url" key={{abbrvar}} href={{urlvar}}>{{titlevar}}</a>
-	</li>
+	{% if abbrvar %}
+		<li>
+			<a class="url" key={{abbrvar}} href={{urlvar}}>{{titlevar}}</a>
+		</li>
+	{% else %}
+		<li>
+			<a class="url" href={{urlvar}}>{{titlevar}}</a>
+		</li>
+	{% endif %}
 {% endif %}
