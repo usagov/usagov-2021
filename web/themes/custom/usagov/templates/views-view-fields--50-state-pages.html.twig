@@ -46,6 +46,7 @@
 	{% endif %}
 {%- endfor %}
 
+{# seperation allows state drop down to continue working as content adds abbreviations to fields- when JS is created from this it sets key="undefined" to those without an abbrvar #}
 {% if titlevar and urlvar %}
 	{% if abbrvar %}
 		<li>
