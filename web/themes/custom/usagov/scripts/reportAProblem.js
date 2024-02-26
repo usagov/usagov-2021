@@ -202,6 +202,28 @@ var submitPressed = function () {
   return captchaValidationResult && fieldValidationResult;
 };
 
+// function windowSizeChange() {
+
+//   if (window.innerWidth <= 500) {
+//     // let recaptcha = document.getElementsByClassName("recaptcha-alignment")[0];
+//     // recaptcha.style.transform = "scale(0.77)";
+//     // recaptcha.style.transformOrigin = "0 0";
+//     document.getElementById("recaptcha").setAttribute("data-size", "compact");
+//     console.log("Less 500: " + document.getElementById("1`recaptcha").getAttribute("data-size"));
+//   }
+//   else {
+//     document.getElementById("recaptcha").setAttribute("data-size", "normal");
+//     console.log("More 500: " + document.getElementById("recaptcha").getAttribute("data-size"));
+//   }
+//   window.grecaptcha.reset();
+//   // var temp = document.getElementById("recaptcha");
+//   // console.log(temp);
+//   // document.getElementById("recaptcha").remove();
+//   // document.getElementsByClassName("recaptcha-outline-padding")[0].appendChild(temp);
+
+// }
+// window.addEventListener("resize", windowSizeChange);
+
 jQuery(document).ready(function () {
   "use strict";
   $("#cntctbx").hide();
@@ -209,6 +231,8 @@ jQuery(document).ready(function () {
 
 jQuery(document).ready(function () {
   "use strict";
+
+  // windowSizeChange();
   $("#pagesurvey-hdr").hide();
   $("#pagesurvey-trgt").hide();
   $("#pagesurvey-ombnum").hide();
