@@ -681,6 +681,13 @@ a,
   padding: 5px;
 }
 
+@media screen and (max-width: 500px) {
+  .g-recaptcha {
+    transform: scale(0.8);
+    transform-origin: 0 0;
+  }
+}
+
 .issue-button {
   @extend .ceo-button;
   margin-top: 1.5rem;
