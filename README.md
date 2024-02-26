@@ -128,7 +128,7 @@ Once you finish the previous section, follow these steps to set up your USAgov d
 Once you finish the previous section, you may not see the images on the site, please follow these steps to set up the media files:
 
 
-1. Download the latest ZIP file available from [our Google Drive](https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing) that contains the word "files" in the filename.
+1. Download the latest ZIP file available from [our Google Drive](https://drive.google.com/drive/folders/1tI4k5qasEtmhxCBuznR3t0fe466milYk?usp=sharing).
 
 
 2. Go to the **root** of your USAgov project folder in your IDE or preferred file manager system in your computer.
