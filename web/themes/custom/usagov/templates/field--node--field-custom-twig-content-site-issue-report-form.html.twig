@@ -107,21 +107,13 @@
 
 					<input type="hidden" id="external" name="external" value="1"/>
 
-
-					{# ReCaptcha for larger devices (500px and up) #}
-					<div class="recaptcha-container recaptcha-desktop">
+					<div class="recaptcha-container">
 						<div class="recaptcha-alignment">
 							<div class="recaptcha-outline-padding">
-								<div id="recaptcha" class="g-recaptcha" title="reCAPCHA"  data-size="normal" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
-							</div>
-						</div>
-					</div>
-
-					{# ReCaptcha for smaller devices (499px and down) #}
-					<div class="recaptcha-container recaptcha-mobile">
-						<div class="recaptcha-alignment">
-							<div class="recaptcha-outline-padding">
-								<div id="recaptcha" class="g-recaptcha" title="reCAPCHA" data-size="compact" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
+								{# ReCaptcha for larger devices (500px and up) #}
+								<div id="recaptcha-large" class="g-recaptcha" title="reCAPCHA"  data-size="normal" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
+								{# ReCaptcha for smaller devices (499px and down) #}
+								<div id="recaptcha-small" class="g-recaptcha" title="reCAPCHA" data-size="compact" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
 							</div>
 						</div>
 					</div>
