@@ -156,21 +156,24 @@ var submitPressed = function () {
 
   // reCaptcha Validation
   var captchaValidationResult = true;
+  // Screen width to validate the reCaptcha
+  var screenWidth = window.innerWidth;
 
-  if (grecaptcha.getResponse().length === 0) {
+  if ( screenWidth >= 500 && grecaptcha.getResponse(0).length === 0 ||
+       screenWidth < 500 && grecaptcha.getResponse(1).length === 0) {
     // Check if reCaptcha is checked.
     if ($(".err-label-captcha").length < 1 && !document.querySelector("span.err-label")) {
 
       if ($("html").attr("lang") === "en") {
         // Adds an english error message before the captcha box.
         $(".recaptcha-alignment").before(
-          '<span class="err-label usa-error" tabindex="0">Fill out the reCaptcha</span>'
+          '<span class="err-label usa-error recaptcha-error-message" tabindex="0">Fill out the reCaptcha</span>'
         );
       }
       else {
         // Adds a spanish error message before the captcha box.
         $(".recaptcha-alignment").before(
-          '<span class="err-label usa-error" tabindex="0">Complete el reCaptcha</span>'
+          '<span class="err-label usa-error recaptcha-error-message" tabindex="0">Complete el reCaptcha</span>'
         );
       }
       // Adds the error outline to the reCaptcha box.
@@ -185,6 +188,8 @@ var submitPressed = function () {
     }
   }
   else {
+    // Removes error messages from the reCaptcha
+    document.querySelector(".recaptcha-error-message").remove();
     // Removes the error style from the reCaptcha.
     document.getElementsByClassName("recaptcha-outline-padding")[0].classList.remove("usa-user-error");
     $(".err-label-captcha").remove();
@@ -202,46 +207,6 @@ var submitPressed = function () {
   modifyErrorElements();
   return captchaValidationResult && fieldValidationResult;
 };
-
-// function adjustRecaptchaSize() {
-//   var screenWidth = window.innerWidth;
-//   var recaptchaElement = document.getElementById("recaptcha");
-//   var isMobileRecaptcha = recaptchaElement?.getAttribute("data-size") === "compact" ? true : false;
-//   var parentElement = document.getElementsByClassName("recaptcha-outline-padding")[0];
-
-//   if (screenWidth < 500 && !isMobileRecaptcha) {
-//     if (recaptchaElement)
-//       document.getElementById("recaptcha").remove();
-
-//     var recaptchaNode = document.createElement('div');
-//     recaptchaNode.setAttribute("id", "recaptcha");
-//     recaptchaNode.setAttribute("class", "g-recaptcha");
-//     recaptchaNode.setAttribute("title", "reCAPCHA");
-//     recaptchaNode.setAttribute("data-size", "compact");
-//     recaptchaNode.setAttribute("data-sitekey", "6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb");
-
-//     parentElement.appendChild(recaptchaNode);
-//   }
-//   else if (screenWidth >= 500 && isMobileRecaptcha) {
-//     if (recaptchaElement)
-//       document.getElementById("recaptcha").remove();
-
-//     var recaptchaNode = document.createElement('div');
-//     recaptchaNode.setAttribute("id", "recaptcha");
-//     recaptchaNode.setAttribute("class", "g-recaptcha");
-//     recaptchaNode.setAttribute("title", "reCAPCHA");
-//     recaptchaNode.setAttribute("data-size", "normal");
-//     recaptchaNode.setAttribute("data-sitekey", "6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb");
-
-//     parentElement.appendChild(recaptchaNode);
-//   }
-// }
-
-// // Call the function on page load
-// window.addEventListener('load', adjustRecaptchaSize);
-
-// // Call the function when the window is resized
-// window.addEventListener('resize', adjustRecaptchaSize);
 
 jQuery(document).ready(function () {
   "use strict";
