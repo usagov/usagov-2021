@@ -681,10 +681,24 @@ a,
   padding: 5px;
 }
 
-@media screen and (max-width: 500px) {
-  .g-recaptcha {
-    transform: scale(0.8);
-    transform-origin: 0 0;
+/* Extra small devices (phones, 499px and down) */
+@media only screen and (max-width: 499px) {
+  .recaptcha-desktop {
+    display: none;
+  }
+
+  .recaptcha-mobile {
+    display: flex;
+  }
+}
+/* Everything else (500px and up) */
+@media only screen and (min-width: 500px) {
+  .recaptcha-mobile {
+    display: none;
+  }
+
+  .recaptcha-desktop {
+    display: flex;
   }
 }
 
