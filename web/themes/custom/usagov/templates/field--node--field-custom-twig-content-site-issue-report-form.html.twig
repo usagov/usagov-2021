@@ -107,13 +107,25 @@
 
 					<input type="hidden" id="external" name="external" value="1"/>
 
-					<div class="recaptcha-container">
+
+					{# ReCaptcha for larger devices (500px and up) #}
+					<div class="recaptcha-container recaptcha-desktop">
 						<div class="recaptcha-alignment">
 							<div class="recaptcha-outline-padding">
-								<div id="recaptcha" class="g-recaptcha" title="reCAPCHA" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
+								<div id="recaptcha" class="g-recaptcha" title="reCAPCHA"  data-size="normal" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
 							</div>
 						</div>
 					</div>
+
+					{# ReCaptcha for smaller devices (499px and down) #}
+					<div class="recaptcha-container recaptcha-mobile">
+						<div class="recaptcha-alignment">
+							<div class="recaptcha-outline-padding">
+								<div id="recaptcha" class="g-recaptcha" title="reCAPCHA" data-size="compact" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
+							</div>
+						</div>
+					</div>
+
 					<p style="display: none; visibility: hidden" class="extrainfo visually-hidden">
 						<label for="00Nt0000000FsTK">Please ignore this box.</label>
 						<input id="00Nt0000000FsTK" maxlength="255" name="00Nt0000000FsTK" size="20" type="text"/>
