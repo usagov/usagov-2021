@@ -681,23 +681,23 @@ a,
   padding: 5px;
 }
 
-/* Extra small devices (phones, 499px and down) */
+/* Extra small devices (499px and down) */
 @media only screen and (max-width: 499px) {
-  .recaptcha-desktop {
+  #recaptcha-large {
     display: none;
   }
 
-  .recaptcha-mobile {
+  #recaptcha-small {
     display: flex;
   }
 }
 /* Everything else (500px and up) */
 @media only screen and (min-width: 500px) {
-  .recaptcha-mobile {
+  #recaptcha-small {
     display: none;
   }
 
-  .recaptcha-desktop {
+  #recaptcha-large {
     display: flex;
   }
 }

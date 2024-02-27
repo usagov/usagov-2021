@@ -179,7 +179,7 @@ var submitPressed = function () {
       document.getElementById("alert_error_recaptcha").classList.remove("usa-error--alert");
       // Adds left padding from recaptcha.
       document.getElementsByClassName("recaptcha-container")[0].classList.add("usa-form-spacing", "usa-border-error");
-
+      // Aligns the reCaptcha to the left when it has an error.
       document.getElementsByClassName("recaptcha-alignment")[0].style.justifyContent = "left";
       captchaValidationResult = false;
     }
@@ -191,7 +191,8 @@ var submitPressed = function () {
     // Makes the reCaptcha error text invisible in the alert box.
     document.getElementById("alert_error_recaptcha").classList.add("usa-error--alert");
     // Removes left padding from recaptcha.
-    document.getElementById("recaptcha").classList.remove("usa-form-spacing", "usa-border-error");
+    document.getElementsByClassName("recaptcha-container")[0].classList.remove("usa-form-spacing", "usa-border-error");
+    // Aligns the reCaptcha to the center when it doesn't have an error.
     document.getElementsByClassName("recaptcha-alignment")[0].style.justifyContent = "center";
   }
 
@@ -201,6 +202,46 @@ var submitPressed = function () {
   modifyErrorElements();
   return captchaValidationResult && fieldValidationResult;
 };
+
+// function adjustRecaptchaSize() {
+//   var screenWidth = window.innerWidth;
+//   var recaptchaElement = document.getElementById("recaptcha");
+//   var isMobileRecaptcha = recaptchaElement?.getAttribute("data-size") === "compact" ? true : false;
+//   var parentElement = document.getElementsByClassName("recaptcha-outline-padding")[0];
+
+//   if (screenWidth < 500 && !isMobileRecaptcha) {
+//     if (recaptchaElement)
+//       document.getElementById("recaptcha").remove();
+
+//     var recaptchaNode = document.createElement('div');
+//     recaptchaNode.setAttribute("id", "recaptcha");
+//     recaptchaNode.setAttribute("class", "g-recaptcha");
+//     recaptchaNode.setAttribute("title", "reCAPCHA");
+//     recaptchaNode.setAttribute("data-size", "compact");
+//     recaptchaNode.setAttribute("data-sitekey", "6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb");
+
+//     parentElement.appendChild(recaptchaNode);
+//   }
+//   else if (screenWidth >= 500 && isMobileRecaptcha) {
+//     if (recaptchaElement)
+//       document.getElementById("recaptcha").remove();
+
+//     var recaptchaNode = document.createElement('div');
+//     recaptchaNode.setAttribute("id", "recaptcha");
+//     recaptchaNode.setAttribute("class", "g-recaptcha");
+//     recaptchaNode.setAttribute("title", "reCAPCHA");
+//     recaptchaNode.setAttribute("data-size", "normal");
+//     recaptchaNode.setAttribute("data-sitekey", "6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb");
+
+//     parentElement.appendChild(recaptchaNode);
+//   }
+// }
+
+// // Call the function on page load
+// window.addEventListener('load', adjustRecaptchaSize);
+
+// // Call the function when the window is resized
+// window.addEventListener('resize', adjustRecaptchaSize);
 
 jQuery(document).ready(function () {
   "use strict";
