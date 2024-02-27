@@ -159,7 +159,7 @@ var submitPressed = function () {
   // Screen width to validate the reCaptcha
   var screenWidth = window.innerWidth;
 
-  if ( screenWidth >= 500 && grecaptcha.getResponse(0).length === 0 ||
+  if (screenWidth >= 500 && grecaptcha.getResponse(0).length === 0 ||
        screenWidth < 500 && grecaptcha.getResponse(1).length === 0) {
     // Check if reCaptcha is checked.
     if ($(".err-label-captcha").length < 1 && !document.querySelector("span.err-label")) {
