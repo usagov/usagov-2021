@@ -189,7 +189,7 @@ var submitPressed = function () {
   }
   else {
     // Removes error messages from the reCaptcha
-    document.querySelector(".recaptcha-error-message").remove();
+    document.querySelector(".recaptcha-error-message")?.remove();
     // Removes the error style from the reCaptcha.
     document.getElementsByClassName("recaptcha-outline-padding")[0].classList.remove("usa-user-error");
     $(".err-label-captcha").remove();
