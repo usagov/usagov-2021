@@ -22,8 +22,16 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            cf set-env cms USPS_USERID $USPS_USERID
-            cf set-env cms USPS_PASSWORD $USPS_PASSWORD
+            if ! cf app cms &> /dev/null; then
+              echo "NOTICE: app 'cms' does not exist in cf space '<< parameters.envname >>'.  After deployment, please run the following:"
+              echo cf target -s << parameters.envname >>
+              echo cf set-env cms USPS_USERID $USPS_USERID
+              echo cf set-env cms USPS_PASSWORD $USPS_PASSWORD
+              echo cf restage << parameters.envname >>
+            else
+              cf set-env cms USPS_USERID $USPS_USERID
+              cf set-env cms USPS_PASSWORD $USPS_PASSWORD
+            fi
             ./bin/cloudgov/deploy-cms << pipeline.number >> $CMS_DIGEST
             if [ $? ]; then
               echo
