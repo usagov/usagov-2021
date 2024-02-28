@@ -14,12 +14,11 @@ ARG FIREFOX_VERSION='123.0'
 FROM cypress/factory
 
 # Add the zscaler certificate to the trusted certs only on local builds
-# COPY cannot be conditional, but RUN can run conditional code.
+# NOTE: Cypress build is always local. 
 COPY .docker/zscaler_cert.pem /tmp/zscaler.crt
 RUN cp /tmp/zscaler.crt /usr/local/share/ca-certificates/zscaler.crt ; update-ca-certificates 
 
-COPY . /opt/app
-WORKDIR /opt/app
+WORKDIR /app
 
 RUN npm install --save-dev cypress
 

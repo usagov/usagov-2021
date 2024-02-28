@@ -128,8 +128,13 @@ services:
     build:
       context: ./
       dockerfile: .docker/Dockerfile-cypress
-    command: npm run e2e
-        
+    volumes:
+      - /Users/amykfarrell/dev/e2e-cypress:/app/e2e-cypress
+    command: tail -f /dev/null
+    # npx cypress run --spec cypress/e2e
+    networks:
+      - gsa-gov
+
   composer:
     container_name: composer
     build:
