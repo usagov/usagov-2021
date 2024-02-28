@@ -20,7 +20,9 @@ applications:
   disk_quota: 4G
   timeout: 180
   services:
-    - secrets
+   - secrets
+    - secauthsecrets
+    - storage
   health-check-type: process
 - name: waf-dr
   docker:
@@ -105,4 +107,4 @@ applications:
       allow 52.70.135.185;
       
       # Self
-      98.97.22.119
+      98.97.21.163
