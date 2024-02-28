@@ -22,7 +22,7 @@ jQuery(document).ready(function ($) {
   var url=$('#stateselect').val();
   var statename='Alabama';
 
-  $('input[name="Alabama"]').val('Alabama ( AL )');
+  $('input[name="Alabama"]').val('Alabama (AL)');
   goButton.click(function() {
     let stateData = new FormData(stateForm);
     let stateValue = stateData.get('state-info');

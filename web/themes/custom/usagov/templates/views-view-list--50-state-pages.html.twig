@@ -32,6 +32,10 @@
 	<label id="state-info-label" class="usa-label" for="state-info">{{ lang == 'en' ? 'Select your state or territory:' : 'Elija un estado o territorio:' }}</label>
 	<div class="grid-row">
 		<div class="grid-col-fill mobile-lg:grid-col-auto">
+			{# For the data-filter =
+			"{{ '{{' }}query}}.*| -> suggest states that start with the query
+			.*\s{{ '{{' }}query}}.*| -> suggest states that start with the query
+			.*\({{ '{{' }}query}}.*" -> suggest states with an abbreviation that matches the query #}
 			<div class="usa-combo-box usa-combo-box--pristine width-full mobile-lg:width-mobile" data-default-value="alabama" data-enhanced="true" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*|.*\({{ '{{' }}query}}.*">
 				<ul id="statelist" class="one-column-bullet">
 					{% for row in rows %}

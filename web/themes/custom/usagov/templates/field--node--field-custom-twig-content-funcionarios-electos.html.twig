@@ -47,6 +47,10 @@
 
             <div class="usa-form-spacing">
               <label id="input-state-label" class="usa-label" for="input-state">Estado</label>
+              {# For the data-filter =
+              "{{ '{{' }}query}}.*| -> suggest states that start with the query
+              .*\s{{ '{{' }}query}}.*| -> suggest states that start with the query
+              .*\({{ '{{' }}query}}.*" -> suggest states with an abbreviation that matches the query #}
               <div class="usa-combo-box" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*|.*\({{ '{{' }}query}}.*" data-default-value={{ input_state }}>
                 <label class="visuallyhidden"> Estado:
                   <select

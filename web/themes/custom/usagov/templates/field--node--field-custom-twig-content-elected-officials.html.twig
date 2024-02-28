@@ -75,6 +75,10 @@
             <label id="input-state-label" class="usa-label" for="input-state">
               State
             </label>
+            {# For the data-filter =
+            "{{ '{{' }}query}}.*| -> suggest states that start with the query
+            .*\s{{ '{{' }}query}}.*| -> suggest states that start with the query
+            .*\({{ '{{' }}query}}.*" -> suggest states with an abbreviation that matches the query #}
             <div class="usa-combo-box" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*|.*\({{ '{{' }}query}}.*">
               <label class="visuallyhidden">
                 Select your state:
