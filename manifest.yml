@@ -20,8 +20,7 @@ applications:
   disk_quota: 4G
   timeout: 180
   services:
-   - secrets
-    - secauthsecrets
+    - secrets
     - storage
   health-check-type: process
 - name: waf-dr
