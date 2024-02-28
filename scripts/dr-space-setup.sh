@@ -31,12 +31,11 @@ export SDIGEST=@sha256:87d84e1b041763906b3e21649e372a5ff830c7f33531fbcb66ac7fd8b
 #echo  cf delete-space $EGRESS_SPACE
 #$echo cf delete-space $EGRESS_SPACE
 #exit
- 
+
 #echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG  PIPE tee ce.org
 #$echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
 #exit
 
-#
 #echo bin/cloudgov/create-app-space $APP_SPACE $ORG PIPE tee ca.log
 #$echo bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
 #echo cf target -s $APP_SPACE
@@ -50,27 +49,27 @@ export SDIGEST=@sha256:87d84e1b041763906b3e21649e372a5ff830c7f33531fbcb66ac7fd8b
 #$echo bin/cloudgov/deploy-services  | tee ds.log
 #exit
 
-# 
+#
 #echo cf target -s $EGRESS_SPACE
 #$echo cf target -s $EGRESS_SPACE
 #echo cf create-service s3 basic-sandbox key-value  PIPE tee cskv.log
 #$echo cf create-service s3 basic-sandbox key-value  | tee cskv.log
 #exit
 
-# 
+#
 #echo cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
 #echo  bin/cloudgov/create-service-account PIPE tee csa.log
 #$echo bin/cloudgov/create-service-account | tee csa.log
 #exit
 
-# 
+#
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
 #echo  cf delete-service ${APP_SPACE}-usagov-domain
 #$echo cf delete-service ${APP_SPACE}-usagov-domain
 #exit
-# 
+#
 
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
@@ -88,23 +87,23 @@ export SDIGEST=@sha256:87d84e1b041763906b3e21649e372a5ff830c7f33531fbcb66ac7fd8b
 #$echo bin/cloudgov/create-service-account | tee csa2.log
 #exit
 
-# 
+#
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
 #bin/cloudgov/deploy-cms $CTAG $CDIGEST
 #exit
 
-# 
+#
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
 #bin/cloudgov/deploy-www $STAG $SDIGEST
 #exit
 
-ROUTE_SERVICE_APP_NAME=$WAF_APP \
-ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
-PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP" \
-bin/cloudgov/deploy-waf $WTAG $WDIGEST
-exit
+#ROUTE_SERVICE_APP_NAME=$WAF_APP \
+#ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
+#PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP" \
+#bin/cloudgov/deploy-waf $WTAG $WDIGEST
+#exit
 
 #cf set-env $WAF_APP IP_ALLOW_ALL_CMS 1
 #cf set-env $WAF_APP IP_ALLOW_ALL_WWW 1
@@ -126,7 +125,7 @@ exit
 
 #PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
 SQL_FILE=usagov.sql
- 
+
 #echo "Attempting to deploy database backup $SQL_FILE to $APP_SPACE"
 #$echo cat $SQL_FILE | cf ssh cms -c "cat - > /tmp/$SQL_FILE"
 #cf ssh $CMS_APP -c "if [ -f /tmp/$SQL_FILE ]; then . /etc/profile; drush sql-drop -y; cat /tmp/$SQL_FILE | drush sql-cli; drush cr; fi"
