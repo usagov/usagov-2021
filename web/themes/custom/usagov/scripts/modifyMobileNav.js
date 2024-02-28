@@ -52,10 +52,14 @@ function setMobileProperties() {
 	if (window.innerWidth <= 1024) {
 		header.style.top = "-" + banner.offsetHeight + "px";
 		search.classList.add('usagov-search-autocomplete');
+
+		// Prevent the Sticky Bar from hiding content
+		document.getElementsByTagName("html")[0].style.setProperty("scroll-padding-top", header.offsetHeight + "px", "important");
 	}
 	else {
 		header.style.removeProperty("top");
 		search.classList.remove('usagov-search-autocomplete');
+		document.getElementsByTagName("html")[0].style.setProperty("scroll-padding-top", "0px", "important");
 	}
 }
 
