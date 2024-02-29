@@ -45,9 +45,18 @@ function renderResults(response, rawResponse) {
             "error-fetch-heading": "Data temporarily unavailable",
             "error-address": "There was a problem getting results for this address. Please check to be sure you entered a valid U.S. address.",
             "error-address-heading": "Invalid address",
-            "levels": ["Federal officials <span class='usa-normal'>represent you and your state in Washington, DC.</span>",
-                       "State officials <span class='usa-normal'>represent you in your state capital.</span>",
-                       "Local officials <span class='usa-normal'>represent you in your county or city.</span>"],
+            "levels": [
+                {
+                    "heading": "Federal officials",
+                    "description": "represent you and your state in Washington, DC."
+                },{
+                    "heading": "State officials",
+                    "description": "represent you in your state capital."
+                },{
+                    "heading": "Local officials",
+                    "description": "represent you in your county or city."
+                }
+            ],
             "local_levels": ["City officials",
                              "County officials"],
             "party-affiliation": "Party affiliation",
@@ -62,9 +71,18 @@ function renderResults(response, rawResponse) {
             "error-fetch-heading": "Datos no disponibles temporalmente",
             "error-address": "Tuvimos problemas para obtener resultados con esta dirección. Por favor, verifique si ingresó una dirección válida en EE. UU.",
             "error-address-heading": "Dirección incorrecta",
-            "levels": ["Funcionarios federales <span class='usa-normal'>que le representan a usted y a su estado en Washington, DC.</span>",
-                       "Funcionarios estatales <span class='usa-normal'>que le representan en la capital de su estado.</span>",
-                       "Funcionarios locales <span class='usa-normal'>que le representan en su condado o ciudad.</span>"],
+            "levels": [
+                {
+                    "heading": "Funcionarios federales",
+                    "description": "que le representan a usted y a su estado en Washington, DC."
+                },{
+                    "heading": "Funcionarios estatales",
+                    "description": "que le representan en la capital de su estado."
+                },{
+                    "heading": "Funcionarios locales",
+                    "description": "que le representan en su condado o ciudad."
+                }
+            ],
             "local_levels": ["Funcionarios de ciudades",
                              "Funcionarios de condados"],
             "party-affiliation": "Afiliación de partido",
@@ -141,6 +159,8 @@ function renderResults(response, rawResponse) {
         let cityHasResults = false;
         // Indicates if the accordion of county officials has results/officials. By default this variable indicates that it has no results.
         let countyHasResults = false;
+        // Indicates if the accordion of state officials has results/officials. By default this variable indicates that it has no results.
+        let stateHasResults = false;
 
         // Create container for rendering results
         let container = document.createElement("div");
@@ -149,21 +169,24 @@ function renderResults(response, rawResponse) {
         // Create an accordion for each level of elected officials
         const levels = content["levels"];
         for (let i = 0; i < levels.length; i++) {
+            let levelName = levels[i];
+            let levelNameID = replaceSpaces(levelName.heading);
+
             let accordionHeader = document.createElement("h2");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
+            accordionHeader.setAttribute("id", "heading_" + levelNameID);
 
             let accordionHeaderButton = document.createElement("button");
             accordionHeaderButton.setAttribute("class", "usa-accordion__button");
             accordionHeaderButton.setAttribute("aria-expanded", "false");
 
-            let levelName = levels[i];
-            accordionHeaderButton.setAttribute("aria-controls", levelName);
-            accordionHeaderButton.innerHTML = levelName;
+            accordionHeaderButton.setAttribute("aria-controls", levelNameID);
+            accordionHeaderButton.innerHTML = `${levelName.heading} <span class='usa-normal'>${levelName.description}</span>`;
 
             accordionHeader.appendChild(accordionHeaderButton);
 
             let accordionContent = document.createElement("div");
-            accordionContent.setAttribute("id", levelName);
+            accordionContent.setAttribute("id", levelNameID);
             accordionContent.setAttribute("class", "usa-accordion usa-accordion__content usa-prose");
             accordionContent.setAttribute("hidden", "until-found");
 
@@ -177,22 +200,24 @@ function renderResults(response, rawResponse) {
         // Create an accordion for each level of elected officials
         const local_levels = content["local_levels"];
         for (let i = 0; i < local_levels.length; i++) {
+            let levelName = local_levels[i];
+            let levelNameID = replaceSpaces(levelName);
+
             let accordionHeader = document.createElement("h3");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
-            accordionHeader.setAttribute("id", "heading_" + local_levels[i].toLowerCase().replace(" ", "_"));
+            accordionHeader.setAttribute("id", "heading_" + levelNameID);
 
             let accordionHeaderButton = document.createElement("button");
             accordionHeaderButton.setAttribute("class", "usa-accordion__button");
             accordionHeaderButton.setAttribute("aria-expanded", "false");
 
-            let levelName = local_levels[i];
-            accordionHeaderButton.setAttribute("aria-controls", levelName);
+            accordionHeaderButton.setAttribute("aria-controls", levelNameID);
             accordionHeaderButton.innerHTML = levelName;
 
             accordionHeader.appendChild(accordionHeaderButton);
 
             let accordionContent = document.createElement("div");
-            accordionContent.setAttribute("id", levelName);
+            accordionContent.setAttribute("id", levelNameID);
             accordionContent.setAttribute("class", "usa-accordion usa-accordion__content usa-prose");
             accordionContent.setAttribute("hidden", "until-found");
 
@@ -214,7 +239,7 @@ function renderResults(response, rawResponse) {
             accordionHeaderButton.classList.add("bg-secondary");
             accordionHeaderButton.classList.add("hover:bg-secondary-dark");
 
-            var officialNumber = "Official #" + i;
+            var officialNumber = "Official_" + i;
             accordionHeaderButton.setAttribute("aria-controls", officialNumber);
             accordionHeaderButton.innerHTML =  response.officials[i].office + ", " + response.officials[i].name;
 
@@ -351,26 +376,28 @@ function renderResults(response, rawResponse) {
             // There are some Mayors, such as the Mayor of Anchorage, that do not appear at the city level.
             if (response.officials[i].office.toLowerCase().includes("mayor") &&
                 response.officials[i].office.toLowerCase().includes(response.normalizedInput.city.toLowerCase())) {
-                appendLocation = document.getElementById(content["local_levels"][0]);
+                appendLocation = document.getElementById(replaceSpaces(content["local_levels"][0]));
                 cityHasResults = true;
             }
             // Add to Federal officials accordion
             else if (level === "country") {
-                appendLocation = document.getElementById(content["levels"][0]);
+                appendLocation = document.getElementById(replaceSpaces(content["levels"][0].heading));
             }
             // Add to State officials accordion
             else if (level === "administrativeArea1") {
-                appendLocation = document.getElementById(content["levels"][1]);
+                appendLocation = document.getElementById(replaceSpaces(content["levels"][1].heading));
+                // Change the variable to indicate that it does have results.
+                stateHasResults = true;
             }
             // Add to County officials accordion
             else if (level === "administrativeArea2") {
-                appendLocation = document.getElementById(content["local_levels"][1]);
+                appendLocation = document.getElementById(replaceSpaces(content["local_levels"][1]));
                 // Change the variable to indicate that it does have results.
                 countyHasResults = true;
             }
             // Add to City officials accordion
             else {
-                appendLocation = document.getElementById(content["local_levels"][0]);
+                appendLocation = document.getElementById(replaceSpaces(content["local_levels"][0]));
                 // Change the variable to indicate that it does have results.
                 cityHasResults = true;
             }
@@ -381,7 +408,7 @@ function renderResults(response, rawResponse) {
         }
 
         // Hides the City officials accordion if no results
-        let cityHeaderID = "heading_" + content["local_levels"][0].toLowerCase().replace(" ", "_");
+        let cityHeaderID = "heading_" + replaceSpaces(content["local_levels"][0]);
         if (!cityHasResults) {
             document.getElementById(cityHeaderID).classList.add("usa-accordion__heading-hidden");
         }
@@ -390,12 +417,21 @@ function renderResults(response, rawResponse) {
         }
 
         // Hides the County officials accordion if no results
-        let countyHeaderID = "heading_" + content["local_levels"][1].toLowerCase().replace(" ", "_");
+        let countyHeaderID = "heading_" + replaceSpaces(content["local_levels"][1]);
         if (!countyHasResults) {
             document.getElementById(countyHeaderID).classList.add("usa-accordion__heading-hidden");
         }
         else {
             document.getElementById(countyHeaderID).classList.remove("usa-accordion__heading-hidden");
+        }
+
+        // Hides the State officials accordion if no results
+        let stateHeaderID = "heading_" + replaceSpaces(content["levels"][1].heading);
+        if (!stateHasResults) {
+            document.getElementById(stateHeaderID).classList.add("usa-accordion__heading-hidden");
+        }
+        else {
+            document.getElementById(stateHeaderID).classList.remove("usa-accordion__heading-hidden");
         }
     }
     else {
@@ -518,6 +554,11 @@ function getSearchParams() {
     const paramsString = window.location.search;
     const searchParams = new URLSearchParams(paramsString);
     return searchParams;
+}
+
+function replaceSpaces(string) {
+    "use strict";
+    return string.toLowerCase().replaceAll(" ", "_");
 }
 
 // Load the GAPI Client Library
