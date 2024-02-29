@@ -81,15 +81,22 @@
         text-decoration-color: #3fbde3;
       }
     }
-  &:focus {
-    .usa-card__container {
-        box-shadow: none;
-      }
-    }
   }
 }
 
 .paragraph--type--uswds-card-group-flag .usa-card__container.make-link:hover {
+  box-shadow: none;
+}
+
+.paragraph--type--uswds-card-group-flag .usa-card__container.make-link:focus-within {
+  outline: 0.25rem solid  $blue-outer-focus;
+  outline-offset: 0;
+  box-shadow: none;
+}
+
+.paragraph--type--uswds-card-group-flag .usa-card__container .usa-card__header .card-link:focus {
+  outline: 0.25rem solid  $blue-outer-focus;
+  outline-offset: 0;
   box-shadow: none;
 }
 
