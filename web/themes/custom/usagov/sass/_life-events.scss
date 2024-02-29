@@ -81,7 +81,16 @@
         text-decoration-color: #3fbde3;
       }
     }
+  &:focus {
+    .usa-card__container {
+        box-shadow: none;
+      }
+    }
   }
+}
+
+.paragraph--type--uswds-card-group-flag .usa-card__container.make-link:hover {
+  box-shadow: none;
 }
 
 .life-events-landing-page-card-image {
