@@ -22,6 +22,16 @@
 .dccache
 **/.dccache
 
+# Ignore node_modules anywhere.
+**/node_modules
+
+# We don't use apache, so .htaccess is not useful
+**/.htaccess
+
+# Automated test reports and artifacts
+/automated_tests/e2e-cypress/cypress/reports
+/automated_tests/e2e-cypress/cypress/screenshots
+
 /web/.*
 /web/*.php
 /web/*.md
