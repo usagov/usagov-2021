@@ -10,7 +10,7 @@ Examples:
 ~ If a user enters "homeland security" the drop down should show "Department of Homeland Security, Homeland Security Department, U.S. Department of Homeland Security" (all of which go to the same url).
 */
 
-/*
+
 const search_input = document.getElementById("search-field-en-small");
 const dir_search_results = document.getElementById("fed-dir-search-results");
 let lang = document.documentElement.lang;
@@ -59,8 +59,14 @@ function showAgencies(filteredAgencies) {
       anchor.href = agency.synonym_url;
     }
 
-    anchor.innerText = agency.agency_title;
-    anchor.acronym = agency.agency_acronym;
+    if (agency.agency_acronym) {
+      anchor.innerText = `${agency.agency_title} (${agency.agency_acronym})`;
+      anchor.acronym = agency.agency_acronym;
+    }
+else {
+      anchor.innerText = agency.agency_title;
+    }
+
 
     resultBox.appendChild(anchor);
     ul.appendChild(resultBox);
@@ -107,4 +113,3 @@ if (search_input) {
     listen_for_clear_results();
   });
 }
-*/
