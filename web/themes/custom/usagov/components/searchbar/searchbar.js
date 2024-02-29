@@ -31,6 +31,7 @@ function fetchAgencies() {
 }
 
 function searchAgencies(allAgencies) {
+  // use the same search from the states to be consistent and so that we are only checking the beginning of the words and the abbreviation
   return allAgencies.filter((agency) =>
     agency.agency_title.toLowerCase().includes(search_term.toLowerCase()) || agency.agency_acronym.toLowerCase().includes(search_term.toLowerCase())
   );
