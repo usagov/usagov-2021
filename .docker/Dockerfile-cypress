@@ -16,10 +16,13 @@ FROM cypress/factory
 # Add the zscaler certificate to the trusted certs only on local builds
 # NOTE: Cypress build is always local. 
 COPY .docker/zscaler_cert.pem /tmp/zscaler.crt
-RUN cp /tmp/zscaler.crt /usr/local/share/ca-certificates/zscaler.crt ; update-ca-certificates 
+RUN cp /tmp/zscaler.crt /usr/local/share/ca-certificates/zscaler.crt ; update-ca-certificates
+
+COPY ./automated_tests/cypress_build /app
 
 WORKDIR /app
 
 RUN npm install --save-dev cypress
+
 
 
