@@ -2,7 +2,7 @@
 
 # On first run, we will not have a node_modules symlink in the
 # working directory (which will be a bind mount).
-if [ ! -f node_modules ]; then
+if [ ! -L node_modules ]; then
     ln -s ../node_modules node_modules
 fi
 
@@ -13,17 +13,21 @@ if ! grep -q 'EOINSTRS' /root/.bashrc ; then
 cat <<EOINSTRS
 
 To run all the tests:
-# cypress run --spec cypress/e2e
+# npx cypress run --spec cypress/e2e
 
 You can run a subset of the tests by specifying a subdirectory, for example:
-# cypress run --spec cypress/e2e/functional
+# npx cypress run --spec cypress/e2e/functional
 
 To view the reports in HTML format, open automated_tests/e2e-cypress/reports/index.html
 
 EOINSTRS
 
+# Do we need this to run tests?
+# export NODE_EXTRA_CA_CERTS=/app/zscaler_chain.pem
+
 EOF
+
 fi
 
 # Just keep the container running so we can shell in and run tests.
-tail -f /dev/null &
+tail -f /dev/null
