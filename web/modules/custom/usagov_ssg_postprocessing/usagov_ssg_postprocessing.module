@@ -2,7 +2,6 @@
 
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Masterminds\HTML5;
 
 /**
  * Implements hook_entity_view_alter().

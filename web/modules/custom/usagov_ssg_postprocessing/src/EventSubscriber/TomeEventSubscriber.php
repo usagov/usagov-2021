@@ -10,6 +10,7 @@ use Drupal\tome_static\Event\CollectPathsEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Masterminds\HTML5;
 
 /**
  * This event subscriber modifies static site generation:
@@ -133,10 +134,14 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   public function modifyHtml(ModifyHtmlEvent $event) {
     $html = $event->getHtml();
 
-    // LIBXML_SCHEMA_CREATE fixes a problem wherein DOMDocument would remove closing HTML
-    // tags within quoted text in a script element. See https://bugs.php.net/bug.php?id=74628
-    $document = new \DOMDocument();
-    @$document->loadHTML($html, LIBXML_SCHEMA_CREATE);
+    // Parse the document. $dom is a DOMDocument.
+    $html5 = new HTML5();
+    $document = $html5->loadHTML($html);
+
+    // // LIBXML_SCHEMA_CREATE fixes a problem wherein DOMDocument would remove closing HTML
+    // // tags within quoted text in a script element. See https://bugs.php.net/bug.php?id=74628
+    // $document = new \DOMDocument();
+    // @$document->loadHTML($html, LIBXML_SCHEMA_CREATE);
     $xpath = new \DOMXPath($document);
     $changes = FALSE;
     /** @var \DOMElement $node */
