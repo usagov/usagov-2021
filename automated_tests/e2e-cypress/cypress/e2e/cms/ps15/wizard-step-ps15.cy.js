@@ -3,14 +3,11 @@ describe('Local cms login', () => {
     //log into local cms
     Cypress.on('uncaught:exception', () => false)
 
-    cy.visit('http://localhost/user/login')
-    cy.get('[data-drupal-selector="edit-name"]').type('')
-    cy.get('[data-drupal-selector="edit-pass"]').type('')
-    cy.get('[data-drupal-selector="edit-submit"]').click()
-    
+    cy.logIn()
+
     //navigate menu to add content to a federal directory page
     cy.get('ul > li > a').contains('Wizard Step').focus().click()
-    
+
     //fill out cms basic page
     cy.get("#edit-title-0-value").type("Wizard Step Test Title")
 
@@ -21,9 +18,9 @@ describe('Local cms login', () => {
     //meta description
     cy.get("#edit-field-meta-description-0-value").type("This is a test wizard step meta description")
 
-    
+
     //Put content in the Body
-    
+
     cy.get("iframe").first()
           .its('0.contentDocument')
           .its('body')
@@ -31,7 +28,7 @@ describe('Local cms login', () => {
           .type('Did the scam mention:')
           .type('{selectAll}')
     cy.get('#cke_13').click()
-  
+
 
     //wizard step
     cy.get('#edit-field-wizard-step-0-target-id').type('Federal tax or IRS scam (65)')
@@ -69,6 +66,6 @@ describe('Local cms login', () => {
     Cypress.Screenshot.defaults({
       capture: 'viewport',
     })
-  
+
   })
 })

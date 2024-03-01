@@ -31,6 +31,7 @@
 # Automated test reports and artifacts
 /automated_tests/e2e-cypress/cypress/reports
 /automated_tests/e2e-cypress/cypress/screenshots
+/automated_tests/e2e-cypress/cypress/videos
 
 /web/.*
 /web/*.php

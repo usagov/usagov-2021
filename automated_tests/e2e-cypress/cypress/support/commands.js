@@ -25,3 +25,15 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 //import 'cypress-axe'
+
+Cypress.Commands.add('logIn', () => {
+    cy.visit('user/login')
+    cy.get('[data-drupal-selector="edit-name"]').type(Cypress.env('CMS_USER'))
+    cy.get('[data-drupal-selector="edit-pass"]').type(Cypress.env('CMS_PASS'))
+    cy.get('[data-drupal-selector="edit-submit"]').click()
+});
+
+Cypress.Commands.add('logOut', () => {
+    cy.get('#toolbar-item-user').click()
+    cy.get('#toolbar-item-user-tray').contains('Log out').click()
+});

@@ -7,7 +7,7 @@ module.exports = defineConfig({
   video: false,
   screenshotOnRunFailure: true,
   e2e: {
-      baseUrl: 'http://cms-usagov.docker.local',
+      baseUrl: 'http://cms-usagov.docker.local', // CYPRESS_BASE_URL OS env var will override this.
     viewportWidth: 1280,
     viewportHeight: 800,
     "retries": {

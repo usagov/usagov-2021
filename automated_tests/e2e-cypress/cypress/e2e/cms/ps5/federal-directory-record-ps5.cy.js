@@ -3,14 +3,11 @@ describe('Local cms login', () => {
     //log into local cms
     Cypress.on('uncaught:exception', () => false)
 
-    cy.visit('http://localhost/user/login')
-    cy.get('[data-drupal-selector="edit-name"]').type('')
-    cy.get('[data-drupal-selector="edit-pass"]').type('')
-    cy.get('[data-drupal-selector="edit-submit"]').click()
-    
+    cy.logIn()
+
     //navigate menu to add content to a federal directory page
     cy.get('ul > li > a').contains('Federal Directory Record').focus().click()
-    
+
     //fill out cms basic page
     cy.get("#edit-title-0-value").type("Federal Directory Record test title")
     cy.get("#edit-field-page-intro-0-value").type("This is a test federal record intro")
@@ -110,6 +107,6 @@ describe('Local cms login', () => {
     cy.get('#edit-submit--2').click()
     cy.get('#edit-submit').click()
     */
-  
+
   })
 })

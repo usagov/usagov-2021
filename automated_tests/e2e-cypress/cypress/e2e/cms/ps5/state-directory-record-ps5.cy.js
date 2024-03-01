@@ -3,14 +3,11 @@ describe('Local cms login', () => {
     //log into local cms
     Cypress.on('uncaught:exception', () => false)
 
-    cy.visit('http://localhost/user/login')
-    cy.get('[data-drupal-selector="edit-name"]').type('')
-    cy.get('[data-drupal-selector="edit-pass"]').type('')
-    cy.get('[data-drupal-selector="edit-submit"]').click()
-    
+    cy.logIn()
+
     //navigate menu to add content to a federal directory page
     cy.get('ul > li > a').contains('State Directory Record').focus().click()
-    
+
     //fill out cms basic page
     cy.get("#edit-title-0-value").type("State Directory Record test title")
     cy.get('[data-drupal-selector="edit-field-page-intro-0-value"]').type("This is a test state record intro")
@@ -29,7 +26,7 @@ describe('Local cms login', () => {
           .find('p')
           .type('An official website of the U.S. General Services Administration')
 
-    
+
     //address
     //street 1
     cy.get('[data-drupal-selector="edit-field-street-1-0-value"]').type('100 Community Place')
@@ -140,7 +137,7 @@ describe('Local cms login', () => {
     //link text
     cy.get('#edit-field-social-services-0-title').type('Social Services')
 
-   
+
   //email
   cy.get('#edit-field-email-0-value').type('abcd@yahoo.com')
 
@@ -180,6 +177,6 @@ describe('Local cms login', () => {
     cy.get('#edit-submit--2').click()
     cy.get('#edit-submit').click()
     */
-  
+
   })
 })

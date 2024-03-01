@@ -3,16 +3,13 @@ describe('Local cms login', () => {
     //log into local cms
     Cypress.on('uncaught:exception', () => false)
 
-    cy.visit('http://localhost/user/login')
-    cy.get('[data-drupal-selector="edit-name"]').type('')
-    cy.get('[data-drupal-selector="edit-pass"]').type('')
-    cy.get('[data-drupal-selector="edit-submit"]').click()
-    
+    cy.logIn()
+
     //navigate menu to add content to a basic page
     //cy.get('div > a#toolbar-item-administration')
     //cy.get('ul.toolbar-menu:first > li.menu-item:nth-of-type(2) > a ~ ul.toolbar-menu:first > li.menu-item:first > a ~ ul.toolbar-menu:first > li.menu-item:first > a').focus().click()
     cy.get('ul > li > a').contains('Basic Page').focus().click()
-    
+
     //fill out cms basic page
     cy.get("#edit-title-0-value").type("This is a test title Spanish")
     cy.get("#edit-field-page-intro-0-value").type("This is a test page intro Spanish")
@@ -35,7 +32,7 @@ describe('Local cms login', () => {
           .type('{enter}')
           .type('{selectAll}')
     cy.get('#cke_17').click()
-    //cy.get('#cke_1_toolbox') 
+    //cy.get('#cke_1_toolbox')
     cy.get("iframe").first()
           .its('0.contentDocument')
           .its('body')
@@ -57,8 +54,8 @@ describe('Local cms login', () => {
           .type('{enter}')
           .type('{selectAll}')
     cy.get('#cke_19').click()
-      */ 
-     
+      */
+
     //Select page type
     //cy.get("#edit-field-page-type").select("Standard Page")
     cy.get("#edit-field-page-type").select("Life Events")
