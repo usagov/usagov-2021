@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# On first run, we will not have a node_modules symlink.
-# Create that and also update the .bashrc with instructions.
+# On first run, we will not have a node_modules symlink in the
+# working directory (which will be a bind mount).
 if [ ! -f node_modules ]; then
     ln -s ../node_modules node_modules
 fi
 
+# Add instructions to .bashrc, if they are not already present.
 if ! grep -q 'EOINSTRS' /root/.bashrc ; then
     cat >> /root/.bashrc <<"EOF"
 
@@ -22,21 +23,7 @@ To view the reports in HTML format, open automated_tests/e2e-cypress/reports/ind
 EOINSTRS
 
 EOF
-
 fi
-
-# Define cleanup procedure
-cleanup() {
-    echo "Container stopped, performing cleanup..."
-    # remove the node_modules symlink
-    rm node_modules
-}
-
-# Trap SIGTERM
-trap 'cleanup' SIGTERM
 
 # Just keep the container running so we can shell in and run tests.
 tail -f /dev/null &
-
-# Wait
-wait $!
