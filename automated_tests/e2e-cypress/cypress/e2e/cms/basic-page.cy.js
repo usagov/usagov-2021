@@ -7,7 +7,7 @@ describe('Local cms login', () => {
 
     //navigate menu to add content to a basic page
     //cy.get('div > a#toolbar-item-administration')
-    //cy.get('ul.toolbar-menu:first > li.menu-item:nth-of-type(2) > a ~ ul.toolbar-menu:first > li.menu-item:first > a ~ ul.toolbar-menu:first > li.menu-item:first > a').focus().click()
+      //cy.get('ul.toolbar-menu:first > li.menu-item:nth-of-type(2) > a ~ ul.toolbar-menu:first > li.menu-item:first > a ~ ul.toolbar-menu:first > li.menu-item:first > a').focus().click()
     cy.get('ul > li > a').contains('Basic Page').focus().click()
 
     //fill out cms basic page
@@ -23,9 +23,8 @@ describe('Local cms login', () => {
     //cy.get("edit-field-language-toggle-0-target-id").type()
 
     //Put content in the Body
-    cy.get("iframe").first()
-          .its('0.contentDocument')
-          .its('body')
+    cy.get("#edit-body-wrapper")
+          .find('div.ck-editor__editable')
           .find('p')
           .type('Learn how to get nutritious food for yourself and your family through SNAP (food stamps), D-SNAP, and WIC for women, infants, and children.')
 

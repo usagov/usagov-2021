@@ -6,7 +6,7 @@ describe('Local cms login', () => {
     cy.logIn()
 
     //URL of page to edit
-    cy.visit('http://localhost/emergency-housing-assistance')
+    cy.visit('emergency-housing-assistance')
 
     //Take screenshot of page
     //cy.screenshot('beforePageEdit')
