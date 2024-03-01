@@ -132,8 +132,11 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    */
   public function modifyHtml(ModifyHtmlEvent $event) {
     $html = $event->getHtml();
+
+    // LIBXML_SCHEMA_CREATE fixes a problem wherein DOMDocument would remove closing HTML
+    // tags within quoted text in a script element. See https://bugs.php.net/bug.php?id=74628
     $document = new \DOMDocument();
-    @$document->loadHTML($html);
+    @$document->loadHTML($html, LIBXML_SCHEMA_CREATE);
     $xpath = new \DOMXPath($document);
     $changes = FALSE;
     /** @var \DOMElement $node */

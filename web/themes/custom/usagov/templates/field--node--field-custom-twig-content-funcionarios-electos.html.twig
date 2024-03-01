@@ -28,7 +28,7 @@
       name="myform"
       id="myform"
       >
-      <div class="padding-1px bg-gray-4">
+      <div class="padding-1px bg-gray-5">
         <div class="maxw-mobile margin-x-auto margin-y-4">
           <p><strong>Todos los campos son obligatorios.</strong></p>
 
@@ -47,9 +47,16 @@
 
             <div class="usa-form-spacing">
               <label id="input-state-label" class="usa-label" for="input-state">Estado</label>
-              <div class="usa-combo-box" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*">
+              <div class="usa-combo-box" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*" data-default-value={{ input_state }}>
                 <label class="visuallyhidden"> Estado:
-                  <select aria-describedby="state" class="usa-select" name="input-state" id="input-state" required oninvalid="this.setCustomValidity('Fill out the state field.')" oninput="this.setCustomValidity('')">
+                  <select
+                    aria-describedby="state"
+                    class="usa-select"
+                    name="input-state"
+                    id="input-state"
+                    required
+                    oninvalid="this.setCustomValidity('Fill out the state field.')"
+                    oninput="this.setCustomValidity('')">
                     <option id="AL" value="AL">Alabama</option>
                     <option id="AK" value="AK">Alaska</option>
                     <option id="AZ" value="AZ">Arizona</option>
@@ -115,7 +122,7 @@
           </div>
           <p>Los resultados son proporcionados en inglés por la API de información cívica de Google. USAGov en Español no garantiza la precisión de los resultados.</p>
           <p>
-            <a href="/es/privacidad-seguridad">Conozca cómo USAGov en Español protege su privacidad.</a>
+            <a href="/es/privacidad-seguridad">Conozca cómo USAGov en Español protege su privacidad</a>.
           </p>
           <div class="ceo-button-container">
             <button class="usa-button usa-button--secondary usa-button--big ceo-button" type="button"
@@ -155,5 +162,6 @@
 </ul>
 </div>
 
+<script src="/themes/custom/usagov/scripts/purify.min.js" defer></script>
 <script src="/themes/custom/usagov/scripts/accessibility.js"></script>
 <script src="/themes/custom/usagov/scripts/usps-credentials.js"></script>

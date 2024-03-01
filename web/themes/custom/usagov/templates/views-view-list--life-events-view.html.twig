@@ -5,7 +5,7 @@
 				<li id="slides-list" class="slides">
 					{% for row in rows %}
 						<div class="slide usa-card" aria-label="slide {{loop.index}} of 6">
-							<a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline" aria-label="{{ row.content["#row"].node_field_data_title }}">
+							<a href="{{ drupal_url('node/' ~ row.content["#row"].nid) }}" class="usa-card__container usagov-card text-no-underline">
 								{{- row.content -}}
 							</a>
 						</div>
