@@ -1,18 +1,15 @@
-describe('Local cms login', () => {
+describe('Life Event En', () => {
   it('Gets, types and clicks', () => {
     //log into local cms
     Cypress.on('uncaught:exception', () => false)
 
-    cy.visit('http://localhost/user/login')
-    cy.get('[data-drupal-selector="edit-name"]').type('')
-    cy.get('[data-drupal-selector="edit-pass"]').type('')
-    cy.get('[data-drupal-selector="edit-submit"]').click()
-    
+    cy.logIn()
+
     //navigate menu to add content to a basic page
     //cy.get('div > a#toolbar-item-administration')
     //cy.get('ul.toolbar-menu:first > li.menu-item:nth-of-type(2) > a ~ ul.toolbar-menu:first > li.menu-item:first > a ~ ul.toolbar-menu:first > li.menu-item:first > a').focus().click()
     cy.get('ul > li > a').contains('Basic Page').focus().click()
-    
+
     //fill out cms basic page
     cy.get("#edit-title-0-value").type("Having a child and early childhood test")
     cy.get("#edit-field-page-intro-0-value").type("Find government programs to help during pregnancy and early childhood. test")
@@ -63,7 +60,7 @@ describe('Local cms login', () => {
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-selection-0-rendered-entity"]').should('be.visible')
     //cy.get("input").focus()
     //cy.get('#edit-upload--s6nLDVOayCI > div.form-managed-file__main > #edit-upload-upload--fIl5AIpXUcA').click()
-    
+
         //.selectFile('Banner_img_Birth_en.png')
     cy.get('#edit-advanced')
     cy.get('#edit-menu').click()
@@ -92,6 +89,6 @@ describe('Local cms login', () => {
     cy.get('#edit-node-bulk-form-0').check()
     cy.get('#edit-submit--2').click()
     cy.get('#edit-submit').click()
-  
+
   })
 })

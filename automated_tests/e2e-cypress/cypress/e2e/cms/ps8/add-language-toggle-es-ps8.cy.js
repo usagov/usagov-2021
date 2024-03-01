@@ -3,16 +3,13 @@ describe('Local cms login', () => {
     //log into local cms
     Cypress.on('uncaught:exception', () => false)
 
-    cy.visit('http://localhost/user/login')
-    cy.get('[data-drupal-selector="edit-name"]').type('')
-    cy.get('[data-drupal-selector="edit-pass"]').type('')
-    cy.get('[data-drupal-selector="edit-submit"]').click()
-    
+    cy.logIn()
+
     //navigate menu to add content to a basic page
     //cy.get('div > a#toolbar-item-administration')
     //cy.get('ul.toolbar-menu:first > li.menu-item:nth-of-type(2) > a ~ ul.toolbar-menu:first > li.menu-item:first > a ~ ul.toolbar-menu:first > li.menu-item:first > a').focus().click()
     cy.get('ul > li > a').contains('Basic Page').focus().click()
-    
+
     //fill out cms basic page
     cy.get("#edit-title-0-value").type("File Upload Spanish test")
     cy.get("#edit-field-page-intro-0-value").type("Find government programs to help during pregnancy and early childhood. test")
@@ -40,7 +37,7 @@ describe('Local cms login', () => {
    .its('body')
    .find('p')
    .type('This is a test to upload a file image.')
-   
+
 
     //Select page type
     //cy.get("#edit-field-page-type").select("Standard Page")
@@ -61,8 +58,8 @@ describe('Local cms login', () => {
     cy.get('.form-managed-file__meta-wrapper').should('be.visible')
     cy.get('.form-item--media-0-fields-field-media-image-0-alt > input').type('baby in arm')
     cy.get('button').contains('Save and insert').click()
-    
-    
+
+
     //fill out url alias
     cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/testing/test23')
 
@@ -101,6 +98,6 @@ describe('Local cms login', () => {
     cy.get('#edit-submit').click()
     cy.get('table > thead ~ tbody > tr > td > a').contains('File Upload Spanish test').click()
     */
-  
+
   })
 })

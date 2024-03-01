@@ -22,9 +22,15 @@ To view the reports in HTML format, open automated_tests/e2e-cypress/reports/ind
 
 EOINSTRS
 
-# Do we need this to run tests?
+# Do we need this to run tests? It appears we do not.
 # export NODE_EXTRA_CA_CERTS=/app/zscaler_chain.pem
 
+EOF
+
+    cat >> /root/.bashrc <<EOF
+export CYPRESS_BASE_URL=${cypressBaseUrl}
+export CYPRESS_CMS_USER=${cypressCmsUser}
+export CYPRESS_CMS_PASS=${cypressCmsPass}
 EOF
 
 fi

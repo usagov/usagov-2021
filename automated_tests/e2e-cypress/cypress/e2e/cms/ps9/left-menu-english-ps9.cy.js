@@ -3,11 +3,8 @@ describe('Local cms login', () => {
     //log into local cms
     Cypress.on('uncaught:exception', () => false)
 
-    cy.visit('http://localhost/user/login')
-    cy.get('[data-drupal-selector="edit-name"]').type('')
-    cy.get('[data-drupal-selector="edit-pass"]').type('')
-    cy.get('[data-drupal-selector="edit-submit"]').click()
-    
+    cy.logIn()
+
     //navigate menu to add content to a English left menu
     cy.get('ul > li > a').contains('Left Menu English').focus().click()
     //add a link
@@ -19,6 +16,6 @@ describe('Local cms login', () => {
     //cy.get('#edit-langcode-0-value').select('Español')
     cy.get('[data-drupal-selector="edit-menu-parent"]').select('---- This is a test title')
     cy.get('#edit-submit').click()
-    
+
   })
 })

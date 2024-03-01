@@ -3,10 +3,7 @@ describe('Local cms login', () => {
     //log into local cms
     Cypress.on('uncaught:exception', () => false)
 
-    cy.visit('/user/login')
-    cy.get('[data-drupal-selector="edit-name"]').type('')
-    cy.get('[data-drupal-selector="edit-pass"]').type('')
-    cy.get('[data-drupal-selector="edit-submit"]').click()
+    cy.logIn()
 
     //navigate menu to add content to a English left menu
     cy.get('ul > li > a').contains('Content').focus().click()
