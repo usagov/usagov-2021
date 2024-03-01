@@ -1,12 +1,4 @@
 
-{#
-  TODO:
-  Delete:
-  * Drupal view called "Sub Children"
-  * views-view-list--sub-children.html.twig
-  * homepage-cards.html.twig
-#}
-
 {% set lang = node.langcode.value %}
 
 {% if pagetype == "Navigation Cards Page" or pagetype == "Life Events" %}
@@ -67,7 +59,7 @@
       <ul class="homepage-card-group usa-card-group">
         {% for item in nav_page_items|filter(item => item.promote) %}
           <li class="homepage-card usa-card__container">
-            <a href="{{ item.url }}" aria-label="{{ item.title }}">
+            <a href="{{ item.url }}">
               <div class="homepage-icon topic-icon {{item.css_icon}}"></div>
               <div class="usa-card__header homepage-card_header">
                 <h2>{{ item.title }}</h2>
