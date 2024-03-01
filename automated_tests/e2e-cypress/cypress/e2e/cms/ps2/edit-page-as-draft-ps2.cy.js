@@ -6,7 +6,7 @@ describe('Local cms login', () => {
     cy.logIn()
 
     //URL of page to edit
-    cy.visit('http://localhost/food-help')
+    cy.visit('food-help')
 
     //Select the edit button to edit the page
     cy.get('#block-usagov-local-tasks')
