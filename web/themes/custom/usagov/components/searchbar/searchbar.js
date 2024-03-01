@@ -10,6 +10,7 @@ Examples:
 ~ If a user enters "homeland security" the drop down should show "Department of Homeland Security, Homeland Security Department, U.S. Department of Homeland Security" (all of which go to the same url).
 */
 
+/*
 const search_input = document.getElementById("search-field-en-small");
 const dir_search_results = document.getElementById("fed-dir-search-results");
 let lang = document.documentElement.lang;
@@ -106,3 +107,4 @@ if (search_input) {
     listen_for_clear_results();
   });
 }
+*/
