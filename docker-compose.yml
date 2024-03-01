@@ -131,9 +131,7 @@ services:
     volumes:
       - ./automated_tests/e2e-cypress:/app/e2e-cypress
     working_dir: /app/e2e-cypress
-    # Cypress wants the node_modules in its working directory, so link them now: 
     command: /app/start.sh
-    # npx cypress run --spec cypress/e2e
     networks:
       - gsa-gov
 
