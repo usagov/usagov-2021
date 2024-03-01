@@ -9,8 +9,8 @@ use Drupal\Core\Site\Settings;
 use Drupal\tome_static\Event\CollectPathsEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Masterminds\HTML5;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * This event subscriber modifies static site generation:
