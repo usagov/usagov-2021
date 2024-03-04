@@ -372,7 +372,7 @@ jobs:
 
   deploy-to-cloudgov-dev-dr:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2023.10.1
     steps:
       - deploy-cloudgov:
           envname: dev-dr
