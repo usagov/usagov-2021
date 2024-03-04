@@ -30,11 +30,27 @@ function fetchAgencies() {
   }
 }
 
+
 function searchAgencies(allAgencies) {
-  // use the same search from the states to be consistent and so that we are only checking the beginning of the words and the abbreviation
-  return allAgencies.filter((agency) =>
-    agency.agency_title.toLowerCase().includes(search_term.toLowerCase()) || agency.agency_acronym.toLowerCase().includes(search_term.toLowerCase())
-  );
+  var returnAgencies=[];
+  var lowerCaseSearchTerm = search_term.toLowerCase();
+  const firstWordExp = new RegExp("^"+lowerCaseSearchTerm+".*");
+  const begWordExp = new RegExp(".* "+lowerCaseSearchTerm);
+  const abbrExp = new RegExp(lowerCaseSearchTerm);
+
+  allAgencies.forEach((agency) => {
+    var lowerCaseAgency = agency.agency_title.toLowerCase();
+
+    if (lowerCaseAgency.match(firstWordExp) || lowerCaseAgency.match(begWordExp)) {
+      returnAgencies.push(agency);
+    };
+
+    if (agency.agency_acronym.toLowerCase().match(abbrExp)) {
+      returnAgencies.push(agency);
+    };
+  });
+
+  return returnAgencies;
 }
 
 function showAgencies(filteredAgencies) {
