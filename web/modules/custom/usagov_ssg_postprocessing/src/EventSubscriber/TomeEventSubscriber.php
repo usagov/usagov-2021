@@ -133,21 +133,20 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    */
   public function modifyHtml(ModifyHtmlEvent $event) {
     $html = $event->getHtml();
-
-    // Parse the document. $dom is a DOMDocument.
     $html5 = new HTML5();
-    $document = $html5->loadHTML($html);
 
-    // // LIBXML_SCHEMA_CREATE fixes a problem wherein DOMDocument would remove closing HTML
-    // // tags within quoted text in a script element. See https://bugs.php.net/bug.php?id=74628
-    // $document = new \DOMDocument();
-    // @$document->loadHTML($html, LIBXML_SCHEMA_CREATE);
+    $document = new \DOMDocument();
+    @$document->loadHTML($html, LIBXML_SCHEMA_CREATE);
+
     $xpath = new \DOMXPath($document);
     $changes = FALSE;
+    $nodes = $xpath->query('//a[starts-with(@href,"/es")]');
+
     /** @var \DOMElement $node */
-    foreach ($xpath->query('//a[(starts-with(@href,"/es"))]') as $node) {
+    foreach ($nodes as $node) {
       $original_href = $node->getAttribute('href');
-      $new_href = NULL;
+      $new_href = '/es/';
+
       if ($original_href === '/es') {
         $new_href = '/es/';
       }
@@ -163,9 +162,11 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         $event->addExcludePath($new_href);
       }
     }
+
     if ($changes) {
-      $html = $document->saveHTML();
-      $event->setHtml($html);
+      // Render it as HTML5:
+      $modifiedHtml = $html5->saveHTML($document);
+      $event->setHtml($modifiedHtml);
     }
   }
 
