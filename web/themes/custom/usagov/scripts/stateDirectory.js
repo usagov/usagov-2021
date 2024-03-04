@@ -20,9 +20,8 @@ jQuery(document).ready(function ($) {
   var goButton = $(".sd-go-btn");
   $("#statelist").remove();
   var url=$('#stateselect').val();
-  var statename='Alabama';
+  var statename;
 
-  $('input[name="Alabama"]').val('Alabama (AL)');
   goButton.click(function() {
     let stateData = new FormData(stateForm);
     let stateValue = stateData.get('state-info');

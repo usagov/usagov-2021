@@ -36,13 +36,13 @@
 			"{{ '{{' }}query}}.*| -> suggest states that start with the query
 			.*\s{{ '{{' }}query}}.*| -> suggest states that start with the query
 			.*\({{ '{{' }}query}}.*" -> suggest states with an abbreviation that matches the query #}
-			<div class="usa-combo-box usa-combo-box--pristine width-full mobile-lg:width-mobile" data-default-value="alabama" data-enhanced="true" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*|.*\({{ '{{' }}query}}.*">
+			<div class="usa-combo-box usa-combo-box--pristine width-full mobile-lg:width-mobile" data-enhanced="true" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*|.*\({{ '{{' }}query}}.*">
 				<ul id="statelist" class="one-column-bullet">
 					{% for row in rows %}
 						{{- row.content -}}
 					{% endfor %}
 				</ul>
-				<input id="state-info" aria-autocomplete="list" aria-expanded="false" autocapitalize="off" autocomplete="off" class="usa-combo-box__input" type="text" aria-labelledby="state-info-label" role="combobox" name="Alabama" required>
+				<input id="state-info" aria-autocomplete="list" aria-expanded="false" autocapitalize="off" autocomplete="off" class="usa-combo-box__input" type="text" aria-labelledby="state-info-label" role="combobox" required>
 			</div>
 		</div>
 		<button class="usa-button sd-go-btn usa-button--secondary" type="submit">
