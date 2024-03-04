@@ -11,7 +11,7 @@ Examples:
 */
 
 
-const search_input = document.getElementById("search-field-en-small");
+var search_input = document.getElementById("search-field-en-small");
 const dir_search_results = document.getElementById("fed-dir-search-results");
 let lang = document.documentElement.lang;
 let search_term = "";
@@ -67,6 +67,9 @@ function showAgencies(filteredAgencies) {
     resultBox.setAttribute("role", "option");
 
     const anchor = document.createElement("a");
+    anchor.onclick = function () {
+      search_input.value = agency.agency_title;
+    };
     const type = agency.agency_type;
     // need to get either the agency or synonym url. They will have the same value but are stored in 2 seperate fields
     if (type == "Federal Directory Record") {
