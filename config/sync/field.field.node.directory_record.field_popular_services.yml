@@ -1,0 +1,23 @@
+uuid: f76a123c-0695-487f-83b3-d6532fe15d5e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_popular_services
+    - node.type.directory_record
+  module:
+    - link
+id: node.directory_record.field_popular_services
+field_name: field_popular_services
+entity_type: node
+bundle: directory_record
+label: 'Top Tasks'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 1
+  link_type: 17
+field_type: link
