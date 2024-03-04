@@ -132,12 +132,6 @@ generate_cert_json()
   else
     cf create-service s3 basic-sandbox storage
   fi
-
-  if service_exists "dbstorage" ; then
-    echo dbstorage already created
-  else
-    cf create-service s3 basic-sandbox dbstorage
-  fi
 }
 
 ## SECRETS SERVICE

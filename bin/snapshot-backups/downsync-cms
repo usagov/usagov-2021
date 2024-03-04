@@ -67,8 +67,8 @@ echo  aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FI
 $echo aws s3 cp --only-show-errors s3://$S3_BUCKET/db-backup/$GZIP_FILE $GZIP_FILE
 
 # Download s3 cms/public file snapshot
-echo  aws s3 sync --only-show-errors s3://$S3_BUCKET/public-backup/$DEPLOY_TAG $WEB_FILES
-$echo aws s3 sync --only-show-errors s3://$S3_BUCKET/public-backup/$DEPLOY_TAG $WEB_FILES
+echo  aws s3 sync --only-show-errors s3://$S3_BUCKET/cms/public-backup/$DEPLOY_TAG $WEB_FILES
+$echo aws s3 sync --only-show-errors s3://$S3_BUCKET/cms/public-backup/$DEPLOY_TAG $WEB_FILES
 
 # Target TO_SPACE for deployment.
 echo  cf target -s $TO_SPACE
