@@ -4,7 +4,6 @@ status: true
 dependencies:
   module:
     - editor
-    - google_docs_filter
     - media
     - paragraphs_entity_embed
     - uswds_ckeditor_integration
@@ -12,7 +11,7 @@ _core:
   default_config_hash: 05t4sDVkoIIr93awow19xLg0zeanMekWf7kwUh6Kroo
 name: USWDS
 format: uswds
-weight: -10
+weight: -9
 filters:
   editor_file_reference:
     id: editor_file_reference
@@ -44,7 +43,7 @@ filters:
     status: false
     weight: -10
     settings:
-      allowed_html: '<a href hreflang> <em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type> <li> <dl> <dt> <dd> <h2 id class> <h3 id class> <h4 id class> <h5 id class> <h6 id class> <img src alt data-entity-type data-entity-uuid data-align data-caption> <table class style width height> <caption> <tbody> <thead> <tfoot> <th scope> <td> <tr scope> <u> <s> <sup> <sub> <drupal-media data-entity-type data-entity-uuid> <div id class data-*> <button class aria-expanded aria-controls>'
+      allowed_html: '<p class="usa-intro"> <h2 class="font-serif-lg text-bold text-accent-cool-darker"> <a class="usa-button usa-button--secondary usa-button--big">'
       filter_html_help: true
       filter_html_nofollow: false
   filter_table_attributes:

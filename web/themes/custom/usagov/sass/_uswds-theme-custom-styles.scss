@@ -414,7 +414,7 @@ input:not([disabled]):focus.usa-user-error {
 // scams reskin
 
 .block-wizardenglish {
-  background-color: var($light-gray);
+  // background-color: var($light-gray);
   border-top: 4px solid var($deep-blue);
   padding-top: 2rem;
   padding-left: 3rem;
@@ -714,9 +714,7 @@ div div.field--name-field-offices-near-you {
 button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wizardenglish a.usa-button:focus,
 .usa-radio__input:focus+[class*=__label]::before, textarea:not([disabled]):focus,
 .usagov-directory-bottom-nav-group a.nav-letter:focus, .usa-breadcrumb__list-item:nth-last-child(2)
-.usa-breadcrumb__link:focus, [tabindex]:focus, #pagesurvey-qual-container:focus,
-#pagesurvey-qual-ombnum a:focus, #pagesurvey-qual-container .Skin label.q-radio:focus,
-#pagesurvey-qual-container .Skin #Buttons #NextButton:focus, #pagesurvey-qual-container .Skin #Buttons #PreviousButton:focus {
+.usa-breadcrumb__link:focus, [tabindex]:focus, select:not([disabled]):focus, #pagesurvey-qual-container:focus {
 
   outline: 0.25rem solid  $blue-outer-focus;
   outline-offset: 0;

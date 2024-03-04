@@ -39,26 +39,35 @@
 	});
 })();
 
-// This function sets the "top" property for the header so that only
-// the nav bar is visible when scrolling on devices with a screen size less than or equal to 1024px.
-function setMobileStickyProperties() {
+
+// This function adjusts properties when screen size changes between mobile & desktop.
+// On mobile, it allows the sticky header to scroll until the gov-banner disappears
+// On desktop, it prevents the mobile search box from interfering with search-as-you-type
+function setMobileProperties() {
 	"use strict";
 	let header = document.getElementById('header');
 	let banner = document.getElementById('usagov-banner');
+	let search = document.getElementById('search-field-small-mobile-menu');
 
 	if (window.innerWidth <= 1024) {
 		header.style.top = "-" + banner.offsetHeight + "px";
+		search.classList.add('usagov-search-autocomplete');
+
+		// Prevent the Sticky Bar from hiding content
+		document.getElementsByTagName("html")[0].style.setProperty("scroll-padding-top", header.offsetHeight + "px", "important");
 	}
 	else {
 		header.style.removeProperty("top");
+		search.classList.remove('usagov-search-autocomplete');
+		document.getElementsByTagName("html")[0].style.setProperty("scroll-padding-top", "0px", "important");
 	}
 }
 
-// Calls the setMobileStickyProperties function when the page loads and when the window size changes.
+// Calls the setMobileProperties function when the page loads and when the window size changes.
 (function mobileStickyNav() {
 	"use strict";
-	setMobileStickyProperties();
-	window.addEventListener("resize", setMobileStickyProperties);
+	setMobileProperties();
+	window.addEventListener("resize", setMobileProperties);
 })();
 
 
