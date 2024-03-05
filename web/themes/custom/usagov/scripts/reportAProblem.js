@@ -14,6 +14,63 @@ function timestamp() {
 setInterval(timestamp, 500);
 
 /**
+ * This function validates if the reCaptcha response and adds the error style if needed.
+ * @returns {boolean} indicates whether the reCaptcha is checked or not.
+ */
+function reCaptchaValidation() {
+  "use strict";
+
+  // reCaptcha Validation
+  var captchaValidationResult = true;
+  // Screen width to validate the reCaptcha
+  var screenWidth = window.innerWidth;
+
+  if (screenWidth >= 500 && grecaptcha.getResponse(0).length === 0 ||
+       screenWidth < 500 && grecaptcha.getResponse(1).length === 0) {
+    // Check if reCaptcha is checked.
+    if ($(".err-label-captcha").length < 1 && !document.querySelector("span.err-label")) {
+
+      if ($("html").attr("lang") === "en") {
+        // Adds an english error message before the captcha box.
+        $(".recaptcha-alignment").before(
+          '<span class="err-label usa-error recaptcha-error-message" tabindex="0">Fill out the reCaptcha</span>'
+        );
+      }
+      else {
+        // Adds a spanish error message before the captcha box.
+        $(".recaptcha-alignment").before(
+          '<span class="err-label usa-error recaptcha-error-message" tabindex="0">Complete el reCaptcha</span>'
+        );
+      }
+      // Adds the error outline to the reCaptcha box.
+      $(".recaptcha-outline-padding")[0].classList.add("usa-user-error");
+      // Makes the reCaptcha error text visible in the alert box.
+      $("#alert_error_recaptcha")[0].classList.remove("usa-error--alert");
+      // Adds left padding from recaptcha.
+      $(".recaptcha-container")[0].classList.add("usa-form-spacing", "usa-border-error");
+      // Aligns the reCaptcha to the left when it has an error.
+      $(".recaptcha-alignment")[0].style.justifyContent = "left";
+      captchaValidationResult = false;
+    }
+  }
+  else {
+    // Removes error messages from the reCaptcha
+    $(".recaptcha-error-message")[0].remove();
+    // Removes the error style from the reCaptcha.
+    $(".recaptcha-outline-padding")[0].classList.remove("usa-user-error");
+    $(".err-label-captcha")[0].remove();
+    // Makes the reCaptcha error text invisible in the alert box.
+    $("#alert_error_recaptcha")[0].classList.add("usa-error--alert");
+    // Removes left padding from recaptcha.
+    $(".recaptcha-container")[0].classList.remove("usa-form-spacing", "usa-border-error");
+    // Aligns the reCaptcha to the center when it doesn't have an error.
+    $(".recaptcha-alignment")[0].style.justifyContent = "center";
+  }
+
+  return captchaValidationResult;
+}
+
+/**
  * This function validates if the text entered is an email.
  * @param {string} email - the text to be validated
  * @returns {boolean} indicates whether the input text is an email or not.
@@ -100,7 +157,7 @@ function fieldValidation() {
 }
 
 /**
- * This function has the objective
+ * This function has the objective of modifying the alert box.
  * @returns {undefined} This function does not return any value
  */
 function modifyErrorElements() {
@@ -154,63 +211,42 @@ function modifyErrorElements() {
 var submitPressed = function () {
   "use strict";
 
-  // reCaptcha Validation
-  var captchaValidationResult = true;
-  // Screen width to validate the reCaptcha
-  var screenWidth = window.innerWidth;
-
-  if (screenWidth >= 500 && grecaptcha.getResponse(0).length === 0 ||
-       screenWidth < 500 && grecaptcha.getResponse(1).length === 0) {
-    // Check if reCaptcha is checked.
-    if ($(".err-label-captcha").length < 1 && !document.querySelector("span.err-label")) {
-
-      if ($("html").attr("lang") === "en") {
-        // Adds an english error message before the captcha box.
-        $(".recaptcha-alignment").before(
-          '<span class="err-label usa-error recaptcha-error-message" tabindex="0">Fill out the reCaptcha</span>'
-        );
-      }
-      else {
-        // Adds a spanish error message before the captcha box.
-        $(".recaptcha-alignment").before(
-          '<span class="err-label usa-error recaptcha-error-message" tabindex="0">Complete el reCaptcha</span>'
-        );
-      }
-      // Adds the error outline to the reCaptcha box.
-      $(".recaptcha-outline-padding")[0].classList.add("usa-user-error");
-      // Makes the reCaptcha error text visible in the alert box.
-      $("#alert_error_recaptcha")[0].classList.remove("usa-error--alert");
-      // Adds left padding from recaptcha.
-      $(".recaptcha-container")[0].classList.add("usa-form-spacing", "usa-border-error");
-      // Aligns the reCaptcha to the left when it has an error.
-      $(".recaptcha-alignment")[0].style.justifyContent = "left";
-      captchaValidationResult = false;
-    }
-  }
-  else {
-    // Removes error messages from the reCaptcha
-    $(".recaptcha-error-message")[0].remove();
-    // Removes the error style from the reCaptcha.
-    $(".recaptcha-outline-padding")[0].classList.remove("usa-user-error");
-    $(".err-label-captcha")[0].remove();
-    // Makes the reCaptcha error text invisible in the alert box.
-    $("#alert_error_recaptcha")[0].classList.add("usa-error--alert");
-    // Removes left padding from recaptcha.
-    $(".recaptcha-container")[0].classList.remove("usa-form-spacing", "usa-border-error");
-    // Aligns the reCaptcha to the center when it doesn't have an error.
-    $(".recaptcha-alignment")[0].style.justifyContent = "center";
-  }
+  // reCaptcha Validation and error styling.
+  var reCaptchaValidationResult = reCaptchaValidation();
 
   // Field Validation
   var fieldValidationResult = fieldValidation();
   // Hides or shows error elements.
   modifyErrorElements();
-  return captchaValidationResult && fieldValidationResult;
+
+  return reCaptchaValidationResult && fieldValidationResult;
 };
 
 jQuery(document).ready(function () {
   "use strict";
+
   $("#cntctbx").hide();
+
+  var reCaptchaLargeNode = document.getElementById('recaptcha-large');
+  var oldDisplayLarge = getComputedStyle(reCaptchaLargeNode).display;
+
+  var reCaptchaSmallNode = document.getElementById('recaptcha-small');
+  var oldDisplaySmall = getComputedStyle(reCaptchaSmallNode).display;
+
+  // Callback function to execute when mutations are observed
+  const reCaptchaCallback = (entries) => {
+    var entry = entries[0];
+    var newDisplay = getComputedStyle(entry.target).display;
+
+    if (newDisplay !== oldDisplayLarge || newDisplay !== oldDisplaySmall) {
+      reCaptchaValidation();
+      console.log('new:', newDisplay, 'old:', oldDisplaySmall ? oldDisplaySmall : oldDisplayLarge);
+    }
+  };
+
+  const reCaptchaObserver = new IntersectionObserver(reCaptchaCallback, { threshold: 0 })
+  reCaptchaObserver.observe(reCaptchaLargeNode);
+  reCaptchaObserver.observe(reCaptchaSmallNode);
 });
 
 jQuery(document).ready(function () {
