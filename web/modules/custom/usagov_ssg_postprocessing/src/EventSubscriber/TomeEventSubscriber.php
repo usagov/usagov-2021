@@ -147,7 +147,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     /** @var \DOMElement $node */
     foreach ($nodes as $node) {
       $original_href = $node->getAttribute('href');
-      $new_href = '/es/';
+      $new_href = NULL;
 
       if ($original_href === '/es') {
         $new_href = '/es/';
