@@ -244,7 +244,7 @@ jQuery(document).ready(function () {
     }
   };
 
-  const reCaptchaObserver = new IntersectionObserver(reCaptchaCallback, { threshold: 0 })
+  const reCaptchaObserver = new IntersectionObserver(reCaptchaCallback, {"threshold": 0});
   reCaptchaObserver.observe(reCaptchaLargeNode);
   reCaptchaObserver.observe(reCaptchaSmallNode);
 });
