@@ -10,7 +10,8 @@ Examples:
 ~ If a user enters "homeland security" the drop down should show "Department of Homeland Security, Homeland Security Department, U.S. Department of Homeland Security" (all of which go to the same url).
 */
 
-const search_input = document.getElementById("search-field-en-small");
+
+var search_input = document.getElementById("search-field-en-small");
 const dir_search_results = document.getElementById("fed-dir-search-results");
 let lang = document.documentElement.lang;
 let search_term = "";
@@ -29,10 +30,27 @@ function fetchAgencies() {
   }
 }
 
+
 function searchAgencies(allAgencies) {
-  return allAgencies.filter((agency) =>
-    agency.agency_title.toLowerCase().includes(search_term.toLowerCase()) || agency.agency_acronym.toLowerCase().includes(search_term.toLowerCase())
-  );
+  var returnAgencies=[];
+  var lowerCaseSearchTerm = search_term.toLowerCase();
+  const firstWordExp = new RegExp("^"+lowerCaseSearchTerm+".*");
+  const begWordExp = new RegExp(".* "+lowerCaseSearchTerm);
+  const abbrExp = new RegExp(lowerCaseSearchTerm);
+
+  allAgencies.forEach((agency) => {
+    var lowerCaseAgency = agency.agency_title.toLowerCase();
+
+    if (lowerCaseAgency.match(firstWordExp) || lowerCaseAgency.match(begWordExp)) {
+      returnAgencies.push(agency);
+    };
+
+    if (agency.agency_acronym.toLowerCase().match(abbrExp)) {
+      returnAgencies.push(agency);
+    };
+  });
+
+  return returnAgencies;
 }
 
 function showAgencies(filteredAgencies) {
@@ -49,6 +67,9 @@ function showAgencies(filteredAgencies) {
     resultBox.setAttribute("role", "option");
 
     const anchor = document.createElement("a");
+    anchor.onclick = function () {
+      search_input.value = agency.agency_title;
+    };
     const type = agency.agency_type;
     // need to get either the agency or synonym url. They will have the same value but are stored in 2 seperate fields
     if (type == "Federal Directory Record") {
@@ -58,8 +79,14 @@ function showAgencies(filteredAgencies) {
       anchor.href = agency.synonym_url;
     }
 
-    anchor.innerText = agency.agency_title;
-    anchor.acronym = agency.agency_acronym;
+    if (agency.agency_acronym) {
+      anchor.innerText = `${agency.agency_title} (${agency.agency_acronym})`;
+      anchor.acronym = agency.agency_acronym;
+    }
+else {
+      anchor.innerText = agency.agency_title;
+    }
+
 
     resultBox.appendChild(anchor);
     ul.appendChild(resultBox);
