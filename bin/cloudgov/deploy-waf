@@ -102,6 +102,10 @@ elif [ "$APP_SPACE" == "stage" ]; then
     instances="-i 1"
     IP_ALLOW_ALL_CMS=1
     IP_ALLOW_ALL_WAF=1
+elif [ "$APP_SPACE" == "dev-dr" ]; then
+    instances="-i 1"
+    IP_ALLOW_ALL_CMS=1
+    IP_ALLOW_ALL_WAF=1
 # Defaults are appropriate for dev and any other dev-like space.
 fi
 
