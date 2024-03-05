@@ -4,6 +4,11 @@ status: true
 dependencies:
   config:
     - field.storage.node.field_page_type
+    - node.type.agency_synonym
+    - node.type.bears_agency
+    - node.type.bears_benefit
+    - node.type.bears_criteria
+    - node.type.bears_life_event_form
     - system.menu.admin
     - system.menu.footer
     - system.menu.left-menu-english
@@ -1064,6 +1069,52 @@ display:
           granularity: second
       arguments: {  }
       filters:
+        type_1:
+          id: type_1
+          table: node_field_data
+          field: type
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: type
+          plugin_id: bundle
+          operator: 'not in'
+          value:
+            bears_agency: bears_agency
+            bears_benefit: bears_benefit
+            bears_criteria: bears_criteria
+            agency_synonym: agency_synonym
+            bears_life_event_form: bears_life_event_form
+          group: 1
+          exposed: false
+          expose:
+            operator_id: ''
+            label: ''
+            description: ''
+            use_operator: false
+            operator: ''
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: ''
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
         status:
           id: status
           table: node_field_data
@@ -1276,6 +1327,10 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
+      filter_groups:
+        operator: AND
+        groups:
+          1: AND
       style:
         type: table
         options:
