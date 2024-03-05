@@ -238,7 +238,7 @@ jQuery(document).ready(function () {
     var entry = entries[0];
     var newDisplay = getComputedStyle(entry.target).display;
 
-    if (newDisplay !== oldDisplayLarge || newDisplay !== oldDisplaySmall) {
+    if ($(".usa-error--alert").length <= 0 && (newDisplay !== oldDisplayLarge || newDisplay !== oldDisplaySmall)) {
       reCaptchaValidation();
       console.log('new:', newDisplay, 'old:', oldDisplaySmall ? oldDisplaySmall : oldDisplayLarge);
     }
