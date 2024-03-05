@@ -1,11 +1,5 @@
 jQuery(document).ready(function ($) {
   "use strict";
-  // {# For the data-filter =
-  //   "{{ '{{' }}query}}.*| -> suggest states that start with the query
-  //   .*\s{{ '{{' }}query}}.*| -> suggest states that start with the query
-  //   .*\({{ '{{' }}query}}.*" -> suggest states with an abbreviation that matches the query #}
-  var comboBoxDiv =`<div id="comboBoxDiv" class="usa-combo-box width-full mobile-lg:width-mobile" data-filter="{{ '{{' }}query}}.*|.*\\s{{ '{{' }}query}}.*|.*\\({{ '{{' }}query}}.*">`;
-  $("#comboBoxAfter").append(comboBoxDiv);
 
   // hidden label for a11y
   $("#comboBoxDiv").append(
