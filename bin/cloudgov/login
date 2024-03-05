@@ -18,6 +18,7 @@ fi
 USER=$1
 PASS=$2
 SPACE=${3:-dev}
+ORG=${4:-gsa-tts-usagov}
 
 # if only passing in a single param, convert space name into user/pass
 if [ "$#" -eq 0 ]; then
@@ -26,7 +27,7 @@ if [ "$#" -eq 0 ]; then
 fi
 
 if [[ -n "$USER" ]] && [[ -n "$PASS" ]]; then
-    cf login -a https://api.fr.cloud.gov -u $USER -p $PASS -s $SPACE
+    cf login -a https://api.fr.cloud.gov -u $USER -p $PASS -s $SPACE -o $ORG
 else
     cf login -a https://api.fr.cloud.gov --sso
 fi

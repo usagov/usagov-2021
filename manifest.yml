@@ -11,13 +11,23 @@ applications:
     - secrets
     - secauthsecrets
     - storage
-    - dbstorage
   health-check-type: process
-- name: waf
+- name: www
+  docker:
+    image: gsatts/usagov-2021:www-latest
+  memory: 1.5G
+  disk_quota: 4G
+  timeout: 180
+  services:
+    - secrets
+    - storage
+  health-check-type: process
+- name: waf-dr
   docker:
     image: gsatts/usagov-2021:waf-latest
   disk_quota: 1G
   memory: 256M
+  route: default
   services:
     - secrets
   health-check-type: process
@@ -93,3 +103,6 @@ applications:
       allow 52.3.16.30;
       allow 52.22.251.194;
       allow 52.70.135.185;
+      
+      # Self
+      98.97.21.163

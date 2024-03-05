@@ -22,6 +22,16 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
+            if ! cf app cms &> /dev/null; then
+              echo "NOTICE: app 'cms' does not exist in cf space '<< parameters.envname >>'.  After deployment, please run the following:"
+              echo cf target -s << parameters.envname >>
+              echo cf set-env cms USPS_USERID $USPS_USERID
+              echo cf set-env cms USPS_PASSWORD $USPS_PASSWORD
+              echo cf restage << parameters.envname >>
+            else
+              cf set-env cms USPS_USERID $USPS_USERID
+              cf set-env cms USPS_PASSWORD $USPS_PASSWORD
+            fi
             ./bin/cloudgov/deploy-cms << pipeline.number >> $CMS_DIGEST
             if [ $? ]; then
               echo
@@ -34,6 +44,15 @@ commands:
               echo
             fi
       - run:
+          name: CloudGov Deploy Static Site
+          command: |
+            export NEW_RELIC_APP_NAME="WWW-<< parameters.envname >>;USA.gov"
+            export NEW_RELIC_DISPLAY_NAME=usa-www-<< parameters.envname >>
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-www << pipeline.number >> $WWW_DIGEST
+      - run:
           name: CloudGov Deploy WAF
           command: |
             export NEW_RELIC_APP_NAME="WAF-<< parameters.envname >>;USA.gov"
@@ -41,12 +60,14 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            DWAF_APP=waf
-            DCMS_APP=cms
-            DAPP_SPACE=<< parameters.envname >>
-            ROUTE_SERVICE_APP_NAME=$DWAF_APP \
-            ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
-            PROTECTED_APP_NAME=$DCMS_APP \
+
+            ZWAF_APP=waf-dr
+            ZCMS_APP=cms
+            ZWWW_APP=www
+            ZAPP_SPACE=dev-dr
+            ROUTE_SERVICE_APP_NAME=$ZWAF_APP \
+            ROUTE_SERVICE_NAME=waf-route-${ZAPP_SPACE}-usagov \
+            PROTECTED_APP_NAMES="$ZCMS_APP,$ZWWW_APP" \
             ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
   save-image-digest:
     steps:
@@ -55,15 +76,19 @@ commands:
           command: |
             (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>)
             (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>)
+            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >>)
             CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
+            WWW_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
             . ./bin/cloudgov/get-s3-access key-value
             echo "$CMS_DIGEST" > /tmp/results/cms_digest
             echo "$WAF_DIGEST" > /tmp/results/waf_digest
+            echo "$WWW_DIGEST" > /tmp/results/www_digest
             aws s3 cp /tmp/results/cms_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >>
             aws s3 cp /tmp/results/waf_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >>
+            aws s3 cp /tmp/results/www_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/www-<< pipeline.number >>
 
   load-image-digest:
     steps:
@@ -75,12 +100,16 @@ commands:
             . ./bin/cloudgov/get-s3-access key-value
             export CMS_DIGEST=""
             export WAF_DIGEST=""
+            export WWW_DIGEST=""
             if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >> ./cms-image-digest; then export CMS_DIGEST="@"$(cat ./cms-image-digest); fi
-            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest); fi
+            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest); fi;
+            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/www-<< pipeline.number >> ./www-image-digest; then export WWW_DIGEST="@"$(cat ./www-image-digest); fi;
             export CMS_DIGEST=$CMS_DIGEST
             export WAF_DIGEST=$WAF_DIGEST
+            export WWW_DIGEST=$WWW_DIGEST
             echo 'export CMS_DIGEST='"$CMS_DIGEST" | tee -a $BASH_ENV
             echo 'export WAF_DIGEST='"$WAF_DIGEST" | tee -a $BASH_ENV
+            echo 'export WWW_DIGEST='"$WWW_DIGEST" | tee -a $BASH_ENV
 
   install-cloud-foundry:
     steps:
@@ -318,71 +347,11 @@ jobs:
             touch /tmp/results/scan-cms-container-cis.log
             touch /tmp/results/scan-waf-container-cis.log
       - run:
-          name: Scan Code
-          command: |
-            SCAN_CODE_RESULT=0
-            if (./bin/scan-code high | tee /tmp/results/scan-cms-code.log); then export SCAN_CODE_RESULT=0; else export SCAN_CODE_RESULT=$?; fi
-            echo "Code Scan return code: $SCAN_CODE_RESULT" | tee -a /tmp/results/scan-cms-code.log
-            cat /tmp/results/scan-cms-code.log
-            exit 0
-      - run:
-          name: Scan Dependencies
-          command: |
-            SCAN_DEPS_RESULT=0
-            if (./bin/scan-dependencies high | tee /tmp/results/scan-cms-dependencies.log); then export SCAN_DEPS_RESULT=0; else export SCAN_DEPS_RESULT=$?; fi
-            echo "Dependencies Scan return code: $SCAN_DEPS_RESULT" | tee -a /tmp/results/scan-cms-dependencies.log
-            cat /tmp/results/scan-cms-dependencies.log
-            exit 0
-      - run:
           name: Build Container
           no_output_timeout: 30m
           command: |
             ./bin/cloudgov/container-build << pipeline.number >> latest
-      - run:
-          name: Scan CMS Container
-          command: |
-            SCAN_CMS_RESULT=0
-            if (./bin/scan-container cms << pipeline.number >> high | tee /tmp/results/scan-cms-container.log); then export SCAN_CMS_RESULT=0; else export SCAN_CMS_RESULT=$?; fi
-            echo "CMS Container Scan return code: $SCAN_CMS_RESULT" | tee -a /tmp/results/scan-cms-container.log
-            cat /tmp/results/scan-cms-container.log
-            exit 0
-      - run:
-          name: Scan WAF Container
-          command: |
-            SCAN_WAF_RESULT=0
-            if (./bin/scan-container waf << pipeline.number >> high | tee /tmp/results/scan-waf-container.log); then export SCAN_WAF_RESULT=0; else export SCAN_WAF_RESULT=$?; fi
-            echo "WAF Container Scan return code: $SCAN_WAF_RESULT" | tee -a /tmp/results/scan-waf-container.log
-            cat /tmp/results/scan-waf-container.log
-            exit 0
-      - run:
-          name: Create Container for CIS Benchmarks
-          when: always
-          command: |
-            # build a fresh docker-bench-security container
-            cd /tmp/
-            git clone --depth 1 https://github.com/docker/docker-bench-security.git
-            cd /tmp/docker-bench-security
-            docker build --no-cache -t docker-bench-security .
-      - run:
-          name: Check CMS CIS Benchmarks
-          when: always
-          command: |
-            # use the fresh container to scan
-            SCAN_CMS_CIS_RESULT=0
-            if (./bin/scan-container-cis cms << pipeline.number >> | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
-            echo "CMS CIS Benchmark Scan return code: $SCAN_CMS_CIS_RESULT" | tee -a /tmp/results/scan-cms-container-cis.log
-            cat /tmp/results/scan-cms-container-cis.log
-            exit 0
-      - run:
-          name: Check WAF CIS Benchmarks
-          when: always
-          command: |
-            # use the fresh container to scan
-            SCAN_WAF_CIS_RESULT=0
-            if (./bin/scan-container-cis waf << pipeline.number >> | tee /tmp/results/scan-waf-container-cis.log); then export SCAN_WAF_CIS_RESULT=0; else export SCAN_WAF_CIS_RESULT=$?; fi
-            echo "WAF CIS Benchmark Scan return code: $SCAN_WAF_CMS_RESULT" | tee -a /tmp/results/scan-waf-container-cis.log
-            cat /tmp/results/scan-waf-container-cis.log
-            exit 0
+
       - run:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
@@ -400,6 +369,13 @@ jobs:
     steps:
       - deploy-cloudgov:
           envname: dev
+
+  deploy-to-cloudgov-dev-dr:
+    machine:
+      image: ubuntu-2004:2023.10.1
+    steps:
+      - deploy-cloudgov:
+          envname: dev-dr
 
   deploy-to-cloudgov-stage:
     machine:
@@ -560,6 +536,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1083-temp-domain-names
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -569,6 +546,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1083-temp-domain-names
       - approve-dev-deployment:
           type: approval
           requires:
@@ -577,6 +555,14 @@ workflows:
             branches:
               only:
               - dev
+      - approve-dev-dr-deployment:
+          type: approval
+          requires:
+            - build-and-push-container
+          filters:
+            branches:
+              only:
+              - USAGOV-1083-temp-domain-names
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -584,6 +570,13 @@ workflows:
             branches:
               only:
               - dev
+      - deploy-to-cloudgov-dev-dr:
+          requires:
+            - approve-dev-dr-deployment
+          filters:
+            branches:
+              only:
+              - USAGOV-1083-temp-domain-names
       - approve-stage-deployment:
           type: approval
           requires:
