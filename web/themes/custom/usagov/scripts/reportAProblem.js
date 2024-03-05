@@ -1,7 +1,7 @@
 function timestamp() {
   "use strict";
-  var response = document.getElementById("g-recaptcha-response");
-  if (response === null || response.value.trim() === "") {
+  var response = $("#g-recaptcha-response");
+  if (response || response.value.trim() === "") {
     var elems = JSON.parse(
       document.getElementsByName("captcha_settings")[0].value
     );
@@ -64,24 +64,24 @@ function fieldValidation() {
       }
 
       // Adds the error outline in the field.
-      document.getElementById(input.attr("id")).classList.add("usa-user-error");
+      $("#" + input.attr("id"))[0].classList.add("usa-user-error");
       // Adds the error line to the side of the field.
-      document.getElementById(input.attr("id")).parentElement.classList.add("usa-border-error");
+      $("#" + input.attr("id"))[0].parentElement.classList.add("usa-border-error");
       // Makes the error text visible in the alert box.
-      document.getElementById(alertErrorId).classList.remove("usa-error--alert");
+      $("#" + alertErrorId)[0].classList.remove("usa-error--alert");
       // Adds the left padding from the fields.
-      document.getElementById(input.attr("id")).parentElement.classList.add("usa-form-spacing");
+      $("#" + input.attr("id"))[0].parentElement.classList.add("usa-form-spacing");
     }
     else if ($(this).find("span.err-label").length) {
       $(this).find("span.err-label").remove();
       // Removes the error outline in the field.
-      document.getElementById(input.attr("id")).classList.remove("usa-user-error");
+      $("#" + input.attr("id"))[0].classList.remove("usa-user-error");
       // Removes the error line to the side of the field.
-      document.getElementById(input.attr("id")).parentElement.classList.remove("usa-border-error");
+      $("#" + input.attr("id"))[0].parentElement.classList.remove("usa-border-error");
       // Makes the error text invisible in the alert box.
-      document.getElementById(alertErrorId).classList.add("usa-error--alert");
+      $("#" + alertErrorId)[0].classList.add("usa-error--alert");
       // Removes the left padding from the fields.
-      document.getElementById(input.attr("id")).parentElement.classList.remove("usa-form-spacing");
+      $("#" + input.attr("id"))[0].parentElement.classList.remove("usa-form-spacing");
     }
   });
 
@@ -107,8 +107,8 @@ function modifyErrorElements() {
   'use strict';
 
   // If there is an error, modify the alert box header text based on the number of fields with errors.
-  document.getElementById("error-box").classList.remove("usa-error--alert");
-  document.getElementById("error-box").focus();
+  $("#error-box")[0].classList.remove("usa-error--alert");
+  $("#error-box")[0].focus();
 
   // Gets all error text elements from the alert box to check how many errors we have (this includes reCaptcha and all fields)
   var errors = document.querySelectorAll('[id*="alert_error_"]:not(.usa-error--alert)');
@@ -116,21 +116,21 @@ function modifyErrorElements() {
   if (errors.length === 1) {
       // English Header text when there is only one error
       if (document.documentElement.lang === "en") {
-          document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains an error";
+          $("#error-box")[0].getElementsByTagName("h3")[0].innerHTML = "Your information contains an error";
       }
       // Spanish Header text when there is only one error
       else {
-          document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Su información contiene 1 error";
+          $("#error-box")[0].getElementsByTagName("h3")[0].innerHTML = "Su información contiene 1 error";
       }
   }
   else {
       // English Header text when there is more than one error
       if (document.documentElement.lang === "en") {
-          document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Your information contains " + errors.length + " errors";
+          $("#error-box")[0].getElementsByTagName("h3")[0].innerHTML = "Your information contains " + errors.length + " errors";
       }
       // Spanish Header text when there is more than one error
       else {
-          document.getElementById("error-box").getElementsByTagName("h3")[0].innerHTML = "Su información contiene " + errors.length + " errores";
+          $("#error-box")[0].getElementsByTagName("h3")[0].innerHTML = "Su información contiene " + errors.length + " errores";
       }
   }
 
@@ -138,11 +138,11 @@ function modifyErrorElements() {
   errors = document.querySelectorAll('[id*="alert_error_"]:not(.usa-error--alert)');
   if (errors.length >= 4) {
     // Adds the side line without spaces when all 3 fields are incorrect.
-    document.getElementById("error-border").classList.add("usa-main-border-error");
+    $("#error-border")[0].classList.add("usa-main-border-error");
   }
   else {
     // Removes the side line without spaces.
-    document.getElementById("error-border").classList.remove("usa-main-border-error");
+    $("#error-border")[0].classList.remove("usa-main-border-error");
   }
 }
 
@@ -177,28 +177,28 @@ var submitPressed = function () {
         );
       }
       // Adds the error outline to the reCaptcha box.
-      document.getElementsByClassName("recaptcha-outline-padding")[0].classList.add("usa-user-error");
+      $(".recaptcha-outline-padding")[0].classList.add("usa-user-error");
       // Makes the reCaptcha error text visible in the alert box.
-      document.getElementById("alert_error_recaptcha").classList.remove("usa-error--alert");
+      $("#alert_error_recaptcha")[0].classList.remove("usa-error--alert");
       // Adds left padding from recaptcha.
-      document.getElementsByClassName("recaptcha-container")[0].classList.add("usa-form-spacing", "usa-border-error");
+      $(".recaptcha-container")[0].classList.add("usa-form-spacing", "usa-border-error");
       // Aligns the reCaptcha to the left when it has an error.
-      document.getElementsByClassName("recaptcha-alignment")[0].style.justifyContent = "left";
+      $(".recaptcha-alignment")[0].style.justifyContent = "left";
       captchaValidationResult = false;
     }
   }
   else {
     // Removes error messages from the reCaptcha
-    document.querySelector(".recaptcha-error-message")?.remove();
+    $(".recaptcha-error-message")[0].remove();
     // Removes the error style from the reCaptcha.
-    document.getElementsByClassName("recaptcha-outline-padding")[0].classList.remove("usa-user-error");
-    $(".err-label-captcha").remove();
+    $(".recaptcha-outline-padding")[0].classList.remove("usa-user-error");
+    $(".err-label-captcha")[0].remove();
     // Makes the reCaptcha error text invisible in the alert box.
-    document.getElementById("alert_error_recaptcha").classList.add("usa-error--alert");
+    $("#alert_error_recaptcha")[0].classList.add("usa-error--alert");
     // Removes left padding from recaptcha.
-    document.getElementsByClassName("recaptcha-container")[0].classList.remove("usa-form-spacing", "usa-border-error");
+    $(".recaptcha-container")[0].classList.remove("usa-form-spacing", "usa-border-error");
     // Aligns the reCaptcha to the center when it doesn't have an error.
-    document.getElementsByClassName("recaptcha-alignment")[0].style.justifyContent = "center";
+    $(".recaptcha-alignment")[0].style.justifyContent = "center";
   }
 
   // Field Validation
