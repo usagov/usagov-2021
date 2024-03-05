@@ -185,10 +185,6 @@ do
       cf set-env $ROUTE_SERVICE_APP_NAME CMS_HOST "$url"
     elif [ $(echo "$url" | grep 'beta') ]; then
       cf set-env $ROUTE_SERVICE_APP_NAME WWW_HOST "$url"
-    elif [ $(echo "$url" | grep 'dev-dr') ]; then
-      cf set-env $ROUTE_SERVICE_APP_NAME WWW_HOST "$url"
-    elif [ $(echo "$url" | grep 'shared-egress-dr') ]; then
-      cf set-env $ROUTE_SERVICE_APP_NAME CMS_HOST "$url"
     fi
   done
 

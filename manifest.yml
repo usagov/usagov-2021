@@ -22,12 +22,11 @@ applications:
     - secrets
     - storage
   health-check-type: process
-- name: waf-dr
+- name: waf
   docker:
     image: gsatts/usagov-2021:waf-latest
   disk_quota: 1G
   memory: 256M
-  route: default
   services:
     - secrets
   health-check-type: process
