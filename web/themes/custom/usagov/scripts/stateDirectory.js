@@ -5,7 +5,6 @@ jQuery(document).ready(function ($) {
   //   .*\s{{ '{{' }}query}}.*| -> suggest states that start with the query
   //   .*\({{ '{{' }}query}}.*" -> suggest states with an abbreviation that matches the query #}
   var comboBoxDiv =`<div id="comboBoxDiv" class="usa-combo-box width-full mobile-lg:width-mobile" data-filter="{{ '{{' }}query}}.*|.*\\s{{ '{{' }}query}}.*|.*\\({{ '{{' }}query}}.*">`;
-
   $("#comboBoxAfter").append(comboBoxDiv);
 
   // hidden label for a11y
@@ -13,6 +12,7 @@ jQuery(document).ready(function ($) {
     '<label class="visuallyhidden">Select or type your state or territory:<select class="usa-select usa-sr-only usa-combo-box__select" name="state-info" id="stateselect" aria-hidden="true" tabindex="-1"></select></label>'
   );
 
+  // add an empty option so that it does not default to first choice if user does not make a selection in drop down
   $("#stateselect").append(
     '<option value=""></option>'
   );
@@ -39,6 +39,7 @@ jQuery(document).ready(function ($) {
     '<span class="usa-combo-box__clear-input__wrapper" tabindex="-1"><button type="button" class="usa-combo-box__clear-input" aria-label="Clear the select contents">&nbsp;</button></span><span class="usa-combo-box__input-button-separator">&nbsp;</span><span class="usa-combo-box__toggle-list__wrapper" tabindex="-1"><button type="button" tabindex="0" class="usa-combo-box__toggle-list" aria-label="Toggle the dropdown list">&nbsp;</button></span><ul tabindex="-1" id="state-info--list" class="usa-combo-box__list" role="listbox" aria-labelledby="state-info-label" hidden=""></ul><div class="usa-combo-box__status usa-sr-only" role="status"></div><span id="state-info--assistiveHint" class="usa-sr-only">When autocomplete results are available use up and down arrows to review and enter to select.Touch device users, explore by touch or with swipe gestures.</span>'
   );
 
+  // add the submit button
   var docLang = [document.documentElement.lang];
   const sumBtn = docLang == "es" ? "Ir" : "Go";
   $("#submitAfter").append(
@@ -46,15 +47,18 @@ jQuery(document).ready(function ($) {
   );
   var goButton = $(".sd-go-btn");
 
+  // remove the non-js list version
   $("#statelist").remove();
 
+  // submission
   var url=$('#stateselect').val();
   var statename;
 
   goButton.click(function() {
     let stateData = new FormData(stateForm);
     let stateValue = stateData.get('state-info');
-    if (stateValue != null) {
+    let stateIsEmpty = $.isEmptyObject(stateData.get('state-info'));
+    if (!stateIsEmpty) {
       window.location.href = url;
       dataLayer.push({
         'event': '50_state_submit',
