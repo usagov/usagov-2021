@@ -9,6 +9,7 @@ use Drupal\Core\Site\Settings;
 use Drupal\tome_static\Event\CollectPathsEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
+use Masterminds\HTML5;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -132,17 +133,22 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    */
   public function modifyHtml(ModifyHtmlEvent $event) {
     $html = $event->getHtml();
+    $html5 = new HTML5();
 
     // LIBXML_SCHEMA_CREATE fixes a problem wherein DOMDocument would remove closing HTML
     // tags within quoted text in a script element. See https://bugs.php.net/bug.php?id=74628
     $document = new \DOMDocument();
     @$document->loadHTML($html, LIBXML_SCHEMA_CREATE);
+
     $xpath = new \DOMXPath($document);
     $changes = FALSE;
+    $nodes = $xpath->query('//a[starts-with(@href,"/es")]');
+
     /** @var \DOMElement $node */
-    foreach ($xpath->query('//a[(starts-with(@href,"/es"))]') as $node) {
+    foreach ($nodes as $node) {
       $original_href = $node->getAttribute('href');
       $new_href = NULL;
+
       if ($original_href === '/es') {
         $new_href = '/es/';
       }
@@ -158,9 +164,11 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         $event->addExcludePath($new_href);
       }
     }
+
     if ($changes) {
-      $html = $document->saveHTML();
-      $event->setHtml($html);
+      // Render it as HTML5:
+      $modifiedHtml = $html5->saveHTML($document);
+      $event->setHtml($modifiedHtml);
     }
   }
 
