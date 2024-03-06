@@ -45,7 +45,8 @@ function reCaptchaValidation() {
       // Adds the error outline to the reCaptcha box.
       $(".recaptcha-outline-padding")[0].classList.add("usa-user-error");
       // Makes the reCaptcha error text visible in the alert box.
-      $("#alert_error_recaptcha")[0].classList.remove("usa-error--alert") ?? "";
+      var alertBoxText = $("#alert_error_recaptcha")[0];
+      alertBoxText ? alertBoxText.classList.remove("usa-error--alert") : "";
       // Adds left padding from recaptcha.
       $(".recaptcha-container")[0].classList.add("usa-form-spacing", "usa-border-error");
       // Aligns the reCaptcha to the left when it has an error.
@@ -55,14 +56,20 @@ function reCaptchaValidation() {
   }
   else {
     // Removes error messages from the reCaptcha
-    $(".recaptcha-error-message")[0].remove() ?? "";
+    var reCaptchaErrorMessage = $(".recaptcha-error-message")[0];
+    reCaptchaErrorMessage ? reCaptchaErrorMessage.remove() : "";
+
     // Removes the error style from the reCaptcha.
-    $(".recaptcha-outline-padding")[0].classList.remove("usa-user-error") ?? "";
-    $(".err-label-captcha")[0].remove() ?? "";
+    var reCaptchaErrorStyle = $(".recaptcha-outline-padding")[0];
+    reCaptchaErrorStyle ? reCaptchaErrorStyle.classList.remove("usa-user-error") : "";
+    var reCaptchaErrorLabel = $(".err-label-captcha")[0];
+    reCaptchaErrorLabel ? reCaptchaErrorLabel.remove() : "";
+
     // Makes the reCaptcha error text invisible in the alert box.
     $("#alert_error_recaptcha")[0].classList.add("usa-error--alert");
     // Removes left padding from recaptcha.
-    $(".recaptcha-container")[0].classList.remove("usa-form-spacing", "usa-border-error") ?? "";
+    var reCaptchaContainer = $(".recaptcha-container")[0];
+    reCaptchaContainer ? reCaptchaContainer.classList.remove("usa-form-spacing", "usa-border-error") : "";
     // Aligns the reCaptcha to the center when it doesn't have an error.
     $(".recaptcha-alignment")[0].style.justifyContent = "center";
   }
@@ -97,6 +104,7 @@ function fieldValidation() {
     var input = $(this).find("input,textarea"); // Current field
     var errorId = "error_" + input.attr("id");
     var alertErrorId = "alert_" + errorId; // Id of field error text in alert box
+    var fieldElement = $("#" + input.attr("id"))[0];
 
     // Check if the current field is valid
     if (
@@ -121,24 +129,27 @@ function fieldValidation() {
       }
 
       // Adds the error outline in the field.
-      $("#" + input.attr("id"))[0].classList.add("usa-user-error");
+      fieldElement.classList.add("usa-user-error");
       // Adds the error line to the side of the field.
-      $("#" + input.attr("id"))[0].parentElement.classList.add("usa-border-error");
+      fieldElement.parentElement.classList.add("usa-border-error");
       // Makes the error text visible in the alert box.
-      $("#" + alertErrorId)[0].classList.remove("usa-error--alert") ?? "";
+      var alertBoxText = $("#" + alertErrorId)[0];
+      alertBoxText ? alertBoxText.classList.remove("usa-error--alert") : "";
       // Adds the left padding from the fields.
-      $("#" + input.attr("id"))[0].parentElement.classList.add("usa-form-spacing");
+      fieldElement.parentElement.classList.add("usa-form-spacing");
     }
     else if ($(this).find("span.err-label").length) {
-      $(this).find("span.err-label").remove() ?? "";
+      var errorLabel = $(this).find("span.err-label");
+      errorLabel ? errorLabel.remove() : "";
+
       // Removes the error outline in the field.
-      $("#" + input.attr("id"))[0].classList.remove("usa-user-error") ?? "";
+      fieldElement.classList.remove("usa-user-error") ;
       // Removes the error line to the side of the field.
-      $("#" + input.attr("id"))[0].parentElement.classList.remove("usa-border-error") ?? "";
+      fieldElement.parentElement.classList.remove("usa-border-error") ;
       // Makes the error text invisible in the alert box.
       $("#" + alertErrorId)[0].classList.add("usa-error--alert");
       // Removes the left padding from the fields.
-      $("#" + input.attr("id"))[0].parentElement.classList.remove("usa-form-spacing") ?? "";
+      fieldElement.parentElement.classList.remove("usa-form-spacing") ;
     }
   });
 
@@ -164,7 +175,7 @@ function modifyErrorElements() {
   'use strict';
 
   // If there is an error, modify the alert box header text based on the number of fields with errors.
-  $("#error-box")[0].classList.remove("usa-error--alert") ?? "";
+  $("#error-box")[0].classList.remove("usa-error--alert") ;
   $("#error-box")[0].focus();
 
   // Gets all error text elements from the alert box to check how many errors we have (this includes reCaptcha and all fields)
@@ -199,7 +210,7 @@ function modifyErrorElements() {
   }
   else {
     // Removes the side line without spaces.
-    $("#error-border")[0].classList.remove("usa-main-border-error") ?? "";
+    $("#error-border")[0].classList.remove("usa-main-border-error") ;
   }
 }
 
