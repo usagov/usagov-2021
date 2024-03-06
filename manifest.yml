@@ -15,7 +15,7 @@ applications:
 - name: www
   docker:
     image: gsatts/usagov-2021:www-latest
-  memory: 1.5G
+  memory: 256M
   disk_quota: 4G
   timeout: 180
   services:
