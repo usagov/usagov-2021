@@ -681,27 +681,6 @@ a,
   padding: 5px;
 }
 
-/* Extra small devices (499px and down) */
-@media only screen and (max-width: 499px) {
-  #recaptcha-large {
-    display: none;
-  }
-
-  #recaptcha-small {
-    display: flex;
-  }
-}
-/* Everything else (500px and up) */
-@media only screen and (min-width: 500px) {
-  #recaptcha-small {
-    display: none;
-  }
-
-  #recaptcha-large {
-    display: flex;
-  }
-}
-
 .issue-button {
   @extend .ceo-button;
   margin-top: 1.5rem;
