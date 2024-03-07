@@ -28,7 +28,7 @@ function reCaptchaValidation() {
   if (screenWidth >= 500 && grecaptcha.getResponse(0).length === 0 ||
        screenWidth < 500 && grecaptcha.getResponse(1).length === 0) {
     // Check if reCaptcha is checked.
-    if (!document.querySelector("span.err-label")) {
+    if (!document.querySelector("span.recaptcha-error-message")) {
 
       if ($("html").attr("lang") === "en") {
         // Adds an english error message before the captcha box.
