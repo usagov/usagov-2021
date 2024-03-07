@@ -28,7 +28,7 @@ function reCaptchaValidation() {
   if (screenWidth >= 500 && grecaptcha.getResponse(0).length === 0 ||
        screenWidth < 500 && grecaptcha.getResponse(1).length === 0) {
     // Check if reCaptcha is checked.
-    if ($(".err-label-captcha").length < 1 && !document.querySelector("span.err-label")) {
+    if (!document.querySelector("span.err-label")) {
 
       if ($("html").attr("lang") === "en") {
         // Adds an english error message before the captcha box.
@@ -62,7 +62,7 @@ function reCaptchaValidation() {
     // Removes the error style from the reCaptcha.
     var reCaptchaErrorStyle = $(".recaptcha-outline-padding")[0];
     reCaptchaErrorStyle ? reCaptchaErrorStyle.classList.remove("usa-user-error") : "";
-    var reCaptchaErrorLabel = $(".err-label-captcha")[0];
+    var reCaptchaErrorLabel = $(".recaptcha-error-message")[0];
     reCaptchaErrorLabel ? reCaptchaErrorLabel.remove() : "";
 
     // Makes the reCaptcha error text invisible in the alert box.
@@ -72,6 +72,9 @@ function reCaptchaValidation() {
     reCaptchaContainer ? reCaptchaContainer.classList.remove("usa-form-spacing", "usa-border-error") : "";
     // Aligns the reCaptcha to the center when it doesn't have an error.
     $(".recaptcha-alignment")[0].style.justifyContent = "center";
+    // Removes the side line without spaces.
+    var mainErrorBorder = $("#error-border")[0];
+    mainErrorBorder ? mainErrorBorder.classList.remove("usa-main-border-error") : "";
   }
 
   return captchaValidationResult;
