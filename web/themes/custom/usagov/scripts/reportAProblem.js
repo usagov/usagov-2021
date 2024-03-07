@@ -236,31 +236,53 @@ var submitPressed = function () {
   return reCaptchaValidationResult && fieldValidationResult;
 };
 
+function changeRecaptchaDisplay(mediaQueryList) {
+  'use strict';
+  // If the media query matches, it means the width is 499px or less
+  if (mediaQueryList.matches) {
+    // Hide the large recaptcha and show the small recaptcha.
+    document.getElementById('recaptcha-large').style.display = "none";
+    document.getElementById('recaptcha-small').style.display = "flex";
+  } else {
+    // Hide the small recaptcha and show the large recaptcha.
+    document.getElementById('recaptcha-large').style.display = "flex";
+    document.getElementById('recaptcha-small').style.display = "none";
+  }
+}
+
 jQuery(document).ready(function () {
   "use strict";
 
   $("#cntctbx").hide();
 
+  // Create a MediaQueryList object to check if the screen size
+  var mediaQueryList = window.matchMedia("(max-width: 499px)");
+
+  // Call listener function at run time
+  changeRecaptchaDisplay(mediaQueryList);
+
+  // Attach listener function on state changes
+  mediaQueryList.addEventListener("change", function() {
+    changeRecaptchaDisplay(mediaQueryList);
+  });
+
   var reCaptchaLargeNode = document.getElementById('recaptcha-large');
-  var oldDisplayLarge = getComputedStyle(reCaptchaLargeNode).display;
+  var oldDisplayLarge = window.getComputedStyle(reCaptchaLargeNode).display;
 
-  var reCaptchaSmallNode = document.getElementById('recaptcha-small');
-  var oldDisplaySmall = getComputedStyle(reCaptchaSmallNode).display;
-
-  // Callback function to execute when mutations are observed
-  const reCaptchaCallback = (entries) => {
-    var entry = entries[0];
-    var newDisplay = getComputedStyle(entry.target).display;
-
-    if ($(".usa-error--alert").length <= 0 && (newDisplay !== oldDisplayLarge || newDisplay !== oldDisplaySmall)) {
-      reCaptchaValidation();
-      console.log('new:', newDisplay, 'old:', oldDisplaySmall ? oldDisplaySmall : oldDisplayLarge);
+  // Called every time an attribute changes in the large reCaptcha
+  const reCaptchaObserver = new MutationObserver((mutationList, observer) => {
+    if ($(".usa-error--alert").length <= 0) {
+      mutationList.forEach((mutation) => {
+        var newDisplay = window.getComputedStyle(mutation.target).display;
+        // Check if display value changes from none to flex for recaptcha-large
+        if (mutation.target.id === 'recaptcha-large' && newDisplay !== oldDisplayLarge) {
+          reCaptchaValidation();
+          oldDisplayLarge = newDisplay;
+        }
+      });
     }
-  };
-
-  const reCaptchaObserver = new IntersectionObserver(reCaptchaCallback, {"threshold": 0});
-  reCaptchaObserver.observe(reCaptchaLargeNode);
-  reCaptchaObserver.observe(reCaptchaSmallNode);
+  });
+  reCaptchaObserver.observe(reCaptchaLargeNode, {"attributes": true});
 });
 
 jQuery(document).ready(function () {
