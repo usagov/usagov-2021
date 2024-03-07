@@ -243,7 +243,8 @@ function changeRecaptchaDisplay(mediaQueryList) {
     // Hide the large recaptcha and show the small recaptcha.
     document.getElementById('recaptcha-large').style.display = "none";
     document.getElementById('recaptcha-small').style.display = "flex";
-  } else {
+  }
+  else {
     // Hide the small recaptcha and show the large recaptcha.
     document.getElementById('recaptcha-large').style.display = "flex";
     document.getElementById('recaptcha-small').style.display = "none";
