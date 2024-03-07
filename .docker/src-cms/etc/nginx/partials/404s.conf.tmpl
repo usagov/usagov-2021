@@ -18,16 +18,16 @@
 #
 #    # spanish 404 chain
 #
-    location @notFoundSpanish {
-      allow all;
-      error_page 403 404 @notFoundSpanishFallback;
-      proxy_intercept_errors on;
-      recursive_error_pages on;
-      set $errorfile "${S3_PROXY_WEB}${ES_404_PAGE}";
-      proxy_pass https://$errorfile;
-    }
-    location @notFoundSpanishFallback {
-      allow all;
-      default_type text/plain;
-      return 404 'Spanish Page Not Found';
-    }
+#    location @notFoundSpanish {
+#      allow all;
+#      error_page 403 404 @notFoundSpanishFallback;
+#      proxy_intercept_errors on;
+#      recursive_error_pages on;
+#      set $errorfile "${S3_PROXY_WEB}${ES_404_PAGE}";
+#      proxy_pass https://$errorfile;
+#    }
+#    location @notFoundSpanishFallback {
+#      allow all;
+#      default_type text/plain;
+#      return 404 'Spanish Page Not Found';
+#    }
