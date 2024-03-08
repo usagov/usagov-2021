@@ -1,9 +1,12 @@
 jQuery(document).ready(function ($) {
   "use strict";
+  var docLang = [document.documentElement.lang];
 
   // hidden label for a11y
+  const hiddenLabel = docLang == "es" ? "Elija o escriba el estado o territorio:" : "Select or type your state or territory:";
+
   $("#comboBoxDiv").append(
-    '<label class="visuallyhidden">Select or type your state or territory:<select class="usa-select usa-sr-only usa-combo-box__select" name="state-info" id="stateselect" aria-hidden="true" tabindex="-1"></select></label>'
+    `<label class="visuallyhidden">${hiddenLabel}:<select class="usa-select usa-sr-only usa-combo-box__select" name="state-info" id="stateselect" aria-hidden="true" tabindex="-1"></select></label>`
   );
 
   // add an empty option so that it does not default to first choice if user does not make a selection in drop down
@@ -34,7 +37,6 @@ jQuery(document).ready(function ($) {
   );
 
   // add the submit button
-  var docLang = [document.documentElement.lang];
   const sumBtn = docLang == "es" ? "Ir" : "Go";
   $("#submitAfter").append(
     `<button class="usa-button sd-go-btn usa-button--secondary" type="submit">${sumBtn}</button>`
