@@ -60,10 +60,10 @@ function showAgencies(filteredAgencies) {
   usasearch_sayt.setAttribute("id", "usasearch_sayt");
   const ul = document.createElement("ul");
 
-  filteredAgencies.forEach((agency) => {
+  filteredAgencies.forEach((agency, index) => {
     const resultBox = document.createElement("li");
     resultBox.classList.add("resultBox");
-    resultBox.setAttribute("id", "resultBox");
+    resultBox.setAttribute("id", `resultBox${index}`);
     resultBox.setAttribute("role", "option");
 
     const anchor = document.createElement("a");
