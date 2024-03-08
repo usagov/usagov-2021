@@ -365,6 +365,14 @@ jobs:
             cat /tmp/results/scan-cms-container.log
             exit 0
       - run:
+          name: Scan WWW Container
+          command: |
+            SCAN_WWW_RESULT=0
+            if (./bin/scan-container www << pipeline.number >> high | tee /tmp/results/scan-www-container.log); then export SCAN_WWW_RESULT=0; else export SCAN_WWW_RESULT=$?; fi
+            echo "WWW Container Scan return code: $SCAN_WWW_RESULT" | tee -a /tmp/results/scan-www-container.log
+            cat /tmp/results/scan-www-container.log
+            exit 0
+      - run:
           name: Scan WAF Container
           command: |
             SCAN_WAF_RESULT=0
@@ -390,6 +398,16 @@ jobs:
             if (./bin/scan-container-cis cms << pipeline.number >> | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
             echo "CMS CIS Benchmark Scan return code: $SCAN_CMS_CIS_RESULT" | tee -a /tmp/results/scan-cms-container-cis.log
             cat /tmp/results/scan-cms-container-cis.log
+            exit 0
+      - run:
+          name: Check WWW CIS Benchmarks
+          when: always
+          command: |
+            # use the fresh container to scan
+            SCAN_WWW_CIS_RESULT=0
+            if (./bin/scan-container-cis www << pipeline.number >> | tee /tmp/results/scan-www-container-cis.log); then export SCAN_WWW_CIS_RESULT=0; else export SCAN_WWW_CIS_RESULT=$?; fi
+            echo "WWW CIS Benchmark Scan return code: $SCAN_WWW_CIS_RESULT" | tee -a /tmp/results/scan-www-container-cis.log
+            cat /tmp/results/scan-www-container-cis.log
             exit 0
       - run:
           name: Check WAF CIS Benchmarks
@@ -578,6 +596,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1083-dev-merge-point
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -587,6 +606,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1083-dev-merge-point
       - approve-dev-deployment:
           type: approval
           requires:
@@ -595,6 +615,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1083-dev-merge-point
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -602,6 +623,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1083-dev-merge-point
       - approve-stage-deployment:
           type: approval
           requires:
