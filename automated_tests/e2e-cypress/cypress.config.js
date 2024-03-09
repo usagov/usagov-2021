@@ -1,5 +1,5 @@
 const { defineConfig } = require('cypress')
-const getCompareSnapshotsPlugin = require('cypress-image-diff-js/dist/plugin')
+const getCompareSnapshotsPlugin = require('cypress-image-diff-js/plugin')
 const { beforeRunHook } = require('cypress-mochawesome-reporter/lib')
 
 module.exports = defineConfig({
@@ -17,11 +17,12 @@ module.exports = defineConfig({
     chromeWebSecurity: false,
     responsetimeout: 10000,
     "blockHosts": ["www.google-analytics.com", "ssl.google-analytics.com"],
-    experimentalRunAllSpecs: true,
-    setupNodeEvents(on, config) {
+      experimentalRunAllSpecs: true,
+      setupNodeEvents(on, config) {
+
       // Plugins
-      getCompareSnapshotsPlugin(on, config),
-      require('cypress-mochawesome-reporter/plugin')(on),
+        require('cypress-mochawesome-reporter/plugin')(on),
+        getCompareSnapshotsPlugin(on, config),
       on('before:run', async (details) => {
         console.log('override before:run')
         await beforeRunHook(details)

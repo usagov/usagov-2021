@@ -12,7 +12,11 @@ describe('Mobile', () => {
 
         // Hide back to top btn to account for different scroll speeds
         cy.get('#back-to-top').hideElement()
-        cy.compareSnapshot('home-page-full', 0.1, retryOptions)
+        cy.compareSnapshot({
+	    name: 'home-page-full',
+	    testThreshold: 0.1,
+	    recurseOptions: retryOptions
+	})
     })
     it('Mobile menu appears and functions appropriately', () => {
         const retryOptions = {
@@ -26,7 +30,11 @@ describe('Mobile', () => {
         // Menu looks correct
         cy.wait(500)
         cy.get('.usagov-mobile-menu')
-            .compareSnapshot('home-page-menu', 0.1, retryOptions)
+            .compareSnapshot({
+		name: 'home-page-menu',
+		testThreshold: 0.1,
+		recurseOptions: retryOptions
+	    })
 
         // Close menu
         cy.get('.usagov-mobile-menu-top')
@@ -35,7 +43,11 @@ describe('Mobile', () => {
 
         // Page looks correct, menu collapsed
         cy.wait(500)
-        cy.compareSnapshot('home-page-full', 0.1, retryOptions)
+        cy.compareSnapshot({
+	    name: 'home-page-full',
+	    testThreshold: 0.1,
+	    recurseOptions:  retryOptions
+	})
     })
     it('Footer appears as expected on mobile, topics can be expanded and links function appropriately', () => {
         const retryOptions = {
@@ -45,8 +57,12 @@ describe('Mobile', () => {
 
         // Visually the default footer nav looks correct
         cy.get('.usa-footer__nav')
-            .compareSnapshot('footer-nav-default', 0, retryOptions)
-        
+            .compareSnapshot({
+		name: 'footer-nav-default',
+		testThreshold: 0,
+		recurseOptions: retryOptions
+	    })
+
         cy.get('.usa-footer__nav')
             .find('.usa-footer__primary-content')
             .each((section, i) => {
@@ -54,7 +70,7 @@ describe('Mobile', () => {
                     .find('.usa-list')
                     .should('not.be.visible')
 
-                // Expand accordion 
+                // Expand accordion
                 cy.wrap(section)
                     .find('.usa-gov-footer__primary-link')
                     .click()
@@ -66,7 +82,10 @@ describe('Mobile', () => {
                 // Visually the footer nav looks correct, one section should be expanded
                 /*cy.wait(500)
                 cy.get('.usa-footer__nav')
-                    .compareSnapshot(`footer-nav-expanded-section-${i}`, 0)*/
+                .compareSnapshot({
+		name: `footer-nav-expanded-section-${i}`,
+		testThreshold: 0
+		})*/
 
                 // Validate links
                 cy.wrap(section)
@@ -93,7 +112,11 @@ describe('Mobile', () => {
                 // Visually the footer nav looks correct, back to default
                 cy.wait(500)
                 cy.get('.usa-footer__nav')
-                    .compareSnapshot('footer-nav-default', 0, retryOptions)
+                    .compareSnapshot({
+			name: 'footer-nav-default',
+			testThreshold: 0,
+			recurseOptions: retryOptions
+		    })
             })
     })
 })
