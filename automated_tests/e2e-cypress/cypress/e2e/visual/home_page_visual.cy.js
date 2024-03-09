@@ -18,7 +18,10 @@ describe('Home Page - Visual', () => {
         // Accordion content should not be visible
         cy.get('header')
             .find('.usa-banner')
-            .compareSnapshot('accordion-default', 0, retryOptions)
+            .compareSnapshot({name: 'accordion-default',
+			      testThreshold: 0,
+			      recurseOptions: retryOptions
+			     })
 
         // Expand accordion
         cy.get('header')
@@ -29,7 +32,11 @@ describe('Home Page - Visual', () => {
         // Accordion content should be visible
         cy.get('header')
             .find('.usa-banner')
-            .compareSnapshot('accordion-expanded', 0.1, retryOptions)
+            .compareSnapshot({
+		name: 'accordion-expanded',
+		testThreshold: 0.1,
+		recurseOptions: retryOptions
+	    })
     })
     it('Life experiences carousel appears; can navigate through it to see all content (both arrows and circle indicator); can click cards and go to appropriate topic', () => {
         const retryOptions = {
@@ -42,8 +49,12 @@ describe('Home Page - Visual', () => {
 
         // Carousel looks correct, should start at default positioning
         cy.get('.life-events-carousel')
-            .compareSnapshot('life-events-carousel-default', 0.05, retryOptions)
-           
+            .compareSnapshot({
+		name: 'life-events-carousel-default',
+		testThreshold: 0.05,
+		recurseOptions: retryOptions
+	    })
+
         /*
          * Testing arrow buttons
          */
@@ -57,14 +68,18 @@ describe('Home Page - Visual', () => {
                 cy.get('.life-events-carousel')
                     .find('.next')
                     .click()
-                
+
                 // Visual check
                 cy.wait(500)
                 cy.get('.life-events-carousel')
-                    .compareSnapshot(`life-events-carousel-next-${i}`, 0.05, retryOptions)
+                    .compareSnapshot({
+			name: `life-events-carousel-next-${i}`,
+			testThreshold: 0.05,
+			recurseOptoins: retryOptions
+		    })
             })
 
-        // Click prev button back to the front 
+        // Click prev button back to the front
         for (let i = 0; i < num_events - num_visible; i++) {
             cy.get('.life-events-carousel')
                 .find('.previous')
@@ -74,8 +89,12 @@ describe('Home Page - Visual', () => {
         // Visual check, carousel should be back at default
         cy.wait(500)
         cy.get('.life-events-carousel')
-            .compareSnapshot('life-events-carousel-default', 0.05, retryOptions)
-        
+            .compareSnapshot({
+		name: 'life-events-carousel-default',
+		testThreshold: 0.05,
+		recurseOptions: retryOptions
+	    })
+
         /*
          * Testing nav circles
          */
@@ -84,12 +103,16 @@ describe('Home Page - Visual', () => {
         cy.get('.carousel__navigation_button')
             .last()
             .click()
-        
+
         // Visual check, carousel should be at the end
         cy.wait(500)
         cy.get('.life-events-carousel')
-            .compareSnapshot('life-events-carousel-end', 0.05, retryOptions)
-        
+            .compareSnapshot({
+		name: 'life-events-carousel-end',
+		testThreshold: 0.05,
+		recurseOptions: retryOptions
+	    })
+
         // Run through each nav button
         cy.get('.carousel__navigation_button')
             .each((el, i) => {
@@ -100,7 +123,11 @@ describe('Home Page - Visual', () => {
                     // Visual check
                     cy.wait(500)
                     cy.get('.life-events-carousel')
-                        .compareSnapshot(`life-events-carousel-nav-btn-${i}`, 0.05, retryOptions)
+                        .compareSnapshot({
+			    name: `life-events-carousel-nav-btn-${i}`,
+			    testThreshold: 0.05,
+			    recurseOptions: retryOptions
+			})
                 }
             })
     })

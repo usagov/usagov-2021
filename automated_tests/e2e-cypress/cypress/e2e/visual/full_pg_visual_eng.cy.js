@@ -10,8 +10,11 @@ describe('Visual testing for English site', () =>{
                 delay: 500 // delay before next iteration, ms
             }
 
-            // Threshold: 0.0
-            cy.compareSnapshot(subpath, 0.0, retryOptions)
+            cy.compareSnapshot({
+		name: subpath,
+		testThreshold: 0.0,
+		recurseOptions: retryOptions
+	    })
         })
     })
 })
