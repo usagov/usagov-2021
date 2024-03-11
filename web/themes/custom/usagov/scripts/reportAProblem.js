@@ -15,6 +15,8 @@ setInterval(timestamp, 500);
 
 
 function showReCaptchaError(reCaptchaContainer) {
+  "use strict";
+
   if ($("html").attr("lang") === "en") {
     // Adds an english error message before the captcha box.
     $('<span class="err-label usa-error recaptcha-error-message" tabindex="0">Fill out the reCaptcha</span>')
@@ -38,6 +40,8 @@ function showReCaptchaError(reCaptchaContainer) {
 }
 
 function hideReCaptchaError(reCaptchaContainer) {
+  "use strict";
+
   // Removes error messages from the reCaptcha
   var reCaptchaErrorMessage = reCaptchaContainer.querySelector(".recaptcha-error-message");
   reCaptchaErrorMessage ? reCaptchaErrorMessage.remove() : "";
