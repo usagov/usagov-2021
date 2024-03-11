@@ -13,7 +13,8 @@
     'search_placeholder': 'Busque en este sitio...',
     'search_affiliate': 'usagov_es_internal',
     'all_topics': 'Todos los temas y servicios',
-    'phone_URL': '/es/centro-de-llamadas'
+    'phone_URL': '/es/centro-de-llamadas',
+    'form_id':'usagov_es_internal-mobile'
   } %}
 {% else %}
   {% set main_nav_items = simplify_menu('left-menu-english') %}
@@ -29,7 +30,8 @@
     'search_placeholder': 'Search all government',
     'search_affiliate': 'usagov_all_gov',
     'all_topics': 'All topics and services',
-    'phone_URL': '/phone'
+    'phone_URL': '/phone',
+    'form_id':'usagov_all_gov-mobile'
   } %}
 {% endif %}
 
@@ -163,6 +165,7 @@
           label_string,
           alt_string,
         } %}
+          {% set form_id = translations.form_id %}
           {% set placeholder_string = translations.search_placeholder %}
           {% set value_string = translations.search_affiliate %}
           {% set label_string = translations.search %}
