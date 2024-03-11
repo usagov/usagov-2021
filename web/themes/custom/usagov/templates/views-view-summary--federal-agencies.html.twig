@@ -28,14 +28,16 @@
     'agencyindex': '/agency-index',
     'agencySearchAffiliateID': 'usagov_en_az',
     'search': 'Search',
-    'agencySearchLabel': 'Search agencies and departments'
+    'agencySearchLabel': 'Search agencies and departments',
+    'form_id':'usagov_en_az'
   } %}
 {% else %}
   {% set translations = {
     'agencyindex': '/es/indice-agencias',
     'agencySearchAffiliateID': 'usagov_es_az',
     'search': 'Buscar',
-    'agencySearchLabel': 'Busque una agencia o departamento'
+    'agencySearchLabel': 'Busque una agencia o departamento',
+    'form_id':'usagov_es_az'
   } %}
 {% endif %}
 
@@ -66,7 +68,6 @@
     <section aria-label="Small search component">
     {% embed 'usagov:searchbar' with {
       form_classes: "fed-directory-search-bar",
-      form_id:"fed-dir-id",
       label_id: "fedGallerySearch",
       for_string:"search-field-en-small",
       hidden_input_id:"affiliate-agency-search",
@@ -78,6 +79,7 @@
       label_string,
       alt_string,
     } %}
+      {% set form_id = translations.form_id %}
       {% set placeholder_string = translations.agencySearchLabel %}
       {% set value_string = translations.agencySearchAffiliateID %}
       {% set label_string = translations.agencySearchLabel %}
