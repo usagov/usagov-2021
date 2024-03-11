@@ -3,7 +3,7 @@ jQuery(document).ready(function ($) {
   var docLang = [document.documentElement.lang];
 
   // hidden label for a11y
-  const hiddenLabel = docLang == "es" ? "Elija o escriba el estado o territorio:" : "Select or type your state or territory:";
+  const hiddenLabel = docLang === "es" ? "Elija o escriba el estado o territorio:" : "Select or type your state or territory:";
 
   $("#comboBoxDiv").append(
     `<label class="visuallyhidden">${hiddenLabel}:<select class="usa-select usa-sr-only usa-combo-box__select" name="state-info" id="stateselect" aria-hidden="true" tabindex="-1"></select></label>`
@@ -37,7 +37,7 @@ jQuery(document).ready(function ($) {
   );
 
   // add the submit button
-  const sumBtn = docLang == "es" ? "Ir" : "Go";
+  const sumBtn = docLang === "es" ? "Ir" : "Go";
   $("#submitAfter").append(
     `<button class="usa-button sd-go-btn usa-button--secondary" type="submit">${sumBtn}</button>`
   );
@@ -52,7 +52,6 @@ jQuery(document).ready(function ($) {
 
   goButton.click(function() {
     let stateData = new FormData(stateForm);
-    let stateValue = stateData.get('state-info');
     let stateIsEmpty = $.isEmptyObject(stateData.get('state-info'));
     if (!stateIsEmpty) {
       window.location.href = url;
