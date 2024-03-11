@@ -59,13 +59,13 @@ export S3_PROXY_WEB
 export S3_PROXY_CMS
 export S3_PROXY_PATH_CMS
 
-if [ -f "/etc/php81/php-fpm.d/env.conf.tmpl" ]; then
-  cp /etc/php81/php-fpm.d/env.conf.tmpl /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_PROXY_PATH_CMS] = "$S3_PROXY_PATH_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_PROXY_CMS] = "$S3_PROXY_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_ROOT_CMS] = "$S3_ROOT_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_HOST] = "$S3_HOST >> /etc/php81/php-fpm.d/env.conf
-fi
+#if [ -f "/etc/php81/php-fpm.d/env.conf.tmpl" ]; then
+#  cp /etc/php81/php-fpm.d/env.conf.tmpl /etc/php81/php-fpm.d/env.conf
+#  echo "env[S3_PROXY_PATH_CMS] = "$S3_PROXY_PATH_CMS >> /etc/php81/php-fpm.d/env.conf
+#  echo "env[S3_PROXY_CMS] = "$S3_PROXY_CMS >> /etc/php81/php-fpm.d/env.conf
+#  echo "env[S3_ROOT_CMS] = "$S3_ROOT_CMS >> /etc/php81/php-fpm.d/env.conf
+#  echo "env[S3_HOST] = "$S3_HOST >> /etc/php81/php-fpm.d/env.conf
+#fi
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 
