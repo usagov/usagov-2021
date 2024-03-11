@@ -50,7 +50,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       nginx \
       nginx-mod-http-lua \
       php81 \
-      php81-fpm \
+#      php81-fpm \
       php81-bcmath \
       php81-bz2 \
       php81-calendar \
@@ -111,9 +111,10 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && ln -s /dev/stderr /var/log/nginx/error.log \
     && ln -s /dev/stdout /var/log/nginx/access.log \
     && mkdir -p /run/nginx/ \
-    && touch /run/nginx/nginx.pid \
+    && touch /run/nginx/nginx.pid 
+    # \
     # php setup
-    && ln -s /usr/sbin/php-fpm81 /usr/sbin/php-fpm
+    #&& ln -s /usr/sbin/php-fpm81 /usr/sbin/php-fpm
 
     # new relic setup
 COPY bin/src/newrelic.sh /local/newrelic.sh
