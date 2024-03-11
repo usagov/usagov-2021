@@ -273,7 +273,6 @@ async function handleFormSubmission() {
                 // Arranges the drop-down arrow within the input field.
                 document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px";
                 document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px";
-                document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "30px";
             }
         }
 
@@ -297,7 +296,6 @@ async function handleFormSubmission() {
                 // Arranges the drop-down arrow within the input field.
                 document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "1px";
                 document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "1px";
-                document.getElementsByClassName("usa-combo-box__clear-input")[0].style["top"] = "1px";
             }
         }
     });
@@ -374,17 +372,9 @@ async function handleFormSubmission() {
 window.addEventListener("load", function () {
     "use strict";
 
-    // Clarify the purpose of the dropdown menu's clear button
-    let clearButtons = document.getElementsByClassName("usa-combo-box__clear-input");
-    for (let i = 0; i < clearButtons.length; i++) {
-        // Multiple if statements to prevent a runaway error
-        if (clearButtons[i].parentElement) {
-            if (clearButtons[i].parentElement.previousElementSibling) {
-                if (clearButtons[i].parentElement.previousElementSibling.id === "input-state") {
-                    clearButtons[i].setAttribute("aria-label", a11y_content.clear_state);
-                }
-            }
-        }
+    let clearButtonWrappers = document.getElementsByClassName("usa-combo-box__clear-input__wrapper");
+    for (let i = 0; i < clearButtonWrappers.length; i++) {
+        clearButtonWrappers[i].remove();
     }
 
     // Include the dropdown menu's toggle button in the tab order
