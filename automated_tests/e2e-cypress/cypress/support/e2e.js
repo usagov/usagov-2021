@@ -28,5 +28,5 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 // Import and add Cypress image command
 // const compareSnapshotCommand = require('cypress-image-diff-js/dist/command')
-const compareSnapshotCommand = require('cypress-image-diff-js/command')
+const compareSnapshotCommand = require('cypress-image-diff-js/dist/command')
 compareSnapshotCommand()

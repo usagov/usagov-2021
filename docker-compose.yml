@@ -130,8 +130,10 @@ services:
       dockerfile: .docker/Dockerfile-cypress
     env_file:
       - ./env.local
+      - ./env.local.cypress
     volumes:
       - ./automated_tests/e2e-cypress:/app/e2e-cypress
+      - /tmp/.X11-unix:/tmp/.X11-unix
     working_dir: /app/e2e-cypress
     command: /app/start.sh
     networks:
