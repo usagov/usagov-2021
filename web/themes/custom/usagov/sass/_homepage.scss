@@ -239,9 +239,11 @@
   align-items: stretch;
   display: flex;
   flex-direction: column;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 30px;
+  margin: 0;
+  margin-block: 0;
+  // margin-left: auto;
+  // margin-right: auto;
+  // margin-top: 30px;
   max-width: var($homepage, smaller-max-width);
 }
 
@@ -424,7 +426,7 @@
 
   .how-button-list {
     flex-flow: row wrap;
-    margin-top: 20px;
+    // margin-top: 20px;
   }
 
   .how-button {
@@ -487,9 +489,9 @@
 
 /* Tablet */
 @media (max-width: 700px) and (min-width: 480px) {
-  .how-button-list {
-    margin-top: 30px;
-  }
+  // .how-button-list {
+  //   margin-top: 30px;
+  // }
 
   .how-button {
     margin-bottom: 15px;
