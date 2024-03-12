@@ -34,11 +34,12 @@
 {% set titlevar = "" %}
 {% set urlvar = "" %}
 {% set abbrvar = "" %}
+{% set stateabbrvar = "" %}
 {% for field in fields -%}
 	{% if field.class == 'title'%}
 		{% set titlevar = field.content %}
 	{% endif %}
-	{% if field.class == 'field-abbreviations'%}
+	{% if field.class == 'field-state-abbr'%}
 		{% set abbrvar = field.content %}
 	{% endif %}
 	{% if field.class == view.args[0] %}
