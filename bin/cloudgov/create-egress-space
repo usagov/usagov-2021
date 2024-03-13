@@ -51,7 +51,7 @@ for SECURITY_GROUP in $RUNNING_SECURITY_GROUPS; do
     echo "$SECURITY_GROUP already bound to $EGRESS_SPACE during 'running' lifecycle"
   else
     echo "Binding $SECURITY_GROUP to $EGRESS_SPACE during 'running' lifecycle"
-    $output cf bind-security-group $SECURITY_GROUP $EGRESS_ORG $EGRESS_SPACE --lifecycle running
+    $output cf bind-security-group $SECURITY_GROUP $EGRESS_ORG --space $EGRESS_SPACE --lifecycle running
   fi
 done
 
@@ -81,6 +81,7 @@ done
   if service_exists "key-value" ; then
     echo key-value already created
   else
+    cf target -s $EGRESS_SPACE
     cf create-service s3 basic-sandbox key-value
   fi
 }
