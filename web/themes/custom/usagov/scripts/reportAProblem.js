@@ -36,7 +36,7 @@ function showReCaptchaError(reCaptchaContainer) {
   reCaptchaContainer.classList.add("usa-form-spacing", "usa-border-error");
   // Aligns the reCaptcha to the left when it has an error.
   reCaptchaContainer.querySelector(".recaptcha-alignment").style.justifyContent = "left";
-  captchaValidationResult = false;
+
 }
 
 function hideReCaptchaError(reCaptchaContainer) {
@@ -84,6 +84,7 @@ function reCaptchaValidation() {
     if (grecaptcha.getResponse(0).length === 0) {
       if (!reCaptchaLargeContainer.querySelector("span.recaptcha-error-message")) {
         showReCaptchaError(reCaptchaLargeContainer);
+        captchaValidationResult = false;
       }
     }
     else {
@@ -96,6 +97,7 @@ function reCaptchaValidation() {
     if (grecaptcha.getResponse(1).length === 0) {
       if (!reCaptchaSmallContainer.querySelector("span.recaptcha-error-message")) {
         showReCaptchaError(reCaptchaSmallContainer);
+        captchaValidationResult = false;
       }
     }
     else {
