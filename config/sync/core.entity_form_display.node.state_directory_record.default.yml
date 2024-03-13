@@ -362,6 +362,11 @@ content:
     settings:
       display_label: true
     third_party_settings: {  }
+  simple_sitemap:
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   status:
     type: boolean_checkbox
     weight: 12
@@ -406,3 +411,4 @@ content:
     third_party_settings: {  }
 hidden:
   feeds_item: true
+  menu_entity_index: true
