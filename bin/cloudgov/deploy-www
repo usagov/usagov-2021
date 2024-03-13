@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# This script will attempt to deploy a cms app by tag
+# This script will attempt to deploy an ssc app by tag
 #
 
 # we might be running in circleci
@@ -18,8 +18,8 @@ fi
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
-CTAG=${1:-latest}
-CDIGEST=${2:-}
+STAG=${1:-latest}
+SDIGEST=${2:-}
 
 APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
 APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
@@ -63,12 +63,12 @@ function pushApp { #appname
     instances="-i 1"
   fi
 
-  if [ -z "$CDIGEST" ]; then
-    echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}
+  if [ -z "$SDIGEST" ]; then
+    echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG}"
+    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG}
   else
-    echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${CTAG} via digest ${CDIGEST}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+    echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${STAG} via digest ${SDIGEST}"
+    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${SDIGEST}
   fi
 }
 
@@ -78,24 +78,33 @@ function setupRoutes { #appname
     echo "ERROR: appname is required"
     exit 1
   fi
-
+  # the egress-setup doesn't interfere with bootstrapping
+  # but cms needs to exist in the first place
+  # for route mapping and egress setup to run
+  
   if [ "$APP_SPACE" == "dev-dr" ]; then
-    cf create-route apps.internal --hostname shared-egress-dr-usagov
-    cf map-route $app apps.internal --hostname shared-egress-dr-usagov
+    cf create-route apps.internal --hostname dev-dr-usagov
+    cf map-route $app apps.internal --hostname dev-dr-usagov
+    cf create-route usa.gov --hostname dev-dr
+    cf map-route $app usa.gov --hostname dev-dr
 
   else
-    cf create-route apps.internal --hostname cms-$APP_SPACE-usagov
-    cf map-route $app apps.internal --hostname cms-$APP_SPACE-usagov
+    cf create-route apps.internal --hostname beta-$APP_SPACE-usagov
+    cf map-route $app apps.internal --hostname beta-$APP_SPACE-usagov
 
     if [ "$APP_SPACE" == "prod" ]; then
-      cf create-route usa.gov --hostname cms
-      cf map-route $app usa.gov --hostname cms
+      cf create-route apps.internal --hostname www-$APP_SPACE-usagov
+      cf  map-route $app apps.internal --hostname www-$APP_SPACE-usagov
+      cf create-route usa.gov --hostname beta
+      cf map-route $app usa.gov --hostname beta
+      cf create-route usa.gov --hostname www
+      cf map-route $app usa.gov --hostname www
 
     else
-      cf create-route usa.gov --hostname cms-$APP_SPACE
-      cf map-route $app usa.gov --hostname cms-$APP_SPACE
-
+      cf create-route usa.gov --hostname beta-$APP_SPACE
+      cf map-route $app usa.gov --hostname beta-$APP_SPACE
     fi
+
   fi
 }
 
@@ -117,24 +126,17 @@ function setupNewrelic { #appname
   $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart
 }
 
-function setUSPSCreds {
-  cf set-env cms USPS_USERID $USPS_USERID
-  cf set-env cms USPS_PASSWORD $USPS_PASSWORD
-}
-
-if appExists cms; then
-  setupRoutes cms
+if appExists www; then
+  setupRoutes www
 #  setupEgress cms
-  setupNewrelic cms
-  setUSPSCreds
-  pushApp cms
+  setupNewrelic www
+  pushApp www
 else
-  cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
-  pushApp cms
-  setupRoutes cms
+  cf set-env www SKIP_DRUPAL_BOOTSTRAP "skip"
+  pushApp www
+  setupRoutes www
 #  setupEgress cms
-  setupNewrelic cms
-  setUSPSCreds
-  cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
-  restartApp cms
+  setupNewrelic www
+  cf set-env www SKIP_DRUPAL_BOOTSTRAP ""
+  restartApp www
 fi
