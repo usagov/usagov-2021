@@ -573,14 +573,14 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - usagov-1440-sayt-static-and-ids
                 - stage
                 - prod
       - deploy-reporter-tools:
           filters:
             branches:
               only:
-                - dev
+                - usagov-1440-sayt-static-and-ids
                 - stage
                 - prod
           requires:
@@ -593,7 +593,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - usagov-1440-sayt-static-and-ids
                 - stage
                 - prod
                 - USAGOV-1083-dev-merge-point
@@ -603,7 +603,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - usagov-1440-sayt-static-and-ids
                 - stage
                 - prod
                 - USAGOV-1083-dev-merge-point
@@ -614,7 +614,7 @@ workflows:
           filters:
             branches:
               only:
-              - dev
+              - usagov-1440-sayt-static-and-ids
               - USAGOV-1083-dev-merge-point
       - deploy-to-cloudgov-dev:
           requires:
@@ -622,7 +622,7 @@ workflows:
           filters:
             branches:
               only:
-              - dev
+              - usagov-1440-sayt-static-and-ids
               - USAGOV-1083-dev-merge-point
       - approve-stage-deployment:
           type: approval
