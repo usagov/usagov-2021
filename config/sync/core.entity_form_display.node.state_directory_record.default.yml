@@ -5,7 +5,6 @@ dependencies:
   config:
     - field.field.node.state_directory_record.body
     - field.field.node.state_directory_record.feeds_item
-    - field.field.node.state_directory_record.field_abbreviations
     - field.field.node.state_directory_record.field_agriculture_department
     - field.field.node.state_directory_record.field_city
     - field.field.node.state_directory_record.field_consumer_protection
@@ -67,14 +66,6 @@ content:
     weight: 6
     region: content
     settings: {  }
-    third_party_settings: {  }
-  field_abbreviations:
-    type: string_textfield
-    weight: 46
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
     third_party_settings: {  }
   field_agriculture_department:
     type: link_default
