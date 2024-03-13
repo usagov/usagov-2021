@@ -3,7 +3,6 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_abbreviations
     - field.storage.node.field_agriculture_department
     - field.storage.node.field_consumer_protection
     - field.storage.node.field_corrections_dept
@@ -17,11 +16,13 @@ dependencies:
     - field.storage.node.field_local_governments
     - field.storage.node.field_motor_vehicle_office
     - field.storage.node.field_social_services
+    - field.storage.node.field_state_abbr
     - field.storage.node.field_state_attorney_general
     - node.type.state_directory_record
   module:
     - link
     - node
+    - options
     - user
 id: 50_state_pages
 label: '50 State Pages'
@@ -1094,10 +1095,10 @@ display:
           text: view
           output_url_as_text: true
           absolute: false
-        field_abbreviations:
-          id: field_abbreviations
-          table: node__field_abbreviations
-          field: field_abbreviations
+        field_state_abbr:
+          id: field_state_abbr
+          table: node__field_state_abbr
+          field: field_state_abbr
           relationship: none
           group_type: group
           admin_label: ''
@@ -1144,9 +1145,8 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: string
-          settings:
-            link_to_entity: false
+          type: list_default
+          settings: {  }
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -1300,7 +1300,6 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_abbreviations'
         - 'config:field.storage.node.field_agriculture_department'
         - 'config:field.storage.node.field_consumer_protection'
         - 'config:field.storage.node.field_corrections_dept'
@@ -1314,6 +1313,7 @@ display:
         - 'config:field.storage.node.field_local_governments'
         - 'config:field.storage.node.field_motor_vehicle_office'
         - 'config:field.storage.node.field_social_services'
+        - 'config:field.storage.node.field_state_abbr'
         - 'config:field.storage.node.field_state_attorney_general'
   50_state_pages_block:
     id: 50_state_pages_block
@@ -1330,7 +1330,6 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_abbreviations'
         - 'config:field.storage.node.field_agriculture_department'
         - 'config:field.storage.node.field_consumer_protection'
         - 'config:field.storage.node.field_corrections_dept'
@@ -1344,6 +1343,7 @@ display:
         - 'config:field.storage.node.field_local_governments'
         - 'config:field.storage.node.field_motor_vehicle_office'
         - 'config:field.storage.node.field_social_services'
+        - 'config:field.storage.node.field_state_abbr'
         - 'config:field.storage.node.field_state_attorney_general'
   50_state_pages_block_spanish:
     id: 50_state_pages_block_spanish
@@ -1436,7 +1436,6 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_abbreviations'
         - 'config:field.storage.node.field_agriculture_department'
         - 'config:field.storage.node.field_consumer_protection'
         - 'config:field.storage.node.field_corrections_dept'
@@ -1450,4 +1449,5 @@ display:
         - 'config:field.storage.node.field_local_governments'
         - 'config:field.storage.node.field_motor_vehicle_office'
         - 'config:field.storage.node.field_social_services'
+        - 'config:field.storage.node.field_state_abbr'
         - 'config:field.storage.node.field_state_attorney_general'

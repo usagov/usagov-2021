@@ -6,7 +6,6 @@ dependencies:
     - core.entity_view_mode.node.teaser
     - field.field.node.state_directory_record.body
     - field.field.node.state_directory_record.feeds_item
-    - field.field.node.state_directory_record.field_abbreviations
     - field.field.node.state_directory_record.field_agriculture_department
     - field.field.node.state_directory_record.field_city
     - field.field.node.state_directory_record.field_consumer_protection
@@ -65,7 +64,6 @@ content:
     region: content
 hidden:
   feeds_item: true
-  field_abbreviations: true
   field_agriculture_department: true
   field_city: true
   field_consumer_protection: true

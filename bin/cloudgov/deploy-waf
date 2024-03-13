@@ -90,22 +90,18 @@ fi
 # Space-specific configuration. Prod gets multiple instances.
 # IP_ALLOW_ALL_CMS should be set to 0 to restrict access to the CMS  to IP_ALLOWED
 # (defined elsewhere, includes GSA firewall and Salesforce automation), 1 to allow all.
-# IP_ALLOW_ALL_WAF does the same, but for the static site.
+# IP_ALLOW_ALL_WWW does the same, but for the static site.
 instances="-i 1"
 IP_ALLOW_ALL_CMS=0
-IP_ALLOW_ALL_WAF=0
+IP_ALLOW_ALL_WWW=0
 if [ "$APP_SPACE" == "prod" ]; then
     instances="-i 2"
     IP_ALLOW_ALL_CMS=1
-    IP_ALLOW_ALL_WAF=1
+    IP_ALLOW_ALL_WWW=1
 elif [ "$APP_SPACE" == "stage" ]; then
     instances="-i 1"
     IP_ALLOW_ALL_CMS=1
-    IP_ALLOW_ALL_WAF=1
-elif [ "$APP_SPACE" == "dev-dr" ]; then
-    instances="-i 1"
-    IP_ALLOW_ALL_CMS=1
-    IP_ALLOW_ALL_WAF=1
+    IP_ALLOW_ALL_WWW=1
 # Defaults are appropriate for dev and any other dev-like space.
 fi
 
@@ -115,7 +111,7 @@ if ! existsCFApp $ROUTE_SERVICE_APP_NAME; then
 else
   # remove proxy
     cf set-env $ROUTE_SERVICE_APP_NAME IP_ALLOW_ALL_CMS $IP_ALLOW_ALL_CMS
-    cf set-env $ROUTE_SERVICE_APP_NAME IP_ALLOW_ALL_WAF $IP_ALLOW_ALL_WAF
+    cf set-env $ROUTE_SERVICE_APP_NAME IP_ALLOW_ALL_WWW $IP_ALLOW_ALL_WWW
 fi
 
 
