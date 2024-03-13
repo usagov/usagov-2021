@@ -252,10 +252,11 @@ async function handleFormSubmission() {
                 }
             }
             else {
+                var sanitizeResponse = DOMPurify.sanitize(response.errorMessage);
                 // Change the error message above the input field.
-                message = response.errorMessage;
+                message = sanitizeResponse;
                 // Change the error message inside the alert box.
-                document.getElementById(errorID).getElementsByTagName("span")[0].innerHTML =  response.errorMessage;
+                document.getElementById(errorID).getElementsByTagName("span")[0].innerHTML =  sanitizeResponse;
             }
 
             field.previousElementSibling.innerHTML = message;
