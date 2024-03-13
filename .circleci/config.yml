@@ -621,7 +621,7 @@ workflows:
           filters:
             branches:
               only:
-              - dev
+              - USAGOV-1296-recaptcha-error-style
       - approve-stage-deployment:
           type: approval
           requires:
