@@ -99,6 +99,11 @@ for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
 done
 
 # update new relic with environment specific settings
+echo "Disabling NewRelic for dev-dr environment"
+if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
+  mv /etc/php81/conf.d/newrelic.ini /root
+fi
+
 if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
   if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$NEW_RELIC_LICENSE_KEY" != "null" ]; then
     echo "Setting up New Relic ... "
@@ -115,7 +120,7 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
     echo "Turning off New Relic ... "
     sed -i \
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
-        /etc/1/conf.d/newrelic.ini
+        /etc/php81/conf.d/newrelic.ini
   fi
   if [ -z "${https_proxy:-}" ]; then # I'M CHEATING REMOVE THE SEMICOLONS AFTER TESTING
     sed -i \
