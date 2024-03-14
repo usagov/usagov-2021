@@ -53,15 +53,15 @@ if [ -z "${ROUTE_SERVICE_NAME+set}" ]; then
   ENV_ANY_NOT_SET=1
 fi
 
-if [ -z "${PROTECTED_APP_NAME+set}" ]; then
-  printf "\nMust set PROTECTED_APP_NAME environment variable\n"
+if [ -z "${PROTECTED_APP_NAMES+set}" ]; then
+  printf "\nMust set PROTECTED_APP_NAMES environment variable\n"
   ENV_ANY_NOT_SET=1
 fi
 
 if [ "${ENV_ANY_NOT_SET+set}" ]; then
 
   printf "\nExample:\n"
-  printf "\tROUTE_SERVICE_APP_NAME=waf ROUTE_SERVICE_NAME=waf-route-$SPACE-usagov PROTECTED_APP_NAME=cms ${0} ${CTAG} ${CDIGEST}\n"
+  printf "\tROUTE_SERVICE_APP_NAME=waf ROUTE_SERVICE_NAME=waf-route-$SPACE-usagov PROTECTED_APP_NAMES=cms,www ${0} ${CTAG} ${CDIGEST}\n"
   exit 1
 fi
 
@@ -90,18 +90,18 @@ fi
 # Space-specific configuration. Prod gets multiple instances.
 # IP_ALLOW_ALL_CMS should be set to 0 to restrict access to the CMS  to IP_ALLOWED
 # (defined elsewhere, includes GSA firewall and Salesforce automation), 1 to allow all.
-# IP_ALLOW_ALL_WAF does the same, but for the static site.
+# IP_ALLOW_ALL_WWW does the same, but for the static site.
 instances="-i 1"
 IP_ALLOW_ALL_CMS=0
-IP_ALLOW_ALL_WAF=0
+IP_ALLOW_ALL_WWW=0
 if [ "$APP_SPACE" == "prod" ]; then
     instances="-i 2"
     IP_ALLOW_ALL_CMS=1
-    IP_ALLOW_ALL_WAF=1
+    IP_ALLOW_ALL_WWW=1
 elif [ "$APP_SPACE" == "stage" ]; then
     instances="-i 1"
     IP_ALLOW_ALL_CMS=1
-    IP_ALLOW_ALL_WAF=1
+    IP_ALLOW_ALL_WWW=1
 # Defaults are appropriate for dev and any other dev-like space.
 fi
 
@@ -111,7 +111,7 @@ if ! existsCFApp $ROUTE_SERVICE_APP_NAME; then
 else
   # remove proxy
     cf set-env $ROUTE_SERVICE_APP_NAME IP_ALLOW_ALL_CMS $IP_ALLOW_ALL_CMS
-    cf set-env $ROUTE_SERVICE_APP_NAME IP_ALLOW_ALL_WAF $IP_ALLOW_ALL_WAF
+    cf set-env $ROUTE_SERVICE_APP_NAME IP_ALLOW_ALL_WWW $IP_ALLOW_ALL_WWW
 fi
 
 
@@ -136,10 +136,7 @@ cf start "${ROUTE_SERVICE_APP_NAME}"
 
 printf "\nFetching GUIDs for protected-app & route-service-app\n"
 
-PROTECTED_APP_GUID="$(cf app ${PROTECTED_APP_NAME} --guid)"
 ROUTE_SERVICE_APP_GUID="$(cf app ${ROUTE_SERVICE_APP_NAME} --guid)"
-
-printf "\tprotected-app (${PROTECTED_APP_NAME}): ${PROTECTED_APP_GUID}\n"
 printf "\troute-service-app (${ROUTE_SERVICE_APP_NAME}): ${ROUTE_SERVICE_APP_GUID}\n"
 
 ROUTE_SERVICE_DOMAIN="$(cf curl "/v3/apps/$(cf app "${ROUTE_SERVICE_APP_NAME}" --guid)/routes" | jq -r --arg ROUTE_DOMAIN "${ROUTE_DOMAIN}" '[.resources[] | select(.url | endswith($ROUTE_DOMAIN))][0].url')"
@@ -162,22 +159,34 @@ else
     -r "https://${ROUTE_SERVICE_DOMAIN}";
 fi
 
-printf "\nBindng [ ${PROTECTED_APP_NAME} ] routes to [ ${ROUTE_SERVICE_NAME} ]\n"
+#PROTECTED_APP_NAMES="Ubuntu;Linux Mint;Debian;Arch;Fedora"
 
-HOST_NAMES=($(cf curl "/v3/apps/$PROTECTED_APP_GUID/routes" | jq -r --arg APPS_DOMAIN "${APPS_DOMAIN}" '[.resources[] | select(.url | endswith($APPS_DOMAIN))][].host'))
+IFS=',' read -ra app_names_array <<< "$PROTECTED_APP_NAMES"
 
-for url in "${HOST_NAMES[@]}"; do
-  echo "\nBinding ${url}.${APPS_DOMAIN} to ${ROUTE_SERVICE_NAME}\n"
-  cf bind-route-service "${APPS_DOMAIN}" "${ROUTE_SERVICE_NAME}" --hostname "${url}";
-  if [ $(echo "$url" | grep 'cms') ]; then
-    cf set-env $ROUTE_SERVICE_APP_NAME CMS_HOST "$url"
-  elif [ $(echo "$url" | grep 'beta') ]; then
-    cf set-env $ROUTE_SERVICE_APP_NAME WWW_HOST "$url"
-  fi
+#Print the split string
+for PROTECTED_APP_NAME in "${app_names_array[@]}"
+do
+
+  PROTECTED_APP_GUID="$(cf app ${PROTECTED_APP_NAME} --guid)"
+  printf "\tprotected-app (${PROTECTED_APP_NAME}): ${PROTECTED_APP_GUID}\n"
+
+  printf "\nBinding [ ${PROTECTED_APP_NAME} ] routes to [ ${ROUTE_SERVICE_NAME} ]\n"
+
+  HOST_NAMES=($(cf curl "/v3/apps/$PROTECTED_APP_GUID/routes" | jq -r --arg APPS_DOMAIN "${APPS_DOMAIN}" '[.resources[] | select(.url | endswith($APPS_DOMAIN))][].host'))
+
+  for url in "${HOST_NAMES[@]}"; do
+    echo "\nBinding ${url}.${APPS_DOMAIN} to ${ROUTE_SERVICE_NAME}\n"
+    cf bind-route-service "${APPS_DOMAIN}" "${ROUTE_SERVICE_NAME}" --hostname "${url}";
+    if [ $(echo "$url" | grep 'cms') ]; then
+      cf set-env $ROUTE_SERVICE_APP_NAME CMS_HOST "$url"
+    elif [ $(echo "$url" | grep 'beta') ]; then
+      cf set-env $ROUTE_SERVICE_APP_NAME WWW_HOST "$url"
+    fi
+  done
+
+  cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 443
+  cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 80
+  cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 61443
 done
-
-cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 443
-cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 80
-cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 61443
 
 #$SCRIPT_DIR/setup-egress-for-apps waf

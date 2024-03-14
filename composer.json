@@ -66,6 +66,7 @@
         "drupal/views_menu_children_filter": "^3.0@RC",
         "drupal/viewsreference": "^2.0@beta",
         "drush/drush": "^12",
+        "masterminds/html5": "^2.0",
         "mglaman/composer-drupal-lenient": "^1.0",
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
