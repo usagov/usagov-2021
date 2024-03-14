@@ -106,9 +106,9 @@ services:
       dockerfile: .docker/Dockerfile-minio
       args:
         - BUILD_ENV
-    ports:
-      - 9000:9000
-      - 9001:9001
+    # ports:
+    #   - 9000:9000
+    #   - 9001:9001
     volumes:
       - ./s3:/data
       - ./.docker/src-minio/docker-entrypoint-minio.sh:/docker-entrypoint-minio.sh
