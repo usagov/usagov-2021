@@ -596,7 +596,6 @@ workflows:
                 - USAGOV-1296-recaptcha-error-style
                 - stage
                 - prod
-                - USAGOV-1083-dev-merge-point
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -606,7 +605,6 @@ workflows:
                 - USAGOV-1296-recaptcha-error-style
                 - stage
                 - prod
-                - USAGOV-1083-dev-merge-point
       - approve-dev-deployment:
           type: approval
           requires:
