@@ -1,0 +1,165 @@
+
+###############################################################
+FROM alpine:3.18 AS www
+
+ARG S6_VERSION
+ENV S6_VERSION ${S6_VERSION:-v2.2.0.3}
+
+ARG GITBRANCH
+ENV GITBRANCH ${GITBRANCH:-none}
+
+ARG GITCOMMIT
+ENV GITCOMMIT ${GITCOMMIT:-none}
+
+ARG GITTAG
+ENV GITTAG ${GITTAG:-none}
+
+ARG CONTAINERTAG
+ENV CONTAINERTAG ${CONTAINERTAG:-none}
+
+ARG BUID=1000
+ARG BGID=1000
+
+ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
+
+# Dependencies
+RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
+    && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
+    && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
+    && sed -E -i "s/nginx:x:[0-9]+:[0-9]+:/nginx:x:${BUID}:${BGID}:/g" /etc/passwd \
+    && sed -E -i "s/nginx:x:[0-9]+:/nginx:x:${BGID}:/g" /etc/group \
+    && addgroup -S -g $BGID nginx \
+    && adduser -S -G nginx -D -H -u $BUID nginx \
+    && apk upgrade --update \
+    && apk add --no-cache --virtual .persistent-deps \
+      aws-cli \
+      ca-certificates \
+      curl \
+      gettext \
+      git \
+      inotify-tools \
+      jq \
+      moreutils \
+      pv \
+      tar \
+      xz \
+      vim \
+      nano \
+      mysql-client \
+      mariadb-connector-c \
+      nginx \
+      nginx-mod-http-lua \
+      php81 \
+#      php81-fpm \
+      php81-bcmath \
+      php81-bz2 \
+      php81-calendar \
+      php81-curl \
+      php81-ctype \
+      php81-dom \
+      php81-fileinfo \
+      php81-ftp \
+      php81-gd \
+      php81-intl \
+      php81-iconv \
+      php81-imap \
+      php81-intl \
+      php81-json \
+      php81-ldap \
+      php81-mbstring \
+      php81-mysqlnd \
+      php81-openssl \
+      php81-opcache \
+      php81-pcntl \
+      php81-pdo \
+      php81-pdo_mysql \
+      php81-pdo_sqlite \
+      php81-pear \
+      php81-pecl-imagick \
+      php81-pecl-xdebug \
+      php81-phar \
+      php81-posix \
+      php81-session \
+      php81-simplexml \
+      php81-shmop \
+      php81-soap \
+      php81-sockets \
+      php81-sodium \
+      php81-sqlite3 \
+      php81-sysvmsg \
+      php81-sysvsem \
+      php81-sysvshm \
+      php81-tokenizer \
+      php81-tidy \
+      php81-xsl \
+      php81-xml \
+      php81-xmlreader \
+      php81-xmlwriter \
+      php81-zip \
+      php81-zlib \
+    && mkdir -p /var/www/web/sites/default/files \
+    # s6 supervisor setup
+    && tar xzf /tmp/s6overlay.tar.gz -C / \
+    && rm /tmp/s6overlay.tar.gz \
+    && mkdir -p /var/run/s6 \
+    && chown -R nginx:nginx /var/run/s6 \
+    # webserver setup
+    && mkdir -p /var/www/ \
+    && chown -R nginx:nginx /var/www \
+    && mkdir -p /var/log/nginx \
+    && chown -R nginx:nginx /var/log/nginx \
+    && ln -s /dev/stderr /var/log/nginx/error.log \
+    && ln -s /dev/stdout /var/log/nginx/access.log \
+    && mkdir -p /run/nginx/ \
+    && touch /run/nginx/nginx.pid 
+    # \
+    # php setup
+    #&& ln -s /usr/sbin/php-fpm81 /usr/sbin/php-fpm
+
+    # new relic setup
+COPY bin/src/newrelic.sh /local/newrelic.sh
+RUN . /local/newrelic.sh
+
+    # cron setup
+RUN mkdir -p /etc/periodic/1min \
+    && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root \
+    # cleanup
+    && rm -rf /var/cache/apk/*
+
+ENV PATH=/var/www/vendor/bin:$PATH
+
+COPY .docker/src-www/etc /etc
+COPY .docker/motd /etc/motd
+COPY --chown=nginx:nginx scripts /var/www/scripts
+COPY --chown=nginx:nginx config /var/www/config
+COPY --chown=nginx:nginx patches /var/www/patches
+COPY --chown=nginx:nginx webroot /var/www/webroot
+
+# Add the zscaler certificate to the trusted certs only on local builds
+# COPY cannot be conditional, but RUN can run conditional code.
+COPY .docker/zscaler_cert.pem /tmp/zscaler.crt
+RUN if [ x"${BUILD_ENV}" = x"LOCAL" ] ; then cp /tmp/zscaler.crt /usr/local/share/ca-certificates/zscaler.crt ; update-ca-certificates ; fi
+
+RUN chmod -R +x /etc/periodic \
+    && chown nginx:nginx /var/www \
+    && find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx \
+    && echo "    built:" $(date) >> /etc/motd \
+    && echo "    branch: " $GITBRANCH >> /etc/motd \
+    && echo "    gittag: " $GITTAG >> /etc/motd \
+    && echo "    commit: " $GITCOMMIT >> /etc/motd \
+    && echo "    containertag: " $CONTAINERTAG >> /etc/motd \
+    && echo >> /etc/motd \
+    && cp /etc/motd /var/www/web/version.txt \
+    && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
+
+EXPOSE 80
+
+WORKDIR /var/www
+
+HEALTHCHECK CMD s6-svstat /var/run/s6/services/nginx \
+  && s6-svstat /var/run/s6/services/php \
+  && s6-svstat /var/run/s6/services/cron \
+  && s6-svstat /var/run/s6/services/cert-watcher
+
+# Init s6
+ENTRYPOINT [ "/init" ]

@@ -31,3 +31,11 @@ then
     echo "docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2"
     docker push $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
 fi
+
+echo "docker push $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG"
+docker push $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG
+if [ -n "$CONTAINERTAG2" ]
+then
+    echo "docker push $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG2"
+    docker push $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG2
+fi

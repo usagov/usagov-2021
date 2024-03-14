@@ -89,7 +89,7 @@ trap popspace err
 # Check that all apps are there, or error out
 echo "Using App Space ${startorg}/${startspace}"
 for app in $applist ; do
-    cf app "$app" > /dev/null 2>&1 || echo "ERROR: App ${app} is not available!" && missing=1
+    cf app "$app" > /dev/null 2>&1 || echo "ERROR: App ${app} is not available!" && appmissing=1
 done
 if [ -n "${appmissing}" ]; then
     echo "Missing at least one specified app!"
