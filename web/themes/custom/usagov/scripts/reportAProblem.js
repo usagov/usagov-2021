@@ -33,7 +33,7 @@ function showReCaptchaError(reCaptchaContainer) {
   var alertBoxText = document.querySelector("#alert_error_recaptcha_large");
 
   if (reCaptchaContainer.id === "recaptcha-small-container") {
-    var alertBoxText = document.querySelector("#alert_error_recaptcha_small");
+    alertBoxText = document.querySelector("#alert_error_recaptcha_small");
   }
   // Makes the reCaptcha error text visible in the alert box.
 
@@ -61,7 +61,7 @@ function hideReCaptchaError(reCaptchaContainer) {
   var alertBoxText = document.querySelector("#alert_error_recaptcha_large");
 
   if (reCaptchaContainer.id === "recaptcha-small-container") {
-    var alertBoxText = document.querySelector("#alert_error_recaptcha_small");
+    alertBoxText = document.querySelector("#alert_error_recaptcha_small");
   }
 
   // Makes the reCaptcha error text invisible in the alert box.
