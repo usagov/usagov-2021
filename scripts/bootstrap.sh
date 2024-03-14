@@ -46,6 +46,7 @@ prod)
   WWW_HOST=www.usa.gov
   ;;
 *)
+  echo "**** WARNING:  Operating in cf space '$SPACE' - trying old method of WWW_HOST extraction.  May fail ****"
   WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | tr '\n' ' ')}
   WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | tr '\n' ' ')}
   ;;
