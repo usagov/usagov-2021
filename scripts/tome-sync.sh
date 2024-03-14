@@ -79,7 +79,7 @@ rm -rf $RENDER_DIR/es/node/ 2>&1 | tee -a $TOMELOG
 
 # WWW_HOST is not present in CMS app, as of USAGOV-1083.  
 # Determine WWW_HOST based on space name
-case $SPACE in
+case $APP_SPACE in
 dev)
   WWW_HOST=beta-dev.usa.gov
   ;;
@@ -90,7 +90,7 @@ prod)
   WWW_HOST=www.usa.gov
   ;;
 *)
-  echo "**** WARNING:  generating in cf space '$SPACE' - trying old method of WWW_HOST extraction.  May fail ****"
+  echo "**** WARNING:  generating in cf space '$APP_SPACE' - trying old method of WWW_HOST extraction.  May fail ****"
   WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | head -n 1)
   WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | head -n 1)}
   ;;
