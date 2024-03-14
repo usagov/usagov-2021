@@ -43,9 +43,8 @@ function searchAgencies(allAgencies) {
 
     if (lowerCaseAgency.match(firstWordExp) || lowerCaseAgency.match(begWordExp)) {
       returnAgencies.push(agency);
-    };
-
-    if (agency.agency_acronym.toLowerCase().match(abbrExp)) {
+    }
+ else if (agency.agency_acronym.toLowerCase().match(abbrExp)) {
       returnAgencies.push(agency);
     };
   });
