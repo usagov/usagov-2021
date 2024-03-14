@@ -593,7 +593,7 @@ workflows:
           filters:
             branches:
               only:
-                - USAGOV-1415-Update-CircleCI-Image
+                - dev
                 - stage
                 - prod
       - build-and-push-container:
@@ -602,7 +602,7 @@ workflows:
           filters:
             branches:
               only:
-                - USAGOV-1415-Update-CircleCI-Image
+                - dev
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -612,14 +612,14 @@ workflows:
           filters:
             branches:
               only:
-              - USAGOV-1415-Update-CircleCI-Image
+              - dev
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
               only:
-              - USAGOV-1415-Update-CircleCI-Image
+              - dev
       - approve-stage-deployment:
           type: approval
           requires:
