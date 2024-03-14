@@ -34,8 +34,23 @@ export S3_BUCKET
 export S3_ENDPOINT
 
 SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | tr '\n' ' ')}
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | tr '\n' ' ')}
+
+case $SPACE in
+dev)
+  WWW_HOST=beta-dev.usa.gov
+  ;;
+stage)
+  WWW_HOST=beta-stage.usa.gov
+  ;;
+prod)
+  WWW_HOST=www.usa.gov
+  ;;
+*)
+  WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | tr '\n' ' ')}
+  WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | tr '\n' ' ')}
+  ;;
+esac
+
 CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms | tr '\n' ' ')}
 if [ -z "$WWW_HOST" ]; then
   WWW_HOST="*.app.cloud.gov"
@@ -99,11 +114,6 @@ for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
 done
 
 # update new relic with environment specific settings
-echo "Disabling NewRelic for dev-dr environment"
-if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
-  mv /etc/php81/conf.d/newrelic.ini /root
-fi
-
 if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
   if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$NEW_RELIC_LICENSE_KEY" != "null" ]; then
     echo "Setting up New Relic ... "

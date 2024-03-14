@@ -597,6 +597,7 @@ workflows:
                 - stage
                 - prod
                 - USAGOV-1083-dev-merge-point
+                - USAGOV-1448-www-host-for-tome-sync
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -607,6 +608,7 @@ workflows:
                 - stage
                 - prod
                 - USAGOV-1083-dev-merge-point
+                - USAGOV-1448-www-host-for-tome-sync
       - approve-dev-deployment:
           type: approval
           requires:
@@ -616,6 +618,7 @@ workflows:
               only:
               - dev
               - USAGOV-1083-dev-merge-point
+              - USAGOV-1448-www-host-for-tome-sync
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -624,6 +627,7 @@ workflows:
               only:
               - dev
               - USAGOV-1083-dev-merge-point
+              - USAGOV-1448-www-host-for-tome-sync
       - approve-stage-deployment:
           type: approval
           requires:
