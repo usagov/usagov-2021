@@ -29,8 +29,14 @@ function showReCaptchaError(reCaptchaContainer) {
   }
   // Adds the error outline to the reCaptcha box.
   reCaptchaContainer.querySelector(".recaptcha-outline-padding").classList.add("usa-user-error");
+
+  var alertBoxText = document.querySelector("#alert_error_recaptcha_large");
+
+  if (reCaptchaContainer.id === "recaptcha-small-container") {
+    var alertBoxText = document.querySelector("#alert_error_recaptcha_small");
+  }
   // Makes the reCaptcha error text visible in the alert box.
-  var alertBoxText = document.querySelector("#alert_error_recaptcha");
+
   alertBoxText ? alertBoxText.classList.remove("usa-error--alert") : "";
   // Adds left padding from recaptcha.
   reCaptchaContainer.classList.add("usa-form-spacing", "usa-border-error");
@@ -52,8 +58,15 @@ function hideReCaptchaError(reCaptchaContainer) {
   var reCaptchaErrorLabel = reCaptchaContainer.querySelector(".recaptcha-error-message");
   reCaptchaErrorLabel ? reCaptchaErrorLabel.remove() : "";
 
+  var alertBoxText = document.querySelector("#alert_error_recaptcha_large");
+
+  if (reCaptchaContainer.id === "recaptcha-small-container") {
+    var alertBoxText = document.querySelector("#alert_error_recaptcha_small");
+  }
+
   // Makes the reCaptcha error text invisible in the alert box.
-  document.querySelector("#alert_error_recaptcha").classList.add("usa-error--alert");
+  alertBoxText.classList.add("usa-error--alert");
+
   // Removes left padding from recaptcha.
   reCaptchaContainer ? reCaptchaContainer.classList.remove("usa-form-spacing", "usa-border-error") : "";
   // Aligns the reCaptcha to the center when it doesn't have an error.
