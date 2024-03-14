@@ -573,14 +573,14 @@ workflows:
           filters:
             branches:
               only:
-                - USAGOV-1415-Update-CircleCI-Image
+                - dev
                 - stage
                 - prod
       - deploy-reporter-tools:
           filters:
             branches:
               only:
-                - USAGOV-1415-Update-CircleCI-Image
+                - dev
                 - stage
                 - prod
           requires:
