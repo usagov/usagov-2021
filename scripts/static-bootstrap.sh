@@ -35,8 +35,8 @@ export S3_ENDPOINT
 
 SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
 WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | tr '\n' ' ')}
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | tr '\n' ' ')}
-CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms | tr '\n' ' ')}
+WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep -E 'beta|dev-dr' | tr '\n' ' ')}
+CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -E 'cms|shared-egress-dr' | tr '\n' ' ')}
 if [ -z "$WWW_HOST" ]; then
   WWW_HOST="*.app.cloud.gov"
 fi
@@ -59,13 +59,13 @@ export S3_PROXY_WEB
 export S3_PROXY_CMS
 export S3_PROXY_PATH_CMS
 
-if [ -f "/etc/php81/php-fpm.d/env.conf.tmpl" ]; then
-  cp /etc/php81/php-fpm.d/env.conf.tmpl /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_PROXY_PATH_CMS] = "$S3_PROXY_PATH_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_PROXY_CMS] = "$S3_PROXY_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_ROOT_CMS] = "$S3_ROOT_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_HOST] = "$S3_HOST >> /etc/php81/php-fpm.d/env.conf
-fi
+#if [ -f "/etc/php81/php-fpm.d/env.conf.tmpl" ]; then
+#  cp /etc/php81/php-fpm.d/env.conf.tmpl /etc/php81/php-fpm.d/env.conf
+#  echo "env[S3_PROXY_PATH_CMS] = "$S3_PROXY_PATH_CMS >> /etc/php81/php-fpm.d/env.conf
+#  echo "env[S3_PROXY_CMS] = "$S3_PROXY_CMS >> /etc/php81/php-fpm.d/env.conf
+#  echo "env[S3_ROOT_CMS] = "$S3_ROOT_CMS >> /etc/php81/php-fpm.d/env.conf
+#  echo "env[S3_HOST] = "$S3_HOST >> /etc/php81/php-fpm.d/env.conf
+#fi
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
 
@@ -76,6 +76,7 @@ export NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME:-$(echo $SECRETS | jq -r 
 export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')}
 export NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')}
 export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')}
+
 
 SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.spkey')
 SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.spcrt')
@@ -99,11 +100,6 @@ for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
 done
 
 # update new relic with environment specific settings
-echo "Disabling NewRelic for dev-dr environment"
-if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
-  mv /etc/php81/conf.d/newrelic.ini /root
-fi
-
 if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
   if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$NEW_RELIC_LICENSE_KEY" != "null" ]; then
     echo "Setting up New Relic ... "
@@ -175,40 +171,4 @@ if [ -n "${FIX_FILE_PERMS:-}" ]; then
   chown nginx:nginx /var/www
   find /var/www -group 0 -user 0 -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
   find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx
-fi
-
-if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ]; then
-
-    echo  "Updating drupal ... "
-    initial_mm_state=$(drush state:get system.maintenance_mode)
-    if [ x$initial_mm_state = x0 ]; then
-       echo "maintenance mode is off:  turning on for updatedb"
-       drush state:set system.maintenance_mode 1 -y
-    fi
-
-    drush cr
-    drush updatedb --no-cache-clear -y
-    drush cim -y || drush cim -y
-    drush cim -y
-    drush php-eval "node_access_rebuild();" -y
-
-    if [ x$initial_mm_state = x0 ]; then
-      drush state:set system.maintenance_mode 0 -y
-    fi
-    drush cr
-
-    echo "Bootstrap finished"
-else
-    echo "Bootstrap skipping Drupal CIM because: Instance=${CF_INSTANCE_INDEX:-''} Skip=${SKIP_DRUPAL_BOOTSTRAP:-''}"
-fi
-
-echo "Adding the USPS credentials..."
-if [[ ${USPS_USERID:-"unset"} != "unset" ]] &&
-   [[ ${USPS_PASSWORD:-"unset"} != "unset" ]]; then
-    echo "const USPS_USERID = '${USPS_USERID}';" > ./web/themes/custom/usagov/scripts/usps-credentials.js
-    echo "const USPS_PASSWORD = '${USPS_PASSWORD}';" >> ./web/themes/custom/usagov/scripts/usps-credentials.js
-    echo "USPS credentials added successfully!"
-else
-    echo "No credentials found in the env."
-    echo "const error = 'No credentials found in the env.'" > ./web/themes/custom/usagov/scripts/usps-credentials.js
 fi

@@ -53,15 +53,15 @@ if [ -z "${ROUTE_SERVICE_NAME+set}" ]; then
   ENV_ANY_NOT_SET=1
 fi
 
-if [ -z "${PROTECTED_APP_NAME+set}" ]; then
-  printf "\nMust set PROTECTED_APP_NAME environment variable\n"
+if [ -z "${PROTECTED_APP_NAMES+set}" ]; then
+  printf "\nMust set PROTECTED_APP_NAMES environment variable\n"
   ENV_ANY_NOT_SET=1
 fi
 
 if [ "${ENV_ANY_NOT_SET+set}" ]; then
 
   printf "\nExample:\n"
-  printf "\tROUTE_SERVICE_APP_NAME=waf ROUTE_SERVICE_NAME=waf-route-$SPACE-usagov PROTECTED_APP_NAME=cms ${0} ${CTAG} ${CDIGEST}\n"
+  printf "\tROUTE_SERVICE_APP_NAME=waf ROUTE_SERVICE_NAME=waf-route-$SPACE-usagov PROTECTED_APP_NAMES=cms,www ${0} ${CTAG} ${CDIGEST}\n"
   exit 1
 fi
 
@@ -136,10 +136,7 @@ cf start "${ROUTE_SERVICE_APP_NAME}"
 
 printf "\nFetching GUIDs for protected-app & route-service-app\n"
 
-PROTECTED_APP_GUID="$(cf app ${PROTECTED_APP_NAME} --guid)"
 ROUTE_SERVICE_APP_GUID="$(cf app ${ROUTE_SERVICE_APP_NAME} --guid)"
-
-printf "\tprotected-app (${PROTECTED_APP_NAME}): ${PROTECTED_APP_GUID}\n"
 printf "\troute-service-app (${ROUTE_SERVICE_APP_NAME}): ${ROUTE_SERVICE_APP_GUID}\n"
 
 ROUTE_SERVICE_DOMAIN="$(cf curl "/v3/apps/$(cf app "${ROUTE_SERVICE_APP_NAME}" --guid)/routes" | jq -r --arg ROUTE_DOMAIN "${ROUTE_DOMAIN}" '[.resources[] | select(.url | endswith($ROUTE_DOMAIN))][0].url')"
@@ -162,22 +159,34 @@ else
     -r "https://${ROUTE_SERVICE_DOMAIN}";
 fi
 
-printf "\nBindng [ ${PROTECTED_APP_NAME} ] routes to [ ${ROUTE_SERVICE_NAME} ]\n"
+#PROTECTED_APP_NAMES="Ubuntu;Linux Mint;Debian;Arch;Fedora"
 
-HOST_NAMES=($(cf curl "/v3/apps/$PROTECTED_APP_GUID/routes" | jq -r --arg APPS_DOMAIN "${APPS_DOMAIN}" '[.resources[] | select(.url | endswith($APPS_DOMAIN))][].host'))
+IFS=',' read -ra app_names_array <<< "$PROTECTED_APP_NAMES"
 
-for url in "${HOST_NAMES[@]}"; do
-  echo "\nBinding ${url}.${APPS_DOMAIN} to ${ROUTE_SERVICE_NAME}\n"
-  cf bind-route-service "${APPS_DOMAIN}" "${ROUTE_SERVICE_NAME}" --hostname "${url}";
-  if [ $(echo "$url" | grep 'cms') ]; then
-    cf set-env $ROUTE_SERVICE_APP_NAME CMS_HOST "$url"
-  elif [ $(echo "$url" | grep 'beta') ]; then
-    cf set-env $ROUTE_SERVICE_APP_NAME WWW_HOST "$url"
-  fi
+#Print the split string
+for PROTECTED_APP_NAME in "${app_names_array[@]}"
+do
+
+  PROTECTED_APP_GUID="$(cf app ${PROTECTED_APP_NAME} --guid)"
+  printf "\tprotected-app (${PROTECTED_APP_NAME}): ${PROTECTED_APP_GUID}\n"
+
+  printf "\nBinding [ ${PROTECTED_APP_NAME} ] routes to [ ${ROUTE_SERVICE_NAME} ]\n"
+
+  HOST_NAMES=($(cf curl "/v3/apps/$PROTECTED_APP_GUID/routes" | jq -r --arg APPS_DOMAIN "${APPS_DOMAIN}" '[.resources[] | select(.url | endswith($APPS_DOMAIN))][].host'))
+
+  for url in "${HOST_NAMES[@]}"; do
+    echo "\nBinding ${url}.${APPS_DOMAIN} to ${ROUTE_SERVICE_NAME}\n"
+    cf bind-route-service "${APPS_DOMAIN}" "${ROUTE_SERVICE_NAME}" --hostname "${url}";
+    if [ $(echo "$url" | grep 'cms') ]; then
+      cf set-env $ROUTE_SERVICE_APP_NAME CMS_HOST "$url"
+    elif [ $(echo "$url" | grep 'beta') ]; then
+      cf set-env $ROUTE_SERVICE_APP_NAME WWW_HOST "$url"
+    fi
+  done
+
+  cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 443
+  cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 80
+  cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 61443
 done
-
-cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 443
-cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 80
-cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 61443
 
 #$SCRIPT_DIR/setup-egress-for-apps waf
