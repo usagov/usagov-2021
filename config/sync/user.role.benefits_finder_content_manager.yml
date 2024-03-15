@@ -1,0 +1,21 @@
+uuid: 75d7efed-afe2-4f3a-8750-2a898df6086e
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_benefit
+  module:
+    - node
+id: benefits_finder_content_manager
+label: 'Benefits Finder Content Manager'
+weight: 6
+is_admin: null
+permissions:
+  - 'create bears_benefit content'
+  - 'delete any bears_benefit content'
+  - 'delete bears_benefit revisions'
+  - 'delete own bears_benefit content'
+  - 'edit any bears_benefit content'
+  - 'edit own bears_benefit content'
+  - 'revert bears_benefit revisions'
+  - 'view bears_benefit revisions'
