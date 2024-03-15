@@ -12,6 +12,16 @@ applications:
     - secauthsecrets
     - storage
   health-check-type: process
+- name: www
+  docker:
+    image: gsatts/usagov-2021:www-latest
+  memory: 256M
+  disk_quota: 4G
+  timeout: 180
+  services:
+    - secrets
+    - storage
+  health-check-type: process
 - name: waf
   docker:
     image: gsatts/usagov-2021:waf-latest
