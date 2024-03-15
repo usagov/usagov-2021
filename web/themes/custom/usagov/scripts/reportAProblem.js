@@ -315,6 +315,7 @@ jQuery(document).ready(function () {
         // Check if display value changes from none to flex for recaptcha-large
         if (mutation.target.id === 'recaptcha-large-container') {
           reCaptchaValidation();
+          modifyErrorElements();
         }
       });
     }
