@@ -34,8 +34,24 @@ export S3_BUCKET
 export S3_ENDPOINT
 
 SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | tr '\n' ' ')}
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | tr '\n' ' ')}
+
+case $SPACE in
+dev)
+  WWW_HOST=beta-dev.usa.gov
+  ;;
+stage)
+  WWW_HOST=beta-stage.usa.gov
+  ;;
+prod)
+  WWW_HOST=www.usa.gov
+  ;;
+*)
+  echo "**** WARNING:  Operating in cf space '$SPACE' - trying old method of WWW_HOST extraction.  May fail ****"
+  WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | tr '\n' ' ')}
+  WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | tr '\n' ' ')}
+  ;;
+esac
+
 CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms | tr '\n' ' ')}
 if [ -z "$WWW_HOST" ]; then
   WWW_HOST="*.app.cloud.gov"
@@ -115,7 +131,7 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
     echo "Turning off New Relic ... "
     sed -i \
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
-        /etc/1/conf.d/newrelic.ini
+        /etc/php81/conf.d/newrelic.ini
   fi
   if [ -z "${https_proxy:-}" ]; then # I'M CHEATING REMOVE THE SEMICOLONS AFTER TESTING
     sed -i \

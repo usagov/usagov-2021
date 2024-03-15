@@ -52,3 +52,22 @@ if [ -n "$CONTAINERTAG2" ]
 then
     docker tag $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG2
 fi
+
+echo "Building ${DOCKERUSER}/${DOCKERREPO}:www-${CONTAINERTAG} ${CONTAINERTAG2}"
+
+chmod -R u+w ./web/sites/default/
+
+export DOCKER_CONTENT_TRUST=1
+docker build --force-rm \
+     -t $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG \
+     -f .docker/Dockerfile-www . \
+     --build-arg GITBRANCH=$GITBRANCH \
+     --build-arg GITCOMMIT=$GITCOMMIT \
+     --build-arg GITTAG=$GITTAG \
+     --build-arg CONTAINERTAG=$CONTAINERTAG
+
+if [ -n "$CONTAINERTAG2" ]
+then
+     echo "docker tag $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG2"
+     docker tag $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG2
+fi
