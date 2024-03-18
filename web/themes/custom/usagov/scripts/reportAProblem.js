@@ -13,7 +13,12 @@ function timestamp() {
 
 setInterval(timestamp, 500);
 
-
+/**
+ * This function displays all the error elements related to the given reCaptcha. Such as the error message
+ * on top of the reCaptcha, the error style, the error message in the alert box, the left padding,
+ * and side line.
+ * @returns {Element} recaptcha that you want to display.
+ */
 function showReCaptchaError(reCaptchaContainer) {
   "use strict";
 
@@ -45,6 +50,12 @@ function showReCaptchaError(reCaptchaContainer) {
 
 }
 
+/**
+ * This function hides all the error elements related to the given reCaptcha. Such as the error message
+ * on top of the reCaptcha, the error style, the error message in the alert box, the left padding,
+ * and side line.
+ * @returns {Element} recaptcha that you want to hide.
+ */
 function hideReCaptchaError(reCaptchaContainer) {
   "use strict";
 
@@ -306,6 +317,7 @@ jQuery(document).ready(function () {
     changeRecaptchaDisplay(mediaQueryList);
   });
 
+  // Large recaptcha Element
   var reCaptchaLargeNode = document.getElementById('recaptcha-large-container');
 
   // Called every time an attribute changes in the large reCaptcha
