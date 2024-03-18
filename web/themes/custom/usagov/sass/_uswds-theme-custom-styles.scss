@@ -52,7 +52,6 @@ i.e.
   display: flex;
 }
 
-
 .chat-icon {
   width: 60px;
   height: 40px;
@@ -177,21 +176,21 @@ a,
   }
 }
 
-.usa-checkbox__input:checked+.usa-checkbox__label::before,
-.usa-radio__input:checked+.usa-radio__label::before {
+.usa-checkbox__input:checked + .usa-checkbox__label::before,
+.usa-radio__input:checked + .usa-radio__label::before {
   background-color: var($off-black);
   box-shadow: 0 0 0 units($theme-input-select-border-width) var($off-black),
     inset 0 0 0 units($theme-input-select-border-width) color("white");
 }
 
-.usa-checkbox__input--tile:checked+.usa-checkbox__label,
-.usa-radio__input--tile:checked+.usa-radio__label {
+.usa-checkbox__input--tile:checked + .usa-checkbox__label,
+.usa-radio__input--tile:checked + .usa-radio__label {
   // background-color: #ccecf2;
   border-color: var($radio-button, border-color);
 }
 
-.usa-checkbox__input--tile+.usa-checkbox__label,
-.usa-radio__input--tile+.usa-radio__label {
+.usa-checkbox__input--tile + .usa-checkbox__label,
+.usa-radio__input--tile + .usa-radio__label {
   border-color: var($off-black);
   background: white;
 }
@@ -232,7 +231,7 @@ a {
 }
 
 // This style is needed to extend the width of nav page intro text
-.desktop\:grid-col-fill .usa-prose>p.usa-intro {
+.desktop\:grid-col-fill .usa-prose > p.usa-intro {
   max-width: 81ex;
   margin-left: 1.2ex;
   margin-right: 1.2ex;
@@ -464,7 +463,7 @@ input:not([disabled]):focus.usa-user-error {
   }
 }
 
-.block-wizardenglish .usa-prose>p.usa-scam-label {
+.block-wizardenglish .usa-prose > p.usa-scam-label {
   max-width: 110ex;
   padding-bottom: 0.2rem;
   margin-bottom: 1rem;
@@ -493,11 +492,11 @@ button#next.usa-button:hover,
   background-color: var($secondary-background-color);
 }
 
-.block-wizardenglish .usa-prose>p {
+.block-wizardenglish .usa-prose > p {
   max-width: 110ex;
 }
 
-.block-wizardenglish .usa-radio__input--tile:checked+[class*="__label"] {
+.block-wizardenglish .usa-radio__input--tile:checked + [class*="__label"] {
   background-color: var($cyan-light);
 }
 
@@ -511,7 +510,7 @@ button#next.usa-button:hover,
   padding-right: 5px;
 }
 
-.block-wizardenglish .usa-radio__input--tile:checked+.usa-radio__label {
+.block-wizardenglish .usa-radio__input--tile:checked + .usa-radio__label {
   border-color: var($blue-outer-focus);
 }
 
@@ -592,8 +591,8 @@ div[class^="QSIUserDefinedHTML"] {
   display: none;
 }
 
-#question-box>div>p,
-#question-box>div>div {
+#question-box > div > p,
+#question-box > div > div {
   font-size: var($regular-text-font-size);
 }
 
@@ -602,8 +601,8 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
-#wizard-border>fieldset>label,
-.wizard_result>p {
+#wizard-border > fieldset > label,
+.wizard_result > p {
   font-size: var($regular-text-font-size);
 }
 
@@ -690,7 +689,7 @@ a,
   margin-left: 4rem;
 
   @media (max-width: 30em) {
-    margin-left: .4rem;
+    margin-left: 0.4rem;
   }
 }
 
@@ -708,23 +707,36 @@ div div.field--name-field-offices-near-you {
   font-weight: normal;
 }
 
-[href]:focus, button:not([disabled]):focus, input:not([disabled]):focus,
-.usa-footer__secondary-link a:focus, .usa-form a:focus, .usa-alert__text a:focus,
-button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wizardenglish a.usa-button:focus,
-.usa-radio__input:focus+[class*=__label]::before, textarea:not([disabled]):focus,
-.usagov-directory-bottom-nav-group a.nav-letter:focus, .usa-breadcrumb__list-item:nth-last-child(2)
-.usa-breadcrumb__link:focus, [tabindex]:focus, select:not([disabled]):focus, #pagesurvey-qual-container:focus {
-
-  outline: 0.25rem solid  $blue-outer-focus;
+[href]:focus,
+button:not([disabled]):focus,
+input:not([disabled]):focus,
+.usa-footer__secondary-link a:focus,
+.usa-form a:focus,
+.usa-alert__text a:focus,
+button#prior.usa-button--outline:focus,
+button#next.usa-button:focus,
+.block-wizardenglish a.usa-button:focus,
+.usa-radio__input:focus + [class*="__label"]::before,
+textarea:not([disabled]):focus,
+.usagov-directory-bottom-nav-group a.nav-letter:focus,
+.usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:focus,
+[tabindex]:focus,
+select:not([disabled]):focus,
+#pagesurvey-qual-container:focus {
+  outline: 0.25rem solid $blue-outer-focus;
   outline-offset: 0;
   box-shadow: inset 0 0 0 2px $white-inner-focus;
 }
 
-.life-events-intro a:focus, .usa-hero__callout a:focus, .jump a:focus {
+.life-events-intro a:focus,
+.usa-hero__callout a:focus,
+.jump a:focus {
   box-shadow: none;
 }
 
-#extended-logo [href]:focus, .usa-footer__secondary-link a:focus, .usa-hero__callout [href]:focus {
+#extended-logo [href]:focus,
+.usa-footer__secondary-link a:focus,
+.usa-hero__callout [href]:focus {
   display: inherit;
 }
 
@@ -732,15 +744,23 @@ button#prior.usa-button--outline:focus, button#next.usa-button:focus, .block-wiz
   box-shadow: 0 0 0 0 $blue-outer-focus;
 }
 
-.homepage-card:focus-within, .block-wizardenglish [tabindex]:focus, .usa-radio__input:focus, .slick-dots>li>button>.slick-dot-icon:focus {
+.homepage-card:focus-within,
+.block-wizardenglish [tabindex]:focus,
+.usa-radio__input:focus,
+.slick-dots > li > button > .slick-dot-icon:focus {
   outline: 0.25rem solid $blue-outer-focus;
   outline-offset: 0;
 }
 
-.usagov-button{
+.usagov-button {
   font-size: 1.1rem;
 }
 
 #main-content .usa-accordion__button:not(.bg-secondary) {
   background-color: #f0f0f0;
+}
+
+// elected-officials hide autofill contact for state dropdown - name is not brought over to input by uswds so autofill is being triggered in Safari
+input::-webkit-textfield-decoration-container {
+  visibility: hidden;
 }
