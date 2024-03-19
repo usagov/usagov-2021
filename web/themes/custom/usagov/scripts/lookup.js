@@ -347,7 +347,7 @@ function renderResults(response, rawResponse) {
             let email = response.officials[i].emails || "none provided";
             if (email !== "none provided") {
                 // let primaryEmail = document.createElement("button");
-                let linkToContact = document.createElement("a");
+                let linkToContact = document.createElement("button");
                 let firstEmail = email[0];
 
                 linkToContact.setAttribute("class", "usa-button usa-button--secondary");
@@ -359,9 +359,9 @@ function renderResults(response, rawResponse) {
                 searchParams.set('email', firstEmail);
                 searchParams.set('name', response.officials[i].name);
                 searchParams.set('office', response.officials[i].office);
-
-                linkToContact.setAttribute("href", content["path-contact"] + "?"
-                                           + searchParams.toString() + "#skip-to-h1");
+                linkToContact.setAttribute("role","button");
+                linkToContact.setAttribute("onclick", "window.location.href = '" + content["path-contact"] + "?"
+                                           + searchParams.toString() + "#skip-to-h1'");
                 bulletList.appendChild(linkToContact);
             }
 
