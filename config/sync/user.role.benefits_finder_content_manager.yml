@@ -13,12 +13,17 @@ dependencies:
   module:
     - content_moderation
     - node
+    - system
     - taxonomy
 id: benefits_finder_content_manager
 label: 'Benefits Finder Content Manager'
 weight: 6
 is_admin: null
 permissions:
+  - 'access administration pages'
+  - 'access site in maintenance mode'
+  - 'administer menu'
+  - 'administer nodes'
   - 'create bears_agency content'
   - 'create bears_benefit content'
   - 'create bears_criteria content'
@@ -63,3 +68,4 @@ permissions:
   - 'view bears_criteria revisions'
   - 'view bears_life_event revisions'
   - 'view bears_life_event_form revisions'
+  - 'view the administration theme'
