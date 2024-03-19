@@ -22,5 +22,4 @@ for domain in "${DOMAINS[@]}"; do
    $ECHO cf unmap-route cms $domain
    echo  cf map-route www $domain
    $ECHO cf map-route www $domain
-   sleep 10
 done
