@@ -15,15 +15,20 @@ dependencies:
     - node
     - system
     - taxonomy
+    - toolbar
+    - views_ui
 id: benefits_finder_content_manager
 label: 'Benefits Finder Content Manager'
 weight: 6
 is_admin: null
 permissions:
   - 'access administration pages'
+  - 'access content overview'
   - 'access site in maintenance mode'
+  - 'access toolbar'
   - 'administer menu'
   - 'administer nodes'
+  - 'administer views'
   - 'create bears_agency content'
   - 'create bears_benefit content'
   - 'create bears_criteria content'
@@ -63,9 +68,11 @@ permissions:
   - 'revert bears_life_event revisions'
   - 'revert bears_life_event_form revisions'
   - 'use basic_workflow transition create_new_draft'
+  - 'view any unpublished content'
   - 'view bears_agency revisions'
   - 'view bears_benefit revisions'
   - 'view bears_criteria revisions'
   - 'view bears_life_event revisions'
   - 'view bears_life_event_form revisions'
+  - 'view own unpublished content'
   - 'view the administration theme'
