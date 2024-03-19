@@ -19,3 +19,15 @@
   position: absolute;
   width: 1px;
 }
+
+.image_resized {
+  img {
+    height: unset;
+  }
+  &.align-left {
+    margin-right: 1rem;
+  }
+  &.align-right {
+    margin-left: 1rem;
+  }
+}

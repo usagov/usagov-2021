@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   module:
+    - ckeditor_media_resize
     - editor
     - media
     - paragraphs_entity_embed
@@ -31,12 +32,6 @@ filters:
     status: true
     weight: 0
     settings: {  }
-  filter_google_docs:
-    id: filter_google_docs
-    provider: google_docs_filter
-    status: true
-    weight: 0
-    settings: {  }
   filter_html:
     id: filter_html
     provider: filter
@@ -46,6 +41,12 @@ filters:
       allowed_html: '<p class="usa-intro"> <h2 class="font-serif-lg text-bold text-accent-cool-darker"> <a class="usa-button usa-button--secondary usa-button--big">'
       filter_html_help: true
       filter_html_nofollow: false
+  filter_resize_media:
+    id: filter_resize_media
+    provider: ckeditor_media_resize
+    status: true
+    weight: 90
+    settings: {  }
   filter_table_attributes:
     id: filter_table_attributes
     provider: uswds_ckeditor_integration
