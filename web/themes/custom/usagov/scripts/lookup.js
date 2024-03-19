@@ -359,7 +359,7 @@ function renderResults(response, rawResponse) {
                 searchParams.set('email', firstEmail);
                 searchParams.set('name', response.officials[i].name);
                 searchParams.set('office', response.officials[i].office);
-
+                linkToContact.setAttribute("role","button");
                 linkToContact.setAttribute("href", content["path-contact"] + "?"
                                            + searchParams.toString() + "#skip-to-h1");
                 bulletList.appendChild(linkToContact);
