@@ -14,8 +14,11 @@
 			<li id="alert_error_description" class="usa-alert__text usa-error--alert">
 				<a href="#description"><span>Escriba la descripción</span></a>
 			</li>
-			<li id="alert_error_recaptcha" class="usa-alert__text usa-error--alert">
-				<a href="#recaptcha"><span>Complete el reCaptcha</span></a>
+			<li id="alert_error_recaptcha_large" class="usa-alert__text usa-error--alert">
+				<a href="#recaptcha-large-container"><span>Complete el reCaptcha</span></a>
+			</li>
+			<li id="alert_error_recaptcha_small" class="usa-alert__text usa-error--alert">
+				<a href="#recaptcha-small-container"><span>Fill out the reCaptcha</span></a>
 			</li>
 			</ul>
 		</div>
@@ -43,7 +46,7 @@
 						<strong>Todos los campos son obligatorios.</strong>
 					</p>
 					<div id="error-border">
-						<p class="required usa-form-spacing">
+						<p class="required">
 							<label id="label_name" class="usa-label" for="00NU0000004z90C">Su nombre</label>
 							<input
 								aria-required="true"
@@ -60,7 +63,7 @@
 							/>
 						</p>
 
-						<p class="required usa-form-spacing">
+						<p class="required">
 							<label id="label_email" class="usa-label" for="email">Su email</label>
 							<input
 								aria-required="true"
@@ -77,7 +80,7 @@
 							/>
 						</p>
 
-						<p class="required usa-form-spacing">
+						<p class="required">
 							<label id="label_description" class="usa-label dscrptn" for="description">Escriba el problema que desea reportar aquí. Por favor Incluya la dirección web (URL) de la página con el problema.</label>
 							<textarea
 								aria-required="true"
@@ -95,22 +98,33 @@
 							></textarea>
 							<text class="usa-description">Por favor limite su comentario a 1000 caracteres.</text>
 						</p>
-					</div>
-					<div style="visibility: hidden; z-index: 2" class="_e725ae-textarea_btn _e725ae-anonymous _e725ae-not_focused" data-grammarly-reactid=".0">
-						<div class="_e725ae-transform_wrap" data-grammarly-reactid=".0.0">
-							<div title="Protected by Grammarly" class="_e725ae-status" data-grammarly-reactid=".0.0.0">
-								&nbsp;
+
+						<div style="visibility: hidden; z-index: 2" class="_e725ae-textarea_btn _e725ae-anonymous _e725ae-not_focused" data-grammarly-reactid=".0">
+							<div class="_e725ae-transform_wrap" data-grammarly-reactid=".0.0">
+								<div title="Protected by Grammarly" class="_e725ae-status" data-grammarly-reactid=".0.0.0">
+									&nbsp;
+								</div>
+							</div>
+							<span class="_e725ae-btn_text" data-grammarly-reactid=".0.1">Not signed in</span>
+						</div>
+
+						<input type="hidden" id="external" name="external" value="1"/>
+
+						<div id="recaptcha-large-container" class="recaptcha-container">
+							<div class="recaptcha-alignment">
+								<div class="recaptcha-outline-padding">
+									{# ReCaptcha for larger devices (500px and up) #}
+									<div id="recaptcha-large" class="g-recaptcha" title="reCAPCHA"  data-size="normal" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
+								</div>
 							</div>
 						</div>
-						<span class="_e725ae-btn_text" data-grammarly-reactid=".0.1">Not signed in</span>
-					</div>
 
-					<input type="hidden" id="external" name="external" value="1"/>
-
-					<div id="recaptcha" class="recaptcha-container">
-						<div class="recaptcha-alignment">
-							<div class="recaptcha-outline-padding">
-								<div class="g-recaptcha" title="reCAPCHA" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
+						<div id="recaptcha-small-container" class="recaptcha-container">
+							<div class="recaptcha-alignment">
+								<div class="recaptcha-outline-padding">
+									{# ReCaptcha for smaller devices (499px and down) #}
+									<div id="recaptcha-small" class="g-recaptcha" title="reCAPCHA" data-size="compact" data-sitekey="6LdFORIUAAAAAIgJPQBlcE7hEMMuRf8T6Vlfp_xb"></div>
+								</div>
 							</div>
 						</div>
 					</div>

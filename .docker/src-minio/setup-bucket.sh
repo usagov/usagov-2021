@@ -5,7 +5,7 @@ sleep 2
 if [ mc --insecure alias list minio 2>1 >/dev/null ]; then
   mc --insecure alias rm minio
 fi;
-mc --insecure alias set minio https://127.0.0.1:9090 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-miniopass}
+mc --insecure alias set minio https://127.0.0.1:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-miniopass}
 
 mc --insecure mb -p minio/local
 mc anonymous --insecure set public /data/local
