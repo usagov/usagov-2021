@@ -19,12 +19,12 @@ var allAgencies;
 
 function fetchAgencies() {
   if (lang == "es") {
-    return fetch("sites/default/files/directory_report_federal_es").then(
+    return fetch("/sites/default/files/directory_report_federal_es").then(
       (response) => response.json()
     );
   }
  else {
-    return fetch("sites/default/files/directory_report_federal").then(
+    return fetch("/sites/default/files/directory_report_federal").then(
       (response) => response.json()
     );
   }
@@ -43,9 +43,8 @@ function searchAgencies(allAgencies) {
 
     if (lowerCaseAgency.match(firstWordExp) || lowerCaseAgency.match(begWordExp)) {
       returnAgencies.push(agency);
-    };
-
-    if (agency.agency_acronym.toLowerCase().match(abbrExp)) {
+    }
+ else if (agency.agency_acronym.toLowerCase().match(abbrExp)) {
       returnAgencies.push(agency);
     };
   });
@@ -60,10 +59,10 @@ function showAgencies(filteredAgencies) {
   usasearch_sayt.setAttribute("id", "usasearch_sayt");
   const ul = document.createElement("ul");
 
-  filteredAgencies.forEach((agency) => {
+  filteredAgencies.forEach((agency, index) => {
     const resultBox = document.createElement("li");
     resultBox.classList.add("resultBox");
-    resultBox.setAttribute("id", "resultBox");
+    resultBox.setAttribute("id", `resultBox${index}`);
     resultBox.setAttribute("role", "option");
 
     const anchor = document.createElement("a");
