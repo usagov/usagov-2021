@@ -378,12 +378,11 @@ header .agency-selector-wrap {
 }
 
 #agency-selector {
-  width: 100%;
   max-width: none;
   font-size: 22px;
   font-weight: 600;
-  vertical-align: middle;
   color: #112e51;
+  display: inline-block;
 }
 
 #agency-selector:focus{
@@ -964,4 +963,14 @@ figure figure .bar-chart .bin {
 
 a {
   text-decoration: underline;
+}
+
+.select-agency-form {
+  display: flex;
+  gap: 1em;
+}
+
+.select-agency-form-button {
+  margin: 0.2em 0;
+  border: 1px solid #fff;
 }
