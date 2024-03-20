@@ -11,12 +11,12 @@ dependencies:
     - taxonomy.vocabulary.bears_tags
     - workflows.workflow.basic_workflow
   module:
+    - block
     - content_moderation
     - node
     - system
     - taxonomy
     - toolbar
-    - views_ui
 id: benefits_finder_content_manager
 label: 'Benefits Finder Content Manager'
 weight: 6
@@ -26,9 +26,9 @@ permissions:
   - 'access content overview'
   - 'access site in maintenance mode'
   - 'access toolbar'
+  - 'administer blocks'
   - 'administer menu'
   - 'administer nodes'
-  - 'administer views'
   - 'create bears_agency content'
   - 'create bears_benefit content'
   - 'create bears_criteria content'
