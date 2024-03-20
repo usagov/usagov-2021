@@ -24,5 +24,4 @@ usa_admin_styles.admin_export_states:
   description: 'Download the user records in CSV format'
   parent: usa_admin_styles.main
   url: internal:/admin/people/list
-  weight: 30
-  
+  weight: 30 
