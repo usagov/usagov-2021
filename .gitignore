@@ -76,6 +76,7 @@
 /html/*
 
 env.local
+env.local.cypress
 sqlite-local.db
 sqlite-local.db-shm
 sqlite-local.db-wal
