@@ -6,8 +6,6 @@ describe('Local cms login', () => {
     cy.logIn()
 
     //navigate menu to add content to a basic page
-    //cy.get('div > a#toolbar-item-administration')
-    //cy.get('ul.toolbar-menu:first > li.menu-item:nth-of-type(2) > a ~ ul.toolbar-menu:first > li.menu-item:first > a ~ ul.toolbar-menu:first > li.menu-item:first > a').focus().click()
     cy.get('ul > li > a').contains('Basic Page').focus().click()
 
     //fill out cms basic page
@@ -16,29 +14,7 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("Encuentre programas del Gobierno que ofrecen ayuda durante el embarazo y la primera infancia. test")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
     cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
-    cy.get('#ui-id-4').click()
-    //Selects Language
-    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
-    //cy.get("#edit-langcode-0-value").select("Español")
 
-    //cy.get("edit-field-language-toggle-0-target-id").type()
-
-
-    //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
-
-    //#cke_1_top, #cke_1_toolbox, #cke_42
-    cy.get('#cke_42').click()
-
-    //Put content in the Body
-    cy.get("#cke_1_contents>textarea")
-        //.find('textarea')
-    //cy.get('[data-drupal-selector="edit-body-0-value"]')
-          //.its('0.contentDocument')
-          //.its('body')
-          //.find('p')
-          //.type('Learn how to get nutritious food for yourself and your family through SNAP (food stamps), D-SNAP, and WIC for women, infants, and children.')
-          //.type('<p>hello world</p>')
-    //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
 
     //Select page type
     //cy.get("#edit-field-page-type").select("Standard Page")
@@ -48,6 +24,18 @@ describe('Local cms login', () => {
     //cy.get("#edit-field-page-type").select("Navigation Cards Page")
     //cy.get("#edit-field-page-type").select("Navigation Page")
     //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
+
+    //Selects Language
+    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
+    cy.get("#edit-langcode-0-value").select("Español")
+
+    //select html option for wysiwyg
+    //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
+
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('Con el Programa Especial de Nutrición Suplementaria para Mujeres, Bebés y Niños (WIC, sigla en inglés), puede obtener alimentos, educación nutricional y servicios sociales. Conozca qué es WIC.')
 
     //Select image
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
@@ -61,13 +49,14 @@ describe('Local cms login', () => {
     //cy.get("input").focus()
     //cy.get('#edit-upload--s6nLDVOayCI > div.form-managed-file__main > #edit-upload-upload--fIl5AIpXUcA').click()
 
-        //.selectFile('Banner_img_Birth_en.png')
+    //.selectFile('Banner_img_Birth_en.png')
     cy.get('#edit-advanced')
     cy.get('#edit-menu').click()
     cy.get('[data-drupal-selector="edit-menu"]')
     cy.get('#edit-menu-enabled').check()
     cy.get('[data-drupal-selector="edit-menu-title"]').type('Embarazo y primera infancia')
-    cy.get('#edit-menu-node-menus-en-menu-parent').select('-- Life events')
+    //cy.get('#edit-menu-node-menus-en-menu-parent').select('-- Life events')
+    cy.get('#edit-menu-node-menus-es-menu-parent').select('-- Etapas importantes de la vida')
 
     //fill out url alias
     cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/es/embarazo-primera-infancia-test')
