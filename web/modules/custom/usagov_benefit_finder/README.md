@@ -1,4 +1,4 @@
-# USAgov bears module
+# USAgov Benefit Finder module
 
 * USAgov bears app folder
   * USAgov bears block module
