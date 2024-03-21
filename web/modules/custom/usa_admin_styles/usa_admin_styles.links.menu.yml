@@ -19,7 +19,7 @@ usa_admin_styles.admin_export_states:
   url: internal:/admin/directory_report_states.csv
   weight: 20
 
-usa_admin_styles.admin_export_states:
+usa_admin_styles.admin_export_users:
   title: 'Export CMS Users and Roles (CSV)'
   description: 'Download the user records in CSV format'
   parent: usa_admin_styles.main
