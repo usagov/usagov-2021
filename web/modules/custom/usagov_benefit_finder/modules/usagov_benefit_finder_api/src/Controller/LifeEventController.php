@@ -207,6 +207,7 @@ class LifeEventController {
         "body" => $relevant_benefit->get('field_b_body')->value ?? "",
         "link" => $relevant_benefit->get('field_b_link')->value ?? "",
         "cta" => $relevant_benefit->get('field_b_cta')->value ?? "",
+        "lifeEventId" => current($relevant_benefit->get('field_b_life_event_form')->referencedEntities())->get('field_b_id')->value ?? "",
       ];
       $life_event_form_relevant_benefits[]['lifeEvent'] = $life_event_form_relevant_benefit;
     }
