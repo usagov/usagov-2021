@@ -1,0 +1,13 @@
+uuid: d3475791-9b8a-4ef2-9c5c-ffebfd565761
+langcode: en
+status: true
+dependencies:
+  module:
+    - media
+_core:
+  default_config_hash: AZjVNMfdNL0uccWBjhhMFB7ujWpKhNFhTSaFk8ydRr4
+id: media.cke_media_resize_large
+label: 'CKE Media Resize Large'
+description: ''
+targetEntityType: media
+cache: true
