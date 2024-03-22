@@ -35,7 +35,7 @@ filters:
   filter_html:
     id: filter_html
     provider: filter
-    status: false
+    status: true
     weight: -10
     settings:
       allowed_html: '<p class="usa-intro"> <h2 class="font-serif-lg text-bold text-accent-cool-darker"> <a class="usa-button usa-button--secondary usa-button--big">'
