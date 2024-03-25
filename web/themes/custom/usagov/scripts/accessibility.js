@@ -132,12 +132,13 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
         </State><Zip5>${zipCode}</Zip5><Zip4></Zip4></Address></AddressValidateRequest>`;
 
         const response = await fetch(url);
+        var responseText = response.text();
 
-        if (!response.ok) {
+        if (!response.ok || (await responseText).includes("<Error>")) {
             return "USPS API not working.";
         }
 
-        return await response.text();
+        return await responseText;
     }
     catch (error) {
         return "USPS API not working.";
