@@ -13,8 +13,6 @@ describe('Local cms login', () => {
     cy.get("#edit-field-page-intro-0-value").type("Encuentre programas del Gobierno que ofrecen ayuda durante el embarazo y la primera infancia. test")
     cy.get("#edit-field-meta-description-0-value").type("Encuentre programas del Gobierno que ofrecen ayuda durante el embarazo y la primera infancia. test")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
-    cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
-
 
     //Select page type
     //cy.get("#edit-field-page-type").select("Standard Page")
@@ -29,13 +27,16 @@ describe('Local cms login', () => {
     //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
     cy.get("#edit-langcode-0-value").select("Español")
 
+    //Language toggle for English page
+    cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
+
     //select html option for wysiwyg
-    //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
+    //cy.get('#edit-body-0-format--2').click().select("HTML")
 
     //add content to the wysiwyg
     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
     cy.get('div.ck-editor__main .ck-focused').eq(0)
-    cy.get('.ck-content[contenteditable=true]').realType('Con el Programa Especial de Nutrición Suplementaria para Mujeres, Bebés y Niños (WIC, sigla en inglés), puede obtener alimentos, educación nutricional y servicios sociales. Conozca qué es WIC.')
+    cy.get('.ck-content[contenteditable=true]').realType('Encuentre programas del Gobierno que ofrecen ayuda durante el embarazo y la primera infancia.')
 
     //Select image
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
@@ -54,7 +55,7 @@ describe('Local cms login', () => {
     cy.get('#edit-menu').click()
     cy.get('[data-drupal-selector="edit-menu"]')
     cy.get('#edit-menu-enabled').check()
-    cy.get('[data-drupal-selector="edit-menu-title"]').type('Embarazo y primera infancia')
+    cy.get('[data-drupal-selector="edit-menu-title"]').clear().type('Embarazo y primera infancia')
     //cy.get('#edit-menu-node-menus-en-menu-parent').select('-- Life events')
     cy.get('#edit-menu-node-menus-es-menu-parent').select('-- Etapas importantes de la vida')
 
