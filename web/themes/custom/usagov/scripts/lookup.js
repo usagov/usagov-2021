@@ -509,7 +509,7 @@ function load() {
         let addressSuggestionAlert = document.createElement('div');
         addressSuggestionAlert.setAttribute('class', 'usa-alert usa-alert--info');
         addressSuggestionAlert.innerHTML = `<div class="usa-alert__body">
-                        <h4 class="usa-alert__heading">${usps_suggestion_content["suggestion-heading"]}</h4>
+                        <h2 class="usa-alert__heading">${usps_suggestion_content["suggestion-heading"]}</h2>
                         <p class="usa-alert__text">
                             ${usps_suggestion_content["suggestion-message"]}
                             <p>
