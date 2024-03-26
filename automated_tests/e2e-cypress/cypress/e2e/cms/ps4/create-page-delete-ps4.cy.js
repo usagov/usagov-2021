@@ -83,13 +83,12 @@ describe('Local cms login', () => {
     //cy.screenshot('createBasicPage')
 
     //delete test page
-    /*
     cy.get('ul > li > a').contains('Content').focus().click()
-    cy.get('#edit-title').type('Get food assistance with the WIC program test')
+    cy.get('#edit-combine').type('Get food assistance with the WIC program test')
     cy.get('#edit-submit-content').click()
     cy.get('#edit-node-bulk-form-0').check()
-    cy.get('#edit-submit--2').click()
+    cy.get('#edit-action').select('Delete content')
     cy.get('#edit-submit').click()
-    */
+    cy.get('#edit-submit').click()
   })
 })
