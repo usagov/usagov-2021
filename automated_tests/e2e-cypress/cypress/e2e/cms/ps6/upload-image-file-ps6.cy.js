@@ -28,15 +28,10 @@ describe('Local cms login', () => {
     //Select html for wysywig to put html code
     //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
 
-    //#cke_1_top, #cke_1_toolbox, #cke_42
-    cy.get('#cke_42').click()
-
-   //Put content in the Body
-   cy.get("iframe").first()
-   .its('0.contentDocument')
-   .its('body')
-   .find('p')
-   .type('This is a test to upload a file image.')
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('This is a test to upload a file image.')
 
 
     //Select page type
@@ -50,14 +45,25 @@ describe('Local cms login', () => {
 
     //Select image
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
-    //cy.get('#drupal-modal > #media-library-wrapper > #media-library-content > #media-library-add-form-wrapper').should('be.visible')
     cy.get('.media-library-widget-modal').should('be.visible')
-    cy.get('#media-library-add-form-wrapper').should('be.visible')
-    cy.get('div.form-managed-file__main > input:first').click().selectFile('Banner_img_Birth_en.png')
-    cy.get('#drupal-modal').should('be.visible')
-    cy.get('.form-managed-file__meta-wrapper').should('be.visible')
-    cy.get('.form-item--media-0-fields-field-media-image-0-alt > input').type('baby in arm')
-    cy.get('button').contains('Save and insert').click()
+    cy.get('#media-library-view')
+    cy.get('.view-content')
+    cy.get('.views-form')
+    cy.get('.media-library-views-form__rows')
+    cy.get('.views-field-media-library-select-form')
+    cy.get('.field-content').eq(0)
+    cy.get('.form-item--media-library-select-form-0').eq(0)
+    cy.get('[data-drupal-selector="edit-media-library-select-form-0"]').check()
+    cy.get('.ui-dialog-buttonset>.media-library-select').click()
+
+
+    //This sectionn of code should work to uplaod a file from the downloads directory
+    //cy.get('#edit-media-library-select-form-0--6vYGEOUSp-E').check()
+    //cy.get('div.form-managed-file__main > input:first').click().selectFile('Banner_img_Birth_en.png')
+    //cy.get('#drupal-modal').should('be.visible')
+    //cy.get('.form-managed-file__meta-wrapper').should('be.visible')
+    //cy.get('.form-item--media-0-fields-field-media-image-0-alt > input').type('baby in arm')
+    //cy.get('button').contains('Save and insert').click()
 
 
     //fill out url alias
@@ -73,17 +79,15 @@ describe('Local cms login', () => {
 
     //Save page
     cy.get('[ data-drupal-selector="edit-submit" ]').click()
-    cy.screenshot('imageUpload')
+    //cy.screenshot('imageUpload')
 
-     //delete test page
-
+    //delete test page
     cy.get('ul > li > a').contains('Content').focus().click()
-    cy.get('#edit-title').type('File Upload test')
+    cy.get('#edit-combine').type('File Upload test')
     cy.get('#edit-submit-content').click()
     cy.get('#edit-node-bulk-form-0').check()
-    cy.get('#edit-submit--2').click()
+    cy.get('#edit-action').select('Delete content')
     cy.get('#edit-submit').click()
-
-
+    cy.get('#edit-submit').click()
   })
 })
