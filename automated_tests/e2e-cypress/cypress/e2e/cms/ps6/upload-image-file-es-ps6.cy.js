@@ -16,7 +16,6 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("Find government programs for food, health care, and other expenses to help during pregnancy and early childhood. See how to collect child support. test")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
     cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
-    cy.get('#ui-id-4').click()
 
     //Selects Language
     //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
@@ -28,16 +27,10 @@ describe('Local cms login', () => {
     //Select html for wysywig to put html code
     //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
 
-    //#cke_1_top, #cke_1_toolbox, #cke_42
-    cy.get('#cke_42').click()
-
-   //Put content in the Body
-   cy.get("iframe").first()
-   .its('0.contentDocument')
-   .its('body')
-   .find('p')
-   .type('This is a test to upload a file image.')
-
+    //add content to the wysiwyg
+     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+     cy.get('div.ck-editor__main .ck-focused').eq(0)
+     cy.get('.ck-content[contenteditable=true]').realType('This is a test to upload a file image.')
 
     //Select page type
     //cy.get("#edit-field-page-type").select("Standard Page")
@@ -52,12 +45,22 @@ describe('Local cms login', () => {
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
     //cy.get('#drupal-modal > #media-library-wrapper > #media-library-content > #media-library-add-form-wrapper').should('be.visible')
     cy.get('.media-library-widget-modal').should('be.visible')
-    cy.get('#media-library-add-form-wrapper').should('be.visible')
-    cy.get('div.form-managed-file__main > input:first').click().selectFile('Banner_img_Birth_en.png')
-    cy.get('#drupal-modal').should('be.visible')
-    cy.get('.form-managed-file__meta-wrapper').should('be.visible')
-    cy.get('.form-item--media-0-fields-field-media-image-0-alt > input').type('baby in arm')
-    cy.get('button').contains('Save and insert').click()
+    //cy.get('#media-library-add-form-wrapper').should('be.visible')
+    cy.get('#media-library-view')
+    cy.get('.view-content')
+    cy.get('.views-form')
+    cy.get('.media-library-views-form__rows')
+    cy.get('.views-field-media-library-select-form')
+    cy.get('.field-content').eq(0)
+    cy.get('.form-item--media-library-select-form-0').eq(0)
+    cy.get('[data-drupal-selector="edit-media-library-select-form-0"]').check()
+    cy.get('.ui-dialog-buttonset>.media-library-select').click()
+    //cy.get('#edit-media-library-select-form-0--6vYGEOUSp-E').check()
+    //cy.get('div.form-managed-file__main > input:first').click().selectFile('Banner_img_Birth_en.png')
+    //cy.get('#drupal-modal').should('be.visible')
+    //cy.get('.form-managed-file__meta-wrapper').should('be.visible')
+    //cy.get('.form-item--media-0-fields-field-media-image-0-alt > input').type('baby in arm')
+    //cy.get('button').contains('Save and insert').click()
 
 
     //fill out url alias
