@@ -19,13 +19,10 @@ describe('Local cms login', () => {
 
     //cy.get("edit-field-language-toggle-0-target-id").type()
 
-    //Put content in the Body
-    cy.get("iframe").first()
-          .its('0.contentDocument')
-          .its('body')
-          .find('p')
-          .type('An official website of the U.S. General Services Administration')
-
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('An official website of the U.S. General Services Administration')
 
     //address
     //street 1
@@ -164,7 +161,7 @@ describe('Local cms login', () => {
     cy.get('#edit-path-0-alias').type('/testing/state-record1')
 
     //Save page
-    //cy.get('[ data-drupal-selector="edit-submit" ]').click()
+    cy.get('[ data-drupal-selector="edit-submit" ]').click()
 
     //cy.screenshot('stateDirectoryRecord')
 
