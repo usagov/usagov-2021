@@ -43,9 +43,7 @@ describe('Local cms login', () => {
 
     //Select image
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
-    //cy.get('#drupal-modal > #media-library-wrapper > #media-library-content > #media-library-add-form-wrapper').should('be.visible')
     cy.get('.media-library-widget-modal').should('be.visible')
-    //cy.get('#media-library-add-form-wrapper').should('be.visible')
     cy.get('#media-library-view')
     cy.get('.view-content')
     cy.get('.views-form')
@@ -55,6 +53,9 @@ describe('Local cms login', () => {
     cy.get('.form-item--media-library-select-form-0').eq(0)
     cy.get('[data-drupal-selector="edit-media-library-select-form-0"]').check()
     cy.get('.ui-dialog-buttonset>.media-library-select').click()
+
+
+
     //cy.get('#edit-media-library-select-form-0--6vYGEOUSp-E').check()
     //cy.get('div.form-managed-file__main > input:first').click().selectFile('Banner_img_Birth_en.png')
     //cy.get('#drupal-modal').should('be.visible')
@@ -75,11 +76,11 @@ describe('Local cms login', () => {
     //cy.get("#edit-moderation-state-0-state").select("Publish")
 
     //Save page
-    //cy.get('[ data-drupal-selector="edit-submit" ]').click()
+    cy.get('[ data-drupal-selector="edit-submit" ]').click()
 
-     //delete test page
+    //delete test page
     cy.get('ul > li > a').contains('Content').focus().click()
-    cy.get('#edit-combine').type('File Upload test')
+    cy.get('#edit-combine').type('File Upload Spanish test')
     cy.get('#edit-submit-content').click()
     cy.get('#edit-node-bulk-form-0').check()
     cy.get('#edit-action').select('Delete content')
