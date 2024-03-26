@@ -75,14 +75,12 @@ describe('Local cms login', () => {
     //cy.get('[ data-drupal-selector="edit-submit" ]').click()
 
      //delete test page
-    /*
     cy.get('ul > li > a').contains('Content').focus().click()
-    cy.get('#edit-title').type('File Upload test')
+    cy.get('#edit-combine').type('File Upload test')
     cy.get('#edit-submit-content').click()
     cy.get('#edit-node-bulk-form-0').check()
-    cy.get('#edit-submit--2').click()
+    cy.get('#edit-action').select('Delete content')
     cy.get('#edit-submit').click()
-    */
-
+    cy.get('#edit-submit').click()
   })
 })
