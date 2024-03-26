@@ -19,12 +19,10 @@ describe('Local cms login', () => {
 
     //cy.get("edit-field-language-toggle-0-target-id").type()
 
-    //Put content in the Body
-    cy.get("iframe").first()
-          .its('0.contentDocument')
-          .its('body')
-          .find('p')
-          .type('An official website of the U.S. General Services Administration')
+     //add content to the wysiwyg
+     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+     cy.get('div.ck-editor__main .ck-focused').eq(0)
+     cy.get('.ck-content[contenteditable=true]').realType('An official website of the U.S. General Services Administration')
 
     //add federal record website url
     cy.get('#edit-field-website-0-uri').type('https://www.gsa.gov/')
@@ -94,19 +92,20 @@ describe('Local cms login', () => {
     cy.get('#edit-path-0-alias').type('/testing/federal-record1')
 
     //Save page
-    //cy.get('[ data-drupal-selector="edit-submit" ]').click()
+    cy.get('[ data-drupal-selector="edit-submit" ]').click()
 
     //cy.screenshot('federalDirectoryRecord')
 
     //delete test page
-    /*
+
     cy.get('ul > li > a').contains('Content').focus().click()
-    cy.get('#edit-title').type('Federal Directory Record test title')
+    cy.get('#edit-combine').type('Federal Directory Record test title')
     cy.get('#edit-submit-content').click()
     cy.get('#edit-node-bulk-form-0').check()
+    cy.get('#edit-action').contains('Delete content').focus().click()
     cy.get('#edit-submit--2').click()
     cy.get('#edit-submit').click()
-    */
+
 
   })
 })
