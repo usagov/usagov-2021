@@ -55,7 +55,7 @@ describe('Local cms login', () => {
     cy.get('.ui-dialog-buttonset>.media-library-select').click()
 
 
-
+    //This sectionn of code should work to uplaod a file from the downloads directory
     //cy.get('#edit-media-library-select-form-0--6vYGEOUSp-E').check()
     //cy.get('div.form-managed-file__main > input:first').click().selectFile('Banner_img_Birth_en.png')
     //cy.get('#drupal-modal').should('be.visible')
