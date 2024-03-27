@@ -1,3 +1,4 @@
+@use "uswds-core" as *;
 @use "usagov-variables" as *;
 
 // $hero: var( $usagov-variables, hero );
@@ -128,8 +129,7 @@
   }
 
   h1 {
-    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times,
-      serif;
+    @include u-font-family('serif');
     font-size: var($homepage, medium-font-size);
     margin: 0;
   }
@@ -139,8 +139,7 @@
   }
 
   p {
-    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
-      Arial, sans-serif;
+    @include u-font-family('sans');
     font-size: 1.25em;
     margin: 0;
     line-height: 1.5;
@@ -263,8 +262,7 @@
 
   a {
     color: var($white);
-    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
-      Arial, sans-serif;
+    @include u-font-family('sans');
     font-size: var($homepage, small-font-size);
     text-decoration: underline;
     display: inline-block;
@@ -292,8 +290,7 @@
 
   h2 {
     color: var($red);
-    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times,
-      serif;
+    @include u-font-family('serif');
     font-size: 2.44em;
     font-weight: bold;
     margin: 65px 5vw 0;
@@ -346,8 +343,7 @@
 
 .homepage-card {
   display: flex;
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
+  @include u-font-family('sans');
   border-width: 2px;
   border-style: solid;
   background-color: var($white);
@@ -374,8 +370,7 @@
   h2,
   p {
     color: var($global-default, text-color);
-    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
-      Arial, sans-serif;
+    @include u-font-family('sans');
     font-size: var($homepage, small-font-size);
     text-align: center;
     padding: 0 10px;
