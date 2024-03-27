@@ -14,8 +14,11 @@ describe('Local cms login', () => {
     cy.get('[data-drupal-selector="edit-link-0-uri"]').type('Get food assistance with the WIC program (83)')
     cy.get('#edit-enabled-value').check()
     //cy.get('#edit-langcode-0-value').select('Español')
-    cy.get('[data-drupal-selector="edit-menu-parent"]').select('---- This is a test title')
+    //cy.get('[data-drupal-selector="edit-menu-parent"]').select('---- This is a test title')
+    cy.get('[data-drupal-selector="edit-menu-parent"]').select('-- This is a test title')
     cy.get('#edit-submit').click()
+
+    cy.visit('/testing/test1')
 
   })
 })
