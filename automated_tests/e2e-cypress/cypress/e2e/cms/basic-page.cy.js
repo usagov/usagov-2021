@@ -16,10 +16,6 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("This is a test meta description")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
 
-    //Selects Language
-    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
-    //cy.get("#edit-langcode-0-value").select("Español")
-
     //cy.get("edit-field-language-toggle-0-target-id").type()
 
     //Select page type
@@ -31,14 +27,18 @@ describe('Local cms login', () => {
     //cy.get("#edit-field-page-type").select("Navigation Page")
     //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
 
-    //Select image
-    //cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]')
-    //cy.get('[data-drupal-selector="edit-upload-upload-yodljhjblcy"]').selectFile('Banner_img_Birth_en.png')
+    //Selects Language
+    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
+    //cy.get("#edit-langcode-0-value").select("Español")
 
     //add content to the wysiwyg
     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
     cy.get('div.ck-editor__main .ck-focused').eq(0)
     cy.get('.ck-content[contenteditable=true]').realType('Learn how to get nutritious food for yourself and your family through SNAP (food stamps), D-SNAP, and WIC for women, infants, and children.')
+
+    //Select image
+    //cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]')
+    //cy.get('[data-drupal-selector="edit-upload-upload-yodljhjblcy"]').selectFile('Banner_img_Birth_en.png')
 
     //add link to left menu
     cy.get('#edit-advanced')
