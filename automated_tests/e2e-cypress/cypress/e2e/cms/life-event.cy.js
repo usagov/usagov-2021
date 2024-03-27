@@ -16,29 +16,19 @@ describe('Life Event En', () => {
     cy.get("#edit-field-meta-description-0-value").type("Find government programs for food, health care, and other expenses to help during pregnancy and early childhood. See how to collect child support. test")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
     cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
-    cy.get('#ui-id-4').click()
+
+    //cy.get("edit-field-language-toggle-0-target-id").type()
+
+    //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
+
     //Selects Language
     //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
     //cy.get("#edit-langcode-0-value").select("Español")
 
-    //cy.get("edit-field-language-toggle-0-target-id").type()
-
-
-    //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
-
-    //#cke_1_top, #cke_1_toolbox, #cke_42
-    cy.get('#cke_42').click()
-
-    //Put content in the Body
-    cy.get("#cke_1_contents>textarea")
-        //.find('textarea')
-    //cy.get('[data-drupal-selector="edit-body-0-value"]')
-          //.its('0.contentDocument')
-          //.its('body')
-          //.find('p')
-          //.type('Learn how to get nutritious food for yourself and your family through SNAP (food stamps), D-SNAP, and WIC for women, infants, and children.')
-          //.type('<p>hello world</p>')
-    //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('Learn how to get nutritious food for yourself and your family through SNAP (food stamps), D-SNAP, and WIC for women, infants, and children.')
 
     //Select page type
     //cy.get("#edit-field-page-type").select("Standard Page")
@@ -84,11 +74,11 @@ describe('Life Event En', () => {
 
     //delete test page
     cy.get('ul > li > a').contains('Content').focus().click()
-    cy.get('#edit-title').type('Having a child and early childhood test')
+    cy.get('#edit-combine').type('Having a child and early childhood test')
     cy.get('#edit-submit-content').click()
     cy.get('#edit-node-bulk-form-0').check()
-    cy.get('#edit-submit--2').click()
+    cy.get('#edit-action').select('Delete content')
     cy.get('#edit-submit').click()
-
+    cy.get('#edit-submit').click()
   })
 })
