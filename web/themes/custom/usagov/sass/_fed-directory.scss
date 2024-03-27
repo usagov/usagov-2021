@@ -1,4 +1,5 @@
 @use "usagov-variables" as *;
+@use "uswds-core" as *;
 
 // Directory Container
 .usagov-directory-page-container {
@@ -200,7 +201,7 @@ div.field--name-field-offices-near-you> ul {
 
 // Letter Heading
 .usagov-directory-letter-heading {
-  font-family: sans-serif;
+  @include u-font-family('sans');
   font-size: 38px;
   text-align: center;
   line-height: 57px;
