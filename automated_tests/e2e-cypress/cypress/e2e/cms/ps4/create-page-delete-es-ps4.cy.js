@@ -50,7 +50,7 @@ describe('Local cms login', () => {
     //cy.get("input").focus()
     //cy.get('#edit-upload--s6nLDVOayCI > div.form-managed-file__main > #edit-upload-upload--fIl5AIpXUcA').click()
 
-    //.selectFile('Banner_img_Birth_en.png')
+    //add link to menu and select taxonomy
     cy.get('#edit-advanced')
     cy.get('#edit-menu').click()
     cy.get('[data-drupal-selector="edit-menu"]')
