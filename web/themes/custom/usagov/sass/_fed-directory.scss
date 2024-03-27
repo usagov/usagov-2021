@@ -39,7 +39,7 @@
     border: 2px solid var($secondary-border-color);
     border-radius: 0.01rem;
     font-size: 1.5rem;
-    font-weight: 600;
+    @include u-text('semibold');
     transition: box-shadow 200ms, background-color 200ms;
   }
 
@@ -142,7 +142,7 @@ div.field--name-field-offices-near-you> ul {
 
   input::placeholder {
     color: #757575;
-    font-weight: 500;
+    @include u-text('medium');
   }
 
   [type=search]{
@@ -157,7 +157,7 @@ div.field--name-field-offices-near-you> ul {
   outline: none;
   font-size: 0.98rem;
   color: var($fed-directories, text-color);
-  font-weight: 500;
+  @include u-text('medium');
   border-style: none;
   line-height: 1.5;
 }
@@ -213,14 +213,14 @@ div.field--name-field-offices-near-you> ul {
 // Accordion
 .usa-fed-accordion__content {
   p.h-bold {
-    font-weight: bold;
+    @include u-text('bold');
   }
 
   div {
     display: flex;
 
     p:first-child {
-      font-weight: bold;
+      @include u-text('bold');
     }
   }
 }
@@ -255,7 +255,7 @@ div div.field--name-field-offices-near-you>ul>li {
     color: var($fed-directories, text-color);
     outline: solid 0.15rem var($cyan-50v);
     background-color: var($cyan-light);
-    font-weight: 600;
+    @include u-text('semibold');
     width: 57px;
     height: 57px;
     margin-left: 4px;
@@ -305,7 +305,7 @@ div div.field--name-field-offices-near-you>ul>li {
 .usagov-directory-table h3 {
   margin: 0;
   margin-bottom: 0.2rem;
-  font-weight: bold;
+  @include u-text('bold');
 }
 
 .usagov-directory-table p {
