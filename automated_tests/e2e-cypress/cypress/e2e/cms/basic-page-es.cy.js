@@ -34,7 +34,7 @@ describe('Local cms login', () => {
     //add content to the wysiwyg
     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
     cy.get('div.ck-editor__main .ck-focused').eq(0)
-    cy.get('.ck-content[contenteditable=true]').realType('Información sobre los programas del Gobierno que ofrecen ayuda para que las familias de bajos ingresos obtengan alimentos básicos y nutritivos.')
+    cy.get('.ck-content[contenteditable=true]').realType('Encuentre programas del Gobierno que ofrecen ayuda durante el embarazo y la primera infancia.')
 
     //Select image
     //cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]')
@@ -47,7 +47,7 @@ describe('Local cms login', () => {
     cy.get('#edit-menu-enabled').check()
 
     //fill out url alias
-    cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/es/testing/test1')
+    cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/testing/test1')
 
     //Select how to Saves Page
     //Right now I can't publish duo to the software not having rights to publish
@@ -56,7 +56,7 @@ describe('Local cms login', () => {
     //cy.get("#edit-moderation-state-0-state").select("Publish")
 
     //Save page
-    //cy.get('[ data-drupal-selector="edit-submit" ]').click()
+    cy.get('[ data-drupal-selector="edit-submit" ]').click()
 
     //delete test page
     /*
