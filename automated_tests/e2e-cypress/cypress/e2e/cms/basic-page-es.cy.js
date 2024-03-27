@@ -16,18 +16,7 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("This is a test meta description Espanol")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description Espanol")
 
-    //Selects Language
-    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
-    cy.get("#edit-langcode-0-value").select("Español")
-
     //cy.get("edit-field-language-toggle-0-target-id").type()
-
-    //Put content in the Body
-    cy.get("iframe").first()
-          .its('0.contentDocument')
-          .its('body')
-          .find('p')
-          .type('Información sobre los programas del Gobierno que ofrecen ayuda para que las familias de bajos ingresos obtengan alimentos básicos y nutritivos.')
 
     //Select page type
     cy.get("#edit-field-page-type").select("Standard Page")
@@ -38,9 +27,24 @@ describe('Local cms login', () => {
     //cy.get("#edit-field-page-type").select("Navigation Page")
     //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
 
+    //Selects Language
+    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
+    cy.get("#edit-langcode-0-value").select("Español")
+
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('Información sobre los programas del Gobierno que ofrecen ayuda para que las familias de bajos ingresos obtengan alimentos básicos y nutritivos.')
+
     //Select image
     //cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]')
     //cy.get('[data-drupal-selector="edit-upload-upload-yodljhjblcy"]').selectFile('Banner_img_Birth_en.png')
+
+    //add link to left menu
+    cy.get('#edit-advanced')
+    cy.get('#edit-menu').click()
+    cy.get('[data-drupal-selector="edit-menu"]')
+    cy.get('#edit-menu-enabled').check()
 
     //fill out url alias
     cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/es/testing/test1')
