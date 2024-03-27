@@ -141,7 +141,7 @@
   p {
     font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
       Arial, sans-serif;
-    font-size: 20px;
+    font-size: 1.25em;
     margin: 0;
     line-height: 1.5;
   }
@@ -188,7 +188,7 @@
   padding: 30px 28px 35px 30px;
 
   p {
-    font-size: 18px;
+    font-size: 1.125em;
     margin-top: 20px;
   }
 }
@@ -228,7 +228,7 @@
   }
 
   h2 {
-    font-size: 30px;
+    font-size: 1.875em;
     margin-left: auto;
     margin-right: auto;
     max-width: var($homepage, smaller-max-width);
@@ -294,7 +294,7 @@
     color: var($red);
     font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times,
       serif;
-    font-size: 39.04px;
+    font-size: 2.44em;
     font-weight: bold;
     margin: 65px 5vw 0;
     max-width: 90%;
