@@ -23,6 +23,7 @@ describe('Local cms login', () => {
     //cy.get("#edit-field-page-type").select("Navigation Page")
     //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
 
+    //Select Spanish language
     cy.languageToggle()
 
     //Language toggle for English page
