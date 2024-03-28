@@ -14,11 +14,14 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("Find government programs for food, health care, and other expenses to help during pregnancy and early childhood. See how to collect child support. test")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
 
+    //Select page type
+    cy.pageType()
+
     //Select Spanish language
     cy.languageToggle()
 
     //Input for the language toggle page
-    cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Having a child in early childhood')
+    cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Having a child and early childhood')
 
     //Select html for wysywig to put html code
     //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
@@ -27,16 +30,6 @@ describe('Local cms login', () => {
     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
     cy.get('div.ck-editor__main .ck-focused').eq(0)
     cy.get('.ck-content[contenteditable=true]').realType('This is a test to upload a file image.')
-
-
-    //Select page type
-    //cy.get("#edit-field-page-type").select("Standard Page")
-    cy.get("#edit-field-page-type").select("Life Events")
-    //cy.get("#edit-field-page-type").select("State Office Page")
-    //cy.get("#edit-field-page-type").select("Life Events Landing Page")
-    //cy.get("#edit-field-page-type").select("Navigation Cards Page")
-    //cy.get("#edit-field-page-type").select("Navigation Page")
-    //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
 
     //Select image
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
@@ -70,7 +63,7 @@ describe('Local cms login', () => {
     cy.get('.layout-region__content')
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-selection-0-rendered-entity"]').should('be.visible')
     cy.get("#edit-moderation-state-0-state").select("Draft")
-    //cy.get("#edit-moderation-state-0-state").select("Publish")
+    //cy.get("#edit-moderation-state-0-state").select("Published")
 
     //Save page
     cy.get('[ data-drupal-selector="edit-submit" ]').click()
