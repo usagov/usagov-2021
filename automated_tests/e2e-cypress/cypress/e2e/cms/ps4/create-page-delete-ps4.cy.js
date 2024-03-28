@@ -61,7 +61,6 @@ describe('Local cms login', () => {
     //Save page
     cy.get('[ data-drupal-selector="edit-submit" ]').click()
 
-
     //publish page
     cy.pagePublish()
 
