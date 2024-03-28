@@ -23,21 +23,11 @@ describe('Local cms login', () => {
     //cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]')
     //cy.get('[data-drupal-selector="edit-upload-upload-yodljhjblcy"]').selectFile('Banner_img_Birth_en.png')
 
-
-    //Select how to Saves Page
-    //Right now I can't publish duo to the software not having rights to publish
-    //Right now software cna only save as Draft or Ready for Review
-    cy.get("#edit-moderation-state-0-state").select("Draft")
-    //cy.get("#edit-moderation-state-0-state").select("Publish")
-
-    //Save page
-    cy.get('[ data-drupal-selector="edit-submit" ]').click()
-
-
     //publish page
-    cy.get('#content-moderation-entity-moderation-form')
-    cy.get('#edit-new-state').select('Published')
-    cy.get('#edit-submit').click()
+    cy.pagePublish()
+
+    //Take screenshot
+    //cy.screenshot()
 
     //delete test page
     cy.get('ul > li > a').contains('Content').focus().click()

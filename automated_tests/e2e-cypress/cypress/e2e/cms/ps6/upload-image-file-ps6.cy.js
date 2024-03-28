@@ -56,8 +56,9 @@ describe('Local cms login', () => {
     cy.get("#edit-moderation-state-0-state").select("Draft")
     //cy.get("#edit-moderation-state-0-state").select("Publish")
 
-    //Save page
-    cy.get('[ data-drupal-selector="edit-submit" ]').click()
+    //publish page
+    cy.pagePublish()
+
     //cy.screenshot('imageUpload')
 
     //delete test page
