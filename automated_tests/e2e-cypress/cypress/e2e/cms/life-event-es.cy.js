@@ -22,9 +22,8 @@ describe('Life Event Es', () => {
 
     //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
 
-    //Selects Language
-    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
-    cy.get("#edit-langcode-0-value").select("Español")
+    //Select Spanish language
+    cy.languageToggle()
 
     //add content to the wysiwyg
     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
