@@ -54,3 +54,11 @@ Cypress.Commands.add('languageToggle', () => {
     //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
     cy.get("#edit-langcode-0-value").select("Español")
 });
+
+Cypress.Commands.add('pagePublish', () => {
+    //publish page
+    cy.get('#content-moderation-entity-moderation-form')
+    cy.get('#edit-new-state').select('Published')
+    cy.get('#edit-submit').click()
+});
+
