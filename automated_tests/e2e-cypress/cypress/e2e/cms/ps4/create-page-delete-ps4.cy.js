@@ -14,8 +14,6 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("The Special Supplemental Nutrition Program for Women, Infants, and Children (WIC) can help you and your young children get food, nutrition counseling, and social service referrals. test")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
 
-
-
     //Select page type
     //cy.get("#edit-field-page-type").select("Standard Page")
     cy.get("#edit-field-page-type").select("Life Events")
@@ -25,11 +23,7 @@ describe('Local cms login', () => {
     //cy.get("#edit-field-page-type").select("Navigation Page")
     //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
 
-    //Selects Language
-    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
-    //cy.get("#edit-langcode-0-value").select("Español")
-
-    //Language toggle for Spanish page
+    //Language toggle to Spanish page
     cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Obtenga asistencia alimentaria con el programa WIC')
 
     //select html option for wysiwyg
