@@ -85,8 +85,8 @@ describe('Local cms login', () => {
     cy.get('#edit-path-0').click()
     cy.get('#edit-path-0-alias').type('/testing/federal-record1')
 
-    //Save page
-    cy.get('[ data-drupal-selector="edit-submit" ]').click()
+    //publish page
+    cy.pagePublish()
 
     //cy.screenshot('federalDirectoryRecord')
 
