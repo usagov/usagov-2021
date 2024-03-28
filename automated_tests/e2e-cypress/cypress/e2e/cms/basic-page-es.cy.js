@@ -14,15 +14,6 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("This is a test meta description Espanol")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description Espanol")
 
-    //Select page type
-    cy.get("#edit-field-page-type").select("Standard Page")
-    //cy.get("#edit-field-page-type").select("Life Events")
-    //cy.get("#edit-field-page-type").select("State Office Page")
-    //cy.get("#edit-field-page-type").select("Life Events Landing Page")
-    //cy.get("#edit-field-page-type").select("Navigation Cards Page")
-    //cy.get("#edit-field-page-type").select("Navigation Page")
-    //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
-
     //Select Spanish language
     cy.languageToggle()
 

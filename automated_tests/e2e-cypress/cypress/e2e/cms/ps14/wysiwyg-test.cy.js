@@ -19,15 +19,6 @@ describe('Local cms login', () => {
     cy.get('div.ck-editor__main .ck-focused').eq(0)
     cy.get('.ck-content[contenteditable=true]').realType('The Special Supplemental Nutrition Program for Women, Infants, and Children (WIC) can help you and your young children get food, nutrition counseling, and social service referrals.')
 
-    //Select page type
-    cy.get("#edit-field-page-type").select("Standard Page")
-    //cy.get("#edit-field-page-type").select("Life Events")
-    //cy.get("#edit-field-page-type").select("State Office Page")
-    //cy.get("#edit-field-page-type").select("Life Events Landing Page")
-    //cy.get("#edit-field-page-type").select("Navigation Cards Page")
-    //cy.get("#edit-field-page-type").select("Navigation Page")
-    //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
-
     //Select image
     //cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]')
     //cy.get('[data-drupal-selector="edit-upload-upload-yodljhjblcy"]').selectFile('Banner_img_Birth_en.png')
