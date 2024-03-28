@@ -13,16 +13,10 @@ describe('Local cms login', () => {
     cy.get("#edit-field-page-intro-0-value").type("This is a test federal record intro")
     cy.get("#edit-field-meta-description-0-value").type("This is a test federal record meta description")
 
-    //Selects Language
-    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
-    //cy.get("#edit-langcode-0-value").select("Español")
-
-    //cy.get("edit-field-language-toggle-0-target-id").type()
-
-     //add content to the wysiwyg
-     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-     cy.get('div.ck-editor__main .ck-focused').eq(0)
-     cy.get('.ck-content[contenteditable=true]').realType('An official website of the U.S. General Services Administration')
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('An official website of the U.S. General Services Administration')
 
     //add federal record website url
     cy.get('#edit-field-website-0-uri').type('https://www.gsa.gov/')
