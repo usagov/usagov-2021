@@ -39,23 +39,11 @@ describe('Local cms login', () => {
     //fill out url alias
     cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/test-title-29')
 
-
-    //Select how to Saves Page
-    //Right now I can't publish duo to the software not having rights to publish
-    //Right now software cna only save as Draft or Ready for Review
-    cy.get("#edit-moderation-state-0-state").select("Draft")
-    //cy.get("#edit-moderation-state-0-state").select("Publish")
-
-    //Save page
-    cy.get('[ data-drupal-selector="edit-submit" ]').click()
+    //publish page
+    cy.pagePublish()
 
     //Take screenshot
     //cy.screenshot()
-
-    //publish page
-    cy.get('#content-moderation-entity-moderation-form')
-    cy.get('#edit-new-state').select('Published')
-    cy.get('#edit-submit').click()
 
     //delete test page
     cy.get('ul > li > a').contains('Content').focus().click()
