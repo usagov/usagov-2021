@@ -44,5 +44,9 @@ USWDS Variables
 
   // Alert
   $theme-color-error: "red-50",
-  $theme-accordion-border-color: "gray-cool-10"
+  $theme-accordion-border-color: "gray-cool-10",
+
+  // These currently do not "work". To activate these we need to rename mobile-menu.scss to _mobile-menu.scss. At this time I do not think it's needed but want to document these options
+  $theme-show-compile-warnings: false,
+  $theme-show-notifications: false
 );
