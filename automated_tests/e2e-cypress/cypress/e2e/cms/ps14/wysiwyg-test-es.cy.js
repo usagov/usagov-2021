@@ -16,9 +16,8 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("This is a test meta description Spanish")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description Spanish")
 
-    //Selects Language
-    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
-    cy.get("#edit-langcode-0-value").select("Español")
+    //Select Spanish language
+    cy.languageToggle()
 
     //cy.get("edit-field-language-toggle-0-target-id").type()
 
