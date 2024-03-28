@@ -38,8 +38,28 @@ Cypress.Commands.add('logOut', () => {
     cy.get('#toolbar-item-user-tray').contains('Log out').click()
 });
 
+Cypress.Commands.add('pageType', () => {
+    //Select page type
+    //cy.get("#edit-field-page-type").select("Standard Page")
+    cy.get("#edit-field-page-type").select("Life Events")
+    //cy.get("#edit-field-page-type").select("State Office Page")
+    //cy.get("#edit-field-page-type").select("Life Events Landing Page")
+    //cy.get("#edit-field-page-type").select("Navigation Cards Page")
+    //cy.get("#edit-field-page-type").select("Navigation Page")
+    //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
+});
+
 Cypress.Commands.add('languageToggle', () => {
     //Selects Language
     //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
     cy.get("#edit-langcode-0-value").select("Español")
 });
+
+    //Select page type
+    //cy.get("#edit-field-page-type").select("Standard Page")
+    cy.get("#edit-field-page-type").select("Life Events")
+    //cy.get("#edit-field-page-type").select("State Office Page")
+    //cy.get("#edit-field-page-type").select("Life Events Landing Page")
+    //cy.get("#edit-field-page-type").select("Navigation Cards Page")
+    //cy.get("#edit-field-page-type").select("Navigation Page")
+    //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
