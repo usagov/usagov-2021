@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Facebook",
+        "link": "https://www.facebook.com/USAgov",
+        "linkEs": "https://www.facebook.com/usagovespanol"
+    },
+    {
+        "name": "Twitter",
+        "link": "https://twitter.com/USAgov",
+        "linkEs": "https://twitter.com/usagovespanol"
+    },
+    {
+        "name": "Youtube",
+        "link": "https://www.youtube.com/usagov1",
+        "linkEs": "https://www.youtube.com/USAgovespanol"
+    },
+    {
+        "name": "Instagram",
+        "link": "https://www.instagram.com/usagov/",
+        "linkEs": ""
+    }
+]
