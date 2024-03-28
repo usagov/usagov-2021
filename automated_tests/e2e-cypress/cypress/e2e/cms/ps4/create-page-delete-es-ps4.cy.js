@@ -23,9 +23,10 @@ describe('Local cms login', () => {
     //cy.get("#edit-field-page-type").select("Navigation Page")
     //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
 
+    cy.languageToggle()
     //Selects Language
     //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
-    cy.get("#edit-langcode-0-value").select("Español")
+    //cy.get("#edit-langcode-0-value").select("Español")
 
     //Language toggle for English page
     cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
