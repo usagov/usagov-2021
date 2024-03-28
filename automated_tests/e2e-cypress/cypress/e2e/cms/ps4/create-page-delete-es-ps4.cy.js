@@ -26,8 +26,8 @@ describe('Local cms login', () => {
     //Select Spanish language
     cy.languageToggle()
 
-    //Language toggle for English page
-    cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
+    //Input for the language toggle page
+    cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Having a child in early childhood')
 
     //select html option for wysiwyg
     //cy.get('#edit-body-0-format--2').click().select("HTML")
