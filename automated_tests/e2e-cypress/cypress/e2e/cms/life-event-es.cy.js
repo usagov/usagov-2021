@@ -21,7 +21,7 @@ describe('Life Event Es', () => {
     cy.languageToggle()
 
     //Input for the language toggle page
-    cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Having a child in early childhood')
+    cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Having a child and early childhood')
 
     //add content to the wysiwyg
     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
@@ -52,15 +52,8 @@ describe('Life Event Es', () => {
     //fill out url alias
     cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/Having-child-early-childhood-test')
 
-    //Select how to Saves Page
-    //Right now I can't publish due to the software not having rights to publish
-    //Right now software cna only save as Draft or Ready for Review
-    cy.get('.layout-region__content')
-    cy.get("#edit-moderation-state-0-state").select("Draft")
-    //cy.get("#edit-moderation-state-0-state").select("Publish")
-
-    //Save page
-    cy.get('[ data-drupal-selector="edit-submit" ]').click()
+    //publish page
+    cy.pagePublish()
 
     //delete test page
     /*
