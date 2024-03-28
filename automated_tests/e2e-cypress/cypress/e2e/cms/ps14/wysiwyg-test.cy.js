@@ -5,9 +5,7 @@ describe('Local cms login', () => {
 
     cy.logIn()
 
-    //navigate menu to add content to a basic page
-    //cy.get('div > a#toolbar-item-administration')
-    //cy.get('ul.toolbar-menu:first > li.menu-item:nth-of-type(2) > a ~ ul.toolbar-menu:first > li.menu-item:first > a ~ ul.toolbar-menu:first > li.menu-item:first > a').focus().click()
+   //navigate menu to add content to a basic page
     cy.get('ul > li > a').contains('Basic Page').focus().click()
 
     //fill out cms basic page
