@@ -21,7 +21,7 @@ describe('Local cms login', () => {
     cy.languageToggle()
 
     //Input for the language toggle page
-    cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Having a child in early childhood')
+    cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Having a child and early childhood')
 
     //select html option for wysiwyg
     //cy.get('#edit-body-0-format--2').click().select("HTML")
