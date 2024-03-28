@@ -14,6 +14,9 @@ describe('Life Event Es', () => {
     cy.get("#edit-field-meta-description-0-value").type("Find government programs for food, health care, and other expenses to help during pregnancy and early childhood. See how to collect child support. test")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
 
+    //Select page type
+    cy.pageType()
+
     //Select Spanish language
     cy.languageToggle()
 
@@ -24,15 +27,6 @@ describe('Life Event Es', () => {
     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
     cy.get('div.ck-editor__main .ck-focused').eq(0)
     cy.get('.ck-content[contenteditable=true]').realType('Learn how to get nutritious food for yourself and your family through SNAP (food stamps), D-SNAP, and WIC for women, infants, and children.')
-
-    //Select page type
-    //cy.get("#edit-field-page-type").select("Standard Page")
-    cy.get("#edit-field-page-type").select("Life Events")
-    //cy.get("#edit-field-page-type").select("State Office Page")
-    //cy.get("#edit-field-page-type").select("Life Events Landing Page")
-    //cy.get("#edit-field-page-type").select("Navigation Cards Page")
-    //cy.get("#edit-field-page-type").select("Navigation Page")
-    //cy.get("#edit-field-page-type").select("Standard Page- Nav Hidden")
 
     //Select image
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
