@@ -35,24 +35,16 @@ describe('Local cms login', () => {
     //fill out url alias
     cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/testing/test1')
 
-    //Select how to Saves Page
-    //Right now I can't publish duo to the software not having rights to publish
-    //Right now software cna only save as Draft or Ready for Review
-    cy.get("#edit-moderation-state-0-state").select("Draft")
-    //cy.get("#edit-moderation-state-0-state").select("Published")
-
-    //Save page
-    cy.get('[ data-drupal-selector="edit-submit" ]').click()
+    //publish page
+    cy.pagePublish()
 
     //delete test page
-    /*
-    cy.get('ul > li > a').contains('Content').focus().click()
-    cy.get('#edit-combine').type('File Upload test')
-    cy.get('#edit-submit-content').click()
-    cy.get('#edit-node-bulk-form-0').check()
-    cy.get('#edit-action').select('Delete content')
-    cy.get('#edit-submit').click()
-    cy.get('#edit-submit').click()
-    */
+    // cy.get('ul > li > a').contains('Content').focus().click()
+    // cy.get('#edit-combine').type('This is a test title')
+    // cy.get('#edit-submit-content').click()
+    // cy.get('#edit-node-bulk-form-0').check()
+    // cy.get('#edit-action').select('Delete content')
+    // cy.get('#edit-submit').click()
+    // cy.get('#edit-submit').click()
   })
 })
