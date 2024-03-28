@@ -16,7 +16,7 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("Find government programs for food, health care, and other expenses to help during pregnancy and early childhood. See how to collect child support. test")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
 
-    //Input page for the toggle language content
+    //Input for the language toggle page
     cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Having a child in early childhood')
 
     //Select html for wysywig to put html code

@@ -16,8 +16,6 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("This is a test meta description Espanol")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description Espanol")
 
-    //cy.get("edit-field-language-toggle-0-target-id").type()
-
     //Select page type
     cy.get("#edit-field-page-type").select("Standard Page")
     //cy.get("#edit-field-page-type").select("Life Events")
@@ -29,6 +27,9 @@ describe('Local cms login', () => {
 
     //Select Spanish language
     cy.languageToggle()
+
+    //Input for the language toggle page
+    cy.get("edit-field-language-toggle-0-target-id").type('Having a child in early childhood')
 
     //add content to the wysiwyg
     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
