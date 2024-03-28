@@ -37,3 +37,9 @@ Cypress.Commands.add('logOut', () => {
     cy.get('#toolbar-item-user').click()
     cy.get('#toolbar-item-user-tray').contains('Log out').click()
 });
+
+Cypress.Commands.add('languageToggle', () => {
+    //Selects Language
+    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
+    cy.get("#edit-langcode-0-value").select("Español")
+});
