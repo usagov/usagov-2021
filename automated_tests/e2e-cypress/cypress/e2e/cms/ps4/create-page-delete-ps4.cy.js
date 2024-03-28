@@ -63,9 +63,7 @@ describe('Local cms login', () => {
 
 
     //publish page
-    cy.get('#content-moderation-entity-moderation-form')
-    cy.get('#edit-new-state').select('Published')
-    cy.get('#edit-submit').click()
+    cy.pagePublish()
 
     //Takes screenshot of the page
     //cy.screenshot('createBasicPage')
