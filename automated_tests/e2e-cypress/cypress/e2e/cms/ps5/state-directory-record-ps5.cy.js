@@ -155,7 +155,7 @@ describe('Local cms login', () => {
     cy.get('#edit-path-0-alias').type('/testing/state-record1')
 
     //publish page
-    cy.pagePublish()
+    cy.pageDirectoryPublish()
 
     //cy.screenshot('stateDirectoryRecord')
 
