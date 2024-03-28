@@ -17,15 +17,14 @@ describe('Local cms login', () => {
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
     cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
 
-    //Selects Language
-    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
-    //cy.get("#edit-langcode-0-value").select("Español")
-
     //Input page for the toggle language content
     //cy.get("edit-field-language-toggle-0-target-id").type()
 
     //Select html for wysywig to put html code
     //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
+
+    //Select Spanish language
+    cy.languageToggle()
 
     //add content to the wysiwyg
      cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
