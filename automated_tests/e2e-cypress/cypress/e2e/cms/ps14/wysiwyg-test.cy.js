@@ -16,43 +16,10 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("This is a test meta description")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
 
-    //Selects Language
-    //cy.get('#edit-langcode-0-value option:selected').select('Egnlish').should('have.value', 'English')
-    //cy.get("#edit-langcode-0-value").select("Español")
-
-    //cy.get("edit-field-language-toggle-0-target-id").type()
-
-    //Put content in the Body
-    cy.get("iframe").first()
-          .its('0.contentDocument')
-          .its('body')
-          .find('p')
-          .type('Learn how to get nutritious food for yourself and your family through SNAP (food stamps), D-SNAP, and WIC for women, infants, and children.')
-          .type('{enter}')
-          .type('{selectAll}')
-    cy.get('#cke_17').click()
-    //cy.get('#cke_1_toolbox')
-    cy.get("iframe").first()
-          .its('0.contentDocument')
-          .its('body')
-          .find('p').last()
-          //.type('{moveToEnd}')
-          //.type('{enter}')
-          //.type('{enter}')
-          //.type('{end}')
-          .type('hello there')
-          .type('{enter}')
-          .type('{selectAll}')
-    cy.get('#cke_18').click()
-
-    cy.get("iframe").first()
-          .its('0.contentDocument')
-          .its('body')
-          .find('p').last()
-          .type('hello out there')
-          .type('{enter}')
-          .type('{selectAll}')
-    cy.get('#cke_19').click()
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('The Special Supplemental Nutrition Program for Women, Infants, and Children (WIC) can help you and your young children get food, nutrition counseling, and social service referrals.')
 
     //Select page type
     cy.get("#edit-field-page-type").select("Standard Page")
