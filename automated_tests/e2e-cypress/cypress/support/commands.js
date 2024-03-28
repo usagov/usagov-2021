@@ -61,3 +61,8 @@ Cypress.Commands.add('pagePublish', () => {
     cy.get('#edit-submit').click()
 });
 
+Cypress.Commands.add('pageDirectoryPublish', () => {
+    //publish federal page
+    cy.get('#edit-submit').click()
+});
+
