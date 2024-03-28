@@ -19,41 +19,10 @@ describe('Local cms login', () => {
     //Select Spanish language
     cy.languageToggle()
 
-    //cy.get("edit-field-language-toggle-0-target-id").type()
-
-    //Put content in the Body
-    /*
-    cy.get("iframe").first()
-          .its('0.contentDocument')
-          .its('body')
-          .find('p')
-          .type('Learn how to get nutritious food for yourself and your family through SNAP (food stamps), D-SNAP, and WIC for women, infants, and children.')
-          .type('{enter}')
-          .type('{selectAll}')
-    cy.get('#cke_17').click()
-    //cy.get('#cke_1_toolbox')
-    cy.get("iframe").first()
-          .its('0.contentDocument')
-          .its('body')
-          .find('p').last()
-                  //.type('{moveToEnd}')
-                  //.type('{enter}')
-                  //.type('{enter}')
-                  //.type('{end}')
-          .type('hello there')
-          .type('{enter}')
-          .type('{selectAll}')
-    cy.get('#cke_18').click()
-
-    cy.get("iframe").first()
-          .its('0.contentDocument')
-          .its('body')
-          .find('p').last()
-          .type('hello out there')
-          .type('{enter}')
-          .type('{selectAll}')
-    cy.get('#cke_19').click()
-      */
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('Encuentre programas del Gobierno que ofrecen ayuda durante el embarazo y la primera infancia.')
 
     //Select page type
     //cy.get("#edit-field-page-type").select("Standard Page")
