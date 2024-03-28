@@ -57,8 +57,7 @@ Cypress.Commands.add('languageToggle', () => {
 
 Cypress.Commands.add('pagePublish', () => {
     //publish page
-    cy.get('#content-moderation-entity-moderation-form')
-    cy.get('#edit-new-state').select('Published')
+    cy.get("#edit-moderation-state-0-state").select("Published")
     cy.get('#edit-submit').click()
 });
 
