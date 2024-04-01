@@ -1,4 +1,4 @@
-describe('Local cms login', () => {
+describe('Add a link to the left menu of a page', () => {
   it('Gets, types and clicks', () => {
     //log into local cms
     Cypress.on('uncaught:exception', () => false)

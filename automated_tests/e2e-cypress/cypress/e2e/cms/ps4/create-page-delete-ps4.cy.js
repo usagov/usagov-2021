@@ -1,4 +1,4 @@
-describe('Local cms login', () => {
+describe('Create and delete a page', () => {
   it('Gets, types and clicks', () => {
     //log into local cms
     Cypress.on('uncaught:exception', () => false)
