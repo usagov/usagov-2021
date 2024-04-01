@@ -55,6 +55,11 @@ settings:
     ckeditor5_sourceEditing:
       allowed_tags:
         - '<div>'
+        - '<a target>'
+        - '<h1 id>'
+        - '<h2 id>'
+        - '<h3 id>'
+        - '<h4 id>'
     ckeditor5_style:
       styles:
         -
