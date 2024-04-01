@@ -4,6 +4,7 @@
  * @file
  */
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\Entity\Node;
 
 /**
@@ -66,4 +67,13 @@ function usagov_directories_views_pre_render($view) {
 
     $view->result = $new_result;
   }
+}
+
+/**
+ * Implements hook_entity_presave() to make sure that the title does not have extra whitespace before or after
+ */
+function usagov_directories_entity_presave($entity) {
+  $titleToTrim = $entity->getTitle();
+  $trimmedTitle = trim($titleToTrim);
+  $entity->setTitle($trimmedTitle);
 }
