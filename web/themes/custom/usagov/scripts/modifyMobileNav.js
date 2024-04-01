@@ -46,19 +46,16 @@
 function setMobileProperties() {
 	"use strict";
 	let header = document.getElementById('header');
-	let navbarHeight = $('.usa-navbar').outerHeight;
-	let banner = document.getElementsByClassName('usa-banner-inner')[0];
-	let usBanner = document.getElementById('usagov-banner');
+	let banner = document.getElementById('usagov-banner');
 	let search = document.getElementById('search-field-small-mobile-menu');
 
 	if (window.innerWidth <= 1024) {
-		header.style.top = "1rem";
-		banner.style.top = "-" + usBanner.offsetHeight + "px";
+		header.style.top = "-" + banner.offsetHeight + "px";
 
 		search.classList.add('usagov-search-autocomplete');
 
 		// Prevent the Sticky Bar from hiding content
-		document.getElementsByTagName("html")[0].style.setProperty("scroll-padding-top", navbarHeight + "px", "important");
+		document.getElementsByTagName("html")[0].style.setProperty("scroll-padding-top", header.offsetHeight + "px", "important");
 	}
 	else {
 		header.style.removeProperty("top");
