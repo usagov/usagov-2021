@@ -26,10 +26,8 @@ describe('Local cms login', () => {
     //Select html for wysywig to put html code
     //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
 
-    //add content to the wysiwyg
-    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-    cy.get('div.ck-editor__main .ck-focused').eq(0)
-    cy.get('.ck-content[contenteditable=true]').realType('This is a test to upload a file image.')
+    //add Spanish text to wysiwyg
+    cy.textSpanish()
 
     //Select navigation page image
     cy.imageSelect()
