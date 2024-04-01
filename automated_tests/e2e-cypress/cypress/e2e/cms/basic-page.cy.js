@@ -30,8 +30,8 @@ describe('Local cms login', () => {
     cy.get('[data-drupal-selector="edit-menu"]')
     cy.get('#edit-menu-enabled').check()
 
-    //fill out url alias
-    cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/testing/test1')
+    //checkbox to generate an automatic page url alias
+    cy.get('#edit-path-0-pathauto').check()
 
     //publish page
     cy.pagePublish()
