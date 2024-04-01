@@ -45,9 +45,8 @@ describe('Local cms login', () => {
     //cy.get('.form-item--media-0-fields-field-media-image-0-alt > input').type('baby in arm')
     //cy.get('button').contains('Save and insert').click()
 
-
-    //fill out url alias
-    cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/testing/test23')
+    //checkbox to generate an automatic page url alias
+    cy.get('#edit-path-0-pathauto').check()
 
     //publish page
     cy.pagePublish()

@@ -21,6 +21,10 @@ describe('Local cms login', () => {
     //cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]')
     //cy.get('[data-drupal-selector="edit-upload-upload-yodljhjblcy"]').selectFile('Banner_img_Birth_en.png')
 
+    //checkbox to generate an automatic page url alias
+    cy.get('#edit-path-0-pathauto').check()
+
+
     //publish page
     cy.pagePublish()
 
