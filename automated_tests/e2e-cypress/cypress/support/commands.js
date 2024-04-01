@@ -70,14 +70,43 @@ Cypress.Commands.add('textSpanish', () => {
 });
 
 Cypress.Commands.add('imageSelect', () => {
-    //Select image
-cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
-cy.get('.media-library-widget-modal').should('be.visible')
-cy.get('.views-form')
-cy.get('[data-drupal-selector="edit-media-library-select-form-5"]').check()
-cy.get('.ui-dialog-buttonset > button').click()
-cy.get('[data-drupal-selector="edit-field-navigation-banner-image-selection-0-rendered-entity"]').should('be.visible')
+    //Select navigation page image
+    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
+    cy.get('.media-library-widget-modal').should('be.visible')
+    cy.get('.views-form')
+    cy.get('[data-drupal-selector="edit-media-library-select-form-5"]').check()
+    cy.get('.ui-dialog-buttonset > button').click()
+    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-selection-0-rendered-entity"]').should('be.visible')
 });
+
+Cypress.Commands.add('taxonomyLinkEnglish', () => {
+    //add link to menu and select taxonomy
+    cy.get('#edit-advanced')
+    cy.get('#edit-menu').click()
+    cy.get('[data-drupal-selector="edit-menu"]')
+    cy.get('#edit-menu-enabled').check()
+    cy.get('[data-drupal-selector="edit-menu-title"]').clear().type('Embarazo y primera infancia')
+    cy.get('#edit-menu-node-menus-en-menu-parent').select('-- Life events')
+ });
+
+Cypress.Commands.add('taxonomyLinkSpanish', () => {
+    //add link to menu and select taxonomy
+    cy.get('#edit-advanced')
+    cy.get('#edit-menu').click()
+    cy.get('[data-drupal-selector="edit-menu"]')
+    cy.get('#edit-menu-enabled').check()
+    cy.get('[data-drupal-selector="edit-menu-title"]').clear().type('Embarazo y primera infancia')
+    cy.get('#edit-menu-node-menus-es-menu-parent').select('-- Etapas importantes de la vida')
+ });
+
+//add link to menu and select taxonomy
+cy.get('#edit-advanced')
+cy.get('#edit-menu').click()
+cy.get('[data-drupal-selector="edit-menu"]')
+cy.get('#edit-menu-enabled').check()
+cy.get('[data-drupal-selector="edit-menu-title"]').clear().type('Embarazo y primera infancia')
+//cy.get('#edit-menu-node-menus-en-menu-parent').select('-- Life events')
+cy.get('#edit-menu-node-menus-es-menu-parent').select('-- Etapas importantes de la vida')
 
 Cypress.Commands.add('pagePublish', () => {
     //publish page
