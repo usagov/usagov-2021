@@ -350,7 +350,7 @@ function renderResults(response, rawResponse) {
                 let linkToContact = document.createElement("button");
                 let firstEmail = email[0];
 
-                linkToContact.setAttribute("class", "usa-button usa-button--secondary");
+                linkToContact.setAttribute("class", "usa-button usa-button--secondary state-email");
                 linkToContact.style.marginTop = "15px";
                 linkToContact.innerHTML = content["contact-via-email"];
 
@@ -362,11 +362,14 @@ function renderResults(response, rawResponse) {
                 linkToContact.setAttribute("role","button");
                 linkToContact.setAttribute("onclick", "window.location.href = '" + content["path-contact"] + "?"
                                            + searchParams.toString() + "#skip-to-h1'");
-                bulletList.appendChild(linkToContact);
+                // Append bullet list of details to accordion
+                accordionContent.appendChild(bulletList);
+                accordionContent.appendChild(linkToContact);
             }
-
-            // Append bullet list of details to accordion
-            accordionContent.appendChild(bulletList);
+            else {
+                // Append bullet list of details to accordion
+                accordionContent.appendChild(bulletList);
+            }
 
             // Determine under which level accordion the elected official section should be appended
             let appendLocation;
