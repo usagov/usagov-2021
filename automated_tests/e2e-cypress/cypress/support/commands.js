@@ -106,7 +106,7 @@ Cypress.Commands.add('pagePublish', () => {
 });
 
 Cypress.Commands.add('pageDirectoryPublish', () => {
-    //publish federal page
+    //publish federal and state page
     cy.get('#edit-submit').click()
 });
 
