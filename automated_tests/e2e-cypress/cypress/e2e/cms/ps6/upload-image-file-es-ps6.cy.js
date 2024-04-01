@@ -20,10 +20,8 @@ describe('Local cms login', () => {
     //Select Spanish language
     cy.languageToggle()
 
-    //add content to the wysiwyg
-     cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-     cy.get('div.ck-editor__main .ck-focused').eq(0)
-     cy.get('.ck-content[contenteditable=true]').realType('This is a test to upload a file image.')
+    //add Spanish text to wysiwyg
+    cy.textSpanish()
 
     //Select image
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
