@@ -26,13 +26,8 @@ describe('Life Event En', () => {
    //Select navigation page image
    cy.imageSelect()
 
-    //add link to menu and select taxonomy
-    cy.get('#edit-advanced')
-    cy.get('#edit-menu').click()
-    cy.get('[data-drupal-selector="edit-menu"]')
-    cy.get('#edit-menu-enabled').check()
-    cy.get('[data-drupal-selector="edit-menu-title"]').type('Having a child and early childhood')
-    cy.get('#edit-menu-node-menus-en-menu-parent').select('-- Life events')
+   //add taxonomy link to Spanish page
+   cy.taxonomyLinkEnglish()
 
     //fill out url alias
     cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/Having-child-early-childhood-test')
