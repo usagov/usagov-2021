@@ -17,10 +17,8 @@ describe('Local cms login', () => {
     //Select html for wysywig to put html code
     //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
 
-    //add content to the wysiwyg
-    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-    cy.get('div.ck-editor__main .ck-focused').eq(0)
-    cy.get('.ck-content[contenteditable=true]').realType('Learn how to get nutritious food for yourself and your family through SNAP (food stamps), D-SNAP, and WIC for women, infants, and children.')
+    //add English text to wysiwyg
+    cy.textEnglish()
 
     //Select image
     //cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]')
@@ -32,8 +30,8 @@ describe('Local cms login', () => {
     cy.get('[data-drupal-selector="edit-menu"]')
     cy.get('#edit-menu-enabled').check()
 
-    //fill out url alias
-    cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/testing/test1')
+    //checkbox to generate an automatic page url alias
+    cy.get('#edit-path-0-pathauto').check()
 
     //publish page
     cy.pagePublish()

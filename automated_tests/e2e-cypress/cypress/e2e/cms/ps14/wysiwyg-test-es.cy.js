@@ -17,24 +17,11 @@ describe('Local cms login', () => {
     //Select Spanish language
     cy.languageToggle()
 
-    //add content to the wysiwyg
-    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-    cy.get('div.ck-editor__main .ck-focused').eq(0)
-    cy.get('.ck-content[contenteditable=true]').realType('Encuentre programas del Gobierno que ofrecen ayuda durante el embarazo y la primera infancia.')
+    //add Spanish text to wysiwyg
+    cy.textSpanish()
 
-    //Select image
-    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
-    cy.get('.media-library-widget-modal').should('be.visible')
-    cy.get('.views-form')
-    cy.get('[data-drupal-selector="edit-media-library-select-form-5"]').check()
-    cy.get('.ui-dialog-buttonset > button').click()
-    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-selection-0-rendered-entity"]').should('be.visible')
-    cy.get('#edit-advanced')
-    cy.get('#edit-menu').click()
-    cy.get('[data-drupal-selector="edit-menu"]')
-    cy.get('#edit-menu-enabled').check()
-    //cy.get('[data-drupal-selector="edit-menu-title"]').type('This is a test title b')
-    cy.get('#edit-menu-node-menus-es-menu-parent').select('-- Etapas importantes de la vida')
+    //Select navigation page image
+    cy.imageSelect()
 
     //fill out url alias
     cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/test-title-29')
