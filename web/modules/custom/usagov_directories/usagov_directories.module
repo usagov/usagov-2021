@@ -73,7 +73,12 @@ function usagov_directories_views_pre_render($view) {
  * Implements hook_entity_presave() to make sure that the title does not have extra whitespace before or after
  */
 function usagov_directories_entity_presave($entity) {
-  $titleToTrim = $entity->getTitle();
-  $trimmedTitle = trim($titleToTrim);
-  $entity->setTitle($trimmedTitle);
+  switch ($entity->bundle()) {
+    //Only check federal agencies
+    case 'directory_record':
+      $titleToTrim = $entity->getTitle();
+      $trimmedTitle = trim($titleToTrim);
+      $entity->setTitle($trimmedTitle);
+      break;
+  }
 }
