@@ -55,6 +55,20 @@ Cypress.Commands.add('languageToggle', () => {
     cy.get("#edit-langcode-0-value").select("Español")
 });
 
+Cypress.Commands.add('textEnglish', () => {
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('The Special Supplemental Nutrition Program for Women, Infants, and Children (WIC) can help you and your young children get food, nutrition counseling, and social service referrals.')
+});
+
+Cypress.Commands.add('textSpanish', () => {
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('Encuentre programas del Gobierno que ofrecen ayuda durante el embarazo y la primera infancia.')
+});
+
 Cypress.Commands.add('pagePublish', () => {
     //publish page
     cy.get("#edit-moderation-state-0-state").select("Published")
