@@ -20,10 +20,8 @@ describe('Life Event En', () => {
     //Input for the language toggle page
     cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
 
-    //add content to the wysiwyg
-    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-    cy.get('div.ck-editor__main .ck-focused').eq(0)
-    cy.get('.ck-content[contenteditable=true]').realType('Learn how to get nutritious food for yourself and your family through SNAP (food stamps), D-SNAP, and WIC for women, infants, and children.')
+    //add English text to wysiwyg
+    cy.textEnglish()
 
     //Select image
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()

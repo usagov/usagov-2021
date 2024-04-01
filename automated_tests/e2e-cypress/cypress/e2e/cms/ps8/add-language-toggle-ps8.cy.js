@@ -17,10 +17,8 @@ describe('Local cms login', () => {
     //Input page for the toggle language content
     cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
 
-   //add content to the wysiwyg
-   cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-   cy.get('div.ck-editor__main .ck-focused').eq(0)
-   cy.get('.ck-content[contenteditable=true]').realType('This is a test to upload a file image.')
+   //add English text to wysiwyg
+   cy.textEnglish()
 
 
     //Select page type
