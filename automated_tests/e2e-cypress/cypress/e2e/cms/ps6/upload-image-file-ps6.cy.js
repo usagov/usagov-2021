@@ -17,10 +17,8 @@ describe('Local cms login', () => {
     //Select page type
     cy.pageType()
 
-    //add content to the wysiwyg
-    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-    cy.get('div.ck-editor__main .ck-focused').eq(0)
-    cy.get('.ck-content[contenteditable=true]').realType('This is a test to upload a file image.')
+    //add English text to wysiwyg
+    cy.textEnglish()
 
     //Select image
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
