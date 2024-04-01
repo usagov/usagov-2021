@@ -70,7 +70,7 @@ Cypress.Commands.add('textSpanish', () => {
 });
 
 Cypress.Commands.add('imageSelect', () => {
-    //Select navigation page image
+    //add navigation page image
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
     cy.get('.media-library-widget-modal').should('be.visible')
     cy.get('.views-form')
