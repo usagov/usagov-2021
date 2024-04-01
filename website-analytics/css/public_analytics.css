@@ -951,9 +951,8 @@ figure figure .bar-chart .bin {
   position: absolute;
   top: 0;
   transition: 0.15s ease-in-out;
-  outline: 0.2em solid #0186a2;
-  outline-offset: 0;
-  box-shadow: 0 0 0 7px #0186a2;
+  box-shadow: none;
+  outline: 2px solid #0186a2;
 }
 
 .label .domain:focus-within {
@@ -972,5 +971,11 @@ a {
 
 .select-agency-form-button {
   margin: 0.2em 0;
-  border: 1px solid #fff;
+  border: 1px solid #1b1b1b;
+  background-color: #00bde3;
+}
+
+.select-agency-form-button:focus {
+  box-shadow: none;
+  outline: 2px solid #0186a2;
 }
