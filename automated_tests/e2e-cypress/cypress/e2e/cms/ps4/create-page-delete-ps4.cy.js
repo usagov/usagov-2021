@@ -23,10 +23,8 @@ describe('Local cms login', () => {
     //select html option for wysiwyg
     //cy.get('#edit-body-0-format--2').select("HTML").should('have.value', 'html')
 
-    //add content to the wysiwyg
-    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-    cy.get('div.ck-editor__main .ck-focused').eq(0)
-    cy.get('.ck-content[contenteditable=true]').realType('The Special Supplemental Nutrition Program for Women, Infants, and Children (WIC) can help you and your young children get food, nutrition counseling, and social service referrals.')
+    //add English text to wysiwyg
+    cy.textEnglish()
 
     //Select image
     cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
