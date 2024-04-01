@@ -55,6 +55,50 @@ Cypress.Commands.add('languageToggle', () => {
     cy.get("#edit-langcode-0-value").select("Español")
 });
 
+Cypress.Commands.add('textEnglish', () => {
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('The Special Supplemental Nutrition Program for Women, Infants, and Children (WIC) can help you and your young children get food, nutrition counseling, and social service referrals.')
+});
+
+Cypress.Commands.add('textSpanish', () => {
+    //add content to the wysiwyg
+    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
+    cy.get('div.ck-editor__main .ck-focused').eq(0)
+    cy.get('.ck-content[contenteditable=true]').realType('Encuentre programas del Gobierno que ofrecen ayuda durante el embarazo y la primera infancia.')
+});
+
+Cypress.Commands.add('imageSelect', () => {
+    //add navigation page image
+    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
+    cy.get('.media-library-widget-modal').should('be.visible')
+    cy.get('.views-form')
+    cy.get('[data-drupal-selector="edit-media-library-select-form-5"]').check()
+    cy.get('.ui-dialog-buttonset > button').click()
+    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-selection-0-rendered-entity"]').should('be.visible')
+});
+
+Cypress.Commands.add('taxonomyLinkEnglish', () => {
+    //add link to menu and select taxonomy
+    cy.get('#edit-advanced')
+    cy.get('#edit-menu').click()
+    cy.get('[data-drupal-selector="edit-menu"]')
+    cy.get('#edit-menu-enabled').check()
+    cy.get('[data-drupal-selector="edit-menu-title"]').clear().type('Embarazo y primera infancia')
+    cy.get('#edit-menu-node-menus-en-menu-parent').select('-- Life events')
+ });
+
+Cypress.Commands.add('taxonomyLinkSpanish', () => {
+    //add link to menu and select taxonomy
+    cy.get('#edit-advanced')
+    cy.get('#edit-menu').click()
+    cy.get('[data-drupal-selector="edit-menu"]')
+    cy.get('#edit-menu-enabled').check()
+    cy.get('[data-drupal-selector="edit-menu-title"]').clear().type('Embarazo y primera infancia')
+    cy.get('#edit-menu-node-menus-es-menu-parent').select('-- Etapas importantes de la vida')
+ });
+
 Cypress.Commands.add('pagePublish', () => {
     //publish page
     cy.get("#edit-moderation-state-0-state").select("Published")
@@ -62,7 +106,7 @@ Cypress.Commands.add('pagePublish', () => {
 });
 
 Cypress.Commands.add('pageDirectoryPublish', () => {
-    //publish federal page
+    //publish federal and state page
     cy.get('#edit-submit').click()
 });
 

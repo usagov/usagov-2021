@@ -23,31 +23,14 @@ describe('Life Event Es', () => {
     //Input for the language toggle page
     cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Having a child and early childhood')
 
-    //add content to the wysiwyg
-    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-    cy.get('div.ck-editor__main .ck-focused').eq(0)
-    cy.get('.ck-content[contenteditable=true]').realType('Learn how to get nutritious food for yourself and your family through SNAP (food stamps), D-SNAP, and WIC for women, infants, and children.')
+    //add Spanish text to wysiwyg
+    cy.textSpanish()
 
-    //Select image
-    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
-    //cy.get('#drupal-modal > #media-library-wrapper > #media-library-content > #media-library-add-form-wrapper').should('be.visible')
-    cy.get('.media-library-widget-modal').should('be.visible')
-    cy.get('.views-form')
-    //cy.get('[data-drupal-selector="views-form-media-library-widget-image-nkezeyw9ghg"]').focus()
-    cy.get('[data-drupal-selector="edit-media-library-select-form-5"]').check()
-    cy.get('.ui-dialog-buttonset > button').click()
-    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-selection-0-rendered-entity"]').should('be.visible')
-    //cy.get("input").focus()
-    //cy.get('#edit-upload--s6nLDVOayCI > div.form-managed-file__main > #edit-upload-upload--fIl5AIpXUcA').click()
+    //Select navigation page image
+    cy.imageSelect()
 
-     //add link to menu and select taxonomy
-     cy.get('#edit-advanced')
-     cy.get('#edit-menu').click()
-     cy.get('[data-drupal-selector="edit-menu"]')
-     cy.get('#edit-menu-enabled').check()
-     cy.get('[data-drupal-selector="edit-menu-title"]').clear().type('Embarazo y primera infancia')
-     //cy.get('#edit-menu-node-menus-en-menu-parent').select('-- Life events')
-     cy.get('#edit-menu-node-menus-es-menu-parent').select('-- Etapas importantes de la vida')
+     //add taxonomy link to Spanish page
+    cy.taxonomyLinkSpanish()
 
     //fill out url alias
     cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/Having-child-early-childhood-test')

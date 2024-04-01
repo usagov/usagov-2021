@@ -14,14 +14,14 @@ describe('Local cms login', () => {
     cy.get("#edit-field-meta-description-0-value").type("This is a test meta description")
     cy.get("#edit-field-short-description-0-value").type("This is a test page description")
 
-    //add content to the wysiwyg
-    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-    cy.get('div.ck-editor__main .ck-focused').eq(0)
-    cy.get('.ck-content[contenteditable=true]').realType('The Special Supplemental Nutrition Program for Women, Infants, and Children (WIC) can help you and your young children get food, nutrition counseling, and social service referrals.')
+    //add English text to wysiwyg
+    cy.textEnglish()
 
-    //Select image
-    //cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]')
-    //cy.get('[data-drupal-selector="edit-upload-upload-yodljhjblcy"]').selectFile('Banner_img_Birth_en.png')
+    //Select navigation page image
+    cy.imageSelect()
+
+    //checkbox to generate an automatic page url alias
+    cy.get('#edit-path-0-pathauto').check()
 
     //publish page
     cy.pagePublish()

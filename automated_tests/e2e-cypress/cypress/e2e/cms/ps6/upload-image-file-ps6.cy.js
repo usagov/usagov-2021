@@ -17,36 +17,14 @@ describe('Local cms login', () => {
     //Select page type
     cy.pageType()
 
-    //add content to the wysiwyg
-    cy.get('div.ck-editor__main .ck-blurred').eq(0).click()
-    cy.get('div.ck-editor__main .ck-focused').eq(0)
-    cy.get('.ck-content[contenteditable=true]').realType('This is a test to upload a file image.')
+    //add English text to wysiwyg
+    cy.textEnglish()
 
-    //Select image
-    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
-    cy.get('.media-library-widget-modal').should('be.visible')
-    cy.get('#media-library-view')
-    cy.get('.view-content')
-    cy.get('.views-form')
-    cy.get('.media-library-views-form__rows')
-    cy.get('.views-field-media-library-select-form')
-    cy.get('.field-content').eq(0)
-    cy.get('.form-item--media-library-select-form-0').eq(0)
-    cy.get('[data-drupal-selector="edit-media-library-select-form-0"]').check()
-    cy.get('.ui-dialog-buttonset>.media-library-select').click()
+    //Select navigation page image
+    cy.imageSelect()
 
-
-    //This sectionn of code should work to uplaod a file from the downloads directory
-    //cy.get('#edit-media-library-select-form-0--6vYGEOUSp-E').check()
-    //cy.get('div.form-managed-file__main > input:first').click().selectFile('Banner_img_Birth_en.png')
-    //cy.get('#drupal-modal').should('be.visible')
-    //cy.get('.form-managed-file__meta-wrapper').should('be.visible')
-    //cy.get('.form-item--media-0-fields-field-media-image-0-alt > input').type('baby in arm')
-    //cy.get('button').contains('Save and insert').click()
-
-
-    //fill out url alias
-    cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/testing/test23')
+    //checkbox to generate an automatic page url alias
+    cy.get('#edit-path-0-pathauto').check()
 
     //publish page
     cy.pagePublish()
