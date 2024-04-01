@@ -88,6 +88,10 @@
   line-height: 1.5;
 }
 
+.usa-banner-inner {
+  position: sticky;
+}
+
 /** Language buttons **/
 @include at-media($theme-header-min-width) {
   .usa-header--extended .usa-navbar {
@@ -96,7 +100,7 @@
 }
 
 @include at-media($theme-header-min-width) {
-  .usa-header--extended div.language-switcher-language-url {
+  div.language-switcher-language-url {
     margin-right: auto;
     max-width: 64rem;
     margin-left: auto;
@@ -106,14 +110,15 @@
   }
 }
 
-.usa-header--extended div.language-switcher-language-url div.links {
+div.links {
   display: flex;
   justify-content: flex-end;
   margin-top: 0.3rem;
   margin-left: 0;
+  z-index: 501;
 }
 
-.usa-header--extended [hreflang|="es"] {
+.usa-nav__primary-item [hreflang|="es"] {
   padding-left: 0.5rem;
   border-radius: 5px;
   border: none;
@@ -123,12 +128,12 @@
   }
 }
 
-.usa-header--extended [hreflang|="en"] {
+.usa-nav__primary-item [hreflang|="en"] {
   border-radius: 5px;
   border: none;
 }
 
-.usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link {
+.usa-nav__primary>.usa-nav__primary-item>a.language-link {
   @media (max-width: 64em) {
     font-size: 0.93rem;
     font-weight: 700;
@@ -142,7 +147,7 @@
 
 
 @include at-media($theme-header-min-width) {
-  .usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover {
+  .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover {
     color: var($white);
   }
 }

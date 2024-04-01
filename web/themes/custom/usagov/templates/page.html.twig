@@ -70,23 +70,15 @@
   {% set show_last_updated = false %}
 {% endif %}
 
-
-
-{% if government_banner %}
-	<section class="usa-banner">
-		{{ government_banner }}
-	</section>
+{% if page.header_top %}
+	<div class="usa-banner-inner">
+		{{ page.header_top }}
+	</div>
 {% endif %}
 
 <div class="usa-overlay"></div>
 
 <header class="{{ header_classes }}" id="header" role="banner">
-
-	{% if page.header_top %}
-		<div class="usa-banner-inner">
-			{{ page.header_top }}
-		</div>
-	{% endif %}
 
 	{% if header_basic %}
 		<div class="usa-nav-container">
