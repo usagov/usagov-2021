@@ -20,28 +20,8 @@ describe('Local cms login', () => {
     //add English text to wysiwyg
     cy.textEnglish()
 
-    //Select image
-    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
-    cy.get('.media-library-widget-modal').should('be.visible')
-    cy.get('#media-library-view')
-    cy.get('.view-content')
-    cy.get('.views-form')
-    cy.get('.media-library-views-form__rows')
-    cy.get('.views-field-media-library-select-form')
-    cy.get('.field-content').eq(0)
-    cy.get('.form-item--media-library-select-form-0').eq(0)
-    cy.get('[data-drupal-selector="edit-media-library-select-form-0"]').check()
-    cy.get('.ui-dialog-buttonset>.media-library-select').click()
-
-
-    //This sectionn of code should work to uplaod a file from the downloads directory
-    //cy.get('#edit-media-library-select-form-0--6vYGEOUSp-E').check()
-    //cy.get('div.form-managed-file__main > input:first').click().selectFile('Banner_img_Birth_en.png')
-    //cy.get('#drupal-modal').should('be.visible')
-    //cy.get('.form-managed-file__meta-wrapper').should('be.visible')
-    //cy.get('.form-item--media-0-fields-field-media-image-0-alt > input').type('baby in arm')
-    //cy.get('button').contains('Save and insert').click()
-
+    //Select navigation page image
+    cy.imageSelect()
 
     //checkbox to generate an automatic page url alias
     cy.get('#edit-path-0-pathauto').check()

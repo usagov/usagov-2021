@@ -17,13 +17,11 @@ describe('Local cms login', () => {
     //add English text to wysiwyg
     cy.textEnglish()
 
-    //Select image
-    //cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]')
-    //cy.get('[data-drupal-selector="edit-upload-upload-yodljhjblcy"]').selectFile('Banner_img_Birth_en.png')
+    //Select navigation page image
+    cy.imageSelect()
 
     //checkbox to generate an automatic page url alias
     cy.get('#edit-path-0-pathauto').check()
-
 
     //publish page
     cy.pagePublish()
