@@ -979,6 +979,7 @@ a {
 .select-agency-form-button:hover {
   background-color: #009ec1;
   color: #1b1b1b;
+  border: 1px solid #1b1b1b;
 }
 
 .select-agency-form-button:focus {
