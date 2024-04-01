@@ -99,15 +99,6 @@ Cypress.Commands.add('taxonomyLinkSpanish', () => {
     cy.get('#edit-menu-node-menus-es-menu-parent').select('-- Etapas importantes de la vida')
  });
 
-//add link to menu and select taxonomy
-cy.get('#edit-advanced')
-cy.get('#edit-menu').click()
-cy.get('[data-drupal-selector="edit-menu"]')
-cy.get('#edit-menu-enabled').check()
-cy.get('[data-drupal-selector="edit-menu-title"]').clear().type('Embarazo y primera infancia')
-//cy.get('#edit-menu-node-menus-en-menu-parent').select('-- Life events')
-cy.get('#edit-menu-node-menus-es-menu-parent').select('-- Etapas importantes de la vida')
-
 Cypress.Commands.add('pagePublish', () => {
     //publish page
     cy.get("#edit-moderation-state-0-state").select("Published")
