@@ -1,0 +1,14 @@
+uuid: 15b80c66-8024-4497-b543-d370b9fe353f
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.benefits_finder_content_manager
+  module:
+    - user
+id: user_remove_role_action.benefits_finder_content_manager
+label: 'Remove the Benefits Finder Content Manager role from the selected user(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: benefits_finder_content_manager

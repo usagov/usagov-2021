@@ -1,7 +1,0 @@
-#!/bin/sh
-
-echo "Updating premissions in /var/www/vendor to $BUID:$BGID"
-find /var/www/vendor -not -user $BUID -not -group $BGID -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference $BUID:$BGID
-
-echo "Updating premissions in /var/www/web $BUID:$BGID"
-find /var/www/web -not -user $BUID -not -group $BGID -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference $BUID:$BGID
