@@ -127,25 +127,25 @@ describe('Create and delete a state directory page', () => {
     cy.get('#edit-field-social-services-0-title').type('Social Services')
 
 
-  //email
-  cy.get('#edit-field-email-0-value').type('abcd@yahoo.com')
+    //email
+    cy.get('#edit-field-email-0-value').type('abcd@yahoo.com')
 
-  //phone number
-  cy.get('#edit-field-phone-number-0-value').type('2025552211')
-
-
-  //toll-free number
-  cy.get('#edit-field-toll-free-number-0-value').type('3016667788')
+    //phone number
+    cy.get('#edit-field-phone-number-0-value').type('2025552211')
 
 
-  //tty number
-  cy.get('#edit-field-tty-number-0-value').type('2403432299')
+    //toll-free number
+    cy.get('#edit-field-toll-free-number-0-value').type('3016667788')
 
-  //language toggle
-  //cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
 
-  //mothership uuid
-  //cy.get().type()
+    //tty number
+    cy.get('#edit-field-tty-number-0-value').type('2403432299')
+
+    //language toggle
+    //cy.get('[data-drupal-selector="edit-field-language-toggle-0-target-id"]').type('Embarazo y primera infancia')
+
+    //mothership uuid
+    //cy.get().type()
 
 
     //fill out url alias
