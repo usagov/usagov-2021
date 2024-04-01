@@ -29,13 +29,8 @@ describe('Local cms login', () => {
     //select navigation page image
     cy.imageSelect()
 
-    //.selectFile('Banner_img_Birth_en.png')
-    cy.get('#edit-advanced')
-    cy.get('#edit-menu').click()
-    cy.get('[data-drupal-selector="edit-menu"]')
-    cy.get('#edit-menu-enabled').check()
-    cy.get('[data-drupal-selector="edit-menu-title"]').clear().type('Food assistance with the WIC program')
-    cy.get('#edit-menu-node-menus-en-menu-parent').select('-- Life events')
+    //add taxonomy link to Spanish page
+    cy.taxonomyLinkEnglish()
 
     //fill out url alias
     cy.get ('[data-drupal-selector="edit-path-0-alias"]').type('/food-assistance-test')
