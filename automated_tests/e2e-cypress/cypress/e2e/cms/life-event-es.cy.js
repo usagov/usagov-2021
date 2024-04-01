@@ -26,17 +26,8 @@ describe('Life Event Es', () => {
     //add Spanish text to wysiwyg
     cy.textSpanish()
 
-    //Select image
-    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
-    //cy.get('#drupal-modal > #media-library-wrapper > #media-library-content > #media-library-add-form-wrapper').should('be.visible')
-    cy.get('.media-library-widget-modal').should('be.visible')
-    cy.get('.views-form')
-    //cy.get('[data-drupal-selector="views-form-media-library-widget-image-nkezeyw9ghg"]').focus()
-    cy.get('[data-drupal-selector="edit-media-library-select-form-5"]').check()
-    cy.get('.ui-dialog-buttonset > button').click()
-    cy.get('[data-drupal-selector="edit-field-navigation-banner-image-selection-0-rendered-entity"]').should('be.visible')
-    //cy.get("input").focus()
-    //cy.get('#edit-upload--s6nLDVOayCI > div.form-managed-file__main > #edit-upload-upload--fIl5AIpXUcA').click()
+    //Select navigation page image
+    cy.imageSelect()
 
      //add link to menu and select taxonomy
      cy.get('#edit-advanced')
