@@ -1,4 +1,4 @@
-describe('Local cms login', () => {
+describe('Edit page as a draft', () => {
   it('Gets, types and clicks to create a basic page', () => {
     //log into local cms
     Cypress.on('uncaught:exception', () => false)
@@ -21,7 +21,7 @@ describe('Local cms login', () => {
     //Save page
     cy.get('[ data-drupal-selector="edit-submit" ]').click()
 
-    cy.screenshot('/cypress/screenshots/saveDraft23')
+    //cy.screenshot('/cypress/screenshots/saveDraft23')
 
     cy.get('#block-usagov-local-tasks')
     cy.get('[data-drupal-link-system-path="node/120/revisions"]').click()
@@ -31,6 +31,6 @@ describe('Local cms login', () => {
     cy.get('#edit-submit').click()
 
     cy.get('[data-original-order="0"] > a').click()
-    cy.screenshot('deleteDraft')
+    //cy.screenshot('deleteDraft')
   })
 })
