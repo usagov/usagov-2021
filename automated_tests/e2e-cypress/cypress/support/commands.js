@@ -69,6 +69,16 @@ Cypress.Commands.add('textSpanish', () => {
     cy.get('.ck-content[contenteditable=true]').realType('Encuentre programas del Gobierno que ofrecen ayuda durante el embarazo y la primera infancia.')
 });
 
+Cypress.Commands.add('imageSelect', () => {
+    //Select image
+cy.get('[data-drupal-selector="edit-field-navigation-banner-image-open-button"]').click()
+cy.get('.media-library-widget-modal').should('be.visible')
+cy.get('.views-form')
+cy.get('[data-drupal-selector="edit-media-library-select-form-5"]').check()
+cy.get('.ui-dialog-buttonset > button').click()
+cy.get('[data-drupal-selector="edit-field-navigation-banner-image-selection-0-rendered-entity"]').should('be.visible')
+});
+
 Cypress.Commands.add('pagePublish', () => {
     //publish page
     cy.get("#edit-moderation-state-0-state").select("Published")
