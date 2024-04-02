@@ -215,7 +215,7 @@ This assumes you're using homebrew.
    brew install xquartz
    ```
 
-   XQuartz will start up immediately
+   XQuartz will start up immediately.
 
 3. From the XQuartz `Settings` menu, select `Security` and check (enable) `Allow connections from network clients`.
 
