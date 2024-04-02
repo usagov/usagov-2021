@@ -33,13 +33,13 @@ if [ x$1 == x"--dryrun" ]; then
   shift
 fi
 
-needsDisabled=0
+needsSpaceSSHDisabled=0
 if ! isSpaceSSHEnabled $startspace; then
   enableSpaceSSH $startspace
   if [ "$?" -ne "0" ]; then
       assertSpaceSSHEnabled $startspace
   fi
-  needsDisabled=1
+  needsSpacedSSHDisabled=1
 fi
 
 TOME_DISABLED_STATE=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled")
@@ -98,12 +98,12 @@ echo  aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --ac
 echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
 $echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
 
-if [ x$TOME_DISABLED_STATE = x0 ]; then
+if [ "$TOME_DISABLED_STATE" != 1 ]; then
   # Enable tome and exit maintenance mode
   echo  $SCRIPT_DIR/../deploy/try-tome-enable
   $echo $SCRIPT_DIR/../deploy/try-tome-enable
 fi
 
-if [ $needsDisabled != 0 ]; then
+if [ $needsSpaceSSHDisabled != 0 ]; then
    cf disallow-space-ssh $startspace
 fi
