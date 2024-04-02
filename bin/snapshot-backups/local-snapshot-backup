@@ -62,7 +62,7 @@ DOWNLOAD=$1
 #shift
 
 echo "[$TOME_DISABLED_STATE]"
-if [ x$TOME_DISABLED_STATE != 1 ]; then
+if [ x$TOME_DISABLED_STATE != x ]; then
   echo bin/deploy/try-tome-enable
 else
   echo Already disabled
@@ -83,11 +83,11 @@ if [ "$RETVAL" = "0" ]; then
   $echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX db-dump-to-snapshot    #$SNAPSHOT_TAG
   $echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX site-snapshot-create   #$SNAPSHOT_TAG
   $echo bin/snapshot-backups/stw $SPACE $TICKET_ID $SUFFIX public-snapshot-create #$SNAPSHOT_TAG
-  #if [ x$echo = x ]; then
-    if [ x$TOME_DISABLED_STATE != 1 ]; then
+  if [ x$echo = x ]; then
+    if [ x$TOME_DISABLED_STATE != x ]; then
       bin/deploy/try-tome-enable
     fi
-  #fi
+  fi
   if [ x"$DOWNLOAD" = "x--download" ]; then
     $echo bin/snapshot-backups/local-snapshot-download $SPACE $TICKET_ID $SUFFIX
   fi
