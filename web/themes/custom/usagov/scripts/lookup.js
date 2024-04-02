@@ -45,7 +45,20 @@ function renderResults(response, rawResponse) {
             "error-fetch-heading": "Data temporarily unavailable",
             "error-address": "There was a problem getting results for this address. Please check to be sure you entered a valid U.S. address.",
             "error-address-heading": "Invalid address",
-            "levels": ["Federal officials", "State officials", "Local officials"],
+            "levels": [
+                {
+                    "heading": "Federal officials",
+                    "description": "represent you and your state in Washington, DC."
+                },{
+                    "heading": "State officials",
+                    "description": "represent you in your state capital."
+                },{
+                    "heading": "Local officials",
+                    "description": "represent you in your county or city."
+                }
+            ],
+            "local_levels": ["City officials",
+                             "County officials"],
             "party-affiliation": "Party affiliation",
             "address": "Address",
             "phone-number": "Phone number",
@@ -58,7 +71,20 @@ function renderResults(response, rawResponse) {
             "error-fetch-heading": "Datos no disponibles temporalmente",
             "error-address": "Tuvimos problemas para obtener resultados con esta dirección. Por favor, verifique si ingresó una dirección válida en EE. UU.",
             "error-address-heading": "Dirección incorrecta",
-            "levels": ["Funcionarios federales", "Funcionarios estatales", "Funcionarios locales"],
+            "levels": [
+                {
+                    "heading": "Funcionarios federales",
+                    "description": "que le representan a usted y a su estado en Washington, DC."
+                },{
+                    "heading": "Funcionarios estatales",
+                    "description": "que le representan en la capital de su estado."
+                },{
+                    "heading": "Funcionarios locales",
+                    "description": "que le representan en su condado o ciudad."
+                }
+            ],
+            "local_levels": ["Funcionarios de ciudades",
+                             "Funcionarios de condados"],
             "party-affiliation": "Afiliación de partido",
             "address": "Dirección",
             "phone-number": "Teléfono",
@@ -129,30 +155,39 @@ function renderResults(response, rawResponse) {
 
     // If elected officials were actually found:
     if (response.officials.length > 0) {
+        // Indicates if the accordion of city officials has results/officials. By default this variable indicates that it has no results.
+        let cityHasResults = false;
+        // Indicates if the accordion of county officials has results/officials. By default this variable indicates that it has no results.
+        let countyHasResults = false;
+        // Indicates if the accordion of state officials has results/officials. By default this variable indicates that it has no results.
+        let stateHasResults = false;
+
         // Create container for rendering results
         let container = document.createElement("div");
-        container.setAttribute("class", "usa-accordion usa-accordion--multiselectable");
-        container.setAttribute("data-allow-multiple","");
+        container.setAttribute("class", "usa-accordion");
 
         // Create an accordion for each level of elected officials
         const levels = content["levels"];
         for (let i = 0; i < levels.length; i++) {
+            let levelName = levels[i];
+            let levelNameID = replaceSpaces(levelName.heading);
+
             let accordionHeader = document.createElement("h2");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
+            accordionHeader.setAttribute("id", "heading_" + levelNameID);
 
             let accordionHeaderButton = document.createElement("button");
             accordionHeaderButton.setAttribute("class", "usa-accordion__button");
             accordionHeaderButton.setAttribute("aria-expanded", "false");
 
-            let levelName = levels[i];
-            accordionHeaderButton.setAttribute("aria-controls", levelName);
-            accordionHeaderButton.innerHTML = levelName;
+            accordionHeaderButton.setAttribute("aria-controls", levelNameID);
+            accordionHeaderButton.innerHTML = `${levelName.heading} <span class='usa-normal'>${levelName.description}</span>`;
 
             accordionHeader.appendChild(accordionHeaderButton);
 
             let accordionContent = document.createElement("div");
-            accordionContent.setAttribute("id", levelName);
-            accordionContent.setAttribute("class", "usa-accordion__content usa-prose");
+            accordionContent.setAttribute("id", levelNameID);
+            accordionContent.setAttribute("class", "usa-accordion usa-accordion__content usa-prose");
             accordionContent.setAttribute("hidden", "until-found");
 
             container.appendChild(accordionHeader);
@@ -162,12 +197,38 @@ function renderResults(response, rawResponse) {
         // Append container to the location for rendered results
         resultsDiv.appendChild(container);
 
+        // Create an accordion for each level of elected officials
+        const local_levels = content["local_levels"];
+        for (let i = 0; i < local_levels.length; i++) {
+            let levelName = local_levels[i];
+            let levelNameID = replaceSpaces(levelName);
+
+            let accordionHeader = document.createElement("h3");
+            accordionHeader.setAttribute("class", "usa-accordion__heading");
+            accordionHeader.setAttribute("id", "heading_" + levelNameID);
+
+            let accordionHeaderButton = document.createElement("button");
+            accordionHeaderButton.setAttribute("class", "usa-accordion__button");
+            accordionHeaderButton.setAttribute("aria-expanded", "false");
+
+            accordionHeaderButton.setAttribute("aria-controls", levelNameID);
+            accordionHeaderButton.innerHTML = levelName;
+
+            accordionHeader.appendChild(accordionHeaderButton);
+
+            let accordionContent = document.createElement("div");
+            accordionContent.setAttribute("id", levelNameID);
+            accordionContent.setAttribute("class", "usa-accordion usa-accordion__content usa-prose");
+            accordionContent.setAttribute("hidden", "until-found");
+
+            // Adds the sub-accordion to the Local officials accordion.
+            // Note: If the Local officials accordion is not the last accordion in the container, you will need to change it.
+            container.lastElementChild.appendChild(accordionHeader);
+            container.lastElementChild.appendChild(accordionContent);
+        }
+
         // Create an accordion section for each elected official
         for (let i = 0; i < response.officials.length; i++) {
-            // let titleHeader = document.createElement("h3");
-            // titleHeader.setAttribute("class", "font-serif-md");
-            // titleHeader.style.color = "rgb(26, 54, 85)";
-            // titleHeader.innerHTML = response.officials[i].name + ", " + response.officials[i].office;
 
             let accordionHeader = document.createElement("h4");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
@@ -178,7 +239,7 @@ function renderResults(response, rawResponse) {
             accordionHeaderButton.classList.add("bg-secondary");
             accordionHeaderButton.classList.add("hover:bg-secondary-dark");
 
-            var officialNumber = "Official #" + i;
+            var officialNumber = "Official_" + i;
             accordionHeaderButton.setAttribute("aria-controls", officialNumber);
             accordionHeaderButton.innerHTML =  response.officials[i].office + ", " + response.officials[i].name;
 
@@ -210,7 +271,7 @@ function renderResults(response, rawResponse) {
             nextElem.classList.add("padding-bottom-2");
             if (address !== "none provided") {
                 // Normalize address
-                address = address[0].line1 + ",<br>" + address[0].city + ", " + address[0].state + " " + address[0].zip;
+                address = address[0].line1 + "<br>" + address[0].city + ", " + address[0].state + " " + address[0].zip;
 
                 nextElem = document.createElement("li");
             nextElem.classList.add("padding-bottom-2");
@@ -223,9 +284,6 @@ function renderResults(response, rawResponse) {
             let phoneNumber = response.officials[i].phones || "none provided";
             if (phoneNumber !== "none provided") {
                 // Select first phone number and create clickable link
-                // let linkToPhone = document.createElement("a");
-                // linkToPhone.setAttribute("href", "tel:" + phoneNumber[0]);
-                // linkToPhone.innerHTML = phoneNumber[0];
                 let linkToPhone = `<a href="tel:${phoneNumber[0]}">${phoneNumber[0]}</a>`;
 
                 nextElem = document.createElement("li");
@@ -239,8 +297,6 @@ function renderResults(response, rawResponse) {
             // Display website, if provided
             let website = response.officials[i].urls || "none provided";
             if (website !== "none provided") {
-                // let link = document.createElement("a");
-                // link.setAttribute("href", response.officials[i].urls[0]);
 
                 // Shorten the link and remove unnecessary characters
                 let cleanLink = response.officials[i].urls[0]
@@ -248,7 +304,7 @@ function renderResults(response, rawResponse) {
                 if (cleanLink[cleanLink.length - 1] === "/") {
                     cleanLink = cleanLink.slice(0, -1);
                 }
-                let link=`<a href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
+                let link=`<a class="ceoLink" href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
                 // link.innerHTML = cleanLink;
 
                 nextElem = document.createElement("li");
@@ -281,7 +337,7 @@ function renderResults(response, rawResponse) {
                         }
                         else {
                             nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
-}
+                        }
                     }
                     bulletList.appendChild(nextElem);
                 }
@@ -291,10 +347,10 @@ function renderResults(response, rawResponse) {
             let email = response.officials[i].emails || "none provided";
             if (email !== "none provided") {
                 // let primaryEmail = document.createElement("button");
-                let linkToContact = document.createElement("a");
+                let linkToContact = document.createElement("button");
                 let firstEmail = email[0];
 
-                linkToContact.setAttribute("class", "usa-button usa-button--secondary");
+                linkToContact.setAttribute("class", "usa-button usa-button--secondary state-email");
                 linkToContact.style.marginTop = "15px";
                 linkToContact.innerHTML = content["contact-via-email"];
 
@@ -303,32 +359,82 @@ function renderResults(response, rawResponse) {
                 searchParams.set('email', firstEmail);
                 searchParams.set('name', response.officials[i].name);
                 searchParams.set('office', response.officials[i].office);
-
-                linkToContact.setAttribute("href", content["path-contact"] + "?"
-                                           + searchParams.toString() + "#skip-to-h1");
-                bulletList.appendChild(linkToContact);
+                linkToContact.setAttribute("role","button");
+                linkToContact.setAttribute("onclick", "window.location.href = '" + content["path-contact"] + "?"
+                                           + searchParams.toString() + "#skip-to-h1'");
+                // Append bullet list of details to accordion
+                accordionContent.appendChild(bulletList);
+                accordionContent.appendChild(linkToContact);
             }
-
-            // Append bullet list of details to accordion
-            accordionContent.appendChild(bulletList);
+            else {
+                // Append bullet list of details to accordion
+                accordionContent.appendChild(bulletList);
+            }
 
             // Determine under which level accordion the elected official section should be appended
             let appendLocation;
             let level = response.officials[i].level;
-            if (level === "country") {
-                appendLocation = document.getElementById(content["levels"][0]);
+
+            // Add the Mayor to the City officials accordion
+            // There are some Mayors, such as the Mayor of Anchorage, that do not appear at the city level.
+            if (response.officials[i].office.toLowerCase().includes("mayor") &&
+                response.officials[i].office.toLowerCase().includes(response.normalizedInput.city.toLowerCase())) {
+                appendLocation = document.getElementById(replaceSpaces(content["local_levels"][0]));
+                cityHasResults = true;
             }
+            // Add to Federal officials accordion
+            else if (level === "country") {
+                appendLocation = document.getElementById(replaceSpaces(content["levels"][0].heading));
+            }
+            // Add to State officials accordion
             else if (level === "administrativeArea1") {
-                appendLocation = document.getElementById(content["levels"][1]);
+                appendLocation = document.getElementById(replaceSpaces(content["levels"][1].heading));
+                // Change the variable to indicate that it does have results.
+                stateHasResults = true;
             }
+            // Add to County officials accordion
+            else if (level === "administrativeArea2") {
+                appendLocation = document.getElementById(replaceSpaces(content["local_levels"][1]));
+                // Change the variable to indicate that it does have results.
+                countyHasResults = true;
+            }
+            // Add to City officials accordion
             else {
-                appendLocation = document.getElementById(content["levels"][2]);
+                appendLocation = document.getElementById(replaceSpaces(content["local_levels"][0]));
+                // Change the variable to indicate that it does have results.
+                cityHasResults = true;
             }
 
             // Append elected official section to the appropriate level accordion
-            // appendLocation.appendChild(titleHeader);
             appendLocation.appendChild(accordionHeader);
             appendLocation.appendChild(accordionContent);
+        }
+
+        // Hides the City officials accordion if no results
+        let cityHeaderID = "heading_" + replaceSpaces(content["local_levels"][0]);
+        if (!cityHasResults) {
+            document.getElementById(cityHeaderID).classList.add("usa-accordion__heading-hidden");
+        }
+        else {
+            document.getElementById(cityHeaderID).classList.remove("usa-accordion__heading-hidden");
+        }
+
+        // Hides the County officials accordion if no results
+        let countyHeaderID = "heading_" + replaceSpaces(content["local_levels"][1]);
+        if (!countyHasResults) {
+            document.getElementById(countyHeaderID).classList.add("usa-accordion__heading-hidden");
+        }
+        else {
+            document.getElementById(countyHeaderID).classList.remove("usa-accordion__heading-hidden");
+        }
+
+        // Hides the State officials accordion if no results
+        let stateHeaderID = "heading_" + replaceSpaces(content["levels"][1].heading);
+        if (!stateHasResults) {
+            document.getElementById(stateHeaderID).classList.add("usa-accordion__heading-hidden");
+        }
+        else {
+            document.getElementById(stateHeaderID).classList.remove("usa-accordion__heading-hidden");
         }
     }
     else {
@@ -351,12 +457,31 @@ function renderResults(response, rawResponse) {
     gapi.client.setApiKey("AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A");
 }
 
+// This function is called when the user clicks the link inside the address suggestion alert box.
+// When the function is called, it will change the search values with the suggested address so that the user gets the new results.
+function resubmitForm() {
+    'use strict';
+    let searchParams = getSearchParams();
+    localStorage.setItem("formResubmitted", true);
+
+    var inputStreet = localStorage.getItem("uspsStreetAddress");
+    var inputCity = localStorage.getItem("uspsCity");
+    var inputZip = localStorage.getItem("uspsZipCode");
+
+    searchParams.set('input-street', inputStreet);
+    searchParams.set('input-city', inputCity);
+    searchParams.set('input-zip', inputZip);
+
+    window.location.search = searchParams.toString();
+}
+
 /**
  * Process form data, display the address, and search for elected officials.
  */
 function load() {
     "use strict";
     let searchParams = getSearchParams();
+
     let inputStreet = searchParams.get('input-street');
     let inputCity = searchParams.get('input-city');
     let inputState = searchParams.get('input-state');
@@ -366,6 +491,64 @@ function load() {
     let displayAddress = document.getElementById("display-address");
     displayAddress.innerHTML = DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"));
 
+    // Displays USPS address suggestions, if any.
+    if (localStorage.getItem("formResubmitted") === "false") {
+        // USPS Address Suggestions Translations
+        const usps_suggestion_content = document.documentElement.lang === "en" ?
+        {
+            "suggestion-heading": "Address suggestion",
+            "suggestion-message": "We optimized the address you provided for accuracy:",
+            "suggestion-link-text": "Use this address for your search"
+        }
+        :
+        {
+            "suggestion-heading": "Dirección sugerida",
+            "suggestion-message": "Optimizamos la dirección que usted proporcionó para mayor precisión:",
+            "suggestion-link-text": "Utilizar esta dirección para la búsqueda"
+        };
+
+        // USPS Address Suggestion Alert Box
+        let suggestedAddress = localStorage.getItem("uspsStreetAddress") + ", " + localStorage.getItem("uspsCity") + ", " + inputState + " " + localStorage.getItem("uspsZipCode");
+        let addressSuggestionAlert = document.createElement('div');
+        addressSuggestionAlert.setAttribute('class', 'usa-alert usa-alert--info');
+        addressSuggestionAlert.innerHTML = `<div class="usa-alert__body">
+                        <h2 class="usa-alert__heading">${usps_suggestion_content["suggestion-heading"]}</h2>
+                        <p class="usa-alert__text">
+                            ${usps_suggestion_content["suggestion-message"]}
+                            <p>
+                                ${DOMPurify.sanitize(suggestedAddress.replace(", ", "<br>"))}
+                            </p>
+                            <a class="usa-link" href='#skip-to-h1' onclick="resubmitForm()">
+                                ${usps_suggestion_content["suggestion-link-text"]}
+                            </a>
+                        </p>
+                        </div>`;
+
+        // Adds the USPS address suggestion alert box above the "Your address:" section.
+        // Note: Make sure the "Your address:" header in the cms has the ID "address-heading".
+        displayAddress.parentNode.parentNode.insertBefore(addressSuggestionAlert, document.getElementById("address-heading"));
+
+    }
+
+    // Checks if the element exists in the CMS content.
+    var editAddressLink = document.getElementById("edit-address-link");
+    if (editAddressLink) {
+        let link = document.createElement('a');
+
+        // Add the href and link text depending on the language.
+        if (document.documentElement.lang === "en") {
+            link.setAttribute('href', `/elected-officials${window.location.search}`);
+            link.innerHTML = "Edit my address";
+        }
+        else {
+            link.setAttribute('href', `/es/funcionarios-electos${window.location.search}`);
+            link.innerHTML = "Editar mi dirección";
+        }
+
+        // Add the link to the <p> element in the cms.
+        editAddressLink.appendChild(link);
+    }
+
     lookup(normalizedAddress, renderResults);
 }
 
@@ -374,6 +557,11 @@ function getSearchParams() {
     const paramsString = window.location.search;
     const searchParams = new URLSearchParams(paramsString);
     return searchParams;
+}
+
+function replaceSpaces(string) {
+    "use strict";
+    return string.toLowerCase().replaceAll(" ", "_");
 }
 
 // Load the GAPI Client Library

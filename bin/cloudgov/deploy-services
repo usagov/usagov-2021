@@ -44,7 +44,7 @@ generate_cert_json()
     SP_KEY=$(echo -E "$SECAUTHSECRETS" | jq -r '.spkey')
     SP_CRT=$(echo -E "$SECAUTHSECRETS" | jq -r '.spcrt')
 
-    if [ "$SP_KEY" == "null" ] || [ "$SP_CRT" == "null" ]; then
+    if [ "$SP_KEY" == "null" ] || [ "$SP_CRT" == "null" ] || [ "$SP_KEY" == "" ] || [ "$SP_CRT" == "" ]; then
       echo "Generating Cert for use with SecureAuth"
 
       mkdir -p /tmp/sp
@@ -131,12 +131,6 @@ generate_cert_json()
     echo storage already created
   else
     cf create-service s3 basic-sandbox storage
-  fi
-
-  if service_exists "dbstorage" ; then
-    echo dbstorage already created
-  else
-    cf create-service s3 basic-sandbox dbstorage
   fi
 }
 

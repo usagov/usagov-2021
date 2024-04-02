@@ -1,0 +1,14 @@
+uuid: 9ad7d41e-011f-4e21-afb4-f16a8715252a
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.benefits_finder_content_manager
+  module:
+    - user
+id: user_add_role_action.benefits_finder_content_manager
+label: 'Add the Benefits Finder Content Manager role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: benefits_finder_content_manager

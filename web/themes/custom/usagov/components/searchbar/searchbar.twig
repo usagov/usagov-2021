@@ -1,0 +1,17 @@
+<form id="{{form_id}}" class="{{form_classes}}" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
+  <label id="{{label_id}}" class="usa-sr-only" for="{{for_string}}">{{label_string}}</label>
+  <input id="{{hidden_input_id}}" name="affiliate" type="hidden" value="{{value_string}}">
+  <input
+      id="{{input_id}}"
+      class="{{input_classes}}"
+      type="search"
+      name="query"
+      placeholder="{{placeholder_string}}"
+      onfocus="this.placeholder"
+      autocomplete="off"
+  />
+  <button class="{{button_classes}}" type="submit">
+    <img src="/themes/custom/usagov/components/searchbar/images/search--dark.svg" class="usa-search__submit-icon" alt="{{alt_string}}">
+  </button>
+</form>
+

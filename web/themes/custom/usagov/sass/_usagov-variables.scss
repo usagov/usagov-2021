@@ -23,6 +23,7 @@ $light-blue: #e5f8fd;
 $pale-blue: #e7f6f8;
 $light-gray: #f3f3f3;
 $gray: #dfe1e2;
+$usagov-gray: #f0f0f0;
 $medium-gray: #e7e7e7;
 $deep-gray: #707070;
 $dark-gray: #4b4b4d;
@@ -33,6 +34,13 @@ $regular-text-font-size: 1.1rem;
 $smaller-text-font-size: 1rem;
 $secondary-border-color: #377F9D;
 $secondary-background-color: #a7d8e3;
+$blue-outer-focus: #0186a2;
+$white-inner-focus: #ffffff;
+
+// Global Default Attribute
+$global-default: (
+  text-color: $off-black,
+);
 
 // Component Variables
 $mobile-nav: (
@@ -51,8 +59,8 @@ $hero: (
 $homepage: (
   larger-max-width: 1024px,
   smaller-max-width: 960px,
-  small-font-size: 17.6px,
-  medium-font-size: 35.2px,
+  small-font-size: 1.038em,
+  medium-font-size: 2.2em,
 );
 $le-heading: (
   heading-color: $white,
@@ -64,7 +72,7 @@ $card: (
   border-color: $cyan-50v,
   hover-background-color: $cyan-light,
   hover-border-color: $cyan-50v,
-  group-background-color: $light-gray,
+  group-background-color: $usagov-gray,
   text-color: $black,
   background-color: $light-blue,
 );
@@ -83,7 +91,6 @@ $alert: (
   background-color: $white,
   border-color: $gray,
 );
-
 $fed-directories: (
   text-color: $off-black,
   letter-outline-color: $off-black,

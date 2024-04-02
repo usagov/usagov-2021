@@ -1,0 +1,72 @@
+// adds visible focus around entire search box
+[type="search"] {
+  z-index: 1;
+}
+
+@media (min-width: 64em) {
+  #header>div.usa-navbar>div.usa-nav__secondary>form.usa-search.usa-search--small {
+    align-self: center;
+    margin-top: 0;
+  }
+}
+
+#fed-dir-search-results {
+  margin-bottom: 8px;
+  margin-top: 2px;
+}
+
+.usasearch_sayt {
+  max-width: 20.1em;
+  margin: 0 auto;
+  max-height: 13.4em;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  outline: 1px solid #000;
+}
+
+.usasearch_sayt>ul {
+  padding-left: 0;
+  margin-top: 0;
+  margin-block-end: 0;
+}
+
+.resultBox {
+  border: 1px solid #565c65;
+  cursor: pointer;
+  display: block;
+  padding: 8px;
+
+  a {
+    color: #1b1b1b;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    &:visited {
+      color: #1b1b1b;
+    }
+
+    &:focus {
+      border: none;
+      outline: none;
+      box-shadow: none;
+    }
+  }
+
+  &:hover, &:focus-within {
+    outline: 0.25rem solid #0186a2;
+    outline-offset: 0;
+    box-shadow: inset 0 0 0 2px #fff;
+  }
+}
+
+//included to increase specificity after resultBox was changed from id to class selector
+.usa-prose .resultBox a:visited {
+  color: #1b1b1b;
+}
+
+/* removes the clear 'x' button */
+[type="search"]::-webkit-search-cancel-button {
+  appearance: none;
+}
