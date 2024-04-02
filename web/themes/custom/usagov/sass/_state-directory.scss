@@ -38,5 +38,20 @@
 }
 
 .usa-combo-box__list-option--selected {
-  color: var($off-black);
+  color: var($global-default, text-color);
+}
+
+.ceoLink {
+  word-wrap:break-word;
+  overflow-wrap: break-word;
+}
+
+//moved contact via email button out of list - this keeps them in line
+.state-email {
+  margin-left: 3ch;
+}
+@media (max-width: 480px){
+  #results .state-email {
+    width: calc(100% - 3ch);
+  }
 }

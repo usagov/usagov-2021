@@ -32,7 +32,7 @@
   font-feature-settings: "kern" 1;
   font-kerning: normal;
   box-sizing: inherit;
-  color: var($off-black);
+  color: var($global-default, text-color);
   text-decoration: none;
   padding: 0;
   font-weight: 700;
@@ -54,6 +54,7 @@
   padding: 1rem;
   width: 100%;
   border: 0;
+  background-color: #f0f0f0;
   cursor: pointer;
 }
 
@@ -92,6 +93,10 @@
   outline-offset: -0.25rem;
 }
 
+.usa-footer__primary-section {
+  background-color: #f0f0f0;
+}
+
 .usa-footer__primary-section .usa-list {
   margin-top: 1rem;
 }
@@ -112,6 +117,7 @@
   border: 1px solid #1b1b1b;
   line-height: 1.5;
   margin-inline: 0 !important;
+  font-size: 1.1rem;
 }
 
 .footer-button:hover {
@@ -119,7 +125,7 @@
 }
 
 #footer-email {
-  border-color: var($off-black);
+  border-color: var($global-default, text-color);
 }
 
 .ftr-list {

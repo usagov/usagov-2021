@@ -28,20 +28,22 @@
     'agencyindex': '/agency-index',
     'agencySearchAffiliateID': 'usagov_en_az',
     'search': 'Search',
-    'agencySearchLabel': 'Search agencies and departments'
+    'agencySearchLabel': 'Search agencies and departments',
+    'form_id':'usagov_en_az'
   } %}
 {% else %}
   {% set translations = {
     'agencyindex': '/es/indice-agencias',
     'agencySearchAffiliateID': 'usagov_es_az',
     'search': 'Buscar',
-    'agencySearchLabel': 'Busque una agencia o departamento'
+    'agencySearchLabel': 'Busque una agencia o departamento',
+    'form_id':'usagov_es_az'
   } %}
 {% endif %}
 
 <div class="usagov-directory-page-container">
 
-  <div class="usagov-directory-container">
+  <div id="usagov-directory-container" class="usagov-directory-container">
     <ul class="usagov-directory-container-az">
       {% for row in rows %}
         <li>
@@ -64,23 +66,27 @@
     <hr class="bl-divider">
     <!-- Search Bar -->
     <section aria-label="Small search component">
-        <form class="fed-directory-search-bar" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
-          <label id="fedGallerySearch" class="usa-sr-only" for="search-field-en-small">{{translations.agencySearchLabel}}</label>
-          <input id="affiliate-agency-search" name="affiliate" type="hidden" value="{{translations.agencySearchAffiliateID}}">
-          <input
-              class="usa-input fed-directory-search-input"
-              id="search-field-en-small"
-              aria-labelledby="fedGallerySearch"
-              type="search"
-              name="query"
-              placeholder="{{translations.agencySearchLabel}}"
-              onfocus="this.placeholder"
-              autocomplete="off"
-          />
-          <button class="fed-directory-search-btn" type="submit">
-            <img src="/themes/custom/usagov/images/search--dark.svg" alt="{{translations.search}}">
-          </button>
-        </form>
+    {% embed 'usagov:searchbar' with {
+      form_classes: "fed-directory-search-bar",
+      label_id: "fedGallerySearch",
+      for_string:"search-field-en-small",
+      hidden_input_id:"affiliate-agency-search",
+      input_id:"search-field-en-small",
+      input_classes:"usa-input fed-directory-search-input",
+      button_classes:"fed-directory-search-btn usagov-button",
+      placeholder_string,
+      value_string,
+      label_string,
+      alt_string,
+    } %}
+      {% set form_id = translations.form_id %}
+      {% set placeholder_string = translations.agencySearchLabel %}
+      {% set value_string = translations.agencySearchAffiliateID %}
+      {% set label_string = translations.agencySearchLabel %}
+      {% set alt_string = translations.search %}
+    {% endembed %}
+    <div id="fed-dir-search-results">
+    </div>
     </section>
   </div>
 </div>

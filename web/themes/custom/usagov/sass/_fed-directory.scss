@@ -137,7 +137,7 @@ div.field--name-field-offices-near-you> ul {
   border-radius: 0 0.25rem 0.25rem 0;
   background-color: var($cyan-light);
   max-width: 20em;
-  margin: 1rem auto 0.5rem;
+  margin: 1rem auto 0;
 
   input::placeholder {
     color: #757575;
@@ -173,6 +173,7 @@ div.field--name-field-offices-near-you> ul {
   height: 2rem;
   min-width: 3rem;
   padding: 0 0.75rem;
+  font-size: 1.1rem;
 
   img {
     width: 1.5rem;
@@ -209,12 +210,7 @@ div.field--name-field-offices-near-you> ul {
 }
 
 // Accordion
-.usagov-directory-accordion-container {
-  font-family: sans-serif;
-  font-size: small;
-}
-
-.usagov-directory-accordion-container div {
+.usa-fed-accordion__content {
   p.h-bold {
     font-weight: bold;
   }
@@ -292,7 +288,7 @@ div div.field--name-field-offices-near-you>ul>li {
   div {
     border: solid 1.5px #d3d2d2;
     margin: 0;
-    padding: 25px;
+    padding: 10px 25px;
   }
 
   div:nth-child(odd) {

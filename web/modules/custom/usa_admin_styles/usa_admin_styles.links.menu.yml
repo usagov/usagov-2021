@@ -1,0 +1,27 @@
+usa_admin_styles.main:
+  title: 'USAGov tools'
+  parent: system.admin
+  route_name: usa_admin_styles.main
+  description: 'USAGov tools'
+  weight: 100
+
+usa_admin_styles.admin_export_federal:
+  title: 'Export Federal Directory Records (CSV)'
+  description: 'Download the Federal directory records in CSV format'
+  parent: usa_admin_styles.main
+  url: internal:/admin/directory_report_federal.csv
+  weight: 10
+
+usa_admin_styles.admin_export_states:
+  title: 'Export State Directory Records (CSV)'
+  description: 'Download the State directory records in CSV format'
+  parent: usa_admin_styles.main
+  url: internal:/admin/directory_report_states.csv
+  weight: 20
+
+usa_admin_styles.admin_export_users:
+  title: 'Export CMS Users and Roles (CSV)'
+  description: 'Download the user records in CSV format'
+  parent: usa_admin_styles.main
+  url: internal:/admin/people/list
+  weight: 30 

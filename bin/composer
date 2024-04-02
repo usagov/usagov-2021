@@ -7,9 +7,3 @@ docker compose run \
   --workdir /var/www \
   composer \
   composer "$@" --ignore-platform-reqs
-
-docker compose run \
- -e BUID=$(id -u) \
- -e BGID=$(id -g) \
- --rm --no-deps --workdir /var/www  \
- -u root composer /var/www/bin/fix-perms-in-composer

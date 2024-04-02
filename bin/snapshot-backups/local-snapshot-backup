@@ -26,13 +26,13 @@ if [ x$1 = x"--dryrun" ]; then
   shift
 fi
 
-needsDisabled=0
+needsSpaceSSHDisabled=0
 if ! isSpaceSSHEnabled $startspace; then
   enableSpaceSSH $startspace
   if [ "$?" -ne "0" ]; then
       assertSpaceSSHEnabled $startspace
   fi
-  needsDisabled=1
+  needsSpaceSSHDisabled=1
 fi
 
 TOME_DISABLED_STATE=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled")
@@ -93,6 +93,6 @@ else
   echo "Did not run backup scripts.  Retval of tome check was: '  $RETVAL'"
 fi
 
-if [ $needsDisabled != 0 ]; then
+if [ $needsSpaceSSHDisabled != 0 ]; then
    cf disallow-space-ssh $startspace
 fi

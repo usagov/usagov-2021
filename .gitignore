@@ -90,6 +90,7 @@ web/themes/custom/usagov/scripts/uswds-init.js
 web/themes/custom/usagov/scripts/uswds.min.js.map
 web/themes/custom/usagov/scripts/uswds.min.js
 web/themes/custom/usagov/scripts/uswds.js
+web/themes/custom/usagov/scripts/usps-credentials.js
 web/themes/custom/usagov/css/styles.css
 web/themes/custom/usagov/css/styles.css.map
 web/themes/custom/usagov/npm-debug.log

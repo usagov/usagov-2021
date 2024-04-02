@@ -34,8 +34,24 @@ export S3_BUCKET
 export S3_ENDPOINT
 
 SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | tr '\n' ' ')}
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | tr '\n' ' ')}
+
+case $SPACE in
+dev)
+  WWW_HOST=beta-dev.usa.gov
+  ;;
+stage)
+  WWW_HOST=beta-stage.usa.gov
+  ;;
+prod)
+  WWW_HOST=www.usa.gov
+  ;;
+*)
+  echo "**** WARNING:  Operating in cf space '$SPACE' - trying old method of WWW_HOST extraction.  May fail ****"
+  WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | tr '\n' ' ')}
+  WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | tr '\n' ' ')}
+  ;;
+esac
+
 CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms | tr '\n' ' ')}
 if [ -z "$WWW_HOST" ]; then
   WWW_HOST="*.app.cloud.gov"
@@ -77,7 +93,6 @@ export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RE
 export NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')}
 export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')}
 
-
 SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.spkey')
 SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.spcrt')
 
@@ -116,7 +131,7 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
     echo "Turning off New Relic ... "
     sed -i \
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
-        /etc/1/conf.d/newrelic.ini
+        /etc/php81/conf.d/newrelic.ini
   fi
   if [ -z "${https_proxy:-}" ]; then # I'M CHEATING REMOVE THE SEMICOLONS AFTER TESTING
     sed -i \
@@ -196,4 +211,15 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
     echo "Bootstrap finished"
 else
     echo "Bootstrap skipping Drupal CIM because: Instance=${CF_INSTANCE_INDEX:-''} Skip=${SKIP_DRUPAL_BOOTSTRAP:-''}"
+fi
+
+echo "Adding the USPS credentials..."
+if [[ ${USPS_USERID:-"unset"} != "unset" ]] &&
+   [[ ${USPS_PASSWORD:-"unset"} != "unset" ]]; then
+    echo "const USPS_USERID = '${USPS_USERID}';" > ./web/themes/custom/usagov/scripts/usps-credentials.js
+    echo "const USPS_PASSWORD = '${USPS_PASSWORD}';" >> ./web/themes/custom/usagov/scripts/usps-credentials.js
+    echo "USPS credentials added successfully!"
+else
+    echo "No credentials found in the env."
+    echo "const error = 'No credentials found in the env.'" > ./web/themes/custom/usagov/scripts/usps-credentials.js
 fi

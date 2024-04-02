@@ -690,7 +690,8 @@
 
       bin.exit().remove();
 
-      var enter = bin.enter().append("div")
+      var enter = bin.enter().append("li");
+      enter.append("div")
         .attr("class", "bin");
       enter.append("div")
         .attr("class", "label");
@@ -818,8 +819,7 @@
         .data(bars);
       bar.exit().remove();
       var enter = bar.enter().append("g")
-        .attr("class", "bar")
-        .attr("tabindex", 0);
+        .attr("class", "bar");
       enter.append("rect")
         .attr("width", barWidth)
         .attr("y", 0)
@@ -1038,20 +1038,24 @@
   }
 
 // Set the dropdown
-var dropDown = document.getElementById('agency-selector');
+// var dropDown = document.getElementById('agency-selector');
 
 // Start on change listener to load new page
-d3.select(dropDown).on("change", function () {
-  window.location= d3.select(this).property('value');
-});
+// d3.select(dropDown).on("change", function () {
+//   window.location= d3.select(this).property('value');
+// });
 
-for (var j = 0; j < dropDown.options.length; j++) {
-  if (dropDown.options[j].value === window.location.pathname){
-    dropDown.selectedIndex = j;
-    break;
-  }
-}
-
-
+// for (var j = 0; j < dropDown.options.length; j++) {
+//   if (dropDown.options[j].value === window.location.pathname){
+//     dropDown.selectedIndex = j;
+//     break;
+//   }
+// }
 
 })(this);
+
+function goToPage(){
+  var selectElement = document.getElementById("agency-selector");
+  var optionValue = selectElement.value;
+  window.location = optionValue;
+}

@@ -21,14 +21,14 @@ if [ -z "$AWS_ENDPOINT" ] || [ "$AWS_ENDPOINT" == "null" ]; then
   export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.endpoint');
 fi
 
+# grab the cloudgov space we are hosted in
+APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
+APP_SPACE=${APP_SPACE:-local}
+
 S3_EXTRA_PARAMS=""
 if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
 fi
-
-# grab the cloudgov space we are hosted in
-APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
-APP_SPACE=${APP_SPACE:-local}
 
 # Use a unique dir for each run - just in case more than one of this is running
 TOMELOGFILE=$YMD/$APP_SPACE-$YMDHMS.log
@@ -42,6 +42,14 @@ export NO_RUN=$(drush sget usagov.tome_run_disabled)
 if [ "$NO_RUN" != '' ]; then
     echo "Tome run is disabled. Exiting." | tee -a $TOMELOG
     $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation is disabled"
+    exit 2
+fi
+
+# Also, don't start if we're in maintenance mode:
+export MAINT_MODE_STATE=$(drush sget system.maintenance_mode)
+if [ x$MAINT_MODE_STATE == x1 ]; then
+    echo "Maintenance mode is enabled. Exiting." | tee -a $TOMELOG
+    $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Maintenance mode is enabled; static site will not generate"
     exit 2
 fi
 
