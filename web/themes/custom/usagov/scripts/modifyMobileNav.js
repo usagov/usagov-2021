@@ -51,6 +51,7 @@ function setMobileProperties() {
 
 	if (window.innerWidth <= 1024) {
 		header.style.top = "-" + banner.offsetHeight + "px";
+
 		search.classList.add('usagov-search-autocomplete');
 
 		// Prevent the Sticky Bar from hiding content
