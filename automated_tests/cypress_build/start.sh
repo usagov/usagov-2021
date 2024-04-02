@@ -18,6 +18,9 @@ To run all the tests:
 You can run a subset of the tests by specifying a subdirectory, for example:
 # npx cypress run --spec cypress/e2e/functional
 
+To run tests interactively:
+# npx cypress open
+
 To view the reports in HTML format, open automated_tests/e2e-cypress/reports/index.html
 
 EOINSTRS

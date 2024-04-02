@@ -14,6 +14,7 @@ A revamped USA.gov site using Drupal 9 and Cloud Foundry
     - [Database Setup](#database-setup)
     - [Media files Setup](#media-files-setup)
     - [Access the Drupal Portal](#access-the-drupal-portal)
+    - [Automated tests Setup (cypress)](#automated-tests-setup-cypress))
   - [How to re-run the website](#how-to-re-run-the-website)
     - [Using the terminal](#using-the-terminal)
     - [Using Docker Desktop](#using-docker-desktop)
@@ -111,7 +112,7 @@ Once you finish the previous section, follow these steps to set up your USAgov d
 
     If the file is not titled usagov.sql, run this command:
     ```
-    bin/db-update usagov_other.sql 
+    bin/db-update usagov_other.sql
     ```
 
     **Note:** Expect a message saying there's no need to update the mariadb database.
@@ -165,12 +166,99 @@ If you would like to access the Drupal Portal to make any additional configurati
     Replace the the `default` portion with `localhost`. It should now be in the form:
     `http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
 
-
-3. Adjust your credentials accordingly.
-
-
     **Note:** This is a ONE-TIME login. You'll automatically be logged in during future uses. However, if you ever reset your container, you will have to redo this process.
 
+3. Adjust your credentials accordingly. You will need a valid username/password combination to provide to the Cypress tests, as well as for logging in to the Drupal portal directly.
+
+
+
+
+### Automated tests setup (cypress)
+
+We use [Cypress](cypress.io). Note that we use only the Cypress App, _not_ Cypress Cloud!
+
+* Tests run in the `cypress` Docker container.
+* The tests themselves are in the `automated_tests/e2e-cypress` directory.
+
+
+## Minimal setup for headless tests
+
+1. Supply *credentials* for the automated tests: Edit the file `env.local.cypress`. Supply a valid user name and password for `cypressCmsUser` and `cypressCmsPass`.
+
+2. Run `docker compose up cypress` to (re-)create the cypress container with the new environment variables.
+
+3. Run `bin/cypress-ssh` to open a shell in the cypress container
+
+   You can run `npx cypress run --spec cypress/e2e` to run the entire test suite, or specify a smaller subset like `cypress/e2e/functional`.
+
+Note: The first time you run bin/init, it will create the `env.local.cypress` file by copying `env.default.cypress`. The default `cypressBaseUrl` in that file should be correct for running tests against your local dev site.
+
+## Setup for running Cypress interactively
+
+You will need an X11 server on your computer, so that cypress can open a web browser in an X window you can interact with.
+
+### On MacOS, install XQuartz
+
+This assumes you're using homebrew.
+
+1. Check whether [XQuartz](xquartz.org) is already installed:
+
+   ```
+   brew info xquartz
+   ```
+
+   If XQuartz is already installed, continue with step 3. If you wind up changing any XQuartz settings, you should restart XQuartz, but you don't need to reboot.
+
+2. If XQuartz is not installed, install it:
+
+   ```
+   brew install xquartz
+   ```
+
+   XQuartz will start up immediately
+
+3. From the XQuartz `Settings` menu, select `Security` and check (enable) `Allow connections from network clients`.
+
+   The "network client" you're enabling this for is the virtual machine running in your cypress container.
+
+4. Reboot XQuartz (if you've just installed it).
+
+Proceed to [Allow cypress to open an X window](#allow-cypress-to-open-an-x-window)
+
+
+### On Windows ... TODO
+
+
+
+### Allow cypress to open an X window
+
+You'll need your local IP address. You're looking for the IP address of your machine on your local network, so it will probably start with `10.` or `192.168.`. This command will probably work:
+
+   ```
+   LOCAL_IP=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
+   echo $LOCAL_IP
+   ```
+
+On a Mac, you can also find your IP Address in your Network Settings, or by holding down the `Option` key and clicking on the Wifi icon in your menu bar.
+
+Note that this address will change if you change networks, or if you disconnect and reconnect to the network
+
+1. Allow connections from your IP address to open X windows:
+
+   ```
+   xhost $LOCAL_IP
+   ```
+
+   You should see a message like `10.0.0.200 being added to access control list`. (If you see `no DISPLAY is set`, that might mean you didn't reboot after installing XQuartz.)
+
+2. Edit `env.local.cypress`. The `DISPLAY` variable should be set to your local IP address with `:0` after it, for example, `DISPLAY=10.0.0.200:0`
+
+3. Run `docker compose up cypress` to (re-)create the cypress container with the new environment variable. Alternatively, you can set the DISPLAY variable in the shell you get by running `bin/cypress-ssh`.
+
+
+This setup is based on information from these guides:
+* https://www.cypress.io/blog/2019/05/02/run-cypress-with-a-single-docker-command#Interactive-mode
+* https://sourabhbajaj.com/blog/2017/02/07/gui-applications-docker-mac/
 
 
 
@@ -403,16 +491,16 @@ This process asks drush to export the database for us since it does some cleanup
    * Configuration > Development > Configuration Synchronization
    * `/admin/config/development/configuration`
 2. Export
-   * via Command Line     
+   * via Command Line
       a. `bin/drush cex`
-   * via Export Full Archive    
-      a. Export > Full Archive    
+   * via Export Full Archive
+      a. Export > Full Archive
       b. Move the desired configs into `/config/sync`
-   * via Export Single Item     
-      a. Export > Single Item       
+   * via Export Single Item
+      a. Export > Single Item
       b. Find the config you want to sync
-      c. Create/Edit the file in `/config/sync` with the filename shown below the config textbox      
-      d. Paste the config text into the file    
+      c. Create/Edit the file in `/config/sync` with the filename shown below the config textbox
+      d. Paste the config text into the file
       e. Repeat for each desired config
 3. Commit config changes to git
 
