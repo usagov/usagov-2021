@@ -596,6 +596,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-38-ckeditor-image-sizing
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -605,6 +606,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-38-ckeditor-image-sizing
       - approve-dev-deployment:
           type: approval
           requires:
@@ -613,6 +615,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-38-ckeditor-image-sizing
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -620,6 +623,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-38-ckeditor-image-sizing
       - approve-stage-deployment:
           type: approval
           requires:
