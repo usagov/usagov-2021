@@ -212,6 +212,7 @@ a,
   line-height: 1.5;
   color: var($text-blue);
 }
+
 .usa-breadcrumb__currrent {
   color: var($global-default, text-color);
 }
@@ -615,6 +616,7 @@ a,
     $theme-body-font-size,
     $theme-input-line-height
   );
+
   display: block;
   font-weight: font-weight("normal");
   margin-top: 0.5rem;
@@ -629,6 +631,7 @@ a,
 // Alignment of recaptcha error message and recaptcha box.
 .recaptcha-container {
   @extend .ceo-button-container;
+
   margin-bottom: 1em;
   flex-direction: column;
 }
@@ -636,6 +639,7 @@ a,
 // Centers the recaptcha error message
 .err-label-captcha {
   @extend .usa-error;
+
   text-align: center;
 }
 
@@ -653,8 +657,10 @@ a,
 
 .issue-button {
   @extend .ceo-button;
+
   margin-top: 1.5rem;
 }
+
 // End of "Report an issue" page style
 
 #myform .usa-button {
