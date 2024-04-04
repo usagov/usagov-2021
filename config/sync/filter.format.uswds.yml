@@ -3,8 +3,10 @@ langcode: en
 status: true
 dependencies:
   module:
+    - ckeditor5_embedded_content
     - ckeditor_media_resize
     - editor
+    - entity_embed
     - media
     - paragraphs_entity_embed
     - uswds_ckeditor_integration
@@ -14,57 +16,105 @@ name: USWDS
 format: uswds
 weight: -9
 filters:
+  ckeditor5_embedded_content:
+    id: ckeditor5_embedded_content
+    provider: ckeditor5_embedded_content
+    status: false
+    weight: -35
+    settings: {  }
   editor_file_reference:
     id: editor_file_reference
     provider: editor
     status: true
-    weight: 0
+    weight: -49
+    settings: {  }
+  entity_embed:
+    id: entity_embed
+    provider: entity_embed
+    status: false
+    weight: -34
     settings: {  }
   filter_align:
     id: filter_align
     provider: filter
     status: true
-    weight: 0
+    weight: -48
+    settings: {  }
+  filter_autop:
+    id: filter_autop
+    provider: filter
+    status: false
+    weight: -40
     settings: {  }
   filter_caption:
     id: filter_caption
     provider: filter
     status: true
-    weight: 0
+    weight: -47
     settings: {  }
   filter_html:
     id: filter_html
     provider: filter
     status: true
-    weight: -10
+    weight: -50
     settings:
-      allowed_html: '<p class="usa-intro"> <h2 class="font-serif-lg text-bold text-accent-cool-darker"> <a class="usa-button usa-button--secondary usa-button--big">'
+      allowed_html: '<br> <blockquote> <p class="usa-intro text-align-left text-align-center text-align-right text-align-justify"> <h1 id class="text-align-left text-align-center text-align-right text-align-justify"> <h2 class="font-serif-lg text-bold text-accent-cool-darker text-align-left text-align-center text-align-right text-align-justify" id> <h3 id class="text-align-left text-align-center text-align-right text-align-justify"> <h4 id class="text-align-left text-align-center text-align-right text-align-justify"> <a class="usa-button usa-button--secondary usa-button--big" target href> <div class="usa-table-container--scrollable usa-sr-only usa-table__announcement-region text-align-left text-align-center text-align-right text-align-justify" aria-live> <strong> <em> <u> <ul> <ol reversed start> <li> <table class> <tr> <td rowspan colspan data-label data-sort-value> <th rowspan colspan scope data-label data-sortable role> <thead> <tbody> <tfoot> <caption> <drupal-media data-entity-type data-entity-uuid alt data-caption data-align data-media-width> <drupal-paragraph data-embed-button data-entity-label data-paragraph-id data-paragraph-revision-id>'
       filter_html_help: true
       filter_html_nofollow: false
+  filter_html_escape:
+    id: filter_html_escape
+    provider: filter
+    status: false
+    weight: -41
+    settings: {  }
+  filter_html_image_secure:
+    id: filter_html_image_secure
+    provider: filter
+    status: false
+    weight: -38
+    settings: {  }
+  filter_htmlcorrector:
+    id: filter_htmlcorrector
+    provider: filter
+    status: false
+    weight: -37
+    settings: {  }
+  filter_image_lazy_load:
+    id: filter_image_lazy_load
+    provider: filter
+    status: false
+    weight: -36
+    settings: {  }
   filter_resize_media:
     id: filter_resize_media
     provider: ckeditor_media_resize
     status: true
-    weight: 90
+    weight: -43
     settings: {  }
   filter_table_attributes:
     id: filter_table_attributes
     provider: uswds_ckeditor_integration
     status: true
-    weight: 0
+    weight: -44
     settings: {  }
   filter_url:
     id: filter_url
     provider: filter
     status: true
-    weight: 0
+    weight: -46
     settings:
       filter_url_length: 72
+  filter_uswds_table_sortable:
+    id: filter_uswds_table_sortable
+    provider: uswds_ckeditor_integration
+    status: false
+    weight: -39
+    settings: {  }
   media_embed:
     id: media_embed
     provider: media
     status: true
-    weight: 100
+    weight: -42
     settings:
       default_view_mode: default
       allowed_view_modes: {  }
@@ -73,5 +123,5 @@ filters:
     id: paragraphs_entity_embed
     provider: paragraphs_entity_embed
     status: true
-    weight: 0
+    weight: -45
     settings: {  }
