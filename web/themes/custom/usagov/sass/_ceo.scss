@@ -27,7 +27,7 @@
   display: none;
 }
 
-// accordian reset and set the space between elements to be equal
+// accordian reset and set the spaces between elements
 #results *{
   margin-top: 0;
   margin-bottom: 0;
@@ -37,9 +37,12 @@
     padding-top: 0;
   }
 
-  // set the spaces to be equal
-  .usa-accordion__heading {
-    margin-bottom: 1em;
+  .usa-accordion__heading:not(:first-of-type) {
     margin-top: 8px;
+  }
+
+  .usa-accordion.usa-accordion__content.usa-prose {
+    padding-top: 1em;
+    padding-bottom: 1em;
   }
 }
