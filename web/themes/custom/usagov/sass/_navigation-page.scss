@@ -6,6 +6,10 @@
   border-top: 10px solid var($hero, border-color);
   margin-bottom: 1.5rem;
   margin-top: -0.75rem;
+  width: 100vw;
+  position: relative;
+  left: calc(-50vw + 50%);
+  background-position: top;
 }
 
 .usagov-hero__callout {
