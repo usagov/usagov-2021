@@ -333,12 +333,16 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 300px));
   justify-content: center;
-  grid-gap: 12px;
-  row-gap: 12px;
+  grid-gap: 8px;
+  row-gap: 8px;
 }
 
 .homepage-card_header {
-  padding: 15px !important;
+  padding-top: 15px !important;
+  padding-bottom: 15px !important;
+  margin-left: 15px;
+  margin-right: 15px;
+  border-top: 1px dashed #1b1b1b;
 }
 
 .homepage-card {
