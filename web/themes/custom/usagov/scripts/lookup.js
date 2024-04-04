@@ -172,7 +172,7 @@ function renderResults(response, rawResponse) {
             let levelName = levels[i];
             let levelNameID = replaceSpaces(levelName.heading);
 
-            let accordionHeader = document.createElement("h2");
+            let accordionHeader = document.createElement("h3");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
             accordionHeader.setAttribute("id", "heading_" + levelNameID);
 
@@ -352,6 +352,7 @@ function renderResults(response, rawResponse) {
 
                 linkToContact.setAttribute("class", "usa-button usa-button--secondary state-email");
                 linkToContact.style.marginTop = "15px";
+                linkToContact.style.marginBottom = "8px";
                 linkToContact.innerHTML = content["contact-via-email"];
 
                 // Build search params for email page.
