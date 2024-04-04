@@ -190,8 +190,8 @@
 
   .slick-prev,
   .slick-next {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border: none;
     position: relative;
     top: 0;
@@ -210,7 +210,7 @@
     box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
     padding: 0;
     margin-right: 4px;
-    max-width: 236px;
+    max-width: 225px;
     text-align: left;
 
     a {
@@ -315,7 +315,7 @@
     }
 
     .slide {
-      max-width: 260px;
+      max-width: 225px;
     }
 
     .slick-dots {
