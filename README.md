@@ -146,7 +146,7 @@ Once you finish the previous section, you may not see the images on the site, pl
 
 
 ### Access the Drupal Portal
-If you would like to access the Drupal Portal to make any additional configurations, you will need to follow a few more steps.
+To access the Drupal Portal to make any additional configurations, you will need to follow a few more steps.
 
 
 1. Generate a new URL to access your administrator account.
@@ -166,11 +166,15 @@ If you would like to access the Drupal Portal to make any additional configurati
     Replace the the `default` portion with `localhost`. It should now be in the form:
     `http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
 
-    **Note:** This is a ONE-TIME login. You'll automatically be logged in during future uses. However, if you ever reset your container, you will have to redo this process.
+    **Note:** This is a ONE-TIME login.
 
-3. Adjust your credentials accordingly. You will need a valid username/password combination to provide to the Cypress tests, as well as for logging in to the Drupal portal directly.
+3. Adjust your credentials accordingly, so that you have a valid username/password combination to use for logging in to the Drupal portal going forward. You will need a valid username/password combination to provide to the Cypress tests, as well as for logging in to the Drupal portal directly.
 
+    Navigate to [Admin -> People](http://localhost/admin/people), find your user account, and edit it to add a password.
 
+    Log out as root, and log in with your own user account.
+
+**Note:** You will need to repeat these steps any time you re-load the database from a backup. 
 
 
 ### Automated tests setup (cypress)
