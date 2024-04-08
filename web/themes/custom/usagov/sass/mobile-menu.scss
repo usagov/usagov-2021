@@ -138,6 +138,7 @@ ul.navigation__items {
     z-index: 500;
   }
 
+
   .usa-nav.is-visible, .usa-navbar>.usa-nav__secondary {
     display: none;
   }
@@ -146,7 +147,7 @@ ul.navigation__items {
     display: flex;
   }
 
-  .usa-header--extended div.language-switcher-language-url ul.links {
+  .usa-header--extended div.language-switcher-language-url div.links {
     position: absolute;
     display: block;
     width: auto;

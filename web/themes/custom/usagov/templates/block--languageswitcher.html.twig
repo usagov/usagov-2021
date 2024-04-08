@@ -51,15 +51,15 @@
               {% set toggle_url = current_language == 'es' ? '/' : '/es' %}
             {% endif %}
 
-            <ul class="links usa-nav__primary usa-accordion">
-                <li hreflang="{{ other_language }}" class="usa-nav__primary-item">
+            <div class="links usa-nav__primary usa-accordion">
+                <div hreflang="{{ other_language }}" class="usa-nav__primary-item">
                     <a href="{{ toggle_url }}" class="language-link" hreflang="{{ other_language }}">{{ current_language == 'es' ? 'English' : 'Español' }}</a>
-                </li>
-            </ul>
+                </div>
+            </div>
         {% else %}
             {# if language_toggle is not set, then the default language_switcher content is used #}
             {{ content }}
         {% endif %}
-  
+
     {% endblock %}
   </div>

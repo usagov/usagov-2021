@@ -31,12 +31,6 @@ filters:
     status: true
     weight: 0
     settings: {  }
-  filter_google_docs:
-    id: filter_google_docs
-    provider: google_docs_filter
-    status: true
-    weight: 0
-    settings: {  }
   filter_html:
     id: filter_html
     provider: filter

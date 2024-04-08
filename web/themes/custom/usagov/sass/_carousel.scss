@@ -1,4 +1,5 @@
 @use "usagov-variables" as *;
+@use "uswds-core" as *;
 
 .life-events {
   background-color: var($deep-blue);
@@ -10,16 +11,14 @@
   max-width: 100%;
 
   h2 {
-    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times,
-      serif;
+    @include u-font-family('serif');
     font-size: var($homepage, medium-font-size);
     margin: 0;
     padding-top: 50px;
   }
 
   p {
-    font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
-      Arial, sans-serif;
+    @include u-font-family('sans');
     font-size: var($homepage, small-font-size);
     padding-top: 13px;
   }
@@ -261,14 +260,14 @@
       margin: 0;
       color: var($cyan-30v);
       text-decoration: none;
-      font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto,
-        Arial, sans-serif;
+      @include u-font-family('sans');
     }
 
     p {
       margin: 0;
-      font-weight: normal;
-      font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+      //uswds font-weight mixin
+      @include u-text('normal');
+      @include u-font-family('sans');
       font-size: var($homepage, small-font-size);
       padding-top: 10px;
     }
