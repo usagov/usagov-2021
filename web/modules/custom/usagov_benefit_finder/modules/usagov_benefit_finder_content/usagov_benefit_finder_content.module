@@ -5,6 +5,9 @@
  * Module contains functions related to usagov_benefit_finder_content.
  */
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\Node;
+
 /**
  * Implements hook_form_alter().
  */
@@ -25,5 +28,103 @@ function usagov_benefit_finder_content_form_alter(&$form, &$form_state, $form_id
       }
       $i++;
     } while ($i > 0);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @param array $form
+ *   Form array.
+ * @param FormStateInterface $form_state
+ *   Form state object.
+ */
+function usagov_benefit_finder_content_form_node_bears_benefit_form_alter(array &$form, FormStateInterface $form_state) {
+  $form['#validate'][] = 'usagov_benefit_finder_content_node_bears_benefit_edit_form_validate';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @param array $form
+ *   Form array.
+ * @param FormStateInterface $form_state
+ *   Form state object.
+ */
+function usagov_benefit_finder_content_form_node_bears_benefit_edit_form_alter(array &$form, FormStateInterface $form_state) {
+  $form['#validate'][] = 'usagov_benefit_finder_content_node_bears_benefit_edit_form_validate';
+}
+
+/**
+ * Validates benefit edit form benefit eligibility acceptable values.
+ *
+ * @param array $form
+ *   Form array.
+ * @param FormStateInterface $form_state
+ *   Form state object.
+ */
+function usagov_benefit_finder_content_node_bears_benefit_edit_form_validate(array $form, FormStateInterface $form_state) {
+  $errors = [];
+  $error_count = 0;
+
+  $eligibilities = $form_state->getValue('field_b_eligibility');
+  foreach ($eligibilities as $eligibility) {
+    $criteria_nid = $eligibility['subform']['field_b_criteria_key'][0]['target_id'];
+    if (empty($criteria_nid)) {
+      continue;
+    }
+    $acceptable_values = array_column($eligibility['subform']['field_b_acceptable_values'], 'value');
+
+    $criteria = Node::load($criteria_nid);
+    $criteria_title = $criteria->get('title')->value;
+    $criteria_type = $criteria->get('field_b_type')->getValue()[0]['value'];
+    $criteria_values = array_column($criteria->get('field_b_values')->getValue(), 'value');
+
+    if (!array_filter($acceptable_values)) {
+      $errors[] = t("Criteria \"$criteria_title\" acceptable values is empty.");
+    }
+
+    if (in_array($criteria_type, ['Boolean', 'Radio', 'Select'])) {
+      foreach ($acceptable_values as $value) {
+        if (!empty($value) && !in_array($value, $criteria_values)) {
+          $errors[] = t("Criteria \"$criteria_title\" acceptable value \"$value\" is not an option value.");
+          $errors[] = t("--- Acceptable values from \"$criteria_title\" are: " . implode(', ', $criteria_values));
+        }
+      }
+    }
+
+    if (in_array($criteria_type, ['Date'])) {
+      foreach ($acceptable_values as $value) {
+        if (!empty($value)) {
+          if (strpos($value, ' ') !== FALSE) {
+            $errors[] = t("Criteria \"$criteria_title\" acceptable value \"$value\" cannot contain space.");
+            continue;
+          }
+          $pattern = '/^(=|>|<|>=|<=)(\d{2}-\d{2}-\d{4}|\d{1,2}years)$/';
+          if (preg_match($pattern, $value, $matches) === 1) {
+            $secondPart = $matches[2];
+            if (preg_match('/^\d{2}-\d{2}-\d{4}$/', $secondPart, $matches) === 1) {
+              $dateTime = DateTime::createFromFormat('m-d-Y', $secondPart);
+              if (!($dateTime && $dateTime->format('m-d-Y') === $secondPart)) {
+                $errors[] = t("Criteria \"$criteria_title\" acceptable value \"$value\" date \"$secondPart\" is invalid.");
+                $errors[] = t("--- Format: MM-DD-YYYY");
+              }
+            }
+          }
+          else {
+            $errors[] = t("Criteria \"$criteria_title\" acceptable value \"$value\" is incorrect.");
+            $errors[] = t("---The prefix must include only one of the following comparison operators: '>', '<', '=', '>=', or '<='.
+            
+--- The suffix must be formatted as either 'MM-DD-YYYY' or '(d or dd)years'.");
+          }
+        }
+      }
+    }
+  }
+
+  if (!empty($errors)) {
+    foreach ($errors as $error) {
+      $form_state->setErrorByName((string) ++$error_count, $error);
+    }
   }
 }

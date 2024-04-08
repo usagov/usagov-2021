@@ -106,11 +106,12 @@
   }
 }
 
-.usa-header--extended div.language-switcher-language-url ul.links {
+.usa-header--extended div.language-switcher-language-url div.links {
   display: flex;
   justify-content: flex-end;
   margin-top: 0.3rem;
   margin-left: 0;
+  z-index: 501;
 }
 
 .usa-header--extended [hreflang|="es"] {
