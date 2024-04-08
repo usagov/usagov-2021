@@ -32,6 +32,8 @@
 /automated_tests/e2e-cypress/cypress/reports
 /automated_tests/e2e-cypress/cypress/screenshots
 /automated_tests/e2e-cypress/cypress/videos
+/automated_tests/e2e-cypress/cypress-image-diff-screenshots/comparison
+/automated_tests/e2e-cypress/cypress-image-diff-screenshots/diff
 
 /web/.*
 /web/*.php
