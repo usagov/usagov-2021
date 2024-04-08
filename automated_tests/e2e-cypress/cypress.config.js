@@ -1,5 +1,5 @@
 const { defineConfig } = require('cypress')
-const getCompareSnapshotsPlugin = require('cypress-image-diff-js/dist/plugin')
+const getCompareSnapshotsPlugin = require('cypress-image-diff-js/plugin')
 const { beforeRunHook } = require('cypress-mochawesome-reporter/lib')
 
 module.exports = defineConfig({
@@ -7,7 +7,7 @@ module.exports = defineConfig({
   video: false,
   screenshotOnRunFailure: true,
   e2e: {
-      baseUrl: 'http://cms-usagov.docker.local', // CYPRESS_BASE_URL OS env var will override this.
+    baseUrl: 'http://cms-usagov.docker.local', // CYPRESS_BASE_URL OS env var will override this.
     viewportWidth: 1280,
     viewportHeight: 800,
     "retries": {
@@ -17,16 +17,16 @@ module.exports = defineConfig({
     chromeWebSecurity: false,
     responsetimeout: 10000,
     "blockHosts": ["www.google-analytics.com", "ssl.google-analytics.com"],
-      experimentalRunAllSpecs: true,
-      setupNodeEvents(on, config) {
+    experimentalRunAllSpecs: true,
+    setupNodeEvents(on, config) {
 
       // Plugins
-          require('cypress-mochawesome-reporter/plugin')(on),
-          getCompareSnapshotsPlugin(on, config),
+      require('cypress-image-diff-js/plugin')(on, config);
+      require('cypress-mochawesome-reporter/plugin')(on);
       on('before:run', async (details) => {
         console.log('override before:run')
         await beforeRunHook(details)
-      }),
+      });
       // Tasks
       on('task', {
         log(message) {
@@ -39,7 +39,8 @@ module.exports = defineConfig({
 
           return null
         }
-      })
-    }
+      });
+      // return getCompareSnapshotsPlugin(on, config);
+    },
   },
 });
