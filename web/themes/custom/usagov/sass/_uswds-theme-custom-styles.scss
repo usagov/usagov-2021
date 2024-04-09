@@ -28,6 +28,7 @@ i.e.
 @use "usagov-variables" as *;
 
 @forward "carousel";
+@forward "ceo";
 @forward "content-page";
 @forward "fed-directory";
 @forward "footer";
@@ -211,6 +212,7 @@ a,
   line-height: 1.5;
   color: var($text-blue);
 }
+
 .usa-breadcrumb__currrent {
   color: var($global-default, text-color);
 }
@@ -332,7 +334,7 @@ div #sm-share a {
   display: block;
 }
 
-// error styles for elected officials
+// error styles for elected officials, report a problem and wizard
 
 .usa-error {
   color: var($red-error);
@@ -365,35 +367,11 @@ input:not([disabled]):focus.usa-user-error {
   border-left: 3px solid var($red);
 }
 
-#myform div.margin-x-auto {
-  // margin-left: 3rem;
-  @media (max-width: 30em) {
-    margin-left: 1rem;
-    margin-right: 1rem;
-  }
-}
-
-#myform div.maxw-mobile {
-  max-width: 26rem;
-}
-
-.ceo-button-container {
-  display: flex;
-
-  // Manages where the button is going to be positioned.
-  // Example: center, right, left.
-  justify-content: center;
-}
-
-.ceo-button {
-  margin-inline: 0 !important;
-  width: fit-content;
-}
-
 .usa-error--alert {
   display: none;
 }
 
+// top-nav styles
 .currentMenuItem {
   position: relative;
 }
@@ -585,11 +563,6 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: var($regular-text-font-size);
 }
 
-// Hides the City or County accordion header when there are no results.
-.usa-accordion__heading-hidden {
-  display: none;
-}
-
 #question-box > div > p,
 #question-box > div > div {
   font-size: var($regular-text-font-size);
@@ -642,6 +615,7 @@ a,
     $theme-body-font-size,
     $theme-input-line-height
   );
+
   display: block;
   @include u-text('normal');
   margin-top: 0.5rem;
@@ -656,6 +630,7 @@ a,
 // Alignment of recaptcha error message and recaptcha box.
 .recaptcha-container {
   @extend .ceo-button-container;
+
   margin-bottom: 1em;
   flex-direction: column;
 }
@@ -663,6 +638,7 @@ a,
 // Centers the recaptcha error message
 .err-label-captcha {
   @extend .usa-error;
+
   text-align: center;
 }
 
@@ -680,8 +656,10 @@ a,
 
 .issue-button {
   @extend .ceo-button;
+
   margin-top: 1.5rem;
 }
+
 // End of "Report an issue" page style
 
 #myform .usa-button {
