@@ -495,10 +495,9 @@
 /* Desktop */
 @media (min-width: 1024px) {
   .life-events {
-    width: 960px;
     margin-left: auto;
     margin-right: auto;
-    max-width: var($homepage, larger-max-width);
+    width: var($homepage, larger-max-width);
     padding: 0;
   }
 

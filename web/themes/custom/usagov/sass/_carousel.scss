@@ -8,7 +8,7 @@
   margin-left: 5vw;
   margin-right: 5vw;
   padding: 0;
-  max-width: 100%;
+  max-width: var($homepage, larger-max-width);
 
   h2 {
     @include u-font-family('serif');
@@ -41,6 +41,7 @@
 
   .grid-container {
     width: 100%;
+    max-width: var($homepage, larger-max-width);
   }
 
   .usagov-cards {
@@ -327,12 +328,11 @@
 /* Desktop */
 @media (min-width: 1024px) {
   .life-events-carousel {
-    width: 960px;
+    width: 100%;
   }
 
   .carousel-mover {
-    width: 960px;
-    max-width: 960px;
+    width: 100%;
     margin: auto;
 
     .usagov-cards,
@@ -344,8 +344,8 @@
       margin: 0;
 
       .slick-list {
-        width: 850px;
-        max-width: 850px;
+        width: 1044px;
+        max-width: 1044px;
       }
 
       .slick-dots {
