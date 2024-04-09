@@ -5,16 +5,16 @@
 // $card: var( $usagov-variables, card );
 
 .usagov-hero-homepage {
-  background-color: var($hero, background-color);
+  background-color: var($deep-blue);
   background-image: none;
-  color: var($hero, font-color);
+  color: var($white);
   margin-bottom: 0;
 }
 
 .usagov-hero-feature-text a {
   text-decoration-line: underline;
   text-decoration-thickness: 7px;
-  text-decoration-color: var($card, heading-underline-color);
+  text-decoration-color: var($cyan);
   text-decoration-skip-ink: none;
 }
 
@@ -213,7 +213,7 @@
 
   h2,
   a {
-    color: var($global-default, text-color);
+    color: var($off-black)
     margin: 0;
     text-decoration: none;
   }
@@ -308,7 +308,7 @@
   grid-row: 9 / 10;
 
   p {
-    color: var($global-default, text-color);
+    color: var($off-black)
   }
 }
 
@@ -371,7 +371,7 @@
 
   h2,
   p {
-    color: var($global-default, text-color);
+    color: var($off-black)
     @include u-font-family('sans');
     font-size: var($homepage, small-font-size);
     text-align: center;
