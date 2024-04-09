@@ -213,7 +213,7 @@
 
   h2,
   a {
-    color: var($off-black)
+    color: var($off-black);
     margin: 0;
     text-decoration: none;
   }
@@ -308,7 +308,7 @@
   grid-row: 9 / 10;
 
   p {
-    color: var($off-black)
+    color: var($off-black);
   }
 }
 
@@ -371,7 +371,7 @@
 
   h2,
   p {
-    color: var($off-black)
+    color: var($off-black);
     @include u-font-family('sans');
     font-size: var($homepage, small-font-size);
     text-align: center;
