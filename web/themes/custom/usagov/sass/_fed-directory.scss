@@ -112,23 +112,6 @@ div.field--name-field-offices-near-you> ul {
 }
 
 // Search Bar
-.usagov-directory-search-container {
-  justify-content: center;
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  align-items: center;
-
-  p {
-    font-size: 18px;
-  }
-
-  section {
-    flex-grow: 1;
-    max-width: 20rem;
-  }
-}
-
 .fed-directory-search-bar {
   height: 2rem;
   box-sizing: border-box;
@@ -202,7 +185,8 @@ div.field--name-field-offices-near-you> ul {
 // Letter Heading
 .usagov-directory-letter-heading {
   @include u-font-family('sans');
-  font-size: 38px;
+  font-size: 2.375rem;
+
   text-align: center;
   line-height: 57px;
   outline: solid 0.15rem var($fed-directories, letter-outline-color);
@@ -251,7 +235,7 @@ div div.field--name-field-offices-near-you>ul>li {
     text-decoration: none;
     text-align: center;
     line-height: 57px;
-    font-size: 38px;
+    font-size: 2.375rem;
     color: var($fed-directories, text-color);
     outline: solid 0.15rem var($cyan-50v);
     background-color: var($cyan-light);

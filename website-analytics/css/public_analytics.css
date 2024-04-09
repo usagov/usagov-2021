@@ -378,12 +378,11 @@ header .agency-selector-wrap {
 }
 
 #agency-selector {
-  width: 100%;
   max-width: none;
   font-size: 22px;
   font-weight: 600;
-  vertical-align: middle;
   color: #112e51;
+  display: inline-block;
 }
 
 #agency-selector:focus{
@@ -952,9 +951,8 @@ figure figure .bar-chart .bin {
   position: absolute;
   top: 0;
   transition: 0.15s ease-in-out;
-  outline: 0.2em solid #0186a2;
-  outline-offset: 0;
-  box-shadow: 0 0 0 7px #0186a2;
+  box-shadow: none;
+  outline: 2px solid #0186a2;
 }
 
 .label .domain:focus-within {
@@ -964,4 +962,27 @@ figure figure .bar-chart .bin {
 
 a {
   text-decoration: underline;
+}
+
+.select-agency-form {
+  display: flex;
+  gap: 1em;
+}
+
+.select-agency-form-button {
+  margin: 0.2em 0;
+  border: 1px solid #1b1b1b;
+  background-color: #00bde3;
+  color: #1b1b1b;
+}
+
+.select-agency-form-button:hover {
+  background-color: #009ec1;
+  color: #1b1b1b;
+  border: 1px solid #1b1b1b;
+}
+
+.select-agency-form-button:focus {
+  box-shadow: none;
+  outline: 2px solid #0186a2;
 }
