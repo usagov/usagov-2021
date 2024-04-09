@@ -228,8 +228,8 @@
 
   h2 {
     font-size: 1.875em;
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: 1.188rem;
+    margin-right: 1.188rem;
     max-width: var($homepage, smaller-max-width);
   }
 }
@@ -239,10 +239,11 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 0;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 30px;
+  margin-left: 1.188rem;
+  margin-right: 1.188rem;
+  margin-top: 1.875rem;
   max-width: var($homepage, smaller-max-width);
+  padding-inline-start: 0;
 }
 
 .how-button {
