@@ -1,7 +1,8 @@
 @use "usagov-variables" as *;
+@use "uswds-core" as *;
 
 .usa-sidenav {
-  color: $text-blue;
+  @include u-text('blue-warm-70v');
 
   .active-trail {
     font-weight: bold;
@@ -16,7 +17,7 @@
   }
 
   .usa-current {
-    color: $red;
+    @include u-text('red-50');
 
     &::before {
       content: "";
@@ -38,11 +39,11 @@
   }
 
   a:not(.usa-button):not(.usa-current) {
-    color: $text-blue;
+    @include u-text('blue-warm-70v');
 
     &:hover {
-      color: $text-blue;
-      background-color: #f0f0f0;
+      @include u-text('blue-warm-70v');
+      @include u-bg('gray-5');
       text-decoration: underline;
     }
   }

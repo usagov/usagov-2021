@@ -3,13 +3,12 @@
 
 /** Government Banner **/
 .usa-banner {
-  //background-color: var($light-gray);
-  background-color: #f0f0f0;
+  @include u-bg('gray-5');
 }
 
 .usa-banner__button-text,
 .usa-banner__button-text:hover {
-  color: var($text-blue);
+ @include u-text('blue-warm-70v');
 }
 
 .usa-banner__button-text:visited {
@@ -18,7 +17,7 @@
 
 .usa-banner__button::after,
 .usa-banner__button:hover::after {
-  background-color: var($text-blue);
+  @include u-bg('blue-warm-70v');
 }
 
 .usa-banner__button:hover:visited::after {
@@ -27,7 +26,7 @@
 
 .usa-banner__button[aria-expanded="true"]::after,
 .usa-banner__button[aria-expanded="true"]:hover::after {
-  background-color: var($text-blue);
+  @include u-bg('blue-warm-70v');
 }
 
 .usa-banner__button[aria-expanded="true"]:hover:visited::after {
@@ -55,14 +54,14 @@
 .usa-header--extended .usa-alert--slim .usa-alert__body a,
 .usa-header--extended .usa-alert--slim .usa-alert__body a:hover,
 .usa-header--extended .usa-alert--slim .usa-alert__body a:visited {
-  color: color("blue-warm-70v");
+  @include u-text('blue-warm-70v');
 }
 
 // emergency banner header
 .usa-header--extended .usa-alert--error {
   color: var($white);
   border-left-color: color("red-70v");
-  background-color: color("red-70v");
+  @include u-bg('red-70v');
 }
 
 // emergency banner header
@@ -138,7 +137,7 @@
   color: var($white);
   text-decoration: none;
   padding: 10px 20px;
-  background-color: color("blue-80v");
+  @include u-bg('blue-80v');
 }
 
 
@@ -168,8 +167,7 @@
     background-repeat: no-repeat;
     background-position: 3.5rem 0.7rem;
   }
-
-  background-color: color("blue-warm-80v");
+  @include u-bg('blue-warm-80v');
 }
 
 // This is to minimize the size of the logo in tablet and mobile
@@ -252,7 +250,7 @@
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
   @include at-media($theme-header-min-width) {
     float: right;
-    color: $gray;
+    @include u-text('gray-cool-10');
     content: "|"; // Removed while phone number is disabled
     padding-right: 1rem;
     font-size: 2rem;
@@ -281,7 +279,7 @@
 .usa-nav__primary>.usa-nav__primary-item>a:hover {
   @media (min-width: 64em) {
     padding: 0.8rem;
-    color: color("blue-warm-70v");
+    @include u-text('blue-warm-70v');
   }
 }
 

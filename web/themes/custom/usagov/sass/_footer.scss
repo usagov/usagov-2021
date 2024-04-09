@@ -32,7 +32,7 @@
   font-feature-settings: "kern" 1;
   font-kerning: normal;
   box-sizing: inherit;
-  color: var($off-black);
+  @include u-text('gray-90');
   text-decoration: none;
   padding: 0;
   font-weight: 700;
@@ -54,7 +54,7 @@
   padding: 1rem;
   width: 100%;
   border: 0;
-  background-color: #f0f0f0;
+  @include u-bg('gray-5');
   cursor: pointer;
 }
 
@@ -89,12 +89,12 @@
 
 .usa-gov-footer__primary-link--button:focus {
   text-decoration: underline;
-  outline: 0.25rem solid var($deep-orange);
+  outline: 0.25rem solid color('orange-50v');
   outline-offset: -0.25rem;
 }
 
 .usa-footer__primary-section {
-  background-color: #f0f0f0;
+  @include u-bg('gray-5');
 }
 
 .usa-footer__primary-section .usa-list {
@@ -114,18 +114,18 @@
 }
 
 .footer-button {
-  border: 1px solid #1b1b1b;
+  border: 1px solid color('gray-90');
   line-height: 1.5;
   margin-inline: 0 !important;
   font-size: 1.1rem;
 }
 
 .footer-button:hover {
-  border: 1px solid #1b1b1b;
+  border: 1px solid color('gray-90');
 }
 
 #footer-email {
-  border-color: var($off-black);
+  @include u-border('gray-90');
 }
 
 .ftr-list {

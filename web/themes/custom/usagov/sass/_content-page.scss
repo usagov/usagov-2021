@@ -1,11 +1,11 @@
 @use "usagov-variables" as *;
-
+@use "uswds-core" as *;
 // $alert: var( $usagov-variables, alert );
 
 .usa-alert:not(.usa-alert--info):not(.usa-alert--warning):not(
     .usa-alert--error
   ):not(.usa-alert--success) {
-  border-color: var($gray);
+  @include u-border('gray-cool-10');
   background-color: var($white);
 }
 
