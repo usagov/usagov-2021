@@ -51,15 +51,19 @@ function setMobileProperties() {
 
 	if (window.innerWidth <= 1024) {
 		header.style.top = "-" + banner.offsetHeight + "px";
+
 		search.classList.add('usagov-search-autocomplete');
 
+		// This calculates the height of the navbar and adds an extra 10px for the scroll padding top.
+		var scrollPaddingTop = header.offsetHeight - banner.offsetHeight + 10;
+
 		// Prevent the Sticky Bar from hiding content
-		document.getElementsByTagName("html")[0].style.setProperty("scroll-padding-top", header.offsetHeight + "px", "important");
+		document.getElementsByTagName("html")[0].style.setProperty("scroll-padding-top", scrollPaddingTop + "px", "important");
 	}
 	else {
 		header.style.removeProperty("top");
 		search.classList.remove('usagov-search-autocomplete');
-		document.getElementsByTagName("html")[0].style.setProperty("scroll-padding-top", "0px", "important");
+		document.getElementsByTagName("html")[0].style.setProperty("scroll-padding-top", "10px", "important");
 	}
 }
 
