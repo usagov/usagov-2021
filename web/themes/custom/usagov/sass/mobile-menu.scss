@@ -31,13 +31,13 @@ ul.navigation__items {
   }
 
   .umbrella a {
-    background-color: var($mobile-nav, blue);
-    color: var($mobile-nav, white);
+    background-color: var($text-blue);
+    color: var($white);
   }
 
   .active > a {
-    border-left: 0.5rem solid var($mobile-nav, red);
-    color: var($mobile-nav, red);
+    border-left: 0.5rem solid var($red);
+    color: var($red);
   }
 
   .sibling > a {
@@ -56,7 +56,7 @@ ul.navigation__items {
 
 .usagov-mobile-menu-top {
   padding: 1rem;
-  background-color: var($mobile-nav, light-gray);
+  background-color: var($light-gray);
 }
 
 .usagov-mobile-menu-controls {
@@ -69,7 +69,7 @@ ul.navigation__items {
   align-items: center;
   background: transparent;
   border: 0;
-  color: var($global-default, text-color);
+  color: var($off-black)
   font-weight: bold;
   font-size: larger;
   text-decoration: none;
@@ -80,7 +80,7 @@ ul.navigation__items {
 
 
 .usagov-mobile-menu-controls a svg {
-  border: 3px solid var($global-default, text-color);
+  border: 3px solid var($off-black)
   border-radius: 100%;
   height: 2.16rem;
   width: 2.16rem;

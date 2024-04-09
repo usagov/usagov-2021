@@ -32,7 +32,7 @@
     width: 44px;
     height: 44px;
     text-decoration: none;
-    color: var($fed-directories, text-color);
+    color: var($off-black);
     box-sizing: border-box;
     background-color: var($cyan-light);
     border: 2px solid var($secondary-border-color);
@@ -48,13 +48,13 @@
   }
 
   a.is-active {
-    box-shadow: 0 0 0 0.15rem var($fed-directories, text-color);
+    box-shadow: 0 0 0 0.15rem var($off-black)
     background-color: white;
     border:none;
   }
 
   a.is-active:hover {
-    box-shadow: 0 0 0 0.15rem var($fed-directories, text-color);
+    box-shadow: 0 0 0 0.15rem var($off-black)
     background-color: white;
   }
 }
@@ -64,7 +64,7 @@ a.intro-links:hover,
 a.intro-links:visited,
 a.intro-links:active {
   text-decoration: none;
-  color: var($fed-directories, text-color);
+  color: var($off-black)
 }
 
 hr.bl-divider {
@@ -138,7 +138,7 @@ div.field--name-field-offices-near-you> ul {
   background-color: #fff;
   outline: none;
   font-size: 0.98rem;
-  color: var($fed-directories, text-color);
+  color: var($off-black)
   font-weight: 500;
   border-style: none;
   line-height: 1.5;
@@ -234,7 +234,7 @@ div div.field--name-field-offices-near-you>ul>li {
     text-align: center;
     line-height: 57px;
     font-size: 2.375rem;
-    color: var($fed-directories, text-color);
+    color: var($off-black)
     outline: solid 0.15rem var($cyan-50v);
     background-color: var($cyan-light);
     font-weight: 600;
