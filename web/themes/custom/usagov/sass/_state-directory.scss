@@ -1,4 +1,5 @@
 @use "usagov-variables" as *;
+@use "uswds-core" as *;
 
 // State Directory - Form/Combo Box
 .state-usa-form {
@@ -19,7 +20,7 @@
   line-height: 1.5;
   border: 2px solid var($secondary-border-color);
   border-radius: .15rem;
-  background-color: #ccecf2;
+  background-color: var($cyan-light);
   text-align: center;
   transition: background-color 200ms;
   padding: 0.1rem 1.25rem;
@@ -30,7 +31,7 @@
 }
 
 .sd-go-btn:hover {
-  background-color: #a7d8e3;
+  background-color: var($secondary-background-color);
 }
 
 .usagov-directory-table .usa-list a , .usagov-directory-table .phoneNumberField , .usagov-directory-table .field__item {
@@ -38,7 +39,7 @@
 }
 
 .usa-combo-box__list-option--selected {
-  color: var($off-black)
+  @include u-text('gray-90');
 }
 
 .ceoLink {

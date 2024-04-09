@@ -2,7 +2,7 @@
 @use "uswds-core" as *;
 
 .life-events {
-  background-color: var($deep-blue);
+  @include u-bg('blue-80v');
   grid-column: 1 / 3;
   grid-row: 5 / 6;
   margin-left: 5vw;
@@ -93,7 +93,7 @@
           }
 
           &:focus-within {
-            border: 4px solid #c05600;
+            border: 4px solid color('orange-50v');
           }
         }
       }
@@ -205,7 +205,7 @@
   .slide {
     height: 98%;
     margin-top: 4px;
-    border: 1px solid #53BBDF;
+    border: 1px solid var($cyan-slide);
     border-radius: 4px;
     box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
     padding: 0;
@@ -214,12 +214,12 @@
     text-align: left;
 
     a {
-      color: var($white);
+      @include u-text('white');
       text-decoration: none;
       display: flex;
 
       &:visited {
-        color: var($white);
+        @include u-text('white');
         text-decoration: none;
       }
 
@@ -237,7 +237,7 @@
         }
 
         .thumbnailBanner {
-          background-color: #ccecf2;
+          background-color: var($cyan-light);
           opacity: 0.5;
         }
       }
@@ -249,7 +249,7 @@
     }
 
     &:focus-within {
-      border: 4px solid #c05600;
+      border: 4px solid color('orange-50v');
 
       .life_events_card_text {
         padding: 9px 9px 0;
@@ -258,7 +258,7 @@
 
     h3 {
       margin: 0;
-      color: var($cyan-30v);
+      @include u-text('cyan-30v');
       text-decoration: none;
       @include u-font-family('sans');
     }

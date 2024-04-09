@@ -1,4 +1,5 @@
 @use "usagov-variables" as *;
+@use "uswds-core" as *;
 
 // $life-events: var( $usagov-variables, life-events );
 [data-pagetype="Life Events"],
@@ -74,7 +75,7 @@
       .usa-card__header .usa-card__heading .card-link {
         text-decoration-line: underline;
         text-decoration-thickness: 7px;
-        text-decoration-color: #3fbde3;
+        text-decoration-color: var($cyan);
       }
     }
   }
@@ -117,6 +118,6 @@
 
   .life-events-landing-page-card-title {
     background-color: var($cyan-light);
-    color: var($text-blue);
+    @include u-text('blue-warm-70v');
   }
 }

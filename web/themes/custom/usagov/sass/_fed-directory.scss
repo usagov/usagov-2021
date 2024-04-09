@@ -1,5 +1,5 @@
 @use "usagov-variables" as *;
-
+@use "uswds-core" as *;
 // Directory Container
 .usagov-directory-page-container {
   display: flex;
@@ -32,7 +32,7 @@
     width: 44px;
     height: 44px;
     text-decoration: none;
-    color: var($off-black);
+    @include u-text('gray-90');
     box-sizing: border-box;
     background-color: var($cyan-light);
     border: 2px solid var($secondary-border-color);
@@ -64,7 +64,7 @@ a.intro-links:hover,
 a.intro-links:visited,
 a.intro-links:active {
   text-decoration: none;
-  color: var($off-black);
+  @include u-text('gray-90');
 }
 
 hr.bl-divider {
@@ -123,7 +123,7 @@ div.field--name-field-offices-near-you> ul {
   margin: 1rem auto 0;
 
   input::placeholder {
-    color: #757575;
+    @include u-text('gray-50');
     font-weight: 500;
   }
 
@@ -135,10 +135,10 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-input {
-  background-color: #fff;
+  background-color: var($white);
   outline: none;
   font-size: 0.98rem;
-  color: var($off-black);
+  @include u-text('gray-90');
   font-weight: 500;
   border-style: none;
   line-height: 1.5;
@@ -167,7 +167,7 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-btn:hover {
-  background-color: #99deea;
+  background-color: var($fed-cyan);
 }
 
 .fed-directory-search-btn:focus {
@@ -234,8 +234,8 @@ div div.field--name-field-offices-near-you>ul>li {
     text-align: center;
     line-height: 57px;
     font-size: 2.375rem;
-    color: var($off-black);
-    outline: solid 0.15rem var($cyan-50v);
+    @include u-text('gray-90');
+    outline: solid 0.15rem color('cyan-50v');
     background-color: var($cyan-light);
     font-weight: 600;
     width: 57px;
@@ -247,13 +247,13 @@ div div.field--name-field-offices-near-you>ul>li {
   }
 
   a.nav-letter:hover {
-    outline: 2px solid #377f9d;
-    color: #000;
-    background-color: #a7d8e3;
+    outline: 2px solid var($secondary-border-color);
+    color: var($black);
+    background-color: var($secondary-background-color);
   }
 
   a.nav-letter:focus {
-    outline: 0.25rem solid #c05600;
+    outline: 0.25rem solid color('orange-50v');
   }
 }
 
@@ -269,13 +269,13 @@ div div.field--name-field-offices-near-you>ul>li {
   line-height: 2;
 
   div {
-    border: solid 1.5px #d3d2d2;
+    border: solid 1.5px var($fed-gray);
     margin: 0;
     padding: 10px 25px;
   }
 
   div:nth-child(odd) {
-    background-color: #f2f2f2;
+    background-color: var($fed-white);
   }
 }
 

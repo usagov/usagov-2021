@@ -8,11 +8,14 @@ USAgov Variables
 $black: #000;
 $blue-outer-focus: #0186a2;
 $cyan-light: #ccecf2;
-$cyan: #3fbde3;
 $cyan-slide: #53bbdf;
+$cyan: #3fbde3;
 $dark-blue: #112f43;
 $dark-gray: #4b4b4d;
 $deep-gray: #707070;
+$fed-cyan: #99deea;
+$fed-gray: #d3d2d2;
+$fed-white: #f2f2f2;
 $light-blue: #d2ebf1;
 $medium-gray: #e7e7e7;
 $off-white: #e8f0f7;
@@ -21,9 +24,14 @@ $red-error: #c61f0c;
 $secondary-background-color: #a7d8e3;
 $secondary-border-color: #377F9D;
 $white: #fff;
+$wizard-gray: #808080;
+$blue-shadow: rgb(17 47 78 / 40%);
+$regular-text-font-size: 1.1rem;
+$smaller-text-font-size: 1rem;
 
-$cyan-30v: #00bde3; //uswds color: $cyan-30v
-$cyan-50v: #0081a1; //uswds color: $cyan-50v
+//we don't need these but using them for reference for now
+$cyan-30v: #00bde3; //uswds color: cyan-30v
+$cyan-50v: #0081a1; //uswds color: cyan-50v
 $deep-blue: #112f4e; //uswds color: blue-80v
 $deep-orange: #c05600; //uswds color: orange-50v
 $gray: #dfe1e2; //uswds color: gray-cool-10
@@ -34,9 +42,7 @@ $red: #d83933; //uswds color: red-50
 $text-blue: #1a4480; //uswds color: blue-warm-70v
 $usagov-gray: #f0f0f0; //uswds color: gray-5
 
-$blue-shadow: rgb(17 47 78 / 40%);
-$regular-text-font-size: 1.1rem;
-$smaller-text-font-size: 1rem;
+
 
 // Component Variables
 $homepage: (

@@ -1,4 +1,5 @@
 @use "usagov-variables" as *;
+@use "uswds-core" as *;
 
 // $hero: var( $usagov-variables, hero );
 
@@ -13,7 +14,7 @@
 }
 
 .usagov-hero__callout {
-  background-color: var($deep-blue);
+  @include u-bg('blue-80v');
   border: 1px solid var($white);
 
   ul {
@@ -32,7 +33,7 @@
 // $card: var( $usagov-variables, card );
 .usagov-cards {
   padding: 1em;
-  background-color: var($usagov-gray);
+  @include u-bg('gray-5');
 }
 
 .usa-layout-docs__main .usagov-cards {
@@ -42,16 +43,16 @@
 .usagov-card {
   border-radius: 0;
   box-shadow: 4px 4px 10px #aaa;
-  border-color: var($cyan-50v);
+  @include u-border('cyan-50v');
 
   &:hover {
     background-color: var($cyan-light);
-    border-color: var($cyan-50v);
+    @include u-border('cyan-50v');
   }
 }
 
 .usagov-card__heading {
-  color: var($text-blue);
+  @include u-text('blue-warm-70v');
   text-decoration-line: underline;
   text-decoration-thickness: 7px;
   text-decoration-color: var($cyan);
