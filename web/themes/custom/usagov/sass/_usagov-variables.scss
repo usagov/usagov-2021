@@ -7,31 +7,34 @@ USAgov Variables
 // Base variables
 $black: #000;
 $blue-outer-focus: #0186a2;
-$blue-shadow: rgb(17 47 78 / 40%);
-$cyan-30v: #00bde3;
-$cyan-50v: #0081a1;
 $cyan-light: #ccecf2;
 $cyan: #3fbde3;
+$cyan-slide: #53bbdf;
 $dark-blue: #112f43;
 $dark-gray: #4b4b4d;
-$deep-blue: #112f4e;
 $deep-gray: #707070;
-$deep-orange: #c05600;
-$gray: #dfe1e2;
 $light-blue: #d2ebf1;
-$light-gray: #f3f3f3;
 $medium-gray: #e7e7e7;
-$off-black: #1b1b1b;
 $off-white: #e8f0f7;
 $orange: #f79240;
-$pale-blue: #e7f6f8;
 $red-error: #c61f0c;
-$red: #d83933;
 $secondary-background-color: #a7d8e3;
 $secondary-border-color: #377F9D;
-$text-blue: #1a4480;
-$usagov-gray: #f0f0f0;
 $white: #fff;
+
+$cyan-30v: #00bde3; //uswds color: $cyan-30v
+$cyan-50v: #0081a1; //uswds color: $cyan-50v
+$deep-blue: #112f4e; //uswds color: blue-80v
+$deep-orange: #c05600; //uswds color: orange-50v
+$gray: #dfe1e2; //uswds color: gray-cool-10
+$light-gray: #f3f3f3; //uswds color: gray-4
+$off-black: #1b1b1b; //uswds color: gray-90
+$pale-blue: #e7f6f8; //uswds color: cyan-5
+$red: #d83933; //uswds color: red-50
+$text-blue: #1a4480; //uswds color: blue-warm-70v
+$usagov-gray: #f0f0f0; //uswds color: gray-5
+
+$blue-shadow: rgb(17 47 78 / 40%);
 $regular-text-font-size: 1.1rem;
 $smaller-text-font-size: 1rem;
 
