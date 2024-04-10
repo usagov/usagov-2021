@@ -49,7 +49,7 @@
         <li>
           {% set row_is_active = current_letter == row.link %}
           {% if row_is_active %}
-            <a {{row.attributes.addClass("is-active")}}>{{ row.link }}</a>
+            <a {{row.attributes.addClass("is-active")}} role="link" aria-disabled="true" aria-current="page">{{ row.link }}</a>
           {% else %}
             {% if row.link == "A" or row.link == "a" %}
               <a href="{{ translations.agencyindex }}#{{ row.link }}">{{ row.link }}</a>
