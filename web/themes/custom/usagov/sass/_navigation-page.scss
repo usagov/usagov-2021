@@ -4,7 +4,7 @@
 // $hero: var( $usagov-variables, hero );
 
 .usagov-hero {
-  border-top: 10px solid var($red);
+  border-top: 10px solid color('red-50');
   margin-bottom: 1.5rem;
   margin-top: -0.75rem;
   width: 100vw;

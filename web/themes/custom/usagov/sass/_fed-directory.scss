@@ -48,13 +48,13 @@
   }
 
   a.is-active {
-    box-shadow: 0 0 0 0.15rem var($off-black);
+    box-shadow: 0 0 0 0.15rem color('gray-90');
     background-color: white;
     border:none;
   }
 
   a.is-active:hover {
-    box-shadow: 0 0 0 0.15rem var($off-black);
+    box-shadow: 0 0 0 0.15rem color('gray-90');
     background-color: white;
   }
 }
@@ -116,7 +116,7 @@ div.field--name-field-offices-near-you> ul {
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
-  outline: 2px solid var($cyan-50v);
+  outline: 2px solid color('cyan-50v');
   border-radius: 0 0.25rem 0.25rem 0;
   background-color: var($cyan-light);
   max-width: 20em;
@@ -187,7 +187,7 @@ div.field--name-field-offices-near-you> ul {
   font-size: 2.375rem;
   text-align: center;
   line-height: 57px;
-  outline: solid 0.15rem var($off-black);
+  outline: solid 0.15rem color('gray-90');
   width: 57px;
   height: 57px;
 }

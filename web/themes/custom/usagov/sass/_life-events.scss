@@ -5,7 +5,7 @@
 [data-pagetype="Life Events"],
 [data-pagetype="Life Events Landing Page"] {
   h1 {
-    background: var($deep-blue);
+    @include u-bg('blue-80v');
     color: var($white);
     padding: 15px 45px 8px 35px;
     width: fit-content;
@@ -24,7 +24,7 @@
 
   .usagov-cards {
     max-width: 960px;
-    background: var($light-gray);
+    @include u-bg('gray-4');
     margin-right: 0;
   }
 }
@@ -41,7 +41,7 @@
 
 .usa-card--flag {
   .usa-card__container {
-    background: var($deep-blue);
+    @include u-bg('blue-80v');
     color: var($white);
     border: none;
     border-radius: 0;
@@ -105,7 +105,7 @@
 .life-events-landing-page-card-title {
   display: flex;
   align-items: center;
-  background: var($deep-blue);
+  @include u-bg('blue-80v');
   color: var($white);
   height: 3.5rem;
   padding: 1rem;
