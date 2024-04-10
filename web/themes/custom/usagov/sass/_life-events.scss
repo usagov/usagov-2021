@@ -31,7 +31,7 @@
 
 [data-pagetype="Life Events Landing Page"] {
   .usagov-card {
-    border-color: var($white);
+    @include u-border('white');
   }
 }
 
@@ -117,7 +117,7 @@
   }
 
   .life-events-landing-page-card-title {
-    background-color: var($cyan-light);
+    @include u-bg('cyan-10');
     @include u-text('blue-warm-70v');
   }
 }

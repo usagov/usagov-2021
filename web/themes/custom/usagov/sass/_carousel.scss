@@ -237,7 +237,7 @@
         }
 
         .thumbnailBanner {
-          background-color: var($cyan-light);
+          @include u-bg('cyan-10');
           opacity: 0.5;
         }
       }

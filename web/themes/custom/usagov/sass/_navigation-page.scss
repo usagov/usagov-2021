@@ -15,13 +15,13 @@
 
 .usagov-hero__callout {
   @include u-bg('blue-80v');
-  border: 1px solid var($white);
+  border: 1px solid color('white');
 
   ul {
     a,
     a:hover,
     a:visited {
-      color: var($cyan-light);
+      @include u-text('cyan-10');
     }
   }
 
@@ -46,7 +46,7 @@
   @include u-border('cyan-50v');
 
   &:hover {
-    background-color: var($cyan-light);
+    @include u-bg('cyan-10');
     @include u-border('cyan-50v');
   }
 }
@@ -64,11 +64,11 @@
   border: 2px solid transparent;
 
   &:hover {
-    background-color: var($cyan-light);
+    @include u-bg('cyan-10');
   }
 
   a {
-    color: var($black);
+    @include u-text('black');
     display: block;
   }
 }

@@ -27,7 +27,7 @@
       bottom: 4px;
       left: 0;
       width: 4px;
-      background: $red;
+      @include u-bg('red-50');
       border-radius: 2px;
     }
   }

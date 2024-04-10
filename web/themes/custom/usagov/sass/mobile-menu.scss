@@ -33,7 +33,7 @@ ul.navigation__items {
 
   .umbrella a {
     @include u-bg('blue-warm-70v');
-    color: var($white);
+    @include u-text('white');
   }
 
   .active > a {
@@ -134,7 +134,7 @@ ul.navigation__items {
     // For other browsers
     position: sticky;
 
-    background: var($white);
+    background: color('white');
     width: 100%;
     z-index: 500;
   }

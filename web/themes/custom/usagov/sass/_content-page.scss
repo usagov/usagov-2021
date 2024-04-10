@@ -6,7 +6,7 @@
     .usa-alert--error
   ):not(.usa-alert--success) {
   @include u-border('gray-cool-10');
-  background-color: var($white);
+  @include u-bg('white');
 }
 
 .visuallyhidden {

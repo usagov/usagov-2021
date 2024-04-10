@@ -41,10 +41,6 @@ i.e.
 @forward "sidenav";
 @forward "state-directory";
 
-.text-red {
-  @include u-text('red-50');
-}
-
 .line-height-2 {
   line-height: 2;
 }
@@ -138,15 +134,15 @@ a,
 .usa-footer__return-to-top a,
 .usa-link,
 .usa-skipnav {
-  color: color("blue-warm-70v");
+  @include u-text('blue-warm-70v');
 }
 
 .usa-prose a:visited {
-  color: color($theme-link-visited-color);
+  @include u-text('theme-link-visited-color');
 }
 
 .usagov-hero a:visited {
-  color: color("cyan-10");
+  @include u-text('cyan-10');
 }
 
 .usagov-hero a,
@@ -155,7 +151,7 @@ a,
 }
 
 .usagov-hero__callout ul a:visited {
-  color: color("cyan-10");
+  @include u-text('cyan-10');
 }
 
 .usa-button {
@@ -168,12 +164,12 @@ a,
 }
 
 .usagov-button--outline-black {
-  box-shadow: $theme-button-stroke-width color("black");
-  color: color("black");
+  box-shadow: $theme-button-stroke-width color('black');
+  @include u-text('black');
 
   &:hover {
-    box-shadow: $theme-button-stroke-width color("black");
-    color: color("black");
+    box-shadow: $theme-button-stroke-width color('black');
+    @include u-text('black');
   }
 }
 
@@ -181,7 +177,7 @@ a,
 .usa-radio__input:checked + .usa-radio__label::before {
   @include u-bg('gray-90');
   box-shadow: 0 0 0 units($theme-input-select-border-width) color('gray-90'),
-    inset 0 0 0 units($theme-input-select-border-width) color("white");
+    inset 0 0 0 units($theme-input-select-border-width) color('white');
 }
 
 .usa-checkbox__input--tile:checked + .usa-checkbox__label,
@@ -193,7 +189,7 @@ a,
 .usa-checkbox__input--tile + .usa-checkbox__label,
 .usa-radio__input--tile + .usa-radio__label {
   @include u-border('gray-90');
-  background: white;
+  @include u-bg('white');
 }
 
 .usa-breadcrumb__link,
@@ -281,7 +277,7 @@ a {
   bottom: 80px;
   background: var($off-white);
   transition: right 0.5s;
-  background-image: url("/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png");
+  background-image: url('/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png');
   background-size: 45px;
   background-position: 2px;
   background-repeat: no-repeat;
@@ -433,7 +429,7 @@ input:not([disabled]):focus.usa-user-error {
 
 .block-wizardenglish .usa-button {
   @include u-text('gray-90');
-  background-color: var($cyan-light);
+  @include u-bg('cyan-10');
 
   @media (max-width: 40em) {
     margin-bottom: 8px;
@@ -453,13 +449,13 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 button#prior.usa-button--outline {
-  background-color: var($white);
-  box-shadow: inset 0 0 0 2px var($black);
+  @include u-bg('white');
+  box-shadow: inset 0 0 0 2px color('black');
 }
 
 button#next.usa-button,
 .block-wizardenglish a.usa-button {
-  background-color: var($cyan-light);
+  @include u-bg('cyan-10');
   box-shadow: inset 0 0 0 2px color('cyan-50v');
   border: none;
 }
@@ -474,7 +470,7 @@ button#next.usa-button:hover,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked + [class*="__label"] {
-  background-color: var($cyan-light);
+  @include u-bg('cyan-10');
 }
 
 .wizard_error {
@@ -521,7 +517,7 @@ div[class^="QSIUserDefinedHTML"] {
 }
 
 #pagesurvey-qual-hdr {
-  background: var($cyan-light);
+  @include u-bg('cyan-10');
   font-size: 130%;
   display: block;
   @include u-text('gray-90');
@@ -617,7 +613,7 @@ a,
   );
 
   display: block;
-  font-weight: font-weight("normal");
+  font-weight: font-weight('normal');
   margin-top: 0.5rem;
   max-width: units($theme-input-max-width);
 }
@@ -702,7 +698,7 @@ select:not([disabled]):focus,
 #pagesurvey-qual-container:focus {
   outline: 0.25rem solid $blue-outer-focus;
   outline-offset: 0;
-  box-shadow: inset 0 0 0 2px $white;
+  box-shadow: inset 0 0 0 2px color('white');
 }
 
 .life-events-intro a:focus,

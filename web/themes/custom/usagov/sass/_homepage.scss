@@ -7,7 +7,7 @@
 .usagov-hero-homepage {
   @include u-bg('blue-80v');
   background-image: none;
-  color: var($white);
+  @include u-text('white');
   margin-bottom: 0;
 }
 
@@ -125,7 +125,7 @@
   h1,
   h2,
   p {
-    color: var($white);
+    @include u-text('white');
   }
 
   h1 {
@@ -201,7 +201,7 @@
 
 /* How do I box */
 .how-box {
-  background-color: var($white);
+  @include u-bg('white');
   border-radius: 3px;
   grid-column: 1 / 3;
   grid-row: 2 / 4;
@@ -263,7 +263,7 @@
   text-align: center;
 
   a {
-    color: var($white);
+    @include u-text('white');
     @include u-font-family('sans');
     font-size: 1.038em;
     text-decoration: underline;
@@ -285,7 +285,7 @@
 
 /* All Topics Header */
 .all-topics-header {
-  background-color: var($white);
+  @include u-bg('white');
   grid-column: 1 / 3;
   grid-row: 7 / 9;
   border-bottom: 10px solid color('red-50');
@@ -349,7 +349,7 @@
   @include u-font-family('sans');
   border-width: 2px;
   border-style: solid;
-  background-color: var($white);
+  @include u-bg('white');
   border-color: var($deep-gray);
   border-radius: 3px;
   box-shadow: 0 3px 6px rgb(122 122 122 / 15%);
@@ -357,7 +357,7 @@
   padding: 0;
 
   &:hover {
-    background-color: var($cyan-light);
+    @include u-bg('cyan-10');
   }
 
   &:focus-within {
