@@ -85,12 +85,12 @@ Buttons with visited links would mysteriously get white text which is not access
 
 .usa-button--secondary {
   font-size: 1.1rem;
-  border: 2px solid var($secondary-border-color);
+  border: 2px solid var($secondary-border);
 }
 
 .usa-button--secondary:hover {
-  background-color: var($secondary-background-color);
-  border: 2px solid var($secondary-border-color);
+  background-color: var($secondary-background);
+  border: 2px solid var($secondary-border);
 }
 
 .usa-button--secondary:visited,
@@ -138,7 +138,7 @@ a,
 }
 
 .usa-prose a:visited {
-  @include u-text('theme-link-visited-color');
+  @include u-text('violet-60v');
 }
 
 .usagov-hero a:visited {
@@ -183,7 +183,7 @@ a,
 .usa-checkbox__input--tile:checked + .usa-checkbox__label,
 .usa-radio__input--tile:checked + .usa-radio__label {
   // background-color: #ccecf2;
-  border-color: var($orange);
+  border-color: var($orange-border);
 }
 
 .usa-checkbox__input--tile + .usa-checkbox__label,
@@ -275,7 +275,7 @@ a {
   width: 90px;
   right: -100px;
   bottom: 80px;
-  background: var($off-white);
+  background: var($back-top-off-white-background);
   transition: right 0.5s;
   background-image: url('/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png');
   background-size: 45px;
@@ -443,7 +443,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .block-wizardenglish .usa-scam-label {
-  border-bottom: 1px solid var($wizard-gray);
+  border-bottom: 1px solid var($wizard-gray-border);
   @include u-text('blue-80v');
   font-weight: 500;
 }
@@ -462,7 +462,7 @@ button#next.usa-button,
 
 button#next.usa-button:hover,
 .block-wizardenglish a.usa-button:hover {
-  background-color: var($secondary-background-color);
+  background-color: var($secondary-background);
 }
 
 .block-wizardenglish .usa-prose > p {

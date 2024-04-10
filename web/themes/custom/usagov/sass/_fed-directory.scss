@@ -35,7 +35,7 @@
     @include u-text('gray-90');
     box-sizing: border-box;
     @include u-bg('cyan-10');
-    border: 2px solid var($secondary-border-color);
+    border: 2px solid var($secondary-border);
     border-radius: 0.01rem;
     font-size: 1.5rem;
     font-weight: 600;
@@ -43,8 +43,8 @@
   }
 
   a:hover {
-    background-color: var($secondary-background-color);
-    border:2px solid var($secondary-border-color);
+    background-color: var($secondary-background);
+    border:2px solid var($secondary-border);
   }
 
   a.is-active {
@@ -247,9 +247,9 @@ div div.field--name-field-offices-near-you>ul>li {
   }
 
   a.nav-letter:hover {
-    outline: 2px solid var($secondary-border-color);
+    outline: 2px solid var($secondary-border);
     @include u-text('black');
-    background-color: var($secondary-background-color);
+    background-color: var($secondary-background);
   }
 
   a.nav-letter:focus {
@@ -269,13 +269,13 @@ div div.field--name-field-offices-near-you>ul>li {
   line-height: 2;
 
   div {
-    border: solid 1.5px var($fed-gray);
+    border: solid 1.5px var($fed-gray-border);
     margin: 0;
     padding: 10px 25px;
   }
 
   div:nth-child(odd) {
-    background-color: var($fed-white);
+    background-color: var($fed-white-background);
   }
 }
 

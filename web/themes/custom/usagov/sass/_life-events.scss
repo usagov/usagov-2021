@@ -6,7 +6,7 @@
 [data-pagetype="Life Events Landing Page"] {
   h1 {
     @include u-bg('blue-80v');
-    color: var($white);
+    @include u-text('white');
     padding: 15px 45px 8px 35px;
     width: fit-content;
 
@@ -42,13 +42,13 @@
 .usa-card--flag {
   .usa-card__container {
     @include u-bg('blue-80v');
-    color: var($white);
+    @include u-text('white');
     border: none;
     border-radius: 0;
   }
 
   .usa-card__body {
-    color: var($white);
+    @include u-text('white');
     padding-bottom: 1.5rem;
   }
 
@@ -58,7 +58,7 @@
   }
 
   .usa-card__container .usa-card__header .usa-card__heading .card-link {
-    color: var($white);
+    @include u-text('white');
     text-decoration-skip-ink: none;
   }
 
@@ -75,7 +75,7 @@
       .usa-card__header .usa-card__heading .card-link {
         text-decoration-line: underline;
         text-decoration-thickness: 7px;
-        text-decoration-color: var($cyan);
+        text-decoration-color: var($cyan-text-decoration);
       }
     }
   }
@@ -106,7 +106,7 @@
   display: flex;
   align-items: center;
   @include u-bg('blue-80v');
-  color: var($white);
+  @include u-text('white');
   height: 3.5rem;
   padding: 1rem;
 }
