@@ -307,7 +307,7 @@ div #sm-share {
   display: flex;
   padding-bottom: 22px;
   background-color: transparent;
-  font-size: var($smaller-text-font-size);
+  font-size: 1rem;
 }
 
 #share-page {
@@ -554,34 +554,34 @@ div[class^="QSIUserDefinedHTML"] {
 .usa-prose p,
 .usa-prose li,
 .usa-prose a {
-  font-size: var($regular-text-font-size);
+  font-size: 1.1rem;
 }
 
 .usa-accordion__heading button,
 .usa-accordion__heading p,
 .usa-accordion__heading a {
-  font-size: var($regular-text-font-size);
+  font-size: 1.1rem;
 }
 
 #question-box > div > p,
 #question-box > div > div {
-  font-size: var($regular-text-font-size);
+  font-size: 1.1rem;
 }
 
 #prior,
 #next {
-  font-size: var($regular-text-font-size);
+  font-size: 1.1rem;
 }
 
 #wizard-border > fieldset > label,
 .wizard_result > p {
-  font-size: var($regular-text-font-size);
+  font-size: 1.1rem;
 }
 
 .last,
 #last-updated,
 #share-page {
-  font-size: var($smaller-text-font-size);
+  font-size: 1rem;
 }
 
 .visually-hidden {
