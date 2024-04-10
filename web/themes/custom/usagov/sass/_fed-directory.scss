@@ -34,7 +34,7 @@
     text-decoration: none;
     @include u-text('gray-90');
     box-sizing: border-box;
-    background-color: var($cyan-light);
+    @include u-bg('cyan-10');
     border: 2px solid var($secondary-border-color);
     border-radius: 0.01rem;
     font-size: 1.5rem;
@@ -118,7 +118,7 @@ div.field--name-field-offices-near-you> ul {
   flex-direction: row;
   outline: 2px solid color('cyan-50v');
   border-radius: 0 0.25rem 0.25rem 0;
-  background-color: var($cyan-light);
+  @include u-bg('cyan-10');
   max-width: 20em;
   margin: 1rem auto 0;
 
@@ -135,7 +135,7 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-input {
-  background-color: var($white);
+  @include u-bg('white');
   outline: none;
   font-size: 0.98rem;
   @include u-text('gray-90');
@@ -145,7 +145,7 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-btn {
-  background-color: var($cyan-light);
+  @include u-bg('cyan-10');
   outline: none;
   cursor: pointer;
   border-style: none;
@@ -167,7 +167,7 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-btn:hover {
-  background-color: var($fed-cyan);
+  @include u-bg('cyan-20');
 }
 
 .fed-directory-search-btn:focus {
@@ -236,7 +236,7 @@ div div.field--name-field-offices-near-you>ul>li {
     font-size: 2.375rem;
     @include u-text('gray-90');
     outline: solid 0.15rem color('cyan-50v');
-    background-color: var($cyan-light);
+    @include u-bg('cyan-10');
     font-weight: 600;
     width: 57px;
     height: 57px;
@@ -248,7 +248,7 @@ div div.field--name-field-offices-near-you>ul>li {
 
   a.nav-letter:hover {
     outline: 2px solid var($secondary-border-color);
-    color: var($black);
+    @include u-text('black');
     background-color: var($secondary-background-color);
   }
 

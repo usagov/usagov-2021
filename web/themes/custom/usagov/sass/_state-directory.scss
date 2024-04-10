@@ -20,7 +20,7 @@
   line-height: 1.5;
   border: 2px solid var($secondary-border-color);
   border-radius: .15rem;
-  background-color: var($cyan-light);
+  @include u-bg('cyan-10');
   text-align: center;
   transition: background-color 200ms;
   padding: 0.1rem 1.25rem;

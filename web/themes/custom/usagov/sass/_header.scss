@@ -59,14 +59,14 @@
 
 // emergency banner header
 .usa-header--extended .usa-alert--error {
-  color: var($white);
+  @include u-text('white');
   border-left-color: color("red-70v");
   @include u-bg('red-70v');
 }
 
 // emergency banner header
 .usa-header--extended .usa-alert--error a {
-  color: var($white);
+  @include u-text('white');
 }
 
 // info banner header
@@ -134,7 +134,7 @@
     font-weight: 700;
   }
 
-  color: var($white);
+  @include u-text('white');
   text-decoration: none;
   padding: 10px 20px;
   @include u-bg('blue-80v');
@@ -143,7 +143,7 @@
 
 @include at-media($theme-header-min-width) {
   .usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover {
-    color: var($white);
+    @include u-text('white');
   }
 }
 

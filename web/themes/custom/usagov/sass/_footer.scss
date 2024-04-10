@@ -157,7 +157,7 @@
 .usa-footer__secondary-link a.disabled,
 .usa-footer__secondary-section a.disabled {
   pointer-events: none;
-  color: var($black);
+  @include u-text('black');
   text-decoration: none;
 }
 
@@ -225,7 +225,7 @@
   margin-bottom: -6px;
 
   &:hover {
-    background-color: var($cyan-light);
+    @include u-bg('cyan-10');
   }
 
   span {
@@ -238,7 +238,7 @@
     display: block;
     height: 32px;
     width: 32px;
-    background-color: var($white);
+    @include u-bg('white');
     border-radius: 3px;
   }
 }
