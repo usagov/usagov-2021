@@ -448,7 +448,7 @@ input:not([disabled]):focus.usa-user-error {
 
 .block-wizardenglish .usa-scam-label {
   border-bottom: 1px solid var($wizard-gray);
-  color: var($dark-blue);
+  @include u-text('blue-80v');
   font-weight: 500;
 }
 
