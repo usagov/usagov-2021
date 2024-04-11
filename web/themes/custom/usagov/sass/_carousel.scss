@@ -61,6 +61,30 @@
   }
 }
 
+.slick-slider {
+  overflow: hidden;
+}
+
+.slick-list {
+  margin-right: -32px !important;
+}
+
+.slick-slide {
+  margin-left: 32px;
+}
+
+.slick-current {
+  margin-left: 0px;
+}
+
+.slick-next {
+  margin-left: 24px;
+}
+
+.slick-prev {
+  margin-right: 24px;
+}
+
 #slides-list {
   .slick-prev {
     grid-area: prevIcon;
@@ -81,8 +105,6 @@
 
       .slick-slide {
         height: inherit !important;
-        display: flex !important;
-        justify-content: center;
       }
 
       .slick-slide.slick-current {
@@ -180,6 +202,7 @@
 
         }
       }
+
     }
   }
 
@@ -210,8 +233,6 @@
     border-radius: 4px;
     box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
     padding: 0;
-    margin-right: 4px;
-    max-width: 225px;
     text-align: left;
 
     a {
@@ -306,27 +327,15 @@
 /* Tablet */
 @media (min-width: 640px) {
   #slides-list {
-    .slick-list {
-      .slick-track {
-        .slick-slide {
-          margin-left: 5px;
-          margin-right: 5px;
-        }
-      }
-    }
-
-    .slide {
-      max-width: 225px;
-    }
-
     .slick-dots {
       justify-content: center;
     }
   }
+
 }
 
 /* Desktop */
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
   .life-events-carousel {
     width: 100%;
   }
@@ -344,8 +353,8 @@
       margin: 0;
 
       .slick-list {
-        width: 1044px;
-        max-width: 1044px;
+        width: 964px;
+        max-width: 964px;
       }
 
       .slick-dots {

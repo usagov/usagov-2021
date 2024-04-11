@@ -2,7 +2,7 @@ $(".slides").slick({
   "dots": true,
   "infinite": true,
   "speed": 300,
-  "slidesToShow": 3,
+  "slidesToShow": 4,
   "slidesToScroll": 1,
   "swipeToSlide": true,
   "touchMove": true,
@@ -22,14 +22,21 @@ $(".slides").slick({
     {
       "breakpoint": 2048,
       "settings": {
-        "slidesToShow": 3,
+        "slidesToShow": 4,
         "slidesToScroll": 1,
         "infinite": true,
         "dots": true,
       },
     },
     {
-      "breakpoint": 1024,
+      "breakpoint": 1200,
+      "settings": {
+        "slidesToShow": 3,
+        "slidesToScroll": 1,
+      },
+    },
+    {
+      "breakpoint": 880,
       "settings": {
         "slidesToShow": 2,
         "slidesToScroll": 1,
@@ -59,6 +66,7 @@ function resizeSlider() {
   $(".slick-track")
     .find(".slick-slide .usa-card")
     .css("height", slickHeight + "px");
+
 }
 
 $('.slides').slick('slickGoTo', initSlide);
@@ -170,3 +178,12 @@ function updateSessionStorage(currentIndex) {
     sessionStorage.setItem("storedCarouselIndexEnglish", currentIndex);
   }
 }
+
+// function updateLast() {
+//   var list = document.querySelectorAll("div.slick-active");
+//   var oldLastChild = document.querySelectorAll("div.slick-last")[0] ?? list[list.length - 2];
+//   var newLastChild = list[list.length - 1];
+
+//   oldLastChild.classList.remove("slick-last");
+//   newLastChild.classList.add("slick-last");
+// }

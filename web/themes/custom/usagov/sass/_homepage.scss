@@ -228,8 +228,8 @@
 
   h2 {
     font-size: 1.875em;
-    margin-left: 1.188rem;
-    margin-right: 1.188rem;
+    margin-left: 1.5625rem;
+    margin-right: 1.5625rem;
     max-width: var($homepage, smaller-max-width);
   }
 }
@@ -239,8 +239,8 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 0;
-  margin-left: 1.188rem;
-  margin-right: 1.188rem;
+  margin-left: 1.5625rem;
+  margin-right: 1.5625rem;
   margin-top: 1.875rem;
   max-width: var($homepage, smaller-max-width);
   padding-inline-start: 0;
@@ -494,7 +494,7 @@
 }
 
 /* Desktop */
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
   .life-events {
     margin-left: auto;
     margin-right: auto;
