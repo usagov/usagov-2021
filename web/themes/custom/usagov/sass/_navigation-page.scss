@@ -55,7 +55,7 @@
   @include u-text('blue-warm-70v');
   text-decoration-line: underline;
   text-decoration-thickness: 7px;
-  text-decoration-color: var($cyan-text-decoration);
+  text-decoration-color: $cyan-text-decoration;
   text-decoration-skip-ink: none;
   line-height: 1.8em;
 }
