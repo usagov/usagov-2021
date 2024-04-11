@@ -12,7 +12,7 @@
 }
 
 .usa-banner__button-text:visited {
-  color: var($dark-gray);
+  color: $dark-gray;
 }
 
 .usa-banner__button::after,
@@ -21,7 +21,7 @@
 }
 
 .usa-banner__button:hover:visited::after {
-  background-color: var($dark-gray);
+  background-color: $dark-gray;
 }
 
 .usa-banner__button[aria-expanded="true"]::after,
@@ -30,7 +30,7 @@
 }
 
 .usa-banner__button[aria-expanded="true"]:hover:visited::after {
-  background-color: var($dark-gray);
+  background-color: $dark-gray;
 }
 
 // info banner

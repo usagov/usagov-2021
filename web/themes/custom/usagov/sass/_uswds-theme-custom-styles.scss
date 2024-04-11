@@ -85,17 +85,12 @@ Buttons with visited links would mysteriously get white text which is not access
 
 .usa-button--secondary {
   font-size: 1.1rem;
-  border: 2px solid var($secondary-border);
+  border: 2px solid $secondary-border;
 }
 
 .usa-button--secondary:hover {
-  background-color: var($secondary-background);
-  border: 2px solid var($secondary-border);
-}
-
-.usa-button--secondary:visited,
-.usa-button:visited {
-  color: var($off-black) !important;
+  background-color: $secondary-background;
+  border: 2px solid $secondary-border;
 }
 
 /*
@@ -137,20 +132,15 @@ a,
   @include u-text('blue-warm-70v');
 }
 
-.usa-prose a:visited {
+.usa-prose a:visited:not(.usa-button){
   @include u-text('violet-60v');
 }
 
-.usagov-hero a:visited {
-  @include u-text('cyan-10');
-}
-
-.usagov-hero a,
-.usagov-hero__callout ul a {
+.usa-hero.usagov-hero a {
   @include u-text('cyan-30v');
 }
 
-.usagov-hero__callout ul a:visited {
+.usa-hero.usagov-hero a:visited {
   @include u-text('cyan-10');
 }
 
@@ -183,7 +173,7 @@ a,
 .usa-checkbox__input--tile:checked + .usa-checkbox__label,
 .usa-radio__input--tile:checked + .usa-radio__label {
   // background-color: #ccecf2;
-  border-color: var($orange-border);
+  border-color: $orange-border;
 }
 
 .usa-checkbox__input--tile + .usa-checkbox__label,
@@ -264,7 +254,7 @@ a {
 }
 
 .usa-skipnav:visited {
-  color: var($dark-gray);
+  color: $dark-gray;
 }
 
 #back-to-top {
@@ -275,7 +265,7 @@ a {
   width: 90px;
   right: -100px;
   bottom: 80px;
-  background: var($back-top-off-white-background);
+  background: $back-top-off-white-background;
   transition: right 0.5s;
   background-image: url('/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png');
   background-size: 45px;
@@ -333,12 +323,12 @@ div #sm-share a {
 // error styles for elected officials, report a problem and wizard
 
 .usa-error {
-  color: var($red-error);
+  color: $red-error;
   font-weight: 600;
 }
 
 .usa-user-error {
-  border-color: var($red-error);
+  border-color: $red-error;
   border-width: 3px;
   border-style: solid;
 }
@@ -352,7 +342,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .usa-main-border-error {
-  border-left: 3px solid var($red-error);
+  border-left: 3px solid $red-error;
 
   .usa-border-error {
     border-left: none;
@@ -443,7 +433,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .block-wizardenglish .usa-scam-label {
-  border-bottom: 1px solid var($wizard-gray-border);
+  border-bottom: 1px solid $wizard-gray-border;
   @include u-text('blue-80v');
   font-weight: 500;
 }
@@ -462,7 +452,7 @@ button#next.usa-button,
 
 button#next.usa-button:hover,
 .block-wizardenglish a.usa-button:hover {
-  background-color: var($secondary-background);
+  background-color: $secondary-background;
 }
 
 .block-wizardenglish .usa-prose > p {
@@ -474,7 +464,7 @@ button#next.usa-button:hover,
 }
 
 .wizard_error {
-  border-left: 3px solid var($red-error);
+  border-left: 3px solid $red-error;
   padding-left: 5px;
 }
 
@@ -484,7 +474,7 @@ button#next.usa-button:hover,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked + .usa-radio__label {
-  border-color: var($blue-outer-focus);
+  border-color: $blue-outer-focus;
 }
 
 .block-wizardenglish [tabindex]:focus {
