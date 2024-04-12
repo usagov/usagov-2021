@@ -2,10 +2,8 @@
 
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
-use Drupal\tome_static\Event\ModifyDestinationEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -24,7 +22,6 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
    */
   public function modifyHtml(ModifyHtmlEvent $event) {
     $html = $event->getHtml();
-    $path = $event->getPath();
 
     // LIBXML_SCHEMA_CREATE fixes a problem wherein DOMDocument would remove closing HTML
     // tags within quoted text in a script element. See https://bugs.php.net/bug.php?id=74628
@@ -34,163 +31,158 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
 
     $csv_path = "modules/custom/usagov_ssg_postprocessing/files/PublishedPages.csv";
     $csv = [];
-    $fpr = fopen($csv_path, 'r');
-    flock($fpr, LOCK_EX);
-    if ($fpr != FALSE) {
-      while (($line = fgetcsv($fpr)) != FALSE) {
+    $fp = fopen($csv_path, 'c+');
+    if ($fp !== FALSE) {
+      flock($fp, LOCK_EX);
+      while (($line = fgetcsv($fp)) !== FALSE) {
         $csv[] = $line;
       }
-      fclose($fpr);
-    }
 
-    // Set the pointer to the end of the array by default.
-    end($csv);
-    $pointer = (key($csv) == FALSE) ? 0 : key($csv) + 1;
+      // Set the pointer to the end of the array by default.
+      end($csv);
+      $pointer = (key($csv) == FALSE) ? 0 : key($csv) + 1;
 
-    /** @var \DOMElement $node */
-    foreach ($xpath->query('/html/head/script[contains(@id, "taxonomy-data")]') as $node) {
-      $script = $node->nodeValue;
-      $script = trim($script);
-      $script = ltrim($script, "dataLayer = ");
-      $script = rtrim($script, ";");
-      $decoded = json_decode($script, TRUE);
-      $decoded = $decoded[0];
+      /** @var \DOMElement $node */
+      foreach ($xpath->query('/html/head/script[contains(@id, "taxonomy-data")]') as $node) {
+        $script = $node->nodeValue;
+        $script = trim($script);
+        $script = ltrim($script, "dataLayer = ");
+        $script = rtrim($script, ";");
+        $decoded = json_decode($script, TRUE);
+        $decoded = $decoded[0];
 
-      // If the nodeID matches a line in the csv array, set the pointer to that element. TODO: this might be fragile.
-      if (!empty($csv)) {
-        $nodIDElement = array_search("Page ID", $csv[0]);
-        foreach ($csv as $key => $line) {
-          if ($line[$nodIDElement] == $decoded["nodeID"]) {
-            $pointer = $key;
+        // If the nodeID matches a line in the csv array, set the pointer to that element. TODO: this might be fragile.
+        if (!empty($csv)) {
+          $nodIDElement = array_search("Page ID", $csv[0]);
+          foreach ($csv as $key => $line) {
+            if ($line[$nodIDElement] == $decoded["nodeID"]) {
+              $pointer = $key;
+            }
           }
         }
-      }
 
-      $url_replace = [
-        "Taxonomy_URL_1",
-        "Taxonomy_URL_2",
-        "Taxonomy_URL_3",
-        "Taxonomy_URL_4",
-        "Taxonomy_URL_5",
-        "Taxonomy_URL_6"
-      ];
+        $url_replace = [
+          "Taxonomy_URL_1",
+          "Taxonomy_URL_2",
+          "Taxonomy_URL_3",
+          "Taxonomy_URL_4",
+          "Taxonomy_URL_5",
+          "Taxonomy_URL_6",
+        ];
 
-      $header_replace = [
-        "nodeID" => "Page ID",
-        "Taxonomy_Text_1" => "Level 1",
-        "Taxonomy_Text_2" => "Level 2",
-        "Taxonomy_Text_3" => "Level 3",
-        "Taxonomy_Text_4" => "Level 4",
-        "Taxonomy_Text_5" => "Level 5",
-        "Taxonomy_Text_6" => "Level 6",
-        "Page_Type" => "Page Type",
-        "basicPagesubType" => "Page Sub Type",
-        "contentType" => "Content Type",
-        "language" => "Top Level",
-        "homepageTest" => "Homepage?",
-      ];
+        $header_replace = [
+          "nodeID" => "Page ID",
+          "Taxonomy_Text_1" => "Level 1",
+          "Taxonomy_Text_2" => "Level 2",
+          "Taxonomy_Text_3" => "Level 3",
+          "Taxonomy_Text_4" => "Level 4",
+          "Taxonomy_Text_5" => "Level 5",
+          "Taxonomy_Text_6" => "Level 6",
+          "Page_Type" => "Page Type",
+          "basicPagesubType" => "Page Sub Type",
+          "contentType" => "Content Type",
+          "language" => "Top Level",
+          "homepageTest" => "Homepage?",
+        ];
 
-      $order_map = [
-        "Heirarchy Level",
-        "Page Type",
-        "Page Sub Type",
-        "Content Type",
-        "Friendly URL",
-        "Page ID",
-        "Page Title",
-        "Full URL",
-        "Level 1",
-        "Level 2",
-        "Level 3",
-        "Level 4",
-        "Level 5",
-        "Level 6",
-        "Top Level",
-        "Homepage?",
-        "Toggle URL",
-      ];
+        $order_map = [
+          "Heirarchy Level",
+          "Page Type",
+          "Page Sub Type",
+          "Content Type",
+          "Friendly URL",
+          "Page ID",
+          "Page Title",
+          "Full URL",
+          "Level 1",
+          "Level 2",
+          "Level 3",
+          "Level 4",
+          "Level 5",
+          "Level 6",
+          "Top Level",
+          "Homepage?",
+          "Toggle URL",
+        ];
 
-      $content_replace = [
-        "en" => "USAGov English",
-        "es" => "USAGov Español",
-      ];
+        $content_replace = [
+          "en" => "USAGov English",
+          "es" => "USAGov Español",
+        ];
 
-      $host = \Drupal::request()->getSchemeAndHttpHost();
+        $host = \Drupal::request()->getSchemeAndHttpHost();
 
-      $title = $xpath->query('/html/head/title')->item(0)->nodeValue;
-      $title = (!empty($title))? str_replace(" | USAGov", "", $title) : "Not Found";
+        $title = $xpath->query('/html/head/title')->item(0)->nodeValue;
+        $title = (!empty($title)) ? str_replace(" | USAGov", "", $title) : "Not Found";
 
-      $decoded["Page Title"] = $title;
+        $decoded["Page Title"] = $title;
 
-      $toggle_url = $xpath->query('/html/body/header/div[1]/div/div/ul/li/a/@href')->item(0)->nodeValue;
-      $decoded["Toggle URL"] = ($toggle_url) ? $host . $toggle_url : "None";
+        $toggle_url = $xpath->query('/html/body/header/div[1]/div/div/ul/li/a/@href')->item(0)->nodeValue;
+        $decoded["Toggle URL"] = ($toggle_url) ? $host . $toggle_url : "None";
 
-      $hierarchy = 0;
-      $prev = "";
-      foreach ($decoded as $key => $term) {
-        if (in_array($key, $url_replace)) {
-          if ($term != $prev) {
-            $hierarchy++;
-            $prev = $term;
+        $hierarchy = 0;
+        $prev = "";
+        foreach ($decoded as $key => $term) {
+          if (in_array($key, $url_replace)) {
+            if ($term != $prev) {
+              $hierarchy++;
+              $prev = $term;
+            }
           }
         }
-      }
-      $decoded["Heirarchy Level"] = $hierarchy;
+        $decoded["Heirarchy Level"] = $hierarchy;
 
-      foreach ($decoded as $name => $term) {
-        if (in_array($name, $url_replace)) {
-          $urlArray[] = $term;
-          unset($decoded[$name]);
-        }
-        if ($name == "language") {
-          $term = $content_replace[$term];
-        }
-        foreach ($header_replace as $key => $item) {
-          if ($name == $key) {
-            $decoded[$item] = $term;
+        foreach ($decoded as $name => $term) {
+          if (in_array($name, $url_replace)) {
+            $urlArray[] = $term;
             unset($decoded[$name]);
           }
+          if ($name == "language") {
+            $term = $content_replace[$term];
+          }
+          foreach ($header_replace as $key => $item) {
+            if ($name == $key) {
+              $decoded[$item] = $term;
+              unset($decoded[$name]);
+            }
+          }
         }
-      }
 
-      if (!empty($urlArray)) {
-        foreach ($urlArray as $key => $item) {
-          $term = str_replace("/", "", $item);
-          $urlArray[$key] = $term;
+        if (!empty($urlArray)) {
+          foreach ($urlArray as $key => $item) {
+            $term = str_replace("/", "", $item);
+            $urlArray[$key] = $term;
+          }
+          $urlArray = array_unique($urlArray);
+          $url = implode("/", $urlArray);
+          $decoded["Friendly URL"] = (empty($url)) ? "/" : $url;
+          $decoded["Full URL"] = (empty($url)) ? $host . "/" : $host .$url;
         }
-        $urlArray = array_unique($urlArray);
-        $url = implode("/", $urlArray);
-        $decoded["Friendly URL"] = (empty($url)) ? "/" : $url;
-        $decoded["Full URL"] = (empty($url)) ? $host . "/" : $host .$url;
-      }
 
-      $orderedArray = array_merge(array_flip($order_map), $decoded);
+        $orderedArray = array_merge(array_flip($order_map), $decoded);
 
-      if (empty($csv)) {
-        foreach ($orderedArray as $name => $term) {
+        if (empty($csv)) {
+          foreach ($orderedArray as $name => $term) {
             $csvheader[] = $name;
+          }
+          $csv[$pointer] = $csvheader;
+          $pointer++;
         }
-        $csv[$pointer] = $csvheader;
-        $pointer++;
-      }
 
-      foreach ($orderedArray as $name => $term) {
+        foreach ($orderedArray as $name => $term) {
           $csvline[] = $term;
+        }
+
+        $csv[$pointer] = $csvline;
       }
 
-      $csv[$pointer] = $csvline;
-    }
-
-    $fpw = fopen($csv_path, 'c');
-    flock($fpw, LOCK_EX);
-    if ($fpw != FALSE) {
+      ftruncate($fp, 0);
+      rewind($fp);
       foreach ($csv as $fields) {
-          fputcsv($fpw, $fields);
+        fputcsv($fp, $fields);
       }
-      fclose($fpw);
+      fclose($fp);
     }
-
-    $event->setHtml($html);
   }
 
   /**
