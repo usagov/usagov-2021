@@ -65,24 +65,9 @@
   overflow: hidden;
 }
 
-.slick-list {
-  margin-right: -32px !important;
-}
-
 .slick-slide {
-  margin-left: 32px;
-}
-
-.slick-current {
-  margin-left: 0px;
-}
-
-.slick-next {
-  margin-left: 24px;
-}
-
-.slick-prev {
-  margin-right: 24px;
+  margin-inline: 18px;
+  width: 225px;
 }
 
 #slides-list {
@@ -102,9 +87,12 @@
 
     .slick-track {
       display: flex !important;
+      margin-left: 18px;
 
       .slick-slide {
         height: inherit !important;
+        display: flex !important;
+        justify-content: center;
       }
 
       .slick-slide.slick-current {
@@ -353,8 +341,8 @@
       margin: 0;
 
       .slick-list {
-        width: 964px;
-        max-width: 964px;
+        width: 1044px;
+        max-width: 1044px;
       }
 
       .slick-dots {
