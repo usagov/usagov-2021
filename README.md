@@ -187,9 +187,9 @@ We use [Cypress](cypress.io). Note that we use only the Cypress App, _not_ Cypre
 
 ## Minimal setup for headless tests
 
-1. Supply *credentials* for the automated tests: Edit the file `env.local.cypress`. Supply a valid user name and password for `cypressCmsUser` and `cypressCmsPass`.
+1. Supply Drupal *credentials* for the automated tests: Edit the file `env.local.cypress`. Supply a valid Drupal user name and password for `cypressCmsUser` and `cypressCmsPass`. 
 
-2. Run `docker compose up cypress` to (re-)create the cypress container with the new environment variables.
+2. Run `docker compose up` or `docker compose up cypress` to (re-)create the cypress container with the new environment variables.
 
 3. Run `bin/cypress-ssh` to open a shell in the cypress container
 
