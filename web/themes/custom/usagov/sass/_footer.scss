@@ -5,8 +5,7 @@
 */
 
 .usa-footer--big .usa-footer__primary-content--collapsible .usa-footer__primary-link {
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
+  @include u-font-family('sans');
   font-size: 1.2rem;
 }
 
@@ -18,8 +17,7 @@
 */
 
 .usa-sign-up__heading {
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
+  @include u-font-family('sans');
 }
 
 .usa-footer__primary-content--collapsible.hidden {
@@ -35,15 +33,14 @@
   color: var($global-default, text-color);
   text-decoration: none;
   padding: 0;
-  font-weight: 700;
+  @include u-text('bold');
   line-height: 1.2;
   margin: 0;
   margin-bottom: 0;
   align-items: center;
   display: flex;
   justify-content: flex-start;
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
+  @include u-font-family('sans');
   font-size: 1.2rem;
 }
 
