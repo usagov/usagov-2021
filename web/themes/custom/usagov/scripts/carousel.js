@@ -6,7 +6,6 @@ $(".slides").slick({
   "slidesToScroll": 1,
   "swipeToSlide": true,
   "touchMove": true,
-  "variableWidth": true,
   "arrowsPlacement": "split",
   "lazyLoad": "progressive",
   "prevArrow":
