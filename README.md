@@ -183,17 +183,20 @@ We use [Cypress](cypress.io). Note that we use only the Cypress App, _not_ Cypre
 
 * Tests run in the `cypress` Docker container.
 * The tests themselves are in the `automated_tests/e2e-cypress` directory.
+* Twig debugging will break some of the tests! Turn it off before running tests to get the most accurate results. 
 
 
 ## Minimal setup for headless tests
 
 1. Supply Drupal *credentials* for the automated tests: Edit the file `env.local.cypress`. Supply a valid Drupal user name and password for `cypressCmsUser` and `cypressCmsPass`. 
 
-2. Run `docker compose up` or `docker compose up cypress` to (re-)create the cypress container with the new environment variables.
+2. Run `docker compose up` to (re-)create the cypress container with the new environment variables.
 
 3. Run `bin/cypress-ssh` to open a shell in the cypress container
 
    You can run `npx cypress run --spec cypress/e2e` to run the entire test suite, or specify a smaller subset like `cypress/e2e/functional`.
+
+   The **Report** will be written to automated_tests/e2e-cypress/cypress/reports/html/index.html and you can open it in your web browser by navigating to that file and opening it. Cypress will report that it wrote the tests to /app/e2e-cypress/cypress/reports/html/index.html, which is the location of that file in the volume mounted to the cypress docker container.  
 
 Note: The first time you run bin/init, it will create the `env.local.cypress` file by copying `env.default.cypress`. The default `cypressBaseUrl` in that file should be correct for running tests against your local dev site.
 
@@ -261,7 +264,7 @@ Note that this address will change if you change networks, or if you disconnect 
 
 2. Edit `env.local.cypress`. The `DISPLAY` variable should be set to your local IP address with `:0` after it, for example, `DISPLAY=10.0.0.200:0`
 
-3. Run `docker compose up cypress` to (re-)create the cypress container with the new environment variable. Alternatively, you can set the DISPLAY variable in the shell you get by running `bin/cypress-ssh`.
+3. Run `docker compose up` to (re-)create the cypress container with the new environment variable. Alternatively, you can set the DISPLAY variable in the shell you get by running `bin/cypress-ssh`.
 
 
 [back to top](#usagov-2021)
