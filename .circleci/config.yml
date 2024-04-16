@@ -435,7 +435,7 @@ jobs:
       image: ubuntu-2204:current
     steps:
       - deploy-cloudgov:
-          envname: dev
+          envname: dev-dr
 
   deploy-to-cloudgov-stage:
     machine:
@@ -593,7 +593,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - USAGOV-1211-new-relic-egress
                 - stage
                 - prod
       - build-and-push-container:
@@ -602,7 +602,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - USAGOV-1211-new-relic-egress
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -612,14 +612,14 @@ workflows:
           filters:
             branches:
               only:
-              - dev
+              - USAGOV-1211-new-relic-egress
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
               only:
-              - dev
+              - USAGOV-1211-new-relic-egress
       - approve-stage-deployment:
           type: approval
           requires:
