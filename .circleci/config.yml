@@ -50,7 +50,7 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            DWAF_APP=waf
+            DWAF_APP=waf-dr
             DCMS_APP=cms
             DWWW_APP=www
             DAPP_SPACE=<< parameters.envname >>
