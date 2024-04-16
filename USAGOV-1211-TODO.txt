@@ -1,0 +1,11 @@
+If we are successful at getting NR to work through the egress proxy,
+at some point we will need to:
+
+* Remove .docker/Dockerfile-newrelic
+
+
+Existing NR stuff:
+
+- scripts/bootstrap.sh: look for "Setting up New Relic": updates /etc/php81/conf.d/newrelic.ini
+- bin/src/newrelic.sh: Copied and run during CMS image build to install and (partially?) configure NR
+     (see .docker/Dockerfile-cms)

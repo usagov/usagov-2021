@@ -1,9 +1,11 @@
 #!/bin/sh
+
+# TODO: why the [ $(uname -m) != 'aarch64' ] clause? Was this meant to exclude local install?
 if [ $(uname -m) != 'aarch64' ]; then
-  export NR_VERSION='newrelic-php5-10.13.0.2-linux-musl'
+  export NR_VERSION='newrelic-php5-10.19.0.9-linux-musl'
   export NR_LATEST_VERSION=$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux\-musl\).tar.gz<.*/\1/p') \
     && cd /tmp \
-    && curl -L "https://download.newrelic.com/php_agent/archive/10.13.0.2/${NR_VERSION}.tar.gz" | tar -C /tmp -zx \
+    && curl -L "https://download.newrelic.com/php_agent/archive/10.19.0.9/${NR_VERSION}.tar.gz" | tar -C /tmp -zx \
     && NR_INSTALL_USE_CP_NOT_LN=1 NR_INSTALL_USE_CP_NOT_LN=1 /tmp/newrelic-php5-*/newrelic-install install \
     && rm -rf /tmp/newrelic-php5-* /tmp/nrinstall* \
     && sed -i \
@@ -20,6 +22,7 @@ if [ $(uname -m) != 'aarch64' ]; then
       -e 's/;\?newrelic.enabled =.*/newrelic.enabled = false/' \
       /etc/php81/conf.d/newrelic.ini
   if [ $NR_VERSION != $NR_LATEST_VERSION ]; then
+      # TODO: we never see this warning because it is emitted during image build.
       echo "WARNING: New Relic latest version is '${NR_LATEST_VERSION}'; we are installing '${NR_VERSION}'"
   fi
 fi
