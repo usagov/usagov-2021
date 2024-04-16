@@ -325,7 +325,7 @@ div #sm-share a {
 
 .usa-error {
   color: $red-error;
-  font-weight: 600;
+  @include u-text('semibold');
 }
 
 .usa-user-error {
@@ -436,7 +436,7 @@ input:not([disabled]):focus.usa-user-error {
 .block-wizardenglish .usa-scam-label {
   border-bottom: 1px solid $wizard-gray-border;
   @include u-text('blue-80v');
-  font-weight: 500;
+  @include u-text('medium');
 }
 
 button#prior.usa-button--outline {
@@ -517,9 +517,8 @@ div[class^="QSIUserDefinedHTML"] {
   max-width: 960px;
   height: auto;
   text-align: center;
-  font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times,
-    serif;
-  font-weight: bold;
+  @include u-font-family('serif');
+  @include u-text('bold');
 }
 
 .scrollable {
@@ -604,7 +603,7 @@ a,
   );
 
   display: block;
-  font-weight: font-weight('normal');
+  @include u-text('normal');
   margin-top: 0.5rem;
   max-width: units($theme-input-max-width);
 }
@@ -668,7 +667,7 @@ div div.field--name-field-offices-near-you {
 }
 
 .usa-normal {
-  font-weight: normal;
+  @include u-text('normal');
 }
 
 [href]:focus,
