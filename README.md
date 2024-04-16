@@ -203,6 +203,10 @@ You will need an X11 server on your computer, so that cypress can open a web bro
 
 ### On MacOS, install XQuartz
 
+This setup is based on information from these guides:
+* https://www.cypress.io/blog/2019/05/02/run-cypress-with-a-single-docker-command#Interactive-mode
+* https://sourabhbajaj.com/blog/2017/02/07/gui-applications-docker-mac/
+
 This assumes you're using homebrew.
 
 1. Check whether [XQuartz](xquartz.org) is already installed:
@@ -225,7 +229,7 @@ This assumes you're using homebrew.
 
    The "network client" you're enabling this for is the virtual machine running in your cypress container.
 
-4. Reboot XQuartz (if you've just installed it).
+4. Reboot your computer. (You need to reboot once after installing XQuartz. Thereafter, when you change your XQuartz settings you need to restart XQuartz, but not reboot.) 
 
 Proceed to [Allow cypress to open an X window](#allow-cypress-to-open-an-x-window)
 
@@ -258,12 +262,6 @@ Note that this address will change if you change networks, or if you disconnect 
 2. Edit `env.local.cypress`. The `DISPLAY` variable should be set to your local IP address with `:0` after it, for example, `DISPLAY=10.0.0.200:0`
 
 3. Run `docker compose up cypress` to (re-)create the cypress container with the new environment variable. Alternatively, you can set the DISPLAY variable in the shell you get by running `bin/cypress-ssh`.
-
-
-This setup is based on information from these guides:
-* https://www.cypress.io/blog/2019/05/02/run-cypress-with-a-single-docker-command#Interactive-mode
-* https://sourabhbajaj.com/blog/2017/02/07/gui-applications-docker-mac/
-
 
 
 [back to top](#usagov-2021)
