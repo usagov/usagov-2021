@@ -24,6 +24,11 @@ CDIGEST=${2:-}
 APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
 APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
 
+EGRESS_SPACE='shared-egress'
+if [ "$APP_SPACE" == "dev-dr" ]; then
+    EGRESS_SPACE='shared-egress-dr'
+fi
+
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
 
@@ -101,11 +106,12 @@ function setupRoutes { #appname
 
 function setupEgress { #appname
   app=$1
+  space=$2
   if [ -z "$app" ]; then
     echo "ERROR: appname is required"
     exit 1
   fi
-  $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
+  $SCRIPT_DIR/setup-egress-for-apps $app $space --no-restart
 }
 
 function setupNewrelic { #appname
@@ -124,16 +130,16 @@ function setUSPSCreds {
 
 if appExists cms; then
   setupRoutes cms
-#  setupEgress cms
-  setupNewrelic cms
+  setupEgress cms $EGRESS_SPACE
+#  setupNewrelic cms
   setUSPSCreds
   pushApp cms
 else
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
   pushApp cms
   setupRoutes cms
-#  setupEgress cms
-  setupNewrelic cms
+  setupEgress cms $EGRESS_SPACE
+#  setupNewrelic cms
   setUSPSCreds
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
   restartApp cms
