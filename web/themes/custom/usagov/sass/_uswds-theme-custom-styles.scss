@@ -262,6 +262,10 @@ a {
   margin-top: 2.5rem;
 }
 
+.usa-skipnav {
+  z-index: 501;
+}
+
 .usa-skipnav:active,
 .usa-skipnav:hover {
   color: var($text-blue);
