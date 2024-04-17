@@ -104,21 +104,20 @@ echo  aws s3 sync --only-show-errors $WEB_FILES s3://$S3_BUCKET/cms/public/ --ac
 echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
 $echo cf ssh cms -c ". /etc/profile; drush cr; drush updatedb --no-cache-clear -y; drush cim -y || drush cim -y; drush cim -y; drush php-eval 'node_access_rebuild();' -y"
 
+echo "Taking target site out of maintenance mode"
+echo  cf ssh cms -c "/var/www/scripts/maintenance-mode-toggle.sh 0"
+$echo cf ssh cms -c "/var/www/scripts/maintenance-mode-toggle.sh 0"
+retval=$?
+
+if [ $retval != 0 ]; then
+  echo
+  echo "Disabling Drupal's maintenance mode in $TO_SPACE may have failed."
+  echo "Please check this in the CMS, ASAP!"
+  echo "Exiting w/o modifying current static site generation status or disallow-space-ssh status"
+  exit 1
+fi
+
 if [ "$TOME_DISABLED_STATE" != 1 ]; then
-
-  echo "Taking target site out of maintenance mode"
-  echo  cf ssh cms -c "/var/www/scripts/maintenance-mode-toggle.sh 0"
-  $echo cf ssh cms -c "/var/www/scripts/maintenance-mode-toggle.sh 0"
-  retval=$?
-
-  if [ $retval != 0 ]; then
-    echo
-    echo "Disabling Drupal's maintenance mode in $TO_SPACE may have failed."
-    echo "Please check this in the CMS, ASAP!"
-    echo "Exiting w/o modifying current static site generation status or disallow-space-ssh status"
-    exit 1
-  fi
-
   # Enable tome and exit maintenance mode
   echo  $SCRIPT_DIR/../deploy/try-tome-enable
   $echo $SCRIPT_DIR/../deploy/try-tome-enable
