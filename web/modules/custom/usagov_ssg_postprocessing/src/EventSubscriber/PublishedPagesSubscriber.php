@@ -113,7 +113,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       $host = \Drupal::request()->getSchemeAndHttpHost();
 
       $title = $xpath->query('/html/head/title')->item(0)->nodeValue;
-      $title = (!empty($title))? str_replace(" | USAGov", "", $title) : "Not Found";
+      $title = (!empty($title)) ? str_replace(" | USAGov", "", $title) : "Not Found";
 
       $decoded["Page Title"] = $title;
 
@@ -159,21 +159,21 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
           $url = "/" . $url;
         }
         $decoded["Friendly URL"] = (empty($url)) ? "/" : $url;
-        $decoded["Full URL"] = (empty($url)) ? $host . "/" : $host .$url;
+        $decoded["Full URL"] = (empty($url)) ? $host . "/" : $host . $url;
       }
 
       $orderedArray = array_merge(array_flip($order_map), $decoded);
 
       if (empty($csv)) {
         foreach ($orderedArray as $name => $term) {
-            $csvheader[] = $name;
+          $csvheader[] = $name;
         }
         $csv[$pointer] = $csvheader;
         $pointer++;
       }
 
       foreach ($orderedArray as $name => $term) {
-          $csvline[] = $term;
+        $csvline[] = $term;
       }
 
       $csv[$pointer] = $csvline;
@@ -182,7 +182,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         ftruncate($fp, 0);
         rewind($fp);
         foreach ($csv as $fields) {
-            fputcsv($fp, $fields);
+          fputcsv($fp, $fields);
         }
         fclose($fp);
       }
