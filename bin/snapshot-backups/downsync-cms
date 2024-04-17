@@ -45,7 +45,7 @@ if ! isSpaceSSHEnabled $startspace; then
   if [ "$?" -ne "0" ]; then
       assertSpaceSSHEnabled $startspace
   fi
-  needsSpacedSSHDisabled=1
+  needsSpaceSSHDisabled=1
 fi
 
 TOME_DISABLED_STATE=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled")
