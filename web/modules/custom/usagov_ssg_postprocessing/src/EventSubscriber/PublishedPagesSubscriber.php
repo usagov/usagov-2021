@@ -2,15 +2,12 @@
 
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
-use Drupal\tome_static\Event\ModifyDestinationEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Converts "letter" query parameters, as used in A-Z directory views,  to static paths.
- * Based on the tome_static PagerEventSubscriber.
+ * Scrapes information about the page and writes it to a CSV file.
  *
  * @internal
  */
@@ -24,7 +21,6 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
    */
   public function modifyHtml(ModifyHtmlEvent $event) {
     $html = $event->getHtml();
-    $path = $event->getPath();
 
     // LIBXML_SCHEMA_CREATE fixes a problem wherein DOMDocument would remove closing HTML
     // tags within quoted text in a script element. See https://bugs.php.net/bug.php?id=74628
@@ -34,13 +30,12 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
 
     $csv_path = "modules/custom/usagov_ssg_postprocessing/files/PublishedPages.csv";
     $csv = [];
-    $fpr = fopen($csv_path, 'r');
-    flock($fpr, LOCK_EX);
-    if ($fpr != FALSE) {
-      while (($line = fgetcsv($fpr)) != FALSE) {
+    $fp = fopen($csv_path, 'c+');
+    flock($fp, LOCK_EX);
+    if ($fp != FALSE) {
+      while (($line = fgetcsv($fp)) != FALSE) {
         $csv[] = $line;
       }
-      fclose($fpr);
     }
 
     // Set the pointer to the end of the array by default.
@@ -90,8 +85,13 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         "homepageTest" => "Homepage?",
       ];
 
+      $content_replace = [
+        "en" => "USAGov English",
+        "es" => "USAGov Español",
+      ];
+
       $order_map = [
-        "Heirarchy Level",
+        "Hierarchy Level",
         "Page Type",
         "Page Sub Type",
         "Content Type",
@@ -108,11 +108,6 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         "Top Level",
         "Homepage?",
         "Toggle URL",
-      ];
-
-      $content_replace = [
-        "en" => "USAGov English",
-        "es" => "USAGov Español",
       ];
 
       $host = \Drupal::request()->getSchemeAndHttpHost();
@@ -135,7 +130,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
           }
         }
       }
-      $decoded["Heirarchy Level"] = $hierarchy;
+      $decoded["Hierarchy Level"] = $hierarchy;
 
       foreach ($decoded as $name => $term) {
         if (in_array($name, $url_replace)) {
@@ -160,6 +155,9 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         }
         $urlArray = array_unique($urlArray);
         $url = implode("/", $urlArray);
+        if ($decoded["Top Level"] == "USAGov Español") {
+          $url = "/" . $url;
+        }
         $decoded["Friendly URL"] = (empty($url)) ? "/" : $url;
         $decoded["Full URL"] = (empty($url)) ? $host . "/" : $host .$url;
       }
@@ -179,15 +177,15 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       }
 
       $csv[$pointer] = $csvline;
-    }
 
-    $fpw = fopen($csv_path, 'c');
-    flock($fpw, LOCK_EX);
-    if ($fpw != FALSE) {
-      foreach ($csv as $fields) {
-          fputcsv($fpw, $fields);
+      if ($fp != FALSE) {
+        ftruncate($fp, 0);
+        rewind($fp);
+        foreach ($csv as $fields) {
+            fputcsv($fp, $fields);
+        }
+        fclose($fp);
       }
-      fclose($fpw);
     }
 
     $event->setHtml($html);
