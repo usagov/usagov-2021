@@ -202,6 +202,8 @@ ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
 
+cp -fp "/var/www/web/modules/custom/usagov_ssg_postprocessing/files/PublishedPages.csv" "$RENDER_DIR/ppr/PublishedPages.csv"
+
 EN_HOME_HTML_FILE=/var/www/html/index.html
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
 EN_HOME_HTML_BAD=0
