@@ -31,8 +31,8 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
     $csv_path = "modules/custom/usagov_ssg_postprocessing/files/PublishedPages.csv";
     $csv = [];
     $fp = fopen($csv_path, 'c+');
-    flock($fp, LOCK_EX);
     if ($fp != FALSE) {
+      flock($fp, LOCK_EX);
       while (($line = fgetcsv($fp)) != FALSE) {
         $csv[] = $line;
       }
