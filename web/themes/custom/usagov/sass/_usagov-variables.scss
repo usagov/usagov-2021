@@ -4,109 +4,27 @@
 USAgov Variables
 */
 
-// Base variables
-$red: #d83933;
-$red-error: #c61f0c;
-$orange: #f79240;
-$deep-orange: #c05600;
-$white: #fff;
-$off-white: #e8f0f7;
-$text-blue: #1a4480;
-$deep-blue: #112f4e;
-$dark-blue: #112f43;
-$off-black: #1b1b1b;
-$cyan: #3fbde3;
-$cyan-50v: #0081a1;
-$cyan-30v: #00bde3;
-$cyan-light: #ccecf2;
-$light-blue: #e5f8fd;
-$pale-blue: #e7f6f8;
-$light-gray: #f3f3f3;
-$gray: #dfe1e2;
-$usagov-gray: #f0f0f0;
-$medium-gray: #e7e7e7;
-$deep-gray: #707070;
-$dark-gray: #4b4b4d;
-$light-blue: #d2ebf1;
-$black: #000;
-$blue-shadow: rgb(17 47 78 / 40%);
-$regular-text-font-size: 1.1rem;
-$smaller-text-font-size: 1rem;
-$secondary-border-color: #377F9D;
-$secondary-background-color: #a7d8e3;
+// Used in 1 file on 1 component on 1 element
+// component-color-element:
+$back-top-off-white-background: #e8f0f7;
+$carousel-cyan-slide-border: #53bbdf;
+$fed-gray-border: #d3d2d2;
+$fed-white-background: #f2f2f2;
+$homepage-gray-border: #707070;
+$homepage-light-blue-background: #d2ebf1;
+$wizard-gray-border: #808080;
+
+// Used in multiple files on multiple components on 1 element
+// color-element:
 $blue-outer-focus: #0186a2;
-$white-inner-focus: #ffffff;
+$blue-shadow: rgb(17 47 78 / 40%);
+$cyan-text-decoration: #3fbde3;
+$orange-border: #f79240;
+$secondary-background: #a7d8e3;
+$secondary-border: #377F9D;
 
-// Global Default Attribute
-$global-default: (
-  text-color: $off-black,
-);
-
-// Component Variables
-$mobile-nav: (
-  red: $red,
-  white: $white,
-  blue: $text-blue,
-  light-gray: $light-gray,
-);
-$hero: (
-  border-color: $red,
-  background-color: $deep-blue,
-  box-border-color: $white,
-  font-color: $white,
-  secondary-font-color: $cyan-light,
-);
-$homepage: (
-  larger-max-width: 1124px,
-  smaller-max-width: 1008px,
-  small-font-size: 1.038em,
-  medium-font-size: 2.2em,
-);
-$le-heading: (
-  heading-color: $white,
-  background-color: $deep-blue,
-);
-$card: (
-  heading-color: $text-blue,
-  heading-underline-color: $cyan,
-  border-color: $cyan-50v,
-  hover-background-color: $cyan-light,
-  hover-border-color: $cyan-50v,
-  group-background-color: $usagov-gray,
-  text-color: $black,
-  background-color: $light-blue,
-);
-$life-events: (
-  text-color: $white,
-  heading-underline-color: $cyan,
-  background-color: $deep-blue,
-  card-hover-text-color: $black,
-  card-hover-background-color: $cyan-light,
-  card-hover-heading-color: $text-blue,
-);
-$radio-button: (
-  border-color: $orange,
-);
-$alert: (
-  background-color: $white,
-  border-color: $gray,
-);
-$fed-directories: (
-  text-color: $off-black,
-  letter-outline-color: $off-black,
-);
-
-/*
-Call the var function to retrieve variables from sass map variables
-
-ex:
-var( $vars, navpage, hero, border-color );
-
-*/
-@function var($map, $keys...) {
-  @each $key in $keys {
-    $map: map-get($map, $key);
-  }
-
-  @return $map;
-}
+// Used in multiple files on multiple components on multiple elements
+// elements color:
+$dark-gray: #4b4b4d;
+$medium-gray: #e7e7e7;
+$red-error: #c61f0c;
