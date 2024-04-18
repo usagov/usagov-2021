@@ -111,7 +111,7 @@ function setupEgress { #appname
     echo "ERROR: appname is required"
     exit 1
   fi
-  $SCRIPT_DIR/setup-egress-for-apps $app $space --no-restart
+  $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
 }
 
 function setupNewrelic { #appname
