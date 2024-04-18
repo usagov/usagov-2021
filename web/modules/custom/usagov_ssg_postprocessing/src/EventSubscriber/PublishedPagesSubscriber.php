@@ -187,8 +187,6 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         fclose($fp);
       }
     }
-
-    $event->setHtml($html);
   }
 
   /**
