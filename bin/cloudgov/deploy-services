@@ -3,19 +3,20 @@
 # This script will attempt to create the services required
 # and then launch everything. The {} are for formatting only
 #
+# TODO: IF YOU WANT TO SET UP NEW_RELIC secrets, you need them in your env. env.local is not a good place to get them, though!
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
 fi
 # we might be running from a local dev machine
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f $SCRIPT_DIR/env.local ]; then
-  . $SCRIPT_DIR/env.local
-fi
-if [ -f ./env.local ]; then
-  . ./env.local
-fi
+# SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+# if [ -f $SCRIPT_DIR/env.local ]; then
+#   . $SCRIPT_DIR/env.local
+# fi
+# if [ -f ./env.local ]; then
+#   . ./env.local
+# fi
 
 # this function is a convenient symantic wrapper around a one-liner
 service_exists()
@@ -148,20 +149,21 @@ generate_cert_json()
     CURR_NEW_RELIC_APP_NAME=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_APP_NAME')
     CURR_NEW_RELIC_LICENSE_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_LICENSE_KEY')
     CURR_NEW_RELIC_API_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_API_KEY')
-    if [ -n "$NEW_RELIC_DISPLAY_NAME" ] && [ "$CURR_NEW_RELIC_DISPLAY_NAME" != "$NEW_RELIC_DISPLAY_NAME" ] ; then
+    if [ -n "$NEW_RELIC_DISPLAY_NAME" ]; then
       CURR_NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME}
     fi
-    if [ -n "$NEW_RELIC_APP_NAME" ] && [ "$CURR_NEW_RELIC_APP_NAME" != "$NEW_RELIC_APP_NAME" ] ; then
+    if [ -n "$NEW_RELIC_APP_NAME" ]; then
       CURR_NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME}
     fi
-    if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$CURR_NEW_RELIC_LICENSE_KEY" != "$NEW_RELIC_LICENSE_KEY" ] ; then
+    if [ -n "$NEW_RELIC_LICENSE_KEY" ] ; then
       CURR_NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
     fi
-    if [ -n "$NEW_RELIC_API_KEY" ] && [ "$CURR_NEW_RELIC_API_KEY" != "$NEW_RELIC_API_KEY" ] ; then
+    if [ -n "$NEW_RELIC_API_KEY" ]; then
       CURR_NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY}
     fi
 
     # Only allow update of new relic vars, all others match the existing values
+    echo "NEW_RELIC_DISPLAY_NAME: $CURR_NEW_RELIC_DISPLAY_NAME, NEW_RELIC_APP_NAME: $CURR_NEW_RELIC_APP_NAME"
     yes '' | cf update-user-provided-service secrets -p "{\"CRON_KEY\": \"$CURR_CRON_KEY\", \"HASH_SALT\": \"$CURR_HASH_SALT\", \"ROOT_USER_NAME\": \"$CURR_ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$CURR_ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$CURR_NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$CURR_NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$CURR_NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$CURR_NEW_RELIC_API_KEY\"}"
     # do we need to reattach this service to the apps individually?
 
