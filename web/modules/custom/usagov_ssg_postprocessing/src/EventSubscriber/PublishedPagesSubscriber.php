@@ -28,7 +28,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
     @$document->loadHTML($html, LIBXML_SCHEMA_CREATE);
     $xpath = new \DOMXPath($document);
 
-    $csv_path = "modules/custom/usagov_ssg_postprocessing/files/PublishedPages.csv";
+    $csv_path = "modules/custom/usagov_ssg_postprocessing/files/published-pages.csv";
     $csv = [];
     $fp = fopen($csv_path, 'c+');
     if ($fp != FALSE) {
