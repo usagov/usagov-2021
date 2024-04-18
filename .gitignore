@@ -22,6 +22,19 @@
 .dccache
 **/.dccache
 
+# Ignore node_modules anywhere.
+**/node_modules
+
+# We don't use apache, so .htaccess is not useful
+**/.htaccess
+
+# Automated test reports and artifacts
+/automated_tests/e2e-cypress/cypress/reports
+/automated_tests/e2e-cypress/cypress/screenshots
+/automated_tests/e2e-cypress/cypress/videos
+/automated_tests/e2e-cypress/cypress-image-diff-screenshots/comparison
+/automated_tests/e2e-cypress/cypress-image-diff-screenshots/diff
+
 /web/.*
 /web/*.php
 /web/*.md
@@ -65,6 +78,7 @@
 /html/*
 
 env.local
+env.local.cypress
 sqlite-local.db
 sqlite-local.db-shm
 sqlite-local.db-wal
