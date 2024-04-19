@@ -70,8 +70,6 @@
   {% set show_last_updated = false %}
 {% endif %}
 
-
-
 {% if government_banner %}
 	<section class="usa-banner">
 		{{ government_banner }}
@@ -146,7 +144,7 @@
 
 			<div class="grid-row grid-gap">
 				{% if page.sidebar_first and show_sidebar %}
-					<aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first" role="complementary">
+					<aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first">
 						{{ page.sidebar_first }}
 					</aside>
 				{% endif %}

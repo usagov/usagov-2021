@@ -30,7 +30,7 @@
   margin-block-end: 0;
 }
 
-#resultBox {
+.resultBox {
   border: 1px solid #565c65;
   cursor: pointer;
   display: block;
@@ -39,6 +39,9 @@
   a {
     color: #1b1b1b;
     text-decoration: none;
+    display: block;
+    width: 100%;
+    height: 100%;
 
     &:visited {
       color: #1b1b1b;
@@ -56,6 +59,11 @@
     outline-offset: 0;
     box-shadow: inset 0 0 0 2px #fff;
   }
+}
+
+//included to increase specificity after resultBox was changed from id to class selector
+.usa-prose .resultBox a:visited {
+  color: #1b1b1b;
 }
 
 /* removes the clear 'x' button */
