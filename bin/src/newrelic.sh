@@ -13,15 +13,22 @@ if [ $(uname -m) != 'aarch64' ]; then
       -e "s/;\?newrelic.process_host.display_name =.*/newrelic.process_host.display_name = usa-cms-local/" \
       -e 's/;\?newrelic.daemon.app_connect_timeout =.*/newrelic.daemon.app_connect_timeout=15s/' \
       -e 's/;\?newrelic.daemon.start_timeout =.*/newrelic.daemon.start_timeout=5s/' \
-      -e 's/;\?newrelic.logfile =.*/newrelic.logfile = \/dev\/stdout/' \
-      -e 's/;\?newrelic.daemon.logfile =.*/newrelic.daemon.logfile = \/dev\/stdout/' \
+      -e 's/;\?newrelic.logfile =.*/newrelic.logfile = \/var\/log\/newrelic\/newrelic-agent.log/' \
+      -e 's/;\?newrelic.daemon.logfile =.*/newrelic.daemon.logfile = \/var\/log\/newrelic\/newrelic-daemon.log/' \
       -e 's/;\?newrelic.daemon.loglevel =.*/newrelic.daemon.loglevel = "warning"/' \
       -e 's/;\?newrelic.daemon.collector_host =.*/newrelic.daemon.collector_host = "gov-collector.newrelic.com"/' \
       -e 's/;\?newrelic.framework =.*/newrelic.framework = "drupal8"/' \
       -e 's/;\?newrelic.loglevel =.*/newrelic.loglevel = "warning"/' \
       -e 's/;\?newrelic.enabled =.*/newrelic.enabled = false/' \
       /etc/php81/conf.d/newrelic.ini
-  if [ $NR_VERSION != $NR_LATEST_VERSION ]; then
+
+    # Create the log files ahead of time, as links to stdout.
+    mkdir -p /var/log/newrelic \
+    && ln -s /dev/stdout /var/log/newrelic/newrelic-agent.log \
+    && ln -s /dev/stdout /var/log/newrelic/newrelic-daemon.log
+
+
+    if [ $NR_VERSION != $NR_LATEST_VERSION ]; then
       # TODO: we never see this warning because it is emitted during image build.
       echo "WARNING: New Relic latest version is '${NR_LATEST_VERSION}'; we are installing '${NR_VERSION}'"
   fi
