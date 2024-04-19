@@ -77,7 +77,7 @@ rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
 rm -rf $RENDER_DIR/node/ 2>&1 | tee -a $TOMELOG
 rm -rf $RENDER_DIR/es/node/ 2>&1 | tee -a $TOMELOG
 
-# WWW_HOST is not present in CMS app, as of USAGOV-1083.  
+# WWW_HOST is not present in CMS app, as of USAGOV-1083.
 # Determine WWW_HOST based on space name
 case $APP_SPACE in
 dev)
@@ -217,6 +217,7 @@ ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
 
+mkdir -p /var/www/html/ppr
 cp -fp "/var/www/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv" "$RENDER_DIR/ppr/published-pages.csv"
 
 EN_HOME_HTML_FILE=/var/www/html/index.html
