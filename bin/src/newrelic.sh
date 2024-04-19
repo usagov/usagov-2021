@@ -23,9 +23,9 @@ if [ $(uname -m) != 'aarch64' ]; then
       /etc/php81/conf.d/newrelic.ini
 
     # Create the log files ahead of time, as links to stdout.
-    mkdir -p /var/log/newrelic \
-    && ln -s /dev/stdout /var/log/newrelic/newrelic-agent.log \
-    && ln -s /dev/stdout /var/log/newrelic/newrelic-daemon.log
+    # mkdir -p /var/log/newrelic \
+    # && ln -s /dev/stdout /var/log/newrelic/newrelic-agent.log \
+    # && ln -s /dev/stdout /var/log/newrelic/newrelic-daemon.log
 
 
     if [ $NR_VERSION != $NR_LATEST_VERSION ]; then
