@@ -29,7 +29,7 @@ describe('Home Page [ES]', () => {
             .find('.usa-logo')
             .find('img')
             .should('have.attr', 'src', '/themes/custom/usagov/images/Logo_USAGov_Spanish.png')
-            .should('have.attr', 'alt', 'USAGov en Español Logo')
+            .should('have.attr', 'alt', 'Ir a página principal de USAGov en Español')
             .should((img) => {
                 // Image loads
                 expect(img[0].naturalWidth).to.be.greaterThan(0)
