@@ -17,7 +17,6 @@ USWDS Variables
   $theme-link-active-color: "blue-warm-70v",
   $theme-link-visited-color: "violet-60v",
 
-  // #783CB9
   // buttons
   // Primary colors
   $theme-color-primary: "cyan-30v",
@@ -25,7 +24,6 @@ USWDS Variables
   $theme-color-primary-dark: "cyan-40v",
   $theme-color-primary-darker: "cyan-40v",
 
-  // #009ec1
   // Secondary colors (These seem to only be used by usa-button--secondary)
   $theme-color-secondary: "cyan-10",
   // background
@@ -36,7 +34,6 @@ USWDS Variables
   // active
   // focus color for input
   $theme-focus-color: "orange-50v",
-  // #C05600
   $theme-focus-offset: 0,
   $theme-focus-style: solid,
   $theme-focus-width: 0.5,
@@ -45,11 +42,15 @@ USWDS Variables
   $theme-process-list-counter-background-color: "ink",
   $theme-process-list-counter-text-color: "white",
 
-  // Accordion
-  $theme-color-base-lightest: "gray-cool-10",
-  $theme-color-base-lighter: "gray-20",
-
   // Alert
   $theme-color-error: "red-50",
-  $theme-accordion-border-color: "gray-cool-10"
+  $theme-accordion-border-color: "gray-cool-10",
+
+  //Font-Weights
+  $theme-font-weight-medium: 500,
+  $theme-font-weight-semibold: 600,
+
+  // These currently do not "work". To activate these we need to rename mobile-menu.scss to _mobile-menu.scss. At this time I do not think it's needed but want to document these options
+  $theme-show-compile-warnings: false,
+  $theme-show-notifications: false
 );
