@@ -39,6 +39,9 @@ case $SPACE in
 dev)
   WWW_HOST=beta-dev.usa.gov
   ;;
+dev-dr)
+  WWW_HOST=dev-dr.usa.gov
+  ;;
 stage)
   WWW_HOST=beta-stage.usa.gov
   ;;
@@ -125,10 +128,6 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
         -e "s|;\?newrelic.daemon.loglevel =.*|newrelic.daemon.loglevel = \"${NEW_RELIC_LOG_LEVEL:-debug}\"|" \
         -e "s|;\?newrelic.enabled =.*|newrelic.enabled = true|" \
         /etc/php81/conf.d/newrelic.ini
-    # Removed:
-    #         -e "s|;\?newrelic.daemon.address =.*|newrelic.daemon.address = ${NEW_RELIC_DAEMON_DOMAIN:-newrelic.apps.internal}:${NEW_RELIC_AGENT_PORT:-31339}|" \
-    #         -e "s|;\?newrelic.daemon.dont_launch =.*|newrelic.daemon.dont_launch = 3|" \
-
 
   else
     echo "Turning off New Relic ... "
@@ -145,11 +144,10 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
   else
       # TODO: If this works at all, we are probably being needlessly redundant in setting both ssl_ca_bundle and ssl_ca_path.
       # NR says it will search ssl_ca_bundle first, then the certificates in ssl_ca_path. We have ssl_ca_bundle within ssl_ca_path, so ...
-      PROXY_NO_PROTOCOL=$(echo $PROXYROUTE | sed 's|^[^:]*://||')
     sed -i \
       -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
       -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
-      -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"$PROXY_NO_PROTOCOL\"|" \
+      -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"$PROXYROUTE\"|" \
       /etc/php81/conf.d/newrelic.ini
   fi
 fi
