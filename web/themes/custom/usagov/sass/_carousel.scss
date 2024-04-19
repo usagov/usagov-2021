@@ -8,7 +8,7 @@
   margin-left: 5vw;
   margin-right: 5vw;
   padding: 0;
-  max-width: var($homepage, larger-max-width);
+  max-width: 1124px;
 
   h2 {
     @include u-font-family('serif');
@@ -41,7 +41,7 @@
 
   .grid-container {
     width: 100%;
-    max-width: var($homepage, larger-max-width);
+    max-width: 1124px;
   }
 
   .usagov-cards {
@@ -333,7 +333,7 @@
     .usagov-cards,
     .usa-card-group,
     #slides-list {
-      max-width: var($homepage, larger-max-width);
+      max-width: 1124px;
       padding: 0;
       margin: 0;
 
