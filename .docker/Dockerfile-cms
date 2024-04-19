@@ -278,7 +278,7 @@ WORKDIR /var/www
 HEALTHCHECK CMD s6-svstat /var/run/s6/services/cert-watcher && \\
   && s6-svstat /var/run/s6/services/nginx \
   && s6-svstat /var/run/s6/services/php \
-  && s6-svstat /var/run/s6/services/cron \
+  && s6-svstat /var/run/s6/services/cron
 
 # Init s6
 ENTRYPOINT [ "/init" ]
