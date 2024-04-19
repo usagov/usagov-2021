@@ -36,7 +36,7 @@ $(".slides").slick({
       },
     },
     {
-      "breakpoint": 768,
+      "breakpoint": 1024,
       "settings": {
         "slidesToShow": 2,
         "slidesToScroll": 1,
@@ -178,12 +178,3 @@ function updateSessionStorage(currentIndex) {
     sessionStorage.setItem("storedCarouselIndexEnglish", currentIndex);
   }
 }
-
-// function updateLast() {
-//   var list = document.querySelectorAll("div.slick-active");
-//   var oldLastChild = document.querySelectorAll("div.slick-last")[0] ?? list[list.length - 2];
-//   var newLastChild = list[list.length - 1];
-
-//   oldLastChild.classList.remove("slick-last");
-//   newLastChild.classList.add("slick-last");
-// }

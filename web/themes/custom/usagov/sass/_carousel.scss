@@ -221,6 +221,7 @@
     box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
     padding: 0;
     text-align: left;
+    max-width: 260px;
 
     a {
       @include u-text('white');
@@ -318,7 +319,6 @@
       justify-content: center;
     }
   }
-
 }
 
 /* Desktop */
