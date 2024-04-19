@@ -29,7 +29,7 @@ while true ; do
 
     fi
 
-    # copy cloud foundary certificates
+    # copy cloud foundry certificates
     if [ -d "$CF_SYSTEM_CERT_PATH" ]; then
       cp $CF_SYSTEM_CERT_PATH/*  /usr/local/share/ca-certificates/
     fi
