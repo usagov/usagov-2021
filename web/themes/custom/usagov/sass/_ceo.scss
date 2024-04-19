@@ -1,0 +1,52 @@
+#myform div.margin-x-auto {
+  @media (max-width: 30em) {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+}
+
+#myform div.maxw-mobile {
+  max-width: 26rem;
+}
+
+.ceo-button-container {
+  display: flex;
+
+  // Manages where the button is going to be positioned.
+  // Example: center, right, left.
+  justify-content: center;
+}
+
+.ceo-button {
+  margin-inline: 0 !important;
+  width: fit-content;
+}
+
+// Hides the City or County accordion header when there are no results.
+.usa-accordion__heading-hidden {
+  display: none;
+}
+
+// accordian reset and set the spaces between elements
+#results *{
+  margin-top: 0;
+  margin-bottom: 0;
+
+  div {
+    padding-bottom: 0;
+    padding-top: 0;
+  }
+
+  .usa-accordion__heading:not(:first-of-type) {
+    margin-top: 8px;
+  }
+
+  .usa-accordion.usa-accordion__content.usa-prose {
+    padding-top: 1em;
+    padding-bottom: calc(1em - 8px);
+  }
+
+  .add-list-reset {
+    padding-top: calc(1em + 16px);
+  }
+}
