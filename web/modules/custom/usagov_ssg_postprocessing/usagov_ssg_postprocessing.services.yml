@@ -8,3 +8,7 @@ services:
     class: '\Drupal\usagov_ssg_postprocessing\EventSubscriber\PagerPathSubscriber'
     tags:
       - { name: 'event_subscriber' }
+  usagov_ssg_postprocessing_published_pages_events_subscriber:
+    class: '\Drupal\usagov_ssg_postprocessing\EventSubscriber\PublishedPagesSubscriber'
+    tags:
+      - { name: 'event_subscriber' }

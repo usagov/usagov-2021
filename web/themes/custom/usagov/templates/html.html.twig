@@ -49,7 +49,7 @@
     {{ node.field_header_html.value|raw }}
   {% endif %}
    {% if nodetype == "basic_page" %}
-<script>
+<script id="taxonomy-data">
     dataLayer = [{
       {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
