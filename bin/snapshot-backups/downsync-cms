@@ -39,13 +39,13 @@ if [ x$1 == x"--dryrun" ]; then
   shift
 fi
 
-needsDisabled=0
+needsSpaceSSHDisabled=0
 if ! isSpaceSSHEnabled $startspace; then
   enableSpaceSSH $startspace
   if [ "$?" -ne "0" ]; then
       assertSpaceSSHEnabled $startspace
   fi
-  needsDisabled=1
+  needsSpaceSSHDisabled=1
 fi
 
 TOME_DISABLED_STATE=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled")
@@ -117,14 +117,13 @@ if [ $retval != 0 ]; then
   exit 1
 fi
 
-### the following 'if' test condition is fixed in USAGOV-1292, and is therefore left unfixed here
-if [ x$TOME_DISABLED_STATE = x0 ]; then
+if [ "$TOME_DISABLED_STATE" != 1 ]; then
   # Enable tome and exit maintenance mode
   echo  $SCRIPT_DIR/../deploy/try-tome-enable
   $echo $SCRIPT_DIR/../deploy/try-tome-enable
 fi
 
-if [ $needsDisabled != 0 ]; then
- echo  cf disallow-space-ssh $startspace
- $echo cf disallow-space-ssh $startspace
+if [ $needsSpaceSSHDisabled != 0 ]; then
+  echo  cf disallow-space-ssh $startspace
+  $echo cf disallow-space-ssh $startspace
 fi
