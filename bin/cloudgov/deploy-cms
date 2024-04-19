@@ -106,21 +106,11 @@ function setupRoutes { #appname
 
 function setupEgress { #appname
   app=$1
-  space=$2
   if [ -z "$app" ]; then
     echo "ERROR: appname is required"
     exit 1
   fi
   $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
-}
-
-function setupNewrelic { #appname
-  app=$1
-  if [ -z "$app" ]; then
-    echo "ERROR: appname is required"
-    exit 1
-  fi
-  $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart
 }
 
 function setUSPSCreds {
@@ -130,16 +120,14 @@ function setUSPSCreds {
 
 if appExists cms; then
   setupRoutes cms
-  setupEgress cms $EGRESS_SPACE
-#  setupNewrelic cms
+  setupEgress cms
   setUSPSCreds
   pushApp cms
 else
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
   pushApp cms
   setupRoutes cms
-  setupEgress cms $EGRESS_SPACE
-#  setupNewrelic cms
+  setupEgress cms
   setUSPSCreds
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
   restartApp cms

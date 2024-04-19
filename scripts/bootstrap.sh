@@ -153,7 +153,7 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
       -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
       /etc/php81/conf.d/newrelic.ini
   else
-      # TODO: If this works at all, we are probably being needlessly redundant in setting both ssl_ca_bundle and ssl_ca_path.
+      # We are probably being needlessly redundant in setting both ssl_ca_bundle and ssl_ca_path.
       # NR says it will search ssl_ca_bundle first, then the certificates in ssl_ca_path. We have ssl_ca_bundle within ssl_ca_path, so ...
     sed -i \
       -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
