@@ -37,6 +37,10 @@ while true ; do
     # load these certs
     /usr/sbin/update-ca-certificates 2>&1 > /dev/null || echo ""
 
+    # Kill the newrelic-daemon. It will restart automatically and read the certificates.
+    # No, SIGHUP is not sufficient.
+    killall newrelic-daemon
+
     # Do this again when the cert file is modified
     inotifywait -q -e modify /etc/cf-assets/envoy_config/sds-c2c-cert-and-key.yaml
 
