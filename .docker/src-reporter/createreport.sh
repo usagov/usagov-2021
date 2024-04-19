@@ -13,24 +13,24 @@ export HTTPS_PROXY=$PROXYROUTE
 npm config set proxy $PROXYROUTE
 npm config set https-proxy $PROXYROUTE
 
-AWS_REGION=$(jq -r '.["user-provided"]| .[].credentials | .["AWS_REGION"]' <<< "$VCAP_SERVICES")
+AWS_REGION=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["AWS_REGION"]' <<< "$VCAP_SERVICES")
 
-AWS_ACCESS_KEY_ID=$(jq -r '.["user-provided"]| .[].credentials | .["AWS_ACCESS_KEY_ID"]' <<< "$VCAP_SERVICES")
+AWS_ACCESS_KEY_ID=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["AWS_ACCESS_KEY_ID"]' <<< "$VCAP_SERVICES")
 
-AWS_SECRET_ACCESS_KEY=$(jq -r '.["user-provided"]| .[].credentials | .["AWS_SECRET_ACCESS_KEY"]' <<< "$VCAP_SERVICES")
+AWS_SECRET_ACCESS_KEY=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["AWS_SECRET_ACCESS_KEY"]' <<< "$VCAP_SERVICES")
 
-AWS_BUCKET=$(jq -r '.["user-provided"]| .[].credentials | .["AWS_BUCKET"]' <<< "$VCAP_SERVICES")
-AWS_BUCKET_PATH_BOTH=$(jq -r '.["user-provided"]| .[].credentials | .["AWS_BUCKET_PATH_BOTH"]' <<< "$VCAP_SERVICES")
-AWS_BUCKET_PATH_EN=$(jq -r '.["user-provided"]| .[].credentials | .["AWS_BUCKET_PATH_EN"]' <<< "$VCAP_SERVICES")
-AWS_BUCKET_PATH_ES=$(jq -r '.["user-provided"]| .[].credentials | .["AWS_BUCKET_PATH_ES"]' <<< "$VCAP_SERVICES")
+AWS_BUCKET=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["AWS_BUCKET"]' <<< "$VCAP_SERVICES")
+AWS_BUCKET_PATH_BOTH=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["AWS_BUCKET_PATH_BOTH"]' <<< "$VCAP_SERVICES")
+AWS_BUCKET_PATH_EN=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["AWS_BUCKET_PATH_EN"]' <<< "$VCAP_SERVICES")
+AWS_BUCKET_PATH_ES=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["AWS_BUCKET_PATH_ES"]' <<< "$VCAP_SERVICES")
 
-ANALYTICS_REPORT_IDS_BOTH=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_REPORT_IDS_BOTH"]' <<< "$VCAP_SERVICES")
-ANALYTICS_REPORT_IDS_EN=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_REPORT_IDS_EN"]' <<< "$VCAP_SERVICES")
-ANALYTICS_REPORT_IDS_ES=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_REPORT_IDS_ES"]' <<< "$VCAP_SERVICES")
+ANALYTICS_REPORT_IDS_BOTH=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["ANALYTICS_REPORT_IDS_BOTH"]' <<< "$VCAP_SERVICES")
+ANALYTICS_REPORT_IDS_EN=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["ANALYTICS_REPORT_IDS_EN"]' <<< "$VCAP_SERVICES")
+ANALYTICS_REPORT_IDS_ES=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["ANALYTICS_REPORT_IDS_ES"]' <<< "$VCAP_SERVICES")
 
-ANALYTICS_REPORT_EMAIL=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_REPORT_EMAIL"]' <<< "$VCAP_SERVICES")
+ANALYTICS_REPORT_EMAIL=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["ANALYTICS_REPORT_EMAIL"]' <<< "$VCAP_SERVICES")
 
-ANALYTICS_KEY_PATH=$(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY_PATH"]' <<< "$VCAP_SERVICES")
+ANALYTICS_KEY_PATH=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["ANALYTICS_KEY_PATH"]' <<< "$VCAP_SERVICES")
 
 export ANALYTICS_KEY_PATH=$ANALYTICS_KEY_PATH
 export AWS_REGION=$AWS_REGION
@@ -39,7 +39,7 @@ export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 export AWS_BUCKET=$AWS_BUCKET
 export ANALYTICS_REPORT_EMAIL=$ANALYTICS_REPORT_EMAIL
 
-echo $(jq -r '.["user-provided"]| .[].credentials | .["ANALYTICS_KEY_BASE64"]' <<< "$VCAP_SERVICES") | base64 -d > $ANALYTICS_KEY_PATH
+echo $(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.ANALYTICS_KEY_BASE64' <<< "$VCAP_SERVICES") | base64 -d > $ANALYTICS_KEY_PATH
 chmod 600 $ANALYTICS_KEY_PATH
 
 cd analytics-reporter

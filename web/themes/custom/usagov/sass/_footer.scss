@@ -5,8 +5,7 @@
 */
 
 .usa-footer--big .usa-footer__primary-content--collapsible .usa-footer__primary-link {
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
+  @include u-font-family('sans');
   font-size: 1.2rem;
 }
 
@@ -18,8 +17,7 @@
 */
 
 .usa-sign-up__heading {
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
+  @include u-font-family('sans');
 }
 
 .usa-footer__primary-content--collapsible.hidden {
@@ -32,18 +30,17 @@
   font-feature-settings: "kern" 1;
   font-kerning: normal;
   box-sizing: inherit;
-  color: var($global-default, text-color);
+  @include u-text('gray-90');
   text-decoration: none;
   padding: 0;
-  font-weight: 700;
+  @include u-text('bold');
   line-height: 1.2;
   margin: 0;
   margin-bottom: 0;
   align-items: center;
   display: flex;
   justify-content: flex-start;
-  font-family: "Source Sans Pro Web", "Helvetica Neue", Helvetica, Roboto, Arial,
-    sans-serif;
+  @include u-font-family('sans');
   font-size: 1.2rem;
 }
 
@@ -54,7 +51,7 @@
   padding: 1rem;
   width: 100%;
   border: 0;
-  background-color: #f0f0f0;
+  @include u-bg('gray-5');
   cursor: pointer;
 }
 
@@ -89,12 +86,12 @@
 
 .usa-gov-footer__primary-link--button:focus {
   text-decoration: underline;
-  outline: 0.25rem solid var($deep-orange);
+  outline: 0.25rem solid color('orange-50v');
   outline-offset: -0.25rem;
 }
 
 .usa-footer__primary-section {
-  background-color: #f0f0f0;
+  @include u-bg('gray-5');
 }
 
 .usa-footer__primary-section .usa-list {
@@ -114,18 +111,18 @@
 }
 
 .footer-button {
-  border: 1px solid #1b1b1b;
+  border: 1px solid color('gray-90');
   line-height: 1.5;
   margin-inline: 0 !important;
   font-size: 1.1rem;
 }
 
 .footer-button:hover {
-  border: 1px solid #1b1b1b;
+  border: 1px solid color('gray-90');
 }
 
 #footer-email {
-  border-color: var($global-default, text-color);
+  @include u-border('gray-90');
 }
 
 .ftr-list {
@@ -157,7 +154,7 @@
 .usa-footer__secondary-link a.disabled,
 .usa-footer__secondary-section a.disabled {
   pointer-events: none;
-  color: var($black);
+  @include u-text('black');
   text-decoration: none;
 }
 
@@ -225,7 +222,7 @@
   margin-bottom: -6px;
 
   &:hover {
-    background-color: var($cyan-light);
+    @include u-bg('cyan-10');
   }
 
   span {
@@ -238,7 +235,7 @@
     display: block;
     height: 32px;
     width: 32px;
-    background-color: var($white);
+    @include u-bg('white');
     border-radius: 3px;
   }
 }
