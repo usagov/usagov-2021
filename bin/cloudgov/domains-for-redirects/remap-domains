@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if ! command -v cf &> /dev/null
+then
+    echo "CF : the cloud foundry client could not be found and is required"
+    exit
+fi
+
+SCRIPTDIR=$(dirname "$0")
+
+ORG=$( cf target | grep org: | awk '{ print $2 }')
+SPACE=$( cf target | grep space: | awk '{ print $2 }')
+
+echo "Remapping domains routes in org $ORG, space $SPACE..."
+. $SCRIPTDIR/../are-you-sure.sh
+[[ "$?" = "1" ]] && exit 1;
+
+DOMAINS=($(jq -r ".domains[]" $SCRIPTDIR/domains.json))
+
+for domain in "${DOMAINS[@]}"; do
+   echo  cf unmap-route cms $domain
+   $ECHO cf unmap-route cms $domain
+   echo  cf map-route www $domain
+   $ECHO cf map-route www $domain
+done

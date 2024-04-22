@@ -274,7 +274,8 @@ function usa_twig_vars_form_alter(&$form, &$form_state, $form_id) {
  */
 function usa_twig_vars_after_build($form, &$form_state) {
   // Unchecks Generate automatic URL alias if path exists, if NOT home page
-  if (in_array('field_page_type', $form_state->getValues())) {
+  //in_array returns true unless strict mode is turned on but strict mode returns false on other pages where the key is found
+  if (array_key_exists('field_page_type', $form_state->getValues())) {
     $page_type = NULL;
     if (is_array($form_state->getValues()['field_page_type'])) {
       $page_type = $form_state->getValues()['field_page_type'][0];
