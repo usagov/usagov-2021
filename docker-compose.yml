@@ -123,6 +123,22 @@ services:
         aliases:
           - local.minio
 
+  cypress:
+    container_name: cypress
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-cypress
+    env_file:
+      - ./env.local
+      - ./env.local.cypress
+    volumes:
+      - ./automated_tests/e2e-cypress:/app/e2e-cypress
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    working_dir: /app/e2e-cypress
+    command: /app/start.sh
+    networks:
+      - gsa-gov
+
   composer:
     container_name: composer
     build:
