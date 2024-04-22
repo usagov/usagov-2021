@@ -249,6 +249,10 @@ a {
   margin-top: 2.5rem;
 }
 
+.usa-skipnav {
+  z-index: 501;
+}
+
 .usa-skipnav:active,
 .usa-skipnav:hover {
   @include u-text('blue-warm-70v');
