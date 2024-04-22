@@ -29,7 +29,7 @@ describe('Home Page [ENG]', () => {
             .find('.usa-logo')
             .find('img')
             .should('have.attr', 'src', '/themes/custom/usagov/images/Logo_USAGov.png')
-            .should('have.attr', 'alt', 'USAGov Logo')
+            .should('have.attr', 'alt', 'Visit the USAGov homepage')
             .should((img) => {
                 // Image loads
                 expect(img[0].naturalWidth).to.be.greaterThan(0)
