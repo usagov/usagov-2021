@@ -98,7 +98,7 @@
 @include at-media($theme-header-min-width) {
   .usa-header--extended div.language-switcher-language-url {
     margin-right: auto;
-    max-width: 64rem;
+    max-width: 70.25rem;
     margin-left: auto;
     padding-left: 2rem;
     padding-right: 2rem;
@@ -407,4 +407,29 @@ input#search-field-small-mobile-menu {
     align-self: center;
   }
 
+}
+
+// This is to extend the header elements to 1124px
+@include at-media($theme-header-min-width) {
+  .usa-header--extended .usa-nav__inner {
+    max-width: 70.25rem;
+    padding-left: 2.3rem;
+  }
+  .usa-header--extended .usa-banner__inner {
+    max-width: 70.25rem;
+  }
+  .usa-header--extended .usa-navbar {
+    max-width: 70.25rem;
+  }
+}
+
+// This is to align the primary nav text with the search button
+@include at-media($theme-header-min-width) {
+  .usa-header--extended .usa-nav__primary {
+    justify-content: space-between;
+    width: auto;
+  }
+  .usa-header--extended .usa-nav__primary::after {
+    content: none;
+  }
 }
