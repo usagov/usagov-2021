@@ -163,7 +163,6 @@ generate_cert_json()
     fi
 
     # Only allow update of new relic vars, all others match the existing values
-    echo "NEW_RELIC_DISPLAY_NAME: $CURR_NEW_RELIC_DISPLAY_NAME, NEW_RELIC_APP_NAME: $CURR_NEW_RELIC_APP_NAME"
     yes '' | cf update-user-provided-service secrets -p "{\"CRON_KEY\": \"$CURR_CRON_KEY\", \"HASH_SALT\": \"$CURR_HASH_SALT\", \"ROOT_USER_NAME\": \"$CURR_ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$CURR_ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$CURR_NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$CURR_NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$CURR_NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$CURR_NEW_RELIC_API_KEY\"}"
     # do we need to reattach this service to the apps individually?
 
