@@ -77,9 +77,24 @@ rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
 rm -rf $RENDER_DIR/node/ 2>&1 | tee -a $TOMELOG
 rm -rf $RENDER_DIR/es/node/ 2>&1 | tee -a $TOMELOG
 
-# duplicate the logic used by the bootstrap script to find the static site hostname
-WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | head -n 1)
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | head -n 1)}
+# WWW_HOST is not present in CMS app, as of USAGOV-1083.
+# Determine WWW_HOST based on space name
+case $APP_SPACE in
+dev)
+  WWW_HOST=beta-dev.usa.gov
+  ;;
+stage)
+  WWW_HOST=beta-stage.usa.gov
+  ;;
+prod)
+  WWW_HOST=www.usa.gov
+  ;;
+*)
+  echo "**** WARNING:  generating in cf space '$APP_SPACE' - trying old method of WWW_HOST extraction.  May fail ****"
+  WWW_HOST=$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | head -n 1)
+  WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | head -n 1)}
+  ;;
+esac
 
 # replacing inaccurate hostnames
 echo "Replacing references to CMS hostname ... "
@@ -201,6 +216,9 @@ fi
 ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
+
+mkdir -p $RENDER_DIR/ppr
+cp -fp "/var/www/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv" "$RENDER_DIR/ppr/published-pages.csv"
 
 EN_HOME_HTML_FILE=/var/www/html/index.html
 ES_HOME_HTML_FILE=/var/www/html/es/index.html

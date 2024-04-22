@@ -21,14 +21,14 @@ if [ -z "$AWS_ENDPOINT" ] || [ "$AWS_ENDPOINT" == "null" ]; then
   export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.endpoint');
 fi
 
+# grab the cloudgov space we are hosted in
+APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
+APP_SPACE=${APP_SPACE:-local}
+
 S3_EXTRA_PARAMS=""
 if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
 fi
-
-# grab the cloudgov space we are hosted in
-APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
-APP_SPACE=${APP_SPACE:-local}
 
 # Use a unique dir for each run - just in case more than one of this is running
 TOMELOGFILE=$YMD/$APP_SPACE-$YMDHMS.log
@@ -93,6 +93,7 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
 
   set -o pipefail  # Need to capture tome-static failure on next line.
   $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation Started"
+
   $SCRIPT_PATH/tome-static.sh $URI 2>&1 | tee -a $TOMELOG
   TOME_SUCCESS=$?
   if [ "$TOME_SUCCESS" == "0" ]; then

@@ -172,7 +172,7 @@ function renderResults(response, rawResponse) {
             let levelName = levels[i];
             let levelNameID = replaceSpaces(levelName.heading);
 
-            let accordionHeader = document.createElement("h2");
+            let accordionHeader = document.createElement("h3");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
             accordionHeader.setAttribute("id", "heading_" + levelNameID);
 
@@ -347,11 +347,12 @@ function renderResults(response, rawResponse) {
             let email = response.officials[i].emails || "none provided";
             if (email !== "none provided") {
                 // let primaryEmail = document.createElement("button");
-                let linkToContact = document.createElement("a");
+                let linkToContact = document.createElement("button");
                 let firstEmail = email[0];
 
-                linkToContact.setAttribute("class", "usa-button usa-button--secondary");
+                linkToContact.setAttribute("class", "usa-button usa-button--secondary state-email");
                 linkToContact.style.marginTop = "15px";
+                linkToContact.style.marginBottom = "8px";
                 linkToContact.innerHTML = content["contact-via-email"];
 
                 // Build search params for email page.
@@ -359,14 +360,17 @@ function renderResults(response, rawResponse) {
                 searchParams.set('email', firstEmail);
                 searchParams.set('name', response.officials[i].name);
                 searchParams.set('office', response.officials[i].office);
-
-                linkToContact.setAttribute("href", content["path-contact"] + "?"
-                                           + searchParams.toString() + "#skip-to-h1");
-                bulletList.appendChild(linkToContact);
+                linkToContact.setAttribute("role","button");
+                linkToContact.setAttribute("onclick", "window.location.href = '" + content["path-contact"] + "?"
+                                           + searchParams.toString() + "#skip-to-h1'");
+                // Append bullet list of details to accordion
+                accordionContent.appendChild(bulletList);
+                accordionContent.appendChild(linkToContact);
             }
-
-            // Append bullet list of details to accordion
-            accordionContent.appendChild(bulletList);
+            else {
+                // Append bullet list of details to accordion
+                accordionContent.appendChild(bulletList);
+            }
 
             // Determine under which level accordion the elected official section should be appended
             let appendLocation;
@@ -509,7 +513,7 @@ function load() {
         let addressSuggestionAlert = document.createElement('div');
         addressSuggestionAlert.setAttribute('class', 'usa-alert usa-alert--info');
         addressSuggestionAlert.innerHTML = `<div class="usa-alert__body">
-                        <h4 class="usa-alert__heading">${usps_suggestion_content["suggestion-heading"]}</h4>
+                        <h2 class="usa-alert__heading">${usps_suggestion_content["suggestion-heading"]}</h2>
                         <p class="usa-alert__text">
                             ${usps_suggestion_content["suggestion-message"]}
                             <p>
