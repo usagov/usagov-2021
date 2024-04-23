@@ -171,7 +171,7 @@
 .welcome-box-wrapper {
   grid-column: 1 / 3;
   grid-row: 1 / 2;
-  max-width: 1024px;
+  max-width: 1124px;
   padding-top: 25px;
   margin: auto;
   width: calc(100% - 50px);
@@ -228,7 +228,6 @@
 
   h2 {
     font-size: 1.875em;
-    max-width: 960px;
   }
 }
 
@@ -239,7 +238,6 @@
   margin-bottom: 0;
   margin-top: 1.25rem;
   padding-inline-start: 0;
-  max-width: 960px;
 }
 
 .how-button {
@@ -410,6 +408,7 @@
     margin-left: auto;
     margin-right: auto;
     margin-top: 40px;
+    width: 100%;
     max-width: 1124px;
     padding-top: 18px;
   }
@@ -460,9 +459,5 @@
 
   .how-button-list {
     flex-wrap: nowrap;
-  }
-
-  .how-box {
-    width: 1124px;
   }
 }
