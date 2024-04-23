@@ -2,7 +2,7 @@ $(".slides").slick({
   "dots": true,
   "infinite": true,
   "speed": 300,
-  "slidesToShow": 3,
+  "slidesToShow": 4,
   "slidesToScroll": 1,
   "swipeToSlide": true,
   "touchMove": true,
@@ -22,10 +22,17 @@ $(".slides").slick({
     {
       "breakpoint": 2048,
       "settings": {
-        "slidesToShow": 3,
+        "slidesToShow": 4,
         "slidesToScroll": 1,
         "infinite": true,
         "dots": true,
+      },
+    },
+    {
+      "breakpoint": 1200,
+      "settings": {
+        "slidesToShow": 3,
+        "slidesToScroll": 1,
       },
     },
     {
@@ -36,7 +43,7 @@ $(".slides").slick({
       },
     },
     {
-      "breakpoint": 639,
+      "breakpoint": 640,
       "settings": {
         "slidesToShow": 1,
         "slidesToScroll": 1,
@@ -59,6 +66,7 @@ function resizeSlider() {
   $(".slick-track")
     .find(".slick-slide .usa-card")
     .css("height", slickHeight + "px");
+
 }
 
 $('.slides').slick('slickGoTo', initSlide);
