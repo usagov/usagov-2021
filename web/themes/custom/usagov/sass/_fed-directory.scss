@@ -26,6 +26,7 @@
 
 .usagov-directory-container .usagov-directory-container-az li {
   a,
+  div,
   a:visited {
     display: table-cell;
     text-align: center;
@@ -48,13 +49,13 @@
     border:2px solid $secondary-border;
   }
 
-  a.is-active {
+  div.is-active {
     box-shadow: 0 0 0 0.15rem color('gray-90');
     background-color: white;
     border:none;
   }
 
-  a.is-active:hover {
+  div.is-active:hover {
     box-shadow: 0 0 0 0.15rem color('gray-90');
     background-color: white;
   }
