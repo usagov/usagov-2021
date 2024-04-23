@@ -172,7 +172,7 @@ function renderResults(response, rawResponse) {
             let levelName = levels[i];
             let levelNameID = replaceSpaces(levelName.heading);
 
-            let accordionHeader = document.createElement("h3");
+            let accordionHeader = document.createElement("h2");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
             accordionHeader.setAttribute("id", "heading_" + levelNameID);
 
