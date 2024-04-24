@@ -76,6 +76,11 @@ if [ -f env.local ]; then
   . env.local
 fi
 
+echo "Init local secrets file for cypress tests"
+if [ ! -f env.local.cypress ]; then
+  cp env.default.cypress env.local.cypress
+fi
+
 echo "Setup git hooks"
 if [ ! -f .git/hooks/commit-msg ]; then
   cp .git.commit-msg .git/hooks/commit-msg
