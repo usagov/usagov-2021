@@ -335,10 +335,23 @@ jQuery(document).ready(function () {
   reCaptchaObserver.observe(reCaptchaLargeNode, {"attributes": true, "attributeFilter": ['style']});
 });
 
+function modalHandler() {
+  "use strict";
+
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const redirect = urlParams.get('redirect');
+  if (redirect === "benefitsGov")
+    document.getElementById("hidden-button").click();
+}
+
 jQuery(document).ready(function () {
   "use strict";
 
   $("#pagesurvey-hdr").hide();
   $("#pagesurvey-trgt").hide();
   $("#pagesurvey-ombnum").hide();
+
+  modalHandler();
+
 });
