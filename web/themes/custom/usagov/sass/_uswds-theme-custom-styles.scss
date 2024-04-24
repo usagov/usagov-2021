@@ -147,6 +147,12 @@ a,
 
 a.usa-button.hero-button {
   @include u-text('gray-90');
+  &:focus {
+    display: inline-block;
+  }
+  &:visited {
+    @include u-text('gray-90');
+  }
 }
 
 .usa-button {
