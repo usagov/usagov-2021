@@ -281,11 +281,16 @@
   color: #fff;
 }
 
-.usa-identifier__required-link, .usa-identifier__required-link.usa-link:active {
+.usa-identifier__required-link:active, .usa-identifier__required-link.usa-link:active {
   color: #00BDE3;
 }
-.usa-identifier__required-link, .usa-identifier__required-link.usa-link:visited {
+
+.usa-identifier__required-link:visited, .usa-identifier__required-link.usa-link:visited {
   color: #F0F0F0;
+}
+
+.usa-identifier__required-link:visited, .usa-identifier__required-link.usa-link:focus {
+  box-shadow: none;
 }
 
 p.usa-identifier__identity-disclaimer:last-of-type,
