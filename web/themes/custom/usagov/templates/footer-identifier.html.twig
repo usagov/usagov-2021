@@ -8,10 +8,14 @@
           {{ lang == 'es' ?  "USAGov en Español es la guía oficial de información y servicios del Gobierno" : "USAGov is the official guide to government information and services" }}
         </p>
     	<p class="usa-identifier__identity-disclaimer">
-            <span aria-hidden="true">{{ lang == 'es' ? "Un" : "An" }}</span> {{ lang == 'es' ? "sitio web oficial de la" : "official website of the" }}
-            <a href="https://www.gsa.gov/">{{ lang == 'es' ? "Administraci&oacute;n de Servicios Generales de los Estados Unidos (GSA, sigla en ingl&eacute;s)" :
-			"U.S. Gerneral Services Administration" }}</a>
-        </p>
+      {% if lang == "en" %}
+        <span aria-hidden="true">An</span>official website of the
+            <a href="https://www.gsa.gov/">U.S. Gerneral Services Administration</a>
+      {% else %}
+            <span aria-hidden="true">Un</span>sitio web oficial de la
+            <a href="https://www.gsa.gov/">Administraci&oacute;n de Servicios Generales de los Estados Unidos</a> (GSA, sigla en ingl&eacute;s)
+      {% endif %}
+      </p>
 		</section>
     </div>
   </section>
