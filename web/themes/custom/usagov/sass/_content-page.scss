@@ -5,7 +5,7 @@
 .usa-alert:not(.usa-alert--info):not(.usa-alert--warning):not(
     .usa-alert--error
   ):not(.usa-alert--success) {
-  @include u-border('gray-cool-10');
+  border-color: color('gray-cool-10');
   @include u-bg('white');
 }
 
