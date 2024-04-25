@@ -59,6 +59,9 @@
 
   .usa-card__container .usa-card__header .usa-card__heading .card-link {
     @include u-text('white');
+    text-decoration-line: underline;
+    text-decoration-thickness: 7px;
+    text-decoration-color: #3fbde3;
     text-decoration-skip-ink: none;
   }
 
@@ -71,12 +74,12 @@
   }
 
   &:hover {
+    .usa-card__img img {
+      opacity: .8;
+    }
+
     .usa-card__container {
-      .usa-card__header .usa-card__heading .card-link {
-        text-decoration-line: underline;
-        text-decoration-thickness: 7px;
-        text-decoration-color: $cyan-text-decoration;
-      }
+      background-color: #41607c;
     }
   }
 }
@@ -96,7 +99,6 @@
   outline-offset: 0;
   box-shadow: none;
 }
-
 .life-events-landing-page-card-image {
   aspect-ratio: 5/2;
   background-size: cover;
