@@ -281,8 +281,11 @@
   color: #fff;
 }
 
+.usa-identifier__required-link, .usa-identifier__required-link.usa-link:active {
+  color: #00BDE3;
+}
 .usa-identifier__required-link, .usa-identifier__required-link.usa-link:visited {
-  color: #cdcdcd;
+  color: #F0F0F0;
 }
 
 p.usa-identifier__identity-disclaimer:last-of-type,
