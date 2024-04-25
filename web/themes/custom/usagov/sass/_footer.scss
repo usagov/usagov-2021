@@ -274,3 +274,13 @@
     z-index: 2000000005;
   }
 }
+
+.usa-identifier__required-link, .usa-identifier__required-link.usa-link,
+.usa-identifier__required-link, .usa-identifier__required-link.usa-link:visited {
+  color: #fff;
+}
+
+p.usa-identifier__identity-disclaimer:last-of-type,
+p.usa-identifier__identity-disclaimer a {
+  font-weight: normal;
+}
