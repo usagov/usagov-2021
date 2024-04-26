@@ -195,16 +195,11 @@ TOME_PUSH_NEW_CONTENT=0
 if [ "$TOME_TOO_MUCH" == "1" ]; then
   echo "Tome static build looks suspicious - adding more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
   TOME_PUSH_NEW_CONTENT=1
-  # send message, but continue on
-  # write message to php log so newrelic will see it
 elif [ "$TOME_TOO_LITTLE" == "1" ]; then
   MSG="Tome static build failure - removing more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)"
   echo $MSG | tee -a $TOMELOG
   $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "$MSG"
   TOME_PUSH_NEW_CONTENT=0
-  # send message, and abort
-  # write message to php log so newrelic will see it
-  # exit 3
 else
   echo "Tome static build looks fine. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
   TOME_PUSH_NEW_CONTENT=1
