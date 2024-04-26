@@ -61,7 +61,7 @@
     @include u-text('white');
     text-decoration-line: underline;
     text-decoration-thickness: 7px;
-    text-decoration-color: #3fbde3;
+    text-decoration-color: $cyan-text-decoration;
     text-decoration-skip-ink: none;
   }
 
@@ -79,7 +79,7 @@
     }
 
     .usa-card__container {
-      background-color: #41607c;
+      @include u-bg('blue-70v');
     }
   }
 }
