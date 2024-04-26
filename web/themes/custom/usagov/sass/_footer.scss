@@ -183,10 +183,7 @@
 
 .usa-footer__contact-heading {
   margin-bottom: 0.5rem;
-
-  @media (max-width: 30em) {
-    text-align: left;
-  }
+  text-align: left;
 }
 
 .usa-footer__contact-heading.es {
@@ -240,8 +237,7 @@
   }
 }
 
-/* ---- Identifier ----
-*/
+/* ---- Identifier ---- */
 
 .usa-identifier {
   background-color: color("blue-80v");
