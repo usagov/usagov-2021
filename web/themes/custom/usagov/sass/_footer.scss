@@ -277,19 +277,19 @@
 
 /* ---- Identifier----
 */
-.usa-identifier__required-link, .usa-identifier__required-link.usa-link {
+.usa-identifier__required-link.usa-link {
   color: #fff;
 }
 
-.usa-identifier__required-link:active, .usa-identifier__required-link.usa-link:active {
+.usa-identifier__required-link.usa-link:active {
   color: #00BDE3;
 }
 
-.usa-identifier__required-link:visited, .usa-identifier__required-link.usa-link:visited {
+.usa-identifier__required-link.usa-link:visited {
   color: #F0F0F0;
 }
 
-.usa-identifier__required-link:visited, .usa-identifier__required-link.usa-link:focus {
+.usa-identifier__required-link.usa-link:focus {
   box-shadow: none;
 }
 
@@ -301,3 +301,18 @@ p.usa-identifier__identity-disclaimer a {
 p.usa-identifier__identity-disclaimer {
   padding-top: 5px;
 }
+
+@media (min-width: 40em) {
+  .usa-identifier__required-links-list {
+      -moz-column-count: 1;
+      column-count: 1;
+  }
+}
+
+@media (min-width: 64em) {
+  .usa-identifier__required-links-list {
+      -moz-column-count: 4;
+      column-count: 4;
+  }
+}
+
