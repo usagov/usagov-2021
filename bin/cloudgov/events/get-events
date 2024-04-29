@@ -28,10 +28,24 @@ fi
 SPACE=${1:-please-provide-space-name-as-first-argument}
 SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
+SPACE_GUID=$(getSpaceGUID $SPACE)
 shift
 
+### We'll request logs generated after LAST_EVENT_TIME.  If nothing was 
+### specified on the command line, start from 24 hours ago
+LAST_EVENT_TIME=$1
+if [ -n "$LAST_EVENT_TIME" ]; then
+  ### Convert to UTC (if it's already UTC, no harm done)
+  LAST_EVENT_TIME=$(TZ=UTC date -d "$LAST_EVENT_TIME" +"%Y-%m-%dT%H:%M:%SZ")
+else
+  LAST_EVENT_TIME=$(TZ=UTC date -d "now - 24 hours" +"%Y-%m-%dT%H:%M:%SZ")
+fi
+
+#echo $LAST_EVENT_TIME
+#exit
+
 CURRENT_ORG=$(getOrg)
-export ORG_GUID=$(cf org $CURRENT_ORG --guid)
+export ORG_GUID=$(getOrgGUID $CURRENT_ORG)
 
 declare -rA AUDIT_TYPES=(
     ["app"]="audit.app.create,audit.app.start,audit.app.restage,audit.app.stop,audit.app.delete",
@@ -66,12 +80,22 @@ echo $header
 
 for resource_type in ${!AUDIT_TYPES[@]}; do
 
+  echo "*** $resource_type ***"
+  
     types=${AUDIT_TYPES[$resource_type]}
     fields=${AUDIT_FIELDS[$resource_type]}
     header=${AUDIT_HEADERS[$resource_type]}
 
-    NEXT="/v2/events?q=type+IN+${types}&q=organization_guid:$ORG_GUID"
+    ###
+    ###types="audit.app.start"
+    ###
+    
+    #NEXT="/v2/events?q=type+IN+${types}&q=organization_guid:${ORG_GUID}&q=timestamp>${LAST_EVENT_TIME}"
+    NEXT="/v2/events?&q=type+IN+${types}&q=organization_guid:${ORG_GUID}&a=space_uid:${SPACE_GUID}&q=timestamp>${LAST_EVENT_TIME}&order-by:timestamp"
 
+    echo "*** $NEXT ***"
+    #continue
+    
     while [ -n $NEXT -a ! $NEXT == 'null' ]; do
         EVENTS=$(cf curl $NEXT) 
 
@@ -102,7 +126,7 @@ for resource_type in ${!AUDIT_TYPES[@]}; do
 
         echo $EVENTS | jq -r ".resources[] | [$fields] | @csv"
         NEXT=$(echo $EVENTS | jq -r '.next_url')
-        
+
     done
 
 done
