@@ -5,6 +5,7 @@ clientId="ad16bccf-2afc-43f3-b6bb-37633c026c51"
 clientSecret="5zLMAwQHDHH36xq8cBR54NY4ezS2iTmT11aooK3HI0g"
 enQueueId="99b60af0-1047-4968-824e-7197fe582cea"
 spQueueId="e7eef7e6-77f9-4b8a-bb8b-fb324f5d96be"
+s3Bucket="cg-33ba2c88-f377-4249-8b26-0a9d24caf3f5"
 tokenFile="token.json"
 waitTimeFile="waittime.json"
 
@@ -71,4 +72,4 @@ echo "$combinedWaitTimes" > $waitTimeFile
 
 # # Upload file to S3 bucket
 echo "uploading waittime.json to S3."
-aws s3 cp waittime.json s3://cg-33ba2c88-f377-4249-8b26-0a9d24caf3f5/cms/public/waittime.json
+aws s3 cp waittime.json s3://$s3Bucket/cms/public/waittime.json
