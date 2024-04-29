@@ -16,6 +16,13 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+    echo "File does not exist: $SCRIPT_DIR/../deploy/includes"
+    exit 1
+fi
 
 usage="
 $0: (Re-)deploy egress proxy for an environment
@@ -133,6 +140,7 @@ $output touch $SCRIPT_DIR/apps-egress-allow.acl
 echo "Regenerate user/pass for use by proxy"
 username="$(uuidgen)"
 password="$(uuidgen)"
+proxyroute="https://$username:$password@$proxyname.apps.internal:61443"
 
 # Auto-allow bound buckets
 proxydeny=$(  cat $SCRIPT_DIR/apps-egress-deny.acl || echo "" )
@@ -148,6 +156,7 @@ echo "proxyname: $proxyname
 hostname: $proxyname
 username: $username
 password: $password
+proxy_route: $proxyroute
 proxydeny: |
 $proxydeny
 proxyallow: |
@@ -169,10 +178,6 @@ fi
 # Deploy the proxy app
 echo "Deploy Egress Proxy App"
 $output cf target -o "$egressorg" -s "$egressspace" 2>&1 > /dev/null
-$output cf set-env $proxyname PROXY_USERNAME "$username"
-$output cf set-env $proxyname PROXY_PASSWORD "$password"
-# Note: It is "proxy_route" here on purpose; setup-egress-for-apps looks for proxy_route and sets PROXYROUTE (no underscore) for apps.
-$output cf set-env $proxyname proxy_route "https://$username:$password@$proxyname.apps.internal:61443"
 $output cf push $proxyname -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
 
 if [ -n "${DRYRUN}" ]; then
