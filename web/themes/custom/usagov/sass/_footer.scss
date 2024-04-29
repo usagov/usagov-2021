@@ -270,3 +270,45 @@
     z-index: 2000000005;
   }
 }
+
+/* ---- Identifier----
+*/
+.usa-identifier {
+  padding-bottom: 2rem;
+}
+
+.usa-identifier__required-link.usa-link {
+  color: #fff;
+}
+
+.usa-identifier__required-link.usa-link:active {
+  color: #00BDE3;
+}
+
+.usa-identifier__required-link.usa-link:visited {
+  color: #F0F0F0;
+}
+
+.usa-identifier__required-link.usa-link:focus {
+  box-shadow: none;
+}
+
+p.usa-identifier__identity-disclaimer:last-of-type,
+p.usa-identifier__identity-disclaimer a {
+  font-weight: normal;
+}
+
+p.usa-identifier__identity-disclaimer {
+  padding-top: 5px;
+}
+
+.usa-identifier__required-links-list {
+  @media (min-width: 40em) {
+          -moz-column-count: 1;
+          column-count: 1;
+  }
+  @media (min-width: 64em) {
+    -moz-column-count: 4;
+    column-count: 4;
+  }
+}
