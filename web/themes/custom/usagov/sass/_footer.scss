@@ -302,17 +302,13 @@ p.usa-identifier__identity-disclaimer {
   padding-top: 5px;
 }
 
-@media (min-width: 40em) {
-  .usa-identifier__required-links-list {
-      -moz-column-count: 1;
-      column-count: 1;
+.usa-identifier__required-links-list {
+  @media (min-width: 40em) {
+          -moz-column-count: 1;
+          column-count: 1;
+  }
+  @media (min-width: 64em) {
+    -moz-column-count: 4;
+    column-count: 4;
   }
 }
-
-@media (min-width: 64em) {
-  .usa-identifier__required-links-list {
-      -moz-column-count: 4;
-      column-count: 4;
-  }
-}
-
