@@ -238,7 +238,7 @@ div div.field--name-field-offices-near-you>ul>li {
     text-align: center;
     line-height: 57px;
     font-size: 2.375rem;
-    @include u-text('gray-90');
+    @include u-text('gray-90', !important);
     outline: solid 0.15rem color('cyan-50v');
     @include u-bg('cyan-10');
     @include u-text('semibold');
