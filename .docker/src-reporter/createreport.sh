@@ -32,6 +32,8 @@ ANALYTICS_REPORT_EMAIL=$(jq -r '.["user-provided"] | .[] | select(.name == "Anal
 
 ANALYTICS_KEY_PATH=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["ANALYTICS_KEY_PATH"]' <<< "$VCAP_SERVICES")
 
+GOOGLE_APPLICATION_CREDENTIALS=$ANALYTICS_KEY_PATH
+export GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS
 ANALYTICS_KEY_PATH=analytics-reporter/$ANALYTICS_KEY_PATH
 export ANALYTICS_KEY_PATH=$ANALYTICS_KEY_PATH
 export AWS_REGION=$AWS_REGION
@@ -46,7 +48,6 @@ export ANALYTICS_REPORT_EMAIL=$ANALYTICS_REPORT_EMAIL
 echo $(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.ANALYTICS_KEY_BASE64' <<< "$VCAP_SERVICES") | base64 -d > $ANALYTICS_KEY_PATH
 chmod 600 $ANALYTICS_KEY_PATH
 
-export GOOGLE_APPLICATION_CREDENTIALS=$ANALYTICS_KEY_PATH
 
 cd analytics-reporter
 
