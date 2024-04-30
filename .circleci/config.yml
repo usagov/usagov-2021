@@ -576,6 +576,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1407-update-ar
       - deploy-reporter-tools:
           filters:
             branches:
@@ -583,6 +584,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1407-update-ar
           requires:
             - approve-deploy-reporter
 
@@ -596,7 +598,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1407-update-ar
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -606,7 +607,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1407-update-ar
       - approve-dev-deployment:
           type: approval
           requires:
@@ -615,7 +615,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1407-update-ar
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -623,7 +622,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1407-update-ar
       - approve-stage-deployment:
           type: approval
           requires:
