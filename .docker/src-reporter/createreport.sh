@@ -39,8 +39,13 @@ export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 export AWS_BUCKET=$AWS_BUCKET
 export ANALYTICS_REPORT_EMAIL=$ANALYTICS_REPORT_EMAIL
 
+GOOGLE_APPLICATION_CREDENTIALS=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.GOOGLE_APPLICATION_CREDENTIALS' <<< "$VCAP_SERVICES" | base64 -d)
+export GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS
+
 echo $(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.GOOGLE_APPLICATION_CREDENTIALS' <<< "$VCAP_SERVICES") | base64 -d > $ANALYTICS_KEY_PATH
 chmod 600 $ANALYTICS_KEY_PATH
+
+export GOOGLE_APPLICATION_CREDENTIALS=$ANALYTICS_KEY_PATH
 
 cd analytics-reporter
 
