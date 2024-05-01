@@ -5,6 +5,8 @@ export NODE_EXTRA_CA_CERTS=/etc/combined-certs.pem
 
 export NODE_OPTIONS=''
 
+PROXYROUTE=$(sed -i 's/https:/http:/g' $PROXYROUTE)
+
 export http_proxy=$PROXYROUTE
 export https_proxy=$PROXYROUTE
 export HTTP_PROXY=$PROXYROUTE
