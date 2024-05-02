@@ -49,7 +49,7 @@
         <li>
           {% set row_is_active = current_letter == row.link %}
           {% if row_is_active %}
-            <a {{row.attributes.addClass("is-active")}}>{{ row.link }}</a>
+            <div {{row.attributes.addClass("is-active")}}>{{ row.link }}</div>
           {% else %}
             {% if row.link == "A" or row.link == "a" %}
               <a href="{{ translations.agencyindex }}#{{ row.link }}">{{ row.link }}</a>

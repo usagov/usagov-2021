@@ -1,4 +1,5 @@
 @use "usagov-variables" as *;
+@use "uswds-core" as *;
 
 // Directory Container
 .usagov-directory-page-container {
@@ -23,8 +24,9 @@
   gap: 16px;
 }
 
-.usagov-directory-container-az li {
+.usagov-directory-container .usagov-directory-container-az li {
   a,
+  div,
   a:visited {
     display: table-cell;
     text-align: center;
@@ -32,29 +34,29 @@
     width: 44px;
     height: 44px;
     text-decoration: none;
-    color: var($fed-directories, text-color);
+    @include u-text('gray-90');
     box-sizing: border-box;
-    background-color: var($cyan-light);
-    border: 2px solid var($secondary-border-color);
+    @include u-bg('cyan-10');
+    border: 2px solid $secondary-border;
     border-radius: 0.01rem;
     font-size: 1.5rem;
-    font-weight: 600;
+    @include u-text('semibold');
     transition: box-shadow 200ms, background-color 200ms;
   }
 
   a:hover {
-    background-color: var($secondary-background-color);
-    border:2px solid var($secondary-border-color);
+    background-color: $secondary-background;
+    border:2px solid $secondary-border;
   }
 
-  a.is-active {
-    box-shadow: 0 0 0 0.15rem var($fed-directories, text-color);
+  div.is-active {
+    box-shadow: 0 0 0 0.15rem color('gray-90');
     background-color: white;
     border:none;
   }
 
-  a.is-active:hover {
-    box-shadow: 0 0 0 0.15rem var($fed-directories, text-color);
+  div.is-active:hover {
+    box-shadow: 0 0 0 0.15rem color('gray-90');
     background-color: white;
   }
 }
@@ -64,7 +66,7 @@ a.intro-links:hover,
 a.intro-links:visited,
 a.intro-links:active {
   text-decoration: none;
-  color: var($fed-directories, text-color);
+  @include u-text('gray-90');
 }
 
 hr.bl-divider {
@@ -111,37 +113,21 @@ div.field--name-field-offices-near-you> ul {
 }
 
 // Search Bar
-.usagov-directory-search-container {
-  justify-content: center;
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  align-items: center;
-
-  p {
-    font-size: 18px;
-  }
-
-  section {
-    flex-grow: 1;
-    max-width: 20rem;
-  }
-}
-
 .fed-directory-search-bar {
   height: 2rem;
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
-  outline: 2px solid var($cyan-50v);
+  outline: 2px solid color('cyan-50v');
   border-radius: 0 0.25rem 0.25rem 0;
-  background-color: var($cyan-light);
+  @include u-bg('cyan-10');
   max-width: 20em;
   margin: 1rem auto 0;
 
   input::placeholder {
-    color: #757575;
-    font-weight: 500;
+    @include u-text('gray-50');
+    @include u-text('medium');
+
   }
 
   [type=search]{
@@ -152,17 +138,17 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-input {
-  background-color: #fff;
+  @include u-bg('white');
   outline: none;
   font-size: 0.98rem;
-  color: var($fed-directories, text-color);
-  font-weight: 500;
+  @include u-text('gray-90');
+  @include u-text('medium');
   border-style: none;
   line-height: 1.5;
 }
 
 .fed-directory-search-btn {
-  background-color: var($cyan-light);
+  @include u-bg('cyan-10');
   outline: none;
   cursor: pointer;
   border-style: none;
@@ -184,7 +170,7 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-btn:hover {
-  background-color: #99deea;
+  background-color: $secondary-background;
 }
 
 .fed-directory-search-btn:focus {
@@ -200,11 +186,12 @@ div.field--name-field-offices-near-you> ul {
 
 // Letter Heading
 .usagov-directory-letter-heading {
-  font-family: sans-serif;
-  font-size: 38px;
+  @include u-font-family('sans');
+  font-size: 2.375rem;
+
   text-align: center;
   line-height: 57px;
-  outline: solid 0.15rem var($fed-directories, letter-outline-color);
+  outline: solid 0.15rem color('gray-90');
   width: 57px;
   height: 57px;
 }
@@ -212,14 +199,14 @@ div.field--name-field-offices-near-you> ul {
 // Accordion
 .usa-fed-accordion__content {
   p.h-bold {
-    font-weight: bold;
+    @include u-text('bold');
   }
 
   div {
     display: flex;
 
     p:first-child {
-      font-weight: bold;
+      @include u-text('bold');
     }
   }
 }
@@ -250,11 +237,11 @@ div div.field--name-field-offices-near-you>ul>li {
     text-decoration: none;
     text-align: center;
     line-height: 57px;
-    font-size: 38px;
-    color: var($fed-directories, text-color);
-    outline: solid 0.15rem var($cyan-50v);
-    background-color: var($cyan-light);
-    font-weight: 600;
+    font-size: 2.375rem;
+    @include u-text('gray-90', !important);
+    outline: solid 0.15rem color('cyan-50v');
+    @include u-bg('cyan-10');
+    @include u-text('semibold');
     width: 57px;
     height: 57px;
     margin-left: 4px;
@@ -264,13 +251,13 @@ div div.field--name-field-offices-near-you>ul>li {
   }
 
   a.nav-letter:hover {
-    outline: 2px solid #377f9d;
-    color: #000;
-    background-color: #a7d8e3;
+    outline: 2px solid $secondary-border;
+    @include u-text('black');
+    background-color: $secondary-background;
   }
 
   a.nav-letter:focus {
-    outline: 0.25rem solid #c05600;
+    outline: 0.25rem solid color('orange-50v');
   }
 }
 
@@ -286,13 +273,13 @@ div div.field--name-field-offices-near-you>ul>li {
   line-height: 2;
 
   div {
-    border: solid 1.5px #d3d2d2;
+    border: solid 1.5px $fed-gray-border;
     margin: 0;
     padding: 10px 25px;
   }
 
   div:nth-child(odd) {
-    background-color: #f2f2f2;
+    background-color: $fed-white-background;
   }
 }
 
@@ -304,7 +291,7 @@ div div.field--name-field-offices-near-you>ul>li {
 .usagov-directory-table h3 {
   margin: 0;
   margin-bottom: 0.2rem;
-  font-weight: bold;
+  @include u-text('bold');
 }
 
 .usagov-directory-table p {

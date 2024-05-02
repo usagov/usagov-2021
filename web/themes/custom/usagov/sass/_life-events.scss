@@ -1,11 +1,12 @@
 @use "usagov-variables" as *;
+@use "uswds-core" as *;
 
 // $life-events: var( $usagov-variables, life-events );
 [data-pagetype="Life Events"],
 [data-pagetype="Life Events Landing Page"] {
   h1 {
-    background: var($le-heading, background-color);
-    color: var($le-heading, heading-color);
+    @include u-bg('blue-80v');
+    @include u-text('white');
     padding: 15px 45px 8px 35px;
     width: fit-content;
 
@@ -23,32 +24,31 @@
 
   .usagov-cards {
     max-width: 960px;
-    background: var($light-gray);
+    @include u-bg('gray-4');
     margin-right: 0;
   }
 }
 
 [data-pagetype="Life Events Landing Page"] {
   .usagov-card {
-    border-color: var($life-events, text-color);
+    @include u-border('white');
   }
 }
 
 .le-image {
   height: 315px;
-  max-width: 960px;
 }
 
 .usa-card--flag {
   .usa-card__container {
-    background: var($life-events, background-color);
-    color: var($life-events, text-color);
+    @include u-bg('blue-80v');
+    @include u-text('white');
     border: none;
     border-radius: 0;
   }
 
   .usa-card__body {
-    color: var($life-events, text-color);
+    @include u-text('white');
     padding-bottom: 1.5rem;
   }
 
@@ -58,7 +58,10 @@
   }
 
   .usa-card__container .usa-card__header .usa-card__heading .card-link {
-    color: var($life-events, text-color);
+    @include u-text('white');
+    text-decoration-line: underline;
+    text-decoration-thickness: 7px;
+    text-decoration-color: $cyan-text-decoration;
     text-decoration-skip-ink: none;
   }
 
@@ -71,12 +74,12 @@
   }
 
   &:hover {
+    .usa-card__img img {
+      opacity: .8;
+    }
+
     .usa-card__container {
-      .usa-card__header .usa-card__heading .card-link {
-        text-decoration-line: underline;
-        text-decoration-thickness: 7px;
-        text-decoration-color: #3fbde3;
-      }
+      @include u-bg('blue-70v');
     }
   }
 }
@@ -96,7 +99,6 @@
   outline-offset: 0;
   box-shadow: none;
 }
-
 .life-events-landing-page-card-image {
   aspect-ratio: 5/2;
   background-size: cover;
@@ -105,8 +107,8 @@
 .life-events-landing-page-card-title {
   display: flex;
   align-items: center;
-  background: var($life-events, background-color);
-  color: var($life-events, text-color);
+  @include u-bg('blue-80v');
+  @include u-text('white');
   height: 3.5rem;
   padding: 1rem;
 }
@@ -117,7 +119,7 @@
   }
 
   .life-events-landing-page-card-title {
-    background-color: var($life-events, card-hover-background-color);
-    color: var($life-events, card-hover-heading-color);
+    @include u-bg('cyan-10');
+    @include u-text('blue-warm-70v');
   }
 }

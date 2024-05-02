@@ -1,0 +1,80 @@
+uuid: 75d7efed-afe2-4f3a-8750-2a898df6086e
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bears_agency
+    - node.type.bears_benefit
+    - node.type.bears_criteria
+    - node.type.bears_life_event
+    - node.type.bears_life_event_form
+    - taxonomy.vocabulary.bears_tags
+    - workflows.workflow.basic_workflow
+  module:
+    - block
+    - content_lock
+    - content_moderation
+    - node
+    - system
+    - taxonomy
+    - toolbar
+id: benefits_finder_content_manager
+label: 'Benefits Finder Content Manager'
+weight: 6
+is_admin: null
+permissions:
+  - 'access administration pages'
+  - 'access content overview'
+  - 'access site in maintenance mode'
+  - 'access toolbar'
+  - 'administer blocks'
+  - 'administer menu'
+  - 'administer nodes'
+  - 'break content lock'
+  - 'create bears_agency content'
+  - 'create bears_benefit content'
+  - 'create bears_criteria content'
+  - 'create bears_life_event content'
+  - 'create bears_life_event_form content'
+  - 'create terms in bears_tags'
+  - 'delete any bears_agency content'
+  - 'delete any bears_benefit content'
+  - 'delete any bears_criteria content'
+  - 'delete any bears_life_event content'
+  - 'delete any bears_life_event_form content'
+  - 'delete bears_agency revisions'
+  - 'delete bears_benefit revisions'
+  - 'delete bears_criteria revisions'
+  - 'delete bears_life_event revisions'
+  - 'delete bears_life_event_form revisions'
+  - 'delete own bears_agency content'
+  - 'delete own bears_benefit content'
+  - 'delete own bears_criteria content'
+  - 'delete own bears_life_event content'
+  - 'delete own bears_life_event_form content'
+  - 'delete terms in bears_tags'
+  - 'edit any bears_agency content'
+  - 'edit any bears_benefit content'
+  - 'edit any bears_criteria content'
+  - 'edit any bears_life_event content'
+  - 'edit any bears_life_event_form content'
+  - 'edit own bears_agency content'
+  - 'edit own bears_benefit content'
+  - 'edit own bears_criteria content'
+  - 'edit own bears_life_event content'
+  - 'edit own bears_life_event_form content'
+  - 'edit terms in bears_tags'
+  - 'revert bears_agency revisions'
+  - 'revert bears_benefit revisions'
+  - 'revert bears_criteria revisions'
+  - 'revert bears_life_event revisions'
+  - 'revert bears_life_event_form revisions'
+  - 'use basic_workflow transition create_new_draft'
+  - 'view any unpublished content'
+  - 'view bears_agency revisions'
+  - 'view bears_benefit revisions'
+  - 'view bears_criteria revisions'
+  - 'view bears_life_event revisions'
+  - 'view bears_life_event_form revisions'
+  - 'view own unpublished content'
+  - 'view the administration theme'

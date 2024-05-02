@@ -115,7 +115,6 @@ function usagov_benefit_finder_content_node_bears_benefit_edit_form_validate(arr
           else {
             $errors[] = t("Criteria \"$criteria_title\" acceptable value \"$value\" is incorrect.");
             $errors[] = t("---The prefix must include only one of the following comparison operators: '>', '<', '=', '>=', or '<='.
-
 --- The suffix must be formatted as either 'MM-DD-YYYY' or '(d or dd)years'.");
           }
         }
