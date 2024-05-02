@@ -34,7 +34,42 @@ content:
     settings:
       size: 60
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        7d256aff-5858-4005-83b2-7a6221d75c58:
+          entity_type: node
+          bundle: bears_criteria
+          dependee: field_b_has_child
+          settings:
+            state: required
+            reset: false
+            condition: checked
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              value: false
+            effect: show
+            effect_options: {  }
+            selector: ''
+        91ce84c7-8a94-49dc-a41c-d5c0f369a2d0:
+          entity_type: node
+          bundle: bears_criteria
+          dependee: field_b_has_child
+          settings:
+            state: visible
+            reset: false
+            condition: checked
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              value: false
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_b_criteria_key:
     type: string_textfield
     weight: 9
@@ -171,4 +206,5 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-hidden: {  }
+hidden:
+  menu_entity_index: true
