@@ -258,6 +258,7 @@ RUN chmod -R +x /etc/periodic \
     && rm -rf /var/www/web/sites/default/files/* \
     && rm -rf /var/www/web/themes/custom/usagov/node_modules \
     && rm -f /var/www/web/core/modules/system/tests/fixtures/HtaccessTest/composer.lock \
+    && rm -rf /var/www/web/automated_tests \
     && chown nginx:nginx /var/www \
     && find /var/www -not -user $(id -u nginx) -not -group $(id -g nginx) -print0 | xargs -P 0 -0 --no-run-if-empty chown --no-dereference nginx:nginx \
     && echo "    built:" $(date) >> /etc/motd \
@@ -274,10 +275,10 @@ EXPOSE 80
 
 WORKDIR /var/www
 
-HEALTHCHECK CMD s6-svstat /var/run/s6/services/nginx \
+HEALTHCHECK CMD s6-svstat /var/run/s6/services/cert-watcher \
+  && s6-svstat /var/run/s6/services/nginx \
   && s6-svstat /var/run/s6/services/php \
-  && s6-svstat /var/run/s6/services/cron \
-  && s6-svstat /var/run/s6/services/cert-watcher
+  && s6-svstat /var/run/s6/services/cron
 
 # Init s6
 ENTRYPOINT [ "/init" ]

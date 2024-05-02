@@ -77,7 +77,7 @@ rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
 rm -rf $RENDER_DIR/node/ 2>&1 | tee -a $TOMELOG
 rm -rf $RENDER_DIR/es/node/ 2>&1 | tee -a $TOMELOG
 
-# WWW_HOST is not present in CMS app, as of USAGOV-1083.  
+# WWW_HOST is not present in CMS app, as of USAGOV-1083.
 # Determine WWW_HOST based on space name
 case $APP_SPACE in
 dev)
@@ -195,16 +195,11 @@ TOME_PUSH_NEW_CONTENT=0
 if [ "$TOME_TOO_MUCH" == "1" ]; then
   echo "Tome static build looks suspicious - adding more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
   TOME_PUSH_NEW_CONTENT=1
-  # send message, but continue on
-  # write message to php log so newrelic will see it
 elif [ "$TOME_TOO_LITTLE" == "1" ]; then
   MSG="Tome static build failure - removing more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)"
   echo $MSG | tee -a $TOMELOG
   $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "$MSG"
   TOME_PUSH_NEW_CONTENT=0
-  # send message, and abort
-  # write message to php log so newrelic will see it
-  # exit 3
 else
   echo "Tome static build looks fine. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
   TOME_PUSH_NEW_CONTENT=1
@@ -216,6 +211,9 @@ fi
 ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
+
+mkdir -p $RENDER_DIR/ppr
+cp -fp "/var/www/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv" "$RENDER_DIR/ppr/published-pages.csv"
 
 EN_HOME_HTML_FILE=/var/www/html/index.html
 ES_HOME_HTML_FILE=/var/www/html/es/index.html

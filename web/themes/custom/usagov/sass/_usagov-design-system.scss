@@ -1,0 +1,65 @@
+@use "sass:map";
+@use "sass:meta";
+@use "usagov-variables";
+
+/*
+ *  The USAgov Design System (USGDS)
+ *
+ *  These mixins and function enable us to use our custom variables in a manner similar to USWDS Tokens
+ */
+
+
+/*  Define usagov values in the _usagov-variables.scss file.  */
+$usagov-values: meta.module-variables("usagov-variables");
+
+/*  Define which utility classes to generate for each usagov value
+    - These must match the suffix of a usagov mixin
+    - Each usagov mixin can still be used even if its property is not included here  */
+$usagov-utilities: "text" "bg" "border";
+
+
+/*  The usagov() function can be used in our styles to get a usagov value from its name  */
+@function usagov($value-name) {
+  @return map-get($usagov-values, $value-name);
+}
+/*  USAGE:
+ *    .example {
+ *      background-color: usagov("coffee");
+ *    }
+ */
+
+
+/* The usagov mixins can be used in our styles to generate a style with a usagov value  */
+@mixin usagov-text($value-name) {
+  color: usagov($value-name);
+}
+@mixin usagov-bg($value-name) {
+  background-color: usagov($value-name);
+}
+@mixin usagov-border($value-name) {
+  border-color: usagov($value-name);
+}
+/*  USAGE:
+ *    .example {
+ *      @include usagov-bg("coffee");
+ *    }
+ */
+
+
+/* The usagov-utilities mixin takes a map of values and a list of utilities and generates utility styles for each value  */
+@mixin usagov-utilities($values, $utilities) {
+  @each $value-name, $value in $values {
+    @each $utility in $utilities {
+      .#{$utility}-#{$value-name} {
+        @include meta.apply(meta.get-mixin("usagov-#{$utility}"), $value-name);
+      }
+    }
+  }
+}
+@include usagov-utilities($usagov-values, $usagov-utilities);
+
+/*  USAGE:
+ *    <div class="bg-coffee">
+ *      Example
+ *    </div>
+ */

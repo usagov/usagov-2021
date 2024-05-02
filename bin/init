@@ -76,6 +76,11 @@ if [ -f env.local ]; then
   . env.local
 fi
 
+echo "Init local secrets file for cypress tests"
+if [ ! -f env.local.cypress ]; then
+  cp env.default.cypress env.local.cypress
+fi
+
 echo "Setup git hooks"
 if [ ! -f .git/hooks/commit-msg ]; then
   cp .git.commit-msg .git/hooks/commit-msg
@@ -90,13 +95,6 @@ touch s3/.keep
 
 echo "Build Containers"
 bin/build
-
-echo "Fix permissions inside Containers - this could take a long time"
-docker compose run \
- -e BUID=${BUID:-$(id -u)} \
- -e BGID=${BGID:-$(id -g)} \
- --rm --no-deps --workdir /var/www  \
- -u root composer /var/www/bin/fix-perms-in-container
 
 echo "Install Drupal modules"
 # bin/drush cr
