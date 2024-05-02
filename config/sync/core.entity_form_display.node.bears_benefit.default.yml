@@ -8,7 +8,6 @@ dependencies:
     - field.field.node.bears_benefit.field_b_headline
     - field.field.node.bears_benefit.field_b_initial_elg_length
     - field.field.node.bears_benefit.field_b_life_event_forms
-    - field.field.node.bears_benefit.field_b_life_events
     - field.field.node.bears_benefit.field_b_source_is_english
     - field.field.node.bears_benefit.field_b_source_link
     - field.field.node.bears_benefit.field_b_summary
@@ -73,12 +72,6 @@ content:
   field_b_life_event_forms:
     type: options_buttons
     weight: 7
-    region: content
-    settings: {  }
-    third_party_settings: {  }
-  field_b_life_events:
-    type: options_buttons
-    weight: 6
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -195,4 +188,5 @@ content:
     settings: {  }
     third_party_settings: {  }
 hidden:
+  field_b_life_events: true
   menu_entity_index: true
