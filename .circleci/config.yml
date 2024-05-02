@@ -593,7 +593,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - USAGOV-1547-explore-redirect
                 - stage
                 - prod
       - build-and-push-container:
@@ -602,7 +602,7 @@ workflows:
           filters:
             branches:
               only:
-                - dev
+                - USAGOV-1547-explore-redirect
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -612,14 +612,14 @@ workflows:
           filters:
             branches:
               only:
-              - dev
+              - USAGOV-1547-explore-redirect
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
           filters:
             branches:
               only:
-              - dev
+              - USAGOV-1547-explore-redirect
       - approve-stage-deployment:
           type: approval
           requires:
