@@ -144,4 +144,20 @@
 	{% else %}
 		{{ drupal_view('50_state_pages', '50_state_pages_block', node.field_50_state_pages_type.value) }}
 	{% endif %}
+{%  elseif term_name == "Benefits Category Search" %}
+  {% set lang = node.langcode.value %}
+
+  {% if lang == 'es' %}
+    NOT DONE
+
+  {% else %}
+
+    <h3>Benefit Finder</h3>
+
+    TODO: Add life event navigation cards
+
+    <h3>Find benefits by category</h3>
+
+    {{ drupal_block('usagov_category_search_filters') }}
+  {% endif %}
 {% endif %}
