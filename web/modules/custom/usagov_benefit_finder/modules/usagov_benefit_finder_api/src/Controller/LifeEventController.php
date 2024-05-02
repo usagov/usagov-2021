@@ -207,6 +207,7 @@ class LifeEventController {
         "body" => $relevant_benefit->get('field_b_body')->value ?? "",
         "link" => $relevant_benefit->get('field_b_link')->value ?? "",
         "cta" => $relevant_benefit->get('field_b_cta')->value ?? "",
+        "lifeEventId" => current($relevant_benefit->get('field_b_life_event_form')->referencedEntities())->get('field_b_id')->value ?? "",
       ];
       $life_event_form_relevant_benefits[]['lifeEvent'] = $life_event_form_relevant_benefit;
     }
@@ -462,14 +463,6 @@ class LifeEventController {
     $tags = $node->get('field_b_tags')->referencedEntities();
     foreach ($tags as $tag) {
       $benefit["tags"][] = $tag->get('name')->value;
-    }
-
-    // Build life event.
-    $lifeEvents = $node->get('field_b_life_events')->getValue();
-    foreach ($lifeEvents as $lifeEvent) {
-      $service = $this->entityTypeManager->getStorage('node');
-      $node1 = $service->load($lifeEvent['target_id']);
-      $benefit['lifeEvents'][] = $node1->get('title')->value;
     }
 
     // Build eligibilities.
