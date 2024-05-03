@@ -20,8 +20,22 @@ class CategoryFacetsBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function build() {
+    // https://drupal.stackexchange.com/questions/284185/drupalentityquery
+    $cats = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadByProperties(['vid' => 'category']);
+
+    $html = '';
+    foreach ($cats as $tid => $cat) {
+      $html .= sprintf(
+        '<label><input type="checkbox" value="%d">%s</label><br>',
+        $tid,
+        $cat->get('name')->value
+      );
+    }
+
     return [
-      '#markup' => $this->t('Hello, World!'),
+      '#children' => $html,
     ];
   }
 

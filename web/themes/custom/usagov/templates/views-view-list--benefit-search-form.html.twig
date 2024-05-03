@@ -1,0 +1,43 @@
+{#
+/**
+ * @file
+ * Default theme implementation for a view template to display a list of rows.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the container.
+ * - rows: A list of rows for this list.
+ *   - attributes: The row's HTML attributes.
+ *   - content: The row's contents.
+ * - title: The title of this group of rows. May be empty.
+ * - list: @todo.
+ *   - type: Starting tag will be either a ul or ol.
+ *   - attributes: HTML attributes for the list element.
+ *
+ * @see template_preprocess_views_view_list()
+ *
+ * @ingroup themeable
+ */
+#}
+{% if attributes -%}
+<div{{ attributes }}>
+  {% endif %}
+
+  <form id="benefitsFacet" class="usa-form" action="javascript:void(0)">
+
+  <ul>
+  {% for row in rows %}
+
+    <li>
+      {{- row.content -}}
+
+    </li>
+  {% endfor %}
+
+    <li><label><input type="checkbox" value="all">Select All</label></li>
+  </ul>
+
+</{{ list.type }}>
+
+{% if attributes -%}
+  </div>
+{% endif %}

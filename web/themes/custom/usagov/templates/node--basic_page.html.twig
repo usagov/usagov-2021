@@ -158,6 +158,11 @@
 
     <h3>Find benefits by category</h3>
 
-    {{ drupal_block('usagov_category_search_filters') }}
+    {% if lang == 'es' %}
+      {{ drupal_view('benefit_search_form', 'benefits_facets_block_spanish') }}
+    {% else %}
+      {{ drupal_view('benefit_search_form', 'benefits_facets_block') }}
+    {% endif %}
+
   {% endif %}
 {% endif %}
