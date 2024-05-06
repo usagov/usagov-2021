@@ -15,14 +15,14 @@ class GoogleAnalyticsQueryAuthorizer {
     // https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/runReport#authorization-scopes
     const scopes = ["https://www.googleapis.com/auth/analytics.readonly"];
     const jwt = new googleapis.Auth.JWT(email, null, key, scopes);
-    console.log("passed in all my consts");
     query = Object.assign({}, query, { auth: jwt });
-    console.log("assigned my query");
     return new Promise((resolve, reject) => {
       jwt.authorize((err) => {
         if (err) {
+          console.log("here's the error");
           reject(err);
         } else {
+          console.log("no error here");
           resolve(query);
         }
       });
