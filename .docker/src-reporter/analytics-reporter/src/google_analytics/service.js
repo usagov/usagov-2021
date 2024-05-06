@@ -23,11 +23,15 @@ class GoogleAnalyticsService {
    * @returns {Object} the results of the GA4 report API call.
    */
   async runReportQuery(query, isRealtime = false) {
+    this.#logger.debug("calling this.#authorizeQuery");
     const authorizedQuery = await this.#authorizeQuery(query);
+    this.#logger.debug("called this.#authorizeQuery");
+    this.#logger.debug("calling this.#runAuthorizedReportQuery");
     const results = await this.#runAuthorizedReportQuery(
       authorizedQuery,
       isRealtime,
     );
+    this.#logger.debug("called this.#runAuthorizedReportQuery");
     return results;
   }
 
