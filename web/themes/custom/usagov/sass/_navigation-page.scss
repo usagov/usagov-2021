@@ -34,6 +34,8 @@
 .usagov-cards {
   padding: 1em;
   @include u-bg('gray-5');
+  box-shadow: 0 0 0 100vmax #f0f0f0;
+  clip-path: inset(0 -100vmax);
 }
 
 .usa-layout-docs__main .usagov-cards {
