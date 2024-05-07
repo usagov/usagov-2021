@@ -1,0 +1,19 @@
+uuid: 1f6b04ec-e649-4672-8405-32a594ad93cb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_page_intro
+    - node.type.bears_life_event
+id: node.bears_life_event.field_page_intro
+field_name: field_page_intro
+entity_type: node
+bundle: bears_life_event
+label: 'Page Intro'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

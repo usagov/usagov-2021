@@ -81,7 +81,7 @@ function setupRoutes { #appname
   # the egress-setup doesn't interfere with bootstrapping
   # but cms needs to exist in the first place
   # for route mapping and egress setup to run
-  
+
   if [ "$APP_SPACE" == "dev-dr" ]; then
     cf create-route apps.internal --hostname dev-dr-usagov
     cf map-route $app apps.internal --hostname dev-dr-usagov
@@ -117,26 +117,15 @@ function setupEgress { #appname
   $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
 }
 
-function setupNewrelic { #appname
-  app=$1
-  if [ -z "$app" ]; then
-    echo "ERROR: appname is required"
-    exit 1
-  fi
-  $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart
-}
-
 if appExists www; then
   setupRoutes www
-#  setupEgress cms
-  setupNewrelic www
+  setupEgress www
   pushApp www
 else
   cf set-env www SKIP_DRUPAL_BOOTSTRAP "skip"
   pushApp www
   setupRoutes www
-#  setupEgress cms
-  setupNewrelic www
+  setupEgress www
   cf set-env www SKIP_DRUPAL_BOOTSTRAP ""
   restartApp www
 fi
