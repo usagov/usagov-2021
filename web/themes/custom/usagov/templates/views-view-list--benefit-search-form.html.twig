@@ -18,26 +18,33 @@
  * @ingroup themeable
  */
 #}
+
+{{ attach_library('usagov/benefitSearch') }}
+
 {% if attributes -%}
 <div{{ attributes }}>
   {% endif %}
 
-  <form id="benefitsFacet" class="usa-form" action="javascript:void(0)">
+  <form id="benefitSearch" action="javascript:void(0)">
 
-  <ul>
-  {% for row in rows %}
+      <ul class="usa-list--unstyled" style="column-count: 3; column-width: 10rem">
+      {% for row in rows %}
+        <li>{{- row.content -}}</li>
+      {% endfor %}
 
-    <li>
-      {{- row.content -}}
+        <li><label><input type="checkbox" value="all"> Select All</label></li>
+      </ul>
 
-    </li>
-  {% endfor %}
+      <div class="grid-col-auto margin-top-2">
+        <button class="usa-button" type="submit">Apply Selections</button>
+        <button class="usa-button usa-button--outline" type="reset">Clear Selections</button>
+      </div>
 
-    <li><label><input type="checkbox" value="all">Select All</label></li>
-  </ul>
 
-</{{ list.type }}>
+  </form>
 
 {% if attributes -%}
   </div>
 {% endif %}
+
+<div id="matchingBenefits" aria-live="polite"></div>

@@ -47,3 +47,10 @@ reportAProblem:
   dependencies:
     - core/drupal
     - core/jquery
+
+benefitSearch:
+  js:
+    scripts/benefitSearch.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
