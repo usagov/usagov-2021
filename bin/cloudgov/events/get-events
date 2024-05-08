@@ -41,14 +41,11 @@ else
   LAST_EVENT_TIME=$(TZ=UTC date -d "now - 24 hours" +"%Y-%m-%dT%H:%M:%SZ")
 fi
 
-#echo $LAST_EVENT_TIME
-#exit
-
 CURRENT_ORG=$(getOrg)
 export ORG_GUID=$(getOrgGUID $CURRENT_ORG)
 
 declare -rA AUDIT_TYPES=(
-    ["app"]="audit.app.create,audit.app.start,audit.app.restage,audit.app.stop,audit.app.delete",
+    ["app"]="audit.app.create,audit.app.start,audit.app.restage,audit.app.stop,audit.app.delete"
     ["route"]="audit.route.create,audit.route.delete-request,audit.route.update"
     ["service_instance"]="audit.service_instance.create,audit.service_instance.bind_route,audit.service_instance.update,audit.service_instance.unbind_route,audit.service_instance.delete"
     ["service"]="audit.service.create,audit.service.delete,audit.service.update,audit.service_binding.create,audit.service_binding.delete,service_instance.bind_route,audit.service_instance.create,audit.service_instance.delete,audit.service_instance.unbind_route,audit.service_instance.update"
@@ -73,32 +70,23 @@ declare -rA AUDIT_HEADERS=(
     ["user"]='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
 )
 
-# Again, headers are all the same for now - no need to print one per resource type
-header='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
-
-echo $header
-
 for resource_type in ${!AUDIT_TYPES[@]}; do
-
-  echo "*** $resource_type ***"
-  
     types=${AUDIT_TYPES[$resource_type]}
     fields=${AUDIT_FIELDS[$resource_type]}
     header=${AUDIT_HEADERS[$resource_type]}
 
-    ###
-    ###types="audit.app.start"
-    ###
-    
-    #NEXT="/v2/events?q=type+IN+${types}&q=organization_guid:${ORG_GUID}&q=timestamp>${LAST_EVENT_TIME}"
     NEXT="/v2/events?&q=type+IN+${types}&q=organization_guid:${ORG_GUID}&a=space_uid:${SPACE_GUID}&q=timestamp>${LAST_EVENT_TIME}&order-by:timestamp"
-
-    echo "*** $NEXT ***"
-    #continue
     
+    header_emitted=0
     while [ -n $NEXT -a ! $NEXT == 'null' ]; do
-        EVENTS=$(cf curl $NEXT) 
 
+        EVENTS=$(cf curl $NEXT)
+
+        if [ $header_emitted = 0 ]; then
+          echo $header
+          header_emitted=1
+        fi
+        
         #Each page of events will be a list of resources, similar to the following:
         #  "resources": [
         #  {
