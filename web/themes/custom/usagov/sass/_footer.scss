@@ -183,10 +183,7 @@
 
 .usa-footer__contact-heading {
   margin-bottom: 0.5rem;
-
-  @media (max-width: 30em) {
-    text-align: left;
-  }
+  text-align: left;
 }
 
 .usa-footer__contact-heading.es {
@@ -240,8 +237,7 @@
   }
 }
 
-/* ---- Identifier ----
-*/
+/* ---- Identifier ---- */
 
 .usa-identifier {
   background-color: color("blue-80v");
@@ -272,5 +268,55 @@
     // Prevent Tagline from being covered by the Feedback button
     position: absolute;
     z-index: 2000000005;
+  }
+}
+
+/* ---- Identifier----
+*/
+.usa-identifier {
+  padding-bottom: 2rem;
+}
+
+.usa-identifier__required-link.usa-link {
+  color: #fff;
+}
+
+.usa-identifier__required-link.usa-link:active {
+  color: #00BDE3;
+}
+
+.usa-identifier__required-link.usa-link:visited {
+  color: #F0F0F0;
+}
+
+.usa-identifier__required-link.usa-link:focus,
+.usa-identifier__identity-disclaimer a:focus {
+  box-shadow: none;
+}
+
+p.usa-identifier__identity-disclaimer:last-of-type {
+  font-weight: normal;
+  @media (max-width: 64em) {
+    padding-top: 1rem;
+  }
+}
+
+p.usa-identifier__identity-disclaimer a {
+  font-weight: normal;
+  margin-top: 0;
+}
+
+.usa-identifier__section--usagov a {
+  display: inline;
+}
+
+.usa-identifier__required-links-list {
+  @media (min-width: 40em) {
+    -moz-column-count: 1;
+    column-count: 1;
+  }
+  @media (min-width: 64em) {
+    -moz-column-count: 4;
+    column-count: 4;
   }
 }
