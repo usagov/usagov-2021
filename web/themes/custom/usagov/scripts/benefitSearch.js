@@ -35,22 +35,23 @@ const benefitSearch = {
   "showResults": function(container, benefits) {
     "use strict";
 
-     for (const b of benefits) {
-       let elt = document.createElement('template');
-       let descr;
+    container.scrollIntoView({"behavior": 'smooth'});
 
-       if (b.field_page_intro) {
-         descr = b.field_page_intro;
-       }
-       else if (b.field_short_description) {
-         descr = b.field_short_description;
-       }
+    for (const b of benefits) {
+      let elt = document.createElement('template');
+      let descr;
 
-       elt.innerHTML += `<div><h3>${b.title}</h3><p>${descr}</p></div>`;
+      if (b.field_page_intro) {
+        descr = b.field_page_intro;
+      }
+      else if (b.field_short_description) {
+        descr = b.field_short_description;
+      }
 
+      elt.innerHTML += `<div><h3>${b.title}</h3><p>${descr}</p></div>`;
 
-       container.innerHTML = container.innerHTML + elt.innerHTML;
-     }
+      container.innerHTML = container.innerHTML + elt.innerHTML;
+    }
   }
 };
 

@@ -31,5 +31,5 @@
  * @ingroup themeable
  */
 #}
-<label><input type="checkbox" value="{{- view.field.tid.original_value -}}"
+<label><input type="checkbox" value="{{- fields.tid.content | striptags | trim -}}"
   >{{- fields.name.content -}}</label>
