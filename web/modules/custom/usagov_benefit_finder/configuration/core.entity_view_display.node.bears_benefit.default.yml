@@ -119,5 +119,4 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
-hidden:
-  field_b_life_events: true
+hidden: {  }
