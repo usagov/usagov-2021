@@ -11,9 +11,6 @@ server {
     # CMS should not be indexed even if exposed.
     add_header X-Robots-Tag noindex;
 
-    # IT MUST BE REMOVED BEFORE MERGING INTO DEV!
-    include /etc/nginx/partials/internal_redirects.conf;
-
     include partials/drupal.conf;
 }
 
