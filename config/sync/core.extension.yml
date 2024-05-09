@@ -12,6 +12,7 @@ module:
   breakpoint: 0
   ckeditor5: 0
   ckeditor5_embedded_content: 0
+  ckeditor_media_resize: 0
   composer_deploy: 0
   conditional_fields: 0
   config: 0
