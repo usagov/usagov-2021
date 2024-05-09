@@ -5,6 +5,7 @@
  * Provides usagov_benefit_finder_api.
  */
 
+use Drupal\Core\Batch\BatchBuilder;
 use Drupal\node\Entity\Node;
 use Drupal\usagov_benefit_finder_api\Controller\LifeEventController;
 
@@ -14,7 +15,7 @@ use Drupal\usagov_benefit_finder_api\Controller\LifeEventController;
  * @param Node $node
  */
 function usagov_benefit_finder_api_node_update(Node $node) {
-  usagov_benefit_finder_api_save_json_data($node);
+  _usagov_benefit_finder_api_batch_generate_json_data_files($node);
 }
 
 /**
@@ -23,7 +24,7 @@ function usagov_benefit_finder_api_node_update(Node $node) {
  * @param Node $node
  */
 function usagov_benefit_finder_api_node_insert(Node $node) {
-  usagov_benefit_finder_api_save_json_data($node);
+  _usagov_benefit_finder_api_batch_generate_json_data_files($node);
 }
 
 /**
@@ -32,15 +33,65 @@ function usagov_benefit_finder_api_node_insert(Node $node) {
  * @param Node $node
  */
 function usagov_benefit_finder_api_node_delete(Node $node) {
-  usagov_benefit_finder_api_save_json_data($node);
+  _usagov_benefit_finder_api_batch_generate_json_data_files($node);
 }
 
 /**
- * Save Json data if node is benefit finder content.
+ * Batch operation function to save content.
+ *
+ * @param int $id
+ *   The life event ID.
+ * @param int $isPublished
+ *   The saved content is published or draft.
+ * @return void
+ */
+function _usagov_benefit_finder_api_batch_operation_generate_json_data_files($id, $isPublished) {
+  usleep(500000);
+  $lifeEventController = new LifeEventController();
+  if ($isPublished) {
+    \Drupal::logger('batch')->error("SAVE $id real JSON datad");
+    $lifeEventController->mode = "published";
+    $lifeEventController->saveJsonData($id);
+  }
+  \Drupal::logger('batch')->error("SAVE $id draft JSON datad");
+  $lifeEventController->mode = "draft";
+  $lifeEventController->saveJsonData($id);
+}
+
+/**
+ * Batch Finished callback.
+ *
+ * @param bool $success
+ *   Success of the operation.
+ * @param array $results
+ *   Array of results for post-processing.
+ * @param array $operations
+ *   Array of operations.
+ */
+function _usagov_benefit_finder_api_batch_finished_generate_json_data_files($success, $results, $operations) {
+  if ($success) {
+    \Drupal::messenger()->addStatus(t('Generated JSON data files successfully.'));
+  }
+  else {
+    \Drupal::messenger()->addError(t('An error occurred during generating JSON data files.'));
+  }
+}
+
+/**
+ * Batch process function.
  *
  * @param Node $node
+ *   The content node.
+ * @return void
  */
-function usagov_benefit_finder_api_save_json_data(Node $node) {
+function _usagov_benefit_finder_api_batch_generate_json_data_files(Node $node) {
+  if ($node->isPublished()) {
+    $isPublished = 1;
+  }
+  else {
+    $isPublished = 0;
+  }
+
   $config = \Drupal::config('usagov_benefit_finder.settings');
   if ($config->get('automate_json_data_file_generating')) {
     $content_types = [
@@ -50,17 +101,30 @@ function usagov_benefit_finder_api_save_json_data(Node $node) {
       'bears_life_event_form',
     ];
     if (in_array($node->getType(), $content_types)) {
-      $lifeEventController = new LifeEventController();
+      if ($isPublished) {
+        $title = 'Generating both DRAFT and REAL JSON data files';
+      }
+      else {
+        $title = 'Generating only DRAFT JSON data files';
+      }
+      $batch_builder = new BatchBuilder();
+      $batch_builder->setTitle(t($title))
+        ->setInitMessage(t('Starting to generate JSON data files...'))
+        ->setProgressMessage(t('Generated JSON data files @current out of @total life events.'))
+        ->setErrorMessage(t('An error occurred during content saving.'))
+        ->setFinishCallback('_usagov_benefit_finder_api_batch_finished_generate_json_data_files');
+
       $result = \Drupal::service('database')
         ->query('SELECT field_b_id_value FROM node__field_b_id WHERE bundle = :bundle', [':bundle' => 'bears_life_event_form'])
         ->fetchAll();
       foreach ($result as $record) {
         $id = $record->field_b_id_value;
-        $lifeEventController->mode = "published";
-        $lifeEventController->saveJsonData($id);
-        $lifeEventController->mode = "draft";
-        $lifeEventController->saveJsonData($id);
+        $batch_builder->addOperation(
+          '_usagov_benefit_finder_api_batch_operation_generate_json_data_files', [$id, $isPublished]
+        );
       }
+
+      batch_set($batch_builder->toArray());
     }
   }
 }

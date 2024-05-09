@@ -465,14 +465,6 @@ class LifeEventController {
       $benefit["tags"][] = $tag->get('name')->value;
     }
 
-    // Build life event.
-    $lifeEvents = $node->get('field_b_life_events')->getValue();
-    foreach ($lifeEvents as $lifeEvent) {
-      $service = $this->entityTypeManager->getStorage('node');
-      $node1 = $service->load($lifeEvent['target_id']);
-      $benefit['lifeEvents'][] = $node1->get('title')->value;
-    }
-
     // Build eligibilities.
     $benefit_eligibilitys = [];
     $eligibilities = $node->get('field_b_eligibility')->referencedEntities();

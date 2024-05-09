@@ -289,23 +289,31 @@
   color: #F0F0F0;
 }
 
-.usa-identifier__required-link.usa-link:focus {
+.usa-identifier__required-link.usa-link:focus,
+.usa-identifier__identity-disclaimer a:focus {
   box-shadow: none;
 }
 
-p.usa-identifier__identity-disclaimer:last-of-type,
-p.usa-identifier__identity-disclaimer a {
+p.usa-identifier__identity-disclaimer:last-of-type {
   font-weight: normal;
+  @media (max-width: 64em) {
+    padding-top: 1rem;
+  }
 }
 
-p.usa-identifier__identity-disclaimer {
-  padding-top: 5px;
+p.usa-identifier__identity-disclaimer a {
+  font-weight: normal;
+  margin-top: 0;
+}
+
+.usa-identifier__section--usagov a {
+  display: inline;
 }
 
 .usa-identifier__required-links-list {
   @media (min-width: 40em) {
-          -moz-column-count: 1;
-          column-count: 1;
+    -moz-column-count: 1;
+    column-count: 1;
   }
   @media (min-width: 64em) {
     -moz-column-count: 4;
