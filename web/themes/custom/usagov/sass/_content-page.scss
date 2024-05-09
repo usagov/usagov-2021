@@ -19,3 +19,8 @@
   position: absolute;
   width: 1px;
 }
+
+.field--name-field-media-image img {
+  // Prevents large images in page content from appearing squished
+  height: auto;
+}
