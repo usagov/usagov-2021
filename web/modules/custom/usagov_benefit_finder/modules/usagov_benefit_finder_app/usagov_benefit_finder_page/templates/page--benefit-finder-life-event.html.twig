@@ -118,11 +118,14 @@
 <main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
 
   {# link is in html.html.twig #}
-  <div hidden><a href="{{ json_data_file_path }}">"{{ json_data_file_path }}"</a></div>
+  <div hidden><a href="{{ json_data_file_path }}" rel="noindex nofollow">"{{ json_data_file_path }}"</a></div>
   <div class="grid-container">
     {{ page.breadcrumb }}
   </div>
-  <div id="benefit-finder" json-data-file-path="{{ json_data_file_path }}" draft-json-data-file-path="{{ draft_json_data_file_path }}"></div>
+  <div id="benefit-finder" json-data-file-path="{{ json_data_file_path }}" draft-json-data-file-path="{{ draft_json_data_file_path }}">
+    {# app will rehydrate and replace innerHTML #}
+    <h1 class="usa-sr-only" id="skip-to-h1" aria-level="1" hidden role="heading">{{ node.label }}</h1>
+  </div>
 
   {% else %}
   <main class="main-content usa-layout-docs no-footer-gap {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
