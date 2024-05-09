@@ -596,6 +596,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-38-Image-Resize
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -605,6 +606,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-38-Image-Resize
       - approve-dev-deployment:
           type: approval
           requires:
@@ -613,6 +615,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-38-Image-Resize
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -620,6 +623,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-38-Image-Resize
       - approve-stage-deployment:
           type: approval
           requires:
