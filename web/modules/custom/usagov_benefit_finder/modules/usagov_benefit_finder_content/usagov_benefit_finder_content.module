@@ -5,6 +5,7 @@
  * Module contains functions related to usagov_benefit_finder_content.
  */
 
+use Drupal\Core\Database\Database;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
 
@@ -114,7 +115,7 @@ function usagov_benefit_finder_content_node_bears_benefit_edit_form_validate(arr
           else {
             $errors[] = t("Criteria \"$criteria_title\" acceptable value \"$value\" is incorrect.");
             $errors[] = t("---The prefix must include only one of the following comparison operators: '>', '<', '=', '>=', or '<='.
-            
+
 --- The suffix must be formatted as either 'MM-DD-YYYY' or '(d or dd)years'.");
           }
         }
@@ -127,4 +128,175 @@ function usagov_benefit_finder_content_node_bears_benefit_edit_form_validate(arr
       $form_state->setErrorByName((string) ++$error_count, $error);
     }
   }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function usagov_benefit_finder_content_form_node_bears_agency_delete_form_alter(array &$form, FormStateInterface $form_state) {
+  _usagov_benefit_finder_content_check_agency_usage($form);
+}
+
+/**
+ * It checks agency usage in benefits.
+ * If still used, it lists the benefits and disables the agency delete button.
+ *
+ * @param array $form
+ *   Form array.
+ */
+function _usagov_benefit_finder_content_check_agency_usage(array &$form) {
+  $description = '';
+
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $nid = $node->id();
+
+  $connection = Database::getConnection();
+  $query = $connection->select('node_field_data', 't1');
+  $query->join('node__field_b_agency', 't2', 't1.nid = t2.entity_id');
+  $query->fields('t1', ['title', 'nid']);
+  $query->condition('t2.field_b_agency_target_id', $nid);
+  $query->orderBy('title');
+  $result = $query->execute();
+
+  foreach ($result as $row) {
+    $description .= "<li>$row->title ($row->nid)</li>";
+  }
+
+  if (!empty($description)) {
+    $description = '<div class="entity-skip">'
+      . '<span>This agency cannot be deleted as it is still used in following benefits:</span>'
+      . "<ul>$description</ul>"
+      . '</div>';
+    $form['description']['#markup'] = $description;
+    $form['actions']['submit']['#access'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function usagov_benefit_finder_content_form_node_bears_criteria_delete_form_alter(array &$form, FormStateInterface $form_state) {
+  _usagov_benefit_finder_content_check_criteria_usage($form);
+}
+
+/**
+ * It checks criteria usage in benefits and life event forms.
+ * If still used, it lists the benefits and life event forms and disables the criteria delete confirmation button.
+ *
+ * @param array $form
+ *   Form array.
+ */
+function _usagov_benefit_finder_content_check_criteria_usage(array &$form) {
+  $description = '';
+
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $nid = $node->id();
+
+  $result = _usagov_benefit_finder_content_check_criteria_usage_in_life_event_form($nid);
+  foreach ($result as $row) {
+    $description .= "<li>Life event form: $row[title] ($row[nid])</li>";
+  }
+
+  $result = _usagov_benefit_finder_content_check_criteria_usage_in_benefit($nid);
+  foreach ($result as $row) {
+    $description .= "<li>Benefit: $row[title] ($row[nid])</li>";
+  }
+
+  if (!empty($description)) {
+    $description = '<div class="entity-skip">'
+      . '<span>This criteria cannot be deleted as it is still used in following content:</span>'
+      . "<ul>$description</ul>"
+      . '</div>';
+    $form['description']['#markup'] = t($description);
+    $form['actions']['submit']['#access'] = FALSE;
+  }
+}
+
+/**
+ * It checks criteria usage in life event forms.
+ *
+ * @param int $nid
+ *   Node ID of given criteria.
+ */
+function _usagov_benefit_finder_content_check_criteria_usage_in_life_event_form(int $nid) {
+  $return = [];
+
+  $connection = Database::getConnection();
+
+  $query = $connection->select('paragraph__field_b_criteria_key', 't');
+  $query->fields('t', ['entity_id']);
+  $query->condition('t.bundle', 'b_levent_elg_criteria');
+  $query->condition('t.field_b_criteria_key_target_id', $nid);
+  $result = $query->execute();
+
+  $entity_ids = [];
+  foreach ($result as $row) {
+    $entity_ids[] = $row->entity_id;
+  }
+
+  if (!empty($entity_ids)) {
+    $first_level_entity_ids = [];
+    do {
+      $new_entity_ids = [];
+      foreach ($entity_ids as $entity_id) {
+        $query = $connection->select('paragraph__field_b_children', 't');
+        $query->fields('t', ['entity_id']);
+        $query->condition('t.bundle', 'b_levent_elg_criteria');
+        $query->condition('t.field_b_children_target_id', $entity_id);
+        $result = $query->execute()->fetchField();
+        if ($result) {
+          $new_entity_ids[] = $result;
+        }
+        else {
+          $first_level_entity_ids[] = $entity_id;
+        }
+      }
+      if (empty($new_entity_ids)) {
+        break;
+      }
+      else {
+        $entity_ids = $new_entity_ids;
+      }
+    } while (1);
+
+    $query = $connection->select('node_field_data', 't1');
+    $query->join('node__field_b_sections_elg_criteria', 't2', 't1.nid = t2.entity_id');
+    $query->join('paragraph__field_b_criterias', 't3', 't2.field_b_sections_elg_criteria_target_id=  t3.entity_id');
+    $query->fields('t1', ['title', 'nid']);
+    $query->condition('t3.field_b_criterias_target_id', $first_level_entity_ids, 'IN');
+    $query->orderBy('title');
+    $result = $query->execute();
+
+    foreach ($result as $row) {
+      $return[] = ['nid' => $row->nid, 'title' => $row->title];
+    }
+  }
+
+  return $return;
+}
+
+/**
+ * It checks criteria usage in benefit.
+ *
+ * @param int $nid
+ *   Node ID of given criteria.
+ */
+function _usagov_benefit_finder_content_check_criteria_usage_in_benefit(int $nid) {
+  $return = [];
+
+  $connection = Database::getConnection();
+
+  $query = $connection->select('node_field_data', 't1');
+  $query->join('node__field_b_eligibility', 't2', 't1.nid = t2.entity_id');
+  $query->join('paragraph__field_b_criteria_key', 't3', 't2.field_b_eligibility_target_id = t3.entity_id');
+  $query->fields('t1', ['title', 'nid']);
+  $query->condition('t3.field_b_criteria_key_target_id', $nid);
+  $query->orderBy('title');
+  $result = $query->execute();
+
+  foreach ($result as $row) {
+    $return[] = ['nid' => $row->nid, 'title' => $row->title];
+  }
+
+  return $return;
 }

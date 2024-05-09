@@ -188,5 +188,4 @@ content:
     settings: {  }
     third_party_settings: {  }
 hidden:
-  field_b_life_events: true
   menu_entity_index: true
