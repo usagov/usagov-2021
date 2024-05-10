@@ -79,21 +79,9 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
 
     // display matching pages
     myself.showResults(matches);
-
-    // show/update pager
-    const labels = {
-      'page': "Page",
-      'next': "Next",
-      'nextAria': "Next Page",
-      'previous': "Previous",
-      'previousAria': "Previous page",
-    };
-    const pager = new Pagination(5, 1, labels, myself.handlePagerClick);
-    resultsContainer.append(pager.render());
   };
 
   this.preparePages = function(matches) {
-
     const total = matches.length;
 
     // chunk the matches into pages
@@ -158,6 +146,17 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     }
 
     myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+
+    // show/update pager
+    const labels = {
+      'page': "Page",
+      'next': "Next",
+      'nextAria': "Next Page",
+      'previous': "Previous",
+      'previousAria': "Previous page",
+    };
+    const pager = new Pagination(pages.length, 1, labels, myself.handlePagerClick);
+    resultsContainer.append(pager.render());
   };
 
   this.showError = function() {

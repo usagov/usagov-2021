@@ -70,6 +70,11 @@ function Pagination(total, current, labels, onClick) {
 
     let myself = this;
     link.addEventListener('click', function(ev) {
+      const items = this.parentElement.querySelectorAll('li > a');
+      items.forEach(
+        (item) => {item.classList.remove('usa-current');}
+      );
+      this.querySelector('a').classList.add('usa-current');
       myself.onClick(num);
     });
 
