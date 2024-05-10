@@ -36,6 +36,23 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     myself.resultsContainer.innerHTML = '';
   };
 
+  this.handlePagerClick = function(page) {
+    // hide visible page
+    const toHide = myself.resultsContainer
+      .querySelector('.page-active');
+    if (toHide) {
+      toHide.classList.remove('page-active');
+      toHide.classList.add('display-none');
+    }
+    // show requested page
+    const toShow = myself.resultsContainer
+      .querySelector(`div.page[data-page="${page}"]`);
+    if (toShow) {
+      toShow.classList.add('page-active');
+      toShow.classList.remove('display-none');
+    }
+  };
+
   this.handleSubmit = function() {
     //  grab term ids from checked filters
     let checked = myself.form.querySelectorAll('#benefitSearch input[type="checkbox"]:checked');
@@ -71,19 +88,7 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
       'previous': "Previous",
       'previousAria': "Previous page",
     };
-    const pager = new Pagination(5, 1, labels, function(page) {
-      // hide visible page
-      const toHide = myself.resultsContainer.querySelector('.page-active');
-      toHide.classList.remove('page-active');
-      toHide.classList.add('display-none');
-      // show requested page
-      const toShow = myself.resultsContainer
-        .querySelector(`div.page[data-page="${page}"]`);
-
-      toShow.classList.add('page-active');
-      toShow.classList.remove('display-none');
-    });
-
+    const pager = new Pagination(5, 1, labels, myself.handlePagerClick);
     resultsContainer.append(pager.render());
   };
 
@@ -92,9 +97,9 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     const total = matches.length;
 
     // chunk the matches into pages
-    let pages = Array.from(
+    return Array.from(
       {"length": Math.ceil(total / myself.perPage)},
-      function (v, i) {
+      function(v, i) {
         let page = {
           "totalItems": total,
           "first": i * myself.perPage + 1,
@@ -106,9 +111,7 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
           page.last = total;
         }
         return page;
-    });
-
-    return pages;
+      });
   };
 
   this.renderMatch = function(benefit) {
