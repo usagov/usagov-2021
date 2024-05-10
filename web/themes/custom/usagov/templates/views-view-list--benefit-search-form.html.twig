@@ -29,13 +29,13 @@
 
       <ul class="usa-list--unstyled" style="column-count: 3; column-width: 10rem">
       {% for row in rows %}
-        <li>{{- row.content -}}</li>
+        <li class="padding-bottom-1">{{- row.content -}}</li>
       {% endfor %}
 
-        <li><label><input type="checkbox" value="all"> Select All</label></li>
+        <li><label><input type="checkbox" value="all" style="display: inline-block; padding-right: 1rem;"> Select All</label></li>
       </ul>
 
-      <div class="grid-col-auto margin-top-2">
+      <div class="grid-col-auto margin-top-4">
         <button class="usa-button" type="submit">Apply Selections</button>
         <button class="usa-button usa-button--outline" type="reset">Clear Selections</button>
       </div>

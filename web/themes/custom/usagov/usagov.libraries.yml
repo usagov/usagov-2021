@@ -54,3 +54,7 @@ benefitSearch:
   dependencies:
     - core/drupal
     - core/jquery
+    - usagov/pagination
+pagination:
+  js:
+    scripts/pagination.js: {}

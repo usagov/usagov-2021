@@ -1,16 +1,22 @@
 /**
+ * Component to allow users to search benefits content and display
+ * the paginated results
  *
  * @param {string} src
  * @param {Element} form
  * @param {Element} resultsContainer
+ * @param {int} perPage
  * @constructor
  */
-function BenefitSearch(src, form, resultsContainer) {
+function BenefitSearch(src, form, resultsContainer, perPage) {
   "use strict";
 
   this.src = src;
   this.resultsContainer = resultsContainer;
   this.form = form;
+  this.perPage = perPage;
+  this.activePage = 1;
+
   this.boxes = this.form.querySelectorAll('#benefitSearch input[type="checkbox"]');
 
   let myself = this;
@@ -54,37 +60,106 @@ function BenefitSearch(src, form, resultsContainer) {
       return numMatches.length > 0;
     });
 
-    //  c) display matching pages (later - paginate results)
+    // display matching pages
     myself.showResults(matches);
+
+    // show/update pager
+    const labels = {
+      'page': "Page",
+      'next': "Next",
+      'nextAria': "Next Page",
+      'previous': "Previous",
+      'previousAria': "Previous page",
+    };
+    const pager = new Pagination(5, 1, labels, function(page) {
+      // hide visible page
+      const toHide = myself.resultsContainer.querySelector('.page-active');
+      toHide.classList.remove('page-active');
+      toHide.classList.add('display-none');
+      // show requested page
+      const toShow = myself.resultsContainer
+        .querySelector(`div.page[data-page="${page}"]`);
+
+      toShow.classList.add('page-active');
+      toShow.classList.remove('display-none');
+    });
+
+    resultsContainer.append(pager.render());
   };
 
+  this.preparePages = function(matches) {
+
+    const total = matches.length;
+
+    // chunk the matches into pages
+    let pages = Array.from(
+      {"length": Math.ceil(total / myself.perPage)},
+      function (v, i) {
+        let page = {
+          "totalItems": total,
+          "first": i * myself.perPage + 1,
+          "last": i * myself.perPage + myself.perPage,
+          "matches": matches.slice(i * myself.perPage, i * myself.perPage + myself.perPage),
+        };
+
+        if (page.last >= total) {
+          page.last = total;
+        }
+        return page;
+    });
+
+    return pages;
+  };
+
+  this.renderMatch = function(benefit) {
+    let elt = document.createElement('template');
+    let descr = '';
+
+    if (benefit.field_page_intro) {
+      descr = benefit.field_page_intro;
+    }
+    else if (benefit.field_short_description) {
+      descr = benefit.field_short_description;
+    }
+
+    elt.innerHTML += `<div><h3>${benefit.title}</h3><p>${descr}</p></div>`;
+    return elt;
+  };
+
+  this.renderPage = function(page, index) {
+    let elt = document.createElement('div');
+
+    elt.className = index + 1 === myself.activePage ? 'page page-active' : 'page display-none';
+    elt.setAttribute('data-page', index + 1);
+
+    if (page.first !== page.last) {
+      elt.innerHTML += `<h3>Showing ${page.first}&ndash;${page.last} of ${page.totalItems}</h3>`;
+    }
+    else {
+      elt.innerHTML += `<h3>Showing ${page.first} of ${page.totalItems}</h3>`;
+    }
+
+    for (const benefit of page.matches) {
+      elt.innerHTML += myself.renderMatch(benefit).innerHTML;
+    }
+
+    return elt;
+  };
   /**
-   * @param benefits
+   * @param matches
    */
-  this.showResults = function(benefits) {
+  this.showResults = function(matches) {
+    const pages = myself.preparePages(matches);
+    for (const page of pages.map(myself.renderPage)) {
+      myself.resultsContainer.innerHTML += page.outerHTML;
+    }
 
     myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
-
-    for (const b of benefits) {
-      let elt = document.createElement('template');
-      let descr;
-
-      if (b.field_page_intro) {
-        descr = b.field_page_intro;
-      }
-      else if (b.field_short_description) {
-        descr = b.field_short_description;
-      }
-
-      elt.innerHTML += `<div><h3>${b.title}</h3><p>${descr}</p></div>`;
-
-      myself.resultsContainer.innerHTML += elt.innerHTML;
-    }
   };
 
   this.showError = function() {
     let elt = document.createElement('template');
-    elt.innerHTML = '<div class="error">Select one or more categories</div>';
+    elt.innerHTML = '<div class="usa-alert--error">Select one or more categories</div>';
 
     myself.form.prepend(elt.content);
   };
@@ -122,7 +197,8 @@ jQuery(document).ready(async function () {
   const ben = new BenefitSearch(
     src,
     document.querySelector('#benefitSearch'),
-    document.querySelector('#matchingBenefits')
+    document.querySelector('#matchingBenefits'),
+    5
   );
   await ben.init();
 });
