@@ -17,7 +17,6 @@ jQuery(document).ready(async function () {
             seconds = json.spEstimatedWaitTimeSeconds;
           }
 
-          console.log(seconds);
           if (seconds >= 0) {
             var minutes = Math.floor(seconds / 60);
             var remainingMinutes = minutes % 60;
