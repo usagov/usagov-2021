@@ -16,11 +16,18 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
   this.form = form;
   this.perPage = perPage;
   this.activePage = 1;
-
+  this.terms = [];
   this.boxes = this.form.querySelectorAll('#benefitSearch input[type="checkbox"]');
-
+  // save a reference to our instance
   let myself = this;
-
+  /**
+   * Removes all error messages added to form
+   */
+  this.clearErrors = function() {
+    for (const err of myself.form.querySelectorAll('.usa-alert--error')) {
+      err.remove();
+    }
+  };
   /**
    * @returns {Promise<any>}
    */
@@ -33,54 +40,85 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
   };
 
   this.handleClear = function() {
+    myself.clearErrors();
     myself.resultsContainer.innerHTML = '';
   };
 
+  /**
+   * @param {int} page
+   */
   this.handlePagerClick = function(page) {
     // hide visible page
-    const toHide = myself.resultsContainer
-      .querySelector('.page-active');
+    const toHide = myself.resultsContainer.querySelector('.page-active');
     if (toHide) {
       toHide.classList.remove('page-active');
       toHide.classList.add('display-none');
     }
     // show requested page
-    const toShow = myself.resultsContainer
-      .querySelector(`div.page[data-page="${page}"]`);
+    const toShow = myself.resultsContainer.querySelector(`div.page[data-page="${page}"]`);
     if (toShow) {
       toShow.classList.add('page-active');
       toShow.classList.remove('display-none');
     }
+    myself.activePage = page;
+    myself.updateHistory();
   };
+  /**
+   * Handle when the URL changes
+   * @param ev
+   */
+  this.handlePopState = function(ev) {
+    const url = new URL(window.location.href);
+    let page = url.searchParams.get('pg');
+    let terms = url.searchParams.get('t');
+    if (isNaN(page)) {
+      page = 1;
+    }
+    // TODO: validate input
+    terms = terms.split('|');
 
+    myself.activePage = parseInt(page);
+    myself.terms = terms;
+    myself.showResults();
+  };
+  /**
+   * Check form input and show the matching benefits
+   */
   this.handleSubmit = function() {
     //  grab term ids from checked filters
-    let checked = myself.form.querySelectorAll('#benefitSearch input[type="checkbox"]:checked');
-
+    let checked = myself.form.querySelectorAll('input[type="checkbox"]:checked');
     if (checked.length === 0) {
       myself.showError();
       return;
     }
     // prepare to show results
-    for (const err of myself.form.querySelectorAll('.error')) {
-      err.remove();
-    }
-
+    myself.clearErrors();
     myself.resultsContainer.innerHTML = '';
-    let terms = Array.from(checked).map((elt) => {
+    // keep the selected terms
+    myself.terms = Array.from(checked).map((elt) => {
       return elt.value;
     });
-
-    // keep the benefits that match
-    let matches = myself.benefits.filter((item) => {
-      let numMatches = item.field_category.filter((value) => terms.includes(value));
-      return numMatches.length > 0;
-    });
-
     // display matching pages
-    myself.showResults(matches);
+    myself.showResults();
+    // update browser history so that bookmarks work
+    myself.updateHistory();
   };
 
+  /**
+   * @param {Event} ev
+   */
+  this.handleToggleCheckboxes = function(ev) {
+    myself.clearErrors();
+    let newState = ev.target.checked;
+    for (const box of myself.boxes) {
+      box.checked = newState;
+    }
+  };
+  /**
+   * Group results into pages of desired length and prepare output
+   * @param matches
+   * @returns {{totalItems: *, last: number, matches: *, first: number}[]}
+   */
   this.preparePages = function(matches) {
     const total = matches.length;
 
@@ -94,14 +132,17 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
           "last": i * myself.perPage + myself.perPage,
           "matches": matches.slice(i * myself.perPage, i * myself.perPage + myself.perPage),
         };
-
         if (page.last >= total) {
           page.last = total;
         }
         return page;
       });
   };
-
+  /**
+   * Render a single piece of matching content
+   * @param benefit
+   * @returns {HTMLTemplateElement}
+   */
   this.renderMatch = function(benefit) {
     let elt = document.createElement('template');
     let descr = '';
@@ -116,30 +157,42 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     elt.innerHTML += `<div><h3>${benefit.title}</h3><p>${descr}</p></div>`;
     return elt;
   };
-
+  /**
+   * Generate HTML for a single page
+   * @param page
+   * @param index
+   * @returns {HTMLDivElement}
+   */
   this.renderPage = function(page, index) {
     let elt = document.createElement('div');
-
     elt.className = index + 1 === myself.activePage ? 'page page-active' : 'page display-none';
     elt.setAttribute('data-page', index + 1);
-
+    // heading label
     if (page.first !== page.last) {
       elt.innerHTML += `<h3>Showing ${page.first}&ndash;${page.last} of ${page.totalItems}</h3>`;
     }
     else {
       elt.innerHTML += `<h3>Showing ${page.first} of ${page.totalItems}</h3>`;
     }
-
+    // prepare pages
     for (const benefit of page.matches) {
       elt.innerHTML += myself.renderMatch(benefit).innerHTML;
     }
-
     return elt;
   };
   /**
-   * @param matches
+   * Display content matching selected categories
    */
-  this.showResults = function(matches) {
+  this.showResults = function() {
+    myself.resultsContainer.innerHTML = '';
+    console.log(myself.terms);
+    // keep the benefits that match
+    let matches = myself.benefits.filter((item) => {
+      let numMatches = item.field_category.filter((value) => myself.terms.includes(value));
+      return numMatches.length > 0;
+    });
+    console.log(matches);
+
     const pages = myself.preparePages(matches);
     for (const page of pages.map(myself.renderPage)) {
       myself.resultsContainer.innerHTML += page.outerHTML;
@@ -155,7 +208,7 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
       'previous': "Previous",
       'previousAria': "Previous page",
     };
-    const pager = new Pagination(pages.length, 1, labels, myself.handlePagerClick);
+    const pager = new Pagination(pages.length, myself.activePage, labels, myself.handlePagerClick);
     resultsContainer.append(pager.render());
   };
 
@@ -165,28 +218,33 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
 
     myself.form.prepend(elt.content);
   };
-
   /**
-   * @param {Event} ev
+   * Saves the selected terms and current page to the brower's history via query string
    */
-  this.toggleCheckboxes = function(ev) {
-    let newState = ev.target.checked;
-    for (const box of myself.boxes) {
-      box.checked = newState;
-    }
+  this.updateHistory = function() {
+    const terms = myself.terms.filter((num) => {return false === isNaN(num);});
+    // update query string
+    const url = new URL(window.location.href);
+    url.searchParams.set('t', terms.join('|'));
+    url.searchParams.set('pg', myself.activePage);
+    // update browser
+    window.history.pushState(null, '', url.toString());
   };
-
-  // init stuff
+  /**
+   * Loads the data file and adds event listeners
+   * @returns {Promise<void>}
+   */
   this.init = async function() {
+    // load data
     this.benefits = await myself.fetch();
-
-    // select/hide all
+    // check box events
     const toggleAll = myself.form.querySelector('input[type="checkbox"][value="all"]');
-    toggleAll.addEventListener('click', myself.toggleCheckboxes);
-
+    toggleAll.addEventListener('click', myself.handleToggleCheckboxes);
     // form events
     myself.form.addEventListener('submit', myself.handleSubmit);
     myself.form.addEventListener('reset', myself.handleClear);
+    // history events
+    window.addEventListener('popstate', myself.handlePopState);
   };
 }
 
@@ -194,7 +252,7 @@ jQuery(document).ready(async function () {
   "use strict";
 
   // 1) load search json (todo: toggle languages)
-  const src = "/benefits-search.json";
+  const src = "/benefit-search/en.json";
 
   const ben = new BenefitSearch(
     src,

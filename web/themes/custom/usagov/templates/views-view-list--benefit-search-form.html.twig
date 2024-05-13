@@ -25,8 +25,10 @@
 <div{{ attributes }}>
   {% endif %}
 
-  <form id="benefitSearch" action="javascript:void(0)">
+  <h3 id="categories-label">Find benefits by category</h3>
 
+  <form id="benefitSearch" action="javascript:void(0)">
+    <div role="group" aria-labelledby="categories-label">
       <ul class="usa-list--unstyled" style="column-count: 3; column-width: 10rem">
       {% for row in rows %}
         <li class="padding-bottom-1">{{- row.content -}}</li>
@@ -34,11 +36,11 @@
 
         <li><label><input type="checkbox" value="all" style="display: inline-block; padding-right: 1rem;"> Select All</label></li>
       </ul>
-
-      <div class="grid-col-auto margin-top-4">
-        <button class="usa-button" type="submit">Apply Selections</button>
-        <button class="usa-button usa-button--outline" type="reset">Clear Selections</button>
-      </div>
+    </div>
+    <div class="grid-col-auto margin-top-4" aria-label="Buttons for form">
+      <button class="usa-button" type="submit">Apply Selections</button>
+      <button class="usa-button usa-button--outline" type="reset">Clear Selections</button>
+    </div>
 
 
   </form>

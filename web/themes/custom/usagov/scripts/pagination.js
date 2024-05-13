@@ -28,6 +28,29 @@ function Pagination(total, current, labels, onClick) {
   this.assetBase = '/themes/custom/usagov';
   this.onClick = onClick;
 
+  let myself = this;
+
+  this.handlePageClick = function(ev) {
+    /**
+     * @var {Element} link
+     */
+    let link = ev.target;
+    // get other links in the list
+    const current = link.parentElement
+      .parentElement
+      .querySelector('li > a[class*="usa-current"]')
+    ;
+    // remove current marker from siblings
+    current.classList.remove('usa-current');
+    current.removeAttribute('aria-current');
+    // mark our link as the current one
+    link.classList.add('usa-current');
+    link.setAttribute('aria-current', myself.labels.page);
+    // trigger configured click handler
+    const num = parseInt(link.innerHTML);
+    myself.current = num;
+    myself.onClick(num);
+  };
   /**
    * @param className
    * @param innerHTML
@@ -44,7 +67,7 @@ function Pagination(total, current, labels, onClick) {
    * @returns {HTMLLIElement}
    */
   this.makeNextLink = function() {
-    return this.makeLink(
+    let link = this.makeLink(
       "usa-pagination__item usa-pagination__arrow",
       `<a href="javascript:void(0)" class="usa-pagination__link usa-pagination__previous-page"
        aria-label="${this.labels.nextAria}"
@@ -52,6 +75,14 @@ function Pagination(total, current, labels, onClick) {
           <use xlink:href="${this.assetBase}/assets/img/sprite.svg#navigate_next"></use>
         </svg></a>`
     );
+
+    let myself = this;
+    link.addEventListener('click', function() {
+      myself.current += 1;
+      myself.onClick(myself.current);
+    });
+
+    return link;
   };
 
   /**
@@ -59,7 +90,8 @@ function Pagination(total, current, labels, onClick) {
    * @returns {HTMLLIElement}
    */
   this.makePageLink = function(num) {
-    let link =this.makeLink(
+    // get a basic link
+    let link = this.makeLink(
       "usa-pagination__item usa-pagination__page-no",
       `<a
         href="javascript:void(0);"
@@ -68,15 +100,15 @@ function Pagination(total, current, labels, onClick) {
         >${num}</a>`
     );
 
-    let myself = this;
-    link.addEventListener('click', function(ev) {
-      const items = this.parentElement.querySelectorAll('li > a');
-      items.forEach(
-        (item) => {item.classList.remove('usa-current');}
-      );
-      this.querySelector('a').classList.add('usa-current');
-      myself.onClick(num);
-    });
+    link.querySelector('a')
+      .addEventListener('click', myself.handlePageClick);
+
+    // highlight this page if it's the current one
+    if (num === this.current) {
+      let atag = link.querySelector('a');
+      atag.classList.add('usa-current');
+      atag.setAttribute('aria-current', myself.labels.page);
+    }
 
     return link;
   };
@@ -84,7 +116,7 @@ function Pagination(total, current, labels, onClick) {
    * @returns {HTMLLIElement}
    */
   this.makePreviousLink = function() {
-    return this.makeLink(
+    let link = this.makeLink(
       "usa-pagination__item usa-pagination__arrow",
       `<a href="javascript:void(0)" class="usa-pagination__link usa-pagination__next-page"
        aria-label="${this.labels.previousAria}"
@@ -93,8 +125,19 @@ function Pagination(total, current, labels, onClick) {
         </svg>
         <span class="usa-pagination__link-text">${this.labels.previous}</span></a>`
     );
-  };
 
+    let myself =this;
+    link.addEventListener('click', function(ev) {
+      myself.current -= 1;
+      myself.onClick(myself.current);
+    });
+
+    return link;
+  };
+  this.setToCurrent = function(num) {
+    // @todo refactor setting the current page to one
+    //       spot that has the html structure?
+  };
   this.render = function() {
     let nav = document.createElement('nav');
     nav.className = "usa-pagination";
