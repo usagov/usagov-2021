@@ -1,8 +1,7 @@
 @use "uswds-core" as *;
 @use "usagov-variables" as *;
 
-/* ---- All Footers ----
-*/
+/* ---- All Footers ---- */
 
 .usa-footer--big .usa-footer__primary-content--collapsible .usa-footer__primary-link {
   @include u-font-family('sans');
@@ -19,6 +18,11 @@
   .grid-container {
     padding-bottom: 2rem;
     max-width: calc(70.25rem + 4rem);
+
+    @media (max-width: 1200px) {
+      padding-left: 5vw;
+      padding-right: 5vw;
+    }
   }
 }
 
@@ -144,6 +148,10 @@
   .grid-container {
     padding-bottom: 2rem;
     max-width: calc(70.25rem + 4rem);
+    @media (max-width: 1200px) {
+      padding-left: 5vw;
+      padding-right: 5vw;
+    }
   }
 
   .grid-row.grid-gap-1>* {
@@ -249,14 +257,20 @@
   background-color: color("blue-80v");
 }
 
+.usa-identifier__container {
+  max-width: calc(70.25rem + 4rem);
+  @media (max-width: 1200px) {
+    padding-left: 5vw;
+    padding-right: 5vw;
+  }
+}
+
 .usa-identifier__section {
   padding-bottom: 0;
-  // max-width: calc(70.25rem + 4rem);
 }
 
 .usa-identifier__usagov-description {
   line-height: 1.5;
-  // max-width: calc(70.25rem + 4rem);
   @media (min-width: 36em) {
     display: flex;
     justify-content: center;
@@ -318,7 +332,6 @@ p.usa-identifier__identity-disclaimer a {
 }
 
 .usa-identifier__required-links-list {
-  // max-width: calc(70.25rem + 4rem);
   @media (min-width: 40em) {
     -moz-column-count: 1;
     column-count: 1;
