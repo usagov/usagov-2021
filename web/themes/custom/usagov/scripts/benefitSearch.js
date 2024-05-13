@@ -48,19 +48,7 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
    * @param {int} page
    */
   this.handlePagerClick = function(page) {
-    // hide visible page
-    const toHide = myself.resultsContainer.querySelector('.page-active');
-    if (toHide) {
-      toHide.classList.remove('page-active');
-      toHide.classList.add('display-none');
-    }
-    // show requested page
-    const toShow = myself.resultsContainer.querySelector(`div.page[data-page="${page}"]`);
-    if (toShow) {
-      toShow.classList.add('page-active');
-      toShow.classList.remove('display-none');
-    }
-    myself.activePage = page;
+    myself.setActivePage(page);
     myself.updateHistory();
   };
   /**
@@ -77,9 +65,11 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     // TODO: validate input
     terms = terms.split('|');
 
-    myself.activePage = parseInt(page);
     myself.terms = terms;
-    myself.showResults();
+    if (page !== myself.activePage) {
+      myself.setActivePage(parseInt(page));
+    }
+    myself.showPager(6);
   };
   /**
    * Check form input and show the matching benefits
@@ -113,6 +103,13 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     for (const box of myself.boxes) {
       box.checked = newState;
     }
+  };
+  /**
+   * @param {Element} page
+   */
+  this.hidePage = function(page) {
+    page.classList.remove('page-active');
+    page.classList.add('display-none');
   };
   /**
    * Group results into pages of desired length and prepare output
@@ -180,18 +177,42 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     }
     return elt;
   };
+  this.setActivePage = function(num) {
+    this.activePage = num;
+    const pages = this.resultsContainer.querySelectorAll('.page');
+    for (const page of pages) {
+      if (parseInt(page.getAttribute('data-page')) === num) {
+        this.showPage(page);
+      }
+      else {
+        this.hidePage(page);
+      }
+    }
+    myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+  };
+  this.showError = function() {
+    let elt = document.createElement('template');
+    elt.innerHTML = '<div class="usa-alert--error">Select one or more categories</div>';
+
+    myself.form.prepend(elt.content);
+  };
+  /**
+   * @param {Element} page
+   */
+  this.showPage = function (page) {
+    page.classList.add('page-active');
+    page.classList.remove('display-none');
+  };
   /**
    * Display content matching selected categories
    */
   this.showResults = function() {
     myself.resultsContainer.innerHTML = '';
-    console.log(myself.terms);
     // keep the benefits that match
     let matches = myself.benefits.filter((item) => {
       let numMatches = item.field_category.filter((value) => myself.terms.includes(value));
       return numMatches.length > 0;
     });
-    console.log(matches);
 
     const pages = myself.preparePages(matches);
     for (const page of pages.map(myself.renderPage)) {
@@ -199,25 +220,28 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     }
 
     myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
-
-    // show/update pager
-    const labels = {
-      'page': "Page",
-      'next': "Next",
-      'nextAria': "Next Page",
-      'previous': "Previous",
-      'previousAria': "Previous page",
-    };
-    const pager = new Pagination(pages.length, myself.activePage, labels, myself.handlePagerClick);
-    resultsContainer.append(pager.render());
+    myself.showPager(pages.length);
   };
-
-  this.showError = function() {
-    let elt = document.createElement('template');
-    elt.innerHTML = '<div class="usa-alert--error">Select one or more categories</div>';
-
-    myself.form.prepend(elt.content);
-  };
+ this.showPager = function(maxPages) {
+   // show/update pager
+   // @todo multiple languages
+   const labels = {
+     'page': "Page",
+     'next': "Next",
+     'nextAria': "Next Page",
+     'previous': "Previous",
+     'previousAria': "Previous page",
+   };
+   const pager = new Pagination(maxPages, myself.activePage, labels, myself.handlePagerClick);
+   let existing = resultsContainer.querySelector('nav.usa-pagination');
+   if (existing) {
+     existing.remove()
+     resultsContainer.append(pager.render());
+   }
+   else {
+     resultsContainer.append(pager.render());
+   }
+ };
   /**
    * Saves the selected terms and current page to the brower's history via query string
    */
@@ -237,7 +261,7 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
   this.init = async function() {
     // load data
     this.benefits = await myself.fetch();
-    // check box events
+    // checkbox events
     const toggleAll = myself.form.querySelector('input[type="checkbox"][value="all"]');
     toggleAll.addEventListener('click', myself.handleToggleCheckboxes);
     // form events
