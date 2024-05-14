@@ -27,6 +27,7 @@ function Pagination(total, current, labels, onClick) {
   this.labels = labels;
   this.assetBase = '/themes/custom/usagov';
   this.onClick = onClick;
+  this.nav = null;
 
   let myself = this;
 
@@ -48,7 +49,8 @@ function Pagination(total, current, labels, onClick) {
     link.setAttribute('aria-current', myself.labels.page);
     // trigger configured click handler
     const num = parseInt(link.innerHTML);
-    myself.current = num;
+
+    myself.setToCurrent(num);
     myself.onClick(num);
   };
   /**
@@ -69,14 +71,13 @@ function Pagination(total, current, labels, onClick) {
   this.makeNextLink = function() {
     let link = this.makeLink(
       "usa-pagination__item usa-pagination__arrow",
-      `<a href="javascript:void(0)" class="usa-pagination__link usa-pagination__previous-page"
+      `<a href="javascript:void(0)" class="usa-pagination__link usa-pagination__next-page"
        aria-label="${this.labels.nextAria}"
     ><span class="usa-pagination__link-text">${this.labels.next}</span><svg class="usa-icon" aria-hidden="true" role="img">
           <use xlink:href="${this.assetBase}/assets/img/sprite.svg#navigate_next"></use>
         </svg></a>`
     );
 
-    let myself = this;
     link.addEventListener('click', function() {
       myself.current += 1;
       myself.onClick(myself.current);
@@ -118,7 +119,7 @@ function Pagination(total, current, labels, onClick) {
   this.makePreviousLink = function() {
     let link = this.makeLink(
       "usa-pagination__item usa-pagination__arrow",
-      `<a href="javascript:void(0)" class="usa-pagination__link usa-pagination__next-page"
+      `<a href="javascript:void(0)" class="usa-pagination__link usa-pagination__previous-page"
        aria-label="${this.labels.previousAria}"
     ><svg class="usa-icon" aria-hidden="true" role="img">
           <use xlink:href="${this.assetBase}/assets/img/sprite.svg#navigate_before"></use>
@@ -126,17 +127,40 @@ function Pagination(total, current, labels, onClick) {
         <span class="usa-pagination__link-text">${this.labels.previous}</span></a>`
     );
 
-    let myself =this;
     link.addEventListener('click', function(ev) {
       myself.current -= 1;
       myself.onClick(myself.current);
     });
+
+    if (this.current === 1) {
+      link.classList.add('display-none');
+    }
 
     return link;
   };
   this.setToCurrent = function(num) {
     // @todo refactor setting the current page to one
     //       spot that has the html structure?
+    myself.current = num;
+
+    // if on first page, need to hide previous link
+    const prev = myself.nav.querySelector('a.usa-pagination__previous-page').parentNode;
+    if (num === 1) {
+      prev.classList.add('display-none');
+    }
+    else {
+      prev.classList.remove('display-none');
+    }
+
+    // likewise, hide next if we're on last page
+    const next = myself.nav.querySelector('a.usa-pagination__next-page').parentNode;
+    if (num === myself.total) {
+      next.classList.add('display-none');
+    }
+    else {
+      next.classList.remove('display-none');
+    }
+
   };
   this.render = function() {
     let nav = document.createElement('nav');
@@ -146,6 +170,7 @@ function Pagination(total, current, labels, onClick) {
     list.className = 'usa-pagination__list';
     // previous link
     list.append(this.makePreviousLink());
+
     // numeric pages
     for (let i = 1; i <= this.total ; i++) {
       list.append(this.makePageLink(i));
@@ -154,6 +179,8 @@ function Pagination(total, current, labels, onClick) {
     list.append(this.makeNextLink());
     // add it all to container
     nav.append(list);
+
+    this.nav = nav;
     return nav;
   };
 }

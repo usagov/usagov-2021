@@ -60,15 +60,17 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     const url = new URL(window.location.href);
     let page = url.searchParams.get('pg');
     let terms = url.searchParams.get('t');
-    console.log(page);
     if (isNaN(page)) {
       page = "1";
     }
-    // TODO: validate input and sort
-    terms = terms.split('|');
-
     myself.setActivePage(parseInt(page));
-    myself.setTerms(terms);
+
+    if (terms) {
+      // TODO: validate input and sort
+      if (terms)
+        terms = terms.split('|');
+      myself.setTerms(terms);
+    }
   };
   /**
    * Check form input and show the matching benefits
@@ -96,7 +98,10 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
    * @param {Event} ev
    */
   this.handleToggleCheck = function(ev) {
+    // we're reseting the search results here, so we should
+    // also tell it to render page 1 of new search results
     myself.handleClear();
+    myself.setActivePage(1);
   };
   /**
    * @param {Event} ev
@@ -188,15 +193,18 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     // update the active page and show it
     this.activePage = num;
     const pages = this.resultsContainer.querySelectorAll('.page');
-    for (const page of pages) {
-      if (parseInt(page.getAttribute('data-page')) === num) {
-        this.showPage(page);
+    console.log(pages);
+    if (pages.length > 0) {
+      for (const page of pages) {
+        if (parseInt(page.getAttribute('data-page')) === this.activePage) {
+          this.showPage(page);
+        }
+        else {
+          this.hidePage(page);
+        }
       }
-      else {
-        this.hidePage(page);
-      }
+      myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
     }
-    myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
   };
   /**
    * @param {int[]} terms
