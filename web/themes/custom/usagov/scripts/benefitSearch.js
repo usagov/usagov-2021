@@ -17,7 +17,9 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
   this.perPage = perPage;
   this.activePage = 1;
   this.terms = [];
-  this.boxes = this.form.querySelectorAll('#benefitSearch input[type="checkbox"]');
+  this.boxes = this.form.querySelectorAll('input[type="checkbox"]:not([value="all"])');
+  this.toggleAll = this.form.querySelector('input[type="checkbox"][value="all"]');
+
   // save a reference to our instance
   let myself = this;
   /**
@@ -52,38 +54,35 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     myself.updateHistory();
   };
   /**
-   * Handle when the URL changes
-   * @param ev
+   * Handle initial state and when the URL changes
    */
-  this.handlePopState = function(ev) {
+  this.parseUrlState = function() {
     const url = new URL(window.location.href);
     let page = url.searchParams.get('pg');
     let terms = url.searchParams.get('t');
+    console.log(page);
     if (isNaN(page)) {
-      page = 1;
+      page = "1";
     }
-    // TODO: validate input
+    // TODO: validate input and sort
     terms = terms.split('|');
 
-    myself.terms = terms;
-    if (page !== myself.activePage) {
-      myself.setActivePage(parseInt(page));
-    }
-    myself.showPager(6);
+    myself.setActivePage(parseInt(page));
+    myself.setTerms(terms);
   };
   /**
    * Check form input and show the matching benefits
    */
   this.handleSubmit = function() {
     //  grab term ids from checked filters
+    // TODO don't make another query
     let checked = myself.form.querySelectorAll('input[type="checkbox"]:checked');
     if (checked.length === 0) {
       myself.showError();
       return;
     }
     // prepare to show results
-    myself.clearErrors();
-    myself.resultsContainer.innerHTML = '';
+    myself.handleClear();
     // keep the selected terms
     myself.terms = Array.from(checked).map((elt) => {
       return elt.value;
@@ -93,11 +92,16 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     // update browser history so that bookmarks work
     myself.updateHistory();
   };
-
   /**
    * @param {Event} ev
    */
-  this.handleToggleCheckboxes = function(ev) {
+  this.handleToggleCheck = function(ev) {
+    myself.handleClear();
+  };
+  /**
+   * @param {Event} ev
+   */
+  this.handleToggleAll = function(ev) {
     myself.clearErrors();
     let newState = ev.target.checked;
     for (const box of myself.boxes) {
@@ -178,6 +182,10 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     return elt;
   };
   this.setActivePage = function(num) {
+    if (num === this.activePage) {
+      return;
+    }
+    // update the active page and show it
     this.activePage = num;
     const pages = this.resultsContainer.querySelectorAll('.page');
     for (const page of pages) {
@@ -190,10 +198,30 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     }
     myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
   };
+  /**
+   * @param {int[]} terms
+   */
+  this.setTerms = function(terms) {
+    if (terms === this.terms) {
+      // do nothing, no change
+      return;
+    }
+    // TODO if we're changing terms, then re-run searches
+    this.terms = terms;
+    // check the matching boxes
+    for (const box of myself.boxes) {
+      if (this.terms.includes(box.getAttribute('value'))) {
+        box.checked = true;
+      }
+      else {
+        box.checked = false;
+      }
+    }
+    this.handleSubmit();
+  };
   this.showError = function() {
     let elt = document.createElement('template');
     elt.innerHTML = '<div class="usa-alert--error">Select one or more categories</div>';
-
     myself.form.prepend(elt.content);
   };
   /**
@@ -222,8 +250,11 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
     myself.showPager(pages.length);
   };
+  /**
+   * Display the pager widget below the results
+   * @param maxPages
+   */
  this.showPager = function(maxPages) {
-   // show/update pager
    // @todo multiple languages
    const labels = {
      'page': "Page",
@@ -235,15 +266,15 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
    const pager = new Pagination(maxPages, myself.activePage, labels, myself.handlePagerClick);
    let existing = resultsContainer.querySelector('nav.usa-pagination');
    if (existing) {
-     existing.remove()
+     existing.remove();
      resultsContainer.append(pager.render());
+     return;
    }
-   else {
-     resultsContainer.append(pager.render());
-   }
+
+   resultsContainer.append(pager.render());
  };
   /**
-   * Saves the selected terms and current page to the brower's history via query string
+   * Saves the selected terms and current page to the browser's history via query string
    */
   this.updateHistory = function() {
     const terms = myself.terms.filter((num) => {return false === isNaN(num);});
@@ -259,23 +290,26 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
    * @returns {Promise<void>}
    */
   this.init = async function() {
-    // load data
+    // load data and initial URL state
     this.benefits = await myself.fetch();
+    this.parseUrlState();
+
     // checkbox events
-    const toggleAll = myself.form.querySelector('input[type="checkbox"][value="all"]');
-    toggleAll.addEventListener('click', myself.handleToggleCheckboxes);
+    this.toggleAll.addEventListener('click', myself.handleToggleAll);
+    for (const box of myself.boxes) {
+      box.addEventListener('click', myself.handleToggleCheck);
+    }
     // form events
     myself.form.addEventListener('submit', myself.handleSubmit);
     myself.form.addEventListener('reset', myself.handleClear);
     // history events
-    window.addEventListener('popstate', myself.handlePopState);
+    window.addEventListener('popstate', myself.parseUrlState);
   };
 }
 
 jQuery(document).ready(async function () {
   "use strict";
-
-  // 1) load search json (todo: toggle languages)
+  // load search json (todo: toggle languages)
   const src = "/benefit-search/en.json";
 
   const ben = new BenefitSearch(
