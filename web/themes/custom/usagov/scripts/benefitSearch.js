@@ -60,16 +60,18 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     const url = new URL(window.location.href);
     let page = url.searchParams.get('pg');
     let terms = url.searchParams.get('t');
-    if (isNaN(page)) {
-      page = "1";
-    }
-    myself.setActivePage(parseInt(page));
 
     if (terms) {
-      // TODO: validate input and sort
-      if (terms)
-        terms = terms.split('|');
+      terms = terms.split('|');
       myself.setTerms(terms);
+    }
+
+    if (page && /^\d+$/.test(page)) {
+      // ensure we set a number
+      myself.setActivePage(parseInt(page));
+    }
+    else {
+      myself.setActivePage(1);
     }
   };
   /**
@@ -77,7 +79,6 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
    */
   this.handleSubmit = function() {
     //  grab term ids from checked filters
-    // TODO don't make another query
     let checked = myself.form.querySelectorAll('input[type="checkbox"]:checked');
     if (checked.length === 0) {
       myself.showError();
@@ -95,10 +96,10 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     myself.updateHistory();
   };
   /**
-   * @param {Event} ev
+   * Update UI when a term checkbox is clicked.
    */
-  this.handleToggleCheck = function(ev) {
-    // we're reseting the search results here, so we should
+  this.handleToggleCheck = function() {
+    // we're resetting the search results here, so we should
     // also tell it to render page 1 of new search results
     myself.handleClear();
     myself.setActivePage(1);
@@ -151,16 +152,16 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
    */
   this.renderMatch = function(benefit) {
     let elt = document.createElement('template');
-    let descr = '';
+    let description = '';
 
     if (benefit.field_page_intro) {
-      descr = benefit.field_page_intro;
+      description = benefit.field_page_intro;
     }
     else if (benefit.field_short_description) {
-      descr = benefit.field_short_description;
+      description = benefit.field_short_description;
     }
 
-    elt.innerHTML += `<div><h3>${benefit.title}</h3><p>${descr}</p></div>`;
+    elt.innerHTML += `<div><h3>${benefit.title}</h3><p>${description}</p></div>`;
     return elt;
   };
   /**
@@ -186,6 +187,10 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     }
     return elt;
   };
+  /**
+   * Make the requested page active
+   * @param {int} num
+   */
   this.setActivePage = function(num) {
     if (num === this.activePage) {
       return;
@@ -207,23 +212,26 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     }
   };
   /**
-   * @param {int[]} terms
+   * Update the terms for searching
+   * @param {string[]} terms
    */
   this.setTerms = function(terms) {
+    // keep only numbers
+    terms = terms.filter(
+      (item) => { return /^\d+$/.test(item); }
+    );
+    // sort them into a consistent state regardless of how we get them
+    terms.sort();
     if (terms === this.terms) {
       // do nothing, no change
       return;
     }
-    // TODO if we're changing terms, then re-run searches
+
+    // re-run the search
     this.terms = terms;
     // check the matching boxes
-    for (const box of myself.boxes) {
-      if (this.terms.includes(box.getAttribute('value'))) {
-        box.checked = true;
-      }
-      else {
-        box.checked = false;
-      }
+    for (let box of myself.boxes) {
+      box.checked = this.terms.includes(box.getAttribute('value'));
     }
     this.handleSubmit();
   };
