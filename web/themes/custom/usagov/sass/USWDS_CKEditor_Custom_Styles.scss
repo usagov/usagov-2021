@@ -72,7 +72,11 @@ div.ck.ck-content {
     max-width: unset;
   }
   figure.drupal-media {
-    margin: auto;
+    margin: unset;
+
+    &.drupal-media-style-align-center {
+      margin: auto;
+    }
   }
   .align-right {
     margin: 1em;
