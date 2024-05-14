@@ -4,8 +4,15 @@ jQuery(document).ready(async function () {
   var waittime = (function() {
     if (jQuery("html[lang|='en']").length ||
         jQuery("html[lang|='es']").length) {
+      var domain = window.location.split('.')[0].split('//')[1];
+      var domainMap = {
+        'www': 'cms',
+        'beta': 'cms',
+        'beta-stage': 'cms-stage',
+        'beta-dev': 'cms-dev',
+      };
       jQuery.ajax({
-        "url": "/wait-time",
+        "url": "http://" + domainMap[domain] + ".usa.gov/wait-time",
         "type": "GET",
         "success": function (response) {
           var json = jQuery.parseJSON(response);
