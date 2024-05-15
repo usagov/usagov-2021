@@ -7,9 +7,12 @@ jQuery(document).ready(async function () {
       var domain = window.location.origin.split('.')[0].split('//')[1];
       var domainMap = {
         'www': 'cms',
+        'cms': 'cms',
         'beta': 'cms',
         'beta-stage': 'cms-stage',
+        'cms-stage': 'cms-stage',
         'beta-dev': 'cms-dev',
+        'cms-dev': 'cms-dev',
       };
       jQuery.ajax({
         "url": "http://" + domainMap[domain] + ".usa.gov/wait-time",
