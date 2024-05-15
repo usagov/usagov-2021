@@ -4,7 +4,7 @@ jQuery(document).ready(async function () {
   var waittime = (function() {
     if (jQuery("html[lang|='en']").length ||
         jQuery("html[lang|='es']").length) {
-      var domain = window.location.split('.')[0].split('//')[1];
+      var domain = window.location.origin.split('.')[0].split('//')[1];
       var domainMap = {
         'www': 'cms',
         'beta': 'cms',
