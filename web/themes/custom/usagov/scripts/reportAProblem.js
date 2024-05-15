@@ -276,14 +276,15 @@ var submitPressed = function () {
   "use strict";
 
   // reCaptcha Validation and error styling.
-  var reCaptchaValidationResult = reCaptchaValidation();
+  // var reCaptchaValidationResult = reCaptchaValidation();
 
   // Field Validation
   var fieldValidationResult = fieldValidation();
   // Hides or shows error elements.
   modifyErrorElements();
 
-  return reCaptchaValidationResult && fieldValidationResult;
+  // return reCaptchaValidationResult && fieldValidationResult;
+  return fieldValidationResult;
 };
 
 function changeRecaptchaDisplay(mediaQueryList) {
