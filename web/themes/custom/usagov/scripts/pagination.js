@@ -200,43 +200,40 @@ function Pagination(total, current, labels, onClick) {
     nav.className = "usa-pagination";
     nav.setAttribute('aria-label', 'Pagination');
     let list = document.createElement('ul');
+    list.className = 'usa-pagination__list';
+    // let's figure out what pages to draw
     let startAt, stopAt;
-    // figure out what pages we initially draw
-    // let startAt = this.current > 4 ? this.current - 1 : 2;
-    // let stopAt = this.current < this.total - 1 ? this.current + 1 : this.total - 1;
     // if we're near the beginning of the pagination,
     // we always display the same 4 slots after the first page
-    // show enough pages if we're near the beginning
     if (this.current <= 4) {
       startAt = 2;
-      stopAt = 5;
-    }
-    else {
-      startAt = this.current - 1;
+      stopAt = Math.min(5, this.total);
     }
     // if the current page is within the last 4 slots of the end of pagination,
     // we always display the same 4 slots before the last page
-    if (this.current >= this.total - 4) {
-      startAt = this.total - 4;
-      stopAt = this.total - 1;
+    else if (this.current > this.total - 4) {
+      startAt = Math.max(1, this.total - 4);
+      stopAt = Math.max(1, this.total - 1);
     }
-    else if (this.current > 4) {
+    // otherwise, show the page before and after the current one
+    else {
+      startAt = this.current - 1;
       stopAt = this.current + 1;
     }
 
-    list.className = 'usa-pagination__list';
     // previous link
     list.append(this.makePreviousLink());
     // always show first page
     list.append(this.makePageLink(1));
     // first spacer
-    list.append(this.makeSpacer(startAt > 3));
+    list.append(this.makeSpacer(startAt > 2));
     // numeric pages
+    console.log(startAt, stopAt);
     for (let i = startAt; i <= stopAt; i++) {
       list.append(this.makePageLink(i));
     }
     // second spacer
-    list.append(this.makeSpacer(stopAt < this.total - 2));
+    list.append(this.makeSpacer(stopAt < this.total - 1));
     // and always show the last page
     list.append(this.makePageLink(this.total));
     // next link
