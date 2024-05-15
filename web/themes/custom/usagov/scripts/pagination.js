@@ -31,6 +31,11 @@ function Pagination(total, current, labels, onClick) {
 
   let myself = this;
 
+   /**
+    * Handle when a pager link is clicked to internally update the displayed pager.
+    * Then invoke the callback configured with the requested page number
+    * @param ev
+    */
   this.handlePageClick = function(ev) {
     /**
      * @var {Element} link
@@ -50,10 +55,11 @@ function Pagination(total, current, labels, onClick) {
     // trigger configured click handler
     const num = parseInt(link.innerHTML);
 
-    myself.setToCurrent(num);
+    myself.setCurrentPage(num);
     myself.onClick(num);
   };
   /**
+   * Utility method to create a link element to use in our pager
    * @param className
    * @param innerHTML
    * @returns {HTMLLIElement}
@@ -66,6 +72,7 @@ function Pagination(total, current, labels, onClick) {
   };
 
   /**
+   * Build the link to go to the next page
    * @returns {HTMLLIElement}
    */
   this.makeNextLink = function() {
@@ -83,10 +90,13 @@ function Pagination(total, current, labels, onClick) {
       myself.onClick(myself.current);
     });
 
+    if (myself.current === myself.total) {
+      link.classList.add('display-none');
+    }
     return link;
   };
-
   /**
+   * Build the link to go to a specific numeric page
    * @param {int} num
    * @returns {HTMLLIElement}
    */
@@ -114,6 +124,7 @@ function Pagination(total, current, labels, onClick) {
     return link;
   };
   /**
+   * Build the link to go to the previous page
    * @returns {HTMLLIElement}
    */
   this.makePreviousLink = function() {
@@ -138,9 +149,28 @@ function Pagination(total, current, labels, onClick) {
 
     return link;
   };
-  this.setToCurrent = function(num) {
-    // @todo refactor setting the current page to one
-    //       spot that has the html structure?
+   /**
+    *
+    * @param {boolean} isDisplayed
+    * @returns {HTMLLIElement}
+    */
+  this.makeSpacer = function(isDisplayed) {
+    let link = this.makeLink(
+      'usa-pagination__item usa-pagination__overflow',
+      '<span>…</span>'
+      );
+    if (isDisplayed === false) {
+      link.classList.add('display-none');
+    }
+    // todo translate
+    link.setAttribute('aria-label', "ellipsis indicating non-visible pages");
+    return link;
+  };
+   /**
+    * Makes the requested page the current one and makes it visible.
+    * @param num
+    */
+  this.setCurrentPage = function(num) {
     myself.current = num;
 
     // if on first page, need to hide previous link
@@ -160,21 +190,43 @@ function Pagination(total, current, labels, onClick) {
     else {
       next.classList.remove('display-none');
     }
-
   };
+   /**
+    * Create the nav element to add to the page
+    * @returns {HTMLElement}
+    */
   this.render = function() {
     let nav = document.createElement('nav');
     nav.className = "usa-pagination";
     nav.setAttribute('aria-label', 'Pagination');
     let list = document.createElement('ul');
+    // figure out what pages we initially draw
+    let startAt = this.current > 2 ? this.current - 1 : 2;
+    let stopAt = this.current < this.total - 1 ? this.current + 1 : this.total - 1;
+    // show enough pages if we're near the beginning
+    if (this.current <= startAt && (stopAt - startAt < 4)) {
+      stopAt = 5;
+    }
+    // also show enough pages if we're near the end
+    if (this.current >= this.total -2 && (stopAt - startAt < 4)) {
+      startAt = this.total - 4;
+    }
+
     list.className = 'usa-pagination__list';
     // previous link
     list.append(this.makePreviousLink());
-
+    // always show first page
+    list.append(this.makePageLink(1));
+    // first spacer
+    list.append(this.makeSpacer(startAt > 2));
     // numeric pages
-    for (let i = 1; i <= this.total ; i++) {
+    for (let i = startAt; i <= stopAt; i++) {
       list.append(this.makePageLink(i));
     }
+    // second spacer
+    list.append(this.makeSpacer(stopAt < this.total - 1 ));
+    // and always show the last page
+    list.append(this.makePageLink(this.total));
     // next link
     list.append(this.makeNextLink());
     // add it all to container

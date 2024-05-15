@@ -54,17 +54,12 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     myself.updateHistory();
   };
   /**
-   * Handle initial state and when the URL changes
+   * Initialize state on load and update when the URL's query string changes
    */
   this.parseUrlState = function() {
     const url = new URL(window.location.href);
     let page = url.searchParams.get('pg');
     let terms = url.searchParams.get('t');
-
-    if (terms) {
-      terms = terms.split('|');
-      myself.setTerms(terms);
-    }
 
     if (page && /^\d+$/.test(page)) {
       // ensure we set a number
@@ -72,6 +67,11 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     }
     else {
       myself.setActivePage(1);
+    }
+
+    if (terms) {
+      terms = terms.split('-');
+      myself.setTerms(terms);
     }
   };
   /**
@@ -198,7 +198,6 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     // update the active page and show it
     this.activePage = num;
     const pages = this.resultsContainer.querySelectorAll('.page');
-    console.log(pages);
     if (pages.length > 0) {
       for (const page of pages) {
         if (parseInt(page.getAttribute('data-page')) === this.activePage) {
@@ -296,7 +295,7 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     const terms = myself.terms.filter((num) => {return false === isNaN(num);});
     // update query string
     const url = new URL(window.location.href);
-    url.searchParams.set('t', terms.join('|'));
+    url.searchParams.set('t', terms.join('-'));
     url.searchParams.set('pg', myself.activePage);
     // update browser
     window.history.pushState(null, '', url.toString());
@@ -332,7 +331,7 @@ jQuery(document).ready(async function () {
     src,
     document.querySelector('#benefitSearch'),
     document.querySelector('#matchingBenefits'),
-    5
+    3
   );
   await ben.init();
 });
