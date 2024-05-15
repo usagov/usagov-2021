@@ -15,7 +15,7 @@ jQuery(document).ready(async function () {
         'cms-dev': 'cms-dev',
       };
       jQuery.ajax({
-        "url": "http://" + domainMap[domain] + ".usa.gov/wait-time",
+        "url": "https://" + domainMap[domain] + ".usa.gov/wait-time",
         "type": "GET",
         "success": function (response) {
           var json = jQuery.parseJSON(response);
