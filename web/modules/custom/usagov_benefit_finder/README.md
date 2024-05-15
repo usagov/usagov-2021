@@ -56,3 +56,58 @@ For example,
 /bears/api/life-event/retirement
 
 /bears/api/life-event/disability
+
+## Local Functional Testing
+
+#### Set up local development site
+
+Make sure that local development site setup and run at http://localhost
+
+The functional testing uses the existing database of local development site.
+
+#### Set up testing environment (Install testing software and set PHPUnit configuration)
+
+```
+$ bash setup-benefit-finder-test
+```
+
+#### Change to local development site directory
+
+```
+cd usagov-2021
+```
+
+#### Uninstall USAGov Login Customizations module
+
+```
+bin/drush pm:uninstall usagov_login
+```
+
+#### The system is ready for functional testing
+
+#### The following is a functional testing example.
+
+Start SSH session
+```
+bin/ssh
+cd /var/www
+```
+
+Use following command to test Benefit Finder system
+```
+/var/www # ./vendor/bin/phpunit \
+web/modules/custom/usagov_benefit_finder/tests/src/Functional/BenefitFinderTest.php \
+--group usagov_benefit_finder \
+--filter testAll
+```
+
+The test displays result.
+```
+PHPUnit 9.6.17 by Sebastian Bergmann and contributors.
+
+.                                                                   1 / 1 (100%)
+
+Time: 00:02.558, Memory: 30.00 MB
+
+OK (1 test, 9 assertions)
+```
