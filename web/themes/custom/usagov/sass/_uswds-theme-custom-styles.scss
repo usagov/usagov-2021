@@ -257,6 +257,7 @@ a {
 .desktop\:grid-col-8 .body-copy {
   // Add margin only on content pages
   margin-top: 2.5rem;
+  max-width: 40em;
 }
 
 .usa-skipnav {
@@ -300,6 +301,7 @@ a {
 
 // Last Updated, Share and Survey
 .additional_body_info {
+  display: inline-block;
   padding-top: 75px;
 }
 
