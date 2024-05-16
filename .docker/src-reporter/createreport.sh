@@ -7,9 +7,7 @@ export NODE_OPTIONS=''
 
 HTTPPROXYROUTE=$(echo $PROXYROUTE | sed 's/https:/http:/g')
 
-export http_proxy=$HTTPPROXYROUTE
 export https_proxy=$PROXYROUTE
-export HTTP_PROXY=$HTTPPROXYROUTE
 export HTTPS_PROXY=$PROXYROUTE
 
 npm config set proxy $PROXYROUTE
