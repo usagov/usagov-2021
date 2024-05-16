@@ -145,22 +145,7 @@
 		{{ drupal_view('50_state_pages', '50_state_pages_block', node.field_50_state_pages_type.value) }}
 	{% endif %}
 {%  elseif term_name == "Benefits Category Search" %}
-  {% set lang = node.langcode.value %}
 
-  {% if lang == 'es' %}
-    NOT DONE
+    {% include directory ~ '/templates/includes/benefits-search.html.twig' %}
 
-  {% else %}
-
-    <h3>Benefit Finder</h3>
-
-    TODO: Add life event navigation cards
-
-    {% if lang == 'es' %}
-      {{ drupal_view('benefit_search_form', 'benefits_facets_block_spanish') }}
-    {% else %}
-      {{ drupal_view('benefit_search_form', 'benefits_facets_block') }}
-    {% endif %}
-
-  {% endif %}
 {% endif %}

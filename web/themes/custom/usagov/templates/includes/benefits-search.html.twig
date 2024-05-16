@@ -1,0 +1,21 @@
+{#
+/**
+ * Included in the basic node page template and has all the same variables available.
+ */
+ #}
+{% set lang = node.langcode.value %}
+
+{% if lang == 'es' %}
+NOT DONE
+{% endif %}
+
+<h2>Benefit Finder</h2>
+
+{{ lang }}
+TODO: Add life event navigation cards
+
+{% if lang == 'es' %}
+  {{ drupal_view('benefit_search_form', 'benefits_facets_block_spanish') }}
+{% else %}
+  {{ drupal_view('benefit_search_form', 'benefits_facets_block') }}
+{% endif %}
