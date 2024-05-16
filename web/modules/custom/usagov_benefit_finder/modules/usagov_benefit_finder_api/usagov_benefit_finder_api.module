@@ -102,10 +102,10 @@ function _usagov_benefit_finder_api_batch_generate_json_data_files(Node $node) {
     ];
     if (in_array($node->getType(), $content_types)) {
       if ($isPublished) {
-        $title = 'Generating both DRAFT and REAL JSON data files';
+        $title = 'Generating both draft and published JSON data files';
       }
       else {
-        $title = 'Generating only DRAFT JSON data files';
+        $title = 'Generating draft JSON data files';
       }
       $batch_builder = new BatchBuilder();
       $batch_builder->setTitle(t($title))
