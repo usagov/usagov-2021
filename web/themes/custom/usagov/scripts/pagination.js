@@ -30,7 +30,35 @@ function Pagination(total, current, labels, onClick) {
   this.nav = null;
 
   let myself = this;
+  myself.pageLinks = [];
+   /**
+    * @returns {{stopAt: number, startAt: number}}
+    */
+  this.getNumericRange = function() {
+    let startAt, stopAt;
+    // if we're near the beginning of the pagination,
+    // we always display the same 4 slots after the first page
+    if (this.current <= 4) {
+      startAt = 2;
+      stopAt = Math.min(5, this.total);
+    }
+      // if the current page is within the last 4 slots of the end of pagination,
+    // we always display the same 4 slots before the last page
+    else if (this.current > this.total - 4) {
+      startAt = Math.max(1, this.total - 4);
+      stopAt = Math.max(1, this.total - 1);
+    }
+    // otherwise, show the page before and after the current one
+    else {
+      startAt = this.current - 1;
+      stopAt = this.current + 1;
+    }
 
+    return {
+      "startAt": startAt,
+      "stopAt": stopAt
+    };
+  };
    /**
     * Handle when a pager link is clicked to internally update the displayed pager.
     * Then invoke the callback configured with the requested page number
@@ -54,7 +82,6 @@ function Pagination(total, current, labels, onClick) {
     link.setAttribute('aria-current', myself.labels.page);
     // trigger configured click handler
     const num = parseInt(link.innerHTML);
-
     myself.setCurrentPage(num);
     myself.onClick(num);
   };
@@ -91,7 +118,7 @@ function Pagination(total, current, labels, onClick) {
     });
 
     if (myself.current === myself.total) {
-      link.classList.add('display-none');
+      myself.hideElement(link);
     }
     return link;
   };
@@ -138,13 +165,13 @@ function Pagination(total, current, labels, onClick) {
         <span class="usa-pagination__link-text">${this.labels.previous}</span></a>`
     );
 
-    link.addEventListener('click', function(ev) {
+    link.addEventListener('click', function() {
       myself.current -= 1;
       myself.onClick(myself.current);
     });
 
     if (this.current === 1) {
-      link.classList.add('display-none');
+      myself.hideElement(link);
     }
 
     return link;
@@ -160,7 +187,7 @@ function Pagination(total, current, labels, onClick) {
       '<span>…</span>'
       );
     if (isDisplayed === false) {
-      link.classList.add('display-none');
+      myself.hideElement(link);
     }
     // todo translate
     link.setAttribute('aria-label', "ellipsis indicating non-visible pages");
@@ -176,20 +203,96 @@ function Pagination(total, current, labels, onClick) {
     // if on first page, need to hide previous link
     const prev = myself.nav.querySelector('a.usa-pagination__previous-page').parentNode;
     if (num === 1) {
-      prev.classList.add('display-none');
+      myself.hideElement(prev);
     }
     else {
-      prev.classList.remove('display-none');
+      myself.showElement(prev);
     }
-
     // likewise, hide next if we're on last page
     const next = myself.nav.querySelector('a.usa-pagination__next-page').parentNode;
     if (num === myself.total) {
-      next.classList.add('display-none');
+      myself.hideElement(next);
     }
     else {
-      next.classList.remove('display-none');
+      myself.showElement(next);
     }
+    // show the first separator if we are beyond the first four pages
+    if (num > 4) {
+      myself.showElement(myself.firstSpacer);
+    }
+    else {
+      myself.hideElement(myself.firstSpacer);
+    }
+    // show the last separator if we are near the end of pagination
+    if (num <= this.total - 4) {
+      myself.showElement(myself.lastSpacer);
+    }
+    else {
+      myself.hideElement(myself.lastSpacer);
+    }
+    // figure out which pages we need to show
+    const pages = this.getNumericRange();
+    // hide the ones outside this range
+    for (let i in myself.pageLinks) {
+      if (i < pages.startAt || i > pages.stopAt) {
+        this.hideElement(myself.pageLinks[i]);
+      }
+    }
+    // now show the correct page links
+    for (let i = pages.startAt; i <= pages.stopAt; i++) {
+      if (myself.pageLinks[i]) {
+        this.showElement(myself.pageLinks[i]);
+      }
+      else {
+        myself.pageLinks[i] = this.makePageLink(i);
+        if (i <= myself.current) {
+          // Since we're counting up to insert nodes, we need a little
+          // help here to find what numeric pager element in front of
+          // which we need to insert the new one.
+          const nextSibling = this.getNextSiblingKey(i);
+          if (nextSibling) {
+            myself.pageLinks[nextSibling]
+              .insertAdjacentElement('beforebegin', myself.pageLinks[i]);
+          }
+        }
+        else {
+          // Unlike above, we can always insert this new element
+          // before the last spacer because we are counting up.
+          // It will always be the rightmost one
+          myself.lastSpacer
+            .insertAdjacentElement('beforebegin', myself.pageLinks[i]);
+        }
+      }
+    }
+  };
+   /**
+    * Returns the key of the node to the right of num in existing pager links
+    * @param {int} num
+    * @returns {*}
+    */
+  this.getNextSiblingKey = function(num) {
+    let keys = [];
+    for (const key in myself.pageLinks) {
+      if (parseInt(key) > num) {
+        keys.push(key);
+      }
+    }
+    if (keys.length > 0) {
+      return keys[0];
+    }
+    return null;
+  };
+   /**
+    * @param {Element} elt
+    */
+   this.hideElement = function (elt) {
+     elt.classList.add('display-none');
+   };
+   /**
+    * @param {Element} elt
+    */
+   this.showElement = function (elt) {
+     elt.classList.remove('display-none');
   };
    /**
     * Create the nav element to add to the page
@@ -201,43 +304,30 @@ function Pagination(total, current, labels, onClick) {
     nav.setAttribute('aria-label', 'Pagination');
     let list = document.createElement('ul');
     list.className = 'usa-pagination__list';
-    // let's figure out what pages to draw
-    let startAt, stopAt;
-    // if we're near the beginning of the pagination,
-    // we always display the same 4 slots after the first page
-    if (this.current <= 4) {
-      startAt = 2;
-      stopAt = Math.min(5, this.total);
-    }
-    // if the current page is within the last 4 slots of the end of pagination,
-    // we always display the same 4 slots before the last page
-    else if (this.current > this.total - 4) {
-      startAt = Math.max(1, this.total - 4);
-      stopAt = Math.max(1, this.total - 1);
-    }
-    // otherwise, show the page before and after the current one
-    else {
-      startAt = this.current - 1;
-      stopAt = this.current + 1;
-    }
+    myself.list = list;
 
+    // let's figure out what pages to draw
+    const pages = this.getNumericRange();
     // previous link
     list.append(this.makePreviousLink());
     // always show first page
     list.append(this.makePageLink(1));
     // first spacer
-    list.append(this.makeSpacer(startAt > 2));
+    myself.firstSpacer = this.makeSpacer(pages.startAt > 2);
+    list.append(myself.firstSpacer);
     // numeric pages
-    console.log(startAt, stopAt);
-    for (let i = startAt; i <= stopAt; i++) {
-      list.append(this.makePageLink(i));
+    for (let i = pages.startAt; i <= pages.stopAt; i++) {
+      myself.pageLinks[i] = this.makePageLink(i);
+      list.append(myself.pageLinks[i]);
     }
     // second spacer
-    list.append(this.makeSpacer(stopAt < this.total - 1));
+    myself.lastSpacer = this.makeSpacer(pages.stopAt < this.total - 1);
+    list.append(myself.lastSpacer);
     // and always show the last page
     list.append(this.makePageLink(this.total));
     // next link
     list.append(this.makeNextLink());
+
     // add it all to container
     nav.append(list);
 
