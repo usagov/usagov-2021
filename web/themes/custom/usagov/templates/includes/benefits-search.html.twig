@@ -4,18 +4,16 @@
  */
  #}
 {% set lang = node.langcode.value %}
-
-{% if lang == 'es' %}
-NOT DONE
+{% if lang == 'en' %}
+{%   set benefit_finder = "Benefit Finder" %}
+{%   set search_block = "benefits_facets_block" %}
+{% elseif lang == 'es' %}
+{%   set benefit_finder = "Buscador Beneficiós" %}
+{%   set search_block = "benefits_facets_es_block" %}
 {% endif %}
 
-<h2>Benefit Finder</h2>
+<h2>{{ benefit_finder }}</h2>
 
-{{ lang }}
-TODO: Add life event navigation cards
+{# Add life event navigation cards #}
 
-{% if lang == 'es' %}
-  {{ drupal_view('benefit_search_form', 'benefits_facets_block_spanish') }}
-{% else %}
-  {{ drupal_view('benefit_search_form', 'benefits_facets_block') }}
-{% endif %}
+{{ drupal_view('benefit_search_form', search_block) }}

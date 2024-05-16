@@ -332,9 +332,16 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
 
 jQuery(document).ready(async function () {
   "use strict";
+  let docLang = [document.documentElement.lang];
   // load search json (todo: toggle languages)
-  const src = "/benefit-search/en.json";
-
+  let src;
+  if (docLang[0] === 'en') {
+    src = "/benefit-search/en.json";
+  }
+  else if (docLang[0] === 'es') {
+     src = "/benefit-search/es.json";
+  }
+  // creat and initialize the search tool
   const ben = new BenefitSearch(
     src,
     document.querySelector('#benefitSearch'),
