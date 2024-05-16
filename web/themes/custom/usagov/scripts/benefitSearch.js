@@ -262,6 +262,12 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
       myself.resultsContainer.innerHTML += page.outerHTML;
     }
 
+    if (myself.activePage > pages.length) {
+      myself.setActivePage(pages.length);
+    }
+    else if (myself.activePage < 1) {
+      myself.setActivePage(1);
+    }
     myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
     myself.showPager(pages.length);
   };
