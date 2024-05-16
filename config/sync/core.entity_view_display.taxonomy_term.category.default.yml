@@ -1,0 +1,31 @@
+uuid: ed6b9148-5328-4698-b2a2-12b6796a52f0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.category.field_cat_life_events
+    - taxonomy.vocabulary.category
+  module:
+    - text
+id: taxonomy_term.category.default
+targetEntityType: taxonomy_term
+bundle: category
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_cat_life_events:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden:
+  langcode: true

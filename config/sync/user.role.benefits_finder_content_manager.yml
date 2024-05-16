@@ -12,7 +12,6 @@ dependencies:
     - workflows.workflow.basic_workflow
   module:
     - block
-    - content_lock
     - content_moderation
     - node
     - system
@@ -30,7 +29,6 @@ permissions:
   - 'administer blocks'
   - 'administer menu'
   - 'administer nodes'
-  - 'break content lock'
   - 'create bears_agency content'
   - 'create bears_benefit content'
   - 'create bears_criteria content'

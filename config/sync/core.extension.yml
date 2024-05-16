@@ -95,6 +95,7 @@ module:
   usagov_benefit_finder_api: 0
   usagov_benefit_finder_content: 0
   usagov_benefit_finder_page: 0
+  usagov_category_search: 0
   usagov_directories: 0
   usagov_login: 0
   usagov_sitemap: 0
