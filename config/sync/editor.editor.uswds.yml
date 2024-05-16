@@ -65,8 +65,15 @@ settings:
         -
           label: Button
           element: '<a class="usa-button usa-button--secondary usa-button--big">'
+    ckeditor_media_resize_mediaResize:
+      apply_image_styles: true
+      image_styles:
+        - cke_media_resize_small
+        - cke_media_resize_medium
+        - cke_media_resize_large
+        - cke_media_resize_xl
     media_media:
-      allow_view_mode_override: false
+      allow_view_mode_override: true
     uswds_ckeditor_integration_ckeditor5_overrides:
       override_lists: false
       override_links: false
