@@ -333,7 +333,7 @@ jQuery(document).ready(async function () {
     src,
     document.querySelector('#benefitSearch'),
     document.querySelector('#matchingBenefits'),
-    3
+    8
   );
   await ben.init();
 });
