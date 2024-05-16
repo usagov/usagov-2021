@@ -277,6 +277,8 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
      'nextAria': "Next Page",
      'previous': "Previous",
      'previousAria': "Previous page",
+     'navAria': "Pagination",
+     'lastPageAria': 'Last page'
    };
    const pager = new Pagination(maxPages, myself.activePage, labels, myself.handlePagerClick);
    let existing = resultsContainer.querySelector('nav.usa-pagination');

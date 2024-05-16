@@ -5,11 +5,12 @@
  * @typedef {Object} PaginationOptions
  * @property {string} page -- label for "Page X"
  * @property {string} next -- label for next page link
- * @property {string} nextAria -- aria role for next page link
+ * @property {string} nextAria -- aria label for next page link
  * @property {string} previous -- label for previous page link
- * @property {string} previousAria -- aria role for previous page link
+ * @property {string} previousAria -- aria label for previous page link
+ * @property {string} navAria -- aria label for nav container
+ * @property {string} lastPageAria -- aria role for nav container
  */
-
  /**
  * @param {int} total
  * @param {int} current
@@ -125,9 +126,10 @@ function Pagination(total, current, labels, onClick) {
   /**
    * Build the link to go to a specific numeric page
    * @param {int} num
+   * @param {boolean} isLast
    * @returns {HTMLLIElement}
    */
-  this.makePageLink = function(num) {
+  this.makePageLink = function(num, isLast) {
     // get a basic link
     let link = this.makeLink(
       "usa-pagination__item usa-pagination__page-no",
@@ -141,12 +143,20 @@ function Pagination(total, current, labels, onClick) {
     link.querySelector('a')
       .addEventListener('click', myself.handlePageClick);
 
-    // highlight this page if it's the current one
+    let atag = link.querySelector('a');
     if (num === this.current) {
-      let atag = link.querySelector('a');
+      // highlight this page if it's the current one
       atag.classList.add('usa-current');
       atag.setAttribute('aria-current', myself.labels.page);
     }
+
+    if (isLast) {
+      atag.setAttribute(
+        'aria-label',
+        myself.labels.lastPageAria + ", " + atag.getAttribute('aria-label')
+      );
+    }
+
 
     return link;
   };
@@ -301,7 +311,7 @@ function Pagination(total, current, labels, onClick) {
   this.render = function() {
     let nav = document.createElement('nav');
     nav.className = "usa-pagination";
-    nav.setAttribute('aria-label', 'Pagination');
+    nav.setAttribute('aria-label', this.labels.navAria);
     let list = document.createElement('ul');
     list.className = 'usa-pagination__list';
     myself.list = list;
@@ -324,7 +334,8 @@ function Pagination(total, current, labels, onClick) {
     myself.lastSpacer = this.makeSpacer(pages.stopAt < this.total - 1);
     list.append(myself.lastSpacer);
     // and always show the last page
-    list.append(this.makePageLink(this.total));
+    myself.lastPage = this.makePageLink(this.total, true);
+    list.append(myself.lastPage);
     // next link
     list.append(this.makeNextLink());
 
