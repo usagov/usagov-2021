@@ -226,19 +226,23 @@ function Pagination(total, current, labels, onClick) {
     else {
       myself.showElement(next);
     }
-    // show the first separator if we are beyond the first four pages
-    if (num > 4) {
-      myself.showElement(myself.firstSpacer);
-    }
-    else {
-      myself.hideElement(myself.firstSpacer);
+    // Show the first separator if we are beyond the first four pages
+    if (myself.firstSpacer) {
+      if (num > 4) {
+        myself.showElement(myself.firstSpacer);
+      }
+      else {
+        myself.hideElement(myself.firstSpacer);
+      }
     }
     // show the last separator if we are near the end of pagination
-    if (num <= this.total - 4) {
-      myself.showElement(myself.lastSpacer);
-    }
-    else {
-      myself.hideElement(myself.lastSpacer);
+    if (myself.lastSpacer) {
+      if (num <= this.total - 4 && myself.total > 6) {
+        myself.showElement(myself.lastSpacer);
+      }
+      else {
+        myself.hideElement(myself.lastSpacer);
+      }
     }
     // figure out which pages we need to show
     const pages = this.getNumericRange();
@@ -323,16 +327,19 @@ function Pagination(total, current, labels, onClick) {
     // always show first page
     list.append(this.makePageLink(1));
     // first spacer
-    myself.firstSpacer = this.makeSpacer(pages.startAt > 2);
-    list.append(myself.firstSpacer);
+    if (myself.total > 6) {
+      myself.firstSpacer = this.makeSpacer(pages.startAt > 2);
+      list.append(myself.firstSpacer);
+    }
     // numeric pages
     for (let i = pages.startAt; i <= pages.stopAt; i++) {
       myself.pageLinks[i] = this.makePageLink(i);
       list.append(myself.pageLinks[i]);
     }
-    // second spacer
-    myself.lastSpacer = this.makeSpacer(pages.stopAt < this.total - 1);
-    list.append(myself.lastSpacer);
+    if (myself.total > 6) {
+      myself.lastSpacer = this.makeSpacer(pages.stopAt < this.total - 1);
+      list.append(myself.lastSpacer);
+    }
     // and always show the last page
     myself.lastPage = this.makePageLink(this.total, true);
     list.append(myself.lastPage);
