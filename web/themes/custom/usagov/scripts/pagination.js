@@ -33,6 +33,7 @@ function Pagination(total, current, labels, onClick) {
   let myself = this;
   myself.pageLinks = [];
    /**
+    * Figures out what range of pages we need to show
     * @returns {{stopAt: number, startAt: number}}
     */
   this.getNumericRange = function() {
@@ -43,7 +44,7 @@ function Pagination(total, current, labels, onClick) {
       startAt = 2;
       stopAt = Math.min(5, this.total - 1);
     }
-      // if the current page is within the last 4 slots of the end of pagination,
+    // if the current page is within the last 4 slots of the end of pagination,
     // we always display the same 4 slots before the last page
     else if (this.current > this.total - 4) {
       startAt = Math.max(1, this.total - 4);
@@ -340,9 +341,11 @@ function Pagination(total, current, labels, onClick) {
       myself.lastSpacer = this.makeSpacer(pages.stopAt < this.total - 1);
       list.append(myself.lastSpacer);
     }
-    // and always show the last page
-    myself.lastPage = this.makePageLink(this.total, true);
-    list.append(myself.lastPage);
+    // show the last page if we have more than one
+    if (this.total > 1) {
+      myself.lastPage = this.makePageLink(this.total, true);
+      list.append(myself.lastPage);
+    }
     // next link
     list.append(this.makeNextLink());
 
