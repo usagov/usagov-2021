@@ -4,5 +4,5 @@ status: true
 dependencies: {  }
 name: Category
 vid: category
-description: ''
+description: 'Categories for searching benefits'
 weight: 0

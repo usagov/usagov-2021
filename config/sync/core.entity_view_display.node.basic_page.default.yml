@@ -47,14 +47,6 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
-  field_category:
-    type: entity_reference_label
-    label: above
-    settings:
-      link: true
-    third_party_settings: {  }
-    weight: 8
-    region: content
   field_custom_twig_content:
     type: boolean
     label: above
@@ -105,15 +97,6 @@ content:
     third_party_settings: {  }
     weight: 2
     region: content
-  field_search_weight:
-    type: number_integer
-    label: above
-    settings:
-      thousand_separator: ''
-      prefix_suffix: true
-    third_party_settings: {  }
-    weight: 9
-    region: content
   links:
     settings: {  }
     third_party_settings: {  }
@@ -121,6 +104,7 @@ content:
     region: content
 hidden:
   field_50_state_pages_type: true
+  field_category: true
   field_css_icon: true
   field_exclude_from_contact_cente: true
   field_faq_page: true
@@ -133,5 +117,6 @@ hidden:
   field_meta_description: true
   field_navigation_banner_image: true
   field_page_type: true
+  field_search_weight: true
   field_short_description: true
   langcode: true
