@@ -18,14 +18,25 @@
  * @ingroup themeable
  */
 #}
-
+{% set lang = node.langcode.value %}
+{% if lang == 'en' %}
+{%   set submit_label = "Apply Selections" %}
+{%   set reset_label = "Clear Selections" %}
+{%   set select_all_label = "Select all" %}
+{%   set aria_button_groupabel = "Buttons for form" %}
+{% elseif lang == 'es' %}
+{%   set submit_label = "Aplicar selecciones" %}
+{%   set reset_label = "Borrar selecciones" %}
+{%   set select_all_label = "Seleccionar todo" %}
+{%   set aria_button_groupabel = "Butones del formularió" %}
+{% endif %}
 {{ attach_library('usagov/benefitSearch') }}
 
 {% if attributes -%}
 <div{{ attributes }}>
   {% endif %}
 
-  <h2 id="categories-label">Find benefits by category</h2>
+  <h2 id="categories-label">{{  subtitle }}</h2>
 
   <form id="benefitSearch" action="javascript:void(0)">
     <div role="group" aria-labelledby="categories-label">
@@ -34,12 +45,12 @@
         <li class="padding-bottom-1">{{- row.content -}}</li>
       {% endfor %}
 
-        <li><label><input type="checkbox" value="all" style="display: inline-block; padding-right: 1rem;"> Select All</label></li>
+        <li><label><input type="checkbox" value="all" style="display: inline-block; padding-right: 1rem;"> {{  select_all_label }}</label></li>
       </ul>
     </div>
-    <div class="grid-col-auto margin-top-4" aria-label="Buttons for form">
-      <button class="usa-button" type="submit">Apply Selections</button>
-      <button class="usa-button usa-button--outline" type="reset">Clear Selections</button>
+    <div class="grid-col-auto margin-top-4" aria-label="{{ aria_button_groupabel }} ">
+      <button class="usa-button" type="submit">{{  submit_label }}</button>
+      <button class="usa-button usa-button--outline" type="reset">{{  reset_label }}</button>
     </div>
   </form>
 
