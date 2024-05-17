@@ -5,13 +5,16 @@ export NODE_EXTRA_CA_CERTS=/etc/combined-certs.pem
 
 export NODE_OPTIONS=''
 
-HTTPPROXYROUTE=$(echo $PROXYROUTE | sed 's/https:/http:/g')
-
-export https_proxy=$PROXYROUTE
-export HTTPS_PROXY=$PROXYROUTE
-
 npm config set proxy $PROXYROUTE
 npm config set https-proxy $PROXYROUTE
+
+# NB we are setting these proxy variables to a local proxy, for the
+# benefit of the GA4 analytics code, which uses grpc-js and doesn't support
+# an https proxy.
+export https_proxy=http://localhost:8080
+export HTTPS_PROXY=http://localhost:8080
+
+
 
 AWS_REGION=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["AWS_REGION"]' <<< "$VCAP_SERVICES")
 

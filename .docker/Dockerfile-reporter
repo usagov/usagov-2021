@@ -10,7 +10,13 @@ RUN chmod +x /createreport.sh\
        curl \
        nginx
 
-RUN npm install -g analytics-reporter
+# re-copy our nginx config over what the nginx package provided.
+COPY .docker/src-reporter/etc/nginx/* /etc/nginx/
+
+RUN rm /etc/nginx/httpd.d/default.conf \
+    && /usr/sbin/nginx -s reload \
+    && npm install -g analytics-reporter
+
 WORKDIR /analytics-reporter
 RUN npm install minimist
 RUN npm install
