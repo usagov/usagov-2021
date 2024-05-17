@@ -335,11 +335,12 @@ jQuery(document).ready(async function () {
   let docLang = [document.documentElement.lang];
   // load search json (todo: toggle languages)
   let src;
+  // using relative URL so that this works on static pages
   if (docLang[0] === 'en') {
-    src = "/benefit-search/en.json";
+    src = "../benefit-search/en.json";
   }
   else if (docLang[0] === 'es') {
-     src = "/benefit-search/es.json";
+     src = "../../benefit-search/es.json";
   }
   // creat and initialize the search tool
   const ben = new BenefitSearch(
