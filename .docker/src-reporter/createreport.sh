@@ -1,6 +1,26 @@
 #!/bin/bash
 
-echo starting container to create reports
+# We do this here so that we have $PROXYROUTE, which is not available during build
+echo "Updating nginx config and reloading nginx config"
+NSG_REGEX="https://([^@:]+):([^@]+)@(.*)"
+PROXY_USER=`echo $PROXYROUTE | sed -E "s~$NSG_REGEX~\1~"`
+PROXY_PASS=`echo $PROXYROUTE | sed -E "s~$NSG_REGEX~\2~"`
+PROXY_URL=`echo $PROXYROUTE | sed -E "s~$NSG_REGEX~\3~"`
+
+NGINX_PROXYURL="https://${PROXY_URL}"
+NGINX_PROXYAUTH=`echo "$PROXY_USER:$PROXY_PASS" | base64`
+
+for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
+    if [ -f "$FILE" ]; then
+        OUTFILE=${FILE%.tmpl}
+        echo " generating $OUTFILE"
+        envsubst "\$NGINX_PROXYURL \$NGINX_PROXYAUTH" < "$FILE" > "$OUTFILE"
+    fi
+done
+
+/usr/sbin/nginx -s reload
+
+echo "starting container to create reports"
 cat ${CF_SYSTEM_CERT_PATH}/* > /etc/combined-certs.pem
 export NODE_EXTRA_CA_CERTS=/etc/combined-certs.pem
 

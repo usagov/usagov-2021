@@ -5,7 +5,8 @@ server {
 #       listen [::]:80 default_server; # This is ipv6, caused nginx startup to fail.
 
 	location / {
-            proxy_pass ${PROXYROUTE};
+            proxy_pass ${NGINX_PROXYURL};
+	    proxy_set_header Authorization "Basic ${NGINX_PROXYAUTH}";
 	    proxy_ssl_trusted_certificate /etc/combined-certs.pem;
 	}
 }
