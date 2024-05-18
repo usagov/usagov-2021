@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Doing this in createreport.sh because $PROXYROUTE will be set by now.
-echo "restarting nginx"
-/usr/sbin/nginx -s reload
-
 echo starting container to create reports
 cat ${CF_SYSTEM_CERT_PATH}/* > /etc/combined-certs.pem
 export NODE_EXTRA_CA_CERTS=/etc/combined-certs.pem
