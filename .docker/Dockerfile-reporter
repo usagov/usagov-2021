@@ -12,7 +12,7 @@ COPY .docker/src-reporter .
 
 RUN chmod +x /createreport.sh \
     && rm /etc/nginx/http.d/default.conf \
-    && /usr/sbin/nginx -s reload \
+#    && /usr/sbin/nginx -s reload \
     && npm install -g analytics-reporter
 
 WORKDIR /analytics-reporter

@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# Doing this in createreport.sh because $PROXYROUTE will be set by now.
+echo "restarting nginx"
+/usr/sbin/nginx -s reload
+
 echo starting container to create reports
 cat ${CF_SYSTEM_CERT_PATH}/* > /etc/combined-certs.pem
 export NODE_EXTRA_CA_CERTS=/etc/combined-certs.pem
@@ -13,7 +18,6 @@ npm config set https-proxy $PROXYROUTE
 # an https proxy.
 export https_proxy=http://localhost:8080
 export HTTPS_PROXY=http://localhost:8080
-
 
 
 AWS_REGION=$(jq -r '.["user-provided"] | .[] | select(.name == "AnalyticsReporterServices")| .credentials.["AWS_REGION"]' <<< "$VCAP_SERVICES")
