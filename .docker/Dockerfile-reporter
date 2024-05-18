@@ -1,6 +1,8 @@
 FROM node:20-alpine
 USER root
 
+COPY .docker/src-reporter .
+
 RUN apk upgrade --update \
     && apk add --no-cache --virtual .persistent-deps \
        jq \
@@ -8,8 +10,6 @@ RUN apk upgrade --update \
        curl \
        nginx \
        gettext
-
-COPY .docker/src-reporter .
 
 RUN chmod +x /createreport.sh \
     && rm /etc/nginx/http.d/default.conf \
