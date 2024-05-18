@@ -6,7 +6,8 @@ RUN apk upgrade --update \
        jq \
        bash \
        curl \
-       nginx
+       nginx \
+       gettext
 
 COPY .docker/src-reporter .
 
