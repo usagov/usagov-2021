@@ -20,4 +20,4 @@ RUN npm install minimist
 RUN npm install
 WORKDIR /
 # CMD ["./createreport.sh"]
-CMD [ "tail -f /dev/null" ]
+CMD [ "/usr/bin/tail -f /dev/null" ]
