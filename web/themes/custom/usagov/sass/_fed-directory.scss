@@ -170,7 +170,7 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-btn:hover {
-  @include u-bg('cyan-20');
+  background-color: $secondary-background;
 }
 
 .fed-directory-search-btn:focus {

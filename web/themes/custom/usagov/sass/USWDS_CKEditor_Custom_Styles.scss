@@ -9,9 +9,10 @@ In some cases, rather than aiming to match the web page, styles are altered to b
 ALL STYLES IN THIS FILE SHOULD BE WRAPPED IN THIS SELECTOR.
 Otherwise they can effect other areas of the CMS.
 */
-.ck-content {
+div.ck.ck-content {
   font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
   font-size: 1.1rem;
+  padding-right: calc(100% - 68ex - var(--ck-spacing-standard));
 
   >p {
     max-width: 68ex;
@@ -64,6 +65,26 @@ Otherwise they can effect other areas of the CMS.
   ul.usa-icon-list,
   ol.usa-process-list {
     margin: 0;
+  }
+
+  // Image Alignment
+  .drupal-media-style-align-center, .drupal-media-style-align-left, .drupal-media-style-align-right {
+    max-width: unset;
+  }
+  figure.drupal-media {
+    margin: unset;
+
+    &.drupal-media-style-align-center {
+      margin: auto;
+    }
+  }
+  .align-right {
+    margin: 1em;
+    margin-right: 0;
+  }
+  .align-left {
+    margin: 1em;
+    margin-left: 0;
   }
 
   .usa-accordion__content[hidden] { // Always show all accordion panels so content editors can see all the content.
