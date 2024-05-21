@@ -161,7 +161,10 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
       description = benefit.field_short_description;
     }
 
-    elt.innerHTML += `<div><h3>${benefit.title}</h3><p>${description}</p></div>`;
+    elt.innerHTML += `<div class="grid-row benefits-category-result">
+<div class="grid-col-9 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="grid-col-3 benefits-result-categories">${benefit.term_node_tid}</div>
+</div>`;
     return elt;
   };
   /**
@@ -337,10 +340,10 @@ jQuery(document).ready(async function () {
   let src;
   // using relative URL so that this works on static pages
   if (docLang[0] === 'en') {
-    src = "../benefit-search/en.json";
+    src = "../benefits-search/en.json";
   }
   else if (docLang[0] === 'es') {
-     src = "../../benefit-search/es.json";
+     src = "../../benefits-search/es.json";
   }
   // creat and initialize the search tool
   const ben = new BenefitSearch(

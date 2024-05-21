@@ -1,0 +1,37 @@
+@use "usagov-variables" as *;
+@use "uswds-core" as *;
+
+.benefits-category-list {
+  margin-left: -50vw;
+  margin-right: -50vw;
+  padding: 20px;
+  background-color: $homepage-light-blue-background;
+}
+
+.benefits-category-list .usa-button--secondary {
+  background-color: $fed-white-background;
+}
+
+.benefits-category-list-checkbox-cols {
+  column-count: 3;
+  column-gap: 5px;
+}
+
+.benefits-category-result {
+  border-bottom: 2px solid $fed-gray-border;
+}
+
+.benefits-result-categories {
+  padding-top: 20px;
+}
+.benefits-result-text {
+  padding-right: 20px;
+}
+.benefits-result-categories span {
+  display: inline-block;
+  padding: 3px 8px;
+  margin-right: 5px;
+  margin-bottom: 10px;
+  outline: 2px solid $secondary-border;
+  border-radius: 5px;
+}

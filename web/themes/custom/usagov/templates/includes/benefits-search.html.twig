@@ -4,13 +4,12 @@
  */
  #}
 {% set lang = node.langcode.value %}
+
 {% if lang == 'en' %}
-{%   set life_event_title = "Find benefits for these life event" %}
-{%   set search_title = "Find benefits by category" %}
+{%   set life_event_title = "Benefit finder tool" %}
 {%   set search_block = "benefits_facets_block" %}
 {% elseif lang == 'es' %}
 {%   set life_event_title = "Encuntre beneficios en estas etapas de su vida" %}
-{%   set search_title = "Busque beneficios for categoría" %}
 {%   set search_block = "benefits_facets_es_block" %}
 {% endif %}
 
@@ -18,5 +17,5 @@
 
 {# Add life event navigation cards #}
 
-<h2>{{ search_title }}</h2>
+
 {{ drupal_view('benefit_search_form', search_block) }}

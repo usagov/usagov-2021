@@ -20,42 +20,47 @@
 #}
 {% set lang = node.langcode.value %}
 {% if lang == 'en' %}
-{%   set submit_label = "Apply Selections" %}
-{%   set reset_label = "Clear Selections" %}
-{%   set select_all_label = "Select all" %}
-{%   set aria_button_groupabel = "Buttons for form" %}
+  {% set search_title = "Find benefits by category" %}
+  {% set submit_label = "Apply Selections" %}
+  {% set reset_label = "Clear Selections" %}
+  {% set select_all_label = "Select all" %}
+  {% set aria_button_groupabel = "Buttons for form" %}
 {% elseif lang == 'es' %}
-{%   set submit_label = "Aplicar selecciones" %}
-{%   set reset_label = "Borrar selecciones" %}
-{%   set select_all_label = "Seleccionar todo" %}
-{%   set aria_button_groupabel = "Butones del formularió" %}
+  {% set search_title = "Busque beneficios for categoría" %}
+  {% set submit_label = "Aplicar selecciones" %}
+  {% set reset_label = "Borrar selecciones" %}
+  {% set select_all_label = "Seleccionar todo" %}
+  {% set aria_button_groupabel = "Butones del formularió" %}
 {% endif %}
 {{ attach_library('usagov/benefitSearch') }}
 
-{% if attributes -%}
-<div{{ attributes }}>
-  {% endif %}
+<div class="benefits-category-list">
 
-  <h2 id="categories-label">{{  subtitle }}</h2>
+  <div class="smaller-width-div">
+    <h2>{{ search_title }}</h2>
 
-  <form id="benefitSearch" action="javascript:void(0)">
-    <div role="group" aria-labelledby="categories-label">
-      <ul class="usa-list--unstyled" style="column-count: 3; column-width: 10rem">
-      {% for row in rows %}
-        <li class="padding-bottom-1">{{- row.content -}}</li>
-      {% endfor %}
+    <h3 id="categories-label">{{ subtitle }}</h3>
 
-        <li><label><input type="checkbox" value="all" style="display: inline-block; padding-right: 1rem;"> {{ select_all_label }}</label></li>
-      </ul>
-    </div>
-    <div class="grid-col-auto margin-top-4" aria-label="{{ aria_button_groupabel }} ">
-      <button class="usa-button" type="submit">{{  submit_label }}</button>
-      <button class="usa-button usa-button--outline" type="reset">{{  reset_label }}</button>
-    </div>
-  </form>
+    <form id="benefitSearch" action="javascript:void(0)">
+      <div role="group" aria-labelledby="categories-label">
+        <ul class="usa-list--unstyled grid-row">
+          <div class="grid-col-9 benefits-category-list-checkbox-cols">
+          {% for row in rows %}
+            <li class="padding-bottom-1">{{- row.content -}}</li>
+          {% endfor %}
+          </div>
+          <div class="grid-col-3">
+          <li><label><input type="checkbox" value="all"
+                            style="display: inline-block; padding-right: 1rem;"> {{ select_all_label }}</label></li>
+          </div>
+        </ul>
+      </div>
+      <div class="grid-col-auto margin-top-4" aria-label="{{ aria_button_groupabel }} ">
+        <button class="usa-button" type="submit">{{ submit_label }}</button>
+        <button class="usa-button usa-button--secondary" type="reset">{{ reset_label }}</button>
+      </div>
+    </form>
 
-{% if attributes -%}
   </div>
-{% endif %}
-
+</div>
 <div id="matchingBenefits" aria-live="polite"></div>
