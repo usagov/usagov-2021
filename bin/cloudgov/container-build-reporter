@@ -12,6 +12,7 @@ GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort 
 
 # If the caddy binary is not already in place, retrieve the latest from cg-egress-proxy.
 # (Latest? We are trusting their review process.)
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 caddy_bin_file=$SCRIPT_DIR/../../.docker/src-reporter/local_proxy/caddy
 if [ -f $caddy_bin_file ]; then
     echo "Caddy binary already exists at $caddy_bin_file"
