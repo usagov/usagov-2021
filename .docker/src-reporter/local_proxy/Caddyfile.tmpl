@@ -1,0 +1,27 @@
+{
+	debug
+	log {
+		format console
+		level INFO
+	}
+	auto_https off
+}
+
+:{$PORT} {
+	route {
+		forward_proxy {
+			acl {
+				allow_file allow.acl
+				deny all
+			}
+			ports 80 443 22 61443
+			serve_pac
+			upstream    $PROXYROUTE
+		}
+	}
+	log {
+		format json
+		level INFO
+		output stdout
+	}
+}

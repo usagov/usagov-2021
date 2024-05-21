@@ -10,6 +10,18 @@ GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
 GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "")
 
+# If the caddy binary is not already in place, retrieve the latest from cg-egress-proxy.
+# (Latest? We are trusting their review process.)
+caddy_bin_file=$SCRIPT_DIR/../../.docker/src-reporter/local_proxy/caddy
+if [ -f $caddy_bin_file ]; then
+    echo "Caddy binary already exists at $caddy_bin_file"
+else
+    echo "Getting latest caddy binary from cg-egress-proxy repo and saving it to $caddy_bin_file"
+    $output git clone --depth 1 https://github.com/GSA-TTS/cg-egress-proxy.git tmp-caddy-build
+    $output cp -p tmp-caddy-build/proxy/caddy $caddy_bin_file
+    $output rm -rf tmp-caddy-build
+fi
+
 echo "Building ${DOCKERUSER}/${DOCKERREPO}:reporter"
 
 docker build --force-rm \

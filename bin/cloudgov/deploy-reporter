@@ -17,7 +17,7 @@ fi
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
-APPNAME="AnalyticsReporterWithNGINX"
+APPNAME="AnalyticsReporterWithProxy"
 
 # Grab the starting space and org where the command was run
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')

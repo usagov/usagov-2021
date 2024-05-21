@@ -1,24 +1,48 @@
 #!/bin/bash
 
 # We do this here so that we have $PROXYROUTE, which is not available during build
-echo "Updating nginx config and reloading nginx config"
-NSG_REGEX="https://([^@:]+):([^@]+)@(.*)"
-PROXY_USER=`echo $PROXYROUTE | sed -E "s~$NSG_REGEX~\1~"`
-PROXY_PASS=`echo $PROXYROUTE | sed -E "s~$NSG_REGEX~\2~"`
-PROXY_URL=`echo $PROXYROUTE | sed -E "s~$NSG_REGEX~\3~"`
+echo "Updating Caddy config"
 
-export NGINX_PROXYURL="https://${PROXY_URL}"
-export NGINX_PROXYAUTH=`echo -n "$PROXY_USER:$PROXY_PASS" | base64`
+# Update Caddyfile with proxy
+envsubst < ./local_proxy/Caddyfile.tmpl > ./local_proxy/Caddyfile
 
-for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
-    if [ -f "$FILE" ]; then
-        OUTFILE=${FILE%.tmpl}
-        echo " generating $OUTFILE"
-        envsubst < "$FILE" > "$OUTFILE"
-    fi
-done
+# Starting Caddy
+exec ./local_proxy/caddy run --config ./local_proxy/Caddyfile
 
-/usr/sbin/nginx -s reload
+
+##### TODO: Copied from src-egress.profile, figure out what we need and remove the rest #####
+# ENABLE_ASH_BASH_COMPAT=1
+
+# set -e
+
+# # Ensure there's only one entry per line, and leave no whitespace
+# PROXY_DENY=$(  echo -n "$PROXY_DENY"  | sed 's/^\S/ &/' | sed 's/\ /\n/g' | sed '/^\s*$/d' )
+# PROXY_ALLOW=$( echo -n "$PROXY_ALLOW" | sed 's/^\S/ &/' | sed 's/\ /\n/g' | sed '/^\s*$/d' )
+
+# # Append to the appropriate files
+# echo -n "$PROXY_DENY"  > deny.acl
+# echo -n "$PROXY_ALLOW" > allow.acl
+
+# # Newline Terminate Non-Empty File If Not Already aka ntnefina
+# # https://stackoverflow.com/a/10082466/17138235
+# #
+# # It's unclear if this works properly under Alpine because it uses ANSI-C
+# # quoting; that needs more testiing. However, if caddy complains about a blank
+# # in the file, you know why!
+# ntnefina() {
+#     if [ -s "$1" ] && [ "$(tail -c1 "$1"; echo x)" != $'\nx' ]; then
+#         echo "" >> "$1"
+#     fi
+# }
+
+# ntnefina deny.acl
+# ntnefina allow.acl
+##### END of bit copied from src-egress/.profile #####
+
+# export LOCAL_PROXYURL="https://${PROXY_URL}"
+# export LOCAL_PROXYAUTH=`echo -n "$PROXY_USER:$PROXY_PASS" | base64`
+
+
 
 echo "starting container to create reports"
 cat ${CF_SYSTEM_CERT_PATH}/* > /etc/combined-certs.pem

@@ -7,12 +7,9 @@ RUN apk upgrade --update \
     && apk add --no-cache --virtual .persistent-deps \
        jq \
        bash \
-       curl \
-       nginx \
-       gettext
+       curl
 
 RUN chmod +x /createreport.sh \
-    && rm /etc/nginx/http.d/default.conf \
     && npm install -g analytics-reporter
 
 WORKDIR /analytics-reporter

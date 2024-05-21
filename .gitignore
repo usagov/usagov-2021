@@ -116,6 +116,7 @@ workspace.code-workspace
 
 manifest-egress-vars.yml
 .docker/src-egress/caddy
+.docker/src-reporter/local_proxy/caddy
 
 bin/deploy/logs/*.log
 bin/cloudgov/test/nr/logs/*
