@@ -226,6 +226,37 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-reporter
 
+  deploy-cfevents:
+    parameters:
+      envname:
+        default: "tools"
+        type: string
+    steps:
+      - checkout
+      - install-cloud-foundry
+      - signed-dockerhub-login
+      - run:
+          name: Build CF Events Container
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/container-build-cfevents
+      - run:
+          name: Push CF Events Container to Docker Hub
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/container-push-cfevents
+      - run:
+          name: Deploy CF Events App
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-cfevents
+
 jobs:
   scan-code:
     machine:
@@ -489,6 +520,15 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - deploy-reporter:
+          envname: tools
+
+  deploy-cfevents-tools:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cfevents:
           envname: tools
 
 workflows:
