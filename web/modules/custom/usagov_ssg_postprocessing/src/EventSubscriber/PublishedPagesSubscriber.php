@@ -48,6 +48,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       $script = trim($script);
       $script = ltrim($script, "dataLayer = ");
       $script = rtrim($script, ";");
+      $script = rtrim($script, ",");
       $decoded = json_decode($script, TRUE);
       $decoded = $decoded[0];
 
@@ -72,16 +73,22 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
 
       $header_replace = [
         "nodeID" => "Page ID",
-        "Taxonomy_Text_1" => "Level 1",
-        "Taxonomy_Text_2" => "Level 2",
-        "Taxonomy_Text_3" => "Level 3",
-        "Taxonomy_Text_4" => "Level 4",
-        "Taxonomy_Text_5" => "Level 5",
-        "Taxonomy_Text_6" => "Level 6",
+        "language" => "Taxonomy Level 1",
+        "Taxonomy_Text_2" => "Taxonomy Level 2",
+        "Taxonomy_Text_3" => "Taxonomy Level 3",
+        "Taxonomy_Text_4" => "Taxonomy Level 4",
+        "Taxonomy_Text_5" => "Taxonomy Level 5",
+        "Taxonomy_Text_6" => "Taxonomy Level 6",
+        "Taxonomy_URL_1" => "Taxonomy URL Level 1",
+        "Taxonomy_URL_2" => "Taxonomy URL Level 2",
+        "Taxonomy_URL_3" => "Taxonomy URL Level 3",
+        "Taxonomy_URL_4" => "Taxonomy URL Level 4",
+        "Taxonomy_URL_5" => "Taxonomy URL Level 5",
+        "Taxonomy_URL_6" => "Taxonomy URL Level 6",
         "Page_Type" => "Page Type",
         "basicPagesubType" => "Page Sub Type",
         "contentType" => "Content Type",
-        "language" => "Top Level",
+
         "homepageTest" => "Homepage?",
       ];
 
@@ -99,13 +106,18 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         "Page ID",
         "Page Title",
         "Full URL",
-        "Level 1",
-        "Level 2",
-        "Level 3",
-        "Level 4",
-        "Level 5",
-        "Level 6",
-        "Top Level",
+        "Taxonomy Level 1",
+        "Taxonomy Level 2",
+        "Taxonomy Level 3",
+        "Taxonomy Level 4",
+        "Taxonomy Level 5",
+        "Taxonomy Level 6",
+        "Taxonomy URL Level 1",
+        "Taxonomy URL Level 2",
+        "Taxonomy URL Level 3",
+        "Taxonomy URL Level 4",
+        "Taxonomy URL Level 5",
+        "Taxonomy URL Level 6",
         "Homepage?",
         "Toggle URL",
       ];
@@ -117,8 +129,8 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
 
       $decoded["Page Title"] = $title;
 
-      $toggle_url = $xpath->query('/html/body/header/div[1]/div/div/ul/li/a/@href')->item(0)->nodeValue;
-      $decoded["Toggle URL"] = ($toggle_url) ? $host . $toggle_url : "None";
+      $toggle_url = $xpath->query('/html/head/link[contains(@rel, "alternate")]/@href')->item(0)->nodeValue;
+      $decoded["Toggle URL"] = ($toggle_url) ? $toggle_url : "None";
 
       $hierarchy = 0;
       $prev = "";
@@ -132,10 +144,13 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       }
       $decoded["Hierarchy Level"] = $hierarchy;
 
+      $url = "";
       foreach ($decoded as $name => $term) {
-        if (in_array($name, $url_replace)) {
-          $urlArray[] = $term;
+        if ($name == "Taxonomy_Text_1") {
           unset($decoded[$name]);
+        }
+        if ($name == "Taxonomy_URL_6") {
+          $url = $term;
         }
         if ($name == "language") {
           $term = $content_replace[$term];
@@ -148,19 +163,8 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         }
       }
 
-      if (!empty($urlArray)) {
-        foreach ($urlArray as $key => $item) {
-          $term = str_replace("/", "", $item);
-          $urlArray[$key] = $term;
-        }
-        $urlArray = array_unique($urlArray);
-        $url = implode("/", $urlArray);
-        if ($decoded["Top Level"] == "USAGov Español") {
-          $url = "/" . $url;
-        }
-        $decoded["Friendly URL"] = (empty($url)) ? "/" : $url;
-        $decoded["Full URL"] = (empty($url)) ? $host . "/" : $host . $url;
-      }
+      $decoded["Friendly URL"] = (empty($url)) ? "/" : $url;
+      $decoded["Full URL"] = (empty($url)) ? $host . "/" : $host . $url;
 
       $orderedArray = array_merge(array_flip($order_map), $decoded);
 
