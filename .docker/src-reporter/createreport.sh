@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Copying certs into place
+cp $CF_SYSTEM_CERT_PATH/*  /usr/local/share/ca-certificates/
+/usr/sbin/update-ca-certificates 2>&1 > /dev/null || echo ""
+
 # We do this here so that we have $PROXYROUTE, which is not available during build
 echo "Updating Caddy config"
 

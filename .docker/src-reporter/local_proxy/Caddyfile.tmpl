@@ -7,7 +7,7 @@
 	auto_https off
 }
 
-:{$PORT} {
+:8080 {
 	route {
 		forward_proxy {
 			acl {
@@ -16,7 +16,7 @@
 			}
 			ports 80 443 22 61443
 			serve_pac
-			upstream    $PROXYROUTE
+			upstream	$PROXYROUTE
 		}
 	}
 	log {
