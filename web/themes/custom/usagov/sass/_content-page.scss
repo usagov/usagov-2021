@@ -19,3 +19,21 @@
   position: absolute;
   width: 1px;
 }
+
+.usa-prose {
+  // Image Alignment
+  .field--name-field-media-image img {
+    height: auto;
+  }
+  .align-center {
+    text-align: center;
+  }
+  .align-right {
+    margin: 1em;
+    margin-right: 0;
+  }
+  .align-left {
+    margin: 1em;
+    margin-left: 0;
+  }
+}
