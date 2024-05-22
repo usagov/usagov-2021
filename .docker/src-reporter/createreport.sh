@@ -9,7 +9,7 @@ echo "Updating Caddy config"
 envsubst < ./local_proxy/Caddyfile.tmpl > ./local_proxy/Caddyfile
 
 echo "Starting Caddy"
-exec ./local_proxy/caddy run --config ./local_proxy/Caddyfile
+exec ./local_proxy/caddy run --config ./local_proxy/Caddyfile &
 
 echo "starting container to create reports"
 cat ${CF_SYSTEM_CERT_PATH}/* > /etc/combined-certs.pem

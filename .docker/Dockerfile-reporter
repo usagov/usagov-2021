@@ -17,5 +17,5 @@ WORKDIR /analytics-reporter
 RUN npm install minimist
 RUN npm install
 WORKDIR /
-# CMD ["./createreport.sh"]
-CMD ["./dummy_startup.sh"]
+CMD ["./createreport.sh"]
+# CMD ["./dummy_startup.sh"]
