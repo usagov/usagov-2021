@@ -3,11 +3,12 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_category
+    - field.storage.node.field_benefits_category
     - field.storage.node.field_page_intro
     - field.storage.node.field_short_description
     - node.type.basic_page
     - taxonomy.vocabulary.bears_tags
+    - taxonomy.vocabulary.category
   module:
     - node
     - rest
@@ -320,15 +321,78 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-        field_category:
-          id: field_category
-          table: node__field_category
-          field: field_category
+        term_node_tid:
+          id: term_node_tid
+          table: node_field_data
+          field: term_node_tid
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          plugin_id: taxonomy_index_tid
+          label: ''
+          exclude: false
+          alter:
+            alter_text: true
+            text: '<span>{{ term_node_tid__name }}</span>'
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: span
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: false
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          type: separator
+          separator: ' '
+          link_to_taxonomy: false
+          limit: true
+          vids:
+            category: category
+            bears_tags: '0'
+            content_tags: '0'
+            page_type: '0'
+            uswds_breakpoints: '0'
+            uswds_classes: '0'
+            uswds_colors: '0'
+            uswds_icons: '0'
+        field_benefits_category:
+          id: field_benefits_category
+          table: node__field_benefits_category
+          field: field_benefits_category
           relationship: none
           group_type: group
           admin_label: ''
           plugin_id: field
-          label: Category
+          label: ''
           exclude: false
           alter:
             alter_text: false
@@ -361,7 +425,7 @@ display:
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: false
           element_wrapper_type: ''
           element_wrapper_class: ''
           element_default_classes: true
@@ -497,7 +561,7 @@ display:
             default_group_multiple: {  }
             group_items: {  }
           reduce_duplicates: false
-          vid: bears_tags
+          vid: category
           type: textfield
           hierarchy: false
           limit: true
@@ -579,7 +643,7 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_category'
+        - 'config:field.storage.node.field_benefits_category'
         - 'config:field.storage.node.field_page_intro'
         - 'config:field.storage.node.field_short_description'
   data_export_1:
@@ -626,7 +690,7 @@ display:
               raw_output: true
       display_description: ''
       display_extenders: {  }
-      path: benefit-search/en.json
+      path: benefits-search/en.json
       filename: ''
       automatic_download: false
       store_in_public_file_directory: false
@@ -642,7 +706,7 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_category'
+        - 'config:field.storage.node.field_benefits_category'
         - 'config:field.storage.node.field_page_intro'
         - 'config:field.storage.node.field_short_description'
   data_export_2:
@@ -804,7 +868,7 @@ display:
         filter_groups: false
       display_description: ''
       display_extenders: {  }
-      path: benefit-search/es.json
+      path: benefits-search/es.json
       filename: ''
       automatic_download: false
       store_in_public_file_directory: false
@@ -820,6 +884,6 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_category'
+        - 'config:field.storage.node.field_benefits_category'
         - 'config:field.storage.node.field_page_intro'
         - 'config:field.storage.node.field_short_description'

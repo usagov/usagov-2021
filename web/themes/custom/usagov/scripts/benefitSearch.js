@@ -256,7 +256,7 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     myself.resultsContainer.innerHTML = '';
     // keep the benefits that match
     let matches = myself.benefits.filter((item) => {
-      let numMatches = item.field_category.filter((value) => myself.terms.includes(value));
+      let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
       return numMatches.length > 0;
     });
 
@@ -350,7 +350,7 @@ jQuery(document).ready(async function () {
     src,
     document.querySelector('#benefitSearch'),
     document.querySelector('#matchingBenefits'),
-    8
+    5
   );
   await ben.init();
 });

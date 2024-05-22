@@ -7,3 +7,13 @@
 #block-claro-primary-local-tasks a[href$="/translations"]{
     display: none;
 }
+
+#edit-field-benefits-category--wrapper .fieldset__wrapper--group {
+  column-width: 180px;
+  column-rule-width: 2px;
+}
+
+/* proof of concept, ideally we should use a form alter to mark the checkbox when language changes */
+#edit-field-benefits-category--wrapper .fieldset__wrapper--group div.form-item--field-benefits-category-70 {
+  break-before: column; /* doesn't work in firefox and safari */
+}

@@ -6,7 +6,7 @@ dependencies:
     - core.entity_view_mode.node.teaser
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_50_state_pages_type
-    - field.field.node.basic_page.field_category
+    - field.field.node.basic_page.field_benefits_category
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_exclude_from_contact_cente
@@ -55,7 +55,7 @@ content:
     region: content
 hidden:
   field_50_state_pages_type: true
-  field_category: true
+  field_benefits_category: true
   field_css_icon: true
   field_custom_twig_content: true
   field_exclude_from_contact_cente: true

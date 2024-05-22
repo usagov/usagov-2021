@@ -42,18 +42,19 @@
     <h3 id="categories-label">{{ subtitle }}</h3>
 
     <form id="benefitSearch" action="javascript:void(0)">
-      <div role="group" aria-labelledby="categories-label">
-        <ul class="usa-list--unstyled grid-row">
-          <div class="grid-col-9 benefits-category-list-checkbox-cols">
+      <div role="group" class="grid-row" aria-labelledby="categories-label">
+        <div class="grid-col-9 benefits-category-list-checkbox-cols">
+          <ul class="usa-list--unstyled">
           {% for row in rows %}
             <li class="padding-bottom-1">{{- row.content -}}</li>
           {% endfor %}
-          </div>
-          <div class="grid-col-3">
-          <li><label><input type="checkbox" value="all"
-                            style="display: inline-block; padding-right: 1rem;"> {{ select_all_label }}</label></li>
-          </div>
-        </ul>
+          </ul>
+        </div>
+        <div class="grid-col-3">
+          <label><input type="checkbox" value="all"
+                        class="display-inline-block margin-right-1"
+                 > {{ select_all_label }}</label>
+        </div>
       </div>
       <div class="grid-col-auto margin-top-4" aria-label="{{ aria_button_groupabel }} ">
         <button class="usa-button" type="submit">{{ submit_label }}</button>
