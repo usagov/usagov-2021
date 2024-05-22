@@ -11,12 +11,10 @@
 	route {
 		forward_proxy {
 			acl {
-				allow_file allow.acl
-				deny all
+			    allow all
 			}
 			ports 80 443 22 61443
-			serve_pac
-			upstream	$PROXYROUTE
+			upstream $PROXYROUTE
 		}
 	}
 	log {
