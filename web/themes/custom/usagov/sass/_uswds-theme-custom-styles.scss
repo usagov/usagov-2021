@@ -737,6 +737,9 @@ select:not([disabled]):focus,
 
 #main-content .usa-accordion__button:not(.bg-secondary) {
   @include u-bg('gray-5');
+  &:hover {
+    @include u-bg('gray-20');
+  }
 }
 
 // elected-officials hide autofill contact for state dropdown - name is not brought over to input by uswds so autofill is being triggered in Safari
