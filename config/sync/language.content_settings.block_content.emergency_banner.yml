@@ -1,0 +1,11 @@
+uuid: 4c9997b9-5ba9-43cf-8bb4-ca1d95eaff4a
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.emergency_banner
+id: block_content.emergency_banner
+target_entity_type_id: block_content
+target_bundle: emergency_banner
+default_langcode: site_default
+language_alterable: false

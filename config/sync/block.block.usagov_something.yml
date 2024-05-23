@@ -1,0 +1,25 @@
+uuid: 106d1853-8977-4299-8375-4cc38388535c
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:emergency_banner:e544946c-cdf7-4837-97ab-002d8961f32f'
+  module:
+    - block_content
+  theme:
+    - usagov
+id: usagov_something
+theme: usagov
+region: header_top
+weight: 0
+provider: null
+plugin: 'block_content:e544946c-cdf7-4837-97ab-002d8961f32f'
+settings:
+  id: 'block_content:e544946c-cdf7-4837-97ab-002d8961f32f'
+  label: Something
+  label_display: visible
+  provider: block_content
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

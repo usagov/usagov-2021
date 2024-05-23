@@ -1,0 +1,33 @@
+uuid: e59e2e06-c0b9-479e-a7ce-89d4fc71232e
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:uswds_paragraphs:18898328-2e39-4afa-a537-6e70f306d0da'
+  module:
+    - block_content
+    - language
+  theme:
+    - usagov
+id: usagov_emergencyheaderbannerspanish
+theme: usagov
+region: header_top
+weight: 0
+provider: null
+plugin: 'block_content:18898328-2e39-4afa-a537-6e70f306d0da'
+settings:
+  id: 'block_content:18898328-2e39-4afa-a537-6e70f306d0da'
+  label: 'Emergency Header Banner Spanish'
+  label_display: '0'
+  provider: block_content
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es

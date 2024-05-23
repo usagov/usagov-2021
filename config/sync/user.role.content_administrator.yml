@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - block_content.type.emergency_banner
     - media.type.audio
     - media.type.file
     - media.type.image
@@ -21,10 +22,13 @@ dependencies:
     - node.type.wizard_step
     - workflows.workflow.basic_workflow
   module:
+    - block_content
     - content_lock
     - content_moderation
     - content_translation
+    - contextual
     - devel
+    - layout_builder
     - media
     - menu_link_content
     - node
@@ -42,7 +46,9 @@ weight: 5
 is_admin: null
 permissions:
   - 'access administration pages'
+  - 'access block library'
   - 'access content overview'
+  - 'access contextual links'
   - 'access devel information'
   - 'access site in maintenance mode'
   - 'access toolbar'
@@ -54,6 +60,7 @@ permissions:
   - 'administer sitemap settings'
   - 'break content lock'
   - 'create agency_synonym content'
+  - 'create and edit custom blocks'
   - 'create audio media'
   - 'create basic_page content'
   - 'create bears_agency content'
@@ -63,6 +70,7 @@ permissions:
   - 'create bears_life_event_form content'
   - 'create content translations'
   - 'create directory_record content'
+  - 'create emergency_banner block content'
   - 'create file media'
   - 'create image media'
   - 'create media'
@@ -83,6 +91,8 @@ permissions:
   - 'delete any bears_life_event content'
   - 'delete any bears_life_event_form content'
   - 'delete any directory_record content'
+  - 'delete any emergency_banner block content'
+  - 'delete any emergency_banner block content revisions'
   - 'delete any file media'
   - 'delete any image media'
   - 'delete any media'
@@ -128,6 +138,7 @@ permissions:
   - 'edit any bears_life_event content'
   - 'edit any bears_life_event_form content'
   - 'edit any directory_record content'
+  - 'edit any emergency_banner block content'
   - 'edit any file media'
   - 'edit any image media'
   - 'edit any remote_video media'
@@ -153,6 +164,7 @@ permissions:
   - 'edit paragraphs entity embed'
   - 'revert agency_synonym revisions'
   - 'revert all revisions'
+  - 'revert any emergency_banner block content revisions'
   - 'revert basic_page revisions'
   - 'revert bears_agency revisions'
   - 'revert bears_benefit revisions'
@@ -182,6 +194,7 @@ permissions:
   - 'view agency_synonym revisions'
   - 'view all media revisions'
   - 'view all revisions'
+  - 'view any emergency_banner block content history'
   - 'view any unpublished content'
   - 'view basic_page revisions'
   - 'view bears_agency revisions'
