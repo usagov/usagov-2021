@@ -25,22 +25,20 @@
   {% set reset_label = "Clear Selections" %}
   {% set select_all_label = "Select all" %}
   {% set aria_button_groupabel = "Buttons for form" %}
+  {% set aria_results_label = "Matching Items" %}
 {% elseif lang == 'es' %}
   {% set search_title = "Busque beneficios for categoría" %}
   {% set submit_label = "Aplicar selecciones" %}
   {% set reset_label = "Borrar selecciones" %}
   {% set select_all_label = "Seleccionar todo" %}
   {% set aria_button_groupabel = "Butones del formularió" %}
+  {% set aria_results_label = "Resultados" %}
 {% endif %}
 {{ attach_library('usagov/benefitSearch') }}
 
 <div class="benefits-category-list">
-
   <div class="smaller-width-div">
-    <h2>{{ search_title }}</h2>
-
-    <h3 id="categories-label">{{ subtitle }}</h3>
-
+    <h2 id="categories-label">{{ search_title }}</h2>
     <form id="benefitSearch" action="javascript:void(0)">
       <div role="group" class="grid-row" aria-labelledby="categories-label">
         <div class="grid-col-9 benefits-category-list-checkbox-cols">
@@ -61,7 +59,6 @@
         <button class="usa-button usa-button--secondary" type="reset">{{ reset_label }}</button>
       </div>
     </form>
-
   </div>
 </div>
-<div id="matchingBenefits" aria-live="polite"></div>
+<div id="matchingBenefits" aria-label="{{ aria_results_label }}"></div>

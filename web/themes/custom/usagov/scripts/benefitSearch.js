@@ -162,8 +162,8 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     }
 
     elt.innerHTML += `<div class="grid-row benefits-category-result">
-<div class="grid-col-9 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
-<div class="grid-col-3 benefits-result-categories">${benefit.term_node_tid}</div>
+<div class="grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="grid-col-4 benefits-result-categories">${benefit.term_node_tid}</div>
 </div>`;
     return elt;
   };
@@ -239,7 +239,7 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
   };
   this.showError = function() {
     let elt = document.createElement('template');
-    elt.innerHTML = '<div class="usa-alert--error">Select one or more categories</div>';
+    elt.innerHTML = '<div class="usa-alert--error" aria-live=assertive>Select one or more categories</div>';
     myself.form.prepend(elt.content);
   };
   /**

@@ -47,7 +47,7 @@ function Pagination(total, current, labels, onClick) {
     // if the current page is within the last 4 slots of the end of pagination,
     // we always display the same 4 slots before the last page
     else if (this.current > this.total - 4) {
-      startAt = Math.max(1, this.total - 4);
+      startAt = Math.max(2, this.total - 4);
       stopAt = Math.max(1, this.total - 1);
     }
     // otherwise, show the page before and after the current one
