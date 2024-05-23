@@ -78,5 +78,5 @@ fi
 
 echo "Attempting to deploy database backup $GZIP_FILE to $SPACE"
 
-$echo cat $GZIP_FILE | cf ssh cms -c "cat - > /tmp/$GZIP_FILE"
+$echo cat $GZIP_FILE | sed 's/^\/\*\!999999\\\-.*$//' | cf ssh cms -c "cat - > /tmp/$GZIP_FILE"
 $echo cf ssh cms -c "if [ -f /tmp/$GZIP_FILE ]; then . /etc/profile; drush sql-drop -y; zcat /tmp/$GZIP_FILE | drush sql-cli; drush cr; fi"
