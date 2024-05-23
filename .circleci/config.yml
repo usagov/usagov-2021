@@ -576,8 +576,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1407-update-ar
-                - USAGOV-1407-with-nginx
       - deploy-reporter-tools:
           filters:
             branches:
@@ -585,8 +583,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1407-update-ar
-                - USAGOV-1407-with-nginx
           requires:
             - approve-deploy-reporter
 
