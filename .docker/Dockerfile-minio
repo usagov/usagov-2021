@@ -20,4 +20,4 @@ RUN curl -L https://dl.min.io/client/mc/release/linux-amd64/mc \
 
 ENTRYPOINT ["/docker-entrypoint-minio.sh"]
 
-CMD ["server", "/data", "--console-address", ":9091"]
+CMD ["server", "/data", "--console-address", ":9001"]
