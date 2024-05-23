@@ -1,31 +1,43 @@
 applications:
-- name: analytics-reporter
+- name: ${APP_NAME}
   instances: 1
-  memory: 512M
+  # 1GB is needed right at startup because many child processes are spawned in
+  # parallel. This could be reduced if we limited the number of simultaneous
+  # processes.
+  memory: 1024M
   disk_quota: 1024M
   no-route: true
   health-check-type: process
-  buildpack: nodejs_buildpack
+  buildpacks:
+  - nodejs_buildpack
   command: node deploy/cron.js
-  # These are examples. These variables are set via `cg-toolkit/generate-env.sh`
-  # using the `.env` file referenced in README.md.
-  # env:
-  #   ANALYTICS_KEY_PATH: <ANALYTICS_KEY_PATH>
-  #   ANALYTICS_REPORT_EMAIL: <ANALYTICS_REPORT_EMAIL>
-  #   ANALYTICS_REPORT_IDS: <ANALYTICS_REPORT_IDS>
-  #   ANALYTICS_REPORTS_PATH: <ANALYTICS_REPORTS_PATH>
-  #   AWS_ACCESS_KEY_ID: <AWS_ACCESS_KEY_ID>
-  #   AWS_BUCKET: <AWS_BUCKET>
-  #   AWS_BUCKET_PATH: <AWS_BUCKET_PATH>
-  #   AWS_CACHE_TIME: <AWS_CACHE_TIME>
-  #   AWS_DEFAULT_REGION: <AWS_DEFAULT_REGION>
-  #   AWS_REGION: <AWS_REGION>
-  #   AWS_SECRET_ACCESS_KEY: <AWS_SECRET_ACCESS_KEY>
-  #   BUCKET_NAME: <BUCKET_NAME>
+  env:
+    # This is a JSON string which has been base64 encoded
+    ANALYTICS_CREDENTIALS: ${ANALYTICS_CREDENTIALS}
+    ANALYTICS_DEBUG: 'true'
+    ANALYTICS_DEPLOYED_TO_CLOUD_GOV: 'true'
+    ANALYTICS_GA4_CALL_RETRY_COUNT: ${ANALYTICS_GA4_CALL_RETRY_COUNT}
+    ANALYTICS_LOG_LEVEL: ${ANALYTICS_LOG_LEVEL}
+    ANALYTICS_KEY_PATH: /home/vcap/app/${ANALYTICS_KEY_FILE_NAME}
+    # The default property ID for reports (used for gov-wide reports)
+    ANALYTICS_REPORT_IDS: '393249053'
+    # The default property ID for UA reports (used for gov-wide reports)
+    ANALYTICS_REPORT_UA_IDS: 'ga:96302018'
+    ANALYTICS_REPORT_EMAIL: ${ANALYTICS_REPORT_EMAIL}
+    ANALYTICS_REPORTS_PATH: /home/vcap/app/reports/usa.json
+    ANALYTICS_ROOT_PATH: /home/vcap/app
+    ANALYTICS_UA_ROOT_PATH: /home/vcap/app/ua
+    # The default path for reports (used for gov-wide reports)
+    AWS_BUCKET_PATH: data/live
+    AWS_CACHE_TIME: '0'
+    GOOGLE_APPLICATION_CREDENTIALS: /home/vcap/app/${ANALYTICS_KEY_FILE_NAME}
+    NEW_RELIC_APP_NAME: ${NEW_RELIC_APP_NAME}
+    NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY}
+    NODE_ENV: production
+    PGSSLMODE: true
   services:
-  - analytics-s3
-  - analytics-env
-  - analytics-reporter-database
-  stack: cflinuxfs3
+  - ${S3_SERVICE_NAME}
+  - ${DB_SERVICE_NAME}
+  stack: cflinuxfs4
   timeout: 180
   path: .
