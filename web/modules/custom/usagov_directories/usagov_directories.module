@@ -46,7 +46,8 @@ function usagov_directories_views_pre_render($view) {
   if ($view->id() == 'federal_agencies' && ($view->current_display == 'block_1' || $view->current_display == "block_2")) {
 
     $new_result = $view->result;
-    for ($res = 0; $res < count($new_result); $res++) {
+    $num_results = count($new_result);
+    for ($res = 0; $res < $num_results; $res++) {
       $nid = $new_result[$res]->_entity->nid[0]->value;
       $node = Node::load($nid);
       $node_title = $node->get('title')[0]->value;
