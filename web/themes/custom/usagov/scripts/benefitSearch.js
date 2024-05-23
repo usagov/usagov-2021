@@ -40,12 +40,24 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     }
     return await response.json();
   };
+  /**
+   * @returns {array}
+   */
+  this.findMatches = function() {
+    let matches = myself.benefits.filter((item) => {
+      let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
+      return numMatches.length > 0;
+    });
 
+    return matches;
+  };
+  /**
+   * Clears the results container
+   */
   this.handleClear = function() {
     myself.clearErrors();
     myself.resultsContainer.innerHTML = '';
   };
-
   /**
    * @param {int} page
    */
@@ -255,10 +267,7 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
   this.showResults = function() {
     myself.resultsContainer.innerHTML = '';
     // keep the benefits that match
-    let matches = myself.benefits.filter((item) => {
-      let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
-      return numMatches.length > 0;
-    });
+    let matches = this.findMatches();
 
     const pages = myself.preparePages(matches);
     for (const page of pages.map(myself.renderPage)) {
