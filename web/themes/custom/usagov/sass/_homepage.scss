@@ -208,7 +208,7 @@
   margin-right: 5vw;
   margin-top: 35px;
   max-width: 400px;
-  padding: 30px 58px 20px;
+  padding: 30px 58px 22px;
 
   h2,
   a {
@@ -331,7 +331,8 @@
 }
 
 .homepage-card_header {
-  padding: 15px !important;
+  padding: 15px 0px !important;
+  margin-inline: 15px;
   border-top: 1px dashed #1b1b1b;
 }
 
@@ -341,7 +342,7 @@
   border-width: 2px;
   border-style: solid;
   @include u-bg('white');
-  border-color: $homepage-gray-border;
+  @include u-border('gray-50');
   border-radius: 3px;
   box-shadow: 0 3px 6px rgb(122 122 122 / 15%);
   margin: 0;
@@ -410,6 +411,7 @@
     width: 100%;
     max-width: 1124px;
     padding-top: 18px;
+    padding-bottom: 10px;
   }
 
   .how-button-list {
