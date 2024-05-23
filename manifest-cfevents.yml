@@ -10,10 +10,3 @@ applications:
     health-check-type: process
     instances: 1
     memory: 64M
-    command: ./start.sh
-    env:
-      PROXY_USERNAME: ((username))
-      PROXY_PASSWORD: ((password))
-      proxy_route: ((proxyroute))
-      PROXY_DENY: ((proxydeny))
-      PROXY_ALLOW: ((proxyallow))
