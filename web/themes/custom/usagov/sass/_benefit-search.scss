@@ -19,8 +19,15 @@
 .benefits-category-list .usa-button--secondary {
   background-color: $fed-white-background;
 }
-.benefits-category-list li {
+
+.benefits-category-list ul >li {
   break-inside: avoid;
+}
+
+.benefits-category-list li > label > span{
+  display: inline-block;
+  width: calc(100% - 1.5rem);
+  vertical-align: top;
 }
 
 .benefits-category-list-checkbox-cols {
