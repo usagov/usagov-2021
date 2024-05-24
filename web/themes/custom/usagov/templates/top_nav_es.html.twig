@@ -4,8 +4,21 @@
 			<a href="/es" title="USAGov Logo"><img class="es" src="/themes/custom/usagov/images/Logo_USAGov_Spanish.png" alt="Ir a página principal de USAGov en Español"></a>
 		</em>
 	</div>
-	<button class="usa-menu-btn">Menú</button>
-			<div class="usa-nav__secondary">
+
+	<div class="navbar-right">
+		{% set translation = node.field_language_toggle[0].value %}
+		{% if translation %}
+			{% if node.nid[0].value|render == "1" %}
+				{% set translation_url = "/" %}
+			{% else %}
+				{% set translation_url = drupal_url('node/'~translation.target_id,{ langcode:'en' }) %}
+			{% endif %}
+			
+			<a href="{{ translation_url }}" class="usa-button language-link" hreflang="en">English</a>
+		{% endif %}
+
+		<button class="usa-menu-btn">Menú</button>
+		<div class="usa-nav__secondary">
 			<span class="usa-nav__secondary-links">
 				<span id="top-phone" class="usa-nav__secondary-item">
 					<a href="/es/llamenos" style="white-space: nowrap;">Llámenos al 1-844-USAGOV1</a>
@@ -28,6 +41,7 @@
 			} %}
 			{% endembed %}
 		</div>
+	</div>
 </div>
 <nav aria-label="Navegación primaria" class="usa-nav">
 	<div class="usa-nav__inner">
