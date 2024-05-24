@@ -1,4 +1,4 @@
-uuid: eb2ce1b2-334b-4dfc-964a-c732b5952471
+uuid: 7c68799b-164b-4316-846f-00831db9c9cd
 langcode: en
 status: true
 dependencies:
@@ -9,8 +9,8 @@ dependencies:
 third_party_settings:
   field_permissions:
     permission_type: public
-id: taxonomy_term.field_cat_life_events
-field_name: field_cat_life_events
+id: taxonomy_term.field_category_life_events
+field_name: field_category_life_events
 entity_type: taxonomy_term
 type: entity_reference
 settings:

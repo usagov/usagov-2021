@@ -1,17 +1,17 @@
-uuid: 767096a9-359a-43d0-94bf-abcf90ed84a7
+uuid: b782e780-8e5e-403c-a43d-cb1fec64f6cf
 langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.taxonomy_term.field_cat_life_events
+    - field.storage.taxonomy_term.field_category_life_events
     - node.type.bears_life_event
-    - taxonomy.vocabulary.category
-id: taxonomy_term.category.field_cat_life_events
-field_name: field_cat_life_events
+    - taxonomy.vocabulary.benefits_category
+id: taxonomy_term.benefits_category.field_category_life_events
+field_name: field_category_life_events
 entity_type: taxonomy_term
-bundle: category
+bundle: benefits_category
 label: 'Life Events'
-description: 'Select life events to display at the top of search results.'
+description: 'Highlight selected terms in benefits search.'
 required: false
 translatable: false
 default_value: {  }
@@ -22,7 +22,7 @@ settings:
     target_bundles:
       bears_life_event: bears_life_event
     sort:
-      field: title
+      field: _none
       direction: ASC
     auto_create: false
     auto_create_bundle: ''

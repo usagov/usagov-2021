@@ -1,8 +1,0 @@
-uuid: 59f8b6c1-07d3-4eab-be14-0950cf933f76
-langcode: und
-status: true
-dependencies: {  }
-name: Category
-vid: category
-description: 'Categories for searching benefits'
-weight: 0

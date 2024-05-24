@@ -1,16 +1,16 @@
-uuid: 2b993fe7-cc97-451c-b3f3-9cbef84ce50f
+uuid: caf65780-ff81-440f-97d6-a6c44dfe86fb
 langcode: en
 status: true
 dependencies:
   config:
-    - field.field.taxonomy_term.category.field_cat_life_events
-    - taxonomy.vocabulary.category
+    - field.field.taxonomy_term.benefits_category.field_category_life_events
+    - taxonomy.vocabulary.benefits_category
   module:
     - path
     - text
-id: taxonomy_term.category.default
+id: taxonomy_term.benefits_category.default
 targetEntityType: taxonomy_term
-bundle: category
+bundle: benefits_category
 mode: default
 content:
   description:
@@ -21,7 +21,7 @@ content:
       rows: 5
       placeholder: ''
     third_party_settings: {  }
-  field_cat_life_events:
+  field_category_life_events:
     type: options_buttons
     weight: 3
     region: content
