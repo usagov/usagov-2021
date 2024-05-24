@@ -87,7 +87,12 @@
         return domain.replace(new RegExp("%20", "g"), " ");
       },
       formatURLWithPath = function(url) {
-        return url.slice(url.indexOf('://')+3,url.length);
+        if ((url.startsWith('https://www')) || (url.startsWith('http://www'))){
+          return url.slice(url.indexOf('://')+7,url.length);
+        }
+        else{
+          return url.slice(url.indexOf('://')+3,url.length);
+        }
       },
       TRANSITION_DURATION = 500;
 
@@ -184,8 +189,7 @@
     // the OS block is a stack layout
     "os": renderBlock()
       .transform(function(d) {
-        var values = listify(d.totals.os),
-            total = d3.sum(values.map(function(d) { return d.value; }));
+        var [values, total] = returnValuesAndTotals(d,"os","visits");
         return addShares(collapseOther(values, total * .01));
       })
       .render(barChart()
@@ -195,8 +199,7 @@
     // the windows block is a stack layout
     "windows": renderBlock()
       .transform(function(d) {
-        var values = listify(d.totals.os_version),
-            total = d3.sum(values.map(function(d) { return d.value; }));
+        var [values, total] = returnValuesAndTotals(d,"os_version","visits");
         return addShares(collapseOther(values, total * .01)); // % of Windows
       })
       .render(barChart()
@@ -206,8 +209,8 @@
     // the devices block is a stack layout
     "devices": renderBlock()
       .transform(function(d) {
-        var devices = listify(d.totals.devices);
-        return addShares(devices);
+        var [values, total] = returnValuesAndTotals(d,"device","visits");
+        return addShares(values);
       })
       .render(barChart()
         .value(function(d) { return d.share * 100; })
@@ -226,8 +229,7 @@
     // the browsers block is a table
     "browsers": renderBlock()
       .transform(function(d) {
-        var values = listify(d.totals.browser),
-            total = d3.sum(values.map(function(d) { return d.value; }));
+        var [values, total] = returnValuesAndTotals(d,"browser","visits");
         return addShares(collapseOther(values, total * .01));
       })
       .render(barChart()
@@ -238,7 +240,7 @@
     // data beforehand to match the expected object format
     "ie": renderBlock()
       .transform(function(d) {
-        var values = listify(d.totals.ie_version),
+        var values = listify(d.totals),
             total = d3.sum(values.map(function(d) { return d.value; }));
         return addShares(collapseOther(values, total * .0001)); // % of IE
       })
@@ -311,16 +313,16 @@
           .value(function(d) { return +d.total_events; })
           .label(function(d) {
            //Downloads have their full URL in event_label, while link URLs have to be concatenated with a hardcoded protocol + ga:eventAction + event_label
-           if ((d.event_label.startsWith('https://')) || (d.event_label.startsWith('http://'))) {
+           if ((d.linkUrl.startsWith('https://')) || (d.linkUrl.startsWith('http://'))) {
              return [
-                '<span class="name"><a class="top-download-page" target="_blank" href="', d.event_label, '">', formatURLWithPath(d.event_label), '</a></span> ',
-                '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://', d.page, '">',
+                '<span class="name"><a class="top-download-page" target="_blank" href="', d.linkUrl, '">', formatURLWithPath(d.linkUrl), '</a></span> ',
+                '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://', d.pagePath, '">',
                 d.page_title, '</a></span>'
               ].join('');
            }
            return [
-              '<span class="name"><a class="top-download-page" target="_blank" href="http://', d['ga:eventAction'], d.event_label, '">', d['ga:eventAction'], d.event_label, '</a></span> ',
-              '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://', d.page, '">',
+              '<span class="name"><a class="top-download-page" target="_blank" href="http://', d['ga:eventAction'], d.linkUrl, '">', d['ga:eventAction'], d.linkUrl, '</a></span> ',
+              '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://', d.pagePath, '">',
               d.page_title, '</a></span>'
             ].join('');
           })
@@ -356,7 +358,7 @@
       })
       .render(barChart()
         .label(function(d) { return d.domain; })
-        .value(function(d) { return +d['ga:uniquePageviews']; })
+        .value(function(d) { return +d['pageviews']; })
         .scale(function(values) {
           var max = d3.max(values);
           return d3.scale.linear()
@@ -543,6 +545,25 @@
       }
     });
 
+  function returnValuesAndTotals(json_data, metric, addends ){
+    var metric_total = {}
+    for (entry in json_data.data) {
+      //metric isn't already in our dictionary
+      if (!(json_data.data[entry][metric] in metric_total)){
+        metric_total[json_data.data[entry][metric]] = parseInt(json_data.data[entry][addends]);
+      }
+      else{
+        metric_total[json_data.data[entry][metric]] += parseInt(json_data.data[entry][addends]);
+      }
+    }
+
+    var values = listify(metric_total);
+    var total = Object.values(metric_total).reduce(
+      (accumulator, currentValue) => accumulator + currentValue,
+      0,
+    );
+    return [values,total]
+  };
   /*
    * our block renderer is a d3 selection manipulator that does a bunch of
    * stuff:

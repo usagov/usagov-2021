@@ -1,19 +1,10 @@
-const fs = require("fs")
-const path = require("path")
+const fs = require("node:fs/promises");
+const path = require("path");
 
-const publish = (report, results, { output, format }) => {
-  const filename = `${report.name}.${format}`
-  const filepath = path.join(output, filename)
+const publish = async ({ name }, data, config) => {
+  const filename = `${name}.${config.format}`;
+  const filepath = path.join(config.output, filename);
+  await fs.writeFile(filepath, data);
+};
 
-  return new Promise((resolve, reject) => {
-    fs.writeFile(filepath, results, err => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve()
-      }
-    })
-  })
-}
-
-module.exports = { publish }
+module.exports = { publish };
