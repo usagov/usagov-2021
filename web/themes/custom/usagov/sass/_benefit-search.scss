@@ -2,19 +2,43 @@
 @use "uswds-core" as *;
 
 .benefits-category-list {
-  margin-left: -50vw;
-  margin-right: -50vw;
+  margin-left: calc(-0.5 * (100vw - 100%));
+  margin-right: calc(-0.5 * (100vw - 100%));
   padding: 20px;
+  padding-left: calc(0.5 * (100vw - 100%));
+  padding-right: calc(0.5 * (100vw - 100%));
+
   background-color: $homepage-light-blue-background;
 }
-
+.benefits-category-list .grid-row {
+  flex-direction: column-reverse;
+  @media (min-width: 640px) {
+    flex-direction: row;
+  }
+}
 .benefits-category-list .usa-button--secondary {
   background-color: $fed-white-background;
 }
+.benefits-category-list li {
+  break-inside: avoid;
+}
 
 .benefits-category-list-checkbox-cols {
-  column-count: 3;
-  column-gap: 5px;
+  column-count: 2;
+  column-gap: 1rem;
+  width: 100%;
+
+  @media (min-width: 640px) {
+    column-count: 3;
+    width: calc(100% - 8rem);
+  }
+}
+
+.benefits-category-list-checkbox-all {
+  width: 100%;
+  @media (min-width: 640px) {
+    width: 8rem;
+  }
 }
 
 .benefits-category-result {

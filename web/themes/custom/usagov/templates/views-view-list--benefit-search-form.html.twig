@@ -37,28 +37,27 @@
 {{ attach_library('usagov/benefitSearch') }}
 
 <div class="benefits-category-list">
-  <div class="smaller-width-div">
-    <h2 id="categories-label">{{ search_title }}</h2>
-    <form id="benefitSearch" action="javascript:void(0)">
-      <div role="group" class="grid-row" aria-labelledby="categories-label">
-        <div class="grid-col-9 benefits-category-list-checkbox-cols">
-          <ul class="usa-list--unstyled">
-          {% for row in rows %}
-            <li class="padding-bottom-1">{{- row.content -}}</li>
-          {% endfor %}
-          </ul>
-        </div>
-        <div class="grid-col-3">
-          <label><input type="checkbox" value="all"
-                        class="display-inline-block margin-right-1"
-                 > {{ select_all_label }}</label>
-        </div>
+  <h2 id="categories-label">{{ search_title }}</h2>
+  <form id="benefitSearch" action="javascript:void(0)">
+    <div role="group" class="grid-row" aria-labelledby="categories-label">
+      <div class="benefits-category-list-checkbox-cols">
+        <ul class="usa-list--unstyled">
+        {% for row in rows %}
+          <li class="padding-bottom-1">{{- row.content -}}</li>
+        {% endfor %}
+        </ul>
       </div>
-      <div class="grid-col-auto margin-top-4" aria-label="{{ aria_button_groupabel }} ">
-        <button class="usa-button" type="submit">{{ submit_label }}</button>
-        <button class="usa-button usa-button--secondary" type="reset">{{ reset_label }}</button>
+      <div class="benefits-category-list-checkbox-all padding-bottom-1">
+        <label><input type="checkbox" value="all"
+                      class="display-inline-block margin-right-1"
+               > {{ select_all_label }}</label>
       </div>
-    </form>
-  </div>
+    </div>
+    <div class="margin-top-4" aria-label="{{ aria_button_groupabel }} ">
+      <button class="usa-button" type="submit">{{ submit_label }}</button>
+      <button class="usa-button usa-button--secondary" type="reset">{{ reset_label }}</button>
+    </div>
+  </form>
 </div>
+
 <div id="matchingBenefits" aria-label="{{ aria_results_label }}"></div>

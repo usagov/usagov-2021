@@ -48,7 +48,26 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
       let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
       return numMatches.length > 0;
     });
-
+    // score each match
+    matches = matches.map(function(item) {
+      let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
+      let base = parseInt(item.field_search_weight);
+      let score = isNaN(base) ? 0 : base;
+      item.rank = numMatches.length * 100 + score;
+      return item;
+    });
+    matches = matches.sort(function(a, b) {
+      // we want higher scores to come earlier so the return
+      // values are -1 for items we want to display earlier
+      // and +1 for later
+      if (a.rank > b.rank) {
+        return -1;
+      }
+      if (a.rank < b.rank) {
+        return +1;
+      }
+      return 0;
+    });
     return matches;
   };
   /**
@@ -174,8 +193,8 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
     }
 
     elt.innerHTML += `<div class="grid-row benefits-category-result">
-<div class="grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
-<div class="grid-col-4 benefits-result-categories">${benefit.term_node_tid}</div>
+<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p><em>${benefit.rank}</em></div>
+<div class="desktop:grid-col-4 benefits-result-categories">${benefit.term_node_tid}</div>
 </div>`;
     return elt;
   };
