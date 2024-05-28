@@ -566,6 +566,9 @@ div[class^="QSIUserDefinedHTML"] {
   .usa-alert, .usa-card-group {
     clear: both;
   }
+  .usa-process-list {
+    display: inline-block;
+  }
 }
 
 .usa-accordion__heading button,

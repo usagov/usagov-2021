@@ -90,6 +90,9 @@ div.ck.ck-content {
   .usa-alert, .usa-card-group { // Alerts and Cards cannot go next to floated images.
     clear: both;
   }
+  .usa-process-list {
+    display: inline-block;
+  }
 
   .usa-accordion__content[hidden] { // Always show all accordion panels so content editors can see all the content.
     display: block;
