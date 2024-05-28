@@ -2,7 +2,7 @@
 /**
  * Create terms for benefits category vocabulary
  */
-function usagov_category_search_post_update_terms() {
+function usagov_benefit_category_search_post_update_terms() {
   $vocab = \Drupal\taxonomy\Entity\Vocabulary::load('benefits_category');
   if (!$vocab) {
     return;
