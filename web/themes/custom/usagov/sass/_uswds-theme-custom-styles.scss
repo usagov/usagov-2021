@@ -559,6 +559,15 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: 1.1rem;
 }
 
+.usa-prose.body-copy {
+  &>h1, &>h2, &>h3, &>h4 {
+    clear: unset;
+  }
+  .usa-alert, .usa-card-group {
+    clear: both;
+  }
+}
+
 .usa-accordion__heading button,
 .usa-accordion__heading p,
 .usa-accordion__heading a {
