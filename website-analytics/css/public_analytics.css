@@ -986,3 +986,9 @@ a {
   box-shadow: none;
   outline: 2px solid #0186a2;
 }
+
+#chart_windows{
+  width: 50%;
+  display: flex;
+  justify-content: flex-end;
+}
