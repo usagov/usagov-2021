@@ -5,6 +5,7 @@ dependencies:
   config:
     - taxonomy.vocabulary.benefits_category
   module:
+    - node
     - taxonomy
     - user
 id: benefit_search_form
@@ -313,7 +314,18 @@ display:
           distinct: false
           replica: false
           query_tags: {  }
-      relationships: {  }
+      relationships:
+        reverse__node__field_benefits_category:
+          id: reverse__node__field_benefits_category
+          table: taxonomy_term_field_data
+          field: reverse__node__field_benefits_category
+          relationship: none
+          group_type: group
+          admin_label: field_benefits_category
+          entity_type: taxonomy_term
+          plugin_id: entity_reverse
+          required: true
+      group_by: true
       header: {  }
       footer: {  }
       display_extenders: {  }
