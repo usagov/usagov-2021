@@ -988,7 +988,10 @@ a {
 }
 
 #chart_windows{
-  width: 50%;
   display: flex;
   justify-content: flex-end;
+}
+
+.windows-div{
+  flex-basis: 85%;
 }
