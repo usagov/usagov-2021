@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Deploys or updates the services for the cronrunner app. This includes:
-# - public-storage: The s3 bucket for the latest results
+# - public-api-storage: The s3 bucket for the latest results
 # - cron-runner-creds: The user-provided service for secrets.
 #
 # The "secrets" for the app must be available from the environment (possibly via env.local).
@@ -32,16 +32,83 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
+
+## Credentials service -- lots of pre-checks on this one.
+CREDS_INSTANCE_NAME=cron-runner-creds
+
+# Check for cron-runner creds. If all are present in the environment,
+# we can create or update the service.  If any are missing, we can
+# leave the service alone, if present, and proceed to refresh the S3
+# service. If creds are missing and the service does not exist,
+# someone has probably made a mistake.
+env_checks=()
+
+if [ -z "$CALL_CENTER_ENVIRONMENT" ]; then
+  env_checks+=( "CALL_CENTER_ENVIRONMENT" )
+fi
+if [ -z "$CALL_CENTER_CLIENT_ID" ]; then
+  env_checks+=( "CALL_CENTER_CLIENT_ID" )
+fi
+if [ -z "$CALL_CENTER_CLIENT_SECRET" ]; then
+  env_checks+=( "CALL_CENTER_CLIENT_SECRET" )
+fi
+if [ -z "$CALL_CENTER_EN_QUEUE_ID" ]; then
+  env_checks+=( "CALL_CENTER_EN_QUEUE_ID" )
+fi
+if [ -z "$CALL_CENTER_SP_QUEUE_ID" ]; then
+  env_checks+=( "CALL_CENTER_SP_QUEUE_ID" )
+fi
+
+if (( ${#env_checks[@]} )); then
+  err_msg="The following variables are missing:"
+  for t in "${env_checks[@]}"; do
+    err_msg+=" $t"
+  done
+
+  # Create or update cron-runner creds
+  if service_exists "${CREDS_INSTANCE_NAME}" ; then
+      echo "Credentials are not present in environment, proceeding without updating ${CREDS_INSTANCE_NAME}"
+      echo $err_msg
+  else
+      echo "ERR! Must populate credentials in env.local to set up ${CREDS_INSTANCE_NAME}"
+      echo "$err_msg"
+      exit 1
+  fi
+
+else # Env checks all passed; create or update the credentials service.
+    # Helpful post about using jq to create or update JSON: https://spin.atomicobject.com/jq-creating-updating-json/
+    CREDS_JSON=$(jq --null-input \
+		    --arg cc_env "${CALL_CENTER_ENVIRONMENT}" \
+		    --arg cc_client_id "${CALL_CENTER_CLIENT_ID}" \
+		    --arg cc_client_secret "${CALL_CENTER_CLIENT_SECRET}" \
+		    --arg cc_en_q_id "${CALL_CENTER_EN_QUEUE_ID}" \
+		    --arg cc_sp_q_id "${CALL_CENTER_SP_QUEUE_ID}" \
+		    '{"CALL_CENTER_ENVIRONMENT":$cc_env,"CALL_CENTER_CLIENT_ID":$cc_client_id,"CALL_CENTER_CLIENT_SECRET": $cc_client_secret,"CALL_CENTER_EN_QUEUE_ID": $cc_en_q_id,"CALL_CENTER_SP_QUEUE_ID": $cc_sp_q_id}')
+    # Hard to find docs on this, but it looks like `cf uups` and `cf cuups` want a JSON string without spaces between arguments.
+    CREDS_JSON_ESCAPED=$( echo $CREDS_JSON | sed 's/"/\\"/g' | sed 's/ //g' )
+
+    if service_exists "${CREDS_INSTANCE_NAME}" ; then
+	echo "${CREDS_INSTANCE_NAME} user provided service already exists"
+	echo " ... will update credentials in existing service."
+	cf uups "${CREDS_INSTANCE_NAME}" -p "\""$CREDS_JSON_ESCAPED"\""
+    else
+	echo "Creating ${CREDS_INSTANCE_NAME}"
+	cf cups "${CREDS_INSTANCE_NAME}" -p "\""$CREDS_JSON_ESCAPED"\""
+    fi
+fi
+
+exit 0
+
 ## The s3 bucket for call center API results
 {
-    SERVICE_INSTANCE_NAME=public-storage
-    KEY_NAME=tmp-public-storage-keys
+    SERVICE_INSTANCE_NAME=public-api-storage
+    KEY_NAME=tmp-public-api-storage-keys
     echo "Configuring ${SERVICE_INSTANCE_NAME} s3 service"
     if service_exists "${SERVICE_INSTANCE_NAME}" ; then
 	echo "${SERVICE_INSTANCE_NAME} s3 bucket already exists"
     else
 	echo "creating the service"
-	cf create-service s3 basic "${SERVICE_INSTANCE_NAME}"
+	cf create-service s3 basic-sandbox "${SERVICE_INSTANCE_NAME}"
     fi
 
     # Get credentials so we can set a CORS policy on the bucket
@@ -93,9 +160,5 @@ fi
 	fi
     done
 
-
     cf delete-service-key -f "${SERVICE_INSTANCE_NAME}" "${KEY_NAME}"
 }
-
-
-# TODO: cron-runner-creds
