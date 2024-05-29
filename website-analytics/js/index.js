@@ -350,10 +350,10 @@
           .append("a")
             .attr("target", "_blank")
             .attr("href", function(d) {
-              return exceptions[d.page] || ("http://" + d.page);
+              return exceptions[d.pagePath] || ("http://usa.gov" + d.pagePath);
             })
             .text(function(d) {
-              return title_exceptions[d.page] || d.page_title;
+              return title_exceptions[d.pagePath] || d.page_title;
             });
       })
       .render(barChart()
