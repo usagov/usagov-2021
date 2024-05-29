@@ -350,10 +350,10 @@
           .append("a")
             .attr("target", "_blank")
             .attr("href", function(d) {
-              return exceptions[d.page] || ("http://" + d.page);
+              return exceptions[d.pagePath] || ("http://usa.gov" + d.pagePath);
             })
             .text(function(d) {
-              return title_exceptions[d.page] || d.page_title;
+              return title_exceptions[d.pagePath] || d.page_title;
             });
       })
       .render(barChart()
@@ -439,7 +439,7 @@
   // nest the windows chart inside the OS chart once they're both rendered
   whenRendered(["os", "windows"], function() {
     d3.select("#chart_os")
-      .call(nestCharts, function(d) {
+      .call(nestOSCharts, function(d) {
         return d.key === "Windows";
       }, d3.select("#chart_windows"));
   });
@@ -1029,6 +1029,42 @@
       });
 
     parent.node().appendChild(child.node());
+  }
+
+  function nestOSCharts(selection, parentFilter, child) {
+
+    var parent = selection.selectAll(".bin")
+          .filter(parentFilter),
+        scale = (child.attr("data-scale-to-parent") == "true"),
+        share = parent.datum().share,
+        bins = child.selectAll(".bin")
+          // If the child data should be scaled to be %'s of its parent bin,
+          // then multiple each child item's % share by its parent's % share.
+          .each(function(d) {
+            if (scale) d.share *= share;
+          })
+          .attr("data-share", function(d) {
+            return d.share;
+          });
+
+    // XXX we *could* call the renderer again here, but this works, so...
+    bins.select(".bar")
+      .style("width", function(d) {
+        return (d.share * 100).toFixed(1) + "%";
+      });
+    bins.select(".value")
+      .text(function(d) {
+        return formatPercent(d.share * 100);
+      });
+    console.log(parentFilter)
+    console.log(selection.selectAll(".label").filter(parentFilter))
+
+    var xpath = "//div[text()='Windows']";
+    var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    var windowsParent = matchingElement.parentNode
+
+    windowsParent.appendChild(child.node());
+
   }
 
   // friendly console message
