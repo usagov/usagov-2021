@@ -434,17 +434,6 @@
               "value": "true"
             }
           }
-        },
-        "metricFilter": {
-          "filter": {
-            "fieldName": "sessions",
-            "numericFilter": {
-              "operation": "eventCount",
-              "value": {
-                "int64Value": "20"
-              }
-            }
-          }
         }
       },
       "meta": {
@@ -502,17 +491,6 @@
               "value": "true"
             }
           }
-        },
-        "metricFilter": {
-          "filter": {
-            "fieldName": "sessions",
-            "numericFilter": {
-              "operation": "eventCount",
-              "value": {
-                "int64Value": "20"
-              }
-            }
-          }
         }
       },
       "meta": {
@@ -568,17 +546,6 @@
             "fieldName": "outbound",
             "stringFilter": {
               "value": "true"
-            }
-          }
-        },
-        "metricFilter": {
-          "filter": {
-            "fieldName": "sessions",
-            "numericFilter": {
-              "operation": "eventCount",
-              "value": {
-                "int64Value": "20"
-              }
             }
           }
         }
