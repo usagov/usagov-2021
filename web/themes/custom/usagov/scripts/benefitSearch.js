@@ -2,16 +2,18 @@
  * Component to allow users to search benefits content and display
  * the paginated results
  *
- * @param {string} src
+ * @param {string} benefitsPath
+ * @param {string} lifeEventsPath
  * @param {Element} form
  * @param {Element} resultsContainer
  * @param {int} perPage
  * @constructor
  */
-function BenefitSearch(src, form, resultsContainer, perPage) {
+function BenefitSearch(benefitsPath, lifeEventsPath, form, resultsContainer, perPage) {
   "use strict";
 
-  this.src = src;
+  this.benefitsSrc = benefitsPath;
+  this.life = lifeEventsPath;
   this.resultsContainer = resultsContainer;
   this.form = form;
   this.perPage = perPage;
@@ -33,8 +35,18 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
   /**
    * @returns {Promise<any>}
    */
-  this.fetch = async function() {
-    const response = await fetch(myself.src);
+  this.fetchBenefits = async function() {
+    const response = await fetch(myself.benefitsSrc);
+    if (!response.ok) {
+      throw new Error('Error fetching benefits ' + response.status);
+    }
+    return await response.json();
+  };
+  /**
+   * @returns {Promise<any>}
+   */
+  this.fetchLifeEvents = async function() {
+    const response = await fetch(myself.life);
     if (!response.ok) {
       throw new Error('Error fetching benefits ' + response.status);
     }
@@ -68,6 +80,14 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
       }
       return 0;
     });
+    // prepend any life events that match
+    let events = myself.lifeEvents.filter((event) => {
+      return myself.terms.includes(event.tid);
+    });
+    for (const e of events) {
+      matches.unshift(e);
+    }
+
     return matches;
   };
   /**
@@ -345,7 +365,9 @@ function BenefitSearch(src, form, resultsContainer, perPage) {
    */
   this.init = async function() {
     // load data and initial URL state
-    this.benefits = await myself.fetch();
+    this.benefits = await myself.fetchBenefits();
+    this.lifeEvents = await myself.fetchLifeEvents();
+
     this.parseUrlState();
 
     // checkbox events
@@ -365,17 +387,20 @@ jQuery(document).ready(async function () {
   "use strict";
   let docLang = [document.documentElement.lang];
   // load search json (todo: toggle languages)
-  let src;
+  let benefitsPath, lifeEventsPath;
   // using relative URL so that this works on static pages
   if (docLang[0] === 'en') {
-    src = "../benefits-search/en.json";
+    benefitsPath = "../benefits-search/en.json";
+    lifeEventsPath = "../benefits-search/life-en.json";
   }
   else if (docLang[0] === 'es') {
-     src = "../../benefits-search/es.json";
+     benefitsPath = "../../benefits-search/es.json";
+    lifeEventsPath = "../benefits-search/life-es.json";
   }
   // creat and initialize the search tool
   const ben = new BenefitSearch(
-    src,
+    benefitsPath,
+    lifeEventsPath,
     document.querySelector('#benefitSearch'),
     document.querySelector('#matchingBenefits'),
     5
