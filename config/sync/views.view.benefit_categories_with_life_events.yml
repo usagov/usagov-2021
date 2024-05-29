@@ -1,14 +1,9 @@
-uuid: d0cd032d-a768-44cc-8ebc-9b027b6f4a1a
+uuid: acdb6fcd-43a1-4d58-b8cf-01de04bd1efb
 langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_benefits_category
-    - field.storage.node.field_page_intro
-    - field.storage.node.field_search_weight
     - field.storage.node.field_short_description
-    - node.type.basic_page
-    - taxonomy.vocabulary.benefits_category
   module:
     - node
     - rest
@@ -16,13 +11,13 @@ dependencies:
     - taxonomy
     - user
     - views_data_export
-id: benefit_search_results
-label: 'Benefit Search Results'
+id: benefit_categories_with_life_events
+label: 'Benefit Categories with Life Events'
 module: views
 description: ''
 tag: ''
-base_table: node_field_data
-base_field: nid
+base_table: taxonomy_term_field_data
+base_field: tid
 display:
   default:
     id: default
@@ -31,16 +26,16 @@ display:
     position: 0
     display_options:
       fields:
-        title:
-          id: title
-          table: node_field_data
-          field: title
+        name:
+          id: name
+          table: taxonomy_term_field_data
+          field: name
           relationship: none
           group_type: group
           admin_label: ''
-          entity_type: node
-          entity_field: title
-          plugin_id: field
+          entity_type: taxonomy_term
+          entity_field: name
+          plugin_id: term_name
           label: ''
           exclude: false
           alter:
@@ -78,383 +73,16 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-        view_node:
-          id: view_node
-          table: node
-          field: view_node
+          convert_spaces: false
+        tid:
+          id: tid
+          table: taxonomy_term_field_data
+          field: tid
           relationship: none
           group_type: group
           admin_label: ''
-          entity_type: node
-          plugin_id: entity_link
-          label: ''
-          exclude: false
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: false
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          text: view
-          output_url_as_text: true
-          absolute: false
-        field_page_intro:
-          id: field_page_intro
-          table: node__field_page_intro
-          field: field_page_intro
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: field
-          label: ''
-          exclude: false
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: false
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: value
-          type: basic_string
-          settings: {  }
-          group_column: value
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
-        field_short_description:
-          id: field_short_description
-          table: node__field_short_description
-          field: field_short_description
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: field
-          label: 'Short Description'
-          exclude: false
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: true
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: value
-          type: basic_string
-          settings: {  }
-          group_column: value
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
-        nid:
-          id: nid
-          table: node_field_data
-          field: nid
-          relationship: none
-          group_type: group
-          admin_label: ''
-          entity_type: node
-          entity_field: nid
-          plugin_id: field
-          label: ID
-          exclude: false
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: true
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: value
-          type: number_integer
-          settings:
-            thousand_separator: ''
-            prefix_suffix: true
-          group_column: value
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
-        term_node_tid:
-          id: term_node_tid
-          table: node_field_data
-          field: term_node_tid
-          relationship: none
-          group_type: group
-          admin_label: 'List of category names'
-          entity_type: node
-          plugin_id: taxonomy_index_tid
-          label: ''
-          exclude: false
-          alter:
-            alter_text: true
-            text: '<span>{{ term_node_tid__name }}</span>'
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: false
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: false
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          type: separator
-          separator: ' '
-          link_to_taxonomy: false
-          limit: true
-          vids:
-            benefits_category: benefits_category
-            bears_tags: '0'
-            category: '0'
-            content_tags: '0'
-            page_type: '0'
-            uswds_breakpoints: '0'
-            uswds_classes: '0'
-            uswds_colors: '0'
-            uswds_icons: '0'
-        field_benefits_category:
-          id: field_benefits_category
-          table: node__field_benefits_category
-          field: field_benefits_category
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: field
-          label: ''
-          exclude: false
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: false
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: target_id
-          type: entity_reference_label
-          settings:
-            link: false
-          group_column: target_id
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
-        field_search_weight:
-          id: field_search_weight
-          table: node__field_search_weight
-          field: field_search_weight
-          relationship: none
-          group_type: group
-          admin_label: ''
+          entity_type: taxonomy_term
+          entity_field: tid
           plugin_id: field
           label: ''
           exclude: false
@@ -512,11 +140,138 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
+        field_short_description:
+          id: field_short_description
+          table: node__field_short_description
+          field: field_short_description
+          relationship: field_category_life_events
+          group_type: group
+          admin_label: ''
+          plugin_id: field
+          label: 'Short Description'
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: basic_string
+          settings: {  }
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        title:
+          id: title
+          table: node_field_data
+          field: title
+          relationship: field_category_life_events
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: title
+          plugin_id: field
+          label: ''
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: true
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
         type:
           id: type
           table: node_field_data
           field: type
-          relationship: none
+          relationship: field_category_life_events
           group_type: group
           admin_label: ''
           entity_type: node
@@ -555,10 +310,10 @@ display:
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: false
           element_wrapper_type: ''
           element_wrapper_class: ''
-          element_default_classes: true
+          element_default_classes: false
           empty: ''
           hide_empty: false
           empty_zero: false
@@ -613,81 +368,72 @@ display:
         type: tag
         options: {  }
       empty: {  }
-      sorts:
-        field_search_weight_value:
-          id: field_search_weight_value
-          table: node__field_search_weight
-          field: field_search_weight_value
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: standard
-          order: DESC
-          expose:
-            label: ''
-            field_identifier: ''
-          exposed: false
-        changed:
-          id: changed
-          table: node_field_data
-          field: changed
-          relationship: none
-          group_type: group
-          admin_label: ''
-          entity_type: node
-          entity_field: changed
-          plugin_id: date
-          order: DESC
-          expose:
-            label: ''
-            field_identifier: ''
-          exposed: false
-          granularity: second
-        nid:
-          id: nid
-          table: node_field_data
-          field: nid
-          relationship: none
-          group_type: group
-          admin_label: ''
-          entity_type: node
-          entity_field: nid
-          plugin_id: standard
-          order: ASC
-          expose:
-            label: ''
-            field_identifier: ''
-          exposed: false
+      sorts: {  }
       arguments: {  }
       filters:
         status:
           id: status
-          table: node_field_data
+          table: taxonomy_term_field_data
           field: status
-          entity_type: node
+          entity_type: taxonomy_term
           entity_field: status
           plugin_id: boolean
           value: '1'
           group: 1
           expose:
             operator: ''
-        type:
-          id: type
-          table: node_field_data
-          field: type
-          entity_type: node
-          entity_field: type
-          plugin_id: bundle
+        field_category_life_events_target_id:
+          id: field_category_life_events_target_id
+          table: taxonomy_term__field_category_life_events
+          field: field_category_life_events_target_id
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: numeric
+          operator: 'not empty'
           value:
-            basic_page: basic_page
+            min: ''
+            max: ''
+            value: ''
+          group: 1
+          exposed: false
+          expose:
+            operator_id: ''
+            label: ''
+            description: ''
+            use_operator: false
+            operator: ''
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: ''
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+            min_placeholder: ''
+            max_placeholder: ''
+            placeholder: ''
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
         langcode:
           id: langcode
-          table: node
+          table: taxonomy_term_data
           field: langcode
           relationship: none
           group_type: group
           admin_label: ''
-          entity_type: node
+          entity_type: taxonomy_term
           entity_field: langcode
           plugin_id: language
           operator: in
@@ -722,51 +468,6 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
-        field_benefits_category_target_id:
-          id: field_benefits_category_target_id
-          table: node__field_benefits_category
-          field: field_benefits_category_target_id
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: taxonomy_index_tid
-          operator: 'not empty'
-          value: {  }
-          group: 1
-          exposed: false
-          expose:
-            operator_id: ''
-            label: ''
-            description: ''
-            use_operator: false
-            operator: ''
-            operator_limit_selection: false
-            operator_list: {  }
-            identifier: ''
-            required: false
-            remember: false
-            multiple: false
-            remember_roles:
-              authenticated: authenticated
-            reduce: false
-          is_grouped: false
-          group_info:
-            label: ''
-            description: ''
-            identifier: ''
-            optional: true
-            widget: select
-            multiple: false
-            remember: false
-            default_group: All
-            default_group_multiple: {  }
-            group_items: {  }
-          reduce_duplicates: false
-          vid: benefits_category
-          type: textfield
-          hierarchy: false
-          limit: true
-          error_message: true
       style:
         type: default
         options:
@@ -786,10 +487,19 @@ display:
         options:
           query_comment: ''
           disable_sql_rewrite: false
-          distinct: true
+          distinct: false
           replica: false
           query_tags: {  }
-      relationships: {  }
+      relationships:
+        field_category_life_events:
+          id: field_category_life_events
+          table: taxonomy_term__field_category_life_events
+          field: field_category_life_events
+          relationship: none
+          group_type: group
+          admin_label: 'field_category_life_events: Content'
+          plugin_id: standard
+          required: true
       header: {  }
       footer: {  }
       display_extenders: {  }
@@ -799,16 +509,12 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url.query_args
-        - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_benefits_category'
-        - 'config:field.storage.node.field_page_intro'
-        - 'config:field.storage.node.field_search_weight'
         - 'config:field.storage.node.field_short_description'
   data_export_1:
     id: data_export_1
-    display_title: 'Data export - EN'
+    display_title: 'Data export'
     display_plugin: data_export
     position: 1
     display_options:
@@ -826,34 +532,8 @@ display:
             encoding: utf8
             utf8_bom: '0'
             use_serializer_encode_only: false
-      row:
-        type: data_field
-        options:
-          field_options:
-            title:
-              alias: ''
-              raw_output: false
-            view_node:
-              alias: ''
-              raw_output: false
-            field_page_intro:
-              alias: ''
-              raw_output: false
-            field_short_description:
-              alias: ''
-              raw_output: false
-            nid:
-              alias: ''
-              raw_output: false
-            term_node_tid:
-              alias: ''
-              raw_output: false
-            field_benefits_category:
-              alias: ''
-              raw_output: true
-      display_description: ''
       display_extenders: {  }
-      path: benefits-search/en.json
+      path: benefits-search/life-en.json
       filename: ''
       automatic_download: false
       store_in_public_file_directory: false
@@ -866,50 +546,40 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - request_format
-        - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_benefits_category'
-        - 'config:field.storage.node.field_page_intro'
-        - 'config:field.storage.node.field_search_weight'
         - 'config:field.storage.node.field_short_description'
   data_export_2:
     id: data_export_2
-    display_title: 'Data export - ES'
+    display_title: 'Data export'
     display_plugin: data_export
     position: 1
     display_options:
       filters:
         status:
           id: status
-          table: node_field_data
+          table: taxonomy_term_field_data
           field: status
-          entity_type: node
+          entity_type: taxonomy_term
           entity_field: status
           plugin_id: boolean
           value: '1'
           group: 1
           expose:
             operator: ''
-        type:
-          id: type
-          table: node_field_data
-          field: type
-          entity_type: node
-          entity_field: type
-          plugin_id: bundle
-          value:
-            basic_page: basic_page
-        field_category_target_id:
-          id: field_category_target_id
-          table: node__field_category
-          field: field_category_target_id
+        field_category_life_events_target_id:
+          id: field_category_life_events_target_id
+          table: taxonomy_term__field_category_life_events
+          field: field_category_life_events_target_id
           relationship: none
           group_type: group
           admin_label: ''
-          plugin_id: taxonomy_index_tid
+          plugin_id: numeric
           operator: 'not empty'
-          value: {  }
+          value:
+            min: ''
+            max: ''
+            value: ''
           group: 1
           exposed: false
           expose:
@@ -926,7 +596,9 @@ display:
             multiple: false
             remember_roles:
               authenticated: authenticated
-            reduce: false
+            min_placeholder: ''
+            max_placeholder: ''
+            placeholder: ''
           is_grouped: false
           group_info:
             label: ''
@@ -939,20 +611,14 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
-          reduce_duplicates: false
-          vid: bears_tags
-          type: textfield
-          hierarchy: false
-          limit: true
-          error_message: true
         langcode:
           id: langcode
-          table: node
+          table: taxonomy_term_data
           field: langcode
           relationship: none
           group_type: group
           admin_label: ''
-          entity_type: node
+          entity_type: taxonomy_term
           entity_field: langcode
           plugin_id: language
           operator: in
@@ -1005,34 +671,11 @@ display:
             encoding: utf8
             utf8_bom: '0'
             use_serializer_encode_only: false
-      row:
-        type: data_field
-        options:
-          field_options:
-            title:
-              alias: ''
-              raw_output: false
-            view_node:
-              alias: ''
-              raw_output: false
-            field_page_intro:
-              alias: ''
-              raw_output: false
-            field_short_description:
-              alias: ''
-              raw_output: false
-            nid:
-              alias: ''
-              raw_output: false
-            field_category:
-              alias: ''
-              raw_output: true
       defaults:
         filters: false
         filter_groups: false
-      display_description: ''
       display_extenders: {  }
-      path: benefits-search/es.json
+      path: benefits-search/life-es.json
       filename: ''
       automatic_download: false
       store_in_public_file_directory: false
@@ -1045,10 +688,6 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - request_format
-        - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_benefits_category'
-        - 'config:field.storage.node.field_page_intro'
-        - 'config:field.storage.node.field_search_weight'
         - 'config:field.storage.node.field_short_description'

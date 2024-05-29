@@ -4,7 +4,6 @@ status: true
 dependencies:
   config:
     - field.storage.taxonomy_term.field_category_life_events
-    - node.type.bears_life_event
     - taxonomy.vocabulary.benefits_category
 id: taxonomy_term.benefits_category.field_category_life_events
 field_name: field_category_life_events
@@ -17,13 +16,10 @@ translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:
-  handler: 'default:node'
+  handler: views
   handler_settings:
-    target_bundles:
-      bears_life_event: bears_life_event
-    sort:
-      field: _none
-      direction: ASC
-    auto_create: false
-    auto_create_bundle: ''
+    view:
+      view_name: benefit_category_life_event_reference
+      display_name: entity_reference_1
+      arguments: {  }
 field_type: entity_reference
