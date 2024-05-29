@@ -1,8 +1,27 @@
 <?php
+
+/**
+ * Add "Benefits Search" page type term for basic page nodes
+ */
+function usagov_benefit_category_search_deploy_add_page_type() {
+  $vocab = \Drupal\taxonomy\Entity\Vocabulary::load('page_type');
+  if (!$vocab) {
+    return;
+  }
+
+  $term = \Drupal\taxonomy\Entity\Term::create([
+    'vid' => $vocab->id(),
+    'name' => 'Benefits Category Search',
+    'weight' => 5,
+  ]);
+
+  $term->save();
+}
+
 /**
  * Create terms for benefits category vocabulary
  */
-function usagov_benefit_category_search_post_update_terms() {
+function usagov_benefit_category_search_deploy_terms() {
   $vocab = \Drupal\taxonomy\Entity\Vocabulary::load('benefits_category');
   if (!$vocab) {
     return;
