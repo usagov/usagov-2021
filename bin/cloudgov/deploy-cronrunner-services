@@ -97,8 +97,6 @@ else # Env checks all passed; create or update the credentials service.
     fi
 fi
 
-exit 0
-
 ## The s3 bucket for call center API results
 {
     SERVICE_INSTANCE_NAME=public-api-storage
@@ -108,7 +106,7 @@ exit 0
 	echo "${SERVICE_INSTANCE_NAME} s3 bucket already exists"
     else
 	echo "creating the service"
-	cf create-service s3 basic-sandbox "${SERVICE_INSTANCE_NAME}"
+	cf create-service s3 basic-public "${SERVICE_INSTANCE_NAME}"
     fi
 
     # Get credentials so we can set a CORS policy on the bucket
