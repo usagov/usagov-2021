@@ -10,7 +10,7 @@ field_name: field_benefits_category
 entity_type: node
 bundle: basic_page
 label: 'Benefits Category'
-description: 'Hold Control/⌘ key when clicking to select multiple values'
+description: ''
 required: false
 translatable: false
 default_value: {  }

@@ -1,8 +1,7 @@
 #!/usr/bin/env drush
 <?php
 
-// Exports nid, title, benefits category fields of tagged nodes to JSON so that
-// we can automatically tag content after updating the database with production DB copy.
+// Loads json data from benefits-category-export and updates nodes with categories.
 $file = $_SERVER['argv'][4] ?? null;
 if (!$file) {
   trigger_error("First argument for import file is missing", E_USER_ERROR);
