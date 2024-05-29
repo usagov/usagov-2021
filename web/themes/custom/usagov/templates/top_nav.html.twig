@@ -4,29 +4,43 @@
 			<a href="/" title="USAGov Logo"><img src="/themes/custom/usagov/images/Logo_USAGov.png" alt="Visit the USAGov homepage"></a>
 		</em>
 	</div>
-	<button class="usa-menu-btn">Menu</button>
-	<div class="usa-nav__secondary">
-		<span class="usa-nav__secondary-links">
-			<span id="top-phone" class="usa-nav__secondary-item">
-				<a href="/phone" style="white-space: nowrap;">Call us at 1-844-USAGOV1</a>
+
+	<div class="navbar-right">
+		{% set translation = node.field_language_toggle[0].value %}
+		{% if translation %}
+			{% if node.nid[0].value|render == "1" %}
+				{% set translation_url = "/es" %}
+			{% else %}
+				{% set translation_url = drupal_url('node/'~translation.target_id,{ langcode:'es' }) %}
+			{% endif %}
+			
+			<a href="{{ translation_url }}" class="usa-button language-link" hreflang="es">Español</a>
+		{% endif %}
+
+		<button class="usa-menu-btn">Menu</button>
+		<div class="usa-nav__secondary">
+			<span class="usa-nav__secondary-links">
+				<span id="top-phone" class="usa-nav__secondary-item">
+					<a href="/phone" style="white-space: nowrap;">Call us at 1-844-USAGOV1</a>
+				</span>
 			</span>
-		</span>
-    <!-- Search Bar -->
-    {% embed 'usagov:searchbar' with {
-      form_classes: "usa-search usa-search--small",
-			form_id:"usagov_all_gov-desktop",
-      label_id: "top-srch",
-      for_string:"search-field-small",
-			label_string:"Search",
-      hidden_input_id:"affiliate",
-			value_string:"usagov_all_gov",
-			input_id:"search-field-small",
-      input_classes:"usa-input text usagov-search-autocomplete ui-autocomplete-input",
-			placeholder_string:"Search all government",
-      button_classes:"usa-button usagov-button",
-			alt_string:"Search",
-    } %}
-    {% endembed %}
+			<!-- Search Bar -->
+			{% embed 'usagov:searchbar' with {
+				form_classes: "usa-search usa-search--small",
+				form_id:"usagov_all_gov-desktop",
+				label_id: "top-srch",
+				for_string:"search-field-small",
+				label_string:"Search",
+				hidden_input_id:"affiliate",
+				value_string:"usagov_all_gov",
+				input_id:"search-field-small",
+				input_classes:"usa-input text usagov-search-autocomplete ui-autocomplete-input",
+				placeholder_string:"Search all government",
+				button_classes:"usa-button usagov-button",
+				alt_string:"Search",
+			} %}
+			{% endembed %}
+		</div>
 	</div>
 </div>
 <nav aria-label="Primary navigation" class="usa-nav">
