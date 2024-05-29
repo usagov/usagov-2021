@@ -40,14 +40,17 @@ function usagov_benefit_category_search_deploy_terms() {
     ],
   ];
 
+  $weight = 0;
   foreach ($langs as $lang => $list) {
     foreach ($list as $category) {
       $term = \Drupal\taxonomy\Entity\Term::create([
         'vid' => $vocab->id(),
         'name' => $category,
         'langcode' => $lang,
+        'weight' => $weight,
       ]);
       $term->save();
+      $weight++;
     }
   }
 }
