@@ -1,0 +1,12 @@
+Create the bucket. It needs:
+ - public read
+ - CORS policy
+ - tagged the way the .profile expects to find it
+
+  Name: public-storage
+
+Create user-provided service with appropriate environment variables, bind it to the new app.
+  Name:  cron-runner-creds
+
+
+Bind the bucket to the other services that will use it.

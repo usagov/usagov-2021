@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# Deploys or updates the services for the cronrunner app. This includes:
+# - public-storage: The s3 bucket for the latest results
+# - cron-runner-creds: The user-provided service for secrets.
+#
+# The "secrets" for the app must be available from the environment (possibly via env.local).
+# If these are not set, the user-provided secrets service will not be created/updated:
+#   CALL_CENTER_ENVIRONMENT
+#   CALL_CENTER_CLIENT_ID
+#   CALL_CENTER_CLIENT_SECRET
+#   CALL_CENTER_EN_QUEUE_ID
+#   CALL_CENTER_SP_QUEUE_ID
+
+# this function is a convenient semantic wrapper
+service_exists()
+{
+  cf service "$1" >/dev/null 2>&1
+}
+
+# cf target -s tools
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+## The s3 bucket for call center API results
+{
+    SERVICE_INSTANCE_NAME=public-storage
+    KEY_NAME=tmp-public-storage-keys
+    echo "Configuring ${SERVICE_INSTANCE_NAME} s3 service"
+    if service_exists "${SERVICE_INSTANCE_NAME}" ; then
+	echo "${SERVICE_INSTANCE_NAME} s3 bucket already exists"
+    else
+	echo "creating the service"
+	cf create-service s3 basic "${SERVICE_INSTANCE_NAME}"
+    fi
+
+    # Get credentials so we can set a CORS policy on the bucket
+    # (The loop is here in case we have to wait for the service to be ready.)
+    until cf create-service-key "${SERVICE_INSTANCE_NAME}" "$KEY_NAME"  ; do
+	echo "waiting for access to ${SERVICE_INSTANCE_NAME} service ..."
+	sleep 20
+    done
+    S3_CREDENTIALS=$(cf service-key "${SERVICE_INSTANCE_NAME}" "${KEY_NAME}" | tail -n +2)
+    export AWS_ACCESS_KEY_ID=$(echo "${S3_CREDENTIALS}" | jq -r '.credentials.access_key_id')
+    export AWS_SECRET_ACCESS_KEY=$(echo "${S3_CREDENTIALS}" | jq -r '.credentials.secret_access_key')
+    export BUCKET_NAME=$(echo "${S3_CREDENTIALS}" | jq -r '.credentials.bucket')
+    export AWS_DEFAULT_REGION=$(echo "${S3_CREDENTIALS}" | jq -r '.credentials.region')
+
+    echo "Setting CORS policy on ${SERVICE_INSTANCE_NAME} (will retry if credentials are not immediately accepted)"
+    while true; do
+	echo " . "
+	### Upload the CORS policy to the bucket
+	aws s3api put-bucket-cors --bucket $BUCKET_NAME --cors-configuration '{
+	  "CORSRules": [
+	    {
+	      "AllowedOrigins": [
+		   "https://cms.usa.gov",
+		   "https://www.usa.gov",
+		   "https://usa.gov",
+		   "https://beta-stage.usa.gov",
+		   "https://cms-stage.usa.gov",
+		   "https://beta-dev.usa.gov",
+		   "https://cms-dev.usa.gov",
+		   "http://localhost"
+	      ],
+	      "AllowedHeaders": ["*"],
+	      "AllowedMethods": ["HEAD", "GET"],
+	      "ExposeHeaders": ["ETag"]
+	    }
+	  ]
+	}'
+	if [ "$?" == "0" ]; then
+	   break
+	fi
+    done
+
+    echo "CORs configuration set. Confirming (again with retry):"
+    while true; do
+	echo " . "
+	aws s3api get-bucket-cors --bucket $BUCKET_NAME
+	if [ "$?" == "0" ]; then
+	   break
+	fi
+    done
+
+
+    cf delete-service-key -f "${SERVICE_INSTANCE_NAME}" "${KEY_NAME}"
+}
+
+
+# TODO: cron-runner-creds
