@@ -109,6 +109,7 @@ fi
 # setup only one egress app per space, and add any S3 buckets bound to apps in that space to the allow.acl.
 # echo "Gather Bucket names from App Space"
 buckethosts=""
+instances="-i 1"
 applist=$( cf apps | tail -n +4 | awk '{print $1}' )
 for app in $applist ; do
     echo "Gathering buckets for $app"
@@ -126,7 +127,24 @@ for app in $applist ; do
         buckethosts="$buckethosts ${BUCKET}.${AWS_ENDPOINT} ${BUCKET}.${AWS_ENDPOINT_ALT} ${BUCKET}.${AWS_FIPS_ENDPOINT}"
         ((i+=1))
     done
+
+    while IFS='-' read -ra app; do
+        for i in "${app[@]}"; do
+            if [ "$i" != 'proxy' ]; then
+                if [ "$i" == "prod" ]; then
+                    instances="-i 2"
+                elif [ "$i" == "stage" ]; then
+                    instances="-i 1"
+                elif [ "$i" == "dev" ]; then
+                    instances="-i 1"
+                elif [ "$i" == "tools" ]; then
+                    instances="-i 2"
+                fi
+            fi
+        done
+    done <<< "$app"
 done
+echo "Setting up instance flag: $instances"
 echo "Using buckets: $buckethosts"
 
 # We need these files to exist for each app, even if they're empty.
@@ -156,7 +174,7 @@ echo "proxyname: $proxyname
 hostname: $proxyname
 username: $username
 password: $password
-proxy_route: $proxyroute
+proxyroute: $proxyroute
 proxydeny: |
 $proxydeny
 proxyallow: |
@@ -178,7 +196,7 @@ fi
 # Deploy the proxy app
 echo "Deploy Egress Proxy App"
 $output cf target -o "$egressorg" -s "$egressspace" 2>&1 > /dev/null
-$output cf push $proxyname -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
+$output cf push $proxyname -f ./manifest-egress.yml $instances --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
 
 if [ -n "${DRYRUN}" ]; then
     echo "# vars-file content:"
