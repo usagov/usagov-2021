@@ -212,10 +212,22 @@ function BenefitSearch(benefitsPath, lifeEventsPath, form, resultsContainer, per
       description = benefit.field_short_description;
     }
 
-    elt.innerHTML += `<div class="grid-row benefits-category-result">
-<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p><em>${benefit.rank}</em></div>
+    switch (benefit.type) {
+      case 'Life Event':
+        elt.innerHTML += `<div class="grid-row benefits-category-result">
+<div class="desktop:grid-col-12 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+</div>`
+
+        break;
+      case 'Basic Page':
+      default:
+        elt.innerHTML += `<div class="grid-row benefits-category-result">
+<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
 <div class="desktop:grid-col-4 benefits-result-categories">${benefit.term_node_tid}</div>
 </div>`;
+    }
+
+
     return elt;
   };
   /**
