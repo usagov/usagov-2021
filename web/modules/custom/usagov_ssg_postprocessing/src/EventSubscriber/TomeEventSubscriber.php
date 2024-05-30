@@ -92,7 +92,6 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         }
       }
 
-      $base_path = base_path();
       foreach ($excluded_directories as $excluded_directory_path) {
         $excluded_directory = $excluded_directory_path . '/';
         if (($path == $excluded_directory_path) ||
@@ -101,9 +100,6 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         }
         elseif (str_starts_with($path, $excluded_directory) ||
             (isset($metadata['original_path']) && str_starts_with($metadata['original_path'], $excluded_directory))) {
-          unset($paths[$path]);
-        }
-        elseif (str_starts_with($base_path . $path, $base_path . $excluded_directory)) {
           unset($paths[$path]);
         }
       }
