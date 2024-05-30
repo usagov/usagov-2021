@@ -2,6 +2,6 @@
 
 while true
 do
-    ./call-center-update.sh
+    /home/vcap/app/bin/call-center-update.sh
     sleep 60
 done

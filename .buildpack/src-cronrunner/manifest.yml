@@ -2,6 +2,7 @@
 applications:
 - name: usagov-crons
   buildpacks:
+  - https://github.com/cloudfoundry/apt-buildpack 
   - binary_buildpack
   no-route: true
   stack: cflinuxfs4
@@ -13,5 +14,5 @@ applications:
   readiness-health-check-type: process
   services:
   - cron-runner-creds
-  - public-storage
-  command: call-center-update.sh
+  - public-api-storage
+  command: /home/vcap/app/bin/update-loop.sh
