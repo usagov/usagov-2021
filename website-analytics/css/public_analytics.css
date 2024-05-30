@@ -986,3 +986,12 @@ a {
   box-shadow: none;
   outline: 2px solid #0186a2;
 }
+
+#chart_windows{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.windows-div{
+  flex-basis: 85%;
+}
