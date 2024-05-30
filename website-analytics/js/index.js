@@ -350,7 +350,7 @@
           .append("a")
             .attr("target", "_blank")
             .attr("href", function(d) {
-              return exceptions[d.pagePath] || ("http://usa.gov" + d.pagePath);
+              return exceptions[d.pagePath] || ("https://usa.gov" + d.pagePath);
             })
             .text(function(d) {
               return title_exceptions[d.pagePath] || d.page_title;
