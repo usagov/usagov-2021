@@ -406,7 +406,7 @@ jQuery(document).ready(async function () {
   }
   else if (docLang[0] === 'es') {
      benefitsPath = "../../benefits-search/es.json";
-    lifeEventsPath = "../benefits-search/life-es.json";
+    lifeEventsPath = "../../benefits-search/life-es.json";
   }
   // creat and initialize the search tool
   const ben = new BenefitSearch(
