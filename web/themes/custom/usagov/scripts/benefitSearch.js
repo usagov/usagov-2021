@@ -214,16 +214,16 @@ function BenefitSearch(benefitsPath, lifeEventsPath, form, resultsContainer, per
 
     switch (benefit.type) {
       case 'Life Event':
-        elt.innerHTML += `<div class="grid-row benefits-category-result">
+        elt.innerHTML += `<div class="grid-row benefits-result">
 <div class="desktop:grid-col-12 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
 </div>`
 
         break;
       case 'Basic Page':
       default:
-        elt.innerHTML += `<div class="grid-row benefits-category-result">
-<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
-<div class="desktop:grid-col-4 benefits-result-categories">${benefit.term_node_tid}</div>
+        elt.innerHTML += `<div class="grid-row benefits-result">
+<div class="desktop:grid-col-9 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-3 benefits-result-categories"><h3>Applied categories</h3>${benefit.term_node_tid}</div>
 </div>`;
     }
 
@@ -242,10 +242,10 @@ function BenefitSearch(benefitsPath, lifeEventsPath, form, resultsContainer, per
     elt.setAttribute('data-page', index + 1);
     // heading label
     if (page.first !== page.last) {
-      elt.innerHTML += `<h3>Showing ${page.first}&ndash;${page.last} of ${page.totalItems}</h3>`;
+      elt.innerHTML += `<h2>Showing ${page.first}&ndash;${page.last} of ${page.totalItems}</h2>`;
     }
     else {
-      elt.innerHTML += `<h3>Showing ${page.first} of ${page.totalItems}</h3>`;
+      elt.innerHTML += `<h2>Showing ${page.first} of ${page.totalItems}</h2>`;
     }
     // prepare pages
     for (const benefit of page.matches) {

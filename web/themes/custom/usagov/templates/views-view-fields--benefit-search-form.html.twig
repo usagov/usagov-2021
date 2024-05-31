@@ -31,6 +31,13 @@
  * @ingroup themeable
  */
 #}
-<label><input type="checkbox" value="{{- fields.tid.content | striptags | trim -}}"
-              class="display-inline-block margin-right-1"
-  ><span>{{- fields.name.content -}}</span></label>
+<div class="usa-checkbox">
+    <input class="usa-checkbox__input margin-right-1"
+           type="checkbox"
+           value="{{- fields.tid.content | striptags | trim -}}"
+           id="benefit-category-{{ fields.tid.content | striptags | trim }}"
+    >
+  <label class="usa-checkbox__label"
+         for="benefit-category-{{ fields.tid.content | striptags | trim }}"
+  >{{- fields.name.content -}}</label>
+</div>

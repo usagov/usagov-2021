@@ -47,17 +47,22 @@
         {% endfor %}
         </ul>
       </div>
-      <div class="benefits-category-list-checkbox-all padding-bottom-1">
-        <label><input type="checkbox" value="all"
-                      class="display-inline-block margin-right-1"
-               > {{ select_all_label }}</label>
+      <div class="usa-checkbox benefits-category-list-checkbox-all padding-bottom-1">
+        <input class="usa-checkbox__input display-inline-block margin-right-1"
+               type="checkbox"
+               value="all"
+               id="benefit-category-toggle-all"
+        >
+        <label class="usa-checkbox__label"
+               for="benefit-category-toggle-all"
+        >{{ select_all_label }}</label>
       </div>
     </div>
-    <div class="margin-top-4" aria-label="{{ aria_button_groupabel }} ">
+    <div class="margin-top-2" aria-label="{{ aria_button_groupabel }} ">
       <button class="usa-button" type="submit">{{ submit_label }}</button>
       <button class="usa-button usa-button--secondary" type="reset">{{ reset_label }}</button>
     </div>
   </form>
 </div>
 
-<div id="matchingBenefits" aria-label="{{ aria_results_label }}"></div>
+<div id="matchingBenefits" class="benefits-search-results" aria-label="{{ aria_results_label }}"></div>
