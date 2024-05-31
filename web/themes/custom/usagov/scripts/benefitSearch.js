@@ -4,16 +4,20 @@
  *
  * @param {string} benefitsPath
  * @param {string} lifeEventsPath
+ * @param {string} assetBase
+ * @param {array} labels
  * @param {Element} form
  * @param {Element} resultsContainer
  * @param {int} perPage
  * @constructor
  */
-function BenefitSearch(benefitsPath, lifeEventsPath, form, resultsContainer, perPage) {
+function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, resultsContainer, perPage) {
   "use strict";
 
   this.benefitsSrc = benefitsPath;
   this.life = lifeEventsPath;
+  this.assetBase = assetBase;
+  this.labels = labels;
   this.resultsContainer = resultsContainer;
   this.form = form;
   this.perPage = perPage;
@@ -338,17 +342,13 @@ function BenefitSearch(benefitsPath, lifeEventsPath, form, resultsContainer, per
    * @param maxPages
    */
  this.showPager = function(maxPages) {
-   // @todo multiple languages
-   const labels = {
-     'page': "Page",
-     'next': "Next",
-     'nextAria': "Next Page",
-     'previous': "Previous",
-     'previousAria': "Previous page",
-     'navAria': "Pagination",
-     'lastPageAria': 'Last page'
-   };
-   const pager = new Pagination(maxPages, myself.activePage, labels, myself.handlePagerClick);
+   const pager = new Pagination(
+     maxPages,
+     myself.activePage,
+     myself.assetBase,
+     myself.labels,
+     myself.handlePagerClick
+   );
    let existing = resultsContainer.querySelector('nav.usa-pagination');
    if (existing) {
      existing.remove();
@@ -397,21 +397,41 @@ function BenefitSearch(benefitsPath, lifeEventsPath, form, resultsContainer, per
 jQuery(document).ready(async function () {
   "use strict";
   let docLang = [document.documentElement.lang];
-  // load search json (todo: toggle languages)
-  let benefitsPath, lifeEventsPath;
+  let benefitsPath, lifeEventsPath, labels;
   // using relative URL so that this works on static pages
+  // Setup language specific inputs
   if (docLang[0] === 'en') {
     benefitsPath = "../benefits-search/en.json";
     lifeEventsPath = "../benefits-search/life-en.json";
+    labels = {
+      'page': "Page",
+      'next': "Next",
+      'nextAria': "Next Page",
+      'previous': "Previous",
+      'previousAria': "Previous page",
+      'navAria': "Pagination",
+      'lastPageAria': 'Last page'
+    };
   }
   else if (docLang[0] === 'es') {
      benefitsPath = "../../benefits-search/es.json";
-    lifeEventsPath = "../../benefits-search/life-es.json";
+     lifeEventsPath = "../../benefits-search/life-es.json";
+     labels = {
+      'page': "Página",
+      'next': "Siguiente",
+      'nextAria': "Página siguiente",
+      'previous': "Anterior",
+      'previousAria': "Página anterior",
+      'navAria': "Paginación",
+      'lastPageAria': 'Ultima página'
+    };
   }
   // creat and initialize the search tool
   const ben = new BenefitSearch(
     benefitsPath,
     lifeEventsPath,
+    '/themes/custom/usagov',
+    labels,
     document.querySelector('#benefitSearch'),
     document.querySelector('#matchingBenefits'),
     5
