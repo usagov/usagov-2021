@@ -216,9 +216,9 @@ function BenefitSearch(benefitsPath, lifeEventsPath, form, resultsContainer, per
       case 'Life Event':
         elt.innerHTML += `<div class="grid-row benefits-result">
 <div class="desktop:grid-col-12 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
-</div>`
-
+</div>`;
         break;
+
       case 'Basic Page':
       default:
         elt.innerHTML += `<div class="grid-row benefits-result">
@@ -226,7 +226,6 @@ function BenefitSearch(benefitsPath, lifeEventsPath, form, resultsContainer, per
 <div class="desktop:grid-col-3 benefits-result-categories"><h3>Applied categories</h3>${benefit.term_node_tid}</div>
 </div>`;
     }
-
 
     return elt;
   };
