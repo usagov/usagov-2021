@@ -302,7 +302,7 @@ a {
 
 // Last Updated, Share and Survey
 .additional_body_info {
-  display: inline-block;
+  // display: inline-block;
   padding-top: 75px;
 }
 
@@ -560,6 +560,18 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: 1.1rem;
 }
 
+.usa-prose.body-copy {
+  &>h1, &>h2, &>h3, &>h4 {
+    clear: unset;
+  }
+  .usa-alert, .usa-card-group {
+    clear: both;
+  }
+  .usa-process-list {
+    display: inline-block;
+  }
+}
+
 .usa-accordion__heading button,
 .usa-accordion__heading p,
 .usa-accordion__heading a {
@@ -738,6 +750,17 @@ select:not([disabled]):focus,
 
 #main-content .usa-accordion__button:not(.bg-secondary) {
   @include u-bg('gray-5');
+  &:hover {
+    @include u-bg('gray-20');
+  }
+}
+
+#main-content .usa-accordion__button[aria-expanded="true"]:not(.bg-secondary)  {
+  @include u-bg('gray-20');
+}
+
+#main-content .usa-accordion__button.bg-secondary[aria-expanded="true"] {
+  @include u-bg('cyan-20');
 }
 
 // elected-officials hide autofill contact for state dropdown - name is not brought over to input by uswds so autofill is being triggered in Safari

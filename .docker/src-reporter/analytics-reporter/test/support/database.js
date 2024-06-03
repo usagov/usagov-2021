@@ -1,15 +1,9 @@
-const { ANALYTICS_DATA_TABLE_NAME } = require("../../src/publish/postgres")
+const PostgresPublisher = require("../../src/publish/postgres");
 
-const knex = require("knex")
-
-const connection = {
-  host: process.env.PG_HOST ? process.env.PG_HOST : "localhost",
-  database: "analytics_reporter_test",
-  user : process.env.PG_USER ? process.env.PG_USER : 'postgres'
-}
+const Config = require("../../src/config");
 
 const resetSchema = (db) => {
-  return db("analytics_data").delete()
-}
+  return db(PostgresPublisher.ANALYTICS_DATA_TABLE_NAME).delete();
+};
 
-module.exports = { connection, resetSchema }
+module.exports = { connection: new Config().postgres, resetSchema };
