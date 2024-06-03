@@ -106,7 +106,7 @@ function Pagination(total, current, assetBase, labels, onClick) {
 
     link.addEventListener('click', function() {
       let num = myself.current + 1;
-      myself.handlePageClick(num, link)
+      myself.handlePageClick(num, link);
     });
 
     if (myself.current === myself.total) {
@@ -172,7 +172,7 @@ function Pagination(total, current, assetBase, labels, onClick) {
 
     link.addEventListener('click', function(ev) {
       let num = myself.current - 1;
-      myself.handlePageClick(num, link)
+      myself.handlePageClick(num, link);
     });
 
     if (this.current === 1) {
@@ -367,7 +367,7 @@ function Pagination(total, current, assetBase, labels, onClick) {
     ;
 
     pageLinks.forEach(function(link) {
-      if (link.innerText == myself.current) {
+      if (link.innerText === myself.current) {
         link.classList.add('usa-current');
         link.setAttribute('aria-current', myself.page);
       }
