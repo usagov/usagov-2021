@@ -10,6 +10,10 @@ class PageObjects {
   breadCrumbList() {
     return cy.get('.usa-breadcrumb__list')
   }
+
+  cardGroup() {
+    return cy.get('.usa-card-group li')
+  }
 }
 
 export const pageObjects = new PageObjects()
