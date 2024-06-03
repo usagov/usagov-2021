@@ -8,13 +8,13 @@
   margin-left: 5vw;
   margin-right: 5vw;
   padding: 0;
-  max-width: 100%;
+  max-width: 1124px;
 
   h2 {
     @include u-font-family('serif');
     font-size: 2.2em;
     margin: 0;
-    padding-top: 50px;
+    padding-top: 30px;
   }
 
   p {
@@ -41,6 +41,7 @@
 
   .grid-container {
     width: 100%;
+    max-width: 1124px;
   }
 
   .usagov-cards {
@@ -60,12 +61,22 @@
   }
 }
 
+.slick-slider {
+  overflow: hidden;
+}
+
+.slick-slide {
+  padding-inline: 8px;
+  width: 225px;
+}
+
 #slides-list {
   .slick-prev {
     grid-area: prevIcon;
     align-self: center;
     justify-self: start;
     left: 0;
+    margin-left: 4px;
   }
 
   .slick-list {
@@ -105,6 +116,7 @@
     align-self: center;
     justify-self: end;
     right: 0;
+    margin-right: 4px;
   }
 
   .slick-dots {
@@ -179,6 +191,7 @@
 
         }
       }
+
     }
   }
 
@@ -190,8 +203,8 @@
 
   .slick-prev,
   .slick-next {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border: none;
     position: relative;
     top: 0;
@@ -209,9 +222,9 @@
     border-radius: 4px;
     box-shadow: 4px 4px 4px 0 rgba(0 0 0 / 35%);
     padding: 0;
-    margin-right: 4px;
-    max-width: 236px;
     text-align: left;
+    // max-width: 260px;
+    max-width: 390px;
 
     a {
       @include u-text('white');
@@ -305,19 +318,6 @@
 /* Tablet */
 @media (min-width: 640px) {
   #slides-list {
-    .slick-list {
-      .slick-track {
-        .slick-slide {
-          margin-left: 5px;
-          margin-right: 5px;
-        }
-      }
-    }
-
-    .slide {
-      max-width: 260px;
-    }
-
     .slick-dots {
       justify-content: center;
     }
@@ -325,27 +325,23 @@
 }
 
 /* Desktop */
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
   .life-events-carousel {
-    width: 960px;
+    width: 100%;
   }
 
   .carousel-mover {
-    width: 960px;
-    max-width: 960px;
     margin: auto;
 
     .usagov-cards,
     .usa-card-group,
     #slides-list {
-      width: 100%;
-      max-width: 100%;
+      max-width: 1124px;
       padding: 0;
       margin: 0;
 
       .slick-list {
-        width: 850px;
-        max-width: 850px;
+        max-width: 1044px;
       }
 
       .slick-dots {
