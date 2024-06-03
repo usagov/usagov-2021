@@ -1,15 +1,18 @@
 <?php
 
+use Drupal\taxonomy\Entity\Term;
+use Drupal\taxonomy\Entity\Vocabulary;
+
 /**
  * Add "Benefits Search" page type term for basic page nodes
  */
 function usagov_benefit_category_search_deploy_add_page_type() {
-  $vocab = \Drupal\taxonomy\Entity\Vocabulary::load('page_type');
+  $vocab = Vocabulary::load('page_type');
   if (!$vocab) {
     return;
   }
 
-  $term = \Drupal\taxonomy\Entity\Term::create([
+  $term = Term::create([
     'vid' => $vocab->id(),
     'name' => 'Benefits Category Search',
     'weight' => 5,
@@ -22,7 +25,7 @@ function usagov_benefit_category_search_deploy_add_page_type() {
  * Create terms for benefits category vocabulary
  */
 function usagov_benefit_category_search_deploy_terms() {
-  $vocab = \Drupal\taxonomy\Entity\Vocabulary::load('benefits_category');
+  $vocab = Vocabulary::load('benefits_category');
   if (!$vocab) {
     return;
   }
@@ -43,7 +46,7 @@ function usagov_benefit_category_search_deploy_terms() {
   $weight = 0;
   foreach ($langs as $lang => $list) {
     foreach ($list as $category) {
-      $term = \Drupal\taxonomy\Entity\Term::create([
+      $term = Term::create([
         'vid' => $vocab->id(),
         'name' => $category,
         'langcode' => $lang,
