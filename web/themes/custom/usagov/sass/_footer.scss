@@ -1,8 +1,7 @@
 @use "uswds-core" as *;
 @use "usagov-variables" as *;
 
-/* ---- All Footers ----
-*/
+/* ---- All Footers ---- */
 
 .usa-footer--big .usa-footer__primary-content--collapsible .usa-footer__primary-link {
   @include u-font-family('sans');
@@ -13,8 +12,19 @@
   padding-top: 2rem;
 }
 
-/* ---- Primary Footer ----
-*/
+/* ---- Primary Footer ---- */
+
+.usa-footer__primary-section {
+  .grid-container {
+    padding-bottom: 2rem;
+    max-width: calc(70.25rem + 4rem);
+
+    @media (max-width: 1200px) {
+      padding-left: 5vw;
+      padding-right: 5vw;
+    }
+  }
+}
 
 .usa-sign-up__heading {
   @include u-font-family('sans');
@@ -131,13 +141,17 @@
   }
 }
 
-/* ---- Secondary Footer ----
-*/
+/* ---- Secondary Footer ---- */
 .usa-footer__secondary-section {
   background-color: color("cyan-10");
 
   .grid-container {
     padding-bottom: 2rem;
+    max-width: calc(70.25rem + 4rem);
+    @media (max-width: 1200px) {
+      padding-left: 5vw;
+      padding-right: 5vw;
+    }
   }
 
   .grid-row.grid-gap-1>* {
@@ -243,6 +257,14 @@
   background-color: color("blue-80v");
 }
 
+.usa-identifier__container {
+  max-width: calc(70.25rem + 4rem);
+  @media (max-width: 1200px) {
+    padding-left: 5vw;
+    padding-right: 5vw;
+  }
+}
+
 .usa-identifier__section {
   padding-bottom: 0;
 }
@@ -271,8 +293,7 @@
   }
 }
 
-/* ---- Identifier----
-*/
+/* ---- Identifier---- */
 .usa-identifier {
   padding-bottom: 2rem;
 }

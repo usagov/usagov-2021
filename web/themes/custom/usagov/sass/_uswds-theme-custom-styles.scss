@@ -301,7 +301,7 @@ a {
 
 // Last Updated, Share and Survey
 .additional_body_info {
-  display: inline-block;
+  // display: inline-block;
   padding-top: 75px;
 }
 
@@ -557,6 +557,18 @@ div[class^="QSIUserDefinedHTML"] {
 .usa-prose li,
 .usa-prose a {
   font-size: 1.1rem;
+}
+
+.usa-prose.body-copy {
+  &>h1, &>h2, &>h3, &>h4 {
+    clear: unset;
+  }
+  .usa-alert, .usa-card-group {
+    clear: both;
+  }
+  .usa-process-list {
+    display: inline-block;
+  }
 }
 
 .usa-accordion__heading button,
