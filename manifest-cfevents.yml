@@ -10,3 +10,4 @@ applications:
     health-check-type: process
     instances: 1
     memory: 64M
+    command: ./start.sh
