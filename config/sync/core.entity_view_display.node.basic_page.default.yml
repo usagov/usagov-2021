@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_50_state_pages_type
+    - field.field.node.basic_page.field_benefit_search_weight
     - field.field.node.basic_page.field_benefits_category
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
@@ -23,7 +24,6 @@ dependencies:
     - field.field.node.basic_page.field_navigation_banner_image
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
-    - field.field.node.basic_page.field_search_weight
     - field.field.node.basic_page.field_short_description
     - node.type.basic_page
   module:
@@ -46,6 +46,15 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 0
+    region: content
+  field_benefit_search_weight:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 9
     region: content
   field_benefits_category:
     type: entity_reference_label
@@ -124,6 +133,5 @@ hidden:
   field_meta_description: true
   field_navigation_banner_image: true
   field_page_type: true
-  field_search_weight: true
   field_short_description: true
   langcode: true

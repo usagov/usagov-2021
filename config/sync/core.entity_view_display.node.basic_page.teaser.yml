@@ -6,6 +6,7 @@ dependencies:
     - core.entity_view_mode.node.teaser
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_50_state_pages_type
+    - field.field.node.basic_page.field_benefit_search_weight
     - field.field.node.basic_page.field_benefits_category
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
@@ -24,7 +25,6 @@ dependencies:
     - field.field.node.basic_page.field_navigation_banner_image
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
-    - field.field.node.basic_page.field_search_weight
     - field.field.node.basic_page.field_short_description
     - node.type.basic_page
   module:
@@ -55,6 +55,7 @@ content:
     region: content
 hidden:
   field_50_state_pages_type: true
+  field_benefit_search_weight: true
   field_benefits_category: true
   field_css_icon: true
   field_custom_twig_content: true
@@ -73,6 +74,5 @@ hidden:
   field_navigation_banner_image: true
   field_page_intro: true
   field_page_type: true
-  field_search_weight: true
   field_short_description: true
   langcode: true
