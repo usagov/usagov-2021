@@ -67,7 +67,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     // score each match
     matches = matches.map(function(item) {
       let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
-      let base = parseInt(item.field_search_weight);
+      let base = parseInt(item.field_benefit_search_weight);
       let score = isNaN(base) ? 0 : base;
       item.rank = numMatches.length * 100 + score;
       return item;
