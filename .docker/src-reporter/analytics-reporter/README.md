@@ -1,41 +1,113 @@
- [![Code Climate](https://codeclimate.com/github/18F/analytics-reporter/badges/gpa.svg)](https://codeclimate.com/github/18F/analytics-reporter) [![CircleCI](https://circleci.com/gh/18F/analytics.usa.gov.svg?style=shield)](https://circleci.com/gh/18F/analytics.usa.gov)  [![Dependency Status](https://gemnasium.com/badges/github.com/18F/analytics-reporter.svg)](https://gemnasium.com/github.com/18F/analytics-reporter)
+![Build Status](https://github.com/18F/analytics-reporter/actions/workflows/ci.yml/badge.svg?branch=master)
+[![Snyk](https://snyk.io/test/github/18F/analytics-reporter/badge.svg)](https://snyk.io/test/github/18F/analytics-reporter)
+[![Code Climate](https://codeclimate.com/github/18F/analytics-reporter/badges/gpa.svg)](https://codeclimate.com/github/18F/analytics-reporter)
 
-## Analytics Reporter
+# Analytics Reporter
 
-A lightweight system for publishing analytics data from Google Analytics profiles. Uses the [Google Analytics Core Reporting API v3](https://developers.google.com/analytics/devguides/reporting/core/v3/) and the [Google Analytics Real Time API v3](https://developers.google.com/analytics/devguides/reporting/realtime/v3/).
+A lightweight system for publishing analytics data from the Digital Analytics Program (DAP) Google Analytics 4 government-wide property.
+This project uses the [Google Analytics Data API v1](https://developers.google.com/analytics/devguides/reporting/data/v1/rest) to acquire analytics data and then processes it into a flat data structure.
 
-This is used in combination with [18F/analytics.usa.gov](https://github.com/18F/analytics.usa.gov) to power the government analytics hub, [analytics.usa.gov](https://analytics.usa.gov).
+The project previously used the [Google Analytics Core Reporting API v3](https://developers.google.com/analytics/devguides/reporting/core/v3/)
+and the [Google Analytics Real Time API v3](https://developers.google.com/analytics/devguides/reporting/realtime/v3/), also known as Universal Analytics,  which has slightly different data points. See [Upgrading from Universal Analytics](#upgrading-from-universal-analytics) for more details. The Google Analytics v3 API will be deprecated on July 1, 2024.
 
-Available reports are named and described in [`reports.json`](reports/reports.json). For now, they're hardcoded into the repository.
+This is used in combination with [analytics-reporter-api](https://github.com/18F/analytics-reporter-api) to power the government analytics website, [analytics.usa.gov](https://analytics.usa.gov).
 
+Available reports are named and described in [`api.json`](reports/api.json) and [`usa.json`](reports/usa.json). For now, they're hardcoded into the repository.
 
-### Installation
+## Local development setup
 
-### Docker
+### Prerequistites
 
-* To build the docker image on your computer, run:
+* NodeJS > v20.x
+* A postgres DB running and/or docker installed
 
-````bash
-export NODE_ENV=development # just needed when developing against the image
-export NODE_ENV=production # to build an image for production
-docker build --build-arg NODE_ENV=${NODE_ENV} -t analytics-reporter .
-````
-
-Then you can create an alias in order to have the analytics command available:
-
-```bash
-alias analytics="docker run -t -v ${HOME}:${HOME} -e ANALYTICS_REPORT_EMAIL -e ANALYTICS_REPORT_IDS -e ANALYTICS_KEY analytics-reporter"
-```
-
-To make this command working as expected you should export the env vars as follows:
+### Install dependencies
 
 ```bash
-export ANALYTICS_REPORT_EMAIL=  "your-report-email"
-export ANALYTICS_REPORT_IDS="your-report-ids"
-export ANALYTICS_KEY="your-key"
+npm install
 ```
 
-### NPM
+### Linting
+
+This repo uses Eslint and Prettier for code static analysis and formatting. Run
+the linter with:
+
+```bash
+npm run lint
+```
+
+Automatically fix lint issues with:
+
+```bash
+npm run lint:fix
+```
+
+### Install git hooks
+
+There are some git hooks provided in the `./hooks` directory to help with
+common development tasks. These will checkout current NPM packages on branch
+change events, and run the linter on pre-commit.
+
+Install the provided hooks with the following command:
+
+```bash
+npm run install-git-hooks
+```
+
+### Running the unit tests
+
+The unit tests for this repo require a local PostgreSQL database. You can run a
+local DB server or create a docker container using the provided test compose
+file. (Requires docker and docker-compose to be installed)
+
+Starting a docker test DB:
+
+```bash
+docker-compose -f docker-compose.test.yml up
+```
+
+Once you have a PostgreSQL DB running locally, you can run the tests. The test
+DB connection in knexfile.js has some default connection config which can be
+overridden with environment variables.  If using the provided docker-compose DB
+then you can avoid setting the connection details.
+
+Run the tests (pre-test hook runs DB migrations):
+
+```bash
+npm test
+```
+
+#### Running the unit tests with code coverage reporting
+
+If you wish to see a code coverage report after running the tests, use the
+following command. This runs the DB migrations, tests, and the NYC code coverage
+tool:
+
+```bash
+npm run coverage
+```
+
+### Running the integration tests
+
+The integration tests for this repo require the google analytics credentials to
+be set in the environment. This can be setup with the dotenv-cli package as
+described in "Setup Environment" section above.
+
+Note that these tests make real requests to google analytics APIs and should be
+run sparingly to avoid being rate limited in our live apps which use the
+same account credentials.
+
+```bash
+# Run cucumber integration tests
+dotenv -e .env npm run cucumber
+
+# Run cucumber integration tests with node debugging enabled
+dotenv -e .env npm run cucumber:debug
+```
+
+The cucumber features and support files can be found in the `features` directory
+
+### Running the application as a npm package
 
 * To run the utility on your computer, install it through npm:
 
@@ -43,27 +115,52 @@ export ANALYTICS_KEY="your-key"
 npm install -g analytics-reporter
 ```
 
-If you're developing locally inside the repo, `npm install` is sufficient.
+### Running the application locally
 
-### Setup
+To run the application locally with database reporting, you'll need a postgres
+database running on port 5432. There is a docker-compose file provided in the
+repo so that you can start an empty database with the command:
 
-* Create an API service account in the [Google developer dashboard](https://console.developers.google.com/apis/).
+```bash
+docker-compose up
+```
 
-* Visit the "APIs" section of the Google Developer Dashboard for your project, and enable it for the "Analytics API".
+#### Setup environment
 
-* Go to the "Credentials" section and generate "service account" credentials using a new service account.
+See "Configuration and Google Analytics Setup" below for the required environment variables and other setup for Google Analytics auth.
 
-* Download the **JSON** private key file it gives you.
+It may be easiest to use the dotenv-cli package to configure the environment for the application.
+
+Create a `.env` file using `env.example` as a template, with the correct credentials and other config values.
+This file is ignored in the `.gitignore` file and should not be checked in to the repository.
+
+#### Run the application
+
+```bash
+# running the app with no config
+npm start
+
+# running the app with dotenv-cli
+dotenv -e .env npm start
+```
+
+## Configuration and Google Analytics Setup
+
+* Enable [Google Analytics API](https://console.cloud.google.com/apis/library/analytics.googleapis.com) for your project in the Google developer dashboard.
+
+* Create a service account for API access in the [Google developer dashboard](https://console.cloud.google.com/iam-admin/serviceaccounts).
+
+* Go to the "KEYS" tab for your service account, create new key using "ADD KEY" button, and download the **JSON** private key file it gives you.
 
 * Grab the generated client email address (ends with `gserviceaccount.com`) from the contents of the .json file.
 
 * Grant that email address `Read, Analyze & Collaborate` permissions on the Google Analytics profile(s) whose data you wish to publish.
 
-* Set environment variables for your app's generated email address, and for the profile you authorized it to:
+* Set environment variables for `analytics-reporter`. It needs email address of service account, and view ID in the profile you authorized it to:
 
 ```bash
 export ANALYTICS_REPORT_EMAIL="YYYYYYY@developer.gserviceaccount.com"
-export ANALYTICS_REPORT_IDS="ga:XXXXXX"
+export ANALYTICS_REPORT_IDS="XXXXXX"
 ```
 
 You may wish to manage these using [`autoenv`](https://github.com/kennethreitz/autoenv). If you do, there is an `example.env` file you can copy to `.env` to get started.
@@ -140,8 +237,7 @@ There are cases where you want to use a custom  object storage server compatible
 export AWS_S3_ENDPOINT=http://your-storage-server:port
 ```
 
-
-### Other configuration
+## Other configuration
 
 If you use a **single domain** for all of your analytics data, then your profile is likely set to return relative paths (e.g. `/faq`) and not absolute paths when accessing real-time reports.
 
@@ -162,81 +258,103 @@ This will produce points similar to the following:
 }
 ```
 
-### Use
+## Use
 
-Reports are created and published using the `analytics` command.
+Reports are created and published using `npm start` or `./bin/analytics`
 
 ```bash
-analytics
+# using npm scripts
+npm start
+
+# running the app directly
+./bin/analytics
 ```
 
-This will run every report, in sequence, and print out the resulting JSON to STDOUT. There will be two newlines between each report.
+This will run every report, in sequence, and print out the resulting JSON to STDOUT.
 
 A report might look something like this:
 
 ```javascript
 {
   "name": "devices",
+  "frequency": "daily",
+  "slim": true,
   "query": {
     "dimensions": [
-      "ga:date",
-      "ga:deviceCategory"
+      {
+        "name": "date"
+      },
+      {
+        "name": "deviceCategory"
+      }
     ],
     "metrics": [
-      "ga:sessions"
+      {
+        "name": "sessions"
+      }
     ],
-    "start-date": "90daysAgo",
-    "end-date": "yesterday",
-    "sort": "ga:date"
+    "dateRanges": [
+      {
+        "startDate": "30daysAgo",
+        "endDate": "yesterday"
+      }
+    ],
+    "orderBys": [
+      {
+        "dimension": {
+          "dimensionName": "date"
+        },
+        "desc": true
+      }
+    ]
   },
   "meta": {
     "name": "Devices",
-    "description": "Weekly desktop/mobile/tablet visits by day for all sites."
-  },
+    "description": "30 days of desktop/mobile/tablet visits for all sites."
+  }
   "data": [
     {
-      "date": "2014-10-14",
-      "device": "desktop",
-      "visits": "11495462"
-    },
-    {
-      "date": "2014-10-14",
+      "date": "2023-12-25",
       "device": "mobile",
-      "visits": "2499586"
+      "visits": "13681896"
     },
     {
-      "date": "2014-10-14",
-      "device": "tablet",
-      "visits": "976396"
+      "date": "2023-12-25",
+      "device": "desktop",
+      "visits": "5775002"
     },
-    // ...
+    {
+      "date": "2023-12-25",
+      "device": "tablet",
+      "visits": "367039"
+    },
+   ...
   ],
   "totals": {
+    "visits": 3584551745,
     "devices": {
-      "mobile": 213920363,
-      "desktop": 755511646,
-      "tablet": 81874189
-    },
-    "start_date": "2014-10-14",
-    "end_date": "2015-01-11"
-  }
+      "mobile": 2012722956,
+      "desktop": 1513968883,
+      "tablet": 52313579,
+      "smart tv": 5546327
+    }
+  },
+  "taken_at": "2023-12-26T20:52:50.062Z"
 }
 ```
 
-#### Options
+### Options
 
-* `--output` - Output to a directory.
+* `--output` - write the report result to a provided directory. Report files will be named with the name in the report configuration.
 
 ```bash
-analytics --output /path/to/data
+./bin/analytics --output /path/to/data
 ```
-
-*Note that when using the docker image you have to use the absolute path, for example "/home/youruser/path/to/data"*
 
 * `--publish` - Publish to an S3 bucket. Requires AWS environment variables set as described above.
 
 ```bash
-analytics --publish
+./bin/analytics --publish
 ```
 
 * `--write-to-database` - write data to a database. Requires a postgres configuration to be set in environment variables as described below.
@@ -244,35 +362,35 @@ analytics --publish
 * `--only` - only run one or more specific reports. Multiple reports are comma separated.
 
 ```bash
-analytics --only devices
-analytics --only devices,today
+./bin/analytics --only devices
+./bin/analytics --only devices,today
 ```
 
 * `--slim` -Where supported, use totals only (omit the `data` array). Only applies to JSON, and reports where `"slim": true`.
 
 ```bash
-analytics --only devices --slim
+./bin/analytics --only devices --slim
 ```
 
-* `--csv` - Gives you CSV instead of JSON.
+* `--csv` - Formats reports as CSV instead of the default JSON format.
 
 ```bash
-analytics --csv
+./bin/analytics --csv
 ```
 
-* `--frequency` - Limit to reports with this 'frequency' value.
+* `--frequency` - Run only reports with 'frequency' value matching the provided value.
 
 ```bash
-analytics --frequency=realtime
+./bin/analytics --frequency=realtime
 ```
 
 * `--debug` - Print debug details on STDOUT.
 
 ```bash
-analytics --publish --debug
+./bin/analytics --publish --debug
 ```
 
-### Saving data to postgres
+## Saving data to postgres
 
 The analytics reporter can write data is pulls from Google Analytics to a
 Postgres database. The postgres configuration can be set using environment
@@ -285,13 +403,55 @@ export POSTGRES_PASSWORD = "123abc"
 export POSTGRES_DATABASE = "analytics"
 ```
 
-The database expects a particular schema which will be described in the API
-server that consumes this data.
+The database expects a particular schema which will be described in the [API
+server](https://github.com/18f/analytics-reporter-api) that consumes and publishes this data.
 
 To write reports to a database, use the `--write-to-database` option when
 starting the reporter.
 
-### Deploying to GovCloud
+## Upgrading from Universal Analytics
+
+### Background
+
+This project previously acquired data from Google Analytics V3, also known as Universal Analytics (UA).
+
+Google is retiring UA and is encouraging users to move to their new version Google Analytics V4 (GA4).
+UA will be deprecated on July 1st 2024.
+
+### Migration details
+
+Some data points have been removed or added by Google as part of the move to GA4.
+
+#### Deprecated fields
+
+- browser_version
+- has_social_referral
+- exits
+- exit_page
+
+#### New fields
+
+##### bounce_rate
+
+The percentage of sessions that were not engaged.  GA4 defines engaged as a
+session that lasts longer than 10 seconds or has multiple pageviews.
+
+##### file_name
+
+The page path of a downloaded file.
+
+##### language_code
+
+The ISO639 language setting of the user's device.  e.g. 'en-us'
+
+##### session_default_channel_group
+
+An enum which describes the session. Possible values:
+
+'Direct', 'Organic Search', 'Paid Social', 'Organic Social', 'Email',
+'Affiliates', 'Referral', 'Paid Search', 'Video', and 'Display'
+
+### Deploying to Cloud.gov
 
 The analytics reporter runs on :cloud:.gov. Please refer to the `manifest.yml`
 file at the root of the repository for application information.
@@ -322,31 +482,7 @@ Restage the application to use the environment variables.
 cf restage analytics-reporter
 ```
 
-### Developing with Docker
-
-This repo contains a [Docker Compose](https://docs.docker.com/compose/)
-configuration. The reporter is configured to run in the container as if it were
-running in GovCloud. This is helpful for seeing how the reporter will behave
-when deployed without pushing it to cloud.gov.
-
-To start the reporter, first run the `docker-update` script to install the
-necessary dependencies:
-
-```shell
-./bin/docker-update
-```
-
-Note that this script will need to be run again when new dependencies are added
-to update the Docker volumes where the dependencies are stored.
-
-After the dependencies are installed, the reporter can be started using Docker
-Compose:
-
-```shell
-docker-compose up
-```
-
-### Public domain
+## Public domain
 
 This project is in the worldwide [public domain](LICENSE.md). As stated in [CONTRIBUTING](CONTRIBUTING.md):
 
