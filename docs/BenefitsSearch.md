@@ -52,25 +52,14 @@ Two JavaScript source files are required for the page to function properly.
 
 ### CSS
 
-`_benefist-search.scss` adds styles to theme the search page to match the approved design for mobile and desktop presentations. Where possible, USWDS utility classes were used instead of creating one-time use classes.
+`_benefits-search.scss` adds styles to theme the search page to match the approved design for mobile and desktop presentations. Where possible, USWDS utility classes were used instead of creating one-time use classes.
 
 ## Setup
 
-Upon merge or first deployment against a given database:
+Upon first deployment against a given database:
 
-1. Ensure the **USAGov Directories** module (a.k.a. `usagov_directories`) is enabled.
-1. Sync Configuration -- this will bring in the Federal Directory Record content type, Federal Agencies view, and Block Layout.
-1. **Manual step:** add a standard page with the following settings, and Publish it:
-  * **Title:** Directory of U.S. Government Agencies and Departments
-  * **Language:** English
-  * **URL alias:** /agency-index
-  * **Promotion options:** Not promoted
-  * **Menu settings:**
-    - **Provide a menu link:** Checked
-    - **Menu link title:** Directory of U.S. Government Agencies and Departments
-    - **Parent item:** -- About the U.S. and Its
-    - **Weight:** 0
-1. Flush all the caches, of course.
+1. Import configuration `bin/drush cim` to enable new views, fields for basic page content type.
+2. Run `bin/drush deploy:hook` to create the terms in the benefits category vocab.
 
 ## Known Issues and Concerns
 
