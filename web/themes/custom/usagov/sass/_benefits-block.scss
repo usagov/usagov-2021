@@ -4,7 +4,8 @@
 .homepage-benefits-block {
   @include u-margin-x(auto);
   @include u-margin-top(2);
-  @include u-maxw(desktop);
+  max-width: 1124px;
+  width: 100%;
   @include u-padding-y(4);
   @include u-padding-x(7);
   background-color: $homepage-light-blue-background;
