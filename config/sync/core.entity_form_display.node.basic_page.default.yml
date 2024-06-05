@@ -5,6 +5,8 @@ dependencies:
   config:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_50_state_pages_type
+    - field.field.node.basic_page.field_benefit_search_weight
+    - field.field.node.basic_page.field_benefits_category
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_exclude_from_contact_cente
@@ -29,10 +31,28 @@ dependencies:
     - allowed_formats
     - conditional_fields
     - content_moderation
+    - field_group
     - link
     - media_library
     - path
     - text
+third_party_settings:
+  field_group:
+    group_benefit_category_search:
+      children:
+        - field_benefits_category
+        - field_benefit_search_weight
+      label: 'Benefit Category Search'
+      region: content
+      parent_name: ''
+      weight: 31
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        description: 'These fields control how this page displays on a benefits search page'
+        required_fields: true
 id: node.basic_page.default
 targetEntityType: node
 bundle: basic_page
@@ -40,7 +60,7 @@ mode: default
 content:
   body:
     type: text_textarea_with_summary
-    weight: 17
+    weight: 18
     region: content
     settings:
       rows: 9
@@ -50,7 +70,7 @@ content:
     third_party_settings: {  }
   created:
     type: datetime_timestamp
-    weight: 11
+    weight: 12
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -78,9 +98,22 @@ content:
             effect: show
             effect_options: {  }
             selector: ''
+  field_benefit_search_weight:
+    type: number
+    weight: 33
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_benefits_category:
+    type: options_buttons
+    weight: 32
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   field_css_icon:
     type: string_textfield
-    weight: 24
+    weight: 25
     region: content
     settings:
       size: 60
@@ -88,28 +121,28 @@ content:
     third_party_settings: {  }
   field_custom_twig_content:
     type: boolean_checkbox
-    weight: 19
+    weight: 20
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   field_exclude_from_contact_cente:
     type: boolean_checkbox
-    weight: 29
+    weight: 30
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   field_faq_page:
     type: boolean_checkbox
-    weight: 18
+    weight: 19
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   field_footer_html:
     type: string_textarea
-    weight: 25
+    weight: 26
     region: content
     settings:
       rows: 5
@@ -117,7 +150,7 @@ content:
     third_party_settings: {  }
   field_for_contact_center_only:
     type: text_textarea
-    weight: 26
+    weight: 27
     region: content
     settings:
       rows: 5
@@ -125,7 +158,7 @@ content:
     third_party_settings: {  }
   field_header_html:
     type: text_textarea
-    weight: 20
+    weight: 21
     region: content
     settings:
       rows: 5
@@ -136,7 +169,7 @@ content:
         hide_guidelines: '0'
   field_hero_links:
     type: link_default
-    weight: 28
+    weight: 29
     region: content
     settings:
       placeholder_url: ''
@@ -170,7 +203,7 @@ content:
     third_party_settings: {  }
   field_homepage_banner:
     type: media_library_widget
-    weight: 22
+    weight: 23
     region: content
     settings:
       media_types: {  }
@@ -195,7 +228,7 @@ content:
             selector: ''
   field_homepage_top_links:
     type: link_default
-    weight: 21
+    weight: 22
     region: content
     settings:
       placeholder_url: ''
@@ -239,7 +272,7 @@ content:
     third_party_settings: {  }
   field_navigation_banner_image:
     type: media_library_widget
-    weight: 23
+    weight: 24
     region: content
     settings:
       media_types: {  }
@@ -294,38 +327,38 @@ content:
     third_party_settings: {  }
   moderation_state:
     type: moderation_state_default
-    weight: 15
+    weight: 16
     region: content
     settings: {  }
     third_party_settings: {  }
   path:
     type: path
-    weight: 14
+    weight: 15
     region: content
     settings: {  }
     third_party_settings: {  }
   promote:
     type: boolean_checkbox
-    weight: 12
+    weight: 13
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   simple_sitemap:
-    weight: 10
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 16
+    weight: 17
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
   sticky:
     type: boolean_checkbox
-    weight: 13
+    weight: 14
     region: content
     settings:
       display_label: true
@@ -354,7 +387,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
   url_redirects:
-    weight: 27
+    weight: 28
     region: content
     settings: {  }
     third_party_settings: {  }

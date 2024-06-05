@@ -1,0 +1,23 @@
+uuid: a25df626-2e09-4b29-9378-a1287641fcb4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_benefit_search_weight
+    - node.type.basic_page
+id: node.basic_page.field_benefit_search_weight
+field_name: field_benefit_search_weight
+entity_type: node
+bundle: basic_page
+label: 'Benefit Search Weight'
+description: 'Setting a higher number will rank this page higher/earlier in benefit search results.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: -50
+  max: 50
+  prefix: ''
+  suffix: ''
+field_type: integer
