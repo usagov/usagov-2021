@@ -41,6 +41,7 @@ i.e.
 @forward "navigation-page";
 @forward "sidenav";
 @forward "state-directory";
+@forward "benefit-search";
 @forward "benefits-block";
 
 .line-height-2 {
@@ -558,6 +559,18 @@ div[class^="QSIUserDefinedHTML"] {
 .usa-prose li,
 .usa-prose a {
   font-size: 1.1rem;
+}
+
+.usa-prose.body-copy {
+  &>h1, &>h2, &>h3, &>h4 {
+    clear: unset;
+  }
+  .usa-alert, .usa-card-group {
+    clear: both;
+  }
+  .usa-process-list {
+    display: inline-block;
+  }
 }
 
 .usa-accordion__heading button,

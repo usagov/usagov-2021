@@ -7,3 +7,8 @@
 #block-claro-primary-local-tasks a[href$="/translations"]{
     display: none;
 }
+
+#edit-field-benefits-category--wrapper .fieldset__wrapper--group {
+  column-width: 180px;
+  column-rule-width: 2px;
+}
