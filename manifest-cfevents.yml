@@ -6,6 +6,7 @@ applications:
     buildpacks:
       - https://github.com/cloudfoundry/apt-buildpack
       - binary_buildpack
+      - python_buildpack
     no-route: true
     health-check-type: process
     instances: 1
