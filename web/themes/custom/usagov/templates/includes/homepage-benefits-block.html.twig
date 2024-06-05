@@ -1,0 +1,16 @@
+{% set lang = node.langcode.value %}
+
+<div class="benefits-block">
+  <img src="/themes/custom/usagov/images/ICONS_beta_Benefits.svg" alt="Visit the benefit finder page" height="56px">
+
+  <div class="benefits-text">
+    <h2>{{ lang == 'en' ? 'Government benefits and financial assistance' : 'Beneficios del Gobierno y asistencia financiera' }}</h2>
+    <p>{{ lang == 'en' ? 'Find and learn how to apply for government benefits for yourself and your family.' :
+      'Encuentre beneficios del Gobierno para usted y su familia y conozca cómo aplicar para.' }}</p>
+  </div>
+
+  <a href="/benefits-search"
+    class="usa-button benefits-link">
+    {{ lang == 'en' ? 'Begin benefits search' : 'Encuentre beneficios' }}
+  </a>
+</div>
