@@ -96,6 +96,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       foreach ($excluded_directories as $excluded_directory_path) {
         $excluded_directory = $excluded_directory_path . '/';
         if (($path == $excluded_directory_path) ||
+            ($path == $base_path . $excluded_directory_path) ||
             (isset($metadata['original_path']) && ($metadata['original_path'] == $excluded_directory_path))) {
           unset($paths[$path]);
         }
