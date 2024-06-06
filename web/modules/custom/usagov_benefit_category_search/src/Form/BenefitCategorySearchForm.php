@@ -5,20 +5,18 @@ namespace Drupal\usagov_benefit_category_search\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
-class BenefitCategorySearchForm extends ConfigFormBase
-{
+class BenefitCategorySearchForm extends ConfigFormBase {
   public const SETTINGS_KEY = 'usagov_benefit_category_search.settings';
   public const SHOW_LANDING_PAGE_BLOCK = 'homepage_show_benefits_search_block';
+
   /**
    * {@inheritdoc}
    */
-  public function getFormId(): string
-  {
+  public function getFormId(): string {
     return 'usagov_benefit_category_search_admin_settings_form';
   }
 
-  public function buildForm(array $form, FormStateInterface $form_state): array
-  {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildForm($form, $form_state);
 
     $form['homepage_show_benefits_search_block'] = [
@@ -54,9 +52,8 @@ class BenefitCategorySearchForm extends ConfigFormBase
     ];
   }
 
-  public static function showLandingPageBlock(): bool
-  {
+  public static function showLandingPageBlock(): bool {
     $config = \Drupal::config(BenefitCategorySearchForm::SETTINGS_KEY);
-    return  $config->get(BenefitCategorySearchForm::SHOW_LANDING_PAGE_BLOCK) === true;
+    return  $config->get(BenefitCategorySearchForm::SHOW_LANDING_PAGE_BLOCK) === TRUE;
   }
 }
