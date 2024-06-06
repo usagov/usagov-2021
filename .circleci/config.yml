@@ -596,6 +596,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1346-ewt-in-tools
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -605,6 +606,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1346-ewt-in-tools
       - approve-dev-deployment:
           type: approval
           requires:
@@ -613,6 +615,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1346-ewt-in-tools
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -620,6 +623,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1346-ewt-in-tools
       - approve-stage-deployment:
           type: approval
           requires:
