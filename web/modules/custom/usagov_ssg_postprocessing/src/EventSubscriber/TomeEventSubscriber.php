@@ -91,14 +91,17 @@ class TomeEventSubscriber implements EventSubscriberInterface {
           $paths[$path] = $metadata;
         }
       }
-
+      // Get the base path without trailing slash if we're exporting to a sub-directory
+      $base_path = rtrim(trim(base_path()), '/');
       foreach ($excluded_directories as $excluded_directory_path) {
         $excluded_directory = $excluded_directory_path . '/';
         if (($path == $excluded_directory_path) ||
+            ($path == $base_path . $excluded_directory_path) ||
             (isset($metadata['original_path']) && ($metadata['original_path'] == $excluded_directory_path))) {
           unset($paths[$path]);
         }
         elseif (str_starts_with($path, $excluded_directory) ||
+            (str_starts_with($path, $base_path . $excluded_directory)) ||
             (isset($metadata['original_path']) && str_starts_with($metadata['original_path'], $excluded_directory))) {
           unset($paths[$path]);
         }
