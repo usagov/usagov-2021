@@ -18,7 +18,7 @@ ENV CONTAINERTAG ${CONTAINERTAG:-none}
 ARG BUID=1000
 ARG BGID=1000
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
+#ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 
@@ -36,12 +36,10 @@ RUN apt update --allow-unauthenticated \
     tar \
     vim \
     nano \
-    cron \
-    && rm -rf /var/lib/apt/lists/* \
-    && tar xzf /tmp/s6overlay.tar.gz -C / \
-    && rm /tmp/s6overlay.tar.gz \
-    && mkdir -p /var/run/s6 \
-    && ln -s /bin/bash /bin/sh
+    && rm -rf /var/lib/apt/lists/*
+#    && tar xzf /tmp/s6overlay.tar.gz -C / \
+#    && rm /tmp/s6overlay.tar.gz \
+#    && mkdir -p /var/run/s6
 
 ###COPY bin/src/newrelic.sh /local/newrelic.sh
 ###RUN . /local/newrelic.sh
@@ -58,6 +56,6 @@ COPY .docker/src-cfevents/opt /opt
 COPY .docker/motd /etc/motd
 ###
 
-HEALTHCHECK CMD s6-svstat /var/run/s6/services/cron
+#HEALTHCHECK CMD s6-svstat /var/run/s6/services/cron
 
 CMD ["/bin/bash"]
