@@ -54,6 +54,7 @@ class BenefitCategorySearchForm extends ConfigFormBase {
 
   public static function showLandingPageBlock(): bool {
     $config = \Drupal::config(BenefitCategorySearchForm::SETTINGS_KEY);
-    return  $config->get(BenefitCategorySearchForm::SHOW_LANDING_PAGE_BLOCK) === TRUE;
+    return $config->get(BenefitCategorySearchForm::SHOW_LANDING_PAGE_BLOCK) === TRUE;
   }
+
 }
