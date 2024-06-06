@@ -1,0 +1,25 @@
+uuid: b782e780-8e5e-403c-a43d-cb1fec64f6cf
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_category_life_events
+    - taxonomy.vocabulary.benefits_category
+id: taxonomy_term.benefits_category.field_category_life_events
+field_name: field_category_life_events
+entity_type: taxonomy_term
+bundle: benefits_category
+label: 'Life Events'
+description: 'Highlight selected terms in benefits search.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: views
+  handler_settings:
+    view:
+      view_name: benefit_category_life_event_reference
+      display_name: entity_reference_1
+      arguments: {  }
+field_type: entity_reference

@@ -1,0 +1,5 @@
+name: USAgov Benefits Category Search
+type: module
+description: Functionality for a search form based on benefits categories.
+package: USAgov
+core_version_requirement: ^9 || ^10
