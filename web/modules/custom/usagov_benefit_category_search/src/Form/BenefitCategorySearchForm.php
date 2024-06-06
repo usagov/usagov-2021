@@ -7,7 +7,8 @@ use Drupal\Core\Form\FormStateInterface;
 
 class BenefitCategorySearchForm extends ConfigFormBase
 {
-  private const SETTINGS_KEY = 'usagov_benefit_category_search.settings';
+  public const SETTINGS_KEY = 'usagov_benefit_category_search.settings';
+  public const SHOW_LANDING_PAGE_BLOCK = 'homepage_show_benefits_search_block';
   /**
    * {@inheritdoc}
    */
@@ -26,7 +27,7 @@ class BenefitCategorySearchForm extends ConfigFormBase
       '#description' => $this->t("Enable to show the new block linking to the landing page instead of the carousel on the homepage"),
       '#return_value' => TRUE,
       '#default_value' => $this->config(self::SETTINGS_KEY)
-        ->get('homepage_show_benefits_search_block'),
+        ->get(self::SHOW_LANDING_PAGE_BLOCK),
     ];
 
     return $form;
@@ -37,7 +38,7 @@ class BenefitCategorySearchForm extends ConfigFormBase
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $this->config(self::SETTINGS_KEY)
-      ->set('homepage_show_benefits_search_block', $form_state->getValue('homepage_show_benefits_search_block'))
+      ->set(self::SHOW_LANDING_PAGE_BLOCK, $form_state->getValue(self::SHOW_LANDING_PAGE_BLOCK))
       ->save();
 
     parent::submitForm($form, $form_state);
@@ -51,5 +52,11 @@ class BenefitCategorySearchForm extends ConfigFormBase
     return [
       self::SETTINGS_KEY,
     ];
+  }
+
+  public static function showLandingPageBlock(): bool
+  {
+    $config = \Drupal::config(BenefitCategorySearchForm::SETTINGS_KEY);
+    return  $config->get(BenefitCategorySearchForm::SHOW_LANDING_PAGE_BLOCK) === true;
   }
 }

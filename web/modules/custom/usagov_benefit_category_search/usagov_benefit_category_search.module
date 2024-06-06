@@ -1,1 +1,10 @@
 <?php
+
+use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
+function usagov_benefit_category_search_preprocess_node(&$vars) {
+  if ($vars['page'] === TRUE && $vars['view_mode'] === 'full' && $vars['node']->getType() === 'basic_page') {
+    if (\Drupal::service('path.matcher')->isFrontPage()) {
+      $vars['usagov_show_benefits_landing_block']  = BenefitCategorySearchForm::showLandingPageBlock();
+    }
+  }
+}
