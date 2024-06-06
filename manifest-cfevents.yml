@@ -3,12 +3,9 @@ version: 1
 applications:
   - name: cfevents
     path: .docker/src-cfevents
-    buildpacks:
-      - https://github.com/cloudfoundry/apt-buildpack
-      - binary_buildpack
-      - python_buildpack
     no-route: true
     health-check-type: process
+    docker:
+      image: gsatts/usagov-2021:cfevents
     instances: 1
     memory: 64M
-    command: ./start.sh

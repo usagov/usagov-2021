@@ -1,3 +1,10 @@
 ---
+# Keep it tidy for better security and not running out of space on the build instance
+truncatesources: true
+cleancache: true
+keys:
+- https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key
+repos:
+- deb https://packages.cloudfoundry.org/debian stable main
 packages:
-- inotify-tools
+- cf-cli

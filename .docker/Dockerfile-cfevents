@@ -1,14 +1,27 @@
-FROM ubuntu-2204:current
+FROM ubuntu:latest
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29 \
-    && apt update --allow-unauthenticated \
-    && apt-get -y install --no-install-recommends ca-certificates pv openssh-client sshpass wget gpg \
+#RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29
+
+RUN apt update --allow-unauthenticated \
+    && apt-get -y install --no-install-recommends ca-certificates pv openssh-client sshpass wget gnupg2 \
     && wget --user-agent="Mozilla" --no-check-certificate -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add - \
     && echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list \
     && apt update \
-    && apt-get install cf8-cli \
+    && apt-get -y install \
+    cf8-cli \
+    curl \
+    gettext \
+    git \
+    inotify-tools \
+    jq \
+    moreutils \
+    pv \
+    tar \
+#    xz \
+    vim \
+    nano \
     && rm -rf /var/lib/apt/lists/*
 
 CMD ["/bin/bash"]
