@@ -29,7 +29,7 @@ Unless you're using a custom domain (not covered here), Pages will host your sit
 https://federalist-SOME-HOST.sites.pages.cloud.gov/site/username/project-foo/
 ```
 
-We need to know that URL to prepare the Tome export. Consider commiting a simple `index.html` file to your repository, and pushing it. PAges should rebuild the site after a minute or two. Check the "Build History" for the site and click on "View Build" under actions to open your site's home page. Make a note of your hostname and delete your test `index.html` file
+We need to know that URL to prepare the Tome export. Consider commiting a simple `index.html` file to your repository, and pushing it. Pages should rebuild the site after a minute or two. Check the "Build History" for the site and click on "View Build" under actions to open your site's home page. Make a note of your hostname and delete your test `index.html` file
 
 ## 4. Export Drupal site
 
@@ -63,9 +63,16 @@ rsync -rn --delete --info=progress2 --exclude=.git/ \
  "$TOME_OUTPUT/" "$STATIC_CHECKOUT"
 ```
 
-## 6. Fix Paths
+## 6. Fix Image and Asset Paths
 
-Tome doesn't adjust all the paths in CSS and HTML files to work in a sub directory on Pages. You can use your editor's search-and-replace tools to update them. If you have `find` and `sed`, you can make these changes in a shell script like so:
+Tome doesn't adjust all the paths in CSS and HTML files to work in a subdirectory on Pages. You can use your editor's search-and-replace tools to update them.
+
+- In .html files Change image source tags from `src="/themes/custom/usagov/` to `src="/site/username/project-foo/themes/custom/usagov/`
+- In .html files and .css Change internal links from `href="/themes/custom/usagov/` to `href="/site/username/project-foo/themes/custom/usagov/`
+- In .css files change URLs from `url(/themes/custom/usagov/` to `url(/site/username/project-foo/themes/custom/usagov`.
+- Change absolute links to the homepage from `href="/"` to `href="/site/username/project-foo/"
+
+If you have `find` and `sed`, you can make these changes in a shell script.
 
 ```sh
 
@@ -78,9 +85,6 @@ find $STATIC_CHECKOUT -type f \( -name "*.html" -or -name "*.css" \) \
  -exec bash -c 'sed -i "s|'"$FIND"'|'$REPLACE'|g" {}' \;
 ```
 
+## 7. Push Changes to Repository & View Site
 
-## 7. Push Changes to Repository
-
-
-## 8. View Static Site
-
+Once your paths are fixed, add and commit changes in the local repository. Then push them to GitHub. After a minute or two, the site will update with your changes.
