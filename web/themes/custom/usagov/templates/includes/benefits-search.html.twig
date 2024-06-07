@@ -15,7 +15,7 @@
 
 <h2>{{ life_event_title }}</h2>
 
-{# Add life event navigation cards #}
+{{ drupal_view('life_events_grid', 'summary_block', lang) }}
 
 
 {{ drupal_view('benefit_search_form', search_block) }}
