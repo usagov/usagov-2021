@@ -318,6 +318,34 @@ content:
       rows: 1
       placeholder: ''
     third_party_settings: {  }
+  group_benefit_category_search:
+    weight: 34
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        aade23e7-4451-4d87-ab7f-0460e59e34a2:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '10'
+            effect: show
+            effect_options: {  }
+            selector: ''
+            inheritance:
+              propagate: '0'
+              apply_to_parent: '0'
+              recurse: '0'
   langcode:
     type: language_select
     weight: 7
