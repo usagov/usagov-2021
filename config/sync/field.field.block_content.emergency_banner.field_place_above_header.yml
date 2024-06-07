@@ -1,0 +1,21 @@
+uuid: d19c73f2-7db1-42d1-8e97-e10250bc09c4
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.emergency_banner
+    - field.storage.block_content.field_place_above_header
+id: block_content.emergency_banner.field_place_above_header
+field_name: field_place_above_header
+entity_type: block_content
+bundle: emergency_banner
+label: 'Place above header'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'Place the alert above the header'
+  off_label: "Don't place the alert above the header"
+field_type: boolean
