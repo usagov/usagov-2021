@@ -23,7 +23,7 @@ jQuery(document).ready(async function () {
 
     if (jQuery("#callCenterTime").length > 0) {
       console.log('element found');
-      s3.getObject({"Bucket": 'cg-f2a88fcc-f582-4963-83b2-2a793bca706e',
+      s3.getObject({"Bucket": 'cg-8463e88a-3e82-4860-9515-edfb3f47ae0f',
                     "Key": 'waittime.json'},
         function(err, data) {
           if (err) {
