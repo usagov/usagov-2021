@@ -7,6 +7,12 @@ dependencies:
     - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_benefit_search_weight
     - field.field.node.basic_page.field_benefits_category
+    - field.field.node.basic_page.field_benefits_life_events_descr
+    - field.field.node.basic_page.field_benefits_life_events_title
+    - field.field.node.basic_page.field_benefits_search_descr
+    - field.field.node.basic_page.field_benefits_search_title
+    - field.field.node.basic_page.field_callout_description
+    - field.field.node.basic_page.field_callout_title
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_exclude_from_contact_cente
@@ -51,7 +57,39 @@ third_party_settings:
         classes: ''
         show_empty_fields: false
         id: ''
-        description: 'These fields control how this page displays on a benefits search page'
+        description: 'Select at least one category to include this page in benefit category search results.'
+        required_fields: true
+    group_benefits_landing_page_call:
+      children:
+        - field_callout_title
+        - field_callout_description
+      label: 'Benefits Callout'
+      region: content
+      parent_name: ''
+      weight: 32
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        description: 'On homepage and topics page, these fields control the text shown in the callout linking to the Benefits Landing Page.'
+        required_fields: true
+    group_benefits_search_landing_pa:
+      children:
+        - field_benefits_life_events_title
+        - field_benefits_life_events_descr
+        - field_benefits_search_title
+        - field_benefits_search_descr
+      label: 'Benefits Search Landing Page'
+      region: content
+      parent_name: ''
+      weight: 33
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        description: 'These fields control the headings and descriptions for sections of the benefits search landing page.'
         required_fields: true
 id: node.basic_page.default
 targetEntityType: node
@@ -111,6 +149,110 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_benefits_life_events_descr:
+    type: string_textarea
+    weight: 40
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+  field_benefits_life_events_title:
+    type: string_textfield
+    weight: 39
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_benefits_search_descr:
+    type: string_textarea
+    weight: 42
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+  field_benefits_search_title:
+    type: string_textfield
+    weight: 41
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_callout_description:
+    type: string_textarea
+    weight: 37
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings:
+      conditional_fields:
+        e2df9438-dbd1-4a1c-bdbf-324fe7a3ff18:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: required
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 3
+            value: ''
+            values: "12\r\n22"
+            value_form:
+              -
+                target_id: '10'
+            effect: show
+            effect_options: {  }
+            selector: ''
+  field_callout_title:
+    type: string_textfield
+    weight: 36
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings:
+      conditional_fields:
+        4ffc24cc-8aae-4f9f-bcaf-6b48b5e4c396:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: '!visible'
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '12'
+            effect: show
+            effect_options: {  }
+            selector: ''
+        c4f11b19-5580-4a4b-bce7-35d6d0996c89:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: required
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '22'
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_css_icon:
     type: string_textfield
     weight: 25
@@ -333,12 +475,118 @@ content:
             reset: false
             condition: value
             grouping: AND
+            values_set: 3
+            value: ''
+            values: "10\r\n21"
+            value_form:
+              -
+                target_id: '10'
+            effect: show
+            effect_options: {  }
+            selector: ''
+            inheritance:
+              propagate: '0'
+              apply_to_parent: '0'
+              recurse: '0'
+  group_benefits_landing_page_call:
+    weight: 38
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        d4f30035-fddc-49f4-a2d0-560ac266f30c:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 3
+            value: ''
+            values: "12\r\n22"
+            value_form:
+              -
+                target_id: '10'
+            effect: show
+            effect_options: {  }
+            selector: ''
+            inheritance:
+              propagate: '0'
+              apply_to_parent: '0'
+              recurse: '0'
+  group_benefits_search_landing_pa:
+    weight: 41
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        4a85a5ba-f34f-41d6-9b93-7c56eeb5eb86:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
             values_set: 1
             value: ''
             values: {  }
             value_form:
               -
-                target_id: '10'
+                target_id: '33'
+            effect: show
+            effect_options: {  }
+            selector: ''
+            inheritance:
+              propagate: '0'
+              apply_to_parent: '0'
+              recurse: '0'
+        5daaab98-ada0-43b0-ac35-7a00c023701f:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: required
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '33'
+            effect: show
+            effect_options: {  }
+            selector: ''
+            inheritance:
+              propagate: propagate
+              apply_to_parent: '0'
+              recurse: '0'
+  group_navigation_page_callout:
+    weight: 35
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        973afc67-40fd-4788-84a2-485c9fc8990f:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '12'
             effect: show
             effect_options: {  }
             selector: ''
