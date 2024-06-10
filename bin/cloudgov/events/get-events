@@ -1,0 +1,120 @@
+#!/bin/sh
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+if ! command -v cf &> /dev/null
+then
+    echo "CF : the cloud foundry client could not be found and is required"
+    exit 1
+fi
+if [ -f $SCRIPT_DIR/../../deploy/includes ]; then
+  . $SCRIPT_DIR/../../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../../deploy/includes
+   exit 1
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+SPACE_GUID=$(getSpaceGUID $SPACE)
+shift
+
+### We'll request logs generated after LAST_EVENT_TIME.  If nothing was 
+### specified on the command line, start from 24 hours ago
+LAST_EVENT_TIME=$1
+if [ -n "$LAST_EVENT_TIME" ]; then
+  ### Convert to UTC (if it's already UTC, no harm done)
+  LAST_EVENT_TIME=$(TZ=UTC date -d "$LAST_EVENT_TIME" +"%Y-%m-%dT%H:%M:%SZ")
+else
+  LAST_EVENT_TIME=$(TZ=UTC date -d "now - 24 hours" +"%Y-%m-%dT%H:%M:%SZ")
+fi
+
+CURRENT_ORG=$(getOrg)
+export ORG_GUID=$(getOrgGUID $CURRENT_ORG)
+
+declare -rA AUDIT_TYPES=(
+    ["app"]="audit.app.create,audit.app.start,audit.app.restage,audit.app.stop,audit.app.delete"
+    ["route"]="audit.route.create,audit.route.delete-request,audit.route.update"
+    ["service_instance"]="audit.service_instance.create,audit.service_instance.bind_route,audit.service_instance.update,audit.service_instance.unbind_route,audit.service_instance.delete"
+    ["service"]="audit.service.create,audit.service.delete,audit.service.update,audit.service_binding.create,audit.service_binding.delete,service_instance.bind_route,audit.service_instance.create,audit.service_instance.delete,audit.service_instance.unbind_route,audit.service_instance.update"
+    ["user"]="audit.user.space_developer_add,audit.user.space_developer_remove,audit.user.space_auditor_add,audit.user.space_auditor_remove,audit.user.space_manager_add,audit.user.space_manager_remove"
+)
+
+### These are the same currently, but may change. Therefore I've got them in varuables for now
+declare -rA AUDIT_FIELDS=(
+    ["app"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.actee, .entity.space_guid, .entity.actor_type, .entity.actor_name, .entity.actor"
+    ["route"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.actee, .entity.space_guid, .entity.actor_type, .entity.actor_name, .entity.actor"
+    ["service"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.actee, .entity.space_guid, .entity.actor_type, .entity.actor_name, .entity.actor"
+    ["service_instance"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.actee, .entity.space_guid, .entity.actor_type, .entity.actor_name, .entity.actor"
+    ["user"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.actee, .entity.space_guid, .entity.actor_type, .entity.actor_name, .entity.actor"
+)
+
+### These are the same currently, but may change. Therefore I've got them in varuables for now
+declare -rA AUDIT_HEADERS=(
+    ["app"]='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
+    ["route"]='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
+    ["service"]='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
+    ["service_instance"]='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
+    ["user"]='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
+)
+
+for resource_type in ${!AUDIT_TYPES[@]}; do
+    types=${AUDIT_TYPES[$resource_type]}
+    fields=${AUDIT_FIELDS[$resource_type]}
+    header=${AUDIT_HEADERS[$resource_type]}
+
+    NEXT="/v2/events?&q=type+IN+${types}&q=organization_guid:${ORG_GUID}&a=space_uid:${SPACE_GUID}&q=timestamp>${LAST_EVENT_TIME}&order-by:timestamp"
+    
+    header_emitted=0
+    while [ -n $NEXT -a ! $NEXT == 'null' ]; do
+
+        EVENTS=$(cf curl $NEXT)
+
+        if [ $header_emitted = 0 ]; then
+          echo $header
+          header_emitted=1
+        fi
+        
+        #Each page of events will be a list of resources, similar to the following:
+        #  "resources": [
+        #  {
+        #    "metadata": {
+        #      "guid": "b7e9af34-239d-4214-b56e-f3614959a6f6",
+        #      "url": "/v2/events/b7e9af34-239d-4214-b56e-f3614959a6f6",
+        #      "created_at": "2024-03-25T21:40:37Z",
+        #      "updated_at": "2024-03-25T21:40:37Z"
+        #    },
+        #    "entity": {
+        #      "type": "audit.app.start",
+        #      "actor": "e7f467d9-89d2-4b7f-9279-bccd744be692",
+        #      "actor_type": "user",
+        #      "actor_name": "service-account@cloud.gov",
+        #      "actor_username": "bb7aacf5-3da3-43bd-8327-a3ad8676f6bd",
+        #      "actee": "d51256c8-c130-430f-a207-24685eb6b683",
+        #      "actee_type": "app",
+        #      "actee_name": "waf",
+        #      "timestamp": "2024-03-25T21:40:37Z",
+        #      "metadata": {},
+        #      "space_guid": "ea450105-895e-4a33-9541-6a0df35ee626",
+        #      "organization_guid": "6bd8d843-2a5d-4011-b824-aa3db4d5bd22"
+        #    }
+        #  },
+
+        echo $EVENTS | jq -r ".resources[] | [$fields] | @csv"
+        NEXT=$(echo $EVENTS | jq -r '.next_url')
+
+    done
+
+done
