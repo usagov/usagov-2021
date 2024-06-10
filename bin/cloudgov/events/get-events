@@ -15,21 +15,71 @@ fi
 
 if ! command -v cf &> /dev/null
 then
-    echo "CF : the cloud foundry client could not be found and is required"
-    exit 1
-fi
-if [ -f $SCRIPT_DIR/../../deploy/includes ]; then
-  . $SCRIPT_DIR/../../deploy/includes
-else
-   echo Cannot find $SCRIPT_DIR/../../deploy/includes
-   exit 1
+  echo "CF : the cloud foundry client could not be found and is required"
+  exit 1
 fi
 
-SPACE=${1:-please-provide-space-name-as-first-argument}
+if ! command -v jq &> /dev/null
+then
+  echo "JQ: the command jq could not be found and is required"
+  exit 2
+fi
+
+### NOTE: the SPACE argument is for telling the cf log API to filter the request by org and space guid.
+###       This appears not to work, as we are getting logs for all spaces.  Perhaps the query is incorrect?
+SPACE=${1:-NONE_SPECIFIED}
 SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
-assertCurSpace $SPACE
-SPACE_GUID=$(getSpaceGUID $SPACE)
+if [ $SPACE = 'none_specified' ]; then
+  echo "Please provide a CF Space name as the first argument"
+  exit 3
+fi
 shift
+
+if ! cf space $SPACE &> /dev/null; then
+  echo "ERROR: CF space '$SPACE' does not exist!"
+  exit 4
+fi
+
+SPACE_GUID=$(cf space $SPACE --guid)
+
+# Grab the starting space and org where the command was run
+startorg=$(     cf target | grep org:   | awk '{ print $2 }')
+startspace=$( cf target | grep space: | awk '{ print $2 }')
+
+# Drop them off where we found them
+function popspace() {
+  if [ -n "$startorg" ] && [ -n "$startspace" ]; then
+    echo "Popspace: ${startorg}/${startspace}"
+    cf target -o "$startorg" -s "$startspace" > /dev/null 2>&1
+  fi
+}
+
+trap popspace EXIT
+trap popspace ERR
+
+cf target -s $SPACE &>/dev/null
+
+declare -A SPACE_GUIDS=()
+if [  1 -eq 1 ]; then
+  for SPACE in dev-dr dev stage prod shared-egress shared-egress-dr tools; do
+    if ! cf space $SPACE &> /dev/null; then
+      echo "ERROR: CF space '$SPACE' does not exist!"
+      exit 4
+    fi
+    SPACE_GUID=$(cf space $SPACE --guid)
+    SPACE_GUIDS[$SPACE_GUID]=$SPACE
+  done
+
+### FIXME:  Much faster.  But please usse only during testing!
+else
+  SPACE_GUIDS['34c660a9-0c3d-4798-8c57-c75e8252945f']="stage"
+  SPACE_GUIDS['ea450105-895e-4a33-9541-6a0df35ee626']="dev"
+  SPACE_GUIDS['eb4b21d8-77f0-452b-a317-22d5f2dc976e']="tools"
+  SPACE_GUIDS['f717b614-a1ab-460e-bb50-6f3733700ea9']="prod"
+  SPACE_GUIDS['d8e00e34-5101-460c-9962-582349b9a9e9']="dev-dr"
+  SPACE_GUIDS['940eff23-9f55-406c-8514-0456cd23e360']="shared-egress"
+  SPACE_GUIDS['ba235eab-3bda-4468-8e39-dfa3a67c9c6f']="shared-egress-dr"
+fi
 
 ### We'll request logs generated after LAST_EVENT_TIME.  If nothing was 
 ### specified on the command line, start from 24 hours ago
@@ -41,80 +91,45 @@ else
   LAST_EVENT_TIME=$(TZ=UTC date -d "now - 24 hours" +"%Y-%m-%dT%H:%M:%SZ")
 fi
 
-CURRENT_ORG=$(getOrg)
-export ORG_GUID=$(getOrgGUID $CURRENT_ORG)
+CURRENT_ORG=$(cf target | grep org: | awk '{ print $2 }')
+
+export ORG_GUID=$(cf org $CURRENT_ORG --guid)
 
 declare -rA AUDIT_TYPES=(
     ["app"]="audit.app.create,audit.app.start,audit.app.restage,audit.app.stop,audit.app.delete"
-    ["route"]="audit.route.create,audit.route.delete-request,audit.route.update"
-    ["service_instance"]="audit.service_instance.create,audit.service_instance.bind_route,audit.service_instance.update,audit.service_instance.unbind_route,audit.service_instance.delete"
-    ["service"]="audit.service.create,audit.service.delete,audit.service.update,audit.service_binding.create,audit.service_binding.delete,service_instance.bind_route,audit.service_instance.create,audit.service_instance.delete,audit.service_instance.unbind_route,audit.service_instance.update"
     ["user"]="audit.user.space_developer_add,audit.user.space_developer_remove,audit.user.space_auditor_add,audit.user.space_auditor_remove,audit.user.space_manager_add,audit.user.space_manager_remove"
+    ["route"]="audit.route.create,audit.route.delete-request,audit.route.update"
+    ["service"]="audit.service.create,audit.service.delete,audit.service.update,audit.service_binding.create,audit.service_binding.delete,service_instance.bind_route,audit.service_instance.create,audit.service_instance.delete,audit.service_instance.unbind_route,audit.service_instance.update"
+    ["service_instance"]="audit.service_instance.create,audit.service_instance.bind_route,audit.service_instance.update,audit.service_instance.unbind_route,audit.service_instance.delete"
 )
 
-### These are the same currently, but may change. Therefore I've got them in varuables for now
+### These are the same currently, but may change. Therefore I've got them in variables for now
 declare -rA AUDIT_FIELDS=(
-    ["app"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.actee, .entity.space_guid, .entity.actor_type, .entity.actor_name, .entity.actor"
-    ["route"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.actee, .entity.space_guid, .entity.actor_type, .entity.actor_name, .entity.actor"
-    ["service"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.actee, .entity.space_guid, .entity.actor_type, .entity.actor_name, .entity.actor"
-    ["service_instance"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.actee, .entity.space_guid, .entity.actor_type, .entity.actor_name, .entity.actor"
-    ["user"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.actee, .entity.space_guid, .entity.actor_type, .entity.actor_name, .entity.actor"
-)
-
-### These are the same currently, but may change. Therefore I've got them in varuables for now
-declare -rA AUDIT_HEADERS=(
-    ["app"]='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
-    ["route"]='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
-    ["service"]='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
-    ["service_instance"]='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
-    ["user"]='".metadata.guid", ".entity.timestamp", ".entity.type", ".entity.actee_name", ".entity.actee", ".entity.space_guid", ".entity.actor_type", ".entity.actor_name", ".entity.actor"'
+                 ["app"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
+                ["user"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
+               ["route"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
+             ["service"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
+    ["service_instance"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
 )
 
 for resource_type in ${!AUDIT_TYPES[@]}; do
     types=${AUDIT_TYPES[$resource_type]}
     fields=${AUDIT_FIELDS[$resource_type]}
-    header=${AUDIT_HEADERS[$resource_type]}
 
     NEXT="/v2/events?&q=type+IN+${types}&q=organization_guid:${ORG_GUID}&a=space_uid:${SPACE_GUID}&q=timestamp>${LAST_EVENT_TIME}&order-by:timestamp"
-    
-    header_emitted=0
+
     while [ -n $NEXT -a ! $NEXT == 'null' ]; do
 
         EVENTS=$(cf curl $NEXT)
 
-        if [ $header_emitted = 0 ]; then
-          echo $header
-          header_emitted=1
-        fi
-        
-        #Each page of events will be a list of resources, similar to the following:
-        #  "resources": [
-        #  {
-        #    "metadata": {
-        #      "guid": "b7e9af34-239d-4214-b56e-f3614959a6f6",
-        #      "url": "/v2/events/b7e9af34-239d-4214-b56e-f3614959a6f6",
-        #      "created_at": "2024-03-25T21:40:37Z",
-        #      "updated_at": "2024-03-25T21:40:37Z"
-        #    },
-        #    "entity": {
-        #      "type": "audit.app.start",
-        #      "actor": "e7f467d9-89d2-4b7f-9279-bccd744be692",
-        #      "actor_type": "user",
-        #      "actor_name": "service-account@cloud.gov",
-        #      "actor_username": "bb7aacf5-3da3-43bd-8327-a3ad8676f6bd",
-        #      "actee": "d51256c8-c130-430f-a207-24685eb6b683",
-        #      "actee_type": "app",
-        #      "actee_name": "waf",
-        #      "timestamp": "2024-03-25T21:40:37Z",
-        #      "metadata": {},
-        #      "space_guid": "ea450105-895e-4a33-9541-6a0df35ee626",
-        #      "organization_guid": "6bd8d843-2a5d-4011-b824-aa3db4d5bd22"
-        #    }
-        #  },
+        captured_events=$(echo "$EVENTS" | jq -r ".resources[] | [$fields] | @csv")
 
-        echo $EVENTS | jq -r ".resources[] | [$fields] | @csv"
+        for SPACE_GUID in "${!SPACE_GUIDS[@]}"; do
+          captured_events=$(echo "$captured_events" | sed "s/$SPACE_GUID/${SPACE_GUIDS[$SPACE_GUID]}/")
+        done
+
+        echo "$captured_events"
+
         NEXT=$(echo $EVENTS | jq -r '.next_url')
-
     done
-
 done

@@ -1,7 +1,6 @@
-FROM ubuntu:latest
 
-ARG S6_VERSION
-ENV S6_VERSION ${S6_VERSION:-v2.2.0.3}
+### TBD: Use a more determinate tag please
+FROM ubuntu:latest
 
 ARG GITBRANCH
 ENV GITBRANCH ${GITBRANCH:-none}
@@ -18,10 +17,6 @@ ENV CONTAINERTAG ${CONTAINERTAG:-none}
 ARG BUID=1000
 ARG BGID=1000
 
-#ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
-
-ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
-
 RUN apt update --allow-unauthenticated \
     && apt-get -y install --no-install-recommends ca-certificates pv openssh-client sshpass wget gnupg2 \
     && wget --user-agent="Mozilla" --no-check-certificate -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add - \
@@ -37,25 +32,8 @@ RUN apt update --allow-unauthenticated \
     vim \
     nano \
     && rm -rf /var/lib/apt/lists/*
-#    && tar xzf /tmp/s6overlay.tar.gz -C / \
-#    && rm /tmp/s6overlay.tar.gz \
-#    && mkdir -p /var/run/s6
 
-###COPY bin/src/newrelic.sh /local/newrelic.sh
-###RUN . /local/newrelic.sh
-
-#### cron setup
-#RUN mkdir -p /etc/periodic/1min \
-#    && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /var/spool/cron/crontabs/root
-
-###
-###    ENV PATH=/var/www/vendor/bin:$PATH
-###
 COPY .docker/src-cfevents/etc /etc
 COPY .docker/src-cfevents/opt /opt
-COPY .docker/motd /etc/motd
-###
-
-#HEALTHCHECK CMD s6-svstat /var/run/s6/services/cron
 
 CMD ["/bin/bash"]
