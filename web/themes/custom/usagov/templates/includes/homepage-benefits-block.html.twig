@@ -9,8 +9,9 @@
       'Encuentre beneficios del Gobierno para usted y su familia y conozca cómo aplicar para.' }}</p>
   </div>
 
-  <a href="/benefits-search"
-    class="usa-button benefits-link">
-    {{ lang == 'en' ? 'Begin benefits search' : 'Encuentre beneficios' }}
-  </a>
+  {% if lang == 'en'  %}
+    <a href="/find-benefits-category/" class="usa-button benefits-link"> {{ 'Begin benefits search' | t }}</a>
+  {% else %}
+    <a href="/es/cuales-beneficios-califica-usted/" class="usa-button benefits-link">{{ 'Encuentre beneficios' | t }}</a>
+  {% endif %}
 </div>
