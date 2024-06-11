@@ -23,6 +23,8 @@ dependencies:
     - field.field.node.basic_page.field_hero_links
     - field.field.node.basic_page.field_hide_page_intro
     - field.field.node.basic_page.field_homepage_banner
+    - field.field.node.basic_page.field_homepage_benefits_descr
+    - field.field.node.basic_page.field_homepage_benefits_title
     - field.field.node.basic_page.field_homepage_top_links
     - field.field.node.basic_page.field_is_navigation_page
     - field.field.node.basic_page.field_language_toggle
@@ -77,6 +79,8 @@ hidden:
   field_hero_links: true
   field_hide_page_intro: true
   field_homepage_banner: true
+  field_homepage_benefits_descr: true
+  field_homepage_benefits_title: true
   field_homepage_top_links: true
   field_is_navigation_page: true
   field_language_toggle: true
