@@ -236,8 +236,6 @@ function renderResults(response, rawResponse) {
             let accordionHeaderButton = document.createElement("button");
             accordionHeaderButton.setAttribute("class", "usa-accordion__button");
             accordionHeaderButton.setAttribute("aria-expanded", "false");
-            accordionHeaderButton.classList.add("bg-secondary");
-            accordionHeaderButton.classList.add("hover:bg-secondary-dark");
 
             var officialNumber = "Official_" + i;
             accordionHeaderButton.setAttribute("aria-controls", officialNumber);
