@@ -7,15 +7,13 @@
 
 {% if lang == 'en' %}
 {%   set life_event_title = "Benefit finder tool" %}
-{%   set search_block = "benefits_facets_block" %}
 {% elseif lang == 'es' %}
-{%   set life_event_title = "Encuntre beneficios en estas etapas de su vida" %}
-{%   set search_block = "benefits_facets_es_block" %}
+{%   set life_event_title = "Encuentre beneficios en estas etapas de su vida" %}
 {% endif %}
 
 <h2>{{ life_event_title }}</h2>
 
-{# Add life event navigation cards #}
+{{ drupal_view('life_events_grid', 'summary_block', lang) }}
 
 
-{{ drupal_view('benefit_search_form', search_block) }}
+{{ drupal_view('benefit_search_form', 'benefits_facets_block', lang) }}
