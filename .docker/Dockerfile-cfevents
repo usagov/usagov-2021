@@ -27,6 +27,7 @@ RUN apt update --allow-unauthenticated \
     curl \
     jq \
     moreutils \
+    less \
     pv \
     tar \
     vim \
@@ -35,5 +36,7 @@ RUN apt update --allow-unauthenticated \
 
 COPY .docker/src-cfevents/etc /etc
 COPY .docker/src-cfevents/opt /opt
+
+COPY bin/cloudgov/events/get-events /opt/cfevents/
 
 CMD ["/bin/bash"]
