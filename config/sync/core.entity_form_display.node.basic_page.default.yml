@@ -6,13 +6,12 @@ dependencies:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_benefit_search_weight
+    - field.field.node.basic_page.field_benefits_callout_descr
     - field.field.node.basic_page.field_benefits_category
     - field.field.node.basic_page.field_benefits_life_events_descr
     - field.field.node.basic_page.field_benefits_life_events_title
     - field.field.node.basic_page.field_benefits_search_descr
     - field.field.node.basic_page.field_benefits_search_title
-    - field.field.node.basic_page.field_callout_description
-    - field.field.node.basic_page.field_callout_title
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_exclude_from_contact_cente
@@ -61,8 +60,7 @@ third_party_settings:
         required_fields: true
     group_benefits_landing_page_call:
       children:
-        - field_callout_title
-        - field_callout_description
+        - field_benefits_callout_descr
       label: 'Benefits Callout'
       region: content
       parent_name: ''
@@ -74,13 +72,13 @@ third_party_settings:
         id: ''
         description: 'On homepage and topics page, these fields control the text shown in the callout linking to the Benefits Landing Page.'
         required_fields: true
-    group_benefits_search_landing_pa:
+    group_benefits_search_page:
       children:
         - field_benefits_life_events_title
         - field_benefits_life_events_descr
         - field_benefits_search_title
         - field_benefits_search_descr
-      label: 'Benefits Search Landing Page'
+      label: 'Benefits Search Page'
       region: content
       parent_name: ''
       weight: 33
@@ -90,7 +88,7 @@ third_party_settings:
         show_empty_fields: false
         id: ''
         description: 'These fields control the headings and descriptions for sections of the benefits search landing page.'
-        required_fields: true
+        required_fields: false
 id: node.basic_page.default
 targetEntityType: node
 bundle: basic_page
@@ -143,6 +141,14 @@ content:
     settings:
       placeholder: ''
     third_party_settings: {  }
+  field_benefits_callout_descr:
+    type: text_textarea
+    weight: 44
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
   field_benefits_category:
     type: options_buttons
     weight: 32
@@ -181,42 +187,6 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-  field_callout_description:
-    type: string_textarea
-    weight: 37
-    region: content
-    settings:
-      rows: 3
-      placeholder: ''
-    third_party_settings:
-      conditional_fields: {  }
-  field_callout_title:
-    type: string_textfield
-    weight: 36
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings:
-      conditional_fields:
-        4ffc24cc-8aae-4f9f-bcaf-6b48b5e4c396:
-          entity_type: node
-          bundle: basic_page
-          dependee: field_page_type
-          settings:
-            state: '!visible'
-            reset: false
-            condition: value
-            grouping: AND
-            values_set: 1
-            value: ''
-            values: {  }
-            value_form:
-              -
-                target_id: '12'
-            effect: show
-            effect_options: {  }
-            selector: ''
   field_css_icon:
     type: string_textfield
     weight: 25
@@ -458,26 +428,56 @@ content:
     settings: {  }
     third_party_settings:
       conditional_fields:
-        d4f30035-fddc-49f4-a2d0-560ac266f30c:
+        0053a889-2639-4f71-a288-f143d837eee3:
           entity_type: node
           bundle: basic_page
-          dependee: field_page_type
+          dependee: path
           settings:
             state: visible
             reset: false
             condition: value
-            grouping: AND
+            grouping: OR
             values_set: 3
             value: ''
-            values: "12\r\n22"
+            values: "/benefits\r\n/beneficios-gobierno\r\n"
             value_form:
               -
-                target_id: '10'
+                alias: ''
+                pid: null
+                source: null
+                langcode: en
+                pathauto: 1
             effect: show
             effect_options: {  }
             selector: ''
             inheritance:
               propagate: '0'
+              apply_to_parent: '0'
+              recurse: '0'
+        9d152d08-0fc7-4260-873e-39cb886ea3f1:
+          entity_type: node
+          bundle: basic_page
+          dependee: path
+          settings:
+            state: required
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 3
+            value: ''
+            values: "/benefits\r\n/beneficios-gobierno\r\n"
+            value_form:
+              -
+                alias: ''
+                pid: null
+                source: null
+                langcode: en
+                pathauto: 1
+            effect: show
+            effect_options: {  }
+            selector: ''
+            inheritance:
+              propagate: propagate
               apply_to_parent: '0'
               recurse: '0'
   group_benefits_search_landing_pa:
@@ -528,6 +528,56 @@ content:
             selector: ''
             inheritance:
               propagate: propagate
+              apply_to_parent: '0'
+              recurse: '0'
+  group_benefits_search_page:
+    weight: 43
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        02f8f3c1-7220-432f-b78f-3378b3689319:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '10'
+            effect: show
+            effect_options: {  }
+            selector: ''
+            inheritance:
+              propagate: '0'
+              apply_to_parent: '0'
+              recurse: '0'
+        4d8e116e-92cb-4dc2-a4fe-0cb3c978fff5:
+          entity_type: node
+          bundle: basic_page
+          dependee: field_page_type
+          settings:
+            state: required
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              -
+                target_id: '10'
+            effect: show
+            effect_options: {  }
+            selector: ''
+            inheritance:
+              propagate: '0'
               apply_to_parent: '0'
               recurse: '0'
   group_navigation_page_callout:
