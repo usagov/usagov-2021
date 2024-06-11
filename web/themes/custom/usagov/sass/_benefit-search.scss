@@ -32,7 +32,7 @@
 }
 .benefits-category-list .grid-row.benefits-category-error .benefits-category-list-checkbox-all,
 .benefits-category-list .grid-row.benefits-category-error ul > li {
-  border-left: 3px solid red;
+  border-left: 3px solid color('error');
   margin-left: -0.75rem;
   padding-left: 0.75rem;
 }
