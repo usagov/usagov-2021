@@ -4,7 +4,9 @@ use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
 
 function usagov_benefit_category_search_preprocess_node(&$vars) {
   if ($vars['page'] === TRUE && $vars['view_mode'] === 'full' && $vars['node']->getType() === 'basic_page') {
-    if (\Drupal::service('path.matcher')->isFrontPage()) {
+    if (\Drupal::service('path.matcher')->isFrontPage()
+        || in_array(\Drupal::service('path.current')->getPath(), ['/node/123', '/node/519']) // English and Spanish Government Benefits pages
+    ) {
       $vars['usagov_show_benefits_landing_block'] = BenefitCategorySearchForm::showLandingPageBlock();
     }
   }
