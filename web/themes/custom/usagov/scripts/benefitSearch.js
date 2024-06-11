@@ -227,7 +227,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       default:
         elt.innerHTML += `<div class="grid-row benefits-result">
 <div class="desktop:grid-col-9 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
-<div class="desktop:grid-col-3 benefits-result-categories"><h3>Applied categories</h3>${benefit.term_node_tid}</div>
+<div class="desktop:grid-col-3 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>${benefit.term_node_tid}</div>
 </div>`;
     }
 
@@ -305,8 +305,17 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
   };
   this.showError = function() {
     let elt = document.createElement('template');
-    elt.innerHTML = '<div class="usa-alert--error" aria-live=assertive>Select one or more categories</div>';
+    elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4" aria-live=assertive>
+        <div class="usa_alert__body">
+           <h4 class="usa-alert__heading padding-left-6">${myself.labels.emptyCategoryError}</h4>
+        </div>
+    </div>`;
     myself.form.prepend(elt.content);
+
+    const fieldset = myself.form.querySelector('fieldset');
+    fieldset.classList.add('benefits-category-error');
+
+
   };
   /**
    * @param {Element} page
@@ -410,7 +419,9 @@ jQuery(document).ready(async function () {
       'previous': "Previous",
       'previousAria': "Previous page",
       'navAria': "Pagination",
-      'lastPageAria': 'Last page'
+      'lastPageAria': 'Last page',
+      'emptyCategoryError': 'Error: Please select at least one or more categories',
+      'appliedCategories': 'Applied Categories'
     };
   }
   else if (docLang[0] === 'es') {
@@ -423,7 +434,9 @@ jQuery(document).ready(async function () {
       'previous': "Anterior",
       'previousAria': "Página anterior",
       'navAria': "Paginación",
-      'lastPageAria': 'Ultima página'
+      'lastPageAria': 'Ultima página',
+      'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
+       'appliedCategories': 'Categorías'
     };
   }
   // creat and initialize the search tool
