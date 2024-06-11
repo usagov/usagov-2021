@@ -35,6 +35,9 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     for (const err of myself.form.querySelectorAll('.usa-alert--error')) {
       err.remove();
     }
+
+    myself.form.querySelector('fieldset')
+      .classList.remove('benefits-category-error');
   };
   /**
    * @returns {Promise<any>}
@@ -314,8 +317,6 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
 
     const fieldset = myself.form.querySelector('fieldset');
     fieldset.classList.add('benefits-category-error');
-
-
   };
   /**
    * @param {Element} page
