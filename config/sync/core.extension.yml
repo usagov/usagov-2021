@@ -94,6 +94,7 @@ module:
   usa_orphaned_entities: 0
   usa_translation: 0
   usagov_alert: 0
+  usagov_benefit_category_search: 0
   usagov_benefit_finder: 0
   usagov_benefit_finder_api: 0
   usagov_benefit_finder_content: 0

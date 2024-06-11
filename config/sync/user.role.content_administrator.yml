@@ -20,6 +20,7 @@ dependencies:
     - node.type.state_directory_record
     - node.type.wizard
     - node.type.wizard_step
+    - taxonomy.vocabulary.benefits_category
     - workflows.workflow.basic_workflow
   module:
     - block_content
@@ -38,6 +39,7 @@ dependencies:
     - redirect
     - simple_sitemap
     - system
+    - taxonomy
     - toolbar
     - usa_content_moderation_notifications
 id: content_administrator
@@ -76,6 +78,7 @@ permissions:
   - 'create media'
   - 'create remote_video media'
   - 'create state_directory_record content'
+  - 'create terms in benefits_category'
   - 'create url aliases'
   - 'create video media'
   - 'create wizard content'
@@ -127,6 +130,7 @@ permissions:
   - 'delete own wizard_step content'
   - 'delete paragraphs entity embed'
   - 'delete state_directory_record revisions'
+  - 'delete terms in benefits_category'
   - 'delete wizard revisions'
   - 'delete wizard_step revisions'
   - 'edit any agency_synonym content'
@@ -162,6 +166,7 @@ permissions:
   - 'edit own wizard content'
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
+  - 'edit terms in benefits_category'
   - 'revert agency_synonym revisions'
   - 'revert all revisions'
   - 'revert any emergency_banner block content revisions'
