@@ -60,6 +60,19 @@ Upon first deployment against a given database:
 
 1. Import configuration `bin/drush cim` to enable new views, fields for basic page content type.
 2. Run `bin/drush deploy:hook` to create the terms in the benefits category vocab.
+3. Run this script to tag existing pages to the categories, so you get some results when you search. This json file is available in Google Drive.
+
+```
+bin/drush php:script scripts/drush/benefits-category-tag-pages.php /var/www/benefits-sample.2024-05-22.json
+```
+
+4. Run this script to make the english and spanish pages (you have to manually publish them though)
+
+```
+bin/drush php:script scripts/drush/benefits-category-make-pages.php
+```
+
+5. Associate terms to life events. You need to edit at least one term in English and one Spanish term from the benefits category vocabulary to reference one of the pages via the "Life Events" field.
 
 ## Known Issues and Concerns
 
