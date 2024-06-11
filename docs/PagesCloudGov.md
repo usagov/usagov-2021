@@ -1,13 +1,13 @@
 # How-to Set up Pages.Cloud.Gov
 
-Pages.cloud.gov provides a service for hosting sites that don't require any back end infrastructure, including completely static HTML sites. Once set up, a snapshot of a web site is available for review at one of their sub domains.
+Pages.cloud.gov provides a service for hosting sites that don't require any back end infrastructure, including completely static HTML sites. Once set up, a snapshot of a website is available for review at one of their subdomains.
 
 
 ## Logging In to Pages
 
 You'll need access to <https://pages.cloud.gov/>. Click on "Login with cloud.gov", then "Agree and Continue". Select "GSA.gov" when prompted to choose your sign-in method and proceed to log in.
 
-Once authenticated, you should see a list of "Your Sites". Each site is linked to a gitHub repository that holds the static content for your web site.
+Once authenticated, you should see a list of "Your Sites". Each site is linked to a GitHub repository that holds the static content for your website.
 
 ## Creating and Deploying a Site
 
@@ -17,7 +17,7 @@ Since we need a repo for Pages to pull our content, the first step is to create 
 
 ### 2. Create Site
 
-Go to <https://pages.cloud.gov/sites> and click the "+Add site" button. On a desktop screen, the button is in the top right corner of the page. This opnes a new page titled "Make a new site." Under "Use your own GitHub repository" , paste the URL for your repository above and select "usa-gov" as the site's organization. Then press the "Add repository-based site" button. You may need to give Pages access to enable web hooks in your repository for it to deploy updates on a push.
+Go to <https://pages.cloud.gov/sites> and click the "+Add site" button. On a desktop screen, the button is in the top right corner of the page. This opens a new page titled "Make a new site." Under "Use your own GitHub repository" , paste the URL for your repository above and select "usa-gov" as the site's organization. Then press the "Add repository-based site" button. You may need to give Pages access to enable web hooks in your repository for it to deploy updates on a push.
 
 Once configured, your site should be listed along with a link to "View repo" on GitHub. Click on your site's title, and then click on "Site Settings" in the left sidebar. Make sure that "Static HTML" is set under Advanced Settings > Site engine.
 
@@ -150,7 +150,7 @@ echo
 echo
 echoWarning "Update cloud.gov"
 
-read -p "Commit and push to github & cloud.gov? (y/n) " -n 1 -r
+read -p "Commit and push to GitHub & cloud.gov? (y/n) " -n 1 -r
 
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
