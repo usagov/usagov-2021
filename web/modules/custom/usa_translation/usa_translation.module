@@ -94,6 +94,8 @@ function usa_translation_page_attachments_alter(&$page) {
           ];
         }
       }
+      // Displays current route of an entity in the metadata
+      // The route should be the same as the canonical url
       if (!empty($entity)
         && is_object($entity)
         && method_exists($entity, 'hasLinkTemplate')
