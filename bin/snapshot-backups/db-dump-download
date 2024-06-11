@@ -57,8 +57,8 @@ SQL_FILE=$TAG.sql
 GZIP_FILE=$SQL_FILE.gz
 ZIP_FILE=$SQL_FILE.zip
 
-echo cf ssh cms -c ". /etc/profile; drush cr; drush sql:dump | gzip > /tmp/$GZIP_FILE; cat /tmp/$GZIP_FILE"
-$echo cf ssh cms -c ". /etc/profile; drush cr; drush sql:dump | gzip > /tmp/$GZIP_FILE; cat /tmp/$GZIP_FILE" > $GZIP_FILE
+echo cf ssh cms -c ". /etc/profile; drush cr; drush sql:dump | sed 's/^\/\*\!999999\\\-.*$//' | gzip > /tmp/$GZIP_FILE; cat /tmp/$GZIP_FILE"
+$echo cf ssh cms -c ". /etc/profile; drush cr; drush sql:dump | sed 's/^\/\*\!999999\\\-.*$//' | gzip > /tmp/$GZIP_FILE; cat /tmp/$GZIP_FILE" > $GZIP_FILE
 
 echo cf ssh cms -c "if [ -f $GZIP_FILE ]; then rm -f /tmp/$GZIP_FILE; fi"
 $echo cf ssh cms -c "if [ -f $GZIP_FILE ]; then rm -f /tmp/$GZIP_FILE; fi"

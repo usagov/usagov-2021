@@ -1,0 +1,25 @@
+uuid: b8b7c9fb-17b5-43f8-9ec2-2cb103e17a31
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_benefits_category
+    - node.type.basic_page
+id: node.basic_page.field_benefits_category
+field_name: field_benefits_category
+entity_type: node
+bundle: basic_page
+label: 'Benefits Category'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: views
+  handler_settings:
+    view:
+      view_name: benefit_search_category_reference
+      display_name: entity_reference_1
+      arguments: {  }
+field_type: entity_reference
