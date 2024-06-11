@@ -240,7 +240,7 @@ if [ "$ES_HOME_CONTAINS_NODE_LINKS" != "0"  ]; then
 fi
 
 EN_HOME_CONTAINS_NODE_LINKS=$(grep -c '/node/[0-9]' $EN_HOME_HTML_FILE)
-if [ "$ES_HOME_CONTAINS_NODE_LINKS" != "0"  ]; then
+if [ "$EN_HOME_CONTAINS_NODE_LINKS" != "0"  ]; then
   echo "WARNING: *** EN index.html menu appears to contain links that goes to /node/ pages ***" | tee -a $TOMELOG
   EN_HOME_HTML_BAD=1
 fi
