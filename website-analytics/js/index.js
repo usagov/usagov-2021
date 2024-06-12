@@ -316,13 +316,13 @@
            if ((d.linkUrl.startsWith('https://')) || (d.linkUrl.startsWith('http://'))) {
              return [
                 '<span class="name"><a class="top-download-page" target="_blank" href="', d.linkUrl, '">', formatURLWithPath(d.linkUrl), '</a></span> ',
-                '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://', d.pagePath, '">',
+                '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://www.usa.gov', d.pagePath, '">',
                 d.page_title, '</a></span>'
               ].join('');
            }
            return [
               '<span class="name"><a class="top-download-page" target="_blank" href="http://', d['ga:eventAction'], d.linkUrl, '">', d['ga:eventAction'], d.linkUrl, '</a></span> ',
-              '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://', d.pagePath, '">',
+              '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://www.usa.gov', d.pagePath, '">',
               d.page_title, '</a></span>'
             ].join('');
           })
@@ -350,10 +350,10 @@
           .append("a")
             .attr("target", "_blank")
             .attr("href", function(d) {
-              return exceptions[d.page] || ("http://" + d.page);
+              return exceptions[d.pagePath] || ("https://www.usa.gov" + d.pagePath);
             })
             .text(function(d) {
-              return title_exceptions[d.page] || d.page_title;
+              return title_exceptions[d.pagePath] || d.page_title;
             });
       })
       .render(barChart()
@@ -385,7 +385,7 @@
               return d.page_title;
             })
             .attr("href", function(d) {
-              return exceptions[d.page] || ("http://" + d.page);
+              return exceptions[d.page] || ("https://www.usa.gov" + d.pagePath);
             })
             .text(function(d) {
               return title_exceptions[d.page] || d.page_title;
@@ -439,7 +439,7 @@
   // nest the windows chart inside the OS chart once they're both rendered
   whenRendered(["os", "windows"], function() {
     d3.select("#chart_os")
-      .call(nestCharts, function(d) {
+      .call(nestOSCharts, function(d) {
         return d.key === "Windows";
       }, d3.select("#chart_windows"));
   });
@@ -1029,6 +1029,42 @@
       });
 
     parent.node().appendChild(child.node());
+  }
+
+  function nestOSCharts(selection, parentFilter, child) {
+
+    var parent = selection.selectAll(".bin")
+          .filter(parentFilter),
+        scale = (child.attr("data-scale-to-parent") == "true"),
+        share = parent.datum().share,
+        bins = child.selectAll(".bin")
+          // If the child data should be scaled to be %'s of its parent bin,
+          // then multiple each child item's % share by its parent's % share.
+          .each(function(d) {
+            if (scale) d.share *= share;
+          })
+          .attr("data-share", function(d) {
+            return d.share;
+          });
+
+    // XXX we *could* call the renderer again here, but this works, so...
+    bins.select(".bar")
+      .style("width", function(d) {
+        return (d.share * 100).toFixed(1) + "%";
+      });
+    bins.select(".value")
+      .text(function(d) {
+        return formatPercent(d.share * 100);
+      });
+    console.log(parentFilter)
+    console.log(selection.selectAll(".label").filter(parentFilter))
+
+    var xpath = "//div[text()='Windows']";
+    var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    var windowsParent = matchingElement.parentNode
+
+    windowsParent.appendChild(child.node());
+
   }
 
   // friendly console message
