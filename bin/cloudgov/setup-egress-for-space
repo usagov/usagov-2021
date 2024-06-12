@@ -156,7 +156,7 @@ echo "proxyname: $proxyname
 hostname: $proxyname
 username: $username
 password: $password
-proxy_route: $proxyroute
+proxyroute: $proxyroute
 proxydeny: |
 $proxydeny
 proxyallow: |
