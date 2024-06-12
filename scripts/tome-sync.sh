@@ -287,13 +287,6 @@ if [ "$ES_HOME_HTML_BAD" == "1" ]; then
   TOME_PUSH_NEW_CONTENT=0
 fi
 
-if [ "$EN_HOME_HTML_BAD" == "1" ]; then
-  # Delete the known-bad file; it may be re-created correctly on the next run.
-  rm $EN_HOME_HTML_FILE
-  touch $RETRY_SEMAPHORE_FILE
-  TOME_PUSH_NEW_CONTENT=0
-fi
-
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
