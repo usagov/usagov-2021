@@ -109,7 +109,6 @@ fi
 # setup only one egress app per space, and add any S3 buckets bound to apps in that space to the allow.acl.
 # echo "Gather Bucket names from App Space"
 buckethosts=""
-instances="-i 1"
 applist=$( cf apps | tail -n +4 | awk '{print $1}' )
 for app in $applist ; do
     echo "Gathering buckets for $app"
@@ -127,22 +126,6 @@ for app in $applist ; do
         buckethosts="$buckethosts ${BUCKET}.${AWS_ENDPOINT} ${BUCKET}.${AWS_ENDPOINT_ALT} ${BUCKET}.${AWS_FIPS_ENDPOINT}"
         ((i+=1))
     done
-
-    while IFS='-' read -ra app; do
-        for i in "${app[@]}"; do
-            if [ "$i" != 'proxy' ]; then
-                if [ "$i" == "prod" ]; then
-                    instances="-i 2"
-                elif [ "$i" == "stage" ]; then
-                    instances="-i 1"
-                elif [ "$i" == "dev" ]; then
-                    instances="-i 1"
-                elif [ "$i" == "tools" ]; then
-                    instances="-i 2"
-                fi
-            fi
-        done
-    done <<< "$app"
 done
 echo "Setting up instance flag: $instances"
 echo "Using buckets: $buckethosts"
@@ -191,6 +174,18 @@ else
     $output git clone --depth 1 https://github.com/GSA-TTS/cg-egress-proxy.git tmp-caddy-build
     $output cp -p tmp-caddy-build/proxy/caddy $caddy_bin_file
     $output rm -rf tmp-caddy-build
+fi
+
+# Set up instance counts for each proxy app
+instances="-i 1"
+if [ "$startspace" == "dev" ]; then
+    instances="-i 1"
+elif [ "$startspace" == "stage" ]; then
+    instances="-i 1"
+elif [ "$startspace" == "prod" ]; then
+    instances="-i 2"
+elif [ "$startspace" == "tools" ]; then
+    instances="-i 2"
 fi
 
 # Deploy the proxy app
