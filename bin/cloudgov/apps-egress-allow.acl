@@ -9,10 +9,10 @@ newrelic.com
 github.com
 *.app.cloud.gov
 api.fr.cloud.gov
+login.fr.cloud.gov
 *.apps.internal
 *.cloudfoundry.org
 cloudfoundry.org
 *.googleapis.com
 googleapis.com
 accounts.google.com
-

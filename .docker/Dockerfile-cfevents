@@ -23,7 +23,9 @@ RUN apt update --allow-unauthenticated \
     && echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list \
     && apt update \
     && apt-get -y install \
+    ca-certificates \
     cf8-cli \
+    inotify-tools \
     curl \
     jq \
     moreutils \
