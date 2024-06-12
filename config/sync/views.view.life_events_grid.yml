@@ -1,20 +1,20 @@
-uuid: b2bc00f2-92d9-4a0b-9502-7f638ba061c0
+uuid: 1dede95d-f989-4d1e-8743-135f2a104990
 langcode: en
 status: true
 dependencies:
   config:
-    - taxonomy.vocabulary.benefits_category
+    - field.storage.node.field_short_description
+    - node.type.bears_life_event
   module:
     - node
-    - taxonomy
     - user
-id: benefit_search_form
-label: 'Benefit Search Form'
+id: life_events_grid
+label: 'Life Events Grid'
 module: views
-description: ''
+description: 'Displays the life events to show on Benefits Category Search landing page'
 tag: ''
-base_table: taxonomy_term_field_data
-base_field: tid
+base_table: node_field_data
+base_field: nid
 display:
   default:
     id: default
@@ -22,18 +22,18 @@ display:
     display_plugin: default
     position: 0
     display_options:
-      title: 'Benefit Search Form'
+      title: 'Life Events Grid'
       fields:
-        name:
-          id: name
-          table: taxonomy_term_field_data
-          field: name
+        title:
+          id: title
+          table: node_field_data
+          field: title
           relationship: none
           group_type: group
           admin_label: ''
-          entity_type: taxonomy_term
-          entity_field: name
-          plugin_id: term_name
+          entity_type: node
+          entity_field: title
+          plugin_id: field
           label: ''
           exclude: false
           alter:
@@ -78,7 +78,7 @@ display:
           click_sort_column: value
           type: string
           settings:
-            link_to_entity: false
+            link_to_entity: true
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -89,16 +89,13 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-          convert_spaces: false
-        tid:
-          id: tid
-          table: taxonomy_term_field_revision
-          field: tid
+        field_short_description:
+          id: field_short_description
+          table: node__field_short_description
+          field: field_short_description
           relationship: none
           group_type: group
           admin_label: ''
-          entity_type: taxonomy_term
-          entity_field: tid
           plugin_id: field
           label: ''
           exclude: false
@@ -142,8 +139,73 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: number_unformatted
+          type: basic_string
           settings: {  }
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        title_1:
+          id: title_1
+          table: node_field_data
+          field: title
+          relationship: none
+          group_type: group
+          admin_label: Slug
+          entity_type: node
+          entity_field: title
+          plugin_id: field
+          label: ''
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: true
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: true
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: false
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -158,7 +220,6 @@ display:
         type: none
         options:
           offset: 0
-          items_per_page: 0
       exposed_form:
         type: basic
         options:
@@ -178,15 +239,15 @@ display:
         options: {  }
       empty: {  }
       sorts:
-        name:
-          id: name
-          table: taxonomy_term_field_data
-          field: name
+        title:
+          id: title
+          table: node_field_data
+          field: title
           relationship: none
           group_type: group
           admin_label: ''
-          entity_type: taxonomy_term
-          entity_field: name
+          entity_type: node
+          entity_field: title
           plugin_id: standard
           order: ASC
           expose:
@@ -194,14 +255,14 @@ display:
             field_identifier: ''
           exposed: false
       arguments:
-        langcode_1:
-          id: langcode_1
-          table: taxonomy_term_data
+        langcode:
+          id: langcode
+          table: node
           field: langcode
           relationship: none
           group_type: group
           admin_label: ''
-          entity_type: taxonomy_term
+          entity_type: node
           entity_field: langcode
           plugin_id: language
           default_action: 'not found'
@@ -213,7 +274,7 @@ display:
           title: ''
           default_argument_type: fixed
           default_argument_options:
-            argument: ''
+            argument: en
           summary_options:
             base_path: ''
             count: true
@@ -235,77 +296,32 @@ display:
       filters:
         status:
           id: status
-          table: taxonomy_term_field_data
+          table: node_field_data
           field: status
-          entity_type: taxonomy_term
+          entity_type: node
           entity_field: status
           plugin_id: boolean
           value: '1'
           group: 1
           expose:
             operator: ''
-        vid:
-          id: vid
-          table: taxonomy_term_field_data
-          field: vid
-          relationship: none
-          group_type: group
-          admin_label: ''
-          entity_type: taxonomy_term
-          entity_field: vid
+        type:
+          id: type
+          table: node_field_data
+          field: type
+          entity_type: node
+          entity_field: type
           plugin_id: bundle
-          operator: in
           value:
-            benefits_category: benefits_category
-          group: 1
-          exposed: false
-          expose:
-            operator_id: ''
-            label: ''
-            description: ''
-            use_operator: false
-            operator: ''
-            operator_limit_selection: false
-            operator_list: {  }
-            identifier: ''
-            required: false
-            remember: false
-            multiple: false
-            remember_roles:
-              authenticated: authenticated
-            reduce: false
-          is_grouped: false
-          group_info:
-            label: ''
-            description: ''
-            identifier: ''
-            optional: true
-            widget: select
-            multiple: false
-            remember: false
-            default_group: All
-            default_group_multiple: {  }
-            group_items: {  }
-      filter_groups:
-        operator: AND
-        groups:
-          1: AND
+            bears_life_event: bears_life_event
       style:
-        type: html_list
+        type: default
         options:
           grouping: {  }
           row_class: ''
           default_row_class: false
-          type: ul
-          wrapper_class: item-list
-          class: ''
       row:
         type: fields
-        options:
-          default_field_elements: false
-          inline: {  }
-          separator: ''
-          hide_empty: false
       query:
         type: views_query
         options:
@@ -314,18 +330,7 @@ display:
           distinct: false
           replica: false
           query_tags: {  }
-      relationships:
-        reverse__node__field_benefits_category:
-          id: reverse__node__field_benefits_category
-          table: taxonomy_term_field_data
-          field: reverse__node__field_benefits_category
-          relationship: none
-          group_type: group
-          admin_label: field_benefits_category
-          entity_type: taxonomy_term
-          plugin_id: entity_reverse
-          required: true
-      group_by: true
+      relationships: {  }
       header: {  }
       footer: {  }
       display_extenders: {  }
@@ -335,15 +340,16 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url
+        - 'user.node_grants:view'
         - user.permissions
-      tags: {  }
-  benefits_facets_block:
-    id: benefits_facets_block
-    display_title: 'Terms - Filtered by language'
+      tags:
+        - 'config:field.storage.node.field_short_description'
+  summary_block:
+    id: summary_block
+    display_title: Block
     display_plugin: block
     position: 1
     display_options:
-      display_description: ''
       display_extenders: {  }
     cache_metadata:
       max-age: -1
@@ -351,5 +357,7 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url
+        - 'user.node_grants:view'
         - user.permissions
-      tags: {  }
+      tags:
+        - 'config:field.storage.node.field_short_description'
