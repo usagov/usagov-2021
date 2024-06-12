@@ -490,32 +490,6 @@ content:
               propagate: '0'
               apply_to_parent: '0'
               recurse: '0'
-        9d152d08-0fc7-4260-873e-39cb886ea3f1:
-          entity_type: node
-          bundle: basic_page
-          dependee: path
-          settings:
-            state: required
-            reset: false
-            condition: value
-            grouping: AND
-            values_set: 3
-            value: ''
-            values: "/benefits\r\n/beneficios-gobierno"
-            value_form:
-              -
-                alias: ''
-                pid: null
-                source: null
-                langcode: en
-                pathauto: 1
-            effect: show
-            effect_options: {  }
-            selector: ''
-            inheritance:
-              propagate: propagate
-              apply_to_parent: '0'
-              recurse: '0'
         6f443cd2-dd7a-4f13-903c-e6a3ca420967:
           entity_type: node
           bundle: basic_page
