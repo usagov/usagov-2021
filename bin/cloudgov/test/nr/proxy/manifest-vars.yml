@@ -17,6 +17,7 @@ proxyallow: |
   *.github.com
   github.com
   *.app.cloud.gov
+  api.fr.cloud.gov
   *.apps.internal
   *.cloudfoundry.org
   cloudfoundry.org
