@@ -68,7 +68,7 @@ The functional testing uses the existing database of local development site.
 #### Set up testing environment (Install testing software and set PHPUnit configuration)
 
 ```
-$ bash setup-benefit-finder-test
+$ bash scripts/local/setup-benefit-finder-test
 ```
 
 #### Change to local development site directory
