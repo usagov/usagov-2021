@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/env bash
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -13,14 +13,12 @@ if [ -f ./env.local ]; then
   . ./env.local
 fi
 
-if ! command -v cf &> /dev/null
-then
+if [ ! command -v cf &> /dev/null ]; then
   echo "CF : the cloud foundry client could not be found and is required"
   exit 1
 fi
 
-if ! command -v jq &> /dev/null
-then
+if [ ! command -v jq &> /dev/null ]; then
   echo "JQ: the command jq could not be found and is required"
   exit 2
 fi
@@ -35,7 +33,7 @@ if [ $SPACE = 'none_specified' ]; then
 fi
 shift
 
-if ! cf space $SPACE &> /dev/null; then
+if [ ! cf space $SPACE &> /dev/null ]; then
   echo "ERROR: CF space '$SPACE' does not exist!"
   exit 4
 fi
@@ -60,9 +58,9 @@ trap popspace ERR
 cf target -s $SPACE &>/dev/null
 
 declare -A SPACE_GUIDS=()
-if [  1 -eq 1 ]; then
-  for SPACE in dev-dr dev stage prod shared-egress shared-egress-dr tools; do
-    if ! cf space $SPACE &> /dev/null; then
+if [  1 -eq 0 ]; then
+  for SPACE in dev stage prod shared-egress shared-egress-dr tools; do
+    if [ ! cf space $SPACE &> /dev/null ]; then
       echo "ERROR: CF space '$SPACE' does not exist!"
       exit 4
     fi
