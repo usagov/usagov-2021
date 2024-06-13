@@ -1,0 +1,22 @@
+uuid: 3a30531f-7b4d-46eb-b12c-d82f25cd58f1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_benefits_callout_descr
+    - node.type.basic_page
+  module:
+    - text
+id: node.basic_page.field_benefits_callout_descr
+field_name: field_benefits_callout_descr
+entity_type: node
+bundle: basic_page
+label: 'Benefits Callout Description'
+description: 'Description shown in the callout on the Benefits topic pages.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

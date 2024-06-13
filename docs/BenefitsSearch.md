@@ -60,6 +60,29 @@ Upon first deployment against a given database:
 
 1. Import configuration `bin/drush cim` to enable new views, fields for basic page content type.
 2. Run `bin/drush deploy:hook` to create the terms in the benefits category vocab.
+3. Run `bin/drush cr` to clear drupal caches and twig template caches so it picks up on config changes and file updates.
+4. Run this script to tag existing pages to the categories, so you get some results when you search. This json file is available in Google Drive. The path should be absolute inside the docker container or relative to the working directory `/var/www/web`.
+
+Outside of docker, use:
+
+```
+bin/drush php:script scripts/drush/benefits-category-tag-pages.php /var/www/scripts/drush/data/benefits-sample.2024-05-22.json
+```
+
+If you're in the container, in the `/var/www/` directory use a relative path like below or the absolute path used above:
+
+```
+drush php:script scripts/drush/benefits-category-tag-pages.php ../scripts/drush/data/benefits-sample.2024-05-22.json
+```
+
+
+5. Run this script to make the english and spanish pages (you have to manually publish them though)
+
+```
+bin/drush php:script scripts/drush/benefits-category-make-pages.php
+```
+
+6. Associate terms to life events. You need to edit at least one term in English and one Spanish term from the benefits category vocabulary to reference one of the pages via the "Life Events" field.
 
 ## Known Issues and Concerns
 
