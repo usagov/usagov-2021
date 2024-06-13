@@ -88,72 +88,49 @@
 }
 
 /** Language buttons **/
-@include at-media($theme-header-min-width) {
-  .usa-header--extended .usa-navbar {
-    overflow: inherit;
-  }
+.usa-header--extended .usa-navbar {
+  height: auto;
 }
 
 @include at-media($theme-header-min-width) {
   .usa-header--extended div.language-switcher-language-url {
     margin-right: auto;
-    max-width: 64rem;
+    max-width: calc(70.25rem + 4rem);
     margin-left: auto;
     padding-left: 2rem;
     padding-right: 2rem;
     display: block;
   }
 }
-
-.usa-header--extended div.language-switcher-language-url div.links {
+.usa-navbar .navbar-right {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 0.3rem;
-  margin-left: 0;
-  z-index: 501;
-}
-
-.usa-header--extended [hreflang|="es"] {
-  padding-left: 0.5rem;
-  border-radius: 5px;
-  border: none;
-
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  margin: .5rem;
   @media (max-width: 64em) {
-    padding-right: 1.3rem;
+    flex-direction: row;
+    align-items: center;
   }
 }
 
-.usa-header--extended [hreflang|="en"] {
-  border-radius: 5px;
-  border: none;
-}
-
-.usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link {
+.usa-header a.language-link {
   @media (max-width: 64em) {
-    font-size: 0.93rem;
+    line-height: 1.5rem;
     font-weight: 700;
+    margin-right: 2em;
   }
 
   @include u-text('white');
   text-decoration: none;
   padding: 10px 20px;
   @include u-bg('blue-80v');
+  line-height: .9;
+  font-size: .93rem;
+  margin: 0;
 }
 
 
-@include at-media($theme-header-min-width) {
-  .usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover {
-    @include u-text('white');
-  }
-}
-
-/** Mobile menu button **/
-@media (max-width: 64em) {
-  .usa-header--extended .usa-navbar {
-    margin-top: 1rem;
-    padding-bottom: 1rem;
-  }
-}
 
 .usa-header--extended .usa-menu-btn {
   @media (max-width: 64em) {
@@ -180,18 +157,19 @@
 }
 
 .usa-header--extended .usa-logo img {
-  max-width: units(5);
+  max-width: none;
+  width: 3.2rem;
 
   @include at-media($theme-header-min-width) {
-    max-width: units(10);
+    width: 5rem;
   }
 }
 
 .usa-header--extended .usa-logo img.es {
-  max-width: 6.2rem;
+  width: 8rem;
 
   @include at-media($theme-header-min-width) {
-    max-width: 12.3rem;
+    width: 12.3rem;
   }
 }
 
@@ -405,4 +383,29 @@ input#search-field-small-mobile-menu {
     align-self: center;
   }
 
+}
+
+// This is to extend the header elements to 1124px
+@include at-media($theme-header-min-width) {
+  .usa-header--extended .usa-nav__inner {
+    max-width: calc(70.25rem + 4rem);
+    padding-left: 2.3rem;
+  }
+  .usa-header--extended .usa-banner__inner {
+    max-width: calc(70.25rem + 4rem);
+  }
+  .usa-header--extended .usa-navbar {
+    max-width: calc(70.25rem + 4rem);
+  }
+}
+
+// This is to align the primary nav text with the search button
+@include at-media($theme-header-min-width) {
+  .usa-header--extended .usa-nav__primary {
+    justify-content: space-between;
+    width: auto;
+  }
+  .usa-header--extended .usa-nav__primary::after {
+    content: none;
+  }
 }
