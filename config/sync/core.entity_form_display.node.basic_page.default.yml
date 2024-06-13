@@ -75,7 +75,7 @@ third_party_settings:
         classes: ''
         show_empty_fields: false
         id: ''
-        description: 'On homepage and topics page, these fields control the text shown in the callout linking to the Benefits Landing Page.'
+        description: 'These fields control the text shown in the callout linking to the Benefits Landing Page.'
         required_fields: true
     group_benefits_search_page:
       children:
