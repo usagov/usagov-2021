@@ -9,3 +9,8 @@ applications:
       image: gsatts/usagov-2021:cfevents
     instances: 1
     memory: 256M
+    services:
+      - secrets
+      - secauthsecrets
+      - storage
+      - cfevents-service-account

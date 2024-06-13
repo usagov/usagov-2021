@@ -40,5 +40,6 @@ COPY .docker/src-cfevents/etc /etc
 COPY .docker/src-cfevents/opt /opt
 
 COPY bin/cloudgov/events/get-events /opt/cfevents/
+COPY .docker/src-cfevents/root/.profile /root/
 
 CMD ["/bin/bash"]
