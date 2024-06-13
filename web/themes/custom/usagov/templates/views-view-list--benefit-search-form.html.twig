@@ -20,14 +20,12 @@
 #}
 {% set lang = node.langcode.value %}
 {% if lang == 'en' %}
-  {% set search_title = "Find benefits by category" %}
   {% set submit_label = "Apply Selections" %}
   {% set reset_label = "Clear Selections" %}
   {% set select_all_label = "Select all" %}
   {% set aria_button_groupabel = "Buttons for form" %}
   {% set aria_results_label = "Matching items" %}
 {% elseif lang == 'es' %}
-  {% set search_title = "Busque beneficios por categoría" %}
   {% set submit_label = "Aplicar selecciones" %}
   {% set reset_label = "Borrar selecciones" %}
   {% set select_all_label = "Seleccionar todo" %}
@@ -37,9 +35,11 @@
 {{ attach_library('usagov/benefitSearch') }}
 
 <div class="benefits-category-list">
-  <h2 id="categories-label">{{ search_title }}</h2>
+  <h2 id="categories-label">{{ node.field_benefits_search_title.value }}</h2>
+  <p>{{ node.field_benefits_search_descr.value }}</p>
+
   <form id="benefitSearch" action="javascript:void(0)">
-    <div role="group" class="grid-row" aria-labelledby="categories-label">
+    <fieldset role="group" class="grid-row" aria-labelledby="categories-label">
       <div class="benefits-category-list-checkbox-cols">
         <ul class="usa-list--unstyled">
         {% for row in rows %}
@@ -57,7 +57,7 @@
                for="benefit-category-toggle-all"
         >{{ select_all_label }}</label>
       </div>
-    </div>
+    </fieldset>
     <div class="margin-top-2" aria-label="{{ aria_button_groupabel }} ">
       <button class="usa-button" type="submit">{{ submit_label }}</button>
       <button class="usa-button usa-button--secondary" type="reset">{{ reset_label }}</button>

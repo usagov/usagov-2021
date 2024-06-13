@@ -1,1 +1,25 @@
 <?php
+
+use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
+
+function usagov_benefit_category_search_preprocess_node(&$vars) {
+  // off by default
+  $vars['usagov_show_benefits_landing_block'] = FALSE;
+  // check we're viewing a full page
+  if ($vars['page'] === TRUE && $vars['view_mode'] === 'full' && $vars['node']->getType() === 'basic_page') {
+    // even if enabled, only show the block if there's a title and description for the homepage block
+    if (\Drupal::service('path.matcher')->isFrontPage()
+      && $vars["node"]->field_homepage_benefits_title->value
+      && $vars["node"]->field_homepage_benefits_descr->value
+    ) {
+      $vars['usagov_show_benefits_landing_block'] = BenefitCategorySearchForm::showLandingPageBlock();
+    }
+    // even if enabled, only show the block if there's a description on navigation cards page
+    elseif (
+      $vars["node"]->field_page_type->referencedEntities()[0]->getName() === 'Navigation Cards Page'
+      && $vars["node"]->field_benefits_callout_descr->value
+    ) {
+      $vars['usagov_show_benefits_landing_block'] = BenefitCategorySearchForm::showLandingPageBlock();
+    }
+  }
+}
