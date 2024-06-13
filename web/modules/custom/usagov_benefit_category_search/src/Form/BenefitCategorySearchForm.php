@@ -19,9 +19,9 @@ class BenefitCategorySearchForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildForm($form, $form_state);
 
-    $form['homepage_show_benefits_search_block'] = [
+    $form[self::SHOW_LANDING_PAGE_BLOCK] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Display new Benefits Landing Page block on home page'),
+      '#title' => $this->t('Display new Benefits Landing Page block on home and benefits topic page'),
       '#description' => $this->t("Enable to show the new block linking to the landing page instead of the carousel on the homepage"),
       '#return_value' => TRUE,
       '#default_value' => $this->config(self::SETTINGS_KEY)

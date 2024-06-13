@@ -130,11 +130,14 @@
 
 	<div{{content_attributes.addClass(classes)}}>
 		{% if term_name == "Navigation Cards Page" %}
-            {{ content.body }}
-            {{ content.field_page_intro }}
-        {% else %}
-            {{ content }}
-        {% endif %}
+      {{ content.body }}
+      {{ content.field_page_intro }}
+      {% if (usagov_show_benefits_landing_block) %}
+
+      {%  endif  %}
+    {% else %}
+      {{ content }}
+    {% endif %}
 	</div>
 {% if term_name == "State Office Page" %}
 	{% set lang = node.langcode.value %}
