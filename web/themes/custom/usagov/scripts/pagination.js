@@ -332,10 +332,10 @@ function Pagination(total, current, assetBase, labels, onClick) {
       }
       else {
         myself.pageLinks[i] = this.makePageLink(i, false);
-        if (i <= myself.current) {
+        if (i <= myself.current && i < myself.total - 4) {
           // Since we're counting up to insert nodes, we need a little
           // help here to find what numeric pager element in front of
-          // which we need to insert the new one.
+          // which we need to insert the new one unless we're near the last page.
           const nextSibling = this.getNextSiblingKey(i);
           if (nextSibling) {
             myself.pageLinks[nextSibling]
@@ -344,8 +344,7 @@ function Pagination(total, current, assetBase, labels, onClick) {
         }
         else {
           // Unlike above, we can always insert this new element
-          // before the last spacer because we are counting up.
-          // It will always be the rightmost one
+          // before the last spacer. It will always be the rightmost one
           myself.lastSpacer
             .insertAdjacentElement('beforebegin', myself.pageLinks[i]);
         }
