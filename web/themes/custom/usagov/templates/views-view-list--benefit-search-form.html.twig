@@ -39,7 +39,7 @@
   <p>{{ node.field_benefits_search_descr.value }}</p>
 
   <form id="benefitSearch" action="javascript:void(0)">
-    <div role="group" class="grid-row" aria-labelledby="categories-label">
+    <fieldset role="group" class="grid-row" aria-labelledby="categories-label">
       <div class="benefits-category-list-checkbox-cols">
         <ul class="usa-list--unstyled">
         {% for row in rows %}
@@ -57,7 +57,7 @@
                for="benefit-category-toggle-all"
         >{{ select_all_label }}</label>
       </div>
-    </div>
+    </fieldset>
     <div class="margin-top-2" aria-label="{{ aria_button_groupabel }} ">
       <button class="usa-button" type="submit">{{ submit_label }}</button>
       <button class="usa-button usa-button--secondary" type="reset">{{ reset_label }}</button>
