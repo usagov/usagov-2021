@@ -135,16 +135,13 @@
       {% if (usagov_show_benefits_landing_block) %}
 
       {%  endif  %}
-
-        {% elseif term_name == "Benefits Category Search" %}
-          <div class="benefits-search-content">
-            {{ content.field_page_intro }}
-            {% include directory ~ '/templates/includes/life-events-grid.html.twig' %}
-            {{ content.body }}
-          </div>
-          {% else %}
-            {{ content }}
-        {% endif %}
+    {% elseif term_name == "Benefits Category Search" %}
+      <div class="benefits-finder-content">
+        {{ content }}
+      </div>
+      {% else %}
+        {{ content }}
+    {% endif %}
 	</div>
 {% if term_name == "State Office Page" %}
 	{% set lang = node.langcode.value %}
