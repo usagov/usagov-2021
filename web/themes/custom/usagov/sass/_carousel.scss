@@ -71,6 +71,12 @@
 }
 
 #slides-list {
+
+  // Make the white outline visible
+  .slick-arrow:focus {
+    padding: 2px;
+  }
+
   .slick-prev {
     grid-area: prevIcon;
     align-self: center;
