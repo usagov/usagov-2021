@@ -52,16 +52,6 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       $decoded = json_decode($script, TRUE);
       $decoded = $decoded[0];
 
-      // If the nodeID matches a line in the csv array, set the pointer to that element. TODO: this might be fragile.
-      if (!empty($csv)) {
-        $nodIDElement = array_search("Page ID", $csv[0]);
-        foreach ($csv as $key => $line) {
-          if ($line[$nodIDElement] == $decoded["nodeID"]) {
-            $pointer = $key;
-          }
-        }
-      }
-
       $url_replace = [
         "Taxonomy_URL_1",
         "Taxonomy_URL_2",
@@ -121,6 +111,19 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         "Homepage?",
         "Toggle URL",
       ];
+
+      // If the nodeID matches a line in the csv array, set the pointer to that element. TODO: this might be fragile.
+      if (!empty($csv)) {
+        $nodeIDElement = array_search("Page ID", $csv[0]);
+        $languageElement = array_search("Taxonomy Level 1", $csv[0]);
+        foreach ($csv as $key => $line) {
+          if ($line[$nodeIDElement] == $decoded["nodeID"]) {
+            if ($line[$languageElement] == $decoded["language"]) {
+              $pointer = $key;
+            }
+          }
+        }
+      }
 
       $host = \Drupal::request()->getSchemeAndHttpHost();
 
