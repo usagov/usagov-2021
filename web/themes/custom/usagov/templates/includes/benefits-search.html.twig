@@ -5,13 +5,8 @@
  #}
 {% set lang = node.langcode.value %}
 
-{% if lang == 'en' %}
-{%   set life_event_title = "Benefit finder tool" %}
-{% elseif lang == 'es' %}
-{%   set life_event_title = "Encuentre beneficios en estas etapas de su vida" %}
-{% endif %}
-
-{#<h2 class="benefit-finder__title">{{ life_event_title }}</h2>#}
+<h2 id="">{{ node.field_benefits_life_events_title.value }}</h2>
+<p>{{ node.field_benefits_life_events_descr.value }}</p>
 
 <div class="benefit-finder__main">
   {{ drupal_view('life_events_grid', 'summary_block', lang) }}

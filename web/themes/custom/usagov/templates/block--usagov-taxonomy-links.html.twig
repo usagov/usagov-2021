@@ -104,7 +104,11 @@
 {% if lang == "es" and counter == "1" %}
       "Taxonomy_URL_{{ counter }}": "{{ link.getUrl() }}/",
 {% else %}
+{% if counter < 6 %}
       "Taxonomy_URL_{{ counter }}": "{{ link.getUrl() }}",
+{% else %}
+      "Taxonomy_URL_{{ counter }}": "{{ link.getUrl() }}"
+{% endif %}
 {% endif %}
 {% elseif counter < 6 %}
       "Taxonomy_URL_{{ counter }}": "{{ path }}",

@@ -31,9 +31,16 @@
 .benefits-category-list .usa-checkbox__input:checked + .usa-checkbox__label::before {
   background-color: color('blue-warm-70v');
 }
+.benefits-category-list .grid-row.benefits-category-error .benefits-category-list-checkbox-all,
+.benefits-category-list .grid-row.benefits-category-error ul > li {
+  border-left: 3px solid color('error');
+  margin-left: -0.75rem;
+  padding-left: 0.75rem;
+}
 
 .benefits-category-list .grid-row {
   flex-direction: column-reverse;
+  border: 0;
   @media (min-width: 700px) {
     flex-direction: row;
   }
@@ -65,14 +72,15 @@
 
   @media (min-width: 700px) {
     column-count: 3;
-    width: calc(100% - 8rem);
+    width: calc(100% - 10rem);
   }
 }
 
 .benefits-category-list-checkbox-all {
   @include u-width('full');
+  height: fit-content;
   @media (min-width: 700px) {
-    width: 8rem;
+    width: 10rem;
   }
 }
 

@@ -132,6 +132,10 @@
 		{% if term_name == "Navigation Cards Page" %}
             {{ content.body }}
             {{ content.field_page_intro }}
+      {% if (usagov_show_benefits_landing_block) %}
+
+      {%  endif  %}
+
         {% elseif term_name == "Benefits Category Search" %}
           <div class="benefits-search-content">
             {{ content.field_page_intro }}
