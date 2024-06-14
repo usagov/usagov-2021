@@ -222,15 +222,19 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     switch (benefit.type) {
       case 'Life Event':
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-12 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
+  <span>${myself.labels.benefitFinderCategory}</span><span>${myself.labels.lifeEventsCategory}</span><span>${benefit.name}</div>
 </div>`;
         break;
 
       case 'Basic Page':
       default:
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-9 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
-<div class="desktop:grid-col-3 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>${benefit.term_node_tid}</div>
+<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
+${benefit.term_node_tid}
+</div>
 </div>`;
     }
 
@@ -426,7 +430,9 @@ jQuery(document).ready(async function () {
       'navAria': "Pagination",
       'lastPageAria': 'Last page',
       'emptyCategoryError': 'Error: Please select at least one or more categories',
-      'appliedCategories': 'Applied Categories'
+      'appliedCategories': 'Applied Categories',
+      'lifeEventsCategory': 'Life Events',
+      'benefitFinderCategory': 'Benefit Finder Tool'
     };
   }
   else if (docLang[0] === 'es') {
@@ -441,7 +447,9 @@ jQuery(document).ready(async function () {
       'navAria': "Paginación",
       'lastPageAria': 'Ultima página',
       'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
-       'appliedCategories': 'Categorías'
+      'appliedCategories': 'Categorías',
+      'lifeEventsCategory': 'Eventos de la vida',
+      'benefitFinderCategory': 'Buscador de beneficios'
     };
   }
   // creat and initialize the search tool
