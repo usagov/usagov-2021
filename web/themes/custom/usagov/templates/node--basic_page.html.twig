@@ -132,7 +132,13 @@
 		{% if term_name == "Navigation Cards Page" %}
             {{ content.body }}
             {{ content.field_page_intro }}
-        {% else %}
+        {% elseif term_name == "Benefits Category Search" %}
+          <div class="benefits-search-content">
+            {{ content.field_page_intro }}
+            {% include directory ~ '/templates/includes/life-events-grid.html.twig' %}
+            {{ content.body }}
+          </div>
+          {% else %}
             {{ content }}
         {% endif %}
 	</div>
