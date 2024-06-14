@@ -381,8 +381,12 @@ ${benefit.term_node_tid}
     const url = new URL(window.location.href);
     url.searchParams.set('t', terms.join('-'));
     url.searchParams.set('pg', myself.activePage);
-    // update browser
-    window.history.pushState(null, '', url.toString());
+
+    let newUrl = url.toString();
+    if (newUrl !== window.location.href) {
+      // update browser
+      window.history.pushState(null, '', newUrl);
+    }
   };
   /**
    * Loads the data file and adds event listeners
