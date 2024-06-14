@@ -60,6 +60,7 @@ permissions:
   - 'administer redirect settings'
   - 'administer redirects'
   - 'administer sitemap settings'
+  - 'administer taxonomy'
   - 'break content lock'
   - 'create agency_synonym content'
   - 'create and edit custom blocks'

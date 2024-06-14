@@ -23,7 +23,10 @@ if ($englishNid) {
     langcode: 'en',
     intro: 'Use the benefit finder tool or search by category to learn which benefits you and your family may be eligible for and how to apply.',
     pageType: $benefitsSearchType,
-    alias: '/benefits-search'
+    lifeEventsTitle: 'Benefit finder tool',
+    lifeEventsDescr: 'Answer some basic questions to get a customized list of potential government benefits you may be eligible for during life events.',
+    searchTitle: 'Find benefits by category',
+    searchDescr: 'Select one or more categories below to find benefits you may qualify for and information on how to apply.'
   );
 }
 
@@ -42,7 +45,10 @@ if ($spanishNid) {
     langcode: 'es',
     intro: '',
     pageType: $benefitsSearchType,
-    alias: '/es/buscador-beneficios',
+    lifeEventsTitle: 'Encuentre beneficios en estas etapas de su vida',
+    lifeEventsDescr: "Responda unas preguntas básicas para obtener una lista personalizada de los beneficios del Gobierno a los que podría ser elegibles. También conocerá cómo aplicar a cada beneficio.\n\nNo compartimos ni guardamos la información que usted ingrese en el buscador de beneficios.",
+    searchTitle: 'Busque beneficios por categoría',
+    searchDescr: 'Seleccione una o más de las categorías a continuación para encontrar los beneficios a los que podría calificar y conocer cómo aplicar.'
   );
 }
 
@@ -65,23 +71,30 @@ function getTermMap(string $vid) {
   return $map;
 }
 
-function createBasicPage(string $title, string $langcode, string $intro, string $pageType, string $alias) {
+function createBasicPage(
+  string $title,
+  string $langcode,
+  string $intro,
+  string $pageType,
+  string $lifeEventsTitle,
+  string $lifeEventsDescr,
+  string $searchTitle,
+  string $searchDescr,
+) {
   $node = Node::create([
     'type' => 'basic_page',
     'title' => $title,
     'langcode' => $langcode,
     'field_page_intro' => $intro,
     'field_page_type' => $pageType,
+    'field_benefits_life_events_title' => $lifeEventsTitle,
+    'field_benefits_life_events_descr' => $lifeEventsDescr,
+    'field_benefits_search_title' => $searchTitle,
+    'field_benefits_search_descr' => $searchDescr,
   ]);
-  $node->save();
-
-  $path_alias = \Drupal::entityTypeManager()->getStorage('path_alias')->create([
-    'path' => "/node/" . $node->id(),
-    'alias' => $alias,
-    'langcode' => "en",
-  ]);
-  $path_alias->save();
-  \Drupal::entityTypeManager()->getStorage('path_alias')->save($path_alias);
+  $node->setPublished(true)
+       ->set('moderation_state', 'published')
+       ->save();
 
   return $node;
 }
