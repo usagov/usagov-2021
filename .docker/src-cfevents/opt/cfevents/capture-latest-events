@@ -1,6 +1,6 @@
 #!/bin/env bash
 
-SPACE=$1
+SPACE=${1:-dev}
 
 DATEFILE=logs.lastrun
 rm -f /tmp/$DATEFILE
