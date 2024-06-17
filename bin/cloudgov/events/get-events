@@ -33,13 +33,6 @@ if [ $SPACE = 'none_specified' ]; then
 fi
 shift
 
-if [ ! cf space $SPACE &> /dev/null ]; then
-  echo "ERROR: CF space '$SPACE' does not exist!"
-  exit 4
-fi
-
-SPACE_GUID=$(cf space $SPACE --guid)
-
 # Grab the starting space and org where the command was run
 startorg=$(     cf target | grep org:   | awk '{ print $2 }')
 startspace=$( cf target | grep space: | awk '{ print $2 }')
@@ -54,6 +47,15 @@ function popspace() {
 
 trap popspace EXIT
 trap popspace ERR
+
+SFAIL=0
+cf space $SPACE &>/dev/null || SFAIL=1
+if [ $SFAIL = 1 ]; then
+  echo "ERROR: CF space '$SPACE' does not exist!"
+  exit 4
+fi
+
+SPACE_GUID=$(cf space $SPACE --guid)
 
 cf target -s $SPACE &>/dev/null
 
@@ -114,7 +116,7 @@ for resource_type in ${!AUDIT_TYPES[@]}; do
     types=${AUDIT_TYPES[$resource_type]}
     fields=${AUDIT_FIELDS[$resource_type]}
 
-    NEXT="/v2/events?&q=type+IN+${types}&q=organization_guid:${ORG_GUID}&a=space_uid:${SPACE_GUID}&q=timestamp>${LAST_EVENT_TIME}&order-by:timestamp"
+    NEXT="/v2/events?&q=type+IN+${types}&q=organization_guid:${ORG_GUID}&a=space_guid:${SPACE_GUID}&q=timestamp>${LAST_EVENT_TIME}&order-by:timestamp"
 
     while [ -n $NEXT -a ! $NEXT == 'null' ]; do
 
