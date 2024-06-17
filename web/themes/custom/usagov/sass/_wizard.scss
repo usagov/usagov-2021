@@ -1,0 +1,8 @@
+// Hide the title of views reference fields.
+
+@use "usagov-variables" as *;
+@use "uswds-core" as *;
+
+.viewsreference--view-title {
+  display: none;
+}

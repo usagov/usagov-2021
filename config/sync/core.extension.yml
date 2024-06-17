@@ -35,12 +35,14 @@ module:
   faqfield: 0
   feeds: 0
   field: 0
+  field_defaults: 0
   field_group: 0
   field_permissions: 0
   field_ui: 0
   file: 0
   filter: 0
   google_docs_filter: 0
+  hierarchy_manager: 0
   image: 0
   jquery_ui: 0
   jquery_ui_accordion: 0

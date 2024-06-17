@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5ca0676a19f3ae5e0b1735361a3bb9e5",
+    "content-hash": "2a26d62805bd14504a3400c8ef3ccb29",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1901,11 +1901,17 @@
         },
         {
             "name": "drupal/admin_toolbar",
-            "version": "dev-3.x",
+            "version": "3.4.2",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/admin_toolbar.git",
-                "reference": "33b281b279b9a57cd660311f7ef9fd1c81952e98"
+                "reference": "3.4.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/admin_toolbar-3.4.2.zip",
+                "reference": "3.4.2",
+                "shasum": "f5a008e5c73f5a11c6c8067c0ea6ebb76aa33854"
             },
             "require": {
                 "drupal/core": "^9.2 || ^10"
@@ -1915,15 +1921,12 @@
             },
             "type": "drupal-module",
             "extra": {
-                "branch-alias": {
-                    "dev-3.x": "3.x-dev"
-                },
                 "drupal": {
-                    "version": "3.4.1+5-dev",
-                    "datestamp": "1696005852",
+                    "version": "3.4.2",
+                    "datestamp": "1696006195",
                     "security-coverage": {
-                        "status": "not-covered",
-                        "message": "Dev releases are not covered by Drupal security advisories."
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
                     }
                 }
             },
@@ -3770,6 +3773,61 @@
             }
         },
         {
+            "name": "drupal/field_defaults",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/field_defaults.git",
+                "reference": "2.0.0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/field_defaults-2.0.0.zip",
+                "reference": "2.0.0",
+                "shasum": "692d6b760271d3b3a711e781018f3a6e3f10e60d"
+            },
+            "require": {
+                "drupal/core": "^9.3 || ^10"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "2.0.0",
+                    "datestamp": "1709319388",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "drush": {
+                    "services": {
+                        "drush.services.yml": "^9 || ^10 || ^11"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "b_sharpe",
+                    "homepage": "https://www.drupal.org/user/2512258"
+                }
+            ],
+            "description": "Field Defaults allows batch updating of default field values to existing content.",
+            "homepage": "https://www.drupal.org/project/field_defaults",
+            "keywords": [
+                "Content",
+                "Drupal",
+                "Fields"
+            ],
+            "support": {
+                "source": "https://git.drupalcode.org/project/field_defaults",
+                "issues": "https://www.drupal.org/project/issues/field_defaults"
+            }
+        },
+        {
             "name": "drupal/field_group",
             "version": "3.4.0",
             "source": {
@@ -3896,6 +3954,50 @@
             "support": {
                 "source": "https://git.drupalcode.org/project/field_permissions",
                 "issues": "https://www.drupal.org/project/issues/field_permissions"
+            }
+        },
+        {
+            "name": "drupal/hierarchy_manager",
+            "version": "3.3.2",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/hierarchy_manager.git",
+                "reference": "3.3.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/hierarchy_manager-3.3.2.zip",
+                "reference": "3.3.2",
+                "shasum": "a002812135572c37d92534024b849614ed130b35"
+            },
+            "require": {
+                "drupal/core": "^9.2.0 || ^10"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "3.3.2",
+                    "datestamp": "1677489250",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Mingsong",
+                    "homepage": "https://www.drupal.org/user/2986445"
+                }
+            ],
+            "description": "Provides API and plugins to build hierarchy views for entites such as taxonomy or menu.",
+            "homepage": "https://www.drupal.org/project/hierarchy_manager",
+            "support": {
+                "source": "https://git.drupalcode.org/project/hierarchy_manager"
             }
         },
         {
@@ -11413,7 +11515,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "drupal/admin_toolbar": 20,
         "drupal/ckeditor_media_resize": 10,
         "drupal/conditional_fields": 15,
         "drupal/feeds": 10,
@@ -11426,5 +11527,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
