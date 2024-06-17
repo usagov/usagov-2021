@@ -59,8 +59,10 @@ export SDIGEST=@sha256:87d84e1b041763906b3e21649e372a5ff830c7f33531fbcb66ac7fd8b
 #
 #echo cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
-#echo  bin/cloudgov/create-service-account PIPE tee csa.log
-#$echo bin/cloudgov/create-service-account | tee csa.log
+#echo  bin/cloudgov/create-service-account cci PIPE tee csa.log
+#$echo bin/cloudgov/create-service-account cci | tee csa.log
+#echo  bin/cloudgov/create-service-account cfevents PIPE tee csa.log
+#$echo bin/cloudgov/create-service-account cfevents | tee csa.log
 #exit
 
 #
