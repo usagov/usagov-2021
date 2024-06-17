@@ -1,0 +1,121 @@
+{"nid":"83","title":"Get food assistance with the WIC program","terms":["Cash Assistance","Food"],"tids":["58","63"]}
+{"nid":"87","title":"How to apply for food stamps (SNAP benefits) and check your balance","terms":["Cash Assistance","Food"],"tids":["58","63"]}
+{"nid":"107","title":"SSDI and SSI benefits for people with disabilities","terms":["Cash Assistance","Disability"],"tids":["58","60"]}
+{"nid":"208","title":"Housing choice voucher (Section 8)","terms":["Cash Assistance","Housing"],"tids":["58","65"]}
+{"nid":"309","title":"Get paid as a caregiver for a family member","terms":["Cash Assistance","Disability","Health care"],"tids":["58","60","64"]}
+{"nid":"1725","title":"Get help for homelessness, hunger, and more","terms":["Cash Assistance","Disaster and emergency","Housing","Military and veterans","Utilities"],"tids":["58","61","65","67","69"]}
+{"nid":"1964","title":"Get help with child care costs and learn about Head Start","terms":["Cash Assistance","Military and veterans"],"tids":["58","67"]}
+{"nid":"137","title":"COVID-19 funeral assistance","terms":["Death Benefits","Health care"],"tids":["59","64"]}
+{"nid":"335","title":"Military survivor benefits","terms":["Death Benefits","Military and veterans"],"tids":["59","67"]}
+{"nid":"336","title":"Veterans death benefits","terms":["Death Benefits","Military and veterans"],"tids":["59","67"]}
+{"nid":"337","title":"Veterans burial and survivor benefits","terms":["Death Benefits","Military and veterans"],"tids":["59","67"]}
+{"nid":"1941","title":"Government death benefits","terms":["Death Benefits"],"tids":["59"]}
+{"nid":"296","title":"How to find free job training","terms":["Disability","Jobs","Military and veterans","Retirement and seniors"],"tids":["60","66","67","68"]}
+{"nid":"311","title":"Continuing disability benefits while working","terms":["Disability","Jobs"],"tids":["60","66"]}
+{"nid":"313","title":"Disability services","terms":["Disability"],"tids":["60"]}
+{"nid":"341","title":"Veteran disability benefits","terms":["Disability","Military and veterans"],"tids":["60","67"]}
+{"nid":"623","title":"Programas de capacitaci\u00f3n y trabajos para personas con discapacidades","terms":["Disability","Jobs"],"tids":["60","66"]}
+{"nid":"18","title":"Find a lawyer for affordable legal aid","terms":["Disaster and emergency","Military and veterans"],"tids":["61","67"]}
+{"nid":"184","title":"Disasters and emergencies","terms":["Disaster and emergency"],"tids":["61"]}
+{"nid":"189","title":"How to help survivors after a disaster","terms":["Disaster and emergency"],"tids":["61"]}
+{"nid":"190","title":"How to apply for disaster assistance","terms":["Disaster and emergency"],"tids":["61"]}
+{"nid":"191","title":"Financial assistance after a disaster","terms":["Disaster and emergency"],"tids":["61"]}
+{"nid":"224","title":"Find emergency housing","terms":["Disaster and emergency","Housing"],"tids":["61","65"]}
+{"nid":"225","title":"Find emergency help paying your rent","terms":["Disaster and emergency","Housing"],"tids":["61","65"]}
+{"nid":"459","title":"Tax relief for federally declared disaster areas","terms":["Disaster and emergency"],"tids":["61"]}
+{"nid":"300","title":"Resolve student loan payment problems","terms":["Education"],"tids":["62"]}
+{"nid":"301","title":"Financial aid and student loans","terms":["Education"],"tids":["62"]}
+{"nid":"305","title":"Types of student financial aid","terms":["Education"],"tids":["62"]}
+{"nid":"326","title":"Military tuition assistance","terms":["Education","Military and veterans"],"tids":["62","67"]}
+{"nid":"84","title":"Welfare benefits or Temporary Assistance for Needy Families (TANF)","terms":["Food","Housing","Jobs","Utilities"],"tids":["63","65","66","69"]}
+{"nid":"97","title":"School meals and food programs for children","terms":["Food"],"tids":["63"]}
+{"nid":"98","title":"Food assistance programs for older adults","terms":["Food"],"tids":["63"]}
+{"nid":"99","title":"Food assistance for Native Americans","terms":["Food"],"tids":["63"]}
+{"nid":"100","title":"How to get emergency food assistance","terms":["Food"],"tids":["63"]}
+{"nid":"120","title":"Food assistance","terms":["Food"],"tids":["63"]}
+{"nid":"90","title":"Learn about COBRA insurance and how to get coverage","terms":["Health care","Jobs"],"tids":["64","66"]}
+{"nid":"92","title":"How to apply for Medicaid and CHIP","terms":["Health care"],"tids":["64"]}
+{"nid":"93","title":"How and when to apply for Medicare","terms":["Health care","Retirement and seniors"],"tids":["64","68"]}
+{"nid":"96","title":"Find help for substance abuse","terms":["Health care"],"tids":["64"]}
+{"nid":"338","title":"How to get veterans health benefits","terms":["Health care","Military and veterans"],"tids":["64","67"]}
+{"nid":"339","title":"Mental health and substance abuse help for veterans","terms":["Health care","Military and veterans"],"tids":["64","67"]}
+{"nid":"574","title":"Find help for mental health","terms":["Health care"],"tids":["64"]}
+{"nid":"207","title":"Find subsidized rental housing","terms":["Housing"],"tids":["65"]}
+{"nid":"209","title":"Public housing","terms":["Housing"],"tids":["65"]}
+{"nid":"211","title":"Housing help","terms":["Housing"],"tids":["65"]}
+{"nid":"215","title":"Homeownership vouchers for first-time home buyers","terms":["Housing"],"tids":["65"]}
+{"nid":"216","title":"Government-backed home loans and mortgage assistance","terms":["Housing"],"tids":["65"]}
+{"nid":"218","title":"Government home repair assistance programs","terms":["Housing"],"tids":["65"]}
+{"nid":"219","title":"Weatherization and energy efficiency assistance","terms":["Housing"],"tids":["65"]}
+{"nid":"827","title":"What programs and services are available for veterans?","terms":["Housing","Military and veterans"],"tids":["65","67"]}
+{"nid":"844","title":"Home repair and improvement programs for special groups","terms":["Housing","Military and veterans"],"tids":["65","67"]}
+{"nid":"278","title":"Unemployment benefits","terms":["Jobs"],"tids":["66"]}
+{"nid":"343","title":"Federal jobs for veterans","terms":["Jobs","Military and veterans"],"tids":["66","67"]}
+{"nid":"2226","title":"How to change careers","terms":["Jobs"],"tids":["66"]}
+{"nid":"329","title":"Military pensions","terms":["Military and veterans","Retirement and seniors"],"tids":["67","68"]}
+{"nid":"105","title":"Use Social Security retirement calculators to estimate your benefits","terms":["Retirement and seniors"],"tids":["68"]}
+{"nid":"277","title":"Retirement planning tools","terms":["Retirement and seniors"],"tids":["68"]}
+{"nid":"101","title":"Get help with energy bills","terms":["Utilities"],"tids":["69"]}
+{"nid":"102","title":"Get help paying for phone and internet service","terms":["Utilities"],"tids":["69"]}
+{"nid":"103","title":"Help with utility bills","terms":["Utilities"],"tids":["69"]}
+{"nid":"485","title":"Obtenga asistencia alimentaria con el programa WIC","terms":["Alimentaci\u00f3n"],"tids":["70"]}
+{"nid":"486","title":"Conozca los beneficios del \u201cwelfare\u201do Asistencia Temporal para Familias Necesitadas (TANF)","terms":["Alimentaci\u00f3n","Servicios b\u00e1sicos","Vivienda"],"tids":["70","79","81"]}
+{"nid":"488","title":"C\u00f3mo solicitar cupones para alimentos (SNAP)","terms":["Alimentaci\u00f3n"],"tids":["70"]}
+{"nid":"498","title":"Programas de comidas escolares y alimentaci\u00f3n infantil","terms":["Alimentaci\u00f3n"],"tids":["70"]}
+{"nid":"499","title":"Programas de alimentos para adultos mayores","terms":["Alimentaci\u00f3n"],"tids":["70"]}
+{"nid":"544","title":"Ayuda para comprar comida tras un desastre natural ","terms":["Alimentaci\u00f3n","Desastres y emergencias"],"tids":["70","72"]}
+{"nid":"507","title":"Beneficios del Seguro Social por incapacidad y para personas con discapacidades","terms":["Asistencia financiera","Discapacidad"],"tids":["71","73"]}
+{"nid":"542","title":"C\u00f3mo solicitar un pr\u00e9stamo por desastre para peque\u00f1as empresas ","terms":["Asistencia financiera"],"tids":["71"]}
+{"nid":"546","title":"Obtenga ayuda para pagar sus facturas tras un desastre natural ","terms":["Asistencia financiera","Desastres y emergencias","Educaci\u00f3n"],"tids":["71","72","74"]}
+{"nid":"554","title":"Programa de Vales de Elecci\u00f3n de Vivienda (Secci\u00f3n 8)","terms":["Asistencia financiera","Vivienda"],"tids":["71","81"]}
+{"nid":"604","title":"Tipos de ayuda econ\u00f3mica para estudiantes","terms":["Asistencia financiera","Educaci\u00f3n"],"tids":["71","74"]}
+{"nid":"612","title":"Asistencia econ\u00f3mica y pr\u00e9stamos estudiantiles","terms":["Asistencia financiera","Educaci\u00f3n"],"tids":["71","74"]}
+{"nid":"622","title":"C\u00f3mo recibir una paga por cuidar a un familiar","terms":["Asistencia financiera","Discapacidad"],"tids":["71","73"]}
+{"nid":"746","title":"C\u00f3mo crear y financiar una peque\u00f1a empresa","terms":["Asistencia financiera","Trabajo"],"tids":["71","80"]}
+{"nid":"1952","title":"Asistencia para reparaciones y eficiencia energ\u00e9tica del hogar","terms":["Asistencia financiera","Vivienda"],"tids":["71","81"]}
+{"nid":"536","title":"Desastres y emergencias","terms":["Desastres y emergencias"],"tids":["72"]}
+{"nid":"540","title":"C\u00f3mo solicitar ayuda econ\u00f3mica por desastre natural ","terms":["Desastres y emergencias"],"tids":["72"]}
+{"nid":"545","title":"C\u00f3mo solicitar beneficios de desempleo por desastre natural ","terms":["Desastres y emergencias","Trabajo"],"tids":["72","80"]}
+{"nid":"566","title":"C\u00f3mo evitar la ejecuci\u00f3n hipotecaria","terms":["Desastres y emergencias","Vivienda"],"tids":["72","81"]}
+{"nid":"835","title":"Ayuda con gastos f\u00fanebres por COVID-19","terms":["Desastres y emergencias","Fallecimiento","Salud"],"tids":["72","75","78"]}
+{"nid":"621","title":"Continuaci\u00f3n de los beneficios por incapacidad mientras trabaja","terms":["Discapacidad"],"tids":["73"]}
+{"nid":"627","title":"Servicios para personas con discapacidades","terms":["Discapacidad"],"tids":["73"]}
+{"nid":"605","title":"Solicitud Gratuita de Ayuda Federal para Estudiantes (FAFSA)","terms":["Educaci\u00f3n"],"tids":["74"]}
+{"nid":"606","title":"Informaci\u00f3n sobre pagos y condonaci\u00f3n de deudas estudiantiles","terms":["Educaci\u00f3n"],"tids":["74"]}
+{"nid":"607","title":"C\u00f3mo resolver los problemas de pago de los pr\u00e9stamos estudiantiles","terms":["Educaci\u00f3n"],"tids":["74"]}
+{"nid":"809","title":"Beneficios educativos y laborales para militares, veteranos y sus familias","terms":["Educaci\u00f3n","Militar y veteranos"],"tids":["74","77"]}
+{"nid":"811","title":"Beneficios para sobrevivientes y entierros de veteranos","terms":["Fallecimiento","Militar y veteranos"],"tids":["75","77"]}
+{"nid":"812","title":"Honores f\u00fanebres para miembros de las Fuerzas Armadas","terms":["Fallecimiento","Militar y veteranos"],"tids":["75","77"]}
+{"nid":"813","title":"Beneficios de las Fuerzas Armadas para sobrevivientes","terms":["Fallecimiento","Militar y veteranos"],"tids":["75","77"]}
+{"nid":"1944","title":"Beneficios del Gobierno por fallecimiento ","terms":["Fallecimiento"],"tids":["75"]}
+{"nid":"504","title":"Qu\u00e9 es el Seguro Social y c\u00f3mo funciona","terms":["Jubilaci\u00f3n y adultos mayores"],"tids":["76"]}
+{"nid":"505","title":"C\u00f3mo calcular sus cr\u00e9ditos o beneficios de jubilaci\u00f3n del Seguro Social","terms":["Jubilaci\u00f3n y adultos mayores"],"tids":["76"]}
+{"nid":"508","title":"Recibir beneficios del Seguro Social en el extranjero","terms":["Jubilaci\u00f3n y adultos mayores"],"tids":["76"]}
+{"nid":"598","title":"Beneficios de desempleo","terms":["Jubilaci\u00f3n y adultos mayores"],"tids":["76"]}
+{"nid":"599","title":"Herramientas para planificar la jubilaci\u00f3n","terms":["Jubilaci\u00f3n y adultos mayores"],"tids":["76"]}
+{"nid":"2248","title":"Ayuda del Gobierno disponible para personas mayores\u00a0","terms":["Jubilaci\u00f3n y adultos mayores"],"tids":["76"]}
+{"nid":"1951","title":"Programas de reparaci\u00f3n de viviendas para grupos especiales","terms":["Militar y veteranos","Vivienda"],"tids":["77","81"]}
+{"nid":"491","title":"C\u00f3mo funciona la continuaci\u00f3n de cobertura m\u00e9dica bajo COBRA","terms":["Salud","Trabajo"],"tids":["78","80"]}
+{"nid":"492","title":"C\u00f3mo conseguir un seguro a trav\u00e9s del Mercado de Seguros M\u00e9dicos","terms":["Salud"],"tids":["78"]}
+{"nid":"493","title":"C\u00f3mo presentar una solicitud para Medicaid y CHIP","terms":["Salud"],"tids":["78"]}
+{"nid":"494","title":"Medicare: c\u00f3mo funciona y c\u00f3mo inscribirse","terms":["Salud"],"tids":["78"]}
+{"nid":"496","title":"C\u00f3mo obtener ayuda para pagar gastos m\u00e9dicos","terms":["Salud"],"tids":["78"]}
+{"nid":"575","title":"Ayuda para el abuso de alcohol y drogas","terms":["Salud"],"tids":["78"]}
+{"nid":"576","title":"Ayuda para problemas de salud mental","terms":["Salud"],"tids":["78"]}
+{"nid":"833","title":"Informaci\u00f3n, pruebas y vacunas gratis contra el COVID-19 ","terms":["Salud"],"tids":["78"]}
+{"nid":"502","title":"Ayuda para pagar la cuenta de tel\u00e9fono e internet","terms":["Servicios b\u00e1sicos"],"tids":["79"]}
+{"nid":"560","title":"Programas de asistencia para pagar la renta","terms":["Servicios b\u00e1sicos","Vivienda"],"tids":["79","81"]}
+{"nid":"568","title":"Asistencia de emergencia para pagar la renta","terms":["Servicios b\u00e1sicos","Vivienda"],"tids":["79","81"]}
+{"nid":"581","title":"C\u00f3mo encontrar trabajo o capacitaci\u00f3n profesional","terms":["Trabajo"],"tids":["80"]}
+{"nid":"584","title":"Capacitaci\u00f3n laboral","terms":["Trabajo"],"tids":["80"]}
+{"nid":"597","title":"Compensaci\u00f3n para trabajadores por accidentes de trabajo","terms":["Trabajo"],"tids":["80"]}
+{"nid":"501","title":"Encuentre ayuda para pagar la luz y el gas","terms":["Vivienda"],"tids":["81"]}
+{"nid":"553","title":"Encuentre una vivienda subsidiada de alquiler reducido","terms":["Vivienda"],"tids":["81"]}
+{"nid":"555","title":"Vivienda p\u00fablica","terms":["Vivienda"],"tids":["81"]}
+{"nid":"556","title":"Asistencia con el pago de la renta para grupos espec\u00edficos","terms":["Vivienda"],"tids":["81"]}
+{"nid":"561","title":"Programa de vales para la compra de vivienda","terms":["Vivienda"],"tids":["81"]}
+{"nid":"562","title":"Programas de asistencia hipotecaria del Gobierno\u00a0","terms":["Vivienda"],"tids":["81"]}
+{"nid":"564","title":"Programas de ayuda del Gobierno para reparar viviendas\u00a0","terms":["Vivienda"],"tids":["81"]}
+{"nid":"565","title":"Programas de climatizaci\u00f3n y eficiencia energ\u00e9tica","terms":["Vivienda"],"tids":["81"]}
+{"nid":"567","title":"Vivienda para personas sin hogar","terms":["Vivienda"],"tids":["81"]}
+{"nid":"569","title":"Ayuda de emergencia para encontrar vivienda","terms":["Vivienda"],"tids":["81"]}

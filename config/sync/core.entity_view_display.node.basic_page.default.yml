@@ -6,7 +6,13 @@ dependencies:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_benefit_search_weight
+    - field.field.node.basic_page.field_benefits_callout_descr
+    - field.field.node.basic_page.field_benefits_callout_ref
     - field.field.node.basic_page.field_benefits_category
+    - field.field.node.basic_page.field_benefits_life_events_descr
+    - field.field.node.basic_page.field_benefits_life_events_title
+    - field.field.node.basic_page.field_benefits_search_descr
+    - field.field.node.basic_page.field_benefits_search_title
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_exclude_from_contact_cente
@@ -17,6 +23,9 @@ dependencies:
     - field.field.node.basic_page.field_hero_links
     - field.field.node.basic_page.field_hide_page_intro
     - field.field.node.basic_page.field_homepage_banner
+    - field.field.node.basic_page.field_homepage_benefits_descr
+    - field.field.node.basic_page.field_homepage_benefits_ref
+    - field.field.node.basic_page.field_homepage_benefits_title
     - field.field.node.basic_page.field_homepage_top_links
     - field.field.node.basic_page.field_is_navigation_page
     - field.field.node.basic_page.field_language_toggle
@@ -46,23 +55,6 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 0
-    region: content
-  field_benefit_search_weight:
-    type: number_integer
-    label: above
-    settings:
-      thousand_separator: ''
-      prefix_suffix: true
-    third_party_settings: {  }
-    weight: 9
-    region: content
-  field_benefits_category:
-    type: entity_reference_label
-    label: above
-    settings:
-      link: true
-    third_party_settings: {  }
-    weight: 8
     region: content
   field_custom_twig_content:
     type: boolean
@@ -121,6 +113,14 @@ content:
     region: content
 hidden:
   field_50_state_pages_type: true
+  field_benefit_search_weight: true
+  field_benefits_callout_descr: true
+  field_benefits_callout_ref: true
+  field_benefits_category: true
+  field_benefits_life_events_descr: true
+  field_benefits_life_events_title: true
+  field_benefits_search_descr: true
+  field_benefits_search_title: true
   field_css_icon: true
   field_exclude_from_contact_cente: true
   field_faq_page: true
@@ -128,6 +128,9 @@ hidden:
   field_for_contact_center_only: true
   field_header_html: true
   field_hide_page_intro: true
+  field_homepage_benefits_descr: true
+  field_homepage_benefits_ref: true
+  field_homepage_benefits_title: true
   field_is_navigation_page: true
   field_language_toggle: true
   field_meta_description: true

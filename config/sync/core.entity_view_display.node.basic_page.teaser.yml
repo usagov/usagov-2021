@@ -7,7 +7,13 @@ dependencies:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_benefit_search_weight
+    - field.field.node.basic_page.field_benefits_callout_descr
+    - field.field.node.basic_page.field_benefits_callout_ref
     - field.field.node.basic_page.field_benefits_category
+    - field.field.node.basic_page.field_benefits_life_events_descr
+    - field.field.node.basic_page.field_benefits_life_events_title
+    - field.field.node.basic_page.field_benefits_search_descr
+    - field.field.node.basic_page.field_benefits_search_title
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_exclude_from_contact_cente
@@ -18,6 +24,9 @@ dependencies:
     - field.field.node.basic_page.field_hero_links
     - field.field.node.basic_page.field_hide_page_intro
     - field.field.node.basic_page.field_homepage_banner
+    - field.field.node.basic_page.field_homepage_benefits_descr
+    - field.field.node.basic_page.field_homepage_benefits_ref
+    - field.field.node.basic_page.field_homepage_benefits_title
     - field.field.node.basic_page.field_homepage_top_links
     - field.field.node.basic_page.field_is_navigation_page
     - field.field.node.basic_page.field_language_toggle
@@ -56,7 +65,13 @@ content:
 hidden:
   field_50_state_pages_type: true
   field_benefit_search_weight: true
+  field_benefits_callout_descr: true
+  field_benefits_callout_ref: true
   field_benefits_category: true
+  field_benefits_life_events_descr: true
+  field_benefits_life_events_title: true
+  field_benefits_search_descr: true
+  field_benefits_search_title: true
   field_css_icon: true
   field_custom_twig_content: true
   field_exclude_from_contact_cente: true
@@ -67,6 +82,9 @@ hidden:
   field_hero_links: true
   field_hide_page_intro: true
   field_homepage_banner: true
+  field_homepage_benefits_descr: true
+  field_homepage_benefits_ref: true
+  field_homepage_benefits_title: true
   field_homepage_top_links: true
   field_is_navigation_page: true
   field_language_toggle: true
