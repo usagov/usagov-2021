@@ -1,0 +1,17 @@
+#!/bin/env bash
+
+SPACE=$1
+
+DATEFILE=logs.lastrun
+rm -f /tmp/$DATEFILE
+aws s3 cp s3://$S3_BUCKET/cfevents/$DATEFILE /tmp/ &>/dev/null
+if [ -f /tmp/$DATEFILE ]; then
+    CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -r /tmp/$DATEFILE)
+else
+    CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d "2 months ago")
+fi
+
+/opt/cfevents/get-events $SPACE $CFEVENTS_LASTRUN
+
+touch /tmp/$DATEFILE
+aws s3 cp /tmp/$DATEFILE s3://$S3_BUCKET/cfevents/

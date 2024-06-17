@@ -6,6 +6,9 @@ if [ "$BASH" ]; then
   fi
 fi
 
+# aws cli is installed here:
+PATH=$PATH:/usr/local/bin
+
 mesg n 2> /dev/null || true
 
 if [ ! -f ~/.certs-updated ]; then
@@ -24,6 +27,10 @@ S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage
 S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.fips_endpoint')
 export S3_BUCKET
 export S3_ENDPOINT
+
+export AWS_ACCESS_KEY_ID=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.access_key_id" | uniq )
+export AWS_SECRET_ACCESS_KEY=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.secret_access_key" | uniq )
+export AWS_DEFAULT_REGION=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
 
 CF_API="https://api.fr.cloud.gov"
 CF_ORG=gsa-tts-usagov
