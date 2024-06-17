@@ -98,17 +98,15 @@ else
   echo Creating ${SERVICENAME} user provided service
   cf cups ${SERVICENAME}
 fi
-cf create-service s3 basic-public-sandbox s3for${APPNAME}
-    
+
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}"
 cf push ${APPNAME} -f ./manifest-${APPNAME}.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
 
 # bind services (ups should be bound already, but just in case)
 echo Binding s3 and user provided service
-cf bind-service ${APPNAME} s3for${APPNAME}
 cf bind-service ${APPNAME} ${SERVICENAME}
-    
+
 # collect info about s3 service
 echo Collecting some info about s3
 VCAP_SERVICES=$(cf env "$APPNAME" | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
@@ -116,7 +114,6 @@ BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.bucket
 ACCESS_KEY_ID=$(     echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.access_key_id" | uniq )
 REGION=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
 SECRET_ACCESS_KEY=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.secret_access_key" | uniq )
-
 
 # update user service
 echo Updating ${SERVICENAME} with s3 info

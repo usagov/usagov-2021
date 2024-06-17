@@ -11,7 +11,9 @@ else
     CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d "2 months ago")
 fi
 
-/opt/cfevents/get-events $SPACE $CFEVENTS_LASTRUN
-
 touch /tmp/$DATEFILE
+CFEVENTS_THISRUN=$(TZ=UTC date +"%Y-%m-%dT%H%M%SZ" -r /tmp/$DATEFILE)
+/opt/cfevents/get-events $SPACE $CFEVENTS_LASTRUN > /tmp/cfevents.${CFEVENTS_THISRUN}.log
+
 aws s3 cp /tmp/$DATEFILE s3://$S3_BUCKET/cfevents/
+aws s3 cp /tmp/cfevents.${CFEVENTS_THISRUN}.log s3://$S3_BUCKET/cfevents/
