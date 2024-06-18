@@ -272,13 +272,12 @@ function usa_twig_vars_preprocess_region(&$variables) {
     if ($site_banners_blocks) {
       foreach ($site_banners_blocks as $site_banner) {
         $place_above_header = $site_banner->field_place_above_header->value;
-        if($place_above_header){
+        if ($place_above_header) {
           $variables['site_banner_id'] = $site_banner->id();
         }
         else {
           $variables['site_banner_id'] = '';
         }
-
       }
     }
   }
