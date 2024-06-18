@@ -1,16 +1,16 @@
-uuid: bad19f57-81cb-49a8-a289-d8b57fccb11b
+uuid: e1597255-ae13-4a16-8ce1-90c40362a35d
 langcode: en
 status: true
 dependencies:
   config:
-    - block_content.type.emergency_banner
-    - field.field.block_content.emergency_banner.field_place_above_header
-    - field.field.block_content.emergency_banner.field_uswds_paragraph_bundles
+    - block_content.type.site_banner
+    - field.field.block_content.site_banner.field_place_above_header
+    - field.field.block_content.site_banner.field_uswds_paragraph_bundles
   module:
     - paragraphs
-id: block_content.emergency_banner.default
+id: block_content.site_banner.default
 targetEntityType: block_content
-bundle: emergency_banner
+bundle: site_banner
 mode: default
 content:
   field_place_above_header:

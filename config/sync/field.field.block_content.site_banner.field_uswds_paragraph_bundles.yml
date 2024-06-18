@@ -1,20 +1,20 @@
-uuid: bf188da6-8247-4a7d-b0b8-92ebcbd68f37
+uuid: 5fe774f3-95a3-4978-85db-f2817a9cb4bc
 langcode: en
 status: true
 dependencies:
   config:
-    - block_content.type.emergency_banner
+    - block_content.type.site_banner
     - field.storage.block_content.field_uswds_paragraph_bundles
     - paragraphs.paragraphs_type.uswds_alert
   module:
     - entity_reference_revisions
-id: block_content.emergency_banner.field_uswds_paragraph_bundles
+id: block_content.site_banner.field_uswds_paragraph_bundles
 field_name: field_uswds_paragraph_bundles
 entity_type: block_content
-bundle: emergency_banner
-label: 'USWDS Paragraph Bundles'
+bundle: site_banner
+label: Banner
 description: ''
-required: false
+required: true
 translatable: false
 default_value: {  }
 default_value_callback: ''

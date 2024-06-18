@@ -1,14 +1,14 @@
-uuid: d19c73f2-7db1-42d1-8e97-e10250bc09c4
+uuid: 42b14c07-1356-47d1-a923-8d8731b9feee
 langcode: en
 status: true
 dependencies:
   config:
-    - block_content.type.emergency_banner
+    - block_content.type.site_banner
     - field.storage.block_content.field_place_above_header
-id: block_content.emergency_banner.field_place_above_header
+id: block_content.site_banner.field_place_above_header
 field_name: field_place_above_header
 entity_type: block_content
-bundle: emergency_banner
+bundle: site_banner
 label: 'Place above header'
 description: ''
 required: false

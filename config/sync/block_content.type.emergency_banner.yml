@@ -1,8 +1,0 @@
-uuid: a97e2a7a-7562-4c26-99aa-33506f96f78e
-langcode: en
-status: true
-dependencies: {  }
-id: emergency_banner
-label: 'Emergency Banner'
-revision: 1
-description: ''
