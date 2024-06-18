@@ -27,11 +27,6 @@ function usagov_top_navigation_menu_page_attachments(array &$page) {
 }
 
 function usagov_top_navigation_menu_get_top_nav() {
-  // $id = 'usagov_sometitle';
-  // $block = Block::load($id);
-  // $block->setRegion('header_top');
-  // $block->setStatus(true);
-  // $block->save();
 
   $menu_parameters = new MenuTreeParameters();
   $menu_lang = \Drupal::languageManager()->getCurrentLanguage()->getId();
