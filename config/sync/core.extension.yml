@@ -103,6 +103,7 @@ module:
   usagov_ssg_postprocessing: 0
   usagov_top_navigation_menu: 0
   usagov_uswds_paragraph_components_mods: 0
+  usagov_wizard: 0
   user: 0
   uswds_ckeditor_integration: 0
   uswds_paragraph_components: 0

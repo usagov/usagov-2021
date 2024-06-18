@@ -1,0 +1,26 @@
+<?php
+
+use Drupal\Core\Url;
+
+/**
+ * Alter the form by adding a "View Term" button
+ * if the form is the taxonomy_term_wizard_form.
+ */
+function usagov_wizard_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'taxonomy_term_wizard_form') {
+    if (isset($form['tid'])) {
+      $form['actions']['link_to_term'] = [
+        '#title' => t('View Term'),
+        '#type' => 'link',
+        '#url' => Url::fromUri('base:/taxonomy/term/' . $form['tid']["#value"]),
+        '#attributes' => [
+          'class' => [
+            'button',
+            'usa-button'
+          ],
+        ],
+        '#weight' => 10,
+      ];
+    }
+  }
+}
