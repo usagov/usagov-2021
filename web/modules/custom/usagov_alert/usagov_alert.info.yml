@@ -1,7 +1,0 @@
-name: 'Emergency Banner Placement'
-type: module
-description: 'Automatically places blocks above the header based on a checkbox field.'
-core_version_requirement: ^9 || ^10
-dependencies:
-  - drupal:block
-  - drupal:block_content

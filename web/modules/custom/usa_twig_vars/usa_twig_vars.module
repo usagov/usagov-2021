@@ -263,6 +263,22 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
 }
 
 /**
+ * Add the site banner id to a variable to place it in the top header.
+ */
+function usa_twig_vars_preprocess_region(&$variables) {
+  // Create the $content variable that templates expect.
+  if($variables['region'] === 'header_top') {
+    $site_banners_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'emergency_banner']);
+    if($site_banners_blocks) {
+      foreach ($site_banners_blocks as $site_banner) {
+        dump($site_banner);
+        $variables['site_banner_id'] = $site_banner->id();
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_form_alter().
  */
 function usa_twig_vars_form_alter(&$form, &$form_state, $form_id) {

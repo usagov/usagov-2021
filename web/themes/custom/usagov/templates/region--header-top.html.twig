@@ -16,9 +16,12 @@
 #}
 {% if content %}
 
-    {{ drupal_entity('block_content', 31) }}
-
     <div{{ attributes }}>
+
+    {% if site_banner_id %}
+      {{ drupal_entity('block_content', site_banner_id) }}
+    {% endif %}
+
     {{ content }}
     </div>
 
