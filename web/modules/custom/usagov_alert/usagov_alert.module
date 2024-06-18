@@ -7,11 +7,11 @@ use Drupal\Core\Entity\EntityInterface;
  * Implements hook_entity_insert() and hook_entity_update().
  */
 function usagov_alert_block_content_insert(EntityInterface $entity) {
-    usagov_alert_place_block($entity);
+  usagov_alert_place_block($entity);
 }
 
 function usagov_alert_block_content_update(EntityInterface $entity) {
-    usagov_alert_place_block($entity);
+  usagov_alert_place_block($entity);
 }
 
 /**
@@ -44,7 +44,8 @@ function usagov_alert_place_block(EntityInterface $entity) {
       //   \Drupal::logger('usagov_alert')->error('Block with ID @id could not be loaded.', ['@id' => $id]);
       // }
 
-    } else {
+    }
+    else {
       // If the checkbox is unchecked, remove the block placement.
       // if ($block) {
       //   $block->setRegion('');
