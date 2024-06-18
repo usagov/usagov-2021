@@ -267,11 +267,10 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
  */
 function usa_twig_vars_preprocess_region(&$variables) {
   // Create the $content variable that templates expect.
-  if($variables['region'] === 'header_top') {
+  if ($variables['region'] === 'header_top') {
     $site_banners_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'emergency_banner']);
-    if($site_banners_blocks) {
+    if ($site_banners_blocks) {
       foreach ($site_banners_blocks as $site_banner) {
-        dump($site_banner);
         $variables['site_banner_id'] = $site_banner->id();
       }
     }
