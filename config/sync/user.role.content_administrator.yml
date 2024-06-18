@@ -27,9 +27,7 @@ dependencies:
     - content_lock
     - content_moderation
     - content_translation
-    - contextual
     - devel
-    - layout_builder
     - media
     - menu_link_content
     - node
@@ -50,7 +48,6 @@ permissions:
   - 'access administration pages'
   - 'access block library'
   - 'access content overview'
-  - 'access contextual links'
   - 'access devel information'
   - 'access site in maintenance mode'
   - 'access toolbar'
@@ -63,7 +60,6 @@ permissions:
   - 'administer taxonomy'
   - 'break content lock'
   - 'create agency_synonym content'
-  - 'create and edit custom blocks'
   - 'create audio media'
   - 'create basic_page content'
   - 'create bears_agency content'

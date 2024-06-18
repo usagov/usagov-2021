@@ -47,8 +47,6 @@ module:
   jsonapi: 0
   language: 0
   language_switcher_extended: 0
-  layout_builder: 0
-  layout_discovery: 0
   link: 0
   log_stdout: 0
   mail_safety: 0
@@ -93,7 +91,6 @@ module:
   usa_content_moderation_notifications: 0
   usa_orphaned_entities: 0
   usa_translation: 0
-  usagov_alert: 0
   usagov_benefit_category_search: 0
   usagov_benefit_finder: 0
   usagov_benefit_finder_api: 0
