@@ -130,13 +130,17 @@
 
 	<div{{content_attributes.addClass(classes)}}>
 		{% if term_name == "Navigation Cards Page" %}
-      {{ content.body }}
-      {{ content.field_page_intro }}
+            {{ content.body }}
+            {{ content.field_page_intro }}
       {% if (usagov_show_benefits_landing_block) %}
 
       {%  endif  %}
-    {% else %}
-      {{ content }}
+    {% elseif term_name == "Benefits Category Search" %}
+      <div class="benefits-finder-content">
+        {{ content }}
+      </div>
+      {% else %}
+        {{ content }}
     {% endif %}
 	</div>
 {% if term_name == "State Office Page" %}

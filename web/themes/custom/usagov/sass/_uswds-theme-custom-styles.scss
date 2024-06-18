@@ -768,3 +768,10 @@ select:not([disabled]):focus,
 input::-webkit-textfield-decoration-container {
   visibility: hidden;
 }
+
+.benefits-finder-content {
+  .usa-prose>p.usa-intro {
+    @include u-margin(0);
+    max-width: 100%;
+  }
+}
