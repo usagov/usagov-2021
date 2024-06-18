@@ -8,7 +8,6 @@
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
-use Drupal\block\Entity\Block;
 
 /**
  * Description message.
