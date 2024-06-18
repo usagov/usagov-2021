@@ -40,7 +40,7 @@ startspace=$( cf target | grep space: | awk '{ print $2 }')
 # Drop them off where we found them
 function popspace() {
   if [ -n "$startorg" ] && [ -n "$startspace" ]; then
-    echo "Popspace: ${startorg}/${startspace}"
+    #echo "Popspace: ${startorg}/${startspace}"
     cf target -o "$startorg" -s "$startspace" > /dev/null 2>&1
   fi
 }
