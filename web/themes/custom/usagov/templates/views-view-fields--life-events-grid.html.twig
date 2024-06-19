@@ -31,7 +31,9 @@
  * @ingroup themeable
  */
 #}
-<div class="{{ fields.title_1.content|striptags|clean_class }}">
-  <h3>{{ fields.title.content }}</h3>
-  <p>{{ fields.field_short_description.content }}</p>
+<div class="life-events-item {{ fields.title_1.content|striptags|clean_class }}">
+  <div class="life-events-item-content">
+    <h3>{{ fields.title.content }}</h3>
+    <p>{{ fields.field_short_description.content }}</p>
+  </div>
 </div>

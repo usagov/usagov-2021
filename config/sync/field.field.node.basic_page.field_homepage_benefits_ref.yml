@@ -1,0 +1,28 @@
+uuid: 90992fd5-4a12-41fc-a99c-aa5d4259bc16
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_homepage_benefits_ref
+    - node.type.basic_page
+id: node.basic_page.field_homepage_benefits_ref
+field_name: field_homepage_benefits_ref
+entity_type: node
+bundle: basic_page
+label: 'Benefits Landing Page'
+description: 'Select the page that the callout block should link to here.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      basic_page: basic_page
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

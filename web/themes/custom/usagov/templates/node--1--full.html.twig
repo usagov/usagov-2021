@@ -14,6 +14,10 @@
 	</div>
 
   {% if (usagov_show_benefits_landing_block) %}
+    {%  if( node.field_homepage_benefits_ref) %}
+      {% set benefits_url = drupal_url('node/' ~ node.field_homepage_benefits_ref.value[0].target_id ) %}
+      <a href="{{ benefits_url }}">Benefits</a>
+    {% endif %}
 
   {%  else  %}
 	  {% include directory ~ '/templates/includes/homepage-life-events.html.twig' %}
