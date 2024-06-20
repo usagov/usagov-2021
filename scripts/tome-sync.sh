@@ -232,6 +232,19 @@ if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
   ES_HOME_HTML_BAD=1
 fi
 
+# Checks that the spanish and english home page doesn't have links to /node/[some number] and don't publish when that happens.
+ES_HOME_CONTAINS_NODE_LINKS=$(grep -c '/node/[0-9]' $ES_HOME_HTML_FILE)
+if [ "$ES_HOME_CONTAINS_NODE_LINKS" != "0"  ]; then
+  echo "WARNING: *** ES index.html menu appears to contain links that goes to /node/ pages ***" | tee -a $TOMELOG
+  ES_HOME_HTML_BAD=1
+fi
+
+EN_HOME_CONTAINS_NODE_LINKS=$(grep -c '/node/[0-9]' $EN_HOME_HTML_FILE)
+if [ "$EN_HOME_CONTAINS_NODE_LINKS" != "0"  ]; then
+  echo "WARNING: *** EN index.html menu appears to contain links that goes to /node/ pages ***" | tee -a $TOMELOG
+  EN_HOME_HTML_BAD=1
+fi
+
 # Sometimes Tome generates an English mobile menu on the Spanish home page
 ES_HOME_CONTAINS_ENGLISH_MENU=$(grep -c 'About us' $ES_HOME_HTML_FILE)
 if [ "$ES_HOME_CONTAINS_ENGLISH_MENU" != "0"  ]; then
@@ -270,13 +283,6 @@ fi
 if [ "$ES_HOME_HTML_BAD" == "1" ]; then
   # Delete the known-bad file; it may be re-created correctly on the next run.
   rm $ES_HOME_HTML_FILE
-  touch $RETRY_SEMAPHORE_FILE
-  TOME_PUSH_NEW_CONTENT=0
-fi
-
-if [ "$EN_HOME_HTML_BAD" == "1" ]; then
-  # Delete the known-bad file; it may be re-created correctly on the next run.
-  rm $EN_HOME_HTML_FILE
   touch $RETRY_SEMAPHORE_FILE
   TOME_PUSH_NEW_CONTENT=0
 fi
