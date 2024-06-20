@@ -27,6 +27,13 @@ wizardstep:
     - core/drupal
     - core/jquery
 
+wizardStepTaxonomy:
+  js:
+    scripts/wizardStepTaxonomy.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+
 stateDirectory:
   js:
     scripts/stateDirectory.js: {}
