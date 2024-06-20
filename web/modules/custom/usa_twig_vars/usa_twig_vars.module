@@ -288,7 +288,7 @@ function usa_twig_vars_preprocess_region(&$variables) {
         }
         else {
           // Set the value to null to remove the site_banner with id `$site_banner->id()` from the region `header_top`
-          $variables['site_banners'][$site_banner->id()] = null;
+          $variables['site_banners'][$site_banner->id()] = NULL;
         }
       }
     }
