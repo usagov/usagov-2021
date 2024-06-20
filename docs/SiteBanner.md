@@ -21,7 +21,7 @@ To control the placement of Site Banners without giving full block placement per
 
 1. Log in to the Drupal CMS
 2. Go to the Content blocks page `/admin/content/block`
-3. Click `+ Add custom block`.
+3. Click `+ Add content block`.
 4. Select `Site Banner` as the block type.
 
    Note: If you are in a content admin account this will be the default since you only have permissions to create this type of blocks.
