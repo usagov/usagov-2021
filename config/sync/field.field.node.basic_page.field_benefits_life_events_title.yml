@@ -1,0 +1,19 @@
+uuid: e15e1c17-4406-4ed4-9426-414e960b6338
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_benefits_life_events_title
+    - node.type.basic_page
+id: node.basic_page.field_benefits_life_events_title
+field_name: field_benefits_life_events_title
+entity_type: node
+bundle: basic_page
+label: 'Life Events Title'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

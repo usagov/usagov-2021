@@ -274,7 +274,9 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
  * Implements hook_form_alter().
  */
 function usa_twig_vars_form_alter(&$form, &$form_state, $form_id) {
-  $form['#after_build'][] = 'usa_twig_vars_after_build';
+  if (is_array($form)) {
+    $form['#after_build'][] = 'usa_twig_vars_after_build';
+  }
 }
 
 /**
