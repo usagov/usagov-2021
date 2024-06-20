@@ -18,11 +18,16 @@
 
   <div{{ attributes }}>
 
+    {# Add all blocks in the `header_top` region #}
     {{ content }}
 
+    {# Check if there are any site_banners #}
     {% if site_banners %}
       {% for site_banner_id in site_banners %}
-        {{ drupal_entity('block_content', site_banner_id) }}
+        {# If the current `site_banner` has the checkbox checked, it adds it to the `header_top` region. #}
+        {% if site_banner_id %}
+          {{ drupal_entity('block_content', site_banner_id) }}
+        {% endif %}
       {% endfor %}
     {% endif %}
 

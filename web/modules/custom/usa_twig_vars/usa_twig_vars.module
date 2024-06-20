@@ -263,20 +263,32 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
 }
 
 /**
- * Add the site banner id to a variable to place it in the top header.
+ * Create an array called `site_banners` that contains all the site banners. The
+ * value of each element in this array can be the id of the site banner if the
+ * checkbox `place_above_header` is checked or `null` if the checkbox is not checked.
  */
 function usa_twig_vars_preprocess_region(&$variables) {
-  // Create the $content variable that templates expect.
+
+  // Check if we are in the `header_top` region
   if ($variables['region'] === 'header_top') {
+
+    // Get all site_banners from the website
     $site_banners_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'site_banner']);
     if ($site_banners_blocks) {
+
       foreach ($site_banners_blocks as $site_banner) {
+
+        // Get the value of the checkbox in the site_banner form
         $place_above_header = $site_banner->field_place_above_header->value;
+
+        // Check if the checkbox in the site_banner form is checked or not.
         if ($place_above_header) {
+          // Set the value to the site_banner id to add the site_banner to the `header_top` region.
           $variables['site_banners'][$site_banner->id()] = $site_banner->id();
         }
         else {
-          $variables['site_banners'][$site_banner->id()] = '';
+          // Set the value to null to remove the site_banner with id `$site_banner->id()` from the region `header_top`
+          $variables['site_banners'][$site_banner->id()] = null;
         }
       }
     }
