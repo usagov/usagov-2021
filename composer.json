@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "bower-asset/lazysizes": "^5.1",
+        "bower-asset/lazysizes": "^5.3",
         "composer/installers": "^1.9",
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
