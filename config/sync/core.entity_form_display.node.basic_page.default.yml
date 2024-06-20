@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_benefit_search_weight
     - field.field.node.basic_page.field_benefits_callout_descr
+    - field.field.node.basic_page.field_benefits_callout_ref
     - field.field.node.basic_page.field_benefits_category
     - field.field.node.basic_page.field_benefits_life_events_descr
     - field.field.node.basic_page.field_benefits_life_events_title
@@ -23,6 +24,7 @@ dependencies:
     - field.field.node.basic_page.field_hide_page_intro
     - field.field.node.basic_page.field_homepage_banner
     - field.field.node.basic_page.field_homepage_benefits_descr
+    - field.field.node.basic_page.field_homepage_benefits_ref
     - field.field.node.basic_page.field_homepage_benefits_title
     - field.field.node.basic_page.field_homepage_top_links
     - field.field.node.basic_page.field_is_navigation_page
@@ -63,6 +65,7 @@ third_party_settings:
     group_benefits_landing_page_call:
       children:
         - field_benefits_callout_descr
+        - field_benefits_callout_ref
       label: 'Benefits Callout'
       region: content
       parent_name: ''
@@ -72,7 +75,7 @@ third_party_settings:
         classes: ''
         show_empty_fields: false
         id: ''
-        description: 'On homepage and topics page, these fields control the text shown in the callout linking to the Benefits Landing Page.'
+        description: 'These fields control the text shown in the callout linking to the Benefits Landing Page.'
         required_fields: true
     group_benefits_search_page:
       children:
@@ -95,6 +98,7 @@ third_party_settings:
       children:
         - field_homepage_benefits_title
         - field_homepage_benefits_descr
+        - field_homepage_benefits_ref
       label: 'Homepage Benefits Callout'
       region: content
       parent_name: ''
@@ -166,6 +170,16 @@ content:
       rows: 5
       placeholder: ''
     third_party_settings: {  }
+  field_benefits_callout_ref:
+    type: entity_reference_autocomplete
+    weight: 45
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_benefits_category:
     type: options_buttons
     weight: 32
@@ -174,7 +188,7 @@ content:
     third_party_settings: {  }
   field_benefits_life_events_descr:
     type: string_textarea
-    weight: 40
+    weight: 41
     region: content
     settings:
       rows: 3
@@ -190,7 +204,7 @@ content:
     third_party_settings: {  }
   field_benefits_search_descr:
     type: string_textarea
-    weight: 42
+    weight: 43
     region: content
     settings:
       rows: 3
@@ -198,7 +212,7 @@ content:
     third_party_settings: {  }
   field_benefits_search_title:
     type: string_textfield
-    weight: 41
+    weight: 42
     region: content
     settings:
       size: 60
@@ -330,6 +344,16 @@ content:
       allowed_formats:
         hide_help: '0'
         hide_guidelines: '0'
+  field_homepage_benefits_ref:
+    type: entity_reference_autocomplete
+    weight: 37
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_homepage_benefits_title:
     type: string_textfield
     weight: 35
