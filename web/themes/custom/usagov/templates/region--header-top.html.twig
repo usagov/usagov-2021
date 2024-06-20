@@ -16,14 +16,17 @@
 #}
 {% if content %}
 
-    <div{{ attributes }}>
-
-    {% if site_banner_id %}
-      {{ drupal_entity('block_content', site_banner_id) }}
-    {% endif %}
+  <div{{ attributes }}>
 
     {{ content }}
-    </div>
+
+    {% if site_banners %}
+      {% for site_banner_id in site_banners %}
+        {{ drupal_entity('block_content', site_banner_id) }}
+      {% endfor %}
+    {% endif %}
+
+  </div>
 
 {% endif %}
 
