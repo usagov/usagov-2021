@@ -26,7 +26,6 @@ function usagov_top_navigation_menu_page_attachments(array &$page) {
 }
 
 function usagov_top_navigation_menu_get_top_nav() {
-
   $menu_parameters = new MenuTreeParameters();
   $menu_lang = \Drupal::languageManager()->getCurrentLanguage()->getId();
   if ($menu_lang == 'es') {
