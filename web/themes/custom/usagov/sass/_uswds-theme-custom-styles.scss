@@ -767,3 +767,10 @@ select:not([disabled]):focus,
 input::-webkit-textfield-decoration-container {
   visibility: hidden;
 }
+
+// sets height for desktop to make space above and below breadcrumb look even on Navigation Cards Page
+@media screen and (min-width: 64em) {
+  .grid-row.breadcrumb-spacing>div {
+    height: 3.5rem;
+  }
+}
