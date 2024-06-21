@@ -35,6 +35,9 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     for (const err of myself.form.querySelectorAll('.usa-alert--error')) {
       err.remove();
     }
+
+    myself.form.querySelector('fieldset')
+      .classList.remove('benefits-category-error');
   };
   /**
    * @returns {Promise<any>}
@@ -209,25 +212,29 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     let elt = document.createElement('template');
     let description = '';
 
-    if (benefit.field_page_intro) {
-      description = benefit.field_page_intro;
-    }
-    else if (benefit.field_short_description) {
+    if (benefit.field_short_description) {
       description = benefit.field_short_description;
+    }
+    else if (benefit.field_page_intro) {
+      description = benefit.field_page_intro;
     }
 
     switch (benefit.type) {
       case 'Life Event':
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-12 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
+  <span>${myself.labels.benefitFinderCategory}</span><span>${myself.labels.lifeEventsCategory}</span><span>${benefit.name}</div>
 </div>`;
         break;
 
       case 'Basic Page':
       default:
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-9 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
-<div class="desktop:grid-col-3 benefits-result-categories"><h3>Applied categories</h3>${benefit.term_node_tid}</div>
+<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
+${benefit.term_node_tid}
+</div>
 </div>`;
     }
 
@@ -305,8 +312,15 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
   };
   this.showError = function() {
     let elt = document.createElement('template');
-    elt.innerHTML = '<div class="usa-alert--error" aria-live=assertive>Select one or more categories</div>';
+    elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4" aria-live=assertive>
+        <div class="usa_alert__body">
+           <h4 class="usa-alert__heading padding-left-6">${myself.labels.emptyCategoryError}</h4>
+        </div>
+    </div>`;
     myself.form.prepend(elt.content);
+
+    const fieldset = myself.form.querySelector('fieldset');
+    fieldset.classList.add('benefits-category-error');
   };
   /**
    * @param {Element} page
@@ -367,8 +381,12 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     const url = new URL(window.location.href);
     url.searchParams.set('t', terms.join('-'));
     url.searchParams.set('pg', myself.activePage);
-    // update browser
-    window.history.pushState(null, '', url.toString());
+
+    let newUrl = url.toString();
+    if (newUrl !== window.location.href) {
+      // update browser
+      window.history.pushState(null, '', newUrl);
+    }
   };
   /**
    * Loads the data file and adds event listeners
@@ -410,7 +428,11 @@ jQuery(document).ready(async function () {
       'previous': "Previous",
       'previousAria': "Previous page",
       'navAria': "Pagination",
-      'lastPageAria': 'Last page'
+      'lastPageAria': 'Last page',
+      'emptyCategoryError': 'Error: Please select at least one or more categories',
+      'appliedCategories': 'Applied Categories',
+      'lifeEventsCategory': 'Life Events',
+      'benefitFinderCategory': 'Benefit Finder Tool'
     };
   }
   else if (docLang[0] === 'es') {
@@ -423,7 +445,11 @@ jQuery(document).ready(async function () {
       'previous': "Anterior",
       'previousAria': "Página anterior",
       'navAria': "Paginación",
-      'lastPageAria': 'Ultima página'
+      'lastPageAria': 'Ultima página',
+      'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
+      'appliedCategories': 'Categorías',
+      'lifeEventsCategory': 'Etapas de la vida',
+      'benefitFinderCategory': 'Buscador de beneficios'
     };
   }
   // creat and initialize the search tool

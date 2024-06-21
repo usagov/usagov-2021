@@ -1,7 +1,5 @@
 <?php
 
-use Drupal\node\Entity\Node;
-
 /**
  * @file
  * Auto-delete orphaned synonyms and language toggles when deleting
@@ -13,7 +11,18 @@ use Drupal\node\Entity\Node;
 
 function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
   if (str_contains($form_id, 'delete_form')) {
-    $entity = $form_state->getFormObject()->getEntity();
+    // This is called on all delete form alters. Ensure we can get
+    // an entity otherwise bail early.
+    $delForm = $form_state->getFormObject();
+    if (!method_exists($delForm, 'getEntity')) {
+      return;
+    }
+
+    $entity = $form_state->getFormObject()?->getEntity();
+    if (!$entity) {
+      return;
+    }
+
     $reference_data = usa_orphaned_entities_get_reference_data($entity);
 
     $markup = "<div class=\"default-message\">" .
