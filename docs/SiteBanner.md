@@ -23,9 +23,9 @@ To control the placement of Site Banners without giving full block placement per
 2. Go to the Content blocks page `/admin/content/block`
 3. Click `+ Add content block`.
 4. Select `Site Banner` as the block type.
-
    Note: If you are in a content admin account this will be the default since you only have permissions to create this type of blocks.
 5. Fill in the required fields for the Site Banner.
+   - Make sure you select the correct language for the banner.
 6. Find the checkbox labeled `Place above header`.
    - Check this box if you want the banner to appear in the `header_top` region.
    - Uncheck this box if you want to remove the banner from the `header_top` region.
