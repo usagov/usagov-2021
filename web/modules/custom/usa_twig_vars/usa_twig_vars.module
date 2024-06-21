@@ -283,7 +283,7 @@ function usa_twig_vars_preprocess_region(&$variables) {
          * This prevents incorrect language banners from being displayed on the site.
          * */
         $site_banner_lang = $site_banner->langcode->value;
-        if ($site_banner_lang === $site_language){
+        if ($site_banner_lang === $site_language) {
           // Get the value of the checkbox in the site_banner form
           $place_above_header = $site_banner->field_place_above_header->value;
 
