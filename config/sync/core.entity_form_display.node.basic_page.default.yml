@@ -6,6 +6,7 @@ dependencies:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_benefit_search_weight
+    - field.field.node.basic_page.field_benefits_callout_button
     - field.field.node.basic_page.field_benefits_callout_descr
     - field.field.node.basic_page.field_benefits_callout_ref
     - field.field.node.basic_page.field_benefits_category
@@ -23,6 +24,7 @@ dependencies:
     - field.field.node.basic_page.field_hero_links
     - field.field.node.basic_page.field_hide_page_intro
     - field.field.node.basic_page.field_homepage_banner
+    - field.field.node.basic_page.field_homepage_benefits_button
     - field.field.node.basic_page.field_homepage_benefits_descr
     - field.field.node.basic_page.field_homepage_benefits_ref
     - field.field.node.basic_page.field_homepage_benefits_title
@@ -66,6 +68,7 @@ third_party_settings:
       children:
         - field_benefits_callout_descr
         - field_benefits_callout_ref
+        - field_benefits_callout_button
       label: 'Benefits Callout'
       region: content
       parent_name: ''
@@ -99,6 +102,7 @@ third_party_settings:
         - field_homepage_benefits_title
         - field_homepage_benefits_descr
         - field_homepage_benefits_ref
+        - field_homepage_benefits_button
       label: 'Homepage Benefits Callout'
       region: content
       parent_name: ''
@@ -162,6 +166,14 @@ content:
     settings:
       placeholder: ''
     third_party_settings: {  }
+  field_benefits_callout_button:
+    type: string_textfield
+    weight: 46
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_benefits_callout_descr:
     type: text_textarea
     weight: 44
@@ -188,7 +200,7 @@ content:
     third_party_settings: {  }
   field_benefits_life_events_descr:
     type: string_textarea
-    weight: 41
+    weight: 40
     region: content
     settings:
       rows: 3
@@ -333,6 +345,14 @@ content:
             effect: show
             effect_options: {  }
             selector: ''
+  field_homepage_benefits_button:
+    type: string_textfield
+    weight: 38
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_homepage_benefits_descr:
     type: text_textarea
     weight: 36
