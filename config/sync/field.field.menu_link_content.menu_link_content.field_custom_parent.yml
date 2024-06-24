@@ -1,0 +1,23 @@
+uuid: 294eed2d-d5b6-4743-9c65-3dc588b2043d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.menu_link_content.field_custom_parent
+  module:
+    - menu_link_content
+    - menu_item_fields
+id: menu_link_content.menu_link_content.field_custom_parent
+field_name: field_custom_parent
+entity_type: menu_link_content
+bundle: menu_link_content
+label: 'Custom Parent'
+description: "Check this box to tell MenuChecker.php that this menu item should be the item to base a custom menu off of. <br> Useful when you want a custom set of menu items to be built from a link's position in the tree, but the link appears multiple times in the same menu."
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean
