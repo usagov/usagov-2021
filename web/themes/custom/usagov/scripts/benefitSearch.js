@@ -212,11 +212,11 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     let elt = document.createElement('template');
     let description = '';
 
-    if (benefit.field_page_intro) {
-      description = benefit.field_page_intro;
-    }
-    else if (benefit.field_short_description) {
+    if (benefit.field_short_description) {
       description = benefit.field_short_description;
+    }
+    else if (benefit.field_page_intro) {
+      description = benefit.field_page_intro;
     }
 
     switch (benefit.type) {
@@ -448,7 +448,7 @@ jQuery(document).ready(async function () {
       'lastPageAria': 'Ultima página',
       'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
       'appliedCategories': 'Categorías',
-      'lifeEventsCategory': 'Eventos de la vida',
+      'lifeEventsCategory': 'Etapas de la vida',
       'benefitFinderCategory': 'Buscador de beneficios'
     };
   }
