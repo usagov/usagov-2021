@@ -6,6 +6,7 @@ dependencies:
     - field.field.node.basic_page.body
     - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_benefit_search_weight
+    - field.field.node.basic_page.field_benefits_callout_button
     - field.field.node.basic_page.field_benefits_callout_descr
     - field.field.node.basic_page.field_benefits_callout_ref
     - field.field.node.basic_page.field_benefits_category
@@ -23,6 +24,7 @@ dependencies:
     - field.field.node.basic_page.field_hero_links
     - field.field.node.basic_page.field_hide_page_intro
     - field.field.node.basic_page.field_homepage_banner
+    - field.field.node.basic_page.field_homepage_benefits_button
     - field.field.node.basic_page.field_homepage_benefits_descr
     - field.field.node.basic_page.field_homepage_benefits_ref
     - field.field.node.basic_page.field_homepage_benefits_title
@@ -114,6 +116,7 @@ content:
 hidden:
   field_50_state_pages_type: true
   field_benefit_search_weight: true
+  field_benefits_callout_button: true
   field_benefits_callout_descr: true
   field_benefits_callout_ref: true
   field_benefits_category: true
@@ -128,6 +131,7 @@ hidden:
   field_for_contact_center_only: true
   field_header_html: true
   field_hide_page_intro: true
+  field_homepage_benefits_button: true
   field_homepage_benefits_descr: true
   field_homepage_benefits_ref: true
   field_homepage_benefits_title: true
