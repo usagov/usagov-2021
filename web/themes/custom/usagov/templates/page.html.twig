@@ -143,11 +143,13 @@
 			{% endif %}
 
 			<div class="grid-row grid-gap">
-				{% if page.sidebar_first and show_sidebar %}
-					<aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first">
-						{{ page.sidebar_first }}
-					</aside>
-				{% endif %}
+        {%  block sidebar %}
+          {% if page.sidebar_first and show_sidebar %}
+            <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first">
+              {{ page.sidebar_first }}
+            </aside>
+          {% endif %}
+        {% endblock %}
 
 				<div class="usa-layout-docs__main usa-prose desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
 					{{ page.content }}
