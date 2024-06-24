@@ -1,0 +1,3 @@
+services:
+  usagov_wizard.menu_checker:
+    class: Drupal\usagov_wizard\MenuChecker

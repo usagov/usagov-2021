@@ -50,6 +50,7 @@
         "drupal/menu_block": "^1.7",
         "drupal/menu_breadcrumb": "^2.0@alpha",
         "drupal/menu_entity_index": "^1.6",
+        "drupal/menu_item_fields": "^1.10",
         "drupal/new_relic_rpm": "^2.1",
         "drupal/node_menus": "^3.0@alpha",
         "drupal/paragraphs_entity_embed": "^3.0",
@@ -143,6 +144,9 @@
             },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren_d10.patch"
+            },
+            "drupal/viewsreference": {
+                "Fixes deprectated function unserialize warning": "https://www.drupal.org/files/issues/2023-11-07/viewsreference-3273497-27.patch"
             },
             "drupal/autologout":{
                 "Auto redirect if user didn't click the popup": "https://www.drupal.org/files/issues/2023-12-21/3368585-6.patch"

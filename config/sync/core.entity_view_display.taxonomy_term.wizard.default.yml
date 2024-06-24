@@ -72,4 +72,5 @@ content:
     weight: 7
     region: content
 hidden:
+  breadcrumbs: true
   langcode: true
