@@ -1,0 +1,23 @@
+uuid: b495a106-b4d3-4682-b25a-3df6767478d3
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - menu_link_content
+    - menu_item_fields
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: menu_link_content.field_custom_parent
+field_name: field_custom_parent
+entity_type: menu_link_content
+type: boolean
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
