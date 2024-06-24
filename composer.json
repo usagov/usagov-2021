@@ -160,5 +160,13 @@
                 "drupal/ckeditor_templates"
             ]
         }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "mkdir -p web/libraries/lazysizes && cp -r vendor/bower-asset/lazysizes/lazysizes.min.js web/libraries/lazysizes/"
+        ],
+        "post-update-cmd": [
+            "mkdir -p web/libraries/lazysizes && cp -r vendor/bower-asset/lazysizes/lazysizes.min.js web/libraries/lazysizes/"
+        ]
     }
 }
