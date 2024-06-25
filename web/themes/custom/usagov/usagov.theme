@@ -320,16 +320,19 @@ function usagov_preprocess_block(&$variables) {
     $nav_page_items = [];
     foreach ($children_of_active_menu_item as $child) {
       $data = new StdClass();
+
+      if (isset($child['url']->getRouteParameters()['node'])) {
+        $childTaxonomy = FALSE;
+        $childEntity = Node::load($child['url']->getRouteParameters()['node']);
+      } else if (isset($child['url']->getRouteParameters()['taxonomy_term'])) {
+        $childTaxonomy = TRUE;
+        $childEntity = Term::load($child['url']->getRouteParameters()['taxonomy_term']);
+      }
       //Must get title, description and url if available; Try to get other fields
 
       //Get Title & URL (Required Fields- Can Call Together)
       try {
-
-        $childNidOrTid = $child['url']->getRouteParameters()['node'] ?? $child['url']->getRouteParameters()['taxonomy_term'];
-
-        $childEntity = Node::load($childNidOrTid) ?? Term::load($childNidOrTid);
-
-        if (isset($childEntity->get('name')->value)) {
+        if ($childTaxonomy === TRUE) {
           $data->title = $childEntity->get('name')->value;
         } else {
           $data->title = $childEntity->get('title')->value;
@@ -337,6 +340,7 @@ function usagov_preprocess_block(&$variables) {
 
         $data->url = $childEntity->toUrl()->toString();
       }
+
       catch (Exception $e) {
         $menuItem = $child['original_link']->getPluginDefinition();
         $data->title = $menuItem['title'];
@@ -347,10 +351,8 @@ function usagov_preprocess_block(&$variables) {
         }
       }
 
-      //Get Description (Optional Field - A catch on this shouldn't trigger a catch on title or url)
+      // Get Description (Optional Field - A catch on this shouldn't trigger a catch on title or url)
       try {
-        $childNidOrTid = $child['url']->getRouteParameters()['node'] ?? $child['url']->getRouteParameters()['taxonomy_term'];
-        $childEntity = Node::load($childNidOrTid) ?? Term::load($childNidOrTid);
         if ($childEntity->hasField('field_short_description') && $childEntity->get('field_short_description')->value != "") {
           $data->description = $childEntity->get('field_short_description')->value;
         }
