@@ -53,7 +53,8 @@ settings:
         startIndex: true
       multiBlock: true
     ckeditor5_sourceEditing:
-      allowed_tags: {  }
+      allowed_tags:
+        - '<div>'
     ckeditor5_style:
       styles:
         -
