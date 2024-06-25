@@ -397,7 +397,7 @@ input#search-field-small-mobile-menu {
   }
 
   .usa-header--extended .usa-alert--no-icon .usa-alert__body{
-    padding-left: 2rem !important;
+    padding-left: 1.7rem !important;
   }
 
 }
@@ -421,9 +421,9 @@ input#search-field-small-mobile-menu {
       top: -0.5rem;
       @include u-bg('gray-90');
 
-      @media (max-width: 1022px) {
-        left: 0.4rem;
-      }
+      // @media (max-width: 1022px) {
+      //   left: 0.4rem;
+      // }
     }
   }
 }
