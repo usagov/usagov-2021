@@ -1,4 +1,4 @@
-// lazloadBgImage.js
+// lazyloadBgImage.js
 document.addEventListener('lazybeforeunveil', function (e) {
   'use strict';
   // map of class names to relative image paths
