@@ -49,6 +49,7 @@ permissions:
   - 'access block library'
   - 'access content overview'
   - 'access devel information'
+  - 'access media overview'
   - 'access site in maintenance mode'
   - 'access toolbar'
   - 'add paragraphs entity embed'

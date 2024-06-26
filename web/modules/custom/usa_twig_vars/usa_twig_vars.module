@@ -6,7 +6,15 @@
  */
 
 use Drupal\block\Entity\Block;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Language\Language;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\Url;
+use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
+use Drupal\path_alias\PathAliasInterface;
+use Drupal\pathauto\PathautoPatternInterface;
 use Drupal\taxonomy\Entity\Term;
 
 /**
@@ -340,4 +348,61 @@ function usa_twig_vars_after_build($form, &$form_state) {
     }
   }
   return $form;
+}
+
+/** Helper function to check if node should be excluded from contact center based on path. Updates the exclude from url checkbox on edit pages.  */
+function usa_twig_vars_check_exclude_from_contact_center($nodeToCheck) {
+  $pathAliasToCheck = $nodeToCheck->toUrl()->toString();
+  if (str_contains($pathAliasToCheck, '/es/articulos/') || str_contains($pathAliasToCheck, '/features/')) {
+    $old_checkbox = $nodeToCheck->get('field_exclude_from_contact_cente')[0]->value;
+
+    $nodeToCheck->set('field_exclude_from_contact_cente', 1);
+    $nodeToCheck->save();
+
+    $new_checkbox = $nodeToCheck->get('field_exclude_from_contact_cente')[0]->value;
+  }
+}
+
+/** Helper function to get the node from a path. Used in path_alias_insert and path_alias_update.  */
+function usa_twig_vars_get_node_from_path($path) {
+  $path_alias = $path->getAlias();
+  $params = Url::fromUserInput($path_alias)->getRouteParameters();
+  $entity_type_id = array_key_first($params);
+  $node = \Drupal::entityTypeManager()->getStorage($entity_type_id)->load($params[$entity_type_id]);
+  return $node;
+}
+
+/**
+ * Implements hook_views_post_execute()
+ * When a user goes to this view it will call usa_twig_vars_check_exclude_from_contact_center() on all the nodes to check the box for all features to the exclude from contact center
+ */
+function usa_twig_vars_views_post_execute($view) {
+  if ($view->id() == 'features' && ($view->current_display == 'all_paths')) {
+    $new_result = $view->result;
+    $num_results = count($new_result);
+
+    for ($res = 0; $res < $num_results; $res++) {
+      $nid = $new_result[$res]->_entity->nid[0]->value;
+      $node = Node::load($nid);
+      usa_twig_vars_check_exclude_from_contact_center($node);
+    }
+  }
+}
+
+/**
+ * Implements hook_path_alias_update()
+ * When a user edits the url alias of a content page this is triggered to see if the node should be excluded from the contact center. If so the value of the exclude from contact center is set to 1.
+ */
+function usa_twig_vars_path_alias_update(PathAliasInterface $path) {
+  $node = usa_twig_vars_get_node_from_path($path);
+  usa_twig_vars_check_exclude_from_contact_center($node);
+}
+
+/**
+ * Implements hook_path_alias_insert()
+ * When a user creates a new content page this is triggered to see if the node should be excluded from the contact center. If so the value of the exclude from contact center is set to 1.
+ */
+function usa_twig_vars_path_alias_insert(PathAliasInterface $path) {
+  $node = usa_twig_vars_get_node_from_path($path);
+  usa_twig_vars_check_exclude_from_contact_center($node);
 }
