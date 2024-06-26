@@ -14,12 +14,7 @@
 	</div>
 
   {% if (usagov_show_benefits_landing_block) %}
-    {%  if( node.field_homepage_benefits_ref) %}
-      {% set benefits_url = drupal_url('node/' ~ node.field_homepage_benefits_ref.value[0].target_id ) %}
-      <a href="{{ benefits_url }}">Benefits</a>
-    {% endif %}
-
-    <div class="homepage-benefits-block">
+    <div class="benefits-block-bg">
       {% include directory ~ '/templates/includes/homepage-benefits-block.html.twig' %}
     </div>
   {%  else  %}

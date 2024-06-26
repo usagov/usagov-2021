@@ -1,17 +1,14 @@
 {% set lang = node.langcode.value %}
 
-<div class="benefits-block">
-  <img src="/themes/custom/usagov/images/ICONS_beta_Benefits.svg" alt="Visit the benefit finder page" height="56px">
-
-  <div class="benefits-text">
-    <h2>{{ lang == 'en' ? 'Government benefits and financial assistance' : 'Beneficios del Gobierno y asistencia financiera' }}</h2>
-    <p>{{ lang == 'en' ? 'Find and learn how to apply for government benefits for yourself and your family.' :
-      'Encuentre beneficios del Gobierno para usted y su familia y conozca cómo aplicar para.' }}</p>
-  </div>
-
-  {% if lang == 'en'  %}
-    <a href="/find-benefits-category/" class="usa-button benefits-link"> {{ 'Begin benefits search' | t }}</a>
-  {% else %}
-    <a href="/es/cuales-beneficios-califica-usted/" class="usa-button benefits-link">{{ 'Encuentre beneficios' | t }}</a>
-  {% endif %}
-</div>
+{%  if (node.field_homepage_benefits_ref) %}
+  {% set benefits_url = drupal_url('node/' ~ node.field_homepage_benefits_ref.value[0].target_id ) %}
+    <div class="benefits-block">
+      <img src="/themes/custom/usagov/images/ICONS_beta_Benefits.svg" alt="Visit the benefit finder page" height="56px">
+      <div class="benefits-text">
+        <h2>{{ node.field_homepage_benefits_title.value }}</h2>
+        <p>{{ node.field_homepage_benefits_descr.value | striptags }}</p>
+      </div>
+        <a href="{{ benefits_url }}" class="usa-button benefits-link">
+          {{ node.field_homepage_benefits_button.value }}</a>
+    </div>
+{% endif %}

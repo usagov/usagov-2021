@@ -1,7 +1,7 @@
 @use "usagov-variables" as *;
 @use "uswds-core" as *;
 
-.homepage-benefits-block {
+.benefits-block-bg {
   @include u-margin-x(auto);
   @include u-margin-top(2);
   max-width: 1124px;
@@ -64,7 +64,7 @@ a.usa-button.benefits-link {
 
   .benefits-block {
     display: grid;
-    grid-template-columns: 100px 1fr 250px;
+    grid-template-columns: 100px 1fr 260px;
 
     > img {
       @include u-display(block);
@@ -72,8 +72,19 @@ a.usa-button.benefits-link {
   }
 
   .benefits-text {
-    padding-right: 65px;
+    @include u-padding-right(5);
     @include u-margin-bottom(0);
   }
+}
 
+.nav-benefits {
+  @include u-padding-y('205');
+
+  .benefits-text > p {
+    @include u-text('gray-90');
+  }
+
+  .benefits-block {
+    align-items: center;
+  }
 }
