@@ -700,6 +700,11 @@ div div.field--name-field-offices-near-you {
   @include u-text('normal');
 }
 
+// Add padding for feedback button
+button#QSIFeedbackButton-btn {
+  padding: 2px;
+}
+
 [href]:focus,
 button:not([disabled]):focus,
 input:not([disabled]):focus,
@@ -767,6 +772,13 @@ select:not([disabled]):focus,
 // elected-officials hide autofill contact for state dropdown - name is not brought over to input by uswds so autofill is being triggered in Safari
 input::-webkit-textfield-decoration-container {
   visibility: hidden;
+}
+
+// sets height for desktop to make space above and below breadcrumb look even on Navigation Cards Page
+@media screen and (min-width: 64em) {
+  .grid-row.breadcrumb-spacing>div {
+    height: 3.5rem;
+  }
 }
 
 .benefits-finder-content {

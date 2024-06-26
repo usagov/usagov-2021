@@ -24,4 +24,11 @@ usa_admin_styles.admin_export_users:
   description: 'Download the user records in CSV format'
   parent: usa_admin_styles.main
   url: internal:/admin/people/list
-  weight: 30 
+  weight: 30
+
+usa_admin_styles.admin_exclude_from_cc:
+  title: 'Batch Update Exclude From Contact Center'
+  description: 'Set features to exclude from contact center'
+  parent: usa_admin_styles.main
+  url: internal:/admin/structure/views/view/features
+  weight: 40
