@@ -1,4 +1,30 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+if [ -f $SCRIPT_DIR/../bin/deploy/includes ]; then
+  . $SCRIPT_DIR/../bin/deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../bin/deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
+fi
 
 #####################################################################
 ##
@@ -8,21 +34,21 @@
 #####################################################################
 
 WWW_APP=www
-WAF_APP=waf-dr
+WAF_APP=waf
 CMS_APP=cms
 ORG=gsa-tts-usagov
-APP_SPACE=dev-dr
-EGRESS_SPACE=shared-egress-dr
+APP_SPACE=dr
+EGRESS_SPACE=shared-egress
 
 #echo=echo
 
-ATAG=8244
+ATAG=9600
 CTAG=$ATAG
 WTAG=$ATAG
 STAG=$ATAG
-export CDIGEST=@sha256:496ae1b256c7082e7df1235f05274397e7f49070ac29ee22f3b313201c8b0b09
-export WDIGEST=@sha256:49cb15b6bbbc2873ea8952802094f938bbd8c99310491c91f381b664516c1857
-export SDIGEST=@sha256:87d84e1b041763906b3e21649e372a5ff830c7f33531fbcb66ac7fd8b60a3c79
+export CDIGEST=@sha256:950b3569546f667776b81a44c96876d3488bfa0fb6d0f699387694e56d46764f
+export WDIGEST=@sha256:6f031e36cbfc56aadfb0932fb7f3a2ea24f031587616b1e15bc35c5d49a4229a
+export SDIGEST=@sha256:08c245dd259d230aa35f44578af85fe0aa2fd558e731ca2b533a099fa5926649
 
 #echo  cf delete-space $APP_SPACE
 #while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
@@ -36,32 +62,40 @@ export SDIGEST=@sha256:87d84e1b041763906b3e21649e372a5ff830c7f33531fbcb66ac7fd8b
 #$echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
 #exit
 
-#echo bin/cloudgov/create-app-space $APP_SPACE $ORG PIPE tee ca.log
-#$echo bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
-#echo cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#exit
+# echo bin/cloudgov/create-app-space $APP_SPACE $ORG PIPE tee ca.log
+# $echo bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
+# echo assertSpaceExists $APP_SPACE
+# $echo assertSpaceExists $APP_SPACE
+# echo cf target -s $APP_SPACE
+# $echo cf target -s $APP_SPACE
+# echo assertCurSpace $APP_SPACE
+# $echo assertCurSpace $APP_SPACE
+# exit
 
-#
-#echo cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#echo bin/cloudgov/deploy-services  PIPE tee ds.log
-#$echo bin/cloudgov/deploy-services  | tee ds.log
-#exit
 
-#
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
+echo bin/cloudgov/deploy-services PIPE tee ds.log
+$echo bin/cloudgov/deploy-services | tee ds.log
+exit
+
+
 #echo cf target -s $EGRESS_SPACE
 #$echo cf target -s $EGRESS_SPACE
 #echo cf create-service s3 basic-sandbox key-value  PIPE tee cskv.log
 #$echo cf create-service s3 basic-sandbox key-value  | tee cskv.log
 #exit
 
-#
-#echo cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#echo  bin/cloudgov/create-service-account PIPE tee csa.log
-#$echo bin/cloudgov/create-service-account | tee csa.log
-#exit
+
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+echo  bin/cloudgov/create-service-account cci PIPE tee csa.log
+$echo bin/cloudgov/create-service-account cci | tee csa.log
+echo  bin/cloudgov/create-service-account cfevents PIPE tee csa.log
+$echo bin/cloudgov/create-service-account cfevents | tee csa.log
+exit
 
 #
 #echo  cf target -s $APP_SPACE
