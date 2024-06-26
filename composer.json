@@ -48,6 +48,7 @@
         "drupal/menu_block": "^1.7",
         "drupal/menu_breadcrumb": "^2.0@alpha",
         "drupal/menu_entity_index": "^1.6",
+        "drupal/minifyjs": "^3.0",
         "drupal/new_relic_rpm": "^2.1",
         "drupal/node_menus": "^3.0@alpha",
         "drupal/paragraphs_entity_embed": "^3.0",
