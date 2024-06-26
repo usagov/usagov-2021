@@ -774,3 +774,10 @@ input::-webkit-textfield-decoration-container {
     height: 3.5rem;
   }
 }
+
+.benefits-finder-content {
+  .usa-prose>p.usa-intro {
+    @include u-margin(0);
+    max-width: 100%;
+  }
+}
