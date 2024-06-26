@@ -61,8 +61,10 @@ function usagov_wizard_preprocess_page(&$variables) {
     $menuEntities = $menuChecker->getTargetEntities($menu_name);
 
     // See if there are any matches.
-    $matching_tid = array_intersect($termParents, $menuEntities['target_tids']);
-    $matching_tid = implode(',', $matching_tid);
+    if (isset($menuEntities['target_tids'])) {
+      $matching_tid = array_intersect($termParents, $menuEntities['target_tids']);
+
+      $matching_tid = implode(',', $matching_tid);
 
     // If there are matches, send them to the twig.
     if (isset($matching_tid)) {
@@ -80,7 +82,8 @@ function usagov_wizard_preprocess_page(&$variables) {
         });
 
         $variables['menu_entities'] = $entities;
+        }
       }
-    }
+    } // End isset $menuEntities['target_tids']
   }
 }
