@@ -8,6 +8,7 @@ dependencies:
     - field.field.node.basic_page.field_50_state_pages_type
     - field.field.node.basic_page.field_benefit_search_weight
     - field.field.node.basic_page.field_benefits_callout_descr
+    - field.field.node.basic_page.field_benefits_callout_ref
     - field.field.node.basic_page.field_benefits_category
     - field.field.node.basic_page.field_benefits_life_events_descr
     - field.field.node.basic_page.field_benefits_life_events_title
@@ -24,6 +25,7 @@ dependencies:
     - field.field.node.basic_page.field_hide_page_intro
     - field.field.node.basic_page.field_homepage_banner
     - field.field.node.basic_page.field_homepage_benefits_descr
+    - field.field.node.basic_page.field_homepage_benefits_ref
     - field.field.node.basic_page.field_homepage_benefits_title
     - field.field.node.basic_page.field_homepage_top_links
     - field.field.node.basic_page.field_is_navigation_page
@@ -64,6 +66,7 @@ hidden:
   field_50_state_pages_type: true
   field_benefit_search_weight: true
   field_benefits_callout_descr: true
+  field_benefits_callout_ref: true
   field_benefits_category: true
   field_benefits_life_events_descr: true
   field_benefits_life_events_title: true
@@ -80,6 +83,7 @@ hidden:
   field_hide_page_intro: true
   field_homepage_banner: true
   field_homepage_benefits_descr: true
+  field_homepage_benefits_ref: true
   field_homepage_benefits_title: true
   field_homepage_top_links: true
   field_is_navigation_page: true

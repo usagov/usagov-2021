@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+if [ -f $SCRIPT_DIR/../../deploy/includes ]; then
+  . $SCRIPT_DIR/../../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../../deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
+
+### Note:  The 'sed' command will strip out the log messages which now appear when we execute commands in cf spaces
+$echo cf ssh cms --force-pseudo-tty -c ". /etc/profile; drush sql:query 'select table_schema,sum((data_length+index_length)/1024/1024) AS MB from information_schema.tables group by 1'" | sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}.*$//'
