@@ -1,0 +1,21 @@
+uuid: 092ce0f9-c12e-4a4d-818b-0fdeb36216c9
+langcode: en
+status: false
+dependencies: {  }
+id: dev
+label: Dev
+description: 'Configurations for development environments.'
+weight: 0
+stackable: false
+no_patching: false
+storage: folder
+folder: ../config/dev
+module:
+  devel: 0
+theme: {  }
+complete_list:
+  - devel.settings
+  - devel.toolbar.settings
+  - system.menu.devel
+partial_list:
+  - autologout.settings

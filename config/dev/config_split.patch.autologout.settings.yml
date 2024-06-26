@@ -1,0 +1,6 @@
+adding:
+  timeout: 10000
+  max_timeout: 10000
+removing:
+  timeout: 1800
+  max_timeout: 1800

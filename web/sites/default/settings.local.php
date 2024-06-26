@@ -17,3 +17,6 @@ $settings['trusted_host_patterns'] = [
 
 $config['user.settings']['register'] = 'admin_only';
 $settings['usagov_login_local_form'] = 1;
+
+// Activate dev config split.
+$config['config_split.config_split.dev']['status'] = TRUE;
