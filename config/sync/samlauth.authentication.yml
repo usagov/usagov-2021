@@ -14,8 +14,8 @@ drupal_login_roles:
   site_admin: '0'
   content_manager: '0'
   content_administrator: '0'
+  benefits_finder_content_manager: '0'
 sp_entity_id: 'https://secureauth.gsa.gov'
-sp_force_https: true
 sp_name_id_format: 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
 sp_x509_certificate: 'file:/var/www/sp.crt'
 sp_new_certificate: ''
@@ -38,6 +38,7 @@ map_users_roles:
   site_admin: site_admin
   content_manager: content_manager
   content_administrator: content_administrator
+  benefits_finder_content_manager: benefits_finder_content_manager
 create_users: false
 sync_name: false
 sync_mail: false
@@ -68,3 +69,4 @@ debug_log_saml_out: false
 debug_phpsaml: false
 use_proxy_headers: false
 use_base_url: true
+sp_force_https: true

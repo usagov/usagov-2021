@@ -126,9 +126,15 @@
 
 		<div class="grid-container">
 			{% if page.breadcrumb or page.highlighted or page.help %}
+				{% if pagetype == "Navigation Cards Page"%}
+				<div class="grid-row breadcrumb-spacing">
+					{{ page.breadcrumb }}
+				</div>
+				{% else %}
 				<div class="grid-row">
 					{{ page.breadcrumb }}
 				</div>
+				{% endif %}
 
 				<div class="">
 					{{ page.highlighted }}
@@ -188,5 +194,3 @@
 {% endif %}
 
 {% include '@usagov/footer_nav.html.twig' %}
-
-
