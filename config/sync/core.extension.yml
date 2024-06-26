@@ -49,7 +49,6 @@ module:
   lazy: 0
   link: 0
   log_stdout: 0
-  mail_safety: 0
   media: 0
   media_library: 0
   menu_block: 0
