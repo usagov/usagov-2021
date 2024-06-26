@@ -308,3 +308,7 @@ function assertIsImageDigest() {
     fi
   done
 }
+
+function s3FoldersList() {
+ echo cfevents cms db-backup tome-log web-backup web
+}

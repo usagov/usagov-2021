@@ -1,0 +1,47 @@
+#!/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+startorg=$(cf target | grep org: | awk '{ print $2 }')
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
+
+CONFIRM=${1:-nope-I-will-not-do-it}
+shift
+
+. $SCRIPT_DIR/get-s3-access &>/dev/null
+
+if [ $CONFIRM != "--confirm-bucket-teardown" ]; then
+    echo
+    echo=echo
+    echo "Please add '--confirm-bucket-teardown' as the second argument, if you really wish to DELETE THE CONTENTS OF THE ENTIRE BUCKET '$S3_BUCKET' in cf space '$SPACE' !"
+    echo
+    exit
+fi
+
+$echo touch /tmp/.s3keep
+for folder in $(s3FoldersList); do 
+    echo aws s3 rm --only-show-errors --recursive s3://$S3_BUCKET/$folder
+    $echo aws s3 rm --only-show-errors --recursive s3://$S3_BUCKET/$folder
+done
+$echo rm /tmp/.s3keep
