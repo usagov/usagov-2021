@@ -2,170 +2,170 @@ _core:
   default_config_hash: jdY7AU0tU-QsjmiOw3W8vwpYMb-By--_MSFgbqKUTYM
 definitions:
   system__admin_content:
+    menu_name: admin
+    parent: system.admin
     weight: -99
-    menu_name: admin
-    parent: system.admin
-    enabled: true
     expanded: false
+    enabled: true
   system__admin_structure:
-    weight: -98
     menu_name: admin
     parent: system.admin
+    weight: -98
     expanded: false
     enabled: true
   system__themes_page:
-    weight: -97
     menu_name: admin
     parent: system.admin
+    weight: -97
     expanded: false
     enabled: true
   system__modules_list:
-    weight: -96
     menu_name: admin
     parent: system.admin
+    weight: -96
     expanded: false
     enabled: true
   system__admin_config:
-    weight: -95
     menu_name: admin
     parent: system.admin
+    weight: -95
     expanded: false
     enabled: true
   entity__user__collection:
-    weight: -94
     menu_name: admin
     parent: system.admin
+    weight: -94
     expanded: false
     enabled: true
   system__admin_reports:
-    weight: -93
     menu_name: admin
     parent: system.admin
+    weight: -93
     expanded: false
     enabled: true
   usa_admin_styles__main:
-    weight: -92
     menu_name: admin
     parent: system.admin
+    weight: -92
     expanded: false
     enabled: true
   usa_admin_styles__admin_export_states:
-    weight: 11
     menu_name: admin
     parent: usa_admin_styles.main
+    weight: 11
     expanded: false
     enabled: true
   usa_admin_styles__admin_export_users:
-    weight: 12
     menu_name: admin
     parent: usa_admin_styles.main
+    weight: 12
     expanded: false
     enabled: true
   'admin_toolbar_tools__extra_links:entity__taxonomy_vocabulary__overview_form__scams':
-    weight: -992
-    parent: entity.taxonomy_vocabulary.collection
     menu_name: admin
+    parent: entity.taxonomy_vocabulary.collection
+    weight: -992
     expanded: false
     enabled: true
   'admin_toolbar_tools__extra_links:entity__taxonomy_vocabulary__overview_form__bears_tags':
+    menu_name: admin
+    parent: entity.taxonomy_vocabulary.collection
     weight: -997
-    menu_name: admin
-    parent: entity.taxonomy_vocabulary.collection
-    enabled: true
     expanded: false
+    enabled: true
   'admin_toolbar_tools__extra_links:entity__taxonomy_vocabulary__overview_form__content_tags':
-    weight: -996
     menu_name: admin
     parent: entity.taxonomy_vocabulary.collection
+    weight: -996
     expanded: false
     enabled: true
   'admin_toolbar_tools__extra_links:entity__taxonomy_vocabulary__overview_form__page_type':
-    weight: -995
     menu_name: admin
     parent: entity.taxonomy_vocabulary.collection
+    weight: -995
     expanded: false
     enabled: true
   'admin_toolbar_tools__extra_links:entity__taxonomy_vocabulary__overview_form__uswds_breakpoints':
-    weight: -994
     menu_name: admin
     parent: entity.taxonomy_vocabulary.collection
+    weight: -994
     expanded: false
     enabled: true
   'admin_toolbar_tools__extra_links:entity__taxonomy_vocabulary__overview_form__uswds_classes':
-    weight: -993
     menu_name: admin
     parent: entity.taxonomy_vocabulary.collection
+    weight: -993
     expanded: false
     enabled: true
   'admin_toolbar_tools__extra_links:entity__taxonomy_vocabulary__overview_form__uswds_colors':
-    weight: -991
     menu_name: admin
     parent: entity.taxonomy_vocabulary.collection
+    weight: -991
     expanded: false
     enabled: true
   'admin_toolbar_tools__extra_links:entity__entity_permissions_form__taxonomy_term__default__uswds_colors':
-    weight: 5
     menu_name: admin
     parent: 'admin_toolbar_tools.extra_links:entity.taxonomy_vocabulary.overview_form.uswds_colors'
+    weight: 5
     expanded: false
     enabled: true
   'admin_toolbar_tools__extra_links:entity__taxonomy_vocabulary__devel_load__uswds_colors':
-    weight: 6
     menu_name: admin
     parent: 'admin_toolbar_tools.extra_links:entity.taxonomy_vocabulary.overview_form.uswds_colors'
+    weight: 6
     expanded: false
     enabled: true
   'admin_toolbar_tools__extra_links:entity__taxonomy_vocabulary__delete_form__uswds_colors':
-    weight: 7
     menu_name: admin
     parent: 'admin_toolbar_tools.extra_links:entity.taxonomy_vocabulary.overview_form.uswds_colors'
+    weight: 7
     expanded: false
     enabled: true
   'admin_toolbar_tools__extra_links:entity__taxonomy_vocabulary__overview_form__uswds_icons':
-    weight: -990
     menu_name: admin
     parent: entity.taxonomy_vocabulary.collection
+    weight: -990
     expanded: false
     enabled: true
   'admin_toolbar_tools__extra_links:entity__wizard_question_type__edit_form__scams_questions':
-    weight: 3
     menu_name: admin
     parent: 'menu_link_content:1ca79fa1-e214-4151-ae31-23a668fa3045'
+    weight: 3
     expanded: false
     enabled: false
   'admin_toolbar_tools__extra_links:entity__wizard_question__field_ui_fieldsscams_questions':
-    enabled: false
     menu_name: admin
     parent: 'admin_toolbar_tools.extra_links:entity.wizard_question_type.edit_form.scams_questions'
     weight: 1
     expanded: false
-  'admin_toolbar_tools__extra_links:entity__entity_form_display__wizard_question__defaultscams_questions':
     enabled: false
+  'admin_toolbar_tools__extra_links:entity__entity_form_display__wizard_question__defaultscams_questions':
     menu_name: admin
     parent: 'admin_toolbar_tools.extra_links:entity.wizard_question_type.edit_form.scams_questions'
     weight: 2
     expanded: false
-  'admin_toolbar_tools__extra_links:entity__entity_view_display__wizard_question__default__scams_questions':
     enabled: false
+  'admin_toolbar_tools__extra_links:entity__entity_view_display__wizard_question__default__scams_questions':
     menu_name: admin
     parent: 'admin_toolbar_tools.extra_links:entity.wizard_question_type.edit_form.scams_questions'
     weight: 3
     expanded: false
-  'admin_toolbar_tools__extra_links:entity__wizard_question_type__devel_load__scams_questions':
     enabled: false
+  'admin_toolbar_tools__extra_links:entity__wizard_question_type__devel_load__scams_questions':
     menu_name: admin
     parent: 'admin_toolbar_tools.extra_links:entity.wizard_question_type.edit_form.scams_questions'
     weight: 4
     expanded: false
-  'admin_toolbar_tools__extra_links:entity__wizard_question_type__delete_form__scams_questions':
     enabled: false
+  'admin_toolbar_tools__extra_links:entity__wizard_question_type__delete_form__scams_questions':
     menu_name: admin
     parent: 'admin_toolbar_tools.extra_links:entity.wizard_question_type.edit_form.scams_questions'
     weight: 5
     expanded: false
+    enabled: false
   system__admin:
-    weight: 2
     menu_name: admin
     parent: ''
+    weight: 2
     expanded: false
     enabled: true

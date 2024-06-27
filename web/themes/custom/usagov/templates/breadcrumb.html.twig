@@ -32,6 +32,7 @@
                 role="navigation"
                 aria-label="Breadcrumb"
             >
+          {% block content %}
             <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">
                 {% for item in breadcrumb %}
                     <li class="usa-breadcrumb__list-item {{ item.url ? '' : 'usa-breadcrumb__currrent' }}" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
@@ -41,10 +42,7 @@
                                     {% if item.url == '/es' %}
                                         Página principal
                                     {% else %}
-                                        {{ item.text }}
-                                    {% endif %}
-                                </span>
-                            </a>
+                                        {{ item.text }}{% endif %}</span></a>
                         {% else %}
                             <span itemprop="name">{{ item.text }}</span>
                         {% endif %}
@@ -52,6 +50,7 @@
                     </li>
                 {% endfor %}
             </ol>
+            {% endblock %}
         </nav>
     {% endif %}
 {% endif %}

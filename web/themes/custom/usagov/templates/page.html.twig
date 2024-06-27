@@ -165,10 +165,12 @@
 							{% endif %}
 						{% endif %}
 
-						{% include '@usagov/sharethispage.html.twig' %}
-						{% include '@usagov/haveaquestion.html.twig' %}
+            {% block qual %}
+              {% include '@usagov/sharethispage.html.twig' %}
+              {% include '@usagov/haveaquestion.html.twig' %}
 
-						<div id="pagesurvey-qual-container"></div>
+              <div id="pagesurvey-qual-container"></div>
+            {% endblock %}
 					</div>
 
 				</div>
