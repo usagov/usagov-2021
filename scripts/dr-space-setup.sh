@@ -50,14 +50,16 @@ export CDIGEST=@sha256:950b3569546f667776b81a44c96876d3488bfa0fb6d0f699387694e56
 export WDIGEST=@sha256:6f031e36cbfc56aadfb0932fb7f3a2ea24f031587616b1e15bc35c5d49a4229a
 export SDIGEST=@sha256:08c245dd259d230aa35f44578af85fe0aa2fd558e731ca2b533a099fa5926649
 
-#echo  cf delete-space $APP_SPACE
-#while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
-#exit
+# echo  cf delete-space $APP_SPACE
+# while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
+# exit
 
+#### NOT FOR 2024 CP/DR Exercise
 #echo  cf delete-space $EGRESS_SPACE
 #$echo cf delete-space $EGRESS_SPACE
 #exit
 
+#### NOT FOR 2024 CP/DR Exercise
 #echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG  PIPE tee ce.org
 #$echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
 #exit
@@ -72,15 +74,13 @@ export SDIGEST=@sha256:08c245dd259d230aa35f44578af85fe0aa2fd558e731ca2b533a099fa
 # $echo assertCurSpace $APP_SPACE
 # exit
 
-
-echo cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
-echo assertCurSpace $APP_SPACE
-$echo assertCurSpace $APP_SPACE
-echo bin/cloudgov/deploy-services PIPE tee ds.log
-$echo bin/cloudgov/deploy-services | tee ds.log
-exit
-
+# echo cf target -s $APP_SPACE
+# $echo cf target -s $APP_SPACE
+# echo assertCurSpace $APP_SPACE
+# $echo assertCurSpace $APP_SPACE
+# echo bin/cloudgov/deploy-services PIPE tee ds.log
+# $echo bin/cloudgov/deploy-services | tee ds.log
+# exit
 
 #echo cf target -s $EGRESS_SPACE
 #$echo cf target -s $EGRESS_SPACE
@@ -88,14 +88,13 @@ exit
 #$echo cf create-service s3 basic-sandbox key-value  | tee cskv.log
 #exit
 
-
-echo cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
-echo  bin/cloudgov/create-service-account cci PIPE tee csa.log
-$echo bin/cloudgov/create-service-account cci | tee csa.log
-echo  bin/cloudgov/create-service-account cfevents PIPE tee csa.log
-$echo bin/cloudgov/create-service-account cfevents | tee csa.log
-exit
+# echo cf target -s $APP_SPACE
+# $echo cf target -s $APP_SPACE
+# echo  bin/cloudgov/create-service-account dr cci PIPE tee csa.log
+# $echo bin/cloudgov/create-service-account dr cci | tee csa.log
+# echo  bin/cloudgov/create-service-account dr cfevents PIPE tee csa.log
+# $echo bin/cloudgov/create-service-account dr cfevents | tee csa.log
+# exit
 
 #
 #echo  cf target -s $APP_SPACE
@@ -105,43 +104,39 @@ exit
 #exit
 #
 
+# echo  cf target -s $APP_SPACE
+# $echo cf target -s $APP_SPACE
+# echo  cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "beta-dr.usa.gov,cms-dr.usa.gov"}'
+# $echo cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "beta-dr.usa.gov,cms-dr.usa.gov"}'
+# while [ 1 = 1 ]; do clear; cf service ${APP_SPACE}-usagov-domain; sleep 10; done
+# exit
+
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
-#echo  cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "dev-dr.usa.gov,shared-egress-dr.usa.gov"}'
-#$echo cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c '{"domains": "dev-dr.usa.gov,shared-egress-dr.usa.gov"}'
-#while [ 1 = 1 ]; do clear; cf service ${APP_SPACE}-usagov-domain; sleep 10; done
+#echo bin/cloudgov/setup-egress-for-space
+#$echo bin/cloudgov/setup-egress-for-space
 #exit
 
-##
-## why is this being run again??
-##
-#echo  cf target -s $APP_SPACE
-#$echo cf target -s $APP_SPACE
-#echo  bin/cloudgov/create-service-account PIPE tee csa2.log
-#$echo bin/cloudgov/create-service-account | tee csa2.log
-#exit
-
-#
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
 #bin/cloudgov/deploy-cms $CTAG $CDIGEST
 #exit
 
-#
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
 #bin/cloudgov/deploy-www $STAG $SDIGEST
 #exit
 
-#ROUTE_SERVICE_APP_NAME=$WAF_APP \
-#ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
-#PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP" \
-#bin/cloudgov/deploy-waf $WTAG $WDIGEST
-#exit
+# ROUTE_SERVICE_APP_NAME=$WAF_APP \
+# ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
+# PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP" \
+# bin/cloudgov/deploy-waf $WTAG $WDIGEST
+# exit
 
 #cf set-env $WAF_APP IP_ALLOW_ALL_CMS 1
 #cf set-env $WAF_APP IP_ALLOW_ALL_WWW 1
 #cf restage $WAF_APP
+#exit
 
 ###
 cat <<'ZZ'
