@@ -21,8 +21,7 @@
  * @ingroup themeable
  */
 #}
-<div id="wizard-border">
-  <div id="msg" class="maxw-tablet margin-x-auto usa-error" tabindex= "-1"></div>
+<div class="margin-2">
   <input class="usa-radio__input usa-radio__input--tile" type="radio" id="{{ output|lower }}" name="options" value="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': row.tid}) }}">
   <label class="usa-radio__label" for="{{ output|lower }}">{{ output }}</label>
 </div>

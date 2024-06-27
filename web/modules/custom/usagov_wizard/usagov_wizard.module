@@ -37,6 +37,14 @@ $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
   }
 }
 
+function usagov_wizard_theme_suggestions_breadcrumb_alter(array &$suggestions, array &$variables) {
+  $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
+  if ($taxonomy_term instanceof \Drupal\taxonomy\Entity\Term) {
+    $variables['test'] = 'test';
+    $suggestions[] = 'breadcrumb__' . $taxonomy_term->vid->getValue()[0]['target_id'];
+  }
+}
+
 /**
  * Implements hook_preprocess_HOOK().
  *

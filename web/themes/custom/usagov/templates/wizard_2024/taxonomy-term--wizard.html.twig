@@ -26,6 +26,8 @@
  */
 #}
 
+{% set attributes = attributes.addClass('usa-prose') %}
+
 {# If the parent term has a different tid than the current term, then this is a child page.
 On the parent page, we want to hide a couple of things, so this is good to establish up front. #}
 
@@ -40,8 +42,8 @@ On the parent page, we want to hide a couple of things, so this is good to estab
 {% endif %}
 
 <div{{ attributes }}>
-  <h2>{{ content.field_heading }}</h2>
-  <p class="usa-intro">{{ field.intro }}</p>
+  <h1 class="text-red-50">{{ content.field_heading }}</h1>
+  <div class="usa-intro">{{ content.field_intro }}</div>
   {{ content.field_body }}
   {% if child %}
     {{ content.field_options_list }}
