@@ -8,4 +8,4 @@ id: block_content.site_banner
 target_entity_type_id: block_content
 target_bundle: site_banner
 default_langcode: site_default
-language_alterable: false
+language_alterable: true
