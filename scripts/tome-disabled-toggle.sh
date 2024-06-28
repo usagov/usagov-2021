@@ -3,6 +3,13 @@
 source /etc/profile
 TOME_DISABLED_STATE=$1
 
+CHECK_DB_CONNECTION=$(drush status | grep -E 'Database\s*:' | awk '{print $3}')
+
+if [ "$CHECK_DB_CONNECTION" != "Connected" ]; then
+  echo "Drush cannot connect to the database. Exiting. Drush status says database is: " "$CHECK_DB_CONNECTION"
+  exit 1
+fi
+
 if [ x$TOME_DISABLED_STATE == x0 ]; then
     drush sdel usagov.tome_run_disabled
     echo "Tome Disabled: " $(drush sget usagov.tome_run_disabled)
