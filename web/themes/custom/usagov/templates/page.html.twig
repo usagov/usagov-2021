@@ -152,7 +152,9 @@
         {% endblock %}
 
 				<div class="usa-layout-docs__main usa-prose desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
-					{{ page.content }}
+          {% block content %}
+          {{ page.content }}
+          {% endblock %}
 
 					<div class="additional_body_info">
 						{% if show_last_updated %}

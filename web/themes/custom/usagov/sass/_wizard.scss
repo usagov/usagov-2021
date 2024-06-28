@@ -3,6 +3,12 @@
 @use "usagov-variables" as *;
 @use "uswds-core" as *;
 
-.viewsreference--view-title {
-  display: none;
+.usagov-wizard {
+  .viewsreference--view-title {
+    display: none;
+  }
+
+  .usa-radio__input--tile+.usa-radio__label {
+    border: 0px;
+  }
 }
