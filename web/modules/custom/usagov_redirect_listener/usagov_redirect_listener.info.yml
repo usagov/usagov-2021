@@ -1,0 +1,6 @@
+name: 'USAGov Redirect Listener'
+type: module
+core_version_requirement: ^10
+description: 'Module to make changes to the html of the pages that do a redirect.'
+dependencies:
+  - redirect
