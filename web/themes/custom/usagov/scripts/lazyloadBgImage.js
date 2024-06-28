@@ -58,7 +58,7 @@ jQuery(document).ready(function () {
   }, options);
 
   for (const imgClass in imageMap) {
-    if (imageMap.hasOwnProperty(imgClass)){
+    if (imageMap.hasOwnProperty(imgClass)) {
       var imageElement = document.getElementsByClassName(`${imgClass} lazyload`)[0];
       if (imageElement) {
         lazyLoadingObserver.observe(imageElement);
