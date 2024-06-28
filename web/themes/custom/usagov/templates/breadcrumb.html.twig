@@ -41,10 +41,9 @@
                                 <span itemprop="name">
                                     {% if item.url == '/es' %}
                                         Página principal
-                                    {% else %}
-                                        {{ item.text }}{% endif %}</span></a>
+                                    {% else %}{{ item.text }}{% endif %}</span></a>
                         {% else %}
-                            <span itemprop="name">{{ item.text }}</span>
+                          <span itemprop="name">{{ item.text }}</span>
                         {% endif %}
                         <meta itemprop="position" content="{{loop.index}}" />
                     </li>

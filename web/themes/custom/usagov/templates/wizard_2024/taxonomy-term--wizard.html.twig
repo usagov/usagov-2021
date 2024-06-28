@@ -1,45 +1,10 @@
-{#
-/**
- * @file
- * Default theme implementation to display a taxonomy term.
- *
- * Available variables:
- * - url: URL of the current term.
- * - name: (optional) Name of the current term.
- * - content: Items for the content of the term (fields and description).
- *   Use 'content' to print them all, or print a subset such as
- *   'content.description'. Use the following code to exclude the
- *   printing of a given child element:
- *   @code
- *   {{ content|without('description') }}
- *   @endcode
- * - attributes: HTML attributes for the wrapper.
- * - page: Flag for the full page state.
- * - term: The taxonomy term entity, including:
- *   - id: The ID of the taxonomy term.
- *   - bundle: Machine name of the current vocabulary.
- * - view_mode: View mode, e.g. 'full', 'teaser', etc.
- *
- * @see template_preprocess_taxonomy_term()
- *
- * @ingroup themeable
- */
+{# variables set in usagov_wizard.module
+  parent_tid
+  child
+  start_over
 #}
 
 {% set attributes = attributes.addClass('usa-prose') %}
-
-{# If the parent term has a different tid than the current term, then this is a child page.
-On the parent page, we want to hide a couple of things, so this is good to establish up front. #}
-
-{% set term = elements['#taxonomy_term'].id %}
-{% set term = drupal_entity('taxonomy_term', term) %}
-{% set parent_term = term['#taxonomy_term'].parent.entity.id %}
-
-{% if parent_term != elements['#taxonomy_term'].id %}
-  {% set child = true %}
-{% else %}
-  {% set child = false %}
-{% endif %}
 
 <div{{ attributes }}>
   <h1 class="text-red-50">{{ content.field_heading }}</h1>
@@ -48,9 +13,9 @@ On the parent page, we want to hide a couple of things, so this is good to estab
   {% if child %}
     {{ content.field_options_list }}
     {{ content.field_footer }}
-    <div class="grid-row flex-justify maxw-mobile margin-x-auto margin-top-6  usa-reverse">
-      {# Generate the url for the parent of this term to put in the 'previous' button. #}
-      {% set previous_path = path('entity.taxonomy_term.canonical', {'taxonomy_term': parent_term}) %}
+    <div class="grid-row flex-justify maxw-mobile margin-x-auto margin-top-6 margin-bottom-2 usa-reverse">
+{#       Generate the url for the parent of this term to put in the 'previous' button. #}
+      {% set previous_path = path('entity.taxonomy_term.canonical', {'taxonomy_term': parent_tid}) %}
       <button id="prior" class="usa-button usa-button--outline usagov-button--outline-black usa-button--big" onclick="window.location.href = '{{ previous_path }}'">Previous</button>
 
       {# If there are items in the options list, this must not be the last term in the tree. Generate a Next button. #}
@@ -58,6 +23,11 @@ On the parent page, we want to hide a couple of things, so this is good to estab
       <button id="next" class="usa-button usa-button--secondary usa-button--big"
               onclick="if(document.querySelector(`input[name='options']:checked`)) { window.location.href = document.querySelector(`input[name='options']:checked`).value; }">Next</button>
       {% endif %}
+    </div>
+  {% endif %}
+  {% if start_over == 'true' %}
+    <div class="margin-top-2">
+      <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}">Start over</a>
     </div>
   {% endif %}
 </div>
