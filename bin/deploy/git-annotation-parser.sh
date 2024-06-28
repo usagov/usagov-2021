@@ -116,6 +116,27 @@ for at in $ANNOTATED_TAGS; do
         #echo "$WAF_DIGEST "
         ;;
 
+      WWW_DIGEST=*)
+        VAL=$(sed 's/^WWW_DIGEST=//' <<< $field)
+
+        # $VAL will be the hash string, eg:  @sha256:<hex string>.  The following
+        # code will split on ':' and do basic validation on both parts the the hash string
+        IFS=':' read -ra DIGEST <<< "$VAL"
+        for fieldpart in "${DIGEST[@]}"; do
+            re1='^\@(sha[0-9]+|md[2-5])$'
+            re2='^[0-9A-Fa-f]+$'
+            if ! [[ $fieldpart =~ $re1 ]]; then
+                if ! [[ $fieldpart =~ $re2 ]]; then
+                    echo "Invalid digest string ($fieldpart) in tag annotation for $at"
+                    exit 1
+                fi
+            fi
+        done
+        field=$(sed -E 's/=(.*)/="\1"/' <<< $field)
+        WWW_DIGEST=$VAL
+        #echo "$WWW_DIGEST "
+        ;;
+
       *)
         echo Unexpected content in tag annotation for $at
         exit 1
@@ -123,24 +144,37 @@ for at in $ANNOTATED_TAGS; do
 
     done
 
+    ANNOTATED_TAG=$at
     # Stop after processing first (latest) annotation
     break
 done
 
-if [ -n "$CCI_BUILD" -a -n "$WAF_DIGEST" -a -n $"$CMS_DIGEST" ]; then
-  echo
-  echo "To deploy the waf, please execute the following command:"
-  echo
-  echo "   ROUTE_SERVICE_APP_NAME=waf \\
-   ROUTE_SERVICE_NAME=waf-route-${SPACE}-usagov \\
-   PROTECTED_APP_NAME=cms \\
-      bin/cloudgov/deploy-waf $CCI_BUILD $WAF_DIGEST"
-  echo
-  echo
-  echo "To deploy the cms, please execute the following command:"
-  echo "   bin/cloudgov/deploy-cms $CCI_BUILD $CMS_DIGEST"
-  echo
+if [ -n $ANNOTATED_TAG ]; then
+  if [ -n "$CCI_BUILD" -a -n "$WAF_DIGEST" -a -n $"$CMS_DIGEST" -a -n $"$WWW_DIGEST" ]; then
+    echo
+    echo "To deploy the waf, please execute the following command:"
+    echo
+    echo "   ROUTE_SERVICE_APP_NAME=waf \\
+     ROUTE_SERVICE_NAME=waf-route-${SPACE}-usagov \\
+     PROTECTED_APP_NAME=cms \\
+        bin/cloudgov/deploy-waf $CCI_BUILD $WAF_DIGEST"
+    echo
+    echo
+    echo "To deploy the cms, please execute the following command:"
+    echo "   bin/cloudgov/deploy-cms $CCI_BUILD $CMS_DIGEST"
+    echo
+    echo
+    echo "To deploy the static site, please execute the following command:"
+    echo "   bin/cloudgov/deploy-www $CCI_BUILD $WWW_DIGEST"
+    echo
+  else
+     echo "Not all image digests were found in the tag: $ANNOTATED_TAG"
+     echo "WAF_DIGEST: $WAF_DIGEST"
+     echo "CMS_DIGEST: $CMS_DIGEST"
+     echo "WWW_DIGEST: $WWW_DIGEST"
+     exit 1
+  fi
 else
-   echo "No tag of the form 'usagov-cci-build-*-${SPACE}' found in git repository"
-   exit 1
+  echo "No tag of the form 'usagov-cci-build-*-${SPACE}' found in git repository"
+  exit 1
 fi

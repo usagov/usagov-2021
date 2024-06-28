@@ -48,12 +48,16 @@ WAF_DIGEST=$1
 assertIsImageDigest $WAF_DIGEST
 shift
 
-if [ $CMS_DIGEST = $WAF_DIGEST ]; then
-    echo "Cannot use the same digest for both CMS and WAF images!"
+WWW_DIGEST=$1
+assertIsImageDigest $WWW_DIGEST
+shift
+
+if [ $CMS_DIGEST = $WAF_DIGEST -o $CMS_DIGEST = $WWW_DIGEST ]; then
+    echo "Cannot use the same digest for any of the CMS, WAF and WWW images!"
     exit 1
 fi
 
-TAG_MESSAGE="'CCI_BUILD=${CCI_BUILD}|CMS_DIGEST=${CMS_DIGEST}|WAF_DIGEST=${WAF_DIGEST}'"
+TAG_MESSAGE="'CCI_BUILD=${CCI_BUILD}|CMS_DIGEST=${CMS_DIGEST}|WAF_DIGEST=${WAF_DIGEST}|WWW_DIGEST=${WWW_DIGEST}'"
 
 BACKUP_TAG=usagov-cci-build-${CCI_BUILD}-${SPACE}
 
