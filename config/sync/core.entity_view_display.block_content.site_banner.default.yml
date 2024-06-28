@@ -1,0 +1,36 @@
+uuid: 001977c2-2269-4533-8921-376f678fc9a4
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.site_banner
+    - field.field.block_content.site_banner.field_place_above_header
+    - field.field.block_content.site_banner.field_uswds_paragraph_bundles
+  module:
+    - entity_reference_revisions
+id: block_content.site_banner.default
+targetEntityType: block_content
+bundle: site_banner
+mode: default
+content:
+  field_place_above_header:
+    type: boolean
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_uswds_paragraph_bundles:
+    type: entity_reference_revisions_entity_view
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  langcode: true
