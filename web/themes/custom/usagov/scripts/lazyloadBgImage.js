@@ -25,8 +25,8 @@ jQuery(document).ready(function () {
   };
 
   let options = {
-    rootMargin: "0px",
-    threshold: 0.001,
+    "rootMargin": "0px",
+    "threshold": 0.001,
   };
 
   const lazyLoadingObserver = new IntersectionObserver((elements) => {
@@ -58,9 +58,11 @@ jQuery(document).ready(function () {
   }, options);
 
   for (const imgClass in imageMap) {
-    var imageElement = document.getElementsByClassName(`${imgClass} lazyload`)[0];
-    if(imageElement) {
-      lazyLoadingObserver.observe(imageElement);
+    if (imageMap.hasOwnProperty(imgClass)){
+      var imageElement = document.getElementsByClassName(`${imgClass} lazyload`)[0];
+      if (imageElement) {
+        lazyLoadingObserver.observe(imageElement);
+      }
     }
   }
 });
