@@ -10,7 +10,8 @@ if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
 fi
 # we might be running from a local dev machine
-# SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+# (we still need SCRIPT_DIR, even if we're not loading env.local)
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 # if [ -f $SCRIPT_DIR/env.local ]; then
 #   . $SCRIPT_DIR/env.local
 # fi
