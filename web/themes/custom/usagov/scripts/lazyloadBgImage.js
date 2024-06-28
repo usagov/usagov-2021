@@ -1,6 +1,6 @@
-// lazyloadBgImage.js
-document.addEventListener('lazybeforeunveil', function (e) {
-  'use strict';
+jQuery(document).ready(function () {
+  "use strict";
+
   // map of class names to relative image paths
   var imageMap = {
     'icon-about': '/themes/custom/usagov/images/topics/ICONS_Reimagined_About_the_US_and_Its_Government.svg',
@@ -23,25 +23,45 @@ document.addEventListener('lazybeforeunveil', function (e) {
     'icon-taxes': '/themes/custom/usagov/images/topics/ICONS_Reimagined_Taxes.svg',
     'icon-complaints': '/themes/custom/usagov/images/topics/ICONS_Complaints.svg'
   };
-  var className, baseURL, relativePath, bg;
 
-  // get target element via data-bg attribute
-  className = e.target.getAttribute('data-bg');
-  if (className) {
-    // get window location and relative path of image
-    baseURL = window.location.origin;
-    relativePath = imageMap[className];
+  let options = {
+    "rootMargin": "0px",
+    "threshold": 0.001,
+  };
 
-    // build full background image URL
-    if (relativePath) {
-      bg = `url(${baseURL}${relativePath})`;
-    }
+  const lazyLoadingObserver = new IntersectionObserver((elements) => {
+    elements.forEach((element) => {
+      if (element.isIntersecting) {
 
-    // Set the background image of the target element
-    if (bg && bg !== 'none') {
-      e.target.style.backgroundImage = bg;
-      e.target.classList.remove('lazyload');
-      e.target.classList.add('lazyloaded');
+        var className, baseURL, relativePath, bg;
+
+        // get target element via data-bg attribute
+        className = element.target.getAttribute('data-bg');
+
+        // get window location and relative path of image
+        baseURL = window.location.origin;
+        relativePath = imageMap[className];
+
+        // build full background image URL
+        if (relativePath) {
+          bg = `url(${baseURL}${relativePath})`;
+        }
+
+        // Set the background image of the target element
+        if (bg && bg !== 'none') {
+          element.target.style.backgroundImage = bg;
+          lazyLoadingObserver.unobserve(element.target);
+        }
+      }
+    });
+  }, options);
+
+  for (const imgClass in imageMap) {
+    if (imageMap.hasOwnProperty(imgClass)) {
+      var imageElement = document.getElementsByClassName(`${imgClass} lazyload`)[0];
+      if (imageElement) {
+        lazyLoadingObserver.observe(imageElement);
+      }
     }
   }
 });
