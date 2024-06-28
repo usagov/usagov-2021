@@ -72,7 +72,6 @@ export SDIGEST=@sha256:08c245dd259d230aa35f44578af85fe0aa2fd558e731ca2b533a099fa
 # $echo assertCurSpace $APP_SPACE
 # exit
 
-
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE
 echo assertCurSpace $APP_SPACE
@@ -89,13 +88,13 @@ exit
 #exit
 
 
-echo cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
-echo  bin/cloudgov/create-service-account cci PIPE tee csa.log
-$echo bin/cloudgov/create-service-account cci | tee csa.log
-echo  bin/cloudgov/create-service-account cfevents PIPE tee csa.log
-$echo bin/cloudgov/create-service-account cfevents | tee csa.log
-exit
+# echo cf target -s $APP_SPACE
+# $echo cf target -s $APP_SPACE
+# echo  bin/cloudgov/create-service-account cci PIPE tee csa.log
+# $echo bin/cloudgov/create-service-account cci | tee csa.log
+# echo  bin/cloudgov/create-service-account cfevents PIPE tee csa.log
+# $echo bin/cloudgov/create-service-account cfevents | tee csa.log
+# exit
 
 #
 #echo  cf target -s $APP_SPACE
