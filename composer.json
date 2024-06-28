@@ -12,9 +12,14 @@
         {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
+        },
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
         }
     ],
     "require": {
+        "bower-asset/lazysizes": "^5.3",
         "composer/installers": "^1.9",
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
@@ -43,6 +48,7 @@
         "drupal/image_style_warmer": "^1.1",
         "drupal/jquery_ui_accordion": "^2.0",
         "drupal/language_switcher_extended": "^1.0",
+        "drupal/lazy": "^3.0",
         "drupal/log_stdout": "^1.3",
         "drupal/mail_safety": "^2.0",
         "drupal/menu_block": "^1.7",
@@ -72,6 +78,7 @@
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
         "onelogin/php-saml": "^4",
+        "oomphinc/composer-installers-extender": "^2.0",
         "wikimedia/composer-merge-plugin": "^2.0.0"
     },
     "conflict": {
@@ -91,7 +98,8 @@
             "wikimedia/composer-merge-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "cweagans/composer-patches": true,
-            "mglaman/composer-drupal-lenient": true
+            "mglaman/composer-drupal-lenient": true,
+            "oomphinc/composer-installers-extender": true
         }
     },
     "extra": {
@@ -100,12 +108,13 @@
                 "web-root": "web/"
             }
         },
+        "installer-tyle": ["bower-asset", "npm-asset"],
         "installer-paths": {
             "web/core": [
                 "type:drupal-core"
             ],
             "web/libraries/{$name}": [
-                "type:drupal-library"
+                "type:drupal-library", "type:bower-asset", "type:npm-asset"
             ],
             "web/modules/contrib/{$name}": [
                 "type:drupal-module"
@@ -128,6 +137,7 @@
             "web/themes/custom/{$name}": [
                 "type:drupal-custom-theme"
             ]
+
         },
         "patches": {
             "drupal/tome": {
@@ -150,5 +160,13 @@
                 "drupal/ckeditor_templates"
             ]
         }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "mkdir -p web/libraries/lazysizes && cp -r vendor/bower-asset/lazysizes/lazysizes.min.js web/libraries/lazysizes/"
+        ],
+        "post-update-cmd": [
+            "mkdir -p web/libraries/lazysizes && cp -r vendor/bower-asset/lazysizes/lazysizes.min.js web/libraries/lazysizes/"
+        ]
     }
 }
