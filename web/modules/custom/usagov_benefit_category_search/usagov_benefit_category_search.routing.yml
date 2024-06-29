@@ -1,0 +1,17 @@
+usagov_benefit_category_search.main:
+  path: '/admin/config/usagov_benefit_category_search/main'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'USAGov Benefit Categories Search'
+  requirements:
+    _permission: 'administer site configuration'
+
+usagov_benefit_category_search.settings:
+  path: '/admin/config/development/usagov_benefit_category_search'
+  defaults:
+    _title: 'Benefit Category Search Settings'
+    _form: '\Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
