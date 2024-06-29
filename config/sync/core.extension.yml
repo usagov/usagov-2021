@@ -4,6 +4,7 @@ module:
   new_relic_rpm: -20
   action: 0
   admin_toolbar: 0
+  admin_toolbar_search: 0
   admin_toolbar_tools: 0
   allowed_formats: 0
   autologout: 0
@@ -16,6 +17,7 @@ module:
   composer_deploy: 0
   conditional_fields: 0
   config: 0
+  config_split: 0
   content_lock: 0
   content_lock_timeout: 0
   content_moderation: 0
@@ -25,7 +27,6 @@ module:
   ctools: 0
   datetime: 0
   datetime_range: 0
-  devel: 0
   diff: 0
   dynamic_page_cache: 0
   editor: 0
