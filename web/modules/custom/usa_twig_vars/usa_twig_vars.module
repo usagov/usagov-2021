@@ -353,7 +353,7 @@ function usa_twig_vars_after_build($form, &$form_state) {
 /** Helper function to check if node should be excluded from contact center based on path. Updates the exclude from url checkbox on edit pages.  */
 function usa_twig_vars_check_exclude_from_contact_center($node_to_check) {
   $path_alias_to_check = $node_to_check->toUrl()->toString();
-  if (str_contains($path_alias_to_check, '/es/articulos/') || str_contains($path_alias_to_check, '/features/')) {
+  if (str_starts_with($path_alias_to_check, '/es/articulos/') || str_starts_with($path_alias_to_check, '/features/')) {
     $node_to_check->set('field_exclude_from_contact_cente', 1);
     $node_to_check->save();
   }
