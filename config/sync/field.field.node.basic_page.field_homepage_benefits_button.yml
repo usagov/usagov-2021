@@ -1,0 +1,19 @@
+uuid: e09b9c33-62d8-4b6f-8591-7fceffda5863
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_homepage_benefits_button
+    - node.type.basic_page
+id: node.basic_page.field_homepage_benefits_button
+field_name: field_homepage_benefits_button
+entity_type: node
+bundle: basic_page
+label: 'Homepage Benefits Button'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
