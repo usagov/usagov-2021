@@ -131,11 +131,16 @@ function usa_translation_page_attachments_alter(&$page) {
               ->setAbsolute()
               ->toString();
           }
+          $dataTag = 'conlang';
+          if ($entity->language()->getId() != $language->getId()) {
+            $dataTag = "altlang";
+          }
           $page['#attached']['html_head_link'][] = [
             [
               'rel' => 'alternate',
               'hreflang' => $language->getId(),
               'href' => $url,
+              'data-type' => $dataTag,
             ],
             TRUE,
           ];
