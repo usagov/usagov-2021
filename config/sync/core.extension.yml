@@ -46,7 +46,6 @@ module:
   jsonapi: 0
   language: 0
   language_switcher_extended: 0
-  lazy: 0
   link: 0
   log_stdout: 0
   media: 0
