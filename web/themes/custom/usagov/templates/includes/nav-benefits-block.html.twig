@@ -5,9 +5,9 @@
 
   <div class="benefits-block-bg nav-benefits">
     <div class="benefits-block">
-      <img src="/themes/custom/usagov/images/ICONS_beta_Benefits.svg" alt="Visit the benefit finder page" height="56px">
+      <img src="/themes/custom/usagov/images/topics/ICONS_Reimagined_Benefits.svg" height="56px">
         <div class="benefits-text">
-          <p>{{ node.field_benefits_callout_descr.value | striptags }}</p>
+          {{ node.field_benefits_callout_descr.value |  raw  }}
         </div>
         <a href="{{ benefits_url }}" class="usa-button benefits-link">
           {{ node.field_benefits_callout_button.value }}</a>

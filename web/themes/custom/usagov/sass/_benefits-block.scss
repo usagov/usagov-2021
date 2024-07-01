@@ -36,7 +36,7 @@
     letter-spacing: -0.39px;
   }
 
-  > p {
+  .benefits-block__content, p {
     @include u-text('blue-80v');
     @include u-font-family('serif');
     @include u-text(light);
@@ -80,7 +80,7 @@ a.usa-button.benefits-link {
 .nav-benefits {
   @include u-padding-y('205');
 
-  .benefits-text > p {
+  .benefits-text {
     @include u-text('gray-90');
   }
 
