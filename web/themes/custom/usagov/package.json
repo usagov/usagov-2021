@@ -25,7 +25,6 @@
   "dependencies": {
     "@accessible360/accessible-slick": "^1.0.1",
     "@uswds/uswds": "3.0.1",
-    "del": "^6.1.1",
-    "sass-embedded-darwin-arm64": "^1.77.5"
+    "del": "^6.1.1"
   }
 }
