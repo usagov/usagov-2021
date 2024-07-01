@@ -4211,64 +4211,6 @@
             }
         },
         {
-            "name": "drupal/lazy",
-            "version": "3.12.0",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupalcode.org/project/lazy.git",
-                "reference": "8.x-3.12"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/lazy-8.x-3.12.zip",
-                "reference": "8.x-3.12",
-                "shasum": "c4eae955811f1a152ad582733bae791cfd310d4c"
-            },
-            "require": {
-                "drupal/core": "^8.8 || ^9.3 || ^10",
-                "ext-json": "*"
-            },
-            "suggest": {
-                "bower-asset/lazysizes": "Lazysizes is a required library for the Lazy module. Must be installed to '/libraries/lazysizes' folder."
-            },
-            "type": "drupal-module",
-            "extra": {
-                "drupal": {
-                    "version": "8.x-3.12",
-                    "datestamp": "1693453312",
-                    "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
-                    }
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "Osman Gormus",
-                    "homepage": "https://www.drupal.org/u/osman",
-                    "role": "Maintainer"
-                }
-            ],
-            "description": "This module enables lazy-loading images and iframes via text-filters and image-fields. Requires lazysizes library.",
-            "homepage": "https://www.drupal.org/project/lazy",
-            "keywords": [
-                "Drupal",
-                "Lazy-load",
-                "bLazy",
-                "lazy",
-                "lazyload",
-                "performance"
-            ],
-            "support": {
-                "source": "https://git.drupalcode.org/project/lazy",
-                "issues": "https://www.drupal.org/project/issues/lazy"
-            }
-        },
-        {
             "name": "drupal/log_stdout",
             "version": "1.5.0",
             "source": {
