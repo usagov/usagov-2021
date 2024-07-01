@@ -1,53 +1,61 @@
-let priorButton = document.getElementById("prior");
+(function ($, Drupal, once) {
+Drupal.behaviors.wizardStepTaxonomy = {
+  "attach": function(context, settings) {
 
-if (priorButton != null) {
-  priorButton.addEventListener("click", priorStepFunction);
-}
+    let priorButton = document.getElementById("prior");
 
-function priorStepFunction() {
-  "use strict";
-  dataLayer.push({"event": "Wizard_Prior"});
-}
+    if (priorButton != null) {
+      priorButton.addEventListener("click", priorStepFunction);
+    }
 
-let nextButton = document.getElementById("next");
+    function priorStepFunction() {
+      "use strict";
+      dataLayer.push({"event": "Wizard_Prior"});
+    }
 
-if (nextButton != null) {
-  nextButton.addEventListener("click", wizardStepError);
-}
+    let nextButton = document.getElementById("next");
 
-function wizardStepError() {
-  "use strict";
-  let choices = document.getElementsByName("options");
+    if (nextButton != null) {
+      nextButton.addEventListener("click", wizardStepError);
+    }
 
-  const htmlLangAttr = document.documentElement.lang;
+    function wizardStepError() {
+      "use strict";
+      let choices = document.getElementsByName("options");
+
+      const htmlLangAttr = document.documentElement.lang;
+
+      var errorMessage = '';
+
+      if (choices) {
+        for (let choice = 0; choice < choices.length; choice++) {
+          let selected = choices[choice].checked;
 
 
-  if (choices) {
-    for (let choice = 0; choice < choices.length; choice++) {
-      let selected = choices[choice].checked;
-      if (selected === true) {
-        document.getElementById("msg").innerHTML = "";
-        document.getElementById("msg").removeAttribute("tabindex", "-1");
-        document.getElementById("wizard-border").classList.remove("wizard_error");
-        dataLayer.push({"event": "Wizard_Next"});
-        return true;
-      }
- else if (
-        htmlLangAttr === "en"
-      ) {
-        document.getElementById("msg").innerHTML =
-          "Error: Please choose one of the following options";
-        document.getElementById("msg").focus();
-        document.getElementById("wizard-border").classList.add("wizard_error");
-      }
- else {
-        document.getElementById("msg").innerHTML =
-          "Error: Por favor elija una opción";
-        document.getElementById("msg").focus();
-        document.getElementById("wizard-border").classList.add("wizard_error");
+          if (htmlLangAttr === "en") {
+            errorMessage = 'Error: Please choose one of the following options';
+          }
+          else {
+            errorMessage = 'Error: Por favor elija una opción';
+          }
+
+          // If any choice is selected, return true.
+          if (selected) {
+            dataLayer.push({"event": "Wizard_Next"});
+            return true;
+          }
+        }
+
+        /*
+         If we exit the loop successfully, there must have been no choice selected.
+         Show the error message.
+         */
+        $("#msg").html(errorMessage).focus();
+        $("#wizard-border").addClass("usagov-wizard--error").show();
+        dataLayer.push({"event": "usagov-wizard--error", "button": "Next"});
+        return false;
       }
     }
   }
-  dataLayer.push({"event": "Wizard_Error", "button": "Next"});
-  return false;
-}
+};
+})(jQuery, Drupal, once);

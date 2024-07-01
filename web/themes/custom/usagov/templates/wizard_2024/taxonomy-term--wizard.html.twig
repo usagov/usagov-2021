@@ -5,6 +5,7 @@
 #}
 
 {% set attributes = attributes.addClass('usa-prose') %}
+{% set attributes = attributes.addClass('usagov-wizard--content') %}
 
 <div{{ attributes }}>
   <h1 class="text-red-50">{{ content.field_heading }}</h1>
@@ -13,14 +14,14 @@
   {% if child %}
     {{ content.field_options_list }}
     {{ content.field_footer }}
-    <div class="grid-row flex-justify maxw-mobile margin-x-auto margin-top-6 margin-bottom-2 usa-reverse">
+    <div class="grid-row margin-bottom-2 usa-reverse usagov-wizard-buttons">
 {#       Generate the url for the parent of this term to put in the 'previous' button. #}
       {% set previous_path = path('entity.taxonomy_term.canonical', {'taxonomy_term': parent_tid}) %}
-      <button id="prior" class="usa-button usa-button--outline usagov-button--outline-black usa-button--big" onclick="window.location.href = '{{ previous_path }}'">Previous</button>
+      <button id="prior" class="usa-button usa-button--secondary usa-button--big" onclick="window.location.href = '{{ previous_path }}'">Previous</button>
 
       {# If there are items in the options list, this must not be the last term in the tree. Generate a Next button. #}
       {% if content.field_options_list['#items'] %}
-      <button id="next" class="usa-button usa-button--secondary usa-button--big"
+      <button id="next" class="margin-left-2 usa-button usa-button--outline usagov-button--outline-black usa-button--big"
               onclick="if(document.querySelector(`input[name='options']:checked`)) { window.location.href = document.querySelector(`input[name='options']:checked`).value; }">Next</button>
       {% endif %}
     </div>

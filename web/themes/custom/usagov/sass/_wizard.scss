@@ -1,57 +1,126 @@
-// Hide the title of views reference fields.
-
 @use "usagov-variables" as *;
 @use "uswds-core" as *;
 
 @mixin checked() {
   border-radius: 4px;
-  border: 2px solid var(--Button-Secondary-outline, #0081A1)!important;
-  background: var(--Button-Secondary-default, #CCECF2)!important;
+  border: 2px solid $button-secondary-outline;
+  background: $button-secondary-default;
+
+  &::before {
+    background-color: $button-secondary-outline;
+    box-shadow: 0 0 0 2px color('gray-90'), inset 0 0 0 3px color('gray-5');
+    opacity: 1;
+  }
 }
 
 .usagov-wizard {
-  .viewsreference--view-title {
-    display: none;
-  }
-
-  .views-field-field-option-name {
-    p {
-      margin-block-start: 0px;
-      margin-block-end: 0px;
-      margin-left: 10px;
+  &--content {
+    * {
+      transition: all .1s ease;
     }
 
-    .usa-radio__input--tile + .usa-radio__label {
-      border: 0px;
-      line-height: 26.4px;
-      padding: 1rem;
+    .field--name-field-heading {
+      margin: 17.6px 0;
+    }
+
+    // Hide the title of views reference fields.
+    .viewsreference--view-title {
+      display: none;
+    }
+
+    .field--name-field-options-list {
+      margin-bottom: 46px;
+    }
+
+    .views-field-field-option-name {
+      // P tag for descriptions.
+      p {
+        margin-block-start: 0;
+        margin-block-end: 0;
+        margin-left: 2rem;
+      }
+
+      .usa-radio__input--tile + .usa-radio__label {
+        line-height: 26.4px;
+        padding: 1rem;
+        margin-top: 0;
+
+        // Have a hidden border in the natural state so this doesn't move on hover.
+        border: 2px solid transparent;
+
+        &::before {
+          margin: 0;
+          position: relative;
+          display: inline-block;
+          top: -2px;
+          vertical-align: middle;
+          left: 0;
+          outline: 0;
+          opacity: .6;
+        }
+
+        &:hover {
+          border-radius: 4px;
+          @include u-border('2px', 'solid', 'gray-20');
+          @include u-bg('gray-5');
+
+          &::before {
+            opacity: 1;
+          }
+        }
+
+        &:active, &.checked {
+          @include checked;
+        }
+
+        // Option label.
+        .usagov-label--text {
+          margin-left: 12px;
+        }
+      }
+    }
+
+    #wizard-border, &--error {
+      @include u-bg($theme-color-error-lighter);
+
+      padding: .5rem 1rem .5rem 0;
+      border-left: 7px solid color($theme-color-error);
+      display: none;
+
+      .usa-alert__body {
+        padding-left: 3rem;
+      }
+
+      &::before {
+        left: 1rem;
+        width: 20px;
+      }
+
+      // Override custom-styles :focus rules.
+      #msg {
+        &:focus {
+          outline: 0;
+          box-shadow: none;
+        }
+      }
+    }
+
+    .usa-button#next {
+      background-color: white !important;
 
       &:hover {
-        border-radius: 4px;
-        border: 2px solid var(--Accordion-Hover, #C9C9C9);
-        background: var(--USAGOV-Light-Gray, #F0F0F0);
-      }
-
-      &:active {
-        @include checked();
-      }
-
-      .usagov-label--text {
-        margin-left: 10px;
+        @include u-bg('gray-5', '!important');
       }
     }
 
-    .usa-radio__label.checked {
-      @include checked();
-    }
+    // Close usa-wizard--content
+  }
 
-    .usa-radio__input--tile+[class*=__label]::before {
-      margin-top: .0rem;
-      position: relative;
-      display: inline-block;
-      top: -2px;
-      vertical-align: middle;
-      left: 0;
+  &-buttons {
+    .usa-button {
+      width: 168px;
     }
   }
+
+  // Close usa-wizard
 }
