@@ -41,6 +41,8 @@ i.e.
 @forward "navigation-page";
 @forward "sidenav";
 @forward "state-directory";
+@forward "benefit-search";
+@forward "benefits-block";
 @forward "wizard";
 
 .line-height-2 {
@@ -302,7 +304,7 @@ a {
 
 // Last Updated, Share and Survey
 .additional_body_info {
-  display: inline-block;
+  // display: inline-block;
   padding-top: 75px;
 }
 
@@ -560,6 +562,18 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: 1.1rem;
 }
 
+.usa-prose.body-copy {
+  &>h1, &>h2, &>h3, &>h4 {
+    clear: unset;
+  }
+  .usa-alert, .usa-card-group {
+    clear: both;
+  }
+  .usa-process-list {
+    display: inline-block;
+  }
+}
+
 .usa-accordion__heading button,
 .usa-accordion__heading p,
 .usa-accordion__heading a {
@@ -687,6 +701,11 @@ div div.field--name-field-offices-near-you {
   @include u-text('normal');
 }
 
+// Add padding for feedback button
+button#QSIFeedbackButton-btn {
+  padding: 2px;
+}
+
 [href]:focus,
 button:not([disabled]):focus,
 input:not([disabled]):focus,
@@ -736,22 +755,36 @@ select:not([disabled]):focus,
   font-size: 1.1rem;
 }
 
-#main-content .usa-accordion__button:not(.bg-secondary) {
-  @include u-bg('gray-5');
-  &:hover {
-    @include u-bg('gray-20');
+#main-content {
+  .usa-accordion__button {
+    @include u-bg('gray-5');
+    &:hover, &[aria-expanded="true"] {
+      @include u-bg('gray-20');
+    }
   }
-}
-
-#main-content .usa-accordion__button[aria-expanded="true"]:not(.bg-secondary)  {
-  @include u-bg('gray-20');
-}
-
-#main-content .usa-accordion__button.bg-secondary[aria-expanded="true"] {
-  @include u-bg('cyan-20');
+  .usa-accordion__content .usa-accordion__button {
+    @include u-bg('cyan-10');
+    &:hover, &[aria-expanded="true"] {
+      @include u-bg('cyan-20');
+    }
+  }
 }
 
 // elected-officials hide autofill contact for state dropdown - name is not brought over to input by uswds so autofill is being triggered in Safari
 input::-webkit-textfield-decoration-container {
   visibility: hidden;
+}
+
+// sets height for desktop to make space above and below breadcrumb look even on Navigation Cards Page
+@media screen and (min-width: 64em) {
+  .grid-row.breadcrumb-spacing>div {
+    height: 3.5rem;
+  }
+}
+
+.benefits-finder-content {
+  .usa-prose>p.usa-intro {
+    @include u-margin(0);
+    max-width: 100%;
+  }
 }

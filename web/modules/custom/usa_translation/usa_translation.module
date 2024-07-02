@@ -84,11 +84,63 @@ function usa_translation_page_attachments_alter(&$page) {
               ->setAbsolute()
               ->toString();
           }
+
+          // Differentiate between canonical alt links
+          // and the language toggle.
+          $dataTag = 'conlang';
+          if ($entity->language()->getId() != $language->getId()) {
+            $dataTag = "altlang";
+          }
           $page['#attached']['html_head_link'][] = [
             [
               'rel' => 'alternate',
               'hreflang' => $language->getId(),
               'href' => $url,
+              'data-type' => $dataTag,
+            ],
+            TRUE,
+          ];
+        }
+      }
+      // Displays current route of an entity in the metadata
+      // The route should be the same as the canonical url
+      if (!empty($entity)
+        && is_object($entity)
+        && method_exists($entity, 'hasLinkTemplate')
+        && $entity->hasLinkTemplate('canonical')) {
+        foreach ($entity->getTranslationLanguages() as $language) {
+          // Skip any translation that cannot be viewed.
+          // $translation = $entity->getTranslation($language->getId());
+          // $access = $translation->access('view', NULL, TRUE);
+          // $cache->addCacheableDependency($access);
+          if (!$access->isAllowed()) {
+            continue;
+          }
+          if ($is_front) {
+            // If the current page is front page, do not create hreflang links
+            // from the entity route, just add the languages to root path.
+            $url = Url::fromRoute('<front>', [], [
+              'absolute' => TRUE,
+              'language' => $language,
+            ])->toString();
+          }
+          // Create links for the entity path.
+          else {
+            $url = $entity->toUrl('canonical')
+              ->setOption('language', $language)
+              ->setAbsolute()
+              ->toString();
+          }
+          $dataTag = 'conlang';
+          if ($entity->language()->getId() != $language->getId()) {
+            $dataTag = "altlang";
+          }
+          $page['#attached']['html_head_link'][] = [
+            [
+              'rel' => 'alternate',
+              'hreflang' => $language->getId(),
+              'href' => $url,
+              'data-type' => $dataTag,
             ],
             TRUE,
           ];

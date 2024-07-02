@@ -316,13 +316,13 @@
            if ((d.linkUrl.startsWith('https://')) || (d.linkUrl.startsWith('http://'))) {
              return [
                 '<span class="name"><a class="top-download-page" target="_blank" href="', d.linkUrl, '">', formatURLWithPath(d.linkUrl), '</a></span> ',
-                '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://', d.pagePath, '">',
+                '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://www.usa.gov', d.pagePath, '">',
                 d.page_title, '</a></span>'
               ].join('');
            }
            return [
               '<span class="name"><a class="top-download-page" target="_blank" href="http://', d['ga:eventAction'], d.linkUrl, '">', d['ga:eventAction'], d.linkUrl, '</a></span> ',
-              '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://', d.pagePath, '">',
+              '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://www.usa.gov', d.pagePath, '">',
               d.page_title, '</a></span>'
             ].join('');
           })
@@ -350,7 +350,7 @@
           .append("a")
             .attr("target", "_blank")
             .attr("href", function(d) {
-              return exceptions[d.pagePath] || ("http://usa.gov" + d.pagePath);
+              return exceptions[d.pagePath] || ("https://www.usa.gov" + d.pagePath);
             })
             .text(function(d) {
               return title_exceptions[d.pagePath] || d.page_title;
@@ -385,7 +385,7 @@
               return d.page_title;
             })
             .attr("href", function(d) {
-              return exceptions[d.page] || ("http://" + d.page);
+              return exceptions[d.page] || ("https://www.usa.gov" + d.pagePath);
             })
             .text(function(d) {
               return title_exceptions[d.page] || d.page_title;
