@@ -1,11 +1,26 @@
 /**
+ * @typedef TranslationLabels
+ * @type Object
+ * @property {string} page Label for numeric page
+ * @property {string} next Label for next page link
+ * @property {string} nextAria Aria property for next page link
+ * @property {string} previous Label for previous page link
+ * @property {string} previousAria Aria property for previous page link
+ * @property {string} navAria Aria property for numeric page link
+ * @property {string} lastPageAria Aria property for lat page link
+ * @property {string} emptyCategoryError Error message when no category is selected
+ * @property {string} appliedCategories Heading for applied categories column
+ * @property {string} lifeEventsCategory Life events category name
+ * @property {string} benefitFinderCategory Benefit finder category name
+ */
+/**
  * Component to allow users to search benefits content and display
  * the paginated results
  *
  * @param {string} benefitsPath
  * @param {string} lifeEventsPath
  * @param {string} assetBase
- * @param {array} labels
+ * @param {TranslationLabels} labels
  * @param {Element} form
  * @param {Element} resultsContainer
  * @param {int} perPage
@@ -40,7 +55,22 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       .classList.remove('benefits-category-error');
   };
   /**
-   * @returns {Promise<any>}
+   * @typedef Benefit
+   * @type Object
+   * @property {int} nid
+   * @property {int} field_benefit_search_weight
+   * @property {int} rank
+   * @property {int[]} field_benefits_category
+   * @property {string} term_node_tid Term name markup
+   * @property {string} title Title to display
+   * @property {string} field_page_intro Page Intro
+   * @property {string} field_short_description Short Description
+   * @property {string} title Life event title
+   * @property {string} type
+   * @property {string} view_node
+   */
+  /**
+   * @returns {Promise<Benefit[]>}
    */
   this.fetchBenefits = async function() {
     const response = await fetch(myself.benefitsSrc);
@@ -50,28 +80,45 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     return await response.json();
   };
   /**
-   * @returns {Promise<any>}
+   * @typedef LifeEvent
+   * @type Object
+   * @property {int} nid
+   * @property {int|int[]} tid
+   * @property {string} name Term name
+   * @property {string} field_b_search_title Title to display
+   * @property {string} field_short_description Short Description
+   * @property {string} title Life event title
+   * @property {string} type
+   */
+  /**
+   * @returns {Promise<Map<LifeEvent>>}
    */
   this.fetchLifeEvents = async function() {
     const response = await fetch(myself.life);
     if (!response.ok) {
       throw new Error('Error fetching benefits ' + response.status);
     }
+    /**
+     * @var {LifeEvent[]} raw
+     */
     const raw = await response.json();
-    // We need to consolidate life events that may reference more than one category
-    // into a single entry per life event.
+    // We need to consolidate life events that may reference more
+    // than one category into a single entry per life event.
+    /**
+     * @var {Map<LifeEvent>} lifeEvents
+     */
     let lifeEvents = new Map();
-    for (const event of raw) {
-      if (lifeEvents.has(event.nid)) {
-        let existing = lifeEvents.get(event.nid);
-        existing.tid.push(event.tid);
-        existing.terms.push(event.name);
-        lifeEvents.set(event.nid, existing);
+    for (const lifeEvent of raw) {
+      if (lifeEvents.has(lifeEvent.nid)) {
+        let existing = lifeEvents.get(lifeEvent.nid);
+        existing.tid.push(lifeEvent.tid);
+        existing.terms.push(lifeEvent.name);
+        lifeEvents.set(lifeEvent.nid, existing);
       }
       else {
-        event.tid = [event.tid];
-        event.terms = [event.name];
-        lifeEvents.set(event.nid, event);
+        lifeEvent.tid = [lifeEvent.tid];
+        lifeEvent.terms = [lifeEvent.name];
+        lifeEvents.set(lifeEvent.nid, lifeEvent);
       }
     }
     return lifeEvents;
@@ -105,16 +152,16 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       return 0;
     });
     // prepend any life events that match
-    for (const [nid, event] of myself.lifeEvents) {
-      if (myself.lifeEventHasTopic(event.tid, myself.terms)) {
-         matches.unshift(event);
+    for (const [, lifeEvent] of myself.lifeEvents) {
+      if (myself.lifeEventHasTopic(lifeEvent.tid, myself.terms)) {
+         matches.unshift(lifeEvent);
       }
     }
     return matches;
   };
   /**
-   * @param int[] lifeEvents
-   * @param int[] terms
+   * @param {int[]} tids
+   * @param {int[]} terms
    * @return boolean
    */
   this.lifeEventHasTopic = function(tids, terms) {
@@ -251,9 +298,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       case 'Life Event':
         let termMarkup = '';
 
-        benefit.terms.forEach(function(term) {
-          termMarkup += `<span>${term}</span>`;
-        });
+        benefit.terms.forEach(term => termMarkup += `<span>${term}</span>`);
 
         elt.innerHTML += `<div class="grid-row benefits-result">
 <div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.field_b_search_title}</h3><p>${description}</p></div>
