@@ -330,12 +330,11 @@ ${benefit.term_node_tid}
     elt.className = index + 1 === myself.activePage ? 'page page-active' : 'page display-none';
     elt.setAttribute('data-page', index + 1);
     // heading label
-    if (page.first !== page.last) {
-      elt.innerHTML += `<h2>Showing ${page.first}&ndash;${page.last} of ${page.totalItems}</h2>`;
-    }
-    else {
-      elt.innerHTML += `<h2>Showing ${page.first} of ${page.totalItems}</h2>`;
-    }
+    let label = myself.labels.showingResults
+      .replace('@first@', page.first)
+      .replace('@last@', page.last)
+      .replace('@totalItems@', page.totalItems);
+    elt.innerHTML += `<h2>${label}</h2>`;
     // prepare pages
     for (const benefit of page.matches) {
       elt.innerHTML += myself.renderMatch(benefit).innerHTML;
@@ -501,6 +500,7 @@ jQuery(document).ready(async function () {
     benefitsPath = "../benefits-search/en.json";
     lifeEventsPath = "../benefits-search/en/life-events.json";
     labels = {
+      'showingResults': '@first@&ndash;@last@ of @totalItems@ results',
       'page': "Page",
       'next': "Next",
       'nextAria': "Next Page",
@@ -518,17 +518,18 @@ jQuery(document).ready(async function () {
      benefitsPath = "../../benefits-search/es.json";
      lifeEventsPath = "../../benefits-search/es/life-events.json";
      labels = {
-      'page': "Página",
-      'next': "Siguiente",
-      'nextAria': "Página siguiente",
-      'previous': "Anterior",
-      'previousAria': "Página anterior",
-      'navAria': "Paginación",
-      'lastPageAria': 'Ultima página',
-      'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
-      'appliedCategories': 'Categorías',
-      'lifeEventsCategory': 'Etapas de la vida',
-      'benefitFinderCategory': 'Buscador de beneficios'
+       'showingResults': '@first@&ndash;@last@ de @totalItems@ resultados',
+       'page': "Página",
+       'next': "Siguiente",
+       'nextAria': "Página siguiente",
+       'previous': "Anterior",
+       'previousAria': "Página anterior",
+       'navAria': "Paginación",
+       'lastPageAria': 'Ultima página',
+       'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
+       'appliedCategories': 'Categorías',
+       'lifeEventsCategory': 'Etapas de la vida',
+       'benefitFinderCategory': 'Buscador de beneficios'
     };
   }
   // creat and initialize the search tool
