@@ -515,21 +515,21 @@ jQuery(document).ready(async function () {
     };
   }
   else if (docLang[0] === 'es') {
-     benefitsPath = "../../benefits-search/es.json";
-     lifeEventsPath = "../../benefits-search/es/life-events.json";
-     labels = {
-       'showingResults': '@first@&ndash;@last@ de @totalItems@ resultados',
-       'page': "Página",
-       'next': "Siguiente",
-       'nextAria': "Página siguiente",
-       'previous': "Anterior",
-       'previousAria': "Página anterior",
-       'navAria': "Paginación",
-       'lastPageAria': 'Ultima página',
-       'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
-       'appliedCategories': 'Categorías',
-       'lifeEventsCategory': 'Etapas de la vida',
-       'benefitFinderCategory': 'Buscador de beneficios'
+    benefitsPath = "../../benefits-search/es.json";
+    lifeEventsPath = "../../benefits-search/es/life-events.json";
+    labels = {
+      'showingResults': '@first@&ndash;@last@ de @totalItems@ resultados',
+      'page': "Página",
+      'next': "Siguiente",
+      'nextAria': "Página siguiente",
+      'previous': "Anterior",
+      'previousAria': "Página anterior",
+      'navAria': "Paginación",
+      'lastPageAria': 'Ultima página',
+      'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
+      'appliedCategories': 'Categorías',
+      'lifeEventsCategory': 'Etapas de la vida',
+      'benefitFinderCategory': 'Buscador de beneficios'
     };
   }
   // creat and initialize the search tool
