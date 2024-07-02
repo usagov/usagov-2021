@@ -78,6 +78,28 @@ class MenuChecker implements ContainerInjectionInterface
 
     }//end getTermParents()
 
+  // Get the values in the field_heading to determine the third breadcrumb.
+  public function getHeadings(EntityInterface $term) {
+    $parents = $this->getTermParents($term);
+
+    foreach ($parents as $parent) {
+      $parent = $this->entityTypeManager->getStorage('taxonomy_term')
+        ->load($parent);
+      $heading = $parent->field_heading->value;
+      $name = $parent->get('name')->value;
+      $id = $parent->id();
+
+      $headings[] = [
+        'name' => $name,
+        'label' => $heading,
+        'id' => $id,
+      ];
+    }
+
+    $headings = array_reverse($headings);
+    return $headings;
+  }
+
 
     /**
      * Retrieves target entities based on the provided menu name.
@@ -88,59 +110,65 @@ class MenuChecker implements ContainerInjectionInterface
      * @return array
      *   An array containing the target term IDs and menu entities.
      */
-    public function getTargetEntities(string $menu_name)
+    public function getTargetEntities(string $langcode)
     {
-        $menu_links = $this->entityTypeManager->getStorage('menu_link_content')
-          ->loadByProperties(['menu_name' => $menu_name]);
+      if ($langcode == 'en') {
+        $menu_name = 'left-menu-english';
+      }
+      else {
+        $menu_name = 'left-menu-spanish';
+      }
 
-        $menu_entities = [];
+      $menu_links = $this->entityTypeManager->getStorage('menu_link_content')
+        ->loadByProperties(['menu_name' => $menu_name]);
 
-        foreach ($menu_links as $menu_entity) {
-            // Check if the link leads to a taxonomy term and the route is not external.
-            $url = $menu_entity->getUrlObject();
-            if ($url->isRouted()) {
-                $route_parameters = $url->getRouteParameters();
-                if (isset($route_parameters['taxonomy_term'])) {
-                    $target_tids[] = $route_parameters['taxonomy_term'];
-                    $menu_entity = $menu_entity->parent->getEntity();
+      $menu_entities = [];
 
-                    /* The field_custom_parent was created as a field only visible
-                    in the left-nav menu EN and ES form displays. The intention
-                    of the field is to handle situations where the same term
-                    is linked to multiple times in the same menu. The following
-                    logic check will narrow down the duplicates to only look for the
-                    entity that has field_custom_parent checked. */
-                    if ($menu_entity->field_custom_parent->value == 1) {
-                        $parentEntityUuid = $menu_entity->parent->value;
-                        $parentEntity     = \Drupal::service('entity.repository')
-                          ->loadEntityByUuid('menu_link_content', explode(':', $parentEntityUuid));
-                        $menu_entities[]  = $parentEntity;
-                        // Load children of the parent entity
-                        $children = $this->entityTypeManager->getStorage('menu_link_content')->loadByProperties(
-                            [
-                                'menu_name' => $menu_name,
-                                'enabled'   => 1,
-                                'parent'    => $parentEntityUuid,
-                            ]
-                        );
-                        foreach ($children as $child) {
-                          $menu_entities[] = $child;
-                        }
-                    }
-                }//end if
-            }//end if
-        }//end foreach
+      foreach ($menu_links as $menu_entity) {
+          // Check if the link leads to a taxonomy term and the route is not external.
+          $url = $menu_entity->getUrlObject();
+          if ($url->isRouted()) {
+              $route_parameters = $url->getRouteParameters();
+              if (isset($route_parameters['taxonomy_term'])) {
+                  $target_tids[] = $route_parameters['taxonomy_term'];
+                  $menu_entity = $menu_entity->parent->getEntity();
 
-        if (isset($target_tids)) {
-            return [
-                'target_tids'   => $target_tids,
-                'menu_entities' => $menu_entities,
-            ];
-        } else {
-            return [];
-        }
+                  /* The field_custom_parent was created as a field only visible
+                  in the left-nav menu EN and ES form displays. The intention
+                  of the field is to handle situations where the same term
+                  is linked to multiple times in the same menu. The following
+                  logic check will narrow down the duplicates to only look for the
+                  entity that has field_custom_parent checked. */
+                  if ($menu_entity->field_custom_parent->value == 1) {
+                      $parentEntityUuid = $menu_entity->parent->value;
+                      $parentEntity     = \Drupal::service('entity.repository')
+                        ->loadEntityByUuid('menu_link_content', explode(':', $parentEntityUuid));
+                      $menu_entities[]  = $parentEntity;
+                      // Load children of the parent entity
+                      $children = $this->entityTypeManager->getStorage('menu_link_content')->loadByProperties(
+                          [
+                              'menu_name' => $menu_name,
+                              'enabled'   => 1,
+                              'parent'    => $parentEntityUuid,
+                          ]
+                      );
+                      foreach ($children as $child) {
+                        $menu_entities[] = $child;
+                      }
+                  }
+              }//end if
+          }//end if
+      }//end foreach
+
+      if (isset($target_tids)) {
+          return [
+              'target_tids'   => $target_tids,
+              'menu_entities' => $menu_entities,
+          ];
+      } else {
+          return [];
+      }
 
     }//end getTargetEntities()
-
 
 }//end class
