@@ -57,7 +57,24 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     if (!response.ok) {
       throw new Error('Error fetching benefits ' + response.status);
     }
-    return await response.json();
+    const raw = await response.json();
+    // We need to consolidate life events that may reference more than one category
+    // into a single entry per life event.
+    let lifeEvents = new Map();
+    for (const event of raw) {
+      if (lifeEvents.has(event.nid)) {
+        let existing = lifeEvents.get(event.nid);
+        existing.tid.push(event.tid);
+        existing.terms.push(event.name);
+        lifeEvents.set(event.nid, existing);
+      }
+      else {
+        event.tid = [event.tid];
+        event.terms = [event.name];
+        lifeEvents.set(event.nid, event);
+      }
+    }
+    return lifeEvents;
   };
   /**
    * @returns {array}
@@ -88,14 +105,25 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       return 0;
     });
     // prepend any life events that match
-    let events = myself.lifeEvents.filter((event) => {
-      return myself.terms.includes(event.tid);
-    });
-    for (const e of events) {
-      matches.unshift(e);
+    for (const [nid, event] of myself.lifeEvents) {
+      if (myself.lifeEventHasTopic(event.tid, myself.terms)) {
+         matches.unshift(event);
+      }
     }
-
     return matches;
+  };
+  /**
+   * @param int[] lifeEvents
+   * @param int[] terms
+   * @return boolean
+   */
+  this.lifeEventHasTopic = function(tids, terms) {
+    for (const tid of tids) {
+      if (terms.includes(tid)) {
+        return true;
+      }
+    }
+    return false;
   };
   /**
    * Clears the results container
@@ -221,10 +249,16 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
 
     switch (benefit.type) {
       case 'Life Event':
+        let termMarkup = '';
+
+        benefit.terms.forEach(function(term) {
+          termMarkup += `<span>${term}</span>`;
+        });
+
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.field_b_search_title}</h3><p>${description}</p></div>
 <div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
-  <span>${myself.labels.benefitFinderCategory}</span><span>${myself.labels.lifeEventsCategory}</span><span>${benefit.name}</div>
+  <span>${myself.labels.benefitFinderCategory}</span><span>${myself.labels.lifeEventsCategory}</span>${termMarkup}</div>
 </div>`;
         break;
 
@@ -420,7 +454,7 @@ jQuery(document).ready(async function () {
   // Setup language specific inputs
   if (docLang[0] === 'en') {
     benefitsPath = "../benefits-search/en.json";
-    lifeEventsPath = "../benefits-search/life-en.json";
+    lifeEventsPath = "../benefits-search/en/life-events.json";
     labels = {
       'page': "Page",
       'next': "Next",
@@ -437,7 +471,7 @@ jQuery(document).ready(async function () {
   }
   else if (docLang[0] === 'es') {
      benefitsPath = "../../benefits-search/es.json";
-     lifeEventsPath = "../../benefits-search/life-es.json";
+     lifeEventsPath = "../../benefits-search/es/life-events.json";
      labels = {
       'page': "Página",
       'next': "Siguiente",
