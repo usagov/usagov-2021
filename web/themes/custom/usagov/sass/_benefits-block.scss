@@ -1,0 +1,90 @@
+@use "usagov-variables" as *;
+@use "uswds-core" as *;
+
+.benefits-block-bg {
+  @include u-margin-x(auto);
+  @include u-margin-top(2);
+  max-width: 1124px;
+  width: 100%;
+  @include u-padding-y(4);
+  @include u-padding-x(7);
+  background-color: $homepage-light-blue-background;
+  grid-column: 1 / 3;
+  grid-row: 6 / 10;
+  border-radius: 3px;
+}
+
+.benefits-block {
+  @include u-display(block);
+
+  > img {
+    @include u-display(none);
+  }
+}
+
+.benefits-text {
+  @include u-margin-bottom(3);
+  padding: initial;
+
+  > h2 {
+    @include u-text('blue-80v');
+    @include u-font-family('serif');
+    @include u-margin(0);
+    @include u-margin-bottom(2);
+    font-size: 2.1em;
+    line-height: 117.4%;
+    letter-spacing: -0.39px;
+  }
+
+  .benefits-block__content, p {
+    @include u-text('blue-80v');
+    @include u-font-family('serif');
+    @include u-text(light);
+    font-size: 1.125em;
+  }
+}
+
+a.usa-button.benefits-link {
+  @include u-text('white');
+  @include u-padding(3);
+  @include u-bg('blue-80v');
+  @include u-display(flex);
+  @include u-font-family('sans');
+  text-decoration: none;
+  max-height: 37px;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* Tablet & Desktop */
+@media (min-width: 700px) {
+
+  .benefits-block {
+    display: grid;
+    grid-template-columns: 100px 1fr 260px;
+
+    > img {
+      @include u-display(block);
+    }
+  }
+
+  .benefits-text {
+    @include u-padding-right(5);
+    @include u-margin-bottom(0);
+  }
+}
+
+.nav-benefits {
+  @include u-padding-y('205');
+
+  .benefits-text {
+    @include u-text('gray-90');
+  }
+
+  .benefits-block {
+    align-items: center;
+  }
+}
