@@ -167,7 +167,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: "<strong>{{ field_option_name }}</strong><br />\r\n{{ description__value }}"
+            text: "{% if description__value %}\r\n<span class=\"usagov-label--text\"><strong>{{ field_option_name }}</strong><br />\r\n{{ description__value }}</span>\r\n{% else %}\r\n<span class=\"usagov-label--text\">{{ field_option_name }}</span>\r\n{% endif %}"
             make_link: false
             path: ''
             absolute: false
