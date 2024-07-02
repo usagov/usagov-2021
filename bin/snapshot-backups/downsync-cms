@@ -48,6 +48,13 @@ if ! isSpaceSSHEnabled $startspace; then
   needsSpaceSSHDisabled=1
 fi
 
+CHECK_DB_CONNECTION=$( cf ssh cms -c ". /etc/profile; drush status 2&>/dev/null"  | grep -E 'Database\s*:' | awk '{print $3}')
+
+if [ "$CHECK_DB_CONNECTION" != "Connected" ]; then
+  echo "Drush cannot connect to the database. Exiting. Drush status says database is: " "$CHECK_DB_CONNECTION"
+  exit 1
+fi
+
 TOME_DISABLED_STATE=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled")
 
 DEPLOY_TAG=${1}
@@ -85,8 +92,8 @@ echo  $SCRIPT_DIR/../deploy/try-tome-disable
 $echo $SCRIPT_DIR/../deploy/try-tome-disable
 
 if [[ $? != 0 ]]; then
-    echo "Failed to disable tome and set maintenance mode on $TO_SPACE. Exiting."
-    exit 2
+  echo "Failed to disable tome and set maintenance mode on $TO_SPACE. Exiting."
+  exit 2
 fi
 
 # Deploy database to TO_SPACE
