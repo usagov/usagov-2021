@@ -151,17 +151,22 @@
 .usa-header--extended .usa-logo img {
   max-width: none;
   width: 3.2rem;
+  max-height: none;
+  height: 3.2rem;
 
   @include at-media($theme-header-min-width) {
     width: 5rem;
+    height: 5rem;
   }
 }
 
 .usa-header--extended .usa-logo img.es {
   width: 8rem;
+  height: 8rem;
 
   @include at-media($theme-header-min-width) {
     width: 12.3rem;
+    hieght: 12.3rem;
   }
 }
 
