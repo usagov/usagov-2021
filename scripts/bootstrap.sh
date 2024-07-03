@@ -50,8 +50,8 @@ case $SPACE in
 dev)
   WWW_HOST=beta-dev.usa.gov
   ;;
-dev-dr)
-  WWW_HOST=dev-dr.usa.gov
+dr)
+  WWW_HOST=beta-dr.usa.gov
   ;;
 stage)
   WWW_HOST=beta-stage.usa.gov
