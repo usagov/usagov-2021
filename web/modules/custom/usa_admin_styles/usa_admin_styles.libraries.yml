@@ -10,3 +10,5 @@ accordionButtonSubmitFix:
 benefitsCategoryLanguageFilter: 
   js:
     benefitsCategoryLanguageFilter.js: {}
+  dependencies:
+    - core/jquery
