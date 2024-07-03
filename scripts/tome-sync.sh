@@ -246,15 +246,14 @@ if [ "$EN_HOME_CONTAINS_NODE_LINKS" != "0"  ]; then
 fi
 
 # Sometimes Tome generates an English mobile menu on the Spanish home page
-ES_HOME_CONTAINS_ENGLISH_MENU=$(grep -c 'About us' $ES_HOME_HTML_FILE)
+ES_HOME_CONTAINS_ENGLISH_MENU=$(grep -E -c 'All topics and services|About USAGov|Military and veterans' $ES_HOME_HTML_FILE)
 if [ "$ES_HOME_CONTAINS_ENGLISH_MENU" != "0"  ]; then
   echo "WARNING: *** ES index.html appears to contain English nav ***" | tee -a $TOMELOG
   ES_HOME_HTML_BAD=1
 fi
 
 # Sometimes Tome generates an Spanish mobile menu on the English home page
-# "Navegaci&oacute;n" is the aria-label on the mobile nav (and the non-mobile nav, but we don't see this problem there)
-EN_HOME_CONTAINS_SPANISH_MENU=$(grep -c 'Navegaci&oacute;n' $EN_HOME_HTML_FILE)
+EN_HOME_CONTAINS_SPANISH_MENU=$(grep -E -c 'Todos los temas y servicios|Acerca de USAGov en Español|Fuerzas Armadas de EE. UU. y veteranos' $EN_HOME_HTML_FILE)
 if [ "$EN_HOME_CONTAINS_SPANISH_MENU" != "0"  ]; then
   echo "WARNING: *** EN index.html appears to contain Spanish nav ***" | tee -a $TOMELOG
   EN_HOME_HTML_BAD=1

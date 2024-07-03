@@ -300,3 +300,92 @@ function _usagov_benefit_finder_content_check_criteria_usage_in_benefit(int $nid
 
   return $return;
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @param array $form
+ *   Form array.
+ * @param FormStateInterface $form_state
+ *   Form state object.
+ */
+function usagov_benefit_finder_content_form_node_bears_criteria_edit_form_alter(array &$form, FormStateInterface $form_state) {
+  $form['#validate'][] = '_usagov_benefit_finder_content_node_bears_criteria_edit_form_validate';
+}
+
+/**
+ * Validates criteria edit form hasChild field.
+ *
+ * @param array $form
+ *   Form array.
+ * @param FormStateInterface $form_state
+ *   Form state object.
+ */
+function _usagov_benefit_finder_content_node_bears_criteria_edit_form_validate(array $form, FormStateInterface $form_state) {
+  $errors = [];
+  $error_count = 0;
+
+  $has_child = $form_state->getValue('field_b_has_child');
+
+  if ($has_child['value']) {
+    return;
+  }
+
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $nid = $node->id();
+
+  $result = _usagov_benefit_finder_content_check_criteria_has_child($nid);
+  if (!empty($result)) {
+    foreach ($result as $row) {
+      $errors[] = t("Can not uncheck \"Has Child\" field. There are related child values in the Life event form: $row[title] ($row[nid])");
+    }
+  }
+
+  if (!empty($errors)) {
+    foreach ($errors as $error) {
+      $form_state->setErrorByName((string) ++$error_count, $error);
+    }
+  }
+}
+
+/**
+ * It checks if criteria has child.
+ *
+ * @param int $nid
+ *   Node ID of given criteria.
+ */
+function _usagov_benefit_finder_content_check_criteria_has_child(int $nid) {
+  $return = [];
+
+  $connection = Database::getConnection();
+
+  $query = $connection->select('paragraph__field_b_children', 't');
+  $query->fields('t', ['entity_id']);
+  $query->condition('t.bundle', 'b_levent_elg_criteria');
+  $result = $query->execute();
+
+  $entity_ids = [];
+  foreach ($result as $row) {
+    $entity_ids[] = $row->entity_id;
+  }
+
+  if (empty($entity_ids)) {
+    return $return;
+  }
+
+  $query = $connection->select('node_field_data', 't1');
+  $query->join('node__field_b_sections_elg_criteria', 't2', 't1.nid = t2.entity_id');
+  $query->join('paragraph__field_b_criterias', 't3', 't2.field_b_sections_elg_criteria_target_id =  t3.entity_id');
+  $query->join('paragraph__field_b_criteria_key', 't4', 't3.field_b_criterias_target_id =  t4.entity_id');
+  $query->fields('t1', ['title', 'nid']);
+  $query->condition('t4.field_b_criteria_key_target_id', $nid);
+  $query->condition('t3.field_b_criterias_target_id', $entity_ids, 'IN');
+  $query->orderBy('title');
+  $result = $query->execute();
+
+  foreach ($result as $row) {
+    $return[] = ['nid' => $row->nid, 'title' => $row->title];
+  }
+
+  return $return;
+}

@@ -1,0 +1,8 @@
+uuid: afa397d2-9a4a-40a8-94da-6e14a76389bb
+langcode: en
+status: true
+dependencies: {  }
+id: site_banner
+label: 'Site Banner'
+revision: 0
+description: ''
