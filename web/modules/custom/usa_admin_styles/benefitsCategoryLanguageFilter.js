@@ -4,61 +4,64 @@ the "Benefits Category Search" field displayed while editing a Basic Page
 content type shows all the items by default.
 
 This script filters those categories by the content's selected language.
-
-This script assumes that each category includes its language at the end of the <label> element
 */
 
 (function (jQuery, Drupal, drupalSettings) {
 
-    storeLanguageInDataAttribute(jQuery);
+    jQuery('#edit-field-benefits-category--wrapper legend').append("<span id='benefits-category-filter-details' data-filtered='true'></span>");
 
-    filterCategoriesByLanguage(jQuery);
+    updateCategoryFilter(jQuery);
 
-    jQuery('#edit-langcode-0-value').change(function(){
-        filterCategoriesByLanguage(jQuery);
+    jQuery('#edit-langcode-0-value').on('change', function(){
+        updateCategoryFilter(jQuery);
     });
 
 })(jQuery);
 
 /*
-Each Benefits Category is rendered with text that ends with its language.
-The storeLanguageInDataAttribute function adds the languageas a data attribute,
-and then strips away the visible language text.
+The updateCategoryFilter function either filters the Benefits Categories by the currently selected language or
+shows all categories depending on a data-attribute on the filter-details. It also updates the text within the 
+filter-details to indicate whether the Benefits Categories are being filtered and provides a button a button to switch
+modes.
 
-It would be more ideal to let the View render the language into the data attribute,
-but when the View is displayed as a field on an admin page, it seems to be limited
-to showing visible text.
+It is called when the edit page loads as well as anytime the language field is changed.
 */
-function storeLanguageInDataAttribute(jQuery){
-    jQuery('#edit-field-benefits-category').children().each(function () {
-        if(jQuery(this).text().trim().endsWith("English")){
-            jQuery(this).attr( "data-language", "English" );
+function updateCategoryFilter(jQuery){
+    let filtered = jQuery('#benefits-category-filter-details').attr('data-filtered');
+    if(filtered=="true"){
+        let selectedLanguage = jQuery("#edit-langcode-0-value :selected").text();
+        let otherCheckedCategories = 0;
+
+        jQuery('#edit-field-benefits-category').children().each(function () {
+            if( jQuery(this).find('[data-language='+selectedLanguage+']').length ){
+                jQuery(this).show();
+            }else if( jQuery(this).find('input').is(":checked") ){
+                jQuery(this).show();
+                otherCheckedCategories++;
+            }else{
+                jQuery(this).hide();
+            }
+        });
+
+        let extraDetail = "";
+        if(otherCheckedCategories > 0){
+            extraDetail = " and "+otherCheckedCategories+" other checked categor";
+            extraDetail += otherCheckedCategories > 1 ? "ies" : "y";
         }
-        if(jQuery(this).text().trim().endsWith("Español")){
-            jQuery(this).attr( "data-language", "Español" );
-        }
-        let label = jQuery(this).children("label");
-        label.html(label.children("span")[0].outerHTML);
-    });
+
+        jQuery('#benefits-category-filter-details').html("Showing "+selectedLanguage+" categories"+extraDetail+". <button onclick='showAllCategories()'>Show all categories</button>");
+    }else{
+        jQuery('#edit-field-benefits-category').children().show();
+        jQuery('#benefits-category-filter-details').html("Showing all categories. <button onclick='filterCategories()'>Filter categories by selected language</button>");
+    }
 }
 
-/*
-The filterCategoriesByLanguage function filters the Benefits Categories 
-by the currently selected language. It also updates the text within the 
-<legend> element to indicate that the Benefits Categories are being filtered
-as well as which language is currently selected.
+function showAllCategories(){
+    jQuery('#benefits-category-filter-details').attr('data-filtered', 'false');
+    updateCategoryFilter(jQuery);
+}
 
-It is called when the edit page loads as well as anytime the language field
-is changed.
-*/
-function filterCategoriesByLanguage(jQuery){
-    let selectedLanguage = jQuery("#edit-langcode-0-value :selected").text();
-    jQuery('#edit-field-benefits-category').children().each(function () {
-        if(jQuery(this).attr( "data-language" ) != selectedLanguage){
-            jQuery(this).hide();
-        }else{
-            jQuery(this).show();
-        }
-    });
-    jQuery('#edit-field-benefits-category--wrapper legend span').text("Benefits Category (Filtered by selected language: "+selectedLanguage+")");
+function filterCategories(){
+    jQuery('#benefits-category-filter-details').attr('data-filtered', 'true');
+    updateCategoryFilter(jQuery);
 }
