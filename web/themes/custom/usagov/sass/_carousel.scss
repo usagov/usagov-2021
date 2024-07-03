@@ -59,6 +59,7 @@
   .usagov-card {
     border: none;
   }
+
 }
 
 .slick-slider {
@@ -75,6 +76,11 @@
   // Make the white outline visible
   .slick-arrow:focus {
     padding: 2px;
+  }
+
+  img {
+    height: 2.5rem;
+    width: 2.5rem;
   }
 
   .slick-prev {
