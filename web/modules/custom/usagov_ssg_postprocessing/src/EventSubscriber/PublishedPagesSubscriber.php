@@ -112,13 +112,14 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         "Toggle URL",
       ];
 
-      // If the nodeID matches a line in the csv array, set the pointer to that element. TODO: this might be fragile.
+      // If the nodeID matches a line in the csv array, set the pointer to that element.
+      // TODO: this might be fragile.
       if (!empty($csv)) {
         $nodeIDElement = array_search("Page ID", $csv[0]);
         $languageElement = array_search("Taxonomy Level 1", $csv[0]);
         foreach ($csv as $key => $line) {
           if ($line[$nodeIDElement] == $decoded["nodeID"]) {
-            if ($line[$languageElement] == $decoded["language"]) {
+            if ($line[$languageElement] == $content_replace[$decoded["language"]]) {
               $pointer = $key;
             }
           }
@@ -132,7 +133,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
 
       $decoded["Page Title"] = $title;
 
-      $toggle_url = $xpath->query('/html/head/link[contains(@rel, "alternate")]/@href')->item(0)->nodeValue;
+      $toggle_url = $xpath->query('/html/head/link[contains(@data-type, "altlang")]/@href')->item(0)->nodeValue;
       $decoded["Toggle URL"] = ($toggle_url) ? $toggle_url : "None";
 
       $hierarchy = 0;

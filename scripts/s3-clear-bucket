@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+if [ -f $SCRIPT_DIR/../bin/deploy/includes ]; then
+  . $SCRIPT_DIR/../bin/deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../bin/deploy/includes
+   exit 1
+fi
+
+# just testing or really deleting s3 bucket??
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+elif [ x$1 = x'--proceed-with-bucket-content-deletion' ];  then
+  PROCEED=proceed
+fi
+
+if [ x$PROCEED = xproceed -o x$echo = xecho ]; then
+  shift
+else
+  echo
+  echo "Usage: $0 --dryrun | --proceed-with-bucket-content-deletion space"
+  echo
+  echo "Examples:"
+  echo "         $0 --dryrun prod                              # <-- Print the steps which would recursively delete all folders from the USAgov s3 bucket in prod"
+  echo "         $0 --proceed-with-bucket-content-deletion dev # <-- Carry out the recursive deletion of all folders from the USAgov s3 bucket in dev"
+  echo
+  exit 1
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
+
+. bin/cloudgov/get-s3-access &>/dev/null
+
+BUCKET_FOLDERS=$(aws s3 ls $S3_BUCKET/ | grep -E '\/$' | awk '{ print $2; }')
+
+for bf in $BUCKET_FOLDERS; do
+   echo aws s3 rm --only-show-errors s3://$S3_BUCKET/$bf --recursive
+  $echo aws s3 rm --only-show-errors s3://$S3_BUCKET/$bf --recursive
+done
