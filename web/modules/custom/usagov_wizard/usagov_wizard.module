@@ -169,10 +169,12 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
       $parent_headings = $menuChecker->getHeadings($taxonomy_term);
       $menuEntities = $menuChecker->getTargetEntities($langcode);
 
-      // If there's a custom parent menu entity...
-      foreach ($menuEntities['menu_entities'] as $menuEntity) {
-        if ($menuEntity->field_custom_parent->value == 1) {
-           $wizard_title = $menuEntity->title->value;
+      if(isset($menuEntities['menu_entities'])) {
+        // If there's a custom parent menu entity...
+        foreach ($menuEntities['menu_entities'] as $menuEntity) {
+          if ($menuEntity->field_custom_parent->value == 1) {
+             $wizard_title = $menuEntity->title->value;
+          }
         }
       }
 
@@ -191,9 +193,15 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
           }
         }
       }
-
+      $i = 0;
       // Set the third item in the breadcrumb to be the field_heading.
       foreach ($variables['breadcrumb'] as &$breadcrumb) {
+
+        /* Dont do anything to the second breadcrumb, since this one has a weird
+        naming system. */
+        if( $i++ == 1) {
+          continue;
+        }
         foreach ($parent_headings as $parent_heading) {
           if (is_string($breadcrumb['text']) && $parent_heading['name'] ===
             $breadcrumb['text']) {

@@ -3,6 +3,7 @@
 {% extends "page.html.twig" %}
 
 {%  block sidebar %}
+  {% if menu_entities %}
   {% set parent_link = menu_entities[2]['link'] %}
     <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first">
       <ul class="usa-sidenav">
@@ -25,6 +26,7 @@
       </ul>
       </ul>
     </aside>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
