@@ -40,15 +40,18 @@ ORG=gsa-tts-usagov
 APP_SPACE=dr
 EGRESS_SPACE=shared-egress
 
-#echo=echo
+echo "WWW_APP:      $WWW_APP"
+echo "WAF_APP:      $WAF_APP"
+echo "CMS_APP:      $CMS_APP"
+echo "ORG:          $ORG"
+echo "APP_SPACE:    $APP_SPACE"
+echo "EGRESS_SPACE: $EGRESS_SPACE"
 
-ATAG=9600
-CTAG=$ATAG
-WTAG=$ATAG
-STAG=$ATAG
-export CDIGEST=@sha256:950b3569546f667776b81a44c96876d3488bfa0fb6d0f699387694e56d46764f
-export WDIGEST=@sha256:6f031e36cbfc56aadfb0932fb7f3a2ea24f031587616b1e15bc35c5d49a4229a
-export SDIGEST=@sha256:08c245dd259d230aa35f44578af85fe0aa2fd558e731ca2b533a099fa5926649
+source bin/deploy/get-latest-prod-containers
+
+echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE
+$echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE
+exit
 
 #echo  cf delete-space $APP_SPACE
 #while [ 1 = 1 ]; do clear; $echo cf delete-space $APP_SPACE; sleep 10; done
@@ -123,24 +126,24 @@ exit
 #
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
-#bin/cloudgov/deploy-cms $CTAG $CDIGEST
+#bin/cloudgov/deploy-cms $CCI_BUILD_ID $CMS_DIGEST
 #exit
 
 #
 #echo  cf target -s $APP_SPACE
 #$echo cf target -s $APP_SPACE
-#bin/cloudgov/deploy-www $STAG $SDIGEST
+#bin/cloudgov/deploy-www $CCI_BUILD_ID $WWW_DIGEST
 #exit
 
 #ROUTE_SERVICE_APP_NAME=$WAF_APP \
 #ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
 #PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP" \
-#bin/cloudgov/deploy-waf $WTAG $WDIGEST
+#bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
 #exit
 
 #cf set-env $WAF_APP IP_ALLOW_ALL_CMS 1
 #cf set-env $WAF_APP IP_ALLOW_ALL_WWW 1
-#cf restage $WAF_APP
+#cf reCCI_BUILD_IDe $WAF_APP
 
 ###
 cat <<'ZZ'
