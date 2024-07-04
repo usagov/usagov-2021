@@ -141,10 +141,13 @@ source bin/deploy/get-latest-prod-containers
 #bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
 #exit
 
-#cf set-env $WAF_APP IP_ALLOW_ALL_CMS 1
-#cf set-env $WAF_APP IP_ALLOW_ALL_WWW 1
-#cf restage $WAF_APP
-#exit
+
+echo  cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+cf set-env $WAF_APP IP_ALLOW_ALL_CMS 1
+cf set-env $WAF_APP IP_ALLOW_ALL_WWW 1
+cf restage $WAF_APP
+exit
 
 ###
 #cat <<'ZZ'
@@ -164,9 +167,37 @@ source bin/deploy/get-latest-prod-containers
 #ZZ
 #exit
 
-#PREFIX=usagov-${DEPLOY_TAG}-${SPACE}
+
+echo  cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
 SQL_FILE=usagov.sql
 
 echo "Attempting to deploy database backup $SQL_FILE to $APP_SPACE"
 $echo cat $SQL_FILE | cf ssh cms -c "cat - > /tmp/$SQL_FILE"
 cf ssh $CMS_APP -c "if [ -f /tmp/$SQL_FILE ]; then . /etc/profile; drush sql-drop -y; cat /tmp/$SQL_FILE | drush sql-cli; drush cr; fi"
+exit
+
+#
+# In order to use CircleCI to deploy to our new space, we have to grant Prod's cci service user 
+# the proper role:
+#
+cf t -s prod
+SERVICE_KEY=$(cf service-key cci-service-account cci-service-key | tail -n +3)
+SERVICE_USER=$( echo $SERVICE_KEY | jq -r '.credentials.username')
+cf set-space-role $SERVICE_USER gsa-tts-usagov dr SpaceDeveloper
+echo  cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE
+
+
+#
+# In order to get the public files in place, we need to get the prod snapshot locally,
+# then create that snapshot on dr, from the local snapshot file we just downloaded.
+#
+# Then we can deploy the public snapshot as usual
+#
+cf t -s prod
+bin/snapshot-backups/public-snapshot-download dr USAGOV-1669.prod.9820.post-deploy
+
+cf t -s $APP_SPACE
+bin/snapshot-backups/public-folder-push-to-snapshot dr USAGOV-1669.prod.9820.post-deploy.public.zip
+bin/snapshot-backups/public-snapshot-deploy dr USAGOV-1669.prod.9820.post-deploy
