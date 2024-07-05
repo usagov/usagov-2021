@@ -59,3 +59,10 @@ benefitSearch:
 pagination:
   js:
     scripts/pagination.js: {}
+
+lazyLoadBgImage:
+  js:
+    scripts/lazyloadBgImage.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
