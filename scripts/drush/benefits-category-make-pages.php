@@ -14,6 +14,7 @@ $englishNid = \Drupal::entityQuery('node')
   ->execute();
 
 if ($englishNid) {
+  \Drush\Drush::output()->writeln("<info>English page already exists with same title.</info>");
   $nid = array_shift($englishNid);
   $englishPage = Node::load($nid);
 } else {
@@ -36,6 +37,7 @@ $spanishNid = \Drupal::entityQuery('node')
   ->execute();
 
 if ($spanishNid) {
+  \Drush\Drush::output()->writeln("<info>Spanish page already exists with same title.</info>");
   $nid = array_shift($spanishNid);
   $spanishPage = Node::load($nid);
 } else {
@@ -92,9 +94,10 @@ function createBasicPage(
     'field_benefits_search_title' => $searchTitle,
     'field_benefits_search_descr' => $searchDescr,
   ]);
-  $node->setPublished(true)
-       ->set('moderation_state', 'published')
-       ->save();
+  $node->setPublished(true);
+  $node->set('moderation_state', 'published');
+  $node->save();
 
+  \Drush\Drush::output()->writeln("<info>Creating ${title} Page</info>");
   return $node;
 }

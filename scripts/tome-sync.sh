@@ -84,6 +84,9 @@ case $APP_SPACE in
 dev)
   WWW_HOST=beta-dev.usa.gov
   ;;
+dr)
+  WWW_HOST=beta-dr.usa.gov
+  ;;
 stage)
   WWW_HOST=beta-stage.usa.gov
   ;;
