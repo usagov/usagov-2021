@@ -4,6 +4,16 @@
   start_over
 #}
 
+{% if term.langcode.value == 'en' %}
+  {% set previous_string = 'Previous' %}
+  {% set next_string = 'Next' %}
+  {% set start_over_string = 'Start over' %}
+{% else %}
+  {% set previous_string = 'Anterior' %}
+  {% set next_string = 'Siguiente' %}
+  {% set start_over_string = 'Comenzar de nuevo' %}
+{% endif %}
+
 {% set attributes = attributes.addClass('usa-prose') %}
 {% set attributes = attributes.addClass('usagov-wizard--content') %}
 
@@ -14,21 +24,21 @@
   {% if child %}
     {{ content.field_options_list }}
     {{ content.field_footer }}
-    <div class="grid-row margin-bottom-2 usa-reverse usagov-wizard-buttons">
+    <div class="grid-row margin-bottom-2 usagov-wizard-buttons">
 {#       Generate the url for the parent of this term to put in the 'previous' button. #}
       {% set previous_path = path('entity.taxonomy_term.canonical', {'taxonomy_term': parent_tid}) %}
-      <button id="prior" class="usa-button usa-button--secondary usa-button--big" onclick="window.location.href = '{{ previous_path }}'">Previous</button>
+      <button id="prior" class="usa-button usa-button--secondary usa-button--big" onclick="window.location.href = '{{ previous_path }}'">{{ previous_string }}</button>
 
       {# If there are items in the options list, this must not be the last term in the tree. Generate a Next button. #}
       {% if content.field_options_list['#items'] %}
-      <button id="next" class="margin-left-2 usa-button usa-button--outline usagov-button--outline-black usa-button--big"
-              onclick="if(document.querySelector(`input[name='options']:checked`)) { window.location.href = document.querySelector(`input[name='options']:checked`).value; }">Next</button>
+      <button id="next" class="desktop:margin-left-2 usa-button usa-button--outline usagov-button--outline-black usa-button--big"
+              onclick="if(document.querySelector(`input[name='options']:checked`)) { window.location.href = document.querySelector(`input[name='options']:checked`).value; }">{{ next_string }}</button>
       {% endif %}
     </div>
   {% endif %}
   {% if start_over == 'true' %}
     <div class="margin-top-2">
-      <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}">Start over</a>
+      <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}">{{ start_over_string }}</a>
     </div>
   {% endif %}
 </div>

@@ -7,5 +7,5 @@ dependencies:
 id: taxonomy_term.wizard
 target_entity_type_id: taxonomy_term
 target_bundle: wizard
-default_langcode: site_default
+default_langcode: und
 language_alterable: true

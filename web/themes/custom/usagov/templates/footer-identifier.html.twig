@@ -1,4 +1,8 @@
-{% set lang = node.langcode.value %}
+{% if node.langcode.value %}
+  {% set lang = node.langcode.value %}
+{% else %}
+  {% set lang = language.id %}
+{% endif %}
 <div class="usa-identifier">
   <section class="usa-identifier__section usa-identifier__section--usagov" {{ lang == 'es' ?  "aria-label='USAGov en Español es la guía oficial de información y servicios del Gobierno'" : "aria-label='USAGov is the official guide to government information and services'" }}
   aria-label="USAGov is the Official Guide to Government Information and Services">

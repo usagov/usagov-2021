@@ -49,7 +49,12 @@
  */
 #}
 
-{% set lang = node.langcode.value %}
+{% if node.langcode.value %}
+  {% set lang = node.langcode.value %}
+{% else %}
+  {% set lang = language.id %}
+{% endif %}
+
 {% set content_type = "" %}
 {% if node.type.0 != null %}
 	{% set content_type = node.type.0.target_id %}

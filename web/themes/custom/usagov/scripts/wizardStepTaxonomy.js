@@ -36,7 +36,7 @@ Drupal.behaviors.wizardStepTaxonomy = {
             errorMessage = 'Error: Please choose one of the following options';
           }
           else {
-            errorMessage = 'Error: Por favor elija una opción';
+            errorMessage = 'Error: elija una de las siguientes opciones';
           }
 
           // If any choice is selected, return true.
