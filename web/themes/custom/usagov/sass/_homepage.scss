@@ -106,12 +106,15 @@
 .welcome-box {
   @include u-bg('blue-80v');
   box-shadow: 0 6px 6px $blue-shadow;
-  width: clamp(50%, 450px, 100%);
   padding: 30px 28px 35px 30px;
 
   p {
     font-size: 1.125em;
     margin-top: 20px;
+  }
+
+  @include at-media("tablet") {
+    width: clamp(50%, 450px, 100%);
   }
 }
 
