@@ -70,14 +70,18 @@
   width: 225px;
 }
 
+
 #slides-list {
 
   // Make the white outline visible
   .slick-arrow:focus {
     padding: 2px;
+    display: flex;
+    align-items: center; /* Vertically centers the image */
+    justify-content: center;
   }
 
-  .carousel-arrows {
+  .slick-arrow img {
     height: 2.5rem;
     width: 2.5rem;
   }
