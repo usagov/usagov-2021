@@ -73,11 +73,11 @@
 
 #slides-list {
 
-  // Make the white outline visible
+  // Make the white outline visible and maintain centering
   .slick-arrow:focus {
     padding: 2px;
     display: flex;
-    align-items: center; /* Vertically centers the image */
+    align-items: center;
     justify-content: center;
   }
 
