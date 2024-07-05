@@ -198,6 +198,13 @@
   }
 }
 
+#jump_block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .jump1 {
   grid-column: 1 / 3;
   grid-row: 4 / 5;
