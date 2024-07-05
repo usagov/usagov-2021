@@ -9,13 +9,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class PathSubscriber implements EventSubscriberInterface {
 
   public function collectPaths(CollectPathsEvent $event) {
+    // need the basepath for pages.gov exports
+    $base_path = rtrim(trim(base_path()), '/');
+
     // Tell tome not to translate the paths we add
     $md = ['langcode' => 'es', 'language_processed' => 'language_processed'];
     $event->addPaths([
-        '/benefits-search/en/pages.json' => $md,
-        '/benefits-search/en/life-events.json' => $md,
-        '/benefits-search/es/pages.json' => $md,
-        '/benefits-search/es/life-events.json' => $md,
+        $base_path . '/benefits-search/en/pages.json' => $md,
+        $base_path . '/benefits-search/en/life-events.json' => $md,
+        $base_path . '/benefits-search/es/pages.json' => $md,
+        $base_path . '/benefits-search/es/life-events.json' => $md,
       ]
     );
   }
