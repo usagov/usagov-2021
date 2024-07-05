@@ -70,14 +70,18 @@
   width: 225px;
 }
 
+
 #slides-list {
 
-  // Make the white outline visible
+  // Make the white outline visible and maintain centering
   .slick-arrow:focus {
     padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .carousel-arrows {
+  .slick-arrow img {
     height: 2.5rem;
     width: 2.5rem;
   }
