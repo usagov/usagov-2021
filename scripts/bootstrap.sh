@@ -18,8 +18,8 @@ echo "Deployment: bootstrap starting"
 # Add the cloud foundry certificates for communication with other apps in cloud.gov.
 # cert-watcher.sh does this too, but we want it to happen before
 # any php processes start, and especially before the newrelic-daemon starts.
-if [ -d "$CF_SYSTEM_CERT_PATH" ]; then
-   cp $CF_SYSTEM_CERT_PATH/*  /usr/local/share/ca-certificates/
+if [ -d "${CF_SYSTEM_CERT_PATH:-}" ]; then
+   cp ${CF_SYSTEM_CERT_PATH:-}/*  /usr/local/share/ca-certificates/
 fi
 /usr/sbin/update-ca-certificates
 
@@ -50,8 +50,8 @@ case $SPACE in
 dev)
   WWW_HOST=beta-dev.usa.gov
   ;;
-dev-dr)
-  WWW_HOST=dev-dr.usa.gov
+dr)
+  WWW_HOST=beta-dr.usa.gov
   ;;
 stage)
   WWW_HOST=beta-stage.usa.gov

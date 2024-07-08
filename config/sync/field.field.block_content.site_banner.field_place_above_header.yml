@@ -1,0 +1,21 @@
+uuid: 42b14c07-1356-47d1-a923-8d8731b9feee
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.site_banner
+    - field.storage.block_content.field_place_above_header
+id: block_content.site_banner.field_place_above_header
+field_name: field_place_above_header
+entity_type: block_content
+bundle: site_banner
+label: 'Place above header'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'Place the alert above the header'
+  off_label: "Don't place the alert above the header"
+field_type: boolean

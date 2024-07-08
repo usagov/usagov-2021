@@ -41,6 +41,8 @@
 {% if meta_noindex %}
 <meta name="robots" content="noindex" />
 {% endif %}
+<link rel="preconnect" href="https://script.crazyegg.com" crossorigin>
+<link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
 <head-placeholder token="{{ placeholder_token|raw }}">
 <title>{{ head_title|safe_join(' | ') }}</title>
   <css-placeholder token="{{ placeholder_token|raw }}">
