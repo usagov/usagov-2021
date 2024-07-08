@@ -101,6 +101,10 @@ function usagov_wizard_preprocess_page(&$variables) {
           }
         }
       } // End isset $menuEntities['target_tids']
+
+      if (isset($taxonomy_term->field_language_toggle[0]->target_id)) {
+        $variables['translation'] = $taxonomy_term->field_language_toggle->getValue()[0]['target_id'];
+      }
     }
   }
 }

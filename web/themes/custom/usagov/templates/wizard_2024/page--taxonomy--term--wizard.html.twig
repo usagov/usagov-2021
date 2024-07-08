@@ -1,6 +1,9 @@
 {# Custom left navigation for wizards. See usagov_wizard module.#}
 
 {% extends "page.html.twig" %}
+{% block top_nav %}
+  {% include '@usagov/wizard_2024/wizard-top-nav.html.twig' %}
+{% endblock %}
 
 {% block main %}
 <main class="main-content usa-layout-docs usa-section usagov-wizard {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
