@@ -127,6 +127,7 @@ for app in $applist ; do
         ((i+=1))
     done
 done
+echo "Setting up instance flag: $instances"
 echo "Using buckets: $buckethosts"
 
 # We need these files to exist for each app, even if they're empty.
@@ -156,7 +157,7 @@ echo "proxyname: $proxyname
 hostname: $proxyname
 username: $username
 password: $password
-proxy_route: $proxyroute
+proxyroute: $proxyroute
 proxydeny: |
 $proxydeny
 proxyallow: |
@@ -175,10 +176,22 @@ else
     $output rm -rf tmp-caddy-build
 fi
 
+# Set up instance counts for each proxy app
+instances="-i 1"
+if [ "$startspace" == "dev" ]; then
+    instances="-i 1"
+elif [ "$startspace" == "stage" ]; then
+    instances="-i 1"
+elif [ "$startspace" == "prod" ]; then
+    instances="-i 2"
+elif [ "$startspace" == "tools" ]; then
+    instances="-i 2"
+fi
+
 # Deploy the proxy app
 echo "Deploy Egress Proxy App"
 $output cf target -o "$egressorg" -s "$egressspace" 2>&1 > /dev/null
-$output cf push $proxyname -f ./manifest-egress.yml --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
+$output cf push $proxyname -f ./manifest-egress.yml $instances --no-wait --strategy rolling --vars-file ./manifest-egress-vars.yml
 
 if [ -n "${DRYRUN}" ]; then
     echo "# vars-file content:"

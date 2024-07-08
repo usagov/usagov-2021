@@ -132,9 +132,16 @@
 		{% if term_name == "Navigation Cards Page" %}
             {{ content.body }}
             {{ content.field_page_intro }}
-        {% else %}
-            {{ content }}
-        {% endif %}
+      {% if (usagov_show_benefits_landing_block) %}
+        {% include directory ~ '/templates/includes/nav-benefits-block.html.twig' %}
+      {%  endif  %}
+    {% elseif term_name == "Benefits Category Search" %}
+      <div class="benefits-finder-content">
+        {{ content }}
+      </div>
+      {% else %}
+        {{ content }}
+    {% endif %}
 	</div>
 {% if term_name == "State Office Page" %}
 	{% set lang = node.langcode.value %}

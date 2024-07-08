@@ -14,7 +14,9 @@
 	</div>
 
   {% if (usagov_show_benefits_landing_block) %}
-
+    <div class="benefits-block-bg">
+      {% include directory ~ '/templates/includes/homepage-benefits-block.html.twig' %}
+    </div>
   {%  else  %}
 	  {% include directory ~ '/templates/includes/homepage-life-events.html.twig' %}
   {%  endif  %}

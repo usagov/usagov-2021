@@ -5,6 +5,7 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.bears_life_event.field_b_id
+    - field.field.node.bears_life_event.field_b_search_title
     - field.field.node.bears_life_event.field_draft_json_data_file
     - field.field.node.bears_life_event.field_draft_json_data_file_path
     - field.field.node.bears_life_event.field_header_html
@@ -35,6 +36,7 @@ content:
     region: content
 hidden:
   field_b_id: true
+  field_b_search_title: true
   field_draft_json_data_file: true
   field_draft_json_data_file_path: true
   field_header_html: true

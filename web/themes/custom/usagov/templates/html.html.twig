@@ -41,6 +41,8 @@
 {% if meta_noindex %}
 <meta name="robots" content="noindex" />
 {% endif %}
+<link rel="preconnect" href="https://script.crazyegg.com" crossorigin>
+<link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
 <head-placeholder token="{{ placeholder_token|raw }}">
 <title>{{ head_title|safe_join(' | ') }}</title>
   <css-placeholder token="{{ placeholder_token|raw }}">
@@ -48,8 +50,8 @@
   {% if node.id is defined %}
     {{ node.field_header_html.value|raw }}
   {% endif %}
-   {% if nodetype == "basic_page" %}
-<script id="taxonomy-data">
+  {% if nodetype == "basic_page" %}
+    <script id="taxonomy-data">
     dataLayer = [{
       {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
@@ -57,7 +59,7 @@
       {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-{% if front == "homepage" and lang == "en" %}
+    {% if front == "homepage" and lang == "en" %}
       "Taxonomy_Text_1": "Home",
       "Taxonomy_Text_2": "Home",
       "Taxonomy_Text_3": "Home",
@@ -70,8 +72,8 @@
       "Taxonomy_URL_4": "/",
       "Taxonomy_URL_5": "/",
       "Taxonomy_URL_6": "/"
-{% endif %}
-{% if front == "homepage" and lang == "es" %}
+    {% endif %}
+    {% if front == "homepage" and lang == "es" %}
       "Taxonomy_Text_1": "Página principal",
       "Taxonomy_Text_2": "Página principal",
       "Taxonomy_Text_3": "Página principal",
@@ -84,22 +86,22 @@
       "Taxonomy_URL_4": "/es/",
       "Taxonomy_URL_5": "/es/",
       "Taxonomy_URL_6": "/es/"
-{% endif %}
-      {{ taxonomy_link_block }}
-    }];
-  </script>
- {% else %}
-<script>
-    dataLayer = [{
-      {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{ taxonomy_link_block }}
-    }];
-  </script>
+    {% endif %}
+        {{ taxonomy_link_block }}
+      }];
+    </script>
+  {% else %}
+    <script id="taxonomy-data">
+      dataLayer = [{
+        {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+        {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+        {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+        {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+        {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+        {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+        {{ taxonomy_link_block }}
+      }];
+    </script>
  {% endif %}
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
