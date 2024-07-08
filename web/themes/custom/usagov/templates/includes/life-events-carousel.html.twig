@@ -19,26 +19,5 @@
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script>
-	jQuery.event.special.touchstart = {
-    setup: function( _, ns, handle ) {
-        this.addEventListener("touchstart", handle, { passive: !ns.includes("noPreventDefault") });
-    }
-	};
-	jQuery.event.special.touchmove = {
-			setup: function( _, ns, handle ) {
-					this.addEventListener("touchmove", handle, { passive: !ns.includes("noPreventDefault") });
-			}
-	};
-	jQuery.event.special.wheel = {
-			setup: function( _, ns, handle ){
-					this.addEventListener("wheel", handle, { passive: true });
-			}
-	};
-	jQuery.event.special.mousewheel = {
-			setup: function( _, ns, handle ){
-					this.addEventListener("mousewheel", handle, { passive: true });
-			}
-	};
-</script>
+<script src="usagov-2021/web/themes/custom/usagov/scripts/passiveListeners.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@accessible360/accessible-slick@1.0.1/slick/slick.min.js"></script>
