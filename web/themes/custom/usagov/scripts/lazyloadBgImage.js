@@ -33,7 +33,6 @@ jQuery(document).ready(function () {
     elements.forEach((element) => {
       if (element.isIntersecting) {
 
-        console.log(element);
         var className, baseURL, relativePath, bg;
 
         // get target element via data-bg attribute

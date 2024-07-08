@@ -6,6 +6,16 @@
   @include u-bg('gray-5');
 }
 
+.usa-banner__icon {
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
+.usa-banner__header-flag {
+  height: 1rem;
+  width: 1rem;
+}
+
 .usa-banner__button-text,
 .usa-banner__button-text:hover {
  @include u-text('blue-warm-70v');
@@ -151,17 +161,22 @@
 .usa-header--extended .usa-logo img {
   max-width: none;
   width: 3.2rem;
+  max-height: none;
+  height: 3.2rem;
 
   @include at-media($theme-header-min-width) {
     width: 5rem;
+    height: 5rem;
   }
 }
 
 .usa-header--extended .usa-logo img.es {
   width: 8rem;
+  height: 8rem;
 
   @include at-media($theme-header-min-width) {
     width: 12.3rem;
+    hieght: 12.3rem;
   }
 }
 
