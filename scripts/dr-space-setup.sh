@@ -50,32 +50,33 @@ echo "EGRESS_SPACE: $EGRESS_SPACE"
 source bin/deploy/get-latest-prod-containers
 
 echo cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &> /dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-
-#echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE
-#$echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE
-#exit
-
-#
-# Remove log-shipper bucket contents too
-#
-. bin/cloudgov/get-s3-access log-storage
+echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE
+$echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE
+bin/cloudgov/get-s3-access log-storage
 aws s3 rm --recursive s3://$S3_BUCKET/fluent-bit-logs/
+exit
 
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &> /dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
 echo  cf delete-space $APP_SPACE
 while [ 1 = 1 ]; do $echo cf delete-space $APP_SPACE; sleep 10; done
 exit
 
+#####################################################
 ### README: !!! Only if re-creating egress space!!!
+#####################################################
 #echo  cf delete-space $EGRESS_SPACE
 #$echo cf delete-space $EGRESS_SPACE
 #exit
 
+#####################################################
 ### README: !!! Only if re-creating egress space!!!
+#####################################################
 #echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG  PIPE tee ce.org
 #$echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
 #exit
@@ -85,16 +86,22 @@ $echo bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
 echo assertSpaceExists $APP_SPACE
 $echo assertSpaceExists $APP_SPACE
 echo cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &> /dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
 exit
 
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
 echo bin/cloudgov/deploy-services PIPE tee ds.log
 $echo bin/cloudgov/deploy-services | tee ds.log
 exit
 
+#####################################################
 ### README: !!! Only if re-creating egress space!!!
+#####################################################
 #echo cf target -s $EGRESS_SPACE
 #$echo cf target -s $EGRESS_SPACE
 #echo cf create-service s3 basic-sandbox key-value  PIPE tee cskv.log
@@ -102,15 +109,37 @@ exit
 #exit
 
 echo cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE  &> /dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
 echo  bin/cloudgov/create-service-account $APP_SPACE cci PIPE tee csa.log
 $echo bin/cloudgov/create-service-account $APP_SPACE cci | tee csa.log
 echo  bin/cloudgov/create-service-account $APP_SPACE cfevents PIPE tee csa.log
 $echo bin/cloudgov/create-service-account $APP_SPACE cfevents | tee csa.log
 exit
 
-echo  cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
+#
+# In order to use CircleCI to deploy to our new space, we have to grant Prod's cci service user 
+# the proper role:
+#
+echo cf target -s prod
+$echo cf target -s prod &>/dev/null
+echo assertCurSpace prod
+$echo assertCurSpace prod
+SERVICE_KEY=$(cf service-key cci-service-account cci-service-key | tail -n +3)
+SERVICE_USER=$( echo $SERVICE_KEY | jq -r '.credentials.username')
+echo cf set-space-role $SERVICE_USER $ORG $APP_SPACE SpaceDeveloper
+$echo cf set-space-role $SERVICE_USER $ORG $APP_SPACE SpaceDeveloper
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
+exit
+
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
 echo  cf delete-service ${APP_SPACE}-usagov-domain
 $echo cf delete-service ${APP_SPACE}-usagov-domain
 exit
@@ -119,8 +148,10 @@ exit
 # The creation of the external domains takes a bit of time, so we will loop over
 # a status command, and wait until we see success (or failure) and Ctl-C out of the loop
 #
-echo  cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
 DOMAIN_STRING="{\"domains\": \"beta-${APP_SPACE}.usa.gov, cms-${APP_SPACE}.usa.gov\"}"
 echo  cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c "$DOMAIN_STRING"
 $echo cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c "$DOMAIN_STRING"
@@ -130,79 +161,83 @@ exit
 #
 # README:  This sequence needed to be run twice, to successfully deploy the cms app for the first time.
 #
-echo  cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
 bin/cloudgov/deploy-cms $CCI_BUILD_ID $CMS_DIGEST
 exit
 
-echo  cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
 bin/cloudgov/deploy-www $CCI_BUILD_ID $WWW_DIGEST
 exit
 
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
 ROUTE_SERVICE_APP_NAME=$WAF_APP \
 ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
 PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP" \
 bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
 exit
 
-
-echo  cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
 cf set-env $WAF_APP IP_ALLOW_ALL_CMS 1
 cf set-env $WAF_APP IP_ALLOW_ALL_WWW 1
 cf restage $WAF_APP
 exit
 
-##
-cat <<'ZZ'
-###
-### Run this on the CMS app, to test the connection to RDS
-###
-### If the command runs successfully on the cms, then we have a working connection to the database!
-###
-#!/bin/sh
-DB_NAME=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.db_name')
-DB_NAME=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.db_name')
-DB_USER=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.username')
-DB_PW=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.password')
-DB_HOST=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.host')
-DB_PORT=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.port')
-mysql --protocol=TCP -h$DB_HOST -P$DB_PORT -u$DB_USER -p$DB_PW $DB_NAME
-ZZ
-exit
-
-
-echo  cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
-SQL_FILE=usagov.sql
-
-echo "Attempting to deploy database backup $SQL_FILE to $APP_SPACE"
-$echo cat $SQL_FILE | cf ssh cms -c "cat - > /tmp/$SQL_FILE"
-cf ssh $CMS_APP -c "if [ -f /tmp/$SQL_FILE ]; then . /etc/profile; drush sql-drop -y; cat /tmp/$SQL_FILE | drush sql-cli; drush cr; fi"
-exit
-
 #
-# In order to use CircleCI to deploy to our new space, we have to grant Prod's cci service user 
-# the proper role:
-#
-cf t -s prod
-SERVICE_KEY=$(cf service-key cci-service-account cci-service-key | tail -n +3)
-SERVICE_USER=$( echo $SERVICE_KEY | jq -r '.credentials.username')
-cf set-space-role $SERVICE_USER gsa-tts-usagov dr SpaceDeveloper
-echo  cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE
-exit
-
-#
-# In order to get the public files in place, we need to get the prod snapshot locally,
+# In order to get the backed up files into the new space, we need to get the prod snapshot locally,
 # then create that snapshot on dr, from the local snapshot file we just downloaded.
 #
 # Then we can deploy the public snapshot as usual
 #
-cf t -s prod
-bin/snapshot-backups/public-snapshot-download dr USAGOV-1669.prod.9820.post-deploy
+echo cf target -s prod
+$echo cf target -s prod &>/dev/null
+echo assertCurSpace prod
+$echo assertCurSpace prod
+bin/snapshot-backups/local-snapshot-download prod USAGOV-1669.prod.9820.post-deploy
 
-cf t -s $APP_SPACE
-bin/snapshot-backups/public-folder-push-to-snapshot dr USAGOV-1669.prod.9820.post-deploy.public.zip
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
+bin/snapshot-backups/db-dump-push-to-snapshot dr USAGOV-1669.prod.9820.post-deploy
+bin/snapshot-backups/db-dump-deploy dr USAGOV-1669.prod.9820.post-deploy
+exit
+
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
+bin/snapshot-backups/public-folder-push-to-snapshot dr USAGOV-1669.prod.9820.post-deploy
 bin/snapshot-backups/public-snapshot-deploy dr USAGOV-1669.prod.9820.post-deploy
+exit
+
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
+bin/snapshot-backups/site-folder-push-to-snapshot dr USAGOV-1669.prod.9820.post-deploy
+bin/snapshot-backups/site-snapshot-deploy dr USAGOV-1669.prod.9820.post-deploy
+exit
+
+### Replaced by db-dump-deploy above!
+### ### echo cf target -s $APP_SPACE
+### ### $echo cf target -s $APP_SPACE &>/dev/null
+### ### echo assertCurSpace $APP_SPACE
+### ### $echo assertCurSpace $APP_SPACE
+### ### SQL_FILE=usagov.sql
+### ### 
+### ### echo "Attempting to deploy database backup $SQL_FILE to $APP_SPACE"
+### ### $echo cat $SQL_FILE | cf ssh cms -c "cat - > /tmp/$SQL_FILE"
+### ### cf ssh $CMS_APP -c "if [ -f /tmp/$SQL_FILE ]; then . /etc/profile; drush sql-drop -y; cat /tmp/$SQL_FILE | drush sql-cli; drush cr; fi"
+### ### exit
