@@ -82,30 +82,22 @@ function setupRoutes { #appname
   # but cms needs to exist in the first place
   # for route mapping and egress setup to run
 
-  if [ "$APP_SPACE" == "dev-dr" ]; then
-    cf create-route apps.internal --hostname dev-dr-usagov
-    cf map-route $app apps.internal --hostname dev-dr-usagov
-    cf create-route usa.gov --hostname dev-dr
-    cf map-route $app usa.gov --hostname dev-dr
+  cf create-route apps.internal --hostname beta-$APP_SPACE-usagov
+  cf map-route $app apps.internal --hostname beta-$APP_SPACE-usagov
+
+  if [ "$APP_SPACE" == "prod" ]; then
+    cf create-route apps.internal --hostname www-$APP_SPACE-usagov
+    cf  map-route $app apps.internal --hostname www-$APP_SPACE-usagov
+    cf create-route usa.gov --hostname beta
+    cf map-route $app usa.gov --hostname beta
+     cf create-route usa.gov --hostname www
+     cf map-route $app usa.gov --hostname www
 
   else
-    cf create-route apps.internal --hostname beta-$APP_SPACE-usagov
-    cf map-route $app apps.internal --hostname beta-$APP_SPACE-usagov
-
-    if [ "$APP_SPACE" == "prod" ]; then
-      cf create-route apps.internal --hostname www-$APP_SPACE-usagov
-      cf  map-route $app apps.internal --hostname www-$APP_SPACE-usagov
-      cf create-route usa.gov --hostname beta
-      cf map-route $app usa.gov --hostname beta
-      cf create-route usa.gov --hostname www
-      cf map-route $app usa.gov --hostname www
-
-    else
-      cf create-route usa.gov --hostname beta-$APP_SPACE
-      cf map-route $app usa.gov --hostname beta-$APP_SPACE
-    fi
-
+    cf create-route usa.gov --hostname beta-$APP_SPACE
+    cf map-route $app usa.gov --hostname beta-$APP_SPACE
   fi
+
 }
 
 function setupEgress { #appname
