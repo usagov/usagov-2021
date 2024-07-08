@@ -78,9 +78,9 @@ egressspace=shared-egress
 egressorg="$startorg"
 applist="${appnames//,/ }"
 
-if [ "$startspace" == "dev-dr" ]; then
-    egressspace=shared-egress-dr
-fi
+#if [ "$startspace" == "dev-dr" ]; then
+#    egressspace=shared-egress-dr
+#fi
 
 # Drop them off where we found them
 function popspace() {
