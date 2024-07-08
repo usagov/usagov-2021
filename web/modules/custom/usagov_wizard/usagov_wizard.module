@@ -18,8 +18,7 @@ use Drupal\usagov_wizard\MenuChecker;
  * Alter the form by adding a "View Term" button
  * if the form is the taxonomy_term_wizard_form.
  */
-function usagov_wizard_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'taxonomy_term_wizard_form') {
+function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state) {
     if (isset($form['tid'])) {
       $form['actions']['link_to_term'] = [
         '#title' => t('View Term'),
@@ -34,7 +33,6 @@ function usagov_wizard_form_alter(&$form, &$form_state, $form_id) {
         '#weight' => 10,
       ];
     }
-  }
 }
 
 /**

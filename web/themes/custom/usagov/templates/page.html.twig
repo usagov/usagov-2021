@@ -124,9 +124,9 @@
 	</main>
 
 {% else %}
-
+  {% block main %}
 	<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
-
+  {% endblock %}
 		{# link is in html.html.twig #}
 
 		<div class="grid-container">
@@ -167,6 +167,7 @@
           {{ page.content }}
           {% endblock %}
 
+          {% block additional_body %}
 					<div class="additional_body_info">
 						{% if show_last_updated %}
 
@@ -185,6 +186,7 @@
               <div id="pagesurvey-qual-container"></div>
             {% endblock %}
 					</div>
+          {% endblock %}
 
 				</div>
 				{# /.layout-content #}

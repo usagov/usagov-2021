@@ -2,7 +2,11 @@
 
 {% extends "page.html.twig" %}
 
-{%  block sidebar %}
+{% block main %}
+<main class="main-content usa-layout-docs usa-section usagov-wizard {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+{% endblock %}
+
+{% block sidebar %}
   {% if menu_entities %}
   {% set parent_link = menu_entities[2]['link'] %}
     <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first">
@@ -29,11 +33,5 @@
   {% endif %}
 {% endblock %}
 
-{% block content %}
-  <div class="usagov-wizard">
-    {{ page.content }}
-  </div>
-{% endblock %}
-
-{% block qual %}
+{% block additional_body %}
 {% endblock %}

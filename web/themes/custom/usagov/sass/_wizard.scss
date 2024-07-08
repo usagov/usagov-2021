@@ -14,13 +14,23 @@
 }
 
 .usagov-wizard {
+
+  .usa-breadcrumb__list {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+  }
+
+  .layout-sidebar-first {
+    display: none;
+
+    @include at-media('desktop') {
+      display: block;
+    }
+  }
   &--content {
     * {
       transition: all .1s ease;
-    }
-
-    .field--name-field-heading {
-      margin: 17.6px 0;
     }
 
     // Hide the title of views reference fields.
@@ -29,7 +39,7 @@
     }
 
     .field--name-field-options-list {
-      margin-bottom: 46px;
+      margin-bottom: 40px;
     }
 
     .views-field-field-option-name {
@@ -113,14 +123,31 @@
       }
     }
 
+    #start-over-mobile {
+      width: 156px;
+      @include at-media('desktop') {
+        display: none;
+      }
+    }
+
+    #start-over-desktop {
+      display: none;
+      @include at-media('desktop') {
+        display: inline-block;
+      }
+    }
+
     // Close usa-wizard--content
   }
 
   &-buttons {
     .usa-button {
-      width: 168px;
+      width: 158px;
+      @include at-media('tablet') {
+        width: 168px;
+      }
     }
   }
 
-  // Close usa-wizard
+  // Close usagov-wizard
 }
