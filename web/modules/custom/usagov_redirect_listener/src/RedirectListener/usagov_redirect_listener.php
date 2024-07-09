@@ -9,7 +9,7 @@ class RedirectController extends Controller
 
         $response = new RedirectResponse($uri, 301);
         $response->setContent($this->render(
-            'usagov_redirect_listener:templates:301.html.twig',
+            'templates/301.html.twig',
             array( 'uri' => $uri )
         ));
 
