@@ -191,6 +191,18 @@
   p {
     margin: 0 0 5px;
   }
+
+  img {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+}
+
+#jump_block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .jump1 {
