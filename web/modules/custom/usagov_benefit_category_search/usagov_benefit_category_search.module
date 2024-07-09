@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
+use Drupal\views\ViewExecutable;
 
 function usagov_benefit_category_search_preprocess_node(&$vars) {
   // off by default
@@ -20,6 +21,45 @@ function usagov_benefit_category_search_preprocess_node(&$vars) {
       && $vars["node"]->field_benefits_callout_descr->value
     ) {
       $vars['usagov_show_benefits_landing_block'] = BenefitCategorySearchForm::showLandingPageBlock();
+    }
+  }
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function usagov_benefit_category_search_views_pre_render(ViewExecutable $view)
+{
+  if ($view->storage->getOriginalId() === 'benefit_search_results') {
+    // Here, we're safeguarding against showing a category term that is from
+    // a different language than the one requested via the views context/arguments
+
+    // First, for filtering, remove categories that are not in the language we want
+    foreach ($view->result as $row) {
+      $categories = $row->_entity->field_benefits_category;
+
+      foreach ($categories as $category) {
+        $termID = $category->get('target_id')->getValue();
+        if ($term = \Drupal\taxonomy\Entity\Term::load($termID)) {
+          if ($term->language()->getId() !== $view->argument["langcode"]->argument) {
+            // removing an item re-keys the internal array, but we can use the name
+            // property for a list item, which tracks the index after re-keying.
+            $categories->removeItem($category->getName());
+          }
+        }
+      }
+    }
+
+    // Next, remove terms from other languages for the categories we show in
+    // the search results.
+    foreach ($view->field['term_node_tid']->items as $src => $terms) {
+      foreach ($terms as $termID => $values) {
+        if ($term = \Drupal\taxonomy\Entity\Term::load($termID)) {
+          if ($term->language()->getId() !== $view->argument["langcode"]->argument) {
+            unset($view->field['term_node_tid']->items[$src][$termID]);
+          }
+        }
+      }
     }
   }
 }
