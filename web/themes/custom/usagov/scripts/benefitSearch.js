@@ -497,7 +497,7 @@ jQuery(document).ready(async function () {
   // using relative URL so that this works on static pages
   // Setup language specific inputs
   if (docLang[0] === 'en') {
-    benefitsPath = "../benefits-search/en.json";
+    benefitsPath = "../benefits-search/en/pages.json";
     lifeEventsPath = "../benefits-search/en/life-events.json";
     labels = {
       'showingResults': '@first@&ndash;@last@ of @totalItems@ results',
@@ -515,7 +515,7 @@ jQuery(document).ready(async function () {
     };
   }
   else if (docLang[0] === 'es') {
-    benefitsPath = "../../benefits-search/es.json";
+    benefitsPath = "../../benefits-search/es/pages.json";
     lifeEventsPath = "../../benefits-search/es/life-events.json";
     labels = {
       'showingResults': '@first@&ndash;@last@ de @totalItems@ resultados',
