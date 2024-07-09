@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\taxonomy\Entity\Term;
 use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
 use Drupal\views\ViewExecutable;
 
@@ -28,8 +29,7 @@ function usagov_benefit_category_search_preprocess_node(&$vars) {
 /**
  * Implements hook_views_pre_render().
  */
-function usagov_benefit_category_search_views_pre_render(ViewExecutable $view)
-{
+function usagov_benefit_category_search_views_pre_render(ViewExecutable $view) {
   if ($view->storage->getOriginalId() === 'benefit_search_results') {
     // Here, we're safeguarding against showing a category term that is from
     // a different language than the one requested via the views context/arguments
@@ -40,7 +40,7 @@ function usagov_benefit_category_search_views_pre_render(ViewExecutable $view)
 
       foreach ($categories as $category) {
         $termID = $category->get('target_id')->getValue();
-        if ($term = \Drupal\taxonomy\Entity\Term::load($termID)) {
+        if ($term = Term::load($termID)) {
           if ($term->language()->getId() !== $view->argument["langcode"]->argument) {
             // removing an item re-keys the internal array, but we can use the name
             // property for a list item, which tracks the index after re-keying.
@@ -54,7 +54,7 @@ function usagov_benefit_category_search_views_pre_render(ViewExecutable $view)
     // the search results.
     foreach ($view->field['term_node_tid']->items as $src => $terms) {
       foreach ($terms as $termID => $values) {
-        if ($term = \Drupal\taxonomy\Entity\Term::load($termID)) {
+        if ($term = Term::load($termID)) {
           if ($term->language()->getId() !== $view->argument["langcode"]->argument) {
             unset($view->field['term_node_tid']->items[$src][$termID]);
           }
