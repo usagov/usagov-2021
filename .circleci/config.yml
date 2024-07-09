@@ -430,6 +430,13 @@ jobs:
       - store_artifacts:
           path: /tmp/results
 
+  deploy-to-cloudgov-dr:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - deploy-cloudgov:
+          envname: dr
+
   deploy-to-cloudgov-dev:
     machine:
       image: ubuntu-2204:current
@@ -454,6 +461,15 @@ jobs:
     steps:
       - deploy-cloudgov:
           envname: prod
+
+  run-snapshot-backup-dr:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - snapshot-backup:
+          envname: dr
 
   run-snapshot-backup-dev:
     machine:
@@ -593,6 +609,7 @@ workflows:
           filters:
             branches:
               only:
+                - dr
                 - dev
                 - stage
                 - prod
@@ -602,6 +619,7 @@ workflows:
           filters:
             branches:
               only:
+                - dr
                 - dev
                 - stage
                 - prod
@@ -613,6 +631,14 @@ workflows:
             branches:
               only:
               - dev
+      - approve-dr-deployment:
+          type: approval
+          requires:
+            - build-and-push-container
+          filters:
+            branches:
+              only:
+              - dr
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -620,6 +646,13 @@ workflows:
             branches:
               only:
               - dev
+      - deploy-to-cloudgov-dr:
+          requires:
+            - approve-dr-deployment
+          filters:
+            branches:
+              only:
+              - dr
       - approve-stage-deployment:
           type: approval
           requires:
