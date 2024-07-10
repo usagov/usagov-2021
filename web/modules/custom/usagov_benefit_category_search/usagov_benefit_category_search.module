@@ -1,6 +1,35 @@
 <?php
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\taxonomy\Entity\Term;
 use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
+
+function usagov_benefit_category_search_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id === 'node_basic_page_edit_form' || $form_id === 'node_basic_page_form') {
+    $form['#validate'][] = 'usagov_benefit_category_search__validate_basic_page';
+  }
+}
+
+function usagov_benefit_category_search__validate_basic_page($form, FormStateInterface $form_state) {
+  // only run this validator if we're on a Standard Page
+  $page_type_id = $form_state->getValue('field_page_type');
+  if (!$page_type_id) {
+    return;
+  }
+  $term = Term::load($page_type_id[0]['target_id']);
+  if ($term->getName() !== 'Standard Page') {
+    return;
+  }
+
+  $langcode = $form_state->getValue("langcode")[0]['value'];
+  $terms = $form_state->getValue('field_benefits_category');
+  foreach ($terms as $input) {
+    $term = Term::load($input['target_id']);
+    if ($term->language()->getId() !== $langcode) {
+      $form_state->setErrorByName('field_benefits_category', 'You have one or more categories that are not the same language as the page.');
+    }
+  }
+}
 
 function usagov_benefit_category_search_preprocess_node(&$vars) {
   // off by default
