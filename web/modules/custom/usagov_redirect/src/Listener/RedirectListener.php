@@ -24,10 +24,19 @@ class RedirectListener
         }
 
         $uri  = $response->getTargetUrl();
-        $html = $this->templating->render(
-            'templates:301.html.twig',
-            array('uri' => $uri)
-        );
+        $html = `<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="robots" content="noindex" />
+        <meta http-equiv="refresh" content="0;url=\'$uri\'" />
+
+        <title>Redirecting to $uri</title>
+    </head>
+    <body>
+        Redirecting to <a href="$uri">$uri</a>.
+    </body>
+</html>`;
 
         $response->setContent($html);
     }

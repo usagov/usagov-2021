@@ -4,7 +4,7 @@ services:
     # Event subscriber class that will listen for the events.
     class: '\Drupal\usagov_redirect\src\Listener\RedirectListener'
     # Tagged as an event_subscriber to register this subscriber with the event_dispatch service.
-    arguments: [ @templating ]
+    arguments: [ '@templating' ]
     tags:
         -
             name: kernel.event_listener
