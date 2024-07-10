@@ -2,29 +2,26 @@
 
 namespace Drupal\usagov_redirect\RedirectListener;
 
-use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Templating\EngineInterface;
 
-class RedirectListener
-{
-    protected $templating;
+class RedirectListener {
+  protected $templating;
 
-    public function __construct(EngineInterface $templating)
-    {
-        $this->templating = $templating;
+  public function __construct(EngineInterface $templating) {
+    $this->templating = $templating;
+  }
+
+  public function onKernelResponse(FilterResponseEvent $event) {
+    $response = $event->getResponse();
+
+    if (!($response instanceof RedirectResponse)) {
+      return;
     }
 
-    public function onKernelResponse(FilterResponseEvent $event)
-    {
-        $response = $event->getResponse();
-
-        if (!($response instanceof RedirectResponse)) {
-            return;
-        }
-
-        $uri  = $response->getTargetUrl();
-        $html = `<!DOCTYPE html>
+    $uri  = $response->getTargetUrl();
+    $html = `<!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8" />
@@ -38,6 +35,6 @@ class RedirectListener
     </body>
 </html>`;
 
-        $response->setContent($html);
-    }
+    $response->setContent($html);
+  }
 }
