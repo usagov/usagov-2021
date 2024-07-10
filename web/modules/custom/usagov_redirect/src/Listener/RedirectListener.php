@@ -2,8 +2,8 @@
 
 namespace Drupal\usagov_redirect\RedirectListener;
 
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\Templating\EngineInterface;
 
 class RedirectListener {
@@ -22,19 +22,20 @@ class RedirectListener {
 
     $uri  = $response->getTargetUrl();
     $html = `<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="robots" content="noindex" />
-        <meta http-equiv="refresh" content="0;url=\'$uri\'" />
+    <html>
+        <head>
+            <meta charset="UTF-8" />
+            <meta name="robots" content="noindex" />
+            <meta http-equiv="refresh" content="0;url=\'$uri\'" />
 
-        <title>Redirecting to $uri</title>
-    </head>
-    <body>
-        Redirecting to <a href="$uri">$uri</a>.
-    </body>
-</html>`;
+            <title>Redirecting to $uri</title>
+        </head>
+        <body>
+            Redirecting to <a href="$uri">$uri</a>.
+        </body>
+    </html>`;
 
     $response->setContent($html);
   }
+
 }
