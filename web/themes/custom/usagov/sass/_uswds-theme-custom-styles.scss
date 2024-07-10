@@ -42,6 +42,7 @@ i.e.
 @forward "sidenav";
 @forward "state-directory";
 @forward "benefit-search";
+@forward "benefits-block";
 
 .line-height-2 {
   line-height: 2;
@@ -701,7 +702,7 @@ div div.field--name-field-offices-near-you {
 
 // Add padding for feedback button
 button#QSIFeedbackButton-btn {
-  padding: 2px;
+  padding: 2px !important;
 }
 
 [href]:focus,
