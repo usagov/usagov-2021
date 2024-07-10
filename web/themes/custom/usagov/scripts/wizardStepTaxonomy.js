@@ -1,4 +1,5 @@
 (function ($, Drupal, once) {
+"use strict";
 Drupal.behaviors.wizardStepTaxonomy = {
   "attach": function(context, settings) {
 
@@ -9,7 +10,6 @@ Drupal.behaviors.wizardStepTaxonomy = {
     }
 
     function priorStepFunction() {
-      "use strict";
       dataLayer.push({"event": "Wizard_Prior"});
     }
 
@@ -20,7 +20,6 @@ Drupal.behaviors.wizardStepTaxonomy = {
     }
 
     function wizardStepError() {
-      "use strict";
       let choices = document.getElementsByName("options");
 
       const htmlLangAttr = document.documentElement.lang;

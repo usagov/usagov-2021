@@ -1,4 +1,4 @@
-{# Custom left navigation for wizards. See usagov_wizard module.#}
+{# Custom top nav, main class, sidenav, and below body region for wizards. #}
 
 {% extends "page.html.twig" %}
 {% block top_nav %}
@@ -9,7 +9,9 @@
 <main class="main-content usa-layout-docs usa-section usagov-wizard {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
 {% endblock %}
 
-{% block sidebar %}
+  {# Custom left navigation for wizards. See usagov_wizard module.#}
+
+  {% block sidebar %}
   {% if menu_entities %}
   {% set parent_link = menu_entities[2]['link'] %}
     <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first">

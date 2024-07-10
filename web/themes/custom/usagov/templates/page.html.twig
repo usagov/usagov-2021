@@ -170,24 +170,21 @@
           {% endblock %}
 
           {% block additional_body %}
-					<div class="additional_body_info">
-						{% if show_last_updated %}
+            <div class="additional_body_info">
+              {% if show_last_updated %}
 
-							{% if node.changed.value %}
-								<p id="last-updated">{{ lang == 'en' ? 'LAST UPDATED: ' : 'ÚLTIMA ACTUALIZACIÓN: '}}
-									{% set date = node.changed.value %}
-									{% include '@usagov/dates.html.twig' %}
-								</p>
-							{% endif %}
-						{% endif %}
+                {% if node.changed.value %}
+                  <p id="last-updated">{{ lang == 'en' ? 'LAST UPDATED: ' : 'ÚLTIMA ACTUALIZACIÓN: '}}
+                    {% set date = node.changed.value %}
+                    {% include '@usagov/dates.html.twig' %}
+                  </p>
+                {% endif %}
+              {% endif %}
 
-            {% block qual %}
               {% include '@usagov/sharethispage.html.twig' %}
               {% include '@usagov/haveaquestion.html.twig' %}
-
               <div id="pagesurvey-qual-container"></div>
-            {% endblock %}
-					</div>
+            </div>
           {% endblock %}
 
 				</div>

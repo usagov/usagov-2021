@@ -14,7 +14,6 @@
 }
 
 .usagov-wizard {
-
   .usa-breadcrumb__list {
     margin-left: 0;
     margin-right: 0;
@@ -28,6 +27,7 @@
       display: block;
     }
   }
+
   &--content {
     * {
       transition: all .1s ease;
@@ -36,6 +36,16 @@
     // Hide the title of views reference fields.
     .viewsreference--view-title {
       display: none;
+    }
+
+    .field--name-field-intro {
+      margin: 17.6px 0;
+    }
+
+    .field--name-field-body {
+      h2 {
+        margin: 40px 0 17.6px;
+      }
     }
 
     .field--name-field-options-list {

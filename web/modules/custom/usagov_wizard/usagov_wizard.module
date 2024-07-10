@@ -19,20 +19,20 @@ use Drupal\usagov_wizard\MenuChecker;
  * if the form is the taxonomy_term_wizard_form.
  */
 function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state) {
-    if (isset($form['tid'])) {
-      $form['actions']['link_to_term'] = [
-        '#title' => t('View Term'),
-        '#type' => 'link',
-        '#url' => Url::fromUri('base:/taxonomy/term/' . $form['tid']["#value"]),
-        '#attributes' => [
-          'class' => [
-            'button',
-            'usa-button',
-          ],
+  if (isset($form['tid'])) {
+    $form['actions']['link_to_term'] = [
+      '#title' => t('View Term'),
+      '#type' => 'link',
+      '#url' => Url::fromUri('base:/taxonomy/term/' . $form['tid']["#value"]),
+      '#attributes' => [
+        'class' => [
+          'button',
+          'usa-button',
         ],
-        '#weight' => 10,
-      ];
-    }
+      ],
+      '#weight' => 10,
+    ];
+  }
 }
 
 /**
