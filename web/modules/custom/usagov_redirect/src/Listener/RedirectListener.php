@@ -4,14 +4,8 @@ namespace Drupal\usagov_redirect\RedirectListener;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\Templating\EngineInterface;
 
 class RedirectListener {
-  protected $templating;
-
-  public function __construct(EngineInterface $templating) {
-    $this->templating = $templating;
-  }
 
   public function onKernelResponse(FilterResponseEvent $event) {
     $response = $event->getResponse();
