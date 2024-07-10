@@ -15,7 +15,8 @@ class RedirectListener {
     }
 
     $uri  = $response->getTargetUrl();
-    $html = `<!DOCTYPE html>
+
+    $raw_html = `<!DOCTYPE html>
     <html>
         <head>
             <meta charset="UTF-8" />
@@ -29,7 +30,10 @@ class RedirectListener {
         </body>
     </html>`;
 
-    $response->setContent($html);
+    $renderer = \Drupal::service('renderer');
+    $HTML_conversion = $renderer->render($raw_html);
+
+    $response->setContent($HTML_conversion);
   }
 
 }
