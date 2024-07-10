@@ -1,0 +1,85 @@
+uuid: 33629ede-39c6-4349-9ac2-45bc5702ba76
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.wizard.field_body
+    - field.field.taxonomy_term.wizard.field_footer
+    - field.field.taxonomy_term.wizard.field_heading
+    - field.field.taxonomy_term.wizard.field_intro
+    - field.field.taxonomy_term.wizard.field_language_toggle
+    - field.field.taxonomy_term.wizard.field_option_name
+    - field.field.taxonomy_term.wizard.field_options_list
+    - taxonomy.vocabulary.wizard
+  module:
+    - text
+    - viewsreference
+id: taxonomy_term.wizard.default
+targetEntityType: taxonomy_term
+bundle: wizard
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_body:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  field_footer:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  field_heading:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_intro:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_language_toggle:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 8
+    region: content
+  field_option_name:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  field_options_list:
+    type: viewsreference_formatter
+    label: hidden
+    settings:
+      plugin_types:
+        - block
+    third_party_settings: {  }
+    weight: 7
+    region: content
+hidden:
+  breadcrumbs: true
+  langcode: true

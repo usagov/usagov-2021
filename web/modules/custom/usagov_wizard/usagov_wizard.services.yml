@@ -1,0 +1,6 @@
+services:
+  usagov_wizard.menu_checker:
+    class: Drupal\usagov_wizard\MenuChecker
+    arguments:
+      - '@entity_type.manager'
+      - '@current_route_match'

@@ -1,0 +1,25 @@
+uuid: 098e7250-6b14-4bed-b10e-42f1ecd86de7
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - node
+    - views
+    - viewsreference
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: node.field_wizard_options_view
+field_name: field_wizard_options_view
+entity_type: node
+type: viewsreference
+settings:
+  target_type: view
+module: viewsreference
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

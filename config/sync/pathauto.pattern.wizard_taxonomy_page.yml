@@ -1,0 +1,22 @@
+uuid: 97d039b5-8c42-441f-a60c-7dff5c1058a1
+langcode: en
+status: true
+dependencies:
+  module:
+    - taxonomy
+id: wizard_taxonomy_page
+label: 'Wizard Taxonomy Page'
+type: 'canonical_entities:taxonomy_term'
+pattern: '[term:parent:url:relative]/[term:name]'
+selection_criteria:
+  0044dff2-e80f-4c4d-a819-00c3152f716b:
+    id: 'entity_bundle:taxonomy_term'
+    negate: false
+    uuid: 0044dff2-e80f-4c4d-a819-00c3152f716b
+    context_mapping:
+      taxonomy_term: taxonomy_term
+    bundles:
+      wizard: wizard
+selection_logic: and
+weight: -5
+relationships: {  }

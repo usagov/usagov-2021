@@ -1,4 +1,8 @@
-{% set lang = node.langcode.value %}
+{% if node.langcode.value %}
+  {% set lang = node.langcode.value %}
+{% else %}
+  {% set lang = language.id %}
+{% endif %}
 <div class="usa-footer__secondary-section">
 	<div class="grid-container">
 		<div class="grid-row grid-gap">
