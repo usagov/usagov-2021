@@ -25,7 +25,7 @@ display:
     display_plugin: default
     position: 0
     display_options:
-      title: 'Benefit Pages admin'
+      title: 'Benefit Pages Admin'
       fields:
         edit_node:
           id: edit_node
@@ -768,14 +768,14 @@ display:
       display_extenders: {  }
       path: admin/content/pages-benefits
       menu:
-        type: tab
+        type: none
         title: 'Benefit Pages'
         description: ''
         weight: 0
         expanded: false
         menu_name: admin
         parent: system.admin_content
-        context: '1'
+        context: '0'
     cache_metadata:
       max-age: -1
       contexts:
