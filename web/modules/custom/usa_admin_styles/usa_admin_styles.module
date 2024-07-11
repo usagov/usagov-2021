@@ -15,4 +15,7 @@ function usa_admin_styles_form_node_form_alter(&$form, FormStateInterface $form_
   // in an iframe), but is a problem in ckeditor 5 -- all preview content is within the node
   // add/edit form, so button elements in the preview will submit the form by default.
   $form['#attached']['library'][] = 'usa_admin_styles/accordionButtonSubmitFix';
+  if ($form_id === 'node_basic_page_edit_form' || $form_id === 'node_basic_page_form') {
+    $form['#attached']['library'][] = 'usa_admin_styles/benefitsCategoryLanguageFilter';
+  }
 }
