@@ -1,5 +1,6 @@
 <!--- Provide a general summary of your changes in the title above -->
 ## Jira Task
+
 <!--- Provide a link to the Jira ticket -->
 https://cm-jira.usa.gov/browse/USAGOV-
 
@@ -14,6 +15,7 @@ https://cm-jira.usa.gov/browse/USAGOV-
   - Add screenshot showing what it should look like
 - [ ] Drupal Config (requires "drush cim")
 - [ ] New Modules (requires rebuild)
+- [ ] Documentation
 - [ ] Infrastructure
   - [ ] CMS
   - [ ] WAF
@@ -25,15 +27,15 @@ https://cm-jira.usa.gov/browse/USAGOV-
 <!-- This instructions are different from “testing instructions” in Jira – those are typically for Content/UX stakeholders -->
 <!-- Not “see Jira” – if they are really the same, copy and paste. -->
 
-### Requires New Config
-- [ ] Yes
-- [ ] No
+### Change Requirements
+<!-- Checkboxes to indicate need for changes to some part of the system -->
 
-### Requires New Content
-- [ ] Yes
-- [ ] No
+- [ ] Requires New Documentation
+- [ ] Requires New Config
+- [ ] Requires New Content
 
 ### Validation Steps
+
 - Test instruction 1
 - Test instruction 2
 - Test instruction 3
@@ -48,11 +50,13 @@ https://cm-jira.usa.gov/browse/USAGOV-
 
 
 ## Reviewer Reminders
+
 - Reviewed code changes
 - Reviewed functionality
 - Security review complete or not required
 
 ## Post PR Approval Instructions
+
 Follow these steps as soon as you merge the new changes.
 
 1. Go to the [USAGov Circle CI project](https://app.circleci.com/pipelines/github/usagov/usagov-2021).
