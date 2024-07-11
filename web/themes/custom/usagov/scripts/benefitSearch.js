@@ -1,11 +1,26 @@
 /**
+ * @typedef TranslationLabels
+ * @type Object
+ * @property {string} page Label for numeric page
+ * @property {string} next Label for next page link
+ * @property {string} nextAria Aria property for next page link
+ * @property {string} previous Label for previous page link
+ * @property {string} previousAria Aria property for previous page link
+ * @property {string} navAria Aria property for numeric page link
+ * @property {string} lastPageAria Aria property for lat page link
+ * @property {string} emptyCategoryError Error message when no category is selected
+ * @property {string} appliedCategories Heading for applied categories column
+ * @property {string} lifeEventsCategory Life events category name
+ * @property {string} benefitFinderCategory Benefit finder category name
+ */
+/**
  * Component to allow users to search benefits content and display
  * the paginated results
  *
  * @param {string} benefitsPath
  * @param {string} lifeEventsPath
  * @param {string} assetBase
- * @param {array} labels
+ * @param {TranslationLabels} labels
  * @param {Element} form
  * @param {Element} resultsContainer
  * @param {int} perPage
@@ -40,7 +55,22 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       .classList.remove('benefits-category-error');
   };
   /**
-   * @returns {Promise<any>}
+   * @typedef Benefit
+   * @type Object
+   * @property {int} nid
+   * @property {int} field_benefit_search_weight
+   * @property {int} rank
+   * @property {int[]} field_benefits_category
+   * @property {string} term_node_tid Term name markup
+   * @property {string} title Title to display
+   * @property {string} field_page_intro Page Intro
+   * @property {string} field_short_description Short Description
+   * @property {string} title Life event title
+   * @property {string} type
+   * @property {string} view_node
+   */
+  /**
+   * @returns {Promise<Benefit[]>}
    */
   this.fetchBenefits = async function() {
     const response = await fetch(myself.benefitsSrc);
@@ -50,14 +80,48 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     return await response.json();
   };
   /**
-   * @returns {Promise<any>}
+   * @typedef LifeEvent
+   * @type Object
+   * @property {int} nid
+   * @property {int|int[]} tid
+   * @property {string} name Term name
+   * @property {string} field_b_search_title Title to display
+   * @property {string} field_short_description Short Description
+   * @property {string} title Life event title
+   * @property {string} type
+   */
+  /**
+   * @returns {Promise<Map<LifeEvent>>}
    */
   this.fetchLifeEvents = async function() {
     const response = await fetch(myself.life);
     if (!response.ok) {
       throw new Error('Error fetching benefits ' + response.status);
     }
-    return await response.json();
+    /**
+     * @var {LifeEvent[]} raw
+     */
+    const raw = await response.json();
+    // We need to consolidate life events that may reference more
+    // than one category into a single entry per life event.
+    /**
+     * @var {Map<LifeEvent>} lifeEvents
+     */
+    let lifeEvents = new Map();
+    for (const lifeEvent of raw) {
+      if (lifeEvents.has(lifeEvent.nid)) {
+        let existing = lifeEvents.get(lifeEvent.nid);
+        existing.tid.push(lifeEvent.tid);
+        existing.terms.push(lifeEvent.name);
+        lifeEvents.set(lifeEvent.nid, existing);
+      }
+      else {
+        lifeEvent.tid = [lifeEvent.tid];
+        lifeEvent.terms = [lifeEvent.name];
+        lifeEvents.set(lifeEvent.nid, lifeEvent);
+      }
+    }
+    return lifeEvents;
   };
   /**
    * @returns {array}
@@ -88,14 +152,25 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       return 0;
     });
     // prepend any life events that match
-    let events = myself.lifeEvents.filter((event) => {
-      return myself.terms.includes(event.tid);
-    });
-    for (const e of events) {
-      matches.unshift(e);
+    for (const [, lifeEvent] of myself.lifeEvents) {
+      if (myself.lifeEventHasTopic(lifeEvent.tid, myself.terms)) {
+         matches.unshift(lifeEvent);
+      }
     }
-
     return matches;
+  };
+  /**
+   * @param {int[]} tids
+   * @param {int[]} terms
+   * @return boolean
+   */
+  this.lifeEventHasTopic = function(tids, terms) {
+    for (const tid of tids) {
+      if (terms.includes(tid)) {
+        return true;
+      }
+    }
+    return false;
   };
   /**
    * Clears the results container
@@ -221,10 +296,14 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
 
     switch (benefit.type) {
       case 'Life Event':
+        let termMarkup = '';
+
+        benefit.terms.forEach(term => termMarkup += `<span>${term}</span>`);
+
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.field_b_search_title}</h3><p>${description}</p></div>
 <div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
-  <span>${myself.labels.benefitFinderCategory}</span><span>${myself.labels.lifeEventsCategory}</span><span>${benefit.name}</div>
+  <span>${myself.labels.benefitFinderCategory}</span><span>${myself.labels.lifeEventsCategory}</span>${termMarkup}</div>
 </div>`;
         break;
 
@@ -418,8 +497,8 @@ jQuery(document).ready(async function () {
   // using relative URL so that this works on static pages
   // Setup language specific inputs
   if (docLang[0] === 'en') {
-    benefitsPath = "../benefits-search/en.json";
-    lifeEventsPath = "../benefits-search/life-en.json";
+    benefitsPath = "../benefits-search/en/pages.json";
+    lifeEventsPath = "../benefits-search/en/life-events.json";
     labels = {
       'showingResults': '@first@&ndash;@last@ of @totalItems@ results',
       'page': "Page",
@@ -436,8 +515,8 @@ jQuery(document).ready(async function () {
     };
   }
   else if (docLang[0] === 'es') {
-    benefitsPath = "../../benefits-search/es.json";
-    lifeEventsPath = "../../benefits-search/life-es.json";
+    benefitsPath = "../../benefits-search/es/pages.json";
+    lifeEventsPath = "../../benefits-search/es/life-events.json";
     labels = {
       'showingResults': '@first@&ndash;@last@ de @totalItems@ resultados',
       'page': "Página",
