@@ -150,31 +150,36 @@ for at in $ANNOTATED_TAGS; do
 done
 
 if [ -n $ANNOTATED_TAG ]; then
-  if [ -n "$CCI_BUILD" -a -n "$WAF_DIGEST" -a -n $"$CMS_DIGEST" -a -n $"$WWW_DIGEST" ]; then
-    echo
-    echo "To deploy the waf, please execute the following command:"
-    echo
-    echo "   ROUTE_SERVICE_APP_NAME=waf \\
-     ROUTE_SERVICE_NAME=waf-route-${SPACE}-usagov \\
-     PROTECTED_APP_NAME=cms \\
-        bin/cloudgov/deploy-waf $CCI_BUILD $WAF_DIGEST"
-    echo
-    echo
-    echo "To deploy the cms, please execute the following command:"
-    echo "   bin/cloudgov/deploy-cms $CCI_BUILD $CMS_DIGEST"
-    echo
-    echo
-    echo "To deploy the static site, please execute the following command:"
-    echo "   bin/cloudgov/deploy-www $CCI_BUILD $WWW_DIGEST"
-    echo
+  if [ -n "$CCI_BUILD" ]; then
+    if [ -n "$WAF_DIGEST" -a -n $"$CMS_DIGEST" -a -n $"$WWW_DIGEST" ]; then
+      echo
+      echo "To deploy the waf, please execute the following command:"
+      echo
+      echo "   ROUTE_SERVICE_APP_NAME=waf \\
+       ROUTE_SERVICE_NAME=waf-route-${SPACE}-usagov \\
+       PROTECTED_APP_NAME=cms \\
+          bin/cloudgov/deploy-waf $CCI_BUILD $WAF_DIGEST"
+      echo
+      echo
+      echo "To deploy the cms, please execute the following command:"
+      echo "   bin/cloudgov/deploy-cms $CCI_BUILD $CMS_DIGEST"
+      echo
+      echo
+      echo "To deploy the static site, please execute the following command:"
+      echo "   bin/cloudgov/deploy-www $CCI_BUILD $WWW_DIGEST"
+      echo
+    else
+       echo "Not all image digests were found in the git tag: $ANNOTATED_TAG"
+       echo "WAF_DIGEST: $WAF_DIGEST"
+       echo "CMS_DIGEST: $CMS_DIGEST"
+       echo "WWW_DIGEST: $WWW_DIGEST"
+       exit 2
+    fi
   else
-     echo "Not all image digests were found in the tag: $ANNOTATED_TAG"
-     echo "WAF_DIGEST: $WAF_DIGEST"
-     echo "CMS_DIGEST: $CMS_DIGEST"
-     echo "WWW_DIGEST: $WWW_DIGEST"
-     exit 1
+    echo "The CircleCI build identifier (CCI_BUILD) was found in the git tag: $ANNOTATED_TAG"
+    exit 3
   fi
 else
-  echo "No tag of the form 'usagov-cci-build-*-${SPACE}' found in git repository"
-  exit 1
+  echo "No git tag of the form 'usagov-cci-build-*-${SPACE}' found in the repository"
+  exit 4
 fi
