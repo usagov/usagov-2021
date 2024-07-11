@@ -4,4 +4,3 @@ usagov_benefit_category_search.pages_admin:
   base_route: system.admin_content
   parent_id: system.admin_content
   weight: 50
-
