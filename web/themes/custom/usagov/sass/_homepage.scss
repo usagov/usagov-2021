@@ -290,9 +290,9 @@
   border-width: 2px;
   border-style: solid;
   @include u-bg('white');
-  @include u-border('gray-50');
-  border-radius: 3px;
-  box-shadow: 0 3px 6px rgb(122 122 122 / 15%);
+  @include u-border('cyan-50v');
+  border-radius: 0;
+  box-shadow: 1px 1px 7px #aaa;
   margin: 0;
   padding: 0;
 
