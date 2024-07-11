@@ -274,7 +274,7 @@
   row-gap: 8px;
 
   @include at-media("tablet") {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 275px));
+    grid-template-columns: repeat(auto-fit, minmax(275px, 1fr));
   }
 }
 
