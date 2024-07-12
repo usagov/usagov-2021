@@ -20,10 +20,14 @@ use Drupal\usagov_wizard\MenuChecker;
  */
 function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state) {
   if (isset($form['tid'])) {
+    $url = Url::fromUri('base:' .
+      ($form['langcode']['widget'][0]['value']['#default_value'] == 'en' ? '' : 'es/')
+      . 'taxonomy/term/' . $form['tid']["#value"]);
+
     $form['actions']['link_to_term'] = [
       '#title' => t('View Term'),
       '#type' => 'link',
-      '#url' => Url::fromUri('base:/taxonomy/term/' . $form['tid']["#value"]),
+      '#url' => $url,
       '#attributes' => [
         'class' => [
           'button',
@@ -32,6 +36,23 @@ function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state
       ],
       '#weight' => 10,
     ];
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * Check the field_tracking boolean, send information to twig if set to true.
+ * Use this to determine whether to display crazyegg tracking script.
+ */
+function usagov_wizard_preprocess_html(&$variables) {
+  if (\Drupal::routeMatch()->getRouteName() == 'entity.taxonomy_term.canonical') {
+    $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
+    if (isset($taxonomy_term->field_header_html)) {
+      if (isset($taxonomy_term->field_header_html->value)) {
+        $variables['header_html'] = $taxonomy_term->field_header_html->value;
+      }
+    }
   }
 }
 

@@ -29,6 +29,11 @@
   }
 
   &--content {
+    h2 {
+      font-size: 2rem;
+      line-height: 120%;
+    }
+
     * {
       transition: all .1s ease;
     }
@@ -40,6 +45,10 @@
 
     .field--name-field-intro {
       margin: 17.6px 0;
+
+      h2 {
+        margin: 0;
+      }
     }
 
     .field--name-field-body {

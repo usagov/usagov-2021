@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.taxonomy_term.wizard.field_body
     - field.field.taxonomy_term.wizard.field_footer
+    - field.field.taxonomy_term.wizard.field_header_html
     - field.field.taxonomy_term.wizard.field_heading
     - field.field.taxonomy_term.wizard.field_intro
     - field.field.taxonomy_term.wizard.field_language_toggle
@@ -39,6 +40,13 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 5
+    region: content
+  field_header_html:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 9
     region: content
   field_heading:
     type: string
