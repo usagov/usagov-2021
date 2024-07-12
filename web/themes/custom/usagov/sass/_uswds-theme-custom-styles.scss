@@ -750,6 +750,7 @@ select:not([disabled]):focus,
   outline-offset: 0;
 }
 
+// Common styles between All topics cards and the cards in Primary pages
 .homepage-card,
 .usagov-card {
   border-radius: 0;
