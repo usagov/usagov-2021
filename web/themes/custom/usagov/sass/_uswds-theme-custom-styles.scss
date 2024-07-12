@@ -750,19 +750,6 @@ select:not([disabled]):focus,
   outline-offset: 0;
 }
 
-.homepage-card,
-.usagov-card {
-  border-radius: 0;
-  border-width: 2px;
-  border-style: solid;
-  box-shadow: 1px 1px 7px #aaa;
-  @include u-border('cyan-50v');
-
-  &:hover {
-    @include u-bg('cyan-10');
-  }
-}
-
 .usagov-button {
   font-size: 1.1rem;
 }
