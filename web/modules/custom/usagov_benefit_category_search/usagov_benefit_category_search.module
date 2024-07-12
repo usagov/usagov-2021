@@ -1,28 +1,35 @@
 <?php
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
 use Drupal\views\ViewExecutable;
 
-function usagov_benefit_category_search_form_taxonomy_term_benefits_category_form_alter(&$form, FormStateInterface $form_state, $form_id)
-{
+function usagov_benefit_category_search_form_taxonomy_term_benefits_category_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form['#attached']['library'][] = 'usagov_benefit_category_search/lifeEventRefLanguageFilter';
   $form['#validate'][] = 'usagov_benefit_category_search__validate_basic_category';
 }
 
 function usagov_benefit_category_search__validate_basic_category($form, FormStateInterface $form_state) {
-  $x = 1;
   $langcode = $form_state->getValue("langcode")[0]['value'];
   $events = $form_state->getValue('field_category_life_events');
-
+  // get all the reference nodes in one call
   $nids = array_map(fn($event) => $event['target_id'], $events);
   $lifeEvents = Node::loadMultiple($nids);
-
-  $x = 1;
-
+  // keep nodes that don't match our selected language
+  $otherLangs = array_filter($lifeEvents, fn(Node $lifeEvent) => $lifeEvent->language()->getId() !== $langcode);
+  $count = count($otherLangs);
+  if ($count > 0) {
+    $summary = $count . ' life event' . ($count > 1 ? 's' : '');
+    $names = array_map(fn(Node $lifeEvent) => '<li>' . $lifeEvent->getTitle() . '</li>', $otherLangs);
+    $detail = '<ul>' . implode('', $names) . '</ul>';
+    $message = Markup::create("You have {$summary} from a different language as this term. {$detail}");
+    $form_state->setErrorByName('field_category_life_events', $message);
+  }
 }
+
 function usagov_benefit_category_search_preprocess_node(&$vars) {
   // off by default
   $vars['usagov_show_benefits_landing_block'] = FALSE;
