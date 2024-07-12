@@ -30,7 +30,7 @@ https://cm-jira.usa.gov/browse/USAGOV-
 ### Change Requirements
 <!-- Checkboxes to indicate need for changes to some part of the system -->
 
-- [ ] Requires New Documentation
+- [ ] Requires New Documentation (Link: {})
 - [ ] Requires New Config
 - [ ] Requires New Content
 
