@@ -287,23 +287,8 @@
 .homepage-card {
   display: flex;
   @include u-font-family('sans');
-  border-width: 2px;
-  border-style: solid;
-  @include u-bg('white');
-  @include u-border('cyan-50v');
-  border-radius: 0;
-  box-shadow: 1px 1px 7px #aaa;
   margin: 0;
   padding: 0;
-
-  &:hover {
-    @include u-bg('cyan-10');
-  }
-
-  &:focus-within {
-    outline: 0.25rem solid color('orange-50v');
-    outline-offset: 0;
-  }
 
   a {
     text-decoration: none;
