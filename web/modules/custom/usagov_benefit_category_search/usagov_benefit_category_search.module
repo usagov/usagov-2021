@@ -23,14 +23,19 @@ function usagov_benefit_category_search__validate_basic_page($form, FormStateInt
   if ($term->getName() !== 'Standard Page') {
     return;
   }
-
   $langcode = $form_state->getValue("langcode")[0]['value'];
-  $terms = $form_state->getValue('field_benefits_category');
-  foreach ($terms as $input) {
-    $term = Term::load($input['target_id']);
-    if ($term->language()->getId() !== $langcode) {
-      $form_state->setErrorByName('field_benefits_category', 'You have one or more categories that are not the same language as the page.');
-    }
+  $refs = $form_state->getValue('field_benefits_category');
+  $term_ids = array_map(fn($term) => $term['target_id'], $refs);
+  // keep terms that don't match selected language
+  $terms = Term::loadMultiple($term_ids);
+  $otherCategories = array_filter($terms, fn(Term $term) => $term->language()->getId() !== $langcode);
+  $count = count($otherCategories);
+  if ($count > 0) {
+    $summary = $count . ' benefits categor' . ($count > 1 ? 'ies' : 'y');
+    $names = array_map(fn(Term $category) => '<li>' . $category->getName() . '</li>', $otherCategories);
+    $detail = '<ul>' . implode('', $names) . '</ul>';
+    $message = Markup::create("You have selected {$summary} from a different language as this page. {$detail}");
+    $form_state->setErrorByName('field_benefits_category', $message);
   }
 }
 
