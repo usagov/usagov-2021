@@ -1,6 +1,6 @@
 {% if node.langcode.value %}
   {% set lang = node.langcode.value %}
-{% else %}
+{% elseif language.id %}
   {% set lang = language.id %}
 {% endif %}
 <div class="usa-footer__secondary-section">
