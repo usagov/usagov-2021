@@ -46,8 +46,9 @@ function usa_translation_page_attachments_alter(&$page) {
     }
 
     $entity = $route_match->getParameter($name);
-    // If Field Language toggle exist and is set then get it's node value.
-    if (method_exists($entity, 'getFields') != FALSE
+    // If Field Language toggle exist and is set then get its node value.
+    if ($entity // counterexample: type "entity:filter_format" does not produce an entity. Path /filter/tips
+      && method_exists($entity, 'getFields') != FALSE
       && array_key_exists('field_language_toggle', $entity->getFields()) == TRUE
       && $entity->getFields()['field_language_toggle']->isEmpty() == FALSE) {
       $altid = $entity->getFields()['field_language_toggle']->getValue()[0]['target_id'];
