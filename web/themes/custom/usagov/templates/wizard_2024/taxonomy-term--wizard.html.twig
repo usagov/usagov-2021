@@ -1,0 +1,68 @@
+{# variables set in usagov_wizard.module
+  parent_tid
+  child
+  start_over
+#}
+
+{% if term.langcode.value == 'en' %}
+  {% set previous_string = 'Previous' %}
+  {% set next_string = 'Next' %}
+  {% set start_over_string = 'Start over' %}
+{% else %}
+  {% set previous_string = 'Anterior' %}
+  {% set next_string = 'Siguiente' %}
+  {% set start_over_string = 'Comenzar de nuevo' %}
+{% endif %}
+
+{% set attributes = attributes.addClass('usa-prose') %}
+{% set attributes = attributes.addClass('usagov-wizard--content') %}
+
+<div{{ attributes }}>
+  <h1 class="text-red-50">{{ content.field_heading }}</h1>
+  <div class="usa-intro">{{ content.field_intro }}</div>
+  {{ content.field_body }}
+  {% if child %}
+    {{ content.field_options_list }}
+    {{ content.field_footer }}
+
+    {% set next = content.field_options_list[0]['contents']['#view_id'] is
+      defined ? true : false %}
+
+    {# we want the start over button to be on the same line as the previous button
+    if there's no next button, so put some logic here in the class property. #}
+    <div class="margin-bottom-2 desktop:usa-reverse usagov-wizard-buttons
+     {% if next %}grid-row{% else %}display-inline-block{% endif %}">
+
+      {# Generate the url for the parent of this term to put in the 'previous' button. #}
+      {% set previous_path = path('entity.taxonomy_term.canonical', {'taxonomy_term': parent_tid}) %}
+      <button id="prior" class="usa-button usa-button--secondary usa-button--big margin-right-2" onclick="window.location.href = '{{ previous_path }}'">
+        {{ previous_string }}</button>
+
+      {# If there are items in the options list, this must not be the last term in the tree. Generate a Next button. #}
+      {% if content.field_options_list[0]['contents']['#view_id'] %}
+      <button id="next" class="usa-button usa-button--outline usagov-button--outline-black usa-button--big"
+              onclick="if(document.querySelector(`input[name='options']:checked`)) { window.location.href = document.querySelector(`input[name='options']:checked`).value; }">
+        {{ next_string }}</button>
+      {% endif %}
+
+    </div>
+  {% endif %}
+  {% if start_over == 'true' %}
+    {# This link should be styled differently depending on if it's inline with
+    the previous button, but only in mobile. So we need to get creative. #}
+    {% if next %}
+    <div class="display-inline-block margin-top-2">
+      <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}">{{ start_over_string }}</a>
+    </div>
+    {% else %}
+      {# have the element printed twice here, then use breakpoints to hide
+      one of these elements. #}
+      <div id="start-over-mobile" class="display-inline-block usa-button--unstyled text-center">
+        <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}">{{ start_over_string }}</a>
+      </div>
+      <div id="start-over-desktop" class="margin-top-2">
+        <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}">{{ start_over_string }}</a>
+      </div>
+    {% endif %}
+  {% endif %}
+</div>

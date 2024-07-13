@@ -1,0 +1,4 @@
+name: 'USA Wizard'
+type: module
+description: 'Hooks, and maybe a service for the wizard content type.'
+core_version_requirement: ^9 || ^10

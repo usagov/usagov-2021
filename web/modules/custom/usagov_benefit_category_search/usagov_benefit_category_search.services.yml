@@ -1,0 +1,5 @@
+services:
+  usagov_benefit_category_search_path_events_subscriber:
+    class: '\Drupal\usagov_benefit_category_search\EventSubscriber\PathSubscriber'
+    tags:
+      - { name: 'event_subscriber' }

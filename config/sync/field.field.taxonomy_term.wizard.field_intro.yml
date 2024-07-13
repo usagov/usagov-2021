@@ -1,0 +1,24 @@
+uuid: 522c1fae-e55c-4dde-9862-20df20281b25
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_intro
+    - filter.format.uswds
+    - taxonomy.vocabulary.wizard
+  module:
+    - text
+id: taxonomy_term.wizard.field_intro
+field_name: field_intro
+entity_type: taxonomy_term
+bundle: wizard
+label: Intro
+description: 'Text will be wrapped in the .usa-intro class.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - uswds
+field_type: text

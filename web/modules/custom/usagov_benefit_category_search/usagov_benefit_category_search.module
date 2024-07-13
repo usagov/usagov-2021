@@ -1,6 +1,36 @@
 <?php
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\taxonomy\Entity\Term;
 use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
+use Drupal\views\ViewExecutable;
+
+function usagov_benefit_category_search_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id === 'node_basic_page_edit_form' || $form_id === 'node_basic_page_form') {
+    $form['#validate'][] = 'usagov_benefit_category_search__validate_basic_page';
+  }
+}
+
+function usagov_benefit_category_search__validate_basic_page($form, FormStateInterface $form_state) {
+  // only run this validator if we're on a Standard Page
+  $page_type_id = $form_state->getValue('field_page_type');
+  if (!$page_type_id) {
+    return;
+  }
+  $term = Term::load($page_type_id[0]['target_id']);
+  if ($term->getName() !== 'Standard Page') {
+    return;
+  }
+
+  $langcode = $form_state->getValue("langcode")[0]['value'];
+  $terms = $form_state->getValue('field_benefits_category');
+  foreach ($terms as $input) {
+    $term = Term::load($input['target_id']);
+    if ($term->language()->getId() !== $langcode) {
+      $form_state->setErrorByName('field_benefits_category', 'You have one or more categories that are not the same language as the page.');
+    }
+  }
+}
 
 function usagov_benefit_category_search_preprocess_node(&$vars) {
   // off by default
@@ -20,6 +50,44 @@ function usagov_benefit_category_search_preprocess_node(&$vars) {
       && $vars["node"]->field_benefits_callout_descr->value
     ) {
       $vars['usagov_show_benefits_landing_block'] = BenefitCategorySearchForm::showLandingPageBlock();
+    }
+  }
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function usagov_benefit_category_search_views_pre_render(ViewExecutable $view) {
+  if ($view->storage->getOriginalId() === 'benefit_search_results') {
+    // Here, we're safeguarding against showing a category term that is from
+    // a different language than the one requested via the views context/arguments
+
+    // First, for filtering, remove categories that are not in the language we want
+    foreach ($view->result as $row) {
+      $categories = $row->_entity->field_benefits_category;
+
+      foreach ($categories as $category) {
+        $termID = $category->get('target_id')->getValue();
+        if ($term = Term::load($termID)) {
+          if ($term->language()->getId() !== $view->argument["langcode"]->argument) {
+            // removing an item re-keys the internal array, but we can use the name
+            // property for a list item, which tracks the index after re-keying.
+            $categories->removeItem($category->getName());
+          }
+        }
+      }
+    }
+
+    // Next, remove terms from other languages for the categories we show in
+    // the search results.
+    foreach ($view->field['term_node_tid']->items as $src => $terms) {
+      foreach ($terms as $termID => $values) {
+        if ($term = Term::load($termID)) {
+          if ($term->language()->getId() !== $view->argument["langcode"]->argument) {
+            unset($view->field['term_node_tid']->items[$src][$termID]);
+          }
+        }
+      }
     }
   }
 }
