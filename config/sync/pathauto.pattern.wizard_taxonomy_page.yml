@@ -1,0 +1,33 @@
+uuid: 97d039b5-8c42-441f-a60c-7dff5c1058a1
+langcode: en
+status: true
+dependencies:
+  module:
+    - language
+    - taxonomy
+id: wizard_taxonomy_page
+label: 'Wizard Taxonomy Page'
+type: 'canonical_entities:taxonomy_term'
+pattern: '[term:parent:url:relative]/[term:name]'
+selection_criteria:
+  015ae1df-0f85-404a-a3ac-c537d8e1172f:
+    id: 'entity_bundle:taxonomy_term'
+    negate: false
+    uuid: 015ae1df-0f85-404a-a3ac-c537d8e1172f
+    context_mapping:
+      taxonomy_term: taxonomy_term
+    bundles:
+      wizard: wizard
+  3c3cf7b4-e8ea-439c-a6d6-b51cf680bb1f:
+    id: language
+    negate: false
+    uuid: 3c3cf7b4-e8ea-439c-a6d6-b51cf680bb1f
+    context_mapping:
+      language: 'taxonomy_term:langcode:language'
+    langcodes:
+      en: en
+selection_logic: and
+weight: -5
+relationships:
+  'taxonomy_term:langcode:language':
+    label: Language

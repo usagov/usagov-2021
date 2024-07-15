@@ -1,0 +1,19 @@
+uuid: 0c493efc-848d-481e-831e-3dc97dd2d65f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_option_name
+    - taxonomy.vocabulary.wizard
+id: taxonomy_term.wizard.field_option_name
+field_name: field_option_name
+entity_type: taxonomy_term
+bundle: wizard
+label: 'Option Name'
+description: 'How this Wizard step will appear in other options lists.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
