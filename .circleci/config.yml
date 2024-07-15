@@ -596,6 +596,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1652-nr-update
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -605,6 +606,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1652-nr-update
       - approve-dev-deployment:
           type: approval
           requires:
@@ -613,6 +615,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1652-nr-update
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -620,6 +623,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1652-nr-update
       - approve-stage-deployment:
           type: approval
           requires:
