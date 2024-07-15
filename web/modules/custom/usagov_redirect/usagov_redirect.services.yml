@@ -1,10 +1,5 @@
 services:
-  # Name of this service.
-  usagov_redirect.redirect_listener:
-    # Event subscriber class that will listen for the events.
-    class: '\Drupal\usagov_redirect\src\Listener\RedirectListener'
+  usagov_redirect.redirect_subscriber:
+    class: 'Drupal\usagov_redirect\RedirectSubscriber\RedirectSubscriber'
     tags:
-        -
-            name: kernel.event_listener
-            event: kernel.response
-            method: onKernelResponse
+      - { name: event_subscriber }
