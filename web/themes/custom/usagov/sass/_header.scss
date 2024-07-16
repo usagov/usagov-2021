@@ -137,11 +137,11 @@
 
 .usa-header--extended .usa-logo img.es {
   width: 8rem;
-  height: 8rem;
+  height: 3.2rem;
 
   @include at-media($theme-header-min-width) {
     width: 12.3rem;
-    hieght: 12.3rem;
+    height: 5rem;
   }
 }
 
