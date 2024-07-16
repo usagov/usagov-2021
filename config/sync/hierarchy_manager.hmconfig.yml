@@ -1,0 +1,35 @@
+_core:
+  default_config_hash: h6dm-6Fu8tAsr8ABsk6CEK3NLl9HLZcG9zvPh5JNqpQ
+hierarchy_manager: null
+allowed_setup_plugins:
+  hm_setup_menu: hm_setup_menu
+  hm_setup_taxonomy: hm_setup_taxonomy
+setup_plugin_settings:
+  hm_setup_menu:
+    display_profile: wizard_manager
+    bundle:
+      wizard: wizard
+      account: 0
+      admin: 0
+      devel: 0
+      footer: 0
+      left-menu-english: 0
+      left-menu-spanish: 0
+      main: 0
+      primary-footer: 0
+      primary-footer-spanish: 0
+      tools: 0
+      top-navigation: 0
+      top-navigation-es: 0
+      wizard-espanol: 0
+  hm_setup_taxonomy:
+    display_profile: wizard_manager
+    bundle:
+      wizard: wizard
+      bears_tags: 0
+      content_tags: 0
+      page_type: 0
+      uswds_breakpoints: 0
+      uswds_classes: 0
+      uswds_colors: 0
+      uswds_icons: 0

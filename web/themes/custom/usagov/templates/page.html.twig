@@ -49,7 +49,12 @@
  */
 #}
 
-{% set lang = node.langcode.value %}
+{% if node.langcode.value %}
+  {% set lang = node.langcode.value %}
+{% elseif language.id %}
+  {% set lang = language.id %}
+{% endif %}
+
 {% set content_type = "" %}
 {% if node.type.0 != null %}
 	{% set content_type = node.type.0.target_id %}
@@ -89,11 +94,13 @@
 	{% if header_basic %}
 		<div class="usa-nav-container">
 		{% endif %}
-		{% if lang == 'es' %}
-			{% include '@usagov/top_nav_es.html.twig' %}
-		{% else %}
-			{% include '@usagov/top_nav.html.twig' %}
-		{% endif %}
+    {% block top_nav %}
+      {% if lang == 'es' %}
+        {% include '@usagov/top_nav_es.html.twig' %}
+      {% else %}
+        {% include '@usagov/top_nav.html.twig' %}
+      {% endif %}
+    {% endblock %}
 		{{ page.header }}
 		{% if header_basic %}
 		</div>
@@ -119,16 +126,22 @@
 	</main>
 
 {% else %}
-
+  {% block main %}
 	<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
-
+  {% endblock %}
 		{# link is in html.html.twig #}
 
 		<div class="grid-container">
 			{% if page.breadcrumb or page.highlighted or page.help %}
+				{% if pagetype == "Navigation Cards Page"%}
+				<div class="grid-row breadcrumb-spacing">
+					{{ page.breadcrumb }}
+				</div>
+				{% else %}
 				<div class="grid-row">
 					{{ page.breadcrumb }}
 				</div>
+				{% endif %}
 
 				<div class="">
 					{{ page.highlighted }}
@@ -143,31 +156,36 @@
 			{% endif %}
 
 			<div class="grid-row grid-gap">
-				{% if page.sidebar_first and show_sidebar %}
-					<aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first">
-						{{ page.sidebar_first }}
-					</aside>
-				{% endif %}
+        {%  block sidebar %}
+          {% if page.sidebar_first and show_sidebar %}
+            <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first">
+              {{ page.sidebar_first }}
+            </aside>
+          {% endif %}
+        {% endblock %}
 
 				<div class="usa-layout-docs__main usa-prose desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
-					{{ page.content }}
+          {% block content %}
+          {{ page.content }}
+          {% endblock %}
 
-					<div class="additional_body_info">
-						{% if show_last_updated %}
+          {% block additional_body %}
+            <div class="additional_body_info">
+              {% if show_last_updated %}
 
-							{% if node.changed.value %}
-								<p id="last-updated">{{ lang == 'en' ? 'LAST UPDATED: ' : 'ÚLTIMA ACTUALIZACIÓN: '}}
-									{% set date = node.changed.value %}
-									{% include '@usagov/dates.html.twig' %}
-								</p>
-							{% endif %}
-						{% endif %}
+                {% if node.changed.value %}
+                  <p id="last-updated">{{ lang == 'en' ? 'LAST UPDATED: ' : 'ÚLTIMA ACTUALIZACIÓN: '}}
+                    {% set date = node.changed.value %}
+                    {% include '@usagov/dates.html.twig' %}
+                  </p>
+                {% endif %}
+              {% endif %}
 
-						{% include '@usagov/sharethispage.html.twig' %}
-						{% include '@usagov/haveaquestion.html.twig' %}
-
-						<div id="pagesurvey-qual-container"></div>
-					</div>
+              {% include '@usagov/sharethispage.html.twig' %}
+              {% include '@usagov/haveaquestion.html.twig' %}
+              <div id="pagesurvey-qual-container"></div>
+            </div>
+          {% endblock %}
 
 				</div>
 				{# /.layout-content #}
@@ -188,5 +206,3 @@
 {% endif %}
 
 {% include '@usagov/footer_nav.html.twig' %}
-
-

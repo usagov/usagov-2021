@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - block_content.type.site_banner
     - media.type.audio
     - media.type.file
     - media.type.image
@@ -20,8 +21,10 @@ dependencies:
     - node.type.wizard
     - node.type.wizard_step
     - taxonomy.vocabulary.benefits_category
+    - taxonomy.vocabulary.wizard
     - workflows.workflow.basic_workflow
   module:
+    - block_content
     - content_lock
     - content_moderation
     - content_translation
@@ -44,10 +47,12 @@ weight: 5
 is_admin: null
 permissions:
   - 'access administration pages'
+  - 'access block library'
   - 'access content overview'
   - 'access devel information'
   - 'access media overview'
   - 'access site in maintenance mode'
+  - 'access taxonomy overview'
   - 'access toolbar'
   - 'add paragraphs entity embed'
   - 'administer menu'
@@ -71,8 +76,10 @@ permissions:
   - 'create image media'
   - 'create media'
   - 'create remote_video media'
+  - 'create site_banner block content'
   - 'create state_directory_record content'
   - 'create terms in benefits_category'
+  - 'create terms in wizard'
   - 'create url aliases'
   - 'create video media'
   - 'create wizard content'
@@ -92,6 +99,8 @@ permissions:
   - 'delete any image media'
   - 'delete any media'
   - 'delete any remote_video media'
+  - 'delete any site_banner block content'
+  - 'delete any site_banner block content revisions'
   - 'delete any state_directory_record content'
   - 'delete any video media'
   - 'delete any wizard content'
@@ -123,6 +132,7 @@ permissions:
   - 'delete paragraphs entity embed'
   - 'delete state_directory_record revisions'
   - 'delete terms in benefits_category'
+  - 'delete terms in wizard'
   - 'delete wizard revisions'
   - 'delete wizard_step revisions'
   - 'edit any agency_synonym content'
@@ -137,6 +147,7 @@ permissions:
   - 'edit any file media'
   - 'edit any image media'
   - 'edit any remote_video media'
+  - 'edit any site_banner block content'
   - 'edit any state_directory_record content'
   - 'edit any video media'
   - 'edit any wizard content'
@@ -158,8 +169,10 @@ permissions:
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
   - 'edit terms in benefits_category'
+  - 'edit terms in wizard'
   - 'revert agency_synonym revisions'
   - 'revert all revisions'
+  - 'revert any site_banner block content revisions'
   - 'revert basic_page revisions'
   - 'revert bears_agency revisions'
   - 'revert bears_benefit revisions'
@@ -189,6 +202,7 @@ permissions:
   - 'view agency_synonym revisions'
   - 'view all media revisions'
   - 'view all revisions'
+  - 'view any site_banner block content history'
   - 'view any unpublished content'
   - 'view basic_page revisions'
   - 'view bears_agency revisions'
