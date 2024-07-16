@@ -3,7 +3,6 @@
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\node\Entity\Node;
-use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
 use Drupal\views\ViewExecutable;
