@@ -4,15 +4,11 @@
  * @file
  * Self explained.
  */
+
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Url;
-
-/**
- * @file
- * Module contains functions related to usa_translation.
- */
-
 use Drupal\node\NodeInterface;
+use Drupal\taxonomy\TermInterface;
 
 /**
  * Implements hook_ENTITY_TYPE_translation_delete().
@@ -56,7 +52,17 @@ function usa_translation_page_attachments_alter(&$page) {
       && $entity->getFields()['field_language_toggle']->isEmpty() == FALSE) {
       $altid = $entity->getFields()['field_language_toggle']->getValue()[0]['target_id'];
       // Get the alternate ID language.
-      $altnode = \Drupal::entityTypeManager()->getStorage('node')->load($altid);
+      if ($entity instanceof NodeInterface) {
+        $altnode = \Drupal::entityTypeManager()
+          ->getStorage('node')
+          ->load($altid);
+      }
+      elseif ($entity instanceof TermInterface) {
+        $altnode = \Drupal::entityTypeManager()
+          ->getStorage('taxonomy_term')
+          ->load($altid);
+      }
+
       if (!empty($altnode)
         && is_object($altnode)
         && method_exists($altnode, 'hasLinkTemplate')
@@ -103,7 +109,7 @@ function usa_translation_page_attachments_alter(&$page) {
         }
       }
       // Displays current route of an entity in the metadata
-      // The route should be the same as the canonical url
+      // The route should be the same as the canonical url.
       if (!empty($entity)
         && is_object($entity)
         && method_exists($entity, 'hasLinkTemplate')
