@@ -61,11 +61,12 @@
       {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-    {% if benefitCategories %}
+    {% if allowsBenefitCategories and benefitCategories %}
 
       {{'hasBenefitCategory'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: true,
       {{'benefitCategories'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{benefitCategories|json_encode(constant('JSON_PRETTY_PRINT'))|raw}},
-    {% else %}
+    {% elseif allowsBenefitCategories %}
+
       {{'hasBenefitCategory'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: false,
     {% endif %}
     {% if front == "homepage" and lang == "en" %}
