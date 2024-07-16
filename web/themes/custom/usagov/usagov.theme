@@ -295,9 +295,18 @@ function usagov_preprocess_block(&$variables) {
   /**
    * Pass node or term value to pages so they can access properties
    */
-  $entity = \Drupal::routeMatch()->getParameter('node') ?? \Drupal::routeMatch()
-    ->getParameter('taxonomy_term');
-  $variables['entity'] = $entity;
+  if (\Drupal::routeMatch()->getParameter('node')) {
+    $entity = \Drupal::routeMatch()->getParameter('node');
+    $variables['node'] = $entity;
+  }
+  elseif (\Drupal::routeMatch()
+    ->getParameter('taxonomy_term')) {
+    $entity = \Drupal::routeMatch()
+      ->getParameter('taxonomy_term');
+  }
+  else {
+    return;
+  }
 
   /**
    * Pass pagetype to pages so they can know what type of page to render
