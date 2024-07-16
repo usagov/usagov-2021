@@ -45,17 +45,6 @@
   margin-top: 24px;
 }
 
-.usagov-card {
-  border-radius: 0;
-  box-shadow: 4px 4px 10px #aaa;
-  @include u-border('cyan-50v');
-
-  &:hover {
-    @include u-bg('cyan-10');
-    @include u-border('cyan-50v');
-  }
-}
-
 .usagov-card__heading {
   @include u-text('blue-warm-70v');
   text-decoration-line: underline;
