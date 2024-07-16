@@ -149,25 +149,32 @@
   @include u-bg('blue-warm-80v');
 }
 
+.usa-header--extended .usa-logo {
+  margin: 0.5rem;
+  width: 3.2rem;
+  height: 3.2rem;
+}
+
+.usa-header--extended .navbar-right {
+  display: flex;
+  align-items: center;
+  margin-left: auto; /* Align elements to the right */
+}
+
 // This is to minimize the size of the logo in tablet and mobile
 @media (min-width: 64em) {
   .usa-header--extended .usa-logo {
-    margin: 0.5rem 0 0.2em;
     width: 5rem;
     height: 5rem;
   }
 }
 
 .usa-header--extended .usa-logo img {
-  max-width: none;
-  width: 3.2rem;
-  max-height: none;
-  height: 3.2rem;
-
-  @include at-media($theme-header-min-width) {
-    width: 5rem;
-    height: 5rem;
-  }
+  width: 100%;
+  height: auto;
+  object-fit: contain; 
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .usa-header--extended .usa-logo img.es {
@@ -365,7 +372,6 @@ input#search-field-small-mobile-menu {
     flex-direction: row;
     justify-content: space-between;
   }
-
 
   .usa-header--extended .usa-nav__secondary,
   .usa-header--extended .usa-nav__secondary:lang(es) {
