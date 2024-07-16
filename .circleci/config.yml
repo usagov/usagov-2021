@@ -22,7 +22,7 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-cms << pipeline.number >>
+            ./bin/cloudgov/deploy-cms << pipeline.number >> $CMS_DIGEST
             if [ $? ]; then
               echo
               echo "Please run the following commands in a local build environment, while targetting << parameters.envname >>:"
@@ -41,7 +41,7 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-www << pipeline.number >>
+            ./bin/cloudgov/deploy-www << pipeline.number >> $WWW_DIGEST
       - run:
           name: CloudGov Deploy WAF
           command: |
@@ -57,7 +57,7 @@ commands:
             ROUTE_SERVICE_APP_NAME=$DWAF_APP \
             ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
             PROTECTED_APP_NAMES="$DCMS_APP,$DWWW_APP" \
-            ./bin/cloudgov/deploy-waf << pipeline.number >>
+            ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
   save-image-digest:
     steps:
       - run:
