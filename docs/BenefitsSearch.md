@@ -23,19 +23,30 @@ The following are accessible within the Drupal Admin UI:
 * **Basic Page at /es/_TBD_**: This is the search page for Spanish results. It should be a basic node with a "Page Type" of "Benefits Category Search"
 * **Benefit Categories with Life Events View** Data export that provides two JSON files: one for English categories that reference one or more life events. (Machine name: `benefit_categories_with_life_events`)
 * **Benefit Category Life Event Reference View** Controls the order of life events on basic page edit form so that they are grouped by language first. (Machine name: `benefit_category_life_event_reference`)
-* **Benefit Search Category Reference View** Controles the order of benefit categories on basic page edit form. Groups them by language first, then sorts alphabetically. (Machine name: `benefit_search_category_reference`)
+* **Benefit Search Category Reference View** Controls the order of benefit categories on basic page edit form. Groups them by language first, then sorts alphabetically. (Machine name: `benefit_search_category_reference`)
 * **Benefit Search Form View** Used to build the English and Spanish search forms for filtering benefits. Only displays categories that have been tagged in a basic page node. (Machine name: `benefit_search_form`)
 * **Benefit Search Results View** Data export providing JSON files that list basic pages tagged with one or more benefit category. (Machine name: `benefit_search_results`)
 
 Content editors can categorize existing basic pages, set the weight of a page to control where in the rankings a single page shows (higher numbers show up first) and can manage the category terms available. Terms in the Benefits Category vocabulary can be related to one or more Life Events, which are shown at the top of search results which include that category.
 
+#### Conditional Fields
+
 ### "USAGov Benefit Category Search" Custom Drupal Module
 
-Files in `web/modules/custom/usagov_benefit_category_search`
-. At the moment, this module provides two deploy hooks:
+Files in `web/modules/custom/usagov_benefit_category_search`. At the moment, this module provides two deploy hooks:
 
 * A hook function that adds the "Benefits Category Search" term to the Page Types vocabulary.
 * A hook function to populate the Benefits Category vocabulary with English and Spanish terms.
+
+> You are unlikely to need to run these hooks as they've already been executed on prod. The items they create should already exist in the database.
+
+#### Data export paths
+
+
+#### Customized Form Widgets and Validation
+
+
+### DataLayer
 
 ### JavaScript sources
 
@@ -56,12 +67,11 @@ Two JavaScript source files are required for the page to function properly.
 
 ## Setup
 
-Upon first deployment against a given database:
+Upon first deployment against a new database snaphot:
 
 1. Import configuration `bin/drush cim` to enable new views, fields for basic page content type.
-2. Run `bin/drush deploy:hook` to create the terms in the benefits category vocab.
-3. Run `bin/drush cr` to clear drupal caches and twig template caches so it picks up on config changes and file updates.
-4. Run this script to tag existing pages to the categories, so you get some results when you search. This json file is available in Google Drive. The path should be absolute inside the docker container or relative to the working directory `/var/www/web`.
+2. Run `bin/drush cr` to clear drupal caches and twig template caches so it picks up on config changes and file updates.
+3. Run the tag pages script to tag existing pages to the categories, so you get some results when you search. This JSON file is in `scripts/drush/data`. The path should be absolute inside the docker container or relative to the working directory `/var/www/web`.
 
 Outside of docker, use:
 
@@ -75,16 +85,16 @@ If you're in the container, in the `/var/www/` directory use a relative path lik
 drush php:script scripts/drush/benefits-category-tag-pages.php ../scripts/drush/data/benefits-sample.2024-05-22.json
 ```
 
-
-5. Run this script to make the english and spanish pages (you have to manually publish them though)
+4. Run the make pages script to make the english and spanish pages, relate them to each other, and add the call outs to the homepage and government benefits pages.
 
 ```
 bin/drush php:script scripts/drush/benefits-category-make-pages.php
 ```
 
-6. Associate terms to life events. You need to edit at least one term in English and one Spanish term from the benefits category vocabulary to reference one of the pages via the "Life Events" field.
+5. Associate terms to life events. You need to edit at least one term in English and one Spanish term from the benefits category vocabulary to reference one of the pages via the "Life Events" field.
+
+6. Enable the benefits search callouts at `/admin/config/development/usagov_benefit_category_search`. Tick the box to display the callouts and press the save button.
 
 ## Known Issues and Concerns
 
 * Despite having the module for the deploy hooks, all the functionality for the benefits search is part of the theme. Some code could probably be moved to the module to keep it together in one place.
-
