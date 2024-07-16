@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
 use Drupal\views\ViewExecutable;
@@ -18,7 +19,7 @@ function usagov_benefit_category_search__validate_basic_page($form, FormStateInt
     return;
   }
   $term = Term::load($page_type_id[0]['target_id']);
-  if ($term->getName() !== 'Standard Page') {
+  if (!$term || $term->getName() !== 'Standard Page') {
     return;
   }
 
@@ -26,7 +27,7 @@ function usagov_benefit_category_search__validate_basic_page($form, FormStateInt
   $terms = $form_state->getValue('field_benefits_category');
   foreach ($terms as $input) {
     $term = Term::load($input['target_id']);
-    if ($term->language()->getId() !== $langcode) {
+    if ($term && $term->language()->getId() !== $langcode) {
       $form_state->setErrorByName('field_benefits_category', 'You have one or more categories that are not the same language as the page.');
     }
   }
@@ -50,6 +51,17 @@ function usagov_benefit_category_search_preprocess_node(&$vars) {
       && $vars["node"]->field_benefits_callout_descr->value
     ) {
       $vars['usagov_show_benefits_landing_block'] = BenefitCategorySearchForm::showLandingPageBlock();
+    }
+  }
+}
+
+function usagov_benefit_category_search_preprocess_html(&$vars) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if ($node instanceof Node) {
+    // Provide list of categories for this page to gtm via taxonomy-data
+    if ($terms = $node->field_benefits_category->referencedEntities()) {
+      $benefitCategories = array_map(fn(Term $term) => $term->getName(), $terms);
+      $vars['benefitCategories'] = implode(', ', $benefitCategories);
     }
   }
 }
