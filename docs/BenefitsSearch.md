@@ -93,9 +93,16 @@ While this allows us to have a single view for English and Spanish results, Tome
 
 #### Customized Form Widgets and Validation
 
+The terms, fields, and widgets used in the Basic Page node type and Benefit Category vocabulary are set up with core Drupal functionality. The entity reference fields can work in this default state but have one limitation that impacts the content editor experience and could lead to data entry issues. The two references are the Benefit Category checkboxes on the Basic Page node (Standard Page) and the Life Event references on the individual Category terms. The views that populate the lists are configured to show all items regardless of the language. This means that someone editing an English page would see both English and Spanish categories. Potentially, they could select a Spanish category on an English page and vice-versa. The same issue happens editing a Benefit Category term to pick related Life Events. Some guard rails are implemented to prevent selecting items from a language that doesn't match the source entity.
+
+1. The `usagov_benefit_category_search` module adds a custom validator to node add/edit forms. When someone edits a Standard Page, it will show an error if they've selected any categories that are from a different language than the node they are editing.
+2. The `usagov_benefit_category_search` module adds a custom validator to benefit category term add/edit forms. When someone edits a Benefit Category term, it will show an error if they've selected any life events that are from a different language than the node they are editing.
+3. The `usagov_benefit_category_search` module adds JavaScript to node add/edit forms to hide Life Events that do not match the term's language. It also adds a button to display all Life Events(for debugging) and will not hide terms that are checked.
+4. The `usagov_admin_styles` module adds JavaScript to node add/edit forms to hide category terms that do not match the page's language. It also adds a button to display all terms and will not hide terms that are checked.
+
 ### DataLayer
 
-The `usagov_benefit_category_search` module adds an HTML prerender hook that can add two items to the datalayer sent to Google Tag Manager for analysis. It only adds thee for Stanard Pages.
+The `usagov_benefit_category_search` module adds an HTML prerender hook that can add two items to the datalayer sent to Google Tag Manager for analysis. It only adds thee for Standard Pages.
 
 If a page is tagged, the datalayer will have two entries:
 
