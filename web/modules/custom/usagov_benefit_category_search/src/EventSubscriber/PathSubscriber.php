@@ -15,10 +15,10 @@ class PathSubscriber implements EventSubscriberInterface {
     // Tell tome not to translate the paths we add
     $md = ['langcode' => 'en', 'language_processed' => 'language_processed'];
     $event->addPaths([
-      $base_path . '/benefits-search/en/pages.json' => $md,
-      $base_path . '/benefits-search/en/life-events.json' => $md,
-      $base_path . '/benefits-search/es/pages.json' => $md,
-      $base_path . '/benefits-search/es/life-events.json' => $md,
+      $base_path . '/_data/benefits-search/en/pages.json' => $md,
+      $base_path . '/_data/benefits-search/en/life-events.json' => $md,
+      $base_path . '/_data/benefits-search/es/pages.json' => $md,
+      $base_path . '/_data/benefits-search/es/life-events.json' => $md,
     ]);
   }
 
