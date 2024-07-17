@@ -177,4 +177,26 @@ class MenuChecker implements ContainerInjectionInterface {
 
   }//end getTargetEntities()
 
+  /**
+   * Check for matches between arrays of entity ids.
+   *
+   * The two arrays to check contain menu entities marked with "custom_parent"
+   * set to true and the current page and all of its parents' entity id.
+   *
+   * @param array $entity_array_1
+   *   Array of entities.
+   * @param array $entity_array_2
+   *   Array of entities.
+   *
+   * @return array
+   *   An array containing the target term IDs and menu entities.
+   */
+  public function getMatchingEntities(array $entity_array_1, array $entity_array_2) {
+    $matching_tid = array_intersect($entity_array_1, $entity_array_2);
+
+    $matching_tid = implode(',', $matching_tid);
+
+    return $matching_tid;
+  }
+
 }//end class

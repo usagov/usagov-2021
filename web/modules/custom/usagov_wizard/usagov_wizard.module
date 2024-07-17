@@ -99,26 +99,27 @@ function usagov_wizard_preprocess_page(&$variables) {
 
       // See if there are any matches.
       if (isset($menuEntities['target_tids'])) {
-        $matching_tid = array_intersect($termParents, $menuEntities['target_tids']);
 
-        $matching_tid = implode(',', $matching_tid);
+        $matching_tid = $menuChecker->getMatchingEntities($termParents, $menuEntities['target_tids']);
 
         // If there are matches, send them to the twig.
         if (isset($matching_tid)) {
-          foreach ($menuEntities['menu_entities'] as $menuEntity) {
-            $entities = array_map(function ($menuEntity) {
-              return [
-                'label' => $menuEntity->title->value,
-                'link' => Url::fromUri($menuEntity->link->uri)->toString(),
-                'weight' => $menuEntity->getWeight(),
-              ];
-            }, $menuEntities['menu_entities']);
+          if (strlen($matching_tid) > 0) {
+            foreach ($menuEntities['menu_entities'] as $menuEntity) {
+              $entities = array_map(function ($menuEntity) {
+                return [
+                  'label' => $menuEntity->title->value,
+                  'link' => Url::fromUri($menuEntity->link->uri)->toString(),
+                  'weight' => $menuEntity->getWeight(),
+                ];
+              }, $menuEntities['menu_entities']);
 
-            usort($entities, function ($item1, $item2) {
-              return $item1['weight'] <=> $item2['weight'];
-            });
+              usort($entities, function ($item1, $item2) {
+                return $item1['weight'] <=> $item2['weight'];
+              });
 
-            $variables['menu_entities'] = $entities;
+              $variables['menu_entities'] = $entities;
+            }
           }
         }
       } // End isset $menuEntities['target_tids']
@@ -218,10 +219,20 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
       $menuEntities = $menuChecker->getTargetEntities($langcode);
 
       if (isset($menuEntities['menu_entities'])) {
-        // If there's a custom parent menu entity...
-        foreach ($menuEntities['menu_entities'] as $menuEntity) {
-          if ($menuEntity->field_custom_parent->value == 1) {
-            $wizard_title = $menuEntity->title->value;
+        if (is_array($menuEntities['menu_entities'])) {
+          $termParents = $menuChecker->getTermParents($taxonomy_term);
+          $matching_tid = $menuChecker->getMatchingEntities($termParents, $menuEntities['target_tids']);
+          if (is_array($matching_tid)) {
+            /* If the current page matches a menu entity with the custom_parent
+            field set to true.*/
+            foreach ($menuEntities['menu_entities'] as $menuEntity) {
+              if ($menuEntity->field_custom_parent->value == 1) {
+                $wizard_title = $menuEntity->title->value;
+              }
+            }
+          }
+          else {
+            return;
           }
         }
       }
