@@ -1,0 +1,28 @@
+uuid: c1975270-dab7-494a-b6c2-11fd609e9682
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_language_toggle
+    - taxonomy.vocabulary.wizard
+id: taxonomy_term.wizard.field_language_toggle
+field_name: field_language_toggle
+entity_type: taxonomy_term
+bundle: wizard
+label: 'Language Toggle'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      wizard: wizard
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

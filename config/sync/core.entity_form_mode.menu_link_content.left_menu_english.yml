@@ -1,0 +1,11 @@
+uuid: 5db31d03-cba2-4e64-a18e-fda1220f2e5d
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_link_content
+id: menu_link_content.left_menu_english
+label: left-menu-english
+description: ''
+targetEntityType: menu_link_content
+cache: true
