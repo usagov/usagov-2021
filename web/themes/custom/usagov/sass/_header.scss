@@ -155,12 +155,6 @@
   height: 3.2rem;
 }
 
-.usa-header--extended .navbar-right {
-  display: flex;
-  align-items: center;
-  margin-left: auto; /* Align elements to the right */
-}
-
 // This is to minimize the size of the logo in tablet and mobile
 @media (min-width: 64em) {
   .usa-header--extended .usa-logo {
