@@ -16,20 +16,74 @@ The new specialized page makes use of two Drupal views and custom JavaScript to 
 
 The following are accessible within the Drupal Admin UI:
 
+#### Entities
+
 * **Benefits Category** Taxonomy Vocabulary (Machine name: `benefits_category`)
+* Adds a "Benefits Search Page" page type for Basic Pages.
+
+#### Fields
+
 * **Benefits Category** Field for Basic Pages (Machine name: `field_benefits_category`)
 * **Search Weight** Field for Basic Pages (Machine name: `field_search_weight`)
+* **Homepage Benefits Title** Field for the heading off the benefits call out on the homepage. (Machine name: `field_homepage_benefits_title`)
+* **Homepage Benefits Description** Field for the description/call-to-action in the benefits call out on the homepage. (Machine name: `field_homepage_benefits_descr`)
+* **Benefits Landing Page** Reference to the page that the call out on the home page links to. (Machine name: `field_homepage_benefits_ref`)
+* **Homepage Benefits Button** Field to set the text of the button in the call out on the home page. (Machine name: `field_homepage_benefits_button`)
+* **Benefits Callout Description**  Field for the call-to-action text in the benefits call out on the Benefits navigation card page. (Machine name: `field_benefits_callout_descr`)
+* **Benefits Callout Page** Reference to the page that the benefits call out on the Benefits navigation cards page links to. (Machine name: `field_benefits_callout_ref`)
+* **Benefits Callout Button** Field to set the text of the button in the call out on the Benefits navigation cards page.  (Machine name: `field_benefits_callout_button`)
+
+Content editors can categorize existing basic pages with page type of "Standard Page", set the weight of a page to control where in the rankings a single page shows (higher numbers show up first) and can manage the category terms available. Terms in the Benefits Category vocabulary can be related to one or more Life Events, which are shown at the top of search results which include that category.
+
+#### Pages
+
 * **Basic Page at _TBD_**: This is the search page for English results. It should be a basic node with a "Page Type" of "Benefits Category Search"
 * **Basic Page at /es/_TBD_**: This is the search page for Spanish results. It should be a basic node with a "Page Type" of "Benefits Category Search"
-* **Benefit Categories with Life Events View** Data export that provides two JSON files: one for English categories that reference one or more life events. (Machine name: `benefit_categories_with_life_events`)
+
+#### Views
+
+* **Benefit Search Results** Data export that lists all the Standard Pages that have been tagged to one or more benefit categories. It uses a argument to filter by language and, at the moment, makes an English and a Spanish JSON file available. (Machine name: `benefit_search_results `)
+* **Benefit Categories with Life Events View** Data export that categories that reference one or more life events. It uses a argument to filter by language and, at the moment, makes an English and a Spanish JSON file available. (Machine name: `benefit_categories_with_life_events`)
 * **Benefit Category Life Event Reference View** Controls the order of life events on basic page edit form so that they are grouped by language first. (Machine name: `benefit_category_life_event_reference`)
 * **Benefit Search Category Reference View** Controls the order of benefit categories on basic page edit form. Groups them by language first, then sorts alphabetically. (Machine name: `benefit_search_category_reference`)
 * **Benefit Search Form View** Used to build the English and Spanish search forms for filtering benefits. Only displays categories that have been tagged in a basic page node. (Machine name: `benefit_search_form`)
 * **Benefit Search Results View** Data export providing JSON files that list basic pages tagged with one or more benefit category. (Machine name: `benefit_search_results`)
 
-Content editors can categorize existing basic pages, set the weight of a page to control where in the rankings a single page shows (higher numbers show up first) and can manage the category terms available. Terms in the Benefits Category vocabulary can be related to one or more Life Events, which are shown at the top of search results which include that category.
+#### Conditional Fields and Field Group
 
-#### Conditional Fields
+We use te Conditional Fields and Field Group module to customize the node add/edit forms content editors see for Basic Pages. With the module, we can show different field groups and fields so that editors can change text and labels on the homepage callout, elements on the government benefits pages, and to categorize Standard Pages. These rules are configured in the Admin UI, in the **Manage Dependencies** tab for a content type. (`/admin/structure/types/manage/basic_page/conditionals`)
+
+If a user is editing the homepage, they will see the following. These fields control the callout shown on the homepage. This rule is when the page type is _Home Page_.
+
+1. The **Homepage Benefits Callout** field group with the fields listed here. These fields do not display on other forms.
+2. _Homepage Benefits Title_ Translatable text field for setting the heading text of the homepage benefits callout.
+3. _Homepage Benefits Description_ Translatable text field for the call-to-action text of the homepage benefits callout.
+4. _Benefits Landing Page_ Entity reference to select the page the callout button will link to.
+5. _Homepage Benefits Button_ Translatable text field for the button label in the callout.
+
+If a user is editing the navigation cards pages for government benefits, they will see the group. These fields control the callout displayed on this page. This rule is based on the path aliases of the pages: `/benefits` and `/beneficios-gobierno`. Note that the `es/` prefix is omitted from the Spanish page path.
+
+1. The **Benefits Callout** field group with the fields listed here. These fields do not display on other forms.
+2. _Benefits Callout Description_ Text field for the call-to-action of the callout.
+3. _Benefits Callout Page_ Entity reference to select the page the callout button will link to.
+5. _Benefits Callout Button_ Translatable text field for the button label in the callout.
+
+If a user is editing one of the benefits search pages, they will see the following. This rule is when the page type is _Benefits Category Search_. These fields affect elements of the Basic Search sections.
+
+1. The **Benefits Search Page** field group with the fields listed here. These fields do not display on other forms.
+2. _Life Events Title_ Text field for the heading shown at the top of the life events grid.
+3. _Life Events Description_ Text field for the description shown above the life events grid.
+4. _Category Search Title_ Text field for the heading shown at the top of the search form.
+5. _Category Search Description_ Text field for the text instructions shown at the top of the search form.
+
+If a user is editing a Standard Page, they will see the following. This rule is when the page type is _Standard Page_. These fields are for categorizing pages to show up in search results.
+
+1. The **Benefit Category Search** field group with the fields listed here. These fields do not display on other forms.
+2. _Benefits Category_ A fieldset of checkboxes for terms in the Benefit Category vocabulary.
+3. _Benefit Search Weight_ A numeric input that allows content editors to rank some search results higher in search results.
+
+
+
 
 ### "USAGov Benefit Category Search" Custom Drupal Module
 
