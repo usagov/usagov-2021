@@ -1,5 +1,7 @@
 #!/bin/env bash
 
+source ~/.profile &> /dev/null
+
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
@@ -60,14 +62,15 @@ SPACE_GUID=$(cf space $SPACE --guid)
 cf target -s $SPACE &>/dev/null
 
 declare -A SPACE_GUIDS=()
-if [  1 -eq 0 ]; then
+if [  1 -eq 1 ]; then
   for SPACE in dev stage prod shared-egress shared-egress-dr tools; do
     if [ ! cf space $SPACE &> /dev/null ]; then
       echo "ERROR: CF space '$SPACE' does not exist!"
-      exit 4
+#      exit 4
+    else
+      SPACE_GUID=$(cf space $SPACE --guid)
+      SPACE_GUIDS[$SPACE_GUID]=$SPACE
     fi
-    SPACE_GUID=$(cf space $SPACE --guid)
-    SPACE_GUIDS[$SPACE_GUID]=$SPACE
   done
 
 ### FIXME:  Much faster.  But please usse only during testing!

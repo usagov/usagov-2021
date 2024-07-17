@@ -29,6 +29,7 @@ SPACE=${1:-please-provide-space-name-as-first-argument}
 SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
 shift
+ORG=$(getOrg)
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
@@ -38,35 +39,20 @@ export SERVICENAME="${appname}Services"
 
 assertRequires 'jq'
 
-#env_checks=()
-
-#if [ -z "$AWS_BUCKET_PATH" ]; then
-#  env_checks+=( "AWS_BUCKET_PATH" )
-#fi
-
-#if (( ${#env_checks[@]} )); then
-#  err_msg="ERR! Must populate the following variables in env.local:"
-#  for t in "${env_checks[@]}"; do
-#    err_msg+=" $t"
-#  done
-#  echo "$err_msg"
-#  exit 1
-#fi
-
 function setHTTPProxy() {
-    proxySpace='shared-egress'
+    proxySpace=$CF_EGRESS_SPACE
     proxyName="${SPACE}-proxy"
     appSpace=$SPACE
     appName=$APPNAME
     if [ "$1" = "1" ]; then
         echo "Setting http_proxy to $proxyName"
-        cf target -s $proxySpace -o gsa-tts-usagov > /dev/null 2>&1;
+        cf target -s $proxySpace -o $CF_EGRESS_ORG > /dev/null 2>&1;
         proxyroute=$(cf env $proxyName | grep proxy_route | awk '{print $2}')
         if [ -z "$proxyroute" ]; then
             echo "ERROR: $proxyName does not have a proxy_route set"
             exit 1
         fi;
-        cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+        cf target -s $appSpace -o $ORG > /dev/null 2>&1
         cf set-env $appName https_proxy $proxyroute
         cf set-env $appName HTTPS_PROXY $proxyroute
         cf set-env $appName http_proxy $proxyroute
@@ -74,7 +60,7 @@ function setHTTPProxy() {
         needsRestage=1
     elif [ "$1" = "0" ]; then
         echo "Setting http_proxy to empty"
-        cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1
+        cf target -s $appSpace -o $ORG > /dev/null 2>&1
         cf unset-env $appName https_proxy
         cf unset-env $appName HTTPS_PROXY
         cf unset-env $appName http_proxy
@@ -82,8 +68,6 @@ function setHTTPProxy() {
         needsRestage=1
     fi;
 }
-
-setHTTPProxy 1
 
 # create services
 if existsCFService "${SERVICENAME}" ; then
@@ -97,30 +81,12 @@ fi
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}"
 cf push ${APPNAME} -f ./manifest-${APPNAME}.yml ## --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
 
-#### bind services (ups should be bound already, but just in case)
-###echo Binding s3 and user provided service
-###cf bind-service ${APPNAME} ${SERVICENAME}
-###
-#### collect info about s3 service
-###echo Collecting some info about s3
-###VCAP_SERVICES=$(cf env "$APPNAME" | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
-###BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.bucket")
-###ACCESS_KEY_ID=$(     echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.access_key_id" | uniq )
-###REGION=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
-###SECRET_ACCESS_KEY=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.secret_access_key" | uniq )
-###
-#### update user service
-###echo Updating ${SERVICENAME} with s3 info
-###
-###printf -v S3_SERVICE_DATA "{\"AWS_ACCESS_KEY_ID\":\"$ACCESS_KEY_ID\", \"AWS_BUCKET\":\"$BUCKET\", \"AWS_BUCKET_PATH\":\"$AWS_BUCKET_PATH\", \"AWS_REGION\":\"$REGION\", \"AWS_SECRET_ACCESS_KEY\":\"$SECRET_ACCESS_KEY\", }"
-###
-#### convert data to json because I can't get uups to format correctly otherwise
-###echo $S3_SERVICE_DATA | jq '.' > ${APPNAME}-vcapsecrets.json
-###
-###cf uups ${APPNAME}Services -p ${APPNAME}-vcapsecrets.json
-###
-#### restart for variables
-###echo Restarting ${APPNAME}
-###cf restart ${APPNAME}
+$SCRIPT_DIR/setup-egress-for-apps ${APPNAME} --no-restart
+
+setHTTPProxy 1
+
+# restart for variables
+echo Restarting ${APPNAME}
+cf restart ${APPNAME}
 
 popspace
