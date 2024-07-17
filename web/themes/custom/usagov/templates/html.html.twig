@@ -43,6 +43,9 @@
 {% endif %}
 <link rel="preconnect" href="https://script.crazyegg.com" crossorigin>
 <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+<link rel="preload" as="image" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_720w')) }}">
+<link rel="preload" as="image" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_960w')) }}">
+<link rel="preload" as="image" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1440w')) }}">
 <head-placeholder token="{{ placeholder_token|raw }}">
 <title>{{ head_title|safe_join(' | ') }}</title>
   <css-placeholder token="{{ placeholder_token|raw }}">
