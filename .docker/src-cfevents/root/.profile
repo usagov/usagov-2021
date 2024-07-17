@@ -1,5 +1,7 @@
 # ~/.profile: executed by Bourne-compatible login shells.
 
+CF_SPACE=${1:-dr}
+
 if [ "$BASH" ]; then
   if [ -f ~/.bashrc ]; then
     . ~/.bashrc
@@ -34,10 +36,20 @@ export AWS_DEFAULT_REGION=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials
 
 CF_API="https://api.fr.cloud.gov"
 CF_ORG=gsa-tts-usagov
-CF_SPACE=dev
 
 cf api "$CF_API"
 cf auth "$CF_USERNAME" "$CF_PASSWORD"
 cf target -o "$CF_ORG" -s "$CF_SPACE"
+
+### aws cli does not want proxy envs
+function aws_cp() {
+   src=$1
+   dst=$2
+   local HTTP_PROXY=
+   local HTTPS_PROXY=
+   local http_proxy=
+   local https_proxy=
+   aws s3 cp $src $dst
+}
 
 echo "CFEvents App Setup Complete"

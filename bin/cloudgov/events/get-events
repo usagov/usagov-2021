@@ -128,8 +128,9 @@ for resource_type in ${!AUDIT_TYPES[@]}; do
           captured_events=$(echo "$captured_events" | sed "s/$SPACE_GUID/${SPACE_GUIDS[$SPACE_GUID]}/")
         done
 
-        echo "$captured_events"
-
+        if [ "$captured_events" != "" ]; then
+          echo "$captured_events"
+        fi
         NEXT=$(echo $EVENTS | jq -r '.next_url')
     done
 done

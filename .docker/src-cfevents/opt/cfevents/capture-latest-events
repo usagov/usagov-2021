@@ -1,10 +1,12 @@
 #!/bin/env bash
 
-SPACE=${1:-dev}
+SPACE=${1:-dr}
+
+source ~/.profile &> /dev/null
 
 DATEFILE=logs.lastrun
 rm -f /tmp/$DATEFILE
-aws s3 cp s3://$S3_BUCKET/cfevents/$DATEFILE /tmp/ &>/dev/null
+aws_cp  s3://$S3_BUCKET/cfevents/${SPACE}/$DATEFILE /tmp/ &>/dev/null
 if [ -f /tmp/$DATEFILE ]; then
     CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -r /tmp/$DATEFILE)
 else
@@ -15,5 +17,5 @@ touch /tmp/$DATEFILE
 CFEVENTS_THISRUN=$(TZ=UTC date +"%Y-%m-%dT%H%M%SZ" -r /tmp/$DATEFILE)
 /opt/cfevents/get-events $SPACE $CFEVENTS_LASTRUN | tee /tmp/cfevents.${CFEVENTS_THISRUN}.log
 
-aws s3 cp /tmp/$DATEFILE s3://$S3_BUCKET/cfevents/${SPACE}/
-aws s3 cp /tmp/cfevents.${CFEVENTS_THISRUN}.log s3://$S3_BUCKET/cfevents/${SPACE}/
+aws_cp  /tmp/$DATEFILE s3://$S3_BUCKET/cfevents/${SPACE}/
+aws_cp  /tmp/cfevents.${CFEVENTS_THISRUN}.log s3://$S3_BUCKET/cfevents/${SPACE}/

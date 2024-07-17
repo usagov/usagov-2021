@@ -33,8 +33,8 @@ shift
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
-APPNAME="cfevents"
-#SERVICENAME="${appname}services"
+export APPNAME="cfevents"
+export SERVICENAME="${appname}Services"
 
 assertRequires 'jq'
 
@@ -85,12 +85,6 @@ function setHTTPProxy() {
 
 setHTTPProxy 1
 
-exit
-
-
-
-
-
 # create services
 if existsCFService "${SERVICENAME}" ; then
   echo ${SERVICENAME} already created
@@ -101,32 +95,32 @@ fi
 
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}"
-cf push ${APPNAME} -f ./manifest-${APPNAME}.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
+cf push ${APPNAME} -f ./manifest-${APPNAME}.yml ## --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
 
-# bind services (ups should be bound already, but just in case)
-echo Binding s3 and user provided service
-cf bind-service ${APPNAME} ${SERVICENAME}
-
-# collect info about s3 service
-echo Collecting some info about s3
-VCAP_SERVICES=$(cf env "$APPNAME" | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
-BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.bucket")
-ACCESS_KEY_ID=$(     echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.access_key_id" | uniq )
-REGION=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
-SECRET_ACCESS_KEY=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.secret_access_key" | uniq )
-
-# update user service
-echo Updating ${SERVICENAME} with s3 info
-
-printf -v S3_SERVICE_DATA "{\"AWS_ACCESS_KEY_ID\":\"$ACCESS_KEY_ID\", \"AWS_BUCKET\":\"$BUCKET\", \"AWS_BUCKET_PATH\":\"$AWS_BUCKET_PATH\", \"AWS_REGION\":\"$REGION\", \"AWS_SECRET_ACCESS_KEY\":\"$SECRET_ACCESS_KEY\", }"
-
-# convert data to json because I can't get uups to format correctly otherwise
-echo $S3_SERVICE_DATA | jq '.' > ${APPNAME}-vcapsecrets.json
-
-cf uups ${APPNAME}Services -p ${APPNAME}-vcapsecrets.json
-
-# restart for variables
-echo Restarting ${APPNAME}
-cf restart ${APPNAME}
+#### bind services (ups should be bound already, but just in case)
+###echo Binding s3 and user provided service
+###cf bind-service ${APPNAME} ${SERVICENAME}
+###
+#### collect info about s3 service
+###echo Collecting some info about s3
+###VCAP_SERVICES=$(cf env "$APPNAME" | sed -n -e "/VCAP_SERVICES/,\$p" | sed -e "/VCAP_APPLICATION:/,\$d" | sed 's/VCAP_SERVICES: //g' | jq -r )
+###BUCKET=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.bucket")
+###ACCESS_KEY_ID=$(     echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.access_key_id" | uniq )
+###REGION=$(            echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
+###SECRET_ACCESS_KEY=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.secret_access_key" | uniq )
+###
+#### update user service
+###echo Updating ${SERVICENAME} with s3 info
+###
+###printf -v S3_SERVICE_DATA "{\"AWS_ACCESS_KEY_ID\":\"$ACCESS_KEY_ID\", \"AWS_BUCKET\":\"$BUCKET\", \"AWS_BUCKET_PATH\":\"$AWS_BUCKET_PATH\", \"AWS_REGION\":\"$REGION\", \"AWS_SECRET_ACCESS_KEY\":\"$SECRET_ACCESS_KEY\", }"
+###
+#### convert data to json because I can't get uups to format correctly otherwise
+###echo $S3_SERVICE_DATA | jq '.' > ${APPNAME}-vcapsecrets.json
+###
+###cf uups ${APPNAME}Services -p ${APPNAME}-vcapsecrets.json
+###
+#### restart for variables
+###echo Restarting ${APPNAME}
+###cf restart ${APPNAME}
 
 popspace
