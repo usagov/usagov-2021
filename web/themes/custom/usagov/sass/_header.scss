@@ -6,6 +6,16 @@
   @include u-bg('gray-5');
 }
 
+.usa-banner__icon {
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
+.usa-banner__header-flag {
+  height: 1rem;
+  width: 1rem;
+}
+
 .usa-banner__button-text,
 .usa-banner__button-text:hover {
  @include u-text('blue-warm-70v');
@@ -32,41 +42,6 @@
 .usa-banner__button[aria-expanded="true"]:hover:visited::after {
   background-color: $dark-gray;
 }
-
-// info banner
-// .usa-header--extended .usa-alert__body {
-//   @include at-media($theme-header-min-width) {
-//     max-width: 74.25rem;
-//     margin-right: auto;
-//     margin-left: auto;
-//     padding-left: 3.2rem;
-//     padding-right: 3.2rem;
-//     display: block;
-//     font-size: 0.9rem;
-//   }
-
-//   padding-left: 2.2rem;
-//   padding-right: 2.2rem;
-//   display: block;
-//   font-size: 0.9rem;
-// }
-
-// // emergency banner header
-// .usa-header--extended .usa-alert--error {
-//   @include u-text('white');
-//   border-left-color: color("red-70v");
-//   @include u-bg('red-70v');
-// }
-
-// // emergency banner header
-// .usa-header--extended .usa-alert--error a {
-//   @include u-text('white');
-// }
-
-// // info banner header
-// .usa-header--extended .usa-alert--info {
-//   border-left-color: color('cyan-5');
-// }
 
 // Slim site banner
 @include at-media($theme-header-min-width) {
@@ -151,17 +126,22 @@
 .usa-header--extended .usa-logo img {
   max-width: none;
   width: 3.2rem;
+  max-height: none;
+  height: 3.2rem;
 
   @include at-media($theme-header-min-width) {
     width: 5rem;
+    height: 5rem;
   }
 }
 
 .usa-header--extended .usa-logo img.es {
   width: 8rem;
+  height: 3.2rem;
 
   @include at-media($theme-header-min-width) {
     width: 12.3rem;
+    height: 5rem;
   }
 }
 
