@@ -1,6 +1,7 @@
 #!/usr/bin/env drush
 <?php
 
+use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 
 // Create English and Spanish landing pages.
@@ -55,11 +56,43 @@ if ($spanishNid) {
 }
 
 // relate English to Spanish
+\Drush\Drush::output()->writeln("<info>Linking English page to Spanish page</info>");
 $englishPage->set('field_language_toggle', $spanishPage->id());
 $englishPage->save();
-// relate Spanish to English t
+// relate Spanish to English to Spanish
+\Drush\Drush::output()->writeln("<info>Linking Spanish page to English page</info>");
 $spanishPage->set('field_language_toggle', $englishPage->id());
 $spanishPage->save();
+
+\Drush\Drush::output()->writeln("<info>Adding callout to /benefits page</info>");
+$benefitsPage = getNodeForPath('/benefits');
+$benefitsPage->set('field_benefits_callout_descr', 'Do a customized search for benefits you may qualify for');
+$benefitsPage->set('field_benefits_callout_button', 'Begin benefits search');
+$benefitsPage->set('field_benefits_callout_ref', $englishPage->id());
+$benefitsPage->save();
+
+\Drush\Drush::output()->writeln("<info>Adding callout to /es/beneficios-gobierno page</info>");
+$benefitsSpanishPage = getNodeForPath('/beneficios-gobierno', 'es');
+$benefitsSpanishPage->set('field_benefits_callout_descr', 'Haga una búsqueda personalizada de los beneficios a los que podría calificar');
+$benefitsSpanishPage->set('field_benefits_callout_button', 'Encuentre beneficios');
+$benefitsSpanishPage->set('field_benefits_callout_ref', $englishPage->id());
+$benefitsSpanishPage->save();
+
+\Drush\Drush::output()->writeln("<info>Adding callout to English version of home page</info>");
+$homePage = Node::load(1);
+$homePage->set('field_homepage_benefits_title', 'Government benefits and financial assistance');
+$homePage->set('field_homepage_benefits_descr', 'Discover government benefits that you may be eligible for and learn how to apply');
+$homePage->set('field_homepage_benefits_button', 'Begin benefits search');
+$homePage->set('field_homepage_benefits_ref', $englishPage->id());
+$homePage->save();
+
+\Drush\Drush::output()->writeln("<info>Adding callout to Spanish version of home page</info>");
+$translation = $homePage->getTranslation('es');
+$translation->set('field_homepage_benefits_title', 'Ayuda económic y beneficios del Gobierno');
+$translation->set('field_homepage_benefits_descr', 'Encuentre información sobre los programas de ayuda del Gobierno de EE. UU., requisitos para solicitar beneficios, cóomo y dónde aplicar');
+$translation->set('field_homepage_benefits_button', 'Encuentre beneficios');
+$translation->set('field_homepage_benefits_ref', $spanishPage->id());
+$translation->save();
 
 function getTermMap(string $vid) {
   $terms = \Drupal::entityTypeManager()
@@ -100,4 +133,16 @@ function createBasicPage(
 
   \Drush\Drush::output()->writeln("<info>Creating ${title} Page</info>");
   return $node;
+}
+
+function getNodeForPath(string $path, ?string $langcode = null): Node
+{
+  $alias  = \Drupal::service('path_alias.manager')->getPathByAlias($path, $langcode);
+  $params = Url::fromUri("internal:" . $alias)->getRouteParameters();
+
+  if ($params['node']) {
+    return Node::load($params['node']);
+  }
+
+  throw new RuntimeException("Node for $path not found.");
 }
