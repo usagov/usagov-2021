@@ -27,8 +27,6 @@ regions:
 
 libraries:
   - 'usagov/global-styling'
-  - 'usagov/wizard'
-  - 'usagov/wizardstep'
 
 ckeditor_stylesheets:
   - css/styles.css

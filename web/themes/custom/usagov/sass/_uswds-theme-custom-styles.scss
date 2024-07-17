@@ -43,6 +43,7 @@ i.e.
 @forward "state-directory";
 @forward "benefit-search";
 @forward "benefits-block";
+@forward "wizard";
 
 .line-height-2 {
   line-height: 2;
@@ -748,6 +749,20 @@ select:not([disabled]):focus,
 .slick-dots > li > button > .slick-dot-icon:focus {
   outline: 0.25rem solid $blue-outer-focus;
   outline-offset: 0;
+}
+
+// Common styles between All topics cards and the cards in Primary pages
+.homepage-card,
+.usagov-card {
+  border-radius: 0;
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: 1px 1px 7px #aaa;
+  @include u-border('cyan-50v');
+
+  &:hover {
+    @include u-bg('cyan-10');
+  }
 }
 
 .usagov-button {

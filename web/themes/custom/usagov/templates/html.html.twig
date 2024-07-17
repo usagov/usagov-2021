@@ -49,6 +49,8 @@
   <js-placeholder token="{{ placeholder_token|raw }}">
   {% if node.id is defined %}
     {{ node.field_header_html.value|raw }}
+  {% elseif header_html %}
+    {{ header_html|raw }}
   {% endif %}
   {% if nodetype == "basic_page" %}
     <script id="taxonomy-data">

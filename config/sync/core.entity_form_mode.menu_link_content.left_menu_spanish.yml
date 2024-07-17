@@ -1,0 +1,11 @@
+uuid: c65b272c-e9b3-4ee6-a226-55a94ab9f3a5
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_link_content
+id: menu_link_content.left_menu_spanish
+label: left-menu-spanish
+description: ''
+targetEntityType: menu_link_content
+cache: true
