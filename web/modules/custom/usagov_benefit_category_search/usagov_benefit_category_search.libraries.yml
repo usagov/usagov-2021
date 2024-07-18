@@ -1,0 +1,5 @@
+lifeEventRefLanguageFilter:
+  js:
+    js/lifeEventRefLanguageFilter.js: {}
+  dependencies:
+    - core/jquery
