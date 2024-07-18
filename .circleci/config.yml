@@ -524,6 +524,25 @@ workflows:
 
   try-snapshot-backup:
     jobs:
+      - approve-snapshot-backup-dr:
+          type: approval
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-DR-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+      - run-snapshot-backup-dr:
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-DR-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+          requires:
+            - approve-snapshot-backup-dr
       - approve-snapshot-backup-dev:
           type: approval
           filters:
@@ -613,6 +632,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1557-cf-logs-to-new-relic
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -623,6 +643,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1557-cf-logs-to-new-relic
       - approve-dev-deployment:
           type: approval
           requires:
@@ -639,6 +660,7 @@ workflows:
             branches:
               only:
               - dr
+              - USAGOV-1557-cf-logs-to-new-relic
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -653,6 +675,7 @@ workflows:
             branches:
               only:
               - dr
+              - USAGOV-1557-cf-logs-to-new-relic
       - approve-stage-deployment:
           type: approval
           requires:
