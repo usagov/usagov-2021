@@ -5,11 +5,15 @@
 .benefits-category-list {
   margin-left: calc(-0.5 * (100vw - 100%));
   margin-right: calc(-0.5 * (100vw - 100%));
-  @include u-padding-top('205');
+  padding-top: 1.75rem;
   padding-bottom: 75px;
   padding-left: calc(0.5 * (100vw - 100%));
   padding-right: calc(0.5 * (100vw - 100%));
   background-color: color("cyan-5");
+
+  @media (min-width: 700px) {
+    padding-top: 2.75rem;
+  }
 }
 
 .benefits-category-list .usa-checkbox {
@@ -224,4 +228,5 @@ p.benefit-finder__desc {
 
 h2#categories-label {
   @include u-font-family('serif');
+  margin-top: 0;
 }
