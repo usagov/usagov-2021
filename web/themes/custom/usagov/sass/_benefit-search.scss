@@ -47,11 +47,21 @@
   }
 }
 
+.benefits-category-list .button-group {
+  display: flex;
+  gap: 0.625rem;
+  flex-direction: column;
+  @media (min-width: 700px) {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+}
+
 .benefits-category-list .usa-button {
   background-color: usagov('benefit-search-button');
   border: 1px solid color('black');
   @include u-width('full');
-  margin-bottom: 10px;
+  margin-right: 0;
   @media (min-width: 700px) {
     width: fit-content;
     @include u-margin-bottom(0);
