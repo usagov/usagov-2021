@@ -719,7 +719,7 @@ display:
             utf8_bom: '0'
             use_serializer_encode_only: false
       display_extenders: {  }
-      path: benefits-search/%langcode/life-events.json
+      path: _data/benefits-search/%langcode/life-events.json
       filename: ''
       automatic_download: false
       store_in_public_file_directory: false
