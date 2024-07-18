@@ -88,9 +88,9 @@ function usagov_benefit_category_search_preprocess_html(&$vars) {
   $node = \Drupal::routeMatch()->getParameter('node');
   if ($node instanceof Node && $node->getType() === 'basic_page') {
     $pageType = $node->field_page_type->referencedEntities()[0]->getName();
-    $vars['allowsBenefitCategories'] = false;
+    $vars['allowsBenefitCategories'] = FALSE;
     if ($pageType === 'Standard Page') {
-      $vars['allowsBenefitCategories'] = true;
+      $vars['allowsBenefitCategories'] = TRUE;
       // Provide list of categories for this page to gtm via taxonomy-data
       if ($terms = $node->field_benefits_category->referencedEntities()) {
         $benefitCategories = array_map(fn(Term $term) => $term->getName(), $terms);
