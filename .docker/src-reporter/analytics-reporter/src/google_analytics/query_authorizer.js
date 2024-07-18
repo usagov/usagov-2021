@@ -19,10 +19,8 @@ class GoogleAnalyticsQueryAuthorizer {
     return new Promise((resolve, reject) => {
       jwt.authorize((err) => {
         if (err) {
-          console.log("here's the error");
           reject(err);
         } else {
-          console.log("no error here");
           resolve(query);
         }
       });

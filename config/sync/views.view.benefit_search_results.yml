@@ -837,7 +837,7 @@ display:
               raw_output: true
       display_description: ''
       display_extenders: {  }
-      path: benefits-search/%langcode/pages.json
+      path: _data/benefits-search/%langcode/pages.json
       filename: ''
       automatic_download: false
       store_in_public_file_directory: false
