@@ -6,3 +6,4 @@ name: 'USWDS Breakpoints'
 vid: uswds_breakpoints
 description: 'breakpoints pulled directly from USWDS.'
 weight: 0
+new_revision: false
