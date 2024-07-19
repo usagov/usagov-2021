@@ -104,7 +104,7 @@
 
 .benefits-result-categories {
   @include u-padding-top(0);
-  @include u-padding-bottom(1.5rem);
+  @include u-padding-bottom(1.25rem);
 
   @include at-media('desktop') {
     @include u-padding-top('205');
