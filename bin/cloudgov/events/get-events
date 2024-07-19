@@ -27,11 +27,18 @@ fi
 
 ### NOTE: the SPACE argument is for telling the cf log API to filter the request by org and space guid.
 ###       This appears not to work, as we are getting logs for all spaces.  Perhaps the query is incorrect?
-SPACE=${1:-NONE_SPECIFIED}
+SPACE=${1:-none_specified}
 SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 if [ $SPACE = 'none_specified' ]; then
   echo "Please provide a CF Space name as the first argument"
   exit 3
+else
+  SFAIL=0
+  cf space $SPACE &>/dev/null || SFAIL=1
+  if [ $SFAIL = 1 ]; then
+    echo "ERROR: CF space '$SPACE' does not exist!"
+    exit 4
+  fi
 fi
 shift
 
@@ -50,39 +57,24 @@ function popspace() {
 trap popspace EXIT
 trap popspace ERR
 
-SFAIL=0
-cf space $SPACE &>/dev/null || SFAIL=1
-if [ $SFAIL = 1 ]; then
-  echo "ERROR: CF space '$SPACE' does not exist!"
-  exit 4
-fi
-
 SPACE_GUID=$(cf space $SPACE --guid)
 
 cf target -s $SPACE &>/dev/null
 
 declare -A SPACE_GUIDS=()
-if [  1 -eq 1 ]; then
-  for SPACE in dev stage prod shared-egress shared-egress-dr tools; do
-    if [ ! cf space $SPACE &> /dev/null ]; then
-      echo "ERROR: CF space '$SPACE' does not exist!"
-#      exit 4
-    else
-      SPACE_GUID=$(cf space $SPACE --guid)
-      SPACE_GUIDS[$SPACE_GUID]=$SPACE
-    fi
-  done
+# Keep the code needed to query multiple spaces for events. Not working now, but may be possible.
+#  for SPACE in dev stage prod shared-egress shared-egress-dr tools; do
+for SPC in $SPACE; do
+  if [ ! cf space $SPC &> /dev/null ]; then
+    echo "ERROR: CF space '$SPC' does not exist!"
+  else
+    SPACE_GUID=$(cf space $SPC --guid)
+    SPACE_GUIDS[$SPACE_GUID]=$SPC
+  fi
+done
 
-### FIXME:  Much faster.  But please usse only during testing!
-else
-  SPACE_GUIDS['34c660a9-0c3d-4798-8c57-c75e8252945f']="stage"
-  SPACE_GUIDS['ea450105-895e-4a33-9541-6a0df35ee626']="dev"
-  SPACE_GUIDS['eb4b21d8-77f0-452b-a317-22d5f2dc976e']="tools"
-  SPACE_GUIDS['f717b614-a1ab-460e-bb50-6f3733700ea9']="prod"
-  SPACE_GUIDS['d8e00e34-5101-460c-9962-582349b9a9e9']="dev-dr"
-  SPACE_GUIDS['940eff23-9f55-406c-8514-0456cd23e360']="shared-egress"
-  SPACE_GUIDS['ba235eab-3bda-4468-8e39-dfa3a67c9c6f']="shared-egress-dr"
-fi
+CURRENT_ORG=$(cf target | grep org: | awk '{ print $2 }')
+export ORG_GUID=$(cf org $CURRENT_ORG --guid)
 
 ### We'll request logs generated after LAST_EVENT_TIME.  If nothing was 
 ### specified on the command line, start from 24 hours ago
@@ -93,10 +85,6 @@ if [ -n "$LAST_EVENT_TIME" ]; then
 else
   LAST_EVENT_TIME=$(TZ=UTC date -d "now - 24 hours" +"%Y-%m-%dT%H:%M:%SZ")
 fi
-
-CURRENT_ORG=$(cf target | grep org: | awk '{ print $2 }')
-
-export ORG_GUID=$(cf org $CURRENT_ORG --guid)
 
 declare -rA AUDIT_TYPES=(
     ["app"]="audit.app.create,audit.app.start,audit.app.restage,audit.app.stop,audit.app.delete"
@@ -119,7 +107,7 @@ for resource_type in ${!AUDIT_TYPES[@]}; do
     types=${AUDIT_TYPES[$resource_type]}
     fields=${AUDIT_FIELDS[$resource_type]}
 
-    NEXT="/v2/events?&q=type+IN+${types}&q=organization_guid:${ORG_GUID}&a=space_guid:${SPACE_GUID}&q=timestamp>${LAST_EVENT_TIME}&order-by:timestamp"
+    NEXT="/v2/events?&q=type+IN+${types}&q=organization_guid:${ORG_GUID}&q=space_guid:${SPACE_GUID}&q=timestamp>${LAST_EVENT_TIME}&order-by:timestamp"
 
     while [ -n $NEXT -a ! $NEXT == 'null' ]; do
 
