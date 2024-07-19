@@ -1,0 +1,25 @@
+uuid: 72c4ad17-351b-43a7-9864-e78e95fccc5b
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.wizard_step_test
+  module:
+    - views
+  theme:
+    - usagov
+id: views_block__wizard_step_test_block_1
+theme: usagov
+region: content
+weight: 0
+provider: null
+plugin: 'views_block:wizard_step_test-block_1'
+settings:
+  id: 'views_block:wizard_step_test-block_1'
+  label: ''
+  label_display: '0'
+  provider: views
+  context_mapping: {  }
+  views_label: ''
+  items_per_page: none
+visibility: {  }
