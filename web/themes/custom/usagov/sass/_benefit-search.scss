@@ -85,12 +85,20 @@
   }
 }
 
-.benefits-search-results .page .benefits-result:first-of-type h3:first-of-type {
-  @include u-margin-top(0);
+.benefits-search-results .page h2 {
+  margin-bottom: 0.5rem;
 }
 
 .benefits-result {
   border-bottom: 2px solid color('gray-20');
+}
+
+.benefits-result-text h3 {
+  @include u-margin-bottom(0.625rem);
+}
+
+.benefits-result-text p:first-of-type {
+ @include u-margin-top(0);
 }
 
 .benefits-result-categories {
@@ -103,7 +111,7 @@
 
 .benefits-result-categories h3 {
   @include u-margin-top(0);
-  margin-bottom: 0.5rem;
+  @include u-margin-bottom(0.625rem);
   font-size: 1.1rem;
 }
 
@@ -112,7 +120,7 @@
   padding: 0.25rem 0.5rem;
   margin-right: 0.5rem;
   margin-bottom: 0.5rem;
-  background-color: usagov('benefit-category-cyan-background');
+  background-color: color('cyan-5');
 }
 
 .benefits-result-text {
