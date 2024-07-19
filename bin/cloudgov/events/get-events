@@ -1,7 +1,5 @@
 #!/bin/env bash
 
-source ~/.profile &> /dev/null
-
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
@@ -32,15 +30,15 @@ SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 if [ $SPACE = 'none_specified' ]; then
   echo "Please provide a CF Space name as the first argument"
   exit 3
-else
-  SFAIL=0
-  cf space $SPACE &>/dev/null || SFAIL=1
-  if [ $SFAIL = 1 ]; then
-    echo "ERROR: CF space '$SPACE' does not exist!"
-    exit 4
-  fi
 fi
 shift
+
+SFAIL=0
+cf space $SPACE &>/dev/null || SFAIL=1
+if [ $SFAIL = 1 ]; then
+  echo ": CF space '$SPACE' does not exist!"
+  exit 4
+fi
 
 # Grab the starting space and org where the command was run
 startorg=$(     cf target | grep org:   | awk '{ print $2 }')
@@ -115,9 +113,9 @@ for resource_type in ${!AUDIT_TYPES[@]}; do
 
         captured_events=$(echo "$EVENTS" | jq -r ".resources[] | [$fields] | @csv")
 
-        for SPACE_GUID in "${!SPACE_GUIDS[@]}"; do
-          captured_events=$(echo "$captured_events" | sed "s/$SPACE_GUID/${SPACE_GUIDS[$SPACE_GUID]}/")
-        done
+#        for SPACE_GUID in "${!SPACE_GUIDS[@]}"; do
+#          captured_events=$(echo "$captured_events" | sed "s/$SPACE_GUID/${SPACE_GUIDS[$SPACE_GUID]}/")
+#        done
 
         if [ "$captured_events" != "" ]; then
           echo "$captured_events"

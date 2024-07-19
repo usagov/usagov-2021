@@ -2,14 +2,20 @@
 
 SPACE=${1:-dr}
 
-source ~/.profile &> /dev/null
+source ~/.profile $SPACE &> /dev/null
 
+echo SPACE REQUESTED        $SPACE
 echo CF_API                 $CF_API
 echo CF_USERNAME            $CF_USERNAME
 echo
 echo S3_BUCKET              $S3_BUCKET
 echo S3_ENDPOINT            $S3_ENDPOINT
 echo
+echo HTTP_PROXY             $HTTP_PROXY
+echo HTTPS_PROXY            $HTTPS_PROXY 
+echo http_proxy             $http_proxy
+echo https_proxy            $https_proxy
+
 cf -v
 echo
 cf t

@@ -2,7 +2,7 @@
 
 SPACE=${1:-dr}
 
-source ~/.profile &> /dev/null
+source ~/.profile $SPACE &> /dev/null
 
 DATEFILE=logs.lastrun
 rm -f /tmp/$DATEFILE
