@@ -6,3 +6,4 @@ name: 'Page Type'
 vid: page_type
 description: ''
 weight: 0
+new_revision: false
