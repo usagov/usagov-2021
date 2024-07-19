@@ -361,18 +361,30 @@ function usagov_preprocess_block(&$variables) {
         if (strncmp($data->url, "base:", 5) === 0) {
           $data->url = "/" . substr($data->url, 5);
         }
+
+        /* If this is an exernal link, don't run the operator logic to check
+        for description fields.*/
+        $external_description = $menuItem['description'];
       }
 
-      // Get Description (Optional Field - A catch on this shouldn't trigger a catch on title or url)
+      /* Get Description (Optional Field -
+      A catch on this shouldn't trigger a catch on title or url).*/
       try {
-        if ($childEntity->hasField('field_short_description') && $childEntity->get('field_short_description')->value != "") {
-          $data->description = $childEntity->get('field_short_description')->value;
-        }
-        elseif ($childEntity->hasField('field_page_intro') && $childEntity->get('field_page_intro')->value != "") {
-          $data->description = $childEntity->get('field_page_intro')->value;
+        if (!isset($external_description)) {
+          if ($childEntity->hasField('field_short_description') && $childEntity->get('field_short_description')->value != "") {
+            $data->description = $childEntity->get('field_short_description')->value;
+          }
+          elseif ($childEntity->hasField('field_page_intro') && $childEntity->get('field_page_intro')->value != "") {
+            $data->description = $childEntity->get('field_page_intro')->value;
+          }
+          else {
+            $data->description = $childEntity->get('field_meta_description')->value;
+          }
         }
         else {
-          $data->description = $childEntity->get('field_meta_description')->value;
+          $data->description = $external_description;
+          // Unset the variable so the next loop will check for this fresh.
+          unset($external_description);
         }
       }
       catch (Exception $e) {
