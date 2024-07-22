@@ -22,9 +22,13 @@ function popspace() {
 
 trap popspace err
 
+cf t -s $DEPLOY_SPACE
+
 bin/cloudgov/container-build-${APP}
 bin/cloudgov/container-push-${APP}
+
 bin/cloudgov/deploy-${APP} $DEPLOY_SPACE
+
 cf restage ${APP}
 
 popspace

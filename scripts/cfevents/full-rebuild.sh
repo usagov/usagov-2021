@@ -18,7 +18,6 @@ function popspace() {
     echo "Popspace: ${startorg}/${startspace}"
     cf target -o "$startorg" -s "$startspace" > /dev/null 2>&1
 }
-# trap popspace exit
 
 trap popspace err
 
@@ -26,14 +25,10 @@ cf t -s $DEPLOY_SPACE
 cf delete-service ${APP}-service-account -f
 cf delete ${APP} -f
 
-#aws s3 rm --recursive s3://$S3_BUCKET/cfevents/$DEPLOY_SPACE/ 
-
 bin/cloudgov/container-build-${APP}
 bin/cloudgov/container-push-${APP}
 
 bin/cloudgov/deploy-${APP} $DEPLOY_SPACE
-
-#scripts/${APP}/service-user-share.sh
 
 cf restage ${APP}
 
