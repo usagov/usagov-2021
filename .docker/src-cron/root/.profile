@@ -22,8 +22,8 @@ if [ ! -f ~/.certs-updated ]; then
    touch ~/.certs-updated
 fi
 
-CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cfevents-service-account") | .credentials.username';)
-CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cfevents-service-account") | .credentials.password')
+CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.username';)
+CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.password')
 
 S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
 S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.fips_endpoint')
@@ -52,4 +52,4 @@ function aws_cp() {
    aws s3 cp $src $dst
 }
 
-echo "CFEvents App Setup Complete"
+echo "Cron App Setup Complete"

@@ -16,22 +16,22 @@ cf t
 echo
 
 DATEFILE=logs.lastrun
-$echo aws_cp s3://$S3_BUCKET/cfevents/${SPACE}/$DATEFILE /tmp/test.datefile &>/dev/null
+$echo aws_cp s3://$S3_BUCKET/cron/${SPACE}/$DATEFILE /tmp/test.datefile &>/dev/null
 
 if [ -f /tmp/test.datefile ]; then
     echo pulled last query date from s3.
-    CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -r /tmp/test.datefile)
+    CRON_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -r /tmp/test.datefile)
 else
     echo No previous query datein s3.  initializing start date of query to 2 months ago.
-    CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d "2 months ago")
+    CRON_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d "2 months ago")
 fi
 
-echo CFEVENTS_LASTRUN       $CFEVENTS_LASTRUN
+echo CRON_LASTRUN       CRON_LASTRUN
 
 touch /tmp/test.datefile
 
-CFEVENTS_THISRUN=$(TZ=UTC date +"%Y-%m-%dT%H%M%SZ" -r /tmp/test.datefile)
+CRON_THISRUN=$(TZ=UTC date +"%Y-%m-%dT%H%M%SZ" -r /tmp/test.datefile)
 
-echo CFEVENTS_THISRUN       $CFEVENTS_THISRUN
+echo CRON_THISRUN       CRON_THISRUN
 
 rm /tmp/test.datefile
