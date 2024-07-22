@@ -1,0 +1,14 @@
+---
+version: 1
+applications:
+- name: cron
+  docker:
+    image: gsatts/usagov-2021:cron
+  memory: 256M
+  disk_quota: 4G
+  timeout: 180
+  services:
+    - secrets
+    - secauthsecrets
+    - storage
+  health-check-type: process
