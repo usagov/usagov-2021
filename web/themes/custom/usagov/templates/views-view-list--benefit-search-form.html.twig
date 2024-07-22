@@ -19,6 +19,7 @@
  */
 #}
 {% set lang = node.langcode.value %}
+{% set search_id = node.field_benefits_search_id.value | trim | render %}
 {% if lang == 'en' %}
   {% set submit_label = "Apply selections" %}
   {% set reset_label = "Clear selections" %}
@@ -34,7 +35,7 @@
 {% endif %}
 {{ attach_library('usagov/benefitSearch') }}
 
-<div class="benefits-category-list" id="search">
+<div class="benefits-category-list" id="{{ search_id }}">
   {% if node.field_benefits_search_title.value | render %}
     <h2 id="categories-label">{{ node.field_benefits_search_title.value }}</h2>
   {% endif %}
