@@ -22,7 +22,7 @@ if [ ! -f ~/.certs-updated ]; then
    touch ~/.certs-updated
 fi
 
-CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cfevents-service-account") | .credentials.username';)
+CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cfevents-service-account") | .credentials.username')
 CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cfevents-service-account") | .credentials.password')
 
 S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')

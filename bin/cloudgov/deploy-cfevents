@@ -84,11 +84,11 @@ else
 fi
 
 if existsCFApp ${APPNAME} ; then
-  $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
+  $SCRIPT_DIR/setup-egress-for-apps --no-restart ${APPNAME}
   setHTTPProxy ${SPACE} ${APPNAME} 1
   cf push ${APPNAME} -f ./manifest-${APPNAME}.yml ## --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
 else
   cf push ${APPNAME} -f ./manifest-${APPNAME}.yml ## --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
   setHTTPProxy ${SPACE} ${APPNAME} 1
-  $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
+  $SCRIPT_DIR/setup-egress-for-apps --no-restart ${APPNAME}
 fi
