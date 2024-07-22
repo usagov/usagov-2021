@@ -34,7 +34,7 @@
 {% endif %}
 {{ attach_library('usagov/benefitSearch') }}
 
-<div class="benefits-category-list">
+<div class="benefits-category-list" id="search">
   {% if node.field_benefits_search_title.value | render %}
     <h2 id="categories-label">{{ node.field_benefits_search_title.value }}</h2>
   {% endif %}

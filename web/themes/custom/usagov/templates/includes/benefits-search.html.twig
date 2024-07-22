@@ -6,7 +6,7 @@
 {% set lang = node.langcode.value %}
 
 {% if node.field_benefits_life_events_title.value | render  %}
-  <h2 class="benefit-finder__title">{{ node.field_benefits_life_events_title.value }}</h2>
+  <h2 class="benefit-finder__title" id="benefit-finder">{{ node.field_benefits_life_events_title.value }}</h2>
 {% endif %}
 {% if node.field_benefits_life_events_descr.value | render %}
   <p class="benefit-finder__desc">{{ node.field_benefits_life_events_descr.value }}</p>
