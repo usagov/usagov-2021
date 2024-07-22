@@ -1,0 +1,5 @@
+export dev=ea450105-895e-4a33-9541-6a0df35ee626
+export stage=34c660a9-0c3d-4798-8c57-c75e8252945f
+export prod=f717b614-a1ab-460e-bb50-6f3733700ea9
+export shared_egress=940eff23-9f55-406c-8514-0456cd23e360
+export tools=eb4b21d8-77f0-452b-a317-22d5f2dc976e
