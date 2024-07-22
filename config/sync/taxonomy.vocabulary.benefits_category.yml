@@ -6,3 +6,4 @@ name: 'Benefits Category'
 vid: benefits_category
 description: 'Categories for searching benefits'
 weight: 0
+new_revision: false
