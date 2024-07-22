@@ -258,7 +258,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
    * Test if all the category checkboxes are ticked
    * @return boolean
    */
-  this.areAllChecked = function(){
+  this.areAllChecked = function() {
     for (const box of myself.boxes) {
       if (box.checked === false) {
         return false;
@@ -266,7 +266,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     }
     // if we get here, all must be checked
     return true;
-  }
+  };
   /**
    * Hide the indicated page
    * @param {Element} page
