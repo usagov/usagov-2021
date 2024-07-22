@@ -770,6 +770,15 @@ select:not([disabled]):focus,
   font-size: 1.1rem;
 }
 
+.usa-pagination .usa-current {
+  background-color: color('blue-warm-70v');
+}
+
+.usa-pagination__button,
+.usa-pagination__link {
+  color: color('gray-90');
+}
+
 #main-content {
   .usa-accordion__button {
     @include u-bg('gray-5');
