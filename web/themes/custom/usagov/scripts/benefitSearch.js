@@ -524,15 +524,15 @@ jQuery(document).ready(async function () {
       'showingResults': '@first@&ndash;@last@ of @totalItems@ results',
       'page': "Page",
       'next': "Next",
-      'nextAria': "Next Page",
+      'nextAria': "Next page",
       'previous': "Previous",
       'previousAria': "Previous page",
       'navAria': "Pagination",
       'lastPageAria': 'Last page',
       'emptyCategoryError': 'Error: Please select at least one or more categories',
-      'appliedCategories': 'Applied Categories',
-      'lifeEventsCategory': 'Life Events',
-      'benefitFinderCategory': 'Benefit Finder Tool'
+      'appliedCategories': 'Applied categories',
+      'lifeEventsCategory': 'Life events',
+      'benefitFinderCategory': 'Benefit finder tool'
     };
   }
   else if (docLang[0] === 'es') {
@@ -548,7 +548,7 @@ jQuery(document).ready(async function () {
       'navAria': "Paginación",
       'lastPageAria': 'Ultima página',
       'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
-      'appliedCategories': 'Categorías',
+      'appliedCategories': 'Categorías seleccionadas',
       'lifeEventsCategory': 'Etapas de la vida',
       'benefitFinderCategory': 'Buscador de beneficios'
     };
