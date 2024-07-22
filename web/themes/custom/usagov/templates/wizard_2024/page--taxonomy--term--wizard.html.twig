@@ -2,7 +2,11 @@
 
 {% extends "page.html.twig" %}
 {% block top_nav %}
-  {% include '@usagov/wizard_2024/wizard-top-nav.html.twig' %}
+  {% if lang =='es' %}
+    {% include '@usagov/wizard_2024/wizard-top-nav-es.html.twig' %}
+  {% else %}
+    {% include '@usagov/wizard_2024/wizard-top-nav.html.twig' %}
+  {% endif %}
 {% endblock %}
 
 {% block main %}
