@@ -6,3 +6,4 @@ name: 'USWDS Icons'
 vid: uswds_icons
 description: 'Icon names from the US Web Design System'
 weight: 0
+new_revision: false
