@@ -149,18 +149,30 @@
   @include u-bg('blue-warm-80v');
 }
 
+// .usa-logo {
+//   flex: none;
+// }
+
 .usa-header--extended .usa-logo {
   margin: 0.5rem;
-  width: 3.2rem;
+  width: auto;
   height: 3.2rem;
 }
 
-// This is to minimize the size of the logo in tablet and mobile
+.usa-header--extended .usa-logo img.es {
+  width: 100%;
+  height: auto;
+  max-width: none;
+  max-height: none;
+}
+
+// This is to set the size of the logo in desktop
 @media (min-width: 64em) {
   .usa-header--extended .usa-logo {
     width: 5rem;
     height: 5rem;
   }
+
 }
 
 .usa-header--extended .usa-logo img {
@@ -175,6 +187,7 @@
   width: 8rem;
   height: 3.2rem;
 
+  // set the logo size for desktop
   @include at-media($theme-header-min-width) {
     width: 12.3rem;
     height: 5rem;
@@ -357,6 +370,13 @@
 
 input#search-field-small-mobile-menu {
   background-color: white;
+}
+
+.usa-header--extended .usa-navbar {
+  overflow: inherit;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 @media (min-width: 64em) {
