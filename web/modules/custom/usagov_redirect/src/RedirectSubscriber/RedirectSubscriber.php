@@ -39,9 +39,11 @@ class RedirectSubscriber implements EventSubscriberInterface {
   public function checkForRedirection(RequestEvent $event) {
 
     $response = $event->getResponse();
+    echo "<script>console.log('Debug Objects: " . $response . "' );</script>";
 
     if (($response instanceof RedirectResponse)) {
-      $event->setResponse(new RedirectResponse('http://example.com/'));
+
+      $event->setResponse(new RedirectResponse('http://localhost/'));
       return;
     }
 
