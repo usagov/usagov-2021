@@ -28,7 +28,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    $events[KernelEvents::REQUEST][] = array('checkForRedirection');
+    $events[KernelEvents::REQUEST][] = ['checkForRedirection'];
     return $events;
   }
 
