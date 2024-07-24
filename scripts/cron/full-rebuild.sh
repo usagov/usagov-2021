@@ -1,4 +1,3 @@
-
 #!/bin/sh
 
 DEPLOY_SPACE=$1
@@ -23,9 +22,8 @@ function popspace() {
 trap popspace err
 
 cf t -s $DEPLOY_SPACE
-cf delete-service ${APP}-service-account -f
 cf delete ${APP} -f
-
+cf delete-service ${APP}-service-account -f
 bin/cloudgov/container-build-${APP}
 bin/cloudgov/container-push-${APP}
 

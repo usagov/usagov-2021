@@ -18,11 +18,11 @@ function popspace() {
     echo "Popspace: ${startorg}/${startspace}"
     cf target -o "$startorg" -s "$startspace" > /dev/null 2>&1
 }
-# trap popspace exit
 
 trap popspace err
 
 cf t -s $DEPLOY_SPACE
+cf delete ${APP} -f
 
 bin/cloudgov/container-build-${APP}
 bin/cloudgov/container-push-${APP}
