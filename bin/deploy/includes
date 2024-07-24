@@ -65,6 +65,20 @@ if [ -f $REPO_ROOT/env.local ]; then
   . $REPO_ROOT/env.local
 fi
 
+function getOrg() {
+  echo $(cf target | grep org: | awk '{ print $2 }')
+}
+
+function getOrgGUID() {
+  ORG=$1
+  echo $(cf org $ORG --guid)
+}
+
+function getSpaceGUID() {
+  space=$1
+  echo $(cf space $space --guid)
+}
+
 function envEmpty() { # list of env vars
   if [ -z "$1" ]; then # if zero length varname
     return 0; # true

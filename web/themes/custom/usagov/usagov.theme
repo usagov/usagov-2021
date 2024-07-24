@@ -295,9 +295,18 @@ function usagov_preprocess_block(&$variables) {
   /**
    * Pass node or term value to pages so they can access properties
    */
-  $entity = \Drupal::routeMatch()->getParameter('node') ?? \Drupal::routeMatch()
-    ->getParameter('taxonomy_term');
-  $variables['entity'] = $entity;
+  if (\Drupal::routeMatch()->getParameter('node')) {
+    $entity = \Drupal::routeMatch()->getParameter('node');
+    $variables['node'] = $entity;
+  }
+  elseif (\Drupal::routeMatch()
+    ->getParameter('taxonomy_term')) {
+    $entity = \Drupal::routeMatch()
+      ->getParameter('taxonomy_term');
+  }
+  else {
+    return;
+  }
 
   /**
    * Pass pagetype to pages so they can know what type of page to render
@@ -321,25 +330,26 @@ function usagov_preprocess_block(&$variables) {
     foreach ($children_of_active_menu_item as $child) {
       $data = new StdClass();
 
-      if (isset($child['url']->getRouteParameters()['node'])) {
-        $childTaxonomy = FALSE;
-        $childEntity = Node::load($child['url']->getRouteParameters()['node']);
-      }
-      elseif (isset($child['url']->getRouteParameters()['taxonomy_term'])) {
-        $childTaxonomy = TRUE;
-        $childEntity = Term::load($child['url']->getRouteParameters()['taxonomy_term']);
-      }
-      //Must get title, description and url if available; Try to get other fields
+      /* Must get title, description and url if available; Try to get other
+      fields. Get Title & URL (Required Fields- Can Call Together). */
 
-      //Get Title & URL (Required Fields- Can Call Together)
+      // Put it all in a try/catch to check for external urls.
       try {
+        if (isset($child['url']->getRouteParameters()['node'])) {
+          $childTaxonomy = FALSE;
+          $childEntity = Node::load($child['url']->getRouteParameters()['node']);
+        }
+        elseif (isset($child['url']->getRouteParameters()['taxonomy_term'])) {
+          $childTaxonomy = TRUE;
+          $childEntity = Term::load($child['url']->getRouteParameters()['taxonomy_term']);
+        }
+
         if ($childTaxonomy === TRUE) {
           $data->title = $childEntity->get('name')->value;
         }
         else {
           $data->title = $childEntity->get('title')->value;
         }
-
         $data->url = $childEntity->toUrl()->toString();
       }
 
@@ -351,18 +361,30 @@ function usagov_preprocess_block(&$variables) {
         if (strncmp($data->url, "base:", 5) === 0) {
           $data->url = "/" . substr($data->url, 5);
         }
+
+        /* If this is an exernal link, don't run the operator logic to check
+        for description fields.*/
+        $external_description = $menuItem['description'];
       }
 
-      // Get Description (Optional Field - A catch on this shouldn't trigger a catch on title or url)
+      /* Get Description (Optional Field -
+      A catch on this shouldn't trigger a catch on title or url).*/
       try {
-        if ($childEntity->hasField('field_short_description') && $childEntity->get('field_short_description')->value != "") {
-          $data->description = $childEntity->get('field_short_description')->value;
-        }
-        elseif ($childEntity->hasField('field_page_intro') && $childEntity->get('field_page_intro')->value != "") {
-          $data->description = $childEntity->get('field_page_intro')->value;
+        if (!isset($external_description)) {
+          if ($childEntity->hasField('field_short_description') && $childEntity->get('field_short_description')->value != "") {
+            $data->description = $childEntity->get('field_short_description')->value;
+          }
+          elseif ($childEntity->hasField('field_page_intro') && $childEntity->get('field_page_intro')->value != "") {
+            $data->description = $childEntity->get('field_page_intro')->value;
+          }
+          else {
+            $data->description = $childEntity->get('field_meta_description')->value;
+          }
         }
         else {
-          $data->description = $childEntity->get('field_meta_description')->value;
+          $data->description = $external_description;
+          // Unset the variable so the next loop will check for this fresh.
+          unset($external_description);
         }
       }
       catch (Exception $e) {
@@ -370,9 +392,9 @@ function usagov_preprocess_block(&$variables) {
         $data->description = $menuItem['description'];
       }
 
-      if (isset($child['url']->getRouteParameters()['node'])) {
-        // Try for other fields
-        try {
+      // Try for other fields.
+      try {
+        if (isset($child['url']->getRouteParameters()['node'])) {
           $childNid = $child['url']->getRouteParameters()['node'];
           $childNode = Node::load($childNid);
           if (
@@ -381,7 +403,7 @@ function usagov_preprocess_block(&$variables) {
             $childNode->get('field_navigation_banner_image')[0]->entity
           ) {
             $file_url_generator = \Drupal::service('file_url_generator');
-            //to allow for image_style (webp compression) to apply
+            // To allow for image_style (webp compression) to apply.
             $banner_uri = $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri();
             $data->navigation_banner_image = $banner_uri;
           }
@@ -392,9 +414,10 @@ function usagov_preprocess_block(&$variables) {
             $data->promote = $childNode->get('promote')->value;
           }
         }
-        catch (Exception $e) {
-        }
       }
+      catch (Exception $e) {
+      }
+
       array_push($nav_page_items, $data);
     }
     $variables['nav_page_items'] = $nav_page_items;
