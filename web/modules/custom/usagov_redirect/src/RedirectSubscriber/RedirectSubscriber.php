@@ -40,7 +40,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
     }
 
     // Get the URL we want to redirect to
-    $uri  = $response->getTargetUrl();
+    $uri = $response->getTargetUrl();
 
     // Set the html for the redirect pages
     $response->setContent(
