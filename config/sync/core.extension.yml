@@ -35,26 +35,29 @@ module:
   faqfield: 0
   feeds: 0
   field: 0
+  field_defaults: 0
   field_group: 0
   field_permissions: 0
   field_ui: 0
   file: 0
   filter: 0
-  google_docs_filter: 0
+  hierarchy_manager: 0
   image: 0
   jquery_ui: 0
   jquery_ui_accordion: 0
+  js_cookie: 0
   jsonapi: 0
   language: 0
   language_switcher_extended: 0
   link: 0
   log_stdout: 0
-  mail_safety: 0
   media: 0
   media_library: 0
   menu_block: 0
   menu_breadcrumb: 0
   menu_entity_index: 0
+  menu_item_fields: 0
+  menu_item_fields_ui: 0
   menu_link_content: 0
   menu_ui: 0
   mysql: 0
@@ -91,6 +94,7 @@ module:
   usa_content_moderation_notifications: 0
   usa_orphaned_entities: 0
   usa_translation: 0
+  usagov_benefit_category_search: 0
   usagov_benefit_finder: 0
   usagov_benefit_finder_api: 0
   usagov_benefit_finder_content: 0
@@ -101,6 +105,7 @@ module:
   usagov_ssg_postprocessing: 0
   usagov_top_navigation_menu: 0
   usagov_uswds_paragraph_components_mods: 0
+  usagov_wizard: 0
   user: 0
   uswds_ckeditor_integration: 0
   uswds_paragraph_components: 0

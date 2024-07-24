@@ -6,3 +6,4 @@ name: 'USWDS Colors'
 vid: uswds_colors
 description: 'color tokens from the US Web Design System'
 weight: 0
+new_revision: false

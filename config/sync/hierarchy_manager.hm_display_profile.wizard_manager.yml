@@ -1,0 +1,9 @@
+uuid: 95825687-92df-48ca-8508-98f7479a08bc
+langcode: en
+status: true
+dependencies: {  }
+id: wizard_manager
+label: 'Wizard Manager'
+plugin: hm_display_jstree
+config: '{}'
+confirm: true

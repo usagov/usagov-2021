@@ -45,7 +45,7 @@ SQLZIP=${DEPLOY_TAG}.sql.zip
 $echo bin/snapshot-backups/db-dump-download $dryrun $SPACE $DEPLOY_TAG
 
 if [ -f $SQLGZ ]; then
-   if [[ -n $(zcat -f ${SQLGZ} | head | grep 'SET NAMES utf8mb4') ]]; then
+   if [[ -n $(zcat -f ${SQLGZ} | head -18 | grep 'SET NAMES utf8mb4') ]]; then
       if [[ -n $(zcat -f ${SQLGZ} | tail | grep 'Dump completed on' ) ]]; then
         $echo bin/snapshot-backups/db-dump-push-to-snapshot $dryrun $SPACE $DEPLOY_TAG
         if [ $? != 0 ]; then

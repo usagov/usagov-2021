@@ -293,16 +293,26 @@ function usagov_preprocess_paragraph(&$variables) {
  */
 function usagov_preprocess_block(&$variables) {
   /**
-   * Pass node value to pages so they can access node-based properties
+   * Pass node or term value to pages so they can access properties
    */
-  $node = \Drupal::routeMatch()->getParameter('node');
-  $variables['node'] = $node;
+  if (\Drupal::routeMatch()->getParameter('node')) {
+    $entity = \Drupal::routeMatch()->getParameter('node');
+    $variables['node'] = $entity;
+  }
+  elseif (\Drupal::routeMatch()
+    ->getParameter('taxonomy_term')) {
+    $entity = \Drupal::routeMatch()
+      ->getParameter('taxonomy_term');
+  }
+  else {
+    return;
+  }
 
   /**
    * Pass pagetype to pages so they can know what type of page to render
    */
-  if ($node && $node->hasField('field_page_type') && $node->get('field_page_type')[0]->target_id) {
-    $pagetypeTid = $node->get('field_page_type')[0]->target_id;
+  if ($entity && $entity->hasField('field_page_type') && $entity->get('field_page_type')[0]->target_id) {
+    $pagetypeTid = $entity->get('field_page_type')[0]->target_id;
     $variables['pagetype'] = Term::load($pagetypeTid)->getName();
   }
 
@@ -319,15 +329,30 @@ function usagov_preprocess_block(&$variables) {
     $nav_page_items = [];
     foreach ($children_of_active_menu_item as $child) {
       $data = new StdClass();
-      //Must get title, description and url if available; Try to get other fields
 
-      //Get Title & URL (Required Fields- Can Call Together)
+      /* Must get title, description and url if available; Try to get other
+      fields. Get Title & URL (Required Fields- Can Call Together). */
+
+      // Put it all in a try/catch to check for external urls.
       try {
-        $childNid = $child['url']->getRouteParameters()['node'];
-        $childNode = Node::load($childNid);
-        $data->title = $childNode->get('title')->value;
-        $data->url = $childNode->toUrl()->toString();
+        if (isset($child['url']->getRouteParameters()['node'])) {
+          $childTaxonomy = FALSE;
+          $childEntity = Node::load($child['url']->getRouteParameters()['node']);
+        }
+        elseif (isset($child['url']->getRouteParameters()['taxonomy_term'])) {
+          $childTaxonomy = TRUE;
+          $childEntity = Term::load($child['url']->getRouteParameters()['taxonomy_term']);
+        }
+
+        if ($childTaxonomy === TRUE) {
+          $data->title = $childEntity->get('name')->value;
+        }
+        else {
+          $data->title = $childEntity->get('title')->value;
+        }
+        $data->url = $childEntity->toUrl()->toString();
       }
+
       catch (Exception $e) {
         $menuItem = $child['original_link']->getPluginDefinition();
         $data->title = $menuItem['title'];
@@ -336,20 +361,30 @@ function usagov_preprocess_block(&$variables) {
         if (strncmp($data->url, "base:", 5) === 0) {
           $data->url = "/" . substr($data->url, 5);
         }
+
+        /* If this is an exernal link, don't run the operator logic to check
+        for description fields.*/
+        $external_description = $menuItem['description'];
       }
 
-      //Get Description (Optional Field - A catch on this shouldn't trigger a catch on title or url)
+      /* Get Description (Optional Field -
+      A catch on this shouldn't trigger a catch on title or url).*/
       try {
-        $childNid = $child['url']->getRouteParameters()['node'];
-        $childNode = Node::load($childNid);
-        if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
-          $data->description = $childNode->get('field_short_description')->value;
-        }
-        elseif ($childNode->hasField('field_page_intro') && $childNode->get('field_page_intro')->value != "") {
-          $data->description = $childNode->get('field_page_intro')->value;
+        if (!isset($external_description)) {
+          if ($childEntity->hasField('field_short_description') && $childEntity->get('field_short_description')->value != "") {
+            $data->description = $childEntity->get('field_short_description')->value;
+          }
+          elseif ($childEntity->hasField('field_page_intro') && $childEntity->get('field_page_intro')->value != "") {
+            $data->description = $childEntity->get('field_page_intro')->value;
+          }
+          else {
+            $data->description = $childEntity->get('field_meta_description')->value;
+          }
         }
         else {
-          $data->description = $childNode->get('field_meta_description')->value;
+          $data->description = $external_description;
+          // Unset the variable so the next loop will check for this fresh.
+          unset($external_description);
         }
       }
       catch (Exception $e) {
@@ -357,25 +392,27 @@ function usagov_preprocess_block(&$variables) {
         $data->description = $menuItem['description'];
       }
 
-      // Try for other fields
+      // Try for other fields.
       try {
-        $childNid = $child['url']->getRouteParameters()['node'];
-        $childNode = Node::load($childNid);
-        if (
-          $childNode->hasField('field_navigation_banner_image') &&
-          count($childNode->get('field_navigation_banner_image')) &&
-          $childNode->get('field_navigation_banner_image')[0]->entity
-        ) {
-          $file_url_generator = \Drupal::service('file_url_generator');
-          //to allow for image_style (webp compression) to apply
-          $banner_uri = $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri();
-          $data->navigation_banner_image = $banner_uri;
-        }
-        if ($childNode->hasField('field_css_icon') && count($childNode->get('field_css_icon'))) {
-          $data->css_icon = $childNode->get('field_css_icon')[0]->value;
-        }
-        if ($childNode->hasField('promote')) {
-          $data->promote = $childNode->get('promote')->value;
+        if (isset($child['url']->getRouteParameters()['node'])) {
+          $childNid = $child['url']->getRouteParameters()['node'];
+          $childNode = Node::load($childNid);
+          if (
+            $childNode->hasField('field_navigation_banner_image') &&
+            count($childNode->get('field_navigation_banner_image')) &&
+            $childNode->get('field_navigation_banner_image')[0]->entity
+          ) {
+            $file_url_generator = \Drupal::service('file_url_generator');
+            // To allow for image_style (webp compression) to apply.
+            $banner_uri = $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri();
+            $data->navigation_banner_image = $banner_uri;
+          }
+          if ($childNode->hasField('field_css_icon') && count($childNode->get('field_css_icon'))) {
+            $data->css_icon = $childNode->get('field_css_icon')[0]->value;
+          }
+          if ($childNode->hasField('promote')) {
+            $data->promote = $childNode->get('promote')->value;
+          }
         }
       }
       catch (Exception $e) {

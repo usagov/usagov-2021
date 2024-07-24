@@ -16,6 +16,7 @@ dependencies:
     - node.type.state_directory_record
     - node.type.wizard
     - node.type.wizard_step
+    - taxonomy.vocabulary.wizard
     - workflows.workflow.basic_workflow
   module:
     - content_moderation
@@ -26,6 +27,7 @@ dependencies:
     - paragraphs_entity_embed
     - path
     - system
+    - taxonomy
     - toolbar
 id: content_editor
 label: 'Content Editor'
@@ -36,6 +38,7 @@ permissions:
   - 'access content'
   - 'access content overview'
   - 'access site in maintenance mode'
+  - 'access taxonomy overview'
   - 'access toolbar'
   - 'add paragraphs entity embed'
   - 'administer menu'
@@ -51,6 +54,7 @@ permissions:
   - 'create directory_record content'
   - 'create file media'
   - 'create state_directory_record content'
+  - 'create terms in wizard'
   - 'create url aliases'
   - 'create wizard content'
   - 'create wizard_step content'
@@ -81,6 +85,8 @@ permissions:
   - 'delete own wizard content'
   - 'delete own wizard_step content'
   - 'delete paragraphs entity embed'
+  - 'delete term revisions in wizard'
+  - 'delete terms in wizard'
   - 'edit any agency_synonym content'
   - 'edit any basic_page content'
   - 'edit any bears_agency content'
@@ -103,11 +109,13 @@ permissions:
   - 'edit own wizard content'
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
+  - 'edit terms in wizard'
   - 'revert bears_agency revisions'
   - 'revert bears_benefit revisions'
   - 'revert bears_criteria revisions'
   - 'revert bears_life_event revisions'
   - 'revert bears_life_event_form revisions'
+  - 'revert term revisions in wizard'
   - 'translate agency_synonym node'
   - 'translate basic_page node'
   - 'translate directory_record node'
@@ -131,6 +139,7 @@ permissions:
   - 'view own unpublished content'
   - 'view paragraphs entity embed'
   - 'view state_directory_record revisions'
+  - 'view term revisions in wizard'
   - 'view the administration theme'
   - 'view unpublished paragraphs'
   - 'view wizard revisions'
