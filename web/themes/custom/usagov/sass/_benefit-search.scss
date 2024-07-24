@@ -2,6 +2,10 @@
 @use "uswds-core" as *;
 @use "usagov-design-system" as *;
 
+main[data-pagetype="Benefits Category Search"] .usa-prose > p {
+  max-width: 100%;
+}
+
 .benefits-category-list {
   margin-left: calc(-0.5 * (100vw - 100%));
   margin-right: calc(-0.5 * (100vw - 100%));
