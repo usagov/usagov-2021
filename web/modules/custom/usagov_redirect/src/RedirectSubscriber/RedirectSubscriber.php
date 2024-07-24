@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 // We'll use this to perform a redirect if necessary.
 use Symfony\Component\HttpFoundation\RedirectResponse;
 // Our event listener method will receive one of these.
-use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 // This class contains the event we want to subscribe to.
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -28,7 +28,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    $events[KernelEvents::REQUEST][] = ['checkForRedirection'];
+    $events[KernelEvents::RESPONSE][] = ['checkForRedirection'];
     return $events;
   }
 
@@ -36,16 +36,20 @@ class RedirectSubscriber implements EventSubscriberInterface {
    * This method is called whenever the KernelEvents::REQUEST event is
    * dispatched.
    *
-   * @param RequestEvent $event
+   * @param ResponseEvent $event
    */
-  public function checkForRedirection(RequestEvent $event) {
+  public function checkForRedirection(ResponseEvent $event) {
 
     $response = $event->getResponse();
-    echo "<script>console.log('Debug Objects: " . $response . "' );</script>";
 
     if (($response instanceof RedirectResponse)) {
 
       $event->setResponse(new RedirectResponse('http://localhost/'));
+
+      // $url = Url::fromRoute('entity.node.canonical', ['node' => 1]);
+      // $response = new RedirectResponse($url->toString());
+      // $event->setResponse($response);
+
       return;
 
     }
