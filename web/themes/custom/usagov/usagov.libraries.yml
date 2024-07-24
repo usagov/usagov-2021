@@ -27,6 +27,14 @@ wizardstep:
     - core/drupal
     - core/jquery
 
+wizardStepTaxonomy:
+  js:
+    scripts/wizardStepTaxonomy.js: {}
+    scripts/wizardChecked.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+
 stateDirectory:
   js:
     scripts/stateDirectory.js: {}
@@ -59,3 +67,10 @@ benefitSearch:
 pagination:
   js:
     scripts/pagination.js: {}
+
+lazyLoadBgImage:
+  js:
+    scripts/lazyloadBgImage.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery

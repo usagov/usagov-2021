@@ -97,21 +97,31 @@
   grid-row: 1 / 2;
   max-width: 1124px;
   padding-top: 25px;
-  margin: auto;
-  width: calc(100% - 50px);
   display: flex;
   justify-content: flex-end;
+  padding-left: 5vw;
+  padding-right: 5vw;
+
+  @include at-media("tablet") {
+    width: calc(100% - 50px);
+    margin: auto;
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .welcome-box {
   @include u-bg('blue-80v');
   box-shadow: 0 6px 6px $blue-shadow;
-  width: clamp(50%, 450px, 100%);
   padding: 30px 28px 35px 30px;
 
   p {
     font-size: 1.125em;
     margin-top: 20px;
+  }
+
+  @include at-media("tablet") {
+    width: clamp(50%, 450px, 100%);
   }
 }
 
@@ -131,7 +141,6 @@
   margin-left: 5vw;
   margin-right: 5vw;
   margin-top: 35px;
-  max-width: 400px;
   padding: 30px 50px 22px;
 
   h2,
@@ -191,6 +200,18 @@
   p {
     margin: 0 0 5px;
   }
+
+  img {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+}
+
+#jump_block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .jump1 {
@@ -248,10 +269,13 @@
   margin-left: auto;
   margin-right: auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 275px));
   justify-content: center;
   grid-gap: 8px;
   row-gap: 8px;
+
+  @include at-media("tablet") {
+    grid-template-columns: repeat(auto-fit, minmax(275px, 1fr));
+  }
 }
 
 .homepage-card_header {
@@ -263,23 +287,8 @@
 .homepage-card {
   display: flex;
   @include u-font-family('sans');
-  border-width: 2px;
-  border-style: solid;
-  @include u-bg('white');
-  @include u-border('gray-50');
-  border-radius: 3px;
-  box-shadow: 0 3px 6px rgb(122 122 122 / 15%);
   margin: 0;
   padding: 0;
-
-  &:hover {
-    @include u-bg('cyan-10');
-  }
-
-  &:focus-within {
-    outline: 0.25rem solid color('orange-50v');
-    outline-offset: 0;
-  }
 
   a {
     text-decoration: none;
@@ -362,7 +371,6 @@
 
   .all-topics-header h2 {
     margin: 65px 5vw 0;
-    padding-left: 50px;
   }
 
 }
