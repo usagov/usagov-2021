@@ -43,41 +43,6 @@
   background-color: $dark-gray;
 }
 
-// info banner
-// .usa-header--extended .usa-alert__body {
-//   @include at-media($theme-header-min-width) {
-//     max-width: 74.25rem;
-//     margin-right: auto;
-//     margin-left: auto;
-//     padding-left: 3.2rem;
-//     padding-right: 3.2rem;
-//     display: block;
-//     font-size: 0.9rem;
-//   }
-
-//   padding-left: 2.2rem;
-//   padding-right: 2.2rem;
-//   display: block;
-//   font-size: 0.9rem;
-// }
-
-// // emergency banner header
-// .usa-header--extended .usa-alert--error {
-//   @include u-text('white');
-//   border-left-color: color("red-70v");
-//   @include u-bg('red-70v');
-// }
-
-// // emergency banner header
-// .usa-header--extended .usa-alert--error a {
-//   @include u-text('white');
-// }
-
-// // info banner header
-// .usa-header--extended .usa-alert--info {
-//   border-left-color: color('cyan-5');
-// }
-
 // Slim site banner
 @include at-media($theme-header-min-width) {
   .usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
@@ -149,45 +114,31 @@
   @include u-bg('blue-warm-80v');
 }
 
-// .usa-logo {
-//   flex: none;
-// }
-
-.usa-header--extended .usa-logo {
-  margin: 0.5rem;
-  width: auto;
-  height: 3.2rem;
-}
-
-.usa-header--extended .usa-logo img.es {
-  width: 100%;
-  height: auto;
-  max-width: none;
-  max-height: none;
-}
-
 // This is to set the size of the logo in desktop
 @media (min-width: 64em) {
   .usa-header--extended .usa-logo {
+    margin: 0.5rem 0 0.2em;
     width: 5rem;
     height: 5rem;
   }
-
 }
 
 .usa-header--extended .usa-logo img {
-  width: 100%;
-  height: auto;
-  object-fit: contain; 
-  max-width: 100%;
-  max-height: 100%;
+  max-width: none;
+  width: 3.2rem;
+  max-height: none;
+  height: 3.2rem;
+
+  @include at-media($theme-header-min-width) {
+    width: 5rem;
+    height: 5rem;
+  }
 }
 
 .usa-header--extended .usa-logo img.es {
   width: 8rem;
   height: 3.2rem;
 
-  // set the logo size for desktop
   @include at-media($theme-header-min-width) {
     width: 12.3rem;
     height: 5rem;
@@ -231,7 +182,7 @@
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
     width: 15rem;
-    line-height: 1.1rem;
+    // line-height: 1.1rem;
     margin-bottom: 0;
   }
 }
@@ -372,13 +323,6 @@ input#search-field-small-mobile-menu {
   background-color: white;
 }
 
-.usa-header--extended .usa-navbar {
-  overflow: inherit;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
 @media (min-width: 64em) {
   .usa-header--extended .usa-navbar {
     overflow: inherit;
@@ -386,6 +330,7 @@ input#search-field-small-mobile-menu {
     flex-direction: row;
     justify-content: space-between;
   }
+
 
   .usa-header--extended .usa-nav__secondary,
   .usa-header--extended .usa-nav__secondary:lang(es) {
