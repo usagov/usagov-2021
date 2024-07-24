@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/bin/sh
 
-exec /bin/bash
+exec /bin/sh

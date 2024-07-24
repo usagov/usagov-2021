@@ -1,8 +1,8 @@
-#!/bin/env bash
+#!/bin/sh
 
 SPACE=${1:-dr}
 
-source ~/.profile &> /dev/null
+. ~/.profile &> /dev/null
 
 echo CF_API                 $CF_API
 echo CF_USERNAME            $CF_USERNAME

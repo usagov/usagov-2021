@@ -1,8 +1,10 @@
-###############################################################
-FROM alpine:3.18 AS cms
+### TBD: Use a more determinate tag please
+FROM ubuntu:latest
+
 
 ARG S6_VERSION
 ENV S6_VERSION ${S6_VERSION:-v2.2.0.3}
+#ENV S6_VERSION ${S6_VERSION:-v3.2.0.0}
 
 ARG GITBRANCH
 ENV GITBRANCH ${GITBRANCH:-none}
@@ -21,7 +23,6 @@ ARG BGID=1000
 
 ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
 
-# Dependencies
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
@@ -29,10 +30,22 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/nginx:x:[0-9]+:/nginx:x:${BGID}:/g" /etc/group \
     && addgroup -S -g $BGID nginx \
     && adduser -S -G nginx -D -H -u $BUID nginx \
-    && apk upgrade --update \
-    && apk add --no-cache --virtual .persistent-deps \
-      aws-cli \
+    # s6 supervisor setup
+    && tar xzf /tmp/s6overlay.tar.gz -C / \
+    && rm /tmp/s6overlay.tar.gz \
+    && mkdir -p /var/run/s6 \
+    apt update --allow-unauthenticated \
+    && apt-get -y install --no-install-recommends ca-certificates pv openssh-client sshpass wget gnupg2 \
+    && wget --user-agent="Mozilla" --no-check-certificate -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add - \
+    && echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list \
+    && apt update \
+    && apt-get -y install \
       ca-certificates \
+      cf8-cli \
+      cron \
+      cronutils \
+      less \
+      unzip \
       curl \
       gettext \
       git \
@@ -41,15 +54,10 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       moreutils \
       pv \
       tar \
-      xz \
+      xz-utils \
       vim \
       nano \
-    #  brew \
-    # s6 supervisor setup
-    && tar xzf /tmp/s6overlay.tar.gz -C / \
-    && rm /tmp/s6overlay.tar.gz \
-    && mkdir -p /var/run/s6 \
-    && chown -R nginx:nginx /var/run/s6
+    && rm -rf /var/lib/apt/lists/*
 
     # cron setup
 RUN mkdir -p /etc/periodic/1min \
@@ -68,7 +76,32 @@ RUN chmod -R +x /etc/periodic \
     && echo >> /etc/motd
 
 HEALTHCHECK CMD s6-svstat /var/run/s6/services/cert-watcher \
-             && s6-svstat /var/run/s6/services/cron
+&& s6-svstat /var/run/s6/services/cron
+
+    ADD https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip /root/awscliv2.zip
+RUN unzip /root/awscliv2.zip -d /root/
+RUN /root/aws/install
+RUN rm -rf /root/aws /root/awscliv2.zip
+
+COPY .docker/src-cron/etc /etc
+COPY .docker/src-cron/opt /opt
+
+COPY bin/cloudgov/events/get-events /opt/cron/
+COPY .docker/src-cron/root/.profile /root/
+
+#ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-x86_64.tar.xz        /tmp/s6-overlay.tar.xz
+#ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-symlinks-arch.tar.xz /tmp/s6-overlay-symlinks.tar.xz
+#ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-noarch.tar.xz        /tmp/s6-overlay-noarch.tar.xz
+
+#ADD https://github.com/just-containers/s6-overlay/releases/download/v3.2.0.0/s6-overlay-x86_64.tar.xz /root/s6overlay.tar.xz
+#ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /root/s6overlay.tar.gz
+#RUN mkdir -p /root/s6/
+#RUN tar xzf /root/s6overlay.tar.gz -C /root/s6/
+#RUN tar xxf /root/s6overlay.tar.xz -C /
+
+#RUN tar -C / -Jxpf /tmp/s6-overlay.tar.xz
+#RUN tar -C / -Jxpf /tmp/s6-overlay-symlinks.tar.xz
+#RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
 
 # Init s6
 ENTRYPOINT [ "/init" ]
