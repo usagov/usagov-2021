@@ -12,6 +12,7 @@
  * @property {string} appliedCategories Heading for applied categories column
  * @property {string} lifeEventsCategory Life events category name
  * @property {string} benefitFinderCategory Benefit finder category name
+ * @property {string} showingResults Template for count and range of results shown
  */
 /**
  * Component to allow users to search benefits content and display
@@ -89,9 +90,10 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
    * @property {string} field_short_description Short Description
    * @property {string} title Life event title
    * @property {string} type
+   * @property {string[]} terms
    */
   /**
-   * @returns {Promise<Map<LifeEvent>>}
+   * @returns {Promise<Map<int, LifeEvent>>}
    */
   this.fetchLifeEvents = async function() {
     const response = await fetch(myself.life);
@@ -105,7 +107,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     // We need to consolidate life events that may reference more
     // than one category into a single entry per life event.
     /**
-     * @var {Map<LifeEvent>} lifeEvents
+     * @var {Map<int, LifeEvent>} lifeEvents
      */
     let lifeEvents = new Map();
     for (const lifeEvent of raw) {
@@ -236,18 +238,37 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
     // also tell it to render page 1 of new search results
     myself.handleClear();
     myself.setActivePage(1);
+    myself.toggleAll.checked = myself.areAllChecked();
   };
   /**
-   * @param {Event} ev
+   * Update UI when the select all is clicked
+   * @param {MouseEvent} ev
    */
   this.handleToggleAll = function(ev) {
     myself.clearErrors();
+    myself.handleClear();
+    myself.setActivePage(1);
+
     let newState = ev.target.checked;
     for (const box of myself.boxes) {
       box.checked = newState;
     }
   };
   /**
+   * Test if all the category checkboxes are ticked
+   * @return boolean
+   */
+  this.areAllChecked = function() {
+    for (const box of myself.boxes) {
+      if (box.checked === false) {
+        return false;
+      }
+    }
+    // if we get here, all must be checked
+    return true;
+  };
+  /**
+   * Hide the indicated page
    * @param {Element} page
    */
   this.hidePage = function(page) {
@@ -401,6 +422,7 @@ ${benefit.term_node_tid}
     fieldset.classList.add('benefits-category-error');
   };
   /**
+   * Show indicated page
    * @param {Element} page
    */
   this.showPage = function (page) {
@@ -474,14 +496,13 @@ ${benefit.term_node_tid}
     // load data and initial URL state
     this.benefits = await myself.fetchBenefits();
     this.lifeEvents = await myself.fetchLifeEvents();
-
     this.parseUrlState();
-
     // checkbox events
     this.toggleAll.addEventListener('click', myself.handleToggleAll);
     for (const box of myself.boxes) {
       box.addEventListener('click', myself.handleToggleCheck);
     }
+    this.toggleAll.checked = myself.areAllChecked();
     // form events
     myself.form.addEventListener('submit', myself.handleSubmit);
     myself.form.addEventListener('reset', myself.handleClear);
@@ -503,15 +524,15 @@ jQuery(document).ready(async function () {
       'showingResults': '@first@&ndash;@last@ of @totalItems@ results',
       'page': "Page",
       'next': "Next",
-      'nextAria': "Next Page",
+      'nextAria': "Next page",
       'previous': "Previous",
       'previousAria': "Previous page",
       'navAria': "Pagination",
       'lastPageAria': 'Last page',
       'emptyCategoryError': 'Error: Please select at least one or more categories',
-      'appliedCategories': 'Applied Categories',
-      'lifeEventsCategory': 'Life Events',
-      'benefitFinderCategory': 'Benefit Finder Tool'
+      'appliedCategories': 'Applied categories',
+      'lifeEventsCategory': 'Life events',
+      'benefitFinderCategory': 'Benefit finder tool'
     };
   }
   else if (docLang[0] === 'es') {
@@ -527,7 +548,7 @@ jQuery(document).ready(async function () {
       'navAria': "Paginación",
       'lastPageAria': 'Ultima página',
       'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
-      'appliedCategories': 'Categorías',
+      'appliedCategories': 'Categorías seleccionadas',
       'lifeEventsCategory': 'Etapas de la vida',
       'benefitFinderCategory': 'Buscador de beneficios'
     };
