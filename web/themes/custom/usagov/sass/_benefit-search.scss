@@ -67,7 +67,7 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
 
 .benefits-category-list .usa-button {
   background-color: usagov('benefit-search-button');
-  border: 1px solid color('black');
+  border: 2px solid color('gray-90');
   margin-right: 0;
   margin-bottom: 10px;
 
@@ -92,7 +92,7 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
 
 .benefits-category-list .usa-button.usa-button--secondary:hover {
   background-color: color('gray-5');
-  border: 1px solid #000;
+  border: 2px solid color('gray-90');
 }
 
 .benefits-category-list ul > li {
