@@ -78,12 +78,5 @@ RUN rm -rf /root/aws /root/awscliv2.zip
 ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.7.11\&source\=github-rel  /tmp/cf8.tar.gz
 RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin
 
-COPY .docker/src-cron/etc /etc
-COPY .docker/src-cron/opt /opt
-
-COPY bin/cloudgov/events/get-events /opt/cron/
-COPY .docker/src-cron/root/.profile /root/
-
-
 # Init s6
 ENTRYPOINT [ "/init" ]
