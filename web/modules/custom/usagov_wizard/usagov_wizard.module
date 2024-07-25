@@ -155,6 +155,16 @@ function usagov_wizard_preprocess_taxonomy_term(&$variables) {
       $variables['child'] = FALSE;
     }
 
+    $term_children = Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadChildren($variables['term']->id());
+    if (!empty($term_children)) {
+      $variables['has_child'] = TRUE;
+    }
+    else {
+      $variables['has_child'] = FALSE;
+    }
+
     $menuChecker = \Drupal::classResolver(MenuChecker::class);
     $parents = $menuChecker->getTermParents($variables['elements']['#taxonomy_term']);
 
