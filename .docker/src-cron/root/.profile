@@ -49,11 +49,37 @@ cf target -o "$CF_ORG" -s "$CF_SPACE"
 function aws_cp() {
    src=$1
    dst=$2
+   rec=$3
+   if [ x$rec != '--recursive' ]; then
+      rec=''
+   fi
    local HTTP_PROXY=
    local HTTPS_PROXY=
    local http_proxy=
    local https_proxy=
-   aws s3 cp $src $dst
+   aws s3 cp $rec $src $dst
+}
+
+function aws_ls() {
+   src=$1
+   local HTTP_PROXY=
+   local HTTPS_PROXY=
+   local http_proxy=
+   local https_proxy=
+   aws s3 ls $src
+}
+
+function aws_rm() {
+   src=$1
+   rec=$2
+   if [ x$rec != '--recursive' ]; then
+      rec=''
+   fi
+   local HTTP_PROXY=
+   local HTTPS_PROXY=
+   local http_proxy=
+   local https_proxy=
+   aws s3 rm $rec $src
 }
 
 echo "Cron App Setup Complete"
