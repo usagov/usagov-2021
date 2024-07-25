@@ -111,9 +111,9 @@
 {% endif %}
 {% endif %}
 {% elseif counter < 6 %}
-      "Taxonomy_URL_{{ counter }}": "{{ path }}",
+      "Taxonomy_URL_{{ counter }}": "{{ url_alias }}",
 {% else %}
-      "Taxonomy_URL_{{ counter }}": "{{ path }}"
+      "Taxonomy_URL_{{ counter }}": "{{ url_alias }}"
 {% endif %}
 {% endfor %}
 {% endif %}

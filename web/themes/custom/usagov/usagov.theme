@@ -10,6 +10,32 @@ use Drupal\taxonomy\Entity\Term;
  * Place your custom PHP code in this file.
  */
 
+/**
+ * Some Spanish Basic-Pages in the system for some reason do not load by their alias paths,
+ * so in here we will notice when we are on a /node/#### page, and manually lookup the alias
+ * from the path_alias table.
+ */
+function usagov_preprocess_block__usagov_taxonomy_links(&$variables) {
+
+    // In theory, this should return an alias-path, but in certain edge-cases, we get the system path.
+    $urlToPass = \Drupal::request()->getRequestUri();
+
+    // If we are NOT seeing an alias path...
+    if ( substr($urlToPass, 0, 6) === '/node/' ) {
+
+      // ...then check the path_alias table for an alias.
+      $node = \Drupal::routeMatch()->getParameter('node');
+      if ($node instanceof \Drupal\node\NodeInterface) {
+        $nid = $node->id();
+        $aliasTableResult = \Drupal::database()->query("SELECT alias FROM path_alias WHERE path = '/node/{$nid}' ")->fetchField();
+        $urlToPass = $aliasTableResult;
+      }
+    }
+
+    // and we will pass this variable to block--usagov-taxonomy-links.html.twig
+    $variables['url_alias'] = $urlToPass;
+}
+
 function usagov_preprocess_html(&$variables) {
   $node = \Drupal::routeMatch()->getParameter('node');
   $variables['node'] = $node;
