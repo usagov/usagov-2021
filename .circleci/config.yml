@@ -650,7 +650,7 @@ workflows:
             branches:
               only:
                 - dr
-                - USAGOV-818-Add-robots-noindex-to-metarefresh-page
+                - dev
                 - stage
                 - prod
       - build-and-push-container:
@@ -660,7 +660,7 @@ workflows:
             branches:
               only:
                 - dr
-                - USAGOV-818-Add-robots-noindex-to-metarefresh-page
+                - dev
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -670,7 +670,7 @@ workflows:
           filters:
             branches:
               only:
-              - USAGOV-818-Add-robots-noindex-to-metarefresh-page
+              - dev
       - approve-dr-deployment:
           type: approval
           requires:
@@ -685,7 +685,7 @@ workflows:
           filters:
             branches:
               only:
-              - USAGOV-818-Add-robots-noindex-to-metarefresh-page
+              - dev
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
