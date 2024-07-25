@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SPACE=${1:-dr}
+SPACE=$1
 if [ x$SPACE = x ]; then
    SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
 fi
