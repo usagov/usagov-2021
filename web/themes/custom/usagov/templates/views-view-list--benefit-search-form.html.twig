@@ -19,6 +19,13 @@
  */
 #}
 {% set lang = node.langcode.value %}
+
+{% if node.field_benefits_search_id.value is empty %}
+  {% set search_id = '' %}
+{% else %}
+  {% set search_id = node.field_benefits_search_id.value | trim %}
+{% endif %}
+
 {% if lang == 'en' %}
   {% set submit_label = "Apply selections" %}
   {% set reset_label = "Clear selections" %}
@@ -34,7 +41,7 @@
 {% endif %}
 {{ attach_library('usagov/benefitSearch') }}
 
-<div class="benefits-category-list">
+<div class="benefits-category-list" id="{{ search_id }}">
   {% if node.field_benefits_search_title.value | render %}
     <h2 id="categories-label">{{ node.field_benefits_search_title.value }}</h2>
   {% endif %}
@@ -62,7 +69,7 @@
         >{{ select_all_label }}</label>
       </div>
     </fieldset>
-    <div class="margin-top-2" aria-label="{{ aria_button_groupabel }} ">
+    <div class="button-group margin-top-2" aria-label="{{ aria_button_groupabel }} ">
       <button class="usa-button" type="submit">{{ submit_label }}</button>
       <button class="usa-button usa-button--secondary" type="reset">{{ reset_label }}</button>
     </div>

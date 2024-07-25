@@ -716,6 +716,7 @@ button#prior.usa-button--outline:focus,
 button#next.usa-button:focus,
 .block-wizardenglish a.usa-button:focus,
 .usa-radio__input:focus + [class*="__label"]::before,
+.usa-checkbox__input:focus + [class*="__label"]::before,,
 textarea:not([disabled]):focus,
 .usagov-directory-bottom-nav-group a.nav-letter:focus,
 .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:focus,
@@ -767,6 +768,15 @@ select:not([disabled]):focus,
 
 .usagov-button {
   font-size: 1.1rem;
+}
+
+.usa-pagination .usa-current {
+  background-color: color('blue-warm-70v');
+}
+
+.usa-pagination__button,
+.usa-pagination__link {
+  color: color('gray-90');
 }
 
 #main-content {

@@ -6,17 +6,18 @@
 	</div>
 
 	<div class="navbar-right">
-		{% set translation = node.field_language_toggle[0].value %}
-		{% if translation %}
-			{% if node.nid[0].value|render == "1" %}
-				{% set translation_url = "/" %}
-			{% else %}
-				{% set translation_url = drupal_url('node/'~translation.target_id,{ langcode:'en' }) %}
-			{% endif %}
-			
-			<a href="{{ translation_url }}" class="usa-button language-link" hreflang="en">English</a>
-		{% endif %}
+    {% block translation %}
+      {% set translation = node.field_language_toggle[0].value %}
+      {% if translation %}
+        {% if node.nid[0].value|render == "1" %}
+          {% set translation_url = "/" %}
+        {% else %}
+          {% set translation_url = drupal_url('node/'~translation.target_id,{ langcode:'en' }) %}
+        {% endif %}
 
+        <a href="{{ translation_url }}" class="usa-button language-link" hreflang="en">English</a>
+      {% endif %}
+    {% endblock %}
 		<button class="usa-menu-btn">Menú</button>
 		<div class="usa-nav__secondary">
 			<span class="usa-nav__secondary-links">

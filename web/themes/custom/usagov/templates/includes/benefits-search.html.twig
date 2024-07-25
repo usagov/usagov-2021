@@ -4,12 +4,17 @@
  */
  #}
 {% set lang = node.langcode.value %}
+{% if node.field_benefits_life_events_id.value is empty %}
+  {% set finder_id = '' %}
+{% else %}
+  {% set finder_id = node.field_benefits_life_events_id.value | trim %}
+{% endif %}
 
 {% if node.field_benefits_life_events_title.value | render  %}
-  <h2 class="benefit-finder__title">{{ node.field_benefits_life_events_title.value }}</h2>
+  <h2 class="benefit-finder__title" id="{{ finder_id }}">{{ node.field_benefits_life_events_title.value | render }}</h2>
 {% endif %}
 {% if node.field_benefits_life_events_descr.value | render %}
-  <p class="benefit-finder__desc">{{ node.field_benefits_life_events_descr.value }}</p>
+  <p class="benefit-finder__desc">{{ node.field_benefits_life_events_descr.value | render}}</p>
 {% endif %}
 
 <div class="benefit-finder__main">
