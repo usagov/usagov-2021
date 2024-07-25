@@ -11,4 +11,5 @@ applications:
     - secrets
     - secauthsecrets
     - storage
+    - cron-service-account
   health-check-type: process

@@ -22,8 +22,8 @@ if [ ! -f ~/.certs-updated ]; then
    touch ~/.certs-updated
 fi
 
-#CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.username';)
-#CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.password')
+CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.username';)
+CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.password')
 
 S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
 S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.fips_endpoint')
@@ -37,9 +37,9 @@ export AWS_DEFAULT_REGION=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials
 CF_API="https://api.fr.cloud.gov"
 CF_ORG=gsa-tts-usagov
 
-#cf api "$CF_API"
-#cf auth "$CF_USERNAME" "$CF_PASSWORD"
-#cf target -o "$CF_ORG" -s "$CF_SPACE"
+cf api "$CF_API"
+cf auth "$CF_USERNAME" "$CF_PASSWORD"
+cf target -o "$CF_ORG" -s "$CF_SPACE"
 
 ### aws cli does not want proxy envs
 function aws_cp() {

@@ -75,25 +75,15 @@ RUN unzip /root/awscliv2.zip -d /root/
 RUN /root/aws/install
 RUN rm -rf /root/aws /root/awscliv2.zip
 
+ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.7.11\&source\=github-rel  /tmp/cf8.tar.gz
+RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin
+
 COPY .docker/src-cron/etc /etc
 COPY .docker/src-cron/opt /opt
 
 COPY bin/cloudgov/events/get-events /opt/cron/
 COPY .docker/src-cron/root/.profile /root/
 
-#ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-x86_64.tar.xz        /tmp/s6-overlay.tar.xz
-#ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-symlinks-arch.tar.xz /tmp/s6-overlay-symlinks.tar.xz
-#ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-noarch.tar.xz        /tmp/s6-overlay-noarch.tar.xz
-
-#ADD https://github.com/just-containers/s6-overlay/releases/download/v3.2.0.0/s6-overlay-x86_64.tar.xz /root/s6overlay.tar.xz
-#ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /root/s6overlay.tar.gz
-#RUN mkdir -p /root/s6/
-#RUN tar xzf /root/s6overlay.tar.gz -C /root/s6/
-#RUN tar xxf /root/s6overlay.tar.xz -C /
-
-#RUN tar -C / -Jxpf /tmp/s6-overlay.tar.xz
-#RUN tar -C / -Jxpf /tmp/s6-overlay-symlinks.tar.xz
-#RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
 
 # Init s6
 ENTRYPOINT [ "/init" ]
