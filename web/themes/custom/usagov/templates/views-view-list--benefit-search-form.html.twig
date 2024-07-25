@@ -19,7 +19,13 @@
  */
 #}
 {% set lang = node.langcode.value %}
-{% set search_id = node.field_benefits_search_id.value | trim %}
+
+{% if node.field_benefits_search_id.value is empty %}
+  {% set search_id = '' %}
+{% else %}
+  {% set search_id = node.field_benefits_search_id.value | trim %}
+{% endif %}
+
 {% if lang == 'en' %}
   {% set submit_label = "Apply selections" %}
   {% set reset_label = "Clear selections" %}
