@@ -36,7 +36,7 @@ From the Wizard Manager, you can collapse, uncollapse, drag & drop, reorder, sea
 
 ## How to add left hand nav menu
 
-After you create a wizard, a left nav menu will not be enabled by default. In order to add a left nav menu, go to Structure > Menus > Left Menu English. If you are creating a new left nav menu link, then you will add a new link. Otherwise, search for the link you are looking to connect up with left nav and add the URl to the "Link" field. 
+After you create a wizard, a left nav menu will not be enabled by default. In order to add a left nav menu, go to Structure > Menus > Left Menu English. If you are creating a new left nav menu link, then you will add a new link. Otherwise, search for the link you are looking to connect up with left nav and add the URL to the "Link" field. 
 
 If adding a whole new link, on the Add menu link page, enter the following information:
 
