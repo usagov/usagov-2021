@@ -65,10 +65,18 @@ function pushApp { #appname
 
   if [ -z "$SDIGEST" ]; then
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG}
+    if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+      cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG}
+    else
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG} --docker-username $DOCKERHUB_USERNAME
+    fi
   else
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${STAG} via digest ${SDIGEST}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${SDIGEST}
+    if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+      cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${SDIGEST}
+    else
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${SDIGEST} --docker-username $DOCKERHUB_USERNAME
+    fi
   fi
 }
 
