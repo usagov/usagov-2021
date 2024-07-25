@@ -651,7 +651,6 @@ workflows:
               only:
                 - dr
                 - dev
-                - USAGOV-1788-add-dockerhub-creds-to-deploy
                 - stage
                 - prod
       - build-and-push-container:
@@ -662,7 +661,6 @@ workflows:
               only:
                 - dr
                 - dev
-                - USAGOV-1788-add-dockerhub-creds-to-deploy
                 - stage
                 - prod
       - approve-dev-deployment:
@@ -673,7 +671,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1788-add-dockerhub-creds-to-deploy
       - approve-dr-deployment:
           type: approval
           requires:
@@ -689,7 +686,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1788-add-dockerhub-creds-to-deploy
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
