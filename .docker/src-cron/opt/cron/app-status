@@ -1,8 +1,11 @@
 #!/bin/sh
 
 SPACE=${1:-dr}
+if [ x$SPACE = x ]; then
+   SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
+fi
 
-. ~/.profile &> /dev/null
+. ~/.profile $SPACE &> /dev/null
 
 echo CF_API                 $CF_API
 echo CF_USERNAME            $CF_USERNAME
@@ -13,25 +16,3 @@ echo
 cf -v
 echo
 cf t
-echo
-
-DATEFILE=logs.lastrun
-$echo aws_cp s3://$S3_BUCKET/cron/${SPACE}/$DATEFILE /tmp/test.datefile &>/dev/null
-
-if [ -f /tmp/test.datefile ]; then
-    echo pulled last query date from s3.
-    CRON_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -r /tmp/test.datefile)
-else
-    echo No previous query datein s3.  initializing start date of query to 2 months ago.
-    CRON_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d "2 months ago")
-fi
-
-echo CRON_LASTRUN       CRON_LASTRUN
-
-touch /tmp/test.datefile
-
-CRON_THISRUN=$(TZ=UTC date +"%Y-%m-%dT%H%M%SZ" -r /tmp/test.datefile)
-
-echo CRON_THISRUN       CRON_THISRUN
-
-rm /tmp/test.datefile

@@ -1,6 +1,10 @@
 # ~/.profile: executed by Bourne-compatible login shells.
 
-CF_SPACE=${1:-dr}
+CF_SPACE=$1
+
+if [ x$CF_SPACE = x ]; then
+   CF_SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
+fi
 
 if [ "$BASH" ]; then
   if [ -f ~/.bashrc ]; then
