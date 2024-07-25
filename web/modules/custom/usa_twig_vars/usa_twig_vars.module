@@ -362,7 +362,11 @@ function usa_twig_vars_check_exclude_from_contact_center($node_to_check) {
 /** Helper function to get the node from a path. Used in path_alias_insert and path_alias_update.  */
 function usa_twig_vars_get_node_from_path($path) {
   $path_alias_url = $path->getAlias();
-  $params = Url::fromUserInput($path_alias_url)->getRouteParameters();
+  try {
+    $params = Url::fromUserInput($path_alias_url)->getRouteParameters();
+  } catch (UnexpectedValueException $e) {
+    return false;
+  }
   $entity_type_id = array_key_first($params);
   $node = \Drupal::entityTypeManager()->getStorage($entity_type_id)->load($params[$entity_type_id]);
   return $node;
@@ -391,6 +395,7 @@ function usa_twig_vars_views_post_execute($view) {
  */
 function usa_twig_vars_path_alias_update(PathAliasInterface $path) {
   $node = usa_twig_vars_get_node_from_path($path);
+  if ( empty($node) ) return;
   usa_twig_vars_check_exclude_from_contact_center($node);
 }
 
