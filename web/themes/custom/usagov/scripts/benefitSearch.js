@@ -410,6 +410,12 @@ ${benefit.term_node_tid}
     this.handleSubmit();
   };
   this.showError = function() {
+    let alert = myself.form.querySelectorAll('.usa-alert');
+    if (alert.length > 0) {
+      // if we're showing an error already, don't add another
+      return;
+    }
+
     let elt = document.createElement('template');
     elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4" aria-live=assertive>
         <div class="usa_alert__body">

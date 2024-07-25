@@ -142,7 +142,7 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
 
 .benefits-category-list-checkbox-cols > ul > li.end-desktop-column {
   @include at-media('tablet-lg') {
-    padding-bottom: 0rem;
+    padding-bottom: 0;
   }
 }
 .benefits-category-list-checkbox-all {
