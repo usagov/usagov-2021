@@ -22,7 +22,7 @@ On the Add term page, you will be asked and need to fill out the following infor
 * Description: This field is for additional text that you want displayed below the option in the option list. 
 * Heading/Question: This is the heading that will display at the top of your wizard question, in large red text. 
 * Language Toggle: Sets a translation for the current page and the translation is linked to in the language switch link in the top right.
-* Intro: This field is a WYSIWYG text for below the Header/Question but above the options list and Body.
+* Intro: This field is a WYSIWYG text for below the Header/Question but above the options list and Body. Optional.
 * Body: This field is for text that you want displayed above the options list and below the introduction. Optional
 * Footer: This field is for text that you want displayed below the options list. Optional
 * Header HTML: This is optional HTML field for content that will go at the top of the page, above all other things on the page. This is just for <scripts> that go in the <head>. Content managers should not use unless they know what they are doing.
