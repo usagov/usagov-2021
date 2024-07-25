@@ -42,7 +42,26 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
   border-left: 3px solid color('error');
   margin-left: -0.75rem;
   padding-left: 0.75rem;
+
 }
+
+.benefits-category-list .grid-row.benefits-category-error .benefits-category-list-checkbox-all {
+  margin-top: -1px;
+  @include at-media('tablet') {
+    padding-top: 1.5rem;
+    margin-top: -1rem;
+  }
+  @include at-media('tablet-lg') {
+    padding-top: 0;
+    margin-top: 0;
+  }
+}
+
+.benefits-category-list .grid-row.benefits-category-error .benefits-category-list-checkbox-all label {
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
 
 .benefits-category-list .grid-row {
   flex-direction: column-reverse;
@@ -110,6 +129,22 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
   }
 }
 
+.benefits-category-list-checkbox-cols > ul > li {
+  padding-bottom: 0.5rem;
+}
+
+.benefits-category-list-checkbox-cols > ul > li.end-mobile-column {
+  padding-bottom: 0;
+  @include at-media('tablet-lg') {
+    padding-bottom: 0.5rem;
+  }
+}
+
+.benefits-category-list-checkbox-cols > ul > li.end-desktop-column {
+  @include at-media('tablet-lg') {
+    padding-bottom: 0rem;
+  }
+}
 .benefits-category-list-checkbox-all {
   height: fit-content;
   @include u-width('full');
