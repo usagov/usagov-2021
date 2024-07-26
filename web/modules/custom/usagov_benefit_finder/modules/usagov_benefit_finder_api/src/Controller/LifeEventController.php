@@ -531,32 +531,31 @@ class LifeEventController {
   public function getNode($nid, $mode) {
     $vid = 0;
 
-    // Do not use node of moderation state archived.
-    $id = $this->database
-      ->query('SELECT id FROM content_moderation_state_field_data
-                        WHERE moderation_state = :mstate AND content_entity_id = :nid',
-                        [':mstate' => 'archived', ':nid' => $nid])
-      ->fetchField();
-    if ($id) {
-      return NULL;
-    }
-
     if ($mode == "published") {
-      $vid = $this->database
-        ->query('SELECT MAX(vid) AS vid FROM node_field_revision WHERE status = 1 AND nid = :nid', [':nid' => $nid])
-        ->fetchField();
+      $query = $this->entityTypeManager->getStorage('node')
+        ->getQuery()
+        ->allRevisions()
+        ->condition('nid', $nid)
+        ->condition('status', 1)
+        ->sort('vid', 'DESC')
+        ->range(0, 1)
+        ->accessCheck(TRUE);
     }
     elseif ($mode == "draft") {
-      $vid = $this->database
-        ->query('SELECT MAX(vid) AS vid FROM node_field_revision WHERE nid = :nid', [':nid' => $nid])
-        ->fetchField();
-    }
-    else {
-      // @todo Unknown
+      $query = $this->entityTypeManager->getStorage('node')
+        ->getQuery()
+        ->allRevisions()
+        ->condition('nid', $nid)
+        ->sort('vid', 'DESC')
+        ->range(0, 1)
+        ->accessCheck(TRUE);
     }
 
-    if ($vid) {
-      $node = node_revision_load($vid);
+    $result = $query->execute();
+
+    if (!empty($result)) {
+      $revision_id = key($result);
+      $node = $this->entityTypeManager->getStorage('node')->loadRevision($revision_id);
     }
     else {
       $node = NULL;
