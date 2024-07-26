@@ -52,7 +52,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       err.remove();
     }
 
-    myself.form.querySelector('fieldset')
+    myself.form.querySelector('div[role="group"]:first-of-type')
       .classList.remove('benefits-category-error');
   };
   /**
