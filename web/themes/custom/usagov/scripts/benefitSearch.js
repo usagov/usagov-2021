@@ -21,18 +21,20 @@
  * @param {string} benefitsPath
  * @param {string} lifeEventsPath
  * @param {string} assetBase
+ * @param {string} docLang
  * @param {TranslationLabels} labels
  * @param {Element} form
  * @param {Element} resultsContainer
  * @param {int} perPage
  * @constructor
  */
-function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, resultsContainer, perPage) {
+function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels, form, resultsContainer, perPage) {
   "use strict";
 
   this.benefitsSrc = benefitsPath;
   this.life = lifeEventsPath;
   this.assetBase = assetBase;
+  this.docLang = docLang;
   this.labels = labels;
   this.resultsContainer = resultsContainer;
   this.form = form;
@@ -301,7 +303,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
   };
   /**
    * Render a single piece of matching content
-   * @param benefit
+   * @param {Benefit} benefit
    * @returns {HTMLTemplateElement}
    */
   this.renderMatch = function(benefit) {
@@ -322,7 +324,9 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
         benefit.terms.forEach(term => termMarkup += `<span>${term}</span>`);
 
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.field_b_search_title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-8 benefits-result-text">
+  <h3><a href="${benefit.view_node}" data-analytics="category-results-links" hreflang="${myself.docLang}">${benefit.field_b_search_title}</a></h3>
+  <p>${description}</p></div>
 <div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
   <span>${myself.labels.benefitFinderCategory}</span><span>${myself.labels.lifeEventsCategory}</span>${termMarkup}</div>
 </div>`;
@@ -331,7 +335,10 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       case 'Basic Page':
       default:
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-8 benefits-result-text">
+  <h3><a href="${benefit.view_node}" data-analytics="category-results-links" hreflang="${myself.docLang}">${benefit.title}</a></h3>
+  <p>${description}</p>
+</div>
 <div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
 ${benefit.term_node_tid}
 </div>
@@ -558,6 +565,7 @@ jQuery(document).ready(async function () {
     benefitsPath,
     lifeEventsPath,
     '/themes/custom/usagov',
+    docLang,
     labels,
     document.querySelector('#benefitSearch'),
     document.querySelector('#matchingBenefits'),
