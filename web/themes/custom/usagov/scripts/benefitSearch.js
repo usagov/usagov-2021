@@ -48,11 +48,8 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
    * Removes all error messages added to form
    */
   this.clearErrors = function() {
-    for (const err of myself.form.querySelectorAll('.usa-alert--error')) {
-      err.remove();
-    }
-
-    myself.form.querySelector('div[role="group"]:first-of-type')
+    myself.form.querySelector('.alert-container').innerHTML = '';
+    myself.form.querySelector('div[role="group"]')
       .classList.remove('benefits-category-error');
   };
   /**
@@ -357,7 +354,7 @@ ${benefit.term_node_tid}
       .replace('@first@', page.first)
       .replace('@last@', page.last)
       .replace('@totalItems@', page.totalItems);
-    elt.innerHTML += `<h2 tabindex="0">${label}</h2>`;
+    elt.innerHTML += `<h2 tabindex="0" aria-live="polite">${label}</h2>`;
     // prepare pages
     for (const benefit of page.matches) {
       elt.innerHTML += myself.renderMatch(benefit).innerHTML;
@@ -426,9 +423,9 @@ ${benefit.term_node_tid}
            <h4 class="usa-alert__heading padding-left-6">${myself.labels.emptyCategoryError}</h4>
         </div>
     </div>`;
-    myself.form.prepend(elt.content);
+    myself.form.querySelector('.alert-container').prepend(elt.content);
 
-    const fieldset = myself.form.querySelector('fieldset');
+    const fieldset = myself.form.querySelector('div[role="group"]');
     fieldset.classList.add('benefits-category-error');
   };
   /**
