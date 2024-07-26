@@ -1,5 +1,5 @@
 ### 
-FROM alpine:3.18 AS cms
+FROM alpine:3.18 AS cron
 
 ARG S6_VERSION
 ENV S6_VERSION ${S6_VERSION:-v2.2.0.3}
@@ -20,8 +20,6 @@ ENV CONTAINERTAG ${CONTAINERTAG:-none}
 ARG BUID=1000
 ARG BGID=1000
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
-
 # Dependencies
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
@@ -32,6 +30,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && adduser -S -G nginx -D -H -u $BUID nginx \
     && apk upgrade --update \
     && apk add --no-cache --virtual .persistent-deps \
+      bash \
       aws-cli \
       ca-certificates \
       curl \
@@ -44,16 +43,17 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       tar \
       xz \
       vim \
-      nano \
-    # s6 supervisor setup
-    && tar xzf /tmp/s6overlay.tar.gz -C / \
-    && rm /tmp/s6overlay.tar.gz \
-    && mkdir -p /var/run/s6 \
-    && rm -rf /var/lib/apt/lists/*
+      nano
 
-    # cron setup
+# s6 supervisor setup
+ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
+RUN tar xzf /tmp/s6overlay.tar.gz -C / \
+    && rm /tmp/s6overlay.tar.gz \
+    && mkdir -p /var/run/s6
+
+# cron setup
 RUN mkdir -p /etc/periodic/1min \
-    && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root \
+    && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root
     # cleanup
     && rm -rf /var/cache/apk/*
 
@@ -69,11 +69,6 @@ RUN chmod -R +x /etc/periodic \
 
 HEALTHCHECK CMD s6-svstat /var/run/s6/services/cert-watcher \
 && s6-svstat /var/run/s6/services/cron
-
-    ADD https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip /root/awscliv2.zip
-RUN unzip /root/awscliv2.zip -d /root/
-RUN /root/aws/install
-RUN rm -rf /root/aws /root/awscliv2.zip
 
 ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.7.11\&source\=github-rel  /tmp/cf8.tar.gz
 RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin
