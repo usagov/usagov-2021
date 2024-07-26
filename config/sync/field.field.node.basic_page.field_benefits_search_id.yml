@@ -1,0 +1,19 @@
+uuid: 8a069d64-0489-43e8-a707-1e97c4c15328
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_benefits_search_id
+    - node.type.basic_page
+id: node.basic_page.field_benefits_search_id
+field_name: field_benefits_search_id
+entity_type: node
+bundle: basic_page
+label: 'Category Search ID'
+description: 'Provide a short, URL-friendly identifier to link directly to the Search section of the page. Use only letters, numbers, and minus sign.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

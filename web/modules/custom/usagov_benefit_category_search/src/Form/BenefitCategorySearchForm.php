@@ -2,12 +2,15 @@
 
 namespace Drupal\usagov_benefit_category_search\Form;
 
-use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
-class BenefitCategorySearchForm extends ConfigFormBase {
-  public const SETTINGS_KEY = 'usagov_benefit_category_search.settings';
-  public const SHOW_LANDING_PAGE_BLOCK = 'homepage_show_benefits_search_block';
+/**
+ * Provides a form to enable or disable showing the benefit search
+ * blocks on the homepage and government benefit pages.
+ */
+class BenefitCategorySearchForm extends FormBase {
+  public const TOGGLE_KEY = 'usagov_benefit_category_search.show_block';
 
   /**
    * {@inheritdoc}
@@ -16,18 +19,31 @@ class BenefitCategorySearchForm extends ConfigFormBase {
     return 'usagov_benefit_category_search_admin_settings_form';
   }
 
+  /**
+   * Builds a form to display current state and toggle showing call out blocks.
+   */
   public function buildForm(array $form, FormStateInterface $form_state): array {
-    $form = parent::buildForm($form, $form_state);
 
-    $form[self::SHOW_LANDING_PAGE_BLOCK] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Display new Benefits Landing Page block on home and benefits topic page'),
-      '#description' => $this->t("Enable to show the new block linking to the landing page instead of the carousel on the homepage"),
-      '#return_value' => TRUE,
-      '#default_value' => $this->config(self::SETTINGS_KEY)
-        ->get(self::SHOW_LANDING_PAGE_BLOCK),
+    $toggle_state = \Drupal::state()->get(self::TOGGLE_KEY) ? TRUE : FALSE;
+
+    $description = $toggle_state ?
+      "Showing the benefit search blocks is ENABLED" :
+      "Showing the benefit search blocks is DISABLED";
+
+    $form['description'] = [
+      '#type' => 'processed_text',
+      '#text' => $description,
     ];
 
+    $form['actions']['#type'] = 'actions';
+    $form['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t(
+        '@able display of benefit search call-out blocks',
+        ['@able' => $toggle_state ? 'DISABLE' : 'ENABLE']
+      ),
+      '#button_type' => 'primary',
+    ];
     return $form;
   }
 
@@ -35,26 +51,34 @@ class BenefitCategorySearchForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $this->config(self::SETTINGS_KEY)
-      ->set(self::SHOW_LANDING_PAGE_BLOCK, $form_state->getValue(self::SHOW_LANDING_PAGE_BLOCK))
-      ->save();
+    $toggle_state = \Drupal::state()->get(self::TOGGLE_KEY) ? TRUE : FALSE;
+    $errors = FALSE;
 
-    parent::submitForm($form, $form_state);
+    try {
+      if ($toggle_state) {
+        \Drupal::state()->delete(self::TOGGLE_KEY);
+      }
+      else {
+        \Drupal::state()->set(self::TOGGLE_KEY, TRUE);
+      }
+    }
+    catch (\Exception $e) {
+      \Drupal::logger('usagov_benefit_category_search')
+        ->error('Error while attempting toggle benefit search blocks: @error',
+        ['@error' => $e->getMessage()]);
+      $errors = TRUE;
+    }
+
+    if ($errors) {
+      $this->messenger()->addError("Something went wrong. See the error log for details.");
+    }
   }
 
   /**
-   * {@inheritdoc}
-   * @return string[]
+   * Helper to check if showing the blocks is enabled.
    */
-  protected function getEditableConfigNames(): array {
-    return [
-      self::SETTINGS_KEY,
-    ];
-  }
-
   public static function showLandingPageBlock(): bool {
-    $config = \Drupal::config(BenefitCategorySearchForm::SETTINGS_KEY);
-    return $config->get(BenefitCategorySearchForm::SHOW_LANDING_PAGE_BLOCK) === TRUE;
+    return \Drupal::state()->get(self::TOGGLE_KEY) ? TRUE : FALSE;
   }
 
 }
