@@ -179,10 +179,9 @@
       </div>
     </div>
 
-
+{% block mobile_nav %}
 {# Build the mobile nav #}
   {% if active_trail is empty %}
-
     {# The current page is not in the menu structure. Show All Topics and Services #}
     <ul class="navigation__items ancestors">
       <li class="navigation__item active">
@@ -269,7 +268,7 @@
     {% endfor %}
     </ul>
   {% endif %}
-
+{% endblock %}
 
 </div>
 </nav>
