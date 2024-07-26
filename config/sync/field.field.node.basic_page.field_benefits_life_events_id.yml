@@ -11,7 +11,7 @@ entity_type: node
 bundle: basic_page
 label: 'Life Events ID'
 description: 'Provide a short, URL-friendly identifier for linking directly to the Benefit Finder life event grid section. Use only letters, numbers, and minus sign.'
-required: true
+required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''
