@@ -277,6 +277,8 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
  */
 function usa_twig_vars_preprocess_region(&$variables) {
 
+  $state = \Drupal::state();
+
   // Check if we are in the `header_top` region
   if ($variables['region'] === 'header_top') {
 
@@ -299,36 +301,26 @@ function usa_twig_vars_preprocess_region(&$variables) {
           if ($place_above_header) {
             // Set the value to the site_banner id to add the site_banner to the `header_top` region.
             $variables['site_banners'][$site_banner->id()] = $site_banner->id();
+
+            // Clear the cache only if the block is not placed in the region and the "Place above header" checkbox is selected.
+            if (!$state->get('site_banners_placement.' . $site_banner->id(), false)) {
+              // dump("Running");
+              $state->set('site_banners_placement.' . $site_banner->id(), true);
+              drupal_flush_all_caches();
+            }
+
           }
           else {
             // Set the value to null to remove the site_banner with id `$site_banner->id()` from the region `header_top`
             $variables['site_banners'][$site_banner->id()] = NULL;
+            $state->set('site_banners_placement.' . $site_banner->id(), false);
           }
-
-          $variables['#cache']['contexts'][] = 'user';
-
-          // dump($variables['region']);
-          // dump($variables['elements']['#cache']['max-age']);
-          // $variables['elements']['#cache']['max-age'] = 0;
-          // dump($variables['elements']['#cache']['max-age']);
 
         }
 
       }
     }
   }
-}
-
-// function usa_twig_vars_block_build_alter(array &$build, \Drupal\Core\Block\BlockPluginInterface $block) {
-
-//   dump($build);
-//   $build['#cache']['max-age'] = 0;
-
-// }
-
-function usa_twig_vars_block_build_site_banner_alter(array &$build, \Drupal\Core\Block\BlockPluginInterface $block) {
-  dump($build);
-  $build['#cache']['max-age'] = 0;
 }
 
 /**
