@@ -354,7 +354,7 @@ ${benefit.term_node_tid}
       .replace('@first@', page.first)
       .replace('@last@', page.last)
       .replace('@totalItems@', page.totalItems);
-    elt.innerHTML += `<h2 tabindex="0" aria-live="polite">${label}</h2>`;
+    elt.innerHTML += `<h2 tabindex="-1">${label}</h2>`;
     // prepare pages
     for (const benefit of page.matches) {
       elt.innerHTML += myself.renderMatch(benefit).innerHTML;
