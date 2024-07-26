@@ -37,7 +37,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
   this.resultsContainer = resultsContainer;
   this.form = form;
   this.perPage = perPage;
-  this.activePage = 1;
+  this.activePage = null;
   this.terms = [];
   this.boxes = this.form.querySelectorAll('input[type="checkbox"]:not([value="all"])');
   this.toggleAll = this.form.querySelector('input[type="checkbox"][value="all"]');
@@ -357,7 +357,7 @@ ${benefit.term_node_tid}
       .replace('@first@', page.first)
       .replace('@last@', page.last)
       .replace('@totalItems@', page.totalItems);
-    elt.innerHTML += `<h2>${label}</h2>`;
+    elt.innerHTML += `<h2 tabindex="0">${label}</h2>`;
     // prepare pages
     for (const benefit of page.matches) {
       elt.innerHTML += myself.renderMatch(benefit).innerHTML;
@@ -384,8 +384,16 @@ ${benefit.term_node_tid}
           this.hidePage(page);
         }
       }
-      myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+      myself.scrollAndFocusResults();
     }
+
+  };
+  /**
+   * Bring the results into view and focus on the heading
+   */
+  this.scrollAndFocusResults = function() {
+    myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+    myself.resultsContainer.querySelector('.page-active > h2').focus();
   };
   /**
    * Update the terms for searching
@@ -450,7 +458,7 @@ ${benefit.term_node_tid}
     else if (myself.activePage < 1) {
       myself.setActivePage(1);
     }
-    myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+    myself.scrollAndFocusResults();
     myself.showPager(pages.length);
   };
   /**
