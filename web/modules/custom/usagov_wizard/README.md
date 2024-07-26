@@ -7,11 +7,12 @@ Hooks and service to improve Wizard management and customize Wizard display.
 
 * form_alter() - Adds a "view term" button to the modal edit screen
 in the wizard manager
-* theme_suggestions_page_alter() - Adds a theme suggestion for page templates
-based on vocabulary.
+* theme_suggestions_page_alter() - Adds a theme suggestions for page templates,
+breadcrumbs, and regions based on vocabulary.
 * preprocess_page() - Uses the MenuChecker service to put together a left hand
 navigation menu that is based on the location of the parent taxonomy in the
 menu.
+* preprocess_html() - Sends the text from the header_html field to the <head>.
 
 ### MenuChecker Service
 
@@ -24,11 +25,12 @@ menu.
  getTermParents(), we can get an array of taxonomy term ids that are parents of
  the current entity.
 
- Then, by passing in the machine name of a menu into getTargetEntities(), we can
+ Then, by passing in the machine name of a menu into getMenuEntities(), we can
  get an array of taxonomy term ids in the menu, provided they meet certain
- conditions. We can also get some information about these entities.
+ conditions. We can also get some information about these entities. We can then
+ get the parent of these entities, and load all the children.
 
- Then, once we have this information, we can check back in usagov_wizard.module
+ Then, once we have this data, we can check back in usagov_wizard.module
  in our preprocess hook to see if there is a match between the ids obtained by
  both methods. If there is, then we are on a taxonomy term page which is either
  linked to, or has a parent that is linked to, in the menu. And this link in
@@ -36,5 +38,4 @@ menu.
  used as an anchor to display this section of the menu in the left navigation.
 
  Finally, still in our preprocess hook in usagov_wizard.module,
- we can pass the entity information gained in getTargetEntities() onto our
- twig template for display.
+ we can pass the entity information onto our twig template for display.
