@@ -304,11 +304,31 @@ function usa_twig_vars_preprocess_region(&$variables) {
             // Set the value to null to remove the site_banner with id `$site_banner->id()` from the region `header_top`
             $variables['site_banners'][$site_banner->id()] = NULL;
           }
+
+          $variables['#cache']['contexts'][] = 'user';
+
+          // dump($variables['region']);
+          // dump($variables['elements']['#cache']['max-age']);
+          // $variables['elements']['#cache']['max-age'] = 0;
+          // dump($variables['elements']['#cache']['max-age']);
+
         }
 
       }
     }
   }
+}
+
+// function usa_twig_vars_block_build_alter(array &$build, \Drupal\Core\Block\BlockPluginInterface $block) {
+
+//   dump($build);
+//   $build['#cache']['max-age'] = 0;
+
+// }
+
+function usa_twig_vars_block_build_site_banner_alter(array &$build, \Drupal\Core\Block\BlockPluginInterface $block) {
+  dump($build);
+  $build['#cache']['max-age'] = 0;
 }
 
 /**
