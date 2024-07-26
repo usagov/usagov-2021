@@ -23,12 +23,16 @@ if ($englishNid) {
   $englishPage = createBasicPage(
     title: 'Find benefits by category',
     langcode: 'en',
-    intro: 'Use the benefit finder tool or search by category to learn which benefits you and your family may be eligible for and how to apply.',
+    body: '<p>
+    Use the <a href="#benefit-finder">benefit finder tool</a> or <a href="#search">search by category</a> to learn which benefits you and your family may be eligible for and how to apply.
+</p>',
     pageType: $benefitsSearchType,
     lifeEventsTitle: 'Benefit finder tool',
     lifeEventsDescr: 'Answer some basic questions to get a customized list of potential government benefits you may be eligible for during life events.',
+    lifeEventsID: 'benefit-finder',
     searchTitle: 'Find benefits by category',
-    searchDescr: 'Select one or more categories below to find benefits you may qualify for and information on how to apply.'
+    searchDescr: 'Select one or more categories below to find benefits you may qualify for and information on how to apply.',
+    searchID: 'search'
   );
 }
 
@@ -46,12 +50,14 @@ if ($spanishNid) {
   $spanishPage = createBasicPage(
     title: '¿A cuáles beneficios califica usted?',
     langcode: 'es',
-    intro: '',
+    body: '',
     pageType: $benefitsSearchType,
     lifeEventsTitle: 'Encuentre beneficios en estas etapas de su vida',
     lifeEventsDescr: "Responda unas preguntas básicas para obtener una lista personalizada de los beneficios del Gobierno a los que podría ser elegibles. También conocerá cómo aplicar a cada beneficio.\n\nNo compartimos ni guardamos la información que usted ingrese en el buscador de beneficios.",
+    lifeEventsID: 'buscado-beneficios',
     searchTitle: 'Busque beneficios por categoría',
-    searchDescr: 'Seleccione una o más de las categorías a continuación para encontrar los beneficios a los que podría calificar y conocer cómo aplicar.'
+    searchDescr: 'Seleccione una o más de las categorías a continuación para encontrar los beneficios a los que podría calificar y conocer cómo aplicar.',
+    searchID: 'buscar',
   );
 }
 
@@ -109,23 +115,27 @@ function getTermMap(string $vid) {
 function createBasicPage(
   string $title,
   string $langcode,
-  string $intro,
+  string $body,
   string $pageType,
   string $lifeEventsTitle,
   string $lifeEventsDescr,
+  string $lifeEventsID,
   string $searchTitle,
   string $searchDescr,
+  string $searchID,
 ) {
   $node = Node::create([
     'type' => 'basic_page',
     'title' => $title,
     'langcode' => $langcode,
-    'field_page_intro' => $intro,
+    'body' => ['value' => $body, 'format' => 'uswds'],
     'field_page_type' => $pageType,
     'field_benefits_life_events_title' => $lifeEventsTitle,
     'field_benefits_life_events_descr' => $lifeEventsDescr,
+    'field_benefits_life_events_id' => $lifeEventsID,
     'field_benefits_search_title' => $searchTitle,
     'field_benefits_search_descr' => $searchDescr,
+    'field_benefits_search_id' => $searchID,
   ]);
   $node->setPublished(true);
   $node->set('moderation_state', 'published');
