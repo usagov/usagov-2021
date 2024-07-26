@@ -119,7 +119,7 @@ If page is not tagged, the datalayer shows:
 "hasBenefitCategory": false,
 ```
 
-### JavaScript sources
+### JavaScript Sources
 
 Two JavaScript source files are required for the page to function properly.
 
@@ -164,7 +164,7 @@ bin/drush php:script scripts/drush/benefits-category-make-pages.php
 
 5. Associate terms to life events. You need to edit at least one term in English and one Spanish term from the benefits category vocabulary to reference one of the pages via the "Life Events" field.
 
-6. Enable the benefits search call-outs at `/admin/config/development/usagov_benefit_category_search`. Tick the box to display the call-outs and press the save button.
+6. Enable the benefits search call-outs at `/admin/config/development/usagov_benefit_category_search`. Press the button to enable the call-outs. This will also hide the life events carousel on the homepage.
 
 ## Known Issues and Concerns
 

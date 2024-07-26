@@ -118,14 +118,31 @@ fi
 # launch the app
 if [ -z "$CDIGEST" ]; then
   echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}"
-  cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
-    --var app-name="${ROUTE_SERVICE_APP_NAME}" \
-    --docker-image ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}
+  if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+      cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
+      --var app-name="${ROUTE_SERVICE_APP_NAME}" \
+      --docker-image ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}
+  else
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN \
+      cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
+      --var app-name="${ROUTE_SERVICE_APP_NAME}" \
+      --docker-image ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG} \
+      --docker-username $DOCKERHUB_USERNAME
+  fi
 else
-  echo "Deploying ${DOCKERUSER}/${DOCKERREPO} waf-${CTAG} via digest ${CDIGEST}"
-  cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
+    echo "Deploying ${DOCKERUSER}/${DOCKERREPO} waf-${CTAG} via digest ${CDIGEST}"
+  if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+    cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
     --var app-name="${ROUTE_SERVICE_APP_NAME}" \
     --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+  else
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN \
+    cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
+    --var app-name="${ROUTE_SERVICE_APP_NAME}" \
+    --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} \
+    --docker-username $DOCKERHUB_USERNAME
+  fi
+
 fi
 
 cf create-route app.cloud.gov --hostname $ROUTE_SERVICE_NAME
