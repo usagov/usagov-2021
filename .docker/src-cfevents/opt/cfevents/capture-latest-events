@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 SPACE=$1
 
@@ -14,7 +14,8 @@ aws_cp  s3://$S3_BUCKET/cfevents/${SPACE}/$DATEFILE /tmp/ &>/dev/null
 if [ -f /tmp/$DATEFILE ]; then
     CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -r /tmp/$DATEFILE)
 else
-    CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d "2 months ago")
+    #CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d "2 months ago")
+    CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d "@$(( $(date +%s) - 5259492 ))")
 fi
 
 touch /tmp/$DATEFILE
