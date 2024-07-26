@@ -319,12 +319,14 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       case 'Life Event':
         let termMarkup = '';
 
-        benefit.terms.forEach(term => termMarkup += `<span>${term}</span>`);
+        benefit.terms.forEach(term => termMarkup += `<li>${term}</li>`);
 
         elt.innerHTML += `<div class="grid-row benefits-result">
 <div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.field_b_search_title}</h3><p>${description}</p></div>
 <div class="desktop:grid-col-4 benefits-result-categories"><h4>${myself.labels.appliedCategories}</h4>
-  <span>${myself.labels.benefitFinderCategory}</span><span>${myself.labels.lifeEventsCategory}</span>${termMarkup}</div>
+  <ul>
+  <li>${myself.labels.benefitFinderCategory}</li><li>${myself.labels.lifeEventsCategory}</li>${termMarkup}</div>
+  </ul>
 </div>`;
         break;
 

@@ -149,7 +149,12 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
   font-size: 1.1rem;
 }
 
-.benefits-result-categories span {
+.benefits-result-categories ul {
+  list-style-type: none;
+  @include u-margin(0);
+  @include u-padding-left(0);
+}
+.benefits-result-categories li {
   padding: 0.25rem 0.5rem;
   margin-right: 0.5rem;
   margin-bottom: 0.5rem;
