@@ -323,7 +323,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
 
         elt.innerHTML += `<div class="grid-row benefits-result">
 <div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.field_b_search_title}</h3><p>${description}</p></div>
-<div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
+<div class="desktop:grid-col-4 benefits-result-categories"><h4>${myself.labels.appliedCategories}</h4>
   <span>${myself.labels.benefitFinderCategory}</span><span>${myself.labels.lifeEventsCategory}</span>${termMarkup}</div>
 </div>`;
         break;
@@ -332,7 +332,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       default:
         elt.innerHTML += `<div class="grid-row benefits-result">
 <div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
-<div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
+<div class="desktop:grid-col-4 benefits-result-categories"><h4>${myself.labels.appliedCategories}</h4>
 ${benefit.term_node_tid}
 </div>
 </div>`;
