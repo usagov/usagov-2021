@@ -565,7 +565,7 @@ jQuery(document).ready(async function () {
     benefitsPath,
     lifeEventsPath,
     '/themes/custom/usagov',
-    docLang,
+    docLang[0],
     labels,
     document.querySelector('#benefitSearch'),
     document.querySelector('#matchingBenefits'),
