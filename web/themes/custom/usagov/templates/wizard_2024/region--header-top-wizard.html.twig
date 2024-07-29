@@ -1,0 +1,33 @@
+{#
+/**
+ * @file
+ * Theme override to display a region.
+ *
+ * Available variables:
+ * - content: The content for this region, typically blocks.
+ * - attributes: HTML attributes for the region <div>.
+ * - region: The name of the region variable as defined in the theme's
+ *   .info.yml file.
+ *
+ * @see template_preprocess_region()
+ *
+ * @ingroup themeable
+ */
+#}
+{% if content %}
+  <div{{ attributes }}>
+    {# Add all blocks in the `header_top` region #}
+    {{ content }}
+    {{ include('@usagov/wizard_2024/wizard-mobile-navigation-include.html.twig') }}
+    {# Check if there are any site_banners #}
+    {% if site_banners %}
+      {% for site_banner_id in site_banners %}
+        {# If the current `site_banner` has the checkbox checked, it adds it to the `header_top` region. #}
+        {% if site_banner_id %}
+          {{ drupal_entity('block_content', site_banner_id) }}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+{% endif %}
+
