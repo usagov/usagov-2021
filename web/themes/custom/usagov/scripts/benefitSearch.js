@@ -21,18 +21,20 @@
  * @param {string} benefitsPath
  * @param {string} lifeEventsPath
  * @param {string} assetBase
+ * @param {string} docLang
  * @param {TranslationLabels} labels
  * @param {Element} form
  * @param {Element} resultsContainer
  * @param {int} perPage
  * @constructor
  */
-function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, resultsContainer, perPage) {
+function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels, form, resultsContainer, perPage) {
   "use strict";
 
   this.benefitsSrc = benefitsPath;
   this.life = lifeEventsPath;
   this.assetBase = assetBase;
+  this.docLang = docLang;
   this.labels = labels;
   this.resultsContainer = resultsContainer;
   this.form = form;
@@ -56,8 +58,8 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
    * @typedef Benefit
    * @type Object
    * @property {int} nid
-   * @property {int} field_benefit_search_weight
-   * @property {int} rank
+   * @property {string} field_benefit_search_weight
+   * @property {int} weight
    * @property {int[]} field_benefits_category
    * @property {string} term_node_tid Term name markup
    * @property {string} title Title to display
@@ -130,26 +132,9 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
       return numMatches.length > 0;
     });
-    // score each match
-    matches = matches.map(function(item) {
-      let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
-      let base = parseInt(item.field_benefit_search_weight);
-      let score = isNaN(base) ? 0 : base;
-      item.rank = numMatches.length * 100 + score;
-      return item;
-    });
-    matches = matches.sort(function(a, b) {
-      // we want higher scores to come earlier so the return
-      // values are -1 for items we want to display earlier
-      // and +1 for later
-      if (a.rank > b.rank) {
-        return -1;
-      }
-      if (a.rank < b.rank) {
-        return +1;
-      }
-      return 0;
-    });
+    // score and sort remaining matches
+    matches = matches.map(myself.getItemWeight);
+    matches = matches.sort(myself.compareResults);
     // prepend any life events that match
     for (const [, lifeEvent] of myself.lifeEvents) {
       if (myself.lifeEventHasTopic(lifeEvent.tid, myself.terms)) {
@@ -157,6 +142,33 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       }
     }
     return matches;
+  };
+  /**
+   *
+   * @param {Benefit} item
+   * @return {Benefit}
+   */
+  this.getItemWeight = function(item) {
+    let base = parseInt(item.field_benefit_search_weight);
+    item.weight = isNaN(base) ? 0 : base;
+    return item;
+  };
+  /**
+   * @param {Benefit} a
+   * @param {Benefit} b
+   * @return {number}
+   */
+  this.compareResults = function(a, b) {
+    // we want higher scores to come earlier so the return
+    // values are -1 for items we want to display earlier
+    // and +1 for later
+    if (a.weight > b.weight) {
+      return -1;
+    }
+    if (a.weight < b.weight) {
+      return +1;
+    }
+    return 0;
   };
   /**
    * @param {int[]} tids
@@ -298,7 +310,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
   };
   /**
    * Render a single piece of matching content
-   * @param benefit
+   * @param {Benefit} benefit
    * @returns {HTMLTemplateElement}
    */
   this.renderMatch = function(benefit) {
@@ -319,7 +331,9 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
         benefit.terms.forEach(term => termMarkup += `<li>${term}</li>`);
 
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.field_b_search_title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-8 benefits-result-text">
+  <h3><a href="${benefit.view_node}" data-analytics="category-results-links" hreflang="${myself.docLang}">${benefit.field_b_search_title}</a></h3>
+  <p>${description}</p></div>
 <div class="desktop:grid-col-4 benefits-result-categories"><h4>${myself.labels.appliedCategories}</h4>
   <ul>
   <li>${myself.labels.benefitFinderCategory}</li><li>${myself.labels.lifeEventsCategory}</li>${termMarkup}</div>
@@ -330,7 +344,9 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       case 'Basic Page':
       default:
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
+<div class="desktop:grid-col-8 benefits-result-text">
+  <h3><a href="${benefit.view_node}" data-analytics="category-results-links" hreflang="${myself.docLang}">${benefit.title}</a></h3>
+  <p>${description}</p></div>
 <div class="desktop:grid-col-4 benefits-result-categories"><h4>${myself.labels.appliedCategories}</h4>
 ${benefit.term_node_tid}
 </div>
@@ -417,6 +433,12 @@ ${benefit.term_node_tid}
     this.handleSubmit();
   };
   this.showError = function() {
+    let alert = myself.form.querySelectorAll('.usa-alert');
+    if (alert.length > 0) {
+      // if we're showing an error already, don't add another
+      return;
+    }
+
     let elt = document.createElement('template');
     elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4" aria-live=assertive>
         <div class="usa_alert__body">
@@ -565,6 +587,7 @@ jQuery(document).ready(async function () {
     benefitsPath,
     lifeEventsPath,
     '/themes/custom/usagov',
+    docLang[0],
     labels,
     document.querySelector('#benefitSearch'),
     document.querySelector('#matchingBenefits'),
