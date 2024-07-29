@@ -59,8 +59,8 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
    * @typedef Benefit
    * @type Object
    * @property {int} nid
-   * @property {int} field_benefit_search_weight
-   * @property {int} rank
+   * @property {string} field_benefit_search_weight
+   * @property {int} weight
    * @property {int[]} field_benefits_category
    * @property {string} term_node_tid Term name markup
    * @property {string} title Title to display
@@ -133,26 +133,9 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
       return numMatches.length > 0;
     });
-    // score each match
-    matches = matches.map(function(item) {
-      let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
-      let base = parseInt(item.field_benefit_search_weight);
-      let score = isNaN(base) ? 0 : base;
-      item.rank = numMatches.length * 100 + score;
-      return item;
-    });
-    matches = matches.sort(function(a, b) {
-      // we want higher scores to come earlier so the return
-      // values are -1 for items we want to display earlier
-      // and +1 for later
-      if (a.rank > b.rank) {
-        return -1;
-      }
-      if (a.rank < b.rank) {
-        return +1;
-      }
-      return 0;
-    });
+    // score and sort remaining matches
+    matches = matches.map(myself.getItemWeight);
+    matches = matches.sort(myself.compareResults);
     // prepend any life events that match
     for (const [, lifeEvent] of myself.lifeEvents) {
       if (myself.lifeEventHasTopic(lifeEvent.tid, myself.terms)) {
@@ -160,6 +143,33 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       }
     }
     return matches;
+  };
+  /**
+   *
+   * @param {Benefit} item
+   * @return {Benefit}
+   */
+  this.getItemWeight = function(item) {
+    let base = parseInt(item.field_benefit_search_weight);
+    item.weight = isNaN(base) ? 0 : base;
+    return item;
+  };
+  /**
+   * @param {Benefit} a
+   * @param {Benefit} b
+   * @return {number}
+   */
+  this.compareResults = function(a, b) {
+    // we want higher scores to come earlier so the return
+    // values are -1 for items we want to display earlier
+    // and +1 for later
+    if (a.weight > b.weight) {
+      return -1;
+    }
+    if (a.weight < b.weight) {
+      return +1;
+    }
+    return 0;
   };
   /**
    * @param {int[]} tids
@@ -410,6 +420,12 @@ ${benefit.term_node_tid}
     this.handleSubmit();
   };
   this.showError = function() {
+    let alert = myself.form.querySelectorAll('.usa-alert');
+    if (alert.length > 0) {
+      // if we're showing an error already, don't add another
+      return;
+    }
+
     let elt = document.createElement('template');
     elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4" aria-live=assertive>
         <div class="usa_alert__body">

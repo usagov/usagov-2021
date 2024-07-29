@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Batch\BatchBuilder;
+use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\usagov_benefit_finder_api\Controller\LifeEventController;
 
@@ -15,7 +16,13 @@ use Drupal\usagov_benefit_finder_api\Controller\LifeEventController;
  * @param Node $node
  */
 function usagov_benefit_finder_api_node_update(Node $node) {
-  _usagov_benefit_finder_api_batch_generate_json_data_files($node);
+  $url = _usagov_benefit_finder_api_get_current_page_url();
+  if (strpos($url, "/admin/content") === FALSE) {
+    _usagov_benefit_finder_api_batch_generate_json_data_files($node);
+  }
+  else {
+    \Drupal::messenger()->addWarning(t('The system did not generate Benefit Finder JSON files in this action.'));
+  }
 }
 
 /**
@@ -127,4 +134,15 @@ function _usagov_benefit_finder_api_batch_generate_json_data_files(Node $node) {
       batch_set($batch_builder->toArray());
     }
   }
+}
+
+/**
+ * Gets the current page URL.
+ *
+ * @return string
+ *   The current page URL.
+ */
+function _usagov_benefit_finder_api_get_current_page_url() {
+  $current_url = Url::fromRoute('<current>')->toString();
+  return $current_url;
 }

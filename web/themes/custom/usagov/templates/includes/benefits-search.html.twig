@@ -4,7 +4,11 @@
  */
  #}
 {% set lang = node.langcode.value %}
-{% set finder_id = node.field_benefits_life_events_id.value | trim %}
+{% if node.field_benefits_life_events_id.value is empty %}
+  {% set finder_id = '' %}
+{% else %}
+  {% set finder_id = node.field_benefits_life_events_id.value | trim %}
+{% endif %}
 
 {% if node.field_benefits_life_events_title.value | render  %}
   <h2 class="benefit-finder__title" id="{{ finder_id }}">{{ node.field_benefits_life_events_title.value | render }}</h2>

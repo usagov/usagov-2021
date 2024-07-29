@@ -18,6 +18,7 @@ fi
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
 CTAG=${1:-latest}
 CDIGEST=${2:-}
 
@@ -70,10 +71,18 @@ function pushApp { #appname
 
   if [ -z "$CDIGEST" ]; then
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}
+    if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+      cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}
+    else
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME
+    fi
   else
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${CTAG} via digest ${CDIGEST}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+    if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+	cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+    else
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME
+    fi
   fi
 }
 
