@@ -303,9 +303,8 @@ function usa_twig_vars_preprocess_region(&$variables) {
             $variables['site_banners'][$site_banner->id()] = $site_banner->id();
 
             // Clear the cache only if the block is not placed in the region and the "Place above header" checkbox is selected.
-            if (!$state->get('site_banners_placement.' . $site_banner->id(), false)) {
-              // dump("Running");
-              $state->set('site_banners_placement.' . $site_banner->id(), true);
+            if (!$state->get('site_banners_placement.' . $site_banner->id(), FALSE)) {
+              $state->set('site_banners_placement.' . $site_banner->id(), TRUE);
               drupal_flush_all_caches();
             }
 
@@ -313,7 +312,7 @@ function usa_twig_vars_preprocess_region(&$variables) {
           else {
             // Set the value to null to remove the site_banner with id `$site_banner->id()` from the region `header_top`
             $variables['site_banners'][$site_banner->id()] = NULL;
-            $state->set('site_banners_placement.' . $site_banner->id(), false);
+            $state->set('site_banners_placement.' . $site_banner->id(), FALSE);
           }
 
         }
