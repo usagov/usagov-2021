@@ -1,0 +1,23 @@
+{% extends "@usagov/block--mobile-navigation.html.twig" %}
+
+{% block mobile_nav %}
+{% if elements['#menu_entities'] %}
+  <ul class="navigation__items ancestors">
+    {% for menu_item in elements['#menu_entities'] %}
+    {% if loop.first %}
+    <li class="navigation__item active">
+      <a class="usa-current" href="{{ elements['#menu_entities'][1]['link'] }}" class="active-trail">
+        {{ menu_item.label }}
+      </a>
+      <ul class="navigation__items children">
+        {% else %}
+          <li class="navigation__item child">
+            <a href="{{ menu_item.link }}">{{ menu_item.label }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+      </ul>
+    </li>
+  </ul>
+{% endif %}
+{% endblock %}

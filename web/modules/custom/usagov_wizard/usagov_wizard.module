@@ -77,6 +77,19 @@ function usagov_wizard_theme_suggestions_breadcrumb_alter(array &$suggestions, a
 }
 
 /**
+ * Implements hook_theme_suggestions_alter().
+ *
+ * Custom region_header_top so we can have a custom mobile nav menu generated
+ * from MenuChecker.php.
+ */
+function usagov_wizard_theme_suggestions_region_alter(array &$suggestions, array &$variables) {
+  $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
+  if ($taxonomy_term instanceof Term) {
+    $suggestions[] = 'region__' . $variables['elements']['#region'] . '_' . $taxonomy_term->vid->getValue()[0]['target_id'];
+  }
+}
+
+/**
  * Implements hook_preprocess_HOOK().
  *
  * Preprocess the page by retrieving information about the taxonomy term,
@@ -90,42 +103,49 @@ function usagov_wizard_preprocess_page(&$variables) {
     if ($taxonomy_term->bundle() === 'wizard') {
       $menuChecker = \Drupal::classResolver(MenuChecker::class);
 
-      // Get an array of the current taxonomy term and all of its parents.
+      // Get an array of the current taxonomy term id and all of its parent ids.
       $termParents = $menuChecker->getTermParents($taxonomy_term);
+
       $langcode = $variables['language']->getId();
 
-      // Check the menu based on langcode for links to taxonomy terms.
-      $menuEntities = $menuChecker->getTargetEntities($langcode);
+      /* Get an array of all the menu entities in the specified menu leading to
+      taxonomy terms.*/
+      $menuEntities = $menuChecker->getMenuEntities($langcode);
 
-      // See if there are any matches.
-      if (isset($menuEntities['target_tids'])) {
-        $matching_tid = array_intersect($termParents, $menuEntities['target_tids']);
-
-        $matching_tid = implode(',', $matching_tid);
-
-        // If there are matches, send them to the twig.
-        if (isset($matching_tid)) {
-          foreach ($menuEntities['menu_entities'] as $menuEntity) {
-            $entities = array_map(function ($menuEntity) {
+      $wizardMenuEntities = [];
+      // See if there are any matches between the ids in the current wizard and
+      // the ids of the taxonomy terms linked to in the menu.
+      if (isset($menuEntities)) {
+        foreach ($termParents as $key) {
+          if (array_key_exists($key, $menuEntities)) {
+            $wizardMenuEntities = array_merge($wizardMenuEntities, $menuEntities[$key]);
+          }
+        }
+        /* If there are matches, send information about the menu entities to the
+        twig.*/
+        if (isset($wizardMenuEntities)) {
+          foreach ($wizardMenuEntities as $wizardMenuEntity) {
+            $entities = array_map(function ($wizardMenuEntity) {
               return [
-                'label' => $menuEntity->title->value,
-                'link' => Url::fromUri($menuEntity->link->uri)->toString(),
-                'weight' => $menuEntity->getWeight(),
+                'label' => $wizardMenuEntity->title->value,
+                'link' => Url::fromUri($wizardMenuEntity->link->uri)
+                  ->toString(),
+                'weight' => $wizardMenuEntity->getWeight(),
               ];
-            }, $menuEntities['menu_entities']);
-
+            }, $wizardMenuEntities);
             usort($entities, function ($item1, $item2) {
               return $item1['weight'] <=> $item2['weight'];
             });
 
             $variables['menu_entities'] = $entities;
+            $variables['page']['header_top']['#menu_entities'] = $entities;
           }
         }
-      } // End isset $menuEntities['target_tids']
-
-      if (isset($taxonomy_term->field_language_toggle[0]->target_id)) {
-        $variables['translation'] = $taxonomy_term->field_language_toggle->getValue()[0]['target_id'];
       }
+    }
+
+    if (isset($taxonomy_term->field_language_toggle[0]->target_id)) {
+      $variables['translation'] = $taxonomy_term->field_language_toggle->getValue()[0]['target_id'];
     }
   }
 }
@@ -174,7 +194,6 @@ function usagov_wizard_preprocess_taxonomy_term(&$variables) {
         $root_tid = $parent;
         if ($parent_tid != $root_tid && $root_tid != $variables['term']->id()) {
           $variables['start_over'] = 'true';
-
         }
         else {
           $variables['start_over'] = 'false';
@@ -215,46 +234,71 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
       $langcode = $taxonomy_term->langcode->value;
 
       $parent_headings = $menuChecker->getHeadings($taxonomy_term);
-      $menuEntities = $menuChecker->getTargetEntities($langcode);
 
-      if (isset($menuEntities['menu_entities'])) {
-        // If there's a custom parent menu entity...
-        foreach ($menuEntities['menu_entities'] as $menuEntity) {
-          if ($menuEntity->field_custom_parent->value == 1) {
-            $wizard_title = $menuEntity->title->value;
+      $menuEntities = $menuChecker->getMenuEntities($langcode);
+
+      if (isset($menuEntities)) {
+        if (is_array($menuEntities)) {
+          $termParents = $menuChecker->getTermParents($taxonomy_term);
+          /* If the current page matches a menu entity with the custom_parent
+          field set to true.*/
+          foreach ($termParents as $key) {
+            if (array_key_exists($key, $menuEntities)) {
+              foreach ($menuEntities[$key] as $wizardMenuEntity) {
+                if ($wizardMenuEntity->field_custom_parent->value == 1) {
+                  /* Set our breadcrumbs here so if there's a duplicate, we
+                  use the breadcrumbs from the part of the menu with
+                  field_custom_parent = true. */
+
+                  $wizard_title = $wizardMenuEntity->title->value;
+                  $wizard_title_url = substr($wizardMenuEntity->link->uri, strpos($wizardMenuEntity->link->uri, "/"));
+                  $parentEntityUuid = $wizardMenuEntity->parent->value;
+                  if (isset($parentEntityUuid)) {
+                    $parentEntity = \Drupal::service('entity.repository')
+                      ->loadEntityByUuid('menu_link_content', explode(':', $parentEntityUuid));
+                  }
+                }
+              }
+            }
           }
         }
       }
+      else {
+        return;
+      }
+    }
+    // Use that to determine the second item in the breadcrumb.
+    if (isset($wizard_title)) {
+      $variables['breadcrumb']['1']['text'] = $wizard_title;
+      $variables['breadcrumb']['1']['url'] = $wizard_title_url;
 
-      // Use that to determine the second item in the breadcrumb.
-      if (isset($wizard_title)) {
-        $variables['breadcrumb']['1']['text'] = $wizard_title;
-
-        /*
-         *  And, if we are on the page that corresponds with the second item,
-         *  remove that page from the array.
-         */
-        if (isset($variables['breadcrumb']['2'])) {
-          if ($variables['breadcrumb']['2']['text'] == $wizard_title) {
-            unset($variables['breadcrumb']['1']);
-            unset($variables['breadcrumb']['2']);
-          }
+      /*
+       *  And, if we are on the page that corresponds with the second item,
+       *  remove that page from the array.
+       */
+      if (isset($variables['breadcrumb']['2'])) {
+        if ($variables['breadcrumb']['2']['text'] == $wizard_title) {
+          unset($variables['breadcrumb']['1']);
+          unset($variables['breadcrumb']['2']);
+          return;
+        }
+        elseif (strlen($variables['breadcrumb']['2']['url']) < 1) {
+          unset($variables['breadcrumb']['2']);
         }
       }
-      $i = 0;
-      // Set the third item in the breadcrumb to be the field_heading.
-      foreach ($variables['breadcrumb'] as &$breadcrumb) {
-
-        /* Dont do anything to the second breadcrumb, since this one has a weird
-        naming system. */
-        if ($i++ == 1) {
-          continue;
-        }
-        foreach ($parent_headings as $parent_heading) {
-          if (is_string($breadcrumb['text']) && $parent_heading['name'] ===
-            $breadcrumb['text']) {
-            $breadcrumb['text'] = $parent_heading['label'];
-          }
+    }
+    $i = 0;
+    // Set the third item in the breadcrumb to be the field_heading.
+    foreach ($variables['breadcrumb'] as &$breadcrumb) {
+      /* Dont do anything to the second breadcrumb, since this one has a weird
+      naming system. */
+      if ($i++ == 1) {
+        continue;
+      }
+      foreach ($parent_headings as $parent_heading) {
+        if (is_string($breadcrumb['text']) && $parent_heading['name'] ===
+          $breadcrumb['text']) {
+          $breadcrumb['text'] = $parent_heading['label'];
         }
       }
     }
