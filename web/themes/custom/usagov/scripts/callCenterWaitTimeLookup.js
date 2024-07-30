@@ -13,6 +13,7 @@ jQuery(document).ready(async function () {
         'cms-stage': 'cms-stage',
         'beta-dev': 'cms-dev',
         'cms-dev': 'cms-dev',
+        'localhost': 'localhost',
       };
       jQuery.ajax({
         "url": "https://" + domainMap[domain] + ".usa.gov/wait-time",

@@ -1,0 +1,52 @@
+
+### TBD: Use a more determinate tag please
+FROM ubuntu:latest
+
+ARG GITBRANCH
+ENV GITBRANCH ${GITBRANCH:-none}
+
+ARG GITCOMMIT
+ENV GITCOMMIT ${GITCOMMIT:-none}
+
+ARG GITTAG
+ENV GITTAG ${GITTAG:-none}
+
+ARG CONTAINERTAG
+ENV CONTAINERTAG ${CONTAINERTAG:-none}
+
+ARG BUID=1000
+ARG BGID=1000
+
+ADD https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip /root/awscliv2.zip
+
+RUN apt update --allow-unauthenticated \
+    && apt-get -y install --no-install-recommends ca-certificates pv openssh-client sshpass wget gnupg2 \
+    && wget --user-agent="Mozilla" --no-check-certificate -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add - \
+    && echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list \
+    && apt update \
+    && apt-get -y install \
+    ca-certificates \
+    cf8-cli \
+    inotify-tools \
+    curl \
+    jq \
+    moreutils \
+    less \
+    pv \
+    tar \
+    vim \
+    nano \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN unzip /root/awscliv2.zip -d /root/
+RUN /root/aws/install
+RUN rm -rf /root/aws /root/awscliv2.zip
+
+COPY .docker/src-callcenter/etc /etc
+COPY .docker/src-callcenter/opt /opt
+
+# COPY bin/cloudgov/callcenter/call-center-update /opt/callcenter/
+COPY .docker/src-callcenter/root/.profile /root/
+
+CMD ["/bin/bash"]
