@@ -1,0 +1,8 @@
+name: 'USAGov Redirect'
+type: module
+core_version_requirement: ^10
+description: 'Module to make changes to the html of the pages that do a redirect.
+This module creates an event subscriber that watches the RESPONSE event, which occurs
+once a response is created to respond to a request.'
+dependencies:
+  - redirect
