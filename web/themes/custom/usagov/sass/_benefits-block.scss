@@ -53,10 +53,10 @@
 
   .benefits-block__content, p {
     @include u-text('blue-80v');
-    @include u-font-family('serif');
+    @include u-font-family('sans');
     @include u-text(light);
     @include u-margin(0);
-    font-size: 1.125em;
+    font-size: 1.25rem;
   }
 }
 
@@ -95,6 +95,7 @@ a.usa-button.benefits-link {
 
   .benefits-text {
     @include u-text('gray-90');
+    @include u-font-family('serif');
   }
 
   .benefits-block {
