@@ -12,7 +12,7 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
   padding: 1.75rem calc(0.5 * (100vw - 100%)) 75px;
   background-color: color("cyan-5");
 
-  @media (min-width: 700px) {
+  @include at-media('tablet') {
     padding-top: 2.75rem;
   }
 }
@@ -47,13 +47,13 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
 
 .benefits-category-list .grid-row.benefits-category-error .benefits-category-list-checkbox-all {
   margin-top: -1px;
-  @include at-media('tablet') {
-    padding-top: 1.5rem;
-    margin-top: -1rem;
-  }
+  padding-bottom: 1rem;
+  margin-bottom: 0;
+
   @include at-media('tablet-lg') {
     padding-top: 0;
     margin-top: 0;
+    padding-bottom: 0;
   }
 }
 
@@ -68,7 +68,7 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
   border: 0;
   padding: 20px 0 0;
 
-  @include at-media('tablet') {
+  @include at-media('tablet-lg') {
     flex-direction: row;
   }
 }
@@ -78,7 +78,7 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
   gap: 0.625rem;
   flex-direction: column;
 
-  @media (min-width: 700px) {
+  @include at-media('tablet-lg') {
     flex-direction: row;
     gap: 1.5rem;
   }
@@ -147,8 +147,12 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
 }
 .benefits-category-list-checkbox-all {
   height: fit-content;
+  margin-bottom: 0.5rem;
   @include u-width('full');
+
   @include at-media('tablet-lg') {
+    margin-top: 0;
+    margin-bottom: 0;
     width: 10rem;
   }
 }
