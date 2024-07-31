@@ -5,57 +5,11 @@ source ~/.profile &> /dev/null
 # Get local env
 . /opt/callcenter/env.local
 
-tokenFile="token.json"
 waitTimeFile="waittime.json"
 
-# yes I know there is a ton of repeated code here, I couldn't get functions to work properly
-if [ -e $tokenFile ]; then
-  echo "Token file exists."
-  tokenJSON=$(< $tokenFile)
-
-  if [ -z "$tokenJSON" ]; then
-    echo "Token file is empty!"
-    tokenResponse=$(curl -X POST https://login.$CALL_CENTER_ENVIRONMENT/oauth/token -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=client_credentials&client_id=$CALL_CENTER_CLIENT_ID&client_secret=$CALL_CENTER_CLIENT_SECRET")
-
-    currentTime=$(date +%s)
-    expiresIn=$(echo "$tokenResponse" | jq -r '.expires_in')
-    expireTime=$((currentTime + expiresIn))
-    tokenResponse=$(jq -r --arg expireTime "$expireTime" '.expiresAt=$expireTime' <<< "$tokenResponse")
-
-    echo "$tokenResponse" > $tokenFile
-    token=$(echo "$tokenJSON" | jq -r '.access_token')
-  else
-    currentTime=$(date +%s)
-    expireTime=$(jq -r '.expiresAt' <<< "$tokenJSON")
-
-    if [ "$currentTime" -gt "$expireTime" ]; then
-      echo "Token expired!"
-      tokenResponse=$(curl -X POST https://login.$CALL_CENTER_ENVIRONMENT/oauth/token -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=client_credentials&client_id=$CALL_CENTER_CLIENT_ID&client_secret=$CALL_CENTER_CLIENT_SECRET")
-
-      currentTime=$(date +%s)
-      expiresIn=$(echo "$tokenResponse" | jq -r '.expires_in')
-      expireTime=$((currentTime + expiresIn))
-      tokenResponse=$(jq -r --arg expireTime "$expireTime" '.expiresAt=$expireTime' <<< "$tokenResponse")
-
-      echo "$tokenResponse" > $tokenFile
-      token=$(echo "$tokenJSON" | jq -r '.access_token')
-    else
-      echo "Token not expired."
-      token=$(echo "$tokenJSON" | jq -r '.access_token')
-    fi
-  fi
-else
-  echo "Token file does not exist!"
-  tokenResponse=$(curl -X POST https://login.$CALL_CENTER_ENVIRONMENT/oauth/token -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=client_credentials&client_id=$CALL_CENTER_CLIENT_ID&client_secret=$CALL_CENTER_CLIENT_SECRET")
-
-  currentTime=$(date +%s)
-  expiresIn=$(echo "$tokenResponse" | jq -r '.expires_in')
-  expireTime=$((currentTime + expiresIn))
-  tokenResponse=$(jq -r --arg expireTime "$expireTime" '.expiresAt=$expireTime' <<< "$tokenResponse")
-
-  echo "$tokenResponse" > $tokenFile
-  token=$(echo "$tokenJSON" | jq -r '.access_token')
-fi
+echo "Getting access token."
+tokenResponse=$(curl -X POST https://login.$CALL_CENTER_ENVIRONMENT/oauth/token -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=client_credentials&client_id=$CALL_CENTER_CLIENT_ID&client_secret=$CALL_CENTER_CLIENT_SECRET")
+token=$(echo "$tokenResponse" | jq -r '.access_token')
 
 echo "Getting en wait time."
 enWaitTime=$(curl -X GET https://api.$CALL_CENTER_ENVIRONMENT/api/v2/routing/queues/$CALL_CENTER_EN_QUEUE_ID/estimatedwaittime -H "Authorization:Bearer $token" | jq -r '.results[].estimatedWaitTimeSeconds');
