@@ -27,8 +27,15 @@ function usagov_preprocess_block__usagov_taxonomy_links(&$variables) {
       $node = \Drupal::routeMatch()->getParameter('node');
       if ($node instanceof \Drupal\node\NodeInterface) {
         $nid = $node->id();
-        $aliasTableResult = \Drupal::database()->query("SELECT alias FROM path_alias WHERE path = '/node/{$nid}' ")->fetchField();
-        $urlToPass = $aliasTableResult;
+        $urlToPass = \Drupal::database()->query("SELECT alias FROM path_alias WHERE path = '/node/{$nid}' ")->fetchField();
+
+        // And if the node is set to the Spanish language, prepend "/es/" to the alias-path if it is not there already.
+        if ( trim(substr($urlToPass, 0, 3), '/') !== 'es' ) {
+          $langCode = \Drupal::database()->query("SELECT langcode FROM node WHERE nid = {$nid} ")->fetchField();
+          if ( $langCode == 'es' ) {
+            $urlToPass = '/es/' . ltrim($urlToPass, '/');
+          }
+        }
       }
     }
 
