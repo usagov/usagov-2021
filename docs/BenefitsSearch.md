@@ -62,8 +62,10 @@ If a user is editing one of the benefits search pages, they will see the followi
 1. The **Benefits Search Page** field group with the fields listed here. These fields do not display on other forms.
 2. _Life Events Title_ Text field for the heading shown at the top of the life events grid. (Machine name: `field_benefits_life_events_title`)
 3. _Life Events Description_ Text field for the description shown above the life events grid. (Machine name: `field_benefits_life_events_descr`)
+3. _Life Events ID_ Text field for the anchor ID for linking directly to the life events grid. (Machine name: `field_benefits_life_events_id`)
 4. _Category Search Title_ Text field for the heading shown at the top of the search form. (Machine name: `field_benefits_search_title`)
 5. _Category Search Description_ Text field for the text instructions shown at the top of the search form. (Machine name: `field_benefits_search_descr`)
+6. _Category Search ID_ Text field for the anchor ID for linking directly to the search form. (Machine name: `field_benefits_search_id`)
 
 If a user is editing a Standard Page, they will see the following. This rule is when the page type is _Standard Page_. These fields are for categorizing pages to show up in search results.
 
@@ -96,9 +98,10 @@ While this allows us to have a single view for English and Spanish results, Tome
 The terms, fields, and widgets used in the Basic Page node type and Benefit Category vocabulary are set up with core Drupal functionality. The entity reference fields can work in this default state but have one limitation that impacts the content editor experience and could lead to data entry issues. The two references are the Benefit Category checkboxes on the Basic Page node (Standard Page) and the Life Event references on the individual Category terms. The views that populate the lists are configured to show all items regardless of the language. This means that someone editing an English page would see both English and Spanish categories. Potentially, they could select a Spanish category on an English page and vice-versa. The same issue happens editing a Benefit Category term to pick related Life Events. Some guard rails are implemented to prevent selecting items from a language that doesn't match the source entity.
 
 1. The `usagov_benefit_category_search` module adds a custom validator to node add/edit forms. When someone edits a Standard Page, it will show an error if they've selected any categories that are from a different language than the node they are editing.
-2. The `usagov_benefit_category_search` module adds a custom validator to benefit category term add/edit forms. When someone edits a Benefit Category term, it will show an error if they've selected any life events that are from a different language than the node they are editing.
-3. The `usagov_benefit_category_search` module adds JavaScript to node add/edit forms to hide Life Events that do not match the term's language. It also adds a button to display all Life Events(for debugging) and will not hide terms that are checked.
-4. The `usagov_admin_styles` module adds JavaScript to node add/edit forms to hide category terms that do not match the page's language. It also adds a button to display all terms and will not hide terms that are checked.
+2. The `usagov_benefit_category_search` module adds a custom validator to node add/edit forms. When someone edits a Benefits Category Search page, it checks that the Category Search ID and Life Events IDs contain only letters, numbers, and minus sign. It also checks that the two values are unique per page.
+3The `usagov_benefit_category_search` module adds a custom validator to benefit category term add/edit forms. When someone edits a Benefit Category term, it will show an error if they've selected any life events that are from a different language than the node they are editing.
+4. The `usagov_benefit_category_search` module adds JavaScript to node add/edit forms to hide Life Events that do not match the term's language. It also adds a button to display all Life Events(for debugging) and will not hide terms that are checked.
+5. The `usagov_admin_styles` module adds JavaScript to node add/edit forms to hide category terms that do not match the page's language. It also adds a button to display all terms and will not hide terms that are checked.
 
 ### DataLayer
 
@@ -116,7 +119,7 @@ If page is not tagged, the datalayer shows:
 "hasBenefitCategory": false,
 ```
 
-### JavaScript sources
+### JavaScript Sources
 
 Two JavaScript source files are required for the page to function properly.
 
@@ -161,7 +164,7 @@ bin/drush php:script scripts/drush/benefits-category-make-pages.php
 
 5. Associate terms to life events. You need to edit at least one term in English and one Spanish term from the benefits category vocabulary to reference one of the pages via the "Life Events" field.
 
-6. Enable the benefits search call-outs at `/admin/config/development/usagov_benefit_category_search`. Tick the box to display the call-outs and press the save button.
+6. Enable the benefits search call-outs at `/admin/config/development/usagov_benefit_category_search`. Press the button to enable the call-outs. This will also hide the life events carousel on the homepage.
 
 ## Known Issues and Concerns
 

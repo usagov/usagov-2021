@@ -12,6 +12,9 @@ server {
     add_header X-Robots-Tag noindex;
 
     include partials/drupal.conf;
+    ## un-comment this to test internal redirects
+    ## (which should match the corresponding internal_redirects.conf in src-www):
+    # include partials/internal_redirects.conf;
 }
 
 server {
