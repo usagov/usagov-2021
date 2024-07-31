@@ -16,7 +16,7 @@ mesg n 2> /dev/null || true
 if [ ! -f ~/.certs-updated ]; then
    echo "... Combining and updating certs ..."
    if [ -d "$CF_SYSTEM_CERT_PATH" ]; then
-      cp $CF_SYSTEM_CERT_PATH/*  /usr/local/share/ca-certificates/
+      cp "$CF_SYSTEM_CERT_PATH"/*  /usr/local/share/ca-certificates/
    fi
    /usr/sbin/update-ca-certificates
    touch ~/.certs-updated
@@ -30,9 +30,12 @@ S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "stora
 export S3_BUCKET
 export S3_ENDPOINT
 
-export AWS_ACCESS_KEY_ID=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.access_key_id" | uniq )
-export AWS_SECRET_ACCESS_KEY=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.secret_access_key" | uniq )
-export AWS_DEFAULT_REGION=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
+AWS_ACCESS_KEY_ID=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.access_key_id" | uniq )
+export AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.secret_access_key" | uniq )
+export AWS_SECRET_ACCESS_KEY
+AWS_DEFAULT_REGION=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
+export AWS_DEFAULT_REGION
 
 CF_API="https://api.fr.cloud.gov"
 CF_ORG=gsa-tts-usagov
@@ -49,7 +52,7 @@ function aws_cp() {
    local HTTPS_PROXY=
    local http_proxy=
    local https_proxy=
-   aws s3 cp $src $dst
+   aws s3 cp "$src" "$dst"
 }
 
 echo "Callcenter App Setup Complete"
