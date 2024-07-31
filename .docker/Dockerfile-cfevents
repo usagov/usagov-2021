@@ -39,7 +39,7 @@ RUN apk upgrade --update \
     && rm -rf /var/cache/apk/*
 
 COPY .docker/src-cfevents /
-
+COPY bin/cloudgov/events/get-events /opt/cfevents/get-events
 RUN echo "    built:" $(date) >> /etc/motd \
     && echo "    branch: " $GITBRANCH >> /etc/motd \
     && echo "    gittag: " $GITTAG >> /etc/motd \

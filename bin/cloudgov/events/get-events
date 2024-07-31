@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -113,9 +113,9 @@ for resource_type in ${!AUDIT_TYPES[@]}; do
 
         captured_events=$(echo "$EVENTS" | jq -r ".resources[] | [$fields] | @csv")
 
-#        for SPACE_GUID in "${!SPACE_GUIDS[@]}"; do
-#          captured_events=$(echo "$captured_events" | sed "s/$SPACE_GUID/${SPACE_GUIDS[$SPACE_GUID]}/")
-#        done
+        for SPACE_GUID in "${!SPACE_GUIDS[@]}"; do
+          captured_events=$(echo "$captured_events" | sed "s/$SPACE_GUID/${SPACE_GUIDS[$SPACE_GUID]}/")
+        done
 
         if [ "$captured_events" != "" ]; then
           echo "$captured_events"
