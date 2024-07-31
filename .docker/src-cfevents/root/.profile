@@ -12,9 +12,6 @@ if [ "$BASH" ]; then
   fi
 fi
 
-# aws cli is installed here:
-PATH=$PATH:/usr/local/bin
-
 mesg n 2> /dev/null || true
 
 if [ ! -f ~/.certs-updated ]; then
