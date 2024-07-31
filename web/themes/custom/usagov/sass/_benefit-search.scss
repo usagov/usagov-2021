@@ -203,6 +203,7 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
 
 .benefit-finder__title {
   @include u-font-family('serif');
+  margin: 2.5rem 0 0;
 }
 
 .benefit-finder__main {
@@ -215,10 +216,10 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
       gap: 16px;
       @include u-margin-bottom(5);
     }
-
     .life-events-item {
       display: grid;
       grid-template-columns: 1fr 8fr 1fr;
+      position: relative;
       @include u-margin-bottom('205');
 
       @media (min-width: 700px) {
@@ -232,8 +233,8 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
         content: "";
         background-image: url(/themes/custom/usagov/images/right-arrow.svg);
         background-repeat: no-repeat;
-        width: 45px;
-        height: 45px;
+        width: 40px;
+        height: 40px;
         margin: auto;
       }
 
@@ -244,6 +245,21 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
         height: 45px;
         margin: auto;
       }
+
+      &:hover {
+        background-color: color('cyan-10');
+      }
+
+      &:focus-within {
+        background-color: color('cyan-10');
+        outline: 0.25rem solid $blue-outer-focus;
+        outline-offset: 0;
+        box-shadow: inset 0 0 0 2px color('white');
+      }
+      a:focus, a:hover {
+        box-shadow: none;
+        outline-width: 0;
+      }
     }
 
     .life-events-item-content {
@@ -251,12 +267,18 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
 
       > h3 {
         @include u-margin(0);
-        font-size: 21px;
+        font-size: 1.325rem;
       }
 
       > p {
         @include u-margin(0);
-        font-size: 17px;
+        font-size: 1.0625rem;
+      }
+
+      a:before {
+        content: "";
+        position: absolute;
+        inset: 0;
       }
     }
   }
@@ -291,7 +313,8 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
 }
 
 p.benefit-finder__desc {
-    @include u-margin-bottom(5);
+  margin-top: 0.5rem;
+  @include u-margin-bottom(5);
 }
 
 h2#categories-label {
