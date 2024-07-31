@@ -16,6 +16,7 @@ dependencies:
     - allowed_formats
     - path
     - text
+    - viewsreference
 id: taxonomy_term.wizard.default
 targetEntityType: taxonomy_term
 bundle: wizard
@@ -99,6 +100,16 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_options_list:
+    type: viewsreference_autocomplete
+    weight: 10
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   langcode:
     type: language_select
     weight: 1
@@ -116,17 +127,16 @@ content:
     third_party_settings: {  }
   path:
     type: path
-    weight: 10
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 11
+    weight: 12
     region: content
     settings:
       display_label: true
     third_party_settings: {  }
 hidden:
-  field_options_list: true
   simple_sitemap: true
