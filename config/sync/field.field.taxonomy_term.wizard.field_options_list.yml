@@ -13,7 +13,7 @@ field_name: field_options_list
 entity_type: taxonomy_term
 bundle: wizard
 label: 'Options List'
-description: "The top level taxonomy term in each vocabulary should reference the \"parent\" display mode. \r\n<br>\r\nAll other terms should reference the \"children\" display mode."
+description: ''
 required: false
 translatable: false
 default_value:
