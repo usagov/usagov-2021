@@ -92,7 +92,7 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
 
   @include u-width('full');
 
-  @include at-media('tablet') {
+  @include at-media('tablet-lg') {
     width: fit-content;
     @include u-margin-bottom(0);
   }
