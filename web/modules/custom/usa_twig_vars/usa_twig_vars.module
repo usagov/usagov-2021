@@ -38,6 +38,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         'datalayer_pagetype' => NULL,
         'meta_noindex' => NULL,
         'taxonomy_link_block' => NULL,
+        'site_banners' => [],
       ];
       $node = \Drupal::routeMatch()->getParameter('node');
       $isFront = \Drupal::service('path.matcher')->isFrontPage();
@@ -112,6 +113,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           $usa_twig_vars['datalayer_pagetype'] = $usa_twig_vars['pagetype'] == 'Standard Page' ? 'Content Page' : $usa_twig_vars['pagetype'];
           $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
           $usa_twig_vars['meta_noindex'] = $noindex;
+
           unset($isFront);
         }
       }
@@ -270,17 +272,26 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
   $variables['alpha_context'] = $alpha_context;
 }
 
-/**
- * Create an array called `site_banners` that contains all the site banners. The
- * value of each element in this array can be the id of the site banner if the
- * checkbox `place_above_header` is checked or `null` if the checkbox is not checked.
- */
-function usa_twig_vars_preprocess_region(&$variables) {
 
+// function usa_twig_vars_entity_presave($entity) {
+
+//   dump($entity->getType());
+//   throw new Exception('Error saving node: Title cannot be empty');
+//   // if ($entity->bundle() == "uswds_alert"){
+//   //   dump($entity->bundle() == "uswds_alert");
+//   //   throw new Exception('Error saving node: Title cannot be empty');
+//   // }
+
+// }
+
+
+
+function usa_twig_vars_entity_presave($entity) {
+  // dump($entity->getType() == "uswds_alert");
   $state = \Drupal::state();
 
   // Check if we are in the `header_top` region
-  if ($variables['region'] === 'header_top') {
+  if ($entity->getType() == "uswds_alert") {
 
     $site_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
     // Get all site_banners from the website
@@ -288,6 +299,7 @@ function usa_twig_vars_preprocess_region(&$variables) {
     if ($site_banners_blocks) {
 
       foreach ($site_banners_blocks as $site_banner) {
+
         /**
          * Check if the language of the banner is the same as the website.
          * This prevents incorrect language banners from being displayed on the site.
@@ -300,19 +312,19 @@ function usa_twig_vars_preprocess_region(&$variables) {
           // Check if the checkbox in the site_banner form is checked or not.
           if ($place_above_header) {
             // Set the value to the site_banner id to add the site_banner to the `header_top` region.
-            $variables['site_banners'][$site_banner->id()] = $site_banner->id();
+            // $state->set('site_banners.' . $site_banner->id(), $site_banner->id());
 
             // Clear the cache only if the block is not placed in the region and the "Place above header" checkbox is selected.
-            if (!$state->get('site_banners_placement.' . $site_banner->id(), FALSE)) {
-              $state->set('site_banners_placement.' . $site_banner->id(), TRUE);
-              drupal_flush_all_caches();
-            }
+            // if (!$state->get('site_banners_placement.' . $site_banner->id(), FALSE)) {
+            //   $state->set('site_banners_placement.' . $site_banner->id(), TRUE);
+            //   drupal_flush_all_caches();
+            // }
 
           }
           else {
             // Set the value to null to remove the site_banner with id `$site_banner->id()` from the region `header_top`
-            $variables['site_banners'][$site_banner->id()] = NULL;
-            $state->set('site_banners_placement.' . $site_banner->id(), FALSE);
+            // $state->set('site_banners.' . $site_banner->id(), NULL);
+            // $state->set('site_banners_placement.' . $site_banner->id(), FALSE);
           }
 
         }
@@ -320,7 +332,66 @@ function usa_twig_vars_preprocess_region(&$variables) {
       }
     }
   }
+
+  //throw new Exception('Error saving node: Title cannot be empty');
 }
+
+// function usa_twig_vars_entity_insert($entity) {
+//   dump($entity);
+//   throw new Exception('Error saving node: Title cannot be empty');
+// }
+
+/**
+ * Create an array called `site_banners` that contains all the site banners. The
+ * value of each element in this array can be the id of the site banner if the
+ * checkbox `place_above_header` is checked or `null` if the checkbox is not checked.
+ */
+// function usa_twig_vars_preprocess_region(&$variables) {
+
+//   $state = \Drupal::state();
+
+//   // Check if we are in the `header_top` region
+//   if ($variables['region'] === 'header_top') {
+
+//     $site_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+//     // Get all site_banners from the website
+//     $site_banners_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'site_banner']);
+//     if ($site_banners_blocks) {
+
+//       foreach ($site_banners_blocks as $site_banner) {
+//         /**
+//          * Check if the language of the banner is the same as the website.
+//          * This prevents incorrect language banners from being displayed on the site.
+//          * */
+//         $site_banner_lang = $site_banner->langcode->value;
+//         if ($site_banner_lang === $site_language) {
+//           // Get the value of the checkbox in the site_banner form
+//           $place_above_header = $site_banner->field_place_above_header->value;
+
+//           // Check if the checkbox in the site_banner form is checked or not.
+//           if ($place_above_header) {
+//             // Set the value to the site_banner id to add the site_banner to the `header_top` region.
+//             $variables['site_banners'][$site_banner->id()] = $site_banner->id();
+
+//             // Clear the cache only if the block is not placed in the region and the "Place above header" checkbox is selected.
+//             if (!$state->get('site_banners_placement.' . $site_banner->id(), FALSE)) {
+//               $state->set('site_banners_placement.' . $site_banner->id(), TRUE);
+//               drupal_flush_all_caches();
+//             }
+
+//           }
+//           else {
+//             // Set the value to null to remove the site_banner with id `$site_banner->id()` from the region `header_top`
+//             $variables['site_banners'][$site_banner->id()] = NULL;
+//             $state->set('site_banners_placement.' . $site_banner->id(), FALSE);
+//           }
+
+//         }
+
+//       }
+//     }
+//   }
+// }
 
 /**
  * Implements hook_form_alter().
