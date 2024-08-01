@@ -53,7 +53,7 @@ RUN tar xzf /tmp/s6overlay.tar.gz -C / \
 
 # cron setup
 RUN mkdir -p /etc/periodic/1min \
-    && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root
+    && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*
 
