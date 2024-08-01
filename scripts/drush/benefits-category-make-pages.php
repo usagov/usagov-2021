@@ -72,14 +72,14 @@ $spanishPage->save();
 
 \Drush\Drush::output()->writeln("<info>Adding callout to /benefits page</info>");
 $benefitsPage = getNodeForPath('/benefits');
-$benefitsPage->set('field_benefits_callout_descr', 'Do a customized search for benefits you may qualify for');
+$benefitsPage->set('field_benefits_callout_descr', 'Do a customized search for benefits you may qualify for.');
 $benefitsPage->set('field_benefits_callout_button', 'Begin benefits search');
 $benefitsPage->set('field_benefits_callout_ref', $englishPage->id());
 $benefitsPage->save();
 
 \Drush\Drush::output()->writeln("<info>Adding callout to /es/beneficios-gobierno page</info>");
 $benefitsSpanishPage = getNodeForPath('/beneficios-gobierno', 'es');
-$benefitsSpanishPage->set('field_benefits_callout_descr', 'Haga una búsqueda personalizada de los beneficios a los que podría calificar');
+$benefitsSpanishPage->set('field_benefits_callout_descr', 'Haga una búsqueda personalizada de los beneficios a los que podría calificar.');
 $benefitsSpanishPage->set('field_benefits_callout_button', 'Encuentre beneficios');
 $benefitsSpanishPage->set('field_benefits_callout_ref', $englishPage->id());
 $benefitsSpanishPage->save();
@@ -94,8 +94,8 @@ $homePage->save();
 
 \Drush\Drush::output()->writeln("<info>Adding callout to Spanish version of home page</info>");
 $translation = $homePage->getTranslation('es');
-$translation->set('field_homepage_benefits_title', 'Ayuda económic y beneficios del Gobierno');
-$translation->set('field_homepage_benefits_descr', 'Encuentre información sobre los programas de ayuda del Gobierno de EE. UU., requisitos para solicitar beneficios, cóomo y dónde aplicar');
+$translation->set('field_homepage_benefits_title', 'Ayuda económica y beneficios del Gobierno');
+$translation->set('field_homepage_benefits_descr', 'Encuentre información sobre los programas de ayuda del Gobierno de EE. UU., requisitos para solicitar beneficios, cómo y dónde aplicar.');
 $translation->set('field_homepage_benefits_button', 'Encuentre beneficios');
 $translation->set('field_homepage_benefits_ref', $spanishPage->id());
 $translation->save();
