@@ -104,7 +104,12 @@ cf create-service s3 basic-public-sandbox s3for${APPNAME}
 
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter"
-cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter
+if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter
+else
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter --docker-username $DOCKERHUB_USERNAME
+fi
+
 
 # bind services (ups should be bound already, but just in case)
 echo Binding s3 and user provided service

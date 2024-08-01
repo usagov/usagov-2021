@@ -9,6 +9,7 @@ global-styling:
     scripts/newFooter.js: {}
     scripts/phoneForMobile.js: {}
     scripts/callCenterWaitTimeLookup.js: {}
+    scripts/accessibleButtonLinks.js: {}
   dependencies:
     - core/drupal
     - core/jquery
