@@ -43,6 +43,13 @@
       display: none;
     }
 
+    fieldset {
+      all: unset;
+      // Disable this to prevent shift+click selection of multiple radios.
+      -webkit-user-select: none; /* Safari */
+      user-select: none; /* Standard syntax */
+    }
+
     .field--name-field-intro {
       margin: 17.6px 0;
 
