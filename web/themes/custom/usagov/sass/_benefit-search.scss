@@ -40,7 +40,6 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
 .benefits-category-list .grid-row.benefits-category-error .benefits-category-list-checkbox-all,
 .benefits-category-list .grid-row.benefits-category-error ul > li {
   border-left: 3px solid color('error');
-  margin-left: -0.75rem;
   padding-left: 0.75rem;
 
 }
@@ -54,6 +53,12 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
     padding-top: 0;
     margin-top: 0;
     padding-bottom: 0;
+  }
+}
+
+.benefits-category-list .grid-row.benefits-category-error .benefits-category-list-checkbox-cols {
+  @include at-media('tablet-lg') {
+    column-gap: 0.75rem;
   }
 }
 
