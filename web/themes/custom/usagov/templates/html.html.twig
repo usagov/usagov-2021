@@ -54,6 +54,7 @@
   {% endif %}
   {% if nodetype == "basic_page" %}
     <script id="taxonomy-data">
+      gtmDataLayer = [{{ datalayer | json_encode(constant('JSON_PRETTY_PRINT')) | raw }}];
     dataLayer = [{
       {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},

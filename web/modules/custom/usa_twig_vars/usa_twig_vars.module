@@ -16,6 +16,7 @@ use Drupal\node\NodeInterface;
 use Drupal\path_alias\PathAliasInterface;
 use Drupal\pathauto\PathautoPatternInterface;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 
 /**
  * Description message.
@@ -38,6 +39,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         'datalayer_pagetype' => NULL,
         'meta_noindex' => NULL,
         'taxonomy_link_block' => NULL,
+        'datalayer' => NULL,
       ];
       $node = \Drupal::routeMatch()->getParameter('node');
       $isFront = \Drupal::service('path.matcher')->isFrontPage();
@@ -105,17 +107,38 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           }
 
           // Cleanup vars.
+          $pageType = usa_twig_vars_get_page_type($node);
           $usa_twig_vars['id'] = $node->id();
           $usa_twig_vars['front'] = $isFront;
           $usa_twig_vars['nodetype'] = $nodetype;
-          $usa_twig_vars['pagetype'] = usa_twig_vars_get_page_type($node);
+          $usa_twig_vars['pagetype'] = $pageType;
+
+          // TODO delete next line
           $usa_twig_vars['datalayer_pagetype'] = $usa_twig_vars['pagetype'] == 'Standard Page' ? 'Content Page' : $usa_twig_vars['pagetype'];
+
+
           $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
           $usa_twig_vars['meta_noindex'] = $noindex;
+
+          // Data to be sent to GTM.
+          $usa_twig_vars['datalayer'] = usa_twig_vars_get_datalayer(
+            node: $node,
+            isFront: $isFront,
+            contentType: $nodetype,
+            basicPagesubType: $pageType,
+            pageType: ($pageType === 'Standard Page' ? 'Content Page' : $pageType)
+          );
           unset($isFront);
         }
       }
     }
+
+    // Let other modules add to the datalayer payload.
+    $datalayerEvent = new DatalayerAlterEvent($usa_twig_vars['datalayer']);
+    $dispatcher = \Drupal::service('event_dispatcher');
+    $dispatcher->dispatch($datalayerEvent, DatalayerAlterEvent::EVENT_NAME);
+    // Get any alterations
+    $usa_twig_vars['datalayer'] = $datalayerEvent->datalayer;
     foreach ($usa_twig_vars as $key => $value) {
       $variables[$key] = $value;
     }
@@ -400,4 +423,24 @@ function usa_twig_vars_path_alias_update(PathAliasInterface $path) {
  */
 function usa_twig_vars_node_insert(NodeInterface $node_to_check) {
   usa_twig_vars_check_exclude_from_contact_center($node_to_check);
+}
+
+/**
+ * Builds a datalayer array we can serialize to JSON in our twig template
+ */
+function usa_twig_vars_get_datalayer(
+  Node $node,
+  bool $isFront,
+  string $contentType,
+  string $basicPagesubType,
+  string $pageType,
+): array {
+  $datalayer = [];
+  $datalayer['nodeID'] = $node->id();
+  $datalayer['contentType'] = $contentType;
+  $datalayer['language'] = $node->language()->getId();
+  $datalayer['homepageTest'] = $isFront ? 'homepage' : 'not_homepage';
+  $datalayer['basicPagesubType'] = $basicPagesubType;
+  $datalayer['Page_Type'] = $pageType;
+  return $datalayer;
 }
