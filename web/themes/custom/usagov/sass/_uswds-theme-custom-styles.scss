@@ -59,9 +59,26 @@ i.e.
   vertical-align: middle;
 }
 
+.usa-section {
+  padding-top: 1rem;
+}
+
+@media (max-width: 30em) {
+  .usa-section {
+      padding-top: 2rem;
+  }
+}
+
+@media (min-width: 40em) {
+  .usa-section {
+      padding-bottom: 4rem;
+      padding-top: 3.5rem;
+  }
+}
+
 @media (min-width: 64em) {
   .usa-section {
-    padding-top: 2rem;
+    padding-top: 1.7rem;
   }
 }
 
@@ -774,16 +791,27 @@ input::-webkit-textfield-decoration-container {
   visibility: hidden;
 }
 
-// sets height for desktop to make space above and below breadcrumb look even on Navigation Cards Page
-@media screen and (min-width: 64em) {
+// closes the space above and below the breadcrumb to look even
+@media screen and (max-width: 30em) {
   .grid-row.breadcrumb-spacing>div {
-    height: 3.5rem;
+    height: 2.7rem;
   }
 }
 
-.benefits-finder-content {
-  .usa-prose>p.usa-intro {
-    @include u-margin(0);
-    max-width: 100%;
+@media (min-width: 30.0625em) and (max-width: 40em) {
+  .grid-row.breadcrumb-spacing>div {
+    height: 4.3rem;
+  }
+}
+
+@media (min-width: 40.0625em) and (max-width: 63.93em) {
+  .grid-row.breadcrumb-spacing>div {
+    height: 1.7rem;
+  }
+}
+
+@media screen and (min-width: 64em) {
+  .grid-row.breadcrumb-spacing>div {
+    height: 3.5rem;
   }
 }
