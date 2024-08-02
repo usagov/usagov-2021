@@ -122,23 +122,6 @@ function usagov_benefit_category_search_preprocess_node(&$vars) {
   }
 }
 
-function usagov_benefit_category_search_preprocess_html(&$vars) {
-  $node = \Drupal::routeMatch()->getParameter('node');
-  $vars['datalayer_hasBenefitCategories'] = FALSE;
-
-  if ($node instanceof Node && $node->getType() === 'basic_page') {
-    $pageType = $node->field_page_type->referencedEntities()[0]->getName();
-    if ($pageType === 'Standard Page') {
-      // Provide list of categories for this page to gtm via taxonomy-data
-      if ($terms = $node->field_benefits_category->referencedEntities()) {
-        $vars['datalayer_hasBenefitCategories'] = TRUE;
-        $benefitCategories = array_map(fn(Term $term) => $term->getName(), $terms);
-        $vars['datalayer_benefitCategories'] = implode('; ', $benefitCategories);
-      }
-    }
-  }
-}
-
 /**
  * Implements hook_views_pre_render().
  */

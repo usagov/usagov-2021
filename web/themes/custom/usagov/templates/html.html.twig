@@ -62,10 +62,6 @@
       {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
       {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'hasBenefitCategory'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_hasBenefitCategories|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-    {%
-      if datalayer_benefitCategories
-    %}  {{'benefitCategories'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_benefitCategories|json_encode(constant('JSON_PRETTY_PRINT'))|raw}},
     {% endif %}
     {% if front == "homepage" and lang == "en" %}
       "Taxonomy_Text_1": "Home",
