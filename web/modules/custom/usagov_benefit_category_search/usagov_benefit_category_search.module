@@ -159,7 +159,7 @@ function usagov_benefit_category_search_views_pre_render(ViewExecutable $view): 
   switch ($view->storage->getOriginalId()) {
     case 'benefit_search_form':
       // Load the JavaScript file to make the search functional.
-      $view->element["#attached"]['library'][] = 'usagov/benefitSearch';
+      $view->element["#attached"]['library'][] = 'usagov_benefit_category_search/search';
       break;
 
     case 'benefit_search_results':
