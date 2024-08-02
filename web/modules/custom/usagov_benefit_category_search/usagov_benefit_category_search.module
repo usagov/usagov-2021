@@ -79,7 +79,7 @@ function usagov_benefit_category_search_validate_category_search_page(FormStateI
 }
 
 /**
- * Attach filtering scripot and validator for benefit category term forms.
+ * Attach filtering script and validator for benefit category term forms.
  */
 function usagov_benefit_category_search_form_taxonomy_term_benefits_category_form_alter(&$form, FormStateInterface $form_state, string $form_id): void {
   $form['#attached']['library'][] = 'usagov_benefit_category_search/lifeEventRefLanguageFilter';
