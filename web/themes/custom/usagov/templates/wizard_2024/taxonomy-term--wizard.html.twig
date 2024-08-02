@@ -18,8 +18,9 @@
 
 {% set attributes = attributes.addClass('usa-prose') %}
 {% set attributes = attributes.addClass('usagov-wizard--content') %}
+
 <div{{ attributes }}>
-  <h1 class="text-red-50">{{ content.field_heading }}</h1>
+  <h1 id="skip-to-h1" class="text-red-50">{{ content.field_heading[0]['#context']['value'] }}</h1>
   {% if content.field_intro[0] %}
     <div class="usa-intro">{{ content.field_intro }}</div>
   {% endif %}
@@ -38,7 +39,8 @@
       {% if has_child == 'FALSE' %}
       {% if not (content.field_options_list[0]['contents']['#view_id']) %}
       style="margin-top: 40px;" {% endif %}{% endif %}>
-      {% if content.field_options_list[0]['contents']['#view_id'] or has_child == false %}
+
+      {% if (content.field_options_list[0]['contents']['#view_id']) %}
       {# Generate the url for the parent of this term to put in the 'previous' button. #}
       {% set previous_path = path('entity.taxonomy_term.canonical', {'taxonomy_term': parent_tid}) %}
       <button id="prior" class="usa-button usa-button--secondary usa-button--big margin-right-2" onclick="window.location.href = '{{ previous_path }}'">
