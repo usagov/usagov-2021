@@ -113,10 +113,10 @@ class MenuChecker implements ContainerInjectionInterface {
    * @param string $langcode
    *   The current language code.
    *
-   * @return array
+   * @return array|void
    *   An array containing the target term IDs and menu entities.
    */
-  public function getTargetEntities(string $langcode) {
+  public function getMenuEntities(string $langcode) {
     if ($langcode == 'en') {
       $menu_name = 'left-menu-english';
     }
@@ -135,46 +135,47 @@ class MenuChecker implements ContainerInjectionInterface {
       if ($url->isRouted()) {
         $route_parameters = $url->getRouteParameters();
         if (isset($route_parameters['taxonomy_term'])) {
-          $target_tids[] = $route_parameters['taxonomy_term'];
-          $menu_entity   = $menu_entity->parent->getEntity();
+          if (isset($menu_entity->parent)) {
+            if ($menu_entity->field_custom_parent->value == 1) {
+              $tid = $route_parameters['taxonomy_term'];
+              $menu_taxonomy_links[$tid] = [];
 
-          /*
-          The field_custom_parent was created as a field only visible
-          in the left-nav menu EN and ES form displays. The intention
-          of the field is to handle situations where the same term
-          is linked to multiple times in the same menu. The following
-          logic check will narrow down the duplicates to only look for the
-          entity that has field_custom_parent checked. */
-          if ($menu_entity->field_custom_parent->value == 1) {
-            $parentEntityUuid = $menu_entity->parent->value;
-            $parentEntity     = \Drupal::service('entity.repository')->loadEntityByUuid('menu_link_content', explode(':', $parentEntityUuid));
-            $menu_entities[]  = $parentEntity;
-            // Load children of the parent entity.
-            $children = $this->entityTypeManager->getStorage('menu_link_content')->loadByProperties(
-                  [
-                    'menu_name' => $menu_name,
-                    'enabled'   => 1,
-                    'parent'    => $parentEntityUuid,
-                  ]
-              );
-            foreach ($children as $child) {
-              $menu_entities[] = $child;
+              if (isset($menu_taxonomy_links)) {
+                if (isset($menu_entity->parent->value)) {
+                  $parentEntityUuid = $menu_entity->parent->value;
+                  $parentEntity = \Drupal::service('entity.repository')
+                    ->loadEntityByUuid('menu_link_content', explode(':', $parentEntityUuid));
+                  $menu_taxonomy_links[$tid][0] = $parentEntity;
+
+                  // Load children of the parent entity.
+                  $children = $this->entityTypeManager->getStorage('menu_link_content')
+                    ->loadByProperties(
+                        [
+                          'menu_name' => $menu_name,
+                          'enabled' => 1,
+                          'parent' => $parentEntityUuid,
+                        ]
+                      );
+
+                  foreach ($children as $child) {
+                    array_push($menu_taxonomy_links[$tid], $child);
+                  }
+
+                }
+              }
             }
           }
         }//end if
       }//end if
-    }//end foreach
+    }
 
-    if (isset($target_tids)) {
-      return [
-        'target_tids'   => $target_tids,
-        'menu_entities' => $menu_entities,
-      ];
+    if (isset($menu_taxonomy_links)) {
+      return $menu_taxonomy_links;
     }
     else {
       return [];
     }
 
-  }//end getTargetEntities()
+  }//end getMenuEntities()
 
 }//end class

@@ -1,0 +1,11 @@
+#!/bin/sh
+for SPACE in dev-dr dev stage prod shared-egress shared-egress-dr tools; do
+    if ! cf space $SPACE &> /dev/null; then
+      echo "ERROR: CF space '$SPACE' does not exist!"
+      exit 4
+    fi
+    SPACE_GUID=$(cf space $SPACE --guid)
+    printf "%-16s  ${SPACE_GUID}\n" ${SPACE}
+done
+
+#cf target -s $SPACE

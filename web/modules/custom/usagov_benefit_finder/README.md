@@ -1,6 +1,6 @@
 # USAgov Benefit Finder module
 
-* USAgov bears app folder
+* USAgov Benefit Finder app folder
   * USAgov bears block module
 * USAgov bears content module
 * USAgov bears API module
