@@ -43,17 +43,9 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
 
       if (is_object($node) && method_exists($node, 'getFields')) {
 
-
-        // Check if the page is not front page.
-        if ($isFront == 1) {
-          $isFront = 'homepage';
-        }
-        else {
-          $isFront = 'not_homepage';
-        }
         // Check node has all the four variables set which must not be null.
         $node_real_type = $node->getType();
-        if ($node->id() != NULL && $node_real_type != NULL && $isFront != NULL) {
+        if ($node->id() != NULL && $node_real_type != NULL && $isFront !== NULL) {
           // Check for a few special cases:
           $special_node_type = FALSE;
           // change "directory_record" to "federal_directory_record"
@@ -116,7 +108,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
     }
 
     // Let other modules add to the datalayer payload.
-    $datalayerEvent = new DatalayerAlterEvent($usa_twig_vars['datalayer']);
+    $datalayerEvent = new DatalayerAlterEvent($usa_twig_vars['datalayer'] ?? []);
     $dispatcher = \Drupal::service('event_dispatcher');
     $dispatcher->dispatch($datalayerEvent, DatalayerAlterEvent::EVENT_NAME);
     // Get any alterations.
