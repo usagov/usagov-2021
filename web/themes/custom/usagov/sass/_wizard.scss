@@ -29,6 +29,11 @@
   }
 
   &--content {
+
+    [tabindex]:focus {
+      outline: unset;
+    }
+
     h2 {
       font-size: 2rem;
       line-height: 120%;
@@ -41,6 +46,13 @@
     // Hide the title of views reference fields.
     .viewsreference--view-title {
       display: none;
+    }
+
+    fieldset {
+      all: unset;
+      // Disable this to prevent shift+click selection of multiple radios.
+      -webkit-user-select: none; /* Safari */
+      user-select: none; /* Standard syntax */
     }
 
     .field--name-field-intro {
