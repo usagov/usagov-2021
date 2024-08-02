@@ -427,6 +427,8 @@ function usa_twig_vars_get_datalayer(
   $datalayer['basicPagesubType'] = $basicPagesubType;
   $datalayer['Page_Type'] = $pageType;
 
+  // Taxonomy for the homepages. These depend on variables
+  // that the block view doesn't readily have access to.
   if ($isFront && $langcode === 'en') {
     $datalayer["Taxonomy_Text_1"] = "Home";
     $datalayer["Taxonomy_Text_2"] = "Home";
@@ -464,13 +466,13 @@ function usa_twig_vars_get_datalayer(
     // The breadcrumb links aren't calculated until this block is actually rendered, so
     // we do NOT have an opportunity to save or process the links themselves into the
     // $variables array for html.html.twig to use.
-
     $breadcrumb_block = Block::load('usagov_taxonomy_links');
     $taxonomy_link_block = \Drupal::entityTypeManager()->getViewBuilder('block')->view($breadcrumb_block);
 
-    $usa_twig_vars['taxonomy_link_block'] = $taxonomy_link_block;
-
-    // Parse the block output and add the key/value pairs to the datalayer.
+    // Render the block output and then parse the key/value
+    // pairs to the datalayer. This should work, but there's a bunch of
+    // logic done in the block view to adjust what is shown that
+    // might be doable elsewhere.
     $output = \Drupal::service('renderer')->renderRoot($taxonomy_link_block);
     if ($values = preg_match_all('/"(Taxonomy_[^"]+)":\s+"([^"]+)"/', $output, $matches)) {
       foreach ($matches[1] as $index => $prop) {
