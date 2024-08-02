@@ -52,61 +52,10 @@
   {% elseif header_html %}
     {{ header_html|raw }}
   {% endif %}
-  {% if nodetype == "basic_page" %}
-    <script id="taxonomy-data">
-      gtmDataLayer = [{{ datalayer | json_encode(constant('JSON_PRETTY_PRINT')) | raw }}];
-    dataLayer = [{
-      {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-    {% endif %}
-    {% if front == "homepage" and lang == "en" %}
-      "Taxonomy_Text_1": "Home",
-      "Taxonomy_Text_2": "Home",
-      "Taxonomy_Text_3": "Home",
-      "Taxonomy_Text_4": "Home",
-      "Taxonomy_Text_5": "Home",
-      "Taxonomy_Text_6": "Home",
-      "Taxonomy_URL_1": "/",
-      "Taxonomy_URL_2": "/",
-      "Taxonomy_URL_3": "/",
-      "Taxonomy_URL_4": "/",
-      "Taxonomy_URL_5": "/",
-      "Taxonomy_URL_6": "/"
-    {% endif %}
-    {% if front == "homepage" and lang == "es" %}
-      "Taxonomy_Text_1": "Página principal",
-      "Taxonomy_Text_2": "Página principal",
-      "Taxonomy_Text_3": "Página principal",
-      "Taxonomy_Text_4": "Página principal",
-      "Taxonomy_Text_5": "Página principal",
-      "Taxonomy_Text_6": "Página principal",
-      "Taxonomy_URL_1": "/es/",
-      "Taxonomy_URL_2": "/es/",
-      "Taxonomy_URL_3": "/es/",
-      "Taxonomy_URL_4": "/es/",
-      "Taxonomy_URL_5": "/es/",
-      "Taxonomy_URL_6": "/es/"
-    {% endif %}
-        {{ taxonomy_link_block }}
-      }];
-    </script>
-  {% else %}
-    <script id="taxonomy-data">
-      dataLayer = [{
-        {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'hasBenefitCategory'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_hasBenefitCategories|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{ taxonomy_link_block }}
-      }];
-    </script>
+
+  <script id="taxonomy-data">
+    dataaLayer = [{{ datalayer | json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_SLASHES')) | raw }}];
+  </script>
  {% endif %}
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':

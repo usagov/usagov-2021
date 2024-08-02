@@ -6,15 +6,11 @@
  */
 
 use Drupal\block\Entity\Block;
-use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Language\Language;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\path_alias\PathAliasInterface;
-use Drupal\pathauto\PathautoPatternInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 
@@ -46,17 +42,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
       $noindex = FALSE;
 
       if (is_object($node) && method_exists($node, 'getFields')) {
-        // usagov_taxonomy_links is a "system breadcrumb" block whose twig file will render
-        // the taxonomy information for the dataLayer array. Here, we create a renderable
-        // version of the block and save it as a variable that can be rendered within the
-        // HTML <head> element in html.html.twig.
-        //
-        // The breadcrumb links aren't calculated until this block is actually rendered, so
-        // we do NOT have an opportunity to save or process the links themselves into the
-        // $variables array for html.html.twig to use.
-        $breadcrumb_block = Block::load('usagov_taxonomy_links');
-        $taxonomy_link_block = \Drupal::entityTypeManager()->getViewBuilder('block')->view($breadcrumb_block);
-        $usa_twig_vars['taxonomy_link_block'] = $taxonomy_link_block;
+
 
         // Check if the page is not front page.
         if ($isFront == 1) {
@@ -113,17 +99,13 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           $usa_twig_vars['nodetype'] = $nodetype;
           $usa_twig_vars['pagetype'] = $pageType;
 
-          // TODO delete next line
-          $usa_twig_vars['datalayer_pagetype'] = $usa_twig_vars['pagetype'] == 'Standard Page' ? 'Content Page' : $usa_twig_vars['pagetype'];
-
-
           $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
           $usa_twig_vars['meta_noindex'] = $noindex;
 
           // Data to be sent to GTM.
           $usa_twig_vars['datalayer'] = usa_twig_vars_get_datalayer(
             node: $node,
-            isFront: $isFront,
+            isFront: $isFront === 'homepage',
             contentType: $nodetype,
             basicPagesubType: $pageType,
             pageType: ($pageType === 'Standard Page' ? 'Content Page' : $pageType)
@@ -436,11 +418,66 @@ function usa_twig_vars_get_datalayer(
   string $pageType,
 ): array {
   $datalayer = [];
+  $langcode = $node->language()->getId();
+
   $datalayer['nodeID'] = $node->id();
   $datalayer['contentType'] = $contentType;
-  $datalayer['language'] = $node->language()->getId();
+  $datalayer['language'] = $langcode;
   $datalayer['homepageTest'] = $isFront ? 'homepage' : 'not_homepage';
   $datalayer['basicPagesubType'] = $basicPagesubType;
   $datalayer['Page_Type'] = $pageType;
+
+  if ($isFront && $langcode === 'en') {
+    $datalayer["Taxonomy_Text_1"] = "Home";
+    $datalayer["Taxonomy_Text_2"] = "Home";
+    $datalayer["Taxonomy_Text_3"] = "Home";
+    $datalayer["Taxonomy_Text_4"] = "Home";
+    $datalayer["Taxonomy_Text_5"] = "Home";
+    $datalayer["Taxonomy_Text_6"] = "Home";
+    $datalayer["Taxonomy_URL_1"] = "/";
+    $datalayer["Taxonomy_URL_2"] = "/";
+    $datalayer["Taxonomy_URL_3"] = "/";
+    $datalayer["Taxonomy_URL_4"] = "/";
+    $datalayer["Taxonomy_URL_5"] = "/";
+    $datalayer["Taxonomy_URL_6"] = "/";
+  }
+  elseif ($isFront && $langcode === 'es') {
+    $datalayer["Taxonomy_Text_1"] = "Página principal";
+    $datalayer["Taxonomy_Text_2"] = "Página principal";
+    $datalayer["Taxonomy_Text_3"] = "Página principal";
+    $datalayer["Taxonomy_Text_4"] = "Página principal";
+    $datalayer["Taxonomy_Text_5"] = "Página principal";
+    $datalayer["Taxonomy_Text_6"] = "Página principal";
+    $datalayer["Taxonomy_URL_1"] = "/es/";
+    $datalayer["Taxonomy_URL_2"] = "/es/";
+    $datalayer["Taxonomy_URL_3"] = "/es/";
+    $datalayer["Taxonomy_URL_4"] = "/es/";
+    $datalayer["Taxonomy_URL_5"] = "/es/";
+    $datalayer["Taxonomy_URL_6"] = "/es/";
+  }
+  else {
+    // usagov_taxonomy_links is a "system breadcrumb" block whose twig file will render
+    // the taxonomy information for the dataLayer array. Here, we create a renderable
+    // version of the block and save it as a variable that can be rendered within the
+    // HTML <head> element in html.html.twig.
+    //
+    // The breadcrumb links aren't calculated until this block is actually rendered, so
+    // we do NOT have an opportunity to save or process the links themselves into the
+    // $variables array for html.html.twig to use.
+
+    $breadcrumb_block = Block::load('usagov_taxonomy_links');
+    $taxonomy_link_block = \Drupal::entityTypeManager()->getViewBuilder('block')->view($breadcrumb_block);
+
+    $usa_twig_vars['taxonomy_link_block'] = $taxonomy_link_block;
+
+    // Parse the block output and add the key/value pairs to the datalayer.
+    $output = \Drupal::service('renderer')->renderRoot($taxonomy_link_block);
+    if ($values = preg_match_all('/"(Taxonomy_[^"]+)":\s+"([^"]+)"/', $output, $matches)) {
+      foreach ($matches[1] as $index => $prop) {
+        $datalayer[$prop] = $matches[2][$index];
+      }
+    }
+  }
+
   return $datalayer;
 }
