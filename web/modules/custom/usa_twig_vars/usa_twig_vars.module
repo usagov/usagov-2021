@@ -38,7 +38,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         'datalayer_pagetype' => NULL,
         'meta_noindex' => NULL,
         'taxonomy_link_block' => NULL,
-        'site_banners' => [],
+        'site_banners' => NULL,
       ];
       $node = \Drupal::routeMatch()->getParameter('node');
       $isFront = \Drupal::service('path.matcher')->isFrontPage();
@@ -105,6 +105,8 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             }
           }
 
+          $state = \Drupal::state();
+
           // Cleanup vars.
           $usa_twig_vars['id'] = $node->id();
           $usa_twig_vars['front'] = $isFront;
@@ -113,7 +115,8 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           $usa_twig_vars['datalayer_pagetype'] = $usa_twig_vars['pagetype'] == 'Standard Page' ? 'Content Page' : $usa_twig_vars['pagetype'];
           $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
           $usa_twig_vars['meta_noindex'] = $noindex;
-
+          $usa_twig_vars['site_banners'] = $state->get('site_banners');
+          dump($state);
           unset($isFront);
         }
       }
@@ -285,13 +288,23 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
 // }
 
 
+// function usa_twig_vars_entity_presave($entity) {
+
+//   dump($entity->getEntityTypeId() == 'paragraph' && $entity->getType() == 'uswds_alert');
+//   //throw new Exception('Error saving node: Title cannot be empty');
+
+//   // if ($entity->getEntityTypeId() == 'node' && $entity->getType() == 'article') {
+//   //   $entity->title->value = $entity->title->value . 'by ' . date('d-m-Y');
+//   // }
+// }
 
 function usa_twig_vars_entity_presave($entity) {
-  // dump($entity->getType() == "uswds_alert");
+  // dump($entity->getEntityTypeId() == 'paragraph' && $entity->getType() == 'uswds_alert');
   $state = \Drupal::state();
+  $state->set('site_banners', []);
 
   // Check if we are in the `header_top` region
-  if ($entity->getType() == "uswds_alert") {
+  if ($entity->getEntityTypeId() == 'paragraph' && $entity->getType() == 'uswds_alert') {
 
     $site_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
     // Get all site_banners from the website
@@ -312,28 +325,32 @@ function usa_twig_vars_entity_presave($entity) {
           // Check if the checkbox in the site_banner form is checked or not.
           if ($place_above_header) {
             // Set the value to the site_banner id to add the site_banner to the `header_top` region.
-            // $state->set('site_banners.' . $site_banner->id(), $site_banner->id());
+            $state->set('site_banners.' . $site_banner->id(), $site_banner->id());
 
             // Clear the cache only if the block is not placed in the region and the "Place above header" checkbox is selected.
-            // if (!$state->get('site_banners_placement.' . $site_banner->id(), FALSE)) {
-            //   $state->set('site_banners_placement.' . $site_banner->id(), TRUE);
-            //   drupal_flush_all_caches();
-            // }
+            if (!$state->get('site_banners_placement.' . $site_banner->id(), FALSE)) {
+              $state->set('site_banners_placement.' . $site_banner->id(), TRUE);
+              // drupal_flush_all_caches();
+            }
 
           }
           else {
             // Set the value to null to remove the site_banner with id `$site_banner->id()` from the region `header_top`
-            // $state->set('site_banners.' . $site_banner->id(), NULL);
-            // $state->set('site_banners_placement.' . $site_banner->id(), FALSE);
+            $state->set('site_banners.' . $site_banner->id(), NULL);
+            $state->set('site_banners_placement.' . $site_banner->id(), FALSE);
           }
 
+          dump($state);
+          throw new Exception('Error saving node: Title cannot be empty');
         }
 
       }
+
     }
+
   }
 
-  //throw new Exception('Error saving node: Title cannot be empty');
+  // throw new Exception('Error saving node: Title cannot be empty');
 }
 
 // function usa_twig_vars_entity_insert($entity) {
