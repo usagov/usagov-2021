@@ -115,7 +115,7 @@ function usagov_benefit_category_search_preprocess_node(array &$vars): void {
   $vars['usagov_show_benefits_landing_block'] = FALSE;
   // Check we're viewing a full page.
   if ($vars['page'] === TRUE && $vars['view_mode'] === 'full' && $vars['node']->getType() === 'basic_page') {
-    // Only show if we have s a title & description for the homepage block.
+    // Only show if we have a title & description for the homepage block.
     if (\Drupal::service('path.matcher')->isFrontPage()
       && $vars["node"]->field_homepage_benefits_title->value
       && $vars["node"]->field_homepage_benefits_descr->value
