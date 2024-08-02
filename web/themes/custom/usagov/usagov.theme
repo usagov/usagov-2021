@@ -292,57 +292,47 @@ function usagov_preprocess_paragraph(&$variables) {
  * Process block content
  */
 function usagov_preprocess_block(&$variables) {
-  /**
-   * Pass node or term value to pages so they can access properties
+  /*
+   * Pass node value to pages so they can access node-based properties
    */
-  $entity = \Drupal::routeMatch()->getParameter('node') ?? \Drupal::routeMatch()
-    ->getParameter('taxonomy_term');
-  $variables['entity'] = $entity;
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $variables['node'] = $node;
 
-  /**
+  /*
    * Pass pagetype to pages so they can know what type of page to render
    */
-  if ($entity && $entity->hasField('field_page_type') && $entity->get('field_page_type')[0]->target_id) {
-    $pagetypeTid = $entity->get('field_page_type')[0]->target_id;
+  if ($node && $node->hasField('field_page_type') && $node->get('field_page_type')[0]->target_id) {
+    $pagetypeTid = $node->get('field_page_type')[0]->target_id;
     $variables['pagetype'] = Term::load($pagetypeTid)->getName();
   }
 
-  /**
+  /*
    * Pass menu data to nav pages so they can render links to their children
    */
   if ($variables['elements']['#id'] == 'navigation_page_items' || $variables['elements']['#id'] == 'navigation_page_items_spanish') {
-    $added_contexts = ['url.path']; // Use url.query_args as well for an easier test case
+    // Use url.query_args as well for an easier test case.
+    $added_contexts = ['url.path'];
     $variables['content']['#cache']['contexts'] = array_merge($variables['content']['#cache']['contexts'], $added_contexts);
     $variables['#cache']['contexts'] = array_merge($variables['#cache']['contexts'], $added_contexts);
-
     $items = $variables['content']['#items'];
     $children_of_active_menu_item = children_of_active_menu_item($items);
     $nav_page_items = [];
     foreach ($children_of_active_menu_item as $child) {
       $data = new StdClass();
-
-      if (isset($child['url']->getRouteParameters()['node'])) {
-        $childTaxonomy = FALSE;
-        $childEntity = Node::load($child['url']->getRouteParameters()['node']);
-      }
-      elseif (isset($child['url']->getRouteParameters()['taxonomy_term'])) {
-        $childTaxonomy = TRUE;
-        $childEntity = Term::load($child['url']->getRouteParameters()['taxonomy_term']);
-      }
-      //Must get title, description and url if available; Try to get other fields
-
-      //Get Title & URL (Required Fields- Can Call Together)
+      // Get title, description and url if available.
       try {
-        if ($childTaxonomy === TRUE) {
-          $data->title = $childEntity->get('name')->value;
+        if (isset($child['url']->getRouteParameters()['node'])) {
+          $childNid = $child['url']->getRouteParameters()['node'];
+          $childNode = Node::load($childNid);
+          $data->title = $childNode->get('title')->value;
+          $data->url = $childNode->toUrl()->toString();
         }
-        else {
-          $data->title = $childEntity->get('title')->value;
+        elseif (isset($child['original_link']->getPluginDefinition()['route_parameters']['taxonomy_term'])) {
+          $data->url = $child['url'];
+          $data->title = $child['title'];
+          $data->description = $child['original_link']->getPluginDefinition()['description'];
         }
-
-        $data->url = $childEntity->toUrl()->toString();
       }
-
       catch (Exception $e) {
         $menuItem = $child['original_link']->getPluginDefinition();
         $data->title = $menuItem['title'];
@@ -353,16 +343,21 @@ function usagov_preprocess_block(&$variables) {
         }
       }
 
-      // Get Description (Optional Field - A catch on this shouldn't trigger a catch on title or url)
+      /* Get Description (Optional Field - A catch on this shouldn't
+      trigger a catch on title or url). */
       try {
-        if ($childEntity->hasField('field_short_description') && $childEntity->get('field_short_description')->value != "") {
-          $data->description = $childEntity->get('field_short_description')->value;
-        }
-        elseif ($childEntity->hasField('field_page_intro') && $childEntity->get('field_page_intro')->value != "") {
-          $data->description = $childEntity->get('field_page_intro')->value;
-        }
-        else {
-          $data->description = $childEntity->get('field_meta_description')->value;
+        if (isset($child['url']->getRouteParameters()['node'])) {
+          $childNid = $child['url']->getRouteParameters()['node'];
+          $childNode = Node::load($childNid);
+          if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
+            $data->description = $childNode->get('field_short_description')->value;
+          }
+          elseif ($childNode->hasField('field_page_intro') && $childNode->get('field_page_intro')->value != "") {
+            $data->description = $childNode->get('field_page_intro')->value;
+          }
+          else {
+            $data->description = $childNode->get('field_meta_description')->value;
+          }
         }
       }
       catch (Exception $e) {
@@ -370,9 +365,9 @@ function usagov_preprocess_block(&$variables) {
         $data->description = $menuItem['description'];
       }
 
-      if (isset($child['url']->getRouteParameters()['node'])) {
-        // Try for other fields
-        try {
+      // Try for other fields.
+      try {
+        if (isset($child['url']->getRouteParameters()['node'])) {
           $childNid = $child['url']->getRouteParameters()['node'];
           $childNode = Node::load($childNid);
           if (
@@ -381,7 +376,7 @@ function usagov_preprocess_block(&$variables) {
             $childNode->get('field_navigation_banner_image')[0]->entity
           ) {
             $file_url_generator = \Drupal::service('file_url_generator');
-            //to allow for image_style (webp compression) to apply
+            // To allow for image_style (webp compression) to apply.
             $banner_uri = $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri();
             $data->navigation_banner_image = $banner_uri;
           }
@@ -392,9 +387,10 @@ function usagov_preprocess_block(&$variables) {
             $data->promote = $childNode->get('promote')->value;
           }
         }
-        catch (Exception $e) {
-        }
       }
+      catch (Exception $e) {
+      }
+
       array_push($nav_page_items, $data);
     }
     $variables['nav_page_items'] = $nav_page_items;
@@ -432,7 +428,7 @@ function usagov_theme_suggestions_alter(array &$suggestions, array $variables, $
   }
   if ($hook == 'field') {
     if (in_array('field__node__field_custom_twig_content', $suggestions) &&
-        $variables['element']['#object']->field_custom_twig_content->value) {
+      $variables['element']['#object']->field_custom_twig_content->value) {
       $current_path = \Drupal::service('path.current')->getPath();
       $current_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
       $no_slash = ltrim($current_alias, '/');

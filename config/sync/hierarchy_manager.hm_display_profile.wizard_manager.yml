@@ -6,4 +6,4 @@ id: wizard_manager
 label: 'Wizard Manager'
 plugin: hm_display_jstree
 config: '{}'
-confirm: false
+confirm: true
