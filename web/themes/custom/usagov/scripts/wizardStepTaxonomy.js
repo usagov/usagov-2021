@@ -3,6 +3,10 @@
 Drupal.behaviors.wizardStepTaxonomy = {
   "attach": function(context, settings) {
 
+    $(function() {
+      $("#skip-to-h1").focus();
+    });
+
     let priorButton = document.getElementById("prior");
 
     if (priorButton != null) {

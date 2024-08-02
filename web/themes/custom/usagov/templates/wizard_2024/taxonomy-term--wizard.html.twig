@@ -20,8 +20,10 @@
 {% set attributes = attributes.addClass('usagov-wizard--content') %}
 
 <div{{ attributes }}>
-  <h1 class="text-red-50">{{ content.field_heading }}</h1>
-  <div class="usa-intro">{{ content.field_intro }}</div>
+  <h1 id="skip-to-h1" class="text-red-50">{{ content.field_heading[0]['#context']['value'] }}</h1>
+  {% if content.field_intro[0] %}
+    <div class="usa-intro">{{ content.field_intro }}</div>
+  {% endif %}
   {{ content.field_body }}
   {% if child %}
     {% if content.field_options_list[0]['contents']['#view_id'] %}
