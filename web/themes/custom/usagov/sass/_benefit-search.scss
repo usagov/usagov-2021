@@ -178,13 +178,18 @@ main[data-pagetype="Benefits Category Search"] .usa-prose > p {
   }
 }
 
-.benefits-result-categories h3 {
+.benefits-result-categories h4 {
   @include u-margin-top(0);
   @include u-margin-bottom(0.625rem);
   font-size: 1.1rem;
 }
 
-.benefits-result-categories span {
+.benefits-result-categories ul {
+  list-style-type: none;
+  @include u-margin(0);
+  @include u-padding-left(0);
+}
+.benefits-result-categories li {
   padding: 0.25rem 0.5rem;
   margin-right: 0.5rem;
   margin-bottom: 0.5rem;

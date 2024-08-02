@@ -351,8 +351,8 @@ display:
           label: ''
           exclude: false
           alter:
-            alter_text: true
-            text: '<span>{{ term_node_tid__name }}</span>'
+            alter_text: false
+            text: '<li>{{ term_node_tid__name }}</li>'
             make_link: false
             path: ''
             absolute: false
@@ -389,20 +389,20 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-          type: separator
+          type: ul
           separator: ' '
           link_to_taxonomy: false
           limit: true
           vids:
             benefits_category: benefits_category
             bears_tags: '0'
-            category: '0'
             content_tags: '0'
             page_type: '0'
             uswds_breakpoints: '0'
             uswds_classes: '0'
             uswds_colors: '0'
             uswds_icons: '0'
+            wizard: '0'
         field_benefits_category:
           id: field_benefits_category
           table: node__field_benefits_category
