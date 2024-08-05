@@ -65,10 +65,18 @@ function pushApp { #appname
 
   if [ -z "$SDIGEST" ]; then
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG}
+    if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+      cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG}
+    else
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${STAG} --docker-username $DOCKERHUB_USERNAME
+    fi
   else
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${STAG} via digest ${SDIGEST}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${SDIGEST}
+    if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+      cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${SDIGEST}
+    else
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${SDIGEST} --docker-username $DOCKERHUB_USERNAME
+    fi
   fi
 }
 
@@ -81,31 +89,23 @@ function setupRoutes { #appname
   # the egress-setup doesn't interfere with bootstrapping
   # but cms needs to exist in the first place
   # for route mapping and egress setup to run
-  
-  if [ "$APP_SPACE" == "dev-dr" ]; then
-    cf create-route apps.internal --hostname dev-dr-usagov
-    cf map-route $app apps.internal --hostname dev-dr-usagov
-    cf create-route usa.gov --hostname dev-dr
-    cf map-route $app usa.gov --hostname dev-dr
+
+  cf create-route apps.internal --hostname beta-$APP_SPACE-usagov
+  cf map-route $app apps.internal --hostname beta-$APP_SPACE-usagov
+
+  if [ "$APP_SPACE" == "prod" ]; then
+    cf create-route apps.internal --hostname www-$APP_SPACE-usagov
+    cf  map-route $app apps.internal --hostname www-$APP_SPACE-usagov
+    cf create-route usa.gov --hostname beta
+    cf map-route $app usa.gov --hostname beta
+     cf create-route usa.gov --hostname www
+     cf map-route $app usa.gov --hostname www
 
   else
-    cf create-route apps.internal --hostname beta-$APP_SPACE-usagov
-    cf map-route $app apps.internal --hostname beta-$APP_SPACE-usagov
-
-    if [ "$APP_SPACE" == "prod" ]; then
-      cf create-route apps.internal --hostname www-$APP_SPACE-usagov
-      cf  map-route $app apps.internal --hostname www-$APP_SPACE-usagov
-      cf create-route usa.gov --hostname beta
-      cf map-route $app usa.gov --hostname beta
-      cf create-route usa.gov --hostname www
-      cf map-route $app usa.gov --hostname www
-
-    else
-      cf create-route usa.gov --hostname beta-$APP_SPACE
-      cf map-route $app usa.gov --hostname beta-$APP_SPACE
-    fi
-
+    cf create-route usa.gov --hostname beta-$APP_SPACE
+    cf map-route $app usa.gov --hostname beta-$APP_SPACE
   fi
+
 }
 
 function setupEgress { #appname
@@ -117,26 +117,15 @@ function setupEgress { #appname
   $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
 }
 
-function setupNewrelic { #appname
-  app=$1
-  if [ -z "$app" ]; then
-    echo "ERROR: appname is required"
-    exit 1
-  fi
-  $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart
-}
-
 if appExists www; then
   setupRoutes www
-#  setupEgress cms
-  setupNewrelic www
+  setupEgress www
   pushApp www
 else
   cf set-env www SKIP_DRUPAL_BOOTSTRAP "skip"
   pushApp www
   setupRoutes www
-#  setupEgress cms
-  setupNewrelic www
+  setupEgress www
   cf set-env www SKIP_DRUPAL_BOOTSTRAP ""
   restartApp www
 fi

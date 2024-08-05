@@ -76,12 +76,16 @@ echo "Removing unwanted files ... "
 rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
 rm -rf $RENDER_DIR/node/ 2>&1 | tee -a $TOMELOG
 rm -rf $RENDER_DIR/es/node/ 2>&1 | tee -a $TOMELOG
+rm -rf $RENDER_DIR/s3/files/benefit-finder/api/draft/life-event/ 2>&1 | tee -a $TOMELOG
 
-# WWW_HOST is not present in CMS app, as of USAGOV-1083.  
+# WWW_HOST is not present in CMS app, as of USAGOV-1083.
 # Determine WWW_HOST based on space name
 case $APP_SPACE in
 dev)
   WWW_HOST=beta-dev.usa.gov
+  ;;
+dr)
+  WWW_HOST=beta-dr.usa.gov
   ;;
 stage)
   WWW_HOST=beta-stage.usa.gov
@@ -195,16 +199,11 @@ TOME_PUSH_NEW_CONTENT=0
 if [ "$TOME_TOO_MUCH" == "1" ]; then
   echo "Tome static build looks suspicious - adding more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
   TOME_PUSH_NEW_CONTENT=1
-  # send message, but continue on
-  # write message to php log so newrelic will see it
 elif [ "$TOME_TOO_LITTLE" == "1" ]; then
   MSG="Tome static build failure - removing more content than expected. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)"
   echo $MSG | tee -a $TOMELOG
   $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "$MSG"
   TOME_PUSH_NEW_CONTENT=0
-  # send message, and abort
-  # write message to php log so newrelic will see it
-  # exit 3
 else
   echo "Tome static build looks fine. Currently Have ($S3_COUNT) and Tome Generated ($TOME_COUNT)" | tee -a $TOMELOG
   TOME_PUSH_NEW_CONTENT=1
@@ -216,6 +215,9 @@ fi
 ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
+
+mkdir -p $RENDER_DIR/ppr
+cp -fp "/var/www/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv" "$RENDER_DIR/ppr/published-pages.csv"
 
 EN_HOME_HTML_FILE=/var/www/html/index.html
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
@@ -233,16 +235,28 @@ if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
   ES_HOME_HTML_BAD=1
 fi
 
+# Checks that the spanish and english home page doesn't have links to /node/[some number] and don't publish when that happens.
+ES_HOME_CONTAINS_NODE_LINKS=$(grep -c '/node/[0-9]' $ES_HOME_HTML_FILE)
+if [ "$ES_HOME_CONTAINS_NODE_LINKS" != "0"  ]; then
+  echo "WARNING: *** ES index.html menu appears to contain links that goes to /node/ pages ***" | tee -a $TOMELOG
+  ES_HOME_HTML_BAD=1
+fi
+
+EN_HOME_CONTAINS_NODE_LINKS=$(grep -c '/node/[0-9]' $EN_HOME_HTML_FILE)
+if [ "$EN_HOME_CONTAINS_NODE_LINKS" != "0"  ]; then
+  echo "WARNING: *** EN index.html menu appears to contain links that goes to /node/ pages ***" | tee -a $TOMELOG
+  EN_HOME_HTML_BAD=1
+fi
+
 # Sometimes Tome generates an English mobile menu on the Spanish home page
-ES_HOME_CONTAINS_ENGLISH_MENU=$(grep -c 'About us' $ES_HOME_HTML_FILE)
+ES_HOME_CONTAINS_ENGLISH_MENU=$(grep -E -c 'All topics and services|About USAGov|Military and veterans' $ES_HOME_HTML_FILE)
 if [ "$ES_HOME_CONTAINS_ENGLISH_MENU" != "0"  ]; then
   echo "WARNING: *** ES index.html appears to contain English nav ***" | tee -a $TOMELOG
   ES_HOME_HTML_BAD=1
 fi
 
 # Sometimes Tome generates an Spanish mobile menu on the English home page
-# "Navegaci&oacute;n" is the aria-label on the mobile nav (and the non-mobile nav, but we don't see this problem there)
-EN_HOME_CONTAINS_SPANISH_MENU=$(grep -c 'Navegaci&oacute;n' $EN_HOME_HTML_FILE)
+EN_HOME_CONTAINS_SPANISH_MENU=$(grep -E -c 'Todos los temas y servicios|Acerca de USAGov en Español|Fuerzas Armadas de EE. UU. y veteranos' $EN_HOME_HTML_FILE)
 if [ "$EN_HOME_CONTAINS_SPANISH_MENU" != "0"  ]; then
   echo "WARNING: *** EN index.html appears to contain Spanish nav ***" | tee -a $TOMELOG
   EN_HOME_HTML_BAD=1
@@ -271,13 +285,6 @@ fi
 if [ "$ES_HOME_HTML_BAD" == "1" ]; then
   # Delete the known-bad file; it may be re-created correctly on the next run.
   rm $ES_HOME_HTML_FILE
-  touch $RETRY_SEMAPHORE_FILE
-  TOME_PUSH_NEW_CONTENT=0
-fi
-
-if [ "$EN_HOME_HTML_BAD" == "1" ]; then
-  # Delete the known-bad file; it may be re-created correctly on the next run.
-  rm $EN_HOME_HTML_FILE
   touch $RETRY_SEMAPHORE_FILE
   TOME_PUSH_NEW_CONTENT=0
 fi

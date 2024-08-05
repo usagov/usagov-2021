@@ -1,0 +1,191 @@
+@use "usagov-variables" as *;
+@use "uswds-core" as *;
+
+@mixin checked() {
+  border-radius: 4px;
+  border: 2px solid $button-secondary-outline;
+  background: $button-secondary-default;
+
+  &::before {
+    background-color: $button-secondary-outline;
+    box-shadow: 0 0 0 2px color('gray-90'), inset 0 0 0 3px color('gray-5');
+    opacity: 1;
+  }
+}
+
+.usagov-wizard {
+  .usa-breadcrumb__list {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+  }
+
+  .layout-sidebar-first {
+    display: none;
+
+    @include at-media('desktop') {
+      display: block;
+    }
+  }
+
+  &--content {
+
+    [tabindex]:focus {
+      outline: unset;
+    }
+
+    h2 {
+      font-size: 2rem;
+      line-height: 120%;
+    }
+
+    * {
+      transition: all .1s ease;
+    }
+
+    // Hide the title of views reference fields.
+    .viewsreference--view-title {
+      display: none;
+    }
+
+    fieldset {
+      all: unset;
+      // Disable this to prevent shift+click selection of multiple radios.
+      -webkit-user-select: none; /* Safari */
+      user-select: none; /* Standard syntax */
+    }
+
+    .field--name-field-intro {
+      margin: 17.6px 0;
+
+      h2 {
+        margin: 0;
+      }
+    }
+
+    .field--name-field-body {
+      h2 {
+        margin: 40px 0 17.6px;
+      }
+    }
+
+    .field--name-field-options-list {
+      margin-bottom: 40px;
+    }
+
+    .views-field-field-option-name {
+      // P tag for descriptions.
+      p {
+        margin-block-start: 0;
+        margin-block-end: 0;
+        margin-left: 2rem;
+      }
+
+      /* We have to have this oneoff selector to override the base uswds style.*/
+      .usa-radio__input:focus+[class*=__label]::before {
+        background-color: $button-secondary-outline;
+        box-shadow: 0 0 0 2px color('gray-90'), inset 0 0 0 3px color('gray-5');
+        opacity: 1;
+      }
+
+      .usa-radio__input--tile + .usa-radio__label {
+        line-height: 26.4px;
+        padding: 1rem;
+        margin-top: 0;
+
+        // Have a hidden border in the natural state so this doesn't move on hover.
+        border: 2px solid transparent;
+
+        // Option label.
+        .usagov-label--text {
+          margin-left: 12px;
+        }
+
+        &::before {
+          margin: 0;
+          position: relative;
+          display: inline-block;
+          top: -2px;
+          vertical-align: middle;
+          left: 0;
+          outline: 0;
+          opacity: .6;
+        }
+
+        &:hover {
+          border-radius: 4px;
+          @include u-border('2px', 'solid', 'gray-20');
+          @include u-bg('gray-5');
+
+          &::before {
+            opacity: 1;
+          }
+        }
+
+        &:active, &.checked {
+          @include checked;
+        }
+      }
+    }
+
+    #wizard-border, &--error {
+      @include u-bg($theme-color-error-lighter);
+
+      padding: .5rem 1rem .5rem 0;
+      border-left: 7px solid color($theme-color-error);
+      display: none;
+
+      .usa-alert__body {
+        padding-left: 3rem;
+      }
+
+      &::before {
+        left: 1rem;
+        width: 20px;
+      }
+
+      // Override custom-styles :focus rules.
+      #msg {
+        &:focus {
+          outline: 0;
+          box-shadow: none;
+        }
+      }
+    }
+
+    .usa-button#next {
+      background-color: white !important;
+
+      &:hover {
+        @include u-bg('gray-5', '!important');
+      }
+    }
+
+    #start-over-mobile {
+      width: 156px;
+      @include at-media('desktop') {
+        display: none;
+      }
+    }
+
+    #start-over-desktop {
+      display: none;
+      @include at-media('desktop') {
+        display: inline-block;
+      }
+    }
+
+    // Close usa-wizard--content
+  }
+
+  &-buttons {
+    .usa-button {
+      width: 158px;
+      @include at-media('tablet') {
+        width: 168px;
+      }
+    }
+  }
+
+  // Close usagov-wizard
+}

@@ -13,6 +13,17 @@ if [ ! -f /container_start_timestamp ]; then
   echo "$(date +'%s')" > /container_start_timestamp
 fi
 
+echo "Deployment: bootstrap starting"
+
+# Add the cloud foundry certificates for communication with other apps in cloud.gov.
+# cert-watcher.sh does this too, but we want it to happen before
+# any php processes start, and especially before the newrelic-daemon starts.
+if [ -d "${CF_SYSTEM_CERT_PATH:-}" ]; then
+   cp ${CF_SYSTEM_CERT_PATH:-}/*  /usr/local/share/ca-certificates/
+fi
+/usr/sbin/update-ca-certificates
+
+
 SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
 SECAUTHSECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secauthsecrets") | .credentials')
 
@@ -38,6 +49,9 @@ SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
 case $SPACE in
 dev)
   WWW_HOST=beta-dev.usa.gov
+  ;;
+dr)
+  WWW_HOST=beta-dr.usa.gov
   ;;
 stage)
   WWW_HOST=beta-stage.usa.gov
@@ -121,28 +135,30 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
     sed -i \
         -e "s|;\?newrelic.license =.*|newrelic.license = ${NEW_RELIC_LICENSE_KEY}|" \
         -e "s|;\?newrelic.process_host.display_name =.*|newrelic.process_host.display_name = ${NEW_RELIC_DISPLAY_NAME:-usa-cms}|" \
-        -e "s|;\?newrelic.daemon.address =.*|newrelic.daemon.address = ${NEW_RELIC_DAEMON_DOMAIN:-newrelic.apps.internal}:${NEW_RELIC_AGENT_PORT:-31339}|" \
         -e "s|;\?newrelic.appname =.*|newrelic.appname = \"${NEW_RELIC_APP_NAME:-CMS-dev;USA.gov}\"|" \
-        -e "s|;\?newrelic.daemon.loglevel =.*|newrelic.daemon.loglevel = \"${NEW_RELIC_LOG_LEVEL:-debug}\"|" \
-        -e "s|;\?newrelic.daemon.dont_launch =.*|newrelic.daemon.dont_launch = 3|" \
+        -e "s|;\?newrelic.daemon.loglevel =.*|newrelic.daemon.loglevel = \"${NEW_RELIC_LOG_LEVEL:-warning}\"|" \
         -e "s|;\?newrelic.enabled =.*|newrelic.enabled = true|" \
         /etc/php81/conf.d/newrelic.ini
+
   else
     echo "Turning off New Relic ... "
     sed -i \
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
         /etc/php81/conf.d/newrelic.ini
   fi
-  if [ -z "${https_proxy:-}" ]; then # I'M CHEATING REMOVE THE SEMICOLONS AFTER TESTING
+  if [ "NoProxy" = "${PROXYROUTE:NoProxy}" ]; then
+      # TODO: what to do here? PROXYROUTE should be set!
     sed -i \
-      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|;newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
-      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|;newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
       /etc/php81/conf.d/newrelic.ini
   else
+      # We are probably being needlessly redundant in setting both ssl_ca_bundle and ssl_ca_path.
+      # NR says it will search ssl_ca_bundle first, then the certificates in ssl_ca_path. We have ssl_ca_bundle within ssl_ca_path, so ...
     sed -i \
-      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|;newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
-      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|;newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
-      -e "s|;\?newrelic.daemon.proxy =.*|;newrelic.daemon.proxy = \"$https_proxy\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
+      -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
+      -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"$PROXYROUTE\"|" \
       /etc/php81/conf.d/newrelic.ini
   fi
 fi

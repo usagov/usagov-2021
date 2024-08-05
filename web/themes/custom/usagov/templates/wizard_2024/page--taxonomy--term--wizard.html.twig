@@ -1,0 +1,46 @@
+{# Custom top nav, main class, sidenav, and below body region for wizards. #}
+
+{% extends "page.html.twig" %}
+{% block top_nav %}
+  {% if lang =='es' %}
+    {% include '@usagov/wizard_2024/wizard-top-nav-es.html.twig' %}
+  {% else %}
+    {% include '@usagov/wizard_2024/wizard-top-nav.html.twig' %}
+  {% endif %}
+{% endblock %}
+
+{% block main %}
+<main class="main-content usa-layout-docs usa-section usagov-wizard {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+{% endblock %}
+
+  {# Custom left navigation for wizards. See usagov_wizard module.#}
+
+  {% block sidebar %}
+  {% if menu_entities %}
+  {% set parent_link = menu_entities[2]['link'] %}
+    <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first">
+      <ul class="usa-sidenav">
+      {% for menu_entity in menu_entities %}
+        {% if loop.first %}
+          <li class="usa-sidenav__item">
+            <a class="usa-current" href="{{ menu_entities[1]['link'] }}" class="active-trail">
+                {{ menu_entity.label }}
+            </a>
+          </li>
+          <ul class="usa-sidenav__sublist">
+        {% else %}
+          <li class="usa-sidenav__item">
+            <a href="{{ menu_entity.link }}">
+              {{ menu_entity.label }}
+            </a>
+          </li>
+        {% endif %}
+      {% endfor %}
+      </ul>
+      </ul>
+    </aside>
+  {% endif %}
+{% endblock %}
+
+{% block additional_body %}
+{% endblock %}

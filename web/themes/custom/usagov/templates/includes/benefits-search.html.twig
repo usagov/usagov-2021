@@ -1,0 +1,25 @@
+{#
+/**
+ * Included in the basic node page template and has all the same variables available.
+ */
+ #}
+{% set lang = node.langcode.value %}
+{% if node.field_benefits_life_events_id.value is empty %}
+  {% set finder_id = '' %}
+{% else %}
+  {% set finder_id = node.field_benefits_life_events_id.value | trim %}
+{% endif %}
+
+{% if node.field_benefits_life_events_title.value | render  %}
+  <h2 class="benefit-finder__title" id="{{ finder_id }}">{{ node.field_benefits_life_events_title.value | render }}</h2>
+{% endif %}
+{% if node.field_benefits_life_events_descr.value | render %}
+  <p class="benefit-finder__desc">{{ node.field_benefits_life_events_descr.value | render}}</p>
+{% endif %}
+
+<div class="benefit-finder__main">
+  {{ drupal_view('life_events_grid', 'summary_block', lang) }}
+
+  {{ drupal_view('benefit_search_form', 'benefits_facets_block', lang) }}
+</div>
+

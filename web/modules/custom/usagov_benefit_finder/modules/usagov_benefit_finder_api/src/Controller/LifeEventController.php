@@ -374,7 +374,7 @@ class LifeEventController {
     $criteria_fieldset = [
       "criteriaKey" => current($criteria->get('field_b_criteria_key')->referencedEntities())->get('field_b_id')->value,
       "legend" => $criteria->get('field_b_legend')->value ?? "",
-      "required" => $criteria->get('field_b_required')->value ? "TRUE" : "FALSE",
+      "required" => $criteria->get('field_b_required')->value ? TRUE : FALSE,
       "hint" => $criteria->get('field_b_hint')->value ?? "",
     ];
 
@@ -384,7 +384,7 @@ class LifeEventController {
       "type" => $criteria_node->get('field_b_type')->value,
       "name" => $criteria_node->get('field_b_name')->value ?? "",
       "label" => $criteria_node->get('field_b_label')->value ?? "",
-      "hasChild" => $criteria_node->get('field_b_has_child')->value ? "TRUE" : "FALSE",
+      "hasChild" => $criteria_node->get('field_b_has_child')->value ? TRUE : FALSE,
       "childDependencyOption" => $criteria_node->get('field_b_child_dependency_option')->value ?? "",
     ];
 
@@ -442,7 +442,7 @@ class LifeEventController {
       "title" => $node->get('title')->value,
       "summary" => $node->get('field_b_summary')->value ?? "",
       "SourceLink" => $node->get('field_b_source_link')->value ?? "",
-      "SourceIsEnglish" => $node->get('field_b_source_is_english')->value ? "TRUE" : "FALSE",
+      "SourceIsEnglish" => $node->get('field_b_source_is_english')->value ? TRUE : FALSE,
     ];
 
     // Get agency node and build benefit agency.
@@ -463,14 +463,6 @@ class LifeEventController {
     $tags = $node->get('field_b_tags')->referencedEntities();
     foreach ($tags as $tag) {
       $benefit["tags"][] = $tag->get('name')->value;
-    }
-
-    // Build life event.
-    $lifeEvents = $node->get('field_b_life_events')->getValue();
-    foreach ($lifeEvents as $lifeEvent) {
-      $service = $this->entityTypeManager->getStorage('node');
-      $node1 = $service->load($lifeEvent['target_id']);
-      $benefit['lifeEvents'][] = $node1->get('title')->value;
     }
 
     // Build eligibilities.
@@ -539,32 +531,31 @@ class LifeEventController {
   public function getNode($nid, $mode) {
     $vid = 0;
 
-    // Do not use node of moderation state archived.
-    $id = $this->database
-      ->query('SELECT id FROM content_moderation_state_field_data
-                        WHERE moderation_state = :mstate AND content_entity_id = :nid',
-                        [':mstate' => 'archived', ':nid' => $nid])
-      ->fetchField();
-    if ($id) {
-      return NULL;
-    }
-
     if ($mode == "published") {
-      $vid = $this->database
-        ->query('SELECT MAX(vid) AS vid FROM node_field_revision WHERE status = 1 AND nid = :nid', [':nid' => $nid])
-        ->fetchField();
+      $query = $this->entityTypeManager->getStorage('node')
+        ->getQuery()
+        ->allRevisions()
+        ->condition('nid', $nid)
+        ->condition('status', 1)
+        ->sort('vid', 'DESC')
+        ->range(0, 1)
+        ->accessCheck(TRUE);
     }
     elseif ($mode == "draft") {
-      $vid = $this->database
-        ->query('SELECT MAX(vid) AS vid FROM node_field_revision WHERE nid = :nid', [':nid' => $nid])
-        ->fetchField();
-    }
-    else {
-      // @todo Unknown
+      $query = $this->entityTypeManager->getStorage('node')
+        ->getQuery()
+        ->allRevisions()
+        ->condition('nid', $nid)
+        ->sort('vid', 'DESC')
+        ->range(0, 1)
+        ->accessCheck(TRUE);
     }
 
-    if ($vid) {
-      $node = node_revision_load($vid);
+    $result = $query->execute();
+
+    if (!empty($result)) {
+      $revision_id = key($result);
+      $node = $this->entityTypeManager->getStorage('node')->loadRevision($revision_id);
     }
     else {
       $node = NULL;

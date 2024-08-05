@@ -5,12 +5,16 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.bears_life_event.field_b_id
+    - field.field.node.bears_life_event.field_b_search_title
     - field.field.node.bears_life_event.field_draft_json_data_file
     - field.field.node.bears_life_event.field_draft_json_data_file_path
     - field.field.node.bears_life_event.field_header_html
     - field.field.node.bears_life_event.field_json_data_file
     - field.field.node.bears_life_event.field_json_data_file_path
     - field.field.node.bears_life_event.field_language_toggle
+    - field.field.node.bears_life_event.field_meta_description
+    - field.field.node.bears_life_event.field_page_intro
+    - field.field.node.bears_life_event.field_short_description
     - field.field.node.bears_life_event.field_summary
     - node.type.bears_life_event
   module:
@@ -32,11 +36,15 @@ content:
     region: content
 hidden:
   field_b_id: true
+  field_b_search_title: true
   field_draft_json_data_file: true
   field_draft_json_data_file_path: true
   field_header_html: true
   field_json_data_file: true
   field_json_data_file_path: true
   field_language_toggle: true
+  field_meta_description: true
+  field_page_intro: true
+  field_short_description: true
   field_summary: true
   langcode: true

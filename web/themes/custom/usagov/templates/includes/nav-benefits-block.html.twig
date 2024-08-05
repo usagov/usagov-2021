@@ -1,0 +1,16 @@
+{% set lang = node.langcode.value %}
+
+{% if (node.field_benefits_callout_ref) %}
+  {% set benefits_url = drupal_url('node/' ~ node.field_benefits_callout_ref.value[0].target_id ) %}
+
+  <div class="benefits-block-bg nav-benefits">
+    <div class="benefits-block">
+      <img alt="" src="/themes/custom/usagov/images/topics/ICONS_Reimagined_Benefits.svg" height="54px">
+        <div class="benefits-text">
+          {{ node.field_benefits_callout_descr.value |  raw  }}
+        </div>
+        <a href="{{ benefits_url }}" class="usa-button benefits-link" role="button">
+          {{ node.field_benefits_callout_button.value }}</a>
+    </div>
+  </div>
+{% endif %}

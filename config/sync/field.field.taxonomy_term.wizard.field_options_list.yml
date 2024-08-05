@@ -1,0 +1,35 @@
+uuid: c7bb0f26-5ddb-49e0-9c56-becee8192813
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_options_list
+    - taxonomy.vocabulary.wizard
+    - views.view.wizard_options
+  module:
+    - viewsreference
+id: taxonomy_term.wizard.field_options_list
+field_name: field_options_list
+entity_type: taxonomy_term
+bundle: wizard
+label: 'Options List'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    target_uuid: 83220b3d-cf42-4870-9368-0719507fdc37
+    display_id: block_1
+    data: 'a:5:{s:8:"argument";N;s:5:"limit";N;s:6:"offset";N;s:5:"pager";N;s:5:"title";N;}'
+default_value_callback: ''
+settings:
+  handler: 'default:view'
+  handler_settings:
+    target_bundles: null
+    auto_create: false
+  plugin_types:
+    block: block
+  preselect_views:
+    wizard_options: wizard_options
+  enabled_settings: {  }
+field_type: viewsreference

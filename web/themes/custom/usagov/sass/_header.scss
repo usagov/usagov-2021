@@ -3,79 +3,47 @@
 
 /** Government Banner **/
 .usa-banner {
-  //background-color: var($light-gray);
-  background-color: #f0f0f0;
+  @include u-bg('gray-5');
+}
+
+.usa-banner__icon {
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
+.usa-banner__header-flag {
+  height: 1rem;
+  width: 1rem;
 }
 
 .usa-banner__button-text,
 .usa-banner__button-text:hover {
-  color: var($text-blue);
+ @include u-text('blue-warm-70v');
 }
 
 .usa-banner__button-text:visited {
-  color: var($dark-gray);
+  color: $dark-gray;
 }
 
 .usa-banner__button::after,
 .usa-banner__button:hover::after {
-  background-color: var($text-blue);
+  @include u-bg('blue-warm-70v');
 }
 
 .usa-banner__button:hover:visited::after {
-  background-color: var($dark-gray);
+  background-color: $dark-gray;
 }
 
 .usa-banner__button[aria-expanded="true"]::after,
 .usa-banner__button[aria-expanded="true"]:hover::after {
-  background-color: var($text-blue);
+  @include u-bg('blue-warm-70v');
 }
 
 .usa-banner__button[aria-expanded="true"]:hover:visited::after {
-  background-color: var($dark-gray);
+  background-color: $dark-gray;
 }
 
-// info banner
-.usa-header--extended .usa-alert--slim .usa-alert__body {
-  @include at-media($theme-header-min-width) {
-    max-width: 64rem;
-    margin-right: auto;
-    margin-left: auto;
-    padding-left: 3.2rem;
-    padding-right: 3.2rem;
-    display: block;
-    font-size: 0.9rem;
-  }
-
-  padding-left: 2.2rem;
-  padding-right: 2.2rem;
-  display: block;
-  font-size: 0.9rem;
-}
-
-.usa-header--extended .usa-alert--slim .usa-alert__body a,
-.usa-header--extended .usa-alert--slim .usa-alert__body a:hover,
-.usa-header--extended .usa-alert--slim .usa-alert__body a:visited {
-  color: color("blue-warm-70v");
-}
-
-// emergency banner header
-.usa-header--extended .usa-alert--error {
-  color: var($white);
-  border-left-color: color("red-70v");
-  background-color: color("red-70v");
-}
-
-// emergency banner header
-.usa-header--extended .usa-alert--error a {
-  color: var($white);
-}
-
-// info banner header
-.usa-header--extended .usa-alert--info {
-  border-left-color: var($pale-blue);
-}
-
-// info banner header
+// Slim site banner
 @include at-media($theme-header-min-width) {
   .usa-header--extended .usa-alert--slim .usa-alert__body .usa-alert__heading {
     margin-bottom: 0;
@@ -89,71 +57,46 @@
 }
 
 /** Language buttons **/
-@include at-media($theme-header-min-width) {
-  .usa-header--extended .usa-navbar {
-    overflow: inherit;
-  }
+.usa-header--extended .usa-navbar {
+  height: auto;
 }
 
 @include at-media($theme-header-min-width) {
   .usa-header--extended div.language-switcher-language-url {
     margin-right: auto;
-    max-width: 64rem;
+    max-width: calc(70.25rem + 4rem);
     margin-left: auto;
     padding-left: 2rem;
     padding-right: 2rem;
     display: block;
   }
 }
-
-.usa-header--extended div.language-switcher-language-url div.links {
+.usa-navbar .navbar-right {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 0.3rem;
-  margin-left: 0;
-  z-index: 501;
-}
-
-.usa-header--extended [hreflang|="es"] {
-  padding-left: 0.5rem;
-  border-radius: 5px;
-  border: none;
-
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  margin: .5rem;
   @media (max-width: 64em) {
-    padding-right: 1.3rem;
+    flex-direction: row;
+    align-items: center;
   }
 }
 
-.usa-header--extended [hreflang|="en"] {
-  border-radius: 5px;
-  border: none;
-}
-
-.usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link {
+.usa-header a.language-link {
   @media (max-width: 64em) {
-    font-size: 0.93rem;
+    line-height: 1.5rem;
     font-weight: 700;
+    margin-right: 2em;
   }
 
-  color: var($white);
+  @include u-text('white');
   text-decoration: none;
   padding: 10px 20px;
-  background-color: color("blue-80v");
-}
-
-
-@include at-media($theme-header-min-width) {
-  .usa-header--extended .usa-nav__primary>.usa-nav__primary-item>a.language-link:hover {
-    color: var($white);
-  }
-}
-
-/** Mobile menu button **/
-@media (max-width: 64em) {
-  .usa-header--extended .usa-navbar {
-    margin-top: 1rem;
-    padding-bottom: 1rem;
-  }
+  @include u-bg('blue-80v');
+  line-height: .9;
+  font-size: .93rem;
+  margin: 0;
 }
 
 .usa-header--extended .usa-menu-btn {
@@ -168,11 +111,10 @@
     background-repeat: no-repeat;
     background-position: 3.5rem 0.7rem;
   }
-
-  background-color: color("blue-warm-80v");
+  @include u-bg('blue-warm-80v');
 }
 
-// This is to minimize the size of the logo in tablet and mobile
+// This is to set the size of the logo in desktop
 @media (min-width: 64em) {
   .usa-header--extended .usa-logo {
     margin: 0.5rem 0 0.2em;
@@ -182,18 +124,24 @@
 }
 
 .usa-header--extended .usa-logo img {
-  max-width: units(5);
+  max-width: none;
+  width: 3.2rem;
+  max-height: none;
+  height: 3.2rem;
 
   @include at-media($theme-header-min-width) {
-    max-width: units(10);
+    width: 5rem;
+    height: 5rem;
   }
 }
 
 .usa-header--extended .usa-logo img.es {
-  max-width: 6.2rem;
+  width: 8rem;
+  height: 3.2rem;
 
   @include at-media($theme-header-min-width) {
-    max-width: 12.3rem;
+    width: 12.3rem;
+    height: 5rem;
   }
 }
 
@@ -234,7 +182,7 @@
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
     width: 15rem;
-    line-height: 1.1rem;
+    // line-height: 1.1rem;
     margin-bottom: 0;
   }
 }
@@ -252,7 +200,7 @@
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
   @include at-media($theme-header-min-width) {
     float: right;
-    color: $gray;
+    @include u-text('gray-cool-10');
     content: "|"; // Removed while phone number is disabled
     padding-right: 1rem;
     font-size: 2rem;
@@ -281,7 +229,7 @@
 .usa-nav__primary>.usa-nav__primary-item>a:hover {
   @media (min-width: 64em) {
     padding: 0.8rem;
-    color: color("blue-warm-70v");
+    @include u-text('blue-warm-70v');
   }
 }
 
@@ -316,7 +264,7 @@
       position: absolute;
       left: 1.3rem;
       top: -0.6rem;
-      background-color: var($global-default, text-color);
+      @include u-bg('gray-90');
       mask: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
       background-size: 1.5rem;
       mask-size: 1.5rem;
@@ -346,7 +294,7 @@
       position: absolute;
       left: 1.6rem;
       top: -0.6rem;
-      background-color: var($global-default, text-color);
+      @include u-bg('gray-90');
       mask: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
       background-size: 1.5rem;
       mask-size: 1.5rem;
@@ -407,4 +355,106 @@ input#search-field-small-mobile-menu {
     align-self: center;
   }
 
+}
+
+// This is to extend the header elements to 1124px
+@include at-media($theme-header-min-width) {
+  .usa-header--extended .usa-nav__inner {
+    max-width: calc(70.25rem + 4rem);
+    padding-left: 2.3rem;
+  }
+  .usa-header--extended .usa-banner__inner {
+    max-width: calc(70.25rem + 4rem);
+  }
+  .usa-header--extended .usa-navbar {
+    max-width: calc(70.25rem + 4rem);
+  }
+  .usa-header--extended .usa-alert__body {
+    max-width: calc(70.25rem + 4rem);
+    margin: auto;
+    padding-left: 4rem !important;
+    padding-right: 2rem !important;
+  }
+
+  .usa-header--extended .usa-alert--no-icon .usa-alert__body{
+    padding-left: 1.7rem !important;
+  }
+
+}
+
+@media (max-width: 1023px) {
+  .usa-header--extended .usa-alert:not(.usa-alert--no-icon) .usa-alert__body {
+    padding-left: 2.7rem;
+  }
+
+  .usa-header--extended .usa-alert--no-icon .usa-alert__body{
+    padding-left: 0.5rem;
+  }
+}
+
+.usa-header--extended .usa-alert:not(.usa-alert--no-icon){
+  // These styles are needed to position the alert icon
+  &::before {
+    display: none;
+  }
+
+  .usa-alert__body {
+    position: relative;
+
+    &::before {
+      width: 2rem;
+      content: "";
+      display: block;
+      height: 2.4rem;
+      position: absolute;
+      left: 1.7rem;
+      top: -0.5rem;
+      @include u-bg('gray-90');
+
+      @media (max-width: 1023px) {
+        left: 0.4rem;
+      }
+    }
+  }
+}
+
+.usa-header--extended {
+
+  .usa-alert--info:not(.usa-alert--no-icon), .usa-alert--success:not(.usa-alert--no-icon) {
+    .usa-alert__body {
+      &::before {
+        background: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
+        mask: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
+      }
+    }
+  }
+
+  .usa-alert--error:not(.usa-alert--no-icon) {
+    .usa-alert__body {
+      &::before {
+        background: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
+        mask: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
+      }
+    }
+  }
+
+  .usa-alert--warning:not(.usa-alert--no-icon) {
+    .usa-alert__body {
+      &::before {
+        background: url("../assets/img/usa-icons/warning.svg") no-repeat center/2rem 2rem;
+        mask: url("../assets/img/usa-icons/warning.svg") no-repeat center/2rem 2rem;
+      }
+    }
+  }
+}
+
+// This is to align the primary nav text with the search button
+@include at-media($theme-header-min-width) {
+  .usa-header--extended .usa-nav__primary {
+    justify-content: space-between;
+    width: auto;
+  }
+  .usa-header--extended .usa-nav__primary::after {
+    content: none;
+  }
 }

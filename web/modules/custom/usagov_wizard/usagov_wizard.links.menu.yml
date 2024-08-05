@@ -1,0 +1,7 @@
+usagov_wizard.manager:
+  title: Wizard Manager
+  route_name: 'entity.taxonomy_vocabulary.overview_form'
+  route_parameters: { taxonomy_vocabulary: 'wizard' }
+  parent: usa_admin_styles.main
+  description: 'Manage hierarchy and content of wizard taxonomy terms.'
+  weight: 100

@@ -1,0 +1,13 @@
+usagov_benefit_category_search.admin:
+  title: 'USAGov Benefit Categories Search'
+  parent: system.admin_config
+  route_name: usagov_benefit_category_search.main
+  description: 'Benefit Categories Search'
+  weight: 150
+
+usagov_benefit_category_search.settings:
+  title: 'Benefit Categories Search configuration'
+  parent: usagov_benefit_category_search.admin
+  route_name: usagov_benefit_category_search.settings
+  description: 'Use this form to enable or disable showing the Benefits Search blocks'
+  weight: 150

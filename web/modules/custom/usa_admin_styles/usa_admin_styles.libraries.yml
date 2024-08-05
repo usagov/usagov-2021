@@ -6,3 +6,9 @@ mylib:
 accordionButtonSubmitFix: 
   js:
     noSubmitOnAccordion.js: {}
+
+benefitsCategoryLanguageFilter: 
+  js:
+    benefitsCategoryLanguageFilter.js: {}
+  dependencies:
+    - core/jquery

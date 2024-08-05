@@ -13,6 +13,16 @@ if [ ! -f /container_start_timestamp ]; then
   echo "$(date +'%s')" > /container_start_timestamp
 fi
 
+echo "Deployment: bootstrap starting"
+# Add the cloud foundry certificates for communication with other apps in cloud.gov.
+# cert-watcher.sh does this too, but we want it to happen before any process that
+# might connect through the proxy starts up.
+if [ -d "$CF_SYSTEM_CERT_PATH" ]; then
+   cp $CF_SYSTEM_CERT_PATH/*  /usr/local/share/ca-certificates/
+fi
+/usr/sbin/update-ca-certificates
+
+
 SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
 SECAUTHSECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secauthsecrets") | .credentials')
 
@@ -35,8 +45,8 @@ export S3_ENDPOINT
 
 SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
 WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep 'www\.usa\.gov' | tr '\n' ' ')}
-WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep -E 'beta|dev-dr' | tr '\n' ' ')}
-CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -E 'cms|shared-egress-dr' | tr '\n' ' ')}
+WWW_HOST=${WWW_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep -v 'apps.internal' | grep beta | tr '\n' ' ')}
+CMS_HOST=${CMS_HOST:-$(echo $VCAP_APPLICATION | jq -r '.["application_uris"][]' | grep cms | tr '\n' ' ')}
 if [ -z "$WWW_HOST" ]; then
   WWW_HOST="*.app.cloud.gov"
 fi

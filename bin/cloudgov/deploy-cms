@@ -18,11 +18,17 @@ fi
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
 CTAG=${1:-latest}
 CDIGEST=${2:-}
 
 APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
 APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
+
+EGRESS_SPACE='shared-egress'
+#if [ "$APP_SPACE" == "dev-dr" ]; then
+#    EGRESS_SPACE='shared-egress-dr'
+#fi
 
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
@@ -65,10 +71,18 @@ function pushApp { #appname
 
   if [ -z "$CDIGEST" ]; then
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}
+    if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+      cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}
+    else
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME
+    fi
   else
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${CTAG} via digest ${CDIGEST}"
-    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+    if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+	cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+    else
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME
+    fi
   fi
 }
 
@@ -79,24 +93,19 @@ function setupRoutes { #appname
     exit 1
   fi
 
-  if [ "$APP_SPACE" == "dev-dr" ]; then
-    cf create-route apps.internal --hostname shared-egress-dr-usagov
-    cf map-route $app apps.internal --hostname shared-egress-dr-usagov
+  cf create-route apps.internal --hostname cms-$APP_SPACE-usagov
+  cf map-route $app apps.internal --hostname cms-$APP_SPACE-usagov
+
+  if [ "$APP_SPACE" == "prod" ]; then
+     cf create-route usa.gov --hostname cms
+     cf map-route $app usa.gov --hostname cms
 
   else
-    cf create-route apps.internal --hostname cms-$APP_SPACE-usagov
-    cf map-route $app apps.internal --hostname cms-$APP_SPACE-usagov
+    cf create-route usa.gov --hostname cms-$APP_SPACE
+    cf map-route $app usa.gov --hostname cms-$APP_SPACE
 
-    if [ "$APP_SPACE" == "prod" ]; then
-      cf create-route usa.gov --hostname cms
-      cf map-route $app usa.gov --hostname cms
-
-    else
-      cf create-route usa.gov --hostname cms-$APP_SPACE
-      cf map-route $app usa.gov --hostname cms-$APP_SPACE
-
-    fi
   fi
+
 }
 
 function setupEgress { #appname
@@ -108,15 +117,6 @@ function setupEgress { #appname
   $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
 }
 
-function setupNewrelic { #appname
-  app=$1
-  if [ -z "$app" ]; then
-    echo "ERROR: appname is required"
-    exit 1
-  fi
-  $SCRIPT_DIR/setup-newrelic-for-apps $app --no-restart
-}
-
 function setUSPSCreds {
   cf set-env cms USPS_USERID $USPS_USERID
   cf set-env cms USPS_PASSWORD $USPS_PASSWORD
@@ -124,16 +124,14 @@ function setUSPSCreds {
 
 if appExists cms; then
   setupRoutes cms
-#  setupEgress cms
-  setupNewrelic cms
+  setupEgress cms
   setUSPSCreds
   pushApp cms
 else
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
   pushApp cms
   setupRoutes cms
-#  setupEgress cms
-  setupNewrelic cms
+  setupEgress cms
   setUSPSCreds
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
   restartApp cms

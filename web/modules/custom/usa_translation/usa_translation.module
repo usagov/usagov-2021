@@ -4,15 +4,12 @@
  * @file
  * Self explained.
  */
+
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Url;
-
-/**
- * @file
- * Module contains functions related to usa_translation.
- */
-
 use Drupal\node\NodeInterface;
+use Drupal\taxonomy\TermInterface;
 
 /**
  * Implements hook_ENTITY_TYPE_translation_delete().
@@ -50,13 +47,23 @@ function usa_translation_page_attachments_alter(&$page) {
     }
 
     $entity = $route_match->getParameter($name);
-    // If Field Language toggle exist and is set then get it's node value.
-    if (method_exists($entity, 'getFields') != FALSE
+    // If Field Language toggle exist and is set then get its node value.
+    if (($entity instanceof FieldableEntityInterface)
       && array_key_exists('field_language_toggle', $entity->getFields()) == TRUE
       && $entity->getFields()['field_language_toggle']->isEmpty() == FALSE) {
       $altid = $entity->getFields()['field_language_toggle']->getValue()[0]['target_id'];
       // Get the alternate ID language.
-      $altnode = \Drupal::entityTypeManager()->getStorage('node')->load($altid);
+      if ($entity instanceof NodeInterface) {
+        $altnode = \Drupal::entityTypeManager()
+          ->getStorage('node')
+          ->load($altid);
+      }
+      elseif ($entity instanceof TermInterface) {
+        $altnode = \Drupal::entityTypeManager()
+          ->getStorage('taxonomy_term')
+          ->load($altid);
+      }
+
       if (!empty($altnode)
         && is_object($altnode)
         && method_exists($altnode, 'hasLinkTemplate')
@@ -84,11 +91,63 @@ function usa_translation_page_attachments_alter(&$page) {
               ->setAbsolute()
               ->toString();
           }
+
+          // Differentiate between canonical alt links
+          // and the language toggle.
+          $dataTag = 'conlang';
+          if ($entity->language()->getId() != $language->getId()) {
+            $dataTag = "altlang";
+          }
           $page['#attached']['html_head_link'][] = [
             [
               'rel' => 'alternate',
               'hreflang' => $language->getId(),
               'href' => $url,
+              'data-type' => $dataTag,
+            ],
+            TRUE,
+          ];
+        }
+      }
+      // Displays current route of an entity in the metadata
+      // The route should be the same as the canonical url.
+      if (!empty($entity)
+        && is_object($entity)
+        && method_exists($entity, 'hasLinkTemplate')
+        && $entity->hasLinkTemplate('canonical')) {
+        foreach ($entity->getTranslationLanguages() as $language) {
+          // Skip any translation that cannot be viewed.
+          // $translation = $entity->getTranslation($language->getId());
+          // $access = $translation->access('view', NULL, TRUE);
+          // $cache->addCacheableDependency($access);
+          if (!$access->isAllowed()) {
+            continue;
+          }
+          if ($is_front) {
+            // If the current page is front page, do not create hreflang links
+            // from the entity route, just add the languages to root path.
+            $url = Url::fromRoute('<front>', [], [
+              'absolute' => TRUE,
+              'language' => $language,
+            ])->toString();
+          }
+          // Create links for the entity path.
+          else {
+            $url = $entity->toUrl('canonical')
+              ->setOption('language', $language)
+              ->setAbsolute()
+              ->toString();
+          }
+          $dataTag = 'conlang';
+          if ($entity->language()->getId() != $language->getId()) {
+            $dataTag = "altlang";
+          }
+          $page['#attached']['html_head_link'][] = [
+            [
+              'rel' => 'alternate',
+              'hreflang' => $language->getId(),
+              'href' => $url,
+              'data-type' => $dataTag,
             ],
             TRUE,
           ];

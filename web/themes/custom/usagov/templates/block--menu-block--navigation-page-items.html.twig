@@ -1,9 +1,9 @@
-
+{{ attach_library('usagov/lazyLoadBgImage') }}
 {% set lang = node.langcode.value %}
 
 {% if pagetype == "Navigation Cards Page" or pagetype == "Life Events" %}
 
-  <div class="usagov-cards">
+  <div class="usagov-cards usagov-cards-bg">
     <ul class="usa-card-group">
       {% for item in nav_page_items %}
         <li class="tablet:grid-col-4 usa-card">
@@ -60,7 +60,7 @@
         {% for item in nav_page_items|filter(item => item.promote) %}
           <li class="homepage-card usa-card__container">
             <a href="{{ item.url }}">
-              <div class="homepage-icon topic-icon {{item.css_icon}}"></div>
+              <div class="homepage-icon topic-icon {{ item.css_icon | trim}} lazyload" data-bg="{{ item.css_icon | trim }}"></div>
               <div class="usa-card__header homepage-card_header">
                 <h2>{{ item.title }}</h2>
               </div>

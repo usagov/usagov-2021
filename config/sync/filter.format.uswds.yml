@@ -2,6 +2,11 @@ uuid: 4a4a362d-afcc-4acf-b800-354e0449b214
 langcode: en
 status: true
 dependencies:
+  config:
+    - core.entity_view_mode.media.cke_media_resize_large
+    - core.entity_view_mode.media.cke_media_resize_medium
+    - core.entity_view_mode.media.cke_media_resize_small
+    - core.entity_view_mode.media.cke_media_resize_xl
   module:
     - editor
     - media
@@ -34,10 +39,10 @@ filters:
   filter_html:
     id: filter_html
     provider: filter
-    status: false
+    status: true
     weight: -10
     settings:
-      allowed_html: '<p class="usa-intro"> <h2 class="font-serif-lg text-bold text-accent-cool-darker"> <a class="usa-button usa-button--secondary usa-button--big">'
+      allowed_html: '<br> <p class="usa-intro text-align-left text-align-center text-align-right text-align-justify"> <h1 class="text-align-left text-align-center text-align-right text-align-justify"> <h2 class="font-serif-lg text-bold text-accent-cool-darker text-align-left text-align-center text-align-right text-align-justify"> <h3 class="text-align-left text-align-center text-align-right text-align-justify"> <h4 class="text-align-left text-align-center text-align-right text-align-justify"> <a class="usa-button usa-button--secondary usa-button--big" role href> <div class="usa-table-container--scrollable usa-sr-only usa-table__announcement-region text-align-left text-align-center text-align-right text-align-justify" aria-live> <strong> <em> <u> <blockquote> <ul> <ol reversed start> <li> <table class> <tr> <td rowspan colspan data-label data-sort-value> <th rowspan colspan scope data-label data-sortable role> <thead> <tbody> <tfoot> <caption> <drupal-media data-entity-type data-entity-uuid alt data-view-mode data-caption data-align> <drupal-paragraph data-embed-button data-entity-label data-paragraph-id data-paragraph-revision-id>'
       filter_html_help: true
       filter_html_nofollow: false
   filter_table_attributes:
@@ -60,7 +65,12 @@ filters:
     weight: 100
     settings:
       default_view_mode: default
-      allowed_view_modes: {  }
+      allowed_view_modes:
+        default: default
+        cke_media_resize_large: cke_media_resize_large
+        cke_media_resize_medium: cke_media_resize_medium
+        cke_media_resize_small: cke_media_resize_small
+        cke_media_resize_xl: cke_media_resize_xl
       allowed_media_types: {  }
   paragraphs_entity_embed:
     id: paragraphs_entity_embed

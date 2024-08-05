@@ -172,7 +172,7 @@ function renderResults(response, rawResponse) {
             let levelName = levels[i];
             let levelNameID = replaceSpaces(levelName.heading);
 
-            let accordionHeader = document.createElement("h3");
+            let accordionHeader = document.createElement("h2");
             accordionHeader.setAttribute("class", "usa-accordion__heading");
             accordionHeader.setAttribute("id", "heading_" + levelNameID);
 
@@ -236,8 +236,6 @@ function renderResults(response, rawResponse) {
             let accordionHeaderButton = document.createElement("button");
             accordionHeaderButton.setAttribute("class", "usa-accordion__button");
             accordionHeaderButton.setAttribute("aria-expanded", "false");
-            accordionHeaderButton.classList.add("bg-secondary");
-            accordionHeaderButton.classList.add("hover:bg-secondary-dark");
 
             var officialNumber = "Official_" + i;
             accordionHeaderButton.setAttribute("aria-controls", officialNumber);

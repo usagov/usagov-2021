@@ -78,6 +78,10 @@ egressspace=shared-egress
 egressorg="$startorg"
 applist="${appnames//,/ }"
 
+#if [ "$startspace" == "dev-dr" ]; then
+#    egressspace=shared-egress-dr
+#fi
+
 # Drop them off where we found them
 function popspace() {
     echo "Popspace: ${startorg}/${startspace}"
@@ -89,7 +93,7 @@ trap popspace err
 # Check that all apps are there, or error out
 echo "Using App Space ${startorg}/${startspace}"
 for app in $applist ; do
-    cf app "$app" > /dev/null 2>&1 || echo "ERROR: App ${app} is not available!" && appmissing=1
+    cf app "$app" > /dev/null 2>&1 || (echo "ERROR: App ${app} is not available!" && appmissing=1)
 done
 if [ -n "${appmissing}" ]; then
     echo "Missing at least one specified app!"

@@ -1,8 +1,7 @@
 @use "uswds-core" as *;
 @use "usagov-variables" as *;
 
-/* ---- All Footers ----
-*/
+/* ---- All Footers ---- */
 
 .usa-footer--big .usa-footer__primary-content--collapsible .usa-footer__primary-link {
   @include u-font-family('sans');
@@ -13,8 +12,19 @@
   padding-top: 2rem;
 }
 
-/* ---- Primary Footer ----
-*/
+/* ---- Primary Footer ---- */
+
+.usa-footer__primary-section {
+  .grid-container {
+    padding-bottom: 2rem;
+    max-width: calc(70.25rem + 4rem);
+
+    @media (max-width: 1200px) {
+      padding-left: 5vw;
+      padding-right: 5vw;
+    }
+  }
+}
 
 .usa-sign-up__heading {
   @include u-font-family('sans');
@@ -30,7 +40,7 @@
   font-feature-settings: "kern" 1;
   font-kerning: normal;
   box-sizing: inherit;
-  color: var($global-default, text-color);
+  @include u-text('gray-90');
   text-decoration: none;
   padding: 0;
   @include u-text('bold');
@@ -51,7 +61,7 @@
   padding: 1rem;
   width: 100%;
   border: 0;
-  background-color: #f0f0f0;
+  @include u-bg('gray-5');
   cursor: pointer;
 }
 
@@ -86,12 +96,12 @@
 
 .usa-gov-footer__primary-link--button:focus {
   text-decoration: underline;
-  outline: 0.25rem solid var($deep-orange);
+  outline: 0.25rem solid color('orange-50v');
   outline-offset: -0.25rem;
 }
 
 .usa-footer__primary-section {
-  background-color: #f0f0f0;
+  @include u-bg('gray-5');
 }
 
 .usa-footer__primary-section .usa-list {
@@ -111,18 +121,18 @@
 }
 
 .footer-button {
-  border: 1px solid #1b1b1b;
+  border: 1px solid color('gray-90');
   line-height: 1.5;
   margin-inline: 0 !important;
   font-size: 1.1rem;
 }
 
 .footer-button:hover {
-  border: 1px solid #1b1b1b;
+  border: 1px solid color('gray-90');
 }
 
 #footer-email {
-  border-color: var($global-default, text-color);
+  @include u-border('gray-90');
 }
 
 .ftr-list {
@@ -131,13 +141,17 @@
   }
 }
 
-/* ---- Secondary Footer ----
-*/
+/* ---- Secondary Footer ---- */
 .usa-footer__secondary-section {
   background-color: color("cyan-10");
 
   .grid-container {
     padding-bottom: 2rem;
+    max-width: calc(70.25rem + 4rem);
+    @media (max-width: 1200px) {
+      padding-left: 5vw;
+      padding-right: 5vw;
+    }
   }
 
   .grid-row.grid-gap-1>* {
@@ -154,7 +168,7 @@
 .usa-footer__secondary-link a.disabled,
 .usa-footer__secondary-section a.disabled {
   pointer-events: none;
-  color: var($black);
+  @include u-text('black');
   text-decoration: none;
 }
 
@@ -183,10 +197,7 @@
 
 .usa-footer__contact-heading {
   margin-bottom: 0.5rem;
-
-  @media (max-width: 30em) {
-    text-align: left;
-  }
+  text-align: left;
 }
 
 .usa-footer__contact-heading.es {
@@ -222,7 +233,7 @@
   margin-bottom: -6px;
 
   &:hover {
-    background-color: var($cyan-light);
+    @include u-bg('cyan-10');
   }
 
   span {
@@ -235,16 +246,23 @@
     display: block;
     height: 32px;
     width: 32px;
-    background-color: var($white);
+    @include u-bg('white');
     border-radius: 3px;
   }
 }
 
-/* ---- Identifier ----
-*/
+/* ---- Identifier ---- */
 
 .usa-identifier {
   background-color: color("blue-80v");
+}
+
+.usa-identifier__container {
+  max-width: calc(70.25rem + 4rem);
+  @media (max-width: 1200px) {
+    padding-left: 5vw;
+    padding-right: 5vw;
+  }
 }
 
 .usa-identifier__section {
@@ -272,5 +290,54 @@
     // Prevent Tagline from being covered by the Feedback button
     position: absolute;
     z-index: 2000000005;
+  }
+}
+
+/* ---- Identifier---- */
+.usa-identifier {
+  padding-bottom: 2rem;
+}
+
+.usa-identifier__required-link.usa-link {
+  color: #fff;
+}
+
+.usa-identifier__required-link.usa-link:active {
+  color: #00BDE3;
+}
+
+.usa-identifier__required-link.usa-link:visited {
+  color: #F0F0F0;
+}
+
+.usa-identifier__required-link.usa-link:focus,
+.usa-identifier__identity-disclaimer a:focus {
+  box-shadow: none;
+}
+
+p.usa-identifier__identity-disclaimer:last-of-type {
+  font-weight: normal;
+  @media (max-width: 64em) {
+    padding-top: 1rem;
+  }
+}
+
+p.usa-identifier__identity-disclaimer a {
+  font-weight: normal;
+  margin-top: 0;
+}
+
+.usa-identifier__section--usagov a {
+  display: inline;
+}
+
+.usa-identifier__required-links-list {
+  @media (min-width: 40em) {
+    -moz-column-count: 1;
+    column-count: 1;
+  }
+  @media (min-width: 64em) {
+    -moz-column-count: 4;
+    column-count: 4;
   }
 }

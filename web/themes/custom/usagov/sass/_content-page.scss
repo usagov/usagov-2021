@@ -1,12 +1,12 @@
 @use "usagov-variables" as *;
-
+@use "uswds-core" as *;
 // $alert: var( $usagov-variables, alert );
 
 .usa-alert:not(.usa-alert--info):not(.usa-alert--warning):not(
     .usa-alert--error
   ):not(.usa-alert--success) {
-  border-color: var($alert, border-color);
-  background-color: var($alert, background-color);
+  border-color: color('gray-cool-10');
+  @include u-bg('white');
 }
 
 .visuallyhidden {
@@ -18,4 +18,25 @@
   padding: 0;
   position: absolute;
   width: 1px;
+}
+
+.usa-prose {
+  // Image Alignment
+  .field--name-field-media-image img {
+    height: auto;
+  }
+  .usa-card__img img {
+    height: 100%;
+  }
+  .align-center {
+    text-align: center;
+  }
+  .align-right {
+    margin: 1em;
+    margin-right: 0;
+  }
+  .align-left {
+    margin: 1em;
+    margin-left: 0;
+  }
 }

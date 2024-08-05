@@ -1,0 +1,14 @@
+{% set lang = node.langcode.value %}
+
+{%  if (node.field_homepage_benefits_ref) %}
+  {% set benefits_url = drupal_url('node/' ~ node.field_homepage_benefits_ref.value[0].target_id ) %}
+    <div class="benefits-block">
+      <img alt="" src="/themes/custom/usagov/images/topics/ICONS_Reimagined_Benefits.svg" height="56px">
+      <div class="benefits-text">
+        <h2>{{ node.field_homepage_benefits_title.value }}</h2>
+        <div class="benefits-block__content">{{ node.field_homepage_benefits_descr.value |  raw }}</div>
+      </div>
+        <a href="{{ benefits_url }}" class="usa-button benefits-link" role="button">
+          {{ node.field_homepage_benefits_button.value }}</a>
+    </div>
+{% endif %}

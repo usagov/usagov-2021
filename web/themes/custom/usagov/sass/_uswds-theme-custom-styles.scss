@@ -25,6 +25,7 @@ i.e.
 */
 
 @use "uswds-core" as *;
+@use "usagov-design-system" as *;
 @use "usagov-variables" as *;
 
 @forward "carousel";
@@ -40,10 +41,9 @@ i.e.
 @forward "navigation-page";
 @forward "sidenav";
 @forward "state-directory";
-
-.text-red {
-  color: var($red);
-}
+@forward "benefit-search";
+@forward "benefits-block";
+@forward "wizard";
 
 .line-height-2 {
   line-height: 2;
@@ -89,17 +89,12 @@ Buttons with visited links would mysteriously get white text which is not access
 
 .usa-button--secondary {
   font-size: 1.1rem;
-  border: 2px solid var($secondary-border-color);
+  border: 2px solid $secondary-border;
 }
 
 .usa-button--secondary:hover {
-  background-color: var($secondary-background-color);
-  border: 2px solid var($secondary-border-color);
-}
-
-.usa-button--secondary:visited,
-.usa-button:visited {
-  color: var($global-default, text-color) !important;
+  background-color: $secondary-background;
+  border: 2px solid $secondary-border;
 }
 
 /*
@@ -130,7 +125,7 @@ add padding at the top of flag cards
 .usa-nav__secondary-links a:hover,
 .usa-banner__button,
 .usa-card__body {
-  color: var($global-default, text-color);
+  @include u-text('gray-90');
 }
 
 a,
@@ -138,24 +133,29 @@ a,
 .usa-footer__return-to-top a,
 .usa-link,
 .usa-skipnav {
-  color: color("blue-warm-70v");
+  @include u-text('blue-warm-70v');
 }
 
-.usa-prose a:visited {
-  color: color($theme-link-visited-color);
+.usa-prose a:visited:not(.usa-button){
+  @include u-text('violet-60v');
 }
 
-.usagov-hero a:visited {
-  color: color("cyan-10");
+.usa-hero.usagov-hero a {
+  @include u-text('cyan-30v');
 }
 
-.usagov-hero a,
-.usagov-hero__callout ul a {
-  color: color("cyan-30v");
+.usa-hero.usagov-hero a:visited {
+  @include u-text('cyan-10');
 }
 
-.usagov-hero__callout ul a:visited {
-  color: color("cyan-10");
+a.usa-button.hero-button {
+  @include u-text('gray-90');
+  &:focus {
+    display: inline-block;
+  }
+  &:visited {
+    @include u-text('gray-90');
+  }
 }
 
 .usa-button {
@@ -168,57 +168,57 @@ a,
 }
 
 .usagov-button--outline-black {
-  box-shadow: $theme-button-stroke-width color("black");
-  color: color("black");
+  box-shadow: $theme-button-stroke-width color('black');
+  @include u-text('black');
 
   &:hover {
-    box-shadow: $theme-button-stroke-width color("black");
-    color: color("black");
+    box-shadow: $theme-button-stroke-width color('black');
+    @include u-text('black');
   }
 }
 
 .usa-checkbox__input:checked + .usa-checkbox__label::before,
 .usa-radio__input:checked + .usa-radio__label::before {
-  background-color: var($off-black);
-  box-shadow: 0 0 0 units($theme-input-select-border-width) var($off-black),
-    inset 0 0 0 units($theme-input-select-border-width) color("white");
+  @include u-bg('gray-90');
+  box-shadow: 0 0 0 units($theme-input-select-border-width) color('gray-90'),
+    inset 0 0 0 units($theme-input-select-border-width) color('white');
 }
 
 .usa-checkbox__input--tile:checked + .usa-checkbox__label,
 .usa-radio__input--tile:checked + .usa-radio__label {
   // background-color: #ccecf2;
-  border-color: var($radio-button, border-color);
+  border-color: $orange-border;
 }
 
 .usa-checkbox__input--tile + .usa-checkbox__label,
 .usa-radio__input--tile + .usa-radio__label {
-  border-color: var($off-black);
-  background: white;
+  @include u-border('gray-90');
+  @include u-bg('white');
 }
 
 .usa-breadcrumb__link,
 .usa-breadcrumb__link:hover {
   line-height: 1.5;
   text-decoration: underline;
-  color: var($text-blue);
+  @include u-text('blue-warm-70v');
 }
 
 .usa-breadcrumb__link:visited {
   text-decoration: underline;
-  color: var($text-blue);
+  @include u-text('blue-warm-70v');
 }
 
 .usa-breadcrumb__list-item {
   line-height: 1.5;
-  color: var($text-blue);
+  @include u-text('blue-warm-70v');
 }
 
 .usa-breadcrumb__currrent {
-  color: var($global-default, text-color);
+  @include u-text('gray-90');
 }
 
 a {
-  color: var($text-blue);
+  @include u-text('blue-warm-70v');
 }
 
 #block-usagov-content .font-serif-lg {
@@ -260,15 +260,20 @@ a {
 .desktop\:grid-col-8 .body-copy {
   // Add margin only on content pages
   margin-top: 2.5rem;
+  max-width: 40em;
+}
+
+.usa-skipnav {
+  z-index: 501;
 }
 
 .usa-skipnav:active,
 .usa-skipnav:hover {
-  color: var($text-blue);
+  @include u-text('blue-warm-70v');
 }
 
 .usa-skipnav:visited {
-  color: var($dark-gray);
+  color: $dark-gray;
 }
 
 #back-to-top {
@@ -279,9 +284,9 @@ a {
   width: 90px;
   right: -100px;
   bottom: 80px;
-  background: var($off-white);
+  background: $back-top-off-white-background;
   transition: right 0.5s;
-  background-image: url("/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png");
+  background-image: url('/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png');
   background-size: 45px;
   background-position: 2px;
   background-repeat: no-repeat;
@@ -299,6 +304,7 @@ a {
 
 // Last Updated, Share and Survey
 .additional_body_info {
+  // display: inline-block;
   padding-top: 75px;
 }
 
@@ -307,7 +313,7 @@ div #sm-share {
   display: flex;
   padding-bottom: 22px;
   background-color: transparent;
-  font-size: var($smaller-text-font-size);
+  font-size: 1rem;
 }
 
 #share-page {
@@ -330,19 +336,19 @@ div #sm-share a {
   margin: 6px;
   width: 32px;
   height: 32px;
-  color: #1b1b1b;
+  @include u-text('gray-90');
   display: block;
 }
 
 // error styles for elected officials, report a problem and wizard
 
 .usa-error {
-  color: var($red-error);
+  color: $red-error;
   @include u-text('semibold');
 }
 
 .usa-user-error {
-  border-color: var($red-error);
+  border-color: $red-error;
   border-width: 3px;
   border-style: solid;
 }
@@ -356,7 +362,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .usa-main-border-error {
-  border-left: 3px solid var($red-error);
+  border-left: 3px solid $red-error;
 
   .usa-border-error {
     border-left: none;
@@ -364,7 +370,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .usa-border-error {
-  border-left: 3px solid var($red);
+  border-left: 3px solid color('red-50');
 }
 
 .usa-error--alert {
@@ -377,7 +383,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .currentMenuItem::after {
-  background-color: var($cyan-30v);
+  @include u-bg('cyan-30v');
   border-radius: 0;
   content: "";
   display: block;
@@ -391,8 +397,7 @@ input:not([disabled]):focus.usa-user-error {
 // scams reskin
 
 .block-wizardenglish {
-  // background-color: var($light-gray);
-  border-top: 4px solid var($deep-blue);
+  border-top: 4px solid color('blue-80v');
   padding-top: 2rem;
   padding-left: 3rem;
   padding-right: 2rem;
@@ -410,7 +415,7 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .block-wizardenglish div.usa-prose h1 {
-  color: var($deep-blue);
+  @include u-text('blue-80v');
   padding-bottom: 1.5rem;
   margin-top: 0;
   font-size: 2.25rem;
@@ -433,8 +438,8 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .block-wizardenglish .usa-button {
-  color: var($global-default, text-color);
-  background-color: var($cyan-light);
+  @include u-text('gray-90');
+  @include u-bg('cyan-10');
 
   @media (max-width: 40em) {
     margin-bottom: 8px;
@@ -448,26 +453,26 @@ input:not([disabled]):focus.usa-user-error {
 }
 
 .block-wizardenglish .usa-scam-label {
-  border-bottom: 1px solid gray;
-  color: var($dark-blue);
+  border-bottom: 1px solid $wizard-gray-border;
+  @include u-text('blue-80v');
   @include u-text('medium');
 }
 
 button#prior.usa-button--outline {
-  background-color: var($white);
-  box-shadow: inset 0 0 0 2px var($black);
+  @include u-bg('white');
+  box-shadow: inset 0 0 0 2px color('black');
 }
 
 button#next.usa-button,
 .block-wizardenglish a.usa-button {
-  background-color: var($cyan-light);
-  box-shadow: inset 0 0 0 2px var($cyan-50v);
+  @include u-bg('cyan-10');
+  box-shadow: inset 0 0 0 2px color('cyan-50v');
   border: none;
 }
 
 button#next.usa-button:hover,
 .block-wizardenglish a.usa-button:hover {
-  background-color: var($secondary-background-color);
+  background-color: $secondary-background;
 }
 
 .block-wizardenglish .usa-prose > p {
@@ -475,11 +480,11 @@ button#next.usa-button:hover,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked + [class*="__label"] {
-  background-color: var($cyan-light);
+  @include u-bg('cyan-10');
 }
 
 .wizard_error {
-  border-left: 3px solid var($red-error);
+  border-left: 3px solid $red-error;
   padding-left: 5px;
 }
 
@@ -489,11 +494,11 @@ button#next.usa-button:hover,
 }
 
 .block-wizardenglish .usa-radio__input--tile:checked + .usa-radio__label {
-  border-color: var($blue-outer-focus);
+  border-color: $blue-outer-focus;
 }
 
 .block-wizardenglish [tabindex]:focus {
-  outline: 0.25rem solid var($deep-orange);
+  outline: 0.25rem solid color('orange-50v');
   outline-offset: 0;
   width: fit-content;
   margin-left: 0;
@@ -522,10 +527,10 @@ div[class^="QSIUserDefinedHTML"] {
 }
 
 #pagesurvey-qual-hdr {
-  background: var($cyan-light);
+  @include u-bg('cyan-10');
   font-size: 130%;
   display: block;
-  color: var($global-default, text-color);
+  @include u-text('gray-90');
   padding: 12px 0 15px;
   margin: 0 auto;
   max-width: 960px;
@@ -540,7 +545,7 @@ div[class^="QSIUserDefinedHTML"] {
 }
 
 #pagesurvey-qual-container:focus {
-  outline: var($deep-orange) solid 3px;
+  outline: color('orange-50v') solid 3px;
 }
 
 @media only screen and (max-width: 500px) {
@@ -554,34 +559,46 @@ div[class^="QSIUserDefinedHTML"] {
 .usa-prose p,
 .usa-prose li,
 .usa-prose a {
-  font-size: var($regular-text-font-size);
+  font-size: 1.1rem;
+}
+
+.usa-prose.body-copy {
+  &>h1, &>h2, &>h3, &>h4 {
+    clear: unset;
+  }
+  .usa-alert, .usa-card-group {
+    clear: both;
+  }
+  .usa-process-list {
+    display: inline-block;
+  }
 }
 
 .usa-accordion__heading button,
 .usa-accordion__heading p,
 .usa-accordion__heading a {
-  font-size: var($regular-text-font-size);
+  font-size: 1.1rem;
 }
 
 #question-box > div > p,
 #question-box > div > div {
-  font-size: var($regular-text-font-size);
+  font-size: 1.1rem;
 }
 
 #prior,
 #next {
-  font-size: var($regular-text-font-size);
+  font-size: 1.1rem;
 }
 
 #wizard-border > fieldset > label,
 .wizard_result > p {
-  font-size: var($regular-text-font-size);
+  font-size: 1.1rem;
 }
 
 .last,
 #last-updated,
 #share-page {
-  font-size: var($smaller-text-font-size);
+  font-size: 1rem;
 }
 
 .visually-hidden {
@@ -684,6 +701,11 @@ div div.field--name-field-offices-near-you {
   @include u-text('normal');
 }
 
+// Add padding for feedback button
+button#QSIFeedbackButton-btn {
+  padding: 2px !important;
+}
+
 [href]:focus,
 button:not([disabled]):focus,
 input:not([disabled]):focus,
@@ -694,6 +716,7 @@ button#prior.usa-button--outline:focus,
 button#next.usa-button:focus,
 .block-wizardenglish a.usa-button:focus,
 .usa-radio__input:focus + [class*="__label"]::before,
+.usa-checkbox__input:focus + [class*="__label"]::before,,
 textarea:not([disabled]):focus,
 .usagov-directory-bottom-nav-group a.nav-letter:focus,
 .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:focus,
@@ -702,7 +725,7 @@ select:not([disabled]):focus,
 #pagesurvey-qual-container:focus {
   outline: 0.25rem solid $blue-outer-focus;
   outline-offset: 0;
-  box-shadow: inset 0 0 0 2px $white-inner-focus;
+  box-shadow: inset 0 0 0 2px color('white');
 }
 
 .life-events-intro a:focus,
@@ -729,12 +752,46 @@ select:not([disabled]):focus,
   outline-offset: 0;
 }
 
+// Common styles between All topics cards and the cards in Primary pages
+.homepage-card,
+.usagov-card {
+  border-radius: 0;
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: 1px 1px 7px #aaa;
+  @include u-border('cyan-50v');
+
+  &:hover {
+    @include u-bg('cyan-10');
+  }
+}
+
 .usagov-button {
   font-size: 1.1rem;
 }
 
-#main-content .usa-accordion__button:not(.bg-secondary) {
-  background-color: #f0f0f0;
+.usa-pagination .usa-current {
+  background-color: color('blue-warm-70v');
+}
+
+.usa-pagination__button,
+.usa-pagination__link {
+  color: color('gray-90');
+}
+
+#main-content {
+  .usa-accordion__button {
+    @include u-bg('gray-5');
+    &:hover, &[aria-expanded="true"] {
+      @include u-bg('gray-20');
+    }
+  }
+  .usa-accordion__content .usa-accordion__button {
+    @include u-bg('cyan-10');
+    &:hover, &[aria-expanded="true"] {
+      @include u-bg('cyan-20');
+    }
+  }
 }
 
 // elected-officials hide autofill contact for state dropdown - name is not brought over to input by uswds so autofill is being triggered in Safari
@@ -748,3 +805,18 @@ input::-webkit-textfield-decoration-container {
   z-index: 2000000004;
   }
 }
+
+// sets height for desktop to make space above and below breadcrumb look even on Navigation Cards Page
+@media screen and (min-width: 64em) {
+  .grid-row.breadcrumb-spacing>div {
+    height: 3.5rem;
+  }
+}
+
+.benefits-finder-content {
+  .usa-prose>p.usa-intro {
+    @include u-margin(0);
+    max-width: 100%;
+  }
+}
+

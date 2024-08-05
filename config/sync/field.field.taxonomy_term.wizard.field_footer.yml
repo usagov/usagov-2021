@@ -1,0 +1,26 @@
+uuid: f4623189-0beb-4fd3-8181-0b32347273d3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_footer
+    - filter.format.html
+    - filter.format.uswds
+    - taxonomy.vocabulary.wizard
+  module:
+    - text
+id: taxonomy_term.wizard.field_footer
+field_name: field_footer
+entity_type: taxonomy_term
+bundle: wizard
+label: Footer
+description: 'Use this field to display text below the options list.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - uswds
+    - html
+field_type: text_long

@@ -93,6 +93,7 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
 
   set -o pipefail  # Need to capture tome-static failure on next line.
   $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation Started"
+
   $SCRIPT_PATH/tome-static.sh $URI 2>&1 | tee -a $TOMELOG
   TOME_SUCCESS=$?
   if [ "$TOME_SUCCESS" == "0" ]; then

@@ -1,0 +1,9 @@
+uuid: 1b5bb3b3-56b3-4e47-8d0f-166afe849e75
+langcode: und
+status: true
+dependencies: {  }
+name: 'Benefits Category'
+vid: benefits_category
+description: 'Categories for searching benefits'
+weight: 0
+new_revision: false
