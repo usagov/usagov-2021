@@ -99,9 +99,8 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             node: $node,
             isFront: $isFront === 'homepage',
             contentType: $nodetype,
-            basicPagesubType: $pageType,
-            pageType: ($pageType === 'Standard Page' ? 'Content Page' : $pageType)
-          );
+            basicPagesubType: $pageType ?? 'null',
+            pageType: ($pageType === 'Standard Page' ? 'Content Page' : ($pageType ?? $nodetype))          );
           unset($isFront);
         }
       }
