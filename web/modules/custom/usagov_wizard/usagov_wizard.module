@@ -175,6 +175,16 @@ function usagov_wizard_preprocess_taxonomy_term(&$variables) {
       $variables['child'] = FALSE;
     }
 
+    $term_children = Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadChildren($variables['term']->id());
+    if (!empty($term_children)) {
+      $variables['has_child'] = TRUE;
+    }
+    else {
+      $variables['has_child'] = FALSE;
+    }
+
     $menuChecker = \Drupal::classResolver(MenuChecker::class);
     $parents = $menuChecker->getTermParents($variables['elements']['#taxonomy_term']);
 
@@ -300,6 +310,42 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
           $breadcrumb['text']) {
           $breadcrumb['text'] = $parent_heading['label'];
         }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function usagov_wizard_preprocess_views_view_field__wizard_options(&$variables) {
+  // The tid of the term that is generating the option.
+  $target_taxonomy_term = $variables['row']->tid;
+  $term = Term::load($target_taxonomy_term);
+
+  if (isset($term->field_option_name)) {
+    $option_name = $term->field_option_name->value;
+  }
+
+  $variables['option_name'] = $option_name;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function usagov_wizard_preprocess_views_view_unformatted(&$variables) {
+  $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
+  if ($taxonomy_term instanceof Term) {
+    if ($taxonomy_term->bundle() == 'wizard') {
+      $tid = $taxonomy_term->id();
+      $term = Term::load($tid);
+      if (isset($term->field_heading->value)) {
+        if (strlen($term->field_heading->value > 1)) {
+          $variables['legend'] = $term->field_heading->value;
+        }
+      }
+      elseif (isset($term->name)) {
+        $variables['legend'] = $term->name;
       }
     }
   }
