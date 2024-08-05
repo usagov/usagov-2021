@@ -21,6 +21,7 @@ dependencies:
     - node.type.wizard
     - node.type.wizard_step
     - taxonomy.vocabulary.benefits_category
+    - taxonomy.vocabulary.wizard
     - workflows.workflow.basic_workflow
   module:
     - block_content
@@ -51,6 +52,7 @@ permissions:
   - 'access devel information'
   - 'access media overview'
   - 'access site in maintenance mode'
+  - 'access taxonomy overview'
   - 'access toolbar'
   - 'add paragraphs entity embed'
   - 'administer menu'
@@ -77,6 +79,7 @@ permissions:
   - 'create site_banner block content'
   - 'create state_directory_record content'
   - 'create terms in benefits_category'
+  - 'create terms in wizard'
   - 'create url aliases'
   - 'create video media'
   - 'create wizard content'
@@ -128,7 +131,9 @@ permissions:
   - 'delete own wizard_step content'
   - 'delete paragraphs entity embed'
   - 'delete state_directory_record revisions'
+  - 'delete term revisions in wizard'
   - 'delete terms in benefits_category'
+  - 'delete terms in wizard'
   - 'delete wizard revisions'
   - 'delete wizard_step revisions'
   - 'edit any agency_synonym content'
@@ -165,6 +170,7 @@ permissions:
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
   - 'edit terms in benefits_category'
+  - 'edit terms in wizard'
   - 'revert agency_synonym revisions'
   - 'revert all revisions'
   - 'revert any site_banner block content revisions'
@@ -176,6 +182,7 @@ permissions:
   - 'revert bears_life_event_form revisions'
   - 'revert directory_record revisions'
   - 'revert state_directory_record revisions'
+  - 'revert term revisions in wizard'
   - 'revert wizard revisions'
   - 'revert wizard_step revisions'
   - 'translate agency_synonym node'
@@ -210,6 +217,7 @@ permissions:
   - 'view own unpublished content'
   - 'view own unpublished media'
   - 'view state_directory_record revisions'
+  - 'view term revisions in wizard'
   - 'view the administration theme'
   - 'view unpublished paragraphs'
   - 'view wizard revisions'

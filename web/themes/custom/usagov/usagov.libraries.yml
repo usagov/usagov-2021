@@ -8,6 +8,7 @@ global-styling:
     scripts/uswds-init.min.js: {}
     scripts/newFooter.js: {}
     scripts/phoneForMobile.js: {}
+    scripts/accessibleButtonLinks.js: {}
   dependencies:
     - core/drupal
     - core/jquery
@@ -23,6 +24,14 @@ wizard:
 wizardstep:
   js:
     scripts/wizardStep.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+
+wizardStepTaxonomy:
+  js:
+    scripts/wizardStepTaxonomy.js: {}
+    scripts/wizardChecked.js: {}
   dependencies:
     - core/drupal
     - core/jquery

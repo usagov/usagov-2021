@@ -1,0 +1,6 @@
+usagov_benefit_category_search.pages_admin:
+  title: 'Benefits Search Pages'
+  route_name: view.benefit_pages_admin.page_1
+  base_route: system.admin_content
+  parent_id: system.admin_content
+  weight: 50

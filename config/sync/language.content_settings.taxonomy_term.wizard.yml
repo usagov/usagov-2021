@@ -1,0 +1,11 @@
+uuid: 307466a7-ea60-448f-bd7b-72041e6e427e
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.wizard
+id: taxonomy_term.wizard
+target_entity_type_id: taxonomy_term
+target_bundle: wizard
+default_langcode: und
+language_alterable: true

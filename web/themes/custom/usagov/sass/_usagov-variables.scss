@@ -12,8 +12,8 @@ $fed-gray-border: #d3d2d2;
 $fed-white-background: #f2f2f2;
 $homepage-light-blue-background: #d2ebf1;
 $wizard-gray-border: #808080;
-$benefit-category-cyan-background: #e5f5f8;
 $benefit-search-button: #18b5dd;
+$benefit-search-button-hover: #0186A2;
 
 // Used in multiple files on multiple components on 1 element
 // color-element:
@@ -29,3 +29,7 @@ $secondary-border: #377F9D;
 $dark-gray: #4b4b4d;
 $medium-gray: #e7e7e7;
 $red-error: #c61f0c;
+
+// Introduced with 2024 wizard redesign
+$button-secondary-outline: #0081A1;
+$button-secondary-default: #CCECF2;

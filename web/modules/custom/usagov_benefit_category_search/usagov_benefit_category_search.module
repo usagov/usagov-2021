@@ -1,8 +1,104 @@
 <?php
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
+use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
 use Drupal\views\ViewExecutable;
+
+/**
+ * Alters basic page forms to add our custom validators.
+ */
+function usagov_benefit_category_search_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
+  if ($form_id === 'node_basic_page_edit_form' || $form_id === 'node_basic_page_form') {
+    $form['#validate'][] = 'usagov_benefit_category_search__validate_basic_page';
+  }
+}
+
+/**
+ * Runs custom validations on basic page forms for some page types.
+ */
+function usagov_benefit_category_search__validate_basic_page($form, FormStateInterface $form_state): void {
+  $page_type_id = $form_state->getValue('field_page_type');
+  if (!$page_type_id) {
+    return;
+  }
+  $term = Term::load($page_type_id[0]['target_id']);
+
+  switch ($term?->getName()) {
+    case 'Standard Page':
+      usagov_benefit_category_search_validate_standard_page($form_state);
+      break;
+
+    case 'Benefits Category Search':
+      usagov_benefit_category_search_validate_category_search_page($form_state);
+      break;
+  }
+}
+
+/**
+ * Validates categories selected on a standard page match page's language.
+ */
+function usagov_benefit_category_search_validate_standard_page(FormStateInterface &$form_state): void {
+  $langcode = $form_state->getValue("langcode")[0]['value'];
+  $refs = $form_state->getValue('field_benefits_category');
+  $term_ids = array_map(fn($term) => $term['target_id'], $refs);
+  // Keep terms that don't match selected language.
+  $terms = Term::loadMultiple($term_ids);
+  $otherCategories = array_filter($terms, fn(Term $term) => $term->language()->getId() !== $langcode);
+  $count = count($otherCategories);
+  if ($count > 0) {
+    $summary = $count . ' benefits categor' . ($count > 1 ? 'ies' : 'y');
+    $names = array_map(fn(Term $category) => '<li>' . $category->getName() . '</li>', $otherCategories);
+    $detail = '<ul>' . implode('', $names) . '</ul>';
+    $message = Markup::create("You have selected {$summary} from a different language as this page. {$detail}");
+    $form_state->setErrorByName('field_benefits_category', $message);
+  }
+}
+
+/**
+ * Validates the IDs on Benefits Search Pages
+ */
+function usagov_benefit_category_search_validate_category_search_page(FormStateInterface &$form_state): void {
+  $life_event_id = trim($form_state->getValue('field_benefits_life_events_id')[0]['value']);
+  if (0 === preg_match('/^[A-Za-z0-9\-]+$/', $life_event_id)) {
+    $form_state->setErrorByName('field_benefits_life_events_id', 'Life Events ID must only use letters, numbers, and minus (-) characters');
+  }
+
+  $search_id = trim($form_state->getValue('field_benefits_search_id')[0]['value']);
+  if (0 === preg_match('/^[A-Za-z0-9\-]+$/', $search_id)) {
+    $form_state->setErrorByName('field_benefits_search_id', 'Category Search ID must only use letters, numbers, and minus (-) characters');
+  }
+
+  if ($life_event_id === $search_id) {
+    $form_state->setErrorByName('field_benefits_life_events_id', 'Life Events and Category Search IDs can not be identical');
+    $form_state->setErrorByName('field_benefits_search_id', 'Life Events and Category Search IDs can not be identical');
+  }
+}
+
+function usagov_benefit_category_search_form_taxonomy_term_benefits_category_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#attached']['library'][] = 'usagov_benefit_category_search/lifeEventRefLanguageFilter';
+  $form['#validate'][] = 'usagov_benefit_category_search__validate_basic_category';
+}
+
+function usagov_benefit_category_search__validate_basic_category($form, FormStateInterface $form_state) {
+  $langcode = $form_state->getValue("langcode")[0]['value'];
+  $events = $form_state->getValue('field_category_life_events');
+  // get all the reference nodes in one call
+  $nids = array_map(fn($event) => $event['target_id'], $events);
+  $lifeEvents = Node::loadMultiple($nids);
+  // keep nodes that don't match our selected language
+  $otherLangs = array_filter($lifeEvents, fn(Node $lifeEvent) => $lifeEvent->language()->getId() !== $langcode);
+  $count = count($otherLangs);
+  if ($count > 0) {
+    $summary = $count . ' life event' . ($count > 1 ? 's' : '');
+    $names = array_map(fn(Node $lifeEvent) => '<li>' . $lifeEvent->getTitle() . '</li>', $otherLangs);
+    $detail = '<ul>' . implode('', $names) . '</ul>';
+    $message = Markup::create("You have {$summary} from a different language as this term. {$detail}");
+    $form_state->setErrorByName('field_category_life_events', $message);
+  }
+}
 
 function usagov_benefit_category_search_preprocess_node(&$vars) {
   // off by default
@@ -22,6 +118,23 @@ function usagov_benefit_category_search_preprocess_node(&$vars) {
       && $vars["node"]->field_benefits_callout_descr->value
     ) {
       $vars['usagov_show_benefits_landing_block'] = BenefitCategorySearchForm::showLandingPageBlock();
+    }
+  }
+}
+
+function usagov_benefit_category_search_preprocess_html(&$vars) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $vars['datalayer_hasBenefitCategories'] = FALSE;
+
+  if ($node instanceof Node && $node->getType() === 'basic_page') {
+    $pageType = $node->field_page_type->referencedEntities()[0]->getName();
+    if ($pageType === 'Standard Page') {
+      // Provide list of categories for this page to gtm via taxonomy-data
+      if ($terms = $node->field_benefits_category->referencedEntities()) {
+        $vars['datalayer_hasBenefitCategories'] = TRUE;
+        $benefitCategories = array_map(fn(Term $term) => $term->getName(), $terms);
+        $vars['datalayer_benefitCategories'] = implode('; ', $benefitCategories);
+      }
     }
   }
 }

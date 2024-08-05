@@ -1,0 +1,26 @@
+uuid: 03a68aac-61ad-4faa-8f89-537e17917b59
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_body
+    - filter.format.html
+    - filter.format.uswds
+    - taxonomy.vocabulary.wizard
+  module:
+    - text
+id: taxonomy_term.wizard.field_body
+field_name: field_body
+entity_type: taxonomy_term
+bundle: wizard
+label: Body
+description: 'Use this field to enter text to display above the options list and below the introduction.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - uswds
+    - html
+field_type: text_long
