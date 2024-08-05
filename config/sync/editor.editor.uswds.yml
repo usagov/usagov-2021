@@ -55,6 +55,7 @@ settings:
     ckeditor5_sourceEditing:
       allowed_tags:
         - '<div>'
+        - '<a role>'
     ckeditor5_style:
       styles:
         -
