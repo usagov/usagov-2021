@@ -39,7 +39,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
   this.resultsContainer = resultsContainer;
   this.form = form;
   this.perPage = perPage;
-  this.activePage = 1;
+  this.activePage = null;
   this.terms = [];
   this.boxes = this.form.querySelectorAll('input[type="checkbox"]:not([value="all"])');
   this.toggleAll = this.form.querySelector('input[type="checkbox"][value="all"]');
@@ -50,11 +50,8 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
    * Removes all error messages added to form
    */
   this.clearErrors = function() {
-    for (const err of myself.form.querySelectorAll('.usa-alert--error')) {
-      err.remove();
-    }
-
-    myself.form.querySelector('fieldset')
+    myself.form.querySelector('.alert-container').innerHTML = '';
+    myself.form.querySelector('div[role="group"]')
       .classList.remove('benefits-category-error');
   };
   /**
@@ -331,14 +328,16 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
       case 'Life Event':
         let termMarkup = '';
 
-        benefit.terms.forEach(term => termMarkup += `<span>${term}</span>`);
+        benefit.terms.forEach(term => termMarkup += `<li>${term}</li>`);
 
         elt.innerHTML += `<div class="grid-row benefits-result">
 <div class="desktop:grid-col-8 benefits-result-text">
   <h3><a href="${benefit.view_node}" data-analytics="category-results-links" hreflang="${myself.docLang}">${benefit.field_b_search_title}</a></h3>
   <p>${description}</p></div>
-<div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
-  <span>${myself.labels.benefitFinderCategory}</span><span>${myself.labels.lifeEventsCategory}</span>${termMarkup}</div>
+<div class="desktop:grid-col-4 benefits-result-categories"><h4>${myself.labels.appliedCategories}</h4>
+  <ul>
+  <li>${myself.labels.benefitFinderCategory}</li><li>${myself.labels.lifeEventsCategory}</li>${termMarkup}</div>
+  </ul>
 </div>`;
         break;
 
@@ -347,9 +346,8 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
         elt.innerHTML += `<div class="grid-row benefits-result">
 <div class="desktop:grid-col-8 benefits-result-text">
   <h3><a href="${benefit.view_node}" data-analytics="category-results-links" hreflang="${myself.docLang}">${benefit.title}</a></h3>
-  <p>${description}</p>
-</div>
-<div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
+  <p>${description}</p></div>
+<div class="desktop:grid-col-4 benefits-result-categories"><h4>${myself.labels.appliedCategories}</h4>
 ${benefit.term_node_tid}
 </div>
 </div>`;
@@ -372,7 +370,7 @@ ${benefit.term_node_tid}
       .replace('@first@', page.first)
       .replace('@last@', page.last)
       .replace('@totalItems@', page.totalItems);
-    elt.innerHTML += `<h2>${label}</h2>`;
+    elt.innerHTML += `<h2 tabindex="-1">${label}</h2>`;
     // prepare pages
     for (const benefit of page.matches) {
       elt.innerHTML += myself.renderMatch(benefit).innerHTML;
@@ -399,8 +397,16 @@ ${benefit.term_node_tid}
           this.hidePage(page);
         }
       }
-      myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+      myself.scrollAndFocusResults();
     }
+
+  };
+  /**
+   * Bring the results into view and focus on the heading
+   */
+  this.scrollAndFocusResults = function() {
+    myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+    myself.resultsContainer.querySelector('.page-active > h2').focus();
   };
   /**
    * Update the terms for searching
@@ -439,9 +445,9 @@ ${benefit.term_node_tid}
            <h4 class="usa-alert__heading padding-left-6">${myself.labels.emptyCategoryError}</h4>
         </div>
     </div>`;
-    myself.form.prepend(elt.content);
+    myself.form.querySelector('.alert-container').prepend(elt.content);
 
-    const fieldset = myself.form.querySelector('fieldset');
+    const fieldset = myself.form.querySelector('div[role="group"]');
     fieldset.classList.add('benefits-category-error');
   };
   /**
@@ -471,7 +477,7 @@ ${benefit.term_node_tid}
     else if (myself.activePage < 1) {
       myself.setActivePage(1);
     }
-    myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+    myself.scrollAndFocusResults();
     myself.showPager(pages.length);
   };
   /**
