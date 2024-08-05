@@ -46,6 +46,9 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         // Check node has all the four variables set which must not be null.
         $node_real_type = $node->getType();
         if ($node->id() != NULL && $node_real_type != NULL && $isFront !== NULL) {
+
+          $isFront = $isFront ? 'homepage' : 'not_homepage';
+
           // Check for a few special cases:
           $special_node_type = FALSE;
           // change "directory_record" to "federal_directory_record"
@@ -97,7 +100,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           // Data to be sent to GTM.
           $usa_twig_vars['datalayer'] = usa_twig_vars_get_datalayer(
             node: $node,
-            isFront: $isFront === 'homepage',
+            isFront: $isFront,
             contentType: $nodetype,
             basicPagesubType: $pageType ?? 'null',
             pageType: ($pageType === 'Standard Page' ? 'Content Page' : ($pageType ?? $nodetype))          );
@@ -403,7 +406,7 @@ function usa_twig_vars_node_insert(NodeInterface $node_to_check) {
  */
 function usa_twig_vars_get_datalayer(
   Node $node,
-  bool $isFront,
+  string $isFront,
   string $contentType,
   string $basicPagesubType,
   string $pageType,
@@ -414,7 +417,7 @@ function usa_twig_vars_get_datalayer(
   $datalayer['nodeID'] = $node->id();
   $datalayer['contentType'] = $contentType;
   $datalayer['language'] = $langcode;
-  $datalayer['homepageTest'] = $isFront ? 'homepage' : 'not_homepage';
+  $datalayer['homepageTest'] = $isFront === 'homepage' ? 'homepage' : 'not_homepage';
   $datalayer['basicPagesubType'] = $basicPagesubType;
   $datalayer['Page_Type'] = $pageType;
 
@@ -465,7 +468,7 @@ function usa_twig_vars_get_datalayer(
     // logic done in the block view to adjust what is shown that
     // might be doable elsewhere.
     $output = \Drupal::service('renderer')->renderRoot($taxonomy_link_block);
-    if ($values = preg_match_all('/"(Taxonomy_[^"]+)":\s+"([^"]+)"/', $output, $matches)) {
+    if (preg_match_all('/"(Taxonomy_[^"]+)":\s+"([^"]+)"/', $output, $matches)) {
       foreach ($matches[1] as $index => $prop) {
         $datalayer[$prop] = $matches[2][$index];
       }

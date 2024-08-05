@@ -105,7 +105,7 @@ function fetch_datalayer(string $fullURL) {
 
 class CSVRow {
 
-  private const EXPORT_BASE = 'https://federalist-e92b6227-c5cf-4fee-8448-9bef30fd37a7.sites.pages.cloud.gov/';
+  private const EXPORT_BASE = 'https://localhost/';
   private const EXPORT_PATH = '/site/omerida/usagov-benefit-search/';
 
   public function __construct(
