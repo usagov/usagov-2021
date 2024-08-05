@@ -26,7 +26,8 @@ function compareData(array $datalayer, CSVRow $row) {
     'basicPagesubType' => 'pageSubType',
     'homepageTest' => 'homepage',
     'Page_Type' => 'pageType',
-    'Taxonomy_Text_1' => 'taxonomyLevel1',
+    // TODO separately compare language?
+    //'Taxonomy_Text_1' => 'taxonomyLevel1',
     'Taxonomy_Text_2' => 'taxonomyLevel2',
     'Taxonomy_Text_3' => 'taxonomyLevel3',
     'Taxonomy_Text_4' => 'taxonomyLevel4',
@@ -58,7 +59,7 @@ function readCSV(string $filename) {
   $header = $file->fgetcsv();
   while ($row = $file->fgetcsv()) {
     yield new CSVRow(
-      hierarchLevel: $row[0],
+      hierarchyLevel: $row[0],
       pageType: $row[1],
       pageSubType: $row[2],
       contentType: $row[3],
@@ -66,7 +67,7 @@ function readCSV(string $filename) {
       pageID: $row[5],
       pageTitle: $row[6],
       fullURL: $row[7],
-      taxonomyLevel1: $row[8],
+      language: $row[8],
       taxonomyLevel2: $row[9],
       taxonomyLevel3: $row[10],
       taxonomyLevel4: $row[11],
@@ -109,7 +110,7 @@ class CSVRow {
   private const EXPORT_PATH = '/site/omerida/usagov-benefit-search/';
 
   public function __construct(
-    public string $hierarchLevel,
+    public string $hierarchyLevel,
     public string $pageType,
     public string $pageSubType,
     public string $contentType,
@@ -117,7 +118,7 @@ class CSVRow {
     public string $pageID,
     public string $pageTitle,
     public string $fullURL,
-    public string $taxonomyLevel1,
+    public string $language, // the published csv loses level 1
     public string $taxonomyLevel2,
     public string $taxonomyLevel3,
     public string $taxonomyLevel4,

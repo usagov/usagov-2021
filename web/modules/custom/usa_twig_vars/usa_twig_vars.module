@@ -102,7 +102,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             node: $node,
             isFront: $isFront,
             contentType: $nodetype,
-            basicPagesubType: $pageType ?? 'null',
+            basicPagesubType: $pageType ?? null,
             pageType: ($pageType === 'Standard Page' ? 'Content Page' : ($pageType ?? $nodetype))          );
           unset($isFront);
         }
@@ -408,7 +408,7 @@ function usa_twig_vars_get_datalayer(
   Node $node,
   string $isFront,
   string $contentType,
-  string $basicPagesubType,
+  ?string $basicPagesubType,
   string $pageType,
 ): array {
   $datalayer = [];
@@ -423,7 +423,7 @@ function usa_twig_vars_get_datalayer(
 
   // Taxonomy for the homepages. These depend on variables
   // that the block view doesn't readily have access to.
-  if ($isFront && $langcode === 'en') {
+  if ($isFront === 'homepage' && $langcode === 'en') {
     $datalayer["Taxonomy_Text_1"] = "Home";
     $datalayer["Taxonomy_Text_2"] = "Home";
     $datalayer["Taxonomy_Text_3"] = "Home";
@@ -437,7 +437,7 @@ function usa_twig_vars_get_datalayer(
     $datalayer["Taxonomy_URL_5"] = "/";
     $datalayer["Taxonomy_URL_6"] = "/";
   }
-  elseif ($isFront && $langcode === 'es') {
+  elseif ($isFront === 'homepage' && $langcode === 'es') {
     $datalayer["Taxonomy_Text_1"] = "Página principal";
     $datalayer["Taxonomy_Text_2"] = "Página principal";
     $datalayer["Taxonomy_Text_3"] = "Página principal";
