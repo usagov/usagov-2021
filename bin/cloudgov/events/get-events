@@ -77,11 +77,8 @@ export ORG_GUID=$(cf org $CURRENT_ORG --guid)
 ### We'll request logs generated after LAST_EVENT_TIME.  If nothing was 
 ### specified on the command line, start from 24 hours ago
 LAST_EVENT_TIME=$1
-if [ -n "$LAST_EVENT_TIME" ]; then
-  ### Convert to UTC (if it's already UTC, no harm done)
-  LAST_EVENT_TIME=$(TZ=UTC date -d "$LAST_EVENT_TIME" +"%Y-%m-%dT%H:%M:%SZ")
-else
-  LAST_EVENT_TIME=$(TZ=UTC date -d "now - 24 hours" +"%Y-%m-%dT%H:%M:%SZ")
+if [ -z "$LAST_EVENT_TIME" ]; then
+  LAST_EVENT_TIME=$(TZ=UTC date -d "$CFEVENTS_DEFAULT_LASTRUN" +"$CFEVENTS_DATE_FORMAT")
 fi
 
 declare -rA AUDIT_TYPES=(

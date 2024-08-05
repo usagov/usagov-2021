@@ -42,6 +42,10 @@ cf api "$CF_API"
 cf auth "$CF_USERNAME" "$CF_PASSWORD"
 cf target -o "$CF_ORG" -s "$CF_SPACE"
 
+export CFEVENTS_DATE_FORMAT="%Y-%m-%dT%H:%M:%SZ"
+export CFEVENTS_DEFAULT_LASTRUN="2 months ago"
+### -> if we do not have GNU formatting, use 'now - (number of seconds in 60 days)': "@$(( $(date +%s) - 5259492 ))"
+
 ### aws cli does not want proxy envs
 function aws_cp() {
    src=$1

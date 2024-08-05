@@ -20,7 +20,8 @@ ARG BGID=1000
 RUN apk upgrade --update \
     && apk add --no-cache --virtual .persistent-deps \
       bash \
-      date \
+      coreutils \
+      tzdata \
       aws-cli \
       ca-certificates \
       curl \
