@@ -741,3 +741,10 @@ select:not([disabled]):focus,
 input::-webkit-textfield-decoration-container {
   visibility: hidden;
 }
+
+// Keeps the recaptcha image from being hidden by the footer accordion in mobile view
+@media (max-width: 30em) {
+.grecaptcha-badge {
+  z-index: 2000000004;
+  }
+}
