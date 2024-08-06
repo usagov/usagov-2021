@@ -74,5 +74,13 @@ function usagov_login_user_update($account) {
       \Drupal::logger('usagov_login')->notice("Role {$role} removed from user {$user_performed_on} ({$user_performed_named}) by user {$uid} ({$uname})");
     }
   }
+
+  $was_enabled = $account->original->get('status')->value;
+  $is_enabled = $account->get('status')->value;
+  if ( $was_enabled != $is_enabled ) {
+    $action = ( intval($is_enabled) === 1 ? 'un-blocked' : 'blocked' );
+    \Drupal::logger('usagov_login')->notice("User {$user_performed_on} ({$user_performed_named}) was {$action} by user {$uid} ({$uname})");
+  }
+
 }
 
