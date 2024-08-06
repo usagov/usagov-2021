@@ -1,21 +1,27 @@
 #!/usr/bin/env drush
 <?php
 
+use Drush\Drush;
+
 $csv = realpath(__DIR__ . '/../../web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv');
 
 if (!$csv) {
-  \Drush\Drush::output()->writeln("<error>Can't read or find CSV file.</error>");
+  Drush::output()->writeln("<error>Can't read or find CSV file.</error>");
   exit(1);
 }
 
-\Drush\Drush::output()->writeln("<info>Reading CSV file.</info>");
+Drush::output()->writeln("<info>Reading CSV file.</info>");
 foreach (readCSV($csv) as $line) {
-  \Drush\Drush::output()->writeln("<info>Checking {$line->pageID}: {$line->fullURL}.</info>");
+  if ($line->pageID == 5) {
+    // not a node
+    continue;
+  }
+  Drush::output()->writeln("<info>Checking {$line->pageID}: {$line->fullURL}.</info>");
   try {
     $datalayer = fetch_datalayer($line->fullURL);
     compareData($datalayer, $line);
   } catch (Exception $e) {
-    \Drush\Drush::output()->writeln('<error>' . $e->getMessage() . '</error>');
+    Drush::output()->writeln('<error>' . $e->getMessage() . '</error>');
   }
 }
 
@@ -26,7 +32,7 @@ function compareData(array $datalayer, CSVRow $row) {
     'basicPagesubType' => 'pageSubType',
     'homepageTest' => 'homepage',
     'Page_Type' => 'pageType',
-    // TODO separately compare language?
+    // separately compare language
     //'Taxonomy_Text_1' => 'taxonomyLevel1',
     'Taxonomy_Text_2' => 'taxonomyLevel2',
     'Taxonomy_Text_3' => 'taxonomyLevel3',
@@ -43,10 +49,32 @@ function compareData(array $datalayer, CSVRow $row) {
 
   foreach ($map as $key => $prop) {
     if ($datalayer[$key] !== $row->$prop) {
-      \Drush\Drush::output()->writeln(
+      Drush::output()->writeln(
         "<error>... Mismatch {$key} ({$datalayer[$key]}) and {$prop} ({$row->$prop}) </error>");
-      var_dump($datalayer);
+      var_dump($datalayer[$key], $row->$prop);
     }
+  }
+
+  switch ($datalayer['language']) {
+    case 'en':
+      if ($datalayer['Taxonomy_Text_1'] !== 'Home') {
+        Drush::output()->writeln(
+          "<error>... Wrong Taxonomy_Text 1 ({$datalayer['Taxonomy_Text_1']}) </error>");
+      }
+      break;
+
+    case 'es':
+      if ($datalayer['Taxonomy_Text_1'] !== 'Página principal') {
+        Drush::output()->writeln(
+        "<error>... Wrong Taxonomy_Text 1 ({$datalayer['Taxonomy_Text_1']}) </error>");
+      }
+      break;
+
+    default:
+      if ($datalayer[$key] !== $row->$prop) {
+        Drush::output()->writeln(
+          "<error>... Unknown or missing language ({$datalayer['language']}) </error>");
+      }
   }
 }
 /**
@@ -112,7 +140,7 @@ class CSVRow {
   public function __construct(
     public string $hierarchyLevel,
     public string $pageType,
-    public string $pageSubType,
+    public ?string $pageSubType,
     public string $contentType,
     public string $friendlyURL,
     public string $pageID,
@@ -135,6 +163,10 @@ class CSVRow {
   ) {
     $this->fullURL = str_replace([self::EXPORT_BASE, self::EXPORT_PATH], ['/', '/'], $this->fullURL);
     $this->toggleURL = str_replace([self::EXPORT_BASE, self::EXPORT_PATH], ['/', '/'], $this->toggleURL);
+
+    if ($this->pageSubType === "") {
+      $this->pageSubType = NULL;
+    }
   }
 
 }

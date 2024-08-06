@@ -54,7 +54,7 @@
   {% endif %}
 
   <script id="taxonomy-data">
-    dataLayer = [{{ datalayer | json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_SLASHES')) | raw }}];
+    dataLayer = [{{ datalayer | json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE')) | raw }}];
   </script>
 
   <!-- Google Tag Manager -->

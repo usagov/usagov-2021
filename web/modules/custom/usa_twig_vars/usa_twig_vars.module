@@ -97,13 +97,30 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
           $usa_twig_vars['meta_noindex'] = $noindex;
 
+          switch ($pageType) {
+            case 'Standard Page':
+              // If there's a special node type, use it.
+              $datalayer_Page_Type = $special_node_type ?: 'Content Page';
+              break;
+
+            case 'State Office Page':
+              // If there's a special node type, use it.
+              $datalayer_Page_Type = $special_node_type ?: $pageType;
+              break;
+
+            default:
+              $datalayer_Page_Type = $pageType ?? $nodetype;
+              break;
+          }
+
           // Data to be sent to GTM.
           $usa_twig_vars['datalayer'] = usa_twig_vars_get_datalayer(
             node: $node,
             isFront: $isFront,
             contentType: $nodetype,
-            basicPagesubType: $pageType ?? null,
-            pageType: ($pageType === 'Standard Page' ? 'Content Page' : ($pageType ?? $nodetype))          );
+            basicPagesubType: $pageType ?? NULL,
+            pageType: $datalayer_Page_Type,
+          );
           unset($isFront);
         }
       }
