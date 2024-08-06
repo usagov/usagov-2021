@@ -1,0 +1,184 @@
+#!/usr/bin/env bash
+#
+# This script will compile a report of our cf env's components
+#
+
+# Styling variables
+underline=`tput smul`
+nounderline=`tput rmul`
+bold=`tput bold`
+normal=`tput sgr0`
+level2="  "
+level3="    "
+level4="      "
+level5="        "
+level6="          "
+
+echo "${bold}${underline}CF Components${nounderline}${normal}"
+
+# Orgs->Domains/Spaces->Apps/Services->Tasks/Sidecars
+ORGIDS=$(cf curl "/v3/organizations" | jq -r '[.resources[].guid]')
+echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
+  ORGNAME=$(cf curl "/v3/organizations/$ORGID" | jq -r '.name')
+  ORGUPDATE=$(cf curl "/v3/organizations/$ORGID" | jq -r '.updated_at')
+
+  echo "Org: ${underline}$ORGNAME${nounderline} (Last updated: $ORGUPDATE)"
+
+  DOMIANIDS=$(cf curl "/v3/domains" | jq -r '[.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid]')
+  if [ "$DOMIANIDS" != "[]" ]; then
+    echo "$level2 Domains:"
+    echo "$DOMIANIDS" | jq -r '.[]' | while read -r DOMIANID; do
+      DOMAINNAME=$(cf curl "/v3/domains/$DOMIANID" | jq -r '.name')
+      DOMAINUPDATED=$(cf curl "/v3/domains/$DOMIANID" | jq -r '.updated_at')
+      DOMAININTERNAL=$(cf curl "/v3/domains/$DOMIANID" | jq -r '.internal')
+      DOMAINPROTOCOLS=$(cf curl "/v3/domains/$DOMIANID" | jq -c '.supported_protocols')
+      echo "$level3 $DOMAINNAME (Last updated: $DOMAINUPDATED | Internal: $DOMAININTERNAL | Supported Protocols: $DOMAINPROTOCOLS)"
+    done
+  fi
+
+ SPACEIDS=$(cf curl "/v3/spaces" | jq -r '[.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid]')
+ echo "$SPACEIDS" | jq -r '.[]' | while read -r SPACEID; do
+  SPACENAME=$(cf curl "/v3/spaces/$SPACEID" | jq -r '.name')
+  SPACEUPDATE=$(cf curl "/v3/spaces/$SPACEID" | jq -r '.updated_at')
+  echo "$level2 Space: ${underline}$SPACENAME${nounderline} (Last updated: $SPACEUPDATE)"
+
+  SERVICEIDS=$(cf curl "/v3/service_instances" | jq -r '[.resources[] | select( .relationships.space.data.guid == "'$SPACEID'" ) | .guid]')
+  if [ "$SERVICEIDS" != "[]" ]; then
+    echo "$level3 Services:"
+    echo "$SERVICEIDS" | jq -r '.[]' | while read -r SERVICEID; do
+      SERVICELASTOPERATION=""
+      SERVICENAME=$(cf curl "/v3/service_instances/$SERVICEID" | jq -r '.name')
+      SERVICEUPDATED=$(cf curl "/v3/service_instances/$SERVICEID" | jq -r '.updated_at')
+      if [ "$(cf curl "/v3/service_instances/$SERVICEID" | jq -r '.last_operation')" != "{}" ]; then
+        SERVICETYPE=$(cf curl "/v3/service_instances/$SERVICEID" | jq -r '.last_operation.type')
+        SERVICESTATE=$(cf curl "/v3/service_instances/$SERVICEID" | jq -r '.last_operation.state')
+        SERVICEDESCRIPTION=$(cf curl "/v3/service_instances/$SERVICEID" | jq -r '.last_operation.description')
+        SERVICEUPDATED=$(cf curl "/v3/service_instances/$SERVICEID" | jq -r '.last_operation.updated_at')
+
+        SERVICELASTOPERATION="(Last operation at $SERVICEUPDATED; Type: $SERVICETYPE | State: $SERVICESTATE | Description: $SERVICEDESCRIPTION)"
+      fi
+      echo "$level4 $SERVICENAME Last updated: $SERVICEUPDATED $SERVICELASTOPERATION"
+    done
+  fi
+
+  ROUTEIDS=$(cf curl "/v3/routes" | jq -r '[.resources[] | select( .relationships.space.data.guid == "'$SPACEID'" ) | .guid]')
+  if [ "$ROUTEIDS" != "[]" ]; then
+    echo "$level3 Routes:"
+    echo "$ROUTEIDS" | jq -r '.[]' | while read -r ROUTEID; do
+      ROUTENAME=$(cf curl "/v3/routes/$ROUTEID" | jq -r '.name')
+      ROUTEUPDATED=$(cf curl "/v3/routes/$ROUTEID" | jq -r '.updated_at')
+      ROUTEHOST=$(cf curl "/v3/routes/$ROUTEID" | jq -r '.host')
+      ROUTEPATH=$(cf curl "/v3/routes/$ROUTEID" | jq -r '.path')
+      ROUTEURL=$(cf curl "/v3/routes/$ROUTEID" | jq -r '.url')
+      echo "$level4 $ROUTENAME (Last updated: $ROUTEUPDATED | Host: $ROUTEHOST | Path: $ROUTEPATH | URL: $ROUTEURL)"
+    done
+  fi
+
+  APPIDS=$(cf curl "/v3/apps" | jq -r '[.resources[] | select( .relationships.space.data.guid == "'$SPACEID'" ) | .guid]')
+  if [ "$APPIDS" != "[]" ]; then
+    echo "$level3 Apps:"
+    echo "$APPIDS" | jq -r '.[]' | while read -r APPID; do
+      APPNAME=$(cf curl "/v3/apps/$APPID" | jq -r '.name')
+      APPUPDATED=$(cf curl "/v3/apps/$APPID" | jq -r '.updated_at')
+      APPSTATE=$(cf curl "/v3/apps/$APPID" | jq -r '.state')
+      APPTYPE=$(cf curl "/v3/apps/$APPID" | jq -r '.lifecycle.type')
+
+      if [ "$APPTYPE" != "docker" ]; then
+        APPBUILDPACKS=$(cf curl "/v3/apps/$APPID" | jq -c '.lifecycle.data.buildpacks')
+        APPSTACK=$(cf curl "/v3/apps/$APPID" | jq -c '.lifecycle.data.stack')
+        APPSTACKINFO=" | Buildpacks: $APPBUILDPACKS | Stack: $APPSTACK"
+      fi
+      echo "$level4 $APPNAME (Last updated: $APPUPDATED | State: $APPSTATE | Type: $APPTYPE$APPSTACKINFO)"
+
+      TASKIDS=$(cf curl "/v3/apps/$APPID/tasks" | jq -r '[.resources[] | .guid]')
+      if [ "$TASKIDS" != "[]" ]; then
+        echo "$level5 Tasks:"
+        echo "$TASKIDS" | jq -r '.[]' | while read -r TASKID; do
+          TASKNAME=$(cf curl "/v3/tasks/$TASKID" | jq -r '.name')
+          TASKUPDATED=$(cf curl "/v3/tasks/$TASKID" | jq -r '.updated_at')
+          TASKCOMMAND=$(cf curl "/v3/tasks/$TASKID" | jq -r '.command')
+          TASKSTATE=$(cf curl "/v3/tasks/$TASKID" | jq -r '.state')
+          TASKMEMORY=$(cf curl "/v3/tasks/$TASKID" | jq -r '.memory_in_mb')
+          TASKDISK=$(cf curl "/v3/tasks/$TASKID" | jq -r '.disk_in_mb')
+          echo "$level6 $TASKNAME (Last updated: $TASKUPDATED | Command: $TASKCOMMAND | State: $TASKSTATE | Memory: $TASKMEMORY mb | Disk: $TASKDISK mb)"
+        done
+      fi
+      SIDECARIDS=$(cf curl "/v3/apps/$APPID/sidecars" | jq -r '[.resources[] | .guid]')
+      if [ "$SIDECARIDS" != "[]" ]; then
+        echo "$level5 Sidecars:"
+        echo "$SIDECARIDS" | jq -r '.[]' | while read -r SIDECARID; do
+          SIDECARNAME=$(cf curl "/v3/sidecars/$SIDECARID" | jq -r '.name')
+          SIDECARUPDATED=$(cf curl "/v3/sidecars/$SIDECARID" | jq -r '.updated_at')
+          SIDECARCOMMAND=$(cf curl "/v3/sidecars/$SIDECARID" | jq -r '.command')
+          SIDECARPROCESS=$(cf curl "/v3/sidecars/$SIDECARID" | jq -c '.process_types')
+          SIDECARMEMORY=$(cf curl "/v3/sidecars/$SIDECARID" | jq -r '.memory_in_mb')
+          SIDECARORIGIN=$(cf curl "/v3/sidecars/$SIDECARID" | jq -r '.origin')
+          echo "$level6 $SIDECARNAME (Last updated: $SIDECARUPDATED |Command: $SIDECARCOMMAND | Process Types: $SIDECARPROCESS | Memory: $SIDECARMEMORY mb | Origin: $SIDECARORIGIN)"
+        done
+      fi
+      DROPLETIDS=$(cf curl "/v3/apps/$APPID/sidecars" | jq -r '[.resources[] | .guid]')
+      if [ "$DROPLETIDS" != "[]" ]; then
+        echo "$level5 Droplets:"
+        echo "$DROPLETIDS" | jq -r '.[]' | while read -r DROPLETID; do
+          DROPLETNAME=$(cf curl "/v3/sidecars/$DROPLETID" | jq -r '.name')
+          DROPLETUPDATED=$(cf curl "/v3/sidecars/$DROPLETID" | jq -r '.updated_at')
+          DROPLETSTACK=$(cf curl "/v3/sidecars/$DROPLETID" | jq -r '.stack')
+          DROPLETSTACKOUT=""
+          if [ "$DROPLETSTACK" != "null" ]; then
+            DROPLETSTACKOUT=" | Stack: $DROPLETSTACK"
+          fi
+          DROPLETIMAGEOUT=""
+          DROPLETIMAGE=$(cf curl "/v3/sidecars/$DROPLETID" | jq -r '.image')
+          if [ "$DROPLETIMAGE" != "null" ]; then
+            DROPLETIMAGEOUT=" | Image: $DROPLETIMAGE"
+          fi
+          echo "$level6 $DROPLETNAME (Last updated: $DROPLETUPDATED$DROPLETSTACKOUT$DROPLETIMAGEOUT)"
+        done
+      fi
+    done
+  fi
+ done
+ echo "${underline}                                                                                                         ${nounderline}
+ "
+done
+
+# Misc info
+BUILDPACKIDS=$(cf curl "/v3/buildpacks" | jq -r '[.resources[] | .guid]')
+if [ "$BUILDPACKIDS" != "[]" ]; then
+  echo "${underline}Buildpacks used:${nounderline}"
+  echo "$BUILDPACKIDS" | jq -r '.[]' | while read -r BUILDPACKID; do
+    BUILDPACKNAME=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.name')
+    BUILDPACKUPDATED=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.updated_at')
+    BUILDPACKSTATE=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.state')
+    BUILDPACKFILENAME=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.filename')
+    BUILDPACKSTACK=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.stack')
+    BUILDPACKPOSITION=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.position')
+    BUILDPACKENABLED=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.enabled')
+    BUILDPACKLOCKED=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.locked')
+    echo "$level2 $BUILDPACKNAME (Last updated: $BUILDPACKUPDATED | State: $BUILDPACKSTATE | Filename: $BUILDPACKFILENAME | Stack: $BUILDPACKSTACK | Position: $BUILDPACKPOSITION | Enabled: $BUILDPACKENABLED | Locked: $BUILDPACKLOCKED)"
+  done
+fi
+
+USERIDS=$(cf curl "/v3/users" | jq -r '[.resources[] | .guid]')
+if [ "$USERIDS" != "[]" ]; then
+  echo "${underline}Users:${nounderline}"
+  echo "$USERIDS" | jq -r '.[]' | while read -r USERID; do
+    USERNAME=$(cf curl "/v3/users/$USERID" | jq -r '.username')
+    USERPUPDATE=$(cf curl "/v3/users/$USERID" | jq -r '.updated_at')
+    USERPRESENTATION=$(cf curl "/v3/users/$USERID" | jq -r '.presentation_name')
+    USERORIGIN=$(cf curl "/v3/users/$USERID" | jq -r '.origin')
+    echo "$level2 $USERNAME (Last updated: $USERPUPDATE | Presentation Name: $USERPRESENTATION | Origin: $USERORIGIN)"
+  done
+fi
+
+GROUPIDS=$(cf curl "/v3/security_groups" | jq -r '[.resources[] | .guid]')
+if [ "$GROUPIDS" != "[]" ]; then
+  echo "${underline}Security Groups:${nounderline}"
+  echo "$GROUPIDS" | jq -r '.[]' | while read -r GROUPID; do
+    GROUPNAME=$(cf curl "/v3/security_groups/$GROUPID" | jq -r '.name')
+    GROUPUPDATED=$(cf curl "/v3/security_groups/$GROUPID" | jq -r '.updated_at')
+    GROUPRULES=$(cf curl "/v3/security_groups/$GROUPID" | jq -r '.rules')
+    echo "$level2 $GROUPNAME (Last updated: $GROUPUPDATED) Rules:"
+    echo $GROUPRULES
+  done
+fi
