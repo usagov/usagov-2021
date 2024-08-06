@@ -4,6 +4,7 @@
 use Drush\Drush;
 
 $csv = realpath(__DIR__ . '/../../web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv');
+$samplePaths = true;
 
 if (!$csv) {
   Drush::output()->writeln("<error>Can't read or find CSV file.</error>");
@@ -11,11 +12,25 @@ if (!$csv) {
 }
 
 Drush::output()->writeln("<info>Reading CSV file.</info>");
+$counts = [];
 foreach (readCSV($csv) as $line) {
   if ($line->pageID == 5) {
     // not a node
     continue;
   }
+
+  $countKey = $line->language . '/' . $line->pageType;
+  if (isset($counts[$countKey])) {
+    $counts[$countKey] += 1;
+  }
+  else {
+    $counts[$countKey] = 0;
+  }
+
+  if ($samplePaths && $counts[$line->language . '/' . $line->pageType] > 10) {
+    continue;
+  }
+
   Drush::output()->writeln("<info>Checking {$line->pageID}: {$line->fullURL}.</info>");
   try {
     $datalayer = fetch_datalayer($line->fullURL);
