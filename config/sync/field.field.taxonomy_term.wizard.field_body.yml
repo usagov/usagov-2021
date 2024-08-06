@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.storage.taxonomy_term.field_body
+    - filter.format.html
     - filter.format.uswds
     - taxonomy.vocabulary.wizard
   module:
@@ -21,4 +22,5 @@ default_value_callback: ''
 settings:
   allowed_formats:
     - uswds
+    - html
 field_type: text_long
