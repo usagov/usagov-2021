@@ -23,6 +23,9 @@ function usagov_preprocess_block__usagov_taxonomy_links(&$variables) {
     // If we are NOT seeing an alias path...
     if ( substr($urlToPass, 0, 6) === '/node/' ) {
 
+      // Note this in New Relic
+      \Drupal::logger('usagov_ssg_postprocessing')->warning("Node loaded from a /node/number path instead of an alias path at: {$urlToPass}");
+
       // ...then check the path_alias table for an alias.
       $node = \Drupal::routeMatch()->getParameter('node');
       if ($node instanceof \Drupal\node\NodeInterface) {
