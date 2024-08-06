@@ -178,7 +178,8 @@ if [ "$GROUPIDS" != "[]" ]; then
     GROUPNAME=$(cf curl "/v3/security_groups/$GROUPID" | jq -r '.name')
     GROUPUPDATED=$(cf curl "/v3/security_groups/$GROUPID" | jq -r '.updated_at')
     GROUPRULES=$(cf curl "/v3/security_groups/$GROUPID" | jq -r '.rules')
-    echo "$level2 $GROUPNAME (Last updated: $GROUPUPDATED) Rules:"
-    echo $level3 $GROUPRULES
+    echo "$level2 $GROUPNAME (Last updated: $GROUPUPDATED)"
+    echo "$level3 Rules:"
+    echo "$level4 $GROUPRULES"
   done
 fi
