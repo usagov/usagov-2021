@@ -81,13 +81,28 @@
         margin-left: 2rem;
       }
 
-      /* We have to have this oneoff selector to override the base uswds style.*/
-      .usa-radio__input:focus+[class*=__label]::before {
-        background-color: $button-secondary-outline;
-        box-shadow: 0 0 0 2px color('gray-90'), inset 0 0 0 3px color('gray-5');
-        opacity: 1;
+
+      // Background color of option elements on state changes.
+      .usa-radio__input--tile {
+        &:hover {
+          + [class*=__label] {
+            border-radius: 4px;
+            @include u-border('2px', 'solid', 'gray-20');
+            @include u-bg('gray-5');
+
+            &::before {
+              opacity: 1;
+            }
+          }
+        }
+        &:focus, &:checked, &:active {
+          + [class*=__label] {
+            @include checked;
+          }
+        }
       }
 
+      // Positioning of the option elements.
       .usa-radio__input--tile + .usa-radio__label {
         line-height: 26.4px;
         padding: 1rem;
@@ -110,20 +125,6 @@
           left: 0;
           outline: 0;
           opacity: .6;
-        }
-
-        &:hover {
-          border-radius: 4px;
-          @include u-border('2px', 'solid', 'gray-20');
-          @include u-bg('gray-5');
-
-          &::before {
-            opacity: 1;
-          }
-        }
-
-        &:active, &.checked {
-          @include checked;
         }
       }
     }
