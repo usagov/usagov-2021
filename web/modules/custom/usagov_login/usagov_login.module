@@ -48,3 +48,31 @@ function usagov_login_form_user_login_form_alter(&$form, FormStateInterface $for
     $form['#attributes']['class'] = 'usa-list.usa-list--unstyled';
   }
 }
+
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function usagov_login_user_update($account) {
+  $uid = \Drupal::currentUser()->id();
+  $user = \Drupal\user\Entity\User::load($uid);
+  $uname = $user->get('name')->value;
+
+  $user_performed_on = $account->id();
+  $user_performed_named = $account->get('name')->value;
+
+  $roles_added = array_diff($account->getRoles(), $account->original->getRoles());
+  if (!empty($roles_added)) {
+    foreach ( $roles_added as $role ) {
+      \Drupal::logger('usagov_login')->notice("Role {$role} added to user {$user_performed_on} ({$user_performed_named}) by user {$uid} ({$uname})");
+    }
+  }
+
+  $roles_removed = array_diff($account->original->getRoles(), $account->getRoles());
+  if (!empty($roles_removed)) {
+    foreach ( $roles_removed as $role ) {
+      \Drupal::logger('usagov_login')->notice("Role {$role} removed from user {$user_performed_on} ({$user_performed_named}) by user {$uid} ({$uname})");
+    }
+  }
+}
+
