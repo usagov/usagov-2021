@@ -102,3 +102,16 @@ applications:
       allow 52.3.16.30;
       allow 52.22.251.194;
       allow 52.70.135.185;
+- name: cfevents
+  no-route: true
+  health-check-type: process
+  type: task
+  docker:
+    image: gsatts/usagov-2021:cfevents
+  instances: 0
+  memory: 256M
+  services:
+    - secrets
+    - secauthsecrets
+    - storage
+    - cfevents-service-account

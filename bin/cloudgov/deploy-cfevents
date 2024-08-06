@@ -66,15 +66,17 @@ function setHTTPProxy() {
 }
 
 function cf_push() {
+  appspec=$1
   if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-    cf push ${APPNAME} -f ./manifest-${APPNAME}.yml
+    cf push ${APPNAME} --docker-image ${appspec}
   else
-    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-${APPNAME}.yml
-  fi 
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} --docker-image ${appspec} --docker-username $DOCKERHUB_USERNAME
+  fi
 }
 
 # launch the app
-echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}"
+APPSPEC=${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
+echo "Deploying ${APPSPEC}"
 
 if existsCFService ${APPNAME}-service-account; then
   echo "User service ${APPNAME}-service-account already exists - good!"
@@ -96,9 +98,9 @@ fi
 if existsCFApp ${APPNAME} ; then
   $SCRIPT_DIR/setup-egress-for-apps --no-restart ${APPNAME}
   setHTTPProxy ${SPACE} ${APPNAME} 1
-  cf_push
+  cf_push $APPSPEC
 else
-  cf_push
+  cf_push $APPSPEC
   setHTTPProxy ${SPACE} ${APPNAME} 1
   $SCRIPT_DIR/setup-egress-for-apps --no-restart ${APPNAME}
 fi
