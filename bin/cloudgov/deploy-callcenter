@@ -35,16 +35,16 @@ DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 export APPNAME="callcenter"
-export SERVICENAME="${appname}Services"
 
 assertRequires 'jq'
 
 function setHTTPProxy() {
+    appSpace=$1
+    appName=$2
+    proxySet=$3
     proxySpace=$CF_EGRESS_SPACE
     proxyName="${SPACE}-proxy"
-    appSpace=$SPACE
-    appName=$APPNAME
-    if [ "$1" = "1" ]; then
+    if [ "$proxySet" = "1" ]; then
         echo "Setting http_proxy to $proxyName"
         cf target -s $proxySpace -o $CF_EGRESS_ORG > /dev/null 2>&1;
         proxyroute=$(cf env $proxyName | grep proxy_route | awk '{print $2}')
@@ -57,36 +57,52 @@ function setHTTPProxy() {
         cf set-env $appName HTTPS_PROXY $proxyroute
         cf set-env $appName http_proxy $proxyroute
         cf set-env $appName HTTP_PROXY $proxyroute
-        needsRestage=1
-    elif [ "$1" = "0" ]; then
+    elif [ "$proxySet" = "0" ]; then
         echo "Setting http_proxy to empty"
         cf target -s $appSpace -o $ORG > /dev/null 2>&1
         cf unset-env $appName https_proxy
         cf unset-env $appName HTTPS_PROXY
         cf unset-env $appName http_proxy
         cf unset-env $appName HTTP_PROXY
-        needsRestage=1
     fi;
 }
 
-# create services
-if existsCFService "${SERVICENAME}" ; then
-  echo ${SERVICENAME} already created
-else
-  echo Creating ${SERVICENAME} user provided service
-  cf cups ${SERVICENAME}
-fi
+function cf_push() {
+  appspec=$1
+  if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+    cf push ${APPNAME} --docker-image ${appspec}
+  else
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} --docker-image ${appspec} --docker-username $DOCKERHUB_USERNAME
+  fi
+}
 
 # launch the app
-echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}"
-cf push ${APPNAME} -f ./manifest-${APPNAME}.yml ## --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
+APPSPEC=${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
+echo "Deploying ${APPSPEC}"
 
-$SCRIPT_DIR/setup-egress-for-apps ${APPNAME} --no-restart
+if existsCFService ${APPNAME}-service-account; then
+  echo "User service ${APPNAME}-service-account already exists - good!"
+else
+  $SCRIPT_DIR/create-service-account $SPACE $APPNAME
+fi
 
-setHTTPProxy 1
+if existsCFService ${APPNAME}-service-account; then
+  SERVICE_KEY=$(cf service-key ${APPNAME}-service-account ${APPNAME}-service-key | tail -n +3)
+  SERVICE_USER=$( echo ${SERVICE_KEY} | jq -r '.credentials.username')
+#  $echo cf set-space-role ${SERVICE_USER} $ORG $SPACE SpaceAuditor
+#  $echo cf set-org-role ${SERVICE_USER} $ORG OrgAuditor
+  $echo cf unset-space-role ${SERVICE_USER} $ORG $SPACE SpaceDeveloper
+else
+  echo could not create Service Account for ${APPNAME} in ${SPACE}
+  exit 1
+fi
 
-# restart for variables
-echo Restarting ${APPNAME}
-cf restart ${APPNAME}
-
-popspace
+if existsCFApp ${APPNAME} ; then
+  $SCRIPT_DIR/setup-egress-for-apps --no-restart ${APPNAME}
+  setHTTPProxy ${SPACE} ${APPNAME} 1
+  cf_push $APPSPEC
+else
+  cf_push $APPSPEC
+  setHTTPProxy ${SPACE} ${APPNAME} 1
+  $SCRIPT_DIR/setup-egress-for-apps --no-restart ${APPNAME}
+fi
