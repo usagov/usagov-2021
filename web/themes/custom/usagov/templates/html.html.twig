@@ -23,6 +23,7 @@
  * @see template_preprocess_html()
  */
 #}
+
 {% set lang = node.langcode.value %}
 {% set nodeID = node.nid[0].value %}
 {% set path = drupal_url('node/'~nodeID, {absolute: TRUE}) %}
@@ -38,20 +39,21 @@
 <!DOCTYPE html>
 <html{{ html_attributes }}>
 <head>
-{% if meta_noindex %}
-<meta name="robots" content="noindex" />
-{% endif %}
+{% block header_html %}
+  {% if meta_noindex %}
+  <meta name="robots" content="noindex" />
+  {% endif %}
 <link rel="preconnect" href="https://script.crazyegg.com" crossorigin>
 <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
 <head-placeholder token="{{ placeholder_token|raw }}">
 <title>{{ head_title|safe_join(' | ') }}</title>
   <css-placeholder token="{{ placeholder_token|raw }}">
   <js-placeholder token="{{ placeholder_token|raw }}">
+
   {% if node.id is defined %}
     {{ node.field_header_html.value|raw }}
-  {% elseif header_html %}
-    {{ header_html|raw }}
   {% endif %}
+{% endblock %}
 
   <script id="taxonomy-data">
     dataLayer = [{{ datalayer | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_PRETTY_PRINT')) | raw }}];
