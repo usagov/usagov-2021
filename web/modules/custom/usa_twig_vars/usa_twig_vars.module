@@ -124,14 +124,15 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           unset($isFront);
         }
       }
+
+      // Let other modules add to the datalayer payload.
+      $datalayerEvent = new DatalayerAlterEvent($usa_twig_vars['datalayer'] ?? []);
+      $dispatcher = \Drupal::service('event_dispatcher');
+      $dispatcher->dispatch($datalayerEvent, DatalayerAlterEvent::EVENT_NAME);
+      // Get any alterations.
+      $usa_twig_vars['datalayer'] = $datalayerEvent->datalayer;
     }
 
-    // Let other modules add to the datalayer payload.
-    $datalayerEvent = new DatalayerAlterEvent($usa_twig_vars['datalayer'] ?? []);
-    $dispatcher = \Drupal::service('event_dispatcher');
-    $dispatcher->dispatch($datalayerEvent, DatalayerAlterEvent::EVENT_NAME);
-    // Get any alterations.
-    $usa_twig_vars['datalayer'] = $datalayerEvent->datalayer;
     foreach ($usa_twig_vars as $key => $value) {
       $variables[$key] = $value;
     }

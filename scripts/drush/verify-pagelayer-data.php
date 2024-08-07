@@ -4,7 +4,9 @@
 use Drush\Drush;
 
 $csv = realpath(__DIR__ . '/../../web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv');
-$samplePaths = true;
+
+// Set to true for a faster run that doesn't look at every URL in the CSV file.
+$samplePaths = false;
 
 if (!$csv) {
   Drush::output()->writeln("<error>Can't read or find CSV file.</error>");
