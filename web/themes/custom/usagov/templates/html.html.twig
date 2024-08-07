@@ -23,6 +23,7 @@
  * @see template_preprocess_html()
  */
 #}
+
 {% set lang = node.langcode.value %}
 {% set nodeID = node.nid[0].value %}
 {% set path = drupal_url('node/'~nodeID, {absolute: TRUE}) %}
@@ -38,9 +39,10 @@
 <!DOCTYPE html>
 <html{{ html_attributes }}>
 <head>
-{% if meta_noindex %}
-<meta name="robots" content="noindex" />
-{% endif %}
+{% block header_html %}
+  {% if meta_noindex %}
+  <meta name="robots" content="noindex" />
+  {% endif %}
 <link rel="preconnect" href="https://script.crazyegg.com" crossorigin>
 <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
 
@@ -54,11 +56,13 @@
 <title>{{ head_title|safe_join(' | ') }}</title>
   <css-placeholder token="{{ placeholder_token|raw }}">
   <js-placeholder token="{{ placeholder_token|raw }}">
+
   {% if node.id is defined %}
     {{ node.field_header_html.value|raw }}
-  {% elseif header_html %}
-    {{ header_html|raw }}
   {% endif %}
+{% endblock %}
+
+{% block taxonomy_data %}
   {% if nodetype == "basic_page" %}
     <script id="taxonomy-data">
     dataLayer = [{
@@ -118,6 +122,7 @@
       }];
     </script>
  {% endif %}
+{% endblock %}
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
