@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+##############################################################
+# Prevent stacking of cf task runs
+##############################################################
+# 1. Task is launched w/ cf run-task
+# 2. Get the task ID from the launch output
+# 3. Write task ID to a standard s3 location
+#
+# 4/0. Before launching task, get task ID from standard s3 location
+#   a. if it does not exist, go to step 1.
+#   b. if it does exist
+#       b.1 Is there a way to find if the task is running?
+#           (do we need to have tasks emit a semaphore file?)
+# 5. Profit
+##############################################################
+SPACE=$1
+if [ x$SPACE = x ]; then
+   SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
+else
+    shift
+fi
+
+source ~/.profile $SPACE &> /dev/null
+
+TASKSPEC=$1
+if [ x$TASKSPEC = x ]; then
+    echo Please specify which task to check on
+    exit 1
+fi
+
+LOCALFILE=/tmp/$TASKSPEC.status
+$echo aws_cp s3://$S3_BUCKET/cron/${SPACE}/${TASKSPEC}/status $LOCALFILE &>/dev/null
+if [ -f $LOCALFILE ]; then
+else
+fi
