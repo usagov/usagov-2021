@@ -83,6 +83,16 @@ The `html.html.twig` template outputs the payload as JSON. There are a number of
     | raw }}
 ```
 
+## Testing Changes
+
+You can use `scripts/drush/veryify-pagelayer-data.php` to validate that your changes don't change the datalayer output. This is more useful for refactoring the event subscribers or ensuring that additions to the data don't introduce unintended changes. Using the script takes some preparation:
+
+1. *Create Reference Output* The script compares Drupal outputs against a "known-good" data set, the published page CSV file created by a tome export. To prepare this file, you should export your local site using the code from the `dev` branch.
+2. *Add to the datalayer* In a new branch, create an event listener to make your changes.
+3. *Run verify script* use `drush php:script scripts/drush/verify-pagelayer-data.php`. It will fetch pages from your local site and compare the output of your datalayer to the expected values in the CSV file.
+
+
+
 ## Known Issues and Concerns
 
 ### Taxonomy Data
