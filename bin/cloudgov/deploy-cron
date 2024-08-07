@@ -35,6 +35,7 @@ DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 export APPNAME="cron"
+APPSPEC=${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
 
 function setHTTPProxy() {
     appSpace=$1
@@ -83,12 +84,23 @@ else
   exit 1
 fi
 
+function cf_push() {
+  appspec=$1
+  if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+    cf push ${APPNAME} --docker-image ${appspec}
+  else
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} --docker-image ${appspec} --docker-username $DOCKERHUB_USERNAME
+  fi
+}
+
 if existsCFApp ${APPNAME} ; then
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
   setHTTPProxy ${SPACE} ${APPNAME} 1
-  cf push ${APPNAME} -f ./manifest-${APPNAME}.yml ## --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
+  cf_push $APPSPEC
+  #cf push ${APPNAME} -f ./manifest-${APPNAME}.yml ## --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
 else
-  cf push ${APPNAME} -f ./manifest-${APPNAME}.yml ## --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
+  cf_push $APPSPEC
+  #cf push ${APPNAME} -f ./manifest-${APPNAME}.yml ## --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
   setHTTPProxy ${SPACE} ${APPNAME} 1
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
 fi
