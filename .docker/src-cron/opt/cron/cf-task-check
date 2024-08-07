@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 ##############################################################
 # Prevent stacking of cf task runs
 ##############################################################
@@ -13,23 +14,113 @@
 #           (do we need to have tasks emit a semaphore file?)
 # 5. Profit
 ##############################################################
+
+
+### TASKSPEC = cf app name
+
+function mktasklock() {
+  TASKSPEC=$1
+  TASKID=$2
+  TASKDIR=/tmp/tasklocks/$TASKSPEC
+  mkdir -p $TASKDIR
+  touch $TASKDIR/$TASKID
+}
+
+function rmtasklock() {
+  TASKSPEC=$1
+  TASKID=$2
+  TASKDIR=/tmp/tasklocks/$TASKSPEC
+  rm -f $TASKDIR/$TASKID
+}
+
+function cktaskstatus() {
+  TASKSPEC=$1
+  TASKID=$2
+  TASKRUNNING=""
+  TASKSTATUS=$(cf tasks cfevents | tr -s ' ' | cut -d ' ' -f 1,2,3 | grep $TASKID)
+  if [ x"$TASKSTATUS" != x ]; then
+    RUNNING=$(echo $TASKSTATUS | grep RUNNING)
+    if [ x"$RUNNING" != x ]; then
+       TASKRUNNING=1
+    else
+      rmtasklock $TASKSPEC $taskid
+    fi
+  else
+    rmtasklock $TASKSPEC $taskid    
+  fi
+  echo $TASKRUNNING
+}
+
+function cktasklocks() {
+  TASKSPEC=$1
+  TASKDIR=/tmp/tasklocks/$TASKSPEC
+  mkdir -p $TASKDIR
+  TASKSRUNNING=""
+  for taskid in $(ls $TASKDIR); do
+    TASKRUNNING=$(cktaskstatus $TASKSPEC $taskid)
+    if [ x$TASKRUNNING != x ]; then
+      TASKSRUNNING=1
+    fi
+  done
+  echo $TASKSRUNNING
+}
+
+function runtask() {
+  TASKSPEC=$1
+  COMMAND=$2
+  RETVAL=""
+
+  TASKSRUNNING=$(cktasklocks $TASKSPEC)
+  if [ x$TASKSRUNNING = x ]; then
+    TASKINFO=$(cf run-task cfevents --name cfevents-instance --command "$COMMAND")
+    TASKSTATUS=$(echo $TASKINFO | tr '[:upper:]' '[:lower:]' | sed 's/.*task id://' | grep ok)
+    if [ x"$TASKSTATUS" != x ]; then
+      TASKID=$(echo $TASKSTATUS | sed 's/ ok//')
+    fi
+
+    if [ x$TASKID != x ]; then
+      RETVAL=$TASKID
+      mktasklock $TASKSPEC $TASKID
+    fi
+  fi
+  echo $RETVAL
+}
+
 SPACE=$1
 if [ x$SPACE = x ]; then
-   SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
+  SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
 else
-    shift
+  shift
 fi
 
 source ~/.profile $SPACE &> /dev/null
 
 TASKSPEC=$1
 if [ x$TASKSPEC = x ]; then
-    echo Please specify which task to check on
-    exit 1
+  echo Please specify which task
+  exit 1
 fi
 
-LOCALFILE=/tmp/$TASKSPEC.status
-$echo aws_cp s3://$S3_BUCKET/cron/${SPACE}/${TASKSPEC}/status $LOCALFILE &>/dev/null
-if [ -f $LOCALFILE ]; then
-else
+
+
+lockingtask="sleep 30"
+TASKID=$(runtask $TASKSPEC "$lockingtask")
+echo RUNNING $TASKID
+sleep 17
+RUNNING=$(cktasklocks $TASKSPEC)
+if [ x$RUNNING != x ]; then
+   echo "$TASKSPEC app still running (expected)"
+fi
+sleep 17
+RUNNING=$(cktasklocks $TASKSPEC)
+if [ x$RUNNING != x ]; then
+   echo "$TASKSPEC app still running (NOT expected)"
+fi
+normaltask="/opt/cfevents/capture-latest-events dr"
+TASKID=$(runtask $TASKSPEC "$normaltask")
+echo RUNNING $TASKID
+sleep 17
+RUNNING=$(cktasklocks $TASKSPEC)
+if [ x$RUNNING != x ]; then
+   echo "$TASKSPEC app still running (NOT expected)"
 fi
