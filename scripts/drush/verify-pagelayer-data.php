@@ -5,8 +5,12 @@ use Drush\Drush;
 
 $csv = realpath(__DIR__ . '/../../web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv');
 
-// Set to true for a faster run that doesn't look at every URL in the CSV file.
-$samplePaths = false;
+/*
+ * Can pass as args:
+ * --base <hostname> Basename for paths, default is <http://localhost>
+ * --sample if set, samples up to 30 paths of each content type+language combo
+ */
+[$baseURL, $samplePaths] = parseExtras($extra);
 
 if (!$csv) {
   Drush::output()->writeln("<error>Can't read or find CSV file.</error>");
@@ -35,11 +39,36 @@ foreach (readCSV($csv) as $line) {
 
   Drush::output()->writeln("<info>Checking {$line->pageID}: {$line->fullURL}.</info>");
   try {
-    $datalayer = fetch_datalayer($line->fullURL);
+    $datalayer = fetch_datalayer($line->fullURL, $baseURL);
     compareData($datalayer, $line);
   } catch (Exception $e) {
     Drush::output()->writeln('<error>' . $e->getMessage() . '</error>');
   }
+}
+
+function parseExtras(array $extra): array {
+  $localhost = 'http://localhost';
+  $samplePaths = FALSE;
+
+  while ($arg = array_shift($extra)) {
+    switch ($arg) {
+      case '--base':
+        $localhost = array_shift($extra);
+        if (!preg_match('/^https?\:\/\//', $localhost)) {
+          throw new \InvalidArgumentException('Malformed base name' . $localhost);
+        }
+        break;
+
+      case '--sample':
+        $samplePaths = TRUE;
+        break;
+
+      default:
+        throw new \InvalidArgumentException('Unknown options' . $arg);
+    }
+  }
+
+  return [$localhost, $samplePaths];
 }
 
 function compareData(array $datalayer, CSVRow $row) {
@@ -130,8 +159,10 @@ function readCSV(string $filename) {
   }
 }
 
-function fetch_datalayer(string $fullURL) {
-  $html = file_get_contents('http://localhost' . $fullURL);
+function fetch_datalayer(string $fullURL, string $baseURL): array {
+
+  $baseURL = rtrim($baseURL, '/');
+  $html = file_get_contents($baseURL . $fullURL);
 
   if (!$html) {
     throw new \RuntimeException("Could not open page $fullURL");

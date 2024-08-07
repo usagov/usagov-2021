@@ -91,8 +91,13 @@ You can use `scripts/drush/veryify-pagelayer-data.php` to validate that your cha
 2. *Add to the datalayer* In a new branch, create an event listener to make your changes.
 3. *Run verify script* use `drush php:script scripts/drush/verify-pagelayer-data.php`. It will fetch pages from your local site and compare the output of your datalayer to the expected values in the CSV file.
 
+The verify script takes two optional options, specified after `--`. Use `--base` if your local hostname is not reachable via `http://localhost/`. Ise the `--sample` flag for a quicker run that doesn't check every URL in the CSV file.
 
-
+```sh
+drush php:script scripts/drush/verify-pagelayer-data.php \
+  -- --base https://example.com/ \
+  --sample
+```
 ## Known Issues and Concerns
 
 ### Taxonomy Data
