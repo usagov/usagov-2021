@@ -4,6 +4,7 @@
   parent_tid
   child
   start_over
+  has_child
 #}
 
 {% if term.langcode.value == 'en' %}
@@ -18,8 +19,13 @@
 
 {% set attributes = attributes.addClass('usa-prose') %}
 {% set attributes = attributes.addClass('usagov-wizard--content') %}
+
+{% if has_child == false %}
+  {% set attributes = attributes.setAttribute('data-analytics', 'wizard-results-main-content') %}
+{% endif %}
+
 <div{{ attributes }}>
-  <h1 class="text-red-50">{{ content.field_heading }}</h1>
+  <h1 id="skip-to-h1" class="text-red-50">{{ content.field_heading[0]['#context']['value'] }}</h1>
   {% if content.field_intro[0] %}
     <div class="usa-intro">{{ content.field_intro }}</div>
   {% endif %}
@@ -30,15 +36,14 @@
     {% endif %}
 
     {{ content.field_footer }}
-
     {# we want the start over button to be on the same line as the previous button
     if there's no next button, so put some logic here in the class property. #}
     <div class="margin-bottom-2 desktop:usa-reverse usagov-wizard-buttons
      {% if has_child %}grid-row{% else %}display-inline-block{% endif %}"
-      {% if has_child == 'FALSE' %}
+      {% if has_child == false %}
       {% if not (content.field_options_list[0]['contents']['#view_id']) %}
-      style="margin-top: 40px;" {% endif %}{% endif %}>
-      {% if content.field_options_list[0]['contents']['#view_id'] or has_child == false %}
+        style="margin-top: 40px;" {% endif %}{% endif %}>
+
       {# Generate the url for the parent of this term to put in the 'previous' button. #}
       {% set previous_path = path('entity.taxonomy_term.canonical', {'taxonomy_term': parent_tid}) %}
       <button id="prior" class="usa-button usa-button--secondary usa-button--big margin-right-2" onclick="window.location.href = '{{ previous_path }}'">
@@ -50,7 +55,6 @@
                 onclick="if(document.querySelector(`input[name='options']:checked`)) { window.location.href = document.querySelector(`input[name='options']:checked`).value; }">
           {{ next_string }}</button>
       {% endif %}
-      {% endif %}
 
     </div>
   {% endif %}
@@ -58,17 +62,20 @@
     {# This link should be styled differently depending on if it's inline with
     the previous button, but only in mobile. So we need to get creative. #}
     {% if has_child %}
-      <div class="display-inline-block margin-top-2">
-        <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}">{{ start_over_string }}</a>
-      </div>
+    <div class="display-inline-block margin-top-2">
+      <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}"
+         data-analytics="wizard-start-over">{{ start_over_string }}</a>
+    </div>
     {% else %}
       {# have the element printed twice here, then use breakpoints to hide
       one of these elements. #}
       <div id="start-over-mobile" class="display-inline-block usa-button--unstyled text-center">
-        <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}">{{ start_over_string }}</a>
+        <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}"
+           data-analytics="wizard-start-over">{{ start_over_string }}</a>
       </div>
       <div id="start-over-desktop" class="margin-top-2">
-        <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}">{{ start_over_string }}</a>
+        <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': start_over_target_tid}) }}"
+           data-analytics="wizard-start-over">{{ start_over_string }}</a>
       </div>
     {% endif %}
   {% endif %}

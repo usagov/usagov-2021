@@ -21,7 +21,8 @@ jQuery(document).ready(function () {
     'icon-jobs': '/themes/custom/usagov/images/topics/ICONS_Reimagined_Jobs_and_Unemployment.svg',
     'icon-business': '/themes/custom/usagov/images/topics/ICONS_Reimagined_Small_Business.svg',
     'icon-taxes': '/themes/custom/usagov/images/topics/ICONS_Reimagined_Taxes.svg',
-    'icon-complaints': '/themes/custom/usagov/images/topics/ICONS_Complaints.svg'
+    'icon-complaints': '/themes/custom/usagov/images/topics/ICONS_Complaints.svg',
+    'icon-life-events': '/themes/custom/usagov/images/topics/ICONS_Life_events.svg'
   };
 
   let options = {
