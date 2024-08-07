@@ -76,6 +76,12 @@ a.usa-button.benefits-link {
   font-weight: 600;
   width: 100%;
 
+  &:hover {
+    @include u-bg('white');
+    @include u-text('blue-80v');
+    @include u-border(2px 'solid' 'cyan-50v')
+  }
+
   @include at-media('tablet-lg') {
     width: 260px;
   }
