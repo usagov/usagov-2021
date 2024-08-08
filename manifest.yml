@@ -105,7 +105,7 @@ applications:
 - name: cron
   docker:
     image: gsatts/usagov-2021:cron
-  memory: 256M
+  memory: 128M
   disk_quota: 4G
   timeout: 180
   services:
