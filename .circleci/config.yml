@@ -570,6 +570,24 @@ jobs:
       - deploy-reporter:
           envname: tools
 
+  deploy-callcenter-to-cloudgov-dr:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-callcenter:
+          envname: dr
+
+  deploy-callcenter-to-cloudgov-tools:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-callcenter:
+          envname: tools
+
   deploy-cfevents-tools:
     machine:
       image: ubuntu-2204:current
@@ -758,3 +776,51 @@ workflows:
           filters:
             branches:
               only: prod
+
+  build-and-deploy-callcenter:
+    jobs:
+      - approve-deploy-callcenter:
+          type: approval
+          filters:
+            branches:
+              only:
+                - dr
+                - tools
+      - deploy-callcenter-to-env:
+          requires:
+            - approve-build-and-push-container
+          filters:
+            branches:
+              only:
+                - dr
+                - tools
+      - approve-dr-deploy-callcenter:
+          type: approval
+          requires:
+            - deploy-callcenter-to-env
+          filters:
+            branches:
+              only:
+              - dr
+      - deploy-callcenter-to-cloudgov-dr:
+          requires:
+            - approve-dr-deploy-callcenter
+          filters:
+            branches:
+              only:
+              - dr
+      - approve-tools-deploy-callcenter:
+          type: approval
+          requires:
+            - deploy-callcenter-to-env
+          filters:
+            branches:
+              only:
+              - tools
+      - deploy-callcenter-to-cloudgov-tools:
+          requires:
+            - approve-tools-deploy-callcenter
+          filters:
+            branches:
+              only:
+              - tools
