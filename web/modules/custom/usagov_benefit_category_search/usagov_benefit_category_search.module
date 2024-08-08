@@ -5,6 +5,7 @@ use Drupal\Core\Render\Markup;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
+use Drupal\usagov_benefit_category_search\PrepareSearchResults;
 use Drupal\views\ViewExecutable;
 
 /**
@@ -58,7 +59,7 @@ function usagov_benefit_category_search_validate_standard_page(FormStateInterfac
 }
 
 /**
- * Validates the IDs on Benefits Search Pages
+ * Validates the IDs on Benefits Search Pages.
  */
 function usagov_benefit_category_search_validate_category_search_page(FormStateInterface &$form_state): void {
   $life_event_id = trim($form_state->getValue('field_benefits_life_events_id')[0]['value']);
@@ -77,18 +78,24 @@ function usagov_benefit_category_search_validate_category_search_page(FormStateI
   }
 }
 
-function usagov_benefit_category_search_form_taxonomy_term_benefits_category_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+/**
+ * Attach filtering script and validator for benefit category term forms.
+ */
+function usagov_benefit_category_search_form_taxonomy_term_benefits_category_form_alter(&$form, FormStateInterface $form_state, string $form_id): void {
   $form['#attached']['library'][] = 'usagov_benefit_category_search/lifeEventRefLanguageFilter';
   $form['#validate'][] = 'usagov_benefit_category_search__validate_basic_category';
 }
 
-function usagov_benefit_category_search__validate_basic_category($form, FormStateInterface $form_state) {
+/**
+ * Checks that selected life events match the category language.
+ */
+function usagov_benefit_category_search__validate_basic_category(array $form, FormStateInterface $form_state): void {
   $langcode = $form_state->getValue("langcode")[0]['value'];
   $events = $form_state->getValue('field_category_life_events');
-  // get all the reference nodes in one call
+  // Get all the reference nodes in one call.
   $nids = array_map(fn($event) => $event['target_id'], $events);
   $lifeEvents = Node::loadMultiple($nids);
-  // keep nodes that don't match our selected language
+  // Keep nodes that don't match our selected language.
   $otherLangs = array_filter($lifeEvents, fn(Node $lifeEvent) => $lifeEvent->language()->getId() !== $langcode);
   $count = count($otherLangs);
   if ($count > 0) {
@@ -100,19 +107,22 @@ function usagov_benefit_category_search__validate_basic_category($form, FormStat
   }
 }
 
-function usagov_benefit_category_search_preprocess_node(&$vars) {
-  // off by default
+/**
+ * Implements hook_preprocess_node().
+ */
+function usagov_benefit_category_search_preprocess_node(array &$vars): void {
+  // Off by default.
   $vars['usagov_show_benefits_landing_block'] = FALSE;
-  // check we're viewing a full page
+  // Check we're viewing a full page.
   if ($vars['page'] === TRUE && $vars['view_mode'] === 'full' && $vars['node']->getType() === 'basic_page') {
-    // even if enabled, only show the block if there's a title and description for the homepage block
+    // Only show if we have a title & description for the homepage block.
     if (\Drupal::service('path.matcher')->isFrontPage()
       && $vars["node"]->field_homepage_benefits_title->value
       && $vars["node"]->field_homepage_benefits_descr->value
     ) {
       $vars['usagov_show_benefits_landing_block'] = BenefitCategorySearchForm::showLandingPageBlock();
     }
-    // even if enabled, only show the block if there's a description on navigation cards page
+    // Only show the block if there's a description on navigation cards page.
     elseif (
       $vars["node"]->field_page_type->referencedEntities()[0]->getName() === 'Navigation Cards Page'
       && $vars["node"]->field_benefits_callout_descr->value
@@ -123,39 +133,38 @@ function usagov_benefit_category_search_preprocess_node(&$vars) {
 }
 
 /**
+ * Implements hook_preprocess_html().
+ */
+function usagov_benefit_category_search_preprocess_html(array &$vars): void {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $vars['datalayer_hasBenefitCategories'] = FALSE;
+
+  if ($node instanceof Node && $node->getType() === 'basic_page') {
+    $pageType = $node->field_page_type->referencedEntities()[0]->getName();
+    if ($pageType === 'Standard Page') {
+      // Provide list of categories for this page to gtm via taxonomy-data.
+      if ($terms = $node->field_benefits_category->referencedEntities()) {
+        $vars['datalayer_hasBenefitCategories'] = TRUE;
+        $benefitCategories = array_map(fn(Term $term) => $term->getName(), $terms);
+        $vars['datalayer_benefitCategories'] = implode('; ', $benefitCategories);
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_views_pre_render().
  */
-function usagov_benefit_category_search_views_pre_render(ViewExecutable $view) {
-  if ($view->storage->getOriginalId() === 'benefit_search_results') {
-    // Here, we're safeguarding against showing a category term that is from
-    // a different language than the one requested via the views context/arguments
+function usagov_benefit_category_search_views_pre_render(ViewExecutable $view): void {
+  switch ($view->storage->getOriginalId()) {
+    case 'benefit_search_form':
+      // Load the JavaScript file to make the search functional.
+      $view->element["#attached"]['library'][] = 'usagov_benefit_category_search/search';
+      break;
 
-    // First, for filtering, remove categories that are not in the language we want
-    foreach ($view->result as $row) {
-      $categories = $row->_entity->field_benefits_category;
-
-      foreach ($categories as $category) {
-        $termID = $category->get('target_id')->getValue();
-        if ($term = Term::load($termID)) {
-          if ($term->language()->getId() !== $view->argument["langcode"]->argument) {
-            // removing an item re-keys the internal array, but we can use the name
-            // property for a list item, which tracks the index after re-keying.
-            $categories->removeItem($category->getName());
-          }
-        }
-      }
-    }
-
-    // Next, remove terms from other languages for the categories we show in
-    // the search results.
-    foreach ($view->field['term_node_tid']->items as $src => $terms) {
-      foreach ($terms as $termID => $values) {
-        if ($term = Term::load($termID)) {
-          if ($term->language()->getId() !== $view->argument["langcode"]->argument) {
-            unset($view->field['term_node_tid']->items[$src][$termID]);
-          }
-        }
-      }
-    }
+    case 'benefit_search_results':
+      $prep = new PrepareSearchResults();
+      $view = $prep->cleanTerms($view);
+      break;
   }
 }
