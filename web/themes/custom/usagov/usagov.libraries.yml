@@ -8,6 +8,7 @@ global-styling:
     scripts/uswds-init.min.js: {}
     scripts/newFooter.js: {}
     scripts/phoneForMobile.js: {}
+    scripts/accessibleButtonLinks.js: {}
   dependencies:
     - core/drupal
     - core/jquery

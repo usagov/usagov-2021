@@ -21,23 +21,25 @@
  * @param {string} benefitsPath
  * @param {string} lifeEventsPath
  * @param {string} assetBase
+ * @param {string} docLang
  * @param {TranslationLabels} labels
  * @param {Element} form
  * @param {Element} resultsContainer
  * @param {int} perPage
  * @constructor
  */
-function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, resultsContainer, perPage) {
+function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels, form, resultsContainer, perPage) {
   "use strict";
 
   this.benefitsSrc = benefitsPath;
   this.life = lifeEventsPath;
   this.assetBase = assetBase;
+  this.docLang = docLang;
   this.labels = labels;
   this.resultsContainer = resultsContainer;
   this.form = form;
   this.perPage = perPage;
-  this.activePage = 1;
+  this.activePage = null;
   this.terms = [];
   this.boxes = this.form.querySelectorAll('input[type="checkbox"]:not([value="all"])');
   this.toggleAll = this.form.querySelector('input[type="checkbox"][value="all"]');
@@ -48,19 +50,16 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
    * Removes all error messages added to form
    */
   this.clearErrors = function() {
-    for (const err of myself.form.querySelectorAll('.usa-alert--error')) {
-      err.remove();
-    }
-
-    myself.form.querySelector('fieldset')
+    myself.form.querySelector('.alert-container').innerHTML = '';
+    myself.form.querySelector('div[role="group"]')
       .classList.remove('benefits-category-error');
   };
   /**
    * @typedef Benefit
    * @type Object
    * @property {int} nid
-   * @property {int} field_benefit_search_weight
-   * @property {int} rank
+   * @property {string} field_benefit_search_weight
+   * @property {int} weight
    * @property {int[]} field_benefits_category
    * @property {string} term_node_tid Term name markup
    * @property {string} title Title to display
@@ -133,26 +132,9 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
       return numMatches.length > 0;
     });
-    // score each match
-    matches = matches.map(function(item) {
-      let numMatches = item.field_benefits_category.filter((value) => myself.terms.includes(value));
-      let base = parseInt(item.field_benefit_search_weight);
-      let score = isNaN(base) ? 0 : base;
-      item.rank = numMatches.length * 100 + score;
-      return item;
-    });
-    matches = matches.sort(function(a, b) {
-      // we want higher scores to come earlier so the return
-      // values are -1 for items we want to display earlier
-      // and +1 for later
-      if (a.rank > b.rank) {
-        return -1;
-      }
-      if (a.rank < b.rank) {
-        return +1;
-      }
-      return 0;
-    });
+    // score and sort remaining matches
+    matches = matches.map(myself.getItemWeight);
+    matches = matches.sort(myself.compareResults);
     // prepend any life events that match
     for (const [, lifeEvent] of myself.lifeEvents) {
       if (myself.lifeEventHasTopic(lifeEvent.tid, myself.terms)) {
@@ -160,6 +142,33 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       }
     }
     return matches;
+  };
+  /**
+   *
+   * @param {Benefit} item
+   * @return {Benefit}
+   */
+  this.getItemWeight = function(item) {
+    let base = parseInt(item.field_benefit_search_weight);
+    item.weight = isNaN(base) ? 0 : base;
+    return item;
+  };
+  /**
+   * @param {Benefit} a
+   * @param {Benefit} b
+   * @return {number}
+   */
+  this.compareResults = function(a, b) {
+    // we want higher scores to come earlier so the return
+    // values are -1 for items we want to display earlier
+    // and +1 for later
+    if (a.weight > b.weight) {
+      return -1;
+    }
+    if (a.weight < b.weight) {
+      return +1;
+    }
+    return 0;
   };
   /**
    * @param {int[]} tids
@@ -301,7 +310,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
   };
   /**
    * Render a single piece of matching content
-   * @param benefit
+   * @param {Benefit} benefit
    * @returns {HTMLTemplateElement}
    */
   this.renderMatch = function(benefit) {
@@ -319,20 +328,26 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, labels, form, re
       case 'Life Event':
         let termMarkup = '';
 
-        benefit.terms.forEach(term => termMarkup += `<span>${term}</span>`);
+        benefit.terms.forEach(term => termMarkup += `<li>${term}</li>`);
 
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.field_b_search_title}</h3><p>${description}</p></div>
-<div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
-  <span>${myself.labels.benefitFinderCategory}</span><span>${myself.labels.lifeEventsCategory}</span>${termMarkup}</div>
+<div class="desktop:grid-col-8 benefits-result-text">
+  <h3><a href="${benefit.view_node}" data-analytics="category-results-links" hreflang="${myself.docLang}">${benefit.field_b_search_title}</a></h3>
+  <p>${description}</p></div>
+<div class="desktop:grid-col-4 benefits-result-categories"><h4>${myself.labels.appliedCategories}</h4>
+  <ul>
+  <li>${myself.labels.benefitFinderCategory}</li><li>${myself.labels.lifeEventsCategory}</li>${termMarkup}</div>
+  </ul>
 </div>`;
         break;
 
       case 'Basic Page':
       default:
         elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-8 benefits-result-text"><h3>${benefit.title}</h3><p>${description}</p></div>
-<div class="desktop:grid-col-4 benefits-result-categories"><h3>${myself.labels.appliedCategories}</h3>
+<div class="desktop:grid-col-8 benefits-result-text">
+  <h3><a href="${benefit.view_node}" data-analytics="category-results-links" hreflang="${myself.docLang}">${benefit.title}</a></h3>
+  <p>${description}</p></div>
+<div class="desktop:grid-col-4 benefits-result-categories"><h4>${myself.labels.appliedCategories}</h4>
 ${benefit.term_node_tid}
 </div>
 </div>`;
@@ -355,7 +370,7 @@ ${benefit.term_node_tid}
       .replace('@first@', page.first)
       .replace('@last@', page.last)
       .replace('@totalItems@', page.totalItems);
-    elt.innerHTML += `<h2>${label}</h2>`;
+    elt.innerHTML += `<h2 tabindex="-1">${label}</h2>`;
     // prepare pages
     for (const benefit of page.matches) {
       elt.innerHTML += myself.renderMatch(benefit).innerHTML;
@@ -382,8 +397,16 @@ ${benefit.term_node_tid}
           this.hidePage(page);
         }
       }
-      myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+      myself.scrollAndFocusResults();
     }
+
+  };
+  /**
+   * Bring the results into view and focus on the heading
+   */
+  this.scrollAndFocusResults = function() {
+    myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+    myself.resultsContainer.querySelector('.page-active > h2').focus();
   };
   /**
    * Update the terms for searching
@@ -410,15 +433,21 @@ ${benefit.term_node_tid}
     this.handleSubmit();
   };
   this.showError = function() {
+    let alert = myself.form.querySelectorAll('.usa-alert');
+    if (alert.length > 0) {
+      // if we're showing an error already, don't add another
+      return;
+    }
+
     let elt = document.createElement('template');
     elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4" aria-live=assertive>
         <div class="usa_alert__body">
            <h4 class="usa-alert__heading padding-left-6">${myself.labels.emptyCategoryError}</h4>
         </div>
     </div>`;
-    myself.form.prepend(elt.content);
+    myself.form.querySelector('.alert-container').prepend(elt.content);
 
-    const fieldset = myself.form.querySelector('fieldset');
+    const fieldset = myself.form.querySelector('div[role="group"]');
     fieldset.classList.add('benefits-category-error');
   };
   /**
@@ -448,7 +477,7 @@ ${benefit.term_node_tid}
     else if (myself.activePage < 1) {
       myself.setActivePage(1);
     }
-    myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+    myself.scrollAndFocusResults();
     myself.showPager(pages.length);
   };
   /**
@@ -558,6 +587,7 @@ jQuery(document).ready(async function () {
     benefitsPath,
     lifeEventsPath,
     '/themes/custom/usagov',
+    docLang[0],
     labels,
     document.querySelector('#benefitSearch'),
     document.querySelector('#matchingBenefits'),

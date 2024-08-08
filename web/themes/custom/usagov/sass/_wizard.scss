@@ -29,6 +29,11 @@
   }
 
   &--content {
+
+    [tabindex]:focus {
+      outline: unset;
+    }
+
     h2 {
       font-size: 2rem;
       line-height: 120%;
@@ -41,6 +46,13 @@
     // Hide the title of views reference fields.
     .viewsreference--view-title {
       display: none;
+    }
+
+    fieldset {
+      all: unset;
+      // Disable this to prevent shift+click selection of multiple radios.
+      -webkit-user-select: none; /* Safari */
+      user-select: none; /* Standard syntax */
     }
 
     .field--name-field-intro {
@@ -69,6 +81,13 @@
         margin-left: 2rem;
       }
 
+      /* We have to have this oneoff selector to override the base uswds style.*/
+      .usa-radio__input:focus+[class*=__label]::before {
+        background-color: $button-secondary-outline;
+        box-shadow: 0 0 0 2px color('gray-90'), inset 0 0 0 3px color('gray-5');
+        opacity: 1;
+      }
+
       .usa-radio__input--tile + .usa-radio__label {
         line-height: 26.4px;
         padding: 1rem;
@@ -76,6 +95,11 @@
 
         // Have a hidden border in the natural state so this doesn't move on hover.
         border: 2px solid transparent;
+
+        // Option label.
+        .usagov-label--text {
+          margin-left: 12px;
+        }
 
         &::before {
           margin: 0;
@@ -100,11 +124,6 @@
 
         &:active, &.checked {
           @include checked;
-        }
-
-        // Option label.
-        .usagov-label--text {
-          margin-left: 12px;
         }
       }
     }

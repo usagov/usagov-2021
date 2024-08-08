@@ -39,6 +39,10 @@
   {% set aria_button_groupabel = "Botones del formularió" %}
   {% set aria_results_label = "Resultados" %}
 {% endif %}
+
+{% set desktop_per_column = (rows | length) / 3 %}
+{% set mobile_per_column = (rows | length) / 2 %}
+
 {{ attach_library('usagov/benefitSearch') }}
 
 <div class="benefits-category-list" id="{{ search_id }}">
@@ -46,19 +50,31 @@
     <h2 id="categories-label">{{ node.field_benefits_search_title.value }}</h2>
   {% endif %}
   {% if node.field_benefits_search_descr.value | render %}
-    <p>{{ node.field_benefits_search_descr.value }}</p>
+    <p id="categories-description">{{ node.field_benefits_search_descr.value }}</p>
   {% endif %}
 
   <form id="benefitSearch" action="javascript:void(0)">
-    <fieldset role="group" class="grid-row" aria-labelledby="categories-label">
+    <div class="alert-container" role="alert"></div>
+    <div role="group" class="grid-row" aria-labelledby="categories-label" aria-describedby="categories-description">
       <div class="benefits-category-list-checkbox-cols">
         <ul class="usa-list--unstyled">
         {% for row in rows %}
-          <li class="padding-bottom-1">{{- row.content -}}</li>
+          {% set ends_mobile_column = loop.index is divisible by(mobile_per_column) %}
+          {% set ends_desktop_column = loop.index is divisible by(desktop_per_column) %}
+
+          {% if (ends_mobile_column) and (ends_desktop_column) %}
+            <li class="end-mobile-column end-desktop-column">{{- row.content -}}</li>
+          {% elseif ends_mobile_column %}
+            <li class="end-mobile-column">{{- row.content -}}</li>
+          {% elseif ends_desktop_column %}
+            <li class="end-desktop-column">{{- row.content -}}</li>
+          {% else %}
+            <li>{{- row.content -}}</li>
+          {% endif %}
         {% endfor %}
         </ul>
       </div>
-      <div class="usa-checkbox benefits-category-list-checkbox-all padding-bottom-1">
+      <div class="usa-checkbox benefits-category-list-checkbox-all">
         <input class="usa-checkbox__input display-inline-block margin-right-1"
                type="checkbox"
                value="all"
@@ -68,7 +84,7 @@
                for="benefit-category-toggle-all"
         >{{ select_all_label }}</label>
       </div>
-    </fieldset>
+    </div>
     <div class="button-group margin-top-2" aria-label="{{ aria_button_groupabel }} ">
       <button class="usa-button" type="submit">{{ submit_label }}</button>
       <button class="usa-button usa-button--secondary" type="reset">{{ reset_label }}</button>
@@ -76,4 +92,4 @@
   </form>
 </div>
 
-<div id="matchingBenefits" class="benefits-search-results" aria-label="{{ aria_results_label }}"></div>
+<div id="matchingBenefits" class="benefits-search-results"></div>

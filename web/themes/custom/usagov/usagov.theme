@@ -328,67 +328,47 @@ function usagov_preprocess_paragraph(&$variables) {
  * Process block content
  */
 function usagov_preprocess_block(&$variables) {
-  /**
-   * Pass node or term value to pages so they can access properties
+  /*
+   * Pass node value to pages so they can access node-based properties
    */
-  if (\Drupal::routeMatch()->getParameter('node')) {
-    $entity = \Drupal::routeMatch()->getParameter('node');
-    $variables['node'] = $entity;
-  }
-  elseif (\Drupal::routeMatch()
-    ->getParameter('taxonomy_term')) {
-    $entity = \Drupal::routeMatch()
-      ->getParameter('taxonomy_term');
-  }
-  else {
-    return;
-  }
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $variables['node'] = $node;
 
-  /**
+  /*
    * Pass pagetype to pages so they can know what type of page to render
    */
-  if ($entity && $entity->hasField('field_page_type') && $entity->get('field_page_type')[0]->target_id) {
-    $pagetypeTid = $entity->get('field_page_type')[0]->target_id;
+  if ($node && $node->hasField('field_page_type') && $node->get('field_page_type')[0]->target_id) {
+    $pagetypeTid = $node->get('field_page_type')[0]->target_id;
     $variables['pagetype'] = Term::load($pagetypeTid)->getName();
   }
 
-  /**
+  /*
    * Pass menu data to nav pages so they can render links to their children
    */
   if ($variables['elements']['#id'] == 'navigation_page_items' || $variables['elements']['#id'] == 'navigation_page_items_spanish') {
-    $added_contexts = ['url.path']; // Use url.query_args as well for an easier test case
+    // Use url.query_args as well for an easier test case.
+    $added_contexts = ['url.path'];
     $variables['content']['#cache']['contexts'] = array_merge($variables['content']['#cache']['contexts'], $added_contexts);
     $variables['#cache']['contexts'] = array_merge($variables['#cache']['contexts'], $added_contexts);
-
     $items = $variables['content']['#items'];
     $children_of_active_menu_item = children_of_active_menu_item($items);
     $nav_page_items = [];
     foreach ($children_of_active_menu_item as $child) {
       $data = new StdClass();
-
-      /* Must get title, description and url if available; Try to get other
-      fields. Get Title & URL (Required Fields- Can Call Together). */
-
-      // Put it all in a try/catch to check for external urls.
+      // Get title, description and url if available.
       try {
         if (isset($child['url']->getRouteParameters()['node'])) {
-          $childTaxonomy = FALSE;
-          $childEntity = Node::load($child['url']->getRouteParameters()['node']);
+          $childNid = $child['url']->getRouteParameters()['node'];
+          $childNode = Node::load($childNid);
+          $data->title = $childNode->get('title')->value;
+          $data->url = $childNode->toUrl()->toString();
         }
-        elseif (isset($child['url']->getRouteParameters()['taxonomy_term'])) {
-          $childTaxonomy = TRUE;
-          $childEntity = Term::load($child['url']->getRouteParameters()['taxonomy_term']);
+        elseif (isset($child['original_link']->getPluginDefinition()['route_parameters']['taxonomy_term'])) {
+          $data->url = $child['url'];
+          $data->title = $child['title'];
+          $data->description = $child['original_link']->getPluginDefinition()['description'];
         }
-
-        if ($childTaxonomy === TRUE) {
-          $data->title = $childEntity->get('name')->value;
-        }
-        else {
-          $data->title = $childEntity->get('title')->value;
-        }
-        $data->url = $childEntity->toUrl()->toString();
       }
-
       catch (Exception $e) {
         $menuItem = $child['original_link']->getPluginDefinition();
         $data->title = $menuItem['title'];
@@ -397,30 +377,23 @@ function usagov_preprocess_block(&$variables) {
         if (strncmp($data->url, "base:", 5) === 0) {
           $data->url = "/" . substr($data->url, 5);
         }
-
-        /* If this is an exernal link, don't run the operator logic to check
-        for description fields.*/
-        $external_description = $menuItem['description'];
       }
 
-      /* Get Description (Optional Field -
-      A catch on this shouldn't trigger a catch on title or url).*/
+      /* Get Description (Optional Field - A catch on this shouldn't
+      trigger a catch on title or url). */
       try {
-        if (!isset($external_description)) {
-          if ($childEntity->hasField('field_short_description') && $childEntity->get('field_short_description')->value != "") {
-            $data->description = $childEntity->get('field_short_description')->value;
+        if (isset($child['url']->getRouteParameters()['node'])) {
+          $childNid = $child['url']->getRouteParameters()['node'];
+          $childNode = Node::load($childNid);
+          if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
+            $data->description = $childNode->get('field_short_description')->value;
           }
-          elseif ($childEntity->hasField('field_page_intro') && $childEntity->get('field_page_intro')->value != "") {
-            $data->description = $childEntity->get('field_page_intro')->value;
+          elseif ($childNode->hasField('field_page_intro') && $childNode->get('field_page_intro')->value != "") {
+            $data->description = $childNode->get('field_page_intro')->value;
           }
           else {
-            $data->description = $childEntity->get('field_meta_description')->value;
+            $data->description = $childNode->get('field_meta_description')->value;
           }
-        }
-        else {
-          $data->description = $external_description;
-          // Unset the variable so the next loop will check for this fresh.
-          unset($external_description);
         }
       }
       catch (Exception $e) {
@@ -491,7 +464,7 @@ function usagov_theme_suggestions_alter(array &$suggestions, array $variables, $
   }
   if ($hook == 'field') {
     if (in_array('field__node__field_custom_twig_content', $suggestions) &&
-        $variables['element']['#object']->field_custom_twig_content->value) {
+      $variables['element']['#object']->field_custom_twig_content->value) {
       $current_path = \Drupal::service('path.current')->getPath();
       $current_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
       $no_slash = ltrim($current_alias, '/');

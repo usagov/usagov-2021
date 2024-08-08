@@ -1,0 +1,5 @@
+services:
+  usagov_redirect.redirect_subscriber:
+    class: 'Drupal\usagov_redirect\RedirectSubscriber\RedirectSubscriber'
+    tags:
+      - { name: event_subscriber }
