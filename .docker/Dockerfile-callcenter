@@ -1,6 +1,6 @@
-
-### TBD: Use a more determinate tag please
-FROM ubuntu:latest
+###############################################################################################################
+###
+FROM alpine:3.18 AS callcenter
 
 ARG GITBRANCH
 ENV GITBRANCH ${GITBRANCH:-none}
@@ -17,36 +17,41 @@ ENV CONTAINERTAG ${CONTAINERTAG:-none}
 ARG BUID=1000
 ARG BGID=1000
 
-ADD https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip /root/awscliv2.zip
+# Dependencies
+RUN apk upgrade --update \
+    && apk add --no-cache --virtual .persistent-deps \
+      bash \
+      coreutils \
+      tzdata \
+      aws-cli \
+      ca-certificates \
+      curl \
+      gettext \
+      git \
+      inotify-tools \
+      jq \
+      moreutils \
+      pv \
+      tar \
+      xz \
+      vim \
+      nano \
+      unzip \
+    # cleanup
+    && rm -rf /var/cache/apk/*
 
-RUN apt update --allow-unauthenticated \
-    && apt-get -y install --no-install-recommends ca-certificates pv openssh-client sshpass wget gnupg2 \
-    && wget --user-agent="Mozilla" --no-check-certificate -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add - \
-    && echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list \
-    && apt update \
-    && apt-get -y install \
-    ca-certificates \
-    cf8-cli \
-    inotify-tools \
-    curl \
-    jq \
-    moreutils \
-    less \
-    pv \
-    tar \
-    vim \
-    nano \
-    unzip \
-    && rm -rf /var/lib/apt/lists/*
+COPY .docker/src-callcenter /
 
-RUN unzip /root/awscliv2.zip -d /root/
-RUN /root/aws/install
-RUN rm -rf /root/aws /root/awscliv2.zip
+RUN echo "    built:" $(date) >> /etc/motd \
+    && echo "    branch: " $GITBRANCH >> /etc/motd \
+    && echo "    gittag: " $GITTAG >> /etc/motd \
+    && echo "    commit: " $GITCOMMIT >> /etc/motd \
+    && echo "    containertag: " $CONTAINERTAG >> /etc/motd \
+    && echo >> /etc/motd
 
-COPY .docker/src-callcenter/etc /etc
-COPY .docker/src-callcenter/opt /opt
+# Cloud Foundry CLI
+ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.7.11\&source\=github-rel  /tmp/cf8.tar.gz
+RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin
+RUN rm /tmp/cf8.tar.gz
 
-# COPY bin/cloudgov/callcenter/call-center-update /opt/callcenter/
-COPY .docker/src-callcenter/root/.profile /root/
-
-CMD ["/bin/bash"]
+CMD [ "/start.sh" ]
