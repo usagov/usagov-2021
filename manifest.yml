@@ -109,7 +109,7 @@ applications:
   docker:
     image: gsatts/usagov-2021:cfevents
   instances: 0
-  memory: 256M
+  memory: 128M
   services:
     - secrets
     - secauthsecrets
