@@ -167,6 +167,11 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         }
       }
 
+      if ($decoded['Page ID'] && $hierarchy > 5 ) {
+        $nid = $decoded['Page ID'];
+        $nodeEntity = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+        $url = $nodeEntity->toUrl()->toString();
+      }
       $decoded["Friendly URL"] = (empty($url)) ? "/" : $url;
       $decoded["Full URL"] = (empty($url)) ? $host . "/" : $host . $url;
 
