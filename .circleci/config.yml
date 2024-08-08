@@ -257,6 +257,38 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cfevents
 
+
+  deploy-callcenter:
+    parameters:
+      envname:
+        default: "tools"
+        type: string
+    steps:
+      - checkout
+      - install-cloud-foundry
+      - signed-dockerhub-login
+      - run:
+          name: Build Callcenter Container
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/container-build-callcenter
+      - run:
+          name: Push Callcenter Container to Docker Hub
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/container-push-callcenter
+      - run:
+          name: Deploy Callcenter App
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-callcenter
+
 jobs:
   scan-code:
     machine:

@@ -168,4 +168,4 @@ bin/drush php:script scripts/drush/benefits-category-make-pages.php
 
 ## Known Issues and Concerns
 
-* Despite having the module for the deploy hooks, all the functionality for the benefits search is part of the theme. Some code could probably be moved to the module to keep it together in one place.
+* The current search/filtering functionality sorts results by the weight that editors enter, or by the view's default sort otherwise. This may not make sense to user's or align with their expectations. We could look into using page traffic to order the results.
