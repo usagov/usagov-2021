@@ -257,6 +257,37 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cfevents
 
+  deploy-cron:
+    parameters:
+      envname:
+        default: "tools"
+        type: string
+    steps:
+      - checkout
+      - install-cloud-foundry
+      - signed-dockerhub-login
+      - run:
+          name: Build Cron Container
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/container-build-cron
+      - run:
+          name: Push Cron Container to Docker Hub
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/container-push-cron
+      - run:
+          name: Deploy Cron App
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-cron
+
 jobs:
   scan-code:
     machine:
@@ -547,6 +578,42 @@ jobs:
       - deploy-cfevents:
           envname: tools
 
+  deploy-cron-to-cloudgov-dr:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cron:
+          envname: dr
+
+  deploy-cron-to-cloudgov-dev:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cron:
+          envname: dev
+
+  deploy-cron-to-cloudgov-stage:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cron:
+          envname: stage
+
+  deploy-cron-to-cloudgov-prod:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cron:
+          envname: prod
+
 workflows:
   version: 2
 
@@ -726,3 +793,85 @@ workflows:
           filters:
             branches:
               only: prod
+
+  build-and-deploy-cron:
+    jobs:
+      - approve-deploy-cron:
+          type: approval
+          filters:
+            branches:
+              only:
+                - dr
+                - dev
+                - stage
+                - prod
+      - deploy-cron-to-env:
+          requires:
+            - approve-deploy-cron
+          filters:
+            branches:
+              only:
+                - dr
+                - dev
+                - stage
+                - prod
+      - approve-dev-deploy-cron:
+          type: approval
+          requires:
+            - deploy-cron-to-env
+          filters:
+            branches:
+              only:
+              - dev
+      - deploy-cron-to-cloudgov-dev:
+          requires:
+            - approve-dev-deploy-cron
+          filters:
+            branches:
+              only:
+              - dev
+      - approve-dr-deploy-cron:
+          type: approval
+          requires:
+            - deploy-cron-to-env
+          filters:
+            branches:
+              only:
+              - dr
+      - deploy-cron-to-cloudgov-dr:
+          requires:
+            - approve-dr-deploy-cron
+          filters:
+            branches:
+              only:
+              - dr
+      - approve-stage-deploy-cron:
+          type: approval
+          requires:
+            - deploy-cron-to-env
+          filters:
+            branches:
+              only:
+              - stage
+      - deploy-cron-to-cloudgov-stage:
+          requires:
+            - approve-stage-deploy-cron
+          filters:
+            branches:
+              only:
+              - stage
+      - approve-prod-deploy-cron:
+          type: approval
+          requires:
+            - deploy-cron-to-env
+          filters:
+            branches:
+              only:
+              - prod
+      - deploy-cron-to-cloudgov-prod:
+          requires:
+            - approve-prod-deploy-cron
+          filters:
+            branches:
+              only:
+              - prod
