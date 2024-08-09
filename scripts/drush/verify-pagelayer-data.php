@@ -3,14 +3,12 @@
 
 use Drush\Drush;
 
-$csv = realpath(__DIR__ . '/../../web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv');
-
 /*
  * Can pass as args:
- * --base <hostname> Basename for paths, default is <http://localhost>
  * --sample if set, samples up to 30 paths of each content type+language combo
+ * --file <filename> Complete path to CSV file, or path relative to /var/www/web
  */
-[$baseURL, $samplePaths] = parseExtras($extra);
+[$csv, $samplePaths] = parseExtras($extra);
 
 if (!$csv) {
   Drush::output()->writeln("<error>Can't read or find CSV file.</error>");
@@ -39,7 +37,7 @@ foreach (readCSV($csv) as $line) {
 
   Drush::output()->writeln("<info>Checking {$line->pageID}: {$line->fullURL}.</info>");
   try {
-    $datalayer = fetch_datalayer($line->fullURL, $baseURL);
+    $datalayer = fetch_datalayer($line->fullURL);
     compareData($datalayer, $line);
   } catch (Exception $e) {
     Drush::output()->writeln('<error>' . $e->getMessage() . '</error>');
@@ -47,15 +45,17 @@ foreach (readCSV($csv) as $line) {
 }
 
 function parseExtras(array $extra): array {
-  $localhost = 'http://localhost';
   $samplePaths = FALSE;
+  $csv = realpath(__DIR__ . '/../../web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv');
 
   while ($arg = array_shift($extra)) {
     switch ($arg) {
-      case '--base':
-        $localhost = array_shift($extra);
-        if (!preg_match('/^https?\:\/\//', $localhost)) {
-          throw new \InvalidArgumentException('Malformed base name' . $localhost);
+      case '--file':
+        $csv = array_shift($extra);
+        $csv = realpath($csv);
+
+        if (!$csv || !is_readable($csv)) {
+          throw new \InvalidArgumentException('Missing or unreadable CSV file. Remember to specify full path or relative to /var/www/web.');
         }
         break;
 
@@ -68,10 +68,11 @@ function parseExtras(array $extra): array {
     }
   }
 
-  return [$localhost, $samplePaths];
+  return [$csv, $samplePaths];
 }
 
 function compareData(array $datalayer, CSVRow $row) {
+  $diff = FALSE;
   $map = [
     'nodeID' => 'pageID',
     'contentType' => 'contentType',
@@ -95,6 +96,7 @@ function compareData(array $datalayer, CSVRow $row) {
 
   foreach ($map as $key => $prop) {
     if ($datalayer[$key] !== $row->$prop) {
+      $diff = TRUE;
       Drush::output()->writeln(
         "<error>... Mismatch {$key} ({$datalayer[$key]}) and {$prop} ({$row->$prop}) </error>");
       var_dump($datalayer[$key], $row->$prop);
@@ -104,6 +106,7 @@ function compareData(array $datalayer, CSVRow $row) {
   switch ($datalayer['language']) {
     case 'en':
       if ($datalayer['Taxonomy_Text_1'] !== 'Home') {
+        $diff = TRUE;
         Drush::output()->writeln(
           "<error>... Wrong Taxonomy_Text 1 ({$datalayer['Taxonomy_Text_1']}) </error>");
       }
@@ -111,6 +114,7 @@ function compareData(array $datalayer, CSVRow $row) {
 
     case 'es':
       if ($datalayer['Taxonomy_Text_1'] !== 'Página principal') {
+        $diff = TRUE;
         Drush::output()->writeln(
         "<error>... Wrong Taxonomy_Text 1 ({$datalayer['Taxonomy_Text_1']}) </error>");
       }
@@ -118,9 +122,17 @@ function compareData(array $datalayer, CSVRow $row) {
 
     default:
       if ($datalayer[$key] !== $row->$prop) {
+        $diff = TRUE;
         Drush::output()->writeln(
-          "<error>... Unknown or missing language ({$datalayer['language']}) </error>");
+          "<error>... Unknown or missing language ({$datalayer['language']}) </error>"
+        );
       }
+  }
+
+  if (!$diff) {
+    Drush::output()->writeln(
+      "<info>... No differences found. </info>"
+    );
   }
 }
 /**
@@ -159,10 +171,9 @@ function readCSV(string $filename) {
   }
 }
 
-function fetch_datalayer(string $fullURL, string $baseURL): array {
+function fetch_datalayer(string $fullURL): array {
 
-  $baseURL = rtrim($baseURL, '/');
-  $html = file_get_contents($baseURL . $fullURL);
+  $html = file_get_contents($fullURL);
 
   if (!$html) {
     throw new \RuntimeException("Could not open page $fullURL");
@@ -181,10 +192,6 @@ function fetch_datalayer(string $fullURL, string $baseURL): array {
 
 
 class CSVRow {
-
-  private const EXPORT_BASE = 'https://localhost/';
-  private const EXPORT_PATH = '/site/omerida/usagov-benefit-search/';
-
   public function __construct(
     public string $hierarchyLevel,
     public string $pageType,
@@ -209,9 +216,6 @@ class CSVRow {
     public string $homepage,
     public string $toggleURL,
   ) {
-    $this->fullURL = str_replace([self::EXPORT_BASE, self::EXPORT_PATH], ['/', '/'], $this->fullURL);
-    $this->toggleURL = str_replace([self::EXPORT_BASE, self::EXPORT_PATH], ['/', '/'], $this->toggleURL);
-
     if ($this->pageSubType === "") {
       $this->pageSubType = NULL;
     }
