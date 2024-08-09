@@ -86,7 +86,7 @@ a.usa-button.benefits-link {
   &:hover {
     @include u-bg('white');
     @include u-text('blue-80v');
-    @include u-border(2px 'solid' 'cyan-50v')
+    @include u-border(2px, 'solid', 'cyan-50v')
   }
 
   @include at-media('tablet-lg') {
