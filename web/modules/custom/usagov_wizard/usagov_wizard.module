@@ -17,11 +17,15 @@ use Drupal\usagov_wizard\MenuChecker;
  *
  * Alter the form by adding a "View Term" button
  * if the form is the taxonomy_term_wizard_form.
+ *
+ * Hide the meta_description field on all forms except the one for the
+ * root of the tree.
  */
 function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state) {
   if (isset($form['tid'])) {
+    $language = $form['langcode']['widget'][0]['value']['#default_value'];
     $url = Url::fromUri('base:' .
-      ($form['langcode']['widget'][0]['value']['#default_value'] == 'en' ? '' : 'es/')
+      ($language == 'en' ? '' : 'es/')
       . 'taxonomy/term/' . $form['tid']["#value"]);
 
     $form['actions']['link_to_term'] = [
@@ -36,6 +40,11 @@ function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state
       ],
       '#weight' => 10,
     ];
+
+    // Hide meta description fields on non-root forms.
+    if (count($form['relations']['parent']['#options']) !== 1) {
+      $form['field_meta_description']['#access'] = FALSE;
+    }
   }
 }
 
@@ -92,11 +101,18 @@ function usagov_wizard_preprocess_html(&$variables) {
     $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
     if (isset($taxonomy_term)) {
       if ($taxonomy_term->bundle() === 'wizard') {
-        $description = 'Just answer a few questions with USAGov\'s scam 
-        reporting tool to find out where to report a scam and how to keep 
-        yourself safe.';
-        // Make sure this displays all on one line in the DOM.
-        $variables['meta_description'] = str_replace(["\r", "\n"], '', $description);
+
+        // Set the meta description to the value on the root term of the tree.
+        $termParents = \Drupal::classResolver(MenuChecker::class);
+        $termParents = $termParents->getTermParents($taxonomy_term);
+        $rootTermTid = array_reverse($termParents)[0];
+        $rootTerm = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($rootTermTid);
+
+        if (isset($rootTerm->field_meta_description)) {
+          $variables['meta_description'] = $rootTerm->field_meta_description->value;
+        }
+
+        // Set a bunch of other stuff...
         $variables['language'] = $taxonomy_term->langcode->value;
         $variables['currentPath'] = $taxonomy_term->toUrl()->toString();
 
@@ -139,6 +155,9 @@ function usagov_wizard_preprocess_html(&$variables) {
         $menuChecker = \Drupal::classResolver(MenuChecker::class);
         $menuEntities = $menuChecker->getMenuEntities($variables['language']);
 
+        /* Primary entity is the parent menu entity that we are basing the left
+        hand nav off of. It also guides the content so it's useful to pass
+        information about it to the twig. */
         if (isset($menuEntities['primary_entity'])) {
           $wizard_title = $menuEntities['primary_entity']->title->value;
           try {
@@ -398,8 +417,8 @@ function usagov_wizard_preprocess_views_view_unformatted(&$variables) {
           $variables['legend'] = $term->field_heading->value;
         }
       }
-      elseif (isset($term->name)) {
-        $variables['legend'] = $term->name;
+      else {
+        $variables['legend'] = $term->get('name')->value;
       }
     }
   }
