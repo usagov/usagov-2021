@@ -8,7 +8,7 @@ use Drush\Drush;
  * --sample if set, samples up to 30 paths of each content type+language combo
  * --file <filename> Complete path to CSV file, or path relative to /var/www/web
  */
-[$csv, $samplePaths] = parseExtras($extra);
+[$csv, $samplePaths] = parse_args($extra);
 
 if (!$csv) {
   Drush::output()->writeln("<error>Can't read or find CSV file.</error>");
@@ -17,9 +17,9 @@ if (!$csv) {
 
 Drush::output()->writeln("<info>Reading CSV file.</info>");
 $counts = [];
-foreach (readCSV($csv) as $line) {
+foreach (read_csv($csv) as $line) {
   if ($line->pageID == 5) {
-    // not a node
+    // Not a node.
     continue;
   }
 
@@ -38,13 +38,17 @@ foreach (readCSV($csv) as $line) {
   Drush::output()->writeln("<info>Checking {$line->pageID}: {$line->fullURL}.</info>");
   try {
     $datalayer = fetch_datalayer($line->fullURL);
-    compareData($datalayer, $line);
-  } catch (Exception $e) {
+    compare_data($datalayer, $line);
+  }
+  catch (Exception $e) {
     Drush::output()->writeln('<error>' . $e->getMessage() . '</error>');
   }
 }
 
-function parseExtras(array $extra): array {
+/**
+ * Parse command line arguments.
+ */
+function parse_args(array $extra): array {
   $samplePaths = FALSE;
   $csv = realpath(__DIR__ . '/../../web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv');
 
@@ -71,7 +75,10 @@ function parseExtras(array $extra): array {
   return [$csv, $samplePaths];
 }
 
-function compareData(array $datalayer, CSVRow $row) {
+/**
+ * Compares fetched data against CSV data and displays any differences.
+ */
+function compare_data(array $datalayer, CSVRow $row): void {
   $diff = FALSE;
   $map = [
     'nodeID' => 'pageID',
@@ -79,8 +86,8 @@ function compareData(array $datalayer, CSVRow $row) {
     'basicPagesubType' => 'pageSubType',
     'homepageTest' => 'homepage',
     'Page_Type' => 'pageType',
-    // separately compare language
-    //'Taxonomy_Text_1' => 'taxonomyLevel1',
+    // Will separately compare language.
+    // 'Taxonomy_Text_1' => 'taxonomyLevel1',
     'Taxonomy_Text_2' => 'taxonomyLevel2',
     'Taxonomy_Text_3' => 'taxonomyLevel3',
     'Taxonomy_Text_4' => 'taxonomyLevel4',
@@ -136,10 +143,11 @@ function compareData(array $datalayer, CSVRow $row) {
   }
 }
 /**
- * @param string $filename
+ * Reads and return CSV data, one row at a time.
+ *
  * @return Generator<CSVRow>
  */
-function readCSV(string $filename) {
+function read_csv(string $filename) {
   $file = new \SplFileObject($filename);
   $file->setFlags(\SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
   $header = $file->fgetcsv();
@@ -171,6 +179,11 @@ function readCSV(string $filename) {
   }
 }
 
+/**
+ * Parse datalayer from the HTML for given web page.
+ *
+ * @return array|RuntimeException
+ */
 function fetch_datalayer(string $fullURL): array {
 
   $html = file_get_contents($fullURL);
@@ -192,6 +205,7 @@ function fetch_datalayer(string $fullURL): array {
 
 
 class CSVRow {
+
   public function __construct(
     public string $hierarchyLevel,
     public string $pageType,
@@ -201,7 +215,7 @@ class CSVRow {
     public string $pageID,
     public string $pageTitle,
     public string $fullURL,
-    public string $language, // the published csv loses level 1
+    public string $language,
     public string $taxonomyLevel2,
     public string $taxonomyLevel3,
     public string $taxonomyLevel4,
