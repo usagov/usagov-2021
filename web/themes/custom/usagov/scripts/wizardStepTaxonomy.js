@@ -9,12 +9,17 @@ Drupal.behaviors.wizardStepTaxonomy = {
 
     let priorButton = document.getElementById("prior");
 
+    let priorButtonUrl;
+
     if (priorButton != null) {
+      priorButtonUrl = priorButton.getAttribute("onclick").split("=")[1].trim().slice(1, -1);
       priorButton.addEventListener("click", priorStepFunction);
     }
 
     function priorStepFunction() {
-      dataLayer.push({"event": "Wizard_Prior"});
+      if (priorButtonUrl) {
+        dataLayer.push({"event": "Wizard_Prior", "Wizard_Nav_Button_URL": priorButtonUrl});
+      }
     }
 
     let nextButton = document.getElementById("next");
@@ -44,7 +49,8 @@ Drupal.behaviors.wizardStepTaxonomy = {
 
           // If any choice is selected, return true.
           if (selected) {
-            dataLayer.push({"event": "Wizard_Next"});
+            var choiceUrl = choices[choice].getAttribute("value");
+            dataLayer.push({"event": "Wizard_Next", "Wizard_Nav_Button_URL": choiceUrl});
             return true;
           }
         }
