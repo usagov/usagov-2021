@@ -10,6 +10,7 @@
     background-color: $button-secondary-outline;
     box-shadow: 0 0 0 2px color('gray-90'), inset 0 0 0 3px color('gray-5');
     opacity: 1;
+    outline: 0;
   }
 }
 
@@ -29,7 +30,6 @@
   }
 
   &--content {
-
     [tabindex]:focus {
       outline: unset;
     }
@@ -50,8 +50,8 @@
 
     fieldset {
       all: unset;
+
       // Disable this to prevent shift+click selection of multiple radios.
-      -webkit-user-select: none; /* Safari */
       user-select: none; /* Standard syntax */
     }
 
@@ -95,9 +95,18 @@
             }
           }
         }
-        &:focus, &:checked, &:active {
+
+        &:checked, &:active {
           + [class*=__label] {
             @include checked;
+          }
+        }
+
+        &:focus {
+          &::before {
+            outline: .25rem solid $button-secondary-outline;
+            outline-offset: 0;
+            box-shadow: inset 0 0 0 2px color('gray-5');
           }
         }
       }
@@ -123,7 +132,6 @@
           top: -2px;
           vertical-align: middle;
           left: 0;
-          outline: 0;
           opacity: .6;
         }
       }
