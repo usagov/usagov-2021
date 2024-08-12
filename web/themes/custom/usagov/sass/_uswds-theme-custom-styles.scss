@@ -816,7 +816,7 @@ input::-webkit-textfield-decoration-container {
   visibility: hidden;
 }
 
-// reduces the space above and below the breadcrumb to look even
+// reduces the space above and below the breadcrumb on the downlevel page without a leftnav to look even
 @media screen and (max-width: 30em) {
   #main-content>.grid-container>.grid-row.breadcrumb-spacing:first-of-type>div {
     height: 2.7rem;
@@ -841,7 +841,7 @@ input::-webkit-textfield-decoration-container {
   }
 }
 
-//reduces the space under the breadcrumb on the downlevel page to look even
+// reduces the space under the breadcrumb on the downlevel page with a leftnav to look even
 @media (max-width: 30rem) {
   #main-content>.grid-container>.grid-row:first-of-type>div {
     height: 2.5rem;
@@ -877,7 +877,10 @@ input::-webkit-textfield-decoration-container {
   }
 }
 
-.benefits-finder-content .usa-prose>p.usa-intro {
-  margin: 0;
-  max-width: 100%
+.benefits-finder-content {
+  .usa-prose>p.usa-intro {
+    @include u-margin(0);
+
+    max-width: 100%;
+  }
 }
