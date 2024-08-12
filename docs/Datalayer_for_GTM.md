@@ -23,7 +23,7 @@ Other modules can register an Event listener to change or add items to the datal
 First, register the listener in `<MODULE>.services.yml`
 
 ```yml
-  MODUILE_datalayer_alter_subscriber:
+  MODULE_datalayer_alter_subscriber:
     class: '\Drupal\<MODULE>\EventSubscriber\DatalayerAlterSubscriber'
     tags:
       - { name: 'event_subscriber' }
@@ -85,13 +85,13 @@ The `html.html.twig` template outputs the payload as JSON. There are a number of
 
 ## Testing Changes
 
-You can use `scripts/drush/veryify-pagelayer-data.php` to validate that your changes don't change the datalayer output. This is more useful for refactoring the event subscribers or ensuring that additions to the data don't introduce unintended changes. Using the script takes some preparation:
+You can use `scripts/drush/verify-pagelayer-data.php` to validate that your changes don't change the datalayer output. This is more useful for refactoring the event subscribers or ensuring that additions to the data don't introduce unintended changes. Using the script takes some preparation:
 
-1. *Create Reference Output* The script compares Drupal outputs against a "known-good" data set, the published page CSV file created by a tome export. To prepare this file, you should export your local site using the code from the `dev` branch.
+1. *Create Reference Output* The script compares Drupal outputs against a "known-good" data set, the published page CSV file created by a tome export. To prepare this file, you should export your local site using the code from the `dev` branch. Make sure the URLs in your published_pages.csv point to your development server and not to the default www.usa.gov.
 2. *Add to the datalayer* In a new branch, create an event listener to make your changes.
 3. *Run verify script* use `drush php:script scripts/drush/verify-pagelayer-data.php`. It will fetch pages from your local site and compare the output of your datalayer to the expected values in the CSV file.
 
-The verify script takes two optional options, specified after `--`. Use `--base` if your local hostname is not reachable via `http://localhost/`. Ise the `--sample` flag for a quicker run that doesn't check every URL in the CSV file.
+The verify script takes two optional options, specified after `--`. Use `--files` if you need to use a different CSV file for testing`. Use the `--sample` flag for a quicker run that doesn't check every URL in the CSV file.
 
 ```sh
 drush php:script scripts/drush/verify-pagelayer-data.php \
@@ -106,4 +106,4 @@ The taxonomy URLs are generated via a system block for breadcrumbs. The output t
 
 ### Past Approaches
 
-All the manipulation of the datalayer was previously done in the theme layer, when rendering the datalayer properties and then then output of the taxonomy links block. Doing so results in potential code duplication and code that is difficult to maintain when new modules or features want to modify what is sent. A primary issue is if we end up with multiple twig files rendering the datalayer depending on what page is shown, then each file must output all the variables that datalayer must send. Adding one new property could require editing more than one template to make the change consistent.
+All the manipulation of the datalayer was previously done in the theme layer, when rendering the datalayer properties and then the output of the taxonomy links block. Doing so results in potential code duplication and code that is difficult to maintain when new modules or features want to modify what is sent. A primary issue is if we end up with multiple twig files rendering the datalayer depending on what page is shown, then each file must output all the variables that datalayer must send. Adding one new property could require editing more than one template to make the change consistent.
