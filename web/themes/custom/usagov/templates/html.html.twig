@@ -48,8 +48,47 @@
 
 {% if front == "homepage" %}
 <link rel="preload" as="image" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_720w')) }}">
-<link rel="preload" as="image" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_960w')) }}">
-<link rel="preload" as="image" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1440w')) }}">
+{# <link rel="preload" as="image" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_960w')) }}"> #}
+{# <link rel="preload" as="image" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1440w')) }}"> #}
+
+<script type="text/javascript">
+
+  function setPreconnectHref(x) {
+    var link = document.querySelector('[rel="preload"]');
+
+    if (x.matches) { // If media query matches
+        console.log(x);
+    } else {
+        console.log("Nope");
+    }
+  }
+
+  // Create a MediaQueryList object
+  var breakpoints = [
+    window.matchMedia("(min-width: 640px)"),
+    window.matchMedia("(min-width: 960px)"),
+    window.matchMedia("(min-width: 1024px)"),
+    window.matchMedia("(min-width: 1536px)"),
+    window.matchMedia("(min-width: 2048px)"),
+    window.matchMedia("(min-width: 3072px)")
+  ];
+
+  {#
+  window.matchMedia("(min-width: 720px)"),
+  window.matchMedia("(min-width: 1280px)"),
+  window.matchMedia("(min-width: 1440px)"),
+  window.matchMedia("(min-width: 1920px)"), #}
+
+  breakpoints.forEach((x) => {
+    // Call listener function at run time
+    setPreconnectHref(x);
+
+    // Attach listener function on state changes
+    x.addEventListener("change", function() {
+      setPreconnectHref(x);
+    });
+  });
+</script>
 {% endif %}
 
 <head-placeholder token="{{ placeholder_token|raw }}">
