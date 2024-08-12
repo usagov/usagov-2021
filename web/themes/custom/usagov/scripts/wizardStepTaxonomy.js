@@ -18,7 +18,7 @@ Drupal.behaviors.wizardStepTaxonomy = {
 
     function priorStepFunction() {
       if (priorButtonUrl) {
-        dataLayer.push({"event": "Wizard_Prior", "url": priorButtonUrl});
+        dataLayer.push({"event": "Wizard_Prior", "Wizard_Nav_Button_URL": priorButtonUrl});
       }
     }
 
@@ -50,7 +50,7 @@ Drupal.behaviors.wizardStepTaxonomy = {
           // If any choice is selected, return true.
           if (selected) {
             var choiceUrl = choices[choice].getAttribute("value");
-            dataLayer.push({"event": "Wizard_Next", "url": choiceUrl});
+            dataLayer.push({"event": "Wizard_Next", "Wizard_Nav_Button_URL": choiceUrl});
             return true;
           }
         }
