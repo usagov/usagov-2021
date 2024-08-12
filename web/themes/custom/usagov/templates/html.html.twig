@@ -24,7 +24,11 @@
  */
 #}
 
-{% set lang = node.langcode.value %}
+{% if node.langcode.value %}
+  {% set lang = node.langcode.value %}
+{% elseif language %}
+  {% set lang = language %}
+{% endif %}
 {% set nodeID = node.nid[0].value %}
 {% set path = drupal_url('node/'~nodeID, {absolute: TRUE}) %}
 {% set url = path|render|render %}
