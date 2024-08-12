@@ -9,6 +9,7 @@ dependencies:
     - field.field.taxonomy_term.wizard.field_heading
     - field.field.taxonomy_term.wizard.field_intro
     - field.field.taxonomy_term.wizard.field_language_toggle
+    - field.field.taxonomy_term.wizard.field_meta_description
     - field.field.taxonomy_term.wizard.field_option_name
     - field.field.taxonomy_term.wizard.field_options_list
     - taxonomy.vocabulary.wizard
@@ -70,6 +71,13 @@ content:
       link: true
     third_party_settings: {  }
     weight: 8
+    region: content
+  field_meta_description:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 10
     region: content
   field_option_name:
     type: string
