@@ -167,6 +167,16 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         }
       }
 
+      // If this page is more than 5 levels deep in the taxonomy hierarchy,
+      // Then we may not be able to reconstruct its URL from the taxonomy URL.
+      // We can get reliably get it from the node. We could do this for all
+      // nodes, but that could negatively impact export performance.
+      if ($decoded['Page ID'] && $hierarchy > 5) {
+        $nid = $decoded['Page ID'];
+        $nodeEntity = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+        $url = $nodeEntity->toUrl()->toString();
+      }
+
       $decoded["Friendly URL"] = (empty($url)) ? "/" : $url;
       $decoded["Full URL"] = (empty($url)) ? $host . "/" : $host . $url;
 
