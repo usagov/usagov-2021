@@ -1,0 +1,1 @@
+import '../features/homepage.cy'
