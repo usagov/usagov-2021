@@ -156,9 +156,6 @@ function modifyErrorElements() {
 var submitPressed = function () {
   "use strict";
 
-  // reCaptcha Validation and error styling.
-  // var reCaptchaValidationResult = reCaptchaValidation();
-
   // Field Validation
   var fieldValidationResult = fieldValidation();
   // Hides or shows error elements.
