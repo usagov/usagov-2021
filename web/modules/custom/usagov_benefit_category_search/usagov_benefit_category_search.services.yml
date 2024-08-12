@@ -3,3 +3,7 @@ services:
     class: '\Drupal\usagov_benefit_category_search\EventSubscriber\PathSubscriber'
     tags:
       - { name: 'event_subscriber' }
+  usagov_benefit_category_search_datalayer_alter_subscriber:
+    class: '\Drupal\usagov_benefit_category_search\EventSubscriber\DatalayerAlterSubscriber'
+    tags:
+      - { name: 'event_subscriber' }
