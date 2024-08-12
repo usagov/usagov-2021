@@ -4,24 +4,17 @@
 		background-image: url({{file_url(image_uri|image_style('max_480w') )}});
 	}
 
+		/* Tablet 1x*/
+	@media(min-width: 640px) {
+		.banner-div {
+			background-image: url({{ file_url(image_uri|image_style('max_640w')) }});
+		}
+	}
+
 		/* Mobile 1.5x */
 	@media(min-width: 720px) {
 		.banner-div {
 			background-image: url({{ file_url(image_uri|image_style('max_720w')) }});
-		}
-	}
-
-	/* Mobile 3x */
-	@media(min-width: 1440px) {
-		.banner-div {
-			background-image: url({{ file_url(image_uri|image_style('max_1440w')) }});
-		}
-	}
-
-	/* Tablet 1x*/
-	@media(min-width: 640px) {
-		.banner-div {
-			background-image: url({{ file_url(image_uri|image_style('max_640w')) }});
 		}
 	}
 
@@ -32,20 +25,6 @@
 		}
 	}
 
-	/* Tablet 2x*/
-	@media(min-width: 1280px) {
-		.banner-div {
-			background-image: url({{ file_url(image_uri|image_style('max_1280w')) }});
-		}
-	}
-
-	/* Tablet 3x*/
-	@media(min-width: 1920px) {
-		.banner-div {
-			background-image: url({{ file_url(image_uri|image_style('max_1920w')) }});
-		}
-	}
-
 	/* Desktop 1x*/
 	@media(min-width: 1024px) {
 		.banner-div {
@@ -53,10 +32,32 @@
 		}
 	}
 
+	/* Tablet 2x*/
+	@media(min-width: 1280px) {
+		.banner-div {
+			background-image: url({{ file_url(image_uri|image_style('max_1280w')) }});
+		}
+	}
+
+	/* Mobile 3x */
+	@media(min-width: 1440px) {
+		.banner-div {
+			background-image: url({{ file_url(image_uri|image_style('max_1440w')) }});
+		}
+	}
+
+
 	/* Desktop 1.5x*/
 	@media(min-width: 1536px) {
 		.banner-div {
 			background-image: url({{ file_url(image_uri|image_style('max_1536w')) }});
+		}
+	}
+
+	/* Tablet 3x*/
+	@media(min-width: 1920px) {
+		.banner-div {
+			background-image: url({{ file_url(image_uri|image_style('max_1920w')) }});
 		}
 	}
 
