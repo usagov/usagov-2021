@@ -8,8 +8,8 @@
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Site\Settings;
-use \Drupal\user\Entity;
-use \Drupal\user\Entity\User;
+use Drupal\user\Entity;
+use Drupal\user\Entity\User;
 
 /**
  * Implements hook_form_FORM_ID_alter().
