@@ -56,11 +56,14 @@
   .benefits-block__content, p {
     @include u-text('blue-80v');
     @include u-font-family('sans');
-    @include u-text(light);
     @include u-margin(0);
 
     font-size: 1.25rem;
   }
+}
+
+.usa-prose .benefits-text p {
+  font-size: 1.3125rem;
 }
 
 a.usa-button.benefits-link {
@@ -79,6 +82,12 @@ a.usa-button.benefits-link {
   font-size: 22px;
   font-weight: 600;
   width: 100%;
+
+  &:hover {
+    @include u-bg('white');
+    @include u-text('blue-80v');
+    @include u-border(2px, 'solid', 'cyan-50v')
+  }
 
   @include at-media('tablet-lg') {
     width: 260px;
