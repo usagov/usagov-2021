@@ -78,7 +78,6 @@
       p {
         margin-block-start: 0;
         margin-block-end: 0;
-        margin-left: 2rem;
       }
 
 
@@ -113,25 +112,13 @@
 
       // Positioning of the option elements.
       .usa-radio__input--tile + .usa-radio__label {
-        line-height: 26.4px;
-        padding: 1rem;
+        padding: 1rem 1rem 1rem 2.5rem;
         margin-top: 0;
 
         // Have a hidden border in the natural state so this doesn't move on hover.
         border: 2px solid transparent;
 
-        // Option label.
-        .usagov-label--text {
-          margin-left: 12px;
-        }
-
         &::before {
-          margin: 0;
-          position: relative;
-          display: inline-block;
-          top: -2px;
-          vertical-align: middle;
-          left: 0;
           opacity: .6;
         }
       }
