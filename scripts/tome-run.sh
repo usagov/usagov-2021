@@ -86,7 +86,8 @@ fi
 
 # check nodes and blocks for any content changes in the last 30 minutes
 export CONTENT_UPDATED=$(drush sql:query "SELECT SUM(c) FROM ( (SELECT count(*) as c from node_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
- UNION ( SELECT count(*) as c from block_content_field_data where changed > (UNIX_TIMESTAMP(now())-(1800))) ) as x")
+ UNION ( SELECT count(*) as c from block_content_field_data where changed > (UNIX_TIMESTAMP(now())-(1800))) 
+ UNION ( SELECT count(*) as c from taxonomy_term_field_data WHERE changed > (UNIX_TIMESTAMP(now())-(1800)))) as x")
 if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "$CONTAINER_UPDATED" != "0" ] || [ "$RETRY_SEMAPHORE_EXISTS" != "0" ] ; then
 
   echo "Running static site build: content-updated($CONTENT_UPDATED) container-updated($CONTAINER_UPDATED) forced($FORCED) $TOMELOG" | tee -a $TOMELOG
@@ -111,5 +112,5 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
     exit 1
   fi
 else
-  echo "No change to block or node content in the last 30 minutes: no need for static site build" | tee -a $TOMELOG
+  echo "No change to any node, block, or taxonomy, content in the last 30 minutes: no need for static site build" | tee -a $TOMELOG
 fi
