@@ -31,6 +31,7 @@ wizardstep:
 wizardStepTaxonomy:
   js:
     scripts/wizardStepTaxonomy.js: {}
+    scripts/wizardChecked.js: {}
   dependencies:
     - core/drupal
     - core/jquery
