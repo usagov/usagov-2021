@@ -50,9 +50,11 @@
 
     fieldset {
       all: unset;
+      display: block;
+      width: 100%;
 
       // Disable this to prevent shift+click selection of multiple radios.
-      user-select: none; /* Standard syntax */
+      user-select: none;
     }
 
     .field--name-field-intro {
