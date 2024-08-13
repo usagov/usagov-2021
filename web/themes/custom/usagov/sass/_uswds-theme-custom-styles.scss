@@ -820,6 +820,10 @@ select:not([disabled]):focus,
   }
 }
 
+.usa-pagination__arrow{
+  text-decoration: underline;
+}
+
 .usa-pagination__button{
     border: 2px solid #768FB3;
 }
