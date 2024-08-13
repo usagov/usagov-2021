@@ -105,11 +105,15 @@ applications:
 - name:  callcenter
   no-route: true
   health-check-type: process
-  type: task
+  processes:
+  - type: task
+    memory: 128M
+    disk_quota: 1G
   docker:
     image: gsatts/usagov-2021:callcenter
   instances: 0
   memory: 128M
+  disk_quota: 1G
   services:
     - secrets
     - secauthsecrets
