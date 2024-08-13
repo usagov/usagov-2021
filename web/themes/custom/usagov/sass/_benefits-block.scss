@@ -31,6 +31,7 @@
     grid-template-areas:
     "icon text button";
     grid-template-columns: auto 1fr auto;
+    min-height: 60px;
   }
 }
 
