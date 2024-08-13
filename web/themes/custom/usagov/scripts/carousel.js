@@ -149,7 +149,7 @@ jQuery(".slides").on(
     "use strict";
     slideIndex = nextSlide + 1;
 
-    var NextSlideDom=jQuery(slick.jQueryslides.get(nextSlide));
+    var NextSlideDom=jQuery(slick.$slides.get(nextSlide));
 
     slideTitle = NextSlideDom.find('h3')[0].textContent || NextSlideDom.find('h3')[0].innerText;
   }
