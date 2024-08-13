@@ -31,7 +31,6 @@
     grid-template-areas:
     "icon text button";
     grid-template-columns: auto 1fr auto;
-    min-height: 60px;
   }
 }
 
@@ -83,6 +82,7 @@ a.usa-button.benefits-link {
   font-size: 22px;
   font-weight: 600;
   width: 100%;
+  border: solid 2px transparent;
 
   &:hover {
     @include u-bg('white');
