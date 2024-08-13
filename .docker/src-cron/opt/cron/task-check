@@ -3,156 +3,37 @@
 TASKSDIR=/tmp/tasks/run
 mkdir -p $TASKSDIR
 
-TASKTIMEOUT=1
-
-TASKNAME=$(basename $0)
-
-TASKLOCK=$TASKSDIR/$TASKNAME
-
-# checking failure her presupposes we have write access to $TASKSDIR, 
-# which is in /tmp - so we SHOULD have acces to write.  In this case
-# a failure means $TASKLOCK already exists, meaning another instance
-# of this script is still running, or failed w/o clearing the lock
-if ! mkdir $TASKLOCK &> /dev/null; then
-
-  echo $TASKNAME appears to be running already
-
-  OLDLOCK=$(find $TASKLOCK -mmin +$TASKTIMEOUT)
-
-  if [ x$OLDLOCK != x ]; then
-    echo Removing stale lock: $OLDLOCK
-    rmdir $TASKLOCK
-    exit
-  fi
+TASKTIMEOUT=$1
+if [ x$TASKTIMEOUT = x ]; then
+  echo "Please provide a positive integer as the first argument.  This is the number of minutes to wait before breaking a lock"
+  exit 3
 fi
+shift
 
-echo RUNNING
-sleep 140
-rmdir $TASKLOCK
-echo DONE
-exit
-
-##############################################################
-# Prevent stacking of cf task runs
-##############################################################
-# 1. Task is launched w/ cf run-task
-# 2. Get the task ID from the launch output
-# 3. Write task ID to a standard s3 location
-#
-# 4/0. Before launching task, get task ID from standard s3 location
-#   a. if it does not exist, go to step 1.
-#   b. if it does exist
-#       b.1 Is there a way to find if the task is running?
-#           (do we need to have tasks emit a semaphore file?)
-# 5. Profit
-##############################################################
-
-
-### TASKSPEC = cf app name
-
-function mktasklock() {
-  TASKSPEC=$1
-  TASKID=$2
-  TASKDIR=/tmp/tasklocks/$TASKSPEC
-  mkdir -p $TASKDIR
-  touch $TASKDIR/$TASKID
-}
-
-function rmtasklock() {
-  TASKSPEC=$1
-  TASKID=$2
-  TASKDIR=/tmp/tasklocks/$TASKSPEC
-  rm -f $TASKDIR/$TASKID
-}
-
-function cktaskstatus() {
-  TASKSPEC=$1
-  TASKID=$2
-  TASKRUNNING=""
-  TASKSTATUS=$(cf tasks cfevents | tr -s ' ' | cut -d ' ' -f 1,2,3 | grep $TASKID)
-  if [ x"$TASKSTATUS" != x ]; then
-    RUNNING=$(echo $TASKSTATUS | grep RUNNING)
-    if [ x"$RUNNING" != x ]; then
-       TASKRUNNING=1
-    else
-      rmtasklock $TASKSPEC $taskid
-    fi
-  else
-    rmtasklock $TASKSPEC $taskid    
-  fi
-  echo $TASKRUNNING
-}
-
-function cktasklocks() {
-  TASKSPEC=$1
-  TASKDIR=/tmp/tasklocks/$TASKSPEC
-  mkdir -p $TASKDIR
-  TASKSRUNNING=""
-  for taskid in $(ls $TASKDIR); do
-    TASKRUNNING=$(cktaskstatus $TASKSPEC $taskid)
-    if [ x$TASKRUNNING != x ]; then
-      TASKSRUNNING=1
-    fi
-  done
-  echo $TASKSRUNNING
-}
-
-function runtask() {
-  TASKSPEC=$1
-  COMMAND=$2
-  RETVAL=""
-
-  TASKSRUNNING=$(cktasklocks $TASKSPEC)
-  if [ x$TASKSRUNNING = x ]; then
-    TASKINFO=$(cf run-task cfevents --name cfevents-instance --command "$COMMAND")
-    TASKSTATUS=$(echo $TASKINFO | tr '[:upper:]' '[:lower:]' | sed 's/.*task id://' | grep ok)
-    if [ x"$TASKSTATUS" != x ]; then
-      TASKID=$(echo $TASKSTATUS | sed 's/ ok//')
-    fi
-
-    if [ x$TASKID != x ]; then
-      RETVAL=$TASKID
-      mktasklock $TASKSPEC $TASKID
-    fi
-  fi
-  echo $RETVAL
-}
-
-SPACE=$1
-if [ x$SPACE = x ]; then
-  SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
-else
-  shift
+TASKNAME=${1}
+if [ x"$TASKNAME" = x ]; then
+  echo "No task provided on the commandline. No action taken"
+  exit 3
 fi
+shift
 
-source ~/.profile $SPACE &> /dev/null
+TASKLOCK="$TASKSDIR/$TASKNAME"
 
-TASKSPEC=$1
-if [ x$TASKSPEC = x ]; then
-  echo Please specify which task
+# Assuming we have permissions in /tmp, a failure indicates that $TASKLOCK already exists,
+# meaning another instance of this script is still running, or failed w/o clearing the lock
+# In either case, we exit.  If the lock is stale, we remove it.
+
+if ! mkdir "$TASKLOCK" &> /dev/null; then
+
+  OLDLOCK=$(find "$TASKLOCK" -mmin +$TASKTIMEOUT)
+
+  if [ x"$OLDLOCK" != x ]; then
+    echo "Removing stale lock ('$TASKLOCK' is > $TASKTIMEOUT minutes old): '$OLDLOCK'"
+    rmdir "$TASKLOCK"
+    exit 2
+  fi
+  echo "$TASKNAME appears to be running already - no action taken."
   exit 1
 fi
 
-
-
-lockingtask="sleep 30"
-TASKID=$(runtask $TASKSPEC "$lockingtask")
-echo RUNNING $TASKID
-sleep 17
-RUNNING=$(cktasklocks $TASKSPEC)
-if [ x$RUNNING != x ]; then
-   echo "$TASKSPEC app still running (expected)"
-fi
-sleep 17
-RUNNING=$(cktasklocks $TASKSPEC)
-if [ x$RUNNING != x ]; then
-   echo "$TASKSPEC app still running (NOT expected)"
-fi
-normaltask="/opt/cfevents/capture-latest-events dr"
-TASKID=$(runtask $TASKSPEC "$normaltask")
-echo RUNNING $TASKID
-sleep 17
-RUNNING=$(cktasklocks $TASKSPEC)
-if [ x$RUNNING != x ]; then
-   echo "$TASKSPEC app still running (NOT expected)"
-fi
+exit 0

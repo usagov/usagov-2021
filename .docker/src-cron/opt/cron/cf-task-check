@@ -1,23 +1,5 @@
 #!/usr/bin/env bash
 
-##############################################################
-# Prevent stacking of cf task runs
-##############################################################
-# 1. Task is launched w/ cf run-task
-# 2. Get the task ID from the launch output
-# 3. Write task ID to a standard s3 location
-#
-# 4/0. Before launching task, get task ID from standard s3 location
-#   a. if it does not exist, go to step 1.
-#   b. if it does exist
-#       b.1 Is there a way to find if the task is running?
-#           (do we need to have tasks emit a semaphore file?)
-# 5. Profit
-##############################################################
-
-
-### TASKSPEC = cf app name
-
 function mktasklock() {
   TASKSPEC=$1
   TASKID=$2
@@ -37,7 +19,7 @@ function cktaskstatus() {
   TASKSPEC=$1
   TASKID=$2
   TASKRUNNING=""
-  TASKSTATUS=$(cf tasks cfevents | tr -s ' ' | cut -d ' ' -f 1,2,3 | grep $TASKID)
+  TASKSTATUS=$(cf tasks $TASKSPEC | tr -s ' ' | cut -d ' ' -f 1,2,3 | grep $TASKID)
   if [ x"$TASKSTATUS" != x ]; then
     RUNNING=$(echo $TASKSTATUS | grep RUNNING)
     if [ x"$RUNNING" != x ]; then
@@ -72,7 +54,7 @@ function runtask() {
 
   TASKSRUNNING=$(cktasklocks $TASKSPEC)
   if [ x$TASKSRUNNING = x ]; then
-    TASKINFO=$(cf run-task cfevents --name cfevents-instance --command "$COMMAND")
+    TASKINFO=$(cf run-task $TASKSPEC --name ${TASKSPEC}-instance --command "$COMMAND")
     TASKSTATUS=$(echo $TASKINFO | tr '[:upper:]' '[:lower:]' | sed 's/.*task id://' | grep ok)
     if [ x"$TASKSTATUS" != x ]; then
       TASKID=$(echo $TASKSTATUS | sed 's/ ok//')
@@ -80,47 +62,11 @@ function runtask() {
 
     if [ x$TASKID != x ]; then
       RETVAL=$TASKID
+      echo "Running CF '$TASKSPEC' Task $RETVAL"
       mktasklock $TASKSPEC $TASKID
+    else
+      echo "Failed to run CF '$TASKSPEC' Task"
     fi
   fi
   echo $RETVAL
 }
-
-SPACE=$1
-if [ x$SPACE = x ]; then
-  SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
-else
-  shift
-fi
-
-source ~/.profile $SPACE &> /dev/null
-
-TASKSPEC=$1
-if [ x$TASKSPEC = x ]; then
-  echo Please specify which task
-  exit 1
-fi
-
-
-
-lockingtask="sleep 30"
-TASKID=$(runtask $TASKSPEC "$lockingtask")
-echo RUNNING $TASKID
-sleep 17
-RUNNING=$(cktasklocks $TASKSPEC)
-if [ x$RUNNING != x ]; then
-   echo "$TASKSPEC app still running (expected)"
-fi
-sleep 17
-RUNNING=$(cktasklocks $TASKSPEC)
-if [ x$RUNNING != x ]; then
-   echo "$TASKSPEC app still running (NOT expected)"
-fi
-normaltask="/opt/cfevents/capture-latest-events dr"
-TASKID=$(runtask $TASKSPEC "$normaltask")
-echo RUNNING $TASKID
-sleep 17
-RUNNING=$(cktasklocks $TASKSPEC)
-if [ x$RUNNING != x ]; then
-   echo "$TASKSPEC app still running (NOT expected)"
-fi

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+TASKSDIR=/tmp/tasks/run
+mkdir -p $TASKSDIR
+
+TASKNAME=${1}
+if [ x"$TASKNAME" = x ]; then
+  echo "No task provided on the commandline. No action taken"
+  exit 3
+fi
+shift
+
+TASKLOCK="$TASKSDIR/$TASKNAME"
+
+rmdir "$TASKLOCK"
+
+exit 0
