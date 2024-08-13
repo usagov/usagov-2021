@@ -75,10 +75,16 @@ class TaxonomyDatalayerBuilder {
     foreach ($crumbs->getLinks() as $index => $crumb) {
       $suffix = $index + 1;
       $taxonomy['Taxonomy_Text_' . $suffix] = htmlspecialchars($crumb->getText(), ENT_QUOTES, 'UTF-8');
-      $taxonomy['Taxonomy_URL_' . $suffix] = $crumb->getUrl()->toString() ?: $this->node->toUrl()->toString();
+
+      $url = $crumb->getUrl()->toString() ?: $this->node->toUrl()->toString();
+
+      if ($url === '/es') {
+        $url = self::HOME_URL_ES;
+      }
+      $taxonomy['Taxonomy_URL_' . $suffix] = $url;
     }
 
-    if (($count = count($crumbs->getLinks())) < 5) {
+    if (($count = count($crumbs->getLinks())) < 6) {
       $lastText = $taxonomy['Taxonomy_Text_' . $count];
       $lastURL = $taxonomy['Taxonomy_URL_' . $count];
       for ($i = $count + 1; $i < 7; $i++) {
@@ -156,9 +162,9 @@ class TaxonomyDatalayerBuilder {
       case 'en':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_EN;
         $taxonomy["Taxonomy_Text_2"] = self::ABOUT_GOVT_EN;
-        $taxonomy["Taxonomy_Text_3"] = "State Governments";
+        $taxonomy["Taxonomy_Text_3"] = "State governments";
 
-        $taxonomy["Taxonomy_URL_1"] = self::HOME_TITLE_EN;
+        $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_EN;
         $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_EN;
         $taxonomy["Taxonomy_URL_3"] = "/state-governments";
         break;
