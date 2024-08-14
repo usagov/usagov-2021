@@ -1,0 +1,57 @@
+###############################################################################################################
+###
+FROM alpine:3.18 AS callcenter
+
+ARG GITBRANCH
+ENV GITBRANCH ${GITBRANCH:-none}
+
+ARG GITCOMMIT
+ENV GITCOMMIT ${GITCOMMIT:-none}
+
+ARG GITTAG
+ENV GITTAG ${GITTAG:-none}
+
+ARG CONTAINERTAG
+ENV CONTAINERTAG ${CONTAINERTAG:-none}
+
+ARG BUID=1000
+ARG BGID=1000
+
+# Dependencies
+RUN apk upgrade --update \
+    && apk add --no-cache --virtual .persistent-deps \
+      bash \
+      coreutils \
+      tzdata \
+      aws-cli \
+      ca-certificates \
+      curl \
+      gettext \
+      git \
+      inotify-tools \
+      jq \
+      moreutils \
+      pv \
+      tar \
+      xz \
+      vim \
+      nano \
+      unzip \
+    # cleanup
+    && rm -rf /var/cache/apk/*
+
+COPY .docker/src-callcenter /
+
+RUN echo "    built:" $(date) >> /etc/motd \
+    && echo "    branch: " $GITBRANCH >> /etc/motd \
+    && echo "    gittag: " $GITTAG >> /etc/motd \
+    && echo "    commit: " $GITCOMMIT >> /etc/motd \
+    && echo "    containertag: " $CONTAINERTAG >> /etc/motd \
+    && echo >> /etc/motd
+
+# Cloud Foundry CLI
+ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.7.11\&source\=github-rel  /tmp/cf8.tar.gz
+RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin
+RUN rm /tmp/cf8.tar.gz
+
+CMD [ "/start.sh" ]

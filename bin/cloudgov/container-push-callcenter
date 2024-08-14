@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# This script will attempt to store a container image on docker hub
+# to be used when launching cloud.gov images
+#
+. ./env.local
+
+DOCKERUSER=${DOCKERUSER:-gsatts}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
+echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+
+echo "docker push $DOCKERUSER/$DOCKERREPO:callcenter"
+docker push $DOCKERUSER/$DOCKERREPO:callcenter
