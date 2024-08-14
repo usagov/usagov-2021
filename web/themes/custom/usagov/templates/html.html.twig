@@ -59,9 +59,11 @@
   {% endif %}
 {% endblock %}
 
+  {% block taxonomy_data %}
   <script id="taxonomy-data">
     dataLayer = [{{ datalayer | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_PRETTY_PRINT')) | raw }}];
   </script>
+  {% endblock %}
 
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
