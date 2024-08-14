@@ -55,8 +55,8 @@ Drupal.behaviors.wizardStepTaxonomy = {
          If we exit the loop successfully, there must have been no choice selected.
          Show the error message.
          */
-        $("#msg").html(errorMessage).focus();
         $("#wizard-border").addClass("usagov-wizard--error").show();
+        $("#msg").html(errorMessage).focus();
         dataLayer.push({"event": "usagov-wizard--error", "button": "Next"});
         return false;
       }

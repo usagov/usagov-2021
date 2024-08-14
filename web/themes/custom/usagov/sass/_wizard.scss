@@ -30,10 +30,6 @@
   }
 
   &--content {
-    [tabindex]:focus {
-      outline: unset;
-    }
-
     h2 {
       font-size: 2rem;
       line-height: 120%;
@@ -145,7 +141,7 @@
       display: none;
 
       .usa-alert__body {
-        padding-left: 3rem;
+        padding-left: 2.75rem;
       }
 
       &::before {
@@ -153,11 +149,12 @@
         width: 20px;
       }
 
-      // Override custom-styles :focus rules.
+      // Override custom-styles :focus rule.
       #msg {
+        padding: 0 5px;
+
         &:focus {
-          outline: 0;
-          box-shadow: none;
+          width: fit-content;
         }
       }
     }
