@@ -3,6 +3,7 @@
 {%  if (node.field_homepage_benefits_ref) %}
   {% set benefits_url = drupal_url('node/' ~ node.field_homepage_benefits_ref.value[0].target_id ) %}
     <div class="benefits-block">
+      {# This image is shared, but this instance needs a custom sizing #}
       <img alt="" src="/themes/custom/usagov/images/topics/ICONS_Reimagined_Benefits.svg" height="56px">
       <div class="benefits-text">
         <h2>{{ node.field_homepage_benefits_title.value }}</h2>
