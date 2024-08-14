@@ -24,8 +24,15 @@
   {% set attributes = attributes.setAttribute('data-analytics', 'wizard-results-main-content') %}
 {% endif %}
 
+{# If there is no value in the heading/question field use the name field instead. #}
+{% if content.field_heading[0]['#context']['value'] %}
+  {% set heading = content.field_heading[0]['#context']['value'] %}
+{% else %}
+  {% set heading = name[0]['#context']['value'] %}
+{% endif %}
+
 <div{{ attributes }}>
-  <h1 id="skip-to-h1" class="text-red-50">{{ content.field_heading[0]['#context']['value'] }}</h1>
+  <h1 id="skip-to-h1" class="text-red-50">{{ heading }}</h1>
   {% if content.field_intro[0] %}
     <div class="usa-intro">{{ content.field_intro }}</div>
   {% endif %}
