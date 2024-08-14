@@ -61,6 +61,7 @@ RUN mkdir -p /etc/periodic/1min \
     && rm -rf /var/cache/apk/*
 
 COPY .docker/src-cron /
+COPY bin/cloudgov/events/get-events /opt/cfevents/get-events
 
 RUN chmod -R +x /etc/periodic \
     && echo "    built:" $(date) >> /etc/motd \
@@ -72,7 +73,6 @@ RUN chmod -R +x /etc/periodic \
 
 HEALTHCHECK CMD s6-svstat /var/run/s6/services/cert-watcher \
 && s6-svstat /var/run/s6/services/cron
-RUN rm /tmp/cf8.tar.gz
 
 ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.7.11\&source\=github-rel  /tmp/cf8.tar.gz
 RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin

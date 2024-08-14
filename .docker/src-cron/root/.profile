@@ -82,4 +82,8 @@ function aws_rm() {
    aws s3 rm $rec $src
 }
 
+export CFEVENTS_DATE_FORMAT="%Y-%m-%dT%H:%M:%SZ"
+export CFEVENTS_DEFAULT_LASTRUN="2 months ago"
+### -> if we do not have GNU formatting, use 'now - (number of seconds in 60 days)': "@$(( $(date +%s) - 5259492 ))"
+
 echo "Cron App Setup Complete"
