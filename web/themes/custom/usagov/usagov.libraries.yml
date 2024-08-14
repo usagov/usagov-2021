@@ -8,6 +8,7 @@ global-styling:
     scripts/uswds-init.min.js: {}
     scripts/newFooter.js: {}
     scripts/phoneForMobile.js: {}
+    scripts/callCenterWaitTimeLookup.js: {}
     scripts/accessibleButtonLinks.js: {}
   dependencies:
     - core/drupal
@@ -44,7 +45,11 @@ stateDirectory:
     - core/jquery
 
 carousel:
+  css:
+    css/slick.min.css: {}
   js:
+    scripts/slick.min.js: {}
+    scripts/passiveListeners.js: {}
     scripts/carousel.js: {}
   dependencies:
     - core/drupal

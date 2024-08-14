@@ -58,6 +58,7 @@ commands:
             ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
             PROTECTED_APP_NAMES="$DCMS_APP,$DWWW_APP" \
             ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
+
   save-image-digest:
     steps:
       - run:
@@ -128,6 +129,7 @@ commands:
             echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
             echo "Install Gulp on node "$(node --version)
             sudo npm install --global gulp-cli
+
   signed-dockerhub-login:
     steps:
       - run:
@@ -143,7 +145,6 @@ commands:
           no_output_timeout: 30m
           command: |
             echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
-
 
   snapshot-preamble:
     parameters:
@@ -225,37 +226,6 @@ commands:
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-reporter
-
-  deploy-cfevents:
-    parameters:
-      envname:
-        default: "tools"
-        type: string
-    steps:
-      - checkout
-      - install-cloud-foundry
-      - signed-dockerhub-login
-      - run:
-          name: Build CF Events Container
-          command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
-            ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/container-build-cfevents
-      - run:
-          name: Push CF Events Container to Docker Hub
-          command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
-            ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/container-push-cfevents
-      - run:
-          name: Deploy CF Events App
-          command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
-            ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-cfevents
 
   deploy-cron:
     parameters:
@@ -567,15 +537,6 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - deploy-reporter:
-          envname: tools
-
-  deploy-cfevents-tools:
-    machine:
-      image: ubuntu-2204:current
-    environment:
-      BASH_ENV: /home/circleci/project/env.local
-    steps:
-      - deploy-cfevents:
           envname: tools
 
   deploy-cron-to-cloudgov-dr:
