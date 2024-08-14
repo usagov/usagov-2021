@@ -77,6 +77,11 @@ if [ -f /container_start_timestamp ]; then
   fi
 fi
 
+# If "no-force" is given, then override CONTAINER_UPDATED to 0 because /container_start_timestamp always gets reset with a new docker process on our locals
+if [[ "$FORCE" =~ ^\-{0,2}no-f\(orce\)?$ ]]; then
+  export CONTAINER_UPDATED=0
+fi
+
 export RETRY_SEMAPHORE_EXISTS=0
 if [ -f $RETRY_SEMAPHORE_FILE ]; then
   export RETRY_SEMAPHORE_EXISTS=1
