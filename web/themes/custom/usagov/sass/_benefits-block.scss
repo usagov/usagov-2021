@@ -82,6 +82,7 @@ a.usa-button.benefits-link {
   font-size: 22px;
   font-weight: 600;
   width: 100%;
+  border: solid 2px transparent;
 
   &:hover {
     @include u-bg('white');

@@ -10,6 +10,7 @@
     background-color: $button-secondary-outline;
     box-shadow: 0 0 0 2px color('gray-90'), inset 0 0 0 3px color('gray-5');
     opacity: 1;
+    outline: 0;
   }
 }
 
@@ -29,11 +30,6 @@
   }
 
   &--content {
-
-    [tabindex]:focus {
-      outline: unset;
-    }
-
     h2 {
       font-size: 2rem;
       line-height: 120%;
@@ -50,8 +46,8 @@
 
     fieldset {
       all: unset;
+
       // Disable this to prevent shift+click selection of multiple radios.
-      -webkit-user-select: none; /* Safari */
       user-select: none; /* Standard syntax */
     }
 
@@ -81,13 +77,37 @@
         margin-left: 2rem;
       }
 
-      /* We have to have this oneoff selector to override the base uswds style.*/
-      .usa-radio__input:focus+[class*=__label]::before {
-        background-color: $button-secondary-outline;
-        box-shadow: 0 0 0 2px color('gray-90'), inset 0 0 0 3px color('gray-5');
-        opacity: 1;
+
+      // Background color of option elements on state changes.
+      .usa-radio__input--tile {
+        &:hover {
+          + [class*=__label] {
+            border-radius: 4px;
+            @include u-border('2px', 'solid', 'gray-20');
+            @include u-bg('gray-5');
+
+            &::before {
+              opacity: 1;
+            }
+          }
+        }
+
+        &:checked, &:active {
+          + [class*=__label] {
+            @include checked;
+          }
+        }
+
+        &:focus {
+          &::before {
+            outline: .25rem solid $button-secondary-outline;
+            outline-offset: 0;
+            box-shadow: inset 0 0 0 2px color('gray-5');
+          }
+        }
       }
 
+      // Positioning of the option elements.
       .usa-radio__input--tile + .usa-radio__label {
         line-height: 26.4px;
         padding: 1rem;
@@ -108,22 +128,7 @@
           top: -2px;
           vertical-align: middle;
           left: 0;
-          outline: 0;
           opacity: .6;
-        }
-
-        &:hover {
-          border-radius: 4px;
-          @include u-border('2px', 'solid', 'gray-20');
-          @include u-bg('gray-5');
-
-          &::before {
-            opacity: 1;
-          }
-        }
-
-        &:active, &.checked {
-          @include checked;
         }
       }
     }
@@ -136,7 +141,7 @@
       display: none;
 
       .usa-alert__body {
-        padding-left: 3rem;
+        padding-left: 2.75rem;
       }
 
       &::before {
@@ -144,11 +149,12 @@
         width: 20px;
       }
 
-      // Override custom-styles :focus rules.
+      // Override custom-styles :focus rule.
       #msg {
+        padding: 0 5px;
+
         &:focus {
-          outline: 0;
-          box-shadow: none;
+          width: fit-content;
         }
       }
     }
