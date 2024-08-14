@@ -1,6 +1,10 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
-SPACE=${1:-dr}
+SPACE=$1
+
+if [ x$SPACE = x ]; then
+   SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
+fi
 
 source ~/.profile $SPACE &> /dev/null
 
@@ -8,13 +12,13 @@ DATEFILE=logs.lastrun
 rm -f /tmp/$DATEFILE
 aws_cp  s3://$S3_BUCKET/cfevents/${SPACE}/$DATEFILE /tmp/ &>/dev/null
 if [ -f /tmp/$DATEFILE ]; then
-    CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -r /tmp/$DATEFILE)
+    CFEVENTS_LASTRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -r /tmp/$DATEFILE)
 else
-    CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d "2 months ago")
+    CFEVENTS_LASTRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -d "$CFEVENTS_DEFAULT_LASTRUN")
 fi
 
 touch /tmp/$DATEFILE
-CFEVENTS_THISRUN=$(TZ=UTC date +"%Y-%m-%dT%H%M%SZ" -r /tmp/$DATEFILE)
+CFEVENTS_THISRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -r /tmp/$DATEFILE)
 /opt/cfevents/get-events $SPACE $CFEVENTS_LASTRUN | tee /tmp/cfevents.${CFEVENTS_THISRUN}.log
 
 aws_cp  /tmp/$DATEFILE s3://$S3_BUCKET/cfevents/${SPACE}/

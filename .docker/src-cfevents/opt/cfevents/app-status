@@ -1,6 +1,10 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
-SPACE=${1:-dr}
+SPACE=$1
+
+if [ x$SPACE = x ]; then
+   SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
+fi
 
 source ~/.profile $SPACE &> /dev/null
 
@@ -22,22 +26,23 @@ cf t
 echo
 
 DATEFILE=logs.lastrun
-$echo aws_cp s3://$S3_BUCKET/cfevents/${SPACE}/$DATEFILE /tmp/test.datefile &>/dev/null
+LOCALFILE=/tmp/test.datefile
+$echo aws_cp s3://$S3_BUCKET/cfevents/${SPACE}/$DATEFILE $LOCALFILE &> /dev/null
 
-if [ -f /tmp/test.datefile ]; then
+if [ -f  $LOCALFILE ]; then
     echo pulled last query date from s3.
-    CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -r /tmp/test.datefile)
+    CFEVENTS_LASTRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -r  $LOCALFILE)
 else
-    echo No previous query datein s3.  initializing start date of query to 2 months ago.
-    CFEVENTS_LASTRUN=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d "2 months ago")
+    echo No previous query date found in s3.  initializing start date of query to 2 months ago.
+    CFEVENTS_LASTRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -d "$CFEVENTS_DEFAULT_LASTRUN")
 fi
 
 echo CFEVENTS_LASTRUN       $CFEVENTS_LASTRUN
 
-touch /tmp/test.datefile
+touch  $LOCALFILE
 
-CFEVENTS_THISRUN=$(TZ=UTC date +"%Y-%m-%dT%H%M%SZ" -r /tmp/test.datefile)
+CFEVENTS_THISRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -r  $LOCALFILE)
 
 echo CFEVENTS_THISRUN       $CFEVENTS_THISRUN
 
-rm /tmp/test.datefile
+rm  $LOCALFILE
