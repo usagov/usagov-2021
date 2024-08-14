@@ -72,6 +72,7 @@ HEALTHCHECK CMD s6-svstat /var/run/s6/services/cert-watcher \
 
 ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.7.11\&source\=github-rel  /tmp/cf8.tar.gz
 RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin
+RUN rm /tmp/cf8.tar.gz
 
 # Init s6
 ENTRYPOINT [ "/init" ]
