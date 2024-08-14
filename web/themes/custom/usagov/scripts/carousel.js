@@ -1,4 +1,4 @@
-$(".slides").slick({
+jQuery(".slides").slick({
   "dots": true,
   "infinite": true,
   "speed": 300,
@@ -58,18 +58,18 @@ $(".slides").slick({
 });
 
 var initSlide = getInitialSlide();
-var slickHeight = $(".slick-track").outerHeight();
+var slickHeight = jQuery(".slick-track").outerHeight();
 
 function resizeSlider() {
   "use strict";
 
-  $(".slick-track")
+  jQuery(".slick-track")
     .find(".slick-slide .usa-card")
     .css("height", slickHeight + "px");
 
 }
 
-$('.slides').slick('slickGoTo', initSlide);
+jQuery('.slides').slick('slickGoTo', initSlide);
 
 var carouselSlides = document.querySelector("#slides-list");
 var slideIndex;
@@ -84,7 +84,7 @@ function getInitialSlide() {
   "use strict";
   var currentSlideIndex = 0;
   var indexInSS;
-  if ($("html").attr("lang") === "es") {
+  if (jQuery("html").attr("lang") === "es") {
     indexInSS = sessionStorage.getItem("storedCarouselIndexSpanish");
   }
   else {
@@ -143,19 +143,19 @@ function addAriaLabel() {
   carouselSlides.appendChild(liveregion);
 }
 
-$(".slides").on(
+jQuery(".slides").on(
   "beforeChange",
   function (event, slick, currentSlide, nextSlide) {
     "use strict";
     slideIndex = nextSlide + 1;
 
-    var NextSlideDom=$(slick.$slides.get(nextSlide));
+    var NextSlideDom=jQuery(slick.$slides.get(nextSlide));
 
     slideTitle = NextSlideDom.find('h3')[0].textContent || NextSlideDom.find('h3')[0].innerText;
   }
 );
 
-$(".slides").on(
+jQuery(".slides").on(
   "afterChange",
   function (event, slick, currentSlide) {
     "use strict";
@@ -171,7 +171,7 @@ function updateAriaText() {
 
 function updateSessionStorage(currentIndex) {
   "use strict";
-  if ($("html").attr("lang") === "es") {
+  if (jQuery("html").attr("lang") === "es") {
     sessionStorage.setItem("storedCarouselIndexSpanish", currentIndex);
   }
   else {
