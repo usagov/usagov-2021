@@ -1,0 +1,117 @@
+{% extends "html.html.twig" %}
+
+{% block header_html %}
+  {% if not start_page %}
+    <meta name="robots" content="noindex" />
+  {% endif %}
+    <link rel="preconnect" href="https://script.crazyegg.com" crossorigin>
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <head-placeholder token="{{ placeholder_token|raw }}">
+      <title>{{ head_title|safe_join(' | ') }}</title>
+      <css-placeholder token="{{ placeholder_token|raw }}">
+        <js-placeholder token="{{ placeholder_token|raw }}">
+  {# tracking scripts, set in the field. #}
+  {% if header_html %}
+    {{ header_html|raw }}
+  {% endif %}
+{% endblock %}
+
+{% block taxonomy_data %}
+  {% set titleCounter = 4 %}
+  {% set urlCounter = 4 %}
+  {% if start_page %}
+    {% set page_type = 'wizard-start' %}
+    {% set titleCounter = 2 %}
+    {% set urlCounter = 2 %}
+  {% elseif not has_child %}
+    {% set page_type = 'wizard-result' %}
+  {% else %}
+    {% set page_type = 'wizard-question' %}
+  {% endif %}
+  <script id="taxonomy-data">
+    {# passing this info from the preprocess_hook doesn't work due to how the
+    page loads this template, so just load the breadcrumb block in the template,
+    and then use twig magic to get all the info we need. #}
+    {% set breadcrumb_block = drupal_block('system_breadcrumb_block') %}
+    {# this is hard to to explain, but basically since the breadcrumb block
+    doesn't give us a link to the current page, we need to use logic from the
+    preprocess hook to print the current page info. We also need to print
+    information about the basic page landing page this is linked to from, and
+    we need to number both entries in the datalayer correctly.
+
+    E.g all the pages should have 'Taxonomy_Text_1' be the homepage, and
+    'Taxonomy_Text_2' be 'scams and fraud', but only the first page in the
+    wizard has these links dynamically generated from the breadcrumb block,
+    so this means that we need to manually enter those on the other pages,
+    while keeping in mind that the loop index cannot be relied on for the first
+    couple of pages to determine what numbering system to use for the last tag,
+    since the breadcrumb_block has 3 links on the first page, and 2 on the
+    second. #}
+
+    {# this part is sort of straightforward, just variables set above or in
+    the preprocess hook. #}
+    dataLayer = [{
+    {{'taxonomyID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{tid|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+    {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{vid|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+    {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{language|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+    {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+    {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+    {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{page_type|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+    {{'hasBenefitCategory'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_hasBenefitCategories|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+{# do some weird stuff with the indentation here to make it appear correctly in the DOM #}
+{% for link in breadcrumb_block['content']['#links'] %}
+{% if loop.first %}
+    {{ 'Taxonomy_Text_1'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.text|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+    {% if page_type == 'wizard-start' %}
+    {% set titleCounter = titleCounter + 1 %}
+    {% endif %}
+{% elseif loop.index == 2 %}
+{{ 'Taxonomy_Text_2'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ wizardTitle|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+    {% if page_type != 'wizard-start' %}
+{{ 'Taxonomy_Text_3'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.text|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+    {% endif %}
+{% elseif loop.index <= 5 %}
+{% set textTag = 'Taxonomy_Text_' ~ titleCounter %}
+{% set titleCounter = titleCounter + 1 %}
+{{ textTag|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.text|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+{% endif %}
+{% endfor %}
+{% for i in range(1, 6) %}
+{% if titleCounter <= 6 %}
+{% set lastText = 'Taxonomy_Text_' ~ titleCounter %}
+    {{ lastText|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ name|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+{% endif %}
+{% set titleCounter = titleCounter + 1 %}
+{% endfor %}
+{% for link in breadcrumb_block['content']['#links'] %}
+{% if loop.first %}
+    {{ 'Taxonomy_URL_1'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.url.toString|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+{% if page_type == 'wizard-start' %}
+{% set urlCounter = urlCounter + 1 %}
+{% endif %}
+{% elseif loop.index == 2 %}
+    {{ 'Taxonomy_URL_2'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ wizardTitleUrl|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+    {% if wizardTitleUrl != link.url.toString %}
+{{ 'Taxonomy_URL_3'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.url.toString|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+    {% endif %}
+{% elseif loop.index <= 5 %}
+{% set urlTag = 'Taxonomy_URL_' ~ urlCounter %}
+{% set urlCounter = urlCounter + 1 %}
+    {% if page_type == 'wizard-start' %}
+{{ urlTag|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ currentPath|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+    {% else %}
+{{ urlTag|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.url.toString|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+    {% endif %}
+{% endif %}
+{% endfor %}
+{% for i in range(1, 6) %}
+{% if urlCounter <= 6 %}
+{% set lastUrlCounter = 'Taxonomy_URL_' ~ urlCounter %}
+  {{ lastUrlCounter|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ currentPath|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }}{% if urlCounter < 6 %},
+  {% endif %}
+{% endif %}
+{% set urlCounter = urlCounter + 1 %}
+{% endfor %}
+    }];
+  </script>
+{% endblock %}

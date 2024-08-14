@@ -1,3 +1,9 @@
+search:
+  js:
+    js/benefitSearch.js: {}
+  dependencies:
+    - usagov/pagination
+
 lifeEventRefLanguageFilter:
   js:
     js/lifeEventRefLanguageFilter.js: {}
