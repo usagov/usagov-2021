@@ -30,20 +30,23 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && adduser -S -G nginx -D -H -u $BUID nginx \
     && apk upgrade --update \
     && apk add --no-cache --virtual .persistent-deps \
-      bash \
-      aws-cli \
-      ca-certificates \
-      curl \
-      gettext \
-      git \
-      inotify-tools \
-      jq \
-      moreutils \
-      pv \
-      tar \
-      xz \
-      vim \
-      nano
+    aws-cli \
+    bash \
+    ca-certificates \
+    coreutils \
+    curl \
+    gettext \
+    git \
+    inotify-tools \
+    jq \
+    moreutils \
+    nano \
+    pv \
+    tar \
+    tzdata \
+    unzip \
+    vim \
+    xz
 
 # s6 supervisor setup
 ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
@@ -69,6 +72,7 @@ RUN chmod -R +x /etc/periodic \
 
 HEALTHCHECK CMD s6-svstat /var/run/s6/services/cert-watcher \
 && s6-svstat /var/run/s6/services/cron
+RUN rm /tmp/cf8.tar.gz
 
 ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.7.11\&source\=github-rel  /tmp/cf8.tar.gz
 RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin
