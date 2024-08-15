@@ -135,10 +135,13 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
     // score and sort remaining matches
     matches = matches.map(myself.getItemWeight);
     matches = matches.sort(myself.compareResults);
-    // prepend any life events that match
-    for (const [, lifeEvent] of myself.lifeEvents) {
-      if (myself.lifeEventHasTopic(lifeEvent.tid, myself.terms)) {
-         matches.unshift(lifeEvent);
+
+    if (!myself.areAllChecked()) {
+      // prepend any life events that match
+      for (const [, lifeEvent] of myself.lifeEvents) {
+        if (myself.lifeEventHasTopic(lifeEvent.tid, myself.terms)) {
+          matches.unshift(lifeEvent);
+        }
       }
     }
     return matches;

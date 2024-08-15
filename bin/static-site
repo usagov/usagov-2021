@@ -1,13 +1,18 @@
 #!/bin/bash
 set -e
 
+# NOTE: We can run this script with the arguments: bin/static-site beta-usagov.docker.local no-force
+# and that "no-force" will allow our locals to not do a force-run of Tome.
+# This allows us to test whether the part of the system that checks for content-updates before running Tome is working.
+
 WWW_HOST=${1:-beta-usagov.docker.local}
+DO_FORCE=${2:-force}
 
 docker compose run \
   --rm \
   --workdir /var/www \
   cms \
-  /bin/ash -c "CF_INSTANCE_INDEX=0 WWW_HOST=${WWW_HOST} /etc/periodic/1min/generate-static-site --force"
+  /bin/ash -c "CF_INSTANCE_INDEX=0 WWW_HOST=${WWW_HOST} /etc/periodic/1min/generate-static-site --$DO_FORCE"
 
 # docker compose run \
 #   --rm \

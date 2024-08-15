@@ -1,0 +1,71 @@
+<section class="usa-banner" aria-label="{{ official_statement }}" id="usagov-banner">
+	<div class="usa-accordion">
+		<header class="usa-banner__header">
+			<div class="usa-banner__inner">
+				<div class="grid-col-auto">
+					<img aria-hidden="true" class="usa-banner__header-flag" src="/themes/custom/usagov/images/favicon-57.png" alt="{{ flag_icon_alt }}" />
+				</div>
+				<div class="grid-col-fill tablet:grid-col-auto"> {# The USWDS gov banner uses aria-hidden="true" here but we have removed it so screen readers will announce the official statement #}
+					<p class="usa-banner__header-text">
+						{{ official_statement }}
+					</p>
+					<p class="usa-banner__header-action usa-banner__header-action-mobile">{{ how_you_know }}</p>
+					<p id="expand_banner" class="sr-only" >{{ expand }}</p>
+					<svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 0 24 24" width="16" class="usa-banner_expand_arrow usa-banner__header-action" aria-labelledby="expand_banner">
+						<path d="M0 0h24v24H0z" fill="none"/>
+						<path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/>
+					</svg>
+				</div>
+				<button type="button" class="usa-accordion__button usa-banner__button" aria-expanded="false" aria-controls="gov-banner-default">
+					<span class="usa-banner__button-text">{{ how_you_know }}</span>
+					<p id="expand_banner" class="sr-only" >{{ expand }}</p>
+					<svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 0 24 24" width="16" class="usa-banner_expand_arrow usa-banner__button-text" aria-labelledby="expand_banner">
+						<path d="M0 0h24v24H0z" fill="none"/>
+						<path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/>
+					</svg>
+				</button>
+			</div>
+		</header>
+		<div class="usa-banner__content usa-accordion__content" id="gov-banner-default">
+			<div class="grid-row grid-gap-lg">
+				<div class="usa-banner__guidance tablet:grid-col-6">
+					<img class="usa-banner__icon usa-media-block__img" src="/themes/custom/usagov/assets/img/icon-dot-gov.svg" role="img" alt="" aria-hidden="true" />
+					<div class="usa-media-block__body">
+						<p>
+							<strong>{{ dot_gov_summary }}</strong><br />
+							{{ dot_gov_details|raw }}
+						</p>
+					</div>
+				</div>
+				<div class="usa-banner__guidance tablet:grid-col-6">
+					<img class="usa-banner__icon usa-media-block__img" src="/themes/custom/usagov/assets/img/icon-https.svg" role="img" alt="" aria-hidden="true" />
+					<div class="usa-media-block__body">
+						<p>
+							<strong>{{ secure_summary }}</strong><br />
+							{{ secure_details_1|raw }}
+							<span class="icon-lock">
+								<svg xmlns="http://www.w3.org/2000/svg" width="52" height="64" viewBox="0 0 52 64"
+									class="usa-banner__lock-image" role="img"
+									aria-labelledby="banner-lock-description-default" focusable="false">
+									<title id="banner-lock-title-default">Lock</title>
+									<desc id="banner-lock-description-default">Locked padlock icon</desc>
+									<path fill="#000000" fill-rule="evenodd"
+									d="M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z" />
+								</svg>
+							</span>
+							{{ secure_details_2|raw }}
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{#
+This script applies the hidden attribute to the banner content.
+This script is located here so that it can hide the content immediately without a noticable flash of content.
+In the past, we added the hidden attribute in the HTML, but then it would be hidden even if javascript was disabled.
+#}
+<script type="text/javascript">
+	document.getElementById('gov-banner-default').setAttribute('hidden', 'until-found');
+</script>
