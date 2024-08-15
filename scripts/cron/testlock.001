@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+.docker/src-cron/opt/cron/task-check 1 test01 $$
+
+sleep 30
+
+.docker/src-cron/opt/cron/clean-task test01 $$

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+scripts/cron/testlock.001 &
+sleep 15
+scripts/cron/testlock.001 &
+sleep 15
+scripts/cron/testlock.001

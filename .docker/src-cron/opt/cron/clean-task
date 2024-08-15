@@ -10,8 +10,15 @@ if [ x"$TASKNAME" = x ]; then
 fi
 shift
 
+TASKPID=${1}
 TASKLOCK="$TASKSDIR/$TASKNAME"
 
-rmdir "$TASKLOCK"
+echo "Clean task: $TASKNAME / $TASKPID"
+
+rm -f $TASKLOCK/$TASKPID
+PIDS=$(ls $TASKLOCK)
+if [ -z "$PIDS" ]; then
+  rmdir "$TASKLOCK"
+fi
 
 exit 0
