@@ -811,7 +811,7 @@ select:not([disabled]):focus,
 
   &:hover{
     @include u-text('gray-90');
-    background-color: mix(white, #768FB3, 60%);
+    background-color:#768FB3;
   }
 
   &:focus{
