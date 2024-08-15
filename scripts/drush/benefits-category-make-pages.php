@@ -11,7 +11,7 @@ $pageTypes = getTermMap('page_type');
 $benefitsSearchType = array_search('Benefits Category Search', $pageTypes);
 
 $englishNid = \Drupal::entityQuery('node')
-  ->condition('title', 'What government benefits go you qualify for?')
+  ->condition('title', 'What government benefits do you qualify for?')
   ->accessCheck(FALSE)
   ->execute();
 
