@@ -56,14 +56,18 @@ class TaxonomyDatalayerBuilder {
       $taxonomy = $this->getStateDirectory($langcode);
     }
     else {
-      $taxonomy = $this->fromBreadcrumb();
+      $taxonomy = $this->fromBreadcrumb($langcode);
     }
 
     ksort($taxonomy);
     return array_merge($datalayer, $taxonomy);
   }
 
-  public function fromBreadcrumb(): array {
+  /**
+   * @param 'en'|'es' $langcode
+   * @return array
+   */
+  public function fromBreadcrumb(string $langcode): array {
     // For all other pages, we need the breadcrumb to pass as taxonomy.
     // This mimics the system breadcrumb block plugin, without rendering it.
     $breadcrumb = \Drupal::service('breadcrumb');
@@ -74,7 +78,16 @@ class TaxonomyDatalayerBuilder {
      */
     foreach ($crumbs->getLinks() as $index => $crumb) {
       $suffix = $index + 1;
-      $taxonomy['Taxonomy_Text_' . $suffix] = htmlspecialchars($crumb->getText(), ENT_QUOTES, 'UTF-8');
+
+      if ($suffix === 1) {
+        $taxonomy['Taxonomy_Text_' . $suffix] = match($langcode) {
+          'en' => self::HOME_TITLE_EN,
+          'es' => self::HOME_TITLE_ES,
+        };
+      }
+      else {
+        $taxonomy['Taxonomy_Text_' . $suffix] = htmlspecialchars($crumb->getText(), ENT_QUOTES, 'UTF-8');
+      }
 
       $url = $crumb->getUrl()->toString() ?: $this->node->toUrl()->toString();
 
@@ -84,7 +97,15 @@ class TaxonomyDatalayerBuilder {
       $taxonomy['Taxonomy_URL_' . $suffix] = $url;
     }
 
-    if (($count = count($crumbs->getLinks())) < 6) {
+    $count = count($crumbs->getLinks());
+    // if a node doesn't provide a menu link, the breadcrumb will be just the homepage
+    if ($count === 1) {
+      for ($i = $count + 1; $i < 7; $i++) {
+        $taxonomy['Taxonomy_Text_' . $i] = $this->node->getTitle();
+        $taxonomy['Taxonomy_URL_' . $i] = $this->node->toUrl()->toString();
+      }
+    }
+    elseif ($count < 6) {
       $lastText = $taxonomy['Taxonomy_Text_' . $count];
       $lastURL = $taxonomy['Taxonomy_URL_' . $count];
       for ($i = $count + 1; $i < 7; $i++) {
@@ -100,8 +121,7 @@ class TaxonomyDatalayerBuilder {
    * @param 'en'|'es' $langcode
    * @return array
    */
-  public function getHomepage(string $langcode): array
-  {
+  public function getHomepage(string $langcode): array {
     // Taxonomy for the homepages. These depend on variables
     // that the block view doesn't readily have access to.
     for ($i = 1; $i < 7; $i++) {
@@ -115,8 +135,7 @@ class TaxonomyDatalayerBuilder {
    * @param 'en'|'es' $langcode
    * @return array
    */
-  public function getFederalAgency(string $langcode): array
-  {
+  public function getFederalAgency(string $langcode): array {
     switch ($langcode) {
       case 'en':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_EN;
@@ -138,7 +157,7 @@ class TaxonomyDatalayerBuilder {
         $taxonomy["Taxonomy_URL_3"] = "/es/indice-agencias";
     }
 
-    $agencyName = $this->node->getTitle();
+    $agencyName = htmlspecialchars($this->node->getTitle(), ENT_QUOTES, 'UTF-8');
     $path = $this->node->toUrl()->toString();
 
     $taxonomy["Taxonomy_Text_4"] = $agencyName;
@@ -156,11 +175,11 @@ class TaxonomyDatalayerBuilder {
    * @param 'en'|'es' $langcode
    * @return array
    */
-  public function getStateDirectory(string $langcode): array
-  {
+  public function getStateDirectory(string $langcode): array {
     switch ($langcode) {
       case 'en':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_EN;
+
         $taxonomy["Taxonomy_Text_2"] = self::ABOUT_GOVT_EN;
         $taxonomy["Taxonomy_Text_3"] = "State governments";
 
@@ -171,7 +190,8 @@ class TaxonomyDatalayerBuilder {
 
       case 'es':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_ES;
-        $taxonomy["Taxonomy_Text_2"] = "Acerca de EE. UU. y su Gobierno";
+        // States have a different description in Spanish.
+        $taxonomy["Taxonomy_Text_2"] = "Acerca de EE. UU. y directorios del Gobierno";
         $taxonomy["Taxonomy_Text_3"] = "Gobiernos estatales";
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_ES;
@@ -179,7 +199,7 @@ class TaxonomyDatalayerBuilder {
         $taxonomy["Taxonomy_URL_3"] = "/es/gobiernos-estatales";
     }
 
-    $agencyName = $this->node->getTitle();
+    $agencyName = htmlspecialchars($this->node->getTitle(), ENT_QUOTES, 'UTF-8');
     $path = $this->node->toUrl()->toString();
 
     $taxonomy["Taxonomy_Text_4"] = $agencyName;
