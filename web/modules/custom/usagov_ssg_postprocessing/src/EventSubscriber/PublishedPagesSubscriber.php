@@ -32,22 +32,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
     $csv = [];
     $fp = fopen($csv_path, 'c+');
     if ($fp != FALSE) {
-
-      $locks = 0;
-      // Wait of 0.01 seconds to get a lock. Try up to 50 times.
-      // Failure to get a lock might is likely extremely rare, but more likely
-      // if using more tome processes to export a file. If we don't get a
-      // lock here, we may overwrite another processes' changes to the CSV.
-      while (FALSE === flock($fp, LOCK_EX)) {
-        $locks++;
-
-        if ($locks > 50) {
-          trigger_error("Could not get lock to update CSV file");
-          break;
-        }
-        usleep(10000);
-      }
-
+      flock($fp, LOCK_EX);
       while (($line = fgetcsv($fp)) != FALSE) {
         $csv[] = $line;
       }
