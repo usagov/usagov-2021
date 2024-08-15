@@ -5,7 +5,7 @@ echo "Getting s3 access."
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 echo "Getting three random backup tags from s3."
-DEPLOY_TAGS=$(aws s3 ls s3://"$S3_BUCKET"/web-backup/ | grep -E 'USAGOV-.*\.*-deploy/' | sed \$d | sort -R | tail -n 3)
+DEPLOY_TAGS=$(aws s3 ls s3://"$S3_BUCKET"/web-backup/ | grep -E 'USAGOV-.*\.*-deploy/' | sort -R | tail -n 3)
 
 echo "$DEPLOY_TAGS" | while read -r DEPLOY_TAG_RAW ; do
   DEPLOY_TAG=$(echo "$DEPLOY_TAG_RAW" | awk '{ print $2 }')
