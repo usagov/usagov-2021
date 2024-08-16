@@ -21,6 +21,13 @@ class TaxonomyDatalayerBuilder {
   private const ABOUT_GOVT_ES = "Acerca de EE. UU. y su Gobierno";
   private const ABOUT_URL_ES = "/es/acerca-de-estados-unidos";
 
+  /**
+   * Language code for entity.
+   *
+   * @var 'en'|'es'
+   */
+  private string $langcode;
+
   public function __construct(
     private Node $node,
     private string $isFront,
@@ -30,33 +37,35 @@ class TaxonomyDatalayerBuilder {
   ) {}
 
   /**
+   * Builds the datalayer array.
+   *
    * @return array
+   *
    * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function build(): array {
     $datalayer = [];
-    $langcode = $this->node->language()->getId();
+    $this->langcode = $this->node->language()->getId();
 
-    // Basic elements for all pages
+    // Basic elements for all pages.
     $datalayer['nodeID'] = $this->node->id();
     $datalayer['contentType'] = $this->contentType;
-    $datalayer['language'] = $langcode;
+    $datalayer['language'] = $this->langcode;
     $datalayer['homepageTest'] = $this->isFront === 'homepage' ? 'homepage' : 'not_homepage';
     $datalayer['basicPagesubType'] = $this->basicPagesubType;
     $datalayer['Page_Type'] = $this->pageType;
 
-    $taxonomy = [];
     if ($this->isFront === 'homepage') {
-      $taxonomy = $this->getHomepage($langcode);
+      $taxonomy = $this->getHomepage();
     }
     elseif ($this->pageType === 'federal_directory_record') {
-      $taxonomy = $this->getFederalAgency($langcode);
+      $taxonomy = $this->getFederalAgency();
     }
     elseif ($this->pageType === 'state_directory_record') {
-      $taxonomy = $this->getStateDirectory($langcode);
+      $taxonomy = $this->getStateDirectory();
     }
     else {
-      $taxonomy = $this->fromBreadcrumb($langcode);
+      $taxonomy = $this->fromBreadcrumb();
     }
 
     ksort($taxonomy);
@@ -64,15 +73,16 @@ class TaxonomyDatalayerBuilder {
   }
 
   /**
-   * @param 'en'|'es' $langcode
+   * Build Taxonomy entries based on menu breadcrumbs.
+   *
    * @return array
    */
-  public function fromBreadcrumb(string $langcode): array {
+  public function fromBreadcrumb(): array {
     // For all other pages, we need the breadcrumb to pass as taxonomy.
     // This mimics the system breadcrumb block plugin, without rendering it.
     $breadcrumb = \Drupal::service('breadcrumb');
     $crumbs = $breadcrumb->build(\Drupal::routeMatch());
-
+    $taxonomy = [];
     /**
      * @var \Drupal\Core\Link $crumb
      */
@@ -80,7 +90,7 @@ class TaxonomyDatalayerBuilder {
       $suffix = $index + 1;
 
       if ($suffix === 1) {
-        $taxonomy['Taxonomy_Text_' . $suffix] = match($langcode) {
+        $taxonomy['Taxonomy_Text_' . $suffix] = match($this->langcode) {
           'en' => self::HOME_TITLE_EN,
           'es' => self::HOME_TITLE_ES,
         };
@@ -98,16 +108,12 @@ class TaxonomyDatalayerBuilder {
     }
 
     $count = count($crumbs->getLinks());
-    // if a node doesn't provide a menu link, the breadcrumb will be just the homepage
-    if ($count === 1) {
-      for ($i = $count + 1; $i < 7; $i++) {
-        $taxonomy['Taxonomy_Text_' . $i] = $this->node->getTitle();
-        $taxonomy['Taxonomy_URL_' . $i] = $this->node->toUrl()->toString();
-      }
-    }
-    elseif ($count < 6) {
-      $lastText = $taxonomy['Taxonomy_Text_' . $count];
-      $lastURL = $taxonomy['Taxonomy_URL_' . $count];
+    if ($count < 6) {
+      // Keeping behavior for pages that don't provide a menu link (1 item in
+      // the breadcrumb). The Taxonomy Texts are all set to the homepage
+      // but the URL paths after the first is the node's path.
+      $lastText = $taxonomy['Taxonomy_Text_1'];
+      $lastURL = $count === 1 ? $this->node->toUrl()->toString() : $taxonomy['Taxonomy_URL_' . $count];
       for ($i = $count + 1; $i < 7; $i++) {
         $taxonomy['Taxonomy_Text_' . $i] = $lastText;
         $taxonomy['Taxonomy_URL_' . $i] = $lastURL;
@@ -118,25 +124,37 @@ class TaxonomyDatalayerBuilder {
   }
 
   /**
-   * @param 'en'|'es' $langcode
+   * Get Taxonomy Entriess for homepage.
+   *
    * @return array
    */
-  public function getHomepage(string $langcode): array {
+  public function getHomepage(): array {
     // Taxonomy for the homepages. These depend on variables
     // that the block view doesn't readily have access to.
     for ($i = 1; $i < 7; $i++) {
-      $taxonomy["Taxonomy_Text_" . $i] = ($langcode === 'en' ? "Home" : "Página principal");
-      $taxonomy["Taxonomy_URL_" . $i] = ($langcode === 'en' ? self::HOME_URL_EN : "/es/");
+      switch ($this->langcode) {
+        case 'en':
+          $taxonomy["Taxonomy_Text_" . $i] = self::HOME_TITLE_EN;
+          $taxonomy["Taxonomy_URL_" . $i] = self::HOME_URL_EN;
+          break;
+
+        case 'es':
+          $taxonomy["Taxonomy_Text_" . $i] = self::HOME_TITLE_ES;
+          $taxonomy["Taxonomy_URL_" . $i] = self::HOME_URL_ES;
+          break;
+      }
     }
+
     return $taxonomy;
   }
 
   /**
-   * @param 'en'|'es' $langcode
+   * Get Taxonomy info for a Federal Agency node.
+   *
    * @return array
    */
-  public function getFederalAgency(string $langcode): array {
-    switch ($langcode) {
+  public function getFederalAgency(): array {
+    switch ($this->langcode) {
       case 'en':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_EN;
         $taxonomy["Taxonomy_Text_2"] = self::ABOUT_GOVT_EN;
@@ -172,11 +190,12 @@ class TaxonomyDatalayerBuilder {
   }
 
   /**
-   * @param 'en'|'es' $langcode
+   * Get Taxonomy info for a Sate Agency node.
+   *
    * @return array
    */
-  public function getStateDirectory(string $langcode): array {
-    switch ($langcode) {
+  public function getStateDirectory(): array {
+    switch ($this->langcode) {
       case 'en':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_EN;
 
