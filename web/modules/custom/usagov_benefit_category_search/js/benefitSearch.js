@@ -488,6 +488,11 @@ ${benefit.term_node_tid}
    * @param maxPages
    */
  this.showPager = function(maxPages) {
+
+   if (maxPages < 2) {
+     // don't show pagers with only one page
+     return;
+   }
    const pager = new Pagination(
      maxPages,
      myself.activePage,
