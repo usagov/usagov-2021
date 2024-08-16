@@ -19,6 +19,11 @@ main[data-pagetype="Benefits Category Search"]{
     padding-top: 2.75rem;
   }
 
+  fieldset {
+    padding: 0;
+    border-width: 0;
+    margin: 0;
+  }
   ul > li {
     break-inside: avoid;
   }
