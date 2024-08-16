@@ -51,15 +51,16 @@
 <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
 
 {% if front == "homepage" %}
-<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_640w')) }}" as="image" media="(max-width: 719.9px) and (min-width: 640px)">
-<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_720w')) }}" as="image" media="(max-width: 959.9px) and (min-width: 720px)">
-<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_960w')) }}" as="image" media="(max-width: 1023.9px) and (min-width: 960px)">
-<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1024w')) }}" as="image" media="(max-width: 1279.9px) and (min-width: 1024px)">
-<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1280w')) }}" as="image" media="(max-width: 1439.9px) and (min-width: 1280px)">
-<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1440w')) }}" as="image" media="(max-width: 1535.9px) and (min-width: 1440px)">
-<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1536w')) }}" as="image" media="(max-width: 1919.9px) and (min-width: 1536px)">
-<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1920w')) }}" as="image" media="(max-width: 2047.9px) and (min-width: 1920px)">
-<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_2048w')) }}" as="image" media="(max-width: 3071.9px) and (min-width: 2048px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_480w')) }}" as="image" media="(max-width: 639.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_640w')) }}" as="image" media="(min-width: 640px) and (max-width: 719.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_720w')) }}" as="image" media="(min-width: 720px) and (max-width: 959.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_960w')) }}" as="image" media="(min-width: 960px) and (max-width: 1023.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1024w')) }}" as="image" media="(min-width: 1024px) and (max-width: 1279.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1280w')) }}" as="image" media="(min-width: 1280px) and (max-width: 1439.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1440w')) }}" as="image" media="(min-width: 1440px) and (max-width: 1535.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1536w')) }}" as="image" media="(min-width: 1536px) and (max-width: 1919.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1920w')) }}" as="image" media="(min-width: 1920px) and (max-width: 2047.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_2048w')) }}" as="image" media="(min-width: 2048px) and (max-width: 3071.9px)">
 <link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_3072w')) }}" as="image" media="(min-width: 3072px)">
 {% endif %}
 
