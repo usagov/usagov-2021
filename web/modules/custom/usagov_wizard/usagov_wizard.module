@@ -40,9 +40,12 @@ function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state
       ],
       '#weight' => 10,
     ];
-
+    $taxonomy_term = Term::load($form['tid']["#value"]);
+    $termParents = \Drupal::classResolver(MenuChecker::class);
+    $termParents = $termParents->getTermParents($taxonomy_term);
+    $rootTermTid = array_reverse($termParents)[0];
     // Hide meta description fields on non-root forms.
-    if (count($form['relations']['parent']['#options']) !== 1) {
+    if ($form['tid']['#value'] != $rootTermTid) {
       $form['field_meta_description']['#access'] = FALSE;
     }
   }
