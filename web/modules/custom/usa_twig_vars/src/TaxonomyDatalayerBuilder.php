@@ -112,7 +112,7 @@ class TaxonomyDatalayerBuilder {
       // Keeping behavior for pages that don't provide a menu link (1 item in
       // the breadcrumb). The Taxonomy Texts are all set to the homepage
       // but the URL paths after the first is the node's path.
-      $lastText = $taxonomy['Taxonomy_Text_1'];
+      $lastText = $taxonomy['Taxonomy_Text_' . $count];
       $lastURL = $count === 1 ? $this->node->toUrl()->toString() : $taxonomy['Taxonomy_URL_' . $count];
       for ($i = $count + 1; $i < 7; $i++) {
         $taxonomy['Taxonomy_Text_' . $i] = $lastText;
