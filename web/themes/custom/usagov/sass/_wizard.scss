@@ -30,10 +30,6 @@
   }
 
   &--content {
-    [tabindex]:focus {
-      outline: unset;
-    }
-
     h2 {
       font-size: 2rem;
       line-height: 120%;
@@ -50,9 +46,11 @@
 
     fieldset {
       all: unset;
+      display: block;
+      width: 100%;
 
       // Disable this to prevent shift+click selection of multiple radios.
-      user-select: none; /* Standard syntax */
+      user-select: none;
     }
 
     .field--name-field-intro {
@@ -78,7 +76,6 @@
       p {
         margin-block-start: 0;
         margin-block-end: 0;
-        margin-left: 2rem;
       }
 
 
@@ -113,25 +110,13 @@
 
       // Positioning of the option elements.
       .usa-radio__input--tile + .usa-radio__label {
-        line-height: 26.4px;
-        padding: 1rem;
+        padding: 1rem 1rem 1rem 2.5rem;
         margin-top: 0;
 
         // Have a hidden border in the natural state so this doesn't move on hover.
         border: 2px solid transparent;
 
-        // Option label.
-        .usagov-label--text {
-          margin-left: 12px;
-        }
-
         &::before {
-          margin: 0;
-          position: relative;
-          display: inline-block;
-          top: -2px;
-          vertical-align: middle;
-          left: 0;
           opacity: .6;
         }
       }
@@ -145,7 +130,7 @@
       display: none;
 
       .usa-alert__body {
-        padding-left: 3rem;
+        padding-left: 2.75rem;
       }
 
       &::before {
@@ -153,11 +138,12 @@
         width: 20px;
       }
 
-      // Override custom-styles :focus rules.
+      // Override custom-styles :focus rule.
       #msg {
+        padding: 0 5px;
+
         &:focus {
-          outline: 0;
-          box-shadow: none;
+          width: fit-content;
         }
       }
     }

@@ -31,6 +31,7 @@ wizardstep:
 wizardStepTaxonomy:
   js:
     scripts/wizardStepTaxonomy.js: {}
+    scripts/wizardChecked.js: {}
   dependencies:
     - core/drupal
     - core/jquery
@@ -43,7 +44,11 @@ stateDirectory:
     - core/jquery
 
 carousel:
+  css:
+    css/slick.min.css: {}
   js:
+    scripts/slick.min.js: {}
+    scripts/passiveListeners.js: {}
     scripts/carousel.js: {}
   dependencies:
     - core/drupal
