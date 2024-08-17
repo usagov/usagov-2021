@@ -11,7 +11,7 @@
     "use strict";
     function maybeDisplayModal() {
         let params = new URLSearchParams(document.location.search);
-        if (params.get("showit") == "yes") {
+        if (params.get("showit") === "yes") {
             displayModal();
             params.delete("showit");
             updateParamsInHistory(params);
