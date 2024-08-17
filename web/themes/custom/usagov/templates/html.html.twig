@@ -24,6 +24,8 @@
  */
 #}
 
+{{ attach_library('usagov/modalSupport') }}
+
 {% if node.langcode.value %}
   {% set lang = node.langcode.value %}
 {% elseif language %}
@@ -185,6 +187,9 @@
  {{ lang == 'en' ? 'Skip to main content'|t : 'Saltar al contenido principal'|t }}
 </a>
 {{ page_top }}
+<div id="modal-conditional-poc" style="display:none">
+  <b>If this were for real, you'd get a modal!</b>
+</div>
 {{ page }}
 {{ page_bottom }}
 <js-bottom-placeholder token="{{ placeholder_token|raw }}">
