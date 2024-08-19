@@ -34,17 +34,22 @@ class TaxonomyDatalayerBuilder {
    */
   private string $langcode;
 
+  /**
+   * The content type identified to use.
+   */
+  private string $contentType;
+
   public function __construct(
-    private Node $node,
-    private string $isFront,
-    private string $contentType,
-    private ?string $basicPagesubType,
+    public readonly Node $node,
+    public readonly string $isFront,
+    public readonly ?string $basicPagesubType,
   ) {}
 
   /**
    * Builds the datalayer array.
    *
    * @return array
+   *   Initial datalayer payload.
    *
    * @throws \Drupal\Core\Entity\EntityMalformedException
    */
@@ -52,35 +57,37 @@ class TaxonomyDatalayerBuilder {
     $datalayer = [];
     $this->langcode = $this->node->language()->getId();
 
-    // Basic elements for all pages.
-    $datalayer['nodeID'] = $this->node->id();
-    $datalayer['contentType'] = $this->contentType;
-    $datalayer['language'] = $this->langcode;
-    $datalayer['homepageTest'] = $this->isFront === 'homepage' ? 'homepage' : 'not_homepage';
-    $datalayer['basicPagesubType'] = $this->basicPagesubType;
-
+    // Check for special cases since contentType isn't always the node type.
     if ($this->isFederalDirectoryIndex()) {
+      // Changes "directory_record" to "federal_directory_record".
       $pageType = 'federal_directory_index';
       $taxonomy = $this->fromBreadcrumb();
+      $this->contentType = $pageType;
     }
     elseif ($this->isFederalDirectoryRecord()) {
       $pageType = 'federal_directory_record';
       $taxonomy = $this->getFederalAgency();
+      $this->contentType = 'federal_directory_record';
     }
     elseif ($this->isStateDirectoryIndex()) {
       $pageType = 'state_directory_index';
+      $this->contentType = 'state_directory_index';
       $taxonomy = $this->fromBreadcrumb();
     }
     elseif ($this->isStateDirectoryRecord()) {
       $pageType = 'state_directory_record';
+      $this->contentType = 'state_directory_record';
       $taxonomy = $this->getStateDirectory();
     }
     elseif ($this->basicPagesubType === 'Standard Page') {
       $pageType = 'Content Page';
       $taxonomy = $this->fromBreadcrumb();
+      $this->contentType = $this->node->getType();
     }
     else {
+      $this->contentType = $this->node->getType();
       $pageType = $this->basicPagesubType ?? $this->contentType;
+
       if ($this->isFront === 'homepage') {
         $taxonomy = $this->getHomepage();
       }
@@ -89,6 +96,12 @@ class TaxonomyDatalayerBuilder {
       }
     }
 
+    // Basic elements for all pages.
+    $datalayer['nodeID'] = $this->node->id();
+    $datalayer['language'] = $this->langcode;
+    $datalayer['homepageTest'] = $this->isFront === 'homepage' ? 'homepage' : 'not_homepage';
+    $datalayer['basicPagesubType'] = $this->basicPagesubType;
+    $datalayer['contentType'] = $this->contentType;
     $datalayer['Page_Type'] = $pageType;
 
     ksort($taxonomy);
@@ -99,6 +112,7 @@ class TaxonomyDatalayerBuilder {
    * Build Taxonomy entries based on menu breadcrumbs.
    *
    * @return array
+   *   Breadcrumb info to send.
    */
   public function fromBreadcrumb(): array {
     // For all other pages, we need the breadcrumb to pass as taxonomy.
@@ -150,6 +164,7 @@ class TaxonomyDatalayerBuilder {
    * Get Taxonomy Entries for homepage.
    *
    * @return array
+   *   Breadcrumb info to send.
    */
   public function getHomepage(): array {
     // Taxonomy for the homepages. These depend on variables
@@ -175,6 +190,7 @@ class TaxonomyDatalayerBuilder {
    * Get Taxonomy info for a Federal Agency node.
    *
    * @return array
+   *   Breadcrumb info to send.
    */
   public function getFederalAgency(): array {
     switch ($this->langcode) {
@@ -216,6 +232,7 @@ class TaxonomyDatalayerBuilder {
    * Get Taxonomy info for a Sate Agency node.
    *
    * @return array
+   *   Breadcrumb info to send.
    */
   public function getStateDirectory(): array {
     switch ($this->langcode) {
@@ -232,7 +249,7 @@ class TaxonomyDatalayerBuilder {
 
       case 'es':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_ES;
-        // States have a different description in Spanish than agencies
+        // States have a different description in Spanish than agencies.
         $taxonomy["Taxonomy_Text_2"] = "Acerca de EE. UU. y directorios del Gobierno";
         $taxonomy["Taxonomy_Text_3"] = "Gobiernos estatales";
 
@@ -255,11 +272,19 @@ class TaxonomyDatalayerBuilder {
     return $taxonomy;
   }
 
+  /**
+   * Tests if a node is a federal agency record page.
+   */
   private function isFederalDirectoryRecord(): bool {
     return $this->node->getType() === 'directory_record';
   }
 
+  /**
+   * Tests if a node is a federal directory index page.
+   */
   private function isFederalDirectoryIndex(): bool {
+    // Check for special nodes by path.
+    // These paths are standard pages but should be coded differently.
     switch ($this->node->toUrl()->toString()) {
       case self::AGENCY_INDEX_URL_EN:
       case self::AGENCY_INDEX_URL_ES:
@@ -269,23 +294,30 @@ class TaxonomyDatalayerBuilder {
     return FALSE;
   }
 
+  /**
+   * Tests if a node is a state directory index page.
+   */
   private function isStateDirectoryIndex(): bool {
-    if ($this->contentType === 'state_directory_index') {
-      return TRUE;
-    }
-
-    // Check for special nodes by path
+    // Check for special nodes by path.
+    // These paths are also standard pages but should be coded differently.
     switch ($this->node->toUrl()->toString()) {
       case self::STATE_INDEX_URL_EN:
       case self::STATE_INDEX_URL_ES:
         return TRUE;
     }
 
+    if ($this->node->getType() === 'state_directory_index') {
+      return TRUE;
+    }
+
     return FALSE;
   }
 
+  /**
+   * Tests if a node is a state directory record.
+   */
   private function isStateDirectoryRecord(): bool {
-    if ($this->contentType === 'state_directory_record') {
+    if ($this->node->getType() === 'state_directory_record') {
       return TRUE;
     }
 

@@ -48,29 +48,16 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
 
           $isFront = $isFront ? 'homepage' : 'not_homepage';
 
-          // Check for a few special cases:
-          $special_node_type = FALSE;
-          // change "directory_record" to "federal_directory_record"
-          if ($node->getType() === 'directory_record') {
-            $special_node_type = 'federal_directory_record';
-          }
-          else {
-            // Check for special nodes by path:
-            switch ($node->toUrl()->toString()) {
-              case '/agency-index':
-              case '/es/indice-agencias':
-                $special_node_type = 'federal_directory_index';
-                $current_letter = \Drupal::request()->query->get('letter') ?: 'a';
-                if ($current_letter != 'a') {
-                  $noindex = TRUE;
-                }
-                break;
-
-              case '/state-governments':
-              case '/es/gobiernos-estatales':
-                $special_node_type = 'state_directory_index';
-                break;
-            }
+          // Check for special nodes by path:
+          switch ($node->toUrl()->toString()) {
+            case '/agency-index':
+            case '/es/indice-agencias':
+              // Don't index beyond first page
+              $current_letter = \Drupal::request()->query->get('letter') ?: 'a';
+              if ($current_letter != 'a') {
+                $noindex = TRUE;
+              }
+              break;
           }
 
           if ($node->getType() === 'wizard_step') {
@@ -86,14 +73,9 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           }
 
           // Cleanup vars.
-          $nodetype = $special_node_type ?: $node_real_type;
           $pageType = usa_twig_vars_get_page_type($node);
           $usa_twig_vars['id'] = $node->id();
           $usa_twig_vars['front'] = $isFront;
-
-          // TODO see if these are used in any twig vars
-          $usa_twig_vars['nodetype'] = $nodetype;
-          $usa_twig_vars['pagetype'] = $pageType;
 
           $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
           $usa_twig_vars['meta_noindex'] = $noindex;
@@ -102,12 +84,16 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           $datalayer = new TaxonomyDatalayerBuilder(
             node: $node,
             isFront: $isFront,
-            contentType: $nodetype,
             basicPagesubType: $pageType ?? NULL,
           );
 
           $usa_twig_vars['datalayer'] = $datalayer->build();
           unset($isFront);
+
+          // Promote variables figured out via datalayer builder.
+          // Need to get them from the array return after build() above.
+          $usa_twig_vars['nodetype'] = $usa_twig_vars['datalayer']['contentType'];
+          $usa_twig_vars['pagetype'] = $usa_twig_vars['datalayer']['basicPageSubtype'];
         }
       }
 
