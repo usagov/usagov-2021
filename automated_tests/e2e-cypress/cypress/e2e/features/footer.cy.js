@@ -23,10 +23,10 @@ describe('Footer [ENG]', () => {
         const invalidEmails = ['test@#$1123', 'test2@', '@test3.com']
 
         // Test invalid emails
-        for (let i = 0; i < invalidEmails.length; i++) {
+        for (const element of invalidEmails) {
             cy.get('#footer-email')
-                .type(invalidEmails[i])
-                .should('have.value', invalidEmails[i])
+                .type(element)
+                .should('have.value', element)
                 .type('{enter}')
 
             cy.get('input:invalid').should('have.length', 1)
@@ -72,16 +72,16 @@ describe('Footer [ENG]', () => {
         )
     })
     it('BTE 14: Social media icons appear in footer and link to correct places', () => {
-        for (let i = 0; i < socials.length; i++) {
+        for (const social of socials) {
             cy.get('.usa-footer__contact-links')
-                .find(`[alt="${socials[i].alt_text} USAGov"]`)
-                .should('have.attr', 'src', `/themes/custom/usagov/images/social-media-icons/${socials[i].name}_Icon.svg`)
+                .find(`[alt="${social.alt_text} USAGov"]`)
+                .should('have.attr', 'src', `/themes/custom/usagov/images/social-media-icons/${social.name}_Icon.svg`)
 
             cy.get('.usa-footer__contact-links')
-                .find(`[alt="${socials[i].alt_text} USAGov"]`)
+                .find(`[alt="${social.alt_text} USAGov"]`)
                 .parent()
                 .as('link')
-                .should('have.attr', 'href', socials[i].link)
+                .should('have.attr', 'href', social.link)
         }
     })
     it('BTE 15: Contact Center information appears in footer and phone number links to /phone', () => {
