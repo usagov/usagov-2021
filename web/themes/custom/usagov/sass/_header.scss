@@ -62,6 +62,13 @@
   height: auto;
 }
 
+/** USAGOV-1781 - Fixing a bug where the focus outline on the USAGov-logo dosn't fit right in FireFox **/
+#extended-logo > em,
+#extended-logo > em > a {
+  display: block;
+  height: 100%;
+}
+
 @include at-media($theme-header-min-width) {
   .usa-header--extended div.language-switcher-language-url {
     margin-right: auto;
