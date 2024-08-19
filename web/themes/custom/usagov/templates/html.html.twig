@@ -50,6 +50,8 @@
 <link rel="preconnect" href="https://script.crazyegg.com" crossorigin>
 <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
 
+<head-placeholder token="{{ placeholder_token|raw }}">
+
 {% if front == "homepage" %}
 <link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_480w')) }}" as="image" media="(max-width: 639.9px)">
 <link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_640w')) }}" as="image" media="(min-width: 640px) and (max-width: 719.9px)">
@@ -64,7 +66,6 @@
 <link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_3072w')) }}" as="image" media="(min-width: 3072px)">
 {% endif %}
 
-<head-placeholder token="{{ placeholder_token|raw }}">
 <title>{{ head_title|safe_join(' | ') }}</title>
   <css-placeholder token="{{ placeholder_token|raw }}">
   <js-placeholder token="{{ placeholder_token|raw }}">
