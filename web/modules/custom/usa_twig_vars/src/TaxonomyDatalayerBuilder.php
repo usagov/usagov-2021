@@ -2,6 +2,8 @@
 
 namespace Drupal\usa_twig_vars;
 
+use Drupal\Core\Breadcrumb\BreadcrumbManager;
+use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\node\Entity\Node;
 
 /**
@@ -39,11 +41,19 @@ class TaxonomyDatalayerBuilder {
    */
   private string $contentType;
 
+  /**
+   * String label to send to indicate homepage or not.
+   */
+  private string $isFront;
+
   public function __construct(
+    private BreadcrumbManager $breadcrumbManager,
     public readonly Node $node,
-    public readonly string $isFront,
+    bool $isFront,
     public readonly ?string $basicPagesubType,
-  ) {}
+  ) {
+    $this->isFront = $isFront ? 'homepage' : 'not_homepage';
+  }
 
   /**
    * Builds the datalayer array.
@@ -99,7 +109,7 @@ class TaxonomyDatalayerBuilder {
     // Basic elements for all pages.
     $datalayer['nodeID'] = $this->node->id();
     $datalayer['language'] = $this->langcode;
-    $datalayer['homepageTest'] = $this->isFront === 'homepage' ? 'homepage' : 'not_homepage';
+    $datalayer['homepageTest'] = $this->isFront;
     $datalayer['basicPagesubType'] = $this->basicPagesubType;
     $datalayer['contentType'] = $this->contentType;
     $datalayer['Page_Type'] = $pageType;
@@ -113,16 +123,15 @@ class TaxonomyDatalayerBuilder {
    *
    * @return array
    *   Breadcrumb info to send.
+   *
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function fromBreadcrumb(): array {
     // For all other pages, we need the breadcrumb to pass as taxonomy.
     // This mimics the system breadcrumb block plugin, without rendering it.
-    $breadcrumb = \Drupal::service('breadcrumb');
-    $crumbs = $breadcrumb->build(\Drupal::routeMatch());
+    $crumbs = $this->breadcrumbManager->build(\Drupal::routeMatch());
     $taxonomy = [];
-    /**
-     * @var \Drupal\Core\Link $crumb
-     */
+
     foreach ($crumbs->getLinks() as $index => $crumb) {
       $suffix = $index + 1;
 
@@ -169,6 +178,7 @@ class TaxonomyDatalayerBuilder {
   public function getHomepage(): array {
     // Taxonomy for the homepages. These depend on variables
     // that the block view doesn't readily have access to.
+    $taxonomy = [];
     for ($i = 1; $i < 7; $i++) {
       switch ($this->langcode) {
         case 'en':
@@ -191,6 +201,8 @@ class TaxonomyDatalayerBuilder {
    *
    * @return array
    *   Breadcrumb info to send.
+   *
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function getFederalAgency(): array {
     switch ($this->langcode) {
@@ -233,6 +245,8 @@ class TaxonomyDatalayerBuilder {
    *
    * @return array
    *   Breadcrumb info to send.
+   *
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function getStateDirectory(): array {
     switch ($this->langcode) {
@@ -285,10 +299,15 @@ class TaxonomyDatalayerBuilder {
   private function isFederalDirectoryIndex(): bool {
     // Check for special nodes by path.
     // These paths are standard pages but should be coded differently.
-    switch ($this->node->toUrl()->toString()) {
-      case self::AGENCY_INDEX_URL_EN:
-      case self::AGENCY_INDEX_URL_ES:
-        return TRUE;
+    try {
+      switch ($this->node->toUrl()->toString()) {
+        case self::AGENCY_INDEX_URL_EN:
+        case self::AGENCY_INDEX_URL_ES:
+          return TRUE;
+      }
+    }
+    catch (EntityMalformedException) {
+      // Should we report that we couldn't get a URL for a node?
     }
 
     return FALSE;
@@ -300,28 +319,25 @@ class TaxonomyDatalayerBuilder {
   private function isStateDirectoryIndex(): bool {
     // Check for special nodes by path.
     // These paths are also standard pages but should be coded differently.
-    switch ($this->node->toUrl()->toString()) {
-      case self::STATE_INDEX_URL_EN:
-      case self::STATE_INDEX_URL_ES:
-        return TRUE;
+    try {
+      switch ($this->node->toUrl()->toString()) {
+        case self::STATE_INDEX_URL_EN:
+        case self::STATE_INDEX_URL_ES:
+          return TRUE;
+      }
+    }
+    catch (EntityMalformedException) {
+      // Should we report that we couldn't get a URL for a node?
     }
 
-    if ($this->node->getType() === 'state_directory_index') {
-      return TRUE;
-    }
-
-    return FALSE;
+    return $this->node->getType() === 'state_directory_index';
   }
 
   /**
    * Tests if a node is a state directory record.
    */
   private function isStateDirectoryRecord(): bool {
-    if ($this->node->getType() === 'state_directory_record') {
-      return TRUE;
-    }
-
-    return FALSE;
+    return $this->node->getType() === 'state_directory_record';
   }
 
 }

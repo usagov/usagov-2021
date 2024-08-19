@@ -26,13 +26,12 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
   if ($hook === 'html' || $hook === 'page') {
     $usa_twig_vars = &drupal_static(__FUNCTION__);
     if (!isset($usa_twig_vars)) {
-      // pre-populate $usa_twig_vars so we can rely on certain fields being present:
+      // Pre-populate $usa_twig_vars to rely on certain fields being present:
       $usa_twig_vars = [
         'id' => NULL,
         'front' => 'not_homepage',
         'nodetype' => NULL,
         'pagetype' => NULL,
-        'datalayer_pagetype' => NULL,
         'meta_noindex' => NULL,
         'datalayer' => NULL,
       ];
@@ -45,14 +44,11 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         // Check node has all the four variables set which must not be null.
         $node_real_type = $node->getType();
         if ($node->id() != NULL && $node_real_type != NULL && $isFront !== NULL) {
-
-          $isFront = $isFront ? 'homepage' : 'not_homepage';
-
           // Check for special nodes by path:
           switch ($node->toUrl()->toString()) {
             case '/agency-index':
             case '/es/indice-agencias':
-              // Don't index beyond first page
+              // Don't index beyond first page.
               $current_letter = \Drupal::request()->query->get('letter') ?: 'a';
               if ($current_letter != 'a') {
                 $noindex = TRUE;
@@ -72,16 +68,11 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             }
           }
 
-          // Cleanup vars.
           $pageType = usa_twig_vars_get_page_type($node);
-          $usa_twig_vars['id'] = $node->id();
-          $usa_twig_vars['front'] = $isFront;
-
-          $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
-          $usa_twig_vars['meta_noindex'] = $noindex;
 
           // Data to be sent to GTM.
           $datalayer = new TaxonomyDatalayerBuilder(
+            breadcrumbManager: \Drupal::service('breadcrumb'),
             node: $node,
             isFront: $isFront,
             basicPagesubType: $pageType ?? NULL,
@@ -90,10 +81,16 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           $usa_twig_vars['datalayer'] = $datalayer->build();
           unset($isFront);
 
-          // Promote variables figured out via datalayer builder.
+          // Cleanup vars.
+          // Promote variables figured out via datalayer builder that
+          // we initialized earlier.
           // Need to get them from the array return after build() above.
+          $usa_twig_vars['id'] = $node->id();
           $usa_twig_vars['nodetype'] = $usa_twig_vars['datalayer']['contentType'];
           $usa_twig_vars['pagetype'] = $usa_twig_vars['datalayer']['basicPageSubtype'];
+          $usa_twig_vars['front'] = $usa_twig_vars['datalayer']['homepageTest'];
+          $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
+          $usa_twig_vars['meta_noindex'] = $noindex;
         }
       }
 
@@ -113,7 +110,6 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
 
 /**
  * To allow for the hiding of menu items with page type set to Standard Page- Nav Hidden.
- *
  */
 function usa_twig_vars_preprocess_menu__sidebar_first(&$variables, $hook) {
   $node = \Drupal::routeMatch()->getParameter('node');
