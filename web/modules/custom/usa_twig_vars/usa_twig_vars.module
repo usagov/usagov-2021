@@ -51,7 +51,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           // Check for a few special cases:
           $special_node_type = FALSE;
           // change "directory_record" to "federal_directory_record"
-          if ($node_real_type == 'directory_record') {
+          if ($node->getType() === 'directory_record') {
             $special_node_type = 'federal_directory_record';
           }
           else {
@@ -73,12 +73,11 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             }
           }
 
-          $nodetype = $special_node_type ?: $node_real_type;
-          if ($nodetype == 'wizard_step') {
+          if ($node->getType() === 'wizard_step') {
             $noindex = TRUE;
           }
 
-          if (($node_real_type == 'directory_record') && $node->hasField('field_acronym')) {
+          if (($node->getType() === 'directory_record') && $node->hasField('field_acronym')) {
             if ($acronym = $node->get('field_acronym')->value) {
               $usa_twig_vars['head_title'] = $variables['head_title'];
               $usa_twig_vars['head_title']['title'] = Markup::create(trim(strip_tags($variables['page']['#title'])) .
@@ -87,30 +86,17 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           }
 
           // Cleanup vars.
+          $nodetype = $special_node_type ?: $node_real_type;
           $pageType = usa_twig_vars_get_page_type($node);
           $usa_twig_vars['id'] = $node->id();
           $usa_twig_vars['front'] = $isFront;
+
+          // TODO see if these are used in any twig vars
           $usa_twig_vars['nodetype'] = $nodetype;
           $usa_twig_vars['pagetype'] = $pageType;
 
           $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
           $usa_twig_vars['meta_noindex'] = $noindex;
-
-          switch ($pageType) {
-            case 'Standard Page':
-              // If there's a special node type, use it.
-              $datalayer_Page_Type = $special_node_type ?: 'Content Page';
-              break;
-
-            case 'State Office Page':
-              // If there's a special node type, use it.
-              $datalayer_Page_Type = $special_node_type ?: $pageType;
-              break;
-
-            default:
-              $datalayer_Page_Type = $pageType ?? $nodetype;
-              break;
-          }
 
           // Data to be sent to GTM.
           $datalayer = new TaxonomyDatalayerBuilder(
@@ -118,7 +104,6 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             isFront: $isFront,
             contentType: $nodetype,
             basicPagesubType: $pageType ?? NULL,
-            pageType: $datalayer_Page_Type,
           );
 
           $usa_twig_vars['datalayer'] = $datalayer->build();

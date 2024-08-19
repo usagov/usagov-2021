@@ -21,6 +21,12 @@ class TaxonomyDatalayerBuilder {
   private const ABOUT_GOVT_ES = "Acerca de EE. UU. y su Gobierno";
   private const ABOUT_URL_ES = "/es/acerca-de-estados-unidos";
 
+  private const AGENCY_INDEX_URL_EN = '/agency-index';
+  private const AGENCY_INDEX_URL_ES = '/es/indice-agencias';
+
+  private const STATE_INDEX_URL_EN = '/state-governments';
+  private const STATE_INDEX_URL_ES = '/es/gobiernos-estatales';
+
   /**
    * Language code for entity.
    *
@@ -33,7 +39,6 @@ class TaxonomyDatalayerBuilder {
     private string $isFront,
     private string $contentType,
     private ?string $basicPagesubType,
-    private string $pageType,
   ) {}
 
   /**
@@ -53,20 +58,38 @@ class TaxonomyDatalayerBuilder {
     $datalayer['language'] = $this->langcode;
     $datalayer['homepageTest'] = $this->isFront === 'homepage' ? 'homepage' : 'not_homepage';
     $datalayer['basicPagesubType'] = $this->basicPagesubType;
-    $datalayer['Page_Type'] = $this->pageType;
 
-    if ($this->isFront === 'homepage') {
-      $taxonomy = $this->getHomepage();
-    }
-    elseif ($this->pageType === 'federal_directory_record') {
-      $taxonomy = $this->getFederalAgency();
-    }
-    elseif ($this->pageType === 'state_directory_record') {
-      $taxonomy = $this->getStateDirectory();
-    }
-    else {
+    if ($this->isFederalDirectoryIndex()) {
+      $pageType = 'federal_directory_index';
       $taxonomy = $this->fromBreadcrumb();
     }
+    elseif ($this->isFederalDirectoryRecord()) {
+      $pageType = 'federal_directory_record';
+      $taxonomy = $this->getFederalAgency();
+    }
+    elseif ($this->isStateDirectoryIndex()) {
+      $pageType = 'state_directory_index';
+      $taxonomy = $this->fromBreadcrumb();
+    }
+    elseif ($this->isStateDirectoryRecord()) {
+      $pageType = 'state_directory_record';
+      $taxonomy = $this->getStateDirectory();
+    }
+    elseif ($this->basicPagesubType === 'Standard Page') {
+      $pageType = 'Content Page';
+      $taxonomy = $this->fromBreadcrumb();
+    }
+    else {
+      $pageType = $this->basicPagesubType ?? $this->contentType;
+      if ($this->isFront === 'homepage') {
+        $taxonomy = $this->getHomepage();
+      }
+      else {
+        $taxonomy = $this->fromBreadcrumb();
+      }
+    }
+
+    $datalayer['Page_Type'] = $pageType;
 
     ksort($taxonomy);
     return array_merge($datalayer, $taxonomy);
@@ -124,7 +147,7 @@ class TaxonomyDatalayerBuilder {
   }
 
   /**
-   * Get Taxonomy Entriess for homepage.
+   * Get Taxonomy Entries for homepage.
    *
    * @return array
    */
@@ -162,7 +185,7 @@ class TaxonomyDatalayerBuilder {
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_EN;
         $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_EN;
-        $taxonomy["Taxonomy_URL_3"] = "/agency-index";
+        $taxonomy["Taxonomy_URL_3"] = self::AGENCY_INDEX_URL_EN;
         break;
 
       case 'es':
@@ -172,7 +195,7 @@ class TaxonomyDatalayerBuilder {
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_ES;
         $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_ES;
-        $taxonomy["Taxonomy_URL_3"] = "/es/indice-agencias";
+        $taxonomy["Taxonomy_URL_3"] = self::AGENCY_INDEX_URL_ES;
     }
 
     $agencyName = htmlspecialchars($this->node->getTitle(), ENT_QUOTES, 'UTF-8');
@@ -204,18 +227,18 @@ class TaxonomyDatalayerBuilder {
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_EN;
         $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_EN;
-        $taxonomy["Taxonomy_URL_3"] = "/state-governments";
+        $taxonomy["Taxonomy_URL_3"] = self::STATE_INDEX_URL_EN;
         break;
 
       case 'es':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_ES;
-        // States have a different description in Spanish.
+        // States have a different description in Spanish than agencies
         $taxonomy["Taxonomy_Text_2"] = "Acerca de EE. UU. y directorios del Gobierno";
         $taxonomy["Taxonomy_Text_3"] = "Gobiernos estatales";
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_ES;
         $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_ES;
-        $taxonomy["Taxonomy_URL_3"] = "/es/gobiernos-estatales";
+        $taxonomy["Taxonomy_URL_3"] = self::STATE_INDEX_URL_ES;
     }
 
     $agencyName = htmlspecialchars($this->node->getTitle(), ENT_QUOTES, 'UTF-8');
@@ -230,6 +253,43 @@ class TaxonomyDatalayerBuilder {
     $taxonomy["Taxonomy_URL_6"] = $path;
 
     return $taxonomy;
+  }
+
+  private function isFederalDirectoryRecord(): bool {
+    return $this->node->getType() === 'directory_record';
+  }
+
+  private function isFederalDirectoryIndex(): bool {
+    switch ($this->node->toUrl()->toString()) {
+      case self::AGENCY_INDEX_URL_EN:
+      case self::AGENCY_INDEX_URL_ES:
+        return TRUE;
+    }
+
+    return FALSE;
+  }
+
+  private function isStateDirectoryIndex(): bool {
+    if ($this->contentType === 'state_directory_index') {
+      return TRUE;
+    }
+
+    // Check for special nodes by path
+    switch ($this->node->toUrl()->toString()) {
+      case self::STATE_INDEX_URL_EN:
+      case self::STATE_INDEX_URL_ES:
+        return TRUE;
+    }
+
+    return FALSE;
+  }
+
+  private function isStateDirectoryRecord(): bool {
+    if ($this->contentType === 'state_directory_record') {
+      return TRUE;
+    }
+
+    return FALSE;
   }
 
 }
