@@ -5,13 +5,10 @@ namespace Drupal\usagov_ssg_postprocessing\Controller;
 use Drupal\Core\Controller\ControllerBase;
 
 /**
- * An usagov_ssg_postprocessing controller for downloading files form S3.
+ * An usagov_ssg_postprocessing controller for stating the current static-site-gen status.
  */
 class ssgStatController extends ControllerBase {
 
-    /**
-     * Forces a download of a file from S3.
-     */
     public function content() {
 
         $date = \Drupal::state()->get('ssg_stat_date');
