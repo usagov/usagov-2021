@@ -63,6 +63,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
 
       $header_replace = [
         "nodeID" => "Page ID",
+        "taxonomyID" => "Page ID",
         "language" => "Taxonomy Level 1",
         "Taxonomy_Text_2" => "Taxonomy Level 2",
         "Taxonomy_Text_3" => "Taxonomy Level 3",
@@ -118,7 +119,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         $nodeIDElement = array_search("Page ID", $csv[0]);
         $languageElement = array_search("Taxonomy Level 1", $csv[0]);
         foreach ($csv as $key => $line) {
-          if ($line[$nodeIDElement] == $decoded["nodeID"]) {
+          if (!empty($line[$nodeIDElement]) && $line[$nodeIDElement] == $decoded["nodeID"]) {
             if ($line[$languageElement] == $content_replace[$decoded["language"]]) {
               $pointer = $key;
             }
@@ -161,7 +162,11 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         }
         foreach ($header_replace as $key => $item) {
           if ($name == $key) {
-            $decoded[$item] = $term;
+            if ( $name == 'taxonomyID' ) {
+              $decoded[$item] = 't_' . $term;
+            } else {
+              $decoded[$item] = $term;
+            }
             unset($decoded[$name]);
           }
         }
