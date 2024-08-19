@@ -1,4 +1,4 @@
-const socials = require('../../fixtures/socials.json')
+const socials = require('../../../fixtures/socials.json')
 
 describe('Footer [ENG]', () => {
     beforeEach(() => {
@@ -23,10 +23,10 @@ describe('Footer [ENG]', () => {
         const invalidEmails = ['test@#$1123', 'test2@', '@test3.com']
 
         // Test invalid emails
-        for (const element of invalidEmails) {
+        for (const email of invalidEmails) {
             cy.get('#footer-email')
-                .type(element)
-                .should('have.value', element)
+                .type(email)
+                .should('have.value', email)
                 .type('{enter}')
 
             cy.get('input:invalid').should('have.length', 1)
