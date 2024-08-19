@@ -40,9 +40,18 @@ function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state
       ],
       '#weight' => 10,
     ];
-
-    // Hide meta description fields on non-root forms.
-    if (count($form['relations']['parent']['#options']) !== 1) {
+    if (isset($form['tid']["#value"])) {
+      $taxonomy_term = Term::load($form['tid']["#value"]);
+      $termParents = \Drupal::classResolver(MenuChecker::class);
+      $termParents = $termParents->getTermParents($taxonomy_term);
+      $rootTermTid = $termParents[array_key_last($termParents)];
+      // Hide meta description fields on non-root forms.
+      if ($form['tid']['#value'] != $rootTermTid) {
+        $form['field_meta_description']['#access'] = FALSE;
+      }
+    }
+    // Hide this in all cases on the tid creation screen.
+    else {
       $form['field_meta_description']['#access'] = FALSE;
     }
   }
@@ -102,14 +111,8 @@ function usagov_wizard_preprocess_html(&$variables) {
     if (isset($taxonomy_term)) {
       if ($taxonomy_term->bundle() === 'wizard') {
 
-        // Set the meta description to the value on the root term of the tree.
-        $termParents = \Drupal::classResolver(MenuChecker::class);
-        $termParents = $termParents->getTermParents($taxonomy_term);
-        $rootTermTid = array_reverse($termParents)[0];
-        $rootTerm = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($rootTermTid);
-
-        if (isset($rootTerm->field_meta_description)) {
-          $variables['meta_description'] = $rootTerm->field_meta_description->value;
+        if (isset($taxonomy_term->field_meta_description)) {
+          $variables['meta_description'] = $taxonomy_term->field_meta_description->value;
         }
 
         // Set a bunch of other stuff...
