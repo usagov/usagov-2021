@@ -1,4 +1,4 @@
-const socials = require('../../../fixtures/socials.json')
+const socials = require('../../fixtures/socials.json')
 
 describe('Footer [ENG]', () => {
     beforeEach(() => {
@@ -41,8 +41,8 @@ describe('Footer [ENG]', () => {
         // Origin URL should now be connect.usa.gov
         const sentArgs = { email: validEmail }
         cy.origin(
-            'https://connect.usa.gov/', 
-            { args: sentArgs }, 
+            'https://connect.usa.gov/',
+            { args: sentArgs },
             ({ email }) => {
                 cy.get('input')
                     .filter('[name="email"]')
@@ -55,15 +55,15 @@ describe('Footer [ENG]', () => {
         cy.get('#footer-email')
             .type(validEmail)
             .should('have.value', validEmail)
-        
+
         cy.get('.usa-sign-up')
             .find('button[type="submit"]')
             .click()
 
         // Origin URL should now be connect.usa.gov
         cy.origin(
-            'https://connect.usa.gov/', 
-            { args: sentArgs }, 
+            'https://connect.usa.gov/',
+            { args: sentArgs },
             ({ email }) => {
                 cy.get('input')
                     .filter('[name="email"]')
@@ -74,11 +74,11 @@ describe('Footer [ENG]', () => {
     it('BTE 14: Social media icons appear in footer and link to correct places', () => {
         for (let i = 0; i < socials.length; i++) {
             cy.get('.usa-footer__contact-links')
-                .find(`[alt="${socials[i].name} USAGov"]`)
-                .should('have.attr', 'src', `/themes/custom/usagov/images/footer_icon_${socials[i].name.toLowerCase()}.svg`)
-        
+                .find(`[alt="${socials[i].alt_text} USAGov"]`)
+                .should('have.attr', 'src', `/themes/custom/usagov/images/social-media-icons/${socials[i].name}_Icon.svg`)
+
             cy.get('.usa-footer__contact-links')
-                .find(`[alt="${socials[i].name} USAGov"]`)
+                .find(`[alt="${socials[i].alt_text} USAGov"]`)
                 .parent()
                 .as('link')
                 .should('have.attr', 'href', socials[i].link)
@@ -93,7 +93,7 @@ describe('Footer [ENG]', () => {
     })
     it('BTE 16: Subfooter indicating USAGov is official site appears at very bottom', () => {
         cy.get('.usa-footer')
-            .find('.usa-identifier__usagov-description')
+            .find('.usa-identifier')
             .should('contain', 'USAGov')
             .should('contain', 'official guide')
     })
