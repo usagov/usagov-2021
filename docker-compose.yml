@@ -44,8 +44,8 @@ services:
               "secret_access_key": "miniopass",
               "region": "us-west-1",
               "bucket": "local",
-              "fips_endpoint": "minio:9000",
-              "endpoint": "minio:9000"
+              "fips_endpoint": "minio:9090",
+              "endpoint": "minio:9090"
             }
           }],
           "aws-rds": [{
@@ -106,17 +106,16 @@ services:
       dockerfile: .docker/Dockerfile-minio
       args:
         - BUILD_ENV
-    # ports:
-    #   - 9000:9000
-    #   - 9001:9001
+    ports:
+      - 9090:9090
+      - 9091:9091
     volumes:
       - ./s3:/data
       - ./.docker/src-minio/docker-entrypoint-minio.sh:/docker-entrypoint-minio.sh
-      - ./.docker/src-minio/setup-bucket.sh:/setup-bucket.sh
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=miniopass
-      - MINIO_SERVER_URL=https://127.0.0.1:9000
+      - MINIO_SERVER_URL=https://127.0.0.1:9090
       - MINIO_DOMAIN=minio
     networks:
       gsa-gov:
