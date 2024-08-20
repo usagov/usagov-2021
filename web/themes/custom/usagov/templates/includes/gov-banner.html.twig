@@ -10,16 +10,14 @@
 						{{ official_statement }}
 					</p>
 					<p class="usa-banner__header-action usa-banner__header-action-mobile">{{ how_you_know }}</p>
-					<p id="expand_banner" class="sr-only" >{{ expand }}</p>
-					<svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 0 24 24" width="16" class="usa-banner_expand_arrow usa-banner__header-action" aria-labelledby="expand_banner">
+					<svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 0 24 24" width="16" class="usa-banner_expand_arrow usa-banner__header-action">
 						<path d="M0 0h24v24H0z" fill="none"/>
 						<path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/>
 					</svg>
 				</div>
 				<button type="button" class="usa-accordion__button usa-banner__button" aria-expanded="false" aria-controls="gov-banner-default">
 					<span class="usa-banner__button-text">{{ how_you_know }}</span>
-					<p id="expand_banner" class="sr-only" >{{ expand }}</p>
-					<svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 0 24 24" width="16" class="usa-banner_expand_arrow usa-banner__button-text" aria-labelledby="expand_banner">
+					<svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 0 24 24" width="16" class="usa-banner_expand_arrow usa-banner__button-text">
 						<path d="M0 0h24v24H0z" fill="none"/>
 						<path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/>
 					</svg>
@@ -29,7 +27,7 @@
 		<div class="usa-banner__content usa-accordion__content" id="gov-banner-default">
 			<div class="grid-row grid-gap-lg">
 				<div class="usa-banner__guidance tablet:grid-col-6">
-					<img class="usa-banner__icon usa-media-block__img" src="/themes/custom/usagov/assets/img/icon-dot-gov.svg" role="img" alt="" aria-hidden="true" />
+					<img class="usa-banner__icon usa-media-block__img" src="/themes/custom/usagov/assets/img/icon-dot-gov.svg" alt="" aria-hidden="true" />
 					<div class="usa-media-block__body">
 						<p>
 							<strong>{{ dot_gov_summary }}</strong><br />
@@ -38,14 +36,14 @@
 					</div>
 				</div>
 				<div class="usa-banner__guidance tablet:grid-col-6">
-					<img class="usa-banner__icon usa-media-block__img" src="/themes/custom/usagov/assets/img/icon-https.svg" role="img" alt="" aria-hidden="true" />
+					<img class="usa-banner__icon usa-media-block__img" src="/themes/custom/usagov/assets/img/icon-https.svg" alt="" aria-hidden="true" />
 					<div class="usa-media-block__body">
 						<p>
 							<strong>{{ secure_summary }}</strong><br />
 							{{ secure_details_1|raw }}
 							<span class="icon-lock">
 								<svg xmlns="http://www.w3.org/2000/svg" width="52" height="64" viewBox="0 0 52 64"
-									class="usa-banner__lock-image" role="img"
+									class="usa-banner__lock-image"
 									aria-labelledby="banner-lock-description-default" focusable="false">
 									<title id="banner-lock-title-default">Lock</title>
 									<desc id="banner-lock-description-default">Locked padlock icon</desc>
