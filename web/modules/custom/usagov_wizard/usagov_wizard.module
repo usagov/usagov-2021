@@ -22,6 +22,7 @@ use Drupal\usagov_wizard\MenuChecker;
  * root of the tree.
  */
 function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state) {
+  $form['relations']['parent']['#attributes'] = ['class' => ['resize-vertical', 'width-tablet', 'height-mobile']];
   if (isset($form['tid'])) {
     $language = $form['langcode']['widget'][0]['value']['#default_value'];
     $url = Url::fromUri('base:' .
