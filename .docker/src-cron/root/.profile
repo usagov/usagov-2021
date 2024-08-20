@@ -86,4 +86,13 @@ export CFEVENTS_DATE_FORMAT="%Y-%m-%dT%H:%M:%SZ"
 export CFEVENTS_DEFAULT_LASTRUN="2 months ago"
 ### -> if we do not have GNU formatting, use 'now - (number of seconds in 60 days)': "@$(( $(date +%s) - 5259492 ))"
 
+### use ps from procps-ng package on alpine containers
+TASKLOCK_PS=/bin/ps
+
+### Use /opt/cron on the container
+TASKLOCK_SCRIPT_ROOT=/opt/cron
+
+### Maybe we should be using /var/run/tasks/ on the container?
+TASKLOCK_RUN_ROOT=/tmp/tasks/run
+
 echo "Cron App Setup Complete"

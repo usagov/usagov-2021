@@ -42,6 +42,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     moreutils \
     nano \
     pv \
+    procps \
     tar \
     tzdata \
     unzip \

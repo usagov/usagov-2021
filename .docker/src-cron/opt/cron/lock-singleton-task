@@ -18,7 +18,8 @@
 ###     2.3 If pid file does not exist, add pid file with task process' pid, continue normally normally
 ###   1.2 If mkdir succeeds, add pid file with task process' pid, continue normally
 
-TASKSDIR=/tmp/tasks/run
+TASKSPS=${TASKLOCK_PS:-ps}
+TASKSDIR=${TASKLOCK_RUN_ROOT:-/tmp/tasks/run}
 mkdir -p $TASKSDIR
 
 TASKNAME=${1}
@@ -41,7 +42,7 @@ if ! mkdir "$TASKLOCK" &> /dev/null; then
 
   lastpid=$(ls -t1 $TASKLOCK | sort | head -n1 )
   while [ "$lastpid" != "" ]; do
-    if ps $lastpid &> /dev/null; then
+    if $TASKSPS $lastpid &> /dev/null; then
       echo "NOTICE: No action taken because $TASKNAME (pid: $lastpid) appears to be running since: " $(TZ=UTC date -r $TASKLOCK/$lastpid)
       exit 1
     else
