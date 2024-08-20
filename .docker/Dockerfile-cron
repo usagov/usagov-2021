@@ -61,6 +61,8 @@ RUN mkdir -p /etc/periodic/1min \
     && rm -rf /var/cache/apk/*
 
 COPY .docker/src-cron /
+COPY scripts/cron/task-lock-reference-script /opt/cron
+COPY scripts/cron/task-lock-test-locking-capabilities /opt/cron
 COPY bin/cloudgov/events/get-events /opt/cfevents/get-events
 
 RUN chmod -R +x /etc/periodic \
