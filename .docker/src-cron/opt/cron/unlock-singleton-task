@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+###
+### This is an unlocking postamble script, corresponding to the preable lock-singleton-task
+###
+
 TASKSDIR=/tmp/tasks/run
 mkdir -p $TASKSDIR
 
@@ -20,5 +24,3 @@ PIDS=$(ls $TASKLOCK)
 if [ -z "$PIDS" ]; then
   rmdir "$TASKLOCK"
 fi
-
-exit 0
