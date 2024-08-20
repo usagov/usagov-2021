@@ -48,7 +48,7 @@ class TaxonomyDatalayerBuilder {
 
   public function __construct(
     private BreadcrumbManager $breadcrumbManager,
-    public readonly Node $node,
+    public Node $node,
     bool $isFront,
     public readonly ?string $basicPagesubType,
   ) {
