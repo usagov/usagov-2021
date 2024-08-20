@@ -142,10 +142,10 @@ class MenuChecker implements ContainerInjectionInterface {
 
               if (isset($menu_taxonomy_links)) {
                 if (isset($menu_entity->parent->value)) {
-                  $parentEntityUuid = $menu_entity->parent->value;
-                  $parentEntity = \Drupal::service('entity.repository')
-                    ->loadEntityByUuid('menu_link_content', explode(':', $parentEntityUuid));
-                  $menu_taxonomy_links[$tid][0] = $parentEntity;
+                  $primaryEntityUuid = $menu_entity->parent->value;
+                  $primaryEntity = \Drupal::service('entity.repository')
+                    ->loadEntityByUuid('menu_link_content', explode(':', $primaryEntityUuid));
+                  $menu_taxonomy_links[$tid][0] = $primaryEntity;
 
                   // Load children of the parent entity.
                   $children = $this->entityTypeManager->getStorage('menu_link_content')
@@ -153,7 +153,7 @@ class MenuChecker implements ContainerInjectionInterface {
                         [
                           'menu_name' => $menu_name,
                           'enabled' => 1,
-                          'parent' => $parentEntityUuid,
+                          'parent' => $primaryEntityUuid,
                         ]
                       );
 
@@ -170,7 +170,10 @@ class MenuChecker implements ContainerInjectionInterface {
     }
 
     if (isset($menu_taxonomy_links)) {
-      return $menu_taxonomy_links;
+      return [
+        'menu_entities' => $menu_taxonomy_links,
+        'primary_entity' => $primaryEntity,
+      ];
     }
     else {
       return [];
