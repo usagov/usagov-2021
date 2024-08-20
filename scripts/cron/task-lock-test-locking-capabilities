@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 
-### Test Setup: create several dummy PID files in the lock directory:
-mkdir /tmp/tasks/run/task-lock-reference-script
-touch /tmp/tasks/run/task-lock-reference-script/{787878,878787,908789}
+SCRIPT_ROOT=scripts/cron # on the container, change this path to /opt/cron/ as we'll copy these in the dockerfile
+RUN_ROOT=/tmp/tasks/run  # on the container, maybe this should be /var/run?
 
-### Attempt to run 
-scripts/cron/task-lock-reference-script &
+### Test Setup: create several dummy PID files in the lock directory:
+mkdir $RUN_ROOT/task-lock-reference-script
+touch $RUN_ROOT/task-lock-reference-script/{787878,878787,908789}
+
+### Attempt to run concurrently
+$SCRIPTS_ROOT/task-lock-reference-script &
 sleep 5
 echo
-touch /tmp/tasks/run/task-lock-reference-script/{898098,908809,907890}
-scripts/cron/task-lock-reference-script &
+touch $RUN_ROOT/task-lock-reference-script/{898098,908809,907890}
+$SCRIPTS_ROOT/task-lock-reference-script &
 sleep 5
 echo
-scripts/cron/task-lock-reference-script
+$SCRIPTS_ROOT/task-lock-reference-script
 echo
 sleep 6
-scripts/cron/task-lock-reference-script
+$SCRIPTS_ROOT/task-lock-reference-script
 echo

@@ -15,8 +15,8 @@ TASKNAME=$(basename $0)
 ### This pid (used to determine if we died w/o proper unlocking)
 TASKPID=$$
 
-SCRIPT_ROOT=.docker/src-cron/opt/cron/
-RUN_ROOT=/tmp/tasks/run
+SCRIPT_ROOT=.docker/src-cron/opt/cron/ # on the container, change this path to /opt/cron/
+RUN_ROOT=/tmp/tasks/run # on the container, maybe this should be /var/run?
 
 ### Lock!
 echo "Attempting to take lock for $TASKNAME, PID: $TASKPID"

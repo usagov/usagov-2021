@@ -4,7 +4,7 @@
 ### This is an unlocking postamble script, corresponding to the preable lock-singleton-task
 ###
 
-TASKSDIR=/tmp/tasks/run
+TASKSDIR=/tmp/tasks/run # on the container, maybe this should be /var/run?
 mkdir -p $TASKSDIR
 
 TASKNAME=${1}
