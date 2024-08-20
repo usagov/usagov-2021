@@ -50,7 +50,7 @@ class TaxonomyDatalayerBuilder {
     private BreadcrumbManager $breadcrumbManager,
     public Node $node,
     bool $isFront,
-    public readonly ?string $basicPagesubType,
+    public ?string $basicPagesubType,
   ) {
     $this->isFront = $isFront ? 'homepage' : 'not_homepage';
   }
