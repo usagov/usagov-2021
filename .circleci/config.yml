@@ -316,7 +316,7 @@ jobs:
 
   lint:
     docker:
-      - image: cimg/php:8.0.16-node
+      - image: cimg/php:8.1.27-node
     steps:
       - checkout
       - install-node
@@ -324,6 +324,7 @@ jobs:
           name: Install Linters and Sniffers
           command: |
             npm install --prefix ./web/themes/custom/usagov
+            composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
             composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
