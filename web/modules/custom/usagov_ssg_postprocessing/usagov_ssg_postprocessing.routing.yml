@@ -22,4 +22,4 @@ usagov_ssg_postprocessing.content:
   options:
     no_cache: 'TRUE'
   requirements: 
-    _permission: 'access content' 
+    _permission: 'access administration pages' 
