@@ -32,8 +32,8 @@ DOMAINS=($(jq -r ".domains[]" $SCRIPTDIR/domains.json))
 for domain in "${DOMAINS[@]}"; do
    echo  cf create-domain $ORG $domain
    $ECHO cf create-domain $ORG $domain
-   echo  cf map-route cms $domain
-   $ECHO cf map-route cms $domain
+   echo  cf map-route www $domain
+   $ECHO cf map-route www $domain
    echo cf bind-route-service $domain waf-route-prod-usagov
    $ECHO cf bind-route-service $domain waf-route-prod-usagov
 done
