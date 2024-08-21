@@ -63,6 +63,9 @@
 }
 
 /** USAGOV-1781 - Fixing a bug where the focus outline on the USAGov-logo dosn't fit right in FireFox **/
+#extended-logo {
+  width: auto;
+}
 #extended-logo > em,
 #extended-logo > em > a {
   display: block;
