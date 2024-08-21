@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cf ssh cms -c "cat /etc/motd"

@@ -21,6 +21,6 @@
  */
 #}
 
-<input class="usa-radio__input usa-radio__input--tile" type="radio" id="{{ option_name|lower|replace({' ': '-'}) }}" name="options" value="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': row.tid}) }}">
-<label class="usa-radio__label" for="{{ option_name|lower|replace({' ': '-'}) }}">{{ output }}</label>
+<input class="usa-radio__input usa-radio__input--tile" type="radio" id="{{ option_name|lower|replace({' ': '-', '\'': ''}) }}" name="options" value="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': row.tid}) }}">
+<label class="usa-radio__label" for="{{ option_name|lower|replace({' ': '-', '\'': ''}) }}">{{ output }}</label>
 

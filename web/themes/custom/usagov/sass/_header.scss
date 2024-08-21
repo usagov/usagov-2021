@@ -18,7 +18,8 @@
 
 .usa-banner__button-text,
 .usa-banner__button-text:hover {
- @include u-text('blue-warm-70v');
+  @include u-text('blue-warm-70v');
+  line-height: 1.5;
 }
 
 .usa-banner__button-text:visited {
@@ -61,6 +62,13 @@
   height: auto;
 }
 
+/** USAGOV-1781 - Fixing a bug where the focus outline on the USAGov-logo dosn't fit right in FireFox **/
+#extended-logo > em,
+#extended-logo > em > a {
+  display: block;
+  height: 100%;
+}
+
 @include at-media($theme-header-min-width) {
   .usa-header--extended div.language-switcher-language-url {
     margin-right: auto;
@@ -71,12 +79,14 @@
     display: block;
   }
 }
+
 .usa-navbar .navbar-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
   margin: .5rem;
+
   @media (max-width: 64em) {
     flex-direction: row;
     align-items: center;
@@ -111,6 +121,7 @@
     background-repeat: no-repeat;
     background-position: 3.5rem 0.7rem;
   }
+
   @include u-bg('blue-warm-80v');
 }
 
@@ -247,6 +258,7 @@
 
 #block-betabanner .usa-alert--info,
 #block-betaspanishbanner .usa-alert--info {
+
   // These styles are needed to position the alert icon
   &::before {
     display: none;
@@ -277,6 +289,7 @@
 }
 
 #block-emergencyheaderbanner .usa-alert--error {
+
   // These styles are needed to position the alert icon
   &::before {
     display: none;
@@ -363,12 +376,15 @@ input#search-field-small-mobile-menu {
     max-width: calc(70.25rem + 4rem);
     padding-left: 2.3rem;
   }
+
   .usa-header--extended .usa-banner__inner {
     max-width: calc(70.25rem + 4rem);
   }
+
   .usa-header--extended .usa-navbar {
     max-width: calc(70.25rem + 4rem);
   }
+
   .usa-header--extended .usa-alert__body {
     max-width: calc(70.25rem + 4rem);
     margin: auto;
@@ -376,7 +392,7 @@ input#search-field-small-mobile-menu {
     padding-right: 2rem !important;
   }
 
-  .usa-header--extended .usa-alert--no-icon .usa-alert__body{
+  .usa-header--extended .usa-alert--no-icon .usa-alert__body {
     padding-left: 1.7rem !important;
   }
 
@@ -387,12 +403,13 @@ input#search-field-small-mobile-menu {
     padding-left: 2.7rem;
   }
 
-  .usa-header--extended .usa-alert--no-icon .usa-alert__body{
+  .usa-header--extended .usa-alert--no-icon .usa-alert__body {
     padding-left: 0.5rem;
   }
 }
 
-.usa-header--extended .usa-alert:not(.usa-alert--no-icon){
+.usa-header--extended .usa-alert:not(.usa-alert--no-icon) {
+
   // These styles are needed to position the alert icon
   &::before {
     display: none;
@@ -420,7 +437,8 @@ input#search-field-small-mobile-menu {
 
 .usa-header--extended {
 
-  .usa-alert--info:not(.usa-alert--no-icon), .usa-alert--success:not(.usa-alert--no-icon) {
+  .usa-alert--info:not(.usa-alert--no-icon),
+  .usa-alert--success:not(.usa-alert--no-icon) {
     .usa-alert__body {
       &::before {
         background: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
@@ -454,7 +472,42 @@ input#search-field-small-mobile-menu {
     justify-content: space-between;
     width: auto;
   }
+
   .usa-header--extended .usa-nav__primary::after {
+    content: none;
+  }
+}
+
+@media (max-width: 40em) {
+  .usa-banner__header--expanded .usa-banner__header-action {
+    display: inline-block;
+  }
+  .usa-banner__header-action {
+    display: inline-block;
+  }
+}
+
+.usa-banner_expand_arrow {
+  fill: #1a4480;
+  vertical-align: middle;
+}
+
+.usa-banner__header--expanded {
+  .usa-banner_expand_arrow {
+    transform: rotate(180deg);
+  }
+}
+
+// for desktop
+@media (min-width: 40em) {
+  .usa-banner__button::after, .usa-banner__button:hover::after, .usa-banner__button[aria-expanded=true]::after, .usa-banner__button[aria-expanded=true]:hover::after {
+    content: none;
+  }
+}
+
+// for mobile
+@media (max-width: 40em) {
+  .usa-banner__header-action-mobile::after{
     content: none;
   }
 }

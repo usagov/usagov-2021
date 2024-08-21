@@ -305,6 +305,10 @@ else
   echo "No Render Dir to remove" | tee -a $TOMELOG
 fi
 
+echo "Changing directory to /tmp/ since the rend-directory we are currently in just got deleted..."
+# Note: That change-dir is done in order to stop the "aws" call below from crashing.
+cd /tmp/
+
 if [ -f "$TOMELOG" ]; then
   echo "Saving logs of this run to S3: $TOMELOG -> $BUCKET_NAME/tome-log/$TOMELOGFILE" | tee -a $TOMELOG
   echo "SYNC FINISHED" | tee -a $TOMELOG

@@ -7,9 +7,13 @@
   background: $button-secondary-default;
 
   &::before {
-    background-color: $button-secondary-outline;
+    background-color: color('gray-90');
     box-shadow: 0 0 0 2px color('gray-90'), inset 0 0 0 3px color('gray-5');
     opacity: 1;
+
+    &:not(:focus) {
+      outline: 0;
+    }
   }
 }
 
@@ -45,9 +49,11 @@
 
     fieldset {
       all: unset;
+      display: block;
+      width: 100%;
+
       // Disable this to prevent shift+click selection of multiple radios.
-      -webkit-user-select: none; /* Safari */
-      user-select: none; /* Standard syntax */
+      user-select: none;
     }
 
     .field--name-field-intro {
@@ -73,45 +79,48 @@
       p {
         margin-block-start: 0;
         margin-block-end: 0;
-        margin-left: 2rem;
       }
 
+
+      // Background color of option elements on state changes.
+      .usa-radio__input--tile {
+        &:hover {
+          + [class*=__label] {
+            border-radius: 4px;
+            @include u-border('2px', 'solid', 'gray-20');
+            @include u-bg('gray-5');
+
+            &::before {
+              opacity: 1;
+            }
+          }
+        }
+
+        &:checked, &:active {
+          + [class*=__label] {
+            @include checked;
+          }
+        }
+
+        &:focus {
+          &::before {
+            outline: .25rem solid $button-secondary-outline;
+            outline-offset: 0;
+            box-shadow: inset 0 0 0 2px color('gray-5');
+          }
+        }
+      }
+
+      // Positioning of the option elements.
       .usa-radio__input--tile + .usa-radio__label {
-        line-height: 26.4px;
-        padding: 1rem;
+        padding: 1rem 1rem 1rem 2.5rem;
         margin-top: 0;
 
         // Have a hidden border in the natural state so this doesn't move on hover.
         border: 2px solid transparent;
 
         &::before {
-          margin: 0;
-          position: relative;
-          display: inline-block;
-          top: -2px;
-          vertical-align: middle;
-          left: 0;
-          outline: 0;
           opacity: .6;
-        }
-
-        &:hover {
-          border-radius: 4px;
-          @include u-border('2px', 'solid', 'gray-20');
-          @include u-bg('gray-5');
-
-          &::before {
-            opacity: 1;
-          }
-        }
-
-        &:active, &.checked {
-          @include checked;
-        }
-
-        // Option label.
-        .usagov-label--text {
-          margin-left: 12px;
         }
       }
     }
@@ -124,7 +133,7 @@
       display: none;
 
       .usa-alert__body {
-        padding-left: 3rem;
+        padding-left: 2.75rem;
       }
 
       &::before {
@@ -132,11 +141,12 @@
         width: 20px;
       }
 
-      // Override custom-styles :focus rules.
+      // Override custom-styles :focus rule.
       #msg {
+        padding: 0 5px;
+
         &:focus {
-          outline: 0;
-          box-shadow: none;
+          width: fit-content;
         }
       }
     }

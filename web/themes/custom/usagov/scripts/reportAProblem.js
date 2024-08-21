@@ -14,125 +14,6 @@ function timestamp() {
 setInterval(timestamp, 500);
 
 /**
- * This function displays all the error elements related to the given reCaptcha. Such as the error message
- * on top of the reCaptcha, the error style, the error message in the alert box, the left padding,
- * and side line.
- * @returns {Element} recaptcha that you want to display.
- */
-function showReCaptchaError(reCaptchaContainer) {
-  "use strict";
-
-  if ($("html").attr("lang") === "en") {
-    // Adds an english error message before the captcha box.
-    $('<span class="err-label usa-error recaptcha-error-message" tabindex="0">Fill out the reCaptcha</span>')
-    .insertBefore(reCaptchaContainer.querySelector(".recaptcha-alignment"));
-  }
-  else {
-    // Adds a spanish error message before the captcha box.
-    $('<span class="err-label usa-error recaptcha-error-message" tabindex="0">Complete el reCaptcha</span>')
-    .insertBefore(reCaptchaContainer.querySelector(".recaptcha-alignment"));
-  }
-  // Adds the error outline to the reCaptcha box.
-  reCaptchaContainer.querySelector(".recaptcha-outline-padding").classList.add("usa-user-error");
-
-  var alertBoxText = document.querySelector("#alert_error_recaptcha_large");
-
-  if (reCaptchaContainer.id === "recaptcha-small-container") {
-    alertBoxText = document.querySelector("#alert_error_recaptcha_small");
-  }
-  // Makes the reCaptcha error text visible in the alert box.
-
-  alertBoxText ? alertBoxText.classList.remove("usa-error--alert") : "";
-  // Adds left padding from recaptcha.
-  reCaptchaContainer.classList.add("usa-form-spacing", "usa-border-error");
-  // Aligns the reCaptcha to the left when it has an error.
-  reCaptchaContainer.querySelector(".recaptcha-alignment").style.justifyContent = "left";
-
-}
-
-/**
- * This function hides all the error elements related to the given reCaptcha. Such as the error message
- * on top of the reCaptcha, the error style, the error message in the alert box, the left padding,
- * and side line.
- * @returns {Element} recaptcha that you want to hide.
- */
-function hideReCaptchaError(reCaptchaContainer) {
-  "use strict";
-
-  // Removes error messages from the reCaptcha
-  var reCaptchaErrorMessage = reCaptchaContainer.querySelector(".recaptcha-error-message");
-  reCaptchaErrorMessage ? reCaptchaErrorMessage.remove() : "";
-
-  // Removes the error style from the reCaptcha.
-  var reCaptchaErrorStyle = reCaptchaContainer.querySelector(".recaptcha-outline-padding");
-  reCaptchaErrorStyle ? reCaptchaErrorStyle.classList.remove("usa-user-error") : "";
-  var reCaptchaErrorLabel = reCaptchaContainer.querySelector(".recaptcha-error-message");
-  reCaptchaErrorLabel ? reCaptchaErrorLabel.remove() : "";
-
-  var alertBoxText = document.querySelector("#alert_error_recaptcha_large");
-
-  if (reCaptchaContainer.id === "recaptcha-small-container") {
-    alertBoxText = document.querySelector("#alert_error_recaptcha_small");
-  }
-
-  // Makes the reCaptcha error text invisible in the alert box.
-  alertBoxText.classList.add("usa-error--alert");
-
-  // Removes left padding from recaptcha.
-  reCaptchaContainer ? reCaptchaContainer.classList.remove("usa-form-spacing", "usa-border-error") : "";
-  // Aligns the reCaptcha to the center when it doesn't have an error.
-  reCaptchaContainer.querySelector(".recaptcha-alignment").style.justifyContent = "center";
-  // Removes the side line without spaces.
-  var mainErrorBorder = reCaptchaContainer.querySelector("#error-border");
-  mainErrorBorder ? mainErrorBorder.classList.remove("usa-main-border-error") : "";
-}
-
-/**
- * This function validates if the reCaptcha response and adds the error style if needed.
- * @returns {boolean} indicates whether the reCaptcha is checked or not.
- */
-function reCaptchaValidation() {
-  "use strict";
-
-  // reCaptcha Validation
-  var captchaValidationResult = true;
-  // Screen width to validate the reCaptcha
-  var screenWidth = window.innerWidth;
-
-  var reCaptchaSmallContainer = document.querySelector("#recaptcha-small-container");
-  var reCaptchaLargeContainer = document.querySelector("#recaptcha-large-container");
-
-  if (screenWidth >= 500) {
-    hideReCaptchaError(reCaptchaSmallContainer);
-    // Check if reCaptcha is checked on large devices and if it already has the error style.
-    if (grecaptcha.getResponse(0).length === 0) {
-      if (!reCaptchaLargeContainer.querySelector("span.recaptcha-error-message")) {
-        showReCaptchaError(reCaptchaLargeContainer);
-        captchaValidationResult = false;
-      }
-    }
-    else {
-      hideReCaptchaError(reCaptchaLargeContainer);
-    }
-  }
-  else {
-    hideReCaptchaError(reCaptchaLargeContainer);
-    // Check if reCaptcha is checked on small devices and if it already has the error style.
-    if (grecaptcha.getResponse(1).length === 0) {
-      if (!reCaptchaSmallContainer.querySelector("span.recaptcha-error-message")) {
-        showReCaptchaError(reCaptchaSmallContainer);
-        captchaValidationResult = false;
-      }
-    }
-    else {
-      hideReCaptchaError(reCaptchaSmallContainer);
-    }
-  }
-
-  return captchaValidationResult;
-}
-
-/**
  * This function validates if the text entered is an email.
  * @param {string} email - the text to be validated
  * @returns {boolean} indicates whether the input text is an email or not.
@@ -275,65 +156,24 @@ function modifyErrorElements() {
 var submitPressed = function () {
   "use strict";
 
-  // reCaptcha Validation and error styling.
-  var reCaptchaValidationResult = reCaptchaValidation();
-
   // Field Validation
   var fieldValidationResult = fieldValidation();
   // Hides or shows error elements.
   modifyErrorElements();
 
-  return reCaptchaValidationResult && fieldValidationResult;
+  // return reCaptchaValidationResult && fieldValidationResult;
+  return fieldValidationResult;
 };
 
-function changeRecaptchaDisplay(mediaQueryList) {
-  'use strict';
-  // If the media query matches, it means the width is 499px or less
-  if (mediaQueryList.matches) {
-    // Hide the large recaptcha and show the small recaptcha.
-    document.getElementById('recaptcha-large-container').style.display = "none";
-    document.getElementById('recaptcha-small-container').style.display = "flex";
-  }
-  else {
-    // Hide the small recaptcha and show the large recaptcha.
-    document.getElementById('recaptcha-large-container').style.display = "flex";
-    document.getElementById('recaptcha-small-container').style.display = "none";
-  }
-}
-
-jQuery(document).ready(function () {
+function onSubmit(token) {
   "use strict";
-
-  $("#cntctbx").hide();
-
-  // Create a MediaQueryList object to check if the screen size
-  var mediaQueryList = window.matchMedia("(max-width: 499px)");
-
-  // Call listener function at run time
-  changeRecaptchaDisplay(mediaQueryList);
-
-  // Attach listener function on state changes
-  mediaQueryList.addEventListener("change", function() {
-    changeRecaptchaDisplay(mediaQueryList);
-  });
-
-  // Large recaptcha Element
-  var reCaptchaLargeNode = document.getElementById('recaptcha-large-container');
-
-  // Called every time an attribute changes in the large reCaptcha
-  const reCaptchaObserver = new MutationObserver((mutationList, observer) => {
-    if (document.querySelectorAll('#error-box:not(.usa-error--alert)').length > 0) {
-      mutationList.forEach((mutation) => {
-        // Check if display value changes from none to flex for recaptcha-large
-        if (mutation.target.id === 'recaptcha-large-container') {
-          reCaptchaValidation();
-          modifyErrorElements();
-        }
-      });
+  // Setting variable to the value of fiieldValidationResult;
+  var formValidationResult = fieldValidation();
+  // Condition statement to sbumit form if all fields in the form are filled out;
+    if (formValidationResult === true) {
+      document.getElementById("myform").submit();
     }
-  });
-  reCaptchaObserver.observe(reCaptchaLargeNode, {"attributes": true, "attributeFilter": ['style']});
-});
+};
 
 jQuery(document).ready(function () {
   "use strict";
