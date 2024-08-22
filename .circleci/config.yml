@@ -690,6 +690,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1888-open-usa-gov
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
