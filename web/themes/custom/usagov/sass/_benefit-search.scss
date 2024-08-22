@@ -243,6 +243,10 @@ main[data-pagetype="Benefits Category Search"]{
   h2#categories-label {
     margin-top: 0;
     @include u-font-family('serif');
+
+    legend {
+      display: inline;
+    }
   }
 
   .life-events-grid {
