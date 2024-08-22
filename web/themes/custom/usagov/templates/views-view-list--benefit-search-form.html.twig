@@ -49,7 +49,7 @@
     <fieldset>
 
       {% if node.field_benefits_search_title.value | render %}
-        <h2 id="categories-label"><legend>{{ node.field_benefits_search_title.value }}</legend></h2>
+        <legend><h2 id="categories-label">{{ node.field_benefits_search_title.value }}</h2></legend>
       {% endif %}
       {% if node.field_benefits_search_descr.value | render %}
         <p id="categories-description">{{ node.field_benefits_search_descr.value }}</p>
