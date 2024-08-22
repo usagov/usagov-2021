@@ -166,6 +166,15 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
           }
         }
       }
+      // Tome can end up requesting existing URLs with the raw `/node/NID` path
+      // if a redirect to a node is set to the wrong language. It then proceeds
+      // which retrieves the wrong taxonomy info, which we should discard.
+      if (str_starts_with($url, '/node/') || str_starts_with($url, '/es/node/')) {
+        if ($fp != FALSE) {
+          fclose($fp);
+        }
+        return;
+      }
 
       // If this page is more than 5 levels deep in the taxonomy hierarchy,
       // Then we may not be able to reconstruct its URL from the taxonomy URL.

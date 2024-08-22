@@ -1,0 +1,19 @@
+uuid: a0fc7f06-ba1a-437c-b5f0-e937ddf08838
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_b_error_message
+    - paragraphs.paragraphs_type.b_levent_elg_criteria
+id: paragraph.b_levent_elg_criteria.field_b_error_message
+field_name: field_b_error_message
+entity_type: paragraph
+bundle: b_levent_elg_criteria
+label: 'Error Message'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
