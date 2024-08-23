@@ -567,6 +567,16 @@ div[class^="QSIUserDefinedHTML"] {
   @include u-text('bold');
 }
 
+.QSIUserDefinedHTML {
+    height: 230px !important;
+}
+
+.QSIUserDefinedHTML > div,
+.QSIUserDefinedHTML > div > div,
+.QSIUserDefinedHTML > div > div > div {
+    height: 230px !important;
+}
+
 .scrollable {
   overflow: unset !important;
 }
@@ -827,7 +837,7 @@ select:not([disabled]):focus,
 .usa-pagination__button{
     border: 2px solid #768FB3;
 }
-  
+
   .usa-pagination__button,
   .usa-pagination__link {
     color: color('gray-90');
@@ -930,5 +940,12 @@ input::-webkit-textfield-decoration-container {
     @include u-margin(0);
 
     max-width: 100%;
+  }
+}
+
+@supports (-moz-appearance:none) {
+  .Skin #Questions {
+    overflow: hidden;
+    max-height: 138px;
   }
 }
