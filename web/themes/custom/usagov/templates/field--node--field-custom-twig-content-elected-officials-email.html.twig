@@ -1,0 +1,55 @@
+<div class="usa-prose">
+
+  <h2>
+        Selected official and their email address
+  </h2>
+
+    <div class="border-left-1 border-gray-10 padding-left-2  margin-top-1">
+        <p class="font serif-sm margin-y-0" id="display-official">
+            Official's name<br>
+            Official's position
+        </p>
+        <p id="button-alt"><strong>
+            Email address: 
+        </strong></p>
+    </div>
+    <p>You can copy and paste the above email address into an email. Or you can use the optional form below for help creating an informative email message for your elected official.</p>
+    <h2>Get help writing your message</h2>
+    <p>Answer the questions in the boxes below. Then, select the "Create my email" button.</p>
+    <p>This tool will then create a finished email within your email service. If you are using the web browser and device that you usually use for email, the email should be successfully created there. You can edit it there if you like.</p>
+    <p>If you are using someone else's device or think the default email service is not properly set in your current web browser, no worries. Use the above email address in your email service and write your message there. You can use the questions below to guide you in knowing what to say to write a clear and informative email.</p>
+
+    <form id="mailForm" class="usa-form maxw-none" onsubmit="writeMessage()" action="javascript:void(0);" autocomplete="off">
+        <div class="bg-gray-4 padding-1px">
+            <div class="maxw-mobile margin-x-auto margin-y-4">
+                <label class="usa-label" id="topicField" for="input-topic">What is the issue that you want to write about?</label>
+                <textarea
+                    class="usa-textarea width-full"
+                    id="input-topic"
+                    aria-labelledby="input-topic"
+                    name="input-topic"
+                    rows="5"
+                ></textarea>
+                <label class="usa-label" id="aboutField" for="input-about">What do you want to say about the issue?</label>
+                <textarea
+                    class="usa-textarea width-full"
+                    id="input-about"
+                    aria-labelledby="input-about"
+                    name="input-about"
+                    rows="5"
+                ></textarea>
+                <label class="usa-label" id="actionField" for="input-action">What do you want your elected official to do about the issue?</label>
+                <textarea
+                    class="usa-textarea width-full"
+                    id="input-action"
+                    aria-labelledby="input-action"
+                    name="input-action"
+                    rows="5"
+                ></textarea>
+                <button class="usa-button usa-button--secondary usa-button--big">Create my email</button>
+            </div>
+        </div>
+    </form>
+
+   
+</div>
