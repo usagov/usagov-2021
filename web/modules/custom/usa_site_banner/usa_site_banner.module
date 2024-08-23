@@ -9,8 +9,8 @@ use Drupal\block_content\Entity\BlockContent;
  * and places it in the header_top region if necessary.
  */
 function usa_site_banner_entity_insert($entity) {
-  if ($entity->getEntityTypeId() == 'block_content' && $entity->getType() == "site_banner") {
-    placeBlock($entity);
+  if ($entity->getEntityTypeId() == 'block_content' && $entity->bundle() == "site_banner") {
+    usa_site_banner_place_block($entity);
   }
 }
 
@@ -20,7 +20,7 @@ function usa_site_banner_entity_insert($entity) {
  * and places it in the header_top region, if necessary.
  */
 function usa_site_banner_entity_update($entity) {
-  if ($entity->getEntityTypeId() == 'block_content' && $entity->getType() == "site_banner") {
+  if ($entity->getEntityTypeId() == 'block_content' && $entity->bundle() == "site_banner") {
     usa_site_banner_place_block($entity);
   }
 }
@@ -30,7 +30,6 @@ function usa_site_banner_entity_update($entity) {
  * @param BlockContent $block_content The BlockContent you want to place in the region.
  */
 function usa_site_banner_place_block(BlockContent $block_content) {
-
   // Get the block if any
   $block = Block::load('site_banner_' . $block_content->id());
   // Get the value of the checkbox in the site_banner form
