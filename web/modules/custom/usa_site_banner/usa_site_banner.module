@@ -1,0 +1,92 @@
+<?php
+
+use Drupal\block\Entity\Block;
+use Drupal\block_content\Entity\BlockContent;
+
+/**
+ * Implements hook_entity_insert()
+ * When a Content Admin creates a site_banner, this function creates a block
+ * and places it in the header_top region if necessary.
+ */
+function usa_site_banner_entity_insert($entity) {
+  if ($entity->getEntityTypeId() == 'block_content' && $entity->getType() == "site_banner") {
+    placeBlock($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_update()
+ * When a Content Admin updates a site_banner, this function creates a block, if necessary,
+ * and places it in the header_top region, if necessary.
+ */
+function usa_site_banner_entity_update($entity) {
+  if ($entity->getEntityTypeId() == 'block_content' && $entity->getType() == "site_banner") {
+    placeBlock($entity);
+  }
+}
+
+/**
+ * Places a Block in a region using the BlockContent data to create the Block.
+ * @param BlockContent $block_content The BlockContent you want to place in the region.
+ */
+function placeBlock(BlockContent $block_content) {
+
+  // Get the block if any
+  $block = Block::load('site_banner_' . $block_content->id());
+  // Get the value of the checkbox in the site_banner form
+  $place_above_header = $block_content->field_place_above_header->value;
+
+  // If the block has not been created, it is created so that the block can be placed in the region.
+  if (!$block) {
+    $block = createBlock($block_content);
+  }
+
+  // Place the block in the "header_top" region if the checkbox is checked.
+  if ($place_above_header) {
+    $block->set('status', 1);
+    $block->save();
+  }
+  // Removes the block from the "header_top" region if the checkbox is unchecked.
+  else {
+    $block->set('status', 0);
+    $block->save();
+  }
+}
+
+/**
+ * Creates a Block based on the BlockContent data.
+ * @param BlockContent $block_content The BlockContent for which you want to create the block.
+ * @return Block The new generated Block.
+ */
+function createBlock(BlockContent $block_content) {
+
+  $block_content_langcode = $block_content->langcode->value;
+
+    // Set visibility to appear based on language.
+    $visibility = [
+      "language" => [
+      "id" => "language",
+      "negate" => false,
+      "context_mapping" => [
+        "language" => "@language.current_language_context:language_interface"
+      ],
+      "langcodes" => [
+        $block_content_langcode => $block_content_langcode
+      ]]
+    ];
+
+    // Set all the values ​​needed to create a block, including which region it will be placed in.
+    $values = [
+      'id' => 'site_banner_' . $block_content->id(),
+      'theme' => 'usagov',
+      'plugin' => 'block_content:' . $block_content->uuid(),
+      'region' => 'header_top',
+      'visibility' => $visibility,
+      'status' => 0,
+      'weight' => 0,
+      'settings' => [],
+    ];
+
+    // Create and return the new block.
+    return Block::create($values);
+}
