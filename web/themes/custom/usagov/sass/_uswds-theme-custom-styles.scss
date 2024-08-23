@@ -816,7 +816,9 @@ select:not([disabled]):focus,
   
   &:focus {
     background-color: color('blue-warm-70v');
-    color: white
+    color: white;
+    outline-width: 2px;
+    outline-offset: -2px;
   }
 }
 
