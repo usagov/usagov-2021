@@ -144,16 +144,9 @@ main[data-pagetype="Benefits Category Search"]{
     padding-bottom: 0.5rem;
 
     &.end-mobile-column {
-      padding-bottom: 0;
       @include at-media('tablet-lg') {
         padding-bottom: 0.5rem;
       }
-    }
-  }
-
-  &.end-desktop-column {
-    @include at-media('tablet-lg') {
-      padding-bottom: 0;
     }
   }
 }
