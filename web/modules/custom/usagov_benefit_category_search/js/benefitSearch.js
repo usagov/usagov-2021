@@ -188,10 +188,18 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
   };
   /**
    * Clears the results container
+   * @param {boolean} announceClear
    */
-  this.handleClear = function() {
+  this.handleClear = function(announceClear = false) {
     myself.clearErrors();
+
+    if (announceClear)  {
+      let alert = myself.form.querySelector('.alert-container');
+      alert.innerHTML = '<div class="visuallyhidden">Your category selections have been cleared.</div>'; // TODO LANG
+    }
+
     myself.resultsContainer.innerHTML = '';
+
   };
   /**
    * @param {int} page
@@ -225,6 +233,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
    * Check form input and show the matching benefits
    */
   this.handleSubmit = function() {
+    myself.clearErrors();
     //  grab term ids from checked filters
     let checked = myself.form.querySelectorAll('input[type="checkbox"]:checked');
     if (checked.length === 0) {
@@ -258,7 +267,10 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
    */
   this.handleToggleAll = function(ev) {
     myself.clearErrors();
-    myself.handleClear();
+
+    const announceClear = myself.areAllChecked();
+
+    myself.handleClear(announceClear);
     myself.setActivePage(1);
 
     let newState = ev.target.checked;
@@ -443,7 +455,7 @@ ${benefit.term_node_tid}
     }
 
     let elt = document.createElement('template');
-    elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4" aria-live=assertive>
+    elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4">
         <div class="usa_alert__body">
            <h4 class="usa-alert__heading padding-left-6">${myself.labels.emptyCategoryError}</h4>
         </div>
