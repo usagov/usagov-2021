@@ -13,6 +13,7 @@
  * @property {string} lifeEventsCategory Life events category name
  * @property {string} benefitFinderCategory Benefit finder category name
  * @property {string} showingResults Template for count and range of results shown
+ * @property {string} selectionsCleared Template for count and range of results shown
  */
 /**
  * Component to allow users to search benefits content and display
@@ -195,7 +196,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
 
     if (announceClear)  {
       let alert = myself.form.querySelector('.alert-container');
-      alert.innerHTML = '<div class="visuallyhidden">Your category selections have been cleared.</div>'; // TODO LANG
+      alert.innerHTML = `<div class="visuallyhidden">${myself.labels.selectionsCleared}</div>`; // TODO LANG
     }
 
     myself.resultsContainer.innerHTML = '';
@@ -596,7 +597,8 @@ jQuery(document).ready(async function () {
       'emptyCategoryError': 'Error: Please select at least one or more categories',
       'appliedCategories': 'Applied categories',
       'lifeEventsCategory': 'Life events',
-      'benefitFinderCategory': 'Benefit finder tool'
+      'benefitFinderCategory': 'Benefit finder tool',
+      'selectionsCleared': 'Your selections were cleared.',
     };
   }
   else if (docLang[0] === 'es') {
@@ -614,7 +616,8 @@ jQuery(document).ready(async function () {
       'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
       'appliedCategories': 'Categorías seleccionadas',
       'lifeEventsCategory': 'Etapas de la vida',
-      'benefitFinderCategory': 'Buscador de beneficios'
+      'benefitFinderCategory': 'Buscador de beneficios',
+      'selectionsCleared': 'Las selecciones fueron reiniciadas',
     };
   }
   // creat and initialize the search tool
