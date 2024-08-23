@@ -292,6 +292,19 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
     return true;
   };
   /**
+   * Test if any of the category checkboxes are ticked.
+   * @return boolean
+   */
+  this.areAnyChecked = function() {
+    for (const box of myself.boxes) {
+      if (box.checked === true) {
+        return true;
+      }
+    }
+    // if we get here, none must be checked
+    return false;
+  };
+  /**
    * Hide the indicated page
    * @param {Element} page
    */
@@ -554,7 +567,9 @@ ${benefit.term_node_tid}
     this.toggleAll.checked = myself.areAllChecked();
     // form events
     myself.form.addEventListener('submit', myself.handleSubmit);
-    myself.form.addEventListener('reset', myself.handleClear);
+    myself.form.addEventListener('reset', function() {
+      myself.handleClear(myself.areAnyChecked());
+    });
     // history events
     window.addEventListener('popstate', myself.parseUrlState);
   };
