@@ -246,17 +246,8 @@ a {
   font-size: 1.5rem;
 }
 
-.desktop\:grid-col-fill .content-wrapper {
-  // On Navigation Cards pages, display the content in reverse order. So the Nav banner is displayed above the Intro Text.
-  display: flex;
-  flex-direction: column;
-}
-
-// This style is needed to extend the width of nav page intro text
-.desktop\:grid-col-fill .usa-prose > p.usa-intro {
-  max-width: 81ex;
-  margin-left: 1.2ex;
-  margin-right: 1.2ex;
+.usa-prose > p.usa-intro {
+  max-width: none;
 }
 
 @media (max-width: 30em) {
@@ -780,7 +771,6 @@ select:not([disabled]):focus,
   box-shadow: none;
 }
 
-#extended-logo [href]:focus,
 .usa-footer__secondary-link a:focus,
 .usa-hero__callout [href]:focus {
   display: inherit;

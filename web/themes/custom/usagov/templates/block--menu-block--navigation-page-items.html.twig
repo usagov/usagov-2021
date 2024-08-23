@@ -4,9 +4,9 @@
 {% if pagetype == "Navigation Cards Page" or pagetype == "Life Events" %}
 
   <div class="usagov-cards usagov-cards-bg">
-    <ul class="usa-card-group">
+    <ul class="usa-card-group grid-row grid-gap-1">
       {% for item in nav_page_items %}
-        <li class="tablet:grid-col-4 usa-card">
+        <li class="tablet:grid-col-6 tablet-lg:grid-col-4 usa-card">
           <a href="{{ item.url }}" class="usa-card__container usagov-card text-no-underline">
             <header class="usa-card__header">
               <h2 class="usa-card__heading usagov-card__heading">{{ item.title }}</h2>
