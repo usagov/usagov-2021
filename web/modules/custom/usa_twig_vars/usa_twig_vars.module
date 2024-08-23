@@ -87,8 +87,6 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             }
           }
 
-          $state = \Drupal::state();
-
           // Cleanup vars.
           $pageType = usa_twig_vars_get_page_type($node);
           $usa_twig_vars['id'] = $node->id();
@@ -123,6 +121,11 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             basicPagesubType: $pageType ?? NULL,
             pageType: $datalayer_Page_Type,
           );
+
+          // $drupalState = \Drupal::state();
+          // dump($drupalState->get('site_banners'));
+          // $usa_twig_vars['site_banners'] = $drupalState->get('site_banners');
+
           unset($isFront);
         }
       }
@@ -290,102 +293,131 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
 }
 
 
-// function usa_twig_vars_entity_presave($entity) {
+/**
+ * Create an array called `site_banners` that contains all the site banners. The
+ * value of each element in this array can be the id of the site banner if the
+ * checkbox `place_above_header` is checked or `null` if the checkbox is not checked.
+ */
+// function usa_twig_vars_preprocess_region(&$variables) {
 
-//   dump($entity->getType());
-//   throw new Exception('Error saving node: Title cannot be empty');
-//   // if ($entity->bundle() == "uswds_alert"){
-//   //   dump($entity->bundle() == "uswds_alert");
-//   //   throw new Exception('Error saving node: Title cannot be empty');
-//   // }
+//   // Check if we are in the `header_top` region
+//   if ($variables['region'] === 'header_top') {
 
+//     $site_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+//     // Get all site_banners from the website
+//     $site_banners_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'site_banner']);
+//     if ($site_banners_blocks) {
+
+//       foreach ($site_banners_blocks as $site_banner) {
+//         /**
+//          * Check if the language of the banner is the same as the website.
+//          * This prevents incorrect language banners from being displayed on the site.
+//          * */
+//         $site_banner_lang = $site_banner->langcode->value;
+//         if ($site_banner_lang === $site_language) {
+//           // Get the value of the checkbox in the site_banner form
+//           $place_above_header = $site_banner->field_place_above_header->value;
+
+//           // Check if the checkbox in the site_banner form is checked or not.
+//           if ($place_above_header) {
+//             // Set the value to the site_banner id to add the site_banner to the `header_top` region.
+//             $variables['site_banners'][$site_banner->id()] = $site_banner->id();
+//           }
+//           else {
+//             // Set the value to null to remove the site_banner with id `$site_banner->id()` from the region `header_top`
+//             $variables['site_banners'][$site_banner->id()] = NULL;
+//           }
+//         }
+
+//       }
+//     }
+//   }
 // }
 
+function usa_twig_vars_entity_insert($entity) {
+  $place_above_header = $entity->field_place_above_header->value;
+  dump($place_above_header);
 
-// function usa_twig_vars_entity_presave($entity) {
+  if ($entity->getEntityTypeId() == 'block_content' && $entity->getType() == "site_banner") {
+    $drupalState = \Drupal::state();
+    $site_banners = $drupalState->get('site_banners');
 
-//   dump($entity->getEntityTypeId() == 'paragraph' && $entity->getType() == 'uswds_alert');
-//   //throw new Exception('Error saving node: Title cannot be empty');
-
-//   // if ($entity->getEntityTypeId() == 'node' && $entity->getType() == 'article') {
-//   //   $entity->title->value = $entity->title->value . 'by ' . date('d-m-Y');
-//   // }
-// }
-
-function usa_twig_vars_entity_presave($entity) {
-
-  if ($entity->getEntityTypeId() == 'block_content') {
-    dump('block_content:' . $entity->uuid());
-
-    $blockEntityManager = \Drupal::service('entity.manager')->getStorage('block');
-    $block = $blockEntityManager->create(
-    array(
-        'id'=> 'ggggggggsssssss',
-        'plugin' => 'block_content:' . $entity->uuid(),
-        'theme' => 'visitb_he_theme'
-    )
-    );
-    $block->setRegion('content');
-
-    // throw new Exception('Error saving node: Title cannot be empty');
+    if(!$site_banners) {
+      $drupalState->set('site_banners', []);
+    }
+    throw new Exception('Error saving node: Title cannot be empty');
   }
-  // $state = \Drupal::state();
-  // $state->set('site_banners', []);
-
-  // // Check if we are in the `header_top` region
-  // if ($entity->getEntityTypeId() == 'paragraph' && $entity->getType() == 'uswds_alert') {
-
-  //   $site_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
-  //   // Get all site_banners from the website
-  //   $site_banners_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'site_banner']);
-  //   if ($site_banners_blocks) {
-
-  //     foreach ($site_banners_blocks as $site_banner) {
-
-  //       /**
-  //        * Check if the language of the banner is the same as the website.
-  //        * This prevents incorrect language banners from being displayed on the site.
-  //        * */
-  //       $site_banner_lang = $site_banner->langcode->value;
-  //       if ($site_banner_lang === $site_language) {
-  //         // Get the value of the checkbox in the site_banner form
-  //         $place_above_header = $site_banner->field_place_above_header->value;
-
-  //         // Check if the checkbox in the site_banner form is checked or not.
-  //         if ($place_above_header) {
-  //           // Set the value to the site_banner id to add the site_banner to the `header_top` region.
-  //           $state->set('site_banners.' . $site_banner->id(), $site_banner->id());
-
-  //           // Clear the cache only if the block is not placed in the region and the "Place above header" checkbox is selected.
-  //           if (!$state->get('site_banners_placement.' . $site_banner->id(), FALSE)) {
-  //             $state->set('site_banners_placement.' . $site_banner->id(), TRUE);
-  //             // drupal_flush_all_caches();
-  //           }
-
-  //         }
-  //         else {
-  //           // Set the value to null to remove the site_banner with id `$site_banner->id()` from the region `header_top`
-  //           $state->set('site_banners.' . $site_banner->id(), NULL);
-  //           $state->set('site_banners_placement.' . $site_banner->id(), FALSE);
-  //         }
-
-  //         dump($state);
-  //         throw new Exception('Error saving node: Title cannot be empty');
-  //       }
-
-  //     }
-
-  //   }
-
-  // }
-
-  // throw new Exception('Error saving node: Title cannot be empty');
 }
 
-// function usa_twig_vars_entity_insert($entity) {
-//   dump($entity);
-//   throw new Exception('Error saving node: Title cannot be empty');
-// }
+function usa_twig_vars_entity_update($entity) {
+  if ($entity->getEntityTypeId() == 'block_content' && $entity->bundle() == "site_banner") {
+    // $drupalState = \Drupal::state();
+    // $site_banners = $drupalState->get('site_banners');
+
+    $block = Block::load('site_banner_' . $entity->id());
+
+    $place_above_header = $entity->field_place_above_header->value;
+
+    if (!$block) {
+      $block_langcode = $entity->langcode->value;
+
+      $visibility = [
+        "language" => [
+        "id" => "language",
+        "negate" => false,
+        "context_mapping" => [
+          "language" => "@language.current_language_context:language_interface"
+        ],
+        "langcodes" => [
+          $block_langcode => $block_langcode
+        ]]
+      ];
+
+      $values = [
+        'id' => 'site_banner_' . $entity->id(),
+        'theme' => 'usagov',
+        'plugin' => 'block_content:' . $entity->uuid(),
+        'region' => 'header_top',
+        'visibility' => $visibility,
+        'status' => 0,
+        'weight' => 0,
+        'settings' => [],
+      ];
+      $block = Block::create($values);
+    }
+
+    if ($place_above_header) {
+      $block->set('status', 1);
+      $block->save();
+
+      // if (!$site_banners) {
+      //   $drupalState->set('site_banners', array());
+      //   $site_banners = $drupalState->get('site_banners');
+      // }
+      // $site_banner = $site_banners[$entity->id()];
+      // if (!$site_banner) {
+      //   $site_banners[$entity->id()] = $entity->id();
+      // }
+    }
+    else {
+      // if ($site_banners) {
+      //   $site_banner = $site_banners[$entity->id()];
+      //   if ($site_banner) {
+      //     unset($site_banners[$entity->id()]);
+      //   }
+      // }
+      $block->set('status', 0);
+      $block->save();
+    }
+    // dump($site_banners);
+    // dump($drupalState->get('site_banners'));
+    // throw new Exception('Error saving node: Title cannot be empty');
+
+    // $drupalState = \Drupal::state();
+    // dump($drupalState->get('site_banners'));
+    // $usa_twig_vars['site_banners'] = $drupalState->get('site_banners');
+  }
+}
 
 /**
  * Create an array called `site_banners` that contains all the site banners. The
