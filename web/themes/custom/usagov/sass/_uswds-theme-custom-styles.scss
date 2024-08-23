@@ -567,6 +567,16 @@ div[class^="QSIUserDefinedHTML"] {
   @include u-text('bold');
 }
 
+.QSIUserDefinedHTML {
+    height: 230px !important;
+}
+
+.QSIUserDefinedHTML > div,
+.QSIUserDefinedHTML > div > div,
+.QSIUserDefinedHTML > div > div > div {
+    height: 230px !important;
+}
+
 .scrollable {
   overflow: unset !important;
 }
