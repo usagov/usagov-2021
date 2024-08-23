@@ -32,7 +32,7 @@
 
 // $card: var( $usagov-variables, card );
 .usagov-cards {
-  padding: 1em;
+  padding: 1em 0;
   @include u-bg('gray-5');
 }
 
@@ -67,3 +67,19 @@
   }
 }
 
+[data-pagetype="Navigation Cards Page"]{
+  .grid-container{
+    max-width: 74.25rem;
+  }
+  .usa-card__container{
+    margin: 0;
+  }
+  .usa-card, .usa-card:last-child{
+    margin-bottom: 0.5rem;
+  }
+  @include at-media("tablet") {
+    .usa-hero__callout {
+      max-width: unset;
+    }
+  }
+}
