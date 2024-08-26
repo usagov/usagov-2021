@@ -119,7 +119,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         $nodeIDElement = array_search("Page ID", $csv[0]);
         $languageElement = array_search("Taxonomy Level 1", $csv[0]);
         foreach ($csv as $key => $line) {
-          if (!empty($line[$nodeIDElement]) && $line[$nodeIDElement] == $decoded["nodeID"]) {
+          if ( !empty($line[$nodeIDElement]) && ( $line[$nodeIDElement] == $decoded["nodeID"] || $line[$nodeIDElement] == 't_' . $decoded["taxonomyID"] ) ) {
             if ($line[$languageElement] == $content_replace[$decoded["language"]]) {
               $pointer = $key;
             }
