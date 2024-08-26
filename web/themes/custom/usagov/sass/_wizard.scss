@@ -7,10 +7,13 @@
   background: $button-secondary-default;
 
   &::before {
-    background-color: $button-secondary-outline;
+    background-color: color('gray-90');
     box-shadow: 0 0 0 2px color('gray-90'), inset 0 0 0 3px color('gray-5');
     opacity: 1;
-    outline: 0;
+
+    &:not(:focus) {
+      outline: 0;
+    }
   }
 }
 
