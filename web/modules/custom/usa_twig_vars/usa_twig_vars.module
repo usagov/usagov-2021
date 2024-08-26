@@ -87,7 +87,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
           // Need to get them from the array return after build() above.
           $usa_twig_vars['id'] = $node->id();
           $usa_twig_vars['nodetype'] = $usa_twig_vars['datalayer']['contentType'];
-          $usa_twig_vars['pagetype'] = $usa_twig_vars['datalayer']['basicPageSubtype'];
+          $usa_twig_vars['pagetype'] = $usa_twig_vars['datalayer']['basicPagesubType'];
           $usa_twig_vars['front'] = $usa_twig_vars['datalayer']['homepageTest'];
           $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
           $usa_twig_vars['meta_noindex'] = $noindex;
