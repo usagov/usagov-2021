@@ -60,6 +60,13 @@
 /** Language buttons **/
 .usa-header--extended .usa-navbar {
   height: auto;
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+}
+
+.usa-logo a{
+  display: flex;
+  width: fit-content;
 }
 
 @include at-media($theme-header-min-width) {
@@ -78,11 +85,11 @@
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  margin: .5rem;
 
   @media (max-width: 64em) {
     flex-direction: row;
     align-items: center;
+    margin-right: 1rem;
   }
 }
 
@@ -121,8 +128,7 @@
 // This is to set the size of the logo in desktop
 @media (min-width: 64em) {
   .usa-header--extended .usa-logo {
-    margin: 0.5rem 0 0.2em;
-    width: 5rem;
+    margin: 0;
     height: 5rem;
   }
 }

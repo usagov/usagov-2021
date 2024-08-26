@@ -1,0 +1,56 @@
+<div class="usa-prose">
+	<h2>Funcionario seleccionado y su dirección de correo electrónico</h2>
+
+	<div class="border-left-1 border-gray-10 padding-left-2  margin-top-1">
+		<p class="font serif-sm margin-y-0" id="display-official">
+      Nombre del funcionario<br/>
+			Cargo del funcionario
+    </p>
+
+		<p id="button-alt">
+			<strong>Dirección de correo electrónico:</strong>
+		</p>
+	</div>
+
+	<p>Puede copiar y pegar la dirección de correo electrónico que aparece arriba en un correo electrónico. También, puede utilizar el formulario opcional de abajo que le ayudará a crear un mensaje con la información necesaria para el funcionario electo.</p>
+
+	<h2>Obtenga ayuda para escribir su mensaje</h2>
+
+	<p>Responda las preguntas en los campos del formulario de abajo. Después, seleccione el botón "Crear mensaje de correo".</p>
+
+	<p>Esta herramienta creará un correo terminado en su sistema de correo electrónico. Si utiliza el navegador de internet y el dispositivo que habitualmente usa para el correo electrónico, el mensaje debería crearse correctamente. Si quiere, puede editar el contenido ahí.</p>
+
+	<p>Si está utilizando un dispositivo diferente o el sistema de correo electrónico no está configurado, no se preocupe. Utilice la dirección de correo indicada arriba en su servicio de correo electrónico habitual y escriba su mensaje ahí. Puede usar las preguntas que aparecen a continuación como guía para escribir un mensaje claro y con la información necesaria.</p>
+
+	<form action="javascript:void(0);" autocomplete="off" class="usa-form maxw-none" id="mailForm" onsubmit="writeMessage()">
+		<div class="bg-gray-4 padding-1px">
+			<div class="maxw-mobile margin-x-auto margin-y-4">
+				<label class="usa-label" for="input-topic" id="topicField">¿Cuál es el tema sobre el que quiere escribir?</label>
+				<textarea
+          aria-labelledby="input-topic"
+          class="usa-textarea width-full"
+          id="input-topic"
+          name="input-topic"
+          rows="5"
+        ></textarea>
+				<label class="usa-label" for="input-about" id="aboutField">¿Qué quiere decir sobre el tema?</label>
+				<textarea
+          aria-labelledby="input-about"
+          class="usa-textarea width-full"
+          id="input-about"
+          name="input-about"
+          rows="5"
+        ></textarea>
+				<label class="usa-label" for="input-action" id="actionField">¿Qué quiere que haga su funcionario electo al respecto?</label>
+				<textarea
+          aria-labelledby="input-action"
+          class="usa-textarea width-full"
+          id="input-action"
+          name="input-action"
+          rows="5"
+        ></textarea>
+				<button class="usa-button usa-button--secondary usa-button--big">Crear mensaje de correo</button>
+			</div>
+		</div>
+	</form>
+</div>
