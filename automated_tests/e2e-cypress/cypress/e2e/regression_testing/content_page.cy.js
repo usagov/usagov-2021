@@ -27,23 +27,23 @@ paths.forEach((path, idx) => {
       cy.get(".usa-sidenav").should("be.visible");
 
       // Menu indicates what page you are on
-      cy.log(
-        cy.get(".usa-sidenav").find(".usa-current"),
-
-        // .invoke("text")
-        // .then((menuCurrent) => {
-        //   cy.log(menuCurrent);
-        //   // Grab page title and compare to breadcrumb text
-        //   cy.get("h1")
-        //     .invoke("text")
-        //     .then((pageTitle) => {
-        //       cy.log(pageTitle);
-        //         expect(pageTitle.toLowerCase().trim()).to.include(
-        //           menuCurrent.toLowerCase().trim(),
-        //         );
-        //     });
-        // });
-      );
+    //   cy.log(
+        cy.get(".usa-sidenav")
+        .find(".usa-current")
+        .invoke("text")
+        .then((menuCurrent) => {
+          cy.log(menuCurrent);
+          // Grab page title and compare to breadcrumb text
+          cy.get("h1")
+            .invoke("text")
+            .then((pageTitle) => {
+              cy.log(pageTitle);
+                expect(pageTitle.toLowerCase().trim()).to.include(
+                  menuCurrent.toLowerCase().trim()
+                );
+            });
+        });
+    //   );
     });
     it("BTE/S 29: Breadcrumb appears at top of page and indicates correct section", () => {
       cy.get(".usa-breadcrumb__list")
