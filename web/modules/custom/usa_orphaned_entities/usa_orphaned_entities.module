@@ -86,12 +86,12 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
               break;
 
             case Term::class;
-              $type  = $reference_skip->getEntityTypeId() . ' / ' . $reference_skip->bundle();
+              $type = $reference_skip->getEntityTypeId() . ' / ' . $reference_skip->bundle();
               break;
           }
           $additional .= sprintf(
             '<li><a href="%s" target="_blank">%s: %s (%d)</a></li>' . PHP_EOL,
-            $url->toString(), $type, $title, $id
+            $url->toString(), $type, Html::escape($title), $id
           );
         }
 
