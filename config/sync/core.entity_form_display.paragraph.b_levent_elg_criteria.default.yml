@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.paragraph.b_levent_elg_criteria.field_b_children
     - field.field.paragraph.b_levent_elg_criteria.field_b_criteria_key
+    - field.field.paragraph.b_levent_elg_criteria.field_b_error_message
     - field.field.paragraph.b_levent_elg_criteria.field_b_hint
     - field.field.paragraph.b_levent_elg_criteria.field_b_legend
     - field.field.paragraph.b_levent_elg_criteria.field_b_required
@@ -40,6 +41,14 @@ content:
     weight: 0
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_b_error_message:
+    type: string_textfield
+    weight: 4
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
   field_b_hint:
     type: string_textfield
