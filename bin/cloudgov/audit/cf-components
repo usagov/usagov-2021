@@ -14,10 +14,41 @@ level4="      "
 level5="        "
 level6="          "
 
+die() { echo "$*" >&2; exit 2; }  # complain to STDERR and exit with error
+needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option"; fi; }
+
+# Defaults (to be thorough, you could also assign alpha="" and charlie="")
+all=false       # Overridden by the value set by -b or --bravo
+spaces="all"       # Overridden by the value set by -s or --spaces
+
+while getopts as: OPT; do  # allow -a, -b with arg, and -- "with arg"
+  # support long options: https://stackoverflow.com/a/28466267/519360
+  if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
+    OPT="${OPTARG%%=*}"       # extract long option name
+    OPTARG="${OPTARG#"$OPT"}" # extract long option argument (may be empty)
+    OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
+  fi
+  case "$OPT" in
+    a | all )      all=true ;;
+    s | spaces )   needs_arg; spaces="$OPTARG" ;;
+    \? )           exit 2 ;;  # bad short option (error reported via getopts)
+    * )            die "Illegal option --$OPT" ;;  # bad long option
+  esac
+done
+shift $((OPTIND-1)) # remove parsed options and args from $@ list
+
 echo "${bold}${underline}CF Components${nounderline}${normal}"
 
 # Orgs->Domains/Spaces->Apps/Services->Tasks/Sidecars
-ORGIDS=$(cf curl "/v3/organizations" | jq -r '[.resources[].guid]')
+if [ $all == true ]; then
+  ORGIDS=$(cf curl "/v3/organizations" | jq -r '[.resources[].guid]')
+else
+  echo "Showing info for gsa-tts-usagov, add --all argument to see all orgs."
+  ORGIDS=$(cf curl "/v3/organizations" | jq -r '[.resources[] | select(.name == "gsa-tts-usagov") | .guid]')
+fi
+
+IFS=',' read -r -a spaces_array <<< "$spaces"
+
 echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
   ORGNAME=$(cf curl "/v3/organizations/$ORGID" | jq -r '.name')
   ORGUPDATE=$(cf curl "/v3/organizations/$ORGID" | jq -r '.updated_at')
@@ -36,8 +67,20 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
     done
   fi
 
- SPACEIDS=$(cf curl "/v3/spaces" | jq -r '[.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid]')
- echo "$SPACEIDS" | jq -r '.[]' | while read -r SPACEID; do
+ if [ $spaces == "all" ]; then
+  SPACEIDS=$(cf curl "/v3/spaces" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid')
+ else
+  SPACEIDS=$(cf curl "/v3/spaces" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid' | while read -r SPACEID; do
+    SPACENAME=$(cf curl "/v3/spaces/$SPACEID" | jq -r '.name')
+    for space in "${spaces_array[@]}"; do
+      if [[ "$space" == "$SPACENAME" ]]; then
+        echo "$SPACEID"
+      fi
+    done
+  done)
+ fi
+
+ echo "$SPACEIDS" | while read -r SPACEID; do
   SPACENAME=$(cf curl "/v3/spaces/$SPACEID" | jq -r '.name')
   SPACEUPDATE=$(cf curl "/v3/spaces/$SPACEID" | jq -r '.updated_at')
   echo "$level2 Space: ${underline}$SPACENAME${nounderline} (Last updated: $SPACEUPDATE)"
@@ -90,18 +133,9 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
       fi
       echo "$level4 $APPNAME (Last updated: $APPUPDATED | State: $APPSTATE | Type: $APPTYPE$APPSTACKINFO)"
 
-      TASKIDS=$(cf curl "/v3/apps/$APPID/tasks" | jq -r '[.resources[] | .guid]')
-      if [ "$TASKIDS" != "[]" ]; then
-        echo "$level5 Tasks:"
-        echo "$TASKIDS" | jq -r '.[]' | while read -r TASKID; do
-          TASKNAME=$(cf curl "/v3/tasks/$TASKID" | jq -r '.name')
-          TASKUPDATED=$(cf curl "/v3/tasks/$TASKID" | jq -r '.updated_at')
-          TASKCOMMAND=$(cf curl "/v3/tasks/$TASKID" | jq -r '.command')
-          TASKSTATE=$(cf curl "/v3/tasks/$TASKID" | jq -r '.state')
-          TASKMEMORY=$(cf curl "/v3/tasks/$TASKID" | jq -r '.memory_in_mb')
-          TASKDISK=$(cf curl "/v3/tasks/$TASKID" | jq -r '.disk_in_mb')
-          echo "$level6 $TASKNAME (Last updated: $TASKUPDATED | Command: $TASKCOMMAND | State: $TASKSTATE | Memory: $TASKMEMORY mb | Disk: $TASKDISK mb)"
-        done
+      TASKCOUNT=$(cf curl "/v3/apps/$APPID/tasks" | jq -r '.pagination | .total_results')
+      if [ "$TASKCOUNT" != "[]" ]; then
+        echo "$level5 Number of Tasks attached to $APPNAME: $TASKCOUNT"
       fi
       SIDECARIDS=$(cf curl "/v3/apps/$APPID/sidecars" | jq -r '[.resources[] | .guid]')
       if [ "$SIDECARIDS" != "[]" ]; then
@@ -143,32 +177,20 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
 done
 
 # Misc info
-BUILDPACKIDS=$(cf curl "/v3/buildpacks" | jq -r '[.resources[] | .guid]')
-if [ "$BUILDPACKIDS" != "[]" ]; then
-  echo "${underline}Buildpacks used:${nounderline}"
-  echo "$BUILDPACKIDS" | jq -r '.[]' | while read -r BUILDPACKID; do
-    BUILDPACKNAME=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.name')
-    BUILDPACKUPDATED=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.updated_at')
-    BUILDPACKSTATE=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.state')
-    BUILDPACKFILENAME=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.filename')
-    BUILDPACKSTACK=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.stack')
-    BUILDPACKPOSITION=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.position')
-    BUILDPACKENABLED=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.enabled')
-    BUILDPACKLOCKED=$(cf curl "/v3/buildpacks/$BUILDPACKID" | jq -r '.locked')
-    echo "$level2 $BUILDPACKNAME (Last updated: $BUILDPACKUPDATED | State: $BUILDPACKSTATE | Filename: $BUILDPACKFILENAME | Stack: $BUILDPACKSTACK | Position: $BUILDPACKPOSITION | Enabled: $BUILDPACKENABLED | Locked: $BUILDPACKLOCKED)"
-  done
-fi
-
-USERIDS=$(cf curl "/v3/users" | jq -r '[.resources[] | .guid]')
-if [ "$USERIDS" != "[]" ]; then
-  echo "${underline}Users:${nounderline}"
-  echo "$USERIDS" | jq -r '.[]' | while read -r USERID; do
-    USERNAME=$(cf curl "/v3/users/$USERID" | jq -r '.username')
-    USERPUPDATE=$(cf curl "/v3/users/$USERID" | jq -r '.updated_at')
-    USERPRESENTATION=$(cf curl "/v3/users/$USERID" | jq -r '.presentation_name')
-    USERORIGIN=$(cf curl "/v3/users/$USERID" | jq -r '.origin')
-    echo "$level2 $USERNAME (Last updated: $USERPUPDATE | Presentation Name: $USERPRESENTATION | Origin: $USERORIGIN)"
-  done
+if [ $all == true ]; then
+  echo "Showing all orgs.  For security reasons, the display of users is suppressed.  Remove -a argument to see users for gsa-tts-usagov org."
+else
+  USERIDS=$(cf curl "/v3/users" | jq -r '[.resources[] | .guid]')
+  if [ "$USERIDS" != "[]" ]; then
+    echo "${underline}Users:${nounderline}"
+    echo "$USERIDS" | jq -r '.[]' | while read -r USERID; do
+      USERNAME=$(cf curl "/v3/users/$USERID" | jq -r '.username')
+      USERPUPDATE=$(cf curl "/v3/users/$USERID" | jq -r '.updated_at')
+      USERPRESENTATION=$(cf curl "/v3/users/$USERID" | jq -r '.presentation_name')
+      USERORIGIN=$(cf curl "/v3/users/$USERID" | jq -r '.origin')
+      echo "$level2 $USERNAME (Last updated: $USERPUPDATE | Presentation Name: $USERPRESENTATION | Origin: $USERORIGIN)"
+    done
+  fi
 fi
 
 GROUPIDS=$(cf curl "/v3/security_groups" | jq -r '[.resources[] | .guid]')
