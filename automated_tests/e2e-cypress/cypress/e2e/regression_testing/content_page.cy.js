@@ -23,29 +23,28 @@ paths.forEach((path, idx) => {
 
       cy.injectAxe();
     });
-     ****   it("BTE/S 28: Left menu appears on page and indicates the page you are on", () => {
-          cy.get(".usa-sidenav").should("be.visible");
+    it("BTE/S 28: Left menu appears on page and indicates the page you are on", () => {
+      cy.get(".usa-sidenav").should("be.visible");
 
-          // Menu indicates what page you are on
-         cy.log(
-            cy.get(".usa-sidenav")
-            .find(".usa-current")
+      // Menu indicates what page you are on
+      cy.log(
+        cy.get(".usa-sidenav").find(".usa-current"),
 
-            // .invoke("text")
-            // .then((menuCurrent) => {
-            //   cy.log(menuCurrent);
-            //   // Grab page title and compare to breadcrumb text
-            //   cy.get("h1")
-            //     .invoke("text")
-            //     .then((pageTitle) => {
-            //       cy.log(pageTitle);
-            //         expect(pageTitle.toLowerCase().trim()).to.include(
-            //           menuCurrent.toLowerCase().trim(),
-            //         );
-            //     });
-            // });
-    )
-        });
+        // .invoke("text")
+        // .then((menuCurrent) => {
+        //   cy.log(menuCurrent);
+        //   // Grab page title and compare to breadcrumb text
+        //   cy.get("h1")
+        //     .invoke("text")
+        //     .then((pageTitle) => {
+        //       cy.log(pageTitle);
+        //         expect(pageTitle.toLowerCase().trim()).to.include(
+        //           menuCurrent.toLowerCase().trim(),
+        //         );
+        //     });
+        // });
+      );
+    });
     it("BTE/S 29: Breadcrumb appears at top of page and indicates correct section", () => {
       cy.get(".usa-breadcrumb__list")
         .find("li")
@@ -122,8 +121,7 @@ paths.forEach((path, idx) => {
     });
     it(`BTE/S 31: ${lang} toggle appears on page and takes you to ${lang} page`, () => {
       cy.get(".language-link").click();
-      cy.url()
-        .should("include", languageTests[idx]);
+      cy.url().should("include", languageTests[idx]);
     });
     it("BTE/S 32: Last updated date appears at bottom of content with correct padding above it", () => {
       // make sure date appears
@@ -131,9 +129,18 @@ paths.forEach((path, idx) => {
     });
     it("BTE/S 33: Share this page function works correctly for facebook, twitter, and email", () => {
       // test links for each social
-      const facebook = ["disaster-assistance","eses/requisitos-viaje-ninos-menores-de-edad"];
-      const twitter = ["disaster-assistance","eses/requisitos-viaje-ninos-menores-de-edad"];
-      const mail = ["disaster-assistance","eses/requisitos-viaje-ninos-menores-de-edad"];
+      const facebook = [
+        "disaster-assistance",
+        "eses/requisitos-viaje-ninos-menores-de-edad",
+      ];
+      const twitter = [
+        "disaster-assistance",
+        "eses/requisitos-viaje-ninos-menores-de-edad",
+      ];
+      const mail = [
+        "disaster-assistance",
+        "eses/requisitos-viaje-ninos-menores-de-edad",
+      ];
       cy.get(".additional_body_info")
         .find("#sm-share")
         .should("exist")
@@ -159,15 +166,16 @@ paths.forEach((path, idx) => {
           `mailto:?subject=http://cms-usagov.docker.local/${mail[idx]}`,
         );
     });
-    *** it("BTE/S 34: Do you have a question block appears at bottom of content page with icons and links to phone and chat", () => {
+    it("BTE/S 34: Do you have a question block appears at bottom of content page with icons and links to phone and chat", () => {
       // test question box
+      const phones = ["/phone","/es/centro-de-llamadas"]
       cy.get(".additional_body_info")
         .find("#question-box")
         .should("exist")
         .find("a")
-        .should("have.attr", "href", "/phone");
+        .should("have.attr", "href", phones[idx]);
     });
-    ** it("BTE/S 35: Page level survey appears and you can complete survey", () => {
+    it("BTE/S 35: Page level survey appears and you can complete survey", () => {
       cy.get(".pagesurvey-qual-container")
         //select in first page of survey
         .should("exist")
