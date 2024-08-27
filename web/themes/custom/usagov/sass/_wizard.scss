@@ -26,10 +26,6 @@
 
   .layout-sidebar-first {
     display: none;
-
-    @include at-media('desktop') {
-      display: block;
-    }
   }
 
   &--content {
