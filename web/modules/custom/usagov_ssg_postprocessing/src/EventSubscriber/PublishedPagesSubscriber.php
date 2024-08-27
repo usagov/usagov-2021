@@ -166,6 +166,25 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
           }
         }
       }
+      // Tome can end up requesting existing URLs with the raw `/node/NID` path
+      // if a redirect to a node is set to the wrong language. It then proceeds
+      // which retrieves the wrong taxonomy info, which we should discard.
+      if (str_starts_with($url, '/node/') || str_starts_with($url, '/es/node/')) {
+        if ($fp != FALSE) {
+          fclose($fp);
+        }
+        return;
+      }
+
+      // If this page is more than 5 levels deep in the taxonomy hierarchy,
+      // Then we may not be able to reconstruct its URL from the taxonomy URL.
+      // We can get reliably get it from the node. We could do this for all
+      // nodes, but that could negatively impact export performance.
+      if ($decoded['Page ID'] && $hierarchy > 5) {
+        $nid = $decoded['Page ID'];
+        $nodeEntity = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+        $url = $nodeEntity->toUrl()->toString();
+      }
 
       $decoded["Friendly URL"] = (empty($url)) ? "/" : $url;
       $decoded["Full URL"] = (empty($url)) ? $host . "/" : $host . $url;

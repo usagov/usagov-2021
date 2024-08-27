@@ -24,7 +24,11 @@
  */
 #}
 
-{% set lang = node.langcode.value %}
+{% if node.langcode.value %}
+  {% set lang = node.langcode.value %}
+{% elseif language %}
+  {% set lang = language %}
+{% endif %}
 {% set nodeID = node.nid[0].value %}
 {% set path = drupal_url('node/'~nodeID, {absolute: TRUE}) %}
 {% set url = path|render|render %}
@@ -45,7 +49,23 @@
   {% endif %}
 <link rel="preconnect" href="https://script.crazyegg.com" crossorigin>
 <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+
 <head-placeholder token="{{ placeholder_token|raw }}">
+
+{% if front == "homepage" %}
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_480w')) }}" as="image" media="(max-width: 639.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_640w')) }}" as="image" media="(min-width: 640px) and (max-width: 719.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_720w')) }}" as="image" media="(min-width: 720px) and (max-width: 959.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_960w')) }}" as="image" media="(min-width: 960px) and (max-width: 1023.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1024w')) }}" as="image" media="(min-width: 1024px) and (max-width: 1279.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1280w')) }}" as="image" media="(min-width: 1280px) and (max-width: 1439.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1440w')) }}" as="image" media="(min-width: 1440px) and (max-width: 1535.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1536w')) }}" as="image" media="(min-width: 1536px) and (max-width: 1919.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_1920w')) }}" as="image" media="(min-width: 1920px) and (max-width: 2047.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_2048w')) }}" as="image" media="(min-width: 2048px) and (max-width: 3071.9px)">
+<link rel="preload" href="{{ file_url(node.field_homepage_banner|file_uri|image_style('max_3072w')) }}" as="image" media="(min-width: 3072px)">
+{% endif %}
+
 <title>{{ head_title|safe_join(' | ') }}</title>
   <css-placeholder token="{{ placeholder_token|raw }}">
   <js-placeholder token="{{ placeholder_token|raw }}">
@@ -55,67 +75,12 @@
   {% endif %}
 {% endblock %}
 
-{% block taxonomy_data %}
-  {% if nodetype == "basic_page" %}
-    <script id="taxonomy-data">
-    dataLayer = [{
-      {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-      {{'hasBenefitCategory'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_hasBenefitCategories|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-    {%
-      if datalayer_benefitCategories
-    %}  {{'benefitCategories'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_benefitCategories|json_encode(constant('JSON_PRETTY_PRINT'))|raw}},
-    {% endif %}
-    {% if front == "homepage" and lang == "en" %}
-      "Taxonomy_Text_1": "Home",
-      "Taxonomy_Text_2": "Home",
-      "Taxonomy_Text_3": "Home",
-      "Taxonomy_Text_4": "Home",
-      "Taxonomy_Text_5": "Home",
-      "Taxonomy_Text_6": "Home",
-      "Taxonomy_URL_1": "/",
-      "Taxonomy_URL_2": "/",
-      "Taxonomy_URL_3": "/",
-      "Taxonomy_URL_4": "/",
-      "Taxonomy_URL_5": "/",
-      "Taxonomy_URL_6": "/"
-    {% endif %}
-    {% if front == "homepage" and lang == "es" %}
-      "Taxonomy_Text_1": "Página principal",
-      "Taxonomy_Text_2": "Página principal",
-      "Taxonomy_Text_3": "Página principal",
-      "Taxonomy_Text_4": "Página principal",
-      "Taxonomy_Text_5": "Página principal",
-      "Taxonomy_Text_6": "Página principal",
-      "Taxonomy_URL_1": "/es/",
-      "Taxonomy_URL_2": "/es/",
-      "Taxonomy_URL_3": "/es/",
-      "Taxonomy_URL_4": "/es/",
-      "Taxonomy_URL_5": "/es/",
-      "Taxonomy_URL_6": "/es/"
-    {% endif %}
-        {{ taxonomy_link_block }}
-      }];
-    </script>
-  {% else %}
-    <script id="taxonomy-data">
-      dataLayer = [{
-        {{'nodeID'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodeID|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'contentType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'language'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{lang|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'homepageTest'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{front|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'basicPagesubType'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{pagetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'Page_Type'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{nodetype|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{'hasBenefitCategory'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{datalayer_hasBenefitCategories|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
-        {{ taxonomy_link_block }}
-      }];
-    </script>
- {% endif %}
-{% endblock %}
+  {% block taxonomy_data %}
+  <script id="taxonomy-data">
+    dataLayer = [{{ datalayer | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_PRETTY_PRINT')) | raw }}];
+  </script>
+  {% endblock %}
+
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

@@ -60,9 +60,26 @@ i.e.
   vertical-align: middle;
 }
 
+.usa-section {
+  padding-top: 1rem;
+}
+
+@media (max-width: 30em) {
+  .usa-section {
+      padding-top: 2rem;
+  }
+}
+
+@media (min-width: 40em) {
+  .usa-section {
+      padding-bottom: 4rem;
+      padding-top: 3.5rem;
+  }
+}
+
 @media (min-width: 64em) {
   .usa-section {
-    padding-top: 2rem;
+    padding-top: 1.7rem;
   }
 }
 
@@ -229,17 +246,8 @@ a {
   font-size: 1.5rem;
 }
 
-.desktop\:grid-col-fill .content-wrapper {
-  // On Navigation Cards pages, display the content in reverse order. So the Nav banner is displayed above the Intro Text.
-  display: flex;
-  flex-direction: column;
-}
-
-// This style is needed to extend the width of nav page intro text
-.desktop\:grid-col-fill .usa-prose > p.usa-intro {
-  max-width: 81ex;
-  margin-left: 1.2ex;
-  margin-right: 1.2ex;
+.usa-prose > p.usa-intro {
+  max-width: none;
 }
 
 @media (max-width: 30em) {
@@ -550,6 +558,16 @@ div[class^="QSIUserDefinedHTML"] {
   @include u-text('bold');
 }
 
+.QSIUserDefinedHTML {
+    height: 230px !important;
+}
+
+.QSIUserDefinedHTML > div,
+.QSIUserDefinedHTML > div > div,
+.QSIUserDefinedHTML > div > div > div {
+    height: 230px !important;
+}
+
 .scrollable {
   overflow: unset !important;
 }
@@ -729,7 +747,7 @@ button#prior.usa-button--outline:focus,
 button#next.usa-button:focus,
 .block-wizardenglish a.usa-button:focus,
 .usa-radio__input:focus + [class*="__label"]::before,
-.usa-checkbox__input:focus + [class*="__label"]::before,,
+.usa-checkbox__input:focus + [class*="__label"]::before,
 textarea:not([disabled]):focus,
 .usagov-directory-bottom-nav-group a.nav-letter:focus,
 .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:focus,
@@ -753,7 +771,6 @@ select:not([disabled]):focus,
   box-shadow: none;
 }
 
-#extended-logo [href]:focus,
 .usa-footer__secondary-link a:focus,
 .usa-hero__callout [href]:focus {
   display: inherit;
@@ -789,13 +806,31 @@ select:not([disabled]):focus,
   font-size: 1.1rem;
 }
 
-.usa-pagination .usa-current {
+.usa-pagination .usa-current{
   background-color: color('blue-warm-70v');
+
+  &:hover{
+    @include u-text('gray-90');
+    background-color:#768FB3;
+  }
+
+  &:focus{
+    background-color: color('blue-warm-70v');
+    color: white
+  }
 }
 
-.usa-pagination__button,
-.usa-pagination__link {
-  color: color('gray-90');
+.usa-pagination__arrow{
+  text-decoration: underline;
+}
+
+.usa-pagination__button{
+    border: 2px solid #768FB3;
+}
+
+  .usa-pagination__button,
+  .usa-pagination__link {
+    color: color('gray-90');
 }
 
 #main-content {
@@ -821,10 +856,72 @@ input::-webkit-textfield-decoration-container {
   visibility: hidden;
 }
 
-// sets height for desktop to make space above and below breadcrumb look even on Navigation Cards Page
+
+// Keeps the recaptcha image from being hidden by the footer accordion in mobile view
+@media (max-width: 30em) {
+.grecaptcha-badge {
+  z-index: 2000000004;
+  }
+}
+
+// reduces the space above and below the breadcrumb on the downlevel page without a leftnav to look even
+@media screen and (max-width: 30em) {
+  #main-content>.grid-container>.grid-row.breadcrumb-spacing:first-of-type>div {
+    height: 2.7rem;
+  }
+}
+
+@media (min-width: 30.0625em) and (max-width: 40em) {
+  #main-content>.grid-container>.grid-row.breadcrumb-spacing:first-of-type>div {
+    height: 4.2rem;
+  }
+}
+
+@media (min-width: 40.0625em) and (max-width: 63.93em) {
+  #main-content>.grid-container>.grid-row.breadcrumb-spacing:first-of-type>div {
+    height: 1.7rem;
+  }
+}
+
 @media screen and (min-width: 64em) {
-  .grid-row.breadcrumb-spacing>div {
-    height: 3.5rem;
+  #main-content>.grid-container>.grid-row.breadcrumb-spacing:first-of-type>div {
+    height: 3rem;
+  }
+}
+
+// reduces the space under the breadcrumb on the downlevel page with a leftnav to look even
+@media (max-width: 30rem) {
+  #main-content>.grid-container>.grid-row:first-of-type>div {
+    height: 2.5rem;
+  }
+}
+
+@media (min-width: 30.0625em) and (max-width: 40em) {
+  #main-content>.grid-container>.grid-row:first-of-type>div {
+    height: 4rem;
+  }
+}
+
+@media (min-width: 40.0625em) and (max-width: 63.93em) {
+  #main-content>.grid-container>.grid-row:first-of-type>div {
+    height: 1.7rem;
+  }
+}
+
+@media screen and (min-width: 64em) {
+  #main-content>.grid-container>.grid-row:first-of-type>div {
+    height: 3.7rem;
+  }
+}
+
+// reduces space below the breadcrumb on benefits pages
+  #main-content>div~div.grid-container>div {
+    height: 4rem;
+  }
+
+@media screen and (max-width: 30em) {
+  #main-content>div~div.grid-container>div {
+    height: 5rem;
   }
 }
 
@@ -833,5 +930,12 @@ input::-webkit-textfield-decoration-container {
     @include u-margin(0);
 
     max-width: 100%;
+  }
+}
+
+@supports (-moz-appearance:none) {
+  .Skin #Questions {
+    overflow: hidden;
+    max-height: 138px;
   }
 }

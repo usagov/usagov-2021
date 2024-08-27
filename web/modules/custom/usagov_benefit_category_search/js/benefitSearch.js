@@ -135,10 +135,13 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
     // score and sort remaining matches
     matches = matches.map(myself.getItemWeight);
     matches = matches.sort(myself.compareResults);
-    // prepend any life events that match
-    for (const [, lifeEvent] of myself.lifeEvents) {
-      if (myself.lifeEventHasTopic(lifeEvent.tid, myself.terms)) {
-         matches.unshift(lifeEvent);
+
+    if (!myself.areAllChecked()) {
+      // prepend any life events that match
+      for (const [, lifeEvent] of myself.lifeEvents) {
+        if (myself.lifeEventHasTopic(lifeEvent.tid, myself.terms)) {
+          matches.unshift(lifeEvent);
+        }
       }
     }
     return matches;
@@ -405,7 +408,7 @@ ${benefit.term_node_tid}
    * Bring the results into view and focus on the heading
    */
   this.scrollAndFocusResults = function() {
-    myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+    myself.resultsContainer.scrollIntoView({"behavior": 'auto'});
     myself.resultsContainer.querySelector('.page-active > h2').focus();
   };
   /**
@@ -485,6 +488,11 @@ ${benefit.term_node_tid}
    * @param maxPages
    */
  this.showPager = function(maxPages) {
+
+   if (maxPages < 2) {
+     // don't show pagers with only one page
+     return;
+   }
    const pager = new Pagination(
      maxPages,
      myself.activePage,
