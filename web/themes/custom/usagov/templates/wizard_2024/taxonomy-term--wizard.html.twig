@@ -37,9 +37,9 @@
   {% if content.field_step_number[0]['#markup'] %}
   <p class="usagov-wizard--content-step-indicator">{{ step_string }} {{ content.field_step_number[0]['#markup'] }}</p>
   {% endif %}
-  <h1 id="skip-to-h1" class="text-red-50">{{ heading }}</h1>
+  <div class="usa-prose"><h1 id="skip-to-h1" class="text-red-50">{{ heading }}</h1></div>
   {% if content.field_intro[0] %}
-    <div class="usa-intro">{{ content.field_intro }}</div>
+    <div class="usa-prose"><p class="usa-intro">{{ content.field_intro[0]['#text'] }}</p></div>
   {% endif %}
   {{ content.field_body }}
   {% if child %}
