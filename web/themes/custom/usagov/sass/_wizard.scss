@@ -39,6 +39,11 @@
     We dont want that. */
     h1 {
       margin-top: 0;
+      margin-bottom: 17.6px;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: Merriweather Web,Georgia,Cambria,Times New Roman,Times,serif;
     }
 
     .usagov-wizard--content-step-indicator {
@@ -67,14 +72,6 @@
 
       // Disable this to prevent shift+click selection of multiple radios.
       user-select: none;
-    }
-
-    .field--name-field-intro {
-      margin: 17.6px 0;
-
-      h2 {
-        margin: 0;
-      }
     }
 
     .field--name-field-body {
