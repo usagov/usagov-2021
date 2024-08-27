@@ -29,6 +29,19 @@
   }
 
   &--content {
+
+    /* There's some USWDS style rule which puts a bunch of margin-top on
+    h1 elements if there is an element in between it and the parent <div> that has .usa-prose on it.
+    We dont want that. */
+    h1 {
+      margin-top: 0;
+    }
+
+    .usagov-wizard--content-step-indicator {
+      font-weight: 600;
+      margin-bottom: 17.6px;
+    }
+
     h2 {
       font-size: 2rem;
       line-height: 120%;
