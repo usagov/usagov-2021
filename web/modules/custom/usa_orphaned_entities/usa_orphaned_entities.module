@@ -5,6 +5,11 @@
  * Auto-delete orphaned synonyms and language toggles when deleting
  * Federal Directory Records.
  */
+
+use Drupal\Component\Utility\Html;
+use Drupal\node\Entity\Node;
+use Drupal\taxonomy\Entity\Term;
+
 /**
  * Implements hook_form_alter.
  */
@@ -70,7 +75,24 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
         $additional .= "<ul>" . PHP_EOL;
 
         foreach ($reference_data['skip']['references'] as $reference_skip) {
-          $additional .= "<li>" . $reference_skip->getType() . ": <a href=\"/node/" . $reference_skip->id() . "\" target=\"_blank\">" . $reference_skip->title->value . " (" . $reference_skip->id() . ")</a></li>" . PHP_EOL;
+          $url = $reference_skip->toUrl();
+          $id = $reference_skip->id();
+          $type = $reference_skip->getEntityTypeId();
+          $title = $reference_skip->label();
+
+          switch (get_class($reference_skip)) {
+            case Node::class:
+              $type = $reference_skip->getType();
+              break;
+
+            case Term::class;
+              $type  = $reference_skip->getEntityTypeId() . ' / ' . $reference_skip->bundle();
+              break;
+          }
+          $additional .= sprintf(
+            '<li><a href="%s" target="_blank">%s: %s (%d)</a></li>' . PHP_EOL,
+            $url->toString(), $type, $title, $id
+          );
         }
 
         $additional .= "</ul></div>" . PHP_EOL;
