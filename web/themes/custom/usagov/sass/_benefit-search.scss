@@ -148,7 +148,16 @@ main[data-pagetype="Benefits Category Search"]{
         padding-bottom: 0.5rem;
       }
     }
+    &.end-desktop-column {
+      @include at-media('tablet-lg') {
+        padding-bottom: 0;
+      }
+    }
+    &.end-mobile-column.end-desktop-column{
+      padding-bottom: 0;
+    }
   }
+
 }
 
 .benefits-category-list-checkbox-all {
