@@ -325,6 +325,21 @@ function usa_twig_vars_preprocess_region(&$variables) {
 
       }
     }
+    // Get all modals from the website
+    $modal_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'modal']);
+    foreach ($modal_blocks as $modal) {
+      /**
+       * Check if the language of the modal is the same as the website.
+       * This prevents incorrect language modals from being displayed on the site.
+       * */
+      $modal_lang = $modal->langcode->value;
+      if ($modal_lang === $site_language) {
+        $variables['modals'][$modal->id()] = array(
+          "name" => $modal->field_modal_id->value,
+          "id" => $modal->field_modal[0]->getValue(),
+        );
+      }
+    }
   }
 }
 
