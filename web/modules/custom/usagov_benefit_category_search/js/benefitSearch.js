@@ -408,7 +408,7 @@ ${benefit.term_node_tid}
    * Bring the results into view and focus on the heading
    */
   this.scrollAndFocusResults = function() {
-    myself.resultsContainer.scrollIntoView({"behavior": 'smooth'});
+    myself.resultsContainer.scrollIntoView({"behavior": 'auto'});
     myself.resultsContainer.querySelector('.page-active > h2').focus();
   };
   /**
