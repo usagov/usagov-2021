@@ -334,10 +334,10 @@ function usa_twig_vars_preprocess_region(&$variables) {
        * */
       $modal_lang = $modal->langcode->value;
       if ($modal_lang === $site_language) {
-        $variables['modals'][$modal->id()] = array(
+        $variables['modals'][$modal->id()] = [
           "name" => $modal->field_modal_id->value,
           "id" => $modal->field_modal[0]->getValue(),
-        );
+        ];
       }
     }
   }
