@@ -27,23 +27,20 @@ paths.forEach((path, idx) => {
       cy.get(".usa-sidenav").should("be.visible");
 
       // Menu indicates what page you are on
-    //   cy.log(
-        cy.get(".usa-sidenav")
+      cy.get(".usa-sidenav")
         .find(".usa-current")
-        .invoke("text")
-        .then((menuCurrent) => {
-          cy.log(menuCurrent);
+        .then(($sideNav) => {
           // Grab page title and compare to breadcrumb text
+          const sideNavText = $sideNav[0].lastChild;
+
           cy.get("h1")
             .invoke("text")
-            .then((pageTitle) => {
-              cy.log(pageTitle);
-                expect(pageTitle.toLowerCase().trim()).to.include(
-                  menuCurrent.toLowerCase().trim()
-                );
+            .should((pageTitle) => {
+              expect(pageTitle.trim().toLowerCase()).to.include(
+                sideNavText["wholeText"].trim().toLowerCase(),
+              );
             });
         });
-    //   );
     });
     it("BTE/S 29: Breadcrumb appears at top of page and indicates correct section", () => {
       cy.get(".usa-breadcrumb__list")
@@ -168,7 +165,7 @@ paths.forEach((path, idx) => {
     });
     it("BTE/S 34: Do you have a question block appears at bottom of content page with icons and links to phone and chat", () => {
       // test question box
-      const phones = ["/phone","/es/centro-de-llamadas"]
+      const phones = ["/phone", "/es/centro-de-llamadas"];
       cy.get(".additional_body_info")
         .find("#question-box")
         .should("exist")
