@@ -106,13 +106,13 @@
   line-height: .9;
   font-size: .93rem;
   margin: 0;
+  border: 2px solid transparent;
 
   @include u-text('white');
   @include u-bg('blue-80v');
 
   &:hover {
     border: 2px solid color('cyan-50v');
-    padding: 8px 18px;
 
     @include u-bg('white');
     @include u-text('blue-80v');
