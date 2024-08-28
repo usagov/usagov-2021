@@ -1,0 +1,53 @@
+{# this is the equivalent of the old menes.explore macro #}
+{# TODO - handle no start page (error page) leading to this page #}
+{% if start_item %}
+  {% if depth == 0 %}
+    <nav aria-label="{{ nav_aria_label }}">
+      <ul class="usa-sidenav">
+        {% set classes = "usa-sidenav__item" %}
+        {% if start_item.in_active_trail %}
+        {%   set classes = classes ~ ' active-trail' %}
+        {% endif %}
+        <li class="{{ classes }}">
+          <a href="{{  start_item.url }}">{{ start_item.title }}</a>
+        </li>
+        {% if start_item.below %}
+          {{ include('usagov-menu-sidebar.html.twig', {
+            items: start_item.below,
+            depth: depth + 1,
+          }) }}
+        {% endif %}
+      </ul>
+    </nav>
+  {% elseif items|length  %}
+    <ul class="usa-sidenav__sublist">
+      {% for item in items %}
+        {#  todo, if this item is in the active trail, show its children #}
+        <li class="usa-sidenav__item">
+          <a href="{{ item.url }}" {% if item.in_active_trail == 1 %} class="active-trail" {% endif %} >
+            {{ item.title }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+{% else %}
+  <nav aria-label="{{ nav_aria_label }}">
+    <ul class="usa-sidenav">
+      {% for item in items %}
+        <li class="usa-sidenav__item{{ item.in_active_trail ? ' active-trail' : ''}}">
+          <a href="{{  item.url }}">{{ item.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+{% endif %}
+{#  dump() #}
+
+{#
+The build macro starts by adding the surrounding nav structure and the first
+item. Next, it loops recursively through the children until there are no more
+ children or the level below the current page item has been reached
+ #}
+
