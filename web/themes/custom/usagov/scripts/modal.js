@@ -25,6 +25,7 @@ function toggleModal(modalName) {
     let modalID = map.getAttribute('data-modal-id');
     if (modalID === null) return;
     document.querySelector('[href="#paragraph--id--'+ modalID +'"]').click();
+    document.querySelector('#paragraph--id--'+ modalID).querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])').focus();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
