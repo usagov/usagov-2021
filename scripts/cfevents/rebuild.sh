@@ -1,11 +1,14 @@
 #!/bin/sh
 
+# This is just a helper script for local build/test
+
 DEPLOY_SPACE=$1
 
 if [ x"$DEPLOY_SPACE" = x ]; then
     echo Please provide the deployment space as first argument
     exit 1
 fi
+shift
 
 APP=cfevents
 
@@ -23,6 +26,12 @@ function popspace() {
 trap popspace err
 
 cf t -s $DEPLOY_SPACE
+
+FULL_REBUILD=$1
+if [ x$FULL_REBUILD = "x--full" ]; then
+    cf delete-service ${APP}-service-account -f
+    cf delete ${APP} -f
+fi
 
 bin/cloudgov/container-build-${APP}
 bin/cloudgov/container-push-${APP}

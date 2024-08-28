@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Retreive Event Log entries from the Cloud Foundry Events API.
+
+# This is located under bin/ so it can be called locally. However, it is
+# copied into /opt/cfevents/ during docker image creation for the cron app
+
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
@@ -98,10 +103,12 @@ declare -rA AUDIT_FIELDS=(
     ["service_instance"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
 )
 
+# For each category of audit events, perform a (possibly multi-page) query 
 for resource_type in ${!AUDIT_TYPES[@]}; do
     types=${AUDIT_TYPES[$resource_type]}
     fields=${AUDIT_FIELDS[$resource_type]}
 
+    # Manually create the query to fetch the first page of results
     NEXT="/v2/events?&q=type+IN+${types}&q=organization_guid:${ORG_GUID}&q=space_guid:${SPACE_GUID}&q=timestamp>${LAST_EVENT_TIME}&order-by:timestamp"
 
     while [ -n $NEXT -a ! $NEXT == 'null' ]; do
@@ -110,13 +117,17 @@ for resource_type in ${!AUDIT_TYPES[@]}; do
 
         captured_events=$(echo "$EVENTS" | jq -r ".resources[] | [$fields] | @csv")
 
+        # Replace any cf space guids with the space name
         for SPACE_GUID in "${!SPACE_GUIDS[@]}"; do
           captured_events=$(echo "$captured_events" | sed "s/$SPACE_GUID/${SPACE_GUIDS[$SPACE_GUID]}/")
         done
 
+        # Don't emit an empty list
         if [ "$captured_events" != "" ]; then
           echo "$captured_events"
         fi
+
+        # Each query provides the URL for the next page of results.  Use it to loop through pages
         NEXT=$(echo $EVENTS | jq -r '.next_url')
     done
 done

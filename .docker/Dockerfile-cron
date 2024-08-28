@@ -24,10 +24,6 @@ ARG BGID=1000
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
-    && sed -E -i "s/nginx:x:[0-9]+:[0-9]+:/nginx:x:${BUID}:${BGID}:/g" /etc/passwd \
-    && sed -E -i "s/nginx:x:[0-9]+:/nginx:x:${BGID}:/g" /etc/group \
-    && addgroup -S -g $BGID nginx \
-    && adduser -S -G nginx -D -H -u $BUID nginx \
     && apk upgrade --update \
     && apk add --no-cache --virtual .persistent-deps \
     aws-cli \
@@ -62,9 +58,11 @@ RUN mkdir -p /etc/periodic/1min \
     && rm -rf /var/cache/apk/*
 
 COPY .docker/src-cron /
-COPY scripts/cron/task-lock-reference-script /opt/cron
-COPY scripts/cron/task-lock-test-locking-capabilities /opt/cron
 COPY bin/cloudgov/events/get-events /opt/cfevents/get-events
+
+# For testing the job serialization lock code:
+#COPY scripts/cron/task-lock-reference-script /opt/cron
+#COPY scripts/cron/task-lock-test-locking-capabilities /opt/cron
 
 RUN chmod -R +x /etc/periodic \
     && echo "    built:" $(date) >> /etc/motd \
