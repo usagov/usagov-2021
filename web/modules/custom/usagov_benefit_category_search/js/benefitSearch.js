@@ -446,7 +446,7 @@ ${benefit.term_node_tid}
 
     let elt = document.createElement('template');
     elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4" aria-live=assertive>
-        <div class="usa_alert__body">
+        <div class="usa_alert__body" data-analytics="errorMessage">
            <h4 class="usa-alert__heading padding-left-6">${myself.labels.emptyCategoryError}</h4>
         </div>
     </div>`;
