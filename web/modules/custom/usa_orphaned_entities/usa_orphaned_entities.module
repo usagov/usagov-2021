@@ -5,6 +5,11 @@
  * Auto-delete orphaned synonyms and language toggles when deleting
  * Federal Directory Records.
  */
+
+use Drupal\Component\Utility\Html;
+use Drupal\node\Entity\Node;
+use Drupal\taxonomy\Entity\Term;
+
 /**
  * Implements hook_form_alter.
  */
@@ -70,7 +75,24 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
         $additional .= "<ul>" . PHP_EOL;
 
         foreach ($reference_data['skip']['references'] as $reference_skip) {
-          $additional .= "<li>" . $reference_skip->getType() . ": <a href=\"/node/" . $reference_skip->id() . "\" target=\"_blank\">" . $reference_skip->title->value . " (" . $reference_skip->id() . ")</a></li>" . PHP_EOL;
+          $url = $reference_skip->toUrl();
+          $id = $reference_skip->id();
+          $type = $reference_skip->getEntityTypeId();
+          $title = $reference_skip->label();
+
+          switch (get_class($reference_skip)) {
+            case Node::class:
+              $type = $reference_skip->getType();
+              break;
+
+            case Term::class;
+              $type = $reference_skip->getEntityTypeId() . ' / ' . $reference_skip->bundle();
+              break;
+          }
+          $additional .= sprintf(
+            '<li><a href="%s" target="_blank">%s: %s (%d)</a></li>' . PHP_EOL,
+            $url->toString(), $type, Html::escape($title), $id
+          );
         }
 
         $additional .= "</ul></div>" . PHP_EOL;
@@ -122,8 +144,17 @@ function usa_orphaned_entities_get_reference_data($deleting_entity) {
 
     foreach ($bundles as $bundle) {
       $reference_field = $entity_reference->getName();
-      $entity_type = $entity_reference->getTargetEntityTypeId();
-      if ($entity_type != $deleted_entity_type) {
+      // We do need to know what kind of entity this field belongs to.
+      // getTargetEntityTypeId() answers "as a field, which entity type
+      // are you/ attached to?" It should not matter if $reference_field
+      // is not attached to the same entity type that we are deleting.
+      $entity_type = $entity_reference->getTargetEntityTypeId('target_type');
+
+      // Instead, we must look at the "target_type" setting to check
+      // if $reference_field can select other entities like the
+      // current $deleted_entity_type.
+      $target_type = $entity_reference->getSetting('target_type');
+      if ($target_type !== $deleted_entity_type) {
         continue;
       }
 
