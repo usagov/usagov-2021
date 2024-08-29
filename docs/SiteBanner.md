@@ -10,12 +10,13 @@ The feature introduces a new block type called **Site Banner**. This block uses 
 To control the placement of Site Banners without giving full block placement permissions, a checkbox has been added to the Site Banner edit form. This checkbox allows content admins to decide if the banner should be placed in the `header_top` region or removed from it.
 
 ### Files Involved
-- `web/modules/custom/usa_twig_vars/usa_twig_vars.module`
-  - The `usa_twig_vars_preprocess_region` hook checks the value of the placement checkbox for each site banner in the site and builds an array called `site_banners`. The value of each element in this array can be the id of the site banner if the checkbox `place_above_header` is checked or `NULL` if the checkbox is not checked.
+- `web/modules/custom/usa_twig_vars/usa_site_banner.module`
+  - The `usa_site_banner_entity_insert` is a hook that runs when a Content Admin creates a site_banner. This hook creates a block by calling the `usa_site_banner_create_block` function and then places it in the `header_top` region if necessary by calling the `usa_site_banner_place_block` function.
+  - The `usa_site_banner_entity_update` is a hook that runs when a Content Admin updates a site_banner. This hook creates a block if necessary by calling the `usa_site_banner_create_block` function and then places it in the `header_top` region if necessary by calling the `usa_site_banner_place_block` function.
+  - The `usa_site_banner_place_block` is a fuction that places a Block in a region by setting the `status` value of the Block. Since in order to change the value you need to have a Block created, this function calls the `usa_site_banner_create_block` function in case there is no Block for the site_banner.
+  - The `usa_site_banner_create_block` is a function that creates a Block for a site_banner based on the BlockContent data.
 - `web/themes/custom/usagov/templates/field--block-content--field-place-above-header.html.twig`
   - For some reason the checkbox added text below the site banner so I added this empty file to prevent this text from appearing.
-- `web/themes/custom/usagov/templates/region--header-top.html.twig`
-  - The `site_banners` array created in the hook is used in this file to add or remove the banner from the `header_top` region. To do this we use Twig Tweak, specifically the `drupal_entity` function.
 
 ## Adding a Site Banner: Step-by-Step Guide
 
