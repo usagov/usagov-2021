@@ -674,7 +674,7 @@ workflows:
             branches:
               only:
               - dev
-                - USAGOV-1880-benefits-redirects
+              - USAGOV-1880-benefits-redirects
       - approve-dr-deployment:
           type: approval
           requires:
