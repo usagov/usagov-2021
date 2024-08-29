@@ -45,7 +45,7 @@
 
 <div class="benefits-category-list" id="{{ search_id }}">
   <form id="benefitSearch" action="javascript:void(0)">
-    <div class="alert-container" role="alert"></div>
+    <div class="alert-container" role="alert" data-analytics="errorMessage"></div>
     <fieldset>
 
       {% if node.field_benefits_search_title.value | render %}

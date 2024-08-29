@@ -241,6 +241,8 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
     myself.showResults();
     // update browser history so that bookmarks work
     myself.updateHistory();
+    // send data to GTM for a success in applying selections
+    dataLayer.push({'event': 'category_apply_success'});
   };
   /**
    * Update UI when a term checkbox is clicked.
@@ -452,6 +454,11 @@ ${benefit.term_node_tid}
 
     const fieldset = myself.form.querySelector('div[role="group"]');
     fieldset.classList.add('benefits-category-error');
+
+    // sending data to GTM when the error message appears
+    if (document.querySelector('[data-analytics="errorMessage"]')) {
+      dataLayer.push({'event': 'category_apply_error'});
+    }
   };
   /**
    * Show indicated page
