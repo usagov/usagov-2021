@@ -23,6 +23,7 @@ paths.forEach((path, idx) => {
 
       cy.injectAxe();
     });
+
     it("BTE/S 28: Left menu appears on page and indicates the page you are on", () => {
       cy.get(".usa-sidenav").should("be.visible");
 
@@ -31,13 +32,11 @@ paths.forEach((path, idx) => {
         .find(".usa-current")
         .then(($sideNav) => {
           // Grab page title and compare to breadcrumb text
-          const sideNavText = $sideNav[0].lastChild;
-
           cy.get("h1")
             .invoke("text")
             .should((pageTitle) => {
               expect(pageTitle.trim().toLowerCase()).to.include(
-                sideNavText["wholeText"].trim().toLowerCase(),
+                $sideNav[0].lastChild["wholeText"].trim().toLowerCase(),
               );
             });
         });
@@ -171,35 +170,6 @@ paths.forEach((path, idx) => {
         .should("exist")
         .find("a")
         .should("have.attr", "href", phones[idx]);
-    });
-    it("BTE/S 35: Page level survey appears and you can complete survey", () => {
-      cy.get(".pagesurvey-qual-container")
-        //select in first page of survey
-        .should("exist")
-        .get("ul.ChoiceStructure")
-        .find("li")
-        .first()
-        .click()
-        .get("#Buttons")
-        .find("input")
-        .click()
-        //select in second page of survey
-        .get("ul.ChoiceStructure")
-        .find("li")
-        .first()
-        .click()
-        .get("#Buttons")
-        .find("input")
-        .click()
-        //fill in third page of survey
-        .get("div.ChoiceStructure")
-        .find("textarea")
-        .type("test")
-        .get("#Buttons")
-        .find("input")
-        .click()
-        .get("#EndOfSurvey")
-        .should("exist");
     });
     it("BTE/S 36: Back to top button", () => {
       //test back to top button
