@@ -31,6 +31,10 @@ function toggleModal(modalName) {
 document.addEventListener('DOMContentLoaded', function() {
     "use strict";
 
+    document.querySelectorAll('.usa-modal').forEach((modal) => {
+        modal.hidden = false;
+    });
+
     processModalUrlParameter();
 });
 
