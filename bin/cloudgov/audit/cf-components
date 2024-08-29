@@ -16,7 +16,28 @@ level6="          "
 
 die() { echo "$*" >&2; exit 2; }  # complain to STDERR and exit with error
 needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option"; fi; }
-getPaginationCount() { cf curl "/v3/$1" | jq -r '.pagination | .total_pages'; }
+# getPaginationCount() { cf curl "/v3/$1" | jq -r '.pagination | .total_pages'; }
+getPaginationCount() { # $1 = resource, $2 = relationship, $3 = relationship id
+  PAGES=$(cf curl "/v3/$1" | jq -r '.pagination | .total_pages');
+  if [ -z "$2" ]; then
+    if [ $PAGES -gt 1 ]; then
+      for i in $PAGES; do
+        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=50" | jq -r '[.resources[] | .guid]')
+      done
+    else
+      IDS=$(cf curl "/v3/$1" | jq -r '[.resources[] | .guid]')
+    fi
+  else
+    if [ $PAGES -gt 1 ]; then
+      for i in $PAGES; do
+        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=50" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'$3'" ) | .guid]')
+      done
+    else
+      IDS=$(cf curl "/v3/$1" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'$3'" ) | .guid]')
+    fi
+  fi
+  echo "$IDS"
+}
 
 # Defaults (to be thorough, you could also assign alpha="" and charlie="")
 all=false       # Overridden by the value set by -b or --bravo
@@ -41,16 +62,8 @@ shift $((OPTIND-1)) # remove parsed options and args from $@ list
 echo "${bold}${underline}CF Components${nounderline}${normal}"
 
 # Orgs->Domains/Spaces->Apps/Services->Tasks/Sidecars
-ORGPAGES=$(getPaginationCount "organizations")
 if [ $all == true ]; then
-  if [ $ORGPAGES -gt 1 ]; then
-    for i in $ORGPAGES; do
-      ORGIDS=${ORGIDS}$(cf curl "/v3/organizations?page=$i&per_page=50" | jq -r '.resources[].guid')
-    done
-  else
-    ORGIDS=$(cf curl "/v3/organizations" | jq -r '.resources[].guid')
-  fi
-  ORGIDS="[$ORGIDS]"
+  ORGIDS=$(getPaginationCount "organizations")
 else
   echo "Showing info for gsa-tts-usagov, add --all argument to see all orgs."
   ORGIDS=$(cf curl "/v3/organizations" | jq -r '[.resources[] | select(.name == "gsa-tts-usagov") | .guid]')
@@ -65,14 +78,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
 
   echo "Org: ${underline}$ORGNAME${nounderline} (Last updated: $ORGUPDATE)"
 
-  DOMIANPAGES=$(getPaginationCount "domains")
-  if [ $DOMIANPAGES -gt 1 ]; then
-    for i in $DOMIANPAGES; do
-      DOMIANIDS=${DOMIANIDS}$(cf curl "/v3/domains?page=$i&per_page=50" | jq -r '[.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid]')
-    done
-  else
-    DOMIANIDS=$(cf curl "/v3/domains" | jq -r '[.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid]')
-  fi
+  DOMIANIDS=$(getPaginationCount "domains" "organization" "$ORGID")
   if [ "$DOMIANIDS" != "[]" ]; then
       echo "$level2 Domains:"
       echo "$DOMIANIDS" | jq -r '.[]' | while read -r DOMIANID; do
@@ -86,7 +92,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
     fi
 
  if [ $spaces == "all" ]; then
-  SPACEPAGES=$(getPaginationCount "spaces")
+  SPACEPAGES=cf curl "/v3/spaces" | jq -r '.pagination | .total_pages';
   if [ $SPACEPAGES -gt 1 ]; then
     for i in $SPACEPAGES; do
       SPACEIDS=$(cf curl "/v3/spaces?page=$i&per_page=50" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid')
@@ -95,7 +101,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
     SPACEIDS=$(cf curl "/v3/spaces" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid')
   fi
  else
-  SPACEPAGES=$(getPaginationCount "spaces")
+  SPACEPAGES=cf curl "/v3/spaces" | jq -r '.pagination | .total_pages';
   if [ $SPACEPAGES -gt 1 ]; then
     for i in $SPACEPAGES; do
       SPACEIDS=$(cf curl "/v3/spaces?page=$i&per_page=50" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid' | while read -r SPACEID; do
@@ -125,14 +131,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
   SPACEUPDATE=$(echo "$SPACE" | jq -r '.updated_at')
   echo "$level2 Space: ${underline}$SPACENAME${nounderline} (Last updated: $SPACEUPDATE)"
 
-  SERVICEPAGES=$(getPaginationCount "service_instances")
-  if [ $SERVICEPAGES -gt 1 ]; then
-    for i in $SERVICEPAGES; do
-      SERVICEIDS=${SERVICEIDS}$(cf curl "/v3/service_instances?page=$i&per_page=50" | jq -r '[.resources[] | select( .relationships.space.data.guid == "'$SPACEID'" ) | .guid]')
-    done
-  else
-    SERVICEIDS=$(cf curl "/v3/service_instances" | jq -r '[.resources[] | select( .relationships.space.data.guid == "'$SPACEID'" ) | .guid]')
-  fi
+  SERVICEIDS=$(getPaginationCount "service_instances" "space" "$SPACEID")
   if [ "$SERVICEIDS" != "[]" ]; then
     echo "$level3 Services:"
     echo "$SERVICEIDS" | jq -r '.[]' | while read -r SERVICEID; do
@@ -152,15 +151,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
     done
   fi
 
-  ROUTEPAGES=$(getPaginationCount "routes")
-  if [ $ROUTEPAGES -gt 1 ]; then
-    for i in $ROUTEPAGES; do
-      ROUTEIDS=${ROUTEIDS}$(cf curl "/v3/routes?page=$i&per_page=50" | jq -r '[.resources[] | select( .relationships.space.data.guid == "'$SPACEID'" ) | .guid]')
-    done
-  else
-    ROUTEIDS=$(cf curl "/v3/routes" | jq -r '[.resources[] | select( .relationships.space.data.guid == "'$SPACEID'" ) | .guid]')
-  fi
-  ROUTEIDS=$(cf curl "/v3/routes" | jq -r '[.resources[] | select( .relationships.space.data.guid == "'$SPACEID'" ) | .guid]')
+  ROUTEIDS=$(getPaginationCount "routes" "space" "$SPACEID")
   if [ "$ROUTEIDS" != "[]" ]; then
     echo "$level3 Routes:"
     echo "$ROUTEIDS" | jq -r '.[]' | while read -r ROUTEID; do
@@ -173,15 +164,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
     done
   fi
 
-  APPPAGES=$(getPaginationCount "routes")
-  if [ $APPPAGES -gt 1 ]; then
-    for i in $APPPAGES; do
-      APPIDS=${APPIDS}$(cf curl "/v3/apps?page=$i&per_page=50" | jq -r '[.resources[] | select( .relationships.space.data.guid == "'$SPACEID'" ) | .guid]')
-    done
-  else
-    APPIDS=$(cf curl "/v3/apps" | jq -r '[.resources[] | select( .relationships.space.data.guid == "'$SPACEID'" ) | .guid]')
-  fi
-  APPIDS=$(cf curl "/v3/apps" | jq -r '[.resources[] | select( .relationships.space.data.guid == "'$SPACEID'" ) | .guid]')
+  APPIDS=$(getPaginationCount "apps" "space" "$SPACEID")
   if [ "$APPIDS" != "[]" ]; then
     echo "$level3 Apps:"
     echo "$APPIDS" | jq -r '.[]' | while read -r APPID; do
@@ -203,14 +186,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
         echo "$level5 Number of Tasks attached to $APPNAME: $TASKCOUNT"
       fi
 
-      SIDECARPAGES=$(getPaginationCount "apps/$APPID/sidecars")
-      if [ $SIDECARPAGES -gt 1 ]; then
-        for i in $SIDECARPAGES; do
-          SIDECARIDS=${SIDECARIDS}$(cf curl "/v3/apps/$APPID/sidecars?page=$i&per_page=50" | jq -r '[.resources[] | .guid]')
-        done
-      else
-        SIDECARIDS=$(cf curl "/v3/apps/$APPID/sidecars" | jq -r '[.resources[] | .guid]')
-      fi
+      SIDECARIDS=$(getPaginationCount "apps/$APPID/sidecars" "app" "$APPID")
       if [ "$SIDECARIDS" != "[]" ]; then
         echo "$level5 Sidecars:"
         echo "$SIDECARIDS" | jq -r '.[]' | while read -r SIDECARID; do
@@ -256,14 +232,7 @@ done
 if [ $all == true ]; then
   echo "Showing all orgs.  For security reasons, the display of users is suppressed.  Remove -a argument to see users for gsa-tts-usagov org."
 else
-  USERPAGES=$(getPaginationCount "users")
-  if [ $USERPAGES -gt 1 ]; then
-    for i in $USERPAGES; do
-      USERIDS=${USERIDS}$(cf curl "/v3/users?page=$i&per_page=50" | jq -r '[.resources[] | .guid]')
-    done
-  else
-    USERIDS=$(cf curl "/v3/users" | jq -r '[.resources[] | .guid]')
-  fi
+  USERIDS=$(getPaginationCount "users" "organization" "$ORGID")
   if [ "$USERIDS" != "[]" ]; then
     echo "${underline}Users:${nounderline}"
     echo "$USERIDS" | jq -r '.[]' | while read -r USERID; do
@@ -277,14 +246,7 @@ else
   fi
 fi
 
-GROUPPAGES=$(getPaginationCount "security_groups")
-if [ $GROUPPAGES -gt 1 ]; then
-  for i in $GROUPPAGES; do
-    GROUPIDS=${GROUPIDS}$(cf curl "/v3/security_groups?page=$i&per_page=50" | jq -r '[.resources[] | .guid]')
-  done
-else
-  GROUPIDS=$(cf curl "/v3/security_groups" | jq -r '[.resources[] | .guid]')
-fi
+GROUPIDS=$(getPaginationCount "security_groups")
 if [ "$GROUPIDS" != "[]" ]; then
   echo "${underline}Security Groups:${nounderline}"
   echo "$GROUPIDS" | jq -r '.[]' | while read -r GROUPID; do
