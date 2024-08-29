@@ -790,7 +790,7 @@ $settings['tome_static_path_exclude'] = [];
  */
 $settings['usagov_tome_static_path_exclude_directories'] = [
     '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete',
-    '/taxonomy/term', '/taxonomy_term',
+    '/taxonomy', '/taxonomy_term', '/es/taxonomy_term', '/es/taxonomy'
 ];
 
 

@@ -18,7 +18,9 @@
 
 .usa-banner__button-text,
 .usa-banner__button-text:hover {
- @include u-text('blue-warm-70v');
+  line-height: 1.5;
+
+  @include u-text('blue-warm-70v');
 }
 
 .usa-banner__button-text:visited {
@@ -59,6 +61,13 @@
 /** Language buttons **/
 .usa-header--extended .usa-navbar {
   height: auto;
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+}
+
+.usa-logo a{
+  display: flex;
+  width: fit-content;
 }
 
 @include at-media($theme-header-min-width) {
@@ -71,15 +80,17 @@
     display: block;
   }
 }
+
 .usa-navbar .navbar-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  margin: .5rem;
+
   @media (max-width: 64em) {
     flex-direction: row;
     align-items: center;
+    margin-right: 1rem;
   }
 }
 
@@ -90,13 +101,22 @@
     margin-right: 2em;
   }
 
-  @include u-text('white');
   text-decoration: none;
   padding: 10px 20px;
-  @include u-bg('blue-80v');
   line-height: .9;
   font-size: .93rem;
   margin: 0;
+  border: 2px solid transparent;
+
+  @include u-text('white');
+  @include u-bg('blue-80v');
+
+  &:hover {
+    border: 2px solid color('cyan-50v');
+
+    @include u-bg('white');
+    @include u-text('blue-80v');
+  }
 }
 
 .usa-header--extended .usa-menu-btn {
@@ -111,14 +131,14 @@
     background-repeat: no-repeat;
     background-position: 3.5rem 0.7rem;
   }
+
   @include u-bg('blue-warm-80v');
 }
 
 // This is to set the size of the logo in desktop
 @media (min-width: 64em) {
   .usa-header--extended .usa-logo {
-    margin: 0.5rem 0 0.2em;
-    width: 5rem;
+    margin: 0;
     height: 5rem;
   }
 }
@@ -182,7 +202,6 @@
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
     width: 15rem;
-    // line-height: 1.1rem;
     margin-bottom: 0;
   }
 }
@@ -200,12 +219,13 @@
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
   @include at-media($theme-header-min-width) {
     float: right;
-    @include u-text('gray-cool-10');
     content: "|"; // Removed while phone number is disabled
     padding-right: 1rem;
     font-size: 2rem;
     padding-bottom: 0.4rem;
     line-height: 2rem;
+
+    @include u-text('gray-cool-10');
   }
 }
 
@@ -264,11 +284,11 @@
       position: absolute;
       left: 1.3rem;
       top: -0.6rem;
-      @include u-bg('gray-90');
       mask: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
       background-size: 1.5rem;
       mask-size: 1.5rem;
 
+      @include u-bg('gray-90');
       @media (max-width: 1022px) {
         left: 0.4rem;
       }
@@ -294,10 +314,11 @@
       position: absolute;
       left: 1.6rem;
       top: -0.6rem;
-      @include u-bg('gray-90');
       mask: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
       background-size: 1.5rem;
       mask-size: 1.5rem;
+
+      @include u-bg('gray-90');
 
       @media (max-width: 1022px) {
         left: 0.4rem;
@@ -363,12 +384,15 @@ input#search-field-small-mobile-menu {
     max-width: calc(70.25rem + 4rem);
     padding-left: 2.3rem;
   }
+
   .usa-header--extended .usa-banner__inner {
     max-width: calc(70.25rem + 4rem);
   }
+
   .usa-header--extended .usa-navbar {
     max-width: calc(70.25rem + 4rem);
   }
+
   .usa-header--extended .usa-alert__body {
     max-width: calc(70.25rem + 4rem);
     margin: auto;
@@ -376,7 +400,7 @@ input#search-field-small-mobile-menu {
     padding-right: 2rem !important;
   }
 
-  .usa-header--extended .usa-alert--no-icon .usa-alert__body{
+  .usa-header--extended .usa-alert--no-icon .usa-alert__body {
     padding-left: 1.7rem !important;
   }
 
@@ -387,12 +411,12 @@ input#search-field-small-mobile-menu {
     padding-left: 2.7rem;
   }
 
-  .usa-header--extended .usa-alert--no-icon .usa-alert__body{
+  .usa-header--extended .usa-alert--no-icon .usa-alert__body {
     padding-left: 0.5rem;
   }
 }
 
-.usa-header--extended .usa-alert:not(.usa-alert--no-icon){
+.usa-header--extended .usa-alert:not(.usa-alert--no-icon) {
   // These styles are needed to position the alert icon
   &::before {
     display: none;
@@ -419,8 +443,8 @@ input#search-field-small-mobile-menu {
 }
 
 .usa-header--extended {
-
-  .usa-alert--info:not(.usa-alert--no-icon), .usa-alert--success:not(.usa-alert--no-icon) {
+  .usa-alert--info:not(.usa-alert--no-icon),
+  .usa-alert--success:not(.usa-alert--no-icon) {
     .usa-alert__body {
       &::before {
         background: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
@@ -454,7 +478,43 @@ input#search-field-small-mobile-menu {
     justify-content: space-between;
     width: auto;
   }
+
   .usa-header--extended .usa-nav__primary::after {
+    content: none;
+  }
+}
+
+@media (max-width: 40em) {
+  .usa-banner__header--expanded .usa-banner__header-action {
+    display: inline-block;
+  }
+
+  .usa-banner__header-action {
+    display: inline-block;
+  }
+}
+
+.usa-banner_expand_arrow {
+  fill: #1a4480;
+  vertical-align: middle;
+}
+
+.usa-banner__header--expanded {
+  .usa-banner_expand_arrow {
+    transform: rotate(180deg);
+  }
+}
+
+// for desktop
+@media (min-width: 40em) {
+  .usa-banner__button::after, .usa-banner__button:hover::after, .usa-banner__button[aria-expanded=true]::after, .usa-banner__button[aria-expanded=true]:hover::after {
+    content: none;
+  }
+}
+
+// for mobile
+@media (max-width: 40em) {
+  .usa-banner__header-action-mobile::after{
     content: none;
   }
 }

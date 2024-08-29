@@ -2,8 +2,8 @@
 	<div class="usa-logo" id="extended-logo">
 		<em class="usa-logo-text">
 			<a href="/" title="USAGov Logo">
-				<img 
-					src="/themes/custom/usagov/images/USAGov_logo_51px.png" 
+				<img
+					src="/themes/custom/usagov/images/USAGov_logo_51px.png"
 					srcset="/themes/custom/usagov/images/USAGov_Logo_80px.png 80w,
 									/themes/custom/usagov/images/USAGov_Logo_51px.png 51w"
 					sizes="(min-width: 1024px) 80px, 51px"
@@ -23,7 +23,7 @@
           {% set translation_url = drupal_url('node/'~translation.target_id,{ langcode:'es' }) %}
         {% endif %}
 
-			<a href="{{ translation_url }}" class="usa-button language-link" hreflang="es">Español</a>
+			<a href="{{ translation_url }}" class="usa-button language-link" hreflang="es" role="button">Español</a>
 		  {% endif %}
     {% endblock %}
 		<button class="usa-menu-btn">Menu</button>

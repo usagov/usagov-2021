@@ -9,8 +9,10 @@ dependencies:
     - field.field.taxonomy_term.wizard.field_heading
     - field.field.taxonomy_term.wizard.field_intro
     - field.field.taxonomy_term.wizard.field_language_toggle
+    - field.field.taxonomy_term.wizard.field_meta_description
     - field.field.taxonomy_term.wizard.field_option_name
     - field.field.taxonomy_term.wizard.field_options_list
+    - field.field.taxonomy_term.wizard.field_step_number
     - taxonomy.vocabulary.wizard
   module:
     - allowed_formats
@@ -35,7 +37,7 @@ content:
         hide_guidelines: '1'
   field_body:
     type: text_textarea
-    weight: 7
+    weight: 8
     region: content
     settings:
       rows: 5
@@ -46,7 +48,7 @@ content:
         hide_guidelines: '1'
   field_footer:
     type: text_textarea
-    weight: 8
+    weight: 9
     region: content
     settings:
       rows: 3
@@ -57,7 +59,7 @@ content:
         hide_guidelines: '1'
   field_header_html:
     type: text_textarea
-    weight: 9
+    weight: 10
     region: content
     settings:
       rows: 5
@@ -73,7 +75,7 @@ content:
     third_party_settings: {  }
   field_intro:
     type: text_textfield
-    weight: 6
+    weight: 7
     region: content
     settings:
       size: 200
@@ -84,12 +86,20 @@ content:
         hide_guidelines: '1'
   field_language_toggle:
     type: entity_reference_autocomplete
-    weight: 5
+    weight: 6
     region: content
     settings:
       match_operator: CONTAINS
       match_limit: 10
       size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_meta_description:
+    type: string_textarea
+    weight: 12
+    region: content
+    settings:
+      rows: 5
       placeholder: ''
     third_party_settings: {  }
   field_option_name:
@@ -102,12 +112,19 @@ content:
     third_party_settings: {  }
   field_options_list:
     type: viewsreference_autocomplete
-    weight: 10
+    weight: 11
     region: content
     settings:
       match_operator: CONTAINS
       match_limit: 10
       size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_step_number:
+    type: number
+    weight: 5
+    region: content
+    settings:
       placeholder: ''
     third_party_settings: {  }
   langcode:
@@ -127,13 +144,13 @@ content:
     third_party_settings: {  }
   path:
     type: path
-    weight: 11
+    weight: 13
     region: content
     settings: {  }
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 12
+    weight: 14
     region: content
     settings:
       display_label: true

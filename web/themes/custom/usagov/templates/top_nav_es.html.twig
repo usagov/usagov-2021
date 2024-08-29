@@ -15,7 +15,7 @@
           {% set translation_url = drupal_url('node/'~translation.target_id,{ langcode:'en' }) %}
         {% endif %}
 
-        <a href="{{ translation_url }}" class="usa-button language-link" hreflang="en">English</a>
+        <a href="{{ translation_url }}" class="usa-button language-link" role="button" hreflang="en">English</a>
       {% endif %}
     {% endblock %}
 		<button class="usa-menu-btn">Menú</button>

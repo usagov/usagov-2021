@@ -44,7 +44,11 @@ stateDirectory:
     - core/jquery
 
 carousel:
+  css:
+    css/slick.min.css: {}
   js:
+    scripts/slick.min.js: {}
+    scripts/passiveListeners.js: {}
     scripts/carousel.js: {}
   dependencies:
     - core/drupal
@@ -56,14 +60,6 @@ reportAProblem:
   dependencies:
     - core/drupal
     - core/jquery
-
-benefitSearch:
-  js:
-    scripts/benefitSearch.js: {}
-  dependencies:
-    - core/drupal
-    - core/jquery
-    - usagov/pagination
 
 pagination:
   js:
