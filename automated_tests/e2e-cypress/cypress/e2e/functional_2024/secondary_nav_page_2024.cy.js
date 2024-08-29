@@ -1,10 +1,18 @@
-describe('Secondary Nav Page [ENG]', () => {
-    beforeEach(() => {
-        // Set base URL
-        cy.visit('/disaster-financial-help')
+const paths = ["/disaster-financial-help", "/es/ayuda-financiera-desastre"];
 
-        cy.injectAxe()
-    })
+paths.forEach(path => {
+  let lang;
+  if (path === "/disaster-financial-help") {
+    lang = "English";
+  } else {
+    lang = "Español";
+  }
+  describe(`${lang} Secondary Nav Page`, () => {
+    // Set base URL
+    beforeEach(() => {
+      cy.visit(path);
+      cy.injectAxe()
+    });
     it('BTE 24: Links/cards to content appear in the main body of the page and behave as expected', () => {
         cy.get('.usagov-navpage-item')
             .each((el) => {
@@ -33,10 +41,18 @@ describe('Secondary Nav Page [ENG]', () => {
             .should('be.visible')
     })
     it('BTE 26: Breadcrumb appears at top of page and indicates correct section', () => {
+        let expectedText;
+
+        if (path === "/disaster-financial-help") {
+            expectedText = "Home";
+        } else {
+            expectedText = "Página principal";
+        }
+
         cy.get('.usa-breadcrumb__list')
             .find('li')
             .first()
-            .contains('Home')
+            .contains(expectedText)
 
         // Breadcrumb indicates correct section
         cy.get('.usa-breadcrumb__list')
@@ -66,5 +82,6 @@ describe('Secondary Nav Page [ENG]', () => {
                 .contains(falseChildren[i])
                 .should('be.visible')
         }
+    })
     })
 })
