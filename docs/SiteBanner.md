@@ -10,7 +10,7 @@ The feature introduces a new block type called **Site Banner**. This block uses 
 To control the placement of Site Banners without giving full block placement permissions, a checkbox has been added to the Site Banner edit form. This checkbox allows content admins to decide if the banner should be placed in the `header_top` region or removed from it.
 
 ### Files Involved
-- `web/modules/custom/usa_twig_vars/usa_site_banner.module`
+- `web/modules/custom/usa_site_banner/usa_site_banner.module`
   - The `usa_site_banner_entity_insert` is a hook that runs when a Content Admin creates a site_banner. This hook creates a block by calling the `usa_site_banner_create_block` function and then places it in the `header_top` region if necessary by calling the `usa_site_banner_place_block` function.
   - The `usa_site_banner_entity_update` is a hook that runs when a Content Admin updates a site_banner. This hook creates a block if necessary by calling the `usa_site_banner_create_block` function and then places it in the `header_top` region if necessary by calling the `usa_site_banner_place_block` function.
   - The `usa_site_banner_place_block` is a fuction that places a Block in a region by setting the `status` value of the Block. Since in order to change the value you need to have a Block created, this function calls the `usa_site_banner_create_block` function in case there is no Block for the site_banner.
