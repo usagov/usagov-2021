@@ -8,7 +8,24 @@
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
+APPNAME=cron
+
+CONTAINERTAG=${1}
+CONTAINERTAG2=${2}
+
+if [ -z "$CONTAINERTAG" ]
+then
+      echo "Must specify a container tag to push"
+      exit 1;
+fi;
+
 echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username $DOCKERHUB_USERNAME --password-stdin
 
-echo "docker push $DOCKERUSER/$DOCKERREPO:cron"
-docker push $DOCKERUSER/$DOCKERREPO:cron
+echo "docker push $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG"
+docker push $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG
+
+if [ -n "$CONTAINERTAG2" ]
+then
+    echo "docker push $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG2"
+    docker push $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG2
+fi

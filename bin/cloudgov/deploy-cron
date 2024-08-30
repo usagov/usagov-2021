@@ -31,11 +31,22 @@ assertCurSpace $SPACE
 shift
 ORG=$(getOrg)
 
+STAG=${1:-latest}
+SDIGEST=${2:-}
+
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 export APPNAME="cron"
-APPSPEC=${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
+export APPINSTANCES=1
+
+if [ -z "$SDIGEST" ]; then
+  echo "AppSpec: ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}-${STAG}"
+  APPSPEC="${DOCKERUSER}/${DOCKERREPO}:${APPNAME}-${STAG}"
+else
+  echo "AppSpec: ${DOCKERUSER}/${DOCKERREPO}${SDIGEST}"
+  APPSPEC="${DOCKERUSER}/${DOCKERREPO}${SDIGEST}"
+fi
 
 function setHTTPProxy() {
     appSpace=$1
@@ -88,6 +99,7 @@ fi
 
 function cf_push() {
   appspec=$1
+  instances=${2:-1} ### Always spawn a single app instance unless told otherwise
   if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
     cf push ${APPNAME} --docker-image ${appspec}
   else
@@ -98,11 +110,9 @@ function cf_push() {
 if existsCFApp ${APPNAME} ; then
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
   setHTTPProxy ${SPACE} ${APPNAME} 1
-  cf_push $APPSPEC
-  #cf push ${APPNAME} -f ./manifest-${APPNAME}.yml ## --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
+  cf_push $APPSPEC $APPINSTANCES
 else
-  cf_push $APPSPEC
-  #cf push ${APPNAME} -f ./manifest-${APPNAME}.yml ## --docker-image ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}
+  cf_push $APPSPEC $APPINSTANCES
   setHTTPProxy ${SPACE} ${APPNAME} 1
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
 fi

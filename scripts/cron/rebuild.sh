@@ -6,8 +6,17 @@ if [ x"$DEPLOY_SPACE" = x ]; then
     echo Please provide the deployment space as first argument
     exit 1
 fi
+shift
 
 APP=cron
+
+CONTAINERTAG=${1}
+
+if [ -z "$CONTAINERTAG" ]
+then
+      echo "Must specify a container tag for the build (e.g. latest)"
+      exit 1;
+fi;
 
 # Grab the starting space and org where the command was run
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
@@ -22,12 +31,17 @@ function popspace() {
 trap popspace err
 
 cf t -s $DEPLOY_SPACE
-cf delete ${APP} -f
 
-bin/cloudgov/container-build-${APP}
-bin/cloudgov/container-push-${APP}
+FULL_REBUILD=$1
+if [ x$FULL_REBUILD = "x--full" ]; then
+    cf delete-service ${APP}-service-account -f
+    cf delete ${APP} -f
+fi
 
-bin/cloudgov/deploy-${APP} $DEPLOY_SPACE
+bin/cloudgov/container-build-${APP} $CONTAINERTAG
+bin/cloudgov/container-push-${APP} $CONTAINERTAG
+
+bin/cloudgov/deploy-${APP} $DEPLOY_SPACE $CONTAINERTAG
 
 cf restage ${APP}
 
