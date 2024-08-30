@@ -117,9 +117,9 @@ function usa_translation_page_attachments_alter(&$page) {
         && $entity->hasLinkTemplate('canonical')) {
         foreach ($entity->getTranslationLanguages() as $language) {
           // Skip any translation that cannot be viewed.
-          // $translation = $entity->getTranslation($language->getId());
-          // $access = $translation->access('view', NULL, TRUE);
-          // $cache->addCacheableDependency($access);
+          $translation = $entity->getTranslation($language->getId());
+          $access = $translation->access('view', NULL, TRUE);
+          $cache->addCacheableDependency($access);
           if (!$access->isAllowed()) {
             continue;
           }
