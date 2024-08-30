@@ -146,9 +146,8 @@ jobs:
       - name: Checkout usagov-2021 working branch
         run: |
           cd usagov-2021
-          # git switch ${{ github.ref_name }}
-          git switch dev
-
+          git switch ${{ github.ref_name }}
+    
       - name: Install dependencies
         uses: cypress-io/github-action@v6
         with:
