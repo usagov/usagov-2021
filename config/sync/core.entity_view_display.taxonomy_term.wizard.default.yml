@@ -12,6 +12,7 @@ dependencies:
     - field.field.taxonomy_term.wizard.field_meta_description
     - field.field.taxonomy_term.wizard.field_option_name
     - field.field.taxonomy_term.wizard.field_options_list
+    - field.field.taxonomy_term.wizard.field_step_number
     - taxonomy.vocabulary.wizard
   module:
     - text
@@ -95,6 +96,15 @@ content:
         - block
     third_party_settings: {  }
     weight: 7
+    region: content
+  field_step_number:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 11
     region: content
 hidden:
   breadcrumbs: true
