@@ -1,0 +1,27 @@
+uuid: 94f199f4-097b-4581-bb7e-8b1149afb7ba
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.modal
+    - field.field.block_content.modal.field_modal
+    - field.field.block_content.modal.field_modal_id
+  module:
+    - entity_reference_revisions
+id: block_content.modal.default
+targetEntityType: block_content
+bundle: modal
+mode: default
+content:
+  field_modal:
+    type: entity_reference_revisions_entity_view
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  field_modal_id: true
+  langcode: true
