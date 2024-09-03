@@ -10,7 +10,7 @@ field_name: field_modal_id
 entity_type: block_content
 bundle: modal
 label: 'Modal ID'
-description: 'A name to identify this modal for displaying it programatically. Ex: www.usa.gov/?modal=example_modal_id'
+description: 'A name to identify this modal for displaying it programmatically. Ex: www.usa.gov/?modal=example_modal_id'
 required: false
 translatable: false
 default_value: {  }
