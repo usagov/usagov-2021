@@ -1,0 +1,23 @@
+uuid: 31d774c9-864c-46af-8b92-924482b077af
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_step_number
+    - taxonomy.vocabulary.wizard
+id: taxonomy_term.wizard.field_step_number
+field_name: field_step_number
+entity_type: taxonomy_term
+bundle: wizard
+label: 'Step Number'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

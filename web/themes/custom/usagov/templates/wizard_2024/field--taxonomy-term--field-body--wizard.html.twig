@@ -1,0 +1,50 @@
+{%
+  set classes = [
+  'field',
+  'field--name-' ~ field_name|clean_class,
+  'field--type-' ~ field_type|clean_class,
+  'field--label-' ~ label_display,
+  label_display == 'inline' ? 'clearfix',
+  'usa-prose',
+]
+%}
+{%
+  set title_classes = [
+  'title',
+  label_display == 'visually_hidden' ? 'usa-sr-only',
+  label_display == 'inline' ? 'display-inline',
+]
+%}
+
+{%
+  set field_classes = [
+  label_display == 'inline' ? 'display-inline',
+]
+%}
+
+{% if label_hidden %}
+  {% if multiple %}
+    <div{{ attributes.addClass(classes, 'field__items').addClass(field_classes) }}>
+      {% for item in items %}
+        <div{{ item.attributes.addClass('field__item').addClass(field_classes) }}>{{ item.content }}</div>
+      {% endfor %}
+    </div>
+  {% else %}
+    {% for item in items %}
+      <div{{ attributes.addClass(classes, 'field__item').addClass(field_classes) }}>{{ item.content }}</div>
+    {% endfor %}
+  {% endif %}
+{% else %}
+  <div{{ attributes.addClass(classes) }}>
+    <div{{ title_attributes.addClass(title_classes) }}>{{ label }}</div>
+    {% if multiple %}
+    <div>
+      {% endif %}
+      {% for item in items %}
+        <div{{ item.attributes.addClass('field__item').addClass(field_classes) }}>{{ item.content }}</div>
+      {% endfor %}
+      {% if multiple %}
+    </div>
+    {% endif %}
+  </div>
+{% endif %}
