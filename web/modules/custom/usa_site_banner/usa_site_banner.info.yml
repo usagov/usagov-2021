@@ -1,0 +1,4 @@
+name: 'USAGov Site Banner Module'
+type: module
+description: 'Place the site banner in the site'
+core_version_requirement: ^10

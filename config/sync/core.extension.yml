@@ -93,6 +93,7 @@ module:
   usa_contact_center_api: 0
   usa_content_moderation_notifications: 0
   usa_orphaned_entities: 0
+  usa_site_banner: 0
   usa_translation: 0
   usagov_benefit_category_search: 0
   usagov_benefit_finder: 0
