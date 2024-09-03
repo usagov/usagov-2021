@@ -334,59 +334,20 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
   $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
   if ($taxonomy_term instanceof Term) {
     if ($taxonomy_term->bundle() == 'wizard') {
-      $menuChecker = \Drupal::classResolver(MenuChecker::class);
-      $langcode = $taxonomy_term->langcode->value;
 
-      $parent_headings = $menuChecker->getHeadings($taxonomy_term);
+      // Get all parents from this term, up
+      $ancestors = \Drupal::service('entity_type.manager')->getStorage("taxonomy_term")->loadAllParents($taxonomy_term->id());
+      $ancestors = array_reverse($ancestors);
 
-      $menuEntities = $menuChecker->getMenuEntities($langcode);
+      $aliasManager = \Drupal::service('path_alias.manager');
 
-      if (isset($menuEntities['primary_entity'])) {
-        $wizard_title = $menuEntities['primary_entity']->title->value;
-        $wizard_title_url = Url::fromUri($menuEntities['primary_entity']->link->uri)->toString();
-      }
-    }
-    // Use that to determine the second item in the breadcrumb.
-    if (isset($wizard_title)) {
-      $variables['breadcrumb']['1']['text'] = $wizard_title;
-    }
-    else {
-      return;
-    }
-
-    // Use that to determine the second item in the breadcrumb.
-    if (isset($wizard_title)) {
-      $variables['breadcrumb']['1']['text'] = $wizard_title;
-      $variables['breadcrumb']['1']['url'] = $wizard_title_url;
-
-      /*
-       *  And, if we are on the page that corresponds with the second item,
-       *  remove that page from the array.
-       */
-      if (isset($variables['breadcrumb']['2'])) {
-        if ($variables['breadcrumb']['2']['text'] == $wizard_title) {
-          unset($variables['breadcrumb']['1']);
-          unset($variables['breadcrumb']['2']);
-          return;
-        }
-        elseif (strlen($variables['breadcrumb']['2']['url']) < 1) {
-          unset($variables['breadcrumb']['2']);
-        }
-      }
-    }
-    $i = 0;
-    // Set the third item in the breadcrumb to be the field_heading.
-    foreach ($variables['breadcrumb'] as &$breadcrumb) {
-      /* Dont do anything to the second breadcrumb, since this one has a weird
-      naming system. */
-      if ($i++ == 1) {
-        continue;
-      }
-      foreach ($parent_headings as $parent_heading) {
-        if (is_string($breadcrumb['text']) && $parent_heading['name'] ===
-          $breadcrumb['text']) {
-          $breadcrumb['text'] = $parent_heading['label'];
-        }
+      // Loop through all parents up the hierarchy, adding in each parent as a breadcrumb
+      foreach ( $ancestors as $ancestor ) {
+        $newCrumb = array(
+          'text' => $ancestor->getName(),
+          'url' => $aliasManager->getAliasByPath('/taxonomy/term/'.$ancestor->id())
+        );
+        $variables['breadcrumb'][] = $crumb;
       }
     }
   }
