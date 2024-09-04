@@ -369,7 +369,7 @@ function Pagination(total, current, assetBase, labels, onClick) {
     pageLinks.forEach(function(link) {
       if (link.innerText === myself.current.toString()) {
         link.classList.add('usa-current');
-        link.setAttribute('aria-current', myself.page);
+        link.setAttribute('aria-current', 'page');
       }
     });
   };
