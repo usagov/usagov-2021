@@ -342,11 +342,11 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
       $aliasManager = \Drupal::service('path_alias.manager');
 
       // Loop through all parents up the hierarchy, adding in each parent as a breadcrumb
-      foreach ( $ancestors as $ancestor ) {
-        $newCrumb = array(
+      foreach ($ancestors as $ancestor) {
+        $newCrumb = [
           'text' => $ancestor->getName(),
           'url' => $aliasManager->getAliasByPath('/taxonomy/term/'.$ancestor->id())
-        );
+        ];
         $variables['breadcrumb'][] = $crumb;
       }
     }
