@@ -241,6 +241,10 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
     myself.showResults();
     // update browser history so that bookmarks work
     myself.updateHistory();
+    // send data to GTM for a success in applying selections
+    if (dataLayer != null) {
+      dataLayer.push({'event': 'category_apply_success'});
+  }
   };
   /**
    * Update UI when a term checkbox is clicked.
@@ -287,6 +291,29 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
     page.classList.remove('page-active');
     page.classList.add('display-none');
   };
+  /**
+   * Mark the last column items in multi-column CSS layout.
+   */
+  this.markCheckboxColumns = function() {
+    let lastCheckbox = null, lastPos = null, lastListItem = null;
+    for (const box of myself.boxes) {
+      let pos = box.getBoundingClientRect();
+      let listItem = box.parentElement.parentElement;
+      // Is the current checkbox higher than the last one?
+      if (listItem && listItem.classList.contains('end-column')) {
+        listItem.classList.remove('end-column');
+      }
+      if (lastPos && pos.top < lastPos.top) {
+        // mark the LI of the last element as end of column too
+        lastListItem.classList.add('end-column');
+      }
+      lastCheckbox = box;
+      lastPos = pos;
+      lastListItem = listItem;
+    }
+    // mark the LI of the last element as end of column too
+    lastListItem.classList.add('end-column');
+  }
   /**
    * Group results into pages of desired length and prepare output
    * @param matches
@@ -444,7 +471,7 @@ ${benefit.term_node_tid}
 
     let elt = document.createElement('template');
     elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4" aria-live=assertive>
-        <div class="usa_alert__body">
+        <div class="usa_alert__body" data-analytics="errorMessage">
            <h4 class="usa-alert__heading padding-left-6">${myself.labels.emptyCategoryError}</h4>
         </div>
     </div>`;
@@ -452,6 +479,11 @@ ${benefit.term_node_tid}
 
     const fieldset = myself.form.querySelector('div[role="group"]');
     fieldset.classList.add('benefits-category-error');
+
+    // sending data to GTM when the error message appears
+    if (dataLayer != null && document.querySelector('[data-analytics="errorMessage"]')) {
+      dataLayer.push({'event': 'category_apply_error'});
+    }
   };
   /**
    * Show indicated page
@@ -545,6 +577,9 @@ ${benefit.term_node_tid}
     myself.form.addEventListener('reset', myself.handleClear);
     // history events
     window.addEventListener('popstate', myself.parseUrlState);
+
+    this.markCheckboxColumns();
+    window.addEventListener('resize', myself.markCheckboxColumns);
   };
 }
 
