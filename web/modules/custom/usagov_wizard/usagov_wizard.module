@@ -345,7 +345,7 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
       foreach ($ancestors as $ancestor) {
         $newCrumb = [
           'text' => $ancestor->getName(),
-          'url' => $aliasManager->getAliasByPath('/taxonomy/term/'.$ancestor->id())
+          'url' => $aliasManager->getAliasByPath('/taxonomy/term/' . $ancestor->id())
         ];
         $variables['breadcrumb'][] = $crumb;
       }
