@@ -594,7 +594,7 @@ jQuery(document).ready(async function () {
     lifeEventsPath = "../_data/benefits-search/en/life-events.json";
     labels = {
       'showingResults': '@first@&ndash;@last@ of @totalItems@ results',
-      'page': "Page",
+      'page': "page",
       'next': "Next",
       'nextAria': "Next page",
       'previous': "Previous",
@@ -612,7 +612,7 @@ jQuery(document).ready(async function () {
     lifeEventsPath = "../../_data/benefits-search/es/life-events.json";
     labels = {
       'showingResults': '@first@&ndash;@last@ de @totalItems@ resultados',
-      'page': "Página",
+      'page': "página",
       'next': "Siguiente",
       'nextAria': "Página siguiente",
       'previous': "Anterior",
