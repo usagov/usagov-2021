@@ -292,6 +292,29 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
     page.classList.add('display-none');
   };
   /**
+   * Mark the last column items in multi-column CSS layout.
+   */
+  this.markCheckboxColumns = function() {
+    let lastCheckbox = null, lastPos = null, lastListItem = null;
+    for (const box of myself.boxes) {
+      let pos = box.getBoundingClientRect();
+      let listItem = box.parentElement.parentElement;
+      // Is the current checkbox higher than the last one?
+      if (listItem && listItem.classList.contains('end-column')) {
+        listItem.classList.remove('end-column');
+      }
+      if (lastPos && pos.top < lastPos.top) {
+        // mark the LI of the last element as end of column too
+        lastListItem.classList.add('end-column');
+      }
+      lastCheckbox = box;
+      lastPos = pos;
+      lastListItem = listItem;
+    }
+    // mark the LI of the last element as end of column too
+    lastListItem.classList.add('end-column');
+  }
+  /**
    * Group results into pages of desired length and prepare output
    * @param matches
    * @returns {{totalItems: *, last: number, matches: *, first: number}[]}
@@ -554,6 +577,9 @@ ${benefit.term_node_tid}
     myself.form.addEventListener('reset', myself.handleClear);
     // history events
     window.addEventListener('popstate', myself.parseUrlState);
+
+    this.markCheckboxColumns();
+    window.addEventListener('resize', myself.markCheckboxColumns);
   };
 }
 
