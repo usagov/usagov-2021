@@ -54,7 +54,7 @@ function usagov_benefit_finder_api_node_delete(Node $node) {
  */
 function _usagov_benefit_finder_api_batch_operation_generate_json_data_files($id, $isPublished) {
   usleep(500000);
-  $lifeEventController = new LifeEventController();
+  $lifeEventController = \Drupal::service('Drupal\usagov_benefit_finder_api\Controller\LifeEventController');
   if ($isPublished) {
     \Drupal::logger('batch')->error("SAVE $id real JSON datad");
     $lifeEventController->mode = "published";
