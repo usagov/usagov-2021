@@ -71,3 +71,7 @@ lazyLoadBgImage:
   dependencies:
     - core/drupal
     - core/jquery
+
+modal:
+  js:
+    scripts/modal.js: {}
