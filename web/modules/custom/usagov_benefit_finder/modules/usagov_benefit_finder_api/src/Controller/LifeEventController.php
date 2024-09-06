@@ -2,15 +2,23 @@
 
 namespace Drupal\usagov_benefit_finder_api\Controller;
 
+use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\File\FileUrlGeneratorInterface;
+use Drupal\file\FileRepositoryInterface;
 use Drupal\usagov_benefit_finder\Traits\BenefitFinderTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class LifeEventController
  * @package Drupal\usagov_benefit_finder_api\Controller
  */
-class LifeEventController {
+class LifeEventController extends ControllerBase {
 
   use BenefitFinderTrait;
 
@@ -29,7 +37,7 @@ class LifeEventController {
   protected $fileSystem;
 
   /**
-   * Thee file repository service.
+   * The file repository service.
    *
    * @var \Drupal\file\FileRepositoryInterface
    */
@@ -50,11 +58,11 @@ class LifeEventController {
   protected $database;
 
   /**
-   * Retrieves the currently active request object.
+   * The request stack.
    *
-   * @var \Symfony\Component\HttpFoundation\Request
+   * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $request;
+  protected $requestStack;
 
   /**
    * The display data control variable.
@@ -64,7 +72,7 @@ class LifeEventController {
   protected $displayData;
 
   /**
-   * The JSON data mode.
+   * The benefit finder content mode.
    *
    * @var string
    */
@@ -72,28 +80,64 @@ class LifeEventController {
 
   /**
    * Constructs a new LifeEventController object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\File\FileSystemInterface $file_system
+   *   The file system service.
+   * @param \Drupal\file\FileRepositoryInterface|null $file_repository
+   *   The file repository.
+   * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
+   *   The file URL generator.
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
    */
-  public function __construct() {
-    $this->entityTypeManager = \Drupal::service('entity_type.manager');
-    $this->fileSystem = \Drupal::service('file_system');
-    $this->fileRepository = \Drupal::service('file.repository');
-    $this->fileUrlGenerator = \Drupal::service('file_url_generator');
-    $this->database = \Drupal::service('database');
-    $this->request = \Drupal::request();
+  public function __construct(
+    EntityTypeManagerInterface $entity_type_manager,
+    FileSystemInterface $file_system,
+    FileRepositoryInterface $file_repository,
+    FileUrlGeneratorInterface $file_url_generator,
+    Connection $database,
+    RequestStack $request_stack,
+  ) {
+    $this->entityTypeManager = $entity_type_manager;
+    $this->fileSystem = $file_system;
+    $this->fileRepository = $file_repository;
+    $this->fileUrlGenerator = $file_url_generator;
+    $this->database = $database;
+    $this->requestStack = $request_stack;
     $this->displayData = TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity_type.manager'),
+      $container->get('file_system'),
+      $container->get('file.repository'),
+      $container->get('file_url_generator'),
+      $container->get('database'),
+      $container->get('request_stack'),
+    );
   }
 
   /**
    * Saves JSON data file.
    *
    * @param $id
+   *  The life event ID.
    * @return JsonResponse
    *  The response.
+   * @throws EntityStorageException
    */
   public function saveJsonData($id) {
     // Get JSON data mode.
     if (empty($this->mode)) {
-      $this->mode = $this->request->get('mode') ?? "published";
+      $this->mode = $this->requestStack->getCurrentRequest()->query->get('mode') ?? "published";
     }
 
     // Prepare directory.
@@ -163,6 +207,7 @@ class LifeEventController {
   /**
    * Gets data of life event form and benefits of given life event.
    * @param $id
+   *  The life event ID.
    * @return mixed
    *  The JSON encoded data.
    */
@@ -173,7 +218,7 @@ class LifeEventController {
 
     // Get JSON data mode.
     if (empty($this->mode)) {
-      $this->mode = $this->request->get('mode') ?? "published";
+      $this->mode = $this->requestStack->getCurrentRequest()->query->get('mode') ?? "published";
     }
 
     // Get life event form node and node ID of given life event.
@@ -337,7 +382,6 @@ class LifeEventController {
       "legend" => $criteria->get('field_b_legend')->value ?? "",
       "required" => $criteria->get('field_b_required')->value ? TRUE : FALSE,
       "hint" => $criteria->get('field_b_hint')->value ?? "",
-      "errorMessage" => $criteria->get('field_b_error_message')->value ?? "",
     ];
 
     // Build inputCriteria.
