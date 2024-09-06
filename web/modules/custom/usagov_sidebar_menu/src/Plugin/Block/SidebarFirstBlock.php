@@ -12,6 +12,7 @@ use Drupal\Core\Menu\MenuLinkTreeElement;
 use Drupal\Core\Menu\MenuLinkTreeInterface;
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Routing\ResettableStackedRouteMatchInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,6 +39,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     mixed $plugin_definition,
     protected LanguageInterface $language,
     protected Request $request,
+    protected ResettableStackedRouteMatchInterface $routeMatch,
     protected MenuLinkManagerInterface $menuLinkManager,
     protected MenuLinkTreeInterface $menuTree,
     protected MenuActiveTrailInterface $trail,
@@ -47,6 +49,8 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function build(): array {
     switch ($this->language->getId()) {
@@ -80,6 +84,8 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
 
   /**
    * Builds the left navigation based on the current page's menu item.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   private function buildFromMenu(string $menuID, string $navAriaLabel): array {
     $active = $this->trail->getActiveLink($menuID);
@@ -96,6 +102,8 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
 
   /**
    * Builds the left navigation for an agency page.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   private function buildAgencySidebar(string $menuID, string $navAriaLabel): array {
     // Get our parent.
@@ -104,7 +112,6 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
       default => self::AGENCIES_NID_EN,
     };
 
-    // @todo need to display the current link under the A-Z parent
     $menu_links = $this->menuLinkManager->loadLinksByRoute(
       'entity.node.canonical', ['node' => $parentNodeID],
       $menuID
@@ -118,14 +125,21 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     $crumbs = $this->getParents($active);
     $items = $this->getMenuTreeItems($crumbs, $menuID);
 
-    return $this->renderItems($items, $navAriaLabel, $active);
+    $node = $this->routeMatch->getParameter('node');
+    $leaf = [
+      'url' => $this->request->getPathInfo(),
+      'title' => $node->getTitle(),
+    ];
+
+    return $this->renderItems($items, $navAriaLabel, $active, $leaf);
   }
 
   /**
    * Display the left nav for state pages.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   private function buildStatesSidebar(string $menuID, string $navAriaLabel): array {
-    // @todo need to display the current link under the State parent
     $parentNodeID = match ($this->language->getId()) {
       'es' => self::STATES_NID_ES,
       default => self::STATES_NID_EN,
@@ -140,7 +154,13 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
 
     $items = $this->getMenuTreeItems($crumbs, $menuID);
 
-    return $this->renderItems($items, $navAriaLabel, $active);
+    $node = $this->routeMatch->getParameter('node');
+    $leaf = [
+      'url' => $this->request->getPathInfo(),
+      'title' => $node->getTitle(),
+    ];
+
+    return $this->renderItems($items, $navAriaLabel, $active, $leaf);
   }
 
   /**
@@ -148,11 +168,13 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    *
    * @return array
    *   A renderable array.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function getMenuTreeItems(
     array $crumbs,
     string $menuID,
-    MenuLinkInterface $active,
+    ?MenuLinkInterface $active = NULL,
   ): array {
     // @todo Tome caches the menu and active trail ids when path count > 1.
     $this->trail->clear();
@@ -163,22 +185,24 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     $params->setActiveTrail($crumbs);
     $depth = count($crumbs);
 
-    $children = $this->menuLinkManager->getChildIds($active->getPluginId());
-    $children = array_filter($children, function (string $uuid) {
-      // Above, getChildIds returns children regardless of visibility.
-      return $this->menuLinkManager->createInstance($uuid)->isEnabled();
-    });
+    if ($active) {
+      $children = $this->menuLinkManager->getChildIds($active->getPluginId());
+      $children = array_filter($children, function (string $uuid) {
+        // Above, getChildIds returns children regardless of visibility.
+        return $this->menuLinkManager->createInstance($uuid)->isEnabled();
+      });
 
-    // Don't display the entire menu if we are 3 or more levels deep.
-    if ($depth >= 3 && $children) {
-      // Current link has children, so only show
-      // grandparent through children.
-      $params->setMinDepth($depth - 1);
-    }
-    elseif ($depth >= 3) {
-      // No children to show, display the menu starting
-      // 2 Levels above us.
-      $params->setMinDepth($depth - 2);
+      // Don't display the entire menu if we are 3 or more levels deep.
+      if ($depth >= 3 && $children) {
+        // Current link has children, so only show
+        // grandparent through children.
+        $params->setMinDepth($depth - 1);
+      }
+      elseif ($depth >= 3) {
+        // No children to show, display the menu starting
+        // 2 Levels above us.
+        $params->setMinDepth($depth - 2);
+      }
     }
 
     $tree = $this->menuTree->load($menuID, $params);
@@ -222,21 +246,30 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     array $items,
     string $navAriaLabel,
     MenuLinkInterface $active,
+    array $leaf = [],
   ): array {
     if (!empty($items['#items'])) {
-      return [
+      $theme = [
         '#theme' => 'usagov_menu_sidebar',
         '#start_item' => $items['#items'][array_key_first($items['#items'])],
         '#depth' => 0,
         '#nav_aria_label' => $navAriaLabel,
-        '#current' => [
-          'url' => $active->getUrlObject()->toString(),
-          'title' => $active->getTitle(),
-        ],
         // @todo fix below
         '#page_type_is' => 'Basic Page',
         '#is_spanish_menu' => $this->language->getId() === 'es',
       ];
+
+      if ($leaf) {
+        $theme['#leaf'] = $leaf;
+        $theme['#current'] = $leaf;
+      }
+      else {
+        $theme['#current'] = [
+          'url' => $active->getUrlObject()->toString(),
+          'title' => $active->getTitle(),
+        ];
+      }
+      return $theme;
     }
 
     trigger_error('No left nav menu items found', E_USER_WARNING);
@@ -258,6 +291,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
       $plugin_definition,
       language: $container->get('language_manager')->getCurrentLanguage(),
       request: $container->get('request_stack')->getCurrentRequest(),
+      routeMatch: $container->get('current_route_match'),
       menuLinkManager: $container->get('plugin.manager.menu.link'),
       menuTree: $container->get('menu.link_tree'),
       trail: $container->get('menu.active_trail'),

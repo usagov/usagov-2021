@@ -37,6 +37,12 @@
               page_type_is: page_type_is,
               is_spanish_menu: is_spanish_menu,
             }) }}{% endif %}</li>
+
+            {% if item.in_active_trail and leaf %}
+            <ul class="usa-sidenav__sublist">
+              <li>{{ _self.item_link(leaf, current) }}</li>
+            </ul>
+            {% endif %}
       {% endfor %}
     </ul>
   {% endif %}
@@ -56,7 +62,8 @@
 {#  dump() #}
 
 {% macro item_link(item, current) %}
-  {% if (item.url.toString() == current.url
+
+  {% if ((item.url.toString() == current.url or item.url == current.url)
           and item.title == current.title
           and page_type_is != 'Standard Page- Nav Hidden'
     ) %}

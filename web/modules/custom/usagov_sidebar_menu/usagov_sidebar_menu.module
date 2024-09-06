@@ -15,6 +15,7 @@ function usagov_sidebar_menu_theme($existing, $type, $theme, $path) {
         'nav_aria_label' => NULL,
         'current' => NULL,
         'is_spanish_menu' => NULL,
+        'leaf' => NULL,
       ],
     ],
   ];
