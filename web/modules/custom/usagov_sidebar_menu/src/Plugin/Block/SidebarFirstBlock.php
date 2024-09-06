@@ -82,14 +82,15 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    * Builds the left navigation based on the current page's menu item.
    */
   private function buildFromMenu(string $menuID, string $navAriaLabel): array {
-    $crumbs = $this->trail->getActiveTrailIds($menuID);
     $active = $this->trail->getActiveLink($menuID);
+
     if (!$active) {
       // We're not in the menu.
       return [];
     }
 
-    $items = $this->getMenuTreeItems($crumbs, $menuID);
+    $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
+    $items = $this->getMenuTreeItems($crumbs, $menuID, $active);
     return $this->renderItems($items, $navAriaLabel, $active);
   }
 
@@ -148,16 +149,36 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    * @return array
    *   A renderable array.
    */
-  public function getMenuTreeItems(array $crumbs, string $menuID): array {
+  public function getMenuTreeItems(
+    array $crumbs,
+    string $menuID,
+    MenuLinkInterface $active,
+  ): array {
     // @todo Tome caches the menu and active trail ids when path count > 1.
     $this->trail->clear();
 
     // Get siblings from menu.
     $params = new MenuTreeParameters();
+    $params->onlyEnabledLinks();
     $params->setActiveTrail($crumbs);
+    $depth = count($crumbs);
 
-    if (($depth = count($crumbs)) > 3) {
-      $params->setMinDepth($depth - 3);
+    $children = $this->menuLinkManager->getChildIds($active->getPluginId());
+    $children = array_filter($children, function (string $uuid) {
+      // Above, getChildIds returns children regardless of visibility.
+      return $this->menuLinkManager->createInstance($uuid)->isEnabled();
+    });
+
+    // Don't display the entire menu if we are 3 or more levels deep.
+    if ($depth >= 3 && $children) {
+      // Current link has children, so only show
+      // grandparent through children.
+      $params->setMinDepth($depth - 1);
+    }
+    elseif ($depth >= 3) {
+      // No children to show, display the menu starting
+      // 2 Levels above us.
+      $params->setMinDepth($depth - 2);
     }
 
     $tree = $this->menuTree->load($menuID, $params);
