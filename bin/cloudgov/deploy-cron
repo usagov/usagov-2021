@@ -97,6 +97,24 @@ else
   exit 1
 fi
 
+STATE_STORAGE_SERVICE=${APPNAME}-state-storage
+EVENT_STORAGE_SERVICE=${APPNAME}-event-storage
+CALLWAIT_STORAGE_SERVICE=${APPNAME}-callwait-storage
+for storage_service in $STATE_STORAGE_SERVICE $EVENT_STORAGE_SERVICE $CALLWAIT_STORAGE_SERVICE; do
+  echo "Configuring $storage_service"
+  if existsCFService $storage_service; then
+    echo "$storage_service already created"
+  else
+    cf create-service s3 basic-sandbox $storage_service
+    if existsCFService $storage_service; then
+      echo "$storage_service successfully created"
+    else
+      echo "ERROR: $storage_service creation failed"
+      exit 1
+    fi
+  fi
+done
+
 function cf_push() {
   appspec=$1
   instances=${2:-1} ### Always spawn a single app instance unless told otherwise
