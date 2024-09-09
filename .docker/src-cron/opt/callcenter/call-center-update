@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-source ~/.profile &> /dev/null
+source ~/.profile callwait &> /dev/null
+### --->>> source ~/.profile callwait &> /dev/null ### <<<--- to use task-specific bucket, add additional argument to "source ~/.profile"
 
 waitTimeFile="waittime.json"
 
