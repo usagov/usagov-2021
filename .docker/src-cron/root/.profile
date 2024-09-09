@@ -4,6 +4,13 @@ CF_SPACE=$1
 
 if [ x$CF_SPACE = x ]; then
    CF_SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
+else
+   shift
+fi
+
+TASK=$1
+if [ x$TASK = x ]; then
+   TASK=cron
 fi
 
 if [ "$BASH" ]; then
@@ -29,8 +36,22 @@ fi
 CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.username';)
 CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.password')
 
-S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
-S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.fips_endpoint')
+case $TASK in
+   event)
+      S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage") | .credentials.bucket')
+      S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage") | .credentials.fips_endpoint')
+      ;;
+   callwait)
+      STORAGE_SERVICE=cron-callwait-storage
+      S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.bucket')
+      S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.fips_endpoint')
+      ;;
+   *)
+      S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.bucket')
+      S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.fips_endpoint')
+      ;;
+esac
+
 export S3_BUCKET
 export S3_ENDPOINT
 

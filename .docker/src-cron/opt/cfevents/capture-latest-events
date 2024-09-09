@@ -6,7 +6,7 @@ if [ x$SPACE = x ]; then
    SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
 fi
 
-source ~/.profile $SPACE &> /dev/null
+source ~/.profile $SPACE event &> /dev/null
 
 DATEFILE=logs.lastrun
 rm -f /tmp/$DATEFILE
