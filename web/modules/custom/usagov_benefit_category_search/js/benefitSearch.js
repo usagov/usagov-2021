@@ -196,7 +196,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
 
     if (announceClear)  {
       let alert = myself.form.querySelector('.alert-container');
-      alert.innerHTML = `<div class="visuallyhidden">${myself.labels.selectionsCleared}</div>`; // TODO LANG
+      alert.innerHTML = `<div class="visuallyhidden">${myself.labels.selectionsCleared}</div>`;
     }
 
     myself.resultsContainer.innerHTML = '';
