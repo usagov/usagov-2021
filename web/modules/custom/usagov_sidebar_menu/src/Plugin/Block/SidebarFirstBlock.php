@@ -31,7 +31,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
   private const AGENCIES_NID_EN = 629;
 
   private const STATES_NID_ES = 1870;
-  private const STATES_NID_EN = 676;
+  private const STATES_NID_EN = 1885;
 
   public function __construct(
     array $configuration,
@@ -152,7 +152,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     $active = array_pop($menu_links);
     $crumbs = $this->getParents($active);
 
-    $items = $this->getMenuTreeItems($crumbs, $menuID);
+    $items = $this->getMenuTreeItems($crumbs, $menuID, closeLastTrail: TRUE);
 
     $node = $this->routeMatch->getParameter('node');
     $leaf = [
@@ -175,6 +175,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     array $crumbs,
     string $menuID,
     ?MenuLinkInterface $active = NULL,
+    bool $closeLastTrail = FALSE,
   ): array {
     // @todo Tome caches the menu and active trail ids when path count > 1.
     $this->trail->clear();
@@ -203,6 +204,11 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
         // 2 Levels above us.
         $params->setMinDepth($depth - 2);
       }
+    }
+
+    if ($closeLastTrail) {
+      // don't open beyond the last link in $crumb
+      $params->setMaxDepth($depth);
     }
 
     $tree = $this->menuTree->load($menuID, $params);

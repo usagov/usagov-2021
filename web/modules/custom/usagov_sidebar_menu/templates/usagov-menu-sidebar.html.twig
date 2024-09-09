@@ -1,10 +1,10 @@
 {# this is the equivalent of the old menus.explore macro #}
 {# TODO - handle no start page (error page) leading to this page #}
-{# TODO - Skip children of the Federal Agencies view. #}
-{# TODO - There are no children, start from grandparent (or 0 if no grandparent) #}
-{# TODO - There are children, show them and start from parent (or 0 if no parent)  #}
-{# TODO - Mark usa-current page, make it not click#}
-{# TODO - pagetype comes from usa_twig_vars #}
+{# TODO - Skip children of the Federal Agencies view? #}
+{# DONE - There are no children, start from grandparent (or 0 if no grandparent) #}
+{# DONE - There are children, show them and start from parent (or 0 if no parent)  #}
+{# DONE - Mark usa-current page, make it not click#}
+{# DONE - pagetype comes from usa_twig_vars #}
 
 {% if start_item %}
   {% if depth == 0 %}
@@ -28,7 +28,7 @@
     <ul class="usa-sidenav__sublist">
       {% for item in items %}
         <li class="usa-sidenav__item">
-          {{ _self.item_link(item, current, is_spanish_menu) }}
+          {{ _self.item_link(item, current, is_spanish_menu, page_type_is) }}
           {% if item.in_active_trail and item.below %}
             {{ include('usagov-menu-sidebar.html.twig', {
               items: item.below,
@@ -36,13 +36,13 @@
               current: current,
               page_type_is: page_type_is,
               is_spanish_menu: is_spanish_menu,
-            }) }}{% endif %}</li>
-
-            {% if item.in_active_trail and leaf %}
-            <ul class="usa-sidenav__sublist">
-              <li>{{ _self.item_link(leaf, current, is_spanish_menu, page_type_is) }}</li>
-            </ul>
-            {% endif %}
+            }) }}
+            {% elseif item.in_active_trail and leaf %}
+              <ul class="usa-sidenav__sublist">
+                <li>{{ _self.item_link(leaf, current, is_spanish_menu, page_type_is) }}</li>
+              </ul>
+          {% endif %}
+        </li>
       {% endfor %}
     </ul>
   {% endif %}
