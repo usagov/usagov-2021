@@ -269,6 +269,7 @@ main[data-pagetype="Benefits Category Search"]{
       &::before {
         content: "";
         background-repeat: no-repeat;
+        background-size: contain;
         width: 45px;
         height: 45px;
         margin: auto;
@@ -288,6 +289,41 @@ main[data-pagetype="Benefits Category Search"]{
       a:focus, a:hover {
         box-shadow: none;
         outline-width: 0;
+      }
+
+      &.benefit-finder-icon--death,
+      &.benefit-finder-icon--es-death {
+        &::before {
+          background-image: url("/themes/custom/usagov/images/Death-of-a-loved-one-icon.svg");
+        }
+      }
+
+      &.benefit-finder-icon--financial,
+      &.benefit-finder-icon--es-financial {
+        &::before {
+          background-image: url("/themes/custom/usagov/images/Financial-shock-icon.svg");
+        }
+      }
+
+      &.benefit-finder-icon--disability,
+      &.benefit-finder-icon--es-disability {
+        &::before {
+          background-image: url("/themes/custom/usagov/images/Disability-icon.svg");
+        }
+      }
+
+      &.benefit-finder-icon--retirement,
+      &.benefit-finder-icon--es-retirement  {
+        &::before {
+          background-image: url("/themes/custom/usagov/images/Retirement-icon.svg");
+        }
+      }
+
+      &.benefit-finder-icon--all-benefits,
+      &.benefit-finder-icon--es-all-benefits {
+        &::before {
+          background-image: url("/themes/custom/usagov/images/topics/ICONS_Reimagined_Benefits.svg");
+        }
       }
     }
 
@@ -311,34 +347,6 @@ main[data-pagetype="Benefits Category Search"]{
         position: absolute;
         inset: 0;
       }
-    }
-  }
-
-  .life-events-grid [class*="death"],
-  .life-events-grid [class*="muerte"] {
-    &::before {
-      background-image: url("/themes/custom/usagov/images/Death-of-a-loved-one-icon.svg");
-    }
-  }
-
-  .life-events-grid [class*="financial"],
-  .life-events-grid [class*="financiera"] {
-    &::before {
-      background-image: url("/themes/custom/usagov/images/Financial-shock-icon.svg");
-    }
-  }
-
-  .life-events-grid [class*="disability"],
-  .life-events-grid [class*="discapacidad"] {
-    &::before {
-      background-image: url("/themes/custom/usagov/images/Disability-icon.svg");
-    }
-  }
-
-  .life-events-grid [class*="retirement"],
-  .life-events-grid [class*="jubilación"] {
-    &::before {
-      background-image: url("/themes/custom/usagov/images/Retirement-icon.svg");
     }
   }
 }
