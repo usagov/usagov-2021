@@ -1,4 +1,4 @@
-{# this is the equivalent of the old menes.explore macro #}
+{# this is the equivalent of the old menus.explore macro #}
 {# TODO - handle no start page (error page) leading to this page #}
 {# TODO - Skip children of the Federal Agencies view. #}
 {# TODO - There are no children, start from grandparent (or 0 if no grandparent) #}
@@ -11,7 +11,7 @@
     <nav aria-label="{{ nav_aria_label }}">
       <ul class="usa-sidenav">
         <li class="usa-sidenav__item">
-          {{ _self.item_link(start_item, current) }}
+          {{ _self.item_link(start_item, current, is_spanish_menu, page_type_is) }}
           {% if start_item.below %}
             {{ include('usagov-menu-sidebar.html.twig', {
               items: start_item.below,
@@ -28,7 +28,7 @@
     <ul class="usa-sidenav__sublist">
       {% for item in items %}
         <li class="usa-sidenav__item">
-          {{ _self.item_link(item, current) }}
+          {{ _self.item_link(item, current, is_spanish_menu) }}
           {% if item.in_active_trail and item.below %}
             {{ include('usagov-menu-sidebar.html.twig', {
               items: item.below,
@@ -40,7 +40,7 @@
 
             {% if item.in_active_trail and leaf %}
             <ul class="usa-sidenav__sublist">
-              <li>{{ _self.item_link(leaf, current) }}</li>
+              <li>{{ _self.item_link(leaf, current, is_spanish_menu, page_type_is) }}</li>
             </ul>
             {% endif %}
       {% endfor %}
@@ -54,20 +54,19 @@
         {% set class= "class=\"usa-sidenav__item"
           ~ item.in_active_trail ? ' active-trail"' : '"'
         %}
-        <li {{ class }}>{{ _self.nav_link(item, current) }}</li>
+        <li {{ class }}>{{ _self.item_link(item, current, is_spanish_menu, page_type_is) }}111</li>
       {% endfor %}
     </ul>
   </nav>
 {% endif %}
-{#  dump() #}
 
-{% macro item_link(item, current) %}
+{% macro item_link(item, current, is_spanish_menu, page_type_is) %}
 
   {% if ((item.url.toString() == current.url or item.url == current.url)
           and item.title == current.title
           and page_type_is != 'Standard Page- Nav Hidden'
     ) %}
-    <a class="usa-current active-trail">
+    <a class="usa-current active-trail" aria-current="page" onclick="return false;" href="{{  item.url }}">
       {% if is_spanish_menu %}
         <p class="usa-sr-only">esta página</p>
       {% endif %}

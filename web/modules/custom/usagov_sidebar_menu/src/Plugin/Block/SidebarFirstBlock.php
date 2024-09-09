@@ -249,13 +249,18 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     array $leaf = [],
   ): array {
     if (!empty($items['#items'])) {
+
+      $pagetype = NULL;
+      if ($node = $this->routeMatch->getParameter('node')) {
+        $pagetype = usa_twig_vars_get_page_type($node);
+      }
+
       $theme = [
         '#theme' => 'usagov_menu_sidebar',
         '#start_item' => $items['#items'][array_key_first($items['#items'])],
         '#depth' => 0,
         '#nav_aria_label' => $navAriaLabel,
-        // @todo fix below
-        '#page_type_is' => 'Basic Page',
+        '#page_type_is' => $pagetype,
         '#is_spanish_menu' => $this->language->getId() === 'es',
       ];
 
