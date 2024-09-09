@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     let modalName = removeUrlParameter('modal');
+    if (modalName === null) return;
+    modalName = modalName.replace(/[^a-zA-Z0-9_-]/g, '');
     openModal(modalID(modalName));
 });
 
