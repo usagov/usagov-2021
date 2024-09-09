@@ -45,7 +45,15 @@ SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
 shift
 
-. bin/cloudgov/get-s3-access &>/dev/null
+SERVICE_NAME=${1:-storage}
+if ! cf service "$SERVICE_NAME" &>/dev/null 2>&1; then
+  echo "S3 service $SERVICE_NAME does not exist in space $SPACE"
+  exit 1
+fi
+
+. bin/cloudgov/get-s3-access $SERVICE_NAME &>/dev/null
+
+echo "Bucket for $SERVICE_NAME is:  $S3_BUCKET.  Attempting to clear contents..."
 
 BUCKET_FOLDERS=$(aws s3 ls $S3_BUCKET/ | grep -E '\/$' | awk '{ print $2; }')
 

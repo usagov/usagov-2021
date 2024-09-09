@@ -44,11 +44,15 @@ for storage_service in $STATE_STORAGE_SERVICE $EVENT_STORAGE_SERVICE $CALLWAIT_S
   if existsCFService $storage_service &> /dev/null; then
     echo "$storage_service already created"
   else
-    cf create-service s3 basic-sandbox $storage_service
+    if [ $storage_service = $CALLWAIT_STORAGE_SERVICE ]; then
+      $echo cf create-service s3 basic-public $storage_service
+    else
+      $echo cf create-service s3 basic $storage_service
+    fi
     if existsCFService $storage_service &> /dev/null; then
       echo "$storage_service successfully created"
     else
-      echo "ERROR: $storage_service creation failed"
+      echo "ERROR: $storage_service creation failed (expected w/ --dryrun)"
       exit 1
     fi
   fi

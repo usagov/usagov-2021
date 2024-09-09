@@ -1,14 +1,30 @@
 #!/bin/sh
 
-DEPLOY_SPACE=$1
-
-if [ x"$DEPLOY_SPACE" = x ]; then
-    echo Please provide the deployment space as first argument
-    exit 1
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
 fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+if [ -f $SCRIPT_DIR/../../bin/deploy/includes ]; then
+  . $SCRIPT_DIR/../../bin/deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../../bin/deploy/includes
+   exit 1
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
 shift
 
-APP=cron
+APPNAME=cron
 
 CONTAINERTAG=${1}
 
@@ -17,6 +33,7 @@ then
       echo "Must specify a container tag for the build (e.g. latest)"
       exit 1;
 fi;
+shift
 
 # Grab the starting space and org where the command was run
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
@@ -30,19 +47,33 @@ function popspace() {
 
 trap popspace err
 
-cf t -s $DEPLOY_SPACE
+cf t -s $SPACE
 
 FULL_REBUILD=$1
 if [ x$FULL_REBUILD = "x--full" ]; then
-    cf delete-service ${APP}-service-account -f
-    cf delete ${APP} -f
+    STATE_STORAGE_SERVICE=${APPNAME}-state-storage
+    EVENT_STORAGE_SERVICE=${APPNAME}-event-storage
+    CALLWAIT_STORAGE_SERVICE=${APPNAME}-callwait-storage
+
+    for storage_service in $STATE_STORAGE_SERVICE $EVENT_STORAGE_SERVICE $CALLWAIT_STORAGE_SERVICE; do
+        if existsCFService $storage_service &> /dev/null; then
+            echo "Clearing bucket contents for $storage_service"
+            bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $SPACE $storage_service
+            echo "Deleting $storage_service"
+            cf delete-service $storage_service -f
+        else
+            echo "Storage service $storage_service not found"
+        fi
+    done
+    cf delete-service ${APPNAME}-service-account -f
+    cf delete ${APPNAME} -f
 fi
 
-bin/cloudgov/container-build-${APP} $CONTAINERTAG
-bin/cloudgov/container-push-${APP} $CONTAINERTAG
+bin/cloudgov/container-build-${APPNAME} $CONTAINERTAG
+bin/cloudgov/container-push-${APPNAME} $CONTAINERTAG
 
-bin/cloudgov/deploy-${APP} $DEPLOY_SPACE $CONTAINERTAG
+bin/cloudgov/deploy-${APPNAME} $SPACE $CONTAINERTAG
 
-cf restage ${APP}
+cf restage ${APPNAME}
 
 popspace

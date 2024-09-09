@@ -19,8 +19,8 @@ INCLUDES=$SCRIPT_DIR/../../bin/deploy/includes
 if [ -f $INCLUDES ]; then
   . $INCLUDES
 else
-   echo Cannot find $INCLUDES
-   exit 1
+  echo Cannot find $INCLUDES
+  exit 1
 fi
 
 # just testing?
@@ -41,10 +41,12 @@ EVENT_STORAGE_SERVICE=${APPNAME}-event-storage
 CALLWAIT_STORAGE_SERVICE=${APPNAME}-callwait-storage
 
 for storage_service in $STATE_STORAGE_SERVICE $EVENT_STORAGE_SERVICE $CALLWAIT_STORAGE_SERVICE; do
-    if existsCFService $storage_service; then
-        echo "Deleting $storage_service"
-        $echo cf delete-service $storage_service -f
-    else
-        echo "Storage service $storage_service not found"
-    fi
+  if existsCFService $storage_service &> /dev/null; then
+    echo "Clearing bucket contents for $storage_service"
+    bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $SPACE $storage_service
+    echo "Deleting $storage_service"
+    $echo cf delete-service $storage_service -f
+  else
+      echo "Storage service $storage_service not found"
+  fi
 done

@@ -104,11 +104,15 @@ EVENT_STORAGE_SERVICE=${APPNAME}-event-storage
 CALLWAIT_STORAGE_SERVICE=${APPNAME}-callwait-storage
 for storage_service in $STATE_STORAGE_SERVICE $EVENT_STORAGE_SERVICE $CALLWAIT_STORAGE_SERVICE; do
   echo "Configuring $storage_service"
-  if existsCFService $storage_service; then
+  if existsCFService $storage_service &> /dev/null; then
     echo "$storage_service already created"
   else
-    cf create-service s3 basic-sandbox $storage_service
-    if existsCFService $storage_service; then
+    if [ $storage_service = $CALLWAIT_STORAGE_SERVICE ]; then
+      cf create-service s3 basic-public $storage_service
+    else
+      cf create-service s3 basic $storage_service
+    fi
+    if existsCFService $storage_service &> /dev/null; then
       echo "$storage_service successfully created"
     else
       echo "ERROR: $storage_service creation failed"
