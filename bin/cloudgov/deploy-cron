@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Deploy services and app for cron app.  Service creation should be idempotent.
+
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
