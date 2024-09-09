@@ -947,10 +947,3 @@ input::-webkit-textfield-decoration-container {
     max-width: 100%;
   }
 }
-
-@supports (-moz-appearance:none) {
-  .Skin #Questions {
-    overflow: hidden;
-    max-height: 138px;
-  }
-}
