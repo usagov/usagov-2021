@@ -30,18 +30,13 @@
   {% set submit_label = "Apply selections" %}
   {% set reset_label = "Clear selections" %}
   {% set select_all_label = "Select all" %}
-  {% set aria_button_groupabel = "Buttons for form" %}
   {% set aria_results_label = "Matching items" %}
 {% elseif lang == 'es' %}
   {% set submit_label = "Aplicar selecciones" %}
   {% set reset_label = "Borrar selecciones" %}
   {% set select_all_label = "Seleccionar todo" %}
-  {% set aria_button_groupabel = "Botones del formularió" %}
   {% set aria_results_label = "Resultados" %}
 {% endif %}
-
-{% set desktop_per_column = (rows | length) / 3 %}
-{% set mobile_per_column = (rows | length) / 2 %}
 
 <div class="benefits-category-list" id="{{ search_id }}">
   <form id="benefitSearch" action="javascript:void(0)">
@@ -60,18 +55,7 @@
         <div class="benefits-category-list-checkbox-cols">
           <ul class="usa-list--unstyled">
           {% for row in rows %}
-            {% set ends_mobile_column = loop.index is divisible by(mobile_per_column) %}
-            {% set ends_desktop_column = loop.index is divisible by(desktop_per_column) %}
-
-            {% if (ends_mobile_column) and (ends_desktop_column) %}
-              <li class="end-mobile-column end-desktop-column">{{- row.content -}}</li>
-            {% elseif ends_mobile_column %}
-              <li class="end-mobile-column">{{- row.content -}}</li>
-            {% elseif ends_desktop_column %}
-              <li class="end-desktop-column">{{- row.content -}}</li>
-            {% else %}
               <li>{{- row.content -}}</li>
-            {% endif %}
           {% endfor %}
           </ul>
         </div>
@@ -87,7 +71,7 @@
         </div>
       </div>
     </fieldset>
-    <div class="button-group margin-top-2" aria-label="{{ aria_button_groupabel }} ">
+    <div class="button-group margin-top-2">
       <button class="usa-button" type="submit">{{ submit_label }}</button>
       <button class="usa-button usa-button--secondary" type="reset">{{ reset_label }}</button>
     </div>

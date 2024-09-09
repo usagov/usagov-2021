@@ -18,8 +18,9 @@
 
 .usa-banner__button-text,
 .usa-banner__button-text:hover {
-  @include u-text('blue-warm-70v');
   line-height: 1.5;
+
+  @include u-text('blue-warm-70v');
 }
 
 .usa-banner__button-text:visited {
@@ -60,16 +61,13 @@
 /** Language buttons **/
 .usa-header--extended .usa-navbar {
   height: auto;
+  padding-top: .5rem;
+  padding-bottom: .5rem;
 }
 
-/** USAGOV-1781 - Fixing a bug where the focus outline on the USAGov-logo dosn't fit right in FireFox **/
-#extended-logo {
-  width: auto;
-}
-#extended-logo > em,
-#extended-logo > em > a {
-  display: block;
-  height: 100%;
+.usa-logo a{
+  display: flex;
+  width: fit-content;
 }
 
 @include at-media($theme-header-min-width) {
@@ -88,11 +86,11 @@
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  margin: .5rem;
 
   @media (max-width: 64em) {
     flex-direction: row;
     align-items: center;
+    margin-right: 1rem;
   }
 }
 
@@ -103,13 +101,22 @@
     margin-right: 2em;
   }
 
-  @include u-text('white');
   text-decoration: none;
   padding: 10px 20px;
-  @include u-bg('blue-80v');
   line-height: .9;
   font-size: .93rem;
   margin: 0;
+  border: 2px solid transparent;
+
+  @include u-text('white');
+  @include u-bg('blue-80v');
+
+  &:hover {
+    border: 2px solid color('cyan-50v');
+
+    @include u-bg('white');
+    @include u-text('blue-80v');
+  }
 }
 
 .usa-header--extended .usa-menu-btn {
@@ -131,8 +138,7 @@
 // This is to set the size of the logo in desktop
 @media (min-width: 64em) {
   .usa-header--extended .usa-logo {
-    margin: 0.5rem 0 0.2em;
-    width: 5rem;
+    margin: 0;
     height: 5rem;
   }
 }
@@ -196,7 +202,6 @@
 .usa-header--extended .usa-nav__secondary-links {
   @include at-media($theme-header-min-width) {
     width: 15rem;
-    // line-height: 1.1rem;
     margin-bottom: 0;
   }
 }
@@ -214,12 +219,13 @@
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item::after {
   @include at-media($theme-header-min-width) {
     float: right;
-    @include u-text('gray-cool-10');
     content: "|"; // Removed while phone number is disabled
     padding-right: 1rem;
     font-size: 2rem;
     padding-bottom: 0.4rem;
     line-height: 2rem;
+
+    @include u-text('gray-cool-10');
   }
 }
 
@@ -261,7 +267,6 @@
 
 #block-betabanner .usa-alert--info,
 #block-betaspanishbanner .usa-alert--info {
-
   // These styles are needed to position the alert icon
   &::before {
     display: none;
@@ -279,11 +284,11 @@
       position: absolute;
       left: 1.3rem;
       top: -0.6rem;
-      @include u-bg('gray-90');
       mask: url("../assets/img/usa-icons/info.svg") no-repeat center/2rem 2rem;
       background-size: 1.5rem;
       mask-size: 1.5rem;
 
+      @include u-bg('gray-90');
       @media (max-width: 1022px) {
         left: 0.4rem;
       }
@@ -292,7 +297,6 @@
 }
 
 #block-emergencyheaderbanner .usa-alert--error {
-
   // These styles are needed to position the alert icon
   &::before {
     display: none;
@@ -310,10 +314,11 @@
       position: absolute;
       left: 1.6rem;
       top: -0.6rem;
-      @include u-bg('gray-90');
       mask: url("../assets/img/usa-icons/error.svg") no-repeat center/2rem 2rem;
       background-size: 1.5rem;
       mask-size: 1.5rem;
+
+      @include u-bg('gray-90');
 
       @media (max-width: 1022px) {
         left: 0.4rem;
@@ -412,7 +417,6 @@ input#search-field-small-mobile-menu {
 }
 
 .usa-header--extended .usa-alert:not(.usa-alert--no-icon) {
-
   // These styles are needed to position the alert icon
   &::before {
     display: none;
@@ -439,7 +443,6 @@ input#search-field-small-mobile-menu {
 }
 
 .usa-header--extended {
-
   .usa-alert--info:not(.usa-alert--no-icon),
   .usa-alert--success:not(.usa-alert--no-icon) {
     .usa-alert__body {
@@ -485,6 +488,7 @@ input#search-field-small-mobile-menu {
   .usa-banner__header--expanded .usa-banner__header-action {
     display: inline-block;
   }
+
   .usa-banner__header-action {
     display: inline-block;
   }
