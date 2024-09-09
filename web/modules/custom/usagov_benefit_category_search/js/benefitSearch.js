@@ -651,7 +651,7 @@ jQuery(document).ready(async function () {
       'appliedCategories': 'Categorías seleccionadas',
       'lifeEventsCategory': 'Etapas de la vida',
       'benefitFinderCategory': 'Buscador de beneficios',
-      'selectionsCleared': 'Las selecciones fueron reiniciadas',
+      'selectionsCleared': 'Sus selecciones de categorías fueron reiniciadas.',
     };
   }
   // creat and initialize the search tool
