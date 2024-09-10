@@ -2,7 +2,7 @@
 
 SPACE=$1
 
-source ~/.profile $SPACE &> /dev/null
+source ~/.profile $SPACE event &> /dev/null
 
 TASKNAME=$(basename $0)
 TASKPID=$$
