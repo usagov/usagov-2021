@@ -88,16 +88,16 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   private function buildFromMenu(string $menuID, string $navAriaLabel): array {
-    $active = $this->trail->getActiveLink($menuID);
-
-    if (!$active) {
-      // We're not in the menu.
-      return [];
+    if ($active = $this->trail->getActiveLink($menuID)) {
+      $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
+      $items = $this->getMenuTreeItems($menuID, $crumbs, $active);
+      return $this->renderItems($items, $navAriaLabel, $active);
     }
 
-    $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
-    $items = $this->getMenuTreeItems($crumbs, $menuID, $active);
-    return $this->renderItems($items, $navAriaLabel, $active);
+    // We're not in the menu.
+    // Display first level of this menu.
+    $items = $this->getMenuTreeItems($menuID);
+    return $this->renderItems($items, $navAriaLabel);
   }
 
   /**
@@ -123,7 +123,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     }
 
     $crumbs = $this->getParents($active);
-    $items = $this->getMenuTreeItems($crumbs, $menuID);
+    $items = $this->getMenuTreeItems($menuID, $crumbs);
 
     $node = $this->routeMatch->getParameter('node');
     $leaf = [
@@ -152,7 +152,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     $active = array_pop($menu_links);
     $crumbs = $this->getParents($active);
 
-    $items = $this->getMenuTreeItems($crumbs, $menuID, closeLastTrail: TRUE);
+    $items = $this->getMenuTreeItems($menuID, $crumbs, closeLastTrail: TRUE);
 
     $node = $this->routeMatch->getParameter('node');
     $leaf = [
@@ -172,8 +172,8 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function getMenuTreeItems(
-    array $crumbs,
     string $menuID,
+    array $crumbs = [],
     ?MenuLinkInterface $active = NULL,
     bool $closeLastTrail = FALSE,
   ): array {
@@ -183,8 +183,11 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     // Get siblings from menu.
     $params = new MenuTreeParameters();
     $params->onlyEnabledLinks();
-    $params->setActiveTrail($crumbs);
-    $depth = count($crumbs);
+
+    if ($crumbs) {
+      $params->setActiveTrail($crumbs);
+      $depth = count($crumbs);
+    }
 
     if ($active) {
       $children = $this->menuLinkManager->getChildIds($active->getPluginId());
@@ -204,6 +207,8 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
         // 2 Levels above us.
         $params->setMinDepth($depth - 2);
       }
+    } else {
+      $params->setMaxDepth(1);
     }
 
     if ($closeLastTrail) {
@@ -213,9 +218,11 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
 
     $tree = $this->menuTree->load($menuID, $params);
     // Remove items not in trail.
-    $tree = array_filter($tree, function (MenuLinkTreeElement $item) {
-      return $item->inActiveTrail;
-    });
+    if ($crumbs) {
+      $tree = array_filter($tree, function (MenuLinkTreeElement $item) {
+        return $item->inActiveTrail;
+      });
+    }
 
     // Sort by menu weight.
     $tree = $this->menuTree->transform($tree, [
@@ -251,11 +258,10 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
   private function renderItems(
     array $items,
     string $navAriaLabel,
-    MenuLinkInterface $active,
+    ?MenuLinkInterface $active = NULL,
     array $leaf = [],
   ): array {
     if (!empty($items['#items'])) {
-
       $pagetype = NULL;
       if ($node = $this->routeMatch->getParameter('node')) {
         $pagetype = usa_twig_vars_get_page_type($node);
@@ -263,7 +269,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
 
       $theme = [
         '#theme' => 'usagov_menu_sidebar',
-        '#start_item' => $items['#items'][array_key_first($items['#items'])],
+        '#items' => $items['#items'],
         '#depth' => 0,
         '#nav_aria_label' => $navAriaLabel,
         '#page_type_is' => $pagetype,
@@ -273,12 +279,16 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
       if ($leaf) {
         $theme['#leaf'] = $leaf;
         $theme['#current'] = $leaf;
+        $theme['#start_item'] = $items['#items'][array_key_first($items['#items'])];
       }
-      else {
+      elseif ($active) {
+        $theme['#start_item'] = $items['#items'][array_key_first($items['#items'])];
         $theme['#current'] = [
           'url' => $active->getUrlObject()->toString(),
           'title' => $active->getTitle(),
         ];
+      } else {
+        $theme['#items'] = $items['#items'];
       }
       return $theme;
     }

@@ -51,10 +51,8 @@
   <nav aria-label="{{ nav_aria_label }}">
     <ul class="usa-sidenav">
       {% for item in items %}
-        {% set class= "class=\"usa-sidenav__item"
-          ~ item.in_active_trail ? ' active-trail"' : '"'
-        %}
-        <li {{ class }}>{{ _self.item_link(item, current, is_spanish_menu, page_type_is) }}111</li>
+        {% set class = 'usa-sidenav__item' ~ (item.in_active_trail ? ' active-trail' : '') %}
+        <li class="{{ class }}">{{ _self.item_link(item, current, is_spanish_menu, page_type_is) }}</li>
       {% endfor %}
     </ul>
   </nav>
