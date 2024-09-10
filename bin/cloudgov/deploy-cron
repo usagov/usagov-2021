@@ -109,6 +109,8 @@ for storage_service in $STATE_STORAGE_SERVICE $EVENT_STORAGE_SERVICE $CALLWAIT_S
   else
     if [ $storage_service = $CALLWAIT_STORAGE_SERVICE ]; then
       cf create-service s3 basic-public $storage_service
+      source bin/cloudgov/get-s3-access $storage_service
+      aws s3api put-bucket-cors --bucket $S3_BUCKET --cors-configuration file://s3-cors-policy-callwaittime.json
     else
       cf create-service s3 basic $storage_service
     fi
