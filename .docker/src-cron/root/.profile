@@ -45,7 +45,6 @@ case $TASK in
       export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage")    | .credentials.region')
       ;;
    callwait)
-      #STORAGE_SERVICE=cron-callwait-storage
       export S3_BUCKET=$(echo "$VCAP_SERVICES"             | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.bucket')
       export S3_ENDPOINT=$(echo "$VCAP_SERVICES"           | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.fips_endpoint')
       export AWS_ACCESS_KEY_ID=$(echo "$VCAP_SERVICES"     | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.access_key_id')
