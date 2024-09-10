@@ -1,21 +1,25 @@
 [
     {
         "name": "Facebook",
+        "alt_text": "Facebook",
         "link": "https://www.facebook.com/USAgov",
         "linkEs": "https://www.facebook.com/usagovespanol"
     },
     {
-        "name": "Twitter",
+        "name": "X_Twitter",
+        "alt_text": "X Twitter",
         "link": "https://twitter.com/USAgov",
         "linkEs": "https://twitter.com/usagovespanol"
     },
     {
-        "name": "Youtube",
+        "name": "YouTube",
+        "alt_text": "Youtube",
         "link": "https://www.youtube.com/usagov1",
         "linkEs": "https://www.youtube.com/USAgovespanol"
     },
     {
         "name": "Instagram",
+        "alt_text": "Instagram",
         "link": "https://www.instagram.com/usagov/",
         "linkEs": ""
     }

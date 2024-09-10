@@ -61,7 +61,7 @@ i.e.
 }
 
 .usa-section {
-  padding-top: 1rem;
+  padding-top: .7rem;
 }
 
 @media (max-width: 30em) {
@@ -73,7 +73,7 @@ i.e.
 @media (min-width: 40em) {
   .usa-section {
       padding-bottom: 4rem;
-      padding-top: 3.5rem;
+      padding-top: 3rem;
   }
 }
 
@@ -808,12 +808,12 @@ select:not([disabled]):focus,
 
 .usa-pagination .usa-current {
   background-color: color('blue-warm-70v');
-  
+
   &:hover {
     background-color: color('blue-warm-70v');
     border-color: color('blue-warm-70v')
   }
-  
+
   &:focus {
     background-color: color('blue-warm-70v');
     color: white;
@@ -844,7 +844,7 @@ select:not([disabled]):focus,
     &:hover{
       color: color('blue-warm-70v');
     }
-    
+
   }
 
 
@@ -930,12 +930,12 @@ input::-webkit-textfield-decoration-container {
 }
 
 // reduces space below the breadcrumb on benefits pages
-  #main-content>div~div.grid-container>div {
-    height: 4rem;
-  }
+#block-usagov-breadcrumbs {
+  height: 4rem;
+}
 
-@media screen and (max-width: 30em) {
-  #main-content>div~div.grid-container>div {
+#block-usagov-breadcrumbs {
+  @media screen and (max-width: 30em) {
     height: 5rem;
   }
 }
