@@ -654,6 +654,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1943-govloan-redirect-corrections
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -664,6 +665,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1943-govloan-redirect-corrections
       - approve-dev-deployment:
           type: approval
           requires:
@@ -672,6 +674,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1943-govloan-redirect-corrections
       - approve-dr-deployment:
           type: approval
           requires:
@@ -687,6 +690,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1943-govloan-redirect-corrections
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
