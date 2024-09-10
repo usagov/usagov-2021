@@ -93,7 +93,7 @@
             "wikimedia/composer-merge-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "cweagans/composer-patches": true,
-            "mglaman/composer-drupal-lenient": true,
+            "mglaman/composer-drupal-lenient": true
         }
     },
     "extra": {
