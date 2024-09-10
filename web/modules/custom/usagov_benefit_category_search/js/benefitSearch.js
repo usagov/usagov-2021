@@ -640,7 +640,7 @@ jQuery(document).ready(async function () {
     lifeEventsPath = "../../_data/benefits-search/es/life-events.json";
     labels = {
       'showingResults': '@first@&ndash;@last@ de @totalItems@ resultados',
-      'page': "page",
+      'page': "página",
       'next': "Siguiente",
       'nextAria': "Página siguiente",
       'previous': "Anterior",
