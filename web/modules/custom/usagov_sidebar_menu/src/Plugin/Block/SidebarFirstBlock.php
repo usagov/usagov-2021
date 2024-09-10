@@ -27,11 +27,11 @@ use Symfony\Component\HttpFoundation\Request;
 )]
 class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
-  private const AGENCIES_NID_ES = 1696;
   private const AGENCIES_NID_EN = 629;
+  private const AGENCIES_NID_ES = 1696;
 
-  private const STATES_NID_ES = 1870;
   private const STATES_NID_EN = 1885;
+  private const STATES_NID_ES = 1870;
 
   public function __construct(
     array $configuration,
@@ -207,7 +207,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     }
 
     if ($closeLastTrail) {
-      // don't open beyond the last link in $crumb
+      // Don't open beyond the last link in $crumb.
       $params->setMaxDepth($depth);
     }
 
