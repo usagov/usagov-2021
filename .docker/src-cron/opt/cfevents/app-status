@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
-SPACE=$1
+# For task-based apps, provide a means of querying the run-time environment of the task
+# e.g.  cf run-task my-app "/opt/myapp/app-status"
 
+SPACE=$1
 if [ x$SPACE = x ]; then
    SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
 fi

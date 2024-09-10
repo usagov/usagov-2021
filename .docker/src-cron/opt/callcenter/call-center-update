@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
-source ~/.profile callwait &> /dev/null
-### --->>> source ~/.profile callwait &> /dev/null ### <<<--- to use task-specific bucket, add additional argument to "source ~/.profile"
+SPACE=$1
+
+if [ x$SPACE = x ]; then
+   SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
+fi
+
+source ~/.profile $SPACE callwait &> /dev/null
 
 waitTimeFile="waittime.json"
 

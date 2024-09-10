@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Provide serialization support for cf-task based apps.
+# Still WIP, as we've moved the 2 intial tasks to live within the cron app.
+
 function mktasklock() {
   TASKSPEC=$1
   TASKID=$2
