@@ -38,26 +38,34 @@ CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? |
 
 case $TASK in
    event)
-      S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage") | .credentials.bucket')
-      S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage") | .credentials.fips_endpoint')
+      export S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage") | .credentials.bucket')
+      export S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage") | .credentials.fips_endpoint')
+      export AWS_ACCESS_KEY_ID=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage")    | .credentials.access_key_id')
+      export AWS_SECRET_ACCESS_KEY=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage")    | .credentials.secret_access_key')
+      export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage")    | .credentials.region')
       ;;
    callwait)
-      STORAGE_SERVICE=cron-callwait-storage
-      S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.bucket')
-      S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.fips_endpoint')
+      #STORAGE_SERVICE=cron-callwait-storage
+      export S3_BUCKET=$(echo "$VCAP_SERVICES"             | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.bucket')
+      export S3_ENDPOINT=$(echo "$VCAP_SERVICES"           | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.fips_endpoint')
+      export AWS_ACCESS_KEY_ID=$(echo "$VCAP_SERVICES"     | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.access_key_id')
+      export AWS_SECRET_ACCESS_KEY=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.secret_access_key')
+      export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES"    | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.region')
       ;;
    *)
-      S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.bucket')
-      S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.fips_endpoint')
+      export S3_BUCKET=$(echo "$VCAP_SERVICES"             | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.bucket')
+      export S3_ENDPOINT=$(echo "$VCAP_SERVICES"           | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.fips_endpoint')
+      export AWS_ACCESS_KEY_ID=$(echo "$VCAP_SERVICES"     | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.access_key_id')
+      export AWS_SECRET_ACCESS_KEY=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.secret_access_key')
+      export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES"    | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.region')
       ;;
 esac
 
-export S3_BUCKET
-export S3_ENDPOINT
-
-export AWS_ACCESS_KEY_ID=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.access_key_id" | uniq )
-export AWS_SECRET_ACCESS_KEY=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.secret_access_key" | uniq )
-export AWS_DEFAULT_REGION=$(echo -E "$VCAP_SERVICES" | jq -r ".s3[0].credentials.region" | uniq )
+echo S3_BUCKET: $S3_BUCKET
+echo S3_ENDPOINT: $S3_ENDPOINT
+echo AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+echo AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+echo AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
 
 CF_API="https://api.fr.cloud.gov"
 CF_ORG=gsa-tts-usagov
