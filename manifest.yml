@@ -109,9 +109,6 @@ applications:
   disk_quota: 4G
   timeout: 180
   services:
-    - secrets
-    - secauthsecrets
-    - storage
     - cron-state-storage
     - cron-event-storage
     - cron-callwait-storage
