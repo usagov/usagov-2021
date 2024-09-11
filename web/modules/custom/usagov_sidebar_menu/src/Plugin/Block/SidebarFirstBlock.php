@@ -287,9 +287,14 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
           'url' => $active->getUrlObject()->toString(),
           'title' => $active->getTitle(),
         ];
-      } else {
+      }
+      else {
         $theme['#items'] = $items['#items'];
       }
+      // Ensure drupal knows this block should be cached per path
+      $theme['#cache'] = [
+        'contexts' => ['url.path', 'url.query_args']
+      ];
       return $theme;
     }
 
