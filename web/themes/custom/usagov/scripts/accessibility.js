@@ -202,6 +202,7 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
             response.zipCode = uspsZipCode;
         }
     }
+
     return response;
 
 }
