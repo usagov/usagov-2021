@@ -135,7 +135,7 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
         var responseText = response.text();
 
         if (!response.ok || (await responseText).includes("<Error>")) {
-            return "USPS API not working."; // this shows up when I put in 20012 only
+            return "USPS API not working.";
         }
 
         return await responseText;
