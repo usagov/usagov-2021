@@ -31,7 +31,7 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       configureVisualRegression(on);
       // Plugins
-      require("cypress-image-diff-js/plugin")(on, config);
+      // require("cypress-image-diff-js/plugin")(on, config);
       require("cypress-mochawesome-reporter/plugin")(on);
       on("before:run", async (details) => {
         console.log("override before:run");

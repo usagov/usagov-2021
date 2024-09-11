@@ -14,10 +14,12 @@
     "cypress": "^13.6.6",
     "cypress-axe": "^1.5.0",
     "cypress-image-diff-js": "^2.1.0",
-    "cypress-mochawesome-reporter": "^3.6.0"
+    "cypress-mochawesome-reporter": "^3.6.0",
+    "cypress-visual-regression":"^5.2.1"
   },
   "dependencies": {
     "cypress-mochawesome-reporter": "^3.6.0",
-    "cypress-real-events": "^1.10.3"
+    "cypress-real-events": "^1.10.3",
+    "cypress-visual-regression":"^5.2.1"
   }
 }
