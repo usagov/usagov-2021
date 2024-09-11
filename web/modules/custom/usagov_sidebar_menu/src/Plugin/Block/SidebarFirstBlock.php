@@ -123,7 +123,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     }
 
     $crumbs = $this->getParents($active);
-    $items = $this->getMenuTreeItems($menuID, $crumbs);
+    $items = $this->getMenuTreeItems($menuID, $crumbs, $active);
 
     $node = $this->routeMatch->getParameter('node');
     $leaf = [
@@ -152,7 +152,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     $active = array_pop($menu_links);
     $crumbs = $this->getParents($active);
 
-    $items = $this->getMenuTreeItems($menuID, $crumbs, closeLastTrail: TRUE);
+    $items = $this->getMenuTreeItems($menuID, $crumbs, $active, closeLastTrail: TRUE);
 
     $node = $this->routeMatch->getParameter('node');
     $leaf = [
@@ -276,12 +276,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
         '#is_spanish_menu' => $this->language->getId() === 'es',
       ];
 
-      if ($leaf) {
-        $theme['#leaf'] = $leaf;
-        $theme['#current'] = $leaf;
-        $theme['#start_item'] = $items['#items'][array_key_first($items['#items'])];
-      }
-      elseif ($active) {
+      if ($active) {
         $theme['#start_item'] = $items['#items'][array_key_first($items['#items'])];
         $theme['#current'] = [
           'url' => $active->getUrlObject()->toString(),
@@ -291,6 +286,17 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
       else {
         $theme['#items'] = $items['#items'];
       }
+
+      if ($leaf) {
+        $theme['#leaf'] = $leaf;
+        // If we specify a leaf, make sure it's treated as the current page.
+        $theme['#current'] = $leaf;
+
+//        if (!isset($theme['#start_item']) && !isset($theme['#items'])) {
+//          $theme['#start_item'] = $items['#items'][array_key_first($items['#items'])];
+//        }
+      }
+
       // Ensure drupal knows this block should be cached per path
       $theme['#cache'] = [
         'contexts' => ['url.path', 'url.query_args']
