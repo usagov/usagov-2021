@@ -654,6 +654,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1944-cf-cli-cert
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -664,6 +665,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1944-cf-cli-cert
       - approve-dev-deployment:
           type: approval
           requires:
@@ -672,6 +674,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1944-cf-cli-cert
       - approve-dr-deployment:
           type: approval
           requires:
