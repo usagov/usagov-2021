@@ -384,6 +384,11 @@ window.addEventListener("load", function () {
         toggleButtons[i].removeAttribute("tabindex");
     }
 
+    // Change attributes so that autofill works in state input
+    let stateSelectBox = document.getElementsByName("input-state")[0];
+    stateSelectBox.setAttribute("autocomplete","off");
+    let stateInputBox = document.getElementById("input-state");
+    stateInputBox.setAttribute("autocomplete","address-level1");
 });
 
 (function() {
