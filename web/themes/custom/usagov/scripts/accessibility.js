@@ -385,12 +385,14 @@ window.addEventListener("load", function () {
     }
 
     // Change attributes so that autofill works in state input
+    let stateSelectBox = document.getElementsByName("ins")[0];
+    stateSelectBox.setAttribute("autocomplete","off");
+    // stateSelectBox.setAttribute("name","inst");
+
     let stateInputBox = document.getElementById("input-state");
     stateInputBox.setAttribute("autocomplete","address-level1");
 
-    let stateSelectBox = document.getElementsByName("input-state")[0];
-    stateSelectBox.setAttribute("autocomplete","off");
-    stateSelectBox.setAttribute("name","inst");
+
 
 });
 
