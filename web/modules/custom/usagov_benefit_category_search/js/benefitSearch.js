@@ -13,6 +13,7 @@
  * @property {string} lifeEventsCategory Life events category name
  * @property {string} benefitFinderCategory Benefit finder category name
  * @property {string} showingResults Template for count and range of results shown
+ * @property {string} selectionsCleared Template for count and range of results shown
  */
 /**
  * Component to allow users to search benefits content and display
@@ -188,9 +189,16 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
   };
   /**
    * Clears the results container
+   * @param {boolean} announceClear
    */
-  this.handleClear = function() {
+  this.handleClear = function(announceClear = false) {
     myself.clearErrors();
+
+    if (announceClear)  {
+      let alert = myself.form.querySelector('.alert-container');
+      alert.innerHTML = `<div class="visuallyhidden">${myself.labels.selectionsCleared}</div>`;
+    }
+
     myself.resultsContainer.innerHTML = '';
   };
   /**
@@ -225,6 +233,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
    * Check form input and show the matching benefits
    */
   this.handleSubmit = function() {
+    myself.clearErrors();
     //  grab term ids from checked filters
     let checked = myself.form.querySelectorAll('input[type="checkbox"]:checked');
     if (checked.length === 0) {
@@ -262,7 +271,10 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
    */
   this.handleToggleAll = function(ev) {
     myself.clearErrors();
-    myself.handleClear();
+
+    const announceClear = myself.areAllChecked();
+
+    myself.handleClear(announceClear);
     myself.setActivePage(1);
 
     let newState = ev.target.checked;
@@ -282,6 +294,19 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
     }
     // if we get here, all must be checked
     return true;
+  };
+  /**
+   * Test if any of the category checkboxes are ticked.
+   * @return boolean
+   */
+  this.areAnyChecked = function() {
+    for (const box of myself.boxes) {
+      if (box.checked === true) {
+        return true;
+      }
+    }
+    // if we get here, none must be checked
+    return false;
   };
   /**
    * Hide the indicated page
@@ -470,7 +495,7 @@ ${benefit.term_node_tid}
     }
 
     let elt = document.createElement('template');
-    elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4" aria-live=assertive>
+    elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4">
         <div class="usa_alert__body" data-analytics="errorMessage">
            <h4 class="usa-alert__heading padding-left-6">${myself.labels.emptyCategoryError}</h4>
         </div>
@@ -574,7 +599,9 @@ ${benefit.term_node_tid}
     this.toggleAll.checked = myself.areAllChecked();
     // form events
     myself.form.addEventListener('submit', myself.handleSubmit);
-    myself.form.addEventListener('reset', myself.handleClear);
+    myself.form.addEventListener('reset', function() {
+      myself.handleClear(myself.areAnyChecked());
+    });
     // history events
     window.addEventListener('popstate', myself.parseUrlState);
 
@@ -604,7 +631,8 @@ jQuery(document).ready(async function () {
       'emptyCategoryError': 'Error: Please select at least one or more categories',
       'appliedCategories': 'Applied categories',
       'lifeEventsCategory': 'Life events',
-      'benefitFinderCategory': 'Benefit finder tool'
+      'benefitFinderCategory': 'Benefit finder tool',
+      'selectionsCleared': 'Your selections were cleared.',
     };
   }
   else if (docLang[0] === 'es') {
@@ -622,7 +650,8 @@ jQuery(document).ready(async function () {
       'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
       'appliedCategories': 'Categorías seleccionadas',
       'lifeEventsCategory': 'Etapas de la vida',
-      'benefitFinderCategory': 'Buscador de beneficios'
+      'benefitFinderCategory': 'Buscador de beneficios',
+      'selectionsCleared': 'Sus selecciones de categorías fueron reiniciadas.',
     };
   }
   // creat and initialize the search tool
