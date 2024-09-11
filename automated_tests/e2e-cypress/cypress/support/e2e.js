@@ -18,6 +18,7 @@ import './commands'
 import "cypress-real-events"
 import 'cypress-axe'
 import 'cypress-mochawesome-reporter/register'
+const { addCompareSnapshotCommand } = require('cypress-visual-regression/dist/command')
 
 
 Cypress.on('uncaught:exception', (err, runnable) => {
@@ -26,7 +27,15 @@ Cypress.on('uncaught:exception', (err, runnable) => {
     return false
 })
 
+addCompareSnapshotCommand({
+    capture: 'fullPage', // cypress screenshot option
+    errorThreshold: 0.5, // plugin threshold option
+    pixelmatchOptions: {
+      threshold: 0 // pixelmatch threshold option
+    }
+  })
+
 // Import and add Cypress image command
 // const compareSnapshotCommand = require('cypress-image-diff-js/dist/command')
-import compareSnapshotCommand from 'cypress-image-diff-js/command';
-compareSnapshotCommand()
+// import compareSnapshotCommand from 'cypress-image-diff-js/command';
+// compareSnapshotCommand()
