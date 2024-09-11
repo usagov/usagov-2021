@@ -85,11 +85,12 @@
               <select
                 aria-describedby="state"
                 class="usa-select"
-                name="input-state"
+                {# name="input-state" #}
                 id="input-state"
                 required
                 oninvalid="this.setCustomValidity('Fill out the state field.')"
-                oninput="this.setCustomValidity('')">
+                oninput="this.setCustomValidity('')"
+                autocomplete="off">
                 <option id="AL" value="AL">Alabama (AL)</option>
                 <option id="AK" value="AK">Alaska (AK) </option>
                 <option id="AZ" value="AZ">Arizona (AZ)</option>
