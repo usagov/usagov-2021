@@ -127,15 +127,15 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
     try {
         // USPS API Call
         const url = `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify \
-        &XML=<AddressValidateRequest USERID="${USPS_USERID}" PASSWORD="${USPS_USERID}"><Address><Address1>\
+        &XML=<AddressValidateRequest USERID="${USPS_USERID}" PASSWORD="${USPS_PASSWORD}"><Address><Address1>\
         </Address1><Address2>${streetAddress}</Address2><City>${city}</City><State>${state}\
         </State><Zip5>${zipCode}</Zip5><Zip4></Zip4></Address></AddressValidateRequest>`;
 
         const response = await fetch(url);
         var responseText = response.text();
 
-        if (!response.ok || (await responseText).includes("<Error>")) {
-            return "USPS API not working.";
+        if (!response.ok || (await responseText).includes('<Error>')) {
+            return "USPS API not working."; // this shows up when I put in 20012 only
         }
 
         return await responseText;
@@ -202,7 +202,6 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
             response.zipCode = uspsZipCode;
         }
     }
-
     return response;
 
 }
