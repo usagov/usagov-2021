@@ -4,5 +4,5 @@ status: true
 dependencies: {  }
 id: modal
 label: Modal
-revision: 0
+revision: 1
 description: ''

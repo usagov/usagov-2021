@@ -30,27 +30,26 @@
   {% set submit_label = "Apply selections" %}
   {% set reset_label = "Clear selections" %}
   {% set select_all_label = "Select all" %}
-  {% set aria_button_groupabel = "Buttons for form" %}
   {% set aria_results_label = "Matching items" %}
 {% elseif lang == 'es' %}
   {% set submit_label = "Aplicar selecciones" %}
   {% set reset_label = "Borrar selecciones" %}
   {% set select_all_label = "Seleccionar todo" %}
-  {% set aria_button_groupabel = "Botones del formularió" %}
   {% set aria_results_label = "Resultados" %}
 {% endif %}
 
 <div class="benefits-category-list" id="{{ search_id }}">
   <form id="benefitSearch" action="javascript:void(0)">
-    <div class="alert-container" role="alert"></div>
-    <fieldset>
 
+    <fieldset>
       {% if node.field_benefits_search_title.value | render %}
         <legend><h2 id="categories-label">{{ node.field_benefits_search_title.value }}</h2></legend>
       {% endif %}
       {% if node.field_benefits_search_descr.value | render %}
         <p id="categories-description">{{ node.field_benefits_search_descr.value }}</p>
       {% endif %}
+
+      <div class="alert-container" aria-live="polite"></div>
 
       <div role="group" class="grid-row" aria-labelledby="categories-label" aria-describedby="categories-description">
         <div class="benefits-category-list-checkbox-cols">
@@ -72,7 +71,7 @@
         </div>
       </div>
     </fieldset>
-    <div class="button-group margin-top-2" aria-label="{{ aria_button_groupabel }} ">
+    <div class="button-group margin-top-2">
       <button class="usa-button" type="submit">{{ submit_label }}</button>
       <button class="usa-button usa-button--secondary" type="reset">{{ reset_label }}</button>
     </div>
