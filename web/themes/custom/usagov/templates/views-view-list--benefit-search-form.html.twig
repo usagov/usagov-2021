@@ -40,15 +40,16 @@
 
 <div class="benefits-category-list" id="{{ search_id }}">
   <form id="benefitSearch" action="javascript:void(0)">
-    <div class="alert-container" role="alert"></div>
-    <fieldset>
 
+    <fieldset>
       {% if node.field_benefits_search_title.value | render %}
         <legend><h2 id="categories-label">{{ node.field_benefits_search_title.value }}</h2></legend>
       {% endif %}
       {% if node.field_benefits_search_descr.value | render %}
         <p id="categories-description">{{ node.field_benefits_search_descr.value }}</p>
       {% endif %}
+
+      <div class="alert-container" aria-live="polite"></div>
 
       <div role="group" class="grid-row" aria-labelledby="categories-label" aria-describedby="categories-description">
         <div class="benefits-category-list-checkbox-cols">
