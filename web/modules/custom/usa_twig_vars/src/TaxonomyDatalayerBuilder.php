@@ -141,8 +141,12 @@ class TaxonomyDatalayerBuilder {
           'es' => self::HOME_TITLE_ES,
         };
       }
-      else {
+      elseif ($suffix < 7) {
         $taxonomy['Taxonomy_Text_' . $suffix] = htmlspecialchars($crumb->getText(), ENT_QUOTES, 'UTF-8');
+      }
+      else {
+        // Do not output more than 6 levels.
+        break;
       }
 
       $url = $crumb->getUrl()->toString() ?: $this->node->toUrl()->toString();
