@@ -284,6 +284,7 @@ header h1 {
 }
 header h1 a {
   display: inline-block;
+  text-decoration: none;
 }
 header h1 img {
   vertical-align: middle;
