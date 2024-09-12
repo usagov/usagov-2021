@@ -147,12 +147,10 @@ TODO: come up with a better name than start_level. Its really the delta between 
           {% if (item.title == current_item_title) and (pageTypeIs != 'Standard Page- Nav Hidden') %}
             {% if leftMenuName == "página" %}
 
-            <a class="usa-current" onclick="return false;" href="{{ item.url }}"
-               class="active-trail">
+            <a class="usa-current" onclick="return false;" href="{{ item.url }}" class="active-trail">
               <p class="usa-sr-only">esta página</p>
             {% else %}
-            <a class="usa-current" aria-current="page" onclick="return false;" href="{{ item.url }}"
-               class="active-trail">
+            <a class="usa-current" aria-current="page" onclick="return false;" href="{{ item.url }}" class="active-trail">
             {% endif %}
           {% else %}
             <a  href="{{ item.url }}" {% if item.in_active_trail == 1 %} class="active-trail" {% endif %} >
