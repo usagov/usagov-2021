@@ -119,6 +119,12 @@ function compare_data(array $datalayer, CSVRow $row): void {
     }
   }
 
+  if (isset($datalayer['Taxonomy_Text_7'])) {
+    Drush::output()->writeln(
+      "<error>... More than 6 levels returned</error>");
+    var_dump($datalayer);
+  }
+
   switch ($datalayer['language']) {
     case 'en':
       if ($datalayer['Taxonomy_Text_1'] !== 'Home') {
