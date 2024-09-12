@@ -135,7 +135,7 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
         var responseText = response.text();
 
         if (!response.ok || (await responseText).includes("<Error>")) {
-            return "USPS API not working.";
+            return (responseText);
         }
 
         return await responseText;
@@ -166,7 +166,7 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
         response.fieldID = "street";
         response.errorMessage = usps_content["invalid-street"];
     }
-    else if (responseText.includes("Address Not Found.")) {
+    else if (responseText.includes("Address Not Found. ")) {
         response.fieldID = "street";
         response.errorMessage = usps_content["no-street"];
     }
