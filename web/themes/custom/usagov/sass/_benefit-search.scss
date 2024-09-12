@@ -52,12 +52,8 @@ main[data-pagetype="Benefits Category Search"]{
       @include u-margin-bottom(0);
     }
 
-    &:hover {
+    &:hover, &:active {
       background-color: color('cyan-40v');
-    }
-
-    &:active {
-      background-color: #fff;
     }
 
     &.usa-button--secondary {
@@ -143,16 +139,7 @@ main[data-pagetype="Benefits Category Search"]{
   > ul > li {
     padding-bottom: 0.5rem;
 
-    &.end-mobile-column {
-      padding-bottom: 0;
-      @include at-media('tablet-lg') {
-        padding-bottom: 0.5rem;
-      }
-    }
-  }
-
-  &.end-desktop-column {
-    @include at-media('tablet-lg') {
+    &.end-column {
       padding-bottom: 0;
     }
   }

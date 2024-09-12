@@ -134,11 +134,11 @@
 		<div class="grid-container">
 			{% if page.breadcrumb or page.highlighted or page.help %}
 				{% if pagetype == "Navigation Cards Page"%}
-				<div class="grid-row breadcrumb-spacing">
+				<div class="grid-row breadcrumb-nav-spacing">
 					{{ page.breadcrumb }}
 				</div>
 				{% else %}
-				<div class="grid-row">
+				<div class="grid-row breadcrumb-spacing">
 					{{ page.breadcrumb }}
 				</div>
 				{% endif %}
