@@ -483,9 +483,8 @@ function load() {
 
     let inputStreet = searchParams.get('input-street');
     let inputCity = searchParams.get('input-city');
-    let inputState = searchParams.get('input-state');
+    let inputState = searchParams.get('ins');
     let inputZip = searchParams.get('input-zip');
-
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
     let displayAddress = document.getElementById("display-address");
     displayAddress.innerHTML = DOMPurify.sanitize(normalizedAddress.replace(", ", "<br>"));
