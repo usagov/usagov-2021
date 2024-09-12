@@ -1,10 +1,4 @@
-{# this is the equivalent of the old menus.explore macro #}
-{# TODO - handle no start page (error page) leading to this page #}
 {# TODO - Skip children of the Federal Agencies view? #}
-{# DONE - There are no children, start from grandparent (or 0 if no grandparent) #}
-{# DONE - There are children, show them and start from parent (or 0 if no parent)  #}
-{# DONE - Mark usa-current page, make it not click#}
-{# DONE - pagetype comes from usa_twig_vars #}
 
 {% if start_item %}
   {% if depth == 0 %}
@@ -39,7 +33,7 @@
             }) }}
             {% elseif item.in_active_trail and leaf %}
               <ul class="usa-sidenav__sublist">
-                <li>{{ _self.item_link(leaf, current, is_spanish_menu, page_type_is) }}</li>
+                <li class="usa-sidenav__item">{{ _self.item_link(leaf, current, is_spanish_menu, page_type_is) }}</li>
               </ul>
           {% endif %}
         </li>

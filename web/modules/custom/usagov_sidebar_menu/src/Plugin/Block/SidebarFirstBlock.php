@@ -207,7 +207,8 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
         // 2 Levels above us.
         $params->setMinDepth($depth - 2);
       }
-    } else {
+    }
+    else {
       $params->setMaxDepth(1);
     }
 
@@ -226,6 +227,8 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
 
     // Sort by menu weight.
     $tree = $this->menuTree->transform($tree, [
+      ['callable' => 'menu.default_tree_manipulators:checkNodeAccess'],
+      ['callable' => 'menu.default_tree_manipulators:checkAccess'],
       ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
     ]);
 
@@ -291,15 +294,11 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
         $theme['#leaf'] = $leaf;
         // If we specify a leaf, make sure it's treated as the current page.
         $theme['#current'] = $leaf;
-
-//        if (!isset($theme['#start_item']) && !isset($theme['#items'])) {
-//          $theme['#start_item'] = $items['#items'][array_key_first($items['#items'])];
-//        }
       }
 
-      // Ensure drupal knows this block should be cached per path
+      // Ensure drupal knows this block should be cached per path.
       $theme['#cache'] = [
-        'contexts' => ['url.path', 'url.query_args']
+        'contexts' => ['url.path', 'url.query_args'],
       ];
       return $theme;
     }
