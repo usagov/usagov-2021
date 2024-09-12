@@ -230,7 +230,7 @@ commands:
   deploy-cron:
     parameters:
       envname:
-        default: "tools"
+        default: "dr"
         type: string
     steps:
       - checkout
@@ -813,7 +813,7 @@ workflows:
       - approve-stage-deploy-cron:
           type: approval
           requires:
-            - deploy-cron-to-env
+            - deploy-cron
           filters:
             branches:
               only:
