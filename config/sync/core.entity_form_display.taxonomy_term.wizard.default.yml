@@ -13,9 +13,11 @@ dependencies:
     - field.field.taxonomy_term.wizard.field_option_name
     - field.field.taxonomy_term.wizard.field_options_list
     - field.field.taxonomy_term.wizard.field_step_number
+    - field.field.taxonomy_term.wizard.field_wizard_breadcrumbs
     - taxonomy.vocabulary.wizard
   module:
     - allowed_formats
+    - link
     - path
     - text
     - viewsreference
@@ -96,7 +98,7 @@ content:
     third_party_settings: {  }
   field_meta_description:
     type: string_textarea
-    weight: 12
+    weight: 13
     region: content
     settings:
       rows: 5
@@ -127,6 +129,14 @@ content:
     settings:
       placeholder: ''
     third_party_settings: {  }
+  field_wizard_breadcrumbs:
+    type: link_default
+    weight: 12
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
   langcode:
     type: language_select
     weight: 1
@@ -144,13 +154,13 @@ content:
     third_party_settings: {  }
   path:
     type: path
-    weight: 13
+    weight: 14
     region: content
     settings: {  }
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 14
+    weight: 15
     region: content
     settings:
       display_label: true
