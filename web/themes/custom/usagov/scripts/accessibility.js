@@ -219,7 +219,6 @@ async function handleFormSubmission() {
     const stateField = document.getElementById("input-state");
     const zipCodeField = document.getElementById("input-zip");
     const formFields = [streetAddressField, cityField, stateField, zipCodeField];
-
     // Analyze the response and decide if the address is valid or not.
     const uspsApiResponse = await addressUSPSValidation(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
     const response = uspsResponseParser(uspsApiResponse, streetAddressField.value, cityField.value, zipCodeField.value);
@@ -385,13 +384,11 @@ window.addEventListener("load", function () {
     }
 
     // Change attributes so that autofill works in state input
-    let stateSelectBox = document.getElementsByName("ins")[0];
+    let stateSelectBox = document.getElementsByName("select-dropdown")[0];
     stateSelectBox.setAttribute("autocomplete","country");
 
     let stateInputBox = document.getElementById("input-state");
     stateInputBox.setAttribute("autocomplete","address-level1");
-
-
 
 });
 

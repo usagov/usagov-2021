@@ -483,7 +483,7 @@ function load() {
 
     let inputStreet = searchParams.get('input-street');
     let inputCity = searchParams.get('input-city');
-    let inputState = searchParams.get('ins');
+    let inputState = searchParams.get('select-dropdown');
     let inputZip = searchParams.get('input-zip');
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
     let displayAddress = document.getElementById("display-address");
