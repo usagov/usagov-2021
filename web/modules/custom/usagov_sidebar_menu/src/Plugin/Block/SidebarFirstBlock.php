@@ -206,7 +206,8 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
         return $this->menuLinkManager->createInstance($uuid)->isEnabled();
       });
 
-      // Don't display the entire menu if we are 3 or more levels deep.
+      // Check if the expanded menu is 3 or more levels deep and adjust
+      // what we show based on if we have children elements to show.
       if ($depth >= 3 && $children) {
         // Current link has children, so only show
         // grandparent through children.
@@ -219,6 +220,8 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
       }
     }
     else {
+      // There's no active path, just show the top level
+      // topic  menu link elements.
       $params->setMaxDepth(1);
     }
 
@@ -235,7 +238,8 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
       });
     }
 
-    // Sort by menu weight.
+    // Sort by menu weight and ensure user can access the
+    // entities and nodes linked in the menu.
     $tree = $this->menuTree->transform($tree, [
       ['callable' => 'menu.default_tree_manipulators:checkNodeAccess'],
       ['callable' => 'menu.default_tree_manipulators:checkAccess'],
@@ -273,16 +277,10 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     ?MenuLinkInterface $active = NULL,
     array $leaf = [],
   ): array {
-    switch ($this->language->getId()) {
-      case 'es':
-        $navAriaLabel = 'Secundaria';
-        break;
-
-      case 'en':
-      default:
-        $navAriaLabel = 'Secondary';
-        break;
-    }
+    $navAriaLabel = match ($this->language->getId()) {
+      'es' => 'Secundaria',
+      default => 'Secondary',
+    };
 
     if (!empty($items['#items'])) {
       $pagetype = NULL;
@@ -323,7 +321,6 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
       return $theme;
     }
 
-    trigger_error('No left nav menu items found', E_USER_WARNING);
     return [];
   }
 
