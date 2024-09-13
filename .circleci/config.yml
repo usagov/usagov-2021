@@ -812,14 +812,6 @@ workflows:
             branches:
               only: prod
 
-
-          requires:
-            - approve-prod-deploy-cron
-          filters:
-            branches:
-              only:
-              - prod
-
   build-and-deploy-cron:
     jobs:
       - approve-build-and-push-container-cron:
