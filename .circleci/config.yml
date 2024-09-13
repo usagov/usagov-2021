@@ -820,6 +820,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1753-generic-cron-app-alpine
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
@@ -830,6 +831,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-1753-generic-cron-app-alpine
       - approve-dev-deployment-cron:
           type: approval
           requires:
@@ -846,6 +848,7 @@ workflows:
             branches:
               only:
               - dr
+              - USAGOV-1753-generic-cron-app-alpine
       - deploy-to-cloudgov-dev-cron:
           requires:
             - approve-dev-deployment-cron
@@ -860,6 +863,7 @@ workflows:
             branches:
               only:
               - dr
+              - USAGOV-1753-generic-cron-app-alpine
       - approve-stage-deployment-cron:
           type: approval
           requires:
