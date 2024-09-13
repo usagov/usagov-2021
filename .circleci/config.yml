@@ -115,10 +115,9 @@ commands:
           name: Install CloudFoundry
           command: |
             if command cf > /dev/null; then echo "CF client already installed"; exit 0; fi
-            wget --user-agent="Mozilla" -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
-            echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
-            sudo apt-get update
-            sudo apt-get install cf8-cli
+            wget 'https://packages.cloudfoundry.org/stable?release=linux64-binary&version=8.8.0&source=github-rel' -O /tmp/cf8.tar.gz
+            cd /usr/bin/ && sudo tar xzvpf /tmp/cf8.tar.gz
+            rm -f /tmp/cf8.tar.gz
             cf -v
 
   install-node:
@@ -735,7 +734,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1944-cf-cli-cert
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -746,7 +744,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1944-cf-cli-cert
       - approve-dev-deployment:
           type: approval
           requires:
@@ -755,7 +752,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1944-cf-cli-cert
       - approve-dr-deployment:
           type: approval
           requires:
@@ -771,6 +767,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1943-govloan-redirect-corrections
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
