@@ -18,7 +18,22 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Provides a USAGOV Custom Sidebar Menu Block.
+ * Provides a Custom Sidebar Navigation block.
+ *
+ * Provides a USAGOV Custom Sidebar Menu Block. Replaces customizations of the
+ * system provided menu that were in twig previously.
+ *
+ * Depends on usagov_twig_vars for getting the pagetype variable.
+ *
+ * A short summary of the behavior of the sidebar nav:
+ *  - It can show up to 3 levels
+ *  - The levels shown depend on the existence of parents and children of the
+ *    current page
+ *  - It will attempt to show parent, current page (plus siblings), and children
+ *  - If there are no children, it will try to show grandparent, parent, and
+ *    current page (plus siblings)
+ *  - Agency and State nodes have custom behavior to show 3 levels plus a link
+ *    to the current page.
  */
 #[Block(
   id: "usagov_sidebarfirst_block",
@@ -53,32 +68,24 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function build(): array {
-    switch ($this->language->getId()) {
-      case 'es':
-        $menuID = 'left-menu-spanish';
-        $navAriaLabel = 'Secundaria';
-        break;
-
-      case 'en':
-      default:
-        $menuID = 'left-menu-english';
-        $navAriaLabel = 'Secondary';
-        break;
-    }
+    $menuID = match ($this->language->getId()) {
+      'es' => 'left-menu-spanish',
+      default => 'left-menu-english',
+    };
 
     switch (TRUE) {
       case str_starts_with($this->request->getPathInfo(), '/agencies/'):
       case str_starts_with($this->request->getPathInfo(), '/es/agencias/'):
         // These items aren't part of a menu.
-        return $this->buildAgencySidebar($menuID, $navAriaLabel);
+        return $this->buildAgencySidebar($menuID);
 
       case str_starts_with($this->request->getPathInfo(), '/states/'):
       case str_starts_with($this->request->getPathInfo(), '/es/estados/'):
         // These items aren't part of a menu.
-        return $this->buildStatesSidebar($menuID, $navAriaLabel);
+        return $this->buildStatesSidebar($menuID);
 
       default:
-        return $this->buildFromMenu($menuID, $navAriaLabel);
+        return $this->buildFromMenu($menuID);
     }
   }
 
@@ -87,17 +94,17 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  private function buildFromMenu(string $menuID, string $navAriaLabel): array {
+  private function buildFromMenu(string $menuID): array {
     if ($active = $this->trail->getActiveLink($menuID)) {
       $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
       $items = $this->getMenuTreeItems($menuID, $crumbs, $active);
-      return $this->renderItems($items, $navAriaLabel, $active);
+      return $this->renderItems($items, $active);
     }
 
     // We're not in the menu.
     // Display first level of this menu.
     $items = $this->getMenuTreeItems($menuID);
-    return $this->renderItems($items, $navAriaLabel);
+    return $this->renderItems($items);
   }
 
   /**
@@ -105,7 +112,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  private function buildAgencySidebar(string $menuID, string $navAriaLabel): array {
+  private function buildAgencySidebar(string $menuID): array {
     // Get our parent.
     $parentNodeID = match ($this->language->getId()) {
       'es' => self::AGENCIES_NID_ES,
@@ -131,7 +138,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
       'title' => $node->getTitle(),
     ];
 
-    return $this->renderItems($items, $navAriaLabel, $active, $leaf);
+    return $this->renderItems($items, $active, $leaf);
   }
 
   /**
@@ -139,7 +146,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  private function buildStatesSidebar(string $menuID, string $navAriaLabel): array {
+  private function buildStatesSidebar(string $menuID): array {
     $parentNodeID = match ($this->language->getId()) {
       'es' => self::STATES_NID_ES,
       default => self::STATES_NID_EN,
@@ -155,12 +162,11 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     $items = $this->getMenuTreeItems($menuID, $crumbs, $active, closeLastTrail: TRUE);
 
     $node = $this->routeMatch->getParameter('node');
-    $leaf = [
+
+    return $this->renderItems($items, $active, leaf: [
       'url' => $this->request->getPathInfo(),
       'title' => $node->getTitle(),
-    ];
-
-    return $this->renderItems($items, $navAriaLabel, $active, $leaf);
+    ]);
   }
 
   /**
@@ -177,7 +183,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     ?MenuLinkInterface $active = NULL,
     bool $closeLastTrail = FALSE,
   ): array {
-    // We can remove this line if PR #1923 is merged
+    // We can remove this line if PR #1923 is merged.
     // @todo Tome caches the menu and active trail ids when path count > 1.
     $this->trail->clear();
 
@@ -188,6 +194,9 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     if ($crumbs) {
       $params->setActiveTrail($crumbs);
       $depth = count($crumbs);
+    }
+    else {
+      $depth = 1;
     }
 
     if ($active) {
@@ -261,10 +270,20 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    */
   private function renderItems(
     array $items,
-    string $navAriaLabel,
     ?MenuLinkInterface $active = NULL,
     array $leaf = [],
   ): array {
+    switch ($this->language->getId()) {
+      case 'es':
+        $navAriaLabel = 'Secundaria';
+        break;
+
+      case 'en':
+      default:
+        $navAriaLabel = 'Secondary';
+        break;
+    }
+
     if (!empty($items['#items'])) {
       $pagetype = NULL;
       if ($node = $this->routeMatch->getParameter('node')) {
