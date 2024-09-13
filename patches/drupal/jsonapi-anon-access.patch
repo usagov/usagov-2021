@@ -1,0 +1,47 @@
+diff --git a/core/modules/jsonapi/src/Access/EntityAccessChecker.php b/core/modules/jsonapi/src/Access/EntityAccessChecker.php
+index a76447f38..139ea80bd 100644
+--- a/core/modules/jsonapi/src/Access/EntityAccessChecker.php
++++ b/core/modules/jsonapi/src/Access/EntityAccessChecker.php
+@@ -156,6 +156,12 @@ public function getAccessCheckedResourceObject(EntityInterface $entity, AccountI
+    *   The access check result.
+    */
+   public function checkEntityAccess(EntityInterface $entity, $operation, AccountInterface $account) {
++
++    // Always allow access to unpublished BasicPages for Anon-users (USAGOV-1936)
++    if ( strpos($_SERVER['REQUEST_URI'], 'jsonapi/node/basic_page') !== false ) {
++      return AccessResult::allowed();
++    }
++
+     $access = $entity->access($operation, $account, TRUE);
+     if ($entity->getEntityType()->isRevisionable()) {
+       $access = AccessResult::neutral()->addCacheContexts(['url.query_args:' . JsonApiSpec::VERSION_QUERY_PARAMETER])->orIf($access);
+@@ -191,6 +197,12 @@ public function checkEntityAccess(EntityInterface $entity, $operation, AccountIn
+    *   The access check result.
+    */
+   protected function checkRevisionViewAccess(EntityInterface $entity, AccountInterface $account) {
++
++    // Always allow access to unpublished BasicPages for Anon-users (USAGOV-1936)
++    if ( strpos($_SERVER['REQUEST_URI'], 'jsonapi/node/basic_page') !== false ) {
++      return AccessResult::allowed();
++    }
++
+     assert($entity instanceof RevisionableInterface);
+     assert(!$entity->isDefaultRevision(), 'It is not necessary to check revision access when the entity is the default revision.');
+     $entity_type = $entity->getEntityType();
+diff --git a/core/modules/jsonapi/src/Access/TemporaryQueryGuard.php b/core/modules/jsonapi/src/Access/TemporaryQueryGuard.php
+index a17bd3d51..78b5c0e74 100644
+--- a/core/modules/jsonapi/src/Access/TemporaryQueryGuard.php
++++ b/core/modules/jsonapi/src/Access/TemporaryQueryGuard.php
+@@ -343,6 +343,12 @@ protected static function getAccessCondition($entity_type_id, CacheableMetadata
+    *   secure an entity query.
+    */
+   protected static function getAccessConditionForKnownSubsets(EntityTypeInterface $entity_type, AccountInterface $account, CacheableMetadata $cacheability) {
++
++    // Always allow access to unpublished BasicPages for Anon-users (USAGOV-1936)
++    if ( strpos($_SERVER['REQUEST_URI'], 'jsonapi/node/basic_page') !== false ) {
++      return Null;
++    }
++
+     // Get the combined access results for each JSONAPI_FILTER_AMONG_* subset.
+     $access_results = static::getAccessResultsFromEntityFilterHook($entity_type, $account);
+ 
