@@ -17,7 +17,8 @@
                 "https://beta-stage.usa.gov",
                 "https://cms.usa.gov",
                 "https://usa.gov",
-                "https://www.usa.gov"
+                "https://www.usa.gov",
+                "http://localhost"
             ],
             "ExposeHeaders": [
                 "ETag"
