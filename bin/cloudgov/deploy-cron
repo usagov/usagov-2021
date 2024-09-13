@@ -32,6 +32,7 @@ SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
 shift
 ORG=$(getOrg)
+CF_EGRESS_SPACE=${CF_EGRESS_SPACE:-shared-egress}
 CF_EGRESS_ORG=${CF_EGRESS_ORG:-$ORG}
 STAG=${1:-latest}
 SDIGEST=${2:-}
@@ -54,26 +55,28 @@ fi
 
 function setHTTPProxy() {
     appSpace=$1
+    appOrg=$2
     appName=$2
     proxySet=$3
-    proxySpace=$CF_EGRESS_SPACE
+    proxySpace=$4
+    proxyOrg=$5
     proxyName="${SPACE}-proxy"
     if [ "$proxySet" = "1" ]; then
         echo "Setting http_proxy to $proxyName"
-        cf target -s $proxySpace -o $CF_EGRESS_ORG > /dev/null 2>&1;
+        cf target -s $proxySpace -o $proxyOrg > /dev/null 2>&1;
         proxyroute=$(cf env $proxyName | grep proxy_route | awk '{print $2}')
         if [ -z "$proxyroute" ]; then
             echo "ERROR: $proxyName does not have a proxy_route set"
             exit 1
         fi;
-        cf target -s $appSpace -o $ORG > /dev/null 2>&1
+        cf target -s $appSpace -o $appOrg > /dev/null 2>&1
         cf set-env $appName https_proxy $proxyroute
         cf set-env $appName HTTPS_PROXY $proxyroute
         cf set-env $appName http_proxy $proxyroute
         cf set-env $appName HTTP_PROXY $proxyroute
     elif [ "$proxySet" = "0" ]; then
         echo "Setting http_proxy to empty"
-        cf target -s $appSpace -o $ORG > /dev/null 2>&1
+        cf target -s $appSpace -o $appOrg > /dev/null 2>&1
         cf unset-env $appName https_proxy
         cf unset-env $appName HTTPS_PROXY
         cf unset-env $appName http_proxy
@@ -137,10 +140,10 @@ function cf_push() {
 
 if existsCFApp ${APPNAME} ; then
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
-  setHTTPProxy ${SPACE} ${APPNAME} 1
+  setHTTPProxy ${SPACE} ${ORG} ${APPNAME} 1 ${CF_EGRESS_SPACE} ${CF_EGRESS_ORG}
   cf_push $APPSPEC $APPINSTANCES
 else
   cf_push $APPSPEC $APPINSTANCES
-  setHTTPProxy ${SPACE} ${APPNAME} 1
+  setHTTPProxy ${SPACE} ${ORG} ${APPNAME} 1 ${CF_EGRESS_SPACE} ${CF_EGRESS_ORG}
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
 fi
