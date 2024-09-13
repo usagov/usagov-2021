@@ -67,18 +67,22 @@ commands:
             (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>)
             (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>)
             (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >>)
+            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >>)
             CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             WWW_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
+            CRON_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
             . ./bin/cloudgov/get-s3-access key-value
             echo "$CMS_DIGEST" > /tmp/results/cms_digest
             echo "$WAF_DIGEST" > /tmp/results/waf_digest
             echo "$WWW_DIGEST" > /tmp/results/www_digest
+            echo "$CRON_DIGEST" > /tmp/results/cron_digest
             aws s3 cp /tmp/results/cms_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >>
             aws s3 cp /tmp/results/waf_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >>
             aws s3 cp /tmp/results/www_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/www-<< pipeline.number >>
+            aws s3 cp /tmp/results/cron_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cron-<< pipeline.number >>
 
   load-image-digest:
     steps:
@@ -91,15 +95,19 @@ commands:
             export CMS_DIGEST=""
             export WAF_DIGEST=""
             export WWW_DIGEST=""
+            export CRON_DIGEST=""
             if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<< pipeline.number >> ./cms-image-digest; then export CMS_DIGEST="@"$(cat ./cms-image-digest); fi
             if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >> ./waf-image-digest; then export WAF_DIGEST="@"$(cat ./waf-image-digest); fi;
             if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/www-<< pipeline.number >> ./www-image-digest; then export WWW_DIGEST="@"$(cat ./www-image-digest); fi;
+            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cron-<< pipeline.number >> ./cron-image-digest; then export CRON_DIGEST="@"$(cat ./cron-image-digest); fi;
             export CMS_DIGEST=$CMS_DIGEST
             export WAF_DIGEST=$WAF_DIGEST
             export WWW_DIGEST=$WWW_DIGEST
+            export CRON_DIGEST=$CRON_DIGEST
             echo 'export CMS_DIGEST='"$CMS_DIGEST" | tee -a $BASH_ENV
             echo 'export WAF_DIGEST='"$WAF_DIGEST" | tee -a $BASH_ENV
             echo 'export WWW_DIGEST='"$WWW_DIGEST" | tee -a $BASH_ENV
+            echo 'export CRON_DIGEST='"$CRON_DIGEST" | tee -a $BASH_ENV
 
   install-cloud-foundry:
     steps:
@@ -227,36 +235,26 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-reporter
 
-  deploy-cron:
+  deploy-cloudgov-cron:
     parameters:
       envname:
         default: "dr"
         type: string
     steps:
       - checkout
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
       - install-cloud-foundry
-      - signed-dockerhub-login
+      - load-image-digest
       - run:
-          name: Build Cron Container
+          name: CloudGov Deploy Cron
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/container-build-cron
-      - run:
-          name: Push Cron Container to Docker Hub
-          command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
-            ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/container-push-cron
-      - run:
-          name: Deploy Cron App
-          command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
-            ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-cron
+            ./bin/cloudgov/deploy-cron << pipeline.number >> $CMS_DIGEST
 
 jobs:
   scan-code:
@@ -540,41 +538,96 @@ jobs:
       - deploy-reporter:
           envname: tools
 
-  deploy-cron-to-cloudgov-dr:
+  build-and-push-container-cron:
     machine:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - deploy-cron:
+      - checkout
+      - signed-dockerhub-login
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            mkdir -p /tmp/results
+            touch /tmp/results/scan-cron-container.log
+            touch /tmp/results/scan-cron-container-cis.log
+      - run:
+          name: Build Cron Container
+          no_output_timeout: 30m
+          command: |
+            ./bin/cloudgov/container-build-cron << pipeline.number >> latest
+      - run:
+          name: Scan Cron Container
+          command: |
+            SCAN_CRON_RESULT=0
+            if (./bin/scan-container cron << pipeline.number >> high | tee /tmp/results/scan-cron-container.log); then export SCAN_CRON_RESULT=0; else export SCAN_CRON_RESULT=$?; fi
+            echo "Cron Container Scan return code: $SCAN_CRON_RESULT" | tee -a /tmp/results/scan-cron-container.log
+            cat /tmp/results/scan-cron-container.log
+            exit 0
+      - run:
+          name: Create Container for Cron CIS Benchmarks
+          when: always
+          command: |
+            # build a fresh docker-bench-security container
+            cd /tmp/
+            git clone --depth 1 https://github.com/docker/docker-bench-security.git
+            cd /tmp/docker-bench-security
+            docker build --no-cache -t docker-bench-security .
+      - run:
+          name: Check Cron CIS Benchmarks
+          when: always
+          command: |
+            # use the fresh container to scan
+            SCAN_CRON_CIS_RESULT=0
+            if (./bin/scan-container-cis cron << pipeline.number >> | tee /tmp/results/scan-cron-container-cis.log); then export SCAN_CRON_CIS_RESULT=0; else export SCAN_CRON_CIS_RESULT=$?; fi
+            echo "Cron CIS Benchmark Scan return code: $SCAN_CRON_CIS_RESULT" | tee -a /tmp/results/scan-cron-container-cis.log
+            cat /tmp/results/scan-cron-container-cis.log
+            exit 0
+      - run:
+          name: Push Cron Container to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            export DOCKER_CONTENT_TRUST=1
+            ./bin/cloudgov/container-push-cron << pipeline.number >> latest
+      - install-cloud-foundry
+      - save-image-digest
+      - store_artifacts:
+          path: /tmp/results
+
+  deploy-to-cloudgov-dr-cron:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - deploy-cloudgov-cron:
           envname: dr
 
-  deploy-cron-to-cloudgov-dev:
+  deploy-to-cloudgov-dev-cron:
     machine:
       image: ubuntu-2204:current
-    environment:
-      BASH_ENV: /home/circleci/project/env.local
     steps:
-      - deploy-cron:
+      - deploy-cloudgov-cron:
           envname: dev
 
-  deploy-cron-to-cloudgov-stage:
+  deploy-to-cloudgov-stage-cron:
     machine:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - deploy-cron:
+      - deploy-cloudgov-cron:
           envname: stage
 
-  deploy-cron-to-cloudgov-prod:
+  deploy-to-cloudgov-prod-cron:
     machine:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - deploy-cron:
+      - deploy-cloudgov-cron:
           envname: prod
+
 
 workflows:
   version: 2
@@ -759,84 +812,95 @@ workflows:
             branches:
               only: prod
 
-  build-and-deploy-cron:
-    jobs:
-      - approve-deploy-cron:
-          type: approval
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
-      - deploy-cron-to-env:
-          requires:
-            - approve-deploy-cron
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
-      - approve-dev-deploy-cron:
-          type: approval
-          requires:
-            - deploy-cron-to-env
-          filters:
-            branches:
-              only:
-              - dev
-      - deploy-cron-to-cloudgov-dev:
-          requires:
-            - approve-dev-deploy-cron
-          filters:
-            branches:
-              only:
-              - dev
-      - approve-dr-deploy-cron:
-          type: approval
-          requires:
-            - deploy-cron-to-env
-          filters:
-            branches:
-              only:
-              - dr
-      - deploy-cron-to-cloudgov-dr:
-          requires:
-            - approve-dr-deploy-cron
-          filters:
-            branches:
-              only:
-              - dr
-      - approve-stage-deploy-cron:
-          type: approval
-          requires:
-            - deploy-cron
-          filters:
-            branches:
-              only:
-              - stage
-      - deploy-cron-to-cloudgov-stage:
-          requires:
-            - approve-stage-deploy-cron
-          filters:
-            branches:
-              only:
-              - stage
-      - approve-prod-deploy-cron:
-          type: approval
-          requires:
-            - deploy-cron-to-env
-          filters:
-            branches:
-              only:
-              - prod
-      - deploy-cron-to-cloudgov-prod:
+
           requires:
             - approve-prod-deploy-cron
           filters:
             branches:
               only:
               - prod
+
+  build-and-deploy-cron:
+    jobs:
+      - approve-build-and-push-container-cron:
+          type: approval
+          filters:
+            branches:
+              only:
+                - dr
+                - dev
+                - stage
+                - prod
+      - build-and-push-container-cron:
+          requires:
+            - approve-build-and-push-container-cron
+          filters:
+            branches:
+              only:
+                - dr
+                - dev
+                - stage
+                - prod
+      - approve-dev-deployment-cron:
+          type: approval
+          requires:
+            - build-and-push-container-cron
+          filters:
+            branches:
+              only:
+              - dev
+      - approve-dr-deployment-cron:
+          type: approval
+          requires:
+            - build-and-push-container-cron
+          filters:
+            branches:
+              only:
+              - dr
+      - deploy-to-cloudgov-dev-cron:
+          requires:
+            - approve-dev-deployment-cron
+          filters:
+            branches:
+              only:
+              - dev
+      - deploy-to-cloudgov-dr-cron:
+          requires:
+            - approve-dr-deployment-cron
+          filters:
+            branches:
+              only:
+              - dr
+      - approve-stage-deployment-cron:
+          type: approval
+          requires:
+            - build-and-push-container-cron
+          filters:
+            branches:
+              only: stage
+      - deploy-to-cloudgov-stage-cron:
+          requires:
+            - approve-stage-deployment-cron
+          filters:
+            branches:
+              only: stage
+      - approve-prod-deployment-cron:
+          type: approval
+          requires:
+            - build-and-push-container-cron
+          filters:
+            branches:
+              only: prod
+      - really-approve-prod-deployment-cron:
+          type: approval
+          requires:
+            - approve-prod-deployment-cron
+          filters:
+            branches:
+              only: prod
+      - deploy-to-cloudgov-prod-cron:
+          requires:
+            - really-approve-prod-deployment-cron
+          filters:
+            branches:
+              only: prod
