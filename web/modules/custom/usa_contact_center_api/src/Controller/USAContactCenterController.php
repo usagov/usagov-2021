@@ -55,6 +55,47 @@ class USAContactCenterController extends ControllerBase {
       $query->condition('deleted_time', $date, '>=');
     }
     $result = $query->execute()->fetchAll();
+
+    // We want to show a property of "updated_time" instead of "deleted_time" as per USAGOV-1936.
+    foreach ( $result as &$item ) {
+      $item = (array)$item;
+      $item['updated_time'] = $item['deleted_time'];
+      unset($item['deleted_time']);
+    }
+
+    $wrapped_result = ['data' => $result];
+    return new JsonResponse($wrapped_result);
+  }
+
+  /**
+   * Process the get all the archived nodes request.
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The response.
+   */
+  public function getArchivedNodes() {
+
+    $query = $this->connection->select('node_field_data', 'n')
+      ->fields('n', ['nid', 'title', 'type', 'changed'])
+      ->orderBy('changed', 'DESC');
+
+    $query->condition('status', '0', '=');
+    $query->condition('type', 'basic_page', '=');
+
+    $date = \Drupal::request()->query->get('archived');
+    if (isset($date) && is_numeric($date)) {
+      $query->condition('changed', $date, '>=');
+    }
+
+    $result = $query->execute()->fetchAll();
+
+    // We want to show a property of "updated_time" instead of "changed" as per USAGOV-1936.
+    foreach ( $result as &$item ) {
+      $item = (array)$item;
+      $item['updated_time'] = $item['changed'];
+      unset($item['changed']);
+    }
+
     $wrapped_result = ['data' => $result];
     return new JsonResponse($wrapped_result);
   }
