@@ -32,7 +32,7 @@ SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
 shift
 ORG=$(getOrg)
-
+CF_EGRESS_ORG=${CF_EGRESS_ORG:-$ORG}
 STAG=${1:-latest}
 SDIGEST=${2:-}
 
