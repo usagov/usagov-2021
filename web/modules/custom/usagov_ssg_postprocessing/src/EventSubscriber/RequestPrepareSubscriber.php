@@ -2,7 +2,7 @@
 
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
-use Drupal\Core\Menu\MenuActiveTrailInterface;
+use Drupal\Core\Cache\CacheCollectorInterface;
 use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class RequestPrepareSubscriber implements EventSubscriberInterface {
 
   public function __construct(
-    private MenuActiveTrailInterface $menu_active_trail,
+    private CacheCollectorInterface $menu_active_trail,
   ) {
 
   }
