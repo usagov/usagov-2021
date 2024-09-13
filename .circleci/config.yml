@@ -84,6 +84,18 @@ commands:
             aws s3 cp /tmp/results/www_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/www-<< pipeline.number >>
             aws s3 cp /tmp/results/cron_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cron-<< pipeline.number >>
 
+  save-image-digest-cron:
+    steps:
+      - run:
+          name: Save Image Digest Cron
+          command: |
+            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >>)
+            CRON_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            echo "$CRON_DIGEST" > /tmp/results/cron_digest
+            aws s3 cp /tmp/results/cron_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cron-<< pipeline.number >>
   load-image-digest:
     steps:
       - run:
@@ -591,7 +603,7 @@ jobs:
             export DOCKER_CONTENT_TRUST=1
             ./bin/cloudgov/container-push-cron << pipeline.number >> latest
       - install-cloud-foundry
-      - save-image-digest
+      - save-image-digest-cron
       - store_artifacts:
           path: /tmp/results
 
