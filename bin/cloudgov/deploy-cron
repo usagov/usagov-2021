@@ -96,7 +96,7 @@ if existsCFService ${APPNAME}-service-account; then
   SERVICE_USER=$( echo ${SERVICE_KEY} | jq -r '.credentials.username')
   #$echo cf set-space-role ${SERVICE_USER} $ORG $SPACE SpaceAuditor
   #$echo cf set-org-role ${SERVICE_USER} $ORG OrgAuditor
-  $echo cf unset-space-role ${SERVICE_USER} $ORG $SPACE SpaceDeveloper
+  #$echo cf unset-space-role ${SERVICE_USER} $ORG $SPACE SpaceDeveloper
 else
   echo could not create Service Account for ${APPNAME} in ${SPACE}
   exit 1
