@@ -73,16 +73,6 @@ bin/cloudgov/container-build-${APPNAME} $CONTAINERTAG
 bin/cloudgov/container-push-${APPNAME} $CONTAINERTAG
 
 bin/cloudgov/deploy-${APPNAME} $SPACE $CONTAINERTAG
-
-RETVAL=0
-if existsCFService log-shipper-drain &> /dev/null; then
-    echo "Attaching $APPNAME to log drain service"
-    cf bind-service $APPNAME log-shipper-drain
-else
-    echo "Log Drain Service not found"
-    RETVAL=1
-fi
-
 cf restage ${APPNAME}
 
 popspace

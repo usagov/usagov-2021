@@ -136,6 +136,8 @@ if [ -n "${DRYRUN}" ]; then
     output="echo # "
 fi
 
+retval=0
+
 # add proxy setting to each app and restart
 $output cf target -o "$startorg" -s "$startspace" 2>&1 > /dev/null
 for app in $applist; do
@@ -145,9 +147,22 @@ for app in $applist; do
     $output cf set-env "$app" AWS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
     $output cf set-env "$app" REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
+    ### Ensure that our primary apps are all attached to the log drain service!
+    service=log-shipper-drain
+    if ! cf service $service &> /dev/null; then
+      echo "Cannot bind $app with non-existant service $service"
+      retval=1
+    else
+      echo "Binding $app with $service"
+      $output cf bind-service $app $service
+      retval=$?
+    fi
+
     if [ $restartRequired -eq 1 ]; then
       $output cf restart "$app" --no-wait --strategy rolling
     fi
 done
 
 popspace
+
+exit $retval

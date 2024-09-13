@@ -39,6 +39,8 @@ SDIGEST=${2:-}
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
+echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+
 export APPNAME="cron"
 export APPINSTANCES=1
 
