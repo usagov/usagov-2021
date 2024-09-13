@@ -282,7 +282,7 @@ display:
           exclude: false
           alter:
             alter_text: false
-            text: '<a href="{{ field_b_search_title__value }}" data-analytics=">{{ field_b_search_title }}</a>'
+            text: ''
             make_link: false
             path: ''
             absolute: false
