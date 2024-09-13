@@ -24,6 +24,8 @@ SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
 shift
 
+echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+
 APPNAME=cron
 
 CONTAINERTAG=${1}
