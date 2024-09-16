@@ -66,6 +66,33 @@ function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Adds a expand/collapse all button to overview form.
+ */
+function usagov_wizard_form_taxonomy_overview_terms_alter(&$form, &$form_state) {
+  $form['expand_collapse_all'] = [
+    '#title' => t('Expand/Collapse All'),
+    '#type' => 'button',
+    '#value' => 'Expand/Collapse',
+    '#attributes' => [
+      // Don't submit the form on click.
+      'onclick' => 'return false;',
+      'class' => [
+        'button',
+        'usa-button',
+      ],
+    ],
+    '#attached' => [
+      'library' => [
+        'usagov_wizard/expand_collapse',
+      ],
+    ],
+    '#weight' => -10,
+  ];
+}
+
+/**
  * Implements hook_theme_suggestions_alter().
  */
 function usagov_wizard_theme_suggestions_html_alter(array &$suggestions, array &$variables) {
