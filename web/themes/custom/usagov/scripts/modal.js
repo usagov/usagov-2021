@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     let modalName = removeUrlParameter('modal');
+    if (modalName === null) return;
+    modalName = modalName.replace(/[^a-zA-Z0-9_-]/g, '');
     openModal(modalID(modalName));
 });
 
@@ -27,6 +29,7 @@ function removeUrlParameter(parameterName) {
 
     const urlParams = new URLSearchParams(window.location.search);
     const parameterValue = urlParams.get(parameterName);
+    if (parameterValue === null) return null;
     urlParams.delete(parameterName);
     let newURL = window.location.pathname;
     if (urlParams.size) {
