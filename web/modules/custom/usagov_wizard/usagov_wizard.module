@@ -90,6 +90,26 @@ function usagov_wizard_form_taxonomy_overview_terms_alter(&$form, &$form_state) 
     ],
     '#weight' => -10,
   ];
+
+  $form['unpublished_toggler'] = [
+    '#title' => t('Unpublished/All'),
+    '#type' => 'button',
+    '#value' => 'Unpublished/All',
+    '#attributes' => [
+      // Toggle to hide/unhide published nodes.
+      'onclick' => 'return false;',
+      'class' => [
+        'button',
+        'usa-button',
+      ],
+    ],
+    '#attached' => [
+      'library' => [
+        'usagov_wizard/unpublished_toggler',
+      ],
+    ],
+    '#weight' => -10,
+  ];
 }
 
 /**
