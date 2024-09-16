@@ -24,6 +24,9 @@ SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
 shift
 
+DOCKERUSER=${DOCKERUSER:-gsatts}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
 echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username $DOCKERHUB_USERNAME --password-stdin
 
 APPNAME=cron
@@ -51,6 +54,9 @@ trap popspace err
 
 cf t -s $SPACE
 
+# launch the app
+echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}"
+
 FULL_REBUILD=$1
 if [ x$FULL_REBUILD = "x--full" ]; then
     STATE_STORAGE_SERVICE=${APPNAME}-state-storage
@@ -70,6 +76,8 @@ if [ x$FULL_REBUILD = "x--full" ]; then
     cf delete-service ${APPNAME}-service-account -f
     cf delete ${APPNAME} -f
 fi
+
+exit
 
 bin/cloudgov/container-build-${APPNAME} $CONTAINERTAG
 bin/cloudgov/container-push-${APPNAME} $CONTAINERTAG

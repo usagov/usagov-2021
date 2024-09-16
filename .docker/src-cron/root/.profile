@@ -69,9 +69,22 @@ echo S3_BUCKET: $S3_BUCKET
 CF_API="https://api.fr.cloud.gov"
 CF_ORG=gsa-tts-usagov
 
-cf api "$CF_API"
-cf auth "$CF_USERNAME" "$CF_PASSWORD"
-cf target -o "$CF_ORG" -s "$CF_SPACE"
+API_RESULT=0
+AUTH_RESULT=0
+TARGET_RESULT=0
+
+cf api "$CF_API" &> /dev/null
+API_RESULT=$?
+
+cf auth "$CF_USERNAME" "$CF_PASSWORD" &> /dev/null
+AUTH_RESULT=$?
+
+cf target -o "$CF_ORG" -s "$CF_SPACE" &> /dev/null
+TARGET_RESULT=$?
+
+if [ 0 -ne $API_RESULT -o 0 -ne $AUTH_RESULT -o 0 -ne $TARGET_RESULT ]; then
+   echo "ERROR: Cloud Foundry Initialization Failed"
+fi
 
 ### aws cli does not want proxy envs
 function aws_cp() {
