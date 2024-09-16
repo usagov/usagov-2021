@@ -61,10 +61,10 @@ case $TASK in
 esac
 
 echo S3_BUCKET: $S3_BUCKET
-echo S3_ENDPOINT: $S3_ENDPOINT
-echo AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-echo AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
-echo AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+#echo S3_ENDPOINT: $S3_ENDPOINT
+#echo AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+#echo AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+#echo AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
 
 CF_API="https://api.fr.cloud.gov"
 CF_ORG=gsa-tts-usagov
@@ -123,4 +123,4 @@ TASKLOCK_SCRIPT_ROOT=/opt/cron
 ### Maybe we should be using /var/run/tasks/ on the container?
 TASKLOCK_RUN_ROOT=/tmp/tasks/run
 
-echo "Cron App Setup Complete"
+#echo "Cron App Setup Complete"

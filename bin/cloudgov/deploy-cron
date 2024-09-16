@@ -54,10 +54,10 @@ fi
 function setHTTPProxy() {
     appSpace=$1
     appOrg=$2
-    appName=$2
-    proxySet=$3
-    proxySpace=$4
-    proxyOrg=$5
+    appName=$3
+    proxySet=$4
+    proxySpace=$5
+    proxyOrg=$6
     proxyName="${SPACE}-proxy"
     if [ "$proxySet" = "1" ]; then
         echo "Setting http_proxy to $proxyName"
