@@ -7,7 +7,7 @@ paths.forEach(path => {
   } else {
     lang = "Español";
   }
-  describe(`${lang} Federal Directory [ENG]`, () => {
+  describe(`${lang} Federal Directory`, () => {
     // Set base URL
     beforeEach(() => {
       cy.visit(path);
