@@ -17,7 +17,7 @@ shift
 TASKPID=${1}
 TASKLOCK="$TASKSDIR/$TASKNAME"
 
-echo "Clean task: $TASKNAME / $TASKPID"
+#echo "Clean task: $TASKNAME / $TASKPID"
 
 rm -f $TASKLOCK/$TASKPID
 PIDS=$(ls $TASKLOCK)

@@ -51,34 +51,6 @@ else
   APPSPEC="${DOCKERUSER}/${DOCKERREPO}${SDIGEST}"
 fi
 
-function setHTTPProxy() {
-    appSpace=$1
-    appOrg=$2
-    appName=$3
-    proxySet=$4
-    proxySpace=$5
-    proxyOrg=$6
-    proxyName="${SPACE}-proxy"
-
-    cf target -s $proxySpace -o $proxyOrg > /dev/null 2>&1;
-    proxyroute=$(cf env $proxyName | grep proxy_route | awk '{print $2}')
-
-    if [ -z "$proxyroute" ]; then
-      echo "ERROR: $proxyName does not have a proxy_route set"
-      exit 1
-    fi;
-
-    cf target -s $appSpace -o $appOrg > /dev/null 2>&1
-
-    if [ "$proxySet" = "1" ]; then
-        echo "Setting http_proxy to $proxyName"
-        cf set-env $appName PROXYROUTE $proxyroute
-    elif [ "$proxySet" = "0" ]; then
-        echo "Setting http_proxy to empty"
-        cf unset-env $appName PROXYROUTE
-    fi;
-}
-
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}"
 
@@ -91,9 +63,10 @@ fi
 if existsCFService ${APPNAME}-service-account; then
   SERVICE_KEY=$(cf service-key ${APPNAME}-service-account ${APPNAME}-service-key | tail -n +3)
   SERVICE_USER=$( echo ${SERVICE_KEY} | jq -r '.credentials.username')
-  #$echo cf set-space-role ${SERVICE_USER} $ORG $SPACE SpaceAuditor
-  #$echo cf set-org-role ${SERVICE_USER} $ORG OrgAuditor
-  #$echo cf unset-space-role ${SERVICE_USER} $ORG $SPACE SpaceDeveloper
+  ### target our roles a bit:
+  $echo cf set-space-role ${SERVICE_USER} $ORG $SPACE SpaceAuditor
+  $echo cf set-org-role ${SERVICE_USER} $ORG OrgAuditor
+  echo cf unset-space-role ${SERVICE_USER} $ORG $SPACE SpaceDeveloper
 else
   echo could not create Service Account for ${APPNAME} in ${SPACE}
   exit 1
@@ -135,10 +108,16 @@ function cf_push() {
 
 if existsCFApp ${APPNAME} ; then
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
-  setHTTPProxy ${SPACE} ${ORG} ${APPNAME} 1 ${CF_EGRESS_SPACE} ${CF_EGRESS_ORG}
   cf_push $APPSPEC $APPINSTANCES
 else
   cf_push $APPSPEC $APPINSTANCES
-  setHTTPProxy ${SPACE} ${ORG} ${APPNAME} 1 ${CF_EGRESS_SPACE} ${CF_EGRESS_ORG}
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
 fi
+
+### These are set for some reason - unsert them at deployment
+cf unset-env $APPNAME HTTP_PROXY
+cf unset-env $APPNAME HTTPS_PROXY
+cf unset-env $APPNAME http_proxy
+cf unset-env $APPNAME https_proxy
+
+cf restage $APPNAME

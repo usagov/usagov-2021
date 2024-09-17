@@ -55,4 +55,4 @@ fi
 
 ### add pid file with task process' pid, continue normally
 touch $TASKLOCK/$TASKPID
-echo "Created lock $TASKLOCK/$TASKPID"
+#echo "Created lock $TASKLOCK/$TASKPID"

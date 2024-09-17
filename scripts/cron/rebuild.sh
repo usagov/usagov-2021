@@ -77,8 +77,6 @@ if [ x$FULL_REBUILD = "x--full" ]; then
     cf delete ${APPNAME} -f
 fi
 
-exit
-
 bin/cloudgov/container-build-${APPNAME} $CONTAINERTAG
 bin/cloudgov/container-push-${APPNAME} $CONTAINERTAG
 

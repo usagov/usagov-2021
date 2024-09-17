@@ -8,7 +8,7 @@ if [ x$SPACE = x ]; then
    SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
 fi
 
-source ~/.profile cron $SPACE &> /dev/null
+source ~/.profile $SPACE cron &> /dev/null
 
 echo SPACE REQUESTED        $SPACE
 echo CF_API                 $CF_API
