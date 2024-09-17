@@ -82,8 +82,8 @@ class USAContactCenterController extends ControllerBase {
     $result = $query->execute()->fetchAll();
 
     // We want to show a property of "updated_time" instead of "changed" as per USAGOV-1936.
-    foreach ( $result as &$item ) {
-      $item = (array)$item;
+    foreach ($result as &$item) {
+      $item = (array) $item;
       $item['updated_time'] = $item['changed'];
       unset($item['changed']);
     }
