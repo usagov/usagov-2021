@@ -5,3 +5,11 @@ expand_collapse:
     - core/jquery
     - core/once
     - hierarchy_manager/libraries.jquery.jstree
+
+unpublished_toggler:
+  js:
+    js/unpublished_toggler.js: {}
+  dependencies:
+    - core/jquery
+    - core/once
+    - hierarchy_manager/libraries.jquery.jstree
