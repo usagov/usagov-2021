@@ -13,6 +13,14 @@ if [ x$TASK = x ]; then
    TASK=cron
 fi
 
+### If we detect PROXYROUTE env var, then set HTTP/S Proxy vars:
+if [ -n "$PROXYROUTE" ]; then
+   export HTTPS_PROXY=$PROXYROUTE
+   export HTTP_PROXY=$PROXYROUTE
+   export https_proxy=$PROXYROUTE
+   export http_proxy=$PROXYROUTE
+fi
+
 if [ "$BASH" ]; then
   if [ -f ~/.bashrc ]; then
     . ~/.bashrc

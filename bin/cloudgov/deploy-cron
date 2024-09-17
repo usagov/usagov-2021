@@ -59,26 +59,23 @@ function setHTTPProxy() {
     proxySpace=$5
     proxyOrg=$6
     proxyName="${SPACE}-proxy"
+
+    cf target -s $proxySpace -o $proxyOrg > /dev/null 2>&1;
+    proxyroute=$(cf env $proxyName | grep proxy_route | awk '{print $2}')
+
+    if [ -z "$proxyroute" ]; then
+      echo "ERROR: $proxyName does not have a proxy_route set"
+      exit 1
+    fi;
+
+    cf target -s $appSpace -o $appOrg > /dev/null 2>&1
+
     if [ "$proxySet" = "1" ]; then
         echo "Setting http_proxy to $proxyName"
-        cf target -s $proxySpace -o $proxyOrg > /dev/null 2>&1;
-        proxyroute=$(cf env $proxyName | grep proxy_route | awk '{print $2}')
-        if [ -z "$proxyroute" ]; then
-            echo "ERROR: $proxyName does not have a proxy_route set"
-            exit 1
-        fi;
-        cf target -s $appSpace -o $appOrg > /dev/null 2>&1
-        cf set-env $appName https_proxy $proxyroute
-        cf set-env $appName HTTPS_PROXY $proxyroute
-        cf set-env $appName http_proxy $proxyroute
-        cf set-env $appName HTTP_PROXY $proxyroute
+        cf set-env $appName PROXYROUTE $proxyroute
     elif [ "$proxySet" = "0" ]; then
         echo "Setting http_proxy to empty"
-        cf target -s $appSpace -o $appOrg > /dev/null 2>&1
-        cf unset-env $appName https_proxy
-        cf unset-env $appName HTTPS_PROXY
-        cf unset-env $appName http_proxy
-        cf unset-env $appName HTTP_PROXY
+        cf unset-env $appName PROXYROUTE
     fi;
 }
 
