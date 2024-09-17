@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# For task-based apps, provide a means of querying the run-time environment of the task
-# e.g.  cf run-task my-app "/opt/myapp/app-status"
+# Run this script as a task to query the run-time environment.
+# e.g., cf run-task my-app "/opt/cfevents/app-status"
 
 SPACE=$1
 if [ x$SPACE = x ]; then
