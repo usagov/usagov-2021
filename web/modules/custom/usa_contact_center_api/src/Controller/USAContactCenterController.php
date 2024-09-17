@@ -55,14 +55,6 @@ class USAContactCenterController extends ControllerBase {
       $query->condition('deleted_time', $date, '>=');
     }
     $result = $query->execute()->fetchAll();
-
-    // We want to show a property of "updated_time" instead of "deleted_time" as per USAGOV-1936.
-    foreach ( $result as &$item ) {
-      $item = (array)$item;
-      $item['updated_time'] = $item['deleted_time'];
-      unset($item['deleted_time']);
-    }
-
     $wrapped_result = ['data' => $result];
     return new JsonResponse($wrapped_result);
   }
