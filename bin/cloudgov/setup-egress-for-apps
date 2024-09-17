@@ -153,9 +153,11 @@ for app in $applist; do
       echo "Cannot bind $app with non-existant service $service"
       retval=1
     else
-      echo "Binding $app with $service"
-      $output cf bind-service $app $service
-      retval=$?
+      if [ "$app" != "log-shipper" ]; then
+        echo "Binding $app with $service"
+        $output cf bind-service $app $service
+        retval=$?
+      fi
     fi
 
     if [ $restartRequired -eq 1 ]; then
