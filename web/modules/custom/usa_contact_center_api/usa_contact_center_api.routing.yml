@@ -11,3 +11,10 @@ usa_contact_center_api.wait_times:
     _controller: 'Drupal\usa_contact_center_api\Controller\USAContactCenterController::getWaitTime'
   requirements:
     _permission: 'access content'
+
+usa_contact_center_api.archived_nodes:
+  path: '/jsonapi/archived-nodes'
+  defaults:
+    _controller: 'Drupal\usa_contact_center_api\Controller\USAContactCenterController::getArchivedNodes'
+  requirements:
+    _permission: 'access content'
