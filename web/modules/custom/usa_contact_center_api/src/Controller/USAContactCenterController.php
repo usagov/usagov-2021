@@ -59,6 +59,13 @@ class USAContactCenterController extends ControllerBase {
     return new JsonResponse($wrapped_result);
   }
 
+  public function getWaitTime() {
+    $content = file_get_contents('public://waittime.json');
+    $response = new JsonResponse($content);
+    $response->headers->set('Access-Control-Allow-Origin', '*');
+    return $response;
+  }
+
   /**
    * Process the get all the archived nodes request.
    *
