@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - block_content.type.modal
     - block_content.type.site_banner
     - media.type.audio
     - media.type.file
@@ -75,6 +76,7 @@ permissions:
   - 'create file media'
   - 'create image media'
   - 'create media'
+  - 'create modal block content'
   - 'create remote_video media'
   - 'create site_banner block content'
   - 'create state_directory_record content'
@@ -98,6 +100,8 @@ permissions:
   - 'delete any file media'
   - 'delete any image media'
   - 'delete any media'
+  - 'delete any modal block content'
+  - 'delete any modal block content revisions'
   - 'delete any remote_video media'
   - 'delete any site_banner block content'
   - 'delete any site_banner block content revisions'
@@ -147,6 +151,7 @@ permissions:
   - 'edit any directory_record content'
   - 'edit any file media'
   - 'edit any image media'
+  - 'edit any modal block content'
   - 'edit any remote_video media'
   - 'edit any site_banner block content'
   - 'edit any state_directory_record content'
@@ -173,6 +178,7 @@ permissions:
   - 'edit terms in wizard'
   - 'revert agency_synonym revisions'
   - 'revert all revisions'
+  - 'revert any modal block content revisions'
   - 'revert any site_banner block content revisions'
   - 'revert basic_page revisions'
   - 'revert bears_agency revisions'
@@ -204,6 +210,7 @@ permissions:
   - 'view agency_synonym revisions'
   - 'view all media revisions'
   - 'view all revisions'
+  - 'view any modal block content history'
   - 'view any site_banner block content history'
   - 'view any unpublished content'
   - 'view basic_page revisions'
