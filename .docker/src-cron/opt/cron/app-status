@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # For task-based apps, provide a means of querying the run-time environment of the task
-# e.g.  cf run-task my-app "/opt/myapp/app-status"
+# e.g.  cf run-task my-app -c "/opt/myapp/app-status"
 
 SPACE=$1
 if [ x$SPACE = x ]; then
@@ -17,10 +17,10 @@ echo
 echo S3_BUCKET              $S3_BUCKET
 echo S3_ENDPOINT            $S3_ENDPOINT
 echo
-echo HTTP_PROXY             $HTTP_PROXY
-echo HTTPS_PROXY            $HTTPS_PROXY 
-echo http_proxy             $http_proxy
-echo https_proxy            $https_proxy
+
+if [ -n "$HTTPS_PROXY" ]; then
+    echo "HTTP/S Proxy environment variables are present"
+fi
 
 cf -v
 echo
