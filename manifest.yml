@@ -108,6 +108,7 @@ applications:
   memory: 128M
   disk_quota: 4G
   timeout: 180
+  no-route: true
   services:
     - cron-state-storage
     - cron-event-storage
