@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+###
+### This is an unlocking postamble script, corresponding to the preable lock-singleton-task
+###
+
+TASKSDIR=${TASKLOCK_RUN_ROOT:-/tmp/tasks/run} # on the container, maybe this should be /var/run?
+mkdir -p $TASKSDIR
+
+TASKNAME=${1}
+if [ x"$TASKNAME" = x ]; then
+  echo "No task provided on the commandline. No action taken"
+  exit 3
+fi
+shift
+
+TASKPID=${1}
+TASKLOCK="$TASKSDIR/$TASKNAME"
+
+#echo "Clean task: $TASKNAME / $TASKPID"
+
+rm -f $TASKLOCK/$TASKPID
+PIDS=$(ls $TASKLOCK)
+if [ -z "$PIDS" ]; then
+  rmdir "$TASKLOCK"
+fi

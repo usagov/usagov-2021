@@ -19,8 +19,10 @@ https://cm-jira.usa.gov/browse/USAGOV-
 - [ ] Infrastructure
   - [ ] CMS
   - [ ] WAF
+  - [ ] WWW
   - [ ] Egress
   - [ ] Tools
+  - [ ] Cron
 - [ ] Other
 
 ## Testing Instructions
