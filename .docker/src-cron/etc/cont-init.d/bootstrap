@@ -1,0 +1,4 @@
+#!/usr/bin/execlineb -P
+
+with-contenv
+/bin/sh -c "/opt/cron/bootstrap.sh 2>&1 | tee /tmp/bootstrap.log"
