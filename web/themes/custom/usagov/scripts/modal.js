@@ -56,6 +56,7 @@ function openModal(modalID) {
 
     if (modalID === null) return;
     if (!modalIsOpen(modalID)) {
+        dataLayer.push({'usa_modal_status': 'has_opened'});
         toggleModal(modalID);
 
         // Set focus to the first focusable element for accessibility
