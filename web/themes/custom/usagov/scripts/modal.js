@@ -7,6 +7,7 @@
  * rather than the modal's name, so we rely on the modalID function to get the ID for a
  * given modal name.
  */
+let modalName;
 
 document.addEventListener('DOMContentLoaded', function() {
     "use strict";
@@ -17,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.hidden = false;
     });
 
-    let modalName = removeUrlParameter('modal');
+    modalName = removeUrlParameter('modal');
     if (modalName === null) return;
     modalName = modalName.replace(/[^a-zA-Z0-9_-]/g, '');
     openModal(modalID(modalName));
