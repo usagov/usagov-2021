@@ -373,49 +373,27 @@ window.addEventListener("load", function () {
     "use strict";
 
     let clearButtonWrappers = document.getElementsByClassName("usa-combo-box__clear-input__wrapper");
-    for (let i = 0; i < clearButtonWrappers.length; i++) {
-        clearButtonWrappers[i].remove();
+    for (const clearButtonWrapper of clearButtonWrappers) {
+        clearButtonWrapper.remove();
     }
 
     // Include the dropdown menu's toggle button in the tab order
     let toggleButtons = document.getElementsByClassName("usa-combo-box__toggle-list");
-    for (let i = 0; i < toggleButtons.length; i++) {
-        toggleButtons[i].removeAttribute("tabindex");
+    for (const toggleButton of toggleButtons) {
+        toggleButton.removeAttribute("tabindex");
     }
+
 
     // Code for autocomplete state fields
-    var isFirefox = typeof InstallTrigger !== 'undefined';
-
+    let isChromeOrEdge = navigator.userAgent.includes("Chrome");
     // Change attributes so that autofill works in state input
-    let stateSelectBox = document.getElementsByName("select-dropdown")[0];
-    stateSelectBox.setAttribute("autocomplete","country");
+    if (isChromeOrEdge) {
+        let stateSelectBox = document.getElementsByName("select-dropdown")[0];
+        stateSelectBox.setAttribute("autocomplete","country");
 
-    let stateInputBox = document.getElementById("input-state");
-    stateInputBox.setAttribute("autocomplete","address-level1");
-
-    if (isFirefox) {
-        // setting autocomplete to off for firefox
-        stateSelectBox.setAttribute("autocomplete","address-level1");
+        let stateInputBox = document.getElementById("input-state");
         stateInputBox.setAttribute("autocomplete","address-level1");
     }
-
-    // Code for output -- delete later
-    const stateInput = document.getElementById("input-state");
-    const stateSelect = document.getElementsByName("select-dropdown")[0];
-
-    stateInput.addEventListener("change", function (e) {
-      console.log(`The input CHANGED value ${e.target.value}`);
-    });
-    stateInput.addEventListener("input", function (e) {
-      console.log(`The input has value ${e.target.value}`);
-    });
-
-    stateSelect.addEventListener("change", function (e) {
-      console.log(`The select CHANGED value ${e.target.value}`);
-    });
-    stateSelect.addEventListener("input", function (e) {
-      console.log(`The select has value ${e.target.value}`);
-    });
 });
 
 (function() {
