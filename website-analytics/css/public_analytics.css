@@ -284,6 +284,7 @@ header h1 {
 }
 header h1 a {
   display: inline-block;
+  text-decoration: none;
 }
 header h1 img {
   vertical-align: middle;
@@ -295,10 +296,7 @@ header h1 {
   font-weight: 300;
   text-decoration: none;
 }
-header h1:hover {
-  text-decoration: underline;
-  color: #112e51;
-}
+
 header h1:visited {
   color: #112e51;
 }
@@ -385,7 +383,7 @@ header .agency-selector-wrap {
   display: inline-block;
 }
 
-#agency-selector:focus{
+#agency-selector:focus {
   box-shadow: none;
   outline: 2px solid #0186a2;
 }
@@ -987,11 +985,11 @@ a {
   outline: 2px solid #0186a2;
 }
 
-#chart_windows{
+#chart_windows {
   display: flex;
   justify-content: flex-end;
 }
 
-.windows-div{
+.windows-div {
   flex-basis: 85%;
 }
