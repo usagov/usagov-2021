@@ -497,13 +497,17 @@ ${benefit.term_node_tid}
     let elt = document.createElement('template');
     elt.innerHTML = `<div class="usa-alert usa-alert--slim usa-alert--error margin-bottom-4">
         <div class="usa_alert__body" data-analytics="errorMessage">
-           <h4 class="usa-alert__heading padding-left-6">${myself.labels.emptyCategoryError}</h4>
+           <h3 tabindex="-1" class="usa-alert__heading padding-left-6">${myself.labels.emptyCategoryError}</h3>
         </div>
     </div>`;
-    myself.form.querySelector('.alert-container').prepend(elt.content);
+
+    let container = myself.form.querySelector('.alert-container')
+    container.prepend(elt.content);
 
     const fieldset = myself.form.querySelector('div[role="group"]');
     fieldset.classList.add('benefits-category-error');
+
+    container.querySelector('.usa-alert__heading').focus();
 
     // sending data to GTM when the error message appears
     if (dataLayer != null && document.querySelector('[data-analytics="errorMessage"]')) {

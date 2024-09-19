@@ -1,6 +1,9 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
-source ~/.profile &> /dev/null
+# Retreive Event Log entries from the Cloud Foundry Events API.
+
+# This is located under bin/ so it can be called locally. However, it is
+# copied into /opt/cfevents/ during docker image creation for the cron app
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -32,15 +35,15 @@ SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 if [ $SPACE = 'none_specified' ]; then
   echo "Please provide a CF Space name as the first argument"
   exit 3
-else
-  SFAIL=0
-  cf space $SPACE &>/dev/null || SFAIL=1
-  if [ $SFAIL = 1 ]; then
-    echo "ERROR: CF space '$SPACE' does not exist!"
-    exit 4
-  fi
 fi
 shift
+
+SFAIL=0
+cf space $SPACE &>/dev/null || SFAIL=1
+if [ $SFAIL = 1 ]; then
+  echo ": CF space '$SPACE' does not exist!"
+  exit 4
+fi
 
 # Grab the starting space and org where the command was run
 startorg=$(     cf target | grep org:   | awk '{ print $2 }')
@@ -79,11 +82,8 @@ export ORG_GUID=$(cf org $CURRENT_ORG --guid)
 ### We'll request logs generated after LAST_EVENT_TIME.  If nothing was 
 ### specified on the command line, start from 24 hours ago
 LAST_EVENT_TIME=$1
-if [ -n "$LAST_EVENT_TIME" ]; then
-  ### Convert to UTC (if it's already UTC, no harm done)
-  LAST_EVENT_TIME=$(TZ=UTC date -d "$LAST_EVENT_TIME" +"%Y-%m-%dT%H:%M:%SZ")
-else
-  LAST_EVENT_TIME=$(TZ=UTC date -d "now - 24 hours" +"%Y-%m-%dT%H:%M:%SZ")
+if [ -z "$LAST_EVENT_TIME" ]; then
+  LAST_EVENT_TIME=$(TZ=UTC date -d "$CFEVENTS_DEFAULT_LASTRUN" +"$CFEVENTS_DATE_FORMAT")
 fi
 
 declare -rA AUDIT_TYPES=(
@@ -103,25 +103,36 @@ declare -rA AUDIT_FIELDS=(
     ["service_instance"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
 )
 
+### Reformat event outoput into key:value pairs that can be more easily ingested by NewRelic (1)
+match='"\(.*\)","\(.*\)","\(.*\)","\(.*\)","\(.*\)","\(.*\)","\(.*\)"'
+replace='"cfevent.metadata.guid":"\1","cfevent.entity.timestamp":"\2","cfevent.entity.type":"\3","cfevent.entity.actee_name":"\4","cfevent.entity.space_name":"\5","cfevent.entity.actor_type":"\6","cfevent.entity.actor_name":"\7"'
+
+# For each category of audit events, perform a (possibly multi-page) query 
 for resource_type in ${!AUDIT_TYPES[@]}; do
     types=${AUDIT_TYPES[$resource_type]}
     fields=${AUDIT_FIELDS[$resource_type]}
 
+    # Manually create the query to fetch the first page of results
     NEXT="/v2/events?&q=type+IN+${types}&q=organization_guid:${ORG_GUID}&q=space_guid:${SPACE_GUID}&q=timestamp>${LAST_EVENT_TIME}&order-by:timestamp"
 
     while [ -n $NEXT -a ! $NEXT == 'null' ]; do
 
         EVENTS=$(cf curl $NEXT)
 
-        captured_events=$(echo "$EVENTS" | jq -r ".resources[] | [$fields] | @csv")
+        ## Reformat event outoput into key:value pairs that can be more easily ingested by NewRelic (2)
+        captured_events=$(echo "$EVENTS" | jq -r ".resources[] | [$fields] | @csv" | sed "s/$match/$replace/g")
 
+        # Replace any cf space guids with the space name
         for SPACE_GUID in "${!SPACE_GUIDS[@]}"; do
           captured_events=$(echo "$captured_events" | sed "s/$SPACE_GUID/${SPACE_GUIDS[$SPACE_GUID]}/")
         done
 
+        # Don't emit an empty list
         if [ "$captured_events" != "" ]; then
           echo "$captured_events"
         fi
+
+        # Each query provides the URL for the next page of results.  Use it to loop through pages
         NEXT=$(echo $EVENTS | jq -r '.next_url')
     done
 done

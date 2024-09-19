@@ -127,7 +127,7 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
     try {
         // USPS API Call
         const url = `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify \
-        &XML=<AddressValidateRequest USERID="${USPS_USERID}" PASSWORD="${USPS_USERID}"><Address><Address1>\
+        &XML=<AddressValidateRequest USERID="${USPS_USERID}" PASSWORD="${USPS_PASSWORD}"><Address><Address1>\
         </Address1><Address2>${streetAddress}</Address2><City>${city}</City><State>${state}\
         </State><Zip5>${zipCode}</Zip5><Zip4></Zip4></Address></AddressValidateRequest>`;
 
@@ -135,7 +135,7 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
         var responseText = response.text();
 
         if (!response.ok || (await responseText).includes("<Error>")) {
-            return "USPS API not working.";
+            return (responseText);
         }
 
         return await responseText;
@@ -166,7 +166,7 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
         response.fieldID = "street";
         response.errorMessage = usps_content["invalid-street"];
     }
-    else if (responseText.includes("Address Not Found.")) {
+    else if (responseText.includes("Address Not Found. ")) {
         response.fieldID = "street";
         response.errorMessage = usps_content["no-street"];
     }
