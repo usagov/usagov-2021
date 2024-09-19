@@ -33,7 +33,7 @@ class UsagovInboundPathProcessor implements InboundPathProcessorInterface {
     // the $request object has already been built.
 
     // If the original URL request is /index.php but the following character is not a slash.
-    if ( substr($_SERVER['REQUEST_URI'], 0, 10) === '/index.php' && substr($_SERVER['REQUEST_URI'], 10, 1) !== '/') {
+    if (substr($_SERVER['REQUEST_URI'], 0, 10) === '/index.php' && substr($_SERVER['REQUEST_URI'], 10, 1) !== '/') {
 
       // Then we will add a slash after the ".php" and redirect the user.
       $sendTo = $_SERVER['REQUEST_URI'];
@@ -45,4 +45,5 @@ class UsagovInboundPathProcessor implements InboundPathProcessorInterface {
 
     return $path;
   }
+
 }
