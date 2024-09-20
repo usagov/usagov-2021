@@ -288,24 +288,24 @@ header img {
   flex: 0 0 100%;
 }
 
-.header-links{
-  gap:10px;
+.header-links {
+  gap: 10px;
 }
 
 /* Tablet - move the dropdown right (770-1024px) */
-@media screen and (min-width: 770px){
+@media screen and (min-width: 770px) {
   .header-logo {
     flex-grow: 1;
   }
 }
 
 /* Desktop   - move the links in line */
-@media screen and (min-width: 1024px){
+@media screen and (min-width: 1024px) {
   .header-right {
     margin-right: 10px;
     gap: 1em;
     flex-grow: 1;
-    padding:0;
+    padding: 0;
   }
 
   .header-dropdown {
@@ -894,8 +894,6 @@ figure figure .bar-chart .bin {
   position: absolute;
   left: -999em;
 }
-
-
 
 .label .domain:focus-within {
   display: inline-block;
