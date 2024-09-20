@@ -263,72 +263,73 @@ header .inner::after {
     padding: 1.5rem;
   }
 }
-header .header-right-wrap {
-  margin-top: 40px;
-}
-header h1 {
+
+h1 {
   float: left;
-  margin: 0 150px 0 0;
+  margin: 0;
   line-height: 5rem;
+  font-size: 3.125em;
 }
+
 @media screen and (max-width: 992px) {
-  header h1 {
+  h1 {
     line-height: 5.5rem;
   }
 }
 @media screen and (max-width: 500px) {
-  header h1 {
+  h1 {
     font-size: 2.8rem;
     padding-top: 4px;
   }
 }
-header h1 a {
+h1 a {
   display: inline-block;
   text-decoration: none;
 }
-header h1 img {
+header img {
   vertical-align: middle;
   width: 140px;
   padding: 20px;
 }
-header h1 {
+
+h1{
   color: #112e51;
   font-weight: 300;
   text-decoration: none;
 }
 
-header h1:visited {
+h1:visited {
   color: #112e51;
 }
 header .agency-selector-wrap {
-  width: 40%;
-  float: left;
+  /* width: 40%;
+  float: left; */
 }
 @media screen and (max-width: 992px) {
   header .agency-selector-wrap {
-    width: 100%;
+    /* width: 100%;
     float: none;
-    clear: both;
+    clear: both; */
   }
 }
 
 .agency-selector-wrap {
-  width: 70%;
+  /* width: 70%; */
 }
 @media screen and (max-width: 992px) {
   .agency-selector-wrap {
-    width: 80%;
+    /* width: 80%; */
   }
 }
 @media screen and (max-width: 768px) {
   .agency-selector-wrap {
-    width: 100%;
+    /* width: 100%; */
   }
 }
 
 .links {
-  float: right;
-  margin: 0 10px 0 0;
+  /* float: right;
+  margin: 0 10px 0 0; */
 }
 @media screen and (max-width: 992px) {
   .links li {
@@ -373,14 +374,16 @@ header .agency-selector-wrap {
 .agency-selector-wrap label {
   position: absolute;
   left: -999em;
+  width: 0;
+  margin:0;
 }
 
 #agency-selector {
   max-width: none;
-  font-size: 22px;
   font-weight: 600;
   color: #112e51;
   display: inline-block;
+  flex-grow: 1;
 }
 
 #agency-selector:focus {
@@ -964,14 +967,31 @@ a {
 
 .select-agency-form {
   display: flex;
-  gap: 1em;
+  gap: 10px;
+  height: 2.5em;
+  flex-wrap: nowrap;
+
+  label {
+    position: absolute;
+    left: -999em;
+    width: 0;
+    margin:0;
+  }
 }
 
 .select-agency-form-button {
   margin: 0.2em 0;
-  border: 1px solid #1b1b1b;
-  background-color: #00bde3;
+  border: 2px solid #377f9d;
+  background-color: #ccecf2;
   color: #1b1b1b;
+  font-size: 0.85em;
+
+  /* line-height: 1.5; */
+  border-radius: .15rem;
+  text-align: center;
+  /* transition: background-color 200ms; */
+  /* padding: .1rem 1.25rem;
+  height: 2.5rem; */
 }
 
 .select-agency-form-button:hover {
@@ -993,3 +1013,37 @@ a {
 .windows-div {
   flex-basis: 85%;
 }
+
+
+/* Header  */
+
+.header-logo{
+  flex-basis: 45%;
+  line-height: 5rem;
+}
+
+.header-parent{
+  display: flex;
+}
+
+.header-child {
+  align-self: center;
+}
+
+.header-right {
+  margin-right: 10px;
+  gap: 1em;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  /* margin-top: 40px; */
+}
+
+.header-dropdown{
+  flex-grow: 1;
+}
+
+.top-header {
+  flex-wrap: wrap;
+}
+
+/* H1 */
