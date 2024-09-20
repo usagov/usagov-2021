@@ -315,40 +315,27 @@ header img {
 }
 
 /* H1 */
-/* h1 {
-  float: left;
-  margin: 0;
-  line-height: 5rem;
-  font-size: 3.125em;
-} */
-
-/* @media screen and (max-width: 992px) {
-  h1 {
-    line-height: 5.5rem;
-  }
-} */
-
-/* @media screen and (max-width: 500px) {
-  h1 {
-    font-size: 2.8rem;
-    padding-top: 4px;
-  }
-} */
-
-/* h1 a {
-  display: inline-block;
-  text-decoration: none;
-} */
-
-/* h1 {
+h1 {
+  margin: 0px;
+  padding: 10px;
+  font-size: 2.5em;
   color: #112e51;
   font-weight: 300;
   text-decoration: none;
-} */
+}
 
-/* h1:visited {
+h1 a {
+  text-decoration: none;
+}
+
+h1:visited {
   color: #112e51;
-} */
+}
+
+.links {
+  /* float: right;
+  margin: 0 10px 0 0; */
+}
 
 @media screen and (max-width: 992px) {
   .links li {
