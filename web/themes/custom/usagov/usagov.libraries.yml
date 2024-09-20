@@ -8,6 +8,7 @@ global-styling:
     scripts/uswds-init.min.js: {}
     scripts/newFooter.js: {}
     scripts/phoneForMobile.js: {}
+    scripts/callCenterWaitTimeLookup.js: {}
     scripts/accessibleButtonLinks.js: {}
   dependencies:
     - core/drupal
@@ -71,3 +72,7 @@ lazyLoadBgImage:
   dependencies:
     - core/drupal
     - core/jquery
+
+modal:
+  js:
+    scripts/modal.js: {}
