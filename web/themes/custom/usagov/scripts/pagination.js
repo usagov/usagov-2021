@@ -99,7 +99,7 @@ function Pagination(total, current, assetBase, labels, onClick) {
       "usa-pagination__item usa-pagination__arrow",
       `<a href="javascript:void(0)" class="usa-pagination__link usa-pagination__next-page"
        aria-label="${this.labels.nextAria}"
-    ><span class="usa-pagination__link-text">${this.labels.next}</span><svg class="usa-icon" aria-hidden="true" role="img">
+    ><span class="usa-pagination__link-text">${this.labels.next}</span><svg class="usa-icon" aria-hidden="true" role="presentation">
           <use xlink:href="${this.assetBase}/assets/img/sprite.svg#navigate_next"></use>
         </svg></a>`
     );
@@ -142,7 +142,7 @@ function Pagination(total, current, assetBase, labels, onClick) {
     if (num === this.current) {
       // highlight this page if it's the current one
       atag.classList.add('usa-current');
-      atag.setAttribute('aria-current', myself.labels.page);
+      atag.setAttribute('aria-current', 'page');
     }
 
     if (isLast) {
@@ -164,7 +164,7 @@ function Pagination(total, current, assetBase, labels, onClick) {
       "usa-pagination__item usa-pagination__arrow",
       `<a href="javascript:void(0)" class="usa-pagination__link usa-pagination__previous-page"
        aria-label="${this.labels.previousAria}"
-    ><svg class="usa-icon" aria-hidden="true" role="img">
+    ><svg class="usa-icon" aria-hidden="true" role="presentation">
           <use xlink:href="${this.assetBase}/assets/img/sprite.svg#navigate_before"></use>
         </svg>
         <span class="usa-pagination__link-text">${this.labels.previous}</span></a>`
@@ -369,7 +369,7 @@ function Pagination(total, current, assetBase, labels, onClick) {
     pageLinks.forEach(function(link) {
       if (link.innerText === myself.current.toString()) {
         link.classList.add('usa-current');
-        link.setAttribute('aria-current', myself.page);
+        link.setAttribute('aria-current', 'page');
       }
     });
   };

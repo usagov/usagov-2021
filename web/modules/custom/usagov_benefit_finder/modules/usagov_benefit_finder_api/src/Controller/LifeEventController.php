@@ -2,14 +2,25 @@
 
 namespace Drupal\usagov_benefit_finder_api\Controller;
 
+use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\File\FileUrlGeneratorInterface;
+use Drupal\file\FileRepositoryInterface;
+use Drupal\usagov_benefit_finder\Traits\BenefitFinderTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class LifeEventController
  * @package Drupal\usagov_benefit_finder_api\Controller
  */
-class LifeEventController {
+class LifeEventController extends ControllerBase {
+
+  use BenefitFinderTrait;
 
   /**
    * The entity type manager service.
@@ -26,7 +37,7 @@ class LifeEventController {
   protected $fileSystem;
 
   /**
-   * Thee file repository service.
+   * The file repository service.
    *
    * @var \Drupal\file\FileRepositoryInterface
    */
@@ -47,11 +58,11 @@ class LifeEventController {
   protected $database;
 
   /**
-   * Retrieves the currently active request object.
+   * The request stack.
    *
-   * @var \Symfony\Component\HttpFoundation\Request
+   * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $request;
+  protected $requestStack;
 
   /**
    * The display data control variable.
@@ -61,7 +72,7 @@ class LifeEventController {
   protected $displayData;
 
   /**
-   * The JSON data mode.
+   * The benefit finder content mode.
    *
    * @var string
    */
@@ -69,28 +80,64 @@ class LifeEventController {
 
   /**
    * Constructs a new LifeEventController object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\File\FileSystemInterface $file_system
+   *   The file system service.
+   * @param \Drupal\file\FileRepositoryInterface|null $file_repository
+   *   The file repository.
+   * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
+   *   The file URL generator.
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
    */
-  public function __construct() {
-    $this->entityTypeManager = \Drupal::service('entity_type.manager');
-    $this->fileSystem = \Drupal::service('file_system');
-    $this->fileRepository = \Drupal::service('file.repository');
-    $this->fileUrlGenerator = \Drupal::service('file_url_generator');
-    $this->database = \Drupal::service('database');
-    $this->request = \Drupal::request();
+  public function __construct(
+    EntityTypeManagerInterface $entity_type_manager,
+    FileSystemInterface $file_system,
+    FileRepositoryInterface $file_repository,
+    FileUrlGeneratorInterface $file_url_generator,
+    Connection $database,
+    RequestStack $request_stack,
+  ) {
+    $this->entityTypeManager = $entity_type_manager;
+    $this->fileSystem = $file_system;
+    $this->fileRepository = $file_repository;
+    $this->fileUrlGenerator = $file_url_generator;
+    $this->database = $database;
+    $this->requestStack = $request_stack;
     $this->displayData = TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity_type.manager'),
+      $container->get('file_system'),
+      $container->get('file.repository'),
+      $container->get('file_url_generator'),
+      $container->get('database'),
+      $container->get('request_stack'),
+    );
   }
 
   /**
    * Saves JSON data file.
    *
    * @param $id
+   *  The life event ID.
    * @return JsonResponse
    *  The response.
+   * @throws EntityStorageException
    */
   public function saveJsonData($id) {
     // Get JSON data mode.
     if (empty($this->mode)) {
-      $this->mode = $this->request->get('mode') ?? "published";
+      $this->mode = $this->requestStack->getCurrentRequest()->query->get('mode') ?? "published";
     }
 
     // Prepare directory.
@@ -119,7 +166,7 @@ class LifeEventController {
     $fileUrlString = $this->fileUrlGenerator->generate($filename)->toString();
 
     // Assign the file to JSON data file field of life event of given ID.
-    $life_event = $this->getLifeEvent($id);
+    $life_event = $this->getLifeEventById($id, $this->mode);
     if ($life_event) {
       $field_name = '';
       if ($this->mode == "published") {
@@ -160,6 +207,7 @@ class LifeEventController {
   /**
    * Gets data of life event form and benefits of given life event.
    * @param $id
+   *  The life event ID.
    * @return mixed
    *  The JSON encoded data.
    */
@@ -170,11 +218,11 @@ class LifeEventController {
 
     // Get JSON data mode.
     if (empty($this->mode)) {
-      $this->mode = $this->request->get('mode') ?? "published";
+      $this->mode = $this->requestStack->getCurrentRequest()->query->get('mode') ?? "published";
     }
 
     // Get life event form node and node ID of given life event.
-    $life_event_form_node = $this->getLifeEventForm($id);
+    $life_event_form_node = $this->getLifeEventFormById($id, $this->mode);
     if (empty($life_event_form_node)) {
       $result = [];
       $json = json_encode($result, JSON_PRETTY_PRINT);
@@ -202,8 +250,17 @@ class LifeEventController {
     // Build Relevant Benefits.
     $life_event_form_relevant_benefits = [];
     foreach ($relevant_benefits as $relevant_benefit) {
+
+      // Get life event node by its ID.
+      $id = current($relevant_benefit->get('field_b_life_event_form')->referencedEntities())->get('field_b_id')->value;
+      $life_event_node = $this->getLifeEventById($id, $this->mode);
+
+      // Get search title of life event.
+      $life_event_search_title = $life_event_node->get('field_b_search_title')->value;
+
       $life_event_form_relevant_benefit = [
         "title" => current($relevant_benefit->get('field_b_life_event_form')->referencedEntities())->get('title')->value ?? "",
+        "searchTitle" => $life_event_search_title ?? "",
         "body" => $relevant_benefit->get('field_b_body')->value ?? "",
         "link" => $relevant_benefit->get('field_b_link')->value ?? "",
         "cta" => $relevant_benefit->get('field_b_cta')->value ?? "",
@@ -248,7 +305,7 @@ class LifeEventController {
     $life_event_form['sectionsEligibilityCriteria'] = $life_event_form_sections;
 
     // Get benefits of given life event form.
-    $benefit_nodes = $this->getBenefits($life_event_form_node_id);
+    $benefit_nodes = $this->getBenefitsByLifeEventForm($life_event_form_node_id, $this->mode);
 
     // Build benefits.
     foreach ($benefit_nodes as $benefit_node) {
@@ -271,57 +328,6 @@ class LifeEventController {
     }
 
     return $result;
-  }
-
-  /**
-   * Gets life event of given ID.
-   * @param $id
-   * @return \Drupal\node\NodeInterface
-   *   The life event node.
-   */
-  public function getLifeEvent($id) {
-    $query = \Drupal::entityQuery('node')
-      ->accessCheck(TRUE)
-      ->condition('type', 'bears_life_event')
-      ->condition('field_b_id', $id)
-      ->range(0, 1);
-    $node_id = current($query->execute());
-    return $this->getNode($node_id, $this->mode);
-  }
-
-  /**
-   * Gets life event form of given ID.
-   * @param $id
-   * @return \Drupal\node\NodeInterface
-   *   The life event form node.
-   */
-  public function getLifeEventForm($id) {
-    $query = \Drupal::entityQuery('node')
-      ->accessCheck(TRUE)
-      ->condition('type', 'bears_life_event_form')
-      ->condition('field_b_id', $id)
-      ->range(0, 1);
-    $node_id = current($query->execute());
-    return $this->getNode($node_id, $this->mode);
-  }
-
-  /**
-   * Gets benefits of given life event form.
-   * @param $nid
-   * @return \Drupal\node\NodeInterface[]
-   *   The benefit nodes.
-   */
-  public function getBenefits($nid) {
-    $nodes = [];
-    $query = \Drupal::entityQuery('node')
-      ->accessCheck(TRUE)
-      ->condition('type', 'bears_benefit')
-      ->condition('field_b_life_event_forms', $nid, 'CONTAINS');
-    $nids = $query->execute();
-    foreach ($nids as $nid) {
-      $nodes[] = $this->getNode($nid, $this->mode);
-    }
-    return $nodes;
   }
 
   /**
@@ -363,7 +369,7 @@ class LifeEventController {
 
     // Get criteria node.
     $target_id = $criteria->get('field_b_criteria_key')->target_id;
-    $criteria_node = $this->getCriteria($target_id);
+    $criteria_node = $this->getCriteria($target_id, $this->mode);
 
     // Do not build missing criteria.
     if (empty($criteria_node)) {
@@ -447,7 +453,7 @@ class LifeEventController {
 
     // Get agency node and build benefit agency.
     $target_id = $node->get('field_b_agency')->target_id;
-    $agency = $this->getAgency($target_id);
+    $agency = $this->getAgency($target_id, $this->mode);
     if ($agency) {
       $benefit["agency"] = [
         "title" => $agency->get('title')->value,
@@ -472,7 +478,7 @@ class LifeEventController {
       $benefit_eligibility = [];
 
       $target_id = $eligibility->get('field_b_criteria_key')->target_id;
-      $criteria_node = $this->getCriteria($target_id);
+      $criteria_node = $this->getCriteria($target_id, $this->mode);
       if ($criteria_node) {
         $ckey = $criteria_node->get('field_b_criteria_key')->value;
 
@@ -492,76 +498,6 @@ class LifeEventController {
     $benefit['eligibility'] = $benefit_eligibilitys;
 
     return $benefit;
-  }
-
-  /**
-   * Gets criteria of given nid.
-   *
-   * @param $nid
-   *   The criteria node ID.
-   * @return \Drupal\node\NodeInterface
-   *   The criteria node.
-   */
-  public function getCriteria($nid) {
-    return $this->getNode($nid, $this->mode);
-  }
-
-  /**
-   * Gets agency of given nid.
-   *
-   * @param $nid
-   *   The agency node ID.
-   * @return \Drupal\node\NodeInterface
-   *   The agency node.
-   */
-  public function getAgency($nid) {
-    return $this->getNode($nid, $this->mode);
-  }
-
-  /**
-   * Gets node of given nid and mode.
-   *
-   * @param $nid
-   *   The node ID.
-   * @param $mode
-   *   The mode.
-   * @return \Drupal\node\NodeInterface
-   *   The node.
-   */
-  public function getNode($nid, $mode) {
-    $vid = 0;
-
-    if ($mode == "published") {
-      $query = $this->entityTypeManager->getStorage('node')
-        ->getQuery()
-        ->allRevisions()
-        ->condition('nid', $nid)
-        ->condition('status', 1)
-        ->sort('vid', 'DESC')
-        ->range(0, 1)
-        ->accessCheck(TRUE);
-    }
-    elseif ($mode == "draft") {
-      $query = $this->entityTypeManager->getStorage('node')
-        ->getQuery()
-        ->allRevisions()
-        ->condition('nid', $nid)
-        ->sort('vid', 'DESC')
-        ->range(0, 1)
-        ->accessCheck(TRUE);
-    }
-
-    $result = $query->execute();
-
-    if (!empty($result)) {
-      $revision_id = key($result);
-      $node = $this->entityTypeManager->getStorage('node')->loadRevision($revision_id);
-    }
-    else {
-      $node = NULL;
-    }
-
-    return $node;
   }
 
 }
