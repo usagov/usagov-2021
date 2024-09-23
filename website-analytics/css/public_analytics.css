@@ -290,6 +290,8 @@ header img {
 
 .header-links {
   gap: 10px;
+  font-size: 1.8rem;
+  padding-top: 5px;
 }
 
 /* Tablet - move the dropdown right (770-1024px) */
@@ -311,6 +313,10 @@ header img {
   .header-dropdown {
     flex-grow: 1;
     flex-basis: auto;
+  }
+
+  .header-links {
+    padding-top: 0;
   }
 }
 
