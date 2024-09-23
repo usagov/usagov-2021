@@ -168,6 +168,10 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       }
     }
 
+    // Never crawl the rewritten Spanish path. It might be treated like a redirect by
+    // Tome and overwrite the original homepage HTML
+    $event->addExcludePath('/es/');
+
     if ($changes) {
       // Render it as HTML5:
       $modifiedHtml = $html5->saveHTML($document);
