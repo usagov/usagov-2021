@@ -18,7 +18,6 @@ class SsgStatController extends ControllerBase {
       $markup = "Static Site Generator has not been run on this environment yet.";
     }
     else {
-      date_default_timezone_set('America/New_York');
       $formatDate = date('D F jS Y, h:ia T', $date);
       $markup = "Static Site Generator, status as of <b>{$formatDate}:</b><br/><ul><li><i><b>{$msg}<b></i></li></ul>";
     }
