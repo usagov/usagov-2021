@@ -48,9 +48,6 @@
  * @see html.html.twig
  */
 #}
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@200;400;700;800&family=Tilt+Warp&display=swap');
-</style>
 
 {% set lang = node.langcode.value %}
 {% set content_type = "" %}
@@ -133,9 +130,12 @@
     {{ page.content }}
     {% endif %}
 
-    <div id="pagesurvey-qual-container"></div>
-    <a id="back-to-top" href="#main-content" aria-label="{{ lang == 'en' ? 'Back to top' : 'Subir a la parte superior' }}">
-
+  <div class="bf-qual-survey grid-container" hidden>
+    <div class="additional_body_info">
+      <div id="pagesurvey-qual-container"></div>
+    </div>
+  </div>
+  <a id="back-to-top" href="#main-content" aria-label="{{ lang == 'en' ? 'Back to top' : 'Subir a la parte superior' }}">
 
       {{ lang == 'en' ? 'Top' : 'Subir' }}
     </a>
