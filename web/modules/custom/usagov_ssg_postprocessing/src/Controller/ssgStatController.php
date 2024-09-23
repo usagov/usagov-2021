@@ -7,21 +7,23 @@ use Drupal\Core\Controller\ControllerBase;
 /**
  * An usagov_ssg_postprocessing controller for stating the current static-site-gen status.
  */
-class ssgStatController extends ControllerBase {
+class SsgStatController extends ControllerBase {
 
-    public function content() {
+  public function content() {
 
-        $date = \Drupal::state()->get('ssg_stat_date');
-        $msg = \Drupal::state()->get('ssg_stat_msg');
+    $date = \Drupal::state()->get('ssg_stat_date');
+    $msg = \Drupal::state()->get('ssg_stat_msg');
 
-        if ( empty($msg) ) {
-            $markup = "Static Site Generator has not been run on this environment yet.";
-        } else {
-            date_default_timezone_set('America/New_York');
-            $formatDate = date('D F jS Y, h:ia', $date);
-            $markup = "Static Site Generator, status as of <b>{$formatDate} EST:</b><br/><ul><li><i><b>{$msg}<b></i></li></ul>";
-        }
-
-        return array('#markup' => $markup, '#cache' => array('max-age' => 0));
+    if (empty($msg)) {
+      $markup = "Static Site Generator has not been run on this environment yet.";
     }
+    else {
+      date_default_timezone_set('America/New_York');
+      $formatDate = date('D F jS Y, h:ia T', $date);
+      $markup = "Static Site Generator, status as of <b>{$formatDate}:</b><br/><ul><li><i><b>{$msg}<b></i></li></ul>";
+    }
+
+    return ['#markup' => $markup, '#cache' => ['max-age' => 0]];
+  }
+
 }

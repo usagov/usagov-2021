@@ -17,7 +17,7 @@ usagov_ssg_postprocessing.toggle_tome:
 usagov_ssg_postprocessing.content:
   path: '/static-site-status' 
   defaults: 
-    _controller: '\Drupal\usagov_ssg_postprocessing\Controller\ssgStatController::content' 
+    _controller: '\Drupal\usagov_ssg_postprocessing\Controller\SsgStatController::content' 
     _title: 'Tome Status'
   options:
     no_cache: 'TRUE'
