@@ -143,7 +143,8 @@
             "drupal/core": {
                 "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail_d10.patch",
                 "Show views theme suggestions in twig debug": "https://www.drupal.org/files/issues/2024-06-06/2118743-251.patch",
-                "Add a taxonomy revision UI": "https://www.drupal.org/files/issues/2023-10-26/add-taxonomy-revision-ui-2936995-58.patch"
+                "Add a taxonomy revision UI": "https://www.drupal.org/files/issues/2023-10-26/add-taxonomy-revision-ui-2936995-58.patch",
+                "Enable taxonomy revision log message": "./patches/drupal/taxonomy_revision_log.patch"
             },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren_d10.patch"
