@@ -29,9 +29,9 @@ function generate_faq(&$node) {
 
   // While a node may have its FAQ-Page checked, this does not guarantee the body field is not empty.
   // When it is empty, there is nothing we can do here. We will bail to prevent errors (see USAGOV-1925).
-  if (empty($node->get('body'))) return;
-  if (empty($node->get('body')[0])) return;
-  if (empty($node->get('body')[0]->value)) return;
+  if (empty($node->get('body')) || empty($node->get('body')[0]) || empty($node->get('body')[0]->value) {
+    return;
+  }
 
   // Set up a DOMDocument with the node's body content
   $node_body = $node->get('body')[0]->value;
