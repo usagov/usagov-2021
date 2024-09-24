@@ -103,6 +103,10 @@ declare -rA AUDIT_FIELDS=(
     ["service_instance"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
 )
 
+### Reformat event outoput into key:value pairs that can be more easily ingested by NewRelic (1)
+match='"\(.*\)","\(.*\)","\(.*\)","\(.*\)","\(.*\)","\(.*\)","\(.*\)"'
+replace='{"cfevent.metadata.guid":"\1","timestamp":"\2","cfevent.entity.type":"\3","cfevent.entity.actee_name":"\4","cfevent.entity.space_name":"\5","cfevent.entity.actor_type":"\6","cfevent.entity.actor_name":"\7"}'
+
 # For each category of audit events, perform a (possibly multi-page) query 
 for resource_type in ${!AUDIT_TYPES[@]}; do
     types=${AUDIT_TYPES[$resource_type]}
@@ -115,7 +119,8 @@ for resource_type in ${!AUDIT_TYPES[@]}; do
 
         EVENTS=$(cf curl $NEXT)
 
-        captured_events=$(echo "$EVENTS" | jq -r ".resources[] | [$fields] | @csv")
+        ## Reformat event outoput into key:value pairs that can be more easily ingested by NewRelic (2)
+        captured_events=$(echo "$EVENTS" | jq -r ".resources[] | [$fields] | @csv" | sed "s/$match/$replace/g")
 
         # Replace any cf space guids with the space name
         for SPACE_GUID in "${!SPACE_GUIDS[@]}"; do
