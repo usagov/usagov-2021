@@ -45,3 +45,49 @@ function usagov_top_navigation_menu_get_top_nav() {
   }
   return $topnav;
 }
+
+/**
+ * Implements hook_entity_update() for menu_link_content entity.
+ *
+ * This Hook fires after the MySQL command to save the menu-item as executed.
+ *
+ * We have made this hook in response to USAGOV-1934. We have noticed that in
+ * certain situations, duplicate menu-items are being created where one of
+ * them points to /node/$UUID - we are having hard time reproducing the
+ * problem, but we know it is happening. We are going to catch this edge-case
+ * here and do something.
+ *
+ * See the comments in USAGOV-1934 for more details and how this edge-case
+ * can come about.
+ */
+function usagov_top_navigation_menu_menu_link_content_update($entity) {
+
+  // Get the Node ID this menu-item points to
+  $id = $entity->id();
+  $url = $entity->getUrlObject()->toString();
+  $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias($url);
+  if (empty($sysPath)) return;
+  $nid = str_replace('/node/', '', $sysPath);
+
+  // Get the UUID for that Node ID
+  $node = Node::load($nid);
+  if (empty($node)) return;
+  $uuid = $node->uuid();
+
+  // Check if there is a duplicate menu-item in the system that points to /node/$UUID
+  $db = \Drupal::database();
+  $sql = "SELECT id FROM menu_link_content_data WHERE link__uri LIKE '%node/{$uuid}' AND id <> {$id} ";
+  $results = $db->query($sql)->fetchAllKeyed(0, 0);
+
+  // The $results SHOULD be empty, but if not, that means there is a duplicate
+  if (!empty($results)) {
+
+    $message = "Notice: It seems you have stumbled on an edge-case in our system we are aware of and are ";
+    $message .= "trying to debug. We would like for you to now (1) check if a duplicate menu items for your ";
+    $message .= "page was created, and (2) if it was, please E-Mail the development team and dale.frey@gsa.gov ";
+    $message .= "the exact steps you just went through before seeing this message.\n\n"
+    $message .= "In particular, did you change the language of the node? Or did you change the menu-item location?"
+    \Drupal::messenger()->addWarning($message);
+  }
+
+}
