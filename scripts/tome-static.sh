@@ -30,7 +30,7 @@ echo "Starting Static Site Generation : "$(date)
 mkdir -p /var/www/html
 # time drush -vvv tome:static --uri=$URI --process-count=1 --path-count=1
 # time drush tome:static -y --uri=$URI --process-count=5 --path-count=1
-time drush tome:static -y -vv --uri=$URI --process-count=$TOME_PROCESS_COUNT --path-count=50
+time drush tome:static -y --uri=$URI --process-count=$TOME_PROCESS_COUNT --path-count=10
 TOME_SUCCESS=$?
 echo "Finished Static Site Generation : "$(date)
 exit $TOME_SUCCESS
