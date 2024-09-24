@@ -192,8 +192,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     if (preg_match('/(es\/)?node\/\d+$/', $path)) {
       $event->setInvalid();
     }
-
   }
+
   /**
    * {@inheritdoc}
    */
