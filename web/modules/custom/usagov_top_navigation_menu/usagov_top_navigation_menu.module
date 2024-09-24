@@ -85,8 +85,8 @@ function usagov_top_navigation_menu_menu_link_content_update($entity) {
     $message = "Notice: It seems you have stumbled on an edge-case in our system we are aware of and are ";
     $message .= "trying to debug. We would like for you to now (1) check if a duplicate menu items for your ";
     $message .= "page was created, and (2) if it was, please E-Mail the development team and dale.frey@gsa.gov ";
-    $message .= "the exact steps you just went through before seeing this message.\n\n"
-    $message .= "In particular, did you change the language of the node? Or did you change the menu-item location?"
+    $message .= "the exact steps you just went through before seeing this message.\n\n";
+    $message .= "In particular, did you change the language of the node? Or did you change the menu-item location?";
     \Drupal::messenger()->addWarning($message);
   }
 
