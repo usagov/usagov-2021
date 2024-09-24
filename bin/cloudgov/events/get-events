@@ -119,7 +119,8 @@ for resource_type in ${!AUDIT_TYPES[@]}; do
 
         EVENTS=$(cf curl $NEXT)
 
-        # OK, we need to substitute an ISO8601-ish date for the date that CF returns with the CF Event API calls
+        # OK, we need to substitute an ISO8601-ish date for the date that the CF Event API returns.
+        # Also, since each event can have a different timestamp, we need to process $EVENTS line-by-line, hence the loop.
         ### Begin timestamp mangling
         mod_events=""
         while read event; do
