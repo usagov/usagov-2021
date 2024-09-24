@@ -137,7 +137,8 @@
             "drupal/tome": {
                 "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
                 "De-duplicate invoke paths in StaticCommand's exportPaths": "./patches/drupal/deduplicateTomeInvokePaths.patch",
-                "Make tome work with drush 12": "https://www.drupal.org/files/issues/2023-08-02/tome_drush12-support.patch"
+                "Make tome work with drush 12": "https://www.drupal.org/files/issues/2023-08-02/tome_drush12-support.patch",
+                "Make tome work with path count > 1 without re-exporting pages multiple times" : "./patches/drupal/tomePathCountFixes.patch"
             },
             "drupal/core": {
                 "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail_d10.patch",
