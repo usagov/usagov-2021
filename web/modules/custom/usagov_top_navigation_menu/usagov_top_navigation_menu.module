@@ -66,12 +66,16 @@ function usagov_top_navigation_menu_menu_link_content_update($entity) {
   $id = $entity->id();
   $url = $entity->getUrlObject()->toString();
   $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias($url);
-  if (empty($sysPath)) return;
+  if (empty($sysPath)) {
+    return;
+  }
   $nid = str_replace('/node/', '', $sysPath);
 
   // Get the UUID for that Node ID
   $node = Node::load($nid);
-  if (empty($node)) return;
+  if (empty($node)) {
+    return;
+  }
   $uuid = $node->uuid();
 
   // Check if there is a duplicate menu-item in the system that points to /node/$UUID
