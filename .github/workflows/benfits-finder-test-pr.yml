@@ -70,7 +70,7 @@ jobs:
       - name: Checkout usagov-2021 working branch
         run: |
           cd usagov-2021
-          git switch ${{ github.ref_name }}
+          git switch ${{ github.head_ref }}
 
       - name: Cypress run (Firefox)
         uses: cypress-io/github-action@v6
@@ -110,7 +110,7 @@ jobs:
       - name: Checkout usagov-2021 working branch
         run: |
           cd usagov-2021
-          git switch ${{ github.ref_name }}
+          git switch ${{ github.head_ref }}
 
       - name: Cypress run (Edge)
         uses: cypress-io/github-action@v6
@@ -150,7 +150,7 @@ jobs:
       - name: Checkout usagov-2021 working branch
         run: |
           cd usagov-2021
-          git switch ${{ github.ref_name }}
+          git switch ${{ github.head_ref }}
 
       - name: Install dependencies
         uses: cypress-io/github-action@v6
