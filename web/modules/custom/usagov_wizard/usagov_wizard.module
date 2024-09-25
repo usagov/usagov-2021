@@ -22,7 +22,12 @@ use Drupal\usagov_wizard\MenuChecker;
  * root of the tree.
  */
 function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state) {
+  $form['name']['widget'][0]['value']['#description'] = 'Name inside the CMS. This is what you see in the taxonomy tree.';
+  $form['langcode']['widget'][0]['value']['#description'] = '';
+  $form['description']['widget'][0]['#description'] = 'Description for the radio button label.';
   $form['relations']['parent']['#attributes'] = ['class' => ['resize-vertical', 'width-tablet', 'height-mobile']];
+  $form['relations']['widget'][0]['#description'] = 'You can use the tree to move the node.';
+  $form['relations']['#weight'] = 11;
   if (isset($form['tid'])) {
     $language = $form['langcode']['widget'][0]['value']['#default_value'];
     $url = Url::fromUri('base:' .
@@ -55,8 +60,56 @@ function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state
     // Hide this in all cases on the tid creation screen.
     else {
       $form['field_meta_description']['#access'] = FALSE;
+      $form['field_wizard_breadcrumbs']['#access'] = FALSE;
     }
   }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Adds a expand/collapse all button to overview form.
+ */
+function usagov_wizard_form_taxonomy_overview_terms_alter(&$form, &$form_state) {
+  $form['expand_collapse_all'] = [
+    '#title' => t('Expand/Collapse All'),
+    '#type' => 'button',
+    '#value' => 'Expand/Collapse',
+    '#attributes' => [
+      // Don't submit the form on click.
+      'onclick' => 'return false;',
+      'class' => [
+        'button',
+        'usa-button',
+      ],
+    ],
+    '#attached' => [
+      'library' => [
+        'usagov_wizard/expand_collapse',
+      ],
+    ],
+    '#weight' => -10,
+  ];
+
+  $form['unpublished_toggler'] = [
+    '#title' => t('Unpublished/All'),
+    '#type' => 'button',
+    '#value' => 'Unpublished/All',
+    '#attributes' => [
+      // Toggle to hide/unhide published nodes.
+      'onclick' => 'return false;',
+      'class' => [
+        'button',
+        'usa-button',
+      ],
+    ],
+    '#attached' => [
+      'library' => [
+        'usagov_wizard/unpublished_toggler',
+      ],
+    ],
+    '#weight' => -10,
+  ];
 }
 
 /**
