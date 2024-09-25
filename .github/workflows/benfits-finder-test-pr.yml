@@ -30,7 +30,7 @@ jobs:
       - name: Checkout usagov-2021 working branch
         run: |
           cd usagov-2021
-          git switch ${{ github.ref_name }}
+          git switch ${{ github.head_ref }}
 
       - name: Cypress run (Chrome)
         uses: cypress-io/github-action@v6
