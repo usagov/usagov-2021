@@ -65,8 +65,10 @@ function usagov_top_navigation_menu_menu_link_content_update($entity) {
 
   // This function may potentially trigger a save on a menu-item.
   // We protect against recursive infinity-loops here.
-  static $stopLoop = false;
-  if ($stopLoop === true) return;
+  static $stopLoop = FALSE;
+  if ($stopLoop === true) {
+    return;
+  }
 
   // Get the Node ID this menu-item points to
   $id = $entity->id();
@@ -95,9 +97,9 @@ function usagov_top_navigation_menu_menu_link_content_update($entity) {
     $menu_item = MenuLinkContent::load($mid);
     $menu_item->set('enabled', 0);
     $menu_item->status = 0;
-    $stopLoop = true;
+    $stopLoop = TRUE;
     $menu_item->save();
-    $stopLoop = false;
+    $stopLoop = FALSE;
   }
 
   // The $results SHOULD be empty, but if not, that means there is a duplicate
