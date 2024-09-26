@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Menu\MenuTreeParameters;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 
@@ -62,6 +63,11 @@ function usagov_top_navigation_menu_get_top_nav() {
  */
 function usagov_top_navigation_menu_menu_link_content_update($entity) {
 
+  // This function may potentially trigger a save on a menu-item.
+  // We protect against recursive infinity-loops here.
+  static $stopLoop = false;
+  if ($stopLoop === true) return;
+
   // Get the Node ID this menu-item points to
   $id = $entity->id();
   $url = $entity->getUrlObject()->toString();
@@ -82,6 +88,17 @@ function usagov_top_navigation_menu_menu_link_content_update($entity) {
   $db = \Drupal::database();
   $sql = "SELECT id FROM menu_link_content_data WHERE link__uri LIKE '%node/{$uuid}' AND id <> {$id} ";
   $results = $db->query($sql)->fetchAllKeyed(0, 0);
+
+  // Disable this menu item
+  $results = [1359];
+  foreach ($results as $mid) {
+    $menu_item = MenuLinkContent::load($mid);
+    $menu_item->set('enabled', 0);
+    $menu_item->status = 0;
+    $stopLoop = true;
+    $menu_item->save();
+    $stopLoop = false;
+  }
 
   // The $results SHOULD be empty, but if not, that means there is a duplicate
   if (!empty($results)) {
