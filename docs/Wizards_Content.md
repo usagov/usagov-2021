@@ -52,7 +52,7 @@ If adding a whole new link, on the Add menu link page, enter the following infor
 
 ## How to add breadcrumb
 
-As part of the wizard creation process, you will have the opportunity to configure breadcrumbs for the wizard. In the header level of the wizard, you can configure a breadcrumb trail by pressing the "Add another item" button under the Breadcrumb header. Note: Do not set the homepage as a link, this is already assumed and configured by default. 
+As part of the wizard creation process, you will have the opportunity to configure breadcrumbs for the wizard. In the header level of the wizard, you can configure a breadcrumb trail by pressing the "Add another item" button under the Breadcrumb header. Breadcrumbs are displayed in order of Top->Bottom:Left->Right per the order within the wizard manager editing page, and can be re-ordered using the drag and drop handles.  Note: Do not set the homepage as a link, this is already assumed and configured by default. 
 
-* URL: The URL of the breadcrumb link (This must be an internal path such as /node/add.)
+* URL: The URL of the breadcrumb link (This must be an internal path such as /node/add. You can also start typing the title of a piece of content to select it. Enter `<front>` to link to the front page. Enter `<nolink>` to display link text only. Enter `<button>`to display keyboard-accessible link text only.)
 * Link Text: The text that the breadcrumb will display
