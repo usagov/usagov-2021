@@ -10,7 +10,7 @@ field_name: field_option_name
 entity_type: taxonomy_term
 bundle: wizard
 label: 'Option Name'
-description: 'How this Wizard step will appear in other options lists.'
+description: 'The label for the radio button on the previous page.'
 required: false
 translatable: false
 default_value: {  }
