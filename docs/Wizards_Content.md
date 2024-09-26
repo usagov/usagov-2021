@@ -49,3 +49,10 @@ If adding a whole new link, on the Add menu link page, enter the following infor
 * Language: Language
 * Weight: 0
 * Parent link: This field is a dropdown showing all menu items and their parents, and should select the parent of the links you are looking to display in the menu. 
+
+## How to add breadcrumb
+
+As part of the wizard creation process, you will have the opportunity to configure breadcrumbs for the wizard. In the header level of the wizard, you can configure a breadcrumb trail by pressing the "Add another item" button under the Breadcrumb header. Note: Do not set the homepage as a link, this is already assumed and configured by default. 
+
+* URL: The URL of the breadcrumb link (This must be an internal path such as /node/add.)
+* Link Text: The text that the breadcrumb will display
