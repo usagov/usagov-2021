@@ -1,0 +1,83 @@
+### 
+FROM alpine:3.18 AS cron
+
+ARG S6_VERSION
+ENV S6_VERSION ${S6_VERSION:-v2.2.0.3}
+#ENV S6_VERSION ${S6_VERSION:-v3.2.0.0}
+
+ARG GITBRANCH
+ENV GITBRANCH ${GITBRANCH:-none}
+
+ARG GITCOMMIT
+ENV GITCOMMIT ${GITCOMMIT:-none}
+
+ARG GITTAG
+ENV GITTAG ${GITTAG:-none}
+
+ARG CONTAINERTAG
+ENV CONTAINERTAG ${CONTAINERTAG:-none}
+
+ARG BUID=1000
+ARG BGID=1000
+
+# Dependencies
+RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
+    && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
+    && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
+    && apk upgrade --update \
+    && apk add --no-cache --virtual .persistent-deps \
+    aws-cli \
+    bash \
+    ca-certificates \
+    coreutils \
+    curl \
+    gettext \
+    git \
+    inotify-tools \
+    jq \
+    moreutils \
+    nano \
+    pv \
+    procps \
+    tar \
+    tzdata \
+    unzip \
+    vim \
+    xz
+
+# s6 supervisor setup
+ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
+RUN tar xzf /tmp/s6overlay.tar.gz -C / \
+    && rm /tmp/s6overlay.tar.gz \
+    && mkdir -p /var/run/s6
+
+# cron setup
+RUN mkdir -p /etc/periodic/1min \
+    && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root \
+    # cleanup
+    && rm -rf /var/cache/apk/*
+
+COPY .docker/src-cron /
+COPY bin/cloudgov/events/get-events /opt/cfevents/get-events
+
+# For testing the job serialization lock code:
+#COPY scripts/cron/task-lock-reference-script /opt/cron
+#COPY scripts/cron/task-lock-test-locking-capabilities /opt/cron
+
+RUN chmod -R +x /etc/periodic \
+    && echo "    built:" $(date) >> /etc/motd \
+    && echo "    branch: " $GITBRANCH >> /etc/motd \
+    && echo "    gittag: " $GITTAG >> /etc/motd \
+    && echo "    commit: " $GITCOMMIT >> /etc/motd \
+    && echo "    containertag: " $CONTAINERTAG >> /etc/motd \
+    && echo >> /etc/motd
+
+HEALTHCHECK CMD s6-svstat /var/run/s6/services/cert-watcher \
+&& s6-svstat /var/run/s6/services/cron
+
+ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.7.11\&source\=github-rel  /tmp/cf8.tar.gz
+RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin
+RUN rm /tmp/cf8.tar.gz
+
+# Init s6
+ENTRYPOINT [ "/init" ]

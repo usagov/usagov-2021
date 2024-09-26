@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# This script will attempt to create a container image
+# to be used when launching cloud.gov images
+#
+
+. ./env.local
+
+DOCKERUSER=${DOCKERUSER:-gsatts}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
+APPNAME=cron
+
+echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+
+GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
+GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "")
+CONTAINERTAG=${1:-$GITBRANCH}
+CONTAINERTAG2=${2}
+
+if [ -z "$CONTAINERTAG" ]
+then
+      echo "Must specify a container tag to build $APPNAME app"
+      exit 1;
+fi;
+
+echo "Building ${DOCKERUSER}/${DOCKERREPO}:$APPNAME-${CONTAINERTAG} ${CONTAINERTAG2}"
+
+docker build --force-rm \
+     -t $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG \
+     -f .docker/Dockerfile-${APPNAME} . \
+     --build-arg GITBRANCH=$GITBRANCH \
+     --build-arg GITCOMMIT=$GITCOMMIT \
+     --build-arg GITTAG=$GITTAG
+
+if [ -n "$CONTAINERTAG2" ]
+then
+     echo "docker tag $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG2"
+     docker tag $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG2
+fi
