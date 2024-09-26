@@ -66,7 +66,7 @@ function usagov_top_navigation_menu_menu_link_content_update($entity) {
   // This function may potentially trigger a save on a menu-item.
   // We protect against recursive infinity-loops here.
   static $stopLoop = FALSE;
-  if ($stopLoop === true) {
+  if ($stopLoop === TRUE) {
     return;
   }
 
