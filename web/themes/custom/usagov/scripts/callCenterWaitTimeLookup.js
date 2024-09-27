@@ -55,10 +55,9 @@ jQuery(document).ready(async function () {
               content = content + noneText;
             }
 
-            var timeOfEstimate = json.timestamp;
-
             // If the estimated time was captured over 10 minutes ago, remain silent.
-            if (Date.now()/1000 - json.timestamp > 600) {
+            var timeOfEstimate = json.timestamp ? json.timestamp : 0;
+            if (Date.now()/1000 - timeOfEstimate > 600) {
               content = "";
             }
 
