@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 SPACE=$1
+VERSION="1.0"
 
 if [ x$SPACE = x ]; then
    SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
@@ -21,11 +22,12 @@ enWaitTime=$(curl -s -X GET https://api.$CALL_CENTER_ENVIRONMENT/api/v2/routing/
 spWaitTime=$(curl -s -X GET https://api.$CALL_CENTER_ENVIRONMENT/api/v2/routing/queues/$CALL_CENTER_SP_QUEUE_ID/estimatedwaittime -H "Authorization:Bearer $token" | jq -r '.results[].estimatedWaitTimeSeconds');
 
 combinedWaitTimes='{ "enEstimatedWaitTimeSeconds": '$enWaitTime',
-  "spEstimatedWaitTimeSeconds": '$spWaitTime'}'
+  "spEstimatedWaitTimeSeconds": '$spWaitTime',
+  "timestamp": '$timestamp'}'
 
 #echo "Setting wait time file."
 echo "$combinedWaitTimes" > $waitTimeFile
 
 # # Upload file to S3 bucket
 #echo "uploading waittime.json to S3."
-aws_cp waittime.json s3://$S3_BUCKET/cms/public/waittime.json
+aws_cp waittime.json s3://$S3_BUCKET/$VERSION/waittime.json

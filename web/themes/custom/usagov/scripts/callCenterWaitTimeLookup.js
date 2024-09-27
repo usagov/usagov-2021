@@ -4,23 +4,13 @@ jQuery(document).ready(async function () {
   var waittime = (function() {
     if (jQuery("html[lang|='en']").length ||
         jQuery("html[lang|='es']").length) {
-      var domain = window.location.origin.split('.')[0].split('//')[1];
-      var domainMap = {
-        'www': 'cms',
-        'cms': 'cms',
-        'beta': 'cms',
-        'beta-stage': 'cms-stage',
-        'cms-stage': 'cms-stage',
-        'beta-dev': 'cms-dev',
-        'cms-dev': 'cms-dev',
-        'localhost': 'localhost',
-      };
       jQuery.ajax({
-        "url": "https://" + domainMap[domain] + ".usa.gov/wait-time",
+        "url": "https://s3-us-gov-west-1.amazonaws.com/cg-4d6fb302-315f-403e-a96e-a7563ccddd3d/1.0/waittime.json",
         "type": "GET",
         "success": function (response) {
           var json = jQuery.parseJSON(response);
           var seconds = -1;
+
           if (jQuery("html[lang|='en']").length) {
             seconds = json.enEstimatedWaitTimeSeconds;
           }
@@ -64,6 +54,14 @@ jQuery(document).ready(async function () {
             if (minutes === 0 && seconds === 0) {
               content = content + noneText;
             }
+
+            var timeOfEstimate = json.timestamp;
+
+            // If the estimated time was captured over 10 minutes ago, remain silent.
+            if (Date.now()/1000 - json.timestamp > 600) {
+              content = "";
+            }
+
             jQuery('#callCenterTime').html(content);
           }
         },
