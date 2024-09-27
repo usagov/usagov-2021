@@ -183,10 +183,6 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     ?MenuLinkInterface $active = NULL,
     bool $closeLastTrail = FALSE,
   ): array {
-    // We can remove this line if PR #1923 is merged.
-    // @todo Tome caches the menu and active trail ids when path count > 1.
-    $this->trail->clear();
-
     // Get siblings from menu.
     $params = new MenuTreeParameters();
     $params->onlyEnabledLinks();
