@@ -1,0 +1,3 @@
+﻿Selector,Why,Notes,Notes2
+"[data-analytics=""category-results-links""]",Track clicks on a page displayed in search results,"Not expecting a CSS class or ID, but an attribute on an element",
+"[data-analytics=""life-events-links""]",Track clicks on a life event displayed at to pof search results,"Not expecting a CSS class or ID, but an attribute on an element",
