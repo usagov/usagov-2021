@@ -31,9 +31,11 @@
  * @ingroup themeable
  */
 #}
-<div class="life-events-item {{ fields.title_1.content|striptags|clean_class }}">
+<div class="life-events-item benefit-finder-icon--{{fields.field_b_id.content|striptags|trim|clean_class}}">
   <div class="life-events-item-content">
-    <h3>{{ fields.field_b_search_title.content }}</h3>
+    <h3><a href="{{ fields.view_node.content|striptags|trim }}"
+           data-analytics="life-events-links" hreflang="{{ view.argument.langcode.argument }}"
+      >{{ fields.field_b_search_title.content }}</a></h3>
     <p>{{ fields.field_short_description.content }}</p>
   </div>
 </div>
