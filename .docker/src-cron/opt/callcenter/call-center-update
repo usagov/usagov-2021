@@ -21,6 +21,7 @@ enWaitTime=$(curl -s -X GET https://api.$CALL_CENTER_ENVIRONMENT/api/v2/routing/
 #echo "Getting sp wait time."
 spWaitTime=$(curl -s -X GET https://api.$CALL_CENTER_ENVIRONMENT/api/v2/routing/queues/$CALL_CENTER_SP_QUEUE_ID/estimatedwaittime -H "Authorization:Bearer $token" | jq -r '.results[].estimatedWaitTimeSeconds');
 
+timestamp=$(date +%s)
 combinedWaitTimes='{ "enEstimatedWaitTimeSeconds": '$enWaitTime',
   "spEstimatedWaitTimeSeconds": '$spWaitTime',
   "timestamp": '$timestamp'}'
