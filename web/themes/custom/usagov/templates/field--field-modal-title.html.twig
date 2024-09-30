@@ -1,0 +1,9 @@
+{#
+/**
+ * This overrides the default template which added a <div> inside of a <h1> which is not valid HTML
+ */
+#}
+
+{% block content %}
+    {{ items[0].content }}
+{% endblock %}
