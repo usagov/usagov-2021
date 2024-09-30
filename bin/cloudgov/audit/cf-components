@@ -30,10 +30,10 @@ getPaginationCount() { # $1 = resource, $2 = relationship, $3 = relationship id
   else
     if [ $PAGES -gt 1 ]; then
       for i in $PAGES; do
-        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=100" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'$3'" ) | .guid]')
+        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=100" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'"$3"'" ) | .guid]')
       done
     else
-      IDS=$(cf curl "/v3/$1" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'$3'" ) | .guid]')
+      IDS=$(cf curl "/v3/$1" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'"$3"'" ) | .guid]')
     fi
   fi
   echo "$IDS"
@@ -74,9 +74,10 @@ IFS=',' read -r -a spaces_array <<< "$spaces"
 echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
   ORG=$(cf curl "/v3/organizations/$ORGID")
   ORGNAME=$(echo "$ORG" | jq -r '.name')
+  ORGCREATE=$(echo "$ORG" | jq -r '.created_at')
   ORGUPDATE=$(echo "$ORG" | jq -r '.updated_at')
 
-  echo "Org: ${underline}$ORGNAME${nounderline} (Last updated: $ORGUPDATE)"
+  echo "Org: ${underline}$ORGNAME${nounderline} (Last updated: $ORGUPDATE | Created: $ORGCREATE)"
 
   DOMIANIDS=$(getPaginationCount "domains" "organization" "$ORGID")
   if [ "$DOMIANIDS" != "[]" ]; then
@@ -84,10 +85,11 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
       echo "$DOMIANIDS" | jq -r '.[]' | while read -r DOMIANID; do
         DOMAIN=$(cf curl "/v3/domains/$DOMIANID")
         DOMAINNAME=$(echo "$DOMAIN" | jq -r '.name')
+        DOMAINCREATED=$(echo "$DOMAIN" | jq -r '.created_at')
         DOMAINUPDATED=$(echo "$DOMAIN" | jq -r '.updated_at')
         DOMAININTERNAL=$(echo "$DOMAIN" | jq -r '.internal')
         DOMAINPROTOCOLS=$(echo "$DOMAIN" | jq -c '.supported_protocols')
-        echo "$level3 $DOMAINNAME (Last updated: $DOMAINUPDATED | Internal: $DOMAININTERNAL | Supported Protocols: $DOMAINPROTOCOLS)"
+        echo "$level3 $DOMAINNAME (Last updated: $DOMAINUPDATED | Created: $DOMAINCREATED | Internal: $DOMAININTERNAL | Supported Protocols: $DOMAINPROTOCOLS)"
       done
     fi
 
@@ -128,8 +130,9 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
  echo "$SPACEIDS" | while read -r SPACEID; do
   SPACE=$(cf curl "/v3/spaces/$SPACEID")
   SPACENAME=$(echo "$SPACE" | jq -r '.name')
+  SPACECREATED=$(echo "$SPACE" | jq -r '.created_at')
   SPACEUPDATE=$(echo "$SPACE" | jq -r '.updated_at')
-  echo "$level2 Space: ${underline}$SPACENAME${nounderline} (Last updated: $SPACEUPDATE)"
+  echo "$level2 Space: ${underline}$SPACENAME${nounderline} (Last updated: $SPACEUPDATE | Created: $SPACECREATED)"
 
   SERVICEIDS=$(getPaginationCount "service_instances" "space" "$SPACEID")
   if [ "$SERVICEIDS" != "[]" ]; then
@@ -138,6 +141,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
       SERVICELASTOPERATION=""
       SERVICE=$(cf curl "/v3/service_instances/$SERVICEID")
       SERVICENAME=$(echo "$SERVICE" | jq -r '.name')
+      SERVICECREATED=$(echo "$SERVICE" | jq -r '.created_at')
       SERVICEUPDATED=$(echo "$SERVICE" | jq -r '.updated_at')
       if [ "$(echo "$SERVICE" | jq -r '.last_operation')" != "{}" ]; then
         SERVICETYPE=$(echo "$SERVICE" | jq -r '.last_operation.type')
@@ -147,7 +151,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
 
         SERVICELASTOPERATION="(Last operation at $SERVICEUPDATED; Type: $SERVICETYPE | State: $SERVICESTATE | Description: $SERVICEDESCRIPTION)"
       fi
-      echo "$level4 $SERVICENAME Last updated: $SERVICEUPDATED $SERVICELASTOPERATION"
+      echo "$level4 $SERVICENAME Last updated: $SERVICEUPDATED | Created: $SERVICECREATED $SERVICELASTOPERATION"
     done
   fi
 
@@ -156,11 +160,12 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
     echo "$level3 Routes:"
     echo "$ROUTEIDS" | jq -r '.[]' | while read -r ROUTEID; do
       ROUTE=$(cf curl "/v3/routes/$ROUTEID")
+      ROUTECREATED=$(echo "$ROUTE" | jq -r '.created_at')
       ROUTEUPDATED=$(echo "$ROUTE" | jq -r '.updated_at')
       ROUTEHOST=$(echo "$ROUTE" | jq -r '.host')
       ROUTEPATH=$(echo "$ROUTE" | jq -r '.path')
       ROUTEURL=$(echo "$ROUTE" | jq -r '.url')
-      echo "$level4 $ROUTEURL (Last updated: $ROUTEUPDATED | Host: $ROUTEHOST | Path: $ROUTEPATH)"
+      echo "$level4 $ROUTEURL (Last updated: $ROUTEUPDATED | Created: $ROUTECREATED | Host: $ROUTEHOST | Path: $ROUTEPATH)"
     done
   fi
 
@@ -170,6 +175,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
     echo "$APPIDS" | jq -r '.[]' | while read -r APPID; do
       APP=$(cf curl "/v3/apps/$APPID")
       APPNAME=$(echo "$APP" | jq -r '.name')
+      APPCREATED=$(echo "$APP" | jq -r '.created_at')
       APPUPDATED=$(echo "$APP" | jq -r '.updated_at')
       APPSTATE=$(echo "$APP" | jq -r '.state')
       APPTYPE=$(echo "$APP" | jq -r '.lifecycle.type')
@@ -179,12 +185,13 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
         APPSTACK=$(echo "$APP" | jq -c '.lifecycle.data.stack')
         APPSTACKINFO=" | Buildpacks: $APPBUILDPACKS | Stack: $APPSTACK"
       fi
-      echo "$level4 $APPNAME (Last updated: $APPUPDATED | State: $APPSTATE | Type: $APPTYPE$APPSTACKINFO)"
+      echo "$level4 $APPNAME (Last updated: $APPUPDATED | Created: $APPCREATED | State: $APPSTATE | Type: $APPTYPE$APPSTACKINFO)"
 
       DROPLETID=$(cf curl "/v3/apps/$APPID/droplets/current" | jq -r '.guid')
       if [ -n "$DROPLETID" ]; then
         DROPLET=$(cf curl "/v3/droplets/$DROPLETID")
         DROPLETSTATE=$(echo "$DROPLET" | jq -r '.state')
+        DROPLETCREATED=$(echo "$DROPLET" | jq -r '.created_at')
         DROPLETUPDATED=$(echo "$DROPLET" | jq -r '.updated_at')
         DROPLETSTACK=$(echo "$DROPLET" | jq -r '.stack')
         DROPLETSTACKOUT=""
@@ -196,7 +203,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
         if [ "$DROPLETIMAGE" != "null" ]; then
           DROPLETIMAGEOUT=" | Image: $DROPLETIMAGE"
         fi
-        echo "$level5 Current Droplet: $DROPLETSTATE (Last updated: $DROPLETUPDATED$DROPLETSTACKOUT$DROPLETIMAGEOUT)"
+        echo "$level5 Current Droplet: $DROPLETSTATE (Last updated: $DROPLETUPDATED | Created: $DROPLETCREATED$DROPLETSTACKOUT$DROPLETIMAGEOUT)"
       fi
 
       TASKCOUNT=$(cf curl "/v3/apps/$APPID/tasks" | jq -r '.pagination | .total_results')
@@ -210,12 +217,13 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
         echo "$SIDECARIDS" | jq -r '.[]' | while read -r SIDECARID; do
           SIDECAR=$(cf curl "/v3/sidecars/$SIDECARID")
           SIDECARNAME=$(echo "$SIDECAR" | jq -r '.name')
+          SIDECARCREATED=$(echo "$SIDECAR" | jq -r '.created_at')
           SIDECARUPDATED=$(echo "$SIDECAR" | jq -r '.updated_at')
           SIDECARCOMMAND=$(echo "$SIDECAR" | jq -r '.command')
           SIDECARPROCESS=$(echo "$SIDECAR" | jq -c '.process_types')
           SIDECARMEMORY=$(echo "$SIDECAR" | jq -r '.memory_in_mb')
           SIDECARORIGIN=$(echo "$SIDECAR" | jq -r '.origin')
-          echo "$level6 $SIDECARNAME (Last updated: $SIDECARUPDATED |Command: $SIDECARCOMMAND | Process Types: $SIDECARPROCESS | Memory: $SIDECARMEMORY mb | Origin: $SIDECARORIGIN)"
+          echo "$level6 $SIDECARNAME (Last updated: $SIDECARUPDATED | Created: $SIDECARCREATED | Command: $SIDECARCOMMAND | Process Types: $SIDECARPROCESS | Memory: $SIDECARMEMORY mb | Origin: $SIDECARORIGIN)"
         done
       fi
     done
@@ -235,10 +243,11 @@ else
     echo "$USERIDS" | jq -r '.[]' | while read -r USERID; do
       USER=$(cf curl "/v3/users/$USERID")
       USERNAME=$(echo "$USER" | jq -r '.username')
+      USERPCREATED=$(echo "$USER" | jq -r '.created_at')
       USERPUPDATE=$(echo "$USER" | jq -r '.updated_at')
       USERPRESENTATION=$(echo "$USER" | jq -r '.presentation_name')
       USERORIGIN=$(echo "$USER" | jq -r '.origin')
-      echo "$level2 $USERNAME (Last updated: $USERPUPDATE | Presentation Name: $USERPRESENTATION | Origin: $USERORIGIN)"
+      echo "$level2 $USERNAME (Last updated: $USERPUPDATE | Created: $USERPCREATED | Presentation Name: $USERPRESENTATION | Origin: $USERORIGIN)"
     done
   fi
 fi
@@ -249,9 +258,10 @@ if [ "$GROUPIDS" != "[]" ]; then
   echo "$GROUPIDS" | jq -r '.[]' | while read -r GROUPID; do
     GROUP=$(cf curl "/v3/security_groups/$GROUPID")
     GROUPNAME=$(echo "$GROUP" | jq -r '.name')
+    GROUPUPDATED=$(echo "$GROUP" | jq -r '.created_at')
     GROUPUPDATED=$(echo "$GROUP" | jq -r '.updated_at')
     GROUPRULES=$(echo "$GROUP" | jq -r '.rules')
-    echo "$level2 $GROUPNAME (Last updated: $GROUPUPDATED)"
+    echo "$level2 $GROUPNAME (Last updated: $GROUPUPDATED | Created: $GROUPUPDATED)"
     echo "$level3 Rules:"
     echo "$level4 $GROUPRULES"
   done
