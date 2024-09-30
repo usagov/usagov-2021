@@ -10,7 +10,8 @@ function winLoad(callback) {
     "use strict";
   if (document.readyState === 'complete') {
     callback();
-  } else {
+  }
+    else {
     window.addEventListener("load", callback);
   }
 }
