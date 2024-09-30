@@ -16,13 +16,13 @@ level6="          "
 
 die() { echo "$*" >&2; exit 2; }  # complain to STDERR and exit with error
 needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option"; fi; }
-# getPaginationCount() { cf curl "/v3/$1" | jq -r '.pagination | .total_pages'; }
+
 getPaginationCount() { # $1 = resource, $2 = relationship, $3 = relationship id
   PAGES=$(cf curl "/v3/$1" | jq -r '.pagination | .total_pages');
   if [ -z "$2" ]; then
     if [ $PAGES -gt 1 ]; then
       for i in $PAGES; do
-        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=50" | jq -r '[.resources[] | .guid]')
+        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=100" | jq -r '[.resources[] | .guid]')
       done
     else
       IDS=$(cf curl "/v3/$1" | jq -r '[.resources[] | .guid]')
@@ -30,7 +30,7 @@ getPaginationCount() { # $1 = resource, $2 = relationship, $3 = relationship id
   else
     if [ $PAGES -gt 1 ]; then
       for i in $PAGES; do
-        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=50" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'$3'" ) | .guid]')
+        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=100" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'$3'" ) | .guid]')
       done
     else
       IDS=$(cf curl "/v3/$1" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'$3'" ) | .guid]')
@@ -181,6 +181,24 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
       fi
       echo "$level4 $APPNAME (Last updated: $APPUPDATED | State: $APPSTATE | Type: $APPTYPE$APPSTACKINFO)"
 
+      DROPLETID=$(cf curl "/v3/apps/$APPID/droplets/current" | jq -r '.guid')
+      if [ -n "$DROPLETID" ]; then
+        DROPLET=$(cf curl "/v3/droplets/$DROPLETID")
+        DROPLETSTATE=$(echo "$DROPLET" | jq -r '.state')
+        DROPLETUPDATED=$(echo "$DROPLET" | jq -r '.updated_at')
+        DROPLETSTACK=$(echo "$DROPLET" | jq -r '.stack')
+        DROPLETSTACKOUT=""
+        if [ "$DROPLETSTACK" != "null" ]; then
+          DROPLETSTACKOUT=" | Stack: $DROPLETSTACK"
+        fi
+        DROPLETIMAGEOUT=""
+        DROPLETIMAGE=$(echo "$DROPLET" | jq -r '.image')
+        if [ "$DROPLETIMAGE" != "null" ]; then
+          DROPLETIMAGEOUT=" | Image: $DROPLETIMAGE"
+        fi
+        echo "$level5 Current Droplet: $DROPLETSTATE (Last updated: $DROPLETUPDATED$DROPLETSTACKOUT$DROPLETIMAGEOUT)"
+      fi
+
       TASKCOUNT=$(cf curl "/v3/apps/$APPID/tasks" | jq -r '.pagination | .total_results')
       if [ "$TASKCOUNT" != "[]" ]; then
         echo "$level5 Number of Tasks attached to $APPNAME: $TASKCOUNT"
@@ -198,27 +216,6 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
           SIDECARMEMORY=$(echo "$SIDECAR" | jq -r '.memory_in_mb')
           SIDECARORIGIN=$(echo "$SIDECAR" | jq -r '.origin')
           echo "$level6 $SIDECARNAME (Last updated: $SIDECARUPDATED |Command: $SIDECARCOMMAND | Process Types: $SIDECARPROCESS | Memory: $SIDECARMEMORY mb | Origin: $SIDECARORIGIN)"
-        done
-      fi
-
-      DROPLETIDS=$(cf curl "/v3/apps/$APPID/droplets" | jq -r '[.resources[] | .guid]')
-      if [ "$DROPLETIDS" != "[]" ]; then
-        echo "$level5 Droplets:"
-        echo "$DROPLETIDS" | jq -r '.[]' | while read -r DROPLETID; do
-          DROPLET=$(cf curl "/v3/droplets/$DROPLETID")
-          DROPLETSTATE=$(echo "$DROPLET" | jq -r '.state')
-          DROPLETUPDATED=$(echo "$DROPLET" | jq -r '.updated_at')
-          DROPLETSTACK=$(echo "$DROPLET" | jq -r '.stack')
-          DROPLETSTACKOUT=""
-          if [ "$DROPLETSTACK" != "null" ]; then
-            DROPLETSTACKOUT=" | Stack: $DROPLETSTACK"
-          fi
-          DROPLETIMAGEOUT=""
-          DROPLETIMAGE=$(echo "$DROPLET" | jq -r '.image')
-          if [ "$DROPLETIMAGE" != "null" ]; then
-            DROPLETIMAGEOUT=" | Image: $DROPLETIMAGE"
-          fi
-          echo "$level6 $DROPLETSTATE (Last updated: $DROPLETUPDATED$DROPLETSTACKOUT$DROPLETIMAGEOUT)"
         done
       fi
     done
