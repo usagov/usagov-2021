@@ -87,12 +87,11 @@ main[data-pagetype="Benefits Category Search"]{
   }
 
   .grid-row {
-    flex-direction: column-reverse;
     border: 0;
     padding: 20px 0 0;
 
     @include at-media('tablet-lg') {
-      flex-direction: row;
+      gap: 10px;
     }
   }
 
@@ -133,7 +132,6 @@ main[data-pagetype="Benefits Category Search"]{
 
   @include at-media('tablet-lg') {
     column-count: 3;
-    width: calc(100% - 10rem);
   }
 
   > ul > li {

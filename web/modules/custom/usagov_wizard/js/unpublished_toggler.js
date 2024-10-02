@@ -1,3 +1,4 @@
+// Toggle to only show unpublished wizard terms.
 (function($, Drupal) {
   "use strict";
   Drupal.behaviors.unpublishedToggler = {
