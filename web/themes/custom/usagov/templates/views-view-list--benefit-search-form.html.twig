@@ -52,13 +52,6 @@
       <div class="alert-container" aria-live="polite"></div>
 
       <div role="group" class="grid-row" aria-labelledby="categories-label" aria-describedby="categories-description">
-        <div class="benefits-category-list-checkbox-cols">
-          <ul class="usa-list--unstyled">
-          {% for row in rows %}
-              <li>{{- row.content -}}</li>
-          {% endfor %}
-          </ul>
-        </div>
         <div class="usa-checkbox benefits-category-list-checkbox-all">
           <input class="usa-checkbox__input display-inline-block margin-right-1"
                  type="checkbox"
@@ -68,6 +61,13 @@
           <label class="usa-checkbox__label"
                  for="benefit-category-toggle-all"
           >{{ select_all_label }}</label>
+        </div>
+        <div class="benefits-category-list-checkbox-cols">
+          <ul class="usa-list--unstyled">
+          {% for row in rows %}
+              <li>{{- row.content -}}</li>
+          {% endfor %}
+          </ul>
         </div>
       </div>
     </fieldset>
