@@ -13,6 +13,7 @@ use Drupal\node\NodeInterface;
 use Drupal\path_alias\PathAliasInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
+use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
 /**
  * Description message.
@@ -33,9 +34,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         'front' => 'not_homepage',
         'nodetype' => NULL,
         'pagetype' => NULL,
-        'datalayer_pagetype' => NULL,
         'meta_noindex' => NULL,
-        'taxonomy_link_block' => NULL,
         'datalayer' => NULL,
       ];
       $node = \Drupal::routeMatch()->getParameter('node');
@@ -47,40 +46,23 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         // Check node has all the four variables set which must not be null.
         $node_real_type = $node->getType();
         if ($node->id() != NULL && $node_real_type != NULL && $isFront !== NULL) {
-
-          $isFront = $isFront ? 'homepage' : 'not_homepage';
-
-          // Check for a few special cases:
-          $special_node_type = FALSE;
-          // Change "directory_record" to "federal_directory_record".
-          if ($node_real_type == 'directory_record') {
-            $special_node_type = 'federal_directory_record';
-          }
-          else {
-            // Check for special nodes by path:
-            switch ($node->toUrl()->toString()) {
-              case '/agency-index':
-              case '/es/indice-agencias':
-                $special_node_type = 'federal_directory_index';
-                $current_letter = \Drupal::request()->query->get('letter') ?: 'a';
-                if ($current_letter != 'a') {
-                  $noindex = TRUE;
-                }
-                break;
-
-              case '/state-governments':
-              case '/es/gobiernos-estatales':
-                $special_node_type = 'state_directory_index';
-                break;
-            }
+          // Check for special nodes by path:
+          switch ($node->toUrl()->toString()) {
+            case '/agency-index':
+            case '/es/indice-agencias':
+              // Don't index beyond first page.
+              $current_letter = \Drupal::request()->query->get('letter') ?: 'a';
+              if ($current_letter != 'a') {
+                $noindex = TRUE;
+              }
+              break;
           }
 
-          $nodetype = $special_node_type ?: $node_real_type;
-          if ($nodetype == 'wizard_step') {
+          if ($node->getType() === 'wizard_step') {
             $noindex = TRUE;
           }
 
-          if (($node_real_type == 'directory_record') && $node->hasField('field_acronym')) {
+          if (($node->getType() === 'directory_record') && $node->hasField('field_acronym')) {
             if ($acronym = $node->get('field_acronym')->value) {
               $usa_twig_vars['head_title'] = $variables['head_title'];
               $usa_twig_vars['head_title']['title'] = Markup::create(trim(strip_tags($variables['page']['#title'])) .
@@ -88,41 +70,29 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             }
           }
 
-          // Cleanup vars.
           $pageType = usa_twig_vars_get_page_type($node);
-          $usa_twig_vars['id'] = $node->id();
-          $usa_twig_vars['front'] = $isFront;
-          $usa_twig_vars['nodetype'] = $nodetype;
-          $usa_twig_vars['pagetype'] = $pageType;
-
-          $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
-          $usa_twig_vars['meta_noindex'] = $noindex;
-
-          switch ($pageType) {
-            case 'Standard Page':
-              // If there's a special node type, use it.
-              $datalayer_Page_Type = $special_node_type ?: 'Content Page';
-              break;
-
-            case 'State Office Page':
-              // If there's a special node type, use it.
-              $datalayer_Page_Type = $special_node_type ?: $pageType;
-              break;
-
-            default:
-              $datalayer_Page_Type = $pageType ?? $nodetype;
-              break;
-          }
 
           // Data to be sent to GTM.
-          $usa_twig_vars['datalayer'] = usa_twig_vars_get_datalayer(
+          $datalayer = new TaxonomyDatalayerBuilder(
+            breadcrumbManager: \Drupal::service('breadcrumb'),
             node: $node,
             isFront: $isFront,
-            contentType: $nodetype,
             basicPagesubType: $pageType ?? NULL,
-            pageType: $datalayer_Page_Type,
           );
+
+          $usa_twig_vars['datalayer'] = $datalayer->build();
           unset($isFront);
+
+          // Cleanup vars.
+          // Promote variables figured out via datalayer builder that
+          // we initialized earlier.
+          // Need to get them from the array return after build() above.
+          $usa_twig_vars['id'] = $node->id();
+          $usa_twig_vars['nodetype'] = $usa_twig_vars['datalayer']['contentType'];
+          $usa_twig_vars['pagetype'] = $usa_twig_vars['datalayer']['basicPagesubType'];
+          $usa_twig_vars['front'] = $usa_twig_vars['datalayer']['homepageTest'];
+          $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
+          $usa_twig_vars['meta_noindex'] = $noindex;
         }
       }
 
@@ -462,81 +432,4 @@ function usa_twig_vars_path_alias_update(PathAliasInterface $path) {
  */
 function usa_twig_vars_node_insert(NodeInterface $node_to_check) {
   usa_twig_vars_check_exclude_from_contact_center($node_to_check);
-}
-
-/**
- * Builds a datalayer array we can serialize to JSON in our twig template.
- */
-function usa_twig_vars_get_datalayer(
-  Node $node,
-  string $isFront,
-  string $contentType,
-  ?string $basicPagesubType,
-  string $pageType,
-): array {
-  $datalayer = [];
-  $langcode = $node->language()->getId();
-
-  $datalayer['nodeID'] = $node->id();
-  $datalayer['contentType'] = $contentType;
-  $datalayer['language'] = $langcode;
-  $datalayer['homepageTest'] = $isFront === 'homepage' ? 'homepage' : 'not_homepage';
-  $datalayer['basicPagesubType'] = $basicPagesubType;
-  $datalayer['Page_Type'] = $pageType;
-
-  // Taxonomy for the homepages. These depend on variables
-  // that the block view doesn't readily have access to.
-  if ($isFront === 'homepage' && $langcode === 'en') {
-    $datalayer["Taxonomy_Text_1"] = "Home";
-    $datalayer["Taxonomy_Text_2"] = "Home";
-    $datalayer["Taxonomy_Text_3"] = "Home";
-    $datalayer["Taxonomy_Text_4"] = "Home";
-    $datalayer["Taxonomy_Text_5"] = "Home";
-    $datalayer["Taxonomy_Text_6"] = "Home";
-    $datalayer["Taxonomy_URL_1"] = "/";
-    $datalayer["Taxonomy_URL_2"] = "/";
-    $datalayer["Taxonomy_URL_3"] = "/";
-    $datalayer["Taxonomy_URL_4"] = "/";
-    $datalayer["Taxonomy_URL_5"] = "/";
-    $datalayer["Taxonomy_URL_6"] = "/";
-  }
-  elseif ($isFront === 'homepage' && $langcode === 'es') {
-    $datalayer["Taxonomy_Text_1"] = "Página principal";
-    $datalayer["Taxonomy_Text_2"] = "Página principal";
-    $datalayer["Taxonomy_Text_3"] = "Página principal";
-    $datalayer["Taxonomy_Text_4"] = "Página principal";
-    $datalayer["Taxonomy_Text_5"] = "Página principal";
-    $datalayer["Taxonomy_Text_6"] = "Página principal";
-    $datalayer["Taxonomy_URL_1"] = "/es/";
-    $datalayer["Taxonomy_URL_2"] = "/es/";
-    $datalayer["Taxonomy_URL_3"] = "/es/";
-    $datalayer["Taxonomy_URL_4"] = "/es/";
-    $datalayer["Taxonomy_URL_5"] = "/es/";
-    $datalayer["Taxonomy_URL_6"] = "/es/";
-  }
-  else {
-    /* usagov_taxonomy_links is a "system breadcrumb" block whose twig file
-    will render the taxonomy information for the dataLayer array. Here, we
-    create a renderable version of the block and save it as a variable that can
-    be rendered within the HTML <head> element in html.html.twig.
-
-    The breadcrumb links aren't calculated until this block is actually
-    rendered, so  we do NOT have an opportunity to save or process the links
-    themselves into the $variables array for html.html.twig to use. */
-    $breadcrumb_block = Block::load('usagov_taxonomy_links');
-    $taxonomy_link_block = \Drupal::entityTypeManager()->getViewBuilder('block')->view($breadcrumb_block);
-
-    // Render the block output and then parse the key/value
-    // pairs to the datalayer. This should work, but there's a bunch of
-    // logic done in the block view to adjust what is shown that
-    // might be doable elsewhere.
-    $output = \Drupal::service('renderer')->renderRoot($taxonomy_link_block);
-    if (preg_match_all('/"(Taxonomy_[^"]+)":\s+"([^"]+)"/', $output, $matches)) {
-      foreach ($matches[1] as $index => $prop) {
-        $datalayer[$prop] = $matches[2][$index];
-      }
-    }
-  }
-
-  return $datalayer;
 }
