@@ -42,7 +42,7 @@ getPaginationCount() { # $1 = resource, $2 = relationship, $3 = relationship id
   if [ -z "$2" ]; then
     if [[ $PAGES -gt 1 ]]; then
       for i in $PAGES; do
-        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=50" | jq -r '[.resources[] | .guid]')
+        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=100" | jq -r '[.resources[] | .guid]')
       done
     else
       IDS=$(cf curl "/v3/$1" | jq -r '[.resources[] | .guid]')
@@ -50,7 +50,7 @@ getPaginationCount() { # $1 = resource, $2 = relationship, $3 = relationship id
   else
     if [[ $PAGES -gt 1 ]]; then
       for i in $PAGES; do
-        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=50" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'"$3"'" ) | .guid]')
+        IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=100" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'"$3"'" ) | .guid]')
       done
     else
       IDS=$(cf curl "/v3/$1" | jq -r '[.resources[] | select( .relationships.'"$2"'.data.guid == "'"$3"'" ) | .guid]')
@@ -166,6 +166,18 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
         ROUTEPATH=$(echo "$ROUTE" | jq -r '.path')
         ROUTEURL=$(echo "$ROUTE" | jq -r '.url')
         echo "$level4 $ROUTEURL (Last updated: $ROUTEUPDATED | Created: $ROUTECREATED | Host: $ROUTEHOST | Path: $ROUTEPATH)"
+      done
+    fi
+
+    SGROUPIDS=$(getPaginationCount "spaces/$SPACEID/running_security_groups")
+    if [ "$SGROUPIDS" != "[]" ]; then
+      echo "$level3 Attached Security Groups:"
+      echo "$SGROUPIDS" | jq -r '.[]' | while read -r SGROUPID; do
+        SGROUP=$(cf curl "/v3/security_groups/$SGROUPID")
+        SGROUPCREATED=$(echo "$SGROUP" | jq -r '.created_at')
+        SGROUPUPDATED=$(echo "$SGROUP" | jq -r '.updated_at')
+        SGROUPNAME=$(echo "$SGROUP" | jq -r '.name')
+        echo "$level4 $SGROUPNAME (Last updated: $SGROUPUPDATED | Created: $SGROUPCREATED)"
       done
     fi
 
