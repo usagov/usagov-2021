@@ -76,3 +76,16 @@ index 9333218..4ff8dd3 100644
        }
        catch (\Exception $e) {
          $this->io->getErrorStyle()->error($this->formatPathException($path, $e));
+diff --git web/modules/contrib/tome/modules/tome_static/src/RequestPreparer.php web/modules/contrib/tome/modules/tome_static/src/RequestPreparer.php
+index be08b04..7d514d8 100644
+--- web/modules/contrib/tome/modules/tome_static/src/RequestPreparer.php
++++ web/modules/contrib/tome/modules/tome_static/src/RequestPreparer.php
+@@ -110,7 +110,7 @@ class RequestPreparer {
+     }
+     // Reset active trail cache.
+     if ($this->menuActiveTrail instanceof CacheCollectorInterface) {
+-      $this->menuActiveTrail->reset();
++      $this->menuActiveTrail->clear();
+     }
+     // Reset the language manager.
+     $this->languageManager->reset();

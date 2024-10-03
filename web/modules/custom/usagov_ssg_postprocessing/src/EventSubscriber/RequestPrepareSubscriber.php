@@ -8,18 +8,16 @@ use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Clears the menu active trail cache between Tome requests.
+ * Clears non-core caches between Tome requests.
  *
- * @internal
+ * This event is useful when running tome with more than one path per process to
+ * clear any caches used by contrib modules.
  */
 class RequestPrepareSubscriber implements EventSubscriberInterface {
 
   public function __construct(
-    private CacheCollectorInterface $menu_active_trail,
     private AliasManager $alias_manager,
-  ) {
-
-  }
+  ) {}
 
   /**
    * Clear additional caches.
@@ -27,9 +25,6 @@ class RequestPrepareSubscriber implements EventSubscriberInterface {
    * Fixes issues found when tome export path count is greater than 1.
    */
   public function requestPrepare(): void {
-    // Fixes menu blocks rendering with the wrong items because the
-    // active path incorrectly persists between page requests.
-    $this->menu_active_trail->clear();
     // Fixes redirects exporting with the target node's content instead
     // of an HTML redirect.
     $this->alias_manager->cacheClear();
