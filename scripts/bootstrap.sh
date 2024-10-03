@@ -125,7 +125,6 @@ echo "$SP_KEY" > /var/www/sp.key
 echo "$SP_CRT" > /var/www/sp.crt
 
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
-
 # this overwrites the files in place, so be careful mounting in docker
 echo "Inserting environment variables into nginx config templates ... "
 for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
