@@ -164,7 +164,8 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
           if ($name == $key) {
             if ($name == 'taxonomyID') {
               $decoded[$item] = 't_' . $term;
-            } else {
+            }
+            else {
               $decoded[$item] = $term;
             }
             unset($decoded[$name]);
