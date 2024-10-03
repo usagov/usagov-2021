@@ -13,6 +13,18 @@ if [ ! -f /container_start_timestamp ]; then
   echo "$(date +'%s')" > /container_start_timestamp
 fi
 
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+
+
 echo "Deployment: bootstrap starting"
 
 # Add the cloud foundry certificates for communication with other apps in cloud.gov.
@@ -31,11 +43,18 @@ APP_NAME=$(echo $VCAP_APPLICATION | jq -r '.name')
 APP_ROOT=$(dirname "$0")
 APP_ID=$(echo "$VCAP_APPLICATION" | jq -r '.application_id')
 
-DB_NAME=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.db_name')
-DB_USER=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.username')
-DB_PW=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.password')
-DB_HOST=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.host')
-DB_PORT=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.port')
+
+AWSRDS=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"]')
+if [ "$AWSRDS" = "null" ]; then
+  echo "WARNING: The aws-rds variable is not set in the VCAP_SERVICES which is only a problem if this is NOT the WWW instance."
+else
+  echo "NOTICE: This bootstrap.sh sees the aws-rds variable is indeed set in the VCAP_SERVICES so this application should be able to connect to RDS/MySQL."
+  DB_NAME=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.db_name')
+  DB_USER=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.username')
+  DB_PW=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.password')
+  DB_HOST=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.host')
+  DB_PORT=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.port')
+fi
 
 ADMIN_EMAIL=$(echo $SECRETS | jq -r '.ADMIN_EMAIL')
 
@@ -118,6 +137,19 @@ echo "$SP_KEY" > /var/www/sp.key
 echo "$SP_CRT" > /var/www/sp.crt
 
 ENV_VARIABLES=$(awk 'BEGIN{for(v in ENVIRON) print "$"v}')
+
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+
+
 # this overwrites the files in place, so be careful mounting in docker
 echo "Inserting environment variables into nginx config templates ... "
 for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
