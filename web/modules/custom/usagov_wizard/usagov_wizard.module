@@ -22,6 +22,12 @@ use Drupal\usagov_wizard\MenuChecker;
  * root of the tree.
  */
 function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state) {
+  $form['name']['widget'][0]['value']['#description'] = 'Name inside the CMS. This is what you see in the taxonomy tree.';
+  $form['langcode']['widget'][0]['value']['#description'] = '';
+  $form['description']['widget'][0]['#description'] = 'Description for the radio button label.';
+  $form['relations']['parent']['#attributes'] = ['class' => ['resize-vertical', 'width-tablet', 'height-mobile']];
+  $form['relations']['widget'][0]['#description'] = 'You can use the tree to move the node.';
+  $form['relations']['#weight'] = 11;
   if (isset($form['tid'])) {
     $language = $form['langcode']['widget'][0]['value']['#default_value'];
     $url = Url::fromUri('base:' .
@@ -40,12 +46,70 @@ function usagov_wizard_form_taxonomy_term_wizard_form_alter(&$form, &$form_state
       ],
       '#weight' => 10,
     ];
-
-    // Hide meta description fields on non-root forms.
-    if (count($form['relations']['parent']['#options']) !== 1) {
+    if (isset($form['tid']["#value"])) {
+      $taxonomy_term = Term::load($form['tid']["#value"]);
+      $termParents = \Drupal::classResolver(MenuChecker::class);
+      $termParents = $termParents->getTermParents($taxonomy_term);
+      $rootTermTid = $termParents[array_key_last($termParents)];
+      // Hide meta description fields on non-root forms.
+      if ($form['tid']['#value'] != $rootTermTid) {
+        $form['field_meta_description']['#access'] = FALSE;
+        $form['field_wizard_breadcrumbs']['#access'] = FALSE;
+      }
+    }
+    // Hide this in all cases on the tid creation screen.
+    else {
       $form['field_meta_description']['#access'] = FALSE;
+      $form['field_wizard_breadcrumbs']['#access'] = FALSE;
     }
   }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Adds a expand/collapse all button to overview form.
+ */
+function usagov_wizard_form_taxonomy_overview_terms_alter(&$form, &$form_state) {
+  $form['expand_collapse_all'] = [
+    '#title' => t('Expand/Collapse All'),
+    '#type' => 'button',
+    '#value' => 'Expand/Collapse',
+    '#attributes' => [
+      // Don't submit the form on click.
+      'onclick' => 'return false;',
+      'class' => [
+        'button',
+        'usa-button',
+      ],
+    ],
+    '#attached' => [
+      'library' => [
+        'usagov_wizard/expand_collapse',
+      ],
+    ],
+    '#weight' => -10,
+  ];
+
+  $form['unpublished_toggler'] = [
+    '#title' => t('Unpublished/All'),
+    '#type' => 'button',
+    '#value' => 'Unpublished/All',
+    '#attributes' => [
+      // Toggle to hide/unhide published nodes.
+      'onclick' => 'return false;',
+      'class' => [
+        'button',
+        'usa-button',
+      ],
+    ],
+    '#attached' => [
+      'library' => [
+        'usagov_wizard/unpublished_toggler',
+      ],
+    ],
+    '#weight' => -10,
+  ];
 }
 
 /**
@@ -102,14 +166,8 @@ function usagov_wizard_preprocess_html(&$variables) {
     if (isset($taxonomy_term)) {
       if ($taxonomy_term->bundle() === 'wizard') {
 
-        // Set the meta description to the value on the root term of the tree.
-        $termParents = \Drupal::classResolver(MenuChecker::class);
-        $termParents = $termParents->getTermParents($taxonomy_term);
-        $rootTermTid = array_reverse($termParents)[0];
-        $rootTerm = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($rootTermTid);
-
-        if (isset($rootTerm->field_meta_description)) {
-          $variables['meta_description'] = $rootTerm->field_meta_description->value;
+        if (isset($taxonomy_term->field_meta_description)) {
+          $variables['meta_description'] = $taxonomy_term->field_meta_description->value;
         }
 
         // Set a bunch of other stuff...
@@ -308,80 +366,36 @@ function usagov_wizard_preprocess_taxonomy_term(&$variables) {
 }
 
 /**
- * Implements hook_preprocess_HOOK().
+ * Implements hook_preprocess_breadcrumb().
  *
- * Breadcrumbs should have a structure like this: “Home -> Parent left nav menu
- * link -> Name of first wizard page. In the current setup this would be
- * “Home -> How to report a scam -> USA.gov where to report a scam tool”.
- * This breadcrumb setup should not change throughout the wizard.
- *
- * By default, breadcrumbs are set up to utilize the term name. This needs to be
- * altered in a couple of ways.
- *
- * For one, the second item in the breadcrumb, "How to report a scam", should be
- * the text of the menu entity, so the menu needs to be hooked up to the
- * breadcrumb similarly to how it was done for the left nav.
- *
- * For another thing, the third item in the breadcrumb "USA.gov where to report
- * a scam tool", should be the field_heading of that term, not the name.
- * This will need to be accomplished in a preprocess hook.
+ * Send the values in the root term's field_wizard_breadcrumbs to the twig.
  */
 function usagov_wizard_preprocess_breadcrumb(&$variables) {
   $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
   if ($taxonomy_term instanceof Term) {
     if ($taxonomy_term->bundle() == 'wizard') {
       $menuChecker = \Drupal::classResolver(MenuChecker::class);
-      $langcode = $taxonomy_term->langcode->value;
+      $parents = $menuChecker->getTermParents($taxonomy_term);
+      $rootTermTid = $parents[array_key_last($parents)];
+      if (isset($rootTermTid)) {
+        $rootTerm = Term::load($rootTermTid);
+        if (isset($rootTerm->field_wizard_breadcrumbs)) {
+          $crumbs = $rootTerm->field_wizard_breadcrumbs->getValue();
+          foreach ($crumbs as $crumb) {
+            if (isset($crumb['uri'])) {
+              $crumb['url'] = Url::fromUri($crumb['uri'])->toString();
+            }
 
-      $parent_headings = $menuChecker->getHeadings($taxonomy_term);
-
-      $menuEntities = $menuChecker->getMenuEntities($langcode);
-
-      if (isset($menuEntities['primary_entity'])) {
-        $wizard_title = $menuEntities['primary_entity']->title->value;
-        $wizard_title_url = Url::fromUri($menuEntities['primary_entity']->link->uri)->toString();
-      }
-    }
-    // Use that to determine the second item in the breadcrumb.
-    if (isset($wizard_title)) {
-      $variables['breadcrumb']['1']['text'] = $wizard_title;
-    }
-    else {
-      return;
-    }
-
-    // Use that to determine the second item in the breadcrumb.
-    if (isset($wizard_title)) {
-      $variables['breadcrumb']['1']['text'] = $wizard_title;
-      $variables['breadcrumb']['1']['url'] = $wizard_title_url;
-
-      /*
-       *  And, if we are on the page that corresponds with the second item,
-       *  remove that page from the array.
-       */
-      if (isset($variables['breadcrumb']['2'])) {
-        if ($variables['breadcrumb']['2']['text'] == $wizard_title) {
-          unset($variables['breadcrumb']['1']);
-          unset($variables['breadcrumb']['2']);
-          return;
-        }
-        elseif (strlen($variables['breadcrumb']['2']['url']) < 1) {
-          unset($variables['breadcrumb']['2']);
-        }
-      }
-    }
-    $i = 0;
-    // Set the third item in the breadcrumb to be the field_heading.
-    foreach ($variables['breadcrumb'] as &$breadcrumb) {
-      /* Dont do anything to the second breadcrumb, since this one has a weird
-      naming system. */
-      if ($i++ == 1) {
-        continue;
-      }
-      foreach ($parent_headings as $parent_heading) {
-        if (is_string($breadcrumb['text']) && $parent_heading['name'] ===
-          $breadcrumb['text']) {
-          $breadcrumb['text'] = $parent_heading['label'];
+            $variables['breadcrumb']['crumbs'][] = $crumb;
+          }
+          $language = $taxonomy_term->langcode->value;
+          $home = [
+            'title' => $language == 'en' ? 'Home' : 'Página principal',
+            'url' => $language == 'en' ? '/' : '/es',
+          ];
+          if ($crumbs != NULL) {
+            array_unshift($variables['breadcrumb']['crumbs'], $home);
+          }
         }
       }
     }

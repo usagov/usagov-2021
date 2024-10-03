@@ -31,6 +31,15 @@
       {% endfor %}
     {% endif %}
 
+    {% for modal_id, modal_data in modals %}
+      {% if modal_id %}
+        {{ attach_library('usagov/modal') }}
+        {{ drupal_entity('block_content', modal_id) }}
+        {# This div creates an association between the modal's name used in the query string and the numerical ID used by the paragraph component' #}
+        <div data-modal-name="{{ modal_data['name']|url_encode }}" data-modal-id="{{ modal_data['id']['target_id'] }}"></div>
+      {% endif %}
+    {% endfor %}
+
   </div>
 
 {% endif %}

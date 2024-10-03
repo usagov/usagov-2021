@@ -1,0 +1,23 @@
+uuid: abd613ab-36cd-4b8e-adba-8857a28b8a52
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_wizard_breadcrumbs
+    - taxonomy.vocabulary.wizard
+  module:
+    - link
+id: taxonomy_term.wizard.field_wizard_breadcrumbs
+field_name: field_wizard_breadcrumbs
+entity_type: taxonomy_term
+bundle: wizard
+label: Breadcrumbs
+description: 'Set the breadcrumbs for this wizard. Do not set the homepage as a link here as this is already assumed. Field only visible on root of tree.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 2
+  link_type: 1
+field_type: link

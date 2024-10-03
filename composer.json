@@ -20,7 +20,7 @@
         "drupal/address": "^1.9",
         "drupal/admin_toolbar": "^3.4",
         "drupal/allowed_formats": "^3.0",
-        "drupal/autologout": "^1.3",
+        "drupal/autologout": "^2.0",
         "drupal/ckeditor_media_resize": "^1.0@beta",
         "drupal/ckeditor_templates": "^1.3",
         "drupal/ckeditor_templates_ui": "^1.5",
@@ -142,13 +142,11 @@
             "drupal/core": {
                 "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail_d10.patch",
                 "Show views theme suggestions in twig debug": "https://www.drupal.org/files/issues/2024-06-06/2118743-251.patch",
-                "Add a taxonomy revision UI": "https://www.drupal.org/files/issues/2023-10-26/add-taxonomy-revision-ui-2936995-58.patch"
+                "Add a taxonomy revision UI": "https://www.drupal.org/files/issues/2023-10-26/add-taxonomy-revision-ui-2936995-58.patch",
+                "Enable taxonomy revision log message": "./patches/drupal/taxonomy_revision_log.patch"
             },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren_d10.patch"
-            },
-            "drupal/autologout":{
-                "Auto redirect if user didn't click the popup": "https://www.drupal.org/files/issues/2023-12-21/3368585-6.patch"
             }
         },
         "drupal-lenient": {

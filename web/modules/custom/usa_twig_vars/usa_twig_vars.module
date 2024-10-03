@@ -5,14 +5,15 @@
  * Use proprocess for html twig.
  */
 
-use Drupal\block\Entity\Block;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
+use Drupal\block\Entity\Block;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\path_alias\PathAliasInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
+use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
 /**
  * Description message.
@@ -26,15 +27,14 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
   if ($hook === 'html' || $hook === 'page') {
     $usa_twig_vars = &drupal_static(__FUNCTION__);
     if (!isset($usa_twig_vars)) {
-      // pre-populate $usa_twig_vars so we can rely on certain fields being present:
+      /* pre-populate $usa_twig_vars so we can rely on certain
+      fields being present:*/
       $usa_twig_vars = [
         'id' => NULL,
         'front' => 'not_homepage',
         'nodetype' => NULL,
         'pagetype' => NULL,
-        'datalayer_pagetype' => NULL,
         'meta_noindex' => NULL,
-        'taxonomy_link_block' => NULL,
         'datalayer' => NULL,
       ];
       $node = \Drupal::routeMatch()->getParameter('node');
@@ -46,40 +46,23 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
         // Check node has all the four variables set which must not be null.
         $node_real_type = $node->getType();
         if ($node->id() != NULL && $node_real_type != NULL && $isFront !== NULL) {
-
-          $isFront = $isFront ? 'homepage' : 'not_homepage';
-
-          // Check for a few special cases:
-          $special_node_type = FALSE;
-          // change "directory_record" to "federal_directory_record"
-          if ($node_real_type == 'directory_record') {
-            $special_node_type = 'federal_directory_record';
-          }
-          else {
-            // Check for special nodes by path:
-            switch ($node->toUrl()->toString()) {
-              case '/agency-index':
-              case '/es/indice-agencias':
-                $special_node_type = 'federal_directory_index';
-                $current_letter = \Drupal::request()->query->get('letter') ?: 'a';
-                if ($current_letter != 'a') {
-                  $noindex = TRUE;
-                }
-                break;
-
-              case '/state-governments':
-              case '/es/gobiernos-estatales':
-                $special_node_type = 'state_directory_index';
-                break;
-            }
+          // Check for special nodes by path:
+          switch ($node->toUrl()->toString()) {
+            case '/agency-index':
+            case '/es/indice-agencias':
+              // Don't index beyond first page.
+              $current_letter = \Drupal::request()->query->get('letter') ?: 'a';
+              if ($current_letter != 'a') {
+                $noindex = TRUE;
+              }
+              break;
           }
 
-          $nodetype = $special_node_type ?: $node_real_type;
-          if ($nodetype == 'wizard_step') {
+          if ($node->getType() === 'wizard_step') {
             $noindex = TRUE;
           }
 
-          if (($node_real_type == 'directory_record') && $node->hasField('field_acronym')) {
+          if (($node->getType() === 'directory_record') && $node->hasField('field_acronym')) {
             if ($acronym = $node->get('field_acronym')->value) {
               $usa_twig_vars['head_title'] = $variables['head_title'];
               $usa_twig_vars['head_title']['title'] = Markup::create(trim(strip_tags($variables['page']['#title'])) .
@@ -87,41 +70,29 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             }
           }
 
-          // Cleanup vars.
           $pageType = usa_twig_vars_get_page_type($node);
-          $usa_twig_vars['id'] = $node->id();
-          $usa_twig_vars['front'] = $isFront;
-          $usa_twig_vars['nodetype'] = $nodetype;
-          $usa_twig_vars['pagetype'] = $pageType;
-
-          $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
-          $usa_twig_vars['meta_noindex'] = $noindex;
-
-          switch ($pageType) {
-            case 'Standard Page':
-              // If there's a special node type, use it.
-              $datalayer_Page_Type = $special_node_type ?: 'Content Page';
-              break;
-
-            case 'State Office Page':
-              // If there's a special node type, use it.
-              $datalayer_Page_Type = $special_node_type ?: $pageType;
-              break;
-
-            default:
-              $datalayer_Page_Type = $pageType ?? $nodetype;
-              break;
-          }
 
           // Data to be sent to GTM.
-          $usa_twig_vars['datalayer'] = usa_twig_vars_get_datalayer(
+          $datalayer = new TaxonomyDatalayerBuilder(
+            breadcrumbManager: \Drupal::service('breadcrumb'),
             node: $node,
             isFront: $isFront,
-            contentType: $nodetype,
             basicPagesubType: $pageType ?? NULL,
-            pageType: $datalayer_Page_Type,
           );
+
+          $usa_twig_vars['datalayer'] = $datalayer->build();
           unset($isFront);
+
+          // Cleanup vars.
+          // Promote variables figured out via datalayer builder that
+          // we initialized earlier.
+          // Need to get them from the array return after build() above.
+          $usa_twig_vars['id'] = $node->id();
+          $usa_twig_vars['nodetype'] = $usa_twig_vars['datalayer']['contentType'];
+          $usa_twig_vars['pagetype'] = $usa_twig_vars['datalayer']['basicPagesubType'];
+          $usa_twig_vars['front'] = $usa_twig_vars['datalayer']['homepageTest'];
+          $usa_twig_vars['meta_description'] = usa_twig_vars_get_meta_description($node);
+          $usa_twig_vars['meta_noindex'] = $noindex;
         }
       }
 
@@ -140,8 +111,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
 }
 
 /**
- * To allow for the hiding of menu items with page type set to Standard Page- Nav Hidden.
- *
+ * Hide menu items with page type set to Standard Page - Nav Hidden.
  */
 function usa_twig_vars_preprocess_menu__sidebar_first(&$variables, $hook) {
   $node = \Drupal::routeMatch()->getParameter('node');
@@ -150,6 +120,9 @@ function usa_twig_vars_preprocess_menu__sidebar_first(&$variables, $hook) {
   }
 }
 
+/**
+ * Return the $page_type.
+ */
 function usa_twig_vars_get_page_type(&$node) {
   $fields = $node->getFields();
   if (array_key_exists('field_page_type', $fields)
@@ -164,12 +137,17 @@ function usa_twig_vars_get_page_type(&$node) {
 }
 
 /**
- * Get a string for the <meta description> tag, as entered in the CMS. Attempt
- * to get text from field_meta_description, and if that is absent or does not
- * contain text, from field_page_intro (which will be the more common case).
+ * Get a string for the <meta description> tag, as entered in the CMS.
  *
- * @param [type] $node
- * @return string, NULL
+ * Attempt to get text from field_meta_description, and if that is absent or
+ * does not contain text, from field_page_intro (which will be the more common
+ * case).
+ *
+ * @param \Drupal\node\NodeInterface $node
+ *   The node entity to get the meta description from.
+ *
+ * @return string,NULL
+ *   Returns the meta description or NULL if there is none.
  */
 function usa_twig_vars_get_meta_description(&$node) {
   $fields = $node->getFields();
@@ -207,8 +185,7 @@ function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
 }
 
 /**
- * Preprocess title for Federal Agency pages
- *
+ * Preprocess title for Federal Agency pages.
  */
 function usa_twig_vars_preprocess_page_title(&$variables, $hook) {
   $node = \Drupal::routeMatch()->getParameter('node');
@@ -222,11 +199,13 @@ function usa_twig_vars_preprocess_page_title(&$variables, $hook) {
 }
 
 /**
- * Add context to the federal_agencies view to allow us to show the current letter,
- * and add links to the "next" and "previous" letters.
- * Note that the _summary preprocess hook runs first (at least for this view) and
- * populates a static variable with the list of possible letters, which the
- * _list preprocess hook needs in order to figure out prev/next.
+ * Add context to the federal_agencies view.
+ *
+ * Allow us to show the current letter, and add links to the "next" and
+ * "previous" letters. Note that the _summary preprocess hook runs first (at
+ * least for this view) and populates a static variable with the list of
+ * possible letters, which the _list preprocess hook needs in order to figure
+ * out prev/next.
  */
 function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variables, $hook, $info) {
   $our_unique_name = 'usa_twig_vars_preprocess_view_federal_agencies';
@@ -279,8 +258,10 @@ function usa_twig_vars_preprocess_views_view_field__published_pages_report(&$var
 }
 
 /**
- * Add context to the federal_agencies view to allow us to show the current letter,
- * and add links to the "next" and "previous" letters.
+ * Add context to the federal_agencies view.
+ *
+ * Allow us to show the current letter, and add links to the "next" and
+ * "previous" letters.
  */
 function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables, $hook, $info) {
   $alpha_context = &drupal_static('usa_twig_vars_preprocess_view_federal_agencies');
@@ -288,41 +269,62 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
 }
 
 /**
- * Create an array called `site_banners` that contains all the site banners. The
- * value of each element in this array can be the id of the site banner if the
- * checkbox `place_above_header` is checked or `null` if the checkbox is not checked.
+ * Create an array called `site_banners` that contains all the site banners.
+ *
+ * The value of each element in this array can be the id of the site banner
+ * if the checkbox `place_above_header` is checked or `null` if the checkbox
+ * is not checked.
  */
 function usa_twig_vars_preprocess_region(&$variables) {
 
-  // Check if we are in the `header_top` region
+  // Check if we are in the `header_top` region.
   if ($variables['region'] === 'header_top') {
 
     $site_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
-    // Get all site_banners from the website
+    // Get all site_banners from the website.
     $site_banners_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'site_banner']);
     if ($site_banners_blocks) {
 
       foreach ($site_banners_blocks as $site_banner) {
-        /**
+        /*
          * Check if the language of the banner is the same as the website.
-         * This prevents incorrect language banners from being displayed on the site.
-         * */
+         * This prevents incorrect language banners from being displayed on the
+         * site.
+         */
         $site_banner_lang = $site_banner->langcode->value;
         if ($site_banner_lang === $site_language) {
-          // Get the value of the checkbox in the site_banner form
+          // Get the value of the checkbox in the site_banner form.
           $place_above_header = $site_banner->field_place_above_header->value;
 
           // Check if the checkbox in the site_banner form is checked or not.
           if ($place_above_header) {
-            // Set the value to the site_banner id to add the site_banner to the `header_top` region.
+            /* Set the value to the site_banner id to add the site_banner to the
+            `header_top` region.*/
             $variables['site_banners'][$site_banner->id()] = $site_banner->id();
           }
           else {
-            // Set the value to null to remove the site_banner with id `$site_banner->id()` from the region `header_top`
+            /* Set the value to null to remove the site_banner with id
+            `$site_banner->id()` from the region `header_top`. */
             $variables['site_banners'][$site_banner->id()] = NULL;
           }
         }
 
+      }
+    }
+    // Get all modals from the website.
+    $modal_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'modal']);
+    foreach ($modal_blocks as $modal) {
+      /*
+       * Check if the language of the modal is the same as the website.
+       * This prevents incorrect language modals from being displayed on the
+       * site.
+       */
+      $modal_lang = $modal->langcode->value;
+      if ($modal_lang === $site_language) {
+        $variables['modals'][$modal->id()] = [
+          "name" => $modal->field_modal_id->value,
+          "id" => $modal->field_modal[0]->getValue(),
+        ];
       }
     }
   }
@@ -338,11 +340,13 @@ function usa_twig_vars_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Custom after build function
+ * Custom after build function.
  */
 function usa_twig_vars_after_build($form, &$form_state) {
-  // Unchecks Generate automatic URL alias if path exists, if NOT home page
-  //in_array returns true unless strict mode is turned on but strict mode returns false on other pages where the key is found
+  /* Unchecks Generate automatic URL alias if path exists, if NOT home page
+  in_array returns true unless strict mode is turned on but strict mode returns
+  false on other pages where the key is found.
+   */
   if (array_key_exists('field_page_type', $form_state->getValues())) {
     $page_type = NULL;
     if (is_array($form_state->getValues()['field_page_type'])) {
@@ -367,7 +371,8 @@ function usa_twig_vars_after_build($form, &$form_state) {
   return $form;
 }
 
-/** Helper function to check if node should be excluded from contact center based on path. Updates the exclude from url checkbox on edit pages.  */
+/**
+ * Helper function to check if node should be excluded from contact center based on path. Updates the exclude from url checkbox on edit pages.  */
 function usa_twig_vars_check_exclude_from_contact_center($node_to_check) {
   $path_alias_to_check = $node_to_check->toUrl()->toString();
   if (str_starts_with($path_alias_to_check, '/es/articulos/') || str_starts_with($path_alias_to_check, '/features/')) {
@@ -376,7 +381,8 @@ function usa_twig_vars_check_exclude_from_contact_center($node_to_check) {
   }
 }
 
-/** Helper function to get the node from a path. Used in path_alias_insert and path_alias_update.  */
+/**
+ * Helper function to get the node from a path. Used in path_alias_insert and path_alias_update.  */
 function usa_twig_vars_get_node_from_path($path) {
   $path_alias_url = $path->getAlias();
   $params = Url::fromUserInput($path_alias_url)->getRouteParameters();
@@ -386,8 +392,11 @@ function usa_twig_vars_get_node_from_path($path) {
 }
 
 /**
- * Implements hook_views_post_execute()
- * When a user goes to this view it will call usa_twig_vars_check_exclude_from_contact_center() on all the nodes to check the box for all features to the exclude from contact center
+ * Implements hook_views_post_execute().
+ *
+ * When a user goes to this view it will call
+ * usa_twig_vars_check_exclude_from_contact_center() on all the nodes to check
+ * the box for all features to the exclude from contact center.
  */
 function usa_twig_vars_views_post_execute($view) {
   if ($view->id() == 'features' && ($view->current_display == 'all_paths')) {
@@ -403,8 +412,11 @@ function usa_twig_vars_views_post_execute($view) {
 }
 
 /**
- * Implements hook_path_alias_update()
- * When a user edits the url alias of a content page this is triggered to see if the node should be excluded from the contact center. If so the value of the exclude from contact center is set to 1.
+ * Implements hook_path_alias_update().
+ *
+ * When a user edits the url alias of a content page this is triggered to see
+ * if the node should be excluded from the contact center. If so the value of
+ * the exclude from contact center is set to 1.
  */
 function usa_twig_vars_path_alias_update(PathAliasInterface $path) {
   $node = usa_twig_vars_get_node_from_path($path);
@@ -412,86 +424,12 @@ function usa_twig_vars_path_alias_update(PathAliasInterface $path) {
 }
 
 /**
- * Implements hook_node_insert()
- * When a user creates a new content page this is triggered to see if the node should be excluded from the contact center. If so the value of the exclude from contact center is set to 1.
+ * Implements hook_node_insert().
+ *
+ * When a user creates a new content page this is triggered to see if the node
+ * should be excluded from the contact center. If so the value of the exclude
+ * from contact center is set to 1.
  */
 function usa_twig_vars_node_insert(NodeInterface $node_to_check) {
   usa_twig_vars_check_exclude_from_contact_center($node_to_check);
-}
-
-/**
- * Builds a datalayer array we can serialize to JSON in our twig template
- */
-function usa_twig_vars_get_datalayer(
-  Node $node,
-  string $isFront,
-  string $contentType,
-  ?string $basicPagesubType,
-  string $pageType,
-): array {
-  $datalayer = [];
-  $langcode = $node->language()->getId();
-
-  $datalayer['nodeID'] = $node->id();
-  $datalayer['contentType'] = $contentType;
-  $datalayer['language'] = $langcode;
-  $datalayer['homepageTest'] = $isFront === 'homepage' ? 'homepage' : 'not_homepage';
-  $datalayer['basicPagesubType'] = $basicPagesubType;
-  $datalayer['Page_Type'] = $pageType;
-
-  // Taxonomy for the homepages. These depend on variables
-  // that the block view doesn't readily have access to.
-  if ($isFront === 'homepage' && $langcode === 'en') {
-    $datalayer["Taxonomy_Text_1"] = "Home";
-    $datalayer["Taxonomy_Text_2"] = "Home";
-    $datalayer["Taxonomy_Text_3"] = "Home";
-    $datalayer["Taxonomy_Text_4"] = "Home";
-    $datalayer["Taxonomy_Text_5"] = "Home";
-    $datalayer["Taxonomy_Text_6"] = "Home";
-    $datalayer["Taxonomy_URL_1"] = "/";
-    $datalayer["Taxonomy_URL_2"] = "/";
-    $datalayer["Taxonomy_URL_3"] = "/";
-    $datalayer["Taxonomy_URL_4"] = "/";
-    $datalayer["Taxonomy_URL_5"] = "/";
-    $datalayer["Taxonomy_URL_6"] = "/";
-  }
-  elseif ($isFront === 'homepage' && $langcode === 'es') {
-    $datalayer["Taxonomy_Text_1"] = "Página principal";
-    $datalayer["Taxonomy_Text_2"] = "Página principal";
-    $datalayer["Taxonomy_Text_3"] = "Página principal";
-    $datalayer["Taxonomy_Text_4"] = "Página principal";
-    $datalayer["Taxonomy_Text_5"] = "Página principal";
-    $datalayer["Taxonomy_Text_6"] = "Página principal";
-    $datalayer["Taxonomy_URL_1"] = "/es/";
-    $datalayer["Taxonomy_URL_2"] = "/es/";
-    $datalayer["Taxonomy_URL_3"] = "/es/";
-    $datalayer["Taxonomy_URL_4"] = "/es/";
-    $datalayer["Taxonomy_URL_5"] = "/es/";
-    $datalayer["Taxonomy_URL_6"] = "/es/";
-  }
-  else {
-    // usagov_taxonomy_links is a "system breadcrumb" block whose twig file will render
-    // the taxonomy information for the dataLayer array. Here, we create a renderable
-    // version of the block and save it as a variable that can be rendered within the
-    // HTML <head> element in html.html.twig.
-    //
-    // The breadcrumb links aren't calculated until this block is actually rendered, so
-    // we do NOT have an opportunity to save or process the links themselves into the
-    // $variables array for html.html.twig to use.
-    $breadcrumb_block = Block::load('usagov_taxonomy_links');
-    $taxonomy_link_block = \Drupal::entityTypeManager()->getViewBuilder('block')->view($breadcrumb_block);
-
-    // Render the block output and then parse the key/value
-    // pairs to the datalayer. This should work, but there's a bunch of
-    // logic done in the block view to adjust what is shown that
-    // might be doable elsewhere.
-    $output = \Drupal::service('renderer')->renderRoot($taxonomy_link_block);
-    if (preg_match_all('/"(Taxonomy_[^"]+)":\s+"([^"]+)"/', $output, $matches)) {
-      foreach ($matches[1] as $index => $prop) {
-        $datalayer[$prop] = $matches[2][$index];
-      }
-    }
-  }
-
-  return $datalayer;
 }

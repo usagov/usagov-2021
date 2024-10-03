@@ -19,6 +19,11 @@ main[data-pagetype="Benefits Category Search"]{
     padding-top: 2.75rem;
   }
 
+  fieldset {
+    padding: 0;
+    border-width: 0;
+    margin: 0;
+  }
   ul > li {
     break-inside: avoid;
   }
@@ -47,12 +52,8 @@ main[data-pagetype="Benefits Category Search"]{
       @include u-margin-bottom(0);
     }
 
-    &:hover {
-      background-color: usagov('benefit-search-button-hover');
-    }
-
-    &:active {
-      background-color: #fff;
+    &:hover, &:active {
+      background-color: color('cyan-40v');
     }
 
     &.usa-button--secondary {
@@ -86,12 +87,11 @@ main[data-pagetype="Benefits Category Search"]{
   }
 
   .grid-row {
-    flex-direction: column-reverse;
     border: 0;
     padding: 20px 0 0;
 
     @include at-media('tablet-lg') {
-      flex-direction: row;
+      gap: 10px;
     }
   }
 
@@ -132,22 +132,12 @@ main[data-pagetype="Benefits Category Search"]{
 
   @include at-media('tablet-lg') {
     column-count: 3;
-    width: calc(100% - 10rem);
   }
 
   > ul > li {
     padding-bottom: 0.5rem;
 
-    &.end-mobile-column {
-      padding-bottom: 0;
-      @include at-media('tablet-lg') {
-        padding-bottom: 0.5rem;
-      }
-    }
-  }
-
-  &.end-desktop-column {
-    @include at-media('tablet-lg') {
+    &.end-column {
       padding-bottom: 0;
     }
   }
@@ -277,6 +267,7 @@ main[data-pagetype="Benefits Category Search"]{
       &::before {
         content: "";
         background-repeat: no-repeat;
+        background-size: contain;
         width: 45px;
         height: 45px;
         margin: auto;
@@ -296,6 +287,41 @@ main[data-pagetype="Benefits Category Search"]{
       a:focus, a:hover {
         box-shadow: none;
         outline-width: 0;
+      }
+
+      &.benefit-finder-icon--death,
+      &.benefit-finder-icon--es-death {
+        &::before {
+          background-image: url("/themes/custom/usagov/images/Death-of-a-loved-one-icon.svg");
+        }
+      }
+
+      &.benefit-finder-icon--financial,
+      &.benefit-finder-icon--es-financial {
+        &::before {
+          background-image: url("/themes/custom/usagov/images/Financial-shock-icon.svg");
+        }
+      }
+
+      &.benefit-finder-icon--disability,
+      &.benefit-finder-icon--es-disability {
+        &::before {
+          background-image: url("/themes/custom/usagov/images/Disability-icon.svg");
+        }
+      }
+
+      &.benefit-finder-icon--retirement,
+      &.benefit-finder-icon--es-retirement  {
+        &::before {
+          background-image: url("/themes/custom/usagov/images/Retirement-icon.svg");
+        }
+      }
+
+      &.benefit-finder-icon--all-benefits,
+      &.benefit-finder-icon--es-all-benefits {
+        &::before {
+          background-image: url("/themes/custom/usagov/images/topics/ICONS_Life_events.svg");
+        }
       }
     }
 
@@ -319,34 +345,6 @@ main[data-pagetype="Benefits Category Search"]{
         position: absolute;
         inset: 0;
       }
-    }
-  }
-
-  .life-events-grid [class*="death"],
-  .life-events-grid [class*="muerte"] {
-    &::before {
-      background-image: url("/themes/custom/usagov/images/Death-of-a-loved-one-icon.svg");
-    }
-  }
-
-  .life-events-grid [class*="financial"],
-  .life-events-grid [class*="financiera"] {
-    &::before {
-      background-image: url("/themes/custom/usagov/images/Financial-shock-icon.svg");
-    }
-  }
-
-  .life-events-grid [class*="disability"],
-  .life-events-grid [class*="discapacidad"] {
-    &::before {
-      background-image: url("/themes/custom/usagov/images/Disability-icon.svg");
-    }
-  }
-
-  .life-events-grid [class*="retirement"],
-  .life-events-grid [class*="jubilación"] {
-    &::before {
-      background-image: url("/themes/custom/usagov/images/Retirement-icon.svg");
     }
   }
 }
