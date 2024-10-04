@@ -5,6 +5,18 @@
  */
 function usagov_menus_theme($existing, $type, $theme, $path) {
   return [
+    'usagov_menu_mobile' => [
+      'variables' => [
+        'main_nav_items' => NULL,
+        'node' => NULL,
+        'translations' => NULL,
+
+        'umbrella' => NULL,
+        'items' => NULL,
+        'depth' => NULL,
+        'current' => NULL,
+      ],
+    ],
     'usagov_menu_sidebar' => [
       'variables' => [
         'start_item' => NULL,
