@@ -1,12 +1,6 @@
 <ul class="usa-nav__primary usa-accordion">
 	{% for item in items %}
-		{% set id %}
-			{%- if item.original_link.description -%}
-				id="{{item.original_link.description}}"
-			{%- endif -%}
-		{% endset %}
-
-		<li {{ id }} class="usa-nav__primary-item usa-nav___primary-item-smaller-padding">
+		<li class="usa-nav__primary-item usa-nav___primary-item-smaller-padding">
 			<a href={{ item.url }} class="usa-nav__link">
 				<span>{{ item.title }}</span>
 			</a>
