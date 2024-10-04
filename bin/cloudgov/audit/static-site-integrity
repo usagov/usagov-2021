@@ -30,6 +30,15 @@ SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
 shift
 
+if ! command -v shuf 2>&1 >/dev/null
+then
+    echo "shuf could not be found, please install.  If you are on a Mac, you can install it with 'brew install coreutils'."
+    exit 1
+fi
+
+tidyargs="$@"
+tidyargs=$(echo "$tidyargs" | tr '[:upper:]' '[:lower:]')
+
 echo "Testing static site integrity."
 
 echo "Getting s3 access."
@@ -56,7 +65,8 @@ echo "$DEPLOY_TAGS" | while read -r DEPLOY_TAG_RAW ; do
     echo "Testing file $i: $filepath"
 
     tmp=$(mktemp)
-    tidy -qe "$filepath" &> "$tmp"
+    echo "tidy -qe $tidyargs \"$filepath\" &> \"$tmp\""
+    tidy -qe $tidyargs "$filepath" &> "$tmp"
     if [ $? -eq 0 ]; then
       echo "Tidy says HTML is valid!"
     else
