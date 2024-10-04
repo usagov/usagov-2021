@@ -5,7 +5,7 @@ use Drush\Drush;
 
 /*
  * Can pass as args:
- * --sample if set, samples up to 30 paths of each content type+language combo
+ * --sample <size> if set, samples up to the specified paths of each content type+language combo
  * --file <filename> Complete path to CSV file, or path relative to /var/www/web
  */
 [$csv, $samplePaths] = parse_args($extra);
@@ -31,7 +31,7 @@ foreach (read_csv($csv) as $line) {
     $counts[$countKey] = 0;
   }
 
-  if ($samplePaths && $counts[$line->language . '/' . $line->pageType] > 10) {
+  if ($samplePaths > 0 && $counts[$line->language . '/' . $line->pageType] > $samplePaths) {
     continue;
   }
 
@@ -49,7 +49,7 @@ foreach (read_csv($csv) as $line) {
  * Parse command line arguments.
  */
 function parse_args(array $extra): array {
-  $samplePaths = FALSE;
+  $samplePaths = 0;
   $csv = realpath(__DIR__ . '/../../web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv');
 
   while ($arg = array_shift($extra)) {
@@ -64,7 +64,16 @@ function parse_args(array $extra): array {
         break;
 
       case '--sample':
-        $samplePaths = TRUE;
+        $size = array_shift($extra);
+        if (!ctype_digit($size)) {
+          throw new \InvalidArgumentException("Sample size must be numeric.");
+        }
+        $size = (int) $size;
+        if ($size <= 0) {
+          throw new \InvalidArgumentException("Sample size must be a positive integer.");
+        }
+
+        $samplePaths = $size;
         break;
 
       default:
@@ -108,6 +117,12 @@ function compare_data(array $datalayer, CSVRow $row): void {
         "<error>... Mismatch {$key} ({$datalayer[$key]}) and {$prop} ({$row->$prop}) </error>");
       var_dump($datalayer[$key], $row->$prop);
     }
+  }
+
+  if (isset($datalayer['Taxonomy_Text_7'])) {
+    Drush::output()->writeln(
+      "<error>... More than 6 levels returned</error>");
+    var_dump($datalayer);
   }
 
   switch ($datalayer['language']) {
