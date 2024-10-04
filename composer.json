@@ -146,6 +146,9 @@
                 "Add a taxonomy revision UI": "https://www.drupal.org/files/issues/2023-10-26/add-taxonomy-revision-ui-2936995-58.patch",
                 "Enable taxonomy revision log message": "./patches/drupal/taxonomy_revision_log.patch"
             },
+            "drupal/autologout": {
+                "Autologout can log out out from other tabs": "https://www.drupal.org/files/issues/2024-06-03/3395581-7.patch"
+            },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren_d10.patch"
             }
