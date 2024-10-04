@@ -5,7 +5,7 @@ dependencies:
   module:
     - node
     - system
-    - usagov_sidebar_menu
+    - usagov_menus
   theme:
     - usagov
 id: usagov_leftmenusidebarblock
@@ -18,7 +18,7 @@ settings:
   id: usagov_sidebarfirst_block
   label: 'Left Menu Sidebar Block'
   label_display: '0'
-  provider: usagov_sidebar_menu
+  provider: usagov_menus
 visibility:
   request_path:
     id: request_path

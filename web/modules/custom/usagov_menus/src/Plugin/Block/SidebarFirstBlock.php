@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\usagov_sidebar_menu\Plugin\Block;
+namespace Drupal\usagov_menus\Plugin\Block;
 
 use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Block\BlockBase;

@@ -3,7 +3,7 @@
 /**
  * Implements hook_theme().
  */
-function usagov_sidebar_menu_theme($existing, $type, $theme, $path) {
+function usagov_menus_theme($existing, $type, $theme, $path) {
   return [
     'usagov_menu_sidebar' => [
       'variables' => [
