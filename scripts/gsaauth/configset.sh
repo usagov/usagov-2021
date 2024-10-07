@@ -18,7 +18,7 @@ if [ -f $SCRIPT_DIR/gsaauth.$SPACE.conf ]; then
       key=$(echo "$f" | sed "s/\.1//")
       #echo $key
       #echo $f
-      echo  drush cdel -y samlauth.authentication "$ky"
+      echo  drush cdel -y samlauth.authentication "$key"
       $echo drush cdel -y samlauth.authentication "$key"
       echo  drush cset -y --input-format=yaml samlauth.authentication "$f" "$v"
       $echo drush cset -y --input-format=yaml samlauth.authentication "$f" "$v"

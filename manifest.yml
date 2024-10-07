@@ -102,7 +102,6 @@ applications:
       allow 52.3.16.30;
       allow 52.22.251.194;
       allow 52.70.135.185;
-
 - name: cron
   docker:
     image: gsatts/usagov-2021:cron
