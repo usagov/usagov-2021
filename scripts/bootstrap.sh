@@ -230,7 +230,7 @@ else
 fi
 
 echo "Updating SAMLAuth configuration for $SPACE:"
-$SCRIPT_DIR/gsaauth/configset.sh $SPACE
+/var/www/scripts/gsaauth/configset.sh $SPACE
 
 echo "Adding the USPS credentials..."
 if [[ ${USPS_USERID:-"unset"} != "unset" ]] &&
