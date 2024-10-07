@@ -769,7 +769,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1557-cf-logs-to-new-relic
+                - USAGOV-1999-new-relic-agent-to-1.57.2
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -780,7 +780,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1557-cf-logs-to-new-relic
+                - USAGOV-1999-new-relic-agent-to-1.57.2
       - approve-dev-deployment:
           type: approval
           requires:
@@ -789,6 +789,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-1999-new-relic-agent-to-1.57.2
       - approve-dr-deployment:
           type: approval
           requires:
@@ -797,7 +798,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-1557-cf-logs-to-new-relic
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -805,7 +805,7 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1943-govloan-redirect-corrections
+              - USAGOV-1999-new-relic-agent-to-1.57.2
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
@@ -813,7 +813,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-1557-cf-logs-to-new-relic
       - approve-stage-deployment:
           type: approval
           requires:
