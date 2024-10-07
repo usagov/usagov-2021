@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.bears_life_event.field_b_display_order
     - field.field.node.bears_life_event.field_b_id
     - field.field.node.bears_life_event.field_b_search_title
     - field.field.node.bears_life_event.field_draft_json_data_file
@@ -29,6 +30,15 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: -20
+    region: content
+  field_b_display_order:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 13
     region: content
   field_b_id:
     type: string
