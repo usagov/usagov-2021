@@ -3,17 +3,28 @@
 # Run at bootstrap to set samlauth.authentication config values for a given environment
 
 SCRIPT_DIR="$(dirname "$0")"
-SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
+
+SPACE=$1
+if [ x$SPACE = x ]; then
+  SPACE=$(echo $VCAP_APPLICATION | jq -r '.["space_name"]')
+fi
 SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
-#SPACE=$1
+
 #echo=echo
 
 if [ -f $SCRIPT_DIR/gsaauth.$SPACE.conf ]; then
   while read -r f v; do
-    echo  drush cset -y --input-format=yaml samlauth.authentication "${f}" "${v}"
-    $echo drush cset -y --input-format=yaml samlauth.authentication "${f}" "${v}"
-  done < $SCRIPT_DIR/gsaauth.$SPACE.conf 
+    if [ -n "$f" -a -n "$v" ]; then
+      key=$(echo "$f" | sed "s/\.1//")
+      #echo $key
+      #echo $f
+      echo  drush cdel -y samlauth.authentication "$ky"
+      $echo drush cdel -y samlauth.authentication "$key"
+      echo  drush cset -y --input-format=yaml samlauth.authentication "$f" "$v"
+      $echo drush cset -y --input-format=yaml samlauth.authentication "$f" "$v"
+    fi
+  done < $SCRIPT_DIR/gsaauth.$SPACE.conf
 else
-  echo Cannot find GSA Auth config file for $SPACE: $SCRIPT_DIR/gsaauth.$SPACE.conf 
+  echo Cannot find GSA Auth config file for $SPACE: $SCRIPT_DIR/gsaauth.$SPACE.conf
   exit 1
 fi
