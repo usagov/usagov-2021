@@ -420,6 +420,19 @@ display:
         options: {  }
       empty: {  }
       sorts:
+        field_b_display_order_value:
+          id: field_b_display_order_value
+          table: node__field_b_display_order
+          field: field_b_display_order_value
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: standard
+          order: ASC
+          expose:
+            label: ''
+            field_identifier: ''
+          exposed: false
         title:
           id: title
           table: node_field_data
