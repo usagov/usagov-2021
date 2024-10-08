@@ -871,17 +871,10 @@ input::-webkit-textfield-decoration-container {
   visibility: hidden;
 }
 
-
-// Keeps the recaptcha image from being hidden by the footer accordion in mobile view
+// hides the recaptcha image for accessibility reasons
 .grecaptcha-badge {
   visibility: hidden;
 }
-
-// @media (max-width: 30em) {
-// .grecaptcha-badge {
-//   z-index: 2000000004;
-//   }
-// }
 
 // reduces the space above and below the breadcrumb on the downlevel page without a leftnav to look even
 @media screen and (max-width: 30em) {
