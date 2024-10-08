@@ -1,0 +1,64 @@
+
+{% import _self as menus %}
+
+<div class="usa-footer__primary-section">
+	<div class="grid-container">
+		<div class="grid-row grid-gap">
+			<div class="tablet:grid-col-8">
+				<nav class="usa-footer__nav" aria-label="Footer navigation">
+					<div class="grid-row grid-gap-4">
+						{{ menus.menu_links(items, attributes, 0) }}
+					</div>
+				</nav>
+			</div>
+			<div class="tablet:grid-col-4">
+				<div class="usa-sign-up">
+					<h4 class="usa-sign-up__heading">
+						{{ email_form_heading }}
+					</h4>
+					<form class="usa-form" action="{{ email_form_action }}" method="get">
+						<label class="usa-label" for="footer-email">
+							{{ email_form_label }}
+						</label>
+						<input class="usa-input" id="footer-email" name="email" type="email">
+						<div class="footer-button-container">
+							<button class="usa-button footer-button" type="submit">
+								{{ email_form_button }}
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="/themes/custom/usagov/scripts/newFooter.js" defer></script>
+
+{% macro menu_links(items, attributes, menu_level) %}
+	{% if items %}
+		{% for item in items %}
+			{% set link_title = item.title %}
+			{% set link_description = item.original_link.description %}
+			{% if menu_level == 0 and item.below %}
+				<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
+					<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
+						<h3 class="usa-gov-footer__primary-link">{{ link_title }}</h3>
+			{% else %}
+				{% if link_description == "add_space" %}
+					<li class="usa-footer__secondary-link ftr-list">
+				{% else %}
+					<li class="usa-footer__secondary-link">
+				{% endif %}
+						<a href="{{ item.url }}">{{ link_title}}</a>
+					</li>
+			{% endif %}
+			{% if item.below %}
+						<ul class="usa-list usa-list--unstyled">
+							{{ _self.menu_links(item.below, attributes.removeClass(classes), menu_level + 1) }}
+						</ul>
+					</section>
+				</div>
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+{% endmacro %}

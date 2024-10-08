@@ -236,6 +236,9 @@ else
     echo "Bootstrap skipping Drupal CIM because: Instance=${CF_INSTANCE_INDEX:-''} Skip=${SKIP_DRUPAL_BOOTSTRAP:-''}"
 fi
 
+echo "Updating SAMLAuth configuration for $SPACE:"
+/var/www/scripts/gsaauth/configset.sh $SPACE
+
 echo "Adding the USPS credentials..."
 if [[ ${USPS_USERID:-"unset"} != "unset" ]] &&
    [[ ${USPS_PASSWORD:-"unset"} != "unset" ]]; then
