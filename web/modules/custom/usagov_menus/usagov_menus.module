@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function usagov_menus_theme($existing, $type, $theme, $path) {
+  return [
+    'usagov_menu_sidebar' => [
+      'variables' => [
+        'start_item' => NULL,
+        'items' => NULL,
+        'depth' => NULL,
+        'current_item_title' => NULL,
+        'page_type_is' => NULL,
+        'nav_aria_label' => NULL,
+        'current' => NULL,
+        'is_spanish_menu' => NULL,
+        'leaf' => NULL,
+      ],
+    ],
+  ];
+}

@@ -8,48 +8,65 @@
  */
 #}
 {% if path('<current>') matches '#\/agencies\/*#'%}
-    {% include directory ~ '/templates/includes/breadcrumbs_for_agencies.html.twig' %}
-
+    {% set breadcrumb = [
+        { 'url': "/", 'text': 'Home' },
+        { 'url': "/about-the-us", 'text': 'About the U.S. and its government' },
+        { 'url': '/agency-index', 'text': drupal_field('title', 'node', 629) },
+        { 'text': drupal_title() }
+    ] %}
 {% elseif path('<current>') matches '#\/states\/*#' %}
-    {% include directory ~ '/templates/includes/breadcrumbs_for_states.html.twig' %}
+    {% set breadcrumb = [
+        { 'url': "/", 'text': 'Home' },
+        { 'url': "/about-the-us", 'text': 'About the U.S. and its government' },
+        { 'url': "/state-governments", 'text': 'State governments' },
+        { 'text': drupal_title() }
+    ] %}
+{% elseif path('<current>') matches '#\/es\/agencias\/*#' %}
+    {% set breadcrumb = [
+        { 'url': "/es", 'text': 'Página principal' },
+        { 'url': "/es/acerca-de-estados-unidos", 'text': 'Acerca de EE. UU. y su Gobierno' },
+        { 'url': '/es/indice-agencias', 'text': drupal_field('title', 'node', 1696) },
+        { 'text': drupal_title() }
+    ] %}
+{% elseif path('<current>') matches '#\/es\/estados\/*#' %}
+    {% set breadcrumb = [
+        { 'url': "/es", 'text': 'Página principal' },
+        { 'url': "/es/acerca-de-estados-unidos", 'text': 'Acerca de EE. UU. y su Gobierno' },
+        { 'url': "/es/gobiernos-estatales", 'text': 'Gobiernos estatales' },
+        { 'text': drupal_title() }
+    ] %}
+{% endif %}
+    
+{% if breadcrumb %}
 
+<nav class="margin-top-neg-3
+        mobile-lg:margin-top-2
+        tablet:margin-top-neg-3
+        desktop:margin-top-0
+        margin-bottom-2
+        mobile-lg:margin-bottom-6"
+    aria-label="Breadcrumb">
 
-{% elseif path('<current>') == '/es/indice-agencias' or path('<current>') matches '#\/es\/agencias\/*#' %}
-    {% include directory ~ '/templates/includes/breadcrumbs_for_es_agencies.html.twig' %}
+    <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">
+        {% for item in breadcrumb %}
+            <li class="usa-breadcrumb__list-item {{ item.url ? '' : 'usa-breadcrumb__currrent' }}" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                {% if item.url %}
+                    <a href="{{ item.url }}" class="usa-breadcrumb__link" itemprop="item">
+                        <span itemprop="name">
+                            {% if item.url == '/es' %}
+                                Página principal
+                            {% else %}
+                                {{ item.text }}
+                            {% endif %}
+                        </span>
+                    </a>
+                {% else %}
+                    <span itemprop="name">{{ item.text }}</span>
+                {% endif %}
+                <meta itemprop="position" content="{{loop.index}}" />
+            </li>
+        {% endfor %}
+    </ol>
+</nav>
 
-{% elseif path('<current>') matches '#\/estados\/*#' %}
-    {% include directory ~ '/templates/includes/breadcrumbs_for_es_states.html.twig' %}
-
-
-{% else %}
-    {% if breadcrumb %}
-        <nav class="margin-top-neg-3
-                    mobile-lg:margin-top-2
-                    tablet:margin-top-neg-3
-                    desktop:margin-top-0
-                    margin-bottom-2
-                    mobile-lg:margin-bottom-6"
-                role="navigation"
-                aria-label="Breadcrumb"
-            >
-          {% block content %}
-            <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">
-                {% for item in breadcrumb %}
-                    <li class="usa-breadcrumb__list-item {{ item.url ? '' : 'usa-breadcrumb__currrent' }}" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-                        {% if item.url %}
-                            <a href="{{ item.url }}" class="usa-breadcrumb__link" itemprop="item">
-                                <span itemprop="name">
-                                    {% if item.url == '/es' %}
-                                        Página principal
-                                    {% else %}{{ item.text }}{% endif %}</span></a>
-                        {% else %}
-                          <span itemprop="name">{{ item.text }}</span>
-                        {% endif %}
-                        <meta itemprop="position" content="{{loop.index}}" />
-                    </li>
-                {% endfor %}
-            </ol>
-            {% endblock %}
-        </nav>
-    {% endif %}
 {% endif %}

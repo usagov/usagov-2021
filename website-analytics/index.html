@@ -113,26 +113,24 @@
 
 <body>
   <!-- Google Tag Manager (noscript) -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NHDBX4B" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NHDBX4B" height="0" width="0" style="display:none;visibility:hidden" title="GTM"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
 
   <header>
-    <div class="inner clearfix">
+    <div class="header-parent">
       <a href="#skip-to-h1" class="skip-to-main-content-link">
         Skip to main content
       </a>
-      <h1 id="skip-to-h1">
-        <a href="https://www.usa.gov" class="external-link remove-hover-underline" alt="USAGov Logo">
+
+      <div class="header-child header-logo">
+        <a href="https://www.usa.gov" class="header-child external-link remove-hover-underline" alt="USAGov Logo">
           <img src="/website-analytics/images/usagov.png" alt="USAGov" />
         </a>
-        <a href="/website-analytics/" class="external-link">
-          Analytics Dashboard
-        </a>
-      </h1>
+      </div>
 
-      <div class="header-right-wrap">
-        <div class="agency-selector-wrap">
-          <form class="select-agency-form">
+      <div class="header-child header-parent header-right">
+        <div class="header-child header-dropdown">
+          <form class="select-agency-form header-parent">
             <label for="agency-selector">Select an agency</label>
             <select name="agency-selector" id="agency-selector" title="Agency Selection Dropdown">
               <option selected value="/website-analytics/">USA.gov and USA.gov/es/</option>
@@ -143,30 +141,22 @@
           </form>
         </div>
 
-        <ul class="links">
-          <li><a href="#explanation">About <span class="sm-hide">this site</span></a></li>
-          <li><a href="/website-analytics/data/">Data</a></li>
-        </ul>
+        <div class="header-child header-parent header-links">
+          <a href="#explanation">About <span class="sm-hide">this site</span></a>
+          <a href="/website-analytics/data/">Download Data</a>
+        </div>
       </div>
+
     </div>
   </header>
 
   <div class="container">
-    <!--
-    JavaScript block hooks look for any element with both data-block and
-    data-source attributes:
-    <section data-block="users" data-source="path/to/data.json">
-    The "loading", "loaded", and "error" classes are set on this element
-    the data-source URL is loaded. Then the renderer is called on the first
-    child of the block with the "data" class:
-    <div class="data">
-    </div>
-    Some renderers expect to be called on HTML tables, in which
-    case you would use:
-    <table class="data">
-    </table>
-    </section>
-    -->
+    <h1 id="skip-to-h1">
+      <a href="/website-analytics/" class="header-child external-link">
+        Analytics Dashboard
+      </a>
+    </h1>
+
     <div id="main_data" class="width-two-thirds">
       <!-- begin past 30 days section -->
       <section class="section_headline">
@@ -219,13 +209,6 @@
           </ul>
         </figure>
 
-        <!-- <figure id="chart_ie"
-        data-block="ie"
-        data-source="https://s3-us-gov-west-1.amazonaws.com/cg-adc9086a-68d3-44af-8379-81b8b1fa476e/usagov-analytics/both/ie.json"
-        data-scale-to-parent="true">
-          <h3>Internet Explorer</h3>
-          <ul class="data bar-chart">
-          </ul> -->
         </figure>
       </section>
 
