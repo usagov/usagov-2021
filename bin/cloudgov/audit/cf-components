@@ -40,7 +40,7 @@ shift $((OPTIND-1)) # remove parsed options and args from $@ list
 getPaginationCount() { # $1 = resource, $2 = relationship, $3 = relationship id
   PAGES=$(cf curl "/v3/$1" | jq -r '.pagination | .total_pages');
   SELECT=""
-  if [ -z "$2" ]; then
+  if [ -n "$2" ]; then
     SELECT=' select( .relationships.'"$2"'.data.guid == "'"$3"'" ) |'
   fi
   for i in $(seq 1 "$PAGES"); do
@@ -231,27 +231,28 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
       done
     fi
   done
-  echo "${underline}                                                                                                         ${nounderline}"
 done
 
 # Misc info
-if [ $all == true ]; then
-  echo "Showing all orgs.  For security reasons, the display of users is suppressed.  Remove -a argument to see users for gsa-tts-usagov org."
-else
-  USERIDS=$(getPaginationCount "users" "organization" "$ORGID")
-  if [ "$USERIDS" != "[]" ]; then
-    echo "${underline}Users:${nounderline}"
-    echo "$USERIDS" | jq -r '.[]' | while read -r USERID; do
-      USER=$(cf curl "/v3/users/$USERID")
-      USERNAME=$(echo "$USER" | jq -r '.username')
-      USERPCREATED=$(echo "$USER" | jq -r '.created_at')
-      USERPUPDATE=$(echo "$USER" | jq -r '.updated_at')
-      USERPRESENTATION=$(echo "$USER" | jq -r '.presentation_name')
-      USERORIGIN=$(echo "$USER" | jq -r '.origin')
-      echo "$level2 $USERNAME (Last updated: $USERPUPDATE | Created: $USERPCREATED | Presentation Name: $USERPRESENTATION | Origin: $USERORIGIN)"
-    done
-  fi
-fi
+# Users temporarily removed as there is no way to filter users by organization.
+#
+# if [ $all == true ]; then
+#   echo "Showing all orgs.  For security reasons, the display of users is suppressed.  Remove -a argument to see users for gsa-tts-usagov org."
+# else
+#   USERIDS=$(getPaginationCount "users")
+#   if [ "$USERIDS" != "[]" ]; then
+#     echo "${underline}Users:${nounderline}"
+#     echo "$USERIDS" | jq -r '.[]' | while read -r USERID; do
+#       USER=$(cf curl "/v3/users/$USERID")
+#       USERNAME=$(echo "$USER" | jq -r '.username')
+#       USERPCREATED=$(echo "$USER" | jq -r '.created_at')
+#       USERPUPDATE=$(echo "$USER" | jq -r '.updated_at')
+#       USERPRESENTATION=$(echo "$USER" | jq -r '.presentation_name')
+#       USERORIGIN=$(echo "$USER" | jq -r '.origin')
+#       echo "$level2 $USERNAME (Last updated: $USERPUPDATE | Created: $USERPCREATED | Presentation Name: $USERPRESENTATION | Origin: $USERORIGIN)"
+#     done
+#   fi
+# fi
 
 GROUPIDS=$(getPaginationCount "security_groups")
 if [ "$GROUPIDS" != "[]" ]; then
