@@ -1,6 +1,6 @@
 <section class="usa-banner" aria-label="{{ official_statement }}" id="usagov-banner">
 	<div class="usa-accordion">
-		<header class="usa-banner__header">
+		<div class="usa-banner__header" role="banner">
 			<div class="usa-banner__inner">
 				<div class="grid-col-auto">
 					<img aria-hidden="true" class="usa-banner__header-flag" src="/themes/custom/usagov/images/favicon-57.png" alt="{{ flag_icon_alt }}" />
@@ -23,7 +23,7 @@
 					</svg>
 				</button>
 			</div>
-		</header>
+		</div>
 		<div class="usa-banner__content usa-accordion__content" id="gov-banner-default">
 			<div class="grid-row grid-gap-lg">
 				<div class="usa-banner__guidance tablet:grid-col-6">
@@ -64,6 +64,6 @@ This script applies the hidden attribute to the banner content.
 This script is located here so that it can hide the content immediately without a noticable flash of content.
 In the past, we added the hidden attribute in the HTML, but then it would be hidden even if javascript was disabled.
 #}
-<script type="text/javascript">
+<script>
 	document.getElementById('gov-banner-default').setAttribute('hidden', 'until-found');
 </script>
