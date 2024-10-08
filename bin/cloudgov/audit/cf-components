@@ -94,7 +94,7 @@ echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
   fi
 
   if [ $spaces == "all" ]; then
-    SPACEPAGES=cf curl "/v3/spaces" | jq -r '.pagination | .total_pages';
+    SPACEPAGES=$(cf curl "/v3/spaces" | jq -r '.pagination | .total_pages');
     if [[ $SPACEPAGES -gt 1 ]]; then
       for i in $SPACEPAGES; do
         SPACEIDS=$(cf curl "/v3/spaces?page=$i&per_page=50" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid')
