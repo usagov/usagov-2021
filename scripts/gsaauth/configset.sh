@@ -12,19 +12,22 @@ SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 
 #echo=echo
 
+SAMLCONF=$SCRIPT_DIR/gsaauth.default.conf
 if [ -f $SCRIPT_DIR/gsaauth.$SPACE.conf ]; then
-  while read -r f v; do
-    if [ -n "$f" -a -n "$v" ]; then
-      key=$(echo "$f" | sed "s/\.1//")
-      #echo $key
-      #echo $f
-      echo  drush cdel -y samlauth.authentication "$key"
-      $echo drush cdel -y samlauth.authentication "$key"
-      echo  drush cset -y --input-format=yaml samlauth.authentication "$f" "$v"
-      $echo drush cset -y --input-format=yaml samlauth.authentication "$f" "$v"
-    fi
-  done < $SCRIPT_DIR/gsaauth.$SPACE.conf
+  SAMLCONF=$SCRIPT_DIR/gsaauth.$SPACE.conf
 else
-  echo Cannot find GSA Auth config file for $SPACE: $SCRIPT_DIR/gsaauth.$SPACE.conf
-  exit 1
+  echo "WARNING: Cannot find GSA Auth config file for $SPACE ($SCRIPT_DIR/gsaauth.$SPACE.conf)"
+  echo "WARNING: Using default SecureAuth configuration: $SAMLCONF"
 fi
+
+while read -r f v; do
+  if [ -n "$f" -a -n "$v" ]; then
+    key=$(echo "$f" | sed "s/\.1//")
+    #echo $key
+    #echo $f
+    echo  drush cdel -y samlauth.authentication "$key"
+    $echo drush cdel -y samlauth.authentication "$key"
+    echo  drush cset -y --input-format=yaml samlauth.authentication "$f" "$v"
+    $echo drush cset -y --input-format=yaml samlauth.authentication "$f" "$v"
+  fi
+done < $SAMLCONF
