@@ -3,7 +3,7 @@
 {% elseif language.id %}
   {% set lang = language.id %}
 {% endif %}
-<footer class="{{ footer_classes }}" role="contentinfo">
+<footer class="{{ footer_classes }}">
 	{% if lang == 'es' %}
 		{{ drupal_menu('primary-footer-spanish', expand=true) }}
 	{% else %}

@@ -42,10 +42,9 @@ fi
 
 if [ -n "$TR_START_TIME" -a -n "$STATUS" ]; then
 
-   humanDateUTC=$(TZ="EST5EST" date -d @"$TR_START_TIME")
-   sed -i "s|%timestamp%|$humanDateUTC|" $IND_FILE
-   sed -i "s|%status%|$STATUS|" $IND_FILE
-   aws s3 cp $IND_FILE s3://$BUCKET_NAME/web/static-site-status.txt --only-show-errors $S3_EXTRA_PARAMS
+    UNIXTIME=`date +%s`
+    drush sset ssg_stat_date $UNIXTIME
+    drush sset ssg_stat_msg "$STATUS"
 else
    echo "To few args"
    exit 1

@@ -1,3 +1,4 @@
+// Expand/collapse all terms in the wizard overview screen.
 (function($, Drupal) {
   "use strict";
   Drupal.behaviors.expand_collapse = {
