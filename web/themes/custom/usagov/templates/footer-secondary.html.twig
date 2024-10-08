@@ -1,102 +1,92 @@
-{% if node.langcode.value %}
-  {% set lang = node.langcode.value %}
-{% elseif language.id %}
-  {% set lang = language.id %}
+
+{% if node.langcode.value == "es" %}
+  {% set translations = {
+    'contact_center': 'Centro de llamadas de USAGov',
+    'ask_a_question': 'Haga una pregunta a USAGov en Español al',
+    'phone_URL': '/es/llamenos',
+    'find_us': 'Encuéntrenos en las  redes sociales',
+    'social_media_usernames': ['usagovespanol', 'usagovespanol', 'USAgovespanol']
+  } %}
+{% else %}
+  {% set translations = {
+    'contact_center': 'USAGov Contact Center',
+    'ask_a_question': 'Ask USA.gov a question at',
+    'phone_URL': '/phone',
+    'find_us': 'Find us on social media',
+    'social_media_usernames': ['USAgov', 'USAgov', 'usagov1', 'usagov']
+  } %}
 {% endif %}
+
+{% set social_media_details = [
+	{
+		'name':'Facebook',
+		'url':'https://www.facebook.com/',
+		'icon':'Instagram_Icon.svg',
+		'alt_text':'Facebook USAGov',
+	},
+	{
+		'name':'Twitter',
+		'url':'https://twitter.com/',
+		'icon':'X_Twitter_Icon.svg',
+		'alt_text':'X Twitter USAGov',
+	},
+	{
+		'name':'YouTube',
+		'url':'https://www.youtube.com/',
+		'icon':'YouTube_Icon.svg',
+		'alt_text':'Youtube USAGov',
+	},
+	{
+		'name':'Instagram',
+		'url':'https://www.instagram.com/',
+		'icon':'Instagram_Icon.svg',
+		'alt_text':'Instagram USAGov',
+	}
+] %}
+
 <div class="usa-footer__secondary-section">
 	<div class="grid-container">
 		<div class="grid-row grid-gap">
-
 			<div class="usa-footer__logo grid-row mobile-lg:grid-col-6">
-				<span id="footer-phone">
-
-
+				<div id="footer-phone">
 					<div class="mobile-lg:grid-col-auto">
 						<h4 class="usa-footer__logo-heading">
-							{{ lang == 'es' ?  "Centro de llamadas de USAGov" : "USAGov Contact Center"  }}
+							{{ translations.contact_center }}
 						</h4>
 					</div>
-
 					<div class="mobile-lg:grid-col-auto">
 						<p class="footer-question">
-							{{ lang == 'es' ?   "Haga una pregunta a USAGov en Español al" : "Ask USA.gov a question at" }}
+							{{ translations.ask_a_question }}
 						</p>
-
 						<address class="usa-footer__address">
 							<div class="usa-footer__contact-info">
-								{% if lang =="es" %}
-									<a href="/es/llamenos">
-									{% else %}
-										<a href="/phone">
-										{% endif %}
-										1-844-USAGOV1 (1-844-872-4681)
-									</a>
-								</div>
-							</address>
-
-						</div>
-
-					</span>
-				</div>
-
-				<div class="usa-footer__contact-links mobile-lg:grid-col-6">
-					<div class="footer-social-block">
-						<h4 class="usa-footer__contact-heading">
-							{{ lang == 'es' ?   "Encuéntrenos en las  redes sociales" : "Find us on social media" }}
-						</h4>
-
-						<div class="usa-footer__social-links en-links grid-row grid-gap-1">
-
-							<div class="grid-col-auto">
-								{% if lang == "es" %}
-									<a class="usa-social-link" href="https://www.facebook.com/usagovespanol">
-									{% else %}
-										<a class="usa-social-link" href="https://www.facebook.com/USAgov">
-										{% endif %}
-										<img class="image-svg-test" src="/themes/custom/usagov/images/social-media-icons/Facebook_Icon.svg" alt="Facebook USAGov" loading="lazy"/>
-										<span>Facebook</span>
-									</a>
-								</div>
-
-								<div class="grid-col-auto">
-									{% if lang == "es" %}
-										<a class="usa-social-link" href="https://twitter.com/usagovespanol">
-										{% else %}
-											<a class="usa-social-link" href="https://twitter.com/USAgov">
-											{% endif %}
-											<img class="image-svg-test" src="/themes/custom/usagov/images/social-media-icons/X_Twitter_Icon.svg" alt="X Twitter USAGov" loading="lazy"/>
-
-											<span>Twitter</span>
-										</a>
-									</div>
-
-									<div class="grid-col-auto">
-										{% if lang == "es" %}
-											<a class="usa-social-link" href="https://www.youtube.com/USAgovespanol">
-											{% else %}
-												<a class="usa-social-link" href="https://www.youtube.com/usagov1">
-												{% endif %}
-												<img class="image-svg-test" src="/themes/custom/usagov/images/social-media-icons/YouTube_Icon.svg" alt="Youtube USAGov" loading="lazy"/>
-
-												<span>YouTube</span>
-											</a>
-										</div>
-
-										{% if lang != "es" %}
-											<div class="grid-col-auto">
-												<a class="usa-social-link" href="https://www.instagram.com/usagov/">
-													<img class="image-svg-test" src="/themes/custom/usagov/images/social-media-icons/Instagram_Icon.svg" alt="Instagram USAGov" loading="lazy"/>
-
-													<span>Instagram</span>
-												</a>
-											</div>
-										{% endif %}
-
-									</div>
-								</div>
-
+								<a href="{{ translations.phone_URL }}">1-844-USAGOV1 (1-844-872-4681)</a>
 							</div>
-
-						</div>
+						</address>
 					</div>
 				</div>
+			</div>
+			<div class="usa-footer__contact-links mobile-lg:grid-col-6">
+				<div class="footer-social-block">
+					<h4 class="usa-footer__contact-heading">
+						{{ translations.find_us }}
+					</h4>
+					<div class="usa-footer__social-links en-links grid-row grid-gap-1">
+
+						{% for username in translations.social_media_usernames %}
+							{% set details = social_media_details[loop.index0] %}
+							<div class="grid-col-auto">
+								<a class="usa-social-link" href="{{ details.url }}{{ username }}">
+									<img class="image-svg-test" src="/themes/custom/usagov/images/social-media-icons/{{ details.icon }}" alt="{{ details.icon }}" loading="lazy"/>
+									<span>{{ details.name }}</span>
+								</a>
+							</div>
+						{% endfor %}
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
