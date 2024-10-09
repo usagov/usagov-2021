@@ -79,23 +79,10 @@ class MobileMenuBlock extends BlockBase implements ContainerFactoryPluginInterfa
     // key being set correctly to show siblins.
     switch (TRUE) {
       case ($this->request->getPathInfo() === '/agency-index'):
-        $activeParent = array_filter($items['menu_tree'], fn($item) => $item['active_trail'] === TRUE);
-        $activeKey = array_key_first($activeParent);
-
-        array_walk($items['menu_tree'][$activeKey]['submenu'], function(&$item) {
-          if ($item['url'] === '/agency-index') {
-            $item['active'] = TRUE;
-          }
-        });
+        $items = $this->fixActiveAgencyItem($items, '/agency-index');
         break;
-      case str_starts_with($this->request->getPathInfo(), '/es/agencias/'):
-
-        die('oam - MobileMenuBlock.php 74');
-        break;
-      case str_starts_with($this->request->getPathInfo(), '/states/'):
-      case str_starts_with($this->request->getPathInfo(), '/es/estados/'):
-
-      die('oam - MobileMenuBlock.php 79');
+      case str_starts_with($this->request->getPathInfo(), '/es/indice-agencias'):
+        $items = $this->fixActiveAgencyItem($items, '/es/indice-agencias');
         break;
     }
 
@@ -103,6 +90,25 @@ class MobileMenuBlock extends BlockBase implements ContainerFactoryPluginInterfa
     return $this->renderItems($items, $node);
   }
 
+  private function fixActiveAgencyItem(array $items, string $path): array
+  {
+    $activeParent = array_filter(
+      $items['menu_tree'],
+      fn($item) => $item['active_trail'] === TRUE
+    );
+
+    $activeKey = array_key_first($activeParent);
+    array_walk(
+      $items['menu_tree'][$activeKey]['submenu'],
+      function(&$item) use ($path) {
+        if ($item['url'] === $path) {
+          $item['active'] = TRUE;
+        }
+      }
+    );
+
+    return $items;
+  }
   /**
    * Returns the render array to theme the navigation lists.
    */
@@ -110,12 +116,55 @@ class MobileMenuBlock extends BlockBase implements ContainerFactoryPluginInterfa
     array $main_nav_items,
     $node,
   ): array {
+    // Create an array of the active trail items from each level of the
+    // menu (up to the active item)
+    $active_trail = [];
+    $found_active_item = false;
+    $active_item_has_children = false;
+    $siblings_of_active_item = null;
+    $submenu = $main_nav_items['menu_tree'];
+
+    // Loop up to 10 levels deep in the menu for the active item.
+    for ($i = 0; $i < 11; $i++) {
+      if (!$found_active_item) {
+        $menu_item = array_filter($submenu, fn($item) => $item['active_trail'] === TRUE);
+
+        // Should we break out of this loop if we do not have an active trail?
+        if ($menu_item) {
+          $menu_item = array_pop($menu_item);
+          // add current item to active trail
+          $active_trail[] = $menu_item;
+
+          if ($menu_item['active']) {
+            $found_active_item = TRUE;
+            if (isset($menu_item['submenu'])) {
+              $active_item_has_children = TRUE;
+            }
+            else {
+              $siblings_of_active_item = $submenu;
+            }
+          }
+
+          // if we have a child submenu, set it to the next $submenu to
+          // inspect if we haven't found the active item yet.
+          $submenu = $menu_item['submenu'] ?? [];
+
+        }
+      }
+    }
+
+
     return [
       '#theme' => 'usagov_menu_mobile',
       '#main_nav_items' => $main_nav_items,
       '#node' => $node,
       '#translations' => $this->translations,
 
+      '#active_trail' => $active_trail,
+      '#found_active_item' => $found_active_item,
+      '#active_item_has_children' => $active_item_has_children,
+      '#sibblings_of_active_item' => $siblings_of_active_item,
+      '#submenu' => $submenu,
       // Ensure drupal knows this block should be cached per path.
       '#cache' => [
         'contexts' => ['url.path', 'url.query_args'],
