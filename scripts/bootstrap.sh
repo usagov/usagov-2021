@@ -1,4 +1,4 @@
-#!/bin/ash
+!/bin/ash
 #set -euo pipefail
 set -uo pipefail
 
@@ -221,9 +221,16 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
     fi
 
     drush cr
+    echo "Running: drush updatedb"
     drush updatedb --no-cache-clear -y
+    echo "Running: drush cim (potentially twice)"
     drush cim -y || drush cim -y
+    echo "Running: drush cim (once, again)"
     drush cim -y
+    echo "Notice: If a TXNDATA error is seen above this line, it means one of the drush-cim commands failed, which is ok as long as the config ultimately imported."
+    echo "However: If a TXNDATA error is seen after this line, we may need to revisit USAGOV-1164."
+
+    echo "Running: node_access_rebuild()"
     drush php-eval "node_access_rebuild();" -y
 
     if [ x$initial_mm_state = x0 ]; then
