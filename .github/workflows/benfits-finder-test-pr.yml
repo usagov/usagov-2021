@@ -1,0 +1,177 @@
+name: Benefits Finder Integration Test for Pull Requests
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - stage
+      - pord
+
+jobs:
+  tests-chrome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the release branch
+        uses: actions/checkout@v4
+        with:
+          repository: "GSA/px-benefit-finder"
+          ref: "release" # Specify the branch name here
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "./benefit-finder/package.json"
+
+      - name: Install Submodule
+        run: |
+          cd benefit-finder
+          git submodule init && git submodule update
+
+      - name: Checkout usagov-2021 working branch
+        run: |
+          cd usagov-2021
+          git switch ${{ github.head_ref }}
+
+      - name: Cypress run (Chrome)
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./benefit-finder
+          browser: chrome
+          env: NODE_ENV=test
+          build: "npm run cy:build:storybook"
+          start: "npm run cy:run:pipeline"
+
+      - name: Chrome Artifact(s)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chrome cypress screenshots
+          path: ./benefit-finder/cypress/screenshots
+
+  tests-firefox:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the release branch
+        uses: actions/checkout@v4
+        with:
+          repository: "GSA/px-benefit-finder"
+          ref: "release" # Specify the branch name here
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "./benefit-finder/package.json"
+
+      - name: Install Submodule
+        run: |
+          cd benefit-finder
+          git submodule init && git submodule update
+
+      - name: Checkout usagov-2021 working branch
+        run: |
+          cd usagov-2021
+          git switch ${{ github.head_ref }}
+
+      - name: Cypress run (Firefox)
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./benefit-finder
+          browser: firefox
+          env: NODE_ENV=test
+          build: "npm run cy:build:storybook"
+          start: "npm run cy:run:pipeline"
+
+      - name: Firefox Artifact(s)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Firefox cypress screenshots
+          path: ./benefit-finder/cypress/screenshots
+
+  tests-edge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the release branch
+        uses: actions/checkout@v4
+        with:
+          repository: "GSA/px-benefit-finder"
+          ref: "release" # Specify the branch name here
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "./benefit-finder/package.json"
+
+      - name: Install Submodule
+        run: |
+          cd benefit-finder
+          git submodule init && git submodule update
+
+      - name: Checkout usagov-2021 working branch
+        run: |
+          cd usagov-2021
+          git switch ${{ github.head_ref }}
+
+      - name: Cypress run (Edge)
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./benefit-finder
+          browser: edge
+          env: NODE_ENV=test
+          build: "npm run cy:build:storybook"
+          start: "npm run cy:run:pipeline"
+
+      - name: Edge Artifact(s)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Edge cypress screenshots
+          path: ./benefit-finder/cypress/screenshots
+
+  tests-webkit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the release branch
+        uses: actions/checkout@v4
+        with:
+          repository: "GSA/px-benefit-finder"
+          ref: "release" # Specify the branch name here
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "./benefit-finder/package.json"
+
+      - name: Install Submodule
+        run: |
+          cd benefit-finder
+          git submodule init && git submodule update
+
+      - name: Checkout usagov-2021 working branch
+        run: |
+          cd usagov-2021
+          git switch ${{ github.head_ref }}
+
+      - name: Install dependencies
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./benefit-finder
+          build: npx playwright-webkit install-deps
+          runTests: false
+
+      - name: Cypress run (WebKit)
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./benefit-finder
+          install: false
+          browser: webkit
+          env: NODE_ENV=test
+          build: "npm run cy:build:storybook"
+          start: "npm run cy:run:pipeline"
+
+      - name: Webkit Artifact(s)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Webkit cypress screenshots
+          path: ./benefit-finder/cypress/screenshots

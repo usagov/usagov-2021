@@ -13,3 +13,13 @@ usagov_ssg_postprocessing.toggle_tome:
     _form: '\Drupal\usagov_ssg_postprocessing\Form\ToggleStaticSiteGenerationForm'
   requirements:
     _permission: 'administer site configuration'
+
+usagov_ssg_postprocessing.content:
+  path: '/static-site-status' 
+  defaults: 
+    _controller: '\Drupal\usagov_ssg_postprocessing\Controller\SsgStatController::content' 
+    _title: 'Tome Status'
+  options:
+    no_cache: 'TRUE'
+  requirements: 
+    _permission: 'access administration pages' 

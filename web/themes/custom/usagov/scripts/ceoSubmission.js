@@ -219,7 +219,6 @@ async function handleFormSubmission() {
     const stateField = document.getElementById("input-state");
     const zipCodeField = document.getElementById("input-zip");
     const formFields = [streetAddressField, cityField, stateField, zipCodeField];
-
     // Analyze the response and decide if the address is valid or not.
     const uspsApiResponse = await addressUSPSValidation(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
     const response = uspsResponseParser(uspsApiResponse, streetAddressField.value, cityField.value, zipCodeField.value);
@@ -374,16 +373,27 @@ window.addEventListener("load", function () {
     "use strict";
 
     let clearButtonWrappers = document.getElementsByClassName("usa-combo-box__clear-input__wrapper");
-    for (let i = 0; i < clearButtonWrappers.length; i++) {
-        clearButtonWrappers[i].remove();
+    for (const clearButtonWrapper of clearButtonWrappers) {
+        clearButtonWrapper.remove();
     }
 
     // Include the dropdown menu's toggle button in the tab order
     let toggleButtons = document.getElementsByClassName("usa-combo-box__toggle-list");
-    for (let i = 0; i < toggleButtons.length; i++) {
-        toggleButtons[i].removeAttribute("tabindex");
+    for (const toggleButton of toggleButtons) {
+        toggleButton.removeAttribute("tabindex");
     }
 
+
+    // Code for autocomplete state fields
+    let isChromeOrEdge = navigator.userAgent.includes("Chrome");
+    // Change attributes so that autofill works in state input
+    if (isChromeOrEdge) {
+        let stateSelectBox = document.getElementsByName("select-dropdown")[0];
+        stateSelectBox.setAttribute("autocomplete","country");
+
+        let stateInputBox = document.getElementById("input-state");
+        stateInputBox.setAttribute("autocomplete","address-level1");
+    }
 });
 
 (function() {
