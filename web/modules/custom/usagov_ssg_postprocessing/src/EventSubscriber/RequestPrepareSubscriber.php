@@ -3,6 +3,7 @@
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\path_alias\AliasManager;
 use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -18,6 +19,7 @@ class RequestPrepareSubscriber implements EventSubscriberInterface {
   public function __construct(
     private AliasManager $alias_manager,
     private EntityTypeManagerInterface $entity_type_manager,
+    private CurrentRouteMatch $currentRouteMatch,
   ) {}
 
   /**
@@ -32,6 +34,8 @@ class RequestPrepareSubscriber implements EventSubscriberInterface {
 
     $menuLinkStorage = $this->entity_type_manager->getStorage('menu_link_content');
     $menuLinkStorage->resetCache();
+
+    $this->currentRouteMatch->resetRouteMatch();
   }
 
   /**
