@@ -2,7 +2,7 @@
 
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
-use Drupal\Core\Cache\CacheCollectorInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\path_alias\AliasManager;
 use Drupal\tome_static\Event\TomeStaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -17,6 +17,7 @@ class RequestPrepareSubscriber implements EventSubscriberInterface {
 
   public function __construct(
     private AliasManager $alias_manager,
+    private EntityTypeManagerInterface $entity_type_manager,
   ) {}
 
   /**
@@ -28,6 +29,9 @@ class RequestPrepareSubscriber implements EventSubscriberInterface {
     // Fixes redirects exporting with the target node's content instead
     // of an HTML redirect.
     $this->alias_manager->cacheClear();
+
+    $menuLinkStorage = $this->entity_type_manager->getStorage('menu_link_content');
+    $menuLinkStorage->resetCache();
   }
 
   /**
