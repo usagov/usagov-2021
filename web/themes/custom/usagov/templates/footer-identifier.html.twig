@@ -1,24 +1,34 @@
-{% if node.langcode.value %}
-  {% set lang = node.langcode.value %}
-{% elseif language.id %}
-  {% set lang = language.id %}
+
+{% if node.langcode.value == "es" %}
+  {% set translations = {
+    'official_guide': 'USAGov en Español es la guía oficial de información y servicios del Gobierno',
+    'official_site_1': 'Unsitio web oficial de la',
+    'official_site_2': 'Administración de Servicios Generales de los Estados Unidos',
+    'official_site_3': '(GSA, sigla en inglés)',
+    'accessibility_support': 'Política de accesibilidad de\n GSA (en inglés)',
+    'privacy_policy': 'Política de privacidad de\n GSA (en inglés)',
+    'foia_requests': 'Solicitud a través de\n FOIA (en inglés)'
+  } %}
+{% else %}
+  {% set translations = {
+    'official_guide': 'USAGov is the official guide to government information and services',
+    'official_site_1': 'An official website of the',
+    'official_site_2': 'U.S. Gerneral Services Administration',
+    'official_site_3': '',
+    'accessibility_support': 'GSA accessibility support',
+    'privacy_policy': 'GSA privacy policy',
+    'foia_requests': 'FOIA requests'
+  } %}
 {% endif %}
+
+
 <div class="usa-identifier">
-  <section class="usa-identifier__section usa-identifier__section--usagov" {{ lang == 'es' ?  "aria-label='USAGov en Español es la guía oficial de información y servicios del Gobierno'" : "aria-label='USAGov is the official guide to government information and services'" }}
-  aria-label="USAGov is the Official Guide to Government Information and Services">
+  <section class="usa-identifier__section usa-identifier__section--usagov" aria-label="{{ translations.official_guide }}">
     <div class="usa-identifier__container">
-		<section class="usa-identifier__identity" aria-label="{{ lang == 'es' ?  "Unsitio web oficial de la Administración de Servicios Generales de los Estados Unidos (GSA, sigla en inglés)" : "An official website of the U.S. Gerneral Services Administration" }}">
-        <p class="usa-identifier__identity-disclaimer">
-          {{ lang == 'es' ?  "USAGov en Español es la guía oficial de información y servicios del Gobierno" : "USAGov is the official guide to government information and services" }}
-        </p>
+		<section class="usa-identifier__identity" aria-label="{{ translations.official_site_1 }} {{ translations.official_site_2 }} {{ translations.official_site_3 }}">
+      <p class="usa-identifier__identity-disclaimer">{{ translations.official_guide }}</p>
     	<p class="usa-identifier__identity-disclaimer">
-      {% if lang == "en" %}
-        <span aria-hidden="true">An</span> official website of the
-            <a href="https://www.gsa.gov/">U.S. General Services Administration</a>
-      {% else %}
-            <span aria-hidden="true">Un</span> sitio web oficial de la
-            <a href="https://www.gsa.gov/">Administraci&oacute;n de Servicios Generales de los Estados Unidos</a> (GSA, sigla en ingl&eacute;s)
-      {% endif %}
+        {{ translations.official_site_1 }} <a href="https://www.gsa.gov/">{{ translations.official_site_2 }}</a> {{ translations.official_site_3 }}
       </p>
 		</section>
     </div>
@@ -27,13 +37,19 @@
     <div class="usa-identifier__container">
       <ul class="usa-identifier__required-links-list">
         <li class="usa-identifier__required-links-item">
-          <a href="https://www.gsa.gov/website-information/accessibility-statement?footer=" class="usa-identifier__required-link usa-link">{{ lang == 'es' ? "Pol&iacute;tica de accesibilidad de </br>GSA (en ingl&eacute;s)" : "GSA accessibility support" }}</a>
+          <a href="https://www.gsa.gov/website-information/accessibility-statement?footer=" class="usa-identifier__required-link usa-link">
+            {{ translations.accessibility_support|nl2br }}
+          </a>
         </li>
         <li class="usa-identifier__required-links-item">
-          <a href="https://www.gsa.gov/website-information/website-policies#privacy" class="usa-identifier__required-link usa-link">{{ lang == 'es' ? "Pol&iacute;tica de privacidad de </br>GSA (en ingl&eacute;s)" : "GSA privacy policy" }}</a>
+          <a href="https://www.gsa.gov/website-information/website-policies#privacy" class="usa-identifier__required-link usa-link">
+            {{ translations.privacy_policy|nl2br }}
+          </a>
         </li>
         <li class="usa-identifier__required-links-item">
-          <a href="https://www.gsa.gov/reference/freedom-of-information-act-foia" class="usa-identifier__required-link usa-link">{{ lang == 'es' ? "Solicitud a trav&eacute;s de </br>FOIA (en ingl&eacute;s)" : "FOIA requests" }}</a>
+          <a href="https://www.gsa.gov/reference/freedom-of-information-act-foia" class="usa-identifier__required-link usa-link">
+            {{ translations.foia_requests|nl2br }}
+          </a>
         </li>
       </ul>
     </div>
