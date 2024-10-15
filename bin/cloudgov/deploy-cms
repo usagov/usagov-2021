@@ -122,10 +122,15 @@ function setUSPSCreds {
   cf set-env cms USPS_PASSWORD $USPS_PASSWORD
 }
 
+function setCallCenterEWTBucket {
+  cf set-env cms CALL_CENTER_EWT_BUCKET $CALL_CENTER_EWT_BUCKET
+}
+
 if appExists cms; then
   setupRoutes cms
   setupEgress cms
   setUSPSCreds
+  setCallCenterEWTBucket
   pushApp cms
 else
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
@@ -133,6 +138,7 @@ else
   setupRoutes cms
   setupEgress cms
   setUSPSCreds
+  setCallCenterEWTBucket
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
   restartApp cms
 fi
