@@ -23,12 +23,6 @@ else
    exit 1
 fi
 
-# just testing?
-if [ x$1 = x"--dryrun" ]; then
-  export echo=echo
-  shift
-fi
-
 SPACE=${1:-please-provide-space-name-as-first-argument}
 SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
@@ -59,12 +53,11 @@ echo "$DEPLOY_TAGS" | while read -r DEPLOY_TAG ; do
   validate=$(sqlvalidator --verbose-validate "$SQL_FILE")
   if [ -z "$validate" ]; then
     echo "SQL file is valid."
+    rm "$SQL_FILE"
   else
-    echo -e "\033[0;31mSQL file is invalid. Error(s):"
+    echo -e "\033[0;31mSQL file is invalid. SQL file will be retained for further inspection.  Error(s):"
     echo -e "$validate\033[0m"
   fi
-
-  rm "$SQL_FILE"
   echo "-----------------------------------"
 
 done
