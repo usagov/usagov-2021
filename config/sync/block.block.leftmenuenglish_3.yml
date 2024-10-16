@@ -1,6 +1,6 @@
 uuid: e3a1e0b8-83ef-49ba-a2a0-8d446baf8df5
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - system.menu.left-menu-english
@@ -30,7 +30,9 @@ settings:
   depth: 0
   expand_all_items: true
   parent: 'left-menu-english:'
+  render_parent: false
   suggestion: left_menu_english
+  hide_on_nonactive: false
 visibility:
   request_path:
     id: request_path
