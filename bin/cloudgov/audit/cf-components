@@ -1,0 +1,270 @@
+#!/usr/bin/env bash
+#
+# This script will compile a report of our cf env's components
+#
+
+# Styling variables
+underline=`tput smul`
+nounderline=`tput rmul`
+bold=`tput bold`
+normal=`tput sgr0`
+level2="  "
+level3="    "
+level4="      "
+level5="        "
+level6="          "
+
+die() { echo "$*" >&2; exit 2; }  # complain to STDERR and exit with error
+needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option"; fi; }
+
+# Defaults (to be thorough, you could also assign alpha="" and charlie="")
+all=false       # Overridden by the value set by -b or --bravo
+spaces="all"       # Overridden by the value set by -s or --spaces
+
+while getopts as: OPT; do  # allow -a, -b with arg, and -- "with arg"
+  # support long options: https://stackoverflow.com/a/28466267/519360
+  if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
+    OPT="${OPTARG%%=*}"       # extract long option name
+    OPTARG="${OPTARG#"$OPT"}" # extract long option argument (may be empty)
+    OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
+  fi
+  case "$OPT" in
+    a | all )      all=true ;;
+    s | spaces )   needs_arg; spaces="$OPTARG" ;;
+    \? )           exit 2 ;;  # bad short option (error reported via getopts)
+    * )            die "Illegal option --$OPT" ;;  # bad long option
+  esac
+done
+shift $((OPTIND-1)) # remove parsed options and args from $@ list
+
+getPaginationCount() { # $1 = resource, $2 = relationship, $3 = relationship id
+  PAGES=$(cf curl "/v3/$1" | jq -r '.pagination | .total_pages');
+  SELECT=""
+  if [ -n "$2" ]; then
+    SELECT=' select( .relationships.'"$2"'.data.guid == "'"$3"'" ) |'
+  fi
+  for i in $(seq 1 "$PAGES"); do
+    IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=50" | jq -r '[.resources[] |'"$SELECT"' .guid]')
+  done
+  echo "$IDS"
+}
+
+echo "${bold}${underline}CF Components${nounderline}${normal}"
+
+# Orgs->Domains/Spaces->Apps/Services->Tasks/Sidecars
+if [ $all == true ]; then
+  ORGIDS=$(getPaginationCount "organizations")
+else
+  echo "Showing info for gsa-tts-usagov, add --all argument to see all orgs."
+  ORGIDS=$(cf curl "/v3/organizations" | jq -r '[.resources[] | select(.name == "gsa-tts-usagov") | .guid]')
+fi
+
+IFS=',' read -r -a spaces_array <<< "$spaces"
+
+echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
+  ORG=$(cf curl "/v3/organizations/$ORGID")
+  ORGNAME=$(echo "$ORG" | jq -r '.name')
+  ORGCREATE=$(echo "$ORG" | jq -r '.created_at')
+  ORGUPDATE=$(echo "$ORG" | jq -r '.updated_at')
+
+  echo "Org: ${underline}$ORGNAME${nounderline} (Last updated: $ORGUPDATE | Created: $ORGCREATE)"
+
+  DOMIANIDS=$(getPaginationCount "domains" "organization" "$ORGID")
+  if [ "$DOMIANIDS" != "[]" ]; then
+    echo "$level2 Domains:"
+    echo "$DOMIANIDS" | jq -r '.[]' | while read -r DOMIANID; do
+      DOMAIN=$(cf curl "/v3/domains/$DOMIANID")
+      DOMAINNAME=$(echo "$DOMAIN" | jq -r '.name')
+      DOMAINCREATED=$(echo "$DOMAIN" | jq -r '.created_at')
+      DOMAINUPDATED=$(echo "$DOMAIN" | jq -r '.updated_at')
+      DOMAININTERNAL=$(echo "$DOMAIN" | jq -r '.internal')
+      DOMAINPROTOCOLS=$(echo "$DOMAIN" | jq -c '.supported_protocols')
+      echo "$level3 $DOMAINNAME (Last updated: $DOMAINUPDATED | Created: $DOMAINCREATED | Internal: $DOMAININTERNAL | Supported Protocols: $DOMAINPROTOCOLS)"
+    done
+  fi
+
+  if [ $spaces == "all" ]; then
+    SPACEPAGES=$(cf curl "/v3/spaces" | jq -r '.pagination | .total_pages');
+    if [[ $SPACEPAGES -gt 1 ]]; then
+      for i in $SPACEPAGES; do
+        SPACEIDS=$(cf curl "/v3/spaces?page=$i&per_page=50" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid')
+      done
+    else
+      SPACEIDS=$(cf curl "/v3/spaces" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid')
+    fi
+  else
+    SPACEPAGES=cf curl "/v3/spaces" | jq -r '.pagination | .total_pages';
+    if [[ $SPACEPAGES -gt 1 ]]; then
+      for i in $SPACEPAGES; do
+        SPACEIDS=$(cf curl "/v3/spaces?page=$i&per_page=50" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid' | while read -r SPACEID; do
+          SPACENAME=$(cf curl "/v3/spaces/$SPACEID" | jq -r '.name')
+          for space in "${spaces_array[@]}"; do
+            if [[ "$space" == "$SPACENAME" ]]; then
+              echo "$SPACEID"
+            fi
+          done
+        done)
+      done
+    else
+      SPACEIDS=$(cf curl "/v3/spaces" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid' | while read -r SPACEID; do
+        SPACENAME=$(cf curl "/v3/spaces/$SPACEID" | jq -r '.name')
+        for space in "${spaces_array[@]}"; do
+          if [[ "$space" == "$SPACENAME" ]]; then
+            echo "$SPACEID"
+          fi
+        done
+      done)
+    fi
+  fi
+
+  echo "$SPACEIDS" | while read -r SPACEID; do
+    SPACE=$(cf curl "/v3/spaces/$SPACEID")
+    SPACENAME=$(echo "$SPACE" | jq -r '.name')
+    SPACECREATED=$(echo "$SPACE" | jq -r '.created_at')
+    SPACEUPDATE=$(echo "$SPACE" | jq -r '.updated_at')
+    echo "$level2 Space: ${underline}$SPACENAME${nounderline} (Last updated: $SPACEUPDATE | Created: $SPACECREATED)"
+
+    SERVICEIDS=$(getPaginationCount "service_instances" "space" "$SPACEID")
+    if [ "$SERVICEIDS" != "[]" ]; then
+      echo "$level3 Services:"
+      echo "$SERVICEIDS" | jq -r '.[]' | while read -r SERVICEID; do
+        SERVICELASTOPERATION=""
+        SERVICE=$(cf curl "/v3/service_instances/$SERVICEID")
+        SERVICENAME=$(echo "$SERVICE" | jq -r '.name')
+        SERVICECREATED=$(echo "$SERVICE" | jq -r '.created_at')
+        SERVICEUPDATED=$(echo "$SERVICE" | jq -r '.updated_at')
+        if [ "$(echo "$SERVICE" | jq -r '.last_operation')" != "{}" ]; then
+          SERVICETYPE=$(echo "$SERVICE" | jq -r '.last_operation.type')
+          SERVICESTATE=$(echo "$SERVICE" | jq -r '.last_operation.state')
+          SERVICEDESCRIPTION=$(echo "$SERVICE" | jq -r '.last_operation.description')
+          SERVICEUPDATED=$(echo "$SERVICE" | jq -r '.last_operation.updated_at')
+
+          SERVICELASTOPERATION="(Last operation at $SERVICEUPDATED; Type: $SERVICETYPE | State: $SERVICESTATE | Description: $SERVICEDESCRIPTION)"
+        fi
+        echo "$level4 $SERVICENAME Last updated: $SERVICEUPDATED | Created: $SERVICECREATED $SERVICELASTOPERATION"
+      done
+    fi
+
+    ROUTEIDS=$(getPaginationCount "routes" "space" "$SPACEID")
+    if [ "$ROUTEIDS" != "[]" ]; then
+      echo "$level3 Routes:"
+      echo "$ROUTEIDS" | jq -r '.[]' | while read -r ROUTEID; do
+        ROUTE=$(cf curl "/v3/routes/$ROUTEID")
+        ROUTECREATED=$(echo "$ROUTE" | jq -r '.created_at')
+        ROUTEUPDATED=$(echo "$ROUTE" | jq -r '.updated_at')
+        ROUTEHOST=$(echo "$ROUTE" | jq -r '.host')
+        ROUTEPATH=$(echo "$ROUTE" | jq -r '.path')
+        ROUTEURL=$(echo "$ROUTE" | jq -r '.url')
+        echo "$level4 $ROUTEURL (Last updated: $ROUTEUPDATED | Created: $ROUTECREATED | Host: $ROUTEHOST | Path: $ROUTEPATH)"
+      done
+    fi
+
+    SGROUPIDS=$(getPaginationCount "spaces/$SPACEID/running_security_groups")
+    if [ "$SGROUPIDS" != "[]" ]; then
+      echo "$level3 Attached Security Groups:"
+      echo "$SGROUPIDS" | jq -r '.[]' | while read -r SGROUPID; do
+        SGROUP=$(cf curl "/v3/security_groups/$SGROUPID")
+        SGROUPCREATED=$(echo "$SGROUP" | jq -r '.created_at')
+        SGROUPUPDATED=$(echo "$SGROUP" | jq -r '.updated_at')
+        SGROUPNAME=$(echo "$SGROUP" | jq -r '.name')
+        echo "$level4 $SGROUPNAME (Last updated: $SGROUPUPDATED | Created: $SGROUPCREATED)"
+      done
+    fi
+
+    APPIDS=$(getPaginationCount "apps" "space" "$SPACEID")
+    if [ "$APPIDS" != "[]" ]; then
+      echo "$level3 Apps:"
+      echo "$APPIDS" | jq -r '.[]' | while read -r APPID; do
+        APP=$(cf curl "/v3/apps/$APPID")
+        APPNAME=$(echo "$APP" | jq -r '.name')
+        APPCREATED=$(echo "$APP" | jq -r '.created_at')
+        APPUPDATED=$(echo "$APP" | jq -r '.updated_at')
+        APPSTATE=$(echo "$APP" | jq -r '.state')
+        APPTYPE=$(echo "$APP" | jq -r '.lifecycle.type')
+
+        if [ "$APPTYPE" != "docker" ]; then
+          APPBUILDPACKS=$(echo "$APP" | jq -c '.lifecycle.data.buildpacks')
+          APPSTACK=$(echo "$APP" | jq -c '.lifecycle.data.stack')
+          APPSTACKINFO=" | Buildpacks: $APPBUILDPACKS | Stack: $APPSTACK"
+        fi
+        echo "$level4 $APPNAME (Last updated: $APPUPDATED | Created: $APPCREATED | State: $APPSTATE | Type: $APPTYPE$APPSTACKINFO)"
+
+        DROPLETID=$(cf curl "/v3/apps/$APPID/droplets/current" | jq -r '.guid')
+        if [ -n "$DROPLETID" ]; then
+          DROPLET=$(cf curl "/v3/droplets/$DROPLETID")
+          DROPLETSTATE=$(echo "$DROPLET" | jq -r '.state')
+          DROPLETCREATED=$(echo "$DROPLET" | jq -r '.created_at')
+          DROPLETUPDATED=$(echo "$DROPLET" | jq -r '.updated_at')
+          DROPLETSTACK=$(echo "$DROPLET" | jq -r '.stack')
+          DROPLETSTACKOUT=""
+          if [ "$DROPLETSTACK" != "null" ]; then
+            DROPLETSTACKOUT=" | Stack: $DROPLETSTACK"
+          fi
+          DROPLETIMAGEOUT=""
+          DROPLETIMAGE=$(echo "$DROPLET" | jq -r '.image')
+          if [ "$DROPLETIMAGE" != "null" ]; then
+            DROPLETIMAGEOUT=" | Image: $DROPLETIMAGE"
+          fi
+          echo "$level5 Current Droplet: $DROPLETSTATE (Last updated: $DROPLETUPDATED | Created: $DROPLETCREATED$DROPLETSTACKOUT$DROPLETIMAGEOUT)"
+        fi
+
+        TASKCOUNT=$(cf curl "/v3/apps/$APPID/tasks" | jq -r '.pagination | .total_results')
+        if [ "$TASKCOUNT" != "[]" ]; then
+          echo "$level5 Number of Tasks attached to $APPNAME: $TASKCOUNT"
+        fi
+
+        SIDECARIDS=$(getPaginationCount "apps/$APPID/sidecars" "app" "$APPID")
+        if [ "$SIDECARIDS" != "[]" ]; then
+          echo "$level5 Sidecars:"
+          echo "$SIDECARIDS" | jq -r '.[]' | while read -r SIDECARID; do
+            SIDECAR=$(cf curl "/v3/sidecars/$SIDECARID")
+            SIDECARNAME=$(echo "$SIDECAR" | jq -r '.name')
+            SIDECARCREATED=$(echo "$SIDECAR" | jq -r '.created_at')
+            SIDECARUPDATED=$(echo "$SIDECAR" | jq -r '.updated_at')
+            SIDECARCOMMAND=$(echo "$SIDECAR" | jq -r '.command')
+            SIDECARPROCESS=$(echo "$SIDECAR" | jq -c '.process_types')
+            SIDECARMEMORY=$(echo "$SIDECAR" | jq -r '.memory_in_mb')
+            SIDECARORIGIN=$(echo "$SIDECAR" | jq -r '.origin')
+            echo "$level6 $SIDECARNAME (Last updated: $SIDECARUPDATED | Created: $SIDECARCREATED | Command: $SIDECARCOMMAND | Process Types: $SIDECARPROCESS | Memory: $SIDECARMEMORY mb | Origin: $SIDECARORIGIN)"
+          done
+        fi
+      done
+    fi
+  done
+done
+
+# Misc info
+# Users temporarily removed as there is no way to filter users by organization.
+#
+# if [ $all == true ]; then
+#   echo "Showing all orgs.  For security reasons, the display of users is suppressed.  Remove -a argument to see users for gsa-tts-usagov org."
+# else
+#   USERIDS=$(getPaginationCount "users")
+#   if [ "$USERIDS" != "[]" ]; then
+#     echo "${underline}Users:${nounderline}"
+#     echo "$USERIDS" | jq -r '.[]' | while read -r USERID; do
+#       USER=$(cf curl "/v3/users/$USERID")
+#       USERNAME=$(echo "$USER" | jq -r '.username')
+#       USERPCREATED=$(echo "$USER" | jq -r '.created_at')
+#       USERPUPDATE=$(echo "$USER" | jq -r '.updated_at')
+#       USERPRESENTATION=$(echo "$USER" | jq -r '.presentation_name')
+#       USERORIGIN=$(echo "$USER" | jq -r '.origin')
+#       echo "$level2 $USERNAME (Last updated: $USERPUPDATE | Created: $USERPCREATED | Presentation Name: $USERPRESENTATION | Origin: $USERORIGIN)"
+#     done
+#   fi
+# fi
+
+GROUPIDS=$(getPaginationCount "security_groups")
+if [ "$GROUPIDS" != "[]" ]; then
+  echo "${underline}Security Groups:${nounderline}"
+  echo "$GROUPIDS" | jq -r '.[]' | while read -r GROUPID; do
+    GROUP=$(cf curl "/v3/security_groups/$GROUPID")
+    GROUPNAME=$(echo "$GROUP" | jq -r '.name')
+    GROUPUPDATED=$(echo "$GROUP" | jq -r '.created_at')
+    GROUPUPDATED=$(echo "$GROUP" | jq -r '.updated_at')
+    GROUPRULES=$(echo "$GROUP" | jq -r '.rules')
+    echo "$level2 $GROUPNAME (Last updated: $GROUPUPDATED | Created: $GROUPUPDATED)"
+    echo "$level3 Rules:"
+    echo "$level4 $GROUPRULES"
+  done
+fi
