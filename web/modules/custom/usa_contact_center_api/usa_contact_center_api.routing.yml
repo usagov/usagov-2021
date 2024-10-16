@@ -5,13 +5,6 @@ usa_contact_center_api.deleted_nodes:
   requirements:
     _permission: 'access content'
 
-usa_contact_center_api.wait_times:
-  path: '/wait-time'
-  defaults:
-    _controller: 'Drupal\usa_contact_center_api\Controller\USAContactCenterController::getWaitTime'
-  requirements:
-    _permission: 'access content'
-
 usa_contact_center_api.archived_nodes:
   path: '/jsonapi/archived-nodes'
   defaults:

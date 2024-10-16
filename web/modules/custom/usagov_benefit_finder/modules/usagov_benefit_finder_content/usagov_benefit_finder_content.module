@@ -464,3 +464,63 @@ function _usagov_benefit_finder_content_check_life_event_form_usage_in_life_even
 
   return $return;
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function usagov_benefit_finder_content_form_node_bears_benefit_delete_form_alter(array &$form, FormStateInterface $form_state) {
+  _usagov_benefit_finder_content_check_benefit_usage($form);
+}
+
+/**
+ * It checks benefit usage in life event forms and lists the life event forms.
+ *
+ * @param array $form
+ *   Form array.
+ */
+function _usagov_benefit_finder_content_check_benefit_usage(array &$form) {
+  $description = '';
+
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $nid = $node->id();
+
+  $result = _usagov_benefit_finder_content_check_benefit_usage_in_life_event_form($nid);
+  foreach ($result as $row) {
+    $description .= "<li>Life event form: $row[title] ($row[nid])</li>";
+  }
+
+  if (!empty($description)) {
+    $description = '<div class="entity-skip">'
+      . '<span>This benefit is used in following content:</span>'
+      . "<ul>$description</ul>"
+      . '</div>';
+    $form['description']['#markup'] = t($description);
+  }
+}
+
+/**
+ * It checks benefit usage in life event form.
+ *
+ * @param int $nid
+ *   Node ID of given benefit.
+ * @return array
+ *   An array of Node ID and title of life event forms.
+ */
+function _usagov_benefit_finder_content_check_benefit_usage_in_life_event_form(int $nid) {
+  $return = [];
+
+  $connection = Database::getConnection();
+
+  $query = $connection->select('node_field_data', 't1');
+  $query->join('node__field_b_life_event_forms', 't2', 't1.nid = t2.field_b_life_event_forms_target_id');
+  $query->fields('t1', ['title', 'nid']);
+  $query->condition('t2.entity_id', $nid);
+  $query->orderBy('title');
+  $result = $query->execute();
+
+  foreach ($result as $row) {
+    $return[] = ['nid' => $row->nid, 'title' => $row->title];
+  }
+
+  return $return;
+}

@@ -1,6 +1,6 @@
 uuid: 8c1cbe66-f919-49b6-a155-85c8bb3c5432
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - system.menu.left-menu-spanish
@@ -30,7 +30,9 @@ settings:
   depth: 0
   expand_all_items: true
   parent: 'left-menu-spanish:'
+  render_parent: false
   suggestion: left_menu_spanish
+  hide_on_nonactive: false
 visibility:
   language:
     id: language
