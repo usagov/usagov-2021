@@ -177,7 +177,7 @@ function usagov_benefit_category_search_views_pre_render(ViewExecutable $view): 
 function usagov_benefit_category_search_menu_local_tasks_alter(
   &$data,
   $route_name,
-  RefinableCacheableDependencyInterface &$cacheability
+  RefinableCacheableDependencyInterface &$cacheability,
 ) {
   if ($route_name !== 'entity.node.canonical') {
     return;
@@ -203,7 +203,7 @@ function usagov_benefit_category_search_menu_local_tasks_alter(
   $data['tabs'][0]['usagov_benefit_category_search.manage_sort'] = [
     '#access' => $url->access($userCurrent),
     '#theme' => 'menu_local_task',
-    '#acive' => false,
+    '#acive' => FALSE,
     '#link' => [
       'title' => 'Sort Results',
       'url' => $url,
