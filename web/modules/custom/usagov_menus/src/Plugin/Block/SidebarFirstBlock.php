@@ -266,7 +266,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     foreach ($items as $item) {
       $below = NULL;
       if ($item['in_active_trail']) {
-        if ($item['below']){
+        if ($item['below']) {
           $below = $this->prepareMenuItemsForTemplate($item['below'], $currentURL, $leaf);
         }
         elseif ($leaf) {
