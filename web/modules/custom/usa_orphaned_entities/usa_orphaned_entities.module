@@ -75,7 +75,6 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
         $additional .= "<ul>" . PHP_EOL;
 
         foreach ($reference_data['skip']['references'] as $reference_skip) {
-          $url = $reference_skip->toUrl();
           $id = $reference_skip->id();
           $type = $reference_skip->getEntityTypeId();
           $title = $reference_skip->label();
@@ -89,10 +88,21 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
               $type = $reference_skip->getEntityTypeId() . ' / ' . $reference_skip->bundle();
               break;
           }
-          $additional .= sprintf(
-            '<li><a href="%s" target="_blank">%s: %s (%d)</a></li>' . PHP_EOL,
-            $url->toString(), $type, Html::escape($title), $id
-          );
+
+          // Some entities, like paragraphs, don't have a link template
+          // which makes call to toUrl() fail.
+          if ($reference_skip->hasLinkTemplate('canonical')) {
+            $additional .= sprintf(
+              '<li><a href="%s" target="_blank">%s: %s (%d)</a></li>' . PHP_EOL,
+              $reference_skip->toUrl()->toString(), $type, Html::escape($title), $id
+            );
+          }
+          else {
+            $additional .= sprintf(
+              '<li>%s: %s (%d)</li>' . PHP_EOL,
+              $type, Html::escape($title), $id
+            );
+          }
         }
 
         $additional .= "</ul></div>" . PHP_EOL;
