@@ -115,8 +115,8 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  private function buildFromParentNodeID(string $menuID, $parentNodeID, bool $closeLastTrail = FALSE): array {
-    $menu_links = $this->menuLinkManager->loadLinksByRoute( 'entity.node.canonical', ['node' => $parentNodeID], $menuID );
+  private function buildFromParentNodeId(string $menuID, $parentNodeID, bool $closeLastTrail = FALSE): array {
+    $menu_links = $this->menuLinkManager->loadLinksByRoute('entity.node.canonical', ['node' => $parentNodeID], $menuID);
     $active = array_pop($menu_links);
     $crumbs = $this->getParents($active);
     $items = $this->getMenuTreeItems($menuID, $crumbs, $active, $closeLastTrail);
@@ -234,7 +234,7 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
 
     if (!empty($items['#items'])) {
       $currentURL = $active->getUrlObject()->toString();
-      if($leaf){
+      if ($leaf) {
         $currentURL = $leaf['url'];
       }
       $menutree = reset($this->prepareMenuItemsForTemplate($items['#items'], $currentURL, $leaf));
@@ -258,26 +258,27 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
   /**
    * prepareMenuItemsForTemplate() takes a tree of menu items, the current page's URL,
    * and an optional leaf to supply current page values when the current page is not in this menu.
-   * 
+   *
    * Returns a new tree containing only the items and values needed for the sidebar twig template.
    */
-  function prepareMenuItemsForTemplate($items, $currentURL, $leaf): array {
+  private function prepareMenuItemsForTemplate($items, $currentURL, $leaf): array {
     $menuTree = [];
     foreach ($items as $item) {
       $below = NULL;
-      if($item['in_active_trail']) {
-        if( $item['below'] ){
+      if ($item['in_active_trail']) {
+        if ($item['below']){
           $below = $this->prepareMenuItemsForTemplate($item['below'], $currentURL, $leaf);
-        } elseif( $leaf ) {
+        }
+        elseif ($leaf) {
           // This $item is active with no children. So if a $leaf was provided, then it goes below this $item.
-          $below = $this->prepareMenuItemsForTemplate([$leaf], $currentURL, null);
+          $below = $this->prepareMenuItemsForTemplate([$leaf], $currentURL, NULL);
         }
       }
       $url = $item['url'];
-      if( !is_string($url) ) {
+      if (!is_string($url)) {
         $url = $url->toString();
       }
-      array_push($menuTree, (object)[
+      array_push($menuTree, (object) [
         'title' => $item['title'],
         'url' => $url,
         'active' => $item['in_active_trail'],
