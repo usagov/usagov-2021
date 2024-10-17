@@ -76,7 +76,3 @@ lazyLoadBgImage:
 modal:
   js:
     scripts/modal.js: {}
-
-iframeTabindex:
-  js:
-    scripts/iframeTabindex.js: {}
