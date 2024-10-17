@@ -50,19 +50,15 @@ spChatWaitTime=$(echo "$spChatWaitTimeResponse" | jq -r '.results[].estimatedWai
 timestamp=$(date +%s)
 combinedWaitTimes='{
   "call": {
-    "en": {
-      "estimatedWaitTimeSeconds": '$enWaitTime'
-    },
-    "sp": {
-      "estimatedWaitTimeSeconds": '$enChatWaitTime'
+    "estimatedWaitTimeSeconds": {
+      "en": '$enWaitTime',
+      "sp": '$spWaitTime',
     }
   },
   "chat": {
-    "en": {
-      "estimatedWaitTimeSeconds": '$spWaitTime'
-    },
-    "sp": {
-      "estimatedWaitTimeSeconds": '$spChatWaitTime'
+    "estimatedWaitTimeSeconds": {
+      "en": '$enChatWaitTime',
+      "sp": '$spChatWaitTime'
     }
   },
   "timestamp": '$timestamp'
