@@ -12,6 +12,7 @@ use Drupal\Core\Menu\MenuLinkTreeElement;
 use Drupal\Core\Menu\MenuLinkTreeInterface;
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Render\Element\Item;
 use Drupal\Core\Routing\ResettableStackedRouteMatchInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -44,7 +45,6 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
 
   private const AGENCIES_NID_EN = 629;
   private const AGENCIES_NID_ES = 1696;
-
   private const STATES_NID_EN = 1885;
   private const STATES_NID_ES = 1870;
 
@@ -72,17 +72,20 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
       'es' => 'left-menu-spanish',
       default => 'left-menu-english',
     };
+    $path = $this->request->getPathInfo();
 
     switch (TRUE) {
-      case str_starts_with($this->request->getPathInfo(), '/agencies/'):
-      case str_starts_with($this->request->getPathInfo(), '/es/agencias/'):
-        // These items aren't part of a menu.
-        return $this->buildAgencySidebar($menuID);
+      case str_starts_with($path, '/agencies/'):
+        return $this->buildFromParentNodeID($menuID, self::AGENCIES_NID_EN);
 
-      case str_starts_with($this->request->getPathInfo(), '/states/'):
-      case str_starts_with($this->request->getPathInfo(), '/es/estados/'):
-        // These items aren't part of a menu.
-        return $this->buildStatesSidebar($menuID);
+      case str_starts_with($path, '/es/agencias/'):
+        return $this->buildFromParentNodeID($menuID, self::AGENCIES_NID_ES);
+
+      case str_starts_with($path, '/states/'):
+        return $this->buildFromParentNodeID($menuID, self::STATES_NID_EN, closeLastTrail: TRUE);
+
+      case str_starts_with($path, '/es/estados/'):
+        return $this->buildFromParentNodeID($menuID, self::STATES_NID_ES, closeLastTrail: TRUE);
 
       default:
         return $this->buildFromMenu($menuID);
@@ -108,65 +111,20 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
   }
 
   /**
-   * Builds the left navigation for an agency page.
+   * Builds the left navigation for an agency or state page.
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  private function buildAgencySidebar(string $menuID): array {
-    // Get our parent.
-    $parentNodeID = match ($this->language->getId()) {
-      'es' => self::AGENCIES_NID_ES,
-      default => self::AGENCIES_NID_EN,
-    };
-
-    $menu_links = $this->menuLinkManager->loadLinksByRoute(
-      'entity.node.canonical', ['node' => $parentNodeID],
-      $menuID
-    );
-
+  private function buildFromParentNodeId(string $menuID, $parentNodeID, bool $closeLastTrail = FALSE): array {
+    $menu_links = $this->menuLinkManager->loadLinksByRoute('entity.node.canonical', ['node' => $parentNodeID], $menuID);
     $active = array_pop($menu_links);
-    if (!$active) {
-      throw new \RuntimeException("Can't find active link");
-    }
-
     $crumbs = $this->getParents($active);
-    $items = $this->getMenuTreeItems($menuID, $crumbs, $active);
-
-    $node = $this->routeMatch->getParameter('node');
+    $items = $this->getMenuTreeItems($menuID, $crumbs, $active, $closeLastTrail);
     $leaf = [
       'url' => $this->request->getPathInfo(),
-      'title' => $node->getTitle(),
+      'title' => $this->routeMatch->getParameter('node')->getTitle(),
     ];
-
     return $this->renderItems($items, $active, $leaf);
-  }
-
-  /**
-   * Display the left nav for state pages.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\PluginException
-   */
-  private function buildStatesSidebar(string $menuID): array {
-    $parentNodeID = match ($this->language->getId()) {
-      'es' => self::STATES_NID_ES,
-      default => self::STATES_NID_EN,
-    };
-    $menu_links = $this->menuLinkManager->loadLinksByRoute(
-      'entity.node.canonical', ['node' => $parentNodeID],
-      $menuID
-    );
-
-    $active = array_pop($menu_links);
-    $crumbs = $this->getParents($active);
-
-    $items = $this->getMenuTreeItems($menuID, $crumbs, $active, closeLastTrail: TRUE);
-
-    $node = $this->routeMatch->getParameter('node');
-
-    return $this->renderItems($items, $active, leaf: [
-      'url' => $this->request->getPathInfo(),
-      'title' => $node->getTitle(),
-    ]);
   }
 
   /**
@@ -273,42 +231,19 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     ?MenuLinkInterface $active = NULL,
     array $leaf = [],
   ): array {
-    $navAriaLabel = match ($this->language->getId()) {
-      'es' => 'Secundaria',
-      default => 'Secondary',
-    };
 
     if (!empty($items['#items'])) {
-      $pagetype = NULL;
-      if ($node = $this->routeMatch->getParameter('node')) {
-        $pagetype = usa_twig_vars_get_page_type($node);
+      $currentURL = $active->getUrlObject()->toString();
+      if ($leaf) {
+        $currentURL = $leaf['url'];
       }
+      $menutree = reset($this->prepareMenuItemsForTemplate($items['#items'], $currentURL, $leaf));
 
       $theme = [
         '#theme' => 'usagov_menu_sidebar',
-        '#items' => $items['#items'],
-        '#depth' => 0,
-        '#nav_aria_label' => $navAriaLabel,
-        '#page_type_is' => $pagetype,
-        '#is_spanish_menu' => $this->language->getId() === 'es',
+        '#menutree' => $menutree,
+        '#lang' => $this->language->getId(),
       ];
-
-      if ($active) {
-        $theme['#start_item'] = $items['#items'][array_key_first($items['#items'])];
-        $theme['#current'] = [
-          'url' => $active->getUrlObject()->toString(),
-          'title' => $active->getTitle(),
-        ];
-      }
-      else {
-        $theme['#items'] = $items['#items'];
-      }
-
-      if ($leaf) {
-        $theme['#leaf'] = $leaf;
-        // If we specify a leaf, make sure it's treated as the current page.
-        $theme['#current'] = $leaf;
-      }
 
       // Ensure drupal knows this block should be cached per path.
       $theme['#cache'] = [
@@ -318,6 +253,40 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
     }
 
     return [];
+  }
+
+  /**
+   * prepareMenuItemsForTemplate() takes a tree of menu items, the current page's URL,
+   * and an optional leaf to supply current page values when the current page is not in this menu.
+   *
+   * Returns a new tree containing only the items and values needed for the sidebar twig template.
+   */
+  private function prepareMenuItemsForTemplate($items, $currentURL, $leaf): array {
+    $menuTree = [];
+    foreach ($items as $item) {
+      $below = NULL;
+      if ($item['in_active_trail']) {
+        if ($item['below']) {
+          $below = $this->prepareMenuItemsForTemplate($item['below'], $currentURL, $leaf);
+        }
+        elseif ($leaf) {
+          // This $item is active with no children. So if a $leaf was provided, then it goes below this $item.
+          $below = $this->prepareMenuItemsForTemplate([$leaf], $currentURL, NULL);
+        }
+      }
+      $url = $item['url'];
+      if (!is_string($url)) {
+        $url = $url->toString();
+      }
+      array_push($menuTree, (object) [
+        'title' => $item['title'],
+        'url' => $url,
+        'active' => $item['in_active_trail'],
+        'current' => $currentURL === $url,
+        'below' => $below,
+      ]);
+    }
+    return $menuTree;
   }
 
   /**
