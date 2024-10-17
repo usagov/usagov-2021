@@ -52,7 +52,7 @@ combinedWaitTimes='{
   "call": {
     "estimatedWaitTimeSeconds": {
       "en": '$enWaitTime',
-      "sp": '$spWaitTime',
+      "sp": '$spWaitTime'
     }
   },
   "chat": {
