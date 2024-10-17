@@ -82,10 +82,10 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
         return $this->buildFromParentNodeID($menuID, self::AGENCIES_NID_ES);
 
       case str_starts_with($path, '/states/'):
-        return $this->buildFromParentNodeID($menuID, self::STATES_NID_EN);
+        return $this->buildFromParentNodeID($menuID, self::STATES_NID_EN, closeLastTrail: TRUE);
 
       case str_starts_with($path, '/es/estados/'):
-        return $this->buildFromParentNodeID($menuID, self::STATES_NID_ES);
+        return $this->buildFromParentNodeID($menuID, self::STATES_NID_ES, closeLastTrail: TRUE);
 
       default:
         return $this->buildFromMenu($menuID);
@@ -115,11 +115,11 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  private function buildFromParentNodeID(string $menuID, $parentNodeID): array {
+  private function buildFromParentNodeID(string $menuID, $parentNodeID, bool $closeLastTrail = FALSE): array {
     $menu_links = $this->menuLinkManager->loadLinksByRoute( 'entity.node.canonical', ['node' => $parentNodeID], $menuID );
     $active = array_pop($menu_links);
     $crumbs = $this->getParents($active);
-    $items = $this->getMenuTreeItems($menuID, $crumbs, $active);
+    $items = $this->getMenuTreeItems($menuID, $crumbs, $active, $closeLastTrail);
     $leaf = [
       'url' => $this->request->getPathInfo(),
       'title' => $this->routeMatch->getParameter('node')->getTitle(),
