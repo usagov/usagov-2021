@@ -36,6 +36,11 @@
         { 'text': drupal_title() }
     ] %}
 {% endif %}
+
+{% if wizard_breadcrumb %}
+    {% set breadcrumb = wizard_breadcrumb %}
+{% endif %}
+
     
 {% if breadcrumb %}
 
