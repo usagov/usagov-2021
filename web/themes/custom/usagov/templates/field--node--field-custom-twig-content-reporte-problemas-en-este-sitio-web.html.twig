@@ -4,7 +4,7 @@
 		class="usa-alert usa-alert--slim usa-alert--error usa-error--alert"
 		tabindex="-1">
 		<div class="usa-alert__body">
-			<h3 class="usa-alert__heading">Su información contiene errores</h3>
+			<h2 class="usa-alert__heading">Su información contiene errores</h2>
 			<li id="alert_error_00NU0000004z90C" class="usa-alert__text usa-error--alert">
 				<a href="#label_name"><span>Escriba su nombre</span></a>
 			</li>
@@ -84,6 +84,7 @@
 							<label id="label_description" class="usa-label dscrptn" for="description">Escriba el problema que desea reportar aquí. Por favor Incluya la dirección web (URL) de la página con el problema.</label>
 							<textarea
 								aria-required="true"
+								aria-describedby="report-issue-box-es"
 								class="usa-input usa-input-textarea"
 								id="description"
 								name="description"
@@ -96,7 +97,7 @@
 								data-error="Escriba la descripción"
 								data-name="Description"
 							></textarea>
-							<text class="usa-description">Por favor limite su comentario a 1000 caracteres.</text>
+							<text class="usa-description" id="report-issue-box-es">Por favor limite su comentario a 1000 caracteres.</text>
 						</p>
 
 						<div style="visibility: hidden; z-index: 2" class="_e725ae-textarea_btn _e725ae-anonymous _e725ae-not_focused" data-grammarly-reactid=".0">
