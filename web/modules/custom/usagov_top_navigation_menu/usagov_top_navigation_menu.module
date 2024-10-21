@@ -92,7 +92,6 @@ function usagov_top_navigation_menu_menu_link_content_update($entity) {
   $results = $db->query($sql)->fetchAllKeyed(0, 0);
 
   // Disable this menu item
-  $results = [1359];
   foreach ($results as $mid) {
     $menu_item = MenuLinkContent::load($mid);
     $menu_item->set('enabled', 0);
