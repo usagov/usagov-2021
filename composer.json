@@ -151,9 +151,6 @@
             },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren_d10.patch"
-            },
-            "drupal/menu_breadcrumb": {
-                "Add url.path to cache context for menu breadcrumb": "https://www.drupal.org/files/issues/2024-09-11/menu_breadcrumb-3230481-fix-cache-context-mr22.patch"
             }
         },
         "drupal-lenient": {

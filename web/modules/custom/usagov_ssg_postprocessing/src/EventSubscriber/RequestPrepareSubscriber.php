@@ -35,6 +35,9 @@ class RequestPrepareSubscriber implements EventSubscriberInterface {
     $menuLinkStorage = $this->entity_type_manager->getStorage('menu_link_content');
     $menuLinkStorage->resetCache();
 
+    $menuStorage = $this->entity_type_manager->getStorage('menu');
+    $menuStorage->resetCache();
+
     $this->currentRouteMatch->resetRouteMatch();
   }
 
