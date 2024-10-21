@@ -51,6 +51,10 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       $script = rtrim($script, ",");
       $decoded = json_decode($script, TRUE);
       $decoded = $decoded[0];
+      if (empty($decoded)) {
+        print "WARNING: PublishedPagesSubscriber.php is skiping a page due to a bad dataLayer\n";
+        continue;
+      }
 
       $url_replace = [
         "Taxonomy_URL_1",
@@ -188,8 +192,14 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       // nodes, but that could negatively impact export performance.
       if ($decoded['Page ID'] && $hierarchy > 5) {
         $nid = $decoded['Page ID'];
-        $nodeEntity = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-        $url = $nodeEntity->toUrl()->toString();
+        if (substr($nid, 0, 2) !== 't_') {
+          $tid = intval(substr($nid, 2));
+          $termEntity = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
+          $url = $termEntity->toUrl()->toString();
+        } else {
+          $nodeEntity = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+          $url = $nodeEntity->toUrl()->toString();
+        }
       }
 
       $decoded["Friendly URL"] = (empty($url)) ? "/" : $url;
