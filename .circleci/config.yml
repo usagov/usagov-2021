@@ -625,6 +625,23 @@ jobs:
       - deploy-cloudgov-cron:
           envname: prod
 
+  deploy-to-cloudgov-tools-cron:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cloudgov-cron:
+          envname: tools
+
+  deploy-to-cloudgov-shared-egress-cron:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cloudgov-cron:
+          envname: shared-egress
 
 workflows:
   version: 2
