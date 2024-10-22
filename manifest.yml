@@ -34,10 +34,14 @@ applications:
     APP_NAME: nginx
     BLOCKED_NAME: USAGov
     IP_ALLOWED: |
-      allow 50.81.160.164;
-      allow 100.36.151.190;
+      # allow 50.81.160.164;  # comment out as this points to someone's house using Mediacom Communications as their ISP? `nslookup` says 50-81-160-164.client.mchsi.com
+      # allow 100.36.151.190; # comment out as this points to someone's house in DC? `nslookup` says pool-100-36-151-190.washdc.fios.verizon.net
+
+      # AWS EC2 Instances on the west-coast? Why do we have these? (see ticket USAGOV-1103)
       allow 52.222.122.97/32;
       allow 52.222.123.172/32;
+
+      # GSA CIDR Block
       allow 159.142.0.0/16;
 
       # SiteImprove:

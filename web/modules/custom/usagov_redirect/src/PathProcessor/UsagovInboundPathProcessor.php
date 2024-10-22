@@ -35,10 +35,14 @@ class UsagovInboundPathProcessor implements InboundPathProcessorInterface {
     // If the original URL request is /index.php but the following character is not a slash.
     if (substr($_SERVER['REQUEST_URI'], 0, 10) === '/index.php' && substr($_SERVER['REQUEST_URI'], 10, 1) !== '/') {
 
-      // Then we will add a slash after the ".php" and redirect the user.
-      $sendTo = $_SERVER['REQUEST_URI'];
-      $sendTo = str_replace('index.php', 'index.php/', $sendTo);
-      header('Location: ' . $sendTo);
+      // // Then we will add a slash after the ".php" and redirect the user.
+      // $sendTo = $_SERVER['REQUEST_URI'];
+      // $sendTo = str_replace('index.php', 'index.php/', $sendTo);
+      // header('Location: ' . $sendTo);
+
+      // EDIT: A per ticket USAGOV-1986 the commented-out code above was flagged as a vulnerability.
+      // So we will now instead redirect the user to the front-page, as this is considered a bad-path anyways.
+      header('Location: /');
       http_response_code(302);
       exit();
     }

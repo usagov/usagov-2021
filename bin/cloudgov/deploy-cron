@@ -72,6 +72,7 @@ else
   exit 1
 fi
 
+# TODO: I want to come back to this and make CALLWAIT_STORAGE_SERVICE a shared service -- one s3 bucket for all three environs -akf
 STATE_STORAGE_SERVICE=${APPNAME}-state-storage
 EVENT_STORAGE_SERVICE=${APPNAME}-event-storage
 CALLWAIT_STORAGE_SERVICE=${APPNAME}-callwait-storage
@@ -114,10 +115,23 @@ else
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
 fi
 
-### These are set for some reason - unsert them at deployment
+### These are set for some reason - unset them at deployment
 cf unset-env $APPNAME HTTP_PROXY
 cf unset-env $APPNAME HTTPS_PROXY
 cf unset-env $APPNAME http_proxy
 cf unset-env $APPNAME https_proxy
+
+
+### Call center env (should we move this to a user-provided credentials service?)
+cf set-env $APPNAME CALL_CENTER_CLIENT_ID $CALL_CENTER_CLIENT_ID
+cf set-env $APPNAME CALL_CENTER_CLIENT_SECRET $CALL_CENTER_CLIENT_SECRET
+cf set-env $APPNAME CALL_CENTER_ENVIRONMENT $CALL_CENTER_ENVIRONMENT
+cf set-env $APPNAME CALL_CENTER_EN_QUEUE_ID $CALL_CENTER_EN_QUEUE_ID
+cf set-env $APPNAME CALL_CENTER_SP_QUEUE_ID $CALL_CENTER_SP_QUEUE_ID
+
+# Enable call center script on prod only. (We can manually update this in dev, etc. for testing)
+if [ $SPACE = "prod" ]; then
+    cf set-env $APPNAME CALL_CENTER_RUN "true"
+fi
 
 cf restage $APPNAME

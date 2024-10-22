@@ -61,25 +61,25 @@
 {# do some weird stuff with the indentation here to make it appear correctly in the DOM #}
 {% for link in breadcrumb_block['content']['#links'] %}
 {% if loop.first %}
-    {{ 'Taxonomy_Text_1'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.text|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+    {{ 'Taxonomy_Text_1'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.text|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_PRETTY_PRINT'))|raw }},
     {% if page_type == 'wizard-start' %}
     {% set titleCounter = titleCounter + 1 %}
     {% endif %}
 {% elseif loop.index == 2 %}
-{{ 'Taxonomy_Text_2'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ wizardTitle|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+{{ 'Taxonomy_Text_2'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ wizardTitle|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }},
     {% if page_type != 'wizard-start' %}
-{{ 'Taxonomy_Text_3'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.text|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+{{ 'Taxonomy_Text_3'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.text|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }},
     {% endif %}
 {% elseif loop.index <= 5 %}
 {% set textTag = 'Taxonomy_Text_' ~ titleCounter %}
 {% set titleCounter = titleCounter + 1 %}
-{{ textTag|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.text|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+{{ textTag|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.text|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }},
 {% endif %}
 {% endfor %}
 {% for i in range(1, 6) %}
 {% if titleCounter <= 6 %}
 {% set lastText = 'Taxonomy_Text_' ~ titleCounter %}
-    {{ lastText|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ name|json_encode(constant('JSON_PRETTY_PRINT'))|raw }},
+    {{ lastText|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ name|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_PRETTY_PRINT'))|raw }},
 {% endif %}
 {% set titleCounter = titleCounter + 1 %}
 {% endfor %}
