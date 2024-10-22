@@ -65,11 +65,14 @@
 {{ attach_library('uswds_paragraph_components/uswds-alerts') }}
 
 {# Prints div with classes, and content without Width and Background. #}
-<div{{ attributes.addClass(classes) }}>
-  <div class="usa-alert__body">
+<div{{ attributes.addClass(classes) }} role="region" aria-labelledby="usa-alert--1__heading">
+    <div class="usa-alert__body">
     {% if not paragraph.field_alert_title.isempty %}
+    <div id="usa-alert--1__heading">
+    <span class="usa-alert__a11y-label usa-screen-reader" id="usa-alert--1__a11y-label"> {{ alert_status }} </span>
       <h2 class="usa-alert__heading">{{ content.field_alert_title }}</h2>
-    {% endif %} 
+    </div>
+    {% endif %}
     {{ content.field_alert_body }}
   </div>
 </div>
