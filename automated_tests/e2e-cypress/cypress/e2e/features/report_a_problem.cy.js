@@ -3,13 +3,16 @@ const paths = ["/site-issue-report-form", "/es/reporte-problemas-en-este-sitio-w
 paths.forEach(path => {
   let lang;
   let thank_you;
+  let recordType;
 
   if (path === "/site-issue-report-form") {
     lang = "English";
     thank_you = "https://www.usa.gov/thank-you-issue-report"
+    recordType = "012U00000001eYv";
   } else {
     lang = "Español";
     thank_you = "https://www.usa.gov/es/gracias-por-reportar-problemas-en-este-sitio-web";
+    recordType = "012U00000001eYr";
   }
 
   describe(`Report a Problem ${lang}`, () => {
@@ -22,7 +25,7 @@ paths.forEach(path => {
       cy.get('input[name="retURL"]')
         .should('have.value', thank_you)
       cy.get('input[name="recordType"]')
-        .should('have.value', '012U00000001eYv')
+        .should('have.value', recordType)
       cy.get('input[name="Sender_IP__c"]')
         .should('have.value', '192.168.1.1')
       cy.get('input[name="Site_Version__c"]')
