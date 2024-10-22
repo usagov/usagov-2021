@@ -836,7 +836,8 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1753-generic-cron-app-alpine
+                - tools
+                - shared-egress
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
@@ -847,7 +848,8 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1753-generic-cron-app-alpine
+                - tools
+                - shared-egress
       - approve-dev-deployment-cron:
           type: approval
           requires:
@@ -913,3 +915,43 @@ workflows:
           filters:
             branches:
               only: prod
+      - approve-tools-deployment-cron:
+            type: approval
+            requires:
+              - build-and-push-container-cron
+            filters:
+              branches:
+                only: tools
+      - really-approve-tools-deployment-cron:
+          type: approval
+          requires:
+            - approve-tools-deployment-cron
+          filters:
+            branches:
+              only: tools
+      - deploy-to-cloudgov-tools-cron:
+          requires:
+            - really-approve-tools-deployment-cron
+          filters:
+            branches:
+              only: tools
+      - approve-shared-egress-deployment-cron:
+          type: approval
+          requires:
+            - build-and-push-container-cron
+          filters:
+            branches:
+              only: shared-egress
+      - really-approve-shared-egress-deployment-cron:
+          type: approval
+          requires:
+            - approve-shared-egress-deployment-cron
+          filters:
+            branches:
+              only: shared-egress
+      - deploy-to-cloudgov-shared-egress-cron:
+          requires:
+            - really-approve-shared-egress-deployment-cron
+          filters:
+            branches:
+              only: tools
