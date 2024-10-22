@@ -934,3 +934,15 @@ input::-webkit-textfield-decoration-container {
     max-width: 100%;
   }
 }
+
+// hides the alert status text in the alert component
+.usa-screen-reader {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  word-wrap: normal;
+}
