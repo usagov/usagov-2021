@@ -1,7 +1,7 @@
-diff --git web/modules/contrib/tome/modules/tome_static/src/Commands/StaticCommand.php web/modules/contrib/tome/modules/tome_static/src/Commands/StaticCommand.php
-index 56d963b..feada2d 100644
---- web/modules/contrib/tome/modules/tome_static/src/Commands/StaticCommand.php
-+++ web/modules/contrib/tome/modules/tome_static/src/Commands/StaticCommand.php
+diff --git a/modules/tome_static/src/Commands/StaticCommand.php b/modules/tome_static/src/Commands/StaticCommand.php
+index 56d963b5607c3ffdeebdf6c7854f0d0b1ece1b06..d6fbaca2cb30308f156e9927529673dfbf81f778 100644
+--- a/modules/tome_static/src/Commands/StaticCommand.php
++++ b/modules/tome_static/src/Commands/StaticCommand.php
 @@ -53,6 +53,8 @@ class StaticCommand extends CommandBase {
     */
    protected $state;
@@ -11,20 +11,17 @@ index 56d963b..feada2d 100644
    /**
     * Constructs a StaticCommand instance.
     *
-@@ -123,6 +125,12 @@ class StaticCommand extends CommandBase {
+@@ -123,6 +125,9 @@ class StaticCommand extends CommandBase {
      }
 
      $this->io->writeln('Generating static HTML...');
 +
 +    $this->setInitialPaths($paths);
-+    if ($this->io->isVerbose()) {
-+      $this->io->writeln('Initial paths count: ' . count($this->getInitialPaths()));
-+    }
 +
      $this->exportPaths($paths, [], $options['process-count'], $options['path-count'], TRUE, $options['retry-count'], $options['uri']);
      $this->io->success('Exported static HTML and related assets.');
 
-@@ -135,6 +143,14 @@ class StaticCommand extends CommandBase {
+@@ -135,6 +140,14 @@ class StaticCommand extends CommandBase {
      return 0;
    }
 
@@ -39,7 +36,7 @@ index 56d963b..feada2d 100644
    /**
     * Exports the given paths to the static directory.
     *
-@@ -175,15 +191,22 @@ class StaticCommand extends CommandBase {
+@@ -175,15 +188,18 @@ class StaticCommand extends CommandBase {
      $show_progress && $this->io->progressStart(count($paths));
 
      $invoke_paths = [];
@@ -56,18 +53,22 @@ index 56d963b..feada2d 100644
      });
 
 -    $invoke_paths = array_diff($invoke_paths, $old_paths);
-+    if ($this->io->isVerbose()) {
-+      $this->io->writeln('Initial paths count: ' . count($this->getInitialPaths()));
-+    }
-+
 +    $invoke_paths = array_diff($invoke_paths, $old_paths,  $this->getInitialPaths());
      $old_paths = array_merge($old_paths, $invoke_paths);
 
      $show_progress && $this->io->progressFinish();
-diff --git web/modules/contrib/tome/modules/tome_static/src/Commands/StaticExportPathCommand.php web/modules/contrib/tome/modules/tome_static/src/Commands/StaticExportPathCommand.php
-index 9333218..4ff8dd3 100644
---- web/modules/contrib/tome/modules/tome_static/src/Commands/StaticExportPathCommand.php
-+++ web/modules/contrib/tome/modules/tome_static/src/Commands/StaticExportPathCommand.php
+@@ -191,6 +207,7 @@ class StaticCommand extends CommandBase {
+       $this->displayErrors($collected_errors);
+     }
+     if (count($invoke_paths)) {
++      $this->init_paths = array_merge($this->init_paths, $invoke_paths);
+       $this->io->writeln('Processing related assets and paths...');
+       $this->exportPaths($invoke_paths, $old_paths, $process_count, $path_count, $show_progress, $retry_count, $uri);
+     }
+diff --git a/modules/tome_static/src/Commands/StaticExportPathCommand.php b/modules/tome_static/src/Commands/StaticExportPathCommand.php
+index 933321846edd33204522259f1411ff5eab404376..4ff8dd3e79a9cd9e5db72b8b7d0d0f2e73007d4a 100644
+--- a/modules/tome_static/src/Commands/StaticExportPathCommand.php
++++ b/modules/tome_static/src/Commands/StaticExportPathCommand.php
 @@ -68,6 +68,7 @@ class StaticExportPathCommand extends StaticCommand {
        $this->requestPreparer->prepareForRequest();
        try {
@@ -76,10 +77,10 @@ index 9333218..4ff8dd3 100644
        }
        catch (\Exception $e) {
          $this->io->getErrorStyle()->error($this->formatPathException($path, $e));
-diff --git web/modules/contrib/tome/modules/tome_static/src/RequestPreparer.php web/modules/contrib/tome/modules/tome_static/src/RequestPreparer.php
-index be08b04..7d514d8 100644
---- web/modules/contrib/tome/modules/tome_static/src/RequestPreparer.php
-+++ web/modules/contrib/tome/modules/tome_static/src/RequestPreparer.php
+diff --git a/modules/tome_static/src/RequestPreparer.php b/modules/tome_static/src/RequestPreparer.php
+index be08b0460e494b74492f3940634b8ab71aa1f900..7d514d82f689ddf203b6280dc1f702cfa4327159 100644
+--- a/modules/tome_static/src/RequestPreparer.php
++++ b/modules/tome_static/src/RequestPreparer.php
 @@ -110,7 +110,7 @@ class RequestPreparer {
      }
      // Reset active trail cache.
