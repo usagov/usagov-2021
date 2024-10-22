@@ -111,7 +111,7 @@ function modifyErrorElements() {
   'use strict';
 
   // If there is an error, modify the alert box header text based on the number of fields with errors.
-  $("#error-box")[0].classList.remove("usa-error--alert") ;
+  $("#error-box")[0].classList.remove("usa-error--alert");
   $("#error-box")[0].focus();
 
   // Gets all error text elements from the alert box to check how many errors we have (this includes reCaptcha and all fields)
@@ -120,21 +120,21 @@ function modifyErrorElements() {
   if (errors.length === 1) {
       // English Header text when there is only one error
       if (document.documentElement.lang === "en") {
-          $("#error-box")[0].getElementsByTagName("h3")[0].innerHTML = "Your information contains an error";
+          $("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Your information contains an error";
       }
       // Spanish Header text when there is only one error
       else {
-          $("#error-box")[0].getElementsByTagName("h3")[0].innerHTML = "Su información contiene 1 error";
+          $("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Su información contiene 1 error";
       }
   }
   else {
       // English Header text when there is more than one error
       if (document.documentElement.lang === "en") {
-          $("#error-box")[0].getElementsByTagName("h3")[0].innerHTML = "Your information contains " + errors.length + " errors";
+          $("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Your information contains " + errors.length + " errors";
       }
       // Spanish Header text when there is more than one error
       else {
-          $("#error-box")[0].getElementsByTagName("h3")[0].innerHTML = "Su información contiene " + errors.length + " errores";
+          $("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Su información contiene " + errors.length + " errores";
       }
   }
 
@@ -144,7 +144,11 @@ function modifyErrorElements() {
   }
   else {
     // Removes the side line without spaces.
-    $("#error-border")[0].classList.remove("usa-main-border-error") ;
+    $("#error-border")[0].classList.remove("usa-main-border-error");
+  }
+    // Adds class back to the top error box bofore form submission.
+  if (errors.length < 1) {
+    $("#error-box")[0].classList.add("usa-error--alert");
   }
 }
 
