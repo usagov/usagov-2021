@@ -237,7 +237,9 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
       if ($leaf) {
         $currentURL = $leaf['url'];
       }
+
       $menutree = $this->prepareMenuItemsForTemplate($items['#items'], $currentURL, $leaf);
+      $menutree = reset($menutree);
 
       $theme = [
         '#theme' => 'usagov_menu_sidebar',
@@ -286,7 +288,6 @@ class SidebarFirstBlock extends BlockBase implements ContainerFactoryPluginInter
         'below' => $below,
       ]);
     }
-    reset($menuTree);
     return $menuTree;
   }
 

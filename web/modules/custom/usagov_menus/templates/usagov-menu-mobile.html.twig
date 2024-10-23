@@ -119,12 +119,15 @@
     {% block mobile_nav %}
       {# Build the mobile nav #}
       {% if active_trail is empty %}
-        {# The current page is not in the menu structure. Show All Topics and Services #}
+        {#
+        The current page is not in the menu structure.
+        Show All Topics and Services
+        #}
         <ul class="navigation__items ancestors">
           <li class="navigation__item active">
             <a href="{{ translations.home_URL }}#all-topics-header">{{ translations.all_topics }}</a>
             <ul class="navigation__items children">
-              {% for menu_item in main_nav_items.menu_tree %}
+              {% for menu_item in submenu %}
                 <li class="navigation__item child">
                   <a href="{{ menu_item.url }}">{{ menu_item.title }}</a>
                 </li>

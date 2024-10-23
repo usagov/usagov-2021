@@ -80,17 +80,23 @@ class MobileMenuBlock extends BlockBase implements ContainerFactoryPluginInterfa
     if ($active = $this->trail->getActiveLink($menuID)) {
       $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
       $items = $this->getMenuTreeItems($menuID, $crumbs, $active);
+      $twigVars = $this->prepareMenuItemsForTemplate($items, $active);
+      return $this->renderItems($items, $active, $twigVars);
 
-
-
-      return $this->renderItems($items, $active);
-
-    } else {
-      // old functionality comes from simplify menu module
-      $menuItems = new MenuItems($this->menuTree);
-      $items = $menuItems->getMenuTree($menuID);
     }
 
+    // We're not in the menu.
+    // Display first level of this menu.
+    $items = $this->getMenuTreeItems($menuID);
+
+    $twigVars = [
+      '#active_trail' => [], // tells twig to render submenu
+      '#found_active_item' => FALSE,
+      '#active_item_has_children' => TRUE,
+      '#siblings_of_active_item' => [],
+      '#submenu' => $items['#items'],
+    ];;
+    return $this->renderItems($items, $twigVars);
 
 
     // The active key isn't correctly set if there are query params, while
@@ -133,52 +139,11 @@ class MobileMenuBlock extends BlockBase implements ContainerFactoryPluginInterfa
    */
   private function renderItems(
     array $items,
-    $active
+    array $twigVars
   ): array {
 
     $node = $this->routeMatch->getParameter('node');
-    $twigVars = $this->prepareMenuItemsForTemplate($items, $active);
-
-    // Create an array of the active trail items from each level of the
-    // menu (up to the active item)
-    /*
-    $active_trail = [];
-    $found_active_item = false;
-    $active_item_has_children = false;
-    $siblings_of_active_item = null;
-    $submenu = $main_nav_items['menu_tree'];
-
-    // Loop up to 10 levels deep in the menu for the active item.
-    for ($i = 0; $i < 11; $i++) {
-      if (!$found_active_item) {
-        $menu_item = array_filter($submenu, fn($item) => $item['active_trail'] === TRUE);
-
-        // Should we break out of this loop if we do not have an active trail?
-        if ($menu_item) {
-          $menu_item = array_pop($menu_item);
-          // add current item to active trail
-          $active_trail[] = $menu_item;
-
-          if ($menu_item['active']) {
-            $found_active_item = TRUE;
-            if (isset($menu_item['submenu'])) {
-              $active_item_has_children = TRUE;
-            }
-            else {
-              $siblings_of_active_item = $submenu;
-            }
-          }
-
-          // if we have a child submenu, set it to the next $submenu to
-          // inspect if we haven't found the active item yet.
-          $submenu = $menu_item['submenu'] ?? [];
-
-        }
-      }
-    }
-    */
-
-    $x = array_merge(
+    return array_merge(
       [
         '#theme' => 'usagov_menu_mobile',
         '#main_nav_items' => $items,
@@ -190,21 +155,8 @@ class MobileMenuBlock extends BlockBase implements ContainerFactoryPluginInterfa
           'contexts' => ['url.path', 'url.query_args'],
         ]
       ],
-      $twigVars,
+      $twigVars
     );
-
-    return $x;
-
-//    return [
-//
-//
-//      '#active_trail' => $active_trail,
-//      '#found_active_item' => $found_active_item,
-//      '#active_item_has_children' => $active_item_has_children,
-//      '#sibblings_of_active_item' => $siblings_of_active_item,
-//      '#submenu' => $submenu,
-//
-//    ];
   }
 
   /**
@@ -212,13 +164,16 @@ class MobileMenuBlock extends BlockBase implements ContainerFactoryPluginInterfa
    *
    * @return array
    */
-  private function prepareMenuItemsForTemplate(array $submenu, $active): array {
+  private function prepareMenuItemsForTemplate(array $submenu, MenuLinkInterface $active): array {
     $active_trail = [];
     $found_active_item = FALSE;
     $active_item_has_children = FALSE;
     $siblings_of_active_item = NULL;
+
     $currentURL = $active->getUrlObject()->toString();
 
+    // Create an array of the active trail items from each level of the
+    // menu (up to the active item)
     $submenu = $submenu['#items'];
     while ($submenu && !$found_active_item) {
       $menuItem = array_filter($submenu, fn($item) => $item['in_active_trail'] === TRUE);
@@ -231,7 +186,7 @@ class MobileMenuBlock extends BlockBase implements ContainerFactoryPluginInterfa
       }
 
       // we're done when we find the current page
-      if ($menuItem['url']->toString() == $currentURL) {
+      if ($menuItem['url']->toString() === $currentURL) {
         $menuItem['active'] = TRUE;
         $found_active_item = TRUE;
         if (!empty($menuItem['below'])) {
