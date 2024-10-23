@@ -5,7 +5,6 @@ namespace Drupal\usagov_ssg_postprocessing\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-
 /**
  * An usagov_ssg_postprocessing controller for stating the current static-site-gen status.
  */
