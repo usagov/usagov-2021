@@ -27,7 +27,7 @@ usagov_ssg_postprocessing.content:
 usagov_ssg_postprocessing.site_lag_test:
   path: '/site-lag-test' 
   defaults: 
-    _controller: '\Drupal\usagov_ssg_postprocessing\Controller\SsgStatController::site_lag_test' 
+    _controller: '\Drupal\usagov_ssg_postprocessing\Controller\SsgStatController::siteLagTest' 
     _title: 'Tome Status'
   options:
     no_cache: 'TRUE'
