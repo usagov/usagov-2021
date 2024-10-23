@@ -49,6 +49,8 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       $script = ltrim($script, "dataLayer = ");
       $script = rtrim($script, ";");
       $script = rtrim($script, ",");
+      // The following line prevents json_decode() from failing when there is an extra comma after the final element in an array.
+      $script = str_replace(",\n        }", "\n        }", $script);
       $decoded = json_decode($script, TRUE);
       $decoded = $decoded[0];
       if (empty($decoded)) {
