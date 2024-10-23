@@ -14,7 +14,7 @@ function usagov_menus_theme($existing, $type, $theme, $path) {
         'active_trail' => NULL,
         'found_active_item' => NULL,
         'active_item_has_children' => NULL,
-        'sibblings_of_active_item' => NULL,
+        'siblings_of_active_item' => NULL,
         'submenu' => NULL,
 
         'depth' => NULL,

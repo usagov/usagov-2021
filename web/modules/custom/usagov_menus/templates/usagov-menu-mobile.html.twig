@@ -4,13 +4,13 @@
   {% if node.langcode.langcode == "es" %}
     {% set active_trail = [
       {
-        text: "Acerca de EE. UU. y directorios del Gobierno",
+        title: "Acerca de EE. UU. y directorios del Gobierno",
         url: "/es/acerca-de-estados-unidos",
         active_trail: true,
         active: false
       },
       {
-        text: "Agencias federales",
+        title: "Agencias federales",
         url: "/es/indice-agencias",
         active_trail: true,
         active: false
@@ -19,13 +19,13 @@
   {% else %}
     {% set active_trail = [
       {
-        text: "About the U.S. and its government",
+        title: "About the U.S. and its government",
         url: "/about-the-us",
         active_trail: true,
         active: false
       },
       {
-        text: "A-Z index of U.S. government departments and agencies",
+        title: "A-Z index of U.S. government departments and agencies",
         url: "/agency-index",
         active_trail: true,
         active: false
@@ -126,7 +126,7 @@
             <ul class="navigation__items children">
               {% for menu_item in main_nav_items.menu_tree %}
                 <li class="navigation__item child">
-                  <a href="{{ menu_item.url }}">{{ menu_item.text }}</a>
+                  <a href="{{ menu_item.url }}">{{ menu_item.title }}</a>
                 </li>
               {% endfor %}
             </ul>
@@ -134,9 +134,9 @@
         </ul>
 
       {% else %}
-
         <ul class="navigation__items ancestors">
           {% for menu_item in active_trail %}
+
             {% set class = "" %}
 
             {# The first item is an umbrella category unless it is the current page #}
@@ -151,11 +151,11 @@
 
             {# Show the first item and up to 3 items at the end of the active trail #}
             {% if loop.index == 1 or loop.index + 3 > active_trail|length %}
-              {% if not active_item_has_children and loop.index == active_trail|length and found_active_item %}
+              {% if found_active_item and not active_item_has_children and loop.index == active_trail|length %}
                 {# The current page has no children, so we should show its siblings instead #}
                 <li class="navigation__item">
                   <ul class="navigation__items">
-                    {% for child in sibblings_of_active_item %}
+                    {% for child in siblings_of_active_item %}
                       {% set class = "" %}
                       {% if child.active %}
                         {% set class = " active" %}
@@ -163,21 +163,20 @@
                         {% set class = " sibling" %}
                       {% endif %}
                       <li class="navigation__item{{class}}">
-                        <a href="{{ child.active ? "#" : child.url }}">{{ child.text }}</a>
+                        <a href="{{ child.active ? "#" : child.url }}">{{ child.title }}</a>
                       </li>
                     {% endfor %}
                   </ul>
                 </li>
               {% else %}
                 <li class="navigation__item{{class}}">
-                  <a href="{{ menu_item.active ? "#" : menu_item.url }}">{{ menu_item.text }}</a>
-
+                  <a href="{{ menu_item.active ? "#" : menu_item.url }}">{{ menu_item.title }}</a>
                   {# Show any children of the active item #}
-                  {% if menu_item.active and menu_item.submenu is not empty %}
+                  {% if menu_item.active and menu_item.below is not empty %}
                     <ul class="navigation__items children">
-                      {% for child in menu_item.submenu %}
+                      {% for child in menu_item.below %}
                         <li class="navigation__item child">
-                          <a href="{{ child.url }}">{{ child.text }}</a>
+                          <a href="{{ child.url }}">{{ child.title }}</a>
                         </li>
                       {% endfor %}
                     </ul>
@@ -189,7 +188,7 @@
                       {% if menu_item.submenu is not empty %}
                         {% for child in menu_item.submenu %}
                           <li class="navigation__item sibling">
-                            <a href="{{ child.url }}">{{ child.text }}</a>
+                            <a href="{{ child.url }}">{{ child.title }}</a>
                           </li>
                         {% endfor %}
                       {% endif %}
