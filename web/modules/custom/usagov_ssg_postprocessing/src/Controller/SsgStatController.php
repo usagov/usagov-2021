@@ -25,4 +25,20 @@ class SsgStatController extends ControllerBase {
     return ['#markup' => $markup, '#cache' => ['max-age' => 0]];
   }
 
+  public function site_lag_test() {
+
+    $wait = false;
+    if (!empty($_GET['wait'])) {
+      $wait = intval($_GET['wait']);
+    }
+    if (!empty($wait)) {
+      sleep($wait);
+      $message = "Waited {$wait} seconds before returning this page.";
+    } else {
+      $message = "Append something like ?wait=30 in your address bar to make this page lag.";
+    }
+
+    return ['#markup' => $message, '#cache' => ['max-age' => 0]];
+  }
+
 }

@@ -23,3 +23,13 @@ usagov_ssg_postprocessing.content:
     no_cache: 'TRUE'
   requirements: 
     _permission: 'access administration pages' 
+
+usagov_ssg_postprocessing.site_lag_test:
+  path: '/site-lag-test' 
+  defaults: 
+    _controller: '\Drupal\usagov_ssg_postprocessing\Controller\SsgStatController::site_lag_test' 
+    _title: 'Tome Status'
+  options:
+    no_cache: 'TRUE'
+  requirements: 
+    _permission: 'access content' 
