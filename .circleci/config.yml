@@ -937,7 +937,7 @@ workflows:
               only: dr
       - deploy-to-cloudgov-dr-cron-tools:
           requires:
-            - really-approve-dr-deployment-cron
+            - really-approve-dr-deployment-cron-tools
           filters:
             branches:
               only: dr
