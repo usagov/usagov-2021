@@ -625,6 +625,23 @@ jobs:
       - deploy-cloudgov-cron:
           envname: prod
 
+  deploy-to-cloudgov-prod-cron-tools:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cloudgov-cron:
+          envname: tools
+
+  deploy-to-cloudgov-prod-cron-shared-egress:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cloudgov-cron:
+          envname: shared-egress
 
 workflows:
   version: 2
@@ -836,7 +853,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1753-generic-cron-app-alpine
+
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
@@ -847,7 +864,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1753-generic-cron-app-alpine
       - approve-dev-deployment-cron:
           type: approval
           requires:
@@ -910,6 +926,32 @@ workflows:
       - deploy-to-cloudgov-prod-cron:
           requires:
             - really-approve-prod-deployment-cron
+          filters:
+            branches:
+              only: prod
+      - really-approve-prod-deployment-cron-tools:
+          type: approval
+          requires:
+            - approve-prod-deployment-cron
+          filters:
+            branches:
+              only: prod
+      - deploy-to-cloudgov-prod-cron-tools:
+          requires:
+            - really-approve-prod-deployment-cron
+          filters:
+            branches:
+              only: prod
+      - really-approve-prod-deployment-cron-shared-egress:
+          type: approval
+          requires:
+            - approve-prod-deployment-cron
+          filters:
+            branches:
+              only: prod
+      - deploy-to-cloudgov-prod-cron-shared-egress:
+          requires:
+            - really-approve-prod-deployment-cron-shared-egress
           filters:
             branches:
               only: prod
