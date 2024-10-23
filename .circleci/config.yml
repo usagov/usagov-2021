@@ -625,7 +625,7 @@ jobs:
       - deploy-cloudgov-cron:
           envname: prod
 
-  deploy-to-cloudgov-prod-cron-tools:
+  deploy-to-cloudgov-dr-cron-tools:
     machine:
       image: ubuntu-2204:current
     environment:
@@ -634,7 +634,7 @@ jobs:
       - deploy-cloudgov-cron:
           envname: tools
 
-  deploy-to-cloudgov-prod-cron-shared-egress:
+  deploy-to-cloudgov-dr-cron-shared-egress:
     machine:
       image: ubuntu-2204:current
     environment:
@@ -880,7 +880,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-1753-generic-cron-app-alpine
       - deploy-to-cloudgov-dev-cron:
           requires:
             - approve-dev-deployment-cron
@@ -895,7 +894,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-1753-generic-cron-app-alpine
       - approve-stage-deployment-cron:
           type: approval
           requires:
@@ -929,29 +927,31 @@ workflows:
           filters:
             branches:
               only: prod
-      - really-approve-prod-deployment-cron-tools:
+
+      - really-approve-dr-deployment-cron-tools:
           type: approval
           requires:
-            - approve-prod-deployment-cron
+            - approve-dr-deployment-cron
           filters:
             branches:
-              only: prod
-      - deploy-to-cloudgov-prod-cron-tools:
+              only: dr
+      - deploy-to-cloudgov-dr-cron-tools:
           requires:
-            - really-approve-prod-deployment-cron
+            - really-approve-dr-deployment-cron
           filters:
             branches:
-              only: prod
-      - really-approve-prod-deployment-cron-shared-egress:
+              only: dr
+
+      - really-approve-dr-deployment-cron-shared-egress:
           type: approval
           requires:
-            - approve-prod-deployment-cron
+            - approve-dr-deployment-cron
           filters:
             branches:
-              only: prod
-      - deploy-to-cloudgov-prod-cron-shared-egress:
+              only: dr
+      - deploy-to-cloudgov-dr-cron-shared-egress:
           requires:
-            - really-approve-prod-deployment-cron-shared-egress
+            - really-approve-dr-deployment-cron-shared-egress
           filters:
             branches:
-              only: prod
+              only: dr
