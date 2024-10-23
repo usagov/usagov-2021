@@ -198,7 +198,8 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
           $tid = intval(substr($nid, 2));
           $termEntity = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
           $url = $termEntity->toUrl()->toString();
-        } else {
+        }
+        else {
           $nodeEntity = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
           $url = $nodeEntity->toUrl()->toString();
         }
