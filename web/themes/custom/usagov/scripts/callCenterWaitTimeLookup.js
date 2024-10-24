@@ -1,82 +1,78 @@
 jQuery(document).ready(async function () {
   "use strict";
 
-  var waittime = (function() {
-    if (jQuery("html[lang|='en']").length ||
-        jQuery("html[lang|='es']").length) {
-      jQuery.ajax({
-        "url": "https://s3-us-gov-west-1.amazonaws.com/cg-4d6fb302-315f-403e-a96e-a7563ccddd3d/1.0/waittime.json",
-        "type": "GET",
-        "success": function (response) {
-          var json = jQuery.parseJSON(response);
-          var seconds = -1;
-
-          if (jQuery("html[lang|='en']").length) {
-            seconds = json.enEstimatedWaitTimeSeconds;
-          }
-          if (jQuery("html[lang|='es']").length) {
-            seconds = json.spEstimatedWaitTimeSeconds;
-          }
-
-          if (seconds >= 0) {
-            var minutes = Math.floor(seconds / 60);
-            var remainingMinutes = minutes % 60;
-            seconds = seconds - (minutes * 60);
-            var content = "Estimated wait time: ";
-            var secondsText = " second";
-            var minuteText = " minute";
-            var noneText = "None";
-
-            if (jQuery("html[lang|='es']").length) {
-              content = "Tiempo de espera estimado: ";
-              secondsText = " segundo";
-              minuteText = " minuto";
-              noneText = "Ninguno";
-            }
-
-            if (remainingMinutes > 0) {
-              content += remainingMinutes + minuteText;
-              if (remainingMinutes > 1) {
-                content += "s";
-              }
-            }
-
-            if (seconds > 0) {
-              if (remainingMinutes > 0) {
-                content += ", ";
-              }
-              content += seconds + secondsText;
-              if (seconds > 1) {
-                content += "s";
-              }
-            }
-
-            if (minutes === 0 && seconds === 0) {
-              content = content + noneText;
-            }
-
-            // If the estimated time was captured over 10 minutes ago, remain silent.
-            var timeOfEstimate = json.timestamp ? json.timestamp : 0;
-            if (Date.now()/1000 - timeOfEstimate > 600) {
-              content = "";
-            }
-
-            jQuery('#callCenterTime').html(content);
-          }
-        },
-        "error": function (xhr, status, error) {
-          console.log('fail');
-          console.log(error);
-          jQuery('#callCenterTime').html(error);
-        }
-      });
+  function checkPagePath() {
+    if (
+      window.location.pathname === "/phone" ||
+      window.location.pathname === "/es/llamenos"
+    ) {
+      return true;
     }
-  });
+  }
 
-  if (jQuery('#callCenterTime').length > 0) {
-    waittime();
-    setInterval(function() {
-      waittime();
-    }, 60 * 1000);
+  function getCallCenterWaitTime() {
+    var jsonSeconds;
+    var jsonTimestamp;
+    jQuery.ajax({
+      "url": "https://s3-us-gov-west-1.amazonaws.com/cg-4d6fb302-315f-403e-a96e-a7563ccddd3d/1.0/waittime.json",
+      "type": "GET",
+      "dataType": "json",
+      "success": function (response) {
+        if (jQuery("html[lang|='en']").length) {
+          jsonSeconds = response.call.estimatedWaitTimeSeconds.en;
+        }
+        if (jQuery("html[lang|='es']").length) {
+          jsonSeconds = response.call.estimatedWaitTimeSeconds.sp;
+        }
+
+        jsonTimestamp = response.timestamp;
+        createDisplayWaitTime(jsonSeconds, jsonTimestamp);
+      },
+      "error": function (xhr, status, error) {
+        console.log(error);
+      },
+    });
+  }
+
+  function checkTimeStamp(timestamp) {
+    var timeOfEstimate = timestamp ? timestamp : 0;
+    if (Date.now() / 1000 - timeOfEstimate < 600) {
+      return true;
+    }
+  }
+
+  function createDisplayWaitTime(actualSeconds, timestamp) {
+    // If the estimated time was captured over 10 minutes ago, remain silent.
+    if (checkTimeStamp(timestamp)) {
+      var displayTime;
+      if (actualSeconds < 60) {
+        displayTime = 1;
+      }
+    else {
+        displayTime = Math.round(actualSeconds / 60);
+      }
+      displayWaitTime(displayTime);
+    }
+  }
+
+  function displayWaitTime(displayTime) {
+    var docLang = [document.documentElement.lang];
+
+    var plural = displayTime > 1;
+    const plurals = plural ? "s" : "";
+
+    const displayText =
+      docLang[0] === "es"
+        ? `El tiempo aproximado de espera es <strong>${displayTime} minuto${plurals}</strong>.`
+        : `The current estimated wait time is <strong>${displayTime} minute${plurals}</strong>.`;
+
+    jQuery("#block-usagov-content").append(
+      `<div class="paragraph paragraph--type--uswds-alert paragraph--view-mode--embed paragraph--id--2485 usa-alert usa-alert--slim usa-alert--no-icon"><div class="usa-alert__body"> <div class="field field--name-field-alert-body field--type-text field--label-hidden field__item">${displayText}</div> </div> </div>`
+    );
+  }
+
+  // upgrade: only apply to phone pages using Drupal library in usagov.libraries.yml
+  if (checkPagePath()) {
+    getCallCenterWaitTime();
   }
 });
