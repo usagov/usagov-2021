@@ -1,0 +1,82 @@
+#!/bin/bash
+
+#
+# Requires sqlfluff, run brew[or pip] install sqlfluff if this doesn't work.
+#
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+if [ -f $SCRIPT_DIR/../../deploy/includes ]; then
+  . $SCRIPT_DIR/../../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../../deploy/includes
+   exit 1
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
+
+echo "Testing static site integrity."
+
+echo "Getting s3 access."
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+echo "Getting three random backup tags from s3."
+DEPLOY_TAGS=$(aws s3 ls s3://"$S3_BUCKET"/db-backup/ | awk '{ print $4 }' | sort -R | tail -n 3 )
+
+echo "Tags:"
+echo "$DEPLOY_TAGS"
+
+echo "----------------------------------------------------------------------"
+echo "$DEPLOY_TAGS" | while read -r DEPLOY_TAG ; do
+  echo "Downloading db: $DEPLOY_TAG"
+  aws s3 cp --only-show-errors s3://"$S3_BUCKET"/db-backup/"$DEPLOY_TAG" "$DEPLOY_TAG"
+  gunzip "$DEPLOY_TAG"
+  sleep 5
+  SQL_FILE=$(echo "$DEPLOY_TAG" | sed 's/.gz$//')
+
+  echo "Testing: $SQL_FILE"
+
+  size=$(du -hs "$SQL_FILE")
+  echo "SQL file size: $(echo "$size" | awk '{print $1}')"
+
+  echo "Splitting and Validating SQL. This will take a while. (Split function will output \"csplit: ^CREATE TABLE .\*: no match\"; this is normal, it just means it can't find anymore matches because it's done.)"
+
+  csplit -n 4 -k $SQL_FILE '/^CREATE TABLE .*/' '{800}' > db_log.log
+
+  # Read the first line, extract table name and rename the file
+  ERROR=""
+  for f in $(ls xx*); do
+    table_name=$(head -1 $f | awk '{ sub(/.*CREATE TABLE /, ""); sub(/ .*/, ""); print }')
+    echo "Validating table $table_name (split from $SQL_FILE)" >> db_log.log
+
+    validate=$(sqlfluff lint "$f")
+
+    if [ "$validate" != "All Finished!" ]; then
+      ERROR+=$validate
+    fi
+    rm $f
+  done;
+  if [ -n "$ERROR" ]; then
+    echo -e "\033[0;31mSQL file is invalid. SQL file will be retained for further inspection.  Error(s):"
+    echo -e "$validate\033[0m"
+  else
+    echo "SQL valid."
+    rm $SQL_FILE
+  fi
+echo "----------------------------------------------------------------------"
+
+done
+echo "Automated testing complete."
