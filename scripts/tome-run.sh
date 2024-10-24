@@ -126,7 +126,7 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
       rm -rf $d
     fi
   done
-  echo "Checking previous tome logs and pruning to save space" | tee -a $TOMELOG
+  echo "Checking previous tome logs and pruning "no need for static site" logs to save space" | tee -a $TOMELOG
   find "$TOMELOGPATH" -type f | while read -r file; do
     echo "Processing file: $file" | tee -a $TOMELOG
     EMPTYTOME="Check if Tome is already running ...
