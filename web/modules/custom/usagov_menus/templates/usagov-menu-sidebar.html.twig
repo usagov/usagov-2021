@@ -1,71 +1,57 @@
-{% if start_item %}
-  {% if depth == 0 %}
-    <nav aria-label="{{ nav_aria_label }}">
-      <ul class="usa-sidenav">
-        <li class="usa-sidenav__item">
-          {{ _self.item_link(start_item, current, is_spanish_menu, page_type_is) }}
-          {% if start_item.below %}
-            {{ include('usagov-menu-sidebar.html.twig', {
-              items: start_item.below,
-              depth: depth + 1,
-              current: current,
-              page_type_is: page_type_is,
-              is_spanish_menu: is_spanish_menu,
-            }) }}
-          {% endif %}
-        </li>
-      </ul>
-    </nav>
-  {% elseif items|length  %}
-    <ul class="usa-sidenav__sublist">
-      {% for item in items %}
-        <li class="usa-sidenav__item">
-          {{ _self.item_link(item, current, is_spanish_menu, page_type_is) }}
-          {% if item.in_active_trail and item.below %}
-            {{ include('usagov-menu-sidebar.html.twig', {
-              items: item.below,
-              depth: depth + 1,
-              current: current,
-              page_type_is: page_type_is,
-              is_spanish_menu: is_spanish_menu,
-            }) }}
-            {% elseif item.in_active_trail and leaf %}
-              <ul class="usa-sidenav__sublist">
-                <li class="usa-sidenav__item">{{ _self.item_link(leaf, current, is_spanish_menu, page_type_is) }}</li>
-              </ul>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
+{###
+
+menutree  (Object)  The root item of a tree with the following structure:
+  title   (String)  The menu item's title
+  url     (String)  The menu item's URL
+  active  (Boolean) Whether the menu item is in the active trail
+  current (Boolean) Whether the menu item represents the current page
+  below   (Array)   The child menu items below this menu item
+
+lang      (String)  The current page's langcode
+
+###}
+
+{% import _self as self %}
+
+<nav aria-label="{{ lang == 'es' ? 'Secundaria' : 'Secondary' }}">
+  <ul class="usa-sidenav">
+    {{ self.sidenav_item(menutree, lang) }}
+  </ul>
+</nav>
+
+
+{% macro sidenav_item(item, lang) %}
+  {% import _self as self %}
+
+  {% if item.active %}
+    {% set attributes %} class="active-trail"{% endset %}
   {% endif %}
 
-{% else %}
-  <nav aria-label="{{ nav_aria_label }}">
-    <ul class="usa-sidenav">
-      {% for item in items %}
-        {% set class = 'usa-sidenav__item' ~ (item.in_active_trail ? ' active-trail' : '') %}
-        <li class="{{ class }}">{{ _self.item_link(item, current, is_spanish_menu, page_type_is) }}</li>
+  {% if item.current %}
+    {% set attributes %} class="active-trail usa-current" aria-current="page" onclick="return false;"{% endset %}
+    {% if lang == 'es' %}
+      {% set current_page_indicator %}<p class="usa-sr-only">esta página</p>{% endset %}
+    {% endif %}
+  {% endif %}
+
+  <li class="usa-sidenav__item">
+    <a href="{{ item.url }}"{{ attributes }}>
+      {{ current_page_indicator }}
+      {{ item.title }}
+    </a>
+    {{ self.sidenav_sublist(item, lang) }}
+  </li>
+{%  endmacro %}
+
+
+{% macro sidenav_sublist(item, lang) %}
+  {% import _self as self %}
+
+  {% if item.below %}
+    <ul class="usa-sidenav__sublist">
+      {% for item in item.below %}
+        {{ self.sidenav_item(item, lang) }}
       {% endfor %}
     </ul>
-  </nav>
-{% endif %}
-
-{% macro item_link(item, current, is_spanish_menu, page_type_is) %}
-
-  {% if ((item.url.toString() == current.url or item.url == current.url)
-          and item.title == current.title
-          and page_type_is != 'Standard Page- Nav Hidden'
-    ) %}
-    <a class="usa-current active-trail" aria-current="page" onclick="return false;" href="{{  item.url }}">
-      {% if is_spanish_menu %}
-        <p class="usa-sr-only">esta página</p>
-      {% endif %}
-      {{ item.title }}</a>
-  {% else %}
-    {% if item.in_active_trail %}
-      <a href="{{ item.url }}" class="active-trail">{{ item.title }}</a>
-    {% else %}
-      <a href="{{ item.url }}">{{ item.title }}</a>
-    {% endif %}
   {% endif %}
 {%  endmacro %}
