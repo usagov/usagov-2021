@@ -117,6 +117,15 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
     $SCRIPT_PATH/tome-status-indicator-update.sh "$GEN_FAIL_TIME" "Static Site Generation Failed"
     exit 1
   fi
+  echo "Removing logs that are not from today, we don't need them and they are saved in S3/NR" | tee -a $TOMELOG
+  TOMELOGDATEPATH=$TOMELOGPATH$(date +"%Y/%m/")
+  for d in $TOMELOGDATEPATH*/ ; do
+    TOMELOGDATEPATHTODAY=$TOMELOGDATEPATH$(date +"%d/")
+    if [ $d != $TOMELOGDATEPATHTODAY ]; then
+      echo "Removing log files not from today: $d" | tee -a $TOMELOG
+      rm -rf $d
+    fi
+  done
   echo "Checking previous tome logs and pruning to save space" | tee -a $TOMELOG
   find "$TOMELOGPATH" -type f | while read -r file; do
     echo "Processing file: $file" | tee -a $TOMELOG
@@ -126,15 +135,6 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
     if grep -q $EMPTYTOME "$file"; then
       echo "File contains the specified content. Removing file: $file" | tee -a $TOMELOG
       rm "$file"
-    fi
-  done
-  echo "Removing logs that are not from today, we don't need them and they are saved in S3/NR" | tee -a $TOMELOG
-  TOMELOGDATEPATH=$TOMELOGPATH$(date +"%Y/%m/")
-  for d in $TOMELOGDATEPATH*/ ; do
-    TOMELOGDATEPATHTODAY=$TOMELOGDATEPATH$(date +"%d/")
-    if [ $d != $TOMELOGDATEPATHTODAY ]; then
-      echo "Removing log files not from today: $d" | tee -a $TOMELOG
-      rm -rf $d
     fi
   done
 else
