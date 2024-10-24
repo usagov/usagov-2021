@@ -128,6 +128,15 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
       rm "$file"
     fi
   done
+  echo "Removing logs that are not from today, we don't need them and they are saved in S3/NR" | tee -a $TOMELOG
+  TOMELOGDATEPATH=$TOMELOGPATH$(date +"%Y/%m/")
+  for d in $TOMELOGDATEPATH*/ ; do
+    TOMELOGDATEPATHTODAY=$TOMELOGDATEPATH$(date +"%d/")
+    if [ $d != $TOMELOGDATEPATHTODAY ]; then
+      echo "Removing log files not from today: $d" | tee -a $TOMELOG
+      rm -rf $d
+    fi
+  done
 else
   echo "No change to any node, block, or taxonomy, content in the last 30 minutes: no need for static site build" | tee -a $TOMELOG
 fi
