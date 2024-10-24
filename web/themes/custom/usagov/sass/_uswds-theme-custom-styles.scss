@@ -83,14 +83,6 @@ i.e.
   }
 }
 
-.usa-sidenav__sublist a:not(.usa-button) {
-  padding-left: 2.3rem;
-}
-
-.usa-sidenav__sublist .usa-sidenav__sublist a:not(.usa-button) {
-  padding-left: 3.6rem;
-}
-
 .usa-alert--no-icon .usa-alert__body {
   // This fixes an issue with USWDS where a slim alert with no icon and no status would still get padding to make room for an icon
   padding-left: 1.25rem;
