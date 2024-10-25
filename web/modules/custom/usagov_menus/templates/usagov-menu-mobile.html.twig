@@ -6,13 +6,13 @@
       {
         title: "Acerca de EE. UU. y directorios del Gobierno",
         url: "/es/acerca-de-estados-unidos",
-        active_trail: true,
+        in_active_trail: true,
         active: false
       },
       {
         title: "Agencias federales",
         url: "/es/indice-agencias",
-        active_trail: true,
+        in_active_trail: true,
         active: false
       }
     ] %}
@@ -21,13 +21,13 @@
       {
         title: "About the U.S. and its government",
         url: "/about-the-us",
-        active_trail: true,
+        in_active_trail: true,
         active: false
       },
       {
         title: "A-Z index of U.S. government departments and agencies",
         url: "/agency-index",
-        active_trail: true,
+        in_active_trail: true,
         active: false
       }
     ] %}
@@ -38,30 +38,30 @@
   {% if node.langcode.langcode == "es" %}
     {% set active_trail = [
       {
-        text: "Acerca de EE. UU. y directorios del Gobierno",
+        title: "Acerca de EE. UU. y directorios del Gobierno",
         url: "/es/acerca-de-estados-unidos",
-        active_trail: true,
+        in_active_trail: true,
         active: false
       },
       {
-        text: "Gobiernos estatales",
+        title: "Gobiernos estatales",
         url: "/es/gobiernos-estatales",
-        active_trail: true,
+        in_active_trail: true,
         active: false
       },
     ] %}
   {% else %}
     {% set active_trail = [
       {
-        text: "About the U.S. and its government",
+        title: "About the U.S. and its government",
         url: "/about-the-us",
-        active_trail: true,
+        in_active_trail: true,
         active: false
       },
       {
-        text: "State governments",
+        title: "State governments",
         url: "/state-governments",
-        active_trail: true,
+        in_active_trail: true,
         active: false
       }
     ] %}
@@ -188,8 +188,8 @@
                   {# Show the current page if this is the last iteration but the active item was never found #}
                   {% if loop.index == active_trail|length and not found_active_item %}
                     <ul class="navigation__items">
-                      {% if menu_item.submenu is not empty %}
-                        {% for child in menu_item.submenu %}
+                      {% if menu_item.below is not empty %}
+                        {% for child in menu_item.below %}
                           <li class="navigation__item sibling">
                             <a href="{{ child.url }}">{{ child.title }}</a>
                           </li>

@@ -66,6 +66,7 @@ abstract class AbstractMenuBlock extends BlockBase implements ContainerFactoryPl
     array $crumbs = [],
     ?MenuLinkInterface $active = NULL,
     bool $closeLastTrail = FALSE,
+    ?int $maxLevels = 3,
   ): array {
     // Get siblings from menu.
     $params = new MenuTreeParameters();
@@ -88,12 +89,12 @@ abstract class AbstractMenuBlock extends BlockBase implements ContainerFactoryPl
 
       // Check if the expanded menu is 3 or more levels deep and adjust
       // what we show based on if we have children elements to show.
-      if ($depth >= 3 && $children) {
+      if ($maxLevels > 0 && $depth >= $maxLevels && $children) {
         // Current link has children, so only show
         // grandparent through children.
         $params->setMinDepth($depth - 1);
       }
-      elseif ($depth >= 3) {
+      elseif ($maxLevels > 0 && $depth >= $maxLevels) {
         // No children to show, display the menu starting
         // 2 Levels above us.
         $params->setMinDepth($depth - 2);

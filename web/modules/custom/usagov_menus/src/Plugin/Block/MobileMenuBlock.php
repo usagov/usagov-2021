@@ -54,7 +54,7 @@ class MobileMenuBlock extends AbstractMenuBlock {
 
     if ($active = $this->trail->getActiveLink($menuID)) {
       $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
-      $items = $this->getMenuTreeItems($menuID, $crumbs, $active);
+      $items = $this->getMenuTreeItems($menuID, $crumbs, $active, maxLevels: -1);
       $twigVars = $this->prepareMenuItemsForTemplate($items, $active);
       return $this->renderItems($items, $twigVars);
 
@@ -150,10 +150,15 @@ class MobileMenuBlock extends AbstractMenuBlock {
     while ($submenu && !$found_active_item) {
       $menuItem = array_filter($submenu, fn($item) => $item['in_active_trail'] === TRUE);
       $key = array_key_first($menuItem);
-      $menuItem = $menuItem[$key];
+      $menuItem = $menuItem[$key] ?? false;
 
-      if (!$menuItem) {
+      if (!$menuItem && !$key) {
         // No active link in the menu? We should bail.
+        // But first, expand the last item in the active trail.
+        $last = array_key_last($active_trail);
+//        $active_trail[$last]['expanded'] = TRUE;
+
+//        $siblings_of_active_item = $submenu;
         break;
       }
 

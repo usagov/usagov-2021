@@ -111,7 +111,7 @@ class SidebarFirstBlock extends AbstractMenuBlock {
   ): array {
 
     if (!empty($items['#items'])) {
-      $currentURL = $active->getUrlObject()->toString();
+      $currentURL = $active?->getUrlObject()->toString();
       if ($leaf) {
         $currentURL = $leaf['url'];
       }
@@ -145,7 +145,8 @@ class SidebarFirstBlock extends AbstractMenuBlock {
     $menuTree = [];
     foreach ($items as $item) {
       $below = NULL;
-      if ($item['in_active_trail']) {
+      $in_active_trail = $item['in_active_trail'] ?? false;
+      if ($in_active_trail) {
         if ($item['below']) {
           $below = $this->prepareMenuItemsForTemplate($item['below'], $currentURL, $leaf);
         }
@@ -161,7 +162,7 @@ class SidebarFirstBlock extends AbstractMenuBlock {
       array_push($menuTree, (object) [
         'title' => $item['title'],
         'url' => $url,
-        'active' => $item['in_active_trail'],
+        'active' => $in_active_trail,
         'current' => $currentURL === $url,
         'below' => $below,
       ]);
