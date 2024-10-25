@@ -939,7 +939,13 @@ if (!empty($cf_application_data['space_name']) &&
   }
 }
 
-// Overide anything special for local developement
+if (PHP_SAPI === 'cli' && str_starts_with($_SERVER["argv"][1], 'tome:static')) {
+  // Disable the page and menu cache on tome runs
+  $settings['cache']['bins']['page'] = 'cache.backend.null';
+  $settings['cache']['bins']['menu'] = 'cache.backend.null';
+}
+
+// Override anything special for local development
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';
 }

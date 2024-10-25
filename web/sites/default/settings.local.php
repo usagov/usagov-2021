@@ -17,10 +17,3 @@ $settings['trusted_host_patterns'] = [
 
 $config['user.settings']['register'] = 'admin_only';
 $settings['usagov_login_local_form'] = 1;
-
-
-if (PHP_SAPI === 'cli' && str_starts_with($_SERVER["argv"][1], 'tome:static')) {
-  // Disable the page and menu cache on tome runs
-  $settings['cache']['bins']['page'] = 'cache.backend.null';
-  $settings['cache']['bins']['menu'] = 'cache.backend.null';
-}
