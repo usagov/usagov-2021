@@ -768,6 +768,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2038-tome-cache-page-circleci-except
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -778,6 +779,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2038-tome-cache-page-circleci-except
       - approve-dev-deployment:
           type: approval
           requires:
@@ -786,6 +788,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2038-tome-cache-page-circleci-except
       - approve-dr-deployment:
           type: approval
           requires:
