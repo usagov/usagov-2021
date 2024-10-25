@@ -115,7 +115,7 @@ class MobileMenuBlock extends AbstractMenuBlock {
     while ($submenu && !$found_active_item) {
       $menuItem = array_filter($submenu, fn($item) => $item['in_active_trail'] === TRUE);
       $key = array_key_first($menuItem);
-      $menuItem = $menuItem[$key] ?? false;
+      $menuItem = $menuItem[$key] ?? FALSE;
 
       if (!$menuItem && !$key) {
         // No active link in the menu? We should bail.

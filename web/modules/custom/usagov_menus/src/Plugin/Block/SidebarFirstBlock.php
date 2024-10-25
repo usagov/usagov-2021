@@ -145,7 +145,7 @@ class SidebarFirstBlock extends AbstractMenuBlock {
     $menuTree = [];
     foreach ($items as $item) {
       $below = NULL;
-      $in_active_trail = $item['in_active_trail'] ?? false;
+      $in_active_trail = $item['in_active_trail'] ?? FALSE;
       if ($in_active_trail) {
         if ($item['below']) {
           $below = $this->prepareMenuItemsForTemplate($item['below'], $currentURL, $leaf);
