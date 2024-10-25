@@ -49,8 +49,14 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       $script = ltrim($script, "dataLayer = ");
       $script = rtrim($script, ";");
       $script = rtrim($script, ",");
+      // The following line prevents json_decode() from failing when there is an extra comma after the final element in an array.
+      $script = str_replace(",\n        }", "\n        }", $script);
       $decoded = json_decode($script, TRUE);
       $decoded = $decoded[0];
+      if (empty($decoded)) {
+        print "WARNING: PublishedPagesSubscriber.php is skiping a page due to a bad dataLayer\n";
+        continue;
+      }
 
       $url_replace = [
         "Taxonomy_URL_1",
@@ -63,6 +69,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
 
       $header_replace = [
         "nodeID" => "Page ID",
+        "taxonomyID" => "Page ID",
         "language" => "Taxonomy Level 1",
         "Taxonomy_Text_2" => "Taxonomy Level 2",
         "Taxonomy_Text_3" => "Taxonomy Level 3",
@@ -118,7 +125,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         $nodeIDElement = array_search("Page ID", $csv[0]);
         $languageElement = array_search("Taxonomy Level 1", $csv[0]);
         foreach ($csv as $key => $line) {
-          if ($line[$nodeIDElement] == $decoded["nodeID"]) {
+          if (!empty($line[$nodeIDElement]) && ($line[$nodeIDElement] == $decoded["nodeID"] || $line[$nodeIDElement] == 't_' . $decoded["taxonomyID"])) {
             if ($line[$languageElement] == $content_replace[$decoded["language"]]) {
               $pointer = $key;
             }
@@ -161,7 +168,12 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         }
         foreach ($header_replace as $key => $item) {
           if ($name == $key) {
-            $decoded[$item] = $term;
+            if ($name == 'taxonomyID') {
+              $decoded[$item] = 't_' . $term;
+            }
+            else {
+              $decoded[$item] = $term;
+            }
             unset($decoded[$name]);
           }
         }
@@ -182,8 +194,15 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       // nodes, but that could negatively impact export performance.
       if ($decoded['Page ID'] && $hierarchy > 5) {
         $nid = $decoded['Page ID'];
-        $nodeEntity = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-        $url = $nodeEntity->toUrl()->toString();
+        if (substr($nid, 0, 2) !== 't_') {
+          $tid = intval(substr($nid, 2));
+          $termEntity = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
+          $url = $termEntity->toUrl()->toString();
+        }
+        else {
+          $nodeEntity = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+          $url = $nodeEntity->toUrl()->toString();
+        }
       }
 
       $decoded["Friendly URL"] = (empty($url)) ? "/" : $url;
