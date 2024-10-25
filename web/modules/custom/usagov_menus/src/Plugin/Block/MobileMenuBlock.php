@@ -72,41 +72,6 @@ class MobileMenuBlock extends AbstractMenuBlock {
       '#submenu' => $items['#items'],
     ];
     return $this->renderItems($items, $twigVars);
-
-    // The active key isn't correctly set if there are query params, while
-    // active_path key is set for some paths. The template depends on this
-    // key being set correctly to show siblins.
-    switch (TRUE) {
-      case ($this->request->getPathInfo() === '/agency-index'):
-        $items = $this->fixActiveAgencyItem($items, '/agency-index');
-        break;
-
-      case str_starts_with($this->request->getPathInfo(), '/es/indice-agencias'):
-        $items = $this->fixActiveAgencyItem($items, '/es/indice-agencias');
-        break;
-    }
-
-    $node = $this->routeMatch->getParameter('node');
-    return $this->renderItems($items, $node);
-  }
-
-  private function fixActiveAgencyItem(array $items, string $path): array {
-    $activeParent = array_filter(
-      $items['menu_tree'],
-      fn($item) => $item['active_trail'] === TRUE
-    );
-
-    $activeKey = array_key_first($activeParent);
-    array_walk(
-      $items['menu_tree'][$activeKey]['submenu'],
-      function (&$item) use ($path) {
-        if ($item['url'] === $path) {
-          $item['active'] = TRUE;
-        }
-      }
-    );
-
-    return $items;
   }
 
   /**
@@ -154,11 +119,7 @@ class MobileMenuBlock extends AbstractMenuBlock {
 
       if (!$menuItem && !$key) {
         // No active link in the menu? We should bail.
-        // But first, expand the last item in the active trail.
-        $last = array_key_last($active_trail);
-//        $active_trail[$last]['expanded'] = TRUE;
-
-//        $siblings_of_active_item = $submenu;
+        // Template takes care of showing things.
         break;
       }
 
