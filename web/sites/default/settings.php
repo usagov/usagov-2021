@@ -939,6 +939,9 @@ if (!empty($cf_application_data['space_name']) &&
   }
 }
 
+// Add cache.backend.null: 
+$settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml';
+
 if (PHP_SAPI === 'cli' && str_starts_with($_SERVER["argv"][1], 'tome:static')) {
   // Disable the page and menu cache on tome runs
   $settings['cache']['bins']['page'] = 'cache.backend.null';
