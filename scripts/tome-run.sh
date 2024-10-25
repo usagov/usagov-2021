@@ -31,8 +31,9 @@ if [ "${APP_SPACE}" = "local" ]; then
 fi
 
 # Use a unique dir for each run - just in case more than one of this is running
+TOMELOGPATH=/tmp/tome-log/
 TOMELOGFILE=$YMD/$APP_SPACE-$YMDHMS.log
-TOMELOG=/tmp/tome-log/$TOMELOGFILE
+TOMELOG=$TOMELOGPATH$TOMELOGFILE
 
 mkdir -p /tmp/tome-log/$YMD
 touch $TOMELOG
@@ -91,7 +92,7 @@ fi
 
 # check nodes and blocks for any content changes in the last 30 minutes
 export CONTENT_UPDATED=$(drush sql:query "SELECT SUM(c) FROM ( (SELECT count(*) as c from node_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
- UNION ( SELECT count(*) as c from block_content_field_data where changed > (UNIX_TIMESTAMP(now())-(1800))) 
+ UNION ( SELECT count(*) as c from block_content_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
  UNION ( SELECT count(*) as c from taxonomy_term_field_data WHERE changed > (UNIX_TIMESTAMP(now())-(1800)))) as x")
 if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "$CONTAINER_UPDATED" != "0" ] || [ "$RETRY_SEMAPHORE_EXISTS" != "0" ] ; then
 
@@ -116,6 +117,26 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
     $SCRIPT_PATH/tome-status-indicator-update.sh "$GEN_FAIL_TIME" "Static Site Generation Failed"
     exit 1
   fi
+  echo "Removing logs that are not from today, we don't need them and they are saved in S3/NR" | tee -a $TOMELOG
+  TOMELOGDATEPATH=$TOMELOGPATH$(date +"%Y/%m/")
+  for d in $TOMELOGDATEPATH*/ ; do
+    TOMELOGDATEPATHTODAY=$TOMELOGDATEPATH$(date +"%d/")
+    if [ $d != $TOMELOGDATEPATHTODAY ]; then
+      echo "Removing log files not from today: $d" | tee -a $TOMELOG
+      rm -rf $d
+    fi
+  done
+  echo "Checking previous tome logs and pruning "no need for static site" logs to save space" | tee -a $TOMELOG
+  find "$TOMELOGPATH" -type f | while read -r file; do
+    echo "Processing file: $file" | tee -a $TOMELOG
+    EMPTYTOME="Check if Tome is already running ...
+              No other Tome is running. Proceeding on our own.
+              No change to any node, block, or taxonomy, content in the last 30 minutes: no need for static site build"
+    if grep -q $EMPTYTOME "$file"; then
+      echo "File contains the specified content. Removing file: $file" | tee -a $TOMELOG
+      rm "$file"
+    fi
+  done
 else
   echo "No change to any node, block, or taxonomy, content in the last 30 minutes: no need for static site build" | tee -a $TOMELOG
 fi
