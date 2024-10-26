@@ -42,6 +42,7 @@ dependencies:
     - taxonomy
     - toolbar
     - usa_content_moderation_notifications
+    - usagov_benefit_category_search
 id: content_administrator
 label: 'Content Administrator'
 weight: 5
@@ -63,6 +64,7 @@ permissions:
   - 'administer sitemap settings'
   - 'administer taxonomy'
   - 'break content lock'
+  - 'change benefit page weights'
   - 'create agency_synonym content'
   - 'create audio media'
   - 'create basic_page content'
