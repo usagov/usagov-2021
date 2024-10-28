@@ -45,13 +45,15 @@ jQuery(document).ready(async function () {
     // If the estimated time was captured over 10 minutes ago, remain silent.
     if (checkTimeStamp(timestamp)) {
       var displayTime;
-      if (actualSeconds < 60) {
-        displayTime = 1;
+      if (actualSeconds != -1) {
+        if (actualSeconds < 60) {
+          displayTime = 1;
+        }
+        else {
+          displayTime = Math.round(actualSeconds / 60);
+        }
+        displayWaitTime(displayTime);
       }
-    else {
-        displayTime = Math.round(actualSeconds / 60);
-      }
-      displayWaitTime(displayTime);
     }
   }
 
