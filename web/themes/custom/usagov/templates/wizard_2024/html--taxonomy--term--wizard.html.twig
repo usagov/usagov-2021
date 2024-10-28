@@ -69,7 +69,7 @@
 {{ 'Taxonomy_Text_2'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ wizardTitle|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }},
     {% if page_type != 'wizard-start' %}
 {{ 'Taxonomy_Text_3'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.text|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }},
-    {% endif %}
+{% endif %}
 {% elseif loop.index <= 5 %}
 {% set textTag = 'Taxonomy_Text_' ~ titleCounter %}
 {% set titleCounter = titleCounter + 1 %}
@@ -90,10 +90,12 @@
 {% set urlCounter = urlCounter + 1 %}
 {% endif %}
 {% elseif loop.index == 2 %}
+{% if wizardTitleUrl == link.url.toString %}
     {{ 'Taxonomy_URL_2'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ wizardTitleUrl|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
-    {% if wizardTitleUrl != link.url.toString %}
-{{ 'Taxonomy_URL_3'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.url.toString|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
-    {% endif %}
+  {% set urlCounter = urlCounter - 1 %}
+{% else %}
+    {{ 'Taxonomy_URL_3'|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}: {{ link.url.toString|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }},
+{% endif %}
 {% elseif loop.index <= 5 %}
 {% set urlTag = 'Taxonomy_URL_' ~ urlCounter %}
 {% set urlCounter = urlCounter + 1 %}
