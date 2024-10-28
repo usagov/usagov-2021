@@ -229,16 +229,22 @@ function usagov_wizard_preprocess_html(&$variables) {
           $variables['wizardTitleUrl'] = $wizard_title_url;
         }
         else {
+          // Lookup the top-most taxonomy parent
           $topParent = $taxonomy_term;
           while (!empty($topParent->parent)) {
             $thisParent = Term::load($topParent->parent->target_id);
-            if (empty($thisParent)) break;
+            if (empty($thisParent)) {
+              break;
+            }
             $topParent = $thisParent;
           }
+
           $variables['wizardTitle'] = $topParent->getName();
           $variables['wizardTitleUrl'] = \Drupal::service('path_alias.manager')->getAliasByPath('/taxonomy/term/' . $topParent->id());
+
+          // Make sure Spanish-paths are prefixed with /es/
           $langCode = $taxonomy_term->language()->getId();
-          if ($langCode == 'es') {
+          if ($langCode == 'es' && !str_starts_with($variables['wizardTitleUrl'], '/es/')) {
             $variables['wizardTitleUrl'] = '/' . $langCode . $variables['wizardTitleUrl'];
           }
         }
