@@ -63,7 +63,8 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
       $page_type = 'wizard-question';
     }
 
-
+    // keep the same order
+    unset($event->datalayer['hasBenefitCategory']);
     // make any changes need to $event->datalayer array
     $event->datalayer['taxonomyID'] = $term->id();
     $event->datalayer['contentType'] = $term->bundle();
