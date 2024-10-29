@@ -403,7 +403,7 @@ function usagov_wizard_get_term_breadcrumb(Term $rootTerm): array {
     $language = $rootTerm->langcode->value;
     $home = [
       'text' => $language === 'en' ? TaxonomyDatalayerBuilder::HOME_TITLE_EN : TaxonomyDatalayerBuilder::HOME_TITLE_ES,
-      'url' => $language === 'en' ? TaxonomyDatalayerBuilder::HOME_URL_EN: TaxonomyDatalayerBuilder::HOME_URL_ES,
+      'url' => $language === 'en' ? TaxonomyDatalayerBuilder::HOME_URL_EN : TaxonomyDatalayerBuilder::HOME_URL_ES,
     ];
     if ($crumbs != NULL) {
       array_unshift($result, $home);

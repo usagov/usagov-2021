@@ -10,6 +10,7 @@ use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usagov_wizard\MenuChecker;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
 /**
  * Add taxonomy scan wizard info to datalayer.
  */
@@ -42,8 +43,7 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
 
     $termStorage = $this->entityTypeManager->getStorage('taxonomy_term');
 
-    $isStartPage =  FALSE;
-
+    $isStartPage = FALSE;
     $children = $termStorage->loadChildren($term->id());
     $isResult = empty($children);
 
@@ -54,12 +54,13 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
       }
     }
 
-
     if ($isStartPage) {
       $page_type = 'wizard-start';
-    } elseif ($isResult) {
+    }
+    elseif ($isResult) {
       $page_type = 'wizard-result';
-    } else {
+    }
+    else {
       $page_type = 'wizard-question';
     }
 
@@ -70,16 +71,16 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
     $event->datalayer['contentType'] = $term->bundle();
     $event->datalayer['language'] = $term->language()->getId();
     $event->datalayer['homepageTest'] = 'not_homepage';
-    $event->datalayer['basicPagesubType'] = null;
+    $event->datalayer['basicPagesubType'] = NULL;
     $event->datalayer['Page_Type'] = $page_type;
     $event->datalayer['hasBenefitCategory'] = FALSE;
 
-    $rootTerm = null;
+    $rootTerm = NULL;
     $parents = [];
     if ($term->hasField('parent') && !$term->get('parent')->isEmpty()) {
       $parents = $this->entityTypeManager
-                      ->getStorage('taxonomy_term')
-                      ->loadAllParents($term->id());
+        ->getStorage('taxonomy_term')
+        ->loadAllParents($term->id());
       // Sort parents so "oldest ancestor" is first.
       $parents = array_reverse($parents);
       $rootTerm = $parents[array_key_first($parents)];
@@ -97,7 +98,12 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
 
     // the rest comes from the parents of this term
     foreach ($parents as $parentTerm) {
-      $termURL = $parentTerm->get('path')->alias;
+      $path = $parentTerm->get('path');
+      $termURL = $path->alias;
+      // pathalias field items don't prepend the language code for Spanish terms
+      if ($parentTerm->language()->getId() === 'es') {
+        $termURL = '/es' . $termURL;
+      }
       $data[$termURL] = $parentTerm->getName();
     }
 
