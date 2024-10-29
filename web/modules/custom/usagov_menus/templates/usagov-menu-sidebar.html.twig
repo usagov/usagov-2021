@@ -30,26 +30,19 @@ lang      (String)  The current page's langcode
         <p class="usa-sr-only">{{ lang == 'es' ? 'esta página' : 'current page' }}</p>
         {{ item.title }}
       </div>
-
     {% else %}
       <a href="{{ item.url }}"{% if item.active %} class="active-trail"{% endif %}>
         {{ item.title }}
       </a>
     {% endif %}
 
-    {{ self.sidenav_sublist(item, lang) }}
+    {% if item.below %}
+      <ul class="usa-sidenav__sublist">
+        {% for subitem in item.below %}
+          {{ self.sidenav_item(subitem, lang) }}
+        {% endfor %}
+      </ul>
+    {% endif %}
+
   </li>
-{%  endmacro %}
-
-
-{% macro sidenav_sublist(item, lang) %}
-  {% import _self as self %}
-
-  {% if item.below %}
-    <ul class="usa-sidenav__sublist">
-      {% for item in item.below %}
-        {{ self.sidenav_item(item, lang) }}
-      {% endfor %}
-    </ul>
-  {% endif %}
 {%  endmacro %}
