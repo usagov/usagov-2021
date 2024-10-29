@@ -26,15 +26,8 @@ lang      (String)  The current page's langcode
   <li class="usa-sidenav__item">
 
     {% if item.current %}
-    
-      {% if lang == 'es' %}
-        {% set nonEnglishCurrentPageIndicator %}<p class="usa-sr-only">esta página</p>{% endset %}
-      {% else %}
-        {% set englishCurrentPageIndicator %} aria-current="page"{% endset %}
-      {% endif %}
-      
-      <div class="active-trail usa-current"{{ englishCurrentPageIndicator }}>
-        {{ nonEnglishCurrentPageIndicator }}
+      <div class="active-trail usa-current">
+        <p class="usa-sr-only">{{ lang == 'es' ? 'esta página' : 'current page' }}</p>
         {{ item.title }}
       </div>
 
