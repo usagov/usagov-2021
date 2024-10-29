@@ -430,7 +430,7 @@ function usagov_wizard_preprocess_views_view_field__wizard_options(&$variables) 
 }
 
 /**
- * Implements hook_preprocess_HOOK().
+ * Implements hook_preprocess_views_view_unformatted().
  */
 function usagov_wizard_preprocess_views_view_unformatted(&$variables) {
   $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
