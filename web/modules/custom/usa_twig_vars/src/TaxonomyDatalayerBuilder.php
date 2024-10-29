@@ -12,11 +12,11 @@ use Drupal\node\Entity\Node;
  */
 class TaxonomyDatalayerBuilder {
 
-  private const HOME_TITLE_EN = "Home";
-  private const HOME_URL_EN = "/";
+  public const HOME_TITLE_EN = "Home";
+  public const HOME_URL_EN = "/";
 
-  private const HOME_TITLE_ES = "Página principal";
-  private const HOME_URL_ES = "/es/";
+  public const HOME_TITLE_ES = "Página principal";
+  public const HOME_URL_ES = "/es/";
 
   private const ABOUT_GOVT_EN = "About the U.S. and its government";
   private const ABOUT_URL_EN = "/about-the-us";

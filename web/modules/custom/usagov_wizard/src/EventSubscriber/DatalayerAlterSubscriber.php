@@ -5,16 +5,18 @@ namespace Drupal\usagov_wizard\EventSubscriber;
 use Drupal\Core\Breadcrumb\BreadcrumbManager;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
+use Drupal\Core\Url;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
+use Drupal\usagov_wizard\MenuChecker;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-
 /**
  * Add taxonomy scan wizard info to datalayer.
  */
 class DatalayerAlterSubscriber implements EventSubscriberInterface {
 
   public function __construct(
+    private MenuChecker $menuChecker,
     private BreadcrumbManager $breadcrumbManager,
     private CurrentRouteMatch $currentRouteMatch,
     private EntityTypeManagerInterface $entityTypeManager,
@@ -61,6 +63,7 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
       $page_type = 'wizard-question';
     }
 
+
     // make any changes need to $event->datalayer array
     $event->datalayer['taxonomyID'] = $term->id();
     $event->datalayer['contentType'] = $term->bundle();
@@ -70,25 +73,34 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
     $event->datalayer['Page_Type'] = $page_type;
     $event->datalayer['hasBenefitCategory'] = FALSE;
 
-    $crumbs = $this->breadcrumbManager->build($this->currentRouteMatch);
-    $links = $crumbs->getLinks();
-
-    $data = [];
-    foreach ($links as $i => $link) {
-      $data[$link->getUrl()->toString()] = $link->getText();
+    $rootTerm = null;
+    $parents = [];
+    if ($term->hasField('parent') && !$term->get('parent')->isEmpty()) {
+      $parents = $this->entityTypeManager
+                      ->getStorage('taxonomy_term')
+                      ->loadAllParents($term->id());
+      // Sort parents so "oldest ancestor" is first.
+      $parents = array_reverse($parents);
+      $rootTerm = $parents[array_key_first($parents)];
     }
 
-    // add the parents
-    $vocabParents = $termStorage->loadParents($term->id());
-    foreach ($vocabParents as $parent) {
-      $url = $parent->get('path')->alias;
-      $data[$url] = $parent->getName();
+    if ($rootTerm) {
+      $crumbs = usagov_wizard_get_term_breadcrumb($rootTerm);
+      // Here the first two items will give us the home page
+      // and the main scam page
+      $crumbs = array_slice($crumbs, 0, 2);
+      foreach ($crumbs as $crumb) {
+        $data[$crumb['url']] = $crumb['text'];
+      }
     }
 
-    $termURL = $term->get('path')->alias;
-    $data[$termURL] = $term->getName();
+    // the rest comes from the parents of this term
+    foreach ($parents as $parentTerm) {
+      $termURL = $parentTerm->get('path')->alias;
+      $data[$termURL] = $parentTerm->getName();
+    }
 
-    $count  = count($data);
+    $count = count($data);
 
     $i = 0;
     foreach ($data as $url => $text) {
@@ -113,10 +125,6 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
 
     ksort($urls);
     $event->datalayer = array_merge($event->datalayer, $urls);
-  }
-
-  private function getParents(Term $node) {
-
   }
 
 }

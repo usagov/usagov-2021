@@ -6,6 +6,6 @@ services:
       - '@current_route_match'
   usagov_wizard_datalayer_alter_subscriber:
     class: '\Drupal\usagov_wizard\EventSubscriber\DatalayerAlterSubscriber'
-    arguments: ['@breadcrumb', '@current_route_match', '@entity_type.manager']
+    arguments: ['@usagov_wizard.menu_checker', '@breadcrumb', '@current_route_match', '@entity_type.manager']
     tags:
       - { name: 'event_subscriber' }
