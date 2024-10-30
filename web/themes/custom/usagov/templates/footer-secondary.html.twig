@@ -77,7 +77,7 @@
 							{% set details = social_media_details[loop.index0] %}
 							<div class="grid-col-auto">
 								<a class="usa-social-link" href="{{ details.url }}{{ username }}">
-									<img class="image-svg-test" src="/themes/custom/usagov/images/social-media-icons/{{ details.icon }}" alt="{{ details.icon }}" loading="lazy"/>
+									<img class="image-svg-test" src="/themes/custom/usagov/images/social-media-icons/{{ details.icon }}" alt="{{ details.alt_text }}" loading="lazy"/>
 									<span>{{ details.name }}</span>
 								</a>
 							</div>
