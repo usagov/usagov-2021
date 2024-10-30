@@ -18,11 +18,17 @@ jQuery(document).ready(async function () {
       "type": "GET",
       "dataType": "json",
       "success": function (response) {
-        if (jQuery("html[lang|='en']").length) {
+        if (window.location.pathname === "/phone") {
           jsonSeconds = response.call.estimatedWaitTimeSeconds.en;
         }
-        if (jQuery("html[lang|='es']").length) {
+        else if (window.location.pathname === "/es/llamenos") {
           jsonSeconds = response.call.estimatedWaitTimeSeconds.sp;
+        }
+        else if (window.location.pathname === "/chat") {
+          jsonSeconds = response.chat.estimatedWaitTimeSeconds.en;
+        }
+        else (window.location.pathname === "/es/chat") {
+          jsonSeconds = response.chat.estimatedWaitTimeSeconds.sp;
         }
 
         jsonTimestamp = response.timestamp;
