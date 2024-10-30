@@ -1,0 +1,213 @@
+{# Create an array of the active trail items from each level of the menu (up to the active item) #}
+
+{% if node.type[0].value.target_id == "directory_record" %}
+  {% if node.langcode.langcode == "es" %}
+    {% set active_trail = [
+      {
+        title: "Acerca de EE. UU. y directorios del Gobierno",
+        url: "/es/acerca-de-estados-unidos",
+        in_active_trail: true,
+        active: false
+      },
+      {
+        title: "Agencias federales",
+        url: "/es/indice-agencias",
+        in_active_trail: true,
+        active: false
+      }
+    ] %}
+  {% else %}
+    {% set active_trail = [
+      {
+        title: "About the U.S. and its government",
+        url: "/about-the-us",
+        in_active_trail: true,
+        active: false
+      },
+      {
+        title: "A-Z index of U.S. government departments and agencies",
+        url: "/agency-index",
+        in_active_trail: true,
+        active: false
+      }
+    ] %}
+  {% endif %}
+{% endif %}
+
+{% if node.type[0].value.target_id == "state_directory_record" %}
+  {% if node.langcode.langcode == "es" %}
+    {% set active_trail = [
+      {
+        title: "Acerca de EE. UU. y directorios del Gobierno",
+        url: "/es/acerca-de-estados-unidos",
+        in_active_trail: true,
+        active: false
+      },
+      {
+        title: "Gobiernos estatales",
+        url: "/es/gobiernos-estatales",
+        in_active_trail: true,
+        active: false
+      },
+    ] %}
+  {% else %}
+    {% set active_trail = [
+      {
+        title: "About the U.S. and its government",
+        url: "/about-the-us",
+        in_active_trail: true,
+        active: false
+      },
+      {
+        title: "State governments",
+        url: "/state-governments",
+        in_active_trail: true,
+        active: false
+      }
+    ] %}
+  {% endif %}
+{% endif %}
+
+
+{# Build the mobile menu #}
+<nav aria-label="{{ node.langcode.langcode == 'es' ?  "Navegación primaria" : "Primary navigation" }}" class="usa-nav usagov-mobile-menu">
+  <div class="usa-nav__inner">
+    <div class="usagov-mobile-menu-top">
+      <div class="usagov-mobile-menu-controls">
+        <a id="home-link-mobile-menu" href="{{ translations.home_URL }}">
+          <svg class="usa-icon text-base-darkest">
+            <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#home"></use>
+          </svg>
+          {{ translations.home }}
+        </a>
+        <button class="usa-nav__close">
+          <svg class="usa-icon text-base-darkest">
+            <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#highlight_off"></use>
+          </svg>
+          {{ translations.close }}
+        </button>
+      </div>
+      <div class="usa-nav__secondary">
+        <!-- Search Bar -->
+        {% embed 'usagov:searchbar' with {
+          form_classes: "usa-search usa-search--small",
+          label_id: "top-srch-mobile-menu",
+          for_string:"search-field-small-mobile-menu",
+          hidden_input_id:"affiliate-mobile-menu",
+          input_id:"search-field-small-mobile-menu",
+          input_classes:"usa-input text usagov-search-autocomplete ui-autocomplete-input",
+          button_classes:"usa-button usagov-button",
+          placeholder_string,
+          value_string,
+          label_string,
+          alt_string,
+        } %}
+          {% set form_id = translations.form_id %}
+          {% set placeholder_string = translations.search_placeholder %}
+          {% set value_string = translations.search_affiliate %}
+          {% set label_string = translations.search %}
+          {% set alt_string = translations.search %}
+        {% endembed %}
+        <span class="usa-nav__secondary-links">
+          <span id="top-phone-mobile-menu" class="usa-nav__secondary-item">
+            <a href="{{ translations.phone_URL }}" class="">1-844-USAGOV1</a>
+          </span>
+        </span>
+      </div>
+    </div>
+
+    {% block mobile_nav %}
+      {# Build the mobile nav #}
+      {% if active_trail is empty %}
+        {#
+        The current page is not in the menu structure.
+        Show All Topics and Services
+        #}
+        <ul class="navigation__items ancestors">
+          <li class="navigation__item active">
+            <a href="{{ translations.home_URL }}#all-topics-header">{{ translations.all_topics }}</a>
+            <ul class="navigation__items children">
+              {% for menu_item in submenu %}
+                <li class="navigation__item child">
+                  <a href="{{ menu_item.url }}">{{ menu_item.title }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+        </ul>
+
+      {% else %}
+        <ul class="navigation__items ancestors">
+          {% for menu_item in active_trail %}
+
+            {% set class = "" %}
+
+            {# The first item is an umbrella category unless it is the current page #}
+            {% if loop.index == 1 %}
+              {% set class = " umbrella" %}
+            {% endif %}
+
+            {# The current page #}
+            {% if menu_item.active %}
+              {% set class = " active" %}
+            {% endif %}
+
+            {# Show the first item and up to 3 items at the end of the active trail #}
+            {% if loop.index == 1 or loop.index + 3 > active_trail|length %}
+              {% if found_active_item and not active_item_has_children and loop.index == active_trail|length %}
+                {# The current page has no children, so we should show its siblings instead #}
+                <li class="navigation__item">
+                  <ul class="navigation__items">
+                    {% for child in siblings_of_active_item %}
+                      {% set class = "" %}
+                      {% if child.active %}
+                        {% set class = " active" %}
+                      {% else %}
+                        {% set class = " sibling" %}
+                      {% endif %}
+                      <li class="navigation__item{{class}}">
+                        <a href="{{ child.active ? "#" : child.url }}">{{ child.title }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </li>
+              {% else %}
+                <li class="navigation__item{{class}}">
+                  <a href="{{ menu_item.active ? "#" : menu_item.url }}">{{ menu_item.title }}</a>
+                  {# Show any children of the active item #}
+                  {% if menu_item.active and menu_item.below is not empty %}
+                    <ul class="navigation__items children">
+                      {% for child in menu_item.below %}
+                        <li class="navigation__item child">
+                          <a href="{{ child.url }}">{{ child.title }}</a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+
+                  {# Show the current page if this is the last iteration but the active item was never found #}
+                  {% if loop.index == active_trail|length and not found_active_item %}
+                    <ul class="navigation__items">
+                      {% if menu_item.below is not empty %}
+                        {% for child in menu_item.below %}
+                          <li class="navigation__item sibling">
+                            <a href="{{ child.url }}">{{ child.title }}</a>
+                          </li>
+                        {% endfor %}
+                      {% endif %}
+                      <li class="navigation__item active">
+                        <a href="#">{{node.title.value}}</a>
+                      </li>
+                    </ul>
+                  {% endif %}
+                </li>
+              {% endif %}
+
+            {% endif %}
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endblock %}
+
+  </div>
+</nav>
