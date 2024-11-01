@@ -1,0 +1,20 @@
+usagov_dynamic_content_local.docs_page:
+  path: '/tuo/docs_page'
+  defaults:
+    _controller: 'Drupal\usagov_dynamic_content_local\Controller\USAGovDynamicContentLocalController::getDocsPage'
+  requirements:
+    _permission: 'access content'
+
+usagov_dynamic_content_local.all_pages:
+  path: '/tuo/all_pages'
+  defaults:
+    _controller: 'Drupal\usagov_dynamic_content_local\Controller\USAGovDynamicContentLocalController::getAllPages'
+  requirements:
+    _permission: 'access content'
+
+usagov_dynamic_content_local.page:
+  path: '/tuo/page'
+  defaults:
+    _controller: 'Drupal\usagov_dynamic_content_local\Controller\USAGovDynamicContentLocalController::getPage'
+  requirements:
+    _permission: 'access content'

@@ -1,0 +1,4 @@
+name: USAgov Dynamic Content Local
+description: Custom code for USAGov Tell Us Once Project.
+type: module
+core_version_requirement: ^10
