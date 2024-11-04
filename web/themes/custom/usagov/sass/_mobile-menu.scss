@@ -31,7 +31,7 @@ ul.navigation__items {
     }
   }
 
-  .umbrella a {
+  .umbrella > a {
     @include u-bg('blue-warm-70v');
     @include u-text('white');
   }
