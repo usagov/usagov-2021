@@ -92,7 +92,7 @@ function fieldValidation() {
   // If there is at least 1 error, focus the screen on the first error message.
   if (!noErrors) {
     var elem = document.querySelector(".err-label");
-    elem.focus();
+    // elem.focus();   // commented out so focus can goto the error box first
     var viewportOffset = elem.getBoundingClientRect();
     var top = viewportOffset.top;
     if (top < 108) {
