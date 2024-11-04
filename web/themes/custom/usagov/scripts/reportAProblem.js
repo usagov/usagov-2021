@@ -57,7 +57,7 @@ function fieldValidation() {
         label.after(
           '<span id="' +
             errorId +
-            '" class="err-label usa-error" tabindex="0">' +
+            '" class="err-label usa-error" tabindex="-1">' +
             error +
             "</span>"
         );
