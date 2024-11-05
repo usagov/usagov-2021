@@ -1,7 +1,9 @@
 <?php
 
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usagov_benefit_category_search\Form\BenefitCategorySearchForm;
@@ -167,4 +169,49 @@ function usagov_benefit_category_search_views_pre_render(ViewExecutable $view): 
       $view = $prep->cleanTerms($view);
       break;
   }
+}
+
+/**
+ * Implements hook_local_tasks_alter().
+ */
+function usagov_benefit_category_search_menu_local_tasks_alter(
+  &$data,
+  $route_name,
+  RefinableCacheableDependencyInterface &$cacheability,
+) {
+  if ($route_name !== 'entity.node.canonical') {
+    return;
+  }
+
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if ($node->getType() !== 'basic_page') {
+    return;
+  }
+
+  $pageType = usa_twig_vars_get_page_type($node);
+  if ($pageType !== 'Benefits Category Search') {
+    return;
+  }
+
+  $view = match($node->language()->getId()) {
+    'en' => 'view.manage_benefits_search_sort.page_en',
+    'es' => 'view.manage_benefits_search_sort.page_es'
+  };
+
+  $userCurrent = \Drupal::currentUser();
+  $url = Url::fromRoute($view);
+  $data['tabs'][0]['usagov_benefit_category_search.manage_sort'] = [
+    '#access' => $url->access($userCurrent),
+    '#theme' => 'menu_local_task',
+    '#acive' => FALSE,
+    '#link' => [
+      'title' => 'Sort Results',
+      'url' => $url,
+    ],
+    '#weight' => 20,
+  ];
+
+  $cacheability->addCacheContexts([
+    'user.permissions',
+  ]);
 }

@@ -224,6 +224,8 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
     drush updatedb --no-cache-clear -y
     drush cim -y || drush cim -y
     drush cim -y
+    echo "Notice: If a TXNDATA error is seen above this line, we believe it is likley NewRelic having a connection-reset-by-peer issue. We dont believe this is causing drush-cim to crash."
+
     drush php-eval "node_access_rebuild();" -y
 
     if [ x$initial_mm_state = x0 ]; then

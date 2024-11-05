@@ -2,7 +2,7 @@
 
 # TODO: why the [ $(uname -m) != 'aarch64' ] clause? Was this meant to exclude local install?
 if [ "$(uname -m)" != 'aarch64' ]; then
-  export NR_VERSION_NUMBER='10.22.0.12'
+  export NR_VERSION_NUMBER='11.2.0.15'
 
   NR_VERSION="newrelic-php5-$NR_VERSION_NUMBER-linux-musl"
   export NR_VERSION

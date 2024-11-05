@@ -385,16 +385,19 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
             if (isset($crumb['uri'])) {
               $crumb['url'] = Url::fromUri($crumb['uri'])->toString();
             }
+            if (isset($crumb['title'])) {
+              $crumb['text'] = ($crumb['title']);
+            }
 
-            $variables['breadcrumb']['crumbs'][] = $crumb;
+            $variables['wizard_breadcrumb'][] = $crumb;
           }
           $language = $taxonomy_term->langcode->value;
           $home = [
-            'title' => $language == 'en' ? 'Home' : 'Página principal',
+            'text' => $language == 'en' ? 'Home' : 'Página principal',
             'url' => $language == 'en' ? '/' : '/es',
           ];
           if ($crumbs != NULL) {
-            array_unshift($variables['breadcrumb']['crumbs'], $home);
+            array_unshift($variables['wizard_breadcrumb'], $home);
           }
         }
       }

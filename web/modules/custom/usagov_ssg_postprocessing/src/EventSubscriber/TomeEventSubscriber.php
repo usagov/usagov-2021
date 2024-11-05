@@ -8,6 +8,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\tome_static\Event\CollectPathsEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
+use Drupal\tome_static\Event\PathPlaceholderEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
 use Masterminds\HTML5;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -168,10 +169,28 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       }
     }
 
+    // Never crawl the rewritten Spanish path. It might be treated like a redirect by
+    // Tome and overwrite the original homepage HTML
+    $event->addExcludePath('/es/');
+
     if ($changes) {
       // Render it as HTML5:
       $modifiedHtml = $html5->saveHTML($document);
       $event->setHtml($modifiedHtml);
+    }
+  }
+
+  /**
+   * Prevent exporting paths Tome might discover after the collect paths event.
+   *
+   * @param PathPlaceholderEvent $event
+   * @return void
+   */
+  public function excludeInvalidPaths(PathPlaceholderEvent $event) {
+    $path = $event->getPath();
+
+    if (preg_match('/(es\/)?node\/\d+$/', $path)) {
+      $event->setInvalid();
     }
   }
 
@@ -181,6 +200,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   public static function getSubscribedEvents() {
     $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories'];
+    $events[TomeStaticEvents::PATH_PLACEHOLDER][] = ['excludeInvalidPaths'];
     return $events;
   }
 
