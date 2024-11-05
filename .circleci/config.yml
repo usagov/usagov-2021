@@ -769,6 +769,7 @@ workflows:
                 - stage
                 - prod
                 - pxbf-release-v0.8.0.beta.1
+                - USAGOV-2023-roles-permissions-report
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -780,6 +781,7 @@ workflows:
                 - stage
                 - prod
                 - pxbf-release-v0.8.0.beta.1
+                - USAGOV-2023-roles-permissions-report
       - approve-dev-deployment:
           type: approval
           requires:
@@ -789,6 +791,7 @@ workflows:
               only:
               - dev
               - pxbf-release-v0.8.0.beta.1
+              - USAGOV-2023-roles-permissions-report
       - approve-dr-deployment:
           type: approval
           requires:
@@ -805,6 +808,7 @@ workflows:
               only:
               - dev
               - pxbf-release-v0.8.0.beta.1
+              - USAGOV-2023-roles-permissions-report
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
