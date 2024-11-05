@@ -26,7 +26,7 @@
 				</span>
 			</span>
 			<!-- Search Bar -->
-			{% embed 'usagov:searchbar' with {
+			{% include 'themes/custom/usagov/components/searchbar/searchbar.twig' with {
 				form_classes: "usa-search usa-search--small",
 				form_id:"usagov_es_internal-desktop",
 				label_id: "top-srch",
@@ -40,7 +40,6 @@
 				button_classes:"usa-button usagov-button",
 				alt_string:"Buscar",
 			} %}
-			{% endembed %}
 		</div>
 	</div>
 </div>

@@ -152,25 +152,25 @@
       </div>
       <div class="usa-nav__secondary">
         <!-- Search Bar -->
-        {% embed 'usagov:searchbar' with {
+        {% set form_id_value = translations.form_id %}
+        {% set placeholder_string_value = translations.search_placeholder %}
+        {% set value_string_value = translations.search_affiliate %}
+        {% set label_string_value = translations.search %}
+        {% set alt_string_value = translations.search %}
+        {% include 'themes/custom/usagov/components/searchbar/searchbar.twig' with {
           form_classes: "usa-search usa-search--small",
+          form_id: form_id_value,
           label_id: "top-srch-mobile-menu",
           for_string:"search-field-small-mobile-menu",
           hidden_input_id:"affiliate-mobile-menu",
           input_id:"search-field-small-mobile-menu",
           input_classes:"usa-input text usagov-search-autocomplete ui-autocomplete-input",
           button_classes:"usa-button usagov-button",
-          placeholder_string,
-          value_string,
-          label_string,
-          alt_string,
+          placeholder_string: placeholder_string_value,
+          value_string: value_string_value,
+          label_string: label_string_value,
+          alt_string: alt_string_value,
         } %}
-          {% set form_id = translations.form_id %}
-          {% set placeholder_string = translations.search_placeholder %}
-          {% set value_string = translations.search_affiliate %}
-          {% set label_string = translations.search %}
-          {% set alt_string = translations.search %}
-        {% endembed %}
         <span class="usa-nav__secondary-links">
           <span id="top-phone-mobile-menu" class="usa-nav__secondary-item">
             <a href="{{ translations.phone_URL }}" class="">1-844-USAGOV1</a>
