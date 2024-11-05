@@ -241,6 +241,7 @@ async function handleFormSubmission() {
             document.getElementById(errorID).classList.remove("usa-error--alert");
 
             var message;
+
             if (!field.value) {
                 // Changing to use the error method specified in the CMS if available
                 var cmsError = document.getElementById(errorID);
@@ -259,7 +260,7 @@ async function handleFormSubmission() {
                 document.getElementById(errorID).getElementsByTagName("span")[0].innerHTML =  sanitizeResponse;
             }
 
-            field.previousElementSibling.innerHTML = message;
+            field.previousElementSibling.innerHTML = "Error: " + message;
 
             // Check if the street address, zip code or city field is empty and if it is, add the vertical line on the left side.
             if (field.previousElementSibling.id === "street" ||
