@@ -768,7 +768,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - pxbf-release-v0.8.0.beta.1
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -779,7 +778,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - pxbf-release-v0.8.0.beta.1
       - approve-dev-deployment:
           type: approval
           requires:
@@ -788,7 +786,6 @@ workflows:
             branches:
               only:
               - dev
-              - pxbf-release-v0.8.0.beta.1
       - approve-dr-deployment:
           type: approval
           requires:
@@ -804,7 +801,6 @@ workflows:
             branches:
               only:
               - dev
-              - pxbf-release-v0.8.0.beta.1
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
