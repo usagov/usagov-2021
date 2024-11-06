@@ -190,16 +190,12 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $path = $event->getPath();
 
     if (str_ends_with($path, '/')) {
-      // Tome should never request the Spanish homepage or any other page
-      // with a trailing-slash. If it does request it, that is due to the path
-      // being linked in content. For example, when tome runs, Drupal will
-      // redirect the request for `/es/` to `/es`, causing Tome to rewrite
-      // the contents of `es/index.html` with a refresh redirect.
-      $event->setInvalid();
-      return;
-    }
-
-    if (str_ends_with($path, '/')) {
+      // Tome should never request the Spanish homepage or any other local path
+      // with a trailing-slash. If it does request it, that is because the path
+      // was found in the content of a node or term.
+      // For example, when tome runs and it finds a link to `/es/`, Drupal will
+      // redirect the request for `/es/` to `/es`. The response causes Tome to
+      // save it in  the contents of `es/index.html` with an refresh redirect.
       $event->setInvalid();
       return;
     }
