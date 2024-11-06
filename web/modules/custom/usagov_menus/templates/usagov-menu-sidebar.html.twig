@@ -23,35 +23,26 @@ lang      (String)  The current page's langcode
 {% macro sidenav_item(item, lang) %}
   {% import _self as self %}
 
-  {% if item.active %}
-    {% set attributes %} class="active-trail"{% endset %}
-  {% endif %}
-
-  {% if item.current %}
-    {% set attributes %} class="active-trail usa-current" aria-current="page" onclick="return false;"{% endset %}
-    {% if lang == 'es' %}
-      {% set current_page_indicator %}<p class="usa-sr-only">esta página</p>{% endset %}
-    {% endif %}
-  {% endif %}
-
   <li class="usa-sidenav__item">
-    <a href="{{ item.url }}"{{ attributes }}>
-      {{ current_page_indicator }}
-      {{ item.title }}
-    </a>
-    {{ self.sidenav_sublist(item, lang) }}
+
+    {% if item.current %}
+      <div class="active-trail usa-current">
+        <p class="usa-sr-only">{{ lang == 'es' ? 'esta página' : 'current page' }}</p>
+        {{ item.title }}
+      </div>
+    {% else %}
+      <a href="{{ item.url }}"{% if item.active %} class="active-trail"{% endif %}>
+        {{ item.title }}
+      </a>
+    {% endif %}
+
+    {% if item.below %}
+      <ul class="usa-sidenav__sublist">
+        {% for subitem in item.below %}
+          {{ self.sidenav_item(subitem, lang) }}
+        {% endfor %}
+      </ul>
+    {% endif %}
+    
   </li>
-{%  endmacro %}
-
-
-{% macro sidenav_sublist(item, lang) %}
-  {% import _self as self %}
-
-  {% if item.below %}
-    <ul class="usa-sidenav__sublist">
-      {% for item in item.below %}
-        {{ self.sidenav_item(item, lang) }}
-      {% endfor %}
-    </ul>
-  {% endif %}
 {%  endmacro %}
