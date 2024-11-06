@@ -10,6 +10,7 @@
 
 use Drupal\Core\Url;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_wizard\MenuChecker;
 
 /**
@@ -299,7 +300,7 @@ function usagov_wizard_preprocess_page(&$variables) {
 }
 
 /**
- * Implements hook_preprocess_HOOK().
+ * Implements hook_preprocess_taxonomy_term().
  *
  * Determine where the current page sits in the taxonomy hierarchy and send this
  * information to the twig so we can decide which of the "previous, next, start
@@ -379,30 +380,38 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
       $rootTermTid = $parents[array_key_last($parents)];
       if (isset($rootTermTid)) {
         $rootTerm = Term::load($rootTermTid);
-        if (isset($rootTerm->field_wizard_breadcrumbs)) {
-          $crumbs = $rootTerm->field_wizard_breadcrumbs->getValue();
-          foreach ($crumbs as $crumb) {
-            if (isset($crumb['uri'])) {
-              $crumb['url'] = Url::fromUri($crumb['uri'])->toString();
-            }
-            if (isset($crumb['title'])) {
-              $crumb['text'] = ($crumb['title']);
-            }
-
-            $variables['wizard_breadcrumb'][] = $crumb;
-          }
-          $language = $taxonomy_term->langcode->value;
-          $home = [
-            'text' => $language == 'en' ? 'Home' : 'Página principal',
-            'url' => $language == 'en' ? '/' : '/es',
-          ];
-          if ($crumbs != NULL) {
-            array_unshift($variables['wizard_breadcrumb'], $home);
-          }
-        }
+        $variables['wizard_breadcrumb'] = usagov_wizard_get_term_breadcrumb($rootTerm);
       }
     }
   }
+}
+
+function usagov_wizard_get_term_breadcrumb(Term $rootTerm): array {
+  if (isset($rootTerm->field_wizard_breadcrumbs)) {
+    $crumbs = $rootTerm->field_wizard_breadcrumbs->getValue();
+    $result = [];
+    foreach ($crumbs as $crumb) {
+      if (isset($crumb['uri'])) {
+        $crumb['url'] = Url::fromUri($crumb['uri'])->toString();
+      }
+      if (isset($crumb['title'])) {
+        $crumb['text'] = ($crumb['title']);
+      }
+
+      $result[] = $crumb;
+    }
+    $language = $rootTerm->langcode->value;
+    $home = [
+      'text' => $language === 'en' ? TaxonomyDatalayerBuilder::HOME_TITLE_EN : TaxonomyDatalayerBuilder::HOME_TITLE_ES,
+      'url' => $language === 'en' ? TaxonomyDatalayerBuilder::HOME_URL_EN : TaxonomyDatalayerBuilder::HOME_URL_ES,
+    ];
+    if ($crumbs != NULL) {
+      array_unshift($result, $home);
+    }
+    return $result;
+  }
+
+  return [];
 }
 
 /**
@@ -421,7 +430,7 @@ function usagov_wizard_preprocess_views_view_field__wizard_options(&$variables) 
 }
 
 /**
- * Implements hook_preprocess_HOOK().
+ * Implements hook_preprocess_views_view_unformatted().
  */
 function usagov_wizard_preprocess_views_view_unformatted(&$variables) {
   $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
