@@ -1,0 +1,31 @@
+uuid: b460fa8c-9bac-400d-820a-af6b3ae303d9
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - usagov_menus
+  theme:
+    - usagov
+id: usagov_mobilemenublock
+theme: usagov
+region: header_top
+weight: -16
+provider: null
+plugin: usagov_mobile_menu_block
+settings:
+  id: usagov_mobile_menu_block
+  label: 'Mobile Menu Block'
+  label_display: '0'
+  provider: usagov_menus
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
+      bears_life_event: bears_life_event
+      directory_record: directory_record
+      state_directory_record: state_directory_record
