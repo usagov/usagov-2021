@@ -189,6 +189,15 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   public function excludeInvalidPaths(PathPlaceholderEvent $event) {
     $path = $event->getPath();
 
+    if ($path === '/es/') {
+      // Tome should never request the spanish homepage with a trailing-slash.
+      // If it does request it, that is due to the path being linked in content.
+      // When tome runs, Drupal will redirect the request to `/es`, causing Tome
+      // to rewrite the contents of `es/index.html` with a refresh redirect.
+      $event->setInvalid();
+      return;
+    }
+
     if (preg_match('/(es\/)?node\/\d+$/', $path)) {
       $event->setInvalid();
     }
