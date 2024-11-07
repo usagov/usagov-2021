@@ -625,6 +625,23 @@ jobs:
       - deploy-cloudgov-cron:
           envname: prod
 
+  deploy-to-cloudgov-dr-cron-tools:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cloudgov-cron:
+          envname: tools
+
+  deploy-to-cloudgov-dr-cron-shared-egress:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cloudgov-cron:
+          envname: shared-egress
 
 workflows:
   version: 2
@@ -751,7 +768,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1557-cf-logs-to-new-relic
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -762,7 +778,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1557-cf-logs-to-new-relic
       - approve-dev-deployment:
           type: approval
           requires:
@@ -779,7 +794,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-1557-cf-logs-to-new-relic
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -787,7 +801,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-1943-govloan-redirect-corrections
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
@@ -795,7 +808,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-1557-cf-logs-to-new-relic
       - approve-stage-deployment:
           type: approval
           requires:
@@ -841,7 +853,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1753-generic-cron-app-alpine
+
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
@@ -852,7 +864,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-1753-generic-cron-app-alpine
       - approve-dev-deployment-cron:
           type: approval
           requires:
@@ -869,7 +880,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-1753-generic-cron-app-alpine
       - deploy-to-cloudgov-dev-cron:
           requires:
             - approve-dev-deployment-cron
@@ -884,7 +894,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-1753-generic-cron-app-alpine
       - approve-stage-deployment-cron:
           type: approval
           requires:
@@ -918,3 +927,31 @@ workflows:
           filters:
             branches:
               only: prod
+
+      - really-approve-dr-deployment-cron-tools:
+          type: approval
+          requires:
+            - approve-dr-deployment-cron
+          filters:
+            branches:
+              only: dr
+      - deploy-to-cloudgov-dr-cron-tools:
+          requires:
+            - really-approve-dr-deployment-cron-tools
+          filters:
+            branches:
+              only: dr
+
+      - really-approve-dr-deployment-cron-shared-egress:
+          type: approval
+          requires:
+            - approve-dr-deployment-cron
+          filters:
+            branches:
+              only: dr
+      - deploy-to-cloudgov-dr-cron-shared-egress:
+          requires:
+            - really-approve-dr-deployment-cron-shared-egress
+          filters:
+            branches:
+              only: dr

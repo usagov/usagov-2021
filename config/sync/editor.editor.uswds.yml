@@ -54,7 +54,7 @@ settings:
       multiBlock: true
     ckeditor5_sourceEditing:
       allowed_tags:
-        - '<div>'
+        - '<div data-*>'
         - '<a role>'
     ckeditor5_style:
       styles:
