@@ -89,6 +89,12 @@ echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &> /dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
+echo "************************************************************************"
+echo "Please remember to add each developer to the SpaceDeveloper group in the"
+echo "newly created space."
+echo 
+echo "Add devs in the CloudGov dashboard: https://dashboard.fr.cloud.gov/home"
+echo "************************************************************************"
 exit
 
 echo cf target -s $APP_SPACE

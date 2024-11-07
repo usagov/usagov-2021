@@ -16,6 +16,12 @@
     border-top: none;
   }
 
+  a:not(.usa-button), .usa-current{
+    display: block;
+    padding: .5rem 1rem;
+    text-decoration: none;
+  }
+
   .usa-current {
     color: $navigation-red;
 
@@ -30,10 +36,8 @@
       @include u-bg('red-50');
       border-radius: 2px;
     }
-  }
 
-  a:not(.usa-button):hover {
-    &.usa-current {
+    &:hover {
       background-color: transparent;
     }
   }
@@ -47,6 +51,19 @@
       text-decoration: underline;
     }
   }
+
+  &__sublist { 
+    a:not(.usa-button), .usa-current {
+      padding-left: 2.3rem;
+    }
+
+    .usa-sidenav__sublist {
+      a:not(.usa-button), .usa-current {
+        padding-left: 3.6rem;
+      }
+    }
+  }
+
   @media (max-width: 1023px) {
     display: none;
   }

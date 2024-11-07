@@ -13,7 +13,7 @@ dependencies:
 id: mobile_navigation_wizard_english
 theme: usagov
 region: header_top
-weight: 0
+weight: -11
 provider: null
 plugin: 'menu_block:wizard'
 settings:
@@ -29,7 +29,9 @@ settings:
   depth: 0
   expand_all_items: false
   parent: 'wizard:'
+  render_parent: false
   suggestion: wizard
+  hide_on_nonactive: false
 visibility:
   'entity_bundle:node':
     id: 'entity_bundle:node'
