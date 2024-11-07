@@ -266,10 +266,12 @@ async function handleFormSubmission() {
                 field.previousElementSibling.id === "zip" ||
                 field.previousElementSibling.id === "city") {
                 field.parentElement.classList.add("usa-border-error");
+                field.parentElement.classList.add("usa-form-spacing");
             }
             // Check if the state field is empty and if it is, add the vertical line on the left side.
             else if (field.previousElementSibling.id === "state") {
                 field.parentElement.parentElement.classList.add("usa-border-error");
+                field.parentElement.parentElement.classList.add("usa-form-spacing");
                 // Arranges the drop-down arrow within the input field.
                 document.getElementsByClassName("usa-combo-box__toggle-list")[0].style["top"] = "30px";
                 document.getElementsByClassName("usa-combo-box__input-button-separator")[0].style["top"] = "31px";
@@ -284,6 +286,9 @@ async function handleFormSubmission() {
             // Remove the vertical line on the left side.
             field.parentElement.classList.remove("usa-border-error");
             field.parentElement.parentElement.classList.remove("usa-border-error");
+            field.parentElement.classList.remove("usa-form-spacing");
+            field.parentElement.parentElement.classList.remove("usa-form-spacing");
+
 
             // Remove the error message above the field.
             field.previousElementSibling.innerHTML = "";
