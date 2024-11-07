@@ -32,4 +32,4 @@ usagov_ssg_postprocessing.site_lag_test:
   options:
     no_cache: 'TRUE'
   requirements: 
-    _permission: 'access content' 
+    _permission: 'access administration pages'
