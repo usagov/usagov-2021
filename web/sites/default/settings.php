@@ -946,6 +946,7 @@ if (PHP_SAPI === 'cli' && str_starts_with($_SERVER["argv"][1], 'tome:static')) {
   // Disable the page and menu cache on tome runs
   $settings['cache']['bins']['page'] = 'cache.backend.null';
   $settings['cache']['bins']['menu'] = 'cache.backend.null';
+  $settings['cache']['bins']['data'] = 'cache.backend.null';
 }
 
 // Override anything special for local development
