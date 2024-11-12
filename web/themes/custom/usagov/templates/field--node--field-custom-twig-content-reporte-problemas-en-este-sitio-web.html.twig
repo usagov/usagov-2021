@@ -6,20 +6,20 @@
 		<div class="usa-alert__body">
 			<h2 class="usa-alert__heading">Su información contiene errores</h2>
 			<li id="alert_error_00NU0000004z90C" class="usa-alert__text usa-error--alert">
-				<a href="#label_name"><span>Escriba su nombre</span></a>
+				<a href="#00NU0000004z90C"><span>Escriba su nombre</span></a>
 			</li>
 			<li id="alert_error_email" class="usa-alert__text usa-error--alert">
-				<a href="#label_email"><span>Escriba su email</span></a>
+				<a href="#email"><span>Escriba su email</span></a>
 			</li>
 			<li id="alert_error_description" class="usa-alert__text usa-error--alert">
-				<a href="#label_description"><span>Escriba la descripción</span></a>
+				<a href="#description"><span>Escriba la descripción</span></a>
 			</li>
-			<li id="alert_error_recaptcha_large" class="usa-alert__text usa-error--alert">
+			{# <li id="alert_error_recaptcha_large" class="usa-alert__text usa-error--alert">
 				<a href="#recaptcha-large-container"><span>Complete el reCaptcha</span></a>
 			</li>
 			<li id="alert_error_recaptcha_small" class="usa-alert__text usa-error--alert">
 				<a href="#recaptcha-small-container"><span>Fill out the reCaptcha</span></a>
-			</li>
+			</li> #}
 			</ul>
 		</div>
 	</div>
@@ -58,7 +58,7 @@
 								maxlength="255"
 								size="40"
 								required
-								data-error="Escriba su nombre"
+								data-error="Error: Escriba su nombre"
 								data-name="First Name"
 							/>
 						</p>
@@ -75,7 +75,7 @@
 								maxlength="80"
 								size="40"
 								required\
-								data-error="Escriba su email"
+								data-error="Error: Escriba su email"
 								data-name="Email Address"
 							/>
 						</p>
@@ -94,7 +94,7 @@
 								rows="10"
 								maxlength="1000"
 								required
-								data-error="Escriba la descripción"
+								data-error="Error: Escriba la descripción"
 								data-name="Description"
 							></textarea>
 							<text class="usa-description" id="report-issue-box-es">Por favor limite su comentario a 1000 caracteres.</text>
