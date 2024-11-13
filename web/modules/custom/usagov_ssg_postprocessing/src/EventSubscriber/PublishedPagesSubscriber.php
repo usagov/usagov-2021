@@ -205,11 +205,15 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
           if (substr($nid, 0, 2) !== 't_') {
             $tid = intval(substr($nid, 2));
             $termEntity = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
-            $url = $termEntity->toUrl()->toString();
+            if (!empty($termEntity)) {
+              $url = $termEntity->toUrl()->toString();
+            }
           }
           else {
             $nodeEntity = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-            $url = $nodeEntity->toUrl()->toString();
+            if (!empty($nodeEntity)) {
+              $url = $nodeEntity->toUrl()->toString();
+            }
           }
         }
       }
