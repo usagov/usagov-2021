@@ -4,6 +4,7 @@ namespace Drupal\usa_twig_vars;
 
 use Drupal\Core\Breadcrumb\BreadcrumbManager;
 use Drupal\Core\Entity\EntityMalformedException;
+use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\node\Entity\Node;
 
 /**
@@ -11,11 +12,11 @@ use Drupal\node\Entity\Node;
  */
 class TaxonomyDatalayerBuilder {
 
-  private const HOME_TITLE_EN = "Home";
-  private const HOME_URL_EN = "/";
+  public const HOME_TITLE_EN = "Home";
+  public const HOME_URL_EN = "/";
 
-  private const HOME_TITLE_ES = "Página principal";
-  private const HOME_URL_ES = "/es/";
+  public const HOME_TITLE_ES = "Página principal";
+  public const HOME_URL_ES = "/es/";
 
   private const ABOUT_GOVT_EN = "About the U.S. and its government";
   private const ABOUT_URL_EN = "/about-the-us";
@@ -47,6 +48,7 @@ class TaxonomyDatalayerBuilder {
   private string $isFront;
 
   public function __construct(
+    private CurrentRouteMatch $routeMatch,
     private BreadcrumbManager $breadcrumbManager,
     public Node $node,
     bool $isFront,
@@ -129,7 +131,7 @@ class TaxonomyDatalayerBuilder {
   public function fromBreadcrumb(): array {
     // For all other pages, we need the breadcrumb to pass as taxonomy.
     // This mimics the system breadcrumb block plugin, without rendering it.
-    $crumbs = $this->breadcrumbManager->build(\Drupal::routeMatch());
+    $crumbs = $this->breadcrumbManager->build($this->routeMatch);
     $taxonomy = [];
 
     foreach ($crumbs->getLinks() as $index => $crumb) {

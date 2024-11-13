@@ -6,19 +6,19 @@
 		<div class="usa-alert__body">
 			<h2 class="usa-alert__heading">Your information contains errors</h2>
 			<li id="alert_error_00NU0000004z90C" class="usa-alert__text usa-error--alert">
-				<a href="#label_name"><span>Fill out the name field</span></a>
+				<a href="#00NU0000004z90C"><span>Fill out the name field</span></a>
 			</li>
 			<li id="alert_error_email" class="usa-alert__text usa-error--alert">
-				<a href="#label_email"><span>Fill out the email field</span></a>
+				<a href="#email"><span>Fill out the email field</span></a>
 			</li>
 			<li id="alert_error_description" class="usa-alert__text usa-error--alert">
-				<a href="#label_description"><span>Fill out the description field</span></a>
+				<a href="#description"><span>Fill out the description field</span></a>
 			</li>
-			<li id="alert_error_recaptcha_large" class="usa-alert__text usa-error--alert">
+			{# <li id="alert_error_recaptcha_large" class="usa-alert__text usa-error--alert">
 				<a href="#recaptcha-large-container"><span>Fill out the reCaptcha</span></a>
 			</li>
 			<li id="alert_error_recaptcha_small" class="usa-alert__text usa-error--alert">
-				<a href="#recaptcha-small-container"><span>Fill out the reCaptcha</span></a>
+				<a href="#recaptcha-small-container"><span>Fill out the reCaptcha</span></a> #}
 			</li>
 			</ul>
 		</div>
@@ -58,7 +58,7 @@
 								maxlength="255"
 								size="40"
 								required
-								data-error="Fill out the name field"
+								data-error="Error: Fill out the name field"
 								data-name="First Name"
 							/>
 						</p>
@@ -75,7 +75,7 @@
 								maxlength="80"
 								size="40"
 								required
-								data-error="Fill out the email field"
+								data-error="Error: Fill out the email field"
 								data-name="Email Address"
 							/>
 						</p>
@@ -94,7 +94,7 @@
 								rows="10"
 								maxlength="1000"
 								required
-								data-error="Fill out the description field"
+								data-error="Error: Fill out the description field"
 								data-name="Description"
 							></textarea>
 							<text class="usa-description" id="report-issue-box">Maximum length is 1000 characters.</text>
