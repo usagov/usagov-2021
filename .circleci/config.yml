@@ -759,6 +759,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2038-tome-cache-page
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -769,6 +770,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2038-tome-cache-page
       - approve-dev-deployment:
           type: approval
           requires:
@@ -777,6 +779,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2038-tome-cache-page
       - approve-dr-deployment:
           type: approval
           requires:
@@ -792,6 +795,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2038-tome-cache-page
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
