@@ -939,17 +939,7 @@ if (!empty($cf_application_data['space_name']) &&
   }
 }
 
-// Add cache.backend.null:
-$settings['container_yamls'][] = DRUPAL_ROOT . '/sites/nonlocal.services.yml';
-
-if (PHP_SAPI === 'cli' && str_starts_with($_SERVER["argv"][1], 'tome:static')) {
-  // Disable the page and menu cache on tome runs
-  $settings['cache']['bins']['page'] = 'cache.backend.null';
-  $settings['cache']['bins']['menu'] = 'cache.backend.null';
-  $settings['cache']['bins']['data'] = 'cache.backend.null';
-}
-
-// Override anything special for local development
+// Overide anything special for local developement
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';
 }
