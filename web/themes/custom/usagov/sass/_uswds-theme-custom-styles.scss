@@ -919,11 +919,15 @@ input::-webkit-textfield-decoration-container {
 // reduces space below the breadcrumb on benefits pages
 #block-usagov-breadcrumbs {
   min-height: 4rem;
+
+  @include at-media("mobile-lg") {
+    min-height: 4rem;
+  }
 }
 
 #block-usagov-breadcrumbs {
   @media screen and (max-width: 30em) {
-    height: 5rem;
+    min-height: 5rem;
   }
 }
 
