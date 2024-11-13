@@ -7,7 +7,8 @@
     'official_site_3': ' (GSA, sigla en inglés)',
     'accessibility_support': 'Política de accesibilidad de\n GSA (en inglés)',
     'privacy_policy': 'Política de privacidad de\n GSA (en inglés)',
-    'foia_requests': 'Solicitud a través de\n FOIA (en inglés)'
+    'foia_requests': 'Solicitud a través de\n FOIA (en inglés)',
+    'important_links': 'Enlaces importantes'
   } %}
 {% else %}
   {% set translations = {
@@ -17,7 +18,8 @@
     'official_site_3': '',
     'accessibility_support': 'GSA accessibility support',
     'privacy_policy': 'GSA privacy policy',
-    'foia_requests': 'FOIA requests'
+    'foia_requests': 'FOIA requests',
+    'important_links': 'Important links'
   } %}
 {% endif %}
 
@@ -31,7 +33,7 @@
 		</section>
     </div>
   </section>
-  <nav class="usa-identifier__section usa-identifier__section--required-links" aria-label="Important links">
+  <nav class="usa-identifier__section usa-identifier__section--required-links" aria-label="{{ translations.important_links }}">
     <div class="usa-identifier__container">
       <ul class="usa-identifier__required-links-list">
         <li class="usa-identifier__required-links-item">
