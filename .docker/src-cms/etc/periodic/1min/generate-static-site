@@ -9,6 +9,8 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
   # Use unique uri per environment - default to prod
   if [ "${APP_SPACE}" = "dev" ]; then
     URI="https://beta-dev.usa.gov"
+  elif [ "${APP_SPACE}" = "dr" ]; then
+    URI="https://beta-dr.usa.gov"
   elif [ "${APP_SPACE}" = "stage" ]; then
     URI="https://beta-stage.usa.gov"
   elif [ "${APP_SPACE}" = "local" ]; then
