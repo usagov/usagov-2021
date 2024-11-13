@@ -74,6 +74,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
 
           // Data to be sent to GTM.
           $datalayer = new TaxonomyDatalayerBuilder(
+            routeMatch: \Drupal::routeMatch(),
             breadcrumbManager: \Drupal::service('breadcrumb'),
             node: $node,
             isFront: $isFront,
