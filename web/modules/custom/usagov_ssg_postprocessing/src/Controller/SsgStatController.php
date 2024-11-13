@@ -18,10 +18,19 @@ class SsgStatController extends ControllerBase {
 
   public function content() {
 
+    $tome_run_disabled = \Drupal::state()->get('usagov.tome_run_disabled');
     $date = \Drupal::state()->get('ssg_stat_date');
     $msg = \Drupal::state()->get('ssg_stat_msg');
 
-    if (empty($msg)) {
+    if (!empty($tome_run_disabled)) {
+      $markup = "Tome is disabled on this environment.";
+      // USAGOV-1533: If Tome is disabled, and it appears Tome is running, then reset the status.
+      if (!empty($msg) && stripos($msg, 'Started') !== false) {
+        \Drupal::state()->set('ssg_stat_msg', '');
+        $markup .= "<br/>\nAdditionally the ssg_stat_msg state has been reset.";
+      }
+    }
+    elseif (empty($msg)) {
       $markup = "Static Site Generator has not been run on this environment yet.";
     }
     else {
