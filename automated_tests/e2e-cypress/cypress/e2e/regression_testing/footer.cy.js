@@ -15,7 +15,7 @@ paths.forEach((path, idx) => {
     });
 
 
-    it(`BTE/S 12: Footer Links`, () => {
+    it(`BTE/S 12: Footer links appear and work appropriately`, () => {
       cy.get(".usa-footer__nav")
         .find("a")
         .not('[href="/website-analytics/"]')
@@ -29,7 +29,7 @@ paths.forEach((path, idx) => {
     });
 
 
-    it("BTE/S 13: Email Form", () => {
+    it("BTE/S 13: Footer: Email subscription form appears in footer and works appropriately", () => {
       const validEmail = "test@usa.gov";
       const invalidEmails = ["test@#$1123", "test2@", "@test3.com"];
       const emails = [
@@ -69,7 +69,7 @@ paths.forEach((path, idx) => {
     });
 
 
-    it("BTE/S 14: Social Media Section", () => {
+    it("BTE/S 14: Footer: Social media icons appear in footer and link to correct places", () => {
       cy.get(".usa-footer__contact-links")
       .within(() => {
         // Verify correct text in social media heading
@@ -102,7 +102,7 @@ paths.forEach((path, idx) => {
     });
 
 
-    it("BTE/S 15: Contact Center Section", () => {
+    it("BTE/S 15: Footer: Contact Center information appears in footer and phone number links are correct", () => {
       cy.get("#footer-phone").within(() => {
         cy.get("h4")
           .should("have.text", fixtures.contact_heading[idx])
@@ -118,7 +118,7 @@ paths.forEach((path, idx) => {
     });
 
 
-    it("BTE/S 16: Identifier Section", () => {
+    it("BTE/S 16: Footer: Subfooter indicating USAGov is official site appears at very bottom", () => {
       cy.get(".usa-identifier__section--usagov")
         .should("have.attr", "aria-label", fixtures.official_guide[idx])
         .find(".usa-identifier__identity")
