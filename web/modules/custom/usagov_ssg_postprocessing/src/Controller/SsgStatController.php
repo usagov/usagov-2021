@@ -25,7 +25,7 @@ class SsgStatController extends ControllerBase {
     if (!empty($tome_run_disabled)) {
       $markup = "Tome is disabled on this environment.";
       // USAGOV-1533: If Tome is disabled, and it appears Tome is running, then reset the status.
-      if (!empty($msg) && stripos($msg, 'Started') !== false) {
+      if (!empty($msg) && stripos($msg, 'Started') !== FALSE) {
         \Drupal::state()->set('ssg_stat_msg', '');
         $markup .= "<br/>\nAdditionally the ssg_stat_msg state has been reset.";
       }
