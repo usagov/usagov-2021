@@ -133,19 +133,62 @@ function usagov_benefit_finder_content_node_bears_benefit_edit_form_validate(arr
 /**
  * Implements hook_form_FORM_ID_alter().
  */
+function usagov_benefit_finder_content_form_node_bears_agency_edit_form_alter(array &$form, FormStateInterface $form_state) {
+  $form['#validate'][] = '_usagov_benefit_finder_content_agency_archived';
+}
+
+/**
+ * It checks agency usage in benefits when an agency to be archived.
+ * If still used, it lists the benefits and prevents the agency to be archived.
+ *
+ * @param array $form
+ *   Form array.
+ * @param FormStateInterface $form_state
+ *   Form state object.
+ */
+function _usagov_benefit_finder_content_agency_archived(array &$form, FormStateInterface $form_state) {
+  $line = 0;
+  $moderation_state = $form_state->getValue('moderation_state');
+  $state_value = $moderation_state[0]['value'];
+  if ($state_value == 'archived') {
+    $result = _usagov_benefit_finder_content_check_agency_usage();
+    if (!empty($result)) {
+      $form_state->setErrorByName(++$line, t("This agency cannot be archived as it is still used in following benefits:"));
+      foreach ($result as $row) {
+        $form_state->setErrorByName(++$line, "$row[title] ($row[nid])");
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
 function usagov_benefit_finder_content_form_node_bears_agency_delete_form_alter(array &$form, FormStateInterface $form_state) {
-  _usagov_benefit_finder_content_check_agency_usage($form);
+  $return = _usagov_benefit_finder_content_check_agency_usage();
+  if (!empty($return)) {
+    $description = '';
+    foreach ($return as $row) {
+      $description .= "<li>$row[title] ($row[nid])</li>";
+    }
+    $description = '<div class="entity-skip">'
+      . '<span>This agency cannot be deleted as it is still used in following benefits:</span>'
+      . "<ul>$description</ul>"
+      . '</div>';
+    $form['description']['#markup'] = $description;
+    $form['actions']['submit']['#access'] = FALSE;
+  }
 }
 
 /**
  * It checks agency usage in benefits.
- * If still used, it lists the benefits and disables the agency delete button.
+ * If still used, it returns array of node ID and title of these benefits.
  *
- * @param array $form
- *   Form array.
+ * @return array
+ *   An array containing node ID and title.
  */
-function _usagov_benefit_finder_content_check_agency_usage(array &$form) {
-  $description = '';
+function _usagov_benefit_finder_content_check_agency_usage() {
+  $return = [];
 
   $node = \Drupal::routeMatch()->getParameter('node');
   $nid = $node->id();
@@ -159,12 +202,59 @@ function _usagov_benefit_finder_content_check_agency_usage(array &$form) {
   $result = $query->execute();
 
   foreach ($result as $row) {
-    $description .= "<li>$row->title ($row->nid)</li>";
+    $return[] = [
+      'nid' => $row->nid,
+      'title' => $row->title,
+    ];
   }
 
-  if (!empty($description)) {
+  return $return;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function usagov_benefit_finder_content_form_node_bears_criteria_edit_form_alter(array &$form, FormStateInterface $form_state) {
+  $form['#validate'][] = '_usagov_benefit_finder_content_node_bears_criteria_edit_form_validate';
+  $form['#validate'][] = '_usagov_benefit_finder_content_criteria_archived';
+}
+
+/**
+ * It checks criteria usage in benefits and life event forms when a criteria to be archived.
+ * If still used, it lists the benefits and life event forms and prevents the criteria to be archived.
+ *
+ * @param array $form
+ *   Form array.
+ * @param FormStateInterface $form_state
+ *   Form state object.
+ */
+function _usagov_benefit_finder_content_criteria_archived(array &$form, FormStateInterface $form_state) {
+  $line = 0;
+  $moderation_state = $form_state->getValue('moderation_state');
+  $state_value = $moderation_state[0]['value'];
+  if ($state_value == 'archived') {
+    $result = _usagov_benefit_finder_content_check_criteria_usage();
+    if (!empty($result)) {
+      $form_state->setErrorByName(++$line, t("This criteria cannot be archived as it is still used in following contents:"));
+      foreach ($result as $row) {
+        $form_state->setErrorByName(++$line, "$row[type]: $row[title] ($row[nid])");
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function usagov_benefit_finder_content_form_node_bears_criteria_delete_form_alter(array &$form, FormStateInterface $form_state) {
+  $return = _usagov_benefit_finder_content_check_criteria_usage();
+  if (!empty($return)) {
+    $description = '';
+    foreach ($return as $row) {
+      $description .= "<li>$row[type]: $row[title] ($row[nid])</li>";
+    }
     $description = '<div class="entity-skip">'
-      . '<span>This agency cannot be deleted as it is still used in following benefits:</span>'
+      . '<span>This criteria cannot be deleted as it is still used in following contents:</span>'
       . "<ul>$description</ul>"
       . '</div>';
     $form['description']['#markup'] = $description;
@@ -173,43 +263,37 @@ function _usagov_benefit_finder_content_check_agency_usage(array &$form) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- */
-function usagov_benefit_finder_content_form_node_bears_criteria_delete_form_alter(array &$form, FormStateInterface $form_state) {
-  _usagov_benefit_finder_content_check_criteria_usage($form);
-}
-
-/**
  * It checks criteria usage in benefits and life event forms.
- * If still used, it lists the benefits and life event forms and disables the criteria delete confirmation button.
+ * If still used, it returns array of node ID and title of these benefits and life event forms.
  *
- * @param array $form
- *   Form array.
+ * @return array
+ *   An array containing node ID and title.
  */
-function _usagov_benefit_finder_content_check_criteria_usage(array &$form) {
-  $description = '';
+function _usagov_benefit_finder_content_check_criteria_usage() {
+  $return = [];
 
   $node = \Drupal::routeMatch()->getParameter('node');
   $nid = $node->id();
 
   $result = _usagov_benefit_finder_content_check_criteria_usage_in_life_event_form($nid);
   foreach ($result as $row) {
-    $description .= "<li>Life event form: $row[title] ($row[nid])</li>";
+    $return[] = [
+      'type' => 'Life event form',
+      'nid' => $row['nid'],
+      'title' => $row['title'],
+    ];
   }
 
   $result = _usagov_benefit_finder_content_check_criteria_usage_in_benefit($nid);
   foreach ($result as $row) {
-    $description .= "<li>Benefit: $row[title] ($row[nid])</li>";
+    $return[] = [
+      'type' => 'Benefit',
+      'nid' => $row['nid'],
+      'title' => $row['title'],
+    ];
   }
 
-  if (!empty($description)) {
-    $description = '<div class="entity-skip">'
-      . '<span>This criteria cannot be deleted as it is still used in following content:</span>'
-      . "<ul>$description</ul>"
-      . '</div>';
-    $form['description']['#markup'] = t($description);
-    $form['actions']['submit']['#access'] = FALSE;
-  }
+  return $return;
 }
 
 /**
@@ -302,18 +386,6 @@ function _usagov_benefit_finder_content_check_criteria_usage_in_benefit(int $nid
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- *
- * @param array $form
- *   Form array.
- * @param FormStateInterface $form_state
- *   Form state object.
- */
-function usagov_benefit_finder_content_form_node_bears_criteria_edit_form_alter(array &$form, FormStateInterface $form_state) {
-  $form['#validate'][] = '_usagov_benefit_finder_content_node_bears_criteria_edit_form_validate';
-}
-
-/**
  * Validates criteria edit form hasChild field.
  *
  * @param array $form
@@ -393,29 +465,44 @@ function _usagov_benefit_finder_content_check_criteria_has_child(int $nid) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function usagov_benefit_finder_content_form_node_bears_life_event_form_delete_form_alter(array &$form, FormStateInterface $form_state) {
-  _usagov_benefit_finder_content_check_life_event_form_usage($form);
+function usagov_benefit_finder_content_form_node_bears_life_event_form_edit_form_alter(array &$form, FormStateInterface $form_state) {
+  $form['#validate'][] = '_usagov_benefit_finder_content_life_event_form_archived';
 }
 
 /**
  * It checks life event form usage in relevant benefit of life event forms.
- * If still used, it lists the life event forms and disables the delete confirmation button.
+ * If still used, it returns array of node ID and title of these life event forms.
  *
  * @param array $form
  *   Form array.
+ * @param FormStateInterface $form_state
+ *   Form state object.
  */
-function _usagov_benefit_finder_content_check_life_event_form_usage(array &$form) {
-  $description = '';
-
-  $node = \Drupal::routeMatch()->getParameter('node');
-  $nid = $node->id();
-
-  $result = _usagov_benefit_finder_content_check_life_event_form_usage_in_life_event_form($nid);
-  foreach ($result as $row) {
-    $description .= "<li>Life event form: $row[title] ($row[nid])</li>";
+function _usagov_benefit_finder_content_life_event_form_archived(array &$form, FormStateInterface $form_state) {
+  $line = 0;
+  $moderation_state = $form_state->getValue('moderation_state');
+  $state_value = $moderation_state[0]['value'];
+  if ($state_value == 'archived') {
+    $result = _usagov_benefit_finder_content_check_life_event_form_usage();
+    if (!empty($result)) {
+      $form_state->setErrorByName(++$line, t("This life event form cannot be archived as it is still used in following contents:"));
+      foreach ($result as $row) {
+        $form_state->setErrorByName(++$line, "Life event form: $row[title] ($row[nid])");
+      }
+    }
   }
+}
 
-  if (!empty($description)) {
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function usagov_benefit_finder_content_form_node_bears_life_event_form_delete_form_alter(array &$form, FormStateInterface $form_state) {
+  $return = _usagov_benefit_finder_content_check_life_event_form_usage();
+  if (!empty($return)) {
+    $description = '';
+    foreach ($return as $row) {
+      $description .= "<li>Life event form: $row[title] ($row[nid])</li>";
+    }
     $description = '<div class="entity-skip">'
       . '<span>This life event form cannot be deleted as it is still used in following content:</span>'
       . "<ul>$description</ul>"
@@ -423,6 +510,30 @@ function _usagov_benefit_finder_content_check_life_event_form_usage(array &$form
     $form['description']['#markup'] = t($description);
     $form['actions']['submit']['#access'] = FALSE;
   }
+}
+
+/**
+ * It checks life event form usage in relevant benefit of life event forms.
+ * If still used, it returns array of node ID and title of these life event forms.
+ *
+ * @return array
+ *   An array containing node ID and title.
+ */
+function _usagov_benefit_finder_content_check_life_event_form_usage() {
+  $return = [];
+
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $nid = $node->id();
+
+  $result = _usagov_benefit_finder_content_check_life_event_form_usage_in_life_event_form($nid);
+  foreach ($result as $row) {
+    $return[] = [
+      'nid' => $row['nid'],
+      'title' => $row['title'],
+    ];
+  }
+
+  return $return;
 }
 
 /**
