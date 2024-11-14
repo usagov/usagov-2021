@@ -1,4 +1,4 @@
-const socials = require("../../fixtures/socials.json");
+const fixtures = require("../../fixtures/footer.json");
 const paths = ["/", "/es"];
 
 paths.forEach((path, idx) => {
@@ -13,6 +13,8 @@ paths.forEach((path, idx) => {
       // Set base URL
       cy.visit(path);
     });
+
+
     it(`BTE/S 12: Footer links appear and work appropriately`, () => {
       cy.get(".usa-footer__nav")
         .find("a")
@@ -25,7 +27,9 @@ paths.forEach((path, idx) => {
             });
         });
     });
-    it("BTE/S 13: Email subscription form appears in footer and works appropriately", () => {
+
+
+    it("BTE/S 13: Footer: Email subscription form appears in footer and works appropriately", () => {
       const validEmail = "test@usa.gov";
       const invalidEmails = ["test@#$1123", "test2@", "@test3.com"];
       const emails = [
@@ -63,46 +67,83 @@ paths.forEach((path, idx) => {
         cy.get("input").filter('[name="email"]').should("have.value", email);
       });
     });
-    it("BTE/S 14: Social media icons appear in footer and link to correct places", () => {
-      for (const social of socials) {
-        //if spanish check that there are links
-        if (path === "/es" && social.linkEs.length <= 0) {
-          continue;
-        } else {
-          cy.get(".usa-footer__contact-links")
-            .find(`[alt="${social.alt_text} USAGov"]`)
-            .should(
-              "have.attr",
-              "src",
-              `/themes/custom/usagov/images/social-media-icons/${social.name}_Icon.svg`,
-            );
 
-          let socialLink;
-          if (path === "/es") {
-            socialLink = social.linkEs;
-          } else {
-            socialLink = social.link;
-          }
-          cy.get(".usa-footer__contact-links")
-            .find(`[alt="${social.alt_text} USAGov"]`)
-            .parent()
+
+    it("BTE/S 14: Footer: Social media icons appear in footer and link to correct places", () => {
+      cy.get(".usa-footer__contact-links")
+      .within(() => {
+        // Verify correct text in social media heading
+        cy.get('h4')
+          .should("have.text", fixtures.socials_heading[idx])
+        // Verify correct number of social media links
+        cy.get('.usa-social-link')
+          .should('have.length', fixtures.num_socials[idx])
+      });
+
+      // Verify correct social media links, images, alt texts, and accessible names
+      for (const social of fixtures.socials) {
+        let socialLink = social.link[idx];
+        let imgSrc = `${fixtures.iconDir}${social.icon}`
+
+        if (socialLink.length > 0) {
+          cy.get(`.usa-footer__social-links`)
+            .find(`[href="${socialLink}"]`)
             .as("link")
-            .should("have.attr", "href", socialLink);
+            .should("have.attr", "href", socialLink)
+            .within(() => {
+              cy.get('img')
+                .should("have.attr", "src", imgSrc)
+                .should("have.attr", "alt", social.alt_text)
+              cy.get('span')
+                .should("have.text", social.name)
+            });
         }
       }
     });
-    it("BTE/S 15: Contact Center information appears in footer and phone number links to /phone", () => {
-      const phones = ["/phone", "/es/llamenos"];
-      cy.get("#footer-phone").find("a").click();
 
-      cy.url().should("include", phones[idx]);
+
+    it("BTE/S 15: Footer: Contact Center information appears in footer and phone number links are correct", () => {
+      cy.get("#footer-phone").within(() => {
+        cy.get("h4")
+          .should("have.text", fixtures.contact_heading[idx])
+        cy.get(".footer-question")
+          .should("have.text", fixtures.ask_a_question[idx])
+        cy.get(".usa-footer__contact-info a")
+          .as("link")
+          .should("have.text", fixtures.phone_number)
+          .should("have.attr", "href", fixtures.phone_path[idx])
+          .click();
+        cy.url().should("include", fixtures.phone_path[idx]);
+      });
     });
-    it("BTE/S 16: Subfooter indicating USAGov is official site appears at very bottom", () => {
-      const identifier = ["official guide", "la guía oficial"];
-      cy.get(".usa-footer")
-        .find(".usa-identifier")
-        .should("contain", "USAGov")
-        .should("contain", identifier[idx]);
+
+
+    it("BTE/S 16: Footer: Subfooter indicating USAGov is official site appears at very bottom", () => {
+      cy.get(".usa-identifier__section--usagov")
+        .should("have.attr", "aria-label", fixtures.official_guide[idx])
+        .find(".usa-identifier__identity")
+        .should("have.attr", "aria-label", fixtures.official_site[idx])
+        .within(() => {
+          cy.get(".usa-identifier__identity-disclaimer:nth-of-type(1)")
+            .should("have.text", fixtures.official_guide[idx])
+          cy.get(".usa-identifier__identity-disclaimer:nth-of-type(2)")
+            .should("have.text", fixtures.official_site[idx])
+            .find("a")
+            .as("link")
+            .should("have.attr", "href", fixtures.gsa_url).click();
+          cy.url().should("include", fixtures.gsa_url);
+          cy.go('back')
+        });
+      cy.get(".usa-identifier__section--required-links")
+        .should("have.attr", "aria-label", fixtures.important_links[idx])
+        .find("a")
+        .each((link) => {
+          cy.wrap(link)
+            .invoke("attr", "href")
+            .then((href) => {
+              cy.request(href).its("status").should("eq", 200);
+            });
+        });
     });
   });
 });
