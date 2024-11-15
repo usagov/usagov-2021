@@ -5,6 +5,7 @@ namespace Drupal\usa_twig_vars;
 use Drupal\Core\Breadcrumb\BreadcrumbManager;
 use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\Core\Routing\CurrentRouteMatch;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\node\Entity\Node;
 
 /**
@@ -48,7 +49,7 @@ class TaxonomyDatalayerBuilder {
   private string $isFront;
 
   public function __construct(
-    private CurrentRouteMatch $routeMatch,
+    private RouteMatchInterface $routeMatch,
     private BreadcrumbManager $breadcrumbManager,
     public Node $node,
     bool $isFront,
