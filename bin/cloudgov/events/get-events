@@ -87,25 +87,30 @@ if [ -z "$LAST_EVENT_TIME" ]; then
 fi
 
 declare -rA AUDIT_TYPES=(
-    ["app"]="audit.app.create,audit.app.start,audit.app.restage,audit.app.stop,audit.app.delete"
+    ["app"]="audit.app.create,audit.app.start,audit.app.restage,audit.app.stop,audit.app.delete-request"
     ["user"]="audit.user.space_developer_add,audit.user.space_developer_remove,audit.user.space_auditor_add,audit.user.space_auditor_remove,audit.user.space_manager_add,audit.user.space_manager_remove"
     ["route"]="audit.route.create,audit.route.delete-request,audit.route.update"
-    ["service"]="audit.service.create,audit.service.delete,audit.service.update,audit.service_binding.create,audit.service_binding.delete,service_instance.bind_route,audit.service_instance.create,audit.service_instance.delete,audit.service_instance.unbind_route,audit.service_instance.update"
+    ["service"]="audit.service.create,audit.service.delete,audit.service.update,audit.service_binding.create,audit.service_binding.delete"
     ["service_instance"]="audit.service_instance.create,audit.service_instance.bind_route,audit.service_instance.update,audit.service_instance.unbind_route,audit.service_instance.delete"
 )
 
 ### These are the same currently, but may change. Therefore I've got them in variables for now
 declare -rA AUDIT_FIELDS=(
-                 ["app"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
-                ["user"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
-               ["route"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
-             ["service"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
-    ["service_instance"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
+                 ["app"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
+                ["user"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
+               ["route"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
+             ["service"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
+    ["service_instance"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
 )
+#                 ["app"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
+#                ["user"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
+#               ["route"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
+#             ["service"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
+#    ["service_instance"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
 
 ### Reformat event outoput into key:value pairs that can be more easily ingested by NewRelic (1)
 match='"\(.*\)","\(.*\)","\(.*\)","\(.*\)","\(.*\)","\(.*\)","\(.*\)"'
-replace='{"cfevent.metadata.guid":"\1","timestamp":"\2","cfevent.entity.type":"\3","cfevent.entity.actee_name":"\4","cfevent.entity.space_name":"\5","cfevent.entity.actor_type":"\6","cfevent.entity.actor_name":"\7","mobomo.logrev.cfevent":"2"}'
+replace='{"cfevent.metadata.guid":"\1","timestamp":"\2","cfevent.entity.type":"\3","cfevent.entity.actee_name":"\4","cfevent.entity.space_name":"\5","cfevent.entity.actor_type":"\6","cfevent.entity.actor_name":"\7","mobomo.logrev.cfevent":"3"}'
 
 # For each category of audit events, perform a (possibly multi-page) query 
 for resource_type in ${!AUDIT_TYPES[@]}; do
@@ -113,12 +118,15 @@ for resource_type in ${!AUDIT_TYPES[@]}; do
     fields=${AUDIT_FIELDS[$resource_type]}
 
     # Manually create the query to fetch the first page of results
-    NEXT="/v2/events?&q=type+IN+${types}&q=organization_guid:${ORG_GUID}&q=space_guid:${SPACE_GUID}&q=timestamp>${LAST_EVENT_TIME}&order-by:timestamp"
-
+    NEXT="/v3/audit_events?types=${types}&organization_guids=${ORG_GUID}&space_guids=${SPACE_GUID}&created_ats[gt]=${LAST_EVENT_TIME}&order_by=created_at"
+    #NEXT="/v3/audit_events?&q=type+IN+${types}&q=organization_guids:${ORG_GUID}&q=space_guids:${SPACE_GUID}&q=created_ats>${LAST_EVENT_TIME}&order-by:created_ats"
+#    echo "NEXT A: $NEXT"
     while [ -n $NEXT -a ! $NEXT == 'null' ]; do
 
         EVENTS=$(cf curl $NEXT)
-
+#        echo "----------------------------------------------------------------------------------------"
+#        echo $EVENTS
+#        echo "----------------------------------------------------------------------------------------"
         ## Reformat event outoput into key:value pairs that can be more easily ingested by NewRelic (2)
         captured_events=$(echo "$EVENTS" | jq -r ".resources[] | [$fields] | @csv" | sed "s/$match/$replace/g")
 
@@ -133,6 +141,7 @@ for resource_type in ${!AUDIT_TYPES[@]}; do
         fi
 
         # Each query provides the URL for the next page of results.  Use it to loop through pages
-        NEXT=$(echo $EVENTS | jq -r '.next_url')
+        NEXT=$(echo $EVENTS | jq -r '.pagination.next.href')
+#        echo "NEXT B: $NEXT"
     done
 done
