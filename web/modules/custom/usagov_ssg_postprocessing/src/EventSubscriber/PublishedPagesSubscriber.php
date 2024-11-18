@@ -202,7 +202,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       if ($decoded['Page ID'] && $hierarchy > 5) {
         $nid = $decoded['Page ID'];
         if (!empty($nid)) {
-          if (substr($nid, 0, 2) !== 't_') {
+          if (substr($nid, 0, 2) === 't_') {
             $tid = intval(substr($nid, 2));
             $termEntity = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
             if (!empty($termEntity)) {
