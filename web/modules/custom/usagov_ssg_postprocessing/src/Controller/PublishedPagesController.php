@@ -66,6 +66,19 @@ class PublishedPagesController extends ControllerBase {
       $node = $this->entityTypeManager()->getStorage('node')->load($nid);
       $row = $this->getNodeRow($node);
       fputcsv($out, $row->toArray());
+
+      $origLanguage = $node->language();
+      if ($languages = $node->getTranslationLanguages()) {
+        foreach ($languages as $lang) {
+          if ($lang->getId() !== $origLanguage->getId()) {
+            // export translated node
+            $trNode = $node->getTranslation($lang->getId());
+            $trRow = $this->getNodeRow($trNode);
+            fputcsv($out, $trRow->toArray());
+          }
+        }
+      }
+
     }
     $content = ob_get_clean();
     fclose($out);
@@ -83,10 +96,10 @@ class PublishedPagesController extends ControllerBase {
 
     $isFront = ($alias === $front_uri);
 
-    $pageType = NULL; // TODO implement
+    $pageType = usa_twig_vars_get_page_type($node);
 
-    // To get the right breadcrumb/active trail for this routeMatch,
-    // the menu_breadcrumb module must be configured to "Derive MenuActiveTrail from RouteMatch"
+    // To get the right breadcrumb/active trail for this routeMatch, the menu_breadcrumb module
+    // must be configured to "Derive MenuActiveTrail from RouteMatch"
     // TODO: could we change that config only on this path??
     $datalayer = new TaxonomyDatalayerBuilder(
       routeMatch: $this->getRouteMatchForNode($node),

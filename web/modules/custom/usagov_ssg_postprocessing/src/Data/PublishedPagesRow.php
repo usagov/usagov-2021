@@ -2,6 +2,7 @@
 
 namespace Drupal\usagov_ssg_postprocessing\Data;
 
+use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
@@ -68,34 +69,50 @@ final class PublishedPagesRow {
     ];
   }
 
-  public static function datalayerForNode(TaxonomyDatalayerBuilder $dl, Node $node, string $base_url): self {
+  public static function datalayerForNode(TaxonomyDatalayerBuilder $dl, Node $node, string $baseURL): self {
     $data = $dl->build();
 
-    $hierarchy = 1;
-
-    $friendlyURL = $node->toUrl()->toString();
-    $fullURL = $base_url . $node->toUrl()->toString();
+    if ($data['homepageTest'] === 'homepage') {
+      $friendlyURL = '/';
+      $fullURL = $baseURL . '/';
+    } else {
+      $friendlyURL = $node->toUrl('canonical',
+        options: ['language' => $node->language()]
+      )->toString();
+      $fullURL = $node->toUrl(
+        options: ['absolute' => TRUE, 'language' => $node->language()]
+      )->toString();
+    }
     $title = $node->getTitle();
 
-    $toggleAlias = NULL;
+    $toggleURL = NULL;
     if ($node->field_language_toggle[0]->target_id) {
+      $toggleNode = \Drupal::entityTypeManager()
+        ->getStorage('node')
+        ->load($node->field_language_toggle[0]->target_id);
+      $url = Url::fromRoute(
+        'entity.node.canonical',
+        ['node' => $toggleNode->id()],
+        ['absolute' => TRUE, 'language' => $toggleNode->language()]
+      );
+      $toggleURL = $url->toString();
 
-      $toggleLang = match($node->language()->getId()) {
-        'en' => 'es',
-        'es' => 'en'
-      };
 
-      $toggleAlias = \Drupal::service('path_alias.manager')
-        ->getAliasByPath('/node/' . $node->field_language_toggle[0]->target_id, $toggleLang);
       if ($data['homepageTest'] === 'homepage') {
         // TODO figure out linking for homepage
       }
     }
-    $toggleURL = $toggleAlias;
 
+    $taxLevel1 = match($node->language()->getId()) {
+      'es' => TaxonomyDatalayerBuilder::HOME_TITLE_ES,
+      'en' => TaxonomyDatalayerBuilder::HOME_URL_EN,
+      default => TaxonomyDatalayerBuilder::HOME_URL_EN,
+    };
 //    $toggle_url = $xpath->query('/html/head/link[contains(@data-type, "altlang")]/@href')->item(0)->nodeValue;
 //    $decoded["Toggle URL"] = ($toggle_url) ? $toggle_url : "None";
 
+    $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_Text_'), ARRAY_FILTER_USE_KEY);
+    $hierarchy = count(array_unique($texts));
 
     return new self(
       hierarchy: $hierarchy,
@@ -106,7 +123,7 @@ final class PublishedPagesRow {
       pageID: $data['nodeID'],
       pageTitle: $title,
       fullURL: $fullURL,
-      TaxonomyText1: $data['Taxonomy_Text_1'],
+      TaxonomyText1: $taxLevel1,
       TaxonomyText2: $data['Taxonomy_Text_2'],
       TaxonomyText3: $data['Taxonomy_Text_3'],
       TaxonomyText4: $data['Taxonomy_Text_4'],
@@ -119,7 +136,7 @@ final class PublishedPagesRow {
       TaxonomyURL5: $data['Taxonomy_URL_5'],
       TaxonomyURL6: $data['Taxonomy_URL_6'],
       isHomePage: $data['homepageTest'],
-      toggleURL: $toggleURL ?? '',
+      toggleURL: $toggleURL ?? 'None',
     );
   }
 }
