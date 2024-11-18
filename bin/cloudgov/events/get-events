@@ -87,11 +87,15 @@ if [ -z "$LAST_EVENT_TIME" ]; then
 fi
 
 declare -rA AUDIT_TYPES=(
-    ["app"]="audit.app.create,audit.app.start,audit.app.restage,audit.app.stop,audit.app.delete-request"
-    ["user"]="audit.user.space_developer_add,audit.user.space_developer_remove,audit.user.space_auditor_add,audit.user.space_auditor_remove,audit.user.space_manager_add,audit.user.space_manager_remove"
+    ["app"]="audit.app.create,audit.app.delete-request,audit.app.restage,audit.app.restart,audit.app.start,audit.app.stop,audit.app.task.cancel,audit.app.task.create"
+    ["user"]="audit.user.organization_manager_add,audit.user.organization_manager_remove,audit.user.space_auditor_add,audit.user.space_auditor_remove,audit.user.space_developer_add,audit.user.space_developer_remove,audit.user.space_manager_add,audit.user.space_manager_remove"
     ["route"]="audit.route.create,audit.route.delete-request,audit.route.update"
-    ["service"]="audit.service.create,audit.service.delete,audit.service.update,audit.service_binding.create,audit.service_binding.delete"
-    ["service_instance"]="audit.service_instance.create,audit.service_instance.bind_route,audit.service_instance.update,audit.service_instance.unbind_route,audit.service_instance.delete"
+    ["service"]="audit.service.create,audit.service.delete"
+    ["service_binding"]="audit.service_binding.create,audit.service_binding.delete,audit.service_binding.update"
+    ["service_instance"]="audit.service_instance.bind_route,audit.service_instance.create,audit.service_instance.delete,audit.service_instance.unbind_route,audit.service_instance.update"
+    ["service_key"]="audit.service_key.create,audit.service_key.delete,audit.service_key.show,audit.service_key.update"
+    ["space"]="audit.space.create,audit.space.delete-request,audit.space.update"
+    ["user_provided_service_instance"]="audit.user_provided_service_instance.create,audit.user_provided_service_instance.delete,audit.user_provided_service_instance.update"
 )
 
 ### These are the same currently, but may change. Therefore I've got them in variables for now
@@ -100,7 +104,11 @@ declare -rA AUDIT_FIELDS=(
                 ["user"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
                ["route"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
              ["service"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
+     ["service_binding"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
     ["service_instance"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
+         ["service_key"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
+               ["space"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
+    ["user_provided_service_instance"]=".guid, .created_at, .type, .target.name, .space.guid, .actor.type, .actor.name"
 )
 #                 ["app"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
 #                ["user"]=".metadata.guid, .entity.timestamp, .entity.type, .entity.actee_name, .entity.space_guid, .entity.actor_type, .entity.actor_name"
