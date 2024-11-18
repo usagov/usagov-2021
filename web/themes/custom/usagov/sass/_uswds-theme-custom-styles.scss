@@ -83,14 +83,6 @@ i.e.
   }
 }
 
-.usa-sidenav__sublist a:not(.usa-button) {
-  padding-left: 2.3rem;
-}
-
-.usa-sidenav__sublist .usa-sidenav__sublist a:not(.usa-button) {
-  padding-left: 3.6rem;
-}
-
 .usa-alert--no-icon .usa-alert__body {
   // This fixes an issue with USWDS where a slim alert with no icon and no status would still get padding to make room for an icon
   padding-left: 1.25rem;
@@ -894,36 +886,34 @@ input::-webkit-textfield-decoration-container {
 // reduces the space under the breadcrumb on the downlevel page with a leftnav to look even
 @media (max-width: 30rem) {
   .breadcrumb-spacing {
-    height: 2.5rem;
+    min-height: 2.5rem;
   }
 }
 
 @media (min-width: 30.0625em) and (max-width: 40em) {
   .breadcrumb-spacing {
-    height: 4rem;
+    min-height: 4rem;
   }
 }
 
 @media (min-width: 40.0625em) and (max-width: 63.93em) {
   .breadcrumb-spacing {
-    height: 1.7rem;
+    min-height: 1.7rem;
   }
 }
 
 @media screen and (min-width: 64em) {
   .breadcrumb-spacing {
-    height: 3.7rem;
+    min-height: 3.7rem;
   }
 }
 
 // reduces space below the breadcrumb on benefits pages
 #block-usagov-breadcrumbs {
-  height: 4rem;
-}
-
-#block-usagov-breadcrumbs {
-  @media screen and (max-width: 30em) {
-    height: 5rem;
+  min-height: 5rem;
+  
+  @include at-media("mobile-lg") {
+    min-height: 4rem;
   }
 }
 

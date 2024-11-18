@@ -21,7 +21,11 @@ http {
 
   client_max_body_size 512m;
 
-  keepalive_timeout 60s;
+  # As per USAGOV-1927 need to make sure the following vlaue is greather than the timeout-value in
+  #     .docker/src-www/etc/nginx/nginx.conf
+  #     and
+  #     .docker/src-cms/etc/nginx/nginx.conf
+  keepalive_timeout 100s;
 
   resolver ${DNS_SERVER} valid=5s ipv6=off;
 

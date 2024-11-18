@@ -4,7 +4,7 @@
     'contact_center': 'Centro de llamadas de USAGov',
     'ask_a_question': 'Haga una pregunta a USAGov en Español al',
     'phone_URL': '/es/llamenos',
-    'find_us': 'Encuéntrenos en las  redes sociales',
+    'find_us': 'Encuéntrenos en las redes sociales',
     'social_media_usernames': ['usagovespanol', 'usagovespanol', 'USAgovespanol']
   } %}
 {% else %}
@@ -21,7 +21,7 @@
 	{
 		'name':'Facebook',
 		'url':'https://www.facebook.com/',
-		'icon':'Instagram_Icon.svg',
+		'icon':'Facebook_Icon.svg',
 		'alt_text':'Facebook USAGov',
 	},
 	{
@@ -51,12 +51,12 @@
 				<div id="footer-phone">
 					<div class="mobile-lg:grid-col-auto">
 						<h4 class="usa-footer__logo-heading">
-							{{ translations.contact_center }}
+							{{- translations.contact_center -}}
 						</h4>
 					</div>
 					<div class="mobile-lg:grid-col-auto">
 						<p class="footer-question">
-							{{ translations.ask_a_question }}
+							{{- translations.ask_a_question -}}
 						</p>
 						<address class="usa-footer__address">
 							<div class="usa-footer__contact-info">
@@ -69,7 +69,7 @@
 			<div class="usa-footer__contact-links mobile-lg:grid-col-6">
 				<div class="footer-social-block">
 					<h4 class="usa-footer__contact-heading">
-						{{ translations.find_us }}
+						{{- translations.find_us -}}
 					</h4>
 					<div class="usa-footer__social-links en-links grid-row grid-gap-1">
 
@@ -77,7 +77,7 @@
 							{% set details = social_media_details[loop.index0] %}
 							<div class="grid-col-auto">
 								<a class="usa-social-link" href="{{ details.url }}{{ username }}">
-									<img class="image-svg-test" src="/themes/custom/usagov/images/social-media-icons/{{ details.icon }}" alt="{{ details.icon }}" loading="lazy"/>
+									<img class="image-svg-test" src="/themes/custom/usagov/images/social-media-icons/{{ details.icon }}" alt="{{ details.alt_text }}" loading="lazy"/>
 									<span>{{ details.name }}</span>
 								</a>
 							</div>
