@@ -132,7 +132,7 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
     EMPTYTOME="Check if Tome is already running ...
               No other Tome is running. Proceeding on our own.
               No change to any node, block, or taxonomy, content in the last 30 minutes: no need for static site build"
-    if grep -q "$EMPTYTOME "$file"; then
+    if grep -q $EMPTYTOME "$file"; then
       echo "File contains the specified content. Removing file: $file" | tee -a $TOMELOG
       rm "$file"
     fi
