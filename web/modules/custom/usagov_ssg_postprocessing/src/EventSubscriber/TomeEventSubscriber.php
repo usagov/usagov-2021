@@ -189,7 +189,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   public function excludeInvalidPaths(PathPlaceholderEvent $event) {
     $path = $event->getPath();
 
-    if (str_ends_with($path, '/')) {
+    if ($path !== '/' && str_ends_with($path, '/')) {
       // Tome should never request the Spanish homepage or any other local path
       // with a trailing-slash. If it does request it, that is because the path
       // was found in the content of a node or term.
