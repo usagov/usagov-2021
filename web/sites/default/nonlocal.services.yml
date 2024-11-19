@@ -1,0 +1,5 @@
+# For non-local environments. We want to be the cache.backend.null there too.
+#
+services:
+  cache.backend.null:
+    class: Drupal\Core\Cache\NullBackendFactory
