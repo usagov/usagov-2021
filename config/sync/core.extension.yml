@@ -79,6 +79,7 @@ module:
   settings_tray: 0
   simple_sitemap: 0
   simplify_menu: 0
+  sortableviews: 0
   system: 0
   taxonomy: 0
   telephone: 0
@@ -99,6 +100,7 @@ module:
   usagov_benefit_finder_api: 0
   usagov_benefit_finder_content: 0
   usagov_benefit_finder_page: 0
+  usagov_ckeditor5_source_editing_fixup: 0
   usagov_directories: 0
   usagov_login: 0
   usagov_menus: 0
