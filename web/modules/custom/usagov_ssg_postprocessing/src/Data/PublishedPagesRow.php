@@ -37,7 +37,7 @@ final class PublishedPagesRow {
     public readonly string $TaxonomyURL4,
     public readonly string $TaxonomyURL5,
     public readonly string $TaxonomyURL6,
-    public readonly bool $isHomePage,
+    public readonly string $isHomePage,
     // language toggle
     public readonly string $toggleURL,
   ) {}
@@ -64,7 +64,7 @@ final class PublishedPagesRow {
       $this->TaxonomyURL4,
       $this->TaxonomyURL5,
       $this->TaxonomyURL6,
-      $this->isHomePage ? 'homepage' : 'not_homepage',
+      $this->isHomePage,
       $this->toggleURL,
     ];
   }
@@ -72,10 +72,19 @@ final class PublishedPagesRow {
   public static function datalayerForNode(TaxonomyDatalayerBuilder $dl, Node $node, string $baseURL): self {
     $data = $dl->build();
 
-    if ($data['homepageTest'] === 'homepage') {
-      $friendlyURL = '/';
-      $fullURL = $baseURL . '/';
-    } else {
+    $title = $node->getTitle();
+    $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_Text_'), ARRAY_FILTER_USE_KEY);
+    $hierarchy = count(array_unique($texts));
+
+    if ($data['homepageTest'] === 'homepage' && $data['language'] === 'en') {
+      $friendlyURL = TaxonomyDatalayerBuilder::HOME_URL_EN;
+      $fullURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_EN;
+    }
+    else if ($data['homepageTest'] === 'homepage' && $data['language'] === 'es') {
+      $friendlyURL = TaxonomyDatalayerBuilder::HOME_URL_ES;
+      $fullURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_ES;
+    }
+    else {
       $friendlyURL = $node->toUrl('canonical',
         options: ['language' => $node->language()]
       )->toString();
@@ -83,23 +92,26 @@ final class PublishedPagesRow {
         options: ['absolute' => TRUE, 'language' => $node->language()]
       )->toString();
     }
-    $title = $node->getTitle();
+
 
     $toggleURL = NULL;
     if ($node->field_language_toggle[0]->target_id) {
-      $toggleNode = \Drupal::entityTypeManager()
-        ->getStorage('node')
-        ->load($node->field_language_toggle[0]->target_id);
-      $url = Url::fromRoute(
-        'entity.node.canonical',
-        ['node' => $toggleNode->id()],
-        ['absolute' => TRUE, 'language' => $toggleNode->language()]
-      );
-      $toggleURL = $url->toString();
-
-
-      if ($data['homepageTest'] === 'homepage') {
-        // TODO figure out linking for homepage
+      if ($data['homepageTest'] === 'homepage' && $data['language'] === 'en') {
+        $toggleURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_ES;
+      }
+      else if ($data['homepageTest'] === 'homepage' && $data['language'] === 'es') {
+        $toggleURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_EN;
+      }
+      else {
+        $toggleNode = \Drupal::entityTypeManager()
+          ->getStorage('node')
+          ->load($node->field_language_toggle[0]->target_id);
+        $url = Url::fromRoute(
+          'entity.node.canonical',
+          ['node' => $toggleNode->id()],
+          ['absolute' => TRUE, 'language' => $toggleNode->language()]
+        );
+        $toggleURL = $url->toString();
       }
     }
 
@@ -108,11 +120,6 @@ final class PublishedPagesRow {
       'en' => TaxonomyDatalayerBuilder::HOME_URL_EN,
       default => TaxonomyDatalayerBuilder::HOME_URL_EN,
     };
-//    $toggle_url = $xpath->query('/html/head/link[contains(@data-type, "altlang")]/@href')->item(0)->nodeValue;
-//    $decoded["Toggle URL"] = ($toggle_url) ? $toggle_url : "None";
-
-    $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_Text_'), ARRAY_FILTER_USE_KEY);
-    $hierarchy = count(array_unique($texts));
 
     return new self(
       hierarchy: $hierarchy,
