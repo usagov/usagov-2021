@@ -3,10 +3,13 @@ const paths = ["/", "/es"];
 
 paths.forEach((path, idx) => {
   let lang;
+  let testName;
   if (path === "/") {
     lang = "English";
+    testName = "BTE";
   } else {
     lang = "Español";
+    testName = "BTS";
   }
   describe(`${lang} Footer`, () => {
     beforeEach(() => {
@@ -15,7 +18,7 @@ paths.forEach((path, idx) => {
     });
 
 
-    it(`BTE/S 12: Footer links appear and work appropriately`, () => {
+    it(`${testName} 12: Footer links appear and work appropriately`, () => {
       cy.get(".usa-footer__nav")
         .find("a")
         .not('[href="/website-analytics/"]')
@@ -29,7 +32,7 @@ paths.forEach((path, idx) => {
     });
 
 
-    it("BTE/S 13: Footer: Email subscription form appears in footer and works appropriately", () => {
+    it(`${testName} 13: Footer: Email subscription form appears in footer and works appropriately`, () => {
       const validEmail = "test@usa.gov";
       const invalidEmails = ["test@#$1123", "test2@", "@test3.com"];
       const emails = [
@@ -52,7 +55,7 @@ paths.forEach((path, idx) => {
 
       // Origin URL should now be connect.usa.gov
       const sentArgs = { email: validEmail };
-      cy.origin(emails[idx], { args: sentArgs }, ({ email }) => {
+      cy.visit(emails[idx], { args: sentArgs }, ({ email }) => {
         cy.get("input").filter('[name="email"]').should("have.value", email);
       });
 
@@ -63,13 +66,13 @@ paths.forEach((path, idx) => {
       cy.get(".usa-sign-up").find('button[type="submit"]').click();
 
       // Origin URL should now be connect.usa.gov
-      cy.origin(emails[idx], { args: sentArgs }, ({ email }) => {
+      cy.visit(emails[idx], { args: sentArgs }, ({ email }) => {
         cy.get("input").filter('[name="email"]').should("have.value", email);
       });
     });
 
 
-    it("BTE/S 14: Footer: Social media icons appear in footer and link to correct places", () => {
+    it(`${testName} 14: Footer: Social media icons appear in footer and link to correct places`, () => {
       cy.get(".usa-footer__contact-links")
       .within(() => {
         // Verify correct text in social media heading
@@ -102,7 +105,7 @@ paths.forEach((path, idx) => {
     });
 
 
-    it("BTE/S 15: Footer: Contact Center information appears in footer and phone number links are correct", () => {
+    it(`${testName} 15: Footer: Contact Center information appears in footer and phone number links are correct`, () => {
       cy.get("#footer-phone").within(() => {
         cy.get("h4")
           .should("have.text", fixtures.contact_heading[idx])
@@ -118,7 +121,7 @@ paths.forEach((path, idx) => {
     });
 
 
-    it("BTE/S 16: Footer: Subfooter indicating USAGov is official site appears at very bottom", () => {
+    it(`${testName} 16: Footer: Subfooter indicating USAGov is official site appears at very bottom`, () => {
       cy.get(".usa-identifier__section--usagov")
         .should("have.attr", "aria-label", fixtures.official_guide[idx])
         .find(".usa-identifier__identity")
