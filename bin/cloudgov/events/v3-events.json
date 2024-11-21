@@ -1,0 +1,441 @@
+{
+  "event_category": [
+    {
+      "title": "App lifecycle",
+      "events": [
+        {
+          "name": "audit.app.apply_manifest"
+        },
+        {
+          "name": "audit.app.build.create"
+        },
+        {
+          "name": "audit.app.copy-bits"
+        },
+        {
+          "name": "audit.app.create"
+        },
+        {
+          "name": "audit.app.delete-request"
+        },
+        {
+          "name": "audit.app.deployment.cancel"
+        },
+        {
+          "name": "audit.app.deployment.create"
+        },
+        {
+          "name": "audit.app.deployment.continue"
+        },
+        {
+          "name": "audit.app.droplet.create"
+        },
+        {
+          "name": "audit.app.droplet.delete"
+        },
+        {
+          "name": "audit.app.droplet.download"
+        },
+        {
+          "name": "audit.app.droplet.mapped"
+        },
+        {
+          "name": "audit.app.droplet.upload"
+        },
+        {
+          "name": "audit.app.environment.show"
+        },
+        {
+          "name": "audit.app.environment_variables.show"
+        },
+        {
+          "name": "audit.app.map-route"
+        },
+        {
+          "name": "audit.app.package.create"
+        },
+        {
+          "name": "audit.app.package.delete"
+        },
+        {
+          "name": "audit.app.package.download"
+        },
+        {
+          "name": "audit.app.package.upload"
+        },
+        {
+          "name": "audit.app.process.crash"
+        },
+        {
+          "name": "audit.app.process.create"
+        },
+        {
+          "name": "audit.app.process.delete"
+        },
+        {
+          "name": "audit.app.process.ready"
+        },
+        {
+          "name": "audit.app.process.not-ready"
+        },
+        {
+          "name": "audit.app.process.rescheduling"
+        },
+        {
+          "name": "audit.app.process.scale"
+        },
+        {
+          "name": "audit.app.process.terminate_instance"
+        },
+        {
+          "name": "audit.app.process.update"
+        },
+        {
+          "name": "audit.app.restage"
+        },
+        {
+          "name": "audit.app.restart"
+        },
+        {
+          "name": "audit.app.revision.create"
+        },
+        {
+          "name": "audit.app.revision.environment_variables.show"
+        },
+        {
+          "name": "audit.app.ssh-authorized"
+        },
+        {
+          "name": "audit.app.ssh-unauthorized"
+        },
+        {
+          "name": "audit.app.start"
+        },
+        {
+          "name": "audit.app.stop"
+        },
+        {
+          "name": "audit.app.task.cancel"
+        },
+        {
+          "name": "audit.app.task.create"
+        },
+        {
+          "name": "audit.app.unmap-route"
+        },
+        {
+          "name": "audit.app.update"
+        },
+        {
+          "name": "audit.app.upload-bits"
+        }
+      ]
+    },
+    {
+      "title": "Organization lifecycle",
+      "events": [
+        {
+          "name": "audit.organization.create"
+        },
+        {
+          "name": "audit.organization.delete-request"
+        },
+        {
+          "name": "audit.organization.update"
+        }
+      ]
+    },
+    {
+      "title": "Route lifecycle",
+      "events": [
+        {
+          "name": "audit.route.create"
+        },
+        {
+          "name": "audit.route.delete-request"
+        },
+        {
+          "name": "audit.route.share"
+        },
+        {
+          "name": "audit.route.transfer-owner"
+        },
+        {
+          "name": "audit.route.unshare"
+        },
+        {
+          "name": "audit.route.update"
+        }
+      ]
+    },
+    {
+      "title": "Service lifecycle",
+      "events": [
+        {
+          "name": "audit.service.create"
+        },
+        {
+          "name": "audit.service.delete"
+        },
+        {
+          "nasme": "audit.service.update"
+        }
+      ]
+    },
+    {
+      "title": "Service_binding lifecycle",
+      "events": [
+        {
+          "name": "audit.service_binding.create"
+        },
+        {
+          "name": "audit.service_binding.delete"
+        },
+        {
+          "name": "audit.service_binding.show"
+        },
+        {
+          "name": "audit.service_binding.start_create"
+        },
+        {
+          "name": "audit.service_binding.start_delete"
+        },
+        {
+          "name": "audit.service_binding.update"
+        }
+      ]
+    },
+    {
+      "title": "Service_broker lifecycle",
+      "events": [
+        {
+          "name": "audit.service_broker.create"
+        },
+        {
+          "name": "audit.service_broker.delete"
+        },
+        {
+          "name": "audit.service_broker.update"
+        }
+      ]
+    },
+    {
+      "title": "Service_dashboard_client lifecycle",
+      "events": [
+        {
+          "name": "audit.service_dashboard_client.create"
+        },
+        {
+          "name": "audit.service_dashboard_client.delete"
+        }
+      ]
+    },
+    {
+      "title": "Service_instance lifecycle",
+      "events": [
+        {
+          "name": "audit.service_instance.bind_route"
+        },
+        {
+          "name": "audit.service_instance.create"
+        },
+        {
+          "name": "audit.service_instance.delete"
+        },
+        {
+          "name": "audit.service_instance.purge"
+        },
+        {
+          "name": "audit.service_instance.share"
+        },
+        {
+          "name": "audit.service_instance.show"
+        },
+        {
+          "name": "audit.service_instance.start_create"
+        },
+        {
+          "name": "audit.service_instance.start_delete"
+        },
+        {
+          "name": "audit.service_instance.start_update"
+        },
+        {
+          "name": "audit.service_instance.unbind_route"
+        },
+        {
+          "name": "audit.service_instance.unshare"
+        },
+        {
+          "name": "audit.service_instance.update"
+        }
+      ]
+    },
+    {
+      "title": "Service_key lifecycle",
+      "events": [
+        {
+          "name": "audit.service_key.create"
+        },
+        {
+          "name": "audit.service_key.delete"
+        },
+        {
+          "name": "audit.service_key.show"
+        },
+        {
+          "name": "audit.service_key.start_create"
+        },
+        {
+          "name": "audit.service_key.start_delete"
+        },
+        {
+          "name": "audit.service_key.update"
+        }
+      ]
+    },
+    {
+      "title": "Service_plan lifecycle",
+      "events": [
+        {
+          "name": "audit.service_plan.create"
+        },
+        {
+          "name": "audit.service_plan.delete"
+        },
+        {
+          "name": "audit.service_plan.update"
+        }
+      ]
+    },
+    {
+      "title": "Service_plan_visibility lifecycle",
+      "events": [
+        {
+          "name": "audit.service_plan_visibility.create"
+        },
+        {
+          "name": "audit.service_plan_visibility.delete"
+        },
+        {
+          "name": "audit.service_plan_visibility.update"
+        }
+      ]
+    },
+    {
+      "title": "Service_route_binding lifecycle",
+      "events": [
+        {
+          "name": "audit.service_route_binding.create"
+        },
+        {
+          "name": "audit.service_route_binding.delete"
+        },
+        {
+          "name": "audit.service_route_binding.start_create"
+        },
+        {
+          "name": "audit.service_route_binding.start_delete"
+        },
+        {
+          "name": "audit.service_route_binding.update"
+        }
+      ]
+    },
+    {
+      "title": "Space lifecycle",
+      "events": [
+        {
+          "name": "audit.space.create"
+        },
+        {
+          "name": "audit.space.delete-request"
+        },
+        {
+          "name": "audit.space.update"
+        }
+      ]
+    },
+    {
+      "title": "User lifecycle",
+      "events": [
+        {
+          "name": "audit.user.organization_auditor_add"
+        },
+        {
+          "name": "audit.user.organization_auditor_remove"
+        },
+        {
+          "name": "audit.user.organization_billing_manager_add"
+        },
+        {
+          "name": "audit.user.organization_billing_manager_remove"
+        },
+        {
+          "name": "audit.user.organization_manager_add"
+        },
+        {
+          "name": "audit.user.organization_manager_remove"
+        },
+        {
+          "name": "audit.user.organization_user_add"
+        },
+        {
+          "name": "audit.user.organization_user_remove"
+        },
+        {
+          "name": "audit.user.space_auditor_add"
+        },
+        {
+          "name": "audit.user.space_auditor_remove"
+        },
+        {
+          "name": "audit.user.space_developer_add"
+        },
+        {
+          "name": "audit.user.space_developer_remove"
+        },
+        {
+          "name": "audit.user.space_manager_add"
+        },
+        {
+          "name": "audit.user.space_manager_remove"
+        },
+        {
+          "name": "audit.user.space_supporter_add"
+        },
+        {
+          "name": "audit.user.space_supporter_remove"
+        }
+      ]
+    },
+    {
+      "title": "User_provided_service_instance lifecycle",
+      "events": [
+        {
+          "name": "audit.user_provided_service_instance.create"
+        },
+        {
+          "name": "audit.user_provided_service_instance.delete"
+        },
+        {
+          "name": "audit.user_provided_service_instance.show"
+        },
+        {
+          "name": "audit.user_provided_service_instance.update"
+        }
+      ]
+    },
+    {
+      "title": "Special events",
+      "events": [
+        {
+          "name": "app.crash"
+        },
+        {
+          "name": "blob.remove_orphan"
+        }
+      ]
+    }
+  ]
+}
