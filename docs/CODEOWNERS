@@ -1,0 +1,7 @@
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Benefits-finder tool team 
+web/modules/custom/usagov_benefit_finder geoffrey.queen@gsa.gov yuechen.chi@gsa.gov
+config/sync/*bears*
+config/sync/*benefit_*
+config/sync/*benefits_finder*
