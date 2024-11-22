@@ -152,7 +152,8 @@ class TaxonomyDatalayerBuilder {
         break;
       }
 
-      $url = $crumb->getUrl()->toString() ?: $this->node->toUrl()->toString();
+      $url = $crumb->getUrl()->setOption('language', $this->node->language())->toString()
+        ?: $this->node->toUrl()->setOption('language', $this->node->language())->toString();
 
       if ($url === '/es') {
         $url = self::HOME_URL_ES;

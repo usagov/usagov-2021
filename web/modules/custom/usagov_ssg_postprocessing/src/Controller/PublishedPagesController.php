@@ -90,13 +90,20 @@ class PublishedPagesController extends ControllerBase {
   }
 
   protected function getNodeRow(Node $node): PublishedPagesRow {
-    $config = \Drupal::config('system.site');
-    $front_uri = $config->get('page.front');
+    $front_uri = $this->config('system.site')->get('page.front');
     $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $node->id());
 
     $isFront = ($alias === $front_uri);
 
     $pageType = usa_twig_vars_get_page_type($node);
+
+    // The following is "dragons abound here" but Drupal does not make it possible
+    // to change the language for building breadcrumbs after a request has started.
+    $languageManager = \Drupal::service('language_manager');
+    $negotiatedProp = new \ReflectionProperty(get_class($languageManager), 'negotiatedLanguages');
+    $value = $negotiatedProp->getValue($languageManager);
+    $value['language_content'] = $node->language();
+    $negotiatedProp->setValue($languageManager, $value);
 
     // To get the right breadcrumb/active trail for this routeMatch, the menu_breadcrumb module
     // must be configured to "Derive MenuActiveTrail from RouteMatch"
@@ -123,11 +130,12 @@ class PublishedPagesController extends ControllerBase {
   private function getRouteMatchForNode(Node $node): RouteMatchInterface {
     $router = \Drupal::service('router.no_access_checks');
     $route = $router->match('/node/' . $node->id());
+
     return new RouteMatch(
       route_name: $route['_route'],
       route: $route['_route_object'],
       parameters: ['node' => $node],
-      raw_parameters: ['node' => $node->id()]
+      raw_parameters: ['node' => $node->id(), 'language' => $node->language()->getId()]
     );
 
 
