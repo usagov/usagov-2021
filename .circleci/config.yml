@@ -844,6 +844,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2100-log-call-center-wait-times
 
       - build-and-push-container-cron:
           requires:
@@ -855,6 +856,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2100-log-call-center-wait-times
       - approve-dev-deployment-cron:
           type: approval
           requires:
@@ -863,6 +865,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2100-log-call-center-wait-times
       - approve-dr-deployment-cron:
           type: approval
           requires:
@@ -878,6 +881,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2100-log-call-center-wait-times
       - deploy-to-cloudgov-dr-cron:
           requires:
             - approve-dr-deployment-cron
