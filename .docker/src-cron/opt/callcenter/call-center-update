@@ -9,8 +9,6 @@ fi
 
 source ~/.profile $SPACE callwait &> /dev/null
 
-# source ~/dev/usagov-2021/env.local
-
 waitTimeFile="waittime.json"
 
 # echo "Getting access token."
@@ -19,7 +17,14 @@ tokenResponse=$(
           -H "Content-Type: application/x-www-form-urlencoded" \
           -d "grant_type=client_credentials&client_id=$CALL_CENTER_CLIENT_ID&client_secret=$CALL_CENTER_CLIENT_SECRET"
 )
+
 token=$(echo "$tokenResponse" | jq -r '.access_token')
+if [ $token = "null" ]; then
+  # log the problem and exit
+  echo '{"CallCenterWaitTimes": ' "$tokenResponse" ' "level":"error" }'
+  echo # newline in logs
+  exit 1
+fi
 
 # echo "Getting en wait time."
 enWaitTimeResponse=$(
@@ -33,6 +38,7 @@ enChatWaitTimeResponse=$(
   curl -s -X GET https://api.$CALL_CENTER_ENVIRONMENT/api/v2/routing/queues/$CALL_CENTER_EN_QUEUE_ID/mediatypes/chat/estimatedwaittime \
           -H "Authorization:Bearer $token"
 );
+# echo "$enChatWaitTimeResponse";
 enChatWaitTime=$(echo "$enChatWaitTimeResponse" | jq -r '.results[].estimatedWaitTimeSeconds')
 
 # echo "Getting sp wait time."
@@ -67,11 +73,6 @@ combinedWaitTimes='{
 }'
 
 # echo "Setting wait time file."
-# echo "$combinedWaitTimes" >&2
 echo "$combinedWaitTimes" > $waitTimeFile
-echo '{ "CallCenterWaitTimes": { ' "$combinedWaitTimes" " }" | tr -d '\n'
-echo # for the newline!
-
-# Upload file to S3 bucket
-# echo "uploading waittime.json to S3."
+echo '{ "CallCenterWaitTimes": ' "$combinedWaitTimes" " }" | jq -c
 aws_cp waittime.json s3://$S3_BUCKET/$VERSION/waittime.json
