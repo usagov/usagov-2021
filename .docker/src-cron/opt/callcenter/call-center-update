@@ -9,6 +9,8 @@ fi
 
 source ~/.profile $SPACE callwait &> /dev/null
 
+# source ~/dev/usagov-2021/env.local
+
 waitTimeFile="waittime.json"
 
 # echo "Getting access token."
@@ -67,6 +69,8 @@ combinedWaitTimes='{
 # echo "Setting wait time file."
 # echo "$combinedWaitTimes" >&2
 echo "$combinedWaitTimes" > $waitTimeFile
+echo '"CallCenterWaitTimes": { ' "$combinedWaitTimes" " }" | tr -d '\n'
+echo # for the newline!
 
 # Upload file to S3 bucket
 # echo "uploading waittime.json to S3."
