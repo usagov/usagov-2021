@@ -8,7 +8,6 @@ dependencies:
     - taxonomy.vocabulary.uswds_breakpoints
     - taxonomy.vocabulary.uswds_classes
   module:
-    - action
     - system
     - taxonomy
     - tome_static
@@ -27,7 +26,6 @@ permissions:
   - 'access toolbar'
   - 'access user profiles'
   - 'administer account settings'
-  - 'administer actions'
   - 'administer permissions'
   - 'administer taxonomy'
   - 'administer users'
