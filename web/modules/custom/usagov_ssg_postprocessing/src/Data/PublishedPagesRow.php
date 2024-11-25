@@ -6,7 +6,6 @@ use Drupal\Core\Language\Language;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
-use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
 /**
@@ -56,12 +55,12 @@ final class PublishedPagesRow {
   }
 
   private static function getHierarchy(array $data): int {
-    $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_Text_'), ARRAY_FILTER_USE_KEY);
+    $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_URL_'), ARRAY_FILTER_USE_KEY);
     return count(array_unique($texts));
   }
 
   public function toArray(): array {
-    return [
+    $array = [
       $this->hierarchy,
       $this->pageType,
       $this->pageSubType ?? '',
@@ -85,8 +84,13 @@ final class PublishedPagesRow {
       $this->isHomePage,
       $this->toggleURL,
       $this->hasBenefitCategory,
-      $this->benefitCategories,
     ];
+
+    // Keeps existing behavior of only including these columns if they have something
+    if ($this->hasBenefitCategory !== "") {
+      $array[] = $this->benefitCategories;
+    }
+    return $array;
   }
 
   public static function datalayerForNode(array $data, Node $node, string $baseURL): self {

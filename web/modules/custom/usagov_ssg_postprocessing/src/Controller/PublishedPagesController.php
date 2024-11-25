@@ -48,9 +48,8 @@ class PublishedPagesController extends ControllerBase {
     $out = fopen('php://output', 'w');
     fputcsv($out, $this->CSVHeader);
 
-    //$this->getNodeCSV($out);
+    $this->getNodeCSV($out);
     $this->getWizardsCSV($out);
-
 
     $content = ob_get_clean();
     fclose($out);
@@ -74,7 +73,7 @@ class PublishedPagesController extends ControllerBase {
         'wizard_step'
       ], 'IN')
       ->condition('status', 1) //published
-//      ->condition('nid', 83)
+//      ->condition('nid', 80)
       ->sort('nid', 'ASC')
       ->accessCheck(TRUE)
       ->sort('nid')
@@ -83,8 +82,10 @@ class PublishedPagesController extends ControllerBase {
 
     foreach ($nids as $nid) {
       $node = $this->entityTypeManager()->getStorage('node')->load($nid);
-      $row = $this->getNodeRow($node);
-      fputcsv($out, $row->toArray());
+      $row = $this->getNodeRow($node)->toArray();
+
+      $row = array_map(fn($col) => trim($col), $row);
+      fputcsv($out, $row);
 
       $origLanguage = $node->language();
       if ($languages = $node->getTranslationLanguages()) {
