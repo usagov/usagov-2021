@@ -69,7 +69,7 @@ combinedWaitTimes='{
 # echo "Setting wait time file."
 # echo "$combinedWaitTimes" >&2
 echo "$combinedWaitTimes" > $waitTimeFile
-echo '"CallCenterWaitTimes": { ' "$combinedWaitTimes" " }" | tr -d '\n'
+echo '{ "CallCenterWaitTimes": { ' "$combinedWaitTimes" " }" | tr -d '\n'
 echo # for the newline!
 
 # Upload file to S3 bucket
