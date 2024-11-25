@@ -7,6 +7,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\node\Entity\Node;
+use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_ssg_postprocessing\Data\PublishedPagesRow;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,6 +37,8 @@ class PublishedPagesController extends ControllerBase {
     "Taxonomy URL Level 6",
     "Homepage?",
     "Toggle URL",
+    "Has Benefit Category",
+    "Categories"
   ];
   public function buildCSV() {
 
@@ -50,18 +53,26 @@ class PublishedPagesController extends ControllerBase {
     $nids = $this->entityTypeManager()
       ->getStorage('node')
       ->getQuery()
+      ->condition('type', [
+        'basic_page',
+        'bears_life_event',
+        'directory_record',
+        'federal_directory_index',
+        'state_directory_record',
+        'wizard_step'
+      ], 'IN')
       ->condition('status', 1) //published
-      ->condition('nid', 25)
+//      ->condition('nid', 83)
       ->sort('nid', 'ASC')
       ->accessCheck(TRUE)
       ->sort('nid')
-      ->range(0, 100)
+//      ->range(0, 500)
       ->execute();
 
     ob_start();
     $out = fopen('php://output', 'w');
     fputcsv($out, $this->CSVHeader);
-    // TODO handle translated nodes (homepage in spanish)
+
     foreach ($nids as $nid) {
       $node = $this->entityTypeManager()->getStorage('node')->load($nid);
       $row = $this->getNodeRow($node);
@@ -74,7 +85,8 @@ class PublishedPagesController extends ControllerBase {
             // export translated node
             $trNode = $node->getTranslation($lang->getId());
             $trRow = $this->getNodeRow($trNode);
-            fputcsv($out, $trRow->toArray());
+            $fields = array_map(fn($field) => trim($field), $trRow->toArray());
+            fputcsv($out, $fields);
           }
         }
       }
@@ -116,8 +128,16 @@ class PublishedPagesController extends ControllerBase {
       basicPagesubType: $pageType ?? NULL,
     );
 
+    $data = $datalayer->build();
+
+    // Let other modules add to the datalayer payload.
+    $datalayerEvent = new DatalayerAlterEvent($data);
+    $dispatcher = \Drupal::service('event_dispatcher');
+    $dispatcher->dispatch($datalayerEvent, DatalayerAlterEvent::EVENT_NAME);
+    $data = $datalayerEvent->datalayer;
+
     $baseURL = \Drupal::request()->getSchemeAndHttpHost();
-    return PublishedPagesRow::datalayerForNode($datalayer, $node, $baseURL);
+    return PublishedPagesRow::datalayerForNode($data, $node, $baseURL);
   }
 
   /**
@@ -137,7 +157,5 @@ class PublishedPagesController extends ControllerBase {
       parameters: ['node' => $node],
       raw_parameters: ['node' => $node->id(), 'language' => $node->language()->getId()]
     );
-
-
   }
 }

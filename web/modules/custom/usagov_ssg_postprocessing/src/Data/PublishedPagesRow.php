@@ -4,6 +4,7 @@ namespace Drupal\usagov_ssg_postprocessing\Data;
 
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
+use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
 /**
@@ -40,6 +41,8 @@ final class PublishedPagesRow {
     public readonly string $isHomePage,
     // language toggle
     public readonly string $toggleURL,
+    public readonly string $hasBenefitCategory,
+    public readonly string $benefitCategories,
   ) {}
 
   public function toArray(): array {
@@ -66,12 +69,12 @@ final class PublishedPagesRow {
       $this->TaxonomyURL6,
       $this->isHomePage,
       $this->toggleURL,
+      $this->hasBenefitCategory,
+      $this->benefitCategories,
     ];
   }
 
-  public static function datalayerForNode(TaxonomyDatalayerBuilder $dl, Node $node, string $baseURL): self {
-    $data = $dl->build();
-
+  public static function datalayerForNode(array $data, Node $node, string $baseURL): self {
     $title = $node->getTitle();
     $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_Text_'), ARRAY_FILTER_USE_KEY);
     $hierarchy = count(array_unique($texts));
@@ -116,9 +119,9 @@ final class PublishedPagesRow {
     }
 
     $taxLevel1 = match($node->language()->getId()) {
-      'es' => TaxonomyDatalayerBuilder::HOME_TITLE_ES,
-      'en' => TaxonomyDatalayerBuilder::HOME_URL_EN,
-      default => TaxonomyDatalayerBuilder::HOME_URL_EN,
+      'es' => "USAGov Español",
+      'en' => "USAGov English",
+      default => "USAGov English",
     };
 
     return new self(
@@ -144,6 +147,8 @@ final class PublishedPagesRow {
       TaxonomyURL6: $data['Taxonomy_URL_6'],
       isHomePage: $data['homepageTest'],
       toggleURL: $toggleURL ?? 'None',
+      hasBenefitCategory: $data['hasBenefitCategory'] ? '1' : '',
+      benefitCategories: $data['benefitCategories'] ?: '',
     );
   }
 }

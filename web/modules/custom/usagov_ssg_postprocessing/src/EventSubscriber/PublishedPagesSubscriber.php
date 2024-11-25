@@ -220,8 +220,8 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
-    return $events;
+//    $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
+//    return $events;
   }
 
 }
