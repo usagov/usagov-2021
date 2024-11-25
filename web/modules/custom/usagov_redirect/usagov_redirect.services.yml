@@ -7,3 +7,7 @@ services:
     class: Drupal\usagov_redirect\PathProcessor\UsagovInboundPathProcessor
     tags:
       - { name: path_processor_inbound }
+  usagov_redirect.404_subscriber:
+    class: Drupal\usagov_redirect\EventSubscriber\Custom404Subscriber
+    tags:
+      - { name: event_subscriber }
