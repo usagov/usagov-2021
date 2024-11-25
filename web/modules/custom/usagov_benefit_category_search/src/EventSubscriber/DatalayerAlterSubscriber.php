@@ -26,7 +26,7 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
    */
   public function onDatalayerAlter(DatalayerAlterEvent $event): void {
 
-    if (!is_numeric($event->datalayer['nodeID'])) {
+    if (!isset($event->datalayer['nodeID']) || !is_numeric($event->datalayer['nodeID'])) {
       return;
     }
 

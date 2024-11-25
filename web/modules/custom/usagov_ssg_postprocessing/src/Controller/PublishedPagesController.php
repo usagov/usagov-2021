@@ -7,9 +7,11 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\node\Entity\Node;
+use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_ssg_postprocessing\Data\PublishedPagesRow;
+use Drupal\usagov_wizard\WizardDataLayer;
 use Symfony\Component\HttpFoundation\Response;
 
 class PublishedPagesController extends ControllerBase {
@@ -42,14 +44,24 @@ class PublishedPagesController extends ControllerBase {
   ];
   public function buildCSV() {
 
-    // TODO: HTTP-headers for CSV?
+    ob_start();
+    $out = fopen('php://output', 'w');
+    fputcsv($out, $this->CSVHeader);
 
-    // TODO: Output header row
+    //$this->getNodeCSV($out);
+    $this->getWizardsCSV($out);
 
-    $this->getNodeCSV();
+
+    $content = ob_get_clean();
+    fclose($out);
+
+    $response = new Response();
+    $response->headers->set('Content-Type', 'text/plain');
+    $response->setContent($content);
+    return $response->send();
   }
 
-  protected function getNodeCSV() {
+  protected function getNodeCSV($out): void {
     $nids = $this->entityTypeManager()
       ->getStorage('node')
       ->getQuery()
@@ -69,10 +81,6 @@ class PublishedPagesController extends ControllerBase {
 //      ->range(0, 500)
       ->execute();
 
-    ob_start();
-    $out = fopen('php://output', 'w');
-    fputcsv($out, $this->CSVHeader);
-
     foreach ($nids as $nid) {
       $node = $this->entityTypeManager()->getStorage('node')->load($nid);
       $row = $this->getNodeRow($node);
@@ -90,15 +98,28 @@ class PublishedPagesController extends ControllerBase {
           }
         }
       }
-
     }
-    $content = ob_get_clean();
-    fclose($out);
+  }
 
-    $response = new Response();
-    $response->headers->set('Content-Type', 'text/plain');
-    $response->setContent($content);
-    return $response->send();
+  protected function getWizardsCSV($out): void {
+    $tids = $this->entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->getQuery()
+      ->condition('vid','wizard')
+      ->condition('status', 1) //published
+      //      ->condition('nid', 83)
+      ->sort('tid', 'ASC')
+      ->accessCheck(TRUE)
+      ->sort('tid')
+      //      ->range(0, 500)
+      ->execute();
+
+
+    foreach ($tids as $tid) {
+      $wizard = $this->entityTypeManager()->getStorage('taxonomy_term')->load($tid);
+      $row = $this->getWizardRow($wizard);
+      fputcsv($out, $row->toArray());
+    }
   }
 
   protected function getNodeRow(Node $node): PublishedPagesRow {
@@ -119,7 +140,6 @@ class PublishedPagesController extends ControllerBase {
 
     // To get the right breadcrumb/active trail for this routeMatch, the menu_breadcrumb module
     // must be configured to "Derive MenuActiveTrail from RouteMatch"
-    // TODO: could we change that config only on this path??
     $datalayer = new TaxonomyDatalayerBuilder(
       routeMatch: $this->getRouteMatchForNode($node),
       breadcrumbManager: Drupal::service('breadcrumb'),
@@ -127,14 +147,10 @@ class PublishedPagesController extends ControllerBase {
       isFront: $isFront,
       basicPagesubType: $pageType ?? NULL,
     );
-
     $data = $datalayer->build();
 
-    // Let other modules add to the datalayer payload.
-    $datalayerEvent = new DatalayerAlterEvent($data);
-    $dispatcher = \Drupal::service('event_dispatcher');
-    $dispatcher->dispatch($datalayerEvent, DatalayerAlterEvent::EVENT_NAME);
-    $data = $datalayerEvent->datalayer;
+    $data = $this->alterDatalayer($data);
+
 
     $baseURL = \Drupal::request()->getSchemeAndHttpHost();
     return PublishedPagesRow::datalayerForNode($data, $node, $baseURL);
@@ -144,7 +160,7 @@ class PublishedPagesController extends ControllerBase {
    * Get a valid routeMatch object for a node
    *
    * To get the same datalayer output, we need to set up a routeMatch for each
-   * entity we are exporting that the datalayer module can lookup via the
+   * entity we are exporting that the datalayer module can look up via the
    * breadcrumb manager.
   */
   private function getRouteMatchForNode(Node $node): RouteMatchInterface {
@@ -157,5 +173,33 @@ class PublishedPagesController extends ControllerBase {
       parameters: ['node' => $node],
       raw_parameters: ['node' => $node->id(), 'language' => $node->language()->getId()]
     );
+  }
+
+  private function getRouteMatchForWizard(Term $term): RouteMatchInterface {
+    $router = \Drupal::service('router.no_access_checks');
+    $route = $router->match('/taxonomy/term/' . $term->id());
+
+    return new RouteMatch(
+      route_name: $route['_route'],
+      route: $route['_route_object'],
+      parameters: ['taxonomy_term' => $term],
+      raw_parameters: ['taxonomy_term' => $term->id(), 'language' => $term->language()->getId()]
+    );
+  }
+
+  protected function getWizardRow(Term $wizard): PublishedPagesRow {
+    $builder = new WizardDataLayer($wizard, $this->entityTypeManager);
+    $data = $builder->getData([]);
+
+    $baseURL = \Drupal::request()->getSchemeAndHttpHost();
+    return PublishedPagesRow::datalayerForWizard($data, $wizard, $baseURL);
+  }
+
+  private function alterDatalayer(array $data): array {
+    // Let other modules add to the datalayer payload.
+    $datalayerEvent = new DatalayerAlterEvent($data);
+    $dispatcher = \Drupal::service('event_dispatcher');
+    $dispatcher->dispatch($datalayerEvent, DatalayerAlterEvent::EVENT_NAME);
+    return $datalayerEvent->datalayer;
   }
 }

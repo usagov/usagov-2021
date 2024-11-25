@@ -2,8 +2,10 @@
 
 namespace Drupal\usagov_ssg_postprocessing\Data;
 
+use Drupal\Core\Language\Language;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
+use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
@@ -45,6 +47,19 @@ final class PublishedPagesRow {
     public readonly string $benefitCategories,
   ) {}
 
+  private static function getTaxLevel1(Language $language): string {
+    return match ($language->getId()) {
+      'es' => "USAGov Español",
+      'en' => "USAGov English",
+      default => "USAGov English",
+    };
+  }
+
+  private static function getHierarchy(array $data): int {
+    $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_Text_'), ARRAY_FILTER_USE_KEY);
+    return count(array_unique($texts));
+  }
+
   public function toArray(): array {
     return [
       $this->hierarchy,
@@ -76,8 +91,6 @@ final class PublishedPagesRow {
 
   public static function datalayerForNode(array $data, Node $node, string $baseURL): self {
     $title = $node->getTitle();
-    $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_Text_'), ARRAY_FILTER_USE_KEY);
-    $hierarchy = count(array_unique($texts));
 
     if ($data['homepageTest'] === 'homepage' && $data['language'] === 'en') {
       $friendlyURL = TaxonomyDatalayerBuilder::HOME_URL_EN;
@@ -118,14 +131,8 @@ final class PublishedPagesRow {
       }
     }
 
-    $taxLevel1 = match($node->language()->getId()) {
-      'es' => "USAGov Español",
-      'en' => "USAGov English",
-      default => "USAGov English",
-    };
-
     return new self(
-      hierarchy: $hierarchy,
+      hierarchy: self::getHierarchy($data),
       pageType: $data['Page_Type'],
       pageSubType: $data['basicPagesubType'],
       contentType: $data['contentType'],
@@ -133,7 +140,7 @@ final class PublishedPagesRow {
       pageID: $data['nodeID'],
       pageTitle: $title,
       fullURL: $fullURL,
-      TaxonomyText1: $taxLevel1,
+      TaxonomyText1: self::getTaxLevel1($node->language()),
       TaxonomyText2: $data['Taxonomy_Text_2'],
       TaxonomyText3: $data['Taxonomy_Text_3'],
       TaxonomyText4: $data['Taxonomy_Text_4'],
@@ -147,6 +154,44 @@ final class PublishedPagesRow {
       TaxonomyURL6: $data['Taxonomy_URL_6'],
       isHomePage: $data['homepageTest'],
       toggleURL: $toggleURL ?? 'None',
+      hasBenefitCategory: $data['hasBenefitCategory'] ? '1' : '',
+      benefitCategories: $data['benefitCategories'] ?: '',
+    );
+  }
+
+  public static function datalayerForWizard(array $data, Term $term, string $baseURL): self {
+    $title  = $term->getName();
+
+    $friendlyURL = $term->toUrl('canonical',
+      options: ['language' => $term->language()]
+    )->toString();
+    $fullURL = $term->toUrl(
+      options: ['absolute' => TRUE, 'language' => $term->language()]
+    )->toString();
+
+    return new self(
+      hierarchy: self::getHierarchy($data),
+      pageType: $data['Page_Type'],
+      pageSubType: $data['basicPagesubType'],
+      contentType: $data['contentType'],
+      friendlyURL: $friendlyURL,
+      pageID: 't_' . $data['taxonomyID'],
+      pageTitle: $title,
+      fullURL: $fullURL,
+      TaxonomyText1: self::getTaxLevel1($term->language()),
+      TaxonomyText2: $data['Taxonomy_Text_2'],
+      TaxonomyText3: $data['Taxonomy_Text_3'],
+      TaxonomyText4: $data['Taxonomy_Text_4'],
+      TaxonomyText5: $data['Taxonomy_Text_5'],
+      TaxonomyText6: $data['Taxonomy_Text_6'],
+      TaxonomyURL1: $data['Taxonomy_URL_1'],
+      TaxonomyURL2: $data['Taxonomy_URL_2'],
+      TaxonomyURL3: $data['Taxonomy_URL_3'],
+      TaxonomyURL4: $data['Taxonomy_URL_4'],
+      TaxonomyURL5: $data['Taxonomy_URL_5'],
+      TaxonomyURL6: $data['Taxonomy_URL_6'],
+      isHomePage: $data['homepageTest'],
+      toggleURL: 'None',
       hasBenefitCategory: $data['hasBenefitCategory'] ? '1' : '',
       benefitCategories: $data['benefitCategories'] ?: '',
     );
