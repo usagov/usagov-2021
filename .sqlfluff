@@ -1,0 +1,19 @@
+[sqlfluff]
+# Supported dialects https://docs.sqlfluff.com/en/stable/perma/dialects.html
+# Or run 'sqlfluff dialects'
+dialect = mysql
+# One of [raw|jinja|python|placeholder]
+templater = raw
+# Very large files can make the parser effectively hang.
+# The more efficient check is the _byte_ limit check which
+# is enabled by default. The previous _character_ limit check
+# is still present for backward compatibility. This will be
+# removed in a future version.
+# Set either to 0 to disable.
+large_file_skip_char_limit = 0
+large_file_skip_byte_limit = 210000000
+# CPU processes to use while linting.
+# If positive, just implies number of processes.
+# If negative or zero, implies number_of_cpus - specified_number.
+# e.g. -1 means use all processors but one. 0  means all cpus.
+processes = 0

@@ -844,7 +844,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
