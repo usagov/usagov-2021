@@ -108,7 +108,7 @@ class PublishedPagesController extends ControllerBase {
       ->getQuery()
       ->condition('vid','wizard')
       ->condition('status', 1) //published
-      //      ->condition('nid', 83)
+//      ->condition('tid', 63)
       ->sort('tid', 'ASC')
       ->accessCheck(TRUE)
       ->sort('tid')
