@@ -74,5 +74,5 @@ combinedWaitTimes='{
 
 # echo "Setting wait time file."
 echo "$combinedWaitTimes" > $waitTimeFile
-echo '{ "CallCenterWaitTimes": ' "$combinedWaitTimes" ' "message":"Retrieved call center wait times" }' | jq -c
+echo '{ "CallCenterWaitTimes": ' "$combinedWaitTimes", ' "message":"Retrieved call center wait times" }' | jq -c
 aws_cp waittime.json s3://$S3_BUCKET/$VERSION/waittime.json
