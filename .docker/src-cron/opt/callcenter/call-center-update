@@ -74,5 +74,10 @@ combinedWaitTimes='{
 
 # echo "Setting wait time file."
 echo "$combinedWaitTimes" > $waitTimeFile
+
+# Emit data to STDOUT For logging purposes:
 echo '{ "CallCenterWaitTimes": ' "$combinedWaitTimes", ' "message":"Retrieved call center wait times" }' | jq -c
+
+# Upload file to S3 bucket
+# echo "uploading waittime.json to S3"
 aws_cp waittime.json s3://$S3_BUCKET/$VERSION/waittime.json
