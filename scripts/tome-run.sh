@@ -126,17 +126,6 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
       rm -rf $d
     fi
   done
-  echo "Checking previous tome logs and pruning "no need for static site" logs to save space" | tee -a $TOMELOG
-  find "$TOMELOGPATH" -type f | while read -r file; do
-    echo "Processing file: $file" | tee -a $TOMELOG
-    EMPTYTOME="Check if Tome is already running ...
-              No other Tome is running. Proceeding on our own.
-              No change to any node, block, or taxonomy, content in the last 30 minutes: no need for static site build"
-    if grep -q $EMPTYTOME "$file"; then
-      echo "File contains the specified content. Removing file: $file" | tee -a $TOMELOG
-      rm "$file"
-    fi
-  done
 else
   echo "No change to any node, block, or taxonomy, content in the last 30 minutes: no need for static site build" | tee -a $TOMELOG
 fi
