@@ -173,6 +173,18 @@ final class PublishedPagesRow {
       options: ['absolute' => TRUE, 'language' => $term->language()]
     )->toString();
 
+    $toggleURL = 'None';
+    if (isset($term->field_language_toggle[0])) {
+      $toggleTerm = \Drupal::entityTypeManager()
+        ->getStorage('taxonomy_term')
+        ->load($term->field_language_toggle[0]->target_id);
+      $url = Url::fromRoute(
+        'entity.taxonomy_term.canonical',
+        ['taxonomy_term' => $toggleTerm->id()],
+        ['absolute' => TRUE, 'language' => $toggleTerm->language()]
+      );
+      $toggleURL = $url->toString();
+    }
     return new self(
       hierarchy: self::getHierarchy($data),
       pageType: $data['Page_Type'],
@@ -195,7 +207,7 @@ final class PublishedPagesRow {
       TaxonomyURL5: $data['Taxonomy_URL_5'],
       TaxonomyURL6: $data['Taxonomy_URL_6'],
       isHomePage: $data['homepageTest'],
-      toggleURL: 'None',
+      toggleURL: $toggleURL,
       hasBenefitCategory: $data['hasBenefitCategory'] ? '1' : '',
       benefitCategories: $data['benefitCategories'] ?: '',
     );

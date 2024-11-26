@@ -39,21 +39,21 @@ class PublishedPagesController extends ControllerBase {
     "Taxonomy URL Level 6",
     "Homepage?",
     "Toggle URL",
-    "Has Benefit Category",
+    "hasBenefitCategory",
     "Categories"
   ];
   public function buildCSV() {
-
+    // Set up to echo CSV rows to STDOUT/browser.
     ob_start();
     $out = fopen('php://output', 'w');
     fputcsv($out, $this->CSVHeader);
-
+    // Render published pages to output stream
     $this->getNodeCSV($out);
     $this->getWizardsCSV($out);
-
+    // Write contents to output stream
     $content = ob_get_clean();
     fclose($out);
-
+    // Output CSV response
     $response = new Response();
     $response->headers->set('Content-Type', 'text/plain');
     $response->setContent($content);
