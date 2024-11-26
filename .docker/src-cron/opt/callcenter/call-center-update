@@ -38,7 +38,6 @@ enChatWaitTimeResponse=$(
   curl -s -X GET https://api.$CALL_CENTER_ENVIRONMENT/api/v2/routing/queues/$CALL_CENTER_EN_QUEUE_ID/mediatypes/chat/estimatedwaittime \
           -H "Authorization:Bearer $token"
 );
-# echo "$enChatWaitTimeResponse";
 enChatWaitTime=$(echo "$enChatWaitTimeResponse" | jq -r '.results[].estimatedWaitTimeSeconds')
 
 # echo "Getting sp wait time."
@@ -79,5 +78,5 @@ echo "$combinedWaitTimes" > $waitTimeFile
 echo '{ "CallCenterWaitTimes": ' "$combinedWaitTimes", ' "message":"Retrieved call center wait times" }' | jq -c
 
 # Upload file to S3 bucket
-# echo "uploading waittime.json to S3"
+# echo "uploading waittime.json to S3."
 aws_cp waittime.json s3://$S3_BUCKET/$VERSION/waittime.json
