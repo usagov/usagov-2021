@@ -16,7 +16,7 @@ function getAssertionPrivatekey(clientId, key, audience) {
   clientId = JSONtoBase64(clientId);
 
   let secondsSinceEpoch = Math.round(Date.now() / 1000);
-  const claims = { 
+  const claims = {
     "aud": audience,
     "iss": clientId,
     "sub": clientId,
@@ -27,7 +27,7 @@ function getAssertionPrivatekey(clientId, key, audience) {
 
   let secret = key;
   let algorithm = "RS256";
-  const token = jwt.create(claims, secret, algorithm); 
+  const token = jwt.create(claims, secret, algorithm);
   return token.compact();
 }
 
@@ -38,7 +38,7 @@ async function getBearerToken() {
   const requestHeaders = new Headers();
   requestHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
-  // TO-DO: Hay que conseguir el veteran ID con el call que existe y convertir eso "{"patient": "Aqui va el ID"}" a Base 64. 
+  // TO-DO: Hay que conseguir el veteran ID con el call que existe y convertir eso "{"patient": "Aqui va el ID"}" a Base 64.
   // Eso va en la variable "launch"
 
   const urlencoded = new URLSearchParams();

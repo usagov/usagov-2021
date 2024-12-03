@@ -1,5 +1,5 @@
 // POST /upload
-// This request needs to be done before uploading the doc. 
+// This request needs to be done before uploading the doc.
 // It's going to return the URL that will be used to upload the doc
 async function uploadRequest() {
     "use strict";
@@ -21,16 +21,16 @@ async function uploadRequest() {
 
     try {
         const response = await fetch("https://sandbox-api.va.gov/services/vba_documents/v1/uploads", requestOptions);
-        
+
         if (!response.ok) {
           throw new Error(`Response status: ${response.status}`);
         }
-    
+
         const json = await response.json();
         const fileLocation = json.data.attributes.location;
         console.log(fileLocation);
         return fileLocation;
-    } 
+    }
     catch (error) {
         console.error(error.message);
     }
@@ -46,16 +46,16 @@ async function documentUploadRequest(fileLocationURL) {
 
     const formData = new FormData();
 
-    var metadataJSON = { 
+    var metadataJSON = {
         "veteranFirstName": veteranFirstNameField.value,
         "veteranLastName": veteranLastNameField.value,
         "fileNumber": veteranSSNField.value,
         "zipCode": veteranZipCodeField.value,
         "source": "USA.gov",
         "docType": "21P-530EZ"
-    }
-
-    const blob = new Blob([JSON.stringify(metadataJSON)], { type: 'application/json' });
+    };
+    
+    const blob = new Blob([JSON.stringify(metadataJSON)], {"type": 'application/json'});
     formData.append('metadata', blob);
 
      // A file <input> element
@@ -64,7 +64,6 @@ async function documentUploadRequest(fileLocationURL) {
     formData.append("content", formPDF, formPDF.name);
 
     // const myHeaders = new Headers();
-    
     // myHeaders.append('Access-Control-Allow-Origin', 'http://localhost');
     // myHeaders.append('Access-Control-Request-Method', 'PUT');
 
@@ -211,11 +210,12 @@ function vaFormHandler() {
 const submitButton = document.querySelector("#submitButton");
 
 submitButton.addEventListener("click", async () => {
+    "use strict";
     const errorFound = vaFormHandler();
-    if(!errorFound){
+    if (!errorFound){
         const fileLocationURL = await uploadRequest();
         const response = await documentUploadRequest(fileLocationURL);
-        if(response) {
+        if (response) {
             document.getElementById("VABenefitsIntakeForm").submit();
         }
     }
