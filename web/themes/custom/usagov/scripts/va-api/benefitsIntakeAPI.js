@@ -2,6 +2,8 @@
 // This request needs to be done before uploading the doc. 
 // It's going to return the URL that will be used to upload the doc
 async function uploadRequest() {
+    "use strict";
+
     const myHeaders = new Headers();
     myHeaders.append("apikey", "DsJFWbW81yAs30qVbluxnTwd3zb0an1H");
     myHeaders.append("accept", "application/json");
@@ -11,10 +13,10 @@ async function uploadRequest() {
     urlencoded.append("{}", "");
 
     const requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: urlencoded,
-        redirect: "follow"
+        "method": "POST",
+        "headers": myHeaders,
+        "body": urlencoded,
+        "redirect": "follow"
     };
 
     try {
@@ -35,7 +37,7 @@ async function uploadRequest() {
 }
 
 async function documentUploadRequest(fileLocationURL) {
-
+    "use strict";
     // Get the form data
     const veteranFirstNameField = document.getElementById("input-veterans-first-name");
     const veteranLastNameField = document.getElementById("input-veterans-last-name");
@@ -45,12 +47,12 @@ async function documentUploadRequest(fileLocationURL) {
     const formData = new FormData();
 
     var metadataJSON = { 
-        veteranFirstName: veteranFirstNameField.value,
-        veteranLastName: veteranLastNameField.value,
-        fileNumber: veteranSSNField.value,
-        zipCode: veteranZipCodeField.value,
-        source: "USA.gov",
-        docType: "21P-530EZ"
+        "veteranFirstName": veteranFirstNameField.value,
+        "veteranLastName": veteranLastNameField.value,
+        "fileNumber": veteranSSNField.value,
+        "zipCode": veteranZipCodeField.value,
+        "source": "USA.gov",
+        "docType": "21P-530EZ"
     }
 
     const blob = new Blob([JSON.stringify(metadataJSON)], { type: 'application/json' });
@@ -67,10 +69,10 @@ async function documentUploadRequest(fileLocationURL) {
     // myHeaders.append('Access-Control-Request-Method', 'PUT');
 
     const requestOptions = {
-        method: "PUT",
-        body: formData,
+        "method": "PUT",
+        "body": formData,
         // headers: myHeaders,
-        redirect: "follow"
+        "redirect": "follow"
     };
 
     try {
