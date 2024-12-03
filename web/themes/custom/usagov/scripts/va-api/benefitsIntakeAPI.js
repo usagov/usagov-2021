@@ -54,7 +54,6 @@ async function documentUploadRequest(fileLocationURL) {
         "source": "USA.gov",
         "docType": "21P-530EZ"
     };
-    
     const blob = new Blob([JSON.stringify(metadataJSON)], {"type": 'application/json'});
     formData.append('metadata', blob);
 
