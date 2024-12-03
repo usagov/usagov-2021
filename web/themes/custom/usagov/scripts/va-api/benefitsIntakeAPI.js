@@ -76,16 +76,16 @@ async function documentUploadRequest(fileLocationURL) {
 
     try {
         const response = await fetch(fileLocationURL, requestOptions);
-        
+
         if (!response.ok) {
           throw new Error(`Response status: ${response.status}`);
         }
 
         return response.status === 200;
-    
+
         // const json = await response.json();
         // console.log(json);
-    } 
+    }
     catch (error) {
         console.error(error.message);
     }
@@ -212,7 +212,7 @@ const submitButton = document.querySelector("#submitButton");
 submitButton.addEventListener("click", async () => {
     "use strict";
     const errorFound = vaFormHandler();
-    if (!errorFound){
+    if (!errorFound) {
         const fileLocationURL = await uploadRequest();
         const response = await documentUploadRequest(fileLocationURL);
         if (response) {
