@@ -1,17 +1,4 @@
 <div class="usa-prose">
-  <p>
-    Download the VA Form 21P-530EZ. Fill it out completely, sign it, and save it as a PDF.
-  </p>
-  <div>
-    <a
-      id="download-button"
-      class="usa-button usa-button--secondary usa-button--big"
-      type="button"
-      href="./s3/files/2024-11/va-21p-530ez.pdf"
-    >
-      Download form 21P-530EZ
-    </a>
-  </div>
 
   <div
     id="error-box"
@@ -20,24 +7,24 @@
     <div class="usa-alert__body">
       <h3 class="usa-alert__heading">Your information contains errors</h3>
       <ul id="testing">
-        <li id="error-street" class="usa-alert__text">
-          <a href="#input-street"><span>Fill out the street field</span></a>
+        <li id="error-veterans-first-name" class="usa-alert__text">
+          <a href="#input-veterans-first-name"><span>Fill out the Veteran's First Name field</span></a>
         </li>
-        <li id="error-city" class="usa-alert__text">
-          <a href="#input-city"><span>Fill out the city field</span></a>
+        <li id="error-veterans-last-name" class="usa-alert__text">
+          <a href="#input-veterans-last-name"><span>Fill out the Veteran's Last Name field</span></a>
         </li>
-        <li id="error-state" class="usa-alert__text">
-          <a href="#input-state"><span>Fill out the state field</span></a>
+        <li id="error-veterans-ssn" class="usa-alert__text">
+          <a href="#input-veterans-ssn"><span>Fill out the Veteran's Social Security Number field</span></a>
         </li>
-        <li id="error-zip" class="usa-alert__text">
-          <a href="#input-zip"><span>Fill out the ZIP code field</span></a>
+        <li id="error-veterans-zip" class="usa-alert__text">
+          <a href="#input-veterans-zip"><span>Fill out the Veteran's ZIP code field</span></a>
         </li>
       </ul>
     </div>
   </div>
 
   <form
-    class="usa-form maxw-none margin-y-4"
+    class="usa-form maxw-none"
     action="/va-benefits-intake-results#skip-to-h1"
     autocomplete="off"
     name="VABenefitsIntakeForm"
@@ -102,21 +89,29 @@
           </div>
 
           <div>
-            <label id="myZIP" class="usa-label" for="input-zip">
+            <label id="veteransZIP" class="usa-label" for="input-veterans-zip">
             Veteran's ZIP code
             </label>
-            <span id="zip" class="errors"></span>
+            <span id="veterans-zip" class="errors"></span>
             <input
               class="usa-input"
               id="input-veterans-zip"
-              aria-describedby="zip"
-              name="input-zip"
+              aria-describedby="veterans-zip"
+              name="input-veterans-zip"
               type="text"
               maxlength="5"
               onkeypress="return event.keyCode != 13;"
               required
               oninvalid="this.setCustomValidity('Fill out the zip field.')"
               oninput="this.setCustomValidity('')" />
+          </div>
+
+          <div class="usa-alert usa-alert--info usa-alert--slim">
+            <div class="usa-alert__body">
+              <p class="usa-alert__text">
+                Remember to upload all required documents
+              </p>
+            </div>
           </div>
 
           <div class="usa-form-group">
@@ -136,24 +131,7 @@
               multiple="multiple"
             />
           </div>
-          
-          {# <div class="usa-form-group">
-            <label class="usa-label" for="va-pdf-form">
-                Input accepts only PDF files
-            </label>
-            <span class="usa-hint" id="va-pdf-form-hint">
-                Select PDF files
-            </span>
-            <input
-                id="va-pdf-form"
-                class="usa-file-input"
-                type="file"
-                name="va-pdf-form"
-                aria-describedby="va-pdf-form-hint"
-                accept=".pdf"
-                multiple="multiple"
-            />
-          </div> #}
+        
         </div>
 
         <div class="ceo-button-container">
@@ -162,7 +140,7 @@
             class="usa-button usa-button--secondary usa-button--big ceo-button"
             type="button"
           >
-            Submit Form
+            Submit burial benefits application to VA
           </button>
         </div>
       </div>
