@@ -446,6 +446,10 @@ function renderResults(response, rawResponse) {
             'error type': "no-officials-from-api"
         });
     }
+
+    // Allow the interface to show now that we have content on the page
+    jQuery('.usa-prose-container').show();
+    jQuery('.usa-prose-loader').hide();
 }
 
 /**
