@@ -12,6 +12,7 @@ use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
  * Data structure describing the columns of the Published Pages CSV
  */
 final class PublishedPagesRow {
+
   public function __construct(
     // depths in menu tree
     public readonly int $hierarchy,
@@ -27,18 +28,18 @@ final class PublishedPagesRow {
     public readonly string $pageTitle,
     // complete URL including domain name
     public readonly string $fullURL,
-    public readonly string $TaxonomyText1,
-    public readonly string $TaxonomyText2,
-    public readonly string $TaxonomyText3,
-    public readonly string $TaxonomyText4,
-    public readonly string $TaxonomyText5,
-    public readonly string $TaxonomyText6,
-    public readonly string $TaxonomyURL1,
-    public readonly string $TaxonomyURL2,
-    public readonly string $TaxonomyURL3,
-    public readonly string $TaxonomyURL4,
-    public readonly string $TaxonomyURL5,
-    public readonly string $TaxonomyURL6,
+    public readonly string $taxonomyText1,
+    public readonly string $taxonomyText2,
+    public readonly string $taxonomyText3,
+    public readonly string $taxonomyText4,
+    public readonly string $taxonomyText5,
+    public readonly string $taxonomyText6,
+    public readonly string $taxonomyURL1,
+    public readonly string $taxonomyURL2,
+    public readonly string $taxonomyURL3,
+    public readonly string $taxonomyURL4,
+    public readonly string $taxonomyURL5,
+    public readonly string $taxonomyURL6,
     public readonly string $isHomePage,
     // language toggle
     public readonly string $toggleURL,
@@ -69,18 +70,18 @@ final class PublishedPagesRow {
       $this->pageID,
       $this->pageTitle,
       $this->fullURL,
-      $this->TaxonomyText1,
-      $this->TaxonomyText2,
-      $this->TaxonomyText3,
-      $this->TaxonomyText4,
-      $this->TaxonomyText5,
-      $this->TaxonomyText6,
-      $this->TaxonomyURL1,
-      $this->TaxonomyURL2,
-      $this->TaxonomyURL3,
-      $this->TaxonomyURL4,
-      $this->TaxonomyURL5,
-      $this->TaxonomyURL6,
+      $this->taxonomyText1,
+      $this->taxonomyText2,
+      $this->taxonomyText3,
+      $this->taxonomyText4,
+      $this->taxonomyText5,
+      $this->taxonomyText6,
+      $this->taxonomyURL1,
+      $this->taxonomyURL2,
+      $this->taxonomyURL3,
+      $this->taxonomyURL4,
+      $this->taxonomyURL5,
+      $this->taxonomyURL6,
       $this->isHomePage,
       $this->toggleURL,
       $this->hasBenefitCategory,
@@ -100,7 +101,7 @@ final class PublishedPagesRow {
       $friendlyURL = TaxonomyDatalayerBuilder::HOME_URL_EN;
       $fullURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_EN;
     }
-    else if ($data['homepageTest'] === 'homepage' && $data['language'] === 'es') {
+    elseif ($data['homepageTest'] === 'homepage' && $data['language'] === 'es') {
       $friendlyURL = TaxonomyDatalayerBuilder::HOME_URL_ES;
       $fullURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_ES;
     }
@@ -113,13 +114,12 @@ final class PublishedPagesRow {
       )->toString();
     }
 
-
     $toggleURL = NULL;
     if ($node->field_language_toggle[0]->target_id) {
       if ($data['homepageTest'] === 'homepage' && $data['language'] === 'en') {
         $toggleURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_ES;
       }
-      else if ($data['homepageTest'] === 'homepage' && $data['language'] === 'es') {
+      elseif ($data['homepageTest'] === 'homepage' && $data['language'] === 'es') {
         $toggleURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_EN;
       }
       else {
@@ -144,18 +144,18 @@ final class PublishedPagesRow {
       pageID: $data['nodeID'],
       pageTitle: $title,
       fullURL: $fullURL,
-      TaxonomyText1: self::getTaxLevel1($node->language()),
-      TaxonomyText2: $data['Taxonomy_Text_2'],
-      TaxonomyText3: $data['Taxonomy_Text_3'],
-      TaxonomyText4: $data['Taxonomy_Text_4'],
-      TaxonomyText5: $data['Taxonomy_Text_5'],
-      TaxonomyText6: $data['Taxonomy_Text_6'],
-      TaxonomyURL1: $data['Taxonomy_URL_1'],
-      TaxonomyURL2: $data['Taxonomy_URL_2'],
-      TaxonomyURL3: $data['Taxonomy_URL_3'],
-      TaxonomyURL4: $data['Taxonomy_URL_4'],
-      TaxonomyURL5: $data['Taxonomy_URL_5'],
-      TaxonomyURL6: $data['Taxonomy_URL_6'],
+      taxonomyText1: self::getTaxLevel1($node->language()),
+      taxonomyText2: $data['Taxonomy_Text_2'],
+      taxonomyText3: $data['Taxonomy_Text_3'],
+      taxonomyText4: $data['Taxonomy_Text_4'],
+      taxonomyText5: $data['Taxonomy_Text_5'],
+      taxonomyText6: $data['Taxonomy_Text_6'],
+      taxonomyURL1: $data['Taxonomy_URL_1'],
+      taxonomyURL2: $data['Taxonomy_URL_2'],
+      taxonomyURL3: $data['Taxonomy_URL_3'],
+      taxonomyURL4: $data['Taxonomy_URL_4'],
+      taxonomyURL5: $data['Taxonomy_URL_5'],
+      taxonomyURL6: $data['Taxonomy_URL_6'],
       isHomePage: $data['homepageTest'],
       toggleURL: $toggleURL ?? 'None',
       hasBenefitCategory: $data['hasBenefitCategory'] ? '1' : '',
@@ -164,7 +164,7 @@ final class PublishedPagesRow {
   }
 
   public static function datalayerForWizard(array $data, Term $term, string $baseURL): self {
-    $title  = $term->getName();
+    $title = $term->getName();
 
     $friendlyURL = $term->toUrl('canonical',
       options: ['language' => $term->language()]
@@ -194,22 +194,23 @@ final class PublishedPagesRow {
       pageID: 't_' . $data['taxonomyID'],
       pageTitle: $title,
       fullURL: $fullURL,
-      TaxonomyText1: self::getTaxLevel1($term->language()),
-      TaxonomyText2: $data['Taxonomy_Text_2'],
-      TaxonomyText3: $data['Taxonomy_Text_3'],
-      TaxonomyText4: $data['Taxonomy_Text_4'],
-      TaxonomyText5: $data['Taxonomy_Text_5'],
-      TaxonomyText6: $data['Taxonomy_Text_6'],
-      TaxonomyURL1: $data['Taxonomy_URL_1'],
-      TaxonomyURL2: $data['Taxonomy_URL_2'],
-      TaxonomyURL3: $data['Taxonomy_URL_3'],
-      TaxonomyURL4: $data['Taxonomy_URL_4'],
-      TaxonomyURL5: $data['Taxonomy_URL_5'],
-      TaxonomyURL6: $data['Taxonomy_URL_6'],
+      taxonomyText1: self::getTaxLevel1($term->language()),
+      taxonomyText2: $data['Taxonomy_Text_2'],
+      taxonomyText3: $data['Taxonomy_Text_3'],
+      taxonomyText4: $data['Taxonomy_Text_4'],
+      taxonomyText5: $data['Taxonomy_Text_5'],
+      taxonomyText6: $data['Taxonomy_Text_6'],
+      taxonomyURL1: $data['Taxonomy_URL_1'],
+      taxonomyURL2: $data['Taxonomy_URL_2'],
+      taxonomyURL3: $data['Taxonomy_URL_3'],
+      taxonomyURL4: $data['Taxonomy_URL_4'],
+      taxonomyURL5: $data['Taxonomy_URL_5'],
+      taxonomyURL6: $data['Taxonomy_URL_6'],
       isHomePage: $data['homepageTest'],
       toggleURL: $toggleURL,
       hasBenefitCategory: $data['hasBenefitCategory'] ? '1' : '',
       benefitCategories: $data['benefitCategories'] ?: '',
     );
   }
+
 }

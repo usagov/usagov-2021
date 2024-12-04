@@ -5,8 +5,6 @@ namespace Drupal\usagov_wizard\EventSubscriber;
 use Drupal\Core\Breadcrumb\BreadcrumbManager;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
-use Drupal\Core\Url;
-use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usagov_wizard\MenuChecker;
 use Drupal\usagov_wizard\WizardDataLayer;
@@ -45,4 +43,5 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
     $builder = new WizardDataLayer($term, $this->entityTypeManager);
     $event->datalayer = $builder->getData($event->datalayer);
   }
+
 }

@@ -35,12 +35,11 @@ usagov_ssg_postprocessing.site_lag_test:
     _permission: 'access administration pages'
 
 usagov_ssg_postprocessing.published_pages_csv:
-  path: '/published-pages.csv'
+  path: '/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv'
   defaults:
-    _controller: '\Drupal\usagov_ssg_postprocessing\Controller\PublishedPagesController::buildCSV'
+    _controller: '\Drupal\usagov_ssg_postprocessing\Controller\PublishedPagesController::buildFile'
     _title: 'Generate published pages CSV'
   options:
     no_cache: 'TRUE'
   requirements:
-    _access: 'TRUE'
-
+    _permission: 'access administration pages'

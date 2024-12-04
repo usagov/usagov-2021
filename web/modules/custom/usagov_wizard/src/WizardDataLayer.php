@@ -109,4 +109,5 @@ class WizardDataLayer {
     ksort($urls);
     return array_merge($data, $urls);
   }
+
 }

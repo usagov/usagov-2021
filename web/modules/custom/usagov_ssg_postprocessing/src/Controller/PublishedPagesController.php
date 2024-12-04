@@ -2,21 +2,25 @@
 
 namespace Drupal\usagov_ssg_postprocessing\Controller;
 
-use Drupal;
+use Drupal\Core\Breadcrumb\BreadcrumbManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Routing\Router;
 use Drupal\node\Entity\Node;
+use Drupal\path_alias\AliasManagerInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_ssg_postprocessing\Data\PublishedPagesRow;
 use Drupal\usagov_wizard\WizardDataLayer;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class PublishedPagesController extends ControllerBase {
 
-  private array $CSVHeader = [
+  private array $csvHeader = [
     "Hierarchy Level",
     "Page Type",
     "Page Sub Type",
@@ -40,16 +44,40 @@ class PublishedPagesController extends ControllerBase {
     "Homepage?",
     "Toggle URL",
     "hasBenefitCategory",
-    "Categories"
+    "Categories",
   ];
-  public function buildCSV() {
+
+  public function __construct(
+    private EventDispatcherInterface $dispatcher,
+    private Request $request,
+    private Router $router,
+    private AliasManagerInterface $pathAliasManager,
+    private BreadcrumbManager $breadcrumb,
+  ) {}
+
+  /**
+   * {@inheritdoc}
+   *
+   * @return static
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      dispatcher: $container->get('event_dispatcher'),
+      request: $container->get('request_stack')->getCurrentRequest(),
+      router:  $container->get('router.no_access_checks'),
+      pathAliasManager: $container->get('path_alias.manager'),
+      breadcrumb: $container->get('breadcrumb'),
+    );
+  }
+
+  public function buildFile() {
     // Set up to echo CSV rows to STDOUT/browser.
     ob_start();
     $out = fopen('php://output', 'w');
-    fputcsv($out, $this->CSVHeader);
+    fputcsv($out, $this->csvHeader);
     // Render published pages to output stream
-    $this->getNodeCSV($out);
-    $this->getWizardsCSV($out);
+    $this->saveNodeRows($out);
+    $this->saveWizardRows($out);
     // Write contents to output stream
     $content = ob_get_clean();
     fclose($out);
@@ -60,7 +88,7 @@ class PublishedPagesController extends ControllerBase {
     return $response->send();
   }
 
-  protected function getNodeCSV($out): void {
+  protected function saveNodeRows($out): void {
     $nids = $this->entityTypeManager()
       ->getStorage('node')
       ->getQuery()
@@ -70,14 +98,12 @@ class PublishedPagesController extends ControllerBase {
         'directory_record',
         'federal_directory_index',
         'state_directory_record',
-        'wizard_step'
+        'wizard_step',
       ], 'IN')
       ->condition('status', 1) //published
-//      ->condition('nid', 80)
       ->sort('nid', 'ASC')
       ->accessCheck(TRUE)
       ->sort('nid')
-//      ->range(0, 500)
       ->execute();
 
     foreach ($nids as $nid) {
@@ -102,19 +128,16 @@ class PublishedPagesController extends ControllerBase {
     }
   }
 
-  protected function getWizardsCSV($out): void {
+  protected function saveWizardRows($out): void {
     $tids = $this->entityTypeManager()
       ->getStorage('taxonomy_term')
       ->getQuery()
-      ->condition('vid','wizard')
+      ->condition('vid', 'wizard')
       ->condition('status', 1) //published
-//      ->condition('tid', 63)
       ->sort('tid', 'ASC')
       ->accessCheck(TRUE)
       ->sort('tid')
-      //      ->range(0, 500)
       ->execute();
-
 
     foreach ($tids as $tid) {
       $wizard = $this->entityTypeManager()->getStorage('taxonomy_term')->load($tid);
@@ -125,25 +148,25 @@ class PublishedPagesController extends ControllerBase {
 
   protected function getNodeRow(Node $node): PublishedPagesRow {
     $front_uri = $this->config('system.site')->get('page.front');
-    $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $node->id());
+    $alias = $this->pathAliasManager->getAliasByPath('/node/' . $node->id());
 
     $isFront = ($alias === $front_uri);
 
     $pageType = usa_twig_vars_get_page_type($node);
 
+    $languageManager = $this->languageManager();
     // The following is "dragons abound here" but Drupal does not make it possible
     // to change the language for building breadcrumbs after a request has started.
-    $languageManager = \Drupal::service('language_manager');
     $negotiatedProp = new \ReflectionProperty(get_class($languageManager), 'negotiatedLanguages');
     $value = $negotiatedProp->getValue($languageManager);
     $value['language_content'] = $node->language();
-    $negotiatedProp->setValue($languageManager, $value);
+    $negotiatedProp->setValue($this->languageManager, $value);
 
     // To get the right breadcrumb/active trail for this routeMatch, the menu_breadcrumb module
     // must be configured to "Derive MenuActiveTrail from RouteMatch"
     $datalayer = new TaxonomyDatalayerBuilder(
       routeMatch: $this->getRouteMatchForNode($node),
-      breadcrumbManager: Drupal::service('breadcrumb'),
+      breadcrumbManager: $this->breadcrumb,
       node: $node,
       isFront: $isFront,
       basicPagesubType: $pageType ?? NULL,
@@ -152,8 +175,7 @@ class PublishedPagesController extends ControllerBase {
 
     $data = $this->alterDatalayer($data);
 
-
-    $baseURL = \Drupal::request()->getSchemeAndHttpHost();
+    $baseURL = $this->request->getSchemeAndHttpHost();
     return PublishedPagesRow::datalayerForNode($data, $node, $baseURL);
   }
 
@@ -165,8 +187,7 @@ class PublishedPagesController extends ControllerBase {
    * breadcrumb manager.
   */
   private function getRouteMatchForNode(Node $node): RouteMatchInterface {
-    $router = \Drupal::service('router.no_access_checks');
-    $route = $router->match('/node/' . $node->id());
+    $route = $this->router->match('/node/' . $node->id());
 
     return new RouteMatch(
       route_name: $route['_route'],
@@ -176,31 +197,19 @@ class PublishedPagesController extends ControllerBase {
     );
   }
 
-  private function getRouteMatchForWizard(Term $term): RouteMatchInterface {
-    $router = \Drupal::service('router.no_access_checks');
-    $route = $router->match('/taxonomy/term/' . $term->id());
-
-    return new RouteMatch(
-      route_name: $route['_route'],
-      route: $route['_route_object'],
-      parameters: ['taxonomy_term' => $term],
-      raw_parameters: ['taxonomy_term' => $term->id(), 'language' => $term->language()->getId()]
-    );
-  }
-
   protected function getWizardRow(Term $wizard): PublishedPagesRow {
     $builder = new WizardDataLayer($wizard, $this->entityTypeManager);
     $data = $builder->getData([]);
 
-    $baseURL = \Drupal::request()->getSchemeAndHttpHost();
+    $baseURL = $this->request->getSchemeAndHttpHost();
     return PublishedPagesRow::datalayerForWizard($data, $wizard, $baseURL);
   }
 
   private function alterDatalayer(array $data): array {
     // Let other modules add to the datalayer payload.
     $datalayerEvent = new DatalayerAlterEvent($data);
-    $dispatcher = \Drupal::service('event_dispatcher');
-    $dispatcher->dispatch($datalayerEvent, DatalayerAlterEvent::EVENT_NAME);
+    $this->dispatcher->dispatch($datalayerEvent, DatalayerAlterEvent::EVENT_NAME);
     return $datalayerEvent->datalayer;
   }
+
 }
