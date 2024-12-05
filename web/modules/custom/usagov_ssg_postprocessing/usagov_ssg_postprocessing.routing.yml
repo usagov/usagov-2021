@@ -33,13 +33,3 @@ usagov_ssg_postprocessing.site_lag_test:
     no_cache: 'TRUE'
   requirements:
     _permission: 'access administration pages'
-
-usagov_ssg_postprocessing.published_pages_csv:
-  path: '/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv'
-  defaults:
-    _controller: '\Drupal\usagov_ssg_postprocessing\Controller\PublishedPagesController::buildFile'
-    _title: 'Generate published pages CSV'
-  options:
-    no_cache: 'TRUE'
-  requirements:
-    _permission: 'access administration pages'

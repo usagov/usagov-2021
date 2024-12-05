@@ -6,9 +6,6 @@ use Drupal\Core\Breadcrumb\ChainBreadcrumbBuilderInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
-use Drush\Attributes as CLI;
-use Drush\Commands\DrushCommands;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Routing\Router;
@@ -19,9 +16,11 @@ use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_ssg_postprocessing\Data\PublishedPagesRow;
 use Drupal\usagov_wizard\WizardDataLayer;
+use Drush\Attributes as CLI;
+use Drush\Commands\DrushCommands;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * A Drush commandfile.
@@ -94,21 +93,23 @@ final class PublishedPagesCommands extends DrushCommands {
     description: 'Usage description')
   ]
   public function publishedCsv($outfile) {
-    $this->logger()->info('Publishing CSV to ' . $outfile);
-
-//    if (!is_writable($outfile)) {
-//      $this->output()->writeln("<error>Can not write to destination file.</error>");
-//      exit(1);
-//    }
+    $this->output()->writeln('<info>Publishing CSV to ' . $outfile . '</info>');
 
     $out = fopen($outfile, 'w');
+
+    if (!str_starts_with($outfile, '/')) {
+      $this->logger()->warning('Relative path given, current working dir: {dir}', ['dir' => getcwd()]);
+
+    }
+    if (FALSE === $out) {
+      $this->output()->writeln("<error>Can not write to destination file.</error>");
+      exit(1);
+    }
     fputcsv($out, $this->csvHeader);
     // Render published pages to output file
     $this->saveNodeRows($out);
     $this->saveWizardRows($out);
     fclose($out);
-
-    $this->logger()->success(dt('Done.'));
   }
 
   protected function saveNodeRows($out): void {
