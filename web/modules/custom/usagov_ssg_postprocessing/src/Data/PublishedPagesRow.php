@@ -115,7 +115,7 @@ final class PublishedPagesRow {
     }
 
     $toggleURL = NULL;
-    if ($node->field_language_toggle[0]->target_id) {
+    if (isset($node->field_language_toggle[0]) && $node->field_language_toggle[0]?->target_id) {
       if ($data['homepageTest'] === 'homepage' && $data['language'] === 'en') {
         $toggleURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_ES;
       }
@@ -159,7 +159,7 @@ final class PublishedPagesRow {
       isHomePage: $data['homepageTest'],
       toggleURL: $toggleURL ?? 'None',
       hasBenefitCategory: $data['hasBenefitCategory'] ? '1' : '',
-      benefitCategories: $data['benefitCategories'] ?: '',
+      benefitCategories: $data['benefitCategories'] ?? '',
     );
   }
 
@@ -209,7 +209,7 @@ final class PublishedPagesRow {
       isHomePage: $data['homepageTest'],
       toggleURL: $toggleURL,
       hasBenefitCategory: $data['hasBenefitCategory'] ? '1' : '',
-      benefitCategories: $data['benefitCategories'] ?: '',
+      benefitCategories: $data['benefitCategories'] ?? '',
     );
   }
 

@@ -1,9 +1,14 @@
 <?php
 
-namespace Drupal\usagov_ssg_postprocessing\Controller;
+namespace Drupal\usagov_ssg_postprocessing\Drush\Commands;
 
-use Drupal\Core\Breadcrumb\BreadcrumbManager;
-use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Breadcrumb\ChainBreadcrumbBuilderInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
+use Drush\Attributes as CLI;
+use Drush\Commands\DrushCommands;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Routing\Router;
@@ -14,12 +19,14 @@ use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_ssg_postprocessing\Data\PublishedPagesRow;
 use Drupal\usagov_wizard\WizardDataLayer;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class PublishedPagesController extends ControllerBase {
+/**
+ * A Drush commandfile.
+ */
+final class PublishedPagesCommands extends DrushCommands {
 
   private array $csvHeader = [
     "Hierarchy Level",
@@ -48,49 +55,64 @@ class PublishedPagesController extends ControllerBase {
     "Categories",
   ];
 
+  /**
+   * Constructs an UsagovSsgPostprocessingCommands object.
+   */
   public function __construct(
+    private EntityTypeManagerInterface $entityTypeManager,
+    private ConfigFactoryInterface $configFactory,
     private EventDispatcherInterface $dispatcher,
     private Request $request,
     private Router $router,
     private AliasManagerInterface $pathAliasManager,
-    private BreadcrumbManager $breadcrumb,
-  ) {}
+    private ChainBreadcrumbBuilderInterface $breadcrumb,
+    private LanguageManagerInterface $languageManager,
+  ) {
+    parent::__construct();
+  }
 
-  /**
-   * {@inheritdoc}
-   *
-   * @return static
-   */
   public static function create(ContainerInterface $container) {
     return new static(
+      entityTypeManager: $container->get('entity_type.manager'),
+      configFactory: $container->get('config.factory'),
       dispatcher: $container->get('event_dispatcher'),
       request: $container->get('request_stack')->getCurrentRequest(),
       router:  $container->get('router.no_access_checks'),
       pathAliasManager: $container->get('path_alias.manager'),
       breadcrumb: $container->get('breadcrumb'),
+      languageManager: $container->get('language_manager')
     );
   }
 
-  public function buildFile() {
-    // Set up to echo CSV rows to STDOUT/browser.
-    ob_start();
-    $out = fopen('php://output', 'w');
+  /**
+   * Export published pages CSV
+   */
+  #[CLI\Command(name: 'usagov:published-csv', aliases: ['usapubcsv'])]
+  #[CLI\Argument(name: 'outfile', description: 'Path for output file')]
+  #[CLI\Usage(
+    name: 'usagov_ssg_postprocessing:published-csv',
+    description: 'Usage description')
+  ]
+  public function publishedCsv($outfile) {
+    $this->logger()->info('Publishing CSV to ' . $outfile);
+
+//    if (!is_writable($outfile)) {
+//      $this->output()->writeln("<error>Can not write to destination file.</error>");
+//      exit(1);
+//    }
+
+    $out = fopen($outfile, 'w');
     fputcsv($out, $this->csvHeader);
-    // Render published pages to output stream
+    // Render published pages to output file
     $this->saveNodeRows($out);
     $this->saveWizardRows($out);
-    // Write contents to output stream
-    $content = ob_get_clean();
     fclose($out);
-    // Output CSV response
-    $response = new Response();
-    $response->headers->set('Content-Type', 'text/plain');
-    $response->setContent($content);
-    return $response->send();
+
+    $this->logger()->success(dt('Done.'));
   }
 
   protected function saveNodeRows($out): void {
-    $nids = $this->entityTypeManager()
+    $nids = $this->entityTypeManager
       ->getStorage('node')
       ->getQuery()
       ->condition('type', [
@@ -108,7 +130,7 @@ class PublishedPagesController extends ControllerBase {
       ->execute();
 
     foreach ($nids as $nid) {
-      $node = $this->entityTypeManager()->getStorage('node')->load($nid);
+      $node = $this->entityTypeManager->getStorage('node')->load($nid);
       $row = $this->getNodeRow($node)->toArray();
 
       $row = array_map(fn($col) => trim($col), $row);
@@ -130,7 +152,7 @@ class PublishedPagesController extends ControllerBase {
   }
 
   protected function saveWizardRows($out): void {
-    $tids = $this->entityTypeManager()
+    $tids = $this->entityTypeManager
       ->getStorage('taxonomy_term')
       ->getQuery()
       ->condition('vid', 'wizard')
@@ -141,25 +163,24 @@ class PublishedPagesController extends ControllerBase {
       ->execute();
 
     foreach ($tids as $tid) {
-      $wizard = $this->entityTypeManager()->getStorage('taxonomy_term')->load($tid);
+      $wizard = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
       $row = $this->getWizardRow($wizard);
       fputcsv($out, $row->toArray());
     }
   }
 
   protected function getNodeRow(Node $node): PublishedPagesRow {
-    $front_uri = $this->config('system.site')->get('page.front');
+    $front_uri = $this->configFactory->get('system.site')->get('page.front');
     $alias = $this->pathAliasManager->getAliasByPath('/node/' . $node->id());
 
     $isFront = ($alias === $front_uri);
 
     $pageType = usa_twig_vars_get_page_type($node);
 
-    $languageManager = $this->languageManager();
     // The following is "dragons abound here" but Drupal does not make it possible
     // to change the language for building breadcrumbs after a request has started.
-    $negotiatedProp = new \ReflectionProperty(get_class($languageManager), 'negotiatedLanguages');
-    $value = $negotiatedProp->getValue($languageManager);
+    $negotiatedProp = new \ReflectionProperty(get_class($this->languageManager), 'negotiatedLanguages');
+    $value = $negotiatedProp->getValue($this->languageManager);
     $value['language_content'] = $node->language();
     $negotiatedProp->setValue($this->languageManager, $value);
 
@@ -186,7 +207,7 @@ class PublishedPagesController extends ControllerBase {
    * To get the same datalayer output, we need to set up a routeMatch for each
    * entity we are exporting that the datalayer module can look up via the
    * breadcrumb manager.
-  */
+   */
   private function getRouteMatchForNode(Node $node): RouteMatchInterface {
     $route = $this->router->match('/node/' . $node->id());
 
