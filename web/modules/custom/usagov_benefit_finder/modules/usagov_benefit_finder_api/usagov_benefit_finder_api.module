@@ -16,8 +16,22 @@ use Drupal\usagov_benefit_finder_api\Controller\LifeEventController;
  * @param Node $node
  */
 function usagov_benefit_finder_api_node_update(Node $node) {
+  $generate_json_files = 1;
   $url = _usagov_benefit_finder_api_get_current_page_url();
+
   if (strpos($url, "/admin/content") === FALSE) {
+    if ($node->hasField('moderation_state')) {
+      $moderation_state = $node->get('moderation_state')->value;
+      if ($moderation_state == 'needs_review') {
+        $generate_json_files = 0;
+      }
+    }
+  }
+  else {
+    $generate_json_files = 0;
+  }
+
+  if ($generate_json_files == 1) {
     _usagov_benefit_finder_api_batch_generate_json_data_files($node);
   }
   else {
