@@ -30,14 +30,6 @@ SPACE=$( cf target | grep space: | awk '{ print $2 }')
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
 
-# Need to create 'external-domain' service for custom routes: *.usa.gov
-# cf delete-service dev-usagov-domain
-# cf create-service external-domain domain dev-usagov-domain -c '{"domains": "cms-dev.usa.gov,beta-dev.usa.gov"}'
-# cf create-service external-domain domain-with-cdn stage-usagov-domain -c '{"domains": "cms-stage.usa.gov,beta-stage.usa.gov"}'
-# cf create-service external-domain domain-with-cdn prod-www-usagov-domain -c '{"domains": "beta.usa.gov"}'
-# cf create-service external-domain domain          prod-cms-usagov-domain -c '{"domains": "cms.usa.gov"}'
-# cf service prod-cms-usagov-domain
-
 if ! command -v jq >/dev/null; then
   printf "\nMust have JQ installed\n"
   exit 1
