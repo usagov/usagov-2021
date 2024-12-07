@@ -75,13 +75,13 @@ class SidebarFirstBlock extends AbstractMenuBlock {
     if ($active = $this->trail->getActiveLink($menuID)) {
       $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
       $items = $this->getMenuTreeItems($menuID, $crumbs, $active);
-      return $this->renderItems($items, $active);
+      return $this->renderItems($items, $menuID, $active);
     }
 
     // We're not in the menu.
     // Display first level of this menu.
     $items = $this->getMenuTreeItems($menuID);
-    return $this->renderItems($items);
+    return $this->renderItems($items, $menuID);
   }
 
   /**
@@ -98,7 +98,7 @@ class SidebarFirstBlock extends AbstractMenuBlock {
       'url' => $this->request->getPathInfo(),
       'title' => $this->routeMatch->getParameter('node')->getTitle(),
     ];
-    return $this->renderItems($items, $active, $leaf);
+    return $this->renderItems($items, $menuID, $active, $leaf);
   }
 
   /**
@@ -106,6 +106,7 @@ class SidebarFirstBlock extends AbstractMenuBlock {
    */
   private function renderItems(
     array $items,
+    string $menuID,
     ?MenuLinkInterface $active = NULL,
     array $leaf = [],
   ): array {
@@ -126,8 +127,10 @@ class SidebarFirstBlock extends AbstractMenuBlock {
       ];
 
       // Ensure drupal knows this block should be cached per path.
+      // and when the menu changes
       $theme['#cache'] = [
         'contexts' => ['url.path', 'url.query_args'],
+        'tags' => ['config:system.menu.' . $menuID],
       ];
       return $theme;
     }

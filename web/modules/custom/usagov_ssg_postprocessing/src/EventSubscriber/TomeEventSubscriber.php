@@ -10,6 +10,8 @@ use Drupal\tome_static\Event\CollectPathsEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\PathPlaceholderEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
+use Drupal\views\ViewExecutable;
+use Drupal\views\Views;
 use Masterminds\HTML5;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -189,9 +191,60 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   public function excludeInvalidPaths(PathPlaceholderEvent $event) {
     $path = $event->getPath();
 
+    if ($path !== '/' && str_ends_with($path, '/')) {
+      // Tome should never request the Spanish homepage or any other local path
+      // with a trailing-slash. If it does request it, that is because the path
+      // was found in the content of a node or term.
+      // For example, when tome runs and it finds a link to `/es/`, Drupal will
+      // redirect the request for `/es/` to `/es`. The response causes Tome to
+      // save it in  the contents of `es/index.html` with an refresh redirect.
+      $event->setInvalid();
+      return;
+    }
+
     if (preg_match('/(es\/)?node\/\d+$/', $path)) {
       $event->setInvalid();
     }
+  }
+
+  /**
+   * Add agency index paths to be exported instead of relying on Tome discovering the path
+   */
+  public function addAgencyIndexes(CollectPathsEvent $event): void {
+    $metadata = ['language_processed' => TRUE];
+    // Get the English letters to output from the pager view
+    $view = Views::getView('federal_agencies');
+    $view->setDisplay('attachment_1');
+
+    $metadata['langcode'] = 'en';
+    foreach ($this->getLetters($view) as $letter) {
+      $event->addPath('/agency-index?letter=' . $letter, $metadata);
+    }
+
+    // Get the Spanish letters
+    $view = Views::getView('federal_agencies');
+    $view->setDisplay('attachment_2');
+
+    $metadata['langcode'] = 'es';
+    foreach ($this->getLetters($view) as $letter) {
+      $event->addPath('/es/indice-agencias?letter=' . $letter, $metadata);
+    }
+
+  }
+
+  private function getLetters(ViewExecutable $view): array {
+    $view->execute();
+    $letters = [];
+    foreach ($view->result as $result) {
+      // Tome must create folders that are lower-cased
+      $letter = strtolower($result->title_truncated);
+      // The "A" page is the default agency-index page, no need to export.
+      if ($letter !== 'a') {
+        $letters[] = $letter;
+      }
+    }
+
+    return array_unique($letters);
   }
 
   /**
@@ -200,6 +253,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   public static function getSubscribedEvents() {
     $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories'];
+    $events[TomeStaticEvents::COLLECT_PATHS][] = ['addAgencyIndexes'];
     $events[TomeStaticEvents::PATH_PLACEHOLDER][] = ['excludeInvalidPaths'];
     return $events;
   }
