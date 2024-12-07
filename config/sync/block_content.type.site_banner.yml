@@ -4,5 +4,5 @@ status: true
 dependencies: {  }
 id: site_banner
 label: 'Site Banner'
-revision: 0
+revision: false
 description: ''
