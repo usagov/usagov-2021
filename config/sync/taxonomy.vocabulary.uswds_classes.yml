@@ -6,6 +6,6 @@ _core:
   default_config_hash: '-skLTwCndk9p_VpZLRDox98gMlVFdo4MC8-jtZcKFWE'
 name: 'USWDS Classes'
 vid: uswds_classes
-description: ''
+description: null
 weight: 0
 new_revision: false
