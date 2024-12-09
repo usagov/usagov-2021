@@ -119,7 +119,16 @@ const state_codes = {
 async function addressUSPSValidation(streetAddress, city, state, zipCode) {
     "use strict";
 
-    // If the zip code contains any letters or is less or more than 5 characters, it returns an error.
+    // If the Address contains any special characters it removes them because the USPS API
+    // won't process the address.
+    if (streetAddress.includes("#")) {
+        streetAddress = streetAddress.replace('#', '');
+        let streetAddressField = document.getElementById("input-street");
+        streetAddressField.value = streetAddress;
+    }
+
+    // If the zip code contains any letters or is less or more than 5 characters, it returns and
+    // doesn't call the USPS API.
     if (zipCode.length !== 5 || !(/^\d+$/.test(zipCode))) {
         return "Invalid Zip Code.";
     }
@@ -134,16 +143,19 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
         const response = await fetch(url);
         var responseText = response.text();
 
-        if (!response.ok || (await responseText).includes("<Error>")) {
-            return (responseText);
+        if (!response.ok) {
+            return "USPS API not working.";
         }
-
+        else {
+            (await responseText).includes("<Error>");
+        }
         return await responseText;
     }
     catch (error) {
         return "USPS API not working.";
     }
 }
+
 
 // This function analyzes the response received by the USPS API and returns the message that the user will see.
 function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCode) {
@@ -222,6 +234,14 @@ async function handleFormSubmission() {
     // Analyze the response and decide if the address is valid or not.
     const uspsApiResponse = await addressUSPSValidation(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
     const response = uspsResponseParser(uspsApiResponse, streetAddressField.value, cityField.value, zipCodeField.value);
+
+    // This removes the number sign fromt the address field so
+    // there won't be an xml syntax error when the form is submitted.
+    // if (streetAddressField.value.includes("#")) {
+    //     let streetValue = streetAddressField.value;
+    //     streetValue = streetValue.replace('#', '');
+    //     streetAddressField.value = streetValue;
+    // };
 
     formFields.forEach(field => {
         let fieldID = field.previousElementSibling.id;
@@ -304,7 +324,6 @@ async function handleFormSubmission() {
             }
         }
     });
-
 
     // If all fields have an error, join the error lines on the left into one.
     if (test.length === 4) {
