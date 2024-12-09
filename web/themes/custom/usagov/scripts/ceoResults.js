@@ -7,7 +7,7 @@ function lookup(address) {
 
     alert('This is a Proof-of-Concept');
 
-    var searchLoc = '6017+Cypress+Cove+Dr,+The+Colony,+TX';
+    var searchLoc = escape(address);
     var token = '6qv-f396635c14a14df1a32c';
     var user = 3149;
     var url = 'https://app.cicerodata.com/v3.1/official?search_address=search_loc=' + searchLoc + '&format=json&token=' + token + '&user=' + user;
