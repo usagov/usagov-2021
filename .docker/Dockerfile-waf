@@ -1,4 +1,4 @@
-FROM owasp/modsecurity-crs:4.9.0-nginx-202412090512
+FROM owasp/modsecurity-crs:4.9.0-nginx-alpine-202412090512
 
 LABEL maintainer="USA.gov Web Ops"
 
