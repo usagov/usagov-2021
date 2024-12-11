@@ -38,6 +38,9 @@ ENV APP_NAME=USAGov \
 COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
+
+USER root
+
 RUN rm -rf /opt/owasp-crs/tests;
 
 RUN apk upgrade --update && \
@@ -72,6 +75,8 @@ RUN echo "    built:" $(date) >> /etc/motd \
     && echo "    gittag: " $GITTAG >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \
     && echo >> /etc/motd
+
+USER nginx
 
 HEALTHCHECK CMD pgrep "nginx: master process"
 
