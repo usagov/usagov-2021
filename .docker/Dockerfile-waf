@@ -1,4 +1,4 @@
-FROM owasp/modsecurity-crs:4.9.0-nginx-alpine-202412090512
+FROM owasp/modsecurity-crs:4.8.0-nginx-alpine-202411071011
 
 LABEL maintainer="USA.gov Web Ops"
 
@@ -38,9 +38,6 @@ ENV APP_NAME=USAGov \
 COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
-
-USER root
-
 RUN rm -rf /opt/owasp-crs/tests;
 
 RUN apk upgrade --update && \
@@ -75,8 +72,6 @@ RUN echo "    built:" $(date) >> /etc/motd \
     && echo "    gittag: " $GITTAG >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \
     && echo >> /etc/motd
-
-USER nginx
 
 HEALTHCHECK CMD pgrep "nginx: master process"
 
