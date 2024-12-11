@@ -1,0 +1,8 @@
+parameters:
+    level: 1
+    paths:
+        - web/modules/custom
+        - web/themes/custom
+    excludePaths:
+        - web/modules/custom/usagov_benefit_finder
+        - web/themes/custom/usagov/node_modules/flatted/php

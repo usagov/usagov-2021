@@ -77,6 +77,8 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
 
     $rootTerm = NULL;
     $parents = [];
+    $data = [];
+
     if ($term->hasField('parent') && !$term->get('parent')->isEmpty()) {
       $parents = $this->entityTypeManager
         ->getStorage('taxonomy_term')
@@ -110,6 +112,8 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
     $count = count($data);
 
     $i = 0;
+    $urls = [];
+
     foreach ($data as $url => $text) {
       $i++;
       $urls['Taxonomy_Text_' . $i] = $text;

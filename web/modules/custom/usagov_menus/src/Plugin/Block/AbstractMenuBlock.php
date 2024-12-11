@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 abstract class AbstractMenuBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
-  public function __construct(
+  final public function __construct(
     array $configuration,
     string $plugin_id,
     mixed $plugin_definition,
@@ -34,7 +34,7 @@ abstract class AbstractMenuBlock extends BlockBase implements ContainerFactoryPl
   /**
    * {@inheritdoc}
    */
-  public static function create(
+  final public static function create(
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
