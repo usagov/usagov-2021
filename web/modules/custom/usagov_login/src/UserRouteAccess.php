@@ -3,15 +3,28 @@
 namespace Drupal\usagov_login;
 
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\State\StateInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class UserRouteAccess {
 
-  public function checkAccess(AccountInterface $account) {
-    $config = \Drupal::config('usagov_login.settings');
-    $loginPath = $config->get('sso_login_path');
+  public function __construct(
+    private ImmutableConfig $config,
+    private StateInterface $state,
+  ) {}
+  public static function create(ContainerInterface $container): self {
+    return new self(
+      config: $container->get('config.factory')->get('usagov_login.settings'),
+      state: $container->get('state'),
+    );
+  }
 
-    $forceLocalForm = \Drupal::state()->get('usagov_login_local_form', 0);
+  public function checkAccess(AccountInterface $account) {
+    $loginPath = $this->config->get('sso_login_path');
+    $forceLocalForm = $this->state->get('usagov_login_local_form', 0);
 
     if ($loginPath && !$forceLocalForm) {
       return AccessResult::forbidden();

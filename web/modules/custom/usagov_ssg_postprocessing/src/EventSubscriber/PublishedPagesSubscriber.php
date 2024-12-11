@@ -2,9 +2,12 @@
 
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Scrapes information about the page and writes it to a CSV file.
@@ -12,7 +15,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  */
 class PublishedPagesSubscriber implements EventSubscriberInterface {
+  public function __construct(
+    private Request $request,
+    private EntityTypeManagerInterface $entity_type_manager,
+  ) {}
 
+  public static function create(ContainerInterface $container): self {
+    return new self(
+      request: $container->get('request_statck')->getCurrentRequest(),
+      entity_type_manager: $container->get('entity_type.manager'),
+    );
+  }
   /**
    * Reacts to a modify HTML event.
    *
@@ -140,7 +153,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
         }
       }
 
-      $host = \Drupal::request()->getSchemeAndHttpHost();
+      $host = $this->request->getSchemeAndHttpHost();
 
       $title = $xpath->query('/html/head/title')->item(0)->nodeValue;
       $title = (!empty($title)) ? str_replace(" | USAGov", "", $title) : "Not Found";
@@ -200,17 +213,16 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       // We can get reliably get it from the node. We could do this for all
       // nodes, but that could negatively impact export performance.
       if ($decoded['Page ID'] && $hierarchy > 5) {
-        $nid = $decoded['Page ID'];
-        if (!empty($nid)) {
+        if ($nid = trim($decoded['Page ID'])) {
           if (substr($nid, 0, 2) === 't_') {
-            $tid = intval(substr($nid, 2));
-            $termEntity = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
+            $tid = (int) substr($nid, 2);
+            $termEntity = $this->entity_type_manager->getStorage('taxonomy_term')->load($tid);
             if (!empty($termEntity)) {
               $url = $termEntity->toUrl()->toString();
             }
           }
           else {
-            $nodeEntity = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+            $nodeEntity = $this->entity_type_manager->getStorage('node')->load($nid);
             if (!empty($nodeEntity)) {
               $url = $nodeEntity->toUrl()->toString();
             }

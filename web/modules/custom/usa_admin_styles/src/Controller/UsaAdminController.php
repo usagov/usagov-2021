@@ -13,9 +13,9 @@ use Drupal\system\SystemManager;
 */
 class UsaAdminController extends ControllerBase {
 
-  public function __construct(MenuLinkTreeInterface $menu_link_tree, SystemManager $system_manager) {
-    $this->menuLinkTree = $menu_link_tree;
-    $this->systemManager = $system_manager;
+  public function __construct(
+    private MenuLinkTreeInterface $menuLinkTree,
+    private SystemManager $systemManager) {
   }
 
   // Returns a page with some instructions and the same list of links as are in the menu.

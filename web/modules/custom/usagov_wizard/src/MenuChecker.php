@@ -4,6 +4,7 @@ namespace Drupal\usagov_wizard;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -37,14 +38,12 @@ class MenuChecker implements ContainerInjectionInterface {
    * @param \Drupal\Core\Routing\CurrentRouteMatch $current_route_match
    *   Checks the current route to generate the entity.
    */
-  public function __construct(
-    EntityTypeManagerInterface $entity_type_manager,
-    CurrentRouteMatch $current_route_match,
+  public final function __construct(
+    private EntityTypeManagerInterface $entity_type_manager,
+    private CurrentRouteMatch $current_route_match,
+    private EntityRepositoryInterface $entity_repository,
   ) {
-    $this->entityTypeManager = $entity_type_manager;
-    $this->currentRouteMatch = $current_route_match;
-
-  }//end __construct()
+  }
 
   /**
    * Creates a new instance of this class.
@@ -57,9 +56,10 @@ class MenuChecker implements ContainerInjectionInterface {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-          $container->get('entity_type.manager'),
-          $container->get('current_route_match')
-      );
+      $container->get('entity_type.manager'),
+      $container->get('current_route_match'),
+      $container->get('entity.repository')
+    );
 
   }//end create()
 
@@ -74,20 +74,23 @@ class MenuChecker implements ContainerInjectionInterface {
    *   Returns an empty array if the given term has no parent term or if the
    *   'parent' field is not set.
    */
-  public function getTermParents(EntityInterface $term) {
+  public function getTermParents(EntityInterface $term): array {
     if ($term->hasField('parent') && !$term->get('parent')->isEmpty()) {
       $tid     = $term->id();
       $parents = $this->entityTypeManager->getStorage('taxonomy_term')->loadAllParents($tid);
       return array_keys($parents);
     }
 
+    return [];
+
   }//end getTermParents()
 
   /**
    * Get the values in the field_heading to determine the third breadcrumb.
    */
-  public function getHeadings(EntityInterface $term) {
+  public function getHeadings(EntityInterface $term): array {
     $parents = $this->getTermParents($term);
+    $headings = [];
 
     foreach ($parents as $parent) {
       $parent  = $this->entityTypeManager->getStorage('taxonomy_term')->load($parent);
@@ -140,10 +143,10 @@ class MenuChecker implements ContainerInjectionInterface {
               $tid = $route_parameters['taxonomy_term'];
               $menu_taxonomy_links[$tid] = [];
 
-              if (isset($menu_taxonomy_links)) {
+              if ($menu_taxonomy_links) {
                 if (isset($menu_entity->parent->value)) {
                   $primaryEntityUuid = $menu_entity->parent->value;
-                  $primaryEntity = \Drupal::service('entity.repository')
+                  $primaryEntity = $this->entity_repository
                     ->loadEntityByUuid('menu_link_content', explode(':', $primaryEntityUuid));
                   $menu_taxonomy_links[$tid][0] = $primaryEntity;
 
@@ -172,7 +175,7 @@ class MenuChecker implements ContainerInjectionInterface {
     if (isset($menu_taxonomy_links)) {
       return [
         'menu_entities' => $menu_taxonomy_links,
-        'primary_entity' => $primaryEntity,
+        'primary_entity' => $primaryEntity ?? null,
       ];
     }
     else {

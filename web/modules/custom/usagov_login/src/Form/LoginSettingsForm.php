@@ -28,7 +28,7 @@ class LoginSettingsForm extends ConfigFormBase {
    * @param \Drupal\Core\State\StateInterface $state
    *   State storage.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, StateInterface $state) {
+  final public function __construct(ConfigFactoryInterface $config_factory, StateInterface $state) {
     parent::__construct($config_factory);
     $this->state = $state;
   }

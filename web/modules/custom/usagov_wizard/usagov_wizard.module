@@ -290,7 +290,7 @@ function usagov_wizard_preprocess_page(&$variables) {
         }
         /* If there are matches, send information about the menu entities to the
         twig.*/
-        if (isset($wizardMenuEntities)) {
+        if ($wizardMenuEntities) {
           foreach ($wizardMenuEntities as $wizardMenuEntity) {
             $entities = array_map(function ($wizardMenuEntity) {
               return [
@@ -392,11 +392,11 @@ function usagov_wizard_preprocess_taxonomy_term(&$variables) {
 function usagov_wizard_preprocess_breadcrumb(&$variables) {
   $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
   if ($taxonomy_term instanceof Term) {
-    if ($taxonomy_term->bundle() == 'wizard') {
+    if ($taxonomy_term->bundle() === 'wizard') {
       $menuChecker = \Drupal::classResolver(MenuChecker::class);
       $parents = $menuChecker->getTermParents($taxonomy_term);
       $rootTermTid = $parents[array_key_last($parents)];
-      if (isset($rootTermTid)) {
+      if ($rootTermTid) {
         $rootTerm = Term::load($rootTermTid);
         $variables['wizard_breadcrumb'] = usagov_wizard_get_term_breadcrumb($rootTerm);
       }
@@ -442,9 +442,8 @@ function usagov_wizard_preprocess_views_view_field__wizard_options(&$variables) 
 
   if (isset($term->field_option_name)) {
     $option_name = $term->field_option_name->value;
+    $variables['option_name'] = $option_name;
   }
-
-  $variables['option_name'] = $option_name;
 }
 
 /**

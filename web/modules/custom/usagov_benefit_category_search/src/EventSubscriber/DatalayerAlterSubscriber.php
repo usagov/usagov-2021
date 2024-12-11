@@ -2,6 +2,7 @@
 
 namespace Drupal\usagov_benefit_category_search\EventSubscriber;
 
+use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
@@ -12,6 +13,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class DatalayerAlterSubscriber implements EventSubscriberInterface {
 
+  public function __construct(
+    private CurrentRouteMatch $routeMatch,
+  ) {}
   /**
    * {@inheritDoc}
    */
@@ -25,7 +29,7 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
    * Adds category information to the datalayer.
    */
   public function onDatalayerAlter(DatalayerAlterEvent $event): void {
-    $node = \Drupal::routeMatch()->getParameter('node');
+    $node = $this->routeMatch->getParameter('node');
     $event->datalayer['hasBenefitCategory'] = FALSE;
 
     if ($node instanceof Node && $node->getType() === 'basic_page') {

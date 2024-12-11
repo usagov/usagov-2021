@@ -4,13 +4,28 @@ namespace Drupal\usagov_ssg_postprocessing\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\State\StateInterface;
 use Drupal\node\Entity\Node;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Implements a form an administrator can use Enable or Disable Tome's cron runs.
 * This is expected to be used during deployments, allowing config changes to be made before tome's first run.
 */
 class ToggleStaticSiteGenerationForm extends FormBase {
+
+  public function __construct(
+    private StateInterface $state,
+    private LoggerInterface $log_channel,
+  ) {}
+
+  public static function create(ContainerInterface $container): self {
+    return new self(
+      state: $container->get('state'),
+      log_channel: $container->get('logger.factory')->get('usagov_ssg_postprocessing'),
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -24,9 +39,9 @@ class ToggleStaticSiteGenerationForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    $toggle_state = \Drupal::state()->get(usagov_ssg_postprocessing_get_static_state_var()) ? 'Enable' : 'Disable';
+    $toggle_state = $this->state->get(usagov_ssg_postprocessing_get_static_state_var()) ? 'Enable' : 'Disable';
 
-    $desc_text = $this->t(\Drupal::state()->get(usagov_ssg_postprocessing_get_static_state_var()) ?
+    $desc_text = $this->t($this->state->get(usagov_ssg_postprocessing_get_static_state_var()) ?
       "Static Site Generation is currently DISABLED." :
       "Static Site Generation is currently ENABLED. Note: Disabling will not cancel a Tome run that is already in progress.");
 
@@ -59,17 +74,17 @@ class ToggleStaticSiteGenerationForm extends FormBase {
     $errors = FALSE;
 
     try {
-      $toggle_state = \Drupal::state()->get(usagov_ssg_postprocessing_get_static_state_var()) ? FALSE : TRUE;
+      $toggle_state = $this->state->get(usagov_ssg_postprocessing_get_static_state_var()) ? FALSE : TRUE;
       //$toggle_state = $form_state->getValue(usagov_ssg_postprocessing_get_static_state_button_name()) ? TRUE : FALSE;
       if ($toggle_state) {
-        \Drupal::state()->set(usagov_ssg_postprocessing_get_static_state_var(), TRUE);
+        $this->state->set(usagov_ssg_postprocessing_get_static_state_var(), TRUE);
       }
       else {
-        \Drupal::state()->delete(usagov_ssg_postprocessing_get_static_state_var());
+        $this->state->delete(usagov_ssg_postprocessing_get_static_state_var());
       }
     }
     catch (\Exception $e) {
-      \Drupal::logger('usagov_ssg_postprocessing')->error('Error while attempting toggle tome: @error',
+      $this->log_channel->error('Error while attempting toggle tome: @error',
         ['@error' => $e->getMessage()]);
       $errors = TRUE;
     }

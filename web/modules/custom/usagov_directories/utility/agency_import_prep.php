@@ -303,12 +303,8 @@ function process_xml_file($filename) {
 /**
  * Get the plain-text string from the named element. Assumes there is just one node
  * matching the element name $nodename, and that it is a plain-text node.
- *
- * @param DomNode $node
- * @param string $nodename
- * @return void
  */
-function get_plain_text($node, $nodename) {
+function get_plain_text(DOMNode $node, string $nodename): string {
   $nodes = $node->getElementsByTagName($nodename);
   foreach ($nodes as $node) {
     return $node->textContent;
@@ -319,12 +315,8 @@ function get_plain_text($node, $nodename) {
 /**
  * Get Links (as URL and Text parts) from the named element. Assumes there is just one node
  * matching the element name $nodename, and that it contains CDATA.
- *
- * @param DomNode $node
- * @param string $nodename
- * @return void
  */
-function get_links_from_cdata($node, $nodename, $columnname = NULL) {
+function get_links_from_cdata(DOMNode $node, string $nodename, string $columnname = NULL): array {
   $columnname = $columnname ?: $nodename;
   $nodes = $node->getElementsByTagName($nodename);
   $content = '';
