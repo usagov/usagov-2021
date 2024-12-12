@@ -1,4 +1,4 @@
-FROM owasp/modsecurity-crs@sha256:94c67e36f8c48553b4e51378579f6afc818a5d9d2e0c6e09cf846913ee9fac31
+FROM owasp/modsecurity-crs:4.9.0-nginx-alpine-202412090512
 
 LABEL maintainer="USA.gov Web Ops"
 
@@ -40,6 +40,7 @@ COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
 RUN rm -rf /opt/owasp-crs/tests;
 
+RUN sed -i 's/https/http/g' /etc/apk/repositories
 RUN apk upgrade --update && \
     apk add vim \
       nano \
