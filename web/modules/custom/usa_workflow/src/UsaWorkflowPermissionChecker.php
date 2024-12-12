@@ -2,6 +2,12 @@
 
 namespace Drupal\usa_workflow;
 
+use \Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountProxyInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 /**
  * Check if a certain permission exist for current user.
  */
@@ -20,6 +26,21 @@ class UsaWorkflowPermissionChecker {
    */
   private $usaDeleteOwnContent = FALSE;
 
+  public function __construct(
+    private RouteMatchInterface $routeMatch,
+    private EntityTypeManagerInterface $entityTypeManager,
+    private AccountProxyInterface $currentUser,
+    private LoggerInterface $logger,
+  ) {}
+
+  public static function create(ContainerInterface $container): self {
+    return new self(
+      routeMatch: $container->get('current_route_match'),
+      entityTypeManager: $container->get('entity_type.manager'),
+      currentUser: $container->get('current_user'),
+      logger: $container->get('logger.factory')->get('usa_workflow'),
+    );
+  }
   /**
    * WfUserPermission.
    *
@@ -30,27 +51,26 @@ class UsaWorkflowPermissionChecker {
 
     $return = [];
 
-    $currentUser = \Drupal::currentUser();
-    if ($currentUser) {
-      $node_param = \Drupal::routeMatch()->getParameter('node');
+    if ($this->currentUser) {
+      $node_param = $this->routeMatch->getParameter('node');
 
       // Check if the user has 'usa approve own content'
       // assign TRUE as value.
-      if ($currentUser->hasPermission('usa approve own content')) {
+      if ($this->currentUser->hasPermission('usa approve own content')) {
         $this->usaApproveOwnContent = TRUE;
       }
 
       // Check if the user have 'usa delete own content'
       // assign TRUE as value.
-      if ($currentUser->hasPermission('usa delete own content')) {
+      if ($this->currentUser->hasPermission('usa delete own content')) {
         $this->usaDeleteOwnContent = TRUE;
       }
 
       // These are valid regardless of whether we have an existing node:
       $return['usaApproveOwnContent'] = $this->usaApproveOwnContent ?? FALSE;
       $return['usaDeleteOwnContent'] = $this->usaDeleteOwnContent ?? FALSE;
-      $return['currentUser']['id'] = $currentUser->id();
-      $return['currentUser']['roles'] = $currentUser->getRoles();
+      $return['currentUser']['id'] = $this->currentUser->id();
+      $return['currentUser']['roles'] = $this->currentUser->getRoles();
 
       // Default revisionUser to anonymous. This way it won't match if there is no revisionUser
       // (e.g., new page or some edge case.)
@@ -61,10 +81,10 @@ class UsaWorkflowPermissionChecker {
         // Get the user who last revised this node.
         $return['isNewPage'] = FALSE;
         $rev_uid = $node_param->getRevisionUserId();
-        $entityTypeManager = \Drupal::service('entity_type.manager');
-        if ($entityTypeManager) {
 
-          $storage = $entityTypeManager->getStorage('user');
+        if ($this->entityTypeManager) {
+
+          $storage = $this->entityTypeManager->getStorage('user');
           if ($storage) {
             $revisionUser = $storage->load($rev_uid);
 
@@ -74,16 +94,16 @@ class UsaWorkflowPermissionChecker {
             }
             else {
               // $rev_uid is invalid or $storage->load($rev_uid) failed
-              \Drupal::logger('usa_workflow')->error('$rev_uid (@rev_uid) is invalid or $storage->load($rev_uid) failed',
+              $this->logger->error('$rev_uid (@rev_uid) is invalid or $storage->load($rev_uid) failed',
                 ['@rev_uid' => $rev_uid ?? '']);
             }
           }
           else {
-            \Drupal::logger('usa_workflow')->error("getStorage('user') failed");
+            $this->logger->error("getStorage('user') failed");
           }
         }
         else {
-          \Drupal::logger('usa_workflow')->error("Drupal::service('entity_type.manager') failed");
+          $this->logger->error("Drupal::service('entity_type.manager') failed");
         }
       }
       else {
@@ -91,7 +111,7 @@ class UsaWorkflowPermissionChecker {
       }
     }
     else {
-      \Drupal::logger('usa_workflow')->error('\Drupal::currentUser() failed');
+      $this->logger->error('\Drupal::currentUser() failed');
     }
 
     return $return;

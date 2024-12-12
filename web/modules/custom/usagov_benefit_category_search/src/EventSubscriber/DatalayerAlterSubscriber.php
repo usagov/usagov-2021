@@ -16,6 +16,7 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
   public function __construct(
     private CurrentRouteMatch $routeMatch,
   ) {}
+
   /**
    * {@inheritDoc}
    */

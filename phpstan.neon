@@ -6,3 +6,8 @@ parameters:
     excludePaths:
         - web/modules/custom/usagov_benefit_finder
         - web/themes/custom/usagov/node_modules/flatted/php
+        # The next two files define the same functions into global scope,
+        # And confuse stan
+        - web/modules/custom/usagov_directories/utility/states_import_prep.php
+        - web/modules/custom/usagov_directories/utility/agency_import_prep.php
+

@@ -2,9 +2,11 @@
 
 namespace Drupal\usagov_directories\Form;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Implements a form an administrator can use to add acronyms to
@@ -12,6 +14,16 @@ use Drupal\node\Entity\Node;
  * This is expected to be used during development and never again thereafter.
  */
 class DirectoryRecordsAddAcronymsForm extends FormBase {
+
+  public function __construct(
+    private EntityTypeManagerInterface $entityTypeManager,
+  ) {}
+
+  public static function create(ContainerInterface $container): self {
+    return new self(
+      entityTypeManager: $container->get('entity_type.manager'),
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -76,7 +88,12 @@ class DirectoryRecordsAddAcronymsForm extends FormBase {
         // blank line, ignore.
         continue;
       }
-      $nids = \Drupal::entityQuery('node')->condition('field_mothership_uuid', $uuid)->execute();
+      $nids =  $this->entityTypeManager
+        ->getStorage('node')
+        ->getQuery()
+        ->condition('field_mothership_uuid', $uuid)
+        ->accessCheck(TRUE)
+        ->execute();
       $nid = reset($nids);
       if ($nid) {
         $node = Node::load($nid);
