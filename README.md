@@ -39,7 +39,7 @@ A revamped USA.gov site using Drupal 10 and Cloud Foundry
 
 Before starting the project setup, install/download the following:
 
-**Note: To download these tools, you must have administrator rights. If you do not have them and you're using a GSA computer, you can request admin rights [here](https://gsa.servicenowservices.com/sp/?id=sc_cat_item&sys_id=d75222fa1b9c641cb1f620eae54bcb20).**
+**Note:** To download these tools, you must have administrator rights. If you do not have them and you're using a GSA computer, you can request admin rights [here](https://gsa.servicenowservices.com/sp/?id=sc_cat_item&sys_id=d75222fa1b9c641cb1f620eae54bcb20).
 
 * [Homebrew](https://docs.brew.sh/Installation)
 * [Git](https://formulae.brew.sh/formula/git#default)
@@ -57,7 +57,7 @@ Before starting the project setup, install/download the following:
 ### Initialization
 Follow these steps when you first start working on the project, or anytime you want to reset your local development environment:
 
-**Note: Please wait until each command finishes before running the next. Expect long wait times. Keep your laptop plugged in during this setup..**
+**Note:** Please wait until each command finishes before running the next. Expect long wait times. Keep your laptop plugged in during this setup.
 
 1. Open a terminal and go to the project folder.
 2. Run these commands in the terminal:
@@ -66,7 +66,8 @@ Follow these steps when you first start working on the project, or anytime you w
     docker compose up
     ```
     Wait until messages stop scrolling by; the final message will probably be a message from node saying "Starting 'watch-sass' ..."
-3. Open your browser and go to `localhost` (no port number needed). Initially, this will show an empty Drupal site.
+3. Open your browser and go to [http://localhost](http://localhost) (no port number needed). Initially, this will show an empty Drupal site.
+
 **Note:** You should see logging messages in the terminal as the site loads. This may take a minute.
 
 ### Database Setup
@@ -87,18 +88,18 @@ Once you finish the previous section, follow these steps to set up your USAgov d
     ```
 
     **Note:** Expect a message saying there's no need to update the MariaDB database.
-5. Reload `http://localhost` in your browser. You should now see the beta.usa.gov home page.
+5. Reload `http://localhost` in your browser. You should now see the home page.
 
 [back to top](#usagov-2021)
 
 ### Media Files Setup
 
-Once you finish the previous section, you may not see the images on the site, please follow these steps to set up the media files:
+Once you finish the previous section, you may not see the images on the site. Please follow these steps to set up the media files:
 
 1. Download the latest ZIP file available from [our Google Drive](https://drive.google.com/drive/folders/1tI4k5qasEtmhxCBuznR3t0fe466milYk?usp=sharing).
 2. Go to the **root** of your USAgov project folder in your IDE or preferred file manager system in your computer.
 3. Locate the following folder: `s3/local/cms/public`.
-4. Unzip the downloaded ZIP file and replace the current `s3/local/cms/public` folder with the one you just unzipped.
+4. Unzip the downloaded ZIP file and place the files inside the `s3/local/cms/public` directory.
 5. Reload the `localhost` page in your browser. You should now see the images on the site.
 
 [back to top](#usagov-2021)
@@ -115,12 +116,14 @@ To access the Drupal Portal to make any additional configurations, you will need
 
     `http://default/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
 
-3. Replace the `default` portion with `localhost`. It should now be in the form:
+3. Replace `default` with `localhost`. It should now be in the form:
 
     `http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
 
     **Note:** This is a ONE-TIME login.
-4. Adjust your credentials accordingly, so that you have a valid username/password combination to use for logging in to the Drupal portal going forward. You will need a valid username/password combination to provide to the Cypress tests, as well as for logging in to the Drupal portal directly.
+4. Adjust your credentials accordingly, so that you have a valid username/password combination to use for logging into
+the Drupal portal going forward. You will need a valid username/password combination to provide to the Cypress tests,
+as well as for logging in to the Drupal portal directly.
 
 5. Navigate to [Admin -> People](http://localhost/admin/people), find your user account, and edit it to add a password.
 
@@ -130,7 +133,7 @@ To access the Drupal Portal to make any additional configurations, you will need
 
 ### Automated Tests Setup (Cypress)
 
-We use [Cypress](cypress.io). Note that we use only the Cypress App, _not_ Cypress Cloud!
+We use [Cypress](http://www.cypress.io). Note that we use only the Cypress App, _not_ Cypress Cloud!
 
 * Tests run in the `cypress` Docker container.
 * The tests themselves are in the `automated_tests/e2e-cypress` directory.
@@ -138,15 +141,18 @@ We use [Cypress](cypress.io). Note that we use only the Cypress App, _not_ Cypre
 
 ## Minimal Setup for Headless Tests
 
-1. Supply Drupal *credentials* for the automated tests: Edit the file `env.local.cypress`. Supply a valid Drupal user name and password for `cypressCmsUser` and `cypressCmsPass`.
+1. Provide Drupal credentials for the automated tests by editing the env.local.cypress file. Enter a valid Drupal username and password values for the `cypressCmsUser` and `cypressCmsPass`.
 2. Run `docker compose up` to rebuild the cypress container with the new environment variables.
 3. Run `bin/cypress-ssh` to open a shell in the cypress container
 
    You can run `npx cypress run --spec cypress/e2e` to run the entire test suite, or specify a smaller subset like `cypress/e2e/functional`.
 
-   The **Report** will be written to automated_tests/e2e-cypress/cypress/reports/html/index.html and you can open it in your web browser by navigating to that file and opening it. Cypress will report that it wrote the tests to /app/e2e-cypress/cypress/reports/html/index.html, which is the location of that file in the volume mounted to the cypress docker container.
+   The **Report** will be written to `automated_tests/e2e-cypress/cypress/reports/html/index.html` and you can open it
+in your web browser by navigating to that file and opening it. Cypress will report that it wrote the tests to
+`/app/e2e-cypress/cypress/reports/html/index.html`, which is the location of that file in the volume mounted to the cypress docker container.
 
-Note: The first time you run `bin/init`, it will create the `env.local.cypress` file by copying `env.default.cypress`. The default `cypressBaseUrl` in that file should be correct for running tests against your local dev site.
+**Note:** The first time you run `bin/init`, it will create the `env.local.cypress` file by copying `env.default.cypress`.
+The default `cypressBaseUrl` in that file should be correct for running tests against your local dev site.
 
 ## Setup for running Cypress interactively
 
@@ -178,7 +184,7 @@ This assumes you're using homebrew.
 
 4. Reboot your computer. (You need to reboot once after installing XQuartz. Thereafter, when you change your XQuartz settings you need to restart XQuartz, but not reboot.)
 
-Proceed to [Allow Cypress to open an X window](#allow-cypress-to-open-an-x-window)
+Proceed to [Allow Cypress to Open an X Window](#allow-cypress-to-open-an-x-window)
 
 ### On Windows ... TODO
 
@@ -226,14 +232,16 @@ There are two ways in which you can do this:
 [back to top](#usagov-2021)
 
 ## Theme Lint Guidelines
-If you make any changes to the `scss` or `js` files, make sure to check for linting errors and resolve them before submitting a pull request.
+If you make any changes to the `scss` or `js` files, make sure to check for linting errors and resolve them before
+submitting a pull request.
 
 `bin/npm run lint`
 
 [back to top](#usagov-2021)
 
 ## Project Restart/Reset
-Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing containers, networks, and volumes the procedure is the same as the full project setup.
+Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and
+destroying the existing containers, networks, and volumes the procedure is the same as the full project setup.
 
 ### Docker Cleanup
 ```
