@@ -15,6 +15,7 @@ class UserRouteAccess {
     private ImmutableConfig $config,
     private StateInterface $state,
   ) {}
+
   public static function create(ContainerInterface $container): self {
     return new self(
       config: $container->get('config.factory')->get('usagov_login.settings'),

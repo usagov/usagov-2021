@@ -22,7 +22,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
 
   public static function create(ContainerInterface $container): self {
     return new self(
-      request: $container->get('request_statck')->getCurrentRequest(),
+      request: $container->get('request_stack')->getCurrentRequest(),
       entity_type_manager: $container->get('entity_type.manager'),
     );
   }
