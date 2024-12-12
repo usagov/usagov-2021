@@ -2,11 +2,22 @@
 
 namespace Drupal\usa_orphaned_entities\Form;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class OrphanedEntitiesSettings extends ConfigFormBase {
 
+  public function __construct(
+    private EntityTypeManagerInterface $entityTypeManager,
+  ) {}
+
+  public static function create(ContainerInterface $container): self {
+    return new self(
+      entityTypeManager: $container->get('entity_type.manager'),
+    );
+  }
   /**
    * {@inheritdoc}
    */
@@ -18,14 +29,12 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $entityTypeManager = \Drupal::service('entity_type.manager');
-
     $form['#attached']['library'][] = 'usa_orphaned_entities/orphaned';
     $form = parent::buildForm($form, $form_state);
     $config = $this->config('orphaned_entities.settings');
     $form['entity_reference'] = [];
 
-    $entity_references = $entityTypeManager->getStorage('field_storage_config')->loadByProperties([
+    $entity_references = $this->entityTypeManager->getStorage('field_storage_config')->loadByProperties([
       'type' => 'entity_reference',
     ]);
 
@@ -43,9 +52,9 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
     // Get data and structure it for generating form.
     $reference_field_map = [];
     foreach ($entity_references as $index => $entity_reference) {
-      $form['entity_reference'][$index] = $entity_reference;
+      //$form['entity_reference'][$index] = $entity_reference;
       $bundles = $entity_reference->getBundles();
-      foreach ($bundles as $index => $bundle) {
+      foreach ($bundles as $bundle) {
         $reference_field = $entity_reference->getName();
         $reference_field_map[$bundle][] = $reference_field;
       }

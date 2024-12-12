@@ -4,6 +4,7 @@ services:
     arguments:
       - '@entity_type.manager'
       - '@current_route_match'
+      - '@entity.repository'
   usagov_wizard_datalayer_alter_subscriber:
     class: '\Drupal\usagov_wizard\EventSubscriber\DatalayerAlterSubscriber'
     arguments: ['@usagov_wizard.menu_checker', '@breadcrumb', '@current_route_match', '@entity_type.manager']

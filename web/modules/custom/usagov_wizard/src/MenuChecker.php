@@ -17,26 +17,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class MenuChecker implements ContainerInjectionInterface {
 
   /**
-   * Drupal\Core\Entity\EntityTypeManagerInterface definition.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * The current route match.
-   *
-   * @var \Drupal\Core\Routing\CurrentRouteMatch
-   */
-  public $currentRouteMatch;
-
-  /**
    * Constructs a new MenuChecker object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   Use this to build values for the entity that is passed in.
    * @param \Drupal\Core\Routing\CurrentRouteMatch $current_route_match
    *   Checks the current route to generate the entity.
+   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    */
   public final function __construct(
     private EntityTypeManagerInterface $entity_type_manager,
@@ -77,7 +64,7 @@ class MenuChecker implements ContainerInjectionInterface {
   public function getTermParents(EntityInterface $term): array {
     if ($term->hasField('parent') && !$term->get('parent')->isEmpty()) {
       $tid     = $term->id();
-      $parents = $this->entityTypeManager->getStorage('taxonomy_term')->loadAllParents($tid);
+      $parents = $this->entity_type_manager->getStorage('taxonomy_term')->loadAllParents($tid);
       return array_keys($parents);
     }
 
@@ -93,7 +80,7 @@ class MenuChecker implements ContainerInjectionInterface {
     $headings = [];
 
     foreach ($parents as $parent) {
-      $parent  = $this->entityTypeManager->getStorage('taxonomy_term')->load($parent);
+      $parent  = $this->entity_type_manager->getStorage('taxonomy_term')->load($parent);
       $heading = $parent->field_heading->value;
       $name    = $parent->get('name')->value;
       $id      = $parent->id();
@@ -127,7 +114,7 @@ class MenuChecker implements ContainerInjectionInterface {
       $menu_name = 'left-menu-spanish';
     }
 
-    $menu_links = $this->entityTypeManager->getStorage('menu_link_content')->loadByProperties(['menu_name' => $menu_name]);
+    $menu_links = $this->entity_type_manager->getStorage('menu_link_content')->loadByProperties(['menu_name' => $menu_name]);
 
     $menu_entities = [];
 
@@ -151,7 +138,7 @@ class MenuChecker implements ContainerInjectionInterface {
                   $menu_taxonomy_links[$tid][0] = $primaryEntity;
 
                   // Load children of the parent entity.
-                  $children = $this->entityTypeManager->getStorage('menu_link_content')
+                  $children = $this->entity_type_manager->getStorage('menu_link_content')
                     ->loadByProperties(
                         [
                           'menu_name' => $menu_name,
