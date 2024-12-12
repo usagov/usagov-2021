@@ -147,7 +147,7 @@ function usa_twig_vars_get_page_type(&$node) {
  * @param \Drupal\node\NodeInterface $node
  *   The node entity to get the meta description from.
  *
- * @return string,NULL
+ * @return string|NULL
  *   Returns the meta description or NULL if there is none.
  */
 function usa_twig_vars_get_meta_description(&$node) {

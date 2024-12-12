@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
+use Drupal\taxonomy\TermInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -53,7 +54,7 @@ class MenuChecker implements ContainerInjectionInterface {
   /**
    * Retrieves the parent terms of a given taxonomy term.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $term
+   * @param \Drupal\taxonomy\TermInterface $term
    *   The taxonomy term entity for which to retrieve the parent terms.
    *
    * @return int[]
@@ -61,7 +62,7 @@ class MenuChecker implements ContainerInjectionInterface {
    *   Returns an empty array if the given term has no parent term or if the
    *   'parent' field is not set.
    */
-  public function getTermParents(EntityInterface $term): array {
+  public function getTermParents(TermInterface $term): array {
     if ($term->hasField('parent') && !$term->get('parent')->isEmpty()) {
       $tid     = $term->id();
       $parents = $this->entity_type_manager->getStorage('taxonomy_term')->loadAllParents($tid);

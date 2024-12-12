@@ -150,7 +150,9 @@ function faq_process_components(&$dom) {
     $element = $embeddedParagraphElements->item($n);
     // Get the component
     $uuid = $element->getAttribute('data-paragraph-id');
-    $embedded_paragraph = \Drupal::service('entity.repository')->loadEntityByUuid('embedded_paragraphs', $uuid);
+    $embedded_paragraph = \Drupal::service('entity.repository')
+      ->loadEntityByUuid('embedded_paragraphs', $uuid);
+
     $component = $embedded_paragraph->get('paragraph')[0]->entity;
 
     // Process component by its type

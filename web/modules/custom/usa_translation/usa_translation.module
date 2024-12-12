@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Url;
@@ -113,7 +114,7 @@ function usa_translation_page_attachments_alter(&$page) {
       // Displays current route of an entity in the metadata
       // The route should be the same as the canonical url.
       if ($entity
-        && $entity instanceof EntityInterface
+        && $entity instanceof ContentEntityBase
         && $entity->hasLinkTemplate('canonical')) {
         foreach ($entity->getTranslationLanguages() as $language) {
           // Skip any translation that cannot be viewed.
