@@ -53,7 +53,7 @@ assertIsImageDigest $WWW_DIGEST
 shift
 
 if [ $CMS_DIGEST = $WAF_DIGEST -o $CMS_DIGEST = $WWW_DIGEST ]; then
-    echo "Cannot use the same digest for any of the CMS, WAF and WWW images!"
+    echo "Cannot use the same digest for any of the CMS, WAF or WWW images - please check the arguments that were passed"
     exit 1
 fi
 
