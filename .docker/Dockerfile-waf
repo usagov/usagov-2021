@@ -37,7 +37,7 @@ ENV APP_NAME=USAGov \
     MODSEC_PCRE_MATCH_LIMIT=500000 \
     MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000
 
-RUN sed -i 's/^# deb-src./deb-src /' /etc/apt/sources.list
+# RUN sed -i 's/^# deb-src./deb-src /' /etc/apt/sources.list
 RUN sed -i 's/https/http/g' /etc/apk/repositories
 
 RUN  apt-get update && \
