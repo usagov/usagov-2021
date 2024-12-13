@@ -30,7 +30,7 @@ commands:
               echo "git checkout << parameters.envname >>"
               echo "git fetch --all --tags"
               echo "git pull"
-              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
+              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST $WWW_DIGEST
               echo
             fi
       - run:
@@ -252,7 +252,7 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-cron << parameters.envname >> << pipeline.number >> $CMS_DIGEST
+            ./bin/cloudgov/deploy-cron << parameters.envname >> << pipeline.number >> $CRON_DIGEST
 
 jobs:
   scan-code:
@@ -844,7 +844,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron

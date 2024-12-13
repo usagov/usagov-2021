@@ -56,7 +56,7 @@ class MobileMenuBlock extends AbstractMenuBlock {
       $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
       $items = $this->getMenuTreeItems($menuID, $crumbs, $active, maxLevels: -1);
       $twigVars = $this->prepareMenuItemsForTemplate($items, $active);
-      return $this->renderItems($items, $twigVars);
+      return $this->renderItems($items, $twigVars, $menuID);
 
     }
 
@@ -71,13 +71,13 @@ class MobileMenuBlock extends AbstractMenuBlock {
       '#siblings_of_active_item' => [],
       '#submenu' => $items['#items'],
     ];
-    return $this->renderItems($items, $twigVars);
+    return $this->renderItems($items, $twigVars, $menuID);
   }
 
   /**
    * Returns the render array to theme the navigation lists.
    */
-  private function renderItems(array $items, array $twigVars): array {
+  private function renderItems(array $items, array $twigVars, string $menuID): array {
 
     $node = $this->routeMatch->getParameter('node');
     return array_merge(
@@ -88,8 +88,10 @@ class MobileMenuBlock extends AbstractMenuBlock {
         '#translations' => $this->translations,
 
         // Ensure drupal knows this block should be cached per path.
+        // and when the menu changes
         '#cache' => [
           'contexts' => ['url.path', 'url.query_args'],
+          'tags' => ['config:system.menu.' . $menuID],
         ]
       ],
       $twigVars

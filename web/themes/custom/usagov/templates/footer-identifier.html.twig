@@ -4,10 +4,11 @@
     'official_guide': 'USAGov en Español es la guía oficial de información y servicios del Gobierno',
     'official_site_1': 'Un sitio web oficial de la',
     'official_site_2': 'Administración de Servicios Generales de los Estados Unidos',
-    'official_site_3': '(GSA, sigla en inglés)',
+    'official_site_3': ' (GSA, sigla en inglés)',
     'accessibility_support': 'Política de accesibilidad de\n GSA (en inglés)',
     'privacy_policy': 'Política de privacidad de\n GSA (en inglés)',
-    'foia_requests': 'Solicitud a través de\n FOIA (en inglés)'
+    'foia_requests': 'Solicitud a través de\n FOIA (en inglés)',
+    'important_links': 'Enlaces importantes'
   } %}
 {% else %}
   {% set translations = {
@@ -17,7 +18,8 @@
     'official_site_3': '',
     'accessibility_support': 'GSA accessibility support',
     'privacy_policy': 'GSA privacy policy',
-    'foia_requests': 'FOIA requests'
+    'foia_requests': 'FOIA requests',
+    'important_links': 'Important links'
   } %}
 {% endif %}
 
@@ -25,15 +27,13 @@
 <div class="usa-identifier">
   <section class="usa-identifier__section usa-identifier__section--usagov" aria-label="{{ translations.official_guide }}">
     <div class="usa-identifier__container">
-		<section class="usa-identifier__identity" aria-label="{{ translations.official_site_1 }} {{ translations.official_site_2 }} {{ translations.official_site_3 }}">
+		<section class="usa-identifier__identity" aria-label="{{ translations.official_site_1 }} {{ translations.official_site_2 }}{{ translations.official_site_3 }}">
       <p class="usa-identifier__identity-disclaimer">{{ translations.official_guide }}</p>
-    	<p class="usa-identifier__identity-disclaimer">
-        {{ translations.official_site_1 }} <a href="https://www.gsa.gov/">{{ translations.official_site_2 }}</a> {{ translations.official_site_3 }}
-      </p>
+    	<p class="usa-identifier__identity-disclaimer">{{ translations.official_site_1 }} <a href="https://www.gsa.gov/">{{ translations.official_site_2 }}</a>{{ translations.official_site_3 }}</p>
 		</section>
     </div>
   </section>
-  <nav class="usa-identifier__section usa-identifier__section--required-links" aria-label="Important links">
+  <nav class="usa-identifier__section usa-identifier__section--required-links" aria-label="{{ translations.important_links }}">
     <div class="usa-identifier__container">
       <ul class="usa-identifier__required-links-list">
         <li class="usa-identifier__required-links-item">
