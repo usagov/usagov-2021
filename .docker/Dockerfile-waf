@@ -1,13 +1,10 @@
-ARG modsecurity_nginx_version="1.0.3"
-ARG nginx_version="1.27.2"
 ARG alpine_version="3.20.3"
-
 FROM alpine:${alpine_version}
 
 LABEL maintainer="USA.gov Web Ops"
 
-ENV modsecurity_nginx_version ${modsecurity_nginx_version:-none}
-ENV nginx_version ${nginx_version:-none}
+ENV modsecurity_nginx_version="1.0.3"
+ENV nginx_version="1.27.2"
 
 ARG GITBRANCH
 ENV GITBRANCH ${GITBRANCH:-none}
