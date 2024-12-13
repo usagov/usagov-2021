@@ -88,7 +88,7 @@ Once you finish the previous section, follow these steps to set up your USAgov d
     ```
 
     **Note:** Expect a message saying there's no need to update the MariaDB database.
-5. Reload `http://localhost` in your browser. You should now see the home page.
+5. Reload `localhost` in your browser. You should now see the home page.
 
 [back to top](#usagov-2021)
 
@@ -141,7 +141,7 @@ We use [Cypress](http://www.cypress.io). Note that we use only the Cypress App, 
 
 ## Minimal Setup for Headless Tests
 
-1. Provide Drupal credentials for the automated tests by editing the env.local.cypress file. Enter a valid Drupal username and password values for the `cypressCmsUser` and `cypressCmsPass`.
+1. Provide Drupal credentials for the automated tests by editing the `env.local.cypress` file. Enter a valid Drupal username and password values for the `cypressCmsUser` and `cypressCmsPass`.
 2. Run `docker compose up` to rebuild the cypress container with the new environment variables.
 3. Run `bin/cypress-ssh` to open a shell in the cypress container
 
@@ -316,7 +316,7 @@ cp .git.commit-msg .git/hooks/commit-msg
 
 ## Single Item Config Export
 If you have lots of junk or temporary config changes in your current database you may opt to only pick out the individual configs you know are needed.
-You can see the full list of available changes on the main [Config Synchronize screen](http://localhost/admin/config/development/configuration).
+You can see the full list of available changes on the main [Config Synchronize page](http://localhost/admin/config/development/configuration).
 Once you determine which config changes will be needed you can go to the [Export > Single Item](http://localhost/admin/config/development/configuration/single/export). There you can see and export just that one item.
 
 [back to top](#usagov-2021)
@@ -360,8 +360,7 @@ This process asks drush to export the database for us since it does some cleanup
 ## Export Config
 
 1. View differences
-   * Configuration > Development > Configuration Synchronization
-   * `/admin/config/development/configuration`
+   * [Configuration > Development > Configuration Synchronization](http://localhost/admin/config/development/configuration)
 2. Export
    * via Command Line
       - `bin/drush cex`
