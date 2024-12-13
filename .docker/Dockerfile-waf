@@ -41,39 +41,17 @@ ENV APP_NAME=USAGov \
 RUN sed -i 's/https/http/g' /etc/apk/repositories
 
 RUN  apk upgrade --update && \
-     apk add autoconf \
-      automake \
-      bash \
-      build-essential \
-      curl \
-      doxygen \
-      dpkg-dev \
-      gcc \
-      gettext \
-      inotify-tools \
-      jq \
-      libcurl4 \
-      libcurl4-openssl-dev \
-      libfuzzy-dev \
-      libgeoip-dev \
-      liblua5.3-dev \
-      libmodsecurity3 \
-      libmodsecurity-dev \
-      libpcre2-dev \
-      libpcre3 \
-      libpcre3-dev \
-      libtool \
-      libxml2 \
-      libxml2-dev \
-      libyajl-dev \
-      make \
-      nano \
-      pkg-config \
-      sed \
-      software-properties-common \
-      ssdeep \
-      uuid-dev \
-      wget
+     apk add bash \
+     curl \
+     gettext \
+     inotify-tools \
+     jq \
+     make \
+     nano \
+     sed \
+     tar \
+     vim \
+     wget
 
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \
