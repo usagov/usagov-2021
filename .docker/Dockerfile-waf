@@ -6,6 +6,9 @@ FROM alpine:${alpine_version}
 
 LABEL maintainer="USA.gov Web Ops"
 
+ENV modsecurity_nginx_version ${modsecurity_nginx_version:-none}
+ENV nginx_version ${nginx_version:-none}
+
 ARG GITBRANCH
 ENV GITBRANCH ${GITBRANCH:-none}
 
