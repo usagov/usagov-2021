@@ -79,19 +79,6 @@
     }
 
     location / {
-        # Decode the URI for proper matching
-        set $decoded_uri $uri;
-        # We will react on URLs ending with spaces, non-breaking spaces, thin-space, and Em-space
-        if ($decoded_uri ~* ^(.+?)(%C2%A0|\xA0|%E2%80%89|\xE2\x80\x89|%E2%80%83|\xE2\x80\x83)+$) {
-            set $clean_uri $1;
-            return 301 $clean_uri;
-        }
-        # Match and strip other partial %C2 sequences from the end of the URI
-        if ($uri ~* ^(.+?)(%C2|\xC2)+$) {
-            set $clean_uri $1;
-            return 301 $clean_uri;
-        }
-
         # try_files $uri @rewrite; # For Drupal <= 6
         try_files $uri /index.php?$query_string; # For Drupal >= 7
     }
