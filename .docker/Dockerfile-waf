@@ -40,9 +40,8 @@ ENV APP_NAME=USAGov \
 # RUN sed -i 's/^# deb-src./deb-src /' /etc/apt/sources.list
 RUN sed -i 's/https/http/g' /etc/apk/repositories
 
-RUN  apk update && \
-     apk install -y \
-      autoconf \
+RUN  apk upgrade --update && \
+     apk add autoconf \
       automake \
       bash \
       build-essential \
