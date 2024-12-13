@@ -65,12 +65,12 @@ RUN wget https://github.com/SpiderLabs/ModSecurity-nginx/archive/refs/tags/v${mo
 RUN tar -xf v${modsecurity_nginx_version}.tar.gz && \
     rm -f v${modsecurity_nginx_version}.tar.gz
 
-WORKDIR /usr/share/nginx/src/
-RUN apt-get build-dep -y nginx
+# WORKDIR /usr/share/nginx/src/
+# RUN apt-get build-dep -y nginx
 
-RUN wget https://nginx.org/download/nginx-${nginx_version}.tar.gz && \
-    tar -xf nginx-${nginx_version}.tar.gz && \
-    rm -f nginx-${nginx_version}.tar.gz
+# RUN wget https://nginx.org/download/nginx-${nginx_version}.tar.gz && \
+#     tar -xf nginx-${nginx_version}.tar.gz && \
+#     rm -f nginx-${nginx_version}.tar.gz
 
 WORKDIR /usr/share/nginx/src/nginx-${nginx_version}
 
