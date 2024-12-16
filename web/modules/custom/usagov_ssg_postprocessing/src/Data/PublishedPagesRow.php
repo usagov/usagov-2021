@@ -104,7 +104,7 @@ final class PublishedPagesRow {
     if ($node->getType() === 'directory_record') {
       $acronym = $node->get('field_acronym')->getValue();
       if ($acronym) {
-        $title = sprintf("%s (%s)", $title, $acronym[0]['value']);
+        $title = sprintf("%s (%s)", trim($title), trim($acronym[0]['value']));
       }
     }
 
@@ -175,7 +175,11 @@ final class PublishedPagesRow {
   }
 
   public static function datalayerForWizard(array $data, Term $term, string $baseURL): self {
-    $title = $term->getName();
+    if ($heading = $term->get('field_heading')->getValue()) {
+      $title = $heading[0]['value'];
+    } else {
+      $title = $term->getName();
+    }
 
     $friendlyURL = $term->toUrl('canonical',
       options: ['language' => $term->language()]
