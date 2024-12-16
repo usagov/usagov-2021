@@ -15,7 +15,6 @@
         }
     ],
     "require": {
-        "composer/installers": "^1.9",
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
         "drupal/admin_toolbar": "^3.4",
@@ -76,6 +75,7 @@
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
         "onelogin/php-saml": "^4",
+        "oomphinc/composer-installers-extender": "*",
         "wikimedia/composer-merge-plugin": "^2.0.0"
     },
     "conflict": {
@@ -85,10 +85,9 @@
     "prefer-stable": true,
     "config": {
         "optimize-autoloader": true,
-        "process-timeout":0,
+        "process-timeout": 0,
         "sort-packages": true,
         "allow-plugins": {
-            "composer/installers": true,
             "drupal/console-extend-plugin": true,
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
@@ -105,6 +104,9 @@
                 "web-root": "web/"
             }
         },
+        "installer-types": [
+            "drupal-module", "drupal-theme"
+        ],
         "installer-paths": {
             "web/core": [
                 "type:drupal-core"
@@ -133,7 +135,6 @@
             "web/themes/custom/{$name}": [
                 "type:drupal-custom-theme"
             ]
-
         },
         "patchLevel": {
             "drupal/core": "-p2"
