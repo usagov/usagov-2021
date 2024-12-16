@@ -30,7 +30,7 @@ commands:
               echo "git checkout << parameters.envname >>"
               echo "git fetch --all --tags"
               echo "git pull"
-              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
+              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST $WWW_DIGEST
               echo
             fi
       - run:
