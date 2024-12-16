@@ -28,6 +28,8 @@ final class PublishedPagesRow {
     public readonly string $pageTitle,
     // complete URL including domain name
     public readonly string $fullURL,
+    // We call the pages and URLs here "Taxonomy" but they aren't Drupal taxonomy terms.
+    // The following properties come from home page + menu-driven breadcrumbs.
     public readonly string $taxonomyText1,
     public readonly string $taxonomyText2,
     public readonly string $taxonomyText3,

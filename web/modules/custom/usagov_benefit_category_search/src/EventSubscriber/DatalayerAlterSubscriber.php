@@ -26,6 +26,8 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
    */
   public function onDatalayerAlter(DatalayerAlterEvent $event): void {
 
+    // This listener is only interested in nodes, which have numeric IDs.
+    // Taxonomy terms IDs are prefixed with "t_"
     if (!isset($event->datalayer['nodeID']) || !is_numeric($event->datalayer['nodeID'])) {
       return;
     }
