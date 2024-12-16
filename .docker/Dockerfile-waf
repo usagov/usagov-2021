@@ -1,10 +1,8 @@
-ARG alpine_version="3.20.3"
-FROM alpine:${alpine_version}
+FROM owasp/modsecurity-crs:4.9.0-nginx-alpine-202412120712
 
 LABEL maintainer="USA.gov Web Ops"
 
-ENV modsecurity_nginx_version="1.0.3"
-ENV nginx_version="1.27.2"
+ARG RELEASE=3.3.2
 
 ARG GITBRANCH
 ENV GITBRANCH ${GITBRANCH:-none}
@@ -37,53 +35,30 @@ ENV APP_NAME=USAGov \
     MODSEC_PCRE_MATCH_LIMIT=500000 \
     MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000
 
-# RUN sed -i 's/^# deb-src./deb-src /' /etc/apt/sources.list
-RUN sed -i 's/https/http/g' /etc/apk/repositories
+COPY src-waf/docker-entrypoint-waf.sh /
+COPY src-waf/etc/ /etc/
+COPY src-waf/opt/ /opt/
+RUN rm -rf /opt/owasp-crs/tests;
 
-RUN  apk upgrade --update && \
-     apk add bash \
-     curl \
-     gettext \
-     inotify-tools \
-     jq \
-     make \
-     nano \
-     sed \
-     tar \
-     vim \
-     wget
+USER root
+
+RUN apk upgrade --update && \
+    apk add vim \
+      nano \
+      bash \
+      jq \
+      inotify-tools \
+      gettext \
+      curl \
+      sed
 
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \
     apk add --no-cache \
     ca-certificates;
+# \    ln -sv /opt/owasp-crs /etc/modsecurity.d;
 
-ARG modsecurity_path=/usr/local/src/modsecurity_nginx
-RUN mkdir -p ${modsecurity_path}
-WORKDIR ${modsecurity_path}
-RUN wget https://github.com/SpiderLabs/ModSecurity-nginx/archive/refs/tags/v${modsecurity_nginx_version}.tar.gz
-RUN tar -xf v${modsecurity_nginx_version}.tar.gz && \
-    rm -f v${modsecurity_nginx_version}.tar.gz
-
-WORKDIR /usr/share/nginx/src/
-RUN apk add --virtual .build-deps nginx
-
-RUN wget https://nginx.org/download/nginx-${nginx_version}.tar.gz && \
-    tar -xf nginx-${nginx_version}.tar.gz && \
-    rm -f nginx-${nginx_version}.tar.gz
-
-WORKDIR /usr/share/nginx/src/nginx-${nginx_version}
-
-RUN ./configure --add-dynamic-module=${modsecurity_path}/ModSecurity-nginx-${modsecurity_nginx_version} --with-compat && \
-    make modules && \
-    cp ./objs/ngx_http_modsecurity_module.so /ngx_http_modsecurity_module.so
-
-RUN apk del .build-deps
-
-COPY src-waf/docker-entrypoint-waf.sh /
-COPY src-waf/etc/ /etc/
-COPY src-waf/opt/ /opt/
-RUN rm -rf /opt/owasp-crs/tests;
+USER nginx
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
