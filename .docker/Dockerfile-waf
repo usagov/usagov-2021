@@ -66,17 +66,19 @@ RUN tar -xf v${modsecurity_nginx_version}.tar.gz && \
     rm -f v${modsecurity_nginx_version}.tar.gz
 
 WORKDIR /usr/share/nginx/src/
-# RUN apt-get build-dep -y nginx
+RUN apk add --virtual .build-deps nginx
 
-# RUN wget https://nginx.org/download/nginx-${nginx_version}.tar.gz && \
-#     tar -xf nginx-${nginx_version}.tar.gz && \
-#     rm -f nginx-${nginx_version}.tar.gz
+RUN wget https://nginx.org/download/nginx-${nginx_version}.tar.gz && \
+    tar -xf nginx-${nginx_version}.tar.gz && \
+    rm -f nginx-${nginx_version}.tar.gz
 
 WORKDIR /usr/share/nginx/src/nginx-${nginx_version}
 
 RUN ./configure --add-dynamic-module=${modsecurity_path}/ModSecurity-nginx-${modsecurity_nginx_version} --with-compat && \
     make modules && \
     cp ./objs/ngx_http_modsecurity_module.so /ngx_http_modsecurity_module.so
+
+RUN apk del .build-deps
 
 COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
