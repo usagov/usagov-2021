@@ -1,0 +1,1754 @@
+diff --git a/core/lib/Drupal/Core/Theme/ThemeManager.php b/core/lib/Drupal/Core/Theme/ThemeManager.php
+index f0119957d0..7cceb9d335 100644
+--- a/core/lib/Drupal/Core/Theme/ThemeManager.php
++++ b/core/lib/Drupal/Core/Theme/ThemeManager.php
+@@ -140,45 +140,50 @@ public function render($hook, array $variables) {
+
+     $theme_registry = $this->themeRegistry->getRuntime();
+
+-    // If an array of hook candidates were passed, use the first one that has an
+-    // implementation.
+-    if (is_array($hook)) {
+-      foreach ($hook as $candidate) {
+-        if ($theme_registry->has($candidate)) {
+-          break;
+-        }
+-      }
+-      $hook = $candidate;
++    // $hook is normally a string, but it can be an array. We only log error
++    // messages below if it was a string.
++    $is_hook_array = is_array($hook);
++
++    // While we search for templates, we create a full list of template
++    // suggestions that is later passed to theme_suggestions alter hooks.
++    $template_suggestions = $is_hook_array ? array_values($hook) : [$hook];
++
++    // The last element in our template suggestions gets special treatment.
++    // While the other elements must match exactly, the final element is
++    // expanded to create multiple possible matches by iteratively striping
++    // everything after the last '__' delimiter.
++    $last_hook = $suggestion = $is_hook_array ? $hook[array_key_last($hook)] : $hook;
++    while ($pos = strrpos($suggestion, '__')) {
++      $suggestion = substr($suggestion, 0, $pos);
++      $template_suggestions[] = $suggestion;
+     }
+-    // Save the original theme hook, so it can be supplied to theme variable
+-    // preprocess callbacks.
+-    $original_hook = $hook;
+-
+-    // If there's no implementation, check for more generic fallbacks.
+-    // If there's still no implementation, log an error and return an empty
+-    // string.
+-    if (!$theme_registry->has($hook)) {
+-      // Iteratively strip everything after the last '__' delimiter, until an
+-      // implementation is found.
+-      while ($pos = strrpos($hook, '__')) {
+-        $hook = substr($hook, 0, $pos);
+-        if ($theme_registry->has($hook)) {
+-          break;
+-        }
++
++    // Use the first hook candidate that has an implementation.
++    foreach ($template_suggestions as $candidate) {
++      if ($theme_registry->has($candidate)) {
++        // Save the original theme hook, so it can be supplied to theme variable
++        // preprocess callbacks.
++        $original_hook = $is_hook_array && in_array($candidate, $hook) ? $candidate : $last_hook;
++        $hook = $candidate;
++        $info = $theme_registry->get($hook);
++        break;
+       }
+-      if (!$theme_registry->has($hook)) {
+-        // Only log a message when not trying theme suggestions ($hook being an
+-        // array).
+-        if (!isset($candidate)) {
+-          \Drupal::logger('theme')->warning('Theme hook %hook not found.', ['%hook' => $hook]);
+-        }
+-        // There is no theme implementation for the hook passed. Return FALSE so
+-        // the function calling
+-        // \Drupal\Core\Theme\ThemeManagerInterface::render() can differentiate
+-        // between a hook that exists and renders an empty string, and a hook
+-        // that is not implemented.
+-        return FALSE;
++    }
++
++    // If there's no implementation, log an error and return an empty string.
++    if (!isset($info)) {
++      // Only log a message if we #theme was a string. By default, all forms set
++      // #theme to an array containing the form ID and don't implement that as a
++      // theme hook, so we want to prevent errors for that common use case.
++      if (!$is_hook_array) {
++        \Drupal::logger('theme')->warning('Theme hook %hook not found.', ['%hook' => $candidate]);
+       }
++      // There is no theme implementation for the hook passed. Return FALSE so
++      // the function calling
++      // \Drupal\Core\Theme\ThemeManagerInterface::render() can differentiate
++      // between a hook that exists and renders an empty string, and a hook
++      // that is not implemented.
++      return FALSE;
+     }
+
+     $info = $theme_registry->get($hook);
+@@ -217,15 +222,17 @@ public function render($hook, array $variables) {
+       'theme_hook_original' => $original_hook,
+     ];
+
+-    $suggestions = $this->buildThemeHookSuggestions($hook, $info['base hook'] ?? '', $variables);
++    $suggestions = $this->buildThemeHookSuggestions($hook, $info['base hook'] ?? '', $variables, $template_suggestions);
+
+     // Check if each suggestion exists in the theme registry, and if so,
+     // use it instead of the base hook. For example, a function may use
+     // '#theme' => 'node', but a module can add 'node__article' as a suggestion
+     // via hook_theme_suggestions_HOOK_alter(), enabling a theme to have
+     // an alternate template file for article nodes.
++    $template_suggestion = $hook;
+     foreach (array_reverse($suggestions) as $suggestion) {
+       if ($theme_registry->has($suggestion)) {
++        $template_suggestion = $suggestion;
+         $info = $theme_registry->get($suggestion);
+         break;
+       }
+@@ -345,6 +352,10 @@ public function render($hook, array $variables) {
+     if (isset($theme_hook_suggestion)) {
+       $variables['theme_hook_suggestion'] = $theme_hook_suggestion;
+     }
++    // Add two read-only variables that help the template engine understand
++    // how the template was chosen from among all suggestions.
++    $variables['template_suggestions'] = $template_suggestions;
++    $variables['template_suggestion'] = $template_suggestion;
+     $output = $render_function($template_file, $variables);
+     return ($output instanceof MarkupInterface) ? $output : (string) $output;
+   }
+@@ -368,20 +379,39 @@ public function render($hook, array $variables) {
+    * @internal
+    *   This method may change at any time. It is not for use outside this class.
+    */
+-  protected function buildThemeHookSuggestions(string $hook, string $info_base_hook, array &$variables): array {
++  protected function buildThemeHookSuggestions(string $hook, string $info_base_hook, array &$variables, array &$template_suggestions): array {
+     // Set base hook for later use. For example if '#theme' => 'node__article'
+     // is called, we run hook_theme_suggestions_node_alter() rather than
+     // hook_theme_suggestions_node__article_alter(), and also pass in the base
+     // hook as the last parameter to the suggestions alter hooks.
+     $base_theme_hook = $info_base_hook ?: $hook;
+
++
++    // The $hook's theme registry may specify a "base hook" that differs from
++    // the base string of $hook. If so, we need to be aware of both strings.
++    $base_of_hook = explode('__', $hook)[0];
++
+     // Invoke hook_theme_suggestions_HOOK().
+     $suggestions = $this->moduleHandler->invokeAll('theme_suggestions_' . $base_theme_hook, [$variables]);
+-    // If the theme implementation was invoked with a direct theme suggestion
+-    // like '#theme' => 'node__article', add it to the suggestions array before
+-    // invoking suggestion alter hooks.
+-    if ($info_base_hook) {
+-      $suggestions[] = $hook;
++
++    // Add all the template suggestions with the same base to the suggestions
++    // array before invoking suggestion alter hooks.
++    $contains_base_hook = in_array($base_theme_hook, $template_suggestions);
++    foreach (array_reverse($template_suggestions, TRUE) as $key => $suggestion) {
++      $suggestion_base = explode('__', $suggestion)[0];
++      if ($suggestion_base === $base_of_hook || $suggestion_base === $base_theme_hook) {
++        if ($suggestion !== $base_theme_hook) {
++          $suggestions[] = $suggestion;
++        }
++        // Temporarily remove from $template_suggestions the suggestions that we
++        // are adding to $suggestions given to the alter hooks. However, ensure
++        // that we leave one entry for the base hook, so we can splice those
++        // $suggestions back into $template_suggestions later.
++        if (($contains_base_hook && $suggestion !== $base_theme_hook)
++          || (!$contains_base_hook && $suggestion !== $hook)) {
++          unset($template_suggestions[$key]);
++        }
++      }
+     }
+
+     // Invoke hook_theme_suggestions_alter() and
+@@ -393,6 +423,16 @@ protected function buildThemeHookSuggestions(string $hook, string $info_base_hoo
+     $this->moduleHandler->alter($hooks, $suggestions, $variables, $base_theme_hook);
+     $this->alter($hooks, $suggestions, $variables, $base_theme_hook);
+
++    // Merge $suggestions back into $template_suggestions before the "base hook"
++    // entry.
++    $template_suggestions = array_values($template_suggestions);
++    array_splice(
++      $template_suggestions,
++      array_search($contains_base_hook ? $base_theme_hook : $hook, $template_suggestions),
++      $contains_base_hook ? 0 : 1,
++      array_reverse($suggestions)
++    );
++
+     return $suggestions;
+   }
+
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base1_test/templates/theme-suggestions-base4-test-alternate--from-hook-theme-suggestions-hook-alter.html.twig b/core/modules/system/tests/modules/theme_suggestions_base1_test/templates/theme-suggestions-base4-test-alternate--from-hook-theme-suggestions-hook-alter.html.twig
+new file mode 100644
+index 0000000000..5adce85b9f
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base1_test/templates/theme-suggestions-base4-test-alternate--from-hook-theme-suggestions-hook-alter.html.twig
+@@ -0,0 +1,2 @@
++{# Output for Theme API test #}
++This theme_suggestions_base4_test_alternate__from_hook_theme_suggestions_hook_alter template is implemented.
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base1_test/theme_suggestions_base1_test.info.yml b/core/modules/system/tests/modules/theme_suggestions_base1_test/theme_suggestions_base1_test.info.yml
+new file mode 100644
+index 0000000000..c9b249af3f
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base1_test/theme_suggestions_base1_test.info.yml
+@@ -0,0 +1,5 @@
++name: 'Theme suggestions base1 test'
++type: module
++description: 'Support module for testing the theme_test_base1 base theme hook'
++package: Testing
++version: VERSION
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base1_test/theme_suggestions_base1_test.module b/core/modules/system/tests/modules/theme_suggestions_base1_test/theme_suggestions_base1_test.module
+new file mode 100644
+index 0000000000..323474f7f5
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base1_test/theme_suggestions_base1_test.module
+@@ -0,0 +1,43 @@
++<?php
++
++/**
++ * @file
++ * Support module for testing theme suggestions.
++ */
++
++/**
++ * Implements hook_theme().
++ */
++function theme_suggestions_base1_test_theme($existing, $type, $theme, $path) {
++  $items['theme_suggestions_base4_test_alternate__from_hook_theme_suggestions_hook_alter'] = [
++    'variables' => [],
++  ];
++  return $items;
++}
++
++/**
++ * Implements hook_theme_suggestions_HOOK().
++ */
++function theme_suggestions_base1_test_theme_suggestions_theme_test_base1(array $variables) {
++  return [
++    'theme_test_base1__from_hook_theme_suggestions_hook',
++    'theme_test_base1__from_hook_theme_suggestions_hook_too',
++  ];
++}
++
++/**
++ * Implements hook_theme_suggestions_HOOK_alter().
++ */
++function theme_suggestions_base1_test_theme_suggestions_theme_test_base1_alter(array &$suggestions, array $variables, $hook) {
++  $suggestions[] = $hook . '__from_hook_theme_suggestions_hook_alter__but_reordered';
++
++  // We move a suggestion from hook_theme_suggestions_HOOK() to come after our
++  // first suggestion above. We also create an intentional gap in the numeric
++  // keys using this common method; Drupal core should handle non-contiguous
++  // index keys.
++  $moved_suggestion = $hook . '__from_hook_theme_suggestions_hook_too';
++  unset($suggestions[array_search($moved_suggestion, $suggestions)]);
++  $suggestions[] = $moved_suggestion;
++
++  $suggestions[] = $hook . '__from_hook_theme_suggestions_hook_alter';
++}
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base2_ignored_test/theme_suggestions_base2_ignored_test.info.yml b/core/modules/system/tests/modules/theme_suggestions_base2_ignored_test/theme_suggestions_base2_ignored_test.info.yml
+new file mode 100644
+index 0000000000..3f2ad1d267
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base2_ignored_test/theme_suggestions_base2_ignored_test.info.yml
+@@ -0,0 +1,5 @@
++name: 'Theme suggestions base2 ignored test'
++type: module
++description: 'Support module for testing the ignored theme_test_base2 base theme hook'
++package: Testing
++version: VERSION
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base2_ignored_test/theme_suggestions_base2_ignored_test.module b/core/modules/system/tests/modules/theme_suggestions_base2_ignored_test/theme_suggestions_base2_ignored_test.module
+new file mode 100644
+index 0000000000..3b47bdc93e
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base2_ignored_test/theme_suggestions_base2_ignored_test.module
+@@ -0,0 +1,15 @@
++<?php
++
++/**
++ * @file
++ * Support module for testing theme suggestions.
++ */
++
++/**
++ * Implements hook_theme_suggestions_HOOK_alter().
++ */
++function theme_suggestions_base2_ignored_test_theme_suggestions_theme_test_base1_alter(array &$suggestions, array $variables, $hook) {
++  // Add a suggestion just to confirm that the theme_test_base2 suggestion is
++  // normally ignored.
++  $suggestions[] = 'theme_test_base2';
++}
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base2_test/templates/theme-test-base2--from-hook-theme-suggestions-hook.html.twig b/core/modules/system/tests/modules/theme_suggestions_base2_test/templates/theme-test-base2--from-hook-theme-suggestions-hook.html.twig
+new file mode 100644
+index 0000000000..17ef2b27d8
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base2_test/templates/theme-test-base2--from-hook-theme-suggestions-hook.html.twig
+@@ -0,0 +1,2 @@
++{# Output for Theme API test #}
++This theme_test_base2__from_hook_theme_suggestions_hook template is implemented, but never used.
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base2_test/templates/theme-test-base2--from-theme-property--without-base.html.twig b/core/modules/system/tests/modules/theme_suggestions_base2_test/templates/theme-test-base2--from-theme-property--without-base.html.twig
+new file mode 100644
+index 0000000000..4b6a0a11cb
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base2_test/templates/theme-test-base2--from-theme-property--without-base.html.twig
+@@ -0,0 +1,2 @@
++{# Output for Theme API test #}
++This theme_test_base2__from_theme_property__without_base template is implemented.
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base2_test/theme_suggestions_base2_test.info.yml b/core/modules/system/tests/modules/theme_suggestions_base2_test/theme_suggestions_base2_test.info.yml
+new file mode 100644
+index 0000000000..4389d136de
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base2_test/theme_suggestions_base2_test.info.yml
+@@ -0,0 +1,5 @@
++name: 'Theme suggestions base2 test'
++type: module
++description: 'Support module for testing the theme_test_base2 base theme hook'
++package: Testing
++version: VERSION
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base2_test/theme_suggestions_base2_test.module b/core/modules/system/tests/modules/theme_suggestions_base2_test/theme_suggestions_base2_test.module
+new file mode 100644
+index 0000000000..4a77f9b30b
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base2_test/theme_suggestions_base2_test.module
+@@ -0,0 +1,39 @@
++<?php
++
++/**
++ * @file
++ * Support module for testing theme suggestions.
++ */
++
++/**
++ * Implements hook_theme().
++ */
++function theme_suggestions_base2_test_theme($existing, $type, $theme, $path) {
++  $items['theme_test_base2__from_theme_property__without_base'] = [
++    'base hook' => 'theme_test_base2',
++    'variables' => [],
++  ];
++  $items['theme_test_base2__from_hook_theme_suggestions_hook'] = [
++    'base hook' => 'theme_test_base2',
++    'variables' => [],
++  ];
++  return $items;
++}
++
++/**
++ * Implements hook_theme_suggestions_HOOK().
++ */
++function theme_suggestions_base2_test_theme_suggestions_theme_test_base2(array $variables) {
++  return [
++    'theme_test_base2__from_hook_theme_suggestions_hook',
++  ];
++}
++
++/**
++ * Implements hook_theme_suggestions_HOOK_alter().
++ */
++function theme_suggestions_base2_test_theme_suggestions_theme_test_base2_alter(array &$suggestions, array $variables, $hook) {
++  // Add a suggestion just to confirm that the theme_test_base2 suggestion is
++  // normally ignored.
++  $suggestions[] = 'theme_test_base2__from_hook_theme_suggestions_hook_alter';
++}
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base3_test/templates/theme-test-base3.html.twig b/core/modules/system/tests/modules/theme_suggestions_base3_test/templates/theme-test-base3.html.twig
+new file mode 100644
+index 0000000000..287557002e
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base3_test/templates/theme-test-base3.html.twig
+@@ -0,0 +1,2 @@
++{# Output for Theme API test #}
++This theme_test_base3 template is implemented.
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base3_test/theme_suggestions_base3_test.info.yml b/core/modules/system/tests/modules/theme_suggestions_base3_test/theme_suggestions_base3_test.info.yml
+new file mode 100644
+index 0000000000..38302bf332
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base3_test/theme_suggestions_base3_test.info.yml
+@@ -0,0 +1,5 @@
++name: 'Theme suggestions base3 test'
++type: module
++description: 'Support module for testing the theme_test_base3 base theme hook'
++package: Testing
++version: VERSION
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base3_test/theme_suggestions_base3_test.module b/core/modules/system/tests/modules/theme_suggestions_base3_test/theme_suggestions_base3_test.module
+new file mode 100644
+index 0000000000..c8cccc9fe7
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base3_test/theme_suggestions_base3_test.module
+@@ -0,0 +1,27 @@
++<?php
++
++/**
++ * @file
++ * Support module for testing theme suggestions.
++ */
++
++/**
++ * Implements hook_theme().
++ */
++function theme_suggestions_base3_test_theme($existing, $type, $theme, $path) {
++  $items['theme_test_base3'] = [
++    'variables' => [],
++  ];
++  return $items;
++}
++
++/**
++ * Implements hook_theme_suggestions_HOOK_alter().
++ */
++function theme_suggestions_base3_test_theme_suggestions_theme_test_base3_alter(array &$suggestions, array $variables, $hook) {
++  $from_theme_array = array_search('theme_test_base3__from_theme_property', $suggestions);
++  if ($from_theme_array !== FALSE) {
++    $suggestions[$from_theme_array] .= '__seen_by_alter';
++  }
++  $suggestions[] = 'theme_test_base3__from_hook_theme_suggestions_hook_alter';
++}
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base4_test/templates/theme-test-base4.html.twig b/core/modules/system/tests/modules/theme_suggestions_base4_test/templates/theme-test-base4.html.twig
+new file mode 100644
+index 0000000000..78bc128f0a
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base4_test/templates/theme-test-base4.html.twig
+@@ -0,0 +1,2 @@
++{# Output for Theme API test #}
++This theme_test_base4 template is implemented and has a different "base hook".
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base4_test/theme_suggestions_base4_test.info.yml b/core/modules/system/tests/modules/theme_suggestions_base4_test/theme_suggestions_base4_test.info.yml
+new file mode 100644
+index 0000000000..f5e876d495
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base4_test/theme_suggestions_base4_test.info.yml
+@@ -0,0 +1,5 @@
++name: 'Theme suggestions base4 test'
++type: module
++description: 'Support module for testing the theme_test_base4 base theme hook'
++package: Testing
++version: VERSION
+diff --git a/core/modules/system/tests/modules/theme_suggestions_base4_test/theme_suggestions_base4_test.module b/core/modules/system/tests/modules/theme_suggestions_base4_test/theme_suggestions_base4_test.module
+new file mode 100644
+index 0000000000..9db0eaee7f
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_suggestions_base4_test/theme_suggestions_base4_test.module
+@@ -0,0 +1,33 @@
++<?php
++
++/**
++ * @file
++ * Support module for testing theme suggestions.
++ */
++
++/**
++ * Implements hook_theme().
++ */
++function theme_suggestions_base4_test_theme($existing, $type, $theme, $path) {
++  $items['theme_test_base4'] = [
++    'base hook' => 'theme_suggestions_base4_test_alternate',
++    'variables' => [],
++  ];
++  return $items;
++}
++
++/**
++ * Implements hook_theme_suggestions_HOOK().
++ */
++function theme_suggestions_base4_test_theme_suggestions_theme_suggestions_base4_test_alternate(array $variables) {
++  return [
++    'theme_suggestions_base4_test_alternate__from_hook_theme_suggestions_hook',
++  ];
++}
++
++/**
++ * Implements hook_theme_suggestions_HOOK_alter().
++ */
++function theme_suggestions_base4_test_theme_suggestions_theme_suggestions_base4_test_alternate_alter(array &$suggestions, array $variables, $hook) {
++  $suggestions[] = $hook . '__from_hook_theme_suggestions_hook_alter';
++}
+diff --git a/core/modules/system/tests/themes/test_theme/templates/theme-test-general-suggestions--module-override.html.twig b/core/modules/system/tests/modules/theme_suggestions_test/templates/theme-test-general-suggestions--module-override.html.twig
+similarity index 100%
+rename from core/modules/system/tests/themes/test_theme/templates/theme-test-general-suggestions--module-override.html.twig
+rename to core/modules/system/tests/modules/theme_suggestions_test/templates/theme-test-general-suggestions--module-override.html.twig
+diff --git a/core/modules/system/tests/themes/test_theme/templates/theme-test-suggestions--module-override.html.twig b/core/modules/system/tests/modules/theme_suggestions_test/templates/theme-test-suggestions--module-override.html.twig
+similarity index 100%
+rename from core/modules/system/tests/themes/test_theme/templates/theme-test-suggestions--module-override.html.twig
+rename to core/modules/system/tests/modules/theme_suggestions_test/templates/theme-test-suggestions--module-override.html.twig
+diff --git a/core/modules/system/tests/modules/theme_suggestions_test/theme_suggestions_test.module b/core/modules/system/tests/modules/theme_suggestions_test/theme_suggestions_test.module
+index 789f8f2e00..45438ecef1 100644
+--- a/core/modules/system/tests/modules/theme_suggestions_test/theme_suggestions_test.module
++++ b/core/modules/system/tests/modules/theme_suggestions_test/theme_suggestions_test.module
+@@ -5,6 +5,21 @@
+  * Support module for testing theme suggestions.
+  */
+
++/**
++ * Implements hook_theme().
++ */
++function theme_suggestions_test_theme($existing, $type, $theme, $path) {
++  $items['theme_test_general_suggestions__module_override'] = [
++    'base hook' => 'theme_test_general_suggestions',
++    'variables' => [],
++  ];
++  $items['theme_test_suggestions__module_override'] = [
++    'base hook' => 'theme_test_suggestions',
++    'variables' => [],
++  ];
++  return $items;
++}
++
+ /**
+  * Implements hook_theme_suggestions_alter().
+  */
+@@ -19,14 +34,14 @@ function theme_suggestions_test_theme_suggestions_alter(array &$suggestions, arr
+ /**
+  * Implements hook_theme_suggestions_HOOK_alter().
+  */
+-function theme_suggestions_test_theme_suggestions_theme_test_suggestions_alter(array &$suggestions, array $variables) {
++function theme_suggestions_test_theme_suggestions_theme_test_suggestions_alter(array &$suggestions, array $variables, $hook) {
+   \Drupal::messenger()->addStatus(__FUNCTION__ . '() executed.');
+-  $suggestions[] = 'theme_test_suggestions__module_override';
++  $suggestions[] = $hook . '__module_override';
+ }
+
+ /**
+  * Implements hook_theme_suggestions_HOOK_alter().
+  */
+-function theme_suggestions_test_theme_suggestions_theme_test_specific_suggestions_alter(array &$suggestions, array $variables) {
+-  $suggestions[] = 'theme_test_specific_suggestions__variant__foo';
++function theme_suggestions_test_theme_suggestions_theme_test_specific_suggestions_alter(array &$suggestions, array $variables, $hook) {
++  $suggestions[] = $hook . '__variant__foo';
+ }
+diff --git a/core/modules/system/tests/modules/theme_test/src/ThemeTestController.php b/core/modules/system/tests/modules/theme_test/src/ThemeTestController.php
+index 5d8badabeb..89c66f8203 100644
+--- a/core/modules/system/tests/modules/theme_test/src/ThemeTestController.php
++++ b/core/modules/system/tests/modules/theme_test/src/ThemeTestController.php
+@@ -72,34 +72,6 @@ public function testRequestListener() {
+     return ['#markup' => $GLOBALS['theme_test_output']];
+   }
+
+-  /**
+-   * Menu callback for testing suggestion alter hooks with template files.
+-   */
+-  public function suggestionProvided() {
+-    return ['#theme' => 'theme_test_suggestion_provided'];
+-  }
+-
+-  /**
+-   * Menu callback for testing suggestion alter hooks with template files.
+-   */
+-  public function suggestionAlter() {
+-    return ['#theme' => 'theme_test_suggestions'];
+-  }
+-
+-  /**
+-   * Menu callback for testing hook_theme_suggestions_alter().
+-   */
+-  public function generalSuggestionAlter() {
+-    return ['#theme' => 'theme_test_general_suggestions'];
+-  }
+-
+-  /**
+-   * Menu callback for testing suggestion alter hooks with specific suggestions.
+-   */
+-  public function specificSuggestionAlter() {
+-    return ['#theme' => 'theme_test_specific_suggestions__variant'];
+-  }
+-
+   /**
+    * Controller to ensure that no theme is initialized.
+    *
+diff --git a/core/modules/system/tests/modules/theme_test/templates/theme-test-base1.html.twig b/core/modules/system/tests/modules/theme_test/templates/theme-test-base1.html.twig
+new file mode 100644
+index 0000000000..2bea8c84b9
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_test/templates/theme-test-base1.html.twig
+@@ -0,0 +1,2 @@
++{# Output for Theme API test #}
++Template for testing suggestion hooks when #theme contains a list of theme suggestions.
+diff --git a/core/modules/system/tests/modules/theme_test/templates/theme-test-base2.html.twig b/core/modules/system/tests/modules/theme_test/templates/theme-test-base2.html.twig
+new file mode 100644
+index 0000000000..e157f28aad
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_test/templates/theme-test-base2.html.twig
+@@ -0,0 +1,2 @@
++{# Output for Theme API test #}
++This theme_test_base2 template is implemented, but never used.
+diff --git a/core/modules/system/tests/modules/theme_test/templates/theme-test-xss-suggestion.html.twig b/core/modules/system/tests/modules/theme_test/templates/theme-test-xss-suggestion.html.twig
+new file mode 100644
+index 0000000000..a8e58846be
+--- /dev/null
++++ b/core/modules/system/tests/modules/theme_test/templates/theme-test-xss-suggestion.html.twig
+@@ -0,0 +1,2 @@
++{# Output for Theme API test #}
++Template for testing XSS in theme hook suggestions.
+diff --git a/core/modules/system/tests/modules/theme_test/theme_test.module b/core/modules/system/tests/modules/theme_test/theme_test.module
+index dc0f07c6c9..59639203fc 100644
+--- a/core/modules/system/tests/modules/theme_test/theme_test.module
++++ b/core/modules/system/tests/modules/theme_test/theme_test.module
+@@ -18,9 +18,11 @@ function theme_test_theme($existing, $type, $theme, $path) {
+   ];
+   $items['theme_test_template_test'] = [
+     'template' => 'theme_test.template_test',
++    'variables' => [],
+   ];
+   $items['theme_test_template_test_2'] = [
+     'template' => 'theme_test.template_test',
++    'variables' => [],
+   ];
+   $items['theme_test_suggestion_provided'] = [
+     'variables' => [],
+@@ -34,6 +36,15 @@ function theme_test_theme($existing, $type, $theme, $path) {
+   $items['theme_test_general_suggestions'] = [
+     'variables' => ['module_hook' => 'theme_test_theme', 'theme_hook' => 'none'],
+   ];
++  $items['theme_test_base1'] = [
++    'variables' => [],
++  ];
++  $items['theme_test_base2'] = [
++    'variables' => [],
++  ];
++  $items['theme_test_xss_suggestion'] = [
++    'variables' => [],
++  ];
+   $items['theme_test_foo'] = [
+     'variables' => ['foo' => NULL],
+   ];
+@@ -158,11 +169,20 @@ function theme_test_theme_suggestions_theme_test_suggestion_provided(array $vari
+   return ['theme_test_suggestion_provided__foo'];
+ }
+
++/**
++ * Implements hook_theme_suggestions_HOOK().
++ */
++function theme_test_theme_suggestions_theme_test_suggestions(array $variables) {
++  \Drupal::messenger()->addStatus(__FUNCTION__ . '() executed.');
++}
++
+ /**
+  * Implements hook_theme_suggestions_alter().
+  */
+ function theme_test_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+-  \Drupal::messenger()->addStatus(__FUNCTION__ . '() executed for ' . $hook . '.');
++  if ($hook === 'theme_test_suggestions') {
++    \Drupal::messenger()->addStatus(__FUNCTION__ . '() executed.');
++  }
+ }
+
+ /**
+@@ -188,9 +208,9 @@ function theme_test_system_info_alter(array &$info, Extension $file, $type) {
+ /**
+  * Implements hook_theme_suggestions_HOOK().
+  */
+-function theme_test_theme_suggestions_node(array $variables) {
++function theme_test_theme_suggestions_theme_test_xss_suggestion(array $variables) {
+   $xss = '<script type="text/javascript">alert(\'yo\');</script>';
+-  $suggestions[] = 'node__' . $xss;
++  $suggestions[] = 'theme_test_xss_suggestion__' . $xss;
+
+   return $suggestions;
+ }
+diff --git a/core/modules/system/tests/modules/theme_test/theme_test.routing.yml b/core/modules/system/tests/modules/theme_test/theme_test.routing.yml
+index 1299fe9562..9ee3c31804 100644
+--- a/core/modules/system/tests/modules/theme_test/theme_test.routing.yml
++++ b/core/modules/system/tests/modules/theme_test/theme_test.routing.yml
+@@ -39,34 +39,6 @@ theme_test.request_listener:
+   requirements:
+     _access: 'TRUE'
+
+-suggestion_alter:
+-  path: '/theme-test/suggestion-alter'
+-  defaults:
+-    _controller: '\Drupal\theme_test\ThemeTestController::suggestionAlter'
+-  requirements:
+-    _access: 'TRUE'
+-
+-theme_test.general_suggestion_alter:
+-  path: '/theme-test/general-suggestion-alter'
+-  defaults:
+-    _controller: '\Drupal\theme_test\ThemeTestController::generalSuggestionAlter'
+-  requirements:
+-    _access: 'TRUE'
+-
+-suggestion_provided:
+-  path: '/theme-test/suggestion-provided'
+-  defaults:
+-    _controller: '\Drupal\theme_test\ThemeTestController::suggestionProvided'
+-  requirements:
+-    _access: 'TRUE'
+-
+-specific_suggestion_alter:
+-  path: '/theme-test/specific-suggestion-alter'
+-  defaults:
+-    _controller: '\Drupal\theme_test\ThemeTestController::specificSuggestionAlter'
+-  requirements:
+-    _access: 'TRUE'
+-
+ theme_test.non_html:
+   path: '/theme-test/non-html'
+   defaults:
+diff --git a/core/modules/system/tests/src/Kernel/Theme/ThemeSuggestionsAlterTest.php b/core/modules/system/tests/src/Kernel/Theme/ThemeSuggestionsAlterTest.php
+new file mode 100644
+index 0000000000..9b7d39c855
+--- /dev/null
++++ b/core/modules/system/tests/src/Kernel/Theme/ThemeSuggestionsAlterTest.php
+@@ -0,0 +1,711 @@
++<?php
++
++namespace Drupal\Tests\system\Kernel\Theme;
++
++use Drupal\Core\DependencyInjection\ContainerBuilder;
++use Drupal\KernelTests\KernelTestBase;
++
++/**
++ * Tests theme suggestions alter hooks.
++ *
++ * @group Theme
++ */
++class ThemeSuggestionsAlterTest extends KernelTestBase {
++
++  /**
++   * Modules to enable.
++   *
++   * @var array
++   */
++  protected static $modules = ['theme_test', 'system'];
++
++  /**
++   * {@inheritdoc}
++   */
++  public function register(ContainerBuilder $container) {
++    parent::register($container);
++    // Enable Twig debugging.
++    $parameters = $container->getParameter('twig.config');
++    $parameters['debug'] = TRUE;
++    $container->setParameter('twig.config', $parameters);
++  }
++
++  /**
++   * {@inheritdoc}
++   *
++   * We override KernelTestBase::render() so that it outputs Twig debug comments
++   * only for the render array given in a test and not for an entire page.
++   */
++  protected function render(array &$elements): string {
++    return $this->container->get('renderer')->renderRoot($elements);
++  }
++
++  /**
++   * Helper function to test render arrays with modules and themes.
++   *
++   * @param array $build
++   *   A render array.
++   * @param string[] $modules
++   *   An array of modules to install before the test.
++   * @param string $theme
++   *   The theme to set as the default theme.
++   * @param string[] $expected
++   *   The string(s) expected in the rendered output.
++   * @param string[] $unexpected
++   *   The string(s) expected to NOT occur in the rendered output.
++   *
++   * @throws \Exception
++   */
++  public function runTemplateSuggestionTest(array $build, array $modules, string $theme, array $expected, array $unexpected = []) {
++    // Enable modules.
++    if (!empty($modules)) {
++      $this->enableModules($modules);
++    }
++    // Set the default theme.
++    if ($theme) {
++      $this->container->get('theme_installer')->install([$theme]);
++      $this->config('system.theme')
++        ->set('default', $theme)
++        ->save();
++    }
++
++    // Render a template.
++    $output = $this->render($build);
++
++    // Check the output for expected results.
++    foreach ($expected as $expected_string) {
++      $this->assertStringContainsString($expected_string, $output, $this->getName());
++    }
++
++    // Check the output for unexpected results.
++    foreach ($unexpected as $unexpected_string) {
++      $this->assertStringNotContainsString($unexpected_string, $output, $this->getName());
++    }
++  }
++
++  /**
++   * Tests hook_theme_suggestions_HOOK.
++   *
++   * Note: themes cannot use this hook.
++   *
++   * @param string[] $modules
++   *   An array of modules to install before the test.
++   * @param string $theme
++   *   The theme to set as the default theme.
++   * @param string[] $expected
++   *   The string(s) expected in the rendered output.
++   *
++   * @dataProvider providerHookThemeSuggestionsHook
++   *
++   * @throws \Exception
++   */
++  public function testHookThemeSuggestionsHook(array $modules, string $theme, array $expected) {
++    $this->runTemplateSuggestionTest(
++      [
++        '#theme' => 'theme_test_suggestion_provided',
++      ],
++      $modules,
++      $theme,
++      $expected
++    );
++  }
++
++  /**
++   * Data provider for testHookThemeSuggestionsHook().
++   *
++   * @see testHookThemeSuggestionsHook()
++   */
++  public function providerHookThemeSuggestionsHook(): array {
++    return [
++      'Base template used when suggestion template not found' => [
++        'modules' => [],
++        'theme' => '',
++        'expected' => [
++          'Template for testing suggestions provided by the module declaring the theme hook.',
++        ],
++      ],
++      'Suggestion template used when suggestion template is found' => [
++        'modules' => [],
++        // The test_theme contains a template suggested by theme_test.module in
++        // theme_test_theme_suggestions_theme_test_suggestion_provided().
++        'theme' => 'test_theme',
++        'expected' => [
++          'Template overridden based on suggestion provided by the module declaring the theme hook.',
++        ],
++      ],
++    ];
++  }
++
++  /**
++   * Tests hook_theme_suggestions_alter().
++   *
++   * @param string[] $modules
++   *   An array of modules to install before the test.
++   * @param string $theme
++   *   The theme to set as the default theme.
++   * @param string[] $expected
++   *   The string(s) expected in the rendered output.
++   *
++   * @dataProvider providerHookThemeSuggestionsAlter
++   *
++   * @throws \Exception
++   */
++  public function testHookThemeSuggestionsAlter(array $modules, string $theme, array $expected) {
++    $this->runTemplateSuggestionTest(
++      [
++        '#theme' => 'theme_test_general_suggestions',
++      ],
++      $modules,
++      $theme,
++      $expected
++    );
++  }
++
++  /**
++   * Data provider for testHookThemeSuggestionsAlter().
++   *
++   * @see testHookThemeSuggestionsAlter()
++   */
++  public function providerHookThemeSuggestionsAlter(): array {
++    $extension = '.html.twig';
++    return [
++      'Base template used when suggestion template is not available' => [
++        'modules' => [],
++        'theme' => '',
++        'expected' => [
++          'Original template for testing hook_theme_suggestions_alter().',
++          "<!-- BEGIN OUTPUT from 'core/modules/system/tests/modules/theme_test/templates/theme-test-general-suggestions$extension' -->",
++        ],
++      ],
++      'Suggestion provided by a module\'s hook_theme_suggestions_alter is used' => [
++        // @see theme_suggestions_test_theme_suggestions_alter()
++        'modules' => ['theme_suggestions_test'],
++        'theme' => '',
++        'expected' => [
++          'Template overridden based on new theme suggestion provided by a module via hook_theme_suggestions_alter().',
++          "<!-- BEGIN OUTPUT from 'core/modules/system/tests/modules/theme_suggestions_test/templates/theme-test-general-suggestions--module-override$extension' -->",
++        ],
++      ],
++      'Suggestion provided by a theme\'s hook_theme_suggestions_alter is used' => [
++        'modules' => [],
++        // @see test_theme_theme_suggestions_alter()
++        'theme' => 'test_theme',
++        'expected' => [
++          'Template overridden based on new theme suggestion provided by the test_theme theme via hook_theme_suggestions_alter().',
++          "<!-- BEGIN OUTPUT from 'core/modules/system/tests/themes/test_theme/templates/theme-test-general-suggestions--theme-override$extension' -->",
++        ],
++      ],
++      'Themes implementing hook_theme_suggestions_alter override modules' => [
++        'modules' => ['theme_suggestions_test'],
++        'theme' => 'test_theme',
++        'expected' => [
++          'Template overridden based on new theme suggestion provided by the test_theme theme via hook_theme_suggestions_alter().',
++          "<!-- BEGIN OUTPUT from 'core/modules/system/tests/themes/test_theme/templates/theme-test-general-suggestions--theme-override$extension' -->",
++        ],
++        'unexpected' => [
++          'Template overridden based on new theme suggestion provided by a module via hook_theme_suggestions_alter().',
++        ],
++      ],
++    ];
++  }
++
++  /**
++   * Tests hook_theme_suggestions_HOOK_alter().
++   *
++   * @param string[] $modules
++   *   An array of modules to install before the test.
++   * @param string $theme
++   *   The theme to set as the default theme.
++   * @param string[] $expected
++   *   The string(s) expected in the rendered output.
++   *
++   * @dataProvider providerHookThemeSuggestionsHookAlter
++   *
++   * @throws \Exception
++   */
++  public function testHookThemeSuggestionsHookAlter(array $modules, string $theme, array $expected) {
++    $this->runTemplateSuggestionTest(
++      [
++        '#theme' => 'theme_test_suggestions',
++      ],
++      $modules,
++      $theme,
++      $expected
++    );
++  }
++
++  /**
++   * Data provider for testHookThemeSuggestionsHookAlter().
++   *
++   * @see testHookThemeSuggestionsHookAlter()
++   */
++  public function providerHookThemeSuggestionsHookAlter(): array {
++    return [
++      'Base template used when suggestion template is not available' => [
++        'modules' => [],
++        'theme' => '',
++        'expected' => [
++          'Original template for testing hook_theme_suggestions_HOOK_alter().',
++        ],
++      ],
++      'Suggestion provided by a module\'s hook_theme_suggestions_HOOK_alter is used' => [
++        // @see theme_suggestions_test_theme_suggestions_theme_test_suggestions_alter()
++        'modules' => ['theme_suggestions_test'],
++        'theme' => '',
++        'expected' => [
++          'Template overridden based on new theme suggestion provided by a module via hook_theme_suggestions_HOOK_alter().',
++        ],
++      ],
++      'Suggestion provided by a theme\'s hook_theme_suggestions_HOOK_alter is used' => [
++        'modules' => [],
++        // @see test_theme_theme_suggestions_theme_test_suggestions_alter()
++        'theme' => 'test_theme',
++        'expected' => [
++          'Template overridden based on new theme suggestion provided by the test_theme theme via hook_theme_suggestions_HOOK_alter().',
++        ],
++      ],
++    ];
++  }
++
++  /**
++   * Tests non-"base hook" suggestions with hook_theme_suggestions_HOOK_alter().
++   *
++   * @param string[] $modules
++   *   An array of modules to install before the test.
++   * @param string $theme
++   *   The theme to set as the default theme.
++   * @param string[] $expected
++   *   The string(s) expected in the rendered output.
++   *
++   * @dataProvider providerNonBaseHookThemeSuggestions
++   *
++   * @throws \Exception
++   */
++  public function testNonBaseHookThemeSuggestions(array $modules, string $theme, array $expected) {
++    $this->runTemplateSuggestionTest(
++      [
++        '#theme' => 'theme_test_specific_suggestions__variant',
++      ],
++      $modules,
++      $theme,
++      $expected
++    );
++  }
++
++  /**
++   * Data provider for testNonBaseHookThemeSuggestions().
++   *
++   * @see testNonBaseHookThemeSuggestions()
++   */
++  public function providerNonBaseHookThemeSuggestions(): array {
++    $extension = '.html.twig';
++    return [
++      'Base template used when suggestion template is not available' => [
++        'modules' => [],
++        'theme' => '',
++        'expected' => [
++          'Template for testing specific theme calls.',
++        ],
++      ],
++      'Suggestion provided by a module\'s hook_theme_suggestions_HOOK_alter is used' => [
++        // @see theme_suggestions_test_theme_suggestions_theme_test_specific_suggestions_alter()
++        'modules' => ['theme_suggestions_test'],
++        'theme' => 'test_theme',
++        'expected' => [
++          'Template overridden based on suggestion alter hook determined by a module\'s hook_theme_suggestions_HOOK_alter().',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   x theme-test-specific-suggestions--variant--foo' . $extension . PHP_EOL
++          . '   * theme-test-specific-suggestions--variant' . $extension . PHP_EOL
++          . '   * theme-test-specific-suggestions' . $extension . PHP_EOL
++          . '-->' . PHP_EOL,
++        ],
++      ],
++      'Suggestion template provided by a theme' => [
++        'modules' => [],
++        'theme' => 'test_theme',
++        'expected' => [
++          'Template overridden based on suggestion alter hook determined by the base hook.',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   x theme-test-specific-suggestions--variant' . $extension . PHP_EOL
++          . '   * theme-test-specific-suggestions' . $extension . PHP_EOL
++          . '-->' . PHP_EOL,
++        ],
++      ],
++    ];
++  }
++
++  /**
++   * Tests debug markup for non-"base hook" suggestions without implementation.
++   *
++   * @throws \Exception
++   */
++  public function testUnimplementedNonBaseHookThemeSuggestions() {
++    $extension = '.html.twig';
++    $this->runTemplateSuggestionTest(
++      [
++        '#theme' => 'theme_test_specific_suggestions__variant_not_found__too',
++      ],
++      [],
++      '',
++      [
++        "THEME HOOK: 'theme_test_specific_suggestions__variant_not_found__too'",
++        '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++        . '   * theme-test-specific-suggestions--variant-not-found--too' . $extension . PHP_EOL
++        . '   * theme-test-specific-suggestions--variant-not-found' . $extension . PHP_EOL
++        . '   x theme-test-specific-suggestions' . $extension . PHP_EOL
++        . '-->',
++      ]
++    );
++  }
++
++  /**
++   * Tests an array of suggestions with all alter hooks.
++   *
++   * @param string[] $modules
++   *   An array of modules to install before the test.
++   * @param string $theme
++   *   The theme to set as the default theme.
++   * @param string[] $expected
++   *   The string(s) expected in the rendered output.
++   * @param string[] $unexpected
++   *   The string(s) expected to NOT occur in the rendered output.
++   *
++   * @dataProvider providerThemeSuggestionsOrdering
++   *
++   * @throws \Exception
++   */
++  public function testThemeSuggestionsOrdering(array $modules, string $theme, array $expected, array $unexpected) {
++    $this->runTemplateSuggestionTest(
++      [
++        '#theme' => 'theme_test_base1__from_theme_property__too',
++      ],
++      $modules,
++      $theme,
++      $expected,
++      $unexpected
++    );
++  }
++
++  /**
++   * Data provider for testThemeSuggestionsOrdering().
++   *
++   * @see testThemeSuggestionsOrdering()
++   */
++  public function providerThemeSuggestionsOrdering(): array {
++    $extension = '.html.twig';
++    return [
++      '#theme property suggestions always override ones from hook_theme_suggestions_hook' => [
++        'modules' => ['theme_suggestions_base1_test'],
++        'theme' => '',
++        'expected' => [
++          'Template for testing suggestion hooks when #theme contains a list of theme suggestions.',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-alter' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-too' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-alter--but-reordered' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property--too' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook' . $extension . PHP_EOL
++          . '   x theme-test-base1' . $extension . PHP_EOL
++          . '-->' . PHP_EOL,
++        ],
++        'unexpected' => [],
++      ],
++      'adding a new template implementation does not change order of suggestions' => [
++        'modules' => ['theme_suggestions_base1_test'],
++        'theme' => 'test_theme',
++        'expected' => [
++          'This theme_test_base1__from_theme_property__too template is implemented.',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-alter' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-too' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-alter--but-reordered' . $extension . PHP_EOL
++          . '   x theme-test-base1--from-theme-property--too' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook' . $extension . PHP_EOL
++          . '   * theme-test-base1' . $extension . PHP_EOL
++          . '-->' . PHP_EOL,
++        ],
++        'unexpected' => [],
++      ],
++    ];
++  }
++
++  /**
++   * Tests an array of suggestions with all alter hooks.
++   *
++   * @param string[] $modules
++   *   An array of modules to install before the test.
++   * @param string $theme
++   *   The theme to set as the default theme.
++   * @param string[] $expected
++   *   The string(s) expected in the rendered output.
++   * @param string[] $unexpected
++   *   The string(s) expected to NOT occur in the rendered output.
++   *
++   * @dataProvider providerArrayThemeSuggestions
++   *
++   * @throws \Exception
++   */
++  public function testArrayThemeSuggestions(array $modules, string $theme, array $expected, array $unexpected) {
++    $this->runTemplateSuggestionTest(
++      [
++        '#theme' => [
++          'theme_test_base5',
++          'theme_test_base4',
++          'theme_test_base3__from_theme_property',
++          'theme_test_base3',
++          'theme_test_base2__from_theme_property__without_base',
++          'theme_test_base1__from_theme_property__too',
++        ],
++      ],
++      $modules,
++      $theme,
++      $expected,
++      $unexpected
++    );
++  }
++
++  /**
++   * Data provider for testArrayThemeSuggestions().
++   *
++   * @see testArrayThemeSuggestions()
++   */
++  public function providerArrayThemeSuggestions(): array {
++    $extension = '.html.twig';
++    return [
++      'Only the last #theme array entry is expanded into suggestions' => [
++        'modules' => [],
++        'theme' => '',
++        'expected' => [
++          'Template for testing suggestion hooks when #theme contains a list of theme suggestions.',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   * theme-test-base5' . $extension . PHP_EOL
++          . '   * theme-test-base4' . $extension . PHP_EOL
++          . '   * theme-test-base3--from-theme-property' . $extension . PHP_EOL
++          . '   * theme-test-base3' . $extension . PHP_EOL
++          . '   * theme-test-base2--from-theme-property--without-base' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property--too' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property' . $extension . PHP_EOL
++          . '   x theme-test-base1' . $extension . PHP_EOL
++          . '-->' . PHP_EOL,
++        ],
++        'unexpected' => [
++          'This theme_test_base2 template is implemented, but never used.',
++          'x theme-test-base2' . $extension . PHP_EOL,
++          '* theme-test-base2' . $extension . PHP_EOL,
++        ],
++      ],
++      'Confirm unexpanded theme_test_base2 suggestion would be used if expanded' => [
++        'modules' => ['theme_suggestions_base2_ignored_test'],
++        'theme' => '',
++        'expected' => [
++          'This theme_test_base2 template is implemented, but never used.',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   * theme-test-base5' . $extension . PHP_EOL
++          . '   * theme-test-base4' . $extension . PHP_EOL
++          . '   * theme-test-base3--from-theme-property' . $extension . PHP_EOL
++          . '   * theme-test-base3' . $extension . PHP_EOL
++          . '   * theme-test-base2--from-theme-property--without-base' . $extension . PHP_EOL
++          . '   x theme-test-base2' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property--too' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property' . $extension . PHP_EOL
++          . '   * theme-test-base1' . $extension . PHP_EOL
++          . '-->' . PHP_EOL,
++        ],
++        'unexpected' => [],
++      ],
++      // This is a duplicate of testThemeSuggestionsOrdering, but in an array
++      // context.
++      '#theme property suggestions always override ones from hook_theme_suggestions_hook' => [
++        'modules' => ['theme_suggestions_base1_test'],
++        'theme' => '',
++        'expected' => [
++          'Template for testing suggestion hooks when #theme contains a list of theme suggestions.',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   * theme-test-base5' . $extension . PHP_EOL
++          . '   * theme-test-base4' . $extension . PHP_EOL
++          . '   * theme-test-base3--from-theme-property' . $extension . PHP_EOL
++          . '   * theme-test-base3' . $extension . PHP_EOL
++          . '   * theme-test-base2--from-theme-property--without-base' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-alter' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-too' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-alter--but-reordered' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property--too' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook' . $extension . PHP_EOL
++          . '   x theme-test-base1' . $extension . PHP_EOL
++          . '-->' . PHP_EOL,
++        ],
++        'unexpected' => [],
++      ],
++      'specific #theme property suggestions always override ones from hook_theme_suggestions_hook' => [
++        'modules' => ['theme_suggestions_base2_test'],
++        'theme' => '',
++        'expected' => [
++          'This theme_test_base2__from_theme_property__without_base template is implemented.',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   * theme-test-base5' . $extension . PHP_EOL
++          . '   * theme-test-base4' . $extension . PHP_EOL
++          . '   * theme-test-base3--from-theme-property' . $extension . PHP_EOL
++          . '   * theme-test-base3' . $extension . PHP_EOL
++          . '   * theme-test-base2--from-hook-theme-suggestions-hook-alter' . $extension . PHP_EOL
++          . '   x theme-test-base2--from-theme-property--without-base' . $extension . PHP_EOL
++          . '   * theme-test-base2--from-hook-theme-suggestions-hook' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property--too' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property' . $extension . PHP_EOL
++          . '   * theme-test-base1' . $extension . PHP_EOL
++          . '-->' . PHP_EOL,
++        ],
++        'unexpected' => [
++          'This theme_test_base2__from_hook_theme_suggestions_hook template is implemented, but never used.',
++          'This theme_test_base2 template is implemented, but never used.',
++          'x theme-test-base2' . $extension . PHP_EOL,
++          '* theme-test-base2' . $extension . PHP_EOL,
++        ],
++      ],
++      'adding a new template implementation does not change order of suggestions' => [
++        'modules' => ['theme_suggestions_base1_test'],
++        'theme' => 'test_theme',
++        'expected' => [
++          'This theme_test_base1__from_theme_property__too template is implemented.',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   * theme-test-base5' . $extension . PHP_EOL
++          . '   * theme-test-base4' . $extension . PHP_EOL
++          . '   * theme-test-base3--from-theme-property' . $extension . PHP_EOL
++          . '   * theme-test-base3' . $extension . PHP_EOL
++          . '   * theme-test-base2--from-theme-property--without-base' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-alter' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-too' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook-alter--but-reordered' . $extension . PHP_EOL
++          . '   x theme-test-base1--from-theme-property--too' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-theme-property' . $extension . PHP_EOL
++          . '   * theme-test-base1--from-hook-theme-suggestions-hook' . $extension . PHP_EOL
++          . '   * theme-test-base1' . $extension . PHP_EOL
++          . '-->' . PHP_EOL,
++        ],
++        'unexpected' => [],
++      ],
++      'theme suggestions alter hooks see suggestions from #theme' => [
++        'modules' => ['theme_suggestions_base3_test'],
++        'theme' => '',
++        'expected' => [
++          'This theme_test_base3 template is implemented.',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   * theme-test-base5' . $extension . PHP_EOL
++          . '   * theme-test-base4' . $extension . PHP_EOL
++          . '   * theme-test-base3--from-hook-theme-suggestions-hook-alter' . $extension . PHP_EOL
++          . '   * theme-test-base3--from-theme-property--seen-by-alter' . $extension . PHP_EOL
++          . '   x theme-test-base3' . $extension . PHP_EOL,
++        ],
++        'unexpected' => [],
++      ],
++      'different "base hook" specified in theme registry' => [
++        'modules' => ['theme_suggestions_base4_test'],
++        'theme' => '',
++        'expected' => [
++          'This theme_test_base4 template is implemented and has a different "base hook".',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   * theme-test-base5' . $extension . PHP_EOL
++          . '   * theme-suggestions-base4-test-alternate--from-hook-theme-suggestions-hook-alter' . $extension . PHP_EOL
++          . '   x theme-test-base4' . $extension . PHP_EOL
++          . '   * theme-suggestions-base4-test-alternate--from-hook-theme-suggestions-hook' . $extension . PHP_EOL
++          // 'theme-suggestions-base4-test-alternate' is not listed here. While
++          // it would seem to make sense to list the base hook here, when one
++          // hook specifies a different base hook, Drupal will use that base
++          // hook's suggestions, but not the base hook itself.
++          . '   * theme-test-base3--from-theme-property' . $extension . PHP_EOL,
++        ],
++        'unexpected' => [],
++      ],
++      'implementation of base hook template not used when different "base hook" specified in theme registry' => [
++        'modules' => ['theme_suggestions_base4_test'],
++        'theme' => 'test_theme',
++        'expected' => [
++          'This theme_test_base4 template is implemented and has a different "base hook".',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   * theme-test-base5' . $extension . PHP_EOL
++          . '   * theme-suggestions-base4-test-alternate--from-hook-theme-suggestions-hook-alter' . $extension . PHP_EOL
++          . '   x theme-test-base4' . $extension . PHP_EOL
++          . '   * theme-suggestions-base4-test-alternate--from-hook-theme-suggestions-hook' . $extension . PHP_EOL
++          // 'theme-suggestions-base4-test-alternate' is not listed here. While
++          // it would seem to make sense to list the base hook here, when one
++          // hook specifies a different base hook, Drupal will use that base
++          // hook's suggestions, but not the base hook itself.
++          . '   * theme-test-base3--from-theme-property' . $extension . PHP_EOL,
++        ],
++        'unexpected' => [
++          'This theme_suggestions_base4_test_alternate template is implemented, but not used.',
++        ],
++      ],
++      'implementation of base hook suggestion used when different "base hook" specified in theme registry' => [
++        'modules' => [
++          'theme_suggestions_base1_test',
++          'theme_suggestions_base4_test',
++        ],
++        'theme' => 'test_theme',
++        'expected' => [
++          'This theme_suggestions_base4_test_alternate__from_hook_theme_suggestions_hook_alter template is implemented.',
++          '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++          . '   * theme-test-base5' . $extension . PHP_EOL
++          . '   x theme-suggestions-base4-test-alternate--from-hook-theme-suggestions-hook-alter' . $extension . PHP_EOL
++          . '   * theme-test-base4' . $extension . PHP_EOL
++          . '   * theme-suggestions-base4-test-alternate--from-hook-theme-suggestions-hook' . $extension . PHP_EOL
++          // 'theme-suggestions-base4-test-alternate' is not listed here. While
++          // it would seem to make sense to list the base hook here, when one
++          // hook specifies a different base hook, Drupal will use that base
++          // hook's suggestions, but not the base hook itself.
++          . '   * theme-test-base3--from-theme-property' . $extension . PHP_EOL,
++        ],
++        'unexpected' => [],
++      ],
++    ];
++  }
++
++  /**
++   * Tests execution order of theme suggestion hooks.
++   *
++   * @throws \Exception
++   */
++  public function testExecutionOrder() {
++    // Normal module weight is not calculated in KernelTest, so we fake it by
++    // (re)installing the modules in order of their weight (alphabetical order).
++    $this->disableModules(['theme_test']);
++    $this->enableModules(['theme_suggestions_test', 'theme_test']);
++    $theme = 'test_theme';
++    $this->container->get('theme_installer')->install([$theme]);
++    $this->config('system.theme')->set('default', $theme)->save();
++
++    $build = [
++      '#theme' => 'theme_test_suggestions',
++    ];
++
++    // Messages are not output with $this->render().
++    $output = $this->render($build);
++
++    $this->assertStringContainsString('Template overridden based on new theme suggestion provided by the test_theme theme via hook_theme_suggestions_HOOK_alter().', $output, $this->getName());
++
++    // Retrieve all messages we've set via \Drupal::messenger()->addStatus().
++    $messages = $this->container->get('messenger')->messagesByType('status');
++
++    // Ensure that the order is:
++    // 1. hook_theme_suggestions_HOOK()
++    // 2. Grouped by module:
++    //    hook_theme_suggestions_alter()
++    //    hook_theme_suggestions_HOOK_alter()
++    // 3. Grouped by theme:
++    //    hook_theme_suggestions_alter()
++    //    hook_theme_suggestions_HOOK_alter()
++    $expected_order = [
++      'theme_test_theme_suggestions_theme_test_suggestions() executed.',
++      'theme_suggestions_test_theme_suggestions_alter() executed.',
++      'theme_suggestions_test_theme_suggestions_theme_test_suggestions_alter() executed.',
++      'theme_test_theme_suggestions_alter() executed.',
++      'theme_test_theme_suggestions_theme_test_suggestions_alter() executed.',
++      'test_theme_theme_suggestions_alter() executed.',
++      'test_theme_theme_suggestions_theme_test_suggestions_alter() executed.',
++    ];
++    $this->assertEquals($expected_order, $messages);
++  }
++
++}
+diff --git a/core/modules/system/tests/src/Kernel/Theme/TwigDebugMarkupTest.php b/core/modules/system/tests/src/Kernel/Theme/TwigDebugMarkupTest.php
+new file mode 100644
+index 0000000000..a0732cced4
+--- /dev/null
++++ b/core/modules/system/tests/src/Kernel/Theme/TwigDebugMarkupTest.php
+@@ -0,0 +1,167 @@
++<?php
++
++namespace Drupal\Tests\system\Kernel\Theme;
++
++use Drupal\Component\Utility\Html;
++use Drupal\Core\DependencyInjection\ContainerBuilder;
++use Drupal\KernelTests\KernelTestBase;
++
++/**
++ * Tests for Twig debug markup.
++ *
++ * @group Theme
++ */
++class TwigDebugMarkupTest extends KernelTestBase {
++
++  /**
++   * Modules to enable.
++   *
++   * @var array
++   */
++  protected static $modules = ['system', 'theme_test'];
++
++  /**
++   * {@inheritdoc}
++   */
++  public function register(ContainerBuilder $container) {
++    parent::register($container);
++    // Enable Twig debugging.
++    $parameters = $container->getParameter('twig.config');
++    $parameters['debug'] = TRUE;
++    $container->setParameter('twig.config', $parameters);
++  }
++
++  /**
++   * {@inheritdoc}
++   *
++   * We override KernelTestBase::render() so that it outputs Twig debug comments
++   * only for the render array given in a test and not for an entire page.
++   */
++  protected function render(array &$elements): string {
++    return $this->container->get('renderer')->renderRoot($elements);
++  }
++
++  /**
++   * Tests debug markup is on.
++   *
++   * @throws \Exception
++   */
++  public function testDebugMarkup() {
++    $extension = '.html.twig';
++    $hook = 'theme_test_specific_suggestions';
++    $build = [
++      '#theme' => $hook,
++    ];
++
++    // Find full path to template.
++    $cache = $this->container->get('theme.registry')->get();
++    $templates = drupal_find_theme_templates($cache, $extension, $this->container->get('extension.list.module')->getPath('theme_test'));
++    $template_filename = $templates[$hook]['path'] . '/' . $templates[$hook]['template'] . $extension;
++
++    // Render a template.
++    $output = $this->render($build);
++
++    $expected = '<!-- THEME DEBUG -->';
++    $this->assertStringContainsString($expected, $output, 'Twig debug markup found in theme output when debug is enabled.');
++
++    $expected = "\n<!-- THEME HOOK: '$hook' -->";
++    $this->assertStringContainsString($expected, $output, 'Theme hook comment found.');
++
++    $expected = "\n<!-- BEGIN OUTPUT from '" . Html::escape($template_filename) . "' -->\n";
++    $this->assertStringContainsString($expected, $output, 'Full path to current template file found in BEGIN OUTPUT comment.');
++    $expected = "\n<!-- END OUTPUT from '" . Html::escape($template_filename) . "' -->\n";
++    $this->assertStringContainsString($expected, $output, 'Full path to current template file found in END OUTPUT comment.');
++  }
++
++  /**
++   * Tests file name suggestions comment.
++   *
++   * @throws \Exception
++   */
++  public function testFileNameSuggestions() {
++    $extension = '.html.twig';
++
++    // Render a template using a single suggestion.
++    $build = [
++      '#theme' => 'theme_test_specific_suggestions',
++    ];
++    $output = $this->render($build);
++
++    $expected = "\n<!-- THEME HOOK: 'theme_test_specific_suggestions' -->";
++    $this->assertStringContainsString($expected, $output, 'Theme hook comment found.');
++    $unexpected = '<!-- FILE NAME SUGGESTIONS:';
++    $this->assertStringNotContainsString($unexpected, $output, 'A single suggestion should not have file name suggestions listed.');
++
++    // Render a template using multiple suggestions.
++    $build = [
++      '#theme' => 'theme_test_specific_suggestions__variant',
++    ];
++    $output = $this->render($build);
++
++    $expected = "\n<!-- THEME HOOK: 'theme_test_specific_suggestions__variant' -->";
++    $this->assertStringContainsString($expected, $output, 'Theme hook comment found.');
++    $expected = '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++      . '   * theme-test-specific-suggestions--variant' . $extension . PHP_EOL
++      . '   x theme-test-specific-suggestions' . $extension . PHP_EOL
++      . '-->';
++    $this->assertStringContainsString($expected, $output, 'Multiple suggestions should have file name suggestions listed.');
++  }
++
++  /**
++   * Tests suggestions when file name does not match.
++   *
++   * @throws \Exception
++   */
++  public function testFileNameNotMatchingSuggestion() {
++    $extension = '.html.twig';
++
++    // Find full path to template.
++    $cache = $this->container->get('theme.registry')->get();
++    $templates = drupal_find_theme_templates($cache, $extension, $this->container->get('extension.list.module')->getPath('theme_test'));
++    $template_filename = $templates['theme_test_template_test']['path'] . '/' . $templates['theme_test_template_test']['template'] . $extension;
++
++    // Render a template that doesn't match its suggestion name.
++    $build = [
++      '#theme' => 'theme_test_template_test__variant',
++    ];
++    $output = $this->render($build);
++
++    $expected = "\n<!-- THEME HOOK: 'theme_test_template_test__variant' -->";
++    $this->assertStringContainsString($expected, $output, 'Theme hook comment found.');
++
++    $expected = '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++      . '   * theme-test-template-test--variant' . $extension . PHP_EOL
++      . '   x theme_test.template_test' . $extension . PHP_EOL
++      . '-->';
++    $this->assertStringContainsString($expected, $output, 'The actual template file name should be used when it does not match the suggestion.');
++
++    $expected = "\n<!-- BEGIN OUTPUT from '" . Html::escape($template_filename) . "' -->\n";
++    $this->assertStringContainsString($expected, $output, 'Full path to current template file found in BEGIN OUTPUT comment.');
++  }
++
++  /**
++   * Tests XSS attempt in theme suggestions and Twig debug comments.
++   *
++   * @throws \Exception
++   */
++  public function testXssComments() {
++    $extension = '.html.twig';
++
++    // Render a template whose suggestions have been compromised.
++    $build = [
++      '#theme' => 'theme_test_xss_suggestion',
++    ];
++    $output = $this->render($build);
++
++    // @see theme_test_theme_suggestions_node()
++    $xss_suggestion = Html::escape('theme-test-xss-suggestion--<script type="text/javascript">alert(\'yo\');</script>') . $extension;
++
++    $expected = '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++      . '   * ' . $xss_suggestion . PHP_EOL
++      . '   x theme-test-xss-suggestion' . $extension . PHP_EOL
++      . '-->';
++    $this->assertStringContainsString($expected, $output, 'XSS suggestion successfully escaped in Twig debug comments.');
++    $this->assertStringContainsString('Template for testing XSS in theme hook suggestions.', $output, 'Base hook suggestion used instead of XSS suggestion.');
++  }
++
++}
+diff --git a/core/modules/system/tests/themes/test_theme/templates/theme-suggestions-base4-test-alternate.html.twig b/core/modules/system/tests/themes/test_theme/templates/theme-suggestions-base4-test-alternate.html.twig
+new file mode 100644
+index 0000000000..e8d83a2774
+--- /dev/null
++++ b/core/modules/system/tests/themes/test_theme/templates/theme-suggestions-base4-test-alternate.html.twig
+@@ -0,0 +1,2 @@
++{# Output for Theme API test #}
++This theme_suggestions_base4_test_alternate template is implemented, but not used.
+diff --git a/core/modules/system/tests/themes/test_theme/templates/theme-test-base1--from-theme-property--too.html.twig b/core/modules/system/tests/themes/test_theme/templates/theme-test-base1--from-theme-property--too.html.twig
+new file mode 100644
+index 0000000000..4b6e3745af
+--- /dev/null
++++ b/core/modules/system/tests/themes/test_theme/templates/theme-test-base1--from-theme-property--too.html.twig
+@@ -0,0 +1,2 @@
++{# Output for Theme API test #}
++This theme_test_base1__from_theme_property__too template is implemented.
+diff --git a/core/modules/system/tests/themes/test_theme/templates/theme-test-specific-suggestions--variant--foo.html.twig b/core/modules/system/tests/themes/test_theme/templates/theme-test-specific-suggestions--variant--foo.html.twig
+index a464e47a51..0a0408d7ae 100644
+--- a/core/modules/system/tests/themes/test_theme/templates/theme-test-specific-suggestions--variant--foo.html.twig
++++ b/core/modules/system/tests/themes/test_theme/templates/theme-test-specific-suggestions--variant--foo.html.twig
+@@ -1,5 +1,2 @@
+ {# Output for Theme API test #}
+-Template overridden based on suggestion alter hook determined by the base hook.
+-
+-<p>Theme hook suggestions:
+-{{ theme_hook_suggestions|safe_join("<br />") }}</p>
++Template overridden based on suggestion alter hook determined by a module's hook_theme_suggestions_HOOK_alter().
+diff --git a/core/modules/system/tests/themes/test_theme/templates/theme-test-specific-suggestions--variant.html.twig b/core/modules/system/tests/themes/test_theme/templates/theme-test-specific-suggestions--variant.html.twig
+index 8ac8cd241a..f0de75dff0 100644
+--- a/core/modules/system/tests/themes/test_theme/templates/theme-test-specific-suggestions--variant.html.twig
++++ b/core/modules/system/tests/themes/test_theme/templates/theme-test-specific-suggestions--variant.html.twig
+@@ -1,5 +1,2 @@
+ {# Output for Theme API test #}
+-Template matching the specific theme call.
+-
+-<p>Theme hook suggestions:
+-{{ theme_hook_suggestions|safe_join("<br />") }}</p>
++Template overridden based on suggestion alter hook determined by the base hook.
+diff --git a/core/modules/system/tests/themes/test_theme/test_theme.theme b/core/modules/system/tests/themes/test_theme/test_theme.theme
+index 78359a8020..58ae0bbd21 100644
+--- a/core/modules/system/tests/themes/test_theme/test_theme.theme
++++ b/core/modules/system/tests/themes/test_theme/test_theme.theme
+@@ -60,13 +60,9 @@ function test_theme_theme_suggestions_alter(array &$suggestions, array &$variabl
+ /**
+  * Implements hook_theme_suggestions_HOOK_alter().
+  */
+-function test_theme_theme_suggestions_theme_test_suggestions_alter(array &$suggestions, array $variables) {
++function test_theme_theme_suggestions_theme_test_suggestions_alter(array &$suggestions, array $variables, $hook) {
+   \Drupal::messenger()->addStatus(__FUNCTION__ . '() executed.');
+-  // Theme alter hooks run after module alter hooks, so add this theme
+-  // suggestion to the beginning of the array so that the suggestion added by
+-  // the theme_suggestions_test module can be picked up when that module is
+-  // enabled.
+-  array_unshift($suggestions, 'theme_test_suggestions__' . 'theme_override');
++  $suggestions[] = $hook . '__theme_override';
+ }
+
+ /**
+diff --git a/core/modules/views/tests/modules/views_test_config/test_views/views.view.test_page_display.yml b/core/modules/views/tests/modules/views_test_config/test_views/views.view.test_page_display.yml
+index 858cb58940..2068f9efb3 100644
+--- a/core/modules/views/tests/modules/views_test_config/test_views/views.view.test_page_display.yml
++++ b/core/modules/views/tests/modules/views_test_config/test_views/views.view.test_page_display.yml
+@@ -5,7 +5,7 @@ id: test_page_display
+ label: test_page_display
+ module: views
+ description: ''
+-tag: ''
++tag: 'tag1,tag2'
+ base_table: views_test_data
+ base_field: nid
+ display:
+diff --git a/core/modules/views/tests/src/Kernel/ViewsTemplateTest.php b/core/modules/views/tests/src/Kernel/ViewsTemplateTest.php
+index 37a057a7dd..d21be68412 100644
+--- a/core/modules/views/tests/src/Kernel/ViewsTemplateTest.php
++++ b/core/modules/views/tests/src/Kernel/ViewsTemplateTest.php
+@@ -66,4 +66,30 @@ public function testThemeSuggestionsContainerAlter() {
+     $this->assertStringContainsString($expected, $output, 'Views more link container suggestions found in Twig debug output');
+   }
+
++  /**
++   * Tests the views theme suggestions.
++   *
++   * @throws \Exception
++   */
++  public function testThemeSuggestionsViewsView() {
++    $build = [
++      '#type' => 'view',
++      '#name' => 'test_page_display',
++      '#display_id' => 'default',
++      '#arguments' => [],
++    ];
++
++    $output = $this->render($build);
++    $extension = '.html.twig';
++    $expected = '<!-- FILE NAME SUGGESTIONS:' . PHP_EOL
++      . '   * views-view--test-page-display--default' . $extension . PHP_EOL
++      . '   * views-view--default' . $extension . PHP_EOL
++      . '   * views-view--tag1' . $extension . PHP_EOL
++      . '   * views-view--tag2' . $extension . PHP_EOL
++      . '   * views-view--test-page-display' . $extension . PHP_EOL
++      . '   x views-view' . $extension . PHP_EOL
++      . '-->' . PHP_EOL;
++    $this->assertStringContainsString($expected, $output, 'Views theme suggestions found in Twig debug output');
++  }
++
+ }
+diff --git a/core/themes/engines/twig/twig.engine b/core/themes/engines/twig/twig.engine
+index 45a95cae78..951a2d8a06 100644
+--- a/core/themes/engines/twig/twig.engine
++++ b/core/themes/engines/twig/twig.engine
+@@ -52,55 +52,22 @@ function twig_render_template($template_file, array $variables) {
+
+     $output['debug_prefix'] .= "\n\n<!-- THEME DEBUG -->";
+     $output['debug_prefix'] .= "\n<!-- THEME HOOK: '" . Html::escape($variables['theme_hook_original']) . "' -->";
+-    // If there are theme suggestions, reverse the array so more specific
+-    // suggestions are shown first.
+-    if (!empty($variables['theme_hook_suggestions'])) {
+-      $variables['theme_hook_suggestions'] = array_reverse($variables['theme_hook_suggestions']);
+-    }
+-    // Add debug output for directly called suggestions like
+-    // '#theme' => 'comment__node__article'.
+-    if (str_contains($variables['theme_hook_original'], '__')) {
+-      $derived_suggestions[] = $hook = $variables['theme_hook_original'];
+-      while ($pos = strrpos($hook, '__')) {
+-        $hook = substr($hook, 0, $pos);
+-        $derived_suggestions[] = $hook;
+-      }
+-      // Get the value of the base hook (last derived suggestion) and append it
+-      // to the end of all theme suggestions.
+-      $base_hook = array_pop($derived_suggestions);
+-      $variables['theme_hook_suggestions'] = array_merge($derived_suggestions, $variables['theme_hook_suggestions']);
+-      $variables['theme_hook_suggestions'][] = $base_hook;
+-    }
+-    if (!empty($variables['theme_hook_suggestions'])) {
++    // If there is only one template suggestion file, we don't output it, since
++    // it would be somewhat redundant with the THEME HOOK above.
++    if (count($variables['template_suggestions']) > 1) {
+       $extension = twig_extension();
+       $current_template = basename($template_file);
+-      $suggestions = $variables['theme_hook_suggestions'];
+-      // Only add the original theme hook if it wasn't a directly called
+-      // suggestion.
+-      if (!str_contains($variables['theme_hook_original'], '__')) {
+-        $suggestions[] = $variables['theme_hook_original'];
+-      }
+-      $invalid_suggestions = [];
+-      $base_hook = $base_hook ?? $variables['theme_hook_original'];
+-      foreach ($suggestions as $key => &$suggestion) {
+-        // Valid suggestions are $base_hook, $base_hook__*, and contain no hyphens.
+-        if (($suggestion !== $base_hook && !str_starts_with($suggestion, $base_hook . '__')) || str_contains($suggestion, '-')) {
+-          $invalid_suggestions[] = $suggestion;
+-          unset($suggestions[$key]);
+-          continue;
++      $suggestions = $variables['template_suggestions'];
++      foreach ($suggestions as &$suggestion) {
++        if ($suggestion === $variables['template_suggestion']) {
++          $suggestion = '✅ ' . $current_template;
++        }
++        else {
++          $suggestion = '▪️ ' . strtr($suggestion, '_', '-') . $extension;
+         }
+-        $template = strtr($suggestion, '_', '-') . $extension;
+-        $prefix = ($template == $current_template) ? '✅' : '▪️';
+-        $suggestion = $prefix . ' ' . $template;
+-      }
+-      $output['debug_info'] .= "\n<!-- FILE NAME SUGGESTIONS:\n   " . Html::escape(implode("\n   ", $suggestions)) . "\n-->";
+
+-      if (!empty($invalid_suggestions)) {
+-        $output['debug_info'] .= "\n<!-- INVALID FILE NAME SUGGESTIONS:";
+-        $output['debug_info'] .= "\n   See https://api.drupal.org/api/drupal/core!lib!Drupal!Core!Render!theme.api.php/function/hook_theme_suggestions_alter";
+-        $output['debug_info'] .= "\n   " . Html::escape(implode("\n   ", $invalid_suggestions));
+-        $output['debug_info'] .= "\n-->";
+       }
++      $output['debug_info'] .= "\n<!-- FILE NAME SUGGESTIONS:\n   " . Html::escape(implode("\n   ", $suggestions)) . "\n-->";
+     }
+     // Check if the template_file belongs to a custom theme
+     $template_override_status_output = "BEGIN OUTPUT";

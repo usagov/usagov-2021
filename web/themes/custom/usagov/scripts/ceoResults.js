@@ -37,6 +37,10 @@ function lookup(address, callback) {
 function renderResults(response, rawResponse) {
     "use strict";
 
+    // Allow the interface to show now that we are about to have content on the page
+    jQuery('.usa-prose-container').show();
+    jQuery('.usa-prose-loader').hide();
+
     // Text strings for the page's language should be assigned to "usagovCEOtext" in
     // an inline script in the page's Header HTML. The translations here are retained for backward compatibility.
     const backupTranslations = {

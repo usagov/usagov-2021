@@ -40,6 +40,7 @@
         "drupal/faqfield": "^7.1",
         "drupal/feeds": "^3.0@beta",
         "drupal/field_defaults": "^2.0",
+        "drupal/field_group": "^3.6",
         "drupal/field_permissions": "^1.1",
         "drupal/hierarchy_manager": "^3.3",
         "drupal/image_style_warmer": "^1.1",
@@ -134,6 +135,9 @@
             ]
 
         },
+        "patchLevel": {
+            "drupal/core": "-p2"
+        },
         "patches": {
             "drupal/tome": {
                 "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
@@ -143,9 +147,7 @@
             },
             "drupal/core": {
                 "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail_d10.patch",
-                "Show views theme suggestions in twig debug": "https://www.drupal.org/files/issues/2024-06-06/2118743-251.patch",
-                "Add a taxonomy revision UI": "https://www.drupal.org/files/issues/2023-10-26/add-taxonomy-revision-ui-2936995-58.patch",
-                "Enable taxonomy revision log message": "./patches/drupal/taxonomy_revision_log.patch"
+                "Show views theme suggestions in twig debug": "./patches/drupal/viewsSuggestions-10_3.patch"
             },
             "drupal/autologout": {
                 "Autologout can log out out from other tabs": "https://www.drupal.org/files/issues/2024-06-03/3395581-7.patch"
