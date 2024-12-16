@@ -37,7 +37,7 @@ echo "Finished Static Site Generation : "$(date)
 
 if [ "$TOME_SUCCESS" -eq 0 ]; then
   # path is relative to drupal's web dir
-  time drush usapubcsv modules/custom/usagov_ssg_postprocessing/files/published-pages.csv
+  time drush usapubcsv --uri=$URI modules/custom/usagov_ssg_postprocessing/files/published-pages.csv
   echo "Exported published-pages.csv"
 fi
 
