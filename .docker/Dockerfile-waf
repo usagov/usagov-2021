@@ -58,7 +58,7 @@ RUN set -eux; \
     ca-certificates;
 # \    ln -sv /opt/owasp-crs /etc/modsecurity.d;
 
-USER nginx
+# USER nginx
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
