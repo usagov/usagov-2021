@@ -99,6 +99,15 @@ final class PublishedPagesRow {
   public static function datalayerForNode(array $data, Node $node, string $baseURL): self {
     $title = $node->getTitle();
 
+    // Federal Agency nodes tack on the acronym because the original implementation
+    // pulled the title from the HTML
+    if ($node->getType() === 'directory_record') {
+      $acronym = $node->get('field_acronym')->getValue();
+      if ($acronym) {
+        $title = sprintf("%s (%s)", $title, $acronym[0]['value']);
+      }
+    }
+
     if ($data['homepageTest'] === 'homepage' && $data['language'] === 'en') {
       $friendlyURL = TaxonomyDatalayerBuilder::HOME_URL_EN;
       $fullURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_EN;
