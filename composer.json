@@ -88,6 +88,7 @@
         "process-timeout": 0,
         "sort-packages": true,
         "allow-plugins": {
+            "composer/installers": true,
             "drupal/console-extend-plugin": true,
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
