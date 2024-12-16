@@ -324,7 +324,7 @@ If you make any changes to the `scss` or `js` files, make sure to check for lint
 
 PHPCodesniffer and the parallel linting tools should be installed automatically on a local environment via `composer install`. PHPCodeSniffer is used to ensure new code follows Drupal's coding standard. The parallel linter will check for PHP syntax errors. If they detect any errors, they must be fixed before a PR of changes can be accepted.
 
-The following composer scripts are aliases for running these tools. development setup
+The following composer scripts are aliases for running these tools.
 
 * Check for code style errors across all project files. Must have zero errors:
   `./bin/composer phpcs-errors`:
@@ -336,8 +336,6 @@ The following composer scripts are aliases for running these tools. development 
   `./bin/composer phpcs-changes-strict`
 * Check for PHP lint errors
   `./bin/composer php-lint`
-
-
 
 ## Project Restart/Reset
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing containers, networks, and volumes the procedure is the same as the full project setup.
