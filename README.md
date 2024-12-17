@@ -320,6 +320,23 @@ If you make any changes to the `scss` or `js` files, make sure to check for lint
 
 [back to top](#usagov-2021)
 
+## Checking PHP Code style and syntax errors
+
+PHPCodesniffer and the parallel linting tools should be installed automatically on a local environment via `composer install`. PHPCodeSniffer is used to ensure new code follows Drupal's coding standard. The parallel linter will check for PHP syntax errors. If they detect any errors, they must be fixed before a PR of changes can be accepted.
+
+The following composer scripts are aliases for running these tools.
+
+* Check for code style errors across all project files. Must have zero errors:
+  `./bin/composer phpcs-errors`:
+* Check for code style errors and warnings across all project files.
+  `./bin/composer phpcs-strict`
+* Check for code style errors in current branch. Must have zero errors:
+  `./bin/composer phpcs-changes`
+* Check for code style errors and warnings in current branch.
+  `./bin/composer phpcs-changes-strict`
+* Check for PHP lint errors
+  `./bin/composer php-lint`
+
 ## Checking Code with PHPStan
 
 [PHPStan](https://phpstan.org/) is available to statically analyze custom theme and module code for correctness.
