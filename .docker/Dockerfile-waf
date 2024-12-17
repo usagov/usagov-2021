@@ -1,4 +1,4 @@
-FROM owasp/modsecurity-crs:4.9.0-nginx-alpine-202412120712
+FROM owasp/modsecurity-crs:4.3-nginx-alpine-202406090906
 
 LABEL maintainer="USA.gov Web Ops"
 
@@ -40,8 +40,6 @@ COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
 RUN rm -rf /opt/owasp-crs/tests;
 
-USER root
-
 RUN apk upgrade --update && \
     apk add vim \
       nano \
@@ -57,8 +55,6 @@ RUN set -eux; \
     apk add --no-cache \
     ca-certificates;
 # \    ln -sv /opt/owasp-crs /etc/modsecurity.d;
-
-USER nginx
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
