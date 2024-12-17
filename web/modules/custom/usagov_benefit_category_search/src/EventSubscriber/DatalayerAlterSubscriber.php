@@ -25,7 +25,14 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
    * Adds category information to the datalayer.
    */
   public function onDatalayerAlter(DatalayerAlterEvent $event): void {
-    $node = \Drupal::routeMatch()->getParameter('node');
+
+    // This listener is only interested in nodes, which have numeric IDs.
+    // Taxonomy terms IDs are prefixed with "t_"
+    if (!isset($event->datalayer['nodeID']) || !is_numeric($event->datalayer['nodeID'])) {
+      return;
+    }
+
+    $node = Node::load($event->datalayer['nodeID']);
     $event->datalayer['hasBenefitCategory'] = FALSE;
 
     if ($node instanceof Node && $node->getType() === 'basic_page') {
