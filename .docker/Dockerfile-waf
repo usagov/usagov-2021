@@ -40,15 +40,17 @@ COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
 RUN rm -rf /opt/owasp-crs/tests;
 
-RUN apk upgrade --update && \
-    apk add vim \
-      nano \
-      bash \
-      jq \
-      inotify-tools \
-      gettext \
-      curl \
-      sed
+RUN apt-get update && \
+    apt-get install -y \
+    bash \
+    curl \
+    gettext \
+    inotify-tools \
+    jq \
+    nano \
+    nginx-plus-module-modsecurity \
+    sed \
+    vim
 
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \
