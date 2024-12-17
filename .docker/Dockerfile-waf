@@ -40,6 +40,8 @@ COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
 RUN rm -rf /opt/owasp-crs/tests;
 
+USER root
+
 RUN apk upgrade --update && \
     apk add vim \
       nano \
@@ -55,6 +57,8 @@ RUN set -eux; \
     apk add --no-cache \
     ca-certificates;
 # \    ln -sv /opt/owasp-crs /etc/modsecurity.d;
+
+USER nginx
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
