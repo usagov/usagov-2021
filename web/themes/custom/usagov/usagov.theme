@@ -27,8 +27,9 @@ function usagov_preprocess_html(&$variables) {
 function generate_faq(&$node) {
   $faq = [];
 
-  // While a node may have its FAQ-Page checked, this does not guarantee the body field is not empty.
-  // When it is empty, there is nothing we can do here. We will bail to prevent errors (see USAGOV-1925).
+  // While a node may have its FAQ-Page checked, this does not guarantee the
+  // body field is not empty. When it is empty, there is nothing we can do here.
+  // We will bail to prevent errors (see USAGOV-1925).
   if (empty($node->get('body')) || empty($node->get('body')[0]) || empty($node->get('body')[0]->value)) {
     return;
   }
@@ -145,7 +146,8 @@ function generate_faq(&$node) {
 function faq_process_components(&$dom) {
   // Iterate through embedded paragraphs
   $embeddedParagraphElements = $dom->getElementsByTagName('drupal-paragraph');
-  // Loop backwards to allow for removing elements along the way without losing track of our position
+  // Loop backwards to allow for removing elements along the way without losing
+  // track of our position
   for ($n = $embeddedParagraphElements->length - 1; $n >= 0; --$n) {
     $element = $embeddedParagraphElements->item($n);
     // Get the component
@@ -155,8 +157,8 @@ function faq_process_components(&$dom) {
 
     // Process component by its type
     if ($component == NULL) {
-      // No entity exists for this paragraph component. It is probably a reference to a deleted component.
-      // Remove the element and move on.
+      // No entity exists for this paragraph component. It is probably a reference
+      // to a deleted component. Remove the element and move on.
       $element->parentNode->removeChild($element);
       break;
     }
@@ -192,7 +194,6 @@ function faq_process_components(&$dom) {
     }
     elseif ($componentType == "uswds_alert" && $component?->get('field_alert_status')[0]?->value == NULL) {
       // $component is a grey alert
-
       // Insert a <p> element with the alert's body content
       $alertBody = $component->get('field_alert_body')[0]->value;
       $alertElement = $dom->createElement('p');
@@ -265,7 +266,8 @@ function faq_answer_inner_html(&$answer) {
 }
 
 /**
- * children_of_active_menu_item is a recursive helper function for finding the children of the active menu item
+ * children_of_active_menu_item is a recursive helper function for finding the
+ * children of the active menu item
  */
 function children_of_active_menu_item(&$items) {
   $result = NULL;
@@ -381,7 +383,6 @@ function usagov_preprocess_block(&$variables) {
             count($childNode->get('field_navigation_banner_image')) &&
             $childNode->get('field_navigation_banner_image')[0]->entity
           ) {
-            $file_url_generator = \Drupal::service('file_url_generator');
             // To allow for image_style (webp compression) to apply.
             $banner_uri = $childNode->get('field_navigation_banner_image')[0]->entity->get('field_media_image')->entity->getFileUri();
             $data->navigation_banner_image = $banner_uri;
