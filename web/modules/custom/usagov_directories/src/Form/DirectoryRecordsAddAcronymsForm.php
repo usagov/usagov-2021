@@ -88,7 +88,7 @@ class DirectoryRecordsAddAcronymsForm extends FormBase {
         // blank line, ignore.
         continue;
       }
-      $nids =  $this->entityTypeManager
+      $nids = $this->entityTypeManager
         ->getStorage('node')
         ->getQuery()
         ->condition('field_mothership_uuid', $uuid)

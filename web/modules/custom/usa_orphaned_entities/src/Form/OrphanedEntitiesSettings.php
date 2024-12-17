@@ -18,6 +18,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
       entityTypeManager: $container->get('entity_type.manager'),
     );
   }
+
   /**
    * {@inheritdoc}
    */

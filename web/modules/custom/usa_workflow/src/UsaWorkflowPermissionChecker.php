@@ -2,7 +2,7 @@
 
 namespace Drupal\usa_workflow;
 
-use \Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Psr\Log\LoggerInterface;
@@ -41,6 +41,7 @@ class UsaWorkflowPermissionChecker {
       logger: $container->get('logger.factory')->get('usa_workflow'),
     );
   }
+
   /**
    * WfUserPermission.
    *

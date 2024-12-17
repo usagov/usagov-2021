@@ -15,8 +15,8 @@ class UsaAdminController extends ControllerBase {
 
   public function __construct(
     private MenuLinkTreeInterface $menuLinkTree,
-    private SystemManager $systemManager) {
-  }
+    private SystemManager $systemManager,
+  ) {}
 
   // Returns a page with some instructions and the same list of links as are in the menu.
   public function mainPage() {

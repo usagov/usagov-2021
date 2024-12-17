@@ -26,7 +26,7 @@ class MenuChecker implements ContainerInjectionInterface {
    *   Checks the current route to generate the entity.
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    */
-  public final function __construct(
+  final public function __construct(
     private EntityTypeManagerInterface $entity_type_manager,
     private CurrentRouteMatch $current_route_match,
     private EntityRepositoryInterface $entity_repository,
@@ -163,7 +163,7 @@ class MenuChecker implements ContainerInjectionInterface {
     if (isset($menu_taxonomy_links)) {
       return [
         'menu_entities' => $menu_taxonomy_links,
-        'primary_entity' => $primaryEntity ?? null,
+        'primary_entity' => $primaryEntity ?? NULL,
       ];
     }
     else {

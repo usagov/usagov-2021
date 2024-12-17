@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 class PublishedPagesSubscriber implements EventSubscriberInterface {
+
   public function __construct(
     private Request $request,
     private EntityTypeManagerInterface $entity_type_manager,
@@ -26,6 +27,7 @@ class PublishedPagesSubscriber implements EventSubscriberInterface {
       entity_type_manager: $container->get('entity_type.manager'),
     );
   }
+
   /**
    * Reacts to a modify HTML event.
    *

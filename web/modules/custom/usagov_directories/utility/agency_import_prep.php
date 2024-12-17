@@ -316,7 +316,7 @@ function get_plain_text(DOMNode $node, string $nodename): string {
  * Get Links (as URL and Text parts) from the named element. Assumes there is just one node
  * matching the element name $nodename, and that it contains CDATA.
  */
-function get_links_from_cdata(DOMNode $node, string $nodename, string $columnname = NULL): array {
+function get_links_from_cdata(DOMNode $node, string $nodename, ?string $columnname = NULL): array {
   $columnname = $columnname ?: $nodename;
   $nodes = $node->getElementsByTagName($nodename);
   $content = '';
