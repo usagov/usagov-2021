@@ -31,10 +31,10 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 )]
 class SidebarFirstBlock extends AbstractMenuBlock {
 
-  private const AGENCIES_NID_EN = 629;
-  private const AGENCIES_NID_ES = 1696;
-  private const STATES_NID_EN = 1885;
-  private const STATES_NID_ES = 1870;
+  private const int AGENCIES_NID_EN = 629;
+  private const int AGENCIES_NID_ES = 1696;
+  private const int STATES_NID_EN = 1885;
+  private const int STATES_NID_ES = 1870;
 
   /**
    * {@inheritdoc}

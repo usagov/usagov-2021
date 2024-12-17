@@ -17,6 +17,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function buildForm(array $form, FormStateInterface $form_state) {
     $entityTypeManager = \Drupal::service('entity_type.manager');
 
@@ -77,6 +78,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function validateForm(array &$form, FormStateInterface $form_state) {
     // foreach ($form['entity_reference'] as $index => $entity_reference) {
 
@@ -96,6 +98,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('orphaned_entities.settings');
     foreach ($form['entity_reference'] as $index => $entity_reference) {

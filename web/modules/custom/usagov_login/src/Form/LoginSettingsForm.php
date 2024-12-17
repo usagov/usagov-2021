@@ -36,6 +36,7 @@ class LoginSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
@@ -60,6 +61,7 @@ class LoginSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['sso_login_path'] = [
       '#type' => 'textfield',
@@ -89,6 +91,7 @@ class LoginSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
     $this->state->set('usagov_login_local_form', $form_state->getValue('display_local'));
