@@ -177,7 +177,8 @@ final class PublishedPagesRow {
   public static function datalayerForWizard(array $data, Term $term, string $baseURL): self {
     if ($heading = $term->get('field_heading')->getValue()) {
       $title = $heading[0]['value'];
-    } else {
+    }
+    else {
       $title = $term->getName();
     }
 
