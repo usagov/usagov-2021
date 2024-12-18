@@ -1,7 +1,10 @@
 # See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
+# The CODEOWNERS file itself should have eyes on it.
+docs/CODEOWNERS @akf @arpage
+
 # Benefits-finder tool team 
-web/modules/custom/usagov_benefit_finder geoffrey.queen@gsa.gov yuechen.chi@gsa.gov
-config/sync/*bears*
-config/sync/*benefit_*
-config/sync/*benefits_finder*
+web/modules/custom/usagov_benefit_finder @scottqueen-bixal @gchi25
+config/sync/*bears* @scottqueen-bixal @gchi25
+config/sync/*benefit_* @scottqueen-bixal @gchi25
+config/sync/*benefits_finder* @scottqueen-bixal @gchi25
