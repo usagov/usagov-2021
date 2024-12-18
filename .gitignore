@@ -131,4 +131,3 @@ bin/cloudgov/test/nr/php/manifest-vars.yml
 
 .docker/src-reporter/analytics.pem
 reporter-vcapsecrets.json
-/.envrc
