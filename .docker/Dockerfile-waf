@@ -1,4 +1,5 @@
-FROM owasp/modsecurity-crs:4.9.0-nginx-202412120712
+ARG ubuntu_version="jammy"
+FROM docker.io/ubuntu:${ubuntu_version}
 
 LABEL maintainer="USA.gov Web Ops"
 
@@ -12,43 +13,67 @@ ARG GITTAG
 ENV GITTAG=${GITTAG:-none}
 
 ENV APP_NAME=USAGov \
-    PARANOIA=2 \
     ANOMALY_INBOUND=5 \
     ANOMALY_OUTBOUND=4 \
-    NGINX_KEEPALIVE_TIMEOUT=60s \
     ERRORLOG=/var/log/nginx/error.log \
     LOGLEVEL=warn \
-    USER=nginx \
-    PORT=80 \
-    SERVERNAME=locahost \
-    WORKER_CONNECTIONS=1024 \
     MODSEC_DEFAULT_PHASE1_ACTION="phase:1,pass,log,tag:'\${MODSEC_TAG}'" \
     MODSEC_DEFAULT_PHASE2_ACTION="phase:2,pass,log,tag:'\${MODSEC_TAG}'" \
-    MODSEC_RULE_ENGINE=on \
+    MODSEC_PCRE_MATCH_LIMIT=500000 \
+    MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000 \
     MODSEC_REQ_BODY_ACCESS=on \
     MODSEC_REQ_BODY_LIMIT=13107200 \
     MODSEC_REQ_BODY_NOFILES_LIMIT=131072 \
     MODSEC_RESP_BODY_ACCESS=on \
     MODSEC_RESP_BODY_LIMIT=1048576 \
-    MODSEC_PCRE_MATCH_LIMIT=500000 \
-    MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000
-
-COPY src-waf/docker-entrypoint-waf.sh /
-COPY src-waf/etc/ /etc/
-COPY src-waf/opt/ /opt/
-RUN rm -rf /opt/owasp-crs/tests;
+    MODSEC_RULE_ENGINE=on \
+    MODSECURITY_ENGINE_VERSION="3.0.13" \
+    MODSECURITY_NGINX_VERSION="1.0.3" \
+    NGINX_KEEPALIVE_TIMEOUT=60s \
+    PARANOIA=2 \
+    PORT=80 \
+    SERVERNAME=locahost \
+    USER=nginx \
+    WORKER_CONNECTIONS=1024
 
 RUN apt-get update && \
     apt-get install -y \
+    autoconf \
+    automake \
     bash \
+    build-essential \
+    ca-certificates \
     curl \
+    dpkg-dev \
+    doxygen \
+    gcc \
     gettext \
     inotify-tools \
     jq \
+    libcurl4 \
+    libcurl4-openssl-dev \
+    libfuzzy-dev \
+    libgeoip-dev \
+    liblua5.3-dev \
+    libmodsecurity-dev \
+    libmodsecurity3 \
+    libpcre2-dev \
+    libpcre3 \
+    libpcre3-dev \
+    libtool \
+    libxml2 \
+    libxml2-dev \
+    libyajl-dev \
+    make \
     nano \
     nginx-plus-module-modsecurity \
+    pkg-config \
     sed \
-    vim
+    software-properties-common \
+    ssdeep \
+    uuid-dev \
+    vim \
+    wget
 
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \
@@ -59,6 +84,11 @@ RUN set -eux; \
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
     touch /var/log/modsecurity/modsec_audit.log;
+
+COPY src-waf/docker-entrypoint-waf.sh /
+COPY src-waf/etc/ /etc/
+COPY src-waf/opt/ /opt/
+RUN rm -rf /opt/owasp-crs/tests;
 
 COPY src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
 COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
