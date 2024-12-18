@@ -171,6 +171,11 @@ function usagov_wizard_preprocess_html(&$variables) {
           $variables['meta_description'] = $taxonomy_term->field_meta_description->value;
         }
 
+        // USAGOV-1989: When the meta_description is empty, fall back to the page intro
+        if (empty($variables['meta_description']) && !empty($taxonomy_term->field_intro)) {
+          $variables['meta_description'] = $taxonomy_term->field_intro->value;
+        }
+
         // Set a bunch of other stuff...
         $variables['language'] = $taxonomy_term->langcode->value;
         $variables['currentPath'] = $taxonomy_term->toUrl()->toString();
@@ -406,6 +411,10 @@ function usagov_wizard_get_term_breadcrumb(Term $rootTerm): array {
     foreach ($crumbs as $crumb) {
       if (isset($crumb['uri'])) {
         $crumb['url'] = Url::fromUri($crumb['uri'])->toString();
+        // Sometimes Drupal doesn't prepend Spanish path prefix.
+        if ($rootTerm->language()->getId() === 'es' && !str_starts_with($crumb['url'], '/es/')) {
+          $crumb['url'] = '/es' . $crumb['url'];
+        }
       }
       if (isset($crumb['title'])) {
         $crumb['text'] = ($crumb['title']);
