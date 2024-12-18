@@ -189,6 +189,9 @@
         ],
         "php-lint": [
             "vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom"
+        ],
+        "php-compatibility": [
+            "vendor/bin/phpcs -pn --runtime-set testVersion 8.3- web/modules/custom web/themes/custom -d memory_limit=2G --standard=.phpcs.xml.dist"
         ]
     }
 }
