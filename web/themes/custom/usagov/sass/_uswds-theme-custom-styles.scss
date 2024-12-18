@@ -924,3 +924,12 @@ input::-webkit-textfield-decoration-container {
     max-width: 100%;
   }
 }
+
+/* Dialog sizing code for USAGOV-150 */
+.ui-dialog.ckeditor5-paragraph-embed-modal {
+    top: 5vh !important;
+    min-height: 80vh !important;
+}
+.ui-dialog.ckeditor5-paragraph-embed-modal > .ui-dialog-content {
+    height: 80vh !important;
+}
