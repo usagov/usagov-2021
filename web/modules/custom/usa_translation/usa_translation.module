@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
@@ -64,10 +65,7 @@ function usa_translation_page_attachments_alter(&$page) {
           ->load($altid);
       }
 
-      if (!empty($altnode)
-        && is_object($altnode)
-        && method_exists($altnode, 'hasLinkTemplate')
-        && $altnode->hasLinkTemplate('canonical')) {
+      if (!empty($altnode) && $altnode->hasLinkTemplate('canonical')) {
         foreach ($altnode->getTranslationLanguages() as $language) {
           // Skip any translation that cannot be viewed.
           $translation = $altnode->getTranslation($language->getId());
@@ -111,9 +109,7 @@ function usa_translation_page_attachments_alter(&$page) {
       }
       // Displays current route of an entity in the metadata
       // The route should be the same as the canonical url.
-      if (!empty($entity)
-        && is_object($entity)
-        && method_exists($entity, 'hasLinkTemplate')
+      if ($entity instanceof ContentEntityBase
         && $entity->hasLinkTemplate('canonical')) {
         foreach ($entity->getTranslationLanguages() as $language) {
           // Skip any translation that cannot be viewed.

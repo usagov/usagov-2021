@@ -7,7 +7,6 @@
 
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
-use Drupal\block\Entity\Block;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\path_alias\PathAliasInterface;
@@ -16,7 +15,7 @@ use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
 /**
- * Description message.
+ * Implements hook_preprocess()
  *
  * @param mixed $variables
  *   Self described.

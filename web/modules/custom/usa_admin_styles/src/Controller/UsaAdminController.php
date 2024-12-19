@@ -13,10 +13,10 @@ use Drupal\system\SystemManager;
 */
 class UsaAdminController extends ControllerBase {
 
-  public function __construct(MenuLinkTreeInterface $menu_link_tree, SystemManager $system_manager) {
-    $this->menuLinkTree = $menu_link_tree;
-    $this->systemManager = $system_manager;
-  }
+  public function __construct(
+    private MenuLinkTreeInterface $menuLinkTree,
+    private SystemManager $systemManager,
+  ) {}
 
   // Returns a page with some instructions and the same list of links as are in the menu.
   public function mainPage() {
@@ -56,7 +56,7 @@ class UsaAdminController extends ControllerBase {
       // Check for a valid URL and its access, and construct the relevant content instead.
       if (empty($block['content']['#content'])) {
         $url = $link->getUrlObject();
-        if ($url && $url->access()) {
+        if ($url->access()) {
           // Create block content that mimics what a routed element with a controller
           // would produce.
           $link_info = [
