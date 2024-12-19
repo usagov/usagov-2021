@@ -41,7 +41,7 @@ class MenuChecker implements ContainerInjectionInterface {
       $container->get('entity.repository')
     );
 
-  }//end create()
+  }
 
   /**
    * Retrieves the parent terms of a given taxonomy term.
@@ -60,7 +60,7 @@ class MenuChecker implements ContainerInjectionInterface {
 
     return [];
 
-  }//end getTermParents()
+  }
 
   /**
    * Get the values in the field_heading to determine the third breadcrumb.
@@ -85,7 +85,7 @@ class MenuChecker implements ContainerInjectionInterface {
     $headings = array_reverse($headings);
     return $headings;
 
-  }//end getHeadings()
+  }
 
   /**
    * Retrieves target entities based on the provided menu name.
@@ -105,8 +105,6 @@ class MenuChecker implements ContainerInjectionInterface {
     }
 
     $menu_links = $this->entity_type_manager->getStorage('menu_link_content')->loadByProperties(['menu_name' => $menu_name]);
-
-    $menu_entities = [];
 
     foreach ($menu_links as $menu_entity) {
       // Check if the link leads to a taxonomy term and the route is not
@@ -156,6 +154,6 @@ class MenuChecker implements ContainerInjectionInterface {
       return [];
     }
 
-  }//end getMenuEntities()
+  }
 
-}//end class
+}

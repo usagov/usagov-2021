@@ -7,7 +7,6 @@ use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class UserRouteAccess implements ContainerInjectionInterface {
@@ -34,4 +33,5 @@ class UserRouteAccess implements ContainerInjectionInterface {
 
     return AccessResult::allowed();
   }
+
 }

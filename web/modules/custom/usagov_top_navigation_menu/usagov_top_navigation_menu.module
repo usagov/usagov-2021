@@ -8,7 +8,6 @@
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\node\Entity\Node;
-use Drupal\taxonomy\Entity\Term;
 
 /**
  * Implement hook_page_attachments()

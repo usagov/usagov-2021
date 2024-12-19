@@ -5,13 +5,13 @@ namespace Drupal\usagov_ssg_postprocessing\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
-use Drupal\node\Entity\Node;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Implements a form an administrator can use Enable or Disable Tome's cron runs.
-* This is expected to be used during deployments, allowing config changes to be made before tome's first run.
+* This is expected to be used during deployments, allowing config changes to be
+ * made before tome's first run.
 */
 class ToggleStaticSiteGenerationForm extends FormBase {
 
@@ -41,13 +41,12 @@ class ToggleStaticSiteGenerationForm extends FormBase {
 
     $toggle_state = $this->state->get(usagov_ssg_postprocessing_get_static_state_var()) ? 'Enable' : 'Disable';
 
-    $desc_text = $this->t($this->state->get(usagov_ssg_postprocessing_get_static_state_var()) ?
-      "Static Site Generation is currently DISABLED." :
-      "Static Site Generation is currently ENABLED. Note: Disabling will not cancel a Tome run that is already in progress.");
+    $desc_text = $this->state->get(usagov_ssg_postprocessing_get_static_state_var()) ?
+      $this->t("Static Site Generation is currently DISABLED.") :
+      $this->t("Static Site Generation is currently ENABLED. Note: Disabling will not cancel a Tome run that is already in progress.");
 
     $form['description'] = [
       '#type' => 'processed_text',
-      //'#text' => $this->t('Are you sure you want to toggle Tome site generation (this will not cancel a Tome run that is already in progress) ?'),
       '#text' => $desc_text,
     ];
 
@@ -75,7 +74,6 @@ class ToggleStaticSiteGenerationForm extends FormBase {
 
     try {
       $toggle_state = $this->state->get(usagov_ssg_postprocessing_get_static_state_var()) ? FALSE : TRUE;
-      //$toggle_state = $form_state->getValue(usagov_ssg_postprocessing_get_static_state_button_name()) ? TRUE : FALSE;
       if ($toggle_state) {
         $this->state->set(usagov_ssg_postprocessing_get_static_state_var(), TRUE);
       }

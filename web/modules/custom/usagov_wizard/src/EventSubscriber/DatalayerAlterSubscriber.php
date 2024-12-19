@@ -2,11 +2,9 @@
 
 namespace Drupal\usagov_wizard\EventSubscriber;
 
-use Drupal\Core\Breadcrumb\BreadcrumbManager;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
-use Drupal\usagov_wizard\MenuChecker;
 use Drupal\usagov_wizard\WizardDataLayer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
