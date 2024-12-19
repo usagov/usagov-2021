@@ -1,5 +1,5 @@
-ARG ubuntu_version="jammy"
-FROM docker.io/ubuntu:${ubuntu_version}
+ARG NGINX_VERSION="1.27.3"
+FROM nginx:${NGINX_VERSION}
 
 LABEL maintainer="USA.gov Web Ops"
 
@@ -41,39 +41,55 @@ RUN apt-get update && \
     autoconf \
     automake \
     bash \
+    bison \
     build-essential \
     ca-certificates \
     curl \
-    dpkg-dev \
+    dh-autoreconf \
     doxygen \
+    dpkg-dev \
+    flex \
+    gawk \
     gcc \
     gettext \
+    git \
     inotify-tools \
+    iputils-ping \
     jq \
     libcurl4 \
+    libcurl4-gnutls-dev \
     libcurl4-openssl-dev \
+    libexpat1-dev \
     libfuzzy-dev \
     libgeoip-dev \
+    liblmdb-dev \
     liblua5.3-dev \
     libmodsecurity-dev \
     libmodsecurity3 \
     libpcre2-dev \
     libpcre3 \
     libpcre3-dev \
+    libpcre++-dev \
+    libssl-dev \
     libtool \
     libxml2 \
     libxml2-dev \
+    libxslt \
     libyajl-dev \
+    locales \
+    lua5.3-dev \
     make \
     nano \
-    nginx-plus-module-modsecurity \
     pkg-config \
     sed \
     software-properties-common \
     ssdeep \
     uuid-dev \
     vim \
-    wget
+    wget \
+    zlib1g-dev \
+    zlibc \
+    libgd-dev
 
 # hadolint ignore=DL3008,SC2016
 RUN set -eux; \
@@ -85,6 +101,16 @@ RUN set -eux; \
     mkdir /var/log/modsecurity && \
     touch /var/log/modsecurity/modsec_audit.log;
 
+RUN cd /opt && sudo git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git \
+    sudo wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
+    tar -xvzmf nginx-${NGINX_VERSION}.tar.gz \
+    cd nginx-${NGINX_VERSION} \
+    ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*') \
+    ./configure --add-dynamic-module=../ModSecurity-nginx --with-compat $ARGS \
+    make modules \
+    mkdir /etc/nginx/modules \
+    cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
+
 COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
@@ -93,6 +119,7 @@ RUN rm -rf /opt/owasp-crs/tests;
 COPY src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
 COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
 COPY src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
+
 COPY src-waf/cert-watcher.sh /cert-watcher.sh
 
 COPY motd /etc/motd
