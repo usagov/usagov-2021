@@ -92,7 +92,7 @@ RUN cd /opt \
     && echo $(nginx -V) \
     && ./configure --add-dynamic-module=../ModSecurity-nginx --with-compat $ARGS \
     && make modules \
-    && mkdir /etc/nginx/modules \
+    # && mkdir /etc/nginx/modules \
     && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
 
 COPY src-waf/docker-entrypoint-waf.sh /
