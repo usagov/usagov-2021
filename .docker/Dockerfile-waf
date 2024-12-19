@@ -69,12 +69,10 @@ RUN apt-get update && \
     libpcre2-dev \
     libpcre3 \
     libpcre3-dev \
-    libpcre++-dev \
     libssl-dev \
     libtool \
     libxml2 \
     libxml2-dev \
-    libxslt \
     libyajl-dev \
     locales \
     lua5.3-dev \
@@ -88,7 +86,6 @@ RUN apt-get update && \
     vim \
     wget \
     zlib1g-dev \
-    zlibc \
     libgd-dev
 
 # hadolint ignore=DL3008,SC2016
