@@ -14,7 +14,7 @@ use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_wizard\MenuChecker;
 
 /**
- * Implements hook_form_alter().
+ * Implements hook_form_FORM_ID_alter()().
  *
  * Alter the form by adding a "View Term" button
  * if the form is the taxonomy_term_wizard_form.
@@ -291,22 +291,20 @@ function usagov_wizard_preprocess_page(&$variables) {
         /* If there are matches, send information about the menu entities to the
         twig.*/
         if ($wizardMenuEntities) {
-          foreach ($wizardMenuEntities as $wizardMenuEntity) {
-            $entities = array_map(function ($wizardMenuEntity) {
-              return [
-                'label' => $wizardMenuEntity->title->value,
-                'link' => Url::fromUri($wizardMenuEntity->link->uri)
-                  ->toString(),
-                'weight' => $wizardMenuEntity->getWeight(),
-              ];
-            }, $wizardMenuEntities);
-            usort($entities, function ($item1, $item2) {
-              return $item1['weight'] <=> $item2['weight'];
-            });
+          $entities = array_map(function ($wizardMenuEntity) {
+            return [
+              'label' => $wizardMenuEntity->title->value,
+              'link' => Url::fromUri($wizardMenuEntity->link->uri)
+                ->toString(),
+              'weight' => $wizardMenuEntity->getWeight(),
+            ];
+          }, $wizardMenuEntities);
+          usort($entities, function ($item1, $item2) {
+            return $item1['weight'] <=> $item2['weight'];
+          });
 
-            $variables['menu_entities'] = $entities;
-            $variables['page']['header_top']['#menu_entities'] = $entities;
-          }
+          $variables['menu_entities'] = $entities;
+          $variables['page']['header_top']['#menu_entities'] = $entities;
         }
       }
     }

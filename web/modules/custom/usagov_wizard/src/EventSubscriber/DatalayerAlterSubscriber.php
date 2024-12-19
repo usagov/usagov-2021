@@ -16,8 +16,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class DatalayerAlterSubscriber implements EventSubscriberInterface {
 
   public function __construct(
-    private MenuChecker $menuChecker,
-    private BreadcrumbManager $breadcrumbManager,
     private CurrentRouteMatch $currentRouteMatch,
     private EntityTypeManagerInterface $entityTypeManager,
   ) {}
