@@ -5,7 +5,6 @@
  * Call classes.
  */
 
-use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 
 /**

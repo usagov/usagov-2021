@@ -6,4 +6,4 @@ package: USAgov
 dependencies:
   - drupal:block
   - usa_twig_vars
-  - simplify_menu
+  - drupal:simplify_menu

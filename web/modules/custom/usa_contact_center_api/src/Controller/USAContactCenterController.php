@@ -6,19 +6,12 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Controller routines for USA Contact Center API routes.
  */
 class USAContactCenterController extends ControllerBase {
-
-
-  /**
-   * The database connection.
-   *
-   * @var \Drupal\Core\Database\Connection
-   */
-  protected $connection;
 
   /**
    * Constructs a USAContactCenterController object.
@@ -26,8 +19,10 @@ class USAContactCenterController extends ControllerBase {
    * @param \Drupal\Core\Database\Connection $connection
    *   The database connection.
    */
-  public function __construct(Connection $connection) {
-    $this->connection = $connection;
+  final public function __construct(
+    protected Connection $connection,
+    private Request $request,
+  ) {
   }
 
   /**
@@ -35,7 +30,8 @@ class USAContactCenterController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('database')
+      connection: $container->get('database'),
+      request: $container->get('request_stack')->getCurrentRequest()
     );
   }
 
@@ -46,7 +42,7 @@ class USAContactCenterController extends ControllerBase {
    *   The response.
    */
   public function getDeletedNodes() {
-    $date = \Drupal::request()->query->get('deleted');
+    $date = $this->request->query->get('deleted');
     $query = $this->connection->select('usa_node_delete_log', 'n')
       ->fields('n', [])
       ->orderBy('deleted_time', 'DESC');
@@ -74,7 +70,7 @@ class USAContactCenterController extends ControllerBase {
     $query->condition('status', '0', '=');
     $query->condition('type', 'basic_page', '=');
 
-    $date = \Drupal::request()->query->get('archived');
+    $date = $this->request->query->get('archived');
     if (isset($date) && is_numeric($date)) {
       $query->condition('changed', $date, '>=');
     }

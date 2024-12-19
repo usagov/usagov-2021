@@ -32,7 +32,7 @@ function usagov_ssg_postprocessing_modify_canonical_link(array &$attachments) {
     return;
   }
   if (\Drupal::service('path.matcher')->isFrontPage()) {
-    foreach ($attachments['#attached']['html_head_link'] as $key => $value) {
+    foreach ($attachments['#attached']['html_head_link'] as $value) {
       if (isset($value[0]['rel']) && $value[0]['rel'] == 'canonical') {
         $href = $attachments['#attached']['html_head_link'][0][0]['href'];
         if (str_ends_with($href, '/node/1')) {

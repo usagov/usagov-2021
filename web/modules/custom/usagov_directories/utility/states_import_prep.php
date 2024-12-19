@@ -90,8 +90,10 @@ function main($infile, $extended_infile, $details_infile, $outdir) {
 
   $headings = array_merge($extended_headings, $basic_headings);
   $out_files = [];
-  $out_files['synonyms'] = []; // for a separate file mapping mothership_uuid to langcode, synonyms.
-  $num_records = 0; // We'll count them on output, just so we can report.
+  // for a separate file mapping mothership_uuid to langcode, synonyms.
+  $out_files['synonyms'] = [];
+  // We'll count them on output, just so we can report.
+  $num_records = 0;
 
   // Define headings for a "reviewer's" CSV file. This will include a subset of the
   // set of fields, with an entry for every federal agency record.
@@ -387,7 +389,8 @@ function get_links_from_cdata($node, $nodename, $columnname = NULL) {
 function make_clean_alias($str) {
   $str = trim($str);
 
-  // We want to replace ' and ~ with - first, because later we'll want to eliminate ' from transliteration
+  // We want to replace ' and ~ with - first,
+  // because later we'll want to eliminate ' from transliteration
   $str = str_replace(['\'', '~'], ['-'], $str);
 
   // $str = iconv('UTF-8', 'ASCII//TRANSLIT', $str); // musl iconv does not support //TRANSLIT
