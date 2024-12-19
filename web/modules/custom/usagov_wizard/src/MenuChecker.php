@@ -69,7 +69,7 @@ class MenuChecker implements ContainerInjectionInterface {
    * @param \Drupal\Core\Entity\EntityInterface $term
    *   The taxonomy term entity for which to retrieve the parent terms.
    *
-   * @return int[]
+   * @return array{}|int[]
    *   An array of term IDs representing the parent terms of the given term.
    *   Returns an empty array if the given term has no parent term or if the
    *   'parent' field is not set.
@@ -80,6 +80,8 @@ class MenuChecker implements ContainerInjectionInterface {
       $parents = $this->entityTypeManager->getStorage('taxonomy_term')->loadAllParents($tid);
       return array_keys($parents);
     }
+
+    return [];
 
   }//end getTermParents()
 

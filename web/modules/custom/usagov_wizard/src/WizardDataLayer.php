@@ -50,6 +50,8 @@ class WizardDataLayer {
 
     $rootTerm = NULL;
     $parents = [];
+    $raw = [];
+
     if (
       $this->term->hasField('parent')
       && !$this->term->get('parent')->isEmpty()
@@ -84,7 +86,7 @@ class WizardDataLayer {
     }
 
     $count = count($raw);
-
+    $urls = [];
     $i = 0;
     foreach ($raw as $url => $text) {
       $i++;
