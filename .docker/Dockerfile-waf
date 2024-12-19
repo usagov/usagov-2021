@@ -83,8 +83,8 @@ RUN set -eux; \
     mkdir /var/log/modsecurity && \
     touch /var/log/modsecurity/modsec_audit.log;
 
-RUN cd /opt && sudo git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git \
-    sudo wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
+RUN cd /opt && git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git \
+    wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
     tar -xvzmf nginx-${NGINX_VERSION}.tar.gz \
     cd nginx-${NGINX_VERSION} \
     ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*') \
