@@ -79,12 +79,6 @@ RUN apt-get update && \
     zlib1g-dev \
     libgd-dev
 
-# hadolint ignore=DL3008,SC2016
-RUN set -eux; \
-    apk add --no-cache \
-    ca-certificates;
-# \    ln -sv /opt/owasp-crs /etc/modsecurity.d;
-
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
     touch /var/log/modsecurity/modsec_audit.log;
