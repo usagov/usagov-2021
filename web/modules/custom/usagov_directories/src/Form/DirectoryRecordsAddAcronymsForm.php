@@ -5,7 +5,6 @@ namespace Drupal\usagov_directories\Form;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\node\Entity\Node;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -96,7 +95,7 @@ class DirectoryRecordsAddAcronymsForm extends FormBase {
         ->execute();
       $nid = reset($nids);
       if ($nid) {
-        $node = Node::load($nid);
+        $node = $this->entityTypeManager->getStorage('node')->load($nid);
         $node->set('field_acronym', $acronym);
         $node->save();
       }

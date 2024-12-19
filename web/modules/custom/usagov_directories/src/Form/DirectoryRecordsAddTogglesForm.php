@@ -5,7 +5,6 @@ namespace Drupal\usagov_directories\Form;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\node\Entity\Node;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -46,7 +45,8 @@ class DirectoryRecordsAddTogglesForm extends FormBase {
         'file_validate_extensions' => ['csv'], // Does nothing for 'file'
       ],
       '#title' => $this->t('Upload a csv file of "mothership_uuid,toggle_mothership_uuid"'),
-      // '#required' => TRUE, // might work in 9.5? https://www.drupal.org/project/drupal/issues/59750
+      // Following might work in 9.5? https://www.drupal.org/project/drupal/issues/59750
+      // '#required' => TRUE,
     ];
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = [
@@ -104,7 +104,7 @@ class DirectoryRecordsAddTogglesForm extends FormBase {
       $nid = reset($nids);
       $toggle_nid = reset($toggle_nids);
       if ($nid && $toggle_nid) {
-        $node = Node::load($nid);
+        $node = $this->entityTypeManager->getStorage('node')->load($nid);
         $node->set('field_language_toggle', ['target_id' => $toggle_nid]);
         $node->save();
       }

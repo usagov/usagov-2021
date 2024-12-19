@@ -8,7 +8,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 //TODO: Handle character entities properly (e.g., &#151; for em dash)
-
 /**
  * Implements a form an administrator can use to add language toggles to
  * already-imported directory records.
