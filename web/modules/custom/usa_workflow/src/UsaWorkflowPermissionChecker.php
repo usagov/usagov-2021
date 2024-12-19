@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Check if a certain permission exist for current user.
  */
-class UsaWorkflowPermissionChecker implements ContainerInjectionInterface{
+class UsaWorkflowPermissionChecker implements ContainerInjectionInterface {
   /**
    * Approve own content permission.
    *
@@ -95,8 +95,6 @@ class UsaWorkflowPermissionChecker implements ContainerInjectionInterface{
         $this->logger->error('$rev_uid (@rev_uid) is invalid or $storage->load($rev_uid) failed',
           ['@rev_uid' => $rev_uid ?? '']);
       }
-
-
     }
     else {
       $return['isNewPage'] = TRUE;
@@ -104,4 +102,5 @@ class UsaWorkflowPermissionChecker implements ContainerInjectionInterface{
 
     return $return;
   }
+
 }
