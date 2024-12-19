@@ -83,15 +83,16 @@ RUN set -eux; \
     mkdir /var/log/modsecurity && \
     touch /var/log/modsecurity/modsec_audit.log;
 
-RUN cd /opt && git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git \
-    wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
-    tar -vzmf nginx-${NGINX_VERSION}.tar.gz \
-    cd nginx-${NGINX_VERSION} \
-    ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*') \
-    ./configure --add-dynamic-module=../ModSecurity-nginx --with-compat $ARGS \
-    make modules \
-    mkdir /etc/nginx/modules \
-    cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
+RUN cd /opt \
+    && git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git \
+    && wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
+    && tar -xvf nginx-${NGINX_VERSION}.tar.gz \
+    && cd nginx-${NGINX_VERSION} \
+    && ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*') \
+    && ./configure --add-dynamic-module=../ModSecurity-nginx --with-compat $ARGS \
+    && make modules \
+    && mkdir /etc/nginx/modules \
+    && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
 
 COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
