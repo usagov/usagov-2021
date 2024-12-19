@@ -89,7 +89,7 @@ RUN cd /opt \
     && tar -xvf nginx-${NGINX_VERSION}.tar.gz \
     && cd nginx-${NGINX_VERSION} \
     && ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*') \
-    && cat "$($ARGS)" \
+    && echo "$ARGS" \
     && ./configure --add-dynamic-module=../ModSecurity-nginx --with-compat $ARGS \
     && make modules \
     && mkdir /etc/nginx/modules \
