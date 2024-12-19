@@ -195,7 +195,8 @@ function usagov_benefit_category_search_menu_local_tasks_alter(
 
   $view = match($node->language()->getId()) {
     'en' => 'view.manage_benefits_search_sort.page_en',
-    'es' => 'view.manage_benefits_search_sort.page_es'
+    'es' => 'view.manage_benefits_search_sort.page_es',
+    default => 'view.manage_benefits_search_sort.page_en',
   };
 
   $userCurrent = \Drupal::currentUser();

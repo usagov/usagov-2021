@@ -2,6 +2,7 @@
 
 namespace Drupal\usagov_benefit_category_search;
 
+use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\views\ViewExecutable;
 
@@ -20,6 +21,7 @@ class PrepareSearchResults {
     //
     // For filtering, remove categories that are not in the language we want.
     foreach ($view->result as $row) {
+      /** @var Node $row->_entity */
       $categories = $row->_entity->field_benefits_category;
 
       foreach ($categories as $category) {
