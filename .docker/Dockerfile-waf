@@ -40,11 +40,8 @@ RUN apt-get update && \
     apt-get install -y \
     autoconf \
     automake \
-    bash \
     bison \
     build-essential \
-    ca-certificates \
-    curl \
     dh-autoreconf \
     doxygen \
     dpkg-dev \
@@ -56,9 +53,6 @@ RUN apt-get update && \
     inotify-tools \
     iputils-ping \
     jq \
-    libcurl4 \
-    libcurl4-gnutls-dev \
-    libcurl4-openssl-dev \
     libexpat1-dev \
     libfuzzy-dev \
     libgeoip-dev \
@@ -71,15 +65,12 @@ RUN apt-get update && \
     libpcre3-dev \
     libssl-dev \
     libtool \
-    libxml2 \
-    libxml2-dev \
     libyajl-dev \
     locales \
     lua5.3-dev \
     make \
     nano \
     pkg-config \
-    sed \
     software-properties-common \
     ssdeep \
     uuid-dev \
