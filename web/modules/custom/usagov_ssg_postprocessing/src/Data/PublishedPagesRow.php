@@ -126,7 +126,7 @@ final class PublishedPagesRow {
     }
 
     $toggleURL = NULL;
-    if (isset($node->field_language_toggle[0]) && $node->field_language_toggle[0]?->target_id) {
+    if (isset($node->field_language_toggle[0]) && $node->field_language_toggle[0]->target_id) {
       if ($data['homepageTest'] === 'homepage' && $data['language'] === 'en') {
         $toggleURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_ES;
       }

@@ -10,16 +10,14 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class SsgStatController extends ControllerBase {
 
-  protected $requestStack;
-
-  public function __construct(RequestStack $request_stack) {
-    $this->requestStack = $request_stack;
+  public function __construct(
+    protected RequestStack $requestStack,
+  ) {
   }
 
   public function content() {
-
-    $date = \Drupal::state()->get('ssg_stat_date');
-    $msg = \Drupal::state()->get('ssg_stat_msg');
+    $date = $this->state()->get('ssg_stat_date');
+    $msg = $this->state()->get('ssg_stat_msg');
 
     if (empty($msg)) {
       $markup = "Static Site Generator has not been run on this environment yet.";
@@ -42,7 +40,7 @@ class SsgStatController extends ControllerBase {
     $waitParam = $request->query->get('wait');
 
     if (!empty($waitParam)) {
-      $wait = intval($waitParam);
+      $wait = (int) $waitParam;
     }
     if (!empty($wait)) {
       sleep($wait);
