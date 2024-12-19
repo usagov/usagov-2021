@@ -190,7 +190,7 @@ We use [Cypress](cypress.io). Note that we use only the Cypress App, _not_ Cypre
 
 1. Supply Drupal *credentials* for the automated tests: Edit the file `env.local.cypress`. Supply a valid Drupal user name and password for `cypressCmsUser` and `cypressCmsPass`.
 
-2. Run `docker compose up` to (re-)create the cypress container with the new environment variables.
+2. Run `docker compose build cypress` to (re-)create the cypress container with the new environment variables.
 
 3. Run `bin/cypress-ssh` to open a shell in the cypress container
 
@@ -337,26 +337,35 @@ The following composer scripts are aliases for running these tools.
 * Check for PHP lint errors
   `./bin/composer php-lint`
 
+## Checking Code with PHPStan
+
+[PHPStan](https://phpstan.org/) is available to statically analyze custom theme and module code for correctness.
+
+It should be installed automatically on a local environment via `composer install`.
+
+The following composer scripts are aliases for running PHPStan
+
+* Check for errors at the level configured in `phpstan.neon`
+  `./bin/composer phpcs-errors`:
+
 ## Project Restart/Reset
+
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing containers, networks, and volumes the procedure is the same as the full project setup.
 
 
 ### Docker Cleanup
-
 
 ```
 docker compose down
 docker system prune
 ```
 
-
 Refer to `Full Project Setup` section above to continue the setup.
-
 
 [back to top](#usagov-2021)
 
-
 ## Update Database
+
 Safe development database dumps are kept in Google Drive. You can download and import a SQL database from https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing.
 
 

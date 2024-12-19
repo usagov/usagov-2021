@@ -191,13 +191,8 @@
         "php-lint": [
             "vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom"
         ],
-
         "phpstan": [
             "vendor/bin/phpstan --memory-limit=1G"
-        ],
-
-        "phpstan-changes": [
-            "vendor/bin/phpstan --memory-limit=1G `bin/changed-files`"
         ]
     }
 }
