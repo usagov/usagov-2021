@@ -83,16 +83,20 @@ RUN set -eux; \
     mkdir /var/log/modsecurity && \
     touch /var/log/modsecurity/modsec_audit.log;
 
-# RUN cd /opt \
-#     && git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git \
-#     && wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
-#     && tar -xvf nginx-${NGINX_VERSION}.tar.gz \
-#     && cd nginx-${NGINX_VERSION} \
-#     && ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*?(?=--with-cc-opt)') \
-#     && echo $(nginx -V) \
-#     && ./configure --add-dynamic-module=../ModSecurity-nginx --with-compat $ARGS \
-#     && make modules \
-#     && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
+RUN cd /opt \
+    && git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git \
+    && wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
+    && tar -xvf nginx-${NGINX_VERSION}.tar.gz \
+    && cd nginx-${NGINX_VERSION} \
+    && ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*?(?=--with-cc-opt)') \
+    && echo $(nginx -V) \
+    && ./configure --add-dynamic-module=../ModSecurity-nginx --with-compat $ARGS \
+    && make modules \
+    && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
+
+RUN git clone https://github.com/coreruleset/coreruleset /etc/modsecurity.d/modsecurity-crs \
+    && mv /etc/modsecurity.d/modsecurity-crs/crs-setup.conf.example /etc/modsecurity.d/modsecurity-crs/crs-setup.conf \
+    && mv /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
 
 COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
