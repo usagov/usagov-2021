@@ -411,8 +411,6 @@ function usagov_wizard_get_term_breadcrumb(Term $rootTerm): array {
 
     foreach ($crumbs as $crumb) {
       if (isset($crumb['uri'])) {
-        // Sometimes this crumb's uri is "route:<nolink>" and the url is an empty string;
-        // in that case we should leave it empty (current page, not to be linked).
         // Setting the language here assumes all the crumbs are pages from the same language
         // as the root term.
         $crumb['url'] = Url::fromUri($crumb['uri'], ['language' => $rootTerm->language()])->toString();
