@@ -60,25 +60,6 @@ else
   $SCRIPT_DIR/create-service-account $SPACE $APPNAME
 fi
 
-SERVICE_NAME=cfevents
-if existsCFService ${SERVICE_NAME}-service-account; then
-  SERVICE_KEY=$(cf service-key ${SERVICE_NAME}-service-account ${SERVICE_NAME}-service-key | tail -n +3)
-  SERVICE_USER=$( echo ${SERVICE_KEY} | jq -r '.credentials.username')
-  ### target our roles a bit:
-  if [ $SPACE = "dr" ]; then
-    for cfspace in dr dev stage prod tools shared-egress; do
-      $echo cf set-space-role ${SERVICE_USER} $ORG $cfspace SpaceAuditor
-    done
-  else
-    $echo cf set-space-role ${SERVICE_USER} $ORG $SPACE SpaceAuditor
-  fi
-  $echo cf set-org-role ${SERVICE_USER} $ORG OrgAuditor
-  echo cf unset-space-role ${SERVICE_USER} $ORG $SPACE SpaceDeveloper
-else
-  echo could not create Service Account for ${SERVICE_NAME} in ${SPACE}
-  exit 1
-fi
-
 # TODO: I want to come back to this and make CALLWAIT_STORAGE_SERVICE a shared service -- one s3 bucket for all three environs -akf
 STATE_STORAGE_SERVICE=${APPNAME}-state-storage
 EVENT_STORAGE_SERVICE=${APPNAME}-event-storage
