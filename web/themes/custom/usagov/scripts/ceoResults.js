@@ -137,6 +137,7 @@ function renderResults(response, rawResponse) {
         h1.innerHTML = content[""+errorType+"-heading"];
         resultsSection.innerHTML = "";
         intro.innerHTML = content[errorType];
+        intro.style.paddingBottom = '20px';
         dataLayer.push({
             'event': 'CEO API Error',
             'error type': errorType,
