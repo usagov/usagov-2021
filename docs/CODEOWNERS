@@ -19,5 +19,6 @@ config/sync/core.entity_form_display.paragraph.b_* @scottqueen-bixal @gchi25
 config/sync/field.field.paragraph.b_* @scottqueen-bixal @gchi25
 config/sync/field.storage.paragraph.field_b_* @scottqueen-bixal @gchi25
 config/sync/paragraphs.paragraphs_type.b_* @scottqueen-bixal @gchi25
+.github/workflows/*benefits-finder* @scottqueen-bixal @XavierMetichecchia
 
 
