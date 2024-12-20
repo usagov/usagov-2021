@@ -14,10 +14,10 @@ fi
 if [ -f ./env.local ]; then
   . ./env.local
 fi
-if [ -f $SCRIPT_DIR/../deploy/includes ]; then
-  . $SCRIPT_DIR/../deploy/includes
+if [ -f $SCRIPT_DIR/../../deploy/includes ]; then
+  . $SCRIPT_DIR/../../deploy/includes
 else
-   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   echo Cannot find $SCRIPT_DIR/../../deploy/includes
    exit 1
 fi
 
