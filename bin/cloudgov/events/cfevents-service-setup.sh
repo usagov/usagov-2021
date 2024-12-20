@@ -32,13 +32,6 @@ SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
 shift
 ORG=$(getOrg)
-CF_EGRESS_SPACE=${CF_EGRESS_SPACE:-shared-egress}
-CF_EGRESS_ORG=${CF_EGRESS_ORG:-$ORG}
-STAG=${1:-latest}
-SDIGEST=${2:-}
-
-DOCKERUSER=${DOCKERUSER:-gsatts}
-DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 export SERVICE_NAME="cfevents"
 export APPINSTANCES=1
@@ -49,20 +42,22 @@ else
   $SCRIPT_DIR/create-service-account $SPACE $SERVICE_NAME
 fi
 
-if existsCFService ${SERVICE_NAME}-service-account; then
-  SERVICE_KEY=$(cf service-key ${SERVICE_NAME}-service-account ${SERVICE_NAME}-service-key | tail -n +3)
-  SERVICE_USER=$( echo ${SERVICE_KEY} | jq -r '.credentials.username')
-  ### target our roles a bit:
-  if [ $SPACE = "dr" ]; then
-    for cfspace in dr dev stage prod tools shared-egress; do
-      $echo cf set-space-role ${SERVICE_USER} $ORG $cfspace SpaceAuditor
-    done
+if [ $SERVICE_NAME = 'cfevent' ]; then
+  if existsCFService ${SERVICE_NAME}-service-account; then
+    SERVICE_KEY=$(cf service-key ${SERVICE_NAME}-service-account ${SERVICE_NAME}-service-key | tail -n +3)
+    SERVICE_USER=$( echo ${SERVICE_KEY} | jq -r '.credentials.username')
+    $echo cf set-org-role ${SERVICE_USER} $ORG OrgAuditor
+    ### target our roles a bit:
+    if [ $SPACE = "dr" ]; then
+      for cfspace in dr dev stage prod tools shared-egress; do
+        $echo cf set-space-role ${SERVICE_USER} $ORG $cfspace SpaceAuditor
+      done
+    else
+      $echo cf set-space-role ${SERVICE_USER} $ORG $SPACE SpaceAuditor
+    fi
+    echo cf unset-space-role ${SERVICE_USER} $ORG $SPACE SpaceDeveloper
   else
-    $echo cf set-space-role ${SERVICE_USER} $ORG $SPACE SpaceAuditor
+    echo could not create Service Account for ${SERVICE_NAME} in ${SPACE}
+    exit 1
   fi
-  $echo cf set-org-role ${SERVICE_USER} $ORG OrgAuditor
-  echo cf unset-space-role ${SERVICE_USER} $ORG $SPACE SpaceDeveloper
-else
-  echo could not create Service Account for ${SERVICE_NAME} in ${SPACE}
-  exit 1
 fi
