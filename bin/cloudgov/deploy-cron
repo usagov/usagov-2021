@@ -60,7 +60,18 @@ else
   $SCRIPT_DIR/create-service-account $SPACE $APPNAME
 fi
 
-# TODO: I want to come back to this and make CALLWAIT_STORAGE_SERVICE a shared service -- one s3 bucket for all three environs -akf
+if existsCFService cfevent-service-account; then
+  echo "User service cfevent-service-account already exists - good!"
+else
+  $SCRIPT_DIR/create-service-account $SPACE cfevent
+fi
+
+if existsCFService callcenter-service-account; then
+  echo "User service callcenter-service-account already exists - good!"
+else
+  $SCRIPT_DIR/create-service-account $SPACE callcenter
+fi
+
 STATE_STORAGE_SERVICE=${APPNAME}-state-storage
 EVENT_STORAGE_SERVICE=${APPNAME}-event-storage
 CALLWAIT_STORAGE_SERVICE=${APPNAME}-callwait-storage
