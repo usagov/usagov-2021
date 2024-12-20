@@ -166,7 +166,7 @@ for app in $applist; do
     fi
 
     if [ "$app" = cron ]; then
-      for svc in callwait-service-account cfevent-service-account; do
+      for svc in callcenter-service-account cfevent-service-account; do
         if existsCFService $svc; then
           echo "Binding $app with $svc"
           $output cf bind-service $app $svc
