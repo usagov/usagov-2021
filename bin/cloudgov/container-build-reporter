@@ -18,7 +18,10 @@ if [ -f $caddy_bin_file ]; then
     echo "Caddy binary already exists at $caddy_bin_file"
 else
     echo "Getting latest caddy binary from cg-egress-proxy repo and saving it to $caddy_bin_file"
-    $output git clone --depth 1 https://github.com/GSA-TTS/cg-egress-proxy.git tmp-caddy-build
+    $output git clone https://github.com/GSA-TTS/cg-egress-proxy.git tmp-caddy-build
+    $output pushd tmp-caddy-build
+    $output git checkout 529154a81d05f7c204f73645137dc10e9e8a36db
+    $output popd
     $output cp -p tmp-caddy-build/proxy/caddy $caddy_bin_file
     $output rm -rf tmp-caddy-build
 fi
