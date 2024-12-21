@@ -108,10 +108,19 @@ function cf_push() {
 
 if existsCFApp ${APPNAME} ; then
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
+  retval=$?
+  if [ $retval != 0 ]; then
+    echo "ERROR: setup-egress-for-apps has failed.  Check output stream!"
+    exit 1
+  fi
   cf_push $APPSPEC $APPINSTANCES
 else
   cf_push $APPSPEC $APPINSTANCES
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
+  if [ $retval != 0 ]; then
+    echo "ERROR: setup-egress-for-apps has failed.  Check output stream!"
+    exit 1
+  fi
 fi
 
 ### These are set for some reason - unset them at deployment

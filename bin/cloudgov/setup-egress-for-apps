@@ -175,6 +175,7 @@ for app in $applist; do
           echo "Cannot bind $app with non-existant service $svc"
           retval=1
         fi
+      done
     fi
 
     if [ $restartRequired -eq 1 ]; then
