@@ -71,7 +71,7 @@ Follow these steps when you first start working on the project, or anytime you w
 **Note:** You should see logging messages in the terminal as the site loads. This may take a minute.
 [back to top](#usagov-2021)
 
-### Database Setup
+### Database setup
 Once you finish the previous section, follow these steps to set up your USAgov database:
 
 1. Download the latest SQL database available from [our Google Drive](https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing).
@@ -93,8 +93,7 @@ Once you finish the previous section, follow these steps to set up your USAgov d
 
 [back to top](#usagov-2021)
 
-### Media Files Setup
-
+### Media files setup
 Once you finish the previous section, you may not see the images on the site. Please follow these steps to set up the media files:
 
 1. Download the latest ZIP file available from [our Google Drive](https://drive.google.com/drive/folders/1tI4k5qasEtmhxCBuznR3t0fe466milYk?usp=sharing).
@@ -106,42 +105,43 @@ Once you finish the previous section, you may not see the images on the site. Pl
 [back to top](#usagov-2021)
 
 
-### Access the Drupal Portal
-To access the Drupal Portal to make any additional configurations, you will need to follow a few more steps.
+### Access the Drupal portal
+There are two ways access the Drupal Admin Portal.
 
-1. Generate a new URL to access your administrator account.
+## If you already have an account
+1. Update your password
+  ```
+  bin/drush upw my_name somePassword
+  ```
+2. After updating your password, you can sign in normally
+
+## If you don't already have an account
+1. Generate a one time, unique url to access your administrator account.
     ```
     bin/drush uli
     ```
-2. The ***unique*** URL will be in some form of
-
-    `http://default/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
-
-3. Replace `default` with `localhost`. It should now be in the form:
+2. Replace `default` with `localhost`. It should now be in the form:
 
     `http://localhost/user/reset/1/123456789/ai6u4-iY1LgZFUjwVW2uXjh5jblqgsfUHGFS_U/login`
 
-    **Note:** This is a ONE-TIME login.
-4. Adjust your credentials accordingly, so that you have a valid username/password combination to use for logging into
+3. Adjust your credentials accordingly, so that you have a valid username/password combination to use for logging into
 the Drupal portal going forward. You will need a valid username/password combination to provide to the Cypress tests,
 as well as for logging in to the Drupal portal directly.
 
-5. Navigate to [Admin -> People](http://localhost/admin/people), find your user account, and edit it to add a password.
+4. Navigate to [Admin -> People](http://localhost/admin/people), find your user account, and edit it to add a password.
 
-6. Log out as root, and log in with your own user account.
+5. Log out as root, and log in with your own user account.
 
 **Note:** You will need to repeat these steps any time you re-load the database from a backup.
 
-### Automated Tests Setup (Cypress)
-
+### Automated tests setup (Cypress)
 We use [Cypress](http://www.cypress.io). Note that we use only the Cypress App, _not_ Cypress Cloud!
 
 * Tests run in the `cypress` Docker container.
 * The tests themselves are in the `automated_tests/e2e-cypress` directory.
 * Twig debugging will break some of the tests! Disable it before running tests to get the most accurate results.
 
-## Minimal Setup for Headless Tests
-
+## Minimal setup for headless tests
 1. Provide Drupal credentials for the automated tests by editing the `env.local.cypress` file. Enter a valid Drupal username and password values for the `cypressCmsUser` and `cypressCmsPass`.
 2. Run `docker compose up` to rebuild the cypress container with the new environment variables.
 3. Run `bin/cypress-ssh` to open a shell in the cypress container
@@ -149,18 +149,16 @@ We use [Cypress](http://www.cypress.io). Note that we use only the Cypress App, 
    You can run `npx cypress run --spec cypress/e2e` to run the entire test suite, or specify a smaller subset like `cypress/e2e/functional`.
 
    The **Report** will be written to `automated_tests/e2e-cypress/cypress/reports/html/index.html` and you can open it
-in your web browser by navigating to that file and opening it. Cypress will report that it wrote the tests to
+in your web browser by navigating to that file. Cypress will report that it wrote the tests to
 `/app/e2e-cypress/cypress/reports/html/index.html`, which is the location of that file in the volume mounted to the cypress docker container.
 
 **Note:** The first time you run `bin/init`, it will create the `env.local.cypress` file by copying `env.default.cypress`.
 The default `cypressBaseUrl` in that file should be correct for running tests against your local dev site.
 
 ## Setup for running Cypress interactively
-
 You will need an X11 server on your computer, so that Cypress can open a web browser in an X window you can interact with.
 
 ### On MacOS, install XQuartz
-
 This setup is based on information from these guides:
 * [How to Run Cypress in Docker With a Single Command](https://www.cypress.io/blog/2019/05/02/run-cypress-with-a-single-docker-command#Interactive-mode)
 * [Running GUI applications using Docker for Mac](https://sourabhbajaj.com/blog/2017/02/07/gui-applications-docker-mac/)
@@ -189,8 +187,7 @@ Proceed to [Allow Cypress to Open an X Window](#allow-cypress-to-open-an-x-windo
 
 ### On Windows ... TODO
 
-### Allow Cypress to Open an X Window
-
+### Allow Cypress to open an X window
 You'll need your local IP address. You're looking for the IP address of your machine on your local network, so it will probably start with `10.` or `192.168.`. This command will probably work:
    ```
    LOCAL_IP=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
@@ -211,10 +208,10 @@ Note that this address will change if you change networks, or if you disconnect 
 
 [back to top](#usagov-2021)
 
-## How to Re-run the Website
+## How to re-run the website
 There are two ways in which you can do this:
 
-### 1. Using the Terminal
+### 1. Using the terminal
 1. Open Docker Desktop.
 2. Open your USAgov project in your IDE.
 3. Open a new terminal in your IDE.
@@ -232,7 +229,7 @@ There are two ways in which you can do this:
 
 [back to top](#usagov-2021)
 
-## Theme Lint Guidelines
+## Theme lint guidelines
 If you make any changes to the `scss` or `js` files, make sure to check for linting errors and resolve them before
 submitting a pull request.
 
@@ -240,8 +237,7 @@ submitting a pull request.
 
 [back to top](#usagov-2021)
 
-## Checking PHP Code style and syntax errors
-
+## Checking PHP dode style and syntax errors
 PHPCodesniffer and the parallel linting tools should be installed automatically on a local environment via `composer install`. PHPCodeSniffer is used to ensure new code follows Drupal's coding standard. The parallel linter will check for PHP syntax errors. If they detect any errors, they must be fixed before a PR of changes can be accepted.
 
 The following composer scripts are aliases for running these tools.
@@ -257,11 +253,11 @@ The following composer scripts are aliases for running these tools.
 * Check for PHP lint errors
   `./bin/composer php-lint`
 
-## Project Restart/Reset
+## Project restart/reset
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and
 destroying the existing containers, networks, and volumes the procedure is the same as the full project setup.
 
-### Docker Cleanup
+### Docker cleanup
 ```
 docker compose down
 docker system prune
@@ -271,7 +267,7 @@ Refer to [Full Project Setup](#setting-up-the-project) section above to continue
 
 [back to top](#usagov-2021)
 
-## Update Database
+## Update database
 Safe development database dumps are kept in Google Drive. You can download and import a SQL database from [our Google Drive](https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx?usp=sharing).
 
 Copy down the database you want by checking the date in the filename. For example: usagov_01_14_2022.sql.zip.
@@ -304,7 +300,7 @@ git checkout -b USAGOV-###-new-feature-branch
 
 [back to top](#usagov-2021)
 
-## Continuing Work
+## Continuing work
 If you are returning to work on an existing feature branch you will need to make sure to update it with the latest changes from a fresh dev branch. It is also good practice to update any branch you are working on frequently.
 ```
 # while working on your feature branch
@@ -315,7 +311,7 @@ bin/drush cim
 
 [back to top](#usagov-2021)
 
-## Tickets and Branching
+## Tickets and branching
 Branch names must follow the format of their associated Jira ticket to ensure proper functionality of automation processes.
 At a minimum, a branch name should be in the format **USAGOV-###**.
 Optionally, you can append a short, lowercase, dash-separated description to improve readability for humans.
@@ -324,15 +320,15 @@ ex: USAGOV-123-short-ticket-name
 
 If a ticket name is too long, you may shorten or even exclude the title, only the USAGOV-### prefix is required.
 
-We are using a git script to automatically add the current branch name to all commits in an effort to make all commit
-messages effortlessly reflect the task being worked on. This helps with automation.
-```
-cp .git.commit-msg .git/hooks/commit-msg
-```
+As part of the ```bin/init``` process, we copy a Git hook script (```.git.commit-msg``` to ```.git/hooks/commit-msg```)
+to automatically include the current branch name in all commit messages. This ensures that commit messages consistently
+reflect the task being worked on, streamlining automation.
+
+**Note:** Any changes to these files will be overwritten the next time ```bin/init``` is run.
 
 [back to top](#usagov-2021)
 
-## Single Item Config Export
+## Single item config export
 If you have lots of junk or temporary config changes in your current database you may opt to only pick out the individual configs you know are needed.
 You can see the full list of available changes on the main [Config Synchronize page](http://localhost/admin/config/development/configuration).
 Once you determine which config changes will be needed you can go to the [Export > Single Item](http://localhost/admin/config/development/configuration/single/export). There you can see and export just that one item.
@@ -360,7 +356,7 @@ This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
 
 [back to top](#usagov-2021)
 
-## Export Database
+## Export database
 A helper script has been provided to perform exports.
 ```
 bin/db-export
@@ -375,8 +371,7 @@ This process asks drush to export the database for us since it does some cleanup
 
 [back to top](#usagov-2021)
 
-## Export Config
-
+## Export config
 1. View differences
    * [Configuration > Development > Configuration Synchronization](http://localhost/admin/config/development/configuration)
 2. Export
@@ -395,16 +390,18 @@ This process asks drush to export the database for us since it does some cleanup
 
 [back to top](#usagov-2021)
 
-## Import Config
+## Import config
 
 `bin/drush cim`
 
 [back to top](#usagov-2021)
 
-## Build and Deploy procedure
-Production ready containers can be built and deployed from a local environment.
+## Build and deploy procedure
+Containers can be built and deployed to the dev environment or to the developer's sandbox space.
 To do so, proper secrets must be entered into the env.local file as environmental variables.
-This same procedure is used by CircleCI and is defined in `.circleci/config.yml`
+This same procedure is used by CircleCI and is defined in `.circleci/config.yml`.
+The deployment procedures scripted for CircleCI include additional security measures. Developers should not deploy
+into the production environment using the example commands below.
 
 ```
 # uses env.local
@@ -418,16 +415,13 @@ bin/cloudgov/deploy TAGNAME
 [back to top](#usagov-2021)
 
 # Troubleshooting
-
 ## If cms password is not accepted:
 * follow instructions found in [Access the Drupal Portal](#access-the-drupal-portal)
 
 [back to top](#usagov-2021)
 
 ## More info on this project
-
 [Overview of selected documentation in this repo](README-overview.md)
 
 ## More info on Cloud Foundry & Cloud.gov
-
 This repository was loosely based off of Cloud.gov's [cf-ex-drupal8 repo](https://github.com/cloud-gov/cf-ex-drupal8). Their README may provide other useful info.
