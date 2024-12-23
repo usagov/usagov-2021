@@ -75,7 +75,6 @@
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
         "onelogin/php-saml": "^4",
-        "oomphinc/composer-installers-extender": "*",
         "wikimedia/composer-merge-plugin": "^2.0.0"
     },
     "conflict": {
@@ -95,8 +94,7 @@
             "wikimedia/composer-merge-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "cweagans/composer-patches": true,
-            "mglaman/composer-drupal-lenient": true,
-            "oomphinc/composer-installers-extender": true
+            "mglaman/composer-drupal-lenient": true
         }
     },
     "extra": {
