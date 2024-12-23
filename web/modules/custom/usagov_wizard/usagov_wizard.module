@@ -411,6 +411,12 @@ function usagov_wizard_get_term_breadcrumb(Term $rootTerm): array {
     foreach ($crumbs as $crumb) {
       if (isset($crumb['uri'])) {
         $crumb['url'] = Url::fromUri($crumb['uri'])->toString();
+        // Sometimes Drupal doesn't prepend Spanish path prefix.
+        // Sometimes this crumb's uri is "route:<nolink>" and the url is an empty string;
+        // in that case we should leave it empty (current page, not to be linked).
+        if ($crumb['url'] && $rootTerm->language()->getId() === 'es' && !str_starts_with($crumb['url'], '/es/')) {
+          $crumb['url'] = '/es' . $crumb['url'];
+        }
       }
       if (isset($crumb['title'])) {
         $crumb['text'] = ($crumb['title']);
