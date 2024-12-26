@@ -341,7 +341,8 @@ The following composer scripts are aliases for running these tools.
 
 [PHPStan](https://phpstan.org/) is available to statically analyze custom theme and module code for correctness.
 
-It should be installed automatically on a local environment via `composer install`.
+It's defined as a dev dependency in `composer.json` and will be installed automatically when you run the build scripts or `bin/composer` install.
+
 
 The following composer scripts are aliases for running PHPStan
 
