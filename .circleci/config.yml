@@ -738,6 +738,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2140-restore-reporter
       - deploy-reporter-tools:
           filters:
             branches:
@@ -745,6 +746,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2140-restore-reporter
           requires:
             - approve-deploy-reporter
 
