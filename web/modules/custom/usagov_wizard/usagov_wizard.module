@@ -426,8 +426,7 @@ function usagov_wizard_get_term_breadcrumb(Term $rootTerm): array {
         // Setting the language here assumes all the crumbs are pages from the same language
         // as the root term.
         if (!isset($crumb['url'])) {
-          $crumb['url'] = Url::fromUri($crumb['uri'], ['language' => $rootTerm->language()])
-            ->toString();
+          $crumb['url'] = Url::fromUri($crumb['uri'], ['language' => $rootTerm->language()])->toString();
         }
       }
       if (isset($crumb['title'])) {
