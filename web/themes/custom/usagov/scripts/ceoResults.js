@@ -470,10 +470,12 @@ function resubmitForm() {
 
     var inputStreet = localStorage.getItem("uspsStreetAddress");
     var inputCity = localStorage.getItem("uspsCity");
+    var inputState = localStorage.getItem("uspsState");
     var inputZip = localStorage.getItem("uspsZipCode");
 
     searchParams.set('input-street', inputStreet);
     searchParams.set('input-city', inputCity);
+    searchParams.set('input-state', inputState);
     searchParams.set('input-zip', inputZip);
 
     window.location.search = searchParams.toString();
@@ -488,7 +490,7 @@ function load() {
 
     let inputStreet = searchParams.get('input-street');
     let inputCity = searchParams.get('input-city');
-    let inputState = searchParams.get('select-dropdown');
+    let inputState = searchParams.get('input-state');
 
     let inputZip = searchParams.get('input-zip');
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;
