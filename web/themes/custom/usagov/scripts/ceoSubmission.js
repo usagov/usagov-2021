@@ -190,6 +190,7 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
         let uspsStreetAddress = responseText.slice(responseText.indexOf('<Address2>') + 10, responseText.indexOf('</Address2>'));
         let uspsZipCode = responseText.slice(responseText.indexOf('<Zip5>') + 6, responseText.indexOf('</Zip5>'));
         let uspsCity = responseText.slice(responseText.indexOf('<City>') + 6, responseText.indexOf('</City>'));
+        let uspsState = responseText.slice(responseText.indexOf('<State>') + 7, responseText.indexOf('</State>'));
 
         // Checks if the address suggested by the USPS API is different from the user's address.
         // If it's different, it returns the USPS address in the response
@@ -199,6 +200,7 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
 
             response.streetAddress = uspsStreetAddress;
             response.city = uspsCity;
+            response.state = uspsState;
             response.zipCode = uspsZipCode;
         }
     }
@@ -360,12 +362,14 @@ async function handleFormSubmission() {
         // Stores the suggested address for the address suggestion alert box.
         localStorage.setItem("uspsStreetAddress", response.streetAddress);
         localStorage.setItem("uspsCity", response.city);
+        localStorage.setItem("uspsState", response.state);
         localStorage.setItem("uspsZipCode", response.zipCode);
         localStorage.setItem("formResubmitted", false);
     }
     else {
         localStorage.removeItem("uspsStreetAddress");
         localStorage.removeItem("uspsCity");
+        localStorage.removeItem("uspsState");
         localStorage.removeItem("uspsZipCode");
         localStorage.removeItem("formResubmitted");
     }
@@ -393,7 +397,7 @@ window.addEventListener("load", function () {
     let isChromeOrEdge = navigator.userAgent.includes("Chrome");
     // Change attributes so that autofill works in state input
     if (isChromeOrEdge) {
-        let stateSelectBox = document.getElementsByName("select-dropdown")[0];
+        let stateSelectBox = document.getElementsByName("input-state")[0];
         stateSelectBox.setAttribute("autocomplete","country");
 
         let stateInputBox = document.getElementById("input-state");
