@@ -8,7 +8,8 @@ RUN apk upgrade --update \
        jq \
        bash \
        curl \
-       gettext
+       gettext \
+       ca-certificates
 
 RUN chmod +x /createreport.sh \
     && npm install -g analytics-reporter
