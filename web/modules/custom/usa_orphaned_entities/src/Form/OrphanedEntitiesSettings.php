@@ -23,7 +23,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
     $form['#attached']['library'][] = 'usa_orphaned_entities/orphaned';
     $form = parent::buildForm($form, $form_state);
     $config = $this->config('orphaned_entities.settings');
-    $form['entity_reference'] = [];
+    $form['#entity_reference'] = [];
 
     $entity_references = $entityTypeManager->getStorage('field_storage_config')->loadByProperties([
       'type' => 'entity_reference',
@@ -43,7 +43,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
     // Get data and structure it for generating form.
     $reference_field_map = [];
     foreach ($entity_references as $index => $entity_reference) {
-      $form['entity_reference'][$index] = $entity_reference;
+      $form['#entity_reference'][$index] = $entity_reference;
       $bundles = $entity_reference->getBundles();
       foreach ($bundles as $index => $bundle) {
         $reference_field = $entity_reference->getName();
@@ -78,7 +78,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    // foreach ($form['entity_reference'] as $index => $entity_reference) {
+    // foreach ($form['#entity_reference'] as $index => $entity_reference) {
 
     //   if (!str_contains($index, '#')) {
     //     $bundles = $entity_reference->getBundles();
@@ -98,7 +98,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('orphaned_entities.settings');
-    foreach ($form['entity_reference'] as $index => $entity_reference) {
+    foreach ($form['#entity_reference'] as $index => $entity_reference) {
       if (!str_contains($index, '#')) {
         $bundles = $entity_reference->getBundles();
 
