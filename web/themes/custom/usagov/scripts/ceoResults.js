@@ -37,6 +37,10 @@ function lookup(address, callback) {
 function renderResults(response, rawResponse) {
     "use strict";
 
+    // Allow the interface to show now that we are about to have content on the page
+    jQuery('.usa-prose-container').show();
+    jQuery('.usa-prose-loader').hide();
+
     // Text strings for the page's language should be assigned to "usagovCEOtext" in
     // an inline script in the page's Header HTML. The translations here are retained for backward compatibility.
     const backupTranslations = {
@@ -133,6 +137,7 @@ function renderResults(response, rawResponse) {
         h1.innerHTML = content[""+errorType+"-heading"];
         resultsSection.innerHTML = "";
         intro.innerHTML = content[errorType];
+        intro.style.paddingBottom = '20px';
         dataLayer.push({
             'event': 'CEO API Error',
             'error type': errorType,
@@ -465,10 +470,12 @@ function resubmitForm() {
 
     var inputStreet = localStorage.getItem("uspsStreetAddress");
     var inputCity = localStorage.getItem("uspsCity");
+    var inputState = localStorage.getItem("uspsState");
     var inputZip = localStorage.getItem("uspsZipCode");
 
     searchParams.set('input-street', inputStreet);
     searchParams.set('input-city', inputCity);
+    searchParams.set('input-state', inputState);
     searchParams.set('input-zip', inputZip);
 
     window.location.search = searchParams.toString();
@@ -483,7 +490,7 @@ function load() {
 
     let inputStreet = searchParams.get('input-street');
     let inputCity = searchParams.get('input-city');
-    let inputState = searchParams.get('select-dropdown');
+    let inputState = searchParams.get('input-state');
 
     let inputZip = searchParams.get('input-zip');
     let normalizedAddress = inputStreet + ", " + inputCity + ", " + inputState + " " + inputZip;

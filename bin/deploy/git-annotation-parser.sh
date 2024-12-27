@@ -21,16 +21,13 @@ else
     exit 1
 fi
 
-# just testing?
-if [ x$1 == x"--dryrun" ]; then
-  export echo=echo
-  shift
-fi
-
-SPACE=${1:-please-provide-space-as-first-argument}
-SSPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]') ## lowercase, so tags are properly formatted
-#assertCurSpace "$SPACE"  ### <-- no need to assert that we're actually in $SPACE, because we're not doing anything w/ CF - just git
+SPACE=$1
+if [ -z "$SPACE" ]; then
+  echo "First argument must be a valid CF space name"
+  exit 1
+fi;
 shift
+SSPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]') ## lowercase, so tags are properly formatted
 
 # 1.  Find the name of the latest annotated git tag matching our production post-deployment tag format
 # 2.  Query the content field of the reference attached to the tag, and make sure it contains correctly formated build number and digest hashes
@@ -157,7 +154,7 @@ if [ -n $ANNOTATED_TAG ]; then
       echo
       echo "   ROUTE_SERVICE_APP_NAME=waf \\
        ROUTE_SERVICE_NAME=waf-route-${SPACE}-usagov \\
-       PROTECTED_APP_NAME=cms \\
+       PROTECTED_APP_NAMES=cms \\
           bin/cloudgov/deploy-waf $CCI_BUILD $WAF_DIGEST"
       echo
       echo
