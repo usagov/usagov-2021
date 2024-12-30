@@ -2,6 +2,8 @@ uuid: 32255651-4a02-4eed-b221-1e74322b887c
 langcode: en
 status: true
 dependencies:
+  config:
+    - workflows.workflow.basic_workflow
   module:
     - content_moderation
     - node
@@ -416,6 +418,7 @@ display:
         type: full
         options:
           offset: 0
+          pagination_heading_level: h4
           items_per_page: 50
           total_pages: null
           id: 0
@@ -600,8 +603,8 @@ display:
           plugin_id: moderation_state_filter
           operator: in
           value:
-            editorial-draft: editorial-draft
-            editorial-archived: editorial-archived
+            basic_workflow-draft: basic_workflow-draft
+            basic_workflow-needs_review: basic_workflow-needs_review
           group: 1
           exposed: true
           expose:
@@ -619,7 +622,11 @@ display:
             remember_roles:
               authenticated: authenticated
               anonymous: '0'
-              administrator: '0'
+              content_editor: '0'
+              site_admin: '0'
+              content_manager: '0'
+              content_administrator: '0'
+              benefits_finder_content_manager: '0'
             reduce: true
           is_grouped: false
           group_info:
@@ -685,9 +692,10 @@ display:
           admin_label: ''
           entity_type: node
           plugin_id: moderation_state_filter
-          operator: 'not in'
+          operator: in
           value:
-            editorial-published: editorial-published
+            basic_workflow-draft: basic_workflow-draft
+            basic_workflow-needs_review: basic_workflow-needs_review
           group: 1
           exposed: false
           expose:
@@ -821,7 +829,8 @@ display:
         - url.query_args
         - 'user.node_grants:view'
         - user.permissions
-      tags: {  }
+      tags:
+        - 'config:workflow_list'
   moderated_content:
     id: moderated_content
     display_title: 'Moderated content'
@@ -840,4 +849,5 @@ display:
         - url.query_args
         - 'user.node_grants:view'
         - user.permissions
-      tags: {  }
+      tags:
+        - 'config:workflow_list'

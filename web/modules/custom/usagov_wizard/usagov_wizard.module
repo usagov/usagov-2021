@@ -171,6 +171,11 @@ function usagov_wizard_preprocess_html(&$variables) {
           $variables['meta_description'] = $taxonomy_term->field_meta_description->value;
         }
 
+        // USAGOV-1989: When the meta_description is empty, fall back to the page intro
+        if (empty($variables['meta_description']) && !empty($taxonomy_term->field_intro)) {
+          $variables['meta_description'] = $taxonomy_term->field_intro->value;
+        }
+
         // Set a bunch of other stuff...
         $variables['language'] = $taxonomy_term->langcode->value;
         $variables['currentPath'] = $taxonomy_term->toUrl()->toString();
@@ -403,16 +408,34 @@ function usagov_wizard_get_term_breadcrumb(Term $rootTerm): array {
   if (isset($rootTerm->field_wizard_breadcrumbs)) {
     $crumbs = $rootTerm->field_wizard_breadcrumbs->getValue();
     $result = [];
+    $alias_manager = \Drupal::service('path_alias.manager');
     foreach ($crumbs as $crumb) {
       if (isset($crumb['uri'])) {
-        $crumb['url'] = Url::fromUri($crumb['uri'])->toString();
+
+        if (str_starts_with($crumb['uri'], 'internal:')) {
+          // We need to handle when an internal path to a Spanish page is part of
+          // the breadcrumb but without an /es/ prefix.
+          $path = preg_replace('/^internal\:/', '', $crumb['uri']);
+          $path = $alias_manager->getPathByAlias($path, $rootTerm->language()->getId());
+          $url = Url::fromUri('internal:' . $path, ['language' => $rootTerm->language()])->toString();
+          if ($url) {
+            $crumb['url'] = $url;
+          }
+        }
+
+        // Setting the language here assumes all the crumbs are pages from the same language
+        // as the root term.
+        if (!isset($crumb['url'])) {
+          $crumb['url'] = Url::fromUri($crumb['uri'], ['language' => $rootTerm->language()])->toString();
+        }
       }
       if (isset($crumb['title'])) {
-        $crumb['text'] = ($crumb['title']);
+        $crumb['text'] = $crumb['title'];
       }
 
       $result[] = $crumb;
     }
+
     $language = $rootTerm->langcode->value;
     $home = [
       'text' => $language === 'en' ? TaxonomyDatalayerBuilder::HOME_TITLE_EN : TaxonomyDatalayerBuilder::HOME_TITLE_ES,

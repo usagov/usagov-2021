@@ -30,7 +30,7 @@ commands:
               echo "git checkout << parameters.envname >>"
               echo "git fetch --all --tags"
               echo "git pull"
-              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
+              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST $WWW_DIGEST
               echo
             fi
       - run:
@@ -322,11 +322,13 @@ jobs:
             npm install --prefix ./web/themes/custom/usagov
             composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
             composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
+            composer require --dev mglaman/phpstan-drupal phpstan/phpstan phpstan/phpstan-deprecation-rules
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
             mkdir -p /tmp/results
             touch /tmp/results/php-lint.log
             touch /tmp/results/php-cs.log
+            touch /tmp/results/php-stan.log
             touch /tmp/results/theme-lint.log
       - run:
           name: PHP Lint
@@ -338,6 +340,10 @@ jobs:
           command: |
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist | tee /tmp/results/php-cs.log
+      - run:
+          name: PHPStan (static analysis, non-blocking)
+          command: |
+            (./vendor/bin/phpstan --memory-limit=2G || true) | tee /tmp/results/php-stan.log
       - run:
           name: Theme Lint
           command: npm run lint --prefix ./web/themes/custom/usagov | tee /tmp/results/theme-lint.log

@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "composer/installers": "^1.9",
+        "composer/installers": "^2.3",
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
         "drupal/admin_toolbar": "^3.4",
@@ -40,6 +40,7 @@
         "drupal/faqfield": "^7.1",
         "drupal/feeds": "^3.0@beta",
         "drupal/field_defaults": "^2.0",
+        "drupal/field_group": "^3.6",
         "drupal/field_permissions": "^1.1",
         "drupal/hierarchy_manager": "^3.3",
         "drupal/image_style_warmer": "^1.1",
@@ -85,7 +86,7 @@
     "prefer-stable": true,
     "config": {
         "optimize-autoloader": true,
-        "process-timeout":0,
+        "process-timeout": 0,
         "sort-packages": true,
         "allow-plugins": {
             "composer/installers": true,
@@ -95,8 +96,7 @@
             "wikimedia/composer-merge-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "cweagans/composer-patches": true,
-            "mglaman/composer-drupal-lenient": true,
-            "oomphinc/composer-installers-extender": true
+            "mglaman/composer-drupal-lenient": true
         }
     },
     "extra": {
@@ -105,6 +105,9 @@
                 "web-root": "web/"
             }
         },
+        "installer-types": [
+            "drupal-module", "drupal-theme"
+        ],
         "installer-paths": {
             "web/core": [
                 "type:drupal-core"
@@ -133,7 +136,9 @@
             "web/themes/custom/{$name}": [
                 "type:drupal-custom-theme"
             ]
-
+        },
+        "patchLevel": {
+            "drupal/core": "-p2"
         },
         "patches": {
             "drupal/tome": {
@@ -144,9 +149,7 @@
             },
             "drupal/core": {
                 "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail_d10.patch",
-                "Show views theme suggestions in twig debug": "https://www.drupal.org/files/issues/2024-06-06/2118743-251.patch",
-                "Add a taxonomy revision UI": "https://www.drupal.org/files/issues/2023-10-26/add-taxonomy-revision-ui-2936995-58.patch",
-                "Enable taxonomy revision log message": "./patches/drupal/taxonomy_revision_log.patch"
+                "Show views theme suggestions in twig debug": "./patches/drupal/viewsSuggestions-10_3.patch"
             },
             "drupal/autologout": {
                 "Autologout can log out out from other tabs": "https://www.drupal.org/files/issues/2024-06-03/3395581-7.patch"
@@ -163,5 +166,35 @@
                 "drupal/ckeditor_templates"
             ]
         }
+    },
+    "require-dev": {
+        "drupal/coder": "^8.3",
+        "mglaman/phpstan-drupal": "*",
+        "php-parallel-lint/php-parallel-lint": "^1.4",
+        "phpstan/phpstan": "*",
+        "phpstan/phpstan-deprecation-rules": "*"
+    },
+    "scripts": {
+        "changed-files": [
+            "bin/changed-files"
+        ],
+        "phpcs-errors": [
+            "vendor/bin/phpcs -n --standard=.phpcs.xml.dist"
+        ],
+        "phpcs-strict": [
+            "vendor/bin/phpcs --standard=.phpcs.xml.dist"
+        ],
+        "phpcs-changes": [
+            "vendor/bin/phpcs -n --standard=.phpcs.xml.dist `bin/changed-files`"
+        ],
+        "phpcs-changes-strict": [
+            "vendor/bin/phpcs --standard=.phpcs.xml.dist `bin/changed-files`"
+        ],
+        "php-lint": [
+            "vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom"
+        ],
+        "phpstan": [
+            "vendor/bin/phpstan --memory-limit=1G"
+        ]
     }
 }

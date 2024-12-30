@@ -7,7 +7,6 @@
 
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
-use Drupal\block\Entity\Block;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\path_alias\PathAliasInterface;

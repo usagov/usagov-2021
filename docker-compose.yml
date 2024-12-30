@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   cms:
     container_name: cms
@@ -12,8 +11,6 @@ services:
         - HOST_ARCH
         - BUILD_ENV
     ports:
-      #- 8080:80
-      #- 8443:443
       - 80:80
       - 443:443
     networks:
@@ -26,7 +23,7 @@ services:
     volumes:
       - .:/var/www:delegated
       - ./.docker/src-cms/etc/periodic/1min/generate-static-site:/etc/periodic/1min/generate-static-site:delegated
-      #- ./.docker/src-cms/50_xdebug.ini:/etc/php81/conf.d/50_xdebug.ini:delegated
+      - ./.docker/src-cms/50_xdebug.ini:/etc/php83/conf.d/50_xdebug.ini:delegated
     env_file:
       - ./env.local
     environment:
@@ -83,9 +80,6 @@ services:
   database:
     container_name: database
     image: mariadb:10
-    # build:
-    #  context: ./
-    #  dockerfile: .docker/Dockerfile-mysql
     ports:
       - 3306:3306
     volumes:
@@ -152,7 +146,6 @@ services:
         - GITBRANCH
         - GITTAG
         - BUILD_ENV
-    #command: tail -f /dev/null
     command: echo "Shutting Down on Purpose"
     volumes:
       - .:/var/www:delegated
@@ -169,8 +162,6 @@ services:
         - BUID
         - BGID
     command: npm run watch --prefix /var/www/web/themes/custom/usagov
-    # command: tail -f /dev/null
-    # command: echo "Shutting Down on Purpose"
     volumes:
       - .:/var/www:delegated
     env_file:

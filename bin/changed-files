@@ -1,0 +1,9 @@
+#!/bin/bash
+
+CURRENT_BRANCH=`git branch --show-current`
+# Get the changes between current branch and dev
+CHANGED=`git diff --name-only --diff-filter=ARM dev $CURRENT_BRANCH`
+
+if [ "$CURRENT_BRANCH" != "dev" ]; then
+  echo $CHANGED;
+fi
