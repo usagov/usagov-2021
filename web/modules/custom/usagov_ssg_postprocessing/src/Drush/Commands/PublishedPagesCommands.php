@@ -30,8 +30,6 @@ final class PublishedPagesCommands extends DrushCommands {
   private array $csvHeader = [
     "Hierarchy Level",
     "Page Type",
-    "Page Sub Type",
-    "Content Type",
     "Page Path",
     "Page ID",
     "Page Title",
@@ -48,11 +46,10 @@ final class PublishedPagesCommands extends DrushCommands {
     "Taxonomy URL Level 4",
     "Taxonomy URL Level 5",
     "Taxonomy URL Level 6",
-    "Homepage?",
     "Toggle URL",
     "hasBenefitCategory",
-    "Categories",
     "Page Language",
+    "Categories",
   ];
 
   /**
@@ -185,33 +182,6 @@ final class PublishedPagesCommands extends DrushCommands {
    * Data-Layer on the front-end.
    */
   protected function alter_and_fputcsv($out, $rows) {
-
-    // Remove row: Home page
-    unset($rows[20]);
-
-    // Alter row: Taxonomy Level 1
-    // Add row: Page Language - Note: The original value for this cell is determined by PublishedPagesRow.php->getTaxLevel1(), which goes look at the node's language value.
-    if ($rows[8] == 'USAGov English') {
-      $rows[8] = 'Home';
-      $rows[24] = 'USAGov English';
-    } elseif ($rows[8] == 'USAGov Español') {
-      $rows[8] = 'Pagína Principal';
-      $rows[24] = 'USAGov en Español';
-    }
-
-    // Since we are injecting a new row at the end, make sure the header lines up with the data.
-    if (empty($rows[23])) {
-      $rows[23] = ' ';
-    }
-    if (empty($rows[22])) {
-      $rows[22] = ' ';
-    }
-
-    // Remove row: Content Type
-    unset($rows[3]);
-
-    // Remove row: Page Sub Type
-    unset($rows[2]);
 
     // Write to the file
     fputcsv($out, $rows);
