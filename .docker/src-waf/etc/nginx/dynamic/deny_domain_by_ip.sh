@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+
 # Get IP addresses for domains in domains-deny.list.
 # If the results differ from deny-by-domain.conf, update that file.
 # If there were changes AND the flag --no_reload was not passed, reload nginx.
