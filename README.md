@@ -174,7 +174,7 @@ To access the Drupal Portal to make any additional configurations, you will need
 
     Log out as root, and log in with your own user account.
 
-**Note:** You will need to repeat these steps any time you re-load the database from a backup. 
+**Note:** You will need to repeat these steps any time you re-load the database from a backup.
 
 
 ### Automated tests setup (cypress)
@@ -183,12 +183,12 @@ We use [Cypress](cypress.io). Note that we use only the Cypress App, _not_ Cypre
 
 * Tests run in the `cypress` Docker container.
 * The tests themselves are in the `automated_tests/e2e-cypress` directory.
-* Twig debugging will break some of the tests! Turn it off before running tests to get the most accurate results. 
+* Twig debugging will break some of the tests! Turn it off before running tests to get the most accurate results.
 
 
 ## Minimal setup for headless tests
 
-1. Supply Drupal *credentials* for the automated tests: Edit the file `env.local.cypress`. Supply a valid Drupal user name and password for `cypressCmsUser` and `cypressCmsPass`. 
+1. Supply Drupal *credentials* for the automated tests: Edit the file `env.local.cypress`. Supply a valid Drupal user name and password for `cypressCmsUser` and `cypressCmsPass`.
 
 2. Run `docker compose up` to (re-)create the cypress container with the new environment variables.
 
@@ -196,7 +196,7 @@ We use [Cypress](cypress.io). Note that we use only the Cypress App, _not_ Cypre
 
    You can run `npx cypress run --spec cypress/e2e` to run the entire test suite, or specify a smaller subset like `cypress/e2e/functional`.
 
-   The **Report** will be written to automated_tests/e2e-cypress/cypress/reports/html/index.html and you can open it in your web browser by navigating to that file and opening it. Cypress will report that it wrote the tests to /app/e2e-cypress/cypress/reports/html/index.html, which is the location of that file in the volume mounted to the cypress docker container.  
+   The **Report** will be written to automated_tests/e2e-cypress/cypress/reports/html/index.html and you can open it in your web browser by navigating to that file and opening it. Cypress will report that it wrote the tests to /app/e2e-cypress/cypress/reports/html/index.html, which is the location of that file in the volume mounted to the cypress docker container.
 
 Note: The first time you run bin/init, it will create the `env.local.cypress` file by copying `env.default.cypress`. The default `cypressBaseUrl` in that file should be correct for running tests against your local dev site.
 
@@ -232,7 +232,7 @@ This assumes you're using homebrew.
 
    The "network client" you're enabling this for is the virtual machine running in your cypress container.
 
-4. Reboot your computer. (You need to reboot once after installing XQuartz. Thereafter, when you change your XQuartz settings you need to restart XQuartz, but not reboot.) 
+4. Reboot your computer. (You need to reboot once after installing XQuartz. Thereafter, when you change your XQuartz settings you need to restart XQuartz, but not reboot.)
 
 Proceed to [Allow cypress to open an X window](#allow-cypress-to-open-an-x-window)
 
@@ -320,6 +320,22 @@ If you make any changes to the `scss` or `js` files, make sure to check for lint
 
 [back to top](#usagov-2021)
 
+## Checking PHP Code style and syntax errors
+
+PHPCodesniffer and the parallel linting tools should be installed automatically on a local environment via `composer install`. PHPCodeSniffer is used to ensure new code follows Drupal's coding standard. The parallel linter will check for PHP syntax errors. If they detect any errors, they must be fixed before a PR of changes can be accepted.
+
+The following composer scripts are aliases for running these tools.
+
+* Check for code style errors across all project files. Must have zero errors:
+  `./bin/composer phpcs-errors`:
+* Check for code style errors and warnings across all project files.
+  `./bin/composer phpcs-strict`
+* Check for code style errors in current branch. Must have zero errors:
+  `./bin/composer phpcs-changes`
+* Check for code style errors and warnings in current branch.
+  `./bin/composer phpcs-changes-strict`
+* Check for PHP lint errors
+  `./bin/composer php-lint`
 
 ## Project Restart/Reset
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and destroying the existing containers, networks, and volumes the procedure is the same as the full project setup.

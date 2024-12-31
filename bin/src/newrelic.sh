@@ -29,7 +29,7 @@ if [ "$(uname -m)" != 'aarch64' ]; then
       -e 's/;\?newrelic.loglevel =.*/newrelic.loglevel = "info"/' \
       -e 's/;\?newrelic.enabled =.*/newrelic.enabled = false/' \
       -e 's/;\?newrelic.error_collector.record_database_errors =.*/newrelic.error_collector.record_database_errors = true/' \
-      /etc/php81/conf.d/newrelic.ini
+      /etc/php83/conf.d/newrelic.ini
 
   NR_LATEST_VERSION="$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux\-musl\).tar.gz<.*/\1/p')"
   export NR_LATEST_VERSION

@@ -96,12 +96,12 @@ export S3_PROXY_WEB
 export S3_PROXY_CMS
 export S3_PROXY_PATH_CMS
 
-if [ -f "/etc/php81/php-fpm.d/env.conf.tmpl" ]; then
-  cp /etc/php81/php-fpm.d/env.conf.tmpl /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_PROXY_PATH_CMS] = "$S3_PROXY_PATH_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_PROXY_CMS] = "$S3_PROXY_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_ROOT_CMS] = "$S3_ROOT_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_HOST] = "$S3_HOST >> /etc/php81/php-fpm.d/env.conf
+if [ -f "/etc/php83/php-fpm.d/env.conf.tmpl" ]; then
+  cp /etc/php83/php-fpm.d/env.conf.tmpl /etc/php83/php-fpm.d/env.conf
+  echo "env[S3_PROXY_PATH_CMS] = "$S3_PROXY_PATH_CMS >> /etc/php83/php-fpm.d/env.conf
+  echo "env[S3_PROXY_CMS] = "$S3_PROXY_CMS >> /etc/php83/php-fpm.d/env.conf
+  echo "env[S3_ROOT_CMS] = "$S3_ROOT_CMS >> /etc/php83/php-fpm.d/env.conf
+  echo "env[S3_HOST] = "$S3_HOST >> /etc/php83/php-fpm.d/env.conf
 fi
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
@@ -136,7 +136,7 @@ for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
 done
 
 # update new relic with environment specific settings
-if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
+if [ -f "/etc/php83/conf.d/newrelic.ini" ]; then
   if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$NEW_RELIC_LICENSE_KEY" != "null" ]; then
     echo "Setting up New Relic ... "
     sed -i \
@@ -145,20 +145,20 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
         -e "s|;\?newrelic.appname =.*|newrelic.appname = \"${NEW_RELIC_APP_NAME:-CMS-dev;USA.gov}\"|" \
         -e "s|;\?newrelic.daemon.loglevel =.*|newrelic.daemon.loglevel = \"${NEW_RELIC_LOG_LEVEL:-warning}\"|" \
         -e "s|;\?newrelic.enabled =.*|newrelic.enabled = true|" \
-        /etc/php81/conf.d/newrelic.ini
+        /etc/php83/conf.d/newrelic.ini
 
   else
     echo "Turning off New Relic ... "
     sed -i \
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
-        /etc/php81/conf.d/newrelic.ini
+        /etc/php83/conf.d/newrelic.ini
   fi
   if [ "NoProxy" = "${PROXYROUTE:NoProxy}" ]; then
       # TODO: what to do here? PROXYROUTE should be set!
     sed -i \
       -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
       -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
-      /etc/php81/conf.d/newrelic.ini
+      /etc/php83/conf.d/newrelic.ini
   else
       # We are probably being needlessly redundant in setting both ssl_ca_bundle and ssl_ca_path.
       # NR says it will search ssl_ca_bundle first, then the certificates in ssl_ca_path. We have ssl_ca_bundle within ssl_ca_path, so ...
@@ -166,7 +166,7 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
       -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
       -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
       -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"$PROXYROUTE\"|" \
-      /etc/php81/conf.d/newrelic.ini
+      /etc/php83/conf.d/newrelic.ini
   fi
 fi
 
