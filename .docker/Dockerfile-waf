@@ -90,7 +90,7 @@ RUN cd /tmp \
     && wget https://github.com/owasp-modsecurity/ModSecurity-nginx/releases/download/v${MODSECURITY_NGINX_VERSION}/modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
     && tar -xvf modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
     && rm modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
-    && mv ModSecurity-nginx-v${MODSECURITY_NGINX_VERSION} /opt \
+    && mv modsecurity-nginx-v${MODSECURITY_NGINX_VERSION} /opt \
     && wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
     && tar -xvf nginx-${NGINX_VERSION}.tar.gz \
     && rm nginx-${NGINX_VERSION}.tar.gz \
