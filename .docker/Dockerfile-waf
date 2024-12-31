@@ -86,13 +86,14 @@ RUN set -eux; \
     touch /var/log/modsecurity/modsec_audit.log;
 
 RUN cd /opt \
-    && git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git \
+    && wget https://github.com/owasp-modsecurity/ModSecurity-nginx/releases/download/v${MODSECURITY_NGINX_VERSION}/modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
+    && tar -xvf modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
     && wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
     && tar -xvf nginx-${NGINX_VERSION}.tar.gz \
     && cd nginx-${NGINX_VERSION} \
     && ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*?(?=--with-cc-opt)') \
     && echo $(nginx -V) \
-    && ./configure --add-dynamic-module=../ModSecurity-nginx --with-compat $ARGS \
+    && ./configure --add-dynamic-module=../ModSecurity-nginx-v${MODSECURITY_NGINX_VERSION} --with-compat $ARGS \
     && make modules \
     && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
 
