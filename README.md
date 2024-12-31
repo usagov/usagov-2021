@@ -143,7 +143,7 @@ We use [Cypress](http://www.cypress.io). Note that we use only the Cypress App, 
 
 ## Minimal setup for headless tests
 1. Provide Drupal credentials for the automated tests by editing the `env.local.cypress` file. Enter a valid Drupal username and password values for the `cypressCmsUser` and `cypressCmsPass`.
-2. Run `docker compose up` to rebuild the cypress container with the new environment variables.
+2. Run `docker compose build cypress` to rebuild the cypress container with the new environment variables.
 3. Run `bin/cypress-ssh` to open a shell in the cypress container
 
    You can run `npx cypress run --spec cypress/e2e` to run the entire test suite, or specify a smaller subset like `cypress/e2e/functional`.
@@ -253,6 +253,18 @@ The following composer scripts are aliases for running these tools.
 * Check for PHP lint errors
   `./bin/composer php-lint`
 
+## Checking code with PHPStan
+
+[PHPStan](https://phpstan.org/) is available to statically analyze custom theme and module code for correctness.
+
+It's defined as a dev dependency in `composer.json` and will be installed automatically when you run the build scripts or `bin/composer` install.
+
+
+The following composer scripts are aliases for running PHPStan
+
+* Check for errors at the level configured in `phpstan.neon`
+  `./bin/composer phpcs-errors`:
+
 ## Project restart/reset
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and
 destroying the existing containers, networks, and volumes the procedure is the same as the full project setup.
@@ -320,7 +332,7 @@ ex: USAGOV-123-short-ticket-name
 
 If a ticket name is too long, you may shorten or even exclude the title, only the USAGOV-### prefix is required.
 
-As part of the ```bin/init``` process, we copy a Git hook script (```.git.commit-msg``` to ```.git/hooks/commit-msg```)
+As part of the `bin/init` process, we copy a Git hook script (`.git.commit-msg` to `.git/hooks/commit-msg`)
 to automatically include the current branch name in all commit messages. This ensures that commit messages consistently
 reflect the task being worked on, streamlining automation.
 

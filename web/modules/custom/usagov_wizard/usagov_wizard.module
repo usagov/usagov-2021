@@ -408,22 +408,34 @@ function usagov_wizard_get_term_breadcrumb(Term $rootTerm): array {
   if (isset($rootTerm->field_wizard_breadcrumbs)) {
     $crumbs = $rootTerm->field_wizard_breadcrumbs->getValue();
     $result = [];
+    $alias_manager = \Drupal::service('path_alias.manager');
     foreach ($crumbs as $crumb) {
       if (isset($crumb['uri'])) {
-        $crumb['url'] = Url::fromUri($crumb['uri'])->toString();
-        // Sometimes Drupal doesn't prepend Spanish path prefix.
-        // Sometimes this crumb's uri is "route:<nolink>" and the url is an empty string;
-        // in that case we should leave it empty (current page, not to be linked).
-        if ($crumb['url'] && $rootTerm->language()->getId() === 'es' && !str_starts_with($crumb['url'], '/es/')) {
-          $crumb['url'] = '/es' . $crumb['url'];
+
+        if (str_starts_with($crumb['uri'], 'internal:')) {
+          // We need to handle when an internal path to a Spanish page is part of
+          // the breadcrumb but without an /es/ prefix.
+          $path = preg_replace('/^internal\:/', '', $crumb['uri']);
+          $path = $alias_manager->getPathByAlias($path, $rootTerm->language()->getId());
+          $url = Url::fromUri('internal:' . $path, ['language' => $rootTerm->language()])->toString();
+          if ($url) {
+            $crumb['url'] = $url;
+          }
+        }
+
+        // Setting the language here assumes all the crumbs are pages from the same language
+        // as the root term.
+        if (!isset($crumb['url'])) {
+          $crumb['url'] = Url::fromUri($crumb['uri'], ['language' => $rootTerm->language()])->toString();
         }
       }
       if (isset($crumb['title'])) {
-        $crumb['text'] = ($crumb['title']);
+        $crumb['text'] = $crumb['title'];
       }
 
       $result[] = $crumb;
     }
+
     $language = $rootTerm->langcode->value;
     $home = [
       'text' => $language === 'en' ? TaxonomyDatalayerBuilder::HOME_TITLE_EN : TaxonomyDatalayerBuilder::HOME_TITLE_ES,
