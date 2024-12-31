@@ -90,10 +90,12 @@ RUN cd /tmp \
     && wget https://github.com/owasp-modsecurity/ModSecurity-nginx/releases/download/v${MODSECURITY_NGINX_VERSION}/modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
     && tar -xvf modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
     && rm modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
+    && mkdir /opt/ModSecurity-nginx \
     && mv modsecurity-nginx-v${MODSECURITY_NGINX_VERSION} /opt/ModSecurity-nginx \
     && wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
     && tar -xvf nginx-${NGINX_VERSION}.tar.gz \
     && rm nginx-${NGINX_VERSION}.tar.gz \
+    && mkdir /opt/nginx-${NGINX_VERSION} \
     && mv nginx-${NGINX_VERSION} /opt/nginx-${NGINX_VERSION} \
     && cd /opt/nginx-${NGINX_VERSION} \
     && ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*?(?=--with-cc-opt)') \
@@ -105,6 +107,7 @@ RUN cd /tmp \
     && wget https://github.com/coreruleset/coreruleset/releases/download/v${MODSECURITY_CRS_VERSION}/coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
     && tar -xvf coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
     && rm coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
+    && mkdir /etc/modsecurity.d/modsecurity-crs \
     && mv coreruleset-${MODSECURITY_CRS_VERSION} /etc/modsecurity.d/modsecurity-crs \
     && mv /etc/modsecurity.d/modsecurity-crs/crs-setup.conf.example /etc/modsecurity.d/modsecurity-crs/crs-setup.conf \
     && mv /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
