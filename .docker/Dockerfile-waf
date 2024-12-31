@@ -29,6 +29,7 @@ ENV APP_NAME=USAGov \
     MODSEC_RULE_ENGINE=on \
     MODSECURITY_ENGINE_VERSION="3.0.13" \
     MODSECURITY_NGINX_VERSION="1.0.3" \
+    MODSECURITY_CRS_VERSION="4.10.0" \
     NGINX_KEEPALIVE_TIMEOUT=60s \
     PARANOIA=2 \
     PORT=80 \
@@ -85,19 +86,26 @@ RUN set -eux; \
     mkdir /var/log/modsecurity && \
     touch /var/log/modsecurity/modsec_audit.log;
 
-RUN cd /opt \
+RUN cd /tmp \
     && wget https://github.com/owasp-modsecurity/ModSecurity-nginx/releases/download/v${MODSECURITY_NGINX_VERSION}/modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
     && tar -xvf modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
+    && rm modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
+    && mv ModSecurity-nginx-v${MODSECURITY_NGINX_VERSION} /opt \
     && wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
     && tar -xvf nginx-${NGINX_VERSION}.tar.gz \
-    && cd nginx-${NGINX_VERSION} \
+    && rm nginx-${NGINX_VERSION}.tar.gz \
+    && mv nginx-${NGINX_VERSION} /opt \
+    && cd /opt/nginx-${NGINX_VERSION} \
     && ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*?(?=--with-cc-opt)') \
-    && echo $(nginx -V) \
     && ./configure --add-dynamic-module=../ModSecurity-nginx-v${MODSECURITY_NGINX_VERSION} --with-compat $ARGS \
     && make modules \
     && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
 
-RUN git clone https://github.com/coreruleset/coreruleset /etc/modsecurity.d/modsecurity-crs \
+RUN cd /tmp \
+    && wget https://github.com/coreruleset/coreruleset/releases/download/v${MODSECURITY_CRS_VERSION}/coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
+    && tar -xvf coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
+    && rm -xvf coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
+    && mv coreruleset-${MODSECURITY_CRS_VERSION} /etc/modsecurity.d/modsecurity-crs \
     && mv /etc/modsecurity.d/modsecurity-crs/crs-setup.conf.example /etc/modsecurity.d/modsecurity-crs/crs-setup.conf \
     && mv /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
 
