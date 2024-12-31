@@ -28,7 +28,8 @@ $extended_infile = $argv[2];
 $details_infile = $argv[3];
 $outdir = $argv[4];
 
-error_reporting(-1); // Will let us know if iconv fails.
+// Will let us know if iconv fails.
+error_reporting(-1);
 
 function main($infile, $extended_infile, $details_infile, $outdir) {
   $fp_infile = fopen($infile, 'r');
