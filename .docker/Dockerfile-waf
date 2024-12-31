@@ -32,7 +32,7 @@ ENV APP_NAME=USAGov \
     NGINX_KEEPALIVE_TIMEOUT=60s \
     PARANOIA=2 \
     PORT=80 \
-    SERVERNAME=locahost \
+    SERVERNAME=localhost \
     USER=nginx \
     WORKER_CONNECTIONS=1024
 
@@ -51,6 +51,7 @@ RUN apt-get update && \
     gettext \
     git \
     inotify-tools \
+    iproute2 \
     iputils-ping \
     jq \
     libexpat1-dev \
@@ -71,6 +72,7 @@ RUN apt-get update && \
     make \
     nano \
     pkg-config \
+    procps \
     software-properties-common \
     ssdeep \
     uuid-dev \
