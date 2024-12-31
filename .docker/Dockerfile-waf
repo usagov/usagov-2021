@@ -104,7 +104,7 @@ RUN cd /tmp \
 RUN cd /tmp \
     && wget https://github.com/coreruleset/coreruleset/releases/download/v${MODSECURITY_CRS_VERSION}/coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
     && tar -xvf coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
-    && rm -xvf coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
+    && rm coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
     && mv coreruleset-${MODSECURITY_CRS_VERSION} /etc/modsecurity.d/modsecurity-crs \
     && mv /etc/modsecurity.d/modsecurity-crs/crs-setup.conf.example /etc/modsecurity.d/modsecurity-crs/crs-setup.conf \
     && mv /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
