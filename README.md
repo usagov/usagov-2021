@@ -332,7 +332,7 @@ ex: USAGOV-123-short-ticket-name
 
 If a ticket name is too long, you may shorten or even exclude the title, only the USAGOV-### prefix is required.
 
-As part of the `bin/init` process, we copy a Git hook script (```.git.commit-msg``` to ```.git/hooks/commit-msg```)
+As part of the `bin/init` process, we copy a Git hook script (`.git.commit-msg` to `.git/hooks/commit-msg`)
 to automatically include the current branch name in all commit messages. This ensures that commit messages consistently
 reflect the task being worked on, streamlining automation.
 
