@@ -90,14 +90,14 @@ RUN cd /tmp \
     && wget https://github.com/owasp-modsecurity/ModSecurity-nginx/releases/download/v${MODSECURITY_NGINX_VERSION}/modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
     && tar -xvf modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
     && rm modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
-    && mv modsecurity-nginx-v${MODSECURITY_NGINX_VERSION} /opt \
+    && mv modsecurity-nginx-v${MODSECURITY_NGINX_VERSION} /opt/ModSecurity-nginx \
     && wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
     && tar -xvf nginx-${NGINX_VERSION}.tar.gz \
     && rm nginx-${NGINX_VERSION}.tar.gz \
-    && mv nginx-${NGINX_VERSION} /opt \
+    && mv nginx-${NGINX_VERSION} /opt/nginx-${NGINX_VERSION} \
     && cd /opt/nginx-${NGINX_VERSION} \
     && ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*?(?=--with-cc-opt)') \
-    && ./configure --add-dynamic-module=../ModSecurity-nginx-v${MODSECURITY_NGINX_VERSION} --with-compat $ARGS \
+    && ./configure --add-dynamic-module=../ModSecurity-nginx --with-compat $ARGS \
     && make modules \
     && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
 
