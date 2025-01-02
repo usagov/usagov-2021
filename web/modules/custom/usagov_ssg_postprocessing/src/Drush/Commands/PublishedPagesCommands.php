@@ -103,7 +103,7 @@ final class PublishedPagesCommands extends DrushCommands {
       $this->output()->writeln("<error>Can not write to destination file.</error>");
       exit(1);
     }
-    $this->alter_and_fputcsv($out, $this->csvHeader);
+    fputcsv($out, $this->csvHeader);
     // Render published pages to output file
     $this->saveNodeRows($out);
     $this->saveWizardRows($out);
@@ -133,7 +133,7 @@ final class PublishedPagesCommands extends DrushCommands {
       $row = $this->getNodeRow($node)->toArray();
 
       $row = array_map(fn($col) => trim($col), $row);
-      $this->alter_and_fputcsv($out, $row);
+      fputcsv($out, $row);
 
       $origLanguage = $node->language();
       if ($languages = $node->getTranslationLanguages()) {
@@ -144,7 +144,7 @@ final class PublishedPagesCommands extends DrushCommands {
             $trRow = $this->getNodeRow($trNode);
             $fields = array_map(fn($field) => trim($field), $trRow->toArray());
             
-            $this->alter_and_fputcsv($out, $fields);
+            fputcsv($out, $fields);
           }
         }
       }
@@ -165,27 +165,8 @@ final class PublishedPagesCommands extends DrushCommands {
     foreach ($tids as $tid) {
       $wizard = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
       $row = $this->getWizardRow($wizard);
-      $this->alter_and_fputcsv($out, $row->toArray());
+      fputcsv($out, $row->toArray());
     }
-  }
-
-  /*
-   * void alter_and_fputcsv(handle $out, array $rows)
-   *
-   * This function is a wrapper to fputcsv().
-   * We are doing this as there are some alterations we want to make to the CSV
-   * as per USAGOV-2104, However, we do not want to alter the Data-Layer, which
-   * is where most of this information comes from. 
-   *
-   * This wrapper exists as a place to alter the information from the Data-Layer
-   * before it goes into the CSV/PubPageReport, without actually altering the
-   * Data-Layer on the front-end.
-   */
-  protected function alter_and_fputcsv($out, $rows) {
-
-    // Write to the file
-    fputcsv($out, $rows);
-    fflush($out);
   }
 
   protected function getNodeRow(Node $node): PublishedPagesRow {
