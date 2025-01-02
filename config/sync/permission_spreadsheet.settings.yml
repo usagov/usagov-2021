@@ -1,0 +1,10 @@
+_core:
+  default_config_hash: 6tfFKmNLQXdDljE0JEVUCkZwCCapV5MGgygU72C3n50
+import:
+  text_revoked: ''
+  auto_preview: true
+export:
+  filename: permissions
+  sheet_title: Permissions
+  text_granted: 'Y'
+  text_revoked: ''
