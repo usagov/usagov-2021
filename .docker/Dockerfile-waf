@@ -95,7 +95,7 @@ RUN cd /opt \
     && rm nginx-${NGINX_VERSION}.tar.gz \
     && cd /opt/nginx-${NGINX_VERSION} \
     && ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*?(?=--with-cc-opt)') \
-    && ./configure --add-dynamic-module=../ModSecurity-nginx --with-compat $ARGS \
+    && ./configure --add-dynamic-module=../modsecurity-nginx-v${MODSECURITY_NGINX_VERSION} --with-compat $ARGS \
     && make modules \
     && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
 
