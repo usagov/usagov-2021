@@ -143,7 +143,6 @@ final class PublishedPagesCommands extends DrushCommands {
             $trNode = $node->getTranslation($lang->getId());
             $trRow = $this->getNodeRow($trNode);
             $fields = array_map(fn($field) => trim($field), $trRow->toArray());
-            
             fputcsv($out, $fields);
           }
         }
