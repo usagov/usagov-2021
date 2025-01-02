@@ -69,6 +69,7 @@ module:
   path_alias: 0
   permission_spreadsheet: 0
   redirect: 0
+  redis: 0
   remove_http_headers: 0
   responsive_image: 0
   rest: 0

@@ -169,6 +169,14 @@ services:
     networks:
       - gsa-gov
 
+  cache:
+    container_name: cache
+    build:
+      dockerfile: .docker/Dockerfile-cache
+    ports:
+      - 6379:6379
+    networks:
+      - gsa-gov
 
 volumes:
   database_data:

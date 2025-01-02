@@ -939,11 +939,61 @@ if (!empty($cf_application_data['space_name']) &&
   }
 }
 
+// Configure redis caching
+if (extension_loaded('redis')) {
+  // Set Redis as the default backend for any cache bin not otherwise specified.
+  $settings['cache']['default'] = 'cache.backend.redis';
+  $settings['redis.connection']['host'] = 'cache';
+  $settings['redis.connection']['port'] = '6379';
+  $settings['redis.connection']['persistent'] = TRUE;
+
+  // Use the redis cache tag checksum service.
+  $settings['container_yamls'][] = 'modules/contrib/redis/example.services.yml';
+
+  // Allow the services to work before the Redis module itself is enabled.
+  $settings['container_yamls'][] = 'modules/contrib/redis/redis.services.yml';
+
+  // To use Redis for container cache, add the classloader path manually.
+  $class_loader->addPsr4('Drupal\\redis\\', 'modules/contrib/redis/src');
+
+  // Use Redis for container cache.
+  // The container cache is used to load the container definition itself.
+  // This means that any configuration stored in the container isn't available
+  // until the container definition is fully loaded.
+  // To ensure that the container cache uses Redis rather than the
+  // default SQL cache, add the following lines.
+  $settings['bootstrap_container_definition'] = [
+    'parameters' => [],
+    'services' => [
+      'redis.factory' => [
+        'class' => 'Drupal\redis\ClientFactory',
+      ],
+      'cache.backend.redis' => [
+        'class' => 'Drupal\redis\Cache\CacheBackendFactory',
+        'arguments' => ['@redis.factory', '@cache_tags_provider.container', '@serialization.phpserialize'],
+      ],
+      'cache.container' => [
+        'class' => '\Drupal\redis\Cache\PhpRedis',
+        'factory' => ['@cache.backend.redis', 'get'],
+        'arguments' => ['container'],
+      ],
+      'cache_tags_provider.container' => [
+        'class' => 'Drupal\redis\Cache\RedisCacheTagsChecksum',
+        'arguments' => ['@redis.factory'],
+      ],
+      'serialization.phpserialize' => [
+        'class' => 'Drupal\Component\Serialization\PhpSerialize',
+      ],
+    ],
+  ];
+}
+
+
 // Add cache.backend.null:
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/default/nonlocal.services.yml';
 
 if (PHP_SAPI === 'cli' && str_starts_with($_SERVER["argv"][1], 'tome:static')) {
-  // Disable the page and menu cache on tome runs
+  // Disable the page and menu cache on tome runs.
   $settings['cache']['bins']['page'] = 'cache.backend.null';
   $settings['cache']['bins']['menu'] = 'cache.backend.null';
   $settings['cache']['bins']['data'] = 'cache.backend.null';
