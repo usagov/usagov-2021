@@ -111,9 +111,9 @@ RUN cd /opt \
 RUN cd /tmp \
     && wget -P /etc/modsecurity.d/modsecurity-crs https://github.com/coreruleset/coreruleset/releases/download/v${MODSECURITY_CRS_VERSION}/coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz  \
     && tar -xvf /etc/modsecurity.d/modsecurity-crs/coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
-    && rm /etc/modsecurity.d/modsecurity-crs/coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
-    && mv /etc/modsecurity.d/modsecurity-crs/crs-setup.conf.example /etc/modsecurity.d/modsecurity-crs/crs-setup.conf \
-    && mv /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+    && rm /etc/modsecurity.d/modsecurity-crs/coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz
+    # && mv /etc/modsecurity.d/modsecurity-crs/crs-setup.conf.example /etc/modsecurity.d/modsecurity-crs/crs-setup.conf \
+    # && mv /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
 
 COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
