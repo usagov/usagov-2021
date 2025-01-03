@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "composer/installers": "^1.9",
+        "composer/installers": "^2.3",
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
         "drupal/admin_toolbar": "^3.4",
@@ -85,7 +85,7 @@
     "prefer-stable": true,
     "config": {
         "optimize-autoloader": true,
-        "process-timeout":0,
+        "process-timeout": 0,
         "sort-packages": true,
         "allow-plugins": {
             "composer/installers": true,
@@ -95,8 +95,7 @@
             "wikimedia/composer-merge-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "cweagans/composer-patches": true,
-            "mglaman/composer-drupal-lenient": true,
-            "oomphinc/composer-installers-extender": true
+            "mglaman/composer-drupal-lenient": true
         }
     },
     "extra": {
@@ -105,6 +104,9 @@
                 "web-root": "web/"
             }
         },
+        "installer-types": [
+            "drupal-module", "drupal-theme"
+        ],
         "installer-paths": {
             "web/core": [
                 "type:drupal-core"
@@ -133,7 +135,6 @@
             "web/themes/custom/{$name}": [
                 "type:drupal-custom-theme"
             ]
-
         },
         "patchLevel": {
             "drupal/core": "-p2"
@@ -167,7 +168,10 @@
     },
     "require-dev": {
         "drupal/coder": "^8.3",
-        "php-parallel-lint/php-parallel-lint": "^1.4"
+        "mglaman/phpstan-drupal": "*",
+        "php-parallel-lint/php-parallel-lint": "^1.4",
+        "phpstan/phpstan": "*",
+        "phpstan/phpstan-deprecation-rules": "*"
     },
     "scripts": {
         "changed-files": [
@@ -187,6 +191,9 @@
         ],
         "php-lint": [
             "vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom"
+        ],
+        "phpstan": [
+            "vendor/bin/phpstan --memory-limit=1G"
         ]
     }
 }
