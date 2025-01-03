@@ -118,6 +118,7 @@ COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecur
 COPY src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
 
 COPY src-waf/cert-watcher.sh /cert-watcher.sh
+COPY src-waf/package-tester.sh /package-tester.sh
 
 COPY motd /etc/motd
 
