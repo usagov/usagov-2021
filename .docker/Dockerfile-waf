@@ -99,12 +99,17 @@ RUN cd /opt \
     && make modules \
     && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
 
+# RUN cd /tmp \
+#     && wget https://github.com/coreruleset/coreruleset/releases/download/v${MODSECURITY_CRS_VERSION}/coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
+#     && tar -xvf coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
+#     && rm coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
+#     && mkdir -p /etc/modsecurity.d/modsecurity-crs \
+#     && mv coreruleset-${MODSECURITY_CRS_VERSION} /etc/modsecurity.d/modsecurity-crs \
+#     && mv /etc/modsecurity.d/modsecurity-crs/crs-setup.conf.example /etc/modsecurity.d/modsecurity-crs/crs-setup.conf \
+#     && mv /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+
 RUN cd /tmp \
-    && wget https://github.com/coreruleset/coreruleset/releases/download/v${MODSECURITY_CRS_VERSION}/coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
-    && tar -xvf coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
-    && rm coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
-    && mkdir -p /etc/modsecurity.d/modsecurity-crs \
-    && mv coreruleset-${MODSECURITY_CRS_VERSION} /etc/modsecurity.d/modsecurity-crs \
+    && git clone https://github.com/coreruleset/coreruleset /etc/modsecurity.d/modsecurity-crs \
     && mv /etc/modsecurity.d/modsecurity-crs/crs-setup.conf.example /etc/modsecurity.d/modsecurity-crs/crs-setup.conf \
     && mv /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
 
