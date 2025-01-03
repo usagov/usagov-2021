@@ -53,6 +53,8 @@ module:
   log_stdout: 0
   media: 0
   media_library: 0
+  memcache: 0
+  memcache_admin: 0
   menu_block: 0
   menu_breadcrumb: 0
   menu_item_fields: 0
@@ -69,6 +71,7 @@ module:
   path_alias: 0
   permission_spreadsheet: 0
   redirect: 0
+  redis: 0
   remove_http_headers: 0
   responsive_image: 0
   rest: 0

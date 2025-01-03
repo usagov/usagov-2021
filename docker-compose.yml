@@ -169,6 +169,15 @@ services:
     networks:
       - gsa-gov
 
+  cache:
+    container_name: cache
+    image: memcached:1.6
+    command:
+      - --conn-limit=1024
+      - --memory-limit=2048
+      - --threads=4
+    networks:
+      - gsa-gov
 
 volumes:
   database_data:
