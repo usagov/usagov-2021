@@ -87,11 +87,8 @@ TARGET_RESULT=0
 cf api "$CF_API" &> /dev/null
 API_RESULT=$?
 
-#CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "$SERVICE_ACCOUNT") | .credentials.username';)
-#CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "$SERVICE_ACCOUNT") | .credentials.password')
-
+### First auth - use service account creds
 cf auth "$CF_USERNAME" "$CF_PASSWORD" &> /dev/null
-#cf auth &> /dev/null
 AUTH_RESULT=$?
 
 echo cf service-key $SERVICE_ACCOUNT $KEY_NAME
@@ -99,7 +96,7 @@ SERVICE_KEY=$(cf service-key $SERVICE_ACCOUNT $KEY_NAME | tail -n +3)
 KEY_USERNAME=$( echo ${SERVICE_KEY} | jq -r '.credentials.username')
 KEY_PASSWORD=$( echo ${SERVICE_KEY} | jq -r '.credentials.password')
 
-echo cf auth "$KEY_USERNAME" "$KEY_PASSWORD"
+### Only after auth as service account can we auth with the service key, which holds the correct roles for audit log access
 cf auth "$KEY_USERNAME" "$KEY_PASSWORD"
 
 echo cf target -o "$CF_ORG" -s "$CF_SPACE"
