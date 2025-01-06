@@ -138,10 +138,12 @@ final class PublishedPagesCommands extends DrushCommands {
       $this->saveNodeRow($out, $node, $row);
 
       // If this is a Directory-Index, add in all letter pages (USAGOV-2103)
-      if ($row[3] == 'federal_directory_index') {
-        $baseUrl = $row[4];
+      if ($row[1] == 'federal_directory_index') {
+        $baseUrl = $row[2];
+        $fullBaseUrl = $row[5];
         for ($lett = ord('a'); $lett <= ord('z'); $lett++) {
-          $row[4] = $baseUrl . '/' . chr($lett);
+          $row[2] = $baseUrl . '/' . chr($lett);
+          $row[5] = $fullBaseUrl . '/' . chr($lett);
           $this->saveNodeRow($out, $node, $row);
         }
       }
