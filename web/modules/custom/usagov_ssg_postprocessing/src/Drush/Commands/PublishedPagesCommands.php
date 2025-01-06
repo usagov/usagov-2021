@@ -129,8 +129,26 @@ final class PublishedPagesCommands extends DrushCommands {
       ->execute();
 
     foreach ($nids as $nid) {
+
+      // Get DataLayer information on this node
       $node = $this->entityTypeManager->getStorage('node')->load($nid);
       $row = $this->getNodeRow($node)->toArray();
+
+      // Save this row into the spreadsheet
+      $this->saveNodeRow($out, $node, $row);
+
+      // If this is a Directory-Index, add in all letter pages (USAGOV-2103)
+      if ($row[3] == 'federal_directory_index') {
+        $baseUrl = $row[4];
+        for ($lett = ord('a'); $lett <= ord('z'); $lett++) {
+          $row[4] = $baseUrl . '/' . chr($lett);
+          $this->saveNodeRow($out, $node, $row);
+        }
+      }
+    }
+  }
+
+  protected function saveNodeRow($out, $node, $row): void {
 
       $row = array_map(fn($col) => trim($col), $row);
       fputcsv($out, $row);
@@ -147,7 +165,6 @@ final class PublishedPagesCommands extends DrushCommands {
           }
         }
       }
-    }
   }
 
   protected function saveWizardRows($out): void {
