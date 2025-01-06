@@ -91,6 +91,9 @@ API_RESULT=$?
 cf auth "$CF_USERNAME" "$CF_PASSWORD" &> /dev/null
 AUTH_RESULT=$?
 
+cf t -o $CF_ORG &> /dev/null
+ORG_TARGET_RESULT=$?
+
 echo cf service-key $SERVICE_ACCOUNT $KEY_NAME
 SERVICE_KEY=$(cf service-key $SERVICE_ACCOUNT $KEY_NAME | tail -n +3)
 KEY_USERNAME=$( echo ${SERVICE_KEY} | jq -r '.credentials.username')
@@ -103,7 +106,7 @@ echo cf target -o "$CF_ORG" -s "$CF_SPACE"
 cf target -o "$CF_ORG" -s "$CF_SPACE"
 TARGET_RESULT=$?
 
-if [ 0 -ne $API_RESULT -o 0 -ne $AUTH_RESULT -o 0 -ne $TARGET_RESULT ]; then
+if [ 0 -ne $API_RESULT -o 0 -ne $AUTH_RESULT -o 0 -ne $TARGET_RESULT -o 0 -ne $ORG_TARGET_RESULT ]; then
    echo "ERROR: Cloud Foundry Initialization Failed"
 fi
 
