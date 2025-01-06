@@ -88,7 +88,8 @@ cf api "$CF_API" &> /dev/null
 API_RESULT=$?
 
 ### First auth - use service account creds
-cf auth "$CF_USERNAME" "$CF_PASSWORD" &> /dev/null
+export CF_PASSWORD ### pass via env, not cmd line!
+cf auth "$CF_USERNAME" &> /dev/null
 AUTH_RESULT=$?
 
 cf t -o $CF_ORG &> /dev/null
@@ -100,10 +101,11 @@ KEY_USERNAME=$( echo ${SERVICE_KEY} | jq -r '.credentials.username')
 KEY_PASSWORD=$( echo ${SERVICE_KEY} | jq -r '.credentials.password')
 
 ### Only after auth as service account can we auth with the service key, which holds the correct roles for audit log access
-cf auth "$KEY_USERNAME" "$KEY_PASSWORD"
+export CF_PASSWORD="$KEY_PASSWORD" ### pass via env, not cmd line!
+cf auth "$KEY_USERNAME" &>/dev/null
 
 echo cf target -o "$CF_ORG" -s "$CF_SPACE"
-cf target -o "$CF_ORG" -s "$CF_SPACE"
+cf target -o "$CF_ORG" -s "$CF_SPACE" &>/dev/null
 TARGET_RESULT=$?
 
 if [ 0 -ne $API_RESULT -o 0 -ne $AUTH_RESULT -o 0 -ne $TARGET_RESULT -o 0 -ne $ORG_TARGET_RESULT ]; then
