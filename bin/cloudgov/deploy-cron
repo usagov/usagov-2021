@@ -137,9 +137,10 @@ cf set-env $APPNAME CALL_CENTER_ENVIRONMENT $CALL_CENTER_ENVIRONMENT
 cf set-env $APPNAME CALL_CENTER_EN_QUEUE_ID $CALL_CENTER_EN_QUEUE_ID
 cf set-env $APPNAME CALL_CENTER_SP_QUEUE_ID $CALL_CENTER_SP_QUEUE_ID
 
-# Enable call center script on prod only. (We can manually update this in dev, etc. for testing)
+# Enable call center / cfevents  scripts on prod only. (We can manually update this in dev, etc. for testing)
 if [ $SPACE = "prod" ]; then
     cf set-env $APPNAME CALL_CENTER_RUN "true"
+    cf set-env $APPNAME CFEVENT_RUN "true"
 fi
 
 cf restage $APPNAME
