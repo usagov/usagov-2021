@@ -7,6 +7,10 @@ else
    shift
 fi
 
+if [ x$CFEVENT_RUN = x ]; then
+    exit 0;
+fi
+
 source ~/.profile $SPACE event &> /dev/null
 
 TASKNAME=$(basename $0)
