@@ -152,21 +152,21 @@ final class PublishedPagesCommands extends DrushCommands {
 
   protected function saveNodeRow($out, $node, $row): void {
 
-      $row = array_map(fn($col) => trim($col), $row);
-      fputcsv($out, $row);
+    $row = array_map(fn($col) => trim($col), $row);
+    fputcsv($out, $row);
 
-      $origLanguage = $node->language();
-      if ($languages = $node->getTranslationLanguages()) {
-        foreach ($languages as $lang) {
-          if ($lang->getId() !== $origLanguage->getId()) {
-            // export translated node
-            $trNode = $node->getTranslation($lang->getId());
-            $trRow = $this->getNodeRow($trNode);
-            $fields = array_map(fn($field) => trim($field), $trRow->toArray());
-            fputcsv($out, $fields);
-          }
+    $origLanguage = $node->language();
+    if ($languages = $node->getTranslationLanguages()) {
+      foreach ($languages as $lang) {
+        if ($lang->getId() !== $origLanguage->getId()) {
+          // export translated node
+          $trNode = $node->getTranslation($lang->getId());
+          $trRow = $this->getNodeRow($trNode);
+          $fields = array_map(fn($field) => trim($field), $trRow->toArray());
+          fputcsv($out, $fields);
         }
       }
+    }
   }
 
   protected function saveWizardRows($out): void {
