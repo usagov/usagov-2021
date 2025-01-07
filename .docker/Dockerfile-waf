@@ -46,6 +46,7 @@ RUN apt-get update && \
     dpkg-dev \
     flex \
     gcc \
+    inotifywait \
     libexpat1-dev \
     libgeoip-dev \
     liblmdb-dev \
