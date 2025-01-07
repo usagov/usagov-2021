@@ -63,6 +63,7 @@ RUN apt-get update && \
     lua5.3-dev \
     make \
     pkg-config \
+    procps \
     wget \
     zlib1g-dev
 
