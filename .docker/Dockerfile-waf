@@ -41,22 +41,12 @@ RUN apt-get update && \
     apt-get install -y \
     autoconf \
     automake \
-    bison \
     build-essential \
     dh-autoreconf \
-    doxygen \
     dpkg-dev \
     flex \
-    gawk \
     gcc \
-    gettext \
-    git \
-    inotify-tools \
-    iproute2 \
-    iputils-ping \
-    jq \
     libexpat1-dev \
-    libfuzzy-dev \
     libgeoip-dev \
     liblmdb-dev \
     liblua5.3-dev \
@@ -71,16 +61,9 @@ RUN apt-get update && \
     locales \
     lua5.3-dev \
     make \
-    nano \
     pkg-config \
-    procps \
-    software-properties-common \
-    ssdeep \
-    uuid-dev \
-    vim \
     wget \
-    zlib1g-dev \
-    libgd-dev
+    zlib1g-dev
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
