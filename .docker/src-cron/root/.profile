@@ -92,7 +92,7 @@ export CF_PASSWORD ### pass via env, not cmd line!
 cf auth "$CF_USERNAME" &> /dev/null
 AUTH_RESULT=$?
 
-cf t -o $CF_ORG &> /dev/null
+cf target -o $CF_ORG &> /dev/null
 ORG_TARGET_RESULT=$?
 
 echo cf service-key $SERVICE_ACCOUNT $KEY_NAME

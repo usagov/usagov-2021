@@ -83,8 +83,6 @@ for SPC in dr dev stage prod shared-egress tools; do
   fi
 done
 
-echo "NOTICE: SPACE_QUERY: $SPACE_QUERY"
-
 CURRENT_ORG=$(cf target | grep org: | awk '{ print $2 }')
 export ORG_GUID=$(cf org $CURRENT_ORG --guid)
 
