@@ -9,8 +9,10 @@ weight: 0
 stackable: false
 no_patching: false
 storage: folder
-folder: ../../config/default/dev_split
-module: {  }
+folder: /var/www/config/dev_split
+module:
+  devel: 0
+  devel_generate: 0
 theme: {  }
 complete_list: {  }
 partial_list: {  }
