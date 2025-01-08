@@ -121,6 +121,12 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
 
     // If the Address contains any special characters it removes them because the USPS API
     // won't process the address.
+    if (streetAddress.includes("<")) {
+        streetAddress = streetAddress.replace('<', '');
+        let streetAddressField = document.getElementById("input-street");
+        streetAddressField.value = streetAddress;
+    }
+
     if (streetAddress.includes("#")) {
         streetAddress = streetAddress.replace('#', '');
         let streetAddressField = document.getElementById("input-street");
