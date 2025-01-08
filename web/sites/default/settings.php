@@ -913,9 +913,6 @@ $settings['cache']['bins']['data'] = 'cache.backend.php';
 
 $settings['trusted_host_patterns'] = [];
 
-// Default all to false by default
-$config['config_split.config_split.cloud_split']['status'] = FALSE;
-
 if (!empty($cf_application_data['space_name']) &&
     in_array($cf_application_data['space_name'],
              ['local','dev', 'stage', 'prod'])) {
@@ -942,6 +939,12 @@ if (!empty($cf_application_data['space_name']) &&
   }
 }
 
+// Default all to false by default
+//$settings['config_split.config_split.cloud_split']['status'] = FALSE;
+//$settings['config_split.config_split.local_split']['status'] = FALSE;
+$config['config_split.config_split.cloud_split']['status'] = FALSE;
+$config['config_split.config_split.local_split']['status'] = TRUE;
+
 if (!empty($cf_application_data['space_name']) &&
   in_array($cf_application_data['space_name'],
     ['dev', 'dr', 'stage', 'prod'])) {
@@ -951,7 +954,10 @@ if (!empty($cf_application_data['space_name']) &&
     case "stage":
     case "prod":
       $config['config_split.config_split.cloud_split']['status'] = TRUE;
-      $settings['config_split.config_split.cloud_split'] = TRUE;
+      $settings['config_split.config_split.cloud_split']['status'] = TRUE;
+    $config['config_split.config_split.local_split']['status'] = FALSE;
+
+    break;
   }
 }
 
