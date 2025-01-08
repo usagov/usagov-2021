@@ -1,18 +1,16 @@
-uuid: d37da96c-3825-4a6c-84b2-adc94b4f8b03
+uuid: d89c38a5-e81f-4736-8711-cee236bb54bf
 langcode: en
 status: true
 dependencies: {  }
-id: stg_split
-label: stg_split
+id: cloud_split
+label: cloud_split
 description: ''
 weight: 0
 stackable: false
 no_patching: false
 storage: folder
-folder: /var/www/config/stg_split
-module:
-  devel: 0
-  devel_generate: 0
+folder: /var/www/config/cloud_split
+module: {  }
 theme: {  }
 complete_list: {  }
 partial_list: {  }

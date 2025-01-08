@@ -914,9 +914,7 @@ $settings['cache']['bins']['data'] = 'cache.backend.php';
 $settings['trusted_host_patterns'] = [];
 
 // Default all to false by default
-$config['config_split.config_split.dev_split']['status'] = FALSE;
-$config['config_split.config_split.stg_split']['status'] = FALSE;
-$config['config_split.config_split.prod_split']['status'] = FALSE;
+$config['config_split.config_split.cloud_split']['status'] = FALSE;
 
 if (!empty($cf_application_data['space_name']) &&
     in_array($cf_application_data['space_name'],
@@ -928,25 +926,32 @@ if (!empty($cf_application_data['space_name']) &&
       break;
 
     case "dev":
-      $config['config_split.config_split.dev_split']['status'] = TRUE;
-      $settings['config_split.config_split.dev_split'] = TRUE;
       $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-dev-usagov.apps.internal$';
       break;
 
     case "stage":
-      $config['config_split.config_split.stg_split']['status'] = TRUE;
-      $settings['config_split.config_split.stg_split'] = TRUE;
       $settings['trusted_host_patterns'][] = '^cms-stage.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-stage-usagov.apps.internal$';
       break;
 
     case "prod":
-      $config['config_split.config_split.prod_split']['status'] = TRUE;
-      $settings['config_split.config_split.prod_split'] = TRUE;
       $settings['trusted_host_patterns'][] = '^cms.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-prod-usagov.apps.internal$';
       break;
+  }
+}
+
+if (!empty($cf_application_data['space_name']) &&
+  in_array($cf_application_data['space_name'],
+    ['dev', 'dr', 'stage', 'prod'])) {
+  switch (strtolower($cf_application_data['space_name'])) {
+    case "dev":
+    case "dr":
+    case "stage":
+    case "prod":
+      $config['config_split.config_split.cloud_split']['status'] = TRUE;
+      $settings['config_split.config_split.cloud_split'] = TRUE;
   }
 }
 
