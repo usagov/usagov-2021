@@ -13,4 +13,5 @@ folder: /var/www/config/cloud_split
 module: {  }
 theme: {  }
 complete_list: {  }
-partial_list: {  }
+partial_list:
+  - system.performance
