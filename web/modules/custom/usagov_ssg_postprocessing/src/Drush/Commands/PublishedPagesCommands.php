@@ -30,9 +30,7 @@ final class PublishedPagesCommands extends DrushCommands {
   private array $csvHeader = [
     "Hierarchy Level",
     "Page Type",
-    "Page Sub Type",
-    "Content Type",
-    "Friendly URL",
+    "Page Path",
     "Page ID",
     "Page Title",
     "Full URL",
@@ -48,9 +46,9 @@ final class PublishedPagesCommands extends DrushCommands {
     "Taxonomy URL Level 4",
     "Taxonomy URL Level 5",
     "Taxonomy URL Level 6",
-    "Homepage?",
     "Toggle URL",
     "hasBenefitCategory",
+    "Page Language",
     "Categories",
   ];
 
