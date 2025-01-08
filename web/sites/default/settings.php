@@ -789,8 +789,8 @@ $settings['tome_static_path_exclude'] = [];
  * USAGov addition to exclude entire directories. Don't include the trailing slash.
  */
 $settings['usagov_tome_static_path_exclude_directories'] = [
-    '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete',
-    '/taxonomy', '/taxonomy_term', '/es/taxonomy_term', '/es/taxonomy'
+  '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete',
+  '/taxonomy', '/taxonomy_term', '/es/taxonomy_term', '/es/taxonomy'
 ];
 
 
@@ -806,8 +806,8 @@ if (getenv('NEW_RELIC_API_KEY')) {
 $cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
 $SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'];
 if (!empty($cf_application_data['space_name']) &&
-    in_array($cf_application_data['space_name'],
-             ['dev', 'stage', 'prod'])) {
+  in_array($cf_application_data['space_name'],
+    ['dev', 'stage', 'prod'])) {
   switch (strtolower($cf_application_data['space_name'])) {
     case "dev":
       $SERVER_HTTP_HOST = 'https://cms-dev.usa.gov';
@@ -823,25 +823,25 @@ if (!empty($cf_application_data['space_name']) &&
   }
 }
 
-$IS_CLOUDGOV=FALSE;
+$IS_CLOUDGOV = FALSE;
 $SERVER_HTTP_POST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
 $cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
 if (!empty($cf_application_data['space_name']) &&
-    in_array($cf_application_data['space_name'],
-             ['dev', 'stage', 'prod'])) {
+  in_array($cf_application_data['space_name'],
+    ['dev', 'stage', 'prod'])) {
   switch (strtolower($cf_application_data['space_name'])) {
     case "dev":
-      $IS_CLOUDGOV=TRUE;
+      $IS_CLOUDGOV = TRUE;
       $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
       break;
 
     case "stage":
-      $IS_CLOUDGOV=TRUE;
+      $IS_CLOUDGOV = TRUE;
       $SERVER_HTTP_HOST = 'cms-stage.usa.gov';
       break;
 
     case "prod":
-      $IS_CLOUDGOV=TRUE;
+      $IS_CLOUDGOV = TRUE;
       $SERVER_HTTP_HOST = 'cms.usa.gov';
       break;
   }
@@ -862,7 +862,7 @@ foreach ($cf_service_data as $service_list) {
         'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
         'driver' => 'mysql'
       ];
-      if ( $IS_CLOUDGOV===TRUE ) {
+      if ($IS_CLOUDGOV === TRUE) {
         $databases['default']['default']['pdo'] = [
           \PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/certs/rds-combined-ca-us-gov-bundle.pem',
           \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => TRUE
@@ -914,10 +914,11 @@ $settings['cache']['bins']['data'] = 'cache.backend.php';
 $settings['trusted_host_patterns'] = [];
 
 if (!empty($cf_application_data['space_name']) &&
-    in_array($cf_application_data['space_name'],
-             ['local','dev', 'stage', 'prod'])) {
+  in_array($cf_application_data['space_name'],
+    ['local', 'dev', 'stage', 'prod'])) {
   switch (strtolower($cf_application_data['space_name'])) {
     case "local":
+      // It is unclear what, if anything, is affected by case "local"
       $settings['trusted_host_patterns'][] = '^cms-local.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-local-usagov.apps.internal$';
       break;
@@ -939,9 +940,7 @@ if (!empty($cf_application_data['space_name']) &&
   }
 }
 
-// Default all to false by default
-//$settings['config_split.config_split.cloud_split']['status'] = FALSE;
-//$settings['config_split.config_split.local_split']['status'] = FALSE;
+// Local is active by default
 $config['config_split.config_split.cloud_split']['status'] = FALSE;
 $config['config_split.config_split.local_split']['status'] = TRUE;
 
@@ -955,9 +954,8 @@ if (!empty($cf_application_data['space_name']) &&
     case "prod":
       $config['config_split.config_split.cloud_split']['status'] = TRUE;
       $settings['config_split.config_split.cloud_split']['status'] = TRUE;
-    $config['config_split.config_split.local_split']['status'] = FALSE;
-
-    break;
+      $config['config_split.config_split.local_split']['status'] = FALSE;
+      break;
   }
 }
 
