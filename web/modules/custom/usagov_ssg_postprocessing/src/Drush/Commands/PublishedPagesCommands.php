@@ -16,7 +16,9 @@ use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_ssg_postprocessing\Data\PublishedPagesRow;
 use Drupal\usagov_wizard\WizardDataLayer;
-use Drush\Attributes as CLI;
+use Drush\Attributes\Command;
+use Drush\Attributes\Argument;
+use Drush\Attributes\Usage;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -84,9 +86,9 @@ final class PublishedPagesCommands extends DrushCommands {
   /**
    * Export published pages CSV
    */
-  #[CLI\Command(name: 'usagov:published-csv', aliases: ['usapubcsv'])]
-  #[CLI\Argument(name: 'outfile', description: 'Path for output file')]
-  #[CLI\Usage(
+  #[Command(name: 'usagov:published-csv', aliases: ['usapubcsv'])]
+  #[Argument(name: 'outfile', description: 'Path for output file')]
+  #[Usage(
     name: 'usagov_ssg_postprocessing:published-csv',
     description: 'Usage description')
   ]
