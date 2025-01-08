@@ -49,6 +49,7 @@
 /web/sites/default/*.zip
 /web/sites/default/*.tar
 /web/sites/default/*.tgz
+/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv
 
 # Ignore configuration files that may contain sensitive information
 /web/sites/*.php

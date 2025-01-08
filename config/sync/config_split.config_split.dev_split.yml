@@ -1,0 +1,16 @@
+uuid: 35b661a8-ab39-4d5c-b061-fcb40b0fbe48
+langcode: en
+status: true
+dependencies: {  }
+id: dev_split
+label: dev_split
+description: ''
+weight: 0
+stackable: false
+no_patching: false
+storage: folder
+folder: ../../config/default/dev_split
+module: {  }
+theme: {  }
+complete_list: {  }
+partial_list: {  }

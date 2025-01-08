@@ -1,0 +1,16 @@
+uuid: d37da96c-3825-4a6c-84b2-adc94b4f8b03
+langcode: en
+status: true
+dependencies: {  }
+id: stg_split
+label: stg_split
+description: ''
+weight: 0
+stackable: false
+no_patching: false
+storage: folder
+folder: ../../config/default/stg_split
+module: {  }
+theme: {  }
+complete_list: {  }
+partial_list: {  }
