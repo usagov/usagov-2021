@@ -765,7 +765,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2079-waf-nginx-update
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -776,7 +775,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2079-waf-nginx-update
       - approve-dev-deployment:
           type: approval
           requires:
@@ -793,7 +791,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-2079-waf-nginx-update
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -808,7 +805,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-2079-waf-nginx-update
       - approve-stage-deployment:
           type: approval
           requires:
