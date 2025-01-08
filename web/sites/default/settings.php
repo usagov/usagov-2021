@@ -949,9 +949,8 @@ if (!empty($cf_application_data['space_name']) &&
       break;
   }
 }
-
-$config['config_split.config_split.stg_split']['status'] = TRUE;
-$settings['config_split.config_split.stg_split'] = TRUE;
+$config['config_split.config_split.dev_split']['status'] = TRUE;
+$settings['config_split.config_split.dev_split'] = TRUE;
 // Add cache.backend.null:
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/default/nonlocal.services.yml';
 

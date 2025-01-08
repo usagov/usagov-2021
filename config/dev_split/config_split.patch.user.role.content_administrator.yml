@@ -1,7 +1,0 @@
-adding:
-  dependencies:
-    module:
-      - devel
-  permissions:
-    - 'access devel information'
-removing: {  }
