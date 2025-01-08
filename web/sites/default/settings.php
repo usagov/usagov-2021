@@ -804,6 +804,7 @@ if (getenv('NEW_RELIC_API_KEY')) {
  * Cloud Foundry places all service credentials in VCAP_SERVICES
  */
 $cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
+
 $SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'];
 if (!empty($cf_application_data['space_name']) &&
   in_array($cf_application_data['space_name'],
@@ -825,7 +826,6 @@ if (!empty($cf_application_data['space_name']) &&
 
 $IS_CLOUDGOV = FALSE;
 $SERVER_HTTP_POST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
-$cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
 if (!empty($cf_application_data['space_name']) &&
   in_array($cf_application_data['space_name'],
     ['dev', 'stage', 'prod'])) {
@@ -848,7 +848,6 @@ if (!empty($cf_application_data['space_name']) &&
 }
 
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);
-
 foreach ($cf_service_data as $service_list) {
   foreach ($service_list as $service) {
     if ($service['name'] === 'database') {
@@ -940,13 +939,12 @@ if (!empty($cf_application_data['space_name']) &&
   }
 }
 
-// Local is active by default
+// Cloud is inactive by default
 $config['config_split.config_split.cloud_split']['status'] = FALSE;
-$config['config_split.config_split.local_split']['status'] = TRUE;
 
 if (!empty($cf_application_data['space_name']) &&
   in_array($cf_application_data['space_name'],
-    ['dev', 'dr', 'stage', 'prod'])) {
+    ['local', 'dev', 'dr', 'stage', 'prod'])) {
   switch (strtolower($cf_application_data['space_name'])) {
     case "dev":
     case "dr":
@@ -954,7 +952,6 @@ if (!empty($cf_application_data['space_name']) &&
     case "prod":
       $config['config_split.config_split.cloud_split']['status'] = TRUE;
       $settings['config_split.config_split.cloud_split']['status'] = TRUE;
-      $config['config_split.config_split.local_split']['status'] = FALSE;
       break;
   }
 }
