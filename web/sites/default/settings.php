@@ -804,47 +804,46 @@ if (getenv('NEW_RELIC_API_KEY')) {
  * Cloud Foundry places all service credentials in VCAP_SERVICES
  */
 $cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
-
-$SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'];
-if (!empty($cf_application_data['space_name']) &&
-  in_array($cf_application_data['space_name'],
-    ['dev', 'stage', 'prod'])) {
-  switch (strtolower($cf_application_data['space_name'])) {
-    case "dev":
-      $SERVER_HTTP_HOST = 'https://cms-dev.usa.gov';
-      break;
-
-    case "stage":
-      $SERVER_HTTP_HOST = 'https://cms-stage.usa.gov';
-      break;
-
-    case "prod":
-      $SERVER_HTTP_HOST = 'https://cms.usa.gov';
-      break;
-  }
-}
-
 $IS_CLOUDGOV = FALSE;
-$SERVER_HTTP_POST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
-if (!empty($cf_application_data['space_name']) &&
-  in_array($cf_application_data['space_name'],
-    ['dev', 'stage', 'prod'])) {
+$SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
+$settings['trusted_host_patterns'] = [];
+$space_name = strtolower($cf_application_data['space_name'] ?? '');
+
+if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
   switch (strtolower($cf_application_data['space_name'])) {
+    case "local":
+      $settings['trusted_host_patterns'][] = '^cms-local.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-local-usagov.apps.internal$';
+      break;
+
     case "dev":
       $IS_CLOUDGOV = TRUE;
       $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-dev-usagov.apps.internal$';
       break;
 
     case "stage":
       $IS_CLOUDGOV = TRUE;
       $SERVER_HTTP_HOST = 'cms-stage.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms-stage.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-stage-usagov.apps.internal$';
       break;
 
     case "prod":
       $IS_CLOUDGOV = TRUE;
       $SERVER_HTTP_HOST = 'cms.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-prod-usagov.apps.internal$';
       break;
   }
+}
+// Cloud is inactive by default
+$config['config_split.config_split.cloud_split']['status'] = FALSE;
+
+if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
+  $config['config_split.config_split.cloud_split']['status'] = TRUE;
+  $settings['config_split.config_split.cloud_split']['status'] = TRUE;
 }
 
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);
@@ -898,7 +897,6 @@ foreach ($cf_service_data as $service_list) {
       $settings['s3fs.upload_as_private'] = FALSE;
       $settings['s3fs.use_s3_for_public'] = TRUE;
       $settings['s3fs.use_s3_for_private'] = TRUE;
-
     }
   }
 }
@@ -909,52 +907,6 @@ $settings['php_storage']['twig']['directory'] = '../storage/php';
 // This is from https://www.fomfus.com/articles/how-to-create-a-drupal-8-project-for-heroku-part-1
 // included here without fully understanding implications:
 $settings['cache']['bins']['data'] = 'cache.backend.php';
-
-$settings['trusted_host_patterns'] = [];
-
-if (!empty($cf_application_data['space_name']) &&
-  in_array($cf_application_data['space_name'],
-    ['local', 'dev', 'stage', 'prod'])) {
-  switch (strtolower($cf_application_data['space_name'])) {
-    case "local":
-      // It is unclear what, if anything, is affected by case "local"
-      $settings['trusted_host_patterns'][] = '^cms-local.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-local-usagov.apps.internal$';
-      break;
-
-    case "dev":
-      $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-dev-usagov.apps.internal$';
-      break;
-
-    case "stage":
-      $settings['trusted_host_patterns'][] = '^cms-stage.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-stage-usagov.apps.internal$';
-      break;
-
-    case "prod":
-      $settings['trusted_host_patterns'][] = '^cms.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-prod-usagov.apps.internal$';
-      break;
-  }
-}
-
-// Cloud is inactive by default
-$config['config_split.config_split.cloud_split']['status'] = FALSE;
-
-if (!empty($cf_application_data['space_name']) &&
-  in_array($cf_application_data['space_name'],
-    ['local', 'dev', 'dr', 'stage', 'prod'])) {
-  switch (strtolower($cf_application_data['space_name'])) {
-    case "dev":
-    case "dr":
-    case "stage":
-    case "prod":
-      $config['config_split.config_split.cloud_split']['status'] = TRUE;
-      $settings['config_split.config_split.cloud_split']['status'] = TRUE;
-      break;
-  }
-}
 
 // Add cache.backend.null:
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/default/nonlocal.services.yml';
