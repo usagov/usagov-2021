@@ -1,0 +1,11 @@
+--- a/modules/tome_static/src/StaticGenerator.php
++++ b/modules/tome_static/src/StaticGenerator.php
+@@ -173,7 +173,7 @@ class StaticGenerator implements StaticGeneratorInterface {
+       // This is probably an image style derivative.
+       if ($response instanceof BinaryFileResponse) {
+         $file_path = $response->getFile()->getPathname();
+-        $this->copyPath($file_path, $destination);
++        $invoke_paths[] = \Drupal::service('file_url_generator')->generateAbsoluteString($file_path);
+       }
+       else {
+         $content = $response->getContent();
