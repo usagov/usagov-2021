@@ -26,8 +26,6 @@ module:
   ctools: 0
   datetime: 0
   datetime_range: 0
-  devel: 0
-  devel_generate: 0
   diff: 0
   dynamic_page_cache: 0
   editor: 0

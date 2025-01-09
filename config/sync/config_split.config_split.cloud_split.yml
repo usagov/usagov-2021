@@ -10,9 +10,7 @@ stackable: false
 no_patching: false
 storage: folder
 folder: /var/www/config/cloud_split
-module:
-  devel: 0
-  devel_generate: 0
+module: {  }
 theme: {  }
 complete_list: {  }
 partial_list:
