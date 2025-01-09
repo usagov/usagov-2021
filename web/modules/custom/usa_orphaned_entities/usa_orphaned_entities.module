@@ -84,7 +84,7 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
               $type = $reference_skip->getType();
               break;
 
-            case Term::class;
+            case Term::class:
               $type = $reference_skip->getEntityTypeId() . ' / ' . $reference_skip->bundle();
               break;
           }
