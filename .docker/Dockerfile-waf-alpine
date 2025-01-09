@@ -1,0 +1,108 @@
+ARG ubuntu_version="jammy"
+FROM ubuntu:${ubuntu_version}
+
+LABEL maintainer="USA.gov Web Ops"
+
+ENV modsecurity_nginx_version="1.0.3"
+ENV nginx_version="1.27.2"
+
+ARG GITBRANCH
+ENV GITBRANCH ${GITBRANCH:-none}
+
+ARG GITCOMMIT
+ENV GITCOMMIT ${GITCOMMIT:-none}
+
+ARG GITTAG
+ENV GITTAG ${GITTAG:-none}
+
+ENV APP_NAME=USAGov \
+    PARANOIA=2 \
+    ANOMALY_INBOUND=5 \
+    ANOMALY_OUTBOUND=4 \
+    NGINX_KEEPALIVE_TIMEOUT=60s \
+    ERRORLOG=/var/log/nginx/error.log \
+    LOGLEVEL=warn \
+    USER=nginx \
+    PORT=80 \
+    SERVERNAME=locahost \
+    WORKER_CONNECTIONS=1024 \
+    MODSEC_DEFAULT_PHASE1_ACTION="phase:1,pass,log,tag:'\${MODSEC_TAG}'" \
+    MODSEC_DEFAULT_PHASE2_ACTION="phase:2,pass,log,tag:'\${MODSEC_TAG}'" \
+    MODSEC_RULE_ENGINE=on \
+    MODSEC_REQ_BODY_ACCESS=on \
+    MODSEC_REQ_BODY_LIMIT=13107200 \
+    MODSEC_REQ_BODY_NOFILES_LIMIT=131072 \
+    MODSEC_RESP_BODY_ACCESS=on \
+    MODSEC_RESP_BODY_LIMIT=1048576 \
+    MODSEC_PCRE_MATCH_LIMIT=500000 \
+    MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000
+
+# RUN sed -i 's/^# deb-src./deb-src /' /etc/apt/sources.list
+RUN sed -i 's/https/http/g' /etc/apk/repositories
+
+RUN apk upgrade --update && \
+    apk add bash \
+    curl \
+    gettext \
+    inotify-tools \
+    jq \
+    make \
+    nano \
+    sed \
+    tar \
+    vim \
+    wget
+
+# hadolint ignore=DL3008,SC2016
+RUN set -eux; \
+    apk add --no-cache \
+    ca-certificates;
+
+ARG modsecurity_path=/usr/local/src/modsecurity_nginx
+RUN mkdir -p ${modsecurity_path}
+WORKDIR ${modsecurity_path}
+RUN wget https://github.com/SpiderLabs/ModSecurity-nginx/archive/refs/tags/v${modsecurity_nginx_version}.tar.gz
+RUN tar -xf v${modsecurity_nginx_version}.tar.gz && \
+    rm -f v${modsecurity_nginx_version}.tar.gz
+
+WORKDIR /usr/share/nginx/src/
+# RUN apk add --virtual .build-deps nginx
+
+# RUN wget https://nginx.org/download/nginx-${nginx_version}.tar.gz && \
+#     tar -xf nginx-${nginx_version}.tar.gz && \
+#     rm -f nginx-${nginx_version}.tar.gz
+
+# WORKDIR /usr/share/nginx/src/nginx-${nginx_version}
+
+# RUN ./configure --add-dynamic-module=${modsecurity_path}/ModSecurity-nginx-${modsecurity_nginx_version} --with-compat && \
+#     make modules && \
+#     cp ./objs/ngx_http_modsecurity_module.so /ngx_http_modsecurity_module.so
+
+# RUN apk del .build-deps
+
+COPY src-waf/docker-entrypoint-waf.sh /
+COPY src-waf/etc/ /etc/
+COPY src-waf/opt/ /opt/
+RUN rm -rf /opt/owasp-crs/tests;
+
+RUN set -eux; \
+    mkdir /var/log/modsecurity && \
+    touch /var/log/modsecurity/modsec_audit.log;
+
+COPY src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
+COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
+COPY src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
+COPY src-waf/cert-watcher.sh /cert-watcher.sh
+
+COPY motd /etc/motd
+
+RUN echo    "    built:" $(date) >> /etc/motd \
+    && echo "    branch: " $GITBRANCH >> /etc/motd \
+    && echo "    gittag: " $GITTAG >> /etc/motd \
+    && echo "    commit: " $GITCOMMIT >> /etc/motd \
+    && echo >> /etc/motd
+
+HEALTHCHECK CMD pgrep "nginx: master process"
+
+ENTRYPOINT ["/docker-entrypoint-waf.sh"]
+CMD ["/usr/sbin/nginx", "-g", "daemon off;"]

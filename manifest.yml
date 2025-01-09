@@ -25,7 +25,7 @@ applications:
 - name: waf
   docker:
     image: gsatts/usagov-2021:waf-latest
-  disk_quota: 1G
+  disk_quota: 2G
   memory: 256M
   services:
     - secrets
