@@ -809,14 +809,17 @@ $SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
 $settings['trusted_host_patterns'] = [];
 $space_name = strtolower($cf_application_data['space_name'] ?? '');
 
-if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
+if (in_array($space_name, ['local', 'dev', 'dr', 'stage', 'prod'], true)) {
   switch (strtolower($cf_application_data['space_name'])) {
     case "local":
       $settings['trusted_host_patterns'][] = '^cms-local.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-local-usagov.apps.internal$';
+      //$config['core.extension']['module']['devel'] = 0;
+      //$config['core.extension']['module']['devel_generate'] = 0;
       break;
 
     case "dev":
+    case "dr":
       $IS_CLOUDGOV = TRUE;
       $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
       $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
