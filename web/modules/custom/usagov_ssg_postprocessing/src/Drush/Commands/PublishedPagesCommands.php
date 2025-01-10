@@ -148,6 +148,7 @@ final class PublishedPagesCommands extends DrushCommands {
         if ($node->language()->getId() == 'en') {
           $view->setDisplay('attachment_1');
         } else {
+
           $view->setDisplay('attachment_2');
         }
         $view->execute();
