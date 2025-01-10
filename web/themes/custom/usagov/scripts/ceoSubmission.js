@@ -119,7 +119,22 @@ const state_codes = {
 async function addressUSPSValidation(streetAddress, city, state, zipCode) {
     "use strict";
 
-    // If the zip code contains any letters or is less or more than 5 characters, it returns an error.
+    // If the Address contains any special characters it removes them because the USPS API
+    // won't process the address.
+    if (streetAddress.includes("<")) {
+        streetAddress = streetAddress.replace('<', '');
+        let streetAddressField = document.getElementById("input-street");
+        streetAddressField.value = streetAddress;
+    }
+
+    if (streetAddress.includes("#")) {
+        streetAddress = streetAddress.replace('#', '');
+        let streetAddressField = document.getElementById("input-street");
+        streetAddressField.value = streetAddress;
+    }
+
+    // If the zip code contains any letters or is less or more than 5 characters, it returns and
+    // doesn't call the USPS API.
     if (zipCode.length !== 5 || !(/^\d+$/.test(zipCode))) {
         return "Invalid Zip Code.";
     }
@@ -134,16 +149,19 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
         const response = await fetch(url);
         var responseText = response.text();
 
-        if (!response.ok || (await responseText).includes("<Error>")) {
-            return (responseText);
+        if (!response.ok) {
+            return "USPS API not working.";
         }
-
+        else {
+            (await responseText).includes("<Error>");
+        }
         return await responseText;
     }
     catch (error) {
         return "USPS API not working.";
     }
 }
+
 
 // This function analyzes the response received by the USPS API and returns the message that the user will see.
 function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCode) {
@@ -190,6 +208,7 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
         let uspsStreetAddress = responseText.slice(responseText.indexOf('<Address2>') + 10, responseText.indexOf('</Address2>'));
         let uspsZipCode = responseText.slice(responseText.indexOf('<Zip5>') + 6, responseText.indexOf('</Zip5>'));
         let uspsCity = responseText.slice(responseText.indexOf('<City>') + 6, responseText.indexOf('</City>'));
+        let uspsState = responseText.slice(responseText.indexOf('<State>') + 7, responseText.indexOf('</State>'));
 
         // Checks if the address suggested by the USPS API is different from the user's address.
         // If it's different, it returns the USPS address in the response
@@ -199,6 +218,7 @@ function uspsResponseParser(responseText, userStreetAddress, userCity, userZipCo
 
             response.streetAddress = uspsStreetAddress;
             response.city = uspsCity;
+            response.state = uspsState;
             response.zipCode = uspsZipCode;
         }
     }
@@ -222,6 +242,14 @@ async function handleFormSubmission() {
     // Analyze the response and decide if the address is valid or not.
     const uspsApiResponse = await addressUSPSValidation(streetAddressField.value, cityField.value, stateField.value, zipCodeField.value);
     const response = uspsResponseParser(uspsApiResponse, streetAddressField.value, cityField.value, zipCodeField.value);
+
+    // This removes the number sign fromt the address field so
+    // there won't be an xml syntax error when the form is submitted.
+    // if (streetAddressField.value.includes("#")) {
+    //     let streetValue = streetAddressField.value;
+    //     streetValue = streetValue.replace('#', '');
+    //     streetAddressField.value = streetValue;
+    // };
 
     formFields.forEach(field => {
         let fieldID = field.previousElementSibling.id;
@@ -305,7 +333,6 @@ async function handleFormSubmission() {
         }
     });
 
-
     // If all fields have an error, join the error lines on the left into one.
     if (test.length === 4) {
         document.getElementById("error-border").classList.add("usa-main-border-error");
@@ -360,12 +387,14 @@ async function handleFormSubmission() {
         // Stores the suggested address for the address suggestion alert box.
         localStorage.setItem("uspsStreetAddress", response.streetAddress);
         localStorage.setItem("uspsCity", response.city);
+        localStorage.setItem("uspsState", response.state);
         localStorage.setItem("uspsZipCode", response.zipCode);
         localStorage.setItem("formResubmitted", false);
     }
     else {
         localStorage.removeItem("uspsStreetAddress");
         localStorage.removeItem("uspsCity");
+        localStorage.removeItem("uspsState");
         localStorage.removeItem("uspsZipCode");
         localStorage.removeItem("formResubmitted");
     }
@@ -393,7 +422,7 @@ window.addEventListener("load", function () {
     let isChromeOrEdge = navigator.userAgent.includes("Chrome");
     // Change attributes so that autofill works in state input
     if (isChromeOrEdge) {
-        let stateSelectBox = document.getElementsByName("select-dropdown")[0];
+        let stateSelectBox = document.getElementsByName("input-state")[0];
         stateSelectBox.setAttribute("autocomplete","country");
 
         let stateInputBox = document.getElementById("input-state");

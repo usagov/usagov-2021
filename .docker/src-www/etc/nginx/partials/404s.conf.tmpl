@@ -3,6 +3,19 @@
 
     location @notFoundEnglish {
       allow all;
+
+      # Decode the URI for proper matching
+      set $decoded_uri $uri;
+      if ($decoded_uri ~* ^(.+?)(%C2%A0|\xA0|%E2%80%89|\xE2\x80\x89|%E2%80%83|\xE2\x80\x83)+$) {
+          set $clean_uri $1;
+          return 301 $clean_uri;
+      }
+      # Match and strip other partial %C2 sequences from the end of the URI
+      if ($uri ~* ^(.+?)(%C2|\xC2)+$) {
+          set $clean_uri $1;
+          return 301 $clean_uri;
+      }
+
       error_page 403 404 @notFoundEnglishFallback;
       proxy_intercept_errors on;
       recursive_error_pages on;

@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37">
+<svg role="img" aria-labelledby="iconJumpTitle" xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37">
+  <title id="iconJumpTitle">Jump Icon</title>
   <g id="Group_5073" data-name="Group 5073" transform="translate(-29482.328 -2099.688)">
     <g id="Ellipse_383" data-name="Ellipse 383" transform="translate(29519.328 2099.688) rotate(90)" fill="#02bfe7" stroke="#fff" stroke-width="1">
       <circle cx="18.5" cy="18.5" r="18.5" stroke="none"/>
