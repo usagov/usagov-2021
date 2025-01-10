@@ -1,5 +1,5 @@
 #!/bin/sh
-for SPACE in dev-dr dev stage prod shared-egress shared-egress-dr tools; do
+for SPACE in dr dev stage prod shared-egress tools; do
     if ! cf space $SPACE &> /dev/null; then
       echo "ERROR: CF space '$SPACE' does not exist!"
       exit 4
