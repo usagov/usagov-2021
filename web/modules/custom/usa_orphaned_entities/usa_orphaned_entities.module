@@ -158,7 +158,7 @@ function usa_orphaned_entities_get_reference_data($deleting_entity) {
       // getTargetEntityTypeId() answers "as a field, which entity type
       // are you/ attached to?" It should not matter if $reference_field
       // is not attached to the same entity type that we are deleting.
-      $entity_type = $entity_reference->getTargetEntityTypeId('target_type');
+      $entity_type = $entity_reference->getTargetEntityTypeId();
 
       // Instead, we must look at the "target_type" setting to check
       // if $reference_field can select other entities like the

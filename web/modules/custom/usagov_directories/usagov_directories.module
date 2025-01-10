@@ -4,7 +4,6 @@
  * @file
  */
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\Entity\Node;
 
 /**

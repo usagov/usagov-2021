@@ -154,7 +154,8 @@ class SidebarFirstBlock extends AbstractMenuBlock {
           $below = $this->prepareMenuItemsForTemplate($item['below'], $currentURL, $leaf);
         }
         elseif ($leaf) {
-          // This $item is active with no children. So if a $leaf was provided, then it goes below this $item.
+          // This $item is active with no children. So if a $leaf was provided,
+          // then it goes below this $item.
           $below = $this->prepareMenuItemsForTemplate([$leaf], $currentURL, NULL);
         }
       }
