@@ -8,18 +8,11 @@
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\node\Entity\Node;
-use Drupal\taxonomy\Entity\Term;
 
 /**
- * Description message.
- *
- * @param mixed $variables
- *   Self described.
- * @param mixed $hook
- *   Self described.
+ * Implement hook_page_attachments()
  */
-
-function usagov_top_navigation_menu_page_attachments(array &$page) {
+function usagov_top_navigation_menu_page_attachments(array &$page): void {
   $page['#attached']['library'][] = 'usagov_top_navigation_menu/usagov_top_navigation_menu_js';
 
   $top_nav_menu = usagov_top_navigation_menu_get_top_nav();

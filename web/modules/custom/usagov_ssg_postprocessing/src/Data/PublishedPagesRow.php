@@ -45,14 +45,6 @@ final class PublishedPagesRow {
     public readonly string $pageLanguage,
   ) {}
 
-  private static function getTaxLevel1(Language $language): string {
-    return match ($language->getId()) {
-      'es' => "USAGov Español",
-      'en' => "USAGov English",
-      default => "USAGov English",
-    };
-  }
-
   private static function getHierarchy(array $data): int {
     $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_URL_'), ARRAY_FILTER_USE_KEY);
     return count(array_unique($texts));
@@ -120,7 +112,7 @@ final class PublishedPagesRow {
     }
 
     $toggleURL = NULL;
-    if (isset($node->field_language_toggle[0]) && $node->field_language_toggle[0]?->target_id) {
+    if (isset($node->field_language_toggle[0]) && $node->field_language_toggle[0]->target_id) {
       if ($data['homepageTest'] === 'homepage' && $data['language'] === 'en') {
         $toggleURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_ES;
       }

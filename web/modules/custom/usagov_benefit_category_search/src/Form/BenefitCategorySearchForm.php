@@ -4,6 +4,9 @@ namespace Drupal\usagov_benefit_category_search\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\State\StateInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a form to enable or disable showing the benefit search
@@ -11,6 +14,18 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class BenefitCategorySearchForm extends FormBase {
   public const TOGGLE_KEY = 'usagov_benefit_category_search.show_block';
+
+  public function __construct(
+    private StateInterface $state,
+    private LoggerInterface $log_channel,
+  ) {}
+
+  public static function create(ContainerInterface $container): self {
+    return new self(
+      state: $container->get('state'),
+      log_channel: $container->get('logger.factory')->get('usagov_benefit_category_search'),
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -24,7 +39,7 @@ class BenefitCategorySearchForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
 
-    $toggle_state = \Drupal::state()->get(self::TOGGLE_KEY) ? TRUE : FALSE;
+    $toggle_state = $this->state->get(self::TOGGLE_KEY) ? TRUE : FALSE;
 
     $description = $toggle_state ?
       "Showing the benefit search blocks is ENABLED" :
@@ -51,21 +66,22 @@ class BenefitCategorySearchForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $toggle_state = \Drupal::state()->get(self::TOGGLE_KEY) ? TRUE : FALSE;
+    $toggle_state = $this->state->get(self::TOGGLE_KEY) ? TRUE : FALSE;
     $errors = FALSE;
 
     try {
       if ($toggle_state) {
-        \Drupal::state()->delete(self::TOGGLE_KEY);
+        $this->state->delete(self::TOGGLE_KEY);
       }
       else {
-        \Drupal::state()->set(self::TOGGLE_KEY, TRUE);
+        $this->state->set(self::TOGGLE_KEY, TRUE);
       }
     }
     catch (\Exception $e) {
-      \Drupal::logger('usagov_benefit_category_search')
-        ->error('Error while attempting toggle benefit search blocks: @error',
-        ['@error' => $e->getMessage()]);
+      $this->log_channel->error(
+        'Error while attempting toggle benefit search blocks: @error',
+        ['@error' => $e->getMessage()]
+      );
       $errors = TRUE;
     }
 
