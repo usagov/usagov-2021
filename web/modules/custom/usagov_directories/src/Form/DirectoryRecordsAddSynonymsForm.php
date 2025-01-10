@@ -2,17 +2,28 @@
 
 namespace Drupal\usagov_directories\Form;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 //TODO: Handle character entities properly (e.g., &#151; for em dash)
-
 /**
  * Implements a form an administrator can use to add language toggles to
  * already-imported directory records.
  * This is expected to be used during development and never again thereafter.
  */
 class DirectoryRecordsAddSynonymsForm extends FormBase {
+
+  public function __construct(
+    private EntityTypeManagerInterface $entityTypeManager,
+  ) {}
+
+  public static function create(ContainerInterface $container): self {
+    return new self(
+      entityTypeManager: $container->get('entity_type.manager'),
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -79,7 +90,12 @@ class DirectoryRecordsAddSynonymsForm extends FormBase {
         continue;
       }
       $synonyms = explode('###', $synonyms_str);
-      $nids = \Drupal::entityQuery('node')->condition('field_mothership_uuid', $entity_uuid)->execute();
+      $nids = $this->entityTypeManager
+        ->getStorage('node')
+        ->getQuery()
+        ->condition('field_mothership_uuid', $entity_uuid)
+        ->accessCheck(TRUE)
+        ->execute();
       $nid = reset($nids);
 
       if ($nid) {
@@ -93,8 +109,13 @@ class DirectoryRecordsAddSynonymsForm extends FormBase {
            */
           $synonym_title = str_replace('&#151;', '—', $synonym_title);
           // Check for an existing synonym:
-          $existing_nids = \Drupal::entityQuery('node')->condition('type', 'agency_synonym')
-            ->condition('title', $synonym_title)->execute();
+          $existing_nids = $this->entityTypeManager
+            ->getStorage('node')
+            ->getQuery()
+            ->condition('type', 'agency_synonym')
+            ->condition('title', $synonym_title)
+            ->accessCheck(TRUE)
+            ->execute();
           if (count($existing_nids) === 0) {
             $attrs = [
               'type' => 'agency_synonym',
@@ -102,7 +123,9 @@ class DirectoryRecordsAddSynonymsForm extends FormBase {
               'langcode' => $langcode,
               'field_agency_reference' => ['target_id' => $nid],
             ];
-            $syn_node = \Drupal::entityTypeManager()->getStorage('node')->create($attrs);
+            $syn_node = $this->entityTypeManager
+              ->getStorage('node')
+              ->create($attrs);
             $syn_node->save();
             $synonym_count++;
           }

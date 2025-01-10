@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a004c92e80acf5f656cc7792b5400a9",
+    "content-hash": "8f5ea57e015cebf68b6fb36a9d214f05",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -4515,58 +4515,6 @@
             "homepage": "https://www.drupal.org/project/menu_breadcrumb",
             "support": {
                 "source": "https://git.drupalcode.org/project/menu_breadcrumb"
-            }
-        },
-        {
-            "name": "drupal/menu_entity_index",
-            "version": "1.6.0",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupalcode.org/project/menu_entity_index.git",
-                "reference": "8.x-1.6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/menu_entity_index-8.x-1.6.zip",
-                "reference": "8.x-1.6",
-                "shasum": "38ab589be5fc3395a64fe51c627765e9e6cf1cd5"
-            },
-            "require": {
-                "drupal/core": "^8.8 || ^9 || ^10"
-            },
-            "type": "drupal-module",
-            "extra": {
-                "drupal": {
-                    "version": "8.x-1.6",
-                    "datestamp": "1681993178",
-                    "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
-                    }
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0+"
-            ],
-            "authors": [
-                {
-                    "name": "FeyP",
-                    "homepage": "https://www.drupal.org/user/998680"
-                },
-                {
-                    "name": "Mirroar",
-                    "homepage": "https://www.drupal.org/user/1533592"
-                }
-            ],
-            "description": "Maintains an index of menu links and their referenced entities.",
-            "homepage": "https://www.drupal.org/project/menu_entity_index",
-            "keywords": [
-                "Drupal"
-            ],
-            "support": {
-                "source": "http://cgit.drupalcode.org/menu_entity_index",
-                "issues": "https://www.drupal.org/project/issues/menu_entity_index"
             }
         },
         {

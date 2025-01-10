@@ -8,7 +8,6 @@
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Site\Settings;
-use Drupal\user\Entity;
 use Drupal\user\Entity\User;
 
 /**
