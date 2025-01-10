@@ -467,6 +467,81 @@ function _usagov_benefit_finder_content_check_criteria_has_child(int $nid) {
  */
 function usagov_benefit_finder_content_form_node_bears_life_event_form_edit_form_alter(array &$form, FormStateInterface $form_state) {
   $form['#validate'][] = '_usagov_benefit_finder_content_life_event_form_archived';
+  $form['#validate'][] = '_usagov_benefit_finder_content_check_life_event_form_criteria_depth';
+}
+
+/**
+ * It checks criteria depth of life event form.
+ * If criteria depth greater than 1, it gives error message and lists of the criteria.
+ *
+ * @param array $form
+ *   Form array.
+ * @param FormStateInterface $form_state
+ *   Form state object.
+ */
+function _usagov_benefit_finder_content_check_life_event_form_criteria_depth(array &$form, FormStateInterface $form_state) {
+  $error_flag = FALSE;
+  $criteria_depths = [];
+
+  $life_event_form_node = $form_state->getFormObject()->getEntity();
+  $sections = $life_event_form_node->get('field_b_sections_elg_criteria')->referencedEntities();
+
+  foreach ($sections as $section) {
+    $criterias = $section->get('field_b_criterias')->referencedEntities();
+
+    foreach ($criterias as $criteria) {
+      $criteria_fieldset = _usagov_benefit_finder_content_find_life_event_form_criteria_depth($criteria, 0);
+
+      foreach ($criteria_fieldset as $record) {
+        if ($record['depth'] > 1) {
+          $error_flag = TRUE;
+        }
+        $criteria_depths[] = $record;
+      }
+    }
+  }
+
+  if ($error_flag) {
+    $line = 0;
+    $form_state->setErrorByName(++$line, t("Benefit Finder V1 only supports one level nested criteria (depth <= 1)."));
+    foreach ($criteria_depths as $record) {
+      if ($record['depth'] > 1) {
+        $form_state->setErrorByName(++$line, "$record[criteriaKey]  (depth=$record[depth])");
+      }
+    }
+  }
+}
+
+/**
+ * It finds criteria depth of life event form.
+ *
+ * @param $criteria
+ *   The criteria
+ * @param $depth
+ *   The depth
+ * @return array
+ *   An array containing criteria key and depth.
+ */
+function _usagov_benefit_finder_content_find_life_event_form_criteria_depth($criteria, $depth) {
+  $criteria_fieldset = [];
+
+  $criteria_fieldset[] = [
+    "criteriaKey" => current($criteria->get('field_b_criteria_key')->referencedEntities())->get('field_b_id')->value,
+    "depth" => $depth,
+  ];
+
+  $criterias_1 = $criteria->get('field_b_children')->referencedEntities();
+  if (!empty($criterias_1)) {
+    $depth++;
+    foreach ($criterias_1 as $criteria_1) {
+      $results = _usagov_benefit_finder_content_find_life_event_form_criteria_depth($criteria_1, $depth);
+      foreach ($results as $result) {
+        $criteria_fieldset[] = $result;
+      }
+    }
+  }
+
+  return $criteria_fieldset;
 }
 
 /**
