@@ -10,6 +10,7 @@
 
 use Drupal\Core\Url;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\taxonomy\TermInterface;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_wizard\MenuChecker;
 
@@ -401,7 +402,7 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
   }
 }
 
-function usagov_wizard_get_term_breadcrumb(Term $rootTerm): array {
+function usagov_wizard_get_term_breadcrumb(TermInterface $rootTerm): array {
   if (isset($rootTerm->field_wizard_breadcrumbs)) {
     $crumbs = $rootTerm->field_wizard_breadcrumbs->getValue();
     $result = [];
@@ -467,11 +468,11 @@ function usagov_wizard_preprocess_views_view_field__wizard_options(&$variables) 
 function usagov_wizard_preprocess_views_view_unformatted(&$variables) {
   $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
   if ($taxonomy_term instanceof Term) {
-    if ($taxonomy_term->bundle() == 'wizard') {
+    if ($taxonomy_term->bundle() === 'wizard') {
       $tid = $taxonomy_term->id();
       $term = Term::load($tid);
       if (isset($term->field_heading->value)) {
-        if (strlen($term->field_heading->value > 1)) {
+        if (strlen($term->field_heading->value) > 1) {
           $variables['legend'] = $term->field_heading->value;
         }
       }
