@@ -17,10 +17,6 @@ final class PublishedPagesRow {
     // depths in menu tree
     public readonly int $hierarchy,
     public readonly string $pageType,
-    // for basic pages, the type of basic page selected
-    public readonly ?string $pageSubType,
-    // node bundle
-    public readonly string $contentType,
     // path alias
     public readonly string $friendlyURL,
     // node ID
@@ -42,20 +38,12 @@ final class PublishedPagesRow {
     public readonly string $taxonomyURL4,
     public readonly string $taxonomyURL5,
     public readonly string $taxonomyURL6,
-    public readonly string $isHomePage,
     // language toggle
     public readonly string $toggleURL,
     public readonly string $hasBenefitCategory,
     public readonly string $benefitCategories,
+    public readonly string $pageLanguage,
   ) {}
-
-  private static function getTaxLevel1(Language $language): string {
-    return match ($language->getId()) {
-      'es' => "USAGov Español",
-      'en' => "USAGov English",
-      default => "USAGov English",
-    };
-  }
 
   private static function getHierarchy(array $data): int {
     $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_URL_'), ARRAY_FILTER_USE_KEY);
@@ -66,8 +54,6 @@ final class PublishedPagesRow {
     $array = [
       $this->hierarchy,
       $this->pageType,
-      $this->pageSubType ?? '',
-      $this->contentType,
       $this->friendlyURL,
       $this->pageID,
       $this->pageTitle,
@@ -84,9 +70,9 @@ final class PublishedPagesRow {
       $this->taxonomyURL4,
       $this->taxonomyURL5,
       $this->taxonomyURL6,
-      $this->isHomePage,
-      $this->toggleURL,
-      $this->hasBenefitCategory,
+      $this->toggleURL ?? ' ',
+      $this->hasBenefitCategory ?? ' ',
+      $this->pageLanguage ?? ' ',
     ];
 
     // Keeps existing behavior of only including these columns if they have something
@@ -126,7 +112,7 @@ final class PublishedPagesRow {
     }
 
     $toggleURL = NULL;
-    if (isset($node->field_language_toggle[0]) && $node->field_language_toggle[0]?->target_id) {
+    if (isset($node->field_language_toggle[0]) && $node->field_language_toggle[0]->target_id) {
       if ($data['homepageTest'] === 'homepage' && $data['language'] === 'en') {
         $toggleURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_ES;
       }
@@ -149,13 +135,11 @@ final class PublishedPagesRow {
     return new self(
       hierarchy: self::getHierarchy($data),
       pageType: $data['Page_Type'],
-      pageSubType: $data['basicPagesubType'],
-      contentType: $data['contentType'],
       friendlyURL: $friendlyURL,
       pageID: $data['nodeID'],
       pageTitle: $title,
       fullURL: $fullURL,
-      taxonomyText1: self::getTaxLevel1($node->language()),
+      taxonomyText1: $data['Taxonomy_Text_1'],
       taxonomyText2: $data['Taxonomy_Text_2'],
       taxonomyText3: $data['Taxonomy_Text_3'],
       taxonomyText4: $data['Taxonomy_Text_4'],
@@ -167,10 +151,10 @@ final class PublishedPagesRow {
       taxonomyURL4: $data['Taxonomy_URL_4'],
       taxonomyURL5: $data['Taxonomy_URL_5'],
       taxonomyURL6: $data['Taxonomy_URL_6'],
-      isHomePage: $data['homepageTest'],
       toggleURL: $toggleURL ?? 'None',
       hasBenefitCategory: $data['hasBenefitCategory'] ? '1' : '',
       benefitCategories: $data['benefitCategories'] ?? '',
+      pageLanguage: (($node->language()->getId() === 'en') ? 'USAGov English' : 'USAGov en Español'),
     );
   }
 
@@ -204,13 +188,11 @@ final class PublishedPagesRow {
     return new self(
       hierarchy: self::getHierarchy($data),
       pageType: $data['Page_Type'],
-      pageSubType: $data['basicPagesubType'],
-      contentType: $data['contentType'],
       friendlyURL: $friendlyURL,
       pageID: 't_' . $data['taxonomyID'],
       pageTitle: $title,
       fullURL: $fullURL,
-      taxonomyText1: self::getTaxLevel1($term->language()),
+      taxonomyText1: $data['Taxonomy_Text_1'],
       taxonomyText2: $data['Taxonomy_Text_2'],
       taxonomyText3: $data['Taxonomy_Text_3'],
       taxonomyText4: $data['Taxonomy_Text_4'],
@@ -222,10 +204,10 @@ final class PublishedPagesRow {
       taxonomyURL4: $data['Taxonomy_URL_4'],
       taxonomyURL5: $data['Taxonomy_URL_5'],
       taxonomyURL6: $data['Taxonomy_URL_6'],
-      isHomePage: $data['homepageTest'],
       toggleURL: $toggleURL,
       hasBenefitCategory: $data['hasBenefitCategory'] ? '1' : '',
       benefitCategories: $data['benefitCategories'] ?? '',
+      pageLanguage: (($term->language()->getId() === 'en') ? 'USAGov English' : 'USAGov en Español'),
     );
   }
 

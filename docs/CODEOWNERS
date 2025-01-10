@@ -1,0 +1,24 @@
+# Github uses the patterns in this file to automatically notify the specified users
+# on pull requests that touch certain files. This does NOT mean that those users
+# are required to review the pull request, or that they "own" the code.
+#
+# Users with write access to this repo are encouraged to use this file to
+# "subscribe" to notifications about code they want to keep tabs on.
+#
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# The CODEOWNERS file itself should have eyes on it.
+docs/CODEOWNERS @akf @arpage
+
+# Benefits-finder tool team.
+web/modules/custom/usagov_benefit_finder/ @scottqueen-bixal @gchi25
+config/sync/*bears* @scottqueen-bixal @gchi25
+config/sync/*benefit_* @scottqueen-bixal @gchi25
+config/sync/*benefits_finder* @scottqueen-bixal @gchi25
+config/sync/core.entity_form_display.paragraph.b_* @scottqueen-bixal @gchi25
+config/sync/field.field.paragraph.b_* @scottqueen-bixal @gchi25
+config/sync/field.storage.paragraph.field_b_* @scottqueen-bixal @gchi25
+config/sync/paragraphs.paragraphs_type.b_* @scottqueen-bixal @gchi25
+.github/workflows/*benefits-finder* @scottqueen-bixal @XavierMetichecchia
+
+
