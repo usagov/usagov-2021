@@ -16,6 +16,7 @@ use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_ssg_postprocessing\Data\PublishedPagesRow;
 use Drupal\usagov_wizard\WizardDataLayer;
+use Drupal\views\Views;
 use Drush\Attributes\Command;
 use Drush\Attributes\Argument;
 use Drush\Attributes\Usage;
@@ -143,9 +144,17 @@ final class PublishedPagesCommands extends DrushCommands {
       if ($row[1] == 'federal_directory_index') {
         $baseUrl = $row[2];
         $fullBaseUrl = $row[5];
-        for ($lett = ord('a'); $lett <= ord('z'); $lett++) {
-          $row[2] = $baseUrl . '/' . chr($lett);
-          $row[5] = $fullBaseUrl . '/' . chr($lett);
+        $view = Views::getView('federal_agencies');
+        if ($node->language()->getId() == 'en') {
+          $view->setDisplay('attachment_1');
+        } else {
+          $view->setDisplay('attachment_2');
+        }
+        $view->execute();
+        foreach ($view->result as $result) {
+          $letter = strtolower($result->title_truncated);
+          $row[2] = $baseUrl . '/' . $letter;
+          $row[5] = $fullBaseUrl . '/' . $letter;
           $this->saveNodeRow($out, $node, $row);
         }
       }
