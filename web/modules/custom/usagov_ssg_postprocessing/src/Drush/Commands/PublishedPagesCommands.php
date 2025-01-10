@@ -153,6 +153,7 @@ final class PublishedPagesCommands extends DrushCommands {
         $view->execute();
         foreach ($view->result as $result) {
           $letter = strtolower($result->title_truncated);
+          if ($letter == 'a') continue;
           $row[2] = $baseUrl . '/' . $letter;
           $row[5] = $fullBaseUrl . '/' . $letter;
           $this->saveNodeRow($out, $node, $row);
