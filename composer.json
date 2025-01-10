@@ -169,12 +169,12 @@
     },
     "require-dev": {
         "drupal/coder": "^8.3",
+        "mglaman/phpstan-drupal": "*",
         "php-parallel-lint/php-parallel-lint": "^1.4",
         "phpcompatibility/php-compatibility": "^9.3",
-        "rector/rector": "^2.0",
-        "mglaman/phpstan-drupal": "*",
         "phpstan/phpstan": "*",
-        "phpstan/phpstan-deprecation-rules": "*"
+        "phpstan/phpstan-deprecation-rules": "*",
+        "rector/rector": "^2.0"
     },
     "scripts": {
         "changed-files": [
