@@ -15,7 +15,12 @@ fi
 if [ -f ./env.local ]; then
   . ./env.local
 fi
-
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
 
 usage="
 $0: (Re-)deploy egress proxy for an environment
@@ -158,6 +163,19 @@ for app in $applist; do
         $output cf bind-service $app $service
         retval=$?
       fi
+    fi
+
+    if [ "$app" = cron ]; then
+      for svc in callcenter-service-account cfevent-service-account; do
+        if existsCFService $svc; then
+          echo "Binding $app with $svc"
+          $output cf bind-service $app $svc
+          retval=$?
+        else
+          echo "Cannot bind $app with non-existant service $svc"
+          retval=1
+        fi
+      done
     fi
 
     if [ $restartRequired -eq 1 ]; then
