@@ -145,12 +145,15 @@ final class PublishedPagesCommands extends DrushCommands {
         $baseUrl = $row[2];
         $fullBaseUrl = $row[5];
         $view = Views::getView('federal_agencies');
+
+        // Difference languages have different letters
         if ($node->language()->getId() == 'en') {
           $view->setDisplay('attachment_1');
-        } else {
-
+        }
+        else {
           $view->setDisplay('attachment_2');
         }
+
         $view->execute();
         foreach ($view->result as $result) {
           $letter = strtolower($result->title_truncated);
