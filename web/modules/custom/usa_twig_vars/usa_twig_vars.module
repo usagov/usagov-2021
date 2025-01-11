@@ -15,7 +15,7 @@ use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
 /**
- * Description message.
+ * Implements hook_preprocess()
  *
  * @param mixed $variables
  *   Self described.
@@ -44,7 +44,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
 
         // Check node has all the four variables set which must not be null.
         $node_real_type = $node->getType();
-        if ($node->id() != NULL && $node_real_type != NULL && $isFront !== NULL) {
+        if ($node->id() != NULL && $node_real_type != NULL) {
           // Check for special nodes by path:
           switch ($node->toUrl()->toString()) {
             case '/agency-index':
@@ -141,25 +141,19 @@ function usa_twig_vars_get_page_type(&$node) {
  *
  * Attempt to get text from field_meta_description, and if that is absent or
  * does not contain text, from field_page_intro (which will be the more common
- * case).
- *
- * @param \Drupal\node\NodeInterface $node
- *   The node entity to get the meta description from.
- *
- * @return string,NULL
- *   Returns the meta description or NULL if there is none.
+ * case). Returns the meta description or NULL if there is none.
  */
-function usa_twig_vars_get_meta_description(&$node) {
+function usa_twig_vars_get_meta_description(NodeInterface &$node): ?string {
   $fields = $node->getFields();
   foreach (['field_meta_description', 'field_page_intro'] as $field_name) {
-    if (array_key_exists($field_name, $fields) && ($fields[$field_name] !== NULL) && $fields[$field_name]->value) {
+    if (array_key_exists($field_name, $fields) && ($fields[$field_name] != NULL) && $fields[$field_name]->value) {
       $value = trim($fields[$field_name]->value);
       if (strlen($value) > 0) {
         return $value;
       }
     }
   }
-  return '';
+  return NULL;
 }
 
 /**
@@ -244,9 +238,11 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variabl
 
 /**
  * Modify output of menu item level (Hierarchy level) to be human readable.
+ *
+ * @deprecated
  */
 function usa_twig_vars_preprocess_views_view_field__published_pages_report(&$variables, $hook, $info) {
-  if ($variables['field']->field == 'level' ?? FALSE) {
+  if ($variables['field']->field == 'level') {
     if (empty($variables['output'])) {
       $variables['output'] = 1;
     }
