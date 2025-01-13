@@ -434,7 +434,7 @@ function usagov_wizard_get_term_breadcrumb(TermInterface $rootTerm): array {
       $result[] = $crumb;
     }
 
-    $language = $rootTerm->langcode->value;
+    $language = $rootTerm->language()->getId();
     $home = [
       'text' => $language === 'en' ? TaxonomyDatalayerBuilder::HOME_TITLE_EN : TaxonomyDatalayerBuilder::HOME_TITLE_ES,
       'url' => $language === 'en' ? TaxonomyDatalayerBuilder::HOME_URL_EN : TaxonomyDatalayerBuilder::HOME_URL_ES,
