@@ -12,7 +12,7 @@ use Drupal\node\NodeInterface;
  */
 function usa_contact_center_api_node_delete(NodeInterface $node) {
 
-  $type = $node->type->entity->id();
+  $type = $node->getType();
   if ($type == 'basic_page') {
     \Drupal::database()->insert('usa_node_delete_log')
       ->fields([

@@ -47,7 +47,7 @@ class MobileMenuBlock extends AbstractMenuBlock {
           'search_affiliate' => 'usagov_all_gov',
           'all_topics' => 'All topics and services',
           'phone_URL' => '/phone',
-          'form_id' => 'usagov_all_gov-mobile'
+          'form_id' => 'usagov_all_gov-mobile',
         ];
         break;
     }
@@ -57,7 +57,6 @@ class MobileMenuBlock extends AbstractMenuBlock {
       $items = $this->getMenuTreeItems($menuID, $crumbs, $active, maxLevels: -1);
       $twigVars = $this->prepareMenuItemsForTemplate($items, $active);
       return $this->renderItems($items, $twigVars, $menuID);
-
     }
 
     // We're not in the menu.
@@ -92,7 +91,7 @@ class MobileMenuBlock extends AbstractMenuBlock {
         '#cache' => [
           'contexts' => ['url.path', 'url.query_args'],
           'tags' => ['config:system.menu.' . $menuID],
-        ]
+        ],
       ],
       $twigVars
     );
