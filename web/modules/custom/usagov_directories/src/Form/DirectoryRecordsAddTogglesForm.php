@@ -60,6 +60,7 @@ class DirectoryRecordsAddTogglesForm extends FormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $all_files = $this->getRequest()->files->get('files', []);
     $file = $all_files['toggle_map_file'];

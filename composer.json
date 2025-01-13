@@ -170,8 +170,10 @@
         "drupal/coder": "^8.3",
         "mglaman/phpstan-drupal": "*",
         "php-parallel-lint/php-parallel-lint": "^1.4",
+        "phpcompatibility/php-compatibility": "^9.3",
         "phpstan/phpstan": "*",
-        "phpstan/phpstan-deprecation-rules": "*"
+        "phpstan/phpstan-deprecation-rules": "*",
+        "rector/rector": "^2.0"
     },
     "scripts": {
         "changed-files": [
@@ -194,6 +196,9 @@
         ],
         "phpstan": [
             "vendor/bin/phpstan --memory-limit=1G"
+        ],
+        "php-compatibility": [
+            "vendor/bin/phpcs -pn --runtime-set testVersion 8.3- web/modules/custom web/themes/custom -d memory_limit=2G --standard=.phpcs.xml.dist"
         ]
     }
 }
