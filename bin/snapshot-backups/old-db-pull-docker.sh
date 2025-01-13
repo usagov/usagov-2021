@@ -1,4 +1,5 @@
 #!/bin/bash
+#!/bin/bash
 
 CF_SVC_USER=$1
 CF_SVC_PASS=$2
@@ -20,7 +21,7 @@ CF_DB_USER=$(echo "$CF_DB_INFO" | grep '"username":' | sed 's/.*"username": "\([
 CF_DB_PASS=$(echo "$CF_DB_INFO" | grep '"password":' | sed 's/.*"password": "\([^"]*\)".*/\1/')
 CF_DB_NAME=$(echo "$CF_DB_INFO" | grep '"db_name":' | sed 's/.*"db_name": "\([^"]*\)".*/\1/')
 
-CF_SSH_ENDPOINT=login.fr.cloud.gov
+CF_SSH_ENDPOINT=`cf curl / | jq -r '.links.app_ssh.href | split(":")[0]'`
 CF_SSH_CODE=$(cf ssh-code)
 
 echo "[INFO] Creating local sql connection"

@@ -36,7 +36,7 @@ CF_DB_HOST=$(echo "$CF_DB_INFO" | grep '"host":' | sed 's/.*"host": "\([^"]*\)".
 CF_DB_USER=$(echo "$CF_DB_INFO" | grep '"username":' | sed 's/.*"username": "\([^"]*\)".*/\1/')
 CF_DB_PASS=$(echo "$CF_DB_INFO" | grep '"password":' | sed 's/.*"password": "\([^"]*\)".*/\1/')
 CF_DB_NAME=$(echo "$CF_DB_INFO" | grep '"db_name":' | sed 's/.*"db_name": "\([^"]*\)".*/\1/')
-CF_SSH_ENDPOINT=login.fr.cloud.gov
+CF_SSH_ENDPOINT=`cf curl / | jq -r '.links.app_ssh.href | split(":")[0]'`
 
 echo "Creating sql connection"
 nohup sshpass -p $(cf ssh-code) ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -4 -N -p 2222 -L $LOCAL_PORT:$CF_DB_HOST:$CF_DB_PORT cf:$CF_PROCESS_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &

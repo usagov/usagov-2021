@@ -18,7 +18,7 @@ instance_index=${4:-0}
 # https://cloud.gov/knowledge-base/2021-05-17-troubleshooting-ssh-connections/#changes-to-your-app-in-the-capi
 # We need the PROCESS_GUID for the "web process" for our app. 
 echo "getting ssh_host"
-ssh_host=ssh.fr.cloud.gov
+ssh_host=`cf curl / | jq -r '.links.app_ssh.href | split(":")[0]'`
 
 echo "getting app_guid"
 app_guid=`cf env ${app_name} | grep application_id | awk '{print $2}' | sed 's/\"//g' | sed 's/,//g'`
