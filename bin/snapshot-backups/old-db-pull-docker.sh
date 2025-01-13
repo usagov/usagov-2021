@@ -12,7 +12,6 @@ cf login -a https://api.fr.cloud.gov -u $CF_SVC_USER -p $CF_SVC_PASS
 echo "[INFO] Creating access keys"
 cf create-service-key database db-dump >/dev/null 2>&1
 CF_GUID=$(cf app cms --guid)
-CF_INFO=$(cf curl /v2/info)
 CF_DB_INFO=$(cf service-key database db-dump)
 
 CF_DB_PORT=$(echo "$CF_DB_INFO" | grep '"port":' | sed 's/.*"port": "\([^"]*\)".*/\1/')
@@ -21,7 +20,7 @@ CF_DB_USER=$(echo "$CF_DB_INFO" | grep '"username":' | sed 's/.*"username": "\([
 CF_DB_PASS=$(echo "$CF_DB_INFO" | grep '"password":' | sed 's/.*"password": "\([^"]*\)".*/\1/')
 CF_DB_NAME=$(echo "$CF_DB_INFO" | grep '"db_name":' | sed 's/.*"db_name": "\([^"]*\)".*/\1/')
 
-CF_SSH_ENDPOINT=$(echo "$CF_INFO" | grep '"app_ssh_endpoint":' | sed 's/.*"app_ssh_endpoint": "\([^:]*\).*".*/\1/')
+CF_SSH_ENDPOINT=login.fr.cloud.gov
 CF_SSH_CODE=$(cf ssh-code)
 
 echo "[INFO] Creating local sql connection"
