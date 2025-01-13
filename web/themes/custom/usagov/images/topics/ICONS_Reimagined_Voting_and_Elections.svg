@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="VOTE" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76.74 48">
+<svg role="img" aria-labelledby="iconVoteTitle" id="VOTE" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76.74 48">
+  <title id="iconVoteTitle">Elections Icon</title>
   <defs>
     <style>
       .cls-1, .cls-2, .cls-3 {
