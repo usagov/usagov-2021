@@ -1,113 +1,149 @@
-# USAgov Benefit Finder module
 
-* USAgov Benefit Finder app folder
-  * USAgov bears block module
-* USAgov bears content module
-* USAgov bears API module
+# Benefit Finder v2 Custom Drupal Module
 
-```
-bin/drush pm:enable usagov_bears_block
-bin/drush pm:enable usagov_bears_content
-bin/drush pm:enable usagov_bears_api
-bin/drush pm:enable usagov_bears
-```
+## Structure
 
-These enable the USAgov bears modules.
-
-## USAgov bears block module
-
-This module provides custom block "usagov bears block" with div id="usagov-bears-app" for React app.
-
-## USAgov bears content module
-
-config/optional folder include configuration of content type, taxonomy, paragraph...
-
-```
-bin/drush config:import \
-  --partial \
-  --source=modules/custom/usagov_bears/modules/usagov_bears_content/config/optional
-```
-This imports the configuration of content type, taxonomy, paragraph, custom entity.
-
-
-config folder includes content type, taxonomy, paragraph, custom entity configuration.
-
-```
-bin/drush config:import \
-  --partial \
-  --source=modules/custom/usagov_bears/modules/usagov_bears_content/config
-```
-This imports the configuration of content type, taxonomy, paragraph, custom entity.
-
-path: /bears/import-life-event
-
-This imports Life Event content.
-
-## USAgov bears API module
-
-path: /bears/api/life-event/{name}
-
-This outputs JSON data of given life event.
-
-For example,
-
-/bears/api/life-event/death of a loved one
-
-/bears/api/life-event/retirement
-
-/bears/api/life-event/disability
-
-## Local Functional Testing
-
-#### Set up local development site
-
-Make sure that local development site setup and run at http://localhost
-
-The functional testing uses the existing database of local development site.
-
-#### Set up testing environment (Install testing software and set PHPUnit configuration)
-
-```
-$ bash scripts/local/setup-benefit-finder-test
+```text
+/usagov_benefit_finder
+  |-config
+  |-modules
+    |-usagov_benefit_finder_api
+      |-src
+        |-Controller
+          LifeEventController.php
+      usagov_benefit_finder_api.module
+    |-usagov_benefit_finder_app
+      |-usagov_benefit_finder_page
+        |-css
+          benefit-finder.min.css
+        |-js
+          benefit-finder.min.js
+        |-templates
+          page--benefit-finder-life-event.html.twig
+        usagov_benefit_finder_page.libraries.yml
+        usagov_benefit_finder_page.module
+    |-usagov_benefit_finder_content
+      |-src
+      usagov_benefit_finder_content.module
+  |-src
+    |-Form
+      BenefitFinderSettingsForm.php
+    |-Traits
+      BenefitFinderTrait.php
+  |-tests
+  |-README.md
 ```
 
-#### Change to local development site directory
+## Basics
 
+| File or folder                              | Description                                                        |
+|---------------------------------------------|--------------------------------------------------------------------|
+| `usagov_benefit_finder_api`                 | Benefit finder API module                                          |
+| `LifeEventController.php`                   | Process benefit finder content to generate JSON data and JSON file |
+| `usagov_benefit_finder_api.module`          | JSON file generation batch job                                     |
+| `usagov_benefit_finder_page`                | Benefit finder page module                                         |
+| `benefit-finder.min.css`                    | Benefit finder app css                                             |
+| `benefit-finder.min.js`                     | Benefit finder app JavaScript                                      |
+| `page--benefit-finder-life-event.html.twig` | Benefit finder page template                                       |
+| `usagov_benefit_finder_page.libraries.yml`  | Benefit finder app library                                         |
+| `usagov_benefit_finder_page.module`         | Benefit finder page theme, preprocess, attach library              |
+| `usagov_benefit_finder_content`             | Benefit finder content module                                      |
+| `usagov_benefit_finder_content.module`      | Provide benefit finder content form validation                     |
+| `src/Form/BenefitFinderSettingsForm.php`    | Form to set up automate JSON data file generation                  |
+| `src/Traits/BenefitFinderTrait.php`         | Functions to get benefit finder node                               |
+
+## Benefit finder API module
+
+The `usagov_benefit_finder_api` custom Drupal module works on reading and processing benefit finder content,
+generating JSON data and JSON file for a given life event; creating and running batch job to update JSON
+files of all life events when content editors add/update benefit finder content.
+
+### Life event controller
+
+The `LifeEventController.php` life event controller has the following functions:
+* Fetches benefit finder content of given life event
+* Processes the benefit finder content
+* Generates JSON data
+* Saves JSON data as JSON file
+
+### Benefit finder API module
+
+The `usagov_benefit_finder_api.module` module creates and runs batch job of generating JSON data files
+of all life events when content editors add/update a benefit finder content. This keeps benefit finder
+JSON data files consistent with benefit finder content.
+
+
+## Benefit finder page module
+
+The `usagov_benefit_finder_page` custom Drupal module works on defining benefit finder library including
+benefit finder app JavaScript and CSS file; providing twig page template with container for benefit
+finder app to attach to, with JSON data file path attribute for benefit finder app to fetch data from,
+and HTML content for benefit finder app to override.
+
+### Benefit finder App
+
+The `benefit-finder.min.js` is a React program with following functions:
+* Fetches JSON data generated by Drupal custom module
+* Provides users life event form
+* Outputs result about benefit eligibility according to user inputs
+
+The `benefit-finder.min.css` is the associated CSS file.
+
+The `usagov_benefit_finder_page.libraries.yml` defines benefit_finder_app library.
+
+```php
+benefit_finder_app:
+  version: 1.x
+  js:
+    js/benefit-finder.min.js: {}
+  css:
+    theme:
+      css/benefit-finder.min.css: {}
 ```
-cd usagov-2021
+
+### Twig Page Template
+
+The `page--benefit-finder-life-event.html.twig` is the page template of life event page:
+* Outputs container for React app to attach to
+* Outputs draft and published JSON data file path for React app to fetch data from
+* Outputs HTML content for React app to override
+
+```php
+  <div id="benefit-finder" json-data-file-path="{{ json_data_file_path }}" draft-json-data-file-path="{{ draft_json_data_file_path }}">
+    {# app will rehydrate and replace innerHTML #}
+    <h1 class="usa-sr-only" id="skip-to-h1" aria-level="1" hidden role="heading">{{ node.label }}</h1>
+  </div>
 ```
 
-#### Uninstall USAGov Login Customizations module
+### Benefit finder page module
 
-```
-bin/drush pm:uninstall usagov_login
-```
+The `usagov_benefit_finder_page.module` module suggests life event page to use the benefit finder page template, and attaches
+benefit finder app JavaScript and CSS file to the life event page.
 
-#### The system is ready for functional testing
 
-#### The following is a functional testing example.
+## Benefit finder content module
 
-Start SSH session
-```
-bin/ssh
-cd /var/www
-```
+The `usagov_benefit_finder_content` custom Drupal module works on benefit finder form alter and form validation.
 
-Use following command to test Benefit Finder system
-```
-/var/www # ./vendor/bin/phpunit \
-web/modules/custom/usagov_benefit_finder/tests/src/Functional/BenefitFinderTest.php \
---group usagov_benefit_finder \
---filter testAll
-```
+### Benefit finder content module
 
-The test displays result.
-```
-PHPUnit 9.6.17 by Sebastian Bergmann and contributors.
+The `usagov_benefit_finder_content.module` module:
+* Validates agency form
+* Validates criteria form
+* Validates life event form
+* Alters benefit edit form
+* Validates benefit form
 
-.                                                                   1 / 1 (100%)
+## Benefit finder settings form
 
-Time: 00:02.558, Memory: 30.00 MB
+The `src/Form/BenefitFinderSettingsForm.php` form provides automate JSON data file generation setting.
 
-OK (1 test, 9 assertions)
-```
+## Benefit finder trait
+
+The `src/Traits/BenefitFinderTrait.php` trait provides functions to get benefit finder content.
+* Get life event
+* Get agency
+* Get criteria
+* Get benefit
+* Get life event form
+* Get node of a given node ID and content mode

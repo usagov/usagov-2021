@@ -20,6 +20,7 @@ class PrepareSearchResults {
     //
     // For filtering, remove categories that are not in the language we want.
     foreach ($view->result as $row) {
+      /** @var \Drupal\node\Entity\Node $row->_entity */
       $categories = $row->_entity->field_benefits_category;
 
       foreach ($categories as $category) {

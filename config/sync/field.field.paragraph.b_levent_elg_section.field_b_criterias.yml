@@ -5,7 +5,6 @@ dependencies:
   config:
     - field.storage.paragraph.field_b_criterias
     - paragraphs.paragraphs_type.b_levent_elg_criteria
-    - paragraphs.paragraphs_type.b_levent_elg_criteria_group
     - paragraphs.paragraphs_type.b_levent_elg_section
   module:
     - entity_reference_revisions
@@ -24,7 +23,6 @@ settings:
   handler_settings:
     target_bundles:
       b_levent_elg_criteria: b_levent_elg_criteria
-      b_levent_elg_criteria_group: b_levent_elg_criteria_group
     negate: 0
     target_bundles_drag_drop:
       b_benefit_eligibility:
@@ -35,9 +33,12 @@ settings:
         enabled: true
       b_levent_elg_criteria_group:
         weight: 32
-        enabled: true
+        enabled: false
       b_levent_elg_section:
         weight: 6
+        enabled: false
+      b_levent_relevant_benefit:
+        weight: 35
         enabled: false
       faq:
         weight: 34
