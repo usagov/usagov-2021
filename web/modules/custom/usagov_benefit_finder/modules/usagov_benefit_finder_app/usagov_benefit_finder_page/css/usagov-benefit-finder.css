@@ -1,0 +1,16 @@
+/* usa-gov overrides */
+#main-content {
+  padding-bottom: 0;
+}
+
+footer.usa-footer--big {
+  padding-top: 0;
+}
+
+.bf-qual-survey {
+  padding-bottom: 4rem;
+}
+
+.bf-qual-survey .additional_body_info {
+  padding-top: 0;
+}
