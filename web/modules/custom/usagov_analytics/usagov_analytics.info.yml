@@ -1,0 +1,4 @@
+name: 'USAGov Analytics Module'
+type: module
+description: 'This module provides a page for the Analytics team with tools that they can use.'
+core_version_requirement: ^10
