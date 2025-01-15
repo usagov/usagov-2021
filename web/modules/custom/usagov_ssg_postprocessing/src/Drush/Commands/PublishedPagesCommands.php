@@ -16,7 +16,10 @@ use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_ssg_postprocessing\Data\PublishedPagesRow;
 use Drupal\usagov_wizard\WizardDataLayer;
-use Drush\Attributes as CLI;
+use Drupal\views\Views;
+use Drush\Attributes\Command;
+use Drush\Attributes\Argument;
+use Drush\Attributes\Usage;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -84,9 +87,9 @@ final class PublishedPagesCommands extends DrushCommands {
   /**
    * Export published pages CSV
    */
-  #[CLI\Command(name: 'usagov:published-csv', aliases: ['usapubcsv'])]
-  #[CLI\Argument(name: 'outfile', description: 'Path for output file')]
-  #[CLI\Usage(
+  #[Command(name: 'usagov:published-csv', aliases: ['usapubcsv'])]
+  #[Argument(name: 'outfile', description: 'Path for output file')]
+  #[Usage(
     name: 'usagov_ssg_postprocessing:published-csv',
     description: 'Usage description')
   ]
@@ -129,22 +132,56 @@ final class PublishedPagesCommands extends DrushCommands {
       ->execute();
 
     foreach ($nids as $nid) {
+
+      // Get DataLayer information on this node
       $node = $this->entityTypeManager->getStorage('node')->load($nid);
       $row = $this->getNodeRow($node)->toArray();
 
-      $row = array_map(fn($col) => trim($col), $row);
-      fputcsv($out, $row);
+      // Save this row into the spreadsheet
+      $this->saveNodeRow($out, $node, $row);
 
-      $origLanguage = $node->language();
-      if ($languages = $node->getTranslationLanguages()) {
-        foreach ($languages as $lang) {
-          if ($lang->getId() !== $origLanguage->getId()) {
-            // export translated node
-            $trNode = $node->getTranslation($lang->getId());
-            $trRow = $this->getNodeRow($trNode);
-            $fields = array_map(fn($field) => trim($field), $trRow->toArray());
-            fputcsv($out, $fields);
+      // If this is a Directory-Index, add in all letter pages (USAGOV-2103)
+      if ($row[1] == 'federal_directory_index') {
+        $baseUrl = $row[2];
+        $fullBaseUrl = $row[5];
+        $view = Views::getView('federal_agencies');
+
+        // Difference languages have different letters
+        if ($node->language()->getId() == 'en') {
+          $view->setDisplay('attachment_1');
+        }
+        else {
+          $view->setDisplay('attachment_2');
+        }
+
+        $view->execute();
+        foreach ($view->result as $result) {
+          $letter = strtolower($result->title_truncated);
+          if ($letter == 'a') {
+            continue;
           }
+          $row[2] = $baseUrl . '/' . $letter;
+          $row[5] = $fullBaseUrl . '/' . $letter;
+          $this->saveNodeRow($out, $node, $row);
+        }
+      }
+    }
+  }
+
+  protected function saveNodeRow($out, $node, $row): void {
+
+    $row = array_map(fn($col) => trim($col), $row);
+    fputcsv($out, $row);
+
+    $origLanguage = $node->language();
+    if ($languages = $node->getTranslationLanguages()) {
+      foreach ($languages as $lang) {
+        if ($lang->getId() !== $origLanguage->getId()) {
+          // export translated node
+          $trNode = $node->getTranslation($lang->getId());
+          $trRow = $this->getNodeRow($trNode);
+          $fields = array_map(fn($field) => trim($field), $trRow->toArray());
+          fputcsv($out, $fields);
         }
       }
     }
