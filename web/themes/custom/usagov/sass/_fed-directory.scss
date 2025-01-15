@@ -34,12 +34,12 @@
     width: 44px;
     height: 44px;
     text-decoration: none;
-    @include u-text('gray-90');
     box-sizing: border-box;
     @include u-bg('cyan-10');
     border: 2px solid $secondary-border;
     border-radius: 0.01rem;
-    font-size: 1.5rem;
+    @include u-font-size('sans', 'lg');
+    @include u-text('gray-90');
     @include u-text('semibold');
     transition: box-shadow 200ms, background-color 200ms;
   }
@@ -138,11 +138,10 @@ div.field--name-field-offices-near-you> ul {
 }
 
 .fed-directory-search-input {
+  @include u-font-size('sans', 'xs');
+  @include u-text('gray-90');
   @include u-bg('white');
   outline: none;
-  font-size: 0.98rem;
-  @include u-text('gray-90');
-  @include u-text('medium');
   border-style: none;
   line-height: 1.5;
 }
@@ -159,7 +158,7 @@ div.field--name-field-offices-near-you> ul {
   height: 2rem;
   min-width: 3rem;
   padding: 0 0.75rem;
-  font-size: 1.1rem;
+  // font-size: 1.1rem;
 
   img {
     width: 1.5rem;
@@ -186,9 +185,7 @@ div.field--name-field-offices-near-you> ul {
 
 // Letter Heading
 .usagov-directory-letter-heading {
-  @include u-font-family('sans');
-  font-size: 2.375rem;
-
+  @include u-font('sans', '2xl');
   text-align: center;
   line-height: 57px;
   outline: solid 0.15rem color('gray-90');
