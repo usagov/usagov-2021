@@ -7,40 +7,6 @@
  * - breadcrumb: Breadcrumb trail items.
  */
 #}
-{% if path('<current>') matches '#\/agencies\/*#'%}
-    {% set breadcrumb = [
-        { 'url': "/", 'text': 'Home' },
-        { 'url': "/about-the-us", 'text': 'About the U.S. and its government' },
-        { 'url': '/agency-index', 'text': drupal_field('title', 'node', 629) },
-        { 'text': drupal_title() }
-    ] %}
-{% elseif path('<current>') matches '#\/states\/*#' %}
-    {% set breadcrumb = [
-        { 'url': "/", 'text': 'Home' },
-        { 'url': "/about-the-us", 'text': 'About the U.S. and its government' },
-        { 'url': "/state-governments", 'text': 'State governments' },
-        { 'text': drupal_title() }
-    ] %}
-{% elseif path('<current>') matches '#\/es\/agencias\/*#' %}
-    {% set breadcrumb = [
-        { 'url': "/es", 'text': 'Página principal' },
-        { 'url': "/es/acerca-de-estados-unidos", 'text': 'Acerca de EE. UU. y su Gobierno' },
-        { 'url': '/es/indice-agencias', 'text': drupal_field('title', 'node', 1696) },
-        { 'text': drupal_title() }
-    ] %}
-{% elseif path('<current>') matches '#\/es\/estados\/*#' %}
-    {% set breadcrumb = [
-        { 'url': "/es", 'text': 'Página principal' },
-        { 'url': "/es/acerca-de-estados-unidos", 'text': 'Acerca de EE. UU. y su Gobierno' },
-        { 'url': "/es/gobiernos-estatales", 'text': 'Gobiernos estatales' },
-        { 'text': drupal_title() }
-    ] %}
-{% endif %}
-
-{% if wizard_breadcrumb %}
-    {% set breadcrumb = wizard_breadcrumb %}
-{% endif %}
-
 
 {% if breadcrumb %}
 

@@ -444,3 +444,66 @@ function usagov_theme_suggestions_alter(array &$suggestions, array $variables, $
     }
   }
 }
+
+function usagov_preprocess_breadcrumb(&$variables) {
+
+  $database = \Drupal::database();
+
+
+  if (strpos($_SERVER['REQUEST_URI'], 'agencies/') !== false) {
+    $variables['breadcrumb'] = [];
+    $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
+    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%about-the-us%'")->fetchField();
+    $nid = str_replace('/node/', '', $nid);
+    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/about-the-us'];
+    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%agency-index%'")->fetchField();
+    $nid = str_replace('/node/', '', $nid);
+    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/agency-index'];
+    $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
+  }
+
+  if (strpos($_SERVER['REQUEST_URI'], 'states/') !== false) {
+    $variables['breadcrumb'] = [];
+    $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
+    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%about-the-us%'")->fetchField();
+    $nid = str_replace('/node/', '', $nid);
+    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/about-the-us'];
+    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%state-governments%'")->fetchField();
+    $nid = str_replace('/node/', '', $nid);
+    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/state-governments'];
+    $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
+  }
+
+  if (strpos($_SERVER['REQUEST_URI'], 'agencias/') !== false) {
+    $variables['breadcrumb'] = [];
+    $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
+    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%acerca-de-estados-unidos%'")->fetchField();
+    $nid = str_replace('/node/', '', $nid);
+    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/acerca-de-estados-unidos'];
+    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%indice-agencias%'")->fetchField();
+    $nid = str_replace('/node/', '', $nid);
+    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/indice-agencias'];
+    $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
+  }
+
+  if (strpos($_SERVER['REQUEST_URI'], 'estados/') !== false) {
+    $variables['breadcrumb'] = [];
+    $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
+    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%acerca-de-estados-unidos%'")->fetchField();
+    $nid = str_replace('/node/', '', $nid);
+    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/acerca-de-estados-unidos'];
+    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%gobiernos-estatales%'")->fetchField();
+    $nid = str_replace('/node/', '', $nid);
+    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/gobiernos-estatales'];
+    $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
+  }
+
+}
