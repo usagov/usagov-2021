@@ -2,7 +2,7 @@
 
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
-use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Site\Settings;
@@ -79,7 +79,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         $entity_id = $path_parts[3];
 
         $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
-        if (!$entity | (!$entity instanceof ContentEntityInterface) || !$entity->hasTranslation($langcode)) {
+        // ContentEntityBase interface require the getTranslation()/hasTranslation() methods
+        if (!$entity || (!$entity instanceof ContentEntityBase) || !$entity->hasTranslation($langcode)) {
           continue;
         }
         $entity = $entity->getTranslation($langcode);

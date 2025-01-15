@@ -1,5 +1,6 @@
 services:
   usagov_login.user_route_subscriber:
     class: Drupal\usagov_login\RouteSubscriber\UserLoginRouteSubscriber
+    arguments: ['@current_route_match', '@entity_type.manager']
     tags:
       - { name: event_subscriber }
