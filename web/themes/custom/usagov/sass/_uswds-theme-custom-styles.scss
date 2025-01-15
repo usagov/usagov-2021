@@ -97,7 +97,6 @@ Buttons with visited links would mysteriously get white text which is not access
 }
 
 .usa-button--secondary {
-  font-size: 1.1rem;
   border: 2px solid $secondary-border;
 }
 
@@ -169,15 +168,6 @@ a.usa-button.hero-button {
   }
 }
 
-.usa-button {
-  width: 100%;
-  line-height: 1.5;
-
-  @media (min-width: 30em) {
-    width: auto;
-  }
-}
-
 .usagov-button--outline-black {
   box-shadow: $theme-button-stroke-width color('black');
   @include u-text('black');
@@ -233,31 +223,8 @@ a {
   @include u-text('blue-warm-70v');
 }
 
-#block-usagov-content .font-serif-lg {
-  // This style is needed to set the font size of intro text
-  font-size: 1.5rem;
-}
-
 .usa-prose > p.usa-intro {
   max-width: none;
-}
-
-@media (max-width: 30em) {
-  .usa-alert,
-  .usa-prose,
-  .usa-table,
-  .usa-form,
-  .usa-radio__label,
-  .usa-footer,
-  .usa-nav .usa-accordion,
-  .usa-accordian__heading,
-  .text-primary-lighter,
-  .usa-hero,
-  .usa-identifier,
-  .usa-label,
-  .usa-description {
-    font-size: 1.1rem;
-  }
 }
 
 .desktop\:grid-col-8 .body-copy {
@@ -316,7 +283,7 @@ div #sm-share {
   display: flex;
   padding-bottom: 22px;
   background-color: transparent;
-  font-size: 1rem;
+  @include u-font-size('sans', 'xs');
 }
 
 #share-page {
@@ -536,8 +503,7 @@ div[class^="QSIUserDefinedHTML"] {
 
 #pagesurvey-qual-hdr {
   @include u-bg('cyan-10');
-
-  font-size: 130%;
+  @include u-font('serif', 'lg');
   display: block;
   @include u-text('gray-90');
 
@@ -566,12 +532,6 @@ div[class^="QSIUserDefinedHTML"] {
 
 // END Page Level Survey extra CSS
 
-.usa-prose p,
-.usa-prose li,
-.usa-prose a {
-  font-size: 1.1rem;
-}
-
 .usa-prose.body-copy {
   &>h1, &>h2, &>h3, &>h4 {
     clear: unset;
@@ -586,31 +546,8 @@ div[class^="QSIUserDefinedHTML"] {
   }
 }
 
-.usa-accordion__heading button,
-.usa-accordion__heading p,
-.usa-accordion__heading a {
-  font-size: 1.1rem;
-}
-
-#question-box > div > p,
-#question-box > div > div {
-  font-size: 1.1rem;
-}
-
-#prior,
-#next {
-  font-size: 1.1rem;
-}
-
-#wizard-border > fieldset > label,
-.wizard_result > p {
-  font-size: 1.1rem;
-}
-
-.last,
-#last-updated,
-#share-page {
-  font-size: 1rem;
+#last-updated {
+  @include u-font-size('sans', 'xs');
 }
 
 .visually-hidden {
@@ -782,10 +719,6 @@ select:not([disabled]):focus,
   &:hover {
     @include u-bg('cyan-10');
   }
-}
-
-.usagov-button {
-  font-size: 1.1rem;
 }
 
 .usa-pagination .usa-current {
