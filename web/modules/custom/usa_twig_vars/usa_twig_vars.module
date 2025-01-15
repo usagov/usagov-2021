@@ -5,6 +5,8 @@
  * Use proprocess for html twig.
  */
 
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
@@ -13,6 +15,7 @@ use Drupal\path_alias\PathAliasInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
+use Drupal\views\ViewExecutable;
 
 /**
  * Implements hook_preprocess()
@@ -22,7 +25,7 @@ use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
  * @param mixed $hook
  *   Self described.
  */
-function usa_twig_vars_preprocess(&$variables, $hook) {
+function usa_twig_vars_preprocess(&$variables, $hook): void {
   if ($hook === 'html' || $hook === 'page') {
     $usa_twig_vars = &drupal_static(__FUNCTION__);
     if (!isset($usa_twig_vars)) {
@@ -77,7 +80,7 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
             breadcrumbManager: \Drupal::service('breadcrumb'),
             node: $node,
             isFront: $isFront,
-            basicPagesubType: $pageType ?? NULL,
+            basicPagesubType: $pageType,
           );
 
           $usa_twig_vars['datalayer'] = $datalayer->build();
@@ -112,8 +115,11 @@ function usa_twig_vars_preprocess(&$variables, $hook) {
 
 /**
  * Hide menu items with page type set to Standard Page - Nav Hidden.
+ *
+ * @todo Check if this menu/hook is used anywhere
+ * @param array<string, mixed> $variables
  */
-function usa_twig_vars_preprocess_menu__sidebar_first(&$variables, $hook) {
+function usa_twig_vars_preprocess_menu__sidebar_first(array &$variables, string $hook): void {
   $node = \Drupal::routeMatch()->getParameter('node');
   if (is_object($node) && method_exists($node, 'getFields')) {
     $variables['pagetype'] = usa_twig_vars_get_page_type($node);
@@ -123,7 +129,7 @@ function usa_twig_vars_preprocess_menu__sidebar_first(&$variables, $hook) {
 /**
  * Return the $page_type.
  */
-function usa_twig_vars_get_page_type(&$node) {
+function usa_twig_vars_get_page_type(NodeInterface &$node): string {
   $fields = $node->getFields();
   if (array_key_exists('field_page_type', $fields)
       && $fields['field_page_type'] != NULL
@@ -132,8 +138,10 @@ function usa_twig_vars_get_page_type(&$node) {
     $term_id = $fields['field_page_type']->getValue()[0]['target_id'];
     $term = Term::load($term_id);
     $page_type = $term ? $term->get('name')->value : '';
-    return $page_type ?? 'content_page';
+    return $page_type ?: 'content_page';
   }
+
+  return '';
 }
 
 /**
@@ -162,7 +170,7 @@ function usa_twig_vars_get_meta_description(NodeInterface &$node): ?string {
  * @param mixed $variables
  *   Self described.
  */
-function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
+function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables): void {
   $node = \Drupal::routeMatch()->getParameter('node');
   // Check if field_hide_page_intro is True
   // the set the value of the content to empty string
@@ -180,8 +188,10 @@ function usa_twig_vars_preprocess_field__node__field_page_intro(&$variables) {
 
 /**
  * Preprocess title for Federal Agency pages.
+ *
+ * @param array<string, mixed> $variables
  */
-function usa_twig_vars_preprocess_page_title(&$variables, $hook) {
+function usa_twig_vars_preprocess_page_title(array &$variables, string $hook): void {
   $node = \Drupal::routeMatch()->getParameter('node');
   if (is_object($node) && method_exists($node, 'getFields')) {
     if (($node->getType() == 'directory_record') && $node->hasField('field_acronym')) {
@@ -200,8 +210,11 @@ function usa_twig_vars_preprocess_page_title(&$variables, $hook) {
  * least for this view) and populates a static variable with the list of
  * possible letters, which the _list preprocess hook needs in order to figure
  * out prev/next.
+ *
+ * @param array<string, mixed> $variables
+ * @param array<string, mixed> $info
  */
-function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variables, $hook, $info) {
+function usa_twig_vars_preprocess_views_view_summary__federal_agencies(array &$variables, string $hook, array $info): void {
   $our_unique_name = 'usa_twig_vars_preprocess_view_federal_agencies';
   drupal_static_reset($our_unique_name);
   $shared = &drupal_static($our_unique_name);
@@ -237,29 +250,15 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(&$variabl
 }
 
 /**
- * Modify output of menu item level (Hierarchy level) to be human readable.
- *
- * @deprecated
- */
-function usa_twig_vars_preprocess_views_view_field__published_pages_report(&$variables, $hook, $info) {
-  if ($variables['field']->field == 'level') {
-    if (empty($variables['output'])) {
-      $variables['output'] = 1;
-    }
-    else {
-      $output = $variables['field']->getValue($variables['row']);
-      $variables['output'] = (int) $output + 2;
-    }
-  }
-}
-
-/**
  * Add context to the federal_agencies view.
  *
  * Allow us to show the current letter, and add links to the "next" and
  * "previous" letters.
+ *
+ * @param array<string, mixed> $variables
+ * @param array<string, mixed> $info
  */
-function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables, $hook, $info) {
+function usa_twig_vars_preprocess_views_view_list__federal_agencies(array &$variables, string $hook, array $info): void {
   $alpha_context = &drupal_static('usa_twig_vars_preprocess_view_federal_agencies');
   $variables['alpha_context'] = $alpha_context;
 }
@@ -270,8 +269,10 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(&$variables,
  * The value of each element in this array can be the id of the site banner
  * if the checkbox `place_above_header` is checked or `null` if the checkbox
  * is not checked.
+ *
+ * @param array<string, mixed> $variables
  */
-function usa_twig_vars_preprocess_region(&$variables) {
+function usa_twig_vars_preprocess_region(array &$variables): void {
 
   // Check if we are in the `header_top` region.
   if ($variables['region'] === 'header_top') {
@@ -328,17 +329,20 @@ function usa_twig_vars_preprocess_region(&$variables) {
 
 /**
  * Implements hook_form_alter().
+ *
+ * @param array<string, mixed> $form
  */
-function usa_twig_vars_form_alter(&$form, &$form_state, $form_id) {
-  if (is_array($form)) {
-    $form['#after_build'][] = 'usa_twig_vars_after_build';
-  }
+function usa_twig_vars_form_alter(array &$form, FormStateInterface &$form_state, string $form_id): void {
+  $form['#after_build'][] = 'usa_twig_vars_after_build';
 }
 
 /**
  * Custom after build function.
+ *
+ * @param array<string, mixed> $form
+ * @return array<string, mixed>
  */
-function usa_twig_vars_after_build($form, &$form_state) {
+function usa_twig_vars_after_build(array $form, FormStateInterface &$form_state): array {
   /* Unchecks Generate automatic URL alias if path exists, if NOT home page
   in_array returns true unless strict mode is turned on but strict mode returns
   false on other pages where the key is found.
@@ -359,17 +363,15 @@ function usa_twig_vars_after_build($form, &$form_state) {
     'node-basic-page-form', 'node-basic-page-edit-form',
   ])) {
     $form['path']['widget'][0]['#open'] = TRUE;
-    if (array_key_exists('path', $form)) {
-      $form['path']['widget'][0]['pathauto']['#checked'] = FALSE;
-      $form['path']['widget'][0]['alias']['#required'] = TRUE;
-    }
+    $form['path']['widget'][0]['pathauto']['#checked'] = FALSE;
+    $form['path']['widget'][0]['alias']['#required'] = TRUE;
   }
   return $form;
 }
 
 /**
  * Helper function to check if node should be excluded from contact center based on path. Updates the exclude from url checkbox on edit pages.  */
-function usa_twig_vars_check_exclude_from_contact_center($node_to_check) {
+function usa_twig_vars_check_exclude_from_contact_center(NodeInterface $node_to_check): void {
   $path_alias_to_check = $node_to_check->toUrl()->toString();
   if (str_starts_with($path_alias_to_check, '/es/articulos/') || str_starts_with($path_alias_to_check, '/features/')) {
     $node_to_check->set('field_exclude_from_contact_cente', 1);
@@ -379,12 +381,17 @@ function usa_twig_vars_check_exclude_from_contact_center($node_to_check) {
 
 /**
  * Helper function to get the node from a path. Used in path_alias_insert and path_alias_update.  */
-function usa_twig_vars_get_node_from_path($path) {
+function usa_twig_vars_get_node_from_path(PathAliasInterface $path): ?NodeInterface {
   $path_alias_url = $path->getAlias();
   $params = Url::fromUserInput($path_alias_url)->getRouteParameters();
   $entity_type_id = array_key_first($params);
   $node = \Drupal::entityTypeManager()->getStorage($entity_type_id)->load($params[$entity_type_id]);
-  return $node;
+
+  if ($node instanceof  NodeInterface) {
+    return $node;
+  }
+
+  return NULL;
 }
 
 /**
@@ -394,15 +401,16 @@ function usa_twig_vars_get_node_from_path($path) {
  * usa_twig_vars_check_exclude_from_contact_center() on all the nodes to check
  * the box for all features to the exclude from contact center.
  */
-function usa_twig_vars_views_post_execute($view) {
-  if ($view->id() == 'features' && ($view->current_display == 'all_paths')) {
+function usa_twig_vars_views_post_execute(ViewExecutable $view): void {
+  if ($view->id() === 'features' && $view->current_display === 'all_paths') {
     $new_result = $view->result;
     $num_results = count($new_result);
 
     for ($res = 0; $res < $num_results; $res++) {
       $nid = $new_result[$res]->_entity->nid[0]->value;
-      $node = Node::load($nid);
-      usa_twig_vars_check_exclude_from_contact_center($node);
+      if ($node = Node::load($nid)) {
+        usa_twig_vars_check_exclude_from_contact_center($node);
+      }
     }
   }
 }
@@ -414,9 +422,10 @@ function usa_twig_vars_views_post_execute($view) {
  * if the node should be excluded from the contact center. If so the value of
  * the exclude from contact center is set to 1.
  */
-function usa_twig_vars_path_alias_update(PathAliasInterface $path) {
-  $node = usa_twig_vars_get_node_from_path($path);
-  usa_twig_vars_check_exclude_from_contact_center($node);
+function usa_twig_vars_path_alias_update(PathAliasInterface $path): void {
+  if ($node = usa_twig_vars_get_node_from_path($path)) {
+    usa_twig_vars_check_exclude_from_contact_center($node);
+  }
 }
 
 /**
@@ -426,6 +435,6 @@ function usa_twig_vars_path_alias_update(PathAliasInterface $path) {
  * should be excluded from the contact center. If so the value of the exclude
  * from contact center is set to 1.
  */
-function usa_twig_vars_node_insert(NodeInterface $node_to_check) {
+function usa_twig_vars_node_insert(NodeInterface $node_to_check): void {
   usa_twig_vars_check_exclude_from_contact_center($node_to_check);
 }
