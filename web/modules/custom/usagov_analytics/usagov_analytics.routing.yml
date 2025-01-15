@@ -6,4 +6,3 @@ usagov_analytics.run_script:
     _title: 'Run Script'
   requirements:
     _permission: 'access administration pages'
-    

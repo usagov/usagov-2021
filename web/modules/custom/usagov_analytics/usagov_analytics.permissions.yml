@@ -2,4 +2,3 @@ access run script:
   title: 'Run Script'
   description: 'Allow authenticated users to run the script.'
   restrict access: TRUE
-  
