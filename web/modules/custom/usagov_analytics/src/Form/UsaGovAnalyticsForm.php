@@ -24,8 +24,7 @@ class UsaGovAnalyticsForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Save'),
-      '#button_type' => 'primary',
+      '#value' => $this->t('Run Script'),
     ];
     return $form;
   }
@@ -37,10 +36,9 @@ class UsaGovAnalyticsForm extends FormBase {
 
     // Run the python script.
     $output = shell_exec('
-    cd modules/custom/usagov_analytics/src/Scripts
-    chmod +x setup.sh
-    ls
-    sh ./setup.sh
+      cd modules/custom/usagov_analytics/src/Scripts
+      chmod +x setup.sh
+      sh ./setup.sh
     ');
 
     // Create a file response.
