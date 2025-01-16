@@ -87,7 +87,7 @@
   <div{{ attributes.addClass(classes) }}>
 {% endif %}
     <div class="usa-alert__body">
-    {% if 'usa-alert--no-icon' not in classes %}
+    {% if alert_status %}
       <span class="usa-alert__a11y-label visually-hidden" id="usa-alert--1__a11y-label">
         <svg role="img" aria-label={{ alert_status }}>
         {% if alert_status == "info" %}
