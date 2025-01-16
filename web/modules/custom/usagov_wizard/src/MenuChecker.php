@@ -3,7 +3,6 @@
 namespace Drupal\usagov_wizard;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\taxonomy\TermInterface;
@@ -65,7 +64,7 @@ class MenuChecker implements ContainerInjectionInterface {
   /**
    * Get the values in the field_heading to determine the third breadcrumb.
    */
-  public function getHeadings(EntityInterface $term) {
+  public function getHeadings(TermInterface $term) {
     $parents = $this->getTermParents($term);
     $headings = [];
 
@@ -120,8 +119,11 @@ class MenuChecker implements ContainerInjectionInterface {
 
               if (isset($menu_entity->parent->value)) {
                 $primaryEntityUuid = $menu_entity->parent->value;
-                $primaryEntity = $this->entity_repository
-                  ->loadEntityByUuid('menu_link_content', explode(':', $primaryEntityUuid));
+
+                // While we're getting the entity type from the UUID here, it
+                // should always be a menu_link_content entity.
+                [$entity_type, $uuid] = explode(':', $primaryEntityUuid);
+                $primaryEntity = $this->entity_repository->loadEntityByUuid($entity_type, $uuid);
                 $menu_taxonomy_links[$tid][0] = $primaryEntity;
 
                 // Load children of the parent entity.
