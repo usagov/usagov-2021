@@ -2,7 +2,7 @@
 
 namespace Drupal\usa_twig_vars;
 
-use Drupal\Core\Breadcrumb\BreadcrumbManager;
+use Drupal\Core\Breadcrumb\ChainBreadcrumbBuilderInterface;
 use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\node\Entity\Node;
@@ -49,7 +49,7 @@ class TaxonomyDatalayerBuilder {
 
   public function __construct(
     private RouteMatchInterface $routeMatch,
-    private BreadcrumbManager $breadcrumbManager,
+    private ChainBreadcrumbBuilderInterface $breadcrumbManager,
     public Node $node,
     bool $isFront,
     public ?string $basicPagesubType,
