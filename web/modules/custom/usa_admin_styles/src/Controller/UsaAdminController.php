@@ -27,7 +27,7 @@ class UsaAdminController extends ControllerBase {
     $link_id = 'usa_admin_styles.main';
     $parameters = new MenuTreeParameters();
     $parameters->setRoot($link_id)->excludeRoot()->setTopLevelOnly()->onlyEnabledLinks();
-    $tree = $this->menuLinkTree->load(NULL, $parameters);
+    $tree = $this->menuLinkTree->load('', $parameters);
     $manipulators = [
       ['callable' => 'menu.default_tree_manipulators:checkAccess'],
       ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
