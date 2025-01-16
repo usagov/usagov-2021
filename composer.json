@@ -15,6 +15,7 @@
         }
     ],
     "require": {
+        "php": ">=8.3",
         "composer/installers": "^2.3",
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
