@@ -765,7 +765,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2154-cf8-vulnerability
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -776,7 +775,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2154-cf8-vulnerability
       - approve-dev-deployment:
           type: approval
           requires:
@@ -852,6 +850,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2154-cf8-vulnerability
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
@@ -862,6 +861,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2154-cf8-vulnerability
       - approve-dev-deployment-cron:
           type: approval
           requires:
