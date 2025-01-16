@@ -10,11 +10,12 @@
 
 use Drupal\Core\Url;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\taxonomy\TermInterface;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_wizard\MenuChecker;
 
 /**
- * Implements hook_form_alter().
+ * Implements hook_form_FORM_ID_alter()().
  *
  * Alter the form by adding a "View Term" button
  * if the form is the taxonomy_term_wizard_form.
@@ -290,23 +291,21 @@ function usagov_wizard_preprocess_page(&$variables) {
         }
         /* If there are matches, send information about the menu entities to the
         twig.*/
-        if (isset($wizardMenuEntities)) {
-          foreach ($wizardMenuEntities as $wizardMenuEntity) {
-            $entities = array_map(function ($wizardMenuEntity) {
-              return [
-                'label' => $wizardMenuEntity->title->value,
-                'link' => Url::fromUri($wizardMenuEntity->link->uri)
-                  ->toString(),
-                'weight' => $wizardMenuEntity->getWeight(),
-              ];
-            }, $wizardMenuEntities);
-            usort($entities, function ($item1, $item2) {
-              return $item1['weight'] <=> $item2['weight'];
-            });
+        if ($wizardMenuEntities) {
+          $entities = array_map(function ($wizardMenuEntity) {
+            return [
+              'label' => $wizardMenuEntity->title->value,
+              'link' => Url::fromUri($wizardMenuEntity->link->uri)
+                ->toString(),
+              'weight' => $wizardMenuEntity->getWeight(),
+            ];
+          }, $wizardMenuEntities);
+          usort($entities, function ($item1, $item2) {
+            return $item1['weight'] <=> $item2['weight'];
+          });
 
-            $variables['menu_entities'] = $entities;
-            $variables['page']['header_top']['#menu_entities'] = $entities;
-          }
+          $variables['menu_entities'] = $entities;
+          $variables['page']['header_top']['#menu_entities'] = $entities;
         }
       }
     }
@@ -395,8 +394,7 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
     if ($taxonomy_term->bundle() == 'wizard') {
       $menuChecker = \Drupal::classResolver(MenuChecker::class);
       $parents = $menuChecker->getTermParents($taxonomy_term);
-      $rootTermTid = $parents[array_key_last($parents)];
-      if (isset($rootTermTid)) {
+      if ($rootTermTid = $parents[array_key_last($parents)]) {
         $rootTerm = Term::load($rootTermTid);
         $variables['wizard_breadcrumb'] = usagov_wizard_get_term_breadcrumb($rootTerm);
       }
@@ -404,27 +402,39 @@ function usagov_wizard_preprocess_breadcrumb(&$variables) {
   }
 }
 
-function usagov_wizard_get_term_breadcrumb(Term $rootTerm): array {
+function usagov_wizard_get_term_breadcrumb(TermInterface $rootTerm): array {
   if (isset($rootTerm->field_wizard_breadcrumbs)) {
     $crumbs = $rootTerm->field_wizard_breadcrumbs->getValue();
     $result = [];
+    $alias_manager = \Drupal::service('path_alias.manager');
     foreach ($crumbs as $crumb) {
       if (isset($crumb['uri'])) {
-        $crumb['url'] = Url::fromUri($crumb['uri'])->toString();
-        // Sometimes Drupal doesn't prepend Spanish path prefix.
-        // Sometimes this crumb's uri is "route:<nolink>" and the url is an empty string;
-        // in that case we should leave it empty (current page, not to be linked).
-        if ($crumb['url'] && $rootTerm->language()->getId() === 'es' && !str_starts_with($crumb['url'], '/es/')) {
-          $crumb['url'] = '/es' . $crumb['url'];
+
+        if (str_starts_with($crumb['uri'], 'internal:')) {
+          // We need to handle when an internal path to a Spanish page is part of
+          // the breadcrumb but without an /es/ prefix.
+          $path = preg_replace('/^internal\:/', '', $crumb['uri']);
+          $path = $alias_manager->getPathByAlias($path, $rootTerm->language()->getId());
+          $url = Url::fromUri('internal:' . $path, ['language' => $rootTerm->language()])->toString();
+          if ($url) {
+            $crumb['url'] = $url;
+          }
+        }
+
+        // Setting the language here assumes all the crumbs are pages from the same language
+        // as the root term.
+        if (!isset($crumb['url'])) {
+          $crumb['url'] = Url::fromUri($crumb['uri'], ['language' => $rootTerm->language()])->toString();
         }
       }
       if (isset($crumb['title'])) {
-        $crumb['text'] = ($crumb['title']);
+        $crumb['text'] = $crumb['title'];
       }
 
       $result[] = $crumb;
     }
-    $language = $rootTerm->langcode->value;
+
+    $language = $rootTerm->language()->getId();
     $home = [
       'text' => $language === 'en' ? TaxonomyDatalayerBuilder::HOME_TITLE_EN : TaxonomyDatalayerBuilder::HOME_TITLE_ES,
       'url' => $language === 'en' ? TaxonomyDatalayerBuilder::HOME_URL_EN : TaxonomyDatalayerBuilder::HOME_URL_ES,
@@ -448,9 +458,8 @@ function usagov_wizard_preprocess_views_view_field__wizard_options(&$variables) 
 
   if (isset($term->field_option_name)) {
     $option_name = $term->field_option_name->value;
+    $variables['option_name'] = $option_name;
   }
-
-  $variables['option_name'] = $option_name;
 }
 
 /**
@@ -459,11 +468,11 @@ function usagov_wizard_preprocess_views_view_field__wizard_options(&$variables) 
 function usagov_wizard_preprocess_views_view_unformatted(&$variables) {
   $taxonomy_term = \Drupal::routeMatch()->getParameter('taxonomy_term');
   if ($taxonomy_term instanceof Term) {
-    if ($taxonomy_term->bundle() == 'wizard') {
+    if ($taxonomy_term->bundle() === 'wizard') {
       $tid = $taxonomy_term->id();
       $term = Term::load($tid);
       if (isset($term->field_heading->value)) {
-        if (strlen($term->field_heading->value > 1)) {
+        if (strlen($term->field_heading->value) > 1) {
           $variables['legend'] = $term->field_heading->value;
         }
       }
