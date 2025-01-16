@@ -2,7 +2,7 @@
 
 namespace Drupal\usa_twig_vars;
 
-use Drupal\Core\Breadcrumb\BreadcrumbManager;
+use Drupal\Core\Breadcrumb\ChainBreadcrumbBuilderInterface;
 use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\node\Entity\Node;
@@ -18,17 +18,17 @@ class TaxonomyDatalayerBuilder {
   public const HOME_TITLE_ES = "Página principal";
   public const HOME_URL_ES = "/es/";
 
-  private const ABOUT_GOVT_EN = "About the U.S. and its government";
-  private const ABOUT_URL_EN = "/about-the-us";
+  private const string ABOUT_GOVT_EN = "About the U.S. and its government";
+  private const string ABOUT_URL_EN = "/about-the-us";
 
-  private const ABOUT_GOVT_ES = "Acerca de EE. UU. y su Gobierno";
-  private const ABOUT_URL_ES = "/es/acerca-de-estados-unidos";
+  private const string ABOUT_GOVT_ES = "Acerca de EE. UU. y su Gobierno";
+  private const string ABOUT_URL_ES = "/es/acerca-de-estados-unidos";
 
-  private const AGENCY_INDEX_URL_EN = '/agency-index';
-  private const AGENCY_INDEX_URL_ES = '/es/indice-agencias';
+  private const string AGENCY_INDEX_URL_EN = '/agency-index';
+  private const string AGENCY_INDEX_URL_ES = '/es/indice-agencias';
 
-  private const STATE_INDEX_URL_EN = '/state-governments';
-  private const STATE_INDEX_URL_ES = '/es/gobiernos-estatales';
+  private const string STATE_INDEX_URL_EN = '/state-governments';
+  private const string STATE_INDEX_URL_ES = '/es/gobiernos-estatales';
 
   /**
    * Language code for entity.
@@ -49,7 +49,7 @@ class TaxonomyDatalayerBuilder {
 
   public function __construct(
     private RouteMatchInterface $routeMatch,
-    private BreadcrumbManager $breadcrumbManager,
+    private ChainBreadcrumbBuilderInterface $breadcrumbManager,
     public Node $node,
     bool $isFront,
     public ?string $basicPagesubType,

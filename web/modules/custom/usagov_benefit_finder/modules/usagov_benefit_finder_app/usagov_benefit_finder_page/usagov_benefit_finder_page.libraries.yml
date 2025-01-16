@@ -4,4 +4,5 @@ benefit_finder_app:
     js/benefit-finder.min.js: {}
   css:
     theme:
+      css/usagov-benefit-finder.css: {}
       css/benefit-finder.min.css: {}

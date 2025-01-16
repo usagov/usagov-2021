@@ -15,6 +15,7 @@
         }
     ],
     "require": {
+        "php": ">=8.3",
         "composer/installers": "^2.3",
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
@@ -49,7 +50,6 @@
         "drupal/log_stdout": "^1.3",
         "drupal/menu_block": "^1.7",
         "drupal/menu_breadcrumb": "^2.0@alpha",
-        "drupal/menu_entity_index": "^1.6",
         "drupal/menu_item_fields": "^1.10",
         "drupal/new_relic_rpm": "^2.1",
         "drupal/node_menus": "^3.0@alpha",
@@ -142,7 +142,7 @@
         },
         "patches": {
             "drupal/tome": {
-                "CSS on Amazon S3 via Flysystem not processing properly": "https://www.drupal.org/files/issues/2020-08-06/3161384-4.patch",
+                "Make tome work with js and css aggregation": "./patches/drupal/tomeAggregationFix.patch",
                 "De-duplicate invoke paths in StaticCommand's exportPaths": "./patches/drupal/deduplicateTomeInvokePaths.patch",
                 "Make tome work with drush 12": "https://www.drupal.org/files/issues/2023-08-02/tome_drush12-support.patch",
                 "Make tome work with path count > 1 without re-exporting pages multiple times" : "./patches/drupal/tomePathCountFixes.patch"
@@ -171,8 +171,10 @@
         "drupal/coder": "^8.3",
         "mglaman/phpstan-drupal": "*",
         "php-parallel-lint/php-parallel-lint": "^1.4",
+        "phpcompatibility/php-compatibility": "^9.3",
         "phpstan/phpstan": "*",
-        "phpstan/phpstan-deprecation-rules": "*"
+        "phpstan/phpstan-deprecation-rules": "*",
+        "rector/rector": "^2.0"
     },
     "scripts": {
         "changed-files": [
@@ -195,6 +197,9 @@
         ],
         "phpstan": [
             "vendor/bin/phpstan --memory-limit=1G"
+        ],
+        "php-compatibility": [
+            "vendor/bin/phpcs -pn --runtime-set testVersion 8.3- web/modules/custom web/themes/custom -d memory_limit=2G --standard=.phpcs.xml.dist"
         ]
     }
 }
