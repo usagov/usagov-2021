@@ -3,7 +3,9 @@
 namespace Drupal\usa_twig_vars\Event;
 
 use Drupal\Component\EventDispatcher\Event;
+// phpcs:ignore
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
+
 
 /**
  * @phpstan-import-type TaxonomyBreadcrumb from TaxonomyDatalayerBuilder
