@@ -2,6 +2,7 @@
 
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
 /**
  * @file
@@ -453,58 +454,32 @@ function usagov_preprocess_breadcrumb(&$variables) {
   if (strpos($node->toUrl()->toString(), 'agencies/') !== false) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/about-the-us');
-    $nid = str_replace('/node/', '', $path);
-    $title = Node::load($nid)->getTitle();
-    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/about-the-us'];
-    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/agency-index');
-    $nid = str_replace('/node/', '', $path);
-    $title = Node::load($nid)->getTitle();
-    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/agency-index'];
+    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_EN(), 'url' => TaxonomyDatalayerBuilder::ABOUT_URL_EN()];
+    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::AGENCY_INDEX_EN(), 'url' => TaxonomyDatalayerBuilder::AGENCY_INDEX_URL_EN()];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
   if (strpos($node->toUrl()->toString(), 'states/') !== false) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-
-    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/about-the-us');
-    $nid = str_replace('/node/', '', $path);
-    $title = Node::load($nid)->getTitle();
-    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/about-the-us'];
-    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/state-governments');
-    $nid = str_replace('/node/', '', $path);
-    $title = Node::load($nid)->getTitle();
-    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/state-governments'];
+    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_EN(), 'url' => TaxonomyDatalayerBuilder::ABOUT_URL_EN()];
+    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::STATE_INDEX_EN(), 'url' => TaxonomyDatalayerBuilder::STATE_INDEX_URL_EN()];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
   if (strpos($node->toUrl()->toString(), 'agencias/') !== false) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-
-    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/acerca-de-estados-unidos');
-    $nid = str_replace('/node/', '', $path);
-    $title = Node::load($nid)->getTitle();
-    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/acerca-de-estados-unidos'];
-    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/indice-agencias');
-    $nid = str_replace('/node/', '', $path);
-    $title = Node::load($nid)->getTitle();
-    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/indice-agencias'];
+    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_ES(), 'url' => TaxonomyDatalayerBuilder::ABOUT_URL_ES()];
+    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::AGENCY_INDEX_ES(), 'url' => TaxonomyDatalayerBuilder::AGENCY_INDEX_URL_ES()];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
   if (strpos($node->toUrl()->toString(), 'estados/') !== false) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/acerca-de-estados-unidos');
-    $nid = str_replace('/node/', '', $path);
-    $title = Node::load($nid)->getTitle();
-    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/acerca-de-estados-unidos'];
-    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/gobiernos-estatales');
-    $nid = str_replace('/node/', '', $path);
-    $title = Node::load($nid)->getTitle();
-    $variables['breadcrumb'][] = ['text' => $title, 'url' => '/gobiernos-estatales'];
+    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_ES(), 'url' => TaxonomyDatalayerBuilder::ABOUT_URL_ES()];
+    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::STATE_INDEX_ES(), 'url' => TaxonomyDatalayerBuilder::STATE_INDEX_URL_ES()];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 

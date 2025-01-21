@@ -18,18 +18,6 @@ class TaxonomyDatalayerBuilder {
   public const HOME_TITLE_ES = "Página principal";
   public const HOME_URL_ES = "/es/";
 
-  private const string ABOUT_GOVT_EN = "About the U.S. and its government";
-  private const string ABOUT_URL_EN = "/about-the-us";
-
-  private const string ABOUT_GOVT_ES = "Acerca de EE. UU. y su Gobierno";
-  private const string ABOUT_URL_ES = "/es/acerca-de-estados-unidos";
-
-  private const string AGENCY_INDEX_URL_EN = '/agency-index';
-  private const string AGENCY_INDEX_URL_ES = '/es/indice-agencias';
-
-  private const string STATE_INDEX_URL_EN = '/state-governments';
-  private const string STATE_INDEX_URL_ES = '/es/gobiernos-estatales';
-
   /**
    * Language code for entity.
    *
@@ -55,6 +43,90 @@ class TaxonomyDatalayerBuilder {
     public ?string $basicPagesubType,
   ) {
     $this->isFront = $isFront ? 'homepage' : 'not_homepage';
+  }
+
+  public static function ABOUT_GOVT_EN() {
+    static $ret = FALSE;
+    if ($ret === false) {
+      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::ABOUT_URL_EN());
+      $nid = str_replace('/node/', '', $sysPath);
+      $ret = Node::load($nid)->getTitle();
+    }
+    return $ret;
+  }
+
+  public static function ABOUT_URL_EN() {
+    return "/about-the-us";
+  }
+
+  public static function ABOUT_GOVT_ES() {
+    static $ret = FALSE;
+    if ($ret === false) {
+      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::ABOUT_URL_ES());
+      $nid = str_replace('/node/', '', $sysPath);
+      $ret = Node::load($nid)->getTitle();
+    }
+    return $ret;
+  }
+
+  public static function ABOUT_URL_ES() {
+    return "/es/acerca-de-estados-unidos";
+  }
+
+  public static function AGENCY_INDEX_EN() {
+    static $ret = FALSE;
+    if ($ret === false) {
+      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::AGENCY_INDEX_URL_EN());
+      $nid = str_replace('/node/', '', $sysPath);
+      $ret = Node::load($nid)->getTitle();
+    }
+    return $ret;
+  }
+
+  public static function AGENCY_INDEX_URL_EN() {
+    return '/agency-index';
+  }
+
+  public static function AGENCY_INDEX_ES() {
+    static $ret = FALSE;
+    if ($ret === false) {
+      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::AGENCY_INDEX_URL_ES());
+      $nid = str_replace('/node/', '', $sysPath);
+      $ret = Node::load($nid)->getTitle();
+    }
+    return $ret;
+  }
+
+  public static function AGENCY_INDEX_URL_ES() {
+    return '/es/indice-agencias';
+  }
+
+  public static  function STATE_INDEX_EN() {
+    static $ret = FALSE;
+    if ($ret === false) {
+      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::STATE_INDEX_URL_EN());
+      $nid = str_replace('/node/', '', $sysPath);
+      $ret = Node::load($nid)->getTitle();
+    }
+    return $ret;
+  }
+
+  public static function STATE_INDEX_URL_EN() {
+    return '/state-governments';
+  }
+
+  public static function STATE_INDEX_ES() {
+    static $ret = FALSE;
+    if ($ret === false) {
+      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::STATE_INDEX_URL_ES());
+      $nid = str_replace('/node/', '', $sysPath);
+      $ret = Node::load($nid)->getTitle();
+    }
+    return $ret;
+  }
+
+  public static function STATE_INDEX_URL_ES() {
+    return '/es/gobiernos-estatales';
   }
 
   /**
@@ -215,22 +287,22 @@ class TaxonomyDatalayerBuilder {
     switch ($this->langcode) {
       case 'en':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_EN;
-        $taxonomy["Taxonomy_Text_2"] = self::ABOUT_GOVT_EN;
+        $taxonomy["Taxonomy_Text_2"] = self::ABOUT_GOVT_EN();
         $taxonomy["Taxonomy_Text_3"] = "A-Z index of U.S. government departments and agencies";
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_EN;
-        $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_EN;
-        $taxonomy["Taxonomy_URL_3"] = self::AGENCY_INDEX_URL_EN;
+        $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_EN();
+        $taxonomy["Taxonomy_URL_3"] = self::AGENCY_INDEX_URL_EN();
         break;
 
       case 'es':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_ES;
-        $taxonomy["Taxonomy_Text_2"] = self::ABOUT_GOVT_ES;
+        $taxonomy["Taxonomy_Text_2"] = self::ABOUT_GOVT_ES();
         $taxonomy["Taxonomy_Text_3"] = "Agencias federales";
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_ES;
-        $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_ES;
-        $taxonomy["Taxonomy_URL_3"] = self::AGENCY_INDEX_URL_ES;
+        $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_ES();
+        $taxonomy["Taxonomy_URL_3"] = self::AGENCY_INDEX_URL_ES();
     }
 
     $agencyName = htmlspecialchars($this->node->getTitle(), ENT_QUOTES, 'UTF-8');
@@ -260,12 +332,12 @@ class TaxonomyDatalayerBuilder {
       case 'en':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_EN;
 
-        $taxonomy["Taxonomy_Text_2"] = self::ABOUT_GOVT_EN;
+        $taxonomy["Taxonomy_Text_2"] = self::ABOUT_GOVT_EN();
         $taxonomy["Taxonomy_Text_3"] = "State governments";
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_EN;
-        $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_EN;
-        $taxonomy["Taxonomy_URL_3"] = self::STATE_INDEX_URL_EN;
+        $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_EN();
+        $taxonomy["Taxonomy_URL_3"] = self::STATE_INDEX_URL_EN();
         break;
 
       case 'es':
@@ -275,8 +347,8 @@ class TaxonomyDatalayerBuilder {
         $taxonomy["Taxonomy_Text_3"] = "Gobiernos estatales";
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_ES;
-        $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_ES;
-        $taxonomy["Taxonomy_URL_3"] = self::STATE_INDEX_URL_ES;
+        $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_ES();
+        $taxonomy["Taxonomy_URL_3"] = self::STATE_INDEX_URL_ES();
     }
 
     $agencyName = htmlspecialchars($this->node->getTitle(), ENT_QUOTES, 'UTF-8');
@@ -308,8 +380,8 @@ class TaxonomyDatalayerBuilder {
     // These paths are standard pages but should be coded differently.
     try {
       switch ($this->node->toUrl()->toString()) {
-        case self::AGENCY_INDEX_URL_EN:
-        case self::AGENCY_INDEX_URL_ES:
+        case self::AGENCY_INDEX_URL_EN():
+        case self::AGENCY_INDEX_URL_ES():
           return TRUE;
       }
     }
@@ -328,8 +400,8 @@ class TaxonomyDatalayerBuilder {
     // These paths are also standard pages but should be coded differently.
     try {
       switch ($this->node->toUrl()->toString()) {
-        case self::STATE_INDEX_URL_EN:
-        case self::STATE_INDEX_URL_ES:
+        case self::STATE_INDEX_URL_EN():
+        case self::STATE_INDEX_URL_ES():
           return TRUE;
       }
     }
