@@ -447,18 +447,17 @@ function usagov_theme_suggestions_alter(array &$suggestions, array $variables, $
 
 function usagov_preprocess_breadcrumb(&$variables) {
 
-  $database = \Drupal::database();
 
   if (strpos($_SERVER['REQUEST_URI'], 'agencies/') !== FALSE) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%about-the-us%'")->fetchField();
-    $nid = str_replace('/node/', '', $nid);
-    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/about-the-us');
+    $nid = str_replace('/node/', '', $path);
+    $title = Node::load($nid)->getTitle();
     $variables['breadcrumb'][] = ['text' => $title, 'url' => '/about-the-us'];
-    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%agency-index%'")->fetchField();
-    $nid = str_replace('/node/', '', $nid);
-    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/agency-index');
+    $nid = str_replace('/node/', '', $path);
+    $title = Node::load($nid)->getTitle();
     $variables['breadcrumb'][] = ['text' => $title, 'url' => '/agency-index'];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
@@ -466,13 +465,14 @@ function usagov_preprocess_breadcrumb(&$variables) {
   if (strpos($_SERVER['REQUEST_URI'], 'states/') !== FALSE) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%about-the-us%'")->fetchField();
-    $nid = str_replace('/node/', '', $nid);
-    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+
+    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/about-the-us');
+    $nid = str_replace('/node/', '', $path);
+    $title = Node::load($nid)->getTitle();
     $variables['breadcrumb'][] = ['text' => $title, 'url' => '/about-the-us'];
-    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%state-governments%'")->fetchField();
-    $nid = str_replace('/node/', '', $nid);
-    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/state-governments');
+    $nid = str_replace('/node/', '', $path);
+    $title = Node::load($nid)->getTitle();
     $variables['breadcrumb'][] = ['text' => $title, 'url' => '/state-governments'];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
@@ -480,13 +480,14 @@ function usagov_preprocess_breadcrumb(&$variables) {
   if (strpos($_SERVER['REQUEST_URI'], 'agencias/') !== FALSE) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%acerca-de-estados-unidos%'")->fetchField();
-    $nid = str_replace('/node/', '', $nid);
-    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+
+    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/acerca-de-estados-unidos');
+    $nid = str_replace('/node/', '', $path);
+    $title = Node::load($nid)->getTitle();
     $variables['breadcrumb'][] = ['text' => $title, 'url' => '/acerca-de-estados-unidos'];
-    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%indice-agencias%'")->fetchField();
-    $nid = str_replace('/node/', '', $nid);
-    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/indice-agencias');
+    $nid = str_replace('/node/', '', $path);
+    $title = Node::load($nid)->getTitle();
     $variables['breadcrumb'][] = ['text' => $title, 'url' => '/indice-agencias'];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
@@ -494,13 +495,13 @@ function usagov_preprocess_breadcrumb(&$variables) {
   if (strpos($_SERVER['REQUEST_URI'], 'estados/') !== FALSE) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%acerca-de-estados-unidos%'")->fetchField();
-    $nid = str_replace('/node/', '', $nid);
-    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/acerca-de-estados-unidos');
+    $nid = str_replace('/node/', '', $path);
+    $title = Node::load($nid)->getTitle();
     $variables['breadcrumb'][] = ['text' => $title, 'url' => '/acerca-de-estados-unidos'];
-    $nid = $database->query("SELECT path FROM path_alias WHERE alias LIKE '%gobiernos-estatales%'")->fetchField();
-    $nid = str_replace('/node/', '', $nid);
-    $title = $database->query("SELECT title FROM node_field_data WHERE nid = {$nid}")->fetchField();
+    $path = \Drupal::service('path_alias.manager')->getPathByAlias('/gobiernos-estatales');
+    $nid = str_replace('/node/', '', $path);
+    $title = Node::load($nid)->getTitle();
     $variables['breadcrumb'][] = ['text' => $title, 'url' => '/gobiernos-estatales'];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
