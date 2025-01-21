@@ -448,8 +448,9 @@ function usagov_theme_suggestions_alter(array &$suggestions, array $variables, $
 function usagov_preprocess_breadcrumb(&$variables) {
 
   $node = \Drupal::routeMatch()->getParameter('node');
+  if (empty($node)) return;
 
-  if ($node->toUrl()->toString() === TaxonomyDatalayerBuilder::AGENCY_INDEX_URL_EN) {
+  if (strpos($node->toUrl()->toString(), 'agencies/') !== false) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
     $path = \Drupal::service('path_alias.manager')->getPathByAlias('/about-the-us');
@@ -463,7 +464,7 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
-  if ($node->toUrl()->toString() === TaxonomyDatalayerBuilder::STATE_INDEX_URL_EN) {
+  if (strpos($node->toUrl()->toString(), 'states/') !== false) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
 
@@ -478,7 +479,7 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
-  if ($node->toUrl()->toString() === TaxonomyDatalayerBuilder::AGENCY_INDEX_URL_ES) {
+  if (strpos($node->toUrl()->toString(), 'agencias/') !== false) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
 
@@ -493,7 +494,7 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
-  if ($node->toUrl()->toString() === TaxonomyDatalayerBuilder::STATE_INDEX_URL_ES) {
+  if (strpos($node->toUrl()->toString(), 'estados/') !== false) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
     $path = \Drupal::service('path_alias.manager')->getPathByAlias('/acerca-de-estados-unidos');
