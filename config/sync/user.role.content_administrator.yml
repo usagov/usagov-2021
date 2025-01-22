@@ -25,6 +25,7 @@ dependencies:
     - taxonomy.vocabulary.wizard
     - workflows.workflow.basic_workflow
   module:
+    - block
     - block_content
     - content_lock
     - content_moderation
@@ -57,6 +58,7 @@ permissions:
   - 'access taxonomy overview'
   - 'access toolbar'
   - 'add paragraphs entity embed'
+  - 'administer blocks'
   - 'administer menu'
   - 'administer nodes'
   - 'administer redirect settings'
