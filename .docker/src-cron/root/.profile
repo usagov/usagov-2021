@@ -41,11 +41,12 @@ if [ ! -f ~/.certs-updated ]; then
    touch ~/.certs-updated
 fi
 
-CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.username';)
-CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.password')
-
 case $TASK in
    event)
+      CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cfevent-service-account") | .credentials.username';)
+      CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cfevent-service-account") | .credentials.password')
+      SERVICE_ACCOUNT="cfevent-service-account"
+      KEY_NAME="cfevent-service-key"
       export S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage") | .credentials.bucket')
       export S3_ENDPOINT=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage") | .credentials.fips_endpoint')
       export AWS_ACCESS_KEY_ID=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage")    | .credentials.access_key_id')
@@ -53,13 +54,21 @@ case $TASK in
       export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-event-storage")    | .credentials.region')
       ;;
    callwait)
+      CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "callcenter-service-account") | .credentials.username';)
+      CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "callcenter-service-account") | .credentials.password')
+      SERVICE_ACCOUNT="callcenter-service-account"
+      KEY_NAME="callcenter-service-key"
       export S3_BUCKET=$(echo "$VCAP_SERVICES"             | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.bucket')
       export S3_ENDPOINT=$(echo "$VCAP_SERVICES"           | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.fips_endpoint')
       export AWS_ACCESS_KEY_ID=$(echo "$VCAP_SERVICES"     | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.access_key_id')
       export AWS_SECRET_ACCESS_KEY=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.secret_access_key')
       export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES"    | jq -r '.["s3"][]? | select(.name == "cron-callwait-storage") | .credentials.region')
       ;;
-   *)
+      *)
+      CF_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.username';)
+      CF_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.password')
+      SERVICE_ACCOUNT="cron-service-account"
+      KEY_NAME="cron-service-key"
       export S3_BUCKET=$(echo "$VCAP_SERVICES"             | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.bucket')
       export S3_ENDPOINT=$(echo "$VCAP_SERVICES"           | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.fips_endpoint')
       export AWS_ACCESS_KEY_ID=$(echo "$VCAP_SERVICES"     | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.access_key_id')
@@ -67,12 +76,6 @@ case $TASK in
       export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES"    | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.region')
       ;;
 esac
-
-#echo S3_BUCKET: $S3_BUCKET
-#echo S3_ENDPOINT: $S3_ENDPOINT
-#echo AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-#echo AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
-#echo AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
 
 CF_API="https://api.fr.cloud.gov"
 CF_ORG=gsa-tts-usagov
@@ -84,13 +87,28 @@ TARGET_RESULT=0
 cf api "$CF_API" &> /dev/null
 API_RESULT=$?
 
-cf auth "$CF_USERNAME" "$CF_PASSWORD" &> /dev/null
+### First auth - use service account creds
+export CF_PASSWORD ### pass via env, not cmd line!
+cf auth "$CF_USERNAME" &> /dev/null
 AUTH_RESULT=$?
 
-cf target -o "$CF_ORG" -s "$CF_SPACE" &> /dev/null
+cf target -o $CF_ORG &> /dev/null
+ORG_TARGET_RESULT=$?
+
+echo cf service-key $SERVICE_ACCOUNT $KEY_NAME
+SERVICE_KEY=$(cf service-key $SERVICE_ACCOUNT $KEY_NAME | tail -n +3)
+KEY_USERNAME=$( echo ${SERVICE_KEY} | jq -r '.credentials.username')
+KEY_PASSWORD=$( echo ${SERVICE_KEY} | jq -r '.credentials.password')
+
+### Only after auth as service account can we auth with the service key, which holds the correct roles for audit log access
+export CF_PASSWORD="$KEY_PASSWORD" ### pass via env, not cmd line!
+cf auth "$KEY_USERNAME" &>/dev/null
+
+echo cf target -o "$CF_ORG" -s "$CF_SPACE"
+cf target -o "$CF_ORG" -s "$CF_SPACE" &>/dev/null
 TARGET_RESULT=$?
 
-if [ 0 -ne $API_RESULT -o 0 -ne $AUTH_RESULT -o 0 -ne $TARGET_RESULT ]; then
+if [ 0 -ne $API_RESULT -o 0 -ne $AUTH_RESULT -o 0 -ne $TARGET_RESULT -o 0 -ne $ORG_TARGET_RESULT ]; then
    echo "ERROR: Cloud Foundry Initialization Failed"
 fi
 
@@ -143,5 +161,3 @@ TASKLOCK_SCRIPT_ROOT=/opt/cron
 
 ### Maybe we should be using /var/run/tasks/ on the container?
 TASKLOCK_RUN_ROOT=/tmp/tasks/run
-
-#echo "Cron App Setup Complete"

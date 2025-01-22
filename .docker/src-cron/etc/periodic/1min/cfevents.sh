@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 
 SPACE=$1
+if [ x$SPACE = x ]; then
+   SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
+else
+   shift
+fi
+
+if [ x$CFEVENT_RUN = x ]; then
+    exit 0;
+fi
 
 source ~/.profile $SPACE event &> /dev/null
 
