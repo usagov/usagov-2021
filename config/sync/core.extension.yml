@@ -11,7 +11,6 @@ module:
   block_content: 0
   breakpoint: 0
   ckeditor5: 0
-  ckeditor5_embedded_content: 0
   ckeditor_media_resize: 0
   composer_deploy: 0
   conditional_fields: 0
@@ -30,6 +29,7 @@ module:
   dynamic_page_cache: 0
   editor: 0
   embed: 0
+  embedded_content: 0
   entity_embed: 0
   entity_reference_revisions: 0
   faqfield: 0
