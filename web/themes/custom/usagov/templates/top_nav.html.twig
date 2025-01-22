@@ -29,9 +29,10 @@
 		<button class="usa-menu-btn">Menu</button>
 		<div class="usa-nav__secondary">
 			<span class="usa-nav__secondary-links">
-				<span id="top-phone" class="usa-nav__secondary-item">
-					<a href="/phone" style="white-space: nowrap;">Call us at 1-844-USAGOV1</a>
-				</span>
+{#				<span id="top-phone" class="usa-nav__secondary-item">#}
+{#					<a href="/phone" style="white-space: nowrap;">Call us at 1-844-USAGOV1</a>#}
+{#				</span>#}
+        {{ page.top_nav }}
 			</span>
 			<!-- Search Bar -->
 			{% embed 'usagov:searchbar' with {

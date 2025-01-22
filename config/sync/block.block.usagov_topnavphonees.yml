@@ -1,0 +1,38 @@
+uuid: 07632211-cc58-4eb3-8c14-4abdeb186be7
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:html_block:a8e04b9b-b8c8-473e-a923-5f73a2b69660'
+  module:
+    - block_content
+    - language
+    - system
+  theme:
+    - usagov
+id: usagov_topnavphonees
+theme: usagov
+region: top_nav
+weight: 0
+provider: null
+plugin: 'block_content:a8e04b9b-b8c8-473e-a923-5f73a2b69660'
+settings:
+  id: 'block_content:a8e04b9b-b8c8-473e-a923-5f73a2b69660'
+  label: 'Top Nav Phone ES'
+  label_display: '0'
+  provider: block_content
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es
+  request_path:
+    id: request_path
+    negate: true
+    pages: "/averiguar-estado-reembolso-impuestos\r\n/buscador-beneficios\r\n/buscador-beneficios/*\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/donde-reportar-una-estafa\r\n/estatal-consumidor\r\n/estatales-servicios-sociales\r\n/gobiernos-estatales\r\n/gobiernos-estatales/*\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/oficina-elecciones-estatal-local\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados"
