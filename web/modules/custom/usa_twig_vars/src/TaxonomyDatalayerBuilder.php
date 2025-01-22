@@ -14,7 +14,7 @@ use Drupal\node\NodeInterface;
  *   "nodeID"?: string,
  *   language?: "es"|"en",
  *   homepageTest?: "homepage"|"not_homepage",
- *   basicPagesubType?: string,
+ *   basicPagesubType?: null|string,
  *   contentType?: string,
  *   Page_Type?: string,
  *   Taxonomy_Text_1: string,

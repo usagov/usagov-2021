@@ -77,7 +77,7 @@ function usa_twig_vars_preprocess(&$variables, $hook): void {
             breadcrumbManager: \Drupal::service('breadcrumb'),
             node: $node,
             isFront: $isFront,
-            basicPagesubType: $pageType,
+            basicPagesubType: $pageType ?? NULL,
           );
 
           $usa_twig_vars['datalayer'] = $datalayer->build();
@@ -126,7 +126,7 @@ function usa_twig_vars_preprocess_menu__sidebar_first(array &$variables, string 
 /**
  * Return the $page_type.
  */
-function usa_twig_vars_get_page_type(NodeInterface &$node): string {
+function usa_twig_vars_get_page_type(NodeInterface &$node): ?string {
   $fields = $node->getFields();
   if (array_key_exists('field_page_type', $fields)
       && $fields['field_page_type'] != NULL
@@ -138,7 +138,7 @@ function usa_twig_vars_get_page_type(NodeInterface &$node): string {
     return $page_type ?: 'content_page';
   }
 
-  return '';
+  return NULL;
 }
 
 /**
