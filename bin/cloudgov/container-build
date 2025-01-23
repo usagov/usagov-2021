@@ -38,7 +38,6 @@ then
 fi
 
 echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
-echo "In directory: "`pwd`
 
 chmod -R u+w ./web/sites/default/
 
