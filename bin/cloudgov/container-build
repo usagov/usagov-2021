@@ -23,7 +23,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 chmod -R u+w ./web/sites/default/
 
 export DOCKER_CONTENT_TRUST=1
-docker build --force-rm \
+docker build \
      -t $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG \
      -f .docker/Dockerfile-cms . \
      --build-arg GITBRANCH=$GITBRANCH \
@@ -44,7 +44,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:waf-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-docker build --force-rm \
+docker build \
     -t $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG \
     -f .docker/Dockerfile-waf .docker \
     --build-arg GITBRANCH=$GITBRANCH \
@@ -64,7 +64,7 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:www-${CONTAINERTAG} ${CONTAINERTAG2}"
 chmod -R u+w ./web/sites/default/
 
 export DOCKER_CONTENT_TRUST=1
-docker build --force-rm \
+docker build \
      -t $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG \
      -f .docker/Dockerfile-www . \
      --build-arg GITBRANCH=$GITBRANCH \
