@@ -32,7 +32,9 @@ docker build \
      --build-arg CONTAINERTAG=$CONTAINERTAG
 
 echo "Running the cms container"
+export DOCKER_CONTENT_TRUST=0
 docker run --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+export DOCKER_CONTENT_TRUST=1
 
 echo "Running ps -a"
 docker ps -a
@@ -55,7 +57,9 @@ docker build \
     --build-arg GITTAG=$GITTAG
 
 echo "Running the cms container"
+export DOCKER_CONTENT_TRUST=0
 docker run --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+export DOCKER_CONTENT_TRUST=1
 
 echo "Running ps -a"
 docker ps -a
@@ -79,7 +83,9 @@ docker build \
      --build-arg CONTAINERTAG=$CONTAINERTAG
 
 echo "Running the cms container"
+export DOCKER_CONTENT_TRUST=0
 docker run --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+export DOCKER_CONTENT_TRUST=1
 
 echo "Running ps -a"
 docker ps -a
