@@ -8,7 +8,7 @@
 /**
  * Implements hook_schema().
  *
- * @return array<mixed>
+ * @return array<string, mixed>
  */
 function usa_contact_center_api_schema(): array {
   $schema['usa_node_delete_log'] = [
