@@ -36,9 +36,6 @@ export DOCKER_CONTENT_TRUST=0
 docker run -d --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
 export DOCKER_CONTENT_TRUST=1
 
-echo "Running ps -a"
-docker ps -a
-
 if [ -n "$CONTAINERTAG2" ]
 then
      echo "docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2"
@@ -60,9 +57,6 @@ echo "Running the cms container"
 export DOCKER_CONTENT_TRUST=0
 docker run -d --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
 export DOCKER_CONTENT_TRUST=1
-
-echo "Running ps -a"
-docker ps -a
 
 if [ -n "$CONTAINERTAG2" ]
 then
@@ -86,9 +80,6 @@ echo "Running the cms container"
 export DOCKER_CONTENT_TRUST=0
 docker run -d --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
 export DOCKER_CONTENT_TRUST=1
-
-echo "Running ps -a"
-docker ps -a
 
 if [ -n "$CONTAINERTAG2" ]
 then
