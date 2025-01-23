@@ -11,16 +11,14 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
   admin_label: new TranslatableMarkup("Mobile Menu Block"),
   category: new TranslatableMarkup("USAgov"),
 )]
-class MobileMenuBlock extends AbstractMenuBlock
-{
+class MobileMenuBlock extends AbstractMenuBlock {
 
   private array $translations;
 
   /**
    * {@inheritdoc}
    */
-  public function build(): array
-  {
+  public function build(): array {
     switch ($this->language->getId()) {
       case 'es':
         $menuID = 'left-menu-spanish';
@@ -66,7 +64,7 @@ class MobileMenuBlock extends AbstractMenuBlock
     $items = $this->getMenuTreeItems($menuID);
 
     $twigVars = [
-      '#active_trail' => [],
+      '#active_trail' => [], // tells twig to render submenu
       '#found_active_item' => FALSE,
       '#active_item_has_children' => TRUE,
       '#siblings_of_active_item' => [],
@@ -79,8 +77,7 @@ class MobileMenuBlock extends AbstractMenuBlock
   /**
    * Returns the render array to theme the navigation lists.
    */
-  private function renderItems(array $items, array $twigVars, string $menuID): array
-  {
+  private function renderItems(array $items, array $twigVars, string $menuID): array {
 
     $node = $this->routeMatch->getParameter('node');
     return array_merge(
@@ -106,8 +103,7 @@ class MobileMenuBlock extends AbstractMenuBlock
    *
    * @return array
    */
-  private function prepareMenuItemsForTemplate(array $submenu, MenuLinkInterface $active): array
-  {
+  private function prepareMenuItemsForTemplate(array $submenu, MenuLinkInterface $active): array {
     $active_trail = [];
     $found_active_item = FALSE;
     $active_item_has_children = FALSE;
@@ -136,12 +132,14 @@ class MobileMenuBlock extends AbstractMenuBlock
         if (!empty($menuItem['below'])) {
           $active_item_has_children = TRUE;
           $submenu = $menuItem['below'];
-        } else {
+        }
+        else {
           $submenu[$key]['active'] = TRUE;
           $siblings_of_active_item = $submenu;
           $submenu = [];
         }
-      } else {
+      }
+      else {
         $submenu = $menuItem['below'] ?: [];
       }
 
