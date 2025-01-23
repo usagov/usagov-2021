@@ -9,8 +9,10 @@ use Drupal\Core\Form\FormStateInterface;
 
 /**
  * @inheritDoc
+ *
+ * @param array<string, mixed> $form
  */
-function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+function usa_workflow_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
   $newForm = [
     'node_basic_page_form',
     'node_wizard_step_form',
@@ -38,8 +40,10 @@ function usa_workflow_form_alter(&$form, FormStateInterface $form_state, $form_i
 
 /**
  * @inheritDoc
+ *
+ * @param array<string, mixed> $data
  */
-function usa_workflow_menu_local_tasks_alter(&$data, $route_name) {
+function usa_workflow_menu_local_tasks_alter(array &$data, string $route_name): void {
   $routes = [
     'entity.node.canonical',
     'entity.node.edit_form',
