@@ -13,7 +13,7 @@ dependencies:
 id: usagov_topnavphone
 theme: usagov
 region: top_nav
-weight: 0
+weight: -21
 provider: null
 plugin: 'block_content:f8dde73e-5081-46af-8b04-53a21601fd93'
 settings:
