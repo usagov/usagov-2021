@@ -33,7 +33,7 @@ docker build \
 
 echo "Running the cms container"
 export DOCKER_CONTENT_TRUST=0
-docker run --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+docker run -d --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
 export DOCKER_CONTENT_TRUST=1
 
 echo "Running ps -a"
@@ -58,7 +58,7 @@ docker build \
 
 echo "Running the cms container"
 export DOCKER_CONTENT_TRUST=0
-docker run --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+docker run -d --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
 export DOCKER_CONTENT_TRUST=1
 
 echo "Running ps -a"
@@ -84,7 +84,7 @@ docker build \
 
 echo "Running the cms container"
 export DOCKER_CONTENT_TRUST=0
-docker run --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+docker run -d --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
 export DOCKER_CONTENT_TRUST=1
 
 echo "Running ps -a"
