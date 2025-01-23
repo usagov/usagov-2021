@@ -31,6 +31,9 @@ docker build \
      --build-arg GITTAG=$GITTAG \
      --build-arg CONTAINERTAG=$CONTAINERTAG
 
+echo "Running the cms container"
+docker run --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+
 echo "Running ps -a"
 docker ps -a
 
@@ -50,6 +53,9 @@ docker build \
     --build-arg GITBRANCH=$GITBRANCH \
     --build-arg GITCOMMIT=$GITCOMMIT \
     --build-arg GITTAG=$GITTAG
+
+echo "Running the cms container"
+docker run --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
 
 echo "Running ps -a"
 docker ps -a
@@ -71,6 +77,9 @@ docker build \
      --build-arg GITCOMMIT=$GITCOMMIT \
      --build-arg GITTAG=$GITTAG \
      --build-arg CONTAINERTAG=$CONTAINERTAG
+
+echo "Running the cms container"
+docker run --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
 
 echo "Running ps -a"
 docker ps -a
