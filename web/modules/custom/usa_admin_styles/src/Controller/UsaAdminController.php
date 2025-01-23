@@ -21,7 +21,7 @@ class UsaAdminController extends ControllerBase {
   /**
   * Returns a page with some instructions and the same list of links as are in the menu.
   *
-  * @return array<mixed>
+  * @return array<string, mixed>
   */
   public function mainPage(): array {
     // Loosely based on Drupal\system\Controller\SystemController::overview.

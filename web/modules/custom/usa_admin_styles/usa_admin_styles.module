@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * Attaches the mylib library to all admin pages.
  *
- * @param array<mixed> $variables
+ * @param array<string, mixed> $variables
  */
 function usa_admin_styles_preprocess_page(array &$variables): void {
   $variables['#attached']['library'][] = 'usa_admin_styles/mylib';
@@ -16,7 +16,7 @@ function usa_admin_styles_preprocess_page(array &$variables): void {
 /**
  * Attaches a library to only the node forms. This covers the add and edit forms for nodes.
  *
- * @param array<mixed> $form
+ * @param array<string, mixed> $form
  */
 function usa_admin_styles_form_node_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
   // The accordionButtonSubmitFix library suppresses form submit events from accordion buttons in
