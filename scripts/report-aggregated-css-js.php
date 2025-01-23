@@ -1,7 +1,7 @@
 <?php
 
 global $scanProduction;
-$scanProduction = true;
+$scanProduction = FALSE;
 _main_UsaGov2180report();
 exit();
 
