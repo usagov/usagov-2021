@@ -11,14 +11,16 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
   admin_label: new TranslatableMarkup("Mobile Menu Block"),
   category: new TranslatableMarkup("USAgov"),
 )]
-class MobileMenuBlock extends AbstractMenuBlock {
+class MobileMenuBlock extends AbstractMenuBlock
+{
 
   private array $translations;
 
   /**
    * {@inheritdoc}
    */
-  public function build(): array {
+  public function build(): array
+  {
     switch ($this->language->getId()) {
       case 'es':
         $menuID = 'left-menu-spanish';
@@ -30,7 +32,6 @@ class MobileMenuBlock extends AbstractMenuBlock {
           'search_placeholder' => 'Busque en este sitio...',
           'search_affiliate' => 'usagov_es_internal',
           'all_topics' => 'Todos los temas y servicios',
-          'phone_URL' => '/es/llamenos',
           'form_id' => 'usagov_es_internal-mobile',
         ];
         break;
@@ -46,7 +47,6 @@ class MobileMenuBlock extends AbstractMenuBlock {
           'search_placeholder' => 'Search all government',
           'search_affiliate' => 'usagov_all_gov',
           'all_topics' => 'All topics and services',
-          'phone_URL' => '/phone',
           'form_id' => 'usagov_all_gov-mobile',
         ];
         break;
@@ -56,27 +56,31 @@ class MobileMenuBlock extends AbstractMenuBlock {
       $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
       $items = $this->getMenuTreeItems($menuID, $crumbs, $active, maxLevels: -1);
       $twigVars = $this->prepareMenuItemsForTemplate($items, $active);
+
       return $this->renderItems($items, $twigVars, $menuID);
     }
+
 
     // We're not in the menu.
     // Display first level of this menu.
     $items = $this->getMenuTreeItems($menuID);
 
     $twigVars = [
-      '#active_trail' => [], // tells twig to render submenu
+      '#active_trail' => [],
       '#found_active_item' => FALSE,
       '#active_item_has_children' => TRUE,
       '#siblings_of_active_item' => [],
       '#submenu' => $items['#items'],
     ];
+
     return $this->renderItems($items, $twigVars, $menuID);
   }
 
   /**
    * Returns the render array to theme the navigation lists.
    */
-  private function renderItems(array $items, array $twigVars, string $menuID): array {
+  private function renderItems(array $items, array $twigVars, string $menuID): array
+  {
 
     $node = $this->routeMatch->getParameter('node');
     return array_merge(
@@ -102,7 +106,8 @@ class MobileMenuBlock extends AbstractMenuBlock {
    *
    * @return array
    */
-  private function prepareMenuItemsForTemplate(array $submenu, MenuLinkInterface $active): array {
+  private function prepareMenuItemsForTemplate(array $submenu, MenuLinkInterface $active): array
+  {
     $active_trail = [];
     $found_active_item = FALSE;
     $active_item_has_children = FALSE;
@@ -131,14 +136,12 @@ class MobileMenuBlock extends AbstractMenuBlock {
         if (!empty($menuItem['below'])) {
           $active_item_has_children = TRUE;
           $submenu = $menuItem['below'];
-        }
-        else {
+        } else {
           $submenu[$key]['active'] = TRUE;
           $siblings_of_active_item = $submenu;
           $submenu = [];
         }
-      }
-      else {
+      } else {
         $submenu = $menuItem['below'] ?: [];
       }
 

@@ -12,6 +12,7 @@ regions:
   header_top: 'Above Header'
   header: 'Header'
   top_nav: 'Top Nav'
+  top_nav_mobile: 'Top Nav Mobile'
   primary_menu: 'Primary Menu'
   secondary_menu: 'Secondary Menu'
   sidebar_first: 'First sidebar'
