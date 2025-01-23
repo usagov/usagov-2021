@@ -82,7 +82,18 @@
 
 {# Prints div with classes, and content without Width and Background. #}
 {% if alert_status %}
-  <div{{ attributes.addClass(classes) }} role="region" aria-label={{ alert_status }}>
+  {% if alert_status == "info" %}
+    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.info }}>
+  {% endif %}
+  {% if alert_status == "warning" %}
+    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.warning }}>
+  {% endif %}
+  {% if alert_status == "error" %}
+    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.error }}>
+  {% endif %}
+  {% if alert_status == "success" %}
+    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.success }}>
+  {% endif %}
 {% else %}
   <div{{ attributes.addClass(classes) }}>
 {% endif %}
