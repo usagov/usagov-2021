@@ -8,7 +8,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PathSubscriber implements EventSubscriberInterface {
 
-  public function collectPaths(CollectPathsEvent $event) {
+  public function collectPaths(CollectPathsEvent $event): void {
     // need the basepath for pages.gov exports
     $base_path = rtrim(trim(base_path()), '/');
 
