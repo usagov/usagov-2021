@@ -254,15 +254,16 @@ function usagov_wizard_preprocess_html(&$variables): void {
         }
         else {
           $parents = $menuChecker->getTermParents($taxonomy_term);
-          $topParent = Term::load($parents[0]);
+          if ($topParent = Term::load($parents[0])) {
+            $variables['wizardTitle'] = $topParent->getName();
+            $variables['wizardTitleUrl'] = \Drupal::service('path_alias.manager')
+              ->getAliasByPath('/taxonomy/term/' . $topParent->id());
 
-          $variables['wizardTitle'] = $topParent->getName();
-          $variables['wizardTitleUrl'] = \Drupal::service('path_alias.manager')->getAliasByPath('/taxonomy/term/' . $topParent->id());
-
-          // Make sure Spanish-paths are prefixed with /es/
-          $langCode = $taxonomy_term->language()->getId();
-          if ($langCode == 'es' && !str_starts_with($variables['wizardTitleUrl'], '/es/')) {
-            $variables['wizardTitleUrl'] = '/' . $langCode . $variables['wizardTitleUrl'];
+            // Make sure Spanish-paths are prefixed with /es/
+            $langCode = $taxonomy_term->language()->getId();
+            if ($langCode === 'es' && !str_starts_with($variables['wizardTitleUrl'], '/es/')) {
+              $variables['wizardTitleUrl'] = '/' . $langCode . $variables['wizardTitleUrl'];
+            }
           }
         }
       }
