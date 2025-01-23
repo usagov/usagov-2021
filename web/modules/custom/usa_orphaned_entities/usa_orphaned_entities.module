@@ -12,9 +12,11 @@ use Drupal\taxonomy\Entity\Term;
 
 /**
  * Implements hook_form_alter.
- */
+ *
+ * @param array<mixed> $form
+ **/
 
-function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
+function usa_orphaned_entities_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface &$form_state, string $form_id): void {
   if (str_contains($form_id, 'delete_form')) {
     // This is called on all delete form alters. Ensure we can get
     // an entity otherwise bail early.
@@ -23,7 +25,7 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
       return;
     }
 
-    $entity = $form_state->getFormObject()?->getEntity();
+    $entity = $delForm->getEntity();
     if (!$entity) {
       return;
     }
@@ -31,8 +33,7 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
     $reference_data = usa_orphaned_entities_get_reference_data($entity);
 
     $markup = "<div class=\"default-message\">" .
-      $form_state->getFormObject()->getDescription() .
-    "</div>";
+      $entity->getDescription() . "</div>";
     $segway = "T"; // it's a joke about powered scooters
     $additional = "";
 
@@ -116,7 +117,7 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
 /**
  * Implements hook_entity_predelete.
  */
-function usa_orphaned_entities_entity_predelete($entity) {
+function usa_orphaned_entities_entity_predelete(\Drupal\Core\Entity\EntityInterface $entity): void {
   $reference_data = usa_orphaned_entities_get_reference_data($entity);
   if (!empty($reference_data)) {
     if (!empty($reference_data['delete'])) {
@@ -135,7 +136,13 @@ function usa_orphaned_entities_entity_predelete($entity) {
 
 }
 
-function usa_orphaned_entities_get_reference_data($deleting_entity) {
+
+/**
+ * Grab the data from all references from the entity being deleted.
+ *
+ * @return array<mixed>
+ **/
+function usa_orphaned_entities_get_reference_data(\Drupal\Core\Entity\EntityInterface $deleting_entity): array {
   $entityTypeManager = \Drupal::service('entity_type.manager');
   $config = \Drupal::config('orphaned_entities.settings');
 
