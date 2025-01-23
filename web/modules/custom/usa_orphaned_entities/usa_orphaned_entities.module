@@ -138,7 +138,6 @@ function usa_orphaned_entities_entity_predelete(EntityInterface $entity): void {
 
 }
 
-
 /**
  * Grab the data from all references from the entity being deleted.
  *
