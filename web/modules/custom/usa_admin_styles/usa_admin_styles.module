@@ -2,14 +2,23 @@
 
 use Drupal\Core\Form\FormStateInterface;
 
-function usa_admin_styles_preprocess_page(&$variables) {
+/**
+ * Implements hook_preprocess_HOOK() for page templates.
+ *
+ * Attaches the mylib library to all admin pages.
+ *
+ * @param array<mixed> $variables
+ */
+function usa_admin_styles_preprocess_page(array &$variables): void {
   $variables['#attached']['library'][] = 'usa_admin_styles/mylib';
 }
 
 /**
  * Attaches a library to only the node forms. This covers the add and edit forms for nodes.
+ *
+ * @param array<mixed> $form
  */
-function usa_admin_styles_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+function usa_admin_styles_form_node_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
   // The accordionButtonSubmitFix library suppresses form submit events from accordion buttons in
   // rich text editor previews. This was not an issue with ckeditor 4 (which implemented previews
   // in an iframe), but is a problem in ckeditor 5 -- all preview content is within the node
