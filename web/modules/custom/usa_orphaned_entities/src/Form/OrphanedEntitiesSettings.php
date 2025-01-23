@@ -36,8 +36,8 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
   /**
    * {@inheritdoc}
    *
-   * @param array<mixed> $form
-   * @return array<mixed>
+   * @param array<string, mixed> $form
+   * @return array<string, mixed>
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form['#attached']['library'][] = 'usa_orphaned_entities/orphaned';
@@ -97,7 +97,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
   /**
    * {@inheritdoc}
    *
-   * @param array<mixed> $form
+   * @param array<string, mixed> $form
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     // foreach ($form['#entity_reference'] as $index => $entity_reference) {
@@ -118,7 +118,8 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
   /**
    * {@inheritdoc}
    *
-   * @param array<mixed> $form
+   * @param array<string, mixed> $form
+   * @param-out array<mixed> $form
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $config = $this->config('orphaned_entities.settings');
@@ -143,7 +144,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
   /**
    * {@inheritdoc}
    *
-   * @return array<mixed>
+   * @return array<string>
    */
   protected function getEditableConfigNames(): array {
     return [
