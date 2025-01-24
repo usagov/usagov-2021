@@ -814,8 +814,8 @@ if (in_array($space_name, ['local', 'dev', 'dr', 'stage', 'prod'], true)) {
     case "local":
       $settings['trusted_host_patterns'][] = '^cms-local.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-local-usagov.apps.internal$';
-      $config['core.extension']['module']['devel'] = 0;
-      $config['core.extension']['module']['devel_generate'] = 0;
+//      $config['core.extension']['module']['devel'] = 0;
+//      $config['core.extension']['module']['devel_generate'] = 0;
       break;
 
     case "dev":
@@ -843,12 +843,19 @@ if (in_array($space_name, ['local', 'dev', 'dr', 'stage', 'prod'], true)) {
 }
 // Cloud is inactive by default
 $config['config_split.config_split.cloud_split']['status'] = FALSE;
-$settings['config_split.config_split.cloud_split']['status'] = FALSE;
+//$settings['config_split.config_split.cloud_split']['status'] = FALSE;
 
 if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
   $config['config_split.config_split.cloud_split']['status'] = TRUE;
-  $settings['config_split.config_split.cloud_split']['status'] = TRUE;
+  $config['config_split.config_split.local_split']['status'] = FALSE;
+//  $settings['config_split.config_split.cloud_split']['status'] = TRUE;
 }
+else {
+  $config['config_split.config_split.local_split']['status'] = TRUE;
+
+}
+//$config['config_split.config_split.local_split']['status'] = FALSE;
+//$config['config_split.config_split.cloud_split']['status'] = TRUE;
 
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);
 foreach ($cf_service_data as $service_list) {
