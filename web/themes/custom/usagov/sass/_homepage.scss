@@ -52,7 +52,7 @@
   }
 
   h1 {
-    @include u-font('serif', '2xl');
+    @include u-font('serif', 'xl');
     @include u-margin-top(0);
     @include u-margin-bottom(2);
   }
@@ -222,7 +222,7 @@
   border-bottom: 10px solid color('red-50');
 
   h2 {
-    @include u-font('serif', '2xl');
+    @include u-font('serif', 'xl');
     @include u-text('red-50');
     @include u-text('bold');
     margin: 65px 5vw 0;

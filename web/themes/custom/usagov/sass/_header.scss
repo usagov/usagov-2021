@@ -232,8 +232,8 @@
 }
 
 .usa-header--extended .usa-nav__secondary-links a {
+  @include u-font-size('sans', 'md');
   @include at-media($theme-header-min-width) {
-    @include u-font-size('sans', 'md');
     padding-left: 0.5rem;
     padding-top: 0.2rem;
   }
@@ -241,9 +241,7 @@
 
 .usa-header--extended .usa-nav__secondary-links a:lang(es) {
   @include at-media($theme-header-min-width) {
-    @include u-font-size('sans', 'md');
     padding-left: 0.2rem;
-    padding-top: 0.2rem;
   }
 }
 

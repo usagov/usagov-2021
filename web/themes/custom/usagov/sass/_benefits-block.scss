@@ -43,7 +43,7 @@
   padding: initial;
 
   > h2 {
-    @include u-font('serif', '2xl');
+    @include u-font('serif', 'xl');
     @include u-text('blue-80v');
     @include u-margin-top(0);
     @include u-margin-bottom(2);
