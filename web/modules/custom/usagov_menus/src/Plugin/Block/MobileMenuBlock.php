@@ -58,7 +58,6 @@ class MobileMenuBlock extends AbstractMenuBlock {
       return $this->renderItems($items, $twigVars, $menuID);
     }
 
-
     // We're not in the menu.
     // Display first level of this menu.
     $items = $this->getMenuTreeItems($menuID);
