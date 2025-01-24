@@ -96,13 +96,24 @@ Buttons with visited links would mysteriously get white text which is not access
   color: initial;
 }
 
+/*
+We should remove our border style from the usa-button--secondary utility class.
+It prevents us from creating a borderless usa-button--secondary...
+Instead, we should add a usa-button--outline utility class to achieve the border
+But the outline utility class relys on box-shadow which we've already used for our custom focus styling...
+So this needs to be part of a larger discussion
+Also most of our buttons are "secondary" so maybe we should make that our primary style instead...
+*/
 .usa-button--secondary {
-  border: 2px solid $secondary-border;
+  border: 2px solid $secondary-border; //TODO: Remove custom styling from utility classes
 }
 
 .usa-button--secondary:hover {
   background-color: $secondary-background;
-  border: 2px solid $secondary-border;
+  border: 2px solid $secondary-border; //TODO: Remove custom styling from utility classes
+}
+.usa-button--secondary.usa-button--big {
+  @include u-font-size('sans', 'md'); //TODO: Remove custom styling from utility classes (this one is temporary until we review the process for changing utility classes on buttons in our content)
 }
 
 /*
@@ -853,7 +864,7 @@ input::-webkit-textfield-decoration-container {
 .benefits-finder-content {
   .usa-prose>p.usa-intro {
     @include u-margin(0);
-
+    @include u-font-size('serif', 'md');
     max-width: 100%;
   }
 }
