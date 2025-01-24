@@ -1,17 +1,6 @@
 jQuery(document).ready(async function () {
   "use strict";
 
-  function checkPagePath() {
-    if (
-      window.location.pathname === "/phone" ||
-      window.location.pathname === "/es/llamenos" ||
-      window.location.pathname === "/chat" ||
-      window.location.pathname === "/es/chat"
-    ) {
-      return true;
-    }
-  }
-
   function getCallCenterWaitTime() {
     let jsonSeconds;
     let jsonTimestamp;
@@ -37,7 +26,7 @@ jQuery(document).ready(async function () {
         createDisplayWaitTime(jsonSeconds, jsonTimestamp);
       },
       "error": function (xhr, status, error) {
-        console.log(error);
+        console.log("error: ", error);
       },
     });
   }
@@ -62,9 +51,31 @@ jQuery(document).ready(async function () {
         }
         displayWaitTime(displayTime);
       }
+      else {
+        injectCSS();
+      }
     }
   }
 
+  /**
+   * Inject CSS to hide specific elements on the page.
+   */
+  function injectCSS() {
+    const elementsToHide = [
+      '#top-phone-mobile-menu',
+      '#mobile-menu-top-phone',
+      '#top-phone',
+      '#question-box',
+      '#footer-phone'
+    ];
+
+    elementsToHide.forEach(selector => {
+      const element = document.querySelector(selector);
+      if (element) {
+        element.style.display = 'none';
+      }
+    });
+  }
   function displayWaitTime(displayTime) {
     let docLang = [document.documentElement.lang];
 
@@ -81,8 +92,6 @@ jQuery(document).ready(async function () {
     );
   }
 
-  // upgrade: only apply to phone pages using Drupal library in usagov.libraries.yml
-  if (checkPagePath()) {
-    getCallCenterWaitTime();
-  }
+  // apply to all pages
+  getCallCenterWaitTime();
 });
