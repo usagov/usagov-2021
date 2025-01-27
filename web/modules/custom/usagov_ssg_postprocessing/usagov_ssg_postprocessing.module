@@ -2,20 +2,24 @@
 
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormState;
+
 
 /**
  * Implements hook_entity_view_alter().
  *
+ * @param array<mixed> &$build
  * From Drupal.org -> "If a module wishes to act on the rendered HTML of the
  * ntity rather than the structured content array, it may use this hook to add
  * a #post_render callback."
 */
-function usagov_ssg_postprocessing_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+function usagov_ssg_postprocessing_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display): void {
   usagov_ssg_postprocessing_remove_shortlink($build);
   usagov_ssg_postprocessing_modify_canonical_link($build);
 }
 
-function usagov_ssg_postprocessing_remove_shortlink(array &$attachments) {
+function usagov_ssg_postprocessing_remove_shortlink(array &$attachments): void {
   if (!isset($attachments['#attached']['html_head_link'])) {
     return;
   }
@@ -27,7 +31,7 @@ function usagov_ssg_postprocessing_remove_shortlink(array &$attachments) {
   }
 }
 
-function usagov_ssg_postprocessing_modify_canonical_link(array &$attachments) {
+function usagov_ssg_postprocessing_modify_canonical_link(array &$attachments): void {
   if (!isset($attachments['#attached']['html_head_link'])) {
     return;
   }
@@ -45,9 +49,11 @@ function usagov_ssg_postprocessing_modify_canonical_link(array &$attachments) {
 
 /**
  * Implements hook_page_attachments_alter.
+ * 
+ * @param array<mixed> &$attachments
  * We just want to add / to the alternate links on the home pages.
  */
-function usagov_ssg_postprocessing_page_attachments_alter(array &$attachments) {
+function usagov_ssg_postprocessing_page_attachments_alter(array &$attachments): void {
   if (!isset($attachments['#attached']['html_head_link'])) {
     return;
   }
@@ -70,21 +76,21 @@ function usagov_ssg_postprocessing_page_attachments_alter(array &$attachments) {
 /**
 * Static Site Generation Toggle State Form ID
 */
-function usagov_ssg_postprocessing_get_static_state_form_id() {
+function usagov_ssg_postprocessing_get_static_state_form_id(): string {
   return 'toggle_static_site_generation_form';
 }
 
 /**
 * Static Site Generation Toggle State Form Button Name
 */
-function usagov_ssg_postprocessing_get_static_state_button_name() {
+function usagov_ssg_postprocessing_get_static_state_button_name(): string {
   return 'confirm_toggle';
 }
 
 /**
  * Toggle State variable name for sset/sget/sdel
  */
-function usagov_ssg_postprocessing_get_static_state_var() {
+function usagov_ssg_postprocessing_get_static_state_var(): string {
   return 'usagov.tome_run_disabled';
 }
 
@@ -92,7 +98,7 @@ function usagov_ssg_postprocessing_get_static_state_var() {
   * Implements hook_form_alter().
   * Static Site Generation form text updates.
   */
-function usagov_ssg_postprocessing_form_alter(&$form, &$form_state, $form_id) {
+function usagov_ssg_postprocessing_form_alter(FormBase &$form, FormState &$form_state, string $form_id): void {
   if ($form_id == usagov_ssg_postprocessing_get_static_state_form_id()) {
     $toggle_state = \Drupal::state()->get(usagov_ssg_postprocessing_get_static_state_var()) ? 1 : 0;
     $form_state->setValue(usagov_ssg_postprocessing_get_static_state_button_name(), $toggle_state ? TRUE : FALSE);

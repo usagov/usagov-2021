@@ -15,7 +15,7 @@ class SsgStatController extends ControllerBase {
   ) {
   }
 
-  public function content() {
+  public function content(): array<mixed> {
     $date = $this->state()->get('ssg_stat_date');
     $msg = $this->state()->get('ssg_stat_msg');
 
@@ -34,7 +34,7 @@ class SsgStatController extends ControllerBase {
    * This is a utility use in order to test what the WAF and proxies will do with wait-timeouts.
    * See ticket USAGOV-1927.
    */
-  public function siteLagTest() {
+  public function siteLagTest(): array<mixed> {
 
     $request = $this->requestStack->getCurrentRequest();
     $waitParam = $request->query->get('wait');
