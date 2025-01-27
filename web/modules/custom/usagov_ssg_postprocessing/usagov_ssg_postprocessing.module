@@ -49,7 +49,7 @@ function usagov_ssg_postprocessing_modify_canonical_link(array &$attachments): v
 
 /**
  * Implements hook_page_attachments_alter
- * 
+ *
  * @param array<mixed> &$attachments
  * We just want to add / to the alternate links on the home pages
  */
