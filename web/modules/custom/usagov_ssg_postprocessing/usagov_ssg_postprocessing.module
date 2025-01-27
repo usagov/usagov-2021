@@ -8,11 +8,12 @@ use Drupal\Core\Form\FormState;
 
 /**
  * Implements hook_entity_view_alter().
- *
- * @param array<mixed> &$build
+ * 
  * From Drupal.org -> "If a module wishes to act on the rendered HTML of the
  * ntity rather than the structured content array, it may use this hook to add
  * a #post_render callback."
+ * 
+ * @param array<mixed> &$build
 */
 function usagov_ssg_postprocessing_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display): void {
   usagov_ssg_postprocessing_remove_shortlink($build);

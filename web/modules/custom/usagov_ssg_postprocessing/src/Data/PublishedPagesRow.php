@@ -45,8 +45,10 @@ final class PublishedPagesRow {
     public readonly string $pageLanguage,
   ) {}
 
-  # see https://phpstan.org/blog/solving-phpstan-no-value-type-specified-in-iterable-type
-  private static function getHierarchy(array<mixed> $data): int {
+ /**
+  * @param array<mixed> $data
+  */
+  private static function getHierarchy(array $data): int {
     $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_URL_'), ARRAY_FILTER_USE_KEY);
     return count(array_unique($texts));
   }

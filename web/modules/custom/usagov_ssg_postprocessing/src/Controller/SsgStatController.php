@@ -15,7 +15,10 @@ class SsgStatController extends ControllerBase {
   ) {
   }
 
-  public function content(): array<mixed> {
+  /**
+   * @return array<mixed>
+   */
+  public function content(): array {
     $date = $this->state()->get('ssg_stat_date');
     $msg = $this->state()->get('ssg_stat_msg');
 
@@ -30,9 +33,11 @@ class SsgStatController extends ControllerBase {
     return ['#markup' => $markup, '#cache' => ['max-age' => 0]];
   }
 
-  /*
+  /**
    * This is a utility use in order to test what the WAF and proxies will do with wait-timeouts.
    * See ticket USAGOV-1927.
+   * 
+   * @param array<mixed> $data
    */
   public function siteLagTest(): array<mixed> {
 

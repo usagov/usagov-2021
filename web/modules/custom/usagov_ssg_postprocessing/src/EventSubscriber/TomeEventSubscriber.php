@@ -117,10 +117,10 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   /**
    * Returns per-site excluded directory paths.
    *
-   * @return array
+   * @return array<mixed>
    *   An array of excluded paths.
    */
-  public static function getExcludedDirectories(): array<mixed> {
+  public static function getExcludedDirectories(): array {
     $excluded_paths = [];
     $site_paths = Settings::get('usagov_tome_static_path_exclude_directories', []);
     if (is_array($site_paths)) {
@@ -233,7 +233,10 @@ class TomeEventSubscriber implements EventSubscriberInterface {
 
   }
 
-  private function getLetters(ViewExecutable $view): array<mixed> {
+  /**
+   * return array<mixed>
+   */
+  private function getLetters(ViewExecutable $view): array {
     $view->execute();
     $letters = [];
     foreach ($view->result as $result) {

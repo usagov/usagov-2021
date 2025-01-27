@@ -31,7 +31,10 @@ use Symfony\Component\HttpFoundation\Request;
  */
 final class PublishedPagesCommands extends DrushCommands {
 
-  private array<string> $csvHeader = [
+  /**
+   * @var array<string> $csvHeader
+   */
+  private array $csvHeader = [
     "Hierarchy Level",
     "Page Type",
     "Page Path",
@@ -264,7 +267,11 @@ final class PublishedPagesCommands extends DrushCommands {
     return PublishedPagesRow::datalayerForWizard($data, $wizard, $baseURL);
   }
 
-  private function alterDatalayer(array<mixed> $data): array<mixed> {
+  /**
+   * @param array<mixed> $data
+   * @return array<mixed>
+   */
+  private function alterDatalayer(array<mixed> $data): array {
     // Let other modules add to the datalayer payload.
     $datalayerEvent = new DatalayerAlterEvent($data);
     $this->dispatcher->dispatch($datalayerEvent, DatalayerAlterEvent::EVENT_NAME);
