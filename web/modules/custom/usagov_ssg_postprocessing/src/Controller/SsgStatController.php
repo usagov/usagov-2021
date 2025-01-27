@@ -39,7 +39,7 @@ class SsgStatController extends ControllerBase {
    * 
    * @param array<mixed> $data
    */
-  public function siteLagTest(): array<mixed> {
+  public function siteLagTest(): array {
 
     $request = $this->requestStack->getCurrentRequest();
     $waitParam = $request->query->get('wait');
