@@ -46,10 +46,10 @@ class UsaWorkflowPermissionChecker implements ContainerInjectionInterface {
   /**
    * WfUserPermission.
    *
-   * @return array
+   * @return array<string, mixed>
    *   the value should be of type array
    */
-  public function wfUserPermission() {
+  public function wfUserPermission(): array {
     $return = [];
 
     $node_param = $this->routeMatch->getParameter('node');
