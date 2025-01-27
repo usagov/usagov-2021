@@ -98,7 +98,7 @@ function usagov_ssg_postprocessing_get_static_state_var(): string {
   * Implements hook_form_alter().
   * Static Site Generation form text updates.
   */
-function usagov_ssg_postprocessing_form_alter(FormBase &$form, FormState &$form_state, string $form_id): void {
+function usagov_ssg_postprocessing_form_alter(mixed &$form, mixed &$form_state, string $form_id): void {
   if ($form_id == usagov_ssg_postprocessing_get_static_state_form_id()) {
     $toggle_state = \Drupal::state()->get(usagov_ssg_postprocessing_get_static_state_var()) ? 1 : 0;
     $form_state->setValue(usagov_ssg_postprocessing_get_static_state_button_name(), $toggle_state ? TRUE : FALSE);
