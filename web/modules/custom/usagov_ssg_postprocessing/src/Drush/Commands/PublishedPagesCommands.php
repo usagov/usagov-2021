@@ -271,7 +271,7 @@ final class PublishedPagesCommands extends DrushCommands {
    * @param array<mixed> $data
    * @return array<mixed>
    */
-  private function alterDatalayer(array<mixed> $data): array {
+  private function alterDatalayer(array $data): array {
     // Let other modules add to the datalayer payload.
     $datalayerEvent = new DatalayerAlterEvent($data);
     $this->dispatcher->dispatch($datalayerEvent, DatalayerAlterEvent::EVENT_NAME);
