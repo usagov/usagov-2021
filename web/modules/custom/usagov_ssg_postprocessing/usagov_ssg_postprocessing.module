@@ -5,14 +5,13 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormState;
 
-
 /**
- * Implements hook_entity_view_alter().
- * 
+ * Implements hook_entity_view_alter()
+ *
  * From Drupal.org -> "If a module wishes to act on the rendered HTML of the
  * ntity rather than the structured content array, it may use this hook to add
  * a #post_render callback."
- * 
+ *
  * @param array<mixed> &$build
 */
 function usagov_ssg_postprocessing_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display): void {
@@ -49,10 +48,10 @@ function usagov_ssg_postprocessing_modify_canonical_link(array &$attachments): v
 }
 
 /**
- * Implements hook_page_attachments_alter.
+ * Implements hook_page_attachments_alter
  * 
  * @param array<mixed> &$attachments
- * We just want to add / to the alternate links on the home pages.
+ * We just want to add / to the alternate links on the home pages
  */
 function usagov_ssg_postprocessing_page_attachments_alter(array &$attachments): void {
   if (!isset($attachments['#attached']['html_head_link'])) {

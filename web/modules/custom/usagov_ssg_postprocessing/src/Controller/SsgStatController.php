@@ -34,9 +34,9 @@ class SsgStatController extends ControllerBase {
   }
 
   /**
-   * This is a utility use in order to test what the WAF and proxies will do with wait-timeouts.
-   * See ticket USAGOV-1927.
-   * 
+   * This is a utility use in order to test what the WAF and proxies will do with wait-timeouts
+   * See ticket USAGOV-1927
+   *
    * @param array<mixed> $data
    */
   public function siteLagTest(): array {
