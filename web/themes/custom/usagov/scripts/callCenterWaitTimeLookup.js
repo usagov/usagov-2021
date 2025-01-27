@@ -42,7 +42,7 @@ jQuery(document).ready(async function () {
     // If the estimated time was captured over 10 minutes ago, remain silent.
     if (checkTimeStamp(timestamp)) {
       let displayTime;
-      if (actualSeconds !== -1) {
+      if (actualSeconds !== -1 && shouldDisplay()) {
         if (actualSeconds < 60) {
           displayTime = 1;
         }
@@ -90,6 +90,13 @@ jQuery(document).ready(async function () {
     jQuery('div[data-call-wait="showTime"]').replaceWith(
       `<div class="paragraph paragraph--type--uswds-alert paragraph--view-mode--embed paragraph--id--2485 usa-alert usa-alert--slim usa-alert--no-icon" data-call-wait='showTime'><div class="usa-alert__body"> <div class="field field--name-field-alert-body field--type-text field--label-hidden field__item">${displayText}</div> </div> </div>`
     );
+  }
+  function shouldDisplay() {
+    // Generate a random number between 0 and 1
+    const randomNumber = Math.random();
+
+    // Return true if the number is less than 0.8 (80%)
+    return randomNumber < 0.8;
   }
 
   // apply to all pages
