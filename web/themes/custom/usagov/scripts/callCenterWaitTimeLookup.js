@@ -42,7 +42,6 @@ jQuery(document).ready(async function () {
     // If the estimated time was captured over 10 minutes ago, remain silent.
     if (checkTimeStamp(timestamp)) {
       let displayTime;
-      actualSeconds = -1;
       if (actualSeconds !== -1 && shouldDisplay()) {
         if (actualSeconds < 60) {
           displayTime = 1;
