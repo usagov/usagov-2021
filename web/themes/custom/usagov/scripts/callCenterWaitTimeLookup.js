@@ -42,6 +42,7 @@ jQuery(document).ready(async function () {
     // If the estimated time was captured over 10 minutes ago, remain silent.
     if (checkTimeStamp(timestamp)) {
       let displayTime;
+      actualSeconds = -1;
       if (actualSeconds !== -1 && shouldDisplay()) {
         if (actualSeconds < 60) {
           displayTime = 1;
@@ -61,24 +62,10 @@ jQuery(document).ready(async function () {
    * Inject CSS to hide specific elements on the page.
    */
   function injectCSS() {
-    const elementsToHide = [
-      '#top-phone-mobile-menu',
-      '#top-phone',
-      '#question-box',
-      '#footer-phone'
-    ];
-
-    // elementsToHide.forEach(selector => {
-    //   const element = document.querySelector(selector);
-    //   if (element) {
-    //     element.style.display = 'none';
-    //   }
-    // });
-    elementsToHide.forEach(selector => {
-      const element = document.querySelector(selector);
-      if (element) {
-        element.setAttribute('data-visibility', 'hidden');
-      }
+    const visibleElements = document.querySelectorAll('[data-contact-callout="visible"]');
+    visibleElements.forEach(element => {
+      element.setAttribute('data-contact-callout', 'hidden');
+      element.style.display = 'none';
     });
   }
   function displayWaitTime(displayTime) {

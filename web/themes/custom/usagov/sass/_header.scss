@@ -192,11 +192,6 @@
 }
 
 .usa-header--extended .usa-nav__secondary-links .usa-nav__secondary-item {
-  // Styling for when hidden
-  &[data-visibility="hidden"] {
-    display: none;
-  }
-
   @include at-media($theme-header-min-width) {
     display: inline;
     padding-left: 0;
