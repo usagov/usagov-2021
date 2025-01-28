@@ -30,14 +30,13 @@ cf create-service-key database db-portforward >/dev/null 2>&1
 echo "Collecting connection info"
 CF_APP_GUID=$(cf app cms --guid)
 CF_PROCESS_GUID=`cf curl /v3/apps/${CF_APP_GUID}/processes | jq --raw-output '.resources | .[] | select(.type == "web").guid'`
-CF_INFO=$(cf curl /v2/info)
 CF_DB_INFO=$(cf service-key database db-portforward)
 CF_DB_PORT=$(echo "$CF_DB_INFO" | grep '"port":' | sed 's/.*"port": "\([^"]*\)".*/\1/')
 CF_DB_HOST=$(echo "$CF_DB_INFO" | grep '"host":' | sed 's/.*"host": "\([^"]*\)".*/\1/')
 CF_DB_USER=$(echo "$CF_DB_INFO" | grep '"username":' | sed 's/.*"username": "\([^"]*\)".*/\1/')
 CF_DB_PASS=$(echo "$CF_DB_INFO" | grep '"password":' | sed 's/.*"password": "\([^"]*\)".*/\1/')
 CF_DB_NAME=$(echo "$CF_DB_INFO" | grep '"db_name":' | sed 's/.*"db_name": "\([^"]*\)".*/\1/')
-CF_SSH_ENDPOINT=$(echo "$CF_INFO" | grep '"app_ssh_endpoint":' | sed 's/.*"app_ssh_endpoint": "\([^:]*\).*".*/\1/')
+CF_SSH_ENDPOINT=`cf curl / | jq -r '.links.app_ssh.href | split(":")[0]'`
 
 echo "Creating sql connection"
 nohup sshpass -p $(cf ssh-code) ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -4 -N -p 2222 -L $LOCAL_PORT:$CF_DB_HOST:$CF_DB_PORT cf:$CF_PROCESS_GUID/0@$CF_SSH_ENDPOINT >/dev/null 2>&1 &
