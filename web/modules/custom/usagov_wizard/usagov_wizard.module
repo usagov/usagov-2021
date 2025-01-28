@@ -27,11 +27,11 @@ use Drupal\usagov_wizard\MenuChecker;
  * @param array<string, mixed> $form
  */
 function usagov_wizard_form_taxonomy_term_wizard_form_alter(array &$form, FormStateInterface $form_state): void {
-  $form['name']['widget'][0]['value']['#description'] = 'Name inside the CMS. This is what you see in the taxonomy tree.';
+  $form['name']['widget'][0]['value']['#description'] = t('Name inside the CMS. This is what you see in the taxonomy tree.');
   $form['langcode']['widget'][0]['value']['#description'] = '';
-  $form['description']['widget'][0]['#description'] = 'Description for the radio button label.';
+  $form['description']['widget'][0]['#description'] = t('Description for the radio button label.');
   $form['relations']['parent']['#attributes'] = ['class' => ['resize-vertical', 'width-tablet', 'height-mobile']];
-  $form['relations']['widget'][0]['#description'] = 'You can use the tree to move the node.';
+  $form['relations']['widget'][0]['#description'] = t('You can use the tree to move the node.');
   $form['relations']['#weight'] = 11;
   if (isset($form['tid'])) {
     $language = $form['langcode']['widget'][0]['value']['#default_value'];

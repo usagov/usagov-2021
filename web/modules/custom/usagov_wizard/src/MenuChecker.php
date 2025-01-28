@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\taxonomy\TermInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
+
 /**
  * Class MenuChecker.
  *
