@@ -11,9 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Configure USAgov Login Customizations settings for this site.
  */
-class LoginSettingsForm extends ConfigFormBase
-{
-
+class LoginSettingsForm extends ConfigFormBase {
   /**
    * State storage.
    *
@@ -122,4 +120,5 @@ class LoginSettingsForm extends ConfigFormBase
 
     parent::submitForm($form, $form_state);
   }
+  
 }
