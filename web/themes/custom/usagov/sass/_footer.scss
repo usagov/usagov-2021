@@ -43,9 +43,14 @@
   line-height: 1.2;
   margin: 0;
   margin-bottom: 0;
-  align-items: center;
+  align-items: baseline;
   display: flex;
   justify-content: flex-start;
+
+  @include at-media('desktop') {
+    // Match the height of ones that wrap
+    min-height: 2.75rem;
+  }
 }
 
 .usa-gov-footer__primary-link--button {
@@ -127,12 +132,6 @@
 
 #footer-email {
   @include u-border('gray-90');
-}
-
-.ftr-list {
-  @media (min-width: 64em) {
-    padding-top: 1.4rem;
-  }
 }
 
 /* ---- Secondary Footer ---- */
