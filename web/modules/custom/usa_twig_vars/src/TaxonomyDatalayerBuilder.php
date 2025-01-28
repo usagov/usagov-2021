@@ -5,10 +5,31 @@ namespace Drupal\usa_twig_vars;
 use Drupal\Core\Breadcrumb\ChainBreadcrumbBuilderInterface;
 use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 
 /**
  * Builds a datalayer array we can serialize to JSON in our twig template.
+ *
+ * @phpstan-type TaxonomyBreadcrumb array{
+ *   "nodeID"?: string,
+ *   language?: "es"|"en",
+ *   homepageTest?: "homepage"|"not_homepage",
+ *   basicPagesubType?: null|string,
+ *   contentType?: string,
+ *   Page_Type?: string,
+ *   Taxonomy_Text_1: string,
+ *   Taxonomy_Text_2: string,
+ *   Taxonomy_Text_3: string,
+ *   Taxonomy_Text_4: string,
+ *   Taxonomy_Text_5: string,
+ *   Taxonomy_Text_6: string,
+ *   Taxonomy_URL_1: string,
+ *   Taxonomy_URL_2: string,
+ *   Taxonomy_URL_3: string,
+ *   Taxonomy_URL_4: string,
+ *   Taxonomy_URL_5: string,
+ *   Taxonomy_URL_6: string,
+ * }
  */
 class TaxonomyDatalayerBuilder {
 
@@ -50,7 +71,7 @@ class TaxonomyDatalayerBuilder {
   public function __construct(
     private RouteMatchInterface $routeMatch,
     private ChainBreadcrumbBuilderInterface $breadcrumbManager,
-    public Node $node,
+    public NodeInterface $node,
     bool $isFront,
     public ?string $basicPagesubType,
   ) {
@@ -60,7 +81,7 @@ class TaxonomyDatalayerBuilder {
   /**
    * Builds the datalayer array.
    *
-   * @return array
+   * @return TaxonomyBreadcrumb
    *   Initial datalayer payload.
    *
    * @throws \Drupal\Core\Entity\EntityMalformedException
@@ -123,7 +144,7 @@ class TaxonomyDatalayerBuilder {
   /**
    * Build Taxonomy entries based on menu breadcrumbs.
    *
-   * @return array
+   * @return TaxonomyBreadcrumb
    *   Breadcrumb info to send.
    *
    * @throws \Drupal\Core\Entity\EntityMalformedException
@@ -179,7 +200,7 @@ class TaxonomyDatalayerBuilder {
   /**
    * Get Taxonomy Entries for homepage.
    *
-   * @return array
+   * @return array<string, non-empty-string>
    *   Breadcrumb info to send.
    */
   public function getHomepage(): array {
@@ -188,14 +209,15 @@ class TaxonomyDatalayerBuilder {
     $taxonomy = [];
     for ($i = 1; $i < 7; $i++) {
       switch ($this->langcode) {
-        case 'en':
-          $taxonomy["Taxonomy_Text_" . $i] = self::HOME_TITLE_EN;
-          $taxonomy["Taxonomy_URL_" . $i] = self::HOME_URL_EN;
-          break;
-
         case 'es':
           $taxonomy["Taxonomy_Text_" . $i] = self::HOME_TITLE_ES;
           $taxonomy["Taxonomy_URL_" . $i] = self::HOME_URL_ES;
+          break;
+
+        case 'en':
+        default:
+          $taxonomy["Taxonomy_Text_" . $i] = self::HOME_TITLE_EN;
+          $taxonomy["Taxonomy_URL_" . $i] = self::HOME_URL_EN;
           break;
       }
     }
@@ -206,7 +228,7 @@ class TaxonomyDatalayerBuilder {
   /**
    * Get Taxonomy info for a Federal Agency node.
    *
-   * @return array
+   * @return TaxonomyBreadcrumb
    *   Breadcrumb info to send.
    *
    * @throws \Drupal\Core\Entity\EntityMalformedException
@@ -250,9 +272,7 @@ class TaxonomyDatalayerBuilder {
   /**
    * Get Taxonomy info for a Sate Agency node.
    *
-   * @return array
-   *   Breadcrumb info to send.
-   *
+   * @return TaxonomyBreadcrumb
    * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function getStateDirectory(): array {
