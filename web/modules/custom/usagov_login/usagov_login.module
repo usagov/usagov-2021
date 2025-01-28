@@ -103,7 +103,7 @@ function usagov_login_user_update(UserInterface $account): void {
   $was_enabled = $original_account->get('status')->value;
   $is_enabled = $account->get('status')->value;
   if ($was_enabled !== $is_enabled) {
-    $action = ((int)$is_enabled === 1 ? 'unblocked' : 'blocked');
+    $action = ((int) $is_enabled === 1 ? 'unblocked' : 'blocked');
     \Drupal::logger('usagov_login')->notice(
       "User {$user_performed_on} ({$user_performed_named}) was {$action} by user {$uid} ({$uname})."
     );
