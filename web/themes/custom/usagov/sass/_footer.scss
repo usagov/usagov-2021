@@ -160,6 +160,10 @@
 }
 
 .usa-footer__logo {
+  // Styling for when hidden
+  #footer-phone[data-visibility="hidden"] {
+    display: none;
+  }
   @media (max-width: 30em) {
     padding-bottom: 20px;
   }

@@ -592,6 +592,10 @@ div[class^="QSIUserDefinedHTML"] {
   font-size: 1.1rem;
 }
 
+#question-box[data-visibility="hidden"] {
+  display: none;
+}
+
 #question-box > div > p,
 #question-box > div > div {
   font-size: 1.1rem;
@@ -911,7 +915,7 @@ input::-webkit-textfield-decoration-container {
 // reduces space below the breadcrumb on benefits pages
 #block-usagov-breadcrumbs {
   min-height: 5rem;
-  
+
   @include at-media("mobile-lg") {
     min-height: 4rem;
   }

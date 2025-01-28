@@ -63,16 +63,21 @@ jQuery(document).ready(async function () {
   function injectCSS() {
     const elementsToHide = [
       '#top-phone-mobile-menu',
-      '#mobile-menu-top-phone',
       '#top-phone',
       '#question-box',
       '#footer-phone'
     ];
 
+    // elementsToHide.forEach(selector => {
+    //   const element = document.querySelector(selector);
+    //   if (element) {
+    //     element.style.display = 'none';
+    //   }
+    // });
     elementsToHide.forEach(selector => {
       const element = document.querySelector(selector);
       if (element) {
-        element.style.display = 'none';
+        element.setAttribute('data-visibility', 'hidden');
       }
     });
   }

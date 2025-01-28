@@ -97,6 +97,9 @@ ul.navigation__items {
 .usagov-mobile-menu .usa-nav__secondary-links {
   margin: 1rem;
   display: block;
+  &[data-visibility="hidden"] {
+    display: none;
+  }
 }
 
 .usa-header--extended button.usa-menu-btn {
