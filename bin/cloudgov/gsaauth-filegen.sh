@@ -6,7 +6,7 @@ if [ -z "$SPACE" ]; then
   exit 1
 fi;
 
-SECAUTHSECRETS=$(cf curl /v2/user_provided_service_instances/$(cf service secauthsecrets --guid) | jq -r '.entity | select(.name == "secauthsecrets") | .credentials' )
+SECAUTHSECRETS=$(cf curl /v3/service_instances/$(cf service secauthsecrets --guid)/credentials)
 SP_KEY=$(echo -E "$SECAUTHSECRETS" | jq -r '.spkey')
 SP_CRT=$(echo -E "$SECAUTHSECRETS" | jq -r '.spcrt')
 
