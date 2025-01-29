@@ -96,25 +96,62 @@ Buttons with visited links would mysteriously get white text which is not access
   color: initial;
 }
 
-/*
-We should remove our border style from the usa-button--secondary utility class.
-It prevents us from creating a borderless usa-button--secondary...
-Instead, we should add a usa-button--outline utility class to achieve the border
-But the outline utility class relys on box-shadow which we've already used for our custom focus styling...
-So this needs to be part of a larger discussion
-Also most of our buttons are "secondary" so maybe we should make that our primary style instead...
-*/
-.usa-button--secondary {
-  border: 2px solid $secondary-border; //TODO: Remove custom styling from utility classes
-}
 
+
+/****************************************************************************************
+  AFTER UPDATING CONTENT BUTTONS, REMOVE STYLES FOR .usa-button--secondary
+*****************************************************************************************
+
+The following usa-button--secondary styles override the default look of USWDS utility classes.
+This hinders our ability to use those classes to acheive their intended effect.
+It would be better to use a custom usagov-button class.
+Any buttons updated to use the custom class can be updated anytime without impacting utility classes.
+
+*****************************************************************************************
+
+We currently apply these classes to our buttons in our content:
+  class="usa-button usa-button--secondary usa-button--big"
+The new approach uses these classes:
+  class="usa-button usagov-button"
+
+*****************************************************************************************
+
+To update existing content buttons:
+  - edit the content page
+  - In CKEditor, select the button
+  - In the style dropdown, select the Button option twice to toggle the style off and back on
+  - Save the content page
+
+******************************************************************************************/
+.usa-button--secondary {
+  border: 2px solid $secondary-border;
+}
 .usa-button--secondary:hover {
   background-color: $secondary-background;
-  border: 2px solid $secondary-border; //TODO: Remove custom styling from utility classes
+  border: 2px solid $secondary-border;
 }
 .usa-button--secondary.usa-button--big {
-  @include u-font-size('sans', 'md'); //TODO: Remove custom styling from utility classes (this one is temporary until we review the process for changing utility classes on buttons in our content)
+  @include u-font-size('sans', 'md');
 }
+/****************************************************************************************
+  AFTER UPDATING CONTENT BUTTONS, KEEP STYLES FOR .usagov-button
+****************************************************************************************/
+.usagov-button{
+  border: 2px solid $secondary-border;
+  @include u-font-size('sans', 'md');
+  padding: units(2) units(3);
+  @include set-text-and-bg("secondary", $context: "Button");
+
+  &:hover {
+    background-color: $secondary-background;
+    border: 2px solid $secondary-border;
+  }
+}
+/****************************************************************************************
+  END OF CONTENT BUTTON UPDATE CODE
+****************************************************************************************/
+
+
 
 /*
 This style ensures that we can remove the padding-top from text in a card body. Used on navigation pages.
