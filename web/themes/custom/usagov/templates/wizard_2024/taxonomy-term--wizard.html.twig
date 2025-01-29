@@ -58,7 +58,7 @@
 
       {# Generate the url for the parent of this term to put in the 'previous' button. #}
       {% set previous_path = path('entity.taxonomy_term.canonical', {'taxonomy_term': parent_tid}) %}
-      <button id="prior" class="usa-button usa-button--secondary usa-button--big font-sans-md margin-right-2" onclick="window.location.href = '{{ previous_path ~ '#block-usagov-content' }}'">
+      <button id="prior" class="usa-button usagov-button margin-right-2" onclick="window.location.href = '{{ previous_path ~ '#block-usagov-content' }}'">
         {{ previous_string }}</button>
 
       {# If there are items in the options list, this must not be the last term in the tree. Generate a Next button. #}
