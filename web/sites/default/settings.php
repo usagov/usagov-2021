@@ -809,46 +809,37 @@ $SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
 $settings['trusted_host_patterns'] = [];
 $space_name = strtolower($cf_application_data['space_name'] ?? '');
 
-if (in_array($space_name, ['local', 'dev', 'dr', 'stage', 'prod'], true)) {
-  switch (strtolower($cf_application_data['space_name'])) {
-    case "local":
-      $settings['trusted_host_patterns'][] = '^cms-local.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-local-usagov.apps.internal$';
-      break;
+if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
+  $IS_CLOUDGOV = TRUE;
+  $config['config_split.config_split.cloud_split']['status'] = TRUE;
+  $config['config_split.config_split.local_split']['status'] = FALSE;
 
+  switch (strtolower($cf_application_data['space_name'])) {
+    // "local" values found in settings.local.php
     case "dev":
-      $IS_CLOUDGOV = TRUE;
       $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
       $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-dev-usagov.apps.internal$';
       break;
 
     case "dr":
-      $IS_CLOUDGOV = TRUE;
-      $SERVER_HTTP_HOST = 'cms-cr.usa.gov';
+      $SERVER_HTTP_HOST = 'cms-dr.usa.gov';
       $settings['trusted_host_patterns'][] = '^cms-dr.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-dr-usagov.apps.internal$';
       break;
 
     case "stage":
-      $IS_CLOUDGOV = TRUE;
       $SERVER_HTTP_HOST = 'cms-stage.usa.gov';
       $settings['trusted_host_patterns'][] = '^cms-stage.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-stage-usagov.apps.internal$';
       break;
 
     case "prod":
-      $IS_CLOUDGOV = TRUE;
       $SERVER_HTTP_HOST = 'cms.usa.gov';
       $settings['trusted_host_patterns'][] = '^cms.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-prod-usagov.apps.internal$';
       break;
   }
-}
-
-if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
-  $config['config_split.config_split.cloud_split']['status'] = TRUE;
-  $config['config_split.config_split.local_split']['status'] = FALSE;
 }
 else {
   $config['config_split.config_split.cloud_split']['status'] = FALSE;
