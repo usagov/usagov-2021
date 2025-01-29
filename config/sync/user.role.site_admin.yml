@@ -8,7 +8,6 @@ dependencies:
     - taxonomy.vocabulary.uswds_breakpoints
     - taxonomy.vocabulary.uswds_classes
   module:
-    - action
     - system
     - taxonomy
     - tome_static

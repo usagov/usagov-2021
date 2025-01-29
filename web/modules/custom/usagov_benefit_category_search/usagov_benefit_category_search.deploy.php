@@ -5,8 +5,10 @@ use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
  * Add "Benefits Search" page type term for basic page nodes
+ *
+ * @return void
  */
-function usagov_benefit_category_search_deploy_add_page_type() {
+function usagov_benefit_category_search_deploy_add_page_type(): void {
   $vocab = Vocabulary::load('page_type');
   if (!$vocab) {
     return;
@@ -23,8 +25,10 @@ function usagov_benefit_category_search_deploy_add_page_type() {
 
 /**
  * Create terms for benefits category vocabulary
+ *
+ * @return void
  */
-function usagov_benefit_category_search_deploy_terms() {
+function usagov_benefit_category_search_deploy_terms(): void {
   $vocab = Vocabulary::load('benefits_category');
   if (!$vocab) {
     return;
