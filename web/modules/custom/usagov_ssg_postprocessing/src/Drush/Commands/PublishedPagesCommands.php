@@ -75,10 +75,7 @@ final class PublishedPagesCommands extends DrushCommands {
     parent::__construct();
   }
 
-  /**
-   * @return mixed
-   */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static {
     return new static(
       entityTypeManager: $container->get('entity_type.manager'),
       configFactory: $container->get('config.factory'),
