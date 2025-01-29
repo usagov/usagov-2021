@@ -10,6 +10,7 @@ use Drupal\tome_static\Event\CollectPathsEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\PathPlaceholderEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
+use Drupal\tome_static\Event\ModifyDestinationEvent;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Views;
 use Masterminds\HTML5;
@@ -63,7 +64,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    * @param \Drupal\tome_static\Event\CollectPathsEvent $event
    *   The collect paths event.
    */
-  public function excludeDirectories(CollectPathsEvent $event) {
+  public function excludeDirectories(CollectPathsEvent $event): void {
     $excluded_directories = self::getExcludedDirectories();
     $paths = $event->getPaths(TRUE);
     foreach ($paths as $path => $metadata) {
@@ -119,8 +120,10 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    *
    * @return array
    *   An array of excluded paths.
+   *
+   *  @return array<string>
    */
-  public static function getExcludedDirectories() {
+  public static function getExcludedDirectories(): array {
     $excluded_paths = [];
     $site_paths = Settings::get('usagov_tome_static_path_exclude_directories', []);
     if (is_array($site_paths)) {
@@ -138,7 +141,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    * @param \Drupal\tome_static\Event\ModifyHtmlEvent $event
    *   The event.
    */
-  public function modifyHtml(ModifyHtmlEvent $event) {
+  public function modifyHtml(ModifyHtmlEvent $event): void {
     $html = $event->getHtml();
     $html5 = new HTML5();
 
@@ -189,7 +192,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    * @param PathPlaceholderEvent $event
    * @return void
    */
-  public function excludeInvalidPaths(PathPlaceholderEvent $event) {
+  public function excludeInvalidPaths(PathPlaceholderEvent $event): void {
     $path = $event->getPath();
 
     if ($path !== '/' && str_ends_with($path, '/')) {
@@ -233,6 +236,21 @@ class TomeEventSubscriber implements EventSubscriberInterface {
 
   }
 
+  /**
+   * Make all internal paths relative
+   */
+  public function makePathsRelative(ModifyDestinationEvent $event): void {
+    $destination = $event->getDestination();
+    $base_path = \Drupal::request()->getBasePath();
+    $destination = substr($destination, strlen($base_path));
+    $event->setDestination($destination);
+  }
+
+  /**
+   * Get the letters for the agency index
+   *
+   * @return array<string>
+   */
   private function getLetters(ViewExecutable $view): array {
     $view->execute();
     $letters = [];
@@ -256,6 +274,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['addAgencyIndexes'];
     $events[TomeStaticEvents::PATH_PLACEHOLDER][] = ['excludeInvalidPaths'];
+    $events[TomeStaticEvents::MODIFY_DESTINATION][] = ['makePathsRelative'];
     return $events;
   }
 
