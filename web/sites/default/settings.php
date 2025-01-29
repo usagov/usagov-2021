@@ -814,16 +814,20 @@ if (in_array($space_name, ['local', 'dev', 'dr', 'stage', 'prod'], true)) {
     case "local":
       $settings['trusted_host_patterns'][] = '^cms-local.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-local-usagov.apps.internal$';
-//      $config['core.extension']['module']['devel'] = 0;
-//      $config['core.extension']['module']['devel_generate'] = 0;
       break;
 
     case "dev":
-    case "dr":
       $IS_CLOUDGOV = TRUE;
       $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
       $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
       $settings['trusted_host_patterns'][] = '^cms-dev-usagov.apps.internal$';
+      break;
+
+    case "dr":
+      $IS_CLOUDGOV = TRUE;
+      $SERVER_HTTP_HOST = 'cms-cr.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms-dr.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-dr-usagov.apps.internal$';
       break;
 
     case "stage":
