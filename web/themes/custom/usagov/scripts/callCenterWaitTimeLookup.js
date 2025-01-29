@@ -89,7 +89,6 @@ jQuery(document).ready(async function () {
     // Return true if the number is less than 0.8 (80%)
     return randomNumber < 0.8;
   }
-
   // apply to all pages
   getCallCenterWaitTime();
 });
