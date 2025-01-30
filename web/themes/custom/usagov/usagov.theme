@@ -457,12 +457,12 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
     $variables['breadcrumb'][] = [
-      'text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_EN(),
-      'url' => TaxonomyDatalayerBuilder::ABOUT_URL_EN()
+      'text' => TaxonomyDatalayerBuilder::aboutGovtEn(),
+      'url' => TaxonomyDatalayerBuilder::aboutUrlEn()
     ];
     $variables['breadcrumb'][] = [
-      'text' => TaxonomyDatalayerBuilder::AGENCY_INDEX_EN(),
-      'url' => TaxonomyDatalayerBuilder::AGENCY_INDEX_URL_EN()
+      'text' => TaxonomyDatalayerBuilder::agencyIndexEn(),
+      'url' => TaxonomyDatalayerBuilder::agencyIndexUrlEn()
     ];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
@@ -471,8 +471,8 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
     $variables['breadcrumb'][] = [
-      'text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_EN(),
-      'url' => TaxonomyDatalayerBuilder::ABOUT_URL_EN()
+      'text' => TaxonomyDatalayerBuilder::aboutGovtEn(),
+      'url' => TaxonomyDatalayerBuilder::aboutUrlEn()
     ];
     $variables['breadcrumb'][] = [
       'text' => TaxonomyDatalayerBuilder::stateIndexEn(),
@@ -485,8 +485,8 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
     $variables['breadcrumb'][] = [
-      'text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_ES(),
-      'url' => TaxonomyDatalayerBuilder::ABOUT_URL_ES()
+      'text' => TaxonomyDatalayerBuilder::aboutGovtEs(),
+      'url' => TaxonomyDatalayerBuilder::aboutUrlEs()
     ];
     $variables['breadcrumb'][] = [
       'text' => TaxonomyDatalayerBuilder::agencyIndexEs(),
@@ -499,8 +499,8 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
     $variables['breadcrumb'][] = [
-      'text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_ES(),
-      'url' => TaxonomyDatalayerBuilder::ABOUT_URL_ES()
+      'text' => TaxonomyDatalayerBuilder::aboutGovtEs(),
+      'url' => TaxonomyDatalayerBuilder::aboutUrlEs()
     ];
     $variables['breadcrumb'][] = [
       'text' => TaxonomyDatalayerBuilder::stateIndexEs(),
