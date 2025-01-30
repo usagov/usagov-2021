@@ -449,37 +449,63 @@ function usagov_theme_suggestions_alter(array &$suggestions, array $variables, $
 function usagov_preprocess_breadcrumb(&$variables) {
 
   $node = \Drupal::routeMatch()->getParameter('node');
-  if (empty($node)) return;
+  if (empty($node)) {
+    return;
+  }
 
-  if (strpos($node->toUrl()->toString(), 'agencies/') !== false) {
+  if (strpos($node->toUrl()->toString(), 'agencies/') !== FALSE) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_EN(), 'url' => TaxonomyDatalayerBuilder::ABOUT_URL_EN()];
-    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::AGENCY_INDEX_EN(), 'url' => TaxonomyDatalayerBuilder::AGENCY_INDEX_URL_EN()];
+    $variables['breadcrumb'][] = [
+      'text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_EN(),
+      'url' => TaxonomyDatalayerBuilder::ABOUT_URL_EN()
+    ];
+    $variables['breadcrumb'][] = [
+      'text' => TaxonomyDatalayerBuilder::AGENCY_INDEX_EN(),
+      'url' => TaxonomyDatalayerBuilder::AGENCY_INDEX_URL_EN()
+    ];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
-  if (strpos($node->toUrl()->toString(), 'states/') !== false) {
+  if (strpos($node->toUrl()->toString(), 'states/') !== FALSE) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_EN(), 'url' => TaxonomyDatalayerBuilder::ABOUT_URL_EN()];
-    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::STATE_INDEX_EN(), 'url' => TaxonomyDatalayerBuilder::STATE_INDEX_URL_EN()];
+    $variables['breadcrumb'][] = [
+      'text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_EN(),
+      'url' => TaxonomyDatalayerBuilder::ABOUT_URL_EN()
+    ];
+    $variables['breadcrumb'][] = [
+      'text' => TaxonomyDatalayerBuilder::stateIndexEn(),
+      'url' => TaxonomyDatalayerBuilder::stateIndexUrlEn()
+    ];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
-  if (strpos($node->toUrl()->toString(), 'agencias/') !== false) {
+  if (strpos($node->toUrl()->toString(), 'agencias/') !== FALSE) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_ES(), 'url' => TaxonomyDatalayerBuilder::ABOUT_URL_ES()];
-    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::AGENCY_INDEX_ES(), 'url' => TaxonomyDatalayerBuilder::AGENCY_INDEX_URL_ES()];
+    $variables['breadcrumb'][] = [
+      'text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_ES(),
+      'url' => TaxonomyDatalayerBuilder::ABOUT_URL_ES()
+    ];
+    $variables['breadcrumb'][] = [
+      'text' => TaxonomyDatalayerBuilder::agencyIndexEs(),
+      'url' => TaxonomyDatalayerBuilder::agencyIndexUrlEs()
+    ];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
-  if (strpos($node->toUrl()->toString(), 'estados/') !== false) {
+  if (strpos($node->toUrl()->toString(), 'estados/') !== FALSE) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
-    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_ES(), 'url' => TaxonomyDatalayerBuilder::ABOUT_URL_ES()];
-    $variables['breadcrumb'][] = ['text' => TaxonomyDatalayerBuilder::STATE_INDEX_ES(), 'url' => TaxonomyDatalayerBuilder::STATE_INDEX_URL_ES()];
+    $variables['breadcrumb'][] = [
+      'text' => TaxonomyDatalayerBuilder::ABOUT_GOVT_ES(),
+      'url' => TaxonomyDatalayerBuilder::ABOUT_URL_ES()
+    ];
+    $variables['breadcrumb'][] = [
+      'text' => TaxonomyDatalayerBuilder::stateIndexEs(),
+      'url' => TaxonomyDatalayerBuilder::stateIndexUrlEs()
+    ];
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 

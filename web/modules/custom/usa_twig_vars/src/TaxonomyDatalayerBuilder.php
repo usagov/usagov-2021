@@ -68,7 +68,7 @@ class TaxonomyDatalayerBuilder {
 
   public static function ABOUT_GOVT_EN() {
     static $ret = FALSE;
-    if ($ret === false) {
+    if ($ret === FALSE) {
       $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::ABOUT_URL_EN());
       $nid = str_replace('/node/', '', $sysPath);
       $ret = Node::load($nid)->getTitle();
@@ -82,7 +82,7 @@ class TaxonomyDatalayerBuilder {
 
   public static function ABOUT_GOVT_ES() {
     static $ret = FALSE;
-    if ($ret === false) {
+    if ($ret === FALSE) {
       $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::ABOUT_URL_ES());
       $nid = str_replace('/node/', '', $sysPath);
       $ret = Node::load($nid)->getTitle();
@@ -96,7 +96,7 @@ class TaxonomyDatalayerBuilder {
 
   public static function AGENCY_INDEX_EN() {
     static $ret = FALSE;
-    if ($ret === false) {
+    if ($ret === FALSE) {
       $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::AGENCY_INDEX_URL_EN());
       $nid = str_replace('/node/', '', $sysPath);
       $ret = Node::load($nid)->getTitle();
@@ -108,45 +108,45 @@ class TaxonomyDatalayerBuilder {
     return '/agency-index';
   }
 
-  public static function AGENCY_INDEX_ES() {
+  public static function agencyIndexEs() {
     static $ret = FALSE;
-    if ($ret === false) {
-      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::AGENCY_INDEX_URL_ES());
+    if ($ret === FALSE) {
+      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::agencyIndexUrlEs());
       $nid = str_replace('/node/', '', $sysPath);
       $ret = Node::load($nid)->getTitle();
     }
     return $ret;
   }
 
-  public static function AGENCY_INDEX_URL_ES() {
+  public static function agencyIndexUrlEs() {
     return '/es/indice-agencias';
   }
 
-  public static  function STATE_INDEX_EN() {
+  public static function stateIndexEn() {
     static $ret = FALSE;
-    if ($ret === false) {
-      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::STATE_INDEX_URL_EN());
+    if ($ret === FALSE) {
+      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::stateIndexUrlEn());
       $nid = str_replace('/node/', '', $sysPath);
       $ret = Node::load($nid)->getTitle();
     }
     return $ret;
   }
 
-  public static function STATE_INDEX_URL_EN() {
+  public static function stateIndexUrlEn() {
     return '/state-governments';
   }
 
-  public static function STATE_INDEX_ES() {
+  public static function stateIndexEs() {
     static $ret = FALSE;
-    if ($ret === false) {
-      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::STATE_INDEX_URL_ES());
+    if ($ret === FALSE) {
+      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::stateIndexUrlEs());
       $nid = str_replace('/node/', '', $sysPath);
       $ret = Node::load($nid)->getTitle();
     }
     return $ret;
   }
 
-  public static function STATE_INDEX_URL_ES() {
+  public static function stateIndexUrlEs() {
     return '/es/gobiernos-estatales';
   }
 
@@ -324,7 +324,7 @@ class TaxonomyDatalayerBuilder {
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_ES;
         $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_ES();
-        $taxonomy["Taxonomy_URL_3"] = self::AGENCY_INDEX_URL_ES();
+        $taxonomy["Taxonomy_URL_3"] = self::agencyIndexUrlEs();
     }
 
     $agencyName = htmlspecialchars($this->node->getTitle(), ENT_QUOTES, 'UTF-8');
@@ -357,7 +357,7 @@ class TaxonomyDatalayerBuilder {
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_EN;
         $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_EN();
-        $taxonomy["Taxonomy_URL_3"] = self::STATE_INDEX_URL_EN();
+        $taxonomy["Taxonomy_URL_3"] = self::stateIndexUrlEn();
         break;
 
       case 'es':
@@ -368,7 +368,7 @@ class TaxonomyDatalayerBuilder {
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_ES;
         $taxonomy["Taxonomy_URL_2"] = self::ABOUT_URL_ES();
-        $taxonomy["Taxonomy_URL_3"] = self::STATE_INDEX_URL_ES();
+        $taxonomy["Taxonomy_URL_3"] = self::stateIndexUrlEs();
     }
 
     $agencyName = htmlspecialchars($this->node->getTitle(), ENT_QUOTES, 'UTF-8');
@@ -401,7 +401,7 @@ class TaxonomyDatalayerBuilder {
     try {
       switch ($this->node->toUrl()->toString()) {
         case self::AGENCY_INDEX_URL_EN():
-        case self::AGENCY_INDEX_URL_ES():
+        case self::agencyIndexUrlEs():
           return TRUE;
       }
     }
@@ -420,8 +420,8 @@ class TaxonomyDatalayerBuilder {
     // These paths are also standard pages but should be coded differently.
     try {
       switch ($this->node->toUrl()->toString()) {
-        case self::STATE_INDEX_URL_EN():
-        case self::STATE_INDEX_URL_ES():
+        case self::stateIndexUrlEn():
+        case self::stateIndexUrlEs():
           return TRUE;
       }
     }
