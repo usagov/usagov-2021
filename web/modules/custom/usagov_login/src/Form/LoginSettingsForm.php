@@ -91,12 +91,6 @@ class LoginSettingsForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
-   *
-   * @param array<string, mixed> $form
-   *    An associative array containing the structure of the form.
-   * @param-out array<mixed> $form
-   * @param FormStateInterface $form_state
-   *    The current state of the form.
    */
   #[\Override]
   public function submitForm(array &$form, FormStateInterface $form_state): void {
