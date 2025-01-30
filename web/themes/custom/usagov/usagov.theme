@@ -453,9 +453,9 @@ function usagov_preprocess_breadcrumb(&$variables) {
     return;
   }
 
-  if (strpos($node->toUrl()->toString(), 'agencies/') !== FALSE) {
+  if (str_starts_with('/agencies/', $node->toUrl()->toString())) {
     $variables['breadcrumb'] = [];
-    $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
+    $variables['breadcrumb'][] = ['text' => 'Home', 'url' => '/'];
     $variables['breadcrumb'][] = [
       'text' => TaxonomyDatalayerBuilder::aboutGovtEn(),
       'url' => TaxonomyDatalayerBuilder::aboutUrlEn()
@@ -467,9 +467,9 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
-  if (strpos($node->toUrl()->toString(), 'states/') !== FALSE) {
+  if (str_starts_with('/states/', $node->toUrl()->toString())) {
     $variables['breadcrumb'] = [];
-    $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
+    $variables['breadcrumb'][] = ['text' => 'Home', 'url' => '/'];
     $variables['breadcrumb'][] = [
       'text' => TaxonomyDatalayerBuilder::aboutGovtEn(),
       'url' => TaxonomyDatalayerBuilder::aboutUrlEn()
@@ -481,7 +481,7 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
-  if (strpos($node->toUrl()->toString(), 'agencias/') !== FALSE) {
+  if (str_starts_with('/es/agencias/', $node->toUrl()->toString())) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
     $variables['breadcrumb'][] = [
@@ -495,7 +495,7 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
-  if (strpos($node->toUrl()->toString(), 'estados/') !== FALSE) {
+  if (str_starts_with('/es/estados/', $node->toUrl()->toString())) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
     $variables['breadcrumb'][] = [
