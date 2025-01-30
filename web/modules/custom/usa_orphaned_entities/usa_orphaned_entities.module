@@ -35,7 +35,7 @@ function usa_orphaned_entities_form_alter(array &$form, FormStateInterface &$for
     $reference_data = usa_orphaned_entities_get_reference_data($entity);
 
     $markup = "<div class=\"default-message\">" .
-      $entity->getDescription() . "</div>";
+      $delForm->getDescription() . "</div>";
     $segway = "T"; // it's a joke about powered scooters
     $additional = "";
 
