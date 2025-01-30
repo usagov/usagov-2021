@@ -5,6 +5,7 @@ namespace Drupal\usa_twig_vars;
 use Drupal\Core\Breadcrumb\ChainBreadcrumbBuilderInterface;
 use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 
 /**
@@ -85,13 +86,16 @@ class TaxonomyDatalayerBuilder {
     if ($ret === FALSE) {
       $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::aboutUrlEs());
       $nid = str_replace('/node/', '', $sysPath);
-      $ret = Node::load($nid)->getTitle();
+      $node = Node::load($nid);
+      if (!empty($node)) {
+        $ret = $node->getTitle();
+      }
     }
     return $ret;
   }
 
   public static function aboutUrlEs() {
-    return "/es/acerca-de-estados-unidos";
+    return "/acerca-de-estados-unidos";
   }
 
   public static function agencyIndexEn() {
