@@ -61,4 +61,3 @@ class RedirectSubscriber implements EventSubscriberInterface {
   }
 
 }
-
