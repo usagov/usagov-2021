@@ -172,26 +172,7 @@ fi
 
 echo "Checking for .git file to identify local installation; \"fatal: not a git repository\" is expected elsewhere"
 git config --global --add safe.directory /var/www
-if [[ $(git rev-parse --is-inside-work-tree) ]]; then
-  # Find the php.ini file
-  PHP_INI=$(php -i | grep 'Loaded Configuration File' | awk '{print $NF}')
 
-  # Check if opcache is already disabled
-  if grep -q 'opcache\.enable\s*=\s*0' "$PHP_INI"; then
-    echo "OPCache is already disabled."
-  else
-    echo "Disabling OPCache..."
-    sed -i 's/^opcache\.enable\s*=.*/opcache.enable=0/' "$PHP_INI"
-    sed -i 's/^opcache\.enable_cli\s*=.*/opcache.enable_cli=0/' "$PHP_INI"
-    echo "OPCache disabled."
-  fi
-fi
-
-# php needs a restart so new relic ini changes take effect
-if [ -d /var/run/s6/services/php ]; then
-  echo "Asking php to reload conf ... "
-  s6-svc -2 /var/run/s6/services/php
-fi
 # nginx needs a restart so proxy changes take effect
 if [ -d /var/run/s6/services/nginx ]; then
   echo "Asking nginx to reload conf ... "
