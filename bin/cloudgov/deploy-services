@@ -42,7 +42,7 @@ generate_string()
 generate_cert_json()
 {
   if command -v openssl >/dev/null ; then
-    SECAUTHSECRETS=$(cf curl /v2/user_provided_service_instances/$(cf service secauthsecrets --guid) | jq -r '.entity | select(.name == "secauthsecrets") | .credentials' )
+    SECAUTHSECRETS=$(cf curl /v3/service_instances/$(cf service secauthsecrets --guid)/credentials)
     SP_KEY=$(echo -E "$SECAUTHSECRETS" | jq -r '.spkey')
     SP_CRT=$(echo -E "$SECAUTHSECRETS" | jq -r '.spcrt')
 
@@ -141,15 +141,15 @@ generate_cert_json()
   echo "Configuring Secrets Service"
   if service_exists "secrets" ; then
     echo "secrets already created: updating"
-    CURR_SECRETS=$(cf curl /v2/user_provided_service_instances/$(cf service secrets --guid))
-    CURR_CRON_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.CRON_KEY')
-    CURR_HASH_SALT=$(echo $CURR_SECRETS | jq -r '.entity.credentials.HASH_SALT')
-    CURR_ROOT_USER_NAME=$(echo $CURR_SECRETS | jq -r '.entity.credentials.ROOT_USER_NAME')
-    CURR_ROOT_USER_PASS=$(echo $CURR_SECRETS | jq -r '.entity.credentials.ROOT_USER_PASS')
-    CURR_NEW_RELIC_DISPLAY_NAME=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_DISPLAY_NAME')
-    CURR_NEW_RELIC_APP_NAME=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_APP_NAME')
-    CURR_NEW_RELIC_LICENSE_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_LICENSE_KEY')
-    CURR_NEW_RELIC_API_KEY=$(echo $CURR_SECRETS | jq -r '.entity.credentials.NEW_RELIC_API_KEY')
+    CURR_SECRETS=$(cf curl /v3/service_instances/$(cf service secrets --guid)/credentials)
+    CURR_CRON_KEY=$(echo $CURR_SECRETS | jq -r '.CRON_KEY')
+    CURR_HASH_SALT=$(echo $CURR_SECRETS | jq -r '.HASH_SALT')
+    CURR_ROOT_USER_NAME=$(echo $CURR_SECRETS | jq -r '.ROOT_USER_NAME')
+    CURR_ROOT_USER_PASS=$(echo $CURR_SECRETS | jq -r '.ROOT_USER_PASS')
+    CURR_NEW_RELIC_DISPLAY_NAME=$(echo $CURR_SECRETS | jq -r '.NEW_RELIC_DISPLAY_NAME')
+    CURR_NEW_RELIC_APP_NAME=$(echo $CURR_SECRETS | jq -r '.NEW_RELIC_APP_NAME')
+    CURR_NEW_RELIC_LICENSE_KEY=$(echo $CURR_SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')
+    CURR_NEW_RELIC_API_KEY=$(echo $CURR_SECRETS | jq -r '.NEW_RELIC_API_KEY')
     if [ -n "$NEW_RELIC_DISPLAY_NAME" ]; then
       CURR_NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME}
     fi
