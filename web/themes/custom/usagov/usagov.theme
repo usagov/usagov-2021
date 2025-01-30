@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
 
 /**
@@ -26,15 +27,15 @@ function usagov_preprocess_html(array &$variables): void {
  * generate_faq takes a node, analyses the body content,
  * and returns an array of objects each containing a question and answer
  *
- * @return array<\stdClass> $faq
+ * @return \stdClass[]
  */
-function generate_faq(object &$node): array {
+function generate_faq(NodeInterface &$node): array {
   $faq = [];
 
   // While a node may have its FAQ-Page checked, this does not guarantee the
   // body field is not empty. When it is empty, there is nothing we can do here.
   // We will bail to prevent errors (see USAGOV-1925).
-  if (empty($node->get('body')) || empty($node->get('body')[0]) || empty($node->get('body')[0]->value)) {
+  if (empty($node->get('body')[0]) || empty($node->get('body')[0]->value)) {
     return [];
   }
 
@@ -270,8 +271,11 @@ function faq_answer_inner_html(DOMDocument &$answer): string {
 /**
  * children_of_active_menu_item is a recursive helper function for finding the
  * children of the active menu item
+ *
+ * @param array<string, array<string, mixed>> $items
+ *   Array of menu children
  */
-function children_of_active_menu_item(object &$items): mixed {
+function children_of_active_menu_item(array &$items): mixed {
   $result = NULL;
   foreach ($items as $object) {
     if ($object['in_active_trail'] === TRUE) {
