@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\taxonomy\TermInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
 
 /**
  * Class MenuChecker.
@@ -58,13 +59,14 @@ class MenuChecker implements ContainerInjectionInterface {
     }
 
     return [];
-
   }
 
   /**
    * Get the values in the field_heading to determine the third breadcrumb.
+   *
+   * @return array<array{name: string, label: string, id: string}>
    */
-  public function getHeadings(TermInterface $term) {
+  public function getHeadings(TermInterface $term): array {
     $parents = $this->getTermParents($term);
     $headings = [];
 
@@ -92,11 +94,11 @@ class MenuChecker implements ContainerInjectionInterface {
    * @param string $langcode
    *   The current language code.
    *
-   * @return array|void
+   * @return array{}|array{menu_entities: array<int, MenuLinkContent[]>, primary_entity: ?MenuLinkContent}
    *   An array containing the target term IDs and menu entities.
    */
-  public function getMenuEntities(string $langcode) {
-    if ($langcode == 'en') {
+  public function getMenuEntities(string $langcode): array {
+    if ($langcode === 'en') {
       $menu_name = 'left-menu-english';
     }
     else {
@@ -152,10 +154,8 @@ class MenuChecker implements ContainerInjectionInterface {
         'primary_entity' => $primaryEntity ?? NULL,
       ];
     }
-    else {
-      return [];
-    }
 
+    return [];
   }
 
 }
