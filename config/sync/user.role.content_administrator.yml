@@ -30,7 +30,6 @@ dependencies:
     - content_lock
     - content_moderation
     - content_translation
-    - devel
     - media
     - menu_link_content
     - node
@@ -52,7 +51,6 @@ permissions:
   - 'access administration pages'
   - 'access block library'
   - 'access content overview'
-  - 'access devel information'
   - 'access media overview'
   - 'access site in maintenance mode'
   - 'access taxonomy overview'
