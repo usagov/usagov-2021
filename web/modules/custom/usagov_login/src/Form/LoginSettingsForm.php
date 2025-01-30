@@ -36,7 +36,7 @@ class LoginSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   #[\Override]
-  public static function create(ContainerInterface $container): LoginSettingsForm|ConfigFormBase|static {
+  public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('config.factory'),
       $container->get('state'),
