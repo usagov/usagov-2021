@@ -765,6 +765,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2227-add-gsa-ips-to-allowlist
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -775,6 +776,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2227-add-gsa-ips-to-allowlist
       - approve-dev-deployment:
           type: approval
           requires:
@@ -783,6 +785,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2227-add-gsa-ips-to-allowlist
       - approve-dr-deployment:
           type: approval
           requires:
@@ -798,6 +801,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2227-add-gsa-ips-to-allowlist
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
