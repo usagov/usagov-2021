@@ -11,7 +11,7 @@ use Drupal\node\NodeInterface;
  * Builds a datalayer array we can serialize to JSON in our twig template.
  *
  * @phpstan-type TaxonomyBreadcrumb array{
- *   "nodeID"?: string,
+ *   nodeID?: string,
  *   language?: "es"|"en",
  *   homepageTest?: "homepage"|"not_homepage",
  *   basicPagesubType?: null|string,
