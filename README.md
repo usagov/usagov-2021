@@ -278,7 +278,7 @@ destroying the existing containers, networks, and volumes the procedure is the s
 ### Docker cleanup
 ```
 docker compose down
-docker system prune
+docker system prune --filter "label=com.docker.compose.project=usagov-2021"
 ```
 
 Refer to [Full Project Setup](#setting-up-the-project) section above to continue the setup.
