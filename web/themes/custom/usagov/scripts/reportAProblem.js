@@ -1,6 +1,6 @@
 function timestamp() {
   "use strict";
-  var response = $("#g-recaptcha-response");
+  var response = jQuery("#g-recaptcha-response");
   if (response || response.value.trim() === "") {
     var elems = JSON.parse(
       document.getElementsByName("captcha_settings")[0].value
@@ -35,12 +35,12 @@ function fieldValidation() {
   var noErrors = true;
 
   // Iterate through all fields.
-  $(".required").each(function () {
+  jQuery(".required").each(function () {
 
-    var input = $(this).find("input,textarea"); // Current field
+    var input = jQuery(this).find("input,textarea"); // Current field
     var errorId = "error_" + input.attr("id");
     var alertErrorId = "alert_" + errorId; // Id of field error text in alert box
-    var fieldElement = $("#" + input.attr("id"))[0];
+    var fieldElement = jQuery("#" + input.attr("id"))[0];
 
     // Check if the current field is valid
     if (
@@ -50,10 +50,10 @@ function fieldValidation() {
       noErrors = false;
 
       // If the error is not yet visible, it adds it to the form.
-      if (!$(this).find("span.err-label").length) {
+      if (!jQuery(this).find("span.err-label").length) {
         var error = input.attr("data-error");
 
-        var label = $(this).find("label");
+        var label = jQuery(this).find("label");
         label.after(
           '<span id="' +
             errorId +
@@ -69,13 +69,13 @@ function fieldValidation() {
       // Adds the error line to the side of the field.
       fieldElement.parentElement.classList.add("usa-border-error");
       // Makes the error text visible in the alert box.
-      var alertBoxText = $("#" + alertErrorId)[0];
+      var alertBoxText = jQuery("#" + alertErrorId)[0];
       alertBoxText ? alertBoxText.classList.remove("usa-error--alert") : "";
       // Adds the left padding from the fields.
       fieldElement.parentElement.classList.add("usa-form-spacing");
     }
-    else if ($(this).find("span.err-label").length) {
-      var errorLabel = $(this).find("span.err-label");
+    else if (jQuery(this).find("span.err-label").length) {
+      var errorLabel = jQuery(this).find("span.err-label");
       errorLabel ? errorLabel.remove() : "";
 
       // Removes the error outline in the field.
@@ -83,7 +83,7 @@ function fieldValidation() {
       // Removes the error line to the side of the field.
       fieldElement.parentElement.classList.remove("usa-border-error") ;
       // Makes the error text invisible in the alert box.
-      $("#" + alertErrorId)[0].classList.add("usa-error--alert");
+      jQuery("#" + alertErrorId)[0].classList.add("usa-error--alert");
       // Removes the left padding from the fields.
       fieldElement.parentElement.classList.remove("usa-form-spacing") ;
     }
@@ -111,8 +111,8 @@ function modifyErrorElements() {
   'use strict';
 
   // If there is an error, modify the alert box header text based on the number of fields with errors.
-  $("#error-box")[0].classList.remove("usa-error--alert");
-  $("#error-box")[0].focus();
+  jQuery("#error-box")[0].classList.remove("usa-error--alert");
+  jQuery("#error-box")[0].focus();
 
   // Gets all error text elements from the alert box to check how many errors we have (this includes reCaptcha and all fields)
   var errors = document.querySelectorAll('[id*="alert_error_"]:not(.usa-error--alert)');
@@ -120,35 +120,35 @@ function modifyErrorElements() {
   if (errors.length === 1) {
       // English Header text when there is only one error
       if (document.documentElement.lang === "en") {
-          $("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Your information contains an error";
+          jQuery("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Your information contains an error";
       }
       // Spanish Header text when there is only one error
       else {
-          $("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Su información contiene 1 error";
+          jQuery("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Su información contiene 1 error";
       }
   }
   else {
       // English Header text when there is more than one error
       if (document.documentElement.lang === "en") {
-          $("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Your information contains " + errors.length + " errors";
+          jQuery("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Your information contains " + errors.length + " errors";
       }
       // Spanish Header text when there is more than one error
       else {
-          $("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Su información contiene " + errors.length + " errores";
+          jQuery("#error-box")[0].getElementsByTagName("h2")[0].innerHTML = "Su información contiene " + errors.length + " errores";
       }
   }
 
   if (errors.length >= 4) {
     // Adds the side line without spaces when all 3 fields are incorrect.
-    $("#error-border")[0].classList.add("usa-main-border-error");
+    jQuery("#error-border")[0].classList.add("usa-main-border-error");
   }
   else {
     // Removes the side line without spaces.
-    $("#error-border")[0].classList.remove("usa-main-border-error");
+    jQuery("#error-border")[0].classList.remove("usa-main-border-error");
   }
     // Adds class back to the top error box bofore form submission.
   if (errors.length < 1) {
-    $("#error-box")[0].classList.add("usa-error--alert");
+    jQuery("#error-box")[0].classList.add("usa-error--alert");
   }
 }
 
@@ -182,7 +182,7 @@ function onSubmit(token) {
 jQuery(document).ready(function () {
   "use strict";
 
-  $("#pagesurvey-hdr").hide();
-  $("#pagesurvey-trgt").hide();
-  $("#pagesurvey-ombnum").hide();
+  jQuery("#pagesurvey-hdr").hide();
+  jQuery("#pagesurvey-trgt").hide();
+  jQuery("#pagesurvey-ombnum").hide();
 });
