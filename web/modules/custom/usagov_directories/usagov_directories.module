@@ -53,16 +53,16 @@ function usagov_directories_views_pre_render(ViewExecutable $view): void {
     && ($view->current_display === 'block_1' || $view->current_display === "block_2")
   ) {
     $new_result = $view->result;
-    $num_results = count($new_result);
+    $num_results = $view->total_rows;
     for ($res = 0; $res < $num_results; $res++) {
       /** @var NodeInterface $node */
       $node = $new_result[$res]->_entity;
       $node_title = $node->getTitle();
 
       if ($node->getType() === "agency_synonym") {
-        $pid_str = $node->get('field_agency_reference')->getValue()[0];
+        $parent_id = $node->get('field_agency_reference')->getValue()[0]['target_id'] ?? FALSE;
         // Need this check in case synonyms were not backlinked to their directory.
-        if ($pid_str && ($parent = Node::load($pid_str))) {
+        if ($parent_id && ($parent = Node::load($parent_id))) {
           // Replace this synonym with the agency it points to in the view results.
           $new_result[$res]->_entity = clone $parent;
           $new_result[$res]->_entity->title[0]->value = $node_title;
@@ -88,7 +88,7 @@ function usagov_directories_entity_presave(EntityInterface $entity): void {
   }
 
   switch ($entity->bundle()) {
-    //Only check federal agencies
+    // Only check federal agencies
     case 'directory_record':
       $titleToTrim = $entity->getTitle();
       $trimmedTitle = trim($titleToTrim);
