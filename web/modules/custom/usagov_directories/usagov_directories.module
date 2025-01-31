@@ -4,34 +4,40 @@
  * @file
  */
 
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
+use Drupal\views\ViewExecutable;
 
 /**
 * Static Site Generation Toggle State Form ID
 */
-function usagov_directories_get_static_state_form_id() {
+function usagov_directories_get_static_state_form_id(): string {
   return 'toggle_static_site_generation_form';
 }
 
 /**
 * Static Site Generation Toggle State Form Button Name
 */
-function usagov_directories_get_static_state_button_name() {
+function usagov_directories_get_static_state_button_name(): string {
   return 'confirm_toggle';
 }
 
 /**
  * Toggle State variable name for sset/sget/sdel
  */
-function usagov_directories_get_static_state_var() {
+function usagov_directories_get_static_state_var(): string {
   return 'usagov.tome_run_disabled';
 }
 
 /**
-  * Implements hook_form_alter().
-  * Static Site Generation form text updates.
-  */
-function usagov_directories_form_alter(&$form, &$form_state, $form_id) {
+ * Implements hook_form_alter().
+ * Static Site Generation form text updates.
+ *
+ * @param array<string, mixed> $form
+ */
+function usagov_directories_form_alter(array &$form, FormStateInterface &$form_state, string $form_id): void {
   if ($form_id == usagov_directories_get_static_state_form_id()) {
     $toggle_state = \Drupal::state()->get(usagov_directories_get_static_state_var()) ? 1 : 0;
     $form_state->setValue(usagov_directories_get_static_state_button_name(), $toggle_state ? TRUE : FALSE);
@@ -41,25 +47,28 @@ function usagov_directories_form_alter(&$form, &$form_state, $form_id) {
 /**
  * Implements hook_views_pre_render()
  */
-function usagov_directories_views_pre_render($view) {
-  if ($view->id() == 'federal_agencies' && ($view->current_display == 'block_1' || $view->current_display == "block_2")) {
-
+function usagov_directories_views_pre_render(ViewExecutable $view): void {
+  if (
+    $view->id() === 'federal_agencies'
+    && ($view->current_display === 'block_1' || $view->current_display === "block_2")
+  ) {
     $new_result = $view->result;
     $num_results = count($new_result);
     for ($res = 0; $res < $num_results; $res++) {
-      $nid = $new_result[$res]->_entity->nid[0]->value;
-      $node = Node::load($nid);
-      $node_title = $node->get('title')[0]->value;
+      /** @var NodeInterface $node */
+      $node = $new_result[$res]->_entity;
+      $node_title = $node->getTitle();
 
-      $type_str = $new_result[$res]->_entity->type[0]->target_id;
-      if ($type_str == "agency_synonym") {
-        $pid_str = $new_result[$res]->_entity->field_agency_reference->target_id;
+      if ($node->getType() === "agency_synonym") {
+        $pid_str = $node->get('field_agency_reference')->getValue()[0];
         // Need this check in case synonyms were not backlinked to their directory.
         if ($pid_str && ($parent = Node::load($pid_str))) {
+          // Replace this synonym with the agency it points to in the view results.
           $new_result[$res]->_entity = clone $parent;
           $new_result[$res]->_entity->title[0]->value = $node_title;
         }
-        else {// Skip this synonym; it points to a record that no longer exists.
+        else {
+          // Skip this synonym; it points to a record that no longer exists.
           unset($new_result[$res]);
         }
       }
@@ -72,7 +81,12 @@ function usagov_directories_views_pre_render($view) {
 /**
  * Implements hook_entity_presave() to make sure that the title does not have extra whitespace before or after
  */
-function usagov_directories_entity_presave($entity) {
+function usagov_directories_entity_presave(EntityInterface $entity): void {
+
+  if (!$entity instanceof NodeInterface) {
+    return;
+  }
+
   switch ($entity->bundle()) {
     //Only check federal agencies
     case 'directory_record':
