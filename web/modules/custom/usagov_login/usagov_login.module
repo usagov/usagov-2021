@@ -16,6 +16,13 @@ use Drupal\user\UserInterface;
  * Implements hook_form_FORM_ID_alter().
  *
  * Alters the user login form.
+ *
+ * @param array<string, mixed> &$form
+ *   The form array.
+ * @param FormStateInterface $form_state
+ *   The current form state.
+ * @param string $form_id
+ *   The form ID.
  */
 function usagov_login_form_user_login_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
   $config = \Drupal::config('usagov_login.settings');

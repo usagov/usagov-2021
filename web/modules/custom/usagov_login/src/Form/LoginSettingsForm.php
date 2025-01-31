@@ -61,6 +61,14 @@ class LoginSettingsForm extends ConfigFormBase {
 
   /**
    *  {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   *    The form array to be built.
+   * @param FormStateInterface $form_state
+   *    The current state of the form.
+   *
+   * @return array<string, mixed>
+   *    The built form array.
    */
   #[\Override]
   public function buildForm(array $form, FormStateInterface $form_state): array {
@@ -91,6 +99,12 @@ class LoginSettingsForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   *    An associative array containing the structure of the form.
+   * @param-out array<mixed> $form
+   * @param FormStateInterface $form_state
+   *    The current state of the form.
    */
   #[\Override]
   public function submitForm(array &$form, FormStateInterface $form_state): void {
