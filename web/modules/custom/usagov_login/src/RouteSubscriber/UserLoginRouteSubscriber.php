@@ -10,7 +10,7 @@ class UserLoginRouteSubscriber extends RouteSubscriberBase {
   /**
    * @inheritDoc
    */
-  protected function alterRoutes(RouteCollection $collection) {
+  protected function alterRoutes(RouteCollection $collection): void {
     if ($route = $collection->get('user.pass')) {
       $route->setRequirement('_custom_access', 'Drupal\usagov_login\UserRouteAccess::checkAccess');
     }
