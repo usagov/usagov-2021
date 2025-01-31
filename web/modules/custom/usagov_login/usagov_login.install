@@ -7,8 +7,13 @@
 
 /**
  * Implements hook_requirements().
+ * @param string $phase
+ *   The phase of the requirements check (e.g., 'runtime' or 'install').
+ *
+ * @return array<string, mixed>
+ *   An array of requirements keyed by requirement name.
  */
-function usagov_login_requirements($phase) {
+function usagov_login_requirements(string $phase): array {
   if ($phase === 'runtime') {
     $config = \Drupal::config('usagov_login.settings');
     if ($config->get('sso_login_path') === NULL || !$config->get('sso_login_path')) {
@@ -28,4 +33,7 @@ function usagov_login_requirements($phase) {
       ],
     ];
   }
+
+  // Return an empty array for non-runtime phases.
+  return [];
 }
