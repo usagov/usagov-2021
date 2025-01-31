@@ -789,8 +789,8 @@ $settings['tome_static_path_exclude'] = [];
  * USAGov addition to exclude entire directories. Don't include the trailing slash.
  */
 $settings['usagov_tome_static_path_exclude_directories'] = [
-    '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete',
-    '/taxonomy', '/taxonomy_term', '/es/taxonomy_term', '/es/taxonomy'
+  '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete',
+  '/taxonomy', '/taxonomy_term', '/es/taxonomy_term', '/es/taxonomy'
 ];
 
 
@@ -804,51 +804,49 @@ if (getenv('NEW_RELIC_API_KEY')) {
  * Cloud Foundry places all service credentials in VCAP_SERVICES
  */
 $cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
-$SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'];
-if (!empty($cf_application_data['space_name']) &&
-    in_array($cf_application_data['space_name'],
-             ['dev', 'stage', 'prod'])) {
+$IS_CLOUDGOV = FALSE;
+$SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
+$settings['trusted_host_patterns'] = [];
+$space_name = strtolower($cf_application_data['space_name'] ?? '');
+
+if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
+  $IS_CLOUDGOV = TRUE;
+  $config['config_split.config_split.cloud_split']['status'] = TRUE;
+  $config['config_split.config_split.local_split']['status'] = FALSE;
+
   switch (strtolower($cf_application_data['space_name'])) {
+    // "local" values found in settings.local.php
     case "dev":
-      $SERVER_HTTP_HOST = 'https://cms-dev.usa.gov';
+      $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-dev-usagov.apps.internal$';
+      break;
+
+    case "dr":
+      $SERVER_HTTP_HOST = 'cms-dr.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms-dr.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-dr-usagov.apps.internal$';
       break;
 
     case "stage":
-      $SERVER_HTTP_HOST = 'https://cms-stage.usa.gov';
+      $SERVER_HTTP_HOST = 'cms-stage.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms-stage.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-stage-usagov.apps.internal$';
       break;
 
     case "prod":
-      $SERVER_HTTP_HOST = 'https://cms.usa.gov';
+      $SERVER_HTTP_HOST = 'cms.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-prod-usagov.apps.internal$';
       break;
   }
 }
-
-$IS_CLOUDGOV=FALSE;
-$SERVER_HTTP_POST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
-$cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
-if (!empty($cf_application_data['space_name']) &&
-    in_array($cf_application_data['space_name'],
-             ['dev', 'stage', 'prod'])) {
-  switch (strtolower($cf_application_data['space_name'])) {
-    case "dev":
-      $IS_CLOUDGOV=TRUE;
-      $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
-      break;
-
-    case "stage":
-      $IS_CLOUDGOV=TRUE;
-      $SERVER_HTTP_HOST = 'cms-stage.usa.gov';
-      break;
-
-    case "prod":
-      $IS_CLOUDGOV=TRUE;
-      $SERVER_HTTP_HOST = 'cms.usa.gov';
-      break;
-  }
+else {
+  $config['config_split.config_split.cloud_split']['status'] = FALSE;
+  $config['config_split.config_split.local_split']['status'] = TRUE;
 }
 
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);
-
 foreach ($cf_service_data as $service_list) {
   foreach ($service_list as $service) {
     if ($service['name'] === 'database') {
@@ -862,7 +860,7 @@ foreach ($cf_service_data as $service_list) {
         'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
         'driver' => 'mysql'
       ];
-      if ( $IS_CLOUDGOV===TRUE ) {
+      if ($IS_CLOUDGOV === TRUE) {
         $databases['default']['default']['pdo'] = [
           \PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/certs/rds-combined-ca-us-gov-bundle.pem',
           \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => TRUE
@@ -899,7 +897,6 @@ foreach ($cf_service_data as $service_list) {
       $settings['s3fs.upload_as_private'] = FALSE;
       $settings['s3fs.use_s3_for_public'] = TRUE;
       $settings['s3fs.use_s3_for_private'] = TRUE;
-
     }
   }
 }
@@ -910,34 +907,6 @@ $settings['php_storage']['twig']['directory'] = '../storage/php';
 // This is from https://www.fomfus.com/articles/how-to-create-a-drupal-8-project-for-heroku-part-1
 // included here without fully understanding implications:
 $settings['cache']['bins']['data'] = 'cache.backend.php';
-
-$settings['trusted_host_patterns'] = [];
-
-if (!empty($cf_application_data['space_name']) &&
-    in_array($cf_application_data['space_name'],
-             ['local','dev', 'stage', 'prod'])) {
-  switch (strtolower($cf_application_data['space_name'])) {
-    case "local":
-      $settings['trusted_host_patterns'][] = '^cms-local.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-local-usagov.apps.internal$';
-      break;
-
-    case "dev":
-      $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-dev-usagov.apps.internal$';
-      break;
-
-    case "stage":
-      $settings['trusted_host_patterns'][] = '^cms-stage.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-stage-usagov.apps.internal$';
-      break;
-
-    case "prod":
-      $settings['trusted_host_patterns'][] = '^cms.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-prod-usagov.apps.internal$';
-      break;
-  }
-}
 
 // Add cache.backend.null:
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/default/nonlocal.services.yml';
