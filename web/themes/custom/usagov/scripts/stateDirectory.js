@@ -39,7 +39,7 @@ jQuery(document).ready(function ($) {
   // add the submit button
   const sumBtn = docLang === "es" ? "Ir" : "Go";
   $("#submitAfter").append(
-    `<button class="usa-button sd-go-btn usa-button--secondary" type="submit">${sumBtn}</button>`
+    `<button class="usa-button sd-go-btn" type="submit">${sumBtn}</button>`
   );
   var goButton = $(".sd-go-btn");
 
