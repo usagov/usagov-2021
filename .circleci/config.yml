@@ -776,7 +776,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-                -USAGOV-2197-phpstan-ssg-postprocessing
+                - USAGOV-2197-phpstan-ssg-postprocessing
       - approve-dev-deployment:
           type: approval
           requires:
