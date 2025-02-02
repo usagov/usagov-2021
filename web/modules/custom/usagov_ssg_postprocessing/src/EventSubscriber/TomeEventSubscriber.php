@@ -234,7 +234,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * @return array<mixed>
+   * @return string[]
    */
   private function getLetters(ViewExecutable $view): array {
     $view->execute();

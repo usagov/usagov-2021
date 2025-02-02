@@ -10,13 +10,16 @@ use Drupal\Core\Entity\EntityInterface;
  * ntity rather than the structured content array, it may use this hook to add
  * a #post_render callback."
  *
- * @param array<mixed> &$build
+ * @param array<string, mixed> $build
 */
 function usagov_ssg_postprocessing_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display): void {
   usagov_ssg_postprocessing_remove_shortlink($build);
   usagov_ssg_postprocessing_modify_canonical_link($build);
 }
 
+/**
+ * @param array<string, mixed> $attachments
+ */
 function usagov_ssg_postprocessing_remove_shortlink(array &$attachments): void {
   if (!isset($attachments['#attached']['html_head_link'])) {
     return;
@@ -29,6 +32,9 @@ function usagov_ssg_postprocessing_remove_shortlink(array &$attachments): void {
   }
 }
 
+/**
+ * @param array<string, mixed> $attachments
+ */
 function usagov_ssg_postprocessing_modify_canonical_link(array &$attachments): void {
   if (!isset($attachments['#attached']['html_head_link'])) {
     return;
@@ -48,7 +54,7 @@ function usagov_ssg_postprocessing_modify_canonical_link(array &$attachments): v
 /**
  * Implements hook_page_attachments_alter
  *
- * @param array<mixed> &$attachments
+ * @param array<string, mixed> &$attachments
  * We just want to add / to the alternate links on the home pages
  */
 function usagov_ssg_postprocessing_page_attachments_alter(array &$attachments): void {
@@ -93,9 +99,11 @@ function usagov_ssg_postprocessing_get_static_state_var(): string {
 }
 
 /**
-  * Implements hook_form_alter().
-  * Static Site Generation form text updates.
-  */
+ * Implements hook_form_alter().
+ *
+ * @param array<string, mixed> $form
+ * Static Site Generation form text updates.
+ */
 function usagov_ssg_postprocessing_form_alter(mixed &$form, mixed &$form_state, string $form_id): void {
   if ($form_id == usagov_ssg_postprocessing_get_static_state_form_id()) {
     $toggle_state = \Drupal::state()->get(usagov_ssg_postprocessing_get_static_state_var()) ? 1 : 0;
