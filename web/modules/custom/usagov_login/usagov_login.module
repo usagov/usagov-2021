@@ -8,18 +8,28 @@
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Site\Settings;
+use Drupal\Core\TypedData\Exception\MissingDataException;
 use Drupal\user\Entity\User;
+use Drupal\user\UserInterface;
 
 /**
  * Implements hook_form_FORM_ID_alter().
+ *
+ * Alters the user login form.
+ *
+ * @param array<string, mixed> &$form
+ *   The form array.
+ * @param FormStateInterface $form_state
+ *   The current form state.
+ * @param string $form_id
+ *   The form ID.
  */
-function usagov_login_form_user_login_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-
+function usagov_login_form_user_login_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
   $config = \Drupal::config('usagov_login.settings');
   $loginPath = $config->get('sso_login_path');
   $loginText = $config->get('sso_login_text');
 
-  # allow override for local login forms via drush sset, or $settings[] in settings.local.php
+  // Allow override for local login forms via Drush or settings.local.php.
   $state = \Drupal::state()->get('usagov_login_local_form', 0);
   $settings_state = Settings::get('usagov_login_local_form');
   if ($settings_state || $state) {
@@ -27,7 +37,6 @@ function usagov_login_form_user_login_form_alter(&$form, FormStateInterface $for
   }
 
   if ($loginPath) {
-
     if (!$state) {
       $form['name']['#access'] = FALSE;
       $form['pass']['#access'] = FALSE;
@@ -44,6 +53,7 @@ function usagov_login_form_user_login_form_alter(&$form, FormStateInterface $for
       '#value' => $loginText,
       '#weight' => '-20',
     ];
+
     #$form['#prefix'] = '<div class="usa-list.usa-list--unstyled">';
     #$form['#suffix'] = '</div>';
     $form['#attributes']['class'] = 'usa-list.usa-list--unstyled';
@@ -52,8 +62,10 @@ function usagov_login_form_user_login_form_alter(&$form, FormStateInterface $for
 
 /**
  * Implements hook_ENTITY_TYPE_update().
+ *
+ * Responds to updates to user accounts.
  */
-function usagov_login_user_update($account) {
+function usagov_login_user_update(UserInterface $account): void {
   $uid = \Drupal::currentUser()->id();
   $user = User::load($uid);
   $uname = $user->get('name')->value;
@@ -61,25 +73,36 @@ function usagov_login_user_update($account) {
   $user_performed_on = $account->id();
   $user_performed_named = $account->get('name')->value;
 
-  $roles_added = array_diff($account->getRoles(), $account->original->getRoles());
+  // Load the original entity.
+  $original_account = User::load($account->id());
+
+  // Check for added roles.
+  $roles_added = array_diff($account->getRoles(), $original_account->getRoles());
   if (!empty($roles_added)) {
     foreach ($roles_added as $role) {
-      \Drupal::logger('usagov_login')->notice("Role {$role} added to user {$user_performed_on} ({$user_performed_named}) by user {$uid} ({$uname})");
+      \Drupal::logger('usagov_login')->notice(
+        "Role {$role} added to user {$user_performed_on} ({$user_performed_named}) by user {$uid} ({$uname})."
+      );
     }
   }
 
-  $roles_removed = array_diff($account->original->getRoles(), $account->getRoles());
+  // Check for removed roles.
+  $roles_removed = array_diff($original_account->getRoles(), $account->getRoles());
   if (!empty($roles_removed)) {
     foreach ($roles_removed as $role) {
-      \Drupal::logger('usagov_login')->notice("Role {$role} removed from user {$user_performed_on} ({$user_performed_named}) by user {$uid} ({$uname})");
+      \Drupal::logger('usagov_login')->notice(
+        "Role {$role} removed from user {$user_performed_on} ({$user_performed_named}) by user {$uid} ({$uname})."
+      );
     }
   }
 
-  $was_enabled = $account->original->get('status')->value;
+  // Check for status change.
+  $was_enabled = $original_account->get('status')->value;
   $is_enabled = $account->get('status')->value;
-  if ($was_enabled != $is_enabled) {
-    $action = (intval($is_enabled) === 1 ? 'un-blocked' : 'blocked');
-    \Drupal::logger('usagov_login')->notice("User {$user_performed_on} ({$user_performed_named}) was {$action} by user {$uid} ({$uname})");
+  if ($was_enabled !== $is_enabled) {
+    $action = ((int) $is_enabled === 1 ? 'unblocked' : 'blocked');
+    \Drupal::logger('usagov_login')->notice(
+      "User {$user_performed_on} ({$user_performed_named}) was {$action} by user {$uid} ({$uname})."
+    );
   }
-
 }

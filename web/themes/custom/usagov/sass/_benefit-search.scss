@@ -330,14 +330,12 @@ main[data-pagetype="Benefits Category Search"]{
 
       > h3 {
         @include u-margin(0);
-
-        font-size: 1.325rem;
+        @include u-font-size('sans', 'md');
       }
 
       > p {
         @include u-margin(0);
-
-        font-size: 1.0625rem;
+        @include u-font-size('sans', 'sm');
       }
 
       a::before {

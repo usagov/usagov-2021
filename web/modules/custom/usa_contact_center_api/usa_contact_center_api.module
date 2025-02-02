@@ -10,8 +10,7 @@ use Drupal\node\NodeInterface;
 /**
  * Implements hook_ENTITY_TYPE_delete().
  */
-function usa_contact_center_api_node_delete(NodeInterface $node) {
-
+function usa_contact_center_api_node_delete(NodeInterface $node): void {
   $type = $node->getType();
   if ($type == 'basic_page') {
     \Drupal::database()->insert('usa_node_delete_log')
