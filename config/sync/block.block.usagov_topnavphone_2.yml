@@ -19,7 +19,7 @@ plugin: 'block_content:8607aa33-7c01-41c7-bd04-b8fb894224a1'
 settings:
   id: 'block_content:8607aa33-7c01-41c7-bd04-b8fb894224a1'
   label: 'Top Nav Phone'
-  label_display: visible
+  label_display: '0'
   provider: block_content
   status: true
   info: ''

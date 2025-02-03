@@ -1,5 +1,18 @@
 blocks:
   -
+    info: 'Footer Phone'
+    langcode: en
+    uuid: 3a427426-d092-44ee-aa32-a0f6858f61d6
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div id=\"footer-phone\">\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <h4 class=\"usa-footer__logo-heading\">USAGov Contact Center</h4>\r\n   </div>\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <p class=\"footer-question\">Ask USA.gov a question at</p>\r\n      <address class=\"usa-footer__address\">\r\n         <div class=\"usa-footer__contact-info\">\r\n            <a href=\"/phone\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n         </div>\r\n      </address>\r\n   </div>\r\n</div>"
+          summary: ''
+          format: html
+  -
     info: 'Top Nav Phone'
     langcode: en
     uuid: 8607aa33-7c01-41c7-bd04-b8fb894224a1
