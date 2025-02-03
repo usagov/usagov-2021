@@ -1,5 +1,18 @@
 blocks:
   -
+    info: 'Top Nav Phone ES'
+    langcode: en
+    uuid: 8e768355-f298-44e8-81a9-e094cd55db26
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/es/llamenos\" style=\"white-space: nowrap;\">Llámenos al 1-844-USAGOV1</a>\r\n</span>"
+          summary: ''
+          format: html
+  -
     info: 'Footer Phone'
     langcode: en
     uuid: 3a427426-d092-44ee-aa32-a0f6858f61d6
