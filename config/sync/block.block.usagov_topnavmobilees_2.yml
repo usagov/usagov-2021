@@ -1,20 +1,23 @@
-uuid: c8480054-b0f2-4245-9bb3-caa44573c3f7
+uuid: be3bb3d0-ad44-4a3f-b251-b0c965832879
 langcode: en
-status: false
+status: true
 dependencies:
+  content:
+    - 'block_content:html_block:3e472cf8-278e-498f-b7f4-501eb8ea77a6'
   module:
+    - block_content
     - language
     - system
   theme:
     - usagov
-id: usagov_topnavmobilees
+id: usagov_topnavmobilees_2
 theme: usagov
-region: header_top
+region: top_nav_mobile
 weight: 0
 provider: null
-plugin: 'block_content:dca2046b-138a-4531-be21-6cd2f2067f20'
+plugin: 'block_content:3e472cf8-278e-498f-b7f4-501eb8ea77a6'
 settings:
-  id: 'block_content:dca2046b-138a-4531-be21-6cd2f2067f20'
+  id: 'block_content:3e472cf8-278e-498f-b7f4-501eb8ea77a6'
   label: 'Top Nav Mobile ES'
   label_display: '0'
   provider: block_content
@@ -31,5 +34,5 @@ visibility:
       es: es
   request_path:
     id: request_path
-    negate: false
+    negate: true
     pages: "/averiguar-estado-reembolso-impuestos\r\n/buscador-beneficios\r\n/buscador-beneficios/*\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/donde-reportar-una-estafa\r\n/estatal-consumidor\r\n/estatales-servicios-sociales\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/gobiernos-estatales\r\n/gobiernos-estatales/*\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/oficina-elecciones-estatal-local\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados"
