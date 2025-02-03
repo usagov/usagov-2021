@@ -1,20 +1,23 @@
-uuid: b277f31d-37f5-44dd-b6a2-9af322862aeb
+uuid: ca475251-8c0e-4a92-9143-ea5f905cc5bc
 langcode: en
-status: false
+status: true
 dependencies:
+  content:
+    - 'block_content:html_block:ba151291-a004-469d-9192-deb7730e19df'
   module:
+    - block_content
     - language
     - system
   theme:
     - usagov
-id: usagov_topnavmobile
+id: usagov_topnavmobile_2
 theme: usagov
-region: header_top
+region: top_nav_mobile
 weight: 0
 provider: null
-plugin: 'block_content:6f36fe9f-2738-4751-b3c4-878f6216eca9'
+plugin: 'block_content:ba151291-a004-469d-9192-deb7730e19df'
 settings:
-  id: 'block_content:6f36fe9f-2738-4751-b3c4-878f6216eca9'
+  id: 'block_content:ba151291-a004-469d-9192-deb7730e19df'
   label: 'Top Nav Mobile'
   label_display: '0'
   provider: block_content
