@@ -474,7 +474,7 @@ function usagov_preprocess_breadcrumb(&$variables) {
     return;
   }
 
-  if (str_starts_with('/agencies/', $node->toUrl()->toString())) {
+  if (str_starts_with($node->toUrl()->toString(), '/agencies/')) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => '/'];
     $variables['breadcrumb'][] = [
@@ -502,7 +502,7 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
-  if (str_starts_with('/es/agencias/', $node->toUrl()->toString())) {
+  if (str_starts_with($node->toUrl()->toString(), '/es/agencias/')) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
     $variables['breadcrumb'][] = [
@@ -516,7 +516,7 @@ function usagov_preprocess_breadcrumb(&$variables) {
     $variables['breadcrumb'][] = ['text' => Drupal::service('title_resolver')->getTitle(\Drupal::request(), \Drupal::routeMatch()->getRouteObject())];
   }
 
-  if (str_starts_with('/es/estados/', $node->toUrl()->toString())) {
+  if (str_starts_with($node->toUrl()->toString(), '/es/estados/')) {
     $variables['breadcrumb'] = [];
     $variables['breadcrumb'][] = ['text' => 'Home', 'url' => 'https://www.usa.gov/'];
     $variables['breadcrumb'][] = [
