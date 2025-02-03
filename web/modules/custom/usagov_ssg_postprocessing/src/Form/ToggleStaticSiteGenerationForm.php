@@ -36,8 +36,11 @@ class ToggleStaticSiteGenerationForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   * @return array<string, mixed>
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
 
     $toggle_state = $this->state->get(usagov_ssg_postprocessing_get_static_state_var()) ? 'Enable' : 'Disable';
 
@@ -67,8 +70,10 @@ class ToggleStaticSiteGenerationForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
 
     $errors = FALSE;
 
