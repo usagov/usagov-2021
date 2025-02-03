@@ -1,20 +1,23 @@
-uuid: 350aeb63-3cbe-40f1-8e8a-0da4801b7272
+uuid: 8794ab0a-1c02-4505-ac46-2d31d58a49f8
 langcode: en
 status: true
 dependencies:
+  content:
+    - 'block_content:html_block:1b695544-3f71-4c40-a6bc-518aee5cdc9c'
   module:
+    - block_content
     - language
     - system
   theme:
     - usagov
-id: usagov_footerphonees
+id: usagov_footerphonees_2
 theme: usagov
 region: footer_secondary
 weight: 0
 provider: null
-plugin: 'block_content:d785e609-69d7-4455-9ceb-02d368ea4e0c'
+plugin: 'block_content:1b695544-3f71-4c40-a6bc-518aee5cdc9c'
 settings:
-  id: 'block_content:d785e609-69d7-4455-9ceb-02d368ea4e0c'
+  id: 'block_content:1b695544-3f71-4c40-a6bc-518aee5cdc9c'
   label: 'Footer Phone ES'
   label_display: '0'
   provider: block_content
