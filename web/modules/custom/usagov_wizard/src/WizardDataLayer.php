@@ -18,7 +18,7 @@ class WizardDataLayer {
   }
 
   /**
-   * @param TaxonomyBreadcrumb $data
+   * @param array{}|TaxonomyBreadcrumb $data
    * @return TaxonomyBreadcrumb
    */
   public function getData(array $data): array {
