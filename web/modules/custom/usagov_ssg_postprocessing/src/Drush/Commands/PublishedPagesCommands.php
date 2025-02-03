@@ -5,12 +5,12 @@ namespace Drupal\usagov_ssg_postprocessing\Drush\Commands;
 use Drupal\Core\Breadcrumb\ChainBreadcrumbBuilderInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Routing\Router;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Drupal\path_alias\AliasManagerInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
@@ -28,6 +28,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * A Drush commandfile.
+ *
+ * @phpstan-import-type TaxonomyBreadcrumb from TaxonomyDatalayerBuilder
  */
 final class PublishedPagesCommands extends DrushCommands {
 
@@ -209,7 +211,7 @@ final class PublishedPagesCommands extends DrushCommands {
     }
   }
 
-  protected function getNodeRow(Node $node): PublishedPagesRow {
+  protected function getNodeRow(NodeInterface $node): PublishedPagesRow {
     $front_uri = $this->configFactory->get('system.site')->get('page.front');
     $alias = $this->pathAliasManager->getAliasByPath('/node/' . $node->id());
 
@@ -248,7 +250,7 @@ final class PublishedPagesCommands extends DrushCommands {
    * entity we are exporting that the datalayer module can look up via the
    * breadcrumb manager.
    */
-  private function getRouteMatchForNode(Node $node): RouteMatchInterface {
+  private function getRouteMatchForNode(NodeInterface $node): RouteMatchInterface {
     $route = $this->router->match('/node/' . $node->id());
 
     return new RouteMatch(
