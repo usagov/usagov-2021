@@ -1,0 +1,12 @@
+uuid: db8a1aa6-3a61-4323-ad26-098cbd17d472
+langcode: en
+status: true
+dependencies:
+  module:
+    - block
+id: content_superadmin
+label: 'Content Superadmin'
+weight: 7
+is_admin: null
+permissions:
+  - 'administer blocks'

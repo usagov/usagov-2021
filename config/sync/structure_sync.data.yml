@@ -1,0 +1,262 @@
+blocks:
+  -
+    info: 'Top Nav Phone'
+    langcode: en
+    uuid: 8607aa33-7c01-41c7-bd04-b8fb894224a1
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/phone\" style=\"white-space: nowrap;\">Call us at 1-844-USAGOV1</a>\r\n</span>"
+          summary: ''
+          format: html
+  -
+    info: 'Voter registration banner - Spanish'
+    langcode: es
+    uuid: 42dbb4f0-122e-43c6-88a6-3f2361c8495b
+    bundle: site_banner
+    revision_id: null
+    rev_id_current: null
+    fields:
+      field_place_above_header:
+        -
+          value: '0'
+      field_uswds_paragraph_bundles:
+        -
+          target_id: '2491'
+          target_revision_id: '8473'
+  -
+    info: 'Voter registration banner - English'
+    langcode: en
+    uuid: 218ca6c4-6e96-460b-9342-877abf787702
+    bundle: site_banner
+    revision_id: null
+    rev_id_current: null
+    fields:
+      field_place_above_header:
+        -
+          value: '0'
+      field_uswds_paragraph_bundles:
+        -
+          target_id: '2490'
+          target_revision_id: '8472'
+  -
+    info: 'Spanish Share This Page'
+    langcode: en
+    uuid: 1103b9dd-76e3-4c43-9df0-1ff4c9d86c08
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div id=\"sm-share\"><span id=\"share-page\">Comparta esta página:</span>\r\n<div role=\"img\" aria-labelledby=\"share-page\">\r\n <a href=\"http://www.facebook.com/sharer/sharer.php?u=\r\nhttps://www.usa.gov/espanol&v=3\"><img src=\"/themes/custom/usagov/images/ICON_Share_Facebook.png\" alt=\"Facebook\" /></a>\r\n<a href=\"http://twitter.com/intent/tweet?source=webclient&text= https://www.usa.gov/espanol\"><img src=\"/themes/custom/usagov/images/ICON_Share_Twitter.png\" alt=\"Twitter\" /></a>\r\n<a href=\"mailto:?subject=&body=https://www.usa.gov/espanol\"><img src=\"/themes/custom/usagov/images/ICONS_Share_Email.png\" alt=\"Email\"/></a>\r\n</div>\r\n</div>\r\n"
+          summary: ''
+          format: html
+  -
+    info: 'English Share This Page'
+    langcode: en
+    uuid: f93f99ae-d12d-480c-bffb-640535cdc77f
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div id=\"sm-share\"><span id=\"share-page\">SHARE THIS PAGE:</span>\r\n<div role=\"img\" aria-labelledby=\"share-page\">\r\n <a href=\"http://www.facebook.com/sharer/sharer.php?u=\r\nhttps://www.usa.gov/espanol&v=3\"><img src=\"/themes/custom/usagov/images/ICON_Share_Facebook.png\" alt=\"Facebook\" /></a>\r\n<a href=\"http://twitter.com/intent/tweet?source=webclient&text= https://www.usa.gov\"><img src=\"/themes/custom/usagov/images/ICON_Share_Twitter.png\" alt=\"Twitter\" /></a>\r\n<a href=\"mailto:?subject=&body=https://www.usa.gov\"><img src=\"/themes/custom/usagov/images/ICONS_Share_Email.png\" alt=\"Email\"/></a>\r\n</div>\r\n</div>\r\n"
+          summary: ''
+          format: html
+  -
+    info: 'Wizard Espanol'
+    langcode: en
+    uuid: 07a1ba02-6d65-482b-978a-e412f0aeab0e
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div class=\"usa-prose\">\r\n<h1 class=\"text-red\" id=\"skip-to-h1\"><span>Dónde reportar una estafa</span></h1>\r\n</div>\r\n\r\n<p>¿Ha sufrido una estafa y quiere reportarla? Solo responda unas cuantas preguntas para saber cómo reportar la estafa en el lugar correcto.</p>\r\n\r\n<p>Su búsqueda podría arrojar resultados en inglés.</p>\r\n"
+          summary: ''
+          format: html
+  -
+    info: 'Wizard English'
+    langcode: en
+    uuid: f54abad2-58b6-4c43-b1b9-e78d741d1a5b
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div class=\"usa-prose\">\r\n<h1 class=\"text-red\" id=\"skip-to-h1\"><span>Where to report a scam</span></h1>\r\n</div>\r\n\r\n<p>Have you experienced a scam and want to report it? Just answer a few questions to learn how to report the scam to the right place.</p>\r\n"
+          summary: ''
+          format: html
+  -
+    info: 'Emergency Header Banner'
+    langcode: en
+    uuid: edbffa9e-6210-4478-95cb-19a609e2cd14
+    bundle: uswds_paragraphs
+    revision_id: null
+    rev_id_current: null
+    fields:
+      field_uswds_paragraph_bundles:
+        -
+          target_id: '34'
+          target_revision_id: '35'
+  -
+    info: 'Beta Spanish Banner'
+    langcode: en
+    uuid: 22e1b7bb-a272-4623-8abd-88248850d397
+    bundle: uswds_paragraphs
+    revision_id: null
+    rev_id_current: null
+    fields:
+      field_uswds_paragraph_bundles:
+        -
+          target_id: '2'
+          target_revision_id: '34'
+  -
+    info: 'Beta Banner'
+    langcode: en
+    uuid: 189deb7d-0146-4d42-828d-c67ff9f0dcc6
+    bundle: uswds_paragraphs
+    revision_id: null
+    rev_id_current: null
+    fields:
+      field_uswds_paragraph_bundles:
+        -
+          target_id: '1'
+          target_revision_id: '179'
+  -
+    info: 'Footer identifier - Spanish'
+    langcode: en
+    uuid: de6e5b2f-5c2e-4f8b-b0a0-d08bf5197563
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div class=\"usa-identifier\">\r\n    <section class=\"usa-identifier__section usa-identifier__section--usagov\" aria-label=\"USAGov en Español es la guía oficial de información y servicios del Gobierno\">\r\n        <div class=\"usa-identifier__container\">\r\n            <div class=\"usa-identifier__usagov-description\">USAGov en Español es la guía oficial<span>&nbsp; de información y servicios del Gobierno</span></div>\r\n        </div>\r\n    </section>\r\n</div>"
+          summary: ''
+          format: html
+  -
+    info: 'Footer identifier - English'
+    langcode: en
+    uuid: 2bd70942-1be7-4595-b6d1-76a52abfe7c0
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div class=\"usa-identifier\">\r\n  <section class=\"usa-identifier__section usa-identifier__section--usagov\"\r\n     aria-label=\"USAGov is the official guide to government information and services\">\r\n     <div class=\"usa-identifier__container\">\r\n        <div class=\"usa-identifier__usagov-description\">\r\n           USAGov is the official guide to <span>&nbsp;government information and services</span>\r\n        </div>\r\n     </div>\r\n  </section>\r\n</div>"
+          summary: ''
+          format: html
+  -
+    info: 'Secondary footer - Spanish'
+    langcode: en
+    uuid: ad0612da-dd65-46d4-bbf4-836714cbc8c4
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div class=\"usa-footer__secondary-section\">\r\n    <div class=\"grid-container\">\r\n        <div class=\"grid-row grid-gap\">\r\n            <div class=\"usa-footer__logo grid-row mobile-lg:grid-col-6 mobile-lg:grid-gap-2\">\r\n             <span id=\"bottom-phone\">\r\n                <div class=\"mobile-lg:grid-col-auto\">\r\n                    <h3 class=\"usa-footer__logo-heading\">\r\n                        Centro de contacto de USAGov en Español\r\n                    </h3>\r\n                </div>\r\n\r\n                <div class=\"mobile-lg:grid-col-auto\">\r\n                    <p>Haga una pregunta a USAGov en Español al</p>\r\n\r\n                    <address class=\"usa-footer__address\">\r\n                        <div class=\"usa-footer__contact-info grid-row grid-gap\">\r\n                            <a href=\"/es/centro-de-llamadas\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n                        </div>\r\n                    </address>\r\n                </div>\r\n          </span>\r\n            </div>\r\n\r\n            <div class=\"usa-footer__contact-links mobile-lg:grid-col-6\">\r\n                <h3 class=\"usa-footer__contact-heading es\">Encuéntrenos en las <span>redes sociales</span></h3>\r\n\r\n                <div class=\"usa-footer__social-links sm-sp-links grid-row grid-gap-1\">\r\n                    <div class=\"grid-col-auto\">\r\n                        <a class=\"usa-social-link\" href=\"https://www.facebook.com/usagovespanol\" alt=\"Facebook USAGov\">                      \r\n                        <img src=\"/themes/custom/usagov/images/facebook34.png\" alt=\"Facebook USAGov\" />\r\n                            <span>Facebook</span>\r\n                        </a>\r\n                    </div>\r\n\r\n                    <div class=\"grid-col-auto\">\r\n                        <a class=\"usa-social-link\" href=\"https://twitter.com/usagovespanol\" alt=\"Twitter USAGov\">\r\n                        <img src=\"/themes/custom/usagov/images/twitter34.png\" alt=\"Twitter USAGov\" />\r\n                            <span>Twitter</span>\r\n                        </a>\r\n                    </div>\r\n\r\n                    <div class=\"grid-col-auto\">\r\n                        <a class=\"usa-social-link\" href=\"https://www.youtube.com/USAgovespanol\" alt=\"YouTube USAGov\">\r\n                        <img src=\"/themes/custom/usagov/images/youtube34.png\" alt=\"Youtube USAGov\" />\r\n                            <span>YouTube</span>\r\n                        </a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>"
+          summary: ''
+          format: html
+  -
+    info: 'Secondary footer - English'
+    langcode: en
+    uuid: 34c0b345-aba2-4df4-bd1e-cf2e870266f9
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div class=\"usa-footer__secondary-section\">\r\n    <div class=\"grid-container\">\r\n         <div class=\"grid-row grid-gap\">\r\n             <div class=\"usa-footer__logo grid-row mobile-lg:grid-col-6 mobile-lg:grid-gap-2\">\r\n               <span id=\"bottom-phone\">\r\n                 <div class=\"mobile-lg:grid-col-auto\">\r\n                     <h3 class=\"usa-footer__logo-heading\">USAGov Contact Center</h3>\r\n                 </div>\r\n                 <div class=\"mobile-lg:grid-col-auto\">\r\n                     <p>\r\n                         Ask USA.gov a question at\r\n                     </p>\r\n                     <address class=\"usa-footer__address\">\r\n                         <div class=\"usa-footer__contact-info grid-row grid-gap\">\r\n                            <a href=\"/phone\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n                         </div>\r\n                     </address>\r\n                 </div>\r\n            </span>\r\n             </div>\r\n             <div class=\"usa-footer__contact-links mobile-lg:grid-col-6\">\r\n                 <h3 class=\"usa-footer__contact-heading\">\r\n                     Find Us on Social Media\r\n                 </h3>\r\n                 <div class=\"usa-footer__social-links en-links grid-row grid-gap-1\">\r\n                     <div class=\"grid-col-auto\">\r\n                         <a class=\"usa-social-link\" href=\"https://www.facebook.com/USAgov\" alt=\"Facebook USAGov\">                      \r\n                         <img src=\"/themes/custom/usagov/images/facebook34.png\" alt=\"Facebook USAGov\" />\r\n                             <span>Facebook</span>\r\n                         </a>\r\n                     </div>\r\n \r\n                     <div class=\"grid-col-auto\">\r\n                         <a class=\"usa-social-link\" href=\"https://twitter.com/USAgov\" alt=\"Twitter USAGov\">\r\n                         <img src=\"/themes/custom/usagov/images/twitter34.png\" alt=\"Twitter USAGov\" />\r\n                             <span>Twitter</span>\r\n                         </a>\r\n                     </div>\r\n \r\n                     <div class=\"grid-col-auto\">\r\n                         <a class=\"usa-social-link\" href=\"https://www.youtube.com/usagov1\" alt=\"YouTube USAGov\">\r\n                         <img src=\"/themes/custom/usagov/images/youtube34.png\" alt=\"Youtube USAGov\" />\r\n                             <span>YouTube</span>\r\n                         </a>\r\n                     </div>\r\n \r\n                     <div class=\"grid-col-auto\">\r\n                         <a class=\"usa-social-link\" href=\"https://www.instagram.com/usagov/\" alt=Instagram USAGov>\r\n                         <img src=\"/themes/custom/usagov/images/instagram34.png\" alt=\"Instagram USAGov\" />\r\n                             <span>Instagram</span>\r\n                         </a>\r\n                     </div>\r\n                 </div>\r\n             </div>\r\n         </div>\r\n     </div>\r\n </div>"
+          summary: ''
+          format: html
+  -
+    info: 'Primary footer - English'
+    langcode: en
+    uuid: 40b89fdf-175f-4e77-9f83-96301e9120ad
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div class=\"usa-footer__primary-section\">\r\n  <div class=\"grid-container\">\r\n      <div class=\"grid-row grid-gap\">\r\n        <div class=\"tablet:grid-col-8\">\r\n          <nav class=\"usa-footer__nav\" aria-label=\"Footer navigation,,\">\r\n            <div class=\"grid-row grid-gap-4\">\r\n              <div class=\"mobile-lg:grid-col-6 desktop:grid-col-3\">\r\n                <section class=\"\r\n                    usa-footer__primary-content\r\n                    usa-footer__primary-content--collapsible\r\n                  \">\r\n                  <h3 class=\"usa-footer__primary-link\">Government information</h3>\r\n                  <ul class=\"usa-list usa-list--unstyled\">\r\n                    <li class=\"usa-footer__secondary-link\">\r\n                      <a href=\"/\"> All topics and services </a>\r\n                    </li>\r\n\r\n                    <li class=\"usa-footer__secondary-link\">\r\n                      <a href=\"https://www.usa.gov/federal-agencies\">Directory of U.S. government agencies and departments</a>\r\n                    </li>\r\n\r\n                    <li class=\"usa-footer__secondary-link\">\r\n                      <a href=\"/branches-of-government\">\r\n                      Branches of government\r\n                      </a>\r\n                    </li>\r\n                  </ul>\r\n                </section>\r\n              </div>\r\n\r\n              <div class=\"mobile-lg:grid-col-6 desktop:grid-col-3\">\r\n                <section class=\"\r\n                    usa-footer__primary-content\r\n                    usa-footer__primary-content--collapsible\r\n                  \">\r\n                  <h3 class=\"usa-footer__primary-link\">About us</h3>\r\n                  <ul class=\"usa-list usa-list--unstyled\">\r\n                    <li class=\"usa-footer__secondary-link ftr-list\">\r\n                      <a href=\"/mission-history\"> Our mission and history </a>\r\n                    </li>\r\n\r\n                    <li class=\"usa-footer__secondary-link\">\r\n                      <a href=\"/privacy-security\">\r\n                        Privacy and security policies\r\n                      </a>\r\n                    </li>\r\n\r\n                    <li class=\"usa-footer__secondary-link\">\r\n                      <a href=\"/accessibility\">Accessibility policy</a>\r\n                    </li>\r\n\r\n                    <li class=\"usa-footer__secondary-link\">\r\n                      <a href=\"/how-to-cite\"> How to cite USA.gov </a>\r\n                    </li>\r\n            \r\n                     <li class=\"usa-footer__secondary-link\">\r\n                      <a href=\"https://analytics.usa.gov/\"> Real-time website data </a>\r\n                    </li>\r\n\r\n                  </ul>\r\n                </section>\r\n              </div>\r\n\r\n              <div class=\"mobile-lg:grid-col-6 desktop:grid-col-3\">\r\n                <section class=\"\r\n                    usa-footer__primary-content\r\n                    usa-footer__primary-content--collapsible\r\n                  \">\r\n                  <h3 class=\"usa-footer__primary-link\">For federal agencies</h3>\r\n                  <ul class=\"usa-list usa-list--unstyled\">\r\n                    <li class=\"usa-footer__secondary-link\">\r\n                      <a href=\"/partner-with-usagov\"> Partner with us </a>\r\n                    </li>\r\n\r\n                    <li class=\"usa-footer__secondary-link\">\r\n                      <a href=\"https://blog.usa.gov/\"> USAGov blog </a>\r\n                    </li>\r\n                  </ul>\r\n                </section>\r\n              </div>\r\n\r\n              <div class=\"mobile-lg:grid-col-6 desktop:grid-col-3\">\r\n                <section class=\"\r\n                    usa-footer__primary-content\r\n                    usa-footer__primary-content--collapsible\r\n                  \">\r\n                  <h3 class=\"usa-footer__primary-link\">For media</h3>\r\n                  <ul class=\"usa-list usa-list--unstyled\">\r\n                    <li class=\"usa-footer__secondary-link ftr-list\">\r\n                      <a href=\"/features\"> Feature articles </a>\r\n                    </li>\r\n                  </ul>\r\n                </section>\r\n              </div>\r\n            </div>\r\n          </nav>\r\n        </div>\r\n        <div class=\"tablet:grid-col-4\">\r\n          <div class=\"usa-sign-up\">\r\n            <h4 class=\"usa-sign-up__heading\">Sign up to receive email updates</h4>\r\n            <form class=\"usa-form\" action=\"https://connect.usa.gov/subscribe\" method=\"get\">\r\n              <label class=\"usa-label\" for=\"email\">Enter your email</label>\r\n              <input class=\"usa-input\" id=\"email\" name=\"email\" type=\"email\">\r\n              <button class=\"usa-button\" type=\"submit\">Sign up</button>\r\n            </form>\r\n          </div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n</div>\r\n"
+          summary: ''
+          format: html
+  -
+    info: 'Spanish header code'
+    langcode: en
+    uuid: ebb01db0-8435-4a27-91e6-ff142d9d941f
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div class=\"usa-navbar\">\r\n  <div class=\"usa-logo\" id=\"extended-logo\">\r\n    <em class=\"usa-logo-text\">\r\n          <a href=\"/es\" title=\"USAGov Logo\"><img class=\"es\" src=\"/themes/custom/usagov/images/LOGO_betasite_USAGOV_SP.png\" alt=\"USAGov en Español Logo\"></a>\r\n        </em>\r\n  </div>\r\n  <button class=\"usa-menu-btn\">Menu</button>\r\n</div>\r\n<nav aria-label=\"Primary navigation\" class=\"usa-nav\">\r\n  <div class=\"usa-nav__inner\">\r\n    <button class=\"usa-nav__close\">\r\n      <img src=\"/themes/custom/usagov/assets/img/usa-icons/close.svg\" role=\"img\" alt=\"Close\" />\r\n    </button>\r\n    <ul class=\"usa-nav__primary usa-accordion\">\r\n    <li class=\"usa-nav__primary-item\"><a href=\"/es#all_topics\" class=\"usa-nav__link\"><span>Todos los temas y servicios</span></a>\r\n    </li>\r\n    <li class=\"usa-nav__primary-item\" id=\"usa-nav__acerca\"><a href=\"/es/acerca-de-estados-unidos\" class=\"usa-nav__link\"><span>Acerca de EE. UU. y directorios del Gobierno</span></a>\r\n    </li>\r\n    <li class=\"usa-nav__primary-item\" id=\"usa-nav__dinero\"><a href=\"/es/dinero\" class=\"usa-nav__link\"><span>Dinero</span></a>\r\n    </li>\r\n<li class=\"usa-nav__primary-item\" id=\"usa-nav__leyes\"><a href=\"/es/leyes-y-asuntos-legales\" class=\"usa-nav__link\"><span>Leyes y asuntos legales</span></a>\r\n    </li>\r\n<li class=\"usa-nav__primary-item\"  id=\"usa-nav__estafas\"><a href=\"/es/estafas-y-fraudes\" class=\"usa-nav__link\"><span>Estafas y fraudes</span></a>\r\n    </li>\r\n</ul>\r\n    <div class=\"usa-nav__secondary\">\r\n      <span class=\"usa-nav__secondary-links\">\r\n        <span id=\"top-phone\" class=\"usa-nav__secondary-item\">\r\n          <a href=\"/es/centro-de-llamadas\" style=\"white-space: nowrap;\">Llámenos al 1-844-USAGOV1</a>\r\n        </span>\r\n      </span>\r\n\r\n      <form class=\"usa-search usa-search--small\" action=\"https://search.usa.gov/search\" method=\"get\" name=\"search_form\" accept-charset=\"UTF-8\" role=\"search\">\r\n        <label id=\"top-srch\" class=\"usa-sr-only\" for=\"search-field-small\">Buscar</label>\r\n        <input id=\"affiliate\" name=\"affiliate\" type=\"hidden\" value=\"usagov_es_all_gov\">\r\n        <input id=\"search-field-small\" class=\"usa-input text usagov-search-autocomplete ui-autocomplete-input\" type=\"search\" name=\"query\" placeholder=\"Busque en el Gobierno ...\" onfocus=\"this.placeholder = ''\" autocomplete=\"off\" aria-autocomplete=\"list\" aria-haspopup=\"true\">\r\n        <button class=\"usa-button\" type=\"submit\">\r\n          <img src=\"/themes/custom/usagov/images/search--dark.svg\" class=\"usa-search__submit-icon\" alt=\"Search\">\r\n        </button>\r\n      </form>\r\n    </div>\r\n  </div>\r\n</nav>"
+          summary: ''
+          format: html
+  -
+    info: 'English header code'
+    langcode: en
+    uuid: 644b7adb-94b1-497d-bd4d-c1f2a2bf9909
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div class=\"usa-navbar\">\r\n    <div class=\"usa-logo\" id=\"extended-logo\">\r\n      <em class=\"usa-logo-text\">\r\n            <a href=\"/\" title=\"USAGov Logo\"><img src=\"/themes/custom/usagov/images/LOGO_betasite_USAGOV_v2.png\" alt=\"USAGov Logo\"></a>\r\n          </em>\r\n    </div>\r\n    <button class=\"usa-menu-btn\">Menu</button>\r\n  </div>\r\n  <nav aria-label=\"Primary navigation\" class=\"usa-nav\">\r\n    <div class=\"usa-nav__inner\">\r\n      <button class=\"usa-nav__close\">\r\n        <img src=\"/themes/custom/usagov/assets/img/usa-icons/close.svg\" role=\"img\" alt=\"Close\" />\r\n      </button>\r\n      <ul class=\"usa-nav__primary usa-accordion\">\r\n        <li class=\"usa-nav__primary-item\"><a href=\"/#all_topics\" class=\"usa-nav__link\"><span>All topics and services</span></a>\r\n        </li>\r\n        <li class=\"usa-nav__primary-item\"  id=\"usa-nav__about\"><a href=\"/about-the-us\" class=\"usa-nav__link\"><span>About the U.S. and its government</span></a>\r\n        </li>\r\n        <li class=\"usa-nav__primary-item\" id=\"usa-nav__money\"><a href=\"/money\" class=\"usa-nav__link\"><span>Money</span></a>\r\n        </li>\r\n    <li class=\"usa-nav__primary-item\"  id=\"usa-nav__law\"><a href=\"/laws-and-legal-issues\" class=\"usa-nav__link\"><span>Laws and legal issues</span></a>\r\n        </li>\r\n    <li class=\"usa-nav__primary-item\" id=\"usa-nav__scams\"><a href=\"/scams-and-fraud\" class=\"usa-nav__link\"><span>Scams and fraud</span></a>\r\n        </li>\r\n </ul>\r\n      <div class=\"usa-nav__secondary\">\r\n        <span class=\"usa-nav__secondary-links\">\r\n          <span id=\"top-phone\" class=\"usa-nav__secondary-item\">\r\n            <a href=\"/phone\">Call us at 1-844-USAGOV1</a>\r\n          </span>\r\n        </span>\r\n\r\n        <form class=\"usa-search usa-search--small\" action=\"https://search.usa.gov/search\" method=\"get\" name=\"search_form\" accept-charset=\"UTF-8\" role=\"search\">\r\n            <label id=\"top-srch\" class=\"usa-sr-only\" for=\"search-field-small\">Search</label>\r\n            <input id=\"affiliate\" name=\"affiliate\" type=\"hidden\" value=\"usagov_all_gov\">\r\n            <input id=\"search-field-small\" class=\"usa-input text usagov-search-autocomplete ui-autocomplete-input\" type=\"search\" name=\"query\" placeholder=\"Search all government\" onfocus=\"this.placeholder = ''\" autocomplete=\"off\" aria-autocomplete=\"list\" aria-haspopup=\"true\">\r\n            <button class=\"usa-button\" type=\"submit\">\r\n              <img src=\"/themes/custom/usagov/images/search--dark.svg\" class=\"usa-search__submit-icon\" alt=\"Search\">\r\n            </button>\r\n        </form>\r\n      </div>\r\n    </div>\r\n  </nav>"
+          summary: ''
+          format: html
+  -
+    info: 'Primary footer - Spanish'
+    langcode: en
+    uuid: b0bffacc-d26e-491f-ad99-a90462dfbf1b
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div class=\"usa-footer__primary-section\">\r\n  <div class=\"grid-container\">\r\n    <div class=\"grid-row grid-gap\">\r\n      <div class=\"tablet:grid-col-8\">\r\n        <nav class=\"usa-footer__nav\" aria-label=\"Footer navigation,,\">\r\n          <div class=\"grid-row grid-gap-4\">\r\n            <div class=\"mobile-lg:grid-col-6 desktop:grid-col-3\">\r\n              <section class=\"\r\n                  usa-footer__primary-content\r\n                  usa-footer__primary-content--collapsible\">\r\n                <h4 class=\"usa-footer__primary-link\">Información del Gobierno</h4>\r\n                <ul class=\"usa-list usa-list--unstyled\">\r\n                  <li class=\"usa-footer__secondary-link\">\r\n                    <a href=\"/es\"> Todos los temas y servicios</a>\r\n                  </li>\r\n\r\n                  <li class=\"usa-footer__secondary-link\">\r\n                    <a href=\"https://www.usa.gov/espanol/agencias-federales\">Directorios de agencias y departamentos del Gobierno de EE. UU.</a>\r\n                  </li>\r\n\r\n                  <li class=\"usa-footer__secondary-link\">\r\n                    <a href=\"https://beta.usa.gov/es/ramas-gobierno-estados-unidos\">Ramas del Gobierno</a>\r\n                  </li>\r\n                </ul>\r\n              </section>\r\n            </div>\r\n\r\n            <div class=\"mobile-lg:grid-col-6 desktop:grid-col-3\">\r\n              <section class=\"\r\n                  usa-footer__primary-content\r\n                  usa-footer__primary-content--collapsible\r\n                \">\r\n                <h4 class=\"usa-footer__primary-link\">Sobre nosotros</h4>\r\n                <ul class=\"usa-list usa-list--unstyled\">\r\n                  <li class=\"usa-footer__secondary-link ftr-list\">\r\n                    <a href=\"https://www.usa.gov/espanol/quienes-somos\">Nuestra historia y misión</a>\r\n                  </li>\r\n\r\n                  <li class=\"usa-footer__secondary-link\">\r\n                    <a href=\"/es/accesibilidad\">Política de accesibilidad</a>\r\n                  </li>\r\n\r\n                  <li class=\"usa-footer__secondary-link\">\r\n                    <a href=\"/es/privacidad-seguridad\">Políticas de privacidad y seguridad</a>\r\n                  </li>\r\n\r\n                </ul>\r\n              </section>\r\n            </div>\r\n\r\n            <div class=\"mobile-lg:grid-col-6 desktop:grid-col-3\">\r\n              <section class=\"\r\n                  usa-footer__primary-content\r\n                  usa-footer__primary-content--collapsible\r\n                \">\r\n                <h4 class=\"usa-footer__primary-link\">Para agencias federales</h4>\r\n                <ul class=\"usa-list usa-list--unstyled\">\r\n                  <li class=\"usa-footer__secondary-link\">\r\n                    <a href=\"https://www.usa.gov/espanol/colabore-con-nosotros#item-211505\">Colabore con nosotros</a>\r\n                  </li>\r\n\r\n                  <li class=\"usa-footer__secondary-link\">\r\n                    <a href=\"https://blog.usa.gov\">Blog de USAGov</a>\r\n                  </li>\r\n                </ul>\r\n              </section>\r\n            </div>\r\n\r\n            <div class=\"mobile-lg:grid-col-6 desktop:grid-col-3\">\r\n              <section class=\"\r\n                  usa-footer__primary-content\r\n                  usa-footer__primary-content--collapsible\r\n                \">\r\n                <h4 class=\"usa-footer__primary-link\">Para medios de comunicación</h4>\r\n                <ul class=\"usa-list usa-list--unstyled\">\r\n                  <li class=\"usa-footer__secondary-link\">\r\n                    <a href=\"https://beta.usa.gov/es/articulos\">Artículos de interés</a>\r\n                  </li>\r\n                </ul>\r\n              </section>\r\n            </div>\r\n          </div>\r\n        </nav>\r\n      </div>\r\n      <div class=\"tablet:grid-col-4\">\r\n        <div class=\"usa-sign-up\">\r\n          <h3 class=\"usa-sign-up__heading\">Suscríbase para recibir información actualizada</h3>\r\n          <form class=\"usa-form\" action=\"https://conectate.gobiernousa.gov/suscripciones\" method=\"get\">\r\n            <label class=\"usa-label\" for=\"email\">Escriba su email</label>\r\n            <input class=\"usa-input\" id=\"email\" name=\"email\" type=\"email\">\r\n            <button class=\"usa-button\" type=\"submit\">Suscríbase ahora</button>\r\n          </form>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>"
+          summary: ''
+          format: html
+  -
+    info: 'English banner code'
+    langcode: en
+    uuid: d61595f0-7e1c-4081-9eef-cdc5ebbf822b
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<section class=\"usa-banner\">\r\n    <div class=\"usa-banner\">\r\n  <div class=\"usa-accordion\">\r\n    <header class=\"usa-banner__header\">\r\n      <div class=\"usa-banner__inner\">\r\n        <div class=\"grid-col-auto\">\r\n          <img class=\"usa-banner__header-flag\" src=\"/themes/custom/usagov/images/favicon-57.png\" alt=\"U.S. flag\">\r\n        </div>\r\n        <div class=\"grid-col-fill tablet:grid-col-auto\">\r\n          <p class=\"usa-banner__header-text\">An official website of the United States government</p>\r\n          <p class=\"usa-banner__header-action\" aria-hidden=\"true\">Here's how you know</p>\r\n        </div>\r\n        <button class=\"usa-accordion__button usa-banner__button\" aria-expanded=\"false\" aria-controls=\"gov-banner\">\r\n          <span class=\"usa-banner__button-text\">Here's how you know</span>\r\n        </button>\r\n      </div>\r\n    </header>\r\n    <div class=\"usa-banner__content usa-accordion__content\" id=\"gov-banner\" hidden=\"\">\r\n      <div class=\"grid-row grid-gap-lg\">\r\n        <div class=\"usa-banner__guidance tablet:grid-col-6\">\r\n          <img class=\"usa-banner__icon usa-media-block__img\" src=\"/themes/custom/usagov/assets/img/icon-dot-gov.svg\" alt=\"Dot gov\">\r\n          <div class=\"usa-media-block__body\">\r\n            <p>\r\n              <strong>The .gov means it’s official.</strong>\r\n              <br>\r\n              Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure you’re on a federal government site.\r\n            </p>\r\n          </div>\r\n        </div>\r\n        <div class=\"usa-banner__guidance tablet:grid-col-6\">\r\n          <img class=\"usa-banner__icon usa-media-block__img\" src=\"/themes/custom/usagov/assets/img/icon-https.svg\" alt=\"Https\">\r\n          <div class=\"usa-media-block__body\">\r\n            <p>\r\n              <strong>The site is secure.</strong>\r\n              <br>\r\n              The <strong>https://</strong> ensures that you are connecting to the official website and that any information you provide is encrypted and transmitted securely.\r\n            </p>\r\n          </div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>\r\n\r\n  </section>"
+          summary: ''
+          format: html
+  -
+    info: 'Spanish banner code'
+    langcode: en
+    uuid: 08f40fa5-9c3d-4d4b-b5ed-60f8614b1fd0
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<section class=\"usa-banner\">\r\n    <div class=\"usa-banner\">\r\n  <div class=\"usa-accordion\">\r\n    <header class=\"usa-banner__header\">\r\n      <div class=\"usa-banner__inner\">\r\n        <div class=\"grid-col-auto\">\r\n          <img class=\"usa-banner__header-flag\" src=\"/themes/custom/usagov/images/favicon-57.png\" alt=\"U.S. flag\">\r\n        </div>\r\n        <div class=\"grid-col-fill tablet:grid-col-auto\">\r\n          <p class=\"usa-banner__header-text\">Un sitio oficial del Gobierno de Estados Unidos</p>\r\n          <p class=\"usa-banner__header-action\" aria-hidden=\"true\">Así es como usted puede verificarlo</p>\r\n        </div>\r\n        <button class=\"usa-accordion__button usa-banner__button\" aria-expanded=\"false\" aria-controls=\"gov-banner\">\r\n          <span class=\"usa-banner__button-text\">Así es como usted puede verificarlo</span>\r\n        </button>\r\n      </div>\r\n    </header>\r\n    <div class=\"usa-banner__content usa-accordion__content\" id=\"gov-banner\" hidden=\"\">\r\n      <div class=\"grid-row grid-gap-lg\">\r\n        <div class=\"usa-banner__guidance tablet:grid-col-6\">\r\n          <img class=\"usa-banner__icon usa-media-block__img\" src=\"/themes/custom/usagov/assets/img/icon-dot-gov.svg\" alt=\"Dot gov\">\r\n          <div class=\"usa-media-block__body\">\r\n            <p>\r\n              <strong>Los sitios web oficiales usan .gov</strong>\r\n              <br>\r\n              Un sitio web <strong>.gov</strong> pertenece a una organización oficial del Gobierno de Estados Unidos.\r\n            </p>\r\n          </div>\r\n        </div>\r\n        <div class=\"usa-banner__guidance tablet:grid-col-6\">\r\n          <img class=\"usa-banner__icon usa-media-block__img\" src=\"/themes/custom/usagov/assets/img/icon-https.svg\" alt=\"Https\">\r\n          <div class=\"usa-media-block__body\">\r\n            <p>\r\n              <strong>Los sitios web seguros .gov usan HTTPS</strong>\r\n              <br>\r\n              Un <strong>candado</strong> (<span class=\"icon-lock\">\r\n                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"52\" height=\"64\" viewBox=\"0 0 52 64\" class=\"usa-banner__lock-image\" role=\"img\" aria-labelledby=\"banner-lock-title-lang-es banner-lock-description-lang-es\">\r\n                    <title id=\"banner-lock-title-lang-es\">Lock</title>\r\n                    <desc id=\"banner-lock-description-lang-es\">A locked padlock</desc>\r\n                    <path fill=\"#000000\" fill-rule=\"evenodd\" d=\"M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z\"></path>\r\n                </svg>\r\n            </span>) o https:// significa que usted se conectó de forma segura a un sitio web .gov. Comparta información sensible sólo en sitios web oficiales y seguros.\r\n            </p>\r\n          </div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>\r\n\r\n  </section>"
+          summary: ''
+          format: html

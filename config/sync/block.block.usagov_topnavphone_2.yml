@@ -1,25 +1,25 @@
-uuid: 84105a8e-8941-42de-ac69-6eeabe4a3cc9
+uuid: c65daf27-59ef-4513-92bd-501f6be191b4
 langcode: en
 status: true
 dependencies:
   content:
-    - 'block_content:html_block:f8dde73e-5081-46af-8b04-53a21601fd93'
+    - 'block_content:html_block:8607aa33-7c01-41c7-bd04-b8fb894224a1'
   module:
     - block_content
     - language
     - system
   theme:
     - usagov
-id: usagov_topnavphone
+id: usagov_topnavphone_2
 theme: usagov
 region: top_nav
-weight: -21
+weight: 0
 provider: null
-plugin: 'block_content:f8dde73e-5081-46af-8b04-53a21601fd93'
+plugin: 'block_content:8607aa33-7c01-41c7-bd04-b8fb894224a1'
 settings:
-  id: 'block_content:f8dde73e-5081-46af-8b04-53a21601fd93'
+  id: 'block_content:8607aa33-7c01-41c7-bd04-b8fb894224a1'
   label: 'Top Nav Phone'
-  label_display: '0'
+  label_display: visible
   provider: block_content
   status: true
   info: ''

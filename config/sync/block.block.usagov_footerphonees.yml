@@ -2,10 +2,7 @@ uuid: 350aeb63-3cbe-40f1-8e8a-0da4801b7272
 langcode: en
 status: true
 dependencies:
-  content:
-    - 'block_content:html_block:d785e609-69d7-4455-9ceb-02d368ea4e0c'
   module:
-    - block_content
     - language
     - system
   theme:

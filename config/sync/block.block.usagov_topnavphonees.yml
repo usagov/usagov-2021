@@ -1,18 +1,15 @@
 uuid: 07632211-cc58-4eb3-8c14-4abdeb186be7
 langcode: en
-status: true
+status: false
 dependencies:
-  content:
-    - 'block_content:html_block:a8e04b9b-b8c8-473e-a923-5f73a2b69660'
   module:
-    - block_content
     - language
     - system
   theme:
     - usagov
 id: usagov_topnavphonees
 theme: usagov
-region: top_nav
+region: header_top
 weight: -20
 provider: null
 plugin: 'block_content:a8e04b9b-b8c8-473e-a923-5f73a2b69660'
