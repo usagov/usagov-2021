@@ -10,6 +10,7 @@ use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Routing\Router;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Drupal\path_alias\AliasManagerInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
@@ -27,9 +28,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * A Drush commandfile.
+ *
+ * @phpstan-import-type TaxonomyBreadcrumb from TaxonomyDatalayerBuilder
  */
 final class PublishedPagesCommands extends DrushCommands {
 
+  /**
+   * @var array<string> $csvHeader
+   */
   private array $csvHeader = [
     "Hierarchy Level",
     "Page Type",
@@ -71,7 +77,7 @@ final class PublishedPagesCommands extends DrushCommands {
     parent::__construct();
   }
 
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static {
     return new static(
       entityTypeManager: $container->get('entity_type.manager'),
       configFactory: $container->get('config.factory'),
@@ -93,7 +99,7 @@ final class PublishedPagesCommands extends DrushCommands {
     name: 'usagov_ssg_postprocessing:published-csv',
     description: 'Usage description')
   ]
-  public function publishedCsv($outfile) {
+  public function publishedCsv(mixed $outfile): void {
     $this->output()->writeln('<info>Publishing CSV to ' . $outfile . '</info>');
 
     $out = fopen($outfile, 'w');
@@ -113,7 +119,7 @@ final class PublishedPagesCommands extends DrushCommands {
     fclose($out);
   }
 
-  protected function saveNodeRows($out): void {
+  protected function saveNodeRows(mixed $out): void {
     $nids = $this->entityTypeManager
       ->getStorage('node')
       ->getQuery()
@@ -168,7 +174,7 @@ final class PublishedPagesCommands extends DrushCommands {
     }
   }
 
-  protected function saveNodeRow($out, $node, $row): void {
+  protected function saveNodeRow(mixed $out, Node $node, mixed $row): void {
 
     $row = array_map(fn($col) => trim($col), $row);
     fputcsv($out, $row);
@@ -187,7 +193,7 @@ final class PublishedPagesCommands extends DrushCommands {
     }
   }
 
-  protected function saveWizardRows($out): void {
+  protected function saveWizardRows(mixed $out): void {
     $tids = $this->entityTypeManager
       ->getStorage('taxonomy_term')
       ->getQuery()
@@ -205,7 +211,7 @@ final class PublishedPagesCommands extends DrushCommands {
     }
   }
 
-  protected function getNodeRow(Node $node): PublishedPagesRow {
+  protected function getNodeRow(NodeInterface $node): PublishedPagesRow {
     $front_uri = $this->configFactory->get('system.site')->get('page.front');
     $alias = $this->pathAliasManager->getAliasByPath('/node/' . $node->id());
 
@@ -244,7 +250,7 @@ final class PublishedPagesCommands extends DrushCommands {
    * entity we are exporting that the datalayer module can look up via the
    * breadcrumb manager.
    */
-  private function getRouteMatchForNode(Node $node): RouteMatchInterface {
+  private function getRouteMatchForNode(NodeInterface $node): RouteMatchInterface {
     $route = $this->router->match('/node/' . $node->id());
 
     return new RouteMatch(
@@ -263,6 +269,10 @@ final class PublishedPagesCommands extends DrushCommands {
     return PublishedPagesRow::datalayerForWizard($data, $wizard, $baseURL);
   }
 
+  /**
+   * @param array<mixed> $data
+   * @return array<mixed>
+   */
   private function alterDatalayer(array $data): array {
     // Let other modules add to the datalayer payload.
     $datalayerEvent = new DatalayerAlterEvent($data);
