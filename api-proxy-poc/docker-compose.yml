@@ -1,0 +1,10 @@
+services:
+  proxyapi:
+    container_name: proxyapi
+    image: php:5.6-apache
+    ports:
+      - 88:80
+    volumes:
+      - ./public:/var/www/html
+    environment:
+      GOOGLE_KEY: AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A
