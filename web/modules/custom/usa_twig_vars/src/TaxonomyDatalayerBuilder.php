@@ -12,6 +12,7 @@ use Drupal\node\NodeInterface;
  *
  * @phpstan-type TaxonomyBreadcrumb array{
  *   nodeID?: string,
+ *   taxonomyID?: string,
  *   language?: "es"|"en",
  *   homepageTest?: "homepage"|"not_homepage",
  *   basicPagesubType?: null|string,
@@ -29,6 +30,8 @@ use Drupal\node\NodeInterface;
  *   Taxonomy_URL_4: string,
  *   Taxonomy_URL_5: string,
  *   Taxonomy_URL_6: string,
+ *   hasBenefitCategory?: bool,
+ *   benefitCategories?: string
  * }
  */
 class TaxonomyDatalayerBuilder {
