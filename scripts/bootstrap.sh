@@ -170,9 +170,11 @@ if [ -f "/etc/php83/conf.d/newrelic.ini" ]; then
   fi
 fi
 
-echo "Checking for .git file to identify local installation; \"fatal: not a git repository\" is expected elsewhere"
-git config --global --add safe.directory /var/www
-
+# php needs a restart so new relic ini changes take effect
+if [ -d /var/run/s6/services/php ]; then
+  echo "Asking php to reload conf ... "
+  s6-svc -2 /var/run/s6/services/php
+fi
 # nginx needs a restart so proxy changes take effect
 if [ -d /var/run/s6/services/nginx ]; then
   echo "Asking nginx to reload conf ... "
@@ -205,7 +207,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
     drush updatedb --no-cache-clear -y
     drush cim -y || drush cim -y
     drush cim -y
-    echo "Notice: If a TXNDATA error is seen above this line, we believe it is likley NewRelic having a connection-reset-by-peer issue. We dont believe this is causing drush-cim to crash."
+    echo "Notice: If a TXNDATA error is seen above this line, we believe it is likely NewRelic having a connection-reset-by-peer issue. We dont believe this is causing drush-cim to crash."
 
     drush php-eval "node_access_rebuild();" -y
 
