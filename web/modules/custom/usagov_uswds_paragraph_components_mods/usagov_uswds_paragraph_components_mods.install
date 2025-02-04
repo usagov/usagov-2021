@@ -5,9 +5,8 @@ use Drupal\field\Entity\FieldStorageConfig;
 /**
 * On installation, increase the lengths of "field_alert_body" and "field_alert_title"
 * to 600 characters.
-* @return string A string containing results of field length updates
 *
-* @throws \Exception If database or configuration updates fail
+* @return string A string containing results of field length updates
 */
 function usagov_uswds_paragraph_components_mods_install(): string {
   $results = [];
