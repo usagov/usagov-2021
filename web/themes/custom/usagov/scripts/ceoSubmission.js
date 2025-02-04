@@ -400,7 +400,7 @@ async function handleFormSubmission() {
     }
 
     document.getElementById("error-box").classList.add("usa-error--alert");
-    document.getElementById("myform").submit();
+    document.getElementById("ceo-form").submit();
 };
 
 window.addEventListener("load", function () {

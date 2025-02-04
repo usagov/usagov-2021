@@ -4,10 +4,16 @@ status: true
 dependencies:
   config:
     - field.field.paragraph.ceo_form.field_ceo_button_label
+    - field.field.paragraph.ceo_form.field_ceo_city_error
     - field.field.paragraph.ceo_form.field_ceo_city_label
     - field.field.paragraph.ceo_form.field_ceo_lower_html
+    - field.field.paragraph.ceo_form.field_ceo_required_instr
+    - field.field.paragraph.ceo_form.field_ceo_results_ref
+    - field.field.paragraph.ceo_form.field_ceo_state_error
     - field.field.paragraph.ceo_form.field_ceo_state_label
+    - field.field.paragraph.ceo_form.field_ceo_street_error
     - field.field.paragraph.ceo_form.field_ceo_street_label
+    - field.field.paragraph.ceo_form.field_ceo_zip_error
     - field.field.paragraph.ceo_form.field_ceo_zip_label
     - paragraphs.paragraphs_type.ceo_form
   module:
@@ -17,6 +23,7 @@ third_party_settings:
   field_group:
     group_address_fields:
       children:
+        - field_ceo_required_instr
         - field_ceo_street_label
         - field_ceo_city_label
         - field_ceo_state_label
@@ -24,7 +31,7 @@ third_party_settings:
       label: 'Address Fields'
       region: content
       parent_name: ''
-      weight: 0
+      weight: 1
       format_type: fieldset
       format_settings:
         classes: ''
@@ -36,6 +43,41 @@ third_party_settings:
         formatter: closed
         open: false
         weight: 0
+    group_error_messages:
+      children:
+        - field_ceo_street_error
+        - field_ceo_city_error
+        - field_ceo_state_error
+        - field_ceo_zip_error
+      label: 'Error Messages'
+      region: content
+      parent_name: ''
+      weight: 3
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: 'Text to display if a submitted field is empty.'
+        required_fields: true
+    group_submit_button:
+      children:
+        - field_ceo_lower_html
+        - field_ceo_button_label
+        - field_ceo_results_ref
+      label: 'Submit Button'
+      region: content
+      parent_name: ''
+      weight: 2
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: ''
+        required_fields: true
 id: paragraph.ceo_form.default
 targetEntityType: paragraph
 bundle: ceo_form
@@ -43,7 +85,15 @@ mode: default
 content:
   field_ceo_button_label:
     type: string_textfield
-    weight: 2
+    weight: 3
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_city_error:
+    type: string_textfield
+    weight: 22
     region: content
     settings:
       size: 60
@@ -51,7 +101,7 @@ content:
     third_party_settings: {  }
   field_ceo_city_label:
     type: string_textfield
-    weight: 3
+    weight: 4
     region: content
     settings:
       size: 60
@@ -59,15 +109,49 @@ content:
     third_party_settings: {  }
   field_ceo_lower_html:
     type: text_textarea
-    weight: 1
+    weight: 2
     region: content
     settings:
       rows: 5
       placeholder: ''
     third_party_settings: {  }
+  field_ceo_required_instr:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_results_ref:
+    type: entity_reference_autocomplete
+    weight: 4
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_state_error:
+    type: string_textfield
+    weight: 23
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_ceo_state_label:
     type: string_textfield
-    weight: 4
+    weight: 5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_street_error:
+    type: string_textfield
+    weight: 21
     region: content
     settings:
       size: 60
@@ -75,7 +159,15 @@ content:
     third_party_settings: {  }
   field_ceo_street_label:
     type: string_textfield
-    weight: 2
+    weight: 3
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_zip_error:
+    type: string_textfield
+    weight: 24
     region: content
     settings:
       size: 60
@@ -83,7 +175,7 @@ content:
     third_party_settings: {  }
   field_ceo_zip_label:
     type: string_textfield
-    weight: 5
+    weight: 6
     region: content
     settings:
       size: 60
