@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Use proprocess for html twig.
+ * Use preprocess for html twig.
  */
 
 use Drupal\Core\Menu\MenuTreeParameters;
