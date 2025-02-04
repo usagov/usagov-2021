@@ -75,6 +75,11 @@ valid_ipv6_cidr() {
 
 # Encountered any bad addresses?
 BAD_ADDRESS_PRESENT=0
+
+# Count addresses checked
+IPV4_ADDRESS_COUNT=0
+IPV6_ADDRESS_COUNT=0
+
 # which ips are whitelisted - ipv4 only
 export IPS_ALLOWED=""
 if [ ! -z "$IP_ALLOWED" ]; then
@@ -84,6 +89,8 @@ if [ ! -z "$IP_ALLOWED" ]; then
    ### this allows a variety of (valid) common formats to be safely used as input
    IPS=$(echo $IPS_NO_COMMENTS | sed -r 's/[^0-9.,;\/]//g' | tr ',' ';' | tr ';' ' ')
    for ip in $IPS; do
+     #echo $ip
+     ((++IPV4_ADDRESS_COUNT))
      if valid_ip $ip; then
        export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
      elif valid_cidr $ip; then
@@ -102,7 +109,8 @@ if [ ! -z "$IPV6_ALLOWED" ]; then
 
    IPV6S=$(echo $IPV6S_NO_COMMENTS | sed -r 's/[^0-9A-Za-z:\/ ]//g' | tr ',' ';' | tr ';' ' ')
    for ip in $IPV6S; do
-     #echo "$ip"
+     #echo $ip
+     ((++IPV6_ADDRESS_COUNT))
      if valid_ipv6 $ip; then
        export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
      elif valid_ipv6_cidr $ip; then
@@ -115,6 +123,9 @@ if [ ! -z "$IPV6_ALLOWED" ]; then
 fi
 
 export IPS_ALLOWED
+
+IP_ADDRESS_COUNT=$((IPV4_ADDRESS_COUNT+IPV6_ADDRESS_COUNT))
+echo "INFO: $IP_ADDRESS_COUNT addresses checked"
 
 if [ $BAD_ADDRESS_PRESENT != 0 ]; then
   echo "ERROR: One or more invalid IP addresses were found in IP_ALLOWED and/or IPV6_ALLOWED. This should be investigated ASAP. Please look for IP VALIDATION WARNING in the logs"
