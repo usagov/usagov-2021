@@ -370,6 +370,18 @@ jobs:
             touch /tmp/results/scan-cms-container-cis.log
             touch /tmp/results/scan-waf-container-cis.log
       - run:
+          name: Validate IP Allow Lists
+          command: |
+            ### IP_ALLOWED and IPV6_ALLOWED are in the app's manifest.yml
+            RETVAL=0
+            if [ -n $IP_ALLOWED -o -n $IPV6_ALLOWED ]; then
+              ./scripts/validate-cidr
+              RETVAL=$?
+            else
+              echo "INFO: IP_ALLOWED and/or IPV6_ALLOWED lists are empty"
+            fi
+            exit $RETVAL
+      - run:
           name: Scan Code
           command: |
             SCAN_CODE_RESULT=0
@@ -765,6 +777,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2232-cidr-validation
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -775,6 +788,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2232-cidr-validation
       - approve-dev-deployment:
           type: approval
           requires:
