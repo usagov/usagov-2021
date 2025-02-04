@@ -80,7 +80,7 @@ function usagov_top_navigation_menu_menu_link_content_update(MenuLinkContentInte
 
   // Get the UUID for that Node ID
   $node = Node::load($nid);
-  if ($node === null) {
+  if ($node === NULL) {
     return;
   }
   $uuid = $node->uuid();
