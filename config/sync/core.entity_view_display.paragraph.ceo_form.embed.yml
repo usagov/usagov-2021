@@ -1,0 +1,25 @@
+uuid: 641e307f-1553-4f4f-b159-824ae117acdb
+langcode: en
+status: false
+dependencies:
+  config:
+    - core.entity_view_mode.paragraph.embed
+    - field.field.paragraph.ceo_form.field_ceo_button_label
+    - field.field.paragraph.ceo_form.field_ceo_city_label
+    - field.field.paragraph.ceo_form.field_ceo_lower_html
+    - field.field.paragraph.ceo_form.field_ceo_state_label
+    - field.field.paragraph.ceo_form.field_ceo_street_label
+    - field.field.paragraph.ceo_form.field_ceo_zip_label
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.embed
+targetEntityType: paragraph
+bundle: ceo_form
+mode: embed
+content: {  }
+hidden:
+  field_ceo_button_label: true
+  field_ceo_city_label: true
+  field_ceo_lower_html: true
+  field_ceo_state_label: true
+  field_ceo_street_label: true
+  field_ceo_zip_label: true

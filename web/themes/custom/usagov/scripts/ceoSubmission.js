@@ -24,7 +24,7 @@ const a11y_translations = {
         "clear_state": "Clear the contents of the state field."
     },
     "es": {
-        "street": "Por favor, escriba la dirección. ",
+        "street": "Por favor, escriba la dirección.",
         "city": "Por favor, escriba el nombre de la ciudad.",
         "state": "Por favor, escriba el nombre del estado.",
         "zip": "Por favor, escriba código postal.",

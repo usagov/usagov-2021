@@ -11,7 +11,6 @@ module:
   block_content: 0
   breakpoint: 0
   ckeditor5: 0
-  ckeditor5_embedded_content: 0
   ckeditor_media_resize: 0
   composer_deploy: 0
   conditional_fields: 0
@@ -88,6 +87,7 @@ module:
   tome_base: 0
   tome_static: 0
   toolbar: 0
+  twig_field_value: 0
   twig_tweak: 0
   update: 0
   usa_admin_styles: 0
