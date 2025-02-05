@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
 
 /**
@@ -8,9 +9,11 @@ use Drupal\taxonomy\Entity\Term;
  * USWDS Base sub-theme.
  *
  * Place your custom PHP code in this file.
+ *
+ * @param array<string, mixed> $variables
  */
 
-function usagov_preprocess_html(&$variables) {
+function usagov_preprocess_html(array &$variables): void {
   $node = \Drupal::routeMatch()->getParameter('node');
   $variables['node'] = $node;
 
@@ -23,15 +26,17 @@ function usagov_preprocess_html(&$variables) {
 /**
  * generate_faq takes a node, analyses the body content,
  * and returns an array of objects each containing a question and answer
+ *
+ * @return \stdClass[]
  */
-function generate_faq(&$node) {
+function generate_faq(NodeInterface &$node): array {
   $faq = [];
 
   // While a node may have its FAQ-Page checked, this does not guarantee the
   // body field is not empty. When it is empty, there is nothing we can do here.
   // We will bail to prevent errors (see USAGOV-1925).
-  if (empty($node->get('body')) || empty($node->get('body')[0]) || empty($node->get('body')[0]->value)) {
-    return;
+  if (empty($node->get('body')[0]) || empty($node->get('body')[0]->value)) {
+    return [];
   }
 
   // Set up a DOMDocument with the node's body content
@@ -143,7 +148,7 @@ function generate_faq(&$node) {
  * faq_process_components gets components from drupal paragraph embeds
  * and makes their content compatible with FAQ rich results
  */
-function faq_process_components(&$dom) {
+function faq_process_components(DOMDocument &$dom): void {
   // Iterate through embedded paragraphs
   $embeddedParagraphElements = $dom->getElementsByTagName('drupal-paragraph');
   // Loop backwards to allow for removing elements along the way without losing
@@ -186,9 +191,7 @@ function faq_process_components(&$dom) {
         $accordionBody->loadHTML('<?xml encoding="UTF-8">' . $accordionPanelBodyNode->get('field_text')[0]->value);
         foreach ($accordionBody->documentElement->childNodes[0]->childNodes as $accordionBodyElement) {
           $accordionBodyElement = $dom->importNode($accordionBodyElement, TRUE);
-          if ($accordionBodyElement) {
-            $element->parentNode->insertBefore($accordionBodyElement, $element);
-          }
+          $element->parentNode->insertBefore($accordionBodyElement, $element);
         }
       }
     }
@@ -218,7 +221,7 @@ function faq_process_components(&$dom) {
  * faq_simplify_list takes a USWDS list component (Process List or Icon List) and
  * returns a DOM Element containing the component's content in a simple HTML list
  */
-function faq_simplify_list(&$dom, &$component, $listType, $itemsFieldName, $bodyFieldName) {
+function faq_simplify_list(DOMDocument &$dom, object &$component, string $listType, string $itemsFieldName, string $bodyFieldName): mixed {
   // Create a list element of the specified type
   $processListSimplified = $dom->createElement($listType);
 
@@ -236,9 +239,7 @@ function faq_simplify_list(&$dom, &$component, $listType, $itemsFieldName, $body
     // Append each from this list item to the <li>
     foreach ($processItemBody->documentElement->childNodes[0]->childNodes as $processItemBodyElement) {
       $processItemBodyElement = $dom->importNode($processItemBodyElement, TRUE);
-      if ($processItemBodyElement) {
-        $processItemContent->appendChild($processItemBodyElement);
-      }
+      $processItemContent->appendChild($processItemBodyElement);
     }
 
     // Append the <li> to the list element
@@ -250,8 +251,10 @@ function faq_simplify_list(&$dom, &$component, $listType, $itemsFieldName, $body
 /**
  * faq_answer_inner_html takes a DOMDocument and returns a string of HTML within the body tag.
  * It also removes data-mce-href attributes.
+ *
+ * @param-out string|false $answer
  */
-function faq_answer_inner_html(&$answer) {
+function faq_answer_inner_html(DOMDocument &$answer): string {
   // Remove data-mce-href attributes
   $links = $answer->getElementsByTagName('a');
   foreach ($links as $link) {
@@ -268,8 +271,11 @@ function faq_answer_inner_html(&$answer) {
 /**
  * children_of_active_menu_item is a recursive helper function for finding the
  * children of the active menu item
+ *
+ * @param array<string, array<string, mixed>> $items
+ *   Array of menu children
  */
-function children_of_active_menu_item(&$items) {
+function children_of_active_menu_item(array &$items): mixed {
   $result = NULL;
   foreach ($items as $object) {
     if ($object['in_active_trail'] === TRUE) {
@@ -287,8 +293,10 @@ function children_of_active_menu_item(&$items) {
 
 /**
  * Process paragraph content
+ *
+ * @param array<string, mixed> $variables
  */
-function usagov_preprocess_paragraph(&$variables) {
+function usagov_preprocess_paragraph(array &$variables): void {
   /**
    * Pass node value to pages so they can access node-based properties
    */
@@ -298,8 +306,10 @@ function usagov_preprocess_paragraph(&$variables) {
 
 /**
  * Process block content
+ *
+ * @param array<string, mixed> $variables
  */
-function usagov_preprocess_block(&$variables) {
+function usagov_preprocess_block(array &$variables): void {
   /*
    * Pass node value to pages so they can access node-based properties
    */
@@ -404,11 +414,22 @@ function usagov_preprocess_block(&$variables) {
   }
 }
 
-function usagov_preprocess_views_view_list(&$variables) {
+/**
+ * HOOK_preprocess_views_view_list
+ *
+ * @param array<string, mixed> $variables
+ */
+function usagov_preprocess_views_view_list(array &$variables): void {
   $variables['node'] = \Drupal::routeMatch()->getParameter('node');
 }
 
-function usagov_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+/**
+ * HOOK_theme_suggestions_alter
+ *
+ * @param array<string> $suggestions
+ * @param array<string, mixed> $variables
+ */
+function usagov_theme_suggestions_alter(array &$suggestions, array $variables, string $hook): void {
   if ($hook == 'views_view_fields') {
     $id = $variables['view']->storage->id();
     if ($id == "sub_children") {

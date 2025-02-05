@@ -1,0 +1,17 @@
+uuid: d89c38a5-e81f-4736-8711-cee236bb54bf
+langcode: en
+status: true
+dependencies: {  }
+id: cloud_split
+label: cloud_split
+description: ''
+weight: 0
+stackable: false
+no_patching: false
+storage: folder
+folder: /var/www/config/cloud_split
+module: {  }
+theme: {  }
+complete_list: {  }
+partial_list:
+  - system.performance
