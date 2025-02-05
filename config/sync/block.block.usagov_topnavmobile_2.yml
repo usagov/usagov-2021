@@ -1,0 +1,38 @@
+uuid: ca475251-8c0e-4a92-9143-ea5f905cc5bc
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:html_block:ba151291-a004-469d-9192-deb7730e19df'
+  module:
+    - block_content
+    - language
+    - system
+  theme:
+    - usagov
+id: usagov_topnavmobile_2
+theme: usagov
+region: top_nav_mobile
+weight: 0
+provider: null
+plugin: 'block_content:ba151291-a004-469d-9192-deb7730e19df'
+settings:
+  id: 'block_content:ba151291-a004-469d-9192-deb7730e19df'
+  label: 'Top Nav Mobile'
+  label_display: '0'
+  provider: block_content
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      en: en
+  request_path:
+    id: request_path
+    negate: true
+    pages: "/benefit-finder\r\n/benefit-finder/*\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/local-governments\r\n/phone\r\n/state-attorney-general\r\n/state-consumer\r\n/state-corrections\r\n/state-election-office\r\n/state-emergency-management\r\n/state-governments\r\n/state-governments/*\r\n/state-governor\r\n/state-health\r\n/state-motor-vehicle-services\r\n/state-social-services\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds\r\n/where-report-scams"

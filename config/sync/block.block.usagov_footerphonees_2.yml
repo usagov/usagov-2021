@@ -1,0 +1,38 @@
+uuid: 8794ab0a-1c02-4505-ac46-2d31d58a49f8
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:html_block:1b695544-3f71-4c40-a6bc-518aee5cdc9c'
+  module:
+    - block_content
+    - language
+    - system
+  theme:
+    - usagov
+id: usagov_footerphonees_2
+theme: usagov
+region: footer_secondary
+weight: 0
+provider: null
+plugin: 'block_content:1b695544-3f71-4c40-a6bc-518aee5cdc9c'
+settings:
+  id: 'block_content:1b695544-3f71-4c40-a6bc-518aee5cdc9c'
+  label: 'Footer Phone ES'
+  label_display: '0'
+  provider: block_content
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es
+  request_path:
+    id: request_path
+    negate: true
+    pages: "/averiguar-estado-reembolso-impuestos\r\n/buscador-beneficios\r\n/buscador-beneficios/*\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/donde-reportar-una-estafa\r\n/estatal-consumidor\r\n/estatales-servicios-sociales\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/gobiernos-estatales\r\n/gobiernos-estatales/*\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/oficina-elecciones-estatal-local\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados"

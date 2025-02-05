@@ -466,6 +466,18 @@ jobs:
             cat /tmp/results/scan-waf-container-cis.log
             exit 0
       - run:
+          name: Stop containers now that Benchmarks are done
+          when: always
+          command: |
+            echo "Current running containers are:"
+            docker ps
+            echo "Stopping all containers ..."
+            docker stop $(docker ps -q)
+            echo "Current running containers are:"
+            docker ps
+            echo "done."
+
+      - run:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
           command: |
