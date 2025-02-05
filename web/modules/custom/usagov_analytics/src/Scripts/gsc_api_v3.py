@@ -3,6 +3,8 @@ import numpy as np
 import datetime as dt
 import xlsxwriter
 import os.path
+import sys
+import webbrowser
 
 # to access the API:
 import searchconsole
@@ -19,6 +21,7 @@ if check_file is True:
                                          flow='console')
 else:
     # run below if this is the first time, to save credentials to credentials.json and avoid authorization again.
+    print(webbrowser._browsers)
     account = searchconsole.authenticate(client_config='gsc_api_secret_cred.json',
                                           serialize='credentials.json')
 
@@ -29,7 +32,9 @@ else:
 def get_language_input():
     valid_languages = ["english", "spanish"]
     while True:
-        lang_input = input('Type `English` or `Spanish` to select the corresponding USAGov Search Console property: ').lower()
+        # lang_input = input('Type `English` or `Spanish` to select the corresponding USAGov Search Console property: ').lower()
+        lang_input = sys.argv[1]
+
         if lang_input in valid_languages:
             print(f"Valid input received: {lang_input}")
             return lang_input
@@ -156,7 +161,10 @@ while True:
         
     # prompt user to input a start date. Reprompt until valid date is entered:
     while True:
-        input_start_date = input("Please enter a start date in YYYY-MM-DD format: ")
+        
+        # input_start_date = input("Please enter a start date in YYYY-MM-DD format: ")
+        input_start_date = sys.argv[2]
+
         if validate_date(input_start_date): # our validation formula
             print(f"Valid date: {input_start_date}")
             break
@@ -166,7 +174,9 @@ while True:
     
     # prompt user to input an end date. Reprompt until valid date is entered:
     while True:
-        input_end_date = input("Please enter an end date in YYYY-MM-DD format: ")
+        # input_end_date = input("Please enter an end date in YYYY-MM-DD format: ")
+        input_end_date = sys.argv[3]
+
         if validate_date(input_end_date): # our validation formula
             print(f"Valid date: {input_end_date}")
             break

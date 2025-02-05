@@ -16,10 +16,13 @@ source myenv/bin/activate
 pip3 install --upgrade pip
 
 # Install required packages
-pip3 install -r requirements.txt
+pip3 install --no-cache-dir -r requirements.txt
 
-# Run the Python script
-python3 gsc_api_v3.py
+echo "Running Python script..."
+output=$(python3 gsc_api_v3.py $1 $2 $3)
+
+echo "$output"
+echo "Python script finished."
 
 # Deactivate virtual environment
 deactivate

@@ -1,8 +1,8 @@
 usagov_analytics.run_script:
-  path: '/run-python-script'
+  path: '/admin/run-python-script'
   defaults: 
-    _form: '\Drupal\usagov_analytics\Form\UsaGovAnalyticsForm'
+    _form: '\Drupal\usagov_analytics\Form\USAGovAnalyticsForm'
     # _controller: '\Drupal\usagov_analytics\Controller\UsaGovAnalyticsController::runScript'
-    _title: 'Run Script'
+    _title: 'Analytics Google Search Data'
   requirements:
     _permission: 'access administration pages'
