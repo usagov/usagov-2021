@@ -1,17 +1,11 @@
 
 {% if node.langcode.value == "es" %}
-  {% set translations = {
-    'contact_center': 'Centro de llamadas de USAGov',
-    'ask_a_question': 'Haga una pregunta a USAGov en Español al',
-    'phone_URL': '/es/llamenos',
+  {% set  translations = {
     'find_us': 'Encuéntrenos en las redes sociales',
     'social_media_usernames': ['usagovespanol', 'usagovespanol', 'USAgovespanol']
   } %}
 {% else %}
   {% set translations = {
-    'contact_center': 'USAGov Contact Center',
-    'ask_a_question': 'Ask USA.gov a question at',
-    'phone_URL': '/phone',
     'find_us': 'Find us on social media',
     'social_media_usernames': ['USAgov', 'USAgov', 'usagov1', 'usagov']
   } %}
@@ -48,23 +42,7 @@
 	<div class="grid-container">
 		<div class="grid-row grid-gap">
 			<div class="usa-footer__logo grid-row mobile-lg:grid-col-6">
-				<div id="footer-phone" data-contact-callout="visible">
-					<div class="mobile-lg:grid-col-auto">
-						<h4 class="usa-footer__logo-heading font-sans-lg">
-							{{- translations.contact_center -}}
-						</h4>
-					</div>
-					<div class="mobile-lg:grid-col-auto">
-						<p class="footer-question">
-							{{- translations.ask_a_question -}}
-						</p>
-						<address class="usa-footer__address">
-							<div class="usa-footer__contact-info">
-								<a href="{{ translations.phone_URL }}">1-844-USAGOV1 (1-844-872-4681)</a>
-							</div>
-						</address>
-					</div>
-				</div>
+        {{ page.footer_secondary }}
 			</div>
 			<div class="usa-footer__contact-links mobile-lg:grid-col-6">
 				<div class="footer-social-block">
