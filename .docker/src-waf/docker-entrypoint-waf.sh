@@ -35,6 +35,35 @@ valid_ip() {
   return 0
 }
 
+valid_ipv6() {
+  # Set up local variables
+  local ip=$1
+  # local IFS=.; local -a a=($ip)
+  if [[ ! $ip =~ ([a-fA-F0-9]{0,4}:){7}[a-fA-F0-9]{1,4}$ ]]; then
+    return 1
+  fi
+  return 0
+}
+
+# This will let some invalid CIDRs through, but it will catch many errors.
+valid_ipv6_cidr() {
+  local CIDR="$1"
+  # Split it on the slash (if we don't have a / it's not a CIDR)
+  IFS="/" read -r ip_parts N <<< "$CIDR"
+
+  if [[ ! $ip_parts =~ ^([a-fA-F0-9]{0,4}:){1,7}$ ]]; then
+    echo "${ip_parts} not valid ipv6 addr parts"
+    return 1
+  fi
+  # N should be numeric (it should also be a power of two, but we're not checking that right now)
+  if [[ $N =~ ^[0-9]+$ ]]; then
+    return 0 # CIDR OK!
+  else
+    return 1 # CIDR NOT OK!
+  fi
+}
+
+
 # where do we go to find the cms
 if [ -z "$CMS_PROXY" ]; then
   export CMS_PROXY="cms-usagov.apps.internal"
@@ -47,7 +76,7 @@ if [ -z "$S3_PROXY" ]; then
   export S3_PROXY="$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com"
 fi;
 
-# which ips are whitelisted
+# which ips are whitelisted - ipv4 only
 export IPS_ALLOWED=""
 if [ ! -z "$IP_ALLOWED" ]; then
    ### Some of us like to be able to add comments. Strip those out now:
@@ -60,6 +89,22 @@ if [ ! -z "$IP_ALLOWED" ]; then
        export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
      else
        if valid_cidr $ip; then
+         export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
+       fi
+     fi
+   done;
+fi
+
+# which ips are whitelisted - ipv6 only
+if [ ! -z "$IPV6_ALLOWED" ]; then
+   ### Some of us like to be able to add comments. Strip those out now:
+   IPV6S=$(echo "$IPV6_ALLOWED" | sed -r 's/^[ \t]*#.*$//g')
+
+   for ip in $IPV6S; do
+     if valid_ipv6 $ip; then
+       export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
+     else
+       if valid_ipv6_cidr $ip; then
          export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
        fi
      fi
