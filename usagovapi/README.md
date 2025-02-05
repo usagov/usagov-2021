@@ -8,11 +8,11 @@ The **proxy application** intercepts API calls and appends the required API key 
 
 This project was tested with **NASA.gov's** open **APOD API**, as well as **SAM.gov's** API.
 
-**Sign up for an instant NASA API Key at https://api.nasa.gov, export variables like example below.**
+**Sign up for an instant NASA API Key at [https://api.nasa.gov](https://api.nasa.gov), export variables like example below.**
 
 ## 🏗️ Architecture
 
-```
+```plaintext
 ┌───────────────┐        ┌───────────────┐        ┌─────────────────┐
 │ Test Client   │  --->  │ API Proxy     │  --->  │ External API    │
 │ (requests)    │        │ (forwards)    │        │ (e.g., NASA.gov)│
@@ -23,7 +23,7 @@ This project was tested with **NASA.gov's** open **APOD API**, as well as **SAM.
   - This means there is no need to have a container build step in a deploy script or pipeline, nor do we need a Dockerfile.
   - Version of Python and other libraries in Cloud.gov buildpacks are updated upon restart to ensure we have the most recent version of Python.
 - **Encrypted Container-to-Container Communication**: **This setup utilizes the automatic C2C network traffic encryption provided by Cloud.gov's Envoy proxy over port 61443**
-  - As detailed in: https://cloud.gov/docs/management/container-to-container/
+  - As detailed in: [https://cloud.gov/docs/management/container-to-container/](https://cloud.gov/docs/management/container-to-container/)
 - **Test Client**: Python buildpack with nothing running in it but a forever sleep to keep it up.
   - Makes API requests but **lacks direct API credentials**.
 - **API Proxy**: Relays requests, checks formatting, and appends `API_KEY`, and forwards them securely.
@@ -45,7 +45,7 @@ This project was tested with **NASA.gov's** open **APOD API**, as well as **SAM.
 
 Set environment variables:
 
-To test with NASA's API Sign up for a key: https://api.nasa.gov/
+To test with NASA's API, sign up for a key [here](https://api.nasa.gov/).
 
 ```bash
 export API_ENDPOINT="https://api.nasa.gov/planetary/apod"
@@ -72,6 +72,7 @@ To deploy the API Proxy & Test Client, run:
 - The script will confirm **your Cloud Foundry org & space** before proceeding.
 - It **creates routes**, **deploys applications**, and **sets network policies**.
 - The expected output:
+
   ```plaintext
   🔍 You are deploying to:
      🏢 Org:              sandbox-gsa
@@ -171,6 +172,7 @@ cf push -f test_client_manifest.yml
 
 - Confirm the request URL is correct.
 - Ensure `api-proxy` is running:
+
   ```bash
   cf apps
   ```
