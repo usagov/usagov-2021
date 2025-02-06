@@ -373,8 +373,9 @@ jobs:
       - run:
           name: Validate IP Allow Lists
           command: |
-            sudo apt update
-            sudo apt install pkg-config
+            #sudo apt update
+            #sudo apt install pkg-config
+            curl -fsSL https://pyenv.run | bash
             pyenv global 3
             export IPV6_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g')
             export IP_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IP_ALLOWED' | sed 's/"//g')
