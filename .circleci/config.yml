@@ -418,7 +418,7 @@ jobs:
           name: Prepare for CIS Benchmarks
           when: always
           command: |
-            # kill the synk images as we dont want the next scan to waste tim scaning them
+            # kill the Snyk Docker images, as we dont want the next scan to waste time scaning them
             docker image rm snyk/snyk:php
             docker image rm snyk/snyk:docker
             # build a fresh docker-bench-security container
