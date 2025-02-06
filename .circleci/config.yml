@@ -681,6 +681,9 @@ jobs:
             ### IP_ALLOWED and IPV6_ALLOWED are in the app's manifest.yml
             RETVAL=0
             if [ -n "$IP_ALLOWED" -o -n "$IPV6_ALLOWED" ]; then
+              export IP_ALLOWED
+              export IPV6_ALLOWED
+              #IPV6_ALLOWED=$IPV6_ALLOWED IP_ALLOWED=$IP_ALLOWED 
               ./scripts/validate-cidr
               RETVAL=$?
               echo "RETVAL: " $RETVAL
