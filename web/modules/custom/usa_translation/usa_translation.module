@@ -15,7 +15,7 @@ use Drupal\taxonomy\TermInterface;
 /**
  * Implements hook_ENTITY_TYPE_translation_delete().
  */
-function usa_translation_node_translation_delete(NodeInterface $node) {
+function usa_translation_node_translation_delete(NodeInterface $node): void {
   $node_lang = $node->language()->getId();
   $menu_link_manager = \Drupal::service('plugin.manager.menu.link');
   $result = $menu_link_manager->loadLinksByRoute('entity.node.canonical', ['node' => $node->id()]);
@@ -31,7 +31,7 @@ function usa_translation_node_translation_delete(NodeInterface $node) {
 /**
  * Implements hook_page_attachments_alter().
  */
-function usa_translation_page_attachments_alter(&$page) {
+function usa_translation_page_attachments_alter(&$page): void {
   $cache = CacheableMetadata::createFromRenderArray($page);
   $route_match = \Drupal::routeMatch();
 
