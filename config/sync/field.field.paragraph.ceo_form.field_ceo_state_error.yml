@@ -1,0 +1,19 @@
+uuid: 8626eaa0-9d10-4ce4-81a4-248753454525
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_state_error
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_ceo_state_error
+field_name: field_ceo_state_error
+entity_type: paragraph
+bundle: ceo_form
+label: 'State Error'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

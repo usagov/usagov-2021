@@ -1,0 +1,19 @@
+uuid: 6cba787a-af1d-4078-86d5-1cfb9baa6245
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_zip_error
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_ceo_zip_error
+field_name: field_ceo_zip_error
+entity_type: paragraph
+bundle: ceo_form
+label: 'Zip Error'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -21,6 +21,19 @@ ceo-submission:
     }
     scripts/ceoSubmission.js: {}
     scripts/usps-credentials.js: {}
+ceo-results:
+  js:
+    scripts/purify.min.js: {
+      minified: true,
+    }
+    scripts/ceoResults.js: {
+      attributes: {
+        defer: true
+      }
+    }
+    "https://apis.google.com/js/api.js": {
+      type: external
+    }
 
 wizard:
   js:

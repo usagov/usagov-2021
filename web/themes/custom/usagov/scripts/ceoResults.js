@@ -277,7 +277,7 @@ function renderResults(response, rawResponse) {
                 address = address[0].line1 + "<br>" + address[0].city + ", " + address[0].state + " " + address[0].zip;
 
                 nextElem = document.createElement("li");
-            nextElem.classList.add("padding-bottom-2");
+                nextElem.classList.add("padding-bottom-2");
                 nextElem.innerHTML = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
 
                 bulletList.appendChild(nextElem);

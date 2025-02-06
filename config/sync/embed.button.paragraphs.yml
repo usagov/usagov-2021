@@ -13,7 +13,7 @@ type_settings:
   enable_paragraph_type_filter: 1
   paragraphs_type_filter:
     ceo_form: ceo_form
-    elected_officials_form: elected_officials_form
+    ceo_results: ceo_results
     faq: faq
     uswds_accordion: uswds_accordion
     uswds_alert: uswds_alert
