@@ -356,7 +356,6 @@ jobs:
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - run: apt list --installed
       - checkout
       - signed-dockerhub-login
       - run:
@@ -375,6 +374,8 @@ jobs:
           command: |
             #sudo apt update
             #sudo apt install pkg-config
+            ls -ltrR /opt/circleci/.pyenv/
+            rm -rf /opt/circleci/.pyenv/
             curl -fsSL https://pyenv.run | bash
             pyenv global 3
             export IPV6_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g')
