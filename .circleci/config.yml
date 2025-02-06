@@ -356,6 +356,7 @@ jobs:
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
+      - run: apt list --installed
       - checkout
       - signed-dockerhub-login
       - run:
@@ -372,19 +373,9 @@ jobs:
       - run:
           name: Validate IP Allow Lists
           command: |
-            # the sed invocation inserts the lines at the start of the file
-            # after any initial comment lines
-            sed -Ei -e '/^([^#]|$)/ {a \
-            export PYENV_ROOT="$HOME/.pyenv"
-            a \
-            export PATH="$PYENV_ROOT/bin:$PATH"
-            a \
-            ' -e ':a' -e '$!{n;ba};}' ~/.profile
-            echo 'eval "$(pyenv init --path)"' >>~/.profile
-            echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-
-            export IPV6_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g')
-            export IP_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IP_ALLOWED' | sed 's/"//g')
+            
+            #export IPV6_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g')
+            #export IP_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IP_ALLOWED' | sed 's/"//g')
             ### IP_ALLOWED and IPV6_ALLOWED are in the app's manifest.yml
             RETVAL=0
             if [ -n $IP_ALLOWED -o -n $IPV6_ALLOWED ]; then
