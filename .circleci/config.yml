@@ -396,7 +396,7 @@ jobs:
             echo "$PYENV_ROOT/shims/ contents:"
             ls -l $PYENV_ROOT/shims/
             echo
-            #FOO=$(pyenv global 3 2>&1)
+            eval "pyenv global 3.13"
             #echo $FOO
             #export IPV6_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g')
             #export IP_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IP_ALLOWED' | sed 's/"//g')
