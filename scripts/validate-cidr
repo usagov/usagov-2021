@@ -83,8 +83,6 @@ BAD_ADDRESS_PRESENT=0
 IPV4_ADDRESS_COUNT=0
 IPV6_ADDRESS_COUNT=0
 
-echo "validate-cidr: "
-
 #echo "ARG_V4:     $ARG_V4"
 #echo "ARG_V6:     $ARG_V6"
 #echo "IP_ALLOWED:   $IP_ALLOWED"
@@ -103,9 +101,11 @@ export IPS_ALLOWED=""
 if [ ! -z "$IP_ALLOWED" ]; then
    ### Some of us like to be able to add comments. Strip those out now:
    IPS_NO_COMMENTS=$(echo "$IP_ALLOWED" | sed -r 's/[ \t]*#.*$//g')
+   echo "IPS_NO_COMMENTS: $IPS_NO_COMMENTS"
    ### discard all characters except 0-9, the period, comma and the semicolon
    ### this allows a variety of (valid) common formats to be safely used as input
    IPS=$(echo $IPS_NO_COMMENTS | sed -r 's/[^0-9.,;\/]//g' | tr ',' ';' | tr ';' ' ')
+   echo "IPS: $IPS"
    for ip in $IPS; do
      echo $ip
      ((++IPV4_ADDRESS_COUNT))
@@ -124,8 +124,9 @@ fi
 if [ ! -z "$IPV6_ALLOWED" ]; then
    ### Some of us like to be able to add comments. Strip those out now:
    IPV6S_NO_COMMENTS=$(echo "$IPV6_ALLOWED" | sed -r 's/[ \t]*#.*$//g')
-
+   echo "IPV6S_NO_COMMENTS: $IPV6S_NO_COMMENTS"
    IPV6S=$(echo $IPV6S_NO_COMMENTS | sed -r 's/[^0-9A-Za-z:\/ ]//g' | tr ',' ';' | tr ';' ' ')
+   echo "IPV6S: $IPV6S"
    for ip in $IPV6S; do
      echo $ip
      ((++IPV6_ADDRESS_COUNT))
