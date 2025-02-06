@@ -83,6 +83,13 @@ BAD_ADDRESS_PRESENT=0
 IPV4_ADDRESS_COUNT=0
 IPV6_ADDRESS_COUNT=0
 
+echo "validate-cidr: "
+
+echo "ARG_V4:     $ARG_V4"
+echo "ARG_V6:     $ARG_V6"
+echo "IP_ALLOWED:   $IP_ALLOWED"
+echo "IPV6_ALLOWED: $IPV6_ALLOWED"
+
 if [ -n "$ARG_V4" ]; then
   IP_ALLOWED=$ARG_V4
 fi

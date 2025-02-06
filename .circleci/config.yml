@@ -659,7 +659,6 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout
-      - signed-dockerhub-login
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -668,22 +667,17 @@ jobs:
           name: Validate IP Allow Lists
           command: |
             # Remove pyenv, etc from PATH to allow the system's python3 to work
-            export PATH=/home/circleci/.go_workspace/bin:/usr/local/go/bin:/opt/google/google-cloud-sdk/bin:/home/circleci/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/usr/local/gradle-8.11/bin:/usr/local/gradle-8.11/bin
-            which jq
-            which python3
+            export PATH=/home/circleci/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
             IPV6_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g')
             IP_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IP_ALLOWED' | sed 's/"//g')
+            echo "config.yml: "
             echo $IPV6_ALLOWED
             echo $IP_ALLOWED
-            #cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g'
-            #cat manifest.yml   | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IP_ALLOWED' | sed 's/"//g'
-            #cat manifest.yml
             ### IP_ALLOWED and IPV6_ALLOWED are in the app's manifest.yml
             RETVAL=0
             if [ -n "$IP_ALLOWED" -o -n "$IPV6_ALLOWED" ]; then
               export IP_ALLOWED
               export IPV6_ALLOWED
-              #IPV6_ALLOWED=$IPV6_ALLOWED IP_ALLOWED=$IP_ALLOWED 
               ./scripts/validate-cidr "$IP_ALLOWED" "$IPV6_ALLOWED"
               RETVAL=$?
               echo "RETVAL: " $RETVAL
