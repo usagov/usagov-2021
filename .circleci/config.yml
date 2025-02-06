@@ -356,6 +356,7 @@ jobs:
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
+      - run: apt list --installed
       - checkout
       - signed-dockerhub-login
       - run:
@@ -372,8 +373,7 @@ jobs:
       - run:
           name: Validate IP Allow Lists
           command: |
-            echo | python3
-            echo $? "< < < Retval from call to python3"
+
             ### IP_ALLOWED and IPV6_ALLOWED are in the app's manifest.yml
             RETVAL=0
             if [ -n $IP_ALLOWED -o -n $IPV6_ALLOWED ]; then
