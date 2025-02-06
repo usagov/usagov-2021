@@ -9,6 +9,7 @@ import logging
 import os
 
 import requests
+from urllib.parse import unquote
 from flask import Flask, Response, jsonify, request
 
 app = Flask(__name__)
@@ -20,12 +21,20 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Load API configuration
-API_ENDPOINT = os.getenv("API_ENDPOINT")  # Base API URL (e.g., https://api.example.com)
+# API_ENDPOINT = os.getenv("API_ENDPOINT")  # Base API URL (e.g., https://api.example.com)
 API_KEY = os.getenv("API_KEY")  # API Key for authentication
 
 @app.route("/proxy", methods=["GET", "POST", "PUT", "DELETE"])
 def proxy_request():
     """Universal API Proxy that securely forwards requests with API key injection."""
+
+    params = request.args.to_dict()
+
+    logger.info("test")
+    logger.info(params)
+
+    API_ENDPOINT = unquote(params["apiEndpoint"])
+    del params["apiEndpoint"]
 
     if not API_ENDPOINT or not API_KEY:
         logger.error("Missing API configuration (API_ENDPOINT or API_KEY)")
