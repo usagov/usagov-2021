@@ -377,13 +377,25 @@ jobs:
             #ls -ltrR /opt/circleci/.pyenv/
             #rm -rf /opt/circleci/.pyenv/
             #curl -fsSL https://pyenv.run | bash
-            ls -l ~/
-            ls -l ~/.*
+            echo "BASHRC:"
             cat ~/.bashrc
+            echo
+            echo "BASH_PROFILE:"
             cat ~/.bash_profile
+            echo
+            echo "PROFILE:"
             cat ~/.profile
+            echo
+            echo "CIRCLECIRC:"
             cat ~/.circlerc
-            
+            echo "PYENV_ROOT:  $PYENV_ROOT"
+            echo "PATH:        $;PATH"
+            echo "$PYENV_ROOT/bin contents:"
+            ls -l $PYENV_ROOT/bin
+            echo
+            echo "$PYENV_ROOT/shim contents:"
+            ls -l $PYENV_ROOT/shim
+            echo
             #FOO=$(pyenv global 3 2>&1)
             #echo $FOO
             #export IPV6_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g')
