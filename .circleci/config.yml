@@ -684,7 +684,7 @@ jobs:
               export IP_ALLOWED
               export IPV6_ALLOWED
               #IPV6_ALLOWED=$IPV6_ALLOWED IP_ALLOWED=$IP_ALLOWED 
-              ./scripts/validate-cidr
+              ./scripts/validate-cidr "$IP_ALLOWED" "$IPV6_ALLOWED"
               RETVAL=$?
               echo "RETVAL: " $RETVAL
             else

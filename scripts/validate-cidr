@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+ARG_V4=$1
+ARG_V6=$2
+
 valid_cidr() {
   local CIDR="$1"
 
@@ -79,6 +82,14 @@ BAD_ADDRESS_PRESENT=0
 # Count addresses checked
 IPV4_ADDRESS_COUNT=0
 IPV6_ADDRESS_COUNT=0
+
+if [ -n "$ARG_V4" ]; then
+  IP_ALLOWED=$ARG_V4
+fi
+
+if [ -n "$ARG_V6" ]; then
+  IPV6_ALLOWED=$ARG_V6
+fi
 
 # which ips are whitelisted - ipv4 only
 export IPS_ALLOWED=""
