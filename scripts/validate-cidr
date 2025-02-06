@@ -85,10 +85,10 @@ IPV6_ADDRESS_COUNT=0
 
 echo "validate-cidr: "
 
-echo "ARG_V4:     $ARG_V4"
-echo "ARG_V6:     $ARG_V6"
-echo "IP_ALLOWED:   $IP_ALLOWED"
-echo "IPV6_ALLOWED: $IPV6_ALLOWED"
+#echo "ARG_V4:     $ARG_V4"
+#echo "ARG_V6:     $ARG_V6"
+#echo "IP_ALLOWED:   $IP_ALLOWED"
+#echo "IPV6_ALLOWED: $IPV6_ALLOWED"
 
 if [ -n "$ARG_V4" ]; then
   IP_ALLOWED=$ARG_V4
@@ -107,7 +107,7 @@ if [ ! -z "$IP_ALLOWED" ]; then
    ### this allows a variety of (valid) common formats to be safely used as input
    IPS=$(echo $IPS_NO_COMMENTS | sed -r 's/[^0-9.,;\/]//g' | tr ',' ';' | tr ';' ' ')
    for ip in $IPS; do
-     #echo $ip
+     echo $ip
      ((++IPV4_ADDRESS_COUNT))
      if valid_ip $ip; then
        export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
@@ -127,7 +127,7 @@ if [ ! -z "$IPV6_ALLOWED" ]; then
 
    IPV6S=$(echo $IPV6S_NO_COMMENTS | sed -r 's/[^0-9A-Za-z:\/ ]//g' | tr ',' ';' | tr ';' ' ')
    for ip in $IPV6S; do
-     #echo $ip
+     echo $ip
      ((++IPV6_ADDRESS_COUNT))
      if valid_ipv6 $ip; then
        export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
