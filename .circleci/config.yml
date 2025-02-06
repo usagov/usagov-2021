@@ -372,9 +372,16 @@ jobs:
       - run:
           name: Validate IP Allow Lists
           command: |
+            # the sed invocation inserts the lines at the start of the file
+            # after any initial comment lines
+            sed -Ei -e '/^([^#]|$)/ {a \
             export PYENV_ROOT="$HOME/.pyenv"
-            export PATH="$PYENV_ROOT/shims:$PATH"
-            if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
+            a \
+            export PATH="$PYENV_ROOT/bin:$PATH"
+            a \
+            ' -e ':a' -e '$!{n;ba};}' ~/.profile
+            echo 'eval "$(pyenv init --path)"' >>~/.profile
+            echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 
             export IPV6_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g')
             export IP_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IP_ALLOWED' | sed 's/"//g')
