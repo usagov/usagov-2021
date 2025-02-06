@@ -389,12 +389,12 @@ jobs:
             echo "CIRCLECIRC:"
             cat ~/.circlerc
             echo "PYENV_ROOT:  $PYENV_ROOT"
-            echo "PATH:        $;PATH"
-            echo "$PYENV_ROOT/bin contents:"
-            ls -l $PYENV_ROOT/bin
+            echo "PATH:        $PATH"
+            echo "$PYENV_ROOT/bin/ contents:"
+            ls -l $PYENV_ROOT/bin/
             echo
-            echo "$PYENV_ROOT/shim contents:"
-            ls -l $PYENV_ROOT/shim
+            echo "$PYENV_ROOT/shims/ contents:"
+            ls -l $PYENV_ROOT/shims/
             echo
             #FOO=$(pyenv global 3 2>&1)
             #echo $FOO
