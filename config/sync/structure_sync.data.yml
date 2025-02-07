@@ -1,0 +1,79 @@
+blocks:
+  -
+    info: 'Footer Phone ES'
+    langcode: en
+    uuid: 1b695544-3f71-4c40-a6bc-518aee5cdc9c
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div id=\"footer-phone\">\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <h4 class=\"usa-footer__logo-heading\">Centro de llamadas de USAGov</h4>\r\n   </div>\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <p class=\"footer-question\">Haga una pregunta a USAGov en Español al</p>\r\n      <address class=\"usa-footer__address\">\r\n         <div class=\"usa-footer__contact-info\">\r\n            <a href=\"/es/llamenos\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n         </div>\r\n      </address>\r\n   </div>\r\n</div>"
+          summary: ''
+          format: html
+  -
+    info: 'Top Nav Mobile ES'
+    langcode: en
+    uuid: 3e472cf8-278e-498f-b7f4-501eb8ea77a6
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<span id=\"top-phone-mobile-menu\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/es/llamenos\" class=\"\">1-844-USAGOV1</a>\r\n</span>\r\n"
+          summary: ''
+          format: html
+  -
+    info: 'Top Nav Mobile'
+    langcode: en
+    uuid: ba151291-a004-469d-9192-deb7730e19df
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<span id=\"top-phone-mobile-menu\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/phone\" class=\"\">1-844-USAGOV1</a>\r\n</span>"
+          summary: ''
+          format: html
+  -
+    info: 'Top Nav Phone ES'
+    langcode: en
+    uuid: 8e768355-f298-44e8-81a9-e094cd55db26
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/es/llamenos\" style=\"white-space: nowrap;\">Llámenos al 1-844-USAGOV1</a>\r\n</span>"
+          summary: ''
+          format: html
+  -
+    info: 'Footer Phone'
+    langcode: en
+    uuid: 3a427426-d092-44ee-aa32-a0f6858f61d6
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div id=\"footer-phone\">\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <h4 class=\"usa-footer__logo-heading\">USAGov Contact Center</h4>\r\n   </div>\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <p class=\"footer-question\">Ask USA.gov a question at</p>\r\n      <address class=\"usa-footer__address\">\r\n         <div class=\"usa-footer__contact-info\">\r\n            <a href=\"/phone\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n         </div>\r\n      </address>\r\n   </div>\r\n</div>"
+          summary: ''
+          format: html
+  -
+    info: 'Top Nav Phone'
+    langcode: en
+    uuid: 8607aa33-7c01-41c7-bd04-b8fb894224a1
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/phone\" style=\"white-space: nowrap;\">Call us at 1-844-USAGOV1</a>\r\n</span>"
+          summary: ''
+          format: html

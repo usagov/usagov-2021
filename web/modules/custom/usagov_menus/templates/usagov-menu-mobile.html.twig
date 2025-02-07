@@ -109,9 +109,7 @@
           {% set alt_string = translations.search %}
         {% endembed %}
         <span class="usa-nav__secondary-links">
-          <span id="top-phone-mobile-menu" class="usa-nav__secondary-item">
-            <a href="{{ translations.phone_URL }}" class="">1-844-USAGOV1</a>
-          </span>
+          {{ drupal_region('top_nav_mobile') }}
         </span>
       </div>
     </div>
@@ -165,14 +163,14 @@
                       {% else %}
                         {% set class = " sibling" %}
                       {% endif %}
-                      <li class="navigation__item{{class}}">
+                      <li class="navigation__item{{ class }}">
                         <a href="{{ child.active ? "#" : child.url }}">{{ child.title }}</a>
                       </li>
                     {% endfor %}
                   </ul>
                 </li>
               {% else %}
-                <li class="navigation__item{{class}}">
+                <li class="navigation__item{{ class }}">
                   <a href="{{ menu_item.active ? "#" : menu_item.url }}">{{ menu_item.title }}</a>
                   {# Show any children of the active item #}
                   {% if menu_item.active and menu_item.below is not empty %}
@@ -196,7 +194,7 @@
                         {% endfor %}
                       {% endif %}
                       <li class="navigation__item active">
-                        <a href="#">{{node.title.value}}</a>
+                        <a href="#">{{ node.title.value }}</a>
                       </li>
                     </ul>
                   {% endif %}
