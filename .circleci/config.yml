@@ -670,6 +670,8 @@ jobs:
             export PATH=/home/circleci/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
             export IPV6_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g')
             export IP_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IP_ALLOWED' | sed 's/"//g')
+            IPV6_ALLOWED=$(echo -e $IPV6_ALLOWED)
+            IP_ALLOWED=$(echo -e $IP_ALLOWED)
             ### IP_ALLOWED and IPV6_ALLOWED are in the app's manifest.yml
             RETVAL=0
             if [ -n "$IP_ALLOWED" -o -n "$IPV6_ALLOWED" ]; then
