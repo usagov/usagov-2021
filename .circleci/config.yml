@@ -652,7 +652,7 @@ jobs:
       - deploy-cloudgov-cron:
           envname: tools
 
-  perform-allow-list-validation:
+  perform-ip-allow-list-validation:
     machine:
       image: ubuntu-2204:current
     environment:
@@ -668,11 +668,11 @@ jobs:
           command: |
             # Remove pyenv, etc from PATH to allow the system's python3 to work
             export PATH=/home/circleci/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+            ### IP_ALLOWED and IPV6_ALLOWED are in the app's manifest.yml - use python and jq to extract them
             export IPV6_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g')
             export IP_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IP_ALLOWED' | sed 's/"//g')
             IPV6_ALLOWED=$(echo -e $IPV6_ALLOWED)
             IP_ALLOWED=$(echo -e $IP_ALLOWED)
-            ### IP_ALLOWED and IPV6_ALLOWED are in the app's manifest.yml
             RETVAL=0
             if [ -n "$IP_ALLOWED" -o -n "$IPV6_ALLOWED" ]; then
               ./scripts/validate-cidr
@@ -983,19 +983,26 @@ workflows:
             branches:
               only: prod
 
-
   ip-allow-list-validation:
     jobs:
-      - approve-allow-list-validation:
+      - approve-ip-allow-list-validation:
           type: approval
           filters:
             branches:
               only:
+                - dr
+                - dev
+                - stage
+                - prod
                 - USAGOV-2232-cidr-validation
-      - perform-allow-list-validation:
+      - perform-ip-allow-list-validation:
           requires:
-            - approve-allow-list-validation
+            - approve-ip-allow-list-validation
           filters:
             branches:
               only:
+                - dr
+                - dev
+                - stage
+                - prod
                 - USAGOV-2232-cidr-validation
