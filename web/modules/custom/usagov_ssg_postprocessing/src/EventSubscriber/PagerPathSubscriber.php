@@ -21,7 +21,7 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    * @param \Drupal\tome_static\Event\ModifyDestinationEvent $event
    *   The event.
    */
-  public function modifyDestination(ModifyDestinationEvent $event) {
+  public function modifyDestination(ModifyDestinationEvent $event): void {
     $destination = $event->getDestination();
     $new_destination = $this->modifyUrl($destination);
     if ($destination != $new_destination) {
@@ -35,7 +35,7 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    * @param \Drupal\tome_static\Event\ModifyHtmlEvent $event
    *   The event.
    */
-  public function modifyHtml(ModifyHtmlEvent $event) {
+  public function modifyHtml(ModifyHtmlEvent $event): void {
     $html = $event->getHtml();
     $path = $event->getPath();
 
