@@ -836,6 +836,7 @@ workflows:
             branches:
               only:
               - dr
+              - USAGOV-2232-cidr-validation
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
