@@ -850,6 +850,7 @@ workflows:
             branches:
               only:
               - dr
+              - USAGOV-2232-cidr-validation
       - approve-stage-deployment:
           type: approval
           requires:
