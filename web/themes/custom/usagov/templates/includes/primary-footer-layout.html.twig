@@ -38,17 +38,12 @@
 	{% if items %}
 		{% for item in items %}
 			{% set link_title = item.title %}
-			{% set link_description = item.original_link.description %}
 			{% if menu_level == 0 and item.below %}
 				<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
 					<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
 						<h3 class="usa-gov-footer__primary-link">{{ link_title }}</h3>
 			{% else %}
-				{% if link_description == "add_space" %}
-					<li class="usa-footer__secondary-link ftr-list">
-				{% else %}
 					<li class="usa-footer__secondary-link">
-				{% endif %}
 						<a href="{{ item.url }}">{{ link_title}}</a>
 					</li>
 			{% endif %}

@@ -70,9 +70,9 @@ ul.navigation__items {
   align-items: center;
   background: transparent;
   border: 0;
+  @include u-font('sans', 'md');
   @include u-text('gray-90');
   font-weight: bold;
-  font-size: larger;
   text-decoration: none;
   margin: unset;
   width: auto;
@@ -109,7 +109,7 @@ ul.navigation__items {
   padding: 0;
   padding-top: 2rem;
   height: auto;
-  font-size: 1rem;
+  @include u-font-size('sans', 'xs');
   font-weight: normal;
   cursor: pointer;
 }
