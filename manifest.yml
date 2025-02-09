@@ -106,7 +106,6 @@ applications:
       allow 52.3.16.30;
       allow 52.22.251.194;
       allow 52.70.135.185;
-      allow 52..135.185;
 
     IPV6_ALLOWED: |
       # GSA IPv6 blocks and addresses:
@@ -128,7 +127,6 @@ applications:
       2620:0:150:4029:b8c7:f0d0:941e:de07
       2620:0:150:4029:c9cc:5ce:ec04:eb30
       2620:0:150:4029:f30c:dc1f:6722:b47b
-      2620:0:150:4029:f30c:dc1f:6722:
 
 - name: cron
   docker:
