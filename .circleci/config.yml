@@ -796,7 +796,6 @@ workflows:
                 - prod
           requires:
             - approve-deploy-reporter
-
   build-and-deploy:
     jobs:
       - approve-build-and-push-container:
@@ -808,7 +807,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2232-cidr-validation
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -819,7 +817,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2232-cidr-validation
       - approve-dev-deployment:
           type: approval
           requires:
@@ -828,7 +825,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-2232-cidr-validation
       - approve-dr-deployment:
           type: approval
           requires:
@@ -837,7 +833,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-2232-cidr-validation
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -845,7 +840,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-2232-cidr-validation
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
@@ -853,7 +847,6 @@ workflows:
             branches:
               only:
               - dr
-              - USAGOV-2232-cidr-validation
       - approve-stage-deployment:
           type: approval
           requires:
@@ -998,7 +991,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2232-cidr-validation
       - perform-ip-allow-list-validation:
           requires:
             - approve-ip-allow-list-validation
@@ -1009,4 +1001,3 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2232-cidr-validation
