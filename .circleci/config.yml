@@ -432,7 +432,7 @@ jobs:
           command: |
             # use the fresh container to scan
             SCAN_CMS_CIS_RESULT=0
-            if (./bin/scan-container-cis cms << pipeline.number >> | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
+            if (./bin/scan-container-cis << pipeline.number >> | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
             echo "CMS CIS Benchmark Scan return code: $SCAN_CMS_CIS_RESULT" | tee -a /tmp/results/scan-cms-container-cis.log
             exit 0
       - run:
@@ -578,7 +578,7 @@ jobs:
           command: |
             # use the fresh container to scan
             SCAN_CRON_CIS_RESULT=0
-            if (./bin/scan-container-cis cron << pipeline.number >> | tee /tmp/results/scan-cron-container-cis.log); then export SCAN_CRON_CIS_RESULT=0; else export SCAN_CRON_CIS_RESULT=$?; fi
+            if (./bin/scan-container-cis << pipeline.number >> | tee /tmp/results/scan-cron-container-cis.log); then export SCAN_CRON_CIS_RESULT=0; else export SCAN_CRON_CIS_RESULT=$?; fi
             echo "Cron CIS Benchmark Scan return code: $SCAN_CRON_CIS_RESULT" | tee -a /tmp/results/scan-cron-container-cis.log
             cat /tmp/results/scan-cron-container-cis.log
             exit 0
