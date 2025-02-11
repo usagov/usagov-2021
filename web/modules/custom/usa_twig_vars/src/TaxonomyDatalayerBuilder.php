@@ -70,90 +70,109 @@ class TaxonomyDatalayerBuilder {
     $this->isFront = $isFront ? 'homepage' : 'not_homepage';
   }
 
-  public static function aboutGovtEn() {
+  public static function aboutGovtEn(): string {
     static $ret = FALSE;
     if ($ret === FALSE) {
       $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::aboutUrlEn());
-      $nid = str_replace('/node/', '', $sysPath);
-      $ret = Node::load($nid)->getTitle();
+      if (str_starts_with($sysPath, '/node/')) {
+        $nid = str_replace('/node/', '', $sysPath);
+        $ret = Node::load($nid)?->getTitle();
+      }
     }
-    return $ret;
+    return $ret ?? "";
   }
 
-  public static function aboutUrlEn() {
+  public static function aboutUrlEn(): string {
     return "/about-the-us";
   }
 
-  public static function aboutGovtEs() {
+  public static function aboutGovtEs(): string {
     static $ret = FALSE;
     if ($ret === FALSE) {
-      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::aboutUrlEs());
-      $nid = str_replace('/node/', '', $sysPath);
-      $node = Node::load($nid);
-      if (!empty($node)) {
-        $ret = $node->getTitle();
+      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(
+        str_replace('/es/', '/', self::aboutUrlEs()), 'es'
+      );
+      if (str_starts_with($sysPath, '/node/')) {
+        $nid = str_replace('/node/', '', $sysPath);
+        $ret = Node::load($nid)?->getTitle();
       }
     }
-    return $ret;
+    return $ret ?? "";
   }
 
-  public static function aboutUrlEs() {
-    return "/acerca-de-estados-unidos";
+  public static function aboutUrlEs(): string {
+    return "/es/acerca-de-estados-unidos";
   }
 
-  public static function agencyIndexEn() {
+  public static function agencyIndexEn(): string {
     static $ret = FALSE;
     if ($ret === FALSE) {
       $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::agencyIndexUrlEn());
-      $nid = str_replace('/node/', '', $sysPath);
-      $ret = Node::load($nid)->getTitle();
+      if (str_starts_with($sysPath, '/node/')) {
+        $nid = str_replace('/node/', '', $sysPath);
+        $ret = Node::load($nid)?->getTitle();
+      }
     }
-    return $ret;
+    return $ret ?? "";
   }
 
-  public static function agencyIndexUrlEn() {
+  public static function agencyIndexUrlEn(): string {
     return '/agency-index';
   }
 
-  public static function agencyIndexEs() {
+  public static function agencyIndexEs(): string {
     static $ret = FALSE;
     if ($ret === FALSE) {
-      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::agencyIndexUrlEs());
-      $nid = str_replace('/node/', '', $sysPath);
-      $ret = Node::load($nid)->getTitle();
+      // Need to remove the /es/ prefix and add the langcode as an argument
+      // to look up a Spanish path by alias.
+      $sysPath = \Drupal::service('path_alias.manager')
+        ->getPathByAlias(str_replace('/es/', '/', self::agencyIndexUrlEs()), 'es');
+
+      if (str_starts_with($sysPath, '/node/')) {
+        $nid = str_replace('/node/', '', $sysPath);
+        $ret = Node::load($nid)?->getTitle();
+      }
+
     }
-    return $ret;
+    return $ret ?? "";
   }
 
-  public static function agencyIndexUrlEs() {
+  public static function agencyIndexUrlEs(): string {
     return '/es/indice-agencias';
   }
 
-  public static function stateIndexEn() {
+  public static function stateIndexEn(): string {
     static $ret = FALSE;
     if ($ret === FALSE) {
       $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::stateIndexUrlEn());
-      $nid = str_replace('/node/', '', $sysPath);
-      $ret = Node::load($nid)->getTitle();
+      if (str_starts_with($sysPath, '/node/')) {
+        $nid = str_replace('/node/', '', $sysPath);
+        $ret = Node::load($nid)?->getTitle();
+      }
     }
-    return $ret;
+    return $ret ?? "";
   }
 
-  public static function stateIndexUrlEn() {
+  public static function stateIndexUrlEn(): string {
     return '/state-governments';
   }
 
-  public static function stateIndexEs() {
+  public static function stateIndexEs(): string {
     static $ret = FALSE;
     if ($ret === FALSE) {
-      $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias(self::stateIndexUrlEs());
-      $nid = str_replace('/node/', '', $sysPath);
-      $ret = Node::load($nid)->getTitle();
+      // Need to remove the /es/ prefix and add the langcode as an argument
+      // to look up a Spanish path by alias.
+      $sysPath = \Drupal::service('path_alias.manager')
+        ->getPathByAlias(str_replace('/es/', '/', self::stateIndexUrlEs()), 'es');
+      if (str_starts_with($sysPath, '/node/')) {
+        $nid = str_replace('/node/', '', $sysPath);
+        $ret = Node::load($nid)?->getTitle();
+      }
     }
-    return $ret;
+    return $ret ?? "";
   }
 
-  public static function stateIndexUrlEs() {
+  public static function stateIndexUrlEs(): string {
     return '/es/gobiernos-estatales';
   }
 
@@ -370,8 +389,8 @@ class TaxonomyDatalayerBuilder {
       case 'es':
         $taxonomy["Taxonomy_Text_1"] = self::HOME_TITLE_ES;
         // States have a different description in Spanish than agencies.
-        $taxonomy["Taxonomy_Text_2"] = "Acerca de EE. UU. y directorios del Gobierno";
-        $taxonomy["Taxonomy_Text_3"] = "Gobiernos estatales";
+        $taxonomy["Taxonomy_Text_2"] = self::aboutGovtEs();
+        $taxonomy["Taxonomy_Text_3"] = self::stateIndexEs();
 
         $taxonomy["Taxonomy_URL_1"] = self::HOME_URL_ES;
         $taxonomy["Taxonomy_URL_2"] = self::aboutUrlEs();

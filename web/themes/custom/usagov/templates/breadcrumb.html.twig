@@ -7,6 +7,10 @@
  * - breadcrumb: Breadcrumb trail items.
  */
 #}
+{# set by usagov_wizard_preprocess_breadcrumb() #}
+{% if wizard_breadcrumb %}
+  {% set breadcrumb = wizard_breadcrumb %}
+{% endif %}
 
 {% if breadcrumb %}
 
@@ -19,19 +23,14 @@
 
     <ol class="usa-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">
         {% for item in breadcrumb %}
-            <li class="usa-breadcrumb__list-item {{ item.url ? '' : 'usa-breadcrumb__currrent' }}" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-                {% if item.url %}
-                    <a href="{{ item.url }}" class="usa-breadcrumb__link" itemprop="item">
-                        <span itemprop="name">
-                            {% if item.url == '/es' %}
-                                Página principal
-                            {% else %}
-                                {{ item.text }}
-                            {% endif %}
-                        </span>
-                    </a>
-                {% else %}
+            <li class="usa-breadcrumb__list-item {{ item.url ? '' : 'usa-breadcrumb__currrent' }}"
+                itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"
+            >{% if item.url %}
+                <a href="{{ item.url }}" class="usa-breadcrumb__link" itemprop="item">
                     <span itemprop="name">{{ item.text }}</span>
+                </a>
+                {% else %}
+                <span itemprop="name">{{ item.text }}</span>
                 {% endif %}
                 <meta itemprop="position" content="{{loop.index}}" />
             </li>
