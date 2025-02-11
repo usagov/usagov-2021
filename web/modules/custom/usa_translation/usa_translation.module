@@ -30,8 +30,9 @@ function usa_translation_node_translation_delete(NodeInterface $node): void {
 
 /**
  * Implements hook_page_attachments_alter().
+ * @param array<mixed> &$page
  */
-function usa_translation_page_attachments_alter(&$page): void {
+function usa_translation_page_attachments_alter(array &$page): void {
   $cache = CacheableMetadata::createFromRenderArray($page);
   $route_match = \Drupal::routeMatch();
 
