@@ -11,7 +11,7 @@ _core:
 id: usagov_branding
 theme: usagov
 region: header
-weight: -18
+weight: -19
 provider: null
 plugin: system_branding_block
 settings:
