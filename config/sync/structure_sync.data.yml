@@ -1,5 +1,31 @@
 blocks:
   -
+    info: 'Question Box ES'
+    langcode: en
+    uuid: 7066f7fa-491f-4a90-9995-251859b3ec7d
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div id=\"question-box\" data-contact-callout=\"visible\">\r\n    <div class=\"border-left-1 padding-left-205 border-cyan-10 margin-top-8 margin-bottom-9 padding-bottom-2\">\r\n        <h2 class=\"font-family-heading margin-top-0\">\r\n            ¿Tiene una pregunta?\r\n        </h2>\r\n                    <p>Pregunte gratis a una persona real cualquier duda relacionada con el Gobierno. Le darán la respuesta o le indicarán dónde encontrarla.</p>\r\n                <div class=\"grid-row grid-gap\">\r\n            <div class=\"tablet:grid-col-4 margin-bottom-2\">\r\n                <a class=\"question-icon\" href=\"/es/centro-de-llamadas\">\r\n                    <img class=\"chat-icon\" src=\"/themes/custom/usagov/images/ICONS_talk.png\" alt=\"talk icon\">\r\n                    Llame a USAGov en Español\r\n                </a>\r\n            </div>\r\n            <div class=\"tablet:grid-col-8\">\r\n                                    <a class=\"question-icon\" href=\"/es/chat\">\r\n                \r\n                    <img class=\"chat-icon\" src=\"/themes/custom/usagov/images/ICONS_chat.png\" alt=\"chat icon\">\r\n                    Chatee con USAGov en Español\r\n                </a>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>"
+          summary: ''
+          format: html
+  -
+    info: 'Question Box'
+    langcode: en
+    uuid: d9012c83-2e04-46f2-9971-a3d6d5149de1
+    bundle: html_block
+    revision_id: null
+    rev_id_current: null
+    fields:
+      body:
+        -
+          value: "<div id=\"question-box\" data-contact-callout=\"visible\">\r\n   <div class=\"usa-prose border-left-1 padding-left-205 border-cyan-10 margin-top-8 margin-bottom-9 padding-bottom-2\">\r\n      <h2 class=\"font-family-heading margin-top-0\">\r\n         Have a question?\r\n      </h2>\r\n      <p>Ask a real person any government-related question for free. They will get you the answer or let you know where to find it.</p>\r\n      <div class=\"grid-row grid-gap\">\r\n         <div class=\"tablet:grid-col-4 margin-bottom-2\">\r\n            <a class=\"question-icon\" href=\"/phone\">\r\n            <img class=\"chat-icon\" src=\"/themes/custom/usagov/images/ICONS_talk.png\" alt=\"talk icon\">\r\n            Call USAGov\r\n            </a>\r\n         </div>\r\n         <div class=\"tablet:grid-col-8\">\r\n            <a class=\"question-icon\" href=\"/chat\">\r\n            <img class=\"chat-icon\" src=\"/themes/custom/usagov/images/ICONS_chat.png\" alt=\"chat icon\">\r\n            Chat with USAGov\r\n            </a>\r\n         </div>\r\n      </div>\r\n   </div>\r\n</div>"
+          summary: ''
+          format: html
+  -
     info: 'Footer Phone ES'
     langcode: en
     uuid: 1b695544-3f71-4c40-a6bc-518aee5cdc9c
