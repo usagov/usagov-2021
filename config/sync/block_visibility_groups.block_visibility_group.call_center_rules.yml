@@ -1,0 +1,53 @@
+uuid: f6a34a22-a90d-45bc-846a-570477a2e3a7
+langcode: en
+status: true
+dependencies:
+  module:
+    - language
+    - node
+    - system
+    - term_condition
+id: call_center_rules
+label: 'Call Center Rules'
+logic: or
+conditions:
+  d7ed5145-4169-4d24-96b6-462b0dde7c7d:
+    id: 'entity_bundle:node'
+    negate: true
+    uuid: d7ed5145-4169-4d24-96b6-462b0dde7c7d
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      directory_record: directory_record
+      state_directory_record: state_directory_record
+  e0625749-1784-4ae3-b4f8-dddaa343b44e:
+    id: term
+    negate: true
+    uuid: e0625749-1784-4ae3-b4f8-dddaa343b44e
+    context_mapping:
+      node: '@node.node_route_context:node'
+    term_uuids:
+      - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
+  c44759b2-a434-46c2-9b33-aaea579ad4a1:
+    id: term
+    negate: true
+    uuid: c44759b2-a434-46c2-9b33-aaea579ad4a1
+    context_mapping:
+      node: '@node.node_route_context:node'
+    term_uuids:
+      - e81abe40-3c39-4457-a5de-265513e423be
+  10a09bbf-c052-4063-bae8-fd0254832a09:
+    id: request_path
+    negate: true
+    uuid: 10a09bbf-c052-4063-bae8-fd0254832a09
+    context_mapping: {  }
+    pages: "/agencies/*\r\n/benefit-finder\r\n/benefit-finder/*\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/local-governments\r\n/phone\r\n/states/*\r\n/state-attorney-general\r\n/state-consumer\r\n/state-corrections\r\n/state-election-office\r\n/state-emergency-management\r\n/state-governments\r\n/state-governments/*\r\n/state-governor\r\n/state-health\r\n/state-motor-vehicle-services\r\n/state-social-services\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds\r\n/where-report-scams"
+  dca74025-1a03-465d-abff-70d25b1225da:
+    id: language
+    negate: false
+    uuid: dca74025-1a03-465d-abff-70d25b1225da
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      en: en
+allow_other_conditions: false

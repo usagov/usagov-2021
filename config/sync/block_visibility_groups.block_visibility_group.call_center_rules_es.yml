@@ -1,0 +1,53 @@
+uuid: b1a6e599-6d2d-443e-98fd-c27ba9407f5a
+langcode: en
+status: true
+dependencies:
+  module:
+    - language
+    - node
+    - system
+    - term_condition
+id: call_center_rules_es
+label: 'Call Center Rules ES'
+logic: or
+conditions:
+  ec31ca62-3fb6-4b7a-8eb2-3eed12b9065a:
+    id: language
+    negate: false
+    uuid: ec31ca62-3fb6-4b7a-8eb2-3eed12b9065a
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es
+  e8247c73-b7cf-4897-af36-ba1ff63f4e9c:
+    id: 'entity_bundle:node'
+    negate: true
+    uuid: e8247c73-b7cf-4897-af36-ba1ff63f4e9c
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      directory_record: directory_record
+      state_directory_record: state_directory_record
+  8b0a236d-96c0-4918-9d06-1216cc34d61c:
+    id: term
+    negate: true
+    uuid: 8b0a236d-96c0-4918-9d06-1216cc34d61c
+    context_mapping:
+      node: '@node.node_route_context:node'
+    term_uuids:
+      - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
+  1339675d-7853-4719-9fb6-c4f014e6280a:
+    id: term
+    negate: true
+    uuid: 1339675d-7853-4719-9fb6-c4f014e6280a
+    context_mapping:
+      node: '@node.node_route_context:node'
+    term_uuids:
+      - e81abe40-3c39-4457-a5de-265513e423be
+  35c2945f-175d-4afe-9e71-fa9f044d9df3:
+    id: request_path
+    negate: true
+    uuid: 35c2945f-175d-4afe-9e71-fa9f044d9df3
+    context_mapping: {  }
+    pages: "/agencias/*\r\n/averiguar-estado-reembolso-impuestos\r\n/buscador-beneficios\r\n/buscador-beneficios/*\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/donde-reportar-una-estafa\r\n/estados/*\r\n/estatal-consumidor\r\n/estatales-servicios-sociales\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/gobiernos-estatales\r\n/gobiernos-estatales/*\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/oficina-elecciones-estatal-local\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados"
+allow_other_conditions: false
