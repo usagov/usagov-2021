@@ -218,12 +218,16 @@ commands:
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/container-build-reporter
-            echo "docker ps"
-            docker ps
-            echo "docker ps -a"
-            docker ps -a
-            echo "docker images"
-            docker images
+            echo "docker images --no-trunc --quiet"
+            docker images --no-trunc --quiet
+            export RDIG=`docker images --no-trunc --quiet`
+            echo RDIG is $RDIG
+      - run:
+          name: This is a test
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            echo RDIG is
+            echo $RDIG
             echo "docker images --no-trunc --quiet"
             docker images --no-trunc --quiet
       - run:
