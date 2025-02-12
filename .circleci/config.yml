@@ -218,10 +218,10 @@ commands:
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/container-build-reporter
-            echo "git ps"
-            git ps
-            echo "git ps -a"
-            git ps -a
+            echo "docker ps"
+            docker ps
+            echo "docker ps -a"
+            docker ps -a
       - run:
           name: Push Reporter Container to Docker Hub
           command: |
