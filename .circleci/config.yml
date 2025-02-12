@@ -224,6 +224,8 @@ commands:
             docker ps -a
             echo "docker images"
             docker images
+            echo "docker images --no-trunc --quiet"
+            docker images --no-trunc --quiet
       - run:
           name: Push Reporter Container to Docker Hub
           command: |
