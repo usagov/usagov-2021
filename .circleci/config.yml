@@ -222,6 +222,8 @@ commands:
             docker ps
             echo "docker ps -a"
             docker ps -a
+            echo "docker images"
+            docker images
       - run:
           name: Push Reporter Container to Docker Hub
           command: |
