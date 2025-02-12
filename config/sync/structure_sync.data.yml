@@ -35,7 +35,7 @@ blocks:
     fields:
       body:
         -
-          value: "<div id=\"footer-phone\">\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <h4 class=\"usa-footer__logo-heading\">Centro de llamadas de USAGov</h4>\r\n   </div>\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <p class=\"footer-question\">Haga una pregunta a USAGov en Español al</p>\r\n      <address class=\"usa-footer__address\">\r\n         <div class=\"usa-footer__contact-info\">\r\n            <a href=\"/es/llamenos\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n         </div>\r\n      </address>\r\n   </div>\r\n</div>"
+          value: "<div id=\"footer-phone\" data-contact-callout=\"visible\">\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <h4 class=\"usa-footer__logo-heading\">Centro de llamadas de USAGov</h4>\r\n   </div>\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <p class=\"footer-question\">Haga una pregunta a USAGov en Español al</p>\r\n      <address class=\"usa-footer__address\">\r\n         <div class=\"usa-footer__contact-info\">\r\n            <a href=\"/es/llamenos\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n         </div>\r\n      </address>\r\n   </div>\r\n</div>"
           summary: ''
           format: html
   -
@@ -48,7 +48,7 @@ blocks:
     fields:
       body:
         -
-          value: "<span id=\"top-phone-mobile-menu\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/es/llamenos\" class=\"\">1-844-USAGOV1</a>\r\n</span>\r\n"
+          value: "<span id=\"top-phone-mobile-menu\" class=\"usa-nav__secondary-item\" data-contact-callout=\"visible\">\r\n    <a href=\"/es/llamenos\" class=\"\">1-844-USAGOV1</a>\r\n</span>\r\n"
           summary: ''
           format: html
   -
@@ -61,7 +61,7 @@ blocks:
     fields:
       body:
         -
-          value: "<span id=\"top-phone-mobile-menu\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/phone\" class=\"\">1-844-USAGOV1</a>\r\n</span>"
+          value: "<span id=\"top-phone-mobile-menu\" class=\"usa-nav__secondary-item\" data-contact-callout=\"visible\">\r\n    <a href=\"/phone\" class=\"\">1-844-USAGOV1</a>\r\n</span>"
           summary: ''
           format: html
   -
@@ -74,7 +74,7 @@ blocks:
     fields:
       body:
         -
-          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/es/llamenos\" style=\"white-space: nowrap;\">Llámenos al 1-844-USAGOV1</a>\r\n</span>"
+          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\" data-contact-callout=\"visible\">\r\n    <a href=\"/es/llamenos\" style=\"white-space: nowrap;\">Llámenos al 1-844-USAGOV1</a>\r\n</span>"
           summary: ''
           format: html
   -
@@ -87,7 +87,7 @@ blocks:
     fields:
       body:
         -
-          value: "<div id=\"footer-phone\">\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <h4 class=\"usa-footer__logo-heading\">USAGov Contact Center</h4>\r\n   </div>\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <p class=\"footer-question\">Ask USA.gov a question at</p>\r\n      <address class=\"usa-footer__address\">\r\n         <div class=\"usa-footer__contact-info\">\r\n            <a href=\"/phone\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n         </div>\r\n      </address>\r\n   </div>\r\n</div>"
+          value: "<div id=\"footer-phone\" data-contact-callout=\"visible\">\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <h4 class=\"usa-footer__logo-heading\">USAGov Contact Center</h4>\r\n   </div>\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <p class=\"footer-question\">Ask USA.gov a question at</p>\r\n      <address class=\"usa-footer__address\">\r\n         <div class=\"usa-footer__contact-info\">\r\n            <a href=\"/phone\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n         </div>\r\n      </address>\r\n   </div>\r\n</div>"
           summary: ''
           format: html
   -
@@ -100,6 +100,6 @@ blocks:
     fields:
       body:
         -
-          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/phone\" style=\"white-space: nowrap;\">Call us at 1-844-USAGOV1</a>\r\n</span>"
+          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\" data-contact-callout=\"visible\">\r\n    <a href=\"/phone\" style=\"white-space: nowrap;\">Call us at 1-844-USAGOV1</a>\r\n</span>"
           summary: ''
           format: html
