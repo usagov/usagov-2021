@@ -8,3 +8,16 @@ services:
       - ./public:/var/www/html
     environment:
       GOOGLE_KEY: AIzaSyDgYFMaq0e-u3EZPPhTrBN0jL1uoc8Lm0A
+      CICERO_TOKEN: 6so-979f1fa01b441e5c9910&user=3149
+
+  varnish:
+    image: varnish:7
+    container_name: varnish
+    ports:
+      - "89:80"  # External port 88 will now be served by Varnish
+    environment:
+      - VARNISH_SIZE=256M
+    volumes:
+      - ./default.vcl:/etc/varnish/default.vcl  # Mount custom Varnish config
+    depends_on:
+      - proxyapi
