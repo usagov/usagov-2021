@@ -21,7 +21,7 @@ plugin: 'block_content:7066f7fa-491f-4a90-9995-251859b3ec7d'
 settings:
   id: 'block_content:7066f7fa-491f-4a90-9995-251859b3ec7d'
   label: 'Question Box ES'
-  label_display: visible
+  label_display: '0'
   provider: block_content
   status: true
   info: ''
