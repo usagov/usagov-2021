@@ -52,9 +52,9 @@
   }
 
   h1 {
-    @include u-font-family('serif');
-    font-size: 2.2em;
-    margin: 0;
+    @include u-font('serif', 'xl');
+    @include u-margin-top(0);
+    @include u-margin-bottom(2);
   }
 
   h3 {
@@ -62,8 +62,7 @@
   }
 
   p {
-    @include u-font-family('sans');
-    font-size: 1.25em;
+    @include u-font('sans', 'md');
     margin: 0;
     line-height: 1.5;
   }
@@ -115,11 +114,6 @@
   box-shadow: 0 6px 6px $blue-shadow;
   padding: 30px 28px 35px 30px;
 
-  p {
-    font-size: 1.125em;
-    margin-top: 20px;
-  }
-
   @include at-media("tablet") {
     width: clamp(50%, 450px, 100%);
   }
@@ -160,7 +154,7 @@
   }
 
   h2 {
-    font-size: 1.875em;
+    @include u-font-size('sans', 'lg');
   }
 }
 
@@ -186,12 +180,11 @@
 /* Jump */
 .jump {
   padding: 0;
+  @include u-font('sans', 'sm');
   text-align: center;
 
   a {
     @include u-text('white');
-    @include u-font-family('sans');
-    font-size: 1.038em;
     text-decoration: underline;
     display: inline-block;
     margin-bottom: 10px;
@@ -229,10 +222,8 @@
   border-bottom: 10px solid color('red-50');
 
   h2 {
+    @include u-font('serif', 'xl');
     @include u-text('red-50');
-    @include u-font-family('serif');
-    font-size: 2.44em;
-    //uswds font-weight mixin
     @include u-text('bold');
     margin: 65px 5vw 0;
     max-width: 1124px;
@@ -297,9 +288,8 @@
 
   h2,
   p {
+    @include u-font-size('sans', 'md');
     @include u-text('gray-90');
-    @include u-font-family('sans');
-    font-size: 1.038em;
   }
 
   h2 {
