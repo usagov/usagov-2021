@@ -6,6 +6,7 @@ services:
       - "88:80" 
     volumes:
       - ./public:/var/www/html
+      - ./php.ini:/usr/local/etc/php/php.ini
       - ./php-prepend.php:/usr/local/lib/php-prepend.php
     environment:
       # THESE VARIABLES SHOULD COME FROM CLOUD.GOV

@@ -17,5 +17,4 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ["Referer: https://www.usa.gov"]);
 print curl_exec($ch);
-// print $url;
 curl_close($ch);
