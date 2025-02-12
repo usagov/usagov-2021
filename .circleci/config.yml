@@ -230,8 +230,7 @@ commands:
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
-            ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-reporter
+            # actual code to push remove as this is a testing-branch
 
   deploy-cloudgov-cron:
     parameters:
@@ -756,6 +755,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2063
       - deploy-reporter-tools:
           filters:
             branches:
@@ -763,6 +763,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2063
           requires:
             - approve-deploy-reporter
 
