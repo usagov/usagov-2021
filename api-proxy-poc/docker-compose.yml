@@ -3,7 +3,7 @@ services:
     container_name: proxyapi
     image: php:5.6-apache
     ports:
-      - 88:80
+      - "88:80" 
     volumes:
       - ./public:/var/www/html
     environment:
@@ -14,10 +14,10 @@ services:
     image: varnish:7
     container_name: varnish
     ports:
-      - "89:80"  # External port 88 will now be served by Varnish
+      - "89:80" 
     environment:
       - VARNISH_SIZE=256M
     volumes:
-      - ./default.vcl:/etc/varnish/default.vcl  # Mount custom Varnish config
+      - ./default.vcl:/etc/varnish/default.vcl
     depends_on:
       - proxyapi

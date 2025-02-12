@@ -1,7 +1,7 @@
 vcl 4.1;
 
 backend default {
-    .host = "proxyapi";
+    .host = "host.docker.internal";
     .port = "88";
 }
 
