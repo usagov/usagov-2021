@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e  # Exit on any error
 
+# this function is a convenient symantic wrapper around a one-liner
+service_exists()
+{
+  cf service "$1" >/dev/null 2>&1
+}
+
 # Retrieve the current targeted org and space
 ORG=$(cf target | awk '/org:/ {print $2}')
 SPACE=$(cf target | awk '/space:/ {print $2}')
@@ -72,6 +78,16 @@ if [[ ${#new_routes[@]} -gt 0 ]]; then
 else
   echo "✅ All required routes already exist."
 fi
+
+# Deploy key storage service
+{
+  echo "🔑 Configuring Key Storage Service."
+  if service_exists "key-storage" ; then
+    echo "✅ Storage already created."
+  else
+    yes '' | cf create-user-provided-service key-storage -p "{}"
+  fi
+}
 
 # Deploy API Proxy
 echo "🚀 Deploying API Proxy..."

@@ -30,18 +30,13 @@ def proxy_request():
 
     params = request.args.to_dict()
 
-    logger.info("test")
-    logger.info(params)
-
-    API_ENDPOINT = unquote(params["apiEndpoint"])
-    del params["apiEndpoint"]
+    API_ENDPOINT = unquote(params["api"] + params["endpoint"])
 
     if not API_ENDPOINT or not API_KEY:
         logger.error("Missing API configuration (API_ENDPOINT or API_KEY)")
         return jsonify({"error": "Missing API configuration"}), 500
 
     method = request.method
-    params = request.args.to_dict()
     headers = {"Content-Type": "application/json"}
 
     # Inject API key into query parameters
@@ -49,6 +44,10 @@ def proxy_request():
 
     # Handle request body for POST/PUT
     data = request.get_json() if method in ["POST", "PUT"] else None
+
+    # Remove proxy-specific parameters
+    del params["api"]
+    del params["endpoint"]
 
     logger.info(
         "Forwarding %s request to %s with params %s", method, API_ENDPOINT, params
