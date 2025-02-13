@@ -16,8 +16,6 @@ KEY_VALUE=${3:-} # The api key value.
     echo "✅ Key Storage exists.  Proceeding to push key..."
     KEY_STORE=$(cf curl /v3/service_instances/$(cf service key-storage --guid)/credentials)
 
-    echo "before KEY_STORE: $KEY_STORE"
-
     KEY_STORE_ENTRIES=$(echo "$KEY_STORE" | jq -c 'to_entries[]')
     NAME_EXISTS=false
     KEY_EXISTS=false
@@ -53,7 +51,6 @@ KEY_VALUE=${3:-} # The api key value.
       read -p "❓ Key with this name already exists.  Update key? " -n 1 -r
       echo
       if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-          # handle exits from shell or function but don't exit interactive shell
           echo "❌ Cancelling key import."
           exit 1;
       else
@@ -63,8 +60,7 @@ KEY_VALUE=${3:-} # The api key value.
       KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" '.[$KEY_DOMAIN][$KEY_NAME] = $KEY_VALUE' <<< "$KEY_STORE")
     fi
 
-    echo "after KEY_STORE: $KEY_STORE"
-    # yes '' | cf update-user-provided-service key-storage -p $KEY_STORE
+    yes '' | cf update-user-provided-service key-storage -p $KEY_STORE
     echo "✅ Key pushed to Key Storage."
   else
     echo "❌ Key Storage doesn't exist.  Something has gone wrong with deployment.  Please check and redeploy."
