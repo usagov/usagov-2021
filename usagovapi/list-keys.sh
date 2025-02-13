@@ -11,19 +11,18 @@ service_exists()
   if service_exists "key-storage" ; then
     KEY_STORE=$(cf curl /v3/service_instances/$(cf service key-storage --guid)/credentials)
 
-    DOMAINS=$(echo "$KEY_STORE" | jq -c 'keys')
+    DOMAINS=$(echo "$KEY_STORE" | jq -r 'keys[]')
 
-    while read -r DOMAIN; do
-      DOMAINOUT=$(echo "$DOMAIN" | jq -r '.[]')
-      echo "🌐 Domain: $DOMAINOUT"
-      VALUE=$(jq -r ".$DOMAIN" <<< "$KEY_STORE")
+    for DOMAIN in $DOMAINS; do
+      echo "🌐 Domain: $DOMAIN"
+      VALUE=$(jq -r --arg DOMAIN "$DOMAIN" '.[$DOMAIN]' <<< "$KEY_STORE")
       KEYS=$(jq -c 'to_entries[]' <<< "$VALUE")
       while read -r KEY; do
         KEY_NAME=$(jq -r '.key' <<< "$KEY")
         KEY_VALUE=$(jq -r '.value' <<< "$KEY")
         echo "   🔑 $KEY_NAME: $KEY_VALUE"
       done <<< "$KEYS"
-    done <<< "$DOMAINS"
+    done
 
   else
     echo "❌ Key Storage doesn't exist.  Something has gone wrong with deployment.  Please check and redeploy."
