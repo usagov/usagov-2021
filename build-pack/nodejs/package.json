@@ -1,0 +1,27 @@
+{
+  "name": "example",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=20.12.2",
+    "npm": ">=10.5.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "https-proxy-agent": "^7.0.6",
+    "node-cache": "^5.1.2",
+    "node-fetch": "^3.3.2"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "main": "server.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

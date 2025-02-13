@@ -1,0 +1,12 @@
+---
+applications:
+- name: dog-breed-explorer
+  random-route: true
+  buildpacks:
+    - nodejs_buildpack
+  memory: 256M
+  stack: cflinuxfs4
+  env:
+    API_KEY: ((DOG_API_KEY))
+  routes:
+    - route: nodejs-tcb-appreciative-hyena-tx.app.cloud.gov
