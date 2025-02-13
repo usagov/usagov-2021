@@ -7,5 +7,7 @@
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
-echo "docker push $DOCKERUSER/$DOCKERREPO:reporter"
-docker push $DOCKERUSER/$DOCKERREPO:reporter
+export RDIG=`docker images --no-trunc --quiet`
+
+echo "docker push $RDIG"
+docker push $RDIG
