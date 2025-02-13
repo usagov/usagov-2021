@@ -2,7 +2,7 @@
 
 namespace Drupal\usa_twig_vars\Paragraphs;
 
-use Drupal\Core\Language\Language;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\paragraphs\Entity\Paragraph;
 
 class ElectedOfficialsLabels {
@@ -15,7 +15,7 @@ class ElectedOfficialsLabels {
    *
    * @return array<string, mixed>
    */
-  public function getResultsLabels(Paragraph $para, Language $lang): array {
+  public function getResultsLabels(Paragraph $para, LanguageInterface $lang): array {
     $overrides = [];
     $defaults = $this->getResultsDefaults($lang);
 
@@ -101,7 +101,11 @@ class ElectedOfficialsLabels {
 
     return [$key => $this->asArray($keys, $value)];
   }
-  private function getResultsDefaults(Language $lang): array {
+
+  /**
+   * @return array<string, mixed>
+   */
+  private function getResultsDefaults(LanguageInterface $lang): array {
     return match ($lang->getId()) {
       'en' =>
       [

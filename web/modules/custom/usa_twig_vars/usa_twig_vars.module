@@ -425,8 +425,7 @@ function usa_twig_vars_node_insert(NodeInterface $node_to_check): void {
  *   - paragraph: The paragraph object.
  *   - view_mode: View mode; e.g., 'full', 'teaser'...
  */
-
-function usa_twig_vars_preprocess_paragraph(&$variables) {
+function usa_twig_vars_preprocess_paragraph(&$variables): void {
   /** @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
   $paragraph = $variables['paragraph'];
   // Get the parent bundle.
