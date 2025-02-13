@@ -4,11 +4,50 @@ status: true
 dependencies:
   config:
     - field.field.paragraph.ceo_results.field_ceo_address_label
+    - field.field.paragraph.ceo_results.field_ceo_fed_officials_label
+    - field.field.paragraph.ceo_results.field_ceo_local_officials_label
+    - field.field.paragraph.ceo_results.field_ceo_results_address_label
+    - field.field.paragraph.ceo_results.field_ceo_results_contact_path
+    - field.field.paragraph.ceo_results.field_ceo_results_error_address
+    - field.field.paragraph.ceo_results.field_ceo_results_error_fetch
     - field.field.paragraph.ceo_results.field_ceo_results_header
     - field.field.paragraph.ceo_results.field_ceo_results_instructions
+    - field.field.paragraph.ceo_results.field_ceo_results_party
+    - field.field.paragraph.ceo_results.field_ceo_results_phone_number
+    - field.field.paragraph.ceo_results.field_ceo_results_via_email
+    - field.field.paragraph.ceo_results.field_ceo_results_website
+    - field.field.paragraph.ceo_results.field_ceo_state_officials_label
     - paragraphs.paragraphs_type.ceo_results
   module:
+    - field_group
     - text
+third_party_settings:
+  field_group:
+    group_labels:
+      children:
+        - field_ceo_results_error_fetch
+        - field_ceo_results_error_address
+        - field_ceo_results_address_label
+        - field_ceo_state_officials_label
+        - field_ceo_local_officials_label
+        - field_ceo_results_party
+        - field_ceo_fed_officials_label
+        - field_ceo_results_phone_number
+        - field_ceo_results_website
+        - field_ceo_results_via_email
+        - field_ceo_results_contact_path
+      label: Labels
+      region: content
+      parent_name: ''
+      weight: 3
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: ''
+        required_fields: true
 id: paragraph.ceo_results.default
 targetEntityType: paragraph
 bundle: ceo_results
@@ -17,6 +56,56 @@ content:
   field_ceo_address_label:
     type: string_textfield
     weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_fed_officials_label:
+    type: string_textfield
+    weight: 10
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_local_officials_label:
+    type: string_textfield
+    weight: 8
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_results_address_label:
+    type: string_textfield
+    weight: 6
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_results_contact_path:
+    type: entity_reference_autocomplete
+    weight: 14
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_results_error_address:
+    type: string_textfield
+    weight: 5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_results_error_fetch:
+    type: string_textfield
+    weight: 4
     region: content
     settings:
       size: 60
@@ -36,6 +125,46 @@ content:
     region: content
     settings:
       rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_results_party:
+    type: string_textfield
+    weight: 9
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_results_phone_number:
+    type: string_textfield
+    weight: 11
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_results_via_email:
+    type: string_textfield
+    weight: 13
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_results_website:
+    type: string_textfield
+    weight: 12
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_state_officials_label:
+    type: string_textfield
+    weight: 7
+    region: content
+    settings:
+      size: 60
       placeholder: ''
     third_party_settings: {  }
 hidden:

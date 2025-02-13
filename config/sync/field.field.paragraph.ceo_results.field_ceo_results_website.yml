@@ -1,0 +1,19 @@
+uuid: b3da6e28-33a1-45a5-a7c9-4a93bf22da84
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_results_website
+    - paragraphs.paragraphs_type.ceo_results
+id: paragraph.ceo_results.field_ceo_results_website
+field_name: field_ceo_results_website
+entity_type: paragraph
+bundle: ceo_results
+label: 'Website label'
+description: "Label for the official's website. "
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

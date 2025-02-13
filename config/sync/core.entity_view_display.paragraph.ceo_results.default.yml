@@ -4,8 +4,19 @@ status: true
 dependencies:
   config:
     - field.field.paragraph.ceo_results.field_ceo_address_label
+    - field.field.paragraph.ceo_results.field_ceo_fed_officials_label
+    - field.field.paragraph.ceo_results.field_ceo_local_officials_label
+    - field.field.paragraph.ceo_results.field_ceo_results_address_label
+    - field.field.paragraph.ceo_results.field_ceo_results_contact_path
+    - field.field.paragraph.ceo_results.field_ceo_results_error_address
+    - field.field.paragraph.ceo_results.field_ceo_results_error_fetch
     - field.field.paragraph.ceo_results.field_ceo_results_header
     - field.field.paragraph.ceo_results.field_ceo_results_instructions
+    - field.field.paragraph.ceo_results.field_ceo_results_party
+    - field.field.paragraph.ceo_results.field_ceo_results_phone_number
+    - field.field.paragraph.ceo_results.field_ceo_results_via_email
+    - field.field.paragraph.ceo_results.field_ceo_results_website
+    - field.field.paragraph.ceo_results.field_ceo_state_officials_label
     - paragraphs.paragraphs_type.ceo_results
   module:
     - text
@@ -22,6 +33,54 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
+  field_ceo_fed_officials_label:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  field_ceo_local_officials_label:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_ceo_results_address_label:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_ceo_results_contact_path:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 9
+    region: content
+  field_ceo_results_error_address:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  field_ceo_results_error_fetch:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 3
+    region: content
   field_ceo_results_header:
     type: string
     label: above
@@ -36,5 +95,45 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 2
+    region: content
+  field_ceo_results_party:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  field_ceo_results_phone_number:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  field_ceo_results_via_email:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 8
+    region: content
+  field_ceo_results_website:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 7
+    region: content
+  field_ceo_state_officials_label:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 15
     region: content
 hidden: {  }

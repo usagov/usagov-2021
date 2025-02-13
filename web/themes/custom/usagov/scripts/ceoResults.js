@@ -98,8 +98,14 @@ function renderResults(response, rawResponse) {
         }
     };
 
+    let content = backupTranslations[ document.documentElement.lang ];
+    if (typeof usagovCEOtext !== "undefined") {
+      // merge the options defined by usagovCEOText with the backups
+      content = jQuery().extend({}, content, usagovCEOtext);
+    }
+
     // const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
-    const content = backupTranslations[ document.documentElement.lang ];
+    // const content = backupTranslations[ document.documentElement.lang ];
 
     // Get location for where to attach the rendered results
     let resultsDiv = document.getElementById("results");

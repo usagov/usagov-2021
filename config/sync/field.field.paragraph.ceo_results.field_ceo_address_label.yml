@@ -9,7 +9,7 @@ id: paragraph.ceo_results.field_ceo_address_label
 field_name: field_ceo_address_label
 entity_type: paragraph
 bundle: ceo_results
-label: 'Address Label'
+label: 'Address label'
 description: 'Label to display above the submitted address.'
 required: true
 translatable: false

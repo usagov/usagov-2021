@@ -1,0 +1,21 @@
+uuid: 8e80db16-6dcc-45f7-a72a-ea15ea5e3860
+langcode: es
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_ceo_results_via_email
+field_name: field_ceo_results_via_email
+entity_type: paragraph
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

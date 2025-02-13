@@ -1,0 +1,19 @@
+uuid: c337ad4a-ba9e-4f1c-b5a1-84aabc3a9ef5
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_state_officials_label
+    - paragraphs.paragraphs_type.ceo_results
+id: paragraph.ceo_results.field_ceo_state_officials_label
+field_name: field_ceo_state_officials_label
+entity_type: paragraph
+bundle: ceo_results
+label: 'State officials label'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
