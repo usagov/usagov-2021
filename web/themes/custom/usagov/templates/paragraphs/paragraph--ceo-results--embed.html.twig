@@ -42,23 +42,12 @@
   </div>
 </div>
 
+{% if ceoLabels %}
 <script type="text/javascript">
-  let usagovCEOtext = {
-    "error-fetch": "{{ elements.field_ceo_results_error_fetch|field_value }}",
-    "error-address": "{{ elements.field_ceo_results_error_address|field_value }}",
-    "levels": [
-      {"heading": "{{ elements.field_ceo_fed_officials_label|field_value }}"},
-      {"heading": "{{ elements.field_ceo_state_officials_label|field_value }}"},
-      {"heading": "{{ elements.field_ceo_local_officials_label|field_value }}"}
-    ],
-    "party-affiliation": "{{ elements.field_ceo_results_party|field_value }}",
-    "address": "{{ elements.field_ceo_results_address_label|field_value }}",
-    "phone-number": "{{ elements.field_ceo_|field_value }}",
-    "website": "{{ elements.field_ceo_results_website|field_value }}",
-    "contact-via-email": "{{ elements.field_ceo_results_via_email|field_value }}",
-    "path-contact": "/es/funcionarios-electos-correo-electronico"
-  }
+  let usagovCEOlabels = {{ ceoLabels|raw }};
 </script>
+{% endif %}
+
 {#
   let usagovCEOtext = {
     "error-fetch": "ERROR: Failed trying to fetch elected officials!",

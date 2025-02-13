@@ -11,7 +11,7 @@ entity_type: paragraph
 bundle: ceo_results
 label: 'Error Address'
 description: 'Error message to display if no officials are found for an address.'
-required: true
+required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''

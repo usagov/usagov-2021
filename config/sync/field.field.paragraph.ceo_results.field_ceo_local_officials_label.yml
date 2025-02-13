@@ -9,9 +9,9 @@ id: paragraph.ceo_results.field_ceo_local_officials_label
 field_name: field_ceo_local_officials_label
 entity_type: paragraph
 bundle: ceo_results
-label: 'Local officials label'
-description: ''
-required: true
+label: 'Local officials heading'
+description: 'Bolded heading label.'
+required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''

@@ -4,8 +4,10 @@ status: true
 dependencies:
   config:
     - field.field.paragraph.ceo_results.field_ceo_address_label
+    - field.field.paragraph.ceo_results.field_ceo_fed_officials_descr
     - field.field.paragraph.ceo_results.field_ceo_fed_officials_label
     - field.field.paragraph.ceo_results.field_ceo_local_officials_label
+    - field.field.paragraph.ceo_results.field_ceo_officials_descr
     - field.field.paragraph.ceo_results.field_ceo_results_address_label
     - field.field.paragraph.ceo_results.field_ceo_results_contact_path
     - field.field.paragraph.ceo_results.field_ceo_results_error_address
@@ -16,6 +18,7 @@ dependencies:
     - field.field.paragraph.ceo_results.field_ceo_results_phone_number
     - field.field.paragraph.ceo_results.field_ceo_results_via_email
     - field.field.paragraph.ceo_results.field_ceo_results_website
+    - field.field.paragraph.ceo_results.field_ceo_state_descr
     - field.field.paragraph.ceo_results.field_ceo_state_officials_label
     - paragraphs.paragraphs_type.ceo_results
   module:
@@ -33,6 +36,14 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
+  field_ceo_fed_officials_descr:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 16
+    region: content
   field_ceo_fed_officials_label:
     type: string
     label: above
@@ -48,6 +59,14 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 13
+    region: content
+  field_ceo_officials_descr:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 17
     region: content
   field_ceo_results_address_label:
     type: string
@@ -127,6 +146,14 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 7
+    region: content
+  field_ceo_state_descr:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 18
     region: content
   field_ceo_state_officials_label:
     type: string

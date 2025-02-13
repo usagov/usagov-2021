@@ -98,14 +98,10 @@ function renderResults(response, rawResponse) {
         }
     };
 
-    let content = backupTranslations[ document.documentElement.lang ];
-    if (typeof usagovCEOtext !== "undefined") {
-      // merge the options defined by usagovCEOText with the backups
-      content = jQuery().extend({}, content, usagovCEOtext);
-    }
-
+    // Ternary to preserve how the labels work with the custom twig templates.
     // const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
-    // const content = backupTranslations[ document.documentElement.lang ];
+    const content = (typeof usagovCEOlabels !== "undefined") ?
+      usagovCEOlabels : backupTranslations[document.documentElement.lang];
 
     // Get location for where to attach the rendered results
     let resultsDiv = document.getElementById("results");

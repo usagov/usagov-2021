@@ -4,8 +4,10 @@ status: true
 dependencies:
   config:
     - field.field.paragraph.ceo_results.field_ceo_address_label
+    - field.field.paragraph.ceo_results.field_ceo_fed_officials_descr
     - field.field.paragraph.ceo_results.field_ceo_fed_officials_label
     - field.field.paragraph.ceo_results.field_ceo_local_officials_label
+    - field.field.paragraph.ceo_results.field_ceo_officials_descr
     - field.field.paragraph.ceo_results.field_ceo_results_address_label
     - field.field.paragraph.ceo_results.field_ceo_results_contact_path
     - field.field.paragraph.ceo_results.field_ceo_results_error_address
@@ -16,6 +18,7 @@ dependencies:
     - field.field.paragraph.ceo_results.field_ceo_results_phone_number
     - field.field.paragraph.ceo_results.field_ceo_results_via_email
     - field.field.paragraph.ceo_results.field_ceo_results_website
+    - field.field.paragraph.ceo_results.field_ceo_state_descr
     - field.field.paragraph.ceo_results.field_ceo_state_officials_label
     - paragraphs.paragraphs_type.ceo_results
   module:
@@ -27,13 +30,6 @@ third_party_settings:
       children:
         - field_ceo_results_error_fetch
         - field_ceo_results_error_address
-        - field_ceo_results_address_label
-        - field_ceo_state_officials_label
-        - field_ceo_local_officials_label
-        - field_ceo_results_party
-        - field_ceo_fed_officials_label
-        - field_ceo_results_phone_number
-        - field_ceo_results_website
         - field_ceo_results_via_email
         - field_ceo_results_contact_path
       label: Labels
@@ -48,6 +44,44 @@ third_party_settings:
         label_as_html: false
         description: ''
         required_fields: true
+    group_officials_headings:
+      children:
+        - field_ceo_fed_officials_label
+        - field_ceo_fed_officials_descr
+        - field_ceo_state_officials_label
+        - field_ceo_state_descr
+        - field_ceo_local_officials_label
+        - field_ceo_officials_descr
+      label: 'Officials Headings'
+      region: content
+      parent_name: ''
+      weight: 4
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: 'Text used to build the grouping headings for types of officials.'
+        required_fields: true
+    group_rep_labels:
+      children:
+        - field_ceo_results_address_label
+        - field_ceo_results_party
+        - field_ceo_results_phone_number
+        - field_ceo_results_website
+      label: 'Details Labels'
+      region: content
+      parent_name: ''
+      weight: 5
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: 'Text used when displaying details for an individual official.'
+        required_fields: true
 id: paragraph.ceo_results.default
 targetEntityType: paragraph
 bundle: ceo_results
@@ -61,9 +95,17 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_ceo_fed_officials_descr:
+    type: string_textfield
+    weight: 8
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_ceo_fed_officials_label:
     type: string_textfield
-    weight: 10
+    weight: 7
     region: content
     settings:
       size: 60
@@ -71,7 +113,15 @@ content:
     third_party_settings: {  }
   field_ceo_local_officials_label:
     type: string_textfield
-    weight: 8
+    weight: 12
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_officials_descr:
+    type: string_textfield
+    weight: 13
     region: content
     settings:
       size: 60
@@ -87,7 +137,7 @@ content:
     third_party_settings: {  }
   field_ceo_results_contact_path:
     type: entity_reference_autocomplete
-    weight: 14
+    weight: 17
     region: content
     settings:
       match_operator: CONTAINS
@@ -129,7 +179,7 @@ content:
     third_party_settings: {  }
   field_ceo_results_party:
     type: string_textfield
-    weight: 9
+    weight: 7
     region: content
     settings:
       size: 60
@@ -137,7 +187,7 @@ content:
     third_party_settings: {  }
   field_ceo_results_phone_number:
     type: string_textfield
-    weight: 11
+    weight: 8
     region: content
     settings:
       size: 60
@@ -145,7 +195,7 @@ content:
     third_party_settings: {  }
   field_ceo_results_via_email:
     type: string_textfield
-    weight: 13
+    weight: 16
     region: content
     settings:
       size: 60
@@ -153,7 +203,15 @@ content:
     third_party_settings: {  }
   field_ceo_results_website:
     type: string_textfield
-    weight: 12
+    weight: 9
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_state_descr:
+    type: string_textfield
+    weight: 11
     region: content
     settings:
       size: 60
@@ -161,7 +219,7 @@ content:
     third_party_settings: {  }
   field_ceo_state_officials_label:
     type: string_textfield
-    weight: 7
+    weight: 9
     region: content
     settings:
       size: 60

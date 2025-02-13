@@ -1,15 +1,15 @@
-uuid: 8a2f49da-d5eb-4979-ad7d-42eb5c71ecd6
-langcode: es
+uuid: 32280159-5e7f-41bd-a2d3-2681446bd873
+langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.paragraph.field_ceo_results_via_email
+    - field.storage.paragraph.field_ceo_officials_descr
     - paragraphs.paragraphs_type.ceo_results
-id: paragraph.ceo_results.field_ceo_results_via_email
-field_name: field_ceo_results_via_email
+id: paragraph.ceo_results.field_ceo_officials_descr
+field_name: field_ceo_officials_descr
 entity_type: paragraph
 bundle: ceo_results
-label: 'Contact via email'
+label: 'Local officials description'
 description: ''
 required: false
 translatable: false

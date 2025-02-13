@@ -9,9 +9,9 @@ id: paragraph.ceo_results.field_ceo_fed_officials_label
 field_name: field_ceo_fed_officials_label
 entity_type: paragraph
 bundle: ceo_results
-label: 'Federal officials label'
-description: ''
-required: true
+label: 'Federal officials heading'
+description: 'Bolded heading label.'
+required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''
