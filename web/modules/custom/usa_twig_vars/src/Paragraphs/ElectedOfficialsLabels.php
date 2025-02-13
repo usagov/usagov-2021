@@ -46,7 +46,10 @@ class ElectedOfficialsLabels {
       if (empty($value)) {
         continue;
       }
-      $value = $value[0]['value'];
+      $value = trim($value[0]['value']);
+      if (empty($value)) {
+        continue;
+      }
 
       if (is_array($target)) {
         $value = $this->asArray($target, $value);
