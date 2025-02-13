@@ -60,7 +60,7 @@ KEY_VALUE=${3:-} # The api key value.
       KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" '.[$KEY_DOMAIN][$KEY_NAME] = $KEY_VALUE' <<< "$KEY_STORE")
     fi
 
-    yes '' | cf update-user-provided-service key-storage -p $KEY_STORE
+    yes '' | cf update-user-provided-service key-storage -p "$KEY_STORE"
     echo "✅ Key pushed to Key Storage."
   else
     echo "❌ Key Storage doesn't exist.  Something has gone wrong with deployment.  Please check and redeploy."
