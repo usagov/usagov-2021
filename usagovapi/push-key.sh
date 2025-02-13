@@ -21,9 +21,6 @@ KEY_VALUE=${3:-} # The api key value.
     KEY_STORE_ENTRIES=$(echo "$KEY_STORE" | jq -c 'to_entries[]')
     NAME_EXISTS=false
     KEY_EXISTS=false
-    DOMAIN=""
-    NAME=""
-    APIKEY=""
 
     while read -r ENTRY; do
       DOMAIN=$(echo "$ENTRY" | jq -r '.key')
