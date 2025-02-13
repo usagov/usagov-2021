@@ -7,15 +7,10 @@ service_exists()
   cf service "$1" >/dev/null 2>&1
 }
 
-KEY_DOMAIN=${1:-} # The base url of the api.
-KEY_NAME=${2:-} # Arbitrary name for the key.
-KEY_VALUE=${3:-} # The api key value.
-
 {
   if service_exists "key-storage" ; then
     KEY_STORE=$(cf curl /v3/service_instances/$(cf service key-storage --guid)/credentials)
 
-    # KEY_STORE_ENTRIES=$(echo "$KEY_STORE" | jq -c 'to_entries[]')
     DOMAINS=$(echo "$KEY_STORE" | jq -c 'keys')
 
     while read -r DOMAIN; do
