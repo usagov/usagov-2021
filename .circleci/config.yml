@@ -759,6 +759,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2233
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -769,6 +770,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2233
       - approve-dev-deployment:
           type: approval
           requires:
@@ -844,7 +846,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2233
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
@@ -855,7 +856,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2233
       - approve-dev-deployment-cron:
           type: approval
           requires:
