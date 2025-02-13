@@ -33,8 +33,11 @@ class DirectoryRecordsAddTogglesForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   * @return array<string, mixed>
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $form['description'] = [
       '#type' => 'processed_text',
       '#text' => $this->t('Submit this form to add or update the language toggles on records imported from Mothership.'),
@@ -59,9 +62,11 @@ class DirectoryRecordsAddTogglesForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
    */
   #[\Override]
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     $all_files = $this->getRequest()->files->get('files', []);
     $file = $all_files['toggle_map_file'];
     if (isset($file)) {
@@ -79,8 +84,10 @@ class DirectoryRecordsAddTogglesForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $toggle_map = $form_state->get('toggle_map');
     $firstrow = TRUE;
     foreach ($toggle_map as $map_entry) {
