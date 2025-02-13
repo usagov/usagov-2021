@@ -415,43 +415,25 @@ jobs:
             cat /tmp/results/scan-waf-container.log
             exit 0
       - run:
-          name: Create Container for CIS Benchmarks
+          name: Prepare for CIS Benchmarks
           when: always
           command: |
+            # kill the Snyk Docker images, as we dont want the next scan to waste time scaning them
+            docker image rm snyk/snyk:php
+            docker image rm snyk/snyk:docker
             # build a fresh docker-bench-security container
             cd /tmp/
             git clone --depth 1 https://github.com/docker/docker-bench-security.git
             cd /tmp/docker-bench-security
             docker build --no-cache -t docker-bench-security .
       - run:
-          name: Check CMS CIS Benchmarks
+          name: Check CIS Benchmarks
           when: always
           command: |
             # use the fresh container to scan
             SCAN_CMS_CIS_RESULT=0
-            if (./bin/scan-container-cis cms << pipeline.number >> | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
+            if (./bin/scan-container-cis << pipeline.number >> | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
             echo "CMS CIS Benchmark Scan return code: $SCAN_CMS_CIS_RESULT" | tee -a /tmp/results/scan-cms-container-cis.log
-            cat /tmp/results/scan-cms-container-cis.log
-            exit 0
-      - run:
-          name: Check WWW CIS Benchmarks
-          when: always
-          command: |
-            # use the fresh container to scan
-            SCAN_WWW_CIS_RESULT=0
-            if (./bin/scan-container-cis www << pipeline.number >> | tee /tmp/results/scan-www-container-cis.log); then export SCAN_WWW_CIS_RESULT=0; else export SCAN_WWW_CIS_RESULT=$?; fi
-            echo "WWW CIS Benchmark Scan return code: $SCAN_WWW_CIS_RESULT" | tee -a /tmp/results/scan-www-container-cis.log
-            cat /tmp/results/scan-www-container-cis.log
-            exit 0
-      - run:
-          name: Check WAF CIS Benchmarks
-          when: always
-          command: |
-            # use the fresh container to scan
-            SCAN_WAF_CIS_RESULT=0
-            if (./bin/scan-container-cis waf << pipeline.number >> | tee /tmp/results/scan-waf-container-cis.log); then export SCAN_WAF_CIS_RESULT=0; else export SCAN_WAF_CIS_RESULT=$?; fi
-            echo "WAF CIS Benchmark Scan return code: $SCAN_WAF_CMS_RESULT" | tee -a /tmp/results/scan-waf-container-cis.log
-            cat /tmp/results/scan-waf-container-cis.log
             exit 0
       - run:
           name: Stop containers now that Benchmarks are done
@@ -596,7 +578,7 @@ jobs:
           command: |
             # use the fresh container to scan
             SCAN_CRON_CIS_RESULT=0
-            if (./bin/scan-container-cis cron << pipeline.number >> | tee /tmp/results/scan-cron-container-cis.log); then export SCAN_CRON_CIS_RESULT=0; else export SCAN_CRON_CIS_RESULT=$?; fi
+            if (./bin/scan-container-cis << pipeline.number >> | tee /tmp/results/scan-cron-container-cis.log); then export SCAN_CRON_CIS_RESULT=0; else export SCAN_CRON_CIS_RESULT=$?; fi
             echo "Cron CIS Benchmark Scan return code: $SCAN_CRON_CIS_RESULT" | tee -a /tmp/results/scan-cron-container-cis.log
             cat /tmp/results/scan-cron-container-cis.log
             exit 0
