@@ -1,8 +1,0 @@
-{% set term_name = "" %}
-{% if node.field_page_type.0 != null %}
-  {% set term_name = drupal_field('name', 'taxonomy_term', node.field_page_type.0.target_id)[0]['#context']['value'] %}
-{% endif %}
-
-{% if (term_name == "Standard Page") or (term_name == "Standard Page- Nav Hidden") or (front == "not_homepage") and (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
-  {{ page.question_box }}
-{% endif %}

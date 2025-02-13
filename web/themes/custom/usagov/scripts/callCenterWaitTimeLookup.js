@@ -42,7 +42,7 @@ jQuery(document).ready(async function () {
     // If the estimated time was captured over 10 minutes ago, remain silent.
     if (checkTimeStamp(timestamp)) {
       let displayTime;
-      if (actualSeconds !== -1 && shouldDisplay() && checkTaxonomyPath()) {
+      if (actualSeconds !== -1 && shouldDisplay() && checkDataStructure()) {
         if (actualSeconds < 60) {
           displayTime = 1;
         }
@@ -58,9 +58,9 @@ jQuery(document).ready(async function () {
   }
 
   /**
-   * Check dataLayer for /tax-refunds or /es/reembolsos-impuestos.
+   * Check dataLayer for /tax-refunds or /es/reembolsos-impuestos or bears_life_event'.
    */
-  function checkTaxonomyPath() {
+  function checkDataStructure() {
     // Check if dataLayer exists and has at least one element
     if (!dataLayer || !dataLayer[0]) {
       return false;
@@ -69,10 +69,14 @@ jQuery(document).ready(async function () {
     // Get the Taxonomy_URL_3 value
     const taxonomyPath = dataLayer[0].Taxonomy_URL_3;
 
+    // Get the contentType
+    const contentType = dataLayer[0].contentType;
+
     // Return false if it matches either of the specified paths
     // Return true for all other paths
     return !(taxonomyPath === '/tax-refunds' ||
-      taxonomyPath === '/es/reembolsos-impuestos');
+      taxonomyPath === '/es/reembolsos-impuestos' ||
+      contentType === 'bears_life_event');
   }
 
   /**
@@ -103,7 +107,6 @@ jQuery(document).ready(async function () {
   function shouldDisplay() {
     // Generate a random number between 0 and 1
     const randomNumber = Math.random();
-console.log('random:', randomNumber);
     // Return true if the number is less than 0.8 (80%)
     return randomNumber < 0.8;
   }

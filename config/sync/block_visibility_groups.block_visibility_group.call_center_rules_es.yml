@@ -49,5 +49,29 @@ conditions:
     negate: true
     uuid: 35c2945f-175d-4afe-9e71-fa9f044d9df3
     context_mapping: {  }
-    pages: "/agencias/*\r\n/averiguar-estado-reembolso-impuestos\r\n/buscador-beneficios\r\n/buscador-beneficios/*\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/donde-reportar-una-estafa\r\n/estados/*\r\n/estatal-consumidor\r\n/estatales-servicios-sociales\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/gobiernos-estatales\r\n/gobiernos-estatales/*\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/oficina-elecciones-estatal-local\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados"
+    pages: "/agencias/*\r\n/averiguar-estado-reembolso-impuestos\r\n/buscador-beneficios\r\n/buscador-beneficios/*\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/donde-reportar-una-estafa\r\n/estados/*\r\n/estatal-consumidor\r\n/estatales-servicios-sociales\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/gobiernos-estatales\r\n/gobiernos-estatales/*\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/oficina-elecciones-estatal-local\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados\r\n/website-analytics\r\n/website-analytics/*"
+  488e56c1-298c-4a24-a0fd-aed4f140e643:
+    id: term
+    negate: false
+    uuid: 488e56c1-298c-4a24-a0fd-aed4f140e643
+    context_mapping:
+      node: '@node.node_route_context:node'
+    term_uuids:
+      - 24ada0c8-3397-4b5f-a8bc-55adff307199
+  98801075-d742-4ee4-a7a7-8cd17e709f2c:
+    id: term
+    negate: false
+    uuid: 98801075-d742-4ee4-a7a7-8cd17e709f2c
+    context_mapping:
+      node: '@node.node_route_context:node'
+    term_uuids:
+      - 93f36183-bb28-415c-85c0-537f560bc38c
+  4c81e7ff-9cc2-4137-9f40-9e5de70cf522:
+    id: term
+    negate: true
+    uuid: 4c81e7ff-9cc2-4137-9f40-9e5de70cf522
+    context_mapping:
+      node: '@node.node_route_context:node'
+    term_uuids:
+      - fbaa8c29-47ad-4bc1-899f-c8f305ded805
 allow_other_conditions: false

@@ -41,7 +41,7 @@ conditions:
     negate: true
     uuid: 10a09bbf-c052-4063-bae8-fd0254832a09
     context_mapping: {  }
-    pages: "/agencies/*\r\n/benefit-finder\r\n/benefit-finder/*\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/local-governments\r\n/phone\r\n/states/*\r\n/state-attorney-general\r\n/state-consumer\r\n/state-corrections\r\n/state-election-office\r\n/state-emergency-management\r\n/state-governments\r\n/state-governments/*\r\n/state-governor\r\n/state-health\r\n/state-motor-vehicle-services\r\n/state-social-services\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds\r\n/where-report-scams"
+    pages: "/agencies/*\r\n/benefit-finder\r\n/benefit-finder/*\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/local-governments\r\n/phone\r\n/states/*\r\n/state-attorney-general\r\n/state-consumer\r\n/state-corrections\r\n/state-election-office\r\n/state-emergency-management\r\n/state-governments\r\n/state-governments/*\r\n/state-governor\r\n/state-health\r\n/state-motor-vehicle-services\r\n/state-social-services\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds\r\n/website-analytics\r\n/website-analytics/*\r\n/where-report-scams"
   dca74025-1a03-465d-abff-70d25b1225da:
     id: language
     negate: false
@@ -50,4 +50,28 @@ conditions:
       language: '@language.current_language_context:language_interface'
     langcodes:
       en: en
+  e047424a-27fd-45f2-a991-11381f506258:
+    id: term
+    negate: false
+    uuid: e047424a-27fd-45f2-a991-11381f506258
+    context_mapping:
+      node: '@node.node_route_context:node'
+    term_uuids:
+      - 24ada0c8-3397-4b5f-a8bc-55adff307199
+  a75ddc23-f76f-4136-b41e-b9660be43278:
+    id: term
+    negate: false
+    uuid: a75ddc23-f76f-4136-b41e-b9660be43278
+    context_mapping:
+      node: '@node.node_route_context:node'
+    term_uuids:
+      - 93f36183-bb28-415c-85c0-537f560bc38c
+  c5ddd87c-ad00-4724-bceb-e232646a7f8c:
+    id: term
+    negate: true
+    uuid: c5ddd87c-ad00-4724-bceb-e232646a7f8c
+    context_mapping:
+      node: '@node.node_route_context:node'
+    term_uuids:
+      - fbaa8c29-47ad-4bc1-899f-c8f305ded805
 allow_other_conditions: false
