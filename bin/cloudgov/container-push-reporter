@@ -8,7 +8,7 @@ DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 export RDIG=`docker images --no-trunc --quiet`
-export RDIG="${RDIG:3}"
+RDIGEST=${RDIG#sha256:}
 
-echo "docker push $RDIG"
-docker push $RDIG
+echo "docker push $RDIGEST"
+docker push $RDIGEST
