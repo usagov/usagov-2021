@@ -42,22 +42,8 @@
   </div>
 </div>
 
-{% if ceoLabels %}
+{% if ceoLabelsJSON %}
 <script type="text/javascript">
-  let usagovCEOlabels = {{ ceoLabels|raw }};
+  let usagovCEOlabels = {{ ceoLabelsJSON|raw }};
 </script>
 {% endif %}
-
-{#
-  let usagovCEOtext = {
-    "error-fetch": "ERROR: Failed trying to fetch elected officials!",
-    "error-address": "ERROR: Could not find elected officials for given address!",
-    "levels": ["Federal officials", "State officials", "Local officials"],
-    "party-affiliation": "Party affiliation",
-    "address": "Address",
-    "phone-number": "Phone number",
-    "website": "Website",
-    "contact-via-email": "Contact via email",
-    "path-contact": "/elected-officials-email",
-  }
-#}

@@ -16,52 +16,32 @@ class ElectedOfficialsLabels {
    * @return array<string, mixed>
    */
   public function getResultsLabels(Paragraph $para, LanguageInterface $lang): array {
-    $overrides = [];
-    $defaults = $this->getResultsDefaults($lang);
-
     // Get the non-empty paragraph fields into an array structure for merging.
     // 1. Map fields to the defaults keys.
-    $map = [
-      'field_ceo_results_error_fetch' => 'error-fetch',
-      'field_ceo_results_error_address' => 'error-address',
+    $overrides = $this->mapOverrides(
+      $para,
+      map: [
+        'field_ceo_results_error_fetch' => 'error-fetch',
+        'field_ceo_results_error_address' => 'error-address',
 
-      // The numeric keys here can't be ints, or they merge later
-      // will not work. Prepending with an underscore.
-      'field_ceo_fed_officials_label' => ['levels', '_0', 'heading'],
-      'field_ceo_fed_officials_descr' => ['levels', '_0', 'description'],
-      'field_ceo_state_officials_label' => ['levels', '_1', 'heading'],
-      'field_ceo_state_descr' => ['levels', '_1', 'description'],
-      'field_ceo_local_officials_label' => ['levels', '_2', 'heading'],
-      'field_ceo_officials_descr' => ['levels', '_2', 'description'],
+        // The numeric keys here can't be ints, or they merge later
+        // will not work. Prepending with an underscore.
+        'field_ceo_fed_officials_label' => ['levels', '_0', 'heading'],
+        'field_ceo_fed_officials_descr' => ['levels', '_0', 'description'],
+        'field_ceo_state_officials_label' => ['levels', '_1', 'heading'],
+        'field_ceo_state_descr' => ['levels', '_1', 'description'],
+        'field_ceo_local_officials_label' => ['levels', '_2', 'heading'],
+        'field_ceo_officials_descr' => ['levels', '_2', 'description'],
 
-      'field_ceo_results_party' => 'party-affiliation',
-      'field_ceo_results_address_label' => 'address',
-      'field_ceo_results_phone_number' => 'phone-number',
-      'field_ceo_results_website' => 'website',
-      'field_ceo_results_via_email' => 'contact-via-email',
-    ];
+        'field_ceo_results_party' => 'party-affiliation',
+        'field_ceo_results_address_label' => 'address',
+        'field_ceo_results_phone_number' => 'phone-number',
+        'field_ceo_results_website' => 'website',
+        'field_ceo_results_via_email' => 'contact-via-email',
+      ]
+    );
 
-    foreach ($map as $src => $target) {
-      $value = $para->get($src)->getValue();
-      if (empty($value)) {
-        continue;
-      }
-      $value = trim($value[0]['value']);
-      if (empty($value)) {
-        continue;
-      }
-
-      if (is_array($target)) {
-        $value = $this->asArray($target, $value);
-        // Need to use array_merge_recursive here to ensure we add sub-keys
-        // to existing values.
-        $overrides = array_merge_recursive($overrides, $value);
-      }
-      else {
-        $overrides[$target] = $value;
-      }
-    }
-    // Turn levels into integer keys
+    // Turn levels into integer keys.
     if (isset($overrides['levels'])) {
       // Because the levels mean something, we need to keep the
       // integer keys and ensure PHP doesn't re-index them for us.
@@ -74,13 +54,77 @@ class ElectedOfficialsLabels {
       $overrides['levels'] = array_filter($overrides['levels']);
     }
 
-    // Handle the URL for path-contact since it's not a direct value we can retrieve.
+    // Handle the URL for path-contact since we must look up the path alias.
     if ($para->get('field_ceo_results_contact_path')->getValue()) {
       $target_node = $para->get('field_ceo_results_contact_path')->referencedEntities()[0];
       $overrides['path-contact'] = $target_node->toUrl()->toString();
     }
 
+    $defaults = $this->getResultsDefaults($lang);
     return array_replace_recursive($defaults, $overrides);
+  }
+
+  /**
+   * Merges customized labels with defaults for the current languages.
+   *
+   * This value is used as "ceoText" when building the UI for contact elected
+   * officials results page.
+   *
+   * @return array<string, mixed>
+   */
+  public function getEmailLabels(Paragraph $para, LanguageInterface $lang): array {
+    $overrides = $this->mapOverrides(
+      $para,
+      map: [
+        'field_ceo_topic_missing_error' => 'topic',
+        'field_ceo_about_missing_label' => 'about',
+        'field_ceo_action_missing_label' => 'action',
+        'field_ceo_new_window_msg' => 'new_window',
+        'field_ceo_subject' => 'subject',
+        'field_ceo_issue_prefix' => 'issue',
+        'field_ceo_concern_prefix' => 'concern',
+        'field_ceo_idea_prefix' => 'idea',
+      ],
+    );
+
+    $defaults = $this->getEmailDefaults($lang);
+    return array_replace_recursive($defaults, $overrides);
+  }
+
+  /**
+   * Maps the user submitted values to an array for use by the front-end
+   *
+   * Empty fields are not mapped.
+   *
+   * @param array<string, mixed> $map
+   *
+   * @return array<string, mixed>
+   */
+  private function mapOverrides(Paragraph $para, array $map): array {
+    $overrides = [];
+    foreach ($map as $src => $target) {
+      $value = $para->get($src)->getValue();
+      if (empty($value)) {
+        continue;
+      }
+      $value = trim($value[0]['value']);
+      if (empty($value)) {
+        continue;
+      }
+
+      if (is_array($target)) {
+        // Map user input to a nested array structure.
+        $value = $this->asArray($target, $value);
+        // Need to use array_merge_recursive here to ensure we add sub-keys
+        // to existing values.
+        $overrides = array_merge_recursive($overrides, $value);
+      }
+      else {
+        $overrides[$target] = $value;
+      }
+    }
+
+    return $overrides;
   }
 
   /**
@@ -179,6 +223,34 @@ class ElectedOfficialsLabels {
         'website' => 'Sitio web',
         'contact-via-email' => 'Contactar por correo electrónico',
         'path-contact' => '/es/funcionarios-electos-correo-electronico',
+      ],
+    };
+  }
+
+  /**
+   * @return array<string, mixed>
+   */
+  private function getEmailDefaults(LanguageInterface $lang): array {
+    return match ($lang->getId()) {
+      'en' => [
+        'topic' => 'Please fill out the topic field.',
+        'about' => 'Please fill out the about field.',
+        'action' => 'Please fill out the action field.',
+        'new_window' => 'Your message has been written, and a new window on the screen has opened with your email. Make sure to click send!',
+        'subject' => 'A Message From a Constituent',
+        'issue' => 'The issue that I am inquiring about is:',
+        'concern' => 'My concerns regarding this issue are:',
+        'idea' => 'And my ideas to address this issue are:',
+      ],
+      'es' => [
+        'topic' => 'Por favor, escriba el tema. ',
+        'about' => 'Por favor, escriba qué quiere decir acerca del tema.',
+        'action' => 'Por favor, escriba su petición para el funcionario electo.',
+        'new_window' => 'Su mensaje ha sido escrito y se ha abierto una nueva ventana en la pantalla con su correo electrónico. Asegúrate de hacer clic en enviar ("send").',
+        'subject' => 'Un mensaje de un ciudadano',
+        'issue' => 'El tema sobre el que estoy preguntando es: ',
+        'concern' => 'Mis inquietudes con respecto a este tema son:',
+        'idea' => 'Y mis ideas para abordar este cuestión son:',
       ],
     };
   }

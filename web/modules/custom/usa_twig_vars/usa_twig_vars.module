@@ -428,16 +428,27 @@ function usa_twig_vars_node_insert(NodeInterface $node_to_check): void {
 function usa_twig_vars_preprocess_paragraph(&$variables): void {
   /** @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
   $paragraph = $variables['paragraph'];
+  $lang = $lang_code = \Drupal::languageManager()->getCurrentLanguage();
+
   // Get the parent bundle.
   switch ($paragraph->getParagraphType()->id()) {
     case 'ceo_results':
-      $lang = $lang_code = \Drupal::languageManager()->getCurrentLanguage();
       $labelMaker = new ElectedOfficialsLabels();
-      $ceoText = $labelMaker->getResultsLabels($paragraph, $lang);
-      $variables['ceoLabels'] = json_encode(
-        $ceoText,
-        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-      );
+      $ceoLabels = $labelMaker->getResultsLabels($paragraph, $lang);
+      $variables['ceoLabelsJSON'] = usa_twig_vars_json_encode($ceoLabels);
+      break;
+
+    case  'ceo_compose_email_form':
+      $labelMaker = new ElectedOfficialsLabels();
+      $ceoText = $labelMaker->getEmailLabels($paragraph, $lang);
+      $variables['ceoTextJSON'] = usa_twig_vars_json_encode($ceoText);
       break;
   }
+}
+
+function usa_twig_vars_json_encode(array $payload): string {
+  return json_encode(
+    $payload,
+    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+  );
 }

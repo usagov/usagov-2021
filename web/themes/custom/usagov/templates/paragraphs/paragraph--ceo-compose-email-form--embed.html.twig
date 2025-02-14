@@ -43,3 +43,9 @@
     </div>
   </div>
 </form>
+
+{% if (ceoTextJSON) %}
+<script type="text/javascript">
+const usagovCEOtext = {{ ceoTextJSON|raw }}
+</script>
+{% endif %}
