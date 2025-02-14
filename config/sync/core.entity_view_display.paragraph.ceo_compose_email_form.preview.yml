@@ -1,0 +1,28 @@
+uuid: a47e42e1-0c7a-4703-8363-c5e821d96e90
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.paragraph.preview
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_button_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_compose_about_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_compose_action_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_compose_topic_label
+    - paragraphs.paragraphs_type.ceo_compose_email_form
+id: paragraph.ceo_compose_email_form.preview
+targetEntityType: paragraph
+bundle: ceo_compose_email_form
+mode: preview
+content:
+  field_ceo_button_label:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 8
+    region: content
+hidden:
+  field_ceo_compose_about_label: true
+  field_ceo_compose_action_label: true
+  field_ceo_compose_topic_label: true

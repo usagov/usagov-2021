@@ -41,7 +41,7 @@ class ElectedOfficialsLabels {
       'field_ceo_results_via_email' => 'contact-via-email',
     ];
 
-    foreach($map as $src => $target) {
+    foreach ($map as $src => $target) {
       $value = $para->get($src)->getValue();
       if (empty($value)) {
         continue;
@@ -56,7 +56,8 @@ class ElectedOfficialsLabels {
         // Need to use array_merge_recursive here to ensure we add sub-keys
         // to existing values.
         $overrides = array_merge_recursive($overrides, $value);
-      } else {
+      }
+      else {
         $overrides[$target] = $value;
       }
     }

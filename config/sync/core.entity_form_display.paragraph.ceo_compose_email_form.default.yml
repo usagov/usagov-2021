@@ -1,0 +1,50 @@
+uuid: 0b2d5e1f-1305-43fc-a165-c7676079b2d7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_button_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_compose_about_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_compose_action_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_compose_topic_label
+    - paragraphs.paragraphs_type.ceo_compose_email_form
+id: paragraph.ceo_compose_email_form.default
+targetEntityType: paragraph
+bundle: ceo_compose_email_form
+mode: default
+content:
+  field_ceo_button_label:
+    type: string_textfield
+    weight: 3
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_compose_about_label:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_compose_action_label:
+    type: string_textfield
+    weight: 2
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_compose_topic_label:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true
