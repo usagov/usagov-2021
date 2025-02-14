@@ -31,6 +31,11 @@ docker build --force-rm \
      --build-arg GITTAG=$GITTAG \
      --build-arg CONTAINERTAG=$CONTAINERTAG
 
+echo "Running the Docker container"
+export DOCKER_CONTENT_TRUST=0
+docker run -d --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
+export DOCKER_CONTENT_TRUST=1
+
 if [ -n "$CONTAINERTAG2" ]
 then
      echo "docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG2"
@@ -47,6 +52,11 @@ docker build --force-rm \
     --build-arg GITBRANCH=$GITBRANCH \
     --build-arg GITCOMMIT=$GITCOMMIT \
     --build-arg GITTAG=$GITTAG
+
+echo "Running the Docker container"
+export DOCKER_CONTENT_TRUST=0
+docker run -d --name waf-container --rm $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG
+export DOCKER_CONTENT_TRUST=1
 
 if [ -n "$CONTAINERTAG2" ]
 then
@@ -65,6 +75,11 @@ docker build --force-rm \
      --build-arg GITCOMMIT=$GITCOMMIT \
      --build-arg GITTAG=$GITTAG \
      --build-arg CONTAINERTAG=$CONTAINERTAG
+
+echo "Running the Docker container"
+export DOCKER_CONTENT_TRUST=0
+docker run -d --name www-container --rm $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG
+export DOCKER_CONTENT_TRUST=1
 
 if [ -n "$CONTAINERTAG2" ]
 then

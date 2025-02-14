@@ -39,7 +39,7 @@
   {% endif %}
   <div class="usa-prose"><h1 id="skip-to-h1" class="text-red-50">{{ heading }}</h1></div>
   {% if content.field_intro[0] %}
-    <div class="usa-prose"><p class="usa-intro">{{ content.field_intro[0]['#text'] }}</p></div>
+    <div class="usa-prose"><p class="usa-intro font-serif-md">{{ content.field_intro[0]['#text'] }}</p></div>
   {% endif %}
   {{ content.field_body }}
   {% if child %}
@@ -58,12 +58,12 @@
 
       {# Generate the url for the parent of this term to put in the 'previous' button. #}
       {% set previous_path = path('entity.taxonomy_term.canonical', {'taxonomy_term': parent_tid}) %}
-      <button id="prior" class="usa-button usa-button--secondary usa-button--big margin-right-2" onclick="window.location.href = '{{ previous_path ~ '#block-usagov-content' }}'">
+      <button id="prior" class="usa-button usagov-button margin-right-2" onclick="window.location.href = '{{ previous_path ~ '#block-usagov-content' }}'">
         {{ previous_string }}</button>
 
       {# If there are items in the options list, this must not be the last term in the tree. Generate a Next button. #}
       {% if has_child %}
-        <button id="next" class="usa-button usa-button--outline usagov-button--outline-black usa-button--big"
+        <button id="next" class="usa-button usa-button--outline usagov-button--outline-black usa-button--big font-sans-md"
                 onclick="if(document.querySelector(`input[name='options']:checked`)) { window.location.href = document.querySelector(`input[name='options']:checked`).value+'#block-usagov-content'; }">
           {{ next_string }}</button>
       {% endif %}

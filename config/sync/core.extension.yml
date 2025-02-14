@@ -11,11 +11,11 @@ module:
   block_content: 0
   breakpoint: 0
   ckeditor5: 0
-  ckeditor5_embedded_content: 0
   ckeditor_media_resize: 0
   composer_deploy: 0
   conditional_fields: 0
   config: 0
+  config_split: 0
   content_lock: 0
   content_lock_timeout: 0
   content_moderation: 0
@@ -25,11 +25,11 @@ module:
   ctools: 0
   datetime: 0
   datetime_range: 0
-  devel: 0
   diff: 0
   dynamic_page_cache: 0
   editor: 0
   embed: 0
+  embedded_content: 0
   entity_embed: 0
   entity_reference_revisions: 0
   faqfield: 0
@@ -79,6 +79,7 @@ module:
   simple_sitemap: 0
   simplify_menu: 0
   sortableviews: 0
+  structure_sync: 0
   system: 0
   taxonomy: 0
   telephone: 0

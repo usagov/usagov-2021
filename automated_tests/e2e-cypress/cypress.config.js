@@ -16,7 +16,14 @@ module.exports = defineConfig({
     },
     chromeWebSecurity: false,
     responsetimeout: 10000,
-    "blockHosts": ["www.google-analytics.com", "ssl.google-analytics.com"],
+    blockHosts: [
+      "www.google-analytics.com",
+      "ssl.google-analytics.com",
+      "*.googletagmanager.com",
+      "www.googletagmanager.com",
+      "tagmanager.google.com",
+      "www.tagmanager.google.com"
+    ],
     experimentalRunAllSpecs: true,
     setupNodeEvents(on, config) {
 

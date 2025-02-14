@@ -30,7 +30,6 @@ class MobileMenuBlock extends AbstractMenuBlock {
           'search_placeholder' => 'Busque en este sitio...',
           'search_affiliate' => 'usagov_es_internal',
           'all_topics' => 'Todos los temas y servicios',
-          'phone_URL' => '/es/llamenos',
           'form_id' => 'usagov_es_internal-mobile',
         ];
         break;
@@ -46,7 +45,6 @@ class MobileMenuBlock extends AbstractMenuBlock {
           'search_placeholder' => 'Search all government',
           'search_affiliate' => 'usagov_all_gov',
           'all_topics' => 'All topics and services',
-          'phone_URL' => '/phone',
           'form_id' => 'usagov_all_gov-mobile',
         ];
         break;
@@ -56,6 +54,7 @@ class MobileMenuBlock extends AbstractMenuBlock {
       $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
       $items = $this->getMenuTreeItems($menuID, $crumbs, $active, maxLevels: -1);
       $twigVars = $this->prepareMenuItemsForTemplate($items, $active);
+
       return $this->renderItems($items, $twigVars, $menuID);
     }
 
@@ -70,6 +69,7 @@ class MobileMenuBlock extends AbstractMenuBlock {
       '#siblings_of_active_item' => [],
       '#submenu' => $items['#items'],
     ];
+
     return $this->renderItems($items, $twigVars, $menuID);
   }
 

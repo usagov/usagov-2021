@@ -36,6 +36,9 @@ class BenefitCategorySearchForm extends FormBase {
 
   /**
    * Builds a form to display current state and toggle showing call out blocks.
+   *
+   * @param array<string, mixed> $form
+   * @return array<string, mixed>
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
 
@@ -64,6 +67,8 @@ class BenefitCategorySearchForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $toggle_state = $this->state->get(self::TOGGLE_KEY) ? TRUE : FALSE;
