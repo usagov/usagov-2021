@@ -61,6 +61,7 @@ KEY_VALUE=${3:-} # The api key value.
     fi
 
     yes '' | cf update-user-provided-service key-storage -p "$KEY_STORE"
+    cf restart api-proxy
     echo "✅ Key pushed to Key Storage."
   else
     echo "❌ Key Storage doesn't exist.  Something has gone wrong with deployment.  Please check and redeploy."

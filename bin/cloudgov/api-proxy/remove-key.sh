@@ -48,7 +48,8 @@ KEY_NAME=${2:-} # Arbitrary name for the key.
     fi
 
     yes '' | cf update-user-provided-service key-storage -p "$KEY_STORE"
-    echo "✅ Key pushed to Key Storage."
+    cf restart api-proxy
+    echo "✅ Key removed from Key Storage."
   else
     echo "❌ Key Storage doesn't exist.  Something has gone wrong with deployment.  Please check and redeploy."
     exit 1
