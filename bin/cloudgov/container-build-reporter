@@ -23,7 +23,7 @@ else
     $output rm -rf tmp-caddy-build
 fi
 
-echo "Building ${DOCKERUSER}/${DOCKERREPO}:reporter"
+echo "Building ${DOCKERUSER}/${DOCKERREPO}:reporter-$CIRCLE_BUILD_NUM"
 
 docker build --force-rm \
      -t $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM \
