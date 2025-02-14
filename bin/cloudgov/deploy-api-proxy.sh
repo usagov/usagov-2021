@@ -14,41 +14,7 @@ SPACE=$(cf target | awk '/space:/ {print $2}')
 # We will use $ORG and $SPACE to get unique host names. Sandbox space names have dots, so remove those.
 SPACE_NODOT=${SPACE//\./-}
 
-# Display current target information
-echo "🔍 You are deploying to:"
-echo "   🏢 Org:   $ORG"
-echo "   📌 Space: $SPACE"
-echo "⚠️  Please verify this is the correct target before proceeding."
-
-# User confirmation prompt
-read -p "❓ Proceed with deployment? (Y/N): " -n 1 -r
-echo  # Move to a new line after user input
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "❌ Deployment canceled."
-    exit 1
-fi
-
 echo "✅ Proceeding with deployment..."
-
-# Ensure required environment variables are set
-if [[ -z "$API_ENDPOINT" || -z "$API_KEY" ]]; then
-  echo "❌ ERROR: API_ENDPOINT and API_KEY must be set!"
-  exit 1
-fi
-
-# Replace placeholders in API Proxy manifest and generate a new YML file
-sed -e "s|\${API_ENDPOINT}|$API_ENDPOINT|g" \
-    -e "s|\${API_KEY}|$API_KEY|g" \
-    -e "s|\${ORG}|$ORG|g" \
-    -e "s|\${SPACE_NODOT}|$SPACE_NODOT|g" \
-    api_proxy_manifest.yml.src > api_proxy_manifest.yml
-
-# Replace placeholders in test client manifest and generate a new YML file
-sed -e "s|\${ORG}|$ORG|g" \
-    -e "s|\${SPACE_NODOT}|$SPACE_NODOT|g" \
-    test_client_manifest.yml.src > test_client_manifest.yml
-
-echo "✅ Configuration prepared"
 
 # Function to check and create missing routes
 declare -a new_routes=()
@@ -69,8 +35,6 @@ function ensure_route {
 echo "🔄 Checking routes..."
 ensure_route "apps.internal" "${ORG}-${SPACE_NODOT}-api-proxy"
 ensure_route "app.cloud.gov" "${ORG}-${SPACE_NODOT}-api-proxy"
-ensure_route "apps.internal" "${ORG}-${SPACE_NODOT}-test-client"
-ensure_route "app.cloud.gov" "${ORG}-${SPACE_NODOT}-test-client"
 
 # If any routes were created, display them in a single message
 if [[ ${#new_routes[@]} -gt 0 ]]; then
@@ -91,35 +55,31 @@ fi
 
 # Deploy API Proxy
 echo "🚀 Deploying API Proxy..."
-if cf push -f api_proxy_manifest.yml ; then
+if cf push -f .buildpack/manifest-api-proxy.yml --no-route ; then
   echo "✅ API Proxy deployed successfully."
 else
   echo "❌ API Proxy deployment failed."
   exit 1
 fi
 
-# Deploy Test Client
-echo "🚀 Deploying Test Client..."
-if cf push -f test_client_manifest.yml ; then
-  echo "✅ Test Client deployed successfully."
+# Map routes to the API Proxy
+echo "🔗 Mapping routes to API Proxy..."
+if cf map-route api-proxy apps.internal --hostname "${ORG}-${SPACE_NODOT}-api-proxy" > /dev/null 2>&1 \
+   && cf map-route api-proxy app.cloud.gov --hostname "${ORG}-${SPACE_NODOT}-api-proxy" > /dev/null 2>&1; then
+  echo "✅ Routes mapped successfully."
 else
-  echo "❌ Test Client deployment failed."
+  echo "❌ Failed to map routes to API Proxy."
   exit 1
 fi
 
 # Add network policies
 echo "🔒 Configuring network policies..."
-if cf add-network-policy api-proxy test-client --protocol tcp --port 61443 > /dev/null 2>&1 \
-   && cf add-network-policy test-client api-proxy --protocol tcp --port 61443 > /dev/null 2>&1; then
+if cf add-network-policy api-proxy cms --protocol tcp --port 61443 > /dev/null 2>&1 \
+   && cf add-network-policy cms api-proxy --protocol tcp --port 61443 > /dev/null 2>&1; then
   echo "✅ Network policies added."
 else
   echo "❌ Failed to configure network policies."
   exit 1
 fi
-
-# Clean up generated manifest
-rm -f api_proxy_manifest.yml
-rm -f test_client__manifest.yml
-echo "✅ Cleanup complete."
 
 echo "🎉 Deployment completed successfully!"

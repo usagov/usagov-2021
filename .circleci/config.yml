@@ -58,6 +58,7 @@ commands:
             ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
             PROTECTED_APP_NAMES="$DCMS_APP,$DWWW_APP" \
             ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
+      - deploy-api-proxy
 
   save-image-digest:
     steps:
@@ -253,6 +254,27 @@ commands:
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cron << parameters.envname >> << pipeline.number >> $CRON_DIGEST
+
+  deploy-api-proxy:
+    parameters:
+      envname:
+        default: "dev"
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+      - install-cloud-foundry
+      - load-image-digest-cron
+      - run:
+          name: CloudGov Deploy API Proxy
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-api-proxy
 
 jobs:
   scan-code:
