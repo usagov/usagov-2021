@@ -171,13 +171,15 @@ services:
 
   w3c-validator:
     image: ghcr.io/validator/validator:latest
+    container_name: usagov-2021-w3c-validator-1
     ports:
       - "8888:8888"
     environment:
-      # Allow validation requests from all possible local addresses
-      - VNU_ALLOWED_HOSTS=localhost,127.0.0.1,172.18.0.2,cms,*.localhost,172.18.0.*
+      - VNU_ALLOWED_HOSTS=*
     networks:
-      - default
+      gsa-gov:
+        aliases:
+          - validator
 
 volumes:
   database_data:
@@ -189,8 +191,4 @@ volumes:
 #       device: ":${PWD}"
 
 networks:
-  gsa-gov:
-  default:
-    name: usagov-2021_default
-    external: true
-
+  gsa-gov:  
