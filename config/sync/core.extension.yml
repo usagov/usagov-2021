@@ -119,6 +119,7 @@ module:
   views_menu_children_filter: 0
   views_ui: 0
   viewsreference: 0
+  w3c_validator: 0
   workflows: 0
   pathauto: 1
   usa_twig_vars: 1

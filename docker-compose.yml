@@ -169,6 +169,15 @@ services:
     networks:
       - gsa-gov
 
+  w3c-validator:
+    image: ghcr.io/validator/validator:latest
+    ports:
+      - "8888:8888"
+    environment:
+      # Allow validation requests from all possible local addresses
+      - VNU_ALLOWED_HOSTS=localhost,127.0.0.1,172.18.0.2,cms,*.localhost,172.18.0.*
+    networks:
+      - default
 
 volumes:
   database_data:
@@ -181,3 +190,7 @@ volumes:
 
 networks:
   gsa-gov:
+  default:
+    name: usagov-2021_default
+    external: true
+
