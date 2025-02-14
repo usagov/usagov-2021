@@ -103,11 +103,11 @@ fi
 cf create-service s3 basic-public-sandbox s3for${APPNAME}
 
 # launch the app
-echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter"
+echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-$CIRCLE_BUILD_NUM"
 if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter
+    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter-$CIRCLE_BUILD_NUM
 else
-    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter --docker-username $DOCKERHUB_USERNAME
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter-$CIRCLE_BUILD_NUM --docker-username $DOCKERHUB_USERNAME
 fi
 
 
