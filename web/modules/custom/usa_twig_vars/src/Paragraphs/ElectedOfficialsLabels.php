@@ -224,6 +224,7 @@ class ElectedOfficialsLabels {
         'contact-via-email' => 'Contactar por correo electrónico',
         'path-contact' => '/es/funcionarios-electos-correo-electronico',
       ],
+      default => throw new \InvalidArgumentException("Unrecognized language argument"),
     };
   }
 
@@ -252,6 +253,7 @@ class ElectedOfficialsLabels {
         'concern' => 'Mis inquietudes con respecto a este tema son:',
         'idea' => 'Y mis ideas para abordar este cuestión son:',
       ],
+      default => throw new \InvalidArgumentException("Unrecognized language argument"),
     };
   }
 

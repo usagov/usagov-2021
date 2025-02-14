@@ -446,6 +446,13 @@ function usa_twig_vars_preprocess_paragraph(&$variables): void {
   }
 }
 
+/**
+ * Helper for encoding JSON passed to twig for rendering.
+ *
+ * @param array<string, mixed> $payload
+ *
+ * @return string
+ */
 function usa_twig_vars_json_encode(array $payload): string {
   return json_encode(
     $payload,
