@@ -72,6 +72,16 @@ else
   exit 1
 fi
 
+# Bind key storage service to the API Proxy
+echo "🔗 Binding Key Storage Service to API Proxy..."
+if cf bind-service api-proxy key-storage > /dev/null 2>&1; then
+  cf restart api-proxy
+  echo "✅ Key Storage Service bound successfully."
+else
+  echo "❌ Failed to bind Key Storage Service to API Proxy."
+  exit 1
+fi
+
 # Add network policies
 echo "🔒 Configuring network policies..."
 if cf add-network-policy api-proxy cms --protocol tcp --port 61443 > /dev/null 2>&1 \
