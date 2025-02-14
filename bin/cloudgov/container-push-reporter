@@ -10,5 +10,6 @@ DOCKERREPO=${DOCKERREPO:-usagov-2021}
 export RDIG=`docker images --no-trunc --quiet`
 RDIGEST=${RDIG#sha256:}
 
+docker images
 echo "docker push $RDIGEST"
 docker push $RDIGEST
