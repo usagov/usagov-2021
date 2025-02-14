@@ -799,6 +799,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2220-api-proxy-python
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -809,6 +810,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2220-api-proxy-python
       - approve-dev-deployment:
           type: approval
           requires:
@@ -817,6 +819,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2220-api-proxy-python
       - approve-dr-deployment:
           type: approval
           requires:
@@ -832,6 +835,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2220-api-proxy-python
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
