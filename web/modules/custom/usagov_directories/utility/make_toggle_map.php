@@ -18,7 +18,7 @@
 $infile = $argv[1];
 $outfile = $argv[2];
 
-function main($infile, $outfile) {
+function main(string $infile, string $outfile): void {
   $fp_infile = fopen($infile, 'r');
   $fp_outfile = fopen($outfile, 'w');
   $uuid_map = [];  // Maps node_id to mothership_uuid

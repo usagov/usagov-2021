@@ -25,7 +25,7 @@
         "drupal/ckeditor_media_resize": "^1.0@beta",
         "drupal/composer_deploy": "^1.7",
         "drupal/conditional_fields": "^4.0@alpha",
-        "drupal/config_split": "^2.0",
+        "drupal/config_split": "^2.0.2",
         "drupal/content_lock": "^2.2",
         "drupal/content_moderation_notifications": "^3.4",
         "drupal/core-composer-scaffold": "^10",
@@ -168,7 +168,8 @@
         "phpcompatibility/php-compatibility": "^9.3",
         "phpstan/phpstan": "*",
         "phpstan/phpstan-deprecation-rules": "*",
-        "rector/rector": "^2.0"
+        "rector/rector": "^2.0",
+        "weitzman/drupal-test-traits": "^2.5"
     },
     "scripts": {
         "changed-files": [

@@ -27,14 +27,17 @@ class DirectoryRecordsAddAcronymsForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'directory_records_add_acronyms_form';
   }
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   * @return array<string, mixed>
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $form['description'] = [
       '#type' => 'processed_text',
       '#text' => $this->t('Submit this form to add or update the acronyms on records imported from Mothership.'),
@@ -58,9 +61,11 @@ class DirectoryRecordsAddAcronymsForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
    */
   #[\Override]
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     $all_files = $this->getRequest()->files->get('files', []);
     $file = $all_files['acronym_file'];
     if (isset($file)) {
@@ -78,8 +83,10 @@ class DirectoryRecordsAddAcronymsForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $acronyms = $form_state->get('acronyms');
     $firstrow = TRUE;
     foreach ($acronyms as $map_entry) {
