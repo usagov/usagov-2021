@@ -292,6 +292,40 @@ fi
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+
+  # Check if the sync command was successful
+  if [ $? -eq 0 ]; then
+      echo "Sync operation completed successfully." | tee -a "$TOMELOG"
+
+      # get a count of current AWS files, total and by extension
+      echo "S3 dir storage files : count total" | tee -a $TOMELOG
+      S3_COUNT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bweb\/s3\/files\/" | wc -l)
+      echo "     $S3_COUNT" | tee -a $TOMELOG
+
+      # get a count of tome generated files, total and by extension
+      echo "Tome generated files : count total" | tee -a $TOMELOG
+      TOME_COUNT=$(find $RENDER_DIR -type f 2>&1 | uniq | wc -l)
+      echo "      $TOME_COUNT" | tee -a $TOMELOG
+
+      # calculate the diff between s3 and tome
+      DIFF_S3_TOME=$(echo "scale=2; $S3_COUNT - $TOME_COUNT" | bc)
+      DIFF_S3_TOME=${DIFF_S3_TOME#-}
+      DIFF_S3_TOME_PCT=$(echo "scale=2; $DIFF_S3_TOME / $S3_COUNT" | bc)
+      DIFF_S3_TOME_PCT=${DIFF_S3_TOME_PCT#-}
+      DIFF_S3_TOME_IS_BAD=$(echo "scale=2; $DIFF_S3_TOME_PCT > $TOME_MAX_CHANGE_ALLOWED" | bc)
+      if [ "$DIFF_S3_TOME_IS_BAD" == "1" ]; then
+        echo "Warning: Mismatch detected! S3 has $S3_COUNT files, but local directory has $TOME_COUNT files." | tee -a "$TOMELOG"
+        exit 1
+      else
+        echo "Success: The number of files in S3 matches (close enough) to the local count." | tee -a "$TOMELOG"
+      fi
+
+  else
+      echo "Error: Sync operation failed." | tee -a "$TOMELOG"
+      exit 1
+  fi
+
+
   $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation and Sync Completed Successfully"
 else
   echo "Not pushing content to S3."
@@ -313,6 +347,23 @@ if [ -f "$TOMELOG" ]; then
   echo "Saving logs of this run to S3: $TOMELOG -> $BUCKET_NAME/tome-log/$TOMELOGFILE" | tee -a $TOMELOG
   echo "SYNC FINISHED" | tee -a $TOMELOG
   aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+
+  # Check if the AWS S3 copy command was successful
+  if [ $? -eq 0 ]; then
+      echo "s3-cp command successfully ran to copy log to S3." | tee -a "$TOMELOG"
+
+      # Verify the file exists in S3
+      aws s3 ls "s3://$BUCKET_NAME/tome-log/$TOMELOGFILE" > /dev/null 2>&1
+      if [ $? -eq 0 ]; then
+          echo "Confirmed: File exists in S3." | tee -a "$TOMELOG"
+      else
+          echo "Error: File not found in S3 after upload." | tee -a "$TOMELOG"
+          exit 1
+      fi
+  else
+      echo "Error: File upload failed." | tee -a "$TOMELOG"
+      exit 1
+  fi
 else
   echo "No logs of this run to S3 available"
   echo "SYNC FINISHED"
