@@ -8,6 +8,7 @@ injecting credentials while preventing client exposure.
 import logging
 import os
 
+import json
 import requests
 from urllib.parse import unquote
 from flask import Flask, Response, jsonify, request
@@ -21,47 +22,55 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Load API configuration
-# API_ENDPOINT = os.getenv("API_ENDPOINT")  # Base API URL (e.g., https://api.example.com)
-API_KEY = os.getenv("API_KEY")  # API Key for authentication
+VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
+VCAP_JSON = json.loads(VCAP_SERVICES) # Convert to JSON
+KEY_STORAGE = VCAP_JSON["user-provided"][0]["credentials"] # Get credentials
 
 @app.route("/proxy", methods=["GET", "POST", "PUT", "DELETE"])
 def proxy_request():
     """Universal API Proxy that securely forwards requests with API key injection."""
 
     params = request.args.to_dict()
+    if params["domain"] in KEY_STORAGE.keys():
+        if params["keyname"] in KEY_STORAGE[params["domain"]].keys():
+            for apikeys in KEY_STORAGE.values():
+                for apikey in apikeys.values():
+                    API_ENDPOINT = unquote(params["domain"] + params["endpoint"])
+                    API_KEY = apikey
 
-    API_ENDPOINT = unquote(params["api"] + params["endpoint"])
+                    # Remove proxy-specific parameters
+                    del params["domain"]
+                    del params["endpoint"]
+                    del params["keyname"]
 
-    if not API_ENDPOINT or not API_KEY:
-        logger.error("Missing API configuration (API_ENDPOINT or API_KEY)")
-        return jsonify({"error": "Missing API configuration"}), 500
+                    method = request.method
+                    headers = {"Content-Type": "application/json"}
 
-    method = request.method
-    headers = {"Content-Type": "application/json"}
+                    # Inject API key into query parameters
+                    params["api_key"] = API_KEY
 
-    # Inject API key into query parameters
-    params["api_key"] = API_KEY
+                    # Handle request body for POST/PUT
+                    data = request.get_json() if method in ["POST", "PUT"] else None
 
-    # Handle request body for POST/PUT
-    data = request.get_json() if method in ["POST", "PUT"] else None
+                    logger.info(
+                        "Forwarding %s request to %s with params %s", method, API_ENDPOINT, params
+                    )
 
-    # Remove proxy-specific parameters
-    del params["api"]
-    del params["endpoint"]
-
-    logger.info(
-        "Forwarding %s request to %s with params %s", method, API_ENDPOINT, params
-    )
-
-    try:
-        response = requests.request(
-            method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10
-        )
-        logger.info("API response status: %s", response.status_code)
-        return jsonify(response.json()), response.status_code
-    except requests.RequestException as e:
-        logger.error("API request failed: %s", str(e))
-        return jsonify({"error": "Failed to contact API", "details": str(e)}), 500
+                    try:
+                        response = requests.request(
+                            method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10
+                        )
+                        logger.info("API response status: %s", response.status_code)
+                        return jsonify(response.json()), response.status_code
+                    except requests.RequestException as e:
+                        logger.error("API request failed: %s", str(e))
+                        return jsonify({"error": "Failed to contact API", "details": str(e)}), 500
+        else:
+            logger.error("Key by that name not found in keystore, no keys available. Rejecting request.")
+            return jsonify({"error": "Key by that name not found in keystore, no keys available. Rejecting request."}), 500
+    else:
+        logger.error("Domain not found in keystore, no keys available. Rejecting request.")
+        return jsonify({"error": "Domain not found in keystore, no keys available. Rejecting request."}), 500
 
 @app.route("/", methods=["CONNECT"])
 def handle_connect():
