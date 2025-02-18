@@ -56,7 +56,14 @@ const usps_translations = {
         "invalid-zip": "Por favor, escriba un código postal válido de 5 dígitos."
     }
 };
-let usps_content = usps_translations[document.documentElement.lang];
+
+let usps_content;
+if (usagovUSPSErrors) {
+  usps_content = usagovUSPSErrors;
+}
+else {
+  usps_content = usps_translations[document.documentElement.lang];
+}
 
 // Changes state name to official postal abbreviations.
 // Note: The USPS API accepts the state name, but while testing, "Pennsylvania" returned an error in the API response.

@@ -7,6 +7,7 @@ dependencies:
     - field.field.paragraph.ceo_form.field_ceo_button_label
     - field.field.paragraph.ceo_form.field_ceo_city_error
     - field.field.paragraph.ceo_form.field_ceo_city_label
+    - field.field.paragraph.ceo_form.field_ceo_error_alert_heading
     - field.field.paragraph.ceo_form.field_ceo_lower_html
     - field.field.paragraph.ceo_form.field_ceo_required_instr
     - field.field.paragraph.ceo_form.field_ceo_results_ref
@@ -16,6 +17,10 @@ dependencies:
     - field.field.paragraph.ceo_form.field_ceo_street_label
     - field.field.paragraph.ceo_form.field_ceo_zip_error
     - field.field.paragraph.ceo_form.field_ceo_zip_label
+    - field.field.paragraph.ceo_form.field_usps_invalid_city_error
+    - field.field.paragraph.ceo_form.field_usps_invalid_street_error
+    - field.field.paragraph.ceo_form.field_usps_invalid_zip_error
+    - field.field.paragraph.ceo_form.field_usps_no_street_error
     - paragraphs.paragraphs_type.ceo_form
 id: paragraph.ceo_form.embed
 targetEntityType: paragraph
@@ -26,6 +31,7 @@ hidden:
   field_ceo_button_label: true
   field_ceo_city_error: true
   field_ceo_city_label: true
+  field_ceo_error_alert_heading: true
   field_ceo_lower_html: true
   field_ceo_required_instr: true
   field_ceo_results_ref: true
@@ -35,3 +41,7 @@ hidden:
   field_ceo_street_label: true
   field_ceo_zip_error: true
   field_ceo_zip_label: true
+  field_usps_invalid_city_error: true
+  field_usps_invalid_street_error: true
+  field_usps_invalid_zip_error: true
+  field_usps_no_street_error: true

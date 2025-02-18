@@ -6,6 +6,7 @@ dependencies:
     - field.field.paragraph.ceo_form.field_ceo_button_label
     - field.field.paragraph.ceo_form.field_ceo_city_error
     - field.field.paragraph.ceo_form.field_ceo_city_label
+    - field.field.paragraph.ceo_form.field_ceo_error_alert_heading
     - field.field.paragraph.ceo_form.field_ceo_lower_html
     - field.field.paragraph.ceo_form.field_ceo_required_instr
     - field.field.paragraph.ceo_form.field_ceo_results_ref
@@ -15,6 +16,10 @@ dependencies:
     - field.field.paragraph.ceo_form.field_ceo_street_label
     - field.field.paragraph.ceo_form.field_ceo_zip_error
     - field.field.paragraph.ceo_form.field_ceo_zip_label
+    - field.field.paragraph.ceo_form.field_usps_invalid_city_error
+    - field.field.paragraph.ceo_form.field_usps_invalid_street_error
+    - field.field.paragraph.ceo_form.field_usps_invalid_zip_error
+    - field.field.paragraph.ceo_form.field_usps_no_street_error
     - paragraphs.paragraphs_type.ceo_form
   module:
     - text
@@ -46,6 +51,14 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 6
+    region: content
+  field_ceo_error_alert_heading:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 16
     region: content
   field_ceo_lower_html:
     type: text_default
@@ -117,5 +130,37 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 5
+    region: content
+  field_usps_invalid_city_error:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 20
+    region: content
+  field_usps_invalid_street_error:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 17
+    region: content
+  field_usps_invalid_zip_error:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 19
+    region: content
+  field_usps_no_street_error:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 18
     region: content
 hidden: {  }

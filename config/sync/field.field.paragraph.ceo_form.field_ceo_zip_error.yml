@@ -10,7 +10,7 @@ field_name: field_ceo_zip_error
 entity_type: paragraph
 bundle: ceo_form
 label: 'Zip Error'
-description: ''
+description: 'Error shown if a user does not enter a ZIP code.'
 required: true
 translatable: false
 default_value: {  }

@@ -10,7 +10,7 @@ field_name: field_ceo_state_error
 entity_type: paragraph
 bundle: ceo_form
 label: 'State Error'
-description: ''
+description: 'Error shown if a user does not enter select a state.'
 required: true
 translatable: false
 default_value: {  }

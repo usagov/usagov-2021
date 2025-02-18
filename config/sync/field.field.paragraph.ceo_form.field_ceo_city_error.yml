@@ -10,8 +10,8 @@ field_name: field_ceo_city_error
 entity_type: paragraph
 bundle: ceo_form
 label: 'City Error'
-description: ''
-required: false
+description: 'Error shown if a user does not enter a city.'
+required: true
 translatable: false
 default_value: {  }
 default_value_callback: ''

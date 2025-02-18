@@ -6,6 +6,7 @@ dependencies:
     - field.field.paragraph.ceo_form.field_ceo_button_label
     - field.field.paragraph.ceo_form.field_ceo_city_error
     - field.field.paragraph.ceo_form.field_ceo_city_label
+    - field.field.paragraph.ceo_form.field_ceo_error_alert_heading
     - field.field.paragraph.ceo_form.field_ceo_lower_html
     - field.field.paragraph.ceo_form.field_ceo_required_instr
     - field.field.paragraph.ceo_form.field_ceo_results_ref
@@ -15,6 +16,10 @@ dependencies:
     - field.field.paragraph.ceo_form.field_ceo_street_label
     - field.field.paragraph.ceo_form.field_ceo_zip_error
     - field.field.paragraph.ceo_form.field_ceo_zip_label
+    - field.field.paragraph.ceo_form.field_usps_invalid_city_error
+    - field.field.paragraph.ceo_form.field_usps_invalid_street_error
+    - field.field.paragraph.ceo_form.field_usps_invalid_zip_error
+    - field.field.paragraph.ceo_form.field_usps_no_street_error
     - paragraphs.paragraphs_type.ceo_form
   module:
     - field_group
@@ -31,7 +36,7 @@ third_party_settings:
       label: 'Address Fields'
       region: content
       parent_name: ''
-      weight: 1
+      weight: 0
       format_type: fieldset
       format_settings:
         classes: ''
@@ -45,6 +50,7 @@ third_party_settings:
         weight: 0
     group_error_messages:
       children:
+        - field_ceo_error_alert_heading
         - field_ceo_street_error
         - field_ceo_city_error
         - field_ceo_state_error
@@ -52,7 +58,7 @@ third_party_settings:
       label: 'Error Messages'
       region: content
       parent_name: ''
-      weight: 3
+      weight: 2
       format_type: fieldset
       format_settings:
         classes: ''
@@ -69,7 +75,25 @@ third_party_settings:
       label: 'Submit Button'
       region: content
       parent_name: ''
-      weight: 2
+      weight: 1
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: ''
+        required_fields: true
+    group_usps_errors:
+      children:
+        - field_usps_invalid_street_error
+        - field_usps_no_street_error
+        - field_usps_invalid_city_error
+        - field_usps_invalid_zip_error
+      label: 'USPS Errors'
+      region: content
+      parent_name: ''
+      weight: 3
       format_type: fieldset
       format_settings:
         classes: ''
@@ -93,7 +117,7 @@ content:
     third_party_settings: {  }
   field_ceo_city_error:
     type: string_textfield
-    weight: 22
+    weight: 29
     region: content
     settings:
       size: 60
@@ -102,6 +126,14 @@ content:
   field_ceo_city_label:
     type: string_textfield
     weight: 4
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_error_alert_heading:
+    type: string_textfield
+    weight: 26
     region: content
     settings:
       size: 60
@@ -135,7 +167,7 @@ content:
     third_party_settings: {  }
   field_ceo_state_error:
     type: string_textfield
-    weight: 23
+    weight: 30
     region: content
     settings:
       size: 60
@@ -151,7 +183,7 @@ content:
     third_party_settings: {  }
   field_ceo_street_error:
     type: string_textfield
-    weight: 21
+    weight: 27
     region: content
     settings:
       size: 60
@@ -167,7 +199,7 @@ content:
     third_party_settings: {  }
   field_ceo_zip_error:
     type: string_textfield
-    weight: 24
+    weight: 31
     region: content
     settings:
       size: 60
@@ -176,6 +208,38 @@ content:
   field_ceo_zip_label:
     type: string_textfield
     weight: 6
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_usps_invalid_city_error:
+    type: string_textfield
+    weight: 34
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_usps_invalid_street_error:
+    type: string_textfield
+    weight: 32
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_usps_invalid_zip_error:
+    type: string_textfield
+    weight: 35
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_usps_no_street_error:
+    type: string_textfield
+    weight: 33
     region: content
     settings:
       size: 60

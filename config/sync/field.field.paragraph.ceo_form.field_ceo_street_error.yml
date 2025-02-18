@@ -10,8 +10,8 @@ field_name: field_ceo_street_error
 entity_type: paragraph
 bundle: ceo_form
 label: 'Street Address error'
-description: ''
-required: true
+description: 'Error shown if a user does not enter a street address.'
+required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''

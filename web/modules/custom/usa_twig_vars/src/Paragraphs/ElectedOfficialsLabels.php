@@ -15,6 +15,28 @@ class ElectedOfficialsLabels {
    *
    * @return array<string, mixed>
    */
+  public function getUSPSErrors(Paragraph $para, LanguageInterface $lang): array {
+    $overrides = $this->mapOverrides(
+      $para,
+      map: [
+        'field_ceo_street_error' => 'invalid-street',
+        'field_usps_no_street_error' => 'no-street',
+        'field_usps_invalid_city_error' => 'invalid-city',
+        'field_usps_invalid_zip_error' => 'invalid-zip',
+      ]
+    );
+
+    $defaults = $this->getFormDefaults($lang);
+    return array_replace_recursive($defaults, $overrides);
+  }
+  /**
+   * Merges customized labels with defaults for the current languages.
+   *
+   * This value is used as "ceoText" when building the UI for contact elected
+   * officials results page.
+   *
+   * @return array<string, mixed>
+   */
   public function getResultsLabels(Paragraph $para, LanguageInterface $lang): array {
     // Get the non-empty paragraph fields into an array structure for merging.
     // 1. Map fields to the defaults keys.
@@ -56,7 +78,8 @@ class ElectedOfficialsLabels {
 
     // Handle the URL for path-contact since we must look up the path alias.
     if ($para->get('field_ceo_results_contact_path')->getValue()) {
-      $target_node = $para->get('field_ceo_results_contact_path')->referencedEntities()[0];
+      $target_node = $para->get('field_ceo_results_contact_path')
+        ->referencedEntities()[0];
       $overrides['path-contact'] = $target_node->toUrl()->toString();
     }
 
@@ -145,6 +168,26 @@ class ElectedOfficialsLabels {
     }
 
     return [$key => $this->asArray($keys, $value)];
+  }
+
+  /**
+   * @return array<string, mixed>
+   */
+  private function getFormDefaults(LanguageInterface $lang): array {
+    return match ($lang->getId()) {
+      'en' => [
+        'invalid-street' => 'Please enter a valid street address.',
+        'no-street' => 'Address not found. Please enter a valid address.',
+        'invalid-city' => 'City not found. Please enter a valid city.',
+        'invalid-zip' => 'Please enter a valid 5-digit ZIP code.',
+      ],
+      'es' => [
+        'invalid-street' => 'Por favor, escriba una dirección válida.',
+        'no-street' => 'Dirección no encontrada. Por favor, escriba una dirección válida.',
+        'invalid-city' => 'Ciudad no encontrada. Por favor, escriba una ciudad válida.',
+        'invalid-zip' => 'Por favor, escriba un código postal válido de 5 dígitos.',
+      ],
+    };
   }
 
   /**

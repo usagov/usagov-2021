@@ -2,12 +2,12 @@
 
 {% if node.langcode.langcode == "es" %}
     {% set translations = {
-        'error_alert_heading': 'Su información contiene errores',
+        'select_your_state': 'Estado:',
 
     } %}
 {% else %}
     {% set translations = {
-        'error_alert_heading': 'Your information contains errors',
+        'select_your_state': 'Select your state',
     } %}
 {% endif %}
 
@@ -19,7 +19,7 @@
     class="usa-alert usa-alert--slim usa-alert--error usa-error--alert"
     tabindex="-1">
     <div class="usa-alert__body">
-      <h3 class="usa-alert__heading">{{ translations.error_alert_heading }}</h3>
+      <h3 class="usa-alert__heading">{{ elements.field_ceo_error_alert_heading|field_value }}</h3>
       <ul id="testing">
         <li id="error-street" class="usa-alert__text">
           <a href="#input-street"><span>{{ elements.field_ceo_street_error|field_value }}</span></a>
@@ -91,7 +91,7 @@
             .*\({{ '{{' }}query}}.*" -> suggest states with an abbreviation that matches the query #}
             <div class="usa-combo-box" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*|.*\({{ '{{' }}query}}.*">
               <label class="visuallyhidden" for="input-state">
-                Select your state:
+                {{ select_your_state }}
               </label>
               <select
                 aria-describedby="state"
@@ -190,3 +190,9 @@
   </form>
 </div>
 
+
+{% if ceoUSPSErrorsJSON %}
+    <script type="text/javascript">
+      let usagovUSPSErrors = {{ ceoUSPSErrorsJSON|raw }};
+    </script>
+{% endif %}
