@@ -31,40 +31,39 @@ def proxy_request():
     """Universal API Proxy that securely forwards requests with API key injection."""
 
     params = request.args.to_dict()
+
     if params["domain"] in KEY_STORAGE.keys():
         if params["keyname"] in KEY_STORAGE[params["domain"]].keys():
-            for apikeys in KEY_STORAGE.values():
-                for apikey in apikeys.values():
-                    API_ENDPOINT = unquote(params["domain"] + params["endpoint"])
-                    API_KEY = apikey
+            API_KEY = KEY_STORAGE[params["domain"]][params["keyname"]]
+            API_ENDPOINT = unquote(params["domain"] + params["endpoint"])
 
-                    # Remove proxy-specific parameters
-                    del params["domain"]
-                    del params["endpoint"]
-                    del params["keyname"]
+            # Remove proxy-specific parameters
+            del params["domain"]
+            del params["endpoint"]
+            del params["keyname"]
 
-                    method = request.method
-                    headers = {"Content-Type": "application/json"}
+            method = request.method
+            headers = {"Content-Type": "application/json"}
 
-                    # Inject API key into query parameters
-                    params["api_key"] = API_KEY
+            # Inject API key into query parameters
+            params["api_key"] = API_KEY
 
-                    # Handle request body for POST/PUT
-                    data = request.get_json() if method in ["POST", "PUT"] else None
+            # Handle request body for POST/PUT
+            data = request.get_json() if method in ["POST", "PUT"] else None
 
-                    logger.info(
-                        "Forwarding %s request to %s with params %s", method, API_ENDPOINT, params
-                    )
+            logger.info(
+                "Forwarding %s request to %s with params %s", method, API_ENDPOINT, params
+            )
 
-                    try:
-                        response = requests.request(
-                            method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10
-                        )
-                        logger.info("API response status: %s", response.status_code)
-                        return jsonify(response.json()), response.status_code
-                    except requests.RequestException as e:
-                        logger.error("API request failed: %s", str(e))
-                        return jsonify({"error": "Failed to contact API", "details": str(e)}), 500
+            try:
+                response = requests.request(
+                    method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10
+                )
+                logger.info("API response status: %s", response.status_code)
+                return jsonify(response.json()), response.status_code
+            except requests.RequestException as e:
+                logger.error("API request failed: %s", str(e))
+                return jsonify({"error": "Failed to contact API", "details": str(e)}), 500
         else:
             logger.error("Key by that name not found in keystore, no keys available. Rejecting request.")
             return jsonify({"error": "Key by that name not found in keystore, no keys available. Rejecting request."}), 500
