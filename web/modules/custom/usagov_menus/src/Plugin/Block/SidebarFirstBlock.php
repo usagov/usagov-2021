@@ -122,7 +122,7 @@ class SidebarFirstBlock extends AbstractMenuBlock {
   ): array {
 
     if (!empty($items['#items'])) {
-      $currentURL = $active?->getUrlObject()->toString();
+      $currentURL = $active?->getUrlObject()->toString() ?? "";
       if ($leaf) {
         $currentURL = $leaf['url'];
       }
