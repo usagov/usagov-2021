@@ -966,20 +966,6 @@ workflows:
     jobs:
       - approve-ip-allow-list-validation:
           type: approval
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
       - perform-ip-allow-list-validation:
           requires:
             - approve-ip-allow-list-validation
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
