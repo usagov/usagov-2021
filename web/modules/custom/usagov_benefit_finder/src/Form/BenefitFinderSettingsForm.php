@@ -17,7 +17,6 @@ class BenefitFinderSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  #[\Override]
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
 
@@ -36,7 +35,6 @@ class BenefitFinderSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  #[\Override]
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('usagov_benefit_finder.settings')
       ->set('automate_json_data_file_generating', $form_state->getValue('automate_json_data_file_generating'))

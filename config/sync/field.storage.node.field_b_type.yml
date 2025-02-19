@@ -12,9 +12,6 @@ type: list_string
 settings:
   allowed_values:
     -
-      value: Boolean
-      label: Boolean
-    -
       value: Date
       label: Date
     -
