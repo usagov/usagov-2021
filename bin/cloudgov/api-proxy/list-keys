@@ -20,7 +20,12 @@ service_exists()
       while read -r KEY; do
         KEY_NAME=$(jq -r '.key' <<< "$KEY")
         KEY_VALUE=$(jq -r '.value' <<< "$KEY")
-        echo "   🔑 $KEY_NAME: $KEY_VALUE"
+        API_KEY=$(jq -r '.APIKEY' <<< "$KEY_VALUE")
+        OPTIONS=$(jq -r '.OPTIONS' <<< "$KEY_VALUE")
+        echo "   🔑 $KEY_NAME: $API_KEY"
+        if [[ -n "$OPTIONS" ]]; then
+          echo "      🛠 Options: $OPTIONS"
+        fi
       done <<< "$KEYS"
     done
 

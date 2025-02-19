@@ -34,7 +34,7 @@ def proxy_request():
 
     if params["domain"] in KEY_STORAGE.keys():
         if params["keyname"] in KEY_STORAGE[params["domain"]].keys():
-            API_KEY = KEY_STORAGE[params["domain"]][params["keyname"]]
+            API_KEY = KEY_STORAGE[params["domain"]][params["keyname"]]["APIKEY"]
             API_ENDPOINT = unquote(params["domain"] + params["endpoint"])
 
             # Remove proxy-specific parameters

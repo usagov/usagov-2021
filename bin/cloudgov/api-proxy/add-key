@@ -10,6 +10,7 @@ service_exists()
 KEY_DOMAIN=${1:-} # The base url of the api.
 KEY_NAME=${2:-} # Arbitrary name for the key.
 KEY_VALUE=${3:-} # The api key value.
+OPTIONS=${4:-'{}'} # Optional json-formatted flags to attach to the key.
 
 {
   if service_exists "key-storage" ; then
@@ -54,10 +55,10 @@ KEY_VALUE=${3:-} # The api key value.
           echo "❌ Cancelling key import."
           exit 1;
       else
-        KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" '.[$KEY_DOMAIN][$KEY_NAME] = $KEY_VALUE' <<< "$KEY_STORE")
+        KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" --arg OPTIONS "$OPTIONS" '.[$KEY_DOMAIN][$KEY_NAME] = {"APIKEY": $KEY_VALUE, "OPTIONS": $OPTIONS}' <<< "$KEY_STORE")
       fi
     else
-      KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" '.[$KEY_DOMAIN][$KEY_NAME] = $KEY_VALUE' <<< "$KEY_STORE")
+      KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" --arg OPTIONS "$OPTIONS" '.[$KEY_DOMAIN][$KEY_NAME] = {"APIKEY": $KEY_VALUE, "OPTIONS": $OPTIONS}' <<< "$KEY_STORE")
     fi
 
     yes '' | cf update-user-provided-service key-storage -p "$KEY_STORE"
