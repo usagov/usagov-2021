@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e  # Exit on any error
 
-# this function is a convenient symantic wrapper around a one-liner
+# this function is a convenient semantic wrapper around a one-liner
 service_exists()
 {
   cf service "$1" >/dev/null 2>&1
