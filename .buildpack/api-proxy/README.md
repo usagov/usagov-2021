@@ -2,11 +2,9 @@
 
 ## 📌 Overview
 
-This project is a **Flask-based API Proxy** designed to securely **relay API requests** while **hiding API credentials** from users. It enables a **test client** to send API queries via the proxy, ensuring credentials remain **server-side only, meaning, ONLY on the api-proxy buildpack, NOT the client-test, it NEVER has credentials**.
+This project is a **Flask-based API Proxy** designed to securely **relay API requests** while **hiding API credentials** from users. It enables a **client** to send API queries via the proxy, ensuring credentials remain **server-side only**, meaning, **ONLY on the api-proxy buildpack, NOT the client, ever has credentials**.
 
 The **proxy application** intercepts API calls and appends the required API key **before forwarding requests** to the external API (e.g., `NASA.gov`). It is deployed using **Cloud Foundry** on **Cloud.gov**.
-
-This project was tested with **NASA.gov's** open **APOD API**, as well as **SAM.gov's** API.
 
 **Sign up for an instant NASA API Key at [https://api.nasa.gov](https://api.nasa.gov), export variables like example below.**
 
@@ -14,8 +12,10 @@ This project was tested with **NASA.gov's** open **APOD API**, as well as **SAM.
 
 ```plaintext
 ┌───────────────┐        ┌───────────────┐        ┌─────────────────┐
-│ Test Client   │  --->  │ API Proxy     │  --->  │ External API    │
-│ (requests)    │        │ (forwards)    │        │ (e.g., NASA.gov)│
+│               │        │ API Proxy     │        │                 │
+│    Client     │  --->  │ (forwards)    │  --->  │ External API    │
+│  (requests)   │        │ ^             │        │ (e.g., NASA.gov)│
+│               │        │ UPS Key Store │        │                 │
 └───────────────┘        └───────────────┘        └─────────────────┘
 ```
 
@@ -24,9 +24,9 @@ This project was tested with **NASA.gov's** open **APOD API**, as well as **SAM.
   - Version of Python and other libraries in Cloud.gov buildpacks are updated upon restart to ensure we have the most recent version of Python.
 - **Encrypted Container-to-Container Communication**: **This setup utilizes the automatic C2C network traffic encryption provided by Cloud.gov's Envoy proxy over port 61443**
   - As detailed in: [https://cloud.gov/docs/management/container-to-container/](https://cloud.gov/docs/management/container-to-container/)
-- **Test Client**: Python buildpack with nothing running in it but a forever sleep to keep it up.
   - Makes API requests but **lacks direct API credentials**.
-- **API Proxy**: Relays requests, checks formatting, and appends `API_KEY`, and forwards them securely.
+- **API Proxy**: Relays requests, checks formatting, and appends `API_KEY` from key store based upon API domain and key name, and forwards them securely.
+- **Key Store**: User provided service that contains key information for any given API with the option to attach option data for more complex API calls.
 - **External API**: The **actual API** (e.g., `NASA.gov`) that receives requests.
   - Code will have to be added to properly handle different APIs that may have different formatting requirements but the code in place can be used as a good template.
 
@@ -37,70 +37,41 @@ This project was tested with **NASA.gov's** open **APOD API**, as well as **SAM.
 - Cloud Foundry CLI (`cf`) must be installed
 - Access to **Cloud.gov** environment
 - A Cloud.gov **org & space targeted** (`cf login && cf target`)
-- You **MUST** manually export Environment variables:
-  - `API_ENDPOINT` (Base API URL)
-  - `API_KEY` (Secret API Key)
 
-### **2️⃣ Setup**
+### **2️⃣ Deploy**
 
-Set environment variables:
-
-To test with NASA's API, sign up for a key [here](https://api.nasa.gov/).
+To deploy the API Proxy, run:
 
 ```bash
-export API_ENDPOINT="https://api.nasa.gov/planetary/apod"
-export API_KEY="your-secret-key"
+bin/cloudgov/deploy-api-proxy
 ```
 
-To test with SAM.gov (you may need some additional permissions you might not be able to request that I have)
+- It **deploys the api-proxy**, **creates routes**, **maps routes**, **creates the key store**, and **sets network policies**.
 
-```bash
-export API_ENDPOINT="https://api.sam.gov/opportunities/v2/search"
-export API_KEY="your-secret-key"
-```
+### **3️⃣ Setup**
+
+You **MUST** push a key to the key store on the space the api-proxy lives on with the following data for the API you wish to call:
+
+- `DOMAIN` - Base API Domain
+- `NAME` - API Key Name
+- `API_KEY` - Secret API Key
+- `OPTIONS` - Optional data for complex API calls
+
+Pushing a key will look something like the following:
+`$ bin/cloudgov/api-proxy/add-key https://api.nasa.gov my_key xx12345xx {"optional": "data"}`
+
+You must perform this step after deploying the api-proxy since deployment actually creates the ups.
 
 Please try the API of your choice and report back!
 
-### **3️⃣ Deploy**
-
-To deploy the API Proxy & Test Client, run:
-
-```bash
-./deploy.sh
-```
-
-- The script will confirm **your Cloud Foundry org & space** before proceeding.
-- It **creates routes**, **deploys applications**, and **sets network policies**.
-- The expected output:
-
-  ```plaintext
-  🔍 You are deploying to:
-     🏢 Org:              sandbox-gsa
-     📌 Space:          xavier.metichecchia
-  ⚠️  Please verify this is the correct target before proceeding.
-  ❓ Proceed with deployment? (Y/N): Y
-  ✅ Configuration prepared
-  🔄 Checking routes...
-  ✅ All required routes already exist.
-  🚀 Deploying API Proxy...
-  ✅ API Proxy deployed successfully.
-  🚀 Deploying Test Client...
-  ✅ Test Client deployed successfully.
-  🔒 Configuring network policies...
-  ✅ Network policies added.
-  ✅ Cleanup complete.
-  🎉 Deployment completed successfully!
-  ```
-
 ## 🔧 Usage
 
-### **1️⃣ Make a request from the Test Client**
+### **1️⃣ Make a request**
 
 To test NASA.gov:
 
 ```bash
-cf ssh test-client
-curl -v "https://api-proxy.apps.internal:61443/proxy"
+curl -v "https://api-proxy.apps.internal:61443/proxy?domain=https://api.nasa.gov&endpoint=/planetary/apod&keyname=jacob_yeager"
 ```
 
 This request:
@@ -113,7 +84,7 @@ To test SAM.gov:
 
 ```bash
 cf ssh test-client
-curl -v "https://api-proxy.apps.internal:61443/proxy?postedFrom=01/01/2024&postedTo=01/31/2024"
+curl -v "https://api-proxy.apps.internal:61443/proxy?domain=https://api.sam.gov&endpoint=/opportunities/v2/search&keyname=jacob_yeager&postedFrom=01/01/2024&postedTo=01/31/2024"
 ```
 
 This request:
@@ -122,63 +93,8 @@ This request:
 - Appends `API_KEY`
 - Sends the request to `SAM.gov`
 
-## 🌎 Environment Variables
-
-| Variable       | Description        | Example Value                         |
-| -------------- | ------------------ | ------------------------------------- |
-| `API_ENDPOINT` | The base API URL   | `https://api.nasa.gov/planetary/apod` |
-| `API_KEY`      | The secret API key | `your-secret-key`                     |
-
-## Expected Results
-
-![image](https://github-production-user-asset-6210df.s3.amazonaws.com/90001763/409210411-b75901b6-118f-436c-a373-ac846fba0d2d.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250203%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250203T172951Z&X-Amz-Expires=300&X-Amz-Signature=65f57391f1cad892b3e1d6aa2250c2443ef172ca8672cd2084fc7bf57374edc0&X-Amz-SignedHeaders=host)
-
-## 🛠️ Troubleshooting
-
-### **❌ `API_KEY` Not Found**
-
-Check that `API_KEY` is set:
-
-```bash
-echo $API_KEY
-```
-
-If empty, export it:
-
-```bash
-export API_KEY="your-secret-key"
-```
-
-### **❌ Cloud Foundry Org/Space Not Set**
-
-Run:
-
-```bash
-cf target
-```
-
-Ensure it matches the expected **org & space**.
-
-### **❌ Deployment Fails**
-
-Try redeploying:
-
-```bash
-cf push -f api_proxy_manifest.yml
-cf push -f test_client_manifest.yml
-```
-
-### **❌ Proxy Returns 404**
-
-- Confirm the request URL is correct.
-- Ensure `api-proxy` is running:
-
-  ```bash
-  cf apps
-  ```
-
 ## 📌 Future Enhancements
 
-- [ ] **Convert deploy.sh to CI/CD Pipeline** To deploy in a more modern, supportable way.
-- [ ] **Add authentication** to restrict access to `api-proxy`
+- [ ] **Add caching** to speed up requests
 - [ ] **Enable logging aggregation** for API requests
+- [ ] **Enable rate limiting** for API requests

@@ -14,7 +14,7 @@ SPACE=$(cf target | awk '/space:/ {print $2}')
 # We will use $ORG and $SPACE to get unique host names. Sandbox space names have dots, so remove those.
 SPACE_NODOT=${SPACE//\./-}
 
-echo "✅ Proceeding with deployment..."
+echo "✅ Deploying api-proxy..."
 
 # Function to check and create missing routes
 declare -a new_routes=()
