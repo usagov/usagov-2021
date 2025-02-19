@@ -6,7 +6,9 @@
  */
 
 use Drupal\Core\Database\Database;
+use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeInterface;
 use Drupal\node\Entity\Node;
 
 /**
@@ -28,7 +30,7 @@ function usagov_benefit_finder_content_form_alter(&$form, &$form_state, $form_id
           $form['field_b_eligibility']['widget'][$i]['subform']['field_b_criteria_key']['widget']['#options'];
       }
       $i++;
-    } while ($i > 0);
+    } while (TRUE);
   }
 }
 
@@ -482,8 +484,16 @@ function usagov_benefit_finder_content_form_node_bears_life_event_form_edit_form
 function _usagov_benefit_finder_content_check_life_event_form_criteria_depth(array &$form, FormStateInterface $form_state) {
   $error_flag = FALSE;
   $criteria_depths = [];
+  $life_event_form_node = NULL;
 
-  $life_event_form_node = $form_state->getFormObject()->getEntity();
+  $form_object = $form_state->getFormObject();
+  if ($form_object instanceof EntityForm) {
+    $entity = $form_object->getEntity();
+    if ($entity instanceof NodeInterface) {
+      $life_event_form_node = $entity;
+    }
+  }
+
   $sections = $life_event_form_node->get('field_b_sections_elg_criteria')->referencedEntities();
 
   foreach ($sections as $section) {
