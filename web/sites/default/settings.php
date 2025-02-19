@@ -778,8 +778,6 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 #
 
 $settings['config_sync_directory'] = '/var/www/config/sync';
-$settings['install_profile'] = 'minimal';
-
 /**
  * Stock tome_static exclusion variable. Does not traverse directories.
  */
