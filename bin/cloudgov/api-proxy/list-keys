@@ -23,7 +23,7 @@ service_exists()
         API_KEY=$(jq -r '.APIKEY' <<< "$KEY_VALUE")
         OPTIONS=$(jq -r '.OPTIONS' <<< "$KEY_VALUE")
         echo "   🔑 $KEY_NAME: $API_KEY"
-        if [[ -n "$OPTIONS" ]]; then
+        if [[ -n "$OPTIONS" ]] && [[ "$OPTIONS" != '{}' ]]; then
           echo "      🛠 Options: $OPTIONS"
         fi
       done <<< "$KEYS"
