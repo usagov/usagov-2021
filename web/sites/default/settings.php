@@ -428,6 +428,19 @@ $settings['update_free_access'] = FALSE;
  */
 # $settings['omit_vary_cookie'] = TRUE;
 
+/**
+ * The state system in Drupal is used for storing variables and configuration that:
+ * 1. Don't need to be deployed between environments
+ * 2. Are specific to a site's current state
+ * 3. Can change frequently
+ *
+ * By default, Drupal stores state information in the database. However, you can configure $settings['state_cache']
+ * to use alternative storage backends for better performance.
+ * The most common use case for modifying state cache settings is to improve performance on high-traffic
+ * sites by moving state storage to a faster storage backend like Redis or Memcached.
+ */
+// Use the default database storage
+$settings['state_cache']['storage'] = 'DatabaseStorage';
 
 /**
  * Cache TTL for client error (4xx) responses.
@@ -519,7 +532,7 @@ $settings['update_free_access'] = FALSE;
  * Private file path:
  *
  * A local file system path where private files will be stored. This directory
- * must be absolute, outside of the Drupal installation directory and not
+ * must be absolute, outside the Drupal installation directory and not
  * accessible over the web.
  *
  * Note: Caches need to be cleared when this value is changed to make the
