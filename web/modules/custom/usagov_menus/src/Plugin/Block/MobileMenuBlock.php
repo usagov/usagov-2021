@@ -13,10 +13,15 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 )]
 class MobileMenuBlock extends AbstractMenuBlock {
 
+  /**
+   * @var array<string, string>
+   */
   private array $translations;
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
    */
   public function build(): array {
     switch ($this->language->getId()) {
@@ -75,9 +80,12 @@ class MobileMenuBlock extends AbstractMenuBlock {
 
   /**
    * Returns the render array to theme the navigation lists.
+   *
+   * @param array<string, mixed> $items
+   * @param array<string, mixed> $twigVars
+   * @return array<string, mixed>
    */
   private function renderItems(array $items, array $twigVars, string $menuID): array {
-
     $node = $this->routeMatch->getParameter('node');
     return array_merge(
       [
@@ -98,9 +106,9 @@ class MobileMenuBlock extends AbstractMenuBlock {
   }
 
   /**
-   * @param array $submenu A render-array with #items
+   * @param array<string, mixed> $submenu A render-array with #items
    *
-   * @return array
+   * @return array<string, mixed>
    */
   private function prepareMenuItemsForTemplate(array $submenu, MenuLinkInterface $active): array {
     $active_trail = [];
