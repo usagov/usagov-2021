@@ -31,7 +31,7 @@ commands:
          name: (POC) Build << parameters.appname >> app container
          no_output_timeout: 30m
          command: |
-           ./bin/cloudgov/container-build << parameters.appname >> << pipeline.number >> latest
+           ./bin/cloudgov/container-build-image << parameters.appname >> << pipeline.number >> latest
 
   poc-scan-container:
     parameters:
