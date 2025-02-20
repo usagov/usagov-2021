@@ -31,3 +31,14 @@ docker build --force-rm \
      --build-arg GITBRANCH=$GITBRANCH \
      --build-arg GITCOMMIT=$GITCOMMIT \
      --build-arg GITTAG=$GITTAG
+
+echo "This is a test"
+echo "This is a test"
+echo "This is a test"
+echo "This is a test"
+echo "This is a test"
+
+echo Running
+echo docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM --format '{{json .RepoDigests}}'
+docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM --format '{{json .RepoDigests}}'
+
