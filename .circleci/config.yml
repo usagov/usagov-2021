@@ -912,7 +912,7 @@ workflows:
           requires:
             - approve-poc-build-containers
 
-  poc-scan-only:
+  poc-build-and-scan:
     jobs:
       - approve-poc-build-and-scan-containers:
           type: approval
