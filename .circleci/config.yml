@@ -233,6 +233,7 @@ commands:
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
             . ./bin/cloudgov/get-s3-access key-value
+            mkdir /tmp/results || true
             echo "$REPORTER_DIGEST" > /tmp/results/reporter_digest
             aws s3 cp /tmp/results/reporter_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-<< pipeline.number >>
       - run:
