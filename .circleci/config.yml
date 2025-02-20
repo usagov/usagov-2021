@@ -240,6 +240,7 @@ commands:
             docker images --no-trunc --quiet
             export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
             echo RDIG is $RDIG
+            echo RDIG is $RDIG
             ./bin/cloudgov/container-push-reporter
       - run:
           name: Deploy Analytics Reporter
