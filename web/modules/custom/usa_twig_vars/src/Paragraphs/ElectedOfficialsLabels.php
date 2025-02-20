@@ -15,7 +15,7 @@ class ElectedOfficialsLabels {
    *
    * @return array<string, mixed>
    */
-  public function getUSPSErrors(Paragraph $para, LanguageInterface $lang): array {
+  public function getUspsErrors(Paragraph $para, LanguageInterface $lang): array {
     $overrides = $this->mapOverrides(
       $para,
       map: [
@@ -29,6 +29,7 @@ class ElectedOfficialsLabels {
     $defaults = $this->getFormDefaults($lang);
     return array_replace_recursive($defaults, $overrides);
   }
+
   /**
    * Merges customized labels with defaults for the current languages.
    *
@@ -187,6 +188,7 @@ class ElectedOfficialsLabels {
         'invalid-city' => 'Ciudad no encontrada. Por favor, escriba una ciudad válida.',
         'invalid-zip' => 'Por favor, escriba un código postal válido de 5 dígitos.',
       ],
+      default => throw new \InvalidArgumentException("Unrecognized language argument"),
     };
   }
 

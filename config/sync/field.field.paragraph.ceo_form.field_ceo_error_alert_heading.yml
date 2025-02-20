@@ -1,0 +1,19 @@
+uuid: b4088dbb-d08c-4aed-9856-25b7baa5b816
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_error_alert_heading
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_ceo_error_alert_heading
+field_name: field_ceo_error_alert_heading
+entity_type: paragraph
+bundle: ceo_form
+label: 'Error alert heading'
+description: 'Heading used for validation errors.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

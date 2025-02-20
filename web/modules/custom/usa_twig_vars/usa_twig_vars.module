@@ -434,9 +434,10 @@ function usa_twig_vars_preprocess_paragraph(&$variables): void {
   switch ($paragraph->getParagraphType()->id()) {
     case 'ceo_form':
       $labelMaker = new ElectedOfficialsLabels();
-      $uspsErrors = $labelMaker->getUSPSErrors($paragraph, $lang);
+      $uspsErrors = $labelMaker->getUspsErrors($paragraph, $lang);
       $variables['ceoUSPSErrorsJSON'] = usa_twig_vars_json_encode($uspsErrors);
       break;
+
     case 'ceo_results':
       $labelMaker = new ElectedOfficialsLabels();
       $ceoLabels = $labelMaker->getResultsLabels($paragraph, $lang);
