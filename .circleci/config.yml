@@ -220,7 +220,7 @@ commands:
             ./bin/cloudgov/container-build-reporter
             echo "docker images --no-trunc --quiet"
             docker images --no-trunc --quiet
-            export RDIG=`docker images --no-trunc --quiet`
+            export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
             echo RDIG is $RDIG
       - run:
           name: This is a test
@@ -238,7 +238,7 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             echo "docker images --no-trunc --quiet"
             docker images --no-trunc --quiet
-            export RDIG=`docker images --no-trunc --quiet`
+            export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
             echo RDIG is $RDIG
             ./bin/cloudgov/container-push-reporter
       - run:
