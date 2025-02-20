@@ -23,6 +23,9 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  *    current page (plus siblings)
  *  - Agency and State nodes have custom behavior to show 3 levels plus a link
  *    to the current page.
+ *
+ * @phpstan-import-type MenuLinkContentArray from AbstractMenuBlock
+ * @phpstan-import-type MenuLinkContentObject from AbstractMenuBlock
  */
 #[Block(
   id: "usagov_sidebarfirst_block",
@@ -40,6 +43,7 @@ class SidebarFirstBlock extends AbstractMenuBlock {
    * {@inheritdoc}
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @return array<string, mixed>
    */
   public function build(): array {
     $menuID = match ($this->language->getId()) {
@@ -69,6 +73,7 @@ class SidebarFirstBlock extends AbstractMenuBlock {
   /**
    * Builds the left navigation based on the current page's menu item.
    *
+   * @return array<string, mixed>
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   private function buildFromMenu(string $menuID): array {
@@ -87,9 +92,10 @@ class SidebarFirstBlock extends AbstractMenuBlock {
   /**
    * Builds the left navigation for an agency or state page.
    *
+   * @return array<string, mixed>
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  private function buildFromParentNodeId(string $menuID, $parentNodeID, bool $closeLastTrail = FALSE): array {
+  private function buildFromParentNodeId(string $menuID, int $parentNodeID, bool $closeLastTrail = FALSE): array {
     $menu_links = $this->menuLinkManager->loadLinksByRoute('entity.node.canonical', ['node' => $parentNodeID], $menuID);
     $active = array_pop($menu_links);
     $crumbs = $this->getParents($active);
@@ -103,6 +109,10 @@ class SidebarFirstBlock extends AbstractMenuBlock {
 
   /**
    * Returns the render array to theme the navigation lists.
+   *
+   * @param array<string, mixed> $items
+   * @param array{}|array{title: string, url: string} $leaf
+   * @return array<string, mixed>
    */
   private function renderItems(
     array $items,
@@ -112,7 +122,7 @@ class SidebarFirstBlock extends AbstractMenuBlock {
   ): array {
 
     if (!empty($items['#items'])) {
-      $currentURL = $active?->getUrlObject()->toString();
+      $currentURL = $active?->getUrlObject()->toString() ?? "";
       if ($leaf) {
         $currentURL = $leaf['url'];
       }
@@ -143,8 +153,12 @@ class SidebarFirstBlock extends AbstractMenuBlock {
    * and an optional leaf to supply current page values when the current page is not in this menu.
    *
    * Returns a new tree containing only the items and values needed for the sidebar twig template.
+   *
+   * @param MenuLinkContentArray[] $items
+   * @param array{}|array{title: string, url: string} $leaf
+   * @return MenuLinkContentObject[]
    */
-  private function prepareMenuItemsForTemplate($items, $currentURL, $leaf): array {
+  private function prepareMenuItemsForTemplate(array $items, string $currentURL, array $leaf = []): array {
     $menuTree = [];
     foreach ($items as $item) {
       $below = NULL;
@@ -156,7 +170,7 @@ class SidebarFirstBlock extends AbstractMenuBlock {
         elseif ($leaf) {
           // This $item is active with no children. So if a $leaf was provided,
           // then it goes below this $item.
-          $below = $this->prepareMenuItemsForTemplate([$leaf], $currentURL, NULL);
+          $below = $this->prepareMenuItemsForTemplate([$leaf], $currentURL, []);
         }
       }
       $url = $item['url'];
