@@ -777,6 +777,11 @@ content:
     settings:
       display_label: true
     third_party_settings: {  }
+  scheduler_settings:
+    weight: 50
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   simple_sitemap:
     weight: 11
     region: content
@@ -827,3 +832,5 @@ content:
 hidden:
   field_is_navigation_page: true
   menu_entity_index: true
+  publish_on: true
+  unpublish_on: true
