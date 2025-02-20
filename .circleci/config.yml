@@ -9,7 +9,6 @@ executors:
 commands:
 
   poc-setup-script-environment:
-    executor: build-scripts-image
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -27,7 +26,6 @@ commands:
             touch /tmp/results/benchmark-container-cis.log
 
   poc-build-prerequisites:
-    executor: build-scripts-image
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
@@ -36,7 +34,6 @@ commands:
       - poc-setup-script-environment
 
   poc-build-container:
-    executor: build-scripts-image
     parameters:
       appname:
         default: "cms"
@@ -49,7 +46,6 @@ commands:
            ./bin/cloudgov/container-build << parameters.appname >> << pipeline.number >> latest
 
   poc-scan-container:
-    executor: build-scripts-image
     parameters:
       appname:
         default: "cms"
@@ -69,7 +65,6 @@ commands:
             exit 0
 
   poc-cis-benchmark:
-    executor: build-scripts-image
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
