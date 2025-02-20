@@ -355,6 +355,21 @@ jobs:
       - poc-build-container:
           appname: www
 
+  poc-scan-containers:
+    executor: build-scripts-image
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - checkout
+      - signed-dockerhub-login
+      - poc-setup-script-environment
+      - poc-scan-container:
+          appname: cms
+      - poc-scan-container:
+          appname: waf
+      - poc-scan-container:
+          appname: www
+
   poc-build-and-scan-containers:
     executor: build-scripts-image
     environment:
@@ -911,6 +926,18 @@ workflows:
       - poc-build-containers:
           requires:
             - approve-poc-build-containers
+
+  poc-scan-only:
+    jobs:
+      - approve-poc-scan-containers:
+          type: approval
+          filters:
+            branches:
+              only:
+                 - USAGOV-2266-reduce-scan-count
+      - poc-scan-containers:
+          requires:
+            - approve-poc-scan-containers
 
   poc-build-and-scan:
     jobs:
