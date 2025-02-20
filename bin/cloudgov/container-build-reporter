@@ -41,6 +41,13 @@ echo "This is a test"
 echo docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM
 docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM
 
+echo test
+echo test
+echo test
+echo test
+
+echo docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM --format '{{json .RepoDigests}}'
+docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM --format '{{json .RepoDigests}}'
 
 echo "This is a test"
 echo "This is a test"
