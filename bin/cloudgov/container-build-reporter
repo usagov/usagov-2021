@@ -9,6 +9,8 @@ DOCKERREPO=${DOCKERREPO:-usagov-2021}
 GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
 GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "")
+CONTAINERTAG=${1:-$GITBRANCH}
+CONTAINERTAG2=${2}
 
 # If the caddy binary is not already in place, retrieve the latest from cg-egress-proxy.
 # (Latest? We are trusting their review process.)
@@ -23,34 +25,23 @@ else
     $output rm -rf tmp-caddy-build
 fi
 
-echo "Building ${DOCKERUSER}/${DOCKERREPO}:reporter-$CIRCLE_BUILD_NUM"
+echo "Building ${DOCKERUSER}/${DOCKERREPO}:reporter-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 docker build --force-rm \
-     -t $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM \
+     -t $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG \
      -f .docker/Dockerfile-reporter . \
      --build-arg GITBRANCH=$GITBRANCH \
      --build-arg GITCOMMIT=$GITCOMMIT \
      --build-arg GITTAG=$GITTAG
 
-echo "This is a test"
-echo "This is a test"
-echo "This is a test"
-echo "This is a test"
-echo "This is a test"
+echo "Running the Docker container"
+export DOCKER_CONTENT_TRUST=0
+docker run -d --name cms-container --rm $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG
+export DOCKER_CONTENT_TRUST=1
 
-echo docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM
-docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM
 
-echo test
-echo test
-echo test
-echo test
-
-echo docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM --format '{{json .RepoDigests}}'
-docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM --format '{{json .RepoDigests}}'
-
-echo "This is a test"
-echo "This is a test"
-echo "This is a test"
-echo "This is a test"
-echo "This is a test"
+if [ -n "$CONTAINERTAG2" ]
+then
+     echo "docker tag $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG2"
+     docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG2
+fi
