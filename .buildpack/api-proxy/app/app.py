@@ -10,6 +10,7 @@ import os
 
 import json
 import requests
+import requests_cache
 from urllib.parse import unquote
 from flask import Flask, Response, jsonify, request
 
@@ -20,6 +21,17 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+requests_cache.install_cache(
+    'api-proxy-cache',
+    backend='filesystem',
+    use_cache_dir=True,
+    cache_control=True,
+    expire_after=86400,
+    allowable_codes=[200, 400],
+    match_headers=['Accept-Language'],
+    stale_if_error=True,
+)
 
 # Load API configuration
 VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
