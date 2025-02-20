@@ -36,12 +36,12 @@ docker build --force-rm \
 
 echo "Running the Docker container"
 export DOCKER_CONTENT_TRUST=0
-docker run -d --name cms-container --rm $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG
+docker run -d --name reporter-container --rm $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG
 export DOCKER_CONTENT_TRUST=1
 
 
 if [ -n "$CONTAINERTAG2" ]
 then
      echo "docker tag $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG2"
-     docker tag $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG2
+     docker tag $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG2
 fi
