@@ -227,9 +227,7 @@ commands:
           command: |
             echo "docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'"
             docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'
-            export RDIG=`docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'`
-            echo RDIG is $RDIG
-            REPORTER_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:reporter-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
+            export REPORTER_DIGEST=`docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'`
             echo "REPORTER_DIGEST is: "
             echo $REPORTER_DIGEST
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
