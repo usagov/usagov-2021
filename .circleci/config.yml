@@ -9,11 +9,7 @@ executors:
 commands:
 
   poc-setup-script-environment:
-    environment:
-      BASH_ENV: /home/circleci/project/env.local
     steps:
-      - checkout
-      - signed-dockerhub-login
       - run:
           name: (POC) Setup Environment for use in Scripts
           command: |
@@ -24,14 +20,6 @@ commands:
             touch /tmp/results/scan-cms-container.log
             touch /tmp/results/scan-waf-container.log
             touch /tmp/results/benchmark-container-cis.log
-
-  poc-build-prerequisites:
-    environment:
-      BASH_ENV: /home/circleci/project/env.local
-    steps:
-      - checkout
-      - signed-dockerhub-login
-      - poc-setup-script-environment
 
   poc-build-container:
     parameters:
@@ -50,8 +38,6 @@ commands:
       appname:
         default: "cms"
         type: string
-    environment:
-      BASH_ENV: /home/circleci/project/env.local
     steps:        
       - run:
           name: (POC) Scan << parameters.appname >> app
@@ -65,8 +51,6 @@ commands:
             exit 0
 
   poc-cis-benchmark:
-    environment:
-      BASH_ENV: /home/circleci/project/env.local
     steps:
       - run:
           name: (POC) Prepare for CIS Benchmarks
@@ -358,8 +342,12 @@ jobs:
 
   poc-build-containers:
     executor: build-scripts-image
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
     steps:
-      - poc-build-prerequisites
+      - checkout
+      - signed-dockerhub-login
+      - poc-setup-script-environment
       - poc-build-container:
           appname: cms
       - poc-build-container:
@@ -369,6 +357,8 @@ jobs:
 
   poc-scan-containers:
     executor: build-scripts-image
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
     steps:
       - poc-scan-container:
           appname: cms
