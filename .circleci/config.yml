@@ -28,7 +28,7 @@ commands:
         type: string
     steps:
       - run:
-         name: (POC) Build Container
+         name: (POC) Build << parameters.appname >> app container
          no_output_timeout: 30m
          command: |
            ./bin/cloudgov/container-build << parameters.appname >> << pipeline.number >> latest
@@ -40,7 +40,7 @@ commands:
         type: string
     steps:        
       - run:
-          name: (POC) Scan << parameters.appname >> app
+          name: (POC) Scan << parameters.appname >> app container
           command: |
             UPPER_APP="$(echo << parameters.appname >> | tr 'a-z' 'A-Z')"
             LOWER_APP="$(echo << parameters.appname >> | tr 'A-Z' 'a-z')"
@@ -355,11 +355,20 @@ jobs:
       - poc-build-container:
           appname: www
 
-  poc-scan-containers:
+  poc-build-and-scan-containers:
     executor: build-scripts-image
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
+      - checkout
+      - signed-dockerhub-login
+      - poc-setup-script-environment
+      - poc-build-container:
+          appname: cms
+      - poc-build-container:
+          appname: waf
+      - poc-build-container:
+          appname: www
       - poc-scan-container:
           appname: cms
       - poc-scan-container:
@@ -905,15 +914,15 @@ workflows:
 
   poc-scan-only:
     jobs:
-      - approve-poc-scan-containers:
+      - approve-poc-build-and-scan-containers:
           type: approval
           filters:
             branches:
               only:
                  - USAGOV-2266-reduce-scan-count
-      - poc-scan-containers:
+      - poc-build-and-scan-containers:
           requires:
-            - approve-poc-scan-containers
+            - approve-poc-build-and-scan-containers
 
   build-and-deploy:
     jobs:
