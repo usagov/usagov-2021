@@ -225,9 +225,9 @@ commands:
       - run:
           name: Save Image Digest Reporter
           command: |
-            echo "docker images --no-trunc --quiet"
-            docker images --no-trunc --quiet
-            export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
+            echo "docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'"
+            docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'
+            export RDIG=`docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'`
             echo RDIG is $RDIG
             REPORTER_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:reporter-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             echo "REPORTER_DIGEST is: "
