@@ -223,13 +223,17 @@ commands:
             export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
             echo RDIG is $RDIG
       - run:
-          name: This is a test
+          name: Save Image Digest Reporter
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
-            echo RDIG is
-            echo $RDIG
-            echo "docker images --no-trunc --quiet"
-            docker images --no-trunc --quiet
+            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:reporter-<< pipeline.number >>)
+            REPORTER_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:reporter-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
+            echo "REPORTER_DIGEST is: "
+            echo $REPORTER_DIGEST
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            echo "$REPORTER_DIGEST" > /tmp/results/reporter_digest
+            aws s3 cp /tmp/results/reporter_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-<< pipeline.number >>
       - run:
           name: Push Reporter Container to Docker Hub
           command: |
