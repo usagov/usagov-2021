@@ -2,8 +2,11 @@
 
 /**
  * Implements hook_theme().
+ *
+ * @param array<string, mixed> $existing
+ * @return array<string, mixed>
  */
-function usagov_menus_theme($existing, $type, $theme, $path) {
+function usagov_menus_theme(array $existing, string $type, string $theme, string $path): array {
   return [
     'usagov_menu_mobile' => [
       'variables' => [
