@@ -225,7 +225,10 @@ commands:
       - run:
           name: Save Image Digest Reporter
           command: |
-            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:reporter-<< pipeline.number >>)
+            echo "docker images --no-trunc --quiet"
+            docker images --no-trunc --quiet
+            export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
+            echo RDIG is $RDIG
             REPORTER_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:reporter-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             echo "REPORTER_DIGEST is: "
             echo $REPORTER_DIGEST
