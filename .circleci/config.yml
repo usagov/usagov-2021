@@ -372,24 +372,21 @@ jobs:
 
   poc-build-container-cms:
     executor: build-scripts-image
-    parameters:
-      appname: "cms"
     steps:
-      - poc-build-container
+      - poc-build-container:
+          appname: cms
 
   poc-build-container-waf:
     executor: build-scripts-image
-    parameters:
-      appname: "waf"
     steps:
-      - poc-build-container
+      - poc-build-container:
+          appname: waf
 
   poc-build-container-www:
     executor: build-scripts-image
-    parameters:
-      appname: "www"
     steps:
-      - poc-build-container
+      - poc-build-container:
+          appname: www
 
   poc-build-containers:
     executor: build-scripts-image
@@ -401,24 +398,21 @@ jobs:
 
   poc-scan-container-cms:
     executor: build-scripts-image
-    parameters:
-      appname: "cms"
     steps:
-      - poc-scan-container
+      - poc-scan-container:
+          appname: cms
 
   poc-scan-container-waf:
     executor: build-scripts-image
-    parameters:
-      appname: "waf"
     steps:
-      - poc-scan-container
+      - poc-scan-container:
+          appname: waf
 
   poc-scan-container-www:
     executor: build-scripts-image
-    parameters:
-      appname: "www"
     steps:
-      - poc-scan-container
+      - poc-scan-container:
+          appname: cms
 
   poc-scan-containers:
     executor: build-scripts-image
@@ -429,24 +423,21 @@ jobs:
 
   poc-build-and-scan-container-cms:
     executor: build-scripts-image
-    parameters:
-      appname: "cms"
     steps:
-      - poc-build-and-scan-container
+      - poc-build-and-scan-container:
+          appname: cms
 
   poc-build-and-scan-container-waf:
     executor: build-scripts-image
-    parameters:
-      appname: "waf"
     steps:
-      - poc-build-and-scan-container
+      - poc-build-and-scan-container:
+          appname: waf
 
   poc-build-and-scan-container-www:
     executor: build-scripts-image
-    parameters:
-      appname: "www"
     steps:
-      - poc-build-and-scan-container
+      - poc-build-and-scan-container:
+          appname: waf
 
   poc-build-and-scan-containers:
     executor: build-scripts-image
