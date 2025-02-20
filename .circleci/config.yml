@@ -300,7 +300,7 @@ jobs:
          name: (POC) Build Container
          no_output_timeout: 30m
          command: |
-           ./bin/cloudgov/container-build << appname >> << pipeline.number >> latest
+           ./bin/cloudgov/container-build << parameters.appname >> << pipeline.number >> latest
 
   poc-scan-container:
     executor: build-scripts-image
@@ -312,10 +312,10 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:        
       - run:
-          name: (POC) Scan << appname >> app
+          name: (POC) Scan << parameters.appname >> app
           command: |
-            UPPER_APP="$(echo << appname >> | tr 'a-z' 'A-Z')"
-            LOWER_APP="$(echo << appname >> | tr 'A-Z' 'a-z')"
+            UPPER_APP="$(echo << parameters.appname >> | tr 'a-z' 'A-Z')"
+            LOWER_APP="$(echo << parameters.appname >> | tr 'A-Z' 'a-z')"
             SCAN_RESULT=0
             if (./bin/scan-container ${LOWER_APP} << pipeline.number >> high | tee /tmp/results/scan-${LOWER_APP}-container.log); then export SCAN_RESULT=0; else export SCAN_RESULT=$?; fi
             echo "${UPPER_APP} Container Scan return code: $SCAN_RESULT" | tee -a /tmp/results/scan-${LOWER_APP}-container.log
@@ -373,21 +373,21 @@ jobs:
   poc-build-container-cms:
     executor: build-scripts-image
     parameters:
-      appname: cms
+      appname: "cms"
     steps:
       - poc-build-container
 
   poc-build-container-waf:
     executor: build-scripts-image
     parameters:
-      appname: waf
+      appname: "waf"
     steps:
       - poc-build-container
 
   poc-build-container-www:
     executor: build-scripts-image
     parameters:
-      appname: www
+      appname: "www"
     steps:
       - poc-build-container
 
@@ -402,21 +402,21 @@ jobs:
   poc-scan-container-cms:
     executor: build-scripts-image
     parameters:
-      appname: cms
+      appname: "cms"
     steps:
       - poc-scan-container
 
   poc-scan-container-waf:
     executor: build-scripts-image
     parameters:
-      appname: waf
+      appname: "waf"
     steps:
       - poc-scan-container
 
   poc-scan-container-www:
     executor: build-scripts-image
     parameters:
-      appname: www
+      appname: "www"
     steps:
       - poc-scan-container
 
@@ -430,21 +430,21 @@ jobs:
   poc-build-and-scan-container-cms:
     executor: build-scripts-image
     parameters:
-      appname: cms
+      appname: "cms"
     steps:
       - poc-build-and-scan-container
 
   poc-build-and-scan-container-waf:
     executor: build-scripts-image
     parameters:
-      appname: waf
+      appname: "waf"
     steps:
       - poc-build-and-scan-container
 
   poc-build-and-scan-container-www:
     executor: build-scripts-image
     parameters:
-      appname: www
+      appname: "www"
     steps:
       - poc-build-and-scan-container
 
