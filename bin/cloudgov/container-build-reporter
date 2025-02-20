@@ -38,11 +38,8 @@ echo "This is a test"
 echo "This is a test"
 echo "This is a test"
 
-IMAGE_ID=$(docker images --no-trunc --quiet $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM)
-echo "IMAGE_ID IS: "
-echo $IMAGE_ID
-
-docker inspect --format='{{index .RepoDigests 0}}' $IMAGE_ID
+echo docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM
+docker inspect $DOCKERUSER/$DOCKERREPO:reporter-$CIRCLE_BUILD_NUM
 
 
 echo "This is a test"
