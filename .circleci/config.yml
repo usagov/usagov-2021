@@ -391,7 +391,6 @@ jobs:
   poc-build-containers:
     executor: build-scripts-image
     steps:
-      - poc-build-prerequisites
       - poc-build-container-cms
       - poc-build-container-waf
       - poc-build-container-www
@@ -442,7 +441,6 @@ jobs:
   poc-build-and-scan-containers:
     executor: build-scripts-image
     steps:
-      - poc-build-prerequisites
       - poc-build-and-scan-container-cms
       - poc-build-and-scan-container-waf
       - poc-build-and-scan-container-www
