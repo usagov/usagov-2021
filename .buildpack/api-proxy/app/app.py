@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 requests_cache.install_cache(
     'api-proxy-cache',
     backend='filesystem',
-    use_cache_dir=True,
+    use_cache_dir=False,
     cache_control=True,
     expire_after=86400,
     allowable_codes=[200, 400],
