@@ -25,12 +25,6 @@ limiter = Limiter(
     storage_uri="memory://",
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
-
 requests_cache.install_cache(
     'api-proxy-cache',
     backend='filesystem',
@@ -41,6 +35,12 @@ requests_cache.install_cache(
     match_headers=['Accept-Language'],
     stale_if_error=True,
 )
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 # Load API configuration
 VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
