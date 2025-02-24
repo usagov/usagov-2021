@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+if [ -z "$TOKEN" ]; then
+  echo "No token, no service"
+fi
+
+d_string='{"identitytoken": "$TOKEN"}'
+echo curl -s -H "Content-Type: application/json" \
+ -d "$d_string" \
+ -X DELETE \
+ https://hub.docker.com/v2/namespaces/gsatts/repositories/usagov-2021/tags/cms-3557
