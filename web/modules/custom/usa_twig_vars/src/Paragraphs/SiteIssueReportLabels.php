@@ -98,6 +98,7 @@ class SiteIssueReportLabels {
 //        'field_sirf_submit_button' => 'submit-button',
     return match ($lang->getId()) {
       'en' => [
+        'all-fields-required' => 'All fields are required.',
         'error-heading' => 'Your information contains errors',
         'missing-description' => 'Fill out the description field',
         'missing-email' => 'Fill out the email field',
@@ -110,6 +111,7 @@ class SiteIssueReportLabels {
         'label-char-limit' => 'Maximum length is 1000 characters.',
       ],
       'es' => [
+        'all-fields-required' => 'Todos los campos son obligatorios.',
         'error-heading' => 'Su información contiene errores',
         'missing-description' => 'Escriba la descripción',
         'missing-email' => 'Escriba su email',
