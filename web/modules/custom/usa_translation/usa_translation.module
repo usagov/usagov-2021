@@ -30,6 +30,8 @@ function usa_translation_node_translation_delete(NodeInterface $node): void {
 
 /**
  * Implements hook_page_attachments_alter().
+ *
+ * @param array<string, mixed> $page
  */
 function usa_translation_page_attachments_alter(array &$page): void {
   $cache = CacheableMetadata::createFromRenderArray($page);
