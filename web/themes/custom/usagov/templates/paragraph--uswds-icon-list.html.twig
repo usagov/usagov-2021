@@ -92,12 +92,12 @@
       {% if node.langcode.langcode == "es" %}
         {% set icon_parts = icon_parts|reverse %}
       {% endif %}
-      
+
       {% set iconAlt = icon_parts|join(' ') %}
 
       <li class="usa-icon-list__item">
         <div class="usa-icon-list__icon {{ color ? 'text-'~color : '' }}">
-          <svg class="usa-icon" role="img" alt="{{ iconAlt }}" aria-label="{{ iconAlt }}">
+          <svg class="usa-icon" role="img" aria-label="{{ iconAlt }}">
             <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#{{ icon }}"></use>
           </svg>
         </div>
