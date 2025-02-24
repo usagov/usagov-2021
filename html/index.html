@@ -26,8 +26,25 @@
 <link rel="preload" href="/s3/files/styles/max_3072w/public/2023-02/Homepage_Banner.png.webp?itok=rx_HtUNw" as="image" media="(min-width: 3072px)">
 
 <title>Making government services easier to find | USAGov</title>
-  <link rel="stylesheet" media="all" href="/sites/default/files/css/css__7_lnIX5SUimudYZT0iqhhe0r5Ev1QE4En7-BEPHMeY.css?delta=0&amp;language=en&amp;theme=usagov&amp;include=eJwdykEOwCAIBMAP2fIkg5EQEtDDqo2_b-tlToONIUGFIWmCtS9S74X9wthuTdMyeUDHO3qdfmLmGtbynwQUXy0vYCIdnw">
-<link rel="stylesheet" media="all" href="/sites/default/files/css/css_h8MbvwzFoPHon25psxDvs_qWZKIaWznJGeScqw5abGU.css?delta=1&amp;language=en&amp;theme=usagov&amp;include=eJwdykEOwCAIBMAP2fIkg5EQEtDDqo2_b-tlToONIUGFIWmCtS9S74X9wthuTdMyeUDHO3qdfmLmGtbynwQUXy0vYCIdnw">
+  <link rel="stylesheet" media="all" href="/core/modules/system/css/components/align.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/fieldgroup.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/container-inline.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/clearfix.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/details.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/hidden.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/item-list.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/js.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/nowrap.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/position-container.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/reset-appearance.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/resize.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/system-status-counter.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/system-status-report-counters.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/system-status-report-general-info.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/tablesort.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/core/modules/views/css/views.module.css?ss74j5">
+<link rel="stylesheet" media="all" href="/modules/custom/usa_admin_styles/css/usa_admin_styles.css?ss74j5">
+<link rel="stylesheet" media="all" href="/themes/custom/usagov/css/styles.css?ss74j5">
 
   
 
@@ -176,7 +193,7 @@
 							A <strong>lock</strong> (
 							<span class="icon-lock">
 								<svg xmlns="http://www.w3.org/2000/svg" width="52" height="64" viewBox="0 0 52 64" class="usa-banner__lock-image" aria-labelledby="banner-lock-description-default" focusable="false">
-									<title id="banner-lock-title-default">Lock</title>
+									<title>Lock</title>
 									<desc id="banner-lock-description-default">Locked padlock icon</desc>
 									<path fill="#000000" fill-rule="evenodd" d="M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z" />
 								</svg>
@@ -191,7 +208,8 @@
 </section>
 <script>
 	document.getElementById('gov-banner-default').setAttribute('hidden', 'until-found');
-</script><div id="block-usagov-mobilemenublock" class="settings-tray-editable block block-usagov-menus block-usagov-mobile-menu-block" data-drupal-settingstray="editable">
+</script>
+<div id="block-usagov-mobilemenublock" class="settings-tray-editable block block-usagov-menus block-usagov-mobile-menu-block" data-drupal-settingstray="editable">
   
     
       
@@ -217,7 +235,7 @@
       </div>
       <div class="usa-nav__secondary">
         <!-- Search Bar -->
-        <form id="usagov_all_gov-mobile" class="usa-search usa-search--small" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
+        <form id="usagov_all_gov-mobile" class="usa-search usa-search--small" action="https://search.usa.gov/search" method="get" name="usagov_all_gov-mobile" accept-charset="UTF-8" role="search">
   <label id="top-srch-mobile-menu" class="usa-sr-only" for="search-field-small-mobile-menu">Search</label>
   <input id="affiliate-mobile-menu" name="affiliate" type="hidden" value="usagov_all_gov">
   <input id="search-field-small-mobile-menu" class="usa-input text usagov-search-autocomplete ui-autocomplete-input" type="search" name="query" placeholder="Search all government" onfocus="this.placeholder" autocomplete="off">
@@ -226,11 +244,22 @@
   </button>
 </form>
 
-        <span class="usa-nav__secondary-links">
-          <span id="top-phone-mobile-menu" class="usa-nav__secondary-item">
-            <a href="/phone" class>1-844-USAGOV1</a>
-          </span>
-        </span>
+        <div class="usa-nav__secondary-links">
+            <div>
+    <div id="block-usagov-topnavmobile-2" class="settings-tray-editable block block-block-content block-block-contentba151291-a004-469d-9192-deb7730e19df" data-drupal-settingstray="editable">
+  
+    
+      
+
+            <div class="field field--name-body field--type-text-with-summary field--label-hidden field__item"><span id="top-phone-mobile-menu" class="usa-nav__secondary-item" data-contact-callout="visible">
+    <a href="/phone" class>1-844-USAGOV1</a>
+</span></div>
+      
+  </div>
+
+  </div>
+
+        </div>
       </div>
     </div>
 
@@ -333,30 +362,28 @@
 			<a href="/es/" class="usa-button language-link" hreflang="es" role="button">Español</a>
 		      		<button class="usa-menu-btn">Menu</button>
 		<div class="usa-nav__secondary">
-			<span class="usa-nav__secondary-links">
+			<div class="usa-nav__secondary-links">
           <div>
-    <div id="block-usagov-topnavphone" class="settings-tray-editable block block-block-content block-block-contentf8dde73e-5081-46af-8b04-53a21601fd93" data-drupal-settingstray="editable">
+    <div id="block-usagov-topnavphone-2" class="settings-tray-editable block block-block-content block-block-content8607aa33-7c01-41c7-bd04-b8fb894224a1" data-drupal-settingstray="editable">
   
     
       
 
-            <div class="field field--name-body field--type-text-with-summary field--label-hidden field__item">
-  <span id="top-phone" class="usa-nav__secondary-item">
+            <div class="field field--name-body field--type-text-with-summary field--label-hidden field__item"><span id="top-phone" class="usa-nav__secondary-item" data-contact-callout="visible">
     <a href="/phone" style="white-space: nowrap;">Call us at 1-844-USAGOV1</a>
-  </span>
-</div>
+</span></div>
       
   </div>
 
   </div>
 
-			</span>
+			</div>
 			<!-- Search Bar -->
-			<form id="usagov_all_gov-desktop" class="usa-search usa-search--small" action="https://search.usa.gov/search" method="get" name="search_form" accept-charset="UTF-8" role="search">
+			<form id="usagov_all_gov-desktop" class="usa-search usa-search--small" action="https://search.usa.gov/search" method="get" name="usagov_all_gov-desktop" accept-charset="UTF-8" role="search">
   <label id="top-srch" class="usa-sr-only" for="search-field-small">Search</label>
   <input id="affiliate" name="affiliate" type="hidden" value="usagov_all_gov">
   <input id="search-field-small" class="usa-input text usagov-search-autocomplete ui-autocomplete-input" type="search" name="query" placeholder="Search all government" onfocus="this.placeholder" autocomplete="off">
-  <button class="usa-button usagov-button" type="submit">
+  <button class="usa-button" type="submit">
     <img src="/themes/custom/usagov/components/searchbar/images/search--dark.svg" class="usa-search__submit-icon" alt="Search">
   </button>
 </form>
@@ -791,7 +818,7 @@
 <div class="views-element-container settings-tray-editable block block-views block-views-blockwizard-step-test-block-1" id="block-views-block-wizard-step-test-block-1" data-drupal-settingstray="editable">
   
     
-      <div><div class="js-view-dom-id-96253ccf3364a7a631332933f8946fb6ae2bf17ce822e3e154c82899135e34c2">
+      <div><div class="js-view-dom-id-9eb86387ce25f805c1cb13c9bf943e1adc7667591d5fe92d77c76c001531a927">
   
   
   
@@ -829,69 +856,69 @@
 			<div class="tablet:grid-col-8">
 				<nav class="usa-footer__nav" aria-label="Footer navigation">
 					<div class="grid-row grid-gap-4">
-																						<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
+																			<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
 					<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
 						<h3 class="usa-gov-footer__primary-link">Government information</h3>
 												<ul class="usa-list usa-list--unstyled">
-																												<li class="usa-footer__secondary-link">
-										<a href="/#all-topics-header">All topics and services</a>
+																					<li class="usa-footer__secondary-link">
+						<a href="/#all-topics-header">All topics and services</a>
 					</li>
-																										<li class="usa-footer__secondary-link">
-										<a href="/agency-index">Directory of U.S. government agencies and departments</a>
+																			<li class="usa-footer__secondary-link">
+						<a href="/agency-index">Directory of U.S. government agencies and departments</a>
 					</li>
-																										<li class="usa-footer__secondary-link">
-										<a href="/branches-of-government">Branches of government</a>
+																			<li class="usa-footer__secondary-link">
+						<a href="/branches-of-government">Branches of government</a>
 					</li>
 									
 						</ul>
 					</section>
 				</div>
-																		<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
+															<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
 					<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
 						<h3 class="usa-gov-footer__primary-link">About us</h3>
 												<ul class="usa-list usa-list--unstyled">
-																												<li class="usa-footer__secondary-link ftr-list">
-										<a href="/about">About USAGov</a>
+																					<li class="usa-footer__secondary-link">
+						<a href="/about">About USAGov</a>
 					</li>
-																										<li class="usa-footer__secondary-link">
-										<a href="/privacy-security">Privacy and security policies</a>
+																			<li class="usa-footer__secondary-link">
+						<a href="/privacy-security">Privacy and security policies</a>
 					</li>
-																										<li class="usa-footer__secondary-link">
-										<a href="/accessibility-policy">Accessibility policy</a>
+																			<li class="usa-footer__secondary-link">
+						<a href="/accessibility-policy">Accessibility policy</a>
 					</li>
-																										<li class="usa-footer__secondary-link">
-										<a href="/site-issue-report-form">Report a website issue</a>
+																			<li class="usa-footer__secondary-link">
+						<a href="/site-issue-report-form">Report a website issue</a>
 					</li>
-																										<li class="usa-footer__secondary-link">
-										<a href="/website-analytics/">Website usage data</a>
+																			<li class="usa-footer__secondary-link">
+						<a href="/website-analytics/">Website usage data</a>
 					</li>
 									
 						</ul>
 					</section>
 				</div>
-																		<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
+															<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
 					<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
 						<h3 class="usa-gov-footer__primary-link">For federal agencies</h3>
 												<ul class="usa-list usa-list--unstyled">
-																												<li class="usa-footer__secondary-link">
-										<a href="/partner-with-usagov">Partner with us</a>
+																					<li class="usa-footer__secondary-link">
+						<a href="/partner-with-usagov">Partner with us</a>
 					</li>
-																										<li class="usa-footer__secondary-link">
-										<a href="https://blog.usa.gov/">Read our blog</a>
+																			<li class="usa-footer__secondary-link">
+						<a href="https://blog.usa.gov/">Read our blog</a>
 					</li>
 									
 						</ul>
 					</section>
 				</div>
-																		<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
+															<div class="mobile-lg:grid-col-6 desktop:grid-col-3">
 					<section class=" usa-footer__primary-content usa-footer__primary-content--collapsible ">
 						<h3 class="usa-gov-footer__primary-link">For media</h3>
 												<ul class="usa-list usa-list--unstyled">
-																												<li class="usa-footer__secondary-link ftr-list">
-										<a href="/outreach">USAGov Outreach</a>
+																					<li class="usa-footer__secondary-link">
+						<a href="/outreach">USAGov Outreach</a>
 					</li>
-																										<li class="usa-footer__secondary-link">
-										<a href="/features">Feature articles</a>
+																			<li class="usa-footer__secondary-link">
+						<a href="/features">Feature articles</a>
 					</li>
 									
 						</ul>
@@ -933,12 +960,12 @@
 		<div class="grid-row grid-gap">
 			<div class="usa-footer__logo grid-row mobile-lg:grid-col-6">
           <div>
-    <div id="block-usagov-footerphone" class="settings-tray-editable block block-block-content block-block-content6ab17ea9-992c-42e7-b402-861a036e9647" data-drupal-settingstray="editable">
+    <div id="block-usagov-footerphone-2" class="settings-tray-editable block block-block-content block-block-content3a427426-d092-44ee-aa32-a0f6858f61d6" data-drupal-settingstray="editable">
   
     
       
 
-            <div class="field field--name-body field--type-text-with-summary field--label-hidden field__item"><div id="footer-phone">
+            <div class="field field--name-body field--type-text-with-summary field--label-hidden field__item"><div id="footer-phone" data-contact-callout="visible">
    <div class="mobile-lg:grid-col-auto">
       <h4 class="usa-footer__logo-heading">USAGov Contact Center</h4>
    </div>
@@ -959,7 +986,7 @@
 			</div>
 			<div class="usa-footer__contact-links mobile-lg:grid-col-6">
 				<div class="footer-social-block">
-					<h4 class="usa-footer__contact-heading">Find us on social media</h4>
+					<h4 class="usa-footer__contact-heading font-sans-lg">Find us on social media</h4>
 					<div class="usa-footer__social-links en-links grid-row grid-gap-1">
 
 																				<div class="grid-col-auto">
@@ -1033,9 +1060,22 @@
   
 
 <script type="application/json" data-drupal-selector="drupal-settings-json">{"path":{"baseUrl":"\/","pathPrefix":"","currentPath":"node\/1","currentPathIsAdmin":false,"isFront":true,"currentLanguage":"en"},"pluralDelimiter":"\u0003","suppressDeprecationErrors":true,"top_nav_menu":[{"\/#all-topics-header":"usa-nav__topics"},{"\/about-the-us":"usa-nav__about"},{"\/money":"usa-nav__money"},{"\/laws-and-legal-issues":"usa-nav__law"},{"\/scams-and-fraud":"usa-nav__scams"},{"\/benefits":"usa-nav_benefits"},{"\/housing-help":"usa-nav_housing"},{"\/immigration-and-citizenship":null},{"\/taxes":"usa-nav_taxes"},{"\/travel":"usa-nav_travel"},{"\/voting-and-elections":null}],"user":{"uid":0,"permissionsHash":"43cf91dfb00ea3da1a7186a5c0b4ebfb8d967a3f882b2c9516c59e573558853b"}}</script>
-<script src="/sites/default/files/js/js_sJY3bzJs3jirGGaSNreFUENeOZtDcSGccrkIaQj9Xmc.js?scope=footer&amp;delta=0&amp;language=en&amp;theme=usagov&amp;include=eJx1jUEOwjAMBD_UNH_ghsQfIjcxJpDYlZ0UldcTtVw57s6sthuQbJ6KLFCctb1kpqkfbWiyBoYtE7QsHCpy9_9ReNoYvpOF-MKUm2jI3JD0UPyJIEbRNPJ8VxmU0-_MF_jsN4F0oWsFwml46KPUVRi52XxqzhmCxscC-gXEtkrD"></script>
-<script src="/modules/contrib/uswds_ckeditor_integration/js/aftermarket/uswds_accordion.js?sqhuxj"></script>
-<script src="/sites/default/files/js/js_HIkTA9247QPrO8K9vxBNtUZ48syYleNajOmoqo58gkg.js?scope=footer&amp;delta=2&amp;language=en&amp;theme=usagov&amp;include=eJx1jUEOwjAMBD_UNH_ghsQfIjcxJpDYlZ0UldcTtVw57s6sthuQbJ6KLFCctb1kpqkfbWiyBoYtE7QsHCpy9_9ReNoYvpOF-MKUm2jI3JD0UPyJIEbRNPJ8VxmU0-_MF_jsN4F0oWsFwml46KPUVRi52XxqzhmCxscC-gXEtkrD"></script>
+<script src="/core/assets/vendor/jquery/jquery.min.js?v=3.7.1"></script>
+<script src="/core/assets/vendor/once/once.min.js?v=1.0.1"></script>
+<script src="/core/misc/drupalSettingsLoader.js?v=10.4.3"></script>
+<script src="/core/misc/drupal.js?v=10.4.3"></script>
+<script src="/core/misc/drupal.init.js?v=10.4.3"></script>
+<script src="/core/../themes/custom/usagov/components/searchbar/searchbar.js?ss74j5"></script>
+<script src="/themes/custom/usagov/scripts/uswds.min.js?v=1"></script>
+<script src="/themes/custom/usagov/scripts/uswds-init.min.js?v=1"></script>
+<script src="/themes/custom/usagov/scripts/newFooter.js?v=1"></script>
+<script src="/themes/custom/usagov/scripts/phoneForMobile.js?v=1"></script>
+<script src="/themes/custom/usagov/scripts/callCenterWaitTimeLookup.js?v=1"></script>
+<script src="/themes/custom/usagov/scripts/lastUpdatedVisibility.js?v=1"></script>
+<script src="/themes/custom/usagov/scripts/accessibleButtonLinks.js?v=1"></script>
+<script src="/themes/custom/usagov/scripts/lazyloadBgImage.js?ss74j5"></script>
+<script src="/modules/custom/usagov_top_navigation_menu/js/addMenuStyles.js?ss74j5"></script>
+<script src="/modules/contrib/uswds_ckeditor_integration/js/aftermarket/uswds_accordion.js?ss74j5"></script>
 
   
 
