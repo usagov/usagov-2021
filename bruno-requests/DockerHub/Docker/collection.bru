@@ -1,0 +1,15 @@
+headers {
+  Content-Type: application/json
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{process.env.DOCKERHUB_TOKEN}}
+}
+
+vars:pre-request {
+  TEST: Thing
+}

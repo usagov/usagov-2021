@@ -1,0 +1,30 @@
+#!/bin/sh
+
+if [ -f /home/circleci/project/env.local ]; then
+    . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+    . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+    . ./env.local
+fi
+
+if [ -z "$DOCKERHUB_USERNAME" -o -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+    echo "Error: DOCKERHUB_USERNAME and DOCKERHUB_ACCESS_TOKEN must be set!"
+else
+    #DOCKERHUB_USERNAME='hahahahahala' ### test failed login
+    LOGIN_RESPONSE=$(curl -s -H "Content-Type: application/json" \
+        -X POST \
+        -d '{"username": "'${DOCKERHUB_USERNAME}'", "password": "'${DOCKERHUB_ACCESS_TOKEN}'"}' \
+        https://hub.docker.com/v2/users/login/)
+
+    export TOKEN=$(echo $LOGIN_RESPONSE | jq -r '.token')
+
+    if [ -z "$TOKEN" -o "$TOKEN" = 'null' ]; then
+        export TOKEN=""
+        echo $LOGIN_RESPONSE
+    fi
+fi
