@@ -1,0 +1,20 @@
+meta {
+  name: Tags
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://hub.docker.com/v2/namespaces/gsatts/repositories/usagov-2021/tags
+  body: none
+  auth: none
+}
+
+params:query {
+  page_size: {{page_size}}
+  page: {{page_number}}
+}
+
+headers {
+  Content-Type: application/json
+}
