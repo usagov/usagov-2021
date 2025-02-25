@@ -3,9 +3,8 @@
 {% else %}
   {% set salesforce_record_type = '012U00000001eYv'  %}
 {% endif %}
+
 <div>
-  {{ dump(sirf) }}
-  {{ dump(sirf['missing-name']) }}
   <div
     id="error-box"
     class="usa-alert usa-alert--slim usa-alert--error usa-error--alert"
@@ -22,10 +21,10 @@
         <a href="#description"><span>{{sirf['missing-description'] }}</span></a>
       </li>
       {# <li id="alert_error_recaptcha_large" class="usa-alert__text usa-error--alert">
-				<a href="#recaptcha-large-container"><span>Fill out the reCaptcha</span></a>
-			</li>
-			<li id="alert_error_recaptcha_small" class="usa-alert__text usa-error--alert">
-				<a href="#recaptcha-small-container"><span>Fill out the reCaptcha</span></a> #}
+        <a href="#recaptcha-large-container"><span>Fill out the reCaptcha</span></a>
+      </li>
+      <li id="alert_error_recaptcha_small" class="usa-alert__text usa-error--alert">
+        <a href="#recaptcha-small-container"><span>Fill out the reCaptcha</span></a> #}
       </li>
       </ul>
     </div>
@@ -42,7 +41,7 @@
         <div class="maxw-mobile margin-x-auto margin-y-4">
           <input type=hidden name='captcha_settings' value='{"keyname":"RecaptchaV3","fallback":"true","orgId":"00DU0000000Leux","ts":""}'>
           <input type="hidden" name="orgid" value="00DU0000000Leux">
-          <input type="hidden" name="retURL" value="https://www.usa.gov/thank-you-issue-report"/>
+          <input type="hidden" name="retURL" value="{{ results_page_url }}"/>
           <input name="recordType" type="hidden" value="{{ salesforce_record_type }}"/>
           <input name="Sender_IP__c" type="hidden" value="192.168.1.1"/>
           {# remaining hidden inputs are same on English and Spanish #}
@@ -51,7 +50,7 @@
           <input name="Case_Topic_Other__c" type="hidden" value="From USAGov Issue Form"/>
           <input name="Gender__c" type="hidden" value="Unknown"/>
           <p>
-            <strong>{{sirf['all-fields-required'] }}</strong>
+            <strong>{{sirf['label-all-required'] }}</strong>
           </p>
           <div id="error-border">
             <p class="required">

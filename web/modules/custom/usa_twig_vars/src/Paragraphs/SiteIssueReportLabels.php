@@ -24,6 +24,11 @@ class SiteIssueReportLabels {
         'field_sirf_email_error' => 'missing-email',
         'field_sirf_name_error' => 'missing-name',
         'field_sirf_submit_button' => 'submit-button',
+        'field_sirf_all_required_label' => 'label-all-required',
+        'field_sirf_your_name_label' => 'label-your-name',
+        'field_sirf_your_email_label' => 'label-your-email',
+        'field_sirf_description_label' => 'label-your-description',
+        'field_sirf_char_limit_msg' => 'label-char-limit',
       ]
     );
 
@@ -91,14 +96,8 @@ class SiteIssueReportLabels {
    * @return array<string, mixed>
    */
   private function getFormDefaults(LanguageInterface $lang): array {
-//    'field_sirf_error_heading' => 'error-heading',
-//        'field_sirf_description_error' => 'missing-description',
-//        'field_sirf_email_error' => 'missing-email',
-//        'field_sirf_name_error' => 'missing-name',
-//        'field_sirf_submit_button' => 'submit-button',
     return match ($lang->getId()) {
       'en' => [
-        'all-fields-required' => 'All fields are required.',
         'error-heading' => 'Your information contains errors',
         'missing-description' => 'Fill out the description field',
         'missing-email' => 'Fill out the email field',
