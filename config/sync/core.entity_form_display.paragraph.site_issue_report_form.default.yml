@@ -1,0 +1,168 @@
+uuid: ea770874-1405-4c70-afdb-1d42d6c55534
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.site_issue_report_form.field_sirf_all_required_label
+    - field.field.paragraph.site_issue_report_form.field_sirf_char_limit_msg
+    - field.field.paragraph.site_issue_report_form.field_sirf_description_error
+    - field.field.paragraph.site_issue_report_form.field_sirf_description_label
+    - field.field.paragraph.site_issue_report_form.field_sirf_email_error
+    - field.field.paragraph.site_issue_report_form.field_sirf_error_heading
+    - field.field.paragraph.site_issue_report_form.field_sirf_lower_text
+    - field.field.paragraph.site_issue_report_form.field_sirf_name_error
+    - field.field.paragraph.site_issue_report_form.field_sirf_results_page
+    - field.field.paragraph.site_issue_report_form.field_sirf_submit_button
+    - field.field.paragraph.site_issue_report_form.field_sirf_your_email_label
+    - field.field.paragraph.site_issue_report_form.field_sirf_your_name_label
+    - paragraphs.paragraphs_type.site_issue_report_form
+  module:
+    - field_group
+    - text
+third_party_settings:
+  field_group:
+    group_error_labels:
+      children:
+        - field_sirf_error_heading
+        - field_sirf_email_error
+        - field_sirf_name_error
+        - field_sirf_description_error
+      label: 'Error labels'
+      region: content
+      parent_name: ''
+      weight: 2
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: 'Text used to for error messages. If empty, default values will be used based on page language.'
+        required_fields: true
+    group_field_labels:
+      children:
+        - field_sirf_all_required_label
+        - field_sirf_your_name_label
+        - field_sirf_your_email_label
+        - field_sirf_description_label
+        - field_sirf_char_limit_msg
+        - field_sirf_lower_text
+        - field_sirf_submit_button
+      label: 'Field Labels'
+      region: content
+      parent_name: ''
+      weight: 1
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: 'Text used to for field labels and instructions. If empty, default values will be used based on page language.'
+        required_fields: true
+id: paragraph.site_issue_report_form.default
+targetEntityType: paragraph
+bundle: site_issue_report_form
+mode: default
+content:
+  field_sirf_all_required_label:
+    type: string_textfield
+    weight: 4
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_sirf_char_limit_msg:
+    type: string_textfield
+    weight: 8
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_sirf_description_error:
+    type: string_textfield
+    weight: 4
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_sirf_description_label:
+    type: string_textfield
+    weight: 7
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_sirf_email_error:
+    type: string_textfield
+    weight: 2
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_sirf_error_heading:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_sirf_lower_text:
+    type: text_textarea
+    weight: 9
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_sirf_name_error:
+    type: string_textfield
+    weight: 3
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_sirf_results_page:
+    type: entity_reference_autocomplete
+    weight: 0
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_sirf_submit_button:
+    type: string_textfield
+    weight: 11
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_sirf_your_email_label:
+    type: string_textfield
+    weight: 6
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_sirf_your_name_label:
+    type: string_textfield
+    weight: 5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

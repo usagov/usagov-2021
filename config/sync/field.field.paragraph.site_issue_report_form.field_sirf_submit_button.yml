@@ -1,0 +1,19 @@
+uuid: 14bf55a1-d76a-4829-9e45-dc1c1f4a4a1d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_sirf_submit_button
+    - paragraphs.paragraphs_type.site_issue_report_form
+id: paragraph.site_issue_report_form.field_sirf_submit_button
+field_name: field_sirf_submit_button
+entity_type: paragraph
+bundle: site_issue_report_form
+label: 'Submit button'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
