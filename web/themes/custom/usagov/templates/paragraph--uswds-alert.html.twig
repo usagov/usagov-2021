@@ -102,23 +102,28 @@
       <span class="usa-alert__a11y-label visually-hidden" id="usa-alert--1__a11y-label">
         <svg role="img" aria-label={{ alert_status }}>
         {% if alert_status == "info" %}
-          <title aria-labelledby="usa-alert--1__heading">{{translations.info}}</title>
+{#          <title aria-labelledby="usa-alert--1__heading">{{translations.info}}</title>#}
+          <title>{{translations.info}}</title>
         {% endif %}
          {% if alert_status == "warning" %}
-          <title aria-labelledby="usa-alert--1__heading">{{translations.warning}}</title>
+{#           <title aria-labelledby="usa-alert--1__heading">{{translations.warning}}</title>#}
+           <title>{{translations.warning}}</title>
         {% endif %}
          {% if alert_status == "error" %}
-          <title aria-labelledby="usa-alert--1__heading">{{translations.error}}</title>
+{#           <title aria-labelledby="usa-alert--1__heading">{{translations.error}}</title>#}
+           <title>{{translations.error}}</title>
         {% endif %}
          {% if alert_status == "success" %}
-          <title aria-labelledby="usa-alert--1__heading">{{translations.success}}</title>
+{#           <title aria-labelledby="usa-alert--1__heading">{{translations.success}}</title>#}
+           <title>{{translations.success}}</title>
         {% endif %}
         </svg>
      </span>
     {% endif %}
     {% if not paragraph.field_alert_title.isempty %}
       <div id="usa-alert--1__heading">
-        <h2 class="usa-alert__heading">{{ content.field_alert_title }}</h2>
+{#        <h2 class="usa-alert__heading">{{ content.field_alert_title }}</h2>#}
+        <div class="usa-alert__heading">{{ content.field_alert_title }}</div>
       </div>
     {% endif %}
     {{ content.field_alert_body }}
