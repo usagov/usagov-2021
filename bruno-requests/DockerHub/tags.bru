@@ -1,0 +1,16 @@
+meta {
+  name: tags
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{api_host}}/{{namespace}}/{{repository}}/tags?page_size={{page_size}}&page={{page_number}}
+  body: none
+  auth: none
+}
+
+params:query {
+  page_size: {{page_size}}
+  page: {{page_number}}
+}

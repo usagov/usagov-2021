@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Programmatically retrieve dockerhub image listing for usagov repo
+
+REPOBASEURL="https://hub.docker.com/v2/namespaces/gsatts/repositories/usagov-2021"
+
+PAGE=1   ### start at the first page
+SIZE=100 ### max size
+
+F="${1}"
+if [ -n "$F" ]; then
+    shift
+fi
+NPAGES="${1}"
+
+#echo "$F / $NPAGES"
+#exit
+# Manually create the query to fetch the first page of results
+NEXT="${REPOBASEURL}/tags?page=${PAGE}&page_size=${SIZE}${ORDERING}"
+
+while [ -n "$NEXT" -a ! "$NEXT" == 'null' ]; do
+
+    RESULTS=$(curl --silent $NEXT | jq '.')
+
+    if [ -z "$F" ]; then
+        #captured_images=$(echo "$RESULTS"| jq '.results[] | [ .images[].last_pushed, .images[].digest ]')
+        captured_images=$(echo "$RESULTS"| jq '.results[] | [ .name, .tag_last_pushed, .digest, .status ]')
+        echo $captured_images | jq '. | @tsv' | sed 's/\\t/\|/g'
+    else
+        echo "$RESULTS"
+    fi
+
+    # Each query provides the URL for the next page of results.  Use it to loop through pages
+    NEXT=$(echo "$RESULTS" | jq -r '.next')
+    PAGE=$((PAGE+1))
+
+    if [ -n "$NPAGES" ]; then
+        if [ $PAGE -gt "$NPAGES" ]; then
+            NEXT=""
+        fi
+    fi
+    #NEXT=""
+done
