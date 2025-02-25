@@ -5,6 +5,7 @@
 		tabindex="-1">
 		<div class="usa-alert__body">
 			<h2 class="usa-alert__heading">Your information contains errors</h2>
+      <ul>
 			<li id="alert_error_00NU0000004z90C" class="usa-alert__text usa-error--alert">
 				<a href="#00NU0000004z90C"><span>Fill out the name field</span></a>
 			</li>
@@ -14,18 +15,18 @@
 			<li id="alert_error_description" class="usa-alert__text usa-error--alert">
 				<a href="#description"><span>Fill out the description field</span></a>
 			</li>
-			{# <li id="alert_error_recaptcha_large" class="usa-alert__text usa-error--alert">
-				<a href="#recaptcha-large-container"><span>Fill out the reCaptcha</span></a>
-			</li>
-			<li id="alert_error_recaptcha_small" class="usa-alert__text usa-error--alert">
-				<a href="#recaptcha-small-container"><span>Fill out the reCaptcha</span></a> #}
-			</li>
+{#			<li id="alert_error_recaptcha_large" class="usa-alert__text usa-error--alert">#}
+{#				<a href="#recaptcha-large-container"><span>Fill out the reCaptcha</span></a>#}
+{#			</li>#}
+{#			<li id="alert_error_recaptcha_small" class="usa-alert__text usa-error--alert">#}
+{#				<a href="#recaptcha-small-container"><span>Fill out the reCaptcha</span></a> }#}
+{#			</li>#}
 			</ul>
 		</div>
 	</div>
 	<div id="emlfnd" class="padding-1px bg-gray-5">
 		<form
-			action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8&orgId=00DU0000000Leux"
+			action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8&amp;orgId=00DU0000000Leux"
 			class="validate"
 			id="myform"
 			method="post"
@@ -33,7 +34,7 @@
 			novalidate>
 			<div class="padding-1px bg-gray-5">
 				<div class="maxw-mobile margin-x-auto margin-y-4">
-                    <input type=hidden name='captcha_settings' value='{"keyname":"RecaptchaV3","fallback":"true","orgId":"00DU0000000Leux","ts":""}'>
+                    <input type="hidden" name="captcha_settings" value='{"keyname":"RecaptchaV3","fallback":"true","orgId":"00DU0000000Leux","ts":""}'>
 					<input type="hidden" name="orgid" value="00DU0000000Leux">
 					<input type="hidden" name="retURL" value="https://www.usa.gov/thank-you-issue-report"/>
 					<input name="recordType" type="hidden" value="012U00000001eYv"/>
