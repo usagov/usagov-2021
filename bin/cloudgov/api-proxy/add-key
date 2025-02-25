@@ -7,10 +7,28 @@ service_exists()
   cf service "$1" >/dev/null 2>&1
 }
 
-KEY_DOMAIN=${1:-} # The base url of the api.
-KEY_NAME=${2:-} # Arbitrary name for the key.
+KEY_NAME=${1:-} # Arbitrary name for the key.
+KEY_DOMAIN=${2:-} # The base url of the api.
 KEY_VALUE=${3:-} # The api key value.
-OPTIONS=${4:-'{}'} # Optional json-formatted flags to attach to the key.
+OPTIONS=${4:-} # Optional json-formatted flags to attach to the key.
+
+# Check if KEY_NAME is set
+if [[ -z "$KEY_NAME" ]]; then
+  echo "❌ KEY_NAME must be set."
+  exit 1
+fi
+
+# Check if KEY_DOMAIN is set
+if [[ -z "$KEY_DOMAIN" ]]; then
+  echo "❌ KEY_DOMAIN must be set."
+  exit 1
+fi
+
+# Check if KEY_VALUE is set
+if [[ -z "$KEY_VALUE" ]]; then
+  echo "❌ KEY_VALUE must be set."
+  exit 1
+fi
 
 {
   if service_exists "key-storage" ; then
@@ -20,28 +38,24 @@ OPTIONS=${4:-'{}'} # Optional json-formatted flags to attach to the key.
     KEY_STORE_ENTRIES=$(echo "$KEY_STORE" | jq -c 'to_entries[]')
     NAME_EXISTS=false
     KEY_EXISTS=false
+    CURRENT_OPTIONS="{}"
 
     while read -r ENTRY; do
-      DOMAIN=$(echo "$ENTRY" | jq -r '.key')
-      if [[ "$DOMAIN" == "$KEY_DOMAIN" ]]; then
-      VALUE=$(echo "$ENTRY" | jq -r '.value')
-      keys=$(jq 'keys' <<< "$VALUE")
-      for NAME in $(echo "$keys" | jq -r '.[]'); do
+      NAME=$(echo "$ENTRY" | jq -r '.key')
+      if [[ "$NAME" == "$KEY_NAME" ]]; then
+        NAME_EXISTS=true
+        VALUE=$(echo "$ENTRY" | jq -r '.value')
 
-        APIKEY=$(jq -r ".$NAME" <<< "$VALUE")
-        if [[ "$APIKEY" == "$KEY_VALUE" ]]; then
+        if [ $(jq -r ".$NAME.OPTIONS" <<< "$VALUE") ]; then
+          CURRENT_OPTIONS=$(jq -r ".$NAME.OPTIONS" <<< "$VALUE")
+        fi
+
+        if [[ $(jq -r ".$NAME.APIKEY" <<< "$VALUE") == "$KEY_VALUE" ]]; then
           KEY_EXISTS=true
           break;
         fi
-        if [[ "$NAME" == "$KEY_NAME" ]]; then
-          NAME_EXISTS=true
-          break;
-        fi
-
-      done
       fi
     done <<< "$KEY_STORE_ENTRIES"
-
 
     if [[ "$KEY_EXISTS" == true ]]; then
       echo "❌ Key is identical to current key.  Cancelling import."
@@ -54,11 +68,13 @@ OPTIONS=${4:-'{}'} # Optional json-formatted flags to attach to the key.
       if [[ ! $REPLY =~ ^[Yy]$ ]]; then
           echo "❌ Cancelling key import."
           exit 1;
-      else
-        KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" --arg OPTIONS "$OPTIONS" '.[$KEY_DOMAIN][$KEY_NAME] = {"APIKEY": $KEY_VALUE, "OPTIONS": $OPTIONS}' <<< "$KEY_STORE")
       fi
+    fi
+
+    if [[ "$OPTIONS" ]]; then
+      KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" --arg OPTIONS "$OPTIONS" '.[$KEY_NAME] = {"APIKEY": $KEY_VALUE, "DOMAIN": $KEY_DOMAIN, "OPTIONS": $OPTIONS}' <<< "$KEY_STORE")
     else
-      KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" --arg OPTIONS "$OPTIONS" '.[$KEY_DOMAIN][$KEY_NAME] = {"APIKEY": $KEY_VALUE, "OPTIONS": $OPTIONS}' <<< "$KEY_STORE")
+      KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" --arg CURRENT_OPTIONS "$CURRENT_OPTIONS" '.[$KEY_NAME] = {"APIKEY": $KEY_VALUE, "DOMAIN": $KEY_DOMAIN, "OPTIONS": $CURRENT_OPTIONS}' <<< "$KEY_STORE")
     fi
 
     yes '' | cf update-user-provided-service key-storage -p "$KEY_STORE"

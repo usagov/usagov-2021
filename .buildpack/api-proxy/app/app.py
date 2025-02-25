@@ -53,44 +53,42 @@ def proxy_request():
 
     params = request.args.to_dict()
 
-    if params["domain"] in KEY_STORAGE.keys():
-        if params["keyname"] in KEY_STORAGE[params["domain"]].keys():
-            API_KEY = KEY_STORAGE[params["domain"]][params["keyname"]]["APIKEY"]
-            API_ENDPOINT = unquote(params["domain"] + params["endpoint"])
+    if params["keyname"] in KEY_STORAGE.keys():
+        API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
+        API_ENDPOINT = unquote(KEY_STORAGE[params["keyname"]]["DOMAIN"] + params["endpoint"])
 
-            # Remove proxy-specific parameters
-            del params["domain"]
-            del params["endpoint"]
-            del params["keyname"]
+        method = request.method
+        headers = {"Content-Type": "application/json"}
 
-            method = request.method
-            headers = {"Content-Type": "application/json"}
+        # Inject API key into query parameters
+        params["api_key"] = API_KEY
 
-            # Inject API key into query parameters
-            params["api_key"] = API_KEY
+        # Handle request body for POST/PUT
+        data = request.get_json() if method in ["POST", "PUT"] else None
 
-            # Handle request body for POST/PUT
-            data = request.get_json() if method in ["POST", "PUT"] else None
+        # Make the proxy extensible by loading files when the domain matches.
+        # filenames = next(os.walk("extensions"), (None, None, []))[2]  # [] if no file
 
-            logger.info(
-                "Forwarding %s request to %s with params %s", method, API_ENDPOINT, params
+        # Remove proxy-specific parameters
+        del params["endpoint"]
+        del params["keyname"]
+
+        logger.info(
+            "Forwarding %s request to %s with params %s", method, API_ENDPOINT, params
+        )
+
+        try:
+            response = requests.request(
+                method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10
             )
-
-            try:
-                response = requests.request(
-                    method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10
-                )
-                logger.info("API response status: %s", response.status_code)
-                return jsonify(response.json()), response.status_code
-            except requests.RequestException as e:
-                logger.error("API request failed: %s", str(e))
-                return jsonify({"error": "Failed to contact API", "details": str(e)}), 500
-        else:
-            logger.error("Key by that name not found in keystore, no keys available. Rejecting request.")
-            return jsonify({"error": "Key by that name not found in keystore, no keys available. Rejecting request."}), 500
+            logger.info("API response status: %s", response.status_code)
+            return jsonify(response.json()), response.status_code
+        except requests.RequestException as e:
+            logger.error("API request failed: %s", str(e))
+            return jsonify({"error": "Failed to contact API", "details": str(e)}), 500
     else:
-        logger.error("Domain not found in keystore, no keys available. Rejecting request.")
-        return jsonify({"error": "Domain not found in keystore, no keys available. Rejecting request."}), 500
+        logger.error("Key by that name not found in keystore, no keys available. Rejecting request.")
+        return jsonify({"error": "Key by that name not found in keystore, no keys available. Rejecting request."}), 500
 
 @app.route("/", methods=["CONNECT"])
 def handle_connect():

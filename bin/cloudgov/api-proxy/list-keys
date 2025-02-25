@@ -10,23 +10,19 @@ service_exists()
 {
   if service_exists "key-storage" ; then
     KEY_STORE=$(cf curl /v3/service_instances/$(cf service key-storage --guid)/credentials)
+    NAMES=$(echo "$KEY_STORE" | jq -r 'keys[]')
 
-    DOMAINS=$(echo "$KEY_STORE" | jq -r 'keys[]')
-
-    for DOMAIN in $DOMAINS; do
-      echo "🌐 Domain: $DOMAIN"
-      VALUE=$(jq -r --arg DOMAIN "$DOMAIN" '.[$DOMAIN]' <<< "$KEY_STORE")
-      KEYS=$(jq -c 'to_entries[]' <<< "$VALUE")
-      while read -r KEY; do
-        KEY_NAME=$(jq -r '.key' <<< "$KEY")
-        KEY_VALUE=$(jq -r '.value' <<< "$KEY")
-        API_KEY=$(jq -r '.APIKEY' <<< "$KEY_VALUE")
-        OPTIONS=$(jq -r '.OPTIONS' <<< "$KEY_VALUE")
-        echo "   🔑 $KEY_NAME: $API_KEY"
-        if [[ -n "$OPTIONS" ]] && [[ "$OPTIONS" != '{}' ]]; then
-          echo "      🛠 Options: $OPTIONS"
-        fi
-      done <<< "$KEYS"
+    for NAME in $NAMES; do
+      echo "🖊️  Key Name: $NAME"
+      VALUE=$(jq -r --arg NAME "$NAME" '.[$NAME]' <<< "$KEY_STORE")
+      DOMAIN=$(jq -r '.DOMAIN' <<< "$VALUE")
+      API_KEY=$(jq -r '.APIKEY' <<< "$VALUE")
+      OPTIONS=$(jq -r '.OPTIONS' <<< "$VALUE")
+      echo "   🌐 Domain: $DOMAIN"
+      echo "   🔑 Api Key: $API_KEY"
+      if [[ -n "$OPTIONS" ]] && [[ "$OPTIONS" != '{}' ]]; then
+        echo "   🛠  Options: $OPTIONS"
+      fi
     done
 
   else
