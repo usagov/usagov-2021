@@ -32,5 +32,4 @@ docker run --disable-content-trust -it --rm \
     $DOCKERUSER/$DOCKERREPO:$APPNAME-$CTAG \
     --file=/app/Dockerfile-$APPNAME \
     --print-deps \
-    --severity-threshold=$THRESHOLD \
-    --policy-path=/app/.snyk
+    --severity-threshold=$THRESHOLD
