@@ -19,7 +19,7 @@ pip3 install --upgrade pip
 pip3 install --no-cache-dir -r requirements.txt
 
 echo "Running Python script..."
-output=$(python3 gsc_api_v3.py $1 $2 $3)
+output=$(python3 gsc_api_v4.py $1 $2 $3)
 
 echo "$output"
 echo "Python script finished."

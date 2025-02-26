@@ -2,5 +2,5 @@ usa_admin_styles.analytics_script:
   title: 'Run and Download Analytics Python Script'
   description: 'Allows Analytics Users to run the python script and download the results.'
   parent: usa_admin_styles.main
-  url: internal:/run-python-script
+  url: internal:/admin/run-python-script
   weight: 50

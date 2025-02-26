@@ -5,13 +5,11 @@ namespace Drupal\usagov_analytics\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 /**
  * Implements an example form.
  */
-class USAGovAnalyticsForm extends FormBase {
+class UsaGovAnalyticsForm extends FormBase {
 
   /**
    * {@inheritdoc}

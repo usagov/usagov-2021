@@ -21,7 +21,6 @@ if check_file is True:
                                          flow='console')
 else:
     # run below if this is the first time, to save credentials to credentials.json and avoid authorization again.
-    print(webbrowser._browsers)
     account = searchconsole.authenticate(client_config='gsc_api_secret_cred.json',
                                           serialize='credentials.json')
 
