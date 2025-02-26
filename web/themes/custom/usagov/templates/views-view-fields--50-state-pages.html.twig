@@ -52,7 +52,7 @@
 	{% if abbrvar %}
 		<li>
 {#      <a class="url" key="{{abbrvar}}" href="{{urlvar}}">{{titlevar}} ({{abbrvar}})</a>#}
-      <a class="url" id="{{abbrvar}}" href="{{urlvar}}">{{titlevar}} ({{abbrvar}})</a>
+        <a class="url" id="{{ abbrvar }}" href="{{ urlvar|escape }}">{{ titlevar }} ({{ abbrvar }})</a>
 		</li>
 	{% else %}
 		<li>
