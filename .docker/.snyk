@@ -1,0 +1,5 @@
+ignore:
+  SNYK-DEBIAN12-ZLIB-6008963:
+    - '*':
+        reason: "False positive: MiniZip component not present in Debian's zlib package. See comments in USAGOV-2242 for more details."
+        expires: '2025-12-31T00:00:00.000Z'
