@@ -169,18 +169,6 @@ services:
     networks:
       - gsa-gov
 
-  w3c-validator:
-    image: ghcr.io/validator/validator:latest
-    container_name: usagov-2021-w3c-validator-1
-    ports:
-      - "8888:8888"
-    environment:
-      - VNU_ALLOWED_HOSTS=*
-    networks:
-      gsa-gov:
-        aliases:
-          - validator
-
 volumes:
   database_data:
 #   nfsmount:
