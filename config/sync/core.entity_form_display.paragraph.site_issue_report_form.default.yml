@@ -48,7 +48,8 @@ third_party_settings:
         - field_sirf_char_limit_msg
         - field_sirf_lower_text
         - field_sirf_submit_button
-      label: 'Field Labels'
+        - field_sirf_results_page
+      label: 'Form Labels and elements'
       region: content
       parent_name: ''
       weight: 1
@@ -58,7 +59,7 @@ third_party_settings:
         show_empty_fields: false
         id: ''
         label_as_html: false
-        description: 'Text used to for field labels and instructions. If empty, default values will be used based on page language.'
+        description: 'Text used to for field labels, buttons, and instructions. If empty, default values will be used based on page language.'
         required_fields: true
 id: paragraph.site_issue_report_form.default
 targetEntityType: paragraph
@@ -131,7 +132,7 @@ content:
     third_party_settings: {  }
   field_sirf_results_page:
     type: entity_reference_autocomplete
-    weight: 0
+    weight: 11
     region: content
     settings:
       match_operator: CONTAINS
@@ -141,7 +142,7 @@ content:
     third_party_settings: {  }
   field_sirf_submit_button:
     type: string_textfield
-    weight: 11
+    weight: 10
     region: content
     settings:
       size: 60
