@@ -1,7 +1,7 @@
 """
 Template for extensions and implementation for api.thedogapi.com API.
 
-Copy/paste this code into a new file in the `extensions` directory and change the
+Duplicate this file in the `extensions` directory and change the
 filename to match the domain of the API you are extending.
 """
 
