@@ -72,7 +72,6 @@
         "drupal/views_data_export": "^1.4",
         "drupal/views_menu_children_filter": "^3.0@RC",
         "drupal/viewsreference": "^2.0@beta",
-        "drupal/w3c_validator": "^2.1",
         "drush/drush": "^12",
         "masterminds/html5": "^2.0",
         "nyholm/psr7": "^1.4",
