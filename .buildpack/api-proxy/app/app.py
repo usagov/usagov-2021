@@ -67,10 +67,10 @@ def proxy_request():
         data = request.get_json() if method in ["POST", "PUT"] else None
 
         # Make the proxy extensible by loading files when the domain matches.
-        logger.info("Check for extensions")
         filenames = next(os.walk("extensions"), (None, None, []))[2]  # [] if no file
         for filename in filenames:
             if filename == KEY_STORAGE[params["keyname"]]["DOMAIN"].split("://")[1] + ".py":
+                logger.info("Loading extension for %s", filename)
                 exec(open("extensions/" + filename).read())
 
         # Remove proxy-specific parameters
