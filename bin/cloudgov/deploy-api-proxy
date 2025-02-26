@@ -35,6 +35,7 @@ function ensure_route {
 echo "🔄 Checking routes..."
 ensure_route "apps.internal" "${ORG}-${SPACE_NODOT}-api-proxy"
 ensure_route "app.cloud.gov" "${ORG}-${SPACE_NODOT}-api-proxy"
+ensure_route "usa.gov" "apiproxy"
 
 # If any routes were created, display them in a single message
 if [[ ${#new_routes[@]} -gt 0 ]]; then
