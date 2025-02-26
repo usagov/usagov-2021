@@ -110,12 +110,12 @@ class SiteIssueReportLabels {
         'label-char-limit' => 'Maximum length is 1000 characters.',
       ],
       'es' => [
-        'all-fields-required' => 'Todos los campos son obligatorios.',
         'error-heading' => 'Su información contiene errores',
         'missing-description' => 'Escriba la descripción',
         'missing-email' => 'Escriba su email',
         'missing-name' => 'Escriba su nombre',
         'submit-button' => 'Enviar',
+        'label-all-required' => 'Todos los campos son obligatorios.',
         'label-your-name' => 'Su nombre',
         'label-your-email' => 'Su email',
         'label-your-description' => 'Escriba el problema que desea reportar aquí. Por favor Incluya la dirección web (URL) de la página con el problema.',
