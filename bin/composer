@@ -7,3 +7,4 @@ docker compose run \
   --workdir /var/www \
   composer \
   composer "$@" --ignore-platform-reqs
+
