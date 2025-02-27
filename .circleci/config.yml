@@ -248,7 +248,8 @@ commands:
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
-            # actual code to push remove as this is a testing-branch
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-reporter
 
   deploy-cloudgov-cron:
     parameters:
