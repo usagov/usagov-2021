@@ -774,7 +774,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2063
       - deploy-reporter-tools:
           filters:
             branches:
@@ -782,7 +781,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2063
           requires:
             - approve-deploy-reporter
 
