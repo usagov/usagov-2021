@@ -45,7 +45,11 @@ logger = logging.getLogger(__name__)
 # Load API configuration
 VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
 VCAP_JSON = json.loads(VCAP_SERVICES) # Convert to JSON
-KEY_STORAGE = VCAP_JSON["user-provided"][0]["credentials"] # Get credentials
+if "user-provided" in VCAP_JSON and VCAP_JSON["user-provided"] and "credentials" in VCAP_JSON["user-provided"][0]:
+    KEY_STORAGE = VCAP_JSON["user-provided"][0]["credentials"]  # Get credentials
+else:
+    logger.error("No credentials found in VCAP_SERVICES")
+    KEY_STORAGE = {}
 
 @app.route("/proxy", methods=["GET", "POST", "PUT", "DELETE"])
 def proxy_request():

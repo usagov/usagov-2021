@@ -7,6 +7,16 @@ service_exists()
   cf service "$1" >/dev/null 2>&1
 }
 
+function appExists {
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: appname is required"
+    exit 1
+  fi
+  cf app $app > /dev/null 2>&1
+  return $?
+}
+
 # Retrieve the current targeted org and space
 ORG=$(cf target | awk '/org:/ {print $2}')
 SPACE=$(cf target | awk '/space:/ {print $2}')
@@ -33,9 +43,12 @@ function ensure_route {
 
 # Ensure routes exist before deployment
 echo "🔄 Checking routes..."
-ensure_route "apps.internal" "${ORG}-${SPACE_NODOT}-api-proxy"
-ensure_route "app.cloud.gov" "${ORG}-${SPACE_NODOT}-api-proxy"
-ensure_route "usa.gov" "apiproxy"
+ensure_route "apps.internal" "apiproxy-${SPACE_NODOT}"
+if [[ "$ORG" == "gsa-tts-usagov" ]]; then
+  ensure_route "usa.gov" "apiproxy-${SPACE_NODOT}"
+else
+  ensure_route "app.cloud.gov" "apiproxy-${SPACE_NODOT}"
+fi
 
 # If any routes were created, display them in a single message
 if [[ ${#new_routes[@]} -gt 0 ]]; then
@@ -54,6 +67,20 @@ fi
   fi
 }
 
+# Deploy API Proxy
+echo "🚀 Deploying API Proxy..."
+NO_ROUTE="--no-route"
+if appExists api-proxy; then
+    NO_ROUTE=""
+fi
+
+if cf push -f .buildpack/manifest-api-proxy.yml ${NO_ROUTE}; then
+  echo "✅ API Proxy deployed successfully."
+else
+  echo "❌ API Proxy deployment failed."
+  exit 1
+fi
+
 # Bind key storage service to the API Proxy
 echo "🔗 Binding Key Storage Service to API Proxy..."
 if cf bind-service api-proxy key-storage > /dev/null 2>&1; then
@@ -61,15 +88,6 @@ if cf bind-service api-proxy key-storage > /dev/null 2>&1; then
   echo "✅ Key Storage Service bound successfully."
 else
   echo "❌ Failed to bind Key Storage Service to API Proxy."
-  exit 1
-fi
-
-# Deploy API Proxy
-echo "🚀 Deploying API Proxy..."
-if cf push -f .buildpack/manifest-api-proxy.yml --no-route ; then
-  echo "✅ API Proxy deployed successfully."
-else
-  echo "❌ API Proxy deployment failed."
   exit 1
 fi
 
