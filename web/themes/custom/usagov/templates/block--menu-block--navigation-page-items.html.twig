@@ -12,7 +12,9 @@
               <h2 class="usa-card__heading usagov-card__heading">{{ item.title }}</h2>
             </header>
             <div class="usa-card__body padding-top-0 color-off-black">
-              <p>{{ item.description }}</p>
+              {% if item.description %}
+                <p>{{ item.description }}</p>
+              {% endif %}
             </div>
           </a>
         </li>
@@ -30,7 +32,9 @@
             <h2 class="usa-card__heading usagov-card__heading">{{ item.title }}</h2>
           </div>
           <div class="usa-card__body padding-top-0 usa-prose color-off-black">
-            <p>{{ item.description }}</p>
+            {% if item.description %}
+              <p>{{ item.description }}</p>
+            {% endif %}
           </div>
         </a>
       </li>
@@ -65,7 +69,9 @@
                 <h2>{{ item.title }}</h2>
               </div>
               <div class="usa-card__body homepage-card-description">
-                <p>{{ item.description }}</p>
+                {% if item.description %}
+                  <p>{{ item.description }}</p>
+                {% endif %}
               </div>
             </a>
           </li>
