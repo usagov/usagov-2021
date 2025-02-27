@@ -49,6 +49,7 @@
 /web/sites/default/*.zip
 /web/sites/default/*.tar
 /web/sites/default/*.tgz
+/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv
 
 # Ignore configuration files that may contain sensitive information
 /web/sites/*.php
@@ -112,6 +113,9 @@ web/themes/custom/usagov/img
 
 # # Ignore published-pages.csv file
 web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv
+
+# Ignore report.csv which is created by the USAGOV-2180 script
+report.csv
 
 .vscode
 .vscode/settings.json

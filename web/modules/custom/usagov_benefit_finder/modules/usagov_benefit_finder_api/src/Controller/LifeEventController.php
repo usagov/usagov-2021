@@ -6,6 +6,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\file\FileRepositoryInterface;
@@ -67,9 +68,9 @@ class LifeEventController extends ControllerBase {
   /**
    * The display data control variable.
    *
-   * @var string
+   * @var bool
    */
-  protected $displayData;
+  protected bool $displayData;
 
   /**
    * The benefit finder content mode.
@@ -85,11 +86,11 @@ class LifeEventController extends ControllerBase {
    *   The entity type manager.
    * @param \Drupal\Core\File\FileSystemInterface $file_system
    *   The file system service.
-   * @param \Drupal\file\FileRepositoryInterface|null $file_repository
+   * @param \Drupal\file\FileRepositoryInterface $file_repository
    *   The file repository.
    * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
    *   The file URL generator.
-   * @param \Drupal\Core\Database\Connection $connection
+   * @param \Drupal\Core\Database\Connection $database
    *   The database connection.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
@@ -161,7 +162,7 @@ class LifeEventController extends ControllerBase {
 
     // Write JSON data file.
     $filename = "$directory/$id.json";
-    $this->fileRepository->writeData($data, $filename, FileSystemInterface::EXISTS_REPLACE);
+    $this->fileRepository->writeData($data, $filename, FileExists::Replace);
 
     $fileUrlString = $this->fileUrlGenerator->generate($filename)->toString();
 
@@ -311,9 +312,7 @@ class LifeEventController extends ControllerBase {
 
     // Build benefits.
     foreach ($benefit_nodes as $benefit_node) {
-      if (!empty($benefit_node)) {
-        $benefits[]["benefit"] = $this->buildBenefit($benefit_node);
-      }
+      $benefits[]["benefit"] = $this->buildBenefit($benefit_node);
     }
 
     // Encode JSON data.
@@ -385,6 +384,7 @@ class LifeEventController extends ControllerBase {
       "legend" => $criteria->get('field_b_legend')->value ?? "",
       "required" => $criteria->get('field_b_required')->value ? TRUE : FALSE,
       "hint" => $criteria->get('field_b_hint')->value ?? "",
+      "errorMessage" => $criteria->get('field_b_error_message')->value ?? "",
     ];
 
     // Build inputCriteria.

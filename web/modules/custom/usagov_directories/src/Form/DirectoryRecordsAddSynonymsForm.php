@@ -28,14 +28,17 @@ class DirectoryRecordsAddSynonymsForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'directory_records_add_synonyms_form';
   }
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   * @return array<string, mixed>
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $form['description'] = [
       '#type' => 'processed_text',
       '#text' => $this->t('Submit this form to add Synonyms for records imported from Mothership. Multiple synonyms for a node maybe supplied as a single string joined with "###".'),
@@ -58,9 +61,11 @@ class DirectoryRecordsAddSynonymsForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
    */
   #[\Override]
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     $all_files = $this->getRequest()->files->get('files', []);
     $file = $all_files['synonym_file'];
     if (isset($file)) {
@@ -78,8 +83,10 @@ class DirectoryRecordsAddSynonymsForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $synonym_map = $form_state->get('synonym_map');
     $firstrow = TRUE;
     $node_count = $synonym_count = $skipped_count = 0;

@@ -6,12 +6,20 @@ valid_cidr() {
   # Parse "a.b.c.d/n" into five separate variables
   IFS="./" read -r ip1 ip2 ip3 ip4 N <<< "$CIDR"
 
-  # Convert IP address from quad notation to integer
-  local ip=$(($ip1 * 256 ** 3 + $ip2 * 256 ** 2 + $ip3 * 256 + $ip4))
+  if [ -n "$ip1" -a -n "$ip2" -a -n "$ip3" -a -n "$ip4" -a -n "$N" ]; then
+    # Convert IP address from quad notation to integer
+    local ip=$(($ip1 * 256 ** 3 + $ip2 * 256 ** 2 + $ip3 * 256 + $ip4))
 
-  # Remove upper bits and check that all $N lower bits are 0
-  if [ $(($ip % 2**(32-$N))) = 0 ]; then
-    return 0 # CIDR OK!
+    # The following exponent calculation cannot handle negative numbers - weed them out
+    if [[ $((32 - $N)) -lt 0 ]]; then
+      return 1 # CIDR NOT OK!
+    fi
+    # Remove upper bits and check that all $N lower bits are 0
+    if [ $(($ip % 2**(32-$N))) = 0 ]; then
+      return 0 # CIDR OK!
+    else
+      return 1 # CIDR NOT OK!
+    fi
   else
     return 1 # CIDR NOT OK!
   fi
@@ -35,6 +43,35 @@ valid_ip() {
   return 0
 }
 
+valid_ipv6() {
+  # Set up local variables
+  local ip=$1
+  # local IFS=.; local -a a=($ip)
+  if [[ ! $ip =~ ([a-fA-F0-9]{0,4}:){7}[a-fA-F0-9]{1,4}$ ]]; then
+    return 1
+  fi
+  return 0
+}
+
+# This will let some invalid CIDRs through, but it will catch many errors.
+valid_ipv6_cidr() {
+  local CIDR="$1"
+  # Split it on the slash (if we don't have a / it's not a CIDR)
+  IFS="/" read -r ip_parts N <<< "$CIDR"
+
+  if [[ ! $ip_parts =~ ^([a-fA-F0-9]{0,4}:){1,7}$ ]]; then
+    #Error display moved
+    #echo "${ip_parts} not valid ipv6 addr parts"
+    return 1
+  fi
+  # N should be numeric (it should also be a power of two, but we're not checking that right now)
+  if [[ $N =~ ^[0-9]+$ ]]; then
+    return 0 # CIDR OK!
+  else
+    return 1 # CIDR NOT OK!
+  fi
+}
+
 # where do we go to find the cms
 if [ -z "$CMS_PROXY" ]; then
   export CMS_PROXY="cms-usagov.apps.internal"
@@ -47,23 +84,61 @@ if [ -z "$S3_PROXY" ]; then
   export S3_PROXY="$S3_BUCKET.s3-fips.$S3_REGION.amazonaws.com"
 fi;
 
-# which ips are whitelisted
+# Encountered any bad addresses?
+BAD_ADDRESS_PRESENT=0
+
+# Count addresses checked
+IPV4_ADDRESS_COUNT=0
+IPV6_ADDRESS_COUNT=0
+
+# which ips are whitelisted - ipv4 only
 export IPS_ALLOWED=""
 if [ ! -z "$IP_ALLOWED" ]; then
    ### Some of us like to be able to add comments. Strip those out now:
-   IPS_NO_COMMENTS=$(echo "$IP_ALLOWED" | sed -r 's/^[ \t]*#.*$//g')
+   IPS_NO_COMMENTS=$(echo "$IP_ALLOWED" | sed -r 's/[ \t]*#.*$//g')
    ### discard all characters except 0-9, the period, comma and the semicolon
    ### this allows a variety of (valid) common formats to be safely used as input
    IPS=$(echo $IPS_NO_COMMENTS | sed -r 's/[^0-9.,;\/]//g' | tr ',' ';' | tr ';' ' ')
    for ip in $IPS; do
+     ((++IPV4_ADDRESS_COUNT))
      if valid_ip $ip; then
        export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
+     elif valid_cidr $ip; then
+       export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
      else
-       if valid_cidr $ip; then
-         export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
-       fi
+       echo "IP VALIDATION WARNING: Encountered invalid IPV4 address: $ip"
+       BAD_ADDRESS_PRESENT=1
      fi
    done;
+fi
+
+# which ips are whitelisted - ipv6 only
+if [ ! -z "$IPV6_ALLOWED" ]; then
+   ### Some of us like to be able to add comments. Strip those out now:
+   IPV6S_NO_COMMENTS=$(echo "$IPV6_ALLOWED" | sed -r 's/[ \t]*#.*$//g')
+   IPV6S=$(echo $IPV6S_NO_COMMENTS | sed -r 's/[^0-9A-Za-z:\/ ]//g' | tr ',' ';' | tr ';' ' ')
+   for ip in $IPV6S; do
+     ((++IPV6_ADDRESS_COUNT))
+     if valid_ipv6 $ip; then
+       export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
+     elif valid_ipv6_cidr $ip; then
+       export IPS_ALLOWED=$'\n\tallow '$ip';'"$IPS_ALLOWED";
+     else
+       echo "IP VALIDATION WARNING: Encountered invalid IPV6 address: $ip"
+       BAD_ADDRESS_PRESENT=1
+     fi
+   done;
+fi
+
+export IPS_ALLOWED
+
+IP_ADDRESS_COUNT=$((IPV4_ADDRESS_COUNT+IPV6_ADDRESS_COUNT))
+echo "INFO: $IP_ADDRESS_COUNT IP addresses checked"
+
+if [ $BAD_ADDRESS_PRESENT != 0 ]; then
+  echo "WARNING: One or more invalid IP addresses were found in IP_ALLOWED and/or IPV6_ALLOWED
+  These addresses have been removed from the allow list, and the system will continue to bootstrap normally
+  however those addresses will not be present in the allowed list, so this should be investigated ASAP."
 fi
 
 export IPS_ALLOWED_WWW="$IPS_ALLOWED"

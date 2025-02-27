@@ -237,7 +237,7 @@ submitting a pull request.
 
 [back to top](#usagov-2021)
 
-## Checking PHP dode style and syntax errors
+## Checking PHP code style and syntax errors
 PHPCodesniffer and the parallel linting tools should be installed automatically on a local environment via `composer install`. PHPCodeSniffer is used to ensure new code follows Drupal's coding standard. The parallel linter will check for PHP syntax errors. If they detect any errors, they must be fixed before a PR of changes can be accepted.
 
 The following composer scripts are aliases for running these tools.
@@ -264,8 +264,12 @@ It's defined as a dev dependency in `composer.json` and will be installed automa
 
 The following composer scripts are aliases for running PHPStan
 
-* Check for errors at the level configured in `phpstan.neon`
-  `./bin/composer phpcs-errors`:
+* Check for errors at the level configured in `phpstan.neon`:
+
+  `./bin/composer phpstan`
+
+   (optionally, supply a file or directory name starting with `web/`)
+
 
 ## Project restart/reset
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and
@@ -274,7 +278,7 @@ destroying the existing containers, networks, and volumes the procedure is the s
 ### Docker cleanup
 ```
 docker compose down
-docker system prune
+docker system prune --filter "label=com.docker.compose.project=usagov-2021"
 ```
 
 Refer to [Full Project Setup](#setting-up-the-project) section above to continue the setup.

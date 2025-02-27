@@ -3,11 +3,11 @@
 namespace Drupal\usagov_wizard;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\taxonomy\TermInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
 
 /**
  * Class MenuChecker.
@@ -59,13 +59,14 @@ class MenuChecker implements ContainerInjectionInterface {
     }
 
     return [];
-
   }
 
   /**
    * Get the values in the field_heading to determine the third breadcrumb.
+   *
+   * @return array<array{name: string, label: string, id: string}>
    */
-  public function getHeadings(EntityInterface $term) {
+  public function getHeadings(TermInterface $term): array {
     $parents = $this->getTermParents($term);
     $headings = [];
 
@@ -93,11 +94,11 @@ class MenuChecker implements ContainerInjectionInterface {
    * @param string $langcode
    *   The current language code.
    *
-   * @return array|void
+   * @return array{}|array{menu_entities: array<int, MenuLinkContent[]>, primary_entity: ?MenuLinkContent}
    *   An array containing the target term IDs and menu entities.
    */
-  public function getMenuEntities(string $langcode) {
-    if ($langcode == 'en') {
+  public function getMenuEntities(string $langcode): array {
+    if ($langcode === 'en') {
       $menu_name = 'left-menu-english';
     }
     else {
@@ -120,8 +121,11 @@ class MenuChecker implements ContainerInjectionInterface {
 
               if (isset($menu_entity->parent->value)) {
                 $primaryEntityUuid = $menu_entity->parent->value;
-                $primaryEntity = $this->entity_repository
-                  ->loadEntityByUuid('menu_link_content', explode(':', $primaryEntityUuid));
+
+                // While we're getting the entity type from the UUID here, it
+                // should always be a menu_link_content entity.
+                [$entity_type, $uuid] = explode(':', $primaryEntityUuid);
+                $primaryEntity = $this->entity_repository->loadEntityByUuid($entity_type, $uuid);
                 $menu_taxonomy_links[$tid][0] = $primaryEntity;
 
                 // Load children of the parent entity.
@@ -150,10 +154,8 @@ class MenuChecker implements ContainerInjectionInterface {
         'primary_entity' => $primaryEntity ?? NULL,
       ];
     }
-    else {
-      return [];
-    }
 
+    return [];
   }
 
 }

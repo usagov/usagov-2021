@@ -18,16 +18,19 @@ class UsaAdminController extends ControllerBase {
     private SystemManager $systemManager,
   ) {}
 
-  // Returns a page with some instructions and the same list of links as are in the menu.
-  public function mainPage() {
-
+  /**
+  * Returns a page with some instructions and the same list of links as are in the menu.
+  *
+  * @return array<string, mixed>
+  */
+  public function mainPage(): array {
     // Loosely based on Drupal\system\Controller\SystemController::overview.
     // That function assumes links will have blocks associated with them, which is not the case
     // when we have provided a URL-based link instead of a route.
     $link_id = 'usa_admin_styles.main';
     $parameters = new MenuTreeParameters();
     $parameters->setRoot($link_id)->excludeRoot()->setTopLevelOnly()->onlyEnabledLinks();
-    $tree = $this->menuLinkTree->load(NULL, $parameters);
+    $tree = $this->menuLinkTree->load('', $parameters);
     $manipulators = [
       ['callable' => 'menu.default_tree_manipulators:checkAccess'],
       ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
