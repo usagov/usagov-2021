@@ -31,10 +31,13 @@
 			<h2 class="usa-prose line-height-2">Governor</h2>
 				<ul class="usa-list usa-list--unstyled">
 					<li class="usa-list usa-list--unstyled">{{ content.field_governor }}</li>
-					<li class="usa-list usa-list--unstyled">{{ content.field_governor_contact }}</li>
+          <!-- Debug: '{{ content.field_governor_contact }}' -->
+          {% if content.field_governor_contact|trim is not empty %}
+					  <li class="usa-list usa-list--unstyled">{{ content.field_governor_contact }}</li>
+          {% endif %}
 				</ul>
-				<p class="usagov-dir-padding line-height-2">Phone:
-					{{ content.field_phone_number }}</p>
+				<div class="usagov-dir-padding line-height-2">Phone:
+					{{ content.field_phone_number }}</div>
 				{% if content.group_main_address %}
 					{% set address = content.group_main_address %}
 					<p class="usagov-dir-padding line-height-2">Main address:</p>
@@ -96,7 +99,7 @@
 
 		{% if content.field_local_governments|render and node.field_local_governments[0].title%}
 			<li class="field field--name-field-local-governments field--type-link field--label-hidden field__item line-height-2">
-				<a href="{{ node.field_local_governments[0].url }}">{{ node.field_local_governments[0].title }}</a>
+				<a href="{{ node.field_local_governments[0].url|url_encode }}">{{ node.field_local_governments[0].title }}</a>
 			</li>
 		{% endif %}
 
