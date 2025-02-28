@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e  # Exit on any error
 
-# this function is a convenient semantic wrapper around a one-liner
 service_exists()
 {
   cf service "$1" >/dev/null 2>&1
@@ -23,42 +22,12 @@ SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 # Retrieve the current targeted org and space
 ORG=$(cf target | awk '/org:/ {print $2}')
 SPACE=$(cf target | awk '/space:/ {print $2}')
+APP="api-proxy"
 
 # We will use $ORG and $SPACE to get unique host names. Sandbox space names have dots, so remove those.
 SPACE_NODOT=${SPACE//\./-}
 
-echo "✅ Deploying api-proxy..."
-
-# Function to check and create missing routes
-declare -a new_routes=()
-
-function ensure_route {
-  local domain="$1"
-  local hostname="$2"
-
-  if cf routes | grep -q "${hostname}.${domain}"; then
-    return 0  # Route already exists, no need to output anything
-  else
-    cf create-route "${domain}" --hostname "${hostname}"
-    new_routes+=("${hostname}.${domain}")
-  fi
-}
-
-# Ensure routes exist before deployment
-echo "🔄 Checking routes..."
-ensure_route "apps.internal" "api-proxy-${SPACE_NODOT}"
-if [[ "$ORG" == "gsa-tts-usagov" ]]; then
-  ensure_route "usa.gov" "api-proxy-${SPACE_NODOT}"
-else
-  ensure_route "app.cloud.gov" "api-proxy-${SPACE_NODOT}"
-fi
-
-# If any routes were created, display them in a single message
-if [[ ${#new_routes[@]} -gt 0 ]]; then
-  echo "🌐 Created routes: ${new_routes[*]}"
-else
-  echo "✅ All required routes already exist."
-fi
+echo "✅ Deploying $APP..."
 
 # Deploy key storage service
 {
@@ -73,11 +42,11 @@ fi
 # Deploy API Proxy
 echo "🚀 Deploying API Proxy..."
 NO_ROUTE="--no-route"
-if appExists api-proxy; then
+if appExists $APP; then
     NO_ROUTE=""
 fi
 
-if cf push -f .buildpack/manifest-api-proxy.yml ${NO_ROUTE}; then
+if cf push -f .buildpack/manifest-$APP.yml ${NO_ROUTE}; then
   echo "✅ API Proxy deployed successfully."
 else
   echo "❌ API Proxy deployment failed."
@@ -86,34 +55,61 @@ fi
 
 # Bind key storage service to the API Proxy
 echo "🔗 Binding Key Storage Service to API Proxy..."
-if cf bind-service api-proxy key-storage > /dev/null 2>&1; then
-  cf restart api-proxy
+if cf bind-service $APP key-storage > /dev/null 2>&1; then
+  cf restart $APP
   echo "✅ Key Storage Service bound successfully."
 else
   echo "❌ Failed to bind Key Storage Service to API Proxy."
   exit 1
 fi
 
-# Map routes to the API Proxy
-echo "🔗 Mapping routes to API Proxy..."
-if cf map-route api-proxy apps.internal --hostname "${ORG}-${SPACE_NODOT}-api-proxy" > /dev/null 2>&1 \
-   && cf map-route api-proxy app.cloud.gov --hostname "${ORG}-${SPACE_NODOT}-api-proxy" > /dev/null 2>&1; then
-  echo "✅ Routes mapped successfully."
+# Function to check and create missing routes
+declare -a new_routes=()
+
+function ensure_route {
+  local domain="$1"
+
+  if cf routes | grep -q "$APP-${SPACE_NODOT}.${domain}"; then
+    return 0  # Route already exists, no need to output anything
+  else
+    cf create-route "${domain}" --hostname "$APP-${SPACE_NODOT}"
+    cf map-route $APP "${domain}" --hostname "$APP-${SPACE_NODOT}"
+    new_routes+=("$APP-${SPACE_NODOT}.${domain}")
+  fi
+}
+
+# Ensure routes exist before deployment
+echo "🔄 Checking routes..."
+ensure_route "apps.internal"
+if [[ "$ORG" == "gsa-tts-usagov" ]]; then
+  ensure_route "usa.gov"
 else
-  echo "❌ Failed to map routes to API Proxy."
-  exit 1
+  ensure_route "app.cloud.gov"
+fi
+
+# If any routes were created, display them in a single message
+if [[ ${#new_routes[@]} -gt 0 ]]; then
+  echo "🌐 Created routes: ${new_routes[*]}"
+else
+  echo "✅ All required routes already exist."
+fi
+
+# Remove default route
+if cf routes | grep -q "^api-proxy\s"; then
+  echo "🚫 Removing default route..."
+  cf delete-route apps.internal --hostname api-proxy
 fi
 
 # Add network policies
 echo "🔒 Configuring network policies..."
-if cf add-network-policy api-proxy cms --protocol tcp --port 61443 > /dev/null 2>&1 \
-   && cf add-network-policy cms api-proxy --protocol tcp --port 61443 > /dev/null 2>&1; then
+if cf add-network-policy $APP cms --protocol tcp --port 61443 > /dev/null 2>&1 \
+   && cf add-network-policy cms $APP --protocol tcp --port 61443 > /dev/null 2>&1; then
   echo "✅ Network policies added."
 else
   echo "❌ Failed to configure network policies."
   exit 1
 fi
 
-./$SCRIPT_DIR/setup-egress-for-apps api-proxy --no-restart
+./$SCRIPT_DIR/setup-egress-for-apps $APP --no-restart
 
 echo "🎉 Deployment completed successfully!"
