@@ -59,6 +59,7 @@ def proxy_request():
 
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
+        API_DOMAIN=KEY_STORAGE[params["keyname"]]["DOMAIN"]
         API_ENDPOINT = unquote(KEY_STORAGE[params["keyname"]]["DOMAIN"] + params["endpoint"])
 
         method = request.method
@@ -73,7 +74,7 @@ def proxy_request():
         # Make the proxy extensible by loading files when the domain matches.
         filenames = next(os.walk("extensions"), (None, None, []))[2]  # [] if no file
         for filename in filenames:
-            if filename == KEY_STORAGE[params["keyname"]]["DOMAIN"].split("://")[1] + ".py":
+            if filename == API_DOMAIN.split("://")[1] + ".py":
                 logger.info("Loading extension for %s", filename)
                 exec(open("extensions/" + filename).read())
 
@@ -92,8 +93,15 @@ def proxy_request():
             logger.info("API response status: %s", response.status_code)
             return jsonify(response.json()), response.status_code
         except requests.RequestException as e:
-            logger.error("API request failed: %s", str(e))
-            return jsonify({"error": "Failed to contact API", "details": str(e)}), 500
+            error_message = str(e)
+            if API_KEY in error_message:
+                obfuscated_api_key = API_KEY[:2] + "*" * (len(API_KEY) - 4) + API_KEY[-2:]
+                error_message = error_message.replace(API_KEY, obfuscated_api_key)
+            if API_DOMAIN in error_message:
+                obfuscated_domain = API_DOMAIN[:2] + "*" * (len(API_DOMAIN) - 4) + API_DOMAIN[-2:]
+                error_message = error_message.replace(API_ENDPOINT, obfuscated_domain)
+            logger.error("API request failed: %s", error_message)
+            return jsonify({"error": "Failed to contact API", "details": error_message}), 500
     else:
         logger.error("Key by that name not found in keystore, no keys available. Rejecting request.")
         return jsonify({"error": "Key by that name not found in keystore, no keys available. Rejecting request."}), 500
