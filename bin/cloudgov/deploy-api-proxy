@@ -68,8 +68,7 @@ declare -a new_routes=()
 
 function ensure_route {
   local domain="$1"
-
-  if cf routes | grep -q "$APP-${SPACE_NODOT}.${domain}"; then
+  if cf routes | awk '{print $2, $3}' | grep -q "^$APP-${SPACE_NODOT} ${domain}$"; then
     return 0  # Route already exists, no need to output anything
   else
     cf create-route "${domain}" --hostname "$APP-${SPACE_NODOT}"
@@ -95,9 +94,9 @@ else
 fi
 
 # Remove default route
-if cf routes | grep -q "^api-proxy\s"; then
+if cf routes | awk '{print $2, $3}' | grep -q "^api-proxy app.cloud.gov$"; then
   echo "🚫 Removing default route..."
-  cf delete-route apps.internal --hostname api-proxy
+  cf delete-route app.cloud.gov --hostname api-proxy
 fi
 
 # Add network policies
@@ -110,6 +109,7 @@ else
   exit 1
 fi
 
+echo "🔗 Binding $APP to shared egress..."
 $SCRIPT_DIR/setup-egress-for-apps $APP --no-restart
 
 echo "🎉 Deployment completed successfully!"
