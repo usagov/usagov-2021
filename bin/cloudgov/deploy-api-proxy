@@ -10,7 +10,7 @@ appExists()
 {
   app=$1
   if [ -z "$app" ]; then
-    echo "ERROR: appname is required"
+    echo "ERROR: App name is required"
     exit 1
   fi
   cf app $app > /dev/null 2>&1
@@ -110,6 +110,6 @@ else
   exit 1
 fi
 
-./$SCRIPT_DIR/setup-egress-for-apps $APP --no-restart
+$SCRIPT_DIR/setup-egress-for-apps $APP --no-restart
 
 echo "🎉 Deployment completed successfully!"

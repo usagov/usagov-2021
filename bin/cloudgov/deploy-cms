@@ -114,6 +114,7 @@ function setupEgress { #appname
     echo "ERROR: appname is required"
     exit 1
   fi
+  echo "$SCRIPT_DIR/setup-egress-for-apps"
   $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
 }
 
