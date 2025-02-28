@@ -13,7 +13,7 @@
 #}
 
 {% if items|length == 1 %}
-    <p  class="phoneNumberField">{{ items[0]["content"]["#title"] }}</p>
+    <p class="phoneNumberField">{{ items[0]["content"]["#title"] }}</p>
 {% elseif items|length > 1 %}
     <ul class="usa-list">
         {% for phone_number in items %}
