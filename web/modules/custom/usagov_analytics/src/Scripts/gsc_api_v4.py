@@ -1,5 +1,4 @@
 from google.oauth2 import service_account
-from google.cloud import storage
 from googleapiclient.discovery import build
 import sys
 
@@ -8,7 +7,7 @@ project_id = "tts-usagov-mltesting"
 bucket_name = "experimenting_with_automl_storage_bucket"
 SCOPES = ['https://www.googleapis.com/auth/webmasters.readonly']
 
-credentials = service_account.Credentials.from_service_account_file(credentials_path)
+credentials = service_account.Credentials.from_service_account_file(credentials_path, scopes=SCOPES)
 
 service = build('webmasters', 'v3', credentials=credentials)
 
@@ -62,11 +61,11 @@ def set_property(lang_input_result):
 
 request = {
     'startDate': '2025-02-10',
-    'endDate': '2023-02-15',
+    'endDate': '2025-02-15',
     'dimensions': ['query'],
 }
 
 siteURL = set_property(get_language_input())
-response = service.searchanalytics().query(siteURL='https://www.usa.gov/es/', body=request).execute()
+response = service.searchanalytics().query(siteUrl=siteURL, body=request).execute()
 
 print(response)
