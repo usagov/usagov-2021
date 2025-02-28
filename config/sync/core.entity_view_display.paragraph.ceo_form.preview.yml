@@ -7,7 +7,6 @@ dependencies:
     - field.field.paragraph.ceo_form.field_ceo_button_label
     - field.field.paragraph.ceo_form.field_ceo_city_error
     - field.field.paragraph.ceo_form.field_ceo_city_label
-    - field.field.paragraph.ceo_form.field_ceo_error_alert_heading
     - field.field.paragraph.ceo_form.field_ceo_lower_html
     - field.field.paragraph.ceo_form.field_ceo_required_instr
     - field.field.paragraph.ceo_form.field_ceo_results_ref
@@ -78,7 +77,6 @@ content:
     region: content
 hidden:
   field_ceo_city_error: true
-  field_ceo_error_alert_heading: true
   field_ceo_required_instr: true
   field_ceo_results_ref: true
   field_ceo_state_error: true
