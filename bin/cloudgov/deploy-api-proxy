@@ -82,6 +82,7 @@ echo "🔄 Checking routes..."
 ensure_route "apps.internal"
 if [[ "$ORG" == "gsa-tts-usagov" ]]; then
   ensure_route "usa.gov"
+  ensure_route "app.cloud.gov" # TODO: This is temporary for testing purposes, remove for production
 else
   ensure_route "app.cloud.gov"
 fi
