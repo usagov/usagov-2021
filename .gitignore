@@ -99,6 +99,7 @@ web/themes/custom/usagov/css
 web/themes/custom/usagov/sass/uswds
 web/themes/custom/usagov/fonts
 web/themes/custom/usagov/assets/img
+
 web/themes/custom/usagov/scripts/uswds-init.min.js.map
 web/themes/custom/usagov/scripts/uswds-init.min.js
 web/themes/custom/usagov/scripts/uswds-init.js
@@ -113,6 +114,9 @@ web/themes/custom/usagov/img
 
 # # Ignore published-pages.csv file
 web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv
+
+# Ignore GSC credentials
+web/modules/custom/usagov_analytics/src/Scripts/gsc_api_secret_cred.json
 
 # Ignore report.csv which is created by the USAGOV-2180 script
 report.csv
