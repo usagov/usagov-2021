@@ -14,7 +14,7 @@ class UsaGovAnalyticsController extends ControllerBase {
    * Controller routines for USA Contact Center API routes.
    */
   public function runScript() {
-    
+
     // Check if the user is authenticated.
     $current_user = \Drupal::currentUser();
 

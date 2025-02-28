@@ -4,3 +4,4 @@ usa_admin_styles.analytics_script:
   parent: usa_admin_styles.main
   url: internal:/admin/run-python-script
   weight: 50
+  
