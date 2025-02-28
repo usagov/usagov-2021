@@ -10,15 +10,16 @@
 # The CODEOWNERS file itself should have eyes on it.
 docs/CODEOWNERS @akf @arpage
 
-# Benefits-finder tool team.
-web/modules/custom/usagov_benefit_finder/ @scottqueen-bixal @gchi25
-config/sync/*bears* @scottqueen-bixal @gchi25
-config/sync/*benefit_* @scottqueen-bixal @gchi25
-config/sync/*benefits_finder* @scottqueen-bixal @gchi25
-config/sync/core.entity_form_display.paragraph.b_* @scottqueen-bixal @gchi25
-config/sync/field.field.paragraph.b_* @scottqueen-bixal @gchi25
-config/sync/field.storage.paragraph.field_b_* @scottqueen-bixal @gchi25
-config/sync/paragraphs.paragraphs_type.b_* @scottqueen-bixal @gchi25
-.github/workflows/*benefits-finder* @scottqueen-bixal @XavierMetichecchia
+# Benefits-finder. Changes should be backported to https://github.com/GSA/px-benefit-finder
+web/modules/custom/usagov_benefit_finder/ @akf
+config/sync/*bears* @akf
+config/sync/*benefit_* @akf
+config/sync/*benefits_finder* @akf
+config/sync/core.entity_form_display.paragraph.b_* @akf
+config/sync/field.field.paragraph.b_* @akf
+config/sync/field.storage.paragraph.field_b_* @akf
+config/sync/paragraphs.paragraphs_type.b_* @akf
+
+.github/workflows/*benefits-finder* @akf
 
 
