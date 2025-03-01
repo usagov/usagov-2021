@@ -155,7 +155,7 @@ if [ -f "/etc/php83/conf.d/newrelic.ini" ]; then
   fi
 
   if [ "NoProxy" = "${PROXYROUTE:-NoProxy}" ]; then
-    # This is only expected to the the situation on local dev.
+    # This is only expected to be the situation on local dev.
     sed -i \
       -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
       -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
