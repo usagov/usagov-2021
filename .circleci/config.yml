@@ -789,7 +789,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2278
       - deploy-reporter-tools:
           filters:
             branches:
@@ -797,7 +796,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2278
           requires:
             - approve-deploy-reporter
   build-and-deploy:
