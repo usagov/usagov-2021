@@ -58,7 +58,7 @@ const usps_translations = {
 };
 
 let usps_content;
-if (usagovUSPSErrors) {
+if (typeof usagovUSPSErrors !== 'undefined') {
   usps_content = usagovUSPSErrors;
 }
 else {
@@ -407,7 +407,14 @@ async function handleFormSubmission() {
     }
 
     document.getElementById("error-box").classList.add("usa-error--alert");
-    document.getElementById("ceo-form").submit();
+
+    // myForm is used in CMS body field
+    let ceoForm = document.getElementById("ceo-form");
+    if (ceoForm == null) {
+      ceoForm = document.getElementById("myform");
+    }
+
+    ceoForm.submit();
 };
 
 window.addEventListener("load", function () {
