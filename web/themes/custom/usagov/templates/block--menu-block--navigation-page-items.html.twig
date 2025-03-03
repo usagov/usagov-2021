@@ -12,7 +12,6 @@
               <h2 class="usa-card__heading usagov-card__heading">{{ item.title }}</h2>
             </header>
             <div class="usa-card__body padding-top-0 color-off-black">
-              <!-- Debug: '{{ item.description }}' -->
               {% if item.description|trim is not empty %}
                 <p>{{ item.description }}</p>
               {% endif %}
@@ -33,7 +32,6 @@
             <h2 class="usa-card__heading usagov-card__heading">{{ item.title }}</h2>
           </div>
           <div class="usa-card__body padding-top-0 usa-prose color-off-black">
-            <!-- Debug: '{{ item.description }}' -->
             {% if item.description|trim is not empty %}
               <p>{{ item.description }}</p>
             {% endif %}
