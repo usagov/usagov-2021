@@ -98,7 +98,7 @@ def proxy_request():
                 obfuscated_api_key = API_KEY[:1] + "*" * (len(API_KEY) - 4) + API_KEY[-1:]
                 error_message = error_message.replace(API_KEY, obfuscated_api_key)
             if API_DOMAIN in error_message:
-                DOMAIN_SPLIT = API_DOMAIN.split("//")[1];
+                DOMAIN_SPLIT = API_DOMAIN.split("//")[1]
                 obfuscated_domain = DOMAIN_SPLIT[:1] + "*" * (len(DOMAIN_SPLIT) - 4) + DOMAIN_SPLIT[-1:]
                 error_message = error_message.replace(DOMAIN_SPLIT, obfuscated_domain)
             logger.error("API request failed: %s", error_message)
