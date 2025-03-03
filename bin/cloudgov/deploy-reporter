@@ -23,6 +23,14 @@ DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 APPNAME="AnalyticsReporter"
 
+
+
+
+exit 0 
+
+
+
+
 # Grab the starting space and org where the command was run
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
 startspace=$( cf target | grep space: | awk '{ print $2 }')

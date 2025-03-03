@@ -249,7 +249,9 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-reporter << pipeline.number >>
+            echo "going to cat /tmp/results/reporter_digest"
+            cat /tmp/results/reporter_digest
+            
 
   deploy-cloudgov-cron:
     parameters:
@@ -787,6 +789,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2278
       - deploy-reporter-tools:
           filters:
             branches:
@@ -794,6 +797,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2278
           requires:
             - approve-deploy-reporter
   build-and-deploy:
