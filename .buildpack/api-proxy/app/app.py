@@ -60,7 +60,7 @@ def proxy_request():
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN=KEY_STORAGE[params["keyname"]]["DOMAIN"]
-        API_ENDPOINT = unquote(KEY_STORAGE[params["keyname"]]["DOMAIN"] + params["endpoint"])
+        API_ENDPOINT = unquote(API_DOMAIN + params["endpoint"])
 
         method = request.method
         headers = {"Content-Type": "application/json"}
@@ -95,11 +95,12 @@ def proxy_request():
         except requests.RequestException as e:
             error_message = str(e)
             if API_KEY in error_message:
-                obfuscated_api_key = API_KEY[:2] + "*" * (len(API_KEY) - 4) + API_KEY[-2:]
+                obfuscated_api_key = API_KEY[:1] + "*" * (len(API_KEY) - 4) + API_KEY[-1:]
                 error_message = error_message.replace(API_KEY, obfuscated_api_key)
             if API_DOMAIN in error_message:
-                obfuscated_domain = API_DOMAIN[:2] + "*" * (len(API_DOMAIN) - 4) + API_DOMAIN[-2:]
-                error_message = error_message.replace(API_DOMAIN.split("//")[1], obfuscated_domain)
+                DOMAIN_SPLIT = API_DOMAIN.split("//")[1];
+                obfuscated_domain = DOMAIN_SPLIT[:1] + "*" * (len(DOMAIN_SPLIT) - 4) + DOMAIN_SPLIT[-1:]
+                error_message = error_message.replace(DOMAIN_SPLIT, obfuscated_domain)
             logger.error("API request failed: %s", error_message)
             return jsonify({"error": "Failed to contact API", "details": error_message}), 500
     else:
