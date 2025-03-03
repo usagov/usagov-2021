@@ -4,6 +4,30 @@ set -o pipefail
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CTAG=${1:-latest}
+RDIGEST=${2:-}
+
+
+echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-${CTAG} via digest ${RDIGEST}"
+echo "Will use the command: cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST}"
+
+
+echo "This is is a TEST, this script is now going to bail and NOT actually deploy";
+echo "This is is a TEST, this script is now going to bail and NOT actually deploy";
+echo "This is is a TEST, this script is now going to bail and NOT actually deploy";
+echo "This is is a TEST, this script is now going to bail and NOT actually deploy";
+echo "This is is a TEST, this script is now going to bail and NOT actually deploy";
+echo "This is is a TEST, this script is now going to bail and NOT actually deploy";
+echo "This is is a TEST, this script is now going to bail and NOT actually deploy";
+echo "This is is a TEST, this script is now going to bail and NOT actually deploy";
+echo "This is is a TEST, this script is now going to bail and NOT actually deploy";
+echo "This is is a TEST, this script is now going to bail and NOT actually deploy";
+
+
+exit 0 
+exit 0 
+exit 0 
+exit 0 
+
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -22,14 +46,6 @@ DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
 APPNAME="AnalyticsReporter"
-
-
-
-
-exit 0 
-
-
-
 
 # Grab the starting space and org where the command was run
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
@@ -115,9 +131,10 @@ fi
 cf create-service s3 basic-public-sandbox s3for${APPNAME}
 
 # launch the app
-echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-$CTAG"
+echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-${CTAG} via digest ${RDIGEST}"
+echo "Will use the command: cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST}"
 if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter-$CTAG
+    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST}
 else
     CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter-$CTAG --docker-username $DOCKERHUB_USERNAME
 fi
