@@ -1,0 +1,85 @@
+import globals from "globals";
+
+export default [{
+    ignores: ["**/*.min.js*", "**/uswds.js"],
+}, {
+    languageOptions: {
+        globals: {
+            ...globals.browser,
+            Drupal: true,
+            drupalSettings: true,
+            domready: true,
+            jQuery: true,
+            _: true,
+            matchMedia: true,
+            Backbone: true,
+            Modernizr: false,
+            CKEDITOR: true,
+        },
+
+        ecmaVersion: 8,
+        sourceType: "script",
+    },
+
+    rules: {
+        "block-scoped-var": 2,
+
+        "brace-style": [2, "stroustrup", {
+            allowSingleLine: true,
+        }],
+
+        "comma-style": [2, "last"],
+        eqeqeq: [2, "smart"],
+        "guard-for-in": 2,
+
+        "key-spacing": [2, {
+            beforeColon: false,
+            afterColon: true,
+        }],
+
+        "no-implied-eval": 2,
+        "no-mixed-spaces-and-tabs": 2,
+        "no-nested-ternary": 2,
+        "quote-props": 2,
+        "no-trailing-spaces": 2,
+        "no-undef": 0,
+        "no-undefined": 2,
+
+        "no-unused-vars": [2, {
+            vars: "local",
+            args: "none",
+        }],
+
+        semi: [2, "always"],
+        "keyword-spacing": [2],
+        "space-before-blocks": [2, "always"],
+        "object-curly-spacing": [2, "never"],
+        "array-bracket-spacing": [2, "never"],
+        "space-in-parens": [2, "never"],
+
+        "spaced-comment": ["error", "always", {
+            line: {
+                markers: ["/"],
+                exceptions: ["-", "+"],
+            },
+
+            block: {
+                markers: ["!"],
+                exceptions: ["*"],
+            },
+        }],
+
+        strict: 2,
+        "max-nested-callbacks": [1, 3],
+        camelcase: 0,
+        "consistent-return": 0,
+        "dot-notation": 0,
+        "new-cap": 0,
+        "no-alert": 0,
+        "no-new": 0,
+        "no-shadow": 0,
+        "no-underscore-dangle": 0,
+        "no-use-before-define": 0,
+        quotes: 0,
+    },
+}];
