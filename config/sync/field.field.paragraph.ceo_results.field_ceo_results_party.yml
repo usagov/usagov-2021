@@ -1,0 +1,19 @@
+uuid: 93b8e01f-678e-4b6c-b829-5e869af67c5c
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_results_party
+    - paragraphs.paragraphs_type.ceo_results
+id: paragraph.ceo_results.field_ceo_results_party
+field_name: field_ceo_results_party
+entity_type: paragraph
+bundle: ceo_results
+label: 'Party affiliation'
+description: "Label for the official's party affiliation."
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

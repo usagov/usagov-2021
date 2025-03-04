@@ -1,0 +1,19 @@
+uuid: 0d037e3b-ce5f-40ce-adab-6499be092862
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_local_officials_label
+    - paragraphs.paragraphs_type.ceo_results
+id: paragraph.ceo_results.field_ceo_local_officials_label
+field_name: field_ceo_local_officials_label
+entity_type: paragraph
+bundle: ceo_results
+label: 'Local officials heading'
+description: 'Bolded heading label.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

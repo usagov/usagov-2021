@@ -1,0 +1,19 @@
+uuid: 79e2e5d0-061a-496f-9fa0-09d8382a67ab
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_button_label
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_ceo_button_label
+field_name: field_ceo_button_label
+entity_type: paragraph
+bundle: ceo_form
+label: 'Button Label'
+description: 'Text for the submit button.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

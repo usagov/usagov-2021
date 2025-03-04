@@ -1,0 +1,19 @@
+uuid: 08d9451d-b0ea-4062-9e95-9c3ebde5f540
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_fed_officials_descr
+    - paragraphs.paragraphs_type.ceo_results
+id: paragraph.ceo_results.field_ceo_fed_officials_descr
+field_name: field_ceo_fed_officials_descr
+entity_type: paragraph
+bundle: ceo_results
+label: 'Federal officials description'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
