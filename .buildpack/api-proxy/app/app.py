@@ -20,25 +20,25 @@ from flask_limiter.util import get_remote_address
 app = Flask(__name__)
 limiter = Limiter(
     get_remote_address,
-    app=app,
-    default_limits=["200 per day", "50 per hour"],
-    storage_uri="memory://",
+    app = app,
+    default_limits = ["200 per day", "50 per hour"],
+    storage_uri = "memory://",
 )
 
 requests_cache.install_cache(
     'api-proxy-cache',
-    backend='filesystem',
-    use_cache_dir=False,
-    cache_control=True,
-    expire_after=86400,
-    allowable_codes=[200, 400],
-    match_headers=['Accept-Language'],
-    stale_if_error=True,
+    backend = 'filesystem',
+    use_cache_dir = False,
+    cache_control = True,
+    expire_after = 86400,
+    allowable_codes = [200, 400],
+    match_headers = ['Accept-Language'],
+    stale_if_error = True,
 )
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ def proxy_request():
 
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
-        API_DOMAIN=KEY_STORAGE[params["keyname"]]["DOMAIN"]
+        API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
         API_ENDPOINT = unquote(API_DOMAIN + params["endpoint"])
 
         method = request.method
@@ -82,14 +82,10 @@ def proxy_request():
         del params["endpoint"]
         del params["keyname"]
 
-        logger.info(
-            "Forwarding %s request to %s with params %s", method, API_ENDPOINT, params
-        )
+        logger.info("Forwarding %s request to %s with params %s", method, API_ENDPOINT, params)
 
         try:
-            response = requests.request(
-                method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10
-            )
+            response = requests.request(method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10)
             logger.info("API response status: %s", response.status_code)
             return jsonify(response.json()), response.status_code
         except requests.RequestException as e:
@@ -116,7 +112,6 @@ def handle_connect():
     )
 
 if __name__ == "__main__":
-    # port = int(os.getenv("PORT", 8080))
-    port = int(61443)
+    port = int(os.getenv("PORT", 8080))
     logger.info("Starting Flask API Proxy on port %s", port)
     app.run(host="0.0.0.0", port=port)
