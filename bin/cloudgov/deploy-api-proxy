@@ -114,11 +114,11 @@ fi
 echo "🔗 Binding $APP to shared egress..."
 $SCRIPT_DIR/setup-egress-for-apps $APP --no-restart
 
-# Set proxy route environment variable
-echo "🔧 Setting proxy route environment variables..."
-cf set-env $APP HTTPS_PROXY = $PROXYROUTE
-cf set-env $APP HTTP_PROXY = $PROXYROUTE
-cf set-env $APP https_proxy = $PROXYROUTE
-cf set-env $APP http_proxy = $PROXYROUTE
+# # Set proxy route environment variable
+# echo "🔧 Setting proxy route environment variables..."
+# cf set-env $APP HTTPS_PROXY = $PROXYROUTE
+# cf set-env $APP HTTP_PROXY = $PROXYROUTE
+# cf set-env $APP https_proxy = $PROXYROUTE
+# cf set-env $APP http_proxy = $PROXYROUTE
 
 echo "🎉 Deployment completed successfully!"
