@@ -1,0 +1,198 @@
+{{ attach_library('usagov/ceo-submission') }}
+
+{% if node.langcode.langcode == "es" %}
+    {% set translations = {
+        'select_your_state': 'Estado:',
+
+    } %}
+{% else %}
+    {% set translations = {
+        'select_your_state': 'Select your state',
+    } %}
+{% endif %}
+
+{% set results_page = elements.field_ceo_results_ref.0['#url'] %}
+<div class="usa-prose margin-top-1em">
+
+  <div
+    id="error-box"
+    class="usa-alert usa-alert--slim usa-alert--error usa-error--alert"
+    tabindex="-1">
+    <div class="usa-alert__body">
+      <h3 class="usa-alert__heading">{{ elements.field_ceo_error_alert_heading|field_value }}</h3>
+      <ul id="testing">
+        <li id="error-street" class="usa-alert__text">
+          <a href="#input-street"><span>{{ elements.field_ceo_street_error|field_value }}</span></a>
+        </li>
+        <li id="error-city" class="usa-alert__text">
+          <a href="#input-city"><span>{{ elements.field_ceo_city_error|field_value }}</span></a>
+        </li>
+        <li id="error-state" class="usa-alert__text">
+          <a href="#input-state"><span>{{ elements.field_ceo_state_error|field_value }}</span></a>
+        </li>
+        <li id="error-zip" class="usa-alert__text">
+          <a href="#input-zip"><span>{{ elements.field_ceo_zip_error|field_value }}</span></a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <form
+    class="usa-form maxw-none"
+    action="{{ results_page }}#skip-to-h1"
+    autocomplete="off"
+    name="ceo-form"
+    id="ceo-form"
+  >
+    <div class="padding-1px bg-gray-5">
+      <div class="maxw-mobile margin-x-auto margin-y-4">
+        <p>
+          <strong>{{ elements.field_ceo_required_instr|field_value }}</strong>
+        </p>
+        <div id="error-border">
+          <div>
+            <label id="myStreetAddress" class="usa-label" for="input-street">
+              {{ elements.field_ceo_street_label|field_value }}
+            </label>
+            <span id="street" class="errors"></span>
+            <input
+              class="usa-input"
+              id="input-street"
+              aria-describedby="street"
+              name="input-street"
+              type="text"
+              onkeypress="return event.keyCode != 13;"
+              required
+              oninvalid="this.setCustomValidity('{{ elements.field_ceo_street_error|field_value }}')"
+              oninput="this.setCustomValidity('')"
+            />
+          </div>
+          <div>
+            <label id="myCity" class="usa-label" for="input-city">{{ elements.field_ceo_city_label|field_value }}</label>
+            <span id="city" class="errors"></span>
+            <input
+              class="usa-input"
+              id="input-city"
+              aria-describedby="city"
+              name="input-city"
+              type="text"
+              onkeypress="return event.keyCode != 13;"
+              required
+              oninvalid="this.setCustomValidity('{{ elements.field_ceo_city_error|field_value }}')"
+              oninput="this.setCustomValidity('')" />
+          </div>
+          <div>
+            <label id="input-state-label" class="usa-label" for="input-state">
+              {{ elements.field_ceo_state_label|field_value }}
+            </label>
+            {# For the data-filter =
+            "{{ '{{' }}query}}.*| -> suggest states that start with the query
+            .*\s{{ '{{' }}query}}.*| -> suggest states that start with the query
+            .*\({{ '{{' }}query}}.*" -> suggest states with an abbreviation that matches the query #}
+            <div class="usa-combo-box" data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*|.*\({{ '{{' }}query}}.*">
+              <label class="visuallyhidden" for="input-state">
+                {{ select_your_state }}
+              </label>
+              <select
+                aria-describedby="state"
+                class="usa-select"
+                name="input-state"
+                id="input-state"
+                autocomplete="off"
+                required
+                oninvalid="this.setCustomValidity('{{ elements.field_ceo_state_error|field_value }}')"
+                oninput="this.setCustomValidity('')">
+                <option id="AL" value="AL">Alabama (AL)</option>
+                <option id="AK" value="AK">Alaska (AK) </option>
+                <option id="AZ" value="AZ">Arizona (AZ)</option>
+                <option id="AR" value="AR">Arkansas (AR)</option>
+                <option id="CA" value="CA">California (CA)</option>
+                <option id="CO" value="CO">Colorado (CO)</option>
+                <option id="CT" value="CT">Connecticut (CT)</option>
+                <option id="DE" value="DE">Delaware (DE)</option>
+                <option id="DC" value="DC">District Of Columbia (DC)</option>
+                <option id="FL" value="FL">Florida (FL)</option>
+                <option id="GA" value="GA">Georgia (GA)</option>
+                <option id="HI" value="HI">Hawaii (HI)</option>
+                <option id="ID" value="ID">Idaho (ID)</option>
+                <option id="IL" value="IL">Illinois (IL)</option>
+                <option id="IN" value="IN">Indiana (IN)</option>
+                <option id="IA" value="IA">Iowa (IA)</option>
+                <option id="KS" value="KS">Kansas (KS)</option>
+                <option id="KY" value="KY">Kentucky (KY)</option>
+                <option id="LA" value="LA">Louisiana (LA)</option>
+                <option id="ME" value="ME">Maine (ME)</option>
+                <option id="MD" value="MD">Maryland (MD)</option>
+                <option id="MA" value="MA">Massachusetts (MA)</option>
+                <option id="MI" value="MI">Michigan (MI)</option>
+                <option id="MN" value="MN">Minnesota (MN)</option>
+                <option id="MS" value="MS">Mississippi (MS)</option>
+                <option id="MO" value="MO">Missouri (MO)</option>
+                <option id="MT" value="MT">Montana (MT)</option>
+                <option id="NE" value="NE">Nebraska (NE)</option>
+                <option id="NV" value="NV">Nevada (NV)</option>
+                <option id="NH" value="NH">New Hampshire (NH)</option>
+                <option id="NJ" value="NJ">New Jersey (NJ)</option>
+                <option id="NM" value="NM">New Mexico (NM)</option>
+                <option id="NY" value="NY">New York (NY)</option>
+                <option id="NC" value="NC">North Carolina (NC)</option>
+                <option id="ND" value="ND">North Dakota (ND)</option>
+                <option id="OH" value="OH">Ohio (OH)</option>
+                <option id="OK" value="OK">Oklahoma (OK)</option>
+                <option id="OR" value="OR">Oregon (OR)</option>
+                <option id="PA" value="PA">Pennsylvania (PA)</option>
+                <option id="RI" value="RI">Rhode Island (RI)</option>
+                <option id="SC" value="SC">South Carolina (SC)</option>
+                <option id="SD" value="SD">South Dakota (SD)</option>
+                <option id="TN" value="TN">Tennessee (TN)</option>
+                <option id="TX" value="TX">Texas (TX)</option>
+                <option id="UT" value="UT">Utah (UT)</option>
+                <option id="VT" value="VT">Vermont (VT)</option>
+                <option id="VA" value="VA">Virginia (VA)</option>
+                <option id="WA" value="WA">Washington (WA)</option>
+                <option id="WV" value="WV">West Virginia (WV)</option>
+                <option id="WI" value="WI">Wisconsin (WI)</option>
+                <option id="WY" value="WY">Wyoming (WY)</option>
+              </select>
+              <span id="state" class="errors"></span>
+            </div>
+          </div>
+          <div>
+            <label id="myZIP" class="usa-label" for="input-zip">{{ elements.field_ceo_zip_label|field_value }}</label>
+            <span id="zip" class="errors"></span>
+            <input
+              class="usa-input"
+              id="input-zip"
+              aria-describedby="zip"
+              name="input-zip"
+              type="text"
+              maxlength="5"
+              onkeypress="return event.keyCode != 13;"
+              required
+              oninvalid="this.setCustomValidity('{{ elements.field_ceo_zip_error|field_value }}')"
+              oninput="this.setCustomValidity('')" />
+          </div>
+        </div>
+        {% if elements.field_ceo_lower_html %}
+        {{ elements.field_ceo_lower_html|field_value }}
+        {% endif %}
+        <div class="ceo-button-container">
+          <button
+            class="usa-button usa-button--secondary usa-button--big ceo-button"
+            type="button"
+            onclick="handleFormSubmission()"
+          >
+            {{ elements.field_ceo_button_label|field_value }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+{% if ceoUSPSErrorsJSON %}
+    <script type="text/javascript">
+      let usagovUSPSErrors = {{ ceoUSPSErrorsJSON|raw }};
+    </script>
+{% endif %}

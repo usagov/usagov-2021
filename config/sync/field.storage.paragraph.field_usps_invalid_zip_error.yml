@@ -1,0 +1,21 @@
+uuid: 0c5c18a8-7bff-4f59-bab6-6f775dfc8250
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_usps_invalid_zip_error
+field_name: field_usps_invalid_zip_error
+entity_type: paragraph
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
