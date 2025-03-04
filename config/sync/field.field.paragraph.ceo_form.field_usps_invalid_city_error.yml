@@ -1,0 +1,19 @@
+uuid: 6dd7b892-8ef8-4319-94d1-7409b67042be
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_usps_invalid_city_error
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_usps_invalid_city_error
+field_name: field_usps_invalid_city_error
+entity_type: paragraph
+bundle: ceo_form
+label: 'USPS Invalid City Error'
+description: 'Message to show when USPS responds that the submitted city was not found.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

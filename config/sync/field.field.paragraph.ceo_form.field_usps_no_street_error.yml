@@ -1,0 +1,19 @@
+uuid: e9196b92-26b4-4278-b308-b812878a7757
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_usps_no_street_error
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_usps_no_street_error
+field_name: field_usps_no_street_error
+entity_type: paragraph
+bundle: ceo_form
+label: 'USPS No Street error'
+description: 'Message displayed if USPS returns that an address was not found.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
