@@ -7,5 +7,19 @@
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
-echo "docker push $DOCKERUSER/$DOCKERREPO:reporter"
-docker push $DOCKERUSER/$DOCKERREPO:reporter
+CONTAINERTAG=${1}
+CONTAINERTAG2=${2}
+
+if [ -z "$CONTAINERTAG" ]
+then
+      echo "Must specify a container tag to push"
+      exit 1;
+fi;
+
+echo "docker push $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG"
+docker push $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG
+if [ -n "$CONTAINERTAG2" ]
+then
+    echo "docker push $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG2"
+    docker push $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG2
+fi

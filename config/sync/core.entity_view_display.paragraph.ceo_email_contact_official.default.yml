@@ -1,0 +1,21 @@
+uuid: 83fbc10a-e6c3-45d6-ba76-a91a18fbf633
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.ceo_email_contact_official.field_ceo_contact_email
+    - paragraphs.paragraphs_type.ceo_email_contact_official
+id: paragraph.ceo_email_contact_official.default
+targetEntityType: paragraph
+bundle: ceo_email_contact_official
+mode: default
+content:
+  field_ceo_contact_email:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden: {  }

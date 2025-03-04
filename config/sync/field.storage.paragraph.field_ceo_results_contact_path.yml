@@ -1,0 +1,20 @@
+uuid: 91eda0e9-5aa6-486c-98b3-9e35d38b0db2
+langcode: es
+status: true
+dependencies:
+  module:
+    - node
+    - paragraphs
+id: paragraph.field_ceo_results_contact_path
+field_name: field_ceo_results_contact_path
+entity_type: paragraph
+type: entity_reference
+settings:
+  target_type: node
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

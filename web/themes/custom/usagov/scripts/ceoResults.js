@@ -98,8 +98,10 @@ function renderResults(response, rawResponse) {
         }
     };
 
+    // Ternary to preserve how the labels work with the custom twig templates.
     // const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
-    const content = backupTranslations[ document.documentElement.lang ];
+    const content = (typeof usagovCEOlabels !== "undefined") ?
+      usagovCEOlabels : backupTranslations[document.documentElement.lang];
 
     // Get location for where to attach the rendered results
     let resultsDiv = document.getElementById("results");
@@ -277,7 +279,7 @@ function renderResults(response, rawResponse) {
                 address = address[0].line1 + "<br>" + address[0].city + ", " + address[0].state + " " + address[0].zip;
 
                 nextElem = document.createElement("li");
-            nextElem.classList.add("padding-bottom-2");
+                nextElem.classList.add("padding-bottom-2");
                 nextElem.innerHTML = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
 
                 bulletList.appendChild(nextElem);
