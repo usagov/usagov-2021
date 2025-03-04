@@ -1,0 +1,19 @@
+uuid: 81799e25-a931-45c0-bf22-e004bdca87c6
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_results_phone_number
+    - paragraphs.paragraphs_type.ceo_results
+id: paragraph.ceo_results.field_ceo_results_phone_number
+field_name: field_ceo_results_phone_number
+entity_type: paragraph
+bundle: ceo_results
+label: 'Phone number label'
+description: "Label for the official's phone number."
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,19 @@
+uuid: 0baa0f8b-f0f0-4e8a-9e21-45586a922ab6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_compose_topic_label
+    - paragraphs.paragraphs_type.ceo_compose_email_form
+id: paragraph.ceo_compose_email_form.field_ceo_compose_topic_label
+field_name: field_ceo_compose_topic_label
+entity_type: paragraph
+bundle: ceo_compose_email_form
+label: 'Topic label'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

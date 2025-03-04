@@ -301,21 +301,39 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/container-build-reporter
+            ./bin/cloudgov/container-build-reporter << pipeline.number >> latest
+            echo "docker images --no-trunc --quiet"
+            docker images --no-trunc --quiet
+            export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
+            echo RDIG is $RDIG
+      - run:
+          name: Save Image Digest Reporter
+          command: |
+            echo "docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'"
+            docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'
+            export REPORTER_DIGEST=`docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'`
+            echo "REPORTER_DIGEST is: "
+            echo $REPORTER_DIGEST
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            mkdir /tmp/results || true
+            echo "$REPORTER_DIGEST" > /tmp/results/reporter_digest
+            aws s3 cp /tmp/results/reporter_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-<< pipeline.number >>
       - run:
           name: Push Reporter Container to Docker Hub
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/container-push-reporter
+            ./bin/cloudgov/container-push-reporter << pipeline.number >> latest
       - run:
           name: Deploy Analytics Reporter
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-reporter
+            ./bin/cloudgov/deploy-reporter << pipeline.number >>
 
   deploy-cloudgov-cron:
     parameters:
