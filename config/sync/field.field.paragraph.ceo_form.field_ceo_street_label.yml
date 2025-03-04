@@ -1,0 +1,19 @@
+uuid: 43470319-c161-4aa1-957d-e073d812123a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_street_label
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_ceo_street_label
+field_name: field_ceo_street_label
+entity_type: paragraph
+bundle: ceo_form
+label: 'Street Address Label'
+description: 'Label for the "Street address" label'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
