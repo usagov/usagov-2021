@@ -16,6 +16,39 @@ global-styling:
     - core/jquery
     - core/once
 
+purify:
+  js:
+    scripts/purify.min.js:
+      minified: true
+
+google-apis:
+  js:
+    "https://apis.google.com/js/api.js":
+      type: external
+
+ceo-contact-email:
+  js:
+    scripts/contact.js: {}
+  dependencies:
+    - usagov/purify
+    - usagov/google-apis
+
+ceo-results:
+  js:
+    scripts/ceoResults.js:
+      attributes:
+        defer: true
+  dependencies:
+    - usagov/purify
+    - usagov/google-apis
+
+ceo-submission:
+  js:
+    scripts/ceoSubmission.js: {}
+    scripts/usps-credentials.js: {}
+  dependencies:
+    - usagov/purify
+
 wizard:
   js:
     scripts/wizard.js: {}
