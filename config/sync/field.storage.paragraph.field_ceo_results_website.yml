@@ -1,0 +1,21 @@
+uuid: 4ce74745-af74-4c93-a30e-f411eca25149
+langcode: es
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_ceo_results_website
+field_name: field_ceo_results_website
+entity_type: paragraph
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

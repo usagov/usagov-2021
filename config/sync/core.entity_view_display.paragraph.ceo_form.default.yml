@@ -1,0 +1,157 @@
+uuid: 2d4a60b6-6787-4d9f-8949-82a5ab50ef34
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.ceo_form.field_ceo_button_label
+    - field.field.paragraph.ceo_form.field_ceo_city_error
+    - field.field.paragraph.ceo_form.field_ceo_city_label
+    - field.field.paragraph.ceo_form.field_ceo_lower_html
+    - field.field.paragraph.ceo_form.field_ceo_required_instr
+    - field.field.paragraph.ceo_form.field_ceo_results_ref
+    - field.field.paragraph.ceo_form.field_ceo_state_error
+    - field.field.paragraph.ceo_form.field_ceo_state_label
+    - field.field.paragraph.ceo_form.field_ceo_street_error
+    - field.field.paragraph.ceo_form.field_ceo_street_label
+    - field.field.paragraph.ceo_form.field_ceo_zip_error
+    - field.field.paragraph.ceo_form.field_ceo_zip_label
+    - field.field.paragraph.ceo_form.field_usps_invalid_city_error
+    - field.field.paragraph.ceo_form.field_usps_invalid_street_error
+    - field.field.paragraph.ceo_form.field_usps_invalid_zip_error
+    - field.field.paragraph.ceo_form.field_usps_no_street_error
+    - paragraphs.paragraphs_type.ceo_form
+  module:
+    - text
+id: paragraph.ceo_form.default
+targetEntityType: paragraph
+bundle: ceo_form
+mode: default
+content:
+  field_ceo_button_label:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 8
+    region: content
+  field_ceo_city_error:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_ceo_city_label:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  field_ceo_lower_html:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 7
+    region: content
+  field_ceo_required_instr:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_ceo_results_ref:
+    type: entity_reference_label
+    label: hidden
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  field_ceo_state_error:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_ceo_state_label:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_ceo_street_error:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 9
+    region: content
+  field_ceo_street_label:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  field_ceo_zip_error:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_ceo_zip_label:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  field_usps_invalid_city_error:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 20
+    region: content
+  field_usps_invalid_street_error:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 17
+    region: content
+  field_usps_invalid_zip_error:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 19
+    region: content
+  field_usps_no_street_error:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 18
+    region: content
+hidden: {  }

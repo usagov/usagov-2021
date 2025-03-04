@@ -1,0 +1,19 @@
+uuid: 976e39bf-3eca-4e7f-836c-859c647422a4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_issue_prefix
+    - paragraphs.paragraphs_type.ceo_compose_email_form
+id: paragraph.ceo_compose_email_form.field_ceo_issue_prefix
+field_name: field_ceo_issue_prefix
+entity_type: paragraph
+bundle: ceo_compose_email_form
+label: 'Issue prefix'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

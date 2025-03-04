@@ -1,0 +1,19 @@
+uuid: e6a2900b-34fd-409a-8dff-5ce00cb490c8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_concern_prefix
+    - paragraphs.paragraphs_type.ceo_compose_email_form
+id: paragraph.ceo_compose_email_form.field_ceo_concern_prefix
+field_name: field_ceo_concern_prefix
+entity_type: paragraph
+bundle: ceo_compose_email_form
+label: 'Concern prefix'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,19 @@
+uuid: ca2e7896-b0a8-443e-9af9-9db003ce4f8e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_subject
+    - paragraphs.paragraphs_type.ceo_compose_email_form
+id: paragraph.ceo_compose_email_form.field_ceo_subject
+field_name: field_ceo_subject
+entity_type: paragraph
+bundle: ceo_compose_email_form
+label: Subject
+description: 'Used as email subject line'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
