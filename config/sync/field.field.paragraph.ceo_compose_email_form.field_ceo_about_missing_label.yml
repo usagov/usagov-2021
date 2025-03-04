@@ -1,0 +1,19 @@
+uuid: b0100a40-19a0-4cfb-a38b-5dfab7d7c585
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_about_missing_label
+    - paragraphs.paragraphs_type.ceo_compose_email_form
+id: paragraph.ceo_compose_email_form.field_ceo_about_missing_label
+field_name: field_ceo_about_missing_label
+entity_type: paragraph
+bundle: ceo_compose_email_form
+label: 'About missing label'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,24 @@
+uuid: 4d88a294-5be9-4be6-a21d-e643d2342d1c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_lower_html
+    - filter.format.uswds
+    - paragraphs.paragraphs_type.ceo_form
+  module:
+    - text
+id: paragraph.ceo_form.field_ceo_lower_html
+field_name: field_ceo_lower_html
+entity_type: paragraph
+bundle: ceo_form
+label: 'Lower Text'
+description: 'Text to display above the submit button'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - uswds
+field_type: text_long
