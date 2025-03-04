@@ -110,6 +110,7 @@ else
   exit 1
 fi
 
+# Bind shared egress group
 echo "🔗 Binding $APP to shared egress..."
 $SCRIPT_DIR/setup-egress-for-apps $APP --no-restart
 
