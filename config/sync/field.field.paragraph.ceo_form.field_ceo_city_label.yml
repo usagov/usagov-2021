@@ -1,0 +1,19 @@
+uuid: 0f320c50-cc41-4be6-aa18-b324ec2ec320
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_city_label
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_ceo_city_label
+field_name: field_ceo_city_label
+entity_type: paragraph
+bundle: ceo_form
+label: 'City Label'
+description: 'Label for the "City" field.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

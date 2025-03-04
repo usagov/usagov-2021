@@ -1,0 +1,29 @@
+uuid: 0e900753-ae91-4383-ab49-bcfe3f13a80f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_results_ref
+    - node.type.basic_page
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_ceo_results_ref
+field_name: field_ceo_results_ref
+entity_type: paragraph
+bundle: ceo_form
+label: 'Results Page'
+description: 'Page to send results when submitted.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      basic_page: basic_page
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

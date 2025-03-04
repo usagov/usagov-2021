@@ -1,0 +1,49 @@
+{{ attach_library('usagov/ceo-results') }}
+
+{# Do not hide the preview when editing a node #}
+{% set here = url('<current>')|render|render %}
+{% set mainStyle = ('/embed/preview' in here) ? '' : 'display: none;' %}
+
+{% if node.langcode.langcode == "es" %}
+  {% set translations = {
+    'loading_results': '',
+
+  } %}
+{% else %}
+  {% set translations = {
+    'loading_results': 'Loading results...',
+    'address_format': 'Street Address<br>City, State, Zip',
+  } %}
+{% endif %}
+
+<div class="ajax-progress ajax-progress-throbber usa-prose-loader">
+  <div class="throbber"></div>
+  <div class="message">{{ translations.loading_results }}</div>
+</div>
+
+<div style="{{ mainStyle }}" class="usa-prose-container">
+  <div class="usa-prose">
+    <h2 id="address-heading">{{ elements.field_ceo_address|field_value }}</h2>
+
+    <div class="border-left-1 border-gray-10 padding-left-2 margin-top-1">
+      <p style="margin-top: 0px;" id="display-address">
+        {{ translations.address_format }}
+      </p>
+
+      <p id="edit-address-link"></p>
+    </div>
+    <div id="resultsSection" class="usa-prose">
+      <h2>{{ elements.field_ceo_results_header|field_value }}</h2>
+
+      {{ elements.field_ceo_results_instructions|field_value }}
+
+      <div id="results"></div>
+    </div>
+  </div>
+</div>
+
+{% if ceoLabelsJSON %}
+<script type="text/javascript">
+  let usagovCEOlabels = {{ ceoLabelsJSON|raw }};
+</script>
+{% endif %}
