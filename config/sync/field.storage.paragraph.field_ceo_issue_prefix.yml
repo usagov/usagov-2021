@@ -1,0 +1,21 @@
+uuid: 5266c435-f342-4eeb-a295-98e8193991cb
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_ceo_issue_prefix
+field_name: field_ceo_issue_prefix
+entity_type: paragraph
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -89,6 +89,7 @@ module:
   tome_base: 0
   tome_static: 0
   toolbar: 0
+  twig_field_value: 0
   twig_tweak: 0
   update: 0
   usa_admin_styles: 0

@@ -1,0 +1,19 @@
+uuid: 32280159-5e7f-41bd-a2d3-2681446bd873
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_officials_descr
+    - paragraphs.paragraphs_type.ceo_results
+id: paragraph.ceo_results.field_ceo_officials_descr
+field_name: field_ceo_officials_descr
+entity_type: paragraph
+bundle: ceo_results
+label: 'Local officials description'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

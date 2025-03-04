@@ -1,0 +1,19 @@
+uuid: 0cdb27b1-ed4c-46fc-a4d2-1d3dcddfed7d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_usps_invalid_street_error
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_usps_invalid_street_error
+field_name: field_usps_invalid_street_error
+entity_type: paragraph
+bundle: ceo_form
+label: 'USPS Invalid Street Error'
+description: 'Error shown if the USPS responds that an address is not valid.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
