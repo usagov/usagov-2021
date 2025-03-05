@@ -17,7 +17,7 @@ default_time: '00:00:00'
 default_unpublish_enable: false
 default_unpublish_required: false
 default_unpublish_revision: false
-hide_seconds: false
+hide_seconds: true
 log: true
 time_letters: hHgGisaA
 time_only_format: 'H:i:s'

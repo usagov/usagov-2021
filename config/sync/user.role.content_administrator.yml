@@ -36,6 +36,7 @@ dependencies:
     - paragraphs_entity_embed
     - path
     - redirect
+    - scheduler
     - simple_sitemap
     - system
     - taxonomy
@@ -59,6 +60,7 @@ permissions:
   - 'administer nodes'
   - 'administer redirect settings'
   - 'administer redirects'
+  - 'administer scheduler'
   - 'administer sitemap settings'
   - 'administer taxonomy'
   - 'break content lock'
@@ -191,6 +193,9 @@ permissions:
   - 'revert term revisions in wizard'
   - 'revert wizard revisions'
   - 'revert wizard_step revisions'
+  - 'schedule publishing of media'
+  - 'schedule publishing of nodes'
+  - 'schedule publishing of taxonomy_term'
   - 'translate agency_synonym node'
   - 'translate any entity'
   - 'translate basic_page node'
@@ -223,6 +228,9 @@ permissions:
   - 'view latest version'
   - 'view own unpublished content'
   - 'view own unpublished media'
+  - 'view scheduled content'
+  - 'view scheduled media'
+  - 'view scheduled taxonomy_term'
   - 'view state_directory_record revisions'
   - 'view term revisions in wizard'
   - 'view the administration theme'

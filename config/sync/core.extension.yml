@@ -74,6 +74,7 @@ module:
   s3fs: 0
   samlauth: 0
   scheduler: 0
+  scheduler_content_moderation_integration: 0
   serialization: 0
   settings_tray: 0
   simple_sitemap: 0
