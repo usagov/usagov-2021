@@ -1,0 +1,19 @@
+uuid: e58013f8-b3df-4625-b831-18de956f76e8
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_chat_id
+    - paragraphs.paragraphs_type.online_chat_form
+id: paragraph.online_chat_form.field_chat_id
+field_name: field_chat_id
+entity_type: paragraph
+bundle: online_chat_form
+label: 'Chat ID'
+description: 'Chat service ID, looks like "123U0000000WXYZ"'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

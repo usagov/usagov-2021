@@ -1,0 +1,24 @@
+uuid: 6435ad15-0848-4c4c-a1e3-b8b20e87092a
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_chat_online
+    - filter.format.uswds
+    - paragraphs.paragraphs_type.online_chat_form
+  module:
+    - text
+id: paragraph.online_chat_form.field_chat_online
+field_name: field_chat_online
+entity_type: paragraph
+bundle: online_chat_form
+label: 'Chat Online Instructions'
+description: 'Short instructions to display above button.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - uswds
+field_type: text_long

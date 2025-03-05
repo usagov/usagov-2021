@@ -1,0 +1,61 @@
+uuid: 4363ad31-5fef-410d-b6aa-738b28dab0d2
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.online_chat_form.field_chat_button
+    - field.field.paragraph.online_chat_form.field_chat_id
+    - field.field.paragraph.online_chat_form.field_chat_offline
+    - field.field.paragraph.online_chat_form.field_chat_online
+    - field.field.paragraph.online_chat_form.field_chat_online_footer
+    - paragraphs.paragraphs_type.online_chat_form
+  module:
+    - text
+id: paragraph.online_chat_form.default
+targetEntityType: paragraph
+bundle: online_chat_form
+mode: default
+content:
+  field_chat_button:
+    type: string_textfield
+    weight: 2
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_chat_id:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_chat_offline:
+    type: text_textarea
+    weight: 3
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_chat_online:
+    type: text_textarea
+    weight: 1
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_chat_online_footer:
+    type: text_textarea
+    weight: 4
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true
