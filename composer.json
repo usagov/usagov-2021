@@ -20,6 +20,7 @@
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
         "drupal/admin_toolbar": "^3.5",
+        "drupal/ai": "^1.0",
         "drupal/allowed_formats": "^3.0",
         "drupal/autologout": "^2.0",
         "drupal/ckeditor_media_resize": "^1.0@beta",
