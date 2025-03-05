@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.storage.paragraph.field_chat_offline
+    - filter.format.uswds
     - paragraphs.paragraphs_type.online_chat_form
   module:
     - text
@@ -18,5 +19,6 @@ translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:
-  allowed_formats: {  }
+  allowed_formats:
+    - uswds
 field_type: text_long
