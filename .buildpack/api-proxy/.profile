@@ -1,5 +1,6 @@
 #!/bin/sh
 # ~/.profile: executed by Bourne-compatible login shells.
+ENABLE_ASH_BASH_COMPAT=1
 
 ### If we detect PROXYROUTE env var, then set HTTP/S Proxy vars:
 if [ -n "$PROXYROUTE" ]; then

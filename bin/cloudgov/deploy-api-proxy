@@ -112,6 +112,6 @@ fi
 
 # Bind shared egress group
 echo "🔗 Binding $APP to shared egress..."
-$SCRIPT_DIR/setup-egress-for-apps $APP --no-restart
+$SCRIPT_DIR/setup-egress-for-apps $APP
 
 echo "🎉 Deployment completed successfully!"
