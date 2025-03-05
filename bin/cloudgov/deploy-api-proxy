@@ -97,7 +97,7 @@ fi
 # Remove default route
 if cf routes | awk '{print $2, $3}' | grep -q "^api-proxy app.cloud.gov$"; then
   echo "🚫 Removing default route..."
-  cf delete-route app.cloud.gov --hostname api-proxy
+  yes '' | cf delete-route app.cloud.gov --hostname api-proxy
 fi
 
 # Add network policies
