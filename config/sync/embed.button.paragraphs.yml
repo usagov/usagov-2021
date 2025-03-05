@@ -17,6 +17,7 @@ type_settings:
     ceo_form: ceo_form
     ceo_results: ceo_results
     faq: faq
+    online_chat_form: online_chat_form
     site_issue_report_form: site_issue_report_form
     uswds_accordion: uswds_accordion
     uswds_alert: uswds_alert
