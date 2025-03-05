@@ -1,3 +1,4 @@
+#!/bin/sh
 # ~/.profile: executed by Bourne-compatible login shells.
 
 ### If we detect PROXYROUTE env var, then set HTTP/S Proxy vars:
