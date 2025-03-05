@@ -175,7 +175,12 @@
 
                 {% if node.changed.value %}
                   <p id="last-updated">{{ lang == 'en' ? 'LAST UPDATED: ' : 'ÚLTIMA ACTUALIZACIÓN: '}}
-                    {% set date = node.changed.value %}
+                    {% if (not (node.fields.field_public_modified.value is empty)) %}
+                      {# The dates template below subtracts 5 hours #}
+                      {% set date = node.fields.field_public_modified.value|date_modify("+12 hour") %}
+                    {% else %}
+                      {% set date = node.changed.value %}
+                    {% endif %}
                     {% include '@usagov/dates.html.twig' %}
                   </p>
                 {% endif %}
