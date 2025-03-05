@@ -17,6 +17,8 @@ from flask import Flask, Response, jsonify, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
+os.system('source ../.profile')
+
 app = Flask(__name__)
 limiter = Limiter(
     get_remote_address,
