@@ -6,7 +6,6 @@ dependencies:
     - field.field.paragraph.ceo_form.field_ceo_button_label
     - field.field.paragraph.ceo_form.field_ceo_city_error
     - field.field.paragraph.ceo_form.field_ceo_city_label
-    - field.field.paragraph.ceo_form.field_ceo_error_alert_heading
     - field.field.paragraph.ceo_form.field_ceo_lower_html
     - field.field.paragraph.ceo_form.field_ceo_required_instr
     - field.field.paragraph.ceo_form.field_ceo_results_ref
@@ -126,14 +125,6 @@ content:
   field_ceo_city_label:
     type: string_textfield
     weight: 4
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_ceo_error_alert_heading:
-    type: string_textfield
-    weight: 26
     region: content
     settings:
       size: 60
