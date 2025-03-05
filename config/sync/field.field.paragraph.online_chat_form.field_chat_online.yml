@@ -12,8 +12,8 @@ id: paragraph.online_chat_form.field_chat_online
 field_name: field_chat_online
 entity_type: paragraph
 bundle: online_chat_form
-label: 'Chat Online Instructions'
-description: 'Short instructions to display above button.'
+label: 'Chat online instructions'
+description: 'Short instructions to display above chat button.'
 required: true
 translatable: false
 default_value: {  }

@@ -10,7 +10,42 @@ dependencies:
     - field.field.paragraph.online_chat_form.field_chat_online_footer
     - paragraphs.paragraphs_type.online_chat_form
   module:
+    - field_group
     - text
+third_party_settings:
+  field_group:
+    group_online:
+      children:
+        - field_chat_online
+        - field_chat_button
+        - field_chat_online_footer
+      label: Online
+      region: content
+      parent_name: ''
+      weight: 1
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: ''
+        required_fields: true
+    group_offline:
+      children:
+        - field_chat_offline
+      label: Offline
+      region: content
+      parent_name: ''
+      weight: 5
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: ''
+        required_fields: true
 id: paragraph.online_chat_form.default
 targetEntityType: paragraph
 bundle: online_chat_form
@@ -18,7 +53,7 @@ mode: default
 content:
   field_chat_button:
     type: string_textfield
-    weight: 2
+    weight: 3
     region: content
     settings:
       size: 60
@@ -34,7 +69,7 @@ content:
     third_party_settings: {  }
   field_chat_offline:
     type: text_textarea
-    weight: 3
+    weight: 5
     region: content
     settings:
       rows: 5
@@ -42,7 +77,7 @@ content:
     third_party_settings: {  }
   field_chat_online:
     type: text_textarea
-    weight: 1
+    weight: 2
     region: content
     settings:
       rows: 5
