@@ -127,4 +127,8 @@ if [ -n "$PROXYROUTE" ]; then
   cf set-env $APP http_proxy $PROXYROUTE
 fi
 
+# Restart to pick up new environment variables
+echo "🔄 Restarting $APP to pick up proxy environment variables..."
+cf restart $APP
+
 echo "🎉 Deployment completed successfully!"
