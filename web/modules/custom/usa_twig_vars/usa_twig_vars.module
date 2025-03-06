@@ -449,6 +449,12 @@ function usa_twig_vars_preprocess_paragraph(&$variables): void {
       $ceoText = $labelMaker->getEmailLabels($paragraph, $lang);
       $variables['ceoTextJSON'] = usa_twig_vars_json_encode($ceoText);
       break;
+
+    case 'online_chat_form':
+      $labelMaker = new \Drupal\usa_twig_vars\Paragraphs\ChatLabels();
+      $chatLabels = $labelMaker->getLabels($paragraph, $lang);
+      $variables['chatLabels'] = $chatLabels;
+      break;
   }
 }
 

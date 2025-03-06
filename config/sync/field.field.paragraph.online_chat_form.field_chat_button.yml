@@ -10,8 +10,8 @@ field_name: field_chat_button
 entity_type: paragraph
 bundle: online_chat_form
 label: 'Chat button label'
-description: ''
-required: true
+description: 'If blank, a language-specific default value is used.'
+required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''
