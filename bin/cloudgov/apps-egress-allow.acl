@@ -18,5 +18,5 @@ googleapis.com
 accounts.google.com
 *.us-gov-pure.cloud
 gsauth-preprod.okta.com
-nasa.gov
-sam.gov
+api.nasa.gov
+api.sam.gov
