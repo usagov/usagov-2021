@@ -3,7 +3,7 @@ langcode: es
 status: true
 dependencies: {  }
 id: online_chat_button
-label: 'Online Chat Form'
+label: 'Online Chat Button'
 icon_uuid: null
 icon_default: null
 description: 'Add a live chat form to the page.'
