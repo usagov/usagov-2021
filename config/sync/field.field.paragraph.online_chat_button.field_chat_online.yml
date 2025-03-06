@@ -5,13 +5,13 @@ dependencies:
   config:
     - field.storage.paragraph.field_chat_online
     - filter.format.uswds
-    - paragraphs.paragraphs_type.online_chat_form
+    - paragraphs.paragraphs_type.online_chat_button
   module:
     - text
-id: paragraph.online_chat_form.field_chat_online
+id: paragraph.online_chat_button.field_chat_online
 field_name: field_chat_online
 entity_type: paragraph
-bundle: online_chat_form
+bundle: online_chat_button
 label: 'Chat online instructions'
 description: 'Short instructions to display above chat button.'
 required: true

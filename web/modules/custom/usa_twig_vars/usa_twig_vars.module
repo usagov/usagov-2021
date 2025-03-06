@@ -461,7 +461,7 @@ function usa_twig_vars_preprocess_paragraph(&$variables): void {
         . $variables['content']['field_sirf_results_page'][0]['#url']->toString();
       break;
 
-    case 'online_chat_form':
+    case 'online_chat_button':
       $labelMaker = new ChatLabels();
       $chatLabels = $labelMaker->getLabels($paragraph, $lang);
       $variables['chatLabels'] = $chatLabels;

@@ -5,13 +5,13 @@ dependencies:
   config:
     - field.storage.paragraph.field_chat_online_footer
     - filter.format.uswds
-    - paragraphs.paragraphs_type.online_chat_form
+    - paragraphs.paragraphs_type.online_chat_button
   module:
     - text
-id: paragraph.online_chat_form.field_chat_online_footer
+id: paragraph.online_chat_button.field_chat_online_footer
 field_name: field_chat_online_footer
 entity_type: paragraph
-bundle: online_chat_form
+bundle: online_chat_button
 label: 'Chat online footer'
 description: 'Content displayed below the chat button.'
 required: false
