@@ -1,5 +1,7 @@
 <?php
 
+use Drupal\node\Entity\Node;
+
 /**
  * Implements hook_theme().
  *
@@ -31,4 +33,42 @@ function usagov_menus_theme(array $existing, string $type, string $theme, string
       ],
     ],
   ];
+}
+
+/**
+ * @param array<string, mixed> $variables
+ */
+function usagov_menus_preprocess_usagov_menu_mobile(&$variables): void {
+
+  // USAGOV-2287: Look up the title for the 1st level breadcrumb for Directory - Spanish
+  $variables['dirRecordBreadLevel1Es'] = 'Acerca de EE. UU. y su Gobierno';
+  $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias('/acerca-de-estados-unidos');
+  if (str_starts_with($sysPath, '/node/')) {
+    $nid = str_replace('/node/', '', $sysPath);
+    $variables['dirRecordBreadLevel1Es'] = Node::load($nid)?->getTitle();
+  }
+
+  // USAGOV-2287: Look up the title for the 2nd level breadcrumb for Directory - Spanish
+  $variables['dirRecordBreadLevel2Es'] = 'Agencias federales';
+  $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias('/indice-agencias');
+  if (str_starts_with($sysPath, '/node/')) {
+    $nid = str_replace('/node/', '', $sysPath);
+    $variables['dirRecordBreadLevel2Es'] = Node::load($nid)?->getTitle();
+  }
+
+  // USAGOV-2287: Look up the title for the 1st level breadcrumb for Directory - English
+  $variables['dirRecordBreadLevel1En'] = 'About the U.S. and its government';
+  $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias('/about-the-us');
+  if (str_starts_with($sysPath, '/node/')) {
+    $nid = str_replace('/node/', '', $sysPath);
+    $variables['dirRecordBreadLevel1En'] = Node::load($nid)?->getTitle();
+  }
+
+  // USAGOV-2287: Look up the title for the 1st level breadcrumb for Directory - English
+  $variables['dirRecordBreadLevel2En'] = 'A-Z index of U.S. government departments and agencies';
+  $sysPath = \Drupal::service('path_alias.manager')->getPathByAlias('/agency-index');
+  if (str_starts_with($sysPath, '/node/')) {
+    $nid = str_replace('/node/', '', $sysPath);
+    $variables['dirRecordBreadLevel2En'] = Node::load($nid)?->getTitle();
+  }
 }

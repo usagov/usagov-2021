@@ -4,13 +4,13 @@
   {% if node.langcode.langcode == "es" %}
     {% set active_trail = [
       {
-        title: "Acerca de EE. UU. y directorios del Gobierno",
+        title: dirRecordBreadLevel1Es,
         url: "/es/acerca-de-estados-unidos",
         in_active_trail: true,
         active: false
       },
       {
-        title: "Agencias federales",
+        title: dirRecordBreadLevel2Es,
         url: "/es/indice-agencias",
         in_active_trail: true,
         active: false
@@ -19,13 +19,13 @@
   {% else %}
     {% set active_trail = [
       {
-        title: "About the U.S. and its government",
+        title: dirRecordBreadLevel1En,
         url: "/about-the-us",
         in_active_trail: true,
         active: false
       },
       {
-        title: "A-Z index of U.S. government departments and agencies",
+        title: dirRecordBreadLevel2En,
         url: "/agency-index",
         in_active_trail: true,
         active: false
