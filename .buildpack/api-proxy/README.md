@@ -4,7 +4,7 @@
 
 This project is a **Flask-based API Proxy** designed to securely **relay API requests** while **hiding API credentials** from users. It enables a **client** to send API queries via the proxy, ensuring credentials remain **server-side only**, meaning, **ONLY on the api-proxy buildpack, NOT the client, ever has credentials**.
 
-The **proxy application** intercepts API calls and appends the required API key **before forwarding requests** to the external API (e.g., `NASA.gov`). It is deployed using **Cloud Foundry** on **Cloud.gov**.
+The **proxy application** intercepts API calls and appends the required API key **before forwarding requests**--through the egress proxy--to the external API (e.g., `NASA.gov`). It is deployed using **Cloud Foundry** on **Cloud.gov**.
 
 **Sign up for an instant NASA API Key at [https://api.nasa.gov](https://api.nasa.gov), export variables like example below.**
 
@@ -15,7 +15,7 @@ The **proxy application** intercepts API calls and appends the required API key 
 │               │        │ API Proxy     │        │                 │
 │    Client     │  --->  │ (forwards)    │  --->  │ External API    │
 │  (requests)   │        │ ^             │        │ (e.g., NASA.gov)│
-│               │        │ UPS Key Store │        │                 │
+│               │        │ Key Store     │        │                 │
 └───────────────┘        └───────────────┘        └─────────────────┘
 ```
 
@@ -50,6 +50,12 @@ bin/cloudgov/deploy-api-proxy
 
 ### **3️⃣ Setup**
 
+#### 1) Egress exception
+
+For each api you wish to communicate with, you must add the domain to the egress whitelist by adding it to `bin/cloudgov/apps-egress-allow.acl`.  Be as specific as makes sense for the api; for example, for NASA's api, I added `api.nasa.gov`.
+
+#### 2) Add key to key store
+
 You **MUST** push a key to the key store on the space the api-proxy lives on with the following data for the API you wish to call:
 
 - `DOMAIN` - Base API Domain
@@ -71,30 +77,24 @@ Please try the API of your choice and report back!
 To test NASA.gov:
 
 ```bash
-curl -v "https://api-proxy.apps.internal:61443/proxy?domain=https://api.nasa.gov&endpoint=/planetary/apod&keyname=jacob_yeager"
+curl -v "https://api-proxy.app.cloud.gov/proxy?domain=https://api.nasa.gov&endpoint=/planetary/apod&keyname=jacob_yeager"
 ```
 
 This request:
 
-- Routes through `api-proxy.apps.internal`
-- Appends `API_KEY`
-- Sends the request to `NASA.gov`
+- Routes through `api-proxy.app.cloud.gov`
+- Appends `API_KEY` from key store
+- Sends the request to `api.nasa.gov`
 
 To test SAM.gov:
 
 ```bash
-cf ssh test-client
-curl -v "https://api-proxy.apps.internal:61443/proxy?domain=https://api.sam.gov&endpoint=/opportunities/v2/search&keyname=jacob_yeager&postedFrom=01/01/2024&postedTo=01/31/2024"
+curl -v "https://api-proxy.app.cloud.gov/proxy?domain=https://api.sam.gov&endpoint=/opportunities/v2/search&keyname=jacob_yeager&postedFrom=01/01/2024&postedTo=01/31/2024"
 ```
 
 This request:
 
-- Routes through `api-proxy.apps.internal`
-- Appends `API_KEY`
-- Sends the request to `SAM.gov`
-
-## 📌 Future Enhancements
-
-- [ ] **Add caching** to speed up requests
-- [ ] **Enable logging aggregation** for API requests
-- [ ] **Enable rate limiting** for API requests
+- Routes through `api-proxy.app.cloud.gov`
+- Appends `API_KEY` from key store
+- Appends extra parameters, `postedFrom=01/01/2024&postedTo=01/31/2024`
+- Sends the request to `api.sam.gov`
