@@ -1,0 +1,19 @@
+uuid: df8627f0-ebff-4098-8b57-4d1a1c68f5c1
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+    - text
+id: paragraph.field_ceo_lower_html
+field_name: field_ceo_lower_html
+entity_type: paragraph
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

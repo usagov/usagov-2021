@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -o pipefail
 
+DOCKERUSER=${DOCKERUSER:-gsatts}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+CTAG=${1:-latest}
+
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
   . /home/circleci/project/env.local
@@ -103,11 +107,11 @@ fi
 cf create-service s3 basic-public-sandbox s3for${APPNAME}
 
 # launch the app
-echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter"
+echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-$CTAG"
 if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter
+    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter-$CTAG
 else
-    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter --docker-username $DOCKERHUB_USERNAME
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter-$CTAG --docker-username $DOCKERHUB_USERNAME
 fi
 
 

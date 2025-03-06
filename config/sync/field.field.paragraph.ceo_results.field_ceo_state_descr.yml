@@ -1,0 +1,19 @@
+uuid: 6e919ee7-d6dd-470d-b1d2-dc02e75767d8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_state_descr
+    - paragraphs.paragraphs_type.ceo_results
+id: paragraph.ceo_results.field_ceo_state_descr
+field_name: field_ceo_state_descr
+entity_type: paragraph
+bundle: ceo_results
+label: 'State officials description'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
