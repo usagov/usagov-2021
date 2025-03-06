@@ -4,11 +4,11 @@ status: true
 dependencies:
   config:
     - field.storage.paragraph.field_chat_id
-    - paragraphs.paragraphs_type.online_chat_form
-id: paragraph.online_chat_form.field_chat_id
+    - paragraphs.paragraphs_type.online_chat_button
+id: paragraph.online_chat_button.field_chat_id
 field_name: field_chat_id
 entity_type: paragraph
-bundle: online_chat_form
+bundle: online_chat_button
 label: 'Chat ID'
 description: 'Chat service ID, looks like "123U0000000WXYZ"'
 required: true

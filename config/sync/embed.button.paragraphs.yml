@@ -17,8 +17,8 @@ type_settings:
     ceo_form: ceo_form
     ceo_results: ceo_results
     faq: faq
-    online_chat_form: online_chat_form
     site_issue_report_form: site_issue_report_form
+    online_chat_button: online_chat_button
     uswds_accordion: uswds_accordion
     uswds_alert: uswds_alert
     uswds_card_group_flag: uswds_card_group_flag
