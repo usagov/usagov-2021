@@ -1,0 +1,21 @@
+uuid: 60ad47e5-b23a-4690-8db8-d3c6be9c6f4d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_public_modified
+    - node.type.basic_page
+  module:
+    - datetime
+id: node.basic_page.field_public_modified
+field_name: field_public_modified
+entity_type: node
+bundle: basic_page
+label: 'Public Last Modified'
+description: 'This field is used as the "Last updated" date shown on the page. If blank, the <strong>Last Saved</strong> date captured by the CMS will be used.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime
