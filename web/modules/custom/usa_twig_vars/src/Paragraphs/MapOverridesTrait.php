@@ -4,7 +4,7 @@ namespace Drupal\usa_twig_vars\Paragraphs;
 
 use Drupal\paragraphs\Entity\Paragraph;
 
-trait mapOverridesTrait {
+trait MapOverridesTrait {
 
   /**
    * Maps the user submitted values to an array for use by the front-end
@@ -61,4 +61,5 @@ trait mapOverridesTrait {
 
     return [$key => $this->asArray($keys, $value)];
   }
+
 }

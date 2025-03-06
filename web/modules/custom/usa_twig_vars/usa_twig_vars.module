@@ -12,6 +12,7 @@ use Drupal\node\NodeInterface;
 use Drupal\path_alias\PathAliasInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
+use Drupal\usa_twig_vars\Paragraphs\ChatLabels;
 use Drupal\usa_twig_vars\Paragraphs\ElectedOfficialsLabels;
 use Drupal\usa_twig_vars\Paragraphs\SiteIssueReportLabels;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
@@ -461,7 +462,7 @@ function usa_twig_vars_preprocess_paragraph(&$variables): void {
       break;
 
     case 'online_chat_form':
-      $labelMaker = new \Drupal\usa_twig_vars\Paragraphs\ChatLabels();
+      $labelMaker = new ChatLabels();
       $chatLabels = $labelMaker->getLabels($paragraph, $lang);
       $variables['chatLabels'] = $chatLabels;
       break;
