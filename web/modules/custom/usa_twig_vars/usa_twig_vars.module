@@ -12,6 +12,8 @@ use Drupal\node\NodeInterface;
 use Drupal\path_alias\PathAliasInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
+use Drupal\usa_twig_vars\Paragraphs\ElectedOfficialsLabels;
+use Drupal\usa_twig_vars\Paragraphs\SiteIssueReportLabels;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
 /**
@@ -413,4 +415,61 @@ function usa_twig_vars_path_alias_update(PathAliasInterface $path): void {
  */
 function usa_twig_vars_node_insert(NodeInterface $node_to_check): void {
   usa_twig_vars_check_exclude_from_contact_center($node_to_check);
+}
+
+/**
+ * Implements template_preprocess_paragraph().
+ *
+ * @param array<string, mixed> $variables
+ *   An associative array containing:
+ *   - elements: An array of elements to display in view mode.
+ *   - paragraph: The paragraph object.
+ *   - view_mode: View mode; e.g., 'full', 'teaser'...
+ */
+function usa_twig_vars_preprocess_paragraph(&$variables): void {
+  /** @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $variables['paragraph'];
+  $lang = $lang_code = \Drupal::languageManager()->getCurrentLanguage();
+
+  // Get the parent bundle.
+  switch ($paragraph->getParagraphType()->id()) {
+    case 'ceo_form':
+      $labelMaker = new ElectedOfficialsLabels();
+      $uspsErrors = $labelMaker->getUspsErrors($paragraph, $lang);
+      $variables['ceoUSPSErrorsJSON'] = usa_twig_vars_json_encode($uspsErrors);
+      break;
+
+    case 'ceo_results':
+      $labelMaker = new ElectedOfficialsLabels();
+      $ceoLabels = $labelMaker->getResultsLabels($paragraph, $lang);
+      $variables['ceoLabelsJSON'] = usa_twig_vars_json_encode($ceoLabels);
+      break;
+
+    case  'ceo_compose_email_form':
+      $labelMaker = new ElectedOfficialsLabels();
+      $ceoText = $labelMaker->getEmailLabels($paragraph, $lang);
+      $variables['ceoTextJSON'] = usa_twig_vars_json_encode($ceoText);
+      break;
+
+    case 'site_issue_report_form':
+      $labelMaker = new SiteIssueReportLabels();
+      $variables['sirf'] = $labelMaker->getFormLabels($paragraph, $lang);
+
+      // Massage the results page into a full URI for sf to redirect
+      $variables['results_page_url'] = \Drupal::request()->getSchemeAndHttpHost()
+        . $variables['content']['field_sirf_results_page'][0]['#url']->toString();
+      break;
+  }
+}
+
+/**
+ * Helper for encoding JSON passed to twig for rendering.
+ *
+ * @param array<string, mixed> $payload
+ */
+function usa_twig_vars_json_encode(array $payload): string {
+  return json_encode(
+    $payload,
+    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+  );
 }

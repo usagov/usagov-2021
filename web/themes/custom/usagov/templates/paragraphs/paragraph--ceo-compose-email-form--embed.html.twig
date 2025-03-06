@@ -1,0 +1,51 @@
+{{ attach_library('usagov/ceo-contact-email') }}
+
+<form id="mailForm" class="usa-form maxw-none" onsubmit="writeMessage()" action="javascript:void(0);" autocomplete="off">
+  <div class="bg-gray-4 padding-1px">
+    <div class="maxw-mobile margin-x-auto margin-y-4">
+      <label
+        class="usa-label"
+        id="topicField"
+        for="input-topic"
+      >{{ content.field_ceo_compose_topic_label|field_value }}</label>
+      <textarea
+        class="usa-textarea width-full"
+        id="input-topic"
+        aria-labelledby="input-topic"
+        name="input-topic"
+        rows="5"
+      ></textarea>
+      <label
+        class="usa-label"
+        id="aboutField"
+        for="input-about"
+      >{{ content.field_ceo_compose_about_label|field_value }}</label>
+      <textarea
+        class="usa-textarea width-full"
+        id="input-about"
+        aria-labelledby="input-about"
+        name="input-about"
+        rows="5"
+      ></textarea>
+      <label
+        class="usa-label"
+        id="actionField"
+        for="input-action"
+      >{{ content.field_ceo_compose_action_label|field_value }}</label>
+      <textarea
+        class="usa-textarea width-full"
+        id="input-action"
+        aria-labelledby="input-action"
+        name="input-action"
+        rows="5"
+      ></textarea>
+      <button class="usa-button usagov-button">{{ content.field_ceo_button_label|field_value }}</button>
+    </div>
+  </div>
+</form>
+
+{% if (ceoTextJSON) %}
+<script type="text/javascript">
+const usagovCEOtext = {{ ceoTextJSON|raw }}
+</script>
+{% endif %}

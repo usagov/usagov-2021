@@ -24,7 +24,7 @@ const a11y_translations = {
         "clear_state": "Clear the contents of the state field."
     },
     "es": {
-        "street": "Por favor, escriba la dirección. ",
+        "street": "Por favor, escriba la dirección.",
         "city": "Por favor, escriba el nombre de la ciudad.",
         "state": "Por favor, escriba el nombre del estado.",
         "zip": "Por favor, escriba código postal.",
@@ -56,7 +56,14 @@ const usps_translations = {
         "invalid-zip": "Por favor, escriba un código postal válido de 5 dígitos."
     }
 };
-let usps_content = usps_translations[document.documentElement.lang];
+
+let usps_content;
+if (typeof usagovUSPSErrors !== 'undefined') {
+  usps_content = usagovUSPSErrors;
+}
+else {
+  usps_content = usps_translations[document.documentElement.lang];
+}
 
 // Changes state name to official postal abbreviations.
 // Note: The USPS API accepts the state name, but while testing, "Pennsylvania" returned an error in the API response.
@@ -400,7 +407,14 @@ async function handleFormSubmission() {
     }
 
     document.getElementById("error-box").classList.add("usa-error--alert");
-    document.getElementById("myform").submit();
+
+    // myForm is used in CMS body field
+    let ceoForm = document.getElementById("ceo-form");
+    if (ceoForm == null) {
+      ceoForm = document.getElementById("myform");
+    }
+
+    ceoForm.submit();
 };
 
 window.addEventListener("load", function () {
