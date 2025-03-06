@@ -1,0 +1,29 @@
+uuid: 386e07a6-31a2-4402-b2a9-96348e22dc9a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_sirf_results_page
+    - node.type.basic_page
+    - paragraphs.paragraphs_type.site_issue_report_form
+id: paragraph.site_issue_report_form.field_sirf_results_page
+field_name: field_sirf_results_page
+entity_type: paragraph
+bundle: site_issue_report_form
+label: 'Results Page'
+description: 'Choose the page to display after the form is submitted.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      basic_page: basic_page
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

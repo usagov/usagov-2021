@@ -1,0 +1,10 @@
+uuid: ad5e76e4-1fdf-4708-904b-509fb293087c
+langcode: en
+status: true
+dependencies: {  }
+id: ceo_results
+label: 'Contact Elected Officials Results'
+icon_uuid: null
+icon_default: null
+description: 'Display Contact Elected Officials results and localize.'
+behavior_plugins: {  }

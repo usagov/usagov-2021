@@ -1,0 +1,161 @@
+uuid: 0b2d5e1f-1305-43fc-a165-c7676079b2d7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_about_missing_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_action_missing_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_button_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_compose_about_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_compose_action_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_compose_topic_label
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_concern_prefix
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_idea_prefix
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_issue_prefix
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_new_window_msg
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_subject
+    - field.field.paragraph.ceo_compose_email_form.field_ceo_topic_missing_error
+    - paragraphs.paragraphs_type.ceo_compose_email_form
+  module:
+    - field_group
+third_party_settings:
+  field_group:
+    group_error_labels:
+      children:
+        - field_ceo_topic_missing_error
+        - field_ceo_about_missing_label
+        - field_ceo_action_missing_label
+      label: 'Error labels'
+      region: content
+      parent_name: ''
+      weight: 5
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: 'Messages to display if a field is empty.'
+        required_fields: true
+    group_message_prefixes:
+      children:
+        - field_ceo_subject
+        - field_ceo_issue_prefix
+        - field_ceo_concern_prefix
+        - field_ceo_idea_prefix
+      label: 'Message prefixes'
+      region: content
+      parent_name: ''
+      weight: 6
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: "Displayed before a user's submission for a field"
+        required_fields: true
+id: paragraph.ceo_compose_email_form.default
+targetEntityType: paragraph
+bundle: ceo_compose_email_form
+mode: default
+content:
+  field_ceo_about_missing_label:
+    type: string_textfield
+    weight: 6
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_action_missing_label:
+    type: string_textfield
+    weight: 7
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_button_label:
+    type: string_textfield
+    weight: 3
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_compose_about_label:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_compose_action_label:
+    type: string_textfield
+    weight: 2
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_compose_topic_label:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_concern_prefix:
+    type: string_textfield
+    weight: 12
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_idea_prefix:
+    type: string_textfield
+    weight: 13
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_issue_prefix:
+    type: string_textfield
+    weight: 11
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_new_window_msg:
+    type: string_textfield
+    weight: 4
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_subject:
+    type: string_textfield
+    weight: 10
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ceo_topic_missing_error:
+    type: string_textfield
+    weight: 5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true
