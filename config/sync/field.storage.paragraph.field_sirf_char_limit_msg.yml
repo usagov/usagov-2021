@@ -1,0 +1,21 @@
+uuid: a83cea47-d352-4d2e-a992-04d7d025f6bf
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_sirf_char_limit_msg
+field_name: field_sirf_char_limit_msg
+entity_type: paragraph
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
